@@ -41,9 +41,7 @@ const mockBridges = [
     priority: 32768,
     vlanFiltering: true,
     pvid: 100,
-    ports: [
-      { uuid: 'p4', interfaceName: 'wlan1' },
-    ],
+    ports: [{ uuid: 'p4', interfaceName: 'wlan1' }],
     ipAddresses: ['192.168.100.1/24'],
   },
   {
@@ -94,7 +92,7 @@ const baseProps = {
   setVlanFilteringFilter: () => {},
   setSelectedBridgeId: () => {},
   handleDelete: async () => {},
-  refetch: async (): Promise<ApolloQueryResult<any>> => ({} as ApolloQueryResult<any>),
+  refetch: async (): Promise<ApolloQueryResult<any>> => ({}) as ApolloQueryResult<any>,
   routerId: 'router-1',
 };
 

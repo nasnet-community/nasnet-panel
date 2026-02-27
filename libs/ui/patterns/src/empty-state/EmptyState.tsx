@@ -64,24 +64,23 @@ export const EmptyState = React.memo(function EmptyState({
     <div
       role="status"
       className={cn(
-        'flex flex-col items-center justify-center text-center py-12 sm:py-16 px-4',
+        'flex flex-col items-center justify-center px-4 py-12 text-center sm:py-16',
         className
       )}
     >
       {/* Icon */}
-      <div className="h-12 w-12 sm:h-16 sm:w-16 text-muted-foreground mb-4">
-        <Icon icon={icon} size="xl" />
+      <div className="text-muted-foreground mb-4 h-12 w-12 sm:h-16 sm:w-16">
+        <Icon
+          icon={icon}
+          size="xl"
+        />
       </div>
 
       {/* Title */}
-      <h3 className="text-lg sm:text-xl font-semibold text-foreground">
-        {title}
-      </h3>
+      <h3 className="text-foreground text-lg font-semibold sm:text-xl">{title}</h3>
 
       {/* Description */}
-      <p className="text-sm text-muted-foreground mt-2 max-w-md">
-        {description}
-      </p>
+      <p className="text-muted-foreground mt-2 max-w-md text-sm">{description}</p>
 
       {/* Action Button */}
       {action && (

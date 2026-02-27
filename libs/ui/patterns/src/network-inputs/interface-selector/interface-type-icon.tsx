@@ -9,16 +9,7 @@
 
 import { memo } from 'react';
 
-import {
-  Cable,
-  GitMerge,
-  Layers,
-  Wifi,
-  Shield,
-  ArrowRightLeft,
-  RotateCcw,
-} from 'lucide-react';
-
+import { Cable, GitMerge, Layers, Wifi, Shield, ArrowRightLeft, RotateCcw } from 'lucide-react';
 
 import { cn } from '@nasnet/ui/primitives';
 

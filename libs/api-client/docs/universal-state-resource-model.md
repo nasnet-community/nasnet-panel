@@ -1249,8 +1249,7 @@ cache entry and the hook's `updateQuery` is responsible for appending edges.
 - **`./intro.md`** — Library overview, codegen commands, import aliases
 - **`./apollo-client.md`** — Full Apollo Client setup, link chain, WebSocket client
 - **`./offline-first.md`** — Cache persistence and offline behaviour
-- **`./websocket-subscriptions.md`** — WebSocket transport details; subscription hooks
-  architecture
+- **`./websocket-subscriptions.md`** — WebSocket transport details; subscription hooks architecture
 - **`./change-set-pattern.md`** — Apply-Confirm-Merge for atomic multi-resource operations
 - **`./domain-query-hooks.md`** — Domain hooks (VPN, DHCP, firewall, etc.) that compose resource
   model hooks

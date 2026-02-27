@@ -70,7 +70,8 @@ const meta = {
     layout: 'centered',
     docs: {
       description: {
-        component: 'Mangle rule creation and editing dialog with action-specific fields and live preview.',
+        component:
+          'Mangle rule creation and editing dialog with action-specific fields and live preview.',
       },
     },
     // Enable accessibility testing
@@ -156,7 +157,8 @@ export const CreateMarkConnection: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Create a new mark-connection rule. All packets in the connection will inherit this mark.',
+        story:
+          'Create a new mark-connection rule. All packets in the connection will inherit this mark.',
       },
     },
   },
@@ -185,7 +187,8 @@ export const CreateMarkPacket: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Create a mark-packet rule. Each packet is marked individually, useful for granular QoS.',
+        story:
+          'Create a mark-packet rule. Each packet is marked individually, useful for granular QoS.',
       },
     },
   },
@@ -212,7 +215,8 @@ export const CreateMarkRouting: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Create a mark-routing rule for policy-based routing. Useful for multi-WAN and VRF scenarios.',
+        story:
+          'Create a mark-routing rule for policy-based routing. Useful for multi-WAN and VRF scenarios.',
       },
     },
   },
@@ -239,7 +243,8 @@ export const CreateChangeDscp: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Create a change-dscp rule. DSCP selector shows standard QoS classes with descriptions (EF for VoIP, AF for video, etc.).',
+        story:
+          'Create a change-dscp rule. DSCP selector shows standard QoS classes with descriptions (EF for VoIP, AF for video, etc.).',
       },
     },
   },
@@ -274,7 +279,8 @@ export const EditExisting: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Edit an existing rule. Form is pre-populated with current values. Delete button is available.',
+        story:
+          'Edit an existing rule. Form is pre-populated with current values. Delete button is available.',
       },
     },
   },
@@ -299,7 +305,8 @@ export const WithErrors: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Form with validation errors. Invalid mark name shows inline error message. Save button is disabled.',
+        story:
+          'Form with validation errors. Invalid mark name shows inline error message. Save button is disabled.',
       },
     },
   },
@@ -328,7 +335,8 @@ export const MobileVariant: Story = {
     },
     docs: {
       description: {
-        story: 'Mobile presenter with Sheet UI. Optimized for touch: 44px targets, card sections, bottom buttons.',
+        story:
+          'Mobile presenter with Sheet UI. Optimized for touch: 44px targets, card sections, bottom buttons.',
       },
     },
   },
@@ -375,7 +383,8 @@ export const DesktopVariant: Story = {
     },
     docs: {
       description: {
-        story: 'Desktop presenter with Dialog UI. Optimized for keyboard: inline layout, live preview, dense form.',
+        story:
+          'Desktop presenter with Dialog UI. Optimized for keyboard: inline layout, live preview, dense form.',
       },
     },
   },
@@ -465,7 +474,8 @@ export const ComplexRule: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Complex rule with many matchers. Preview shows human-readable description of all conditions.',
+        story:
+          'Complex rule with many matchers. Preview shows human-readable description of all conditions.',
       },
     },
   },

@@ -1,16 +1,18 @@
 # Event System
 
-> Typed, priority-based event bus built on Watermill GoChannel, connecting all backend subsystems through decoupled publish-subscribe communication.
+> Typed, priority-based event bus built on Watermill GoChannel, connecting all backend subsystems
+> through decoupled publish-subscribe communication.
 
-**Packages:** `internal/events/`
-**Key Files:** `bus.go`, `types.go`, `publisher_all.go`, `persistence_all.go`, `testing.go`, `bus_support.go`
-**Prerequisites:** [See: application-bootstrap.md §Event System Bootstrap]
+**Packages:** `internal/events/` **Key Files:** `bus.go`, `types.go`, `publisher_all.go`,
+`persistence_all.go`, `testing.go`, `bus_support.go` **Prerequisites:** [See:
+application-bootstrap.md §Event System Bootstrap]
 
 ---
 
 ## Overview
 
-The event system enables subsystems to communicate without direct coupling. Publishers emit typed events; subscribers receive and react to them. The bus is used for:
+The event system enables subsystems to communicate without direct coupling. Publishers emit typed
+events; subscribers receive and react to them. The bus is used for:
 
 - **GraphQL subscriptions** - streaming real-time updates to the frontend
 - **Alert engine** - triggering alert evaluation on relevant events
@@ -18,7 +20,9 @@ The event system enables subsystems to communicate without direct coupling. Publ
 - **Orchestrator coordination** - service state changes driving lifecycle decisions
 - **Cross-subsystem notifications** - storage, provisioning, isolation, templates
 
-The bus is backed by [Watermill](https://watermill.io/) `GoChannel` (in-process pub/sub with configurable buffer). An optional `PersistentEventBus` wrapper adds durable storage for critical events.
+The bus is backed by [Watermill](https://watermill.io/) `GoChannel` (in-process pub/sub with
+configurable buffer). An optional `PersistentEventBus` wrapper adds durable storage for critical
+events.
 
 ---
 
@@ -100,6 +104,7 @@ type BaseEvent struct {
 ```
 
 Constructor:
+
 ```go
 func NewBaseEvent(eventType string, priority Priority, source string) BaseEvent
 func NewBaseEventWithMetadata(eventType string, priority Priority, source string, metadata EventMetadata) BaseEvent
@@ -126,17 +131,19 @@ type EventMetadata struct {
 
 Five priority levels control delivery latency and batching behavior:
 
-| Constant | Level | Target Latency | Batch Window | Persisted |
-|----------|-------|----------------|--------------|-----------|
-| `PriorityImmediate` | 0 | < 100ms | 0 (no batching) | Yes |
-| `PriorityCritical` | 1 | < 1s | 100ms | Yes |
-| `PriorityNormal` | 2 | < 5s | 1s | Yes |
-| `PriorityLow` | 3 | < 30s | 5s | No |
-| `PriorityBackground` | 4 | < 60s | 30s | No |
+| Constant             | Level | Target Latency | Batch Window    | Persisted |
+| -------------------- | ----- | -------------- | --------------- | --------- |
+| `PriorityImmediate`  | 0     | < 100ms        | 0 (no batching) | Yes       |
+| `PriorityCritical`   | 1     | < 1s           | 100ms           | Yes       |
+| `PriorityNormal`     | 2     | < 5s           | 1s              | Yes       |
+| `PriorityLow`        | 3     | < 30s          | 5s              | No        |
+| `PriorityBackground` | 4     | < 60s          | 30s             | No        |
 
-**`PriorityImmediate` events bypass the queue entirely** - they are published directly and synchronously.
+**`PriorityImmediate` events bypass the queue entirely** - they are published directly and
+synchronously.
 
 Helper methods on `Priority`:
+
 ```go
 func (p Priority) TargetLatency() time.Duration
 func (p Priority) BatchWindow() time.Duration
@@ -171,6 +178,7 @@ func NewEventBus(opts EventBusOptions) (EventBus, error)
 ```
 
 Configuration:
+
 ```go
 type EventBusOptions struct {
     BufferSize         int                    // GoChannel buffer (default: 1000)
@@ -182,10 +190,12 @@ type EventBusOptions struct {
 ```
 
 **Publish routing:**
+
 - `PriorityImmediate` → `publishDirect()` (synchronous, no batching)
 - All other priorities → `priorityQueueManager.enqueue()` (batched delivery)
 
 `publishDirect()` publishes to two Watermill topics:
+
 1. The specific event type topic (e.g., `"router.status.changed"`)
 2. The `"all"` catch-all topic
 
@@ -215,9 +225,11 @@ type SubscribableEventBus interface {
 func NewSubscribableEventBus(opts EventBusOptions) (SubscribableEventBus, error)
 ```
 
-`OnResourceUpdated` automatically subscribes to all three of `ResourceCreated`, `ResourceUpdated`, and `ResourceDeleted`.
+`OnResourceUpdated` automatically subscribes to all three of `ResourceCreated`, `ResourceUpdated`,
+and `ResourceDeleted`.
 
 `ResourceFilter` allows per-router and per-resource-type filtering:
+
 ```go
 type ResourceFilter struct {
     RouterID     string
@@ -242,7 +254,8 @@ func NewPublisher(bus EventBus, source string) *Publisher
 func (p *Publisher) Publish(ctx context.Context, event Event) error
 ```
 
-The `Publisher` provides named methods for every domain event type, constructing the correct typed event and calling `bus.Publish`. Example methods:
+The `Publisher` provides named methods for every domain event type, constructing the correct typed
+event and calling `bus.Publish`. Example methods:
 
 ```go
 func (p *Publisher) PublishRouterStatusChanged(ctx context.Context, routerID string, status, previousStatus RouterStatus) error
@@ -265,6 +278,7 @@ func (p *Publisher) PublishBootSequenceStarted(ctx context.Context, instanceCoun
 ```
 
 The GraphQL resolver holds a `*Publisher` and uses it after mutations:
+
 ```go
 r.EventPublisher = events.NewPublisher(cfg.EventBus, "graphql-resolver")
 ```
@@ -283,7 +297,8 @@ Deserializes a Watermill message back into a typed event:
 func ParseEvent(msg *message.Message) (Event, error)
 ```
 
-Uses a registry map `eventFactories` (40+ entries) mapping event type strings to factory functions. Unknown types fall back to `*BaseEvent`.
+Uses a registry map `eventFactories` (40+ entries) mapping event type strings to factory functions.
+Unknown types fall back to `*BaseEvent`.
 
 #### priorityQueueManager
 
@@ -298,12 +313,14 @@ type priorityQueueManager struct {
 ```
 
 The `processPriorityQueues()` goroutine runs tickers at each priority's batch window:
+
 - Critical: 100ms ticker
 - Normal: 1s ticker
 - Low: 5s ticker
 - Background: 30s ticker
 
-On each tick, `drain()` removes all queued events for that priority and publishes them via `publishDirect()`.
+On each tick, `drain()` removes all queued events for that priority and publishes them via
+`publishDirect()`.
 
 ---
 
@@ -313,38 +330,39 @@ Events are defined across several files in `internal/events/`:
 
 #### Core Events (domain_events_core.go)
 
-| Type | Priority | Description |
-|------|----------|-------------|
-| `RouterStatusChangedEvent` | Immediate | Router connection status transitions |
-| `RouterConnectedEvent` | Normal | Router connection established |
-| `RouterDisconnectedEvent` | Normal | Router connection lost |
-| `CapabilitiesUpdatedEvent` | Normal | Router capabilities detected |
-| `ResourceUpdatedEvent` | Normal | Resource created/updated/deleted |
-| `MetricUpdatedEvent` | Background | Interface statistics update |
-| `LogAppendedEvent` | Background | Log entry appended |
-| `ConfigApplyProgressEvent` | Critical | Config apply progress update |
-| `ConfigAppliedEvent` | Normal | Config apply completed |
-| `AuthEvent` | Critical | Auth login/logout/session/password events |
-| `FeatureCrashedEvent` | Immediate | Feature process crash |
-| `FeatureInstalledEvent` | Critical | Feature successfully installed |
-| `FeatureHealthChangedEvent` | Normal | Feature health state change |
+| Type                        | Priority   | Description                               |
+| --------------------------- | ---------- | ----------------------------------------- |
+| `RouterStatusChangedEvent`  | Immediate  | Router connection status transitions      |
+| `RouterConnectedEvent`      | Normal     | Router connection established             |
+| `RouterDisconnectedEvent`   | Normal     | Router connection lost                    |
+| `CapabilitiesUpdatedEvent`  | Normal     | Router capabilities detected              |
+| `ResourceUpdatedEvent`      | Normal     | Resource created/updated/deleted          |
+| `MetricUpdatedEvent`        | Background | Interface statistics update               |
+| `LogAppendedEvent`          | Background | Log entry appended                        |
+| `ConfigApplyProgressEvent`  | Critical   | Config apply progress update              |
+| `ConfigAppliedEvent`        | Normal     | Config apply completed                    |
+| `AuthEvent`                 | Critical   | Auth login/logout/session/password events |
+| `FeatureCrashedEvent`       | Immediate  | Feature process crash                     |
+| `FeatureInstalledEvent`     | Critical   | Feature successfully installed            |
+| `FeatureHealthChangedEvent` | Normal     | Feature health state change               |
 
 #### Service Events (domain_events_service.go)
 
-| Type | Priority | Description |
-|------|----------|-------------|
-| `ServiceStateChangedEvent` | Normal/Immediate | Service state transitions; `failed`/`crashed` → Immediate |
-| `ServiceRestartedEvent` | Normal/Critical | Service restart (Critical if ≥3 crashes) |
-| `ServiceHealthEvent` | Background | Health check result |
-| `ServiceCrashedEvent` | Immediate | Unexpected service crash |
-| `ServiceInstalledEvent` | Critical | Service installed |
-| `ServiceRemovedEvent` | Critical | Service uninstalled |
-| `ServiceUpdateAvailableEvent` | Low | New version available |
-| `ServiceKillSwitchEvent` | Immediate | Emergency stop triggered |
-| `ServiceResourceWarningEvent` | Normal/Low/Critical | Resource threshold crossed |
-| `ServiceHealthFailingEvent` | Normal/Critical | Repeated health check failures |
+| Type                          | Priority            | Description                                               |
+| ----------------------------- | ------------------- | --------------------------------------------------------- |
+| `ServiceStateChangedEvent`    | Normal/Immediate    | Service state transitions; `failed`/`crashed` → Immediate |
+| `ServiceRestartedEvent`       | Normal/Critical     | Service restart (Critical if ≥3 crashes)                  |
+| `ServiceHealthEvent`          | Background          | Health check result                                       |
+| `ServiceCrashedEvent`         | Immediate           | Unexpected service crash                                  |
+| `ServiceInstalledEvent`       | Critical            | Service installed                                         |
+| `ServiceRemovedEvent`         | Critical            | Service uninstalled                                       |
+| `ServiceUpdateAvailableEvent` | Low                 | New version available                                     |
+| `ServiceKillSwitchEvent`      | Immediate           | Emergency stop triggered                                  |
+| `ServiceResourceWarningEvent` | Normal/Low/Critical | Resource threshold crossed                                |
+| `ServiceHealthFailingEvent`   | Normal/Critical     | Repeated health check failures                            |
 
 Alert severity helpers:
+
 ```go
 func GetServiceEventSeverity(eventType string) AlertSeverity
 func GetServiceEventSeverityDynamic(event Event) AlertSeverity
@@ -352,13 +370,13 @@ func GetServiceEventSeverityDynamic(event Event) AlertSeverity
 
 #### Storage Events (domain_events_service.go)
 
-| Type | Priority | Description |
-|------|----------|-------------|
-| `StorageMountedEvent` | Normal | External storage mounted |
-| `StorageUnmountedEvent` | Critical | Storage unmounted unexpectedly |
+| Type                         | Priority        | Description                     |
+| ---------------------------- | --------------- | ------------------------------- |
+| `StorageMountedEvent`        | Normal          | External storage mounted        |
+| `StorageUnmountedEvent`      | Critical        | Storage unmounted unexpectedly  |
 | `StorageSpaceThresholdEvent` | Normal/Critical | Storage usage threshold crossed |
-| `StorageConfigChangedEvent` | Normal | Storage config updated |
-| `StorageUnavailableEvent` | Immediate | Feature's storage unavailable |
+| `StorageConfigChangedEvent`  | Normal          | Storage config updated          |
+| `StorageUnavailableEvent`    | Immediate       | Feature's storage unavailable   |
 
 #### Lifecycle Events (domain_events_lifecycle.go)
 
@@ -407,7 +425,8 @@ Wraps any `EventBus` and adds optional persistence:
 func NewPersistentEventBus(bus EventBus, store EventStore) *PersistentEventBus
 ```
 
-- Publish: delegates to wrapped bus, then calls `store.PersistEvent()` asynchronously for events where `ShouldImmediatelyPersist()` returns true
+- Publish: delegates to wrapped bus, then calls `store.PersistEvent()` asynchronously for events
+  where `ShouldImmediatelyPersist()` returns true
 - `ReplayUnprocessedEvents(ctx)` - called on startup to replay missed events
 
 #### DailySync
@@ -431,6 +450,7 @@ func NewInMemoryEventBus() *InMemoryEventBus
 ```
 
 The test bus:
+
 - Stores all published events in an in-memory slice
 - Calls registered handlers synchronously
 - Supports wildcard subscriptions via `SubscribeChannel(ctx, "wan.*")`
@@ -451,13 +471,15 @@ func (b *InMemoryEventBus) Clear()
 func (b *InMemoryEventBus) SubscribeChannel(ctx context.Context, pattern string) <-chan interface{}
 ```
 
-Wildcard patterns: exact match or `"prefix.*"` (e.g., `"wan.*"` matches all events starting with `"wan."`).
+Wildcard patterns: exact match or `"prefix.*"` (e.g., `"wan.*"` matches all events starting with
+`"wan."`).
 
 ---
 
 ### internal/events/classification.go
 
-Provides `ShouldImmediatelyPersist(eventType string) bool` and `ShouldBatchPersist(eventType string) bool` to classify which event types need persistent storage.
+Provides `ShouldImmediatelyPersist(eventType string) bool` and
+`ShouldBatchPersist(eventType string) bool` to classify which event types need persistent storage.
 
 ---
 
@@ -559,6 +581,7 @@ const (
 ## Configuration
 
 `EventBusOptions`:
+
 ```go
 EventBusOptions{
     BufferSize:         1000,    // GoChannel output buffer per topic
@@ -570,6 +593,7 @@ EventBusOptions{
 ```
 
 For production with persistence:
+
 ```go
 bus, _ := events.NewEventBus(opts)
 store := events.NewMemoryEventStore(10000)

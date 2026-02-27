@@ -12,11 +12,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { getSubnetInfo } from '@nasnet/core/forms';
 import { useCheckIPConflict } from '@nasnet/api-client/queries';
 
-import {
-  ipAddressFormSchema,
-  ipAddressFormDefaults,
-  type IpAddressFormData,
-} from '../validation';
+import { ipAddressFormSchema, ipAddressFormDefaults, type IpAddressFormData } from '../validation';
 import type { IPAddressFormProps, SubnetCalculations, ConflictInfo } from './types';
 
 export function useIPAddressForm(props: IPAddressFormProps) {
@@ -99,8 +95,9 @@ export function useIPAddressForm(props: IPAddressFormProps) {
     return {
       hasConflict: conflictResult.hasConflict,
       conflictType: conflictResult.conflictType as 'exact_match' | 'subnet_overlap',
-      conflictingAddress: conflictResult.conflictingAddress
-        ? {
+      conflictingAddress:
+        conflictResult.conflictingAddress ?
+          {
             id: conflictResult.conflictingAddress.id,
             address: conflictResult.conflictingAddress.address,
             interfaceName: conflictResult.conflictingAddress.interface.name,

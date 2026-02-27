@@ -7,12 +7,7 @@
 
 import { memo } from 'react';
 
-import {
-  CheckIcon,
-  XMarkIcon,
-  TrashIcon,
-  ChevronDownIcon,
-} from '@heroicons/react/24/outline';
+import { CheckIcon, XMarkIcon, TrashIcon, ChevronDownIcon } from '@heroicons/react/24/outline';
 
 import {
   Button,
@@ -64,7 +59,7 @@ function DeviceCard({
   loading: boolean;
 }) {
   return (
-    <Card className="touch-manipulation bg-card border border-border rounded-[var(--semantic-radius-card)] shadow-[var(--semantic-shadow-card)]">
+    <Card className="bg-card border-border touch-manipulation rounded-[var(--semantic-radius-card)] border shadow-[var(--semantic-shadow-card)]">
       <CardContent className="p-component-md">
         <div className="flex items-start gap-3">
           {/* Checkbox - 44px touch target */}
@@ -81,13 +76,9 @@ function DeviceCard({
           <div className="flex-1">
             <div className="mb-2 flex items-start justify-between">
               <div>
-                <h3 className="font-medium text-foreground">
-                  {device.hostname ?? 'Unknown'}
-                </h3>
-                <p className="text-sm text-muted-foreground">
-                  {device.ipAddress ?? 'No IP'}
-                </p>
-                <p className="font-mono text-xs text-muted-foreground break-all">
+                <h3 className="text-foreground font-medium">{device.hostname ?? 'Unknown'}</h3>
+                <p className="text-muted-foreground text-sm">{device.ipAddress ?? 'No IP'}</p>
+                <p className="text-muted-foreground break-all font-mono text-xs">
                   {device.macAddress}
                 </p>
               </div>
@@ -95,23 +86,22 @@ function DeviceCard({
                 variant={device.isRouted ? 'success' : 'secondary'}
                 className="gap-1"
               >
-                {device.isRouted ? (
+                {device.isRouted ?
                   <>
                     <CheckIcon className="h-3 w-3" />
                     Routed
                   </>
-                ) : (
-                  <>
+                : <>
                     <XMarkIcon className="h-3 w-3" />
                     Unrouted
                   </>
-                )}
+                }
               </Badge>
             </div>
 
             {/* Service Assignment */}
-            {device.isRouted && routing ? (
-              <div className="mb-3 flex items-center justify-between rounded-[var(--semantic-radius-input)] border border-border bg-muted p-2">
+            {device.isRouted && routing ?
+              <div className="border-border bg-muted mb-3 flex items-center justify-between rounded-[var(--semantic-radius-input)] border p-2">
                 <span className="text-sm font-medium">{interfaceName}</span>
                 <Button
                   variant="ghost"
@@ -124,8 +114,7 @@ function DeviceCard({
                   Remove
                 </Button>
               </div>
-            ) : (
-              <Select
+            : <Select
                 value=""
                 onValueChange={onAssign}
                 disabled={availableInterfaces.length === 0 || loading}
@@ -135,18 +124,24 @@ function DeviceCard({
                 </SelectTrigger>
                 <SelectContent>
                   {availableInterfaces.map((iface: any) => (
-                    <SelectItem key={iface.id} value={iface.id}>
+                    <SelectItem
+                      key={iface.id}
+                      value={iface.id}
+                    >
                       {iface.instanceName}
                     </SelectItem>
                   ))}
                   {availableInterfaces.length === 0 && (
-                    <SelectItem value="" disabled>
+                    <SelectItem
+                      value=""
+                      disabled
+                    >
                       No services available
                     </SelectItem>
                   )}
                 </SelectContent>
               </Select>
-            )}
+            }
           </div>
         </div>
       </CardContent>
@@ -178,10 +173,10 @@ function DeviceRoutingMatrixMobileComponent(props: DeviceRoutingMatrixProps) {
     <div className={className}>
       {/* Summary Stats */}
       {showSummary && (
-        <div className="mb-4 grid grid-cols-2 gap-component-sm">
-          <Card className="bg-card border border-border rounded-[var(--semantic-radius-card)] p-3 shadow-[var(--semantic-shadow-card)]">
+        <div className="gap-component-sm mb-4 grid grid-cols-2">
+          <Card className="bg-card border-border rounded-[var(--semantic-radius-card)] border p-3 shadow-[var(--semantic-shadow-card)]">
             <CardHeader className="pb-2">
-              <CardTitle className="text-xs font-semibold text-muted-foreground">
+              <CardTitle className="text-muted-foreground text-xs font-semibold">
                 Total Devices
               </CardTitle>
             </CardHeader>
@@ -189,23 +184,19 @@ function DeviceRoutingMatrixMobileComponent(props: DeviceRoutingMatrixProps) {
               <div className="text-xl font-bold">{matrix.summary.totalDevices}</div>
             </CardContent>
           </Card>
-          <Card className="bg-card border border-border rounded-[var(--semantic-radius-card)] p-3 shadow-[var(--semantic-shadow-card)]">
+          <Card className="bg-card border-border rounded-[var(--semantic-radius-card)] border p-3 shadow-[var(--semantic-shadow-card)]">
             <CardHeader className="pb-2">
-              <CardTitle className="text-xs font-semibold text-muted-foreground">
-                Routed
-              </CardTitle>
+              <CardTitle className="text-muted-foreground text-xs font-semibold">Routed</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-xl font-bold text-success">
-                {matrix.summary.routedDevices}
-              </div>
+              <div className="text-success text-xl font-bold">{matrix.summary.routedDevices}</div>
             </CardContent>
           </Card>
         </div>
       )}
 
       {/* Search and Filter */}
-      <div className="mb-6 space-y-component-sm">
+      <div className="space-y-component-sm mb-6">
         <Input
           type="search"
           placeholder="Search devices..."
@@ -215,9 +206,7 @@ function DeviceRoutingMatrixMobileComponent(props: DeviceRoutingMatrixProps) {
         />
         <Select
           value={hook.filters.routingStatus}
-          onValueChange={(value) =>
-            hook.setRoutingStatus(value as 'all' | 'routed' | 'unrouted')
-          }
+          onValueChange={(value) => hook.setRoutingStatus(value as 'all' | 'routed' | 'unrouted')}
         >
           <SelectTrigger className="h-11">
             <SelectValue />
@@ -242,13 +231,14 @@ function DeviceRoutingMatrixMobileComponent(props: DeviceRoutingMatrixProps) {
               <ChevronDownIcon className="ml-2 h-5 w-5" />
             </Button>
           </SheetTrigger>
-          <SheetContent side="bottom" className="h-[300px]">
+          <SheetContent
+            side="bottom"
+            className="h-[300px]"
+          >
             <SheetHeader>
-              <SheetTitle>
-                Bulk Actions ({hook.selectionCount} devices)
-              </SheetTitle>
+              <SheetTitle>Bulk Actions ({hook.selectionCount} devices)</SheetTitle>
             </SheetHeader>
-            <div className="mt-4 space-y-component-sm">
+            <div className="space-y-component-sm mt-4">
               <Select
                 onValueChange={(value) => {
                   if (value) {
@@ -262,7 +252,10 @@ function DeviceRoutingMatrixMobileComponent(props: DeviceRoutingMatrixProps) {
                 </SelectTrigger>
                 <SelectContent>
                   {hook.availableInterfaces.map((iface) => (
-                    <SelectItem key={iface.id} value={iface.id}>
+                    <SelectItem
+                      key={iface.id}
+                      value={iface.id}
+                    >
                       {iface.instanceName}
                     </SelectItem>
                   ))}
@@ -282,19 +275,18 @@ function DeviceRoutingMatrixMobileComponent(props: DeviceRoutingMatrixProps) {
 
       {/* Error State */}
       {error && (
-        <div className="mb-4 rounded-[var(--semantic-radius-card)] border border-error bg-error/10 p-3 text-sm text-error">
+        <div className="border-error bg-error/10 text-error mb-4 rounded-[var(--semantic-radius-card)] border p-3 text-sm">
           {error.message}
         </div>
       )}
 
       {/* Device Cards */}
       <div className="space-y-component-sm pb-20">
-        {hook.filteredDevices.length === 0 ? (
+        {hook.filteredDevices.length === 0 ?
           <div className="flex flex-col items-center justify-center py-12 text-center">
             <p className="text-muted-foreground">{emptyMessage}</p>
           </div>
-        ) : (
-          hook.filteredDevices.map((device) => {
+        : hook.filteredDevices.map((device) => {
             const routing = hook.getDeviceRouting(device.deviceID);
             return (
               <DeviceCard
@@ -302,20 +294,16 @@ function DeviceRoutingMatrixMobileComponent(props: DeviceRoutingMatrixProps) {
                 device={device}
                 isSelected={hook.isDeviceSelected(device.deviceID)}
                 routing={routing}
-                interfaceName={
-                  routing ? hook.getInterfaceName(routing.interfaceID) : ''
-                }
+                interfaceName={routing ? hook.getInterfaceName(routing.interfaceID) : ''}
                 availableInterfaces={hook.availableInterfaces}
                 onToggleSelection={() => hook.toggleSelection(device.deviceID)}
-                onAssign={(interfaceID) =>
-                  hook.handleAssign(device.deviceID, interfaceID)
-                }
+                onAssign={(interfaceID) => hook.handleAssign(device.deviceID, interfaceID)}
                 onRemove={() => routing && hook.handleRemove(routing.id)}
                 loading={loading}
               />
             );
           })
-        )}
+        }
       </div>
     </div>
   );

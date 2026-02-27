@@ -50,11 +50,36 @@ const TYPE_MAP: Record<NotificationType, SonnerToastType> = {
  * Icons for each notification type
  */
 const TYPE_ICONS: Record<NotificationType, React.ReactNode> = {
-  success: <CheckCircle2 className="h-5 w-5 text-success" aria-hidden="true" />,
-  error: <XCircle className="h-5 w-5 text-error" aria-hidden="true" />,
-  warning: <AlertTriangle className="h-5 w-5 text-warning" aria-hidden="true" />,
-  info: <Info className="h-5 w-5 text-info" aria-hidden="true" />,
-  progress: <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" aria-hidden="true" />,
+  success: (
+    <CheckCircle2
+      className="text-success h-5 w-5"
+      aria-hidden="true"
+    />
+  ),
+  error: (
+    <XCircle
+      className="text-error h-5 w-5"
+      aria-hidden="true"
+    />
+  ),
+  warning: (
+    <AlertTriangle
+      className="text-warning h-5 w-5"
+      aria-hidden="true"
+    />
+  ),
+  info: (
+    <Info
+      className="text-info h-5 w-5"
+      aria-hidden="true"
+    />
+  ),
+  progress: (
+    <Loader2
+      className="text-muted-foreground h-5 w-5 animate-spin"
+      aria-hidden="true"
+    />
+  ),
 };
 
 /**
@@ -72,24 +97,29 @@ function ExpandableDetails({ details, id }: { details: string; id: string }) {
         onClick={() => setIsExpanded(!isExpanded)}
         aria-expanded={isExpanded}
         aria-controls={detailsId}
-        className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded"
+        className="text-muted-foreground hover:text-foreground focus:ring-ring flex items-center gap-1 rounded text-xs transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2"
       >
-        {isExpanded ? (
+        {isExpanded ?
           <>
-            <ChevronUp className="h-3 w-3" aria-hidden="true" />
+            <ChevronUp
+              className="h-3 w-3"
+              aria-hidden="true"
+            />
             Hide details
           </>
-        ) : (
-          <>
-            <ChevronDown className="h-3 w-3" aria-hidden="true" />
+        : <>
+            <ChevronDown
+              className="h-3 w-3"
+              aria-hidden="true"
+            />
             Show details
           </>
-        )}
+        }
       </button>
       {isExpanded && (
         <pre
           id={detailsId}
-          className="mt-2 text-xs bg-muted p-2 rounded-[var(--semantic-radius-input)] overflow-x-auto max-h-24 font-mono text-muted-foreground"
+          className="bg-muted text-muted-foreground mt-2 max-h-24 overflow-x-auto rounded-[var(--semantic-radius-input)] p-2 font-mono text-xs"
           tabIndex={0}
         >
           {details}
@@ -107,13 +137,13 @@ function ProgressBar({ progress }: { progress: number }) {
 
   return (
     <div className="mt-3 w-full">
-      <div className="flex justify-between text-xs text-muted-foreground mb-2">
+      <div className="text-muted-foreground mb-2 flex justify-between text-xs">
         <span>Progress</span>
         <span>{Math.round(clampedProgress)}%</span>
       </div>
-      <div className="h-2 bg-muted rounded-full overflow-hidden">
+      <div className="bg-muted h-2 overflow-hidden rounded-full">
         <div
-          className="h-full bg-primary transition-all duration-300 ease-out rounded-full"
+          className="bg-primary h-full rounded-full transition-all duration-300 ease-out"
           style={{ width: `${clampedProgress}%` }}
           role="progressbar"
           aria-valuenow={clampedProgress}
@@ -139,12 +169,15 @@ function ToastContent({
   const showProgress = type === 'progress' && typeof progress === 'number';
 
   return (
-    <div className="flex flex-col gap-1 flex-1 min-w-0" role={type === 'error' ? 'alert' : 'status'}>
+    <div
+      className="flex min-w-0 flex-1 flex-col gap-1"
+      role={type === 'error' ? 'alert' : 'status'}
+    >
       <div className="flex items-start gap-2">
-        <span className="flex-shrink-0 mt-0.5">{TYPE_ICONS[type]}</span>
-        <div className="flex-1 min-w-0">
-          <p className="font-semibold text-sm">{title}</p>
-          {message && <p className="text-sm opacity-90 mt-0.5">{message}</p>}
+        <span className="mt-0.5 flex-shrink-0">{TYPE_ICONS[type]}</span>
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-semibold">{title}</p>
+          {message && <p className="mt-0.5 text-sm opacity-90">{message}</p>}
         </div>
       </div>
 
@@ -152,19 +185,22 @@ function ToastContent({
 
       {/* Expandable details for errors */}
       {type === 'error' && notification.message && notification.message.length > 100 && (
-        <ExpandableDetails details={notification.message} id={notification.id} />
+        <ExpandableDetails
+          details={notification.message}
+          id={notification.id}
+        />
       )}
 
       {/* Action buttons */}
       {action && (
-        <div className="flex gap-2 mt-2">
+        <div className="mt-2 flex gap-2">
           <button
             type="button"
             onClick={() => {
               action.onClick();
               onDismiss();
             }}
-            className="px-3 py-1.5 text-xs font-medium bg-primary text-primary-foreground rounded-[var(--semantic-radius-button)] hover:bg-primary-hover transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+            className="bg-primary text-primary-foreground hover:bg-primary-hover focus:ring-primary rounded-[var(--semantic-radius-button)] px-3 py-1.5 text-xs font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2"
           >
             {action.label}
           </button>
@@ -265,7 +301,7 @@ export function NotificationManager() {
           ),
           {
             ...toastOptions,
-            duration: type === 'progress' ? Infinity : duration ?? undefined,
+            duration: type === 'progress' ? Infinity : (duration ?? undefined),
           }
         );
       } else {

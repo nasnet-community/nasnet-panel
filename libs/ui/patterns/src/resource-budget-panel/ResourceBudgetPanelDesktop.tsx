@@ -75,13 +75,16 @@ const SortHeader = React.memo(function SortHeader({
     >
       <div className="flex items-center gap-2">
         {children}
-        {isActive && (
-          currentDirection === 'asc' ? (
-            <ArrowUp className="h-4 w-4" aria-label="Sorted ascending" />
-          ) : (
-            <ArrowDown className="h-4 w-4" aria-label="Sorted descending" />
-          )
-        )}
+        {isActive &&
+          (currentDirection === 'asc' ?
+            <ArrowUp
+              className="h-4 w-4"
+              aria-label="Sorted ascending"
+            />
+          : <ArrowDown
+              className="h-4 w-4"
+              aria-label="Sorted descending"
+            />)}
       </div>
     </TableHead>
   );
@@ -98,12 +101,7 @@ SortHeader.displayName = 'SortHeader';
 export const ResourceBudgetPanelDesktop = React.memo(function ResourceBudgetPanelDesktop(
   props: ResourceBudgetPanelProps
 ) {
-  const {
-    showSystemTotals = true,
-    enableSorting = true,
-    onInstanceClick,
-    className,
-  } = props;
+  const { showSystemTotals = true, enableSorting = true, onInstanceClick, className } = props;
   const state = useResourceBudgetPanel(props);
 
   if (state.isLoading) {
@@ -118,9 +116,9 @@ export const ResourceBudgetPanelDesktop = React.memo(function ResourceBudgetPane
     <div className={cn('space-y-4', className)}>
       {/* System Totals */}
       {showSystemTotals && (
-        <Card className="border border-border rounded-[var(--semantic-radius-card)]">
+        <Card className="border-border rounded-[var(--semantic-radius-card)] border">
           <CardHeader>
-            <h3 className="text-lg font-semibold font-display">System Resources</h3>
+            <h3 className="font-display text-lg font-semibold">System Resources</h3>
           </CardHeader>
           <CardContent className="p-4 sm:p-6">
             <div className="grid grid-cols-2 gap-4 sm:gap-6">
@@ -138,18 +136,14 @@ export const ResourceBudgetPanelDesktop = React.memo(function ResourceBudgetPane
               </div>
               <div className="flex items-center gap-6 sm:gap-8">
                 <div className="flex flex-col">
-                  <span className="text-sm text-muted-foreground mb-1">
-                    Running
-                  </span>
-                  <span className="text-2xl font-bold text-success">
+                  <span className="text-muted-foreground mb-1 text-sm">Running</span>
+                  <span className="text-success text-2xl font-bold">
                     {state.systemTotals.runningInstances}
                   </span>
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-sm text-muted-foreground mb-1">
-                    Stopped
-                  </span>
-                  <span className="text-2xl font-bold text-muted-foreground">
+                  <span className="text-muted-foreground mb-1 text-sm">Stopped</span>
+                  <span className="text-muted-foreground text-2xl font-bold">
                     {state.systemTotals.stoppedInstances}
                   </span>
                 </div>
@@ -160,23 +154,22 @@ export const ResourceBudgetPanelDesktop = React.memo(function ResourceBudgetPane
       )}
 
       {/* Instance Table */}
-      <Card className="border border-border rounded-[var(--semantic-radius-card)]">
+      <Card className="border-border rounded-[var(--semantic-radius-card)] border">
         <CardHeader>
-          <h3 className="text-lg font-semibold font-display">
+          <h3 className="font-display text-lg font-semibold">
             Service Instances ({state.totalInstances})
           </h3>
         </CardHeader>
         <CardContent className="p-0">
-          {!state.hasInstances ? (
+          {!state.hasInstances ?
             <div className="py-12 text-center">
-              <Server className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
+              <Server className="text-muted-foreground mx-auto mb-4 h-16 w-16" />
               <p className="text-muted-foreground">{state.emptyMessage}</p>
             </div>
-          ) : (
-            <Table>
+          : <Table>
               <TableHeader>
                 <TableRow>
-                  {enableSorting ? (
+                  {enableSorting ?
                     <>
                       <SortHeader
                         column="name"
@@ -219,15 +212,14 @@ export const ResourceBudgetPanelDesktop = React.memo(function ResourceBudgetPane
                         Usage
                       </SortHeader>
                     </>
-                  ) : (
-                    <>
+                  : <>
                       <TableHead>Service Name</TableHead>
                       <TableHead>Status</TableHead>
                       <TableHead>Memory Used</TableHead>
                       <TableHead>Memory Limit</TableHead>
                       <TableHead>Usage</TableHead>
                     </>
-                  )}
+                  }
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -236,24 +228,21 @@ export const ResourceBudgetPanelDesktop = React.memo(function ResourceBudgetPane
                     key={instance.id}
                     className={cn(
                       'transition-colors',
-                      onInstanceClick &&
-                        'cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-900'
+                      onInstanceClick && 'cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-900'
                     )}
                     onClick={() => onInstanceClick?.(instance)}
                   >
                     {/* Service Name */}
                     <TableCell className="font-medium">
                       <div className="flex items-center gap-2">
-                        <Server className="h-4 w-4 text-muted-foreground" />
+                        <Server className="text-muted-foreground h-4 w-4" />
                         {instance.name}
                       </div>
                     </TableCell>
 
                     {/* Status */}
                     <TableCell>
-                      <Badge className={STATUS_COLORS[instance.status]}>
-                        {instance.status}
-                      </Badge>
+                      <Badge className={STATUS_COLORS[instance.status]}>{instance.status}</Badge>
                     </TableCell>
 
                     {/* Memory Used */}
@@ -284,7 +273,7 @@ export const ResourceBudgetPanelDesktop = React.memo(function ResourceBudgetPane
                 ))}
               </TableBody>
             </Table>
-          )}
+          }
         </CardContent>
       </Card>
     </div>

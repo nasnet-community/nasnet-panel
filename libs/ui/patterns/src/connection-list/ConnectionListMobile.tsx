@@ -60,10 +60,10 @@ interface ConnectionCardProps {
 
 function ConnectionCard({ connection, onKill, isKilling }: ConnectionCardProps) {
   return (
-    <Card className="p-4 space-y-3">
+    <Card className="space-y-3 p-4">
       {/* Header with protocol and state */}
       <div className="flex items-center justify-between">
-        <span className="uppercase text-xs font-mono font-semibold text-muted-foreground">
+        <span className="text-muted-foreground font-mono text-xs font-semibold uppercase">
           {connection.protocol}
         </span>
         <ConnectionStateBadge state={connection.state} />
@@ -96,18 +96,14 @@ function ConnectionCard({ connection, onKill, isKilling }: ConnectionCardProps) 
         </div>
 
         {/* Traffic stats */}
-        <div className="flex items-center justify-between text-sm pt-2 border-t">
+        <div className="flex items-center justify-between border-t pt-2 text-sm">
           <div className="flex flex-col">
-            <span className="text-xs text-muted-foreground">Bytes</span>
-            <span className="font-mono text-xs">
-              {formatBytes(connection.bytes)}
-            </span>
+            <span className="text-muted-foreground text-xs">Bytes</span>
+            <span className="font-mono text-xs">{formatBytes(connection.bytes)}</span>
           </div>
           <div className="flex flex-col items-end">
-            <span className="text-xs text-muted-foreground">Packets</span>
-            <span className="font-mono text-xs">
-              {connection.packets.toLocaleString()}
-            </span>
+            <span className="text-muted-foreground text-xs">Packets</span>
+            <span className="font-mono text-xs">{connection.packets.toLocaleString()}</span>
           </div>
         </div>
       </div>
@@ -116,7 +112,7 @@ function ConnectionCard({ connection, onKill, isKilling }: ConnectionCardProps) 
       {onKill && (
         <Button
           variant="outline"
-          className="w-full min-h-[44px] text-error border-error/30 hover:bg-error/10"
+          className="text-error border-error/30 hover:bg-error/10 min-h-[44px] w-full"
           onClick={onKill}
           disabled={isKilling}
           aria-label={`Kill connection from ${connection.srcAddress} to ${connection.dstAddress}`}
@@ -164,7 +160,7 @@ export function ConnectionListMobile({
   const emptyContent = React.useMemo(() => {
     if (hasActiveFilter) {
       return (
-        <div className="flex flex-col items-center justify-center h-full p-6">
+        <div className="flex h-full flex-col items-center justify-center p-6">
           <EmptyState
             icon={Filter}
             title="No matching connections"
@@ -180,7 +176,7 @@ export function ConnectionListMobile({
     }
 
     return (
-      <div className="flex flex-col items-center justify-center h-full p-6">
+      <div className="flex h-full flex-col items-center justify-center p-6">
         <EmptyState
           icon={Network}
           title="No active connections"
@@ -195,14 +191,12 @@ export function ConnectionListMobile({
       {/* Header with stats and controls */}
       <div className="flex flex-col gap-3">
         <div className="flex items-center justify-between">
-          <div className="text-sm text-muted-foreground">
-            {hasActiveFilter ? (
+          <div className="text-muted-foreground text-sm">
+            {hasActiveFilter ?
               <>
                 {filteredCount} of {totalCount} connections
               </>
-            ) : (
-              <>{totalCount} active connections</>
-            )}
+            : <>{totalCount} active connections</>}
           </div>
 
           <div className="flex items-center gap-2">
@@ -231,13 +225,13 @@ export function ConnectionListMobile({
         <Button
           variant="outline"
           onClick={() => setShowFilters(!showFilters)}
-          className="w-full min-h-[44px]"
+          className="min-h-[44px] w-full"
           aria-expanded={showFilters}
           aria-controls="mobile-filters"
         >
           {showFilters ? 'Hide' : 'Show'} Filters
           {hasActiveFilter && (
-            <span className="ml-2 px-2 py-0.5 rounded-full bg-primary text-primary-foreground text-xs">
+            <span className="bg-primary text-primary-foreground ml-2 rounded-full px-2 py-0.5 text-xs">
               Active
             </span>
           )}
@@ -246,7 +240,10 @@ export function ConnectionListMobile({
 
       {/* Collapsible Filter Bar */}
       {showFilters && (
-        <div id="mobile-filters" className="pb-2">
+        <div
+          id="mobile-filters"
+          className="pb-2"
+        >
           <ConnectionFilterBar
             filter={filter}
             onFilterChange={setFilter}
@@ -269,11 +266,7 @@ export function ConnectionListMobile({
         renderItem={({ item: connection }) => (
           <ConnectionCard
             connection={connection}
-            onKill={
-              onKillConnection
-                ? () => onKillConnection(connection)
-                : undefined
-            }
+            onKill={onKillConnection ? () => onKillConnection(connection) : undefined}
             isKilling={isKillingConnection}
           />
         )}

@@ -59,12 +59,7 @@ export const GET_IP_ADDRESS = gql`
  * Check if an IP address would conflict with existing addresses
  */
 export const CHECK_IP_CONFLICT = gql`
-  query CheckIpConflict(
-    $routerId: ID!
-    $address: String!
-    $interfaceId: ID
-    $excludeId: ID
-  ) {
+  query CheckIpConflict($routerId: ID!, $address: String!, $interfaceId: ID, $excludeId: ID) {
     checkIpConflict(
       routerId: $routerId
       address: $address

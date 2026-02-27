@@ -49,11 +49,7 @@ export type {
 } from './rhf-form-field';
 
 // Validation Progress - 7-stage validation pipeline UI
-export {
-  ValidationProgress,
-  ValidationStage,
-  useValidationProgress,
-} from './validation-progress';
+export { ValidationProgress, ValidationStage, useValidationProgress } from './validation-progress';
 export type {
   ValidationProgressProps,
   ValidationStageProps,
@@ -233,12 +229,7 @@ export { SessionExpiringDialog, useSessionExpiring } from './session-expiring-di
 export type { SessionExpiringDialogProps } from './session-expiring-dialog';
 
 // AuthProvider - Authentication context provider (NAS-4.9)
-export {
-  AuthProvider,
-  RequireAuth,
-  useAuth,
-  useAuthOptional,
-} from './auth-provider';
+export { AuthProvider, RequireAuth, useAuth, useAuthOptional } from './auth-provider';
 export type {
   AuthContextValue,
   AuthProviderProps,
@@ -310,17 +301,11 @@ export * from './empty-state';
 
 // PluginCard - Advanced plugin display with status, stats, and logs
 export { PluginCard } from './plugin-card';
-export type { 
-  PluginCardProps, 
-  Plugin, 
-  PluginStatus, 
-  PluginStats, 
-  PluginLog 
-} from './plugin-card';
+export type { PluginCardProps, Plugin, PluginStatus, PluginStats, PluginLog } from './plugin-card';
 
 // VPN Dashboard Components
-export { 
-  ProtocolIcon, 
+export {
+  ProtocolIcon,
   ProtocolIconBadge,
   getProtocolLabel,
   getProtocolColorClass,
@@ -435,11 +420,7 @@ export {
   preloadComponent,
   createLazyWithPreload,
 } from './suspense';
-export type {
-  LazyBoundaryProps,
-  SkeletonLoaderProps,
-  WithLazyBoundaryOptions,
-} from './suspense';
+export type { LazyBoundaryProps, SkeletonLoaderProps, WithLazyBoundaryOptions } from './suspense';
 
 // Hooks - Memoization and stable callback utilities
 export {
@@ -549,10 +530,7 @@ export * from './skip-links';
 export * from './live-region';
 
 // Focus Management - Focus restoration for modals/dialogs
-export {
-  useFocusRestore,
-  useFocusManagement,
-} from './hooks/use-focus-restore';
+export { useFocusRestore, useFocusManagement } from './hooks/use-focus-restore';
 export type {
   UseFocusRestoreReturn,
   UseFocusRestoreOptions,
@@ -596,10 +574,7 @@ export {
   NotificationBellMobile,
   useNotificationBell,
 } from './notification-bell';
-export type {
-  NotificationBellProps,
-  NotificationBellState,
-} from './notification-bell';
+export type { NotificationBellProps, NotificationBellState } from './notification-bell';
 
 // NotificationCenter - Alert notification center with platform presenters
 export {
@@ -1041,20 +1016,12 @@ export type {
 } from './address-list-manager';
 
 // MangleRuleEditor - Mangle rule creation and editing (NAS-7.5)
-export {
-  MangleRuleEditor,
-} from './mangle-rule-editor';
-export type {
-  MangleRuleEditorProps,
-} from './mangle-rule-editor';
+export { MangleRuleEditor } from './mangle-rule-editor';
+export type { MangleRuleEditorProps } from './mangle-rule-editor';
 
 // MangleFlowDiagram - Packet flow visualization (NAS-7.5)
-export {
-  MangleFlowDiagram,
-} from './mangle-flow-diagram';
-export type {
-  MangleFlowDiagramProps,
-} from './mangle-flow-diagram';
+export { MangleFlowDiagram } from './mangle-flow-diagram';
+export type { MangleFlowDiagramProps } from './mangle-flow-diagram';
 
 // RateLimitRuleEditor - Rate limit rule creation and editing (NAS-7.11)
 export {
@@ -1062,24 +1029,14 @@ export {
   RateLimitRuleEditorDesktop,
   RateLimitRuleEditorMobile,
 } from './rate-limit-rule-editor';
-export type {
-  RateLimitRuleEditorProps,
-  AddressListItem,
-} from './rate-limit-rule-editor';
+export type { RateLimitRuleEditorProps, AddressListItem } from './rate-limit-rule-editor';
 
 // Mangle rule table hook (NAS-7.5)
-export {
-  useMangleRuleTable,
-} from './mangle-rule-table';
-export type {
-  UseMangleRuleTableOptions,
-  UseMangleRuleTableReturn,
-} from './mangle-rule-table';
+export { useMangleRuleTable } from './mangle-rule-table';
+export type { UseMangleRuleTableOptions, UseMangleRuleTableReturn } from './mangle-rule-table';
 
 // RAW rule table hook (NAS-7.16)
-export {
-  useRawRuleTable,
-} from './use-raw-rule-table';
+export { useRawRuleTable } from './use-raw-rule-table';
 export type {
   UseRawRuleTableOptions,
   UseRawRuleTableReturn,
@@ -1169,11 +1126,7 @@ export type {
 // ============================================================================
 
 // TemplateGallery - Firewall template browsing and selection
-export {
-  TemplateGallery,
-  useTemplateGallery,
-  TemplateCard,
-} from './template-gallery';
+export { TemplateGallery, useTemplateGallery, TemplateCard } from './template-gallery';
 export type {
   TemplateGalleryProps,
   UseTemplateGalleryOptions,
@@ -1467,9 +1420,7 @@ export { VLANPoolGauge } from './vlan-pool-gauge';
 export type { VLANPoolGaugeProps } from './vlan-pool-gauge';
 
 // VLANAllocationTable - VLAN allocation table with filters and sorting
-export {
-  VLANAllocationTable,
-} from './vlan-allocation-table';
+export { VLANAllocationTable } from './vlan-allocation-table';
 export type {
   VLANAllocation,
   VLANAllocationSort,

@@ -2,12 +2,7 @@
  * Tests for ping utility functions
  */
 import { describe, it, expect } from 'vitest';
-import {
-  isValidIPv6,
-  isValidHostname,
-  isValidPingTarget,
-  calculateStatistics,
-} from './ping.utils';
+import { isValidIPv6, isValidHostname, isValidPingTarget, calculateStatistics } from './ping.utils';
 import type { PingResult } from './PingTool.types';
 
 describe('ping.utils', () => {

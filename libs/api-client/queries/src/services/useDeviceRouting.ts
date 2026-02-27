@@ -246,12 +246,9 @@ export function useDeviceRouting(id: string) {
  * ```
  */
 export function useAssignDeviceRouting() {
-  const [assignDeviceRoutingMutation, mutationState] = useMutation(
-    ASSIGN_DEVICE_ROUTING,
-    {
-      refetchQueries: [GET_DEVICE_ROUTING_MATRIX, GET_DEVICE_ROUTINGS],
-    }
-  );
+  const [assignDeviceRoutingMutation, mutationState] = useMutation(ASSIGN_DEVICE_ROUTING, {
+    refetchQueries: [GET_DEVICE_ROUTING_MATRIX, GET_DEVICE_ROUTINGS],
+  });
 
   const assignDevice = useCallback(
     async (input: AssignDeviceRoutingInput) => {
@@ -317,17 +314,14 @@ export function useAssignDeviceRouting() {
 export function useRemoveDeviceRouting() {
   const client = useApolloClient();
 
-  const [removeDeviceRoutingMutation, mutationState] = useMutation(
-    REMOVE_DEVICE_ROUTING,
-    {
-      onCompleted: () => {
-        // Refetch queries to update the UI
-        client.refetchQueries({
-          include: [GET_DEVICE_ROUTING_MATRIX, GET_DEVICE_ROUTINGS],
-        });
-      },
-    }
-  );
+  const [removeDeviceRoutingMutation, mutationState] = useMutation(REMOVE_DEVICE_ROUTING, {
+    onCompleted: () => {
+      // Refetch queries to update the UI
+      client.refetchQueries({
+        include: [GET_DEVICE_ROUTING_MATRIX, GET_DEVICE_ROUTINGS],
+      });
+    },
+  });
 
   const removeDevice = useCallback(
     async (id: string) => {
@@ -393,19 +387,16 @@ export function useBulkAssignRouting() {
   const [progress, setProgress] = useState<BulkAssignProgress | null>(null);
   const client = useApolloClient();
 
-  const [bulkAssignRoutingMutation, mutationState] = useMutation(
-    BULK_ASSIGN_ROUTING,
-    {
-      onCompleted: () => {
-        // Refetch queries to update the UI
-        client.refetchQueries({
-          include: [GET_DEVICE_ROUTING_MATRIX, GET_DEVICE_ROUTINGS],
-        });
-        // Reset progress after completion
-        setProgress(null);
-      },
-    }
-  );
+  const [bulkAssignRoutingMutation, mutationState] = useMutation(BULK_ASSIGN_ROUTING, {
+    onCompleted: () => {
+      // Refetch queries to update the UI
+      client.refetchQueries({
+        include: [GET_DEVICE_ROUTING_MATRIX, GET_DEVICE_ROUTINGS],
+      });
+      // Reset progress after completion
+      setProgress(null);
+    },
+  });
 
   const bulkAssign = useCallback(
     async (input: BulkAssignRoutingInput) => {

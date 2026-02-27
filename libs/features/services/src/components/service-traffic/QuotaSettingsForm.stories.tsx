@@ -23,9 +23,9 @@ const mockQuotaMonthly: TrafficQuota = {
   id: 'quota-001',
   instanceID: 'xray-instance-abc123',
   period: 'MONTHLY',
-  limitBytes: 107374182400,           // 100 GB
-  consumedBytes: 85899345920,         // 80 GB (80% used)
-  remainingBytes: 21474836480,        // 20 GB
+  limitBytes: 107374182400, // 100 GB
+  consumedBytes: 85899345920, // 80 GB (80% used)
+  remainingBytes: 21474836480, // 20 GB
   warningThreshold: 80,
   action: 'ALERT',
   limitReached: false,
@@ -42,8 +42,8 @@ const mockQuotaExceeded: TrafficQuota = {
   id: 'quota-002',
   instanceID: 'tor-instance-xyz789',
   period: 'WEEKLY',
-  limitBytes: 10737418240,            // 10 GB
-  consumedBytes: 11811160064,         // ~11 GB — over limit
+  limitBytes: 10737418240, // 10 GB
+  consumedBytes: 11811160064, // ~11 GB — over limit
   remainingBytes: 0,
   warningThreshold: 75,
   action: 'STOP_SERVICE',
@@ -61,9 +61,9 @@ const mockQuotaDaily: TrafficQuota = {
   id: 'quota-003',
   instanceID: 'adguard-instance-001',
   period: 'DAILY',
-  limitBytes: 5368709120,             // 5 GB
-  consumedBytes: 1073741824,          // 1 GB (20% used)
-  remainingBytes: 4294967296,         // 4 GB
+  limitBytes: 5368709120, // 5 GB
+  consumedBytes: 1073741824, // 1 GB (20% used)
+  remainingBytes: 4294967296, // 4 GB
   warningThreshold: 90,
   action: 'LOG_ONLY',
   limitReached: false,
@@ -80,9 +80,9 @@ const mockQuotaThrottle: TrafficQuota = {
   id: 'quota-004',
   instanceID: 'singbox-instance-001',
   period: 'MONTHLY',
-  limitBytes: 53687091200,            // 50 GB
-  consumedBytes: 32212254720,         // 30 GB (60% used)
-  remainingBytes: 21474836480,        // 20 GB
+  limitBytes: 53687091200, // 50 GB
+  consumedBytes: 32212254720, // 30 GB (60% used)
+  remainingBytes: 21474836480, // 20 GB
   warningThreshold: 60,
   action: 'THROTTLE',
   limitReached: false,
@@ -117,7 +117,7 @@ const meta: Meta<typeof QuotaSettingsForm> = {
   },
   decorators: [
     (Story) => (
-      <div className="max-w-lg mx-auto p-4">
+      <div className="mx-auto max-w-lg p-4">
         <Story />
       </div>
     ),

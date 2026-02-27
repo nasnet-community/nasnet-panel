@@ -65,10 +65,7 @@ describe('useBulkOperations', () => {
       const { result } = renderHook(() => useBulkOperations('router-1'));
 
       const opResult = await act(async () => {
-        return await result.current.makeAllStatic(
-          ['lease-1', 'lease-2', 'lease-3'],
-          mockLeases
-        );
+        return await result.current.makeAllStatic(['lease-1', 'lease-2', 'lease-3'], mockLeases);
       });
 
       expect(opResult.succeeded).toBe(2);

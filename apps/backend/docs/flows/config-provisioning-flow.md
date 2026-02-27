@@ -1,16 +1,23 @@
 # Flow: Config Provisioning
-> Traces how a desired router configuration is applied through an 8-phase pipeline, with verification and automatic rollback on failure.
 
-**Touches:** `graph/resolver/changeset-*.resolvers.go`, `internal/provisioning/orchestrator/`, `internal/router/batch/`, `internal/services/provisioning/`
-**Entry Point:** `ApplyChangeset` mutation in `graph/resolver/changeset-operations.resolvers.go`
-**Prerequisites:**
+> Traces how a desired router configuration is applied through an 8-phase pipeline, with
+> verification and automatic rollback on failure.
+
+**Touches:** `graph/resolver/changeset-*.resolvers.go`, `internal/provisioning/orchestrator/`,
+`internal/router/batch/`, `internal/services/provisioning/` **Entry Point:** `ApplyChangeset`
+mutation in `graph/resolver/changeset-operations.resolvers.go` **Prerequisites:**
+
 - [See: 03-graphql-api.md §Changesets] — changeset creation and the Apply-Confirm-Merge pattern
 - [See: 08-provisioning-engine.md] — 8-phase pipeline and phase classification
 - [See: 04-router-communication.md §Batch] — batch executor and rollback mechanics
 
 ## Overview
 
-Configuration provisioning follows the Apply-Confirm-Merge pattern. A changeset is first assembled client-side (Draft state), then submitted for application. The Orchestrator decomposes the desired state into router commands, groups them by phase, and executes them sequentially. If any phase fails, the entire operation is rolled back in reverse order (Phase 8 → Phase 1). All created resource `.id`s are tracked for precise rollback using O(1) remove commands.
+Configuration provisioning follows the Apply-Confirm-Merge pattern. A changeset is first assembled
+client-side (Draft state), then submitted for application. The Orchestrator decomposes the desired
+state into router commands, groups them by phase, and executes them sequentially. If any phase
+fails, the entire operation is rolled back in reverse order (Phase 8 → Phase 1). All created
+resource `.id`s are tracked for precise rollback using O(1) remove commands.
 
 ## Sequence Diagram
 
@@ -44,6 +51,7 @@ sequenceDiagram
 ```
 
 **Rollback scenario (Phase 6 routing fails):**
+
 ```mermaid
 sequenceDiagram
     participant Orchestrator
@@ -65,6 +73,7 @@ sequenceDiagram
 ## Step-by-Step Walkthrough
 
 ### Step 1: Changeset Mutation Entry
+
 - Client calls `ApplyChangeset(changesetID)` GraphQL mutation
 - **File:** `graph/resolver/changeset-operations.resolvers.go`
 - Resolver loads the changeset from database (status must be `"draft"` or `"pending"`)
@@ -73,6 +82,7 @@ sequenceDiagram
 - Returns a `jobID` immediately; actual application is async
 
 ### Step 2: State Decomposition
+
 - `ProvisioningService.Apply(ctx, changeset)` is called in a goroutine
 - **File:** `internal/services/provisioning/apply.go`
 - Reads the changeset's desired state (Universal State v2 8-layer model)
@@ -82,6 +92,7 @@ sequenceDiagram
 - Groups commands by their target RouterOS path prefix
 
 ### Step 3: Phase Classification
+
 - `orchestrator.ClassifyResourcePath(path)` maps each command to one of 8 phases
 - **File:** `internal/provisioning/orchestrator/phases.go:227`
 - Uses longest-prefix matching against `AllPhases` path tables
@@ -96,6 +107,7 @@ sequenceDiagram
   8. `SYSTEM_DNS` — DNS, NTP, system identity, scheduler, certificates
 
 ### Step 4: Sequential Phase Execution
+
 - `Orchestrator.RunPhases(ctx, commands)` iterates phases 1 through 8
 - **File:** `internal/provisioning/orchestrator/` (orchestrator main)
 - Within each phase, commands are executed sequentially (order matters for dependencies)
@@ -103,6 +115,7 @@ sequenceDiagram
 - Created resource IDs are tracked in `PhaseResult.ResourceIDs[]` for rollback
 
 ### Step 5: Batch Command Execution
+
 - `Job.Execute()` runs the actual commands through `executeCommands(ctx)`
 - **File:** `internal/router/batch/executor.go` and `executor_run.go`
 - Each command goes through the circuit-breaker-wrapped router adapter
@@ -111,6 +124,7 @@ sequenceDiagram
 - Progress is tracked: `{Total, Current, Percent, Succeeded, Failed, Skipped}`
 
 ### Step 6: Command Execution via RouterPort
+
 - Each command is translated to the protocol-specific wire format
 - REST adapter: HTTP POST `/{path}/add` with JSON body
 - API adapter: binary RouterOS API protocol
@@ -118,11 +132,13 @@ sequenceDiagram
 - Router returns: `{".id": "*N"}` for created resources (RouterOS internal ID)
 
 ### Step 7: Verification Step
+
 - After all 8 phases complete, a verification query is executed
 - Queries `/system/identity` and one or two key resources to confirm changes persisted
 - On success: changeset status updated to `"applied"`; `ChangesetApplied` event published
 
 ### Step 8: Rollback on Failure
+
 - If ANY phase fails, `Orchestrator.Rollback(ctx, results)` is called
 - **File:** `internal/provisioning/orchestrator/rollback.go:30`
 - Iterates `results[]` in **reverse** order (Phase 8 → Phase 1)
@@ -148,33 +164,37 @@ PhaseResult{
 
 Rollback removes in reverse: `/ip/route remove .id=*12` then `/routing/table remove .id=*9`.
 
-This means rollback never queries the router to find what to remove — it uses the exact IDs returned during apply, making rollback O(1) per resource.
+This means rollback never queries the router to find what to remove — it uses the exact IDs returned
+during apply, making rollback O(1) per resource.
 
 ## Error Handling
 
-| Phase | Failure | Recovery |
-|-------|---------|----------|
-| Phase 1-7 failure | Command error | Rollback phases N → 1; changeset status → `"failed"` |
-| Phase 8 failure | Last phase fails | Rollback phases 8 → 1 |
-| Rollback command fails | Remove fails | Log warning; continue with next resource (best-effort) |
-| Connection lost mid-phase | Circuit breaker opens | Phase command returns error → triggers rollback |
-| Verification fails | Resources not visible | Rollback triggered; changeset marked failed |
+| Phase                     | Failure               | Recovery                                               |
+| ------------------------- | --------------------- | ------------------------------------------------------ |
+| Phase 1-7 failure         | Command error         | Rollback phases N → 1; changeset status → `"failed"`   |
+| Phase 8 failure           | Last phase fails      | Rollback phases 8 → 1                                  |
+| Rollback command fails    | Remove fails          | Log warning; continue with next resource (best-effort) |
+| Connection lost mid-phase | Circuit breaker opens | Phase command returns error → triggers rollback        |
+| Verification fails        | Resources not visible | Rollback triggered; changeset marked failed            |
 
 ## Observability
 
 **Events emitted (event bus):**
+
 - `changeset.applying` — when application starts
 - `changeset.applied` — on successful completion
 - `changeset.failed` — on error with reason
 - `changeset.rolled_back` — after rollback completes
 
 **Logs generated:**
+
 - `INFO: rolling back provisioned resource` with phase, path, and ID for each rollback
 - `WARN: rollback remove failed` with error details
 - `INFO: rollback complete` with total/removed/failed counts
 - Phase-level progress: `INFO: executing phase N: PHASE_NAME`
 
 **Metrics:**
+
 - Changeset duration: tracked from `applying` → `applied` or `failed`
 - Rollback success rate: `Removed / TotalResources` ratio
 

@@ -12,10 +12,6 @@ export {
   useResourceUsageBar,
 } from './ResourceUsageBar';
 
-export type {
-  ResourceUsageBarProps,
-  UsageStatus,
-  ResourceType,
-} from './types';
+export type { ResourceUsageBarProps, UsageStatus, ResourceType } from './types';
 
 export type { UseResourceUsageBarReturn } from './useResourceUsageBar';

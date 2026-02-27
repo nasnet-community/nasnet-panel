@@ -261,10 +261,7 @@ export async function clearCacheAndReload(): Promise<void> {
  * @param context - Additional context
  * @returns Issue report data
  */
-export function generateIssueReport(
-  error: Error,
-  context?: Record<string, unknown>
-): IssueReport {
+export function generateIssueReport(error: Error, context?: Record<string, unknown>): IssueReport {
   return {
     message: error.message,
     code: (error as { code?: string }).code,
@@ -317,10 +314,7 @@ export async function copyIssueReport(
  * @param error - The error to report
  * @param context - Additional context
  */
-export function openIssueReporter(
-  error: Error,
-  context?: Record<string, unknown>
-): void {
+export function openIssueReporter(error: Error, context?: Record<string, unknown>): void {
   const report = generateIssueReport(error, context);
 
   // Create issue body

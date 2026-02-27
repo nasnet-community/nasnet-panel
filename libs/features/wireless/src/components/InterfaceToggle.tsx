@@ -94,15 +94,14 @@ export const InterfaceToggle = React.memo(function InterfaceToggle({
   }, []);
 
   // Determine dialog content based on pending action
-  const dialogTitle = pendingState
-    ? `Disable ${iface.name}?`
-    : `Enable ${iface.name}?`;
+  const dialogTitle = pendingState ? `Disable ${iface.name}?` : `Enable ${iface.name}?`;
 
-  const dialogDescription = pendingState
-    ? `This will disable the wireless interface. ${
-        iface.connectedClients > 0
-          ? `${iface.connectedClients} connected client(s) will be disconnected.`
-          : 'No clients will be affected.'
+  const dialogDescription =
+    pendingState ?
+      `This will disable the wireless interface. ${
+        iface.connectedClients > 0 ?
+          `${iface.connectedClients} connected client(s) will be disconnected.`
+        : 'No clients will be affected.'
       }`
     : `This will enable the wireless interface and make it available for connections.`;
 
@@ -113,24 +112,20 @@ export const InterfaceToggle = React.memo(function InterfaceToggle({
     <>
       {/* Toggle Switch */}
       <div
-        className={cn('flex items-center gap-component-sm', className)}
+        className={cn('gap-component-sm flex items-center', className)}
         onClick={handleSwitchClick}
       >
         <Switch
           checked={!iface.disabled}
           disabled={toggleMutation.isPending}
-          aria-label={
-            iface.disabled
-              ? `Enable ${iface.name}`
-              : `Disable ${iface.name}`
-          }
+          aria-label={iface.disabled ? `Enable ${iface.name}` : `Disable ${iface.name}`}
           className={cn(
             !iface.disabled &&
               'data-[state=checked]:bg-success data-[state=checked]:hover:bg-success/90'
           )}
         />
         {toggleMutation.isPending && (
-          <span className="text-xs text-muted-foreground">
+          <span className="text-muted-foreground text-xs">
             {pendingState ? 'Disabling...' : 'Enabling...'}
           </span>
         )}

@@ -94,9 +94,7 @@ const mockConnections: ConnectionEntry[] = [
 describe('useConnectionList', () => {
   describe('Basic Functionality', () => {
     it('should initialize with connections', () => {
-      const { result } = renderHook(() =>
-        useConnectionList({ connections: mockConnections })
-      );
+      const { result } = renderHook(() => useConnectionList({ connections: mockConnections }));
 
       expect(result.current.filteredConnections).toHaveLength(5);
       expect(result.current.totalCount).toBe(5);
@@ -104,9 +102,7 @@ describe('useConnectionList', () => {
     });
 
     it('should handle empty connection list', () => {
-      const { result } = renderHook(() =>
-        useConnectionList({ connections: [] })
-      );
+      const { result } = renderHook(() => useConnectionList({ connections: [] }));
 
       expect(result.current.filteredConnections).toHaveLength(0);
       expect(result.current.totalCount).toBe(0);
@@ -116,9 +112,7 @@ describe('useConnectionList', () => {
 
   describe('IP Address Filtering', () => {
     it('should filter by exact IP address', () => {
-      const { result } = renderHook(() =>
-        useConnectionList({ connections: mockConnections })
-      );
+      const { result } = renderHook(() => useConnectionList({ connections: mockConnections }));
 
       act(() => {
         result.current.setFilter({ ipAddress: '192.168.1.100' });
@@ -130,9 +124,7 @@ describe('useConnectionList', () => {
     });
 
     it('should filter by wildcard pattern: 192.168.1.*', () => {
-      const { result } = renderHook(() =>
-        useConnectionList({ connections: mockConnections })
-      );
+      const { result } = renderHook(() => useConnectionList({ connections: mockConnections }));
 
       act(() => {
         result.current.setFilter({ ipAddress: '192.168.1.*' });
@@ -144,9 +136,7 @@ describe('useConnectionList', () => {
     });
 
     it('should filter by wildcard pattern: 192.168.*.*', () => {
-      const { result } = renderHook(() =>
-        useConnectionList({ connections: mockConnections })
-      );
+      const { result } = renderHook(() => useConnectionList({ connections: mockConnections }));
 
       act(() => {
         result.current.setFilter({ ipAddress: '192.168.*.*' });
@@ -157,9 +147,7 @@ describe('useConnectionList', () => {
     });
 
     it('should filter by wildcard pattern: *.*.*.1', () => {
-      const { result } = renderHook(() =>
-        useConnectionList({ connections: mockConnections })
-      );
+      const { result } = renderHook(() => useConnectionList({ connections: mockConnections }));
 
       act(() => {
         result.current.setFilter({ ipAddress: '*.*.*.1' });
@@ -170,9 +158,7 @@ describe('useConnectionList', () => {
     });
 
     it('should filter by wildcard pattern: *.*.*.*', () => {
-      const { result } = renderHook(() =>
-        useConnectionList({ connections: mockConnections })
-      );
+      const { result } = renderHook(() => useConnectionList({ connections: mockConnections }));
 
       act(() => {
         result.current.setFilter({ ipAddress: '*.*.*.*' });
@@ -183,9 +169,7 @@ describe('useConnectionList', () => {
     });
 
     it('should match IP in both source and destination', () => {
-      const { result } = renderHook(() =>
-        useConnectionList({ connections: mockConnections })
-      );
+      const { result } = renderHook(() => useConnectionList({ connections: mockConnections }));
 
       act(() => {
         result.current.setFilter({ ipAddress: '8.8.8.8' });
@@ -199,9 +183,7 @@ describe('useConnectionList', () => {
 
   describe('Port Filtering', () => {
     it('should filter by source port', () => {
-      const { result } = renderHook(() =>
-        useConnectionList({ connections: mockConnections })
-      );
+      const { result } = renderHook(() => useConnectionList({ connections: mockConnections }));
 
       act(() => {
         result.current.setFilter({ port: 54321 });
@@ -213,9 +195,7 @@ describe('useConnectionList', () => {
     });
 
     it('should filter by destination port', () => {
-      const { result } = renderHook(() =>
-        useConnectionList({ connections: mockConnections })
-      );
+      const { result } = renderHook(() => useConnectionList({ connections: mockConnections }));
 
       act(() => {
         result.current.setFilter({ port: 443 });
@@ -227,9 +207,7 @@ describe('useConnectionList', () => {
     });
 
     it('should match port in both source and destination', () => {
-      const { result } = renderHook(() =>
-        useConnectionList({ connections: mockConnections })
-      );
+      const { result } = renderHook(() => useConnectionList({ connections: mockConnections }));
 
       act(() => {
         result.current.setFilter({ port: 53 });
@@ -241,27 +219,21 @@ describe('useConnectionList', () => {
     });
 
     it('should handle ICMP connections without ports', () => {
-      const { result } = renderHook(() =>
-        useConnectionList({ connections: mockConnections })
-      );
+      const { result } = renderHook(() => useConnectionList({ connections: mockConnections }));
 
       act(() => {
         result.current.setFilter({ port: 443 });
       });
 
       // Should NOT match conn-3 (ICMP has no ports)
-      const hasIcmp = result.current.filteredConnections.some(
-        (c) => c.protocol === 'icmp'
-      );
+      const hasIcmp = result.current.filteredConnections.some((c) => c.protocol === 'icmp');
       expect(hasIcmp).toBe(false);
     });
   });
 
   describe('Protocol Filtering', () => {
     it('should filter by TCP protocol', () => {
-      const { result } = renderHook(() =>
-        useConnectionList({ connections: mockConnections })
-      );
+      const { result } = renderHook(() => useConnectionList({ connections: mockConnections }));
 
       act(() => {
         result.current.setFilter({ protocol: 'tcp' });
@@ -269,15 +241,11 @@ describe('useConnectionList', () => {
 
       // Should match conn-1, conn-4, conn-5 (all TCP)
       expect(result.current.filteredConnections).toHaveLength(3);
-      expect(
-        result.current.filteredConnections.every((c) => c.protocol === 'tcp')
-      ).toBe(true);
+      expect(result.current.filteredConnections.every((c) => c.protocol === 'tcp')).toBe(true);
     });
 
     it('should filter by UDP protocol', () => {
-      const { result } = renderHook(() =>
-        useConnectionList({ connections: mockConnections })
-      );
+      const { result } = renderHook(() => useConnectionList({ connections: mockConnections }));
 
       act(() => {
         result.current.setFilter({ protocol: 'udp' });
@@ -289,9 +257,7 @@ describe('useConnectionList', () => {
     });
 
     it('should filter by ICMP protocol', () => {
-      const { result } = renderHook(() =>
-        useConnectionList({ connections: mockConnections })
-      );
+      const { result } = renderHook(() => useConnectionList({ connections: mockConnections }));
 
       act(() => {
         result.current.setFilter({ protocol: 'icmp' });
@@ -305,9 +271,7 @@ describe('useConnectionList', () => {
 
   describe('State Filtering', () => {
     it('should filter by established state', () => {
-      const { result } = renderHook(() =>
-        useConnectionList({ connections: mockConnections })
-      );
+      const { result } = renderHook(() => useConnectionList({ connections: mockConnections }));
 
       act(() => {
         result.current.setFilter({ state: 'established' });
@@ -315,17 +279,11 @@ describe('useConnectionList', () => {
 
       // Should match conn-1, conn-2, conn-3 (all established)
       expect(result.current.filteredConnections).toHaveLength(3);
-      expect(
-        result.current.filteredConnections.every(
-          (c) => c.state === 'established'
-        )
-      ).toBe(true);
+      expect(result.current.filteredConnections.every((c) => c.state === 'established')).toBe(true);
     });
 
     it('should filter by time-wait state', () => {
-      const { result } = renderHook(() =>
-        useConnectionList({ connections: mockConnections })
-      );
+      const { result } = renderHook(() => useConnectionList({ connections: mockConnections }));
 
       act(() => {
         result.current.setFilter({ state: 'time-wait' });
@@ -337,9 +295,7 @@ describe('useConnectionList', () => {
     });
 
     it('should filter by syn-sent state', () => {
-      const { result } = renderHook(() =>
-        useConnectionList({ connections: mockConnections })
-      );
+      const { result } = renderHook(() => useConnectionList({ connections: mockConnections }));
 
       act(() => {
         result.current.setFilter({ state: 'syn-sent' });
@@ -353,9 +309,7 @@ describe('useConnectionList', () => {
 
   describe('Combined Filters', () => {
     it('should apply multiple filters simultaneously', () => {
-      const { result } = renderHook(() =>
-        useConnectionList({ connections: mockConnections })
-      );
+      const { result } = renderHook(() => useConnectionList({ connections: mockConnections }));
 
       act(() => {
         result.current.setFilter({
@@ -371,9 +325,7 @@ describe('useConnectionList', () => {
     });
 
     it('should clear all filters', () => {
-      const { result } = renderHook(() =>
-        useConnectionList({ connections: mockConnections })
-      );
+      const { result } = renderHook(() => useConnectionList({ connections: mockConnections }));
 
       act(() => {
         result.current.setFilter({ ipAddress: '192.168.1.*', protocol: 'tcp' });
@@ -392,41 +344,31 @@ describe('useConnectionList', () => {
 
   describe('Sorting', () => {
     it('should sort by protocol', () => {
-      const { result } = renderHook(() =>
-        useConnectionList({ connections: mockConnections })
-      );
+      const { result } = renderHook(() => useConnectionList({ connections: mockConnections }));
 
       act(() => {
         result.current.setSort('protocol');
       });
 
-      const protocols = result.current.filteredConnections.map(
-        (c) => c.protocol
-      );
+      const protocols = result.current.filteredConnections.map((c) => c.protocol);
       // Default is descending, so tcp/udp/icmp
       expect(protocols[0]).toBe('udp'); // 'udp' > 'tcp' > 'icmp' alphabetically desc
     });
 
     it('should sort by source address', () => {
-      const { result } = renderHook(() =>
-        useConnectionList({ connections: mockConnections })
-      );
+      const { result } = renderHook(() => useConnectionList({ connections: mockConnections }));
 
       act(() => {
         result.current.setSort('srcAddress');
       });
 
-      const addresses = result.current.filteredConnections.map(
-        (c) => c.srcAddress
-      );
+      const addresses = result.current.filteredConnections.map((c) => c.srcAddress);
       // Check first and last
       expect(addresses[0]).toBeTruthy();
     });
 
     it('should sort by bytes transferred', () => {
-      const { result } = renderHook(() =>
-        useConnectionList({ connections: mockConnections })
-      );
+      const { result } = renderHook(() => useConnectionList({ connections: mockConnections }));
 
       act(() => {
         result.current.setSort('bytes');
@@ -438,9 +380,7 @@ describe('useConnectionList', () => {
     });
 
     it('should toggle sort direction when clicking same field', () => {
-      const { result } = renderHook(() =>
-        useConnectionList({ connections: mockConnections })
-      );
+      const { result } = renderHook(() => useConnectionList({ connections: mockConnections }));
 
       act(() => {
         result.current.setSort('bytes');
@@ -461,9 +401,7 @@ describe('useConnectionList', () => {
 
   describe('Pause/Resume Auto-Refresh', () => {
     it('should pause auto-refresh', () => {
-      const { result } = renderHook(() =>
-        useConnectionList({ connections: mockConnections })
-      );
+      const { result } = renderHook(() => useConnectionList({ connections: mockConnections }));
 
       expect(result.current.isPaused).toBe(false);
 
@@ -475,9 +413,7 @@ describe('useConnectionList', () => {
     });
 
     it('should resume auto-refresh', () => {
-      const { result } = renderHook(() =>
-        useConnectionList({ connections: mockConnections })
-      );
+      const { result } = renderHook(() => useConnectionList({ connections: mockConnections }));
 
       act(() => {
         result.current.togglePause(); // Pause
@@ -504,27 +440,25 @@ describe('useConnectionList', () => {
   describe('Performance', () => {
     it('should handle large connection lists (1000+ entries)', () => {
       // Generate 1500 connections
-      const largeList: ConnectionEntry[] = Array.from(
-        { length: 1500 },
-        (_, i) => ({
-          id: `conn-${i}`,
-          protocol: i % 3 === 0 ? 'tcp' : i % 3 === 1 ? 'udp' : 'icmp',
-          srcAddress: `192.168.${Math.floor(i / 256)}.${i % 256}`,
-          srcPort: i % 3 !== 2 ? 50000 + i : undefined,
-          dstAddress: `203.0.${Math.floor(i / 256)}.${i % 256}`,
-          dstPort: i % 3 !== 2 ? 443 : undefined,
-          state: 'established',
-          timeout: '1h',
-          packets: i * 10,
-          bytes: i * 1024,
-          assured: true,
-          confirmed: true,
-        })
-      );
+      const largeList: ConnectionEntry[] = Array.from({ length: 1500 }, (_, i) => ({
+        id: `conn-${i}`,
+        protocol:
+          i % 3 === 0 ? 'tcp'
+          : i % 3 === 1 ? 'udp'
+          : 'icmp',
+        srcAddress: `192.168.${Math.floor(i / 256)}.${i % 256}`,
+        srcPort: i % 3 !== 2 ? 50000 + i : undefined,
+        dstAddress: `203.0.${Math.floor(i / 256)}.${i % 256}`,
+        dstPort: i % 3 !== 2 ? 443 : undefined,
+        state: 'established',
+        timeout: '1h',
+        packets: i * 10,
+        bytes: i * 1024,
+        assured: true,
+        confirmed: true,
+      }));
 
-      const { result } = renderHook(() =>
-        useConnectionList({ connections: largeList })
-      );
+      const { result } = renderHook(() => useConnectionList({ connections: largeList }));
 
       expect(result.current.filteredConnections).toHaveLength(1500);
       expect(result.current.totalCount).toBe(1500);

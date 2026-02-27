@@ -1,5 +1,14 @@
 import { memo } from 'react';
-import { Button, Badge, Card, CardHeader, CardTitle, CardDescription, CardContent, Checkbox } from '@nasnet/ui/primitives';
+import {
+  Button,
+  Badge,
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  Checkbox,
+} from '@nasnet/ui/primitives';
 import { InterfaceListFilters } from './InterfaceListFilters';
 import { BatchActionsToolbar } from './BatchActionsToolbar';
 import type { InterfaceFilters } from './InterfaceList';
@@ -35,9 +44,7 @@ export const InterfaceListMobile = memo(function InterfaceListMobile({
   routerId,
   onOpenDetail,
 }: InterfaceListMobileProps) {
-  const selectedInterfaces = allInterfaces.filter((iface) =>
-    selectedIds.has(iface.id)
-  );
+  const selectedInterfaces = allInterfaces.filter((iface) => selectedIds.has(iface.id));
 
   const toggleSelection = (interfaceId: string) => {
     const newSelection = new Set(selectedIds);
@@ -52,13 +59,23 @@ export const InterfaceListMobile = memo(function InterfaceListMobile({
   if (error) {
     return (
       <div className="space-y-component-md p-component-md category-networking">
-        <InterfaceListFilters filters={filters} onChange={onFilterChange} />
-        <div className="p-component-lg text-center border rounded-card-lg border-error bg-error/10" role="alert">
+        <InterfaceListFilters
+          filters={filters}
+          onChange={onFilterChange}
+        />
+        <div
+          className="p-component-lg rounded-card-lg border-error bg-error/10 border text-center"
+          role="alert"
+        >
           <p className="text-error font-medium">Failed to load interfaces</p>
-          <p className="text-sm text-muted-foreground mt-component-sm">
+          <p className="text-muted-foreground mt-component-sm text-sm">
             {error.message || 'Unknown error'}
           </p>
-          <Button onClick={onRefresh} className="mt-component-md min-h-[44px]" aria-label="Retry loading interfaces">
+          <Button
+            onClick={onRefresh}
+            className="mt-component-md min-h-[44px]"
+            aria-label="Retry loading interfaces"
+          >
             Retry
           </Button>
         </div>
@@ -69,21 +86,24 @@ export const InterfaceListMobile = memo(function InterfaceListMobile({
   return (
     <div className="space-y-component-md p-component-md category-networking">
       {/* Filters */}
-      <InterfaceListFilters filters={filters} onChange={onFilterChange} />
+      <InterfaceListFilters
+        filters={filters}
+        onChange={onFilterChange}
+      />
 
       {/* Loading state */}
       {loading && (
-        <div className="text-center p-component-lg text-muted-foreground">
+        <div className="p-component-lg text-muted-foreground text-center">
           Loading interfaces...
         </div>
       )}
 
       {/* Empty state */}
       {!loading && interfaces.length === 0 && (
-        <div className="text-center p-component-lg text-muted-foreground">
-          {filters.type || filters.status || filters.search
-            ? 'No interfaces match the current filters'
-            : 'No interfaces found'}
+        <div className="p-component-lg text-muted-foreground text-center">
+          {filters.type || filters.status || filters.search ?
+            'No interfaces match the current filters'
+          : 'No interfaces found'}
         </div>
       )}
 
@@ -92,11 +112,9 @@ export const InterfaceListMobile = memo(function InterfaceListMobile({
         {interfaces.map((iface) => {
           const isSelected = selectedIds.has(iface.id);
           const statusVariant =
-            iface.status === 'UP'
-              ? 'success'
-              : iface.status === 'DOWN'
-              ? 'error'
-              : 'secondary';
+            iface.status === 'UP' ? 'success'
+            : iface.status === 'DOWN' ? 'error'
+            : 'secondary';
 
           return (
             <Card
@@ -108,10 +126,15 @@ export const InterfaceListMobile = memo(function InterfaceListMobile({
               role="button"
               aria-label={`View details for ${iface.name} interface`}
               tabIndex={0}
-              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onOpenDetail(iface.id); } }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  onOpenDetail(iface.id);
+                }
+              }}
             >
               <CardHeader className="flex-row items-start justify-between space-y-0 pb-2">
-                <div className="flex items-start gap-3 flex-1">
+                <div className="flex flex-1 items-start gap-3">
                   <Checkbox
                     checked={isSelected}
                     onCheckedChange={(checked) => {
@@ -120,13 +143,21 @@ export const InterfaceListMobile = memo(function InterfaceListMobile({
                     onClick={(e) => e.stopPropagation()}
                     aria-label={`Select ${iface.name}`}
                   />
-                  <div className="flex-1 min-w-0">
-                    <CardTitle className="text-base font-mono category-networking">{iface.name}</CardTitle>
-                    <CardDescription className="flex gap-component-sm mt-component-sm">
-                      <Badge variant="outline" className="text-xs">
+                  <div className="min-w-0 flex-1">
+                    <CardTitle className="category-networking font-mono text-base">
+                      {iface.name}
+                    </CardTitle>
+                    <CardDescription className="gap-component-sm mt-component-sm flex">
+                      <Badge
+                        variant="outline"
+                        className="text-xs"
+                      >
                         {iface.type}
                       </Badge>
-                      <Badge variant={statusVariant} className="text-xs">
+                      <Badge
+                        variant={statusVariant}
+                        className="text-xs"
+                      >
                         {iface.status}
                       </Badge>
                     </CardDescription>
@@ -136,14 +167,17 @@ export const InterfaceListMobile = memo(function InterfaceListMobile({
               <CardContent className="space-y-component-sm text-sm">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Enabled:</span>
-                  <Badge variant={iface.enabled ? 'default' : 'outline'} className="text-xs">
+                  <Badge
+                    variant={iface.enabled ? 'default' : 'outline'}
+                    className="text-xs"
+                  >
                     {iface.enabled ? 'Yes' : 'No'}
                   </Badge>
                 </div>
                 {iface.ip && iface.ip.length > 0 && (
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">IP:</span>
-                    <span className="font-mono text-xs category-networking">{iface.ip[0]}</span>
+                    <span className="category-networking font-mono text-xs">{iface.ip[0]}</span>
                   </div>
                 )}
                 {iface.mtu && (
@@ -155,7 +189,7 @@ export const InterfaceListMobile = memo(function InterfaceListMobile({
                 {iface.comment && (
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Comment:</span>
-                    <span className="truncate max-w-xs text-xs">{iface.comment}</span>
+                    <span className="max-w-xs truncate text-xs">{iface.comment}</span>
                   </div>
                 )}
               </CardContent>

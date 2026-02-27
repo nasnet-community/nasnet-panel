@@ -1,6 +1,7 @@
 # Forms & Validation Library Reference
 
-> Comprehensive guide to `@nasnet/core/forms` — the schema-driven forms library with 7-stage validation pipeline
+> Comprehensive guide to `@nasnet/core/forms` — the schema-driven forms library with 7-stage
+> validation pipeline
 
 ## Table of Contents
 
@@ -25,12 +26,15 @@
 The `@nasnet/core/forms` library provides a comprehensive forms system featuring:
 
 - **Schema-driven forms** — Define forms with Zod schemas for type-safe validation
-- **7-stage validation pipeline** — Progressive validation from schema → syntax → cross-resource → dependencies → network → platform → dry-run
-- **Risk-based strategies** — Low (client-only) / Medium (backend validation) / High (full pipeline + preview + countdown)
+- **7-stage validation pipeline** — Progressive validation from schema → syntax → cross-resource →
+  dependencies → network → platform → dry-run
+- **Risk-based strategies** — Low (client-only) / Medium (backend validation) / High (full
+  pipeline + preview + countdown)
 - **Network validators** — 25+ pre-built validators for IPv4, MAC, CIDR, ports, VLAN IDs, etc.
 - **Form persistence** — Auto-save form state with session/local storage
 - **Wizard persistence** — Multi-step wizard support with step tracking and TTL
-- **Universal State v2 integration** — Sync forms with router state (optimistic updates, conflict detection)
+- **Universal State v2 integration** — Sync forms with router state (optimistic updates, conflict
+  detection)
 - **Locale-aware error messages** — i18n-aware error message translation
 
 ---
@@ -140,9 +144,7 @@ interface UseZodFormOptions<T extends ZodSchema>
   readonly schema: T;
 }
 
-function useZodForm<T extends ZodSchema>(
-  options: UseZodFormOptions<T>
-): UseFormReturn<z.infer<T>>
+function useZodForm<T extends ZodSchema>(options: UseZodFormOptions<T>): UseFormReturn<z.infer<T>>;
 ```
 
 ### Usage Example
@@ -217,13 +219,13 @@ Progressive validation system with 7 stages, configurable by risk level:
 
 ```typescript
 type ValidationStage =
-  | 'schema'           // Stage 1: Zod schema validation (local)
-  | 'syntax'           // Stage 2: Format and syntax checks
-  | 'cross-resource'   // Stage 3: Conflict detection (IPs, ports, names)
-  | 'dependencies'     // Stage 4: Field dependency validation
-  | 'network'          // Stage 5: Network connectivity checks
-  | 'platform'         // Stage 6: Router compatibility checks
-  | 'dry-run';         // Stage 7: Backend dry-run execution
+  | 'schema' // Stage 1: Zod schema validation (local)
+  | 'syntax' // Stage 2: Format and syntax checks
+  | 'cross-resource' // Stage 3: Conflict detection (IPs, ports, names)
+  | 'dependencies' // Stage 4: Field dependency validation
+  | 'network' // Stage 5: Network connectivity checks
+  | 'platform' // Stage 6: Router compatibility checks
+  | 'dry-run'; // Stage 7: Backend dry-run execution
 ```
 
 ### Stage Results
@@ -277,10 +279,7 @@ Low-level orchestration of the validation pipeline:
 
 ```typescript
 class ValidationPipeline {
-  constructor(
-    options: ValidationPipelineOptions,
-    config: ValidationPipelineConfig
-  )
+  constructor(options: ValidationPipelineOptions, config: ValidationPipelineConfig);
 
   /**
    * Run the validation pipeline
@@ -290,12 +289,12 @@ class ValidationPipeline {
     data: Record<string, unknown>,
     resourceId?: string,
     routerId?: string
-  ): Promise<ValidationPipelineResult>
+  ): Promise<ValidationPipelineResult>;
 
   /**
    * Abort the running pipeline
    */
-  abort(): void
+  abort(): void;
 }
 ```
 
@@ -371,7 +370,7 @@ interface UseValidationPipelineOptions<TFieldValues extends FieldValues> {
 
 function useValidationPipeline<TFieldValues extends FieldValues>(
   options: UseValidationPipelineOptions<TFieldValues>
-): UseValidationPipelineReturn
+): UseValidationPipelineReturn;
 ```
 
 **Usage Example:**
@@ -419,165 +418,165 @@ function WizardStep({ data, onNext }) {
 
 ```typescript
 // IPv4 address (e.g., "192.168.1.1")
-ipv4.parse('192.168.1.1')       // ✓
-ipv4.parse('256.1.1.1')         // ✗ (octet > 255)
-ipv4.parse('192.168.001.1')     // ✗ (leading zero)
+ipv4.parse('192.168.1.1'); // ✓
+ipv4.parse('256.1.1.1'); // ✗ (octet > 255)
+ipv4.parse('192.168.001.1'); // ✗ (leading zero)
 
 // IPv6 address (e.g., "2001:db8::1")
-ipv6.parse('2001:db8::1')       // ✓
-ipv6.parse('::1')               // ✓ (loopback)
+ipv6.parse('2001:db8::1'); // ✓
+ipv6.parse('::1'); // ✓ (loopback)
 
 // IP address (IPv4 or IPv6)
-ipAddress.parse('192.168.1.1')  // ✓
-ipAddress.parse('2001:db8::1')  // ✓
+ipAddress.parse('192.168.1.1'); // ✓
+ipAddress.parse('2001:db8::1'); // ✓
 ```
 
 ### MAC Address
 
 ```typescript
 // Colon or hyphen separators
-mac.parse('00:1A:2B:3C:4D:5E')  // ✓
-mac.parse('00-1A-2B-3C-4D-5E')  // ✓
-mac.parse('001A2B3C4D5E')        // ✗ (no separators)
+mac.parse('00:1A:2B:3C:4D:5E'); // ✓
+mac.parse('00-1A-2B-3C-4D-5E'); // ✓
+mac.parse('001A2B3C4D5E'); // ✗ (no separators)
 ```
 
 ### Network Notation
 
 ```typescript
 // CIDR notation (IPv4)
-cidr.parse('192.168.1.0/24')     // ✓
-cidr.parse('192.168.1.0/33')     // ✗ (prefix > 32)
+cidr.parse('192.168.1.0/24'); // ✓
+cidr.parse('192.168.1.0/33'); // ✗ (prefix > 32)
 
 // CIDR notation (IPv6)
-cidr6.parse('2001:db8::/32')     // ✓
-cidr6.parse('2001:db8::/129')    // ✗ (prefix > 128)
+cidr6.parse('2001:db8::/32'); // ✓
+cidr6.parse('2001:db8::/129'); // ✗ (prefix > 128)
 ```
 
 ### Port Validators
 
 ```typescript
 // Single port number
-port.parse(8080)                 // ✓
-port.parse(0)                    // ✗ (< 1)
-port.parse(65536)                // ✗ (> 65535)
+port.parse(8080); // ✓
+port.parse(0); // ✗ (< 1)
+port.parse(65536); // ✗ (> 65535)
 
 // Port as string
-portString.parse('8080')         // ✓
-portString.parse('0')            // ✗
+portString.parse('8080'); // ✓
+portString.parse('0'); // ✗
 
 // Port range
-portRange.parse('8080')          // ✓ (single)
-portRange.parse('80-443')        // ✓ (range)
-portRange.parse('443-80')        // ✗ (start > end)
+portRange.parse('8080'); // ✓ (single)
+portRange.parse('80-443'); // ✓ (range)
+portRange.parse('443-80'); // ✗ (start > end)
 
 // Multiple ports (comma-separated)
-multiPort.parse('80,443,8080')   // ✓
-multiPort.parse('22, 80, 443')   // ✓ (spaces allowed)
-multiPort.parse('80,65536')      // ✗ (port out of range)
+multiPort.parse('80,443,8080'); // ✓
+multiPort.parse('22, 80, 443'); // ✓ (spaces allowed)
+multiPort.parse('80,65536'); // ✗ (port out of range)
 ```
 
 ### VLAN ID
 
 ```typescript
 // VLAN ID (1-4094 per IEEE 802.1Q)
-vlanId.parse(100)               // ✓
-vlanId.parse(4094)              // ✓ (highest)
-vlanId.parse(0)                 // ✗ (reserved)
-vlanId.parse(4095)              // ✗ (reserved)
+vlanId.parse(100); // ✓
+vlanId.parse(4094); // ✓ (highest)
+vlanId.parse(0); // ✗ (reserved)
+vlanId.parse(4095); // ✗ (reserved)
 
 // As string
-vlanIdString.parse('100')       // ✓
-vlanIdString.parse('0')         // ✗
+vlanIdString.parse('100'); // ✓
+vlanIdString.parse('0'); // ✗
 ```
 
 ### WireGuard & Crypto
 
 ```typescript
 // WireGuard key (base64, 44 chars ending in '=')
-wgKey.parse('jI6DYlg34+z6Q+q6d8YB5ibQwQAawamJBcht5xF24mE=') // ✓
-wgKey.parse('AAAA')                                         // ✗ (too short)
+wgKey.parse('jI6DYlg34+z6Q+q6d8YB5ibQwQAawamJBcht5xF24mE='); // ✓
+wgKey.parse('AAAA'); // ✗ (too short)
 ```
 
 ### Domain Names
 
 ```typescript
 // Hostname (RFC 1123)
-hostname.parse('router')               // ✓
-hostname.parse('my-router.local')      // ✓
-hostname.parse('-invalid')             // ✗ (starts with hyphen)
+hostname.parse('router'); // ✓
+hostname.parse('my-router.local'); // ✓
+hostname.parse('-invalid'); // ✗ (starts with hyphen)
 
 // Domain name (requires TLD)
-domain.parse('example.com')            // ✓
-domain.parse('sub.example.co.uk')      // ✓
-domain.parse('localhost')              // ✗ (no TLD)
-domain.parse('example.c')              // ✗ (TLD too short)
+domain.parse('example.com'); // ✓
+domain.parse('sub.example.co.uk'); // ✓
+domain.parse('localhost'); // ✗ (no TLD)
+domain.parse('example.c'); // ✗ (TLD too short)
 ```
 
 ### Interface & Comments
 
 ```typescript
 // MikroTik interface name
-interfaceName.parse('ether1')          // ✓
-interfaceName.parse('vlan.100')        // ✓
-interfaceName.parse('bridge-1')        // ✓
-interfaceName.parse('_invalid')        // ✗ (starts with underscore)
+interfaceName.parse('ether1'); // ✓
+interfaceName.parse('vlan.100'); // ✓
+interfaceName.parse('bridge-1'); // ✓
+interfaceName.parse('_invalid'); // ✗ (starts with underscore)
 
 // Comment (255 chars, no control chars)
-comment.parse('This is a valid comment')          // ✓
-comment.parse('a'.repeat(255))                    // ✓
-comment.parse('a'.repeat(256))                    // ✗ (too long)
-comment.parse('Comment\nwith newline')            // ✗ (control char)
+comment.parse('This is a valid comment'); // ✓
+comment.parse('a'.repeat(255)); // ✓
+comment.parse('a'.repeat(256)); // ✗ (too long)
+comment.parse('Comment\nwith newline'); // ✗ (control char)
 ```
 
 ### Time & Bandwidth
 
 ```typescript
 // Duration string (s/m/h/d)
-duration.parse('30s')            // ✓
-duration.parse('5m')             // ✓
-duration.parse('2h')             // ✓
-duration.parse('7d')             // ✓
-duration.parse('30')             // ✗ (missing unit)
+duration.parse('30s'); // ✓
+duration.parse('5m'); // ✓
+duration.parse('2h'); // ✓
+duration.parse('7d'); // ✓
+duration.parse('30'); // ✗ (missing unit)
 
 // Bandwidth (optional unit: k/m/g)
-bandwidth.parse('100')           // ✓
-bandwidth.parse('100k')          // ✓
-bandwidth.parse('1.5m')          // ✓
-bandwidth.parse('1G')            // ✓
-bandwidth.parse('100x')          // ✗ (invalid unit)
+bandwidth.parse('100'); // ✓
+bandwidth.parse('100k'); // ✓
+bandwidth.parse('1.5m'); // ✓
+bandwidth.parse('1G'); // ✓
+bandwidth.parse('100x'); // ✗ (invalid unit)
 ```
 
 ### Extended Validators (NAS-4A.3)
 
 ```typescript
 // Subnet mask in dotted decimal
-subnetMask.parse('255.255.255.0')      // ✓
-subnetMask.parse('255.0.255.0')        // ✗ (non-contiguous)
+subnetMask.parse('255.255.255.0'); // ✓
+subnetMask.parse('255.0.255.0'); // ✗ (non-contiguous)
 
 // IP with port
-ipWithPort.parse('192.168.1.1:8080')   // ✓
-ipWithPort.parse('192.168.1.1')        // ✗ (missing port)
+ipWithPort.parse('192.168.1.1:8080'); // ✓
+ipWithPort.parse('192.168.1.1'); // ✗ (missing port)
 
 // IP range
-ipRange.parse('192.168.1.1-192.168.1.100') // ✓
-ipRange.parse('192.168.1.100-192.168.1.1') // ✗ (start > end)
+ipRange.parse('192.168.1.1-192.168.1.100'); // ✓
+ipRange.parse('192.168.1.100-192.168.1.1'); // ✗ (start > end)
 
 // Private IP (RFC 1918)
-privateIp.parse('192.168.1.1')         // ✓
-privateIp.parse('10.0.0.1')            // ✓
-privateIp.parse('8.8.8.8')             // ✗ (public)
+privateIp.parse('192.168.1.1'); // ✓
+privateIp.parse('10.0.0.1'); // ✓
+privateIp.parse('8.8.8.8'); // ✗ (public)
 
 // Public IP
-publicIp.parse('8.8.8.8')              // ✓
-publicIp.parse('192.168.1.1')          // ✗ (private)
+publicIp.parse('8.8.8.8'); // ✓
+publicIp.parse('192.168.1.1'); // ✗ (private)
 
 // Multicast IP (224.0.0.0/4)
-multicastIp.parse('224.0.0.1')         // ✓
-multicastIp.parse('192.168.1.1')       // ✗
+multicastIp.parse('224.0.0.1'); // ✓
+multicastIp.parse('192.168.1.1'); // ✗
 
 // Loopback IP (127.x.x.x)
-loopbackIp.parse('127.0.0.1')          // ✓
-loopbackIp.parse('192.168.1.1')        // ✗
+loopbackIp.parse('127.0.0.1'); // ✓
+loopbackIp.parse('192.168.1.1'); // ✗
 ```
 
 ### Bulk Import
@@ -603,18 +602,18 @@ Helper functions for IP manipulation and network calculations:
 
 ```typescript
 // Convert IPv4 string to 32-bit number
-ipToLong('192.168.1.1')     // 3232235777
-ipToLong('255.255.255.255') // 4294967295
+ipToLong('192.168.1.1'); // 3232235777
+ipToLong('255.255.255.255'); // 4294967295
 
 // Convert 32-bit number to IPv4 string
-longToIp(3232235777)        // '192.168.1.1'
+longToIp(3232235777); // '192.168.1.1'
 
 // Check if IP is in subnet
-isInSubnet('192.168.1.5', '192.168.1.0/24')       // true
-isInSubnet('192.168.2.5', '192.168.1.0/24')       // false
+isInSubnet('192.168.1.5', '192.168.1.0/24'); // true
+isInSubnet('192.168.2.5', '192.168.1.0/24'); // false
 
 // Get network information from CIDR
-getSubnetInfo('192.168.1.0/24')
+getSubnetInfo('192.168.1.0/24');
 // {
 //   networkAddress: '192.168.1.0',
 //   broadcastAddress: '192.168.1.255',
@@ -627,69 +626,69 @@ getSubnetInfo('192.168.1.0/24')
 // }
 
 // Individual network calculations
-getNetworkAddress('192.168.1.50', '255.255.255.0')    // '192.168.1.0'
-getBroadcastAddress('192.168.1.50', '255.255.255.0')  // '192.168.1.255'
-getFirstUsableHost('192.168.1.0', '255.255.255.0')    // '192.168.1.1'
-getLastUsableHost('192.168.1.0', '255.255.255.0')     // '192.168.1.254'
-getUsableHostCount('192.168.1.0/24')                  // 254
+getNetworkAddress('192.168.1.50', '255.255.255.0'); // '192.168.1.0'
+getBroadcastAddress('192.168.1.50', '255.255.255.0'); // '192.168.1.255'
+getFirstUsableHost('192.168.1.0', '255.255.255.0'); // '192.168.1.1'
+getLastUsableHost('192.168.1.0', '255.255.255.0'); // '192.168.1.254'
+getUsableHostCount('192.168.1.0/24'); // 254
 ```
 
 ### Subnet Mask Conversion
 
 ```typescript
 // CIDR to subnet mask
-cidrToSubnetMask(24)        // '255.255.255.0'
-cidrToSubnetMask(16)        // '255.255.0.0'
+cidrToSubnetMask(24); // '255.255.255.0'
+cidrToSubnetMask(16); // '255.255.0.0'
 
 // Subnet mask to CIDR
-subnetMaskToCidr('255.255.255.0')  // 24
-subnetMaskToCidr('255.255.0.0')    // 16
+subnetMaskToCidr('255.255.255.0'); // 24
+subnetMaskToCidr('255.255.0.0'); // 16
 ```
 
 ### Subnet Overlap
 
 ```typescript
 // Check if two subnets overlap
-doSubnetsOverlap('192.168.1.0/24', '192.168.1.128/25')  // true (overlap)
-doSubnetsOverlap('192.168.1.0/24', '192.168.2.0/24')    // false (no overlap)
+doSubnetsOverlap('192.168.1.0/24', '192.168.1.128/25'); // true (overlap)
+doSubnetsOverlap('192.168.1.0/24', '192.168.2.0/24'); // false (no overlap)
 ```
 
 ### IP Classification
 
 ```typescript
 // Check IP classification
-isPrivateIp('192.168.1.1')      // true
-isPublicIp('8.8.8.8')           // true
-isLoopbackIp('127.0.0.1')       // true
-isMulticastIp('224.0.0.1')      // true
-isLinkLocalIp('169.254.1.1')    // true
+isPrivateIp('192.168.1.1'); // true
+isPublicIp('8.8.8.8'); // true
+isLoopbackIp('127.0.0.1'); // true
+isMulticastIp('224.0.0.1'); // true
+isLinkLocalIp('169.254.1.1'); // true
 
 // Classify IP
-classifyIp('192.168.1.1')  // 'private'
-classifyIp('8.8.8.8')      // 'public'
-classifyIp('127.0.0.1')    // 'loopback'
-classifyIp('224.0.0.1')    // 'multicast'
+classifyIp('192.168.1.1'); // 'private'
+classifyIp('8.8.8.8'); // 'public'
+classifyIp('127.0.0.1'); // 'loopback'
+classifyIp('224.0.0.1'); // 'multicast'
 ```
 
 ### Network Generation
 
 ```typescript
 // Check for domestic link
-hasDomesticLink(wanLinks)  // boolean
+hasDomesticLink(wanLinks); // boolean
 
 // Generate networks for configuration
 generateNetworks({
   baseNetworks: { Foreign: true, Domestic: true, VPN: true, Split: false },
   // ... returns available network combinations
-})
+});
 
 // Get network names by type
-getForeignNetworkNames(networks)   // string[]
-getDomesticNetworkNames(networks)  // string[]
-getVPNClientNetworks(networks)     // string[]
+getForeignNetworkNames(networks); // string[]
+getDomesticNetworkNames(networks); // string[]
+getVPNClientNetworks(networks); // string[]
 
 // Get available base networks
-getAvailableBaseNetworks(networks) // BaseNetworks
+getAvailableBaseNetworks(networks); // BaseNetworks
 ```
 
 ---
@@ -700,38 +699,35 @@ Helper functions for working with Zod schemas:
 
 ```typescript
 // Make all fields optional
-makePartial(userSchema)
+makePartial(userSchema);
 // { name?: string; email?: string }
 
 // Merge two schemas
-mergeSchemas(baseSchema, extensionSchema)
+mergeSchemas(baseSchema, extensionSchema);
 // Combined schema with all fields from both
 
 // Pick specific fields
-pickFields(schema, ['name', 'email'])
+pickFields(schema, ['name', 'email']);
 // Schema with only name and email
 
 // Omit specific fields
-omitFields(schema, ['password'])
+omitFields(schema, ['password']);
 // Schema without password field
 
 // Optional string (transforms '' to undefined)
-optionalString()
+optionalString();
 
 // Required string (min 1 character)
-requiredString('This field is required')
+requiredString('This field is required');
 
 // Number from string input (for form inputs)
-numberFromString({ min: 0, max: 100, integer: true })
+numberFromString({ min: 0, max: 100, integer: true });
 
 // Boolean from string input
-booleanFromString()
+booleanFromString();
 
 // Conditional schema based on values
-conditionalSchema(
-  (data) => data.type === 'custom',
-  z.object({ customField: z.string() })
-)
+conditionalSchema((data) => data.type === 'custom', z.object({ customField: z.string() }));
 ```
 
 ---
@@ -760,7 +756,7 @@ interface UseFormPersistenceOptions<T extends FieldValues> {
 
 function useFormPersistence<T extends FieldValues>(
   options: UseFormPersistenceOptions<T>
-): UseFormPersistenceResult
+): UseFormPersistenceResult;
 ```
 
 ### Usage Example
@@ -805,13 +801,13 @@ function SetupWizardStep1() {
 
 ```typescript
 // Clear persisted data
-persistence.clearPersistence()
+persistence.clearPersistence();
 
 // Check if data exists
-persistence.hasSavedData()  // boolean
+persistence.hasSavedData(); // boolean
 
 // Manually restore (auto-called on mount)
-persistence.restore()       // boolean (true if restored)
+persistence.restore(); // boolean (true if restored)
 ```
 
 ---
@@ -844,7 +840,7 @@ interface UseWizardPersistenceOptions<TStepData> {
 
 function useWizardPersistence<TStepData extends Record<string, FieldValues>>(
   options: UseWizardPersistenceOptions<TStepData>
-): UseWizardPersistenceReturn<TStepData>
+): UseWizardPersistenceReturn<TStepData>;
 ```
 
 ### Usage Example
@@ -918,36 +914,36 @@ function VPNWizard() {
 
 ```typescript
 // Get/set step data
-wizard.getStepData('basic')         // VPNWizardData['basic'] | undefined
-wizard.setStepData('basic', data)   // void
+wizard.getStepData('basic'); // VPNWizardData['basic'] | undefined
+wizard.setStepData('basic', data); // void
 
 // Step navigation
-wizard.nextStep()                   // Go to next step
-wizard.prevStep()                   // Go to previous step
-wizard.goToStep('network')          // Jump to specific step
+wizard.nextStep(); // Go to next step
+wizard.prevStep(); // Go to previous step
+wizard.goToStep('network'); // Jump to specific step
 
 // Step completion
-wizard.completeStep('basic')        // Mark step as done
-wizard.isStepCompleted('basic')     // boolean
-wizard.canGoToStep('network')       // boolean
+wizard.completeStep('basic'); // Mark step as done
+wizard.isStepCompleted('basic'); // boolean
+wizard.canGoToStep('network'); // boolean
 
 // State information
-wizard.currentStep                  // 'basic' | 'network' | 'security'
-wizard.currentStepIndex            // 0 | 1 | 2
-wizard.progress                     // 0-100
-wizard.completedSteps               // string[]
-wizard.isFirstStep                  // boolean
-wizard.isLastStep                   // boolean
-wizard.wasRestored                  // boolean
+wizard.currentStep; // 'basic' | 'network' | 'security'
+wizard.currentStepIndex; // 0 | 1 | 2
+wizard.progress; // 0-100
+wizard.completedSteps; // string[]
+wizard.isFirstStep; // boolean
+wizard.isLastStep; // boolean
+wizard.wasRestored; // boolean
 
 // Metadata
-wizard.setMetadata({ userId: '123' })  // Store custom data
-wizard.state.metadata               // Metadata object
+wizard.setMetadata({ userId: '123' }); // Store custom data
+wizard.state.metadata; // Metadata object
 
 // Reset/clear
-wizard.reset()                      // Reset to initial state
-wizard.clearPersistence()           // Delete all persisted data
-wizard.getAllStepData()             // Get combined data from all steps
+wizard.reset(); // Reset to initial state
+wizard.clearPersistence(); // Delete all persisted data
+wizard.getAllStepData(); // Get combined data from all steps
 ```
 
 ---
@@ -986,7 +982,7 @@ interface UseFormResourceSyncOptions<T extends FieldValues> {
 function useFormResourceSync<T extends FieldValues>(
   form: UseFormReturn<T>,
   options: UseFormResourceSyncOptions<T>
-): UseFormResourceSyncReturn<T>
+): UseFormResourceSyncReturn<T>;
 ```
 
 ### State Layers (Universal State v2)
@@ -1097,27 +1093,27 @@ function InterfaceEditor({ interfaceId }: { interfaceId: string }) {
 
 ```typescript
 // Apply source data
-sync.actions.applySource(newData)
+sync.actions.applySource(newData);
 
 // Optimistic updates (immediate UI feedback)
-sync.actions.applyOptimistic(optimisticData)
-sync.actions.clearOptimistic()
+sync.actions.applyOptimistic(optimisticData);
+sync.actions.clearOptimistic();
 
 // Save operations
-sync.actions.startSave()
-sync.actions.completeSave()
-sync.actions.handleSaveError(error)
+sync.actions.startSave();
+sync.actions.completeSave();
+sync.actions.handleSaveError(error);
 
 // Reset and discard
-sync.actions.resetToSource()
-sync.actions.discardChanges()
+sync.actions.resetToSource();
+sync.actions.discardChanges();
 
 // Conflict resolution
 sync.actions.mergeSourceChanges((source, edit) => ({
   ...source,
   ...edit,
   // Custom merge logic
-}))
+}));
 ```
 
 ---
@@ -1128,21 +1124,21 @@ Convert backend validation errors to React Hook Form errors:
 
 ```typescript
 // Map errors from backend validation
-mapBackendErrorsToForm(errors, form.setError)
+mapBackendErrorsToForm(errors, form.setError);
 
 // Clear server-type errors
-clearServerErrors(form.formState.errors, form.clearErrors)
+clearServerErrors(form.formState.errors, form.clearErrors);
 
 // Convert single error
-toFormError(backendError)
+toFormError(backendError);
 // { type: 'server', message: 'Email already exists' }
 
 // Group errors by field
-groupErrorsByField(errors)
+groupErrorsByField(errors);
 // { email: [error1], password: [error2] }
 
 // Combine multiple errors per field
-combineFieldErrors(errorsByField)
+combineFieldErrors(errorsByField);
 // { email: { type: 'server', message: 'Email already exists' } }
 ```
 
@@ -1218,13 +1214,16 @@ Then use in schemas:
 
 ```typescript
 const peerSchema = z.object({
-  name: z.string().min(1).refine(
-    async (val) => {
-      const exists = await checkPeerExists(val);
-      return !exists;
-    },
-    { message: t('validation.custom.peer_name') }
-  ),
+  name: z
+    .string()
+    .min(1)
+    .refine(
+      async (val) => {
+        const exists = await checkPeerExists(val);
+        return !exists;
+      },
+      { message: t('validation.custom.peer_name') }
+    ),
 });
 ```
 
@@ -1247,7 +1246,15 @@ export const VALIDATION_CONFIGS: Record<ValidationStrategy, ValidationConfig> = 
     requiresConfirmation: false,
   },
   high: {
-    stages: ['schema', 'syntax', 'cross-resource', 'dependencies', 'network', 'platform', 'dry-run'],
+    stages: [
+      'schema',
+      'syntax',
+      'cross-resource',
+      'dependencies',
+      'network',
+      'platform',
+      'dry-run',
+    ],
     clientOnly: false,
     requiresConfirmation: true,
     confirmationSteps: ['preview', 'countdown'],
@@ -1272,18 +1279,21 @@ export const STAGE_LABELS: Record<ValidationStage, string> = {
 ### Choosing Risk Level
 
 **Low Risk** (WiFi password, display name, comment):
+
 - User-facing text fields
 - Simple input validation
 - No backend impact
 - Fast response needed
 
 **Medium Risk** (Firewall rules, DHCP settings, VPN peer config):
+
 - Network configuration
 - Could conflict with other resources
 - Backend validation needed
 - No dry-run required
 
 **High Risk** (WAN link changes, routing tables, VPN deletion):
+
 - System-critical changes
 - Could break connectivity
 - Requires dry-run + preview
@@ -1370,7 +1380,7 @@ const handleSubmit = async (data) => {
   } catch (error) {
     form.setError('root', {
       type: 'submit',
-      message: 'Failed to save'
+      message: 'Failed to save',
     });
   }
 };
@@ -1396,7 +1406,8 @@ const sync = useFormResourceSync(form, {
 
 ## References
 
-- **Validation Pipeline Architecture:** `Docs/architecture/implementation-patterns/data-validation-patterns.md`
+- **Validation Pipeline Architecture:**
+  `Docs/architecture/implementation-patterns/data-validation-patterns.md`
 - **Universal State v2:** `Docs/architecture/data-architecture.md`
 - **React Hook Form Docs:** https://react-hook-form.com/
 - **Zod Docs:** https://zod.dev/

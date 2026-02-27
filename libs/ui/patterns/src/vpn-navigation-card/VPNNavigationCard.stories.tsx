@@ -2,7 +2,6 @@ import { VPNNavigationCard } from './VPNNavigationCard';
 
 import type { Meta, StoryObj } from '@storybook/react';
 
-
 const meta: Meta<typeof VPNNavigationCard> = {
   title: 'Patterns/VPNNavigationCard',
   component: VPNNavigationCard,
@@ -36,7 +35,8 @@ export const ServerCard: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'VPN Servers navigation card using the Trust Blue (secondary) colour scheme with the Server icon.',
+        story:
+          'VPN Servers navigation card using the Trust Blue (secondary) colour scheme with the Server icon.',
       },
     },
   },
@@ -51,7 +51,8 @@ export const ClientCard: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'VPN Clients navigation card using the Golden Amber (primary) colour scheme with the Monitor icon.',
+        story:
+          'VPN Clients navigation card using the Golden Amber (primary) colour scheme with the Monitor icon.',
       },
     },
   },
@@ -66,7 +67,8 @@ export const AllConfiguredNoneActive: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Three servers configured but none currently active — the active count shows 0 in the success green.',
+        story:
+          'Three servers configured but none currently active — the active count shows 0 in the success green.',
       },
     },
   },
@@ -89,7 +91,7 @@ export const NoneConfigured: Story = {
 
 export const SideBySide: Story = {
   render: (args) => (
-    <div className="grid grid-cols-2 gap-4 w-[520px]">
+    <div className="grid w-[520px] grid-cols-2 gap-4">
       <VPNNavigationCard
         type="server"
         count={4}
@@ -109,7 +111,8 @@ export const SideBySide: Story = {
     layout: 'padded',
     docs: {
       description: {
-        story: 'Both navigation cards rendered side by side as they appear in the VPN dashboard grid, making the colour contrast between server (blue) and client (amber) apparent.',
+        story:
+          'Both navigation cards rendered side by side as they appear in the VPN dashboard grid, making the colour contrast between server (blue) and client (amber) apparent.',
       },
     },
   },

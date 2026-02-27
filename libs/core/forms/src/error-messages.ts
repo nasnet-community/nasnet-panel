@@ -11,10 +11,7 @@ import { z, type ZodErrorMap, ZodIssueCode } from 'zod';
 /**
  * Translation function type.
  */
-export type TranslateFunction = (
-  key: string,
-  params?: Record<string, string | number>
-) => string;
+export type TranslateFunction = (key: string, params?: Record<string, string | number>) => string;
 
 /**
  * Default English error messages.
@@ -53,10 +50,7 @@ export const DEFAULT_ERROR_MESSAGES: Record<string, string> = {
  * // "Must be at least 5 characters"
  * ```
  */
-function defaultTranslate(
-  key: string,
-  params?: Record<string, string | number>
-): string {
+function defaultTranslate(key: string, params?: Record<string, string | number>): string {
   let message = DEFAULT_ERROR_MESSAGES[key] || key;
 
   if (params) {
@@ -92,9 +86,7 @@ function defaultTranslate(
  * }
  * ```
  */
-export function createZodErrorMap(
-  t: TranslateFunction = defaultTranslate
-): ZodErrorMap {
+export function createZodErrorMap(t: TranslateFunction = defaultTranslate): ZodErrorMap {
   return (issue, ctx) => {
     let message: string;
 
@@ -193,9 +185,7 @@ export function setGlobalErrorMap(t?: TranslateFunction): void {
  * @param error - Error message or object
  * @returns Formatted error string
  */
-export function formatValidationError(
-  error: string | { message: string } | undefined
-): string {
+export function formatValidationError(error: string | { message: string } | undefined): string {
   if (!error) return '';
   if (typeof error === 'string') return error;
   return error.message;

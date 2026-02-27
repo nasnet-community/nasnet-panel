@@ -10,11 +10,7 @@
 import { useSubscription, type ApolloError } from '@apollo/client';
 import { gql } from '@apollo/client';
 import { useCallback, useEffect, useRef } from 'react';
-import type {
-  Resource,
-  RuntimeState,
-  ResourceLifecycleState,
-} from '@nasnet/core/types';
+import type { Resource, RuntimeState, ResourceLifecycleState } from '@nasnet/core/types';
 
 // ============================================================================
 // Types
@@ -259,8 +255,9 @@ export function useResourceRuntimeSubscription(
     return () => clearTimeout(timer);
   }, [throttleMs, onUpdate]);
 
-  const eventData: RuntimeUpdateEvent | undefined = data?.resourceRuntime
-    ? {
+  const eventData: RuntimeUpdateEvent | undefined =
+    data?.resourceRuntime ?
+      {
         uuid: data.resourceRuntime.uuid,
         runtime: data.resourceRuntime.runtime,
         timestamp: new Date().toISOString(),
@@ -293,22 +290,19 @@ export function useResourceStateSubscription(
 ): SubscriptionResult<StateChangeEvent> {
   const { skip = false, onStateChange, onError } = options;
 
-  const { data, loading, error } = useSubscription(
-    RESOURCE_STATE_CHANGED_SUBSCRIPTION,
-    {
-      variables: { uuid },
-      skip: skip || !uuid,
-      onData: ({ data: eventData }) => {
-        if (!eventData?.data?.resourceStateChanged || !onStateChange) return;
+  const { data, loading, error } = useSubscription(RESOURCE_STATE_CHANGED_SUBSCRIPTION, {
+    variables: { uuid },
+    skip: skip || !uuid,
+    onData: ({ data: eventData }) => {
+      if (!eventData?.data?.resourceStateChanged || !onStateChange) return;
 
-        const event: StateChangeEvent = eventData.data.resourceStateChanged;
-        onStateChange(event);
-      },
-      onError: (err) => {
-        onError?.(err);
-      },
-    }
-  );
+      const event: StateChangeEvent = eventData.data.resourceStateChanged;
+      onStateChange(event);
+    },
+    onError: (err) => {
+      onError?.(err);
+    },
+  });
 
   return {
     data: data?.resourceStateChanged,
@@ -338,17 +332,14 @@ export function useResourceValidationSubscription(
 ): SubscriptionResult<ValidationEvent> {
   const { skip = false, onProgress } = options;
 
-  const { data, loading, error } = useSubscription(
-    RESOURCE_VALIDATION_SUBSCRIPTION,
-    {
-      variables: { uuid },
-      skip: skip || !uuid,
-      onData: ({ data: eventData }) => {
-        if (!eventData?.data?.resourceValidation || !onProgress) return;
-        onProgress(eventData.data.resourceValidation);
-      },
-    }
-  );
+  const { data, loading, error } = useSubscription(RESOURCE_VALIDATION_SUBSCRIPTION, {
+    variables: { uuid },
+    skip: skip || !uuid,
+    onData: ({ data: eventData }) => {
+      if (!eventData?.data?.resourceValidation || !onProgress) return;
+      onProgress(eventData.data.resourceValidation);
+    },
+  });
 
   return {
     data: data?.resourceValidation,
@@ -398,10 +389,7 @@ export function useResourcesRuntimeSubscription(
 
   // Update map from latest data
   if (data?.resourcesRuntime) {
-    runtimeMapRef.current.set(
-      data.resourcesRuntime.uuid,
-      data.resourcesRuntime.runtime
-    );
+    runtimeMapRef.current.set(data.resourcesRuntime.uuid, data.resourcesRuntime.runtime);
   }
 
   return {
@@ -482,9 +470,7 @@ export function useResourceSubscriptions(
   });
 
   const isConnected =
-    runtimeResult.isConnected ||
-    stateResult.isConnected ||
-    validationResult.isConnected;
+    runtimeResult.isConnected || stateResult.isConnected || validationResult.isConnected;
 
   return {
     runtime: runtimeResult,

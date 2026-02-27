@@ -8,11 +8,7 @@
 
 import { memo, useMemo, useState, useCallback } from 'react';
 import { cn } from '@nasnet/ui/utils';
-import {
-  useNATRules,
-  useDeleteNATRule,
-  useToggleNATRule,
-} from '@nasnet/api-client/queries';
+import { useNATRules, useDeleteNATRule, useToggleNATRule } from '@nasnet/api-client/queries';
 import { useConnectionStore, useNATUIStore } from '@nasnet/state/stores';
 import {
   Table,
@@ -48,7 +44,10 @@ const NATActionBadge = memo(function NATActionBadge({ action }: { action: string
   const variant = VARIANT_MAP[action] || 'outline';
 
   return (
-    <Badge variant={variant} className="text-xs">
+    <Badge
+      variant={variant}
+      className="text-xs"
+    >
       {action}
     </Badge>
   );
@@ -59,7 +58,10 @@ const NATActionBadge = memo(function NATActionBadge({ action }: { action: string
  */
 const ChainBadge = memo(function ChainBadge({ chain }: { chain: string }) {
   return (
-    <Badge variant="secondary" className="font-mono text-xs">
+    <Badge
+      variant="secondary"
+      className="font-mono text-xs"
+    >
       {chain}
     </Badge>
   );
@@ -92,7 +94,11 @@ export interface NATRulesTableProps {
  * @param props - Component props
  * @returns NAT rules table component
  */
-export const NATRulesTable = memo(function NATRulesTable({ className, chain, onEditRule }: NATRulesTableProps) {
+export const NATRulesTable = memo(function NATRulesTable({
+  className,
+  chain,
+  onEditRule,
+}: NATRulesTableProps) {
   const routerIp = useConnectionStore((state) => state.currentRouterIp) || '';
   const { data: allRules, isLoading, error } = useNATRules(routerIp);
   const { showDisabledRules } = useNATUIStore();
@@ -127,9 +133,7 @@ export const NATRulesTable = memo(function NATRulesTable({ className, chain, onE
 
       const aStr = String(aVal).toLowerCase();
       const bStr = String(bVal).toLowerCase();
-      return sortDirection === 'asc'
-        ? aStr.localeCompare(bStr)
-        : bStr.localeCompare(aStr);
+      return sortDirection === 'asc' ? aStr.localeCompare(bStr) : bStr.localeCompare(aStr);
     });
   }, [visibleRules, sortColumn, sortDirection]);
 
@@ -138,16 +142,26 @@ export const NATRulesTable = memo(function NATRulesTable({ className, chain, onE
   // ========================================
 
   // Handle column header click for sorting with useCallback
-  const handleSort = useCallback((column: keyof NATRule) => {
-    setSortDirection((prevDirection) =>
-      sortColumn === column ? (prevDirection === 'asc' ? 'desc' : 'asc') : 'asc'
-    );
-    setSortColumn(column);
-  }, [sortColumn]);
+  const handleSort = useCallback(
+    (column: keyof NATRule) => {
+      setSortDirection((prevDirection) =>
+        sortColumn === column ?
+          prevDirection === 'asc' ?
+            'desc'
+          : 'asc'
+        : 'asc'
+      );
+      setSortColumn(column);
+    },
+    [sortColumn]
+  );
 
-  const handleEdit = useCallback((rule: NATRule) => {
-    onEditRule?.(rule);
-  }, [onEditRule]);
+  const handleEdit = useCallback(
+    (rule: NATRule) => {
+      onEditRule?.(rule);
+    },
+    [onEditRule]
+  );
 
   const handleDelete = useCallback((ruleId: string) => {
     setRuleToDelete(ruleId);
@@ -173,31 +187,34 @@ export const NATRulesTable = memo(function NATRulesTable({ className, chain, onE
     }
   }, [ruleToDelete, deleteRuleMutation]);
 
-  const handleToggle = useCallback(async (ruleId: string, isDisabled: boolean) => {
-    try {
-      await toggleRuleMutation.mutateAsync({ ruleId, disabled: isDisabled });
-      toast({
-        title: isDisabled ? 'NAT Rule Disabled' : 'NAT Rule Enabled',
-        description: `The NAT rule has been ${isDisabled ? 'disabled' : 'enabled'}.`,
-        variant: 'default',
-      });
-    } catch (error) {
-      toast({
-        title: 'Failed to Toggle NAT Rule',
-        description: error instanceof Error ? error.message : 'Unknown error occurred',
-        variant: 'destructive',
-      });
-    }
-  }, [toggleRuleMutation]);
+  const handleToggle = useCallback(
+    async (ruleId: string, isDisabled: boolean) => {
+      try {
+        await toggleRuleMutation.mutateAsync({ ruleId, disabled: isDisabled });
+        toast({
+          title: isDisabled ? 'NAT Rule Disabled' : 'NAT Rule Enabled',
+          description: `The NAT rule has been ${isDisabled ? 'disabled' : 'enabled'}.`,
+          variant: 'default',
+        });
+      } catch (error) {
+        toast({
+          title: 'Failed to Toggle NAT Rule',
+          description: error instanceof Error ? error.message : 'Unknown error occurred',
+          variant: 'destructive',
+        });
+      }
+    },
+    [toggleRuleMutation]
+  );
 
   // Loading state
   if (isLoading) {
     return (
       <div className={`p-component-md ${className || ''}`}>
-        <div className="animate-pulse space-y-component-md">
-          <div className="h-10 bg-muted rounded" />
-          <div className="h-16 bg-muted rounded" />
-          <div className="h-16 bg-muted rounded" />
+        <div className="space-y-component-md animate-pulse">
+          <div className="bg-muted h-10 rounded" />
+          <div className="bg-muted h-16 rounded" />
+          <div className="bg-muted h-16 rounded" />
         </div>
       </div>
     );
@@ -206,7 +223,10 @@ export const NATRulesTable = memo(function NATRulesTable({ className, chain, onE
   // Error state
   if (error) {
     return (
-      <div className={`p-component-md text-error ${className || ''}`} role="alert">
+      <div
+        className={`p-component-md text-error ${className || ''}`}
+        role="alert"
+      >
         Error loading NAT rules: {error.message}
       </div>
     );
@@ -215,7 +235,7 @@ export const NATRulesTable = memo(function NATRulesTable({ className, chain, onE
   // Empty state
   if (!sortedRules || sortedRules.length === 0) {
     return (
-      <div className={`p-component-lg text-center text-muted-foreground ${className || ''}`}>
+      <div className={`p-component-lg text-muted-foreground text-center ${className || ''}`}>
         No NAT rules found {chain && chain !== 'all' ? `in ${chain} chain` : ''}
       </div>
     );
@@ -229,27 +249,45 @@ export const NATRulesTable = memo(function NATRulesTable({ className, chain, onE
             <TableRow>
               <TableHead
                 scope="col"
-                className="cursor-pointer hover:text-foreground"
+                className="hover:text-foreground cursor-pointer"
                 onClick={() => handleSort('order')}
-                aria-sort={sortColumn === 'order' ? (sortDirection === 'asc' ? 'ascending' : 'descending') : undefined}
+                aria-sort={
+                  sortColumn === 'order' ?
+                    sortDirection === 'asc' ?
+                      'ascending'
+                    : 'descending'
+                  : undefined
+                }
                 role="columnheader"
               >
                 # {sortColumn === 'order' && (sortDirection === 'asc' ? '↑' : '↓')}
               </TableHead>
               <TableHead
                 scope="col"
-                className="cursor-pointer hover:text-foreground"
+                className="hover:text-foreground cursor-pointer"
                 onClick={() => handleSort('chain')}
-                aria-sort={sortColumn === 'chain' ? (sortDirection === 'asc' ? 'ascending' : 'descending') : undefined}
+                aria-sort={
+                  sortColumn === 'chain' ?
+                    sortDirection === 'asc' ?
+                      'ascending'
+                    : 'descending'
+                  : undefined
+                }
                 role="columnheader"
               >
                 Chain {sortColumn === 'chain' && (sortDirection === 'asc' ? '↑' : '↓')}
               </TableHead>
               <TableHead
                 scope="col"
-                className="cursor-pointer hover:text-foreground"
+                className="hover:text-foreground cursor-pointer"
                 onClick={() => handleSort('action')}
-                aria-sort={sortColumn === 'action' ? (sortDirection === 'asc' ? 'ascending' : 'descending') : undefined}
+                aria-sort={
+                  sortColumn === 'action' ?
+                    sortDirection === 'asc' ?
+                      'ascending'
+                    : 'descending'
+                  : undefined
+                }
                 role="columnheader"
               >
                 Action {sortColumn === 'action' && (sortDirection === 'asc' ? '↑' : '↓')}
@@ -260,14 +298,19 @@ export const NATRulesTable = memo(function NATRulesTable({ className, chain, onE
               <TableHead scope="col">To Addresses</TableHead>
               <TableHead scope="col">To Ports</TableHead>
               <TableHead scope="col">Comment</TableHead>
-              <TableHead scope="col" className="w-[80px]">Actions</TableHead>
+              <TableHead
+                scope="col"
+                className="w-[80px]"
+              >
+                Actions
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {sortedRules.map((rule) => (
               <TableRow
                 key={rule.id}
-                className={rule.disabled ? 'opacity-50 bg-muted/50' : ''}
+                className={rule.disabled ? 'bg-muted/50 opacity-50' : ''}
               >
                 <TableCell className="font-mono text-xs">{rule.order}</TableCell>
                 <TableCell>
@@ -285,14 +328,18 @@ export const NATRulesTable = memo(function NATRulesTable({ className, chain, onE
                 <TableCell className={cn('font-mono text-xs', rule.disabled && 'line-through')}>
                   {rule.dstAddress || '-'}
                 </TableCell>
-                <TableCell className={cn('font-medium font-mono text-xs', rule.disabled && 'line-through')}>
+                <TableCell
+                  className={cn('font-mono text-xs font-medium', rule.disabled && 'line-through')}
+                >
                   {rule.toAddresses || '-'}
                 </TableCell>
-                <TableCell className={cn('font-medium font-mono text-xs', rule.disabled && 'line-through')}>
+                <TableCell
+                  className={cn('font-mono text-xs font-medium', rule.disabled && 'line-through')}
+                >
                   {rule.toPorts || '-'}
                 </TableCell>
                 <TableCell
-                  className={cn('text-sm text-muted-foreground', rule.disabled && 'line-through')}
+                  className={cn('text-muted-foreground text-sm', rule.disabled && 'line-through')}
                 >
                   {rule.comment || ''}
                 </TableCell>
@@ -302,36 +349,50 @@ export const NATRulesTable = memo(function NATRulesTable({ className, chain, onE
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-8 w-8 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                        className="focus-visible:ring-ring h-8 w-8 focus-visible:ring-2 focus-visible:ring-offset-2"
                         aria-label={`Actions for rule ${rule.order}`}
                       >
-                        <MoreVertical className="h-4 w-4 text-category-firewall" aria-hidden="true" />
+                        <MoreVertical
+                          className="text-category-firewall h-4 w-4"
+                          aria-hidden="true"
+                        />
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem onClick={() => handleEdit(rule)}>
-                        <Edit className="h-4 w-4 mr-component-sm" aria-hidden="true" />
+                        <Edit
+                          className="mr-component-sm h-4 w-4"
+                          aria-hidden="true"
+                        />
                         Edit
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => handleToggle(rule.id, !rule.disabled)}>
-                        {rule.disabled ? (
+                        {rule.disabled ?
                           <>
-                            <Eye className="h-4 w-4 mr-component-sm" aria-hidden="true" />
+                            <Eye
+                              className="mr-component-sm h-4 w-4"
+                              aria-hidden="true"
+                            />
                             Enable
                           </>
-                        ) : (
-                          <>
-                            <EyeOff className="h-4 w-4 mr-component-sm" aria-hidden="true" />
+                        : <>
+                            <EyeOff
+                              className="mr-component-sm h-4 w-4"
+                              aria-hidden="true"
+                            />
                             Disable
                           </>
-                        )}
+                        }
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem
                         onClick={() => handleDelete(rule.id)}
                         className="text-error"
                       >
-                        <Trash2 className="h-4 w-4 mr-component-sm" aria-hidden="true" />
+                        <Trash2
+                          className="mr-component-sm h-4 w-4"
+                          aria-hidden="true"
+                        />
                         Delete
                       </DropdownMenuItem>
                     </DropdownMenuContent>

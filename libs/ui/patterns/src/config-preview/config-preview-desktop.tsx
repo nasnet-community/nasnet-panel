@@ -71,17 +71,17 @@ export function ConfigPreviewDesktop({
   return (
     <div
       className={cn(
-        'bg-card border border-border rounded-[var(--semantic-radius-card)]',
-        'shadow-[var(--semantic-shadow-card)] overflow-hidden',
+        'bg-card border-border rounded-[var(--semantic-radius-card)] border',
+        'overflow-hidden shadow-[var(--semantic-shadow-card)]',
         className
       )}
       role="region"
       aria-label={title}
     >
       {/* Header with toolbar */}
-      <div className="flex flex-row items-center justify-between bg-muted px-4 py-3 border-b border-border">
+      <div className="bg-muted border-border flex flex-row items-center justify-between border-b px-4 py-3">
         <div className="flex items-center gap-3">
-          <h3 className="text-sm font-semibold text-foreground">{title}</h3>
+          <h3 className="text-foreground text-sm font-semibold">{title}</h3>
 
           {/* Diff stats */}
           {showDiff && state.hasDiff && (
@@ -92,7 +92,7 @@ export function ConfigPreviewDesktop({
           )}
 
           {/* Total lines */}
-          <span className="text-xs text-muted-foreground">
+          <span className="text-muted-foreground text-xs">
             {state.totalLines} {state.totalLines === 1 ? 'line' : 'lines'}
           </span>
         </div>
@@ -105,20 +105,20 @@ export function ConfigPreviewDesktop({
                 variant="ghost"
                 size="sm"
                 onClick={state.expandAll}
-                className="text-xs h-8"
+                className="h-8 text-xs"
                 aria-label="Expand all sections"
               >
-                <ChevronDown className="h-4 w-4 mr-1" />
+                <ChevronDown className="mr-1 h-4 w-4" />
                 Expand All
               </Button>
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={state.collapseAll}
-                className="text-xs h-8"
+                className="h-8 text-xs"
                 aria-label="Collapse all sections"
               >
-                <ChevronUp className="h-4 w-4 mr-1" />
+                <ChevronUp className="mr-1 h-4 w-4" />
                 Collapse All
               </Button>
             </>
@@ -129,20 +129,19 @@ export function ConfigPreviewDesktop({
             variant="ghost"
             size="sm"
             onClick={state.copyToClipboard}
-            className="text-xs h-8"
+            className="h-8 text-xs"
             aria-label={state.isCopied ? 'Copied to clipboard' : 'Copy to clipboard'}
           >
-            {state.isCopied ? (
+            {state.isCopied ?
               <>
-                <Check className="h-4 w-4 mr-1.5 text-success" />
+                <Check className="text-success mr-1.5 h-4 w-4" />
                 Copied
               </>
-            ) : (
-              <>
-                <Copy className="h-4 w-4 mr-1.5" />
+            : <>
+                <Copy className="mr-1.5 h-4 w-4" />
                 Copy
               </>
-            )}
+            }
           </Button>
 
           {/* Download button */}
@@ -150,26 +149,32 @@ export function ConfigPreviewDesktop({
             variant="ghost"
             size="sm"
             onClick={state.downloadAsFile}
-            className="text-xs h-8"
+            className="h-8 text-xs"
             aria-label={`Download as ${state.filename}`}
           >
-            <Download className="h-4 w-4 mr-1.5" />
+            <Download className="mr-1.5 h-4 w-4" />
             Download
           </Button>
         </div>
       </div>
 
       {/* Content area - dark background for code */}
-      <div className="overflow-auto bg-slate-950 dark:bg-slate-900" style={maxHeightStyle}>
-        {showDiff ? (
+      <div
+        className="overflow-auto bg-slate-950 dark:bg-slate-900"
+        style={maxHeightStyle}
+      >
+        {showDiff ?
           // Diff view
           <DiffView
             lines={state.diffLines}
             showLineNumbers={showLineNumbers}
           />
-        ) : collapsible && state.sections.length > 1 ? (
+        : collapsible && state.sections.length > 1 ?
           // Sectioned view with collapsible sections
-          <div role="list" aria-label="Configuration sections">
+          <div
+            role="list"
+            aria-label="Configuration sections"
+          >
             {state.sections.map((section) => (
               <ConfigSection
                 key={section.id}
@@ -179,13 +184,12 @@ export function ConfigPreviewDesktop({
               />
             ))}
           </div>
-        ) : (
           // Simple syntax highlighted view
-          <SyntaxHighlight
+        : <SyntaxHighlight
             code={script}
             showLineNumbers={showLineNumbers}
           />
-        )}
+        }
       </div>
 
       {/* Screen reader live region for copy/download feedback */}

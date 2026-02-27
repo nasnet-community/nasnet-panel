@@ -1,8 +1,10 @@
 # Development Workflow
 
-Day-to-day guide for developing the `apps/connect` frontend. Covers environment startup, HMR behaviour, debugging, common development tasks, and the PR process.
+Day-to-day guide for developing the `apps/connect` frontend. Covers environment startup, HMR
+behaviour, debugging, common development tasks, and the PR process.
 
 See also:
+
 - [Key Commands](../getting-started/key-commands.md) — full command reference
 - [Build System](../architecture/build-system.md) — Vite configuration details
 
@@ -18,7 +20,8 @@ npm run dev:frontend
 # Browser opens automatically (open: true in vite.config.ts)
 ```
 
-The Vite dev server binds to `0.0.0.0` (`host: true`), so it is reachable from other devices on the same LAN — useful for testing on a phone.
+The Vite dev server binds to `0.0.0.0` (`host: true`), so it is reachable from other devices on the
+same LAN — useful for testing on a phone.
 
 ### Backend Only
 
@@ -34,7 +37,8 @@ npm run dev:all
 # Runs connect + backend in parallel with verbose output
 ```
 
-The frontend dev server proxies all `/api/*` requests to the Go backend (default: `http://localhost:80`, override with `VITE_PROXY_URL` in `.env.development`):
+The frontend dev server proxies all `/api/*` requests to the Go backend (default:
+`http://localhost:80`, override with `VITE_PROXY_URL` in `.env.development`):
 
 ```env
 # apps/connect/.env.development
@@ -57,17 +61,20 @@ Vite's HMR is configured via `@vitejs/plugin-react` (Fast Refresh). The followin
 
 ### React Component Changes
 
-Standard React Fast Refresh: component state is preserved across edits when the component signature does not change. If you add or remove hooks, the module is fully reloaded and local state is reset.
+Standard React Fast Refresh: component state is preserved across edits when the component signature
+does not change. If you add or remove hooks, the module is fully reloaded and local state is reset.
 
 ### Design Token Changes
 
-The project includes a custom `designTokensHMR` Vite plugin (defined in `apps/connect/vite.config.ts`). When `libs/ui/tokens/src/tokens.json` is modified:
+The project includes a custom `designTokensHMR` Vite plugin (defined in
+`apps/connect/vite.config.ts`). When `libs/ui/tokens/src/tokens.json` is modified:
 
 1. The plugin detects the change and runs `node libs/ui/tokens/build.js`
 2. The rebuilt `libs/ui/tokens/dist/variables.css` is invalidated in Vite's module graph
 3. A `full-reload` is sent to the browser
 
-This means editing design tokens does **not** preserve component state — expect a full page reload. Run `npm run tokens:build` once on first setup if CSS variables are missing.
+This means editing design tokens does **not** preserve component state — expect a full page reload.
+Run `npm run tokens:build` once on first setup if CSS variables are missing.
 
 ### GraphQL Schema Changes
 
@@ -77,21 +84,24 @@ Changes to `.graphql` files do **not** trigger automatic HMR. You must run codeg
 npm run codegen:ts   # TypeScript types, hooks, Zod schemas
 ```
 
-After codegen, Vite detects changes to the generated files under `libs/api-client/generated/` and triggers HMR for any modules that import them.
+After codegen, Vite detects changes to the generated files under `libs/api-client/generated/` and
+triggers HMR for any modules that import them.
 
 ### TanStack Router Route Tree
 
-The `TanStackRouterVite` plugin watches `src/routes/` for new or removed route files. When you add a route file, the plugin automatically regenerates `src/routeTree.gen.ts` and Vite picks up the change. No manual step is needed.
+The `TanStackRouterVite` plugin watches `src/routes/` for new or removed route files. When you add a
+route file, the plugin automatically regenerates `src/routeTree.gen.ts` and Vite picks up the
+change. No manual step is needed.
 
 ### Known HMR Caveats
 
-| Scenario | Behaviour |
-|----------|-----------|
-| Adding/removing a React hook | Full module reload, state reset |
-| Editing CSS custom properties | Full page reload (token rebuild cycle) |
-| Modifying `vite.config.ts` itself | Manual server restart required |
-| Changing XState machine definition | Full module reload |
-| Editing `.graphql` files | Manual `npm run codegen:ts` required |
+| Scenario                           | Behaviour                              |
+| ---------------------------------- | -------------------------------------- |
+| Adding/removing a React hook       | Full module reload, state reset        |
+| Editing CSS custom properties      | Full page reload (token rebuild cycle) |
+| Modifying `vite.config.ts` itself  | Manual server restart required         |
+| Changing XState machine definition | Full module reload                     |
+| Editing `.graphql` files           | Manual `npm run codegen:ts` required   |
 
 ---
 
@@ -99,30 +109,40 @@ The `TanStackRouterVite` plugin watches `src/routes/` for new or removed route f
 
 ### Apollo DevTools
 
-Install the [Apollo Client Devtools](https://www.apollographql.com/docs/react/development-testing/developer-tooling/#apollo-client-devtools) browser extension.
+Install the
+[Apollo Client Devtools](https://www.apollographql.com/docs/react/development-testing/developer-tooling/#apollo-client-devtools)
+browser extension.
 
 Once installed, the **Apollo** tab appears in Chrome DevTools. Use it to:
+
 - Inspect the Apollo cache
 - Run GraphQL queries directly against the connected router
 - Watch active query/subscription states
 - Examine query variables and responses
 
-Apollo DevTools is available in development builds only. The cache is configured with `InMemoryCache` and type policies defined in `libs/api-client/core/src/`.
+Apollo DevTools is available in development builds only. The cache is configured with
+`InMemoryCache` and type policies defined in `libs/api-client/core/src/`.
 
 ### React DevTools
 
-Install the [React Developer Tools](https://react.dev/learn/react-developer-tools) browser extension.
+Install the [React Developer Tools](https://react.dev/learn/react-developer-tools) browser
+extension.
 
 Useful tasks:
+
 - Inspect component trees and props
 - Profile render performance with the Profiler tab
 - Check Zustand store state via `useStore` hooks (visible in component props)
 
 ### TanStack Router Devtools
 
-TanStack Router Devtools are embedded directly in the app during development. A floating button appears in the bottom-right corner (rendered by `<TanStackRouterDevtools position="bottom-right" />` in `src/routes/__root.tsx`). It is automatically excluded from production builds via the `import.meta.env.DEV` guard.
+TanStack Router Devtools are embedded directly in the app during development. A floating button
+appears in the bottom-right corner (rendered by `<TanStackRouterDevtools position="bottom-right" />`
+in `src/routes/__root.tsx`). It is automatically excluded from production builds via the
+`import.meta.env.DEV` guard.
 
 Use it to:
+
 - Inspect the current route tree
 - View route params and search params
 - Navigate to any route
@@ -130,7 +150,9 @@ Use it to:
 
 ### XState Inspector
 
-For debugging XState machines, the project has `@statelyai/inspect` in devDependencies. To enable, import and call `createBrowserInspector()` from `@statelyai/inspect` at the top of the machine file during development.
+For debugging XState machines, the project has `@statelyai/inspect` in devDependencies. To enable,
+import and call `createBrowserInspector()` from `@statelyai/inspect` at the top of the machine file
+during development.
 
 ---
 
@@ -138,8 +160,11 @@ For debugging XState machines, the project has `@statelyai/inspect` in devDepend
 
 ### TypeScript Errors in the Browser
 
-`vite-plugin-checker` runs TypeScript type-checking in a background worker during development. Type errors appear as:
-- An overlay in the browser (`overlay.initialIsOpen: false` — minimised by default, click the warning icon to expand)
+`vite-plugin-checker` runs TypeScript type-checking in a background worker during development. Type
+errors appear as:
+
+- An overlay in the browser (`overlay.initialIsOpen: false` — minimised by default, click the
+  warning icon to expand)
 - Terminal output with file path and line number
 
 Fix the type error in your editor; the overlay clears automatically on save.
@@ -147,17 +172,22 @@ Fix the type error in your editor; the overlay clears automatically on save.
 ### Network Request Inspection
 
 All GraphQL requests go to `/api/graphql`. In the browser's Network tab:
+
 - Filter by `XHR` or `Fetch`
 - Look for `graphql` requests to inspect queries, mutations, and responses
 - WebSocket subscriptions appear under the `WS` filter
 
 ### Console Logging
 
-`console.log` is stripped in production builds (Terser `drop_console: true`). During development, use the browser console freely. For structured debugging, prefer React DevTools over console logging.
+`console.log` is stripped in production builds (Terser `drop_console: true`). During development,
+use the browser console freely. For structured debugging, prefer React DevTools over console
+logging.
 
 ### Source Maps
 
-Source maps are generated in development and staging mode (`sourcemap: mode !== 'production'`). TypeScript and TSX source files are visible in the Sources tab. Breakpoints set on TypeScript source lines work as expected.
+Source maps are generated in development and staging mode (`sourcemap: mode !== 'production'`).
+TypeScript and TSX source files are visible in the Sources tab. Breakpoints set on TypeScript source
+lines work as expected.
 
 ---
 
@@ -190,7 +220,8 @@ TanStack Router uses file-based routing. All route files live under `apps/connec
 
 4. Add a navigation link in `AppSidebar.tsx` or the relevant tab navigation component.
 
-**For heavy tabs** (those with large tables or complex forms), use lazy loading with a skeleton fallback:
+**For heavy tabs** (those with large tables or complex forms), use lazy loading with a skeleton
+fallback:
 
 ```tsx
 import { createFileRoute } from '@tanstack/react-router';
@@ -200,7 +231,10 @@ import { LazyMyFeatureTab } from '@/app/routes/router-panel/tabs/lazy';
 
 function MyFeatureSkeleton() {
   return (
-    <div className="space-y-4 p-4 animate-fade-in-up" aria-busy="true">
+    <div
+      className="animate-fade-in-up space-y-4 p-4"
+      aria-busy="true"
+    >
       <Skeleton className="h-6 w-40" />
       <Skeleton className="h-64 w-full" />
     </div>
@@ -219,8 +253,8 @@ export const Route = createFileRoute('/router/$id/my-feature')({
 Register the lazy component in `src/app/routes/router-panel/tabs/lazy.ts`:
 
 ```ts
-export const [LazyMyFeatureTab, preloadMyFeatureTab] = createLazyWithPreload(
-  () => import('./MyFeatureTab').then((m) => ({ default: m.MyFeatureTab }))
+export const [LazyMyFeatureTab, preloadMyFeatureTab] = createLazyWithPreload(() =>
+  import('./MyFeatureTab').then((m) => ({ default: m.MyFeatureTab }))
 );
 ```
 
@@ -266,13 +300,15 @@ export const [LazyMyFeatureTab, preloadMyFeatureTab] = createLazyWithPreload(
    npm run codegen
    ```
 
-   After modifying `.graphql` files, always remind yourself to run codegen — the TypeScript types and Go resolver stubs must stay in sync.
+   After modifying `.graphql` files, always remind yourself to run codegen — the TypeScript types
+   and Go resolver stubs must stay in sync.
 
 ### Adding a New UI Component
 
 Follow the three-layer architecture:
 
-- **Primitive** (`libs/ui/primitives/`) — only for new shadcn/Radix wrapper components with zero business logic
+- **Primitive** (`libs/ui/primitives/`) — only for new shadcn/Radix wrapper components with zero
+  business logic
 - **Pattern** (`libs/ui/patterns/`) — composite, reusable, platform-aware components
 - **Domain** (`libs/features/*/components/`) — feature-specific, not shared
 
@@ -305,8 +341,8 @@ For a new **pattern** component:
 
    export function MyComponent(props: MyComponentProps) {
      const platform = usePlatform();
-     return platform === 'mobile'
-       ? <MyComponentMobile {...props} />
+     return platform === 'mobile' ?
+         <MyComponentMobile {...props} />
        : <MyComponentDesktop {...props} />;
    }
    ```
@@ -317,7 +353,8 @@ For a new **pattern** component:
 
 ### Modifying the GraphQL Schema and Running Codegen
 
-Schema files are the single source of truth for the API contract. They live in `schema/` at the monorepo root.
+Schema files are the single source of truth for the API contract. They live in `schema/` at the
+monorepo root.
 
 **Full codegen workflow:**
 
@@ -335,12 +372,14 @@ npm run codegen:check
 ```
 
 The codegen produces:
+
 - `libs/api-client/generated/` — TypeScript types, Apollo hooks, Zod schemas
 - `apps/backend/graph/generated.go` — Go GraphQL executor
 - `apps/backend/graph/model/models_gen.go` — Go model types
 - `apps/backend/generated/ent/` — ent ORM code
 
-Never manually edit files in these generated directories. Any hand edits are overwritten on the next codegen run.
+Never manually edit files in these generated directories. Any hand edits are overwritten on the next
+codegen run.
 
 ---
 
@@ -381,7 +420,8 @@ docs(api-client): clarify codegen workflow
 chore(deps): update tanstack-router to 1.157
 ```
 
-Commitlint enforces this via `@commitlint/cli` and `@commitlint/config-conventional` in the Husky pre-commit hook.
+Commitlint enforces this via `@commitlint/cli` and `@commitlint/config-conventional` in the Husky
+pre-commit hook.
 
 ### Code Review Checklist
 

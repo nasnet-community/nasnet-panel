@@ -96,7 +96,10 @@ export const BridgeForm = memo(function BridgeForm({
   return (
     <>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(handleFormSubmit as never)} className="space-y-component-lg">
+        <form
+          onSubmit={form.handleSubmit(handleFormSubmit as never)}
+          className="space-y-component-lg"
+        >
           {/* Name */}
           <FormField
             control={form.control}
@@ -134,9 +137,7 @@ export const BridgeForm = memo(function BridgeForm({
                     rows={2}
                   />
                 </FormControl>
-                <FormDescription>
-                  Optional description for this bridge
-                </FormDescription>
+                <FormDescription>Optional description for this bridge</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -207,7 +208,7 @@ export const BridgeForm = memo(function BridgeForm({
             control={form.control}
             name="vlanFiltering"
             render={({ field }) => (
-              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-component-md">
+              <FormItem className="p-component-md flex flex-row items-center justify-between rounded-lg border">
                 <div className="space-y-component-xs">
                   <FormLabel className="text-base">VLAN Filtering</FormLabel>
                   <FormDescription>
@@ -270,16 +271,14 @@ export const BridgeForm = memo(function BridgeForm({
                     onChange={(e) => field.onChange(parseInt(e.target.value))}
                   />
                 </FormControl>
-                <FormDescription>
-                  Maximum packet size in bytes (default: 1500)
-                </FormDescription>
+                <FormDescription>Maximum packet size in bytes (default: 1500)</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
           />
 
           {/* Actions */}
-          <div className="flex justify-end gap-component-sm">
+          <div className="gap-component-sm flex justify-end">
             <Button
               type="button"
               variant="outline"
@@ -288,8 +287,15 @@ export const BridgeForm = memo(function BridgeForm({
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? 'Saving...' : isEditing ? 'Update Bridge' : 'Create Bridge'}
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ?
+                'Saving...'
+              : isEditing ?
+                'Update Bridge'
+              : 'Create Bridge'}
             </Button>
           </div>
         </form>
@@ -304,9 +310,11 @@ export const BridgeForm = memo(function BridgeForm({
         consequences={[
           'All ports will need PVID assigned',
           'Tagged/untagged VLAN IDs must be configured correctly',
-          ...(bridge?.ports && bridge.ports.length > 0
-            ? [`This bridge has ${bridge.ports.length} port(s). Ensure they have VLAN configuration before enabling filtering.`]
-            : []),
+          ...(bridge?.ports && bridge.ports.length > 0 ?
+            [
+              `This bridge has ${bridge.ports.length} port(s). Ensure they have VLAN configuration before enabling filtering.`,
+            ]
+          : []),
         ]}
         confirmText="ENABLE"
         onConfirm={confirmVlanFiltering}

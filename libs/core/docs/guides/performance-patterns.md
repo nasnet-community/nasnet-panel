@@ -5,9 +5,12 @@ title: Performance Patterns
 
 # Performance Patterns in NasNetConnect
 
-**Reference:** `libs/core/utils/src/hooks/` | `libs/core/forms/src/` | Performance Optimization Patterns
+**Reference:** `libs/core/utils/src/hooks/` | `libs/core/forms/src/` | Performance Optimization
+Patterns
 
-NasNetConnect implements several performance optimization patterns across form handling, data scrolling, and validation pipelines. This guide documents these patterns and their practical applications.
+NasNetConnect implements several performance optimization patterns across form handling, data
+scrolling, and validation pipelines. This guide documents these patterns and their practical
+applications.
 
 ## Table of Contents
 
@@ -22,11 +25,14 @@ NasNetConnect implements several performance optimization patterns across form h
 
 ## useAutoScroll Hook
 
-The `useAutoScroll` hook manages automatic scrolling behavior for scrollable containers like log viewers and real-time data streams. It uses performance-optimized techniques to avoid layout thrashing and ensures smooth scrolling.
+The `useAutoScroll` hook manages automatic scrolling behavior for scrollable containers like log
+viewers and real-time data streams. It uses performance-optimized techniques to avoid layout
+thrashing and ensures smooth scrolling.
 
 ### Architecture
 
 The hook implements:
+
 - **requestAnimationFrame (rAF)** for scroll event handling instead of raw events
 - **Passive event listeners** for improved scroll performance
 - **Efficient state tracking** of bottom position and new entry count
@@ -82,6 +88,7 @@ element.addEventListener('scroll', handleScroll, { passive: true });
 ```
 
 **Benefits:**
+
 - Scroll events are debounced to 60 FPS (or viewport refresh rate)
 - Prevents layout thrashing from rapid DOM reads/writes
 - Previous rAF callback is cancelled if user scrolls again before it fires
@@ -103,8 +110,8 @@ element.addEventListener('scroll', handleScroll, { passive: true });
 // If user is already at the bottom and new data arrives
 // The hook instantly scrolls to bottom
 if (isAtBottom && hasNewEntries) {
-  scrollToBottom('instant');  // Instant scroll on load
-  scrollToBottom('smooth');   // Smooth scroll on updates
+  scrollToBottom('instant'); // Instant scroll on load
+  scrollToBottom('smooth'); // Smooth scroll on updates
 }
 ```
 
@@ -115,7 +122,7 @@ if (isAtBottom && hasNewEntries) {
 // The hook tracks how many new entries arrived
 // Display "5 new entries" button
 if (!isAtBottom && hasNewEntries) {
-  setNewEntriesCount(prev => prev + newCount);
+  setNewEntriesCount((prev) => prev + newCount);
 }
 ```
 
@@ -132,28 +139,29 @@ const { scrollToBottom } = useAutoScroll({ /* ... */ });
 
 ```typescript
 export interface UseAutoScrollOptions {
-  scrollRef: RefObject<HTMLElement>;        // Ref to scrollable container
-  data: unknown[];                           // Data array to watch
-  enabled?: boolean;                         // Enable/disable (default: true)
-  threshold?: number;                        // Pixels from bottom (default: 100)
+  scrollRef: RefObject<HTMLElement>; // Ref to scrollable container
+  data: unknown[]; // Data array to watch
+  enabled?: boolean; // Enable/disable (default: true)
+  threshold?: number; // Pixels from bottom (default: 100)
 }
 ```
 
 **Threshold Explanation:**
 
-The `threshold` option defines how close to the bottom the user must be for auto-scroll to trigger. Default is 100 pixels:
+The `threshold` option defines how close to the bottom the user must be for auto-scroll to trigger.
+Default is 100 pixels:
 
 ```typescript
 const distanceFromBottom = scrollHeight - scrollTop - clientHeight;
-const isAtBottom = distanceFromBottom <= threshold;  // 100px buffer
+const isAtBottom = distanceFromBottom <= threshold; // 100px buffer
 ```
 
 ### Return Type
 
 ```typescript
 export interface UseAutoScrollReturn {
-  isAtBottom: boolean;        // User is scrolled to bottom
-  newEntriesCount: number;    // Count of new entries since scroll paused
+  isAtBottom: boolean; // User is scrolled to bottom
+  newEntriesCount: number; // Count of new entries since scroll paused
   scrollToBottom: () => void; // Scroll to bottom immediately
 }
 ```
@@ -162,7 +170,9 @@ export interface UseAutoScrollReturn {
 
 ## Form Persistence Caching
 
-The `useFormPersistence` hook saves form state to browser storage (sessionStorage by default) for recovery after page reload. This is critical for long wizard flows where users might accidentally refresh or navigate away.
+The `useFormPersistence` hook saves form state to browser storage (sessionStorage by default) for
+recovery after page reload. This is critical for long wizard flows where users might accidentally
+refresh or navigate away.
 
 ### How It Works
 
@@ -203,7 +213,7 @@ function WizardStep() {
 Forms are saved with **debouncing** to avoid excessive storage writes:
 
 ```typescript
-const debounceMs = 1000;  // Default
+const debounceMs = 1000; // Default
 
 // User types quickly
 form.watch((values) => {
@@ -217,6 +227,7 @@ form.watch((values) => {
 ```
 
 **Benefits:**
+
 - Saves battery life (fewer storage writes)
 - Reduces UI jank from synchronous storage access
 - Handles rapid user input efficiently
@@ -236,7 +247,7 @@ Fields in `excludeFields` are never written to storage:
 ```typescript
 const filterValues = (values) => {
   const filtered = { ...values };
-  excludeFields.forEach(field => {
+  excludeFields.forEach((field) => {
     delete filtered[field];
   });
   return filtered;
@@ -249,7 +260,7 @@ Saved form data is automatically restored when the component mounts:
 
 ```typescript
 useEffect(() => {
-  restore();  // Called automatically in useFormPersistence
+  restore(); // Called automatically in useFormPersistence
 }, [restore]);
 ```
 
@@ -268,7 +279,7 @@ const restore = useCallback((): boolean => {
     hasRestoredRef.current = true;
     return true;
   } catch {
-    storage.removeItem(storageKey);  // Clear invalid data
+    storage.removeItem(storageKey); // Clear invalid data
     return false;
   }
 }, [form, storageKey, storage]);
@@ -289,6 +300,7 @@ const restore = useCallback((): boolean => {
 ## Validation Pipeline Optimization
 
 The validation pipeline optimizes performance by:
+
 - **Skipping unnecessary stages** based on risk level
 - **Aborting pending validation** when new input arrives
 - **Debouncing async validation** to reduce API calls
@@ -297,7 +309,7 @@ The validation pipeline optimizes performance by:
 
 ```typescript
 export const RISK_LEVEL_STAGES: Record<RiskLevel, ValidationStageName[]> = {
-  low: ['schema', 'syntax'],  // Only fast client-side checks
+  low: ['schema', 'syntax'], // Only fast client-side checks
   medium: ['schema', 'syntax', 'cross-resource', 'dependencies'],
   high: ['schema', 'syntax', 'cross-resource', 'dependencies', 'network', 'platform', 'dry-run'],
 };
@@ -308,7 +320,7 @@ export const RISK_LEVEL_STAGES: Record<RiskLevel, ValidationStageName[]> = {
 ```typescript
 // Changing WiFi password
 const validation = useValidationPipeline({
-  riskLevel: 'low',  // Only stages 1-2
+  riskLevel: 'low', // Only stages 1-2
   // Skip expensive cross-resource, network, platform, dry-run checks
 });
 ```
@@ -318,7 +330,7 @@ const validation = useValidationPipeline({
 ```typescript
 // Configuring VPN endpoint
 const validation = useValidationPipeline({
-  riskLevel: 'high',  // All stages 1-7
+  riskLevel: 'high', // All stages 1-7
   // Run full validation suite
 });
 ```
@@ -363,10 +375,12 @@ const validate = useCallback(
 
     // If request is still pending when new input arrives, abort it
     const asyncError = await validateFn(value, {
-      signal: abortControllerRef.current.signal
+      signal: abortControllerRef.current.signal,
     });
   },
-  [/* dependencies */]
+  [
+    /* dependencies */
+  ]
 );
 ```
 
@@ -384,13 +398,18 @@ const validate = useCallback(
 
 ```typescript
 // @nasnet/core/types - Pure TypeScript, no React
-export interface ValidationError { /* ... */ }
+export interface ValidationError {
+  /* ... */
+}
 
 // @nasnet/core/utils - Pure functions, can be used anywhere
-export function getReducedMotionPreference(): boolean { /* ... */ }
+export function getReducedMotionPreference(): boolean {
+  /* ... */
+}
 ```
 
 **Benefits:**
+
 - Can be imported in non-React contexts
 - Tree-shaking friendly
 - Smaller bundle when only using utilities
@@ -447,7 +466,7 @@ For complex dependency graphs, cache computed results:
 // Don't recompute on every render
 const dependencyCache = useMemo(
   () => computeDependencyGraph(resources),
-  [resources]  // Only recompute if resources change
+  [resources] // Only recompute if resources change
 );
 ```
 
@@ -457,21 +476,21 @@ Port registry uses a Map for O(1) lookups instead of array search:
 
 ```typescript
 // Efficient: O(1) lookup
-const portMap = new Map(wellKnownPorts.map(p => [p.number, p]));
-const port = portMap.get(22);  // SSH
+const portMap = new Map(wellKnownPorts.map((p) => [p.number, p]));
+const port = portMap.get(22); // SSH
 
 // Inefficient: O(n) lookup
-const port = wellKnownPorts.find(p => p.number === 22);
+const port = wellKnownPorts.find((p) => p.number === 22);
 ```
 
 ### When to Cache vs Compute
 
-| Scenario | Strategy |
-|----------|----------|
-| Expensive computation, stable inputs | **useMemo** to cache result |
-| Frequently accessed, rarely updated | **Map-based lookup** or **Set** |
+| Scenario                                | Strategy                         |
+| --------------------------------------- | -------------------------------- |
+| Expensive computation, stable inputs    | **useMemo** to cache result      |
+| Frequently accessed, rarely updated     | **Map-based lookup** or **Set**  |
 | Simple transformation, frequent changes | **Compute on demand** (no cache) |
-| Long operation list, filtering needed | **Filter once, cache results** |
+| Long operation list, filtering needed   | **Filter once, cache results**   |
 
 ---
 

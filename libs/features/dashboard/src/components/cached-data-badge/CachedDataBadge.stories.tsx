@@ -13,10 +13,10 @@ import type { Meta, StoryObj } from '@storybook/react';
 // ---------------------------------------------------------------------------
 // Shared mock timestamps
 // ---------------------------------------------------------------------------
-const justNow = new Date(Date.now() - 15_000);           // 15 seconds ago
+const justNow = new Date(Date.now() - 15_000); // 15 seconds ago
 const twoMinutesAgo = new Date(Date.now() - 2 * 60_000); // 2 minutes ago
 const sevenMinutesAgo = new Date(Date.now() - 7 * 60_000); // 7 minutes ago
-const oneHourAgo = new Date(Date.now() - 60 * 60_000);   // 1 hour ago
+const oneHourAgo = new Date(Date.now() - 60 * 60_000); // 1 hour ago
 
 // ---------------------------------------------------------------------------
 // Meta
@@ -78,7 +78,8 @@ export const InlineFresh: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Inline badge with fresh (green) state. Shown when data was updated within the last minute.',
+        story:
+          'Inline badge with fresh (green) state. Shown when data was updated within the last minute.',
       },
     },
   },
@@ -97,7 +98,8 @@ export const InlineWarning: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Inline badge with warning (amber) state. Displayed when the connection is intermittently lost.',
+        story:
+          'Inline badge with warning (amber) state. Displayed when the connection is intermittently lost.',
       },
     },
   },
@@ -116,7 +118,8 @@ export const InlineCritical: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Inline badge with critical (red) state. Mutations are disabled at this staleness level.',
+        story:
+          'Inline badge with critical (red) state. Mutations are disabled at this staleness level.',
       },
     },
   },

@@ -2,17 +2,24 @@
 
 **File:** `libs/features/docs/error-handling.md`
 
-NasNetConnect implements a comprehensive 3-tier error boundary system for resilient frontend error handling and graceful error recovery. This document covers the hierarchy, implementation patterns, and integration guidelines.
+NasNetConnect implements a comprehensive 3-tier error boundary system for resilient frontend error
+handling and graceful error recovery. This document covers the hierarchy, implementation patterns,
+and integration guidelines.
 
 ## Overview
 
 The error handling architecture provides **graceful degradation** through nested error boundaries:
 
-- **Tier 1 (AppErrorBoundary):** Catches catastrophic failures that escape all other boundaries. Shows full-page error UI with reload and error reporting options.
-- **Tier 2 (RouteErrorBoundary):** Isolates errors to specific routes. Errors don't affect other routes or the main layout. Auto-resets on route change.
-- **Tier 3 (ComponentErrorBoundary):** Isolates errors to individual components/widgets. Shows inline error cards that don't disrupt surrounding UI.
+- **Tier 1 (AppErrorBoundary):** Catches catastrophic failures that escape all other boundaries.
+  Shows full-page error UI with reload and error reporting options.
+- **Tier 2 (RouteErrorBoundary):** Isolates errors to specific routes. Errors don't affect other
+  routes or the main layout. Auto-resets on route change.
+- **Tier 3 (ComponentErrorBoundary):** Isolates errors to individual components/widgets. Shows
+  inline error cards that don't disrupt surrounding UI.
 
-**Philosophy:** Errors are caught as close as possible to their source. Only errors that escape a boundary bubble up to the next level. This prevents a single component error from crashing the entire application.
+**Philosophy:** Errors are caught as close as possible to their source. Only errors that escape a
+boundary bubble up to the next level. This prevents a single component error from crashing the
+entire application.
 
 ## Three-Tier Hierarchy
 
@@ -43,13 +50,15 @@ The error handling architecture provides **graceful degradation** through nested
 └─────────────────────────────────────────────────────────────┘
 ```
 
-**Error Flow:** Component error → caught by nearest boundary → fallback UI → user action (retry/navigate) → attempt recovery or escalate to parent boundary.
+**Error Flow:** Component error → caught by nearest boundary → fallback UI → user action
+(retry/navigate) → attempt recovery or escalate to parent boundary.
 
 ## Base ErrorBoundary
 
 Located: `libs/ui/patterns/src/error-boundary/ErrorBoundary.tsx`
 
-The foundation class component that all other boundaries build upon. Implements React's error boundary lifecycle methods.
+The foundation class component that all other boundaries build upon. Implements React's error
+boundary lifecycle methods.
 
 ### Key Methods
 
@@ -86,13 +95,13 @@ resetErrorBoundary = (): void => {
 
 ### Props
 
-| Prop | Type | Purpose |
-|------|------|---------|
-| `children` | `ReactNode` | Components to protect |
-| `fallback` | `ReactNode \| (props) => ReactNode` | UI to show on error (static or render prop) |
-| `onError` | `(error, info) => void` | Callback when error is caught (logging/telemetry) |
-| `onReset` | `() => void` | Callback when boundary resets |
-| `resetKey` | `string \| number` | Change to auto-reset (useful for route changes) |
+| Prop       | Type                                | Purpose                                           |
+| ---------- | ----------------------------------- | ------------------------------------------------- |
+| `children` | `ReactNode`                         | Components to protect                             |
+| `fallback` | `ReactNode \| (props) => ReactNode` | UI to show on error (static or render prop)       |
+| `onError`  | `(error, info) => void`             | Callback when error is caught (logging/telemetry) |
+| `onReset`  | `() => void`                        | Callback when boundary resets                     |
+| `resetKey` | `string \| number`                  | Change to auto-reset (useful for route changes)   |
 
 ### Features
 
@@ -106,7 +115,8 @@ resetErrorBoundary = (): void => {
 
 Located: `libs/ui/patterns/src/error-boundary/AppErrorBoundary.tsx`
 
-The outermost boundary for catching catastrophic failures that escape all other boundaries (provider initialization errors, unrecoverable crashes).
+The outermost boundary for catching catastrophic failures that escape all other boundaries (provider
+initialization errors, unrecoverable crashes).
 
 ### Features
 
@@ -134,18 +144,21 @@ The outermost boundary for catching catastrophic failures that escape all other 
 ### When It Fires
 
 This boundary catches errors that occur:
+
 - During provider initialization
 - In event handlers not caught by other boundaries
 - In async errors that become synchronous (rare)
 - Critical framework errors
 
-**Example:** If Apollo Client initialization fails, `AppErrorBoundary` will catch it and display the full-page error UI instead of a blank page.
+**Example:** If Apollo Client initialization fails, `AppErrorBoundary` will catch it and display the
+full-page error UI instead of a blank page.
 
 ## RouteErrorBoundary
 
 Located: `libs/ui/patterns/src/error-boundary/RouteErrorBoundary.tsx`
 
-Route-level error boundary for per-route isolation. Automatically resets when the route changes using TanStack Router's `useLocation` hook.
+Route-level error boundary for per-route isolation. Automatically resets when the route changes
+using TanStack Router's `useLocation` hook.
 
 ### Features
 
@@ -202,17 +215,19 @@ export const Route = createFileRoute('/_layout')({
 
 ```typescript
 const location = useLocation();
-const resetKey = location.pathname;  // Changes when route changes
+const resetKey = location.pathname; // Changes when route changes
 // ErrorBoundary.componentDidUpdate checks if resetKey changed and calls resetErrorBoundary()
 ```
 
-When the user navigates to a different route, the `pathname` changes, triggering the boundary reset and clearing the error state.
+When the user navigates to a different route, the `pathname` changes, triggering the boundary reset
+and clearing the error state.
 
 ## ComponentErrorBoundary
 
 Located: `libs/ui/patterns/src/error-boundary/ComponentErrorBoundary.tsx`
 
-The innermost boundary for individual components/widgets. Shows inline error cards that don't disrupt surrounding UI.
+The innermost boundary for individual components/widgets. Shows inline error cards that don't
+disrupt surrounding UI.
 
 ### InlineErrorCard Component
 
@@ -224,7 +239,7 @@ interface InlineErrorCardProps {
   reset?: () => void;
   componentName?: string;
   className?: string;
-  minimal?: boolean;  // Minimal inline variant
+  minimal?: boolean; // Minimal inline variant
 }
 ```
 
@@ -267,7 +282,8 @@ interface InlineErrorCardProps {
 
 Located: `libs/ui/patterns/src/error-boundary/withErrorBoundary.tsx`
 
-Higher-order component for wrapping components with error boundaries without modifying component JSX.
+Higher-order component for wrapping components with error boundaries without modifying component
+JSX.
 
 ### Signature
 
@@ -275,7 +291,7 @@ Higher-order component for wrapping components with error boundaries without mod
 export function withErrorBoundary<P extends object>(
   Component: React.ComponentType<P>,
   options: WithErrorBoundaryOptions = {}
-): React.ComponentType<P>
+): React.ComponentType<P>;
 
 export interface WithErrorBoundaryOptions {
   fallback?: React.ReactNode | ((props: ErrorBoundaryFallbackProps) => React.ReactNode);
@@ -477,17 +493,20 @@ Form validation errors are displayed inline next to fields:
 
 Located: `libs/api-client/core/src/apollo/apollo-error-link.ts`
 
-Centralized error handling for GraphQL and network errors with integration to auth and notification stores.
+Centralized error handling for GraphQL and network errors with integration to auth and notification
+stores.
 
 ### Error Categories
 
 **GraphQL Errors** (from server response)
+
 - `UNAUTHENTICATED`: Clears auth store, shows session expired notification
 - `FORBIDDEN`: Shows permission denied notification
 - `NOT_FOUND`: Shows not found notification
 - `VALIDATION_FAILED`: Passed to form validation handlers
 
 **Network Errors** (connection/HTTP issues)
+
 - `401 Unauthorized`: Clears auth, redirects to login
 - `403 Forbidden`: Shows permission denied notification
 - Generic network error: Shows connectivity notification
@@ -520,7 +539,7 @@ Configuration in useQuery/useMutation hooks:
 
 ```typescript
 const { data, error } = useQuery(QUERY, {
-  errorPolicy: 'all',  // Get both data and errors
+  errorPolicy: 'all', // Get both data and errors
 });
 ```
 
@@ -550,6 +569,7 @@ Located: `libs/ui/patterns/src/error-boundary/ErrorBoundary.test.tsx`
 ### Test Patterns
 
 **Force an error in a component:**
+
 ```typescript
 function ThrowingComponent({ shouldThrow = true }: { shouldThrow?: boolean }) {
   if (shouldThrow) {
@@ -560,6 +580,7 @@ function ThrowingComponent({ shouldThrow = true }: { shouldThrow?: boolean }) {
 ```
 
 **Test fallback renders:**
+
 ```typescript
 it('renders fallback when error occurs', () => {
   render(
@@ -573,6 +594,7 @@ it('renders fallback when error occurs', () => {
 ```
 
 **Test error callback:**
+
 ```typescript
 it('calls onError callback when error occurs', () => {
   const onError = vi.fn();
@@ -588,6 +610,7 @@ it('calls onError callback when error occurs', () => {
 ```
 
 **Test recovery via reset:**
+
 ```typescript
 it('resets error state when resetErrorBoundary is called', () => {
   function TestComponent() {
@@ -618,6 +641,7 @@ it('resets error state when resetErrorBoundary is called', () => {
 ```
 
 **Test key-based reset:**
+
 ```typescript
 it('resets when resetKey changes', () => {
   function TestComponent() {
@@ -647,7 +671,8 @@ it('resets when resetKey changes', () => {
 
 ## Best Practices
 
-1. **Choose the right boundary:** Wrap components at the logical scope where you want to isolate errors.
+1. **Choose the right boundary:** Wrap components at the logical scope where you want to isolate
+   errors.
 2. **Provide context:** Use `componentName` to help users understand what failed.
 3. **Add onError callbacks:** Log errors for debugging and monitoring.
 4. **Test error states:** Always test the fallback UI rendering.
@@ -657,7 +682,10 @@ it('resets when resetKey changes', () => {
 
 ## Cross-References
 
-- **Document 15: Routing & Route Errors** - TanStack Router error components (`errorComponent`, `notFoundComponent`)
+- **Document 15: Routing & Route Errors** - TanStack Router error components (`errorComponent`,
+  `notFoundComponent`)
 - **Document 12: API Client Architecture** - GraphQL error handling, Apollo Client error link
-- **Document 14: Testing Strategy** - Error boundary testing patterns with Vitest and React Testing Library
-- **Design Tokens & Accessibility** - Error color tokens, WCAG AAA contrast ratios for error displays
+- **Document 14: Testing Strategy** - Error boundary testing patterns with Vitest and React Testing
+  Library
+- **Design Tokens & Accessibility** - Error color tokens, WCAG AAA contrast ratios for error
+  displays

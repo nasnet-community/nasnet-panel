@@ -1,5 +1,13 @@
 import { memo } from 'react';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Input, Button } from '@nasnet/ui/primitives';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Input,
+  Button,
+} from '@nasnet/ui/primitives';
 import { InterfaceType, InterfaceStatus } from '@nasnet/api-client/generated';
 import type { InterfaceFilters } from './InterfaceList';
 
@@ -12,7 +20,10 @@ export interface InterfaceListFiltersProps {
  * Interface List Filters Component
  * Provides filtering controls for interface type, status, and search
  */
-export const InterfaceListFilters = memo(function InterfaceListFilters({ filters, onChange }: InterfaceListFiltersProps) {
+export const InterfaceListFilters = memo(function InterfaceListFilters({
+  filters,
+  onChange,
+}: InterfaceListFiltersProps) {
   const hasActiveFilters = filters.type || filters.status || filters.search;
 
   const handleClearFilters = () => {
@@ -20,7 +31,11 @@ export const InterfaceListFilters = memo(function InterfaceListFilters({ filters
   };
 
   return (
-    <div className="flex gap-component-sm items-center flex-wrap category-networking" role="search" aria-label="Filter interfaces">
+    <div
+      className="gap-component-sm category-networking flex flex-wrap items-center"
+      role="search"
+      aria-label="Filter interfaces"
+    >
       {/* Type filter */}
       <Select
         value={filters.type ?? 'all'}
@@ -31,7 +46,10 @@ export const InterfaceListFilters = memo(function InterfaceListFilters({ filters
           })
         }
       >
-        <SelectTrigger className="w-40 min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" aria-label="Filter by interface type">
+        <SelectTrigger
+          className="focus-visible:ring-ring min-h-[44px] w-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+          aria-label="Filter by interface type"
+        >
           <SelectValue placeholder="All Types" />
         </SelectTrigger>
         <SelectContent>
@@ -56,7 +74,10 @@ export const InterfaceListFilters = memo(function InterfaceListFilters({ filters
           })
         }
       >
-        <SelectTrigger className="w-40 min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" aria-label="Filter by interface status">
+        <SelectTrigger
+          className="focus-visible:ring-ring min-h-[44px] w-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+          aria-label="Filter by interface status"
+        >
           <SelectValue placeholder="All Status" />
         </SelectTrigger>
         <SelectContent>
@@ -73,13 +94,19 @@ export const InterfaceListFilters = memo(function InterfaceListFilters({ filters
         placeholder="Search by name..."
         value={filters.search}
         onChange={(e) => onChange({ ...filters, search: e.target.value })}
-        className="w-64 min-h-[44px]"
+        className="min-h-[44px] w-64"
         aria-label="Search interfaces by name"
       />
 
       {/* Clear filters */}
       {hasActiveFilters && (
-        <Button variant="ghost" size="sm" onClick={handleClearFilters} className="min-h-[44px]" aria-label="Clear all filters">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleClearFilters}
+          className="min-h-[44px]"
+          aria-label="Clear all filters"
+        >
           Clear filters
         </Button>
       )}

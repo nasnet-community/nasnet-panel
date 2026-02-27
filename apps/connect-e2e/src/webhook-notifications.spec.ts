@@ -185,7 +185,9 @@ test.describe('Webhook Notifications E2E', () => {
 
       // Fill webhook URL (HTTPS only)
       const urlInput = page.getByLabel(/webhook url/i);
-      await urlInput.fill('https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXX');
+      await urlInput.fill(
+        'https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXX'
+      );
 
       // Select Bearer authentication
       const authSelect = page.getByLabel(/authentication type/i);

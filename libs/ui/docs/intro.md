@@ -134,8 +134,8 @@ Storybook version: **10.2.7** (ESM-only). Config lives at `libs/ui/primitives/.s
 
 ## Document Series
 
-| #   | File                                                                   | Contents                                                            |
-| --- | ---------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| #   | File                                                             | Contents                                                            |
+| --- | ---------------------------------------------------------------- | ------------------------------------------------------------------- |
 | 01  | [quick-start.md](./quick-start.md)                               | Install, first component, import rules, Storybook setup, glossary   |
 | 02  | [primitives-reference.md](./primitives-reference.md)             | Full catalog of primitive components, props, accessibility notes    |
 | 03  | [layouts-and-platform.md](./layouts-and-platform.md)             | Shell and page layouts, platform presenters, responsive behavior    |
@@ -155,14 +155,14 @@ Storybook version: **10.2.7** (ESM-only). Config lives at `libs/ui/primitives/.s
 
 These documents live in `Docs/design/` and are the authoritative design-side references:
 
-| Document                                | Purpose                                                                             |
-| ---------------------------------------- | ----------------------------------------------------------------------------------- |
-| See `Docs/design/README.md`              | Master navigation for the entire design system                                      |
-| See `Docs/design/DESIGN_TOKENS.md`       | Complete 200+ token reference — use this before choosing any color or spacing value |
-| See `Docs/design/PLATFORM_PRESENTER_GUIDE.md` | Full implementation guide for the Headless + Platform Presenters pattern       |
-| See `Docs/design/ux-design/6-component-library.md` | Catalog of all 56 pattern components with usage guidelines               |
-| See `Docs/design/ux-design/1-design-system-foundation.md` | Architecture overview: tokens, theming, layer rationale       |
-| See `Docs/design/ux-design/8-responsive-design-accessibility.md` | Responsive breakpoints and WCAG AAA requirements           |
+| Document                                                         | Purpose                                                                             |
+| ---------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| See `Docs/design/README.md`                                      | Master navigation for the entire design system                                      |
+| See `Docs/design/DESIGN_TOKENS.md`                               | Complete 200+ token reference — use this before choosing any color or spacing value |
+| See `Docs/design/PLATFORM_PRESENTER_GUIDE.md`                    | Full implementation guide for the Headless + Platform Presenters pattern            |
+| See `Docs/design/ux-design/6-component-library.md`               | Catalog of all 56 pattern components with usage guidelines                          |
+| See `Docs/design/ux-design/1-design-system-foundation.md`        | Architecture overview: tokens, theming, layer rationale                             |
+| See `Docs/design/ux-design/8-responsive-design-accessibility.md` | Responsive breakpoints and WCAG AAA requirements                                    |
 
 ---
 

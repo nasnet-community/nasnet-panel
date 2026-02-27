@@ -94,11 +94,11 @@ export function SafetyConfirmation({
 
   // Determine effective presenter
   const effectivePresenter =
-    presenter === 'auto'
-      ? platform === 'mobile'
-        ? 'mobile'
-        : 'desktop'
-      : presenter;
+    presenter === 'auto' ?
+      platform === 'mobile' ?
+        'mobile'
+      : 'desktop'
+    : presenter;
 
   // Initialize headless hook
   const hook = useSafetyConfirmation({
@@ -125,9 +125,7 @@ export function SafetyConfirmation({
   };
 
   // Render appropriate presenter
-  return effectivePresenter === 'mobile' ? (
-    <SafetyConfirmationMobile {...presenterProps} />
-  ) : (
-    <SafetyConfirmationDesktop {...presenterProps} />
-  );
+  return effectivePresenter === 'mobile' ?
+      <SafetyConfirmationMobile {...presenterProps} />
+    : <SafetyConfirmationDesktop {...presenterProps} />;
 }

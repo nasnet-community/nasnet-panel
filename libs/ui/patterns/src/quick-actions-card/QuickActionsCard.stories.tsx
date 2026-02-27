@@ -1,13 +1,4 @@
-import {
-  Shield,
-  Wifi,
-  BarChart2,
-  Settings,
-  Download,
-  RefreshCw,
-  Power,
-  Globe,
-} from 'lucide-react';
+import { Shield, Wifi, BarChart2, Settings, Download, RefreshCw, Power, Globe } from 'lucide-react';
 
 import { QuickActionsCard } from './QuickActionsCard';
 
@@ -92,16 +83,45 @@ export const AllPrimary: Story = {
   args: {
     title: 'Priority Actions',
     actions: [
-      { id: 'restart', icon: RefreshCw, label: 'Restart', sublabel: 'Router reboot', onClick: () => {}, variant: 'primary' },
-      { id: 'update', icon: Download, label: 'Update', sublabel: 'Firmware', onClick: () => {}, variant: 'primary' },
-      { id: 'dns', icon: Globe, label: 'DNS', sublabel: 'Resolve test', onClick: () => {}, variant: 'primary' },
-      { id: 'stats', icon: BarChart2, label: 'Stats', sublabel: 'Live data', onClick: () => {}, variant: 'primary' },
+      {
+        id: 'restart',
+        icon: RefreshCw,
+        label: 'Restart',
+        sublabel: 'Router reboot',
+        onClick: () => {},
+        variant: 'primary',
+      },
+      {
+        id: 'update',
+        icon: Download,
+        label: 'Update',
+        sublabel: 'Firmware',
+        onClick: () => {},
+        variant: 'primary',
+      },
+      {
+        id: 'dns',
+        icon: Globe,
+        label: 'DNS',
+        sublabel: 'Resolve test',
+        onClick: () => {},
+        variant: 'primary',
+      },
+      {
+        id: 'stats',
+        icon: BarChart2,
+        label: 'Stats',
+        sublabel: 'Live data',
+        onClick: () => {},
+        variant: 'primary',
+      },
     ],
   },
   parameters: {
     docs: {
       description: {
-        story: 'All four actions using the primary (green) variant to emphasise high-priority actions.',
+        story:
+          'All four actions using the primary (green) variant to emphasise high-priority actions.',
       },
     },
   },
@@ -111,8 +131,22 @@ export const WithDisabledAction: Story = {
   args: {
     title: 'Quick Actions',
     actions: [
-      { id: 'connect', icon: Power, label: 'Connect', sublabel: 'Start session', onClick: () => {}, variant: 'primary' },
-      { id: 'network', icon: Wifi, label: 'Network', sublabel: 'Offline', onClick: () => {}, disabled: true },
+      {
+        id: 'connect',
+        icon: Power,
+        label: 'Connect',
+        sublabel: 'Start session',
+        onClick: () => {},
+        variant: 'primary',
+      },
+      {
+        id: 'network',
+        icon: Wifi,
+        label: 'Network',
+        sublabel: 'Offline',
+        onClick: () => {},
+        disabled: true,
+      },
       { id: 'firewall', icon: Shield, label: 'Firewall', onClick: () => {} },
       { id: 'settings', icon: Settings, label: 'Settings', onClick: () => {} },
     ],
@@ -149,8 +183,21 @@ export const TwoActions: Story = {
   args: {
     title: 'Quick Actions',
     actions: [
-      { id: 'connect', icon: Power, label: 'Connect', sublabel: 'Start session', onClick: () => {}, variant: 'primary' },
-      { id: 'settings', icon: Settings, label: 'Settings', sublabel: 'Configure', onClick: () => {} },
+      {
+        id: 'connect',
+        icon: Power,
+        label: 'Connect',
+        sublabel: 'Start session',
+        onClick: () => {},
+        variant: 'primary',
+      },
+      {
+        id: 'settings',
+        icon: Settings,
+        label: 'Settings',
+        sublabel: 'Configure',
+        onClick: () => {},
+      },
     ],
   },
   parameters: {

@@ -24,9 +24,5 @@ export { SuspenseBoundary } from './SuspenseBoundary';
 export type { SuspenseBoundaryProps } from './SuspenseBoundary';
 
 // LazyRoute - TanStack Router lazy loading utilities
-export {
-  createLazyRoute,
-  preloadRoutes,
-  createPreloadHandlers,
-} from './LazyRoute';
+export { createLazyRoute, preloadRoutes, createPreloadHandlers } from './LazyRoute';
 export type { LazyRouteConfig, LazyRouteResult } from './LazyRoute';

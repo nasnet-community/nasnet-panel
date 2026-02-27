@@ -15,10 +15,24 @@ import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Plus, Trash2 } from 'lucide-react';
 import { IPInput, FormSection, FieldHelp } from '@nasnet/ui/patterns';
-import { Label, Button, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Icon } from '@nasnet/ui/primitives';
+import {
+  Label,
+  Button,
+  Input,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Icon,
+} from '@nasnet/ui/primitives';
 import { cn } from '@nasnet/ui/utils';
 import type { UseStepperReturn } from '@nasnet/ui/patterns';
-import { networkStepSchema, type NetworkStepFormData, LEASE_TIME_OPTIONS } from './dhcp-wizard.schema';
+import {
+  networkStepSchema,
+  type NetworkStepFormData,
+  LEASE_TIME_OPTIONS,
+} from './dhcp-wizard.schema';
 
 interface WizardStepNetworkProps {
   /** Stepper instance providing access to wizard step data */
@@ -51,9 +65,12 @@ function WizardStepNetworkComponent({ stepper, className }: WizardStepNetworkPro
   });
 
   // Memoized remove handler
-  const handleRemoveDNS = useCallback((index: number) => {
-    remove(index);
-  }, [remove]);
+  const handleRemoveDNS = useCallback(
+    (index: number) => {
+      remove(index);
+    },
+    [remove]
+  );
 
   // Memoized add handler
   const handleAddDNS = useCallback(() => {
@@ -61,24 +78,36 @@ function WizardStepNetworkComponent({ stepper, className }: WizardStepNetworkPro
   }, [append]);
 
   // Memoized gateway change handler
-  const handleGatewayChange = useCallback((value: string) => {
-    form.setValue('gateway', value);
-  }, [form]);
+  const handleGatewayChange = useCallback(
+    (value: string) => {
+      form.setValue('gateway', value);
+    },
+    [form]
+  );
 
   // Memoized DNS field change handler
-  const handleDNSChange = useCallback((index: number, value: string) => {
-    form.setValue(`dnsServers.${index}`, value);
-  }, [form]);
+  const handleDNSChange = useCallback(
+    (index: number, value: string) => {
+      form.setValue(`dnsServers.${index}`, value);
+    },
+    [form]
+  );
 
   // Memoized lease time change handler
-  const handleLeaseTimeChange = useCallback((value: string) => {
-    form.setValue('leaseTime', value as any);
-  }, [form]);
+  const handleLeaseTimeChange = useCallback(
+    (value: string) => {
+      form.setValue('leaseTime', value as any);
+    },
+    [form]
+  );
 
   // Memoized NTP server change handler
-  const handleNTPChange = useCallback((value: string) => {
-    form.setValue('ntpServer', value);
-  }, [form]);
+  const handleNTPChange = useCallback(
+    (value: string) => {
+      form.setValue('ntpServer', value);
+    },
+    [form]
+  );
 
   // Save form data when proceeding
   useEffect(() => {
@@ -117,11 +146,12 @@ function WizardStepNetworkComponent({ stepper, className }: WizardStepNetworkPro
       >
         <div className="space-y-component-sm">
           {fields.map((field, index) => (
-            <div key={field.id} className="flex gap-component-sm items-start">
+            <div
+              key={field.id}
+              className="gap-component-sm flex items-start"
+            >
               <div className="flex-1">
-                <Label htmlFor={`dns-${index}`}>
-                  DNS Server {index + 1}
-                </Label>
+                <Label htmlFor={`dns-${index}`}>DNS Server {index + 1}</Label>
                 <IPInput
                   id={`dns-${index}`}
                   value={form.watch(`dnsServers.${index}`) || ''}
@@ -138,7 +168,10 @@ function WizardStepNetworkComponent({ stepper, className }: WizardStepNetworkPro
                   className="mt-component-lg"
                   aria-label={`Remove DNS server ${index + 1}`}
                 >
-                  <Icon icon={Trash2} size="sm" />
+                  <Icon
+                    icon={Trash2}
+                    size="sm"
+                  />
                 </Button>
               )}
             </div>
@@ -152,16 +185,19 @@ function WizardStepNetworkComponent({ stepper, className }: WizardStepNetworkPro
               onClick={handleAddDNS}
               aria-label={`Add DNS server (${fields.length}/${MAX_DNS_SERVERS})`}
             >
-              <Icon icon={Plus} size="sm" />
+              <Icon
+                icon={Plus}
+                size="sm"
+              />
               <span className="ml-component-sm">Add DNS Server</span>
             </Button>
           )}
 
-          {form.formState.errors.dnsServers && typeof form.formState.errors.dnsServers === 'object' && 'message' in form.formState.errors.dnsServers && (
-            <p className="text-sm text-error">
-              {form.formState.errors.dnsServers.message}
-            </p>
-          )}
+          {form.formState.errors.dnsServers &&
+            typeof form.formState.errors.dnsServers === 'object' &&
+            'message' in form.formState.errors.dnsServers && (
+              <p className="text-error text-sm">{form.formState.errors.dnsServers.message}</p>
+            )}
         </div>
       </FormSection>
 
@@ -183,14 +219,17 @@ function WizardStepNetworkComponent({ stepper, className }: WizardStepNetworkPro
             </SelectTrigger>
             <SelectContent>
               {LEASE_TIME_OPTIONS.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
+                <SelectItem
+                  key={option.value}
+                  value={option.value}
+                >
                   {option.label}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
           {form.formState.errors.leaseTime && (
-            <p className="text-sm text-error mt-component-xs">
+            <p className="text-error mt-component-xs text-sm">
               {form.formState.errors.leaseTime.message}
             </p>
           )}

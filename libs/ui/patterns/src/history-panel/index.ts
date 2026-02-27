@@ -14,11 +14,7 @@ export { HistoryPanelDesktop } from './HistoryPanelDesktop';
 export { HistoryPanelMobile } from './HistoryPanelMobile';
 
 // Headless hook
-export {
-  useHistoryPanel,
-  formatHistoryTimestamp,
-  getActionTypeIcon,
-} from './useHistoryPanel';
+export { useHistoryPanel, formatHistoryTimestamp, getActionTypeIcon } from './useHistoryPanel';
 export type {
   HistoryPanelItem,
   UseHistoryPanelOptions,

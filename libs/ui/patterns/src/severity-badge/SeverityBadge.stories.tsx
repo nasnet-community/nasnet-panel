@@ -191,16 +191,26 @@ export const AllSeverities: Story = {
 export const FilterChips: Story = {
   render: () => (
     <div className="flex flex-wrap gap-2">
-      <SeverityBadge severity="info" onRemove={() => {}} />
-      <SeverityBadge severity="warning" onRemove={() => {}} />
-      <SeverityBadge severity="error" onRemove={() => {}} />
+      <SeverityBadge
+        severity="info"
+        onRemove={() => {}}
+      />
+      <SeverityBadge
+        severity="warning"
+        onRemove={() => {}}
+      />
+      <SeverityBadge
+        severity="error"
+        onRemove={() => {}}
+      />
     </div>
   ),
   parameters: {
     layout: 'padded',
     docs: {
       description: {
-        story: 'Filter chips used in log filtering UI. Each badge can be dismissed by clicking the X button.',
+        story:
+          'Filter chips used in log filtering UI. Each badge can be dismissed by clicking the X button.',
       },
     },
   },
@@ -213,18 +223,18 @@ export const FilterChips: Story = {
  */
 export const InContext: Story = {
   render: () => (
-    <div className="bg-card border border-border rounded-lg p-4 max-w-md">
+    <div className="bg-card border-border max-w-md rounded-lg border p-4">
       <div className="flex items-start gap-3">
         <div className="flex-1">
-          <div className="flex items-center gap-2 mb-2">
+          <div className="mb-2 flex items-center gap-2">
             <SeverityBadge severity="error" />
-            <span className="text-sm font-medium text-foreground">Database connection failed</span>
+            <span className="text-foreground text-sm font-medium">Database connection failed</span>
           </div>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-muted-foreground text-xs">
             Failed to connect to primary database. Attempting failover to replica.
           </p>
         </div>
-        <span className="text-xs text-muted-foreground whitespace-nowrap">14:23:45</span>
+        <span className="text-muted-foreground whitespace-nowrap text-xs">14:23:45</span>
       </div>
     </div>
   ),

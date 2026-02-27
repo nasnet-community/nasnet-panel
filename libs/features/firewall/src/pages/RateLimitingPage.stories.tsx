@@ -76,7 +76,7 @@ const meta = {
   decorators: [
     (Story) => (
       <QueryClientProvider client={queryClient}>
-        <div className="min-h-screen bg-background">
+        <div className="bg-background min-h-screen">
           <Story />
         </div>
       </QueryClientProvider>

@@ -60,7 +60,7 @@ describe('usePortKnockSequenceForm', () => {
       const { result } = renderHook(() =>
         usePortKnockSequenceForm({
           initialValues: VALID_SEQUENCE_SSH as any,
-          onSubmit
+          onSubmit,
         })
       );
 
@@ -74,7 +74,7 @@ describe('usePortKnockSequenceForm', () => {
       const { result } = renderHook(() =>
         usePortKnockSequenceForm({
           initialValues: VALID_SEQUENCE_SSH as any,
-          onSubmit
+          onSubmit,
         })
       );
 
@@ -138,9 +138,7 @@ describe('usePortKnockSequenceForm', () => {
 
       // Too few ports (1 port)
       await act(async () => {
-        result.current.form.setValue('knockPorts', [
-          { port: 1234, protocol: 'tcp', order: 1 }
-        ]);
+        result.current.form.setValue('knockPorts', [{ port: 1234, protocol: 'tcp', order: 1 }]);
         await result.current.form.trigger('knockPorts');
       });
       expect(result.current.form.formState.errors.knockPorts).toBeDefined();
@@ -191,7 +189,7 @@ describe('usePortKnockSequenceForm', () => {
       const { result } = renderHook(() =>
         usePortKnockSequenceForm({
           initialValues: VALID_SEQUENCE_SSH as any,
-          onSubmit
+          onSubmit,
         })
       );
 
@@ -209,18 +207,18 @@ describe('usePortKnockSequenceForm', () => {
       const { result } = renderHook(() =>
         usePortKnockSequenceForm({
           initialValues: VALID_SEQUENCE_SSH as any,
-          onSubmit
+          onSubmit,
         })
       );
 
-      const originalOrder = result.current.knockPorts.map(p => p.port);
+      const originalOrder = result.current.knockPorts.map((p) => p.port);
 
       act(() => {
         // Move first port to last position
         result.current.reorderKnockPorts(0, 2);
       });
 
-      const newOrder = result.current.knockPorts.map(p => p.port);
+      const newOrder = result.current.knockPorts.map((p) => p.port);
       expect(newOrder).not.toEqual(originalOrder);
       expect(result.current.knockPorts[0].order).toBe(1);
       expect(result.current.knockPorts[1].order).toBe(2);
@@ -232,7 +230,7 @@ describe('usePortKnockSequenceForm', () => {
       const { result } = renderHook(() =>
         usePortKnockSequenceForm({
           initialValues: VALID_SEQUENCE_MINIMAL as any,
-          onSubmit
+          onSubmit,
         })
       );
 
@@ -257,7 +255,7 @@ describe('usePortKnockSequenceForm', () => {
       const { result } = renderHook(() =>
         usePortKnockSequenceForm({
           initialValues: VALID_SEQUENCE_SSH as any,
-          onSubmit
+          onSubmit,
         })
       );
 
@@ -269,7 +267,7 @@ describe('usePortKnockSequenceForm', () => {
       const { result } = renderHook(() =>
         usePortKnockSequenceForm({
           initialValues: VALID_SEQUENCE_HTTP as any,
-          onSubmit
+          onSubmit,
         })
       );
 
@@ -287,7 +285,7 @@ describe('usePortKnockSequenceForm', () => {
       const { result } = renderHook(() =>
         usePortKnockSequenceForm({
           initialValues: VALID_SEQUENCE_SSH as any,
-          onSubmit
+          onSubmit,
         })
       );
 
@@ -303,7 +301,7 @@ describe('usePortKnockSequenceForm', () => {
       const { result } = renderHook(() =>
         usePortKnockSequenceForm({
           initialValues: VALID_SEQUENCE_SSH as any,
-          onSubmit
+          onSubmit,
         })
       );
 
@@ -324,9 +322,7 @@ describe('usePortKnockSequenceForm', () => {
   describe('isDirty Tracking', () => {
     it('tracks dirty state when form changes', async () => {
       const onSubmit = vi.fn();
-      const { result } = renderHook(() =>
-        usePortKnockSequenceForm({ onSubmit })
-      );
+      const { result } = renderHook(() => usePortKnockSequenceForm({ onSubmit }));
 
       expect(result.current.form.formState.isDirty).toBe(false);
 
@@ -341,9 +337,7 @@ describe('usePortKnockSequenceForm', () => {
 
     it.skip('resets dirty state after reset', async () => {
       const onSubmit = vi.fn();
-      const { result } = renderHook(() =>
-        usePortKnockSequenceForm({ onSubmit })
-      );
+      const { result } = renderHook(() => usePortKnockSequenceForm({ onSubmit }));
 
       act(() => {
         result.current.form.setValue('protectedPort', 80, { shouldDirty: true });
@@ -382,17 +376,17 @@ describe('usePortKnockSequenceForm', () => {
       });
 
       expect(onSubmit).toHaveBeenCalledTimes(1);
-      expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({
-        name: 'ssh_knock',
-        protectedPort: 22,
-      }));
+      expect(onSubmit).toHaveBeenCalledWith(
+        expect.objectContaining({
+          name: 'ssh_knock',
+          protectedPort: 22,
+        })
+      );
     });
 
     it.skip('prevents submit with validation errors', async () => {
       const onSubmit = vi.fn();
-      const { result } = renderHook(() =>
-        usePortKnockSequenceForm({ onSubmit })
-      );
+      const { result } = renderHook(() => usePortKnockSequenceForm({ onSubmit }));
 
       act(() => {
         result.current.form.setValue('name', 'invalid name with spaces');

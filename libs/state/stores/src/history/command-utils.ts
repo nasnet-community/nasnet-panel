@@ -13,12 +13,7 @@
 
 import { useHistoryStore, pushHistoryAction } from './history.store';
 
-import type {
-  UndoableAction,
-  UndoableActionInput,
-  HistoryActionType,
-  ActionScope,
-} from './types';
+import type { UndoableAction, UndoableActionInput, HistoryActionType, ActionScope } from './types';
 
 // =============================================================================
 // Factory Functions
@@ -38,9 +33,7 @@ import type {
  * });
  * ```
  */
-export function createUndoableAction(
-  params: UndoableActionInput
-): UndoableActionInput {
+export function createUndoableAction(params: UndoableActionInput): UndoableActionInput {
   return {
     type: params.type,
     description: params.description,
@@ -69,9 +62,7 @@ export function createUndoableAction(
  * });
  * ```
  */
-export async function executeAction(
-  action: UndoableActionInput
-): Promise<string> {
+export async function executeAction(action: UndoableActionInput): Promise<string> {
   // Execute the action first
   await action.execute();
 
@@ -108,15 +99,7 @@ export function createEditAction<T>(params: {
   resourceType?: string;
   scope?: ActionScope;
 }): UndoableActionInput {
-  const {
-    fieldName,
-    oldValue,
-    newValue,
-    apply,
-    resourceId,
-    resourceType,
-    scope = 'page',
-  } = params;
+  const { fieldName, oldValue, newValue, apply, resourceId, resourceType, scope = 'page' } = params;
 
   return createUndoableAction({
     type: 'edit',
@@ -240,15 +223,7 @@ export function createReorderAction(params: {
   resourceType?: string;
   scope?: ActionScope;
 }): UndoableActionInput {
-  const {
-    listName,
-    fromIndex,
-    toIndex,
-    apply,
-    resourceId,
-    resourceType,
-    scope = 'page',
-  } = params;
+  const { listName, fromIndex, toIndex, apply, resourceId, resourceType, scope = 'page' } = params;
 
   return createUndoableAction({
     type: 'reorder',
@@ -291,13 +266,7 @@ export function createCompositeAction(params: {
   resourceId?: string;
   resourceType?: string;
 }): UndoableActionInput {
-  const {
-    description,
-    actions,
-    scope = 'global',
-    resourceId,
-    resourceType,
-  } = params;
+  const { description, actions, scope = 'global', resourceId, resourceType } = params;
 
   return createUndoableAction({
     type: 'custom',
@@ -434,11 +403,7 @@ export function useFieldEdit(params: {
   const { pushAction } = useHistoryStore();
   const { fieldName, resourceId, resourceType, scope = 'page' } = params;
 
-  return <T,>(
-    oldValue: T,
-    newValue: T,
-    apply: (value: T) => void | Promise<void>
-  ): string => {
+  return <T>(oldValue: T, newValue: T, apply: (value: T) => void | Promise<void>): string => {
     // Apply immediately
     apply(newValue);
 

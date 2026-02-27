@@ -13,10 +13,7 @@ import {
   GET_FEATURE_VERIFICATION,
   GET_INSTANCE_VERIFICATION_STATUS,
 } from './useFeatureVerification';
-import {
-  GET_SERVICE_INSTANCE,
-  GET_SERVICE_INSTANCES,
-} from './services.graphql';
+import { GET_SERVICE_INSTANCE, GET_SERVICE_INSTANCES } from './services.graphql';
 
 /**
  * GraphQL mutation for reverifying a service instance binary
@@ -89,46 +86,43 @@ export interface ReverifyInstanceResult {
 export function useReverifyFeature(
   options?: MutationHookOptions<ReverifyInstanceResult, ReverifyInstanceVariables>
 ) {
-  return useMutation<ReverifyInstanceResult, ReverifyInstanceVariables>(
-    REVERIFY_INSTANCE,
-    {
-      // Refetch queries after successful reverification
-      refetchQueries: [
-        GET_FEATURE_VERIFICATION,
-        GET_INSTANCE_VERIFICATION_STATUS,
-        GET_SERVICE_INSTANCE,
-        GET_SERVICE_INSTANCES,
-      ],
+  return useMutation<ReverifyInstanceResult, ReverifyInstanceVariables>(REVERIFY_INSTANCE, {
+    // Refetch queries after successful reverification
+    refetchQueries: [
+      GET_FEATURE_VERIFICATION,
+      GET_INSTANCE_VERIFICATION_STATUS,
+      GET_SERVICE_INSTANCE,
+      GET_SERVICE_INSTANCES,
+    ],
 
-      // Optional: Optimistic response for immediate UI feedback
-      // This updates the cache before the server responds
-      optimisticResponse: (variables) => ({
-        reverifyInstance: {
-          instanceID: variables.instanceID,
-          success: true,
-          currentHash: null,
-          expectedHash: null,
-          errorMessage: null,
-          errors: null,
-          __typename: 'ReverifyPayload',
-        },
-      }),
-
-      // Update cache after mutation completes
-      update: (cache, { data }) => {
-        if (data?.reverifyInstance.success) {
-          // Evict cache for this instance to force refetch
-          cache.evict({
-            id: `ServiceInstance:${data.reverifyInstance.instanceID}`,
-            fieldName: 'verification',
-          });
-
-          // Trigger garbage collection
-          cache.gc();
-        }
+    // Optional: Optimistic response for immediate UI feedback
+    // This updates the cache before the server responds
+    optimisticResponse: (variables) => ({
+      reverifyInstance: {
+        instanceID: variables.instanceID,
+        success: true,
+        currentHash: null,
+        expectedHash: null,
+        errorMessage: null,
+        errors: null,
+        __typename: 'ReverifyPayload',
       },
+    }),
 
-      ...options,
-    }
-  );
+    // Update cache after mutation completes
+    update: (cache, { data }) => {
+      if (data?.reverifyInstance.success) {
+        // Evict cache for this instance to force refetch
+        cache.evict({
+          id: `ServiceInstance:${data.reverifyInstance.instanceID}`,
+          fieldName: 'verification',
+        });
+
+        // Trigger garbage collection
+        cache.gc();
+      }
+    },
+
+    ...options,
+  });
 }

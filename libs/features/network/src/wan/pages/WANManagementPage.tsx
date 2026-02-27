@@ -9,7 +9,16 @@ import { useState, useCallback } from 'react';
 import { useParams, useNavigate } from '@tanstack/react-router';
 
 import { PageHeader } from '@nasnet/ui/patterns';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, Tabs, TabsContent, TabsList, TabsTrigger } from '@nasnet/ui/primitives';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from '@nasnet/ui/primitives';
 import { cn } from '@nasnet/ui/utils';
 import { Globe, Plus, Activity, History, Settings, Smartphone } from 'lucide-react';
 import { WANOverviewList } from '../components/wan-overview/WANOverviewList';
@@ -54,7 +63,8 @@ const mockWANs: WANInterfaceData[] = [
 
 export function WANManagementPage() {
   const params = useParams({ strict: false });
-  const routerId = (params as Record<string, string>)['routerId'] ?? (params as Record<string, string>)['id'];
+  const routerId =
+    (params as Record<string, string>)['routerId'] ?? (params as Record<string, string>)['id'];
   const navigate = useNavigate();
 
   // State
@@ -63,7 +73,9 @@ export function WANManagementPage() {
   const [error, setError] = useState<Error | null>(null);
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [selectedWAN, setSelectedWAN] = useState<string | null>(null);
-  const [configMode, setConfigMode] = useState<'dhcp' | 'pppoe' | 'static' | 'lte' | 'health' | null>(null);
+  const [configMode, setConfigMode] = useState<
+    'dhcp' | 'pppoe' | 'static' | 'lte' | 'health' | null
+  >(null);
 
   // Subscribe to real-time WAN updates
   useWANSubscription({
@@ -73,9 +85,9 @@ export function WANManagementPage() {
       // Update WAN status in list
       setWANs((prev) =>
         prev.map((wan) =>
-          wan.id === event.wanInterfaceId
-            ? { ...wan, status: event.status as any, publicIP: event.publicIP }
-            : wan
+          wan.id === event.wanInterfaceId ?
+            { ...wan, status: event.status as any, publicIP: event.publicIP }
+          : wan
         )
       );
     },
@@ -84,13 +96,13 @@ export function WANManagementPage() {
       // Update health status in list
       setWANs((prev) =>
         prev.map((wan) =>
-          wan.id === event.wanInterfaceId
-            ? {
-                ...wan,
-                healthStatus: event.healthStatus as any,
-                healthLatency: event.latency,
-              }
-            : wan
+          wan.id === event.wanInterfaceId ?
+            {
+              ...wan,
+              healthStatus: event.healthStatus as any,
+              healthLatency: event.latency,
+            }
+          : wan
         )
       );
     },
@@ -187,23 +199,38 @@ export function WANManagementPage() {
       />
 
       {/* Main Content */}
-      <Tabs defaultValue="overview" className="space-y-6">
+      <Tabs
+        defaultValue="overview"
+        className="space-y-6"
+      >
         <TabsList>
           <TabsTrigger value="overview">
-            <Globe className="h-4 w-4 mr-2" aria-hidden="true" />
+            <Globe
+              className="mr-2 h-4 w-4"
+              aria-hidden="true"
+            />
             Overview
           </TabsTrigger>
           <TabsTrigger value="health">
-            <Activity className="h-4 w-4 mr-2" aria-hidden="true" />
+            <Activity
+              className="mr-2 h-4 w-4"
+              aria-hidden="true"
+            />
             Health Monitoring
           </TabsTrigger>
           <TabsTrigger value="history">
-            <History className="h-4 w-4 mr-2" aria-hidden="true" />
+            <History
+              className="mr-2 h-4 w-4"
+              aria-hidden="true"
+            />
             Connection History
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="overview" className="space-y-6">
+        <TabsContent
+          value="overview"
+          className="space-y-6"
+        >
           <WANOverviewList
             wans={wans}
             loading={loading}
@@ -215,16 +242,22 @@ export function WANManagementPage() {
           />
         </TabsContent>
 
-        <TabsContent value="health" className="space-y-6">
-          <div className="rounded-[var(--semantic-radius-card)] border border-border bg-card px-component-lg py-component-lg">
-            <p className="text-sm text-muted-foreground">
-              Configure health checks for each WAN interface to monitor
-              connectivity and detect link failures.
+        <TabsContent
+          value="health"
+          className="space-y-6"
+        >
+          <div className="border-border bg-card px-component-lg py-component-lg rounded-[var(--semantic-radius-card)] border">
+            <p className="text-muted-foreground text-sm">
+              Configure health checks for each WAN interface to monitor connectivity and detect link
+              failures.
             </p>
           </div>
         </TabsContent>
 
-        <TabsContent value="history" className="space-y-6">
+        <TabsContent
+          value="history"
+          className="space-y-6"
+        >
           <ConnectionHistoryTable
             events={generateMockConnectionHistory(50)}
             onRefresh={handleRefresh}
@@ -233,8 +266,11 @@ export function WANManagementPage() {
       </Tabs>
 
       {/* Configuration Dialog */}
-      <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <Dialog
+        open={showAddDialog}
+        onOpenChange={setShowAddDialog}
+      >
+        <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
               {selectedWAN ? 'Configure WAN Interface' : 'Add WAN Connection'}
@@ -244,23 +280,26 @@ export function WANManagementPage() {
           {/* Connection Type Selection (if adding new) */}
           {!selectedWAN && !configMode && (
             <div className="space-y-4">
-              <p className="text-sm text-muted-foreground">
+              <p className="text-muted-foreground text-sm">
                 Select the type of WAN connection to configure:
               </p>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                 <button
                   onClick={() => setConfigMode('dhcp')}
                   className={cn(
-                    'flex items-start gap-component-xs px-component-sm py-component-sm rounded-lg border border-border text-left',
+                    'gap-component-xs px-component-sm py-component-sm border-border flex items-start rounded-lg border text-left',
                     'hover:border-primary hover:bg-primary/5 transition-colors'
                   )}
                   aria-label="Configure DHCP client connection"
                 >
-                  <Settings className="h-5 w-5 text-primary mt-0.5" aria-hidden="true" />
+                  <Settings
+                    className="text-primary mt-0.5 h-5 w-5"
+                    aria-hidden="true"
+                  />
                   <div>
                     <h4 className="font-medium">DHCP Client</h4>
-                    <p className="text-xs text-muted-foreground mt-1">
+                    <p className="text-muted-foreground mt-1 text-xs">
                       Automatic IP configuration from DHCP server
                     </p>
                   </div>
@@ -269,15 +308,18 @@ export function WANManagementPage() {
                 <button
                   onClick={() => setConfigMode('pppoe')}
                   className={cn(
-                    'flex items-start gap-component-xs px-component-sm py-component-sm rounded-lg border border-border text-left',
+                    'gap-component-xs px-component-sm py-component-sm border-border flex items-start rounded-lg border text-left',
                     'hover:border-primary hover:bg-primary/5 transition-colors'
                   )}
                   aria-label="Configure PPPoE connection"
                 >
-                  <Globe className="h-5 w-5 text-primary mt-0.5" aria-hidden="true" />
+                  <Globe
+                    className="text-primary mt-0.5 h-5 w-5"
+                    aria-hidden="true"
+                  />
                   <div>
                     <h4 className="font-medium">PPPoE</h4>
-                    <p className="text-xs text-muted-foreground mt-1">
+                    <p className="text-muted-foreground mt-1 text-xs">
                       Point-to-Point Protocol over Ethernet (requires credentials)
                     </p>
                   </div>
@@ -286,15 +328,18 @@ export function WANManagementPage() {
                 <button
                   onClick={() => setConfigMode('static')}
                   className={cn(
-                    'flex items-start gap-component-xs px-component-sm py-component-sm rounded-lg border border-border text-left',
+                    'gap-component-xs px-component-sm py-component-sm border-border flex items-start rounded-lg border text-left',
                     'hover:border-primary hover:bg-primary/5 transition-colors'
                   )}
                   aria-label="Configure static IP connection"
                 >
-                  <Settings className="h-5 w-5 text-primary mt-0.5" aria-hidden="true" />
+                  <Settings
+                    className="text-primary mt-0.5 h-5 w-5"
+                    aria-hidden="true"
+                  />
                   <div>
                     <h4 className="font-medium">Static IP</h4>
-                    <p className="text-xs text-muted-foreground mt-1">
+                    <p className="text-muted-foreground mt-1 text-xs">
                       Manual IP configuration with fixed address
                     </p>
                   </div>
@@ -303,15 +348,18 @@ export function WANManagementPage() {
                 <button
                   onClick={() => setConfigMode('lte')}
                   className={cn(
-                    'flex items-start gap-component-xs px-component-sm py-component-sm rounded-lg border border-border text-left',
+                    'gap-component-xs px-component-sm py-component-sm border-border flex items-start rounded-lg border text-left',
                     'hover:border-primary hover:bg-primary/5 transition-colors'
                   )}
                   aria-label="Configure LTE/4G modem connection"
                 >
-                  <Smartphone className="h-5 w-5 text-primary mt-0.5" aria-hidden="true" />
+                  <Smartphone
+                    className="text-primary mt-0.5 h-5 w-5"
+                    aria-hidden="true"
+                  />
                   <div>
                     <h4 className="font-medium">LTE/4G Modem</h4>
-                    <p className="text-xs text-muted-foreground mt-1">
+                    <p className="text-muted-foreground mt-1 text-xs">
                       Cellular modem configuration with APN settings
                     </p>
                   </div>
@@ -320,15 +368,18 @@ export function WANManagementPage() {
                 <button
                   onClick={() => setConfigMode('health')}
                   className={cn(
-                    'flex items-start gap-component-xs px-component-sm py-component-sm rounded-lg border border-border text-left',
+                    'gap-component-xs px-component-sm py-component-sm border-border flex items-start rounded-lg border text-left',
                     'hover:border-primary hover:bg-primary/5 transition-colors'
                   )}
                   aria-label="Configure health check monitoring"
                 >
-                  <Activity className="h-5 w-5 text-primary mt-0.5" aria-hidden="true" />
+                  <Activity
+                    className="text-primary mt-0.5 h-5 w-5"
+                    aria-hidden="true"
+                  />
                   <div>
                     <h4 className="font-medium">Health Check</h4>
-                    <p className="text-xs text-muted-foreground mt-1">
+                    <p className="text-muted-foreground mt-1 text-xs">
                       Configure connectivity monitoring for existing WAN
                     </p>
                   </div>

@@ -42,7 +42,11 @@ const mockFirewallLogs = Array.from({ length: 120 }, (_, i) => ({
     dstIp: `10.0.0.${i % 256}`,
     dstPort: 8000 + (i % 1000),
     protocol: ['tcp', 'udp', 'icmp'][i % 3],
-    prefix: i % 4 === 0 ? 'BLOCKED' : i % 4 === 1 ? 'ALLOWED' : i % 4 === 2 ? 'SUSPICIOUS' : undefined,
+    prefix:
+      i % 4 === 0 ? 'BLOCKED'
+      : i % 4 === 1 ? 'ALLOWED'
+      : i % 4 === 2 ? 'SUSPICIOUS'
+      : undefined,
     interfaceIn: 'ether1',
     interfaceOut: 'ether2',
   },
@@ -196,9 +200,7 @@ test.describe('Firewall Logging - Scenario 1: Enable Logging on Filter Rule', ()
     await logPrefixInput.blur();
 
     // Verify validation error
-    await expect(
-      page.getByText(/alphanumeric.*hyphen|invalid.*prefix/i)
-    ).toBeVisible();
+    await expect(page.getByText(/alphanumeric.*hyphen|invalid.*prefix/i)).toBeVisible();
 
     // Verify save button is disabled
     const saveButton = page.getByRole('button', { name: /^save$/i });
@@ -210,9 +212,7 @@ test.describe('Firewall Logging - Scenario 1: Enable Logging on Filter Rule', ()
     await logPrefixInput.blur();
 
     // Verify error cleared
-    await expect(
-      page.getByText(/alphanumeric.*hyphen|invalid.*prefix/i)
-    ).not.toBeVisible();
+    await expect(page.getByText(/alphanumeric.*hyphen|invalid.*prefix/i)).not.toBeVisible();
 
     // Verify save button is enabled
     await expect(saveButton).toBeEnabled();
@@ -849,8 +849,7 @@ test.describe('Firewall Logging - Accessibility (WCAG AAA)', () => {
     const buttons = await page.getByRole('button').all();
     for (const button of buttons.slice(0, 5)) {
       const accessibleName =
-        (await button.getAttribute('aria-label')) ||
-        (await button.textContent());
+        (await button.getAttribute('aria-label')) || (await button.textContent());
       expect(accessibleName).toBeTruthy();
     }
 

@@ -38,7 +38,7 @@ const meta: Meta<typeof ConfigurationInput> = {
   },
   decorators: [
     (Story) => (
-      <div className="max-w-lg mx-auto">
+      <div className="mx-auto max-w-lg">
         <Story />
       </div>
     ),
@@ -70,7 +70,9 @@ export const EmptyPasteMode: Story = {
   },
   play: async ({ canvasElement }) => {
     // Click the "Paste Config" tab to start on paste mode
-    const pasteTab = canvasElement.querySelector('[role="tab"][aria-controls="panel-paste"]') as HTMLButtonElement | null;
+    const pasteTab = canvasElement.querySelector(
+      '[role="tab"][aria-controls="panel-paste"]'
+    ) as HTMLButtonElement | null;
     pasteTab?.click();
   },
 };
@@ -109,8 +111,10 @@ export const DisabledState: Story = {
 export const LargeConfiguration: Story = {
   name: 'Large Configuration (800+ lines)',
   args: {
-    value: Array.from({ length: 40 }, (_, i) =>
-      `/ip firewall filter\nadd action=accept chain=forward comment="Rule ${i + 1}" src-address=10.0.${i}.0/24`
+    value: Array.from(
+      { length: 40 },
+      (_, i) =>
+        `/ip firewall filter\nadd action=accept chain=forward comment="Rule ${i + 1}" src-address=10.0.${i}.0/24`
     ).join('\n'),
   },
 };

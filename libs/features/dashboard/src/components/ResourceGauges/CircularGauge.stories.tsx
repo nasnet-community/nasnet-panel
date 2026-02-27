@@ -117,10 +117,25 @@ export const Critical: Story = {
  */
 export const AllSizes: Story = {
   render: () => (
-    <div className="flex items-end gap-component-xl">
-      <CircularGauge value={55} label="Small" size="sm" thresholds={{ warning: 70, critical: 90 }} />
-      <CircularGauge value={55} label="Medium" size="md" thresholds={{ warning: 70, critical: 90 }} />
-      <CircularGauge value={55} label="Large" size="lg" thresholds={{ warning: 70, critical: 90 }} />
+    <div className="gap-component-xl flex items-end">
+      <CircularGauge
+        value={55}
+        label="Small"
+        size="sm"
+        thresholds={{ warning: 70, critical: 90 }}
+      />
+      <CircularGauge
+        value={55}
+        label="Medium"
+        size="md"
+        thresholds={{ warning: 70, critical: 90 }}
+      />
+      <CircularGauge
+        value={55}
+        label="Large"
+        size="lg"
+        thresholds={{ warning: 70, critical: 90 }}
+      />
     </div>
   ),
   parameters: {
@@ -160,8 +175,14 @@ export const Clickable: Story = {
  */
 export const EdgeCases: Story = {
   render: () => (
-    <div className="flex items-end gap-component-xl">
-      <CircularGauge value={0} label="Idle" sublabel="0%" size="md" thresholds={{ warning: 70, critical: 90 }} />
+    <div className="gap-component-xl flex items-end">
+      <CircularGauge
+        value={0}
+        label="Idle"
+        sublabel="0%"
+        size="md"
+        thresholds={{ warning: 70, critical: 90 }}
+      />
       <CircularGauge
         value={100}
         label="Full"
@@ -174,7 +195,8 @@ export const EdgeCases: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Boundary values: 0% (completely empty ring) and 100% (completely filled ring at critical color).',
+        story:
+          'Boundary values: 0% (completely empty ring) and 100% (completely filled ring at critical color).',
       },
     },
   },

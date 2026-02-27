@@ -3,48 +3,49 @@ import { type QueryHookOptions } from '@apollo/client';
  * Gateway state enumeration matching backend GatewayState enum
  */
 export declare enum GatewayState {
-    RUNNING = "RUNNING",
-    STOPPED = "STOPPED",
-    ERROR = "ERROR",
-    NOT_NEEDED = "NOT_NEEDED"
+  RUNNING = 'RUNNING',
+  STOPPED = 'STOPPED',
+  ERROR = 'ERROR',
+  NOT_NEEDED = 'NOT_NEEDED',
 }
 /**
  * Gateway information including process state, TUN interface, and health status
  */
 export interface GatewayInfo {
-    /** Current gateway state */
-    state: GatewayState;
-    /** TUN interface name (e.g., tun-tor-usa) */
-    tunName?: string | null;
-    /** Process ID of gateway */
-    pid?: number | null;
-    /** Uptime duration in seconds */
-    uptime?: number | null;
-    /** Last health check timestamp */
-    lastHealthCheck?: Date | null;
-    /** Error message if in ERROR state */
-    errorMessage?: string | null;
+  /** Current gateway state */
+  state: GatewayState;
+  /** TUN interface name (e.g., tun-tor-usa) */
+  tunName?: string | null;
+  /** Process ID of gateway */
+  pid?: number | null;
+  /** Uptime duration in seconds */
+  uptime?: number | null;
+  /** Last health check timestamp */
+  lastHealthCheck?: Date | null;
+  /** Error message if in ERROR state */
+  errorMessage?: string | null;
 }
 /**
  * Variables for gateway status query
  */
 interface GatewayStatusVariables {
-    instanceID: string;
+  instanceID: string;
 }
 /**
  * Response type for gateway status query
  */
 interface GatewayStatusResponse {
-    gatewayStatus: GatewayInfo;
+  gatewayStatus: GatewayInfo;
 }
 /**
  * Options for useGatewayStatus hook
  */
-export interface UseGatewayStatusOptions extends Omit<QueryHookOptions<GatewayStatusResponse, GatewayStatusVariables>, 'variables'> {
-    /** Enable polling for real-time updates (default: true, 5s interval) */
-    enablePolling?: boolean;
-    /** Polling interval in milliseconds (default: 5000) */
-    pollInterval?: number;
+export interface UseGatewayStatusOptions
+  extends Omit<QueryHookOptions<GatewayStatusResponse, GatewayStatusVariables>, 'variables'> {
+  /** Enable polling for real-time updates (default: true, 5s interval) */
+  enablePolling?: boolean;
+  /** Polling interval in milliseconds (default: 5000) */
+  pollInterval?: number;
 }
 /**
  * Hook to fetch and monitor gateway status for a service instance
@@ -67,7 +68,10 @@ export interface UseGatewayStatusOptions extends Omit<QueryHookOptions<GatewaySt
  * return <GatewayStatusCard gateway={data.gatewayStatus} />;
  * ```
  */
-export declare function useGatewayStatus(instanceID: string, options?: UseGatewayStatusOptions): import("@apollo/client").InteropQueryResult<GatewayStatusResponse, GatewayStatusVariables>;
+export declare function useGatewayStatus(
+  instanceID: string,
+  options?: UseGatewayStatusOptions
+): import('@apollo/client').InteropQueryResult<GatewayStatusResponse, GatewayStatusVariables>;
 /**
  * Format uptime seconds into human-readable duration
  *

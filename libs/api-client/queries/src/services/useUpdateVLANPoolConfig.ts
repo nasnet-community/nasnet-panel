@@ -39,24 +39,19 @@ export interface UpdateVLANPoolConfigInput {
  * ```
  */
 export function useUpdateVLANPoolConfig() {
-  const [updateMutation, { data, loading, error }] = useMutation(
-    UPDATE_VLAN_POOL_CONFIG,
-    {
-      // Refetch pool status after update to ensure consistency
-      refetchQueries: [GET_VLAN_POOL_STATUS],
-      // Wait for refetch to complete before resolving
-      awaitRefetchQueries: true,
-    }
-  );
+  const [updateMutation, { data, loading, error }] = useMutation(UPDATE_VLAN_POOL_CONFIG, {
+    // Refetch pool status after update to ensure consistency
+    refetchQueries: [GET_VLAN_POOL_STATUS],
+    // Wait for refetch to complete before resolving
+    awaitRefetchQueries: true,
+  });
 
   /**
    * Execute pool config update
    * @param input - Pool configuration (poolStart and poolEnd)
    * @returns Promise resolving to the updated pool status
    */
-  const updatePoolConfig = async (
-    input: UpdateVLANPoolConfigInput
-  ): Promise<VLANPoolStatus> => {
+  const updatePoolConfig = async (input: UpdateVLANPoolConfigInput): Promise<VLANPoolStatus> => {
     const result = await updateMutation({ variables: input });
     if (!result.data?.updateVLANPoolConfig) {
       throw new Error('Failed to update VLAN pool configuration');

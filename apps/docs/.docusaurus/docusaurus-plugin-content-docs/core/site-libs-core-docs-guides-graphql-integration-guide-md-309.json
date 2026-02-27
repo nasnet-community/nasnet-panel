@@ -1,7 +1,7 @@
 {
   "id": "guides/graphql-integration-guide",
   "title": "GraphQL Integration Guide",
-  "description": "Reference: schema/, libs/api-client/, libs/core/types/ | Universal State v2 Layer 1-3 (API, Cache, Types)",
+  "description": "Reference: schema/, libs/api-client/, libs/core/types/ | Universal State v2 Layer 1-3",
   "source": "@site/../../libs/core/docs/guides/graphql-integration-guide.md",
   "sourceDirName": "guides",
   "slug": "/guides/graphql-integration-guide",

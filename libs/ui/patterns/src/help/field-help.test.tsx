@@ -9,7 +9,7 @@
 
 import * as React from 'react';
 
-import { render, screen, waitFor , renderHook, act } from '@testing-library/react';
+import { render, screen, waitFor, renderHook, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { axe } from 'vitest-axe';
@@ -42,14 +42,16 @@ vi.mock('@nasnet/core/i18n', () => ({
       const translations: Record<string, string | string[]> = {
         'help.ip.title.simple': 'IP Address',
         'help.ip.title.technical': 'IPv4/IPv6 Address',
-        'help.ip.description.simple': 'The unique address that identifies this device on the network',
+        'help.ip.description.simple':
+          'The unique address that identifies this device on the network',
         'help.ip.description.technical': 'A 32-bit (IPv4) or 128-bit (IPv6) network layer address',
         'help.ip.examples': ['192.168.1.1', '10.0.0.1'],
         'help.ip.link': 'https://wiki.mikrotik.com/wiki/Manual:IP/Address',
         'help.gateway.title.simple': 'Gateway',
         'help.gateway.title.technical': 'Default Route',
         'help.gateway.description.simple': 'The router that connects your network to the internet',
-        'help.gateway.description.technical': 'The next-hop address for packets destined outside the local subnet',
+        'help.gateway.description.technical':
+          'The next-hop address for packets destined outside the local subnet',
         'help.gateway.examples': ['192.168.1.1'],
         'help.gateway.link': 'https://wiki.mikrotik.com/wiki/Manual:IP/Route',
       };
@@ -72,7 +74,8 @@ const mockHelpModeStore = {
 };
 
 vi.mock('@nasnet/state/stores', () => ({
-  useHelpModeStore: (selector: (state: typeof mockHelpModeStore) => unknown) => selector(mockHelpModeStore),
+  useHelpModeStore: (selector: (state: typeof mockHelpModeStore) => unknown) =>
+    selector(mockHelpModeStore),
 }));
 
 // Sample help content for testing
@@ -93,7 +96,9 @@ describe('useFieldHelp Hook', () => {
     const { result } = renderHook(() => useFieldHelp({ field: 'ip' }));
 
     expect(result.current.content.title).toBe('IP Address');
-    expect(result.current.content.description).toBe('The unique address that identifies this device on the network');
+    expect(result.current.content.description).toBe(
+      'The unique address that identifies this device on the network'
+    );
     expect(result.current.content.examples).toEqual(['192.168.1.1', '10.0.0.1']);
     expect(result.current.content.link).toBe('https://wiki.mikrotik.com/wiki/Manual:IP/Address');
   });
@@ -184,7 +189,12 @@ describe('HelpIcon Component', () => {
     const handleClick = vi.fn();
     const user = userEvent.setup();
 
-    render(<HelpIcon field="ip" onClick={handleClick} />);
+    render(
+      <HelpIcon
+        field="ip"
+        onClick={handleClick}
+      />
+    );
 
     const icon = screen.getByRole('button');
     await user.click(icon);
@@ -196,7 +206,12 @@ describe('HelpIcon Component', () => {
     const handleClick = vi.fn();
     const user = userEvent.setup();
 
-    render(<HelpIcon field="ip" onClick={handleClick} />);
+    render(
+      <HelpIcon
+        field="ip"
+        onClick={handleClick}
+      />
+    );
 
     const icon = screen.getByRole('button');
     await user.tab();
@@ -210,13 +225,28 @@ describe('HelpIcon Component', () => {
   });
 
   it('should apply size classes', () => {
-    const { rerender } = render(<HelpIcon field="ip" size="sm" />);
+    const { rerender } = render(
+      <HelpIcon
+        field="ip"
+        size="sm"
+      />
+    );
     expect(screen.getByRole('button')).toHaveClass('h-5', 'w-5');
 
-    rerender(<HelpIcon field="ip" size="md" />);
+    rerender(
+      <HelpIcon
+        field="ip"
+        size="md"
+      />
+    );
     expect(screen.getByRole('button')).toHaveClass('h-6', 'w-6');
 
-    rerender(<HelpIcon field="ip" size="lg" />);
+    rerender(
+      <HelpIcon
+        field="ip"
+        size="lg"
+      />
+    );
     expect(screen.getByRole('button')).toHaveClass('h-8', 'w-8');
   });
 
@@ -241,7 +271,11 @@ describe('HelpPopover Component', () => {
 
   it('should show content when open', async () => {
     render(
-      <HelpPopover content={sampleContent} open={true} onOpenChange={() => {}}>
+      <HelpPopover
+        content={sampleContent}
+        open={true}
+        onOpenChange={() => {}}
+      >
         <button>Trigger</button>
       </HelpPopover>
     );
@@ -258,7 +292,11 @@ describe('HelpPopover Component', () => {
     const user = userEvent.setup();
 
     render(
-      <HelpPopover content={sampleContent} open={true} onOpenChange={handleOpenChange}>
+      <HelpPopover
+        content={sampleContent}
+        open={true}
+        onOpenChange={handleOpenChange}
+      >
         <button>Trigger</button>
       </HelpPopover>
     );
@@ -271,7 +309,11 @@ describe('HelpPopover Component', () => {
 
   it('should render external link with correct attributes', async () => {
     render(
-      <HelpPopover content={sampleContent} open={true} onOpenChange={() => {}}>
+      <HelpPopover
+        content={sampleContent}
+        open={true}
+        onOpenChange={() => {}}
+      >
         <button>Trigger</button>
       </HelpPopover>
     );
@@ -286,7 +328,11 @@ describe('HelpPopover Component', () => {
 describe('HelpSheet Component', () => {
   it('should show content when open', async () => {
     render(
-      <HelpSheet content={sampleContent} open={true} onOpenChange={() => {}} />
+      <HelpSheet
+        content={sampleContent}
+        open={true}
+        onOpenChange={() => {}}
+      />
     );
 
     expect(screen.getByText('IP Address')).toBeInTheDocument();
@@ -298,7 +344,11 @@ describe('HelpSheet Component', () => {
     const user = userEvent.setup();
 
     render(
-      <HelpSheet content={sampleContent} open={true} onOpenChange={handleOpenChange} />
+      <HelpSheet
+        content={sampleContent}
+        open={true}
+        onOpenChange={handleOpenChange}
+      />
     );
 
     // Find and click close button
@@ -310,7 +360,11 @@ describe('HelpSheet Component', () => {
 
   it('should have drag handle indicator', async () => {
     render(
-      <HelpSheet content={sampleContent} open={true} onOpenChange={() => {}} />
+      <HelpSheet
+        content={sampleContent}
+        open={true}
+        onOpenChange={() => {}}
+      />
     );
 
     // Check for drag handle element (styled div)
@@ -352,7 +406,12 @@ describe('HelpModeToggle Component', () => {
   });
 
   it('should support custom labels', () => {
-    render(<HelpModeToggle simpleLabel="Beginner" technicalLabel="Expert" />);
+    render(
+      <HelpModeToggle
+        simpleLabel="Beginner"
+        technicalLabel="Expert"
+      />
+    );
 
     expect(screen.getByText('Beginner')).toBeInTheDocument();
     expect(screen.getByText('Expert')).toBeInTheDocument();
@@ -389,7 +448,12 @@ describe('FieldHelp Component', () => {
   });
 
   it('should pass placement prop to popover', () => {
-    render(<FieldHelp field="ip" placement="bottom" />);
+    render(
+      <FieldHelp
+        field="ip"
+        placement="bottom"
+      />
+    );
 
     // Verify component renders (placement is internal to Popover)
     const icon = screen.getByRole('button');
@@ -397,7 +461,12 @@ describe('FieldHelp Component', () => {
   });
 
   it('should apply custom className', () => {
-    render(<FieldHelp field="ip" className="custom-class" />);
+    render(
+      <FieldHelp
+        field="ip"
+        className="custom-class"
+      />
+    );
 
     const icon = screen.getByRole('button');
     expect(icon).toHaveClass('custom-class');
@@ -454,7 +523,12 @@ describe('Accessibility', () => {
   });
 
   it('should have minimum 44px touch target on mobile sizes', () => {
-    render(<HelpIcon field="ip" size="sm" />);
+    render(
+      <HelpIcon
+        field="ip"
+        size="sm"
+      />
+    );
 
     const icon = screen.getByRole('button');
     expect(icon).toHaveClass('min-h-[44px]');
@@ -470,7 +544,11 @@ describe('Content Handling', () => {
     };
 
     render(
-      <HelpPopover content={contentWithoutExamples} open={true} onOpenChange={() => {}}>
+      <HelpPopover
+        content={contentWithoutExamples}
+        open={true}
+        onOpenChange={() => {}}
+      >
         <button>Trigger</button>
       </HelpPopover>
     );
@@ -487,7 +565,11 @@ describe('Content Handling', () => {
     };
 
     render(
-      <HelpPopover content={contentWithoutLink} open={true} onOpenChange={() => {}}>
+      <HelpPopover
+        content={contentWithoutLink}
+        open={true}
+        onOpenChange={() => {}}
+      >
         <button>Trigger</button>
       </HelpPopover>
     );
@@ -503,7 +585,11 @@ describe('Content Handling', () => {
     };
 
     render(
-      <HelpPopover content={emptyContent} open={true} onOpenChange={() => {}}>
+      <HelpPopover
+        content={emptyContent}
+        open={true}
+        onOpenChange={() => {}}
+      >
         <button>Trigger</button>
       </HelpPopover>
     );

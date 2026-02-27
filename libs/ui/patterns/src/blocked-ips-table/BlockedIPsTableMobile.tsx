@@ -101,10 +101,10 @@ function BlockedIPCard({
   isRemoving,
 }: BlockedIPCardProps) {
   return (
-    <Card className="p-component-md space-y-component-md border border-border rounded-[var(--semantic-radius-card)]">
+    <Card className="p-component-md space-y-component-md border-border rounded-[var(--semantic-radius-card)] border">
       {/* Header with checkbox and IP address */}
       <div className="flex items-start justify-between">
-        <div className="flex items-start gap-component-md">
+        <div className="gap-component-md flex items-start">
           <Checkbox
             checked={isSelected}
             onCheckedChange={onToggleSelection}
@@ -112,13 +112,15 @@ function BlockedIPCard({
             className="mt-1"
           />
           <div className="space-y-1">
-            <span className="font-mono text-sm font-semibold text-foreground">{entry.address}</span>
-            <div className="text-xs text-muted-foreground">{entry.list}</div>
+            <span className="text-foreground font-mono text-sm font-semibold">{entry.address}</span>
+            <div className="text-muted-foreground text-xs">{entry.list}</div>
           </div>
         </div>
         <div className="text-right">
-          <div className="text-xs font-semibold text-foreground">{entry.blockCount.toLocaleString()}</div>
-          <div className="text-xs text-muted-foreground">blocks</div>
+          <div className="text-foreground text-xs font-semibold">
+            {entry.blockCount.toLocaleString()}
+          </div>
+          <div className="text-muted-foreground text-xs">blocks</div>
         </div>
       </div>
 
@@ -126,28 +128,34 @@ function BlockedIPCard({
       <div className="space-y-component-sm">
         {/* First Blocked */}
         <div className="flex items-center justify-between">
-          <span className="text-xs text-muted-foreground">First Blocked:</span>
-          <span className="text-xs text-muted-foreground">{formatRelativeTime(entry.firstBlocked)}</span>
+          <span className="text-muted-foreground text-xs">First Blocked:</span>
+          <span className="text-muted-foreground text-xs">
+            {formatRelativeTime(entry.firstBlocked)}
+          </span>
         </div>
 
         {/* Last Blocked */}
         <div className="flex items-center justify-between">
-          <span className="text-xs text-muted-foreground">Last Blocked:</span>
-          <span className="text-xs text-muted-foreground">{formatRelativeTime(entry.lastBlocked)}</span>
+          <span className="text-muted-foreground text-xs">Last Blocked:</span>
+          <span className="text-muted-foreground text-xs">
+            {formatRelativeTime(entry.lastBlocked)}
+          </span>
         </div>
 
         {/* Timeout */}
         <div className="flex items-center justify-between">
-          <span className="text-xs text-muted-foreground">Timeout:</span>
-          <span className="font-mono text-xs text-muted-foreground">{entry.timeout || 'permanent'}</span>
+          <span className="text-muted-foreground text-xs">Timeout:</span>
+          <span className="text-muted-foreground font-mono text-xs">
+            {entry.timeout || 'permanent'}
+          </span>
         </div>
       </div>
 
       {/* Action buttons (44px min height for touch target) */}
-      <div className="flex gap-component-md pt-component-md border-t border-border">
+      <div className="gap-component-md pt-component-md border-border flex border-t">
         <Button
           variant="outline"
-          className="flex-1 min-h-[44px] text-sm"
+          className="min-h-[44px] flex-1 text-sm"
           onClick={onWhitelist}
           disabled={isWhitelisting}
           aria-label={`Whitelist ${entry.address}`}
@@ -156,7 +164,7 @@ function BlockedIPCard({
         </Button>
         <Button
           variant="outline"
-          className="flex-1 min-h-[44px] text-sm text-error border-error/30 hover:bg-error-light/30 hover:text-error"
+          className="text-error border-error/30 hover:bg-error-light/30 hover:text-error min-h-[44px] flex-1 text-sm"
           onClick={onRemove}
           disabled={isRemoving}
           aria-label={`Remove ${entry.address}`}
@@ -265,9 +273,7 @@ export function BlockedIPsTableMobile({
   const handleBulkWhitelistSubmit = async () => {
     if (!onWhitelist) return;
 
-    await Promise.all(
-      selectedIPs.map((address) => onWhitelist(address, bulkWhitelistTimeout))
-    );
+    await Promise.all(selectedIPs.map((address) => onWhitelist(address, bulkWhitelistTimeout)));
     setBulkWhitelistDialogOpen(false);
     clearSelection();
   };
@@ -290,7 +296,7 @@ export function BlockedIPsTableMobile({
   const emptyContent = React.useMemo(() => {
     if (hasActiveFilter) {
       return (
-        <div className="flex flex-col items-center justify-center h-full p-6">
+        <div className="flex h-full flex-col items-center justify-center p-6">
           <EmptyState
             icon={Filter}
             title="No matching blocked IPs"
@@ -302,7 +308,7 @@ export function BlockedIPsTableMobile({
     }
 
     return (
-      <div className="flex flex-col items-center justify-center h-full p-6">
+      <div className="flex h-full flex-col items-center justify-center p-6">
         <EmptyState
           icon={Shield}
           title="No blocked IPs"
@@ -313,18 +319,16 @@ export function BlockedIPsTableMobile({
   }, [hasActiveFilter, clearFilter]);
 
   return (
-    <div className={cn('flex flex-col gap-component-md', className)}>
+    <div className={cn('gap-component-md flex flex-col', className)}>
       {/* Header with stats and controls */}
-      <div className="flex flex-col gap-component-md">
+      <div className="gap-component-md flex flex-col">
         <div className="flex items-center justify-between">
-          <div className="text-xs text-muted-foreground font-medium">
-            {hasActiveFilter ? (
+          <div className="text-muted-foreground text-xs font-medium">
+            {hasActiveFilter ?
               <>
                 {filteredCount} of {totalCount} blocked IPs
               </>
-            ) : (
-              <>{totalCount} blocked IPs</>
-            )}
+            : <>{totalCount} blocked IPs</>}
           </div>
 
           <Button
@@ -340,8 +344,8 @@ export function BlockedIPsTableMobile({
 
         {/* Selection mode controls */}
         {hasSelection && (
-          <div className="flex items-center gap-component-sm">
-            <span className="text-xs text-muted-foreground font-medium flex-1">
+          <div className="gap-component-sm flex items-center">
+            <span className="text-muted-foreground flex-1 text-xs font-medium">
               {selectedIPs.length} selected
             </span>
             <Button
@@ -359,7 +363,7 @@ export function BlockedIPsTableMobile({
               size="sm"
               onClick={handleBulkRemoveClick}
               disabled={isRemoving}
-              className="min-h-[44px] text-sm text-error hover:text-error hover:bg-error-light/30"
+              className="text-error hover:text-error hover:bg-error-light/30 min-h-[44px] text-sm"
               aria-label="Remove selected IPs"
             >
               Remove
@@ -380,13 +384,13 @@ export function BlockedIPsTableMobile({
         <Button
           variant="outline"
           onClick={() => setShowFilters(!showFilters)}
-          className="w-full min-h-[44px] text-sm"
+          className="min-h-[44px] w-full text-sm"
           aria-expanded={showFilters}
           aria-controls="mobile-filters"
         >
           {showFilters ? 'Hide' : 'Show'} Filters
           {hasActiveFilter && (
-            <span className="ml-2 px-2 py-0.5 rounded-[var(--semantic-radius-badge)] bg-primary text-primary-foreground text-xs font-medium">
+            <span className="bg-primary text-primary-foreground ml-2 rounded-[var(--semantic-radius-badge)] px-2 py-0.5 text-xs font-medium">
               Active
             </span>
           )}
@@ -397,7 +401,7 @@ export function BlockedIPsTableMobile({
           <Button
             variant="outline"
             onClick={selectAll}
-            className="w-full min-h-[44px] text-sm"
+            className="min-h-[44px] w-full text-sm"
             aria-label="Select all blocked IPs"
           >
             Select All
@@ -407,19 +411,22 @@ export function BlockedIPsTableMobile({
 
       {/* Collapsible Filter Controls */}
       {showFilters && (
-        <div id="mobile-filters" className="space-y-component-md pb-component-sm">
+        <div
+          id="mobile-filters"
+          className="space-y-component-md pb-component-sm"
+        >
           <Input
             placeholder="Filter by IP address (192.168.1.*)"
             value={filter.ipAddress || ''}
             onChange={(e) => setFilter({ ipAddress: e.target.value })}
-            className="w-full h-10 text-sm rounded-[var(--semantic-radius-input)]"
+            className="h-10 w-full rounded-[var(--semantic-radius-input)] text-sm"
             aria-label="Filter by IP address"
           />
           {hasActiveFilter && (
             <Button
               variant="outline"
               onClick={clearFilter}
-              className="w-full min-h-[44px] text-sm"
+              className="min-h-[44px] w-full text-sm"
             >
               Clear Filters
             </Button>
@@ -451,7 +458,10 @@ export function BlockedIPsTableMobile({
       />
 
       {/* Whitelist Dialog */}
-      <Dialog open={whitelistDialogOpen} onOpenChange={setWhitelistDialogOpen}>
+      <Dialog
+        open={whitelistDialogOpen}
+        onOpenChange={setWhitelistDialogOpen}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Whitelist IP Address</DialogTitle>
@@ -461,14 +471,25 @@ export function BlockedIPsTableMobile({
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <label htmlFor="timeout-select" className="text-sm font-medium">Timeout</label>
-              <Select value={whitelistTimeout} onValueChange={setWhitelistTimeout}>
+              <label
+                htmlFor="timeout-select"
+                className="text-sm font-medium"
+              >
+                Timeout
+              </label>
+              <Select
+                value={whitelistTimeout}
+                onValueChange={setWhitelistTimeout}
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   {WHITELIST_TIMEOUT_PRESETS.map((preset) => (
-                    <SelectItem key={preset.value} value={preset.value}>
+                    <SelectItem
+                      key={preset.value}
+                      value={preset.value}
+                    >
                       {preset.label}
                     </SelectItem>
                   ))}
@@ -476,7 +497,12 @@ export function BlockedIPsTableMobile({
               </Select>
             </div>
             <div className="space-y-2">
-              <label htmlFor="whitelist-comment" className="text-sm font-medium">Comment (optional)</label>
+              <label
+                htmlFor="whitelist-comment"
+                className="text-sm font-medium"
+              >
+                Comment (optional)
+              </label>
               <Input
                 id="whitelist-comment"
                 value={whitelistComment}
@@ -486,10 +512,18 @@ export function BlockedIPsTableMobile({
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setWhitelistDialogOpen(false)} className="min-h-[44px]">
+            <Button
+              variant="outline"
+              onClick={() => setWhitelistDialogOpen(false)}
+              className="min-h-[44px]"
+            >
               Cancel
             </Button>
-            <Button onClick={handleWhitelistSubmit} disabled={isWhitelisting} className="min-h-[44px]">
+            <Button
+              onClick={handleWhitelistSubmit}
+              disabled={isWhitelisting}
+              className="min-h-[44px]"
+            >
               Whitelist
             </Button>
           </DialogFooter>
@@ -497,19 +531,31 @@ export function BlockedIPsTableMobile({
       </Dialog>
 
       {/* Remove Confirmation Dialog */}
-      <Dialog open={removeDialogOpen} onOpenChange={setRemoveDialogOpen}>
+      <Dialog
+        open={removeDialogOpen}
+        onOpenChange={setRemoveDialogOpen}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Remove Blocked IP</DialogTitle>
             <DialogDescription>
-              Are you sure you want to remove {removeIP} from the blocked list? This action cannot be undone.
+              Are you sure you want to remove {removeIP} from the blocked list? This action cannot
+              be undone.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setRemoveDialogOpen(false)} className="min-h-[44px]">
+            <Button
+              variant="outline"
+              onClick={() => setRemoveDialogOpen(false)}
+              className="min-h-[44px]"
+            >
               Cancel
             </Button>
-            <Button onClick={handleRemoveSubmit} disabled={isRemoving} className="min-h-[44px]">
+            <Button
+              onClick={handleRemoveSubmit}
+              disabled={isRemoving}
+              className="min-h-[44px]"
+            >
               Remove
             </Button>
           </DialogFooter>
@@ -517,24 +563,39 @@ export function BlockedIPsTableMobile({
       </Dialog>
 
       {/* Bulk Whitelist Dialog */}
-      <Dialog open={bulkWhitelistDialogOpen} onOpenChange={setBulkWhitelistDialogOpen}>
+      <Dialog
+        open={bulkWhitelistDialogOpen}
+        onOpenChange={setBulkWhitelistDialogOpen}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Whitelist Selected IPs</DialogTitle>
             <DialogDescription>
-              Add {selectedIPs.length} selected IP{selectedIPs.length !== 1 ? 's' : ''} to the whitelist.
+              Add {selectedIPs.length} selected IP{selectedIPs.length !== 1 ? 's' : ''} to the
+              whitelist.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <label htmlFor="bulk-timeout-select" className="text-sm font-medium">Timeout</label>
-              <Select value={bulkWhitelistTimeout} onValueChange={setBulkWhitelistTimeout}>
+              <label
+                htmlFor="bulk-timeout-select"
+                className="text-sm font-medium"
+              >
+                Timeout
+              </label>
+              <Select
+                value={bulkWhitelistTimeout}
+                onValueChange={setBulkWhitelistTimeout}
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   {WHITELIST_TIMEOUT_PRESETS.map((preset) => (
-                    <SelectItem key={preset.value} value={preset.value}>
+                    <SelectItem
+                      key={preset.value}
+                      value={preset.value}
+                    >
                       {preset.label}
                     </SelectItem>
                   ))}
@@ -543,10 +604,18 @@ export function BlockedIPsTableMobile({
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setBulkWhitelistDialogOpen(false)} className="min-h-[44px]">
+            <Button
+              variant="outline"
+              onClick={() => setBulkWhitelistDialogOpen(false)}
+              className="min-h-[44px]"
+            >
               Cancel
             </Button>
-            <Button onClick={handleBulkWhitelistSubmit} disabled={isWhitelisting} className="min-h-[44px]">
+            <Button
+              onClick={handleBulkWhitelistSubmit}
+              disabled={isWhitelisting}
+              className="min-h-[44px]"
+            >
               Whitelist All
             </Button>
           </DialogFooter>
@@ -554,19 +623,31 @@ export function BlockedIPsTableMobile({
       </Dialog>
 
       {/* Bulk Remove Confirmation Dialog */}
-      <Dialog open={bulkRemoveDialogOpen} onOpenChange={setBulkRemoveDialogOpen}>
+      <Dialog
+        open={bulkRemoveDialogOpen}
+        onOpenChange={setBulkRemoveDialogOpen}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Remove Selected Blocked IPs</DialogTitle>
             <DialogDescription>
-              Are you sure you want to remove {selectedIPs.length} blocked IP{selectedIPs.length !== 1 ? 's' : ''}? This action cannot be undone.
+              Are you sure you want to remove {selectedIPs.length} blocked IP
+              {selectedIPs.length !== 1 ? 's' : ''}? This action cannot be undone.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setBulkRemoveDialogOpen(false)} className="min-h-[44px]">
+            <Button
+              variant="outline"
+              onClick={() => setBulkRemoveDialogOpen(false)}
+              className="min-h-[44px]"
+            >
               Cancel
             </Button>
-            <Button onClick={handleBulkRemoveSubmit} disabled={isRemoving} className="min-h-[44px]">
+            <Button
+              onClick={handleBulkRemoveSubmit}
+              disabled={isRemoving}
+              className="min-h-[44px]"
+            >
               Remove All
             </Button>
           </DialogFooter>

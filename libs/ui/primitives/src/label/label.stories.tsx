@@ -50,13 +50,13 @@ export const Default: Story = {
  */
 export const AssociatedWithInput: Story = {
   render: () => (
-    <div className="flex flex-col gap-2 w-64">
+    <div className="flex w-64 flex-col gap-2">
       <Label htmlFor="hostname">Router Hostname</Label>
       <input
         id="hostname"
         type="text"
         placeholder="192.168.88.1"
-        className="flex h-10 w-full rounded-xl border-2 border-input bg-card px-4 py-2 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        className="border-input bg-card text-foreground placeholder:text-muted-foreground focus-visible:ring-ring flex h-10 w-full rounded-xl border-2 px-4 py-2 text-sm focus-visible:outline-none focus-visible:ring-2"
       />
     </div>
   ),
@@ -68,14 +68,14 @@ export const AssociatedWithInput: Story = {
  */
 export const DisabledState: Story = {
   render: () => (
-    <div className="flex flex-col gap-2 w-64">
+    <div className="flex w-64 flex-col gap-2">
       <Label htmlFor="disabled-field">API Secret (read-only)</Label>
       <input
         id="disabled-field"
         type="text"
         defaultValue="sk_live_••••••••"
         disabled
-        className="flex h-10 w-full rounded-xl border-2 border-input bg-card px-4 py-2 text-sm text-foreground disabled:cursor-not-allowed disabled:opacity-50"
+        className="border-input bg-card text-foreground flex h-10 w-full rounded-xl border-2 px-4 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-50"
       />
     </div>
   ),
@@ -87,7 +87,7 @@ export const DisabledState: Story = {
  */
 export const RequiredField: Story = {
   render: () => (
-    <div className="flex flex-col gap-2 w-64">
+    <div className="flex w-64 flex-col gap-2">
       <Label htmlFor="required-ip">
         IP Address <span className="text-error">*</span>
       </Label>
@@ -96,7 +96,7 @@ export const RequiredField: Story = {
         type="text"
         placeholder="10.0.0.1"
         required
-        className="flex h-10 w-full rounded-xl border-2 border-input bg-card px-4 py-2 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        className="border-input bg-card text-foreground placeholder:text-muted-foreground focus-visible:ring-ring flex h-10 w-full rounded-xl border-2 px-4 py-2 text-sm focus-visible:outline-none focus-visible:ring-2"
       />
     </div>
   ),
@@ -107,14 +107,14 @@ export const RequiredField: Story = {
  */
 export const FormGroup: Story = {
   render: () => (
-    <div className="flex flex-col gap-4 w-72">
+    <div className="flex w-72 flex-col gap-4">
       <div className="flex flex-col gap-2">
         <Label htmlFor="username">Username</Label>
         <input
           id="username"
           type="text"
           placeholder="admin"
-          className="flex h-10 w-full rounded-xl border-2 border-input bg-card px-4 py-2 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className="border-input bg-card text-foreground placeholder:text-muted-foreground focus-visible:ring-ring flex h-10 w-full rounded-xl border-2 px-4 py-2 text-sm focus-visible:outline-none focus-visible:ring-2"
         />
       </div>
       <div className="flex flex-col gap-2">
@@ -123,7 +123,7 @@ export const FormGroup: Story = {
           id="password"
           type="password"
           placeholder="••••••••"
-          className="flex h-10 w-full rounded-xl border-2 border-input bg-card px-4 py-2 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className="border-input bg-card text-foreground placeholder:text-muted-foreground focus-visible:ring-ring flex h-10 w-full rounded-xl border-2 px-4 py-2 text-sm focus-visible:outline-none focus-visible:ring-2"
         />
       </div>
       <div className="flex flex-col gap-2">
@@ -132,7 +132,7 @@ export const FormGroup: Story = {
           id="port"
           type="number"
           defaultValue={8728}
-          className="flex h-10 w-full rounded-xl border-2 border-input bg-card px-4 py-2 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className="border-input bg-card text-foreground placeholder:text-muted-foreground focus-visible:ring-ring flex h-10 w-full rounded-xl border-2 px-4 py-2 text-sm focus-visible:outline-none focus-visible:ring-2"
         />
       </div>
     </div>
@@ -144,7 +144,7 @@ export const FormGroup: Story = {
  */
 export const LongLabelText: Story = {
   render: () => (
-    <div className="flex flex-col gap-2 w-72">
+    <div className="flex w-72 flex-col gap-2">
       <Label htmlFor="long-input">
         Enter the fully qualified domain name (FQDN) of your router for certificate validation
       </Label>
@@ -152,7 +152,7 @@ export const LongLabelText: Story = {
         id="long-input"
         type="text"
         placeholder="router.example.com"
-        className="flex h-10 w-full rounded-xl border-2 border-input bg-card px-4 py-2 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        className="border-input bg-card text-foreground placeholder:text-muted-foreground focus-visible:ring-ring flex h-10 w-full rounded-xl border-2 px-4 py-2 text-sm focus-visible:outline-none focus-visible:ring-2"
       />
     </div>
   ),
@@ -168,7 +168,10 @@ export const DarkModeDefault: Story = {
   },
   decorators: [
     (Story) => (
-      <div data-theme="dark" className="bg-slate-950 p-8 rounded-lg">
+      <div
+        data-theme="dark"
+        className="rounded-lg bg-slate-950 p-8"
+      >
         <Story />
       </div>
     ),
@@ -180,19 +183,22 @@ export const DarkModeDefault: Story = {
  */
 export const DarkModeWithInput: Story = {
   render: () => (
-    <div className="flex flex-col gap-2 w-64">
+    <div className="flex w-64 flex-col gap-2">
       <Label htmlFor="dark-hostname">Router Hostname</Label>
       <input
         id="dark-hostname"
         type="text"
         placeholder="192.168.88.1"
-        className="flex h-10 w-full rounded-xl border-2 border-input bg-card px-4 py-2 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        className="border-input bg-card text-foreground placeholder:text-muted-foreground focus-visible:ring-ring flex h-10 w-full rounded-xl border-2 px-4 py-2 text-sm focus-visible:outline-none focus-visible:ring-2"
       />
     </div>
   ),
   decorators: [
     (Story) => (
-      <div data-theme="dark" className="bg-slate-950 p-8 rounded-lg">
+      <div
+        data-theme="dark"
+        className="rounded-lg bg-slate-950 p-8"
+      >
         <Story />
       </div>
     ),

@@ -96,14 +96,14 @@ function ResourceUsageBarMobileBase(props: ResourceUsageBarProps) {
 
   return (
     <div
-      className={cn('flex flex-col gap-3 p-3 rounded-lg', className)}
+      className={cn('flex flex-col gap-3 rounded-lg p-3', className)}
       role="region"
       aria-label={state.label}
     >
       {/* Header: Label and Status */}
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
-          <span className="text-sm font-semibold text-foreground">{state.label}</span>
+          <span className="text-foreground text-sm font-semibold">{state.label}</span>
           <Icon
             className={cn('h-4 w-4', colors.text)}
             aria-label={state.statusLabel}
@@ -111,18 +111,13 @@ function ResourceUsageBarMobileBase(props: ResourceUsageBarProps) {
         </div>
 
         {showPercentage && (
-          <span className={cn('text-base font-bold', colors.text)}>
-            {state.percentageText}
-          </span>
+          <span className={cn('text-base font-bold', colors.text)}>{state.percentageText}</span>
         )}
       </div>
 
       {/* Progress Bar - h-2 (8px) rounded-full with larger mobile container */}
       <div
-        className={cn(
-          'flex items-center gap-2 w-full',
-          'transition-all duration-200'
-        )}
+        className={cn('flex w-full items-center gap-2', 'transition-all duration-200')}
         role="progressbar"
         aria-label={state.ariaLabel}
         aria-valuenow={state.ariaValueNow}
@@ -133,24 +128,21 @@ function ResourceUsageBarMobileBase(props: ResourceUsageBarProps) {
         {/* Track */}
         <div
           className={cn(
-            'flex-1 h-2 w-full rounded-full overflow-hidden',
+            'h-2 w-full flex-1 overflow-hidden rounded-full',
             colors.bg,
             'transition-all duration-200'
           )}
         >
           {/* Fill */}
           <div
-            className={cn(
-              'h-full rounded-full transition-all duration-500 ease-out',
-              colors.fill
-            )}
+            className={cn('h-full rounded-full transition-all duration-500 ease-out', colors.fill)}
             style={{ width: `${state.percentage}%` }}
           />
         </div>
 
         {/* Percentage badge */}
         {showPercentage && (
-          <span className={cn('text-xs font-medium whitespace-nowrap', colors.text)}>
+          <span className={cn('whitespace-nowrap text-xs font-medium', colors.text)}>
             {state.percentageText}
           </span>
         )}
@@ -160,10 +152,10 @@ function ResourceUsageBarMobileBase(props: ResourceUsageBarProps) {
       {showValues && (
         <div className="flex items-center justify-between gap-2 text-xs">
           <span className="text-muted-foreground">
-            Used: <span className={cn('font-medium font-mono', colors.text)}>{state.usedText}</span>
+            Used: <span className={cn('font-mono font-medium', colors.text)}>{state.usedText}</span>
           </span>
           <span className="text-muted-foreground">
-            Total: <span className="font-medium font-mono text-foreground">{state.totalText}</span>
+            Total: <span className="text-foreground font-mono font-medium">{state.totalText}</span>
           </span>
         </div>
       )}

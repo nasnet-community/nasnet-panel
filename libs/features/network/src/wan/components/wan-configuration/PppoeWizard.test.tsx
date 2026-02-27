@@ -45,10 +45,12 @@ vi.mock('@nasnet/api-client/queries', () => ({
 vi.mock('./wizard-steps/PppoeInterfaceStep', () => ({
   PppoeInterfaceStep: ({ stepper }: any) => (
     <div data-testid="interface-step">
-      <button onClick={() => {
-        stepper.setStepData('interface', { name: 'pppoe-wan', interface: 'ether1' });
-        stepper.markStepAsValid('interface');
-      }}>
+      <button
+        onClick={() => {
+          stepper.setStepData('interface', { name: 'pppoe-wan', interface: 'ether1' });
+          stepper.markStepAsValid('interface');
+        }}
+      >
         Set Interface Data
       </button>
     </div>
@@ -58,10 +60,12 @@ vi.mock('./wizard-steps/PppoeInterfaceStep', () => ({
 vi.mock('./wizard-steps/PppoeCredentialsStep', () => ({
   PppoeCredentialsStep: ({ stepper }: any) => (
     <div data-testid="credentials-step">
-      <button onClick={() => {
-        stepper.setStepData('credentials', { username: 'user@isp.com', password: 'secret' });
-        stepper.markStepAsValid('credentials');
-      }}>
+      <button
+        onClick={() => {
+          stepper.setStepData('credentials', { username: 'user@isp.com', password: 'secret' });
+          stepper.markStepAsValid('credentials');
+        }}
+      >
         Set Credentials
       </button>
     </div>
@@ -71,10 +75,17 @@ vi.mock('./wizard-steps/PppoeCredentialsStep', () => ({
 vi.mock('./wizard-steps/PppoeOptionsStep', () => ({
   PppoeOptionsStep: ({ stepper }: any) => (
     <div data-testid="options-step">
-      <button onClick={() => {
-        stepper.setStepData('options', { mtu: 1492, mru: 1492, addDefaultRoute: true, usePeerDNS: true });
-        stepper.markStepAsValid('options');
-      }}>
+      <button
+        onClick={() => {
+          stepper.setStepData('options', {
+            mtu: 1492,
+            mru: 1492,
+            addDefaultRoute: true,
+            usePeerDNS: true,
+          });
+          stepper.markStepAsValid('options');
+        }}
+      >
         Set Options
       </button>
     </div>
@@ -84,9 +95,7 @@ vi.mock('./wizard-steps/PppoeOptionsStep', () => ({
 vi.mock('./wizard-steps/PppoePreviewStep', () => ({
   PppoePreviewStep: ({ stepper }: any) => (
     <div data-testid="preview-step">
-      <button onClick={() => stepper.markStepAsValid('preview')}>
-        Mark Preview Valid
-      </button>
+      <button onClick={() => stepper.markStepAsValid('preview')}>Mark Preview Valid</button>
     </div>
   ),
 }));
@@ -159,7 +168,12 @@ describe('PppoeWizard', () => {
       const user = userEvent.setup();
       const onCancel = vi.fn();
 
-      render(<PppoeWizard {...mockProps} onCancel={onCancel} />);
+      render(
+        <PppoeWizard
+          {...mockProps}
+          onCancel={onCancel}
+        />
+      );
 
       const cancelButton = screen.getByRole('button', { name: /cancel/i });
       await user.click(cancelButton);

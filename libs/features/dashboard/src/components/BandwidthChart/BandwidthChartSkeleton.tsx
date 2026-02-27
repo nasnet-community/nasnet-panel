@@ -53,7 +53,7 @@ export const BandwidthChartSkeleton = memo<BandwidthChartSkeletonProps>(
               className="h-6 w-32"
               style={{ animationDuration: prefersReducedMotion ? '0s' : '2s' }}
             />
-            <div className="flex items-center gap-component-sm">
+            <div className="gap-component-sm flex items-center">
               {/* Time range selector skeleton */}
               <Skeleton
                 className="h-11 w-48"
@@ -68,7 +68,7 @@ export const BandwidthChartSkeleton = memo<BandwidthChartSkeletonProps>(
           </div>
 
           {/* Current rates skeleton */}
-          <div className="mt-component-sm flex items-center gap-component-lg">
+          <div className="mt-component-sm gap-component-lg flex items-center">
             <Skeleton
               className="h-4 w-24"
               style={{ animationDuration: prefersReducedMotion ? '0s' : '2s' }}
@@ -82,20 +82,23 @@ export const BandwidthChartSkeleton = memo<BandwidthChartSkeletonProps>(
 
         <CardContent>
           {/* Chart area skeleton */}
-          <div className="relative" style={{ height: `${height}px` }}>
+          <div
+            className="relative"
+            style={{ height: `${height}px` }}
+          >
             <Skeleton
               className="h-full w-full rounded-md"
               style={{ animationDuration: prefersReducedMotion ? '0s' : '2s' }}
             />
             {/* Grid lines overlay for visual accuracy */}
             <div
-              className="absolute inset-0 flex flex-col justify-between px-component-md py-component-sm"
+              className="px-component-md py-component-sm absolute inset-0 flex flex-col justify-between"
               aria-hidden="true"
             >
               {[...Array(5)].map((_, i) => (
                 <div
                   key={i}
-                  className="h-px bg-muted-foreground/10"
+                  className="bg-muted-foreground/10 h-px"
                   style={{ opacity: 0.3 }}
                 />
               ))}
@@ -145,12 +148,12 @@ export const BandwidthChartError = memo<BandwidthChartErrorProps>(
 
     return (
       <Card className={cn('w-full', className)}>
-        <CardContent className="flex min-h-[300px] flex-col items-center justify-center p-component-xl text-center">
+        <CardContent className="p-component-xl flex min-h-[300px] flex-col items-center justify-center text-center">
           {/* Error icon */}
-          <div className="mb-component-md rounded-full bg-error/10 p-component-md">
+          <div className="mb-component-md bg-error/10 p-component-md rounded-full">
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              className="h-6 w-6 text-error"
+              className="text-error h-6 w-6"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -167,7 +170,7 @@ export const BandwidthChartError = memo<BandwidthChartErrorProps>(
 
           {/* Error message */}
           <h3 className="mb-component-sm text-lg font-semibold">Error Loading Chart</h3>
-          <p className="mb-component-md text-sm text-muted-foreground">{message}</p>
+          <p className="mb-component-md text-muted-foreground text-sm">{message}</p>
 
           {/* Retry button using Button primitive (44px min height) */}
           {onRetry && (
@@ -208,41 +211,39 @@ interface BandwidthChartEmptyProps {
  *
  * @returns Memoized empty state component
  */
-export const BandwidthChartEmpty = memo<BandwidthChartEmptyProps>(
-  ({ className }) => {
-    return (
-      <Card className={cn('w-full', className)}>
-        <CardContent className="flex min-h-[300px] flex-col items-center justify-center p-component-xl text-center">
-          {/* Empty icon */}
-          <div className="mb-component-md rounded-full bg-muted p-component-md">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-6 w-6 text-muted-foreground"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              aria-hidden="true"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-              />
-            </svg>
-          </div>
+export const BandwidthChartEmpty = memo<BandwidthChartEmptyProps>(({ className }) => {
+  return (
+    <Card className={cn('w-full', className)}>
+      <CardContent className="p-component-xl flex min-h-[300px] flex-col items-center justify-center text-center">
+        {/* Empty icon */}
+        <div className="mb-component-md bg-muted p-component-md rounded-full">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="text-muted-foreground h-6 w-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            aria-hidden="true"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+            />
+          </svg>
+        </div>
 
-          {/* Empty message */}
-          <h3 className="mb-component-sm text-lg font-semibold">No Bandwidth Data</h3>
-          <p className="text-sm text-muted-foreground">
-            No bandwidth data available for the selected time range.
-            <br />
-            Please check your router connection.
-          </p>
-        </CardContent>
-      </Card>
-    );
-  }
-);
+        {/* Empty message */}
+        <h3 className="mb-component-sm text-lg font-semibold">No Bandwidth Data</h3>
+        <p className="text-muted-foreground text-sm">
+          No bandwidth data available for the selected time range.
+          <br />
+          Please check your router connection.
+        </p>
+      </CardContent>
+    </Card>
+  );
+});
 
 BandwidthChartEmpty.displayName = 'BandwidthChartEmpty';

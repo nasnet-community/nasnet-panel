@@ -9,7 +9,14 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 /** Alert rule template categories - matches alerts feature schema */
-type AlertRuleTemplateCategory = 'NETWORK' | 'SECURITY' | 'RESOURCES' | 'VPN' | 'DHCP' | 'SYSTEM' | 'CUSTOM';
+type AlertRuleTemplateCategory =
+  | 'NETWORK'
+  | 'SECURITY'
+  | 'RESOURCES'
+  | 'VPN'
+  | 'DHCP'
+  | 'SYSTEM'
+  | 'CUSTOM';
 
 // =============================================================================
 // Types
@@ -366,24 +373,20 @@ export const useAlertRuleTemplateUIStore = create<AlertRuleTemplateUIStore>()(
  */
 
 /** Get current filters */
-export const useTemplateFilters = () =>
-  useAlertRuleTemplateUIStore((state) => state.filters);
+export const useTemplateFilters = () => useAlertRuleTemplateUIStore((state) => state.filters);
 
 /** Get current sort */
-export const useTemplateSort = () =>
-  useAlertRuleTemplateUIStore((state) => state.sort);
+export const useTemplateSort = () => useAlertRuleTemplateUIStore((state) => state.sort);
 
 /** Get current view mode */
-export const useTemplateViewMode = () =>
-  useAlertRuleTemplateUIStore((state) => state.viewMode);
+export const useTemplateViewMode = () => useAlertRuleTemplateUIStore((state) => state.viewMode);
 
 /** Get selected template */
 export const useSelectedTemplate = () =>
   useAlertRuleTemplateUIStore((state) => state.selectedTemplate);
 
 /** Get dialog states */
-export const useTemplateDialogs = () =>
-  useAlertRuleTemplateUIStore((state) => state.dialogs);
+export const useTemplateDialogs = () => useAlertRuleTemplateUIStore((state) => state.dialogs);
 
 /** Get editing template ID */
 export const useEditingTemplateId = () =>
@@ -395,6 +398,4 @@ export const useDeletingTemplateId = () =>
 
 /** Check if any dialog is open */
 export const useHasOpenDialog = () =>
-  useAlertRuleTemplateUIStore((state) =>
-    Object.values(state.dialogs).some((isOpen) => isOpen)
-  );
+  useAlertRuleTemplateUIStore((state) => Object.values(state.dialogs).some((isOpen) => isOpen));

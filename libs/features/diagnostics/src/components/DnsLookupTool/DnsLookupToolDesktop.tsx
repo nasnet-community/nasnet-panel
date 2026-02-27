@@ -86,17 +86,20 @@ export const DnsLookupToolDesktop = memo(function DnsLookupToolDesktop({
   };
 
   return (
-    <div className={cn('grid grid-cols-2 gap-component-lg', className)}>
+    <div className={cn('gap-component-lg grid grid-cols-2', className)}>
       {/* Left Panel: Form */}
       <Card>
         <CardHeader>
-          <h2 className="text-lg font-semibold font-display text-category-networking">DNS Lookup</h2>
-          <p className="text-sm text-muted-foreground">
-            Query DNS records from the router
-          </p>
+          <h2 className="font-display text-category-networking text-lg font-semibold">
+            DNS Lookup
+          </h2>
+          <p className="text-muted-foreground text-sm">Query DNS records from the router</p>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-component-md">
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="space-y-component-md"
+          >
             {/* Hostname Input */}
             <div className="space-y-component-sm">
               <Label htmlFor="dns-hostname">Hostname</Label>
@@ -108,11 +111,17 @@ export const DnsLookupToolDesktop = memo(function DnsLookupToolDesktop({
                 disabled={isLoading}
               />
               {errors.hostname && (
-                <p className="text-sm text-error" role="alert">
+                <p
+                  className="text-error text-sm"
+                  role="alert"
+                >
                   {errors.hostname.message}
                 </p>
               )}
-              <p id="dns-hostname-description" className="text-sm text-muted-foreground">
+              <p
+                id="dns-hostname-description"
+                className="text-muted-foreground text-sm"
+              >
                 Domain name or IP address for reverse lookup
               </p>
             </div>
@@ -125,18 +134,27 @@ export const DnsLookupToolDesktop = memo(function DnsLookupToolDesktop({
                 onValueChange={(value) => setValue('recordType', value as any)}
                 disabled={isLoading}
               >
-                <SelectTrigger id="record-type" aria-describedby="record-type-description">
+                <SelectTrigger
+                  id="record-type"
+                  aria-describedby="record-type-description"
+                >
                   <SelectValue placeholder="Select record type" />
                 </SelectTrigger>
                 <SelectContent>
                   {DNS_RECORD_TYPES.map((type) => (
-                    <SelectItem key={type} value={type}>
+                    <SelectItem
+                      key={type}
+                      value={type}
+                    >
                       {type} - {getRecordTypeDescription(type)}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-              <p id="record-type-description" className="text-sm text-muted-foreground">
+              <p
+                id="record-type-description"
+                className="text-muted-foreground text-sm"
+              >
                 Type of DNS record to query
               </p>
             </div>
@@ -151,13 +169,19 @@ export const DnsLookupToolDesktop = memo(function DnsLookupToolDesktop({
                 }
                 disabled={isLoading}
               >
-                <SelectTrigger id="dns-server" aria-describedby="dns-server-description">
+                <SelectTrigger
+                  id="dns-server"
+                  aria-describedby="dns-server-description"
+                >
                   <SelectValue placeholder="Select DNS server" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="default">Default Server</SelectItem>
                   {dnsServers.map((srv) => (
-                    <SelectItem key={srv.address} value={srv.address}>
+                    <SelectItem
+                      key={srv.address}
+                      value={srv.address}
+                    >
                       {srv.address}
                       {srv.isPrimary && ' (Primary)'}
                       {srv.isSecondary && ' (Secondary)'}
@@ -166,18 +190,31 @@ export const DnsLookupToolDesktop = memo(function DnsLookupToolDesktop({
                   {dnsServers.length > 1 && <SelectItem value="all">All Servers</SelectItem>}
                 </SelectContent>
               </Select>
-              <p id="dns-server-description" className="text-sm text-muted-foreground">
+              <p
+                id="dns-server-description"
+                className="text-muted-foreground text-sm"
+              >
                 DNS server to query (or compare all)
               </p>
             </div>
 
             {/* Action Buttons */}
-            <div className="flex gap-component-sm">
-              <Button type="submit" disabled={!isValid || isLoading} className="flex-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" aria-label="Run DNS lookup">
+            <div className="gap-component-sm flex">
+              <Button
+                type="submit"
+                disabled={!isValid || isLoading}
+                className="focus-visible:ring-ring flex-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+                aria-label="Run DNS lookup"
+              >
                 {isLoading ? 'Looking up...' : 'Lookup'}
               </Button>
               {(isSuccess || isError) && (
-                <Button type="button" variant="outline" onClick={handleReset} aria-label="Clear results">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleReset}
+                  aria-label="Clear results"
+                >
                   Clear
                 </Button>
               )}
@@ -189,18 +226,25 @@ export const DnsLookupToolDesktop = memo(function DnsLookupToolDesktop({
       {/* Right Panel: Results */}
       <Card>
         <CardHeader>
-          <h2 className="text-lg font-semibold font-display text-category-networking">Results</h2>
+          <h2 className="font-display text-category-networking text-lg font-semibold">Results</h2>
         </CardHeader>
-        <CardContent role="status" aria-label="DNS lookup results">
+        <CardContent
+          role="status"
+          aria-label="DNS lookup results"
+        >
           {!result && !isLoading && (
-            <div className="flex items-center justify-center h-64 text-muted-foreground">
+            <div className="text-muted-foreground flex h-64 items-center justify-center">
               <p>Enter a hostname and click Lookup to see results</p>
             </div>
           )}
 
           {isLoading && (
-            <div className="flex items-center justify-center h-64" role="status" aria-label="Loading DNS results">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+            <div
+              className="flex h-64 items-center justify-center"
+              role="status"
+              aria-label="Loading DNS results"
+            >
+              <div className="border-primary h-8 w-8 animate-spin rounded-full border-b-2" />
             </div>
           )}
 
@@ -210,9 +254,7 @@ export const DnsLookupToolDesktop = memo(function DnsLookupToolDesktop({
             <DnsServerComparison results={comparisonResults} />
           )}
 
-          {isSuccess && comparisonResults.length <= 1 && result && (
-            <DnsResults result={result} />
-          )}
+          {isSuccess && comparisonResults.length <= 1 && result && <DnsResults result={result} />}
         </CardContent>
       </Card>
     </div>

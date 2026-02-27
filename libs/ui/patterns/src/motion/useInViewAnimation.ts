@@ -201,12 +201,7 @@ export interface UseRevealAnimationReturn extends UseInViewAnimationReturn {
 export function useRevealAnimation(
   options: UseRevealAnimationOptions = {}
 ): UseRevealAnimationReturn {
-  const {
-    delay = 0,
-    direction = 'up',
-    distance = 20,
-    ...inViewOptions
-  } = options;
+  const { delay = 0, direction = 'up', distance = 20, ...inViewOptions } = options;
 
   const { ref, isInView, shouldAnimate } = useInViewAnimation(inViewOptions);
 
@@ -228,22 +223,13 @@ export function useRevealAnimation(
   }, [direction, distance]);
 
   const initial = useMemo(
-    () =>
-      shouldAnimate
-        ? { opacity: 0, x: offset.x, y: offset.y }
-        : false,
+    () => (shouldAnimate ? { opacity: 0, x: offset.x, y: offset.y } : false),
     [shouldAnimate, offset]
   );
 
-  const animate = useMemo(
-    () => ({ opacity: 1, x: 0, y: 0 }),
-    []
-  );
+  const animate = useMemo(() => ({ opacity: 1, x: 0, y: 0 }), []);
 
-  const transition = useMemo(
-    () => ({ duration: 0.5, delay: delay / 1000 }),
-    [delay]
-  );
+  const transition = useMemo(() => ({ duration: 0.5, delay: delay / 1000 }), [delay]);
 
   return {
     ref,
@@ -299,12 +285,7 @@ export interface UseStaggeredRevealOptions extends UseInViewAnimationOptions {
  * ```
  */
 export function useStaggeredReveal(options: UseStaggeredRevealOptions) {
-  const {
-    itemCount,
-    staggerDelay = 50,
-    baseDelay = 0,
-    ...inViewOptions
-  } = options;
+  const { itemCount, staggerDelay = 50, baseDelay = 0, ...inViewOptions } = options;
 
   const { ref, isInView, shouldAnimate } = useInViewAnimation(inViewOptions);
 

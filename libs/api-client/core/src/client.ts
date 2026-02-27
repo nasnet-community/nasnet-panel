@@ -21,9 +21,7 @@ import type { ApiClientConfig } from './types';
 export function createApiClient(config?: ApiClientConfig): AxiosInstance {
   // Determine base URL: config > environment variable > default
   const baseURL =
-    config?.baseURL ||
-    (import.meta.env.VITE_API_URL as string | undefined) ||
-    '/api/v1';
+    config?.baseURL || (import.meta.env.VITE_API_URL as string | undefined) || '/api/v1';
 
   // Create Axios instance
   const client = axios.create({
@@ -44,16 +42,10 @@ export function createApiClient(config?: ApiClientConfig): AxiosInstance {
   // 2. Register retry interceptor FIRST → executes SECOND in error chain
   // 3. Register error interceptor SECOND → executes FIRST in error chain
   // This ensures: AxiosError → retry logic → user-friendly ApiError
-  client.interceptors.response.use(
-    (response) => response,
-    retryInterceptor
-  );
+  client.interceptors.response.use((response) => response, retryInterceptor);
 
   // Error interceptor transforms final rejections to user-friendly messages
-  client.interceptors.response.use(
-    (response) => response,
-    errorInterceptor
-  );
+  client.interceptors.response.use((response) => response, errorInterceptor);
 
   return client;
 }

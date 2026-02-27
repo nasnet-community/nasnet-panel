@@ -29,26 +29,26 @@ type Story = StoryObj<typeof ResponsiveShell>;
 // ---------------------------------------------------------------------------
 
 const MockDesktopHeader = (
-  <div className="h-full flex items-center px-6 gap-4">
+  <div className="flex h-full items-center gap-4 px-6">
     <span className="font-semibold">NasNetConnect</span>
-    <nav className="ml-auto flex gap-6 text-sm text-muted-foreground">
+    <nav className="text-muted-foreground ml-auto flex gap-6 text-sm">
       <a href="/dashboard">Dashboard</a>
       <a href="/network">Network</a>
       <a href="/firewall">Firewall</a>
     </nav>
-    <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white text-xs font-bold">
+    <div className="bg-primary flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold text-white">
       A
     </div>
   </div>
 );
 
 const MockSidebar = (
-  <div className="p-3 flex flex-col gap-1 h-full">
+  <div className="flex h-full flex-col gap-1 p-3">
     {['Dashboard', 'Network', 'VPN', 'Firewall', 'Diagnostics', 'Services', 'Settings'].map(
       (item) => (
         <div
           key={item}
-          className="px-3 py-2 rounded-md text-sm text-foreground hover:bg-accent cursor-pointer truncate"
+          className="text-foreground hover:bg-accent cursor-pointer truncate rounded-md px-3 py-2 text-sm"
         >
           {item}
         </div>
@@ -58,19 +58,19 @@ const MockSidebar = (
 );
 
 const MockPageContent = (
-  <div className="p-6 flex flex-col gap-4">
+  <div className="flex flex-col gap-4 p-6">
     <h2 className="text-xl font-semibold">Dashboard</h2>
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
       {['CPU 12%', 'RAM 34 MB', 'Uptime 3d', 'Clients 8'].map((label) => (
         <div
           key={label}
-          className="rounded-lg border border-border bg-card p-4 text-sm font-medium text-center"
+          className="border-border bg-card rounded-lg border p-4 text-center text-sm font-medium"
         >
           {label}
         </div>
       ))}
     </div>
-    <div className="h-40 rounded-lg bg-muted flex items-center justify-center text-sm text-muted-foreground">
+    <div className="bg-muted text-muted-foreground flex h-40 items-center justify-center rounded-lg text-sm">
       Traffic graph
     </div>
   </div>
@@ -206,9 +206,9 @@ export const InteractiveDesktop: Story = {
         onSidebarToggle={() => setCollapsed((c) => !c)}
       >
         <div className="p-6">
-          <p className="text-sm text-muted-foreground mb-4">
-            Sidebar is <strong>{collapsed ? 'collapsed' : 'expanded'}</strong>. Use the
-            toggle button on the sidebar edge or press Ctrl+B / Cmd+B.
+          <p className="text-muted-foreground mb-4 text-sm">
+            Sidebar is <strong>{collapsed ? 'collapsed' : 'expanded'}</strong>. Use the toggle
+            button on the sidebar edge or press Ctrl+B / Cmd+B.
           </p>
           {MockPageContent}
         </div>
@@ -224,7 +224,7 @@ export const WithBanner: Story = {
     header: MockDesktopHeader,
     sidebar: MockSidebar,
     banner: (
-      <div className="bg-warning text-white px-6 py-2 text-sm text-center font-medium">
+      <div className="bg-warning px-6 py-2 text-center text-sm font-medium text-white">
         Offline mode &mdash; reconnecting to router&hellip;
       </div>
     ),
@@ -243,15 +243,17 @@ export const ErrorState: Story = {
     header: MockDesktopHeader,
     sidebar: MockSidebar,
     banner: (
-      <div className="bg-error text-white px-6 py-2 text-sm text-center font-medium">
+      <div className="bg-error px-6 py-2 text-center text-sm font-medium text-white">
         Connection failed &mdash; unable to reach router
       </div>
     ),
     children: (
       <div className="p-6">
-        <div className="rounded-lg border-2 border-error bg-error/10 p-6 text-center">
-          <p className="text-sm text-error font-medium mb-2">Unable to Connect</p>
-          <p className="text-sm text-muted-foreground">Check your network connection and try again.</p>
+        <div className="border-error bg-error/10 rounded-lg border-2 p-6 text-center">
+          <p className="text-error mb-2 text-sm font-medium">Unable to Connect</p>
+          <p className="text-muted-foreground text-sm">
+            Check your network connection and try again.
+          </p>
         </div>
       </div>
     ),
@@ -269,17 +271,17 @@ export const LoadingState: Story = {
     header: MockDesktopHeader,
     sidebar: MockSidebar,
     children: (
-      <div className="p-6 flex flex-col gap-4">
+      <div className="flex flex-col gap-4 p-6">
         <h2 className="text-xl font-semibold">Dashboard</h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
           {Array.from({ length: 4 }).map((_, i) => (
             <div
               key={i}
-              className="rounded-lg border border-border bg-muted p-4 h-16 animate-pulse"
+              className="border-border bg-muted h-16 animate-pulse rounded-lg border p-4"
             />
           ))}
         </div>
-        <div className="h-40 rounded-lg bg-muted animate-pulse" />
+        <div className="bg-muted h-40 animate-pulse rounded-lg" />
       </div>
     ),
   },
@@ -297,10 +299,10 @@ export const EmptyState: Story = {
     sidebar: MockSidebar,
     children: (
       <div className="p-6">
-        <div className="rounded-lg border border-border p-12 text-center">
-          <Activity className="w-12 h-12 mx-auto mb-4 text-muted-foreground opacity-50" />
-          <h3 className="text-lg font-medium text-foreground mb-2">No Data Available</h3>
-          <p className="text-sm text-muted-foreground">
+        <div className="border-border rounded-lg border p-12 text-center">
+          <Activity className="text-muted-foreground mx-auto mb-4 h-12 w-12 opacity-50" />
+          <h3 className="text-foreground mb-2 text-lg font-medium">No Data Available</h3>
+          <p className="text-muted-foreground text-sm">
             There are no active connections or services to display.
           </p>
         </div>

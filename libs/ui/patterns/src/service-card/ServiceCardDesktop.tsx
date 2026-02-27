@@ -54,40 +54,28 @@ export function ServiceCardDesktop(props: ServiceCardProps) {
 
   return (
     <Card
-      className={`
-        bg-card border border-border rounded-[var(--semantic-radius-card)]
-        shadow-[var(--semantic-shadow-card)]
-        hover:shadow-lg transition-shadow duration-200
-        ${className || ''}
-      `.trim()}
+      className={`bg-card border-border rounded-[var(--semantic-radius-card)] border shadow-[var(--semantic-shadow-card)] transition-shadow duration-200 hover:shadow-lg ${className || ''} `.trim()}
       onClick={handleClick}
       role="article"
       aria-label={`${service.name} - ${statusLabel}`}
     >
       <CardContent className="p-component-lg">
-        <div className="flex items-center gap-component-md">
+        <div className="gap-component-md flex items-center">
           {/* Service icon with category color background */}
           {service.icon && (
             <div
-              className={`
-                shrink-0 h-10 w-10 flex items-center justify-center
-                rounded-lg bg-category-vpn/10
-              `}
+              className={`bg-category-vpn/10 flex h-10 w-10 shrink-0 items-center justify-center rounded-lg`}
             >
               {service.icon}
             </div>
           )}
 
           {/* Service info */}
-          <div className="flex-1 min-w-0 space-y-1">
-            <div className="flex items-center gap-component-md">
-              <h3 className="text-lg font-semibold text-foreground truncate">
-                {service.name}
-              </h3>
+          <div className="min-w-0 flex-1 space-y-1">
+            <div className="gap-component-md flex items-center">
+              <h3 className="text-foreground truncate text-lg font-semibold">{service.name}</h3>
               {service.version && (
-                <span className="text-xs font-mono text-muted-foreground">
-                  v{service.version}
-                </span>
+                <span className="text-muted-foreground font-mono text-xs">v{service.version}</span>
               )}
               <div className="ml-auto">
                 <ServiceHealthBadge />
@@ -95,15 +83,14 @@ export function ServiceCardDesktop(props: ServiceCardProps) {
             </div>
 
             {/* Category and description */}
-            <div className="flex items-center gap-component-sm">
+            <div className="gap-component-sm flex items-center">
               <span className={`text-xs font-medium ${categoryColor}`}>
-                {service.category.charAt(0).toUpperCase() +
-                  service.category.slice(1)}
+                {service.category.charAt(0).toUpperCase() + service.category.slice(1)}
               </span>
               {service.description && (
                 <>
-                  <span className="text-xs text-muted-foreground">•</span>
-                  <span className="text-sm text-muted-foreground line-clamp-2">
+                  <span className="text-muted-foreground text-xs">•</span>
+                  <span className="text-muted-foreground line-clamp-2 text-sm">
                     {service.description}
                   </span>
                 </>
@@ -112,37 +99,29 @@ export function ServiceCardDesktop(props: ServiceCardProps) {
 
             {/* Resource metrics (inline, mono font) */}
             {hasMetrics && (
-              <div className="flex items-center gap-component-md text-xs font-mono text-muted-foreground">
+              <div className="gap-component-md text-muted-foreground flex items-center font-mono text-xs">
                 {cpuUsage !== undefined && (
                   <div className="flex items-center gap-1">
                     <span>CPU:</span>
-                    <span className="font-medium text-foreground">
-                      {cpuUsage.toFixed(1)}%
-                    </span>
+                    <span className="text-foreground font-medium">{cpuUsage.toFixed(1)}%</span>
                   </div>
                 )}
                 {memoryUsage !== undefined && (
                   <div className="flex items-center gap-1">
                     <span>RAM:</span>
-                    <span className="font-medium text-foreground">
-                      {memoryUsage} MB
-                    </span>
+                    <span className="text-foreground font-medium">{memoryUsage} MB</span>
                   </div>
                 )}
                 {networkRx !== undefined && (
                   <div className="flex items-center gap-1">
                     <span>RX:</span>
-                    <span className="font-medium text-foreground">
-                      {formatBytes(networkRx)}
-                    </span>
+                    <span className="text-foreground font-medium">{formatBytes(networkRx)}</span>
                   </div>
                 )}
                 {networkTx !== undefined && (
                   <div className="flex items-center gap-1">
                     <span>TX:</span>
-                    <span className="font-medium text-foreground">
-                      {formatBytes(networkTx)}
-                    </span>
+                    <span className="text-foreground font-medium">{formatBytes(networkTx)}</span>
                   </div>
                 )}
               </div>
@@ -156,7 +135,7 @@ export function ServiceCardDesktop(props: ServiceCardProps) {
           {isRunning &&
             service.metrics?.currentMemory !== undefined &&
             service.metrics?.memoryLimit !== undefined && (
-              <div className="shrink-0 w-48">
+              <div className="w-48 shrink-0">
                 <ResourceUsageBar
                   label="Memory"
                   used={service.metrics.currentMemory}
@@ -168,7 +147,7 @@ export function ServiceCardDesktop(props: ServiceCardProps) {
             )}
 
           {/* Actions */}
-          <div className="shrink-0 flex items-center gap-component-sm">
+          <div className="gap-component-sm flex shrink-0 items-center">
             {/* Primary action */}
             {primaryAction && (
               <Button
@@ -182,21 +161,23 @@ export function ServiceCardDesktop(props: ServiceCardProps) {
                 aria-label={primaryAction.label}
                 className="transition-colors duration-150"
               >
-                {primaryAction.loading ? (
+                {primaryAction.loading ?
                   <span className="flex items-center gap-2">
-                    <span className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
                     {primaryAction.label}
                   </span>
-                ) : (
-                  <>
+                : <>
                     {primaryAction.icon && (
-                      <span className="mr-2" aria-hidden="true">
+                      <span
+                        className="mr-2"
+                        aria-hidden="true"
+                      >
                         {primaryAction.icon}
                       </span>
                     )}
                     {primaryAction.label}
                   </>
-                )}
+                }
               </Button>
             )}
 
@@ -222,9 +203,21 @@ export function ServiceCardDesktop(props: ServiceCardProps) {
                       strokeLinecap="round"
                       strokeLinejoin="round"
                     >
-                      <circle cx="12" cy="12" r="1" />
-                      <circle cx="12" cy="5" r="1" />
-                      <circle cx="12" cy="19" r="1" />
+                      <circle
+                        cx="12"
+                        cy="12"
+                        r="1"
+                      />
+                      <circle
+                        cx="12"
+                        cy="5"
+                        r="1"
+                      />
+                      <circle
+                        cx="12"
+                        cy="19"
+                        r="1"
+                      />
                     </svg>
                   </Button>
                 </DropdownMenuTrigger>
@@ -239,7 +232,10 @@ export function ServiceCardDesktop(props: ServiceCardProps) {
                       disabled={action.disabled || action.loading}
                     >
                       {action.icon && (
-                        <span className="mr-2" aria-hidden="true">
+                        <span
+                          className="mr-2"
+                          aria-hidden="true"
+                        >
                           {action.icon}
                         </span>
                       )}

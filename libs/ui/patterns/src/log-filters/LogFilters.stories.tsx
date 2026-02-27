@@ -25,7 +25,7 @@ function StatefulLogFilters({
   const [severities, setSeverities] = React.useState<LogSeverity[]>(initialSeverities);
 
   return (
-    <div className="p-4 max-w-2xl">
+    <div className="max-w-2xl p-4">
       <LogFilters
         topics={topics}
         onTopicsChange={setTopics}
@@ -94,7 +94,8 @@ export const Default: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Both filter dropdowns start empty. Click the buttons to open the dropdown and toggle selections.',
+        story:
+          'Both filter dropdowns start empty. Click the buttons to open the dropdown and toggle selections.',
       },
     },
   },
@@ -150,9 +151,7 @@ export const Desktop: Story = {
 
 export const WithTopicsSelected: Story = {
   name: 'With Topics Pre-selected',
-  render: () => (
-    <StatefulLogFilters initialTopics={['firewall', 'vpn', 'dhcp']} />
-  ),
+  render: () => <StatefulLogFilters initialTopics={['firewall', 'vpn', 'dhcp']} />,
   args: {
     topics: [],
     onTopicsChange: () => {},
@@ -171,9 +170,7 @@ export const WithTopicsSelected: Story = {
 
 export const WithSeveritiesSelected: Story = {
   name: 'With Severities Pre-selected',
-  render: () => (
-    <StatefulLogFilters initialSeverities={['error', 'critical']} />
-  ),
+  render: () => <StatefulLogFilters initialSeverities={['error', 'critical']} />,
   args: {
     topics: [],
     onTopicsChange: () => {},

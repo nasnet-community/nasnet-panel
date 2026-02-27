@@ -22,7 +22,11 @@ function DialogWrapper(props: React.ComponentProps<typeof PortForwardWizardDialo
   return (
     <div className="flex items-center justify-center p-8">
       <Button onClick={() => setOpen(true)}>Open Port Forward Wizard</Button>
-      <PortForwardWizardDialog {...props} open={open} onOpenChange={setOpen} />
+      <PortForwardWizardDialog
+        {...props}
+        open={open}
+        onOpenChange={setOpen}
+      />
     </div>
   );
 }
@@ -82,7 +86,8 @@ export const SingleWanInterface: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'When only one WAN interface is available it is pre-selected and the dropdown has a single option.',
+        story:
+          'When only one WAN interface is available it is pre-selected and the dropdown has a single option.',
       },
     },
   },
@@ -97,7 +102,8 @@ export const ManyWanInterfaces: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Demonstrates the interface dropdown with a larger set of WAN interfaces including PPPoE and VLAN types.',
+        story:
+          'Demonstrates the interface dropdown with a larger set of WAN interfaces including PPPoE and VLAN types.',
       },
     },
   },
@@ -112,7 +118,8 @@ export const DifferentRouterIp: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Same wizard with a different router IP, showing the router IP is passed through to the mutation hook.',
+        story:
+          'Same wizard with a different router IP, showing the router IP is passed through to the mutation hook.',
       },
     },
   },

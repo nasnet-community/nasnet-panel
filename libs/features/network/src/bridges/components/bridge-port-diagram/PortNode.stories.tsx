@@ -135,8 +135,7 @@ export const Default: Story = {
   parameters: {
     docs: {
       description: {
-        story:
-          'Root port in Forwarding state with tagged VLAN memberships (10, 20, 30).',
+        story: 'Root port in Forwarding state with tagged VLAN memberships (10, 20, 30).',
       },
     },
   },
@@ -185,8 +184,7 @@ export const RichVlanMemberships: Story = {
   parameters: {
     docs: {
       description: {
-        story:
-          'Port with five tagged VLANs and one untagged VLAN, in Learning state.',
+        story: 'Port with five tagged VLANs and one untagged VLAN, in Learning state.',
       },
     },
   },

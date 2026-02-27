@@ -90,12 +90,12 @@ function getAuthHeader(): string | null {
 function buildRouterOSEndpoint(endpoint: string): string {
   // Remove leading slash if present
   const cleanEndpoint = endpoint.startsWith('/') ? endpoint.substring(1) : endpoint;
-  
+
   // If already starts with 'rest/', add leading slash
   if (cleanEndpoint.startsWith('rest/')) {
     return `/${cleanEndpoint}`;
   }
-  
+
   // Add /rest/ prefix
   return `/rest/${cleanEndpoint}`;
 }
@@ -105,9 +105,9 @@ function buildRouterOSEndpoint(endpoint: string): string {
  */
 function convertRouterOSResponse<T>(data: unknown): T {
   if (Array.isArray(data)) {
-    return data.map(item => convertRouterOSResponse(item)) as T;
+    return data.map((item) => convertRouterOSResponse(item)) as T;
   }
-  
+
   if (data && typeof data === 'object') {
     const converted: Record<string, unknown> = {};
     for (const [key, value] of Object.entries(data)) {
@@ -116,24 +116,24 @@ function convertRouterOSResponse<T>(data: unknown): T {
     }
     return converted as T;
   }
-  
+
   return data as T;
 }
 
 /**
  * Makes an authenticated REST API request to a RouterOS device via backend proxy
- * 
+ *
  * @param routerIp - Target router IP address
  * @param endpoint - RouterOS REST API endpoint (e.g., 'system/resource', 'interface')
  * @param options - Request options (method, body, headers)
  * @param config - Optional proxy configuration overrides
  * @returns Promise with response data or error
- * 
+ *
  * @example
  * ```typescript
  * // Get system resource info
  * const result = await makeRouterOSRequest('192.168.88.1', 'system/resource');
- * 
+ *
  * // POST with body
  * const result = await makeRouterOSRequest('192.168.88.1', 'interface/set', {
  *   method: 'POST',
@@ -148,7 +148,7 @@ export async function makeRouterOSRequest<T>(
   config: Partial<ProxyConfig> = {}
 ): Promise<RouterOSResponse<T>> {
   const finalConfig = { ...defaultConfig, ...config };
-  
+
   // Get auth header
   const authHeader = getAuthHeader();
   if (!authHeader) {
@@ -158,14 +158,14 @@ export async function makeRouterOSRequest<T>(
       timestamp: Date.now(),
     };
   }
-  
+
   let lastError = 'Unknown error occurred';
-  
+
   for (let attempt = 0; attempt < finalConfig.retries; attempt++) {
     try {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), finalConfig.timeout);
-      
+
       // Build proxy request
       const proxyRequest: RouterProxyRequest = {
         router_ip: routerIp,
@@ -173,17 +173,17 @@ export async function makeRouterOSRequest<T>(
         method: options.method || 'GET',
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          'Authorization': authHeader,
+          Accept: 'application/json',
+          Authorization: authHeader,
           ...options.headers,
         },
       };
-      
+
       // Add body if present and not GET
       if (options.body && options.method !== 'GET') {
         proxyRequest.body = options.body;
       }
-      
+
       // Make request to backend proxy
       const backendUrl = `${finalConfig.baseUrl}/api/router/proxy`;
       const response = await fetch(backendUrl, {
@@ -194,9 +194,9 @@ export async function makeRouterOSRequest<T>(
         body: JSON.stringify(proxyRequest),
         signal: controller.signal,
       });
-      
+
       clearTimeout(timeoutId);
-      
+
       if (!response.ok) {
         let errorMessage = `Backend proxy error: ${response.status} ${response.statusText}`;
         try {
@@ -207,10 +207,10 @@ export async function makeRouterOSRequest<T>(
         }
         throw new Error(errorMessage);
       }
-      
+
       // Parse proxy response
       const proxyResponse: RouterProxyResponse = await response.json();
-      
+
       // Handle RouterOS response status
       if (proxyResponse.status === 401) {
         return {
@@ -233,16 +233,15 @@ export async function makeRouterOSRequest<T>(
       } else if (proxyResponse.status < 200 || proxyResponse.status >= 300) {
         throw new Error(`RouterOS error: ${proxyResponse.status} ${proxyResponse.status_text}`);
       }
-      
+
       // Parse successful response
       const convertedData = convertRouterOSResponse<T>(proxyResponse.body);
-      
+
       return {
         success: true,
         data: convertedData,
         timestamp: Date.now(),
       };
-      
     } catch (error) {
       if (error instanceof Error) {
         if (error.name === 'AbortError') {
@@ -253,14 +252,14 @@ export async function makeRouterOSRequest<T>(
           lastError = error.message;
         }
       }
-      
+
       // Retry if not the last attempt
       if (attempt < finalConfig.retries - 1) {
-        await new Promise(resolve => setTimeout(resolve, finalConfig.retryDelay));
+        await new Promise((resolve) => setTimeout(resolve, finalConfig.retryDelay));
       }
     }
   }
-  
+
   return {
     success: false,
     error: lastError,
@@ -270,11 +269,11 @@ export async function makeRouterOSRequest<T>(
 
 /**
  * Create a query function for TanStack Query that uses the router proxy
- * 
+ *
  * @param routerIp - Target router IP address
  * @param endpoint - RouterOS REST API endpoint
  * @returns Query function that returns the data or throws on error
- * 
+ *
  * @example
  * ```typescript
  * const { data } = useQuery({
@@ -290,18 +289,18 @@ export function createProxyQueryFn<T>(
 ): () => Promise<T> {
   return async () => {
     const result = await makeRouterOSRequest<T>(routerIp, endpoint, options);
-    
+
     if (!result.success) {
       throw new Error(result.error || 'Request failed');
     }
-    
+
     return result.data as T;
   };
 }
 
 /**
  * Create a mutation function for TanStack Query that uses the router proxy
- * 
+ *
  * @param routerIp - Target router IP address
  * @param endpoint - RouterOS REST API endpoint
  * @param method - HTTP method for the mutation
@@ -317,39 +316,11 @@ export function createProxyMutationFn<TData, TVariables>(
       method,
       body: variables,
     });
-    
+
     if (!result.success) {
       throw new Error(result.error || 'Mutation failed');
     }
-    
+
     return result.data as TData;
   };
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

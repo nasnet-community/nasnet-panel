@@ -14,16 +14,9 @@
 
 import { useState, useMemo, useCallback } from 'react';
 
-import {
-  useKillSwitchStatus,
-  useSetKillSwitch,
-} from '@nasnet/api-client/queries';
+import { useKillSwitchStatus, useSetKillSwitch } from '@nasnet/api-client/queries';
 
-import type {
-  KillSwitchToggleProps,
-  UseKillSwitchToggleReturn,
-  KillSwitchMode,
-} from './types';
+import type { KillSwitchToggleProps, UseKillSwitchToggleReturn, KillSwitchMode } from './types';
 
 /**
  * Format timestamp for display
@@ -92,16 +85,8 @@ function getStatusDisplay(
  * }
  * ```
  */
-export function useKillSwitchToggle(
-  props: KillSwitchToggleProps
-): UseKillSwitchToggleReturn {
-  const {
-    routerId,
-    deviceId,
-    availableInterfaces = [],
-    onToggle,
-    onChange,
-  } = props;
+export function useKillSwitchToggle(props: KillSwitchToggleProps): UseKillSwitchToggleReturn {
+  const { routerId, deviceId, availableInterfaces = [], onToggle, onChange } = props;
 
   // Fetch kill switch status
   const { status, loading: isLoading, error } = useKillSwitchStatus(routerId, deviceId);
@@ -153,8 +138,7 @@ export function useKillSwitchToggle(
           deviceID: deviceId,
           enabled,
           mode: newMode,
-          fallbackInterfaceID:
-            newMode === 'FALLBACK_SERVICE' ? fallbackInterfaceId : undefined,
+          fallbackInterfaceID: newMode === 'FALLBACK_SERVICE' ? fallbackInterfaceId : undefined,
         });
 
         onChange?.(newMode, fallbackInterfaceId);

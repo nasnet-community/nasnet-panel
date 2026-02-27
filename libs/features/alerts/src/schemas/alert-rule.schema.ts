@@ -71,7 +71,9 @@ export const alertSeveritySchema = z.enum(['CRITICAL', 'WARNING', 'INFO']);
  * Validates individual alert trigger conditions
  */
 export const alertConditionSchema = z.object({
-  field: z.string().min(1, 'Specify which field to monitor (e.g., "cpu_usage", "interface_status")'),
+  field: z
+    .string()
+    .min(1, 'Specify which field to monitor (e.g., "cpu_usage", "interface_status")'),
   operator: conditionOperatorSchema,
   value: z.string().min(1, 'Enter a comparison value (e.g., "80" for CPU > 80%)'),
 });
@@ -81,8 +83,17 @@ export const alertConditionSchema = z.object({
  * Prevents alert flooding by limiting frequency
  */
 export const throttleConfigSchema = z.object({
-  maxAlerts: z.number().int().min(MIN_THROTTLE_MAX_ALERTS, `Minimum ${MIN_THROTTLE_MAX_ALERTS} alert allowed per period`),
-  periodSeconds: z.number().int().min(MIN_THROTTLE_PERIOD_SECONDS, `Period must be at least ${MIN_THROTTLE_PERIOD_SECONDS} seconds (1 minute)`),
+  maxAlerts: z
+    .number()
+    .int()
+    .min(MIN_THROTTLE_MAX_ALERTS, `Minimum ${MIN_THROTTLE_MAX_ALERTS} alert allowed per period`),
+  periodSeconds: z
+    .number()
+    .int()
+    .min(
+      MIN_THROTTLE_PERIOD_SECONDS,
+      `Period must be at least ${MIN_THROTTLE_PERIOD_SECONDS} seconds (1 minute)`
+    ),
   groupByField: z.string().optional(),
 });
 
@@ -123,16 +134,30 @@ export const alertRuleFormSchema = z.object({
     .string()
     .min(1, 'Enter a descriptive name for this alert rule (e.g., "High CPU Alert")')
     .max(MAX_RULE_NAME_LENGTH, `Rule name must be ${MAX_RULE_NAME_LENGTH} characters or fewer`),
-  description: z.string().max(MAX_DESCRIPTION_LENGTH, `Description must be ${MAX_DESCRIPTION_LENGTH} characters or fewer`).optional(),
-  eventType: z.string().min(1, 'Select an event type to trigger alerts on (e.g., "device.offline", "interface.down")'),
+  description: z
+    .string()
+    .max(
+      MAX_DESCRIPTION_LENGTH,
+      `Description must be ${MAX_DESCRIPTION_LENGTH} characters or fewer`
+    )
+    .optional(),
+  eventType: z
+    .string()
+    .min(1, 'Select an event type to trigger alerts on (e.g., "device.offline", "interface.down")'),
   conditions: z
     .array(alertConditionSchema)
-    .min(MIN_CONDITIONS_PER_RULE, `Add at least ${MIN_CONDITIONS_PER_RULE} condition to trigger this alert`)
+    .min(
+      MIN_CONDITIONS_PER_RULE,
+      `Add at least ${MIN_CONDITIONS_PER_RULE} condition to trigger this alert`
+    )
     .max(MAX_CONDITIONS_PER_RULE, `Maximum ${MAX_CONDITIONS_PER_RULE} conditions allowed per rule`),
   severity: alertSeveritySchema,
   channels: z
     .array(z.string())
-    .min(MIN_CHANNELS_PER_RULE, `Select at least ${MIN_CHANNELS_PER_RULE} notification channel (email, Telegram, webhook, etc.)`)
+    .min(
+      MIN_CHANNELS_PER_RULE,
+      `Select at least ${MIN_CHANNELS_PER_RULE} notification channel (email, Telegram, webhook, etc.)`
+    )
     .max(MAX_CHANNELS_PER_RULE, `Maximum ${MAX_CHANNELS_PER_RULE} notification channels allowed`),
   throttle: throttleConfigSchema.optional(),
   quietHours: quietHoursConfigSchema.optional(),

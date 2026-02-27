@@ -86,9 +86,7 @@ export interface UseDeleteTemplateReturn {
  * });
  * ```
  */
-export function useDeleteTemplate(
-  options: UseDeleteTemplateOptions = {}
-): UseDeleteTemplateReturn {
+export function useDeleteTemplate(options: UseDeleteTemplateOptions = {}): UseDeleteTemplateReturn {
   const { onCompleted, onError } = options;
 
   const [deleteMutation, { loading, error, reset }] = useMutation<

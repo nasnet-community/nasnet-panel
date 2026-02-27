@@ -23,7 +23,11 @@ function formatBytes(bytes: number): string {
 /**
  * Calculate potential performance improvement
  */
-function calculateImprovement(rule: FirewallRule, currentPosition: number, suggestedPosition: number): string {
+function calculateImprovement(
+  rule: FirewallRule,
+  currentPosition: number,
+  suggestedPosition: number
+): string {
   const positionsSaved = currentPosition - suggestedPosition;
   const packetsPerSecond = rule.packets || 0;
 
@@ -84,7 +88,8 @@ function findOptimalPosition(
 
     // If this rule has more traffic than the rule at position i,
     // suggest moving it to position i
-    if (rulePackets > otherPackets * 2) { // Threshold: 2x traffic difference
+    if (rulePackets > otherPackets * 2) {
+      // Threshold: 2x traffic difference
       return i;
     }
   }
@@ -102,14 +107,17 @@ export function suggestReorder(rules: FirewallRule[]): Suggestion[] {
   const suggestions: Suggestion[] = [];
 
   // Group rules by chain
-  const rulesByChain = rules.reduce((acc, rule) => {
-    const chain = rule.chain;
-    if (!acc[chain]) {
-      acc[chain] = [];
-    }
-    acc[chain].push(rule);
-    return acc;
-  }, {} as Record<string, FirewallRule[]>);
+  const rulesByChain = rules.reduce(
+    (acc, rule) => {
+      const chain = rule.chain;
+      if (!acc[chain]) {
+        acc[chain] = [];
+      }
+      acc[chain].push(rule);
+      return acc;
+    },
+    {} as Record<string, FirewallRule[]>
+  );
 
   // Process each chain separately
   Object.entries(rulesByChain).forEach(([chain, chainRules]) => {

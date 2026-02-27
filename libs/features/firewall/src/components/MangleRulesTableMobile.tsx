@@ -66,16 +66,19 @@ const ActionBadge = React.memo(function ActionBadgeComponent({ action }: { actio
     'change-dscp': 'bg-warning/10 text-warning',
     'change-ttl': 'bg-info/10 text-info',
     'change-mss': 'bg-primary/10 text-primary',
-    'accept': 'bg-success/10 text-success',
-    'drop': 'bg-error/10 text-error',
-    'jump': 'bg-primary/10 text-primary',
-    'log': 'bg-muted text-muted-foreground',
+    accept: 'bg-success/10 text-success',
+    drop: 'bg-error/10 text-error',
+    jump: 'bg-primary/10 text-primary',
+    log: 'bg-muted text-muted-foreground',
   };
 
   const colorClass = ACTION_COLORS[action] || 'bg-muted text-muted-foreground';
 
   return (
-    <Badge variant="outline" className={cn(colorClass, 'text-xs')}>
+    <Badge
+      variant="outline"
+      className={cn(colorClass, 'text-xs')}
+    >
       {action}
     </Badge>
   );
@@ -126,15 +129,20 @@ const RuleCard = React.memo(function RuleCardComponent({
       <CardHeader className="pb-component-md">
         <div className="flex items-start justify-between">
           <div className="flex-1">
-            <div className="flex items-center gap-component-sm mb-component-xs">
-              <span className="font-mono tabular-nums text-xs text-muted-foreground">#{rule.position}</span>
-              <Badge variant="secondary" className="text-xs font-mono">
+            <div className="gap-component-sm mb-component-xs flex items-center">
+              <span className="text-muted-foreground font-mono text-xs tabular-nums">
+                #{rule.position}
+              </span>
+              <Badge
+                variant="secondary"
+                className="font-mono text-xs"
+              >
                 {rule.chain}
               </Badge>
               <ActionBadge action={rule.action} />
             </div>
             {markValue && (
-              <div className="font-mono tabular-nums text-sm font-semibold mt-component-xs">
+              <div className="mt-component-xs font-mono text-sm font-semibold tabular-nums">
                 {markValue}
               </div>
             )}
@@ -150,24 +158,24 @@ const RuleCard = React.memo(function RuleCardComponent({
       <CardContent className="pt-0">
         {/* Matchers */}
         {matchers.length > 0 && (
-          <div className="text-sm text-muted-foreground mb-component-md">
-            {matchers.join(' ')}
-          </div>
+          <div className="text-muted-foreground mb-component-md text-sm">{matchers.join(' ')}</div>
         )}
 
         {/* Counters */}
-        <div className="flex items-center gap-component-lg text-xs text-muted-foreground mb-component-md">
-          <div className="flex items-center gap-component-xs">
+        <div className="gap-component-lg text-muted-foreground mb-component-md flex items-center text-xs">
+          <div className="gap-component-xs flex items-center">
             <span className="font-semibold">{t('mangle.table.columns.packets')}:</span>
-            {isUnused ? (
-              <Badge variant="outline" className="text-xs text-muted-foreground">
+            {isUnused ?
+              <Badge
+                variant="outline"
+                className="text-muted-foreground text-xs"
+              >
                 {t('mangle.table.unused')}
               </Badge>
-            ) : (
-              <span className="font-mono tabular-nums">{(rule.packets ?? 0).toLocaleString()}</span>
-            )}
+            : <span className="font-mono tabular-nums">{(rule.packets ?? 0).toLocaleString()}</span>
+            }
           </div>
-          <div className="flex items-center gap-component-xs">
+          <div className="gap-component-xs flex items-center">
             <span className="font-semibold">{t('mangle.table.columns.bytes')}:</span>
             <span className="font-mono tabular-nums">{(rule.bytes ?? 0).toLocaleString()}</span>
           </div>
@@ -175,40 +183,47 @@ const RuleCard = React.memo(function RuleCardComponent({
 
         {/* Comment */}
         {rule.comment && (
-          <div className="text-sm text-muted-foreground italic mb-component-md">
-            {rule.comment}
-          </div>
+          <div className="text-muted-foreground mb-component-md text-sm italic">{rule.comment}</div>
         )}
 
         {/* Actions - 44px minimum touch targets */}
-        <div className="flex gap-component-sm">
+        <div className="gap-component-sm flex">
           <Button
             variant="outline"
             size="sm"
             onClick={() => onEdit(rule)}
-            className="flex-1 min-h-[44px]"
+            className="min-h-[44px] flex-1"
             aria-label={`Edit rule ${rule.position}`}
           >
-            <Pencil className="h-4 w-4 mr-component-sm" aria-hidden="true" />
+            <Pencil
+              className="mr-component-sm h-4 w-4"
+              aria-hidden="true"
+            />
             {t('mangle.buttons.edit')}
           </Button>
           <Button
             variant="outline"
             size="sm"
             onClick={() => onDuplicate(rule)}
-            className="min-h-[44px] px-component-md"
+            className="px-component-md min-h-[44px]"
             aria-label={`Duplicate rule ${rule.position}`}
           >
-            <Copy className="h-4 w-4" aria-hidden="true" />
+            <Copy
+              className="h-4 w-4"
+              aria-hidden="true"
+            />
           </Button>
           <Button
             variant="outline"
             size="sm"
             onClick={() => onDelete(rule)}
-            className="min-h-[44px] px-component-md text-error hover:text-error/80"
+            className="px-component-md text-error hover:text-error/80 min-h-[44px]"
             aria-label={`Delete rule ${rule.position}`}
           >
-            <Trash2 className="h-4 w-4" aria-hidden="true" />
+            <Trash2
+              className="h-4 w-4"
+              aria-hidden="true"
+            />
           </Button>
         </div>
       </CardContent>
@@ -253,7 +268,11 @@ export const MangleRulesTableMobile = React.memo(function MangleRulesTableMobile
   const { t } = useTranslation('firewall');
   const routerIp = useConnectionStore((state) => state.currentRouterIp) || '';
 
-  const { data: rules, isLoading, error } = useMangleRules(routerIp, chain ? { chain: chain as any } : undefined);
+  const {
+    data: rules,
+    isLoading,
+    error,
+  } = useMangleRules(routerIp, chain ? { chain: chain as any } : undefined);
   const deleteMangleRule = useDeleteMangleRule(routerIp);
   const toggleMangleRule = useToggleMangleRule(routerIp);
 
@@ -300,10 +319,10 @@ export const MangleRulesTableMobile = React.memo(function MangleRulesTableMobile
   if (isLoading) {
     return (
       <div className={cn('p-component-md space-y-component-md', className)}>
-        <div className="animate-pulse space-y-component-md">
-          <div className="h-32 bg-muted rounded" />
-          <div className="h-32 bg-muted rounded" />
-          <div className="h-32 bg-muted rounded" />
+        <div className="space-y-component-md animate-pulse">
+          <div className="bg-muted h-32 rounded" />
+          <div className="bg-muted h-32 rounded" />
+          <div className="bg-muted h-32 rounded" />
         </div>
       </div>
     );
@@ -312,8 +331,11 @@ export const MangleRulesTableMobile = React.memo(function MangleRulesTableMobile
   // Error state
   if (error) {
     return (
-      <div className={cn('p-component-md text-error', className)} role="alert">
-        <p className="font-semibold mb-component-xs">{t('mangle.notifications.error.load')}</p>
+      <div
+        className={cn('p-component-md text-error', className)}
+        role="alert"
+      >
+        <p className="mb-component-xs font-semibold">{t('mangle.notifications.error.load')}</p>
         <p className="text-sm">{error.message}</p>
       </div>
     );
@@ -346,14 +368,24 @@ export const MangleRulesTableMobile = React.memo(function MangleRulesTableMobile
       </div>
 
       {/* Edit/Create Sheet */}
-      <Sheet open={!!editingRule} onOpenChange={(open) => !open && setEditingRule(null)}>
-        <SheetContent side="bottom" className="h-[90vh] overflow-y-auto">
+      <Sheet
+        open={!!editingRule}
+        onOpenChange={(open) => !open && setEditingRule(null)}
+      >
+        <SheetContent
+          side="bottom"
+          className="h-[90vh] overflow-y-auto"
+        >
           <SheetHeader>
             <SheetTitle>
-              {editingRule?.id ? t('mangle.dialogs.editRule.title') : t('mangle.dialogs.addRule.title')}
+              {editingRule?.id ?
+                t('mangle.dialogs.editRule.title')
+              : t('mangle.dialogs.addRule.title')}
             </SheetTitle>
             <SheetDescription>
-              {editingRule?.id ? t('mangle.dialogs.editRule.description') : t('mangle.dialogs.addRule.description')}
+              {editingRule?.id ?
+                t('mangle.dialogs.editRule.description')
+              : t('mangle.dialogs.addRule.description')}
             </SheetDescription>
           </SheetHeader>
           {editingRule && (
@@ -369,18 +401,23 @@ export const MangleRulesTableMobile = React.memo(function MangleRulesTableMobile
       </Sheet>
 
       {/* Delete Confirmation Dialog */}
-      <Dialog open={!!deleteConfirmRule} onOpenChange={(open) => !open && setDeleteConfirmRule(null)}>
+      <Dialog
+        open={!!deleteConfirmRule}
+        onOpenChange={(open) => !open && setDeleteConfirmRule(null)}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>{t('mangle.dialogs.deleteRule.title')}</DialogTitle>
-            <DialogDescription>
-              {t('mangle.dialogs.deleteRule.description')}
-            </DialogDescription>
+            <DialogDescription>{t('mangle.dialogs.deleteRule.description')}</DialogDescription>
           </DialogHeader>
           <div className="py-component-md">
-            <p className="text-sm font-semibold mb-component-sm">{t('mangle.dialogs.deleteRule.warning')}</p>
-            <ul className="list-disc list-inside text-sm text-muted-foreground space-y-component-xs">
-              {(t('mangle.dialogs.deleteRule.consequences', { returnObjects: true }) as string[]).map((consequence, i) => (
+            <p className="mb-component-sm text-sm font-semibold">
+              {t('mangle.dialogs.deleteRule.warning')}
+            </p>
+            <ul className="text-muted-foreground space-y-component-xs list-inside list-disc text-sm">
+              {(
+                t('mangle.dialogs.deleteRule.consequences', { returnObjects: true }) as string[]
+              ).map((consequence, i) => (
                 <li key={i}>{consequence}</li>
               ))}
             </ul>

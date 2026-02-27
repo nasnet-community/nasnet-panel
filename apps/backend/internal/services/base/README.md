@@ -1,17 +1,22 @@
 # Base Service Patterns
 
-This package provides reusable base patterns for service implementations, eliminating 300-400 lines of duplicated code across 100+ service files.
+This package provides reusable base patterns for service implementations, eliminating 300-400 lines
+of duplicated code across 100+ service files.
 
 ## What's Included
 
 ### 1. BaseService (`service.go`)
+
 Core functionality for all services:
+
 - `EnsureConnected(ctx)` - Connection check pattern (replaces 47+ instances)
-- `ExecuteCommand(ctx, cmd, operation)` - Command execution with error handling (replaces 50+ instances)
+- `ExecuteCommand(ctx, cmd, operation)` - Command execution with error handling (replaces 50+
+  instances)
 - `Port()` - Access to underlying router port
 - `IsConnected()` - Connection status check
 
 **Before:**
+
 ```go
 type MyService struct {
     port router.RouterPort
@@ -36,6 +41,7 @@ func (s *MyService) DoSomething(ctx context.Context) error {
 ```
 
 **After:**
+
 ```go
 type MyService struct {
     base.BaseService
@@ -57,7 +63,9 @@ func (s *MyService) DoSomething(ctx context.Context) error {
 **Lines saved:** ~6 lines per method × 47+ methods = ~282 lines
 
 ### 2. CommandArgsBuilder (`command_args.go`)
+
 Fluent interface for building RouterOS command arguments:
+
 - `AddString(key, value)` - Add required string
 - `AddInt(key, value)` - Add required int
 - `AddBool(key, value)` - Add bool (yes/no format)
@@ -68,6 +76,7 @@ Fluent interface for building RouterOS command arguments:
 - `Build()` - Get final map
 
 **Before:**
+
 ```go
 args := make(map[string]string)
 args["name"] = input.Name
@@ -87,6 +96,7 @@ if input.Disabled != nil {
 ```
 
 **After:**
+
 ```go
 args := base.NewCommandArgsBuilder().
     AddString("name", input.Name).
@@ -99,12 +109,15 @@ args := base.NewCommandArgsBuilder().
 **Lines saved:** ~10-15 lines per method × 12+ methods = ~120-180 lines
 
 ### 3. ServiceConfig (`config.go`)
+
 Standardized configuration struct:
+
 - `RouterPort` - Router connection port
 - `EventBus` - Event bus for publishing events
 - `Validate()` - Config validation
 
 **Before:**
+
 ```go
 type MyServiceConfig struct {
     RouterPort router.RouterPort
@@ -120,6 +133,7 @@ func NewMyService(config MyServiceConfig) *MyService {
 ```
 
 **After:**
+
 ```go
 func NewMyService(config base.ServiceConfig) *MyService {
     return &MyService{
@@ -132,11 +146,14 @@ func NewMyService(config base.ServiceConfig) *MyService {
 **Lines saved:** ~5 lines per service × 20+ services = ~100 lines
 
 ### 4. Cache Package (`cache/`)
+
 Generic in-memory caching with TTL:
+
 - `Cache[K, V]` - Generic cache interface
 - `MemoryCache[K, V]` - Thread-safe implementation with automatic cleanup
 
 **Usage:**
+
 ```go
 cache := cache.NewMemoryCache[string, *Model](30 * time.Second)
 cache.Set("key", model)
@@ -146,6 +163,7 @@ if value, ok := cache.Get("key"); ok {
 ```
 
 Replaces custom cache implementations in:
+
 - WAN service
 - IP address service
 - Other services with caching needs
@@ -153,6 +171,7 @@ Replaces custom cache implementations in:
 ## Files Updated
 
 ### Phase 1 (Completed)
+
 - ✅ `route_service.go` - Updated to use BaseService + CommandArgsBuilder
 - ✅ `route_service_ops.go` - Updated Port() access
 - ✅ `route_service_queries.go` - Updated Port() access
@@ -165,6 +184,7 @@ Replaces custom cache implementations in:
 - ✅ `bridge/vlans.go` - Updated EnsureConnected + Port()
 
 ### Phase 2 (Next Steps)
+
 - [ ] `router_service.go`
 - [ ] `router_service_ops.go`
 - [ ] `telemetry_service.go`
@@ -175,13 +195,13 @@ Replaces custom cache implementations in:
 
 ## Impact Summary
 
-| Pattern | Instances | Lines/Instance | Total Saved |
-|---------|-----------|----------------|-------------|
-| EnsureConnected | 47+ | 6 | ~282 |
-| ExecuteCommand | 50+ | 4 | ~200 |
-| CommandArgsBuilder | 12+ | 12 | ~144 |
-| ServiceConfig | 20+ | 5 | ~100 |
-| **TOTAL** | | | **~726 lines** |
+| Pattern            | Instances | Lines/Instance | Total Saved    |
+| ------------------ | --------- | -------------- | -------------- |
+| EnsureConnected    | 47+       | 6              | ~282           |
+| ExecuteCommand     | 50+       | 4              | ~200           |
+| CommandArgsBuilder | 12+       | 12             | ~144           |
+| ServiceConfig      | 20+       | 5              | ~100           |
+| **TOTAL**          |           |                | **~726 lines** |
 
 ## Benefits
 
@@ -194,19 +214,25 @@ Replaces custom cache implementations in:
 ## Guidelines
 
 ### When to Use BaseService
+
 Use BaseService for any service that:
+
 - Needs to communicate with routers via RouterPort
 - Requires connection management
 - Executes RouterOS commands
 
 ### When to Use CommandArgsBuilder
+
 Use CommandArgsBuilder when:
+
 - Building RouterOS command arguments with optional fields
 - Converting Go types to RouterOS format (int → string, bool → yes/no)
 - Need clean, readable argument construction
 
 ### When to Use Cache Package
+
 Use cache.MemoryCache when:
+
 - Caching API responses
 - Reducing redundant router queries
 - Need TTL-based expiration
@@ -215,6 +241,7 @@ Use cache.MemoryCache when:
 ## Migration Guide
 
 ### Step 1: Update Service Struct
+
 ```go
 // Before
 type MyService struct {
@@ -228,6 +255,7 @@ type MyService struct {
 ```
 
 ### Step 2: Update Constructor
+
 ```go
 // Before
 func NewMyService(port router.RouterPort) *MyService {
@@ -243,7 +271,9 @@ func NewMyService(port router.RouterPort) *MyService {
 ```
 
 ### Step 3: Update Methods
+
 Replace `s.port` with `s.Port()` and use helper methods:
+
 ```go
 // Before
 if !s.port.IsConnected() {
@@ -261,6 +291,7 @@ result, err := s.ExecuteCommand(ctx, cmd, "operation name")
 ```
 
 ### Step 4: Simplify Argument Building
+
 ```go
 // Before
 args := make(map[string]string)
@@ -279,6 +310,7 @@ args := base.NewCommandArgsBuilder().
 ## Testing
 
 All base patterns are tested:
+
 ```bash
 cd apps/backend
 go test ./internal/services/base/...

@@ -5,7 +5,4 @@
 
 export { DiagnosticsPanel } from './DiagnosticsPanel';
 export { useDiagnosticsPanel } from './useDiagnosticsPanel';
-export type {
-  DiagnosticsPanelProps,
-  UseDiagnosticsPanelReturn,
-} from './useDiagnosticsPanel';
+export type { DiagnosticsPanelProps, UseDiagnosticsPanelReturn } from './useDiagnosticsPanel';

@@ -66,12 +66,12 @@ export const DashboardLayout = memo(function DashboardLayout({
   }, [onRefresh]);
 
   return (
-    <div className={cn('flex flex-col h-full', className)}>
+    <div className={cn('flex h-full flex-col', className)}>
       {/* Page Header */}
-      <header className="flex items-center justify-between p-component-md sm:p-component-lg border-b border-border">
+      <header className="p-component-md sm:p-component-lg border-border flex items-center justify-between border-b">
         <div>
-          <h1 className="text-2xl font-display font-bold text-foreground">Dashboard</h1>
-          <p className="text-sm text-muted-foreground mt-component-xs">
+          <h1 className="font-display text-foreground text-2xl font-bold">Dashboard</h1>
+          <p className="text-muted-foreground mt-component-xs text-sm">
             Router health and network status at a glance
           </p>
         </div>
@@ -86,16 +86,20 @@ export const DashboardLayout = memo(function DashboardLayout({
             title="Refresh"
             className="h-12 w-12" // 48px for WCAG AAA touch target
           >
-            <Icon icon={RefreshCw} className="h-5 w-5" aria-hidden="true" />
+            <Icon
+              icon={RefreshCw}
+              className="h-5 w-5"
+              aria-hidden="true"
+            />
           </Button>
         )}
       </header>
 
       {/* Dashboard Grid */}
-      <main className="flex-1 overflow-auto p-component-md sm:p-component-lg lg:p-component-xl">
+      <main className="p-component-md sm:p-component-lg lg:p-component-xl flex-1 overflow-auto">
         <div
           className={cn(
-            'grid gap-component-md sm:gap-component-lg lg:gap-component-xl',
+            'gap-component-md sm:gap-component-lg lg:gap-component-xl grid',
             gridColumns,
             // Ensure proper grid layout
             'auto-rows-max'

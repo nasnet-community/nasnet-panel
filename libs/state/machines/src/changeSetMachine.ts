@@ -143,10 +143,7 @@ export interface ChangeSetMachineConfig {
   /**
    * Rollback a single item
    */
-  rollbackItem: (params: {
-    rollbackStep: RollbackStep;
-    routerId: string;
-  }) => Promise<void>;
+  rollbackItem: (params: { rollbackStep: RollbackStep; routerId: string }) => Promise<void>;
 
   /**
    * Callback when validation completes
@@ -198,10 +195,7 @@ function sortItemsByDependency(items: ChangeSetItem[]): ChangeSetItem[] {
 /**
  * Create rollback step from applied item
  */
-function createRollbackStep(
-  item: ChangeSetItem,
-  confirmedResourceUuid?: string
-): RollbackStep {
+function createRollbackStep(item: ChangeSetItem, confirmedResourceUuid?: string): RollbackStep {
   let operation: RollbackStep['operation'];
 
   switch (item.operation) {
@@ -294,61 +288,50 @@ export function createChangeSetMachine(config: ChangeSetMachineConfig) {
       events: ChangeSetMachineEvent;
     },
     actors: {
-      validateAll: fromPromise<ChangeSetValidationResult, ChangeSet>(
-        async ({ input }) => {
-          return validateChangeSet(input);
-        }
-      ),
+      validateAll: fromPromise<ChangeSetValidationResult, ChangeSet>(async ({ input }) => {
+        return validateChangeSet(input);
+      }),
       applyCurrentItem: fromPromise<
         { confirmedState: Record<string, unknown>; resourceUuid?: string },
         { item: ChangeSetItem; routerId: string }
       >(async ({ input }) => {
         return applyItem(input);
       }),
-      executeRollback: fromPromise<
-        void,
-        { rollbackPlan: RollbackStep[]; routerId: string }
-      >(async ({ input }) => {
-        const { rollbackPlan, routerId } = input;
+      executeRollback: fromPromise<void, { rollbackPlan: RollbackStep[]; routerId: string }>(
+        async ({ input }) => {
+          const { rollbackPlan, routerId } = input;
 
-        // Execute rollback in reverse order
-        for (const step of rollbackPlan) {
-          try {
-            await rollbackItem({ rollbackStep: step, routerId });
-            Object.assign(step, { success: true });
-          } catch (error) {
-            Object.assign(step, {
-              success: false,
-              error: error instanceof Error ? error.message : 'Rollback failed',
-            });
-            // Continue with remaining items even if one fails
+          // Execute rollback in reverse order
+          for (const step of rollbackPlan) {
+            try {
+              await rollbackItem({ rollbackStep: step, routerId });
+              Object.assign(step, { success: true });
+            } catch (error) {
+              Object.assign(step, {
+                success: false,
+                error: error instanceof Error ? error.message : 'Rollback failed',
+              });
+              // Continue with remaining items even if one fails
+            }
           }
         }
-      }),
+      ),
     },
     guards: {
-      hasMoreItems: ({ context }) =>
-        context.currentItemIndex < context.sortedItems.length,
-      noMoreItems: ({ context }) =>
-        context.currentItemIndex >= context.sortedItems.length,
+      hasMoreItems: ({ context }) => context.currentItemIndex < context.sortedItems.length,
+      noMoreItems: ({ context }) => context.currentItemIndex >= context.sortedItems.length,
       canApply: ({ context }) =>
-        context.validationResult?.canApply === true &&
-        context.sortedItems.length > 0,
+        context.validationResult?.canApply === true && context.sortedItems.length > 0,
       hasAppliedItems: ({ context }) => context.appliedItems.length > 0,
       isCancelled: ({ context }) => context.cancelRequested,
-      hasValidationErrors: ({ context }) =>
-        (context.validationResult?.errors.length ?? 0) > 0,
+      hasValidationErrors: ({ context }) => (context.validationResult?.errors.length ?? 0) > 0,
     },
     actions: {
       loadChangeSet: assign({
-        changeSet: ({ event }) =>
-          event.type === 'LOAD' ? event.changeSet : null,
-        routerId: ({ event }) =>
-          event.type === 'LOAD' ? event.routerId : null,
+        changeSet: ({ event }) => (event.type === 'LOAD' ? event.changeSet : null),
+        routerId: ({ event }) => (event.type === 'LOAD' ? event.routerId : null),
         sortedItems: ({ event }) =>
-          event.type === 'LOAD'
-            ? sortItemsByDependency([...event.changeSet.items])
-            : [],
+          event.type === 'LOAD' ? sortItemsByDependency([...event.changeSet.items]) : [],
         currentItemIndex: 0,
         appliedItems: [],
         rollbackPlan: [],
@@ -359,11 +342,7 @@ export function createChangeSetMachine(config: ChangeSetMachineConfig) {
       }),
       setValidationResult: assign({
         validationResult: ({ event }) => {
-          if (
-            typeof event === 'object' &&
-            event !== null &&
-            'output' in event
-          ) {
+          if (typeof event === 'object' && event !== null && 'output' in event) {
             return event.output as ChangeSetValidationResult;
           }
           return null;
@@ -385,11 +364,7 @@ export function createChangeSetMachine(config: ChangeSetMachineConfig) {
           let confirmedState: Record<string, unknown> | null = null;
           let resourceUuid: string | undefined;
 
-          if (
-            typeof event === 'object' &&
-            event !== null &&
-            'output' in event
-          ) {
+          if (typeof event === 'object' && event !== null && 'output' in event) {
             const output = event.output as {
               confirmedState: Record<string, unknown>;
               resourceUuid?: string;
@@ -400,7 +375,11 @@ export function createChangeSetMachine(config: ChangeSetMachineConfig) {
 
           return [
             ...context.appliedItems,
-            { ...currentItem, confirmedState, resourceUuid: resourceUuid ?? currentItem.resourceUuid },
+            {
+              ...currentItem,
+              confirmedState,
+              resourceUuid: resourceUuid ?? currentItem.resourceUuid,
+            },
           ];
         },
         rollbackPlan: ({ context, event }) => {
@@ -408,11 +387,7 @@ export function createChangeSetMachine(config: ChangeSetMachineConfig) {
           if (!currentItem) return context.rollbackPlan;
 
           let resourceUuid: string | undefined;
-          if (
-            typeof event === 'object' &&
-            event !== null &&
-            'output' in event
-          ) {
+          if (typeof event === 'object' && event !== null && 'output' in event) {
             resourceUuid = (event.output as { resourceUuid?: string }).resourceUuid;
           }
 
@@ -493,8 +468,9 @@ export function createChangeSetMachine(config: ChangeSetMachineConfig) {
         onProgress({
           changeSetId: context.changeSet.id,
           status: 'applying',
-          currentItem: currentItem
-            ? {
+          currentItem:
+            currentItem ?
+              {
                 id: currentItem.id,
                 name: currentItem.name,
                 index: context.currentItemIndex,
@@ -672,8 +648,7 @@ export function createChangeSetMachine(config: ChangeSetMachineConfig) {
             {
               target: 'partialFailure',
               actions: 'checkRollbackResults',
-              guard: ({ context }) =>
-                context.rollbackPlan.some((step) => !step.success),
+              guard: ({ context }) => context.rollbackPlan.some((step) => !step.success),
             },
             {
               target: 'rolledBack',
@@ -752,9 +727,7 @@ export type ChangeSetMachineStateValue =
 /**
  * Check if machine is in a processing state
  */
-export function isChangeSetProcessing(
-  state: string | { applying: string }
-): boolean {
+export function isChangeSetProcessing(state: string | { applying: string }): boolean {
   if (typeof state === 'object') return true;
   return ['validating', 'rollingBack'].includes(state);
 }
@@ -764,9 +737,7 @@ export function isChangeSetProcessing(
  */
 export function isChangeSetFinal(state: string | object): boolean {
   if (typeof state === 'object') return false;
-  return ['completed', 'rolledBack', 'failed', 'partialFailure', 'cancelled'].includes(
-    state
-  );
+  return ['completed', 'rolledBack', 'failed', 'partialFailure', 'cancelled'].includes(state);
 }
 
 /**
@@ -780,13 +751,9 @@ export function isChangeSetCancellable(state: string | object): boolean {
 /**
  * Get description for machine state
  */
-export function getChangeSetMachineStateDescription(
-  state: string | { applying: string }
-): string {
+export function getChangeSetMachineStateDescription(state: string | { applying: string }): string {
   if (typeof state === 'object') {
-    return state.applying === 'applyingItem'
-      ? 'Applying changes...'
-      : 'Processing...';
+    return state.applying === 'applyingItem' ? 'Applying changes...' : 'Processing...';
   }
 
   const descriptions: Record<string, string> = {

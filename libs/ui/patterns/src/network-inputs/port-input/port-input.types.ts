@@ -38,7 +38,18 @@ export interface PortSuggestion {
   /** Service name */
   service: string;
   /** Category for grouping */
-  category: 'web' | 'secure' | 'database' | 'messaging' | 'mail' | 'network' | 'system' | 'containers' | 'mikrotik' | 'recent' | 'group';
+  category:
+    | 'web'
+    | 'secure'
+    | 'database'
+    | 'messaging'
+    | 'mail'
+    | 'network'
+    | 'system'
+    | 'containers'
+    | 'mikrotik'
+    | 'recent'
+    | 'group';
   /** Protocol for filtering */
   protocol?: 'tcp' | 'udp' | 'both';
   /** Flag indicating this is a service group */
@@ -243,7 +254,17 @@ export interface PortInputMobileProps extends PortInputProps {
 /**
  * Port category type for suggestions grouping.
  */
-export type PortCategory = 'web' | 'secure' | 'database' | 'messaging' | 'mail' | 'network' | 'system' | 'containers' | 'mikrotik' | 'recent';
+export type PortCategory =
+  | 'web'
+  | 'secure'
+  | 'database'
+  | 'messaging'
+  | 'mail'
+  | 'network'
+  | 'system'
+  | 'containers'
+  | 'mikrotik'
+  | 'recent';
 
 /**
  * Category display names for UI.

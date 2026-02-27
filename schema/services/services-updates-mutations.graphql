@@ -8,10 +8,14 @@ extend type Mutation {
   Uses atomic 6-phase update with rollback on failure.
   """
   updateInstance(
-    """Router ID"""
+    """
+    Router ID
+    """
     routerID: ID!
 
-    """Instance ID to update"""
+    """
+    Instance ID to update
+    """
     instanceID: ID!
   ): UpdateResult!
 
@@ -20,10 +24,14 @@ extend type Mutation {
   Returns number of instances updated.
   """
   updateAllInstances(
-    """Router ID"""
+    """
+    Router ID
+    """
     routerID: ID!
 
-    """Minimum severity to update (default: CRITICAL)"""
+    """
+    Minimum severity to update (default: CRITICAL)
+    """
     minSeverity: UpdateSeverity
   ): Int!
 }

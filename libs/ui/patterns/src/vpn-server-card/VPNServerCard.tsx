@@ -18,15 +18,7 @@
 
 import { memo, forwardRef, useCallback } from 'react';
 
-import {
-  MoreVertical,
-  Edit,
-  Trash2,
-  Users,
-  Activity,
-  Settings,
-  ArrowDownUp,
-} from 'lucide-react';
+import { MoreVertical, Edit, Trash2, Users, Activity, Settings, ArrowDownUp } from 'lucide-react';
 
 import type { VPNProtocol } from '@nasnet/core/types';
 import { formatBytes } from '@nasnet/core/utils';
@@ -49,7 +41,6 @@ import {
 
 import { ProtocolIconBadge, getProtocolLabel } from '../protocol-icon';
 import { StatusIndicator } from '../status-indicator';
-
 
 export interface VPNServerCardProps {
   /** Server ID */
@@ -107,8 +98,14 @@ function VPNServerCardComponent({
   isToggling = false,
   className = '',
 }: VPNServerCardProps) {
-  const status = isDisabled ? 'offline' : isRunning ? 'online' : 'warning';
-  const statusLabel = isDisabled ? 'Disabled' : isRunning ? 'Running' : 'Stopped';
+  const status =
+    isDisabled ? 'offline'
+    : isRunning ? 'online'
+    : 'warning';
+  const statusLabel =
+    isDisabled ? 'Disabled'
+    : isRunning ? 'Running'
+    : 'Stopped';
 
   const handleToggle = useCallback(
     (checked: boolean) => {
@@ -130,25 +127,40 @@ function VPNServerCardComponent({
   }, [id, onViewDetails]);
 
   return (
-    <Card className={cn('bg-card border border-l-4 border-l-category-vpn border-border rounded-[var(--semantic-radius-card)] shadow-[var(--semantic-shadow-card)] transition-shadow duration-200 hover:shadow-lg', className)} aria-label={`${name} VPN server - ${statusLabel}`}>
+    <Card
+      className={cn(
+        'bg-card border-l-category-vpn border-border rounded-[var(--semantic-radius-card)] border border-l-4 shadow-[var(--semantic-shadow-card)] transition-shadow duration-200 hover:shadow-lg',
+        className
+      )}
+      aria-label={`${name} VPN server - ${statusLabel}`}
+    >
       <CardHeader className="pb-3 sm:pb-4">
         <div className="flex items-start justify-between gap-3">
-          <div className="flex items-center gap-3 min-w-0">
-            <ProtocolIconBadge protocol={protocol} variant="md" />
-            <div className="flex-1 min-w-0">
-              <CardTitle className="text-lg font-semibold text-foreground truncate">
+          <div className="flex min-w-0 items-center gap-3">
+            <ProtocolIconBadge
+              protocol={protocol}
+              variant="md"
+            />
+            <div className="min-w-0 flex-1">
+              <CardTitle className="text-foreground truncate text-lg font-semibold">
                 {name}
               </CardTitle>
-              <div className="flex items-center gap-2 mt-1">
-                <StatusIndicator status={status} label={statusLabel} />
-                <Badge variant="secondary" className="text-xs font-mono uppercase">
+              <div className="mt-1 flex items-center gap-2">
+                <StatusIndicator
+                  status={status}
+                  label={statusLabel}
+                />
+                <Badge
+                  variant="secondary"
+                  className="font-mono text-xs uppercase"
+                >
                   {getProtocolLabel(protocol)}
                 </Badge>
               </div>
             </div>
           </div>
 
-          <div className="flex items-center gap-2 flex-shrink-0">
+          <div className="flex flex-shrink-0 items-center gap-2">
             {/* Toggle Switch */}
             {onToggle && (
               <Switch
@@ -162,21 +174,34 @@ function VPNServerCardComponent({
             {/* Actions Menu */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-8 w-8 min-h-[44px] min-w-[44px]">
-                  <Icon icon={MoreVertical} className="h-4 w-4" />
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 min-h-[44px] w-8 min-w-[44px]"
+                >
+                  <Icon
+                    icon={MoreVertical}
+                    className="h-4 w-4"
+                  />
                   <span className="sr-only">Open menu</span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 {onViewDetails && (
                   <DropdownMenuItem onClick={handleViewDetails}>
-                    <Icon icon={Settings} className="mr-2 h-4 w-4" />
+                    <Icon
+                      icon={Settings}
+                      className="mr-2 h-4 w-4"
+                    />
                     View Details
                   </DropdownMenuItem>
                 )}
                 {onEdit && (
                   <DropdownMenuItem onClick={handleEdit}>
-                    <Icon icon={Edit} className="mr-2 h-4 w-4" />
+                    <Icon
+                      icon={Edit}
+                      className="mr-2 h-4 w-4"
+                    />
                     Edit
                   </DropdownMenuItem>
                 )}
@@ -186,7 +211,10 @@ function VPNServerCardComponent({
                     onClick={handleDelete}
                     className="text-error focus:text-error"
                   >
-                    <Icon icon={Trash2} className="mr-2 h-4 w-4" />
+                    <Icon
+                      icon={Trash2}
+                      className="mr-2 h-4 w-4"
+                    />
                     Delete
                   </DropdownMenuItem>
                 )}
@@ -200,20 +228,24 @@ function VPNServerCardComponent({
         {/* Server Info */}
         <div className="space-y-3">
           {/* Port and Connections */}
-          <div className="flex items-center justify-between py-2 border-b border-border">
+          <div className="border-border flex items-center justify-between border-b py-2">
             {port && (
               <div className="flex items-center gap-2">
-                <Icon icon={Activity} className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                <span className="text-sm text-muted-foreground">Port</span>
-                <span className="text-sm font-mono text-muted-foreground">{port}</span>
+                <Icon
+                  icon={Activity}
+                  className="text-muted-foreground h-4 w-4 flex-shrink-0"
+                />
+                <span className="text-muted-foreground text-sm">Port</span>
+                <span className="text-muted-foreground font-mono text-sm">{port}</span>
               </div>
             )}
             <div className="flex items-center gap-2">
-              <Icon icon={Users} className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-              <span className="text-sm font-mono text-muted-foreground">
-                {connectedClients}
-              </span>
-              <span className="text-sm text-muted-foreground">
+              <Icon
+                icon={Users}
+                className="text-muted-foreground h-4 w-4 flex-shrink-0"
+              />
+              <span className="text-muted-foreground font-mono text-sm">{connectedClients}</span>
+              <span className="text-muted-foreground text-sm">
                 {connectedClients === 1 ? 'client' : 'clients'}
               </span>
             </div>
@@ -226,13 +258,17 @@ function VPNServerCardComponent({
                 {rx !== undefined && (
                   <div>
                     <span className="text-muted-foreground">↓ </span>
-                    <span className="font-mono text-xs text-muted-foreground">{formatBytes(rx)}</span>
+                    <span className="text-muted-foreground font-mono text-xs">
+                      {formatBytes(rx)}
+                    </span>
                   </div>
                 )}
                 {tx !== undefined && (
                   <div>
                     <span className="text-muted-foreground">↑ </span>
-                    <span className="font-mono text-xs text-muted-foreground">{formatBytes(tx)}</span>
+                    <span className="text-muted-foreground font-mono text-xs">
+                      {formatBytes(tx)}
+                    </span>
                   </div>
                 )}
               </div>
@@ -240,11 +276,7 @@ function VPNServerCardComponent({
           )}
 
           {/* Comment */}
-          {comment && (
-            <p className="text-xs text-muted-foreground italic truncate">
-              {comment}
-            </p>
-          )}
+          {comment && <p className="text-muted-foreground truncate text-xs italic">{comment}</p>}
         </div>
       </CardContent>
     </Card>
@@ -252,9 +284,9 @@ function VPNServerCardComponent({
 }
 
 export const VPNServerCard = memo(
-  forwardRef<HTMLDivElement, VPNServerCardProps>(
-    (props, ref) => <VPNServerCardComponent {...props} />
-  )
+  forwardRef<HTMLDivElement, VPNServerCardProps>((props, ref) => (
+    <VPNServerCardComponent {...props} />
+  ))
 );
 
 VPNServerCard.displayName = 'VPNServerCard';

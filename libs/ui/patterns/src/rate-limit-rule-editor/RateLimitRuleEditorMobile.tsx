@@ -25,7 +25,6 @@ import {
   SheetTitle,
   SheetDescription,
   SheetFooter,
-
   Button,
   Card,
   Input,
@@ -76,7 +75,14 @@ export const RateLimitRuleEditorMobile = memo(function RateLimitRuleEditorMobile
   const { control, formState } = form;
 
   // Get action-specific badge color
-  const actionBadgeVariant = useMemo((): 'default' | 'secondary' | 'outline' | 'error' | 'success' | 'warning' | 'info' => {
+  const actionBadgeVariant = useMemo(():
+    | 'default'
+    | 'secondary'
+    | 'outline'
+    | 'error'
+    | 'success'
+    | 'warning'
+    | 'info' => {
     const action = rule.action;
     if (!action) return 'default';
 
@@ -88,321 +94,357 @@ export const RateLimitRuleEditorMobile = memo(function RateLimitRuleEditorMobile
 
   return (
     <FormProvider {...form}>
-    <Sheet open={open} onOpenChange={onClose}>
-      <SheetContent side="bottom" className="h-[90vh] flex flex-col">
-        <SheetHeader>
-          <SheetTitle className="flex items-center gap-2">
-            <Shield className="h-5 w-5 text-primary" />
-            {mode === 'create' ? 'Create Rate Limit Rule' : 'Edit Rate Limit Rule'}
-          </SheetTitle>
-          <SheetDescription>
-            Configure connection rate limiting
-          </SheetDescription>
-        </SheetHeader>
+      <Sheet
+        open={open}
+        onOpenChange={onClose}
+      >
+        <SheetContent
+          side="bottom"
+          className="flex h-[90vh] flex-col"
+        >
+          <SheetHeader>
+            <SheetTitle className="flex items-center gap-2">
+              <Shield className="text-primary h-5 w-5" />
+              {mode === 'create' ? 'Create Rate Limit Rule' : 'Edit Rate Limit Rule'}
+            </SheetTitle>
+            <SheetDescription>Configure connection rate limiting</SheetDescription>
+          </SheetHeader>
 
-        <div className="flex-1 overflow-y-auto space-y-4 pb-20">
-          {/* Live Preview */}
-          <Card className="p-component-md bg-info-light border border-info/20 rounded-[var(--semantic-radius-card)] border-t-2 border-t-category-firewall">
-            <div className="flex items-start gap-3">
-              <Info className="h-5 w-5 text-info-dark mt-0.5 flex-shrink-0" />
-              <div className="flex-1 min-w-0">
-                <p className="text-xs font-semibold text-info-dark mb-1">Preview</p>
-                <p className="text-xs text-muted-foreground font-mono break-words">
-                  {preview}
-                </p>
+          <div className="flex-1 space-y-4 overflow-y-auto pb-20">
+            {/* Live Preview */}
+            <Card className="p-component-md bg-info-light border-info/20 border-t-category-firewall rounded-[var(--semantic-radius-card)] border border-t-2">
+              <div className="flex items-start gap-3">
+                <Info className="text-info-dark mt-0.5 h-5 w-5 flex-shrink-0" />
+                <div className="min-w-0 flex-1">
+                  <p className="text-info-dark mb-1 text-xs font-semibold">Preview</p>
+                  <p className="text-muted-foreground break-words font-mono text-xs">{preview}</p>
+                </div>
               </div>
-            </div>
-            <Badge variant={actionBadgeVariant} className="mt-2">
-              {rule.action || 'No action'}
-            </Badge>
-          </Card>
+              <Badge
+                variant={actionBadgeVariant}
+                className="mt-2"
+              >
+                {rule.action || 'No action'}
+              </Badge>
+            </Card>
 
-          {/* Rate Limit Configuration */}
-          <Card className="p-component-md space-y-component-md border border-border rounded-[var(--semantic-radius-card)]">
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
-              <Clock className="h-4 w-4" />
-              Rate Limit
-            </h3>
+            {/* Rate Limit Configuration */}
+            <Card className="p-component-md space-y-component-md border-border rounded-[var(--semantic-radius-card)] border">
+              <h3 className="text-muted-foreground flex items-center gap-2 text-xs font-semibold uppercase tracking-wider">
+                <Clock className="h-4 w-4" />
+                Rate Limit
+              </h3>
 
-            <FormField
-              name="connectionLimit"
-              label="Connection Limit"
-              description="Maximum connections allowed"
-              required
-            >
-              <Controller
+              <FormField
                 name="connectionLimit"
-                control={control}
-                render={({ field }) => (
-                  <div className="space-y-2">
+                label="Connection Limit"
+                description="Maximum connections allowed"
+                required
+              >
+                <Controller
+                  name="connectionLimit"
+                  control={control}
+                  render={({ field }) => (
+                    <div className="space-y-2">
+                      <Input
+                        {...field}
+                        type="number"
+                        min={1}
+                        max={100000}
+                        placeholder="100"
+                        className="h-11"
+                        value={field.value || ''}
+                        onChange={(e) => field.onChange(parseInt(e.target.value, 10))}
+                      />
+                      {/* Presets */}
+                      <div className="flex flex-wrap gap-1">
+                        {CONNECTION_LIMIT_PRESETS.map((preset) => (
+                          <Button
+                            key={preset.label}
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            className="h-8 text-xs"
+                            onClick={() => {
+                              form.setValue('connectionLimit', preset.limit);
+                              form.setValue('timeWindow', preset.timeWindow);
+                            }}
+                          >
+                            {preset.label}
+                          </Button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                />
+              </FormField>
+
+              <FormField
+                name="timeWindow"
+                label="Time Window"
+                description="Rate calculation period"
+                required
+              >
+                <Controller
+                  name="timeWindow"
+                  control={control}
+                  render={({ field }) => (
+                    <Select
+                      value={field.value}
+                      onValueChange={field.onChange}
+                    >
+                      <SelectTrigger className="h-11">
+                        <SelectValue placeholder="Select time window" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {TimeWindowSchema.options.map((window: string) => (
+                          <SelectItem
+                            key={window}
+                            value={window}
+                            className="h-11"
+                          >
+                            {window === 'per-second' && 'Per Second'}
+                            {window === 'per-minute' && 'Per Minute'}
+                            {window === 'per-hour' && 'Per Hour'}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+              </FormField>
+            </Card>
+
+            {/* Action Configuration */}
+            <Card className="p-component-md space-y-component-md border-border rounded-[var(--semantic-radius-card)] border">
+              <h3 className="text-muted-foreground flex items-center gap-2 text-xs font-semibold uppercase tracking-wider">
+                <AlertCircle className="h-4 w-4" />
+                Action
+              </h3>
+
+              <FormField
+                name="action"
+                label="Action"
+                description="What to do when rate limit exceeded"
+                required
+              >
+                <Controller
+                  name="action"
+                  control={control}
+                  render={({ field }) => (
+                    <Select
+                      value={field.value}
+                      onValueChange={field.onChange}
+                    >
+                      <SelectTrigger className="h-11">
+                        <SelectValue placeholder="Select action" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {RateLimitActionSchema.options.map((action: string) => (
+                          <SelectItem
+                            key={action}
+                            value={action}
+                            className="h-auto py-3"
+                          >
+                            <div className="flex flex-col items-start">
+                              <span className="font-medium">
+                                {action === 'drop' && 'Drop'}
+                                {action === 'tarpit' && 'Tarpit'}
+                                {action === 'add-to-list' && 'Add to List'}
+                              </span>
+                              <span className="text-muted-foreground text-xs">
+                                {action === 'drop' && 'Block connections immediately'}
+                                {action === 'tarpit' && 'Slow down connections'}
+                                {action === 'add-to-list' && 'Add IP to address list'}
+                              </span>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+              </FormField>
+
+              {/* Conditional fields for add-to-list action */}
+              {visibleFields.addressList && (
+                <>
+                  <FormField
+                    name="addressList"
+                    label="Address List"
+                    description="Target list for blocked IPs"
+                    required
+                  >
+                    <Controller
+                      name="addressList"
+                      control={control}
+                      render={({ field }) => (
+                        <div className="space-y-2">
+                          {addressLists.length > 0 ?
+                            <Select
+                              value={field.value || ''}
+                              onValueChange={field.onChange}
+                            >
+                              <SelectTrigger className="h-11">
+                                <SelectValue placeholder="Select address list" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {addressLists.map((list) => (
+                                  <SelectItem
+                                    key={list}
+                                    value={list}
+                                    className="h-11"
+                                  >
+                                    {list}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          : <Input
+                              {...field}
+                              placeholder="e.g., rate-limited"
+                              className="h-11"
+                              value={field.value || ''}
+                            />
+                          }
+                          {addressListExists === false && field.value && (
+                            <p className="text-warning flex items-center gap-1 text-xs">
+                              <AlertCircle className="h-3 w-3" />
+                              List will be created automatically
+                            </p>
+                          )}
+                        </div>
+                      )}
+                    />
+                  </FormField>
+
+                  <FormField
+                    name="addressListTimeout"
+                    label="Timeout"
+                    description="How long to keep IPs in list"
+                  >
+                    <Controller
+                      name="addressListTimeout"
+                      control={control}
+                      render={({ field }) => (
+                        <Select
+                          value={field.value || ''}
+                          onValueChange={field.onChange}
+                        >
+                          <SelectTrigger className="h-11">
+                            <SelectValue placeholder="Select timeout" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {TIMEOUT_PRESETS.map((preset: { value: string; label: string }) => (
+                              <SelectItem
+                                key={preset.value}
+                                value={preset.value}
+                                className="h-11"
+                              >
+                                {preset.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      )}
+                    />
+                  </FormField>
+                </>
+              )}
+            </Card>
+
+            {/* Source Matching */}
+            <Card className="p-component-md space-y-component-md border-border rounded-[var(--semantic-radius-card)] border">
+              <h3 className="text-muted-foreground flex items-center gap-2 text-xs font-semibold uppercase tracking-wider">
+                <Network className="h-4 w-4" />
+                Source Matching
+              </h3>
+
+              <FormField
+                name="srcAddress"
+                label="Source Address"
+                description="IP or CIDR (optional)"
+              >
+                <Controller
+                  name="srcAddress"
+                  control={control}
+                  render={({ field }) => (
                     <Input
                       {...field}
-                      type="number"
-                      min={1}
-                      max={100000}
-                      placeholder="100"
+                      placeholder="192.168.1.0/24 or leave empty"
                       className="h-11"
                       value={field.value || ''}
-                      onChange={(e) => field.onChange(parseInt(e.target.value, 10))}
                     />
-                    {/* Presets */}
-                    <div className="flex flex-wrap gap-1">
-                      {CONNECTION_LIMIT_PRESETS.map((preset) => (
-                        <Button
-                          key={preset.label}
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          className="h-8 text-xs"
-                          onClick={() => {
-                            form.setValue('connectionLimit', preset.limit);
-                            form.setValue('timeWindow', preset.timeWindow);
-                          }}
-                        >
-                          {preset.label}
-                        </Button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              />
-            </FormField>
+                  )}
+                />
+              </FormField>
 
-            <FormField
-              name="timeWindow"
-              label="Time Window"
-              description="Rate calculation period"
-              required
-            >
-              <Controller
-                name="timeWindow"
-                control={control}
-                render={({ field }) => (
-                  <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger className="h-11">
-                      <SelectValue placeholder="Select time window" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {TimeWindowSchema.options.map((window: string) => (
-                        <SelectItem key={window} value={window} className="h-11">
-                          {window === 'per-second' && 'Per Second'}
-                          {window === 'per-minute' && 'Per Minute'}
-                          {window === 'per-hour' && 'Per Hour'}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                )}
-              />
-            </FormField>
-          </Card>
-
-          {/* Action Configuration */}
-          <Card className="p-component-md space-y-component-md border border-border rounded-[var(--semantic-radius-card)]">
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
-              <AlertCircle className="h-4 w-4" />
-              Action
-            </h3>
-
-            <FormField
-              name="action"
-              label="Action"
-              description="What to do when rate limit exceeded"
-              required
-            >
-              <Controller
-                name="action"
-                control={control}
-                render={({ field }) => (
-                  <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger className="h-11">
-                      <SelectValue placeholder="Select action" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {RateLimitActionSchema.options.map((action: string) => (
-                        <SelectItem key={action} value={action} className="h-auto py-3">
-                          <div className="flex flex-col items-start">
-                            <span className="font-medium">
-                              {action === 'drop' && 'Drop'}
-                              {action === 'tarpit' && 'Tarpit'}
-                              {action === 'add-to-list' && 'Add to List'}
-                            </span>
-                            <span className="text-xs text-muted-foreground">
-                              {action === 'drop' && 'Block connections immediately'}
-                              {action === 'tarpit' && 'Slow down connections'}
-                              {action === 'add-to-list' && 'Add IP to address list'}
-                            </span>
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                )}
-              />
-            </FormField>
-
-            {/* Conditional fields for add-to-list action */}
-            {visibleFields.addressList && (
-              <>
-                <FormField
-                  name="addressList"
-                  label="Address List"
-                  description="Target list for blocked IPs"
-                  required
-                >
-                  <Controller
-                    name="addressList"
-                    control={control}
-                    render={({ field }) => (
-                      <div className="space-y-2">
-                        {addressLists.length > 0 ? (
-                          <Select value={field.value || ''} onValueChange={field.onChange}>
-                            <SelectTrigger className="h-11">
-                              <SelectValue placeholder="Select address list" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {addressLists.map((list) => (
-                                <SelectItem key={list} value={list} className="h-11">
-                                  {list}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        ) : (
-                          <Input
-                            {...field}
-                            placeholder="e.g., rate-limited"
-                            className="h-11"
-                            value={field.value || ''}
-                          />
-                        )}
-                        {addressListExists === false && field.value && (
-                          <p className="text-xs text-warning flex items-center gap-1">
-                            <AlertCircle className="h-3 w-3" />
-                            List will be created automatically
-                          </p>
-                        )}
-                      </div>
-                    )}
-                  />
-                </FormField>
-
-                <FormField
-                  name="addressListTimeout"
-                  label="Timeout"
-                  description="How long to keep IPs in list"
-                >
-                  <Controller
-                    name="addressListTimeout"
-                    control={control}
-                    render={({ field }) => (
-                      <Select value={field.value || ''} onValueChange={field.onChange}>
-                        <SelectTrigger className="h-11">
-                          <SelectValue placeholder="Select timeout" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {TIMEOUT_PRESETS.map((preset: { value: string; label: string }) => (
-                            <SelectItem key={preset.value} value={preset.value} className="h-11">
-                              {preset.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    )}
-                  />
-                </FormField>
-              </>
-            )}
-          </Card>
-
-          {/* Source Matching */}
-          <Card className="p-component-md space-y-component-md border border-border rounded-[var(--semantic-radius-card)]">
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
-              <Network className="h-4 w-4" />
-              Source Matching
-            </h3>
-
-            <FormField
-              name="srcAddress"
-              label="Source Address"
-              description="IP or CIDR (optional)"
-            >
-              <Controller
-                name="srcAddress"
-                control={control}
-                render={({ field }) => (
-                  <Input
-                    {...field}
-                    placeholder="192.168.1.0/24 or leave empty"
-                    className="h-11"
-                    value={field.value || ''}
-                  />
-                )}
-              />
-            </FormField>
-
-            <FormField
-              name="comment"
-              label="Comment"
-              description="Optional description"
-            >
-              <Controller
+              <FormField
                 name="comment"
-                control={control}
-                render={({ field }) => (
-                  <Input
-                    {...field}
-                    placeholder="e.g., Protect SSH"
-                    className="h-11"
-                    value={field.value || ''}
-                  />
-                )}
-              />
-            </FormField>
-          </Card>
-        </div>
-
-        <SheetFooter className="fixed bottom-0 left-0 right-0 p-4 bg-background border-t">
-          <div className="flex flex-col gap-2 w-full">
-            {mode === 'edit' && onDelete && (
-              <Button
-                type="button"
-                variant="destructive"
-                size="lg"
-                onClick={onDelete}
-                disabled={isDeleting || isSaving}
-                className="h-11"
+                label="Comment"
+                description="Optional description"
               >
-                <Trash2 className="h-4 w-4 mr-2" />
-                Delete Rule
-              </Button>
-            )}
-
-            <div className="flex gap-2">
-              <Button
-                type="button"
-                variant="outline"
-                size="lg"
-                onClick={onClose}
-                disabled={isSaving || isDeleting}
-                className="flex-1 h-11"
-              >
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                size="lg"
-                onClick={editor.handleSubmit}
-                disabled={!formState.isValid || isSaving || isDeleting}
-                className="flex-1 h-11"
-              >
-                {isSaving ? 'Saving...' : mode === 'create' ? 'Create' : 'Save'}
-              </Button>
-            </div>
+                <Controller
+                  name="comment"
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      placeholder="e.g., Protect SSH"
+                      className="h-11"
+                      value={field.value || ''}
+                    />
+                  )}
+                />
+              </FormField>
+            </Card>
           </div>
-        </SheetFooter>
-      </SheetContent>
-    </Sheet>
+
+          <SheetFooter className="bg-background fixed bottom-0 left-0 right-0 border-t p-4">
+            <div className="flex w-full flex-col gap-2">
+              {mode === 'edit' && onDelete && (
+                <Button
+                  type="button"
+                  variant="destructive"
+                  size="lg"
+                  onClick={onDelete}
+                  disabled={isDeleting || isSaving}
+                  className="h-11"
+                >
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Delete Rule
+                </Button>
+              )}
+
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="lg"
+                  onClick={onClose}
+                  disabled={isSaving || isDeleting}
+                  className="h-11 flex-1"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  size="lg"
+                  onClick={editor.handleSubmit}
+                  disabled={!formState.isValid || isSaving || isDeleting}
+                  className="h-11 flex-1"
+                >
+                  {isSaving ?
+                    'Saving...'
+                  : mode === 'create' ?
+                    'Create'
+                  : 'Save'}
+                </Button>
+              </div>
+            </div>
+          </SheetFooter>
+        </SheetContent>
+      </Sheet>
     </FormProvider>
   );
 });

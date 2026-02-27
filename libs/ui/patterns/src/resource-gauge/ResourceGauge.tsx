@@ -105,15 +105,16 @@ function ResourceGaugeBase({
       {...props}
     >
       {/* Label */}
-      <div className="text-sm text-muted-foreground">
-        {label}
-      </div>
+      <div className="text-muted-foreground text-sm">{label}</div>
 
       {/* Circular Gauge Container */}
-      <div className="relative" style={{ width: size, height: size }}>
+      <div
+        className="relative"
+        style={{ width: size, height: size }}
+      >
         {/* SVG Gauge */}
         <svg
-          className="transform -rotate-90"
+          className="-rotate-90 transform"
           width={size}
           height={size}
           role="progressbar"
@@ -153,18 +154,14 @@ function ResourceGaugeBase({
 
         {/* Percentage Text (centered) */}
         <div className="absolute inset-0 flex items-center justify-center">
-          <span className="text-2xl font-bold font-display text-foreground">
+          <span className="font-display text-foreground text-2xl font-bold">
             {Math.round(value)}%
           </span>
         </div>
       </div>
 
       {/* Subtitle */}
-      {subtitle && (
-        <div className="text-sm text-muted-foreground text-center">
-          {subtitle}
-        </div>
-      )}
+      {subtitle && <div className="text-muted-foreground text-center text-sm">{subtitle}</div>}
     </div>
   );
 }

@@ -232,7 +232,11 @@ const FormItem = React.memo(
 
       return (
         <FormItemContext.Provider value={{ id }}>
-          <div ref={ref} className={cn('space-y-2', className)} {...props} />
+          <div
+            ref={ref}
+            className={cn('space-y-2', className)}
+            {...props}
+          />
         </FormItemContext.Provider>
       );
     }
@@ -322,22 +326,23 @@ FormLabel.displayName = 'FormLabel';
  * @see https://www.radix-ui.com/docs/primitives/utilities/slot
  */
 const FormControl = React.memo(
-  React.forwardRef<
-    React.ElementRef<typeof Slot>,
-    React.ComponentPropsWithoutRef<typeof Slot>
-  >(({ ...props }, ref) => {
-    const { error, formItemId, formDescriptionId, formMessageId } = useFormField();
+  React.forwardRef<React.ElementRef<typeof Slot>, React.ComponentPropsWithoutRef<typeof Slot>>(
+    ({ ...props }, ref) => {
+      const { error, formItemId, formDescriptionId, formMessageId } = useFormField();
 
-    return (
-      <Slot
-        ref={ref}
-        id={formItemId}
-        aria-describedby={!error ? `${formDescriptionId}` : `${formDescriptionId} ${formMessageId}`}
-        aria-invalid={!!error}
-        {...props}
-      />
-    );
-  })
+      return (
+        <Slot
+          ref={ref}
+          id={formItemId}
+          aria-describedby={
+            !error ? `${formDescriptionId}` : `${formDescriptionId} ${formMessageId}`
+          }
+          aria-invalid={!!error}
+          {...props}
+        />
+      );
+    }
+  )
 );
 FormControl.displayName = 'FormControl';
 
@@ -373,21 +378,20 @@ FormControl.displayName = 'FormControl';
  * ```
  */
 const FormDescription = React.memo(
-  React.forwardRef<
-    HTMLParagraphElement,
-    React.HTMLAttributes<HTMLParagraphElement>
-  >(({ className, ...props }, ref) => {
-    const { formDescriptionId } = useFormField();
+  React.forwardRef<HTMLParagraphElement, React.HTMLAttributes<HTMLParagraphElement>>(
+    ({ className, ...props }, ref) => {
+      const { formDescriptionId } = useFormField();
 
-    return (
-      <p
-        ref={ref}
-        id={formDescriptionId}
-        className={cn('text-xs text-muted-foreground', className)}
-        {...props}
-      />
-    );
-  })
+      return (
+        <p
+          ref={ref}
+          id={formDescriptionId}
+          className={cn('text-muted-foreground text-xs', className)}
+          {...props}
+        />
+      );
+    }
+  )
 );
 FormDescription.displayName = 'FormDescription';
 
@@ -432,29 +436,37 @@ FormDescription.displayName = 'FormDescription';
  * ```
  */
 const FormMessage = React.memo(
-  React.forwardRef<
-    HTMLParagraphElement,
-    React.HTMLAttributes<HTMLParagraphElement>
-  >(({ className, children, ...props }, ref) => {
-    const { error, formMessageId } = useFormField();
-    const body = error ? String(error?.message) : children;
+  React.forwardRef<HTMLParagraphElement, React.HTMLAttributes<HTMLParagraphElement>>(
+    ({ className, children, ...props }, ref) => {
+      const { error, formMessageId } = useFormField();
+      const body = error ? String(error?.message) : children;
 
-    if (!body) {
-      return null;
+      if (!body) {
+        return null;
+      }
+
+      return (
+        <p
+          ref={ref}
+          id={formMessageId}
+          className={cn('text-error mt-1 text-xs font-medium', className)}
+          {...props}
+        >
+          {body}
+        </p>
+      );
     }
-
-    return (
-      <p
-        ref={ref}
-        id={formMessageId}
-        className={cn('text-xs font-medium text-error mt-1', className)}
-        {...props}
-      >
-        {body}
-      </p>
-    );
-  })
+  )
 );
 FormMessage.displayName = 'FormMessage';
 
-export { useFormField, Form, FormItem, FormLabel, FormControl, FormDescription, FormMessage, FormField };
+export {
+  useFormField,
+  Form,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormDescription,
+  FormMessage,
+  FormField,
+};

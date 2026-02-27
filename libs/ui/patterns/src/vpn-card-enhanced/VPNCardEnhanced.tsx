@@ -104,44 +104,62 @@ function VPNCardEnhancedComponent({
   const config = getStatusConfig(status);
   const isLoading = status === 'connecting';
 
-  const handleToggle = useCallback((checked: boolean) => {
-    if (!disabled && !isLoading) {
-      onToggle(checked);
-    }
-  }, [disabled, isLoading, onToggle]);
+  const handleToggle = useCallback(
+    (checked: boolean) => {
+      if (!disabled && !isLoading) {
+        onToggle(checked);
+      }
+    },
+    [disabled, isLoading, onToggle]
+  );
 
   return (
-    <Card className={cn('bg-card border border-border rounded-[var(--semantic-radius-card)] shadow-[var(--semantic-shadow-card)]', className)} aria-label={`VPN status: ${config.label}`}>
+    <Card
+      className={cn(
+        'bg-card border-border rounded-[var(--semantic-radius-card)] border shadow-[var(--semantic-shadow-card)]',
+        className
+      )}
+      aria-label={`VPN status: ${config.label}`}
+    >
       <CardContent className="p-4 sm:p-6">
         <div className="flex items-center justify-between gap-4">
           {/* Left: Icon and Info */}
-          <div className="flex items-center gap-3 min-w-0">
-            <div className={cn('h-10 w-10 rounded-[var(--semantic-radius-button)] flex items-center justify-center flex-shrink-0', config.bgColor)}>
-              {isLoading ? (
-                <Icon icon={Loader2} className={cn('h-5 w-5 animate-spin', config.color)} />
-              ) : (
-                <Icon icon={Shield} className={cn('h-5 w-5', config.color)} aria-hidden="true" />
+          <div className="flex min-w-0 items-center gap-3">
+            <div
+              className={cn(
+                'flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-[var(--semantic-radius-button)]',
+                config.bgColor
               )}
+            >
+              {isLoading ?
+                <Icon
+                  icon={Loader2}
+                  className={cn('h-5 w-5 animate-spin', config.color)}
+                />
+              : <Icon
+                  icon={Shield}
+                  className={cn('h-5 w-5', config.color)}
+                  aria-hidden="true"
+                />
+              }
             </div>
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2">
-                <p className="font-medium text-foreground">VPN</p>
+                <p className="text-foreground font-medium">VPN</p>
                 {status === 'connected' && (
                   <span
-                    className="h-2 w-2 rounded-full bg-success flex-shrink-0"
+                    className="bg-success h-2 w-2 flex-shrink-0 rounded-full"
                     aria-label="Connected indicator"
                   />
                 )}
               </div>
-              {profile ? (
-                <p className="text-sm text-muted-foreground truncate">
+              {profile ?
+                <p className="text-muted-foreground truncate text-sm">
                   {profile.flag && <span className="mr-1">{profile.flag}</span>}
                   {profile.name}
                   {profile.location && ` - ${profile.location}`}
                 </p>
-              ) : (
-                <p className="text-sm text-muted-foreground">{config.label}</p>
-              )}
+              : <p className="text-muted-foreground text-sm">{config.label}</p>}
             </div>
           </div>
 
@@ -160,19 +178,3 @@ function VPNCardEnhancedComponent({
 
 export const VPNCardEnhanced = memo(VPNCardEnhancedComponent);
 VPNCardEnhanced.displayName = 'VPNCardEnhanced';
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

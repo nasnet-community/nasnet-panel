@@ -6,7 +6,6 @@
  * or open/unknown).
  */
 
-
 import type { WirelessInterface } from '@nasnet/core/types';
 
 import { WifiSecuritySummary } from './WifiSecuritySummary';

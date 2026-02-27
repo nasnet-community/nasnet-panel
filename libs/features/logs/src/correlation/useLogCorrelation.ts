@@ -114,11 +114,7 @@ function getPrimaryTopic(entries: LogEntry[]): LogTopic {
  * @param minGroupSize - Minimum entries required to form a group
  * @returns Array of LogGroups grouped by time window
  */
-function groupByTimeWindow(
-  logs: LogEntry[],
-  windowMs: number,
-  minGroupSize: number
-): LogGroup[] {
+function groupByTimeWindow(logs: LogEntry[], windowMs: number, minGroupSize: number): LogGroup[] {
   if (logs.length === 0) return [];
 
   // Sort by timestamp
@@ -141,9 +137,7 @@ function groupByTimeWindow(
         groups.push({
           id: `group-${groupStartTime}`,
           startTime: new Date(groupStartTime),
-          endTime: new Date(
-            Math.max(...currentGroup.map((e) => new Date(e.timestamp).getTime()))
-          ),
+          endTime: new Date(Math.max(...currentGroup.map((e) => new Date(e.timestamp).getTime()))),
           entries: currentGroup,
           primaryTopic: getPrimaryTopic(currentGroup),
           severityLevel: getHighestSeverity(currentGroup),
@@ -173,9 +167,7 @@ function groupByTimeWindow(
     groups.push({
       id: `group-${groupStartTime}`,
       startTime: new Date(groupStartTime),
-      endTime: new Date(
-        Math.max(...currentGroup.map((e) => new Date(e.timestamp).getTime()))
-      ),
+      endTime: new Date(Math.max(...currentGroup.map((e) => new Date(e.timestamp).getTime()))),
       entries: currentGroup,
       primaryTopic: getPrimaryTopic(currentGroup),
       severityLevel: getHighestSeverity(currentGroup),
@@ -217,9 +209,7 @@ function groupByTopicFn(logs: LogEntry[], minGroupSize: number): LogGroup[] {
 
   for (const [topic, entries] of topicMap) {
     // Sort entries by timestamp
-    entries.sort(
-      (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
-    );
+    entries.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
 
     if (entries.length >= minGroupSize) {
       groups.push({
@@ -308,5 +298,3 @@ export function useLogCorrelation(
     [groups, logs, isGrouped, toggleGrouping, setGroupByTopic]
   );
 }
-
-

@@ -44,9 +44,7 @@ describe('Persistence', () => {
     it('should include timestamp', () => {
       persistMachineState('test-machine', 'step', { data: {} });
 
-      const stored = JSON.parse(
-        localStorage.getItem(`${STORAGE_KEY_PREFIX}test-machine`)!
-      );
+      const stored = JSON.parse(localStorage.getItem(`${STORAGE_KEY_PREFIX}test-machine`)!);
       expect(stored.timestamp).toBeDefined();
       expect(typeof stored.timestamp).toBe('number');
     });
@@ -77,10 +75,7 @@ describe('Persistence', () => {
         timestamp: Date.now() - SESSION_TIMEOUT_MS - 1000,
         machineId: 'old-machine',
       };
-      localStorage.setItem(
-        `${STORAGE_KEY_PREFIX}old-machine`,
-        JSON.stringify(oldData)
-      );
+      localStorage.setItem(`${STORAGE_KEY_PREFIX}old-machine`, JSON.stringify(oldData));
 
       const restored = restoreMachineState('old-machine');
 
@@ -138,10 +133,7 @@ describe('Persistence', () => {
         timestamp: Date.now() - SESSION_TIMEOUT_MS - 1000,
         machineId: 'old-machine',
       };
-      localStorage.setItem(
-        `${STORAGE_KEY_PREFIX}old-machine`,
-        JSON.stringify(oldData)
-      );
+      localStorage.setItem(`${STORAGE_KEY_PREFIX}old-machine`, JSON.stringify(oldData));
 
       expect(hasSavedSession('old-machine')).toBe(false);
     });

@@ -7,21 +7,11 @@
  * @see NAS-4.18: Implement Animation System (Framer Motion)
  */
 
-import {
-  createContext,
-  useContext,
-  type ReactNode,
-  useMemo,
-  useCallback,
-} from 'react';
+import { createContext, useContext, type ReactNode, useMemo, useCallback } from 'react';
 
 import { useUIStore } from '@nasnet/state/stores';
 import { usePlatform, type Platform } from '@nasnet/ui/layouts';
-import {
-  getAnimationTokens,
-  transitions,
-  type AnimationTokens,
-} from '@nasnet/ui/tokens';
+import { getAnimationTokens, transitions, type AnimationTokens } from '@nasnet/ui/tokens';
 
 import { reducedMotionFade } from './presets';
 
@@ -149,22 +139,10 @@ export function AnimationProvider({ children }: AnimationProviderProps) {
       getDuration,
       animationsEnabled,
     }),
-    [
-      reducedMotion,
-      platform,
-      tokens,
-      getVariant,
-      getTransition,
-      getDuration,
-      animationsEnabled,
-    ]
+    [reducedMotion, platform, tokens, getVariant, getTransition, getDuration, animationsEnabled]
   );
 
-  return (
-    <AnimationContext.Provider value={value}>
-      {children}
-    </AnimationContext.Provider>
-  );
+  return <AnimationContext.Provider value={value}>{children}</AnimationContext.Provider>;
 }
 
 // ============================================================================
@@ -246,10 +224,7 @@ export interface MotionConfigProps {
  * </MotionConfig>
  * ```
  */
-export function MotionConfig({
-  children,
-  reducedMotion: forceReducedMotion,
-}: MotionConfigProps) {
+export function MotionConfig({ children, reducedMotion: forceReducedMotion }: MotionConfigProps) {
   const parentContext = useAnimationOptional();
   const platform = usePlatform();
   const tokens = useMemo(() => getAnimationTokens(platform), [platform]);
@@ -295,9 +270,5 @@ export function MotionConfig({
     [reducedMotion, platform, tokens, getVariant, getTransition, getDuration, animationsEnabled]
   );
 
-  return (
-    <AnimationContext.Provider value={value}>
-      {children}
-    </AnimationContext.Provider>
-  );
+  return <AnimationContext.Provider value={value}>{children}</AnimationContext.Provider>;
 }

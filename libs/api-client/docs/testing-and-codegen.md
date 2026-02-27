@@ -1,8 +1,13 @@
 # Testing and Code Generation
 
-This document covers how to test Apollo Client hooks in NasNetConnect, how the `graphql-codegen` pipeline transforms GraphQL schema and operations into TypeScript types and React hooks, how `possibleTypes` enables polymorphic type resolution, how Zod schemas integrate with `react-hook-form`, and the step-by-step process for adding a brand-new domain.
+This document covers how to test Apollo Client hooks in NasNetConnect, how the `graphql-codegen`
+pipeline transforms GraphQL schema and operations into TypeScript types and React hooks, how
+`possibleTypes` enables polymorphic type resolution, how Zod schemas integrate with
+`react-hook-form`, and the step-by-step process for adding a brand-new domain.
 
-Related docs: [./apollo-client.md](./apollo-client.md) (Apollo setup), [./domain-query-hooks.md](./domain-query-hooks.md) (domain hooks), [./universal-state-resource-model.md](./universal-state-resource-model.md) (resource types).
+Related docs: [./apollo-client.md](./apollo-client.md) (Apollo setup),
+[./domain-query-hooks.md](./domain-query-hooks.md) (domain hooks),
+[./universal-state-resource-model.md](./universal-state-resource-model.md) (resource types).
 
 ---
 
@@ -22,17 +27,18 @@ Related docs: [./apollo-client.md](./apollo-client.md) (Apollo setup), [./domain
 
 ## 1. Testing Stack Overview
 
-| Layer | Tool | Where |
-|---|---|---|
-| Test runner | Vitest | `vitest.config.ts` at repo root |
-| Component rendering | `@testing-library/react` | All feature tests |
-| Apollo mocking | `@apollo/client/testing` → `MockedProvider` | Unit tests with specific data |
-| Apollo loading-state mocking | `MockApolloProvider` (custom) | Storybook + skeleton tests |
-| Subscription mocking | `createMockSubscription` (custom utils) | `core/src/apollo/__tests__/subscription-test-utils.ts` |
-| Accessibility | axe-core + Pa11y (CI) | Blocking gate in CI |
-| E2E | Playwright | `apps/connect-e2e/` |
+| Layer                        | Tool                                        | Where                                                  |
+| ---------------------------- | ------------------------------------------- | ------------------------------------------------------ |
+| Test runner                  | Vitest                                      | `vitest.config.ts` at repo root                        |
+| Component rendering          | `@testing-library/react`                    | All feature tests                                      |
+| Apollo mocking               | `@apollo/client/testing` → `MockedProvider` | Unit tests with specific data                          |
+| Apollo loading-state mocking | `MockApolloProvider` (custom)               | Storybook + skeleton tests                             |
+| Subscription mocking         | `createMockSubscription` (custom utils)     | `core/src/apollo/__tests__/subscription-test-utils.ts` |
+| Accessibility                | axe-core + Pa11y (CI)                       | Blocking gate in CI                                    |
+| E2E                          | Playwright                                  | `apps/connect-e2e/`                                    |
 
-All tests are co-located with source files (`*.test.ts`, `*.test.tsx`) or in `__tests__/` subdirectories.
+All tests are co-located with source files (`*.test.ts`, `*.test.tsx`) or in `__tests__/`
+subdirectories.
 
 ---
 
@@ -40,16 +46,14 @@ All tests are co-located with source files (`*.test.ts`, `*.test.tsx`) or in `__
 
 Source: `libs/api-client/core/src/apollo/apollo-mock-provider.tsx`
 
-`MockApolloProvider` is a minimal Apollo context that keeps all queries in a permanent loading state. Its purpose is to satisfy Apollo's React context requirement in Storybook stories and in tests that only care about rendering the skeleton/loading UI.
+`MockApolloProvider` is a minimal Apollo context that keeps all queries in a permanent loading
+state. Its purpose is to satisfy Apollo's React context requirement in Storybook stories and in
+tests that only care about rendering the skeleton/loading UI.
 
 ```tsx
 // The provider itself:
 export function MockApolloProvider({ children }: MockApolloProviderProps) {
-  return (
-    <ApolloProvider client={mockApolloClient}>
-      {children}
-    </ApolloProvider>
-  );
+  return <ApolloProvider client={mockApolloClient}>{children}</ApolloProvider>;
 }
 ```
 
@@ -57,17 +61,20 @@ Internally it uses a `noOpLink` — an `ApolloLink` that returns an `Observable`
 
 ```ts
 const noOpLink = new ApolloLink(
-  () => new Observable(() => {
-    // Never completes — queries stay in loading state
-  }),
+  () =>
+    new Observable(() => {
+      // Never completes — queries stay in loading state
+    })
 );
 ```
 
-The `mockApolloClient` uses `fetchPolicy: 'no-cache'` to prevent stale data from a previous story bleeding into the next.
+The `mockApolloClient` uses `fetchPolicy: 'no-cache'` to prevent stale data from a previous story
+bleeding into the next.
 
 ### When to Use MockApolloProvider
 
-- Storybook stories for components with Apollo hooks where you only want to show the loading skeleton
+- Storybook stories for components with Apollo hooks where you only want to show the loading
+  skeleton
 - Tests that only assert on the initial render / loading state
 - Components wrapped in `ApolloProvider` deep in the tree that you just want to "satisfy"
 
@@ -89,6 +96,7 @@ export const Default: Story = {
 ### When NOT to Use MockApolloProvider
 
 Do not use this provider when you need:
+
 - Query responses with specific data
 - Mutation behavior
 - Subscription events
@@ -102,7 +110,8 @@ Use `MockedProvider` from `@apollo/client/testing` for those cases.
 
 Source: `libs/api-client/core/src/apollo/__tests__/apollo.test.tsx`
 
-`MockedProvider` from `@apollo/client/testing` accepts an array of `MockedResponse` objects. Each mock intercepts a specific operation + variables combination and returns a predefined result.
+`MockedProvider` from `@apollo/client/testing` accepts an array of `MockedResponse` objects. Each
+mock intercepts a specific operation + variables combination and returns a predefined result.
 
 ### Basic Query Test
 
@@ -113,7 +122,12 @@ import { useQuery, gql } from '@apollo/client';
 
 const GET_ROUTER = gql`
   query GetRouter($id: ID!) {
-    router(id: $id) { id name host status }
+    router(id: $id) {
+      id
+      name
+      host
+      status
+    }
   }
 `;
 
@@ -137,14 +151,17 @@ function TestComponent() {
   });
 
   if (loading) return <div>Loading...</div>;
-  if (error)   return <div>Error: {error.message}</div>;
+  if (error) return <div>Error: {error.message}</div>;
 
   return <div data-testid="name">{data?.router?.name}</div>;
 }
 
 it('should show router name', async () => {
   render(
-    <MockedProvider mocks={mocks} addTypename={false}>
+    <MockedProvider
+      mocks={mocks}
+      addTypename={false}
+    >
       <TestComponent />
     </MockedProvider>
   );
@@ -182,7 +199,9 @@ const mocks: MockedResponse[] = [
 
 ### addTypename
 
-Set `addTypename={false}` in tests when you are not testing cache behaviour and don't want to include `__typename` in every mock data object. Set it to `true` (the default) when testing normalized cache interactions.
+Set `addTypename={false}` in tests when you are not testing cache behaviour and don't want to
+include `__typename` in every mock data object. Set it to `true` (the default) when testing
+normalized cache interactions.
 
 ### Providing a Custom Cache
 
@@ -205,7 +224,8 @@ render(
 );
 ```
 
-This is the pattern used in `apollo.test.tsx:277` to test that a mutation correctly updates the cache in place.
+This is the pattern used in `apollo.test.tsx:277` to test that a mutation correctly updates the
+cache in place.
 
 ### renderHook for Hook-Only Tests
 
@@ -233,7 +253,8 @@ await waitFor(() => {
 
 Source: `libs/api-client/core/src/apollo/__tests__/subscription-test-utils.ts`
 
-The subscription test utilities provide helpers for creating mock `Observable`s that simulate WebSocket subscription streams.
+The subscription test utilities provide helpers for creating mock `Observable`s that simulate
+WebSocket subscription streams.
 
 ### createMockSubscription
 
@@ -242,12 +263,13 @@ import { createMockSubscription } from '@nasnet/api-client/core/apollo/__tests__
 
 const mockSub = createMockSubscription([
   { data: { routerStatus: { id: '1', status: 'CONNECTING' } }, delay: 0 },
-  { data: { routerStatus: { id: '1', status: 'CONNECTED' } },  delay: 100 },
-  { data: { routerStatus: { id: '1', status: 'STABLE' } },     delay: 200 },
+  { data: { routerStatus: { id: '1', status: 'CONNECTED' } }, delay: 100 },
+  { data: { routerStatus: { id: '1', status: 'STABLE' } }, delay: 200 },
 ]);
 ```
 
-The observable emits each item after its `delay` milliseconds, then completes. Returns `Observable<{ data: T }>`.
+The observable emits each item after its `delay` milliseconds, then completes. Returns
+`Observable<{ data: T }>`.
 
 ### createMockSubscriptionError
 
@@ -261,9 +283,7 @@ const errorSub = createMockSubscriptionError(
 ### createMockInfiniteSubscription
 
 ```ts
-const infiniteSub = createMockInfiniteSubscription([
-  { data: { heartbeat: true }, delay: 1000 },
-]);
+const infiniteSub = createMockInfiniteSubscription([{ data: { heartbeat: true }, delay: 1000 }]);
 
 // The observable emits the provided values, then stays open forever (never completes)
 // Use for testing unsubscription/cleanup
@@ -305,7 +325,10 @@ const subMock = {
 };
 
 render(
-  <MockedProvider mocks={[subMock]} addTypename={false}>
+  <MockedProvider
+    mocks={[subMock]}
+    addTypename={false}
+  >
     <StatusMonitor routerId="router-1" />
   </MockedProvider>
 );
@@ -318,6 +341,7 @@ render(
 ### Cache Update After Mutation
 
 From `apollo.test.tsx:277` — the pattern is to:
+
 1. Pre-seed the cache with known data
 2. Execute the mutation
 3. Assert the cache was updated (via `cache.readQuery` or by observing component re-render)
@@ -361,14 +385,18 @@ To test optimistic UI updates:
 const mocks = [
   {
     request: { query: CONNECT_ROUTER, variables: { id: 'router-1' } },
-    result: { data: { connectRouter: { success: true, router: { id: 'router-1', status: 'CONNECTED' } } } },
+    result: {
+      data: { connectRouter: { success: true, router: { id: 'router-1', status: 'CONNECTED' } } },
+    },
     // Add a delay to observe optimistic state before server response
     delay: 200,
   },
 ];
 ```
 
-The optimistic response from `useInstallService` (`queries/src/services/useInstallService.ts:99`) uses `'temp-${Date.now()}'` as the temporary ID — bear this in mind when asserting on IDs in optimistic state.
+The optimistic response from `useInstallService` (`queries/src/services/useInstallService.ts:99`)
+uses `'temp-${Date.now()}'` as the temporary ID — bear this in mind when asserting on IDs in
+optimistic state.
 
 ---
 
@@ -376,24 +404,25 @@ The optimistic response from `useInstallService` (`queries/src/services/useInsta
 
 Source: `codegen.ts` at repo root
 
-The codegen system is `@graphql-codegen/cli`. It reads the GraphQL schema and all operation documents, then writes TypeScript files to `libs/api-client/generated/`.
+The codegen system is `@graphql-codegen/cli`. It reads the GraphQL schema and all operation
+documents, then writes TypeScript files to `libs/api-client/generated/`.
 
 ### Inputs
 
-| Source | Pattern |
-|---|---|
-| Schema | `./schema/**/*.graphql` |
-| Operations (queries, mutations, subscriptions) | `apps/connect/src/**/*.graphql`, `apps/connect/src/**/*.tsx`, `libs/**/*.graphql`, `libs/**/*.tsx` |
-| Excluded | `libs/api-client/generated/**/*`, `libs/core-ui-qwik/**/*`, `libs/star-setup/**/*`, `libs/**/*.stories.tsx` |
+| Source                                         | Pattern                                                                                                     |
+| ---------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| Schema                                         | `./schema/**/*.graphql`                                                                                     |
+| Operations (queries, mutations, subscriptions) | `apps/connect/src/**/*.graphql`, `apps/connect/src/**/*.tsx`, `libs/**/*.graphql`, `libs/**/*.tsx`          |
+| Excluded                                       | `libs/api-client/generated/**/*`, `libs/core-ui-qwik/**/*`, `libs/star-setup/**/*`, `libs/**/*.stories.tsx` |
 
 ### Outputs
 
-| File | Plugin | Contents |
-|---|---|---|
-| `generated/types.ts` | `typescript` | All GraphQL scalar, enum, input, and object types as TypeScript `type` aliases |
-| `generated/operations.ts` | `typescript-operations` + `typescript-react-apollo` | Per-operation types + React Apollo hooks (`useGetRouter`, `useConnectRouterMutation`, etc.) |
-| `generated/schema.graphql` | `schema-ast` | Full SDL dump with directives (for introspection/IDE) |
-| `generated/fragment-matcher.ts` | `fragment-matcher` | `possibleTypes` map for Apollo Client cache |
+| File                            | Plugin                                              | Contents                                                                                    |
+| ------------------------------- | --------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| `generated/types.ts`            | `typescript`                                        | All GraphQL scalar, enum, input, and object types as TypeScript `type` aliases              |
+| `generated/operations.ts`       | `typescript-operations` + `typescript-react-apollo` | Per-operation types + React Apollo hooks (`useGetRouter`, `useConnectRouterMutation`, etc.) |
+| `generated/schema.graphql`      | `schema-ast`                                        | Full SDL dump with directives (for introspection/IDE)                                       |
+| `generated/fragment-matcher.ts` | `fragment-matcher`                                  | `possibleTypes` map for Apollo Client cache                                                 |
 
 ### Run Commands
 
@@ -466,7 +495,10 @@ Prettier runs automatically after codegen to maintain consistent formatting.
 
 Source: `libs/api-client/generated/fragment-matcher.ts`
 
-The `fragment-matcher` plugin generates a `possibleTypes` map by introspecting the schema for all `union` and `interface` types. Apollo Client uses this map during cache normalization to correctly resolve polymorphic references. This is essential for implementing polymorphic types like `Resource`, `Node`, `Connection`, and `Edge`.
+The `fragment-matcher` plugin generates a `possibleTypes` map by introspecting the schema for all
+`union` and `interface` types. Apollo Client uses this map during cache normalization to correctly
+resolve polymorphic references. This is essential for implementing polymorphic types like
+`Resource`, `Node`, `Connection`, and `Edge`.
 
 ### The Generated Map
 
@@ -477,104 +509,102 @@ The complete map structure from the current schema:
 ```ts
 export interface PossibleTypesResultData {
   possibleTypes: {
-    [key: string]: string[]
-  }
+    [key: string]: string[];
+  };
 }
 
 const result: PossibleTypesResultData = {
-  "possibleTypes": {
+  possibleTypes: {
     // Relay Connection types (7 members)
-    "Connection": [
-      "AddressListEntryConnection",
-      "AlertConnection",
-      "InterfaceConnection",
-      "PortKnockAttemptConnection",
-      "ResourceConnection",
-      "RouterConnection",
-      "WANConnectionEventConnection"
+    Connection: [
+      'AddressListEntryConnection',
+      'AlertConnection',
+      'InterfaceConnection',
+      'PortKnockAttemptConnection',
+      'ResourceConnection',
+      'RouterConnection',
+      'WANConnectionEventConnection',
     ],
 
     // Relay Edge types (7 members)
-    "Edge": [
-      "AddressListEntryEdge",
-      "AlertEdge",
-      "InterfaceEdge",
-      "PortKnockAttemptEdge",
-      "ResourceEdge",
-      "RouterEdge",
-      "WANConnectionEventEdge"
+    Edge: [
+      'AddressListEntryEdge',
+      'AlertEdge',
+      'InterfaceEdge',
+      'PortKnockAttemptEdge',
+      'ResourceEdge',
+      'RouterEdge',
+      'WANConnectionEventEdge',
     ],
 
     // Node interface (44 implementing types)
-    "Node": [
-      "AddressListEntry",
-      "Alert",
-      "AlertEscalation",
-      "AlertRule",
-      "AlertRuleTemplate",
-      "AlertTemplate",
-      "Bridge",
-      "BridgePort",
-      "BridgeResource",
-      "ChainHop",
-      "DHCPServerResource",
-      "DhcpClient",
-      "DiagnosticResult",
-      "FeatureResource",
-      "FirewallRule",
-      "FirewallRuleResource",
-      "Interface",
-      "IpAddress",
-      "LANNetwork",
-      "LteModem",
-      "NatRule",
-      "NotificationLog",
-      "PortAllocation",
-      "PortForward",
-      "PortKnockAttempt",
-      "PortKnockSequence",
-      "PortMirror",
-      "PppoeClient",
-      "Route",
-      "RouteResource",
-      "Router",
-      "RoutingChain",
-      "RoutingSchedule",
-      "ServiceInstance",
-      "ServiceTemplate",
-      "StaticIPConfig",
-      "Tunnel",
-      "User",
-      "VLANAllocation",
-      "Vlan",
-      "WANInterface",
-      "WANLink",
-      "Webhook",
-      "WireGuardClient"
+    Node: [
+      'AddressListEntry',
+      'Alert',
+      'AlertEscalation',
+      'AlertRule',
+      'AlertRuleTemplate',
+      'AlertTemplate',
+      'Bridge',
+      'BridgePort',
+      'BridgeResource',
+      'ChainHop',
+      'DHCPServerResource',
+      'DhcpClient',
+      'DiagnosticResult',
+      'FeatureResource',
+      'FirewallRule',
+      'FirewallRuleResource',
+      'Interface',
+      'IpAddress',
+      'LANNetwork',
+      'LteModem',
+      'NatRule',
+      'NotificationLog',
+      'PortAllocation',
+      'PortForward',
+      'PortKnockAttempt',
+      'PortKnockSequence',
+      'PortMirror',
+      'PppoeClient',
+      'Route',
+      'RouteResource',
+      'Router',
+      'RoutingChain',
+      'RoutingSchedule',
+      'ServiceInstance',
+      'ServiceTemplate',
+      'StaticIPConfig',
+      'Tunnel',
+      'User',
+      'VLANAllocation',
+      'Vlan',
+      'WANInterface',
+      'WANLink',
+      'Webhook',
+      'WireGuardClient',
     ],
 
     // Resource interface (8 implementing types)
-    "Resource": [
-      "BridgeResource",
-      "DHCPServerResource",
-      "FeatureResource",
-      "FirewallRuleResource",
-      "LANNetwork",
-      "RouteResource",
-      "WANLink",
-      "WireGuardClient"
+    Resource: [
+      'BridgeResource',
+      'DHCPServerResource',
+      'FeatureResource',
+      'FirewallRuleResource',
+      'LANNetwork',
+      'RouteResource',
+      'WANLink',
+      'WireGuardClient',
     ],
 
     // StorageMountEvent union (2 members)
-    "StorageMountEvent": [
-      "StorageMountedEvent",
-      "StorageUnmountedEvent"
-    ]
-  }
+    StorageMountEvent: ['StorageMountedEvent', 'StorageUnmountedEvent'],
+  },
 };
 ```
 
 **Summary:**
+
 - 7 Connection types (Relay pagination)
 - 7 Edge types (Relay pagination)
 - 44 Node concrete types (Universal State resources and domain objects)
@@ -596,18 +626,23 @@ const cache = new InMemoryCache({
 
 Apollo Client uses `possibleTypes` during:
 
-1. **Query normalization** — When normalizing query results, Apollo splits polymorphic objects into their concrete types using `__typename` + the possibleTypes map
-2. **Fragment matching** — When reading fragments from cache (e.g., `... on FeatureResource { ... }`), Apollo checks if the concrete type is in the union/interface's possible types
+1. **Query normalization** — When normalizing query results, Apollo splits polymorphic objects into
+   their concrete types using `__typename` + the possibleTypes map
+2. **Fragment matching** — When reading fragments from cache (e.g.,
+   `... on FeatureResource { ... }`), Apollo checks if the concrete type is in the union/interface's
+   possible types
 3. **Cache reference resolution** — When following references between cached objects
 
-Without `possibleTypes`, Apollo cannot correctly match fragments on interface/union types. Queries would fail silently or return incomplete data.
+Without `possibleTypes`, Apollo cannot correctly match fragments on interface/union types. Queries
+would fail silently or return incomplete data.
 
 ### When to Regenerate
 
 Run `npm run codegen:ts` after:
 
 - Adding a new GraphQL `interface` or `union` type to the schema
-- Adding a new concrete type that implements an existing interface (e.g., new domain resource type implementing `Node`)
+- Adding a new concrete type that implements an existing interface (e.g., new domain resource type
+  implementing `Node`)
 - Adding or removing members of a `union`
 - Renaming any union/interface members
 
@@ -621,12 +656,14 @@ type DnsRecordResource implements Node & Resource {
 ```
 
 After schema changes:
+
 ```bash
 npm run codegen:ts
 # Regenerates fragment-matcher.ts with "DnsRecordResource" added to possibleTypes.Node and possibleTypes.Resource
 ```
 
-Failing to regenerate means the cache silently drops fragment data for new types — components will render but without the polymorphic fields they request.
+Failing to regenerate means the cache silently drops fragment data for new types — components will
+render but without the polymorphic fields they request.
 
 ---
 
@@ -634,7 +671,8 @@ Failing to regenerate means the cache silently drops fragment data for new types
 
 Source: `libs/api-client/generated/index.ts`
 
-The `libs/api-client/generated/` module re-exports all generated files via a central barrel export for convenience:
+The `libs/api-client/generated/` module re-exports all generated files via a central barrel export
+for convenience:
 
 ```ts
 // generated/index.ts:1
@@ -663,13 +701,13 @@ export * from './schemas';
 
 ### What Gets Exported
 
-| Export | Source File | Contents |
-|--------|-------------|----------|
-| All GraphQL types | `types.ts` | `type User`, `type Router`, `type Resource`, etc. (500+ types) |
-| All GraphQL hooks | `operations.ts` | `useGetRouter`, `useCreateRouter`, `useRouterSubscription`, etc. |
-| GraphQL operations | `operations.ts` | Exported `gql` document constants (if documentMode is set) |
-| `possibleTypesResult` | `fragment-matcher.ts` | The polymorphism map for Apollo cache |
-| Zod schemas | `schemas/` | Manual validation schemas (network utils, DHCP schemas, etc.) |
+| Export                | Source File           | Contents                                                         |
+| --------------------- | --------------------- | ---------------------------------------------------------------- |
+| All GraphQL types     | `types.ts`            | `type User`, `type Router`, `type Resource`, etc. (500+ types)   |
+| All GraphQL hooks     | `operations.ts`       | `useGetRouter`, `useCreateRouter`, `useRouterSubscription`, etc. |
+| GraphQL operations    | `operations.ts`       | Exported `gql` document constants (if documentMode is set)       |
+| `possibleTypesResult` | `fragment-matcher.ts` | The polymorphism map for Apollo cache                            |
+| Zod schemas           | `schemas/`            | Manual validation schemas (network utils, DHCP schemas, etc.)    |
 
 ### Import Patterns
 
@@ -689,14 +727,21 @@ import { ipv4, cidr, dhcpServerConfigSchema } from '@nasnet/api-client/generated
 
 ### Zod Schemas Status and Gap
 
-**Current State:** Zod schemas are manually defined in `libs/api-client/generated/schemas/` using validators from `@nasnet/core/forms/src/network-validators.ts` and custom domain schemas.
+**Current State:** Zod schemas are manually defined in `libs/api-client/generated/schemas/` using
+validators from `@nasnet/core/forms/src/network-validators.ts` and custom domain schemas.
 
-**Future Enhancement (TODO):** The project is marked for integration of `@graphql-codegen/typescript-validation-schema` plugin, which would automatically generate Zod schemas from GraphQL input types. This would eliminate the manual schema maintenance burden.
+**Future Enhancement (TODO):** The project is marked for integration of
+`@graphql-codegen/typescript-validation-schema` plugin, which would automatically generate Zod
+schemas from GraphQL input types. This would eliminate the manual schema maintenance burden.
 
 **Until then:**
-- Network validators are provided: `ipv4`, `ipv6`, `mac`, `cidr`, `port`, `portRange`, `vlanId`, `hostname`, `duration`, `bandwidth`, etc.
-- Domain-specific schemas (e.g., `dhcpServerConfigSchema`, `firewallRuleInputSchema`) are hand-written in `schemas/index.ts`
-- When adding new GraphQL input types, developers must manually create corresponding Zod schemas for forms
+
+- Network validators are provided: `ipv4`, `ipv6`, `mac`, `cidr`, `port`, `portRange`, `vlanId`,
+  `hostname`, `duration`, `bandwidth`, etc.
+- Domain-specific schemas (e.g., `dhcpServerConfigSchema`, `firewallRuleInputSchema`) are
+  hand-written in `schemas/index.ts`
+- When adding new GraphQL input types, developers must manually create corresponding Zod schemas for
+  forms
 
 ---
 
@@ -704,15 +749,31 @@ import { ipv4, cidr, dhcpServerConfigSchema } from '@nasnet/api-client/generated
 
 Source: `libs/api-client/generated/schemas/index.d.ts`
 
-The `generated/schemas/` module re-exports Zod validation utilities and provides example domain schemas. These are the building blocks for form validation across the application.
+The `generated/schemas/` module re-exports Zod validation utilities and provides example domain
+schemas. These are the building blocks for form validation across the application.
 
 ### Re-Exported Network Validators
 
 ```ts
 import {
-  ipv4, ipv6, ipAddress, mac, cidr, cidr6,
-  port, portString, portRange, vlanId, vlanIdString,
-  wgKey, hostname, domain, interfaceName, comment, duration, bandwidth,
+  ipv4,
+  ipv6,
+  ipAddress,
+  mac,
+  cidr,
+  cidr6,
+  port,
+  portString,
+  portRange,
+  vlanId,
+  vlanIdString,
+  wgKey,
+  hostname,
+  domain,
+  interfaceName,
+  comment,
+  duration,
+  bandwidth,
 } from '@nasnet/api-client/generated/schemas';
 ```
 
@@ -722,10 +783,17 @@ Each of these is a Zod `ZodEffects<ZodString>` that validates and normalizes the
 
 ```ts
 import {
-  makePartial, mergeSchemas, pickFields, omitFields,
-  optionalString, requiredString, numberFromString, booleanFromString,
+  makePartial,
+  mergeSchemas,
+  pickFields,
+  omitFields,
+  optionalString,
+  requiredString,
+  numberFromString,
+  booleanFromString,
   conditionalSchema,
-  type InferSchema, type InferInput,
+  type InferSchema,
+  type InferInput,
 } from '@nasnet/api-client/generated/schemas';
 ```
 
@@ -734,34 +802,40 @@ import {
 #### dhcpServerConfigSchema
 
 ```ts
-import { dhcpServerConfigSchema, type DHCPServerConfig } from '@nasnet/api-client/generated/schemas';
+import {
+  dhcpServerConfigSchema,
+  type DHCPServerConfig,
+} from '@nasnet/api-client/generated/schemas';
 
 const schema = z.object({
-  name:        z.string().min(1).max(64),
-  interface:   z.string().min(1),
-  addressPool: cidr,                           // e.g. '192.168.100.0/24'
-  gateway:     ipv4,                           // e.g. '192.168.100.1'
-  leaseTime:   z.string().regex(/^\d+[smhd]$/), // '1d', '12h', '30m'
-  dnsServers:  z.array(ipv4).optional(),
-  disabled:    z.boolean().default(false),
+  name: z.string().min(1).max(64),
+  interface: z.string().min(1),
+  addressPool: cidr, // e.g. '192.168.100.0/24'
+  gateway: ipv4, // e.g. '192.168.100.1'
+  leaseTime: z.string().regex(/^\d+[smhd]$/), // '1d', '12h', '30m'
+  dnsServers: z.array(ipv4).optional(),
+  disabled: z.boolean().default(false),
 });
 ```
 
 #### firewallRuleInputSchema
 
 ```ts
-import { firewallRuleInputSchema, type FirewallRuleInput } from '@nasnet/api-client/generated/schemas';
+import {
+  firewallRuleInputSchema,
+  type FirewallRuleInput,
+} from '@nasnet/api-client/generated/schemas';
 
 const schema = z.object({
-  chain:      z.enum(['input', 'forward', 'output']),
-  action:     z.enum(['accept', 'drop', 'reject', 'jump', 'log']),
+  chain: z.enum(['input', 'forward', 'output']),
+  action: z.enum(['accept', 'drop', 'reject', 'jump', 'log']),
   srcAddress: cidr.optional(),
   dstAddress: cidr.optional(),
-  srcPort:    z.number().optional(),
-  dstPort:    z.number().optional(),
-  protocol:   z.enum(['tcp', 'udp', 'icmp', 'all']).optional(),
-  comment:    z.string().optional(),
-  disabled:   z.boolean().default(false),
+  srcPort: z.number().optional(),
+  dstPort: z.number().optional(),
+  protocol: z.enum(['tcp', 'udp', 'icmp', 'all']).optional(),
+  comment: z.string().optional(),
+  disabled: z.boolean().default(false),
 });
 ```
 
@@ -771,12 +845,12 @@ const schema = z.object({
 import { wireguardPeerSchema, type WireguardPeer } from '@nasnet/api-client/generated/schemas';
 
 const schema = z.object({
-  publicKey:            wgKey,                     // 44-char base64 WG key
-  allowedAddress:       z.array(cidr),
-  endpointAddress:      ipv4.optional(),
-  endpointPort:         z.number().optional(),
-  persistentKeepalive:  z.number().optional(),
-  comment:              z.string().optional(),
+  publicKey: wgKey, // 44-char base64 WG key
+  allowedAddress: z.array(cidr),
+  endpointAddress: ipv4.optional(),
+  endpointPort: z.number().optional(),
+  persistentKeepalive: z.number().optional(),
+  comment: z.string().optional(),
 });
 ```
 
@@ -785,18 +859,21 @@ const schema = z.object({
 ```tsx
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { dhcpServerConfigSchema, type DHCPServerConfig } from '@nasnet/api-client/generated/schemas';
+import {
+  dhcpServerConfigSchema,
+  type DHCPServerConfig,
+} from '@nasnet/api-client/generated/schemas';
 
 function DHCPServerForm() {
   const form = useForm<DHCPServerConfig>({
     resolver: zodResolver(dhcpServerConfigSchema),
     defaultValues: {
-      name:      '',
+      name: '',
       interface: 'bridge1',
       addressPool: '192.168.100.0/24',
-      gateway:    '192.168.100.1',
-      leaseTime:  '1d',
-      disabled:   false,
+      gateway: '192.168.100.1',
+      leaseTime: '1d',
+      disabled: false,
     },
   });
 
@@ -807,9 +884,7 @@ function DHCPServerForm() {
   return (
     <form onSubmit={form.handleSubmit(onSubmit)}>
       <input {...form.register('name')} />
-      {form.formState.errors.name && (
-        <span>{form.formState.errors.name.message}</span>
-      )}
+      {form.formState.errors.name && <span>{form.formState.errors.name.message}</span>}
       {/* ... other fields */}
     </form>
   );
@@ -826,11 +901,10 @@ import { z } from 'zod';
 
 const baseSchema = z.object({ name: z.string().min(1) });
 const staticSchema = z.object({ ipAddress: ipv4, gateway: ipv4, cidr: cidr });
-const dhcpSchema   = z.object({ dhcpClient: z.boolean() });
+const dhcpSchema = z.object({ dhcpClient: z.boolean() });
 
-const wanSchema = conditionalSchema(
-  baseSchema,
-  (base) => base.type === 'static' ? mergeSchemas(base, staticSchema) : mergeSchemas(base, dhcpSchema)
+const wanSchema = conditionalSchema(baseSchema, (base) =>
+  base.type === 'static' ? mergeSchemas(base, staticSchema) : mergeSchemas(base, dhcpSchema)
 );
 ```
 
@@ -838,7 +912,8 @@ const wanSchema = conditionalSchema(
 
 ## 9. Adding a New Domain — Step-by-Step
 
-Follow these steps to add a new domain called `example` with a query, a mutation, and a subscription.
+Follow these steps to add a new domain called `example` with a query, a mutation, and a
+subscription.
 
 ### Step 1: Define the GraphQL Schema
 
@@ -879,8 +954,10 @@ npm run codegen:ts
 ```
 
 This generates:
+
 - `generated/types.ts` — adds `ExampleItem`, `ExamplePayload` types
-- `generated/operations.ts` — adds `useExampleItemsQuery`, `useCreateExampleItemMutation`, `useExampleItemChangedSubscription` hooks
+- `generated/operations.ts` — adds `useExampleItemsQuery`, `useCreateExampleItemMutation`,
+  `useExampleItemChangedSubscription` hooks
 - `generated/fragment-matcher.ts` — updates `possibleTypes.Node` to include `ExampleItem`
 
 ### Step 3: Create the Domain Directory
@@ -904,7 +981,11 @@ import { gql } from '@apollo/client';
 export const GET_EXAMPLE_ITEMS = gql`
   query GetExampleItems($routerId: ID!) {
     exampleItems(routerId: $routerId) {
-      id routerId name value createdAt
+      id
+      routerId
+      name
+      value
+      createdAt
     }
   }
 `;
@@ -912,8 +993,18 @@ export const GET_EXAMPLE_ITEMS = gql`
 export const CREATE_EXAMPLE_ITEM = gql`
   mutation CreateExampleItem($routerId: ID!, $name: String!, $value: String!) {
     createExampleItem(routerId: $routerId, name: $name, value: $value) {
-      item { id routerId name value createdAt }
-      errors { message field code }
+      item {
+        id
+        routerId
+        name
+        value
+        createdAt
+      }
+      errors {
+        message
+        field
+        code
+      }
     }
   }
 `;
@@ -921,7 +1012,11 @@ export const CREATE_EXAMPLE_ITEM = gql`
 export const SUBSCRIBE_EXAMPLE_ITEM_CHANGED = gql`
   subscription ExampleItemChanged($routerId: ID!) {
     exampleItemChanged(routerId: $routerId) {
-      id routerId name value createdAt
+      id
+      routerId
+      name
+      value
+      createdAt
     }
   }
 `;
@@ -932,9 +1027,9 @@ export const SUBSCRIBE_EXAMPLE_ITEM_CHANGED = gql`
 ```ts
 // libs/api-client/queries/src/example/queryKeys.ts
 export const exampleKeys = {
-  all:   ['example'] as const,
-  list:  (routerId: string) => [...exampleKeys.all, 'list', routerId] as const,
-  detail:(routerId: string, id: string) => [...exampleKeys.list(routerId), id] as const,
+  all: ['example'] as const,
+  list: (routerId: string) => [...exampleKeys.all, 'list', routerId] as const,
+  detail: (routerId: string, id: string) => [...exampleKeys.list(routerId), id] as const,
 };
 ```
 
@@ -1021,7 +1116,7 @@ If the domain has a form, add a schema either:
 ```ts
 import { z } from 'zod';
 export const exampleItemSchema = z.object({
-  name:  z.string().min(1).max(64),
+  name: z.string().min(1).max(64),
   value: z.string().min(1),
 });
 export type ExampleItemInput = z.infer<typeof exampleItemSchema>;
@@ -1084,7 +1179,8 @@ npm run codegen:ts
 # fragment-matcher.ts is updated automatically
 ```
 
-Commit the updated `generated/fragment-matcher.ts` file so the cache resolution is correct for all team members.
+Commit the updated `generated/fragment-matcher.ts` file so the cache resolution is correct for all
+team members.
 
 ### Step 14: Update Backend Resolvers
 

@@ -104,9 +104,14 @@ export const WithResultsCallback: Story = {
   args: {
     defaultSubnet: '192.168.88.0/24',
     onScanComplete: (results: ScanResult[]) => {
-      console.log(`Found ${results.length} routers:`, results.map((r) => r.ipAddress));
+      console.log(
+        `Found ${results.length} routers:`,
+        results.map((r) => r.ipAddress)
+      );
       // In a real app this data would be passed to RouterList
-      alert(`Scan found ${results.length} router(s):\n${results.map((r) => `  • ${r.ipAddress} (${r.model ?? 'unknown'})`).join('\n')}`);
+      alert(
+        `Scan found ${results.length} router(s):\n${results.map((r) => `  • ${r.ipAddress} (${r.model ?? 'unknown'})`).join('\n')}`
+      );
     },
     onRouterSelect: (result: ScanResult) => {
       console.log('User selected:', result);
@@ -154,13 +159,14 @@ export const WideLayout: Story = {
     layout: 'fullscreen',
     docs: {
       description: {
-        story: 'Renders inside a full-width container to verify responsive behaviour on large screens.',
+        story:
+          'Renders inside a full-width container to verify responsive behaviour on large screens.',
       },
     },
   },
   decorators: [
     (Story) => (
-      <div className="max-w-3xl mx-auto p-component-xl">
+      <div className="p-component-xl mx-auto max-w-3xl">
         <Story />
       </div>
     ),

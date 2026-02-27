@@ -51,9 +51,15 @@ export type TemplateInstallEvent =
   | { type: 'PREV' }
   | { type: 'SET_VARIABLES'; variables: Record<string, unknown> }
   | { type: 'START_INSTALL' }
-  | { type: 'INSTALL_COMPLETE'; result: { success: boolean; instanceIDs: string[]; errors: string[] } }
+  | {
+      type: 'INSTALL_COMPLETE';
+      result: { success: boolean; instanceIDs: string[]; errors: string[] };
+    }
   | { type: 'INSTALL_FAILED'; error: string }
-  | { type: 'PROGRESS_UPDATE'; progress: { phase: string; current: number; total: number; currentService: string | null } }
+  | {
+      type: 'PROGRESS_UPDATE';
+      progress: { phase: string; current: number; total: number; currentService: string | null };
+    }
   | { type: 'TOGGLE_ROUTING_RULE'; ruleId: string }
   | { type: 'SKIP_ROUTING' }
   | { type: 'APPLY_ROUTING' }
@@ -84,29 +90,30 @@ export function createTemplateInstallMachine(initialContext: Partial<TemplateIns
       events: TemplateInstallEvent;
     },
     actors: {
-      validateVariables: fromPromise<ValidationResult, { variables: Record<string, unknown>; template: ServiceTemplate | null }>(
-        async ({ input }) => {
-          const { variables, template } = input;
+      validateVariables: fromPromise<
+        ValidationResult,
+        { variables: Record<string, unknown>; template: ServiceTemplate | null }
+      >(async ({ input }) => {
+        const { variables, template } = input;
 
-          if (!template) {
-            return { valid: false, errors: { template: 'Template not found' } };
-          }
-
-          const errors: Record<string, string> = {};
-
-          // Validate required variables
-          for (const variable of template.configVariables) {
-            if (variable.required && !variables[variable.name]) {
-              errors[variable.name] = `${variable.label} is required`;
-            }
-          }
-
-          return {
-            valid: Object.keys(errors).length === 0,
-            errors: Object.keys(errors).length > 0 ? errors : undefined,
-          };
+        if (!template) {
+          return { valid: false, errors: { template: 'Template not found' } };
         }
-      ),
+
+        const errors: Record<string, string> = {};
+
+        // Validate required variables
+        for (const variable of template.configVariables) {
+          if (variable.required && !variables[variable.name]) {
+            errors[variable.name] = `${variable.label} is required`;
+          }
+        }
+
+        return {
+          valid: Object.keys(errors).length === 0,
+          errors: Object.keys(errors).length > 0 ? errors : undefined,
+        };
+      }),
     },
     guards: {
       canGoNext: ({ context }) => {

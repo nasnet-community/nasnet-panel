@@ -1,6 +1,8 @@
 # Cross-Feature Communication via Stores
 
-Zustand stores enable cross-feature communication without violating dependency rules. Features can read from any store but should not import directly from other features. Instead, they communicate through shared stores.
+Zustand stores enable cross-feature communication without violating dependency rules. Features can
+read from any store but should not import directly from other features. Instead, they communicate
+through shared stores.
 
 **Source:** `libs/state/stores/src/index.ts` - All stores are exported centrally
 
@@ -227,7 +229,7 @@ For complex workflows, use CustomEvent for non-store communication:
 export function triggerFirewallReload() {
   window.dispatchEvent(
     new CustomEvent('firewall:reload', {
-      detail: { routerId: 'router-123' }
+      detail: { routerId: 'router-123' },
     })
   );
 }
@@ -440,8 +442,7 @@ function EditForm() {
 
 ```typescript
 // Create well-typed store exports
-export const useCurrentRouterId = () =>
-  useConnectionStore((state) => state.currentRouterId);
+export const useCurrentRouterId = () => useConnectionStore((state) => state.currentRouterId);
 
 export const setCurrentRouterId = (id: string | null) =>
   useConnectionStore.setState({ currentRouterId: id });
@@ -491,7 +492,9 @@ const { selectedIds } = useConnectionStore(); // Shared core
 ```typescript
 // ✅ RIGHT
 useEffect(() => {
-  const handler = () => { /* ... */ };
+  const handler = () => {
+    /* ... */
+  };
   window.addEventListener('custom:event', handler);
 
   return () => window.removeEventListener('custom:event', handler);

@@ -6,22 +6,34 @@
 Input for installing a new service instance.
 """
 input InstallServiceInput {
-  """Router ID to install the service on"""
+  """
+  Router ID to install the service on
+  """
   routerID: ID!
 
-  """Feature ID to install (e.g., 'tor', 'sing-box')"""
+  """
+  Feature ID to install (e.g., 'tor', 'sing-box')
+  """
   featureID: String! @validate(pattern: "^[a-z0-9_-]+$")
 
-  """Human-readable instance name"""
+  """
+  Human-readable instance name
+  """
   instanceName: String! @validate(minLength: 1, maxLength: 255)
 
-  """Service-specific configuration (JSON)"""
+  """
+  Service-specific configuration (JSON)
+  """
   config: JSON
 
-  """VLAN ID for network isolation (optional)"""
+  """
+  VLAN ID for network isolation (optional)
+  """
   vlanID: Int @validate(min: 1, max: 4094)
 
-  """IP address to bind the service to (optional)"""
+  """
+  IP address to bind the service to (optional)
+  """
   bindIP: String
 }
 
@@ -29,10 +41,14 @@ input InstallServiceInput {
 Input for starting a service instance.
 """
 input StartInstanceInput {
-  """Router ID"""
+  """
+  Router ID
+  """
   routerID: ID!
 
-  """Instance ID to start"""
+  """
+  Instance ID to start
+  """
   instanceID: ID!
 }
 
@@ -40,10 +56,14 @@ input StartInstanceInput {
 Input for stopping a service instance.
 """
 input StopInstanceInput {
-  """Router ID"""
+  """
+  Router ID
+  """
   routerID: ID!
 
-  """Instance ID to stop"""
+  """
+  Instance ID to stop
+  """
   instanceID: ID!
 }
 
@@ -51,10 +71,14 @@ input StopInstanceInput {
 Input for restarting a service instance.
 """
 input RestartInstanceInput {
-  """Router ID"""
+  """
+  Router ID
+  """
   routerID: ID!
 
-  """Instance ID to restart"""
+  """
+  Instance ID to restart
+  """
   instanceID: ID!
 }
 
@@ -62,10 +86,14 @@ input RestartInstanceInput {
 Input for deleting a service instance.
 """
 input DeleteInstanceInput {
-  """Router ID"""
+  """
+  Router ID
+  """
   routerID: ID!
 
-  """Instance ID to delete"""
+  """
+  Instance ID to delete
+  """
   instanceID: ID!
 }
 
@@ -78,10 +106,14 @@ extend type Query {
   List all available services from the Feature Marketplace.
   """
   availableServices(
-    """Filter by category"""
+    """
+    Filter by category
+    """
     category: String
 
-    """Filter by architecture"""
+    """
+    Filter by architecture
+    """
     architecture: String
   ): [AvailableService!]!
 
@@ -89,13 +121,19 @@ extend type Query {
   List all service instances for a router.
   """
   serviceInstances(
-    """Router ID"""
+    """
+    Router ID
+    """
     routerID: ID!
 
-    """Filter by status"""
+    """
+    Filter by status
+    """
     status: ServiceInstanceStatus
 
-    """Filter by feature ID"""
+    """
+    Filter by feature ID
+    """
     featureID: String
   ): [ServiceInstance!]!
 
@@ -103,10 +141,14 @@ extend type Query {
   Get a specific service instance.
   """
   serviceInstance(
-    """Router ID"""
+    """
+    Router ID
+    """
     routerID: ID!
 
-    """Instance ID"""
+    """
+    Instance ID
+    """
     instanceID: ID!
   ): ServiceInstance
 
@@ -115,7 +157,9 @@ extend type Query {
   Returns only instances with verification enabled.
   """
   instanceVerificationStatus(
-    """Router ID"""
+    """
+    Router ID
+    """
     routerID: ID!
   ): [BinaryVerification!]!
 
@@ -123,7 +167,9 @@ extend type Query {
   List all virtual interfaces for a router.
   """
   virtualInterfaces(
-    """Router ID"""
+    """
+    Router ID
+    """
     routerID: ID!
   ): [VirtualInterface!]!
 
@@ -131,10 +177,14 @@ extend type Query {
   Get a specific virtual interface for a service instance.
   """
   virtualInterface(
-    """Router ID"""
+    """
+    Router ID
+    """
     routerID: ID!
 
-    """Instance ID"""
+    """
+    Instance ID
+    """
     instanceID: ID!
   ): VirtualInterface
 
@@ -143,10 +193,14 @@ extend type Query {
   Includes interface and gateway health status.
   """
   bridgeStatus(
-    """Router ID"""
+    """
+    Router ID
+    """
     routerID: ID!
 
-    """Instance ID"""
+    """
+    Instance ID
+    """
     instanceID: ID!
   ): BridgeStatus!
 
@@ -155,7 +209,9 @@ extend type Query {
   Returns gateway state for SOCKS-to-TUN gateways.
   """
   gatewayStatus(
-    """Instance ID"""
+    """
+    Instance ID
+    """
     instanceID: ID!
   ): GatewayInfo!
 }

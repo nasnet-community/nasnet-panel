@@ -1,7 +1,7 @@
 {
   "id": "ui-system/patterns-catalog",
   "title": "Patterns Catalog",
-  "description": "Layer 2 of the component architecture. All components are from libs/ui/patterns/src/ and imported via @nasnet/ui/patterns.",
+  "description": "Layer 2 of the component architecture. All components are from libs/ui/patterns/src/ and imported",
   "source": "@site/../connect/docs/ui-system/patterns-catalog.md",
   "sourceDirName": "ui-system",
   "slug": "/ui-system/patterns-catalog",

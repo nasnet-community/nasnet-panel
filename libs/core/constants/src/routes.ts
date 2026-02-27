@@ -93,7 +93,7 @@ export const ROUTES = {
   NOT_FOUND: '/404',
   UNAUTHORIZED: '/401',
   FORBIDDEN: '/403',
-  SERVER_ERROR: '/500'
+  SERVER_ERROR: '/500',
 } as const;
 
 /**
@@ -107,4 +107,4 @@ export const ROUTES = {
  *   router.push(route);
  * }
  */
-export type Route = typeof ROUTES[keyof typeof ROUTES];
+export type Route = (typeof ROUTES)[keyof typeof ROUTES];

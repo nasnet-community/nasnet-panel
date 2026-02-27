@@ -33,23 +33,14 @@ const helpIconVariants = cva(
     'transition-colors duration-150',
     'cursor-pointer',
     // Focus state - 2px ring (Radix default) with ring-offset
-    'focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+    'focus-visible:ring-ring focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
   ],
   {
     variants: {
       size: {
-        sm: [
-          'h-4 w-4',
-          '[&_svg]:h-4 [&_svg]:w-4',
-        ],
-        md: [
-          'h-4 w-4',
-          '[&_svg]:h-4 [&_svg]:w-4',
-        ],
-        lg: [
-          'h-5 w-5',
-          '[&_svg]:h-5 [&_svg]:w-5',
-        ],
+        sm: ['h-4 w-4', '[&_svg]:h-4 [&_svg]:w-4'],
+        md: ['h-4 w-4', '[&_svg]:h-4 [&_svg]:w-4'],
+        lg: ['h-5 w-5', '[&_svg]:h-5 [&_svg]:w-5'],
       },
     },
     defaultVariants: {
@@ -83,15 +74,7 @@ export type HelpIconVariantProps = VariantProps<typeof helpIconVariants>;
  */
 export const HelpIcon = React.forwardRef<HTMLButtonElement, HelpIconProps>(
   (
-    {
-      field,
-      className,
-      size = 'md',
-      onClick,
-      'aria-label': ariaLabelProp,
-      tabIndex = 0,
-      ...props
-    },
+    { field, className, size = 'md', onClick, 'aria-label': ariaLabelProp, tabIndex = 0, ...props },
     ref
   ) => {
     // Generate aria-label if not provided

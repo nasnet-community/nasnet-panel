@@ -166,16 +166,11 @@ function formatBytes(bytes: number): string {
  * }
  * ```
  */
-export function useServiceCard(
-  props: ServiceCardProps
-): UseServiceCardReturn {
+export function useServiceCard(props: ServiceCardProps): UseServiceCardReturn {
   const { service, actions = [], onClick, showMetrics = true } = props;
 
   // Derived status state (memoized)
-  const status = useMemo<ServiceStatus>(
-    () => service.status || 'available',
-    [service.status]
-  );
+  const status = useMemo<ServiceStatus>(() => service.status || 'available', [service.status]);
 
   const isRunning = useMemo(() => status === 'running', [status]);
   const isInstalled = useMemo(
@@ -192,10 +187,7 @@ export function useServiceCard(
 
   const statusColor = useMemo(() => getStatusColor(status), [status]);
   const statusLabel = useMemo(() => getStatusLabel(status), [status]);
-  const categoryColor = useMemo(
-    () => getCategoryColor(service.category),
-    [service.category]
-  );
+  const categoryColor = useMemo(() => getCategoryColor(service.category), [service.category]);
 
   // Actions (memoized)
   const primaryAction = actions[0];

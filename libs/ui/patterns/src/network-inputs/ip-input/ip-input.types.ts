@@ -116,11 +116,7 @@ export interface UseIPInputReturn {
   /** Focus the CIDR input */
   focusCidr: () => void;
   /** Handle input change with auto-advance logic */
-  handleSegmentChange: (
-    index: number,
-    value: string,
-    cursorPosition?: number
-  ) => void;
+  handleSegmentChange: (index: number, value: string, cursorPosition?: number) => void;
   /** Get the number of segments based on version */
   segmentCount: number;
   /** The separator character ('.' for v4, ':' for v6) */

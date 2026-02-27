@@ -153,10 +153,10 @@ export const LiveTicker: Story = {
 
       return (
         <div className="space-y-3">
-          <p className="text-sm text-muted-foreground">
+          <p className="text-muted-foreground text-sm">
             Simulates a query that re-fetches every 10 s. The label updates live each second.
           </p>
-          <div className="flex items-center gap-4 p-3 border border-border rounded-lg bg-card">
+          <div className="border-border bg-card flex items-center gap-4 rounded-lg border p-3">
             <span className="text-sm font-medium">Network Interfaces</span>
             <LastUpdated timestamp={ts} />
           </div>

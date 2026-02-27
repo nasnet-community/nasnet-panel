@@ -13,27 +13,27 @@ import { DriftStatus, type DriftResult, type DriftDetectionOptions } from './typ
  * Input for drift detection - minimal resource data needed
  */
 export interface DriftDetectionInput {
-    /** Configuration layer data (user's desired state) */
-    configuration: unknown;
-    /** Deployment layer data (router's actual state) */
-    deployment?: DeploymentState | null;
-    /** Resource type for priority classification */
-    resourceType?: string;
+  /** Configuration layer data (user's desired state) */
+  configuration: unknown;
+  /** Deployment layer data (router's actual state) */
+  deployment?: DeploymentState | null;
+  /** Resource type for priority classification */
+  resourceType?: string;
 }
 /**
  * Return type for useDriftDetection hook
  */
 export interface UseDriftDetectionResult {
-    /** Current drift result */
-    result: DriftResult;
-    /** Whether drift exists */
-    hasDrift: boolean;
-    /** Current drift status */
-    status: DriftStatus;
-    /** Number of drifted fields */
-    driftCount: number;
-    /** Recompute drift (useful after manual updates) */
-    recompute: () => DriftResult;
+  /** Current drift result */
+  result: DriftResult;
+  /** Whether drift exists */
+  hasDrift: boolean;
+  /** Current drift status */
+  status: DriftStatus;
+  /** Number of drifted fields */
+  driftCount: number;
+  /** Recompute drift (useful after manual updates) */
+  recompute: () => DriftResult;
 }
 /**
  * Detect drift between configuration and deployment layers
@@ -42,7 +42,10 @@ export interface UseDriftDetectionResult {
  * @param options - Detection options
  * @returns Drift result
  */
-export declare function detectDrift(input: DriftDetectionInput, options?: DriftDetectionOptions): DriftResult;
+export declare function detectDrift(
+  input: DriftDetectionInput,
+  options?: DriftDetectionOptions
+): DriftResult;
 /**
  * Detect drift for a full Resource object
  *
@@ -50,7 +53,10 @@ export declare function detectDrift(input: DriftDetectionInput, options?: DriftD
  * @param options - Detection options
  * @returns Drift result
  */
-export declare function detectResourceDrift<T = unknown>(resource: Resource<T>, options?: DriftDetectionOptions): DriftResult;
+export declare function detectResourceDrift<T = unknown>(
+  resource: Resource<T>,
+  options?: DriftDetectionOptions
+): DriftResult;
 /**
  * React hook for drift detection
  *
@@ -69,16 +75,22 @@ export declare function detectResourceDrift<T = unknown>(resource: Resource<T>, 
  * }
  * ```
  */
-export declare function useDriftDetection(input: DriftDetectionInput, options?: DriftDetectionOptions): UseDriftDetectionResult;
+export declare function useDriftDetection(
+  input: DriftDetectionInput,
+  options?: DriftDetectionOptions
+): UseDriftDetectionResult;
 /**
  * Hook for quick drift check (hash-based, no field-level diff)
  *
  * Use this for performance-critical scenarios like list views
  * where you only need to know IF drift exists, not WHAT drifted.
  */
-export declare function useQuickDriftCheck(configuration: unknown, deployment: DeploymentState | null | undefined): {
-    hasDrift: boolean;
-    status: DriftStatus;
+export declare function useQuickDriftCheck(
+  configuration: unknown,
+  deployment: DeploymentState | null | undefined
+): {
+  hasDrift: boolean;
+  status: DriftStatus;
 };
 /**
  * Hook to check drift status for multiple resources at once

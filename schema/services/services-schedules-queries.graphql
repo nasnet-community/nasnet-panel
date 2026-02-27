@@ -7,10 +7,14 @@ extend type Query {
   Get a specific routing schedule by ID.
   """
   routingSchedule(
-    """Router ID"""
+    """
+    Router ID
+    """
     routerID: ID!
 
-    """Schedule ID"""
+    """
+    Schedule ID
+    """
     scheduleID: ID!
   ): RoutingSchedule
 
@@ -19,10 +23,14 @@ extend type Query {
   Returns schedules ordered by start time.
   """
   routingSchedules(
-    """Router ID"""
+    """
+    Router ID
+    """
     routerID: ID!
 
-    """Device routing ID"""
+    """
+    Device routing ID
+    """
     routingID: ID!
   ): [RoutingSchedule!]!
 }

@@ -1,7 +1,7 @@
 {
   "id": "event-system",
   "title": "Event System",
-  "description": "Typed, priority-based event bus built on Watermill GoChannel, connecting all backend subsystems through decoupled publish-subscribe communication.",
+  "description": "Typed, priority-based event bus built on Watermill GoChannel, connecting all backend subsystems",
   "source": "@site/../backend/docs/event-system.md",
   "sourceDirName": ".",
   "slug": "/event-system",

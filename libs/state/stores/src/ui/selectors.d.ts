@@ -35,7 +35,10 @@ import { shallow } from 'zustand/shallow';
  * const filtered = useNotificationStore(selectFilteredNotifications);
  * ```
  */
-export declare function createMemoizedSelector<State, Deps extends unknown[], Result>(getDeps: (state: State) => Deps, compute: (deps: Deps) => Result): (state: State) => Result;
+export declare function createMemoizedSelector<State, Deps extends unknown[], Result>(
+  getDeps: (state: State) => Deps,
+  compute: (deps: Deps) => Result
+): (state: State) => Result;
 /**
  * Creates a selector factory with built-in memoization
  * Useful for parameterized selectors that should cache per-param
@@ -50,7 +53,9 @@ export declare function createMemoizedSelector<State, Deps extends unknown[], Re
  * const notification = useNotificationStore(selectNotificationById('abc123'));
  * ```
  */
-export declare function createParameterizedSelector<State, Param, Result>(selector: (state: State, param: Param) => Result): (param: Param) => (state: State) => Result;
+export declare function createParameterizedSelector<State, Param, Result>(
+  selector: (state: State, param: Param) => Result
+): (param: Param) => (state: State) => Result;
 /**
  * Equality function for use with Zustand stores
  * Performs shallow comparison of objects
@@ -79,18 +84,35 @@ export declare const shallowEqual: typeof shallow;
  * const snapshot = useUIStore(selectUISnapshot, shallow);
  * ```
  */
-export declare function createCombinedSelector<State, Selectors extends Record<string, (state: State) => unknown>>(selectors: Selectors): (state: State) => {
-    [K in keyof Selectors]: ReturnType<Selectors[K]>;
+export declare function createCombinedSelector<
+  State,
+  Selectors extends Record<string, (state: State) => unknown>,
+>(
+  selectors: Selectors
+): (state: State) => {
+  [K in keyof Selectors]: ReturnType<Selectors[K]>;
 };
 export { selectResolvedTheme, selectThemeMode } from './theme.store';
 export type { ThemeState, ThemeActions, ThemeStore } from './theme.store';
 export { selectSidebarCollapsed, selectSidebarToggle } from './sidebar.store';
 export type { SidebarState } from './sidebar.store';
-export { selectActiveTab, selectCommandPaletteOpen, selectCompactMode, selectAnimationsEnabled, selectDefaultNotificationDuration, } from './ui.store';
+export {
+  selectActiveTab,
+  selectCommandPaletteOpen,
+  selectCompactMode,
+  selectAnimationsEnabled,
+  selectDefaultNotificationDuration,
+} from './ui.store';
 export type { UIState } from './ui.store';
-export { selectActiveModal, selectModalData, createSelectIsModalOpen, } from './modal.store';
+export { selectActiveModal, selectModalData, createSelectIsModalOpen } from './modal.store';
 export type { ModalState, ModalId, ModalData } from './modal.store';
-export { selectNotifications, selectHasNotifications, selectNotificationCount, selectErrorNotifications, selectNotificationsByType, } from './notification.store';
+export {
+  selectNotifications,
+  selectHasNotifications,
+  selectNotificationCount,
+  selectErrorNotifications,
+  selectNotificationsByType,
+} from './notification.store';
 export type { NotificationState, Notification, NotificationType } from './notification.store';
 import type { NotificationState } from './notification.store';
 import type { SidebarState } from './sidebar.store';
@@ -105,15 +127,15 @@ export declare const selectHasOverlayOpen: (uiState: UIState) => boolean;
  * Select UI preferences subset (for settings display)
  */
 export declare const selectUIPreferences: (state: UIState) => {
-    compactMode: boolean;
-    animationsEnabled: boolean;
-    defaultNotificationDuration: number;
+  compactMode: boolean;
+  animationsEnabled: boolean;
+  defaultNotificationDuration: number;
 };
 /**
  * Select sidebar display state based on collapse preference
  * Returns 'collapsed' | 'expanded'
  */
-export declare const selectSidebarDisplayState: (state: SidebarState) => "expanded" | "collapsed";
+export declare const selectSidebarDisplayState: (state: SidebarState) => 'expanded' | 'collapsed';
 /**
  * Select whether theme is in dark mode
  */
@@ -129,7 +151,9 @@ export declare const selectUrgentNotificationCount: (state: NotificationState) =
 /**
  * Select progress notifications (for progress indicators)
  */
-export declare const selectProgressNotifications: (state: NotificationState) => import("./notification.store").Notification[];
+export declare const selectProgressNotifications: (
+  state: NotificationState
+) => import('./notification.store').Notification[];
 /**
  * Create a selector for checking if a specific tab is active
  */
@@ -137,15 +161,17 @@ export declare const createSelectIsTabActive: (tabId: string) => (state: UIState
 /**
  * Create a selector for notifications with a specific action
  */
-export declare const createSelectNotificationsWithAction: () => (state: NotificationState) => import("./notification.store").Notification[];
+export declare const createSelectNotificationsWithAction: () => (
+  state: NotificationState
+) => import('./notification.store').Notification[];
 /**
  * Memoized selector for UI preferences
  * Only recomputes when underlying values change
  */
 export declare const selectUIPreferencesMemoized: (state: UIState) => {
-    compactMode: boolean;
-    animationsEnabled: boolean;
-    defaultNotificationDuration: number;
+  compactMode: boolean;
+  animationsEnabled: boolean;
+  defaultNotificationDuration: number;
 };
 /**
  * Memoized selector for error notification count
@@ -155,11 +181,13 @@ export declare const selectErrorCountMemoized: (state: NotificationState) => num
 /**
  * Parameterized selector for notification by ID
  */
-export declare const selectNotificationById: (param: string) => (state: NotificationState) => import("./notification.store").Notification | null;
+export declare const selectNotificationById: (
+  param: string
+) => (state: NotificationState) => import('./notification.store').Notification | null;
 /**
  * Parameterized selector for checking if a specific modal is open
  */
-export declare const selectIsModalOpenById: (param: string) => (state: {
-    activeModal: string | null;
-}) => boolean;
+export declare const selectIsModalOpenById: (
+  param: string
+) => (state: { activeModal: string | null }) => boolean;
 //# sourceMappingURL=selectors.d.ts.map

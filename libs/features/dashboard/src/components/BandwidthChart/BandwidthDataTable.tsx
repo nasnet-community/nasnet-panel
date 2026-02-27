@@ -55,13 +55,12 @@ export const BandwidthDataTable = memo<BandwidthDataTableProps>(
         aria-live="polite"
       >
         <table className="w-full border-collapse text-sm">
-          <caption className="mb-2 text-left text-lg font-display font-semibold">
+          <caption className="font-display mb-2 text-left text-lg font-semibold">
             Bandwidth Data Table - {timeRange} time range
             {displayedPoints.length < dataPoints.length && (
               <span className="text-muted-foreground">
                 {' '}
-                (showing latest {displayedPoints.length} of {dataPoints.length}{' '}
-                data points)
+                (showing latest {displayedPoints.length} of {dataPoints.length} data points)
               </span>
             )}
           </caption>
@@ -105,7 +104,7 @@ export const BandwidthDataTable = memo<BandwidthDataTableProps>(
               return (
                 <tr
                   key={`${point.timestamp}-${index}`}
-                  className="border-border last:border-0 hover:bg-muted/50"
+                  className="border-border hover:bg-muted/50 last:border-0"
                 >
                   <td className="px-component-md py-component-sm font-mono">
                     {timestamp.toLocaleString([], {

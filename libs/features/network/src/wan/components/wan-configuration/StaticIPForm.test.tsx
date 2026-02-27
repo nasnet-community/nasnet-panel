@@ -92,9 +92,7 @@ describe('StaticIPForm', () => {
     it('should render IP address input', () => {
       render(<StaticIPForm {...mockProps} />);
 
-      expect(
-        screen.getByLabelText(/IP Address \(CIDR\)/i)
-      ).toBeInTheDocument();
+      expect(screen.getByLabelText(/IP Address \(CIDR\)/i)).toBeInTheDocument();
     });
 
     it('should render gateway input', () => {
@@ -148,9 +146,7 @@ describe('StaticIPForm', () => {
       await user.click(submitButton);
 
       await waitFor(() => {
-        expect(
-          screen.getByText(/Invalid CIDR notation/i)
-        ).toBeInTheDocument();
+        expect(screen.getByText(/Invalid CIDR notation/i)).toBeInTheDocument();
       });
     });
 
@@ -165,9 +161,7 @@ describe('StaticIPForm', () => {
       await user.click(submitButton);
 
       await waitFor(() => {
-        expect(
-          screen.getByText(/Invalid IPv4 address/i)
-        ).toBeInTheDocument();
+        expect(screen.getByText(/Invalid IPv4 address/i)).toBeInTheDocument();
       });
     });
 
@@ -191,9 +185,7 @@ describe('StaticIPForm', () => {
       await user.click(submitButton);
 
       await waitFor(() => {
-        expect(
-          screen.getByText(/Gateway must be in the same subnet/i)
-        ).toBeInTheDocument();
+        expect(screen.getByText(/Gateway must be in the same subnet/i)).toBeInTheDocument();
       });
     });
 
@@ -208,9 +200,7 @@ describe('StaticIPForm', () => {
       await user.click(submitButton);
 
       await waitFor(() => {
-        expect(
-          screen.getByText(/Invalid IPv4 address/i)
-        ).toBeInTheDocument();
+        expect(screen.getByText(/Invalid IPv4 address/i)).toBeInTheDocument();
       });
     });
 
@@ -255,9 +245,7 @@ describe('StaticIPForm', () => {
       render(<StaticIPForm {...mockProps} />);
 
       // Enter IP without subnet
-      const ipInput = screen.getByLabelText(
-        /IP Address \(CIDR\)/i
-      ) as HTMLInputElement;
+      const ipInput = screen.getByLabelText(/IP Address \(CIDR\)/i) as HTMLInputElement;
       await user.type(ipInput, '192.168.1.10');
 
       // Click /24 preset
@@ -275,9 +263,7 @@ describe('StaticIPForm', () => {
       render(<StaticIPForm {...mockProps} />);
 
       // Enter IP with /30 subnet
-      const ipInput = screen.getByLabelText(
-        /IP Address \(CIDR\)/i
-      ) as HTMLInputElement;
+      const ipInput = screen.getByLabelText(/IP Address \(CIDR\)/i) as HTMLInputElement;
       await user.type(ipInput, '192.168.1.10/30');
 
       // Click /24 preset
@@ -295,18 +281,10 @@ describe('StaticIPForm', () => {
     it('should render DNS preset buttons', () => {
       render(<StaticIPForm {...mockProps} />);
 
-      expect(
-        screen.getByRole('button', { name: /Cloudflare/i })
-      ).toBeInTheDocument();
-      expect(
-        screen.getByRole('button', { name: /Google/i })
-      ).toBeInTheDocument();
-      expect(
-        screen.getByRole('button', { name: /Quad9/i })
-      ).toBeInTheDocument();
-      expect(
-        screen.getByRole('button', { name: /OpenDNS/i })
-      ).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /Cloudflare/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /Google/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /Quad9/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /OpenDNS/i })).toBeInTheDocument();
     });
 
     it('should apply Cloudflare DNS preset', async () => {
@@ -318,12 +296,8 @@ describe('StaticIPForm', () => {
       });
       await user.click(cloudflareButton);
 
-      const dns1Input = screen.getByLabelText(
-        /Primary DNS/i
-      ) as HTMLInputElement;
-      const dns2Input = screen.getByLabelText(
-        /Secondary DNS/i
-      ) as HTMLInputElement;
+      const dns1Input = screen.getByLabelText(/Primary DNS/i) as HTMLInputElement;
+      const dns2Input = screen.getByLabelText(/Secondary DNS/i) as HTMLInputElement;
 
       await waitFor(() => {
         expect(dns1Input.value).toBe('1.1.1.1');
@@ -338,12 +312,8 @@ describe('StaticIPForm', () => {
       const googleButton = screen.getByRole('button', { name: /Google/i });
       await user.click(googleButton);
 
-      const dns1Input = screen.getByLabelText(
-        /Primary DNS/i
-      ) as HTMLInputElement;
-      const dns2Input = screen.getByLabelText(
-        /Secondary DNS/i
-      ) as HTMLInputElement;
+      const dns1Input = screen.getByLabelText(/Primary DNS/i) as HTMLInputElement;
+      const dns2Input = screen.getByLabelText(/Secondary DNS/i) as HTMLInputElement;
 
       await waitFor(() => {
         expect(dns1Input.value).toBe('8.8.8.8');
@@ -413,7 +383,12 @@ describe('StaticIPForm', () => {
     it('should call onSubmit after successful configuration', async () => {
       const user = userEvent.setup();
       const onSubmit = vi.fn();
-      render(<StaticIPForm {...mockProps} onSubmit={onSubmit} />);
+      render(
+        <StaticIPForm
+          {...mockProps}
+          onSubmit={onSubmit}
+        />
+      );
 
       // Fill form
       const interfaceSelector = screen.getByTestId('interface-selector');
@@ -437,7 +412,12 @@ describe('StaticIPForm', () => {
     it('should call onCancel when cancel button clicked', async () => {
       const user = userEvent.setup();
       const onCancel = vi.fn();
-      render(<StaticIPForm {...mockProps} onCancel={onCancel} />);
+      render(
+        <StaticIPForm
+          {...mockProps}
+          onCancel={onCancel}
+        />
+      );
 
       const cancelButton = screen.getByRole('button', { name: /cancel/i });
       await user.click(cancelButton);
@@ -466,15 +446,11 @@ describe('StaticIPForm', () => {
       render(<StaticIPForm {...mockProps} />);
 
       expect(screen.getByLabelText(/Interface/i)).toHaveAccessibleName();
-      expect(
-        screen.getByLabelText(/IP Address \(CIDR\)/i)
-      ).toHaveAccessibleName();
+      expect(screen.getByLabelText(/IP Address \(CIDR\)/i)).toHaveAccessibleName();
       expect(screen.getByLabelText(/Gateway/i)).toHaveAccessibleName();
       expect(screen.getByLabelText(/Primary DNS/i)).toHaveAccessibleName();
       expect(screen.getByLabelText(/Secondary DNS/i)).toHaveAccessibleName();
-      expect(
-        screen.getByLabelText(/Add Default Route/i)
-      ).toHaveAccessibleName();
+      expect(screen.getByLabelText(/Add Default Route/i)).toHaveAccessibleName();
     });
 
     it('should associate error messages with inputs', async () => {
@@ -496,12 +472,8 @@ describe('StaticIPForm', () => {
     it('should have accessible navigation buttons', () => {
       render(<StaticIPForm {...mockProps} />);
 
-      expect(
-        screen.getByRole('button', { name: /cancel/i })
-      ).toHaveAccessibleName();
-      expect(
-        screen.getByRole('button', { name: /apply/i })
-      ).toHaveAccessibleName();
+      expect(screen.getByRole('button', { name: /cancel/i })).toHaveAccessibleName();
+      expect(screen.getByRole('button', { name: /apply/i })).toHaveAccessibleName();
     });
   });
 

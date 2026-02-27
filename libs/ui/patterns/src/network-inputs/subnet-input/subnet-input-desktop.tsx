@@ -58,7 +58,10 @@ export const SubnetInputDesktop = memo(function SubnetInputDesktop({
     <div className={cn('space-y-2', className)}>
       {/* Label */}
       {label && (
-        <Label htmlFor={inputId} className="text-sm font-medium">
+        <Label
+          htmlFor={inputId}
+          className="text-sm font-medium"
+        >
           {label}
           {required && <span className="text-destructive ml-1">*</span>}
         </Label>
@@ -78,12 +81,9 @@ export const SubnetInputDesktop = memo(function SubnetInputDesktop({
           placeholder={placeholder}
           disabled={disabled}
           aria-invalid={!!state.error}
-          aria-describedby={cn(
-            state.error && errorId,
-            helpText && helpId
-          )}
+          aria-describedby={cn(state.error && errorId, helpText && helpId)}
           className={cn(
-            'font-mono flex-1 h-10',
+            'h-10 flex-1 font-mono',
             state.error && 'border-error focus-visible:ring-error'
           )}
         />
@@ -101,7 +101,7 @@ export const SubnetInputDesktop = memo(function SubnetInputDesktop({
           aria-label="CIDR prefix length"
           placeholder="24"
           className={cn(
-            'font-mono w-16 h-10 text-center',
+            'h-10 w-16 text-center font-mono',
             state.error && 'border-error focus-visible:ring-error'
           )}
         />
@@ -120,7 +120,7 @@ export const SubnetInputDesktop = memo(function SubnetInputDesktop({
         <p
           id={errorId}
           role="alert"
-          className="text-sm text-error"
+          className="text-error text-sm"
         >
           {state.error}
         </p>
@@ -128,7 +128,10 @@ export const SubnetInputDesktop = memo(function SubnetInputDesktop({
 
       {/* Help text */}
       {helpText && !state.error && (
-        <p id={helpId} className="text-sm text-muted-foreground">
+        <p
+          id={helpId}
+          className="text-muted-foreground text-sm"
+        >
           {helpText}
         </p>
       )}

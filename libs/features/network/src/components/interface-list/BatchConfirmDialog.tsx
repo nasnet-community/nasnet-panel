@@ -98,7 +98,10 @@ export function BatchConfirmDialog({
   const actionLabel = ACTION_LABELS[action] || 'Update';
 
   return (
-    <Dialog open={open} onOpenChange={(isOpen) => !isOpen && handleCancel()}>
+    <Dialog
+      open={open}
+      onOpenChange={(isOpen) => !isOpen && handleCancel()}
+    >
       <DialogContent className={cn('category-networking', className)}>
         <DialogHeader>
           <DialogTitle>
@@ -107,30 +110,32 @@ export function BatchConfirmDialog({
           <DialogDescription asChild>
             <div className="space-y-component-sm">
               {isCritical && (
-                <div className="p-component-sm border border-error bg-error/10 rounded-md">
-                  <div className="flex items-center gap-component-sm mb-1">
-                    <AlertTriangle className="h-4 w-4 text-error flex-shrink-0" aria-hidden="true" />
-                    <p className="text-error font-semibold text-sm">
-                      Warning: Critical Operation
-                    </p>
+                <div className="p-component-sm border-error bg-error/10 rounded-md border">
+                  <div className="gap-component-sm mb-1 flex items-center">
+                    <AlertTriangle
+                      className="text-error h-4 w-4 flex-shrink-0"
+                      aria-hidden="true"
+                    />
+                    <p className="text-error text-sm font-semibold">Warning: Critical Operation</p>
                   </div>
-                  <p className="text-sm mt-1">
-                    This will disable interfaces used by the gateway. You may lose connection to the router.
+                  <p className="mt-1 text-sm">
+                    This will disable interfaces used by the gateway. You may lose connection to the
+                    router.
                   </p>
                 </div>
               )}
 
               <p className="text-sm">
-                {action === BatchInterfaceAction.Disable
-                  ? 'This will disable the following interfaces:'
-                  : action === BatchInterfaceAction.Enable
-                  ? 'This will enable the following interfaces:'
-                  : 'This will update the following interfaces:'}
+                {action === BatchInterfaceAction.Disable ?
+                  'This will disable the following interfaces:'
+                : action === BatchInterfaceAction.Enable ?
+                  'This will enable the following interfaces:'
+                : 'This will update the following interfaces:'}
               </p>
 
               {/* Interface list */}
               <div
-                className="border border-border rounded-md p-component-sm max-h-64 overflow-y-auto"
+                className="border-border p-component-sm max-h-64 overflow-y-auto rounded-md border"
                 role="region"
                 aria-label="Affected interfaces"
               >
@@ -141,20 +146,26 @@ export function BatchConfirmDialog({
                       <div
                         key={iface.id}
                         className={cn(
-                          'flex items-center justify-between p-component-xs rounded-md',
-                          isGateway
-                            ? 'bg-error/10 border border-error'
-                            : 'bg-muted'
+                          'p-component-xs flex items-center justify-between rounded-md',
+                          isGateway ? 'bg-error/10 border-error border' : 'bg-muted'
                         )}
                       >
-                        <div className="flex items-center gap-component-sm">
-                          <span className="font-medium text-sm font-mono category-networking">{iface.name}</span>
-                          <Badge variant="outline" className="text-xs">
+                        <div className="gap-component-sm flex items-center">
+                          <span className="category-networking font-mono text-sm font-medium">
+                            {iface.name}
+                          </span>
+                          <Badge
+                            variant="outline"
+                            className="text-xs"
+                          >
                             {iface.type}
                           </Badge>
                         </div>
                         {isGateway && (
-                          <Badge variant="error" className="text-xs">
+                          <Badge
+                            variant="error"
+                            className="text-xs"
+                          >
                             Gateway
                           </Badge>
                         )}
@@ -165,7 +176,7 @@ export function BatchConfirmDialog({
               </div>
 
               {!isCritical && (
-                <p className="text-xs text-muted-foreground">
+                <p className="text-muted-foreground text-xs">
                   This action can be undone by running the opposite operation.
                 </p>
               )}
@@ -184,13 +195,13 @@ export function BatchConfirmDialog({
             onClick={handleConfirm}
             disabled={isCritical && countdown > 0}
             variant={isCritical ? 'destructive' : 'default'}
-            aria-label={isCritical && countdown > 0
-              ? `Confirm operation - ${countdown} seconds remaining`
-              : `Confirm ${actionLabel} operation`}
+            aria-label={
+              isCritical && countdown > 0 ?
+                `Confirm operation - ${countdown} seconds remaining`
+              : `Confirm ${actionLabel} operation`
+            }
           >
-            {isCritical && countdown > 0
-              ? `Confirm (${countdown})`
-              : `Confirm ${actionLabel}`}
+            {isCritical && countdown > 0 ? `Confirm (${countdown})` : `Confirm ${actionLabel}`}
           </Button>
         </DialogFooter>
       </DialogContent>

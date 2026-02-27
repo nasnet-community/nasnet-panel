@@ -7,11 +7,7 @@ import { describe, it, expect } from 'vitest';
 import { MockedProvider } from '@apollo/client/testing';
 import { renderHook, waitFor } from '@testing-library/react';
 import { useCleanupOrphanedVLANs } from './useCleanupOrphanedVLANs';
-import {
-  CLEANUP_ORPHANED_VLANS,
-  GET_VLAN_ALLOCATIONS,
-  GET_VLAN_POOL_STATUS,
-} from './vlan.graphql';
+import { CLEANUP_ORPHANED_VLANS, GET_VLAN_ALLOCATIONS, GET_VLAN_POOL_STATUS } from './vlan.graphql';
 import type { ReactNode } from 'react';
 import * as React from 'react';
 

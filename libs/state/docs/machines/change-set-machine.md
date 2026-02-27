@@ -1,6 +1,8 @@
 # Change Set Machine (Atomic Multi-Resource Operations)
 
-The **Change Set Machine** orchestrates **atomic multi-resource operations** with dependency-aware apply ordering and rollback on failure. It ensures that complex configurations involving multiple resources are either fully applied or fully rolled back—no partial states.
+The **Change Set Machine** orchestrates **atomic multi-resource operations** with dependency-aware
+apply ordering and rollback on failure. It ensures that complex configurations involving multiple
+resources are either fully applied or fully rolled back—no partial states.
 
 **Source:** `libs/state/machines/src/changeSetMachine.ts`
 
@@ -103,18 +105,18 @@ stateDiagram-v2
 
 ## States Reference
 
-| State | Purpose | Sub-states | Transitions |
-|-------|---------|-----------|---|
-| **idle** | Initial state | None | LOAD → idle (setup), START_VALIDATION → validating |
-| **validating** | Validating all items | None | onDone → idle\|ready, onError → failed, CANCEL → cancelled |
-| **ready** | Validation passed | None | APPLY → applying (if canApply), RESET → idle, CANCEL → cancelled |
-| **applying** | Applying in order | applyingItem, checkingMore | Nested states handle iteration, CANCEL → cancellation on next check |
-| **completed** | All items applied | None | (Terminal - no transitions) |
-| **rollingBack** | Rolling back applied | None | onDone → rolledBack\|partialFailure, onError → partialFailure |
-| **rolledBack** | Rollback successful | None | (Terminal - no transitions) |
-| **failed** | Validation or apply failed | None | RETRY → validating, FORCE_ROLLBACK → rollingBack (if has applied), RESET → idle |
-| **partialFailure** | Rollback partially failed | None | (Terminal - manual intervention needed) |
-| **cancelled** | User cancelled | None | FORCE_ROLLBACK → rollingBack (if has applied), RESET → idle, (else Terminal) |
+| State              | Purpose                    | Sub-states                 | Transitions                                                                     |
+| ------------------ | -------------------------- | -------------------------- | ------------------------------------------------------------------------------- |
+| **idle**           | Initial state              | None                       | LOAD → idle (setup), START_VALIDATION → validating                              |
+| **validating**     | Validating all items       | None                       | onDone → idle\|ready, onError → failed, CANCEL → cancelled                      |
+| **ready**          | Validation passed          | None                       | APPLY → applying (if canApply), RESET → idle, CANCEL → cancelled                |
+| **applying**       | Applying in order          | applyingItem, checkingMore | Nested states handle iteration, CANCEL → cancellation on next check             |
+| **completed**      | All items applied          | None                       | (Terminal - no transitions)                                                     |
+| **rollingBack**    | Rolling back applied       | None                       | onDone → rolledBack\|partialFailure, onError → partialFailure                   |
+| **rolledBack**     | Rollback successful        | None                       | (Terminal - no transitions)                                                     |
+| **failed**         | Validation or apply failed | None                       | RETRY → validating, FORCE_ROLLBACK → rollingBack (if has applied), RESET → idle |
+| **partialFailure** | Rollback partially failed  | None                       | (Terminal - manual intervention needed)                                         |
+| **cancelled**      | User cancelled             | None                       | FORCE_ROLLBACK → rollingBack (if has applied), RESET → idle, (else Terminal)    |
 
 ## Context
 
@@ -180,13 +182,13 @@ interface ChangeSetProgressEvent {
 
 ```typescript
 interface RollbackStep {
-  itemId: string;                              // Which item to rollback
+  itemId: string; // Which item to rollback
   operation: 'DELETE' | 'REVERT' | 'RESTORE'; // What operation to do
-  restoreState: unknown;                       // Data to restore to
-  resourceUuid: string;                        // Resource to target
-  success: boolean;                            // Did rollback succeed?
-  error: string | null;                        // If failed, why?
-  rollbackOrder: number;                       // Order in rollback sequence
+  restoreState: unknown; // Data to restore to
+  resourceUuid: string; // Resource to target
+  success: boolean; // Did rollback succeed?
+  error: string | null; // If failed, why?
+  rollbackOrder: number; // Order in rollback sequence
 }
 ```
 
@@ -194,25 +196,25 @@ interface RollbackStep {
 
 ```typescript
 type ChangeSetMachineEvent =
-  | { type: 'LOAD'; changeSet: ChangeSet; routerId: string }  // Load change set
-  | { type: 'START_VALIDATION' }                              // Start validation
-  | { type: 'APPLY' }                                         // Start applying
-  | { type: 'CANCEL' }                                        // User cancellation
-  | { type: 'RETRY' }                                         // Retry after error
-  | { type: 'RESET' }                                         // Reset to idle
-  | { type: 'FORCE_ROLLBACK' };                               // Force rollback
+  | { type: 'LOAD'; changeSet: ChangeSet; routerId: string } // Load change set
+  | { type: 'START_VALIDATION' } // Start validation
+  | { type: 'APPLY' } // Start applying
+  | { type: 'CANCEL' } // User cancellation
+  | { type: 'RETRY' } // Retry after error
+  | { type: 'RESET' } // Reset to idle
+  | { type: 'FORCE_ROLLBACK' }; // Force rollback
 ```
 
 ## Guards
 
 ```typescript
 {
-  hasMoreItems: boolean;              // currentItemIndex < sortedItems.length
-  noMoreItems: boolean;               // currentItemIndex >= sortedItems.length
-  canApply: boolean;                  // validationResult.canApply && items exist
-  hasAppliedItems: boolean;           // appliedItems.length > 0
-  isCancelled: boolean;               // cancelRequested === true
-  hasValidationErrors: boolean;       // validationResult.errors.length > 0
+  hasMoreItems: boolean; // currentItemIndex < sortedItems.length
+  noMoreItems: boolean; // currentItemIndex >= sortedItems.length
+  canApply: boolean; // validationResult.canApply && items exist
+  hasAppliedItems: boolean; // appliedItems.length > 0
+  isCancelled: boolean; // cancelRequested === true
+  hasValidationErrors: boolean; // validationResult.errors.length > 0
 }
 ```
 
@@ -220,21 +222,21 @@ type ChangeSetMachineEvent =
 
 ```typescript
 {
-  loadChangeSet();                    // Store changeSet and sort by dependency
-  setValidationResult();              // Store validation result
-  notifyValidationComplete();         // onValidationComplete callback
-  startApply();                       // Set applyStartedAt timestamp
-  recordApplied();                    // Add item to appliedItems, create rollback step
-  nextItem();                         // Increment currentItemIndex
-  setError();                         // Store error from apply failure
-  setValidationError();               // Store validation error message
-  markCancelRequested();              // Set cancelRequested flag
-  checkRollbackResults();             // Check rollback success/failure
-  notifyProgress();                   // onProgress callback with current status
-  notifyComplete();                   // onComplete callback
-  notifyFailed();                     // onFailed callback
-  notifyRolledBack();                 // onRolledBack callback
-  resetMachine();                     // Clear all context
+  loadChangeSet(); // Store changeSet and sort by dependency
+  setValidationResult(); // Store validation result
+  notifyValidationComplete(); // onValidationComplete callback
+  startApply(); // Set applyStartedAt timestamp
+  recordApplied(); // Add item to appliedItems, create rollback step
+  nextItem(); // Increment currentItemIndex
+  setError(); // Store error from apply failure
+  setValidationError(); // Store validation error message
+  markCancelRequested(); // Set cancelRequested flag
+  checkRollbackResults(); // Check rollback success/failure
+  notifyProgress(); // onProgress callback with current status
+  notifyComplete(); // onComplete callback
+  notifyFailed(); // onFailed callback
+  notifyRolledBack(); // onRolledBack callback
+  resetMachine(); // Clear all context
 }
 ```
 
@@ -275,7 +277,7 @@ function sortItemsByDependency(items: ChangeSetItem[]): ChangeSetItem[] {
     // Cycle detected - validation should catch this
     return items;
   }
-  return result.sortedIds.map(id => itemMap.get(id));
+  return result.sortedIds.map((id) => itemMap.get(id));
 }
 ```
 
@@ -362,14 +364,14 @@ interface WireGuardChangeSet extends ChangeSet {
       operation: 'CREATE';
       resourceType: 'static-route';
       configuration: RouteConfig;
-      dependencies: ['wg-client'];  // Depends on WireGuard
+      dependencies: ['wg-client']; // Depends on WireGuard
     },
     {
       id: 'firewall';
       operation: 'UPDATE';
       resourceType: 'firewall-rule';
       configuration: FirewallConfig;
-      dependencies: ['route'];      // Depends on Route
+      dependencies: ['route']; // Depends on Route
     },
   ];
 }
@@ -389,19 +391,23 @@ const machine = createChangeSetMachine({
     setProgress(event);
     console.log(
       `Applying ${event.currentItem?.name} ` +
-      `(${event.appliedCount}/${event.totalCount}, ${event.progressPercent}%)`
+        `(${event.appliedCount}/${event.totalCount}, ${event.progressPercent}%)`
     );
   },
 });
 
 // In UI:
-{progress && (
-  <div>
-    <ProgressBar value={progress.progressPercent} />
-    <p>Applying: {progress.currentItem?.name}</p>
-    <p>{progress.appliedCount} / {progress.totalCount}</p>
-  </div>
-)}
+{
+  progress && (
+    <div>
+      <ProgressBar value={progress.progressPercent} />
+      <p>Applying: {progress.currentItem?.name}</p>
+      <p>
+        {progress.appliedCount} / {progress.totalCount}
+      </p>
+    </div>
+  );
+}
 ```
 
 ### Error Handling
@@ -448,21 +454,22 @@ The change set machine provides **all-or-nothing semantics**:
 ## Performance Considerations
 
 1. **Batch Validation:** All items validated in parallel (if API supports)
-2. **Sequential Apply:** Applied one-by-one in dependency order (can't parallelize due to dependencies)
+2. **Sequential Apply:** Applied one-by-one in dependency order (can't parallelize due to
+   dependencies)
 3. **Async Rollback:** Rollback items can be parallel (they're reverse-ordered)
 4. **Progress Reporting:** Per-item progress for UI feedback
 
 ## Comparing with Config Pipeline
 
-| Feature | Config Pipeline | Change Set |
-|---------|-----------------|-----------|
-| **Scope** | Single resource | Multiple resources |
-| **Order** | N/A | Dependency-ordered (topological sort) |
-| **Validation** | Single validation | Batch validation of all items |
-| **Apply** | Single apply | Per-item apply in order |
-| **Rollback** | Whole config | Per-item rollback in reverse |
-| **High-risk** | Yes (with confirm) | No (just validation) |
-| **Use case** | WireGuard config edit | Multi-service setup wizard |
+| Feature        | Config Pipeline       | Change Set                            |
+| -------------- | --------------------- | ------------------------------------- |
+| **Scope**      | Single resource       | Multiple resources                    |
+| **Order**      | N/A                   | Dependency-ordered (topological sort) |
+| **Validation** | Single validation     | Batch validation of all items         |
+| **Apply**      | Single apply          | Per-item apply in order               |
+| **Rollback**   | Whole config          | Per-item rollback in reverse          |
+| **High-risk**  | Yes (with confirm)    | No (just validation)                  |
+| **Use case**   | WireGuard config edit | Multi-service setup wizard            |
 
 ## Related Documentation
 

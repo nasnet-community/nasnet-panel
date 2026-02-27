@@ -29,10 +29,11 @@ export const WifiDetailPage = React.memo(function WifiDetailPage() {
   const { interfaceName, id: routerId } = useParams({ from: '/router/$id/wifi/$interfaceName' });
   const navigate = useNavigate();
   const routerIp = useConnectionStore((state) => state.currentRouterIp) || '';
-  const { data: interfaceData, isLoading, error } = useWirelessInterfaceDetail(
-    routerIp,
-    interfaceName || ''
-  );
+  const {
+    data: interfaceData,
+    isLoading,
+    error,
+  } = useWirelessInterfaceDetail(routerIp, interfaceName || '');
 
   /**
    * Navigate back to the router's WiFi tab
@@ -45,11 +46,11 @@ export const WifiDetailPage = React.memo(function WifiDetailPage() {
   if (isLoading) {
     return (
       <div className="px-page-mobile md:px-page-tablet lg:px-page-desktop py-page-mobile md:py-page-tablet lg:py-page-desktop">
-        <div className="max-w-3xl mx-auto">
+        <div className="mx-auto max-w-3xl">
           {/* Header skeleton */}
           <div className="mb-component-lg">
-            <Skeleton className="h-10 w-32 mb-component-md" />
-            <Skeleton className="h-8 w-48 mb-component-sm" />
+            <Skeleton className="mb-component-md h-10 w-32" />
+            <Skeleton className="mb-component-sm h-8 w-48" />
             <Skeleton className="h-5 w-64" />
           </div>
 
@@ -68,20 +69,20 @@ export const WifiDetailPage = React.memo(function WifiDetailPage() {
   if (error || !interfaceData) {
     return (
       <div className="px-page-mobile md:px-page-tablet lg:px-page-desktop py-page-mobile md:py-page-tablet lg:py-page-desktop">
-        <div className="max-w-3xl mx-auto">
+        <div className="mx-auto max-w-3xl">
           <button
             onClick={handleBack}
-            className="flex items-center gap-component-sm text-sm text-muted-foreground hover:text-foreground mb-component-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-[var(--semantic-radius-button)]"
+            className="gap-component-sm text-muted-foreground hover:text-foreground mb-component-lg focus-visible:ring-ring flex items-center rounded-[var(--semantic-radius-button)] text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
           >
             <ArrowLeft className="h-4 w-4" />
             {t('button.backToWiFi', { ns: 'common' })}
           </button>
 
-          <div className="bg-error/10 border border-error rounded-[var(--semantic-radius-card)] p-component-lg text-center">
-            <h2 className="text-lg font-semibold text-error mb-component-sm">
+          <div className="bg-error/10 border-error p-component-lg rounded-[var(--semantic-radius-card)] border text-center">
+            <h2 className="text-error mb-component-sm text-lg font-semibold">
               {t('status.failedToLoadInterface')}
             </h2>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-muted-foreground text-sm">
               {error?.message || `Interface "${interfaceName}" not found`}
             </p>
           </div>
@@ -93,11 +94,11 @@ export const WifiDetailPage = React.memo(function WifiDetailPage() {
   // Success state
   return (
     <div className="px-page-tablet py-page-tablet">
-      <div className="max-w-3xl mx-auto">
+      <div className="mx-auto max-w-3xl">
         {/* Back button */}
         <button
           onClick={handleBack}
-          className="flex items-center gap-component-sm text-sm text-muted-foreground hover:text-foreground mb-component-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-[var(--semantic-radius-button)]"
+          className="gap-component-sm text-muted-foreground hover:text-foreground mb-component-lg focus-visible:ring-ring flex items-center rounded-[var(--semantic-radius-button)] text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
           aria-label={t('button.backToWiFi', { ns: 'common' })}
         >
           <ArrowLeft className="h-4 w-4" />
@@ -106,10 +107,12 @@ export const WifiDetailPage = React.memo(function WifiDetailPage() {
 
         {/* Page header */}
         <div className="mb-component-lg">
-          <h1 className="text-2xl font-display font-semibold text-foreground mb-component-sm">
-            <span className="font-display font-semibold">{interfaceData.ssid || t('status.wirelessInterface')}</span>
+          <h1 className="font-display text-foreground mb-component-sm text-2xl font-semibold">
+            <span className="font-display font-semibold">
+              {interfaceData.ssid || t('status.wirelessInterface')}
+            </span>
           </h1>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-muted-foreground text-sm">
             {t('interfaces.detailedConfig', { name: interfaceData.name })}
           </p>
         </div>

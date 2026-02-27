@@ -30,11 +30,7 @@ export { VStepperItem } from './v-stepper-item';
 export { VStepperConnector } from './v-stepper-connector';
 
 // Types
-export type {
-  VStepperProps,
-  VStepperItemProps,
-  VStepperConnectorProps,
-} from './v-stepper.types';
+export type { VStepperProps, VStepperItemProps, VStepperConnectorProps } from './v-stepper.types';
 
 // Re-export hook types for convenience
 export type { UseStepperReturn, StepConfig, StepStatus, StepErrors } from './v-stepper.types';

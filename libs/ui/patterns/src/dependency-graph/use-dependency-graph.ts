@@ -166,9 +166,7 @@ function groupNodesByLayer(nodes: EnhancedNode[]): DependencyLayer[] {
  * // state.nodeCount, state.edgeCount
  * ```
  */
-export function useDependencyGraph(
-  config: UseDependencyGraphConfig
-): UseDependencyGraphReturn {
+export function useDependencyGraph(config: UseDependencyGraphConfig): UseDependencyGraphReturn {
   const { graph, selectedNodeId, onNodeSelect, onViewportChange } = config;
 
   // Compute enhanced nodes and edges

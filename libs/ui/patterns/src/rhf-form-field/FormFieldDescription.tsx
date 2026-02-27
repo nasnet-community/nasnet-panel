@@ -27,24 +27,25 @@ export interface FormFieldDescriptionProps {
  * Help text/description display for form fields.
  * Linked to inputs via aria-describedby.
  */
-export const FormFieldDescription = React.forwardRef<HTMLParagraphElement, FormFieldDescriptionProps>(
-  ({ children, id, className, showIcon = false }, ref) => {
-    return (
-      <p
-        ref={ref}
-        id={id}
-        className={cn(
-          'flex items-start gap-1.5 text-xs text-muted-foreground mt-1',
-          className
-        )}
-      >
-        {showIcon && (
-          <HelpCircle className="h-3 w-3 mt-0.5 flex-shrink-0 text-muted-foreground/60" aria-hidden="true" />
-        )}
-        <span>{children}</span>
-      </p>
-    );
-  }
-);
+export const FormFieldDescription = React.forwardRef<
+  HTMLParagraphElement,
+  FormFieldDescriptionProps
+>(({ children, id, className, showIcon = false }, ref) => {
+  return (
+    <p
+      ref={ref}
+      id={id}
+      className={cn('text-muted-foreground mt-1 flex items-start gap-1.5 text-xs', className)}
+    >
+      {showIcon && (
+        <HelpCircle
+          className="text-muted-foreground/60 mt-0.5 h-3 w-3 flex-shrink-0"
+          aria-hidden="true"
+        />
+      )}
+      <span>{children}</span>
+    </p>
+  );
+});
 
 FormFieldDescription.displayName = 'FormFieldDescription';

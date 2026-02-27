@@ -1,7 +1,7 @@
 {
   "id": "machines/overview",
   "title": "XState Machines Overview",
-  "description": "XState v5 is a robust state management library for orchestrating complex multi-step workflows in NasNetConnect. This overview catalogs all available machines, the factory pattern used to create them, and when to use XState versus other state management tools.",
+  "description": "XState v5 is a robust state management library for orchestrating complex multi-step workflows in",
   "source": "@site/../../libs/state/docs/machines/overview.md",
   "sourceDirName": "machines",
   "slug": "/machines/overview",

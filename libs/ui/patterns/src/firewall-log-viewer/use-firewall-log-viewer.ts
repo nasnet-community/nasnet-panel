@@ -194,10 +194,7 @@ function sortLogs(
 /**
  * Filter logs by search query
  */
-function filterBySearch(
-  logs: FirewallLogEntry[],
-  searchQuery: string
-): FirewallLogEntry[] {
+function filterBySearch(logs: FirewallLogEntry[], searchQuery: string): FirewallLogEntry[] {
   if (!searchQuery) return logs;
 
   const query = searchQuery.toLowerCase();
@@ -304,7 +301,11 @@ export function useFirewallLogViewer(
   }, [state.filters, debounceDelay]);
 
   // Fetch logs with auto-refresh
-  const { data: rawLogs = [], isLoading, error } = useFirewallLogs(routerId, {
+  const {
+    data: rawLogs = [],
+    isLoading,
+    error,
+  } = useFirewallLogs(routerId, {
     filters: debouncedFilters,
     refetchInterval: state.isAutoRefreshEnabled ? state.refreshInterval : false,
     enabled: !!routerId,

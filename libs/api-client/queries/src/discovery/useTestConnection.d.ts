@@ -9,14 +9,14 @@ import { type CredentialValidationResult } from '@nasnet/features/router-discove
  * Input for connection test mutation
  */
 export interface TestConnectionInput {
-    /**
-     * Router IP address to test
-     */
-    ipAddress: string;
-    /**
-     * Credentials to validate
-     */
-    credentials: RouterCredentials;
+  /**
+   * Router IP address to test
+   */
+  ipAddress: string;
+  /**
+   * Credentials to validate
+   */
+  credentials: RouterCredentials;
 }
 /**
  * React Query mutation hook for testing router connections
@@ -69,12 +69,16 @@ export interface TestConnectionInput {
  * }
  * ```
  */
-export declare function useTestConnection(): UseMutationResult<CredentialValidationResult, Error, TestConnectionInput>;
+export declare function useTestConnection(): UseMutationResult<
+  CredentialValidationResult,
+  Error,
+  TestConnectionInput
+>;
 /**
  * Query key factory for connection-related queries
  */
 export declare const connectionKeys: {
-    readonly all: readonly ["connection"];
-    readonly test: (ip: string) => readonly ["connection", "test", string];
+  readonly all: readonly ['connection'];
+  readonly test: (ip: string) => readonly ['connection', 'test', string];
 };
 //# sourceMappingURL=useTestConnection.d.ts.map

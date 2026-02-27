@@ -50,27 +50,42 @@ export const InterfaceTypeFilter = memo(function InterfaceTypeFilter({
   className,
 }: InterfaceTypeFilterProps) {
   return (
-    <Select value={value} onValueChange={onChange as (value: string) => void}>
+    <Select
+      value={value}
+      onValueChange={onChange as (value: string) => void}
+    >
       <SelectTrigger
-        className={cn('w-[140px] h-9', className)}
+        className={cn('h-9 w-[140px]', className)}
         aria-label="Filter by interface type"
       >
         <div className="flex items-center gap-2">
-          <Filter className="h-3.5 w-3.5 text-muted-foreground" aria-hidden="true" />
+          <Filter
+            className="text-muted-foreground h-3.5 w-3.5"
+            aria-hidden="true"
+          />
           <SelectValue placeholder="All Types" />
         </div>
       </SelectTrigger>
       <SelectContent>
         <SelectItem value="all">
           <span className="flex items-center gap-2">
-            <Filter className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+            <Filter
+              className="text-muted-foreground h-4 w-4"
+              aria-hidden="true"
+            />
             <span>All Types</span>
           </span>
         </SelectItem>
         {availableTypes.map((type) => (
-          <SelectItem key={type} value={type}>
+          <SelectItem
+            key={type}
+            value={type}
+          >
             <span className="flex items-center gap-2">
-              <InterfaceTypeIcon type={type} size={4} />
+              <InterfaceTypeIcon
+                type={type}
+                size={4}
+              />
               <span>{getInterfaceTypeLabel(type)}</span>
             </span>
           </SelectItem>

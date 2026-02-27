@@ -62,20 +62,24 @@ function WizardStepPoolComponent({ stepper, className }: WizardStepPoolProps) {
 
   // Memoized pool size calculation
   const currentPoolSize = useMemo(() => {
-    return watchedStart && watchedEnd
-      ? calculatePoolSize(watchedStart, watchedEnd)
-      : 0;
+    return watchedStart && watchedEnd ? calculatePoolSize(watchedStart, watchedEnd) : 0;
   }, [watchedStart, watchedEnd]);
 
   // Handle pool start change
-  const handlePoolStartChange = useCallback((value: string) => {
-    form.setValue('poolStart', value);
-  }, [form]);
+  const handlePoolStartChange = useCallback(
+    (value: string) => {
+      form.setValue('poolStart', value);
+    },
+    [form]
+  );
 
   // Handle pool end change
-  const handlePoolEndChange = useCallback((value: string) => {
-    form.setValue('poolEnd', value);
-  }, [form]);
+  const handlePoolEndChange = useCallback(
+    (value: string) => {
+      form.setValue('poolEnd', value);
+    },
+    [form]
+  );
 
   // Save form data when proceeding
   useEffect(() => {
@@ -125,33 +129,34 @@ function WizardStepPoolComponent({ stepper, className }: WizardStepPoolProps) {
             <CardTitle className="text-base">Pool Information</CardTitle>
           </CardHeader>
           <CardContent className="space-y-component-sm">
-            <div className="grid grid-cols-2 gap-component-sm text-sm">
+            <div className="gap-component-sm grid grid-cols-2 text-sm">
               <div>
                 <Label className="text-muted-foreground">Current Pool Size</Label>
-                <p className="font-medium font-mono">{currentPoolSize} addresses</p>
+                <p className="font-mono font-medium">{currentPoolSize} addresses</p>
               </div>
               <div>
                 <Label className="text-muted-foreground">Suggested Size</Label>
-                <p className="font-medium font-mono">{String(suggestion.size)} addresses</p>
+                <p className="font-mono font-medium">{String(suggestion.size)} addresses</p>
               </div>
               <div className="col-span-2">
                 <Label className="text-muted-foreground">Reserved for Static IPs</Label>
-                <p className="font-medium font-mono text-xs">{String(suggestion.reserved)}</p>
+                <p className="font-mono text-xs font-medium">{String(suggestion.reserved)}</p>
               </div>
               <div>
                 <Label className="text-muted-foreground">Network Address</Label>
-                <p className="font-medium font-mono text-xs">{String(suggestion.network)}</p>
+                <p className="font-mono text-xs font-medium">{String(suggestion.network)}</p>
               </div>
               <div>
                 <Label className="text-muted-foreground">Broadcast Address</Label>
-                <p className="font-medium font-mono text-xs">{String(suggestion.broadcast)}</p>
+                <p className="font-mono text-xs font-medium">{String(suggestion.broadcast)}</p>
               </div>
             </div>
 
             {currentPoolSize > 0 && currentPoolSize !== (suggestion.size as number) && (
-              <div className="rounded-[var(--semantic-radius-button)] bg-info/10 border border-info/20 p-component-sm">
-                <p className="text-sm text-info-foreground">
-                  Info: You've customized the pool size. Make sure it doesn't overlap with static IP assignments.
+              <div className="bg-info/10 border-info/20 p-component-sm rounded-[var(--semantic-radius-button)] border">
+                <p className="text-info-foreground text-sm">
+                  Info: You've customized the pool size. Make sure it doesn't overlap with static IP
+                  assignments.
                 </p>
               </div>
             )}

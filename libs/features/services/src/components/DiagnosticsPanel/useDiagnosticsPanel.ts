@@ -110,9 +110,7 @@ export interface UseDiagnosticsPanelReturn {
  * return <DiagnosticsPanelDesktop {...diagnostics} />;
  * ```
  */
-export function useDiagnosticsPanel(
-  props: DiagnosticsPanelProps
-): UseDiagnosticsPanelReturn {
+export function useDiagnosticsPanel(props: DiagnosticsPanelProps): UseDiagnosticsPanelReturn {
   const { routerId, instanceId, maxHistory = 10, onDiagnosticsComplete } = props;
 
   // Fetch diagnostic history

@@ -17,52 +17,50 @@ import type { Meta, StoryObj } from '@storybook/react';
 
 /** Steady, low-traffic baseline — quiet router */
 const quietTrafficData: TrafficDataPoint[] = [
-  { time: '-1h',  download: 8,   upload: 2 },
-  { time: '-50m', download: 12,  upload: 3 },
-  { time: '-40m', download: 9,   upload: 2 },
-  { time: '-30m', download: 15,  upload: 4 },
-  { time: '-20m', download: 11,  upload: 3 },
-  { time: '-10m', download: 13,  upload: 3 },
-  { time: 'now',  download: 10,  upload: 2 },
+  { time: '-1h', download: 8, upload: 2 },
+  { time: '-50m', download: 12, upload: 3 },
+  { time: '-40m', download: 9, upload: 2 },
+  { time: '-30m', download: 15, upload: 4 },
+  { time: '-20m', download: 11, upload: 3 },
+  { time: '-10m', download: 13, upload: 3 },
+  { time: 'now', download: 10, upload: 2 },
 ];
 
 /** Heavy download burst — e.g., large file transfer or streaming */
 const heavyDownloadData: TrafficDataPoint[] = [
-  { time: '-1h',  download: 22,  upload: 5  },
-  { time: '-50m', download: 45,  upload: 6  },
-  { time: '-40m', download: 380, upload: 8  },
+  { time: '-1h', download: 22, upload: 5 },
+  { time: '-50m', download: 45, upload: 6 },
+  { time: '-40m', download: 380, upload: 8 },
   { time: '-30m', download: 720, upload: 10 },
   { time: '-20m', download: 850, upload: 12 },
   { time: '-10m', download: 940, upload: 11 },
-  { time: 'now',  download: 875, upload: 9  },
+  { time: 'now', download: 875, upload: 9 },
 ];
 
 /** Symmetrical upload/download — typical for server or VPN endpoint */
 const symmetricalData: TrafficDataPoint[] = [
-  { time: '-1h',  download: 120, upload: 115 },
+  { time: '-1h', download: 120, upload: 115 },
   { time: '-50m', download: 135, upload: 128 },
   { time: '-40m', download: 118, upload: 120 },
   { time: '-30m', download: 142, upload: 138 },
   { time: '-20m', download: 128, upload: 125 },
   { time: '-10m', download: 155, upload: 148 },
-  { time: 'now',  download: 140, upload: 132 },
+  { time: 'now', download: 140, upload: 132 },
 ];
 
 /** Gigabit saturation — enterprise / high-throughput router */
 const gigabitData: TrafficDataPoint[] = [
-  { time: '-1h',  download: 650,  upload: 220 },
-  { time: '-50m', download: 820,  upload: 340 },
-  { time: '-40m', download: 960,  upload: 410 },
+  { time: '-1h', download: 650, upload: 220 },
+  { time: '-50m', download: 820, upload: 340 },
+  { time: '-40m', download: 960, upload: 410 },
   { time: '-30m', download: 1020, upload: 390 },
-  { time: '-20m', download: 985,  upload: 430 },
+  { time: '-20m', download: 985, upload: 430 },
   { time: '-10m', download: 1100, upload: 460 },
-  { time: 'now',  download: 1050, upload: 440 },
+  { time: 'now', download: 1050, upload: 440 },
 ];
 
 /** Single data point — edge case with one sample */
-const _singlePointData: TrafficDataPoint[] = [
-  { time: 'now', download: 55, upload: 18 },
-];
+const _singlePointData: TrafficDataPoint[] = [{ time: 'now', download: 55, upload: 18 }];
 
 // ─── Meta ─────────────────────────────────────────────────────────────────────
 
@@ -169,7 +167,8 @@ export const HeavyDownloadBurst: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Download traffic peaks at nearly 1 Gb/s. Upload remains near baseline. Y-axis auto-scales to fit.',
+        story:
+          'Download traffic peaks at nearly 1 Gb/s. Upload remains near baseline. Y-axis auto-scales to fit.',
       },
     },
   },
@@ -219,7 +218,8 @@ export const TallChart: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Increasing `height` gives the chart more vertical resolution — suitable for a dashboard hero section.',
+        story:
+          'Increasing `height` gives the chart more vertical resolution — suitable for a dashboard hero section.',
       },
     },
   },
@@ -263,7 +263,12 @@ export const LiveSimulation: Story = {
           setData((prev) => {
             const now = Date.now();
             const newPoint: TrafficDataPoint = {
-              time: new Date(now).toLocaleTimeString('en', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+              time: new Date(now).toLocaleTimeString('en', {
+                hour12: false,
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+              }),
               download: 40 + Math.random() * 60,
               upload: 10 + Math.random() * 40,
             };
@@ -278,7 +283,7 @@ export const LiveSimulation: Story = {
 
       return (
         <div className="w-[480px]">
-          <p className="text-xs text-muted-foreground mb-2">
+          <p className="text-muted-foreground mb-2 text-xs">
             New data point added every 2 seconds — simulates live router telemetry.
           </p>
           <TrafficChart

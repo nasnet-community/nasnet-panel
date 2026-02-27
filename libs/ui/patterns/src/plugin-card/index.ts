@@ -3,38 +3,4 @@
  */
 
 export { PluginCard } from './PluginCard';
-export type { 
-  PluginCardProps, 
-  Plugin, 
-  PluginStatus, 
-  PluginStats, 
-  PluginLog 
-} from './PluginCard';
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+export type { PluginCardProps, Plugin, PluginStatus, PluginStats, PluginLog } from './PluginCard';

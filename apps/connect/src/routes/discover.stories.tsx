@@ -10,7 +10,6 @@ import { RouterDiscoveryPage } from '@/app/pages/router-discovery';
 
 import type { Meta, StoryObj } from '@storybook/react';
 
-
 const meta: Meta<typeof RouterDiscoveryPage> = {
   title: 'App/Discover/RouterDiscoveryPage',
   component: RouterDiscoveryPage,

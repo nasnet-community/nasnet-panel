@@ -56,21 +56,19 @@ function PortKnockSequenceFormComponent({
   // Platform detection: <640px = Mobile, >=640px = Desktop
   const isMobile = useMediaQuery('(max-width: 640px)');
 
-  return isMobile ? (
-    <PortKnockSequenceFormMobile
-      formState={formState}
-      isEditMode={isEditMode}
-      isSubmitting={isSubmitting}
-      className={className}
-    />
-  ) : (
-    <PortKnockSequenceFormDesktop
-      formState={formState}
-      isEditMode={isEditMode}
-      isSubmitting={isSubmitting}
-      className={className}
-    />
-  );
+  return isMobile ?
+      <PortKnockSequenceFormMobile
+        formState={formState}
+        isEditMode={isEditMode}
+        isSubmitting={isSubmitting}
+        className={className}
+      />
+    : <PortKnockSequenceFormDesktop
+        formState={formState}
+        isEditMode={isEditMode}
+        isSubmitting={isSubmitting}
+        className={className}
+      />;
 }
 
 export const PortKnockSequenceForm = React.memo(PortKnockSequenceFormComponent);

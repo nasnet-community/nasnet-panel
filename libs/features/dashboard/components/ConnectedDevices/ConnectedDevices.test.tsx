@@ -126,9 +126,9 @@ describe('ConnectedDevices', () => {
       });
 
       // Should show multiple skeleton rows
-      const skeletons = screen.getAllByRole('generic').filter((el) =>
-        el.className.includes('h-10 w-10')
-      );
+      const skeletons = screen
+        .getAllByRole('generic')
+        .filter((el) => el.className.includes('h-10 w-10'));
       expect(skeletons.length).toBeGreaterThan(0);
     });
 
@@ -209,9 +209,7 @@ describe('ConnectedDevices', () => {
       });
 
       expect(screen.getByText('DHCP server is disabled')).toBeInTheDocument();
-      expect(
-        screen.getByText('Enable DHCP server to see connected devices.')
-      ).toBeInTheDocument();
+      expect(screen.getByText('Enable DHCP server to see connected devices.')).toBeInTheDocument();
     });
   });
 
@@ -510,9 +508,15 @@ describe('ConnectedDevices', () => {
         lastUpdated: new Date(),
       });
 
-      render(<ConnectedDevices routerIp="192.168.88.1" sortBy="hostname" />, {
-        wrapper: createWrapper(),
-      });
+      render(
+        <ConnectedDevices
+          routerIp="192.168.88.1"
+          sortBy="hostname"
+        />,
+        {
+          wrapper: createWrapper(),
+        }
+      );
 
       expect(hookSpy).toHaveBeenCalledWith('192.168.88.1', { sortBy: 'hostname' });
     });
@@ -655,7 +659,10 @@ describe('ConnectedDevices', () => {
       });
 
       const { container } = render(
-        <ConnectedDevices routerIp="192.168.88.1" className="custom-class" />,
+        <ConnectedDevices
+          routerIp="192.168.88.1"
+          className="custom-class"
+        />,
         { wrapper: createWrapper() }
       );
 

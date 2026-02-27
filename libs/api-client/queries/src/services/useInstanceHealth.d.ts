@@ -2,7 +2,7 @@ import type { ServiceInstanceHealth } from '@nasnet/api-client/generated/types';
 /**
  * GraphQL query for instance health status
  */
-export declare const INSTANCE_HEALTH_QUERY: import("graphql").DocumentNode;
+export declare const INSTANCE_HEALTH_QUERY: import('graphql').DocumentNode;
 /**
  * Hook to query current health status for a service instance
  *
@@ -21,13 +21,20 @@ export declare const INSTANCE_HEALTH_QUERY: import("graphql").DocumentNode;
  * return <ServiceHealthBadge health={data?.instanceHealth} />;
  * ```
  */
-export declare function useInstanceHealth(routerID: string, instanceID: string, options?: {
+export declare function useInstanceHealth(
+  routerID: string,
+  instanceID: string,
+  options?: {
     pollInterval?: number;
     skip?: boolean;
-}): import("@apollo/client").InteropQueryResult<{
+  }
+): import('@apollo/client').InteropQueryResult<
+  {
     instanceHealth: ServiceInstanceHealth | null;
-}, {
+  },
+  {
     routerID: string;
     instanceID: string;
-}>;
+  }
+>;
 //# sourceMappingURL=useInstanceHealth.d.ts.map

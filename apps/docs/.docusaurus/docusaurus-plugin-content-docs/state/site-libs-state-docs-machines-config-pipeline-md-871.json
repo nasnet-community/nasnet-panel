@@ -1,7 +1,7 @@
 {
   "id": "machines/config-pipeline",
   "title": "Configuration Pipeline Machine (Safety Flow)",
-  "description": "The Config Pipeline Machine implements the Apply-Confirm-Merge pattern for safe configuration changes. It prevents accidental network lockouts through explicit state modeling, guards, and automatic rollback on failure.",
+  "description": "The Config Pipeline Machine implements the Apply-Confirm-Merge pattern for safe",
   "source": "@site/../../libs/state/docs/machines/config-pipeline.md",
   "sourceDirName": "machines",
   "slug": "/machines/config-pipeline",

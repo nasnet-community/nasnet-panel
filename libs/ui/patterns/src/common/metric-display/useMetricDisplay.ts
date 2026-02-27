@@ -197,7 +197,9 @@ export function useMetricDisplay(props: MetricDisplayProps): UseMetricDisplayRet
     if (unit) parts[0] += ` ${unit}`;
     if (trend && trendValue) {
       const trendText =
-        trend === 'up' ? 'increased by' : trend === 'down' ? 'decreased by' : 'stable at';
+        trend === 'up' ? 'increased by'
+        : trend === 'down' ? 'decreased by'
+        : 'stable at';
       parts.push(`${trendText} ${trendValue}`);
     }
     return parts.join(', ');

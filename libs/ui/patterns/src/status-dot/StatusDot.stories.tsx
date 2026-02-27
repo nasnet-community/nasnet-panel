@@ -133,8 +133,8 @@ export const AllVariants: Story = {
 
 export const InTable: Story = {
   render: () => (
-    <div className="w-80 p-4 rounded-lg border bg-card">
-      <h3 className="text-sm font-semibold mb-3">Service Status</h3>
+    <div className="bg-card w-80 rounded-lg border p-4">
+      <h3 className="mb-3 text-sm font-semibold">Service Status</h3>
       <div className="space-y-2">
         <div className="flex items-center justify-between text-sm">
           <span>WireGuard VPN</span>

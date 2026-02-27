@@ -21,7 +21,6 @@ import {
 
 import { AlertTemplateApplyDialog } from './AlertTemplateApplyDialog';
 
-
 import type { Meta, StoryObj } from '@storybook/react';
 
 // =============================================================================
@@ -286,7 +285,8 @@ export const Loading: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Shows the skeleton loading state while the template data is being fetched from the server.',
+        story:
+          'Shows the skeleton loading state while the template data is being fetched from the server.',
       },
     },
   },
@@ -326,7 +326,8 @@ export const NoVariables: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'When the template has no variables the variable form section is omitted and the dialog goes straight to customizations and the Apply button.',
+        story:
+          'When the template has no variables the variable form section is omitted and the dialog goes straight to customizations and the Apply button.',
       },
     },
   },
@@ -422,7 +423,10 @@ export const Closed: Story = {
   },
   decorators: [
     (Story) => (
-      <MockedProvider mocks={[]} addTypename={false}>
+      <MockedProvider
+        mocks={[]}
+        addTypename={false}
+      >
         <Story />
       </MockedProvider>
     ),

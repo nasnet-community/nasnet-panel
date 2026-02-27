@@ -44,9 +44,7 @@ vi.mock('../firewall-log-filters', () => ({
 vi.mock('../firewall-log-stats', () => ({
   FirewallLogStats: ({ onAddToBlocklist }: any) => (
     <div data-testid="firewall-log-stats">
-      <button onClick={() => onAddToBlocklist('192.168.1.100')}>
-        Add to Blocklist
-      </button>
+      <button onClick={() => onAddToBlocklist('192.168.1.100')}>Add to Blocklist</button>
     </div>
   ),
 }));
@@ -316,9 +314,7 @@ describe('FirewallLogViewer', () => {
       render(<FirewallLogViewer routerId="router-1" />);
 
       expect(screen.getByText('Log Details')).toBeInTheDocument();
-      expect(
-        screen.getByText(mockLogs[0].message)
-      ).toBeInTheDocument();
+      expect(screen.getByText(mockLogs[0].message)).toBeInTheDocument();
     });
 
     it('should close detail panel when Close clicked', async () => {
@@ -342,7 +338,10 @@ describe('FirewallLogViewer', () => {
       const onPrefixClick = vi.fn();
 
       render(
-        <FirewallLogViewer routerId="router-1" onPrefixClick={onPrefixClick} />
+        <FirewallLogViewer
+          routerId="router-1"
+          onPrefixClick={onPrefixClick}
+        />
       );
 
       const prefixLink = screen.getByText('BLOCKED').closest('button');
@@ -373,9 +372,7 @@ describe('FirewallLogViewer', () => {
 
       render(<FirewallLogViewer routerId="router-1" />);
 
-      expect(
-        screen.getByText(/Error loading logs: Failed to load logs/i)
-      ).toBeInTheDocument();
+      expect(screen.getByText(/Error loading logs: Failed to load logs/i)).toBeInTheDocument();
     });
 
     it('should show empty state', () => {
@@ -388,9 +385,7 @@ describe('FirewallLogViewer', () => {
 
       render(<FirewallLogViewer routerId="router-1" />);
 
-      expect(
-        screen.getByText(/No logs found. Try adjusting your filters./i)
-      ).toBeInTheDocument();
+      expect(screen.getByText(/No logs found. Try adjusting your filters./i)).toBeInTheDocument();
     });
 
     it('should show log counts', () => {
@@ -546,9 +541,7 @@ describe('FirewallLogViewer', () => {
 
       // Find stats button (icon only on mobile)
       const buttons = screen.getAllByRole('button');
-      const statsButton = buttons.find((btn) =>
-        btn.querySelector('[class*="lucide-bar-chart"]')
-      );
+      const statsButton = buttons.find((btn) => btn.querySelector('[class*="lucide-bar-chart"]'));
       expect(statsButton).toBeInTheDocument();
       await user.click(statsButton!);
 
@@ -576,9 +569,7 @@ describe('FirewallLogViewer', () => {
 
       render(<FirewallLogViewer routerId="router-1" />);
 
-      expect(
-        screen.getByText(/Error loading logs: Network error/i)
-      ).toBeInTheDocument();
+      expect(screen.getByText(/Error loading logs: Network error/i)).toBeInTheDocument();
     });
 
     it('should show empty state on mobile', () => {
@@ -591,9 +582,7 @@ describe('FirewallLogViewer', () => {
 
       render(<FirewallLogViewer routerId="router-1" />);
 
-      expect(
-        screen.getByText(/No logs found. Try adjusting your filters./i)
-      ).toBeInTheDocument();
+      expect(screen.getByText(/No logs found. Try adjusting your filters./i)).toBeInTheDocument();
     });
 
     it('should pass accessibility checks on mobile', async () => {
@@ -614,7 +603,10 @@ describe('FirewallLogViewer', () => {
       const onPrefixClick = vi.fn();
 
       render(
-        <FirewallLogViewer routerId="router-1" onPrefixClick={onPrefixClick} />
+        <FirewallLogViewer
+          routerId="router-1"
+          onPrefixClick={onPrefixClick}
+        />
       );
 
       const prefixLink = screen.getByText('BLOCKED').closest('button');

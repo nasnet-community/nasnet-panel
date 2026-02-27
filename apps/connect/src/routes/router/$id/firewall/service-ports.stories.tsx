@@ -2,7 +2,6 @@ import { Skeleton } from '@nasnet/ui/primitives';
 
 import type { Meta, StoryObj } from '@storybook/react';
 
-
 /**
  * Loading skeleton for ServicePortsPage (replicated from route file)
  * The actual ServicePortsPage is lazy-loaded from @nasnet/features/firewall,
@@ -87,7 +86,8 @@ export const NarrowViewport: Story = {
     viewport: { defaultViewport: 'mobile1' },
     docs: {
       description: {
-        story: 'Skeleton at mobile viewport width to verify the two table placeholders stack properly.',
+        story:
+          'Skeleton at mobile viewport width to verify the two table placeholders stack properly.',
       },
     },
   },

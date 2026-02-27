@@ -50,7 +50,7 @@ export const NetworkActionButtons = React.memo(function NetworkActionButtons({
       className={cn(
         'flex items-center',
         compact ? 'gap-component-sm' : 'gap-component-md',
-        className,
+        className
       )}
       role="toolbar"
       aria-label="Network actions"
@@ -63,22 +63,19 @@ export const NetworkActionButtons = React.memo(function NetworkActionButtons({
           onClick={action.onClick}
           aria-label={action.label}
           className={cn(
-            'inline-flex items-center justify-center gap-1.5 rounded-card-sm border px-3 py-1.5 text-sm font-medium',
-            'transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+            'rounded-card-sm inline-flex items-center justify-center gap-1.5 border px-3 py-1.5 text-sm font-medium',
+            'focus-visible:ring-ring transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
             'disabled:pointer-events-none disabled:opacity-50',
             'min-h-[44px] min-w-[44px]',
-            action.variant === 'destructive'
-              ? 'border-error bg-error/10 text-error hover:bg-error/15'
-              : action.variant === 'outline'
-                ? 'border-border bg-transparent text-foreground hover:bg-muted'
-                : 'border-primary bg-primary text-primary-foreground hover:bg-primary/90',
+            action.variant === 'destructive' ?
+              'border-error bg-error/10 text-error hover:bg-error/15'
+            : action.variant === 'outline' ?
+              'border-border text-foreground hover:bg-muted bg-transparent'
+            : 'border-primary bg-primary text-primary-foreground hover:bg-primary/90'
           )}
         >
           <span
-            className={cn(
-              'w-4 h-4 flex-shrink-0',
-              action.isLoading && 'animate-spin',
-            )}
+            className={cn('h-4 w-4 flex-shrink-0', action.isLoading && 'animate-spin')}
             aria-hidden="true"
           >
             {action.icon}
@@ -102,7 +99,7 @@ function useNetworkActions() {
     makeRefreshAction: (onClick: () => void, isLoading = false): NetworkAction => ({
       id: 'refresh',
       label: t('actions.refresh'),
-      icon: <RefreshCw className="w-4 h-4" />,
+      icon: <RefreshCw className="h-4 w-4" />,
       onClick,
       isLoading,
     }),
@@ -110,7 +107,7 @@ function useNetworkActions() {
     makeDiagnosticsAction: (onClick: () => void): NetworkAction => ({
       id: 'diagnostics',
       label: t('actions.diagnostics'),
-      icon: <Stethoscope className="w-4 h-4" />,
+      icon: <Stethoscope className="h-4 w-4" />,
       onClick,
       variant: 'outline',
     }),
@@ -118,7 +115,7 @@ function useNetworkActions() {
     makeSettingsAction: (onClick: () => void): NetworkAction => ({
       id: 'settings',
       label: t('actions.settings'),
-      icon: <Settings className="w-4 h-4" />,
+      icon: <Settings className="h-4 w-4" />,
       onClick,
       variant: 'outline',
     }),
@@ -126,7 +123,7 @@ function useNetworkActions() {
     makeExportAction: (onClick: () => void, disabled = false): NetworkAction => ({
       id: 'export',
       label: t('actions.export'),
-      icon: <Download className="w-4 h-4" />,
+      icon: <Download className="h-4 w-4" />,
       onClick,
       disabled,
       variant: 'outline',
@@ -141,7 +138,7 @@ export function makeRefreshAction(onClick: () => void, isLoading = false): Netwo
   return {
     id: 'refresh',
     label: 'Refresh',
-    icon: <RefreshCw className="w-4 h-4" />,
+    icon: <RefreshCw className="h-4 w-4" />,
     onClick,
     isLoading,
   };
@@ -151,7 +148,7 @@ export function makeDiagnosticsAction(onClick: () => void): NetworkAction {
   return {
     id: 'diagnostics',
     label: 'Diagnostics',
-    icon: <Stethoscope className="w-4 h-4" />,
+    icon: <Stethoscope className="h-4 w-4" />,
     onClick,
     variant: 'outline',
   };
@@ -161,7 +158,7 @@ export function makeSettingsAction(onClick: () => void): NetworkAction {
   return {
     id: 'settings',
     label: 'Settings',
-    icon: <Settings className="w-4 h-4" />,
+    icon: <Settings className="h-4 w-4" />,
     onClick,
     variant: 'outline',
   };
@@ -171,7 +168,7 @@ export function makeExportAction(onClick: () => void, disabled = false): Network
   return {
     id: 'export',
     label: 'Export',
-    icon: <Download className="w-4 h-4" />,
+    icon: <Download className="h-4 w-4" />,
     onClick,
     disabled,
     variant: 'outline',

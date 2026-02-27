@@ -44,7 +44,10 @@ vi.mock('./DeviceRoutingMatrixDesktop', () => ({
         </thead>
         <tbody>
           {matrix.devices.map((device: NetworkDevice) => (
-            <tr key={device.deviceID} data-testid={`device-row-${device.deviceID}`}>
+            <tr
+              key={device.deviceID}
+              data-testid={`device-row-${device.deviceID}`}
+            >
               <td>{device.hostname || device.deviceID}</td>
               <td>{device.macAddress}</td>
               <td>{device.ipAddress || 'N/A'}</td>
@@ -76,9 +79,7 @@ vi.mock('./DeviceRoutingMatrixMobile', () => ({
           <div data-testid="device-name">{device.hostname || device.deviceID}</div>
           <div data-testid="device-mac">{device.macAddress}</div>
           <div data-testid="device-ip">{device.ipAddress || 'N/A'}</div>
-          <span data-testid="routing-badge">
-            {device.isRouted ? 'Routed' : 'Unrouted'}
-          </span>
+          <span data-testid="routing-badge">{device.isRouted ? 'Routed' : 'Unrouted'}</span>
           <button data-testid="assign-button">Assign</button>
         </div>
       ))}

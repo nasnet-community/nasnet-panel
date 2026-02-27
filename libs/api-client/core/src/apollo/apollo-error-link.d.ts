@@ -31,7 +31,7 @@
  * });
  * ```
  */
-export declare const errorLink: import("@apollo/client").ApolloLink;
+export declare const errorLink: import('@apollo/client').ApolloLink;
 /**
  * Create error link with custom handlers.
  *
@@ -42,7 +42,7 @@ export declare const errorLink: import("@apollo/client").ApolloLink;
  * @returns Apollo error link
  */
 export declare function createErrorLink(options: {
-    onAuthError?: (message: string) => void;
-    onNetworkError?: (error: Error) => void;
-}): import("@apollo/client").ApolloLink;
+  onAuthError?: (message: string) => void;
+  onNetworkError?: (error: Error) => void;
+}): import('@apollo/client').ApolloLink;
 //# sourceMappingURL=apollo-error-link.d.ts.map

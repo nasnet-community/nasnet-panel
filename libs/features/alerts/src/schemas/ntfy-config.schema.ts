@@ -19,81 +19,83 @@ import { z } from 'zod';
  * - priority: Message priority (1-5, default: 3)
  * - tags: Optional tags for categorization
  */
-export const ntfyConfigSchema = z.object({
-  enabled: z.boolean().default(false),
+export const ntfyConfigSchema = z
+  .object({
+    enabled: z.boolean().default(false),
 
-  // Server Settings
-  serverUrl: z
-    .string()
-    .min(1, 'Server URL is required (must be provided)')
-    .url('Invalid URL format - must be a valid web address')
-    .refine(
-      (url) => {
-        // Ensure URL uses https:// or http://
-        const urlObj = new URL(url);
-        return urlObj.protocol === 'https:' || urlObj.protocol === 'http:';
-      },
-      { message: 'Server URL must use http:// or https:// protocol' }
-    )
-    .default('https://ntfy.sh'),
+    // Server Settings
+    serverUrl: z
+      .string()
+      .min(1, 'Server URL is required (must be provided)')
+      .url('Invalid URL format - must be a valid web address')
+      .refine(
+        (url) => {
+          // Ensure URL uses https:// or http://
+          const urlObj = new URL(url);
+          return urlObj.protocol === 'https:' || urlObj.protocol === 'http:';
+        },
+        { message: 'Server URL must use http:// or https:// protocol' }
+      )
+      .default('https://ntfy.sh'),
 
-  // Topic (ntfy topic naming rules: alphanumeric, hyphens, underscores)
-  topic: z
-    .string()
-    .min(1, 'Topic is required (must be provided)')
-    .max(255, 'Topic must not exceed 255 characters')
-    .regex(
-      /^[a-zA-Z0-9_-]+$/,
-      'Topic can only contain letters, numbers, hyphens, and underscores (no spaces or special characters)'
-    ),
+    // Topic (ntfy topic naming rules: alphanumeric, hyphens, underscores)
+    topic: z
+      .string()
+      .min(1, 'Topic is required (must be provided)')
+      .max(255, 'Topic must not exceed 255 characters')
+      .regex(
+        /^[a-zA-Z0-9_-]+$/,
+        'Topic can only contain letters, numbers, hyphens, and underscores (no spaces or special characters)'
+      ),
 
-  // Authentication (Optional)
-  username: z
-    .string()
-    .max(255, 'Username must not exceed 255 characters')
-    .optional()
-    .or(z.literal('')),
+    // Authentication (Optional)
+    username: z
+      .string()
+      .max(255, 'Username must not exceed 255 characters')
+      .optional()
+      .or(z.literal('')),
 
-  password: z
-    .string()
-    .max(255, 'Password must not exceed 255 characters')
-    .optional()
-    .or(z.literal('')),
+    password: z
+      .string()
+      .max(255, 'Password must not exceed 255 characters')
+      .optional()
+      .or(z.literal('')),
 
-  // Priority (1=min, 2=low, 3=default, 4=high, 5=urgent/max)
-  priority: z
-    .number()
-    .int('Priority must be a whole number')
-    .min(1, 'Priority must be between 1 (minimum) and 5 (maximum)')
-    .max(5, 'Priority must be between 1 (minimum) and 5 (maximum)')
-    .default(3),
+    // Priority (1=min, 2=low, 3=default, 4=high, 5=urgent/max)
+    priority: z
+      .number()
+      .int('Priority must be a whole number')
+      .min(1, 'Priority must be between 1 (minimum) and 5 (maximum)')
+      .max(5, 'Priority must be between 1 (minimum) and 5 (maximum)')
+      .default(3),
 
-  // Tags for categorization (comma-separated or array)
-  tags: z
-    .array(z.string().trim().min(1))
-    .max(10, 'Maximum 10 tags allowed per notification')
-    .optional()
-    .default([]),
-}).refine(
-  (data) => {
-    // If username is provided, password must also be provided
-    const hasUsername = data.username && data.username.trim().length > 0;
-    const hasPassword = data.password && data.password.trim().length > 0;
+    // Tags for categorization (comma-separated or array)
+    tags: z
+      .array(z.string().trim().min(1))
+      .max(10, 'Maximum 10 tags allowed per notification')
+      .optional()
+      .default([]),
+  })
+  .refine(
+    (data) => {
+      // If username is provided, password must also be provided
+      const hasUsername = data.username && data.username.trim().length > 0;
+      const hasPassword = data.password && data.password.trim().length > 0;
 
-    if (hasUsername && !hasPassword) {
-      return false;
+      if (hasUsername && !hasPassword) {
+        return false;
+      }
+      if (hasPassword && !hasUsername) {
+        return false;
+      }
+
+      return true;
+    },
+    {
+      message: 'Both username and password must be provided together for authentication',
+      path: ['password'],
     }
-    if (hasPassword && !hasUsername) {
-      return false;
-    }
-
-    return true;
-  },
-  {
-    message: 'Both username and password must be provided together for authentication',
-    path: ['password'],
-  }
-);
+  );
 
 /**
  * Type inference from schema

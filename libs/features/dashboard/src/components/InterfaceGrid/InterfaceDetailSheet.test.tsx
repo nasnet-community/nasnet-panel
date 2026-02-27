@@ -36,7 +36,10 @@ vi.mock('@nasnet/ui/layouts', () => ({
 // Mock TanStack Router Link
 vi.mock('@tanstack/react-router', () => ({
   Link: ({ to, params, className, children }: any) => (
-    <a href={`${to}?interfaceId=${params.interfaceId}`} className={className}>
+    <a
+      href={`${to}?interfaceId=${params.interfaceId}`}
+      className={className}
+    >
       {children}
     </a>
   ),
@@ -307,10 +310,7 @@ describe('InterfaceDetailSheet - Content Rendering', () => {
 
     // Verify link has correct href
     const anchor = link.closest('a');
-    expect(anchor).toHaveAttribute(
-      'href',
-      expect.stringContaining('/network/interfaces/ether1')
-    );
+    expect(anchor).toHaveAttribute('href', expect.stringContaining('/network/interfaces/ether1'));
   });
 });
 
@@ -570,9 +570,7 @@ describe('InterfaceDetailSheet - Accessibility', () => {
     expect(dialog).toBeInTheDocument();
 
     // Dialog should have accessible name
-    expect(
-      screen.getByRole('dialog', { name: /interface details/i })
-    ).toBeInTheDocument();
+    expect(screen.getByRole('dialog', { name: /interface details/i })).toBeInTheDocument();
   });
 
   it('should trap focus within dialog when open', () => {

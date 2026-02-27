@@ -15,27 +15,28 @@
  * @see LIFECYCLE_TRANSITIONS for valid state transitions
  */
 export declare const ResourceLifecycleState: {
-    /** Initial creation, not yet validated */
-    readonly DRAFT: "DRAFT";
-    /** Backend validation in progress */
-    readonly VALIDATING: "VALIDATING";
-    /** Passed validation, ready to apply */
-    readonly VALID: "VALID";
-    /** Being applied to router */
-    readonly APPLYING: "APPLYING";
-    /** Successfully applied and running */
-    readonly ACTIVE: "ACTIVE";
-    /** Running but with issues */
-    readonly DEGRADED: "DEGRADED";
-    /** Failed state (validation or apply) */
-    readonly ERROR: "ERROR";
-    /** Marked for removal */
-    readonly DEPRECATED: "DEPRECATED";
-    /** Final state, no longer active */
-    readonly ARCHIVED: "ARCHIVED";
+  /** Initial creation, not yet validated */
+  readonly DRAFT: 'DRAFT';
+  /** Backend validation in progress */
+  readonly VALIDATING: 'VALIDATING';
+  /** Passed validation, ready to apply */
+  readonly VALID: 'VALID';
+  /** Being applied to router */
+  readonly APPLYING: 'APPLYING';
+  /** Successfully applied and running */
+  readonly ACTIVE: 'ACTIVE';
+  /** Running but with issues */
+  readonly DEGRADED: 'DEGRADED';
+  /** Failed state (validation or apply) */
+  readonly ERROR: 'ERROR';
+  /** Marked for removal */
+  readonly DEPRECATED: 'DEPRECATED';
+  /** Final state, no longer active */
+  readonly ARCHIVED: 'ARCHIVED';
 };
 /** Inferred type for resource lifecycle states */
-export type ResourceLifecycleState = (typeof ResourceLifecycleState)[keyof typeof ResourceLifecycleState];
+export type ResourceLifecycleState =
+  (typeof ResourceLifecycleState)[keyof typeof ResourceLifecycleState];
 /**
  * Events that trigger resource lifecycle state transitions.
  *
@@ -47,29 +48,30 @@ export type ResourceLifecycleState = (typeof ResourceLifecycleState)[keyof typeo
  * @see LIFECYCLE_TRANSITIONS for valid transitions
  */
 export declare const ResourceLifecycleEvent: {
-    /** Start validation process */
-    readonly VALIDATE: "VALIDATE";
-    /** Apply resource to router */
-    readonly APPLY: "APPLY";
-    /** Confirm apply succeeded */
-    readonly CONFIRM: "CONFIRM";
-    /** Resource has degraded */
-    readonly DEGRADE: "DEGRADE";
-    /** Resource recovered from degraded */
-    readonly RECOVER: "RECOVER";
-    /** Retry failed operation */
-    readonly RETRY: "RETRY";
-    /** Edit resource (go back to draft) */
-    readonly EDIT: "EDIT";
-    /** Deprecate resource */
-    readonly DEPRECATE: "DEPRECATE";
-    /** Restore deprecated resource */
-    readonly RESTORE: "RESTORE";
-    /** Archive resource permanently */
-    readonly ARCHIVE: "ARCHIVE";
+  /** Start validation process */
+  readonly VALIDATE: 'VALIDATE';
+  /** Apply resource to router */
+  readonly APPLY: 'APPLY';
+  /** Confirm apply succeeded */
+  readonly CONFIRM: 'CONFIRM';
+  /** Resource has degraded */
+  readonly DEGRADE: 'DEGRADE';
+  /** Resource recovered from degraded */
+  readonly RECOVER: 'RECOVER';
+  /** Retry failed operation */
+  readonly RETRY: 'RETRY';
+  /** Edit resource (go back to draft) */
+  readonly EDIT: 'EDIT';
+  /** Deprecate resource */
+  readonly DEPRECATE: 'DEPRECATE';
+  /** Restore deprecated resource */
+  readonly RESTORE: 'RESTORE';
+  /** Archive resource permanently */
+  readonly ARCHIVE: 'ARCHIVE';
 };
 /** Inferred type for resource lifecycle events */
-export type ResourceLifecycleEvent = (typeof ResourceLifecycleEvent)[keyof typeof ResourceLifecycleEvent];
+export type ResourceLifecycleEvent =
+  (typeof ResourceLifecycleEvent)[keyof typeof ResourceLifecycleEvent];
 /**
  * State transition table defining valid lifecycle state transitions.
  *
@@ -80,7 +82,10 @@ export type ResourceLifecycleEvent = (typeof ResourceLifecycleEvent)[keyof typeo
  * @see isValidTransition for validation helper
  * @see getNextState for transition lookup
  */
-export declare const LIFECYCLE_TRANSITIONS: Record<ResourceLifecycleState, Partial<Record<ResourceLifecycleEvent, ResourceLifecycleState>>>;
+export declare const LIFECYCLE_TRANSITIONS: Record<
+  ResourceLifecycleState,
+  Partial<Record<ResourceLifecycleEvent, ResourceLifecycleState>>
+>;
 /**
  * Check if a state transition is valid.
  *
@@ -98,7 +103,10 @@ export declare const LIFECYCLE_TRANSITIONS: Record<ResourceLifecycleState, Parti
  * @see LIFECYCLE_TRANSITIONS for the transition table
  * @see getNextState to get the target state
  */
-export declare function isValidTransition(currentState: ResourceLifecycleState, event: ResourceLifecycleEvent): boolean;
+export declare function isValidTransition(
+  currentState: ResourceLifecycleState,
+  event: ResourceLifecycleEvent
+): boolean;
 /**
  * Get the target state for a state transition.
  *
@@ -115,7 +123,10 @@ export declare function isValidTransition(currentState: ResourceLifecycleState, 
  * @see LIFECYCLE_TRANSITIONS for the transition table
  * @see isValidTransition to check before calling
  */
-export declare function getNextState(currentState: ResourceLifecycleState, event: ResourceLifecycleEvent): ResourceLifecycleState | null;
+export declare function getNextState(
+  currentState: ResourceLifecycleState,
+  event: ResourceLifecycleEvent
+): ResourceLifecycleState | null;
 /**
  * Get all valid events that can be triggered from a state.
  *
@@ -265,16 +276,16 @@ export declare function isTerminal(state: ResourceLifecycleState): boolean;
  * @see getStateDisplayInfo for populating this interface
  */
 export interface StateDisplayInfo {
-    /** Display label */
-    readonly label: string;
-    /** Description of the state */
-    readonly description: string;
-    /** Color for status indicators (semantic colors) */
-    readonly color: 'gray' | 'blue' | 'green' | 'amber' | 'red';
-    /** Icon name hint */
-    readonly icon: 'draft' | 'spinner' | 'check' | 'warning' | 'error' | 'archive';
-    /** Whether to show a spinner animation */
-    readonly showSpinner: boolean;
+  /** Display label */
+  readonly label: string;
+  /** Description of the state */
+  readonly description: string;
+  /** Color for status indicators (semantic colors) */
+  readonly color: 'gray' | 'blue' | 'green' | 'amber' | 'red';
+  /** Icon name hint */
+  readonly icon: 'draft' | 'spinner' | 'check' | 'warning' | 'error' | 'archive';
+  /** Whether to show a spinner animation */
+  readonly showSpinner: boolean;
 }
 /**
  * Get UI display information for a lifecycle state.

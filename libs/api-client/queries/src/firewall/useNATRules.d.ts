@@ -27,20 +27,31 @@ export declare function useNATRules(routerIp: string): UseQueryResult<NATRule[],
  * Create a new NAT rule
  * Endpoint: POST /rest/ip/firewall/nat/add
  */
-export declare function useCreateNATRule(routerIp: string): import("@tanstack/react-query").UseMutationResult<unknown, Error, Partial<NATRule>, unknown>;
+export declare function useCreateNATRule(
+  routerIp: string
+): import('@tanstack/react-query').UseMutationResult<unknown, Error, Partial<NATRule>, unknown>;
 /**
  * Update an existing NAT rule
  * Endpoint: POST /rest/ip/firewall/nat/set
  */
-export declare function useUpdateNATRule(routerIp: string): import("@tanstack/react-query").UseMutationResult<unknown, Error, {
+export declare function useUpdateNATRule(
+  routerIp: string
+): import('@tanstack/react-query').UseMutationResult<
+  unknown,
+  Error,
+  {
     ruleId: string;
     updates: Partial<NATRule>;
-}, unknown>;
+  },
+  unknown
+>;
 /**
  * Delete a NAT rule
  * Endpoint: POST /rest/ip/firewall/nat/remove
  */
-export declare function useDeleteNATRule(routerIp: string): import("@tanstack/react-query").UseMutationResult<unknown, Error, string, unknown>;
+export declare function useDeleteNATRule(
+  routerIp: string
+): import('@tanstack/react-query').UseMutationResult<unknown, Error, string, unknown>;
 /**
  * Create a port forwarding rule (convenience wrapper for dstnat)
  * Automatically configures a destination NAT rule for port forwarding
@@ -58,8 +69,13 @@ export declare function useDeleteNATRule(routerIp: string): import("@tanstack/re
  * });
  * ```
  */
-export declare function useCreatePortForward(routerIp: string): import("@tanstack/react-query").UseMutationResult<unknown, Error, {
-    protocol: "tcp" | "udp";
+export declare function useCreatePortForward(
+  routerIp: string
+): import('@tanstack/react-query').UseMutationResult<
+  unknown,
+  Error,
+  {
+    protocol: 'tcp' | 'udp';
     dstPort: string;
     toAddresses: string;
     toPorts: string;
@@ -67,7 +83,9 @@ export declare function useCreatePortForward(routerIp: string): import("@tanstac
     dstAddress?: string;
     comment?: string;
     disabled?: boolean;
-}, unknown>;
+  },
+  unknown
+>;
 /**
  * Create a masquerade rule (convenience wrapper for srcnat)
  * Automatically configures source NAT masquerading for outbound traffic
@@ -82,18 +100,32 @@ export declare function useCreatePortForward(routerIp: string): import("@tanstac
  * });
  * ```
  */
-export declare function useCreateMasqueradeRule(routerIp: string): import("@tanstack/react-query").UseMutationResult<unknown, Error, {
+export declare function useCreateMasqueradeRule(
+  routerIp: string
+): import('@tanstack/react-query').UseMutationResult<
+  unknown,
+  Error,
+  {
     outInterface: string;
     srcAddress?: string;
     comment?: string;
     disabled?: boolean;
-}, unknown>;
+  },
+  unknown
+>;
 /**
  * Toggle enable/disable state of a NAT rule (convenience wrapper)
  * Endpoint: POST /rest/ip/firewall/nat/set
  */
-export declare function useToggleNATRule(routerIp: string): import("@tanstack/react-query").UseMutationResult<unknown, Error, {
+export declare function useToggleNATRule(
+  routerIp: string
+): import('@tanstack/react-query').UseMutationResult<
+  unknown,
+  Error,
+  {
     ruleId: string;
     disabled: boolean;
-}, unknown>;
+  },
+  unknown
+>;
 //# sourceMappingURL=useNATRules.d.ts.map

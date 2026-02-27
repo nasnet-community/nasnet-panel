@@ -406,7 +406,12 @@ describe('Memory Leak Detection', () => {
         return (
           <div>
             <button onClick={() => setData(generateMockData(100))}>Replace Data</button>
-            <VirtualizedTable data={data} columns={columns} height={400} forceVirtualization />
+            <VirtualizedTable
+              data={data}
+              columns={columns}
+              height={400}
+              forceVirtualization
+            />
           </div>
         );
       }
@@ -466,9 +471,7 @@ describe('DOM Node Recycling', () => {
     // Allow some tolerance
     expect(nodeCreationCount.current).toBeLessThan(30);
 
-    console.log(
-      `DOM nodes created: ${nodeCreationCount.current} (vs 1000 data items)`
-    );
+    console.log(`DOM nodes created: ${nodeCreationCount.current} (vs 1000 data items)`);
 
     unmount();
   });

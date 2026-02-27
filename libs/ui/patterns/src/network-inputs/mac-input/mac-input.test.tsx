@@ -16,13 +16,7 @@ import { axe } from 'vitest-axe';
 
 import { MACInputDesktop } from './mac-input-desktop';
 import { MACInputMobile } from './mac-input-mobile';
-import {
-  useMACInput,
-  isValidMAC,
-  normalizeMAC,
-  extractOUI,
-  lookupVendor,
-} from './use-mac-input';
+import { useMACInput, isValidMAC, normalizeMAC, extractOUI, lookupVendor } from './use-mac-input';
 
 // Note: vitest-axe matchers are extended in setup.ts
 
@@ -148,17 +142,13 @@ describe('useMACInput', () => {
   });
 
   it('initializes with controlled value', () => {
-    const { result } = renderHook(() =>
-      useMACInput({ value: 'AABBCCDDEEFF' })
-    );
+    const { result } = renderHook(() => useMACInput({ value: 'AABBCCDDEEFF' }));
     expect(result.current.value).toBe('AA:BB:CC:DD:EE:FF');
     expect(result.current.isValid).toBe(true);
   });
 
   it('normalizes input to configured format', () => {
-    const { result } = renderHook(() =>
-      useMACInput({ value: 'aabbccddeeff', format: 'dash' })
-    );
+    const { result } = renderHook(() => useMACInput({ value: 'aabbccddeeff', format: 'dash' }));
     expect(result.current.value).toBe('AA-BB-CC-DD-EE-FF');
   });
 
@@ -188,17 +178,13 @@ describe('useMACInput', () => {
   });
 
   it('validates MAC address', () => {
-    const { result } = renderHook(() =>
-      useMACInput({ value: 'AA:BB:CC:DD:EE:FF' })
-    );
+    const { result } = renderHook(() => useMACInput({ value: 'AA:BB:CC:DD:EE:FF' }));
     expect(result.current.isValid).toBe(true);
     expect(result.current.error).toBe(null);
   });
 
   it('does not show error for partial input', () => {
-    const { result } = renderHook(() =>
-      useMACInput({ value: 'AA:BB' })
-    );
+    const { result } = renderHook(() => useMACInput({ value: 'AA:BB' }));
     expect(result.current.isValid).toBe(false);
     expect(result.current.error).toBe(null); // No error for partial
   });
@@ -223,7 +209,10 @@ describe('MACInputDesktop', () => {
 
   it('displays vendor when showVendor is true', () => {
     render(
-      <MACInputDesktop value="00:50:56:AA:BB:CC" showVendor />
+      <MACInputDesktop
+        value="00:50:56:AA:BB:CC"
+        showVendor
+      />
     );
     expect(screen.getByText('VMware')).toBeInTheDocument();
   });
@@ -262,7 +251,12 @@ describe('MACInputDesktop', () => {
   });
 
   it('shows error state when invalid and complete', () => {
-    render(<MACInputDesktop value="AA:BB:CC:DD:EE:FF" error="Invalid MAC" />);
+    render(
+      <MACInputDesktop
+        value="AA:BB:CC:DD:EE:FF"
+        error="Invalid MAC"
+      />
+    );
     const input = screen.getByRole('textbox');
     expect(input).toHaveAttribute('aria-invalid', 'true');
     expect(screen.getByRole('alert')).toHaveTextContent('Invalid MAC');
@@ -270,18 +264,12 @@ describe('MACInputDesktop', () => {
 
   it('uses correct placeholder for dash format', () => {
     render(<MACInputDesktop format="dash" />);
-    expect(screen.getByRole('textbox')).toHaveAttribute(
-      'placeholder',
-      'AA-BB-CC-DD-EE-FF'
-    );
+    expect(screen.getByRole('textbox')).toHaveAttribute('placeholder', 'AA-BB-CC-DD-EE-FF');
   });
 
   it('uses correct placeholder for dot format', () => {
     render(<MACInputDesktop format="dot" />);
-    expect(screen.getByRole('textbox')).toHaveAttribute(
-      'placeholder',
-      'AABB.CCDD.EEFF'
-    );
+    expect(screen.getByRole('textbox')).toHaveAttribute('placeholder', 'AABB.CCDD.EEFF');
   });
 
   it('is disabled when disabled prop is true', () => {
@@ -291,7 +279,10 @@ describe('MACInputDesktop', () => {
 
   it('passes accessibility audit', async () => {
     const { container } = render(
-      <MACInputDesktop label="MAC Address" aria-describedby="help" />
+      <MACInputDesktop
+        label="MAC Address"
+        aria-describedby="help"
+      />
     );
     const results = await axe(container);
     expect(results).toHaveNoViolations();
@@ -317,7 +308,10 @@ describe('MACInputMobile', () => {
 
   it('displays vendor as badge below input', () => {
     render(
-      <MACInputMobile value="00:50:56:AA:BB:CC" showVendor />
+      <MACInputMobile
+        value="00:50:56:AA:BB:CC"
+        showVendor
+      />
     );
     expect(screen.getByText('VMware')).toBeInTheDocument();
   });
@@ -334,7 +328,10 @@ describe('MACInputMobile', () => {
 
   it('passes accessibility audit', async () => {
     const { container } = render(
-      <MACInputMobile label="MAC Address" aria-describedby="help" />
+      <MACInputMobile
+        label="MAC Address"
+        aria-describedby="help"
+      />
     );
     const results = await axe(container);
     expect(results).toHaveNoViolations();
@@ -349,12 +346,7 @@ describe('Format conversions', () => {
   const testMAC = 'aabbccddeeff';
 
   it('converts all formats to colon', () => {
-    const formats = [
-      'AA:BB:CC:DD:EE:FF',
-      'AA-BB-CC-DD-EE-FF',
-      'AABB.CCDD.EEFF',
-      'AABBCCDDEEFF',
-    ];
+    const formats = ['AA:BB:CC:DD:EE:FF', 'AA-BB-CC-DD-EE-FF', 'AABB.CCDD.EEFF', 'AABBCCDDEEFF'];
 
     formats.forEach((input) => {
       expect(normalizeMAC(input, 'colon')).toBe('AA:BB:CC:DD:EE:FF');

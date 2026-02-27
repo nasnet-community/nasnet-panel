@@ -36,8 +36,7 @@ export const NoRouterConnected: Story = {
   parameters: {
     docs: {
       description: {
-        story:
-          'Server list when no router is connected. Shows empty or error state.',
+        story: 'Server list when no router is connected. Shows empty or error state.',
       },
     },
   },
@@ -49,8 +48,7 @@ export const MobileView: Story = {
     viewport: { defaultViewport: 'mobile1' },
     docs: {
       description: {
-        story:
-          'Mobile viewport rendering with card-based layout instead of data tables.',
+        story: 'Mobile viewport rendering with card-based layout instead of data tables.',
       },
     },
   },
@@ -62,8 +60,7 @@ export const Desktop: Story = {
     viewport: { defaultViewport: 'desktop' },
     docs: {
       description: {
-        story:
-          'Desktop viewport rendering with full data table layout and all action controls.',
+        story: 'Desktop viewport rendering with full data table layout and all action controls.',
       },
     },
   },

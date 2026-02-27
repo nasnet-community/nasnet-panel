@@ -37,9 +37,7 @@ describe('useRouterStatusSubscription', () => {
 
   describe('Subscription Lifecycle', () => {
     it('should subscribe with correct variables and context', () => {
-      const { result } = renderHook(() =>
-        useRouterStatusSubscription({ routerId: mockRouterId })
-      );
+      const { result } = renderHook(() => useRouterStatusSubscription({ routerId: mockRouterId }));
 
       // Hook should return subscription state
       expect(result.current).toBeDefined();
@@ -59,8 +57,7 @@ describe('useRouterStatusSubscription', () => {
 
     it('should re-subscribe when routerId changes', async () => {
       const { rerender } = renderHook(
-        ({ routerId }: { routerId: string }) =>
-          useRouterStatusSubscription({ routerId }),
+        ({ routerId }: { routerId: string }) => useRouterStatusSubscription({ routerId }),
         {
           initialProps: { routerId: 'router-1' },
         }
@@ -145,9 +142,7 @@ describe('useRouterStatusSubscription', () => {
 
   describe('Health Monitoring & Stale Detection', () => {
     it('should initialize with healthy subscription status', () => {
-      const { result } = renderHook(() =>
-        useRouterStatusSubscription({ routerId: mockRouterId })
-      );
+      const { result } = renderHook(() => useRouterStatusSubscription({ routerId: mockRouterId }));
 
       expect(result.current.isSubscriptionHealthy).toBe(true);
     });
@@ -155,9 +150,7 @@ describe('useRouterStatusSubscription', () => {
     it('should detect stale subscription after timeout', async () => {
       vi.useFakeTimers();
 
-      const { result } = renderHook(() =>
-        useRouterStatusSubscription({ routerId: mockRouterId })
-      );
+      const { result } = renderHook(() => useRouterStatusSubscription({ routerId: mockRouterId }));
 
       // Fast-forward time beyond SUBSCRIPTION_TIMEOUT (30000ms)
       vi.advanceTimersByTime(31000);
@@ -218,9 +211,7 @@ describe('useRouterStatusSubscription', () => {
       vi.useFakeTimers();
       const clearIntervalSpy = vi.spyOn(global, 'clearInterval');
 
-      const { unmount } = renderHook(() =>
-        useRouterStatusSubscription({ routerId: mockRouterId })
-      );
+      const { unmount } = renderHook(() => useRouterStatusSubscription({ routerId: mockRouterId }));
 
       unmount();
 
@@ -234,9 +225,7 @@ describe('useRouterStatusSubscription', () => {
     it('should not leak memory from health check timer', async () => {
       vi.useFakeTimers();
 
-      const { unmount } = renderHook(() =>
-        useRouterStatusSubscription({ routerId: mockRouterId })
-      );
+      const { unmount } = renderHook(() => useRouterStatusSubscription({ routerId: mockRouterId }));
 
       // Unmount and verify cleanup
       unmount();

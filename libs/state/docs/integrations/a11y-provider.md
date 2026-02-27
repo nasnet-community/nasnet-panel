@@ -1,12 +1,15 @@
 # Accessibility (a11y) Provider
 
-The A11y Provider detects and provides user accessibility preferences throughout the application. It implements WCAG 2.1 AAA guidelines and tracks user input method (keyboard vs mouse) for smart focus management.
+The A11y Provider detects and provides user accessibility preferences throughout the application. It
+implements WCAG 2.1 AAA guidelines and tracks user input method (keyboard vs mouse) for smart focus
+management.
 
 **Source:** `libs/state/stores/src/a11y/a11y-provider.tsx`
 
 ## Overview
 
 The A11y Provider wraps your app and detects:
+
 - **Reduced Motion**: User prefers `prefers-reduced-motion: reduce` (respects motion sensitivity)
 - **High Contrast**: User prefers `prefers-contrast: more` (for accessibility/visibility)
 - **Keyboard User**: User navigates with Tab key (for focus ring visibility)
@@ -99,7 +102,8 @@ function AnimatedButton({ children }) {
 }
 ```
 
-**Throws error if used outside A11yProvider.** Use `useA11yOptional()` if component might not be wrapped.
+**Throws error if used outside A11yProvider.** Use `useA11yOptional()` if component might not be
+wrapped.
 
 ### useA11yOptional() - Safe Hook
 
@@ -432,22 +436,22 @@ Uses aria-live region for screen readers:
 
 The A11y Provider helps achieve WCAG AAA compliance:
 
-| Criterion | How A11y Provider Helps |
-|-----------|------------------------|
-| **2.3.3 Animation from Interactions** | `reducedMotion` hook disables animations |
-| **2.4.7 Focus Visible** | `keyboardUser` hook shows focus only for keyboard |
-| **1.4.3 Contrast** | `highContrast` hook enables high-contrast styles |
-| **1.4.11 Non-text Contrast** | Implement using `highContrast` state |
-| **4.1.3 Status Messages** | `announce()` function for aria-live announcements |
+| Criterion                             | How A11y Provider Helps                           |
+| ------------------------------------- | ------------------------------------------------- |
+| **2.3.3 Animation from Interactions** | `reducedMotion` hook disables animations          |
+| **2.4.7 Focus Visible**               | `keyboardUser` hook shows focus only for keyboard |
+| **1.4.3 Contrast**                    | `highContrast` hook enables high-contrast styles  |
+| **1.4.11 Non-text Contrast**          | Implement using `highContrast` state              |
+| **4.1.3 Status Messages**             | `announce()` function for aria-live announcements |
 
 ## Browser Support
 
-| Feature | Browser Support |
-|---------|-----------------|
-| `prefers-reduced-motion` | Modern browsers (Chrome 74+, Firefox 63+, Safari 10.1+) |
-| `prefers-contrast` | Modern browsers (Chrome 96+, Firefox 101+, Safari 15.4+) |
-| Media queries API | All modern browsers |
-| Keyboard/mouse detection | All modern browsers |
+| Feature                  | Browser Support                                          |
+| ------------------------ | -------------------------------------------------------- |
+| `prefers-reduced-motion` | Modern browsers (Chrome 74+, Firefox 63+, Safari 10.1+)  |
+| `prefers-contrast`       | Modern browsers (Chrome 96+, Firefox 101+, Safari 15.4+) |
+| Media queries API        | All modern browsers                                      |
+| Keyboard/mouse detection | All modern browsers                                      |
 
 ## Testing
 
@@ -530,4 +534,5 @@ The A11y Provider:
 4. **Enables WCAG AAA compliance** through accessible styling and screen reader support
 5. **Respects user choices** by integrating with OS/browser accessibility settings
 
-Use it to build applications that are accessible to users with motion sensitivity, visual impairment, or those who prefer keyboard navigation.
+Use it to build applications that are accessible to users with motion sensitivity, visual
+impairment, or those who prefer keyboard navigation.

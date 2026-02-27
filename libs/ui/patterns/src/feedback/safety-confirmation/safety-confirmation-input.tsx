@@ -48,13 +48,9 @@ export function SafetyConfirmationInput({
     <div className={cn('space-y-2', className)}>
       <Label
         htmlFor="safety-confirm-input"
-        className="text-sm font-medium text-foreground"
+        className="text-foreground text-sm font-medium"
       >
-        Type{' '}
-        <span className="font-mono font-bold text-destructive">
-          {confirmText}
-        </span>{' '}
-        to confirm
+        Type <span className="text-destructive font-mono font-bold">{confirmText}</span> to confirm
       </Label>
 
       <div className="relative">
@@ -66,11 +62,9 @@ export function SafetyConfirmationInput({
           disabled={isCountingDown}
           placeholder={confirmText}
           className={cn(
-            'h-10 pr-10 font-mono rounded-[var(--semantic-radius-input)]',
+            'h-10 rounded-[var(--semantic-radius-input)] pr-10 font-mono',
             hasInput && isValid && 'border-success focus-visible:ring-success',
-            hasInput &&
-              !isValid &&
-              'border-error focus-visible:ring-error'
+            hasInput && !isValid && 'border-error focus-visible:ring-error'
           )}
           autoComplete="off"
           autoCorrect="off"
@@ -83,29 +77,28 @@ export function SafetyConfirmationInput({
         {/* Validation indicator */}
         {hasInput && (
           <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-            {isValid ? (
+            {isValid ?
               <Check
-                className="h-5 w-5 text-success"
+                className="text-success h-5 w-5"
                 aria-label="Input matches"
               />
-            ) : (
-              <X
-                className="h-5 w-5 text-error"
+            : <X
+                className="text-error h-5 w-5"
                 aria-label="Input does not match"
               />
-            )}
+            }
           </div>
         )}
       </div>
 
       <p
         id="safety-confirm-helper"
-        className="text-xs text-muted-foreground"
+        className="text-muted-foreground text-xs"
         aria-live="polite"
       >
-        {isValid
-          ? 'Text matches. Countdown starting...'
-          : `Enter the exact text "${confirmText}" to proceed`}
+        {isValid ?
+          'Text matches. Countdown starting...'
+        : `Enter the exact text "${confirmText}" to proceed`}
       </p>
     </div>
   );

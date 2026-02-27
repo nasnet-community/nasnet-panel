@@ -88,15 +88,13 @@ class SuspenseErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryS
           className="flex flex-col items-center justify-center p-8 text-center"
           role="alert"
         >
-          <p className="text-destructive font-medium mb-2">
-            Failed to load {this.props.name}
-          </p>
-          <p className="text-sm text-muted-foreground mb-4">
+          <p className="text-destructive mb-2 font-medium">Failed to load {this.props.name}</p>
+          <p className="text-muted-foreground mb-4 text-sm">
             {this.state.error?.message || 'An unexpected error occurred'}
           </p>
           <button
             onClick={this.resetError}
-            className="text-sm text-primary hover:underline focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded px-2 py-1"
+            className="text-primary focus:ring-ring rounded px-2 py-1 text-sm hover:underline focus:outline-none focus:ring-2 focus:ring-offset-2"
           >
             Try again
           </button>

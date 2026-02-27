@@ -8,9 +8,35 @@
  */
 
 import * as React from 'react';
-import { useServiceInstance, useGatewayStatus, GatewayState, useInstanceIsolation, useInstanceHealth, useFeatureVerification, useAvailableUpdates } from '@nasnet/api-client/queries';
-import { ServiceCard, VirtualInterfaceBridge, IsolationStatus, ServiceExportDialog, ServiceHealthBadge, VerificationBadge, UpdateIndicator } from '@nasnet/ui/patterns';
-import { Card, CardContent, CardHeader, CardTitle, Tabs, TabsContent, TabsList, TabsTrigger, Button } from '@nasnet/ui/primitives';
+import {
+  useServiceInstance,
+  useGatewayStatus,
+  GatewayState,
+  useInstanceIsolation,
+  useInstanceHealth,
+  useFeatureVerification,
+  useAvailableUpdates,
+} from '@nasnet/api-client/queries';
+import {
+  ServiceCard,
+  VirtualInterfaceBridge,
+  IsolationStatus,
+  ServiceExportDialog,
+  ServiceHealthBadge,
+  VerificationBadge,
+  UpdateIndicator,
+} from '@nasnet/ui/patterns';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+  Button,
+} from '@nasnet/ui/primitives';
 import { Loader2, Download } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
@@ -43,7 +69,10 @@ export interface ServiceDetailPageProps {
  * - Service logs with filtering and search
  * - Diagnostic tests with history
  */
-export const ServiceDetailPage = React.memo(function ServiceDetailPage({ routerId, instanceId }: ServiceDetailPageProps) {
+export const ServiceDetailPage = React.memo(function ServiceDetailPage({
+  routerId,
+  instanceId,
+}: ServiceDetailPageProps) {
   const { t } = useTranslation();
 
   // Default to Diagnostics tab when status is 'failed'
@@ -84,10 +113,7 @@ export const ServiceDetailPage = React.memo(function ServiceDetailPage({ routerI
   });
 
   // Fetch available updates for this instance (NAS-8.7)
-  const { updates } = useAvailableUpdates(
-    { routerId },
-    { skip: !routerId }
-  );
+  const { updates } = useAvailableUpdates({ routerId }, { skip: !routerId });
 
   // Find update for this instance
   const instanceUpdate = React.useMemo(() => {
@@ -114,10 +140,17 @@ export const ServiceDetailPage = React.memo(function ServiceDetailPage({ routerI
   // Loading state
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px] bg-background" role="status" aria-label={t('common.loading')}>
-        <div className="flex flex-col items-center gap-component-md">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" aria-hidden="true" />
-          <p className="text-sm text-muted-foreground">{t('services.detail.loading')}</p>
+      <div
+        className="bg-background flex min-h-[400px] items-center justify-center"
+        role="status"
+        aria-label={t('common.loading')}
+      >
+        <div className="gap-component-md flex flex-col items-center">
+          <Loader2
+            className="text-primary h-8 w-8 animate-spin"
+            aria-hidden="true"
+          />
+          <p className="text-muted-foreground text-sm">{t('services.detail.loading')}</p>
         </div>
       </div>
     );
@@ -132,11 +165,11 @@ export const ServiceDetailPage = React.memo(function ServiceDetailPage({ routerI
             <CardTitle className="text-error">{t('services.detail.errorLoadingTitle')}</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-muted-foreground">{error.message}</p>
+            <p className="text-muted-foreground text-sm">{error.message}</p>
             <Button
               variant="outline"
               size="sm"
-              className="mt-component-md min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              className="mt-component-md focus-visible:ring-ring min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
               onClick={() => window.location.reload()}
               aria-label={t('common.retry')}
             >
@@ -157,9 +190,7 @@ export const ServiceDetailPage = React.memo(function ServiceDetailPage({ routerI
             <CardTitle>{t('services.detail.notFoundTitle')}</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-muted-foreground">
-              {t('services.detail.notFoundMessage')}
-            </p>
+            <p className="text-muted-foreground text-sm">{t('services.detail.notFoundMessage')}</p>
           </CardContent>
         </Card>
       </div>
@@ -182,7 +213,8 @@ export const ServiceDetailPage = React.memo(function ServiceDetailPage({ routerI
   };
 
   // Determine if export is available (instance has config)
-  const canExport = instance &&
+  const canExport =
+    instance &&
     (instance.status as string) !== 'PENDING' &&
     (instance.status as string) !== 'INSTALLING';
 
@@ -191,15 +223,17 @@ export const ServiceDetailPage = React.memo(function ServiceDetailPage({ routerI
       {/* Page header */}
       <div className="flex items-start justify-between">
         <div className="space-y-component-md">
-          <div className="flex items-center gap-component-md">
+          <div className="gap-component-md flex items-center">
             <div>
-              <h1 className="text-2xl font-display text-foreground">{instance.instanceName}</h1>
-              <p className="text-sm text-muted-foreground mt-component-sm font-mono">
+              <h1 className="font-display text-foreground text-2xl">{instance.instanceName}</h1>
+              <p className="text-muted-foreground mt-component-sm font-mono text-sm">
                 {instance.featureID} service instance
               </p>
             </div>
-            <div className="px-component-sm py-component-xs bg-category-vpn/10 rounded-[var(--semantic-radius-card)] inline-flex">
-              <span className="text-xs font-medium text-category-vpn font-mono">{instance.featureID}</span>
+            <div className="px-component-sm py-component-xs bg-category-vpn/10 inline-flex rounded-[var(--semantic-radius-card)]">
+              <span className="text-category-vpn font-mono text-xs font-medium">
+                {instance.featureID}
+              </span>
             </div>
           </div>
           {/* Health status badge (NAS-8.6) */}
@@ -239,16 +273,23 @@ export const ServiceDetailPage = React.memo(function ServiceDetailPage({ routerI
             size="sm"
             onClick={() => setExportDialogOpen(true)}
             aria-label={t('services.sharing.export.button')}
-            className="min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            className="focus-visible:ring-ring min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
           >
-            <Download className="w-4 h-4 mr-2" aria-hidden="true" />
+            <Download
+              className="mr-2 h-4 w-4"
+              aria-hidden="true"
+            />
             {t('services.sharing.export.button')}
           </Button>
         )}
       </div>
 
       {instance && (
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-component-md">
+        <Tabs
+          value={activeTab}
+          onValueChange={setActiveTab}
+          className="space-y-component-md"
+        >
           {/* Tab navigation */}
           <TabsList>
             <TabsTrigger value="overview">{t('services.detail.tabs.overview')}</TabsTrigger>
@@ -260,7 +301,10 @@ export const ServiceDetailPage = React.memo(function ServiceDetailPage({ routerI
           </TabsList>
 
           {/* Overview tab */}
-          <TabsContent value="overview" className="space-y-component-md">
+          <TabsContent
+            value="overview"
+            className="space-y-component-md"
+          >
             {/* Service instance card */}
             <ServiceCard
               service={service as any}
@@ -288,9 +332,7 @@ export const ServiceDetailPage = React.memo(function ServiceDetailPage({ routerI
               }}
               onError={(error) => {
                 toast.error(
-                  error instanceof Error
-                    ? error.message
-                    : t('services.resourceLimits.error')
+                  error instanceof Error ? error.message : t('services.resourceLimits.error')
                 );
               }}
             />
@@ -326,7 +368,10 @@ export const ServiceDetailPage = React.memo(function ServiceDetailPage({ routerI
           </TabsContent>
 
           {/* Traffic tab */}
-          <TabsContent value="traffic" className="space-y-component-md">
+          <TabsContent
+            value="traffic"
+            className="space-y-component-md"
+          >
             {/* Traffic statistics panel */}
             <ServiceTrafficPanel
               routerID={routerId}
@@ -343,11 +388,7 @@ export const ServiceDetailPage = React.memo(function ServiceDetailPage({ routerI
                 toast.success(t('services.quota.success'));
               }}
               onError={(error) => {
-                toast.error(
-                  error instanceof Error
-                    ? error.message
-                    : t('services.quota.error')
-                );
+                toast.error(error instanceof Error ? error.message : t('services.quota.error'));
               }}
             />
           </TabsContent>
@@ -390,12 +431,12 @@ export const ServiceDetailPage = React.memo(function ServiceDetailPage({ routerI
 
       {/* Export Dialog */}
       <ServiceExportDialog
-        {...{
+        {...({
           open: exportDialogOpen,
           onClose: () => setExportDialogOpen(false),
           instanceId,
           routerId,
-        } as any}
+        } as any)}
       />
     </div>
   );

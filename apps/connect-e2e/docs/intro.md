@@ -5,7 +5,8 @@ title: Introduction
 
 # E2E Testing
 
-End-to-end tests for NasNet using **Playwright**. These tests validate the full application stack across multiple browsers.
+End-to-end tests for NasNet using **Playwright**. These tests validate the full application stack
+across multiple browsers.
 
 ## Tech Stack
 
@@ -33,7 +34,8 @@ apps/connect-e2e/
 
 ## Writing Tests
 
-Tests follow the Page Object Model pattern. Each page or component has a corresponding helper that encapsulates selectors and interactions.
+Tests follow the Page Object Model pattern. Each page or component has a corresponding helper that
+encapsulates selectors and interactions.
 
 ```typescript
 import { test, expect } from '@playwright/test';

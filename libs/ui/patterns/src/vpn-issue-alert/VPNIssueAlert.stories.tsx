@@ -86,7 +86,8 @@ export const ConnectionWarning: Story = {
       protocol: 'wireguard',
       entityType: 'client',
       entityName: 'Office VPN',
-      message: 'Connection unstable — intermittent disconnections detected. Consider checking your network connection.',
+      message:
+        'Connection unstable — intermittent disconnections detected. Consider checking your network connection.',
       timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
     },
   },
@@ -104,7 +105,8 @@ export const ConnectionError: Story = {
       protocol: 'openvpn',
       entityType: 'server',
       entityName: 'Main OpenVPN',
-      message: 'Connection failed — Server unreachable. Check your firewall rules and network connectivity.',
+      message:
+        'Connection failed — Server unreachable. Check your firewall rules and network connectivity.',
       timestamp: new Date(Date.now() - 15 * 60 * 1000), // 15 minutes ago
     },
   },
@@ -140,7 +142,8 @@ export const AuthenticationError: Story = {
       protocol: 'ikev2',
       entityType: 'client',
       entityName: 'Mobile VPN',
-      message: 'Authentication failed — Invalid credentials. Please verify your username and password.',
+      message:
+        'Authentication failed — Invalid credentials. Please verify your username and password.',
       timestamp: new Date(Date.now() - 5 * 60 * 1000), // 5 minutes ago
     },
   },
@@ -176,7 +179,8 @@ export const SSTPWarning: Story = {
       protocol: 'sstp',
       entityType: 'server',
       entityName: 'SSTP Gateway',
-      message: 'High latency detected — Response times averaging 250ms. Network quality may be degraded.',
+      message:
+        'High latency detected — Response times averaging 250ms. Network quality may be degraded.',
       timestamp: new Date(Date.now() - 30 * 60 * 1000), // 30 minutes ago
     },
   },

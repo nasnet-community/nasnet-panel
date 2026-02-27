@@ -61,10 +61,7 @@ function transformOpenVPNServer(raw: OpenVPNServerRaw): OpenVPNServer {
  * Fetch OpenVPN servers from RouterOS
  */
 async function fetchOpenVPNServers(routerIp: string): Promise<OpenVPNServer[]> {
-  const result = await makeRouterOSRequest<OpenVPNServerRaw[]>(
-    routerIp,
-    'interface/ovpn-server'
-  );
+  const result = await makeRouterOSRequest<OpenVPNServerRaw[]>(routerIp, 'interface/ovpn-server');
 
   if (!result.success || !result.data) {
     throw new Error(result.error || 'Failed to fetch OpenVPN servers');
@@ -91,4 +88,3 @@ export function useOpenVPNServers(routerIp: string): UseQueryResult<OpenVPNServe
     enabled: !!routerIp,
   });
 }
-

@@ -9,7 +9,6 @@ import { VPNStatusCard } from './VPNStatusCard';
 
 import type { Meta, StoryObj } from '@storybook/react';
 
-
 // ---------------------------------------------------------------------------
 // Meta
 // ---------------------------------------------------------------------------
@@ -56,7 +55,8 @@ export const Disconnected: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Default disconnected state. Card uses neutral styling and shows a "Connect" action button.',
+        story:
+          'Default disconnected state. Card uses neutral styling and shows a "Connect" action button.',
       },
     },
   },
@@ -72,7 +72,8 @@ export const ConnectedWithLocation: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Connected state with a named tunnel and server location. Emerald gradient border and Shield icon are visible.',
+        story:
+          'Connected state with a named tunnel and server location. Emerald gradient border and Shield icon are visible.',
       },
     },
   },
@@ -88,7 +89,8 @@ export const ConnectedNoLocation: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Connected state when the server location is unknown. The sub-line shows only the connection name.',
+        story:
+          'Connected state when the server location is unknown. The sub-line shows only the connection name.',
       },
     },
   },
@@ -104,7 +106,8 @@ export const ConnectedLongName: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Connected with a long connection name and location string — verifies text truncation and layout.',
+        story:
+          'Connected with a long connection name and location string — verifies text truncation and layout.',
       },
     },
   },
@@ -128,7 +131,8 @@ export const DefaultProps: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Rendered with no props — all values fall back to defaults (isConnected=false, connectionName="VPN").',
+        story:
+          'Rendered with no props — all values fall back to defaults (isConnected=false, connectionName="VPN").',
       },
     },
   },

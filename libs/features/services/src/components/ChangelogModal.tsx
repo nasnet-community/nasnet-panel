@@ -145,16 +145,20 @@ function ChangelogModalComponent(props: ChangelogModalProps) {
   }, [changelogUrl]);
 
   return (
-    <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
-      <DialogContent className={cn('max-w-2xl max-h-[80vh] overflow-y-auto', className)}>
+    <Dialog
+      open={open}
+      onOpenChange={(isOpen) => !isOpen && onClose()}
+    >
+      <DialogContent className={cn('max-h-[80vh] max-w-2xl overflow-y-auto', className)}>
         <DialogHeader>
           <DialogTitle className="flex items-center gap-3">
-            <SeverityIcon className="h-6 w-6" aria-hidden="true" />
+            <SeverityIcon
+              className="h-6 w-6"
+              aria-hidden="true"
+            />
             <span>{instanceName} Update</span>
           </DialogTitle>
-          <DialogDescription>
-            View changelog and release notes for this update
-          </DialogDescription>
+          <DialogDescription>View changelog and release notes for this update</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-component-lg py-component-md">
@@ -162,29 +166,30 @@ function ChangelogModalComponent(props: ChangelogModalProps) {
           <div className="flex items-center justify-between">
             <Badge
               className={cn(
-                'inline-flex items-center gap-component-sm px-component-md py-1.5 text-sm font-medium border',
+                'gap-component-sm px-component-md inline-flex items-center border py-1.5 text-sm font-medium',
                 severityColor
               )}
             >
-              <SeverityIcon className="h-4 w-4" aria-hidden="true" />
+              <SeverityIcon
+                className="h-4 w-4"
+                aria-hidden="true"
+              />
               {severityLabel}
             </Badge>
             {formattedDate && (
-              <span className="text-sm text-muted-foreground">
-                Released {formattedDate}
-              </span>
+              <span className="text-muted-foreground text-sm">Released {formattedDate}</span>
             )}
           </div>
 
           {/* Version diff */}
-          <div className="rounded-md bg-muted p-component-md">
-            <h3 className="text-sm font-medium text-muted-foreground mb-component-sm">
+          <div className="bg-muted p-component-md rounded-md">
+            <h3 className="text-muted-foreground mb-component-sm text-sm font-medium">
               Version Change
             </h3>
             <p className="font-mono text-lg">
               <span className="text-muted-foreground">v{currentVersion}</span>
               <span className="mx-component-md text-muted-foreground">→</span>
-              <span className="font-mono font-semibold text-foreground">v{newVersion}</span>
+              <span className="text-foreground font-mono font-semibold">v{newVersion}</span>
             </p>
           </div>
 
@@ -192,35 +197,30 @@ function ChangelogModalComponent(props: ChangelogModalProps) {
           {(securityFixes || breakingChanges) && (
             <div className="space-y-component-sm">
               {securityFixes && (
-                <div className="flex items-start gap-component-md rounded-md border border-error/20 bg-error/10 p-component-sm">
+                <div className="gap-component-md border-error/20 bg-error/10 p-component-sm flex items-start rounded-md border">
                   <ShieldAlert
-                    className="h-5 w-5 text-error flex-shrink-0 mt-0.5"
+                    className="text-error mt-0.5 h-5 w-5 flex-shrink-0"
                     aria-hidden="true"
                   />
                   <div className="flex-1">
-                    <p className="text-sm font-medium text-error">
-                      Security Fixes Included
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-component-sm">
-                      This update includes important security patches. We recommend
-                      updating as soon as possible.
+                    <p className="text-error text-sm font-medium">Security Fixes Included</p>
+                    <p className="text-muted-foreground mt-component-sm text-xs">
+                      This update includes important security patches. We recommend updating as soon
+                      as possible.
                     </p>
                   </div>
                 </div>
               )}
               {breakingChanges && (
-                <div className="flex items-start gap-component-md rounded-md border border-warning/20 bg-warning/10 p-component-sm">
+                <div className="gap-component-md border-warning/20 bg-warning/10 p-component-sm flex items-start rounded-md border">
                   <AlertCircle
-                    className="h-5 w-5 text-warning flex-shrink-0 mt-0.5"
+                    className="text-warning mt-0.5 h-5 w-5 flex-shrink-0"
                     aria-hidden="true"
                   />
                   <div className="flex-1">
-                    <p className="text-sm font-medium text-warning">
-                      Breaking Changes
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-component-sm">
-                      This update contains breaking changes. Review the changelog
-                      before updating.
+                    <p className="text-warning text-sm font-medium">Breaking Changes</p>
+                    <p className="text-muted-foreground mt-component-sm text-xs">
+                      This update contains breaking changes. Review the changelog before updating.
                     </p>
                   </div>
                 </div>
@@ -231,15 +231,18 @@ function ChangelogModalComponent(props: ChangelogModalProps) {
           <Separator />
 
           {/* Changelog preview message */}
-          <div className="text-center py-component-lg space-y-component-md">
-            <p className="text-sm text-muted-foreground">
+          <div className="py-component-lg space-y-component-md text-center">
+            <p className="text-muted-foreground text-sm">
               For detailed release notes and changelog, visit the GitHub release page.
             </p>
             <Button
               onClick={handleOpenChangelog}
               className="inline-flex items-center gap-2"
             >
-              <ExternalLink className="h-4 w-4" aria-hidden="true" />
+              <ExternalLink
+                className="h-4 w-4"
+                aria-hidden="true"
+              />
               View Full Changelog on GitHub
             </Button>
           </div>

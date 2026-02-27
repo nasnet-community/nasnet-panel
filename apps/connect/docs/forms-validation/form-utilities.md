@@ -6,15 +6,18 @@ This document covers the core form utility hooks and functions in `libs/core/for
 
 File: `libs/core/forms/src/useZodForm.ts`
 
-A thin wrapper around `useForm` from React Hook Form that automatically wires in a Zod schema via `zodResolver`. The primary advantage over calling `useForm` directly is that TypeScript infers form field types from the schema — no manual type annotation required.
+A thin wrapper around `useForm` from React Hook Form that automatically wires in a Zod schema via
+`zodResolver`. The primary advantage over calling `useForm` directly is that TypeScript infers form
+field types from the schema — no manual type annotation required.
 
 ### Signature
 
 ```typescript
-function useZodForm<T extends ZodSchema>(options: UseZodFormOptions<T>): UseFormReturn<z.infer<T>>
+function useZodForm<T extends ZodSchema>(options: UseZodFormOptions<T>): UseFormReturn<z.infer<T>>;
 
-interface UseZodFormOptions<T extends ZodSchema> extends Omit<UseFormProps<z.infer<T>>, 'resolver'> {
-  schema: T;  // required
+interface UseZodFormOptions<T extends ZodSchema>
+  extends Omit<UseFormProps<z.infer<T>>, 'resolver'> {
+  schema: T; // required
 }
 ```
 
@@ -72,25 +75,26 @@ function MyForm() {
 
 File: `libs/core/forms/src/useFormPersistence.ts`
 
-Automatically saves form data to `sessionStorage` (default) on every change and restores it on mount. Designed for long forms where the user might accidentally refresh or navigate away.
+Automatically saves form data to `sessionStorage` (default) on every change and restores it on
+mount. Designed for long forms where the user might accidentally refresh or navigate away.
 
 ### Signature
 
 ```typescript
 function useFormPersistence<T extends FieldValues>(
   options: UseFormPersistenceOptions<T>
-): UseFormPersistenceResult
+): UseFormPersistenceResult;
 ```
 
 ### Options
 
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `form` | `UseFormReturn<T>` | required | React Hook Form instance |
-| `storageKey` | `string` | required | Unique key for storage |
-| `storage` | `Storage` | `sessionStorage` | Storage backend |
-| `debounceMs` | `number` | `1000` | Delay before writing (ms) |
-| `excludeFields` | `(keyof T)[]` | `[]` | Fields to exclude from persistence |
+| Option          | Type               | Default          | Description                        |
+| --------------- | ------------------ | ---------------- | ---------------------------------- |
+| `form`          | `UseFormReturn<T>` | required         | React Hook Form instance           |
+| `storageKey`    | `string`           | required         | Unique key for storage             |
+| `storage`       | `Storage`          | `sessionStorage` | Storage backend                    |
+| `debounceMs`    | `number`           | `1000`           | Delay before writing (ms)          |
+| `excludeFields` | `(keyof T)[]`      | `[]`             | Fields to exclude from persistence |
 
 ### Usage
 
@@ -119,20 +123,21 @@ function WizardStep1() {
 
 ### Returned Methods
 
-| Method | Description |
-|--------|-------------|
-| `clearPersistence()` | Remove saved data from storage |
-| `hasSavedData()` | Returns `true` if saved data exists |
-| `restore()` | Manually trigger restoration (called automatically on mount) |
+| Method               | Description                                                  |
+| -------------------- | ------------------------------------------------------------ |
+| `clearPersistence()` | Remove saved data from storage                               |
+| `hasSavedData()`     | Returns `true` if saved data exists                          |
+| `restore()`          | Manually trigger restoration (called automatically on mount) |
 
 ### Important: Clear on Completion
 
-Always call `clearPersistence()` when the form is successfully submitted to prevent stale data appearing on the next visit:
+Always call `clearPersistence()` when the form is successfully submitted to prevent stale data
+appearing on the next visit:
 
 ```typescript
 const onSubmit = form.handleSubmit(async (data) => {
   await save(data);
-  persistence.clearPersistence();  // clean up after success
+  persistence.clearPersistence(); // clean up after success
 });
 ```
 
@@ -142,29 +147,30 @@ const onSubmit = form.handleSubmit(async (data) => {
 
 File: `libs/core/forms/src/useFormResourceSync.ts`
 
-Bridges React Hook Form with the Universal State v2 8-layer model. Manages the Edit layer (form draft), Optimistic layer, Validation layer, and Error layer in a unified way.
+Bridges React Hook Form with the Universal State v2 8-layer model. Manages the Edit layer (form
+draft), Optimistic layer, Validation layer, and Error layer in a unified way.
 
 ### Signature
 
 ```typescript
 function useFormResourceSync<T extends FieldValues>(
   options: UseFormResourceSyncOptions<T> & { form: UseFormReturn<T> }
-): UseFormResourceSyncReturn<T>
+): UseFormResourceSyncReturn<T>;
 ```
 
 ### Options
 
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `form` | `UseFormReturn<T>` | required | React Hook Form instance |
-| `sourceData` | `T \| null` | required | Server data to sync with |
-| `resourceId` | `string` | — | For edit forms |
-| `resourceVersion` | `string` | — | For conflict detection |
-| `onSave` | `(data: T) => Promise<void>` | — | Mutation function |
-| `onSaveError` | `(error: Error) => void` | — | Error callback |
-| `onSourceChange` | `(newSource: T) => void` | — | Called if source updates while editing |
-| `autoReset` | `boolean` | `true` | Reset form when source changes |
-| `trackChanges` | `boolean` | `true` | Compute diff against source |
+| Option            | Type                         | Default  | Description                            |
+| ----------------- | ---------------------------- | -------- | -------------------------------------- |
+| `form`            | `UseFormReturn<T>`           | required | React Hook Form instance               |
+| `sourceData`      | `T \| null`                  | required | Server data to sync with               |
+| `resourceId`      | `string`                     | —        | For edit forms                         |
+| `resourceVersion` | `string`                     | —        | For conflict detection                 |
+| `onSave`          | `(data: T) => Promise<void>` | —        | Mutation function                      |
+| `onSaveError`     | `(error: Error) => void`     | —        | Error callback                         |
+| `onSourceChange`  | `(newSource: T) => void`     | —        | Called if source updates while editing |
+| `autoReset`       | `boolean`                    | `true`   | Reset form when source changes         |
+| `trackChanges`    | `boolean`                    | `true`   | Compute diff against source            |
 
 ### Usage
 
@@ -214,29 +220,29 @@ function EditWireGuardPeer({ peerId }: { peerId: string }) {
 
 The `state` object exposes the Universal State v2 layers:
 
-| Property | Layer | Description |
-|----------|-------|-------------|
-| `state.source` | Source | Last data from backend |
-| `state.optimistic` | Optimistic | Pending mutation response |
-| `state.edit` | Edit | Current form values |
-| `state.validation` | Validation | `isValid`, `isValidating`, `errors` |
-| `state.error` | Error | Last mutation error |
-| `state.isDirty` | — | Form has unsaved changes |
-| `state.isSaving` | — | Mutation in flight |
-| `state.hasSourceChanged` | — | Backend version changed during edit |
+| Property                 | Layer      | Description                         |
+| ------------------------ | ---------- | ----------------------------------- |
+| `state.source`           | Source     | Last data from backend              |
+| `state.optimistic`       | Optimistic | Pending mutation response           |
+| `state.edit`             | Edit       | Current form values                 |
+| `state.validation`       | Validation | `isValid`, `isValidating`, `errors` |
+| `state.error`            | Error      | Last mutation error                 |
+| `state.isDirty`          | —          | Form has unsaved changes            |
+| `state.isSaving`         | —          | Mutation in flight                  |
+| `state.hasSourceChanged` | —          | Backend version changed during edit |
 
 ### Actions
 
-| Action | Description |
-|--------|-------------|
-| `actions.startSave()` | Execute save with optimistic update |
-| `actions.completeSave()` | Mark save complete (source → current values) |
-| `actions.handleSaveError(err)` | Handle failure (clears optimistic) |
-| `actions.resetToSource()` | Reset form to last server data |
-| `actions.discardChanges()` | Reset and clear errors |
-| `actions.applyOptimistic(data)` | Manually apply optimistic state |
-| `actions.clearOptimistic()` | Remove optimistic state |
-| `actions.mergeSourceChanges(fn)` | Resolve conflict with custom merge function |
+| Action                           | Description                                  |
+| -------------------------------- | -------------------------------------------- |
+| `actions.startSave()`            | Execute save with optimistic update          |
+| `actions.completeSave()`         | Mark save complete (source → current values) |
+| `actions.handleSaveError(err)`   | Handle failure (clears optimistic)           |
+| `actions.resetToSource()`        | Reset form to last server data               |
+| `actions.discardChanges()`       | Reset and clear errors                       |
+| `actions.applyOptimistic(data)`  | Manually apply optimistic state              |
+| `actions.clearOptimistic()`      | Remove optimistic state                      |
+| `actions.mergeSourceChanges(fn)` | Resolve conflict with custom merge function  |
 
 ---
 
@@ -248,7 +254,8 @@ Utilities for translating backend validation errors into React Hook Form's error
 
 ### mapBackendErrorsToForm
 
-Maps `ValidationError[]` (from the validation pipeline or a GraphQL response) to form field errors. Supports nested paths like `peers.0.endpoint`.
+Maps `ValidationError[]` (from the validation pipeline or a GraphQL response) to form field errors.
+Supports nested paths like `peers.0.endpoint`.
 
 ```typescript
 import { mapBackendErrorsToForm } from '@nasnet/core/forms';
@@ -261,7 +268,8 @@ if (!result.isValid) {
 
 ### clearServerErrors
 
-Removes all errors with `type: 'server'` from the form. Call this before re-validating to remove stale errors.
+Removes all errors with `type: 'server'` from the form. Call this before re-validating to remove
+stale errors.
 
 ```typescript
 import { clearServerErrors } from '@nasnet/core/forms';

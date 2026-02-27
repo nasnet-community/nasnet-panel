@@ -145,9 +145,9 @@ const DEFAULT_TTL = 24 * 60 * 60 * 1000; // 24 hours
  * }
  * ```
  */
-export function useWizardPersistence<
-  TStepData extends Record<string, FieldValues>
->(options: UseWizardPersistenceOptions<TStepData>): UseWizardPersistenceReturn<TStepData> {
+export function useWizardPersistence<TStepData extends Record<string, FieldValues>>(
+  options: UseWizardPersistenceOptions<TStepData>
+): UseWizardPersistenceReturn<TStepData> {
   const {
     storageKey,
     stepIds,
@@ -243,16 +243,12 @@ export function useWizardPersistence<
 
   // Computed values
   const currentStepId =
-    typeof state.currentStep === 'number'
-      ? stepIds[state.currentStep]
-      : state.currentStep;
+    typeof state.currentStep === 'number' ? stepIds[state.currentStep] : state.currentStep;
 
   const currentStepIndex = stepIds.indexOf(currentStepId);
   const isFirstStep = currentStepIndex === 0;
   const isLastStep = currentStepIndex === stepIds.length - 1;
-  const progress = Math.round(
-    (state.completedSteps.length / stepIds.length) * 100
-  );
+  const progress = Math.round((state.completedSteps.length / stepIds.length) * 100);
 
   // Actions
   const getStepData = React.useCallback(
@@ -279,8 +275,9 @@ export function useWizardPersistence<
     (stepId: string) => {
       updateState((prev) => ({
         ...prev,
-        completedSteps: prev.completedSteps.includes(stepId)
-          ? prev.completedSteps
+        completedSteps:
+          prev.completedSteps.includes(stepId) ?
+            prev.completedSteps
           : [...prev.completedSteps, stepId],
       }));
     },
@@ -348,10 +345,7 @@ export function useWizardPersistence<
     setWasRestored(false);
   }, [storage, storageKey, createInitialState]);
 
-  const getAllStepData = React.useCallback(
-    () => state.stepData,
-    [state.stepData]
-  );
+  const getAllStepData = React.useCallback(() => state.stepData, [state.stepData]);
 
   const setMetadata = React.useCallback(
     (metadata: Record<string, unknown>) => {

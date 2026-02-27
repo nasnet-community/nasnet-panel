@@ -109,11 +109,43 @@ export const WithFooter: Story = {
 };
 
 const firewallRules = [
-  { id: '1', chain: 'input', action: 'accept', src: '192.168.1.0/24', dst: 'any', protocol: 'tcp', port: '22' },
-  { id: '2', chain: 'input', action: 'accept', src: '192.168.1.0/24', dst: 'any', protocol: 'tcp', port: '80' },
-  { id: '3', chain: 'input', action: 'accept', src: '192.168.1.0/24', dst: 'any', protocol: 'tcp', port: '443' },
+  {
+    id: '1',
+    chain: 'input',
+    action: 'accept',
+    src: '192.168.1.0/24',
+    dst: 'any',
+    protocol: 'tcp',
+    port: '22',
+  },
+  {
+    id: '2',
+    chain: 'input',
+    action: 'accept',
+    src: '192.168.1.0/24',
+    dst: 'any',
+    protocol: 'tcp',
+    port: '80',
+  },
+  {
+    id: '3',
+    chain: 'input',
+    action: 'accept',
+    src: '192.168.1.0/24',
+    dst: 'any',
+    protocol: 'tcp',
+    port: '443',
+  },
   { id: '4', chain: 'input', action: 'drop', src: 'any', dst: 'any', protocol: 'all', port: 'any' },
-  { id: '5', chain: 'forward', action: 'accept', src: '192.168.1.0/24', dst: 'any', protocol: 'all', port: 'any' },
+  {
+    id: '5',
+    chain: 'forward',
+    action: 'accept',
+    src: '192.168.1.0/24',
+    dst: 'any',
+    protocol: 'all',
+    port: 'any',
+  },
 ];
 
 /**
@@ -142,13 +174,7 @@ export const FirewallRulesExample: Story = {
             <TableCell className="font-medium">{rule.id}</TableCell>
             <TableCell>{rule.chain}</TableCell>
             <TableCell>
-              <span
-                className={
-                  rule.action === 'accept'
-                    ? 'text-success'
-                    : 'text-error'
-                }
-              >
+              <span className={rule.action === 'accept' ? 'text-success' : 'text-error'}>
                 {rule.action}
               </span>
             </TableCell>
@@ -181,7 +207,10 @@ export const Empty: Story = {
       </TableHeader>
       <TableBody>
         <TableRow>
-          <TableCell colSpan={4} className="h-24 text-center">
+          <TableCell
+            colSpan={4}
+            className="h-24 text-center"
+          >
             No results found.
           </TableCell>
         </TableRow>
@@ -213,7 +242,10 @@ export const Striped: Story = {
           { name: 'Alice Brown', email: 'alice@example.com', role: 'User' },
           { name: 'Charlie Wilson', email: 'charlie@example.com', role: 'Viewer' },
         ].map((user, index) => (
-          <TableRow key={user.email} className={index % 2 === 0 ? 'bg-muted/50' : ''}>
+          <TableRow
+            key={user.email}
+            className={index % 2 === 0 ? 'bg-muted/50' : ''}
+          >
             <TableCell className="font-medium">{user.name}</TableCell>
             <TableCell>{user.email}</TableCell>
             <TableCell>{user.role}</TableCell>
@@ -252,13 +284,7 @@ export const Mobile: Story = {
           <TableRow key={rule.id}>
             <TableCell>{rule.chain}</TableCell>
             <TableCell>
-              <span
-                className={
-                  rule.action === 'accept'
-                    ? 'text-success'
-                    : 'text-error'
-                }
-              >
+              <span className={rule.action === 'accept' ? 'text-success' : 'text-error'}>
                 {rule.action}
               </span>
             </TableCell>
@@ -334,13 +360,7 @@ export const DesktopFull: Story = {
             <TableCell className="font-medium">{rule.id}</TableCell>
             <TableCell>{rule.chain}</TableCell>
             <TableCell>
-              <span
-                className={
-                  rule.action === 'accept'
-                    ? 'text-success'
-                    : 'text-error'
-                }
-              >
+              <span className={rule.action === 'accept' ? 'text-success' : 'text-error'}>
                 {rule.action}
               </span>
             </TableCell>

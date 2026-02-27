@@ -9,7 +9,11 @@ import { useState, useCallback } from 'react';
 import { useImportService } from '@nasnet/api-client/queries';
 
 // Client-side validation helper (inline since schema module path is complex)
-function validateImportPackageJSON(json: string): { valid: boolean; data?: unknown; errors?: { issues: Array<{ path: string[]; message: string }> } } {
+function validateImportPackageJSON(json: string): {
+  valid: boolean;
+  data?: unknown;
+  errors?: { issues: Array<{ path: string[]; message: string }> };
+} {
   try {
     const parsed = JSON.parse(json);
     if (!parsed || typeof parsed !== 'object') {
@@ -67,14 +71,17 @@ export function useServiceImportDialog(props: ServiceImportDialogProps) {
   }, []);
 
   // Handle file upload
-  const handleFileUpload = useCallback((file: File) => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const text = e.target?.result as string;
-      setContent(text);
-    };
-    reader.readAsText(file);
-  }, [setContent]);
+  const handleFileUpload = useCallback(
+    (file: File) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const text = e.target?.result as string;
+        setContent(text);
+      };
+      reader.readAsText(file);
+    },
+    [setContent]
+  );
 
   // Parse and validate package
   const handleValidate = useCallback(async () => {
@@ -88,7 +95,10 @@ export function useServiceImportDialog(props: ServiceImportDialogProps) {
 
     if (!clientValidation.valid) {
       const errorMessages = clientValidation.errors?.issues
-        .map((issue: { path: string[]; message: string }) => `${issue.path.join('.')}: ${issue.message}`)
+        .map(
+          (issue: { path: string[]; message: string }) =>
+            `${issue.path.join('.')}: ${issue.message}`
+        )
         .join(', ');
       setState((prev) => ({
         ...prev,
@@ -116,7 +126,10 @@ export function useServiceImportDialog(props: ServiceImportDialogProps) {
       if (importPayload?.validationResult) {
         const validationResult = importPayload.validationResult;
 
-        if (validationResult.valid && !(validationResult as Record<string, unknown>).requiresUserInput) {
+        if (
+          validationResult.valid &&
+          !(validationResult as Record<string, unknown>).requiresUserInput
+        ) {
           // Validation passed, no user input needed
           setState((prev) => ({
             ...prev,
@@ -125,7 +138,11 @@ export function useServiceImportDialog(props: ServiceImportDialogProps) {
           }));
           // Auto-proceed to import
           handleImport();
-        } else if ((validationResult as unknown as Record<string, unknown>).requiresUserInput || (validationResult as unknown as Record<string, unknown> & { errors?: unknown[] }).errors?.length) {
+        } else if (
+          (validationResult as unknown as Record<string, unknown>).requiresUserInput ||
+          (validationResult as unknown as Record<string, unknown> & { errors?: unknown[] }).errors
+            ?.length
+        ) {
           // Validation requires user input or has errors
           setState((prev) => ({
             ...prev,
@@ -168,8 +185,9 @@ export function useServiceImportDialog(props: ServiceImportDialogProps) {
   // Toggle device filter
   const toggleDeviceFilter = useCallback((deviceMAC: string) => {
     setState((prev) => {
-      const deviceFilter = prev.deviceFilter.includes(deviceMAC)
-        ? prev.deviceFilter.filter((mac) => mac !== deviceMAC)
+      const deviceFilter =
+        prev.deviceFilter.includes(deviceMAC) ?
+          prev.deviceFilter.filter((mac) => mac !== deviceMAC)
         : [...prev.deviceFilter, deviceMAC];
       return { ...prev, deviceFilter };
     });
@@ -198,9 +216,7 @@ export function useServiceImportDialog(props: ServiceImportDialogProps) {
         package: JSON.parse(state.content),
         dryRun: false,
         redactedFieldValues:
-          Object.keys(state.redactedFieldValues).length > 0
-            ? state.redactedFieldValues
-            : undefined,
+          Object.keys(state.redactedFieldValues).length > 0 ? state.redactedFieldValues : undefined,
         conflictResolution: (state.conflictResolution ?? null) as any,
         deviceFilter: state.deviceFilter.length > 0 ? state.deviceFilter : undefined,
       });

@@ -16,7 +16,9 @@ export async function detectISP(wanIp: string): Promise<ISPInfo> {
     const response = await fetch(`http://ip-api.com/json/${wanIp}?fields=isp,org`);
 
     if (!response.ok) {
-      console.warn(`ISP lookup failed: HTTP ${response.status}. Service may be rate-limited or unavailable.`);
+      console.warn(
+        `ISP lookup failed: HTTP ${response.status}. Service may be rate-limited or unavailable.`
+      );
       return { name: null, supportPhone: null, supportUrl: null, detected: false };
     }
 
@@ -112,7 +114,10 @@ export async function getWanIpForISPDetection(
     // No IP address found on WAN interface
     return null;
   } catch (error) {
-    console.warn('Failed to retrieve WAN IP for ISP detection:', error instanceof Error ? error.message : 'Unknown error');
+    console.warn(
+      'Failed to retrieve WAN IP for ISP detection:',
+      error instanceof Error ? error.message : 'Unknown error'
+    );
     return null;
   }
 }

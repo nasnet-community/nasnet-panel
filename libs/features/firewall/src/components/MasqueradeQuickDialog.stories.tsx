@@ -22,7 +22,11 @@ function DialogWrapper(props: React.ComponentProps<typeof MasqueradeQuickDialog>
   return (
     <div className="flex items-center justify-center p-8">
       <Button onClick={() => setOpen(true)}>Quick Masquerade</Button>
-      <MasqueradeQuickDialog {...props} open={open} onOpenChange={setOpen} />
+      <MasqueradeQuickDialog
+        {...props}
+        open={open}
+        onOpenChange={setOpen}
+      />
     </div>
   );
 }
@@ -42,7 +46,7 @@ const meta: Meta<typeof MasqueradeQuickDialog> = {
         component:
           'Simple one-step dialog for quickly creating a masquerade (source NAT) rule. ' +
           'The admin selects a WAN interface and optionally provides a comment. ' +
-          'Masquerade translates all internal IPs to the router\'s WAN address for outbound traffic, ' +
+          "Masquerade translates all internal IPs to the router's WAN address for outbound traffic, " +
           'making it the standard solution for home and office internet sharing.',
       },
     },
@@ -81,7 +85,8 @@ export const SingleInterface: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'When there is only one WAN interface it is pre-selected with no alternatives in the dropdown.',
+        story:
+          'When there is only one WAN interface it is pre-selected with no alternatives in the dropdown.',
       },
     },
   },
@@ -96,7 +101,8 @@ export const WithPppoeInterface: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'PPPoE dialup interfaces are common on home routers. This story shows the dropdown pre-selecting "pppoe-out1".',
+        story:
+          'PPPoE dialup interfaces are common on home routers. This story shows the dropdown pre-selecting "pppoe-out1".',
       },
     },
   },
@@ -105,14 +111,7 @@ export const WithPppoeInterface: Story = {
 export const ManyInterfaces: Story = {
   args: {
     routerIp: '10.0.0.1',
-    wanInterfaces: [
-      'ether1',
-      'ether2',
-      'sfp-sfpplus1',
-      'pppoe-out1',
-      'vlan100',
-      'lte1',
-    ],
+    wanInterfaces: ['ether1', 'ether2', 'sfp-sfpplus1', 'pppoe-out1', 'vlan100', 'lte1'],
     onSuccess: () => console.info('Masquerade rule created'),
   },
   parameters: {

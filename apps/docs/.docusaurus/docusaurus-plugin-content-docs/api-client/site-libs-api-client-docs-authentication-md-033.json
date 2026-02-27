@@ -1,7 +1,7 @@
 {
   "id": "authentication",
   "title": "Authentication",
-  "description": "NasNetConnect uses two parallel authentication systems that operate independently: an Apollo auth link for GraphQL operations and an Axios interceptor for REST API calls. Both systems share the same JWT-first, Basic-fallback priority but differ in credential storage scope — the Apollo link uses per-router sessionStorage keys while the Axios interceptor uses a global localStorage key. Authentication for WebSocket subscriptions is handled separately via connectionParams on every connect/reconnect cycle.",
+  "description": "NasNetConnect uses two parallel authentication systems that operate independently: an Apollo auth",
   "source": "@site/../../libs/api-client/docs/authentication.md",
   "sourceDirName": ".",
   "slug": "/authentication",

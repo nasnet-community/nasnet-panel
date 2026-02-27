@@ -42,14 +42,20 @@ export const DashboardPage = memo(function DashboardPage() {
   };
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="flex h-full flex-col">
       {/* Offline Banner (shown when all routers offline/stale) */}
       {/* TODO: Implement offline detection logic */}
 
       {/* Dashboard Layout with Router Health Cards */}
-      <DashboardLayout onRefresh={handleRefresh} showRefresh={true}>
+      <DashboardLayout
+        onRefresh={handleRefresh}
+        showRefresh={true}
+      >
         {MOCK_ROUTER_IDS.map((routerId) => (
-          <div key={routerId} className="space-y-component-xl">
+          <div
+            key={routerId}
+            className="space-y-component-xl"
+          >
             {/* Router Health Summary (Story 5.1) */}
             <RouterHealthSummaryCard
               routerId={routerId}
@@ -74,12 +80,10 @@ export const DashboardPage = memo(function DashboardPage() {
 
         {/* Empty State - shown when no routers configured */}
         {MOCK_ROUTER_IDS.length === 0 && (
-          <div className="col-span-full flex flex-col items-center justify-center py-component-xl text-center">
+          <div className="py-component-xl col-span-full flex flex-col items-center justify-center text-center">
             <div className="space-y-component-md">
-              <h3 className="text-lg font-medium text-foreground">
-                No routers configured
-              </h3>
-              <p className="text-sm text-muted-foreground max-w-md">
+              <h3 className="text-foreground text-lg font-medium">No routers configured</h3>
+              <p className="text-muted-foreground max-w-md text-sm">
                 Add your first router to start monitoring your network health and performance.
               </p>
               {/* TODO: Add "Add Router" button with navigation to router discovery */}

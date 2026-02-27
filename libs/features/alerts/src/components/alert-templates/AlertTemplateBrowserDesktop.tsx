@@ -71,8 +71,7 @@ interface FilterPanelProps {
 }
 
 function FilterPanel({ browser }: FilterPanelProps) {
-  const { filter, setFilter, clearFilter, hasActiveFilter, categoryCount, severityCount } =
-    browser;
+  const { filter, setFilter, clearFilter, hasActiveFilter, categoryCount, severityCount } = browser;
 
   const categories = getAllCategories();
   const severities = ['CRITICAL', 'WARNING', 'INFO'] as const;
@@ -90,7 +89,7 @@ function FilterPanel({ browser }: FilterPanelProps) {
   };
 
   return (
-    <div className="w-64 border-r border-border bg-card p-component-md space-y-component-lg overflow-y-auto">
+    <div className="border-border bg-card p-component-md space-y-component-lg w-64 overflow-y-auto border-r">
       {/* Clear filters button */}
       {hasActiveFilter && (
         <Button
@@ -125,10 +124,9 @@ function FilterPanel({ browser }: FilterPanelProps) {
           <button
             onClick={() => setFilter({ category: 'all' })}
             className={cn(
-              'w-full text-left px-3 py-2 rounded-md text-sm transition-colors',
-              'hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 outline-none',
-              filter.category === 'all' &&
-                'bg-primary text-primary-foreground hover:bg-primary/90'
+              'w-full rounded-md px-3 py-2 text-left text-sm transition-colors',
+              'hover:bg-muted focus-visible:ring-ring outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
+              filter.category === 'all' && 'bg-primary text-primary-foreground hover:bg-primary/90'
             )}
             aria-label="Show all categories"
           >
@@ -153,15 +151,18 @@ function FilterPanel({ browser }: FilterPanelProps) {
                 key={cat.id}
                 onClick={() => setFilter({ category: cat.id })}
                 className={cn(
-                  'w-full text-left px-3 py-2 rounded-md text-sm transition-colors',
-                  'hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 outline-none',
+                  'w-full rounded-md px-3 py-2 text-left text-sm transition-colors',
+                  'hover:bg-muted focus-visible:ring-ring outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
                   isActive && 'bg-primary text-primary-foreground hover:bg-primary/90'
                 )}
                 aria-label={`Filter by ${cat.label} category`}
               >
                 <div className="flex items-center justify-between">
                   <span>{cat.label}</span>
-                  <Badge variant={isActive ? 'secondary' : 'outline'} className="text-xs">
+                  <Badge
+                    variant={isActive ? 'secondary' : 'outline'}
+                    className="text-xs"
+                  >
                     {count}
                   </Badge>
                 </div>
@@ -179,10 +180,9 @@ function FilterPanel({ browser }: FilterPanelProps) {
           <button
             onClick={() => setFilter({ severity: 'all' })}
             className={cn(
-              'w-full text-left px-3 py-2 rounded-md text-sm transition-colors',
-              'hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 outline-none',
-              filter.severity === 'all' &&
-                'bg-primary text-primary-foreground hover:bg-primary/90'
+              'w-full rounded-md px-3 py-2 text-left text-sm transition-colors',
+              'hover:bg-muted focus-visible:ring-ring outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
+              filter.severity === 'all' && 'bg-primary text-primary-foreground hover:bg-primary/90'
             )}
             aria-label="Show all severities"
           >
@@ -207,15 +207,18 @@ function FilterPanel({ browser }: FilterPanelProps) {
                 key={sev}
                 onClick={() => setFilter({ severity: sev })}
                 className={cn(
-                  'w-full text-left px-3 py-2 rounded-md text-sm transition-colors',
-                  'hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 outline-none',
+                  'w-full rounded-md px-3 py-2 text-left text-sm transition-colors',
+                  'hover:bg-muted focus-visible:ring-ring outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
                   isActive && 'bg-primary text-primary-foreground hover:bg-primary/90'
                 )}
                 aria-label={`Filter by ${severityLabels[sev]} severity`}
               >
                 <div className="flex items-center justify-between">
                   <span className={severityColors[sev]}>{severityLabels[sev]}</span>
-                  <Badge variant={isActive ? 'secondary' : 'outline'} className="text-xs">
+                  <Badge
+                    variant={isActive ? 'secondary' : 'outline'}
+                    className="text-xs"
+                  >
                     {count}
                   </Badge>
                 </div>
@@ -237,8 +240,8 @@ function FilterPanel({ browser }: FilterPanelProps) {
               })
             }
             className={cn(
-              'w-full text-left px-3 py-2 rounded-md text-sm transition-colors',
-              'hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 outline-none',
+              'w-full rounded-md px-3 py-2 text-left text-sm transition-colors',
+              'hover:bg-muted focus-visible:ring-ring outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
               filter.builtInOnly && 'bg-primary text-primary-foreground hover:bg-primary/90'
             )}
             aria-label="Show only built-in templates"
@@ -253,8 +256,8 @@ function FilterPanel({ browser }: FilterPanelProps) {
               })
             }
             className={cn(
-              'w-full text-left px-3 py-2 rounded-md text-sm transition-colors',
-              'hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 outline-none',
+              'w-full rounded-md px-3 py-2 text-left text-sm transition-colors',
+              'hover:bg-muted focus-visible:ring-ring outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
               filter.customOnly && 'bg-primary text-primary-foreground hover:bg-primary/90'
             )}
             aria-label="Show only custom templates"
@@ -303,8 +306,8 @@ const TemplateCardComponent = React.memo(function TemplateCardComponent({
   return (
     <Card
       className={cn(
-        'cursor-pointer transition-all hover:shadow-md focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
-        isSelected && 'ring-2 ring-primary'
+        'focus-visible:ring-ring cursor-pointer transition-all hover:shadow-md focus-visible:ring-2 focus-visible:ring-offset-2',
+        isSelected && 'ring-primary ring-2'
       )}
       onClick={onClick}
       role="button"
@@ -318,29 +321,37 @@ const TemplateCardComponent = React.memo(function TemplateCardComponent({
       }}
     >
       <CardHeader>
-        <div className="flex items-start justify-between gap-component-sm">
+        <div className="gap-component-sm flex items-start justify-between">
           <div className="flex-1">
             <CardTitle className="text-lg">{template.name}</CardTitle>
-            <div className="flex items-center gap-component-sm mt-component-sm">
-              <Badge variant="outline" className={cn('text-xs', categoryMeta.color)}>
+            <div className="gap-component-sm mt-component-sm flex items-center">
+              <Badge
+                variant="outline"
+                className={cn('text-xs', categoryMeta.color)}
+              >
                 {categoryMeta.label}
               </Badge>
               <Badge className={cn('text-xs', severityColors[template.severity])}>
                 {template.severity}
               </Badge>
               {template.isBuiltIn && (
-                <Badge variant="secondary" className="text-xs">
+                <Badge
+                  variant="secondary"
+                  className="text-xs"
+                >
                   Built-in
                 </Badge>
               )}
             </div>
           </div>
         </div>
-        <CardDescription className="mt-component-sm line-clamp-2">{template.description}</CardDescription>
+        <CardDescription className="mt-component-sm line-clamp-2">
+          {template.description}
+        </CardDescription>
       </CardHeader>
 
       <CardContent>
-        <div className="flex items-center gap-component-md text-sm text-muted-foreground">
+        <div className="gap-component-md text-muted-foreground flex items-center text-sm">
           <div>
             <span className="font-medium">{template.conditions.length}</span> condition
             {template.conditions.length !== 1 && 's'}
@@ -358,7 +369,7 @@ const TemplateCardComponent = React.memo(function TemplateCardComponent({
         </div>
       </CardContent>
 
-      <CardFooter className="flex gap-component-sm">
+      <CardFooter className="gap-component-sm flex">
         <Button
           variant="default"
           size="sm"
@@ -366,7 +377,7 @@ const TemplateCardComponent = React.memo(function TemplateCardComponent({
             e.stopPropagation();
             onApply();
           }}
-          className="flex-1 min-h-[44px]"
+          className="min-h-[44px] flex-1"
           aria-label={`Apply template ${template.name}`}
         >
           Apply Template
@@ -421,28 +432,42 @@ export const AlertTemplateBrowserDesktop = React.memo(function AlertTemplateBrow
   loading = false,
   className,
 }: AlertTemplateBrowserDesktopProps) {
-  const { filteredTemplates, filteredCount, sort, setSort, selection, selectTemplate, applyTemplate } =
-    browser;
+  const {
+    filteredTemplates,
+    filteredCount,
+    sort,
+    setSort,
+    selection,
+    selectTemplate,
+    applyTemplate,
+  } = browser;
 
   return (
-    <div className={cn('flex h-full', className)} role="main" aria-label="Alert template browser">
+    <div
+      className={cn('flex h-full', className)}
+      role="main"
+      aria-label="Alert template browser"
+    >
       {/* Sidebar filters */}
       <FilterPanel browser={browser} />
 
       {/* Main content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex flex-1 flex-col overflow-hidden">
         {/* Header with sort controls */}
-        <div className="border-b border-border p-component-md bg-card">
+        <div className="border-border p-component-md bg-card border-b">
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-xl font-semibold">Alert Rule Templates</h1>
-              <p className="text-sm text-muted-foreground" aria-live="polite">
+              <p
+                className="text-muted-foreground text-sm"
+                aria-live="polite"
+              >
                 {filteredCount} {filteredCount === 1 ? 'template' : 'templates'}
               </p>
             </div>
 
             {/* Sort controls */}
-            <div className="flex items-center gap-component-md">
+            <div className="gap-component-md flex items-center">
               <Tabs
                 value={sort.field}
                 onValueChange={(value) => setSort(value as typeof sort.field)}
@@ -457,7 +482,10 @@ export const AlertTemplateBrowserDesktop = React.memo(function AlertTemplateBrow
               </Tabs>
 
               {/* Sort direction indicator */}
-              <div className="text-sm text-muted-foreground" aria-live="polite">
+              <div
+                className="text-muted-foreground text-sm"
+                aria-live="polite"
+              >
                 {sort.direction === 'asc' ? '↑ A-Z' : '↓ Z-A'}
               </div>
             </div>
@@ -465,40 +493,45 @@ export const AlertTemplateBrowserDesktop = React.memo(function AlertTemplateBrow
         </div>
 
         {/* Template grid */}
-        <div className="flex-1 overflow-y-auto p-component-lg">
-          {loading ? (
+        <div className="p-component-lg flex-1 overflow-y-auto">
+          {loading ?
             <div
-              className="flex items-center justify-center h-full"
+              className="flex h-full items-center justify-center"
               role="status"
               aria-live="polite"
             >
               <div className="text-muted-foreground">Loading templates...</div>
             </div>
-          ) : filteredTemplates.length === 0 ? (
+          : filteredTemplates.length === 0 ?
             <div
-              className="flex flex-col items-center justify-center h-full space-y-component-md"
+              className="space-y-component-md flex h-full flex-col items-center justify-center"
               role="status"
             >
-              <div className="text-center space-y-component-sm">
+              <div className="space-y-component-sm text-center">
                 <h3 className="text-lg font-semibold">No templates found</h3>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-muted-foreground text-sm">
                   Try adjusting your filters or search criteria.
                 </p>
               </div>
               {browser.hasActiveFilter && (
-                <Button variant="outline" onClick={browser.clearFilter}>
+                <Button
+                  variant="outline"
+                  onClick={browser.clearFilter}
+                >
                   Clear Filters
                 </Button>
               )}
             </div>
-          ) : (
-            <div
-              className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-component-md"
+          : <div
+              className="gap-component-md grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3"
               role="list"
               aria-label="Alert rule templates"
             >
               {filteredTemplates.map((template) => (
-                <div key={template.id} role="listitem">
+                <div
+                  key={template.id}
+                  role="listitem"
+                >
                   <TemplateCardComponent
                     template={template}
                     isSelected={selection.selectedId === template.id}
@@ -514,7 +547,7 @@ export const AlertTemplateBrowserDesktop = React.memo(function AlertTemplateBrow
                 </div>
               ))}
             </div>
-          )}
+          }
         </div>
       </div>
     </div>

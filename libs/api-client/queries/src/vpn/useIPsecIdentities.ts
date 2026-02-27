@@ -52,10 +52,7 @@ function transformIPsecIdentity(raw: IPsecIdentityRaw): IPsecIdentity {
  * Fetch IPsec identities from RouterOS
  */
 async function fetchIPsecIdentities(routerIp: string): Promise<IPsecIdentity[]> {
-  const result = await makeRouterOSRequest<IPsecIdentityRaw[]>(
-    routerIp,
-    'ip/ipsec/identity'
-  );
+  const result = await makeRouterOSRequest<IPsecIdentityRaw[]>(routerIp, 'ip/ipsec/identity');
 
   if (!result.success || !result.data) {
     throw new Error(result.error || 'Failed to fetch IPsec identities');
@@ -82,4 +79,3 @@ export function useIPsecIdentities(routerIp: string): UseQueryResult<IPsecIdenti
     enabled: !!routerIp,
   });
 }
-

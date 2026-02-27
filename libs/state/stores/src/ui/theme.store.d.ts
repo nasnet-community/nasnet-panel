@@ -14,42 +14,42 @@ export declare function getSystemTheme(): 'light' | 'dark';
  * Theme store state interface
  */
 export interface ThemeState {
-    /**
-     * Current theme mode
-     * Can be explicitly set or follow system preference
-     */
-    theme: ThemeMode;
-    /**
-     * Resolved theme after considering system preference
-     * If theme is 'system', this will be 'light' or 'dark' based on OS
-     * Otherwise, it matches the theme value
-     */
-    resolvedTheme: 'light' | 'dark';
+  /**
+   * Current theme mode
+   * Can be explicitly set or follow system preference
+   */
+  theme: ThemeMode;
+  /**
+   * Resolved theme after considering system preference
+   * If theme is 'system', this will be 'light' or 'dark' based on OS
+   * Otherwise, it matches the theme value
+   */
+  resolvedTheme: 'light' | 'dark';
 }
 /**
  * Theme store actions interface
  */
 export interface ThemeActions {
-    /**
-     * Set the theme mode
-     * @param theme - The theme mode to set
-     */
-    setTheme: (theme: ThemeMode) => void;
-    /**
-     * Toggle between light and dark themes
-     * Convenience action for quick switching
-     */
-    toggleTheme: () => void;
-    /**
-     * Reset theme to system preference
-     * Clears localStorage and reverts to default
-     */
-    resetTheme: () => void;
-    /**
-     * Internal: Update resolved theme
-     * Called when system preference changes
-     */
-    _setResolvedTheme: (theme: 'light' | 'dark') => void;
+  /**
+   * Set the theme mode
+   * @param theme - The theme mode to set
+   */
+  setTheme: (theme: ThemeMode) => void;
+  /**
+   * Toggle between light and dark themes
+   * Convenience action for quick switching
+   */
+  toggleTheme: () => void;
+  /**
+   * Reset theme to system preference
+   * Clears localStorage and reverts to default
+   */
+  resetTheme: () => void;
+  /**
+   * Internal: Update resolved theme
+   * Called when system preference changes
+   */
+  _setResolvedTheme: (theme: 'light' | 'dark') => void;
 }
 /**
  * Combined theme store type (state + actions)
@@ -84,21 +84,51 @@ export type ThemeStore = ThemeState & ThemeActions;
  * - Integrated with Redux DevTools for debugging (development only)
  * - Store name: 'theme-store'
  */
-export declare const useThemeStore: import("zustand").UseBoundStore<Omit<Omit<import("zustand").StoreApi<ThemeState & ThemeActions>, "setState"> & {
-    setState<A extends string | {
-        type: string;
-    }>(partial: (ThemeState & ThemeActions) | Partial<ThemeState & ThemeActions> | ((state: ThemeState & ThemeActions) => (ThemeState & ThemeActions) | Partial<ThemeState & ThemeActions>), replace?: boolean | undefined, action?: A | undefined): void;
-}, "persist"> & {
+export declare const useThemeStore: import('zustand').UseBoundStore<
+  Omit<
+    Omit<import('zustand').StoreApi<ThemeState & ThemeActions>, 'setState'> & {
+      setState<
+        A extends
+          | string
+          | {
+              type: string;
+            },
+      >(
+        partial:
+          | (ThemeState & ThemeActions)
+          | Partial<ThemeState & ThemeActions>
+          | ((
+              state: ThemeState & ThemeActions
+            ) => (ThemeState & ThemeActions) | Partial<ThemeState & ThemeActions>),
+        replace?: boolean | undefined,
+        action?: A | undefined
+      ): void;
+    },
+    'persist'
+  > & {
     persist: {
-        setOptions: (options: Partial<import("zustand/middleware").PersistOptions<ThemeState & ThemeActions, ThemeState & ThemeActions>>) => void;
-        clearStorage: () => void;
-        rehydrate: () => Promise<void> | void;
-        hasHydrated: () => boolean;
-        onHydrate: (fn: (state: ThemeState & ThemeActions) => void) => () => void;
-        onFinishHydration: (fn: (state: ThemeState & ThemeActions) => void) => () => void;
-        getOptions: () => Partial<import("zustand/middleware").PersistOptions<ThemeState & ThemeActions, ThemeState & ThemeActions>>;
+      setOptions: (
+        options: Partial<
+          import('zustand/middleware').PersistOptions<
+            ThemeState & ThemeActions,
+            ThemeState & ThemeActions
+          >
+        >
+      ) => void;
+      clearStorage: () => void;
+      rehydrate: () => Promise<void> | void;
+      hasHydrated: () => boolean;
+      onHydrate: (fn: (state: ThemeState & ThemeActions) => void) => () => void;
+      onFinishHydration: (fn: (state: ThemeState & ThemeActions) => void) => () => void;
+      getOptions: () => Partial<
+        import('zustand/middleware').PersistOptions<
+          ThemeState & ThemeActions,
+          ThemeState & ThemeActions
+        >
+      >;
     };
-}>;
+  }
+>;
 /**
  * Initialize system theme change listener
  * Call this once in app initialization to auto-update theme when OS preference changes
@@ -135,7 +165,7 @@ export declare function syncThemeToDOM(): () => void;
  * Selector for resolved theme only
  * Use for components that only need the resolved theme
  */
-export declare const selectResolvedTheme: (state: ThemeState) => "light" | "dark";
+export declare const selectResolvedTheme: (state: ThemeState) => 'light' | 'dark';
 /**
  * Selector for theme mode
  * Use for components that need to know the user's preference

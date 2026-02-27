@@ -15,12 +15,7 @@ import { DEFAULT_FILTERS } from './types';
 describe('Template Types', () => {
   describe('TemplateSortBy', () => {
     it('should accept valid sort options', () => {
-      const sortOptions: TemplateSortBy[] = [
-        'name',
-        'updated',
-        'category',
-        'services',
-      ];
+      const sortOptions: TemplateSortBy[] = ['name', 'updated', 'category', 'services'];
       expect(sortOptions).toHaveLength(4);
     });
   });

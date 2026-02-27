@@ -8,52 +8,62 @@
  * @see Docs/sprint-artifacts/Epic8-Network-Routing/NAS-8-X-time-based-service-scheduling.md
  */
 import { UseQueryResult } from '@tanstack/react-query';
-import type { RoutingSchedule, CreateScheduleInput, UpdateScheduleInput } from '@nasnet/api-client/generated';
+import type {
+  RoutingSchedule,
+  CreateScheduleInput,
+  UpdateScheduleInput,
+} from '@nasnet/api-client/generated';
 /**
  * Input for creating a routing schedule
  */
 export interface CreateScheduleVariables {
-    routerID: string;
-    input: CreateScheduleInput;
+  routerID: string;
+  input: CreateScheduleInput;
 }
 /**
  * Input for updating a routing schedule
  */
 export interface UpdateScheduleVariables {
-    routerID: string;
-    scheduleID: string;
-    input: UpdateScheduleInput;
+  routerID: string;
+  scheduleID: string;
+  input: UpdateScheduleInput;
 }
 /**
  * Input for deleting a routing schedule
  */
 export interface DeleteScheduleVariables {
-    routerID: string;
-    scheduleID: string;
+  routerID: string;
+  scheduleID: string;
 }
 /**
  * Input for fetching schedules by routing ID
  */
 export interface RoutingSchedulesVariables {
-    routerID: string;
-    routingID: string;
+  routerID: string;
+  routingID: string;
 }
 /**
  * Input for fetching a single schedule by ID
  */
 export interface RoutingScheduleVariables {
-    routerID: string;
-    scheduleID: string;
+  routerID: string;
+  scheduleID: string;
 }
 /**
  * Query keys for schedule operations
  * Follows TanStack Query best practices for hierarchical keys
  */
 export declare const scheduleKeys: {
-    all: readonly ["schedules"];
-    byRouter: (routerId: string) => readonly ["schedules", string];
-    byRouting: (routerId: string, routingId: string) => readonly ["schedules", string, "routing", string];
-    byId: (routerId: string, scheduleId: string) => readonly ["schedules", string, "schedule", string];
+  all: readonly ['schedules'];
+  byRouter: (routerId: string) => readonly ['schedules', string];
+  byRouting: (
+    routerId: string,
+    routingId: string
+  ) => readonly ['schedules', string, 'routing', string];
+  byId: (
+    routerId: string,
+    scheduleId: string
+  ) => readonly ['schedules', string, 'schedule', string];
 };
 /**
  * Hook to fetch all schedules for a device routing
@@ -67,9 +77,13 @@ export declare const scheduleKeys: {
  * @returns Query result with RoutingSchedule[] data
  */
 interface UseRoutingSchedulesOptions {
-    enabled?: boolean;
+  enabled?: boolean;
 }
-export declare function useRoutingSchedules(routerID: string, routingID: string, options?: UseRoutingSchedulesOptions): UseQueryResult<RoutingSchedule[], Error>;
+export declare function useRoutingSchedules(
+  routerID: string,
+  routingID: string,
+  options?: UseRoutingSchedulesOptions
+): UseQueryResult<RoutingSchedule[], Error>;
 /**
  * Hook to fetch a single schedule by ID
  *
@@ -82,9 +96,13 @@ export declare function useRoutingSchedules(routerID: string, routingID: string,
  * @returns Query result with RoutingSchedule data
  */
 interface UseRoutingScheduleOptions {
-    enabled?: boolean;
+  enabled?: boolean;
 }
-export declare function useRoutingSchedule(routerID: string, scheduleID: string, options?: UseRoutingScheduleOptions): UseQueryResult<RoutingSchedule | null, Error>;
+export declare function useRoutingSchedule(
+  routerID: string,
+  scheduleID: string,
+  options?: UseRoutingScheduleOptions
+): UseQueryResult<RoutingSchedule | null, Error>;
 /**
  * Hook to create a new routing schedule
  *
@@ -93,7 +111,12 @@ export declare function useRoutingSchedule(routerID: string, scheduleID: string,
  *
  * @returns Mutation function and state
  */
-export declare function useCreateSchedule(): import("@tanstack/react-query").UseMutationResult<RoutingSchedule, Error, CreateScheduleVariables, unknown>;
+export declare function useCreateSchedule(): import('@tanstack/react-query').UseMutationResult<
+  RoutingSchedule,
+  Error,
+  CreateScheduleVariables,
+  unknown
+>;
 /**
  * Hook to update an existing routing schedule
  *
@@ -102,10 +125,15 @@ export declare function useCreateSchedule(): import("@tanstack/react-query").Use
  *
  * @returns Mutation function and state
  */
-export declare function useUpdateSchedule(): import("@tanstack/react-query").UseMutationResult<RoutingSchedule, Error, UpdateScheduleVariables, {
+export declare function useUpdateSchedule(): import('@tanstack/react-query').UseMutationResult<
+  RoutingSchedule,
+  Error,
+  UpdateScheduleVariables,
+  {
     previousSchedules: [readonly unknown[], RoutingSchedule[] | undefined][];
     previousSchedule: RoutingSchedule | undefined;
-}>;
+  }
+>;
 /**
  * Hook to delete a routing schedule
  *
@@ -114,8 +142,13 @@ export declare function useUpdateSchedule(): import("@tanstack/react-query").Use
  *
  * @returns Mutation function and state
  */
-export declare function useDeleteSchedule(): import("@tanstack/react-query").UseMutationResult<boolean, Error, DeleteScheduleVariables, {
+export declare function useDeleteSchedule(): import('@tanstack/react-query').UseMutationResult<
+  boolean,
+  Error,
+  DeleteScheduleVariables,
+  {
     previousSchedules: [readonly unknown[], RoutingSchedule[] | undefined][];
-}>;
+  }
+>;
 export {};
 //# sourceMappingURL=useSchedules.d.ts.map

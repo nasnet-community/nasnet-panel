@@ -88,10 +88,7 @@ describe('useVLANAllocations', () => {
     React.createElement(MockedProvider, { mocks, addTypename: false }, children);
 
   it('should fetch all allocations for a router', async () => {
-    const { result } = renderHook(
-      () => useVLANAllocations('router-123'),
-      { wrapper }
-    );
+    const { result } = renderHook(() => useVLANAllocations('router-123'), { wrapper });
 
     expect(result.current.loading).toBe(true);
     expect(result.current.allocations).toEqual([]);
@@ -106,10 +103,7 @@ describe('useVLANAllocations', () => {
   });
 
   it('should filter allocations by status', async () => {
-    const { result } = renderHook(
-      () => useVLANAllocations('router-123', 'ALLOCATED'),
-      { wrapper }
-    );
+    const { result } = renderHook(() => useVLANAllocations('router-123', 'ALLOCATED'), { wrapper });
 
     await waitFor(() => {
       expect(result.current.loading).toBe(false);
@@ -158,10 +152,9 @@ describe('useVLANAllocations', () => {
     const errorWrapper = ({ children }: { children: ReactNode }) =>
       React.createElement(MockedProvider, { mocks: errorMocks, addTypename: false }, children);
 
-    const { result } = renderHook(
-      () => useVLANAllocations('router-123'),
-      { wrapper: errorWrapper }
-    );
+    const { result } = renderHook(() => useVLANAllocations('router-123'), {
+      wrapper: errorWrapper,
+    });
 
     await waitFor(() => {
       expect(result.current.error).toBeTruthy();

@@ -15,7 +15,16 @@ import { memo, useMemo } from 'react';
 
 import { AlertCircle, ArrowDown, ArrowUp, Activity } from 'lucide-react';
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle , Alert, AlertDescription , Skeleton } from '@nasnet/ui/primitives';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  Alert,
+  AlertDescription,
+  Skeleton,
+} from '@nasnet/ui/primitives';
 import { cn } from '@nasnet/ui/utils';
 
 import { ErrorRateIndicator } from './error-rate-indicator';
@@ -94,9 +103,12 @@ export const InterfaceStatsPanelDesktop = memo(function InterfaceStatsPanelDeskt
           <CardDescription>Loading interface statistics...</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-4 gap-component-md">
+          <div className="gap-component-md grid grid-cols-4">
             {Array.from({ length: 8 }).map((_, i) => (
-              <Skeleton key={i} className="h-20" />
+              <Skeleton
+                key={i}
+                className="h-20"
+              />
             ))}
           </div>
         </CardContent>
@@ -114,7 +126,10 @@ export const InterfaceStatsPanelDesktop = memo(function InterfaceStatsPanelDeskt
         </CardHeader>
         <CardContent>
           <Alert variant="destructive">
-            <AlertCircle className="h-4 w-4" aria-hidden="true" />
+            <AlertCircle
+              className="h-4 w-4"
+              aria-hidden="true"
+            />
             <AlertDescription>
               {error.message || 'Could not retrieve interface statistics. Check router connection.'}
             </AlertDescription>
@@ -129,24 +144,33 @@ export const InterfaceStatsPanelDesktop = memo(function InterfaceStatsPanelDeskt
   }
 
   return (
-    <Card className={cn('bg-card category-networking', className)} role="region" aria-label={`${interfaceName} statistics`}>
+    <Card
+      className={cn('bg-card category-networking', className)}
+      role="region"
+      aria-label={`${interfaceName} statistics`}
+    >
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
             <CardTitle className="flex items-center gap-2">
-              <Activity className="h-5 w-5 text-primary" aria-hidden="true" />
+              <Activity
+                className="text-primary h-5 w-5"
+                aria-hidden="true"
+              />
               {interfaceName} Statistics
             </CardTitle>
-            <CardDescription>
-              Real-time traffic statistics and error monitoring
-            </CardDescription>
+            <CardDescription>Real-time traffic statistics and error monitoring</CardDescription>
           </div>
           {hasErrors && (
-            <Alert variant="destructive" className="w-auto">
-              <AlertCircle className="h-4 w-4" aria-hidden="true" />
-              <AlertDescription className="text-sm">
-                Interface has errors
-              </AlertDescription>
+            <Alert
+              variant="destructive"
+              className="w-auto"
+            >
+              <AlertCircle
+                className="h-4 w-4"
+                aria-hidden="true"
+              />
+              <AlertDescription className="text-sm">Interface has errors</AlertDescription>
             </Alert>
           )}
         </div>
@@ -155,37 +179,59 @@ export const InterfaceStatsPanelDesktop = memo(function InterfaceStatsPanelDeskt
       <CardContent className="space-y-component-lg">
         {/* Traffic Counters Section */}
         <div>
-          <h3 className="mb-component-sm text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+          <h3 className="mb-component-sm text-muted-foreground text-sm font-semibold uppercase tracking-wide">
             Traffic Counters
           </h3>
-          <div className="grid grid-cols-4 gap-component-md">
-            <StatsCounter value={stats.txBytes} label="TX Bytes" unit="bytes" />
-            <StatsCounter value={stats.rxBytes} label="RX Bytes" unit="bytes" />
-            <StatsCounter value={stats.txPackets} label="TX Packets" unit="packets" />
-            <StatsCounter value={stats.rxPackets} label="RX Packets" unit="packets" />
+          <div className="gap-component-md grid grid-cols-4">
+            <StatsCounter
+              value={stats.txBytes}
+              label="TX Bytes"
+              unit="bytes"
+            />
+            <StatsCounter
+              value={stats.rxBytes}
+              label="RX Bytes"
+              unit="bytes"
+            />
+            <StatsCounter
+              value={stats.txPackets}
+              label="TX Packets"
+              unit="packets"
+            />
+            <StatsCounter
+              value={stats.rxPackets}
+              label="RX Packets"
+              unit="packets"
+            />
           </div>
         </div>
 
         {/* Bandwidth Rates Section */}
         {rates && (
           <div>
-            <h3 className="mb-component-sm text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+            <h3 className="mb-component-sm text-muted-foreground text-sm font-semibold uppercase tracking-wide">
               Bandwidth
             </h3>
-            <div className="grid grid-cols-2 gap-component-md">
+            <div className="gap-component-md grid grid-cols-2">
               <Card className="border-chart-1/20 bg-chart-1/5 bg-muted">
                 <CardContent className="pt-component-lg">
                   <div className="flex items-center justify-between">
                     <div>
-                      <div className="flex items-center gap-component-sm text-sm text-muted-foreground">
-                        <ArrowUp className="h-4 w-4" aria-hidden="true" />
+                      <div className="gap-component-sm text-muted-foreground flex items-center text-sm">
+                        <ArrowUp
+                          className="h-4 w-4"
+                          aria-hidden="true"
+                        />
                         <span>TX Rate</span>
                       </div>
-                      <div className="mt-component-sm text-3xl font-bold font-mono tabular-nums text-foreground">
+                      <div className="mt-component-sm text-foreground font-mono text-3xl font-bold tabular-nums">
                         {formatBitsPerSecBigInt(rates.txRate)}
                       </div>
                     </div>
-                    <Activity className="h-12 w-12 text-chart-1 opacity-20" aria-hidden="true" />
+                    <Activity
+                      className="text-chart-1 h-12 w-12 opacity-20"
+                      aria-hidden="true"
+                    />
                   </div>
                 </CardContent>
               </Card>
@@ -194,15 +240,21 @@ export const InterfaceStatsPanelDesktop = memo(function InterfaceStatsPanelDeskt
                 <CardContent className="pt-component-lg">
                   <div className="flex items-center justify-between">
                     <div>
-                      <div className="flex items-center gap-component-sm text-sm text-muted-foreground">
-                        <ArrowDown className="h-4 w-4" aria-hidden="true" />
+                      <div className="gap-component-sm text-muted-foreground flex items-center text-sm">
+                        <ArrowDown
+                          className="h-4 w-4"
+                          aria-hidden="true"
+                        />
                         <span>RX Rate</span>
                       </div>
-                      <div className="mt-component-sm text-3xl font-bold font-mono tabular-nums text-foreground">
+                      <div className="mt-component-sm text-foreground font-mono text-3xl font-bold tabular-nums">
                         {formatBitsPerSecBigInt(rates.rxRate)}
                       </div>
                     </div>
-                    <Activity className="h-12 w-12 text-chart-2 opacity-20" aria-hidden="true" />
+                    <Activity
+                      className="text-chart-2 h-12 w-12 opacity-20"
+                      aria-hidden="true"
+                    />
                   </div>
                 </CardContent>
               </Card>
@@ -212,26 +264,50 @@ export const InterfaceStatsPanelDesktop = memo(function InterfaceStatsPanelDeskt
 
         {/* Errors Section */}
         <div>
-          <h3 className="mb-component-sm text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+          <h3 className="mb-component-sm text-muted-foreground text-sm font-semibold uppercase tracking-wide">
             Error Statistics
           </h3>
           <div className="space-y-component-md">
-            <div className="grid grid-cols-4 gap-component-md">
-              <StatsCounter value={String(stats.txErrors)} label="TX Errors" unit="count" />
-              <StatsCounter value={String(stats.rxErrors)} label="RX Errors" unit="count" />
-              <StatsCounter value={String(stats.txDrops)} label="TX Drops" unit="count" />
-              <StatsCounter value={String(stats.rxDrops)} label="RX Drops" unit="count" />
+            <div className="gap-component-md grid grid-cols-4">
+              <StatsCounter
+                value={String(stats.txErrors)}
+                label="TX Errors"
+                unit="count"
+              />
+              <StatsCounter
+                value={String(stats.rxErrors)}
+                label="RX Errors"
+                unit="count"
+              />
+              <StatsCounter
+                value={String(stats.txDrops)}
+                label="TX Drops"
+                unit="count"
+              />
+              <StatsCounter
+                value={String(stats.rxDrops)}
+                label="RX Drops"
+                unit="count"
+              />
             </div>
 
             {/* Error Rate Indicator */}
-            <ErrorRateIndicator rate={errorRate} trend={0} threshold={0.1} />
+            <ErrorRateIndicator
+              rate={errorRate}
+              trend={0}
+              threshold={0.1}
+            />
 
             {/* Warning for high error rates */}
             {isHighErrorRate && (
               <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" aria-hidden="true" />
+                <AlertCircle
+                  className="h-4 w-4"
+                  aria-hidden="true"
+                />
                 <AlertDescription>
-                  Error rate exceeds {(ERROR_RATE_THRESHOLD * 100).toFixed(1)}% - check cable connections and port configuration.
+                  Error rate exceeds {(ERROR_RATE_THRESHOLD * 100).toFixed(1)}% - check cable
+                  connections and port configuration.
                 </AlertDescription>
               </Alert>
             )}

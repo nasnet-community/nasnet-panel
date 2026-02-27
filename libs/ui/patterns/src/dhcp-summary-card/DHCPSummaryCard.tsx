@@ -65,7 +65,7 @@ function DHCPSummaryCardComponent({
     <Card
       className={cn(
         'h-full transition-all duration-200',
-        linkTo && 'hover:shadow-md hover:-translate-y-0.5 cursor-pointer',
+        linkTo && 'cursor-pointer hover:-translate-y-0.5 hover:shadow-md',
         className
       )}
       role={linkTo ? 'link' : 'region'}
@@ -74,12 +74,14 @@ function DHCPSummaryCardComponent({
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className={cn(
-              'w-8 h-8 rounded-lg flex items-center justify-center',
-              'bg-info/10 dark:bg-info/20'
-            )}>
+            <div
+              className={cn(
+                'flex h-8 w-8 items-center justify-center rounded-lg',
+                'bg-info/10 dark:bg-info/20'
+              )}
+            >
               <Network
-                className={cn('w-4 h-4', 'text-info')}
+                className={cn('h-4 w-4', 'text-info')}
                 aria-hidden="true"
               />
             </div>
@@ -87,14 +89,14 @@ function DHCPSummaryCardComponent({
           </div>
           {linkTo && (
             <ChevronRight
-              className={cn('w-4 h-4', 'text-muted-foreground')}
+              className={cn('h-4 w-4', 'text-muted-foreground')}
               aria-hidden="true"
             />
           )}
         </div>
       </CardHeader>
       <CardContent className="pt-0">
-        {isLoading ? (
+        {isLoading ?
           <div
             className="flex items-center justify-center py-4"
             role="status"
@@ -102,23 +104,22 @@ function DHCPSummaryCardComponent({
             aria-label="Loading DHCP summary"
           >
             <Loader2
-              className={cn('w-6 h-6 animate-spin', 'text-muted-foreground')}
+              className={cn('h-6 w-6 animate-spin', 'text-muted-foreground')}
               aria-hidden="true"
             />
           </div>
-        ) : (
-          <div className="space-y-3">
+        : <div className="space-y-3">
             {/* Active Leases */}
             <div className="flex items-center gap-3">
               <Users
-                className={cn('w-5 h-5', 'text-muted-foreground')}
+                className={cn('h-5 w-5', 'text-muted-foreground')}
                 aria-hidden="true"
               />
               <div>
-                <p className="text-2xl font-bold text-foreground">
+                <p className="text-foreground text-2xl font-bold">
                   {activeLeases}
                   {totalCapacity && (
-                    <span className={cn('text-sm font-normal ml-1', 'text-muted-foreground')}>
+                    <span className={cn('ml-1 text-sm font-normal', 'text-muted-foreground')}>
                       / {totalCapacity}
                     </span>
                   )}
@@ -129,10 +130,10 @@ function DHCPSummaryCardComponent({
 
             {/* IP Range */}
             {ipRange && (
-              <div className="pt-2 border-t border-border">
+              <div className="border-border border-t pt-2">
                 <p className={cn('text-xs', 'text-muted-foreground')}>IP Range</p>
                 <p
-                  className={cn('text-sm font-mono truncate', 'text-foreground')}
+                  className={cn('truncate font-mono text-sm', 'text-foreground')}
                   title={ipRange}
                 >
                   {ipRange}
@@ -140,7 +141,7 @@ function DHCPSummaryCardComponent({
               </div>
             )}
           </div>
-        )}
+        }
       </CardContent>
     </Card>
   );
@@ -148,7 +149,10 @@ function DHCPSummaryCardComponent({
   if (linkTo) {
     // Use type assertion for dynamic link props
     return (
-      <Link to={linkTo as '/'} className="block">
+      <Link
+        to={linkTo as '/'}
+        className="block"
+      >
         {content}
       </Link>
     );
@@ -160,21 +164,3 @@ function DHCPSummaryCardComponent({
 DHCPSummaryCardComponent.displayName = 'DHCPSummaryCard';
 
 export const DHCPSummaryCard = React.memo(DHCPSummaryCardComponent);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

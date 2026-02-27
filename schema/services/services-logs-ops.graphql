@@ -6,13 +6,19 @@
 Input for running diagnostics on a service instance.
 """
 input RunDiagnosticsInput {
-  """Router ID"""
+  """
+  Router ID
+  """
   routerID: ID!
 
-  """Instance ID to run diagnostics on"""
+  """
+  Instance ID to run diagnostics on
+  """
   instanceID: ID!
 
-  """Specific test names to run (empty = run all tests)"""
+  """
+  Specific test names to run (empty = run all tests)
+  """
   testNames: [String!]
 }
 
@@ -20,16 +26,24 @@ input RunDiagnosticsInput {
 Payload for run diagnostics mutation.
 """
 type RunDiagnosticsPayload {
-  """Whether the operation succeeded"""
+  """
+  Whether the operation succeeded
+  """
   success: Boolean!
 
-  """Diagnostic results"""
+  """
+  Diagnostic results
+  """
   results: [DiagnosticResult!]
 
-  """Run group ID linking these results together"""
+  """
+  Run group ID linking these results together
+  """
   runGroupID: String
 
-  """Mutation errors"""
+  """
+  Mutation errors
+  """
   errors: [MutationError!]
 }
 
@@ -38,25 +52,39 @@ Real-time diagnostic progress event for subscriptions.
 Emitted as each test completes during a diagnostic run.
 """
 type DiagnosticsProgress {
-  """Instance ID"""
+  """
+  Instance ID
+  """
   instanceID: ID!
 
-  """Run group ID"""
+  """
+  Run group ID
+  """
   runGroupID: String!
 
-  """Test result that just completed"""
+  """
+  Test result that just completed
+  """
   result: DiagnosticResult!
 
-  """Progress (0-100)"""
+  """
+  Progress (0-100)
+  """
   progress: Int!
 
-  """Completed tests count"""
+  """
+  Completed tests count
+  """
   completedTests: Int!
 
-  """Total tests count"""
+  """
+  Total tests count
+  """
   totalTests: Int!
 
-  """Timestamp"""
+  """
+  Timestamp
+  """
   timestamp: DateTime!
 }
 
@@ -66,13 +94,19 @@ extend type Query {
   Returns the last N lines from the log file.
   """
   serviceLogFile(
-    """Router ID"""
+    """
+    Router ID
+    """
     routerID: ID!
 
-    """Instance ID"""
+    """
+    Instance ID
+    """
     instanceID: ID!
 
-    """Maximum number of lines to return (default 100)"""
+    """
+    Maximum number of lines to return (default 100)
+    """
     maxLines: Int
   ): ServiceLogFile!
 
@@ -81,13 +115,19 @@ extend type Query {
   Returns past diagnostic results grouped by run_group_id.
   """
   diagnosticHistory(
-    """Router ID"""
+    """
+    Router ID
+    """
     routerID: ID!
 
-    """Instance ID"""
+    """
+    Instance ID
+    """
     instanceID: ID!
 
-    """Maximum number of run groups to return (default 10)"""
+    """
+    Maximum number of run groups to return (default 10)
+    """
     limit: Int
   ): [StartupDiagnostics!]!
 
@@ -96,7 +136,9 @@ extend type Query {
   Returns the diagnostic suite definition.
   """
   availableDiagnostics(
-    """Service name (e.g., 'tor', 'singbox', 'adguard')"""
+    """
+    Service name (e.g., 'tor', 'singbox', 'adguard')
+    """
     serviceName: String!
   ): DiagnosticSuite!
 }
@@ -115,13 +157,19 @@ extend type Subscription {
   Emits new log entries as they are generated.
   """
   serviceLogs(
-    """Router ID to subscribe to"""
+    """
+    Router ID to subscribe to
+    """
     routerID: ID!
 
-    """Instance ID to monitor"""
+    """
+    Instance ID to monitor
+    """
     instanceID: ID!
 
-    """Optional log level filter"""
+    """
+    Optional log level filter
+    """
     levelFilter: LogLevel
   ): LogEntry!
 
@@ -130,10 +178,14 @@ extend type Subscription {
   Emits events as each test completes during a diagnostic run.
   """
   diagnosticsProgress(
-    """Router ID to subscribe to"""
+    """
+    Router ID to subscribe to
+    """
     routerID: ID!
 
-    """Instance ID to monitor"""
+    """
+    Instance ID to monitor
+    """
     instanceID: ID!
   ): DiagnosticsProgress!
 }

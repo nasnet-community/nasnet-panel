@@ -36,8 +36,7 @@ export const NoRouterConnected: Story = {
   parameters: {
     docs: {
       description: {
-        story:
-          'Wizard when no router is connected. Interface selection step may show empty list.',
+        story: 'Wizard when no router is connected. Interface selection step may show empty list.',
       },
     },
   },
@@ -49,8 +48,7 @@ export const MobileView: Story = {
     viewport: { defaultViewport: 'mobile1' },
     docs: {
       description: {
-        story:
-          'Mobile viewport rendering of the DHCP wizard with adapted step layout.',
+        story: 'Mobile viewport rendering of the DHCP wizard with adapted step layout.',
       },
     },
   },

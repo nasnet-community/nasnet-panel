@@ -109,10 +109,7 @@ describe('useCustomServices', () => {
         },
       ];
 
-      localStorageMock.setItem(
-        'nasnet.firewall.customServices',
-        JSON.stringify(existingServices)
-      );
+      localStorageMock.setItem('nasnet.firewall.customServices', JSON.stringify(existingServices));
 
       const { result } = renderHook(() => useCustomServices());
 
@@ -178,9 +175,7 @@ describe('useCustomServices', () => {
         result.current.addService(validCustomService);
       });
 
-      const stored = JSON.parse(
-        localStorageMock.getItem('nasnet.firewall.customServices') || '[]'
-      );
+      const stored = JSON.parse(localStorageMock.getItem('nasnet.firewall.customServices') || '[]');
       expect(stored).toHaveLength(1);
       expect(stored[0].service).toBe('my-app');
     });
@@ -330,9 +325,7 @@ describe('useCustomServices', () => {
         result.current.deleteService(9999);
       });
 
-      const stored = JSON.parse(
-        localStorageMock.getItem('nasnet.firewall.customServices') || '[]'
-      );
+      const stored = JSON.parse(localStorageMock.getItem('nasnet.firewall.customServices') || '[]');
       expect(stored).toHaveLength(0);
     });
 
@@ -377,9 +370,7 @@ describe('useCustomServices', () => {
         result.current.createGroup(validServiceGroup);
       });
 
-      const stored = JSON.parse(
-        localStorageMock.getItem('nasnet.firewall.serviceGroups') || '[]'
-      );
+      const stored = JSON.parse(localStorageMock.getItem('nasnet.firewall.serviceGroups') || '[]');
       expect(stored).toHaveLength(1);
       expect(stored[0].name).toBe('web-stack');
     });
@@ -479,9 +470,7 @@ describe('useCustomServices', () => {
         result.current.deleteGroup(groupId);
       });
 
-      const stored = JSON.parse(
-        localStorageMock.getItem('nasnet.firewall.serviceGroups') || '[]'
-      );
+      const stored = JSON.parse(localStorageMock.getItem('nasnet.firewall.serviceGroups') || '[]');
       expect(stored).toHaveLength(0);
     });
 

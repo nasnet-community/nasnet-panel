@@ -15,7 +15,11 @@ import { ConfigPreview, FormSection } from '@nasnet/ui/patterns';
 import { Card, CardContent, CardHeader, CardTitle } from '@nasnet/ui/primitives';
 import { cn } from '@nasnet/ui/utils';
 import { calculatePoolSize } from '../../utils/pool-calculator';
-import type { InterfaceStepFormData, PoolStepFormData, NetworkStepFormData } from './dhcp-wizard.schema';
+import type {
+  InterfaceStepFormData,
+  PoolStepFormData,
+  NetworkStepFormData,
+} from './dhcp-wizard.schema';
 
 interface WizardStepReviewProps {
   /** Stepper instance providing access to wizard step data */
@@ -34,26 +38,29 @@ function WizardStepReviewComponent({ stepper, className }: WizardStepReviewProps
 
   // Calculate pool size
   const poolSize = useMemo(() => {
-    return poolData?.poolStart && poolData?.poolEnd
-      ? calculatePoolSize(poolData.poolStart, poolData.poolEnd)
+    return poolData?.poolStart && poolData?.poolEnd ?
+        calculatePoolSize(poolData.poolStart, poolData.poolEnd)
       : 0;
   }, [poolData?.poolStart, poolData?.poolEnd]);
 
   // Generate RouterOS commands for preview
-  const commands = useMemo(() => [
-    {
-      command: `/ip pool add name=pool-dhcp-${interfaceData?.interface || 'default'} ranges=${poolData?.poolStart || ''}-${poolData?.poolEnd || ''}`,
-      description: 'Create IP address pool',
-    },
-    {
-      command: `/ip dhcp-server network add address=${interfaceData?.interfaceIP || ''} gateway=${networkData?.gateway || ''} dns-server=${networkData?.dnsServers?.join(',') || ''}${networkData?.domain ? ` domain=${networkData.domain}` : ''}${networkData?.ntpServer ? ` ntp-server=${networkData.ntpServer}` : ''}`,
-      description: 'Configure DHCP network settings',
-    },
-    {
-      command: `/ip dhcp-server add name=dhcp-${interfaceData?.interface || 'default'} interface=${interfaceData?.interface || ''} address-pool=pool-dhcp-${interfaceData?.interface || 'default'} lease-time=${networkData?.leaseTime || '1d'} disabled=no`,
-      description: 'Create and enable DHCP server',
-    },
-  ], [interfaceData, poolData, networkData]);
+  const commands = useMemo(
+    () => [
+      {
+        command: `/ip pool add name=pool-dhcp-${interfaceData?.interface || 'default'} ranges=${poolData?.poolStart || ''}-${poolData?.poolEnd || ''}`,
+        description: 'Create IP address pool',
+      },
+      {
+        command: `/ip dhcp-server network add address=${interfaceData?.interfaceIP || ''} gateway=${networkData?.gateway || ''} dns-server=${networkData?.dnsServers?.join(',') || ''}${networkData?.domain ? ` domain=${networkData.domain}` : ''}${networkData?.ntpServer ? ` ntp-server=${networkData.ntpServer}` : ''}`,
+        description: 'Configure DHCP network settings',
+      },
+      {
+        command: `/ip dhcp-server add name=dhcp-${interfaceData?.interface || 'default'} interface=${interfaceData?.interface || ''} address-pool=pool-dhcp-${interfaceData?.interface || 'default'} lease-time=${networkData?.leaseTime || '1d'} disabled=no`,
+        description: 'Create and enable DHCP server',
+      },
+    ],
+    [interfaceData, poolData, networkData]
+  );
 
   return (
     <div className={cn('space-y-component-lg', className)}>
@@ -61,21 +68,25 @@ function WizardStepReviewComponent({ stepper, className }: WizardStepReviewProps
         title="Review Configuration"
         description="Review your DHCP server settings before creation"
       >
-        <div className="grid gap-component-md">
+        <div className="gap-component-md grid">
           {/* Interface Summary */}
           <Card>
             <CardHeader>
               <CardTitle className="text-base">Interface</CardTitle>
             </CardHeader>
             <CardContent className="space-y-component-sm">
-              <div className="grid grid-cols-2 gap-component-sm text-sm">
+              <div className="gap-component-sm grid grid-cols-2 text-sm">
                 <div>
                   <span className="text-muted-foreground">Selected Interface:</span>
-                  <span className="ml-component-sm font-mono">{interfaceData?.interface || 'N/A'}</span>
+                  <span className="ml-component-sm font-mono">
+                    {interfaceData?.interface || 'N/A'}
+                  </span>
                 </div>
                 <div>
                   <span className="text-muted-foreground">IP Address:</span>
-                  <span className="ml-component-sm font-mono">{interfaceData?.interfaceIP || 'N/A'}</span>
+                  <span className="ml-component-sm font-mono">
+                    {interfaceData?.interfaceIP || 'N/A'}
+                  </span>
                 </div>
               </div>
             </CardContent>
@@ -87,7 +98,7 @@ function WizardStepReviewComponent({ stepper, className }: WizardStepReviewProps
               <CardTitle className="text-base">Address Pool</CardTitle>
             </CardHeader>
             <CardContent className="space-y-component-sm">
-              <div className="grid grid-cols-2 gap-component-sm text-sm">
+              <div className="gap-component-sm grid grid-cols-2 text-sm">
                 <div>
                   <span className="text-muted-foreground">Pool Start:</span>
                   <span className="ml-component-sm font-mono">{poolData?.poolStart || 'N/A'}</span>
@@ -110,14 +121,16 @@ function WizardStepReviewComponent({ stepper, className }: WizardStepReviewProps
               <CardTitle className="text-base">Network Settings</CardTitle>
             </CardHeader>
             <CardContent className="space-y-component-sm">
-              <div className="grid grid-cols-2 gap-component-sm text-sm">
+              <div className="gap-component-sm grid grid-cols-2 text-sm">
                 <div>
                   <span className="text-muted-foreground">Gateway:</span>
                   <span className="ml-component-sm font-mono">{networkData?.gateway || 'N/A'}</span>
                 </div>
                 <div>
                   <span className="text-muted-foreground">Lease Time:</span>
-                  <span className="ml-component-sm font-mono">{networkData?.leaseTime || 'N/A'}</span>
+                  <span className="ml-component-sm font-mono">
+                    {networkData?.leaseTime || 'N/A'}
+                  </span>
                 </div>
                 <div className="col-span-2">
                   <span className="text-muted-foreground">DNS Servers:</span>

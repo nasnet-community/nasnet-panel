@@ -1,7 +1,7 @@
 {
   "id": "routing-and-navigation",
   "title": "Routing and Navigation Architecture",
-  "description": "Document Status: Comprehensive reference",
+  "description": "Document Status 2026-02 Scope: TanStack Router",
   "source": "@site/../../libs/features/docs/routing-and-navigation.md",
   "sourceDirName": ".",
   "slug": "/routing-and-navigation",

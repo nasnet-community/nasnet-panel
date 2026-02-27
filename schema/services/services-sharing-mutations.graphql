@@ -7,28 +7,44 @@ Service configuration sharing event for subscriptions.
 Emitted when configs are exported, imported, or QR codes generated.
 """
 type ServiceConfigSharedEvent {
-  """Event ID"""
+  """
+  Event ID
+  """
   id: ID!
 
-  """Event type (exported, imported, qr_generated)"""
+  """
+  Event type (exported, imported, qr_generated)
+  """
   eventType: String!
 
-  """Router ID"""
+  """
+  Router ID
+  """
   routerID: ID!
 
-  """Instance ID"""
+  """
+  Instance ID
+  """
   instanceID: ID!
 
-  """Service type"""
+  """
+  Service type
+  """
   serviceType: String!
 
-  """Service name"""
+  """
+  Service name
+  """
   serviceName: String!
 
-  """User who performed the action"""
+  """
+  User who performed the action
+  """
   userID: String
 
-  """Timestamp"""
+  """
+  Timestamp
+  """
   timestamp: DateTime!
 }
 
@@ -68,7 +84,9 @@ extend type Subscription {
   Emits events when configs are exported, imported, or QR codes generated.
   """
   serviceConfigShared(
-    """Router ID to subscribe to"""
+    """
+    Router ID to subscribe to
+    """
     routerID: ID!
   ): ServiceConfigSharedEvent!
 }

@@ -69,7 +69,8 @@ export const Default: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Empty form for creating a new ntfy.sh channel using the default public ntfy.sh server.',
+        story:
+          'Empty form for creating a new ntfy.sh channel using the default public ntfy.sh server.',
       },
     },
   },
@@ -145,7 +146,8 @@ export const HighPriorityCritical: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'High priority (4) configuration for critical infrastructure events with multiple tags.',
+        story:
+          'High priority (4) configuration for critical infrastructure events with multiple tags.',
       },
     },
   },
@@ -169,7 +171,8 @@ export const DisabledChannel: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Channel disabled (enabled: false) — useful for maintenance windows or temporary muting.',
+        story:
+          'Channel disabled (enabled: false) — useful for maintenance windows or temporary muting.',
       },
     },
   },

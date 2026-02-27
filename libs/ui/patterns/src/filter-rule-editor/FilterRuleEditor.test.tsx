@@ -80,7 +80,12 @@ describe('FilterRuleEditor', () => {
     });
 
     it('does not render when open is false', () => {
-      render(<FilterRuleEditor {...defaultProps} open={false} />);
+      render(
+        <FilterRuleEditor
+          {...defaultProps}
+          open={false}
+        />
+      );
 
       expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     });
@@ -169,7 +174,12 @@ describe('FilterRuleEditor', () => {
       const onClose = vi.fn();
       const user = userEvent.setup();
 
-      render(<FilterRuleEditor {...defaultProps} onClose={onClose} />);
+      render(
+        <FilterRuleEditor
+          {...defaultProps}
+          onClose={onClose}
+        />
+      );
 
       const closeButton = screen.getByRole('button', { name: /close|cancel/i });
       await user.click(closeButton);
@@ -239,7 +249,12 @@ describe('FilterRuleEditor', () => {
     });
 
     it('does not show delete button in create mode', () => {
-      render(<FilterRuleEditor {...defaultProps} mode="create" />);
+      render(
+        <FilterRuleEditor
+          {...defaultProps}
+          mode="create"
+        />
+      );
 
       const deleteButton = screen.queryByRole('button', { name: /delete/i });
       expect(deleteButton).not.toBeInTheDocument();
@@ -248,7 +263,12 @@ describe('FilterRuleEditor', () => {
 
   describe('Loading States', () => {
     it('disables save button when isSaving is true', () => {
-      render(<FilterRuleEditor {...defaultProps} isSaving={true} />);
+      render(
+        <FilterRuleEditor
+          {...defaultProps}
+          isSaving={true}
+        />
+      );
 
       const saveButton = screen.getByRole('button', { name: /save|saving|create/i });
       expect(saveButton).toBeDisabled();
@@ -369,7 +389,7 @@ describe('FilterRuleEditor', () => {
 
         const allControls = [...inputs, ...selects];
         if (allControls.length > 0) {
-          allControls.forEach(control => {
+          allControls.forEach((control) => {
             expect(control).toHaveAccessibleName();
           });
         }
@@ -416,13 +436,23 @@ describe('FilterRuleEditor', () => {
 
     it('handles empty address lists', () => {
       expect(() =>
-        render(<FilterRuleEditor {...defaultProps} addressLists={[]} />)
+        render(
+          <FilterRuleEditor
+            {...defaultProps}
+            addressLists={[]}
+          />
+        )
       ).not.toThrow();
     });
 
     it('handles empty interface lists', () => {
       expect(() =>
-        render(<FilterRuleEditor {...defaultProps} interfaceLists={[]} />)
+        render(
+          <FilterRuleEditor
+            {...defaultProps}
+            interfaceLists={[]}
+          />
+        )
       ).not.toThrow();
     });
   });

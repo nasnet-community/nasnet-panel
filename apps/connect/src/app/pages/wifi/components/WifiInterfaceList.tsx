@@ -15,7 +15,9 @@ interface WifiInterfaceListProps {
   routerId: string;
 }
 
-export const WifiInterfaceList = React.memo(function WifiInterfaceList({ routerId }: WifiInterfaceListProps) {
+export const WifiInterfaceList = React.memo(function WifiInterfaceList({
+  routerId,
+}: WifiInterfaceListProps) {
   const { t } = useTranslation('wifi');
   return (
     <section>
@@ -26,28 +28,3 @@ export const WifiInterfaceList = React.memo(function WifiInterfaceList({ routerI
 });
 
 WifiInterfaceList.displayName = 'WifiInterfaceList';
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

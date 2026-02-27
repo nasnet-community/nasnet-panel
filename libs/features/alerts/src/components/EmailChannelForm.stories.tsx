@@ -113,11 +113,7 @@ export const PrefilledOffice365: Story = {
       password: 'P@ssw0rd!',
       fromAddress: 'router-alerts@corp.example.com',
       fromName: 'Router Monitoring',
-      toAddresses: [
-        'netops@corp.example.com',
-        'soc@corp.example.com',
-        'oncall@corp.example.com',
-      ],
+      toAddresses: ['netops@corp.example.com', 'soc@corp.example.com', 'oncall@corp.example.com'],
       useTLS: true,
       skipVerify: false,
     },
@@ -250,7 +246,8 @@ export const Desktop: Story = {
     viewport: { defaultViewport: 'desktop' },
     docs: {
       description: {
-        story: 'Desktop presenter (≥640px) with dense two-column grid and collapsible advanced settings.',
+        story:
+          'Desktop presenter (≥640px) with dense two-column grid and collapsible advanced settings.',
       },
     },
   },

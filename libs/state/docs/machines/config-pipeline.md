@@ -1,9 +1,11 @@
 # Configuration Pipeline Machine (Safety Flow)
 
-The **Config Pipeline Machine** implements the **Apply-Confirm-Merge pattern** for safe configuration changes. It prevents accidental network lockouts through explicit state modeling, guards, and automatic rollback on failure.
+The **Config Pipeline Machine** implements the **Apply-Confirm-Merge pattern** for safe
+configuration changes. It prevents accidental network lockouts through explicit state modeling,
+guards, and automatic rollback on failure.
 
-**Source:** `libs/state/machines/src/configPipelineMachine.ts`
-**Hook:** `libs/state/machines/src/hooks/useConfigPipeline.ts`
+**Source:** `libs/state/machines/src/configPipelineMachine.ts` **Hook:**
+`libs/state/machines/src/hooks/useConfigPipeline.ts`
 
 ## Complete State Chart
 
@@ -115,20 +117,20 @@ stateDiagram-v2
 
 ## States Reference
 
-| State | Duration | Purpose | Entry Actions | On Events |
-|-------|----------|---------|---------------|-----------|
-| **idle** | Indefinite | Initial state, waiting for user to start editing | None | `EDIT` → draft |
-| **draft** | Indefinite | User editing configuration | None | `EDIT` (stay), `VALIDATE` → validating, `CANCEL` → idle (reset) |
-| **validating** | 5-30s | Running 7-stage validation pipeline | None | onDone → invalid\|previewing, onError → error |
-| **invalid** | Indefinite | Validation failed, showing errors | None | `EDIT` → draft (reset), `CANCEL` → idle (reset) |
-| **previewing** | Indefinite | Showing configuration diff | None | `CONFIRM` → applying\|confirming, `EDIT` → draft, `CANCEL` → idle |
-| **confirming** | Indefinite | User acknowledging high-risk operation | None | `ACKNOWLEDGED` → applying, `CANCEL` → previewing |
-| **applying** | 5-60s | Sending config to router, getting rollback data | None | onDone → verifying, onError → error |
-| **verifying** | 5-30s | Confirming router accepted changes | None | onDone → active, onError → rollback |
-| **active** | N/A | Configuration successfully applied | `notifySuccess()` | (Terminal - no transitions) |
-| **rollback** | 5-30s | Auto-rolling back due to verification failure | None | onDone → rolled_back, onError → error |
-| **rolled_back** | N/A | Rollback completed, back to safe state | `notifyRolledBack()` | (Terminal - no transitions) |
-| **error** | Indefinite | Unrecoverable error | `notifyError()` | `RETRY` → validating, `FORCE_ROLLBACK` → rollback, `RESET` → idle |
+| State           | Duration   | Purpose                                          | Entry Actions        | On Events                                                         |
+| --------------- | ---------- | ------------------------------------------------ | -------------------- | ----------------------------------------------------------------- |
+| **idle**        | Indefinite | Initial state, waiting for user to start editing | None                 | `EDIT` → draft                                                    |
+| **draft**       | Indefinite | User editing configuration                       | None                 | `EDIT` (stay), `VALIDATE` → validating, `CANCEL` → idle (reset)   |
+| **validating**  | 5-30s      | Running 7-stage validation pipeline              | None                 | onDone → invalid\|previewing, onError → error                     |
+| **invalid**     | Indefinite | Validation failed, showing errors                | None                 | `EDIT` → draft (reset), `CANCEL` → idle (reset)                   |
+| **previewing**  | Indefinite | Showing configuration diff                       | None                 | `CONFIRM` → applying\|confirming, `EDIT` → draft, `CANCEL` → idle |
+| **confirming**  | Indefinite | User acknowledging high-risk operation           | None                 | `ACKNOWLEDGED` → applying, `CANCEL` → previewing                  |
+| **applying**    | 5-60s      | Sending config to router, getting rollback data  | None                 | onDone → verifying, onError → error                               |
+| **verifying**   | 5-30s      | Confirming router accepted changes               | None                 | onDone → active, onError → rollback                               |
+| **active**      | N/A        | Configuration successfully applied               | `notifySuccess()`    | (Terminal - no transitions)                                       |
+| **rollback**    | 5-30s      | Auto-rolling back due to verification failure    | None                 | onDone → rolled_back, onError → error                             |
+| **rolled_back** | N/A        | Rollback completed, back to safe state           | `notifyRolledBack()` | (Terminal - no transitions)                                       |
+| **error**       | Indefinite | Unrecoverable error                              | `notifyError()`      | `RETRY` → validating, `FORCE_ROLLBACK` → rollback, `RESET` → idle |
 
 ## Events
 
@@ -136,14 +138,14 @@ stateDiagram-v2
 
 ```typescript
 type ConfigPipelineEvent<TConfig> =
-  | { type: 'EDIT'; config: TConfig }           // Start/update editing
-  | { type: 'VALIDATE' }                         // Trigger validation
-  | { type: 'CONFIRM' }                          // Confirm preview
-  | { type: 'ACKNOWLEDGED' }                     // Acknowledge high-risk
-  | { type: 'CANCEL' }                           // Cancel pipeline
-  | { type: 'RETRY' }                            // Retry after error
-  | { type: 'RESET' }                            // Reset to idle
-  | { type: 'FORCE_ROLLBACK' };                  // Force rollback from error
+  | { type: 'EDIT'; config: TConfig } // Start/update editing
+  | { type: 'VALIDATE' } // Trigger validation
+  | { type: 'CONFIRM' } // Confirm preview
+  | { type: 'ACKNOWLEDGED' } // Acknowledge high-risk
+  | { type: 'CANCEL' } // Cancel pipeline
+  | { type: 'RETRY' } // Retry after error
+  | { type: 'RESET' } // Reset to idle
+  | { type: 'FORCE_ROLLBACK' }; // Force rollback from error
 ```
 
 ## Context
@@ -180,10 +182,10 @@ interface ConfigPipelineContext<TConfig = unknown> {
 
 ```typescript
 interface ValidationError {
-  field: string;                                 // Field that failed
-  message: string;                               // Human-readable message
-  severity: 'error' | 'warning';                 // Error severity
-  code?: string;                                 // Programmatic error code
+  field: string; // Field that failed
+  message: string; // Human-readable message
+  severity: 'error' | 'warning'; // Error severity
+  code?: string; // Programmatic error code
 }
 ```
 
@@ -191,15 +193,16 @@ interface ValidationError {
 
 ```typescript
 interface ConfigDiff {
-  added: Array<{ path: string; value: unknown }>;         // New entries
-  removed: Array<{ path: string; value: unknown }>;       // Deleted entries
-  modified: Array<{                                       // Changed entries
+  added: Array<{ path: string; value: unknown }>; // New entries
+  removed: Array<{ path: string; value: unknown }>; // Deleted entries
+  modified: Array<{
+    // Changed entries
     path: string;
     oldValue: unknown;
     newValue: unknown;
   }>;
-  isHighRisk: boolean;                                    // Requires confirmation
-  riskExplanation?: string;                               // Why it's high-risk
+  isHighRisk: boolean; // Requires confirmation
+  riskExplanation?: string; // Why it's high-risk
 }
 ```
 
@@ -207,12 +210,12 @@ interface ConfigDiff {
 
 ```typescript
 {
-  hasValidationErrors: boolean;    // Validation produced errors
-  noValidationErrors: boolean;     // Validation passed (no errors)
-  isHighRisk: boolean;             // diff.isHighRisk === true
-  isNotHighRisk: boolean;          // diff.isHighRisk === false
-  hasResourceId: boolean;          // resourceId !== null
-  hasRollbackData: boolean;        // rollbackData !== null
+  hasValidationErrors: boolean; // Validation produced errors
+  noValidationErrors: boolean; // Validation passed (no errors)
+  isHighRisk: boolean; // diff.isHighRisk === true
+  isNotHighRisk: boolean; // diff.isHighRisk === false
+  hasResourceId: boolean; // resourceId !== null
+  hasRollbackData: boolean; // rollbackData !== null
 }
 ```
 
@@ -220,15 +223,15 @@ interface ConfigDiff {
 
 ```typescript
 {
-  updatePendingConfig();           // Set pending config from EDIT event
-  setValidationResults();          // Store validation errors & diff
-  setRollbackData();               // Store rollback data from apply
-  setErrorMessage();               // Store error from failure
-  clearErrors();                   // Reset validation errors
-  resetPipeline();                 // Clear all data (idle on cancel)
-  notifySuccess();                 // Callback: apply succeeded
-  notifyRolledBack();              // Callback: rollback completed
-  notifyError();                   // Callback: error occurred
+  updatePendingConfig(); // Set pending config from EDIT event
+  setValidationResults(); // Store validation errors & diff
+  setRollbackData(); // Store rollback data from apply
+  setErrorMessage(); // Store error from failure
+  clearErrors(); // Reset validation errors
+  resetPipeline(); // Clear all data (idle on cancel)
+  notifySuccess(); // Callback: apply succeeded
+  notifyRolledBack(); // Callback: rollback completed
+  notifyError(); // Callback: error occurred
 }
 ```
 
@@ -472,15 +475,12 @@ const dhcpPipeline = createConfigPipelineMachine<DHCPConfig>({
 
 ```typescript
 // In validation pipeline:
-const isHighRisk =
-  JSON.stringify(config) !== JSON.stringify(originalConfig);
+const isHighRisk = JSON.stringify(config) !== JSON.stringify(originalConfig);
 
 const diff: ConfigDiff = {
   // ... computed additions/deletions/modifications
   isHighRisk,
-  riskExplanation: isHighRisk
-    ? 'This change will restart all services on the router'
-    : undefined,
+  riskExplanation: isHighRisk ? 'This change will restart all services on the router' : undefined,
 };
 ```
 

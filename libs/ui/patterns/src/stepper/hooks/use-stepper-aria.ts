@@ -190,10 +190,7 @@ export function getStepPanelAriaProps(
  * // Output: "Step 3 of 3: Review, not started"
  * ```
  */
-export function getStepAccessibleLabel(
-  stepper: UseStepperReturn,
-  stepIndex: number
-): string {
+export function getStepAccessibleLabel(stepper: UseStepperReturn, stepIndex: number): string {
   const step = stepper.steps[stepIndex];
   const status = stepper.getStepStatus(step.id);
   const stepNumber = stepIndex + 1;
@@ -309,9 +306,8 @@ export function getNavigationButtonAriaProps(
   if (type === 'back') {
     const prevStep = stepper.currentIndex > 0 ? stepper.steps[stepper.currentIndex - 1] : null;
     return {
-      'aria-label': prevStep
-        ? `Go back to ${prevStep.title}`
-        : 'Go back (disabled - already at first step)',
+      'aria-label':
+        prevStep ? `Go back to ${prevStep.title}` : 'Go back (disabled - already at first step)',
       'aria-disabled': stepper.isFirst,
     };
   }
@@ -319,18 +315,15 @@ export function getNavigationButtonAriaProps(
   // Next button
   if (stepper.isLast) {
     return {
-      'aria-label': stepper.isValidating
-        ? 'Completing wizard, please wait'
-        : 'Complete wizard',
+      'aria-label': stepper.isValidating ? 'Completing wizard, please wait' : 'Complete wizard',
       'aria-disabled': !stepper.canProceed,
     };
   }
 
   const nextStep = stepper.steps[stepper.currentIndex + 1];
   return {
-    'aria-label': stepper.isValidating
-      ? 'Validating, please wait'
-      : `Go to ${nextStep?.title ?? 'next step'}`,
+    'aria-label':
+      stepper.isValidating ? 'Validating, please wait' : `Go to ${nextStep?.title ?? 'next step'}`,
     'aria-disabled': !stepper.canProceed,
   };
 }

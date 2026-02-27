@@ -10,49 +10,39 @@ import * as React from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { Plus, Pencil, Trash2, Loader2 } from 'lucide-react';
 
-import type {
-  ChangeSetSummary as ChangeSetSummaryData,
-  ChangeSetStatus,
-} from '@nasnet/core/types';
-import {
-  getChangeSetStatusDisplayInfo,
-  isChangeSetProcessing,
-} from '@nasnet/core/types';
+import type { ChangeSetSummary as ChangeSetSummaryData, ChangeSetStatus } from '@nasnet/core/types';
+import { getChangeSetStatusDisplayInfo, isChangeSetProcessing } from '@nasnet/core/types';
 import { cn } from '@nasnet/ui/primitives';
 import { usePlatform } from '@nasnet/ui/layouts';
-
 
 // =============================================================================
 // Variants
 // =============================================================================
 
-const summaryVariants = cva(
-  'rounded-lg border p-4 transition-all',
-  {
-    variants: {
-      status: {
-        DRAFT: 'border-border bg-card',
-        VALIDATING: 'border-info/50 bg-info/5',
-        READY: 'border-success/50 bg-success/5',
-        APPLYING: 'border-warning/50 bg-warning/5',
-        COMPLETED: 'border-success bg-success/10',
-        FAILED: 'border-error bg-error/10',
-        ROLLING_BACK: 'border-warning/50 bg-warning/5',
-        ROLLED_BACK: 'border-muted bg-muted/50',
-        PARTIAL_FAILURE: 'border-error bg-error/10',
-        CANCELLED: 'border-muted bg-muted/50',
-      },
-      interactive: {
-        true: 'cursor-pointer hover:shadow-md',
-        false: '',
-      },
+const summaryVariants = cva('rounded-lg border p-4 transition-all', {
+  variants: {
+    status: {
+      DRAFT: 'border-border bg-card',
+      VALIDATING: 'border-info/50 bg-info/5',
+      READY: 'border-success/50 bg-success/5',
+      APPLYING: 'border-warning/50 bg-warning/5',
+      COMPLETED: 'border-success bg-success/10',
+      FAILED: 'border-error bg-error/10',
+      ROLLING_BACK: 'border-warning/50 bg-warning/5',
+      ROLLED_BACK: 'border-muted bg-muted/50',
+      PARTIAL_FAILURE: 'border-error bg-error/10',
+      CANCELLED: 'border-muted bg-muted/50',
     },
-    defaultVariants: {
-      status: 'DRAFT',
-      interactive: false,
+    interactive: {
+      true: 'cursor-pointer hover:shadow-md',
+      false: '',
     },
-  }
-);
+  },
+  defaultVariants: {
+    status: 'DRAFT',
+    interactive: false,
+  },
+});
 
 const operationBadgeVariants = cva(
   'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium',
@@ -127,11 +117,7 @@ OperationBadge.displayName = 'OperationBadge';
 /**
  * Status badge for change set
  */
-const StatusBadge = React.memo(function StatusBadge({
-  status,
-}: {
-  status: ChangeSetStatus;
-}) {
+const StatusBadge = React.memo(function StatusBadge({ status }: { status: ChangeSetStatus }) {
   const displayInfo = getChangeSetStatusDisplayInfo(status);
   const isProcessing = isChangeSetProcessing(status);
 
@@ -163,10 +149,7 @@ StatusBadge.displayName = 'StatusBadge';
  */
 export function useChangeSetSummary(
   summary: ChangeSetSummaryData,
-  {
-    interactive = false,
-    onClick,
-  }: Pick<ChangeSetSummaryProps, 'interactive' | 'onClick'>
+  { interactive = false, onClick }: Pick<ChangeSetSummaryProps, 'interactive' | 'onClick'>
 ) {
   const handleClick = React.useCallback(() => {
     if (interactive && onClick) {
@@ -206,10 +189,7 @@ export function useChangeSetSummary(
 /**
  * Desktop presenter for ChangeSetSummary
  */
-const ChangeSetSummaryDesktop = React.forwardRef<
-  HTMLDivElement,
-  ChangeSetSummaryProps
->(
+const ChangeSetSummaryDesktop = React.forwardRef<HTMLDivElement, ChangeSetSummaryProps>(
   (
     {
       className,
@@ -256,34 +236,27 @@ const ChangeSetSummaryDesktop = React.forwardRef<
     return (
       <div
         ref={ref}
-        className={cn(
-          summaryVariants({ status, interactive }),
-          className
-        )}
+        className={cn(summaryVariants({ status, interactive }), className)}
         onClick={handleClick}
         onKeyDown={handleKeyDown}
         role={interactive ? 'button' : undefined}
         tabIndex={interactive ? 0 : undefined}
-        aria-label={
-          interactive ? `View change set: ${name}` : undefined
-        }
+        aria-label={interactive ? `View change set: ${name}` : undefined}
         {...props}
       >
         {/* Header */}
         <div className="flex items-start justify-between gap-2">
-          <div className="flex-1 min-w-0">
-            <h4 className="font-medium text-foreground truncate">{name}</h4>
+          <div className="min-w-0 flex-1">
+            <h4 className="text-foreground truncate font-medium">{name}</h4>
             {showTimestamp && !compact && (
-              <p className="text-xs text-muted-foreground mt-0.5">
-                Created {formattedDate}
-              </p>
+              <p className="text-muted-foreground mt-0.5 text-xs">Created {formattedDate}</p>
             )}
           </div>
           {showStatus && <StatusBadge status={status} />}
         </div>
 
         {/* Operation counts */}
-        <div className="flex items-center gap-2 mt-3">
+        <div className="mt-3 flex items-center gap-2">
           <OperationBadge
             operation="create"
             count={operationCounts.create}
@@ -299,20 +272,16 @@ const ChangeSetSummaryDesktop = React.forwardRef<
             count={operationCounts.delete}
             icon={Trash2}
           />
-          <span className="text-xs text-muted-foreground ml-auto">
+          <span className="text-muted-foreground ml-auto text-xs">
             {totalItems} {totalItems === 1 ? 'item' : 'items'}
           </span>
         </div>
 
         {/* Warnings/Errors indicator */}
         {(hasErrors || hasWarnings) && (
-          <div className="flex items-center gap-2 mt-2 text-xs">
-            {hasErrors && (
-              <span className="text-error">Has validation errors</span>
-            )}
-            {hasWarnings && !hasErrors && (
-              <span className="text-warning">Has warnings</span>
-            )}
+          <div className="mt-2 flex items-center gap-2 text-xs">
+            {hasErrors && <span className="text-error">Has validation errors</span>}
+            {hasWarnings && !hasErrors && <span className="text-warning">Has warnings</span>}
           </div>
         )}
       </div>
@@ -327,7 +296,11 @@ ChangeSetSummaryDesktop.displayName = 'ChangeSetSummaryDesktop';
  */
 const ChangeSetSummaryMobile = React.forwardRef<HTMLDivElement, ChangeSetSummaryProps>(
   (props, ref) => (
-    <ChangeSetSummaryDesktop ref={ref} {...props} compact />
+    <ChangeSetSummaryDesktop
+      ref={ref}
+      {...props}
+      compact
+    />
   )
 );
 
@@ -338,7 +311,10 @@ ChangeSetSummaryMobile.displayName = 'ChangeSetSummaryMobile';
  */
 const ChangeSetSummaryTablet = React.forwardRef<HTMLDivElement, ChangeSetSummaryProps>(
   (props, ref) => (
-    <ChangeSetSummaryDesktop ref={ref} {...props} />
+    <ChangeSetSummaryDesktop
+      ref={ref}
+      {...props}
+    />
   )
 );
 
@@ -374,8 +350,11 @@ const ChangeSetSummaryRoot = React.forwardRef<HTMLDivElement, ChangeSetSummaryPr
     }, [selectedPresenter]);
 
     return (
-      <React.Suspense fallback={<div className="animate-pulse h-24 bg-muted rounded-lg" />}>
-        <PresenterComponent ref={ref} {...props} />
+      <React.Suspense fallback={<div className="bg-muted h-24 animate-pulse rounded-lg" />}>
+        <PresenterComponent
+          ref={ref}
+          {...props}
+        />
       </React.Suspense>
     );
   }

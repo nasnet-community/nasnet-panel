@@ -37,10 +37,7 @@ export interface UseTemplatesBrowserReturn {
 /**
  * Sort templates by the specified field
  */
-function sortTemplates(
-  templates: ServiceTemplate[],
-  sortBy: TemplateSortBy
-): ServiceTemplate[] {
+function sortTemplates(templates: ServiceTemplate[], sortBy: TemplateSortBy): ServiceTemplate[] {
   const sorted = [...templates];
 
   switch (sortBy) {
@@ -48,10 +45,7 @@ function sortTemplates(
       sorted.sort((a, b) => a.name.localeCompare(b.name));
       break;
     case 'updated':
-      sorted.sort(
-        (a, b) =>
-          new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
-      );
+      sorted.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
       break;
     case 'category':
       sorted.sort((a, b) => a.category.localeCompare(b.category));
@@ -86,9 +80,7 @@ function sortTemplates(
  * } = useTemplatesBrowser('router-1');
  * ```
  */
-export function useTemplatesBrowser(
-  routerId: string
-): UseTemplatesBrowserReturn {
+export function useTemplatesBrowser(routerId: string): UseTemplatesBrowserReturn {
   const [filters, setFilters] = useState<TemplateBrowserFilters>(DEFAULT_FILTERS);
 
   // Fetch templates with API hook
@@ -113,12 +105,9 @@ export function useTemplatesBrowser(
   );
 
   // Update filters (partial update)
-  const updateFilters = useCallback(
-    (updates: Partial<TemplateBrowserFilters>) => {
-      setFilters((prev) => ({ ...prev, ...updates }));
-    },
-    []
-  );
+  const updateFilters = useCallback((updates: Partial<TemplateBrowserFilters>) => {
+    setFilters((prev) => ({ ...prev, ...updates }));
+  }, []);
 
   // Reset filters to defaults
   const resetFilters = useCallback(() => {

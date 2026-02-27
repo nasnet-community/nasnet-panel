@@ -44,7 +44,9 @@ function getProtectionStatus(
  * - Last data refresh timestamp
  * - Loading skeleton state
  */
-export const FirewallStatusHero = memo(function FirewallStatusHero({ className }: FirewallStatusHeroProps) {
+export const FirewallStatusHero = memo(function FirewallStatusHero({
+  className,
+}: FirewallStatusHeroProps) {
   const routerIp = useConnectionStore((state) => state.currentRouterIp) || '';
 
   const {
@@ -79,9 +81,8 @@ export const FirewallStatusHero = memo(function FirewallStatusHero({ className }
     const disabledRules = totalRules - activeRules;
 
     const hasDropRules =
-      filterRules?.some(
-        (r) => !r.disabled && (r.action === 'drop' || r.action === 'reject')
-      ) || false;
+      filterRules?.some((r) => !r.disabled && (r.action === 'drop' || r.action === 'reject')) ||
+      false;
 
     const status = getProtectionStatus(totalFilter, hasDropRules);
 
@@ -108,47 +109,54 @@ export const FirewallStatusHero = memo(function FirewallStatusHero({ className }
   }, [refetchFilter, refetchNAT]);
 
   // Status display configuration (using semantic token variants)
-  const statusConfig = useMemo(() => ({
-    protected: {
-      icon: ShieldCheck,
-      label: 'Protected',
-      description: 'Firewall active',
-      bgColor: 'bg-success/10',
-      borderColor: 'border-success',
-      iconColor: 'text-success',
-      textColor: 'text-success',
-    },
-    warning: {
-      icon: ShieldAlert,
-      label: 'Warning',
-      description: 'No drop rules',
-      bgColor: 'bg-warning/10',
-      borderColor: 'border-warning',
-      iconColor: 'text-warning',
-      textColor: 'text-warning',
-    },
-    minimal: {
-      icon: Shield,
-      label: 'Minimal',
-      description: 'No filter rules',
-      bgColor: 'bg-muted',
-      borderColor: 'border-border',
-      iconColor: 'text-muted-foreground',
-      textColor: 'text-muted-foreground',
-    },
-  }), []);
+  const statusConfig = useMemo(
+    () => ({
+      protected: {
+        icon: ShieldCheck,
+        label: 'Protected',
+        description: 'Firewall active',
+        bgColor: 'bg-success/10',
+        borderColor: 'border-success',
+        iconColor: 'text-success',
+        textColor: 'text-success',
+      },
+      warning: {
+        icon: ShieldAlert,
+        label: 'Warning',
+        description: 'No drop rules',
+        bgColor: 'bg-warning/10',
+        borderColor: 'border-warning',
+        iconColor: 'text-warning',
+        textColor: 'text-warning',
+      },
+      minimal: {
+        icon: Shield,
+        label: 'Minimal',
+        description: 'No filter rules',
+        bgColor: 'bg-muted',
+        borderColor: 'border-border',
+        iconColor: 'text-muted-foreground',
+        textColor: 'text-muted-foreground',
+      },
+    }),
+    []
+  );
 
   if (isLoading) {
     return (
-      <div className={cn('grid grid-cols-2 md:grid-cols-4 gap-component-sm', className)} role="status" aria-label="Loading firewall status">
+      <div
+        className={cn('gap-component-sm grid grid-cols-2 md:grid-cols-4', className)}
+        role="status"
+        aria-label="Loading firewall status"
+      >
         {[1, 2, 3, 4].map((i) => (
           <div
             key={i}
-            className="bg-card rounded-[var(--semantic-radius-card)] border border-border p-component-md animate-pulse"
+            className="bg-card border-border p-component-md animate-pulse rounded-[var(--semantic-radius-card)] border"
           >
-            <div className="h-4 bg-muted rounded w-16 mb-component-sm" />
-            <div className="h-7 bg-muted rounded w-12 mb-component-xs" />
-            <div className="h-3 bg-muted rounded w-20 mt-component-sm" />
+            <div className="bg-muted mb-component-sm h-4 w-16 rounded" />
+            <div className="bg-muted mb-component-xs h-7 w-12 rounded" />
+            <div className="bg-muted mt-component-sm h-3 w-20 rounded" />
           </div>
         ))}
       </div>
@@ -159,67 +167,81 @@ export const FirewallStatusHero = memo(function FirewallStatusHero({ className }
   const StatusIcon = currentStatus.icon;
 
   return (
-    <div className={cn('grid grid-cols-2 md:grid-cols-4 gap-component-sm', className)} role="region" aria-label="Firewall status overview">
+    <div
+      className={cn('gap-component-sm grid grid-cols-2 md:grid-cols-4', className)}
+      role="region"
+      aria-label="Firewall status overview"
+    >
       {/* Protection Status */}
       <div
-        className={cn('rounded-[var(--semantic-radius-card)] border p-component-md', currentStatus.bgColor, currentStatus.borderColor)}
+        className={cn(
+          'p-component-md rounded-[var(--semantic-radius-card)] border',
+          currentStatus.bgColor,
+          currentStatus.borderColor
+        )}
       >
-        <div className="flex items-center gap-component-sm mb-component-xs">
-          <StatusIcon className={`w-4 h-4 ${currentStatus.iconColor}`} aria-hidden="true" />
+        <div className="gap-component-sm mb-component-xs flex items-center">
+          <StatusIcon
+            className={`h-4 w-4 ${currentStatus.iconColor}`}
+            aria-hidden="true"
+          />
           <p className="text-muted-foreground text-xs font-medium uppercase tracking-wide">
             Status
           </p>
         </div>
-        <p className={`text-xl font-bold ${currentStatus.textColor}`}>
-          {currentStatus.label}
-        </p>
-        <p className="text-xs text-muted-foreground mt-component-xs">
-          {currentStatus.description}
-        </p>
+        <p className={`text-xl font-bold ${currentStatus.textColor}`}>{currentStatus.label}</p>
+        <p className="text-muted-foreground mt-component-xs text-xs">{currentStatus.description}</p>
       </div>
 
       {/* Total Rules */}
-      <div className="bg-card rounded-[var(--semantic-radius-card)] border border-border p-component-md">
-        <div className="flex items-center gap-component-sm mb-component-xs">
-          <FileText className="w-4 h-4 text-secondary" aria-hidden="true" />
+      <div className="bg-card border-border p-component-md rounded-[var(--semantic-radius-card)] border">
+        <div className="gap-component-sm mb-component-xs flex items-center">
+          <FileText
+            className="text-secondary h-4 w-4"
+            aria-hidden="true"
+          />
           <p className="text-muted-foreground text-xs font-medium uppercase tracking-wide">
             Total Rules
           </p>
         </div>
-        <p className="text-xl md:text-2xl font-bold text-foreground">
-          {stats.totalRules}
-        </p>
-        <p className="text-xs text-muted-foreground mt-component-xs">
+        <p className="text-foreground text-xl font-bold md:text-2xl">{stats.totalRules}</p>
+        <p className="text-muted-foreground mt-component-xs text-xs">
           {stats.totalFilter} filter, {stats.totalNAT} NAT
         </p>
       </div>
 
       {/* Active Rules */}
-      <div className="bg-card rounded-[var(--semantic-radius-card)] border border-border p-component-md">
-        <div className="flex items-center gap-component-sm mb-component-xs">
-          <Shield className="w-4 h-4 text-success" aria-hidden="true" />
+      <div className="bg-card border-border p-component-md rounded-[var(--semantic-radius-card)] border">
+        <div className="gap-component-sm mb-component-xs flex items-center">
+          <Shield
+            className="text-success h-4 w-4"
+            aria-hidden="true"
+          />
           <p className="text-muted-foreground text-xs font-medium uppercase tracking-wide">
             Active
           </p>
         </div>
-        <p className="text-xl md:text-2xl font-bold text-foreground">
+        <p className="text-foreground text-xl font-bold md:text-2xl">
           {stats.activeRules}
-          <span className="text-muted-foreground text-sm font-normal ml-component-xs">
+          <span className="text-muted-foreground ml-component-xs text-sm font-normal">
             /{stats.totalRules}
           </span>
         </p>
         {stats.disabledRules > 0 && (
-          <p className="text-xs text-muted-foreground mt-component-xs">
+          <p className="text-muted-foreground mt-component-xs text-xs">
             {stats.disabledRules} disabled
           </p>
         )}
       </div>
 
       {/* Last Updated */}
-      <div className="bg-card rounded-[var(--semantic-radius-card)] border border-border p-component-md">
-        <div className="flex items-center justify-between mb-component-xs">
-          <div className="flex items-center gap-component-sm">
-            <Clock className="w-4 h-4 text-muted-foreground" aria-hidden="true" />
+      <div className="bg-card border-border p-component-md rounded-[var(--semantic-radius-card)] border">
+        <div className="mb-component-xs flex items-center justify-between">
+          <div className="gap-component-sm flex items-center">
+            <Clock
+              className="text-muted-foreground h-4 w-4"
+              aria-hidden="true"
+            />
             <p className="text-muted-foreground text-xs font-medium uppercase tracking-wide">
               Updated
             </p>
@@ -227,30 +249,30 @@ export const FirewallStatusHero = memo(function FirewallStatusHero({ className }
           <button
             onClick={handleRefresh}
             disabled={isFetching}
-            className="p-component-xs rounded-[var(--semantic-radius-button)] hover:bg-muted transition-colors disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            className="p-component-xs hover:bg-muted focus-visible:ring-ring rounded-[var(--semantic-radius-button)] transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-50"
             aria-label={isFetching ? 'Refreshing firewall data' : 'Refresh firewall data'}
           >
             <RefreshCw
-              className={`w-3.5 h-3.5 text-muted-foreground ${isFetching ? 'animate-spin' : ''}`}
+              className={`text-muted-foreground h-3.5 w-3.5 ${isFetching ? 'animate-spin' : ''}`}
               aria-hidden="true"
             />
           </button>
         </div>
-        <p className="text-lg font-semibold text-foreground">
-          {lastUpdated
-            ? lastUpdated.toLocaleTimeString([], {
-                hour: '2-digit',
-                minute: '2-digit',
-              })
-            : '-'}
+        <p className="text-foreground text-lg font-semibold">
+          {lastUpdated ?
+            lastUpdated.toLocaleTimeString([], {
+              hour: '2-digit',
+              minute: '2-digit',
+            })
+          : '-'}
         </p>
-        <p className="text-xs text-muted-foreground mt-component-xs">
-          {lastUpdated
-            ? lastUpdated.toLocaleDateString([], {
-                month: 'short',
-                day: 'numeric',
-              })
-            : 'Never refreshed'}
+        <p className="text-muted-foreground mt-component-xs text-xs">
+          {lastUpdated ?
+            lastUpdated.toLocaleDateString([], {
+              month: 'short',
+              day: 'numeric',
+            })
+          : 'Never refreshed'}
         </p>
       </div>
     </div>
@@ -258,15 +280,3 @@ export const FirewallStatusHero = memo(function FirewallStatusHero({ className }
 });
 
 FirewallStatusHero.displayName = 'FirewallStatusHero';
-
-
-
-
-
-
-
-
-
-
-
-

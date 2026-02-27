@@ -65,24 +65,32 @@
  * }, [event]);
  * ```
  */
-import type { DeviceRoutingMatrix, DeviceRouting, AssignDeviceRoutingInput, BulkAssignRoutingInput, BulkRoutingResult, DeviceRoutingEvent, RoutingMode } from '@nasnet/api-client/generated/types';
+import type {
+  DeviceRoutingMatrix,
+  DeviceRouting,
+  AssignDeviceRoutingInput,
+  BulkAssignRoutingInput,
+  BulkRoutingResult,
+  DeviceRoutingEvent,
+  RoutingMode,
+} from '@nasnet/api-client/generated/types';
 /**
  * Filters for querying device routings
  */
 export interface DeviceRoutingFilters {
-    deviceID?: string;
-    instanceID?: string;
-    active?: boolean;
+  deviceID?: string;
+  instanceID?: string;
+  active?: boolean;
 }
 /**
  * Bulk assignment progress tracking
  */
 export interface BulkAssignProgress {
-    total: number;
-    processed: number;
-    successful: number;
-    failed: number;
-    percentage: number;
+  total: number;
+  processed: number;
+  successful: number;
+  failed: number;
+  percentage: number;
 }
 /**
  * Hook to fetch the complete device routing matrix
@@ -111,10 +119,12 @@ export interface BulkAssignProgress {
  * ```
  */
 export declare function useDeviceRoutingMatrix(routerId: string): {
-    matrix: DeviceRoutingMatrix | undefined;
-    loading: boolean;
-    error: import("@apollo/client").ApolloError | undefined;
-    refetch: (variables?: Partial<import("@apollo/client").OperationVariables> | undefined) => Promise<import("@apollo/client").ApolloQueryResult<any>>;
+  matrix: DeviceRoutingMatrix | undefined;
+  loading: boolean;
+  error: import('@apollo/client').ApolloError | undefined;
+  refetch: (
+    variables?: Partial<import('@apollo/client').OperationVariables> | undefined
+  ) => Promise<import('@apollo/client').ApolloQueryResult<any>>;
 };
 /**
  * Hook to fetch device routings with optional filters
@@ -135,11 +145,16 @@ export declare function useDeviceRoutingMatrix(routerId: string): {
  * });
  * ```
  */
-export declare function useDeviceRoutings(routerId: string, filters?: DeviceRoutingFilters): {
-    routings: DeviceRouting[];
-    loading: boolean;
-    error: import("@apollo/client").ApolloError | undefined;
-    refetch: (variables?: Partial<import("@apollo/client").OperationVariables> | undefined) => Promise<import("@apollo/client").ApolloQueryResult<any>>;
+export declare function useDeviceRoutings(
+  routerId: string,
+  filters?: DeviceRoutingFilters
+): {
+  routings: DeviceRouting[];
+  loading: boolean;
+  error: import('@apollo/client').ApolloError | undefined;
+  refetch: (
+    variables?: Partial<import('@apollo/client').OperationVariables> | undefined
+  ) => Promise<import('@apollo/client').ApolloQueryResult<any>>;
 };
 /**
  * Hook to fetch a single device routing by ID
@@ -148,10 +163,12 @@ export declare function useDeviceRoutings(routerId: string, filters?: DeviceRout
  * @returns Routing data, loading state, error, and refetch function
  */
 export declare function useDeviceRouting(id: string): {
-    routing: DeviceRouting | undefined;
-    loading: boolean;
-    error: import("@apollo/client").ApolloError | undefined;
-    refetch: (variables?: Partial<import("@apollo/client").OperationVariables> | undefined) => Promise<import("@apollo/client").ApolloQueryResult<any>>;
+  routing: DeviceRouting | undefined;
+  loading: boolean;
+  error: import('@apollo/client').ApolloError | undefined;
+  refetch: (
+    variables?: Partial<import('@apollo/client').OperationVariables> | undefined
+  ) => Promise<import('@apollo/client').ApolloQueryResult<any>>;
 };
 /**
  * Hook to assign a device to a service instance
@@ -185,11 +202,14 @@ export declare function useDeviceRouting(id: string): {
  * };
  * ```
  */
-export declare function useAssignDeviceRouting(): readonly [(input: AssignDeviceRoutingInput) => Promise<DeviceRouting>, {
+export declare function useAssignDeviceRouting(): readonly [
+  (input: AssignDeviceRoutingInput) => Promise<DeviceRouting>,
+  {
     readonly loading: boolean;
-    readonly error: import("@apollo/client").ApolloError | undefined;
+    readonly error: import('@apollo/client').ApolloError | undefined;
     readonly data: DeviceRouting | undefined;
-}];
+  },
+];
 /**
  * Hook to remove a device routing assignment
  *
@@ -212,10 +232,13 @@ export declare function useAssignDeviceRouting(): readonly [(input: AssignDevice
  * };
  * ```
  */
-export declare function useRemoveDeviceRouting(): readonly [(id: string) => Promise<any>, {
+export declare function useRemoveDeviceRouting(): readonly [
+  (id: string) => Promise<any>,
+  {
     readonly loading: boolean;
-    readonly error: import("@apollo/client").ApolloError | undefined;
-}];
+    readonly error: import('@apollo/client').ApolloError | undefined;
+  },
+];
 /**
  * Hook to bulk assign multiple devices to service instances
  *
@@ -254,10 +277,10 @@ export declare function useRemoveDeviceRouting(): readonly [(id: string) => Prom
  * ```
  */
 export declare function useBulkAssignRouting(): {
-    bulkAssign: (input: BulkAssignRoutingInput) => Promise<BulkRoutingResult>;
-    progress: BulkAssignProgress | null;
-    loading: boolean;
-    error: import("@apollo/client").ApolloError | undefined;
+  bulkAssign: (input: BulkAssignRoutingInput) => Promise<BulkRoutingResult>;
+  progress: BulkAssignProgress | null;
+  loading: boolean;
+  error: import('@apollo/client').ApolloError | undefined;
 };
 /**
  * Hook to subscribe to real-time device routing changes
@@ -290,9 +313,17 @@ export declare function useBulkAssignRouting(): {
  * ```
  */
 export declare function useDeviceRoutingSubscription(routerId: string): {
-    event: DeviceRoutingEvent | null;
-    loading: boolean;
-    error: import("@apollo/client").ApolloError | undefined;
+  event: DeviceRoutingEvent | null;
+  loading: boolean;
+  error: import('@apollo/client').ApolloError | undefined;
 };
-export type { DeviceRoutingMatrix, DeviceRouting, AssignDeviceRoutingInput, BulkAssignRoutingInput, BulkRoutingResult, DeviceRoutingEvent, RoutingMode, };
+export type {
+  DeviceRoutingMatrix,
+  DeviceRouting,
+  AssignDeviceRoutingInput,
+  BulkAssignRoutingInput,
+  BulkRoutingResult,
+  DeviceRoutingEvent,
+  RoutingMode,
+};
 //# sourceMappingURL=useDeviceRouting.d.ts.map

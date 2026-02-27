@@ -13,7 +13,12 @@
 
 import { onError } from '@apollo/client/link/error';
 import { useAuthStore, useNotificationStore } from '@nasnet/state/stores';
-import { getErrorMessage, getErrorInfo, isAuthError as checkAuthError, isValidationError as checkValidationError } from '../utils/error-messages';
+import {
+  getErrorMessage,
+  getErrorInfo,
+  isAuthError as checkAuthError,
+  isValidationError as checkValidationError,
+} from '../utils/error-messages';
 import { logGraphQLError, logNetworkError } from '../utils/error-logging';
 
 // ===== Types =====
@@ -115,97 +120,95 @@ function getStatusCode(error: NetworkErrorWithStatus): number | undefined {
  * });
  * ```
  */
-export const errorLink = onError(
-  ({ graphQLErrors, networkError, operation }) => {
-    // Handle GraphQL errors
-    if (graphQLErrors) {
-      for (const error of graphQLErrors) {
-        const { message, locations, path, extensions } = error;
-        const errorCode = extensions?.code as string | undefined;
+export const errorLink = onError(({ graphQLErrors, networkError, operation }) => {
+  // Handle GraphQL errors
+  if (graphQLErrors) {
+    for (const error of graphQLErrors) {
+      const { message, locations, path, extensions } = error;
+      const errorCode = extensions?.code as string | undefined;
 
-        // Log error with structured format
-        logGraphQLError(operation.operationName, error, {
-          path: path?.join('.'),
-          variables: operation.variables,
-        });
-
-        // Skip validation errors (handled by forms)
-        if (checkValidationError(errorCode)) {
-          if (import.meta.env?.DEV) {
-            console.warn('[Validation Error - handled by form]:', message);
-          }
-          continue;
-        }
-
-        // Handle auth errors (A5xx codes or UNAUTHENTICATED)
-        if (checkAuthError(errorCode) || errorCode === 'UNAUTHENTICATED') {
-          handleAuthError(message);
-          continue;
-        }
-
-        // Handle specific error codes with legacy support
-        switch (errorCode) {
-          case 'FORBIDDEN': {
-            useNotificationStore.getState().addNotification({
-              type: 'error',
-              title: 'Access denied',
-              message: 'You do not have permission to perform this action.',
-            });
-            break;
-          }
-
-          case 'NOT_FOUND': {
-            useNotificationStore.getState().addNotification({
-              type: 'warning',
-              title: 'Not found',
-              message: message || 'The requested resource was not found.',
-            });
-            break;
-          }
-
-          default: {
-            // Use error message mapping for user-friendly messages
-            const errorInfo = getErrorInfo(errorCode, message);
-            useNotificationStore.getState().addNotification({
-              type: errorInfo.severity === 'warning' ? 'warning' : 'error',
-              title: errorInfo.message,
-              message: errorInfo.action,
-            });
-          }
-        }
-      }
-    }
-
-    // Handle network errors
-    if (networkError) {
-      const statusCode = getStatusCode(networkError as NetworkErrorWithStatus);
-
-      // Log network error with structured format
-      logNetworkError(operation.operationName, networkError, {
-        statusCode,
+      // Log error with structured format
+      logGraphQLError(operation.operationName, error, {
+        path: path?.join('.'),
         variables: operation.variables,
       });
 
-      // Handle specific HTTP status codes
-      if (statusCode === 401) {
-        handleAuthError('Authentication failed. Please log in again.');
-        return;
+      // Skip validation errors (handled by forms)
+      if (checkValidationError(errorCode)) {
+        if (import.meta.env?.DEV) {
+          console.warn('[Validation Error - handled by form]:', message);
+        }
+        continue;
       }
 
-      if (statusCode === 403) {
-        useNotificationStore.getState().addNotification({
-          type: 'error',
-          title: 'Access denied',
-          message: 'You do not have permission to access this resource.',
-        });
-        return;
+      // Handle auth errors (A5xx codes or UNAUTHENTICATED)
+      if (checkAuthError(errorCode) || errorCode === 'UNAUTHENTICATED') {
+        handleAuthError(message);
+        continue;
       }
 
-      // Handle generic network errors
-      handleNetworkError(networkError);
+      // Handle specific error codes with legacy support
+      switch (errorCode) {
+        case 'FORBIDDEN': {
+          useNotificationStore.getState().addNotification({
+            type: 'error',
+            title: 'Access denied',
+            message: 'You do not have permission to perform this action.',
+          });
+          break;
+        }
+
+        case 'NOT_FOUND': {
+          useNotificationStore.getState().addNotification({
+            type: 'warning',
+            title: 'Not found',
+            message: message || 'The requested resource was not found.',
+          });
+          break;
+        }
+
+        default: {
+          // Use error message mapping for user-friendly messages
+          const errorInfo = getErrorInfo(errorCode, message);
+          useNotificationStore.getState().addNotification({
+            type: errorInfo.severity === 'warning' ? 'warning' : 'error',
+            title: errorInfo.message,
+            message: errorInfo.action,
+          });
+        }
+      }
     }
   }
-);
+
+  // Handle network errors
+  if (networkError) {
+    const statusCode = getStatusCode(networkError as NetworkErrorWithStatus);
+
+    // Log network error with structured format
+    logNetworkError(operation.operationName, networkError, {
+      statusCode,
+      variables: operation.variables,
+    });
+
+    // Handle specific HTTP status codes
+    if (statusCode === 401) {
+      handleAuthError('Authentication failed. Please log in again.');
+      return;
+    }
+
+    if (statusCode === 403) {
+      useNotificationStore.getState().addNotification({
+        type: 'error',
+        title: 'Access denied',
+        message: 'You do not have permission to access this resource.',
+      });
+      return;
+    }
+
+    // Handle generic network errors
+    handleNetworkError(networkError);
+  }
+});
 
 /**
  * Create error link with custom handlers.

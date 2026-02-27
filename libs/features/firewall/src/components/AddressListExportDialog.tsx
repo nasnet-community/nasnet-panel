@@ -85,9 +85,9 @@ export const AddressListExportDialog = memo(function AddressListExportDialog({
       const formatted = formatAddressList(entries, newFormat, listName);
       // Limit preview to first N characters for performance
       setPreview(
-        formatted.length > PREVIEW_MAX_CHARS
-          ? formatted.slice(0, PREVIEW_MAX_CHARS) + '\n...'
-          : formatted
+        formatted.length > PREVIEW_MAX_CHARS ?
+          formatted.slice(0, PREVIEW_MAX_CHARS) + '\n...'
+        : formatted
       );
       setCopySuccess(false);
     },
@@ -126,14 +126,26 @@ export const AddressListExportDialog = memo(function AddressListExportDialog({
   );
 
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
+    <Dialog
+      open={open}
+      onOpenChange={handleOpenChange}
+    >
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className={className}>
-          <Icon icon={Download} size={16} className="mr-component-sm" label="" />
+        <Button
+          variant="outline"
+          size="sm"
+          className={className}
+        >
+          <Icon
+            icon={Download}
+            size={16}
+            className="mr-component-sm"
+            label=""
+          />
           {triggerText}
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Export Address List</DialogTitle>
           <DialogDescription>
@@ -145,22 +157,39 @@ export const AddressListExportDialog = memo(function AddressListExportDialog({
           {/* Format Selection */}
           <div className="space-y-component-sm gap-component-sm">
             <Label>Export Format</Label>
-            <RadioGroup value={format} onValueChange={handleFormatChange}>
+            <RadioGroup
+              value={format}
+              onValueChange={handleFormatChange}
+            >
               <div className="space-y-component-sm gap-component-sm">
                 {/* CSV Format */}
-                <div className={cn('flex items-start space-x-component-sm rounded-card-sm border p-component-md hover:bg-muted transition-colors')}>
-                  <RadioGroupItem value="csv" id="format-csv" className="mt-component-xs" />
+                <div
+                  className={cn(
+                    'space-x-component-sm rounded-card-sm p-component-md hover:bg-muted flex items-start border transition-colors'
+                  )}
+                >
+                  <RadioGroupItem
+                    value="csv"
+                    id="format-csv"
+                    className="mt-component-xs"
+                  />
                   <div className="flex-1">
-                    <label htmlFor="format-csv" className="cursor-pointer">
-                      <div className="flex items-center gap-component-sm">
-                        <Icon icon={FileText} size={16} />
+                    <label
+                      htmlFor="format-csv"
+                      className="cursor-pointer"
+                    >
+                      <div className="gap-component-sm flex items-center">
+                        <Icon
+                          icon={FileText}
+                          size={16}
+                        />
                         <span className="font-medium">CSV</span>
                         <Badge variant="secondary">Spreadsheet</Badge>
                       </div>
-                      <p className="text-sm text-muted-foreground mt-component-sm">
+                      <p className="text-muted-foreground mt-component-sm text-sm">
                         Comma-separated values with header row (IP, Comment, Timeout)
                       </p>
-                      <code className="text-xs text-muted-foreground mt-component-sm block font-mono">
+                      <code className="text-muted-foreground mt-component-sm block font-mono text-xs">
                         192.168.1.1,"My comment",1d
                       </code>
                     </label>
@@ -168,19 +197,33 @@ export const AddressListExportDialog = memo(function AddressListExportDialog({
                 </div>
 
                 {/* JSON Format */}
-                <div className={cn('flex items-start space-x-component-sm rounded-card-sm border p-component-md hover:bg-muted transition-colors')}>
-                  <RadioGroupItem value="json" id="format-json" className="mt-component-xs" />
+                <div
+                  className={cn(
+                    'space-x-component-sm rounded-card-sm p-component-md hover:bg-muted flex items-start border transition-colors'
+                  )}
+                >
+                  <RadioGroupItem
+                    value="json"
+                    id="format-json"
+                    className="mt-component-xs"
+                  />
                   <div className="flex-1">
-                    <label htmlFor="format-json" className="cursor-pointer">
-                      <div className="flex items-center gap-component-sm">
-                        <Icon icon={FileText} size={16} />
+                    <label
+                      htmlFor="format-json"
+                      className="cursor-pointer"
+                    >
+                      <div className="gap-component-sm flex items-center">
+                        <Icon
+                          icon={FileText}
+                          size={16}
+                        />
                         <span className="font-medium">JSON</span>
                         <Badge variant="secondary">API-friendly</Badge>
                       </div>
-                      <p className="text-sm text-muted-foreground mt-component-sm">
+                      <p className="text-muted-foreground mt-component-sm text-sm">
                         JSON array of objects with address, comment, and timeout
                       </p>
-                      <code className="text-xs text-muted-foreground mt-component-sm block font-mono">
+                      <code className="text-muted-foreground mt-component-sm block font-mono text-xs">
                         [{`{"address": "192.168.1.1", "comment": "..."}`}]
                       </code>
                     </label>
@@ -188,19 +231,33 @@ export const AddressListExportDialog = memo(function AddressListExportDialog({
                 </div>
 
                 {/* RouterOS Script Format */}
-                <div className={cn('flex items-start space-x-component-sm rounded-card-sm border p-component-md hover:bg-muted transition-colors')}>
-                  <RadioGroupItem value="routeros" id="format-routeros" className="mt-component-xs" />
+                <div
+                  className={cn(
+                    'space-x-component-sm rounded-card-sm p-component-md hover:bg-muted flex items-start border transition-colors'
+                  )}
+                >
+                  <RadioGroupItem
+                    value="routeros"
+                    id="format-routeros"
+                    className="mt-component-xs"
+                  />
                   <div className="flex-1">
-                    <label htmlFor="format-routeros" className="cursor-pointer">
-                      <div className="flex items-center gap-component-sm">
-                        <Icon icon={FileText} size={16} />
+                    <label
+                      htmlFor="format-routeros"
+                      className="cursor-pointer"
+                    >
+                      <div className="gap-component-sm flex items-center">
+                        <Icon
+                          icon={FileText}
+                          size={16}
+                        />
                         <span className="font-medium">RouterOS Script</span>
                         <Badge variant="secondary">.rsc</Badge>
                       </div>
-                      <p className="text-sm text-muted-foreground mt-component-sm">
+                      <p className="text-muted-foreground mt-component-sm text-sm">
                         MikroTik script file with add commands for direct import
                       </p>
-                      <code className="text-xs text-muted-foreground mt-component-sm block font-mono">
+                      <code className="text-muted-foreground mt-component-sm block font-mono text-xs">
                         /ip firewall address-list add list="..." address=...
                       </code>
                     </label>
@@ -211,19 +268,19 @@ export const AddressListExportDialog = memo(function AddressListExportDialog({
           </div>
 
           {/* File Info */}
-          <div className="rounded-md border p-component-md bg-muted/50">
+          <div className="p-component-md bg-muted/50 rounded-md border">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium">Estimated Size</p>
-                <p className="text-xs text-muted-foreground">{estimatedSize}</p>
+                <p className="text-muted-foreground text-xs">{estimatedSize}</p>
               </div>
               <div>
                 <p className="text-sm font-medium">Entries</p>
-                <p className="text-xs text-muted-foreground">{entries.length}</p>
+                <p className="text-muted-foreground text-xs">{entries.length}</p>
               </div>
               <div>
                 <p className="text-sm font-medium">Filename</p>
-                <p className="text-xs text-muted-foreground font-mono">
+                <p className="text-muted-foreground font-mono text-xs">
                   {generateFilename(listName, format)}.{format === 'routeros' ? 'rsc' : format}
                 </p>
               </div>
@@ -233,11 +290,11 @@ export const AddressListExportDialog = memo(function AddressListExportDialog({
           {/* Preview */}
           <div className="space-y-component-sm gap-component-sm">
             <Label>Preview</Label>
-            <ScrollArea className="h-64 rounded-md border p-component-md bg-muted/30">
-              <pre className="text-xs font-mono whitespace-pre-wrap">{preview}</pre>
+            <ScrollArea className="p-component-md bg-muted/30 h-64 rounded-md border">
+              <pre className="whitespace-pre-wrap font-mono text-xs">{preview}</pre>
             </ScrollArea>
             {preview.includes('...') && (
-              <p className="text-xs text-muted-foreground">
+              <p className="text-muted-foreground text-xs">
                 Preview truncated. Full content will be exported.
               </p>
             )}
@@ -246,47 +303,69 @@ export const AddressListExportDialog = memo(function AddressListExportDialog({
           {/* RouterOS Script Help */}
           {format === 'routeros' && (
             <Alert>
-              <Icon icon={FileText} size={16} />
+              <Icon
+                icon={FileText}
+                size={16}
+              />
               <AlertDescription>
-                <p className="font-medium mb-component-sm">How to use RouterOS script:</p>
-                <ol className="text-sm space-y-component-xs ml-4 list-decimal">
+                <p className="mb-component-sm font-medium">How to use RouterOS script:</p>
+                <ol className="space-y-component-xs ml-4 list-decimal text-sm">
                   <li>Download the .rsc file</li>
                   <li>Upload to router via Files menu</li>
-                  <li>Run: <code className="text-xs bg-muted px-component-xs py-component-xs rounded-md font-mono">/import file-name=filename.rsc</code></li>
+                  <li>
+                    Run:{' '}
+                    <code className="bg-muted px-component-xs py-component-xs rounded-md font-mono text-xs">
+                      /import file-name=filename.rsc
+                    </code>
+                  </li>
                 </ol>
               </AlertDescription>
             </Alert>
           )}
 
           {/* Actions */}
-          <div className="flex justify-between gap-component-md">
-            <Button variant="outline" onClick={() => setOpen(false)}>
+          <div className="gap-component-md flex justify-between">
+            <Button
+              variant="outline"
+              onClick={() => setOpen(false)}
+            >
               Cancel
             </Button>
-            <div className="flex gap-component-md">
+            <div className="gap-component-md flex">
               <Button
                 variant="outline"
                 onClick={handleCopy}
                 disabled={copySuccess}
                 aria-label={copySuccess ? 'Copied to clipboard' : 'Copy to clipboard'}
               >
-                {copySuccess ? (
+                {copySuccess ?
                   <>
-                    <Icon icon={CheckCircle2} size={16} className="mr-component-sm text-success" />
+                    <Icon
+                      icon={CheckCircle2}
+                      size={16}
+                      className="mr-component-sm text-success"
+                    />
                     Copied!
                   </>
-                ) : (
-                  <>
-                    <Icon icon={Copy} size={16} className="mr-component-sm" />
+                : <>
+                    <Icon
+                      icon={Copy}
+                      size={16}
+                      className="mr-component-sm"
+                    />
                     Copy to Clipboard
                   </>
-                )}
+                }
               </Button>
               <Button
                 onClick={handleDownload}
                 aria-label={`Download ${format} file`}
               >
-                <Icon icon={Download} size={16} className="mr-component-sm" />
+                <Icon
+                  icon={Download}
+                  size={16}
+                  className="mr-component-sm"
+                />
                 Download File
               </Button>
             </div>

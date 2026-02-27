@@ -3,7 +3,6 @@
  * Four-cell stats grid: Connected Clients, Active Interfaces, Signal Quality, Frequency Bands
  */
 
-
 import type { WirelessInterface, WirelessClient } from '@nasnet/core/types';
 
 import { WifiStatusHero } from './WifiStatusHero';
@@ -19,7 +18,7 @@ const meta: Meta<typeof WifiStatusHero> = {
     docs: {
       description: {
         component:
-          'A responsive 2×4 stats grid placed at the top of the WiFi dashboard page. It summarises the number of connected wireless clients, how many of the router\'s wireless interfaces are actively running, the average client signal quality (with a progress bar), and which frequency bands (2.4 GHz / 5 GHz / 6 GHz) are in use. Supports a loading skeleton state.',
+          "A responsive 2×4 stats grid placed at the top of the WiFi dashboard page. It summarises the number of connected wireless clients, how many of the router's wireless interfaces are actively running, the average client signal quality (with a progress bar), and which frequency bands (2.4 GHz / 5 GHz / 6 GHz) are in use. Supports a loading skeleton state.",
       },
     },
   },
@@ -83,12 +82,29 @@ export const Default: Story = {
   args: {
     interfaces: [
       makeInterface({ id: '*1', name: 'wlan1', band: '2.4GHz', connectedClients: 3 }),
-      makeInterface({ id: '*2', name: 'wlan2', band: '5GHz', frequency: 5180, channel: '36', connectedClients: 2 }),
+      makeInterface({
+        id: '*2',
+        name: 'wlan2',
+        band: '5GHz',
+        frequency: 5180,
+        channel: '36',
+        connectedClients: 2,
+      }),
     ],
     clients: [
       makeClient({ id: 'c1', macAddress: '11:22:33:44:55:66', signalStrength: -52 }),
-      makeClient({ id: 'c2', macAddress: '22:33:44:55:66:77', signalStrength: -58, interface: 'wlan2' }),
-      makeClient({ id: 'c3', macAddress: '33:44:55:66:77:88', signalStrength: -61, interface: 'wlan2' }),
+      makeClient({
+        id: 'c2',
+        macAddress: '22:33:44:55:66:77',
+        signalStrength: -58,
+        interface: 'wlan2',
+      }),
+      makeClient({
+        id: 'c3',
+        macAddress: '33:44:55:66:77:88',
+        signalStrength: -61,
+        interface: 'wlan2',
+      }),
     ],
     isLoading: false,
   },
@@ -107,8 +123,22 @@ export const TriBand: Story = {
   args: {
     interfaces: [
       makeInterface({ id: '*1', name: 'wlan1', band: '2.4GHz', connectedClients: 2 }),
-      makeInterface({ id: '*2', name: 'wlan2', band: '5GHz', frequency: 5180, channel: '36', connectedClients: 4 }),
-      makeInterface({ id: '*3', name: 'wlan3', band: '6GHz', frequency: 6100, channel: '1', connectedClients: 1 }),
+      makeInterface({
+        id: '*2',
+        name: 'wlan2',
+        band: '5GHz',
+        frequency: 5180,
+        channel: '36',
+        connectedClients: 4,
+      }),
+      makeInterface({
+        id: '*3',
+        name: 'wlan3',
+        band: '6GHz',
+        frequency: 6100,
+        channel: '1',
+        connectedClients: 1,
+      }),
     ],
     clients: [
       makeClient({ id: 'c1', signalStrength: -45 }),
@@ -131,9 +161,7 @@ export const TriBand: Story = {
 export const WeakSignal: Story = {
   name: 'Weak Signal',
   args: {
-    interfaces: [
-      makeInterface({ id: '*1', name: 'wlan1', band: '2.4GHz', connectedClients: 2 }),
-    ],
+    interfaces: [makeInterface({ id: '*1', name: 'wlan1', band: '2.4GHz', connectedClients: 2 })],
     clients: [
       makeClient({ id: 'c1', signalStrength: -78 }),
       makeClient({ id: 'c2', signalStrength: -82, macAddress: '99:88:77:66:55:44' }),
@@ -155,7 +183,14 @@ export const NoClients: Story = {
   args: {
     interfaces: [
       makeInterface({ id: '*1', name: 'wlan1', band: '2.4GHz', connectedClients: 0 }),
-      makeInterface({ id: '*2', name: 'wlan2', band: '5GHz', frequency: 5180, channel: '36', connectedClients: 0 }),
+      makeInterface({
+        id: '*2',
+        name: 'wlan2',
+        band: '5GHz',
+        frequency: 5180,
+        channel: '36',
+        connectedClients: 0,
+      }),
     ],
     clients: [],
     isLoading: false,
@@ -175,7 +210,16 @@ export const OneInterfaceDisabled: Story = {
   args: {
     interfaces: [
       makeInterface({ id: '*1', name: 'wlan1', band: '2.4GHz', connectedClients: 3 }),
-      makeInterface({ id: '*2', name: 'wlan2', band: '5GHz', frequency: 5180, channel: '36', disabled: true, running: false, connectedClients: 0 }),
+      makeInterface({
+        id: '*2',
+        name: 'wlan2',
+        band: '5GHz',
+        frequency: 5180,
+        channel: '36',
+        disabled: true,
+        running: false,
+        connectedClients: 0,
+      }),
     ],
     clients: [
       makeClient({ id: 'c1', signalStrength: -60 }),
@@ -203,8 +247,7 @@ export const Loading: Story = {
   parameters: {
     docs: {
       description: {
-        story:
-          'Pulse skeleton shown while wireless data is being fetched from the router.',
+        story: 'Pulse skeleton shown while wireless data is being fetched from the router.',
       },
     },
   },
@@ -214,12 +257,29 @@ export const Mobile: Story = {
   args: {
     interfaces: [
       makeInterface({ id: '*1', name: 'wlan1', band: '2.4GHz', connectedClients: 3 }),
-      makeInterface({ id: '*2', name: 'wlan2', band: '5GHz', frequency: 5180, channel: '36', connectedClients: 2 }),
+      makeInterface({
+        id: '*2',
+        name: 'wlan2',
+        band: '5GHz',
+        frequency: 5180,
+        channel: '36',
+        connectedClients: 2,
+      }),
     ],
     clients: [
       makeClient({ id: 'c1', macAddress: '11:22:33:44:55:66', signalStrength: -52 }),
-      makeClient({ id: 'c2', macAddress: '22:33:44:55:66:77', signalStrength: -58, interface: 'wlan2' }),
-      makeClient({ id: 'c3', macAddress: '33:44:55:66:77:88', signalStrength: -61, interface: 'wlan2' }),
+      makeClient({
+        id: 'c2',
+        macAddress: '22:33:44:55:66:77',
+        signalStrength: -58,
+        interface: 'wlan2',
+      }),
+      makeClient({
+        id: 'c3',
+        macAddress: '33:44:55:66:77:88',
+        signalStrength: -61,
+        interface: 'wlan2',
+      }),
     ],
     isLoading: false,
   },
@@ -232,12 +292,29 @@ export const Desktop: Story = {
   args: {
     interfaces: [
       makeInterface({ id: '*1', name: 'wlan1', band: '2.4GHz', connectedClients: 3 }),
-      makeInterface({ id: '*2', name: 'wlan2', band: '5GHz', frequency: 5180, channel: '36', connectedClients: 2 }),
+      makeInterface({
+        id: '*2',
+        name: 'wlan2',
+        band: '5GHz',
+        frequency: 5180,
+        channel: '36',
+        connectedClients: 2,
+      }),
     ],
     clients: [
       makeClient({ id: 'c1', macAddress: '11:22:33:44:55:66', signalStrength: -52 }),
-      makeClient({ id: 'c2', macAddress: '22:33:44:55:66:77', signalStrength: -58, interface: 'wlan2' }),
-      makeClient({ id: 'c3', macAddress: '33:44:55:66:77:88', signalStrength: -61, interface: 'wlan2' }),
+      makeClient({
+        id: 'c2',
+        macAddress: '22:33:44:55:66:77',
+        signalStrength: -58,
+        interface: 'wlan2',
+      }),
+      makeClient({
+        id: 'c3',
+        macAddress: '33:44:55:66:77:88',
+        signalStrength: -61,
+        interface: 'wlan2',
+      }),
     ],
     isLoading: false,
   },

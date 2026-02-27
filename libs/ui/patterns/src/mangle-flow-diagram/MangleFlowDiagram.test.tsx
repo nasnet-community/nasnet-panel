@@ -108,7 +108,12 @@ describe('MangleFlowDiagram', () => {
       const onChainSelect = vi.fn();
       const user = userEvent.setup();
 
-      render(<MangleFlowDiagram {...defaultProps} onChainSelect={onChainSelect} />);
+      render(
+        <MangleFlowDiagram
+          {...defaultProps}
+          onChainSelect={onChainSelect}
+        />
+      );
 
       const preroutingButton = screen.getByRole('button', { name: /prerouting/i });
       await user.click(preroutingButton);
@@ -117,7 +122,12 @@ describe('MangleFlowDiagram', () => {
     });
 
     it('highlights selected chain', () => {
-      render(<MangleFlowDiagram {...defaultProps} selectedChain="forward" />);
+      render(
+        <MangleFlowDiagram
+          {...defaultProps}
+          selectedChain="forward"
+        />
+      );
 
       const forwardButton = screen.getByRole('button', { name: /forward/i });
       expect(forwardButton).toHaveAttribute('aria-pressed', 'true');
@@ -143,13 +153,23 @@ describe('MangleFlowDiagram', () => {
     });
 
     it('shows clear filter button when chain is selected', () => {
-      render(<MangleFlowDiagram {...defaultProps} selectedChain="forward" />);
+      render(
+        <MangleFlowDiagram
+          {...defaultProps}
+          selectedChain="forward"
+        />
+      );
 
       expect(screen.getByRole('button', { name: /clear filter/i })).toBeInTheDocument();
     });
 
     it('hides clear filter button when no chain selected', () => {
-      render(<MangleFlowDiagram {...defaultProps} selectedChain={null} />);
+      render(
+        <MangleFlowDiagram
+          {...defaultProps}
+          selectedChain={null}
+        />
+      );
 
       expect(screen.queryByRole('button', { name: /clear filter/i })).not.toBeInTheDocument();
     });
@@ -282,7 +302,10 @@ describe('MangleFlowDiagram', () => {
 
     it('has no accessibility violations with selected chain', async () => {
       const { container } = render(
-        <MangleFlowDiagram {...defaultProps} selectedChain="forward" />
+        <MangleFlowDiagram
+          {...defaultProps}
+          selectedChain="forward"
+        />
       );
 
       expect(await axe(container)).toHaveNoViolations();
@@ -314,7 +337,12 @@ describe('MangleFlowDiagram', () => {
       const user = userEvent.setup();
       const onChainSelect = vi.fn();
 
-      render(<MangleFlowDiagram {...defaultProps} onChainSelect={onChainSelect} />);
+      render(
+        <MangleFlowDiagram
+          {...defaultProps}
+          onChainSelect={onChainSelect}
+        />
+      );
 
       const preroutingButton = screen.getByRole('button', { name: /prerouting/i });
 
@@ -341,7 +369,12 @@ describe('MangleFlowDiagram', () => {
     });
 
     it('uses aria-pressed for chain selection state', () => {
-      render(<MangleFlowDiagram {...defaultProps} selectedChain="forward" />);
+      render(
+        <MangleFlowDiagram
+          {...defaultProps}
+          selectedChain="forward"
+        />
+      );
 
       const forwardButton = screen.getByRole('button', { name: /forward/i });
       const preroutingButton = screen.getByRole('button', { name: /prerouting/i });
@@ -354,14 +387,24 @@ describe('MangleFlowDiagram', () => {
   describe('Edge Cases', () => {
     it('handles undefined ruleCounts gracefully', () => {
       expect(() =>
-        render(<MangleFlowDiagram {...defaultProps} ruleCounts={undefined} />)
+        render(
+          <MangleFlowDiagram
+            {...defaultProps}
+            ruleCounts={undefined}
+          />
+        )
       ).not.toThrow();
     });
 
     it('handles missing onChainSelect callback', async () => {
       const user = userEvent.setup();
 
-      render(<MangleFlowDiagram {...defaultProps} onChainSelect={undefined} />);
+      render(
+        <MangleFlowDiagram
+          {...defaultProps}
+          onChainSelect={undefined}
+        />
+      );
 
       const preroutingButton = screen.getByRole('button', { name: /prerouting/i });
 
@@ -372,7 +415,11 @@ describe('MangleFlowDiagram', () => {
     it('handles empty highlightedChains array', () => {
       expect(() =>
         render(
-          <MangleFlowDiagram {...defaultProps} traceMode={true} highlightedChains={[]} />
+          <MangleFlowDiagram
+            {...defaultProps}
+            traceMode={true}
+            highlightedChains={[]}
+          />
         )
       ).not.toThrow();
     });

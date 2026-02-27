@@ -78,7 +78,7 @@ export const ErrorRateIndicator = React.memo(function ErrorRateIndicator({
   return (
     <div
       className={cn(
-        'flex items-center gap-component-sm rounded-[var(--semantic-radius-card)] px-component-sm py-component-sm transition-colors category-networking',
+        'gap-component-sm px-component-sm py-component-sm category-networking flex items-center rounded-[var(--semantic-radius-card)] transition-colors',
         status === 'error' && 'bg-error/10 text-error',
         status === 'warning' && 'bg-warning/10 text-warning',
         status === 'healthy' && 'bg-success/10 text-success',
@@ -88,9 +88,7 @@ export const ErrorRateIndicator = React.memo(function ErrorRateIndicator({
       aria-label={`Error rate: ${rate.toFixed(3)}%, ${trendLabel}. ${statusMessage}`}
     >
       <span className="text-sm font-medium">Error Rate:</span>
-      <code className="font-mono text-lg font-semibold tabular-nums">
-        {rate.toFixed(3)}%
-      </code>
+      <code className="font-mono text-lg font-semibold tabular-nums">{rate.toFixed(3)}%</code>
       <TrendIcon
         className="h-4 w-4"
         aria-hidden="true"

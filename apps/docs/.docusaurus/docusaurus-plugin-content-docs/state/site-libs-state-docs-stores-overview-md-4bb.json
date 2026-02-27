@@ -1,7 +1,7 @@
 {
   "id": "stores/overview",
   "title": "State Stores Overview",
-  "description": "A comprehensive catalog of all Zustand stores in the @nasnet/state/stores package. Organized by category with dependency graph and usage patterns.",
+  "description": "A comprehensive catalog of all Zustand stores in the @nasnet/state/stores package. Organized by",
   "source": "@site/../../libs/state/docs/stores/overview.md",
   "sourceDirName": "stores",
   "slug": "/stores/overview",

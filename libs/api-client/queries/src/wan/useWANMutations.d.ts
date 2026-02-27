@@ -22,7 +22,12 @@
  * });
  * ```
  */
-export declare function useConfigureDhcpWAN(): import("@apollo/client").MutationTuple<any, import("@apollo/client").OperationVariables, import("@apollo/client").DefaultContext, import("@apollo/client").ApolloCache<any>>;
+export declare function useConfigureDhcpWAN(): import('@apollo/client').MutationTuple<
+  any,
+  import('@apollo/client').OperationVariables,
+  import('@apollo/client').DefaultContext,
+  import('@apollo/client').ApolloCache<any>
+>;
 /**
  * Hook for configuring PPPoE client on a WAN interface
  * Includes cache invalidation to refetch the WAN interface list
@@ -52,7 +57,12 @@ export declare function useConfigureDhcpWAN(): import("@apollo/client").Mutation
  * });
  * ```
  */
-export declare function useConfigurePppoeWAN(): import("@apollo/client").MutationTuple<any, import("@apollo/client").OperationVariables, import("@apollo/client").DefaultContext, import("@apollo/client").ApolloCache<any>>;
+export declare function useConfigurePppoeWAN(): import('@apollo/client').MutationTuple<
+  any,
+  import('@apollo/client').OperationVariables,
+  import('@apollo/client').DefaultContext,
+  import('@apollo/client').ApolloCache<any>
+>;
 /**
  * Hook for configuring static IP on a WAN interface
  * Includes cache invalidation and IP conflict validation
@@ -78,7 +88,12 @@ export declare function useConfigurePppoeWAN(): import("@apollo/client").Mutatio
  * });
  * ```
  */
-export declare function useConfigureStaticWAN(): import("@apollo/client").MutationTuple<any, import("@apollo/client").OperationVariables, import("@apollo/client").DefaultContext, import("@apollo/client").ApolloCache<any>>;
+export declare function useConfigureStaticWAN(): import('@apollo/client').MutationTuple<
+  any,
+  import('@apollo/client').OperationVariables,
+  import('@apollo/client').DefaultContext,
+  import('@apollo/client').ApolloCache<any>
+>;
 /**
  * Hook for configuring LTE modem
  * Includes cache invalidation to refetch the WAN interface list
@@ -104,7 +119,12 @@ export declare function useConfigureStaticWAN(): import("@apollo/client").Mutati
  * });
  * ```
  */
-export declare function useConfigureLteWAN(): import("@apollo/client").MutationTuple<any, import("@apollo/client").OperationVariables, import("@apollo/client").DefaultContext, import("@apollo/client").ApolloCache<any>>;
+export declare function useConfigureLteWAN(): import('@apollo/client').MutationTuple<
+  any,
+  import('@apollo/client').OperationVariables,
+  import('@apollo/client').DefaultContext,
+  import('@apollo/client').ApolloCache<any>
+>;
 /**
  * Hook for configuring health check for a WAN interface
  * Includes cache update for the specific WAN interface
@@ -128,7 +148,12 @@ export declare function useConfigureLteWAN(): import("@apollo/client").MutationT
  * });
  * ```
  */
-export declare function useConfigureWANHealthCheck(): import("@apollo/client").MutationTuple<any, import("@apollo/client").OperationVariables, import("@apollo/client").DefaultContext, import("@apollo/client").ApolloCache<any>>;
+export declare function useConfigureWANHealthCheck(): import('@apollo/client').MutationTuple<
+  any,
+  import('@apollo/client').OperationVariables,
+  import('@apollo/client').DefaultContext,
+  import('@apollo/client').ApolloCache<any>
+>;
 /**
  * Hook for deleting WAN configuration (reverts interface to unconfigured)
  * Includes cache invalidation and automatic removal from cache
@@ -147,5 +172,10 @@ export declare function useConfigureWANHealthCheck(): import("@apollo/client").M
  * });
  * ```
  */
-export declare function useDeleteWANConfiguration(): import("@apollo/client").MutationTuple<any, import("@apollo/client").OperationVariables, import("@apollo/client").DefaultContext, import("@apollo/client").ApolloCache<any>>;
+export declare function useDeleteWANConfiguration(): import('@apollo/client').MutationTuple<
+  any,
+  import('@apollo/client').OperationVariables,
+  import('@apollo/client').DefaultContext,
+  import('@apollo/client').ApolloCache<any>
+>;
 //# sourceMappingURL=useWANMutations.d.ts.map

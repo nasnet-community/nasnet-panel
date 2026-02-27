@@ -139,8 +139,9 @@ async function buildTokens() {
     const componentCount = countTokens(tokens.component || {});
     const totalCount = primitiveCount + semanticCount + componentCount;
 
-    console.log(`📊 Token counts: Primitive=${primitiveCount}, Semantic=${semanticCount}, Component=${componentCount}, Total=${totalCount}`);
-
+    console.log(
+      `📊 Token counts: Primitive=${primitiveCount}, Semantic=${semanticCount}, Component=${componentCount}, Total=${totalCount}`
+    );
   } catch (error) {
     console.error('❌ Build failed:', error.message);
     process.exit(1);
@@ -197,7 +198,7 @@ function generateCssVariables(lightTokens, darkTokens) {
 `;
 
   // Only output tokens that differ in dark mode
-  const lightMap = new Map(lightFlat.map(t => [t.path.join('-'), t.value]));
+  const lightMap = new Map(lightFlat.map((t) => [t.path.join('-'), t.value]));
   for (const { path, value } of darkFlat) {
     const key = path.join('-');
     if (lightMap.get(key) !== value) {
@@ -526,11 +527,11 @@ function generateTailwindConfig(tokens) {
     },
     // Animation timing utilities (AC6)
     transitionDuration: {
-      'step': 'var(--semantic-animation-wizard-stepTransition)',
-      'validation': 'var(--semantic-animation-wizard-validationFeedback)',
+      step: 'var(--semantic-animation-wizard-stepTransition)',
+      validation: 'var(--semantic-animation-wizard-validationFeedback)',
     },
     transitionTimingFunction: {
-      'step': 'var(--semantic-animation-wizard-easing)',
+      step: 'var(--semantic-animation-wizard-easing)',
     },
   };
 

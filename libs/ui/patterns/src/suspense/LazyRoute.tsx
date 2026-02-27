@@ -82,7 +82,10 @@ export function createLazyRoute<T extends ComponentType<object>>({
   const pendingComponent = () => {
     if (!skeleton) return null;
     return (
-      <div aria-busy="true" aria-label="Loading page">
+      <div
+        aria-busy="true"
+        aria-label="Loading page"
+      >
         {skeleton}
       </div>
     );
@@ -129,9 +132,10 @@ export function preloadRoutes(
   importFns: Array<() => Promise<{ default: ComponentType<object> }>>
 ): void {
   // Use requestIdleCallback if available, otherwise setTimeout
-  const schedule = typeof requestIdleCallback !== 'undefined'
-    ? requestIdleCallback
-    : (fn: () => void) => setTimeout(fn, 1);
+  const schedule =
+    typeof requestIdleCallback !== 'undefined' ? requestIdleCallback : (
+      (fn: () => void) => setTimeout(fn, 1)
+    );
 
   schedule(() => {
     importFns.forEach((fn) => {

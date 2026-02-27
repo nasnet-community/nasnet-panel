@@ -150,7 +150,9 @@ export const isValidMask = (mask: string): boolean => {
  * getSubnetInfo("192.168.1.0/24")
  * // => { network: "192.168.1.0", firstHost: "192.168.1.1", lastHost: "192.168.1.254", broadcast: "192.168.1.255", hostCount: 254, prefix: 24 }
  */
-export const getSubnetInfo = (cidr: string): {
+export const getSubnetInfo = (
+  cidr: string
+): {
   readonly network: string;
   readonly firstHost: string | null;
   readonly lastHost: string | null;
@@ -167,6 +169,6 @@ export const getSubnetInfo = (cidr: string): {
     lastHost: getLastHost(cidr),
     broadcast: parsed.broadcast,
     hostCount: getHostCount(parsed.prefix),
-    prefix: parsed.prefix
+    prefix: parsed.prefix,
   };
 };

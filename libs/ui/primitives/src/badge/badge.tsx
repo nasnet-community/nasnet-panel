@@ -64,30 +64,21 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '../lib/utils';
 
 const badgeVariants = cva(
-  'inline-flex items-center rounded-[var(--semantic-radius-badge)] px-2.5 py-0.5 text-xs font-medium transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+  'focus-visible:ring-ring inline-flex items-center rounded-[var(--semantic-radius-badge)] px-2.5 py-0.5 text-xs font-medium transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
   {
     variants: {
       variant: {
         // Brand colors
-        default:
-          'bg-primary text-primary-foreground hover:bg-primary/80',
-        secondary:
-          'bg-secondary text-secondary-foreground hover:bg-secondary/80',
+        default: 'bg-primary text-primary-foreground hover:bg-primary/80',
+        secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
         // Status colors (semantic - light mode backgrounds)
-        success:
-          'bg-success-light text-success-dark dark:bg-green-900/20 dark:text-green-400',
-        connected:
-          'bg-success-light text-success-dark dark:bg-green-900/20 dark:text-green-400',
-        warning:
-          'bg-warning-light text-warning-dark dark:bg-amber-900/20 dark:text-amber-400',
-        error:
-          'bg-error-light text-error-dark dark:bg-red-900/20 dark:text-red-400',
-        info:
-          'bg-info-light text-info-dark dark:bg-sky-900/20 dark:text-sky-400',
-        offline:
-          'bg-muted text-muted-foreground',
-        outline:
-          'border border-border bg-transparent text-foreground',
+        success: 'bg-success-light text-success-dark dark:bg-green-900/20 dark:text-green-400',
+        connected: 'bg-success-light text-success-dark dark:bg-green-900/20 dark:text-green-400',
+        warning: 'bg-warning-light text-warning-dark dark:bg-amber-900/20 dark:text-amber-400',
+        error: 'bg-error-light text-error-dark dark:bg-red-900/20 dark:text-red-400',
+        info: 'bg-info-light text-info-dark dark:bg-sky-900/20 dark:text-sky-400',
+        offline: 'bg-muted text-muted-foreground',
+        outline: 'border-border text-foreground border bg-transparent',
       },
     },
     defaultVariants: {
@@ -119,29 +110,26 @@ export interface BadgeProps
  * Color should NEVER be the sole indicator of status (always pair with icon/text).
  */
 const Badge = React.memo(
-  React.forwardRef<HTMLDivElement, BadgeProps>(
-    ({ className, variant, pulse, ...props }, ref) => {
-      // Check prefers-reduced-motion to disable animations for accessibility
-      const prefersReducedMotion =
-        typeof window !== 'undefined' &&
-        window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  React.forwardRef<HTMLDivElement, BadgeProps>(({ className, variant, pulse, ...props }, ref) => {
+    // Check prefers-reduced-motion to disable animations for accessibility
+    const prefersReducedMotion =
+      typeof window !== 'undefined' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-      return (
-        <div
-          ref={ref}
-          className={cn(
-            badgeVariants({ variant }),
-            pulse && !prefersReducedMotion && 'animate-pulse-glow',
-            className
-          )}
-          {...props}
-        />
-      );
-    }
-  )
+    return (
+      <div
+        ref={ref}
+        className={cn(
+          badgeVariants({ variant }),
+          pulse && !prefersReducedMotion && 'animate-pulse-glow',
+          className
+        )}
+        {...props}
+      />
+    );
+  })
 );
 
 Badge.displayName = 'Badge';
 
 export { Badge, badgeVariants };
-

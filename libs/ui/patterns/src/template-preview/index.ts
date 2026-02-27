@@ -11,10 +11,7 @@ export type { TemplatePreviewProps } from './TemplatePreview';
 
 // Headless hook
 export { useTemplatePreview } from './use-template-preview';
-export type {
-  UseTemplatePreviewOptions,
-  UseTemplatePreviewReturn,
-} from './use-template-preview';
+export type { UseTemplatePreviewOptions, UseTemplatePreviewReturn } from './use-template-preview';
 
 // Sub-components (for advanced use cases)
 export { TemplateVariableEditor } from './TemplateVariableEditor';

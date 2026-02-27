@@ -20,10 +20,7 @@ export interface StorageConfig {
  * @param options - Apollo query options
  * @returns Storage config data, loading state, error
  */
-export function useStorageConfig(options?: {
-  pollInterval?: number;
-  skip?: boolean;
-}) {
+export function useStorageConfig(options?: { pollInterval?: number; skip?: boolean }) {
   const { data, loading, error, refetch } = useQuery(GET_STORAGE_CONFIG, {
     fetchPolicy: 'cache-first',
     pollInterval: options?.pollInterval || 0,

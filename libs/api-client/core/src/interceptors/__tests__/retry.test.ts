@@ -12,17 +12,15 @@ describe('Retry Interceptor', () => {
     vi.useRealTimers();
   });
 
-  const createAxiosError = (
-    status?: number,
-    code?: string
-  ): AxiosError => ({
-    message: 'Error',
-    code: code || 'ERR_NETWORK',
-    config: { url: 'http://localhost/api/test', method: 'get' },
-    isAxiosError: true,
-    toJSON: () => ({}),
-    ...(status && { response: { status, data: {}, headers: {} } }),
-  } as AxiosError);
+  const createAxiosError = (status?: number, code?: string): AxiosError =>
+    ({
+      message: 'Error',
+      code: code || 'ERR_NETWORK',
+      config: { url: 'http://localhost/api/test', method: 'get' },
+      isAxiosError: true,
+      toJSON: () => ({}),
+      ...(status && { response: { status, data: {}, headers: {} } }),
+    }) as AxiosError;
 
   describe('retry logic', () => {
     it('should retry on 5xx errors', async () => {
@@ -86,11 +84,7 @@ describe('Retry Interceptor', () => {
   describe('retry count tracking', () => {
     it('should initialize retry count to 1 on first retry', async () => {
       const error = createAxiosError(500);
-      const axiosSpyOn = vi.spyOn(
-        require('axios'),
-        'default',
-        'get'
-      );
+      const axiosSpyOn = vi.spyOn(require('axios'), 'default', 'get');
 
       await retryInterceptor(error);
       await vi.runAllTimersAsync();

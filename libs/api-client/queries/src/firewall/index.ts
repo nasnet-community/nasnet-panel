@@ -61,7 +61,7 @@ export type {
   CreateAddressListEntryInput,
   BulkAddressInput,
   BulkCreateResult,
-} from './useAddressLists';// Connection tracking (NAS-7.4)
+} from './useAddressLists'; // Connection tracking (NAS-7.4)
 export { firewallConnectionKeys } from './queryKeys';
 export { useConnections } from './useConnections';
 export type { UseConnectionsOptions } from './useConnections';
@@ -74,7 +74,7 @@ export type {
   UseUpdateConnectionTrackingOptions,
   UpdateConnectionTrackingInput,
   UpdateConnectionTrackingVariables,
-} from './useUpdateConnectionTracking';// Port Knocking (NAS-7.12)
+} from './useUpdateConnectionTracking'; // Port Knocking (NAS-7.12)
 export {
   usePortKnockSequences,
   usePortKnockSequence,
@@ -85,7 +85,7 @@ export {
   useTogglePortKnockSequence,
   useTestPortKnockSequence,
   portKnockKeys,
-} from './usePortKnocking';// Firewall Templates (NAS-7.6)
+} from './usePortKnocking'; // Firewall Templates (NAS-7.6)
 export { firewallTemplateKeys } from './queryKeys';
 export {
   useTemplates,
@@ -99,7 +99,7 @@ export type {
   PreviewTemplateInput,
   ApplyTemplateInput,
   RollbackTemplateInput,
-} from './templates';// Firewall Logs (Task #3)
+} from './templates'; // Firewall Logs (Task #3)
 export { firewallLogKeys } from './useFirewallLogs';
 export { useFirewallLogs, useFirewallLogStats } from './useFirewallLogs';
 export type {

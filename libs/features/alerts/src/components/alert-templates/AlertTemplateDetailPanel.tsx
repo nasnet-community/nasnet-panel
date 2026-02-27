@@ -110,20 +110,26 @@ const DetailContent = React.memo(function DetailContent({
   const categoryMeta = getCategoryMeta(template.category);
   const [activeTab, setActiveTab] = React.useState<'details' | 'configure'>('details');
 
-  const severityColors = React.useMemo(() => ({
-    CRITICAL: 'bg-error/10 text-error',
-    WARNING: 'bg-warning/10 text-warning',
-    INFO: 'bg-info/10 text-info',
-  }), []);
+  const severityColors = React.useMemo(
+    () => ({
+      CRITICAL: 'bg-error/10 text-error',
+      WARNING: 'bg-warning/10 text-warning',
+      INFO: 'bg-info/10 text-info',
+    }),
+    []
+  );
 
-  const operatorLabels = React.useMemo(() => ({
-    EQUALS: '=',
-    NOT_EQUALS: '≠',
-    GREATER_THAN: '>',
-    LESS_THAN: '<',
-    CONTAINS: 'contains',
-    REGEX: 'matches regex',
-  }), []);
+  const operatorLabels = React.useMemo(
+    () => ({
+      EQUALS: '=',
+      NOT_EQUALS: '≠',
+      GREATER_THAN: '>',
+      LESS_THAN: '<',
+      CONTAINS: 'contains',
+      REGEX: 'matches regex',
+    }),
+    []
+  );
 
   // Handle form submission from variable input form
   const handleVariableSubmit = React.useCallback(
@@ -141,19 +147,28 @@ const DetailContent = React.memo(function DetailContent({
   const detailsContent = (
     <div className="space-y-component-lg">
       {/* Header badges */}
-      <div className="flex flex-wrap items-center gap-component-sm">
-        <Badge variant="outline" className={cn('text-xs', categoryMeta.color)}>
+      <div className="gap-component-sm flex flex-wrap items-center">
+        <Badge
+          variant="outline"
+          className={cn('text-xs', categoryMeta.color)}
+        >
           {categoryMeta.label}
         </Badge>
         <Badge className={cn('text-xs', severityColors[template.severity])}>
           {template.severity}
         </Badge>
         {template.isBuiltIn && (
-          <Badge variant="secondary" className="text-xs">
+          <Badge
+            variant="secondary"
+            className="text-xs"
+          >
             Built-in
           </Badge>
         )}
-        <Badge variant="outline" className="text-xs">
+        <Badge
+          variant="outline"
+          className="text-xs"
+        >
           v{template.version}
         </Badge>
       </div>
@@ -161,7 +176,7 @@ const DetailContent = React.memo(function DetailContent({
       {/* Description */}
       <div className="space-y-component-sm">
         <h4 className="text-sm font-medium">Description</h4>
-        <p className="text-sm text-muted-foreground">{template.description}</p>
+        <p className="text-muted-foreground text-sm">{template.description}</p>
       </div>
 
       <Separator />
@@ -169,26 +184,32 @@ const DetailContent = React.memo(function DetailContent({
       {/* Event type */}
       <div className="space-y-component-sm">
         <h4 className="text-sm font-medium">Event Type</h4>
-        <code className="font-mono text-xs bg-muted px-component-sm py-component-xs rounded-[var(--semantic-radius-button)]">{template.eventType}</code>
+        <code className="bg-muted px-component-sm py-component-xs rounded-[var(--semantic-radius-button)] font-mono text-xs">
+          {template.eventType}
+        </code>
       </div>
 
       <Separator />
 
       {/* Conditions */}
       <div className="space-y-component-sm">
-        <h4 className="text-sm font-medium">
-          Conditions ({template.conditions.length})
-        </h4>
+        <h4 className="text-sm font-medium">Conditions ({template.conditions.length})</h4>
         <div className="space-y-component-sm">
           {template.conditions.map((condition, index) => (
-            <Card key={index} className="bg-muted/50">
+            <Card
+              key={index}
+              className="bg-muted/50"
+            >
               <CardContent className="p-component-sm">
-                <div className="flex items-center gap-component-sm text-sm">
+                <div className="gap-component-sm flex items-center text-sm">
                   <code className="font-mono text-xs">{condition.field}</code>
-                  <Badge variant="outline" className="text-xs">
+                  <Badge
+                    variant="outline"
+                    className="text-xs"
+                  >
                     {operatorLabels[condition.operator] || condition.operator}
                   </Badge>
-                  <code className="font-mono text-xs bg-card px-component-sm py-component-xs rounded-[var(--semantic-radius-button)]">
+                  <code className="bg-card px-component-sm py-component-xs rounded-[var(--semantic-radius-button)] font-mono text-xs">
                     {condition.value}
                   </code>
                 </div>
@@ -202,12 +223,14 @@ const DetailContent = React.memo(function DetailContent({
 
       {/* Channels */}
       <div className="space-y-component-sm">
-        <h4 className="text-sm font-medium">
-          Notification Channels ({template.channels.length})
-        </h4>
-        <div className="flex flex-wrap gap-component-sm">
+        <h4 className="text-sm font-medium">Notification Channels ({template.channels.length})</h4>
+        <div className="gap-component-sm flex flex-wrap">
           {template.channels.map((channel) => (
-            <Badge key={channel} variant="secondary" className="text-xs capitalize">
+            <Badge
+              key={channel}
+              variant="secondary"
+              className="text-xs capitalize"
+            >
               {channel}
             </Badge>
           ))}
@@ -219,21 +242,28 @@ const DetailContent = React.memo(function DetailContent({
         <>
           <Separator />
           <div className="space-y-component-sm">
-            <h4 className="text-sm font-medium">
-              Variables ({template.variables.length})
-            </h4>
+            <h4 className="text-sm font-medium">Variables ({template.variables.length})</h4>
             <div className="space-y-component-sm">
               {template.variables.map((variable) => (
-                <Card key={variable.name} className="bg-muted/50">
+                <Card
+                  key={variable.name}
+                  className="bg-muted/50"
+                >
                   <CardHeader className="pb-component-sm">
                     <div className="flex items-center justify-between">
                       <CardTitle className="text-sm">{variable.label}</CardTitle>
-                      <div className="flex items-center gap-component-sm">
-                        <Badge variant="outline" className="text-xs">
+                      <div className="gap-component-sm flex items-center">
+                        <Badge
+                          variant="outline"
+                          className="text-xs"
+                        >
                           {variable.type}
                         </Badge>
                         {variable.required && (
-                          <Badge variant="error" className="text-xs">
+                          <Badge
+                            variant="error"
+                            className="text-xs"
+                          >
                             Required
                           </Badge>
                         )}
@@ -245,12 +275,15 @@ const DetailContent = React.memo(function DetailContent({
                   </CardHeader>
                   <CardContent className="pb-component-sm">
                     {variable.description && (
-                      <p className="text-xs text-muted-foreground mb-component-sm">{variable.description}</p>
+                      <p className="text-muted-foreground mb-component-sm text-xs">
+                        {variable.description}
+                      </p>
                     )}
-                    <div className="flex items-center gap-component-md text-xs text-muted-foreground">
+                    <div className="gap-component-md text-muted-foreground flex items-center text-xs">
                       {variable.defaultValue && (
                         <div>
-                          Default: <code className="font-mono text-xs">{variable.defaultValue}</code>
+                          Default:{' '}
+                          <code className="font-mono text-xs">{variable.defaultValue}</code>
                         </div>
                       )}
                       {variable.min !== undefined && <div>Min: {variable.min}</div>}
@@ -299,27 +332,27 @@ const DetailContent = React.memo(function DetailContent({
       {!hasVariables && (
         <>
           <Separator />
-          <div className="flex flex-col gap-component-sm">
+          <div className="gap-component-sm flex flex-col">
             {onApply && (
               <Button
                 variant="default"
                 size="default"
                 onClick={() => onApply(template, {})}
                 disabled={isSubmitting}
-                className="w-full min-h-[44px]"
+                className="min-h-[44px] w-full"
                 aria-label={`Apply template ${template.name}`}
               >
                 {isSubmitting ? 'Applying...' : 'Apply Template'}
               </Button>
             )}
-            <div className="flex gap-component-sm">
+            <div className="gap-component-sm flex">
               {onExport && (
                 <Button
                   variant="outline"
                   size="default"
                   onClick={() => onExport(template)}
                   disabled={isSubmitting}
-                  className="flex-1 min-h-[44px]"
+                  className="min-h-[44px] flex-1"
                   aria-label={`Export template ${template.name}`}
                 >
                   Export
@@ -331,7 +364,7 @@ const DetailContent = React.memo(function DetailContent({
                   size="default"
                   onClick={() => onDelete(template)}
                   disabled={isSubmitting}
-                  className="flex-1 min-h-[44px]"
+                  className="min-h-[44px] flex-1"
                   aria-label={`Delete template ${template.name}`}
                 >
                   Delete
@@ -351,29 +384,39 @@ const DetailContent = React.memo(function DetailContent({
 
   // With variables, show tabs
   return (
-    <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} aria-label="Template detail tabs">
-      <TabsList className="grid w-full grid-cols-2 min-h-[44px]">
+    <Tabs
+      value={activeTab}
+      onValueChange={(v) => setActiveTab(v as any)}
+      aria-label="Template detail tabs"
+    >
+      <TabsList className="grid min-h-[44px] w-full grid-cols-2">
         <TabsTrigger value="details">Details</TabsTrigger>
         <TabsTrigger value="configure">
           Configure
           {template.variables.length > 0 && (
-            <Badge variant="secondary" className="ml-2 text-xs h-5">
+            <Badge
+              variant="secondary"
+              className="ml-2 h-5 text-xs"
+            >
               {template.variables.length}
             </Badge>
           )}
         </TabsTrigger>
       </TabsList>
 
-      <TabsContent value="details" className="mt-component-md">
+      <TabsContent
+        value="details"
+        className="mt-component-md"
+      >
         {detailsContent}
-        <div className="flex gap-component-sm mt-component-md">
+        <div className="gap-component-sm mt-component-md flex">
           {onExport && (
             <Button
               variant="outline"
               size="default"
               onClick={() => onExport(template)}
               disabled={isSubmitting}
-              className="flex-1 min-h-[44px]"
+              className="min-h-[44px] flex-1"
               aria-label={`Export template ${template.name}`}
             >
               Export
@@ -385,7 +428,7 @@ const DetailContent = React.memo(function DetailContent({
               size="default"
               onClick={() => onDelete(template)}
               disabled={isSubmitting}
-              className="flex-1 min-h-[44px]"
+              className="min-h-[44px] flex-1"
               aria-label={`Delete template ${template.name}`}
             >
               Delete
@@ -394,7 +437,10 @@ const DetailContent = React.memo(function DetailContent({
         </div>
       </TabsContent>
 
-      <TabsContent value="configure" className="mt-component-md">
+      <TabsContent
+        value="configure"
+        className="mt-component-md"
+      >
         <AlertTemplateVariableInputForm
           template={template}
           onSubmit={handleVariableSubmit}
@@ -421,8 +467,9 @@ DetailContent.displayName = 'DetailContent';
  * @param props - Component props
  * @returns React component
  */
-export const AlertTemplateDetailPanel = React.memo(
-  function AlertTemplateDetailPanel(props: AlertTemplateDetailPanelProps) {
+export const AlertTemplateDetailPanel = React.memo(function AlertTemplateDetailPanel(
+  props: AlertTemplateDetailPanelProps
+) {
   const { template, onClose, onApply, onExport, onDelete, open, isSubmitting } = props;
 
   const isDesktop = useMediaQuery('(min-width: 640px)');
@@ -443,8 +490,11 @@ export const AlertTemplateDetailPanel = React.memo(
   // Desktop: Use Dialog
   if (isDesktop) {
     return (
-      <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <Dialog
+        open={isOpen}
+        onOpenChange={(open) => !open && onClose()}
+      >
+        <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{template.name}</DialogTitle>
             <DialogDescription>Alert rule template details</DialogDescription>
@@ -457,8 +507,14 @@ export const AlertTemplateDetailPanel = React.memo(
 
   // Mobile: Use Sheet (bottom sheet)
   return (
-    <Sheet open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <SheetContent side="bottom" className="max-h-[90vh] overflow-y-auto">
+    <Sheet
+      open={isOpen}
+      onOpenChange={(open) => !open && onClose()}
+    >
+      <SheetContent
+        side="bottom"
+        className="max-h-[90vh] overflow-y-auto"
+      >
         <SheetHeader>
           <SheetTitle>{template.name}</SheetTitle>
           <SheetDescription>Alert rule template details</SheetDescription>
@@ -467,7 +523,6 @@ export const AlertTemplateDetailPanel = React.memo(
       </SheetContent>
     </Sheet>
   );
-  }
-);
+});
 
 AlertTemplateDetailPanel.displayName = 'AlertTemplateDetailPanel';

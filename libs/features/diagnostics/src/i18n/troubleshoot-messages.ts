@@ -55,7 +55,8 @@ export const TROUBLESHOOT_MESSAGES = {
       running: 'Checking NAT configuration...',
       passed: 'NAT is configured correctly',
       failed: {
-        NAT_MISSING: 'NAT is not configured. This prevents your devices from accessing the internet.',
+        NAT_MISSING:
+          'NAT is not configured. This prevents your devices from accessing the internet.',
         NAT_DISABLED: 'NAT is configured but disabled.',
       },
     },

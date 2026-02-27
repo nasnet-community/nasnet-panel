@@ -104,20 +104,25 @@ export const StopDependentsDialog = React.memo(function StopDependentsDialog({
   const dependentCount = dependents.length;
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog
+      open={open}
+      onOpenChange={onOpenChange}
+    >
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <div className="flex items-center gap-component-md">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-warning/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
-              <Icon icon={AlertTriangleIcon} className="h-5 w-5 text-warning" aria-hidden="true" />
+          <div className="gap-component-md flex items-center">
+            <div className="bg-warning/10 focus-visible:ring-ring flex h-10 w-10 items-center justify-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2">
+              <Icon
+                icon={AlertTriangleIcon}
+                className="text-warning h-5 w-5"
+                aria-hidden="true"
+              />
             </div>
             <div className="flex-1">
-              <DialogTitle className="text-lg font-semibold">
-                Stop {instanceName}?
-              </DialogTitle>
-              <DialogDescription className="text-sm text-muted-foreground mt-component-sm">
-                {dependentCount} {dependentCount === 1 ? 'service depends' : 'services depend'} on this
-                instance
+              <DialogTitle className="text-lg font-semibold">Stop {instanceName}?</DialogTitle>
+              <DialogDescription className="text-muted-foreground mt-component-sm text-sm">
+                {dependentCount} {dependentCount === 1 ? 'service depends' : 'services depend'} on
+                this instance
               </DialogDescription>
             </div>
           </div>
@@ -125,41 +130,41 @@ export const StopDependentsDialog = React.memo(function StopDependentsDialog({
 
         <div className="space-y-component-lg py-component-lg">
           {/* Warning message */}
-          <div className="rounded-lg border border-warning/30 bg-warning/5 p-component-md">
-            <p className="text-sm text-foreground">
-              Stopping <span className="font-semibold">{instanceName}</span> ({featureId}) will affect the
-              following services:
+          <div className="border-warning/30 bg-warning/5 p-component-md rounded-lg border">
+            <p className="text-foreground text-sm">
+              Stopping <span className="font-semibold">{instanceName}</span> ({featureId}) will
+              affect the following services:
             </p>
           </div>
 
           {/* List of affected services */}
-          <ScrollArea className="max-h-48 rounded-lg border border-border">
+          <ScrollArea className="border-border max-h-48 rounded-lg border">
             <div className="p-component-md space-y-component-sm">
               {dependents.map((dep) => (
                 <div
                   key={dep.id}
-                  className="flex items-center justify-between gap-component-md rounded-md bg-muted/50 p-component-sm"
+                  className="gap-component-md bg-muted/50 p-component-sm flex items-center justify-between rounded-md"
                 >
-                  <div className="flex items-center gap-component-sm flex-1 min-w-0">
+                  <div className="gap-component-sm flex min-w-0 flex-1 items-center">
                     <StatusBadge
                       status={dep.fromInstance.status as any}
                       className="text-xs"
                     />
-                    <div className="flex flex-col min-w-0">
-                      <span className="text-sm font-medium truncate">
+                    <div className="flex min-w-0 flex-col">
+                      <span className="truncate text-sm font-medium">
                         {dep.fromInstance.instanceName}
                       </span>
-                      <span className="text-xs text-muted-foreground truncate font-mono">
+                      <span className="text-muted-foreground truncate font-mono text-xs">
                         {dep.fromInstance.featureID}
                       </span>
                     </div>
                   </div>
                   <span
                     className={cn(
-                      'text-xs px-component-sm py-1 rounded-full',
-                      dep.dependencyType === 'REQUIRES'
-                        ? 'bg-error/10 text-error'
-                        : 'bg-warning/10 text-warning'
+                      'px-component-sm rounded-full py-1 text-xs',
+                      dep.dependencyType === 'REQUIRES' ?
+                        'bg-error/10 text-error'
+                      : 'bg-warning/10 text-warning'
                     )}
                   >
                     {dep.dependencyType === 'REQUIRES' ? 'Required' : 'Optional'}
@@ -172,31 +177,38 @@ export const StopDependentsDialog = React.memo(function StopDependentsDialog({
           {/* Stop mode selection */}
           <div className="space-y-component-md">
             <Label className="text-sm font-medium">How would you like to proceed?</Label>
-            <RadioGroup value={stopMode} onValueChange={handleStopModeChange}>
+            <RadioGroup
+              value={stopMode}
+              onValueChange={handleStopModeChange}
+            >
               <div className="space-y-component-sm">
                 {/* Option 1: Stop dependents first (recommended) */}
                 <label
                   htmlFor="stop-dependents-first"
                   className={cn(
-                    'flex items-start gap-component-md rounded-lg border p-component-md cursor-pointer transition-colors',
+                    'gap-component-md p-component-md flex cursor-pointer items-start rounded-lg border transition-colors',
                     'hover:bg-muted',
-                    'focus-within:outline-none focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2',
-                    stopMode === 'stop-dependents-first'
-                      ? 'border-primary bg-primary/10'
-                      : 'border-border'
+                    'focus-within:ring-ring focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2',
+                    stopMode === 'stop-dependents-first' ?
+                      'border-primary bg-primary/10'
+                    : 'border-border'
                   )}
                 >
-                  <RadioGroupItem value="stop-dependents-first" id="stop-dependents-first" className="mt-1" />
-                  <div className="flex-1 space-y-component-sm">
-                    <div className="flex items-center gap-component-sm">
+                  <RadioGroupItem
+                    value="stop-dependents-first"
+                    id="stop-dependents-first"
+                    className="mt-1"
+                  />
+                  <div className="space-y-component-sm flex-1">
+                    <div className="gap-component-sm flex items-center">
                       <span className="text-sm font-medium">Stop dependents first</span>
-                      <span className="text-xs px-component-sm py-1 rounded-full bg-success/10 text-success font-medium">
+                      <span className="px-component-sm bg-success/10 text-success rounded-full py-1 text-xs font-medium">
                         Recommended
                       </span>
                     </div>
-                    <p className="text-xs text-muted-foreground">
-                      Gracefully stop all dependent services before stopping this instance. This is the
-                      safest option.
+                    <p className="text-muted-foreground text-xs">
+                      Gracefully stop all dependent services before stopping this instance. This is
+                      the safest option.
                     </p>
                   </div>
                 </label>
@@ -205,22 +217,27 @@ export const StopDependentsDialog = React.memo(function StopDependentsDialog({
                 <label
                   htmlFor="force-stop"
                   className={cn(
-                    'flex items-start gap-component-md rounded-lg border p-component-md cursor-pointer transition-colors',
+                    'gap-component-md p-component-md flex cursor-pointer items-start rounded-lg border transition-colors',
                     'hover:bg-muted',
-                    'focus-within:outline-none focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2',
+                    'focus-within:ring-ring focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2',
                     stopMode === 'force-stop' ? 'border-error bg-error/10' : 'border-border'
                   )}
                 >
-                  <RadioGroupItem value="force-stop" id="force-stop" className="mt-1" />
-                  <div className="flex-1 space-y-component-sm">
-                    <div className="flex items-center gap-component-sm">
+                  <RadioGroupItem
+                    value="force-stop"
+                    id="force-stop"
+                    className="mt-1"
+                  />
+                  <div className="space-y-component-sm flex-1">
+                    <div className="gap-component-sm flex items-center">
                       <span className="text-sm font-medium">Force stop</span>
-                      <span className="text-xs px-component-sm py-1 rounded-full bg-error/10 text-error font-medium">
+                      <span className="px-component-sm bg-error/10 text-error rounded-full py-1 text-xs font-medium">
                         Danger
                       </span>
                     </div>
-                    <p className="text-xs text-muted-foreground">
-                      Stop this instance immediately. Dependent services may fail or behave unexpectedly.
+                    <p className="text-muted-foreground text-xs">
+                      Stop this instance immediately. Dependent services may fail or behave
+                      unexpectedly.
                     </p>
                   </div>
                 </label>
@@ -230,16 +247,25 @@ export const StopDependentsDialog = React.memo(function StopDependentsDialog({
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={handleCancel} disabled={isLoading} className="min-h-[44px] min-w-[100px]">
+          <Button
+            variant="outline"
+            onClick={handleCancel}
+            disabled={isLoading}
+            className="min-h-[44px] min-w-[100px]"
+          >
             Cancel
           </Button>
           <Button
             variant={stopMode === 'force-stop' ? 'destructive' : 'default'}
             onClick={handleConfirm}
             disabled={isLoading}
-            aria-label={isLoading ? 'Stopping service' : `Stop service with ${stopMode === 'force-stop' ? 'force' : 'graceful'} mode`}
+            aria-label={
+              isLoading ? 'Stopping service' : (
+                `Stop service with ${stopMode === 'force-stop' ? 'force' : 'graceful'} mode`
+              )
+            }
             className={cn(
-              'min-w-[100px] min-h-[44px]',
+              'min-h-[44px] min-w-[100px]',
               stopMode === 'force-stop' && 'focus-visible:ring-error'
             )}
           >

@@ -33,10 +33,7 @@
     "check": {
       "executor": "nx:run-commands",
       "options": {
-        "commands": [
-          "nx run @nasnet/core-forms:typecheck",
-          "nx run @nasnet/core-forms:lint"
-        ],
+        "commands": ["nx run @nasnet/core-forms:typecheck", "nx run @nasnet/core-forms:lint"],
         "parallel": true
       }
     }

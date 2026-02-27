@@ -57,10 +57,7 @@ function calculateColumnCenter(
 /**
  * Generate a curved bezier path between two points
  */
-function generateBezierPath(
-  source: NodePosition,
-  target: NodePosition
-): string {
+function generateBezierPath(source: NodePosition, target: NodePosition): string {
   const dx = target.x - source.x;
   const controlOffset = Math.abs(dx) * 0.4;
 
@@ -163,11 +160,7 @@ export function useNetworkTopology(
     const nodeCount = wanInterfaces.length;
     if (nodeCount === 0) return [];
 
-    const startY = calculateColumnCenter(
-      nodeCount,
-      layout.nodeGap,
-      effectiveHeight
-    );
+    const startY = calculateColumnCenter(nodeCount, layout.nodeGap, effectiveHeight);
 
     return wanInterfaces.map((wan, index) => ({
       id: wan.id,
@@ -188,11 +181,7 @@ export function useNetworkTopology(
     const nodeCount = lanNetworks.length;
     if (nodeCount === 0) return [];
 
-    const startY = calculateColumnCenter(
-      nodeCount,
-      layout.nodeGap,
-      effectiveHeight
-    );
+    const startY = calculateColumnCenter(nodeCount, layout.nodeGap, effectiveHeight);
 
     return lanNetworks.map((lan, index) => ({
       id: lan.id,
@@ -339,7 +328,10 @@ export function useNetworkTopology(
             ...baseContent,
             details: {
               ...(data.model && { Model: data.model }),
-              Status: data.status === 'online' ? 'Online' : data.status === 'offline' ? 'Offline' : 'Unknown',
+              Status:
+                data.status === 'online' ? 'Online'
+                : data.status === 'offline' ? 'Offline'
+                : 'Unknown',
             },
           };
         }
@@ -350,7 +342,10 @@ export function useNetworkTopology(
             ip: data.ip,
             details: {
               ...(data.provider && { Provider: data.provider }),
-              Status: data.status === 'connected' ? 'Connected' : data.status === 'disconnected' ? 'Disconnected' : 'Pending',
+              Status:
+                data.status === 'connected' ? 'Connected'
+                : data.status === 'disconnected' ? 'Disconnected'
+                : 'Pending',
             },
           };
         }

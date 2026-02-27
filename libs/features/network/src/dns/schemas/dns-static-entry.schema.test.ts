@@ -6,10 +6,7 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import {
-  dnsStaticEntrySchema,
-  type DNSStaticEntryFormValues,
-} from './dns-static-entry.schema';
+import { dnsStaticEntrySchema, type DNSStaticEntryFormValues } from './dns-static-entry.schema';
 
 describe('dnsStaticEntrySchema', () => {
   describe('hostname validation (RFC 1123)', () => {

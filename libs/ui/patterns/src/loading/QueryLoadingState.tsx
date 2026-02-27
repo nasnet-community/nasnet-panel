@@ -111,76 +111,79 @@ function QueryLoadingStateComponent<T>({
   showRefreshIndicator = true,
   className,
 }: QueryLoadingStateProps<T>) {
-    // Error state
-    if (error) {
-      if (errorComponent) {
-        return (
-          <div className={className}>
-            {typeof errorComponent === 'function'
-              ? errorComponent(error)
-              : errorComponent}
-          </div>
-        );
-      }
-
+  // Error state
+  if (error) {
+    if (errorComponent) {
       return (
-        <div
-          role="alert"
-          className={cn(
-            'flex flex-col items-center justify-center min-h-[200px] p-component-lg gap-component-md text-center',
-            className
-          )}
-        >
-          <p className="text-sm font-medium text-error">Something went wrong</p>
-          <p className="text-xs text-muted-foreground">{error.message}</p>
+        <div className={className}>
+          {typeof errorComponent === 'function' ? errorComponent(error) : errorComponent}
         </div>
       );
     }
 
-    // Initial loading state
-    if (isLoading && !data) {
-      if (skeleton) {
-        return (
-          <div aria-busy="true" aria-live="polite" className={className}>
-            {skeleton}
-          </div>
-        );
-      }
+    return (
+      <div
+        role="alert"
+        className={cn(
+          'p-component-lg gap-component-md flex min-h-[200px] flex-col items-center justify-center text-center',
+          className
+        )}
+      >
+        <p className="text-error text-sm font-medium">Something went wrong</p>
+        <p className="text-muted-foreground text-xs">{error.message}</p>
+      </div>
+    );
+  }
 
+  // Initial loading state
+  if (isLoading && !data) {
+    if (skeleton) {
       return (
         <div
           aria-busy="true"
           aria-live="polite"
-          className={cn('flex flex-col items-center justify-center min-h-[200px] gap-component-md', className)}
+          className={className}
         >
-          <LoadingSpinner size="lg" />
-          <p className="text-sm text-muted-foreground">Loading...</p>
+          {skeleton}
         </div>
       );
     }
 
-    // No data after loading
-    if (!data) {
-      return null;
-    }
-
-    // Empty state
-    if (emptyComponent && isEmpty(data)) {
-      return <div className={className}>{emptyComponent}</div>;
-    }
-
-    // Success state with data
     return (
-      <div className={cn('relative', className)}>
-        {/* Revalidation indicator */}
-        {showRefreshIndicator && isRevalidating && (
-          <RefreshIndicator isRefreshing={isRevalidating} />
+      <div
+        aria-busy="true"
+        aria-live="polite"
+        className={cn(
+          'gap-component-md flex min-h-[200px] flex-col items-center justify-center',
+          className
         )}
-
-        {/* Content with data */}
-        {children(data)}
+      >
+        <LoadingSpinner size="lg" />
+        <p className="text-muted-foreground text-sm">Loading...</p>
       </div>
     );
+  }
+
+  // No data after loading
+  if (!data) {
+    return null;
+  }
+
+  // Empty state
+  if (emptyComponent && isEmpty(data)) {
+    return <div className={className}>{emptyComponent}</div>;
+  }
+
+  // Success state with data
+  return (
+    <div className={cn('relative', className)}>
+      {/* Revalidation indicator */}
+      {showRefreshIndicator && isRevalidating && <RefreshIndicator isRefreshing={isRevalidating} />}
+
+      {/* Content with data */}
+      {children(data)}
+    </div>
+  );
 }
 
 // Wrap with memo - TypeScript workaround for generic components

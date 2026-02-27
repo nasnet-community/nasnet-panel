@@ -68,9 +68,7 @@ function InstanceManagerMobileComponent(props: InstanceManagerProps) {
               type="search"
               placeholder="Search instances..."
               value={activeFilters.search}
-              onChange={(e) =>
-                handleFilterChange({ search: e.target.value })
-              }
+              onChange={(e) => handleFilterChange({ search: e.target.value })}
               className="min-h-[44px]"
             />
 
@@ -78,7 +76,7 @@ function InstanceManagerMobileComponent(props: InstanceManagerProps) {
             <Button
               variant="outline"
               size="lg"
-              className="w-full min-h-[44px]"
+              className="min-h-[44px] w-full"
               onClick={() => setShowFilters(!showFilters)}
             >
               <svg
@@ -94,9 +92,11 @@ function InstanceManagerMobileComponent(props: InstanceManagerProps) {
                 <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
               </svg>
               Filters
-              {(activeFilters.category !== 'all' ||
-                activeFilters.status !== 'all') && (
-                <Badge variant="secondary" className="ml-2">
+              {(activeFilters.category !== 'all' || activeFilters.status !== 'all') && (
+                <Badge
+                  variant="secondary"
+                  className="ml-2"
+                >
                   Active
                 </Badge>
               )}
@@ -104,7 +104,7 @@ function InstanceManagerMobileComponent(props: InstanceManagerProps) {
 
             {/* Expandable filters */}
             {showFilters && (
-              <div className="space-y-2 pt-2 border-t">
+              <div className="space-y-2 border-t pt-2">
                 <Select
                   value={activeFilters.category}
                   onValueChange={(value) =>
@@ -203,7 +203,7 @@ function InstanceManagerMobileComponent(props: InstanceManagerProps) {
       {error && (
         <Card>
           <CardContent className="p-4">
-            <div className="text-center text-sm text-destructive">{error}</div>
+            <div className="text-destructive text-center text-sm">{error}</div>
           </CardContent>
         </Card>
       )}
@@ -213,9 +213,7 @@ function InstanceManagerMobileComponent(props: InstanceManagerProps) {
         <Card>
           <CardContent className="p-8">
             {emptyState || (
-              <div className="text-center text-sm text-muted-foreground">
-                No instances found
-              </div>
+              <div className="text-muted-foreground text-center text-sm">No instances found</div>
             )}
           </CardContent>
         </Card>

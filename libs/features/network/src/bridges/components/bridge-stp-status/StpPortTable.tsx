@@ -58,9 +58,13 @@ function StpPortTableComponent({ ports, className }: StpPortTableProps) {
 
   if (ports.length === 0) {
     return (
-      <div className="rounded-[var(--semantic-radius-card)] border p-component-lg text-center">
-        <Icon icon={Network} className="mx-auto h-8 w-8 mb-component-md text-category-networking opacity-50" aria-hidden="true" />
-        <p className="text-sm text-muted-foreground">No ports configured</p>
+      <div className="p-component-lg rounded-[var(--semantic-radius-card)] border text-center">
+        <Icon
+          icon={Network}
+          className="mb-component-md text-category-networking mx-auto h-8 w-8 opacity-50"
+          aria-hidden="true"
+        />
+        <p className="text-muted-foreground text-sm">No ports configured</p>
       </div>
     );
   }
@@ -80,40 +84,31 @@ function StpPortTableComponent({ ports, className }: StpPortTableProps) {
         <TableBody>
           {ports.map((port) => (
             <TableRow key={port.id}>
-              <TableCell className="font-medium font-mono">{port.interface.name}</TableCell>
+              <TableCell className="font-mono font-medium">{port.interface.name}</TableCell>
               <TableCell>
-                {port.role ? (
-                  <Badge variant={getRoleBadgeVariant(port.role)}>
-                    {port.role}
-                  </Badge>
-                ) : (
-                  <span className="text-muted-foreground text-sm">-</span>
-                )}
+                {port.role ?
+                  <Badge variant={getRoleBadgeVariant(port.role)}>{port.role}</Badge>
+                : <span className="text-muted-foreground text-sm">-</span>}
               </TableCell>
               <TableCell>
-                {port.state ? (
-                  <Badge variant={getStateBadgeVariant(port.state)}>
-                    {port.state}
-                  </Badge>
-                ) : (
-                  <span className="text-muted-foreground text-sm">-</span>
-                )}
+                {port.state ?
+                  <Badge variant={getStateBadgeVariant(port.state)}>{port.state}</Badge>
+                : <span className="text-muted-foreground text-sm">-</span>}
               </TableCell>
-              <TableCell className="text-right font-mono font-medium text-xs">
-                {port.pathCost ? (
+              <TableCell className="text-right font-mono text-xs font-medium">
+                {port.pathCost ?
                   <>{port.pathCost}</>
-                ) : (
-                  <span className="text-muted-foreground">-</span>
-                )}
+                : <span className="text-muted-foreground">-</span>}
               </TableCell>
               <TableCell>
-                {port.edge ? (
-                  <Badge variant="success" className="text-xs font-medium">
+                {port.edge ?
+                  <Badge
+                    variant="success"
+                    className="text-xs font-medium"
+                  >
                     Yes
                   </Badge>
-                ) : (
-                  <span className="text-muted-foreground text-sm">No</span>
-                )}
+                : <span className="text-muted-foreground text-sm">No</span>}
               </TableCell>
             </TableRow>
           ))}

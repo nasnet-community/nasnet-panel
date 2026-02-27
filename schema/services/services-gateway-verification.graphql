@@ -7,37 +7,59 @@ Gateway monitoring information for SOCKS-to-TUN gateway instances.
 Provides visibility into hev-socks5-tunnel processes.
 """
 type GatewayInfo {
-  """Current gateway state"""
+  """
+  Current gateway state
+  """
   state: GatewayState!
 
-  """TUN interface name (e.g., tun-tor-usa)"""
+  """
+  TUN interface name (e.g., tun-tor-usa)
+  """
   tunName: String
 
-  """Process ID of gateway"""
+  """
+  Process ID of gateway
+  """
   pid: Int
 
-  """Uptime duration in seconds"""
+  """
+  Uptime duration in seconds
+  """
   uptime: Int
 
-  """Last health check timestamp"""
+  """
+  Last health check timestamp
+  """
   lastHealthCheck: DateTime
 
-  """Error message if in ERROR state"""
+  """
+  Error message if in ERROR state
+  """
   errorMessage: String
 }
 
-"""Gateway process state for monitoring"""
+"""
+Gateway process state for monitoring
+"""
 enum GatewayState {
-  """Gateway is running normally"""
+  """
+  Gateway is running normally
+  """
   RUNNING
 
-  """Gateway is stopped"""
+  """
+  Gateway is stopped
+  """
   STOPPED
 
-  """Gateway encountered an error"""
+  """
+  Gateway encountered an error
+  """
   ERROR
 
-  """Service does not need a gateway"""
+  """
+  Service does not need a gateway
+  """
   NOT_NEEDED
 }
 
@@ -50,28 +72,44 @@ Binary verification information for a service instance.
 Contains hashes and verification status for security auditing.
 """
 type BinaryVerification {
-  """Whether binary verification is enabled for this instance"""
+  """
+  Whether binary verification is enabled for this instance
+  """
   enabled: Boolean!
 
-  """SHA256 hash of the original downloaded archive (from checksums.txt)"""
+  """
+  SHA256 hash of the original downloaded archive (from checksums.txt)
+  """
   archiveHash: String
 
-  """SHA256 hash of the extracted binary (computed at runtime)"""
+  """
+  SHA256 hash of the extracted binary (computed at runtime)
+  """
   binaryHash: String
 
-  """Whether GPG signature verification was performed and passed"""
+  """
+  Whether GPG signature verification was performed and passed
+  """
   gpgVerified: Boolean!
 
-  """GPG key ID that signed the checksums file"""
+  """
+  GPG key ID that signed the checksums file
+  """
   gpgKeyID: String
 
-  """URL where checksums.txt was fetched from"""
+  """
+  URL where checksums.txt was fetched from
+  """
   checksumsURL: String
 
-  """Timestamp when binary was last verified"""
+  """
+  Timestamp when binary was last verified
+  """
   verifiedAt: DateTime
 
-  """Verification status (valid, invalid, pending, not_verified)"""
+  """
+  Verification status (valid, invalid, pending, not_verified)
+  """
   status: VerificationStatus!
 }
 
@@ -79,16 +117,24 @@ type BinaryVerification {
 Binary verification status.
 """
 enum VerificationStatus {
-  """Binary passed verification"""
+  """
+  Binary passed verification
+  """
   VALID
 
-  """Binary failed verification (hash mismatch)"""
+  """
+  Binary failed verification (hash mismatch)
+  """
   INVALID
 
-  """Verification in progress"""
+  """
+  Verification in progress
+  """
   PENDING
 
-  """Verification not performed (disabled or missing data)"""
+  """
+  Verification not performed (disabled or missing data)
+  """
   NOT_VERIFIED
 }
 
@@ -96,42 +142,68 @@ enum VerificationStatus {
 Verification event for subscriptions.
 """
 type VerificationEvent {
-  """Instance ID"""
+  """
+  Instance ID
+  """
   instanceID: ID!
 
-  """Feature ID"""
+  """
+  Feature ID
+  """
   featureID: String!
 
-  """Router ID"""
+  """
+  Router ID
+  """
   routerID: ID!
 
-  """Event type (verified, verification_failed, integrity_failed)"""
+  """
+  Event type (verified, verification_failed, integrity_failed)
+  """
   eventType: String!
 
-  """Archive hash"""
+  """
+  Archive hash
+  """
   archiveHash: String
 
-  """Binary hash"""
+  """
+  Binary hash
+  """
   binaryHash: String
 
-  """Expected hash (for failures)"""
+  """
+  Expected hash (for failures)
+  """
   expectedHash: String
 
-  """Actual hash (for failures)"""
+  """
+  Actual hash (for failures)
+  """
   actualHash: String
 
-  """GPG verified"""
+  """
+  GPG verified
+  """
   gpgVerified: Boolean!
 
-  """GPG key ID"""
+  """
+  GPG key ID
+  """
   gpgKeyID: String
 
-  """Failure reason (for failures)"""
+  """
+  Failure reason (for failures)
+  """
   failureReason: String
 
-  """Suggested action (for failures)"""
+  """
+  Suggested action (for failures)
+  """
   suggestedAction: String
 
-  """Timestamp"""
+  """
+  Timestamp
+  """
   timestamp: DateTime!
 }

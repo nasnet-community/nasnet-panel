@@ -10,7 +10,6 @@ import { TrafficIndicator } from './TrafficIndicator';
 
 import type { Meta, StoryObj } from '@storybook/react';
 
-
 // ---------------------------------------------------------------------------
 // Meta
 // ---------------------------------------------------------------------------
@@ -65,8 +64,8 @@ type Story = StoryObj<typeof TrafficIndicator>;
 
 export const Default: Story = {
   args: {
-    rxBytes: 1_073_741_824,  // 1 GiB
-    txBytes: 268_435_456,    // 256 MiB
+    rxBytes: 1_073_741_824, // 1 GiB
+    txBytes: 268_435_456, // 256 MiB
     compact: false,
     showLabels: false,
   },
@@ -83,10 +82,10 @@ export const Default: Story = {
 
 export const WithLiveRates: Story = {
   args: {
-    rxBytes: 1_073_741_824,  // 1 GiB cumulative
-    txBytes: 268_435_456,    // 256 MiB cumulative
-    rxRate: 5_242_880,       // 5 MiB/s live
-    txRate: 1_048_576,       // 1 MiB/s live
+    rxBytes: 1_073_741_824, // 1 GiB cumulative
+    txBytes: 268_435_456, // 256 MiB cumulative
+    rxRate: 5_242_880, // 5 MiB/s live
+    txRate: 1_048_576, // 1 MiB/s live
     compact: false,
     showLabels: false,
   },
@@ -103,10 +102,10 @@ export const WithLiveRates: Story = {
 
 export const WithLabels: Story = {
   args: {
-    rxBytes: 536_870_912,    // 512 MiB
-    txBytes: 134_217_728,    // 128 MiB
-    rxRate: 2_097_152,       // 2 MiB/s
-    txRate: 524_288,         // 512 KiB/s
+    rxBytes: 536_870_912, // 512 MiB
+    txBytes: 134_217_728, // 128 MiB
+    rxRate: 2_097_152, // 2 MiB/s
+    txRate: 524_288, // 512 KiB/s
     compact: false,
     showLabels: true,
   },
@@ -123,8 +122,8 @@ export const WithLabels: Story = {
 
 export const Compact: Story = {
   args: {
-    rxBytes: 314_572_800,    // ~300 MB
-    txBytes: 52_428_800,     // ~50 MB
+    rxBytes: 314_572_800, // ~300 MB
+    txBytes: 52_428_800, // ~50 MB
     compact: true,
   },
   parameters: {
@@ -141,9 +140,9 @@ export const Compact: Story = {
 export const HighTraffic: Story = {
   args: {
     rxBytes: 10_737_418_240, // 10 GiB
-    txBytes: 5_368_709_120,  // 5 GiB
-    rxRate: 104_857_600,     // 100 MiB/s
-    txRate: 52_428_800,      // 50 MiB/s
+    txBytes: 5_368_709_120, // 5 GiB
+    rxRate: 104_857_600, // 100 MiB/s
+    txRate: 52_428_800, // 50 MiB/s
     compact: false,
     showLabels: true,
   },

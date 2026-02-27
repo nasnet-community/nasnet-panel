@@ -5,18 +5,22 @@ title: TanStack Query Modules — REST-Only Endpoints
 
 # TanStack Query Modules
 
-While the majority of NasNetConnect uses Apollo Client for GraphQL, there are three specialized domains that communicate with REST-only endpoints and require TanStack Query (React Query) instead: **batch jobs**, **OUI/MAC vendor lookups**, and **connection testing**. This document covers each module, their caching strategies, and when to use them.
+While the majority of NasNetConnect uses Apollo Client for GraphQL, there are three specialized
+domains that communicate with REST-only endpoints and require TanStack Query (React Query) instead:
+**batch jobs**, **OUI/MAC vendor lookups**, and **connection testing**. This document covers each
+module, their caching strategies, and when to use them.
 
 ## Decision Boundary: GraphQL vs. REST
 
-| Endpoint Type | Transport | Caching | Module |
-|---|---|---|---|
-| Structured data (resources, config, state) | GraphQL via Apollo | Apollo cache + IndexedDB | Apollo hooks in `queries/src/` |
-| Batch job operations | REST only | TanStack Query | `batch/useBatchJob` |
-| MAC vendor lookup | REST only | TanStack Query (infinite staleTime) | `oui/useVendorLookup` |
-| Router connection test | REST only | TanStack Query | `discovery/useTestConnection` |
+| Endpoint Type                              | Transport          | Caching                             | Module                         |
+| ------------------------------------------ | ------------------ | ----------------------------------- | ------------------------------ |
+| Structured data (resources, config, state) | GraphQL via Apollo | Apollo cache + IndexedDB            | Apollo hooks in `queries/src/` |
+| Batch job operations                       | REST only          | TanStack Query                      | `batch/useBatchJob`            |
+| MAC vendor lookup                          | REST only          | TanStack Query (infinite staleTime) | `oui/useVendorLookup`          |
+| Router connection test                     | REST only          | TanStack Query                      | `discovery/useTestConnection`  |
 
-**Rule:** If the backend exposes a GraphQL resolver, use Apollo. If it's a REST-only endpoint, use TanStack Query.
+**Rule:** If the backend exposes a GraphQL resolver, use Apollo. If it's a REST-only endpoint, use
+TanStack Query.
 
 ---
 
@@ -24,7 +28,9 @@ While the majority of NasNetConnect uses Apollo Client for GraphQL, there are th
 
 **Reference:** `libs/api-client/queries/src/batch/useBatchJob.ts`
 
-Batch jobs allow you to submit multiple router configuration commands in a single transaction, with optional rollback on failure. The batch module polls the job status in real-time and automatically stops polling when the job reaches a terminal state (completed, failed, cancelled, rolled_back).
+Batch jobs allow you to submit multiple router configuration commands in a single transaction, with
+optional rollback on failure. The batch module polls the job status in real-time and automatically
+stops polling when the job reaches a terminal state (completed, failed, cancelled, rolled_back).
 
 ### API Endpoints
 
@@ -102,8 +108,8 @@ export interface CreateBatchJobResponse {
 
 ```typescript
 export const batchKeys = {
-  all: ['batch'],                      // all batch queries
-  job: (jobId: string) => [...batchKeys.all, 'job', jobId],  // specific job
+  all: ['batch'], // all batch queries
+  job: (jobId: string) => [...batchKeys.all, 'job', jobId], // specific job
 };
 ```
 
@@ -115,12 +121,13 @@ Fetches batch job status with automatic polling while the job is running.
 export function useBatchJob(
   jobId: string | null,
   options?: {
-    pollingInterval?: number;  // default: 1000ms
+    pollingInterval?: number; // default: 1000ms
   }
-): UseQueryResult<BatchJob, Error>
+): UseQueryResult<BatchJob, Error>;
 ```
 
 **Behavior:**
+
 - Automatically polls while status is `pending` or `running`
 - Stops polling when status is `completed`, `failed`, `cancelled`, or `rolled_back`
 - Returns `enabled: false` if `jobId` is null
@@ -170,10 +177,11 @@ export function useCreateBatchJob(): UseMutationResult<
   CreateBatchJobResponse,
   Error,
   CreateBatchJobRequest
->
+>;
 ```
 
 **Behavior:**
+
 - On success: Invalidates all batch queries and pre-populates the job query cache
 - Transforms API response (snake_case) to camelCase
 - Throws error with message from API or statusText
@@ -228,11 +236,12 @@ Cancels a running batch job.
 export function useCancelBatchJob(): UseMutationResult<
   void,
   Error,
-  string  // jobId
->
+  string // jobId
+>;
 ```
 
 **Behavior:**
+
 - Sends DELETE request to `/api/batch/jobs/{jobId}`
 - On success: Invalidates the specific job's query cache to refetch updated status
 - No response body expected
@@ -266,7 +275,9 @@ function CancelJobButton({ jobId }: { jobId: string }) {
 
 **Reference:** `libs/api-client/queries/src/oui/useVendorLookup.ts`
 
-OUI (Organizationally Unique Identifier) lookups translate MAC addresses to vendor names. Used in DHCP leases, ARP tables, and connected device lists. Vendor data is static and never changes, so we cache indefinitely.
+OUI (Organizationally Unique Identifier) lookups translate MAC addresses to vendor names. Used in
+DHCP leases, ARP tables, and connected device lists. Vendor data is static and never changes, so we
+cache indefinitely.
 
 ### API Endpoints
 
@@ -305,10 +316,11 @@ export const ouiKeys = {
 Looks up the vendor name for a single MAC address.
 
 ```typescript
-export function useVendorLookup(macAddress: string): string | null
+export function useVendorLookup(macAddress: string): string | null;
 ```
 
 **Behavior:**
+
 - `staleTime: Infinity` — Vendor data never changes; never refetch
 - `gcTime: 24h` — Keep in cache for 24 hours, then garbage collect
 - `enabled: false` if macAddress is falsy or less than 17 chars (AA:BB:CC:DD:EE:FF)
@@ -335,15 +347,15 @@ function DHCPLeaseRow({ lease }: { lease: DHCPLease }) {
 
 ### useBatchVendorLookup Hook
 
-Looks up vendors for multiple MAC addresses in a single request. More efficient than calling `useVendorLookup` multiple times.
+Looks up vendors for multiple MAC addresses in a single request. More efficient than calling
+`useVendorLookup` multiple times.
 
 ```typescript
-export function useBatchVendorLookup(
-  macAddresses: string[]
-): Record<string, string>
+export function useBatchVendorLookup(macAddresses: string[]): Record<string, string>;
 ```
 
 **Behavior:**
+
 - `staleTime: Infinity` — Vendor data never changes
 - `gcTime: 24h` — Cache for 24 hours
 - `enabled: false` if macAddresses is empty
@@ -387,7 +399,8 @@ function ConnectedDevicesTable({ devices }: { devices: Device[] }) {
 
 **Reference:** `libs/api-client/queries/src/discovery/useTestConnection.ts`
 
-Connection testing validates router credentials by attempting to connect and retrieve system information. Used during the router setup flow.
+Connection testing validates router credentials by attempting to connect and retrieve system
+information. Used during the router setup flow.
 
 ### API / Types
 
@@ -429,10 +442,11 @@ export function useTestConnection(): UseMutationResult<
   CredentialValidationResult,
   Error,
   TestConnectionInput
->
+>;
 ```
 
 **Behavior:**
+
 - `retry: false` — Do not retry on network errors (immediate feedback for auth failures)
 - Calls `validateCredentials` which performs SSH/API connection
 - Does not cache results (each test is independent)
@@ -511,11 +525,11 @@ function RouterLoginForm({ routerIp }: { routerIp: string }) {
 
 ## Caching Strategy Comparison
 
-| Module | Query Type | staleTime | gcTime | Refetch Trigger |
-|---|---|---|---|---|
-| **Batch Jobs** | Real-time polling | 0ms | default | Auto-poll until terminal |
-| **Vendor Lookup** | Static data | Infinity | 24h | Manual (invalidate) |
-| **Connection Test** | One-time test | N/A (mutation) | N/A | User action |
+| Module              | Query Type        | staleTime      | gcTime  | Refetch Trigger          |
+| ------------------- | ----------------- | -------------- | ------- | ------------------------ |
+| **Batch Jobs**      | Real-time polling | 0ms            | default | Auto-poll until terminal |
+| **Vendor Lookup**   | Static data       | Infinity       | 24h     | Manual (invalidate)      |
+| **Connection Test** | One-time test     | N/A (mutation) | N/A     | User action              |
 
 ---
 
@@ -531,7 +545,7 @@ const { data: router } = useGetRouter(routerId);
 const { data: job } = useBatchJob(jobId);
 
 // TanStack Query for vendors
-const vendors = useBatchVendorLookup(router.devices.map(d => d.mac));
+const vendors = useBatchVendorLookup(router.devices.map((d) => d.mac));
 ```
 
 The `QueryClient` is set up in the ApolloProvider and can be accessed from feature components.
@@ -560,7 +574,8 @@ The `QueryClient` is set up in the ApolloProvider and can be accessed from featu
 1. **No caching:** Test results are one-time; don't expect cached data.
 2. **Disable retry:** Let auth failures fail fast for immediate user feedback.
 3. **Display router info:** On success, show router identity/version for confirmation.
-4. **Error clarity:** Map error messages to user-friendly text (e.g., "Incorrect password" vs. "Network unreachable").
+4. **Error clarity:** Map error messages to user-friendly text (e.g., "Incorrect password" vs.
+   "Network unreachable").
 
 ---
 

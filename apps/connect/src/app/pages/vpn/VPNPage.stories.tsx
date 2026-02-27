@@ -13,7 +13,6 @@ import { VPNPage } from './VPNPage';
 
 import type { Meta, StoryObj } from '@storybook/react';
 
-
 const meta: Meta<typeof VPNPage> = {
   title: 'App/Pages/VPNPage',
   component: VPNPage,
@@ -77,21 +76,21 @@ const MOCK_WG_INTERFACES = [
 export const Default: Story = {
   name: 'Loaded – WireGuard interfaces',
   render: () => (
-    <div className="min-h-screen bg-background">
+    <div className="bg-background min-h-screen">
       {/* Presentational replica showing the loaded state */}
       <div className="px-6 py-6">
-        <div className="max-w-6xl mx-auto space-y-6">
+        <div className="mx-auto max-w-6xl space-y-6">
           {/* Page header */}
           <div className="flex items-start justify-between">
             <div>
-              <h1 className="text-2xl font-semibold text-foreground mb-1">VPN Configuration</h1>
-              <p className="text-sm text-muted-foreground">
+              <h1 className="text-foreground mb-1 text-2xl font-semibold">VPN Configuration</h1>
+              <p className="text-muted-foreground text-sm">
                 View your VPN setup and monitor interface status{' '}
                 <span className="text-xs opacity-70">(Auto-refreshes every 5s)</span>
               </p>
             </div>
             <button
-              className="flex items-center gap-2 min-h-[44px] min-w-[44px] px-3 border border-border rounded-md text-sm"
+              className="border-border flex min-h-[44px] min-w-[44px] items-center gap-2 rounded-md border px-3 text-sm"
               aria-label="Refresh VPN interfaces"
             >
               Refresh
@@ -103,25 +102,27 @@ export const Default: Story = {
             {MOCK_WG_INTERFACES.map((iface) => (
               <div
                 key={iface.id}
-                className="bg-card border border-border rounded-2xl p-6 space-y-2"
+                className="bg-card border-border space-y-2 rounded-2xl border p-6"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className="font-semibold text-foreground">{iface.name}</span>
+                    <span className="text-foreground font-semibold">{iface.name}</span>
                     <span
-                      className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                        iface.running
-                          ? 'bg-success/10 text-success'
-                          : 'bg-muted text-muted-foreground'
+                      className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+                        iface.running ?
+                          'bg-success/10 text-success'
+                        : 'bg-muted text-muted-foreground'
                       }`}
                     >
                       {iface.running ? 'Running' : 'Stopped'}
                     </span>
                   </div>
-                  <span className="text-xs text-muted-foreground">Port {iface.listenPort}</span>
+                  <span className="text-muted-foreground text-xs">Port {iface.listenPort}</span>
                 </div>
-                <p className="text-xs font-mono text-muted-foreground truncate">{iface.publicKey}</p>
-                <div className="flex gap-4 text-xs text-muted-foreground">
+                <p className="text-muted-foreground truncate font-mono text-xs">
+                  {iface.publicKey}
+                </p>
+                <div className="text-muted-foreground flex gap-4 text-xs">
                   <span>MTU {iface.mtu}</span>
                   {iface.rx != null && <span>RX {(iface.rx / 1048576).toFixed(1)} MB</span>}
                   {iface.tx != null && <span>TX {(iface.tx / 1048576).toFixed(1)} MB</span>}
@@ -132,17 +133,20 @@ export const Default: Story = {
 
           {/* Other VPN types */}
           <div className="space-y-4">
-            <h2 className="text-xl font-semibold text-foreground">Other VPN Types</h2>
-            <p className="text-sm text-muted-foreground">
+            <h2 className="text-foreground text-xl font-semibold">Other VPN Types</h2>
+            <p className="text-muted-foreground text-sm">
               Additional VPN protocols configured on your router
             </p>
             {['L2TP', 'PPTP', 'SSTP'].map((type) => (
-              <div key={type} className="bg-card border border-border rounded-2xl p-4">
+              <div
+                key={type}
+                className="bg-card border-border rounded-2xl border p-4"
+              >
                 <div className="flex items-center justify-between">
-                  <span className="font-medium text-foreground">{type}</span>
-                  <span className="text-xs bg-muted px-2 py-0.5 rounded-full">0</span>
+                  <span className="text-foreground font-medium">{type}</span>
+                  <span className="bg-muted rounded-full px-2 py-0.5 text-xs">0</span>
                 </div>
-                <p className="text-sm text-muted-foreground text-center py-4">
+                <p className="text-muted-foreground py-4 text-center text-sm">
                   No {type} interfaces configured
                 </p>
               </div>
@@ -169,28 +173,35 @@ export const Default: Story = {
 export const Loading: Story = {
   name: 'Loading state',
   render: () => (
-    <div className="min-h-screen bg-background">
+    <div className="bg-background min-h-screen">
       <div className="px-6 py-6">
-        <div className="max-w-6xl mx-auto space-y-6">
+        <div className="mx-auto max-w-6xl space-y-6">
           <div className="flex items-start justify-between">
             <div>
-              <h1 className="text-2xl font-semibold text-foreground mb-1">VPN Configuration</h1>
-              <p className="text-sm text-muted-foreground">
+              <h1 className="text-foreground mb-1 text-2xl font-semibold">VPN Configuration</h1>
+              <p className="text-muted-foreground text-sm">
                 View your VPN setup and monitor interface status{' '}
                 <span className="text-xs opacity-70">(Auto-refreshes every 5s)</span>
               </p>
             </div>
             <button
               disabled
-              className="flex items-center gap-2 min-h-[44px] min-w-[44px] px-3 border border-border rounded-md text-sm opacity-50 cursor-not-allowed"
+              className="border-border flex min-h-[44px] min-w-[44px] cursor-not-allowed items-center gap-2 rounded-md border px-3 text-sm opacity-50"
               aria-label="Refresh VPN interfaces"
             >
               Refresh
             </button>
           </div>
-          <div className="space-y-4" role="status" aria-label="Loading VPN interfaces">
+          <div
+            className="space-y-4"
+            role="status"
+            aria-label="Loading VPN interfaces"
+          >
             {[1, 2, 3].map((i) => (
-              <div key={i} className="h-48 w-full rounded-2xl bg-muted animate-pulse" />
+              <div
+                key={i}
+                className="bg-muted h-48 w-full animate-pulse rounded-2xl"
+              />
             ))}
           </div>
         </div>
@@ -214,30 +225,30 @@ export const Loading: Story = {
 export const ErrorState: Story = {
   name: 'Error state',
   render: () => (
-    <div className="min-h-screen bg-background">
+    <div className="bg-background min-h-screen">
       <div className="px-6 py-6">
-        <div className="max-w-6xl mx-auto space-y-6">
+        <div className="mx-auto max-w-6xl space-y-6">
           <div className="flex items-start justify-between">
             <div>
-              <h1 className="text-2xl font-semibold text-foreground mb-1">VPN Configuration</h1>
-              <p className="text-sm text-muted-foreground">
+              <h1 className="text-foreground mb-1 text-2xl font-semibold">VPN Configuration</h1>
+              <p className="text-muted-foreground text-sm">
                 View your VPN setup and monitor interface status
               </p>
             </div>
             <button
-              className="flex items-center gap-2 min-h-[44px] min-w-[44px] px-3 border border-border rounded-md text-sm"
+              className="border-border flex min-h-[44px] min-w-[44px] items-center gap-2 rounded-md border px-3 text-sm"
               aria-label="Refresh VPN interfaces"
             >
               Refresh
             </button>
           </div>
           <div
-            className="bg-error/10 dark:bg-error/20 border-2 border-error rounded-2xl p-6 shadow-sm"
+            className="bg-error/10 dark:bg-error/20 border-error rounded-2xl border-2 p-6 shadow-sm"
             role="alert"
           >
             <div className="flex items-start gap-4">
               <svg
-                className="w-6 h-6 text-error flex-shrink-0 mt-0.5"
+                className="text-error mt-0.5 h-6 w-6 flex-shrink-0"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -251,10 +262,10 @@ export const ErrorState: Story = {
                 />
               </svg>
               <div>
-                <h3 className="text-lg font-semibold text-foreground mb-2">
+                <h3 className="text-foreground mb-2 text-lg font-semibold">
                   Failed to load VPN interfaces
                 </h3>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-muted-foreground text-sm">
                   Unable to retrieve VPN configuration from the router. Please check your
                   connection.
                 </p>
@@ -282,27 +293,27 @@ export const ErrorState: Story = {
 export const EmptyState: Story = {
   name: 'Empty state – no interfaces',
   render: () => (
-    <div className="min-h-screen bg-background">
+    <div className="bg-background min-h-screen">
       <div className="px-6 py-6">
-        <div className="max-w-6xl mx-auto space-y-6">
+        <div className="mx-auto max-w-6xl space-y-6">
           <div className="flex items-start justify-between">
             <div>
-              <h1 className="text-2xl font-semibold text-foreground mb-1">VPN Configuration</h1>
-              <p className="text-sm text-muted-foreground">
+              <h1 className="text-foreground mb-1 text-2xl font-semibold">VPN Configuration</h1>
+              <p className="text-muted-foreground text-sm">
                 View your VPN setup and monitor interface status
               </p>
             </div>
             <button
-              className="flex items-center gap-2 min-h-[44px] min-w-[44px] px-3 border border-border rounded-md text-sm"
+              className="border-border flex min-h-[44px] min-w-[44px] items-center gap-2 rounded-md border px-3 text-sm"
               aria-label="Refresh VPN interfaces"
             >
               Refresh
             </button>
           </div>
-          <div className="bg-card border border-border rounded-2xl p-12 text-center">
-            <div className="w-16 h-16 mx-auto mb-4 bg-muted rounded-2xl flex items-center justify-center">
+          <div className="bg-card border-border rounded-2xl border p-12 text-center">
+            <div className="bg-muted mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl">
               <svg
-                className="w-8 h-8 text-muted-foreground"
+                className="text-muted-foreground h-8 w-8"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -316,10 +327,10 @@ export const EmptyState: Story = {
                 />
               </svg>
             </div>
-            <h3 className="text-xl font-semibold text-foreground mb-2">
+            <h3 className="text-foreground mb-2 text-xl font-semibold">
               No WireGuard interfaces configured
             </h3>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-muted-foreground text-sm">
               Your router doesn&apos;t have any WireGuard VPN interfaces set up yet.
             </p>
           </div>

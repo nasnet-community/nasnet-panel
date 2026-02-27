@@ -2,7 +2,6 @@ import { Skeleton } from '@nasnet/ui/primitives';
 
 import type { Meta, StoryObj } from '@storybook/react';
 
-
 /**
  * Loading skeleton for PortKnockingPage (replicated from route file)
  * The actual PortKnockingPage is lazy-loaded from @nasnet/features/firewall,

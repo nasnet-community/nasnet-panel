@@ -28,22 +28,14 @@ interface ToggleInterfaceRequest {
  * Toggle wireless interface enabled/disabled state
  * Calls RouterOS REST API via rosproxy to update the interface
  */
-async function toggleInterface({
-  routerIp,
-  id,
-  disabled,
-}: ToggleInterfaceRequest): Promise<void> {
-  const result = await makeRouterOSRequest<void>(
-    routerIp,
-    'interface/wifi/set',
-    {
-      method: 'POST',
-      body: {
-        '.id': id,
-        disabled: disabled ? 'yes' : 'no',
-      },
-    }
-  );
+async function toggleInterface({ routerIp, id, disabled }: ToggleInterfaceRequest): Promise<void> {
+  const result = await makeRouterOSRequest<void>(routerIp, 'interface/wifi/set', {
+    method: 'POST',
+    body: {
+      '.id': id,
+      disabled: disabled ? 'yes' : 'no',
+    },
+  });
 
   if (!result.success) {
     throw new Error(result.error || 'Failed to toggle interface');
@@ -111,9 +103,7 @@ export function useToggleInterface() {
         queryClient.setQueryData<WirelessInterface[]>(
           wirelessKeys.interfaces(routerIp),
           previousInterfaces.map((iface) =>
-            iface.id === id
-              ? { ...iface, disabled, running: !disabled }
-              : iface
+            iface.id === id ? { ...iface, disabled, running: !disabled } : iface
           )
         );
       }
@@ -156,9 +146,7 @@ export function useToggleInterface() {
         variant: 'destructive',
         title: `Failed to toggle ${name}`,
         description:
-          error instanceof Error
-            ? error.message
-            : 'An error occurred. Please try again.',
+          error instanceof Error ? error.message : 'An error occurred. Please try again.',
       });
     },
   });

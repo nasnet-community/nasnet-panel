@@ -259,9 +259,7 @@ export const SaveTemplateDialog = React.memo(function SaveTemplateDialogComponen
 
       try {
         // Generate template ID
-        const existingIds = existingNames.map((name) =>
-          name.toLowerCase().replace(/\s+/g, '-')
-        );
+        const existingIds = existingNames.map((name) => name.toLowerCase().replace(/\s+/g, '-'));
         const templateId = generateTemplateId(formData.name, existingIds);
 
         // Build variables array from selected checkboxes
@@ -294,23 +292,12 @@ export const SaveTemplateDialog = React.memo(function SaveTemplateDialogComponen
         setSelectedVariables(new Set());
         setOpen(false);
       } catch (error) {
-        setSaveError(
-          error instanceof Error ? error.message : 'Failed to save template'
-        );
+        setSaveError(error instanceof Error ? error.message : 'Failed to save template');
       } finally {
         setSaving(false);
       }
     },
-    [
-      nameError,
-      potentialVariables,
-      selectedVariables,
-      rules,
-      onSave,
-      existingNames,
-      reset,
-      setOpen,
-    ]
+    [nameError, potentialVariables, selectedVariables, rules, onSave, existingNames, reset, setOpen]
   );
 
   const handleOpenChange = useCallback(
@@ -327,17 +314,20 @@ export const SaveTemplateDialog = React.memo(function SaveTemplateDialogComponen
   );
 
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
+    <Dialog
+      open={open}
+      onOpenChange={handleOpenChange}
+    >
       {trigger}
       <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-component-sm">
+          <DialogTitle className="gap-component-sm flex items-center">
             <FileText className="h-5 w-5" />
             Save as Template
           </DialogTitle>
           <DialogDescription>
-            Create a reusable template from {rules.length} firewall rule{rules.length !== 1 ? 's' : ''}.
-            Add variables to make this template customizable.
+            Create a reusable template from {rules.length} firewall rule
+            {rules.length !== 1 ? 's' : ''}. Add variables to make this template customizable.
           </DialogDescription>
         </DialogHeader>
 
@@ -353,12 +343,8 @@ export const SaveTemplateDialog = React.memo(function SaveTemplateDialogComponen
                   {...register('name')}
                   aria-invalid={!!errors.name || !!nameError}
                 />
-                {errors.name && (
-                  <p className="text-sm text-error">{errors.name.message}</p>
-                )}
-                {nameError && (
-                  <p className="text-sm text-error">{nameError.message}</p>
-                )}
+                {errors.name && <p className="text-error text-sm">{errors.name.message}</p>}
+                {nameError && <p className="text-error text-sm">{nameError.message}</p>}
               </div>
 
               {/* Description */}
@@ -372,12 +358,12 @@ export const SaveTemplateDialog = React.memo(function SaveTemplateDialogComponen
                   aria-invalid={!!errors.description}
                 />
                 {errors.description && (
-                  <p className="text-sm text-error">{errors.description.message}</p>
+                  <p className="text-error text-sm">{errors.description.message}</p>
                 )}
               </div>
 
               {/* Category and Complexity */}
-              <div className="grid grid-cols-2 gap-component-md">
+              <div className="gap-component-md grid grid-cols-2">
                 <div className="space-y-component-sm">
                   <Label htmlFor="category">Category *</Label>
                   <Select
@@ -403,7 +389,9 @@ export const SaveTemplateDialog = React.memo(function SaveTemplateDialogComponen
                   <Label htmlFor="complexity">Complexity *</Label>
                   <Select
                     defaultValue="MODERATE"
-                    onValueChange={(value) => register('complexity').onChange({ target: { value } })}
+                    onValueChange={(value) =>
+                      register('complexity').onChange({ target: { value } })
+                    }
                   >
                     <SelectTrigger id="complexity">
                       <SelectValue />
@@ -427,28 +415,25 @@ export const SaveTemplateDialog = React.memo(function SaveTemplateDialogComponen
                   {...register('version')}
                   aria-invalid={!!errors.version}
                 />
-                {errors.version && (
-                  <p className="text-sm text-error">{errors.version.message}</p>
-                )}
+                {errors.version && <p className="text-error text-sm">{errors.version.message}</p>}
               </div>
 
               {/* Variables */}
               {potentialVariables.length > 0 && (
-                <div className="space-y-3 rounded-md border border-border bg-card p-component-md">
+                <div className="border-border bg-card p-component-md space-y-3 rounded-md border">
                   <div className="flex items-center justify-between">
                     <Label>Template Variables</Label>
-                    <Badge variant="secondary">
-                      {selectedVariables.size} selected
-                    </Badge>
+                    <Badge variant="secondary">{selectedVariables.size} selected</Badge>
                   </div>
-                  <p className="text-sm text-muted-foreground">
-                    Select values to parameterize. This makes your template reusable for different networks.
+                  <p className="text-muted-foreground text-sm">
+                    Select values to parameterize. This makes your template reusable for different
+                    networks.
                   </p>
                   <div className="space-y-component-sm">
                     {potentialVariables.map((variable) => (
                       <div
                         key={variable.name}
-                        className="flex items-start space-x-component-sm rounded-md border border-border bg-card p-component-sm hover:bg-muted/50 transition-colors"
+                        className="space-x-component-sm border-border bg-card p-component-sm hover:bg-muted/50 flex items-start rounded-md border transition-colors"
                       >
                         <Checkbox
                           id={`var-${variable.name}`}
@@ -462,20 +447,19 @@ export const SaveTemplateDialog = React.memo(function SaveTemplateDialogComponen
                             className="cursor-pointer font-medium"
                           >
                             {variable.label}
-                            {variable.isRequired && (
-                              <span className="ml-1 text-error">*</span>
-                            )}
+                            {variable.isRequired && <span className="text-error ml-1">*</span>}
                           </Label>
-                          <p className="text-xs text-muted-foreground">
-                            {variable.description}
-                          </p>
+                          <p className="text-muted-foreground text-xs">{variable.description}</p>
                           {variable.defaultValue && (
-                            <code className="text-xs bg-muted px-component-sm py-1 rounded-md font-mono">
+                            <code className="bg-muted px-component-sm rounded-md py-1 font-mono text-xs">
                               Default: {variable.defaultValue}
                             </code>
                           )}
                         </div>
-                        <Badge variant="outline" className="text-xs">
+                        <Badge
+                          variant="outline"
+                          className="text-xs"
+                        >
                           {variable.type}
                         </Badge>
                       </div>
@@ -503,18 +487,20 @@ export const SaveTemplateDialog = React.memo(function SaveTemplateDialogComponen
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={saving || !!nameError}>
-              {saving ? (
+            <Button
+              type="submit"
+              disabled={saving || !!nameError}
+            >
+              {saving ?
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Saving...
                 </>
-              ) : (
-                <>
+              : <>
                   <Save className="mr-2 h-4 w-4" />
                   Save Template
                 </>
-              )}
+              }
             </Button>
           </DialogFooter>
         </form>

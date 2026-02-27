@@ -106,7 +106,10 @@ describe('FirewallLogStats', () => {
 
     it('should render loading state', () => {
       const { container } = render(
-        <FirewallLogStats logs={[]} loading />
+        <FirewallLogStats
+          logs={[]}
+          loading
+        />
       );
 
       expect(container.querySelector('.animate-pulse')).toBeInTheDocument();
@@ -524,13 +527,31 @@ describe('FirewallLogStats', () => {
     it('should use correct colors for actions', () => {
       const logs: FirewallLogEntry[] = [
         createFirewallLog({
-          parsed: { chain: 'forward', action: 'accept', srcIp: '1.1.1.1', dstIp: '2.2.2.2', protocol: 'TCP' },
+          parsed: {
+            chain: 'forward',
+            action: 'accept',
+            srcIp: '1.1.1.1',
+            dstIp: '2.2.2.2',
+            protocol: 'TCP',
+          },
         }),
         createFirewallLog({
-          parsed: { chain: 'forward', action: 'drop', srcIp: '1.1.1.1', dstIp: '2.2.2.2', protocol: 'TCP' },
+          parsed: {
+            chain: 'forward',
+            action: 'drop',
+            srcIp: '1.1.1.1',
+            dstIp: '2.2.2.2',
+            protocol: 'TCP',
+          },
         }),
         createFirewallLog({
-          parsed: { chain: 'forward', action: 'reject', srcIp: '1.1.1.1', dstIp: '2.2.2.2', protocol: 'TCP' },
+          parsed: {
+            chain: 'forward',
+            action: 'reject',
+            srcIp: '1.1.1.1',
+            dstIp: '2.2.2.2',
+            protocol: 'TCP',
+          },
         }),
       ];
 
@@ -563,7 +584,12 @@ describe('FirewallLogStats', () => {
     });
 
     it('should have no axe violations in loading state', async () => {
-      const { container } = render(<FirewallLogStats logs={[]} loading />);
+      const { container } = render(
+        <FirewallLogStats
+          logs={[]}
+          loading
+        />
+      );
 
       const results = await axe(container);
       expect(results.violations).toHaveLength(0);

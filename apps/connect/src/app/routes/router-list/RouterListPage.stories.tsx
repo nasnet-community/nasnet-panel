@@ -14,7 +14,6 @@ import { RouterListPage } from './RouterListPage';
 
 import type { Meta, StoryObj } from '@storybook/react';
 
-
 // ---------------------------------------------------------------------------
 // Minimal MemoryRouter mock
 // ---------------------------------------------------------------------------
@@ -33,9 +32,7 @@ const mockNavigate = fn().mockName('navigate');
  * Decorator that patches window.history so TanStack Router's minimal
  * in-memory history does not throw when navigate is called.
  */
-function withNavigationStub(
-  Story: React.ComponentType
-) {
+function withNavigationStub(Story: React.ComponentType) {
   return (
     <div>
       <Story />
@@ -115,7 +112,10 @@ export const InsideAppShell: Story = {
     (Story) => (
       <div className="flex h-screen">
         {/* Simulated sidebar */}
-        <aside className="w-64 shrink-0 bg-background" aria-label="Sidebar (simulated)" />
+        <aside
+          className="bg-background w-64 shrink-0"
+          aria-label="Sidebar (simulated)"
+        />
         <main className="flex-1 overflow-auto">
           <Story />
         </main>

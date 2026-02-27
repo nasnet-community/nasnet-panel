@@ -1,21 +1,24 @@
 # Accessibility
 
-NasNetConnect targets **WCAG 2.1 Level AAA** accessibility compliance. This is a non-negotiable constraint because MikroTik administrators use the UI across diverse environments — phones in server rooms, high-ambient-light conditions, assistive technologies. Every component must meet these requirements before shipping.
+NasNetConnect targets **WCAG 2.1 Level AAA** accessibility compliance. This is a non-negotiable
+constraint because MikroTik administrators use the UI across diverse environments — phones in server
+rooms, high-ambient-light conditions, assistive technologies. Every component must meet these
+requirements before shipping.
 
 ---
 
 ## Requirements Summary
 
-| Requirement | Standard | Target |
-|-------------|----------|--------|
-| Color contrast (normal text) | WCAG AAA 1.4.6 | 7:1 ratio |
-| Color contrast (large text) | WCAG AAA 1.4.6 | 4.5:1 ratio |
-| Touch target size | WCAG AAA 2.5.5 | 44×44px minimum |
-| Focus indicators | WCAG AA 2.4.7 | 3px ring, high contrast |
-| Keyboard navigation | WCAG AA 2.1.1 | Full, no mouse required |
-| Screen reader support | WCAG AA 1.3.1 | Semantic HTML + ARIA |
-| Reduced motion | WCAG 2.1 SC 2.3.3 | Respect `prefers-reduced-motion` |
-| Semantic HTML | WCAG 1.3.1 | Proper element types + ARIA labels |
+| Requirement                  | Standard          | Target                             |
+| ---------------------------- | ----------------- | ---------------------------------- |
+| Color contrast (normal text) | WCAG AAA 1.4.6    | 7:1 ratio                          |
+| Color contrast (large text)  | WCAG AAA 1.4.6    | 4.5:1 ratio                        |
+| Touch target size            | WCAG AAA 2.5.5    | 44×44px minimum                    |
+| Focus indicators             | WCAG AA 2.4.7     | 3px ring, high contrast            |
+| Keyboard navigation          | WCAG AA 2.1.1     | Full, no mouse required            |
+| Screen reader support        | WCAG AA 1.3.1     | Semantic HTML + ARIA               |
+| Reduced motion               | WCAG 2.1 SC 2.3.3 | Respect `prefers-reduced-motion`   |
+| Semantic HTML                | WCAG 1.3.1        | Proper element types + ARIA labels |
 
 ---
 
@@ -23,7 +26,8 @@ NasNetConnect targets **WCAG 2.1 Level AAA** accessibility compliance. This is a
 
 ### 7:1 Contrast Ratio for Normal Text
 
-All text at font sizes below 18pt (24px) or bold below 14pt (18.67px bold) must achieve a 7:1 contrast ratio.
+All text at font sizes below 18pt (24px) or bold below 14pt (18.67px bold) must achieve a 7:1
+contrast ratio.
 
 The design system uses semantic tokens that are pre-validated for WCAG AAA:
 
@@ -37,11 +41,13 @@ The design system uses semantic tokens that are pre-validated for WCAG AAA:
 <p className="text-gray-500">...</p>
 ```
 
-When adding custom text colors, verify the ratio with a contrast checker. Both light and dark themes must meet the requirement independently.
+When adding custom text colors, verify the ratio with a contrast checker. Both light and dark themes
+must meet the requirement independently.
 
 ### Status Colors
 
-Status colors (success green, warning amber, error red) must be paired with sufficient background contrast. Never use color as the **sole** indicator of status — always pair with an icon or label:
+Status colors (success green, warning amber, error red) must be paired with sufficient background
+contrast. Never use color as the **sole** indicator of status — always pair with an icon or label:
 
 ```tsx
 // Good — status conveyed by color AND label AND icon
@@ -56,12 +62,13 @@ Status colors (success green, warning amber, error red) must be paired with suff
 
 ## Touch Targets
 
-All interactive elements must have a minimum tap area of **44×44px** to comply with WCAG 2.5.5 and support users on mobile devices (which is a primary use case).
+All interactive elements must have a minimum tap area of **44×44px** to comply with WCAG 2.5.5 and
+support users on mobile devices (which is a primary use case).
 
 ```tsx
 // Enforce minimum touch target on icon buttons
 <button
-  className="h-11 w-11 flex items-center justify-center"
+  className="flex h-11 w-11 items-center justify-center"
   aria-label="Close panel"
 >
   <X className="h-4 w-4" />
@@ -72,7 +79,9 @@ If the visible button is smaller than 44px, add padding to expand the hit area:
 
 ```tsx
 // Icon appears small but tap area is 44px
-<button className="p-3 rounded-full">  {/* 12px padding × 2 + 20px icon = 44px */}
+<button className="rounded-full p-3">
+  {' '}
+  {/* 12px padding × 2 + 20px icon = 44px */}
   <Settings className="h-5 w-5" />
 </button>
 ```
@@ -88,7 +97,8 @@ All focusable elements must show a clearly visible focus ring. The design system
 focus-visible:ring-3 focus-visible:ring-ring focus-visible:ring-offset-2
 ```
 
-Never remove focus outlines (`outline: none`) without providing an equivalent replacement. The `focus-visible` variant ensures the ring only shows for keyboard users, not mouse clicks.
+Never remove focus outlines (`outline: none`) without providing an equivalent replacement. The
+`focus-visible` variant ensures the ring only shows for keyboard users, not mouse clicks.
 
 ```tsx
 // Correct — uses focus-visible ring
@@ -108,22 +118,22 @@ Never remove focus outlines (`outline: none`) without providing an equivalent re
 
 All features must be fully usable without a mouse. Required keyboard support:
 
-| Key | Expected behavior |
-|-----|------------------|
-| `Tab` / `Shift+Tab` | Move focus forward/backward through interactive elements |
-| `Enter` / `Space` | Activate buttons and links |
-| `Escape` | Close dialogs, drawers, dropdowns |
-| `ArrowUp` / `ArrowDown` | Navigate list items, menu options |
-| `Home` / `End` | Jump to first/last item in list |
+| Key                     | Expected behavior                                        |
+| ----------------------- | -------------------------------------------------------- |
+| `Tab` / `Shift+Tab`     | Move focus forward/backward through interactive elements |
+| `Enter` / `Space`       | Activate buttons and links                               |
+| `Escape`                | Close dialogs, drawers, dropdowns                        |
+| `ArrowUp` / `ArrowDown` | Navigate list items, menu options                        |
+| `Home` / `End`          | Jump to first/last item in list                          |
 
 Verify keyboard support with the E2E tests in `apps/connect-e2e/src/interface-management.spec.ts`:
 
 ```typescript
 test('supports keyboard navigation', async ({ page }) => {
   await page.goto('/dashboard/network');
-  await page.keyboard.press('Tab');        // Focus first element
+  await page.keyboard.press('Tab'); // Focus first element
   await page.keyboard.press('ArrowDown'); // Move in list
-  await page.keyboard.press('Enter');     // Open detail panel
+  await page.keyboard.press('Enter'); // Open detail panel
   await expect(page.getByRole('dialog')).toBeVisible();
 });
 
@@ -140,7 +150,8 @@ test('closes detail panel on escape', async ({ page }) => {
 
 ### Semantic HTML
 
-Use the correct HTML element for each purpose. This gives screen readers the right role automatically:
+Use the correct HTML element for each purpose. This gives screen readers the right role
+automatically:
 
 ```tsx
 // Good — semantic elements
@@ -179,7 +190,8 @@ When a visible label is insufficient or absent, add `aria-label` or `aria-labell
 
 ### Live Regions
 
-For status changes that happen without a page navigation (e.g., after saving a configuration), use ARIA live regions so screen readers announce the update:
+For status changes that happen without a page navigation (e.g., after saving a configuration), use
+ARIA live regions so screen readers announce the update:
 
 ```tsx
 // Status announcement — polite waits for the user to finish reading
@@ -195,7 +207,8 @@ For status changes that happen without a page navigation (e.g., after saving a c
 
 ### Skip Links
 
-A "Skip to main content" link at the top of the page allows screen reader and keyboard users to bypass repeated navigation:
+A "Skip to main content" link at the top of the page allows screen reader and keyboard users to
+bypass repeated navigation:
 
 ```tsx
 // In common.json
@@ -217,11 +230,13 @@ A "Skip to main content" link at the top of the page allows screen reader and ke
 
 ## Reduced Motion
 
-Users who have enabled "Reduce Motion" in their operating system accessibility settings must not see animations that could cause discomfort (vestibular disorders, epilepsy).
+Users who have enabled "Reduce Motion" in their operating system accessibility settings must not see
+animations that could cause discomfort (vestibular disorders, epilepsy).
 
 ### useReducedMotion Hook
 
-`libs/core/utils/src/hooks/useReducedMotion.ts` provides a React hook that tracks the `prefers-reduced-motion` media query in real time:
+`libs/core/utils/src/hooks/useReducedMotion.ts` provides a React hook that tracks the
+`prefers-reduced-motion` media query in real time:
 
 ```tsx
 import { useReducedMotion } from '@nasnet/core/utils';
@@ -230,12 +245,7 @@ function AnimatedCard({ children }) {
   const prefersReducedMotion = useReducedMotion();
 
   return (
-    <div
-      className={cn(
-        'transition-all duration-300',
-        prefersReducedMotion && 'transition-none'
-      )}
-    >
+    <div className={cn('transition-all duration-300', prefersReducedMotion && 'transition-none')}>
       {children}
     </div>
   );
@@ -243,6 +253,7 @@ function AnimatedCard({ children }) {
 ```
 
 The hook:
+
 - Returns `false` during SSR (safe default — no animations assumed)
 - Listens for system-level changes in real time (user can toggle without page reload)
 - Handles browser compatibility (`addEventListener` and deprecated `addListener` fallback)
@@ -271,7 +282,8 @@ Tailwind's `motion-reduce` variant provides CSS-level reduced-motion support:
 </div>
 ```
 
-Use **both** the hook (for JS-controlled animations like Framer Motion) and `motion-reduce:` (for CSS transitions).
+Use **both** the hook (for JS-controlled animations like Framer Motion) and `motion-reduce:` (for
+CSS transitions).
 
 ---
 
@@ -305,9 +317,7 @@ Before marking a component complete:
   >
     <DialogHeader>
       <DialogTitle id="dialog-title">Confirm Delete</DialogTitle>
-      <DialogDescription id="dialog-description">
-        This action cannot be undone.
-      </DialogDescription>
+      <DialogDescription id="dialog-description">This action cannot be undone.</DialogDescription>
     </DialogHeader>
     ...
   </DialogContent>
@@ -325,7 +335,11 @@ Before marking a component complete:
     aria-invalid={!!error}
   />
   {error && (
-    <p id="interface-name-error" role="alert" className="text-destructive text-sm">
+    <p
+      id="interface-name-error"
+      role="alert"
+      className="text-destructive text-sm"
+    >
       {error.message}
     </p>
   )}
@@ -338,7 +352,8 @@ Before marking a component complete:
 
 ### axe-core in E2E Tests
 
-The Playwright E2E test suite includes accessibility scans via `axe-core`. The `interface-management.spec.ts` file shows the pattern:
+The Playwright E2E test suite includes accessibility scans via `axe-core`. The
+`interface-management.spec.ts` file shows the pattern:
 
 ```typescript
 test('has no accessibility violations', async ({ page }) => {
@@ -360,28 +375,30 @@ test('has no accessibility violations', async ({ page }) => {
 In addition to automated scans:
 
 1. **Keyboard-only navigation** — Tab through the entire page without touching the mouse
-2. **Screen reader** — NVDA (Windows) or VoiceOver (macOS/iOS) — verify all elements are announced correctly
+2. **Screen reader** — NVDA (Windows) or VoiceOver (macOS/iOS) — verify all elements are announced
+   correctly
 3. **200% zoom** — Content must not overflow or break at double zoom
 4. **High contrast mode** — Windows High Contrast or forced-colors CSS mode
 5. **Mobile touch** — Test that all interactive elements are easily tappable on a 375px screen
 
 ### CI Accessibility Gate
 
-Accessibility checks run in CI as a **blocking gate** — builds fail if violations are detected. The CI pipeline uses Pa11y for automated WCAG checks across critical pages.
+Accessibility checks run in CI as a **blocking gate** — builds fail if violations are detected. The
+CI pipeline uses Pa11y for automated WCAG checks across critical pages.
 
 ---
 
 ## Common Pitfalls
 
-| Pitfall | Fix |
-|---------|-----|
-| `<div onClick={...}>` without `role` | Use `<button>` or add `role="button"` + `tabIndex={0}` + keyboard handler |
-| Icon buttons with no label | Add `aria-label` describing the action |
-| `outline: none` on focused elements | Replace with `focus-visible:ring-2 focus-visible:ring-ring` |
-| Status shown by color only | Add icon + text label alongside color |
-| Animated elements ignoring reduced motion | Add `motion-reduce:animate-none` or `useReducedMotion()` |
-| Modals without `aria-modal` | Add `role="dialog" aria-modal="true"` with a labeled title |
-| Form error not associated with field | Use `aria-describedby` pointing to error message id |
+| Pitfall                                   | Fix                                                                       |
+| ----------------------------------------- | ------------------------------------------------------------------------- |
+| `<div onClick={...}>` without `role`      | Use `<button>` or add `role="button"` + `tabIndex={0}` + keyboard handler |
+| Icon buttons with no label                | Add `aria-label` describing the action                                    |
+| `outline: none` on focused elements       | Replace with `focus-visible:ring-2 focus-visible:ring-ring`               |
+| Status shown by color only                | Add icon + text label alongside color                                     |
+| Animated elements ignoring reduced motion | Add `motion-reduce:animate-none` or `useReducedMotion()`                  |
+| Modals without `aria-modal`               | Add `role="dialog" aria-modal="true"` with a labeled title                |
+| Form error not associated with field      | Use `aria-describedby` pointing to error message id                       |
 
 ---
 

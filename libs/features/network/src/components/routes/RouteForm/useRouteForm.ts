@@ -11,23 +11,11 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useCheckGatewayReachability } from '@nasnet/api-client/queries';
 
-import {
-  routeFormSchema,
-  routeFormDefaults,
-  type RouteFormData,
-} from './route-form.schema';
+import { routeFormSchema, routeFormDefaults, type RouteFormData } from './route-form.schema';
 import type { RouteFormProps, ReachabilityInfo } from './types';
 
 export function useRouteForm(props: RouteFormProps) {
-  const {
-    mode,
-    initialValues,
-    routerId,
-    availableTables,
-    loading,
-    onSubmit,
-    onCancel,
-  } = props;
+  const { mode, initialValues, routerId, availableTables, loading, onSubmit, onCancel } = props;
 
   // Initialize form with React Hook Form + Zod
   const form = useForm<RouteFormData>({

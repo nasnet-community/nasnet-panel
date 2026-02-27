@@ -157,8 +157,8 @@ describe('useLeasePage', () => {
 
       expect(result.current.leases.length).toBeGreaterThan(0);
       expect(
-        result.current.leases.every(
-          (lease: DHCPLease) => lease.hostname?.toLowerCase().includes('device')
+        result.current.leases.every((lease: DHCPLease) =>
+          lease.hostname?.toLowerCase().includes('device')
         )
       ).toBe(true);
     });
@@ -179,9 +179,9 @@ describe('useLeasePage', () => {
 
       const { result } = renderHook(() => useLeasePage('192.168.1.1'));
 
-      expect(
-        result.current.leases.every((lease: DHCPLease) => lease.status === 'bound')
-      ).toBe(true);
+      expect(result.current.leases.every((lease: DHCPLease) => lease.status === 'bound')).toBe(
+        true
+      );
     });
 
     it('should filter by waiting status', () => {
@@ -204,9 +204,7 @@ describe('useLeasePage', () => {
 
       const { result } = renderHook(() => useLeasePage('192.168.1.1'));
 
-      expect(
-        result.current.leases.every((lease: DHCPLease) => !lease.dynamic)
-      ).toBe(true);
+      expect(result.current.leases.every((lease: DHCPLease) => !lease.dynamic)).toBe(true);
     });
 
     it('should return all leases when filter is "all"', () => {
@@ -225,9 +223,9 @@ describe('useLeasePage', () => {
 
       const { result } = renderHook(() => useLeasePage('192.168.1.1'));
 
-      expect(
-        result.current.leases.every((lease: DHCPLease) => lease.server === 'LAN DHCP')
-      ).toBe(true);
+      expect(result.current.leases.every((lease: DHCPLease) => lease.server === 'LAN DHCP')).toBe(
+        true
+      );
     });
 
     it('should return all leases when server filter is "all"', () => {

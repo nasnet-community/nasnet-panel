@@ -48,12 +48,12 @@ export function DeviceListItemDesktop({
       aria-label={state.ariaLabel}
       onClick={handleClick}
       className={cn(
-        'grid grid-cols-[auto_1fr_auto_auto_auto_auto] gap-4 items-center',
+        'grid grid-cols-[auto_1fr_auto_auto_auto_auto] items-center gap-4',
         'px-4 py-2.5',
-        'border-b border-border last:border-b-0',
-        onClick && 'cursor-pointer hover:bg-accent/50 active:bg-accent',
+        'border-border border-b last:border-b-0',
+        onClick && 'hover:bg-accent/50 active:bg-accent cursor-pointer',
         'transition-colors',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset',
+        'focus-visible:ring-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset',
         className
       )}
       tabIndex={onClick ? 0 : undefined}
@@ -73,20 +73,18 @@ export function DeviceListItemDesktop({
           'bg-muted'
         )}
       >
-        <DeviceIcon className="h-4 w-4 text-muted-foreground" />
+        <DeviceIcon className="text-muted-foreground h-4 w-4" />
       </div>
 
       {/* Device name and info */}
       <div className="min-w-0">
         <div className="flex items-center gap-2">
-          <span className="font-medium text-sm truncate">
-            {state.displayName}
-          </span>
+          <span className="truncate text-sm font-medium">{state.displayName}</span>
           {state.isNew && (
             <Badge
               variant="info"
               className={cn(
-                'text-xs px-1.5 py-0',
+                'px-1.5 py-0 text-xs',
                 '@media (prefers-reduced-motion: no-preference)',
                 'animate-pulse'
               )}
@@ -95,28 +93,24 @@ export function DeviceListItemDesktop({
             </Badge>
           )}
         </div>
-        <div className="flex items-center gap-2 mt-0.5">
-          <span className="text-xs text-muted-foreground">{state.ipAddress}</span>
-          <span className="text-xs text-muted-foreground">·</span>
-          <span className="text-xs text-muted-foreground font-mono">
-            {state.macAddress}
-          </span>
+        <div className="mt-0.5 flex items-center gap-2">
+          <span className="text-muted-foreground text-xs">{state.ipAddress}</span>
+          <span className="text-muted-foreground text-xs">·</span>
+          <span className="text-muted-foreground font-mono text-xs">{state.macAddress}</span>
           {state.vendor && (
             <>
-              <span className="text-xs text-muted-foreground">·</span>
-              <span className="text-xs text-muted-foreground">{state.vendor}</span>
+              <span className="text-muted-foreground text-xs">·</span>
+              <span className="text-muted-foreground text-xs">{state.vendor}</span>
             </>
           )}
         </div>
       </div>
 
       {/* Device type */}
-      <div className="text-xs text-muted-foreground whitespace-nowrap">
-        {state.deviceTypeLabel}
-      </div>
+      <div className="text-muted-foreground whitespace-nowrap text-xs">{state.deviceTypeLabel}</div>
 
       {/* Connection duration */}
-      <div className="text-xs text-muted-foreground whitespace-nowrap">
+      <div className="text-muted-foreground whitespace-nowrap text-xs">
         {state.connectionDuration}
       </div>
 
@@ -125,7 +119,10 @@ export function DeviceListItemDesktop({
 
       {/* Static lease indicator */}
       {state.isStatic && (
-        <Badge variant="outline" className="text-xs whitespace-nowrap">
+        <Badge
+          variant="outline"
+          className="whitespace-nowrap text-xs"
+        >
           Static
         </Badge>
       )}

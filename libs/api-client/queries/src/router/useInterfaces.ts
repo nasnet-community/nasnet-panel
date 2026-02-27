@@ -16,7 +16,8 @@ export const interfaceKeys = {
   all: ['interfaces'] as const,
   lists: (routerIp: string) => [...interfaceKeys.all, 'list', routerIp] as const,
   list: (routerIp: string) => [...interfaceKeys.lists(routerIp)] as const,
-  traffic: (routerIp: string, interfaceId: string) => [...interfaceKeys.all, 'traffic', routerIp, interfaceId] as const,
+  traffic: (routerIp: string, interfaceId: string) =>
+    [...interfaceKeys.all, 'traffic', routerIp, interfaceId] as const,
   arp: (routerIp: string) => ['arp', routerIp] as const,
   ipAddresses: (routerIp: string) => ['ip', 'addresses', routerIp] as const,
 };
@@ -131,7 +132,10 @@ interface RouterOSTrafficResponse {
  * @param interfaceId - RouterOS interface ID
  * @returns Traffic statistics
  */
-async function fetchTrafficStats(routerIp: string, interfaceId: string): Promise<TrafficStatistics> {
+async function fetchTrafficStats(
+  routerIp: string,
+  interfaceId: string
+): Promise<TrafficStatistics> {
   const result = await makeRouterOSRequest<RouterOSTrafficResponse>(
     routerIp,
     `interface/${interfaceId}`
@@ -183,12 +187,12 @@ export function useInterfaceTraffic(
  */
 interface RouterOSARPResponse {
   '.id': string;
-  'address': string;
+  address: string;
   'mac-address': string;
-  'interface': string;
-  'complete'?: boolean;
-  'invalid'?: boolean;
-  'dynamic'?: boolean;
+  interface: string;
+  complete?: boolean;
+  invalid?: boolean;
+  dynamic?: boolean;
 }
 
 /**
@@ -213,7 +217,10 @@ async function fetchARPTable(routerIp: string): Promise<ARPEntry[]> {
     ipAddress: entry.address,
     macAddress: entry['mac-address'],
     interface: entry.interface,
-    status: entry.invalid ? 'failed' : entry.complete ? 'complete' : 'incomplete',
+    status:
+      entry.invalid ? 'failed'
+      : entry.complete ? 'complete'
+      : 'incomplete',
     isDynamic: entry.dynamic ?? true,
   }));
 }
@@ -241,11 +248,11 @@ export function useARPTable(routerIp: string): UseQueryResult<ARPEntry[], Error>
  */
 interface RouterOSIPAddressResponse {
   '.id': string;
-  'address': string;
-  'network': string;
-  'interface': string;
-  'dynamic'?: boolean;
-  'disabled'?: boolean;
+  address: string;
+  network: string;
+  interface: string;
+  dynamic?: boolean;
+  disabled?: boolean;
 }
 
 /**

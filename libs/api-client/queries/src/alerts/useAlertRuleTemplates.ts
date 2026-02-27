@@ -6,7 +6,12 @@
  * Supports optional category filtering.
  */
 
-import { useQuery, useMutation, type QueryHookOptions, type MutationHookOptions } from '@apollo/client';
+import {
+  useQuery,
+  useMutation,
+  type QueryHookOptions,
+  type MutationHookOptions,
+} from '@apollo/client';
 
 import {
   GET_ALERT_RULE_TEMPLATES,
@@ -103,10 +108,7 @@ interface FieldError {
  * Fetch all alert rule templates with optional category filtering
  */
 export function useAlertRuleTemplates(
-  options?: QueryHookOptions<
-    { alertRuleTemplates: AlertRuleTemplate[] },
-    { category?: string }
-  >
+  options?: QueryHookOptions<{ alertRuleTemplates: AlertRuleTemplate[] }, { category?: string }>
 ) {
   return useQuery<{ alertRuleTemplates: AlertRuleTemplate[] }, { category?: string }>(
     GET_ALERT_RULE_TEMPLATES,
@@ -311,10 +313,7 @@ export function useImportAlertRuleTemplate(
  * Export an alert rule template as JSON
  */
 export function useExportAlertRuleTemplate(
-  options?: MutationHookOptions<
-    { exportAlertRuleTemplate: string },
-    { id: string }
-  >
+  options?: MutationHookOptions<{ exportAlertRuleTemplate: string }, { id: string }>
 ) {
   return useMutation<{ exportAlertRuleTemplate: string }, { id: string }>(
     EXPORT_ALERT_RULE_TEMPLATE,

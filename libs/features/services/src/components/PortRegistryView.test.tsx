@@ -56,14 +56,20 @@ vi.mock('./PortRegistryViewMobile', () => ({
   PortRegistryViewMobile: vi.fn(({ routerId }) => (
     <div data-testid="port-registry-mobile">
       <div data-testid="router-id">{routerId}</div>
-      <div data-testid="service-group-tor" role="article">
+      <div
+        data-testid="service-group-tor"
+        role="article"
+      >
         <h3>tor</h3>
         <div data-testid="port-card-1">
           <span data-testid="port-badge">9050</span>
           <span data-testid="protocol-badge">TCP</span>
         </div>
       </div>
-      <div data-testid="service-group-singbox" role="article">
+      <div
+        data-testid="service-group-singbox"
+        role="article"
+      >
         <h3>singbox</h3>
         <div data-testid="port-card-2">
           <span data-testid="port-badge">1080</span>
@@ -228,7 +234,12 @@ describe('PortRegistryView', () => {
 
       // Test with desktop
       vi.mocked(usePlatform).mockReturnValue('desktop');
-      render(<PortRegistryView routerId={mockRouterId} className={customClass} />);
+      render(
+        <PortRegistryView
+          routerId={mockRouterId}
+          className={customClass}
+        />
+      );
 
       // Desktop presenter should be rendered (className tested in presenter-specific tests)
       expect(screen.getByTestId('port-registry-desktop')).toBeInTheDocument();

@@ -1,9 +1,11 @@
 # Resource Lifecycle Machine (Universal State v2)
 
-The **Resource Lifecycle Machine** implements the **9-state Universal State v2 lifecycle** for managing individual resources (WireGuard clients, VPNs, DNS services, etc.). It handles validation, application, degradation detection, and archival with proper rollback mechanics.
+The **Resource Lifecycle Machine** implements the **9-state Universal State v2 lifecycle** for
+managing individual resources (WireGuard clients, VPNs, DNS services, etc.). It handles validation,
+application, degradation detection, and archival with proper rollback mechanics.
 
-**Source:** `libs/state/machines/src/resourceLifecycleMachine.ts`
-**Hook:** `libs/state/machines/src/hooks/useResourceLifecycle.ts`
+**Source:** `libs/state/machines/src/resourceLifecycleMachine.ts` **Hook:**
+`libs/state/machines/src/hooks/useResourceLifecycle.ts`
 
 ## Complete State Chart
 
@@ -104,17 +106,17 @@ stateDiagram-v2
 
 ## 9 Lifecycle States
 
-| State | Purpose | Key Features | Transitions |
-|-------|---------|--------------|-------------|
-| **draft** | Initial creation or edit mode | Not yet validated, user editable | EDIT (stay), VALIDATE → validating |
-| **validating** | Running validation pipeline | 7-stage validation, async, read-only | onDone → error\|valid, onError → error |
-| **valid** | Passed validation, ready to apply | Valid configuration, can apply | APPLY → applying, EDIT → draft |
-| **applying** | Being applied to router | Async operation, capturing rollback | onDone → active, onError → error |
-| **active** | Successfully running on router | Healthy state, normal operation | EDIT → draft, DEGRADE → degraded, DEPRECATE → deprecated, SYNC → syncing, RUNTIME_UPDATE |
-| **degraded** | Running but with issues | Has problems, can recover | RUNTIME_UPDATE, RECOVER → active, DEPRECATE → deprecated, EDIT → draft |
-| **error** | Failed validation or apply | Validation/apply error, can retry | RETRY → validating, EDIT → draft, RESET |
-| **deprecated** | Marked for removal | Awaiting archive decision | RESTORE → active, ARCHIVE → archived |
-| **archived** | No longer active | Final state, read-only | (no transitions) |
+| State          | Purpose                           | Key Features                         | Transitions                                                                              |
+| -------------- | --------------------------------- | ------------------------------------ | ---------------------------------------------------------------------------------------- |
+| **draft**      | Initial creation or edit mode     | Not yet validated, user editable     | EDIT (stay), VALIDATE → validating                                                       |
+| **validating** | Running validation pipeline       | 7-stage validation, async, read-only | onDone → error\|valid, onError → error                                                   |
+| **valid**      | Passed validation, ready to apply | Valid configuration, can apply       | APPLY → applying, EDIT → draft                                                           |
+| **applying**   | Being applied to router           | Async operation, capturing rollback  | onDone → active, onError → error                                                         |
+| **active**     | Successfully running on router    | Healthy state, normal operation      | EDIT → draft, DEGRADE → degraded, DEPRECATE → deprecated, SYNC → syncing, RUNTIME_UPDATE |
+| **degraded**   | Running but with issues           | Has problems, can recover            | RUNTIME_UPDATE, RECOVER → active, DEPRECATE → deprecated, EDIT → draft                   |
+| **error**      | Failed validation or apply        | Validation/apply error, can retry    | RETRY → validating, EDIT → draft, RESET                                                  |
+| **deprecated** | Marked for removal                | Awaiting archive decision            | RESTORE → active, ARCHIVE → archived                                                     |
+| **archived**   | No longer active                  | Final state, read-only               | (no transitions)                                                                         |
 
 Plus **syncing** (transient state for router sync).
 
@@ -186,22 +188,22 @@ interface ResourceLifecycleContext<TConfig = unknown> {
 
 ```typescript
 export type ResourceLifecycleEvent<TConfig = unknown> =
-  | { type: 'EDIT'; configuration: TConfig }    // Edit configuration
-  | { type: 'VALIDATE' }                         // Trigger validation
+  | { type: 'EDIT'; configuration: TConfig } // Edit configuration
+  | { type: 'VALIDATE' } // Trigger validation
   | { type: 'VALIDATION_SUCCESS'; result: ValidationResult }
   | { type: 'VALIDATION_FAILURE'; result: ValidationResult }
-  | { type: 'APPLY'; force?: boolean }           // Apply to router
+  | { type: 'APPLY'; force?: boolean } // Apply to router
   | { type: 'APPLY_SUCCESS'; generatedFields?: Record<string, unknown> }
   | { type: 'APPLY_FAILURE'; error: string; code?: string }
-  | { type: 'RUNTIME_UPDATE'; runtime: RuntimeState }  // From subscription
-  | { type: 'DEGRADE'; reason: string }          // Mark as degraded
-  | { type: 'RECOVER' }                          // Recover from degraded
-  | { type: 'DEPRECATE' }                        // Mark for removal
-  | { type: 'RESTORE' }                          // Undo deprecation
-  | { type: 'ARCHIVE' }                          // Move to archived
-  | { type: 'RETRY' }                            // Retry failed operation
-  | { type: 'RESET' }                            // Reset to draft
-  | { type: 'SYNC' }                             // Sync from router
+  | { type: 'RUNTIME_UPDATE'; runtime: RuntimeState } // From subscription
+  | { type: 'DEGRADE'; reason: string } // Mark as degraded
+  | { type: 'RECOVER' } // Recover from degraded
+  | { type: 'DEPRECATE' } // Mark for removal
+  | { type: 'RESTORE' } // Undo deprecation
+  | { type: 'ARCHIVE' } // Move to archived
+  | { type: 'RETRY' } // Retry failed operation
+  | { type: 'RESET' } // Reset to draft
+  | { type: 'SYNC' } // Sync from router
   | { type: 'SYNC_COMPLETE'; configuration: TConfig };
 ```
 
@@ -209,14 +211,14 @@ export type ResourceLifecycleEvent<TConfig = unknown> =
 
 ```typescript
 {
-  hasValidationErrors: boolean;      // validationResult.errors.length > 0
-  noValidationErrors: boolean;       // no validation errors
-  canApply: boolean;                 // validationResult.canApply && no errors
-  canRetry: boolean;                 // retryCount < maxRetries
-  hasRollbackData: boolean;          // rollbackData !== null
-  isHealthy: boolean;                // runtime.health === 'HEALTHY'
-  isDegraded: boolean;               // runtime.health in ['DEGRADED', 'CRITICAL']
-  hasUuid: boolean;                  // uuid !== null (required for validate)
+  hasValidationErrors: boolean; // validationResult.errors.length > 0
+  noValidationErrors: boolean; // no validation errors
+  canApply: boolean; // validationResult.canApply && no errors
+  canRetry: boolean; // retryCount < maxRetries
+  hasRollbackData: boolean; // rollbackData !== null
+  isHealthy: boolean; // runtime.health === 'HEALTHY'
+  isDegraded: boolean; // runtime.health in ['DEGRADED', 'CRITICAL']
+  hasUuid: boolean; // uuid !== null (required for validate)
 }
 ```
 
@@ -224,22 +226,22 @@ export type ResourceLifecycleEvent<TConfig = unknown> =
 
 ```typescript
 {
-  updateConfiguration();            // Set pending config from EDIT
-  setValidationResult();             // Store validation result
-  setRollbackData();                 // Store rollback data from apply
-  updateRuntime();                   // Update runtime state from subscription
-  setError();                        // Store error message and code
-  clearError();                      // Clear error state
-  setDegradation();                  // Mark as degraded with reason
-  clearDegradation();                // Clear degradation
-  incrementRetry();                  // Increment retry count
-  resetRetry();                      // Reset retry count to 0
-  recordTransition();                // Timestamp state change
-  applyGeneratedFields();            // Merge generated fields into config
-  syncConfiguration();               // Update from sync result
-  notifyStateChange();               // Emit state change event
-  notifyError();                     // Callback on error
-  resetContext();                    // Clear all pending state
+  updateConfiguration(); // Set pending config from EDIT
+  setValidationResult(); // Store validation result
+  setRollbackData(); // Store rollback data from apply
+  updateRuntime(); // Update runtime state from subscription
+  setError(); // Store error message and code
+  clearError(); // Clear error state
+  setDegradation(); // Mark as degraded with reason
+  clearDegradation(); // Clear degradation
+  incrementRetry(); // Increment retry count
+  resetRetry(); // Reset retry count to 0
+  recordTransition(); // Timestamp state change
+  applyGeneratedFields(); // Merge generated fields into config
+  syncConfiguration(); // Update from sync result
+  notifyStateChange(); // Emit state change event
+  notifyError(); // Callback on error
+  resetContext(); // Clear all pending state
 }
 ```
 
@@ -281,11 +283,11 @@ Helper functions for conditional UI rendering:
 
 ```typescript
 import {
-  isResourcePending,      // validating | applying | syncing
-  isResourceActive,       // active | degraded
-  isResourceEditable,     // draft | valid | active | degraded | error
-  isResourceAppliable,    // state === 'valid'
-  isResourceTerminal,     // state === 'archived'
+  isResourcePending, // validating | applying | syncing
+  isResourceActive, // active | degraded
+  isResourceEditable, // draft | valid | active | degraded | error
+  isResourceAppliable, // state === 'valid'
+  isResourceTerminal, // state === 'archived'
   getResourceStateDisplayInfo,
 } from '@nasnet/state/machines';
 
@@ -370,9 +372,7 @@ function WireGuardResourceDetail({ resource }: Props) {
       />
 
       {/* Validation errors */}
-      {validationErrors.length > 0 && (
-        <ErrorList errors={validationErrors} />
-      )}
+      {validationErrors.length > 0 && <ErrorList errors={validationErrors} />}
 
       {/* Config form */}
       <ConfigForm
@@ -386,17 +386,19 @@ function WireGuardResourceDetail({ resource }: Props) {
 
       {/* Action buttons */}
       {isAppliable && (
-        <Button onClick={() => apply()} disabled={isPending}>
+        <Button
+          onClick={() => apply()}
+          disabled={isPending}
+        >
           Apply
         </Button>
       )}
+      {isActive && <Button onClick={() => deprecate()}>Deprecate</Button>}
       {isActive && (
-        <Button onClick={() => deprecate()}>
-          Deprecate
-        </Button>
-      )}
-      {isActive && (
-        <Button onClick={() => sync()} disabled={isPending}>
+        <Button
+          onClick={() => sync()}
+          disabled={isPending}
+        >
           Sync from Router
         </Button>
       )}
@@ -467,7 +469,7 @@ useEffect(() => {
 ```typescript
 const machine = createResourceLifecycleMachine({
   // ... config ...
-  maxRetries: 3,  // 3 attempts
+  maxRetries: 3, // 3 attempts
 });
 
 // Manual retry with backoff
@@ -475,23 +477,23 @@ let retryDelay = 1000;
 const retryWithBackoff = () => {
   setTimeout(() => {
     send({ type: 'RETRY' });
-    retryDelay *= 2;  // Exponential backoff
+    retryDelay *= 2; // Exponential backoff
   }, retryDelay);
 };
 ```
 
 ## Comparing States
 
-| State | Editable | Validated | On Router | Can Apply |
-|-------|----------|-----------|-----------|-----------|
-| draft | ✓ | ✗ | ✗ | ✗ |
-| valid | ✗ | ✓ | ✗ | ✓ |
-| applying | ✗ | ✓ | ⏳ | ✗ |
-| active | ✓ | ✓ | ✓ | ✗ |
-| degraded | ✓ | ✓ | ✓ | ✗ |
-| error | ✓ | ✗ | ✗ | ✗ |
-| deprecated | ✓ | ✓ | ✓ | ✗ |
-| archived | ✗ | ✓ | ✗ | ✗ |
+| State      | Editable | Validated | On Router | Can Apply |
+| ---------- | -------- | --------- | --------- | --------- |
+| draft      | ✓        | ✗         | ✗         | ✗         |
+| valid      | ✗        | ✓         | ✗         | ✓         |
+| applying   | ✗        | ✓         | ⏳        | ✗         |
+| active     | ✓        | ✓         | ✓         | ✗         |
+| degraded   | ✓        | ✓         | ✓         | ✗         |
+| error      | ✓        | ✗         | ✗         | ✗         |
+| deprecated | ✓        | ✓         | ✓         | ✗         |
+| archived   | ✗        | ✓         | ✗         | ✗         |
 
 ## Related Documentation
 

@@ -72,33 +72,36 @@ export const PppoeWizard = memo(function PppoeWizard({
   const [configurationResult, setConfigurationResult] = useState<any>(null);
 
   // Define wizard steps with memoization
-  const steps: StepConfig[] = useMemo(() => [
-    {
-      id: 'interface',
-      title: 'Interface',
-      description: 'Select physical interface',
-    },
-    {
-      id: 'credentials',
-      title: 'Credentials',
-      description: 'ISP username and password',
-    },
-    {
-      id: 'options',
-      title: 'Options',
-      description: 'Advanced settings',
-    },
-    {
-      id: 'preview',
-      title: 'Preview',
-      description: 'Review configuration',
-    },
-    {
-      id: 'confirm',
-      title: 'Apply',
-      description: 'Confirm and apply',
-    },
-  ], []);
+  const steps: StepConfig[] = useMemo(
+    () => [
+      {
+        id: 'interface',
+        title: 'Interface',
+        description: 'Select physical interface',
+      },
+      {
+        id: 'credentials',
+        title: 'Credentials',
+        description: 'ISP username and password',
+      },
+      {
+        id: 'options',
+        title: 'Options',
+        description: 'Advanced settings',
+      },
+      {
+        id: 'preview',
+        title: 'Preview',
+        description: 'Review configuration',
+      },
+      {
+        id: 'confirm',
+        title: 'Apply',
+        description: 'Confirm and apply',
+      },
+    ],
+    []
+  );
 
   // Initialize stepper
   const stepper = useStepper({
@@ -113,9 +116,9 @@ export const PppoeWizard = memo(function PppoeWizard({
   const handleSubmit = useCallback(async () => {
     try {
       // Collect all data from stepper
-      const interfaceData = stepper.getStepData('interface') as Record<string, any> || {};
-      const credentialsData = stepper.getStepData('credentials') as Record<string, any> || {};
-      const optionsData = stepper.getStepData('options') as Record<string, any> || {};
+      const interfaceData = (stepper.getStepData('interface') as Record<string, any>) || {};
+      const credentialsData = (stepper.getStepData('credentials') as Record<string, any>) || {};
+      const optionsData = (stepper.getStepData('options') as Record<string, any>) || {};
 
       const formData: PppoeClientFormValues = {
         name: interfaceData.name || '',
@@ -165,12 +168,15 @@ export const PppoeWizard = memo(function PppoeWizard({
   return (
     <div className={cn('space-y-component-lg', className)}>
       {/* Wizard Progress Indicator */}
-      <VStepper
-        stepper={stepper}
-      />
+      <VStepper stepper={stepper} />
 
       {/* Step Content */}
-      <div className="min-h-[400px]" role="region" aria-live="polite" aria-label="Wizard step content">
+      <div
+        className="min-h-[400px]"
+        role="region"
+        aria-live="polite"
+        aria-label="Wizard step content"
+      >
         {stepper.currentStep?.id === 'interface' && (
           <PppoeInterfaceStep
             routerId={routerId}
@@ -178,13 +184,9 @@ export const PppoeWizard = memo(function PppoeWizard({
           />
         )}
 
-        {stepper.currentStep?.id === 'credentials' && (
-          <PppoeCredentialsStep stepper={stepper} />
-        )}
+        {stepper.currentStep?.id === 'credentials' && <PppoeCredentialsStep stepper={stepper} />}
 
-        {stepper.currentStep?.id === 'options' && (
-          <PppoeOptionsStep stepper={stepper} />
-        )}
+        {stepper.currentStep?.id === 'options' && <PppoeOptionsStep stepper={stepper} />}
 
         {stepper.currentStep?.id === 'preview' && (
           <PppoePreviewStep
@@ -205,7 +207,7 @@ export const PppoeWizard = memo(function PppoeWizard({
       </div>
 
       {/* Navigation Buttons */}
-      <div className="flex justify-between items-center pt-component-lg border-t border-border">
+      <div className="pt-component-lg border-border flex items-center justify-between border-t">
         <div>
           {stepper.currentIndex > 0 && !configurationResult && (
             <Button
@@ -220,7 +222,7 @@ export const PppoeWizard = memo(function PppoeWizard({
           )}
         </div>
 
-        <div className="flex gap-component-md">
+        <div className="gap-component-md flex">
           <Button
             variant="outline"
             onClick={handleCancel}
@@ -246,13 +248,13 @@ export const PppoeWizard = memo(function PppoeWizard({
 
       {/* Error Display */}
       {error && (
-        <div className="rounded-lg bg-error/10 border border-error p-component-md" role="alert" aria-live="assertive">
-          <p className="text-sm text-error font-medium">
-            Configuration Error
-          </p>
-          <p className="text-sm text-error/80 mt-component-xs">
-            {error.message}
-          </p>
+        <div
+          className="bg-error/10 border-error p-component-md rounded-lg border"
+          role="alert"
+          aria-live="assertive"
+        >
+          <p className="text-error text-sm font-medium">Configuration Error</p>
+          <p className="text-error/80 mt-component-xs text-sm">{error.message}</p>
         </div>
       )}
     </div>

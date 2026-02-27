@@ -101,7 +101,7 @@ function SkipLinks({ links = defaultLinks, className }: SkipLinksProps) {
     <div
       className={cn(
         // Container styling
-        'fixed top-0 left-0 z-[9999] flex flex-col gap-2 p-4',
+        'fixed left-0 top-0 z-[9999] flex flex-col gap-2 p-4',
         className
       )}
       role="navigation"
@@ -121,11 +121,11 @@ function SkipLinks({ links = defaultLinks, className }: SkipLinksProps) {
             'focus:static focus:translate-y-0 focus:opacity-100',
             'focus:pointer-events-auto',
             // Visual styling
-            'rounded-lg bg-primary px-4 py-3',
-            'text-sm font-semibold text-primary-foreground',
+            'bg-primary rounded-lg px-4 py-3',
+            'text-primary-foreground text-sm font-semibold',
             'shadow-lg',
             // Focus ring
-            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+            'focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
             'focus-visible:ring-offset-background',
             // Hover state (when visible)
             'hover:bg-primary/90',
@@ -178,13 +178,13 @@ function SkipLink({ href, children, className }: SkipLinkProps) {
         'sr-only',
         // Visible when focused
         'focus:not-sr-only',
-        'focus:fixed focus:top-4 focus:left-4 focus:z-[9999]',
+        'focus:fixed focus:left-4 focus:top-4 focus:z-[9999]',
         // Visual styling
-        'focus:rounded-lg focus:bg-primary focus:px-4 focus:py-3',
-        'focus:text-sm focus:font-semibold focus:text-primary-foreground',
+        'focus:bg-primary focus:rounded-lg focus:px-4 focus:py-3',
+        'focus:text-primary-foreground focus:text-sm focus:font-semibold',
         'focus:shadow-lg',
         // Focus ring
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+        'focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
         'focus-visible:ring-offset-background',
         // Touch target
         'focus:min-h-[44px] focus:min-w-[44px]',

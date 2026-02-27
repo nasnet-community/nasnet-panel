@@ -31,7 +31,7 @@
  * });
  * ```
  */
-export declare const authLink: import("@apollo/client").ApolloLink;
+export declare const authLink: import('@apollo/client').ApolloLink;
 /**
  * Create auth link with custom token getter.
  *
@@ -40,5 +40,7 @@ export declare const authLink: import("@apollo/client").ApolloLink;
  * @param getToken - Custom token getter function
  * @returns Apollo context link
  */
-export declare function createAuthLink(getToken: () => string | null): import("@apollo/client").ApolloLink;
+export declare function createAuthLink(
+  getToken: () => string | null
+): import('@apollo/client').ApolloLink;
 //# sourceMappingURL=apollo-auth-link.d.ts.map

@@ -12,7 +12,13 @@ export * from './alert-rule-templates.graphql';
 export * from './alert-templates.graphql';
 export * from './digest.graphql';
 export * from './useAlertRuleTemplates';
-export { useAlertEscalations, useAlertWithEscalation, useActiveEscalations, type AlertEscalation as AlertEscalationEntry, type UseAlertEscalationsOptions, } from './useAlertEscalations';
+export {
+  useAlertEscalations,
+  useAlertWithEscalation,
+  useActiveEscalations,
+  type AlertEscalation as AlertEscalationEntry,
+  type UseAlertEscalationsOptions,
+} from './useAlertEscalations';
 export * from './useAlertTemplates';
 export * from './useAlertTemplate';
 export * from './useSaveAlertTemplate';

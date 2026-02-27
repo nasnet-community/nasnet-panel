@@ -7,10 +7,7 @@
  * @module @/components/skeletons/ResourceListSkeleton
  */
 
-import {
-  Skeleton,
-  SkeletonTable,
- cn } from '@nasnet/ui/primitives';
+import { Skeleton, SkeletonTable, cn } from '@nasnet/ui/primitives';
 
 export interface ResourceListSkeletonProps {
   /** Number of rows to display */
@@ -89,7 +86,7 @@ export function ResourceListSkeleton({
       )}
 
       {/* Table */}
-      <div className="rounded-card-sm border border-border bg-card shadow-sm">
+      <div className="rounded-card-sm border-border bg-card border shadow-sm">
         <SkeletonTable
           rows={rows}
           columns={columns}

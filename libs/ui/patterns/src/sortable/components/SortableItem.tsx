@@ -96,17 +96,13 @@ const SortableItemInner: React.FC<SortableItemProps> = ({
         'rounded-[var(--semantic-radius-card)]',
         'transition-shadow duration-200',
         // Dragging styles
-        isDragging && [
-          'opacity-90',
-          'shadow-lg',
-          'ring-2 ring-primary',
-        ],
+        isDragging && ['opacity-90', 'shadow-lg', 'ring-primary ring-2'],
         // Over styles (when another item is being dragged over this one)
-        isOverItem && 'ring-2 ring-primary/30',
+        isOverItem && 'ring-primary/30 ring-2',
         // Selected styles
-        isSelected && !isDragging && 'ring-2 ring-primary/30 bg-primary/5',
+        isSelected && !isDragging && 'ring-primary/30 bg-primary/5 ring-2',
         // Disabled styles
-        disabled && 'opacity-50 cursor-not-allowed',
+        disabled && 'cursor-not-allowed opacity-50',
         className
       )}
       layout={isSorting}
@@ -114,15 +110,13 @@ const SortableItemInner: React.FC<SortableItemProps> = ({
       {...attributes}
     >
       {/* Drop zone indicator (top) */}
-      <DropZoneIndicator visible={isOverItem && !isDragging} position="before" />
+      <DropZoneIndicator
+        visible={isOverItem && !isDragging}
+        position="before"
+      />
 
       {/* Item content wrapper */}
-      <div
-        className={cn(
-          'flex items-center gap-component-md',
-          context?.showDragHandle && 'pl-0',
-        )}
-      >
+      <div className={cn('gap-component-md flex items-center', context?.showDragHandle && 'pl-0')}>
         {/* Drag handle */}
         {context?.showDragHandle && (
           <DragHandle
@@ -137,12 +131,12 @@ const SortableItemInner: React.FC<SortableItemProps> = ({
           <span
             className={cn(
               'flex-shrink-0',
-              'w-8 h-8',
+              'h-8 w-8',
               'flex items-center justify-center',
               'text-sm font-medium',
               'text-muted-foreground',
               'bg-muted/50',
-              'rounded-md',
+              'rounded-md'
             )}
             aria-hidden="true"
           >
@@ -153,10 +147,10 @@ const SortableItemInner: React.FC<SortableItemProps> = ({
         {/* Item content */}
         <div
           className={cn(
-            'flex-1 min-w-0',
+            'min-w-0 flex-1',
             'text-foreground',
             // If no drag handle, make entire item draggable
-            !context?.showDragHandle && 'cursor-grab active:cursor-grabbing',
+            !context?.showDragHandle && 'cursor-grab active:cursor-grabbing'
           )}
           {...(!context?.showDragHandle ? listeners : {})}
         >
@@ -165,7 +159,10 @@ const SortableItemInner: React.FC<SortableItemProps> = ({
       </div>
 
       {/* Drop zone indicator (bottom) */}
-      <DropZoneIndicator visible={isOverItem && !isDragging} position="after" />
+      <DropZoneIndicator
+        visible={isOverItem && !isDragging}
+        position="after"
+      />
     </motion.div>
   );
 };
@@ -214,7 +211,7 @@ const SortableItemWithActionsInner: React.FC<SortableItemWithActionsProps> = ({
   return (
     <SortableItem {...props}>
       <div className="flex items-center gap-2">
-        <div className="flex-1 min-w-0">{props.children}</div>
+        <div className="min-w-0 flex-1">{props.children}</div>
 
         {showMoveButtons && (
           <div className="flex flex-col gap-0.5">
@@ -223,10 +220,10 @@ const SortableItemWithActionsInner: React.FC<SortableItemWithActionsProps> = ({
               onClick={onMoveUp}
               disabled={isFirst || props.disabled}
               className={cn(
-                'p-1 rounded hover:bg-muted',
+                'hover:bg-muted rounded p-1',
                 'transition-colors',
                 'text-muted-foreground hover:text-foreground',
-                'disabled:opacity-50 disabled:cursor-not-allowed',
+                'disabled:cursor-not-allowed disabled:opacity-50'
               )}
               aria-label="Move up"
             >
@@ -249,10 +246,10 @@ const SortableItemWithActionsInner: React.FC<SortableItemWithActionsProps> = ({
               onClick={onMoveDown}
               disabled={isLast || props.disabled}
               className={cn(
-                'p-1 rounded hover:bg-muted',
+                'hover:bg-muted rounded p-1',
                 'transition-colors',
                 'text-muted-foreground hover:text-foreground',
-                'disabled:opacity-50 disabled:cursor-not-allowed',
+                'disabled:cursor-not-allowed disabled:opacity-50'
               )}
               aria-label="Move down"
             >

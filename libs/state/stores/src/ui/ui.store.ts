@@ -189,8 +189,7 @@ export const useUIStore = create<UIState & UIActions>()(
 
         setCompactMode: (compact) => set({ compactMode: compact }),
 
-        toggleCompactMode: () =>
-          set((state) => ({ compactMode: !state.compactMode })),
+        toggleCompactMode: () => set((state) => ({ compactMode: !state.compactMode })),
 
         setAnimationsEnabled: (enabled) => set({ animationsEnabled: enabled }),
 
@@ -199,8 +198,7 @@ export const useUIStore = create<UIState & UIActions>()(
 
         setHideHostnames: (hide) => set({ hideHostnames: hide }),
 
-        toggleHideHostnames: () =>
-          set((state) => ({ hideHostnames: !state.hideHostnames })),
+        toggleHideHostnames: () => set((state) => ({ hideHostnames: !state.hideHostnames })),
 
         resetPreferences: () =>
           set({
@@ -232,7 +230,9 @@ export const useUIStore = create<UIState & UIActions>()(
     ),
     {
       name: 'ui-store',
-      enabled: typeof window !== 'undefined' && (typeof import.meta !== 'undefined' ? import.meta.env?.DEV !== false : true),
+      enabled:
+        typeof window !== 'undefined' &&
+        (typeof import.meta !== 'undefined' ? import.meta.env?.DEV !== false : true),
     }
   )
 );

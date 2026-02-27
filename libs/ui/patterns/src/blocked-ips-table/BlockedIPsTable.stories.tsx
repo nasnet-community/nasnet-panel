@@ -33,7 +33,9 @@ import type { UseBlockedIPsTableReturn } from './use-blocked-ips-table';
 /**
  * Helper to create a UseBlockedIPsTableReturn mock
  */
-function createMockBlockedIPsTable(blockedIPs: typeof mockBlockedIPs = mockBlockedIPs): UseBlockedIPsTableReturn {
+function createMockBlockedIPsTable(
+  blockedIPs: typeof mockBlockedIPs = mockBlockedIPs
+): UseBlockedIPsTableReturn {
   return {
     filteredBlockedIPs: blockedIPs,
     totalCount: blockedIPs.length,
@@ -379,8 +381,7 @@ export const DynamicOnly: Story = {
   parameters: {
     docs: {
       description: {
-        story:
-          'Only dynamic blocks with timeouts. All show blue badges and expiration times.',
+        story: 'Only dynamic blocks with timeouts. All show blue badges and expiration times.',
       },
     },
   },

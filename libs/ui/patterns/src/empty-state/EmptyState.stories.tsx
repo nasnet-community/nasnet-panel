@@ -6,15 +6,7 @@
  * throughout the app when lists or pages have no data to show.
  */
 
-import {
-  Shield,
-  Wifi,
-  Server,
-  FileText,
-  Bell,
-  Search,
-  Database,
-} from 'lucide-react';
+import { Shield, Wifi, Server, FileText, Bell, Search, Database } from 'lucide-react';
 
 import { EmptyState } from './EmptyState';
 

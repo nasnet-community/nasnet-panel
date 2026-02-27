@@ -99,42 +99,51 @@ function MasqueradeQuickDialogInner({
     onOpenChange(false);
   }, [form, onOpenChange]);
 
-  const handleCreate = useCallback(async (data: MasqueradeForm) => {
-    setIsCreating(true);
-    try {
-      await createMasquerade.mutateAsync({
-        outInterface: data.outInterface,
-        comment: data.comment || `Masquerade on ${data.outInterface}`,
-      });
+  const handleCreate = useCallback(
+    async (data: MasqueradeForm) => {
+      setIsCreating(true);
+      try {
+        await createMasquerade.mutateAsync({
+          outInterface: data.outInterface,
+          comment: data.comment || `Masquerade on ${data.outInterface}`,
+        });
 
-      // Success toast
-      toast({
-        title: 'Masquerade Rule Created',
-        description: `Successfully created masquerade rule on ${data.outInterface}.`,
-        variant: 'default',
-      });
+        // Success toast
+        toast({
+          title: 'Masquerade Rule Created',
+          description: `Successfully created masquerade rule on ${data.outInterface}.`,
+          variant: 'default',
+        });
 
-      // Close dialog and trigger success callback
-      handleClose();
-      onSuccess?.();
-    } catch (error) {
-      // Error toast
-      toast({
-        title: 'Failed to Create Masquerade Rule',
-        description: error instanceof Error ? error.message : 'Unable to create masquerade rule. Please try again.',
-        variant: 'destructive',
-      });
-    } finally {
-      setIsCreating(false);
-    }
-  }, [createMasquerade, handleClose, onSuccess]);
+        // Close dialog and trigger success callback
+        handleClose();
+        onSuccess?.();
+      } catch (error) {
+        // Error toast
+        toast({
+          title: 'Failed to Create Masquerade Rule',
+          description:
+            error instanceof Error ?
+              error.message
+            : 'Unable to create masquerade rule. Please try again.',
+          variant: 'destructive',
+        });
+      } finally {
+        setIsCreating(false);
+      }
+    },
+    [createMasquerade, handleClose, onSuccess]
+  );
 
   // ========================================
   // Render
   // ========================================
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog
+      open={open}
+      onOpenChange={onOpenChange}
+    >
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>Quick Masquerade</DialogTitle>
@@ -143,7 +152,10 @@ function MasqueradeQuickDialogInner({
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={form.handleSubmit(handleCreate)} className="space-y-component-md">
+        <form
+          onSubmit={form.handleSubmit(handleCreate)}
+          className="space-y-component-md"
+        >
           {/* Output Interface */}
           <div className="space-y-component-sm">
             <Label htmlFor="outInterface">
@@ -153,13 +165,19 @@ function MasqueradeQuickDialogInner({
               name="outInterface"
               control={form.control}
               render={({ field }) => (
-                <Select value={field.value} onValueChange={field.onChange}>
+                <Select
+                  value={field.value}
+                  onValueChange={field.onChange}
+                >
                   <SelectTrigger id="outInterface">
                     <SelectValue placeholder="Select WAN interface" />
                   </SelectTrigger>
                   <SelectContent>
                     {wanInterfaces.map((iface) => (
-                      <SelectItem key={iface} value={iface}>
+                      <SelectItem
+                        key={iface}
+                        value={iface}
+                      >
                         <span className="font-mono">{iface}</span>
                       </SelectItem>
                     ))}
@@ -168,11 +186,9 @@ function MasqueradeQuickDialogInner({
               )}
             />
             {form.formState.errors.outInterface && (
-              <p className="text-sm text-error">
-                {form.formState.errors.outInterface.message}
-              </p>
+              <p className="text-error text-sm">{form.formState.errors.outInterface.message}</p>
             )}
-            <p className="text-xs text-muted-foreground">
+            <p className="text-muted-foreground text-xs">
               Select the WAN interface for outbound traffic masquerading
             </p>
           </div>
@@ -194,30 +210,32 @@ function MasqueradeQuickDialogInner({
                 />
               )}
             />
-            <p className="text-xs text-muted-foreground">
-              Defaults to "Masquerade on [interface]"
-            </p>
+            <p className="text-muted-foreground text-xs">Defaults to "Masquerade on [interface]"</p>
           </div>
 
           {/* Help Text */}
-          <div className={cn(
-            'rounded-md border p-component-md',
-            'bg-info/10',
-            'border-info/30'
-          )}>
-            <p className="text-sm text-foreground">
-              <strong>What is masquerading?</strong> Masquerade automatically translates internal
-              IP addresses to the router's WAN IP for outbound traffic. This is typically used for
-              home and office networks to share a single public IP address.
+          <div className={cn('p-component-md rounded-md border', 'bg-info/10', 'border-info/30')}>
+            <p className="text-foreground text-sm">
+              <strong>What is masquerading?</strong> Masquerade automatically translates internal IP
+              addresses to the router's WAN IP for outbound traffic. This is typically used for home
+              and office networks to share a single public IP address.
             </p>
           </div>
 
           {/* Dialog Footer */}
           <DialogFooter className="gap-component-sm">
-            <Button type="button" variant="outline" onClick={handleClose} disabled={isCreating}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleClose}
+              disabled={isCreating}
+            >
               Cancel
             </Button>
-            <Button type="submit" disabled={isCreating}>
+            <Button
+              type="submit"
+              disabled={isCreating}
+            >
               {isCreating ? 'Creating...' : 'Create Masquerade Rule'}
             </Button>
           </DialogFooter>

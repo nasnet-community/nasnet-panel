@@ -33,13 +33,16 @@ export const SecurityLevelBadge = React.memo(function SecurityLevelBadge({
   return (
     <div
       className={cn(
-        'inline-flex items-center gap-component-sm px-component-sm py-component-xs rounded-[var(--semantic-radius-badge)] text-xs font-medium',
+        'gap-component-sm px-component-sm py-component-xs inline-flex items-center rounded-[var(--semantic-radius-badge)] text-xs font-medium',
         config.className,
         className
       )}
       aria-label={`Security level: ${config.label}`}
     >
-      <config.icon className="h-3.5 w-3.5" aria-hidden="true" />
+      <config.icon
+        className="h-3.5 w-3.5"
+        aria-hidden="true"
+      />
       <span>{config.label}</span>
     </div>
   );

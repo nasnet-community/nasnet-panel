@@ -1,7 +1,7 @@
 {
   "id": "error-handling",
   "title": "Error Handling & Structured Logging",
-  "description": "Hierarchical error types, automatic log-level routing, GraphQL error presentation, and sensitive-data redaction across the NasNetConnect backend.",
+  "description": "Hierarchical error types, automatic log-level routing, GraphQL error presentation, and",
   "source": "@site/../backend/docs/error-handling.md",
   "sourceDirName": ".",
   "slug": "/error-handling",

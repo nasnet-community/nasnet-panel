@@ -111,7 +111,8 @@ describe('inferActionFromPrefix', () => {
 describe('parseFirewallLogMessage', () => {
   describe('Format 1: No prefix', () => {
     it('parses TCP log with ports', () => {
-      const message = 'forward: in:ether1 out:bridge1, proto TCP, 192.168.1.100:54321->10.0.0.1:443, len 52';
+      const message =
+        'forward: in:ether1 out:bridge1, proto TCP, 192.168.1.100:54321->10.0.0.1:443, len 52';
       const parsed = parseFirewallLogMessage(message);
 
       expect(parsed.chain).toBe('forward');
@@ -128,7 +129,8 @@ describe('parseFirewallLogMessage', () => {
     });
 
     it('parses UDP log with ports', () => {
-      const message = 'input: in:ether1 out:(unknown 0), proto UDP, 8.8.8.8:53->192.168.1.1:12345, len 64';
+      const message =
+        'input: in:ether1 out:(unknown 0), proto UDP, 8.8.8.8:53->192.168.1.1:12345, len 64';
       const parsed = parseFirewallLogMessage(message);
 
       expect(parsed.chain).toBe('input');
@@ -143,7 +145,8 @@ describe('parseFirewallLogMessage', () => {
     });
 
     it('parses ICMP log without ports', () => {
-      const message = 'input: in:ether1 out:(unknown 0), proto ICMP (type 8, code 0), 8.8.8.8->192.168.1.1, len 84';
+      const message =
+        'input: in:ether1 out:(unknown 0), proto ICMP (type 8, code 0), 8.8.8.8->192.168.1.1, len 84';
       const parsed = parseFirewallLogMessage(message);
 
       expect(parsed.chain).toBe('input');
@@ -156,7 +159,8 @@ describe('parseFirewallLogMessage', () => {
     });
 
     it('parses output chain', () => {
-      const message = 'output: in:(unknown 0) out:ether1, proto TCP, 192.168.1.1:443->8.8.8.8:54321';
+      const message =
+        'output: in:(unknown 0) out:ether1, proto TCP, 192.168.1.1:443->8.8.8.8:54321';
       const parsed = parseFirewallLogMessage(message);
 
       expect(parsed.chain).toBe('output');
@@ -167,7 +171,8 @@ describe('parseFirewallLogMessage', () => {
 
   describe('Format 2: With prefix', () => {
     it('parses DROP prefix log', () => {
-      const message = 'DROPPED-WAN forward: in:ether1 out:bridge1, proto TCP, 192.168.1.100:54321->10.0.0.1:443';
+      const message =
+        'DROPPED-WAN forward: in:ether1 out:bridge1, proto TCP, 192.168.1.100:54321->10.0.0.1:443';
       const parsed = parseFirewallLogMessage(message);
 
       expect(parsed.prefix).toBe('DROPPED-WAN');
@@ -177,7 +182,8 @@ describe('parseFirewallLogMessage', () => {
     });
 
     it('parses ACCEPT prefix log', () => {
-      const message = 'ACCEPTED-LAN input: in:bridge1, proto TCP, 192.168.1.100:12345->192.168.1.1:22';
+      const message =
+        'ACCEPTED-LAN input: in:bridge1, proto TCP, 192.168.1.100:12345->192.168.1.1:22';
       const parsed = parseFirewallLogMessage(message);
 
       expect(parsed.prefix).toBe('ACCEPTED-LAN');
@@ -194,7 +200,8 @@ describe('parseFirewallLogMessage', () => {
     });
 
     it('parses BLOCK prefix log', () => {
-      const message = 'BLOCKED-EXTERNAL forward: in:ether1, proto UDP, 8.8.8.8:53->192.168.1.100:53';
+      const message =
+        'BLOCKED-EXTERNAL forward: in:ether1, proto UDP, 8.8.8.8:53->192.168.1.100:53';
       const parsed = parseFirewallLogMessage(message);
 
       expect(parsed.prefix).toBe('BLOCKED-EXTERNAL');
@@ -311,7 +318,8 @@ describe('parseFirewallLogMessage', () => {
 
   describe('Real-world RouterOS examples', () => {
     it('parses typical WAN drop log', () => {
-      const message = 'DROPPED-WAN input: in:ether1 out:(unknown 0), proto TCP (SYN), 123.45.67.89:12345->192.168.1.1:22, NAT, len 60';
+      const message =
+        'DROPPED-WAN input: in:ether1 out:(unknown 0), proto TCP (SYN), 123.45.67.89:12345->192.168.1.1:22, NAT, len 60';
       const parsed = parseFirewallLogMessage(message);
 
       expect(parsed.prefix).toBe('DROPPED-WAN');
@@ -326,7 +334,8 @@ describe('parseFirewallLogMessage', () => {
     });
 
     it('parses LAN to WAN forward log', () => {
-      const message = 'forward: in:bridge1 out:ether1, proto TCP (ACK), 192.168.1.100:54321->8.8.8.8:443, NAT (192.168.1.1:54321->8.8.8.8:443), len 52';
+      const message =
+        'forward: in:bridge1 out:ether1, proto TCP (ACK), 192.168.1.100:54321->8.8.8.8:443, NAT (192.168.1.1:54321->8.8.8.8:443), len 52';
       const parsed = parseFirewallLogMessage(message);
 
       expect(parsed.chain).toBe('forward');
@@ -337,7 +346,8 @@ describe('parseFirewallLogMessage', () => {
     });
 
     it('parses DNS query log', () => {
-      const message = 'output: in:(unknown 0) out:ether1, proto UDP, 192.168.1.1:53->8.8.8.8:53, len 73';
+      const message =
+        'output: in:(unknown 0) out:ether1, proto UDP, 192.168.1.1:53->8.8.8.8:53, len 73';
       const parsed = parseFirewallLogMessage(message);
 
       expect(parsed.chain).toBe('output');
@@ -347,7 +357,8 @@ describe('parseFirewallLogMessage', () => {
     });
 
     it('parses ping (ICMP echo request)', () => {
-      const message = 'input: in:ether1 out:(unknown 0), proto ICMP (type 8, code 0), 8.8.8.8->192.168.1.1, len 84';
+      const message =
+        'input: in:ether1 out:(unknown 0), proto ICMP (type 8, code 0), 8.8.8.8->192.168.1.1, len 84';
       const parsed = parseFirewallLogMessage(message);
 
       expect(parsed.chain).toBe('input');
@@ -376,7 +387,8 @@ describe('parseFirewallLogMessage', () => {
     });
 
     it('handles VLAN interfaces', () => {
-      const message = 'forward: in:ether1-vlan10 out:ether2-vlan20, proto TCP, 192.168.1.1:80->10.0.0.1:443';
+      const message =
+        'forward: in:ether1-vlan10 out:ether2-vlan20, proto TCP, 192.168.1.1:80->10.0.0.1:443';
       const parsed = parseFirewallLogMessage(message);
 
       expect(parsed.interfaceIn).toBe('ether1-vlan10');
@@ -398,7 +410,9 @@ describe('parseFirewallLogMessage', () => {
 
 describe('isValidParsedLog', () => {
   it('validates complete log entry', () => {
-    const parsed = parseFirewallLogMessage('forward: in:ether1, proto TCP, 192.168.1.1:80->10.0.0.1:443');
+    const parsed = parseFirewallLogMessage(
+      'forward: in:ether1, proto TCP, 192.168.1.1:80->10.0.0.1:443'
+    );
     expect(isValidParsedLog(parsed)).toBe(true);
   });
 

@@ -16,100 +16,103 @@ import type { FirewallLogEntry, FirewallLogChain, InferredAction } from '@nasnet
  * Follows TanStack Query best practices for hierarchical keys
  */
 export declare const firewallLogKeys: {
-    all: (routerId: string) => readonly ["firewall", string, "logs"];
-    list: (routerId: string, filters?: FirewallLogFilters) => readonly ["firewall", string, "logs", "list", FirewallLogFilters | undefined];
-    stats: (routerId: string) => readonly ["firewall", string, "logs", "stats"];
+  all: (routerId: string) => readonly ['firewall', string, 'logs'];
+  list: (
+    routerId: string,
+    filters?: FirewallLogFilters
+  ) => readonly ['firewall', string, 'logs', 'list', FirewallLogFilters | undefined];
+  stats: (routerId: string) => readonly ['firewall', string, 'logs', 'stats'];
 };
 /**
  * Client-side filtering options for firewall logs
  */
 export interface FirewallLogFilters {
-    /**
-     * Filter by chain (input/forward/output)
-     */
-    chain?: FirewallLogChain;
-    /**
-     * Filter by action (accept/drop/reject/unknown)
-     */
-    action?: InferredAction;
-    /**
-     * Filter by source IP (supports wildcards: 192.168.*.*)
-     */
-    srcIp?: string;
-    /**
-     * Filter by destination IP (supports wildcards: 10.0.*.*)
-     */
-    dstIp?: string;
-    /**
-     * Filter by port (single port or range: "80" or "8000-9000")
-     */
-    port?: string;
-    /**
-     * Filter by log prefix
-     */
-    prefix?: string;
-    /**
-     * Maximum number of entries to return (client-side limit)
-     * Default: 100, Max: 500
-     */
-    limit?: number;
+  /**
+   * Filter by chain (input/forward/output)
+   */
+  chain?: FirewallLogChain;
+  /**
+   * Filter by action (accept/drop/reject/unknown)
+   */
+  action?: InferredAction;
+  /**
+   * Filter by source IP (supports wildcards: 192.168.*.*)
+   */
+  srcIp?: string;
+  /**
+   * Filter by destination IP (supports wildcards: 10.0.*.*)
+   */
+  dstIp?: string;
+  /**
+   * Filter by port (single port or range: "80" or "8000-9000")
+   */
+  port?: string;
+  /**
+   * Filter by log prefix
+   */
+  prefix?: string;
+  /**
+   * Maximum number of entries to return (client-side limit)
+   * Default: 100, Max: 500
+   */
+  limit?: number;
 }
 /**
  * Hook options for useFirewallLogs
  */
 export interface UseFirewallLogsOptions {
-    /**
-     * Client-side filters
-     */
-    filters?: FirewallLogFilters;
-    /**
-     * Enable/disable the query
-     */
-    enabled?: boolean;
-    /**
-     * Polling interval in milliseconds
-     * Default: 5000 (5 seconds)
-     * Set to false to disable polling
-     */
-    refetchInterval?: number | false;
-    /**
-     * Maximum entries per API request
-     * Default: 500
-     */
-    pageSize?: number;
+  /**
+   * Client-side filters
+   */
+  filters?: FirewallLogFilters;
+  /**
+   * Enable/disable the query
+   */
+  enabled?: boolean;
+  /**
+   * Polling interval in milliseconds
+   * Default: 5000 (5 seconds)
+   * Set to false to disable polling
+   */
+  refetchInterval?: number | false;
+  /**
+   * Maximum entries per API request
+   * Default: 500
+   */
+  pageSize?: number;
 }
 /**
  * Statistics for firewall logs
  */
 export interface FirewallLogStats {
-    /**
-     * Top blocked IPs (top 10)
-     */
-    topBlockedIps: Array<{
-        ip: string;
-        count: number;
-    }>;
-    /**
-     * Top destination ports (top 10)
-     */
-    topPorts: Array<{
-        port: number;
-        count: number;
-        protocol: string;
-    }>;
-    /**
-     * Action distribution counts
-     */
-    actionCounts: {
-        accept: number;
-        drop: number;
-        reject: number;
-        unknown: number;
-    };
-    /**
-     * Total log entries
-     */
-    total: number;
+  /**
+   * Top blocked IPs (top 10)
+   */
+  topBlockedIps: Array<{
+    ip: string;
+    count: number;
+  }>;
+  /**
+   * Top destination ports (top 10)
+   */
+  topPorts: Array<{
+    port: number;
+    count: number;
+    protocol: string;
+  }>;
+  /**
+   * Action distribution counts
+   */
+  actionCounts: {
+    accept: number;
+    drop: number;
+    reject: number;
+    unknown: number;
+  };
+  /**
+   * Total log entries
+   */
+  total: number;
 }
 /**
  * Hook to fetch firewall logs with polling and filtering
@@ -134,7 +137,10 @@ export interface FirewallLogStats {
  *   refetchInterval: 5000, // Poll every 5 seconds
  * });
  */
-export declare function useFirewallLogs(routerId: string, options?: UseFirewallLogsOptions): UseQueryResult<FirewallLogEntry[], Error>;
+export declare function useFirewallLogs(
+  routerId: string,
+  options?: UseFirewallLogsOptions
+): UseQueryResult<FirewallLogEntry[], Error>;
 /**
  * Hook to compute firewall log statistics
  *
@@ -151,5 +157,8 @@ export declare function useFirewallLogs(routerId: string, options?: UseFirewallL
  * const { data: stats } = useFirewallLogStats('router-1');
  * console.log(stats?.topBlockedIps); // [{ ip: '1.2.3.4', count: 42 }, ...]
  */
-export declare function useFirewallLogStats(routerId: string, options?: Omit<UseFirewallLogsOptions, 'filters'>): UseQueryResult<FirewallLogStats, Error>;
+export declare function useFirewallLogStats(
+  routerId: string,
+  options?: Omit<UseFirewallLogsOptions, 'filters'>
+): UseQueryResult<FirewallLogStats, Error>;
 //# sourceMappingURL=useFirewallLogs.d.ts.map

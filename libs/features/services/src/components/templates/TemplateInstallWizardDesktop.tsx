@@ -16,22 +16,11 @@ import * as React from 'react';
 import { memo, useEffect, useCallback } from 'react';
 import { Check } from 'lucide-react';
 
-import {
-  Button,
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@nasnet/ui/primitives';
+import { Button, Dialog, DialogContent, DialogHeader, DialogTitle } from '@nasnet/ui/primitives';
 import { cn } from '@nasnet/ui/utils';
 
 import { useTemplateInstallWizard } from './useTemplateInstallWizard';
-import {
-  VariablesStep,
-  ReviewStep,
-  InstallingStep,
-  RoutingStep,
-} from './wizard-steps';
+import { VariablesStep, ReviewStep, InstallingStep, RoutingStep } from './wizard-steps';
 import type { TemplateInstallWizardProps } from './TemplateInstallWizard';
 
 const STEPS = [
@@ -51,20 +40,13 @@ function TemplateInstallWizardDesktopComponent({
   onClose,
   onComplete,
 }: TemplateInstallWizardProps) {
-  const {
-    currentStep,
-    context,
-    send,
-    canGoNext,
-    canGoPrev,
-    isInstalling,
-    isCompleted,
-  } = useTemplateInstallWizard({
-    routerId,
-    template,
-    onComplete,
-    onCancel: onClose,
-  });
+  const { currentStep, context, send, canGoNext, canGoPrev, isInstalling, isCompleted } =
+    useTemplateInstallWizard({
+      routerId,
+      template,
+      onComplete,
+      onCancel: onClose,
+    });
 
   const handleNext = useCallback(() => {
     if (currentStep === 2) {
@@ -80,7 +62,14 @@ function TemplateInstallWizardDesktopComponent({
     } else {
       send({ type: 'NEXT' });
     }
-  }, [currentStep, context.selectedRoutingRules.length, context.installResult?.instanceIDs, send, onComplete, onClose]);
+  }, [
+    currentStep,
+    context.selectedRoutingRules.length,
+    context.installResult?.instanceIDs,
+    send,
+    onComplete,
+    onClose,
+  ]);
 
   const handleCancel = useCallback(() => {
     if (!isInstalling) {
@@ -101,42 +90,43 @@ function TemplateInstallWizardDesktopComponent({
 
     if (open) {
       window.addEventListener('keydown', handleKeyDown);
-      return () => { window.removeEventListener('keydown', handleKeyDown); };
+      return () => {
+        window.removeEventListener('keydown', handleKeyDown);
+      };
     }
     return undefined;
   }, [open, isInstalling, canGoNext, currentStep, handleCancel, handleNext]);
 
   return (
-    <Dialog open={open} onOpenChange={isInstalling ? undefined : onClose}>
-      <DialogContent className="max-w-3xl max-h-[90vh] flex flex-col p-0">
+    <Dialog
+      open={open}
+      onOpenChange={isInstalling ? undefined : onClose}
+    >
+      <DialogContent className="flex max-h-[90vh] max-w-3xl flex-col p-0">
         <DialogHeader className="px-component-lg pt-component-lg pb-component-sm">
           <DialogTitle>Install Template: {template.name}</DialogTitle>
 
           {/* Horizontal Stepper */}
-          <div className="flex items-center justify-between mt-component-lg">
+          <div className="mt-component-lg flex items-center justify-between">
             {STEPS.map((step, index) => {
               const isActive = step.number === currentStep;
               const isCompleted = step.number < currentStep;
 
               return (
                 <React.Fragment key={step.number}>
-                  <div className="flex items-center gap-component-md">
+                  <div className="gap-component-md flex items-center">
                     <div
                       className={cn(
-                        'w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors',
+                        'flex h-8 w-8 items-center justify-center rounded-full text-sm font-medium transition-colors',
                         isActive &&
-                          'bg-primary text-primary-foreground ring-2 ring-primary ring-offset-2',
+                          'bg-primary text-primary-foreground ring-primary ring-2 ring-offset-2',
                         isCompleted && 'bg-primary text-primary-foreground',
-                        !isActive &&
-                          !isCompleted &&
-                          'bg-muted text-muted-foreground'
+                        !isActive && !isCompleted && 'bg-muted text-muted-foreground'
                       )}
                     >
-                      {isCompleted ? (
+                      {isCompleted ?
                         <Check className="h-4 w-4" />
-                      ) : (
-                        step.number
-                      )}
+                      : step.number}
                     </div>
                     <span
                       className={cn(
@@ -151,7 +141,7 @@ function TemplateInstallWizardDesktopComponent({
                   {index < STEPS.length - 1 && (
                     <div
                       className={cn(
-                        'flex-1 h-0.5 mx-component-md',
+                        'mx-component-md h-0.5 flex-1',
                         isCompleted ? 'bg-primary' : 'bg-muted'
                       )}
                     />
@@ -163,18 +153,19 @@ function TemplateInstallWizardDesktopComponent({
         </DialogHeader>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto px-component-lg py-component-md">
+        <div className="px-component-lg py-component-md flex-1 overflow-y-auto">
           {currentStep === 1 && (
             <VariablesStep
               template={template}
               variables={context.variables}
-              onVariablesChange={(vars) =>
-                send({ type: 'SET_VARIABLES', variables: vars })
-              }
+              onVariablesChange={(vars) => send({ type: 'SET_VARIABLES', variables: vars })}
             />
           )}
           {currentStep === 2 && (
-            <ReviewStep template={template} variables={context.variables} />
+            <ReviewStep
+              template={template}
+              variables={context.variables}
+            />
           )}
           {currentStep === 3 && (
             <InstallingStep
@@ -186,9 +177,7 @@ function TemplateInstallWizardDesktopComponent({
             <RoutingStep
               template={template}
               selectedRuleIds={context.selectedRoutingRules}
-              onToggleRule={(ruleId) =>
-                send({ type: 'TOGGLE_ROUTING_RULE', ruleId })
-              }
+              onToggleRule={(ruleId) => send({ type: 'TOGGLE_ROUTING_RULE', ruleId })}
             />
           )}
         </div>
@@ -196,12 +185,10 @@ function TemplateInstallWizardDesktopComponent({
         {/* Footer */}
         <div className="border-border px-component-lg py-component-md bg-card border-t">
           <div className="flex items-center justify-between">
-            <div className="text-sm text-muted-foreground">
-              {isInstalling
-                ? 'Installation in progress...'
-                : `Step ${currentStep} of 4`}
+            <div className="text-muted-foreground text-sm">
+              {isInstalling ? 'Installation in progress...' : `Step ${currentStep} of 4`}
             </div>
-            <div className="flex gap-component-md">
+            <div className="gap-component-md flex">
               {canGoPrev && (
                 <Button
                   variant="outline"
@@ -221,13 +208,14 @@ function TemplateInstallWizardDesktopComponent({
               )}
               {currentStep === 4 && !isInstalling && (
                 <Button onClick={handleNext}>
-                  {context.selectedRoutingRules.length > 0
-                    ? 'Apply & Finish'
-                    : 'Skip & Finish'}
+                  {context.selectedRoutingRules.length > 0 ? 'Apply & Finish' : 'Skip & Finish'}
                 </Button>
               )}
               {!canGoPrev && !isInstalling && currentStep < 4 && (
-                <Button variant="ghost" onClick={handleCancel}>
+                <Button
+                  variant="ghost"
+                  onClick={handleCancel}
+                >
                   Cancel
                 </Button>
               )}

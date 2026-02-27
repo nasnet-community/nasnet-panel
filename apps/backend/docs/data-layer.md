@@ -1,25 +1,32 @@
 # Data Layer
 
-> Hybrid SQLite architecture with a single system database, lazy-loaded per-router databases, the "Light Repository" pattern, and ent ORM as the query layer.
+> Hybrid SQLite architecture with a single system database, lazy-loaded per-router databases, the
+> "Light Repository" pattern, and ent ORM as the query layer.
 
-**Packages:** `internal/database/`, `internal/repository/`, `internal/adapters/` (ent repos), `generated/ent/`, `internal/ent-schema/schema/`
-**Key Files:** `database/manager.go`, `database/backup.go`, `database/config.go`, `repository/repository.go`, `repository/router_repository.go`, `repository/cleanup_queue.go`
-**Prerequisites:** [See: application-bootstrap.md §Database Initialization]
+**Packages:** `internal/database/`, `internal/repository/`, `internal/adapters/` (ent repos),
+`generated/ent/`, `internal/ent-schema/schema/` **Key Files:** `database/manager.go`,
+`database/backup.go`, `database/config.go`, `repository/repository.go`,
+`repository/router_repository.go`, `repository/cleanup_queue.go` **Prerequisites:** [See:
+application-bootstrap.md §Database Initialization]
 
 ---
 
 ## Overview
 
-NasNetConnect uses a **hybrid SQLite architecture** optimized for the single-container deployment model. Rather than one monolithic database, data is split into:
+NasNetConnect uses a **hybrid SQLite architecture** optimized for the single-container deployment
+model. Rather than one monolithic database, data is split into:
 
 - **`system.db`** — always open; stores fleet metadata (routers, users, settings, events)
 - **`router-{id}.db`** — lazy-loaded; stores per-router operational data (resources, configurations)
 
-This design allows the system to serve many routers without holding open file handles for idle connections, while keeping the system database always consistent.
+This design allows the system to serve many routers without holding open file handles for idle
+connections, while keeping the system database always consistent.
 
 The data layer is built on three foundations:
+
 1. **`internal/database`** — manages file lifecycle, WAL mode, integrity checks, and backup/restore
-2. **`internal/repository`** — business logic over complex entities using the "Light Repository" pattern
+2. **`internal/repository`** — business logic over complex entities using the "Light Repository"
+   pattern
 3. **`generated/ent`** — type-safe query builder generated from `internal/ent-schema/schema/`
 
 ---
@@ -56,7 +63,8 @@ The data layer is built on three foundations:
 
 ### `internal/database`
 
-Manages the lifecycle of SQLite database files. There are no business entities here — only connection management, PRAGMA configuration, integrity checks, and backup operations.
+Manages the lifecycle of SQLite database files. There are no business entities here — only
+connection management, PRAGMA configuration, integrity checks, and backup operations.
 
 #### `manager.go` — `Manager`
 
@@ -82,20 +90,22 @@ type routerDBEntry struct {
 
 **Key functions:**
 
-| Function | Description |
-|---|---|
-| `NewManager(ctx, ...ManagerOption)` | Opens `system.db`, runs migrations, returns configured Manager |
-| `SystemDB()` | Returns always-open system ent client |
-| `GetRouterDB(ctx, routerID)` | Fast-path read lock check; slow-path write lock with double-checked locking to open and cache router DB |
-| `ForceCloseRouterDB(routerID)` | Immediately closes a router DB (for maintenance) |
-| `DeleteRouterDB(routerID)` | Closes + deletes `.db`, `-wal`, and `-shm` files |
-| `IsRouterDBLoaded(routerID)` | Reports whether a router DB is currently cached |
-| `LoadedRouterCount()` | Returns number of open router DBs |
-| `Close()` | Closes all router DBs (stops timers, flushes ent clients, closes sql.DB) then closes system DB |
+| Function                            | Description                                                                                             |
+| ----------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| `NewManager(ctx, ...ManagerOption)` | Opens `system.db`, runs migrations, returns configured Manager                                          |
+| `SystemDB()`                        | Returns always-open system ent client                                                                   |
+| `GetRouterDB(ctx, routerID)`        | Fast-path read lock check; slow-path write lock with double-checked locking to open and cache router DB |
+| `ForceCloseRouterDB(routerID)`      | Immediately closes a router DB (for maintenance)                                                        |
+| `DeleteRouterDB(routerID)`          | Closes + deletes `.db`, `-wal`, and `-shm` files                                                        |
+| `IsRouterDBLoaded(routerID)`        | Reports whether a router DB is currently cached                                                         |
+| `LoadedRouterCount()`               | Returns number of open router DBs                                                                       |
+| `Close()`                           | Closes all router DBs (stops timers, flushes ent clients, closes sql.DB) then closes system DB          |
 
 **Idle timeout pattern:**
 
-Every call to `GetRouterDB` resets a `time.Timer` via `touchActivity`. When the timer fires, `closeRouterDB` acquires the write lock, stops the timer, closes the ent client, closes `sql.DB`, and removes the entry from the map.
+Every call to `GetRouterDB` resets a `time.Timer` via `touchActivity`. When the timer fires,
+`closeRouterDB` acquires the write lock, stops the timer, closes the ent client, closes `sql.DB`,
+and removes the entry from the map.
 
 **PRAGMA configuration (applied to every database):**
 
@@ -124,7 +134,8 @@ WithDataDir(dir string)          ManagerOption
 
 #### `config.go` — `Config` and `OpenDatabase`
 
-Provides `DefaultConfig(path)` returning a `Config` struct with all default PRAGMA values, and `OpenDatabase(ctx, cfg)` which:
+Provides `DefaultConfig(path)` returning a `Config` struct with all default PRAGMA values, and
+`OpenDatabase(ctx, cfg)` which:
 
 1. Opens the SQLite file with `modernc.org/sqlite` (pure Go, no CGO)
 2. Sets `MaxOpenConns=1` (SQLite single-writer constraint)
@@ -149,13 +160,16 @@ type Config struct {
 
 **`BackupDatabase(ctx, db, sourcePath, backupDir)`**
 
-Primary strategy: `VACUUM INTO '{backupPath}'` — creates a consistent snapshot of the live database without locking it for readers.
+Primary strategy: `VACUUM INTO '{backupPath}'` — creates a consistent snapshot of the live database
+without locking it for readers.
 
-Fallback strategy (if VACUUM INTO fails): `PRAGMA wal_checkpoint(TRUNCATE)` followed by `atomicCopyFile` (temp file + rename).
+Fallback strategy (if VACUUM INTO fails): `PRAGMA wal_checkpoint(TRUNCATE)` followed by
+`atomicCopyFile` (temp file + rename).
 
 Naming: `{name}.{timestamp}.db.bak` where timestamp includes nanoseconds for uniqueness.
 
-Rotation: After backup, calls `cleanupOldBackups` keeping at most `MaxBackupCount = 3` files (sorted by mtime).
+Rotation: After backup, calls `cleanupOldBackups` keeping at most `MaxBackupCount = 3` files (sorted
+by mtime).
 
 ```go
 type BackupResult struct {
@@ -175,7 +189,8 @@ type BackupResult struct {
 
 **`atomicCopyFile(src, dst)`**
 
-Writes to a temp file in the same directory as `dst` (same filesystem → rename is atomic), syncs to disk, then `os.Rename`. Permissions set to `0o600`.
+Writes to a temp file in the same directory as `dst` (same filesystem → rename is atomic), syncs to
+disk, then `os.Rename`. Permissions set to `0o600`.
 
 **Other helpers:**
 
@@ -188,7 +203,8 @@ GetLatestBackup(backupDir, baseName string) (*BackupResult, error)
 
 ### `internal/repository`
 
-Implements the **Light Repository Pattern**: repositories are created only for entities that require business logic, optimized queries with eager loading, or explicit transaction boundaries.
+Implements the **Light Repository Pattern**: repositories are created only for entities that require
+business logic, optimized queries with eager loading, or explicit transaction boundaries.
 
 #### `repository.go` — Interfaces and Shared Types
 
@@ -202,11 +218,13 @@ type Repositories struct {
 ```
 
 **Rule: Use Repository For:**
+
 - `Router` — complex relationships (secrets), connection state, event publishing
 - `User` — password hashing, bcrypt, session management
 - `Feature` — lifecycle management, dependency graph traversal
 
 **Rule: Use Direct ent Client For:**
+
 - `Resource`, `Event`, `Setting`, `Session`, `APIKey` — simple CRUD, no business logic
 
 **`RouterRepository` interface:**
@@ -303,7 +321,8 @@ r.cleanupQueue.Enqueue(CleanupTask{Type: CleanupRouterDB, RouterID: id.String()}
 
 #### `cleanup_queue.go` — `CleanupQueue`
 
-Implements eventual consistency for cross-database operations where SQLite cannot support distributed transactions.
+Implements eventual consistency for cross-database operations where SQLite cannot support
+distributed transactions.
 
 ```go
 type CleanupQueue struct {
@@ -327,6 +346,7 @@ type CleanupTask struct {
 ```
 
 **Lifecycle:**
+
 1. `Start(ctx)` — spawns background goroutine, fires every `processInterval`
 2. `processTasks` — snapshots queue under lock, executes each task, re-queues failures
 3. Tasks exceeding `maxRetries` are logged at ERROR level and discarded
@@ -338,7 +358,9 @@ type CleanupTask struct {
 
 Thin adapter structs that wrap ent queries behind domain-specific interfaces.
 
-**`ent_service_instance_repo.go`** — wraps `ent.ServiceInstanceQuery` behind a `network.ServiceInstanceQuery` interface. No business logic; purely a translation layer to keep the domain package decoupled from ent.
+**`ent_service_instance_repo.go`** — wraps `ent.ServiceInstanceQuery` behind a
+`network.ServiceInstanceQuery` interface. No business logic; purely a translation layer to keep the
+domain package decoupled from ent.
 
 **`ent_port_allocation_repo.go`** — similarly wraps port allocation queries.
 
@@ -346,7 +368,8 @@ Thin adapter structs that wrap ent queries behind domain-specific interfaces.
 
 **`ent_global_settings_repo.go`** — wraps global settings read/write.
 
-All adapters follow the same pattern: implement a domain interface, delegate to the injected `*ent.Client`, return domain types (or wrapped ent types).
+All adapters follow the same pattern: implement a domain interface, delegate to the injected
+`*ent.Client`, return domain types (or wrapped ent types).
 
 ---
 
@@ -356,15 +379,15 @@ Generated by `go generate ./internal/ent-schema/...` (via `entc`). **Never edit 
 
 **Key generated files:**
 
-| File | Purpose |
-|---|---|
-| `client.go` | `ent.Client` with typed sub-clients per entity |
-| `migrate/schema.go` | Auto-migration DDL definitions |
-| `mutation.go` | Generated mutation builders |
-| `runtime.go` | Runtime hooks (validators, interceptors) |
-| `router.go`, `user.go`, etc. | Entity structs with typed fields |
-| `router/router.go` | Field/edge constants and predicate builders |
-| `router_query.go` | Fluent query API for Router entity |
+| File                         | Purpose                                        |
+| ---------------------------- | ---------------------------------------------- |
+| `client.go`                  | `ent.Client` with typed sub-clients per entity |
+| `migrate/schema.go`          | Auto-migration DDL definitions                 |
+| `mutation.go`                | Generated mutation builders                    |
+| `runtime.go`                 | Runtime hooks (validators, interceptors)       |
+| `router.go`, `user.go`, etc. | Entity structs with typed fields               |
+| `router/router.go`           | Field/edge constants and predicate builders    |
+| `router_query.go`            | Fluent query API for Router entity             |
 
 **Using the ent client directly (simple entities):**
 
@@ -384,12 +407,15 @@ resources, err := db.Resource.
 Input to ent code generation. Each file defines entity fields, edges (relations), and validators.
 
 Files (examples):
-- `router.go` — Router entity with Host, Port, Platform, Status, Version, Model fields; edge to RouterSecret
+
+- `router.go` — Router entity with Host, Port, Platform, Status, Version, Model fields; edge to
+  RouterSecret
 - `user.go` — User entity with Username, Email, PasswordHash fields; edge to Session
 - `virtualinterface.go` — VirtualInterface entity for the VIF system
 - `globalSettings.go` — global key/value settings entity
 
 **To add a new field or entity:**
+
 1. Edit or add a schema file in `internal/ent-schema/schema/`
 2. Run `npm run codegen:ent` to regenerate `generated/ent/`
 3. The next application start automatically runs `client.Schema.Create(ctx)` (auto-migration)
@@ -450,17 +476,17 @@ cleanupQueue.processTasks()
 
 ## Configuration
 
-| Setting | Default | Override |
-|---|---|---|
-| Data directory | `/var/nasnet` | `WithDataDir(dir)` |
-| Idle timeout | `5 minutes` | `WithIdleTimeout(d)` |
-| Max router DB connections | `1` | Hardcoded (SQLite constraint) |
-| Cache size (system DB) | `64MB` | Hardcoded in `openSystemDB` |
-| Cache size (router DB) | `32MB` | Hardcoded in `openRouterDB` |
-| Busy timeout | `5000ms` | Hardcoded in `Config` |
-| Max backup count | `3` | `MaxBackupCount` constant |
-| Cleanup queue max retries | `5` | `DefaultCleanupQueueConfig` |
-| Cleanup process interval | `10s` | `DefaultCleanupQueueConfig` |
+| Setting                   | Default       | Override                      |
+| ------------------------- | ------------- | ----------------------------- |
+| Data directory            | `/var/nasnet` | `WithDataDir(dir)`            |
+| Idle timeout              | `5 minutes`   | `WithIdleTimeout(d)`          |
+| Max router DB connections | `1`           | Hardcoded (SQLite constraint) |
+| Cache size (system DB)    | `64MB`        | Hardcoded in `openSystemDB`   |
+| Cache size (router DB)    | `32MB`        | Hardcoded in `openRouterDB`   |
+| Busy timeout              | `5000ms`      | Hardcoded in `Config`         |
+| Max backup count          | `3`           | `MaxBackupCount` constant     |
+| Cleanup queue max retries | `5`           | `DefaultCleanupQueueConfig`   |
+| Cleanup process interval  | `10s`         | `DefaultCleanupQueueConfig`   |
 
 ---
 
@@ -493,7 +519,8 @@ Repository errors:
 **Integrity check degradation:**
 
 - `system.db` integrity failure → fatal, Manager construction returns error
-- `router-{id}.db` integrity failure → graceful degradation (connection continues, router marked degraded in system.db)
+- `router-{id}.db` integrity failure → graceful degradation (connection continues, router marked
+  degraded in system.db)
 
 ---
 
@@ -509,7 +536,9 @@ Repository errors:
 ## Cross-References
 
 - [See: 02-application-bootstrap.md §Database Initialization] — how `Manager` is wired at startup
-- [See: 04-router-communication.md §FallbackChain] — router connection state written via `UpdateStatus`
+- [See: 04-router-communication.md §FallbackChain] — router connection state written via
+  `UpdateStatus`
 - [See: 05-event-system.md §RouterStatusChangedEvent] — events published by repository mutations
 - Architecture ADR: `Docs/architecture/adrs/014-sqlite-database-architecture.md`
-- Pattern reference: `Docs/architecture/implementation-patterns/15-database-architecture-patterns.md`
+- Pattern reference:
+  `Docs/architecture/implementation-patterns/15-database-architecture-patterns.md`

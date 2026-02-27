@@ -42,12 +42,7 @@ extend type Query {
   """
   Get composite resource with all related sub-resources
   """
-  compositeResource(
-    "Resource ID (ULID)"
-    id: ID!
-    "Router the resource belongs to"
-    routerId: ID!
-  ): CompositeResource
+  compositeResource("Resource ID (ULID)" id: ID!, "Router the resource belongs to" routerId: ID!): CompositeResource
 }
 
 # -----------------------------------------------------------------------------
@@ -63,11 +58,7 @@ extend type Mutation {
   """
   Update resource configuration (transitions to DRAFT -> VALIDATING)
   """
-  updateResource(
-    id: ID!
-    routerId: ID!
-    input: UpdateResourceInput!
-  ): UpdateResourcePayload!
+  updateResource(id: ID!, routerId: ID!, input: UpdateResourceInput!): UpdateResourcePayload!
 
   """
   Validate resource configuration (transitions DRAFT -> VALIDATING -> VALID/ERROR)
@@ -104,12 +95,8 @@ extend type Subscription {
   """
   Subscribe to resource runtime updates
   """
-  resourceRuntime(
-    "Resource ID (ULID)"
-    id: ID!
-    "Router the resource belongs to"
-    routerId: ID!
-  ): ResourceRuntimeEvent! @realtime(interval: 5000)
+  resourceRuntime("Resource ID (ULID)" id: ID!, "Router the resource belongs to" routerId: ID!): ResourceRuntimeEvent!
+    @realtime(interval: 5000)
 
   """
   Subscribe to resource lifecycle state changes

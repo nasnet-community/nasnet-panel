@@ -35,16 +35,17 @@ export const BridgeDetailDesktop = memo(function BridgeDetailDesktop({
   const isCreating = bridge === null;
 
   return (
-    <Sheet open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
-      <SheetContent className="sm:max-w-xl overflow-y-auto">
+    <Sheet
+      open={open}
+      onOpenChange={(isOpen) => !isOpen && onClose()}
+    >
+      <SheetContent className="overflow-y-auto sm:max-w-xl">
         <SheetHeader>
-          <SheetTitle>
-            {isCreating ? 'Create Bridge' : `Bridge: ${bridge?.name}`}
-          </SheetTitle>
+          <SheetTitle>{isCreating ? 'Create Bridge' : `Bridge: ${bridge?.name}`}</SheetTitle>
           <SheetDescription>
-            {isCreating
-              ? 'Create a new bridge to connect multiple interfaces'
-              : 'View and edit bridge configuration'}
+            {isCreating ?
+              'Create a new bridge to connect multiple interfaces'
+            : 'View and edit bridge configuration'}
           </SheetDescription>
         </SheetHeader>
 
@@ -63,9 +64,7 @@ export const BridgeDetailDesktop = memo(function BridgeDetailDesktop({
           {error && !isCreating && (
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
-              <AlertDescription>
-                Failed to load bridge: {error.message}
-              </AlertDescription>
+              <AlertDescription>Failed to load bridge: {error.message}</AlertDescription>
             </Alert>
           )}
 

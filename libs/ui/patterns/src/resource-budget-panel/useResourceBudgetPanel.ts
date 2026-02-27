@@ -288,10 +288,7 @@ export function useResourceBudgetPanel(
   };
 
   // Enhance instances with computed fields (memoized)
-  const enhancedInstances = useMemo(
-    () => rawInstances.map(enhanceInstance),
-    [rawInstances]
-  );
+  const enhancedInstances = useMemo(() => rawInstances.map(enhanceInstance), [rawInstances]);
 
   // Filter instances (memoized)
   const filteredInstances = useMemo(() => {
@@ -309,10 +306,7 @@ export function useResourceBudgetPanel(
 
   // Calculate system-wide usage
   const systemUsagePercent = useMemo(() => {
-    return calculateUsagePercent(
-      systemTotals.totalMemoryUsed,
-      systemTotals.totalMemoryAvailable
-    );
+    return calculateUsagePercent(systemTotals.totalMemoryUsed, systemTotals.totalMemoryAvailable);
   }, [systemTotals]);
 
   const systemUsageStatus = useMemo(() => {

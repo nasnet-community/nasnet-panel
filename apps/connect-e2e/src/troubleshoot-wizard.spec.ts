@@ -50,9 +50,9 @@ test.describe('Troubleshoot Wizard - Happy Path', () => {
     }
 
     // Wait for completion message
-    await expect(
-      page.getByText(/all checks passed|diagnostics complete/i)
-    ).toBeVisible({ timeout: 30000 });
+    await expect(page.getByText(/all checks passed|diagnostics complete/i)).toBeVisible({
+      timeout: 30000,
+    });
 
     // Verify progress indicator shows 100%
     await expect(page.getByText(/100% complete|step 5 of 5/i)).toBeVisible();
@@ -123,9 +123,9 @@ test.describe('Troubleshoot Wizard - Error Scenarios', () => {
     await page.getByRole('button', { name: /start diagnostic/i }).click();
 
     // Should show error message
-    await expect(
-      page.getByText(/network detection failed|unable to detect/i)
-    ).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText(/network detection failed|unable to detect/i)).toBeVisible({
+      timeout: 10000,
+    });
 
     // Restore network
     await page.context().setOffline(false);
@@ -168,9 +168,7 @@ test.describe('Troubleshoot Wizard - Fix Application', () => {
       await expect(page.getByText(/applying fix/i)).toBeVisible({ timeout: 5000 });
 
       // Should eventually show success or move to next step
-      await expect(
-        page.getByText(/applied|verifying|next step/i)
-      ).toBeVisible({ timeout: 10000 });
+      await expect(page.getByText(/applied|verifying|next step/i)).toBeVisible({ timeout: 10000 });
     } catch (e) {
       // No failures, skip test
       test.skip();
@@ -370,9 +368,9 @@ test.describe('Troubleshoot Wizard - Performance', () => {
     await page.getByRole('button', { name: /start diagnostic/i }).click();
 
     // Wait for completion
-    await expect(
-      page.getByText(/all checks passed|diagnostics complete/i)
-    ).toBeVisible({ timeout: 30000 });
+    await expect(page.getByText(/all checks passed|diagnostics complete/i)).toBeVisible({
+      timeout: 30000,
+    });
 
     const duration = Date.now() - startTime;
 

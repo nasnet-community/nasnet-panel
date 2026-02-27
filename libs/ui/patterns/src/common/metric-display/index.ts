@@ -52,9 +52,4 @@ export { useMetricDisplay } from './useMetricDisplay';
 export type { UseMetricDisplayReturn } from './useMetricDisplay';
 
 // Types
-export type {
-  MetricDisplayProps,
-  MetricTrend,
-  MetricVariant,
-  MetricSize,
-} from './types';
+export type { MetricDisplayProps, MetricTrend, MetricVariant, MetricSize } from './types';

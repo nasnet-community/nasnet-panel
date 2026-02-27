@@ -26,4 +26,3 @@ export type {
 // Hooks
 export { useConfigurationCheck } from './hooks';
 export type { UseConfigurationCheckResult } from './hooks';
-

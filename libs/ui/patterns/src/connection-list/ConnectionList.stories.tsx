@@ -34,7 +34,7 @@ function generateMockConnection(id: number): ConnectionEntry {
     state: states[id % states.length],
     timeout: `${300 - (id % 300)}s`,
     packets: 100 + id,
-    bytes: 10000 + (id * 100),
+    bytes: 10000 + id * 100,
     assured: id % 2 === 0,
     confirmed: id % 3 === 0,
   };
@@ -158,8 +158,7 @@ export const FewConnections: Story = {
   parameters: {
     docs: {
       description: {
-        story:
-          'Default view with 10 diverse connections (TCP, UDP, ICMP) in various states.',
+        story: 'Default view with 10 diverse connections (TCP, UDP, ICMP) in various states.',
       },
     },
   },
@@ -230,8 +229,7 @@ export const DesktopView: Story = {
     },
     docs: {
       description: {
-        story:
-          'Desktop table layout (>1024px). Uses VirtualizedTable with dense data display.',
+        story: 'Desktop table layout (>1024px). Uses VirtualizedTable with dense data display.',
       },
     },
   },

@@ -1,9 +1,5 @@
 import { useMutation } from '@apollo/client';
-import {
-  CLEANUP_ORPHANED_VLANS,
-  GET_VLAN_ALLOCATIONS,
-  GET_VLAN_POOL_STATUS,
-} from './vlan.graphql';
+import { CLEANUP_ORPHANED_VLANS, GET_VLAN_ALLOCATIONS, GET_VLAN_POOL_STATUS } from './vlan.graphql';
 
 /**
  * Hook to clean up orphaned VLAN allocations
@@ -33,15 +29,12 @@ import {
  * ```
  */
 export function useCleanupOrphanedVLANs() {
-  const [cleanupMutation, { data, loading, error }] = useMutation(
-    CLEANUP_ORPHANED_VLANS,
-    {
-      // Refetch allocations and pool status after cleanup
-      refetchQueries: [GET_VLAN_ALLOCATIONS, GET_VLAN_POOL_STATUS],
-      // Wait for refetch to complete before resolving
-      awaitRefetchQueries: true,
-    }
-  );
+  const [cleanupMutation, { data, loading, error }] = useMutation(CLEANUP_ORPHANED_VLANS, {
+    // Refetch allocations and pool status after cleanup
+    refetchQueries: [GET_VLAN_ALLOCATIONS, GET_VLAN_POOL_STATUS],
+    // Wait for refetch to complete before resolving
+    awaitRefetchQueries: true,
+  });
 
   /**
    * Execute cleanup for a specific router

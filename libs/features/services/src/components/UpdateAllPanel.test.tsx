@@ -86,7 +86,7 @@ describe('UpdateAllPanel', () => {
     });
 
     it('does not render when no updates available', () => {
-      const noUpdates = mockUpdates.filter(u => !u.updateAvailable);
+      const noUpdates = mockUpdates.filter((u) => !u.updateAvailable);
       const { container } = render(<UpdateAllPanel updates={noUpdates} />);
 
       expect(container.firstChild).toBeNull();
@@ -140,13 +140,11 @@ describe('UpdateAllPanel', () => {
       render(<UpdateAllPanel updates={mockUpdates} />);
 
       expect(screen.getByText('Security Updates Available')).toBeInTheDocument();
-      expect(
-        screen.getByText(/1 update includes security fixes/)
-      ).toBeInTheDocument();
+      expect(screen.getByText(/1 update includes security fixes/)).toBeInTheDocument();
     });
 
     it('does not display security warning when no security updates', () => {
-      const noSecurityUpdates = mockUpdates.filter(u => u.severity !== 'SECURITY');
+      const noSecurityUpdates = mockUpdates.filter((u) => u.severity !== 'SECURITY');
       render(<UpdateAllPanel updates={noSecurityUpdates} />);
 
       expect(screen.queryByText('Security Updates Available')).not.toBeInTheDocument();
@@ -175,9 +173,7 @@ describe('UpdateAllPanel', () => {
 
       render(<UpdateAllPanel updates={multipleSecurityUpdates} />);
 
-      expect(
-        screen.getByText(/2 updates include security fixes/)
-      ).toBeInTheDocument();
+      expect(screen.getByText(/2 updates include security fixes/)).toBeInTheDocument();
     });
   });
 
@@ -283,7 +279,12 @@ describe('UpdateAllPanel', () => {
       const user = userEvent.setup();
       const onUpdate = vi.fn();
 
-      render(<UpdateAllPanel updates={mockUpdates} onUpdate={onUpdate} />);
+      render(
+        <UpdateAllPanel
+          updates={mockUpdates}
+          onUpdate={onUpdate}
+        />
+      );
 
       const updateButtons = screen.getAllByRole('button', { name: /^Update$/i });
       await user.click(updateButtons[0]);
@@ -297,22 +298,30 @@ describe('UpdateAllPanel', () => {
       const user = userEvent.setup();
       const onUpdateAll = vi.fn();
 
-      render(<UpdateAllPanel updates={mockUpdates} onUpdateAll={onUpdateAll} />);
+      render(
+        <UpdateAllPanel
+          updates={mockUpdates}
+          onUpdateAll={onUpdateAll}
+        />
+      );
 
       const updateAllButton = screen.getByRole('button', { name: /Update All \(3\)/i });
       await user.click(updateAllButton);
 
       expect(screen.getByText('Update All Services?')).toBeInTheDocument();
-      expect(
-        screen.getByText(/This will update 3 services sequentially/)
-      ).toBeInTheDocument();
+      expect(screen.getByText(/This will update 3 services sequentially/)).toBeInTheDocument();
     });
 
     it('calls onUpdateAll when confirmation accepted', async () => {
       const user = userEvent.setup();
       const onUpdateAll = vi.fn();
 
-      render(<UpdateAllPanel updates={mockUpdates} onUpdateAll={onUpdateAll} />);
+      render(
+        <UpdateAllPanel
+          updates={mockUpdates}
+          onUpdateAll={onUpdateAll}
+        />
+      );
 
       // Open dialog
       const updateAllButton = screen.getByRole('button', { name: /Update All \(3\)/i });
@@ -329,7 +338,12 @@ describe('UpdateAllPanel', () => {
       const user = userEvent.setup();
       const onUpdateAll = vi.fn();
 
-      render(<UpdateAllPanel updates={mockUpdates} onUpdateAll={onUpdateAll} />);
+      render(
+        <UpdateAllPanel
+          updates={mockUpdates}
+          onUpdateAll={onUpdateAll}
+        />
+      );
 
       // Open dialog
       const updateAllButton = screen.getByRole('button', { name: /Update All \(3\)/i });
@@ -360,7 +374,12 @@ describe('UpdateAllPanel', () => {
 
   describe('Loading and Disabled States', () => {
     it('disables "Update All" button when loading', () => {
-      render(<UpdateAllPanel updates={mockUpdates} loading={true} />);
+      render(
+        <UpdateAllPanel
+          updates={mockUpdates}
+          loading={true}
+        />
+      );
 
       const updateAllButton = screen.getByRole('button', { name: /Update All \(3\)/i });
       expect(updateAllButton).toBeDisabled();

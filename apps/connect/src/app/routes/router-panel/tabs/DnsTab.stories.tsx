@@ -58,7 +58,8 @@ export const Mobile: Story = {
     },
     docs: {
       description: {
-        story: 'DNS tab on mobile viewport. DNS server list, cache settings, and static entries adapt to mobile-friendly layout.',
+        story:
+          'DNS tab on mobile viewport. DNS server list, cache settings, and static entries adapt to mobile-friendly layout.',
       },
     },
   },
@@ -71,7 +72,8 @@ export const Desktop: Story = {
     },
     docs: {
       description: {
-        story: 'DNS tab on desktop viewport. Full-width layout with dense data tables and comprehensive DNS configuration controls.',
+        story:
+          'DNS tab on desktop viewport. Full-width layout with dense data tables and comprehensive DNS configuration controls.',
       },
     },
   },

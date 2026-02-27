@@ -11,7 +11,7 @@
  */
 import type { ReactNode } from 'react';
 interface MockApolloProviderProps {
-    children: ReactNode;
+  children: ReactNode;
 }
 /**
  * Wraps children with a minimal Apollo context for Storybook and tests.
@@ -23,6 +23,8 @@ interface MockApolloProviderProps {
  * </MockApolloProvider>
  * ```
  */
-export declare function MockApolloProvider({ children }: MockApolloProviderProps): import("react/jsx-runtime").JSX.Element;
+export declare function MockApolloProvider({
+  children,
+}: MockApolloProviderProps): import('react/jsx-runtime').JSX.Element;
 export {};
 //# sourceMappingURL=apollo-mock-provider.d.ts.map

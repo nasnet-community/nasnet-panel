@@ -1,21 +1,29 @@
 # Network Services
 
-> Stateless service layer for firewall rules, DNS lookups, network scanning, bridge management, and internet troubleshooting — all operating through the `RouterPort` abstraction.
+> Stateless service layer for firewall rules, DNS lookups, network scanning, bridge management, and
+> internet troubleshooting — all operating through the `RouterPort` abstraction.
 
-**Packages:** `internal/firewall/`, `internal/dns/`, `internal/router/scanner/`, `internal/services/bridge/`, `internal/troubleshoot/`, `internal/services/netif/`, `internal/services/networking/`
-**Key Files:** `firewall/address_list_service.go`, `dns/service.go`, `router/scanner/scanner.go`, `services/bridge/service.go`, `troubleshoot/service.go`
-**Prerequisites:** [See: 04-router-communication.md §RouterPort Interface], [See: 05-event-system.md §Publishing Events]
+**Packages:** `internal/firewall/`, `internal/dns/`, `internal/router/scanner/`,
+`internal/services/bridge/`, `internal/troubleshoot/`, `internal/services/netif/`,
+`internal/services/networking/` **Key Files:** `firewall/address_list_service.go`, `dns/service.go`,
+`router/scanner/scanner.go`, `services/bridge/service.go`, `troubleshoot/service.go`
+**Prerequisites:** [See: 04-router-communication.md §RouterPort Interface], [See: 05-event-system.md
+§Publishing Events]
 
 ---
 
 ## Overview
 
-Network Services is the collection of focused service packages that sit above the `RouterPort` abstraction. They do not manage connection state — they receive a `RouterPort` (or an embedded `base.Service`) and issue structured commands, parse responses, and return domain types.
+Network Services is the collection of focused service packages that sit above the `RouterPort`
+abstraction. They do not manage connection state — they receive a `RouterPort` (or an embedded
+`base.Service`) and issue structured commands, parse responses, and return domain types.
 
 Key design principles across all network service packages:
 
-- **Stateless services** — the `RouterPort` is injected per-operation or once at construction; services hold no mutable connection state
-- **Parallel fetching** — goroutines with `sync.WaitGroup` for independent sub-queries (e.g., referencing rule counts across multiple address lists)
+- **Stateless services** — the `RouterPort` is injected per-operation or once at construction;
+  services hold no mutable connection state
+- **Parallel fetching** — goroutines with `sync.WaitGroup` for independent sub-queries (e.g.,
+  referencing rule counts across multiple address lists)
 - **Domain types, not ent types** — each package defines its own `Data`, `Input`, `Result` types
 - **Cursor/offset pagination** — where applicable, default page size of 50 entries
 - **Undo windows** — mutating services support a 10-second undo via `UndoStore`
@@ -65,9 +73,11 @@ func NewAddressListService() *AddressListService
 
 **`GetAddressLists(ctx, port RouterPort) ([]AddressListAggregate, error)`**
 
-1. Fetches all address list entries via `ExecuteCommand({Path: "/ip/firewall/address-list", Action: "print"})`
+1. Fetches all address list entries via
+   `ExecuteCommand({Path: "/ip/firewall/address-list", Action: "print"})`
 2. Groups entries by list name into `AddressListAggregate{Name, EntryCount, DynamicCount}`
-3. Spawns a goroutine per list name to fetch `ReferencingRulesCount` in parallel (`sync.WaitGroup` + `sync.Mutex`)
+3. Spawns a goroutine per list name to fetch `ReferencingRulesCount` in parallel (`sync.WaitGroup` +
+   `sync.Mutex`)
 4. Default page size: 50 entries per page (cursor-based)
 
 ```go
@@ -81,13 +91,13 @@ type AddressListAggregate struct {
 
 **Other methods (following the same stateless pattern):**
 
-| Method | RouterOS Path | Action |
-|---|---|---|
+| Method                                  | RouterOS Path               | Action              |
+| --------------------------------------- | --------------------------- | ------------------- |
 | `GetEntries(ctx, port, listName, page)` | `/ip/firewall/address-list` | `print` with filter |
-| `AddEntry(ctx, port, input)` | `/ip/firewall/address-list` | `add` |
-| `RemoveEntry(ctx, port, id)` | `/ip/firewall/address-list` | `remove` |
-| `GetFilterRules(ctx, port)` | `/ip/firewall/filter` | `print` |
-| `GetNATRules(ctx, port)` | `/ip/firewall/nat` | `print` |
+| `AddEntry(ctx, port, input)`            | `/ip/firewall/address-list` | `add`               |
+| `RemoveEntry(ctx, port, id)`            | `/ip/firewall/address-list` | `remove`            |
+| `GetFilterRules(ctx, port)`             | `/ip/firewall/filter`       | `print`             |
+| `GetNATRules(ctx, port)`                | `/ip/firewall/nat`          | `print`             |
 
 #### `nat/portforward.go` and `nat/service.go`
 
@@ -108,7 +118,8 @@ Validates port ranges and protocol before issuing `/ip/firewall/nat add` command
 
 #### `portknock.go` — Port Knocking Service
 
-Manages port knock sequences. Each sequence is a series of ports that must be contacted in order to open a firewall rule.
+Manages port knock sequences. Each sequence is a series of ports that must be contacted in order to
+open a firewall rule.
 
 ```go
 type KnockSequence struct {
@@ -149,14 +160,17 @@ type LookupInput struct {
 
 Resolution strategy:
 
-| Condition | Method | Authoritative field |
-|---|---|---|
-| `A` or `AAAA` and no custom server | `lookupViaRouterOS` | true if from router's static table |
-| Any other record type | `lookupViaGoResolver` | always false (net package limitation) |
+| Condition                          | Method                | Authoritative field                   |
+| ---------------------------------- | --------------------- | ------------------------------------- |
+| `A` or `AAAA` and no custom server | `lookupViaRouterOS`   | true if from router's static table    |
+| Any other record type              | `lookupViaGoResolver` | always false (net package limitation) |
 
-`lookupViaRouterOS` issues `/ip dns cache print` or `/ip dns static print` commands and parses the response. The `authoritative` flag is set true when the answer comes from the router's own static DNS table.
+`lookupViaRouterOS` issues `/ip dns cache print` or `/ip dns static print` commands and parses the
+response. The `authoritative` flag is set true when the answer comes from the router's own static
+DNS table.
 
-`lookupViaGoResolver` uses Go's `net.DefaultResolver` with a `net.Resolver{PreferGo: true}` configured to use the specified server.
+`lookupViaGoResolver` uses Go's `net.DefaultResolver` with a `net.Resolver{PreferGo: true}`
+configured to use the specified server.
 
 ```go
 type LookupResult struct {
@@ -174,7 +188,8 @@ type LookupResult struct {
 
 **Benchmark support** (`dns_benchmark.go`):
 
-Queries multiple DNS servers in parallel (up to 5 concurrent workers) and returns latency + result for each server:
+Queries multiple DNS servers in parallel (up to 5 concurrent workers) and returns latency + result
+for each server:
 
 ```go
 type BenchmarkInput struct {
@@ -218,6 +233,7 @@ type Config struct {
 **`ScanIP(ctx, ip string, ports []int, timeout time.Duration) *Device`**
 
 For a single IP address:
+
 1. Spawns one goroutine per port (semaphore limit: 5 concurrent)
 2. Calls `IsPortOpen(ctx, ip, port, timeout)` — TCP dial with deadline
 3. For port 80/443: HTTP GET to detect MikroTik via response headers/body
@@ -227,6 +243,7 @@ For a single IP address:
 **`ParseIPRange(subnet string) ([]string, error)`**
 
 Parses three formats:
+
 - CIDR: `192.168.88.0/24` → expands all host addresses
 - Dash range: `192.168.1.1-192.168.1.50`
 - Single IP: `192.168.88.1`
@@ -237,13 +254,13 @@ Calls `ParseIPRange`, then concurrently scans all IPs up to `MaxWorkers` paralle
 
 **Port-to-service mapping:**
 
-| Port | Service |
-|---|---|
-| 80 | HTTP / MikroTik REST API |
-| 443 | HTTPS |
-| 8728 | MikroTik RouterOS API |
+| Port | Service                     |
+| ---- | --------------------------- |
+| 80   | HTTP / MikroTik REST API    |
+| 443  | HTTPS                       |
+| 8728 | MikroTik RouterOS API       |
 | 8729 | MikroTik RouterOS API (TLS) |
-| 8291 | MikroTik Winbox |
+| 8291 | MikroTik Winbox             |
 
 ---
 
@@ -293,11 +310,11 @@ undoStore.Add("delete", "bridge", previousState)  → operationID
 
 Retrieves the stored `UndoOperation` and reverses based on type:
 
-| Original op | Undo action |
-|---|---|
-| `create` | not yet implemented |
-| `update` | restore `previousState` via `UpdateBridge` |
-| `delete` | recreate via `CreateBridge` with previous state |
+| Original op | Undo action                                     |
+| ----------- | ----------------------------------------------- |
+| `create`    | not yet implemented                             |
+| `update`    | restore `previousState` via `UpdateBridge`      |
+| `delete`    | recreate via `CreateBridge` with previous state |
 
 After successful undo: `undoStore.Delete(operationID)`.
 
@@ -314,7 +331,8 @@ type Impact struct {
 }
 ```
 
-**`GetBridges`** additionally fetches ports, VLANs, and STP status for each bridge (3 extra commands per bridge):
+**`GetBridges`** additionally fetches ports, VLANs, and STP status for each bridge (3 extra commands
+per bridge):
 
 ```
 /interface/bridge/port print
@@ -387,13 +405,13 @@ CancelTroubleshoot(ctx, sessionID)
 
 **Step types and their diagnostic backends:**
 
-| StepType | Diagnostic | What it checks |
-|---|---|---|
-| `StepTypeWAN` | `CircuitBreakerDiagnostics.CheckWAN` | WAN interface link status |
-| `StepTypeGateway` | `CircuitBreakerDiagnostics.CheckGateway` | Gateway reachability (ping) |
+| StepType           | Diagnostic                                | What it checks                 |
+| ------------------ | ----------------------------------------- | ------------------------------ |
+| `StepTypeWAN`      | `CircuitBreakerDiagnostics.CheckWAN`      | WAN interface link status      |
+| `StepTypeGateway`  | `CircuitBreakerDiagnostics.CheckGateway`  | Gateway reachability (ping)    |
 | `StepTypeInternet` | `CircuitBreakerDiagnostics.CheckInternet` | External internet reachability |
-| `StepTypeDNS` | `DNSDiagnostics.CheckDNS` | DNS resolution correctness |
-| `StepTypeNAT` | `CircuitBreakerDiagnostics.CheckNAT` | NAT masquerade rule presence |
+| `StepTypeDNS`      | `DNSDiagnostics.CheckDNS`                 | DNS resolution correctness     |
+| `StepTypeNAT`      | `CircuitBreakerDiagnostics.CheckNAT`      | NAT masquerade rule presence   |
 
 **Session statuses:**
 
@@ -418,7 +436,8 @@ StepStatusSkipped  // not applicable
 
 #### `session_store.go` — `SessionStore`
 
-In-memory, thread-safe session store. Sessions expire after 1 hour via a background cleanup goroutine.
+In-memory, thread-safe session store. Sessions expire after 1 hour via a background cleanup
+goroutine.
 
 ```go
 type SessionStore struct {
@@ -462,9 +481,11 @@ func (d *RouteLookupDiagnostics) DetectGateway(ctx, routerID) (string, error)
 func (d *RouteLookupDiagnostics) DetectISP(ctx, wanIP) (*ISPInfo, error)
 ```
 
-`DetectWanInterface` queries `/ip/route/print` for the default route (`dst-address=0.0.0.0/0`) and extracts the `gateway-interface` field.
+`DetectWanInterface` queries `/ip/route/print` for the default route (`dst-address=0.0.0.0/0`) and
+extracts the `gateway-interface` field.
 
-`DetectISP` makes an HTTP call to `ip-api.com` with the router's WAN IP to retrieve ISP name, phone, and URL.
+`DetectISP` makes an HTTP call to `ip-api.com` with the router's WAN IP to retrieve ISP name, phone,
+and URL.
 
 ---
 
@@ -481,7 +502,8 @@ Network interface IP address management.
 // SetIPAddress(ctx, port, id, input)       — /ip/address set .id=...
 ```
 
-**`ip_conflicts.go`** — Detects conflicting IP addresses across interfaces by comparing assigned addresses and checking for overlapping subnets.
+**`ip_conflicts.go`** — Detects conflicting IP addresses across interfaces by comparing assigned
+addresses and checking for overlapping subnets.
 
 ---
 
@@ -565,33 +587,38 @@ resolver → scanner.ScanSubnet(ctx, "192.168.88.0/24", DefaultConfig())
 
 ## Configuration
 
-| Setting | Default | Package |
-|---|---|---|
-| Scanner max workers | `20` | `router/scanner.DefaultConfig()` |
-| Scanner port timeout | `2s` | `router/scanner.DefaultConfig()` |
-| Scanner target ports | `[80, 443, 8728, 8729, 8291]` | `router/scanner.DefaultConfig()` |
-| Scanner per-IP concurrency | `5` (semaphore) | `scanner.ScanIP` |
-| DNS benchmark concurrency | `5` workers | `dns` package |
-| Bridge undo TTL | `10 seconds` | `UndoStore` |
-| Troubleshoot session TTL | `1 hour` | `SessionStore` |
-| DNS lookup timeout | inherits from RouterPort context | `dns.Service` |
+| Setting                    | Default                          | Package                          |
+| -------------------------- | -------------------------------- | -------------------------------- |
+| Scanner max workers        | `20`                             | `router/scanner.DefaultConfig()` |
+| Scanner port timeout       | `2s`                             | `router/scanner.DefaultConfig()` |
+| Scanner target ports       | `[80, 443, 8728, 8729, 8291]`    | `router/scanner.DefaultConfig()` |
+| Scanner per-IP concurrency | `5` (semaphore)                  | `scanner.ScanIP`                 |
+| DNS benchmark concurrency  | `5` workers                      | `dns` package                    |
+| Bridge undo TTL            | `10 seconds`                     | `UndoStore`                      |
+| Troubleshoot session TTL   | `1 hour`                         | `SessionStore`                   |
+| DNS lookup timeout         | inherits from RouterPort context | `dns.Service`                    |
 
 ---
 
 ## Error Handling
 
 **Firewall services** return wrapped errors with operation context:
+
 ```go
 fmt.Errorf("failed to fetch address list entries: %w", err)
 ```
 
 A `nil` `RouterPort` passed to stateless services returns an immediate error without panicking.
 
-**DNS service** never returns an error for lookup failures — it encodes the failure in `LookupResult.Status` and `LookupResult.Error`. Only structural errors (nil input, missing hostname) return a Go error.
+**DNS service** never returns an error for lookup failures — it encodes the failure in
+`LookupResult.Status` and `LookupResult.Error`. Only structural errors (nil input, missing hostname)
+return a Go error.
 
-**Scanner** returns `nil` for an IP if context is canceled before scanning completes. The caller (subnet scan) skips nil results.
+**Scanner** returns `nil` for an IP if context is canceled before scanning completes. The caller
+(subnet scan) skips nil results.
 
 **Troubleshoot service** returns typed sentinel errors:
+
 ```go
 var (
     ErrStepNotFound        = errors.New("diagnostic step not found")
@@ -601,24 +628,33 @@ var (
 )
 ```
 
-Fix application returns `(success bool, message string, status FixApplicationStatus, err error)` — distinguishing between "fix not available" (`FixStatusAvailable`, no error) and "fix failed" (`FixStatusFailed`, with error).
+Fix application returns `(success bool, message string, status FixApplicationStatus, err error)` —
+distinguishing between "fix not available" (`FixStatusAvailable`, no error) and "fix failed"
+(`FixStatusFailed`, with error).
 
 ---
 
 ## Testing
 
-- **Firewall tests** use mock `RouterPort` that returns pre-canned command results; parallel goroutine tests verify the `sync.WaitGroup` pattern
-- **Scanner tests** use `net.Listener` on random ports to simulate open ports; `ParseIPRange` has table-driven unit tests for all three input formats
-- **DNS tests** mock `RouterPort` for RouterOS-native path; Go resolver path tested with real DNS or a local DNS server fixture
-- **Troubleshoot tests** use mock diagnostic engines returning controlled `StepResult`; session store tested for TTL expiry and concurrent access
-- **Bridge service tests** verify the undo chain: create → undo, update → undo, delete → undo; `UndoStore` TTL tested with a fast clock
+- **Firewall tests** use mock `RouterPort` that returns pre-canned command results; parallel
+  goroutine tests verify the `sync.WaitGroup` pattern
+- **Scanner tests** use `net.Listener` on random ports to simulate open ports; `ParseIPRange` has
+  table-driven unit tests for all three input formats
+- **DNS tests** mock `RouterPort` for RouterOS-native path; Go resolver path tested with real DNS or
+  a local DNS server fixture
+- **Troubleshoot tests** use mock diagnostic engines returning controlled `StepResult`; session
+  store tested for TTL expiry and concurrent access
+- **Bridge service tests** verify the undo chain: create → undo, update → undo, delete → undo;
+  `UndoStore` TTL tested with a fast clock
 
 ---
 
 ## Cross-References
 
-- [See: 04-router-communication.md §RouterPort Interface] — the `RouterPort` that all services operate through
+- [See: 04-router-communication.md §RouterPort Interface] — the `RouterPort` that all services operate
+  through
 - [See: 04-router-communication.md §Batch Executor] — batch commands used for bulk firewall rule imports
-- [See: 08-provisioning-engine.md §Network Provisioning] — how provisioning stages call firewall and bridge services
+- [See: 08-provisioning-engine.md §Network Provisioning] — how provisioning stages call firewall and
+  bridge services
 - [See: 06-service-orchestrator.md §VIF System] — VIF uses bridge service for interface creation
 - Pattern reference: `Docs/architecture/backend-architecture.md §Service Layer`

@@ -1,7 +1,7 @@
 {
   "id": "sub-libraries/utils",
   "title": "Core Utils Library Reference",
-  "description": "Complete reference for all utility functions exported from @nasnet/core/utils. This library provides network validation, data formatting, React hooks, dependency graph algorithms, log export, and device detection utilities.",
+  "description": "Complete reference for all utility functions exported from @nasnet/core/utils. This library",
   "source": "@site/../../libs/core/docs/sub-libraries/utils.md",
   "sourceDirName": "sub-libraries",
   "slug": "/sub-libraries/utils",

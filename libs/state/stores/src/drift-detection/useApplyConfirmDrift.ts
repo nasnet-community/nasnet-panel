@@ -83,9 +83,7 @@ export interface UseApplyConfirmDriftOptions<TConfig = unknown> {
  */
 export interface UseApplyConfirmDriftReturn<TConfig = unknown> {
   /** Apply configuration following Apply-Confirm-Merge pattern */
-  applyWithConfirm: (
-    resource: Resource<TConfig>
-  ) => Promise<ApplyResult<TConfig>>;
+  applyWithConfirm: (resource: Resource<TConfig>) => Promise<ApplyResult<TConfig>>;
   /** Whether an apply operation is in progress */
   isApplying: boolean;
   /** Last apply result */
@@ -150,13 +148,10 @@ export interface UseApplyConfirmDriftReturn<TConfig = unknown> {
 export function useApplyConfirmDrift<TConfig = unknown>(
   options: UseApplyConfirmDriftOptions<TConfig>
 ): UseApplyConfirmDriftReturn<TConfig> {
-  const { applyFn, confirmFn, onDriftChange, onApplySuccess, onApplyError } =
-    options;
+  const { applyFn, confirmFn, onDriftChange, onApplySuccess, onApplyError } = options;
 
   const [isApplying, setIsApplying] = useState(false);
-  const [lastResult, setLastResult] = useState<ApplyResult<TConfig> | null>(
-    null
-  );
+  const [lastResult, setLastResult] = useState<ApplyResult<TConfig> | null>(null);
 
   const applyWithConfirm = useCallback(
     async (resource: Resource<TConfig>): Promise<ApplyResult<TConfig>> => {
@@ -215,8 +210,7 @@ export function useApplyConfirmDrift<TConfig = unknown>(
 
         return result;
       } catch (error) {
-        const errorMessage =
-          error instanceof Error ? error.message : 'Unknown error during apply';
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error during apply';
 
         const result: ApplyResult<TConfig> = {
           success: false,
@@ -366,8 +360,7 @@ export function useDriftResolution<TConfig = unknown>(
         onResolved?.(resource.uuid, 'ACCEPT');
         return true;
       } catch (err) {
-        const errorMessage =
-          err instanceof Error ? err.message : 'Failed to accept router state';
+        const errorMessage = err instanceof Error ? err.message : 'Failed to accept router state';
         setError(errorMessage);
         onError?.(resource.uuid, errorMessage);
         return false;

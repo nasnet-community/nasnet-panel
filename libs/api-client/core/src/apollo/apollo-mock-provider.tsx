@@ -10,7 +10,13 @@
  * @module @nasnet/api-client/core/apollo
  */
 
-import { ApolloClient, ApolloLink, ApolloProvider, InMemoryCache, Observable } from '@apollo/client';
+import {
+  ApolloClient,
+  ApolloLink,
+  ApolloProvider,
+  InMemoryCache,
+  Observable,
+} from '@apollo/client';
 import type { ReactNode } from 'react';
 
 /**
@@ -19,9 +25,10 @@ import type { ReactNode } from 'react';
  * context requirement so components don't crash.
  */
 const noOpLink = new ApolloLink(
-  () => new Observable(() => {
-    // Never completes — keeps queries in loading state
-  }),
+  () =>
+    new Observable(() => {
+      // Never completes — keeps queries in loading state
+    })
 );
 
 /**
@@ -52,9 +59,5 @@ interface MockApolloProviderProps {
  * ```
  */
 export function MockApolloProvider({ children }: MockApolloProviderProps) {
-  return (
-    <ApolloProvider client={mockApolloClient}>
-      {children}
-    </ApolloProvider>
-  );
+  return <ApolloProvider client={mockApolloClient}>{children}</ApolloProvider>;
 }

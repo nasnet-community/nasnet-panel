@@ -36,7 +36,8 @@ export const BrowsingTemplates: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Template browser showing available templates with filtering and search capabilities.',
+        story:
+          'Template browser showing available templates with filtering and search capabilities.',
       },
     },
   },

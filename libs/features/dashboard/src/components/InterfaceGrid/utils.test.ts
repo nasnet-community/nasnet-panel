@@ -150,15 +150,7 @@ describe('sortInterfacesByPriority', () => {
     const sorted = sortInterfacesByPriority(interfaces);
     const types = sorted.map((i) => i.type);
 
-    expect(types).toEqual([
-      'ethernet',
-      'bridge',
-      'wireless',
-      'vpn',
-      'tunnel',
-      'vlan',
-      'loopback',
-    ]);
+    expect(types).toEqual(['ethernet', 'bridge', 'wireless', 'vpn', 'tunnel', 'vlan', 'loopback']);
   });
 });
 

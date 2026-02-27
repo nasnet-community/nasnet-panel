@@ -34,7 +34,11 @@ import type { LogEntryItemProps } from './types';
  * @param isNew - Whether this is a newly arrived entry (triggers highlight animation)
  * @param compact - Whether to use compact mode (mobile): limits text to single line
  */
-export const LogEntryItem = memo(function LogEntryItem({ entry, isNew, compact }: LogEntryItemProps) {
+export const LogEntryItem = memo(function LogEntryItem({
+  entry,
+  isNew,
+  compact,
+}: LogEntryItemProps) {
   const severityConfig = useMemo(() => SEVERITY_CONFIG[entry.severity], [entry.severity]);
   const SeverityIcon = severityConfig.icon;
 
@@ -45,34 +49,38 @@ export const LogEntryItem = memo(function LogEntryItem({ entry, isNew, compact }
       role="listitem"
       aria-label={`${severityConfig.label} log: ${entry.message}`}
       className={cn(
-        'flex items-start gap-component-md p-component-md rounded-lg transition-colors',
+        'gap-component-md p-component-md flex items-start rounded-lg transition-colors',
         'hover:bg-muted/50',
         isNew && 'animate-highlight bg-primary/5'
       )}
     >
       {/* Severity Icon */}
       <div className={cn('mt-0.5 shrink-0', severityConfig.colorClass)}>
-        <SeverityIcon size={18} aria-hidden="true" />
+        <SeverityIcon
+          size={18}
+          aria-hidden="true"
+        />
       </div>
 
       {/* Content */}
-      <div className="flex-1 min-w-0 space-y-1">
-        <div className="flex items-center gap-component-sm flex-wrap">
+      <div className="min-w-0 flex-1 space-y-1">
+        <div className="gap-component-sm flex flex-wrap items-center">
           {/* Topic Badge */}
-          <Badge variant="secondary" className="text-xs">
+          <Badge
+            variant="secondary"
+            className="text-xs"
+          >
             {TOPIC_LABELS[entry.topic] || entry.topic}
           </Badge>
 
           {/* Timestamp (monospace font for technical data) */}
-          <span className="text-xs text-muted-foreground font-mono">
-            {formattedTimestamp}
-          </span>
+          <span className="text-muted-foreground font-mono text-xs">{formattedTimestamp}</span>
         </div>
 
         {/* Message (monospace font for log data) */}
         <p
           className={cn(
-            'text-sm text-foreground font-mono',
+            'text-foreground font-mono text-sm',
             compact ? 'line-clamp-1' : 'line-clamp-2'
           )}
           title={entry.message}

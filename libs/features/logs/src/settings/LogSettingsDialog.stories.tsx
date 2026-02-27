@@ -20,7 +20,6 @@ import { LogSettingsDialog } from './LogSettingsDialog';
 
 import type { Meta, StoryObj } from '@storybook/react';
 
-
 // Hook modules imported so vi.mocked() can intercept them
 
 // ---------------------------------------------------------------------------
@@ -116,7 +115,7 @@ function setupMocks({
     isLoading: rulesLoading,
     error: rulesError,
     refetch: vi.fn(),
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } as any);
 
   vi.mocked(apiQueriesModule.useLoggingActions).mockReturnValue({
@@ -125,7 +124,7 @@ function setupMocks({
     isLoading: actionsLoading,
     error: actionsError,
     refetch: vi.fn(),
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } as any);
 
   // Mutation hooks

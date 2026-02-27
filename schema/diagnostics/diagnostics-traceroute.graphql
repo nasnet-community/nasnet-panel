@@ -187,10 +187,7 @@ extend type Mutation {
   """
   Cancel a running traceroute job.
   """
-  cancelTraceroute(
-    "Job ID to cancel"
-    jobId: ID!
-  ): Boolean!
+  cancelTraceroute("Job ID to cancel" jobId: ID!): Boolean!
 }
 
 # -----------------------------------------------------------------------------
@@ -202,8 +199,5 @@ extend type Subscription {
   Subscribe to traceroute progress updates.
   Emits an event for each hop discovered and when traceroute completes.
   """
-  tracerouteProgress(
-    "Job ID to monitor"
-    jobId: ID!
-  ): TracerouteProgressEvent!
+  tracerouteProgress("Job ID to monitor" jobId: ID!): TracerouteProgressEvent!
 }

@@ -4,7 +4,6 @@ import { Spinner } from './Spinner';
 
 import type { Meta, StoryObj } from '@storybook/react';
 
-
 const meta: Meta<typeof Spinner> = {
   title: 'Primitives/Spinner',
   component: Spinner,
@@ -71,19 +70,19 @@ export const AllSizes: Story = {
     <div className="flex items-center gap-6">
       <div className="flex flex-col items-center gap-2">
         <Spinner size="sm" />
-        <span className="text-xs text-muted-foreground">sm (16px)</span>
+        <span className="text-muted-foreground text-xs">sm (16px)</span>
       </div>
       <div className="flex flex-col items-center gap-2">
         <Spinner size="md" />
-        <span className="text-xs text-muted-foreground">md (24px)</span>
+        <span className="text-muted-foreground text-xs">md (24px)</span>
       </div>
       <div className="flex flex-col items-center gap-2">
         <Spinner size="lg" />
-        <span className="text-xs text-muted-foreground">lg (32px)</span>
+        <span className="text-muted-foreground text-xs">lg (32px)</span>
       </div>
       <div className="flex flex-col items-center gap-2">
         <Spinner size="xl" />
-        <span className="text-xs text-muted-foreground">xl (48px)</span>
+        <span className="text-muted-foreground text-xs">xl (48px)</span>
       </div>
     </div>
   ),
@@ -100,17 +99,23 @@ export const InButtonContext: Story = {
   render: () => (
     <div className="flex flex-col gap-4">
       <button
-        className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
+        className="bg-primary text-primary-foreground inline-flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium"
         disabled
       >
-        <Spinner size="sm" label="Connecting to router..." />
+        <Spinner
+          size="sm"
+          label="Connecting to router..."
+        />
         Connecting...
       </button>
       <button
-        className="inline-flex items-center gap-2 rounded-md border border-input bg-background px-4 py-2 text-sm font-medium"
+        className="border-input bg-background inline-flex items-center gap-2 rounded-md border px-4 py-2 text-sm font-medium"
         disabled
       >
-        <Spinner size="sm" label="Saving settings..." />
+        <Spinner
+          size="sm"
+          label="Saving settings..."
+        />
         Saving settings
       </button>
     </div>
@@ -119,10 +124,13 @@ export const InButtonContext: Story = {
 
 export const InLoadingOverlay: Story = {
   render: () => (
-    <div className="relative flex h-40 w-64 items-center justify-center rounded-lg border bg-card">
+    <div className="bg-card relative flex h-40 w-64 items-center justify-center rounded-lg border">
       <div className="flex flex-col items-center gap-3">
-        <Spinner size="xl" label="Loading router data..." />
-        <span className="text-sm text-muted-foreground">Loading router data...</span>
+        <Spinner
+          size="xl"
+          label="Loading router data..."
+        />
+        <span className="text-muted-foreground text-sm">Loading router data...</span>
       </div>
     </div>
   ),
@@ -132,24 +140,39 @@ export const ColorVariants: Story = {
   render: () => (
     <div className="flex items-center gap-6">
       <div className="flex flex-col items-center gap-2">
-        <Spinner size="lg" className="text-primary" />
-        <span className="text-xs text-muted-foreground">primary</span>
+        <Spinner
+          size="lg"
+          className="text-primary"
+        />
+        <span className="text-muted-foreground text-xs">primary</span>
       </div>
       <div className="flex flex-col items-center gap-2">
-        <Spinner size="lg" className="text-success" />
-        <span className="text-xs text-muted-foreground">success</span>
+        <Spinner
+          size="lg"
+          className="text-success"
+        />
+        <span className="text-muted-foreground text-xs">success</span>
       </div>
       <div className="flex flex-col items-center gap-2">
-        <Spinner size="lg" className="text-warning" />
-        <span className="text-xs text-muted-foreground">warning</span>
+        <Spinner
+          size="lg"
+          className="text-warning"
+        />
+        <span className="text-muted-foreground text-xs">warning</span>
       </div>
       <div className="flex flex-col items-center gap-2">
-        <Spinner size="lg" className="text-error" />
-        <span className="text-xs text-muted-foreground">error</span>
+        <Spinner
+          size="lg"
+          className="text-error"
+        />
+        <span className="text-muted-foreground text-xs">error</span>
       </div>
       <div className="flex flex-col items-center gap-2">
-        <Spinner size="lg" className="text-muted-foreground" />
-        <span className="text-xs text-muted-foreground">muted</span>
+        <Spinner
+          size="lg"
+          className="text-muted-foreground"
+        />
+        <span className="text-muted-foreground text-xs">muted</span>
       </div>
     </div>
   ),
@@ -178,11 +201,15 @@ export const Tablet: Story = {
 export const Error: Story = {
   render: () => (
     <div className="flex flex-col items-center gap-4">
-      <div className="flex items-center gap-3 text-error">
-        <Spinner size="lg" className="text-error" label="Error attempting operation..." />
+      <div className="text-error flex items-center gap-3">
+        <Spinner
+          size="lg"
+          className="text-error"
+          label="Error attempting operation..."
+        />
         <div>
-          <p className="text-sm font-medium text-foreground">Operation Failed</p>
-          <p className="text-xs text-muted-foreground">Retrying...</p>
+          <p className="text-foreground text-sm font-medium">Operation Failed</p>
+          <p className="text-muted-foreground text-xs">Retrying...</p>
         </div>
       </div>
     </div>
@@ -191,9 +218,12 @@ export const Error: Story = {
 
 export const Empty: Story = {
   render: () => (
-    <div className="flex flex-col items-center justify-center gap-4 h-40">
-      <Spinner size="lg" label="Loading content..." />
-      <p className="text-sm text-muted-foreground">No data available yet</p>
+    <div className="flex h-40 flex-col items-center justify-center gap-4">
+      <Spinner
+        size="lg"
+        label="Loading content..."
+      />
+      <p className="text-muted-foreground text-sm">No data available yet</p>
     </div>
   ),
 };

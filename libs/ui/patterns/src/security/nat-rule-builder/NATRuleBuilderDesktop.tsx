@@ -22,11 +22,7 @@ import {
 } from 'lucide-react';
 import { Controller, type Control, type FieldValues } from 'react-hook-form';
 
-import {
-  NatChainSchema,
-  NatActionSchema,
-  ProtocolSchema,
-} from '@nasnet/core/types';
+import { NatChainSchema, NatActionSchema, ProtocolSchema } from '@nasnet/core/types';
 import {
   Dialog,
   DialogContent,
@@ -34,7 +30,6 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-
   Button,
   Card,
   Input,
@@ -46,13 +41,12 @@ import {
   Switch,
   Badge,
   Separator,
-  Label} from '@nasnet/ui/primitives';
+  Label,
+} from '@nasnet/ui/primitives';
 
 import { useNATRuleBuilder } from './use-nat-rule-builder';
 import { ConfirmationDialog } from '../../confirmation-dialog';
 import { RHFFormField } from '../../rhf-form-field';
-
-
 
 import type { NATRuleBuilderProps } from './nat-rule-builder.types';
 
@@ -122,43 +116,42 @@ export const NATRuleBuilderDesktop = memo(function NATRuleBuilderDesktop({
 
   return (
     <>
-      <Dialog open={open} onOpenChange={onClose}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
+      <Dialog
+        open={open}
+        onOpenChange={onClose}
+      >
+        <DialogContent className="flex max-h-[90vh] max-w-4xl flex-col overflow-hidden">
           <DialogHeader>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10">
-                  <Shield className="w-5 h-5 text-primary" />
+                <div className="bg-primary/10 flex h-10 w-10 items-center justify-center rounded-lg">
+                  <Shield className="text-primary h-5 w-5" />
                 </div>
                 <div>
-                  <DialogTitle>
-                    {mode === 'edit' ? 'Edit NAT Rule' : 'Create NAT Rule'}
-                  </DialogTitle>
+                  <DialogTitle>{mode === 'edit' ? 'Edit NAT Rule' : 'Create NAT Rule'}</DialogTitle>
                   <DialogDescription>
                     Configure network address translation for {rule.chain || 'NAT'} chain
                   </DialogDescription>
                 </div>
               </div>
               {rule.action && (
-                <Badge variant={actionBadgeVariant}>
-                  {rule.action.toUpperCase()}
-                </Badge>
+                <Badge variant={actionBadgeVariant}>{rule.action.toUpperCase()}</Badge>
               )}
             </div>
           </DialogHeader>
 
           {/* Form Content */}
-          <div className="flex-1 overflow-y-auto space-y-6 py-4">
+          <div className="flex-1 space-y-6 overflow-y-auto py-4">
             {/* Chain and Action Section */}
-            <Card className="p-component-md border-t-2 border-t-category-firewall">
-              <div className="flex items-center gap-2 mb-4">
-                <Network className="w-4 h-4 text-category-firewall" />
-                <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider">
+            <Card className="p-component-md border-t-category-firewall border-t-2">
+              <div className="mb-4 flex items-center gap-2">
+                <Network className="text-category-firewall h-4 w-4" />
+                <h3 className="text-foreground text-sm font-semibold uppercase tracking-wider">
                   NAT Configuration
                 </h3>
               </div>
 
-              <div className="grid grid-cols-2 gap-component-md">
+              <div className="gap-component-md grid grid-cols-2">
                 {/* Chain Selector */}
                 <RHFFormField
                   name="chain"
@@ -171,19 +164,25 @@ export const NATRuleBuilderDesktop = memo(function NATRuleBuilderDesktop({
                     name="chain"
                     control={control}
                     render={({ field }) => (
-                      <Select value={field.value} onValueChange={field.onChange}>
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      >
                         <SelectTrigger>
                           <SelectValue placeholder="Select chain" />
                         </SelectTrigger>
                         <SelectContent>
                           {NatChainSchema.options.map((chain: string) => (
-                            <SelectItem key={chain} value={chain}>
+                            <SelectItem
+                              key={chain}
+                              value={chain}
+                            >
                               <div className="flex flex-col items-start">
                                 <span className="font-medium">{chain}</span>
-                                <span className="text-xs text-muted-foreground">
-                                  {chain === 'srcnat'
-                                    ? 'Outgoing traffic (masquerade)'
-                                    : 'Incoming traffic (port forwarding)'}
+                                <span className="text-muted-foreground text-xs">
+                                  {chain === 'srcnat' ?
+                                    'Outgoing traffic (masquerade)'
+                                  : 'Incoming traffic (port forwarding)'}
                                 </span>
                               </div>
                             </SelectItem>
@@ -206,13 +205,19 @@ export const NATRuleBuilderDesktop = memo(function NATRuleBuilderDesktop({
                     name="action"
                     control={control}
                     render={({ field }) => (
-                      <Select value={field.value} onValueChange={field.onChange}>
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      >
                         <SelectTrigger>
                           <SelectValue placeholder="Select action" />
                         </SelectTrigger>
                         <SelectContent>
                           {NatActionSchema.options.map((action: string) => (
-                            <SelectItem key={action} value={action}>
+                            <SelectItem
+                              key={action}
+                              value={action}
+                            >
                               {action}
                             </SelectItem>
                           ))}
@@ -226,14 +231,14 @@ export const NATRuleBuilderDesktop = memo(function NATRuleBuilderDesktop({
 
             {/* Matchers Section */}
             <Card className="p-component-md">
-              <div className="flex items-center gap-2 mb-4">
-                <Settings className="w-4 h-4 text-muted-foreground" />
-                <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider">
+              <div className="mb-4 flex items-center gap-2">
+                <Settings className="text-muted-foreground h-4 w-4" />
+                <h3 className="text-foreground text-sm font-semibold uppercase tracking-wider">
                   Traffic Matchers
                 </h3>
               </div>
 
-              <div className="grid grid-cols-2 gap-component-md">
+              <div className="gap-component-md grid grid-cols-2">
                 {/* Protocol */}
                 {isFieldVisible('protocol') && (
                   <RHFFormField
@@ -246,13 +251,19 @@ export const NATRuleBuilderDesktop = memo(function NATRuleBuilderDesktop({
                       name="protocol"
                       control={control}
                       render={({ field }) => (
-                        <Select value={field.value} onValueChange={field.onChange}>
+                        <Select
+                          value={field.value}
+                          onValueChange={field.onChange}
+                        >
                           <SelectTrigger>
                             <SelectValue placeholder="Any protocol" />
                           </SelectTrigger>
                           <SelectContent>
                             {ProtocolSchema.options.map((protocol: string) => (
-                              <SelectItem key={protocol} value={protocol}>
+                              <SelectItem
+                                key={protocol}
+                                value={protocol}
+                              >
                                 {protocol.toUpperCase()}
                               </SelectItem>
                             ))}
@@ -363,14 +374,14 @@ export const NATRuleBuilderDesktop = memo(function NATRuleBuilderDesktop({
               isFieldVisible('inInterfaceList') ||
               isFieldVisible('outInterfaceList')) && (
               <Card className="p-component-md">
-                <div className="flex items-center gap-2 mb-4">
-                  <Globe className="w-4 h-4 text-muted-foreground" />
-                  <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider">
+                <div className="mb-4 flex items-center gap-2">
+                  <Globe className="text-muted-foreground h-4 w-4" />
+                  <h3 className="text-foreground text-sm font-semibold uppercase tracking-wider">
                     Interfaces
                   </h3>
                 </div>
 
-                <div className="grid grid-cols-2 gap-component-md">
+                <div className="gap-component-md grid grid-cols-2">
                   {/* Input Interface */}
                   {isFieldVisible('inInterface') && (
                     <RHFFormField
@@ -383,14 +394,20 @@ export const NATRuleBuilderDesktop = memo(function NATRuleBuilderDesktop({
                         name="inInterface"
                         control={control}
                         render={({ field }) => (
-                          <Select value={field.value} onValueChange={field.onChange}>
+                          <Select
+                            value={field.value}
+                            onValueChange={field.onChange}
+                          >
                             <SelectTrigger>
                               <SelectValue placeholder="Any" />
                             </SelectTrigger>
                             <SelectContent>
                               <SelectItem value="">Any</SelectItem>
                               {interfaces.map((iface) => (
-                                <SelectItem key={iface} value={iface}>
+                                <SelectItem
+                                  key={iface}
+                                  value={iface}
+                                >
                                   {iface}
                                 </SelectItem>
                               ))}
@@ -413,14 +430,20 @@ export const NATRuleBuilderDesktop = memo(function NATRuleBuilderDesktop({
                         name="outInterface"
                         control={control}
                         render={({ field }) => (
-                          <Select value={field.value} onValueChange={field.onChange}>
+                          <Select
+                            value={field.value}
+                            onValueChange={field.onChange}
+                          >
                             <SelectTrigger>
                               <SelectValue placeholder="Any" />
                             </SelectTrigger>
                             <SelectContent>
                               <SelectItem value="">Any</SelectItem>
                               {interfaces.map((iface) => (
-                                <SelectItem key={iface} value={iface}>
+                                <SelectItem
+                                  key={iface}
+                                  value={iface}
+                                >
                                   {iface}
                                 </SelectItem>
                               ))}
@@ -443,14 +466,20 @@ export const NATRuleBuilderDesktop = memo(function NATRuleBuilderDesktop({
                         name="inInterfaceList"
                         control={control}
                         render={({ field }) => (
-                          <Select value={field.value} onValueChange={field.onChange}>
+                          <Select
+                            value={field.value}
+                            onValueChange={field.onChange}
+                          >
                             <SelectTrigger>
                               <SelectValue placeholder="None" />
                             </SelectTrigger>
                             <SelectContent>
                               <SelectItem value="">None</SelectItem>
                               {interfaceLists.map((list) => (
-                                <SelectItem key={list} value={list}>
+                                <SelectItem
+                                  key={list}
+                                  value={list}
+                                >
                                   {list}
                                 </SelectItem>
                               ))}
@@ -473,14 +502,20 @@ export const NATRuleBuilderDesktop = memo(function NATRuleBuilderDesktop({
                         name="outInterfaceList"
                         control={control}
                         render={({ field }) => (
-                          <Select value={field.value} onValueChange={field.onChange}>
+                          <Select
+                            value={field.value}
+                            onValueChange={field.onChange}
+                          >
                             <SelectTrigger>
                               <SelectValue placeholder="None" />
                             </SelectTrigger>
                             <SelectContent>
                               <SelectItem value="">None</SelectItem>
                               {interfaceLists.map((list) => (
-                                <SelectItem key={list} value={list}>
+                                <SelectItem
+                                  key={list}
+                                  value={list}
+                                >
                                   {list}
                                 </SelectItem>
                               ))}
@@ -497,14 +532,14 @@ export const NATRuleBuilderDesktop = memo(function NATRuleBuilderDesktop({
             {/* Translation Section */}
             {(isFieldVisible('toAddresses') || isFieldVisible('toPorts')) && (
               <Card className="p-component-md">
-                <div className="flex items-center gap-2 mb-4">
-                  <ArrowRight className="w-4 h-4 text-primary" />
-                  <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider">
+                <div className="mb-4 flex items-center gap-2">
+                  <ArrowRight className="text-primary h-4 w-4" />
+                  <h3 className="text-foreground text-sm font-semibold uppercase tracking-wider">
                     Translation
                   </h3>
                 </div>
 
-                <div className="grid grid-cols-2 gap-component-md">
+                <div className="gap-component-md grid grid-cols-2">
                   {/* To Addresses */}
                   {isFieldVisible('toAddresses') && (
                     <RHFFormField
@@ -557,9 +592,9 @@ export const NATRuleBuilderDesktop = memo(function NATRuleBuilderDesktop({
 
             {/* Meta Section */}
             <Card className="p-component-md">
-              <div className="flex items-center gap-2 mb-4">
-                <Info className="w-4 h-4 text-muted-foreground" />
-                <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider">
+              <div className="mb-4 flex items-center gap-2">
+                <Info className="text-muted-foreground h-4 w-4" />
+                <h3 className="text-foreground text-sm font-semibold uppercase tracking-wider">
                   Options
                 </h3>
               </div>
@@ -590,9 +625,7 @@ export const NATRuleBuilderDesktop = memo(function NATRuleBuilderDesktop({
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
                     <Label htmlFor="disabled">Disabled</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Create rule in disabled state
-                    </p>
+                    <p className="text-muted-foreground text-sm">Create rule in disabled state</p>
                   </div>
                   <Controller
                     name="disabled"
@@ -612,7 +645,7 @@ export const NATRuleBuilderDesktop = memo(function NATRuleBuilderDesktop({
                   <div className="flex items-center justify-between">
                     <div className="space-y-0.5">
                       <Label htmlFor="log">Log Packets</Label>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-muted-foreground text-sm">
                         Log matching packets to router log
                       </p>
                     </div>
@@ -657,22 +690,22 @@ export const NATRuleBuilderDesktop = memo(function NATRuleBuilderDesktop({
 
             {/* Preview Section */}
             <Card className="p-component-md bg-muted/50">
-              <div className="flex items-center gap-2 mb-3">
-                <Info className="w-4 h-4 text-muted-foreground" />
-                <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider">
+              <div className="mb-3 flex items-center gap-2">
+                <Info className="text-muted-foreground h-4 w-4" />
+                <h3 className="text-foreground text-sm font-semibold uppercase tracking-wider">
                   Preview
                 </h3>
               </div>
 
               <div className="space-y-2">
                 <div>
-                  <p className="text-sm text-muted-foreground mb-1">Description:</p>
+                  <p className="text-muted-foreground mb-1 text-sm">Description:</p>
                   <p className="text-sm font-medium">{description}</p>
                 </div>
                 <Separator />
                 <div>
-                  <p className="text-sm text-muted-foreground mb-1">CLI Command:</p>
-                  <code className="block text-xs bg-background p-2 rounded border overflow-x-auto">
+                  <p className="text-muted-foreground mb-1 text-sm">CLI Command:</p>
+                  <code className="bg-background block overflow-x-auto rounded border p-2 text-xs">
                     {preview}
                   </code>
                 </div>
@@ -691,7 +724,7 @@ export const NATRuleBuilderDesktop = memo(function NATRuleBuilderDesktop({
                   onClick={handleDelete}
                   disabled={isDeleting || isSaving}
                 >
-                  <Trash2 className="w-4 h-4 mr-2" />
+                  <Trash2 className="mr-2 h-4 w-4" />
                   Delete
                 </Button>
               )}
@@ -711,7 +744,11 @@ export const NATRuleBuilderDesktop = memo(function NATRuleBuilderDesktop({
                 onClick={builder.onSubmit}
                 disabled={!formState.isValid || isSaving || isDeleting}
               >
-                {isSaving ? 'Saving...' : mode === 'edit' ? 'Save Changes' : 'Create Rule'}
+                {isSaving ?
+                  'Saving...'
+                : mode === 'edit' ?
+                  'Save Changes'
+                : 'Create Rule'}
               </Button>
             </div>
           </DialogFooter>

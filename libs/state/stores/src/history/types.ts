@@ -16,13 +16,7 @@
 /**
  * Types of actions that can be tracked in history
  */
-export type HistoryActionType =
-  | 'edit'
-  | 'delete'
-  | 'create'
-  | 'reorder'
-  | 'changeset'
-  | 'custom';
+export type HistoryActionType = 'edit' | 'delete' | 'create' | 'reorder' | 'changeset' | 'custom';
 
 /**
  * Action scope determines history clearing behavior

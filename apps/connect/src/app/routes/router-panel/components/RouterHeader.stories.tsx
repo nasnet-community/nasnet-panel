@@ -9,7 +9,6 @@
 
 import { useEffect } from 'react';
 
-
 import { useRouterStore, useConnectionStore } from '@nasnet/state/stores';
 
 import { RouterHeader } from './RouterHeader';

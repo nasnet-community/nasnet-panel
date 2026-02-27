@@ -26,10 +26,7 @@
 
 import { memo, useMemo } from 'react';
 import { useMediaQuery } from '@nasnet/ui/primitives';
-import {
-  useEmailChannelForm,
-  type UseEmailChannelFormOptions,
-} from '../hooks/useEmailChannelForm';
+import { useEmailChannelForm, type UseEmailChannelFormOptions } from '../hooks/useEmailChannelForm';
 import { EmailChannelFormDesktop } from './EmailChannelFormDesktop';
 import { EmailChannelFormMobile } from './EmailChannelFormMobile';
 import { cn } from '@nasnet/ui/utils';
@@ -83,11 +80,9 @@ const EmailChannelForm = memo(
     // Render appropriate presenter based on platform
     return (
       <div className={cn('EmailChannelForm-wrapper', className)}>
-        {shouldUseMobile ? (
+        {shouldUseMobile ?
           <EmailChannelFormMobile emailForm={emailForm} />
-        ) : (
-          <EmailChannelFormDesktop emailForm={emailForm} />
-        )}
+        : <EmailChannelFormDesktop emailForm={emailForm} />}
       </div>
     );
   },

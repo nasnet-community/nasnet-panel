@@ -52,7 +52,9 @@ import type { RateLimitRulesTableProps } from './types';
  * />
  * ```
  */
-export const RateLimitRulesTable = memo(function RateLimitRulesTable(props: RateLimitRulesTableProps) {
+export const RateLimitRulesTable = memo(function RateLimitRulesTable(
+  props: RateLimitRulesTableProps
+) {
   const platform = usePlatform();
 
   // Get business logic from headless hook

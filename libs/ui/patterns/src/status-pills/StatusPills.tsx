@@ -144,7 +144,7 @@ const StatusPillsBase = React.forwardRef<HTMLDivElement, StatusPillsProps>(
     return (
       <div
         ref={ref}
-        className={`flex gap-2 overflow-x-auto pb-2 scrollbar-hide ${className || ''}`}
+        className={`scrollbar-hide flex gap-2 overflow-x-auto pb-2 ${className || ''}`}
         role="region"
         aria-label="Status pills"
         {...props}
@@ -160,18 +160,12 @@ const StatusPillsBase = React.forwardRef<HTMLDivElement, StatusPillsProps>(
               onClick={pill.onClick}
               disabled={!isClickable}
               aria-label={`${pill.label}: ${pill.variant}`}
-              className={`
-                flex-shrink-0 flex items-center gap-2 px-4 py-2 rounded-full border
-                transition-all duration-200
-                ${config.bg} ${config.border}
-                ${isClickable ? 'cursor-pointer hover:shadow-sm hover:-translate-y-0.5 active:scale-95' : 'cursor-default'}
-                focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2
-              `}
+              className={`flex flex-shrink-0 items-center gap-2 rounded-full border px-4 py-2 transition-all duration-200 ${config.bg} ${config.border} ${isClickable ? 'cursor-pointer hover:-translate-y-0.5 hover:shadow-sm active:scale-95' : 'cursor-default'} focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2`}
             >
               {/* Status dot for success/warning/error */}
               {config.showDot && (
                 <span
-                  className={`w-2 h-2 rounded-full ${config.dotColor} ${
+                  className={`h-2 w-2 rounded-full ${config.dotColor} ${
                     pill.variant === 'success' ? 'animate-pulse' : ''
                   }`}
                   aria-hidden="true"
@@ -181,7 +175,7 @@ const StatusPillsBase = React.forwardRef<HTMLDivElement, StatusPillsProps>(
               {/* Icon for non-dot variants */}
               {!config.showDot && IconComponent && (
                 <IconComponent
-                  className={`w-3.5 h-3.5 ${config.iconColor}`}
+                  className={`h-3.5 w-3.5 ${config.iconColor}`}
                   aria-hidden="true"
                 />
               )}
@@ -205,22 +199,3 @@ StatusPillsBase.displayName = 'StatusPills';
  * Prevents unnecessary re-renders when props don't change
  */
 export const StatusPills = React.memo(StatusPillsBase);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

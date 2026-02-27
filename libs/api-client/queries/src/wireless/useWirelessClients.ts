@@ -84,9 +84,7 @@ async function fetchWirelessClients(routerIp: string): Promise<WirelessClient[]>
   });
 }
 
-export function useWirelessClients(
-  routerIp: string
-): UseQueryResult<WirelessClient[], Error> {
+export function useWirelessClients(routerIp: string): UseQueryResult<WirelessClient[], Error> {
   return useQuery({
     queryKey: wirelessClientKeys.clients(routerIp),
     queryFn: () => fetchWirelessClients(routerIp),
@@ -97,8 +95,3 @@ export function useWirelessClients(
     enabled: !!routerIp,
   });
 }
-
-
-
-
-

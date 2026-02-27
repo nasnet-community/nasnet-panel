@@ -186,14 +186,16 @@ export function withAnimationFallback<P extends object>(
     const fallback = FallbackComponent ? <FallbackComponent /> : null;
 
     return (
-      <AnimationErrorBoundary fallback={fallback} onError={onError}>
+      <AnimationErrorBoundary
+        fallback={fallback}
+        onError={onError}
+      >
         <WrappedComponent {...props} />
       </AnimationErrorBoundary>
     );
   }
 
-  const displayName =
-    WrappedComponent.displayName || WrappedComponent.name || 'Component';
+  const displayName = WrappedComponent.displayName || WrappedComponent.name || 'Component';
   WithAnimationFallback.displayName = `withAnimationFallback(${displayName})`;
 
   return WithAnimationFallback;

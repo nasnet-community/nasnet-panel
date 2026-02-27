@@ -1,9 +1,9 @@
-import * as React from 'react'
+import * as React from 'react';
 
-import { Button } from '../button'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './tooltip'
+import { Button } from '../button';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './tooltip';
 
-import type { Meta, StoryObj } from '@storybook/react'
+import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta<typeof Tooltip> = {
   title: 'Primitives/Tooltip',
@@ -25,10 +25,10 @@ const meta: Meta<typeof Tooltip> = {
       </TooltipProvider>
     ),
   ],
-}
+};
 
-export default meta
-type Story = StoryObj<typeof Tooltip>
+export default meta;
+type Story = StoryObj<typeof Tooltip>;
 
 export const Default: Story = {
   render: () => (
@@ -47,7 +47,11 @@ export const RouterAction: Story = {
   render: () => (
     <Tooltip>
       <TooltipTrigger asChild>
-        <Button variant="ghost" size="icon" aria-label="Reboot router">
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label="Reboot router"
+        >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="16"
@@ -76,7 +80,12 @@ export const SidePlacements: Story = {
     <div className="grid grid-cols-2 gap-8 p-12">
       <Tooltip>
         <TooltipTrigger asChild>
-          <Button variant="outline" size="sm">Top</Button>
+          <Button
+            variant="outline"
+            size="sm"
+          >
+            Top
+          </Button>
         </TooltipTrigger>
         <TooltipContent side="top">
           <p>Tooltip on top</p>
@@ -85,7 +94,12 @@ export const SidePlacements: Story = {
 
       <Tooltip>
         <TooltipTrigger asChild>
-          <Button variant="outline" size="sm">Bottom</Button>
+          <Button
+            variant="outline"
+            size="sm"
+          >
+            Bottom
+          </Button>
         </TooltipTrigger>
         <TooltipContent side="bottom">
           <p>Tooltip on bottom</p>
@@ -94,7 +108,12 @@ export const SidePlacements: Story = {
 
       <Tooltip>
         <TooltipTrigger asChild>
-          <Button variant="outline" size="sm">Left</Button>
+          <Button
+            variant="outline"
+            size="sm"
+          >
+            Left
+          </Button>
         </TooltipTrigger>
         <TooltipContent side="left">
           <p>Tooltip on left</p>
@@ -103,7 +122,12 @@ export const SidePlacements: Story = {
 
       <Tooltip>
         <TooltipTrigger asChild>
-          <Button variant="outline" size="sm">Right</Button>
+          <Button
+            variant="outline"
+            size="sm"
+          >
+            Right
+          </Button>
         </TooltipTrigger>
         <TooltipContent side="right">
           <p>Tooltip on right</p>
@@ -121,8 +145,8 @@ export const WithLongContent: Story = {
       </TooltipTrigger>
       <TooltipContent className="max-w-xs">
         <p>
-          ether1 — WAN uplink. Current speed: 1Gbps. TX: 42.3 MB/s, RX: 18.7 MB/s.
-          Last link change 2h 14m ago.
+          ether1 — WAN uplink. Current speed: 1Gbps. TX: 42.3 MB/s, RX: 18.7 MB/s. Last link change
+          2h 14m ago.
         </p>
       </TooltipContent>
     </Tooltip>
@@ -135,7 +159,10 @@ export const DisabledButton: Story = {
       <TooltipTrigger asChild>
         {/* Wrap in span so tooltip still fires on a disabled button */}
         <span tabIndex={0}>
-          <Button variant="destructive" disabled>
+          <Button
+            variant="destructive"
+            disabled
+          >
             Factory Reset
           </Button>
         </span>
@@ -158,13 +185,14 @@ export const CustomDelay: Story = {
       </TooltipContent>
     </Tooltip>
   ),
-}
+};
 
 export const KeyboardAccessible: Story = {
   render: () => (
-    <div className="flex gap-4 flex-col">
-      <p className="text-xs text-muted-foreground">
-        Instructions: Use Tab key to focus buttons, then use Enter/Space to show tooltip. Press Escape to close.
+    <div className="flex flex-col gap-4">
+      <p className="text-muted-foreground text-xs">
+        Instructions: Use Tab key to focus buttons, then use Enter/Space to show tooltip. Press
+        Escape to close.
       </p>
       <Tooltip>
         <TooltipTrigger asChild>
@@ -186,13 +214,13 @@ export const KeyboardAccessible: Story = {
   ),
   play: async ({ canvasElement }) => {
     // Test accessibility: verify keyboard navigation is possible
-    const buttons = canvasElement.querySelectorAll('[role="button"]')
+    const buttons = canvasElement.querySelectorAll('[role="button"]');
     if (buttons.length > 0) {
-      const firstButton = buttons[0] as HTMLElement
-      firstButton.focus()
+      const firstButton = buttons[0] as HTMLElement;
+      firstButton.focus();
     }
   },
-}
+};
 
 export const AccessibilityContrast: Story = {
   render: () => (
@@ -217,14 +245,14 @@ export const AccessibilityContrast: Story = {
       },
     },
   },
-}
+};
 
 export const AnimationBehavior: Story = {
   render: () => (
-    <div className="flex gap-4 flex-col">
-      <p className="text-xs text-muted-foreground">
-        Animation uses Tailwind animate-in classes. Respects prefers-reduced-motion: animations disabled if
-        &quot;Reduce motion&quot; is enabled in OS settings.
+    <div className="flex flex-col gap-4">
+      <p className="text-muted-foreground text-xs">
+        Animation uses Tailwind animate-in classes. Respects prefers-reduced-motion: animations
+        disabled if &quot;Reduce motion&quot; is enabled in OS settings.
       </p>
       <Tooltip delayDuration={300}>
         <TooltipTrigger asChild>
@@ -244,7 +272,7 @@ export const AnimationBehavior: Story = {
       },
     },
   },
-}
+};
 
 export const LongContentWrapping: Story = {
   render: () => (
@@ -254,19 +282,22 @@ export const LongContentWrapping: Story = {
       </TooltipTrigger>
       <TooltipContent className="max-w-xs">
         <p>
-          This tooltip demonstrates proper text wrapping and line-height for readability. Max-width constraint
-          prevents excessive width. Content flows naturally across multiple lines.
+          This tooltip demonstrates proper text wrapping and line-height for readability. Max-width
+          constraint prevents excessive width. Content flows naturally across multiple lines.
         </p>
       </TooltipContent>
     </Tooltip>
   ),
-}
+};
 
 export const Mobile: Story = {
   render: () => (
     <Tooltip>
       <TooltipTrigger asChild>
-        <Button variant="outline" size="lg">
+        <Button
+          variant="outline"
+          size="lg"
+        >
           Mobile Touch Target
         </Button>
       </TooltipTrigger>
@@ -285,7 +316,7 @@ export const Mobile: Story = {
       },
     },
   },
-}
+};
 
 export const Tablet: Story = {
   render: () => (
@@ -308,7 +339,7 @@ export const Tablet: Story = {
       },
     },
   },
-}
+};
 
 export const Desktop: Story = {
   render: () => (
@@ -331,4 +362,4 @@ export const Desktop: Story = {
       },
     },
   },
-}
+};

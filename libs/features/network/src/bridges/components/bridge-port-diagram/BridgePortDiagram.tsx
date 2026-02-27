@@ -37,7 +37,7 @@ function BridgePortDiagramComponent({
   bridgeId,
   routerId,
   onEditPort,
-  className
+  className,
 }: BridgePortDiagramProps) {
   const {
     ports,
@@ -63,10 +63,7 @@ function BridgePortDiagramComponent({
     [setPortToRemove]
   );
 
-  const handleEditPortCallback = useCallback(
-    (id: string) => onEditPort?.(id),
-    [onEditPort]
-  );
+  const handleEditPortCallback = useCallback((id: string) => onEditPort?.(id), [onEditPort]);
 
   const handleDragEndCallback = useCallback(
     (event: DragEndEvent) => handleDragEnd(event),
@@ -78,17 +75,18 @@ function BridgePortDiagramComponent({
     [handleRemovePort, portToRemove]
   );
 
-  const handleCancelRemoveCallback = useCallback(
-    () => setPortToRemove(null),
-    [setPortToRemove]
-  );
+  const handleCancelRemoveCallback = useCallback(() => setPortToRemove(null), [setPortToRemove]);
 
   return (
-    <div className={`grid gap-component-lg md:grid-cols-2 ${className || ''}`}>
+    <div className={`gap-component-lg grid md:grid-cols-2 ${className || ''}`}>
       {/* Bridge Ports Section */}
       <div className="space-y-component-md">
-        <div className="flex items-center gap-component-sm">
-          <Icon icon={Network} className="h-5 w-5 text-category-networking" aria-hidden="true" />
+        <div className="gap-component-sm flex items-center">
+          <Icon
+            icon={Network}
+            className="text-category-networking h-5 w-5"
+            aria-hidden="true"
+          />
           <h3 className="text-lg font-semibold">Bridge Ports</h3>
         </div>
 
@@ -96,7 +94,10 @@ function BridgePortDiagramComponent({
         {isLoadingPorts && (
           <div className="space-y-component-sm">
             {Array.from({ length: MIN_SKELETON_COUNT }).map((_, i) => (
-              <Skeleton key={i} className="h-20 w-full" />
+              <Skeleton
+                key={i}
+                className="h-20 w-full"
+              />
             ))}
           </div>
         )}
@@ -104,7 +105,11 @@ function BridgePortDiagramComponent({
         {/* Error State */}
         {hasPortsError && (
           <Alert variant="destructive">
-            <Icon icon={AlertCircle} className="h-4 w-4 text-error" aria-hidden="true" />
+            <Icon
+              icon={AlertCircle}
+              className="text-error h-4 w-4"
+              aria-hidden="true"
+            />
             <AlertDescription>
               Failed to load bridge ports: {hasPortsError.message}
             </AlertDescription>
@@ -114,9 +119,16 @@ function BridgePortDiagramComponent({
         {/* Ports List with Drag-and-Drop */}
         {!isLoadingPorts && !hasPortsError && (
           <DndContext onDragEnd={handleDragEndCallback}>
-            <BridgeDropZoneComponent bridgeId={bridgeId} portCount={ports?.length || 0}>
-              <div className="space-y-component-sm" role="list" aria-label="Bridge ports">
-                {ports && ports.length > 0 ? (
+            <BridgeDropZoneComponent
+              bridgeId={bridgeId}
+              portCount={ports?.length || 0}
+            >
+              <div
+                className="space-y-component-sm"
+                role="list"
+                aria-label="Bridge ports"
+              >
+                {ports && ports.length > 0 ?
                   ports.map((port: BridgePort) => (
                     <PortNode
                       key={port.id}
@@ -126,23 +138,26 @@ function BridgePortDiagramComponent({
                       isRemoving={isLoading}
                     />
                   ))
-                ) : (
-                  <div className="rounded-lg border-2 border-dashed bg-muted p-component-lg text-center">
-                    <Icon icon={Network} className="h-12 w-12 mx-auto mb-component-md text-category-networking opacity-50" aria-hidden="true" />
-                    <p className="text-sm font-medium text-muted-foreground mb-component-sm">
+                : <div className="bg-muted p-component-lg rounded-lg border-2 border-dashed text-center">
+                    <Icon
+                      icon={Network}
+                      className="mb-component-md text-category-networking mx-auto h-12 w-12 opacity-50"
+                      aria-hidden="true"
+                    />
+                    <p className="text-muted-foreground mb-component-sm text-sm font-medium">
                       No ports assigned
                     </p>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-muted-foreground text-xs">
                       Drag an interface from the right to add it to this bridge
                     </p>
                   </div>
-                )}
+                }
               </div>
             </BridgeDropZoneComponent>
 
             {/* Drag Overlay (shows dragged item) */}
             <DragOverlay>
-              <div className="rounded-md border bg-background p-3 shadow-lg opacity-80">
+              <div className="bg-background rounded-md border p-3 opacity-80 shadow-lg">
                 <span className="text-sm font-medium">Dragging interface...</span>
               </div>
             </DragOverlay>
@@ -152,14 +167,18 @@ function BridgePortDiagramComponent({
 
       {/* Available Interfaces Section */}
       <div className="space-y-component-md">
-        <div className="flex items-center gap-component-sm">
+        <div className="gap-component-sm flex items-center">
           <h3 className="text-lg font-semibold">Available Interfaces</h3>
         </div>
 
         {/* Error State */}
         {hasInterfacesError && (
           <Alert variant="destructive">
-            <Icon icon={AlertCircle} className="h-4 w-4 text-error" aria-hidden="true" />
+            <Icon
+              icon={AlertCircle}
+              className="text-error h-4 w-4"
+              aria-hidden="true"
+            />
             <AlertDescription>
               Failed to load interfaces: {hasInterfacesError.message}
             </AlertDescription>
@@ -182,14 +201,16 @@ function BridgePortDiagramComponent({
           onOpenChange={(open) => !open && handleCancelRemoveCallback()}
           title={`Remove port "${portToRemoveData.interface.name}"?`}
           description="This port will be removed from the bridge and become available for other uses."
-          consequences={[
-            portToRemoveData.taggedVlans && portToRemoveData.taggedVlans.length > 0
-              ? `VLAN configuration will be lost (Tagged: ${portToRemoveData.taggedVlans.join(', ')})`
+          consequences={
+            [
+              portToRemoveData.taggedVlans && portToRemoveData.taggedVlans.length > 0 ?
+                `VLAN configuration will be lost (Tagged: ${portToRemoveData.taggedVlans.join(', ')})`
               : undefined,
-            portToRemoveData.untaggedVlans && portToRemoveData.untaggedVlans.length > 0
-              ? `Untagged VLANs: ${portToRemoveData.untaggedVlans.join(', ')}`
+              portToRemoveData.untaggedVlans && portToRemoveData.untaggedVlans.length > 0 ?
+                `Untagged VLANs: ${portToRemoveData.untaggedVlans.join(', ')}`
               : undefined,
-          ].filter(Boolean) as string[]}
+            ].filter(Boolean) as string[]
+          }
           confirmText="REMOVE"
           onConfirm={handleRemoveConfirmCallback}
           onCancel={handleCancelRemoveCallback}
@@ -212,19 +233,22 @@ interface BridgeDropZoneProps {
   children: React.ReactNode;
 }
 
-const BridgeDropZoneComponent = memo(function BridgeDropZone({ bridgeId, portCount, children }: BridgeDropZoneProps) {
+const BridgeDropZoneComponent = memo(function BridgeDropZone({
+  bridgeId,
+  portCount,
+  children,
+}: BridgeDropZoneProps) {
   const { setNodeRef, isOver } = useDroppable({
     id: `bridge-${bridgeId}`,
   });
 
   const dropZoneClasses = useMemo(
-    () => `rounded-lg border-2 transition-colors ${
-      isOver
-        ? 'border-primary bg-primary/5'
-        : portCount === 0
-        ? 'border-dashed'
+    () =>
+      `rounded-lg border-2 transition-colors ${
+        isOver ? 'border-primary bg-primary/5'
+        : portCount === 0 ? 'border-dashed'
         : 'border-border'
-    } p-component-md`,
+      } p-component-md`,
     [isOver, portCount]
   );
 

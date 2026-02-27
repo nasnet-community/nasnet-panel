@@ -38,9 +38,7 @@ function getStatusColor(lossPercent: number): string {
 /**
  * Get badge variant based on packet loss
  */
-function getBadgeVariant(
-  lossPercent: number
-): 'error' | 'warning' | 'success' {
+function getBadgeVariant(lossPercent: number): 'error' | 'warning' | 'success' {
   if (lossPercent >= 50) return 'error';
   if (lossPercent > 0) return 'warning';
   return 'success';
@@ -81,8 +79,7 @@ export const PingStatistics = memo(function PingStatistics({
   statistics,
   className,
 }: PingStatisticsProps) {
-  const { sent, received, lost, lossPercent, minRtt, avgRtt, maxRtt, stdDev } =
-    statistics;
+  const { sent, received, lost, lossPercent, minRtt, avgRtt, maxRtt, stdDev } = statistics;
 
   const statusColor = getStatusColor(lossPercent);
   const badgeVariant = getBadgeVariant(lossPercent);
@@ -92,70 +89,66 @@ export const PingStatistics = memo(function PingStatistics({
       {/* Header with status badge */}
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold">Statistics</h3>
-        {lossPercent >= 100 ? (
+        {lossPercent >= 100 ?
           <Badge variant="error">Host Unreachable</Badge>
-        ) : lossPercent > 0 ? (
+        : lossPercent > 0 ?
           <Badge variant={badgeVariant}>{lossPercent}% Loss</Badge>
-        ) : sent > 0 ? (
+        : sent > 0 ?
           <Badge variant="success">No Loss</Badge>
-        ) : null}
+        : null}
       </div>
 
       {/* Statistics grid */}
       <dl
-        className="grid grid-cols-2 gap-component-lg"
+        className="gap-component-lg grid grid-cols-2"
         aria-label="Ping statistics summary"
       >
         {/* Packets Sent */}
         <div className="space-y-component-xs">
-          <dt className="text-sm text-muted-foreground">Packets Sent</dt>
+          <dt className="text-muted-foreground text-sm">Packets Sent</dt>
           <dd className="text-2xl font-bold">{sent}</dd>
         </div>
 
         {/* Packets Received */}
         <div className="space-y-component-xs">
-          <dt className="text-sm text-muted-foreground">Packets Received</dt>
-          <dd className="text-2xl font-bold text-success">{received}</dd>
+          <dt className="text-muted-foreground text-sm">Packets Received</dt>
+          <dd className="text-success text-2xl font-bold">{received}</dd>
         </div>
 
         {/* Packets Lost */}
         <div className="space-y-component-xs">
-          <dt className="text-sm text-muted-foreground">Packets Lost</dt>
-          <dd className={cn('text-2xl font-bold', lost > 0 && 'text-error')}>
-            {lost}
-          </dd>
+          <dt className="text-muted-foreground text-sm">Packets Lost</dt>
+          <dd className={cn('text-2xl font-bold', lost > 0 && 'text-error')}>{lost}</dd>
         </div>
 
         {/* Packet Loss Percentage */}
         <div className="space-y-component-xs">
-          <dt className="text-sm text-muted-foreground">Packet Loss</dt>
-          <dd className={cn('text-2xl font-bold', statusColor)}>
-            {lossPercent}%
-          </dd>
+          <dt className="text-muted-foreground text-sm">Packet Loss</dt>
+          <dd className={cn('text-2xl font-bold', statusColor)}>{lossPercent}%</dd>
         </div>
 
         {/* Min RTT */}
         <div className="space-y-component-xs">
-          <dt className="text-sm text-muted-foreground">Min RTT</dt>
-          <dd className="text-lg font-semibold font-mono">{formatRtt(minRtt)}</dd>
+          <dt className="text-muted-foreground text-sm">Min RTT</dt>
+          <dd className="font-mono text-lg font-semibold">{formatRtt(minRtt)}</dd>
         </div>
 
         {/* Avg RTT */}
         <div className="space-y-component-xs">
-          <dt className="text-sm text-muted-foreground">Avg RTT</dt>
-          <dd className="text-lg font-semibold font-mono">{formatRtt(avgRtt)}</dd>
+          <dt className="text-muted-foreground text-sm">Avg RTT</dt>
+          <dd className="font-mono text-lg font-semibold">{formatRtt(avgRtt)}</dd>
         </div>
 
         {/* Max RTT */}
         <div className="space-y-component-xs">
-          <dt className="text-sm text-muted-foreground">Max RTT</dt>
-          <dd className="text-lg font-semibold font-mono">{formatRtt(maxRtt)}</dd>
+          <dt className="text-muted-foreground text-sm">Max RTT</dt>
+          <dd className="font-mono text-lg font-semibold">{formatRtt(maxRtt)}</dd>
         </div>
 
         {/* Std Dev */}
         <div className="space-y-component-xs">
-          <dt className="text-sm text-muted-foreground">Std Dev</dt>
-          <dd className="text-lg font-semibold font-mono text-muted-foreground">
+          <dt className="text-muted-foreground text-sm">Std Dev</dt>
+          <dd className="text-muted-foreground font-mono text-lg font-semibold">
             {formatRtt(stdDev)}
           </dd>
         </div>

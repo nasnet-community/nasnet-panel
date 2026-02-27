@@ -6,7 +6,15 @@
 
 import * as React from 'react';
 
-import { ShieldAlert, AlertCircle, ArrowUp, CheckCircle, Info, ExternalLink, RotateCcw } from 'lucide-react';
+import {
+  ShieldAlert,
+  AlertCircle,
+  ArrowUp,
+  CheckCircle,
+  Info,
+  ExternalLink,
+  RotateCcw,
+} from 'lucide-react';
 
 import {
   cn,
@@ -85,36 +93,40 @@ export const UpdateIndicatorDesktop = React.memo<UpdateIndicatorProps>((props) =
     return null;
   }
 
-  const SeverityIcon = state.severityConfig
-    ? SEVERITY_ICONS[props.severity!]
-    : Info;
+  const SeverityIcon = state.severityConfig ? SEVERITY_ICONS[props.severity!] : Info;
 
   return (
     <TooltipProvider>
-      <Popover open={isOpen} onOpenChange={setIsOpen}>
+      <Popover
+        open={isOpen}
+        onOpenChange={setIsOpen}
+      >
         <Tooltip>
           <TooltipTrigger asChild>
             <PopoverTrigger asChild>
               <button
                 className={cn(
                   'inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium transition-colors',
-                  'rounded-lg hover:bg-muted cursor-pointer',
-                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+                  'hover:bg-muted cursor-pointer rounded-lg',
+                  'focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
                   props.isUpdating && 'animate-pulse'
                 )}
                 aria-label={state.ariaLabel}
               >
-                <SeverityIcon className="h-4 w-4" aria-hidden="true" />
+                <SeverityIcon
+                  className="h-4 w-4"
+                  aria-hidden="true"
+                />
                 <span className="text-foreground">
-                  {props.isUpdating
-                    ? state.stageConfig?.label
-                    : state.severityConfig?.label}
+                  {props.isUpdating ? state.stageConfig?.label : state.severityConfig?.label}
                 </span>
                 {!props.isUpdating && (
-                  <Badge className={cn(
-                    'rounded-[var(--semantic-radius-badge)] px-2.5 py-0.5 text-xs font-medium ml-1',
-                    'bg-info-light text-info-dark'
-                  )}>
+                  <Badge
+                    className={cn(
+                      'ml-1 rounded-[var(--semantic-radius-badge)] px-2.5 py-0.5 text-xs font-medium',
+                      'bg-info-light text-info-dark'
+                    )}
+                  >
                     {state.latestVersionText}
                   </Badge>
                 )}
@@ -126,20 +138,22 @@ export const UpdateIndicatorDesktop = React.memo<UpdateIndicatorProps>((props) =
           </TooltipContent>
         </Tooltip>
 
-        <PopoverContent side="right" align="start" className="w-96">
+        <PopoverContent
+          side="right"
+          align="start"
+          className="w-96"
+        >
           <div className="space-y-4">
             {/* Header */}
             <div className="space-y-1">
-              <h3 className="font-semibold text-lg">{props.instanceName} Update</h3>
-              <p className="text-sm text-muted-foreground">
-                Service instance update available
-              </p>
+              <h3 className="text-lg font-semibold">{props.instanceName} Update</h3>
+              <p className="text-muted-foreground text-sm">Service instance update available</p>
             </div>
 
             {/* Version info */}
-            <div className="flex items-center justify-between rounded-md bg-muted p-3">
+            <div className="bg-muted flex items-center justify-between rounded-md p-3">
               <div>
-                <p className="text-xs text-muted-foreground">Version</p>
+                <p className="text-muted-foreground text-xs">Version</p>
                 <p className="font-mono text-sm">{state.versionChangeText}</p>
               </div>
               {state.severityConfig && (
@@ -153,13 +167,13 @@ export const UpdateIndicatorDesktop = React.memo<UpdateIndicatorProps>((props) =
             <div className="grid grid-cols-2 gap-3">
               {state.releaseDateText && (
                 <div>
-                  <p className="text-xs text-muted-foreground">Released</p>
+                  <p className="text-muted-foreground text-xs">Released</p>
                   <p className="text-sm">{state.releaseDateText}</p>
                 </div>
               )}
               {state.binarySizeText && (
                 <div>
-                  <p className="text-xs text-muted-foreground">Size</p>
+                  <p className="text-muted-foreground text-xs">Size</p>
                   <p className="text-sm">{state.binarySizeText}</p>
                 </div>
               )}
@@ -167,23 +181,23 @@ export const UpdateIndicatorDesktop = React.memo<UpdateIndicatorProps>((props) =
 
             {/* Warnings */}
             {(props.requiresRestart || props.breakingChanges || props.securityFixes) && (
-              <div className="space-y-1.5 rounded-md border border-border/50 p-3">
-                <p className="text-xs font-medium text-muted-foreground">Important Notes</p>
+              <div className="border-border/50 space-y-1.5 rounded-md border p-3">
+                <p className="text-muted-foreground text-xs font-medium">Important Notes</p>
                 <ul className="space-y-1 text-xs">
                   {props.securityFixes && (
-                    <li className="flex items-center gap-2 text-error">
+                    <li className="text-error flex items-center gap-2">
                       <ShieldAlert className="h-3.5 w-3.5" />
                       <span>Includes security fixes</span>
                     </li>
                   )}
                   {props.breakingChanges && (
-                    <li className="flex items-center gap-2 text-warning">
+                    <li className="text-warning flex items-center gap-2">
                       <AlertCircle className="h-3.5 w-3.5" />
                       <span>Contains breaking changes</span>
                     </li>
                   )}
                   {props.requiresRestart && (
-                    <li className="flex items-center gap-2 text-muted-foreground">
+                    <li className="text-muted-foreground flex items-center gap-2">
                       <Info className="h-3.5 w-3.5" />
                       <span>Requires service restart</span>
                     </li>
@@ -194,7 +208,7 @@ export const UpdateIndicatorDesktop = React.memo<UpdateIndicatorProps>((props) =
 
             {/* Error message */}
             {(props.updateFailed || props.wasRolledBack) && props.updateError && (
-              <div className="rounded-md bg-error/10 p-3 text-sm text-error">
+              <div className="bg-error/10 text-error rounded-md p-3 text-sm">
                 {props.updateError}
               </div>
             )}

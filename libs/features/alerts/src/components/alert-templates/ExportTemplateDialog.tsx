@@ -153,8 +153,9 @@ function ExportTemplateDialogComponent(props: ExportTemplateDialogProps) {
   // Download as file
   const handleDownload = useCallback(() => {
     // Generate filename from template name
-    const filename = templateName
-      ? `${templateName.toLowerCase().replace(/\s+/g, '-')}.json`
+    const filename =
+      templateName ?
+        `${templateName.toLowerCase().replace(/\s+/g, '-')}.json`
       : 'alert-template.json';
 
     // Create blob and download
@@ -186,14 +187,17 @@ function ExportTemplateDialogComponent(props: ExportTemplateDialogProps) {
   const isDisabled = useMemo(() => loading || !jsonContent, [loading, jsonContent]);
 
   return (
-    <Dialog open={open} onOpenChange={handleClose}>
+    <Dialog
+      open={open}
+      onOpenChange={handleClose}
+    >
       <DialogContent className={cn('sm:max-w-[700px]', className)}>
         <DialogHeader>
           <DialogTitle>Export Template</DialogTitle>
           <DialogDescription>
-            {templateName
-              ? `Export "${templateName}" as JSON for backup or sharing`
-              : 'Export template as JSON'}
+            {templateName ?
+              `Export "${templateName}" as JSON for backup or sharing`
+            : 'Export template as JSON'}
           </DialogDescription>
         </DialogHeader>
 
@@ -213,7 +217,7 @@ function ExportTemplateDialogComponent(props: ExportTemplateDialogProps) {
           </div>
 
           {/* Action Buttons */}
-          <div className="flex gap-component-sm">
+          <div className="gap-component-sm flex">
             <Button
               type="button"
               variant="outline"
@@ -238,7 +242,10 @@ function ExportTemplateDialogComponent(props: ExportTemplateDialogProps) {
         </div>
 
         <DialogFooter>
-          <Button type="button" onClick={handleClose}>
+          <Button
+            type="button"
+            onClick={handleClose}
+          >
             Close
           </Button>
         </DialogFooter>

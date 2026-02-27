@@ -1,7 +1,7 @@
 {
   "id": "flows/device-routing-chain-flow",
   "title": "Flow: Device Routing Chain",
-  "description": "Traces how a client device's traffic is steered through a multi-hop service chain (e.g., Device → VPN → Tor → Internet) using MikroTik PBR mangle rules, with kill switch enforcement on service failure.",
+  "description": "Traces how a client device's traffic is steered through a multi-hop service chain (e.g., Device →",
   "source": "@site/../backend/docs/flows/device-routing-chain-flow.md",
   "sourceDirName": "flows",
   "slug": "/flows/device-routing-chain-flow",

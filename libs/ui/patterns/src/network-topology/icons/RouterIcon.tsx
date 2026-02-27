@@ -107,9 +107,33 @@ export const RouterIcon = memo(function RouterIcon({
       />
 
       {/* Port indicators at bottom */}
-      <rect x="14" y="40" width="8" height="4" rx="1" fill="currentColor" fillOpacity="0.5" />
-      <rect x="28" y="40" width="8" height="4" rx="1" fill="currentColor" fillOpacity="0.5" />
-      <rect x="42" y="40" width="8" height="4" rx="1" fill="currentColor" fillOpacity="0.5" />
+      <rect
+        x="14"
+        y="40"
+        width="8"
+        height="4"
+        rx="1"
+        fill="currentColor"
+        fillOpacity="0.5"
+      />
+      <rect
+        x="28"
+        y="40"
+        width="8"
+        height="4"
+        rx="1"
+        fill="currentColor"
+        fillOpacity="0.5"
+      />
+      <rect
+        x="42"
+        y="40"
+        width="8"
+        height="4"
+        rx="1"
+        fill="currentColor"
+        fillOpacity="0.5"
+      />
 
       {/* Base/stand */}
       <path

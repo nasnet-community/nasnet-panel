@@ -61,9 +61,7 @@ async function fetchVendorLookup(macAddress: string): Promise<string | null> {
 /**
  * Fetch vendors for multiple MAC addresses (batch)
  */
-async function fetchBatchVendorLookup(
-  macAddresses: string[]
-): Promise<Record<string, string>> {
+async function fetchBatchVendorLookup(macAddresses: string[]): Promise<Record<string, string>> {
   const response = await fetch('/api/oui/batch', {
     method: 'POST',
     headers: {
@@ -124,9 +122,7 @@ export function useVendorLookup(macAddress: string): string | null {
  * // Returns: { 'AA:BB:CC:...': 'Apple Inc.', 'DD:EE:FF:...': 'Samsung' }
  * ```
  */
-export function useBatchVendorLookup(
-  macAddresses: string[]
-): Record<string, string> {
+export function useBatchVendorLookup(macAddresses: string[]): Record<string, string> {
   const { data } = useQuery({
     queryKey: ouiKeys.batch(macAddresses),
     queryFn: () => fetchBatchVendorLookup(macAddresses),

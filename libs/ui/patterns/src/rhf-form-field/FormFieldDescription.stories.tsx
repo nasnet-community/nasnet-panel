@@ -110,13 +110,15 @@ export const Default: Story = {
  */
 export const WithHelpIcon: Story = {
   args: {
-    children: 'IP address in CIDR notation, e.g. 192.168.1.0/24. Changing this will disconnect active clients.',
+    children:
+      'IP address in CIDR notation, e.g. 192.168.1.0/24. Changing this will disconnect active clients.',
     showIcon: true,
   },
   parameters: {
     docs: {
       description: {
-        story: 'showIcon=true prepends a HelpCircle icon. Use for descriptions that require extra user attention.',
+        story:
+          'showIcon=true prepends a HelpCircle icon. Use for descriptions that require extra user attention.',
       },
     },
   },
@@ -133,15 +135,16 @@ export const TechnicalDescription: Story = {
   render: () => (
     <FormFieldDescription showIcon>
       Specify the WireGuard listen port (default{' '}
-      <code className="font-mono text-xs bg-muted px-1 py-0.5 rounded">51820</code>
-      ). The port must not be in use by another service and must be allowed
-      through the router firewall.
+      <code className="bg-muted rounded px-1 py-0.5 font-mono text-xs">51820</code>
+      ). The port must not be in use by another service and must be allowed through the router
+      firewall.
     </FormFieldDescription>
   ),
   parameters: {
     docs: {
       description: {
-        story: 'Rich content children with inline code formatting demonstrate that FormFieldDescription accepts any ReactNode.',
+        story:
+          'Rich content children with inline code formatting demonstrate that FormFieldDescription accepts any ReactNode.',
       },
     },
   },
@@ -157,27 +160,34 @@ export const TechnicalDescription: Story = {
 export const WithAriaId: Story = {
   render: () => (
     <div className="space-y-1.5">
-      <label htmlFor="knock-timeout" className="text-sm font-medium">
+      <label
+        htmlFor="knock-timeout"
+        className="text-sm font-medium"
+      >
         Knock Timeout
       </label>
       <input
         id="knock-timeout"
         aria-describedby="knock-timeout-desc"
         placeholder="10s"
-        className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
+        className="border-input flex h-9 w-full rounded-md border bg-transparent px-3 py-1 text-sm shadow-sm"
       />
-      <FormFieldDescription id="knock-timeout-desc" showIcon>
-        Maximum time allowed between consecutive port knocks. Accepts duration strings
-        such as <code className="font-mono text-xs bg-muted px-1 rounded">10s</code>,{' '}
-        <code className="font-mono text-xs bg-muted px-1 rounded">2m</code>, or{' '}
-        <code className="font-mono text-xs bg-muted px-1 rounded">1h</code>.
+      <FormFieldDescription
+        id="knock-timeout-desc"
+        showIcon
+      >
+        Maximum time allowed between consecutive port knocks. Accepts duration strings such as{' '}
+        <code className="bg-muted rounded px-1 font-mono text-xs">10s</code>,{' '}
+        <code className="bg-muted rounded px-1 font-mono text-xs">2m</code>, or{' '}
+        <code className="bg-muted rounded px-1 font-mono text-xs">1h</code>.
       </FormFieldDescription>
     </div>
   ),
   parameters: {
     docs: {
       description: {
-        story: 'Full field with label, input, and a linked description using aria-describedby. Inspect the DOM to verify the id attribute.',
+        story:
+          'Full field with label, input, and a linked description using aria-describedby. Inspect the DOM to verify the id attribute.',
       },
     },
   },
@@ -217,7 +227,8 @@ export const CustomClass: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Custom className overrides the muted-foreground default to show the description in warning colour.',
+        story:
+          'Custom className overrides the muted-foreground default to show the description in warning colour.',
       },
     },
   },

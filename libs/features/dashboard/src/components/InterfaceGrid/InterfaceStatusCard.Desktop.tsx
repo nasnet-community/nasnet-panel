@@ -12,13 +12,7 @@
 import React, { useCallback } from 'react';
 import { Card, CardContent, cn } from '@nasnet/ui/primitives';
 import { InterfaceTypeIcon } from '@nasnet/ui/patterns/network-inputs/interface-selector';
-import {
-  ArrowUp,
-  ArrowDown,
-  CheckCircle2,
-  XCircle,
-  MinusCircle,
-} from 'lucide-react';
+import { ArrowUp, ArrowDown, CheckCircle2, XCircle, MinusCircle } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { useInterfaceStatusCard } from './useInterfaceStatusCard';
 import { formatTrafficRate, formatLinkSpeed } from './utils';
@@ -93,9 +87,9 @@ const InterfaceStatusCardDesktopComponent = React.memo(function InterfaceStatusC
       onClick={memoizedHandleClick}
       onKeyDown={handleKeyDown}
       className={cn(
-        'cursor-pointer transition-all min-w-[200px]',
-        'hover:shadow-md hover:border-primary/50',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+        'min-w-[200px] cursor-pointer transition-all',
+        'hover:border-primary/50 hover:shadow-md',
+        'focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
         status.bgClass,
         !prefersReducedMotion && isStatusChanged && 'animate-pulse',
         className
@@ -103,53 +97,60 @@ const InterfaceStatusCardDesktopComponent = React.memo(function InterfaceStatusC
     >
       <CardContent className="p-component-md">
         {/* Header: Icon + Name + Status */}
-        <div className="flex items-center justify-between mb-component-sm">
-          <div className="flex items-center gap-component-sm">
-            <InterfaceTypeIcon type={iface.type} className="h-5 w-5" />
-            <span className="font-medium truncate">{iface.name}</span>
+        <div className="mb-component-sm flex items-center justify-between">
+          <div className="gap-component-sm flex items-center">
+            <InterfaceTypeIcon
+              type={iface.type}
+              className="h-5 w-5"
+            />
+            <span className="truncate font-medium">{iface.name}</span>
           </div>
-          <div className="flex items-center gap-component-xs">
+          <div className="gap-component-xs flex items-center">
             <StatusIcon
               className={cn('h-4 w-4', status.iconClass)}
               aria-hidden="true"
             />
-            <span className={cn('text-xs', status.iconClass)}>
-              {status.label}
-            </span>
+            <span className={cn('text-xs', status.iconClass)}>{status.label}</span>
           </div>
         </div>
 
         {/* Traffic rates */}
-        <div className="flex items-center gap-component-md text-sm text-muted-foreground mb-component-sm">
-          <span className="flex items-center gap-component-xs">
-            <ArrowUp className="h-3 w-3" aria-hidden="true" />
+        <div className="gap-component-md text-muted-foreground mb-component-sm flex items-center text-sm">
+          <span className="gap-component-xs flex items-center">
+            <ArrowUp
+              className="h-3 w-3"
+              aria-hidden="true"
+            />
             <span>{formatTrafficRate(iface.txRate)}</span>
           </span>
-          <span className="flex items-center gap-component-xs">
-            <ArrowDown className="h-3 w-3" aria-hidden="true" />
+          <span className="gap-component-xs flex items-center">
+            <ArrowDown
+              className="h-3 w-3"
+              aria-hidden="true"
+            />
             <span>{formatTrafficRate(iface.rxRate)}</span>
           </span>
         </div>
 
         {/* Footer: IP + Link Speed */}
-        <div className="flex items-center justify-between text-xs text-muted-foreground">
-          <span className="font-mono truncate">{iface.ip || 'No IP'}</span>
-          {iface.linkSpeed && (
-            <span className="shrink-0">{formatLinkSpeed(iface.linkSpeed)}</span>
-          )}
+        <div className="text-muted-foreground flex items-center justify-between text-xs">
+          <span className="truncate font-mono">{iface.ip || 'No IP'}</span>
+          {iface.linkSpeed && <span className="shrink-0">{formatLinkSpeed(iface.linkSpeed)}</span>}
         </div>
 
         {/* Last seen for down interfaces */}
         {iface.status === 'down' && iface.lastSeen && (
-          <div className="text-xs text-muted-foreground mt-component-xs">
+          <div className="text-muted-foreground mt-component-xs text-xs">
             Last seen: {new Date(iface.lastSeen).toLocaleString()}
           </div>
         )}
 
         {/* Screen reader details */}
-        <span id={detailsId} className="sr-only">
-          TX: {formatTrafficRate(iface.txRate)}, RX:{' '}
-          {formatTrafficRate(iface.rxRate)}
+        <span
+          id={detailsId}
+          className="sr-only"
+        >
+          TX: {formatTrafficRate(iface.txRate)}, RX: {formatTrafficRate(iface.rxRate)}
           {iface.linkSpeed && `, Link speed: ${iface.linkSpeed}`}
         </span>
       </CardContent>

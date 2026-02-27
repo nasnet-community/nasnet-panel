@@ -167,9 +167,7 @@ function transformBatchJob(response: RosproxyBatchJobResponse): BatchJob {
 /**
  * Creates a batch job via rosproxy API
  */
-async function createBatchJob(
-  request: CreateBatchJobRequest
-): Promise<CreateBatchJobResponse> {
+async function createBatchJob(request: CreateBatchJobRequest): Promise<CreateBatchJobResponse> {
   const response = await fetch(`${getBaseUrl()}/api/batch/jobs`, {
     method: 'POST',
     headers: {
@@ -365,4 +363,3 @@ export function useCancelBatchJob(): UseMutationResult<void, Error, string> {
     },
   });
 }
-

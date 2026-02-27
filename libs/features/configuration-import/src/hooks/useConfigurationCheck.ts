@@ -82,22 +82,14 @@ export function useConfigurationCheck(
   const [hasTriggeredCheck, setHasTriggeredCheck] = useState(false);
 
   // Get store actions
-  const isConfigurationChecked = useRouterStore(
-    (state) => state.isConfigurationChecked
-  );
-  const markConfigurationChecked = useRouterStore(
-    (state) => state.markConfigurationChecked
-  );
+  const isConfigurationChecked = useRouterStore((state) => state.isConfigurationChecked);
+  const markConfigurationChecked = useRouterStore((state) => state.markConfigurationChecked);
 
   // Check if already checked
   const alreadyChecked = isConfigurationChecked(routerId);
 
   // Fetch system note (only if not already checked)
-  const {
-    data: noteData,
-    isLoading,
-    error,
-  } = useSystemNote(routerIp);
+  const { data: noteData, isLoading, error } = useSystemNote(routerIp);
 
   // Determine if configuration is needed (memoized)
   const needsConfiguration = useMemo(
@@ -161,4 +153,3 @@ export function useConfigurationCheck(
     error: error ?? null,
   };
 }
-

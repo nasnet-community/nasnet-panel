@@ -66,147 +66,150 @@ const VerificationBadgeMobileComponent = React.forwardRef<
     },
     ref
   ) => {
-  const [isOpen, setIsOpen] = React.useState(false);
-  const [copied, setCopied] = React.useState(false);
+    const [isOpen, setIsOpen] = React.useState(false);
+    const [copied, setCopied] = React.useState(false);
 
-  // Handle re-verification - close sheet after action
-  const handleReverify = React.useCallback(async () => {
-    await state.handleReverify();
-    setIsOpen(false);
-  }, [state]);
+    // Handle re-verification - close sheet after action
+    const handleReverify = React.useCallback(async () => {
+      await state.handleReverify();
+      setIsOpen(false);
+    }, [state]);
 
-  // Copy hash to clipboard
-  const handleCopyHash = React.useCallback(async () => {
-    if (state.fullHash) {
-      await navigator.clipboard.writeText(state.fullHash);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    }
-  }, [state.fullHash]);
+    // Copy hash to clipboard
+    const handleCopyHash = React.useCallback(async () => {
+      if (state.fullHash) {
+        await navigator.clipboard.writeText(state.fullHash);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      }
+    }, [state.fullHash]);
 
-  const Icon = STATUS_ICONS[state.iconName];
-  const sizeClasses = SIZE_CONFIG[size];
+    const Icon = STATUS_ICONS[state.iconName];
+    const sizeClasses = SIZE_CONFIG[size];
 
-  return (
-    <Sheet open={isOpen} onOpenChange={setIsOpen}>
-      <SheetTrigger asChild>
-        <button
-          ref={ref}
-          type="button"
-          id={id}
-          className={cn(
-            // Touch target: minimum 44px
-            'min-h-[44px] min-w-[44px]',
-            'inline-flex items-center justify-center',
-            'rounded-full p-2',
-            'transition-colors active:opacity-80',
-            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
-            // Semantic colors
-            state.color === 'success' && 'bg-success/10 text-success',
-            state.color === 'destructive' && 'bg-destructive/10 text-destructive',
-            state.color === 'warning' && 'bg-warning/10 text-warning',
-            state.color === 'muted' && 'bg-muted text-muted-foreground',
-            className
-          )}
-          aria-label={state.ariaLabel}
-          aria-expanded={isOpen}
-          aria-haspopup="dialog"
-        >
-          <Icon className={sizeClasses.icon} />
-        </button>
-      </SheetTrigger>
-
-      <SheetContent side="bottom" className="rounded-t-xl">
-        <SheetHeader className="text-left">
-          <SheetTitle className="flex items-center gap-2">
-            <Icon className="h-5 w-5" />
-            <span>Binary Verification</span>
-          </SheetTitle>
-          <SheetDescription>{state.statusLabel}</SheetDescription>
-        </SheetHeader>
-
-        <div className="mt-6 space-y-4">
-          {/* Timestamp */}
-          {state.timestamp && state.showTimestamp && (
-            <div className="space-y-1">
-              <div className="text-sm font-medium text-muted-foreground">
-                Last Verified
-              </div>
-              <div className="text-sm">{state.timestamp}</div>
-            </div>
-          )}
-
-          {/* Hash Display */}
-          {state.fullHash && (
-            <div className="space-y-2">
-              <div className="text-sm font-medium text-muted-foreground">
-                Binary Hash (SHA256)
-              </div>
-              <div className="relative">
-                <div className="text-xs font-mono bg-muted/50 p-3 rounded break-all pr-12">
-                  {state.fullHash}
-                </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="absolute top-1 right-1 h-8 w-8 p-0"
-                  onClick={handleCopyHash}
-                  aria-label="Copy hash"
-                >
-                  {copied ? (
-                    <Check className="h-3 w-3 text-success" />
-                  ) : (
-                    <Copy className="h-3 w-3" />
-                  )}
-                </Button>
-              </div>
-            </div>
-          )}
-
-          {/* Error Message */}
-          {state.errorMessage && (
-            <div className="space-y-1">
-              <div className="text-sm font-medium text-destructive">Error</div>
-              <div className="text-sm text-destructive bg-destructive/10 p-3 rounded">
-                {state.errorMessage}
-              </div>
-            </div>
-          )}
-
-          {/* Status Info */}
-          <div className="space-y-2 text-sm text-muted-foreground">
-            <p>
-              Binary verification ensures that the service instance binary has not been
-              tampered with and matches the expected checksum.
-            </p>
-            {state.status === 'verified' && (
-              <p className="text-success">
-                ✓ This binary has passed verification and is safe to run.
-              </p>
+    return (
+      <Sheet
+        open={isOpen}
+        onOpenChange={setIsOpen}
+      >
+        <SheetTrigger asChild>
+          <button
+            ref={ref}
+            type="button"
+            id={id}
+            className={cn(
+              // Touch target: minimum 44px
+              'min-h-[44px] min-w-[44px]',
+              'inline-flex items-center justify-center',
+              'rounded-full p-2',
+              'transition-colors active:opacity-80',
+              'focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
+              // Semantic colors
+              state.color === 'success' && 'bg-success/10 text-success',
+              state.color === 'destructive' && 'bg-destructive/10 text-destructive',
+              state.color === 'warning' && 'bg-warning/10 text-warning',
+              state.color === 'muted' && 'bg-muted text-muted-foreground',
+              className
             )}
-            {state.status === 'failed' && (
-              <p className="text-destructive">
-                ✗ This binary failed verification. Do not run it.
-              </p>
-            )}
-          </div>
-
-          {/* Re-verify Button */}
-          <Button
-            variant="outline"
-            size="lg"
-            onClick={handleReverify}
-            disabled={state.isReverifying}
-            className="w-full min-h-[44px]"
+            aria-label={state.ariaLabel}
+            aria-expanded={isOpen}
+            aria-haspopup="dialog"
           >
-            <RefreshCw className={cn('h-4 w-4 mr-2', state.isReverifying && 'animate-spin')} />
-            {state.isReverifying ? 'Verifying...' : 'Re-verify Binary'}
-          </Button>
-        </div>
-      </SheetContent>
-    </Sheet>
-  );
-});
+            <Icon className={sizeClasses.icon} />
+          </button>
+        </SheetTrigger>
+
+        <SheetContent
+          side="bottom"
+          className="rounded-t-xl"
+        >
+          <SheetHeader className="text-left">
+            <SheetTitle className="flex items-center gap-2">
+              <Icon className="h-5 w-5" />
+              <span>Binary Verification</span>
+            </SheetTitle>
+            <SheetDescription>{state.statusLabel}</SheetDescription>
+          </SheetHeader>
+
+          <div className="mt-6 space-y-4">
+            {/* Timestamp */}
+            {state.timestamp && state.showTimestamp && (
+              <div className="space-y-1">
+                <div className="text-muted-foreground text-sm font-medium">Last Verified</div>
+                <div className="text-sm">{state.timestamp}</div>
+              </div>
+            )}
+
+            {/* Hash Display */}
+            {state.fullHash && (
+              <div className="space-y-2">
+                <div className="text-muted-foreground text-sm font-medium">
+                  Binary Hash (SHA256)
+                </div>
+                <div className="relative">
+                  <div className="bg-muted/50 break-all rounded p-3 pr-12 font-mono text-xs">
+                    {state.fullHash}
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="absolute right-1 top-1 h-8 w-8 p-0"
+                    onClick={handleCopyHash}
+                    aria-label="Copy hash"
+                  >
+                    {copied ?
+                      <Check className="text-success h-3 w-3" />
+                    : <Copy className="h-3 w-3" />}
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {/* Error Message */}
+            {state.errorMessage && (
+              <div className="space-y-1">
+                <div className="text-destructive text-sm font-medium">Error</div>
+                <div className="text-destructive bg-destructive/10 rounded p-3 text-sm">
+                  {state.errorMessage}
+                </div>
+              </div>
+            )}
+
+            {/* Status Info */}
+            <div className="text-muted-foreground space-y-2 text-sm">
+              <p>
+                Binary verification ensures that the service instance binary has not been tampered
+                with and matches the expected checksum.
+              </p>
+              {state.status === 'verified' && (
+                <p className="text-success">
+                  ✓ This binary has passed verification and is safe to run.
+                </p>
+              )}
+              {state.status === 'failed' && (
+                <p className="text-destructive">
+                  ✗ This binary failed verification. Do not run it.
+                </p>
+              )}
+            </div>
+
+            {/* Re-verify Button */}
+            <Button
+              variant="outline"
+              size="lg"
+              onClick={handleReverify}
+              disabled={state.isReverifying}
+              className="min-h-[44px] w-full"
+            >
+              <RefreshCw className={cn('mr-2 h-4 w-4', state.isReverifying && 'animate-spin')} />
+              {state.isReverifying ? 'Verifying...' : 'Re-verify Binary'}
+            </Button>
+          </div>
+        </SheetContent>
+      </Sheet>
+    );
+  }
+);
 
 VerificationBadgeMobileComponent.displayName = 'VerificationBadgeMobile';
 

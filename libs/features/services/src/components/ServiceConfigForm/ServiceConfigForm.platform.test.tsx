@@ -158,7 +158,9 @@ describe('ServiceConfigForm - Platform Presenters & Integration', () => {
         refetch: vi.fn(),
       };
 
-      const { container } = render(<ServiceConfigForm formState={formState as UseServiceConfigFormReturn} />);
+      const { container } = render(
+        <ServiceConfigForm formState={formState as UseServiceConfigFormReturn} />
+      );
 
       // Mobile presenter shows error in a simple div with p-4 class
       const errorDiv = container.querySelector('.p-4');

@@ -32,81 +32,79 @@ import type { CustomTooltipProps } from './types';
  *
  * @param props - Recharts tooltip props with active state, payload, and label
  */
-export const CustomTooltip = memo<CustomTooltipProps>(
-  ({ active, payload, label }) => {
-    // Hide tooltip when not active or no data
-    if (!active || !payload?.length) return null;
+export const CustomTooltip = memo<CustomTooltipProps>(({ active, payload, label }) => {
+  // Hide tooltip when not active or no data
+  if (!active || !payload?.length) return null;
 
-    // Extract data from Recharts payload
-    const txData = payload.find((p) => p.dataKey === 'txRate');
-    const rxData = payload.find((p) => p.dataKey === 'rxRate');
-    const dataPoint = payload[0]?.payload;
+  // Extract data from Recharts payload
+  const txData = payload.find((p) => p.dataKey === 'txRate');
+  const rxData = payload.find((p) => p.dataKey === 'rxRate');
+  const dataPoint = payload[0]?.payload;
 
-    // Parse timestamp
-    const timestamp = label ? new Date(label) : new Date();
+  // Parse timestamp
+  const timestamp = label ? new Date(label) : new Date();
 
-    return (
-      <div
-        className={cn(
-          'rounded-card-sm border-border border bg-card p-component-md shadow-lg',
-          'text-sm',
-          // Ensure proper contrast for accessibility (WCAG AAA)
-          'contrast-more:border-2'
-        )}
-        role="tooltip"
-        aria-live="polite"
-      >
-        {/* Timestamp */}
-        <p className="mb-component-sm text-muted-foreground font-mono">
-          {timestamp.toLocaleTimeString([], {
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit',
-          })}
-        </p>
+  return (
+    <div
+      className={cn(
+        'rounded-card-sm border-border bg-card p-component-md border shadow-lg',
+        'text-sm',
+        // Ensure proper contrast for accessibility (WCAG AAA)
+        'contrast-more:border-2'
+      )}
+      role="tooltip"
+      aria-live="polite"
+    >
+      {/* Timestamp */}
+      <p className="mb-component-sm text-muted-foreground font-mono">
+        {timestamp.toLocaleTimeString([], {
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+        })}
+      </p>
 
-        {/* Traffic rates */}
-        <div className="space-y-component-sm">
-          {/* TX Rate */}
-          <div className="flex items-center gap-component-sm">
-            <span
-              className="h-3 w-3 rounded-full bg-primary"
-              aria-hidden="true"
-            />
-            <span className="font-medium">TX:</span>
-            <span className="font-mono">{formatBitrate(txData?.value || 0)}</span>
-          </div>
-
-          {/* RX Rate */}
-          <div className="flex items-center gap-component-sm">
-            <span
-              className="h-3 w-3 rounded-full bg-success"
-              aria-hidden="true"
-            />
-            <span className="font-medium">RX:</span>
-            <span className="font-mono">{formatBitrate(rxData?.value || 0)}</span>
-          </div>
+      {/* Traffic rates */}
+      <div className="space-y-component-sm">
+        {/* TX Rate */}
+        <div className="gap-component-sm flex items-center">
+          <span
+            className="bg-primary h-3 w-3 rounded-full"
+            aria-hidden="true"
+          />
+          <span className="font-medium">TX:</span>
+          <span className="font-mono">{formatBitrate(txData?.value || 0)}</span>
         </div>
 
-        {/* Total bytes (if available) */}
-        {dataPoint && (
-          <>
-            <hr className="my-component-sm border-border" />
-            <div className="space-y-component-sm text-xs text-muted-foreground">
-              <p>
-                <span className="font-medium">TX Total:</span>{' '}
-                <span className="font-mono">{formatBytes(dataPoint.txBytes)}</span>
-              </p>
-              <p>
-                <span className="font-medium">RX Total:</span>{' '}
-                <span className="font-mono">{formatBytes(dataPoint.rxBytes)}</span>
-              </p>
-            </div>
-          </>
-        )}
+        {/* RX Rate */}
+        <div className="gap-component-sm flex items-center">
+          <span
+            className="bg-success h-3 w-3 rounded-full"
+            aria-hidden="true"
+          />
+          <span className="font-medium">RX:</span>
+          <span className="font-mono">{formatBitrate(rxData?.value || 0)}</span>
+        </div>
       </div>
-    );
-  }
-);
+
+      {/* Total bytes (if available) */}
+      {dataPoint && (
+        <>
+          <hr className="my-component-sm border-border" />
+          <div className="space-y-component-sm text-muted-foreground text-xs">
+            <p>
+              <span className="font-medium">TX Total:</span>{' '}
+              <span className="font-mono">{formatBytes(dataPoint.txBytes)}</span>
+            </p>
+            <p>
+              <span className="font-medium">RX Total:</span>{' '}
+              <span className="font-mono">{formatBytes(dataPoint.rxBytes)}</span>
+            </p>
+          </div>
+        </>
+      )}
+    </div>
+  );
+});
 
 CustomTooltip.displayName = 'CustomTooltip';

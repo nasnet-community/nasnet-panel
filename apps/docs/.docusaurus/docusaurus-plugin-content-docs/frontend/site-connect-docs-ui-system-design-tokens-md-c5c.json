@@ -1,7 +1,7 @@
 {
   "id": "ui-system/design-tokens",
   "title": "Design Tokens",
-  "description": "NasNetConnect uses a three-tier design token architecture defined in libs/ui/tokens/src/tokens.json and surfaced as CSS custom properties. Tokens flow from raw values (Tier 1) through semantic meaning (Tier 2) to component-specific defaults (Tier 3).",
+  "description": "NasNetConnect uses a three-tier design token architecture defined in",
   "source": "@site/../connect/docs/ui-system/design-tokens.md",
   "sourceDirName": "ui-system",
   "slug": "/ui-system/design-tokens",

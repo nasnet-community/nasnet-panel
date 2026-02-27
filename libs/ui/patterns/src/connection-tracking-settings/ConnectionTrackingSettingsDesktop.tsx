@@ -87,7 +87,7 @@ export function ConnectionTrackingSettingsDesktop({
       >
         {/* General Settings Card */}
         <Card className="p-6">
-          <h3 className="text-lg font-semibold mb-4">General Settings</h3>
+          <h3 className="mb-4 text-lg font-semibold">General Settings</h3>
 
           <div className="space-y-4">
             <div className="flex items-center gap-3">
@@ -99,7 +99,10 @@ export function ConnectionTrackingSettingsDesktop({
                 className="h-4 w-4 rounded border-gray-300"
                 aria-label="Enable connection tracking"
               />
-              <label htmlFor="enabled" className="text-sm font-medium">
+              <label
+                htmlFor="enabled"
+                className="text-sm font-medium"
+              >
                 Enable Connection Tracking
               </label>
             </div>
@@ -120,7 +123,10 @@ export function ConnectionTrackingSettingsDesktop({
                 id="looseTracking"
                 className="h-4 w-4 rounded border-gray-300"
               />
-              <label htmlFor="looseTracking" className="text-sm">
+              <label
+                htmlFor="looseTracking"
+                className="text-sm"
+              >
                 Use loose TCP connection tracking
               </label>
             </div>
@@ -129,12 +135,12 @@ export function ConnectionTrackingSettingsDesktop({
 
         {/* TCP Timeouts Card */}
         <Card className="p-6">
-          <h3 className="text-lg font-semibold mb-4">TCP Timeouts</h3>
-          <p className="text-sm text-muted-foreground mb-4">
+          <h3 className="mb-4 text-lg font-semibold">TCP Timeouts</h3>
+          <p className="text-muted-foreground mb-4 text-sm">
             Use formats like: 1d (day), 12h (hours), 30m (minutes), 45s (seconds)
           </p>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <RHFFormField
               name="tcpEstablishedTimeout"
               label="Established"
@@ -196,9 +202,9 @@ export function ConnectionTrackingSettingsDesktop({
 
         {/* Other Protocol Timeouts Card */}
         <Card className="p-6">
-          <h3 className="text-lg font-semibold mb-4">Other Protocol Timeouts</h3>
+          <h3 className="mb-4 text-lg font-semibold">Other Protocol Timeouts</h3>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <RHFFormField
               name="udpTimeout"
               label="UDP"

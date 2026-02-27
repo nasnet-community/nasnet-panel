@@ -44,15 +44,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@nasnet/ui/primitives';
-import {
-  Play,
-  Pause,
-  Download,
-  Filter,
-  BarChart3,
-  ChevronLeft,
-  ChevronRight,
-} from 'lucide-react';
+import { Play, Pause, Download, Filter, BarChart3, ChevronLeft, ChevronRight } from 'lucide-react';
 
 // ============================================================================
 // Platform Detection Hook
@@ -103,21 +95,28 @@ const AutoRefreshControls = React.memo(function AutoRefreshControlsComponent({
   const { t } = useTranslation('firewall');
 
   return (
-    <div className={cn('flex items-center gap-component-sm', className)}>
+    <div className={cn('gap-component-sm flex items-center', className)}>
       {/* Play/Pause Toggle */}
       <Button
         variant={isAutoRefreshEnabled ? 'default' : 'outline'}
         size="sm"
         onClick={onToggleRefresh}
-        aria-label={isAutoRefreshEnabled ? t('logs.controls.pauseRefresh') : t('logs.controls.startRefresh')}
+        aria-label={
+          isAutoRefreshEnabled ? t('logs.controls.pauseRefresh') : t('logs.controls.startRefresh')
+        }
         title={isAutoRefreshEnabled ? 'Pause auto-refresh' : 'Start auto-refresh'}
-        className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+        className="focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
       >
-        {isAutoRefreshEnabled ? (
-          <Pause className="h-4 w-4" aria-hidden="true" />
-        ) : (
-          <Play className="h-4 w-4" aria-hidden="true" />
-        )}
+        {isAutoRefreshEnabled ?
+          <Pause
+            className="h-4 w-4"
+            aria-hidden="true"
+          />
+        : <Play
+            className="h-4 w-4"
+            aria-hidden="true"
+          />
+        }
       </Button>
 
       {/* Interval Selector */}
@@ -128,7 +127,7 @@ const AutoRefreshControls = React.memo(function AutoRefreshControlsComponent({
           onIntervalChange(interval as number | false);
         }}
       >
-        <SelectTrigger className="w-32 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+        <SelectTrigger className="focus-visible:ring-ring w-32 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2">
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
@@ -141,8 +140,16 @@ const AutoRefreshControls = React.memo(function AutoRefreshControlsComponent({
       </Select>
 
       {/* Export Button */}
-      <Button variant="outline" size="sm" onClick={onExport} className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
-        <Download className="h-4 w-4 mr-component-sm" aria-hidden="true" />
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={onExport}
+        className="focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+      >
+        <Download
+          className="mr-component-sm h-4 w-4"
+          aria-hidden="true"
+        />
         {t('logs.controls.export')}
       </Button>
     </div>
@@ -186,9 +193,11 @@ const DesktopLayout = React.memo(function DesktopLayoutComponent({
   return (
     <div className="flex h-full">
       {/* Left Sidebar - Filters */}
-      <div className="w-80 border-r border-border bg-muted/30 p-component-md overflow-y-auto">
+      <div className="border-border bg-muted/30 p-component-md w-80 overflow-y-auto border-r">
         <div className="mb-component-md">
-          <h2 className="text-lg font-semibold font-display mb-component-sm">{t('logs.filters.title')}</h2>
+          <h2 className="font-display mb-component-sm text-lg font-semibold">
+            {t('logs.filters.title')}
+          </h2>
         </div>
         <FirewallLogFilters
           filters={filters}
@@ -198,17 +207,17 @@ const DesktopLayout = React.memo(function DesktopLayoutComponent({
       </div>
 
       {/* Main Content - Log Viewer */}
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex flex-1 flex-col overflow-hidden">
         {/* Header with Controls */}
-        <div className="border-b border-border p-component-md bg-card">
+        <div className="border-border p-component-md bg-card border-b">
           <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-bold font-display">{t('logs.title')}</h1>
+            <h1 className="font-display text-2xl font-bold">{t('logs.title')}</h1>
             {autoRefreshControls}
           </div>
         </div>
 
         {/* Log Viewer */}
-        <div className="flex-1 overflow-hidden p-component-md">
+        <div className="p-component-md flex-1 overflow-hidden">
           <FirewallLogViewer
             routerId={routerId}
             onPrefixClick={onPrefixClick}
@@ -219,36 +228,45 @@ const DesktopLayout = React.memo(function DesktopLayoutComponent({
 
       {/* Right Panel - Stats */}
       {expandedStats && (
-        <div className="w-96 border-l border-border bg-muted/30 p-component-md overflow-y-auto">
-          <div className="flex items-center justify-between mb-component-md">
-            <h2 className="text-lg font-semibold font-display">{t('logs.stats.title')}</h2>
+        <div className="border-border bg-muted/30 p-component-md w-96 overflow-y-auto border-l">
+          <div className="mb-component-md flex items-center justify-between">
+            <h2 className="font-display text-lg font-semibold">{t('logs.stats.title')}</h2>
             <Button
               variant="ghost"
               size="sm"
               onClick={onToggleStats}
               aria-label={t('logs.stats.collapse')}
               title="Collapse stats panel"
-              className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              className="focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
             >
-              <ChevronRight className="h-4 w-4" aria-hidden="true" />
+              <ChevronRight
+                className="h-4 w-4"
+                aria-hidden="true"
+              />
             </Button>
           </div>
-          <FirewallLogStats logs={logs} onAddToBlocklist={onAddToBlocklist} />
+          <FirewallLogStats
+            logs={logs}
+            onAddToBlocklist={onAddToBlocklist}
+          />
         </div>
       )}
 
       {/* Collapsed Stats Toggle */}
       {!expandedStats && (
-        <div className="border-l border-border bg-muted/30">
+        <div className="border-border bg-muted/30 border-l">
           <Button
             variant="ghost"
             size="sm"
             onClick={onToggleStats}
-            className="h-full px-component-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            className="px-component-sm focus-visible:ring-ring h-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
             aria-label={t('logs.stats.expand')}
             title="Expand stats panel"
           >
-            <ChevronLeft className="h-4 w-4" aria-hidden="true" />
+            <ChevronLeft
+              className="h-4 w-4"
+              aria-hidden="true"
+            />
           </Button>
         </div>
       )}
@@ -293,23 +311,29 @@ const MobileLayout = React.memo(function MobileLayoutComponent({
   const { t } = useTranslation('firewall');
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex h-full flex-col">
       {/* Header */}
-      <div className="border-b border-border p-component-md bg-card">
-        <h1 className="text-xl font-bold font-display mb-component-md">{t('logs.title')}</h1>
-        <div className="flex items-center gap-component-sm">
+      <div className="border-border p-component-md bg-card border-b">
+        <h1 className="font-display mb-component-md text-xl font-bold">{t('logs.title')}</h1>
+        <div className="gap-component-sm flex items-center">
           {autoRefreshControls}
           <Button
             variant="outline"
             size="sm"
             onClick={() => onFiltersSheetChange(true)}
-            className="ml-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            className="focus-visible:ring-ring ml-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
             aria-label={`Open filters${activeFilterCount > 0 ? ` (${activeFilterCount} active)` : ''}`}
           >
-            <Filter className="h-4 w-4 mr-component-sm" aria-hidden="true" />
+            <Filter
+              className="mr-component-sm h-4 w-4"
+              aria-hidden="true"
+            />
             {t('logs.filters.title')}
             {activeFilterCount > 0 && (
-              <span className="ml-component-sm px-component-sm py-component-xs text-xs bg-primary text-primary-foreground rounded-[var(--semantic-radius-badge)] font-semibold" aria-label={`${activeFilterCount} active filters`}>
+              <span
+                className="ml-component-sm px-component-sm py-component-xs bg-primary text-primary-foreground rounded-[var(--semantic-radius-badge)] text-xs font-semibold"
+                aria-label={`${activeFilterCount} active filters`}
+              >
                 {activeFilterCount}
               </span>
             )}
@@ -318,7 +342,7 @@ const MobileLayout = React.memo(function MobileLayoutComponent({
       </div>
 
       {/* Log Viewer */}
-      <div className="flex-1 overflow-y-auto p-component-md">
+      <div className="p-component-md flex-1 overflow-y-auto">
         <FirewallLogViewer
           routerId={routerId}
           onPrefixClick={onPrefixClick}
@@ -328,20 +352,29 @@ const MobileLayout = React.memo(function MobileLayoutComponent({
         {/* Stats Card (Mobile) */}
         <Card className="mt-component-md">
           <CardHeader>
-            <CardTitle className="flex items-center gap-component-sm font-display">
+            <CardTitle className="gap-component-sm font-display flex items-center">
               <BarChart3 className="h-5 w-5" />
               {t('logs.stats.title')}
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <FirewallLogStats logs={logs} onAddToBlocklist={onAddToBlocklist} />
+            <FirewallLogStats
+              logs={logs}
+              onAddToBlocklist={onAddToBlocklist}
+            />
           </CardContent>
         </Card>
       </div>
 
       {/* Filters Bottom Sheet */}
-      <Sheet open={filtersSheetOpen} onOpenChange={onFiltersSheetChange}>
-        <SheetContent side="bottom" className="h-[80vh]">
+      <Sheet
+        open={filtersSheetOpen}
+        onOpenChange={onFiltersSheetChange}
+      >
+        <SheetContent
+          side="bottom"
+          className="h-[80vh]"
+        >
           <SheetHeader>
             <SheetTitle className="font-display">{t('logs.filters.title')}</SheetTitle>
             <SheetDescription>{t('logs.filters.description')}</SheetDescription>
@@ -453,7 +486,17 @@ export function FirewallLogsPage() {
     // Export logs to CSV
     const csv = [
       // Header
-      ['Timestamp', 'Chain', 'Action', 'Source IP', 'Source Port', 'Dest IP', 'Dest Port', 'Protocol', 'Prefix'].join(','),
+      [
+        'Timestamp',
+        'Chain',
+        'Action',
+        'Source IP',
+        'Source Port',
+        'Dest IP',
+        'Dest Port',
+        'Protocol',
+        'Prefix',
+      ].join(','),
       // Data rows
       ...viewer.logs.map((log) =>
         [
@@ -479,13 +522,10 @@ export function FirewallLogsPage() {
     URL.revokeObjectURL(url);
   }, [viewer.logs]);
 
-  const handleAddToBlocklist = useCallback(
-    (ip: string) => {
-      // TODO: Implement blocklist integration
-      // This will be connected to the address list API in a future task
-    },
-    []
-  );
+  const handleAddToBlocklist = useCallback((ip: string) => {
+    // TODO: Implement blocklist integration
+    // This will be connected to the address list API in a future task
+  }, []);
 
   // Auto-refresh controls
   const autoRefreshControls = (
@@ -510,7 +550,7 @@ export function FirewallLogsPage() {
       />
 
       {/* Platform-specific layout */}
-      {isMobile ? (
+      {isMobile ?
         <MobileLayout
           routerId={routerIp}
           filters={filters}
@@ -524,8 +564,7 @@ export function FirewallLogsPage() {
           autoRefreshControls={autoRefreshControls}
           activeFilterCount={activeFilterCount}
         />
-      ) : (
-        <DesktopLayout
+      : <DesktopLayout
           routerId={routerIp}
           filters={filters}
           onFiltersChange={setFilters}
@@ -537,7 +576,7 @@ export function FirewallLogsPage() {
           onToggleStats={toggleExpandedStats}
           autoRefreshControls={autoRefreshControls}
         />
-      )}
+      }
     </>
   );
 }

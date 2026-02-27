@@ -16,7 +16,12 @@
 import React, { type ReactElement, type ReactNode } from 'react';
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { RouterProvider, createMemoryHistory, createRootRoute, createRouter } from '@tanstack/react-router';
+import {
+  RouterProvider,
+  createMemoryHistory,
+  createRootRoute,
+  createRouter,
+} from '@tanstack/react-router';
 import { render, type RenderOptions, type RenderResult } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
@@ -98,10 +103,7 @@ function AllProviders({ children }: AllProvidersProps): ReactElement {
  * Custom render function that wraps components with all providers.
  * Use this instead of the default render from @testing-library/react.
  */
-function customRender(
-  ui: ReactElement,
-  options?: Omit<RenderOptions, 'wrapper'>
-): RenderResult {
+function customRender(ui: ReactElement, options?: Omit<RenderOptions, 'wrapper'>): RenderResult {
   return render(ui, { wrapper: AllProviders, ...options });
 }
 

@@ -64,8 +64,9 @@ function makeMockResource(
       mtu: 1420,
       publicKey: 'XHGJ7kLrP8mN3qT2vB5cF9eA4dI6wY1sO0uZpMnKjR=',
     },
-    validation: overrides.hasErrors
-      ? {
+    validation:
+      overrides.hasErrors ?
+        {
           canApply: false,
           stage: 'SEMANTIC',
           errors: [
@@ -95,7 +96,10 @@ function makeMockResource(
         },
     runtime: {
       isRunning: overrides.isRunning ?? state === 'ACTIVE',
-      health: state === 'DEGRADED' ? 'DEGRADED' : state === 'ACTIVE' ? 'HEALTHY' : 'UNKNOWN',
+      health:
+        state === 'DEGRADED' ? 'DEGRADED'
+        : state === 'ACTIVE' ? 'HEALTHY'
+        : 'UNKNOWN',
       lastUpdated: new Date().toISOString(),
       activeConnections: state === 'ACTIVE' ? 3 : null,
       uptime: state === 'ACTIVE' ? '14d 6h 22m' : null,
@@ -147,15 +151,15 @@ function ResourceDetailPanel() {
   };
 
   return (
-    <div className="space-y-4 w-full max-w-sm">
+    <div className="w-full max-w-sm space-y-4">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h3 className="text-base font-semibold text-foreground">
+        <h3 className="text-foreground text-base font-semibold">
           {resource?.configuration?.name ?? 'Resource'}
         </h3>
         {state && (
           <span
-            className={`text-xs font-medium px-2 py-0.5 rounded-full ${stateColor[state] ?? 'bg-muted'}`}
+            className={`rounded-full px-2 py-0.5 text-xs font-medium ${stateColor[state] ?? 'bg-muted'}`}
           >
             {state}
           </span>
@@ -164,12 +168,12 @@ function ResourceDetailPanel() {
 
       {/* Loading / Error / Content */}
       <ResourceLoading>
-        <div className="text-sm text-muted-foreground animate-pulse">Loading resource…</div>
+        <div className="text-muted-foreground animate-pulse text-sm">Loading resource…</div>
       </ResourceLoading>
 
       <ResourceError>
         {(msg) => (
-          <div className="text-sm text-destructive bg-destructive/10 px-3 py-2 rounded-md">
+          <div className="text-destructive bg-destructive/10 rounded-md px-3 py-2 text-sm">
             {msg}
           </div>
         )}
@@ -180,19 +184,25 @@ function ResourceDetailPanel() {
           {/* Runtime badges */}
           <div className="flex flex-wrap gap-1.5">
             {runtime?.uptime && (
-              <Badge variant="secondary" className="text-xs">
+              <Badge
+                variant="secondary"
+                className="text-xs"
+              >
                 Uptime: {runtime.uptime}
               </Badge>
             )}
             {runtime?.activeConnections !== null && runtime?.activeConnections !== undefined && (
-              <Badge variant="secondary" className="text-xs">
+              <Badge
+                variant="secondary"
+                className="text-xs"
+              >
                 {runtime.activeConnections} peer{runtime.activeConnections !== 1 ? 's' : ''}
               </Badge>
             )}
           </div>
 
           {/* Predicates */}
-          <div className="text-xs space-y-1 text-muted-foreground font-mono bg-muted p-3 rounded-md">
+          <div className="text-muted-foreground bg-muted space-y-1 rounded-md p-3 font-mono text-xs">
             <div>isPending: {String(isPending)}</div>
             <div>isActive: {String(isActive)}</div>
             <div>isEditable: {String(isEditable)}</div>
@@ -200,21 +210,23 @@ function ResourceDetailPanel() {
           </div>
 
           {/* Validation errors */}
-          {hasErrors && resource?.validation?.errors.map((err) => (
-            <div key={err.code} className="text-xs text-destructive bg-destructive/10 px-3 py-2 rounded-md">
-              <span className="font-mono">[{err.field ?? 'general'}]</span> {err.message}
-            </div>
-          ))}
+          {hasErrors &&
+            resource?.validation?.errors.map((err) => (
+              <div
+                key={err.code}
+                className="text-destructive bg-destructive/10 rounded-md px-3 py-2 text-xs"
+              >
+                <span className="font-mono">[{err.field ?? 'general'}]</span> {err.message}
+              </div>
+            ))}
 
           {/* State-gated content */}
           <ResourceState states={['ACTIVE', 'DEGRADED']}>
-            <div className="text-xs text-semantic-success">
-              Resource is active on the router.
-            </div>
+            <div className="text-semantic-success text-xs">Resource is active on the router.</div>
           </ResourceState>
 
           <ResourceState states={['ERROR']}>
-            <div className="text-xs text-destructive">
+            <div className="text-destructive text-xs">
               Resource failed — check validation errors above.
             </div>
           </ResourceState>
@@ -222,11 +234,11 @@ function ResourceDetailPanel() {
       </ResourceLoaded>
 
       {/* Actions */}
-      <div className="flex flex-wrap gap-2 pt-2 border-t border-border">
+      <div className="border-border flex flex-wrap gap-2 border-t pt-2">
         <button
           type="button"
           onClick={() => void refresh()}
-          className="px-3 py-1.5 text-xs rounded-md border border-border hover:bg-muted transition-colors"
+          className="border-border hover:bg-muted rounded-md border px-3 py-1.5 text-xs transition-colors"
         >
           Refresh
         </button>
@@ -234,7 +246,7 @@ function ResourceDetailPanel() {
           type="button"
           onClick={() => void validate()}
           disabled={isPending || loading}
-          className="px-3 py-1.5 text-xs rounded-md border border-border hover:bg-muted transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="border-border hover:bg-muted rounded-md border px-3 py-1.5 text-xs transition-colors disabled:cursor-not-allowed disabled:opacity-50"
         >
           Validate
         </button>
@@ -242,7 +254,7 @@ function ResourceDetailPanel() {
           type="button"
           onClick={() => void apply()}
           disabled={isPending || hasErrors || loading}
-          className="px-3 py-1.5 text-xs rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-md px-3 py-1.5 text-xs transition-colors disabled:cursor-not-allowed disabled:opacity-50"
         >
           Apply to Router
         </button>
@@ -282,7 +294,7 @@ function ResourceProviderDemo({
   const resource = loading || showError ? undefined : makeMockResource({ state, hasErrors });
 
   return (
-    <div className="space-y-6 w-full max-w-sm">
+    <div className="w-full max-w-sm space-y-6">
       <ResourceProvider
         resource={resource}
         loading={loading}
@@ -299,9 +311,12 @@ function ResourceProviderDemo({
       {/* Action log */}
       {callLog.length > 0 && (
         <div className="space-y-1">
-          <div className="text-xs font-medium text-muted-foreground">Action log:</div>
+          <div className="text-muted-foreground text-xs font-medium">Action log:</div>
           {callLog.map((entry, i) => (
-            <div key={i} className="text-xs font-mono text-foreground/70 bg-muted px-2 py-0.5 rounded">
+            <div
+              key={i}
+              className="text-foreground/70 bg-muted rounded px-2 py-0.5 font-mono text-xs"
+            >
               {entry}
             </div>
           ))}
@@ -374,8 +389,15 @@ function ResourceActions() {
     state: {
       control: 'select',
       options: [
-        'DRAFT', 'VALIDATING', 'VALID', 'APPLYING',
-        'ACTIVE', 'DEGRADED', 'ERROR', 'DEPRECATED', 'ARCHIVED',
+        'DRAFT',
+        'VALIDATING',
+        'VALID',
+        'APPLYING',
+        'ACTIVE',
+        'DEGRADED',
+        'ERROR',
+        'DEPRECATED',
+        'ARCHIVED',
       ],
       description: 'Resource lifecycle state',
     },

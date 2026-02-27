@@ -61,13 +61,7 @@ function ServiceTemplateCardDesktopComponent(props: ServiceTemplateCardProps) {
 
   return (
     <Card
-      className={`
-        bg-card border border-border rounded-[var(--semantic-radius-card)]
-        shadow-[var(--semantic-shadow-card)]
-        hover:shadow-lg cursor-pointer
-        transition-shadow duration-200
-        ${className || ''}
-      `.trim()}
+      className={`bg-card border-border cursor-pointer rounded-[var(--semantic-radius-card)] border shadow-[var(--semantic-shadow-card)] transition-shadow duration-200 hover:shadow-lg ${className || ''} `.trim()}
       onClick={handleClick}
       role="article"
       aria-label={`${name} template - ${scopeColors.label}`}
@@ -76,22 +70,23 @@ function ServiceTemplateCardDesktopComponent(props: ServiceTemplateCardProps) {
         <div className="flex items-center gap-4">
           {/* Template icon */}
           {icon && (
-            <div className="shrink-0 w-12 h-12 flex items-center justify-center text-2xl">
-              {typeof icon === 'string' ? (
-                <span role="img" aria-hidden="true">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center text-2xl">
+              {typeof icon === 'string' ?
+                <span
+                  role="img"
+                  aria-hidden="true"
+                >
                   {icon}
                 </span>
-              ) : (
-                icon
-              )}
+              : icon}
             </div>
           )}
 
           {/* Template info */}
-          <div className="flex-1 min-w-0 space-y-2">
+          <div className="min-w-0 flex-1 space-y-2">
             {/* Header row */}
             <div className="flex items-center gap-2">
-              <h3 className="text-lg font-semibold text-foreground truncate">
+              <h3 className="text-foreground truncate text-lg font-semibold">
                 {name}
                 {verified && (
                   <span
@@ -105,15 +100,13 @@ function ServiceTemplateCardDesktopComponent(props: ServiceTemplateCardProps) {
               </h3>
 
               {version && (
-                <span className="text-xs font-mono text-muted-foreground shrink-0">
-                  v{version}
-                </span>
+                <span className="text-muted-foreground shrink-0 font-mono text-xs">v{version}</span>
               )}
 
               {/* Scope badge */}
               <Badge
                 variant="outline"
-                className={`${scopeColors.bg} ${scopeColors.text} border-0 shrink-0 rounded-[var(--semantic-radius-badge)]`}
+                className={`${scopeColors.bg} ${scopeColors.text} shrink-0 rounded-[var(--semantic-radius-badge)] border-0`}
               >
                 {scopeColors.label}
               </Badge>
@@ -121,16 +114,15 @@ function ServiceTemplateCardDesktopComponent(props: ServiceTemplateCardProps) {
 
             {/* Category and description row */}
             <div className="flex items-center gap-2">
-              <span className={`text-xs font-medium shrink-0 ${categoryColor}`}>
-                {props.template.category.charAt(0).toUpperCase() +
-                  props.template.category.slice(1)}
+              <span className={`shrink-0 text-xs font-medium ${categoryColor}`}>
+                {props.template.category.charAt(0).toUpperCase() + props.template.category.slice(1)}
               </span>
 
               {description && (
                 <>
-                  <span className="text-xs text-muted-foreground">•</span>
+                  <span className="text-muted-foreground text-xs">•</span>
                   <span
-                    className="text-sm text-muted-foreground line-clamp-2"
+                    className="text-muted-foreground line-clamp-2 text-sm"
                     title={description.length > 60 ? description : undefined}
                   >
                     {description}
@@ -187,7 +179,10 @@ function ServiceTemplateCardDesktopComponent(props: ServiceTemplateCardProps) {
                   )}
                   {rating !== undefined && (
                     <div className="flex items-center gap-1">
-                      <span className="text-amber-500" aria-hidden="true">
+                      <span
+                        className="text-amber-500"
+                        aria-hidden="true"
+                      >
                         ★
                       </span>
                       <span className="font-medium">{rating.toFixed(1)}</span>
@@ -202,7 +197,7 @@ function ServiceTemplateCardDesktopComponent(props: ServiceTemplateCardProps) {
           </div>
 
           {/* Actions */}
-          <div className="shrink-0 flex items-center gap-2">
+          <div className="flex shrink-0 items-center gap-2">
             {/* Primary action */}
             {primaryAction && (
               <Button
@@ -215,21 +210,23 @@ function ServiceTemplateCardDesktopComponent(props: ServiceTemplateCardProps) {
                 disabled={primaryAction.disabled || primaryAction.loading}
                 aria-label={primaryAction.label}
               >
-                {primaryAction.loading ? (
+                {primaryAction.loading ?
                   <span className="flex items-center gap-2">
-                    <span className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
                     {primaryAction.label}
                   </span>
-                ) : (
-                  <>
+                : <>
                     {primaryAction.icon && (
-                      <span className="mr-2" aria-hidden="true">
+                      <span
+                        className="mr-2"
+                        aria-hidden="true"
+                      >
                         {primaryAction.icon}
                       </span>
                     )}
                     {primaryAction.label}
                   </>
-                )}
+                }
               </Button>
             )}
 
@@ -255,9 +252,21 @@ function ServiceTemplateCardDesktopComponent(props: ServiceTemplateCardProps) {
                       strokeLinejoin="round"
                       aria-hidden="true"
                     >
-                      <circle cx="12" cy="12" r="1" />
-                      <circle cx="12" cy="5" r="1" />
-                      <circle cx="12" cy="19" r="1" />
+                      <circle
+                        cx="12"
+                        cy="12"
+                        r="1"
+                      />
+                      <circle
+                        cx="12"
+                        cy="5"
+                        r="1"
+                      />
+                      <circle
+                        cx="12"
+                        cy="19"
+                        r="1"
+                      />
                     </svg>
                   </Button>
                 </DropdownMenuTrigger>
@@ -272,7 +281,10 @@ function ServiceTemplateCardDesktopComponent(props: ServiceTemplateCardProps) {
                       disabled={action.disabled || action.loading}
                     >
                       {action.icon && (
-                        <span className="mr-2" aria-hidden="true">
+                        <span
+                          className="mr-2"
+                          aria-hidden="true"
+                        >
                           {action.icon}
                         </span>
                       )}

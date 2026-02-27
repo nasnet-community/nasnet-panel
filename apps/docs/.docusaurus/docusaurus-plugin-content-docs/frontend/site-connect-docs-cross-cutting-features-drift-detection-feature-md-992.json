@@ -1,7 +1,7 @@
 {
   "id": "cross-cutting-features/drift-detection-feature",
   "title": "Drift Detection Feature",
-  "description": "Configuration drift occurs when the desired state stored in NasNet's configuration layer differs from the actual state on the router. This happens when someone changes the router directly via SSH or the RouterOS web interface, bypassing NasNet.",
+  "description": "Configuration drift occurs when the desired state stored in NasNet's configuration layer differs",
   "source": "@site/../connect/docs/cross-cutting-features/drift-detection-feature.md",
   "sourceDirName": "cross-cutting-features",
   "slug": "/cross-cutting-features/drift-detection-feature",

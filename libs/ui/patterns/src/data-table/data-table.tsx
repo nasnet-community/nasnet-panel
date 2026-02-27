@@ -124,16 +124,21 @@ function DataTableInner<T extends Record<string, unknown>>({
   );
 
   return (
-    <div className={cn('bg-card border border-border rounded-[var(--semantic-radius-card)] overflow-hidden', className)}>
+    <div
+      className={cn(
+        'bg-card border-border overflow-hidden rounded-[var(--semantic-radius-card)] border',
+        className
+      )}
+    >
       <Table aria-label="Data table">
         <TableHeader>
-          <TableRow className="bg-muted border-b border-border hover:bg-muted">
+          <TableRow className="bg-muted border-border hover:bg-muted border-b">
             {columns.map((column, index) => (
               <TableHead
                 key={String(column.key) + index}
                 scope="col"
                 className={cn(
-                  'px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground',
+                  'text-muted-foreground px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider',
                   column.headerClassName
                 )}
               >
@@ -143,31 +148,30 @@ function DataTableInner<T extends Record<string, unknown>>({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {isLoading ? (
+          {isLoading ?
             <TableRow>
               <TableCell
                 colSpan={columns.length}
-                className="h-24 text-center text-muted-foreground py-12"
+                className="text-muted-foreground h-24 py-12 text-center"
               >
                 Loading...
               </TableCell>
             </TableRow>
-          ) : data.length === 0 ? (
+          : data.length === 0 ?
             <TableRow>
               <TableCell
                 colSpan={columns.length}
-                className="text-center text-muted-foreground py-12"
+                className="text-muted-foreground py-12 text-center"
               >
                 {emptyMessage}
               </TableCell>
             </TableRow>
-          ) : (
-            data.map((item, rowIndex) => (
+          : data.map((item, rowIndex) => (
               <TableRow
                 key={getRowKey(item, rowIndex)}
                 onClick={() => handleRowClick(item, rowIndex)}
                 className={cn(
-                  'h-10 border-b border-border hover:bg-muted/50 transition-colors duration-150',
+                  'border-border hover:bg-muted/50 h-10 border-b transition-colors duration-150',
                   onRowClick && 'cursor-pointer',
                   'data-[selected]:bg-primary/5'
                 )}
@@ -175,14 +179,14 @@ function DataTableInner<T extends Record<string, unknown>>({
                 {columns.map((column, colIndex) => (
                   <TableCell
                     key={String(column.key) + colIndex}
-                    className={cn('px-4 py-2 text-sm text-foreground', column.className)}
+                    className={cn('text-foreground px-4 py-2 text-sm', column.className)}
                   >
                     {getCellValue(item, column, rowIndex)}
                   </TableCell>
                 ))}
               </TableRow>
             ))
-          )}
+          }
         </TableBody>
       </Table>
     </div>

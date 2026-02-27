@@ -18,20 +18,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@nasnet/ui/primitives';
-import {
-  History,
-  Filter,
-  Search,
-  ChevronLeft,
-  ChevronRight,
-  RefreshCw,
-} from 'lucide-react';
+import { History, Filter, Search, ChevronLeft, ChevronRight, RefreshCw } from 'lucide-react';
 import { usePlatform } from '@nasnet/ui/layouts';
 import { cn } from '@nasnet/ui/utils';
-import {
-  ConnectionEventCard,
-  ConnectionEventCardCompact,
-} from './ConnectionEventCard';
+import { ConnectionEventCard, ConnectionEventCardCompact } from './ConnectionEventCard';
 import type { ConnectionEventData } from '../../types/wan.types';
 
 export interface ConnectionHistoryTableProps {
@@ -83,9 +73,7 @@ function ConnectionHistoryTableComponent({
       if (searchQuery) {
         const query = searchQuery.toLowerCase();
         const matchesIP = event.publicIP?.toLowerCase().includes(query);
-        const matchesInterface = event.wanInterfaceId
-          ?.toLowerCase()
-          .includes(query);
+        const matchesInterface = event.wanInterfaceId?.toLowerCase().includes(query);
         const matchesReason = event.reason?.toLowerCase().includes(query);
 
         if (!matchesIP && !matchesInterface && !matchesReason) {
@@ -143,10 +131,7 @@ function ConnectionHistoryTableComponent({
   /**
    * Handle pagination
    */
-  const handlePreviousPage = useCallback(
-    () => setCurrentPage((p) => Math.max(1, p - 1)),
-    []
-  );
+  const handlePreviousPage = useCallback(() => setCurrentPage((p) => Math.max(1, p - 1)), []);
 
   const handleNextPage = useCallback(
     () => setCurrentPage((p) => Math.min(totalPages, p + 1)),
@@ -159,13 +144,13 @@ function ConnectionHistoryTableComponent({
    */
   if (loading && events.length === 0) {
     return (
-      <div className={cn('flex items-center justify-center py-component-lg', className)}>
-        <div className="flex flex-col items-center gap-component-md">
+      <div className={cn('py-component-lg flex items-center justify-center', className)}>
+        <div className="gap-component-md flex flex-col items-center">
           <RefreshCw
-            className="h-8 w-8 animate-spin text-muted-foreground"
+            className="text-muted-foreground h-8 w-8 animate-spin"
             aria-hidden="true"
           />
-          <p className="text-sm text-muted-foreground">Loading connection history...</p>
+          <p className="text-muted-foreground text-sm">Loading connection history...</p>
         </div>
       </div>
     );
@@ -177,15 +162,20 @@ function ConnectionHistoryTableComponent({
    */
   if (error && events.length === 0) {
     return (
-      <div className={cn('rounded-[var(--semantic-radius-card)] border border-error/20 bg-error/5 px-component-lg py-component-lg', className)}>
-        <div className="flex items-start gap-component-md">
+      <div
+        className={cn(
+          'border-error/20 bg-error/5 px-component-lg py-component-lg rounded-[var(--semantic-radius-card)] border',
+          className
+        )}
+      >
+        <div className="gap-component-md flex items-start">
           <History
-            className="h-5 w-5 text-error flex-shrink-0 mt-0.5"
+            className="text-error mt-0.5 h-5 w-5 flex-shrink-0"
             aria-hidden="true"
           />
           <div className="flex-1">
-            <h3 className="font-semibold text-error">Failed to load connection history</h3>
-            <p className="text-sm text-muted-foreground mt-2">
+            <h3 className="text-error font-semibold">Failed to load connection history</h3>
+            <p className="text-muted-foreground mt-2 text-sm">
               {error.message || 'An unexpected error occurred. Please try again.'}
             </p>
             {onRefresh && (
@@ -196,7 +186,10 @@ function ConnectionHistoryTableComponent({
                 className="mt-component-md"
                 aria-label="Retry loading connection history"
               >
-                <RefreshCw className="h-4 w-4 mr-2" aria-hidden="true" />
+                <RefreshCw
+                  className="mr-2 h-4 w-4"
+                  aria-hidden="true"
+                />
                 Retry
               </Button>
             )}
@@ -227,11 +220,10 @@ function ConnectionHistoryTableComponent({
    * Shows filters and helpful guidance to adjust criteria
    */
   if (filteredEvents.length === 0) {
-
     return (
       <div className={cn('space-y-component-md', className)}>
         {/* Filters */}
-        <div className="flex flex-col sm:flex-row gap-component-md">
+        <div className="gap-component-md flex flex-col sm:flex-row">
           <div className="flex-1">
             <Input
               placeholder="Search by IP, interface, or reason..."
@@ -240,15 +232,27 @@ function ConnectionHistoryTableComponent({
               aria-label="Search connection events"
             />
           </div>
-          <Select value={filterType} onValueChange={handleFilterChange}>
-            <SelectTrigger className="w-full sm:w-[200px]" aria-label="Filter by event type">
-              <Filter className="h-4 w-4 mr-2" aria-hidden="true" />
+          <Select
+            value={filterType}
+            onValueChange={handleFilterChange}
+          >
+            <SelectTrigger
+              className="w-full sm:w-[200px]"
+              aria-label="Filter by event type"
+            >
+              <Filter
+                className="mr-2 h-4 w-4"
+                aria-hidden="true"
+              />
               <SelectValue placeholder="Filter by type" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Events</SelectItem>
               {eventTypes.map((type) => (
-                <SelectItem key={type} value={type}>
+                <SelectItem
+                  key={type}
+                  value={type}
+                >
                   {type}
                 </SelectItem>
               ))}
@@ -278,7 +282,7 @@ function ConnectionHistoryTableComponent({
   return (
     <div className={cn('space-y-component-md', className)}>
       {/* Header with filters */}
-      <div className="flex flex-col sm:flex-row gap-component-md">
+      <div className="gap-component-md flex flex-col sm:flex-row">
         <div className="flex-1">
           <Input
             placeholder="Search by IP, interface, or reason..."
@@ -287,16 +291,28 @@ function ConnectionHistoryTableComponent({
             aria-label="Search connection events"
           />
         </div>
-        <div className="flex gap-component-sm">
-          <Select value={filterType} onValueChange={handleFilterChange}>
-            <SelectTrigger className="w-full sm:w-[180px]" aria-label="Filter by event type">
-              <Filter className="h-4 w-4 mr-2" aria-hidden="true" />
+        <div className="gap-component-sm flex">
+          <Select
+            value={filterType}
+            onValueChange={handleFilterChange}
+          >
+            <SelectTrigger
+              className="w-full sm:w-[180px]"
+              aria-label="Filter by event type"
+            >
+              <Filter
+                className="mr-2 h-4 w-4"
+                aria-hidden="true"
+              />
               <SelectValue placeholder="Filter" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Events</SelectItem>
               {eventTypes.map((type) => (
-                <SelectItem key={type} value={type}>
+                <SelectItem
+                  key={type}
+                  value={type}
+                >
                   {type}
                 </SelectItem>
               ))}
@@ -320,34 +336,40 @@ function ConnectionHistoryTableComponent({
       </div>
 
       {/* Results count */}
-      <div className="text-sm text-muted-foreground">
+      <div className="text-muted-foreground text-sm">
         Showing {paginatedEvents.length} of {filteredEvents.length} events
-        {filteredEvents.length !== events.length &&
-          ` (${events.length} total)`}
+        {filteredEvents.length !== events.length && ` (${events.length} total)`}
       </div>
 
       {/* Event timeline */}
-      <div className={isMobile ? 'space-y-component-sm' : ''} role="list">
+      <div
+        className={isMobile ? 'space-y-component-sm' : ''}
+        role="list"
+      >
         {paginatedEvents.map((event) =>
-          isMobile ? (
-            <div key={event.id} role="listitem">
+          isMobile ?
+            <div
+              key={event.id}
+              role="listitem"
+            >
               <ConnectionEventCardCompact event={event} />
             </div>
-          ) : (
-            <div key={event.id} role="listitem">
+          : <div
+              key={event.id}
+              role="listitem"
+            >
               <ConnectionEventCard event={event} />
             </div>
-          )
         )}
       </div>
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-between pt-component-md border-t border-border">
-          <div className="text-sm text-muted-foreground">
+        <div className="pt-component-md border-border flex items-center justify-between border-t">
+          <div className="text-muted-foreground text-sm">
             Page {currentPage} of {totalPages}
           </div>
-          <div className="flex gap-component-sm">
+          <div className="gap-component-sm flex">
             <Button
               variant="outline"
               size="sm"
@@ -355,7 +377,10 @@ function ConnectionHistoryTableComponent({
               disabled={currentPage === 1}
               aria-label="Previous page"
             >
-              <ChevronLeft className="h-4 w-4" aria-hidden="true" />
+              <ChevronLeft
+                className="h-4 w-4"
+                aria-hidden="true"
+              />
               <span className="ml-1 hidden sm:inline">Previous</span>
             </Button>
             <Button
@@ -366,7 +391,10 @@ function ConnectionHistoryTableComponent({
               aria-label="Next page"
             >
               <span className="mr-1 hidden sm:inline">Next</span>
-              <ChevronRight className="h-4 w-4" aria-hidden="true" />
+              <ChevronRight
+                className="h-4 w-4"
+                aria-hidden="true"
+              />
             </Button>
           </div>
         </div>
@@ -375,7 +403,6 @@ function ConnectionHistoryTableComponent({
   );
 }
 
-export const ConnectionHistoryTable = Object.assign(
-  ConnectionHistoryTableComponent,
-  { displayName: 'ConnectionHistoryTable' }
-) as typeof ConnectionHistoryTableComponent & { displayName: string };
+export const ConnectionHistoryTable = Object.assign(ConnectionHistoryTableComponent, {
+  displayName: 'ConnectionHistoryTable',
+}) as typeof ConnectionHistoryTableComponent & { displayName: string };

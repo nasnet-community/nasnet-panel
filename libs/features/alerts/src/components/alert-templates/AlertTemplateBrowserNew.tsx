@@ -60,8 +60,9 @@ export interface AlertTemplateBrowserNewProps {
  * @param props - Component props
  * @returns React component
  */
-export const AlertTemplateBrowserNew = React.memo(
-  function AlertTemplateBrowserNew(props: AlertTemplateBrowserNewProps) {
+export const AlertTemplateBrowserNew = React.memo(function AlertTemplateBrowserNew(
+  props: AlertTemplateBrowserNewProps
+) {
   const { onApply, onViewDetail, initialCategory, className } = props;
 
   // Detect platform (mobile <640px, desktop ≥640px)
@@ -99,10 +100,10 @@ export const AlertTemplateBrowserNew = React.memo(
   // Handle errors
   if (error) {
     return (
-      <div className="flex flex-col items-center justify-center h-full p-component-lg">
-        <div className="text-center space-y-component-md">
-          <h3 className="text-lg font-semibold text-error">Failed to load templates</h3>
-          <p className="text-sm text-muted-foreground">{error.message}</p>
+      <div className="p-component-lg flex h-full flex-col items-center justify-center">
+        <div className="space-y-component-md text-center">
+          <h3 className="text-error text-lg font-semibold">Failed to load templates</h3>
+          <p className="text-muted-foreground text-sm">{error.message}</p>
         </div>
       </div>
     );
@@ -117,12 +118,9 @@ export const AlertTemplateBrowserNew = React.memo(
     className,
   };
 
-  return isDesktop ? (
-    <AlertTemplateBrowserDesktop {...sharedProps} />
-  ) : (
-    <AlertTemplateBrowserMobile {...sharedProps} />
-  );
-  }
-);
+  return isDesktop ?
+      <AlertTemplateBrowserDesktop {...sharedProps} />
+    : <AlertTemplateBrowserMobile {...sharedProps} />;
+});
 
 AlertTemplateBrowserNew.displayName = 'AlertTemplateBrowserNew';

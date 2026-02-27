@@ -11,7 +11,4 @@
 export { RateLimitRuleEditor } from './RateLimitRuleEditor';
 export { RateLimitRuleEditorDesktop } from './RateLimitRuleEditorDesktop';
 export { RateLimitRuleEditorMobile } from './RateLimitRuleEditorMobile';
-export type {
-  RateLimitRuleEditorProps,
-  AddressListItem,
-} from './types';
+export type { RateLimitRuleEditorProps, AddressListItem } from './types';

@@ -82,15 +82,11 @@ describe('calculateSuggestedPool', () => {
   });
 
   it('should throw error for /30 subnet (too small)', () => {
-    expect(() => calculateSuggestedPool('192.168.1.1/30')).toThrow(
-      /too small for DHCP/
-    );
+    expect(() => calculateSuggestedPool('192.168.1.1/30')).toThrow(/too small for DHCP/);
   });
 
   it('should throw error for /31 subnet (too small)', () => {
-    expect(() => calculateSuggestedPool('192.168.1.1/31')).toThrow(
-      /too small for DHCP/
-    );
+    expect(() => calculateSuggestedPool('192.168.1.1/31')).toThrow(/too small for DHCP/);
   });
 
   it('should handle /29 subnet (minimum viable)', () => {
@@ -110,24 +106,14 @@ describe('calculateSuggestedPool', () => {
   });
 
   it('should throw error for invalid subnet prefix', () => {
-    expect(() => calculateSuggestedPool('192.168.1.1/33')).toThrow(
-      /Invalid subnet prefix/
-    );
-    expect(() => calculateSuggestedPool('192.168.1.1/-1')).toThrow(
-      /Invalid subnet prefix/
-    );
-    expect(() => calculateSuggestedPool('192.168.1.1/abc')).toThrow(
-      /Invalid subnet prefix/
-    );
+    expect(() => calculateSuggestedPool('192.168.1.1/33')).toThrow(/Invalid subnet prefix/);
+    expect(() => calculateSuggestedPool('192.168.1.1/-1')).toThrow(/Invalid subnet prefix/);
+    expect(() => calculateSuggestedPool('192.168.1.1/abc')).toThrow(/Invalid subnet prefix/);
   });
 
   it('should throw error for invalid IP format', () => {
-    expect(() => calculateSuggestedPool('256.1.1.1/24')).toThrow(
-      /Invalid IP address format/
-    );
-    expect(() => calculateSuggestedPool('192.168.1/24')).toThrow(
-      /Invalid IP address format/
-    );
+    expect(() => calculateSuggestedPool('256.1.1.1/24')).toThrow(/Invalid IP address format/);
+    expect(() => calculateSuggestedPool('192.168.1/24')).toThrow(/Invalid IP address format/);
   });
 });
 
@@ -164,39 +150,23 @@ describe('isInSubnet', () => {
 
 describe('poolOverlapsWithIP', () => {
   it('should detect overlap with interface IP', () => {
-    const overlaps = poolOverlapsWithIP(
-      '192.168.1.100',
-      '192.168.1.200',
-      '192.168.1.150'
-    );
+    const overlaps = poolOverlapsWithIP('192.168.1.100', '192.168.1.200', '192.168.1.150');
     expect(overlaps).toBe(true);
   });
 
   it('should detect no overlap outside range', () => {
-    const overlaps = poolOverlapsWithIP(
-      '192.168.1.100',
-      '192.168.1.200',
-      '192.168.1.50'
-    );
+    const overlaps = poolOverlapsWithIP('192.168.1.100', '192.168.1.200', '192.168.1.50');
     expect(overlaps).toBe(false);
   });
 
   it('should detect overlap at pool boundaries', () => {
-    expect(
-      poolOverlapsWithIP('192.168.1.100', '192.168.1.200', '192.168.1.100')
-    ).toBe(true);
-    expect(
-      poolOverlapsWithIP('192.168.1.100', '192.168.1.200', '192.168.1.200')
-    ).toBe(true);
+    expect(poolOverlapsWithIP('192.168.1.100', '192.168.1.200', '192.168.1.100')).toBe(true);
+    expect(poolOverlapsWithIP('192.168.1.100', '192.168.1.200', '192.168.1.200')).toBe(true);
   });
 
   it('should detect no overlap just outside boundaries', () => {
-    expect(
-      poolOverlapsWithIP('192.168.1.100', '192.168.1.200', '192.168.1.99')
-    ).toBe(false);
-    expect(
-      poolOverlapsWithIP('192.168.1.100', '192.168.1.200', '192.168.1.201')
-    ).toBe(false);
+    expect(poolOverlapsWithIP('192.168.1.100', '192.168.1.200', '192.168.1.99')).toBe(false);
+    expect(poolOverlapsWithIP('192.168.1.100', '192.168.1.200', '192.168.1.201')).toBe(false);
   });
 });
 

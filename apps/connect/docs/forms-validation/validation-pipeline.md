@@ -1,6 +1,8 @@
 # Validation Pipeline
 
-The validation pipeline (`libs/core/forms/src/validation-pipeline/`) orchestrates multi-stage validation that combines local Zod schema checks with backend network-aware checks. The number of stages that run depends on how risky the operation is.
+The validation pipeline (`libs/core/forms/src/validation-pipeline/`) orchestrates multi-stage
+validation that combines local Zod schema checks with backend network-aware checks. The number of
+stages that run depends on how risky the operation is.
 
 ## The 7 Stages
 
@@ -16,30 +18,33 @@ Stage 7: dry-run       ← attempt the operation without committing
 
 ## Risk Levels
 
-The `riskLevel` setting selects which stages to run. This prevents unnecessarily slow validation for trivial changes.
+The `riskLevel` setting selects which stages to run. This prevents unnecessarily slow validation for
+trivial changes.
 
-| Risk level | Stages run |
-|------------|-----------|
-| `low` | `schema`, `syntax` |
-| `medium` | `schema`, `syntax`, `cross-resource`, `dependencies` |
-| `high` | All 7 stages |
+| Risk level | Stages run                                           |
+| ---------- | ---------------------------------------------------- |
+| `low`      | `schema`, `syntax`                                   |
+| `medium`   | `schema`, `syntax`, `cross-resource`, `dependencies` |
+| `high`     | All 7 stages                                         |
 
 **Guidelines for choosing risk level:**
 
 - `low` — read-only forms, cosmetic changes (renaming, adding a tag)
-- `medium` — configuration changes with potential cross-resource effects (DHCP pool change, DNS server update)
-- `high` — network topology changes, new VPN tunnels, firewall rule modifications, anything that could interrupt connectivity
+- `medium` — configuration changes with potential cross-resource effects (DHCP pool change, DNS
+  server update)
+- `high` — network topology changes, new VPN tunnels, firewall rule modifications, anything that
+  could interrupt connectivity
 
 ## Stage Status Values
 
 Each stage reports one of:
 
-| Status | Meaning |
-|--------|---------|
-| `pending` | Queued but not yet started |
-| `running` | Currently executing |
-| `passed` | Completed with no errors |
-| `failed` | One or more errors found |
+| Status    | Meaning                                                      |
+| --------- | ------------------------------------------------------------ |
+| `pending` | Queued but not yet started                                   |
+| `running` | Currently executing                                          |
+| `passed`  | Completed with no errors                                     |
+| `failed`  | One or more errors found                                     |
 | `skipped` | Not in scope for the current risk level, or pipeline aborted |
 
 ## ValidationPipeline Class
@@ -66,10 +71,10 @@ const pipeline = createValidationPipeline(
 
 // Run validation
 const result = await pipeline.validate(
-  'wireguard-peer',    // resourceType
-  formData,            // form values
-  existingPeerId,      // resourceId (undefined for create)
-  routerId             // router context
+  'wireguard-peer', // resourceType
+  formData, // form values
+  existingPeerId, // resourceId (undefined for create)
+  routerId // router context
 );
 
 if (!result.isValid) {
@@ -85,10 +90,10 @@ if (!result.isValid) {
 ```typescript
 interface ValidationPipelineConfig {
   riskLevel: 'low' | 'medium' | 'high';
-  stopOnError?: boolean;      // default: false (run all stages)
+  stopOnError?: boolean; // default: false (run all stages)
   skipStages?: ValidationStageName[];
-  stageTimeout?: number;      // ms per stage
-  includeDryRun?: boolean;    // default: false (dry-run stage only when true)
+  stageTimeout?: number; // ms per stage
+  includeDryRun?: boolean; // default: false (dry-run stage only when true)
 }
 ```
 
@@ -97,11 +102,11 @@ interface ValidationPipelineConfig {
 ```typescript
 interface ValidationPipelineResult {
   isValid: boolean;
-  stages: ValidationStageResult[];     // one per stage
-  errors: ValidationError[];           // all errors across all stages
+  stages: ValidationStageResult[]; // one per stage
+  errors: ValidationError[]; // all errors across all stages
   warnings: ValidationError[];
   totalDurationMs: number;
-  fieldErrors: Record<string, ValidationError[]>;  // keyed by form field path
+  fieldErrors: Record<string, ValidationError[]>; // keyed by form field path
 }
 ```
 
@@ -109,9 +114,9 @@ interface ValidationPipelineResult {
 
 ```typescript
 interface ValidationError {
-  code: string;           // e.g., 'IP_COLLISION', 'E001'
-  message: string;        // human-readable
-  fieldPath?: string;     // e.g., 'address', 'peers.0.publicKey'
+  code: string; // e.g., 'IP_COLLISION', 'E001'
+  message: string; // human-readable
+  fieldPath?: string; // e.g., 'address', 'peers.0.publicKey'
   severity: 'error' | 'warning';
   stage: ValidationStageName;
   suggestions?: string[];
@@ -138,7 +143,8 @@ if (!result.isValid) {
 
 ## useValidationPipeline Hook
 
-The `useValidationPipeline` hook (`libs/core/forms/src/useValidationPipeline.ts`) provides a React-integrated version:
+The `useValidationPipeline` hook (`libs/core/forms/src/useValidationPipeline.ts`) provides a
+React-integrated version:
 
 ```typescript
 import { useValidationPipeline } from '@nasnet/core/forms';
@@ -188,4 +194,5 @@ interface ValidationRequest {
 }
 ```
 
-The backend processes all requested stages and returns results in a single `ValidationResponse`. This avoids multiple round-trips for high-risk validations.
+The backend processes all requested stages and returns results in a single `ValidationResponse`.
+This avoids multiple round-trips for high-risk validations.

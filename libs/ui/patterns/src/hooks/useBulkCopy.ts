@@ -183,8 +183,9 @@ function toJSON<T extends Record<string, unknown>>(
   indent: number
 ): string {
   // If columns specified, filter to only those columns
-  const data = columns
-    ? items.map((item) => {
+  const data =
+    columns ?
+      items.map((item) => {
         const filtered: Record<string, unknown> = {};
         for (const col of columns) {
           filtered[String(col)] = item[col];
@@ -237,7 +238,13 @@ export function useBulkCopy(options: UseBulkCopyOptions = {}): UseBulkCopyReturn
   const [format, setFormat] = useState<ExportFormat>(defaultFormat);
   const [copiedCount, setCopiedCount] = useState(0);
 
-  const { copy, copied, error, reset: resetClipboard, isLoading } = useClipboard({
+  const {
+    copy,
+    copied,
+    error,
+    reset: resetClipboard,
+    isLoading,
+  } = useClipboard({
     timeout,
     onError,
   });

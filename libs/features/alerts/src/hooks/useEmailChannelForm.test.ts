@@ -49,9 +49,7 @@ describe('useEmailChannelForm', () => {
     });
 
     it('initializes with provided initialConfig', () => {
-      const { result } = renderHook(() =>
-        useEmailChannelForm({ initialConfig: mockEmailConfig })
-      );
+      const { result } = renderHook(() => useEmailChannelForm({ initialConfig: mockEmailConfig }));
 
       expect(result.current.form.getValues()).toMatchObject(mockEmailConfig);
     });
@@ -62,9 +60,7 @@ describe('useEmailChannelForm', () => {
         port: 465,
       };
 
-      const { result } = renderHook(() =>
-        useEmailChannelForm({ initialConfig: partialConfig })
-      );
+      const { result } = renderHook(() => useEmailChannelForm({ initialConfig: partialConfig }));
 
       const values = result.current.form.getValues();
       expect(values.host).toBe('smtp.custom.com');
@@ -95,9 +91,7 @@ describe('useEmailChannelForm', () => {
 
   describe('Form Validation', () => {
     it('marks form as valid when all required fields are filled', async () => {
-      const { result } = renderHook(() =>
-        useEmailChannelForm({ initialConfig: mockEmailConfig })
-      );
+      const { result } = renderHook(() => useEmailChannelForm({ initialConfig: mockEmailConfig }));
 
       await waitFor(() => {
         expect(result.current.isValid).toBe(true);
@@ -292,10 +286,7 @@ describe('useEmailChannelForm', () => {
         result.current.removeRecipient(1); // Remove middle
       });
 
-      expect(result.current.recipients).toEqual([
-        'admin1@example.com',
-        'admin3@example.com',
-      ]);
+      expect(result.current.recipients).toEqual(['admin1@example.com', 'admin3@example.com']);
     });
 
     it('clears all recipients', () => {
@@ -474,9 +465,9 @@ describe('useEmailChannelForm', () => {
     });
 
     it('sets isTesting state during test', async () => {
-      const mockOnTest = vi.fn().mockImplementation(
-        () => new Promise((resolve) => setTimeout(resolve, 100))
-      );
+      const mockOnTest = vi
+        .fn()
+        .mockImplementation(() => new Promise((resolve) => setTimeout(resolve, 100)));
 
       const { result } = renderHook(() =>
         useEmailChannelForm({
@@ -599,9 +590,7 @@ describe('useEmailChannelForm', () => {
 
   describe('Reset Functionality', () => {
     it('resets form to initial values', () => {
-      const { result } = renderHook(() =>
-        useEmailChannelForm({ initialConfig: mockEmailConfig })
-      );
+      const { result } = renderHook(() => useEmailChannelForm({ initialConfig: mockEmailConfig }));
 
       // Modify form
       act(() => {
@@ -619,9 +608,7 @@ describe('useEmailChannelForm', () => {
     });
 
     it('clears test result on reset', () => {
-      const { result } = renderHook(() =>
-        useEmailChannelForm({ initialConfig: mockEmailConfig })
-      );
+      const { result } = renderHook(() => useEmailChannelForm({ initialConfig: mockEmailConfig }));
 
       // Set test result manually (simulating a test)
       act(() => {
@@ -663,17 +650,11 @@ describe('useEmailChannelForm', () => {
       const { result } = renderHook(() => useEmailChannelForm());
 
       act(() => {
-        result.current.form.setValue('toAddresses', [
-          'admin1@example.com',
-          'admin2@example.com',
-        ]);
+        result.current.form.setValue('toAddresses', ['admin1@example.com', 'admin2@example.com']);
       });
 
       await waitFor(() => {
-        expect(result.current.recipients).toEqual([
-          'admin1@example.com',
-          'admin2@example.com',
-        ]);
+        expect(result.current.recipients).toEqual(['admin1@example.com', 'admin2@example.com']);
       });
     });
 

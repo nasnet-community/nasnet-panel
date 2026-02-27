@@ -243,12 +243,10 @@ export const useNetworkStore = create<NetworkStore>()(
           'incrementReconnectAttempts'
         ),
 
-      resetReconnectAttempts: () =>
-        set({ reconnectAttempts: 0 }, false, 'resetReconnectAttempts'),
+      resetReconnectAttempts: () => set({ reconnectAttempts: 0 }, false, 'resetReconnectAttempts'),
 
       // NAS-4.15 actions
-      setQuality: (quality) =>
-        set({ quality }, false, `setQuality/${quality}`),
+      setQuality: (quality) => set({ quality }, false, `setQuality/${quality}`),
 
       updateLatency: (latencyMs) =>
         set(
@@ -270,8 +268,7 @@ export const useNetworkStore = create<NetworkStore>()(
           'recordNetworkError'
         ),
 
-      clearWasOffline: () =>
-        set({ wasOffline: false }, false, 'clearWasOffline'),
+      clearWasOffline: () => set({ wasOffline: false }, false, 'clearWasOffline'),
 
       initializeListeners: () => {
         if (typeof window === 'undefined') return;

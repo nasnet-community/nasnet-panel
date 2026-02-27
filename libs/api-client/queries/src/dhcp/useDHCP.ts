@@ -8,12 +8,7 @@
 
 import { useQuery, UseQueryResult } from '@tanstack/react-query';
 import { makeRouterOSRequest } from '@nasnet/api-client/core';
-import type {
-  DHCPServer,
-  DHCPPool,
-  DHCPLease,
-  DHCPClient,
-} from '@nasnet/core/types';
+import type { DHCPServer, DHCPPool, DHCPLease, DHCPClient } from '@nasnet/core/types';
 
 /**
  * Query keys for DHCP queries
@@ -22,7 +17,8 @@ import type {
 export const dhcpKeys = {
   all: ['dhcp'] as const,
   servers: (routerIp: string) => [...dhcpKeys.all, 'servers', routerIp] as const,
-  server: (routerIp: string, serverId: string) => [...dhcpKeys.all, 'servers', routerIp, serverId] as const,
+  server: (routerIp: string, serverId: string) =>
+    [...dhcpKeys.all, 'servers', routerIp, serverId] as const,
   leases: (routerIp: string) => [...dhcpKeys.all, 'leases', routerIp] as const,
   clients: (routerIp: string) => [...dhcpKeys.all, 'clients', routerIp] as const,
   pools: (routerIp: string) => [...dhcpKeys.all, 'pools', routerIp] as const,

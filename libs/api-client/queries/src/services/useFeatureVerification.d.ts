@@ -12,39 +12,39 @@ import type { BinaryVerification } from '@nasnet/api-client/generated';
  * GraphQL query for feature verification data
  * Fetches verification data embedded in ServiceInstance
  */
-export declare const GET_FEATURE_VERIFICATION: import("graphql").DocumentNode;
+export declare const GET_FEATURE_VERIFICATION: import('graphql').DocumentNode;
 /**
  * GraphQL query for all verification statuses on a router
  * Returns only instances with verification enabled
  */
-export declare const GET_INSTANCE_VERIFICATION_STATUS: import("graphql").DocumentNode;
+export declare const GET_INSTANCE_VERIFICATION_STATUS: import('graphql').DocumentNode;
 /**
  * Variables for GET_FEATURE_VERIFICATION query
  */
 export interface GetFeatureVerificationVariables {
-    routerID: string;
-    instanceID: string;
+  routerID: string;
+  instanceID: string;
 }
 /**
  * Result type for GET_FEATURE_VERIFICATION query
  */
 export interface GetFeatureVerificationResult {
-    serviceInstance: {
-        id: string;
-        verification: BinaryVerification | null;
-    } | null;
+  serviceInstance: {
+    id: string;
+    verification: BinaryVerification | null;
+  } | null;
 }
 /**
  * Variables for GET_INSTANCE_VERIFICATION_STATUS query
  */
 export interface GetInstanceVerificationStatusVariables {
-    routerID: string;
+  routerID: string;
 }
 /**
  * Result type for GET_INSTANCE_VERIFICATION_STATUS query
  */
 export interface GetInstanceVerificationStatusResult {
-    instanceVerificationStatus: BinaryVerification[];
+  instanceVerificationStatus: BinaryVerification[];
 }
 /**
  * Hook for querying a single feature's verification status.
@@ -76,7 +76,14 @@ export interface GetInstanceVerificationStatusResult {
  * }
  * ```
  */
-export declare function useFeatureVerification(routerID: string, instanceID: string, options?: QueryHookOptions<GetFeatureVerificationResult, GetFeatureVerificationVariables>): import("@apollo/client").InteropQueryResult<GetFeatureVerificationResult, GetFeatureVerificationVariables>;
+export declare function useFeatureVerification(
+  routerID: string,
+  instanceID: string,
+  options?: QueryHookOptions<GetFeatureVerificationResult, GetFeatureVerificationVariables>
+): import('@apollo/client').InteropQueryResult<
+  GetFeatureVerificationResult,
+  GetFeatureVerificationVariables
+>;
 /**
  * Hook for querying verification status for all instances on a router.
  *
@@ -107,5 +114,14 @@ export declare function useFeatureVerification(routerID: string, instanceID: str
  * }
  * ```
  */
-export declare function useInstanceVerificationStatus(routerID: string, options?: QueryHookOptions<GetInstanceVerificationStatusResult, GetInstanceVerificationStatusVariables>): import("@apollo/client").InteropQueryResult<GetInstanceVerificationStatusResult, GetInstanceVerificationStatusVariables>;
+export declare function useInstanceVerificationStatus(
+  routerID: string,
+  options?: QueryHookOptions<
+    GetInstanceVerificationStatusResult,
+    GetInstanceVerificationStatusVariables
+  >
+): import('@apollo/client').InteropQueryResult<
+  GetInstanceVerificationStatusResult,
+  GetInstanceVerificationStatusVariables
+>;
 //# sourceMappingURL=useFeatureVerification.d.ts.map

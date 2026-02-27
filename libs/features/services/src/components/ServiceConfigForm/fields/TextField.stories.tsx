@@ -28,8 +28,7 @@ const meta: Meta<typeof TextField> = {
   argTypes: {
     sensitive: {
       control: 'boolean',
-      description:
-        'When true, sets autocomplete="off" to prevent browser from caching the value',
+      description: 'When true, sets autocomplete="off" to prevent browser from caching the value',
     },
     disabled: {
       control: 'boolean',
@@ -99,10 +98,11 @@ export const Sensitive: Story = {
   render: (args) => (
     <div className="space-y-2">
       <Label htmlFor="api-key">API Key (sensitive)</Label>
-      <TextField {...args} id="api-key" />
-      <p className="text-xs text-muted-foreground">
-        autocomplete is disabled for this field
-      </p>
+      <TextField
+        {...args}
+        id="api-key"
+      />
+      <p className="text-muted-foreground text-xs">autocomplete is disabled for this field</p>
     </div>
   ),
   parameters: {
@@ -126,7 +126,10 @@ export const EmailType: Story = {
   render: (args) => (
     <div className="space-y-2">
       <Label htmlFor="email-field">Email Address</Label>
-      <TextField {...args} id="email-field" />
+      <TextField
+        {...args}
+        id="email-field"
+      />
     </div>
   ),
   parameters: {
@@ -150,7 +153,10 @@ export const URLType: Story = {
   render: (args) => (
     <div className="space-y-2">
       <Label htmlFor="url-field">Webhook URL</Label>
-      <TextField {...args} id="url-field" />
+      <TextField
+        {...args}
+        id="url-field"
+      />
     </div>
   ),
   parameters: {
@@ -176,8 +182,11 @@ export const Disabled: Story = {
   render: (args) => (
     <div className="space-y-2">
       <Label htmlFor="path-field">Config File Path</Label>
-      <TextField {...args} id="path-field" />
-      <p className="text-xs text-muted-foreground">
+      <TextField
+        {...args}
+        id="path-field"
+      />
+      <p className="text-muted-foreground text-xs">
         This field cannot be changed while the service is running.
       </p>
     </div>

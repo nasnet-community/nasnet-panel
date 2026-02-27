@@ -88,8 +88,9 @@ export const MultiSelect = React.memo(function MultiSelect({
   // Memoize toggle handler
   const handleToggle = useCallback(
     (optionValue: string) => {
-      const newValue = value.includes(optionValue)
-        ? value.filter((v) => v !== optionValue)
+      const newValue =
+        value.includes(optionValue) ?
+          value.filter((v) => v !== optionValue)
         : [...value, optionValue];
       onChange?.(newValue);
     },
@@ -106,14 +107,19 @@ export const MultiSelect = React.memo(function MultiSelect({
 
   return (
     <div className="space-y-component-sm">
-      <Popover open={isOpen} onOpenChange={setIsOpen}>
+      <Popover
+        open={isOpen}
+        onOpenChange={setIsOpen}
+      >
         <PopoverTrigger asChild>
           <Button
             variant="outline"
             role="combobox"
             aria-expanded={isOpen}
             aria-label={
-              value.length === 0 ? placeholder || 'Select options' : `${value.length} items selected`
+              value.length === 0 ?
+                placeholder || 'Select options'
+              : `${value.length} items selected`
             }
             className={cn('w-full justify-between', className)}
             disabled={disabled}
@@ -128,14 +134,14 @@ export const MultiSelect = React.memo(function MultiSelect({
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-full p-0">
-          <div className="max-h-60 overflow-auto p-component-xs">
+          <div className="p-component-xs max-h-60 overflow-auto">
             {normalizedOptions.map(({ value: optionValue, label: optionLabel }) => {
               const isSelected = value.includes(optionValue);
               return (
                 <div
                   key={optionValue}
                   className={cn(
-                    'flex items-center gap-component-xs rounded-sm px-component-sm py-component-sm cursor-pointer hover:bg-accent',
+                    'gap-component-xs px-component-sm py-component-sm hover:bg-accent flex cursor-pointer items-center rounded-sm',
                     isSelected && 'bg-accent'
                   )}
                   onClick={() => handleToggle(optionValue)}
@@ -147,7 +153,12 @@ export const MultiSelect = React.memo(function MultiSelect({
                     onCheckedChange={() => handleToggle(optionValue)}
                   />
                   <span className="flex-1">{optionLabel}</span>
-                  {isSelected && <Check className="h-4 w-4" aria-hidden="true" />}
+                  {isSelected && (
+                    <Check
+                      className="h-4 w-4"
+                      aria-hidden="true"
+                    />
+                  )}
                 </div>
               );
             })}
@@ -156,18 +167,29 @@ export const MultiSelect = React.memo(function MultiSelect({
       </Popover>
 
       {value.length > 0 && (
-        <div className="flex flex-wrap gap-component-xs" role="region" aria-label="Selected items">
+        <div
+          className="gap-component-xs flex flex-wrap"
+          role="region"
+          aria-label="Selected items"
+        >
           {value.map((v) => (
-            <Badge key={v} variant="secondary" className="gap-component-xs pr-component-xs bg-category-vpn/10 text-category-vpn">
+            <Badge
+              key={v}
+              variant="secondary"
+              className="gap-component-xs pr-component-xs bg-category-vpn/10 text-category-vpn"
+            >
               <span className="max-w-[200px] truncate">{getLabel(v)}</span>
               <button
                 type="button"
                 onClick={() => handleRemove(v)}
                 disabled={disabled}
-                className="ml-1 rounded-full p-0.5 hover:bg-error/20 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                className="hover:bg-error/20 focus-visible:ring-ring ml-1 rounded-full p-0.5 focus-visible:ring-2 focus-visible:ring-offset-2"
                 aria-label={`Remove ${getLabel(v)}`}
               >
-                <X className="h-3 w-3" aria-hidden="true" />
+                <X
+                  className="h-3 w-3"
+                  aria-hidden="true"
+                />
               </button>
             </Badge>
           ))}

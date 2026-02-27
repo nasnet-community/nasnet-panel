@@ -34,13 +34,19 @@ export const TrafficIndicator = React.memo(function TrafficIndicator({
   const { t } = useTranslation('network');
   if (compact) {
     return (
-      <div className={cn('flex items-center gap-3 text-xs font-mono', className)}>
-        <span className="flex items-center gap-1 text-success min-h-[44px] content-center">
-          <ArrowDown className="w-3 h-3 flex-shrink-0" aria-hidden="true" />
+      <div className={cn('flex items-center gap-3 font-mono text-xs', className)}>
+        <span className="text-success flex min-h-[44px] content-center items-center gap-1">
+          <ArrowDown
+            className="h-3 w-3 flex-shrink-0"
+            aria-hidden="true"
+          />
           <span className="font-mono">{formatBytes(rxBytes)}</span>
         </span>
-        <span className="flex items-center gap-1 text-secondary min-h-[44px] content-center">
-          <ArrowUp className="w-3 h-3 flex-shrink-0" aria-hidden="true" />
+        <span className="text-secondary flex min-h-[44px] content-center items-center gap-1">
+          <ArrowUp
+            className="h-3 w-3 flex-shrink-0"
+            aria-hidden="true"
+          />
           <span className="font-mono">{formatBytes(txBytes)}</span>
         </span>
       </div>
@@ -49,50 +55,48 @@ export const TrafficIndicator = React.memo(function TrafficIndicator({
 
   return (
     <div className={cn('space-y-3', className)}>
-      <div className="flex items-center gap-2 min-h-[44px]">
-        <div className="flex items-center gap-1.5 min-w-[60px] flex-shrink-0">
-          <ArrowDown className="w-3.5 h-3.5 text-success flex-shrink-0" aria-hidden="true" />
-          {showLabels && (
-            <span className="text-xs text-muted-foreground">{t('traffic.rx')}</span>
-          )}
+      <div className="flex min-h-[44px] items-center gap-2">
+        <div className="flex min-w-[60px] flex-shrink-0 items-center gap-1.5">
+          <ArrowDown
+            className="text-success h-3.5 w-3.5 flex-shrink-0"
+            aria-hidden="true"
+          />
+          {showLabels && <span className="text-muted-foreground text-xs">{t('traffic.rx')}</span>}
         </div>
         <div className="flex-1">
-          <div className="flex items-center justify-between mb-1">
-            <span className="text-xs font-mono text-foreground">
-              {formatBytes(rxBytes)}
-            </span>
+          <div className="mb-1 flex items-center justify-between">
+            <span className="text-foreground font-mono text-xs">{formatBytes(rxBytes)}</span>
             {rxRate !== undefined && (
-              <span className="text-xs font-mono text-success font-medium">
+              <span className="text-success font-mono text-xs font-medium">
                 {formatBytes(rxRate)}/s
               </span>
             )}
           </div>
-          <div className="h-1.5 bg-muted rounded-full overflow-hidden shadow-sm">
-            <div className="h-full bg-gradient-to-r from-success/70 to-success rounded-full w-full" />
+          <div className="bg-muted h-1.5 overflow-hidden rounded-full shadow-sm">
+            <div className="from-success/70 to-success h-full w-full rounded-full bg-gradient-to-r" />
           </div>
         </div>
       </div>
 
-      <div className="flex items-center gap-2 min-h-[44px]">
-        <div className="flex items-center gap-1.5 min-w-[60px] flex-shrink-0">
-          <ArrowUp className="w-3.5 h-3.5 text-secondary flex-shrink-0" aria-hidden="true" />
-          {showLabels && (
-            <span className="text-xs text-muted-foreground">{t('traffic.tx')}</span>
-          )}
+      <div className="flex min-h-[44px] items-center gap-2">
+        <div className="flex min-w-[60px] flex-shrink-0 items-center gap-1.5">
+          <ArrowUp
+            className="text-secondary h-3.5 w-3.5 flex-shrink-0"
+            aria-hidden="true"
+          />
+          {showLabels && <span className="text-muted-foreground text-xs">{t('traffic.tx')}</span>}
         </div>
         <div className="flex-1">
-          <div className="flex items-center justify-between mb-1">
-            <span className="text-xs font-mono text-foreground">
-              {formatBytes(txBytes)}
-            </span>
+          <div className="mb-1 flex items-center justify-between">
+            <span className="text-foreground font-mono text-xs">{formatBytes(txBytes)}</span>
             {txRate !== undefined && (
-              <span className="text-xs font-mono text-secondary font-medium">
+              <span className="text-secondary font-mono text-xs font-medium">
                 {formatBytes(txRate)}/s
               </span>
             )}
           </div>
-          <div className="h-1.5 bg-muted rounded-full overflow-hidden shadow-sm">
-            <div className="h-full bg-gradient-to-r from-secondary/70 to-secondary rounded-full w-full" />
+          <div className="bg-muted h-1.5 overflow-hidden rounded-full shadow-sm">
+            <div className="from-secondary/70 to-secondary h-full w-full rounded-full bg-gradient-to-r" />
           </div>
         </div>
       </div>
@@ -101,28 +105,3 @@ export const TrafficIndicator = React.memo(function TrafficIndicator({
 });
 
 TrafficIndicator.displayName = 'TrafficIndicator';
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

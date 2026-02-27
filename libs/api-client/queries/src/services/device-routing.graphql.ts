@@ -80,12 +80,7 @@ export const GET_DEVICE_ROUTING_MATRIX = gql`
  * @param active - Optional: filter by active status
  */
 export const GET_DEVICE_ROUTINGS = gql`
-  query GetDeviceRoutings(
-    $routerID: ID!
-    $deviceID: String
-    $instanceID: ID
-    $active: Boolean
-  ) {
+  query GetDeviceRoutings($routerID: ID!, $deviceID: String, $instanceID: ID, $active: Boolean) {
     deviceRoutings(
       routerID: $routerID
       deviceID: $deviceID

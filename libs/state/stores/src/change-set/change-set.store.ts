@@ -26,10 +26,7 @@ import type {
   ChangeSetItemStatus,
 } from '@nasnet/core/types';
 import { ChangeSetStatus as CS } from '@nasnet/core/types';
-import {
-  buildDependencyGraph,
-  computeApplyOrder,
-} from '@nasnet/core/utils';
+import { buildDependencyGraph, computeApplyOrder } from '@nasnet/core/utils';
 
 // =============================================================================
 // Types
@@ -109,7 +106,16 @@ export interface ChangeSetActions {
    */
   addItem: (
     changeSetId: string,
-    item: Omit<ChangeSetItem, 'id' | 'status' | 'applyOrder' | 'applyStartedAt' | 'applyCompletedAt' | 'confirmedState' | 'error'>
+    item: Omit<
+      ChangeSetItem,
+      | 'id'
+      | 'status'
+      | 'applyOrder'
+      | 'applyStartedAt'
+      | 'applyCompletedAt'
+      | 'confirmedState'
+      | 'error'
+    >
   ) => string;
 
   /**
@@ -129,11 +135,7 @@ export interface ChangeSetActions {
   /**
    * Reorder dependencies for an item
    */
-  setItemDependencies: (
-    changeSetId: string,
-    itemId: string,
-    dependencies: string[]
-  ) => void;
+  setItemDependencies: (changeSetId: string, itemId: string, dependencies: string[]) => void;
 
   // ===== Status Updates =====
 
@@ -234,7 +236,11 @@ function generateId(): string {
 /**
  * Calculate operation counts for a change set
  */
-function getOperationCounts(items: readonly ChangeSetItem[]): { create: number; update: number; delete: number } {
+function getOperationCounts(items: readonly ChangeSetItem[]): {
+  create: number;
+  update: number;
+  delete: number;
+} {
   return items.reduce(
     (acc, item) => {
       if (item.operation === 'CREATE') acc.create++;
@@ -342,8 +348,7 @@ export const useChangeSetStore = create<ChangeSetState & ChangeSetActions>()(
               const { [id]: removed, ...rest } = state.changeSets;
               return {
                 changeSets: rest,
-                activeChangeSetId:
-                  state.activeChangeSetId === id ? null : state.activeChangeSetId,
+                activeChangeSetId: state.activeChangeSetId === id ? null : state.activeChangeSetId,
               };
             },
             false,
@@ -353,8 +358,7 @@ export const useChangeSetStore = create<ChangeSetState & ChangeSetActions>()(
           return true;
         },
 
-        setActiveChangeSet: (id) =>
-          set({ activeChangeSetId: id }, false, 'setActiveChangeSet'),
+        setActiveChangeSet: (id) => set({ activeChangeSetId: id }, false, 'setActiveChangeSet'),
 
         // ===== Item Management =====
 
@@ -534,12 +538,9 @@ export const useChangeSetStore = create<ChangeSetState & ChangeSetActions>()(
                   ...item,
                   status,
                   error: error ?? null,
-                  applyStartedAt:
-                    status === 'APPLYING' ? now : item.applyStartedAt,
+                  applyStartedAt: status === 'APPLYING' ? now : item.applyStartedAt,
                   applyCompletedAt:
-                    status === 'APPLIED' || status === 'FAILED'
-                      ? now
-                      : item.applyCompletedAt,
+                    status === 'APPLIED' || status === 'FAILED' ? now : item.applyCompletedAt,
                 };
               });
 
@@ -591,9 +592,7 @@ export const useChangeSetStore = create<ChangeSetState & ChangeSetActions>()(
                     completedAt: new Date(),
                   },
                 },
-                applyingChangeSetIds: state.applyingChangeSetIds.filter(
-                  (id) => id !== changeSetId
-                ),
+                applyingChangeSetIds: state.applyingChangeSetIds.filter((id) => id !== changeSetId),
               };
             },
             false,
@@ -626,9 +625,7 @@ export const useChangeSetStore = create<ChangeSetState & ChangeSetActions>()(
                     },
                   },
                 },
-                applyingChangeSetIds: state.applyingChangeSetIds.filter(
-                  (id) => id !== changeSetId
-                ),
+                applyingChangeSetIds: state.applyingChangeSetIds.filter((id) => id !== changeSetId),
                 lastError: errorMessage,
               };
             },
@@ -644,9 +641,9 @@ export const useChangeSetStore = create<ChangeSetState & ChangeSetActions>()(
 
               // Update all applied items to rolled back
               const items = cs.items.map((item) =>
-                item.status === 'APPLIED'
-                  ? { ...item, status: 'ROLLED_BACK' as ChangeSetItemStatus }
-                  : item
+                item.status === 'APPLIED' ?
+                  { ...item, status: 'ROLLED_BACK' as ChangeSetItemStatus }
+                : item
               );
 
               return {
@@ -659,9 +656,7 @@ export const useChangeSetStore = create<ChangeSetState & ChangeSetActions>()(
                     completedAt: new Date(),
                   },
                 },
-                applyingChangeSetIds: state.applyingChangeSetIds.filter(
-                  (id) => id !== changeSetId
-                ),
+                applyingChangeSetIds: state.applyingChangeSetIds.filter((id) => id !== changeSetId),
               };
             },
             false,
@@ -674,10 +669,12 @@ export const useChangeSetStore = create<ChangeSetState & ChangeSetActions>()(
           const cs = get().changeSets[changeSetId];
           if (!cs) return;
 
-          const nodes = buildDependencyGraph(cs.items.map(item => ({
-            id: item.id,
-            dependencies: [...item.dependencies],
-          })));
+          const nodes = buildDependencyGraph(
+            cs.items.map((item) => ({
+              id: item.id,
+              dependencies: [...item.dependencies],
+            }))
+          );
           const orderMap = computeApplyOrder(nodes);
 
           set(
@@ -780,7 +777,9 @@ export const useChangeSetStore = create<ChangeSetState & ChangeSetActions>()(
     ),
     {
       name: 'change-set-store',
-      enabled: typeof window !== 'undefined' && (typeof import.meta !== 'undefined' ? import.meta.env?.DEV !== false : true),
+      enabled:
+        typeof window !== 'undefined' &&
+        (typeof import.meta !== 'undefined' ? import.meta.env?.DEV !== false : true),
     }
   )
 );
@@ -800,18 +799,16 @@ export const selectActiveChangeSet = (state: ChangeSetState) => {
 /**
  * Select all change sets for a router
  */
-export const createSelectChangeSetsForRouter =
-  (routerId: string) => (state: ChangeSetState) =>
-    Object.values(state.changeSets).filter((cs) => cs.routerId === routerId);
+export const createSelectChangeSetsForRouter = (routerId: string) => (state: ChangeSetState) =>
+  Object.values(state.changeSets).filter((cs) => cs.routerId === routerId);
 
 /**
  * Select draft change sets for a router
  */
-export const createSelectDraftChangeSets =
-  (routerId: string) => (state: ChangeSetState) =>
-    Object.values(state.changeSets).filter(
-      (cs) => cs.routerId === routerId && cs.status === CS.DRAFT
-    );
+export const createSelectDraftChangeSets = (routerId: string) => (state: ChangeSetState) =>
+  Object.values(state.changeSets).filter(
+    (cs) => cs.routerId === routerId && cs.status === CS.DRAFT
+  );
 
 /**
  * Select applying change sets
@@ -822,8 +819,7 @@ export const selectApplyingChangeSets = (state: ChangeSetState) =>
 /**
  * Select if any change set is applying
  */
-export const selectIsAnyApplying = (state: ChangeSetState) =>
-  state.applyingChangeSetIds.length > 0;
+export const selectIsAnyApplying = (state: ChangeSetState) => state.applyingChangeSetIds.length > 0;
 
 /**
  * Get store state outside of React

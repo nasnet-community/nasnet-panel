@@ -35,10 +35,7 @@ import type { FormSectionErrorsProps } from './form-section.types';
  * />
  * ```
  */
-export function FormSectionErrors({
-  errors,
-  className,
-}: FormSectionErrorsProps) {
+export function FormSectionErrors({ errors, className }: FormSectionErrorsProps) {
   // Don't render if no errors
   if (!errors || errors.length === 0) {
     return null;
@@ -49,22 +46,28 @@ export function FormSectionErrors({
       role="alert"
       aria-live="polite"
       className={cn(
-        'bg-error-light/50 border border-error/20 rounded-lg p-3 mt-2',
-        'dark:bg-red-900/10 dark:border-red-900/30',
+        'bg-error-light/50 border-error/20 mt-2 rounded-lg border p-3',
+        'dark:border-red-900/30 dark:bg-red-900/10',
         className
       )}
     >
       {/* Error header with icon */}
       <div className="flex items-start gap-2">
-        <AlertCircle className="h-4 w-4 text-error flex-shrink-0 mt-0.5" aria-hidden="true" />
+        <AlertCircle
+          className="text-error mt-0.5 h-4 w-4 flex-shrink-0"
+          aria-hidden="true"
+        />
 
         {/* Error list */}
         <ul
-          className="space-y-1 flex-1"
+          className="flex-1 space-y-1"
           aria-label="Error list"
         >
           {errors.map((error, index) => (
-            <li key={index} className="text-xs text-error-dark dark:text-red-400">
+            <li
+              key={index}
+              className="text-error-dark text-xs dark:text-red-400"
+            >
               {error}
             </li>
           ))}

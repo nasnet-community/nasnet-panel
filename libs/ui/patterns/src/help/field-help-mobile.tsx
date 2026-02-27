@@ -43,7 +43,11 @@ export const FieldHelpMobile = React.memo(function FieldHelpMobile({
         aria-expanded={isOpen}
         aria-haspopup="dialog"
       />
-      <HelpSheet content={content} open={isOpen} onOpenChange={setIsOpen} />
+      <HelpSheet
+        content={content}
+        open={isOpen}
+        onOpenChange={setIsOpen}
+      />
     </>
   );
 });

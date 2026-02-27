@@ -40,10 +40,7 @@ const TabsList = React.memo(
   >(({ className, ...props }, ref) => (
     <TabsPrimitive.List
       ref={ref}
-      className={cn(
-        'inline-flex items-center justify-center bg-muted rounded-lg p-1',
-        className
-      )}
+      className={cn('bg-muted inline-flex items-center justify-center rounded-lg p-1', className)}
       {...props}
     />
   ))
@@ -72,7 +69,7 @@ const TabsTrigger = React.memo(
     <TabsPrimitive.Trigger
       ref={ref}
       className={cn(
-        'inline-flex items-center justify-center whitespace-nowrap min-h-[44px] px-3 py-1.5 text-sm font-medium text-muted-foreground rounded-md transition-all duration-200 hover:text-foreground hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm',
+        'text-muted-foreground hover:text-foreground hover:bg-muted/50 focus-visible:ring-ring data-[state=active]:bg-card data-[state=active]:text-foreground inline-flex min-h-[44px] items-center justify-center whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:shadow-sm',
         className
       )}
       {...props}
@@ -105,7 +102,7 @@ const TabsContent = React.memo(
     <TabsPrimitive.Content
       ref={ref}
       className={cn(
-        'mt-2 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+        'ring-offset-background focus-visible:ring-ring mt-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
         className
       )}
       {...props}

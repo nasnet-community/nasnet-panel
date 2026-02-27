@@ -96,11 +96,7 @@ export interface UseInstallTemplateReturn {
 export function useInstallTemplate(
   options: UseInstallTemplateOptions = {}
 ): UseInstallTemplateReturn {
-  const {
-    onCompleted,
-    onError,
-    refetchInstances = true,
-  } = options;
+  const { onCompleted, onError, refetchInstances = true } = options;
 
   const [installTemplateMutation, { data, loading, error, reset }] = useMutation<
     { installServiceTemplate: TemplateInstallResult },
@@ -117,8 +113,9 @@ export function useInstallTemplate(
       }
     },
     // Refetch instances list after installation
-    refetchQueries: refetchInstances
-      ? [
+    refetchQueries:
+      refetchInstances ?
+        [
           {
             query: GET_SERVICE_INSTANCES,
             variables: { routerID: null }, // Will be overridden by actual routerID

@@ -12,7 +12,8 @@ import {
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
- cn } from '@nasnet/ui/primitives';
+  cn,
+} from '@nasnet/ui/primitives';
 
 import type { TooltipContent as TooltipData } from './types';
 
@@ -56,9 +57,7 @@ function StatusIndicator({ status }: { status: string }) {
         className={cn('inline-block h-2 w-2 rounded-full', config.color)}
         aria-hidden="true"
       />
-      <span className="text-xs font-medium text-muted-foreground">
-        {config.label}
-      </span>
+      <span className="text-muted-foreground text-xs font-medium">{config.label}</span>
     </div>
   );
 }
@@ -88,14 +87,17 @@ export const TopologyTooltip = memo(function TopologyTooltip({
 
   return (
     <TooltipProvider delayDuration={delayDuration}>
-      <Tooltip open={open} onOpenChange={onOpenChange}>
+      <Tooltip
+        open={open}
+        onOpenChange={onOpenChange}
+      >
         <TooltipTrigger asChild>{children}</TooltipTrigger>
         <TooltipContent
           side={side}
           align={align}
           sideOffset={8}
           className={cn(
-            'z-50 max-w-[280px] rounded-[var(--semantic-radius-input)] border border-border bg-popover px-3 py-2',
+            'border-border bg-popover z-50 max-w-[280px] rounded-[var(--semantic-radius-input)] border px-3 py-2',
             'shadow-[var(--semantic-shadow-tooltip)]',
             'animate-in fade-in-0 zoom-in-95',
             className
@@ -103,16 +105,14 @@ export const TopologyTooltip = memo(function TopologyTooltip({
         >
           {/* Header with title and status */}
           <div className="mb-2 flex items-start justify-between gap-3">
-            <h4 className="font-semibold text-foreground">{content.title}</h4>
+            <h4 className="text-foreground font-semibold">{content.title}</h4>
             <StatusIndicator status={content.status} />
           </div>
 
           {/* IP Address (if available) */}
           {content.ip && (
             <div className="mb-2">
-              <span className="font-mono text-sm text-foreground">
-                {content.ip}
-              </span>
+              <span className="text-foreground font-mono text-sm">{content.ip}</span>
             </div>
           )}
 
@@ -120,9 +120,12 @@ export const TopologyTooltip = memo(function TopologyTooltip({
           {content.details && Object.keys(content.details).length > 0 && (
             <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-xs">
               {Object.entries(content.details).map(([key, value]) => (
-                <div key={key} className="contents">
+                <div
+                  key={key}
+                  className="contents"
+                >
                   <dt className="text-muted-foreground">{key}:</dt>
-                  <dd className="font-mono text-foreground">{value}</dd>
+                  <dd className="text-foreground font-mono">{value}</dd>
                 </div>
               ))}
             </dl>
@@ -130,7 +133,7 @@ export const TopologyTooltip = memo(function TopologyTooltip({
 
           {/* Tooltip arrow */}
           <div
-            className="absolute -bottom-1 left-1/2 h-2 w-2 -translate-x-1/2 rotate-45 border-b border-r bg-popover"
+            className="bg-popover absolute -bottom-1 left-1/2 h-2 w-2 -translate-x-1/2 rotate-45 border-b border-r"
             aria-hidden="true"
             style={{ display: side === 'top' ? 'block' : 'none' }}
           />
@@ -158,14 +161,14 @@ export const TopologyTooltipContent = memo(function TopologyTooltipContent({
     <div className={cn('min-w-[180px]', className)}>
       {/* Header with title and status */}
       <div className="mb-2 flex items-start justify-between gap-3">
-        <h4 className="font-semibold text-foreground">{content.title}</h4>
+        <h4 className="text-foreground font-semibold">{content.title}</h4>
         <StatusIndicator status={content.status} />
       </div>
 
       {/* IP Address (if available) */}
       {content.ip && (
         <div className="mb-2">
-          <span className="font-mono text-sm text-foreground">{content.ip}</span>
+          <span className="text-foreground font-mono text-sm">{content.ip}</span>
         </div>
       )}
 
@@ -173,9 +176,12 @@ export const TopologyTooltipContent = memo(function TopologyTooltipContent({
       {content.details && Object.keys(content.details).length > 0 && (
         <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-xs">
           {Object.entries(content.details).map(([key, value]) => (
-            <div key={key} className="contents">
+            <div
+              key={key}
+              className="contents"
+            >
               <dt className="text-muted-foreground">{key}:</dt>
-              <dd className="font-mono text-foreground">{value}</dd>
+              <dd className="text-foreground font-mono">{value}</dd>
             </div>
           ))}
         </dl>

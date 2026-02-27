@@ -82,10 +82,11 @@ function DnsCachePanelDesktopComponent({
       <Card className={cn('', className)}>
         <CardContent className="pt-component-lg">
           <Alert variant="destructive">
-            <AlertCircle className="h-4 w-4" aria-hidden />
-            <AlertDescription>
-              {error || 'Failed to load cache statistics'}
-            </AlertDescription>
+            <AlertCircle
+              className="h-4 w-4"
+              aria-hidden
+            />
+            <AlertDescription>{error || 'Failed to load cache statistics'}</AlertDescription>
           </Alert>
         </CardContent>
       </Card>
@@ -104,36 +105,33 @@ function DnsCachePanelDesktopComponent({
             <Button
               variant="destructive"
               onClick={handleOpenFlushDialog}
-              disabled={
-                isLoading || !cacheStats || cacheStats.totalEntries === 0
-              }
+              disabled={isLoading || !cacheStats || cacheStats.totalEntries === 0}
               className="gap-component-sm"
             >
-              <Trash2 className="h-4 w-4" aria-hidden />
+              <Trash2
+                className="h-4 w-4"
+                aria-hidden
+              />
               Flush Cache
             </Button>
           </div>
         </CardHeader>
         <CardContent className="space-y-component-lg">
           {/* Statistics Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-component-md">
+          <div className="gap-component-md grid grid-cols-1 md:grid-cols-3">
             {/* Total Entries */}
             <Card>
               <CardContent className="pt-component-lg">
-                <div className="flex items-center gap-component-md">
+                <div className="gap-component-md flex items-center">
                   <Database
-                    className="h-8 w-8 text-muted-foreground"
+                    className="text-muted-foreground h-8 w-8"
                     aria-hidden
                   />
                   <div>
                     <div className="text-2xl font-bold">
-                      {isLoading
-                        ? '...'
-                        : cacheStats?.totalEntries?.toLocaleString() || '0'}
+                      {isLoading ? '...' : cacheStats?.totalEntries?.toLocaleString() || '0'}
                     </div>
-                    <div className="text-sm text-muted-foreground">
-                      Total Entries
-                    </div>
+                    <div className="text-muted-foreground text-sm">Total Entries</div>
                   </div>
                 </div>
               </CardContent>
@@ -143,20 +141,16 @@ function DnsCachePanelDesktopComponent({
             <Card>
               <CardContent className="pt-component-lg space-y-component-sm">
                 <div className="flex items-center justify-between">
-                  <div className="text-sm text-muted-foreground">
-                    Cache Usage
-                  </div>
+                  <div className="text-muted-foreground text-sm">Cache Usage</div>
                   <Badge variant="secondary">
-                    {isLoading
-                      ? '...'
-                      : `${cacheStats?.cacheUsagePercent?.toFixed(1) || 0}%`}
+                    {isLoading ? '...' : `${cacheStats?.cacheUsagePercent?.toFixed(1) || 0}%`}
                   </Badge>
                 </div>
                 <Progress
                   value={cacheStats?.cacheUsagePercent || 0}
                   className="h-2"
                 />
-                <div className="text-xs text-muted-foreground text-right font-mono">
+                <div className="text-muted-foreground text-right font-mono text-xs">
                   {cacheUsedFormatted} / {cacheMaxFormatted}
                 </div>
               </CardContent>
@@ -165,14 +159,14 @@ function DnsCachePanelDesktopComponent({
             {/* Hit Rate */}
             <Card>
               <CardContent className="pt-component-lg">
-                <div className="flex items-center gap-component-md">
+                <div className="gap-component-md flex items-center">
                   <TrendingUp
-                    className="h-8 w-8 text-success"
+                    className="text-success h-8 w-8"
                     aria-hidden
                   />
                   <div>
                     <div className="text-2xl font-bold">{hitRateFormatted}</div>
-                    <div className="text-sm text-muted-foreground">Hit Rate</div>
+                    <div className="text-muted-foreground text-sm">Hit Rate</div>
                   </div>
                 </div>
               </CardContent>
@@ -182,24 +176,23 @@ function DnsCachePanelDesktopComponent({
           {/* Top Domains */}
           {cacheStats?.topDomains && cacheStats.topDomains.length > 0 && (
             <div className="space-y-component-md">
-              <h3 className="text-sm font-medium">
-                Most Queried Domains (Top 10)
-              </h3>
+              <h3 className="text-sm font-medium">Most Queried Domains (Top 10)</h3>
               <div className="space-y-component-sm">
                 {cacheStats.topDomains.slice(0, 10).map((domain, index) => (
                   <div
                     key={domain.domain}
-                    className="flex items-center justify-between p-component-md bg-muted rounded-[var(--semantic-radius-button)]"
+                    className="p-component-md bg-muted flex items-center justify-between rounded-[var(--semantic-radius-button)]"
                   >
-                    <div className="flex items-center gap-component-md">
-                      <Badge variant="outline" className="font-mono">
+                    <div className="gap-component-md flex items-center">
+                      <Badge
+                        variant="outline"
+                        className="font-mono"
+                      >
                         #{index + 1}
                       </Badge>
-                      <span className="font-mono text-sm break-all">
-                        {domain.domain}
-                      </span>
+                      <span className="break-all font-mono text-sm">{domain.domain}</span>
                     </div>
-                    <div className="text-sm text-muted-foreground">
+                    <div className="text-muted-foreground text-sm">
                       {domain.queryCount.toLocaleString()} queries
                     </div>
                   </div>
@@ -211,13 +204,15 @@ function DnsCachePanelDesktopComponent({
       </Card>
 
       {/* Flush Confirmation Dialog */}
-      <Dialog open={isFlushDialogOpen} onOpenChange={handleCloseFlushDialog}>
+      <Dialog
+        open={isFlushDialogOpen}
+        onOpenChange={handleCloseFlushDialog}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Flush DNS Cache?</DialogTitle>
             <DialogDescription>
-              This will remove all cached DNS entries. This action cannot be
-              undone.
+              This will remove all cached DNS entries. This action cannot be undone.
             </DialogDescription>
           </DialogHeader>
 
@@ -225,15 +220,11 @@ function DnsCachePanelDesktopComponent({
           {cacheStats && !flushResult && (
             <div className="space-y-component-sm p-component-md bg-muted rounded-[var(--semantic-radius-button)]">
               <div className="text-sm font-medium">Current Cache Status:</div>
-              <div className="grid grid-cols-2 gap-component-sm text-sm">
+              <div className="gap-component-sm grid grid-cols-2 text-sm">
                 <div>Entries:</div>
-                <div className="text-right font-mono">
-                  {cacheStats.totalEntries}
-                </div>
+                <div className="text-right font-mono">{cacheStats.totalEntries}</div>
                 <div>Size:</div>
-                <div className="text-right font-mono">
-                  {cacheUsedFormatted}
-                </div>
+                <div className="text-right font-mono">{cacheUsedFormatted}</div>
                 <div>Usage:</div>
                 <div className="text-right font-mono">
                   {cacheStats.cacheUsagePercent.toFixed(1)}%
@@ -244,14 +235,16 @@ function DnsCachePanelDesktopComponent({
 
           {/* Success Message */}
           {flushResult && (
-            <Alert variant="default" className="border-success">
+            <Alert
+              variant="default"
+              className="border-success"
+            >
               <CheckCircle2
-                className="h-4 w-4 text-success"
+                className="text-success h-4 w-4"
                 aria-hidden
               />
               <AlertDescription>
-                Successfully flushed {flushResult.entriesRemoved} entries from
-                DNS cache
+                Successfully flushed {flushResult.entriesRemoved} entries from DNS cache
               </AlertDescription>
             </Alert>
           )}
@@ -280,6 +273,4 @@ function DnsCachePanelDesktopComponent({
 
 DnsCachePanelDesktopComponent.displayName = 'DnsCachePanelDesktop';
 
-export const DnsCachePanelDesktop = React.memo(
-  DnsCachePanelDesktopComponent
-);
+export const DnsCachePanelDesktop = React.memo(DnsCachePanelDesktopComponent);

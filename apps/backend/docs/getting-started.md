@@ -1,16 +1,18 @@
 # Getting Started
 
-> Everything you need to set up a local development environment, understand the project layout, and run the NasNet backend.
+> Everything you need to set up a local development environment, understand the project layout, and
+> run the NasNet backend.
 
-**Packages:** `cmd/nnc/`, `internal/server/`, `internal/bootstrap/`
-**Key Files:** `cmd/nnc/main.go`, `cmd/nnc/main_dev.go`, `cmd/nnc/main_prod.go`, `go.mod`
-**Prerequisites:** None — this is the starting point.
+**Packages:** `cmd/nnc/`, `internal/server/`, `internal/bootstrap/` **Key Files:**
+`cmd/nnc/main.go`, `cmd/nnc/main_dev.go`, `cmd/nnc/main_prod.go`, `go.mod` **Prerequisites:** None —
+this is the starting point.
 
 ---
 
 ## Overview
 
 The NasNet backend is a single Go binary that:
+
 - Serves a GraphQL API (via gqlgen + Echo v4)
 - Embeds the compiled React frontend (production builds only)
 - Manages MikroTik router connections via SSH/REST/RouterOS API
@@ -23,14 +25,14 @@ The NasNet backend is a single Go binary that:
 
 ### Prerequisites
 
-| Tool | Version | Purpose |
-|------|---------|---------|
-| Go | 1.26+ | Backend language |
-| Node.js | 20+ | Frontend tooling, Nx |
-| npm | 10+ | Package manager |
-| air | latest | Hot-reload dev server |
-| golangci-lint | 1.60+ | Linter (optional for CI) |
-| SQLite libs | system | CGo SQLite driver |
+| Tool          | Version | Purpose                  |
+| ------------- | ------- | ------------------------ |
+| Go            | 1.26+   | Backend language         |
+| Node.js       | 20+     | Frontend tooling, Nx     |
+| npm           | 10+     | Package manager          |
+| air           | latest  | Hot-reload dev server    |
+| golangci-lint | 1.60+   | Linter (optional for CI) |
+| SQLite libs   | system  | CGo SQLite driver        |
 
 ### Install Go
 
@@ -78,10 +80,10 @@ GITHUB_TOKEN=
 
 The backend uses Go build tags to separate development and production builds:
 
-| Tag | Description |
-|-----|-------------|
-| `dev` | Development mode: CORS enabled, GraphQL Playground, larger buffers, debug logging, Vite dev server for frontend |
-| `!dev` (default) | Production mode: frontend embedded via `//go:embed dist/**`, tighter resource limits, info-level logging |
+| Tag              | Description                                                                                                     |
+| ---------------- | --------------------------------------------------------------------------------------------------------------- |
+| `dev`            | Development mode: CORS enabled, GraphQL Playground, larger buffers, debug logging, Vite dev server for frontend |
+| `!dev` (default) | Production mode: frontend embedded via `//go:embed dist/**`, tighter resource limits, info-level logging        |
 
 ```go
 // main_dev.go — only compiled with: go build -tags=dev
@@ -93,18 +95,18 @@ The backend uses Go build tags to separate development and production builds:
 
 Key differences between modes:
 
-| Aspect | Development | Production |
-|--------|-------------|-----------|
-| Port | 8080 | 80 |
-| Frontend | Served by Vite (separate) | Embedded in binary |
-| CORS | All origins allowed | Restricted |
-| GraphQL Playground | `/playground` enabled | Disabled |
-| Logger | Debug level, development format | Info level, JSON |
-| GC Percent | 100 (default) | 10 (aggressive) |
-| Memory Limit | 128 MB | 32 MB |
-| GOMAXPROCS | 2 | 1 |
-| EventBus buffer | 1024 | 256 |
-| Scanner workers | 4 | 2 |
+| Aspect             | Development                     | Production         |
+| ------------------ | ------------------------------- | ------------------ |
+| Port               | 8080                            | 80                 |
+| Frontend           | Served by Vite (separate)       | Embedded in binary |
+| CORS               | All origins allowed             | Restricted         |
+| GraphQL Playground | `/playground` enabled           | Disabled           |
+| Logger             | Debug level, development format | Info level, JSON   |
+| GC Percent         | 100 (default)                   | 10 (aggressive)    |
+| Memory Limit       | 128 MB                          | 32 MB              |
+| GOMAXPROCS         | 2                               | 1                  |
+| EventBus buffer    | 1024                            | 256                |
+| Scanner workers    | 4                               | 2                  |
 
 ---
 
@@ -299,7 +301,8 @@ When the application starts in **production** (`main_prod.go`), it follows this 
            — On SIGINT/SIGTERM: graceful shutdown via ShutdownCoordinator
 ```
 
-In **development** (`main_dev.go`), the sequence is simpler (no bootstrap abstraction, fewer services).
+In **development** (`main_dev.go`), the sequence is simpler (no bootstrap abstraction, fewer
+services).
 
 [See: application-bootstrap.md §Service Initialization Order]
 
@@ -307,12 +310,12 @@ In **development** (`main_dev.go`), the sequence is simpler (no bootstrap abstra
 
 ## Environment Variables Reference
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `PORT` | `80` (prod) / `8080` (dev) | HTTP listen port |
-| `NASNET_DATA_DIR` | `/var/nasnet` (prod) / `./data` (dev) | SQLite database directory |
-| `DB_ENCRYPTION_KEY` | *(auto-generated dummy)* | AES-256 key for credential encryption (base64, 32 bytes) |
-| `GITHUB_TOKEN` | *(empty)* | GitHub token for feature binary downloads |
+| Variable            | Default                               | Description                                              |
+| ------------------- | ------------------------------------- | -------------------------------------------------------- |
+| `PORT`              | `80` (prod) / `8080` (dev)            | HTTP listen port                                         |
+| `NASNET_DATA_DIR`   | `/var/nasnet` (prod) / `./data` (dev) | SQLite database directory                                |
+| `DB_ENCRYPTION_KEY` | _(auto-generated dummy)_              | AES-256 key for credential encryption (base64, 32 bytes) |
+| `GITHUB_TOKEN`      | _(empty)_                             | GitHub token for feature binary downloads                |
 
 ---
 
@@ -327,7 +330,8 @@ go test -tags=dev ./...
 
 ### Tests with CHR (RouterOS simulator)
 
-For integration tests that require a real RouterOS instance, the project uses CHR (Cloud Hosted Router) in Docker. See `Docs/architecture/implementation-patterns/testing-strategy-patterns.md`.
+For integration tests that require a real RouterOS instance, the project uses CHR (Cloud Hosted
+Router) in Docker. See `Docs/architecture/implementation-patterns/testing-strategy-patterns.md`.
 
 ### Test coverage
 
@@ -342,11 +346,13 @@ go tool cover -html=coverage.out
 
 ### Enable debug logging
 
-Set `loggerConfig.Level = zap.NewAtomicLevelAt(zap.DebugLevel)` in `main_dev.go` (already done in dev mode).
+Set `loggerConfig.Level = zap.NewAtomicLevelAt(zap.DebugLevel)` in `main_dev.go` (already done in
+dev mode).
 
 ### Inspect the GraphQL schema
 
-Navigate to `http://localhost:8080/playground` in dev mode for the interactive GraphQL playground (GraphiQL).
+Navigate to `http://localhost:8080/playground` in dev mode for the interactive GraphQL playground
+(GraphiQL).
 
 ### SQLite inspection
 
@@ -366,16 +372,17 @@ SELECT id, name, status FROM service_instances;
 ```bash
 curl http://localhost:8080/debug/pprof/goroutine?debug=2
 ```
+
 (Only if pprof is enabled in dev mode)
 
 ### Common startup failures
 
-| Error | Cause | Fix |
-|-------|-------|-----|
-| `failed to create data directory` | Insufficient permissions | `mkdir -p ./data && chmod 755 ./data` |
-| `integrity check failed` | Corrupted SQLite DB | Delete `./data/system.db` and restart |
-| `failed to create event bus` | Invalid buffer size | Check `RuntimeConfig.EventBusBufferSize > 0` |
-| `dist/**` embed fails | Frontend not built | Run `npm run build:frontend` first |
+| Error                             | Cause                    | Fix                                          |
+| --------------------------------- | ------------------------ | -------------------------------------------- |
+| `failed to create data directory` | Insufficient permissions | `mkdir -p ./data && chmod 755 ./data`        |
+| `integrity check failed`          | Corrupted SQLite DB      | Delete `./data/system.db` and restart        |
+| `failed to create event bus`      | Invalid buffer size      | Check `RuntimeConfig.EventBusBufferSize > 0` |
+| `dist/**` embed fails             | Frontend not built       | Run `npm run build:frontend` first           |
 
 ---
 

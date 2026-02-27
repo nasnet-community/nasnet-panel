@@ -47,17 +47,19 @@ const RouteTypeBadge = ({ type, dynamic }: { type: string; dynamic: boolean }) =
   const variant = TYPE_VARIANT_MAP[type] || 'success';
 
   return (
-    <div className="flex gap-component-xs items-center">
-      <span className={cn(
-        'inline-flex items-center px-component-sm py-component-xs text-xs font-medium rounded-md',
-        variant === 'success' && 'bg-success/20 text-success',
-        variant === 'error' && 'bg-error/20 text-error',
-        variant === 'warning' && 'bg-warning/20 text-warning'
-      )}>
+    <div className="gap-component-xs flex items-center">
+      <span
+        className={cn(
+          'px-component-sm py-component-xs inline-flex items-center rounded-md text-xs font-medium',
+          variant === 'success' && 'bg-success/20 text-success',
+          variant === 'error' && 'bg-error/20 text-error',
+          variant === 'warning' && 'bg-warning/20 text-warning'
+        )}
+      >
         {type}
       </span>
       {dynamic && (
-        <span className="inline-flex items-center px-component-sm py-component-xs text-xs font-medium rounded-md bg-info/20 text-info">
+        <span className="px-component-sm py-component-xs bg-info/20 text-info inline-flex items-center rounded-md text-xs font-medium">
           dynamic
         </span>
       )}
@@ -103,23 +105,27 @@ export const RoutingTable = ({ className }: RoutingTableProps) => {
       }
 
       if (typeof aVal === 'boolean' && typeof bVal === 'boolean') {
-        return sortDirection === 'asc'
-          ? (aVal === bVal ? 0 : aVal ? -1 : 1)
-          : (aVal === bVal ? 0 : aVal ? 1 : -1);
+        return (
+          sortDirection === 'asc' ?
+            aVal === bVal ? 0
+            : aVal ? -1
+            : 1
+          : aVal === bVal ? 0
+          : aVal ? 1
+          : -1
+        );
       }
 
       const aStr = String(aVal).toLowerCase();
       const bStr = String(bVal).toLowerCase();
-      return sortDirection === 'asc'
-        ? aStr.localeCompare(bStr)
-        : bStr.localeCompare(aStr);
+      return sortDirection === 'asc' ? aStr.localeCompare(bStr) : bStr.localeCompare(aStr);
     });
   }, [routes, sortColumn, sortDirection]);
 
   const handleSort = useCallback((column: keyof RouteEntry) => {
     setSortColumn((prevColumn) => {
       if (prevColumn === column) {
-        setSortDirection((prevDir) => prevDir === 'asc' ? 'desc' : 'asc');
+        setSortDirection((prevDir) => (prevDir === 'asc' ? 'desc' : 'asc'));
         return column;
       }
       setSortDirection('asc');
@@ -130,27 +136,27 @@ export const RoutingTable = ({ className }: RoutingTableProps) => {
   if (isLoading) {
     return (
       <div className={cn('p-component-md space-y-component-md animate-pulse', className)}>
-        <div className="h-10 bg-muted rounded" />
-        <div className="h-16 bg-muted rounded" />
-        <div className="h-16 bg-muted rounded" />
+        <div className="bg-muted h-10 rounded" />
+        <div className="bg-muted h-16 rounded" />
+        <div className="bg-muted h-16 rounded" />
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className={cn('p-component-md text-error rounded-lg bg-error/10', className)}>
+      <div className={cn('p-component-md text-error bg-error/10 rounded-lg', className)}>
         <p className="font-medium">Error loading routes</p>
-        <p className="text-sm mt-component-xs">{error.message}</p>
+        <p className="mt-component-xs text-sm">{error.message}</p>
       </div>
     );
   }
 
   if (!routes || routes.length === 0) {
     return (
-      <div className={cn('p-8 text-center space-y-2', className)}>
-        <p className="font-semibold text-foreground">No routes found</p>
-        <p className="text-sm text-muted-foreground">The routing table is empty</p>
+      <div className={cn('space-y-2 p-8 text-center', className)}>
+        <p className="text-foreground font-semibold">No routes found</p>
+        <p className="text-muted-foreground text-sm">The routing table is empty</p>
       </div>
     );
   }
@@ -165,7 +171,7 @@ export const RoutingTable = ({ className }: RoutingTableProps) => {
         <TableHeader>
           <TableRow>
             <TableHead
-              className="cursor-pointer hover:text-foreground transition-colors"
+              className="hover:text-foreground cursor-pointer transition-colors"
               onClick={() => handleSort('destination')}
               role="button"
               tabIndex={0}
@@ -178,7 +184,7 @@ export const RoutingTable = ({ className }: RoutingTableProps) => {
               Destination {sortColumn === 'destination' && (sortDirection === 'asc' ? '↑' : '↓')}
             </TableHead>
             <TableHead
-              className="cursor-pointer hover:text-foreground transition-colors"
+              className="hover:text-foreground cursor-pointer transition-colors"
               onClick={() => handleSort('gateway')}
               role="button"
               tabIndex={0}
@@ -191,7 +197,7 @@ export const RoutingTable = ({ className }: RoutingTableProps) => {
               Gateway {sortColumn === 'gateway' && (sortDirection === 'asc' ? '↑' : '↓')}
             </TableHead>
             <TableHead
-              className="cursor-pointer hover:text-foreground transition-colors"
+              className="hover:text-foreground cursor-pointer transition-colors"
               onClick={() => handleSort('interface')}
               role="button"
               tabIndex={0}
@@ -204,7 +210,7 @@ export const RoutingTable = ({ className }: RoutingTableProps) => {
               Interface {sortColumn === 'interface' && (sortDirection === 'asc' ? '↑' : '↓')}
             </TableHead>
             <TableHead
-              className="cursor-pointer hover:text-foreground transition-colors"
+              className="hover:text-foreground cursor-pointer transition-colors"
               onClick={() => handleSort('distance')}
               role="button"
               tabIndex={0}
@@ -217,7 +223,7 @@ export const RoutingTable = ({ className }: RoutingTableProps) => {
               Distance {sortColumn === 'distance' && (sortDirection === 'asc' ? '↑' : '↓')}
             </TableHead>
             <TableHead
-              className="cursor-pointer hover:text-foreground transition-colors"
+              className="hover:text-foreground cursor-pointer transition-colors"
               onClick={() => handleSort('routeType')}
               role="button"
               tabIndex={0}
@@ -230,7 +236,7 @@ export const RoutingTable = ({ className }: RoutingTableProps) => {
               Type {sortColumn === 'routeType' && (sortDirection === 'asc' ? '↑' : '↓')}
             </TableHead>
             <TableHead
-              className="cursor-pointer hover:text-foreground transition-colors"
+              className="hover:text-foreground cursor-pointer transition-colors"
               onClick={() => handleSort('active')}
               role="button"
               tabIndex={0}
@@ -251,13 +257,13 @@ export const RoutingTable = ({ className }: RoutingTableProps) => {
               className={cn(
                 route.disabled && 'opacity-50',
                 route.active && 'bg-success/5',
-                isDefaultRoute(route.destination) && 'border-l-4 border-l-info'
+                isDefaultRoute(route.destination) && 'border-l-info border-l-4'
               )}
             >
               <TableCell className={cn('font-mono', route.active && 'font-bold')}>
                 {route.destination}
                 {isDefaultRoute(route.destination) && (
-                  <span className="ml-2 text-xs text-info">(default)</span>
+                  <span className="text-info ml-2 text-xs">(default)</span>
                 )}
               </TableCell>
               <TableCell className={cn('font-mono', route.disabled && 'line-through')}>
@@ -268,14 +274,26 @@ export const RoutingTable = ({ className }: RoutingTableProps) => {
               </TableCell>
               <TableCell className="text-center">{route.distance}</TableCell>
               <TableCell>
-                <RouteTypeBadge type={route.routeType} dynamic={route.dynamic} />
+                <RouteTypeBadge
+                  type={route.routeType}
+                  dynamic={route.dynamic}
+                />
               </TableCell>
               <TableCell className="text-center">
-                {route.active ? (
-                  <span className="text-success font-medium" aria-label="Route is active">●</span>
-                ) : (
-                  <span className="text-muted" aria-label="Route is inactive">○</span>
-                )}
+                {route.active ?
+                  <span
+                    className="text-success font-medium"
+                    aria-label="Route is active"
+                  >
+                    ●
+                  </span>
+                : <span
+                    className="text-muted"
+                    aria-label="Route is inactive"
+                  >
+                    ○
+                  </span>
+                }
               </TableCell>
             </TableRow>
           ))}

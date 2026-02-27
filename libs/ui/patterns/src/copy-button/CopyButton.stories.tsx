@@ -7,7 +7,6 @@ import { CopyButton } from './CopyButton';
 
 import type { Meta, StoryObj } from '@storybook/react';
 
-
 const meta: Meta<typeof CopyButton> = {
   title: 'Patterns/Clipboard/CopyButton',
   component: CopyButton,
@@ -170,10 +169,14 @@ export const WithoutTooltip: Story = {
  */
 export const InContextIP: Story = {
   render: () => (
-    <div className="flex items-center gap-2 p-4 bg-slate-50 dark:bg-slate-800 rounded-lg">
+    <div className="flex items-center gap-2 rounded-lg bg-slate-50 p-4 dark:bg-slate-800">
       <span className="text-sm font-medium text-slate-500 dark:text-slate-400">IP Address:</span>
-      <code className="text-sm font-mono text-slate-900 dark:text-slate-50">192.168.88.1</code>
-      <CopyButton value="192.168.88.1" variant="inline" aria-label="Copy IP address" />
+      <code className="font-mono text-sm text-slate-900 dark:text-slate-50">192.168.88.1</code>
+      <CopyButton
+        value="192.168.88.1"
+        variant="inline"
+        aria-label="Copy IP address"
+      />
     </div>
   ),
   parameters: {
@@ -190,10 +193,12 @@ export const InContextIP: Story = {
  */
 export const InContextPublicKey: Story = {
   render: () => (
-    <div className="space-y-2 p-4 bg-slate-50 dark:bg-slate-800 rounded-lg max-w-md">
-      <span className="text-xs font-medium text-slate-500 dark:text-slate-400 block">Public Key</span>
+    <div className="max-w-md space-y-2 rounded-lg bg-slate-50 p-4 dark:bg-slate-800">
+      <span className="block text-xs font-medium text-slate-500 dark:text-slate-400">
+        Public Key
+      </span>
       <div className="flex items-center justify-between gap-3">
-        <code className="text-xs font-mono bg-slate-100 dark:bg-slate-700 px-3 py-2 rounded flex-1 truncate">
+        <code className="flex-1 truncate rounded bg-slate-100 px-3 py-2 font-mono text-xs dark:bg-slate-700">
           xV8b2kP9...jT5uA
         </code>
         <CopyButton

@@ -410,10 +410,7 @@ export const builtInTemplates: AlertRuleTemplate[] = [
 /**
  * All templates including custom
  */
-export const allTemplates: AlertRuleTemplate[] = [
-  ...builtInTemplates,
-  customTemplate,
-];
+export const allTemplates: AlertRuleTemplate[] = [...builtInTemplates, customTemplate];
 
 /**
  * Templates by category

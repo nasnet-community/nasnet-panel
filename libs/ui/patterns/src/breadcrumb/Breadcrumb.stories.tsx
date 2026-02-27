@@ -49,25 +49,29 @@ function MockBreadcrumb({
   const MAX_VISIBLE = 2;
   const shouldCollapse = compact && segments.length > MAX_VISIBLE && !expanded;
 
-  const visibleSegments = shouldCollapse
-    ? [segments[0], segments[segments.length - 1]]
-    : segments;
+  const visibleSegments = shouldCollapse ? [segments[0], segments[segments.length - 1]] : segments;
 
   const hiddenCount = shouldCollapse ? segments.length - 2 : 0;
 
   return (
-    <nav aria-label="Breadcrumb" className={cn('flex items-center', className)}>
+    <nav
+      aria-label="Breadcrumb"
+      className={cn('flex items-center', className)}
+    >
       <ol className="flex items-center gap-1 text-sm">
         {visibleSegments.map((segment, index) => (
           <React.Fragment key={segment.key}>
             {/* Ellipsis button for collapsed mobile view */}
             {compact && shouldCollapse && index === 1 && hiddenCount > 0 && (
               <>
-                <ChevronRight className="mx-0.5 h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                <ChevronRight
+                  className="text-muted-foreground mx-0.5 h-4 w-4"
+                  aria-hidden="true"
+                />
                 <li>
                   <button
                     onClick={() => setExpanded(true)}
-                    className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-accent hover:text-foreground"
+                    className="text-muted-foreground hover:bg-accent hover:text-foreground flex h-8 w-8 items-center justify-center rounded-lg"
                     aria-label={`Show ${hiddenCount} more items`}
                   >
                     •••
@@ -79,40 +83,44 @@ function MockBreadcrumb({
             {/* Normal separator */}
             {index > 0 && !(compact && shouldCollapse && index === 1) && (
               <ChevronRight
-                className="mx-1 h-4 w-4 text-muted-foreground"
+                className="text-muted-foreground mx-1 h-4 w-4"
                 aria-hidden="true"
               />
             )}
 
             {/* Segment */}
             <li className="flex items-center">
-              {segment.isCurrent ? (
-                <span aria-current="page" className="font-medium text-foreground truncate max-w-[160px]">
-                  {showHomeIcon && index === 0 ? (
+              {segment.isCurrent ?
+                <span
+                  aria-current="page"
+                  className="text-foreground max-w-[160px] truncate font-medium"
+                >
+                  {showHomeIcon && index === 0 ?
                     <span className="flex items-center gap-1.5">
-                      <Home className="h-4 w-4" aria-hidden="true" />
+                      <Home
+                        className="h-4 w-4"
+                        aria-hidden="true"
+                      />
                       <span className="sr-only">{segment.label}</span>
                     </span>
-                  ) : (
-                    segment.label
-                  )}
+                  : segment.label}
                 </span>
-              ) : (
-                <a
+              : <a
                   href={segment.path}
                   onClick={(e) => e.preventDefault()}
-                  className="text-muted-foreground transition-colors hover:text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded px-1 -mx-1 truncate max-w-[160px]"
+                  className="text-muted-foreground hover:text-foreground focus:ring-ring -mx-1 max-w-[160px] truncate rounded px-1 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2"
                 >
-                  {showHomeIcon && index === 0 ? (
+                  {showHomeIcon && index === 0 ?
                     <span className="flex items-center gap-1.5">
-                      <Home className="h-4 w-4" aria-hidden="true" />
+                      <Home
+                        className="h-4 w-4"
+                        aria-hidden="true"
+                      />
                       <span className="sr-only">{segment.label}</span>
                     </span>
-                  ) : (
-                    segment.label
-                  )}
+                  : segment.label}
                 </a>
-              )}
+              }
             </li>
           </React.Fragment>
         ))}
@@ -172,7 +180,12 @@ const deepSegments: BreadcrumbSegment[] = [
   { key: '__root__', label: 'Home', path: '/', isCurrent: false },
   { key: '/firewall', label: 'Firewall', path: '/firewall', isCurrent: false },
   { key: '/firewall/filter', label: 'Filter Rules', path: '/firewall/filter', isCurrent: false },
-  { key: '/firewall/filter/edit', label: 'Edit Rule #42', path: '/firewall/filter/edit', isCurrent: true },
+  {
+    key: '/firewall/filter/edit',
+    label: 'Edit Rule #42',
+    path: '/firewall/filter/edit',
+    isCurrent: true,
+  },
 ];
 
 const routerDetailSegments: BreadcrumbSegment[] = [
@@ -214,7 +227,8 @@ export const DeepPath: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Desktop presenter renders all four segments in a horizontal row separated by chevrons.',
+        story:
+          'Desktop presenter renders all four segments in a horizontal row separated by chevrons.',
       },
     },
   },
@@ -230,7 +244,8 @@ export const WithoutHomeIcon: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'When `showHomeIcon` is false the first segment is rendered as a text link instead of a house icon.',
+        story:
+          'When `showHomeIcon` is false the first segment is rendered as a text link instead of a house icon.',
       },
     },
   },

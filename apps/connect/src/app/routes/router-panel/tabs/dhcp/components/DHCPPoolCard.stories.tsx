@@ -4,7 +4,6 @@ import { DHCPPoolCard } from './DHCPPoolCard';
 
 import type { Meta, StoryObj } from '@storybook/react';
 
-
 const meta: Meta<typeof DHCPPoolCard> = {
   title: 'App/DHCP/DHCPPoolCard',
   component: DHCPPoolCard,
@@ -13,7 +12,8 @@ const meta: Meta<typeof DHCPPoolCard> = {
     layout: 'centered',
     docs: {
       description: {
-        component: 'Displays individual DHCP pool information with utilization visualization. Shows assigned/available/total IP counts and IP ranges.',
+        component:
+          'Displays individual DHCP pool information with utilization visualization. Shows assigned/available/total IP counts and IP ranges.',
       },
     },
   },
@@ -38,16 +38,40 @@ const mockPool: DHCPPool = {
 const mockPoolMultiRange: DHCPPool = {
   id: 'pool-2',
   name: 'Extended Pool',
-  ranges: [
-    '10.0.0.100-10.0.0.150',
-    '10.0.0.200-10.0.0.250',
-  ],
+  ranges: ['10.0.0.100-10.0.0.150', '10.0.0.200-10.0.0.250'],
 };
 
 const mockLeases: DHCPLease[] = [
-  { id: 'lease-1', address: '192.168.1.100', macAddress: '00:11:22:33:44:55', status: 'bound', hostname: 'device-1', server: 'dhcp1', dynamic: true, blocked: false },
-  { id: 'lease-2', address: '192.168.1.101', macAddress: '00:11:22:33:44:56', status: 'bound', hostname: 'device-2', server: 'dhcp1', dynamic: true, blocked: false },
-  { id: 'lease-3', address: '192.168.1.102', macAddress: '00:11:22:33:44:57', status: 'bound', hostname: 'device-3', server: 'dhcp1', dynamic: true, blocked: false },
+  {
+    id: 'lease-1',
+    address: '192.168.1.100',
+    macAddress: '00:11:22:33:44:55',
+    status: 'bound',
+    hostname: 'device-1',
+    server: 'dhcp1',
+    dynamic: true,
+    blocked: false,
+  },
+  {
+    id: 'lease-2',
+    address: '192.168.1.101',
+    macAddress: '00:11:22:33:44:56',
+    status: 'bound',
+    hostname: 'device-2',
+    server: 'dhcp1',
+    dynamic: true,
+    blocked: false,
+  },
+  {
+    id: 'lease-3',
+    address: '192.168.1.102',
+    macAddress: '00:11:22:33:44:57',
+    status: 'bound',
+    hostname: 'device-3',
+    server: 'dhcp1',
+    dynamic: true,
+    blocked: false,
+  },
 ];
 
 export const Default: Story = {
@@ -81,7 +105,8 @@ export const HighUtilization: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Pool with 85% utilization. Demonstrates high occupancy state with warning-level color.',
+        story:
+          'Pool with 85% utilization. Demonstrates high occupancy state with warning-level color.',
       },
     },
   },

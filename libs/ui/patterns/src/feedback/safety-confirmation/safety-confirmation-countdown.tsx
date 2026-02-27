@@ -63,7 +63,7 @@ export function SafetyConfirmationCountdown({
             'text-center font-mono text-4xl font-bold tabular-nums',
             urgencyLevel === 'normal' && 'text-muted-foreground',
             urgencyLevel === 'urgent' && 'text-warning',
-            urgencyLevel === 'critical' && 'animate-pulse text-error'
+            urgencyLevel === 'critical' && 'text-error animate-pulse'
           )}
           role="timer"
           aria-live="polite"
@@ -100,9 +100,9 @@ export function SafetyConfirmationCountdown({
         aria-live="assertive"
         aria-atomic="true"
       >
-        {isComplete
-          ? 'Countdown complete. You may now confirm.'
-          : 'Please wait for countdown to complete'}
+        {isComplete ?
+          'Countdown complete. You may now confirm.'
+        : 'Please wait for countdown to complete'}
       </p>
     </div>
   );

@@ -116,10 +116,7 @@ function formatResult(result: PingResult): string {
  * @param props - Component props (results array, optional className)
  * @returns Virtualized scrollable results container with auto-scroll button
  */
-export const PingResults = memo(function PingResults({
-  results,
-  className,
-}: PingResultsProps) {
+export const PingResults = memo(function PingResults({ results, className }: PingResultsProps) {
   const parentRef = useRef<HTMLDivElement>(null);
 
   // Auto-scroll hook for scroll-lock detection
@@ -139,12 +136,7 @@ export const PingResults = memo(function PingResults({
 
   if (results.length === 0) {
     return (
-      <div
-        className={cn(
-          'flex items-center justify-center h-64 text-muted-foreground',
-          className
-        )}
-      >
+      <div className={cn('text-muted-foreground flex h-64 items-center justify-center', className)}>
         No results yet. Start a ping test to see results.
       </div>
     );
@@ -153,14 +145,14 @@ export const PingResults = memo(function PingResults({
   return (
     <div className={cn('relative', className)}>
       {/* Results list */}
-      <ScrollArea className="h-64 border rounded-card-sm">
+      <ScrollArea className="rounded-card-sm h-64 border">
         <div
           ref={parentRef}
           role="log"
           aria-live="polite"
           aria-label="Ping results"
           aria-relevant="additions"
-          className="h-full p-component-sm font-mono text-sm"
+          className="p-component-sm h-full font-mono text-sm"
         >
           <div
             style={{
@@ -204,7 +196,7 @@ export const PingResults = memo(function PingResults({
           className="absolute bottom-4 right-4 shadow-lg"
           aria-label={`Scroll to bottom (${newEntriesCount} new results)`}
         >
-          <ChevronDown className="w-4 h-4 mr-1" />
+          <ChevronDown className="mr-1 h-4 w-4" />
           {newEntriesCount} new
         </Button>
       )}

@@ -13,7 +13,7 @@ import * as React from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { CheckCircle2, AlertTriangle, XCircle } from 'lucide-react';
 
-import { cn , useReducedMotion } from '@nasnet/ui/primitives';
+import { cn, useReducedMotion } from '@nasnet/ui/primitives';
 
 import type {
   ConfidenceLevel,
@@ -59,7 +59,7 @@ const SIZE_CONFIG = {
  */
 const confidenceIndicatorVariants = cva(
   // Base styles - shared across all variants
-  'inline-flex items-center justify-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+  'focus-visible:ring-ring inline-flex items-center justify-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
   {
     variants: {
       level: {
@@ -253,12 +253,7 @@ export function ConfidenceIndicatorDot({
 
   return (
     <span
-      className={cn(
-        'inline-block rounded-full',
-        sizeConfig.dot,
-        dotColorClasses[level],
-        className
-      )}
+      className={cn('inline-block rounded-full', sizeConfig.dot, dotColorClasses[level], className)}
       aria-hidden="true"
     />
   );
@@ -289,14 +284,7 @@ export function ConfidenceLevelLabel({
   } as const;
 
   return (
-    <span
-      className={cn(
-        'font-medium',
-        sizeConfig.text,
-        textColorClasses[state.level],
-        className
-      )}
-    >
+    <span className={cn('font-medium', sizeConfig.text, textColorClasses[state.level], className)}>
       {state.levelLabel}
       {showPercentage && state.showPercentage && (
         <span className="ml-1 opacity-75">({state.percentage}%)</span>

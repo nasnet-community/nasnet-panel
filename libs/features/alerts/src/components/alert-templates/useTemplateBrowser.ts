@@ -223,10 +223,7 @@ function filterTemplates(
 /**
  * Sort templates by field and direction
  */
-function sortTemplates(
-  templates: AlertRuleTemplate[],
-  sort: TemplateSort
-): AlertRuleTemplate[] {
+function sortTemplates(templates: AlertRuleTemplate[], sort: TemplateSort): AlertRuleTemplate[] {
   const { field, direction } = sort;
   const multiplier = direction === 'asc' ? 1 : -1;
 
@@ -343,9 +340,7 @@ function calculateSeverityCounts(templates: AlertRuleTemplate[]): Record<string,
  * );
  * ```
  */
-export function useTemplateBrowser(
-  options: UseTemplateBrowserOptions
-): UseTemplateBrowserReturn {
+export function useTemplateBrowser(options: UseTemplateBrowserOptions): UseTemplateBrowserReturn {
   const {
     templates,
     initialFilter = {},
@@ -385,15 +380,9 @@ export function useTemplateBrowser(
   }, [filter]);
 
   // Calculate counts (memoized)
-  const categoryCount = useMemo(
-    () => calculateCategoryCounts(templates),
-    [templates]
-  );
+  const categoryCount = useMemo(() => calculateCategoryCounts(templates), [templates]);
 
-  const severityCount = useMemo(
-    () => calculateSeverityCounts(templates),
-    [templates]
-  );
+  const severityCount = useMemo(() => calculateSeverityCounts(templates), [templates]);
 
   // Get selected template
   const selectedTemplate = useMemo(() => {
@@ -412,22 +401,19 @@ export function useTemplateBrowser(
   }, []);
 
   // Set sort field (toggles direction if same field)
-  const setSort = useCallback(
-    (field: TemplateSortField) => {
-      setSortState((prev) => {
-        if (prev.field === field) {
-          // Toggle direction
-          return {
-            field,
-            direction: prev.direction === 'asc' ? 'desc' : 'asc',
-          };
-        }
-        // New field, default to ascending
-        return { field, direction: 'asc' };
-      });
-    },
-    []
-  );
+  const setSort = useCallback((field: TemplateSortField) => {
+    setSortState((prev) => {
+      if (prev.field === field) {
+        // Toggle direction
+        return {
+          field,
+          direction: prev.direction === 'asc' ? 'desc' : 'asc',
+        };
+      }
+      // New field, default to ascending
+      return { field, direction: 'asc' };
+    });
+  }, []);
 
   // Toggle sort direction
   const toggleSortDirection = useCallback(() => {

@@ -8,7 +8,9 @@ extend type Query {
   Includes discovered devices, available interfaces, and current routings.
   """
   deviceRoutingMatrix(
-    """Router ID"""
+    """
+    Router ID
+    """
     routerID: ID!
   ): DeviceRoutingMatrix!
 
@@ -16,7 +18,9 @@ extend type Query {
   Get all device routing assignments for a router.
   """
   deviceRoutings(
-    """Router ID"""
+    """
+    Router ID
+    """
     routerID: ID!
   ): [DeviceRouting!]!
 
@@ -24,10 +28,14 @@ extend type Query {
   Get a specific device routing assignment.
   """
   deviceRouting(
-    """Router ID"""
+    """
+    Router ID
+    """
     routerID: ID!
 
-    """Device routing ID"""
+    """
+    Device routing ID
+    """
     routingID: ID!
   ): DeviceRouting
 
@@ -36,10 +44,14 @@ extend type Query {
   Returns current kill switch configuration and state.
   """
   killSwitchStatus(
-    """Router ID"""
+    """
+    Router ID
+    """
     routerID: ID!
 
-    """Device ID"""
+    """
+    Device ID
+    """
     deviceID: String!
   ): KillSwitchStatus!
 }
@@ -50,7 +62,9 @@ extend type Subscription {
   Emits events when devices are assigned, removed, or updated.
   """
   deviceRoutingChanged(
-    """Router ID to subscribe to"""
+    """
+    Router ID to subscribe to
+    """
     routerID: ID!
   ): DeviceRoutingEvent!
 
@@ -59,7 +73,9 @@ extend type Subscription {
   Emits events when kill switch is activated, deactivated, or configuration changes.
   """
   killSwitchChanged(
-    """Router ID to subscribe to"""
+    """
+    Router ID to subscribe to
+    """
     routerID: ID!
   ): DeviceRoutingEvent!
 }

@@ -28,31 +28,20 @@ export type TextAreaProps = ComponentPropsWithoutRef<typeof Textarea>;
  *
  * @see DynamicField for integration with form schema validation
  */
-export const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
-  function TextArea(
-    {
-      rows = 4,
-      className,
-      disabled,
-      'aria-invalid': ariaInvalid,
-      ...props
-    },
-    ref
-  ) {
-    return (
-      <Textarea
-        ref={ref}
-        rows={rows}
-        disabled={disabled}
-        className={cn(
-          'resize-vertical',
-          className
-        )}
-        aria-invalid={ariaInvalid}
-        {...props}
-      />
-    );
-  }
-);
+export const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(function TextArea(
+  { rows = 4, className, disabled, 'aria-invalid': ariaInvalid, ...props },
+  ref
+) {
+  return (
+    <Textarea
+      ref={ref}
+      rows={rows}
+      disabled={disabled}
+      className={cn('resize-vertical', className)}
+      aria-invalid={ariaInvalid}
+      {...props}
+    />
+  );
+});
 
 TextArea.displayName = 'TextArea';

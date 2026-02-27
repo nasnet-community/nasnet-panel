@@ -27,8 +27,11 @@
  * }
  * ```
  */
-export declare function useDigestQueueCount(channelId: string, options?: {
+export declare function useDigestQueueCount(
+  channelId: string,
+  options?: {
     pollInterval?: number;
     skip?: boolean;
-}): import("@apollo/client").InteropQueryResult<any, import("@apollo/client").OperationVariables>;
+  }
+): import('@apollo/client').InteropQueryResult<any, import('@apollo/client').OperationVariables>;
 //# sourceMappingURL=useDigestQueueCount.d.ts.map

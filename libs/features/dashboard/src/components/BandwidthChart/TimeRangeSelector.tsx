@@ -61,127 +61,121 @@ const TIME_RANGE_OPTIONS: TimeRangeOption[] = [
  * @param props - Component props (value, onChange, className)
  * @returns Accessible segmented control element
  */
-export const TimeRangeSelector = memo<TimeRangeSelectorProps>(
-  ({ value, onChange, className }) => {
-    const groupRef = useRef<HTMLDivElement>(null);
+export const TimeRangeSelector = memo<TimeRangeSelectorProps>(({ value, onChange, className }) => {
+  const groupRef = useRef<HTMLDivElement>(null);
 
-    /**
-     * Handle keyboard navigation within segmented control
-     */
-    const handleKeyDown = useCallback(
-      (event: React.KeyboardEvent<HTMLButtonElement>, currentValue: TimeRange) => {
-        const currentIndex = TIME_RANGE_OPTIONS.findIndex(
-          (opt) => opt.value === currentValue
-        );
+  /**
+   * Handle keyboard navigation within segmented control
+   */
+  const handleKeyDown = useCallback(
+    (event: React.KeyboardEvent<HTMLButtonElement>, currentValue: TimeRange) => {
+      const currentIndex = TIME_RANGE_OPTIONS.findIndex((opt) => opt.value === currentValue);
 
-        let nextIndex: number | null = null;
+      let nextIndex: number | null = null;
 
-        switch (event.key) {
-          case 'ArrowRight':
-          case 'ArrowDown':
-            // Move to next option (wrap around)
-            event.preventDefault();
-            nextIndex = (currentIndex + 1) % TIME_RANGE_OPTIONS.length;
-            break;
+      switch (event.key) {
+        case 'ArrowRight':
+        case 'ArrowDown':
+          // Move to next option (wrap around)
+          event.preventDefault();
+          nextIndex = (currentIndex + 1) % TIME_RANGE_OPTIONS.length;
+          break;
 
-          case 'ArrowLeft':
-          case 'ArrowUp':
-            // Move to previous option (wrap around)
-            event.preventDefault();
-            nextIndex =
-              (currentIndex - 1 + TIME_RANGE_OPTIONS.length) %
-              TIME_RANGE_OPTIONS.length;
-            break;
+        case 'ArrowLeft':
+        case 'ArrowUp':
+          // Move to previous option (wrap around)
+          event.preventDefault();
+          nextIndex = (currentIndex - 1 + TIME_RANGE_OPTIONS.length) % TIME_RANGE_OPTIONS.length;
+          break;
 
-          case 'Home':
-            // Jump to first option
-            event.preventDefault();
-            nextIndex = 0;
-            break;
+        case 'Home':
+          // Jump to first option
+          event.preventDefault();
+          nextIndex = 0;
+          break;
 
-          case 'End':
-            // Jump to last option
-            event.preventDefault();
-            nextIndex = TIME_RANGE_OPTIONS.length - 1;
-            break;
+        case 'End':
+          // Jump to last option
+          event.preventDefault();
+          nextIndex = TIME_RANGE_OPTIONS.length - 1;
+          break;
 
-          default:
-            return;
-        }
-
-        if (nextIndex !== null) {
-          onChange(TIME_RANGE_OPTIONS[nextIndex].value);
-        }
-      },
-      [onChange]
-    );
-
-    /**
-     * Focus management - ensure selected option is focusable
-     */
-    useEffect(() => {
-      if (!groupRef.current) return;
-
-      const selectedButton = groupRef.current.querySelector(
-        `[data-value="${value}"]`
-      ) as HTMLButtonElement;
-
-      if (selectedButton && document.activeElement !== selectedButton) {
-        // Update tabIndex for roving tabindex pattern
-        const allButtons = groupRef.current.querySelectorAll('button');
-        allButtons.forEach((btn) => {
-          btn.setAttribute('tabindex', btn === selectedButton ? '0' : '-1');
-        });
+        default:
+          return;
       }
-    }, [value]);
 
-    return (
-      <div
-        ref={groupRef}
-        role="radiogroup"
-        aria-label="Select time range for bandwidth graph"
-        className={cn(
-          'inline-flex items-center gap-component-sm rounded-card-lg bg-muted p-component-sm',
-          className
-        )}
-      >
-        {TIME_RANGE_OPTIONS.map((option) => {
-          const isSelected = value === option.value;
+      if (nextIndex !== null) {
+        onChange(TIME_RANGE_OPTIONS[nextIndex].value);
+      }
+    },
+    [onChange]
+  );
 
-          return (
-            <button
-              key={option.value}
-              role="radio"
-              aria-checked={isSelected}
-              aria-label={`${option.label} - ${option.description}`}
-              data-value={option.value}
-              tabIndex={isSelected ? 0 : -1}
-              onClick={() => onChange(option.value)}
-              onKeyDown={(e) => handleKeyDown(e, option.value)}
-              className={cn(
-                // Base styles
-                'relative rounded-card-sm px-component-md py-component-sm text-sm font-medium transition-all',
-                // Minimum 44px height for touch targets (WCAG AAA)
-                'min-h-[44px]',
-                // Focus styles (3px ring)
-                'focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring focus-visible:ring-offset-2',
-                // Selected state
-                isSelected
-                  ? 'bg-background text-foreground shadow-sm'
-                  : 'text-muted-foreground hover:text-foreground',
-                // Interactive states
-                'active:scale-95',
-                // Accessibility - ensure 7:1 contrast ratio
-                'contrast-more:border contrast-more:border-foreground'
-              )}
-            >
-              {option.label}
-            </button>
-          );
-        })}
-      </div>
-    );
-  }
-);
+  /**
+   * Focus management - ensure selected option is focusable
+   */
+  useEffect(() => {
+    if (!groupRef.current) return;
+
+    const selectedButton = groupRef.current.querySelector(
+      `[data-value="${value}"]`
+    ) as HTMLButtonElement;
+
+    if (selectedButton && document.activeElement !== selectedButton) {
+      // Update tabIndex for roving tabindex pattern
+      const allButtons = groupRef.current.querySelectorAll('button');
+      allButtons.forEach((btn) => {
+        btn.setAttribute('tabindex', btn === selectedButton ? '0' : '-1');
+      });
+    }
+  }, [value]);
+
+  return (
+    <div
+      ref={groupRef}
+      role="radiogroup"
+      aria-label="Select time range for bandwidth graph"
+      className={cn(
+        'gap-component-sm rounded-card-lg bg-muted p-component-sm inline-flex items-center',
+        className
+      )}
+    >
+      {TIME_RANGE_OPTIONS.map((option) => {
+        const isSelected = value === option.value;
+
+        return (
+          <button
+            key={option.value}
+            role="radio"
+            aria-checked={isSelected}
+            aria-label={`${option.label} - ${option.description}`}
+            data-value={option.value}
+            tabIndex={isSelected ? 0 : -1}
+            onClick={() => onChange(option.value)}
+            onKeyDown={(e) => handleKeyDown(e, option.value)}
+            className={cn(
+              // Base styles
+              'rounded-card-sm px-component-md py-component-sm relative text-sm font-medium transition-all',
+              // Minimum 44px height for touch targets (WCAG AAA)
+              'min-h-[44px]',
+              // Focus styles (3px ring)
+              'focus-visible:ring-3 focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-offset-2',
+              // Selected state
+              isSelected ?
+                'bg-background text-foreground shadow-sm'
+              : 'text-muted-foreground hover:text-foreground',
+              // Interactive states
+              'active:scale-95',
+              // Accessibility - ensure 7:1 contrast ratio
+              'contrast-more:border-foreground contrast-more:border'
+            )}
+          >
+            {option.label}
+          </button>
+        );
+      })}
+    </div>
+  );
+});
 
 TimeRangeSelector.displayName = 'TimeRangeSelector';

@@ -99,7 +99,7 @@ const InsertionLineInner: React.FC<InsertionLineProps> = ({ visible, className }
           className={cn(
             'h-1 w-full',
             'bg-primary/5',
-            'border-2 border-dashed border-primary/30',
+            'border-primary/30 border-2 border-dashed',
             'rounded-[var(--semantic-radius-card)]',
             'my-1',
             className
@@ -107,8 +107,8 @@ const InsertionLineInner: React.FC<InsertionLineProps> = ({ visible, className }
           aria-hidden="true"
         >
           {/* Indicator dots on ends */}
-          <div className="absolute -left-1 top-1/2 -translate-y-1/2 h-2 w-2 rounded-full bg-primary/50" />
-          <div className="absolute -right-1 top-1/2 -translate-y-1/2 h-2 w-2 rounded-full bg-primary/50" />
+          <div className="bg-primary/50 absolute -left-1 top-1/2 h-2 w-2 -translate-y-1/2 rounded-full" />
+          <div className="bg-primary/50 absolute -right-1 top-1/2 h-2 w-2 -translate-y-1/2 rounded-full" />
         </motion.div>
       )}
     </AnimatePresence>

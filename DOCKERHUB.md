@@ -2,7 +2,8 @@
 
 **Enterprise-Grade MikroTik Router Management Platform**
 
-A modern, powerful web interface for managing MikroTik RouterOS devices. Built with React + Go, deployable anywhere — including directly on your MikroTik router.
+A modern, powerful web interface for managing MikroTik RouterOS devices. Built with React + Go,
+deployable anywhere — including directly on your MikroTik router.
 
 [![GitHub](https://img.shields.io/badge/GitHub-Source-181717?logo=github)](https://github.com/joinnasnet/nasnet)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
@@ -24,11 +25,11 @@ A modern, powerful web interface for managing MikroTik RouterOS devices. Built w
 
 ## Supported Architectures
 
-| Architecture | Tag |
-|--------------|-----|
-| x86-64 | `amd64` |
-| ARM64 | `arm64` |
-| ARMv7 | `arm` |
+| Architecture | Tag     |
+| ------------ | ------- |
+| x86-64       | `amd64` |
+| ARM64        | `arm64` |
+| ARMv7        | `arm`   |
 
 Multi-arch images are automatically selected based on your platform.
 
@@ -47,12 +48,13 @@ docker run -d \
   joinnasnet/nnc:latest
 ```
 
-> **Note:** `--network=host` is recommended for the container to communicate with RouterOS devices on your local network.
+> **Note:** `--network=host` is recommended for the container to communicate with RouterOS devices
+> on your local network.
 
 ### Docker Compose
 
 ```yaml
-version: "3.8"
+version: '3.8'
 services:
   nasnet:
     image: joinnasnet/nnc:latest
@@ -82,11 +84,11 @@ Access at `http://localhost:8080`
 
 ## Environment Variables
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `PORT` | `80` | HTTP server port |
-| `GOMAXPROCS` | `1` | Max OS threads |
-| `GO_ENV` | `production` | Environment mode |
+| Variable     | Default      | Description      |
+| ------------ | ------------ | ---------------- |
+| `PORT`       | `80`         | HTTP server port |
+| `GOMAXPROCS` | `1`          | Max OS threads   |
+| `GO_ENV`     | `production` | Environment mode |
 
 ---
 
@@ -139,6 +141,7 @@ curl http://localhost/health
 ```
 
 Response:
+
 ```json
 {
   "status": "healthy",
@@ -162,14 +165,14 @@ Response:
 
 ## API Endpoints
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/health` | GET | Server health status |
-| `/api/router/proxy` | POST | Proxy to RouterOS API |
-| `/api/scan` | POST | Start network scan |
-| `/api/scan/status` | GET | Scan progress |
-| `/api/batch/jobs` | POST | Create batch job |
-| `/api/batch/jobs/{id}` | GET | Job status |
+| Endpoint               | Method | Description           |
+| ---------------------- | ------ | --------------------- |
+| `/health`              | GET    | Server health status  |
+| `/api/router/proxy`    | POST   | Proxy to RouterOS API |
+| `/api/scan`            | POST   | Start network scan    |
+| `/api/scan/status`     | GET    | Scan progress         |
+| `/api/batch/jobs`      | POST   | Create batch job      |
+| `/api/batch/jobs/{id}` | GET    | Job status            |
 
 ---
 

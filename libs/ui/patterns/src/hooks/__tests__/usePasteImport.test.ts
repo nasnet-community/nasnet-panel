@@ -84,7 +84,9 @@ describe('usePasteImport', () => {
 
       let parseResult: ReturnType<typeof result.current.parseContent> | undefined;
       act(() => {
-        parseResult = result.current.parseContent('name,ip,mac\nLaptop,192.168.1.1,00:11:22:33:44:55');
+        parseResult = result.current.parseContent(
+          'name,ip,mac\nLaptop,192.168.1.1,00:11:22:33:44:55'
+        );
       });
 
       expect(parseResult!.success).toBe(true);
@@ -117,7 +119,9 @@ describe('usePasteImport', () => {
 
       let parseResult: ReturnType<typeof result.current.parseContent> | undefined;
       act(() => {
-        parseResult = result.current.parseContent('name,ip,mac\nLaptop,192.168.1.1,00:11:22:33:44:55');
+        parseResult = result.current.parseContent(
+          'name,ip,mac\nLaptop,192.168.1.1,00:11:22:33:44:55'
+        );
       });
 
       expect(parseResult!.errors[0].message).toContain('Missing columns: status');
@@ -142,7 +146,9 @@ describe('usePasteImport', () => {
 
       let parseResult: ReturnType<typeof result.current.parseContent> | undefined;
       act(() => {
-        parseResult = result.current.parseContent('/ip firewall filter add chain=forward action=accept');
+        parseResult = result.current.parseContent(
+          '/ip firewall filter add chain=forward action=accept'
+        );
       });
 
       expect(parseResult!.success).toBe(true);
@@ -155,7 +161,9 @@ describe('usePasteImport', () => {
 
       let parseResult: ReturnType<typeof result.current.parseContent> | undefined;
       act(() => {
-        parseResult = result.current.parseContent('/ip firewall filter add \\\nchain=forward action=accept');
+        parseResult = result.current.parseContent(
+          '/ip firewall filter add \\\nchain=forward action=accept'
+        );
       });
 
       expect(parseResult!.success).toBe(true);
@@ -287,7 +295,9 @@ describe('usePasteImport', () => {
 
       let parseResult: ReturnType<typeof result.current.parseContent> | undefined;
       act(() => {
-        parseResult = result.current.parseContent('192.168.1.1\n192.168.1.2\n192.168.1.3\n192.168.1.4');
+        parseResult = result.current.parseContent(
+          '192.168.1.1\n192.168.1.2\n192.168.1.3\n192.168.1.4'
+        );
       });
 
       expect(parseResult!.items).toHaveLength(2);

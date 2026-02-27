@@ -23,10 +23,7 @@ export const wirelessKeys = {
  * Maps RouterOS API response to WirelessInterface type
  */
 async function fetchWirelessInterfaces(routerIp: string): Promise<WirelessInterface[]> {
-  const result = await makeRouterOSRequest<WirelessInterface[]>(
-    routerIp,
-    'interface/wifi'
-  );
+  const result = await makeRouterOSRequest<WirelessInterface[]>(routerIp, 'interface/wifi');
 
   if (!result.success || !result.data) {
     throw new Error(result.error || 'Failed to fetch wireless interfaces');
@@ -44,17 +41,17 @@ async function fetchWirelessInterfaces(routerIp: string): Promise<WirelessInterf
     band: determineBand(
       typeof iface.frequency === 'string' ? parseInt(iface.frequency) : iface.frequency || 0
     ),
-    frequency: 
+    frequency:
       typeof iface.frequency === 'string' ? parseInt(iface.frequency) : iface.frequency || 0,
     channel: iface.channel || '',
     mode: iface.mode || 'ap-bridge',
-    txPower: 
+    txPower:
       typeof iface['tx-power'] === 'string' ? parseInt(iface['tx-power']) : iface.txPower || 0,
     securityProfile: iface['security-profile'] || iface.securityProfile || 'default',
-    connectedClients: 
-      typeof iface['registered-clients'] === 'string' 
-        ? parseInt(iface['registered-clients']) 
-        : iface.connectedClients || 0,
+    connectedClients:
+      typeof iface['registered-clients'] === 'string' ?
+        parseInt(iface['registered-clients'])
+      : iface.connectedClients || 0,
     countryCode: iface.country || iface.countryCode,
   }));
 }
@@ -62,9 +59,7 @@ async function fetchWirelessInterfaces(routerIp: string): Promise<WirelessInterf
 /**
  * Helper to determine frequency band from MHz value
  */
-function determineBand(
-  frequencyMHz: number
-): '2.4GHz' | '5GHz' | '6GHz' | 'Unknown' {
+function determineBand(frequencyMHz: number): '2.4GHz' | '5GHz' | '6GHz' | 'Unknown' {
   if (frequencyMHz >= 2400 && frequencyMHz < 2500) return '2.4GHz';
   if (frequencyMHz >= 5000 && frequencyMHz < 6000) return '5GHz';
   if (frequencyMHz >= 6000 && frequencyMHz < 7000) return '6GHz';

@@ -2,9 +2,15 @@
 
 ## Overview
 
-Process isolation ensures that each service instance (Tor, sing-box, Xray, etc.) operates within a strictly bounded environment: a specific VLAN IP address, a sandboxed directory with correct permissions, and non-conflicting ports. The system enforces these constraints through a **four-layer pre-start verification pipeline** (`IsolationVerifier`) that runs before any process is started or restarted.
+Process isolation ensures that each service instance (Tor, sing-box, Xray, etc.) operates within a
+strictly bounded environment: a specific VLAN IP address, a sandboxed directory with correct
+permissions, and non-conflicting ports. The system enforces these constraints through a **four-layer
+pre-start verification pipeline** (`IsolationVerifier`) that runs before any process is started or
+restarted.
 
-In addition, this document covers the HTTP server that hosts the frontend and API (`server.go`/`static.go`), health probe types used by the orchestrator and container healthcheck, and the authentication + request-ID middleware applied to every API request.
+In addition, this document covers the HTTP server that hosts the frontend and API
+(`server.go`/`static.go`), health probe types used by the orchestrator and container healthcheck,
+and the authentication + request-ID middleware applied to every API request.
 
 ## Architecture
 
@@ -143,41 +149,55 @@ type IsolationViolation struct {
 
 **Layer 1 — IP Binding (`verifyIPBinding`)**
 
-Calls `ConfigBindingValidatorPort.ValidateBinding(instanceID, bindIP)` if the port is configured. Falls back to calling `cfglib.ValidateBindIP(bindIP)` directly. Rejects `""`, `0.0.0.0`, `::`, and all loopback addresses.
+Calls `ConfigBindingValidatorPort.ValidateBinding(instanceID, bindIP)` if the port is configured.
+Falls back to calling `cfglib.ValidateBindIP(bindIP)` directly. Rejects `""`, `0.0.0.0`, `::`, and
+all loopback addresses.
 
 **Layer 2 — Directory (`verifyDirectory`)**
 
 Sequence of checks applied to `workDir`:
+
 1. `os.Stat(workDir)` — directory must exist
 2. `stat.Mode() & 0777 != 0750` — must be exactly `0750`; `0755`/`0777`/`0700` are violations
 3. `filepath.EvalSymlinks(workDir)` — resolves any symlinks
-4. `strings.HasPrefix(resolved, allowedBaseDir)` — must be under `/data/services` (or configured base); symlink escapes are caught here
+4. `strings.HasPrefix(resolved, allowedBaseDir)` — must be under `/data/services` (or configured
+   base); symlink escapes are caught here
 
 **Layer 3 — Ports (`verifyPorts`)**
 
 For each port in `allocatedPorts`:
+
 ```go
 allocated, err := v.portRegistry.IsPortAllocated(ctx, instanceID, port)
 // allocated == false → violation: port not in registry
 ```
-Ensures all ports the instance expects to use were legitimately allocated via the PortRegistry before the process starts. Ports that aren't registered are flagged as `PORT_NOT_ALLOCATED`.
+
+Ensures all ports the instance expects to use were legitimately allocated via the PortRegistry
+before the process starts. Ports that aren't registered are flagged as `PORT_NOT_ALLOCATED`.
 
 **Layer 4 — Process Binding (`verifyProcessBinding`)**
 
-Checks `/proc/net/tcp` on Linux to detect if another process is already listening on the same port. This layer emits **warnings only** — it never causes a hard violation. This is intentional: on some platforms (Windows), the check is a no-op, and race conditions between check and bind are acceptable given the port-registry lock provides the primary guard.
+Checks `/proc/net/tcp` on Linux to detect if another process is already listening on the same port.
+This layer emits **warnings only** — it never causes a hard violation. This is intentional: on some
+platforms (Windows), the check is a no-op, and race conditions between check and bind are acceptable
+given the port-registry lock provides the primary guard.
 
 **Event emission:**
 
-When `HasViolations()` is true after all layers, `emitIsolationViolationEvent` publishes a structured event to the `EventBus` containing the instance ID, bind IP, and violation details.
+When `HasViolations()` is true after all layers, `emitIsolationViolationEvent` publishes a
+structured event to the `EventBus` containing the instance ID, bind IP, and violation details.
 
 **Test coverage highlights:**
 
-- Layer 1: empty bind IP → violation; valid VLAN IP → passes; `ConfigBindingValidator` called when configured
-- Layer 2: missing binary dir → violation; workDir outside allowedBaseDir → violation; `0755` permissions → violation (`DIRECTORY_PERM_INSECURE`); `0750` → passes
+- Layer 1: empty bind IP → violation; valid VLAN IP → passes; `ConfigBindingValidator` called when
+  configured
+- Layer 2: missing binary dir → violation; workDir outside allowedBaseDir → violation; `0755`
+  permissions → violation (`DIRECTORY_PERM_INSECURE`); `0750` → passes
 - Layer 2: symlink pointing outside allowedBaseDir → violation (symlink escape)
 - Layer 3: port not in registry → violation; port properly allocated → passes
 - Layer 4: warning only, no blocking failure regardless of binding state
-- Cross-instance access: known limitation (one instance cannot be isolated from another instance's dir — controlled by OS user/group, not this verifier)
+- Cross-instance access: known limitation (one instance cannot be isolated from another instance's
+  dir — controlled by OS user/group, not this verifier)
 
 ### `internal/server` — HTTP Server
 
@@ -203,6 +223,7 @@ func PerformHealthCheck(port int)
 ```
 
 The graceful shutdown sequence:
+
 ```
 SIGINT/SIGTERM received
     │
@@ -218,11 +239,16 @@ func NewFrontendHandler(fs embed.FS) echo.HandlerFunc
 ```
 
 Request processing:
-1. **Route skipping:** If path starts with `/api/`, `/graphql`, or `/health` — return `next(c)` (let Echo route it).
+
+1. **Route skipping:** If path starts with `/api/`, `/graphql`, or `/health` — return `next(c)` (let
+   Echo route it).
 2. **Path normalization:** `path.Clean(urlPath)`, strip leading `/`, reject `..` components.
 3. **Traversal guard:** Constructed file path must stay within the FS root.
-4. **Pre-compressed serving:** For `.js` and `.css` files, if `Accept-Encoding` contains `gzip` and a `.gz` sibling exists in the FS, serve the `.gz` file with `Content-Encoding: gzip` and correct MIME type.
-5. **SPA fallback:** If the requested file doesn't exist → serve `index.html` with `Content-Type: text/html`.
+4. **Pre-compressed serving:** For `.js` and `.css` files, if `Accept-Encoding` contains `gzip` and
+   a `.gz` sibling exists in the FS, serve the `.gz` file with `Content-Encoding: gzip` and correct
+   MIME type.
+5. **SPA fallback:** If the requested file doesn't exist → serve `index.html` with
+   `Content-Type: text/html`.
 6. **Cache headers:**
    - Path contains `assets/` → `Cache-Control: public, max-age=31536000, immutable`
    - File is `index.html` → `Cache-Control: no-cache`
@@ -230,15 +256,15 @@ Request processing:
 
 MIME type mapping (subset):
 
-| Extension | MIME |
-|---|---|
-| `.js` | `application/javascript` |
-| `.css` | `text/css` |
-| `.json` | `application/json` |
-| `.png` | `image/png` |
-| `.svg` | `image/svg+xml` |
-| `.woff2` | `font/woff2` |
-| (default) | `text/html` |
+| Extension | MIME                     |
+| --------- | ------------------------ |
+| `.js`     | `application/javascript` |
+| `.css`    | `text/css`               |
+| `.json`   | `application/json`       |
+| `.png`    | `image/png`              |
+| `.svg`    | `image/svg+xml`          |
+| `.woff2`  | `font/woff2`             |
+| (default) | `text/html`              |
 
 ### `internal/common/health` — Health Probes
 
@@ -261,7 +287,8 @@ func (p *TCPProbe) Check(ctx context.Context) error  // net.Dialer.DialContext
 func (p *TCPProbe) Name() string
 ```
 
-Dials the target address. Returns nil on successful TCP connection. Used by the orchestrator to verify a service's listener is up before marking it healthy.
+Dials the target address. Returns nil on successful TCP connection. Used by the orchestrator to
+verify a service's listener is up before marking it healthy.
 
 **`HTTPProbe`**
 
@@ -275,7 +302,8 @@ func (p *HTTPProbe) Check(ctx context.Context) error
 func (p *HTTPProbe) Name() string
 ```
 
-Issues an HTTP GET and checks the response status. Returns an error if the status doesn't match `ExpectedStatus` (or is non-2xx when `ExpectedStatus == 0`).
+Issues an HTTP GET and checks the response status. Returns an error if the status doesn't match
+`ExpectedStatus` (or is non-2xx when `ExpectedStatus == 0`).
 
 **`ProcessProbe`**
 
@@ -291,7 +319,9 @@ func (p *ProcessProbe) GetPID() int
 func (p *ProcessProbe) Name() string
 ```
 
-On Linux/macOS: sends `signal(0)` to the PID — succeeds if process is alive, returns error otherwise. On Windows: `os.FindProcess` is trusted directly (Windows always returns non-nil). `UpdatePID` is called by the supervisor when a process is (re)started.
+On Linux/macOS: sends `signal(0)` to the PID — succeeds if process is alive, returns error
+otherwise. On Windows: `os.FindProcess` is trusted directly (Windows always returns non-nil).
+`UpdatePID` is called by the supervisor when a process is (re)started.
 
 **`CompositeProbe`**
 
@@ -304,7 +334,8 @@ func (p *CompositeProbe) Check(ctx context.Context) error  // all probes must pa
 func (p *CompositeProbe) Name() string
 ```
 
-Runs all constituent probes. Returns the first error encountered. Used for services that have both a TCP listener and an HTTP health endpoint.
+Runs all constituent probes. Returns the first error encountered. Used for services that have both a
+TCP listener and an HTTP health endpoint.
 
 ### `internal/middleware` — Request Processing
 
@@ -337,7 +368,9 @@ Authentication attempt order (first success wins):
 2. **JWT Cookie:** `access_token` cookie → `JWTService.ValidateToken`
 3. **API Key:** `X-API-Key` header → `APIKeyService.ValidateKey`
 
-On successful JWT authentication, `handleTokenRefresh` checks `JWTService.ShouldRefresh(claims)`. If true: calls `RefreshToken` and sets the new `access_token` cookie on the response, then invokes a configured refresh callback (for event publishing).
+On successful JWT authentication, `handleTokenRefresh` checks `JWTService.ShouldRefresh(claims)`. If
+true: calls `RefreshToken` and sets the new `access_token` cookie on the response, then invokes a
+configured refresh callback (for event publishing).
 
 **Context helper functions (for downstream handlers):**
 
@@ -377,6 +410,7 @@ func ChainMiddleware(middlewares ...echo.MiddlewareFunc) echo.MiddlewareFunc
 ```
 
 Request ID logic:
+
 1. Read `X-Request-ID` from incoming request headers
 2. If absent or empty: generate new ULID (`ulid.NewString()` with monotonic entropy under mutex)
 3. Set `X-Request-ID` on response

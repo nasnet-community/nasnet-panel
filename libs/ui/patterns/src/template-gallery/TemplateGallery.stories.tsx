@@ -6,7 +6,6 @@
 
 import { useState } from 'react';
 
-
 import { TemplateGallery } from './TemplateGallery';
 import { useTemplateGallery } from './use-template-gallery';
 import {
@@ -68,7 +67,10 @@ export const Loading: Story = {
 
     return (
       <div className="h-screen">
-        <TemplateGallery gallery={gallery} loading={true} />
+        <TemplateGallery
+          gallery={gallery}
+          loading={true}
+        />
       </div>
     );
   },
@@ -294,7 +296,7 @@ export const MobileView: Story = {
     });
 
     return (
-      <div className="h-screen max-w-[375px] mx-auto border-x">
+      <div className="mx-auto h-screen max-w-[375px] border-x">
         <TemplateGallery
           gallery={gallery}
           onApplyTemplate={(template) => console.log('Apply:', template.name)}

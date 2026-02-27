@@ -10,24 +10,24 @@ import type { LogEntry, LogTopic, LogSeverity } from '@nasnet/core/types';
  * Options for useSystemLogs hook
  */
 export interface UseSystemLogsOptions {
-    /**
-     * Filter by specific topics (empty = all topics)
-     */
-    topics?: LogTopic[];
-    /**
-     * Filter by specific severities (empty = all severities)
-     */
-    severities?: LogSeverity[];
-    /**
-     * Maximum number of log entries to fetch
-     * @default 100
-     */
-    limit?: number;
-    /**
-     * Auto-refresh interval in milliseconds
-     * @default undefined (no auto-refresh for Story 0.8.1)
-     */
-    refetchInterval?: number;
+  /**
+   * Filter by specific topics (empty = all topics)
+   */
+  topics?: LogTopic[];
+  /**
+   * Filter by specific severities (empty = all severities)
+   */
+  severities?: LogSeverity[];
+  /**
+   * Maximum number of log entries to fetch
+   * @default 100
+   */
+  limit?: number;
+  /**
+   * Auto-refresh interval in milliseconds
+   * @default undefined (no auto-refresh for Story 0.8.1)
+   */
+  refetchInterval?: number;
 }
 /**
  * React Query hook for system logs
@@ -49,5 +49,8 @@ export interface UseSystemLogsOptions {
  * }
  * ```
  */
-export declare function useSystemLogs(routerIp: string, options?: UseSystemLogsOptions): UseQueryResult<LogEntry[], Error>;
+export declare function useSystemLogs(
+  routerIp: string,
+  options?: UseSystemLogsOptions
+): UseQueryResult<LogEntry[], Error>;
 //# sourceMappingURL=useSystemLogs.d.ts.map

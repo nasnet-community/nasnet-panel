@@ -119,7 +119,9 @@ export function useDeleteVlan(routerId: string) {
     update(cache, { data: mutationData }) {
       if (mutationData?.deleteVlan?.success) {
         // Remove deleted VLAN from cache
-        cache.evict({ id: cache.identify({ __typename: 'Vlan', id: mutationData.deleteVlan.deletedId }) });
+        cache.evict({
+          id: cache.identify({ __typename: 'Vlan', id: mutationData.deleteVlan.deletedId }),
+        });
         cache.gc(); // Garbage collect orphaned objects
       }
     },

@@ -12,8 +12,14 @@
 export { ConfidenceIndicator } from './confidence-indicator';
 
 // Platform presenters
-export { ConfidenceIndicatorDesktop, ConfidenceIndicatorDesktopExtended } from './confidence-indicator-desktop';
-export { ConfidenceIndicatorMobile, ConfidenceIndicatorMobileCompact } from './confidence-indicator-mobile';
+export {
+  ConfidenceIndicatorDesktop,
+  ConfidenceIndicatorDesktopExtended,
+} from './confidence-indicator-desktop';
+export {
+  ConfidenceIndicatorMobile,
+  ConfidenceIndicatorMobileCompact,
+} from './confidence-indicator-mobile';
 
 // Base components
 export {

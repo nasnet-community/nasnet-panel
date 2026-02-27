@@ -46,10 +46,7 @@ function transformIPsecActive(raw: IPsecActiveRaw): IPsecActiveConnection {
  * Fetch IPsec active connections from RouterOS
  */
 async function fetchIPsecActive(routerIp: string): Promise<IPsecActiveConnection[]> {
-  const result = await makeRouterOSRequest<IPsecActiveRaw[]>(
-    routerIp,
-    'ip/ipsec/active-peers'
-  );
+  const result = await makeRouterOSRequest<IPsecActiveRaw[]>(routerIp, 'ip/ipsec/active-peers');
 
   if (!result.success || !result.data) {
     throw new Error(result.error || 'Failed to fetch IPsec active connections');
@@ -76,4 +73,3 @@ export function useIPsecActive(routerIp: string): UseQueryResult<IPsecActiveConn
     enabled: !!routerIp,
   });
 }
-

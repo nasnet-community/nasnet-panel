@@ -74,9 +74,7 @@ describe('useStepper navigation', () => {
   });
 
   it('should initialize at custom initial step', () => {
-    const { result } = renderHook(() =>
-      useStepper(createConfig(basicSteps, { initialStep: 1 }))
-    );
+    const { result } = renderHook(() => useStepper(createConfig(basicSteps, { initialStep: 1 })));
 
     expect(result.current.currentIndex).toBe(1);
     expect(result.current.currentStep.id).toBe('step2');
@@ -96,9 +94,7 @@ describe('useStepper navigation', () => {
   });
 
   it('should go back on prev()', () => {
-    const { result } = renderHook(() =>
-      useStepper(createConfig(basicSteps, { initialStep: 1 }))
-    );
+    const { result } = renderHook(() => useStepper(createConfig(basicSteps, { initialStep: 1 })));
 
     act(() => {
       result.current.prev();
@@ -135,9 +131,7 @@ describe('useStepper navigation', () => {
 
   it('should call onStepChange when navigating', async () => {
     const onStepChange = vi.fn();
-    const { result } = renderHook(() =>
-      useStepper(createConfig(basicSteps, { onStepChange }))
-    );
+    const { result } = renderHook(() => useStepper(createConfig(basicSteps, { onStepChange })));
 
     await act(async () => {
       await result.current.next();
@@ -325,9 +319,7 @@ describe('useStepper state preservation', () => {
 describe('useStepper completion', () => {
   it('should call onComplete when finishing last step', async () => {
     const onComplete = vi.fn();
-    const { result } = renderHook(() =>
-      useStepper(createConfig(basicSteps, { onComplete }))
-    );
+    const { result } = renderHook(() => useStepper(createConfig(basicSteps, { onComplete })));
 
     // Navigate through all steps
     await act(async () => {
@@ -346,9 +338,7 @@ describe('useStepper completion', () => {
 
   it('should pass all step data to onComplete', async () => {
     const onComplete = vi.fn();
-    const { result } = renderHook(() =>
-      useStepper(createConfig(basicSteps, { onComplete }))
-    );
+    const { result } = renderHook(() => useStepper(createConfig(basicSteps, { onComplete })));
 
     // Set data on first step
     act(() => {
@@ -578,9 +568,7 @@ describe('useStepper edge cases', () => {
   it('should handle single step wizard', async () => {
     const onComplete = vi.fn();
     const steps = [createStep('only', 'Only Step')];
-    const { result } = renderHook(() =>
-      useStepper(createConfig(steps, { onComplete }))
-    );
+    const { result } = renderHook(() => useStepper(createConfig(steps, { onComplete })));
 
     expect(result.current.isFirst).toBe(true);
     expect(result.current.isLast).toBe(true);

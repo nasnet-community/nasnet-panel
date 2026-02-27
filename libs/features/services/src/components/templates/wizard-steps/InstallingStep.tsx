@@ -32,7 +32,7 @@ function getStatusIcon(status: 'pending' | 'installing' | 'completed' | 'failed'
       return (
         <Icon
           icon={CheckCircle2}
-          className="h-5 w-5 text-success"
+          className="text-success h-5 w-5"
           aria-hidden="true"
         />
       );
@@ -40,7 +40,7 @@ function getStatusIcon(status: 'pending' | 'installing' | 'completed' | 'failed'
       return (
         <Icon
           icon={XCircle}
-          className="h-5 w-5 text-error"
+          className="text-error h-5 w-5"
           aria-hidden="true"
         />
       );
@@ -48,7 +48,7 @@ function getStatusIcon(status: 'pending' | 'installing' | 'completed' | 'failed'
       return (
         <Icon
           icon={Loader2}
-          className="h-5 w-5 text-primary animate-spin"
+          className="text-primary h-5 w-5 animate-spin"
           aria-hidden="true"
         />
       );
@@ -56,7 +56,7 @@ function getStatusIcon(status: 'pending' | 'installing' | 'completed' | 'failed'
       return (
         <Icon
           icon={Circle}
-          className="h-5 w-5 text-muted-foreground"
+          className="text-muted-foreground h-5 w-5"
           aria-hidden="true"
         />
       );
@@ -99,8 +99,8 @@ export const InstallingStep = React.memo(function InstallingStep({
         description: 'Please wait while we install your services...',
       };
     }
-    return isSuccess
-      ? {
+    return isSuccess ?
+        {
           title: 'Installation Complete',
           description: 'Your services have been installed successfully',
         }
@@ -114,9 +114,7 @@ export const InstallingStep = React.memo(function InstallingStep({
     <div className={cn('space-y-component-lg', className)}>
       <div>
         <h2 className="text-lg font-semibold">{statusMessage.title}</h2>
-        <p className="text-sm text-muted-foreground mt-component-sm">
-          {statusMessage.description}
-        </p>
+        <p className="text-muted-foreground mt-component-sm text-sm">{statusMessage.description}</p>
       </div>
 
       {/* Overall Progress */}
@@ -124,15 +122,16 @@ export const InstallingStep = React.memo(function InstallingStep({
         <CardContent className="pt-component-lg">
           <div className="space-y-component-md">
             <div className="flex items-center justify-between text-sm">
-              <span className="font-medium">
-                {progress?.currentService || 'Preparing...'}
-              </span>
+              <span className="font-medium">{progress?.currentService || 'Preparing...'}</span>
               <span className="text-muted-foreground">
                 {progress ? `${progress.current} / ${progress.total}` : '0 / 0'}
               </span>
             </div>
-            <Progress value={progressPercent} className="h-2" />
-            <div className="flex items-center justify-between text-xs text-muted-foreground">
+            <Progress
+              value={progressPercent}
+              className="h-2"
+            />
+            <div className="text-muted-foreground flex items-center justify-between text-xs">
               <span>Progress</span>
               <span>{progressPercent}%</span>
             </div>
@@ -145,27 +144,26 @@ export const InstallingStep = React.memo(function InstallingStep({
         <Card>
           <CardContent className="pt-component-lg">
             <div className="space-y-component-lg">
-              <h3 className="font-medium text-sm">Installation Phase</h3>
+              <h3 className="text-sm font-medium">Installation Phase</h3>
               <div className="space-y-component-md">
                 {['PENDING', 'IN_PROGRESS', 'COMPLETED'].map((phase) => {
                   const isCurrent = progress.phase === phase;
-                  const isPast =
-                    progress.phase === 'COMPLETED' && phase !== 'COMPLETED';
-                  const status = isCurrent
-                    ? 'installing'
-                    : isPast
-                      ? 'completed'
-                      : 'pending';
+                  const isPast = progress.phase === 'COMPLETED' && phase !== 'COMPLETED';
+                  const status =
+                    isCurrent ? 'installing'
+                    : isPast ? 'completed'
+                    : 'pending';
 
                   return (
-                    <div key={phase} className="flex items-center gap-component-md">
+                    <div
+                      key={phase}
+                      className="gap-component-md flex items-center"
+                    >
                       {getStatusIcon(status)}
                       <span
                         className={cn(
                           'text-sm',
-                          isCurrent
-                            ? 'font-medium text-foreground'
-                            : 'text-muted-foreground'
+                          isCurrent ? 'text-foreground font-medium' : 'text-muted-foreground'
                         )}
                       >
                         {phase.replace('_', ' ')}
@@ -181,35 +179,28 @@ export const InstallingStep = React.memo(function InstallingStep({
 
       {/* Installation Result */}
       {isComplete && (
-        <Card
-          className={cn(
-            'border',
-            isSuccess ? 'border-success' : 'border-error'
-          )}
-        >
+        <Card className={cn('border', isSuccess ? 'border-success' : 'border-error')}>
           <CardContent className="pt-component-lg">
             <div className="space-y-component-md">
-              {isSuccess ? (
+              {isSuccess ?
                 <>
-                  <div className="flex items-center gap-component-sm text-success">
+                  <div className="gap-component-sm text-success flex items-center">
                     <Icon
                       icon={CheckCircle2}
                       className="h-5 w-5"
                       aria-hidden="true"
                     />
                     <span className="font-medium">
-                      Successfully installed {installResult.instanceIDs.length}{' '}
-                      service
+                      Successfully installed {installResult.instanceIDs.length} service
                       {installResult.instanceIDs.length !== 1 ? 's' : ''}
                     </span>
                   </div>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-muted-foreground text-sm">
                     Your services are now running and ready to use
                   </p>
                 </>
-              ) : (
-                <>
-                  <div className="flex items-center gap-component-sm text-error">
+              : <>
+                  <div className="gap-component-sm text-error flex items-center">
                     <Icon
                       icon={XCircle}
                       className="h-5 w-5"
@@ -218,14 +209,14 @@ export const InstallingStep = React.memo(function InstallingStep({
                     <span className="font-medium">Installation Failed</span>
                   </div>
                   {installResult.errors && installResult.errors.length > 0 && (
-                    <ul className="list-disc list-inside text-sm text-muted-foreground space-y-component-sm">
+                    <ul className="text-muted-foreground space-y-component-sm list-inside list-disc text-sm">
                       {installResult.errors.map((error, index) => (
                         <li key={index}>{error}</li>
                       ))}
                     </ul>
                   )}
                 </>
-              )}
+              }
             </div>
           </CardContent>
         </Card>

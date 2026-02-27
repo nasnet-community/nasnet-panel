@@ -21,19 +21,22 @@ import { z } from 'zod';
  * IPv4 address pattern
  * @description Matches IPv4 addresses (e.g., 192.168.1.1)
  */
-const IPV4_PATTERN = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+const IPV4_PATTERN =
+  /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
 
 /**
  * CIDR notation pattern
  * @description Matches CIDR notation (e.g., 192.168.1.0/24)
  */
-const CIDR_PATTERN = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\/(?:3[0-2]|[12]?[0-9])$/;
+const CIDR_PATTERN =
+  /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\/(?:3[0-2]|[12]?[0-9])$/;
 
 /**
  * IP range pattern
  * @description Matches IP ranges (e.g., 192.168.1.1-192.168.1.100)
  */
-const IP_RANGE_PATTERN = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)-(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+const IP_RANGE_PATTERN =
+  /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)-(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
 
 /**
  * Duration pattern for timeout
@@ -120,12 +123,16 @@ export const addressListEntrySchema = z.object({
     .string()
     .min(1, 'List name is required')
     .max(64, 'List name must be 64 characters or less')
-    .regex(LIST_NAME_PATTERN, 'List name can only contain letters, numbers, underscores, and hyphens'),
+    .regex(
+      LIST_NAME_PATTERN,
+      'List name can only contain letters, numbers, underscores, and hyphens'
+    ),
   address: z
     .string()
     .min(1, 'Address is required')
     .refine(validateIPOrCIDR, {
-      message: 'Must be a valid IPv4 address, CIDR notation (e.g., 192.168.1.0/24), or IP range (e.g., 192.168.1.1-192.168.1.100)'
+      message:
+        'Must be a valid IPv4 address, CIDR notation (e.g., 192.168.1.0/24), or IP range (e.g., 192.168.1.1-192.168.1.100)',
     })
     .refine(
       (val) => {
@@ -136,10 +143,14 @@ export const addressListEntrySchema = z.object({
         return true;
       },
       {
-        message: 'Invalid IP range - start address must be less than end address'
+        message: 'Invalid IP range - start address must be less than end address',
       }
     ),
-  comment: z.string().max(200, 'Comment must be 200 characters or less').optional().or(z.literal('')),
+  comment: z
+    .string()
+    .max(200, 'Comment must be 200 characters or less')
+    .optional()
+    .or(z.literal('')),
   timeout: z
     .string()
     .regex(DURATION_PATTERN, 'Timeout must be a valid duration (e.g., "1d", "12h", "30m")')
@@ -190,10 +201,4 @@ export {
 };
 
 // Also export with new naming convention for new code
-export {
-  IPV4_PATTERN,
-  CIDR_PATTERN,
-  IP_RANGE_PATTERN,
-  DURATION_PATTERN,
-  LIST_NAME_PATTERN,
-};
+export { IPV4_PATTERN, CIDR_PATTERN, IP_RANGE_PATTERN, DURATION_PATTERN, LIST_NAME_PATTERN };

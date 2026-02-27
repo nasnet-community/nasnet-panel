@@ -25,7 +25,6 @@ import { WifiDetailPage } from './WifiDetailPage';
 
 import type { Meta, StoryObj } from '@storybook/react';
 
-
 const meta: Meta<typeof WifiDetailPage> = {
   title: 'App/Pages/WifiDetailPage',
   component: WifiDetailPage,

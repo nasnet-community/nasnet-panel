@@ -1,8 +1,15 @@
 # Domain Query Hooks
 
-This document is a complete reference for the domain-specific query hooks in `libs/api-client/queries/src/`. It covers the common conventions that all domains share (router-IP/router-ID parameter, `*.graphql.ts` document files, `queryKeys` / `queryKey` factories), then provides a full inventory table across all domains with hook counts, followed by detailed per-domain sections.
+This document is a complete reference for the domain-specific query hooks in
+`libs/api-client/queries/src/`. It covers the common conventions that all domains share
+(router-IP/router-ID parameter, `*.graphql.ts` document files, `queryKeys` / `queryKey` factories),
+then provides a full inventory table across all domains with hook counts, followed by detailed
+per-domain sections.
 
-Related docs: [./intro.md](./intro.md), [./apollo-client.md](./apollo-client.md), [./universal-state-resource-model.md](./universal-state-resource-model.md), [./change-set-pattern.md](./change-set-pattern.md), [./service-lifecycle.md](./service-lifecycle.md).
+Related docs: [./intro.md](./intro.md), [./apollo-client.md](./apollo-client.md),
+[./universal-state-resource-model.md](./universal-state-resource-model.md),
+[./change-set-pattern.md](./change-set-pattern.md),
+[./service-lifecycle.md](./service-lifecycle.md).
 
 ---
 
@@ -36,20 +43,24 @@ Related docs: [./intro.md](./intro.md), [./apollo-client.md](./apollo-client.md)
 
 ### Router Identifier Parameter
 
-There are two distinct patterns depending on whether the hook talks to the RouterOS REST API via the `rosproxy` backend or to the NasNet GraphQL API:
+There are two distinct patterns depending on whether the hook talks to the RouterOS REST API via the
+`rosproxy` backend or to the NasNet GraphQL API:
 
-| Transport | Parameter name | Type | Example |
-|---|---|---|---|
-| `rosproxy` (REST) | `routerIp` | `string` | `'192.168.88.1'` |
-| GraphQL (Apollo) | `routerId` | `string` (ULID) | `'01H...'` |
+| Transport         | Parameter name | Type            | Example          |
+| ----------------- | -------------- | --------------- | ---------------- |
+| `rosproxy` (REST) | `routerIp`     | `string`        | `'192.168.88.1'` |
+| GraphQL (Apollo)  | `routerId`     | `string` (ULID) | `'01H...'`       |
 
-Hooks in the `router/` directory use `routerIp` with `makeRouterOSRequest`. Almost all other domains use `routerId` in GraphQL variables.
+Hooks in the `router/` directory use `routerIp` with `makeRouterOSRequest`. Almost all other domains
+use `routerId` in GraphQL variables.
 
-All hooks are `enabled: !!routerId` (or `skip: !routerId`) — they do nothing until a valid identifier is supplied.
+All hooks are `enabled: !!routerId` (or `skip: !routerId`) — they do nothing until a valid
+identifier is supplied.
 
 ### `*.graphql.ts` Document Files
 
-GraphQL operation documents are stored in `*.graphql.ts` files alongside the hook files. They use `gql` from `@apollo/client` and are exported as named constants:
+GraphQL operation documents are stored in `*.graphql.ts` files alongside the hook files. They use
+`gql` from `@apollo/client` and are exported as named constants:
 
 ```
 queries/src/services/services.graphql.ts    → GET_SERVICE_INSTANCES, INSTALL_SERVICE, …
@@ -57,7 +68,8 @@ queries/src/services/vlan.graphql.ts        → GET_VLAN_ALLOCATIONS, …
 queries/src/firewall/                        → inline gql in hook files
 ```
 
-The domain `index.ts` barrel re-exports both hooks and document constants so consumers can directly destructure the document if they need it for `refetchQueries` or manual cache writes.
+The domain `index.ts` barrel re-exports both hooks and document constants so consumers can directly
+destructure the document if they need it for `refetchQueries` or manual cache writes.
 
 ### queryKeys Factories
 
@@ -68,57 +80,60 @@ Domains that are REST-based (TanStack Query) export a `queryKeys` constant with 
 export const routerKeys = {
   all: ['router'] as const,
   resource: (routerIp: string) => [...routerKeys.all, 'resource', routerIp] as const,
-  info:     (routerIp: string) => [...routerKeys.all, 'info', routerIp] as const,
+  info: (routerIp: string) => [...routerKeys.all, 'info', routerIp] as const,
 };
 ```
 
-Apollo-based domains export similar keys but they are used for `refetchQueries` rather than TanStack Query invalidation:
+Apollo-based domains export similar keys but they are used for `refetchQueries` rather than TanStack
+Query invalidation:
 
 ```ts
 // queries/src/services/queryKeys.ts:8
 export const serviceQueryKeys = {
-  all:       ['services'] as const,
-  catalog:   () => [...serviceQueryKeys.all, 'catalog'] as const,
+  all: ['services'] as const,
+  catalog: () => [...serviceQueryKeys.all, 'catalog'] as const,
   instances: (routerId: string) => [...serviceQueryKeys.all, 'instances', routerId] as const,
-  instance:  (routerId: string, instanceId: string) => [...serviceQueryKeys.instances(routerId), instanceId] as const,
+  instance: (routerId: string, instanceId: string) =>
+    [...serviceQueryKeys.instances(routerId), instanceId] as const,
 };
 ```
 
 ### Polling Conventions
 
-| Data freshness need | `refetchInterval` | Notes |
-|---|---|---|
-| Real-time status (interfaces, resources) | 5 000 ms | Pause in background |
-| Moderate freshness (ARP, IP addresses) | 10 000 ms | Pause in background |
-| Infrequent (system identity, features list) | none (staleTime 60 s) | Only on demand |
+| Data freshness need                         | `refetchInterval`     | Notes               |
+| ------------------------------------------- | --------------------- | ------------------- |
+| Real-time status (interfaces, resources)    | 5 000 ms              | Pause in background |
+| Moderate freshness (ARP, IP addresses)      | 10 000 ms             | Pause in background |
+| Infrequent (system identity, features list) | none (staleTime 60 s) | Only on demand      |
 
-`refetchIntervalInBackground: false` is set on all polling hooks to conserve resources when the tab is not visible.
+`refetchIntervalInBackground: false` is set on all polling hooks to conserve resources when the tab
+is not visible.
 
 ---
 
 ## 2. Domain Inventory
 
-| Domain | Directory | Primary transport | Approx. hook count | queryKeys export |
-|---|---|---|---|---|
-| Router | `router/` | REST (rosproxy) | 5 | `routerKeys`, `interfaceKeys` |
-| VPN | `vpn/` | GraphQL | 25 | `vpnKeys` |
-| Firewall | `firewall/` | GraphQL | 40 | `firewallKeys`, `mangleRulesKeys`, `rawRulesKeys`, `addressListKeys`, `portKnockKeys`, `firewallConnectionKeys`, `firewallLogKeys`, `firewallTemplateKeys`, `rateLimitingKeys` |
-| Alerts | `alerts/` | GraphQL | 11 | — |
-| Network | `network/` | GraphQL | 30 | — |
-| DHCP | `dhcp/` | GraphQL | ~8 | — |
-| DNS | `dns/` | GraphQL | ~6 | — |
-| WAN | `wan/` | GraphQL | ~6 | — |
-| Diagnostics | `diagnostics/` | GraphQL | 8 | — |
-| Resources | `resources/` | GraphQL | 10 | `resourceKeys` |
-| Change-Set | `change-set/` | GraphQL | 18 | `changeSetKeys` |
-| Storage | `storage/` | GraphQL | 7 | `storageKeys` |
-| Notifications | `notifications/` | GraphQL | ~4 | — |
-| Wireless | `wireless/` | GraphQL | ~6 | — |
-| System | `system/` | GraphQL | ~4 | `systemKeys` |
-| Discovery | `discovery/` | REST | 2 | — |
-| Batch | `batch/` | GraphQL | 2 | — |
-| OUI | `oui/` | REST | 2 | — |
-| Services | `services/` | GraphQL | 55+ | `serviceQueryKeys` |
+| Domain        | Directory        | Primary transport | Approx. hook count | queryKeys export                                                                                                                                                               |
+| ------------- | ---------------- | ----------------- | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Router        | `router/`        | REST (rosproxy)   | 5                  | `routerKeys`, `interfaceKeys`                                                                                                                                                  |
+| VPN           | `vpn/`           | GraphQL           | 25                 | `vpnKeys`                                                                                                                                                                      |
+| Firewall      | `firewall/`      | GraphQL           | 40                 | `firewallKeys`, `mangleRulesKeys`, `rawRulesKeys`, `addressListKeys`, `portKnockKeys`, `firewallConnectionKeys`, `firewallLogKeys`, `firewallTemplateKeys`, `rateLimitingKeys` |
+| Alerts        | `alerts/`        | GraphQL           | 11                 | —                                                                                                                                                                              |
+| Network       | `network/`       | GraphQL           | 30                 | —                                                                                                                                                                              |
+| DHCP          | `dhcp/`          | GraphQL           | ~8                 | —                                                                                                                                                                              |
+| DNS           | `dns/`           | GraphQL           | ~6                 | —                                                                                                                                                                              |
+| WAN           | `wan/`           | GraphQL           | ~6                 | —                                                                                                                                                                              |
+| Diagnostics   | `diagnostics/`   | GraphQL           | 8                  | —                                                                                                                                                                              |
+| Resources     | `resources/`     | GraphQL           | 10                 | `resourceKeys`                                                                                                                                                                 |
+| Change-Set    | `change-set/`    | GraphQL           | 18                 | `changeSetKeys`                                                                                                                                                                |
+| Storage       | `storage/`       | GraphQL           | 7                  | `storageKeys`                                                                                                                                                                  |
+| Notifications | `notifications/` | GraphQL           | ~4                 | —                                                                                                                                                                              |
+| Wireless      | `wireless/`      | GraphQL           | ~6                 | —                                                                                                                                                                              |
+| System        | `system/`        | GraphQL           | ~4                 | `systemKeys`                                                                                                                                                                   |
+| Discovery     | `discovery/`     | REST              | 2                  | —                                                                                                                                                                              |
+| Batch         | `batch/`         | GraphQL           | 2                  | —                                                                                                                                                                              |
+| OUI           | `oui/`           | REST              | 2                  | —                                                                                                                                                                              |
+| Services      | `services/`      | GraphQL           | 55+                | `serviceQueryKeys`                                                                                                                                                             |
 
 ---
 
@@ -126,37 +141,39 @@ export const serviceQueryKeys = {
 
 Source: `libs/api-client/queries/src/router/`
 
-This domain uses TanStack Query (`useQuery`) against the `rosproxy` REST API, not Apollo Client. The parameter is `routerIp: string`.
+This domain uses TanStack Query (`useQuery`) against the `rosproxy` REST API, not Apollo Client. The
+parameter is `routerIp: string`.
 
 ### Hooks
 
-| Hook | File | Description |
-|---|---|---|
-| `useRouterInfo(routerIp)` | `useRouterInfo.ts:67` | Combined system identity + resource; `staleTime: 60 s` |
-| `useRouterResource(routerIp)` | `useRouterInfo.ts:100` | System resource only; polls every 5 s |
-| `useInterfaces(routerIp)` | `useInterfaces.ts:100` | All network interfaces; polls every 5 s |
-| `useInterfaceTraffic(routerIp, interfaceId)` | `useInterfaces.ts:167` | Traffic stats for one interface; polls every 5 s |
-| `useARPTable(routerIp)` | `useInterfaces.ts:228` | ARP table; polls every 10 s |
-| `useRouterIPAddresses(routerIp)` | `useInterfaces.ts:285` | IP addresses; polls every 10 s (re-exported as `useRouterIPAddresses` to avoid name collision) |
-| `useRouterboard(routerIp)` | `useRouterboard.ts` | Routerboard hardware info |
+| Hook                                         | File                   | Description                                                                                    |
+| -------------------------------------------- | ---------------------- | ---------------------------------------------------------------------------------------------- |
+| `useRouterInfo(routerIp)`                    | `useRouterInfo.ts:67`  | Combined system identity + resource; `staleTime: 60 s`                                         |
+| `useRouterResource(routerIp)`                | `useRouterInfo.ts:100` | System resource only; polls every 5 s                                                          |
+| `useInterfaces(routerIp)`                    | `useInterfaces.ts:100` | All network interfaces; polls every 5 s                                                        |
+| `useInterfaceTraffic(routerIp, interfaceId)` | `useInterfaces.ts:167` | Traffic stats for one interface; polls every 5 s                                               |
+| `useARPTable(routerIp)`                      | `useInterfaces.ts:228` | ARP table; polls every 10 s                                                                    |
+| `useRouterIPAddresses(routerIp)`             | `useInterfaces.ts:285` | IP addresses; polls every 10 s (re-exported as `useRouterIPAddresses` to avoid name collision) |
+| `useRouterboard(routerIp)`                   | `useRouterboard.ts`    | Routerboard hardware info                                                                      |
 
 ### queryKeys
 
 ```ts
 // router/useRouterInfo.ts:15
 export const routerKeys = {
-  all:        ['router'] as const,
-  resource:   (routerIp: string) => [...routerKeys.all, 'resource', routerIp] as const,
-  info:       (routerIp: string) => [...routerKeys.all, 'info', routerIp] as const,
-  routerboard:(routerIp: string) => [...routerKeys.all, 'routerboard', routerIp] as const,
+  all: ['router'] as const,
+  resource: (routerIp: string) => [...routerKeys.all, 'resource', routerIp] as const,
+  info: (routerIp: string) => [...routerKeys.all, 'info', routerIp] as const,
+  routerboard: (routerIp: string) => [...routerKeys.all, 'routerboard', routerIp] as const,
 };
 
 // router/useInterfaces.ts:15
 export const interfaceKeys = {
-  all:         ['interfaces'] as const,
-  list:        (routerIp: string) => [...interfaceKeys.all, 'list', routerIp] as const,
-  traffic:     (routerIp: string, id: string) => [...interfaceKeys.all, 'traffic', routerIp, id] as const,
-  arp:         (routerIp: string) => ['arp', routerIp] as const,
+  all: ['interfaces'] as const,
+  list: (routerIp: string) => [...interfaceKeys.all, 'list', routerIp] as const,
+  traffic: (routerIp: string, id: string) =>
+    [...interfaceKeys.all, 'traffic', routerIp, id] as const,
+  arp: (routerIp: string) => ['arp', routerIp] as const,
   ipAddresses: (routerIp: string) => ['ip', 'addresses', routerIp] as const,
 };
 ```
@@ -186,23 +203,25 @@ function RouterStatus({ ip }: { ip: string }) {
 
 Source: `libs/api-client/queries/src/vpn/`
 
-The VPN domain covers all MikroTik VPN protocols. All hooks use Apollo Client with GraphQL. The `routerId` parameter is passed as a GraphQL variable named `routerId`.
+The VPN domain covers all MikroTik VPN protocols. All hooks use Apollo Client with GraphQL. The
+`routerId` parameter is passed as a GraphQL variable named `routerId`.
 
 ### Protocol Coverage
 
-| Protocol | Query hooks | Mutation hooks |
-|---|---|---|
-| WireGuard | `useWireGuardInterfaces`, `useWireGuardPeers` | `useCreateVPNInterface`, `useUpdateVPNInterface`, `useDeleteVPNInterface`, `useToggleVPNInterface` |
-| OpenVPN | `useOpenVPNServers`, `useOpenVPNClients` | (shared mutations) |
-| L2TP | `useL2TPServer`, `useL2TPClients`, `useL2TPInterfaces` (legacy) | (shared mutations) |
-| PPTP | `usePPTPServer`, `usePPTPClients`, `usePPTPInterfaces` (legacy) | (shared mutations) |
-| SSTP | `useSSTPServer`, `useSSTPClients`, `useSSTPInterfaces` (legacy) | (shared mutations) |
-| IKEv2/IPsec | `useIPsecPeers`, `useIPsecPolicies`, `useIPsecIdentities`, `useIPsecActive` | — |
-| PPP (shared) | `usePPPActive`, `usePPPSecrets` | — |
+| Protocol     | Query hooks                                                                 | Mutation hooks                                                                                     |
+| ------------ | --------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| WireGuard    | `useWireGuardInterfaces`, `useWireGuardPeers`                               | `useCreateVPNInterface`, `useUpdateVPNInterface`, `useDeleteVPNInterface`, `useToggleVPNInterface` |
+| OpenVPN      | `useOpenVPNServers`, `useOpenVPNClients`                                    | (shared mutations)                                                                                 |
+| L2TP         | `useL2TPServer`, `useL2TPClients`, `useL2TPInterfaces` (legacy)             | (shared mutations)                                                                                 |
+| PPTP         | `usePPTPServer`, `usePPTPClients`, `usePPTPInterfaces` (legacy)             | (shared mutations)                                                                                 |
+| SSTP         | `useSSTPServer`, `useSSTPClients`, `useSSTPInterfaces` (legacy)             | (shared mutations)                                                                                 |
+| IKEv2/IPsec  | `useIPsecPeers`, `useIPsecPolicies`, `useIPsecIdentities`, `useIPsecActive` | —                                                                                                  |
+| PPP (shared) | `usePPPActive`, `usePPPSecrets`                                             | —                                                                                                  |
 
 ### Aggregation Hook
 
-`useVPNStats(routerId)` — aggregates across all protocols into a single dashboard-friendly stats object.
+`useVPNStats(routerId)` — aggregates across all protocols into a single dashboard-friendly stats
+object.
 
 ### Mutations (from `vpn/mutations/`)
 
@@ -222,7 +241,12 @@ function WireGuardPanel({ routerId }: { routerId: string }) {
   const { data: ifaces } = useWireGuardInterfaces({ routerId });
   const { data: peers } = useWireGuardPeers({ routerId });
 
-  return <WGTable interfaces={ifaces} peers={peers} />;
+  return (
+    <WGTable
+      interfaces={ifaces}
+      peers={peers}
+    />
+  );
 }
 ```
 
@@ -232,70 +256,87 @@ function WireGuardPanel({ routerId }: { routerId: string }) {
 
 Source: `libs/api-client/queries/src/firewall/`
 
-The firewall domain is one of the largest, covering filter rules, NAT, mangle, raw, address lists, port knocking, connection tracking, rate limiting, templates, and logs.
+The firewall domain is one of the largest, covering filter rules, NAT, mangle, raw, address lists,
+port knocking, connection tracking, rate limiting, templates, and logs.
 
 ### Filter Rules
 
-| Hook | Description |
-|---|---|
+| Hook                               | Description                              |
+| ---------------------------------- | ---------------------------------------- |
 | `useFilterRules(routerId, chain?)` | List filter rules; optional chain filter |
-| `useCreateFilterRule()` | Mutation |
-| `useUpdateFilterRule()` | Mutation |
-| `useDeleteFilterRule()` | Mutation |
-| `useMoveFilterRule()` | Reorder mutation |
-| `useToggleFilterRule()` | Enable/disable mutation |
+| `useCreateFilterRule()`            | Mutation                                 |
+| `useUpdateFilterRule()`            | Mutation                                 |
+| `useDeleteFilterRule()`            | Mutation                                 |
+| `useMoveFilterRule()`              | Reorder mutation                         |
+| `useToggleFilterRule()`            | Enable/disable mutation                  |
 
 Key export: `firewallKeys` factory.
 
 ### NAT Rules
 
-| Hook | Description |
-|---|---|
-| `useNATRules(routerId, chain?)` | List NAT rules |
-| `useCreateNATRule()` | Generic NAT rule mutation |
-| `useUpdateNATRule()` | Mutation |
-| `useDeleteNATRule()` | Mutation |
-| `useCreatePortForward()` | Convenience wizard mutation |
-| `useCreateMasqueradeRule()` | One-click masquerade |
-| `useToggleNATRule()` | Enable/disable |
+| Hook                            | Description                 |
+| ------------------------------- | --------------------------- |
+| `useNATRules(routerId, chain?)` | List NAT rules              |
+| `useCreateNATRule()`            | Generic NAT rule mutation   |
+| `useUpdateNATRule()`            | Mutation                    |
+| `useDeleteNATRule()`            | Mutation                    |
+| `useCreatePortForward()`        | Convenience wizard mutation |
+| `useCreateMasqueradeRule()`     | One-click masquerade        |
+| `useToggleNATRule()`            | Enable/disable              |
 
 ### Mangle Rules
 
-`useMangleRules`, `useCreateMangleRule`, `useUpdateMangleRule`, `useDeleteMangleRule`, `useMoveMangleRule`, `useToggleMangleRule` — key: `mangleRulesKeys`.
+`useMangleRules`, `useCreateMangleRule`, `useUpdateMangleRule`, `useDeleteMangleRule`,
+`useMoveMangleRule`, `useToggleMangleRule` — key: `mangleRulesKeys`.
 
 ### Raw Rules
 
-`useRawRules`, `useRawRule` (single), `useCreateRawRule`, `useUpdateRawRule`, `useDeleteRawRule`, `useReorderRawRules`, `useToggleRawRule`, `useBatchCreateRawRules`, `useBatchDeleteRawRules`, `useBatchUpdateRawRules` — key: `rawRulesKeys`. `BatchProgress` type exported.
+`useRawRules`, `useRawRule` (single), `useCreateRawRule`, `useUpdateRawRule`, `useDeleteRawRule`,
+`useReorderRawRules`, `useToggleRawRule`, `useBatchCreateRawRules`, `useBatchDeleteRawRules`,
+`useBatchUpdateRawRules` — key: `rawRulesKeys`. `BatchProgress` type exported.
 
 ### Address Lists
 
-`useAddressLists(routerId)`, `useAddressListEntries(routerId, listName)`, `useCreateAddressListEntry()`, `useDeleteAddressListEntry()`, `useBulkCreateAddressListEntries()` — key: `addressListKeys`.
+`useAddressLists(routerId)`, `useAddressListEntries(routerId, listName)`,
+`useCreateAddressListEntry()`, `useDeleteAddressListEntry()`, `useBulkCreateAddressListEntries()` —
+key: `addressListKeys`.
 
-Types exported: `AddressList`, `AddressListEntry`, `AddressListEntriesConnection`, `CreateAddressListEntryInput`, `BulkAddressInput`, `BulkCreateResult`.
+Types exported: `AddressList`, `AddressListEntry`, `AddressListEntriesConnection`,
+`CreateAddressListEntryInput`, `BulkAddressInput`, `BulkCreateResult`.
 
 ### Connection Tracking
 
-`useConnections(routerId, options?)`, `useKillConnection()`, `useConnectionTrackingSettings(routerId)`, `useUpdateConnectionTracking()` — key: `firewallConnectionKeys`.
+`useConnections(routerId, options?)`, `useKillConnection()`,
+`useConnectionTrackingSettings(routerId)`, `useUpdateConnectionTracking()` — key:
+`firewallConnectionKeys`.
 
 ### Port Knocking
 
-`usePortKnockSequences`, `usePortKnockSequence`, `usePortKnockLog`, `useCreatePortKnockSequence`, `useUpdatePortKnockSequence`, `useDeletePortKnockSequence`, `useTogglePortKnockSequence`, `useTestPortKnockSequence` — key: `portKnockKeys`.
+`usePortKnockSequences`, `usePortKnockSequence`, `usePortKnockLog`, `useCreatePortKnockSequence`,
+`useUpdatePortKnockSequence`, `useDeletePortKnockSequence`, `useTogglePortKnockSequence`,
+`useTestPortKnockSequence` — key: `portKnockKeys`.
 
 ### Firewall Templates
 
-`useTemplates(filters?)`, `useTemplate(id)`, `usePreviewTemplate(input)`, `useApplyTemplate(input)`, `useRollbackTemplate(input)` — key: `firewallTemplateKeys`.
+`useTemplates(filters?)`, `useTemplate(id)`, `usePreviewTemplate(input)`, `useApplyTemplate(input)`,
+`useRollbackTemplate(input)` — key: `firewallTemplateKeys`.
 
 ### Firewall Logs
 
-`useFirewallLogs(routerId, filters?)`, `useFirewallLogStats(routerId)` — key: `firewallLogKeys`. Types: `FirewallLogFilters`, `UseFirewallLogsOptions`, `FirewallLogStats`.
+`useFirewallLogs(routerId, filters?)`, `useFirewallLogStats(routerId)` — key: `firewallLogKeys`.
+Types: `FirewallLogFilters`, `UseFirewallLogsOptions`, `FirewallLogStats`.
 
 ### Rate Limiting
 
-`useRateLimitRules`, `useSynFloodConfig`, `useRateLimitStats`, `useBlockedIPs`, `useCreateRateLimitRule`, `useUpdateRateLimitRule`, `useDeleteRateLimitRule`, `useToggleRateLimitRule`, `useUpdateSynFloodConfig`, `useWhitelistIP`, `useRemoveBlockedIP` — key: `rateLimitingKeys`.
+`useRateLimitRules`, `useSynFloodConfig`, `useRateLimitStats`, `useBlockedIPs`,
+`useCreateRateLimitRule`, `useUpdateRateLimitRule`, `useDeleteRateLimitRule`,
+`useToggleRateLimitRule`, `useUpdateSynFloodConfig`, `useWhitelistIP`, `useRemoveBlockedIP` — key:
+`rateLimitingKeys`.
 
 ### Routing (within firewall)
 
-`useFirewallRoutes(routerId)` (re-exported as `useFirewallRoutes` from `useRoutes.ts`), `useServices(routerId)`.
+`useFirewallRoutes(routerId)` (re-exported as `useFirewallRoutes` from `useRoutes.ts`),
+`useServices(routerId)`.
 
 ---
 
@@ -303,24 +344,25 @@ Types exported: `AddressList`, `AddressListEntry`, `AddressListEntriesConnection
 
 Source: `libs/api-client/queries/src/alerts/`
 
-| Hook | File | Description |
-|---|---|---|
-| `useAlertRuleTemplates()` | `useAlertRuleTemplates.ts` | List built-in alert rule templates |
-| `useAlertTemplates()` | `useAlertTemplates.ts` | List notification templates |
-| `useAlertTemplate(id)` | `useAlertTemplate.ts` | Single template |
-| `useSaveAlertTemplate()` | `useSaveAlertTemplate.ts` | Save/create template mutation |
-| `useResetAlertTemplate()` | `useResetAlertTemplate.ts` | Reset template to default mutation |
-| `usePreviewAlertTemplate()` | `usePreviewAlertTemplate.ts` | Preview rendered template |
-| `useAlertEscalations(routerId)` | `useAlertEscalations.ts` | List escalation chains |
-| `useAlertWithEscalation(id)` | `useAlertEscalations.ts` | Single alert + escalation chain |
-| `useActiveEscalations(routerId)` | `useAlertEscalations.ts` | Currently active escalations |
-| `useDigestHistory(routerId)` | `useDigestHistory.ts` | Alert digest history |
-| `useDigestQueueCount(routerId)` | `useDigestQueueCount.ts` | Pending digest items |
-| `useTriggerDigestNow()` | `useTriggerDigestNow.ts` | Force digest send mutation |
+| Hook                             | File                         | Description                        |
+| -------------------------------- | ---------------------------- | ---------------------------------- |
+| `useAlertRuleTemplates()`        | `useAlertRuleTemplates.ts`   | List built-in alert rule templates |
+| `useAlertTemplates()`            | `useAlertTemplates.ts`       | List notification templates        |
+| `useAlertTemplate(id)`           | `useAlertTemplate.ts`        | Single template                    |
+| `useSaveAlertTemplate()`         | `useSaveAlertTemplate.ts`    | Save/create template mutation      |
+| `useResetAlertTemplate()`        | `useResetAlertTemplate.ts`   | Reset template to default mutation |
+| `usePreviewAlertTemplate()`      | `usePreviewAlertTemplate.ts` | Preview rendered template          |
+| `useAlertEscalations(routerId)`  | `useAlertEscalations.ts`     | List escalation chains             |
+| `useAlertWithEscalation(id)`     | `useAlertEscalations.ts`     | Single alert + escalation chain    |
+| `useActiveEscalations(routerId)` | `useAlertEscalations.ts`     | Currently active escalations       |
+| `useDigestHistory(routerId)`     | `useDigestHistory.ts`        | Alert digest history               |
+| `useDigestQueueCount(routerId)`  | `useDigestQueueCount.ts`     | Pending digest items               |
+| `useTriggerDigestNow()`          | `useTriggerDigestNow.ts`     | Force digest send mutation         |
 
 Types exported: `AlertEscalationEntry`, `UseAlertEscalationsOptions`.
 
-GraphQL documents: `alert-rule-templates.graphql.ts`, `alert-templates.graphql.ts`, `digest.graphql.ts`.
+GraphQL documents: `alert-rule-templates.graphql.ts`, `alert-templates.graphql.ts`,
+`digest.graphql.ts`.
 
 ---
 
@@ -328,11 +370,13 @@ GraphQL documents: `alert-rule-templates.graphql.ts`, `alert-templates.graphql.t
 
 Source: `libs/api-client/queries/src/network/`
 
-Covers interface management, IP address management, bridges, VLANs, routes, route lookup, and DNS diagnostics.
+Covers interface management, IP address management, bridges, VLANs, routes, route lookup, and DNS
+diagnostics.
 
 ### Interfaces
 
-`useInterfaceList(routerId)`, `useInterfaceMutations()` — from `queries.graphql.ts` + `useInterfaceList.ts`.
+`useInterfaceList(routerId)`, `useInterfaceMutations()` — from `queries.graphql.ts` +
+`useInterfaceList.ts`.
 
 ### IP Addresses
 
@@ -356,7 +400,8 @@ Covers interface management, IP address management, bridges, VLANs, routes, rout
 
 ### DNS Diagnostics
 
-`useDnsLookup()`, `useDnsBenchmark()`, `useDnsCacheStats(routerId)`, `useFlushDnsCache()` — from `dns-diagnostics.graphql.ts`.
+`useDnsLookup()`, `useDnsBenchmark()`, `useDnsCacheStats(routerId)`, `useFlushDnsCache()` — from
+`dns-diagnostics.graphql.ts`.
 
 ---
 
@@ -364,7 +409,8 @@ Covers interface management, IP address management, bridges, VLANs, routes, rout
 
 Source: `libs/api-client/queries/src/dhcp/`
 
-Hooks: `useDHCP(routerId)` and associated mutations from `mutations.ts`. Covers DHCP server configuration, lease management, and static-lease CRUD.
+Hooks: `useDHCP(routerId)` and associated mutations from `mutations.ts`. Covers DHCP server
+configuration, lease management, and static-lease CRUD.
 
 ---
 
@@ -372,7 +418,8 @@ Hooks: `useDHCP(routerId)` and associated mutations from `mutations.ts`. Covers 
 
 Source: `libs/api-client/queries/src/dns/`
 
-Hooks: `useDNS(routerId)` and mutations from `mutations.ts`. Covers DNS server settings, cache control, and static DNS entries on the router.
+Hooks: `useDNS(routerId)` and mutations from `mutations.ts`. Covers DNS server settings, cache
+control, and static DNS entries on the router.
 
 ---
 
@@ -380,7 +427,8 @@ Hooks: `useDNS(routerId)` and mutations from `mutations.ts`. Covers DNS server s
 
 Source: `libs/api-client/queries/src/wan/`
 
-Hooks: `useWANMutations()` from `wan-queries.graphql.ts`. Covers WAN interface configuration, PPPoE, static, and LTE connections.
+Hooks: `useWANMutations()` from `wan-queries.graphql.ts`. Covers WAN interface configuration, PPPoE,
+static, and LTE connections.
 
 ---
 
@@ -394,36 +442,37 @@ This domain covers the internet troubleshooting wizard (NAS-5.11).
 
 Wraps the operations from `operations.ts`:
 
-| Hook | Description |
-|---|---|
-| `useStartTroubleshoot()` | Mutation — start a session |
-| `useRunTroubleshootStep()` | Mutation — run a single step |
-| `useApplyTroubleshootFix()` | Mutation — apply a suggested fix |
-| `useVerifyTroubleshootFix()` | Mutation — verify fix worked |
-| `useCancelTroubleshoot()` | Mutation — end session |
-| `useGetTroubleshootSession(id)` | Query — poll session state |
-| `useDetectWanInterface(routerId)` | Query — auto-detect WAN interface |
+| Hook                                 | Description                         |
+| ------------------------------------ | ----------------------------------- |
+| `useStartTroubleshoot()`             | Mutation — start a session          |
+| `useRunTroubleshootStep()`           | Mutation — run a single step        |
+| `useApplyTroubleshootFix()`          | Mutation — apply a suggested fix    |
+| `useVerifyTroubleshootFix()`         | Mutation — verify fix worked        |
+| `useCancelTroubleshoot()`            | Mutation — end session              |
+| `useGetTroubleshootSession(id)`      | Query — poll session state          |
+| `useDetectWanInterface(routerId)`    | Query — auto-detect WAN interface   |
 | `useTroubleshootProgress(sessionId)` | Subscription — live session updates |
 
 ### GraphQL Operations (from `operations.ts`)
 
 ```ts
 // Named exports:
-GET_TROUBLESHOOT_SESSION
-DETECT_WAN_INTERFACE
-DETECT_GATEWAY
-DETECT_ISP
-START_TROUBLESHOOT
-RUN_TROUBLESHOOT_STEP
-APPLY_TROUBLESHOOT_FIX
-VERIFY_TROUBLESHOOT_FIX
-CANCEL_TROUBLESHOOT
-TROUBLESHOOT_PROGRESS  // subscription
+GET_TROUBLESHOOT_SESSION;
+DETECT_WAN_INTERFACE;
+DETECT_GATEWAY;
+DETECT_ISP;
+START_TROUBLESHOOT;
+RUN_TROUBLESHOOT_STEP;
+APPLY_TROUBLESHOOT_FIX;
+VERIFY_TROUBLESHOOT_FIX;
+CANCEL_TROUBLESHOOT;
+TROUBLESHOOT_PROGRESS; // subscription
 ```
 
 ### Types (from `types.ts`)
 
-`TroubleshootSession`, `TroubleshootStep`, `TroubleshootStepResult`, `TroubleshootFixSuggestion`, `ISPInfo`.
+`TroubleshootSession`, `TroubleshootStep`, `TroubleshootStepResult`, `TroubleshootFixSuggestion`,
+`ISPInfo`.
 
 ---
 
@@ -431,46 +480,71 @@ TROUBLESHOOT_PROGRESS  // subscription
 
 Source: `libs/api-client/queries/src/resources/`
 
-Covers the Universal State v2 resource model. See [./universal-state-resource-model.md](./universal-state-resource-model.md) for the 8-layer model.
+Covers the Universal State v2 resource model. See
+[./universal-state-resource-model.md](./universal-state-resource-model.md) for the 8-layer model.
 
 ### Hooks
 
-| Hook | File | Description |
-|---|---|---|
-| `useResourceLayers(uuid)` | `useResourceLayers.ts` | Query all 8 layers for a resource |
-| `useResourceMutations()` | `useResourceMutations.ts` | Create/update/delete mutations |
-| `useResourceRuntimeSubscription(uuid, options?)` | `useResourceSubscription.ts:208` | Real-time runtime metrics |
-| `useResourceStateSubscription(uuid, options?)` | `useResourceSubscription.ts:290` | State change events |
-| `useResourceValidationSubscription(uuid, options?)` | `useResourceSubscription.ts:335` | Validation progress |
-| `useResourcesRuntimeSubscription(uuids, options?)` | `useResourceSubscription.ts:374` | Batch runtime for list views |
-| `useResourceSubscriptions(uuid, options?)` | `useResourceSubscription.ts:450` | Combined all-in-one subscription |
+| Hook                                                | File                             | Description                       |
+| --------------------------------------------------- | -------------------------------- | --------------------------------- |
+| `useResourceLayers(uuid)`                           | `useResourceLayers.ts`           | Query all 8 layers for a resource |
+| `useResourceMutations()`                            | `useResourceMutations.ts`        | Create/update/delete mutations    |
+| `useResourceRuntimeSubscription(uuid, options?)`    | `useResourceSubscription.ts:208` | Real-time runtime metrics         |
+| `useResourceStateSubscription(uuid, options?)`      | `useResourceSubscription.ts:290` | State change events               |
+| `useResourceValidationSubscription(uuid, options?)` | `useResourceSubscription.ts:335` | Validation progress               |
+| `useResourcesRuntimeSubscription(uuids, options?)`  | `useResourceSubscription.ts:374` | Batch runtime for list views      |
+| `useResourceSubscriptions(uuid, options?)`          | `useResourceSubscription.ts:450` | Combined all-in-one subscription  |
 
 ### Subscription Types
 
 ```ts
-interface RuntimeUpdateEvent  { uuid; runtime: RuntimeState; timestamp }
-interface StateChangeEvent     { uuid; previousState; newState; triggeredBy; timestamp; message? }
-interface ValidationEvent      { uuid; stage; isComplete; hasErrors; hasWarnings; timestamp }
-interface SubscriptionResult<T>{ data; loading; error; isConnected }
+interface RuntimeUpdateEvent {
+  uuid;
+  runtime: RuntimeState;
+  timestamp;
+}
+interface StateChangeEvent {
+  uuid;
+  previousState;
+  newState;
+  triggeredBy;
+  timestamp;
+  message?;
+}
+interface ValidationEvent {
+  uuid;
+  stage;
+  isComplete;
+  hasErrors;
+  hasWarnings;
+  timestamp;
+}
+interface SubscriptionResult<T> {
+  data;
+  loading;
+  error;
+  isConnected;
+}
 ```
 
 ### UseResourceSubscriptionsOptions
 
 ```ts
 interface UseResourceSubscriptionsOptions {
-  runtime?:       boolean;  // default: true
-  stateChanges?:  boolean;  // default: false
-  validation?:    boolean;  // default: false
-  skip?:          boolean;
-  onRuntimeUpdate?:       (e: RuntimeUpdateEvent) => void;
-  onStateChange?:         (e: StateChangeEvent) => void;
-  onValidationProgress?:  (e: ValidationEvent) => void;
+  runtime?: boolean; // default: true
+  stateChanges?: boolean; // default: false
+  validation?: boolean; // default: false
+  skip?: boolean;
+  onRuntimeUpdate?: (e: RuntimeUpdateEvent) => void;
+  onStateChange?: (e: StateChangeEvent) => void;
+  onValidationProgress?: (e: ValidationEvent) => void;
 }
 ```
 
 ### Fragments
 
-`resources/fragments.ts` exports reusable GraphQL fragments for including resource layers in other domain queries.
+`resources/fragments.ts` exports reusable GraphQL fragments for including resource layers in other
+domain queries.
 
 ---
 
@@ -482,11 +556,14 @@ Covers the Apply-Confirm-Merge flow (see [./change-set-pattern.md](./change-set-
 
 ### Query Hooks
 
-`useChangeSet(id)`, `useLazyChangeSet()`, `useChangeSets(options?)`, `useActiveChangeSets()`, `usePendingChangeSetsCount()`.
+`useChangeSet(id)`, `useLazyChangeSet()`, `useChangeSets(options?)`, `useActiveChangeSets()`,
+`usePendingChangeSetsCount()`.
 
 ### Mutation Hooks
 
-`useCreateChangeSet()`, `useAddChangeSetItem()`, `useUpdateChangeSetItem()`, `useRemoveChangeSetItem()`, `useValidateChangeSet()`, `useApplyChangeSet()`, `useCancelChangeSet()`, `useRollbackChangeSet()`, `useDeleteChangeSet()`.
+`useCreateChangeSet()`, `useAddChangeSetItem()`, `useUpdateChangeSetItem()`,
+`useRemoveChangeSetItem()`, `useValidateChangeSet()`, `useApplyChangeSet()`, `useCancelChangeSet()`,
+`useRollbackChangeSet()`, `useDeleteChangeSet()`.
 
 ### Compound Hooks
 
@@ -495,11 +572,13 @@ Covers the Apply-Confirm-Merge flow (see [./change-set-pattern.md](./change-set-
 
 ### Subscription Hooks
 
-`useChangeSetProgressSubscription(id, options?)`, `useChangeSetStatusSubscription(id, options?)`, `useChangeSetSubscriptions(id, options?)`.
+`useChangeSetProgressSubscription(id, options?)`, `useChangeSetStatusSubscription(id, options?)`,
+`useChangeSetSubscriptions(id, options?)`.
 
 ### Types
 
-`ChangeSetSummary`, `CreateChangeSetInput`, `ChangeSetItemInput`, `UpdateChangeSetItemInput`, `ApplyChangeSetOptions`, `CurrentItemInfo`, `ChangeSetProgressEvent`, `ChangeSetStatusEvent`.
+`ChangeSetSummary`, `CreateChangeSetInput`, `ChangeSetItemInput`, `UpdateChangeSetItemInput`,
+`ApplyChangeSetOptions`, `CurrentItemInfo`, `ChangeSetProgressEvent`, `ChangeSetStatusEvent`.
 
 ### queryKeys
 
@@ -517,20 +596,20 @@ changeSetKeys.active(routerId)
 
 Source: `libs/api-client/queries/src/storage/`
 
-| Hook | File | Description |
-|---|---|---|
-| `useStorageInfo(routerId)` | `useStorageInfo.ts` | Disk info (total, used, free) |
-| `useStorageUsage(routerId)` | `useStorageUsage.ts` | Usage breakdown by category |
-| `useStorageConfig(routerId)` | `useStorageConfig.ts` | Storage mount configuration |
-| `useStorageMutations()` | `useStorageMutations.ts` | Mount/unmount/format mutations |
+| Hook                         | File                     | Description                    |
+| ---------------------------- | ------------------------ | ------------------------------ |
+| `useStorageInfo(routerId)`   | `useStorageInfo.ts`      | Disk info (total, used, free)  |
+| `useStorageUsage(routerId)`  | `useStorageUsage.ts`     | Usage breakdown by category    |
+| `useStorageConfig(routerId)` | `useStorageConfig.ts`    | Storage mount configuration    |
+| `useStorageMutations()`      | `useStorageMutations.ts` | Mount/unmount/format mutations |
 
 GraphQL documents: `storage.graphql.ts`.
 
 ```ts
 // storage/queryKeys.ts
-storageKeys.info(routerId)
-storageKeys.usage(routerId)
-storageKeys.config(routerId)
+storageKeys.info(routerId);
+storageKeys.usage(routerId);
+storageKeys.config(routerId);
 ```
 
 ---
@@ -539,7 +618,8 @@ storageKeys.config(routerId)
 
 Source: `libs/api-client/queries/src/notifications/`
 
-Exports webhook notification hooks from `webhooks.ts`. Covers webhook channel CRUD and notification log querying.
+Exports webhook notification hooks from `webhooks.ts`. Covers webhook channel CRUD and notification
+log querying.
 
 ---
 
@@ -555,15 +635,16 @@ Covers WiFi interface management, access points, and connected client monitoring
 
 Source: `libs/api-client/queries/src/system/`
 
-The system domain covers router metadata, service discovery, logging settings, and system-level configuration queries accessed via the `rosproxy` REST API.
+The system domain covers router metadata, service discovery, logging settings, and system-level
+configuration queries accessed via the `rosproxy` REST API.
 
 ### Hooks
 
-| Hook | File | Description |
-|---|---|---|
-| `useIPServices(routerIp)` | `useIPServices.ts:67` | Enabled services and listening ports (SSH, WWW, Telnet, API, Winbox) |
-| `useSystemNote(routerIp)` | `useSystemNote.ts:45` | Router note/description (read + mutate) |
-| `useLoggingSettings(routerIp)` | `useLoggingSettings.ts:98` | Logging topics and severity levels configured on the router |
+| Hook                           | File                       | Description                                                          |
+| ------------------------------ | -------------------------- | -------------------------------------------------------------------- |
+| `useIPServices(routerIp)`      | `useIPServices.ts:67`      | Enabled services and listening ports (SSH, WWW, Telnet, API, Winbox) |
+| `useSystemNote(routerIp)`      | `useSystemNote.ts:45`      | Router note/description (read + mutate)                              |
+| `useLoggingSettings(routerIp)` | `useLoggingSettings.ts:98` | Logging topics and severity levels configured on the router          |
 
 All hooks use `routerIp` (not `routerId`) and communicate via the `rosproxy` REST adapter.
 
@@ -575,20 +656,17 @@ export const systemKeys = {
   all: ['system'] as const,
   logs: (routerIp: string, options?: { topics?: LogTopic[]; limit?: number }) =>
     [...systemKeys.all, 'logs', routerIp, options] as const,
-  note: (routerIp: string) =>
-    [...systemKeys.all, 'note', routerIp] as const,
+  note: (routerIp: string) => [...systemKeys.all, 'note', routerIp] as const,
 };
 
 export const ipKeys = {
   all: ['ip'] as const,
-  services: (routerIp: string) =>
-    [...ipKeys.all, 'services', routerIp] as const,
+  services: (routerIp: string) => [...ipKeys.all, 'services', routerIp] as const,
 };
 
 export const batchKeys = {
   all: ['batch'] as const,
-  job: (jobId: string) =>
-    [...batchKeys.all, 'job', jobId] as const,
+  job: (jobId: string) => [...batchKeys.all, 'job', jobId] as const,
 };
 ```
 
@@ -600,7 +678,7 @@ export const batchKeys = {
 function useIPServices(
   routerIp: string | undefined,
   options?: UseIPServicesOptions
-): UseIPServicesResult
+): UseIPServicesResult;
 ```
 
 Queries the enabled IP services and their listening ports on the router.
@@ -609,7 +687,7 @@ Queries the enabled IP services and their listening ports on the router.
 
 ```ts
 interface UseIPServicesOptions {
-  enabled?: boolean;  // default: true
+  enabled?: boolean; // default: true
   pollInterval?: number;
   retry?: number;
 }
@@ -620,14 +698,14 @@ interface UseIPServicesOptions {
 ```ts
 interface UseIPServicesResult {
   data?: {
-    ssh?: number;           // e.g., 22
-    http?: number;          // e.g., 80
-    https?: number;         // e.g., 443
-    telnet?: number;        // e.g., 23
-    api?: number;           // REST API port (e.g., 8728)
-    apiSsl?: number;        // REST API SSL port (e.g., 8729)
-    winbox?: number;        // e.g., 8291
-    dns?: number;           // e.g., 53
+    ssh?: number; // e.g., 22
+    http?: number; // e.g., 80
+    https?: number; // e.g., 443
+    telnet?: number; // e.g., 23
+    api?: number; // REST API port (e.g., 8728)
+    apiSsl?: number; // REST API SSL port (e.g., 8729)
+    winbox?: number; // e.g., 8291
+    dns?: number; // e.g., 53
   };
   loading: boolean;
   error: Error | undefined;
@@ -653,20 +731,20 @@ return (
 **Source:** `libs/api-client/queries/src/system/useSystemNote.ts:45`
 
 ```ts
-function useSystemNote(
-  routerIp: string | undefined
-): {
+function useSystemNote(routerIp: string | undefined): {
   data?: string;
   loading: boolean;
   error: Error | undefined;
   updateNote: (note: string) => Promise<void>;
   isUpdating: boolean;
-}
+};
 ```
 
-Queries and mutates the router's system note (a user-editable text field in RouterOS system identity).
+Queries and mutates the router's system note (a user-editable text field in RouterOS system
+identity).
 
-**Mutation behavior:** `updateNote` issues a REST PUT request to update the note and automatically refetches the query.
+**Mutation behavior:** `updateNote` issues a REST PUT request to update the note and automatically
+refetches the query.
 
 **Usage example:**
 
@@ -687,10 +765,11 @@ async function onSave(newNote: string) {
 function useLoggingSettings(
   routerIp: string | undefined,
   options?: UseLoggingSettingsOptions
-): UseLoggingSettingsResult
+): UseLoggingSettingsResult;
 ```
 
-Queries the router's configured logging topics (e.g., `system`, `routing`, `ppp`, `ddns`, `dhcp`) and their minimum severity levels (`debug`, `info`, `notice`, `warning`, `error`, `critical`).
+Queries the router's configured logging topics (e.g., `system`, `routing`, `ppp`, `ddns`, `dhcp`)
+and their minimum severity levels (`debug`, `info`, `notice`, `warning`, `error`, `critical`).
 
 **Options:**
 
@@ -736,7 +815,10 @@ return (
       <tr key={topic}>
         <td>{topic}</td>
         <td>
-          <select value={level} onChange={(e) => onLevelChange(topic, e.target.value as LogLevel)}>
+          <select
+            value={level}
+            onChange={(e) => onLevelChange(topic, e.target.value as LogLevel)}
+          >
             <option>debug</option>
             <option>info</option>
             <option>notice</option>
@@ -757,8 +839,8 @@ return (
 
 Source: `libs/api-client/queries/src/discovery/`
 
-| Hook | File | Description |
-|---|---|---|
+| Hook                                 | File                   | Description              |
+| ------------------------------------ | ---------------------- | ------------------------ |
 | `useTestConnection(ip, credentials)` | `useTestConnection.ts` | Test router connectivity |
 
 Used by the router-discovery wizard before adding a new router to the fleet.
@@ -769,8 +851,8 @@ Used by the router-discovery wizard before adding a new router to the fleet.
 
 Source: `libs/api-client/queries/src/batch/`
 
-| Hook | File | Description |
-|---|---|---|
+| Hook                 | File             | Description                        |
+| -------------------- | ---------------- | ---------------------------------- |
 | `useBatchJob(jobId)` | `useBatchJob.ts` | Query batch job status and results |
 
 Used by the batch command executor (`apps/backend/internal/router/batch/`).
@@ -781,41 +863,44 @@ Used by the batch command executor (`apps/backend/internal/router/batch/`).
 
 Source: `libs/api-client/queries/src/oui/`
 
-| Hook | File | Description |
-|---|---|---|
+| Hook                          | File                 | Description                      |
+| ----------------------------- | -------------------- | -------------------------------- |
 | `useVendorLookup(macAddress)` | `useVendorLookup.ts` | MAC address → vendor name lookup |
 
-Backed by the OUI database at `apps/backend/oui/lookup.go`. Used in the ARP table and connected-device views.
+Backed by the OUI database at `apps/backend/oui/lookup.go`. Used in the ARP table and
+connected-device views.
 
 ---
 
 ## 21. Services Domain
 
-The `services/` domain is the largest and most complex. It maps to the Feature Marketplace (Tor, sing-box, Xray-core, MTProxy, Psiphon, AdGuard Home). All hooks are documented in detail in [./service-lifecycle.md](./service-lifecycle.md).
+The `services/` domain is the largest and most complex. It maps to the Feature Marketplace (Tor,
+sing-box, Xray-core, MTProxy, Psiphon, AdGuard Home). All hooks are documented in detail in
+[./service-lifecycle.md](./service-lifecycle.md).
 
 ### Quick Hook Count by Sub-Group
 
-| Group | Hooks |
-|---|---|
-| Catalog & instances | `useAvailableServices`, `useServiceInstances`, `useServiceInstance` |
-| Installation | `useInstallService`, `useInstallProgress`, `useInstanceStatusChanged`, `useInstanceMonitoring` |
-| Lifecycle mutations | `useInstanceMutations` (start/stop/restart/delete) |
-| Verification | `useFeatureVerification`, `useInstanceVerificationStatus`, `useReverifyFeature` |
-| Configuration | `useServiceConfigSchema`, `useInstanceConfig`, `useValidateServiceConfig`, `useApplyServiceConfig`, `useServiceConfigOperations` |
-| Health | `useInstanceHealth`, `useInstanceHealthSubscription`, `useConfigureHealthCheck` |
-| Networking | `useVirtualInterfaces`, `useVirtualInterface`, `useBridgeStatus`, `useInstanceIsolation`, `useGatewayStatus` |
-| Port registry | `usePortAllocations`, `useCheckPortAvailability`, `useOrphanedPorts` |
-| Dependencies | `useDependencies`, `useDependents`, `useDependencyGraph`, `useDependencyMutations`, `useBootSequenceProgress` |
-| VLANs | `useVLANAllocations`, `useVLANPoolStatus`, `useCleanupOrphanedVLANs`, `useUpdateVLANPoolConfig` |
-| Traffic | `useServiceTrafficStats`, `useServiceDeviceBreakdown`, `useSetTrafficQuota`, `useResetTrafficQuota`, `useServiceTrafficSubscription`, `useTrafficMonitoring` |
-| Logs & diagnostics | `useServiceLogs`, `useServiceLogFile`, `useServiceLogsSubscription`, `useDiagnosticHistory`, `useAvailableDiagnostics`, `useRunDiagnostics`, `useDiagnosticsProgressSubscription` |
-| Sharing | `useExportService`, `useGenerateConfigQR`, `useImportService`, `useServiceSharing` |
-| Templates | `useServiceTemplates`, `useInstallTemplate`, `useExportAsTemplate`, `useImportTemplate`, `useDeleteTemplate`, `useTemplateInstallProgress` |
-| Updates | `useAvailableUpdates`, `useCheckForUpdates`, `useUpdateInstance`, `useUpdateAllInstances`, `useRollbackInstance`, `useUpdateProgress` |
-| Device routing | `useDeviceRoutingMatrix`, `useDeviceRoutings`, `useDeviceRouting`, `useAssignDeviceRouting`, `useRemoveDeviceRouting`, `useBulkAssignRouting`, `useDeviceRoutingSubscription` |
-| Kill switch | `useKillSwitchStatus`, `useSetKillSwitch`, `useKillSwitchSubscription` |
-| Schedules | `useRoutingSchedules`, `useRoutingSchedule`, `useCreateSchedule`, `useUpdateSchedule`, `useDeleteSchedule` |
-| Alerts | `useServiceAlerts`, `useServiceAlertSubscription`, `useAcknowledgeAlert`, `useAcknowledgeAlerts` |
-| System resources | `useSystemResources`, `useSetResourceLimits`, `useResourceUsageSubscription` |
+| Group               | Hooks                                                                                                                                                                             |
+| ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Catalog & instances | `useAvailableServices`, `useServiceInstances`, `useServiceInstance`                                                                                                               |
+| Installation        | `useInstallService`, `useInstallProgress`, `useInstanceStatusChanged`, `useInstanceMonitoring`                                                                                    |
+| Lifecycle mutations | `useInstanceMutations` (start/stop/restart/delete)                                                                                                                                |
+| Verification        | `useFeatureVerification`, `useInstanceVerificationStatus`, `useReverifyFeature`                                                                                                   |
+| Configuration       | `useServiceConfigSchema`, `useInstanceConfig`, `useValidateServiceConfig`, `useApplyServiceConfig`, `useServiceConfigOperations`                                                  |
+| Health              | `useInstanceHealth`, `useInstanceHealthSubscription`, `useConfigureHealthCheck`                                                                                                   |
+| Networking          | `useVirtualInterfaces`, `useVirtualInterface`, `useBridgeStatus`, `useInstanceIsolation`, `useGatewayStatus`                                                                      |
+| Port registry       | `usePortAllocations`, `useCheckPortAvailability`, `useOrphanedPorts`                                                                                                              |
+| Dependencies        | `useDependencies`, `useDependents`, `useDependencyGraph`, `useDependencyMutations`, `useBootSequenceProgress`                                                                     |
+| VLANs               | `useVLANAllocations`, `useVLANPoolStatus`, `useCleanupOrphanedVLANs`, `useUpdateVLANPoolConfig`                                                                                   |
+| Traffic             | `useServiceTrafficStats`, `useServiceDeviceBreakdown`, `useSetTrafficQuota`, `useResetTrafficQuota`, `useServiceTrafficSubscription`, `useTrafficMonitoring`                      |
+| Logs & diagnostics  | `useServiceLogs`, `useServiceLogFile`, `useServiceLogsSubscription`, `useDiagnosticHistory`, `useAvailableDiagnostics`, `useRunDiagnostics`, `useDiagnosticsProgressSubscription` |
+| Sharing             | `useExportService`, `useGenerateConfigQR`, `useImportService`, `useServiceSharing`                                                                                                |
+| Templates           | `useServiceTemplates`, `useInstallTemplate`, `useExportAsTemplate`, `useImportTemplate`, `useDeleteTemplate`, `useTemplateInstallProgress`                                        |
+| Updates             | `useAvailableUpdates`, `useCheckForUpdates`, `useUpdateInstance`, `useUpdateAllInstances`, `useRollbackInstance`, `useUpdateProgress`                                             |
+| Device routing      | `useDeviceRoutingMatrix`, `useDeviceRoutings`, `useDeviceRouting`, `useAssignDeviceRouting`, `useRemoveDeviceRouting`, `useBulkAssignRouting`, `useDeviceRoutingSubscription`     |
+| Kill switch         | `useKillSwitchStatus`, `useSetKillSwitch`, `useKillSwitchSubscription`                                                                                                            |
+| Schedules           | `useRoutingSchedules`, `useRoutingSchedule`, `useCreateSchedule`, `useUpdateSchedule`, `useDeleteSchedule`                                                                        |
+| Alerts              | `useServiceAlerts`, `useServiceAlertSubscription`, `useAcknowledgeAlert`, `useAcknowledgeAlerts`                                                                                  |
+| System resources    | `useSystemResources`, `useSetResourceLimits`, `useResourceUsageSubscription`                                                                                                      |
 
 **Total: 55+ exported hooks from the `services/` domain alone.**

@@ -24,12 +24,12 @@ const meta: Meta<typeof StepAnnouncer> = {
   decorators: [
     (Story) => (
       // Wrapper removes sr-only so the text is visible in Storybook canvas
-      <div className="w-full max-w-xl p-6 bg-background space-y-4">
-        <div className="text-sm text-muted-foreground italic mb-2">
-          Note: This component is screen-reader-only in production. The announcement text is surfaced
-          here for review.
+      <div className="bg-background w-full max-w-xl space-y-4 p-6">
+        <div className="text-muted-foreground mb-2 text-sm italic">
+          Note: This component is screen-reader-only in production. The announcement text is
+          surfaced here for review.
         </div>
-        <div className="[&_.sr-only]:static [&_.sr-only]:clip-auto [&_.sr-only]:overflow-visible [&_.sr-only]:w-auto [&_.sr-only]:h-auto [&_.sr-only]:p-3 [&_.sr-only]:rounded-md [&_.sr-only]:border [&_.sr-only]:border-dashed [&_.sr-only]:border-muted-foreground [&_.sr-only]:text-sm [&_.sr-only]:font-mono">
+        <div className="[&_.sr-only]:clip-auto [&_.sr-only]:border-muted-foreground [&_.sr-only]:static [&_.sr-only]:h-auto [&_.sr-only]:w-auto [&_.sr-only]:overflow-visible [&_.sr-only]:rounded-md [&_.sr-only]:border [&_.sr-only]:border-dashed [&_.sr-only]:p-3 [&_.sr-only]:font-mono [&_.sr-only]:text-sm">
           <Story />
         </div>
       </div>

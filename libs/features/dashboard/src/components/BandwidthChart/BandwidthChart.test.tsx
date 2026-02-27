@@ -80,17 +80,19 @@ describe('BandwidthChart', () => {
   ];
 
   const wrapper = ({ children, mocks = defaultMocks }: { children: ReactNode; mocks?: any[] }) => (
-    <MockedProvider mocks={mocks} addTypename={false}>
+    <MockedProvider
+      mocks={mocks}
+      addTypename={false}
+    >
       {children}
     </MockedProvider>
   );
 
   describe('Rendering', () => {
     it('should render chart with mock data', async () => {
-      render(
-        <BandwidthChartDesktop deviceId="router-1" />,
-        { wrapper: (props) => wrapper({ ...props, mocks: defaultMocks }) }
-      );
+      render(<BandwidthChartDesktop deviceId="router-1" />, {
+        wrapper: (props) => wrapper({ ...props, mocks: defaultMocks }),
+      });
 
       // Wait for data to load
       await waitFor(() => {
@@ -104,10 +106,9 @@ describe('BandwidthChart', () => {
     });
 
     it('should show loading skeleton during data fetch', () => {
-      render(
-        <BandwidthChartDesktop deviceId="router-1" />,
-        { wrapper: (props) => wrapper({ ...props, mocks: [] }) }
-      );
+      render(<BandwidthChartDesktop deviceId="router-1" />, {
+        wrapper: (props) => wrapper({ ...props, mocks: [] }),
+      });
 
       // Skeleton should be visible initially
       // Note: This depends on your Skeleton component implementation
@@ -115,10 +116,9 @@ describe('BandwidthChart', () => {
     });
 
     it('should render current rates display', async () => {
-      render(
-        <BandwidthChartDesktop deviceId="router-1" />,
-        { wrapper: (props) => wrapper({ ...props, mocks: defaultMocks }) }
-      );
+      render(<BandwidthChartDesktop deviceId="router-1" />, {
+        wrapper: (props) => wrapper({ ...props, mocks: defaultMocks }),
+      });
 
       await waitFor(() => {
         expect(screen.getByText(/1\.\d+ Mbps/)).toBeInTheDocument(); // TX rate
@@ -152,10 +152,9 @@ describe('BandwidthChart', () => {
 
       const mocks = [...defaultMocks, oneHourMock];
 
-      render(
-        <BandwidthChartDesktop deviceId="router-1" />,
-        { wrapper: (props) => wrapper({ ...props, mocks }) }
-      );
+      render(<BandwidthChartDesktop deviceId="router-1" />, {
+        wrapper: (props) => wrapper({ ...props, mocks }),
+      });
 
       await waitFor(() => {
         expect(screen.queryByRole('status')).not.toBeInTheDocument();
@@ -174,10 +173,9 @@ describe('BandwidthChart', () => {
     it('should support keyboard navigation in time range selector', async () => {
       const user = userEvent.setup();
 
-      render(
-        <BandwidthChartDesktop deviceId="router-1" />,
-        { wrapper: (props) => wrapper({ ...props, mocks: defaultMocks }) }
-      );
+      render(<BandwidthChartDesktop deviceId="router-1" />, {
+        wrapper: (props) => wrapper({ ...props, mocks: defaultMocks }),
+      });
 
       await waitFor(() => {
         expect(screen.queryByRole('status')).not.toBeInTheDocument();
@@ -198,10 +196,9 @@ describe('BandwidthChart', () => {
 
   describe('Interface Filter Selection', () => {
     it('should render interface filter dropdown', async () => {
-      render(
-        <BandwidthChartDesktop deviceId="router-1" />,
-        { wrapper: (props) => wrapper({ ...props, mocks: defaultMocks }) }
-      );
+      render(<BandwidthChartDesktop deviceId="router-1" />, {
+        wrapper: (props) => wrapper({ ...props, mocks: defaultMocks }),
+      });
 
       await waitFor(() => {
         expect(screen.queryByRole('status')).not.toBeInTheDocument();
@@ -214,10 +211,9 @@ describe('BandwidthChart', () => {
 
   describe('Loading State', () => {
     it('should show skeleton during loading', () => {
-      render(
-        <BandwidthChartDesktop deviceId="router-1" />,
-        { wrapper: (props) => wrapper({ ...props, mocks: [] }) }
-      );
+      render(<BandwidthChartDesktop deviceId="router-1" />, {
+        wrapper: (props) => wrapper({ ...props, mocks: [] }),
+      });
 
       // Should show loading indicator
       // This depends on your skeleton implementation
@@ -242,10 +238,9 @@ describe('BandwidthChart', () => {
         },
       ];
 
-      render(
-        <BandwidthChartDesktop deviceId="router-1" />,
-        { wrapper: (props) => wrapper({ ...props, mocks: errorMocks }) }
-      );
+      render(<BandwidthChartDesktop deviceId="router-1" />, {
+        wrapper: (props) => wrapper({ ...props, mocks: errorMocks }),
+      });
 
       await waitFor(() => {
         expect(screen.getByText(/error loading chart/i)).toBeInTheDocument();
@@ -272,10 +267,9 @@ describe('BandwidthChart', () => {
         },
       ];
 
-      render(
-        <BandwidthChartDesktop deviceId="router-1" />,
-        { wrapper: (props) => wrapper({ ...props, mocks: errorMocks }) }
-      );
+      render(<BandwidthChartDesktop deviceId="router-1" />, {
+        wrapper: (props) => wrapper({ ...props, mocks: errorMocks }),
+      });
 
       await waitFor(() => {
         expect(screen.getByText(/error loading chart/i)).toBeInTheDocument();
@@ -313,10 +307,9 @@ describe('BandwidthChart', () => {
         },
       ];
 
-      render(
-        <BandwidthChartDesktop deviceId="router-1" />,
-        { wrapper: (props) => wrapper({ ...props, mocks: emptyMocks }) }
-      );
+      render(<BandwidthChartDesktop deviceId="router-1" />, {
+        wrapper: (props) => wrapper({ ...props, mocks: emptyMocks }),
+      });
 
       await waitFor(() => {
         expect(screen.getByText(/no bandwidth data/i)).toBeInTheDocument();
@@ -329,10 +322,9 @@ describe('BandwidthChart', () => {
 
   describe('Accessibility', () => {
     it('should have proper ARIA labels for chart region', async () => {
-      render(
-        <BandwidthChartDesktop deviceId="router-1" />,
-        { wrapper: (props) => wrapper({ ...props, mocks: defaultMocks }) }
-      );
+      render(<BandwidthChartDesktop deviceId="router-1" />, {
+        wrapper: (props) => wrapper({ ...props, mocks: defaultMocks }),
+      });
 
       await waitFor(() => {
         expect(screen.queryByRole('status')).not.toBeInTheDocument();
@@ -343,10 +335,9 @@ describe('BandwidthChart', () => {
     });
 
     it('should have keyboard-accessible controls', async () => {
-      render(
-        <BandwidthChartDesktop deviceId="router-1" />,
-        { wrapper: (props) => wrapper({ ...props, mocks: defaultMocks }) }
-      );
+      render(<BandwidthChartDesktop deviceId="router-1" />, {
+        wrapper: (props) => wrapper({ ...props, mocks: defaultMocks }),
+      });
 
       await waitFor(() => {
         expect(screen.queryByRole('status')).not.toBeInTheDocument();
@@ -364,10 +355,9 @@ describe('BandwidthChart', () => {
     });
 
     it('should provide screen reader alternative via data table', async () => {
-      render(
-        <BandwidthChartDesktop deviceId="router-1" />,
-        { wrapper: (props) => wrapper({ ...props, mocks: defaultMocks }) }
-      );
+      render(<BandwidthChartDesktop deviceId="router-1" />, {
+        wrapper: (props) => wrapper({ ...props, mocks: defaultMocks }),
+      });
 
       await waitFor(() => {
         expect(screen.queryByRole('status')).not.toBeInTheDocument();
@@ -384,10 +374,9 @@ describe('BandwidthChart', () => {
       const { usePlatform } = require('@nasnet/ui/layouts');
       vi.mocked(usePlatform).mockReturnValue('desktop');
 
-      const { container } = render(
-        <BandwidthChart deviceId="router-1" />,
-        { wrapper: (props) => wrapper({ ...props, mocks: defaultMocks }) }
-      );
+      const { container } = render(<BandwidthChart deviceId="router-1" />, {
+        wrapper: (props) => wrapper({ ...props, mocks: defaultMocks }),
+      });
 
       // Desktop version should be rendered
       // This would check for desktop-specific class or structure
@@ -398,10 +387,9 @@ describe('BandwidthChart', () => {
       const { usePlatform } = require('@nasnet/ui/layouts');
       vi.mocked(usePlatform).mockReturnValue('mobile');
 
-      const { container } = render(
-        <BandwidthChart deviceId="router-1" />,
-        { wrapper: (props) => wrapper({ ...props, mocks: defaultMocks }) }
-      );
+      const { container } = render(<BandwidthChart deviceId="router-1" />, {
+        wrapper: (props) => wrapper({ ...props, mocks: defaultMocks }),
+      });
 
       // Mobile version should be rendered
       expect(container).toBeTruthy();
@@ -413,10 +401,9 @@ describe('BandwidthChart', () => {
       const { useReducedMotion } = require('@nasnet/ui/layouts');
       vi.mocked(useReducedMotion).mockReturnValue(true);
 
-      render(
-        <BandwidthChartDesktop deviceId="router-1" />,
-        { wrapper: (props) => wrapper({ ...props, mocks: defaultMocks }) }
-      );
+      render(<BandwidthChartDesktop deviceId="router-1" />, {
+        wrapper: (props) => wrapper({ ...props, mocks: defaultMocks }),
+      });
 
       // Animation should be disabled
       // This would check for isAnimationActive prop on Recharts components

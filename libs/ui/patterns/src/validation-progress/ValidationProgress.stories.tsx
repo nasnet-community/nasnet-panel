@@ -100,8 +100,16 @@ export const Failed: Story = {
         stage: 'cross-resource',
         status: 'failed',
         errors: [
-          { code: 'IP_COLLISION', message: 'IP 192.168.1.1 conflicts with bridge1', fieldPath: 'address' },
-          { code: 'PORT_CONFLICT', message: 'Port 8080 already in use by web-proxy', fieldPath: 'listenPort' },
+          {
+            code: 'IP_COLLISION',
+            message: 'IP 192.168.1.1 conflicts with bridge1',
+            fieldPath: 'address',
+          },
+          {
+            code: 'PORT_CONFLICT',
+            message: 'Port 8080 already in use by web-proxy',
+            fieldPath: 'listenPort',
+          },
         ],
         warnings: [],
         durationMs: 45,
@@ -125,9 +133,7 @@ export const WithWarnings: Story = {
         stage: 'cross-resource',
         status: 'passed',
         errors: [],
-        warnings: [
-          { code: 'DEPRECATED_OPTION', message: 'Setting "legacy-mode" is deprecated' },
-        ],
+        warnings: [{ code: 'DEPRECATED_OPTION', message: 'Setting "legacy-mode" is deprecated' }],
         durationMs: 45,
       },
     ],
@@ -231,7 +237,11 @@ export const StageFailed: StoryObj<typeof ValidationStage> = {
         stage: 'cross-resource',
         status: 'failed',
         errors: [
-          { code: 'IP_COLLISION', message: 'IP address conflicts with existing interface', fieldPath: 'address' },
+          {
+            code: 'IP_COLLISION',
+            message: 'IP address conflicts with existing interface',
+            fieldPath: 'address',
+          },
         ],
         warnings: [],
         durationMs: 45,

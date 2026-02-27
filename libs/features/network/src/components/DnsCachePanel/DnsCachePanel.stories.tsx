@@ -242,7 +242,8 @@ export const Error: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Error occurred while fetching cache statistics. Shows error message with retry option.',
+        story:
+          'Error occurred while fetching cache statistics. Shows error message with retry option.',
       },
     },
   },

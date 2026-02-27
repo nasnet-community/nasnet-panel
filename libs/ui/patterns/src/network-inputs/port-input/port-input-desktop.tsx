@@ -24,9 +24,7 @@ import type { PortInputDesktopProps, PortSuggestion } from './port-input.types';
 /**
  * Group suggestions by category for dropdown display.
  */
-function groupSuggestionsByCategory(
-  suggestions: PortSuggestion[]
-): Map<string, PortSuggestion[]> {
+function groupSuggestionsByCategory(suggestions: PortSuggestion[]): Map<string, PortSuggestion[]> {
   const groups = new Map<string, PortSuggestion[]>();
 
   suggestions.forEach((suggestion) => {
@@ -45,9 +43,7 @@ function groupSuggestionsByCategory(
 /**
  * Desktop presenter for port input component.
  */
-export const PortInputDesktop = memo(function PortInputDesktop(
-  props: PortInputDesktopProps
-) {
+export const PortInputDesktop = memo(function PortInputDesktop(props: PortInputDesktopProps) {
   const {
     mode = 'single',
     protocol = 'tcp',
@@ -138,16 +134,19 @@ export const PortInputDesktop = memo(function PortInputDesktop(
         id={suggestionsId}
         role="listbox"
         aria-label="Port suggestions"
-        className="absolute top-full left-0 right-0 z-50 mt-1 max-h-60 overflow-auto rounded-md border bg-popover p-1 shadow-md"
+        className="bg-popover absolute left-0 right-0 top-full z-50 mt-1 max-h-60 overflow-auto rounded-md border p-1 shadow-md"
       >
         {Array.from(groupedSuggestions.entries()).map(([category, items]) => (
-          <div key={category} className="mb-1 last:mb-0">
-            <div className="px-2 py-1 text-xs font-medium text-muted-foreground">
-              {category === 'group'
-                ? 'Service Groups'
-                : category === 'recent'
-                ? 'Recent'
-                : PORT_CATEGORY_LABELS[category as keyof typeof PORT_CATEGORY_LABELS] || category}
+          <div
+            key={category}
+            className="mb-1 last:mb-0"
+          >
+            <div className="text-muted-foreground px-2 py-1 text-xs font-medium">
+              {category === 'group' ?
+                'Service Groups'
+              : category === 'recent' ?
+                'Recent'
+              : PORT_CATEGORY_LABELS[category as keyof typeof PORT_CATEGORY_LABELS] || category}
             </div>
             {items.map((suggestion) => {
               const globalIndex = suggestions.findIndex(
@@ -171,9 +170,15 @@ export const PortInputDesktop = memo(function PortInputDesktop(
                     )}
                     onClick={() => handleSelectServiceGroup(suggestion.groupData!)}
                   >
-                    <Folder className="h-4 w-4 text-primary" aria-hidden="true" />
+                    <Folder
+                      className="text-primary h-4 w-4"
+                      aria-hidden="true"
+                    />
                     <span className="flex-1 font-medium">{suggestion.service}</span>
-                    <Badge variant="secondary" className="uppercase text-xs">
+                    <Badge
+                      variant="secondary"
+                      className="text-xs uppercase"
+                    >
                       {suggestion.groupData.protocol}
                     </Badge>
                   </button>
@@ -211,7 +216,10 @@ export const PortInputDesktop = memo(function PortInputDesktop(
     return (
       <div className={cn('relative space-y-2', className)}>
         {label && (
-          <Label htmlFor={inputId} className={cn(required && "after:content-['*'] after:ml-0.5 after:text-error")}>
+          <Label
+            htmlFor={inputId}
+            className={cn(required && "after:text-error after:ml-0.5 after:content-['*']")}
+          >
             {label}
           </Label>
         )}
@@ -234,7 +242,7 @@ export const PortInputDesktop = memo(function PortInputDesktop(
               disabled={disabled}
               placeholder={placeholder || '8080'}
               className={cn(
-                'font-mono w-24 h-10 text-center',
+                'h-10 w-24 text-center font-mono',
                 hasError && 'border-error focus-visible:ring-error'
               )}
               aria-invalid={hasError}
@@ -247,20 +255,27 @@ export const PortInputDesktop = memo(function PortInputDesktop(
               aria-autocomplete={showSuggestions ? 'list' : undefined}
               aria-controls={showSuggestions ? suggestionsId : undefined}
               aria-activedescendant={
-                selectedSuggestionIndex >= 0
-                  ? `${suggestionsId}-${selectedSuggestionIndex}`
-                  : undefined
+                selectedSuggestionIndex >= 0 ?
+                  `${suggestionsId}-${selectedSuggestionIndex}`
+                : undefined
               }
             />
 
             {/* Protocol badge */}
-            <Badge variant="outline" className="uppercase text-xs font-mono">
+            <Badge
+              variant="outline"
+              className="font-mono text-xs uppercase"
+            >
               {protocol}
             </Badge>
 
             {/* Service badge */}
             {showServiceBadge && (
-              <Badge variant="secondary" className="text-xs font-mono" aria-live="polite">
+              <Badge
+                variant="secondary"
+                className="font-mono text-xs"
+                aria-live="polite"
+              >
                 {serviceName}
               </Badge>
             )}
@@ -271,14 +286,22 @@ export const PortInputDesktop = memo(function PortInputDesktop(
 
         {/* Error message */}
         {hasError && (
-          <p id={errorId} role="alert" aria-live="assertive" className="text-sm text-error">
+          <p
+            id={errorId}
+            role="alert"
+            aria-live="assertive"
+            className="text-error text-sm"
+          >
             {error}
           </p>
         )}
 
         {/* Help text */}
         {helpText && !hasError && (
-          <p id={helpId} className="text-sm text-muted-foreground">
+          <p
+            id={helpId}
+            className="text-muted-foreground text-sm"
+          >
             {helpText}
           </p>
         )}
@@ -291,7 +314,7 @@ export const PortInputDesktop = memo(function PortInputDesktop(
     return (
       <div className={cn('relative space-y-2', className)}>
         {label && (
-          <Label className={cn(required && "after:content-['*'] after:ml-0.5 after:text-error")}>
+          <Label className={cn(required && "after:text-error after:ml-0.5 after:content-['*']")}>
             {label}
           </Label>
         )}
@@ -315,7 +338,7 @@ export const PortInputDesktop = memo(function PortInputDesktop(
               disabled={disabled}
               placeholder="1"
               className={cn(
-                'font-mono w-24 h-10 text-center',
+                'h-10 w-24 text-center font-mono',
                 hasError && 'border-error focus-visible:ring-error'
               )}
               aria-label="Start port"
@@ -341,7 +364,7 @@ export const PortInputDesktop = memo(function PortInputDesktop(
               disabled={disabled}
               placeholder="65535"
               className={cn(
-                'font-mono w-24 h-10 text-center',
+                'h-10 w-24 text-center font-mono',
                 hasError && 'border-error focus-visible:ring-error'
               )}
               aria-label="End port"
@@ -349,13 +372,19 @@ export const PortInputDesktop = memo(function PortInputDesktop(
             />
 
             {/* Protocol badge */}
-            <Badge variant="outline" className="uppercase text-xs font-mono">
+            <Badge
+              variant="outline"
+              className="font-mono text-xs uppercase"
+            >
               {protocol}
             </Badge>
 
             {/* Port count badge */}
             {portCount > 0 && (
-              <Badge variant="secondary" className="text-xs font-mono">
+              <Badge
+                variant="secondary"
+                className="font-mono text-xs"
+              >
                 {portCount} port{portCount !== 1 ? 's' : ''}
               </Badge>
             )}
@@ -366,14 +395,22 @@ export const PortInputDesktop = memo(function PortInputDesktop(
 
         {/* Error message */}
         {hasError && (
-          <p id={errorId} role="alert" aria-live="assertive" className="text-sm text-error">
+          <p
+            id={errorId}
+            role="alert"
+            aria-live="assertive"
+            className="text-error text-sm"
+          >
             {error}
           </p>
         )}
 
         {/* Help text */}
         {helpText && !hasError && (
-          <p id={helpId} className="text-sm text-muted-foreground">
+          <p
+            id={helpId}
+            className="text-muted-foreground text-sm"
+          >
             {helpText}
           </p>
         )}
@@ -385,7 +422,10 @@ export const PortInputDesktop = memo(function PortInputDesktop(
   return (
     <div className={cn('relative space-y-2', className)}>
       {label && (
-        <Label htmlFor={inputId} className={cn(required && "after:content-['*'] after:ml-0.5 after:text-error")}>
+        <Label
+          htmlFor={inputId}
+          className={cn(required && "after:text-error after:ml-0.5 after:content-['*']")}
+        >
           {label}
         </Label>
       )}
@@ -394,8 +434,8 @@ export const PortInputDesktop = memo(function PortInputDesktop(
         {/* Chip container with inline input */}
         <div
           className={cn(
-            'flex flex-wrap items-center gap-1 rounded-[var(--semantic-radius-input)] border bg-card p-2 min-h-10',
-            'focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2',
+            'bg-card flex min-h-10 flex-wrap items-center gap-1 rounded-[var(--semantic-radius-input)] border p-2',
+            'focus-within:ring-ring focus-within:ring-2 focus-within:ring-offset-2',
             hasError && 'border-error focus-within:ring-error',
             disabled && 'cursor-not-allowed opacity-50'
           )}
@@ -411,7 +451,7 @@ export const PortInputDesktop = memo(function PortInputDesktop(
               {portNum}
               {!disabled && (
                 <X
-                  className="h-3 w-3 cursor-pointer hover:text-foreground"
+                  className="hover:text-foreground h-3 w-3 cursor-pointer"
                   onClick={() => handleRemovePort(portNum)}
                   aria-label={`Remove port ${portNum}`}
                 />
@@ -434,7 +474,7 @@ export const PortInputDesktop = memo(function PortInputDesktop(
             onFocus={handleInputFocus}
             disabled={disabled}
             placeholder={ports.length === 0 ? placeholder || 'Add ports...' : ''}
-            className="flex-1 min-w-16 border-0 p-0 h-6 focus-visible:ring-0 focus-visible:ring-offset-0 font-mono text-sm bg-transparent"
+            className="h-6 min-w-16 flex-1 border-0 bg-transparent p-0 font-mono text-sm focus-visible:ring-0 focus-visible:ring-offset-0"
             aria-label="Add port"
             aria-invalid={hasError}
             aria-describedby={
@@ -445,14 +485,17 @@ export const PortInputDesktop = memo(function PortInputDesktop(
             aria-autocomplete={showSuggestions ? 'list' : undefined}
             aria-controls={showSuggestions ? suggestionsId : undefined}
             aria-activedescendant={
-              selectedSuggestionIndex >= 0
-                ? `${suggestionsId}-${selectedSuggestionIndex}`
-                : undefined
+              selectedSuggestionIndex >= 0 ?
+                `${suggestionsId}-${selectedSuggestionIndex}`
+              : undefined
             }
           />
 
           {/* Protocol badge */}
-          <Badge variant="outline" className="uppercase text-xs font-mono ml-auto shrink-0">
+          <Badge
+            variant="outline"
+            className="ml-auto shrink-0 font-mono text-xs uppercase"
+          >
             {protocol}
           </Badge>
         </div>
@@ -462,21 +505,29 @@ export const PortInputDesktop = memo(function PortInputDesktop(
 
       {/* Port count */}
       {portCount > 0 && (
-        <p className="text-sm text-muted-foreground">
+        <p className="text-muted-foreground text-sm">
           {portCount} port{portCount !== 1 ? 's' : ''} selected
         </p>
       )}
 
       {/* Error message */}
       {hasError && (
-        <p id={errorId} role="alert" aria-live="assertive" className="text-sm text-error">
+        <p
+          id={errorId}
+          role="alert"
+          aria-live="assertive"
+          className="text-error text-sm"
+        >
           {error}
         </p>
       )}
 
       {/* Help text */}
       {helpText && !hasError && (
-        <p id={helpId} className="text-sm text-muted-foreground">
+        <p
+          id={helpId}
+          className="text-muted-foreground text-sm"
+        >
           {helpText}
         </p>
       )}

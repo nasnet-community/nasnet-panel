@@ -55,7 +55,12 @@ import { cn } from '@nasnet/ui/primitives';
 
 import { SortableContext } from '../context';
 import { SortableItem } from './SortableItem';
-import { useSortableSensors, getCollisionDetection, SORTABLE_LIST_ROLE , dragOverlayAnimation } from '../config';
+import {
+  useSortableSensors,
+  getCollisionDetection,
+  SORTABLE_LIST_ROLE,
+  dragOverlayAnimation,
+} from '../config';
 import { useSortableList } from '../hooks/useSortableList';
 import { defaultAnnouncements, toDndKitAnnouncements } from '../utils/announcements';
 
@@ -108,23 +113,15 @@ function SortableListComponent<T extends SortableItemData>({
     undoEnabled: true,
   });
 
-  const {
-    items,
-    activeId,
-    overId,
-    isDragging,
-    activeItem,
-    selectedIds,
-    isSelected,
-    _handlers,
-  } = sortable as ReturnType<typeof useSortableList<T>> & {
-    _handlers: {
-      onDragStart: (event: DragStartEvent) => void;
-      onDragOver: (event: DragOverEvent) => void;
-      onDragEnd: (event: DragEndEvent) => void;
-      onDragCancel: () => void;
+  const { items, activeId, overId, isDragging, activeItem, selectedIds, isSelected, _handlers } =
+    sortable as ReturnType<typeof useSortableList<T>> & {
+      _handlers: {
+        onDragStart: (event: DragStartEvent) => void;
+        onDragOver: (event: DragOverEvent) => void;
+        onDragEnd: (event: DragEndEvent) => void;
+        onDragCancel: () => void;
+      };
     };
-  };
 
   // ============================================================================
   // Sensors
@@ -140,9 +137,7 @@ function SortableListComponent<T extends SortableItemData>({
   // ============================================================================
 
   const modifiers = React.useMemo(() => {
-    return direction === 'horizontal'
-      ? [restrictToHorizontalAxis]
-      : [restrictToVerticalAxis];
+    return direction === 'horizontal' ? [restrictToHorizontalAxis] : [restrictToVerticalAxis];
   }, [direction]);
 
   // ============================================================================
@@ -150,9 +145,7 @@ function SortableListComponent<T extends SortableItemData>({
   // ============================================================================
 
   const sortingStrategy = React.useMemo(() => {
-    return direction === 'horizontal'
-      ? horizontalListSortingStrategy
-      : verticalListSortingStrategy;
+    return direction === 'horizontal' ? horizontalListSortingStrategy : verticalListSortingStrategy;
   }, [direction]);
 
   // ============================================================================
@@ -171,7 +164,17 @@ function SortableListComponent<T extends SortableItemData>({
       showDragHandle,
       showPositionNumbers,
     }),
-    [items, activeId, overId, isDragging, direction, selectedIds, multiSelect, showDragHandle, showPositionNumbers]
+    [
+      items,
+      activeId,
+      overId,
+      isDragging,
+      direction,
+      selectedIds,
+      multiSelect,
+      showDragHandle,
+      showPositionNumbers,
+    ]
   );
 
   // ============================================================================
@@ -196,10 +199,7 @@ function SortableListComponent<T extends SortableItemData>({
   // Announcements
   // ============================================================================
 
-  const announcements = React.useMemo(
-    () => toDndKitAnnouncements(defaultAnnouncements),
-    []
-  );
+  const announcements = React.useMemo(() => toDndKitAnnouncements(defaultAnnouncements), []);
 
   // ============================================================================
   // Empty State
@@ -211,7 +211,7 @@ function SortableListComponent<T extends SortableItemData>({
         className={cn(
           'flex items-center justify-center',
           'min-h-[100px]',
-          'border-2 border-dashed border-primary/30',
+          'border-primary/30 border-2 border-dashed',
           'bg-primary/5',
           'rounded-[var(--semantic-radius-card)]',
           'p-6',
@@ -220,9 +220,7 @@ function SortableListComponent<T extends SortableItemData>({
         role={SORTABLE_LIST_ROLE}
         aria-label={ariaLabel}
       >
-        {emptyState ?? (
-          <span className="text-muted-foreground text-sm">No items to display</span>
-        )}
+        {emptyState ?? <span className="text-muted-foreground text-sm">No items to display</span>}
       </div>
     );
   }
@@ -287,10 +285,7 @@ function SortableListComponent<T extends SortableItemData>({
             <motion.div
               initial={dragOverlayAnimation.initial}
               animate={dragOverlayAnimation.dragging}
-              className={cn(
-                'pointer-events-none',
-                itemClassName
-              )}
+              className={cn('pointer-events-none', itemClassName)}
             >
               <SortableItem
                 id={activeItem.id}
@@ -300,7 +295,10 @@ function SortableListComponent<T extends SortableItemData>({
               >
                 {renderItem(
                   activeItem,
-                  createRenderOptions(activeItem, items.findIndex((i) => i.id === activeId))
+                  createRenderOptions(
+                    activeItem,
+                    items.findIndex((i) => i.id === activeId)
+                  )
                 )}
               </SortableItem>
             </motion.div>

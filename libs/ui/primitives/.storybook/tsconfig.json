@@ -4,12 +4,7 @@
     "jsx": "react-jsx",
     "types": ["node", "vite/client"]
   },
-  "include": [
-    "../src/**/*.ts",
-    "../src/**/*.tsx",
-    "./**/*.ts",
-    "./**/*.tsx"
-  ],
+  "include": ["../src/**/*.ts", "../src/**/*.tsx", "./**/*.ts", "./**/*.tsx"],
   "exclude": [
     "../src/**/*.test.ts",
     "../src/**/*.test.tsx",

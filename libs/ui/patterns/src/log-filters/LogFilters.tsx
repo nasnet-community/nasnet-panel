@@ -31,13 +31,7 @@ const ALL_TOPICS: LogTopic[] = [
   'error',
 ];
 
-const ALL_SEVERITIES: LogSeverity[] = [
-  'debug',
-  'info',
-  'warning',
-  'error',
-  'critical',
-];
+const ALL_SEVERITIES: LogSeverity[] = ['debug', 'info', 'warning', 'error', 'critical'];
 
 export interface LogFiltersProps {
   /**
@@ -112,10 +106,7 @@ function LogFiltersComponent({
     if (!isTopicOpen) return;
 
     const handleClickOutside = (event: MouseEvent) => {
-      if (
-        topicDropdownRef.current &&
-        !topicDropdownRef.current.contains(event.target as Node)
-      ) {
+      if (topicDropdownRef.current && !topicDropdownRef.current.contains(event.target as Node)) {
         setIsTopicOpen(false);
       }
     };
@@ -142,32 +133,44 @@ function LogFiltersComponent({
   }, [isSeverityOpen]);
 
   // Toggle topic selection
-  const toggleTopic = React.useCallback((topic: LogTopic) => {
-    if (topics.includes(topic)) {
-      onTopicsChange(topics.filter((t) => t !== topic));
-    } else {
-      onTopicsChange([...topics, topic]);
-    }
-  }, [topics, onTopicsChange]);
+  const toggleTopic = React.useCallback(
+    (topic: LogTopic) => {
+      if (topics.includes(topic)) {
+        onTopicsChange(topics.filter((t) => t !== topic));
+      } else {
+        onTopicsChange([...topics, topic]);
+      }
+    },
+    [topics, onTopicsChange]
+  );
 
   // Toggle severity selection
-  const toggleSeverity = React.useCallback((severity: LogSeverity) => {
-    if (severities.includes(severity)) {
-      onSeveritiesChange(severities.filter((s) => s !== severity));
-    } else {
-      onSeveritiesChange([...severities, severity]);
-    }
-  }, [severities, onSeveritiesChange]);
+  const toggleSeverity = React.useCallback(
+    (severity: LogSeverity) => {
+      if (severities.includes(severity)) {
+        onSeveritiesChange(severities.filter((s) => s !== severity));
+      } else {
+        onSeveritiesChange([...severities, severity]);
+      }
+    },
+    [severities, onSeveritiesChange]
+  );
 
   // Remove specific topic
-  const removeTopic = React.useCallback((topic: LogTopic) => {
-    onTopicsChange(topics.filter((t) => t !== topic));
-  }, [topics, onTopicsChange]);
+  const removeTopic = React.useCallback(
+    (topic: LogTopic) => {
+      onTopicsChange(topics.filter((t) => t !== topic));
+    },
+    [topics, onTopicsChange]
+  );
 
   // Remove specific severity
-  const removeSeverity = React.useCallback((severity: LogSeverity) => {
-    onSeveritiesChange(severities.filter((s) => s !== severity));
-  }, [severities, onSeveritiesChange]);
+  const removeSeverity = React.useCallback(
+    (severity: LogSeverity) => {
+      onSeveritiesChange(severities.filter((s) => s !== severity));
+    },
+    [severities, onSeveritiesChange]
+  );
 
   // Clear all filters (both topics and severities)
   const clearAll = React.useCallback(() => {
@@ -180,19 +183,22 @@ function LogFiltersComponent({
   return (
     <div className={cn('flex flex-col gap-3', className)}>
       {/* Filter Dropdowns */}
-      <div className="flex items-center gap-2 flex-wrap">
+      <div className="flex flex-wrap items-center gap-2">
         {/* Topic Filter Dropdown */}
-        <div className="relative" ref={topicDropdownRef}>
+        <div
+          className="relative"
+          ref={topicDropdownRef}
+        >
           <Button
             variant="outline"
             size="sm"
             onClick={() => setIsTopicOpen(!isTopicOpen)}
-            className="gap-2 rounded-button"
+            className="rounded-button gap-2"
           >
             <Filter className="h-4 w-4" />
             Filter by Topic
             {topics.length > 0 && (
-              <span className="ml-1 rounded-full bg-primary-500 px-2 py-0.5 text-xs text-slate-900 font-semibold">
+              <span className="bg-primary-500 ml-1 rounded-full px-2 py-0.5 text-xs font-semibold text-slate-900">
                 {topics.length}
               </span>
             )}
@@ -200,14 +206,14 @@ function LogFiltersComponent({
 
           {/* Topic Dropdown Menu */}
           {isTopicOpen && (
-            <div className="absolute left-0 top-full mt-2 z-50 min-w-[200px] rounded-card-sm border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-2 shadow-lg animate-in fade-in-0 zoom-in-95">
+            <div className="rounded-card-sm animate-in fade-in-0 zoom-in-95 absolute left-0 top-full z-50 mt-2 min-w-[200px] border border-slate-200 bg-white p-2 shadow-lg dark:border-slate-700 dark:bg-slate-800">
               <div className="max-h-[300px] overflow-y-auto">
                 {ALL_TOPICS.map((topic) => {
                   const isSelected = topics.includes(topic);
                   return (
                     <label
                       key={topic}
-                      className="flex items-center gap-2 px-2 py-2 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 rounded-button text-sm transition-colors"
+                      className="rounded-button flex cursor-pointer items-center gap-2 px-2 py-2 text-sm transition-colors hover:bg-slate-100 dark:hover:bg-slate-700"
                     >
                       <input
                         type="checkbox"
@@ -227,17 +233,20 @@ function LogFiltersComponent({
         </div>
 
         {/* Severity Filter Dropdown */}
-        <div className="relative" ref={severityDropdownRef}>
+        <div
+          className="relative"
+          ref={severityDropdownRef}
+        >
           <Button
             variant="outline"
             size="sm"
             onClick={() => setIsSeverityOpen(!isSeverityOpen)}
-            className="gap-2 rounded-button"
+            className="rounded-button gap-2"
           >
             <Filter className="h-4 w-4" />
             Filter by Severity
             {severities.length > 0 && (
-              <span className="ml-1 rounded-full bg-primary-500 px-2 py-0.5 text-xs text-slate-900 font-semibold">
+              <span className="bg-primary-500 ml-1 rounded-full px-2 py-0.5 text-xs font-semibold text-slate-900">
                 {severities.length}
               </span>
             )}
@@ -245,7 +254,7 @@ function LogFiltersComponent({
 
           {/* Severity Dropdown Menu */}
           {isSeverityOpen && (
-            <div className="absolute left-0 top-full mt-2 z-50 min-w-[180px] rounded-card-sm border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-2 shadow-lg animate-in fade-in-0 zoom-in-95">
+            <div className="rounded-card-sm animate-in fade-in-0 zoom-in-95 absolute left-0 top-full z-50 mt-2 min-w-[180px] border border-slate-200 bg-white p-2 shadow-lg dark:border-slate-700 dark:bg-slate-800">
               <div className="max-h-[250px] overflow-y-auto">
                 {ALL_SEVERITIES.map((severity) => {
                   const isSelected = severities.includes(severity);
@@ -253,7 +262,7 @@ function LogFiltersComponent({
                   return (
                     <label
                       key={severity}
-                      className="flex items-center gap-2 px-2 py-2 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 rounded-button text-sm transition-colors"
+                      className="rounded-button flex cursor-pointer items-center gap-2 px-2 py-2 text-sm transition-colors hover:bg-slate-100 dark:hover:bg-slate-700"
                     >
                       <input
                         type="checkbox"
@@ -273,7 +282,12 @@ function LogFiltersComponent({
 
         {/* Clear All Button */}
         {hasFilters && (
-          <Button variant="ghost" size="sm" onClick={clearAll} className="text-xs">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={clearAll}
+            className="text-xs"
+          >
             Clear filters
           </Button>
         )}
@@ -289,7 +303,7 @@ function LogFiltersComponent({
               onClick={() => removeTopic(topic)}
               className={cn(
                 topicBadgeVariants({ topic }),
-                'group flex items-center gap-1 cursor-pointer hover:opacity-80 transition-opacity'
+                'group flex cursor-pointer items-center gap-1 transition-opacity hover:opacity-80'
               )}
               aria-label={`Remove ${topic} filter`}
             >

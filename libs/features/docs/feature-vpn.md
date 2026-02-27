@@ -2,9 +2,12 @@
 
 ## Overview
 
-The VPN feature in NasNetConnect provides comprehensive multi-protocol VPN management for MikroTik routers. It supports six major VPN protocols (WireGuard, OpenVPN, L2TP, PPTP, SSTP, and IKEv2/IPsec) with both client and server configurations.
+The VPN feature in NasNetConnect provides comprehensive multi-protocol VPN management for MikroTik
+routers. It supports six major VPN protocols (WireGuard, OpenVPN, L2TP, PPTP, SSTP, and IKEv2/IPsec)
+with both client and server configurations.
 
 This module implements:
+
 - Real-time VPN infrastructure monitoring via a dashboard
 - Protocol-specific client and server management pages
 - Multi-protocol status and statistics aggregation
@@ -40,6 +43,7 @@ VPNServersPage (server management)
 ### Component Composition
 
 Each page combines:
+
 1. **Layout**: Header with refresh button, loading skeletons, error states
 2. **Pattern Components**: Reusable UI patterns from Layer 2
 3. **State Management**: Apollo Client queries via TanStack Query hooks
@@ -47,36 +51,40 @@ Each page combines:
 
 ## Supported VPN Protocols
 
-| Protocol | Client | Server | Notes |
-|----------|--------|--------|-------|
-| **WireGuard** | ✓ Peers | ✓ Interfaces | Modern, encrypted peer-to-peer |
-| **OpenVPN** | ✓ Clients | ✓ Servers | Industry standard, TLS/SSL |
-| **L2TP/IPsec** | ✓ Clients | ✓ Single Server | PPP-based, uses IPsec for encryption |
-| **PPTP** | ✓ Clients | ✓ Single Server | Legacy, PPP tunneling |
-| **SSTP** | ✓ Clients | ✓ Single Server | HTTPS-based tunneling |
-| **IKEv2/IPsec** | ✓ Peers (Client) | ✓ Peers (Server) | Modern, passive/non-passive mode |
+| Protocol        | Client           | Server           | Notes                                |
+| --------------- | ---------------- | ---------------- | ------------------------------------ |
+| **WireGuard**   | ✓ Peers          | ✓ Interfaces     | Modern, encrypted peer-to-peer       |
+| **OpenVPN**     | ✓ Clients        | ✓ Servers        | Industry standard, TLS/SSL           |
+| **L2TP/IPsec**  | ✓ Clients        | ✓ Single Server  | PPP-based, uses IPsec for encryption |
+| **PPTP**        | ✓ Clients        | ✓ Single Server  | Legacy, PPP tunneling                |
+| **SSTP**        | ✓ Clients        | ✓ Single Server  | HTTPS-based tunneling                |
+| **IKEv2/IPsec** | ✓ Peers (Client) | ✓ Peers (Server) | Modern, passive/non-passive mode     |
 
 ### Protocol Implementation Details
 
 **WireGuard**
+
 - Interfaces have multiple peers (bidirectional)
 - Stores public keys, endpoints, and allowed IPs
 - Per-peer traffic stats via `rx`/`tx` counters
 - Query hooks: `useWireGuardInterfaces`, `useWireGuardPeers`
 
 **OpenVPN**
+
 - Separate server and client configurations
 - PPP-based user authentication
 - Real-time connection tracking
 - Query hooks: `useOpenVPNServers`, `useOpenVPNClients`
 
 **L2TP/PPTP/SSTP**
+
 - Single server instance per protocol
 - PPP-based authentication (shared PPP secrets)
 - Multiple active connections tracked via `usePPPActive`
 - Query hooks: `useL2TPServer`/`useL2TPClients`, etc.
 
 **IKEv2/IPsec**
+
 - Peers marked as `isPassive` (server) or active (client)
 - Detailed identity and policy configuration
 - Active connections tracked separately from policies
@@ -103,6 +111,7 @@ Routes defined under `/router/$id/vpn/`:
 **Purpose**: Main overview page showing aggregate VPN infrastructure health.
 
 **Key Features**:
+
 - Uses `useVPNStats()` to fetch aggregated data from all protocols
 - Displays health status (healthy/warning/critical)
 - Shows server/client count and active connections
@@ -111,6 +120,7 @@ Routes defined under `/router/$id/vpn/`:
 - Issues section shows up to 5 alerts
 
 **Hooks Used**:
+
 ```typescript
 const { data: stats } = useVPNStats(routerIp);
 // Returns VPNDashboardStats with:
@@ -121,6 +131,7 @@ const { data: stats } = useVPNStats(routerIp);
 ```
 
 **Responsive Design**:
+
 - Mobile: Single column layout, bottom navigation
 - Tablet: 2-column grid for nav cards
 - Desktop: 3-column grid for protocol stats
@@ -132,6 +143,7 @@ const { data: stats } = useVPNStats(routerIp);
 **Purpose**: Display WireGuard interfaces (primary protocol) plus read-only view of other protocols.
 
 **Key Features**:
+
 - Parallel queries for WireGuard, L2TP, PPTP, SSTP
 - Manual refresh button (only refreshes WireGuard)
 - Auto-refreshes every 5 seconds
@@ -140,6 +152,7 @@ const { data: stats } = useVPNStats(routerIp);
 - Empty state with helpful messaging
 
 **Hooks Used**:
+
 ```typescript
 const { data: wireguardInterfaces } = useWireGuardInterfaces(routerIp);
 const { data: l2tpInterfaces } = useL2TPInterfaces(routerIp);
@@ -154,6 +167,7 @@ const { data: sstpInterfaces } = useSSTPInterfaces(routerIp);
 **Purpose**: Manage all VPN client configurations across protocols.
 
 **Key Features**:
+
 - Protocol-based tab navigation (All, WireGuard, OpenVPN, L2TP, PPTP, SSTP, IKEv2)
 - Toggle client enabled/disabled
 - View connection status and traffic stats
@@ -162,6 +176,7 @@ const { data: sstpInterfaces } = useSSTPInterfaces(routerIp);
 - 2-column grid layout for client cards
 
 **Client Types**:
+
 - **WireGuard Peers**: Filter interfaces with `endpoint` defined
 - **OpenVPN Clients**: All configured OpenVPN clients
 - **L2TP Clients**: All configured L2TP clients
@@ -170,6 +185,7 @@ const { data: sstpInterfaces } = useSSTPInterfaces(routerIp);
 - **IKEv2 Peers**: Filter peers with `isPassive === false` (client mode)
 
 **Hooks Used**:
+
 ```typescript
 const wireguardPeers = useWireGuardPeers(routerIp);
 const openvpnClients = useOpenVPNClients(routerIp);
@@ -185,6 +201,7 @@ const toggleMutation = useToggleVPNInterface();
 **Purpose**: Manage all VPN server configurations across protocols.
 
 **Key Features**:
+
 - Protocol-based tab navigation (All, WireGuard, OpenVPN, L2TP, PPTP, SSTP, IKEv2)
 - Toggle server enabled/disabled
 - View port, connected client count
@@ -193,6 +210,7 @@ const toggleMutation = useToggleVPNInterface();
 - 2-column grid layout for server cards
 
 **Server Types**:
+
 - **WireGuard Interfaces**: Multiple servers, each with `listenPort`
 - **OpenVPN Servers**: Multiple servers with port configuration
 - **L2TP Server**: Single instance, client count from PPP active
@@ -201,6 +219,7 @@ const toggleMutation = useToggleVPNInterface();
 - **IKEv2 Peers**: Filter peers with `isPassive === true` (server mode)
 
 **Hooks Used**:
+
 ```typescript
 const wireguardServers = useWireGuardInterfaces(routerIp);
 const openvpnServers = useOpenVPNServers(routerIp);
@@ -218,6 +237,7 @@ const toggleMutation = useToggleVPNInterface();
 **Purpose**: Display a single VPN client with connection status and stats.
 
 **Props**:
+
 ```typescript
 interface VPNClientCardProps {
   id: string;
@@ -225,12 +245,12 @@ interface VPNClientCardProps {
   protocol: VPNProtocol;
   isDisabled: boolean;
   isRunning: boolean;
-  connectTo: string;           // Remote server address
+  connectTo: string; // Remote server address
   port?: number;
   user?: string;
   uptime?: string;
-  rx?: number;                 // Bytes received
-  tx?: number;                 // Bytes transmitted
+  rx?: number; // Bytes received
+  tx?: number; // Bytes transmitted
   localAddress?: string;
   remoteAddress?: string;
   comment?: string;
@@ -243,6 +263,7 @@ interface VPNClientCardProps {
 ```
 
 **Rendering**:
+
 - Protocol icon badge + status indicator
 - Remote server address display
 - Connection info section (when connected): uptime, IP addresses, traffic stats
@@ -250,6 +271,7 @@ interface VPNClientCardProps {
 - Green left border (`border-l-4 border-l-category-vpn`)
 
 **Responsive Design**:
+
 - Unified component (no separate mobile/desktop presenters)
 - Touch-friendly: 44px minimum touch targets
 
@@ -260,6 +282,7 @@ interface VPNClientCardProps {
 **Purpose**: Display a single VPN server with active connections and stats.
 
 **Props**:
+
 ```typescript
 interface VPNServerCardProps {
   id: string;
@@ -268,9 +291,9 @@ interface VPNServerCardProps {
   isDisabled: boolean;
   isRunning: boolean;
   port?: number;
-  connectedClients?: number;   // Active client count
-  rx?: number;                 // Bytes received
-  tx?: number;                 // Bytes transmitted
+  connectedClients?: number; // Active client count
+  rx?: number; // Bytes received
+  tx?: number; // Bytes transmitted
   comment?: string;
   onToggle?: (id: string, enabled: boolean) => void;
   onEdit?: (id: string) => void;
@@ -281,6 +304,7 @@ interface VPNServerCardProps {
 ```
 
 **Rendering**:
+
 - Protocol icon badge + status indicator
 - Port display + connected clients count
 - Traffic stats (rx/tx)
@@ -294,6 +318,7 @@ interface VPNServerCardProps {
 **Purpose**: Large health indicator card for VPN infrastructure.
 
 **Props**:
+
 ```typescript
 type VPNHealthStatus = 'healthy' | 'warning' | 'critical' | 'loading';
 
@@ -310,6 +335,7 @@ interface VPNStatusHeroProps {
 ```
 
 **Rendering**:
+
 - Large status icon (Shield/ShieldAlert/ShieldX/Loader2)
 - Title and subtitle based on health status
 - Stats bar (4 columns): Servers, Clients, Active, Traffic
@@ -326,18 +352,20 @@ interface VPNStatusHeroProps {
 **Purpose**: Collapsible section grouping VPN interfaces by protocol type.
 
 **Props**:
+
 ```typescript
 interface VPNTypeSectionProps {
-  type: string;                         // "L2TP", "PPTP", etc.
-  count: number;                        // Interface count
+  type: string; // "L2TP", "PPTP", etc.
+  count: number; // Interface count
   defaultExpanded?: boolean;
   children: React.ReactNode;
   icon?: React.ReactNode;
-  showReadOnlyNotice?: boolean;         // Shows "Read-only" notice
+  showReadOnlyNotice?: boolean; // Shows "Read-only" notice
 }
 ```
 
 **Rendering**:
+
 - Collapsible header with chevron icon
 - Count badge
 - "Read-only" notice (for non-WireGuard protocols)
@@ -351,6 +379,7 @@ interface VPNTypeSectionProps {
 **Purpose**: Display protocol-level statistics in grid format.
 
 **Rendering**:
+
 - Protocol icon with name
 - Server/client count
 - Active connections
@@ -364,6 +393,7 @@ interface VPNTypeSectionProps {
 **Purpose**: Navigation card to servers or clients page.
 
 **Props**:
+
 ```typescript
 interface VPNNavigationCardProps {
   type: 'server' | 'client';
@@ -374,6 +404,7 @@ interface VPNNavigationCardProps {
 ```
 
 **Rendering**:
+
 - Icon + "VPN Servers" or "VPN Clients"
 - Count display with active/total formatting
 - Click handler for navigation
@@ -385,6 +416,7 @@ interface VPNNavigationCardProps {
 **Purpose**: Display list of VPN warnings/errors.
 
 **Rendering**:
+
 - Each issue as red/amber alert
 - Issue type, protocol, entity name
 - Severity indicator
@@ -404,6 +436,7 @@ useVPNStats(routerIp: string) → Promise<VPNDashboardStats>
 ```
 
 **Behavior**:
+
 - Fetches individual hooks for all protocols
 - Aggregates into single stats object
 - Calculates `overallHealth` based on issues
@@ -507,6 +540,7 @@ useToggleVPNInterface() → UseMutationResult<void, Error, {
 ```
 
 **Behavior**:
+
 - Sets `disabled` flag on VPN interface
 - Invalidates relevant query cache after mutation
 - Used by: VPNClientCard, VPNServerCard toggle buttons
@@ -579,7 +613,7 @@ vpnKeys = {
 
   ppp: (routerIp) => ['vpn', 'ppp', routerIp],
   pppActive: (routerIp) => [...ppp, 'active'],
-}
+};
 ```
 
 ## State Management
@@ -589,6 +623,7 @@ vpnKeys = {
 All VPN data flows through TanStack Query (React Query):
 
 **Caching Strategy**:
+
 - `staleTime: 5000-10000ms` - Config data cached briefly
 - `refetchInterval: 5000ms` - Auto-refresh for real-time status
 - `refetchOnWindowFocus: true` - Update when tab regains focus
@@ -619,7 +654,8 @@ VPN-specific UI state (selected protocol tab, filters) managed locally in compon
 
 ### Future: XState Integration
 
-Multi-step VPN connection flows (e.g., WireGuard peer configuration) will use XState machines (reference: doc 03).
+Multi-step VPN connection flows (e.g., WireGuard peer configuration) will use XState machines
+(reference: doc 03).
 
 ## Backend Integration
 
@@ -649,10 +685,12 @@ GET  /rest/ppp/secret                       → PPPSecret[]
 VPN server provisioning implemented in `apps/backend/internal/provisioning/vpnserver/`:
 
 **Files**:
+
 - `ikev2_server.go` - IKEv2/IPsec server setup
 - `ppp_servers.go` - L2TP/PPTP/SSTP PPP server setup
 
 **Provisioning Flow**:
+
 1. User configures VPN server via UI form
 2. Apply mutation sent to backend GraphQL
 3. Backend validates and applies via RouterOS API

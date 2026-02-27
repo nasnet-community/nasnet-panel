@@ -50,7 +50,12 @@ describe('ServiceHealthBadge', () => {
   });
 
   it('should show loading state', () => {
-    render(<ServiceHealthBadge health={null} loading={true} />);
+    render(
+      <ServiceHealthBadge
+        health={null}
+        loading={true}
+      />
+    );
 
     expect(screen.getByText('Checking...')).toBeInTheDocument();
   });
@@ -156,7 +161,12 @@ describe('ServiceHealthBadge', () => {
       uptimeSeconds: 3600,
     };
 
-    const { container } = render(<ServiceHealthBadge health={health} animate />);
+    const { container } = render(
+      <ServiceHealthBadge
+        health={health}
+        animate
+      />
+    );
 
     // Animation class should be present
     expect(container.querySelector('.animate-pulse')).toBeTruthy();
@@ -174,7 +184,10 @@ describe('ServiceHealthBadge', () => {
     };
 
     const { container } = render(
-      <ServiceHealthBadge health={health} className="custom-class" />
+      <ServiceHealthBadge
+        health={health}
+        className="custom-class"
+      />
     );
 
     expect(container.querySelector('.custom-class')).toBeTruthy();

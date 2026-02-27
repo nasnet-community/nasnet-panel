@@ -294,12 +294,15 @@ describe('FilterRulesTable', () => {
       render(<FilterRulesTable />, { wrapper: createWrapper() });
 
       // Wait for the useEffect scroll to trigger (100ms timeout in component)
-      await waitFor(() => {
-        expect(scrollIntoViewMock).toHaveBeenCalledWith({
-          behavior: 'smooth',
-          block: 'center',
-        });
-      }, { timeout: 200 });
+      await waitFor(
+        () => {
+          expect(scrollIntoViewMock).toHaveBeenCalledWith({
+            behavior: 'smooth',
+            block: 'center',
+          });
+        },
+        { timeout: 200 }
+      );
     });
   });
 });

@@ -37,9 +37,7 @@ export const InterfaceListDesktop = memo(function InterfaceListDesktop({
   onOpenDetail,
 }: InterfaceListDesktopProps) {
   // Get selected interface objects for safety checks
-  const selectedInterfaces = allInterfaces.filter((iface) =>
-    selectedIds.has(iface.id)
-  );
+  const selectedInterfaces = allInterfaces.filter((iface) => selectedIds.has(iface.id));
 
   // Column definitions
   const columns = [
@@ -47,26 +45,22 @@ export const InterfaceListDesktop = memo(function InterfaceListDesktop({
       key: 'name',
       header: 'Name',
       cell: (row: any) => (
-        <span className="font-medium font-mono category-networking">{row.name}</span>
+        <span className="category-networking font-mono font-medium">{row.name}</span>
       ),
     },
     {
       key: 'type',
       header: 'Type',
-      cell: (row: any) => (
-        <Badge variant="outline">{row.type}</Badge>
-      ),
+      cell: (row: any) => <Badge variant="outline">{row.type}</Badge>,
     },
     {
       key: 'status',
       header: 'Status',
       cell: (row: any) => {
         const variant =
-          row.status === 'UP'
-            ? 'success'
-            : row.status === 'DOWN'
-            ? 'error'
-            : 'secondary';
+          row.status === 'UP' ? 'success'
+          : row.status === 'DOWN' ? 'error'
+          : 'secondary';
         return <Badge variant={variant}>{row.status}</Badge>;
       },
     },
@@ -74,16 +68,14 @@ export const InterfaceListDesktop = memo(function InterfaceListDesktop({
       key: 'enabled',
       header: 'Enabled',
       cell: (row: any) => (
-        <Badge variant={row.enabled ? 'default' : 'outline'}>
-          {row.enabled ? 'Yes' : 'No'}
-        </Badge>
+        <Badge variant={row.enabled ? 'default' : 'outline'}>{row.enabled ? 'Yes' : 'No'}</Badge>
       ),
     },
     {
       key: 'ip',
       header: 'IP Address',
       cell: (row: any) => (
-        <span className="text-sm text-muted-foreground font-mono category-networking">
+        <span className="text-muted-foreground category-networking font-mono text-sm">
           {row.ip?.join(', ') || '-'}
         </span>
       ),
@@ -91,15 +83,13 @@ export const InterfaceListDesktop = memo(function InterfaceListDesktop({
     {
       key: 'mtu',
       header: 'MTU',
-      cell: (row: any) => (
-        <span className="text-sm">{row.mtu || '-'}</span>
-      ),
+      cell: (row: any) => <span className="text-sm">{row.mtu || '-'}</span>,
     },
     {
       key: 'comment',
       header: 'Comment',
       cell: (row: any) => (
-        <span className="text-sm text-muted-foreground truncate max-w-xs">
+        <span className="text-muted-foreground max-w-xs truncate text-sm">
           {row.comment || '-'}
         </span>
       ),
@@ -110,14 +100,24 @@ export const InterfaceListDesktop = memo(function InterfaceListDesktop({
     return (
       <div className="space-y-component-md category-networking">
         <div className="flex items-center justify-between">
-          <InterfaceListFilters filters={filters} onChange={onFilterChange} />
+          <InterfaceListFilters
+            filters={filters}
+            onChange={onFilterChange}
+          />
         </div>
-        <div className="p-component-lg text-center border rounded-card-sm border-error bg-error/10" role="alert">
+        <div
+          className="p-component-lg rounded-card-sm border-error bg-error/10 border text-center"
+          role="alert"
+        >
           <p className="text-error font-medium">Failed to load interfaces</p>
-          <p className="text-sm text-error/70 mt-component-sm">
+          <p className="text-error/70 mt-component-sm text-sm">
             {error.message || 'Unknown error'}
           </p>
-          <Button onClick={onRefresh} className="mt-component-md" aria-label="Retry loading interfaces">
+          <Button
+            onClick={onRefresh}
+            className="mt-component-md"
+            aria-label="Retry loading interfaces"
+          >
             Retry
           </Button>
         </div>
@@ -129,7 +129,10 @@ export const InterfaceListDesktop = memo(function InterfaceListDesktop({
     <div className="space-y-component-md category-networking">
       {/* Toolbar */}
       <div className="flex items-center justify-between">
-        <InterfaceListFilters filters={filters} onChange={onFilterChange} />
+        <InterfaceListFilters
+          filters={filters}
+          onChange={onFilterChange}
+        />
         {selectedIds.size > 0 && (
           <BatchActionsToolbar
             routerId={routerId}
@@ -147,9 +150,9 @@ export const InterfaceListDesktop = memo(function InterfaceListDesktop({
         isLoading={loading}
         onRowClick={(row: any) => onOpenDetail(row.id)}
         emptyMessage={
-          filters.type || filters.status || filters.search
-            ? 'No interfaces match the current filters'
-            : 'No interfaces found'
+          filters.type || filters.status || filters.search ?
+            'No interfaces match the current filters'
+          : 'No interfaces found'
         }
       />
     </div>

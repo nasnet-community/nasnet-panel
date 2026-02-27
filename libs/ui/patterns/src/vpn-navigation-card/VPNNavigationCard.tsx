@@ -75,9 +75,9 @@ function VPNNavigationCardComponent({
   return (
     <Card
       className={cn(
-        'bg-card border border-border rounded-[var(--semantic-radius-card)] cursor-pointer transition-colors duration-150',
+        'bg-card border-border cursor-pointer rounded-[var(--semantic-radius-card)] border transition-colors duration-150',
         'hover:bg-muted',
-        'min-h-[44px] sm:min-h-auto',
+        'sm:min-h-auto min-h-[44px]',
         className
       )}
       onClick={handleClick}
@@ -88,24 +88,24 @@ function VPNNavigationCardComponent({
         <div className="flex items-center justify-between gap-4 sm:gap-6">
           {/* Icon */}
           <div className="flex-shrink-0">
-            <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-[var(--semantic-radius-button)] bg-category-vpn/10 flex items-center justify-center">
+            <div className="bg-category-vpn/10 flex h-8 w-8 items-center justify-center rounded-[var(--semantic-radius-button)] sm:h-10 sm:w-10">
               <Icon className={cn('h-5 w-5 sm:h-6 sm:w-6', config.iconColor)} />
             </div>
           </div>
 
           {/* Content */}
-          <div className="flex-1 min-w-0">
-            <h3 className="text-sm sm:text-lg font-semibold text-foreground truncate">
+          <div className="min-w-0 flex-1">
+            <h3 className="text-foreground truncate text-sm font-semibold sm:text-lg">
               {config.title}
             </h3>
-            <p className="text-xs sm:text-sm text-muted-foreground hidden sm:block truncate">
+            <p className="text-muted-foreground hidden truncate text-xs sm:block sm:text-sm">
               {config.description}
             </p>
           </div>
 
           {/* Arrow */}
           <div className="flex-shrink-0">
-            <ChevronRight className="h-4 w-4 text-muted-foreground" />
+            <ChevronRight className="text-muted-foreground h-4 w-4" />
           </div>
         </div>
       </CardContent>
@@ -114,10 +114,9 @@ function VPNNavigationCardComponent({
 }
 
 export const VPNNavigationCard = React.memo(
-  forwardRef<HTMLDivElement, VPNNavigationCardProps>(
-    (props, ref) => <VPNNavigationCardComponent {...props} />
-  )
+  forwardRef<HTMLDivElement, VPNNavigationCardProps>((props, ref) => (
+    <VPNNavigationCardComponent {...props} />
+  ))
 );
 
 VPNNavigationCard.displayName = 'VPNNavigationCard';
-

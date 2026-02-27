@@ -84,21 +84,24 @@ const variantConfigs: Record<ErrorPageVariant, VariantConfig> = {
   error: {
     icon: AlertTriangle,
     defaultTitle: 'Something went wrong',
-    defaultDescription: 'An unexpected error occurred. Please try again or contact support if the problem persists.',
+    defaultDescription:
+      'An unexpected error occurred. Please try again or contact support if the problem persists.',
     iconBg: 'bg-error/10',
     iconColor: 'text-error',
   },
   network: {
     icon: WifiOff,
     defaultTitle: 'Connection lost',
-    defaultDescription: 'Unable to connect to the server. Please check your network connection and try again.',
+    defaultDescription:
+      'Unable to connect to the server. Please check your network connection and try again.',
     iconBg: 'bg-info/10',
     iconColor: 'text-info',
   },
   unauthorized: {
     icon: ShieldX,
     defaultTitle: 'Access denied',
-    defaultDescription: "You don't have permission to access this page. Please contact your administrator if you believe this is an error.",
+    defaultDescription:
+      "You don't have permission to access this page. Please contact your administrator if you believe this is an error.",
     iconBg: 'bg-warning/10',
     iconColor: 'text-warning',
   },
@@ -112,7 +115,8 @@ const variantConfigs: Record<ErrorPageVariant, VariantConfig> = {
   'server-error': {
     icon: ServerCrash,
     defaultTitle: 'Server error',
-    defaultDescription: 'The server encountered an error while processing your request. Our team has been notified.',
+    defaultDescription:
+      'The server encountered an error while processing your request. Our team has been notified.',
     iconBg: 'bg-error/10',
     iconColor: 'text-error',
   },
@@ -205,31 +209,28 @@ function ErrorPageComponent({
 
   return (
     <div
-      className={cn(
-        'min-h-[70vh] flex items-center justify-center p-4 sm:p-6',
-        className
-      )}
+      className={cn('flex min-h-[70vh] items-center justify-center p-4 sm:p-6', className)}
       role="main"
       aria-labelledby="error-title"
     >
-      <div className="max-w-lg w-full text-center">
+      <div className="w-full max-w-lg text-center">
         {/* Status Code */}
         {statusCode && (
-          <p className="text-6xl sm:text-8xl font-bold text-muted-foreground/30 mb-2">
+          <p className="text-muted-foreground/30 mb-2 text-6xl font-bold sm:text-8xl">
             {statusCode}
           </p>
         )}
 
         {/* Icon */}
-        <div className="flex justify-center mb-6">
+        <div className="mb-6 flex justify-center">
           <div
             className={cn(
-              'w-16 h-16 sm:w-20 sm:h-20 rounded-2xl flex items-center justify-center',
+              'flex h-16 w-16 items-center justify-center rounded-2xl sm:h-20 sm:w-20',
               config.iconBg
             )}
           >
             <Icon
-              className={cn('w-8 h-8 sm:w-10 sm:h-10', config.iconColor)}
+              className={cn('h-8 w-8 sm:h-10 sm:w-10', config.iconColor)}
               aria-hidden="true"
             />
           </div>
@@ -238,44 +239,64 @@ function ErrorPageComponent({
         {/* Title */}
         <h1
           id="error-title"
-          className="text-2xl sm:text-3xl font-bold text-foreground mb-3"
+          className="text-foreground mb-3 text-2xl font-bold sm:text-3xl"
         >
           {title || config.defaultTitle}
         </h1>
 
         {/* Description */}
-        <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+        <p className="text-muted-foreground mx-auto mb-6 max-w-md">
           {description || config.defaultDescription}
         </p>
 
         {/* Error Code Badge */}
         {errorCode && (
           <div className="mb-6">
-            <span className="inline-flex items-center gap-1.5 text-xs font-mono text-muted-foreground bg-muted px-2 py-1 rounded">
+            <span className="text-muted-foreground bg-muted inline-flex items-center gap-1.5 rounded px-2 py-1 font-mono text-xs">
               Error Code: {errorCode}
             </span>
           </div>
         )}
 
         {/* Primary Actions */}
-        <div className="flex flex-col sm:flex-row gap-3 justify-center mb-4">
+        <div className="mb-4 flex flex-col justify-center gap-3 sm:flex-row">
           {onRetry && (
-            <Button onClick={handleRetry} size="lg">
-              <RefreshCw className="w-4 h-4 mr-2" aria-hidden="true" />
+            <Button
+              onClick={handleRetry}
+              size="lg"
+            >
+              <RefreshCw
+                className="mr-2 h-4 w-4"
+                aria-hidden="true"
+              />
               {retryLabel}
             </Button>
           )}
 
           {showBackButton && (
-            <Button onClick={handleGoBack} variant="outline" size="lg">
-              <ArrowLeft className="w-4 h-4 mr-2" aria-hidden="true" />
+            <Button
+              onClick={handleGoBack}
+              variant="outline"
+              size="lg"
+            >
+              <ArrowLeft
+                className="mr-2 h-4 w-4"
+                aria-hidden="true"
+              />
               Go Back
             </Button>
           )}
 
           {showHomeButton && (
-            <Button onClick={handleGoHome} variant="outline" size="lg">
-              <Home className="w-4 h-4 mr-2" aria-hidden="true" />
+            <Button
+              onClick={handleGoHome}
+              variant="outline"
+              size="lg"
+            >
+              <Home
+                className="mr-2 h-4 w-4"
+                aria-hidden="true"
+              />
               Go to Dashboard
             </Button>
           )}
@@ -286,29 +307,37 @@ function ErrorPageComponent({
           {(technicalMessage || stackTrace) && (
             <button
               onClick={() => setShowDetails(!showDetails)}
-              className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
+              className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1 text-sm transition-colors"
               aria-expanded={showDetails}
             >
-              {showDetails ? (
+              {showDetails ?
                 <>
-                  <ChevronUp className="w-4 h-4" aria-hidden="true" />
+                  <ChevronUp
+                    className="h-4 w-4"
+                    aria-hidden="true"
+                  />
                   Hide details
                 </>
-              ) : (
-                <>
-                  <ChevronDown className="w-4 h-4" aria-hidden="true" />
+              : <>
+                  <ChevronDown
+                    className="h-4 w-4"
+                    aria-hidden="true"
+                  />
                   Show details
                 </>
-              )}
+              }
             </button>
           )}
 
           {onReport && (
             <button
               onClick={handleReport}
-              className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
+              className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1 text-sm transition-colors"
             >
-              <Bug className="w-4 h-4" aria-hidden="true" />
+              <Bug
+                className="h-4 w-4"
+                aria-hidden="true"
+              />
               Report Issue
             </button>
           )}
@@ -316,25 +345,23 @@ function ErrorPageComponent({
 
         {/* Technical Details */}
         {showDetails && (technicalMessage || stackTrace) && (
-          <div className="mt-6 p-4 bg-muted rounded-lg text-left max-w-md mx-auto">
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+          <div className="bg-muted mx-auto mt-6 max-w-md rounded-lg p-4 text-left">
+            <div className="mb-2 flex items-center justify-between">
+              <span className="text-muted-foreground text-xs font-medium uppercase tracking-wide">
                 Technical Details
               </span>
               <button
                 onClick={handleCopyError}
-                className="text-xs text-muted-foreground hover:text-foreground"
+                className="text-muted-foreground hover:text-foreground text-xs"
               >
                 Copy
               </button>
             </div>
             {technicalMessage && (
-              <p className="text-sm font-mono text-foreground break-all">
-                {technicalMessage}
-              </p>
+              <p className="text-foreground break-all font-mono text-sm">{technicalMessage}</p>
             )}
             {import.meta.env.DEV && stackTrace && (
-              <pre className="mt-3 text-xs text-muted-foreground overflow-auto max-h-40 whitespace-pre-wrap">
+              <pre className="text-muted-foreground mt-3 max-h-40 overflow-auto whitespace-pre-wrap text-xs">
                 {stackTrace}
               </pre>
             )}

@@ -91,20 +91,32 @@ export const SizePresets: Story = {
   render: () => (
     <div className="flex items-end gap-6">
       <div className="flex flex-col items-center gap-2">
-        <Icon icon={Router} size="sm" />
-        <span className="text-xs text-muted-foreground">sm (16px)</span>
+        <Icon
+          icon={Router}
+          size="sm"
+        />
+        <span className="text-muted-foreground text-xs">sm (16px)</span>
       </div>
       <div className="flex flex-col items-center gap-2">
-        <Icon icon={Router} size="md" />
-        <span className="text-xs text-muted-foreground">md (20px)</span>
+        <Icon
+          icon={Router}
+          size="md"
+        />
+        <span className="text-muted-foreground text-xs">md (20px)</span>
       </div>
       <div className="flex flex-col items-center gap-2">
-        <Icon icon={Router} size="lg" />
-        <span className="text-xs text-muted-foreground">lg (24px)</span>
+        <Icon
+          icon={Router}
+          size="lg"
+        />
+        <span className="text-muted-foreground text-xs">lg (24px)</span>
       </div>
       <div className="flex flex-col items-center gap-2">
-        <Icon icon={Router} size="xl" />
-        <span className="text-xs text-muted-foreground">xl (32px)</span>
+        <Icon
+          icon={Router}
+          size="xl"
+        />
+        <span className="text-muted-foreground text-xs">xl (32px)</span>
       </div>
     </div>
   ),
@@ -114,20 +126,32 @@ export const CustomPixelSize: Story = {
   render: () => (
     <div className="flex items-end gap-6">
       <div className="flex flex-col items-center gap-2">
-        <Icon icon={Network} size={12} />
-        <span className="text-xs text-muted-foreground">12px</span>
+        <Icon
+          icon={Network}
+          size={12}
+        />
+        <span className="text-muted-foreground text-xs">12px</span>
       </div>
       <div className="flex flex-col items-center gap-2">
-        <Icon icon={Network} size={18} />
-        <span className="text-xs text-muted-foreground">18px</span>
+        <Icon
+          icon={Network}
+          size={18}
+        />
+        <span className="text-muted-foreground text-xs">18px</span>
       </div>
       <div className="flex flex-col items-center gap-2">
-        <Icon icon={Network} size={36} />
-        <span className="text-xs text-muted-foreground">36px</span>
+        <Icon
+          icon={Network}
+          size={36}
+        />
+        <span className="text-muted-foreground text-xs">36px</span>
       </div>
       <div className="flex flex-col items-center gap-2">
-        <Icon icon={Network} size={48} />
-        <span className="text-xs text-muted-foreground">48px</span>
+        <Icon
+          icon={Network}
+          size={48}
+        />
+        <span className="text-muted-foreground text-xs">48px</span>
       </div>
     </div>
   ),
@@ -137,24 +161,49 @@ export const SemanticColors: Story = {
   render: () => (
     <div className="flex items-center gap-6">
       <div className="flex flex-col items-center gap-2">
-        <Icon icon={CheckCircle} size="lg" className="text-success" label="Online" />
-        <span className="text-xs text-muted-foreground">success</span>
+        <Icon
+          icon={CheckCircle}
+          size="lg"
+          className="text-success"
+          label="Online"
+        />
+        <span className="text-muted-foreground text-xs">success</span>
       </div>
       <div className="flex flex-col items-center gap-2">
-        <Icon icon={AlertTriangle} size="lg" className="text-warning" label="Warning" />
-        <span className="text-xs text-muted-foreground">warning</span>
+        <Icon
+          icon={AlertTriangle}
+          size="lg"
+          className="text-warning"
+          label="Warning"
+        />
+        <span className="text-muted-foreground text-xs">warning</span>
       </div>
       <div className="flex flex-col items-center gap-2">
-        <Icon icon={XCircle} size="lg" className="text-error" label="Error" />
-        <span className="text-xs text-muted-foreground">error</span>
+        <Icon
+          icon={XCircle}
+          size="lg"
+          className="text-error"
+          label="Error"
+        />
+        <span className="text-muted-foreground text-xs">error</span>
       </div>
       <div className="flex flex-col items-center gap-2">
-        <Icon icon={Activity} size="lg" className="text-info" label="Info" />
-        <span className="text-xs text-muted-foreground">info</span>
+        <Icon
+          icon={Activity}
+          size="lg"
+          className="text-info"
+          label="Info"
+        />
+        <span className="text-muted-foreground text-xs">info</span>
       </div>
       <div className="flex flex-col items-center gap-2">
-        <Icon icon={Settings} size="lg" className="text-primary" label="Settings" />
-        <span className="text-xs text-muted-foreground">primary</span>
+        <Icon
+          icon={Settings}
+          size="lg"
+          className="text-primary"
+          label="Settings"
+        />
+        <span className="text-muted-foreground text-xs">primary</span>
       </div>
     </div>
   ),
@@ -164,36 +213,76 @@ export const NetworkContextIcons: Story = {
   render: () => (
     <div className="flex flex-wrap items-center gap-4">
       <div className="flex flex-col items-center gap-1">
-        <Icon icon={Wifi} size="lg" className="text-networkWireless" label="WiFi" />
-        <span className="text-xs text-muted-foreground">WiFi</span>
+        <Icon
+          icon={Wifi}
+          size="lg"
+          className="text-networkWireless"
+          label="WiFi"
+        />
+        <span className="text-muted-foreground text-xs">WiFi</span>
       </div>
       <div className="flex flex-col items-center gap-1">
-        <Icon icon={Shield} size="lg" className="text-categoryFirewall" label="Firewall" />
-        <span className="text-xs text-muted-foreground">Firewall</span>
+        <Icon
+          icon={Shield}
+          size="lg"
+          className="text-categoryFirewall"
+          label="Firewall"
+        />
+        <span className="text-muted-foreground text-xs">Firewall</span>
       </div>
       <div className="flex flex-col items-center gap-1">
-        <Icon icon={Lock} size="lg" className="text-networkVpn" label="VPN" />
-        <span className="text-xs text-muted-foreground">VPN</span>
+        <Icon
+          icon={Lock}
+          size="lg"
+          className="text-networkVpn"
+          label="VPN"
+        />
+        <span className="text-muted-foreground text-xs">VPN</span>
       </div>
       <div className="flex flex-col items-center gap-1">
-        <Icon icon={Globe} size="lg" className="text-networkWan" label="WAN" />
-        <span className="text-xs text-muted-foreground">WAN</span>
+        <Icon
+          icon={Globe}
+          size="lg"
+          className="text-networkWan"
+          label="WAN"
+        />
+        <span className="text-muted-foreground text-xs">WAN</span>
       </div>
       <div className="flex flex-col items-center gap-1">
-        <Icon icon={Server} size="lg" className="text-categorySystem" label="Server" />
-        <span className="text-xs text-muted-foreground">Server</span>
+        <Icon
+          icon={Server}
+          size="lg"
+          className="text-categorySystem"
+          label="Server"
+        />
+        <span className="text-muted-foreground text-xs">Server</span>
       </div>
       <div className="flex flex-col items-center gap-1">
-        <Icon icon={Cpu} size="lg" className="text-categoryMonitoring" label="CPU" />
-        <span className="text-xs text-muted-foreground">CPU</span>
+        <Icon
+          icon={Cpu}
+          size="lg"
+          className="text-categoryMonitoring"
+          label="CPU"
+        />
+        <span className="text-muted-foreground text-xs">CPU</span>
       </div>
       <div className="flex flex-col items-center gap-1">
-        <Icon icon={HardDrive} size="lg" className="text-categoryNetworking" label="Storage" />
-        <span className="text-xs text-muted-foreground">Storage</span>
+        <Icon
+          icon={HardDrive}
+          size="lg"
+          className="text-categoryNetworking"
+          label="Storage"
+        />
+        <span className="text-muted-foreground text-xs">Storage</span>
       </div>
       <div className="flex flex-col items-center gap-1">
-        <Icon icon={Terminal} size="lg" className="text-muted" label="CLI" />
-        <span className="text-xs text-muted-foreground">CLI</span>
+        <Icon
+          icon={Terminal}
+          size="lg"
+          className="text-muted"
+          label="CLI"
+        />
+        <span className="text-muted-foreground text-xs">CLI</span>
       </div>
     </div>
   ),
@@ -203,19 +292,39 @@ export const InlineWithText: Story = {
   render: () => (
     <div className="flex flex-col gap-3">
       <div className="flex items-center gap-2 text-sm">
-        <Icon icon={CheckCircle} size="sm" className="text-success" label="Connected" />
+        <Icon
+          icon={CheckCircle}
+          size="sm"
+          className="text-success"
+          label="Connected"
+        />
         <span>Router is online and reachable</span>
       </div>
       <div className="flex items-center gap-2 text-sm">
-        <Icon icon={AlertTriangle} size="sm" className="text-warning" label="Warning" />
+        <Icon
+          icon={AlertTriangle}
+          size="sm"
+          className="text-warning"
+          label="Warning"
+        />
         <span>High CPU usage detected (87%)</span>
       </div>
       <div className="flex items-center gap-2 text-sm">
-        <Icon icon={XCircle} size="sm" className="text-error" label="Disconnected" />
+        <Icon
+          icon={XCircle}
+          size="sm"
+          className="text-error"
+          label="Disconnected"
+        />
         <span>VPN tunnel is down</span>
       </div>
       <div className="flex items-center gap-2 text-sm">
-        <Icon icon={Activity} size="sm" className="text-info" label="Info" />
+        <Icon
+          icon={Activity}
+          size="sm"
+          className="text-info"
+          label="Info"
+        />
         <span>Firmware update available (v7.14)</span>
       </div>
     </div>
@@ -282,8 +391,11 @@ export const AccessibilityCompliance: Story = {
         <h3 className="mb-3 text-sm font-medium">Decorative Icons (aria-hidden)</h3>
         <div className="flex items-center gap-4">
           <div className="flex flex-col items-center gap-2">
-            <Icon icon={Wifi} size="md" />
-            <span className="text-xs text-muted-foreground">No label (decorative)</span>
+            <Icon
+              icon={Wifi}
+              size="md"
+            />
+            <span className="text-muted-foreground text-xs">No label (decorative)</span>
           </div>
         </div>
       </div>
@@ -292,12 +404,22 @@ export const AccessibilityCompliance: Story = {
         <h3 className="mb-3 text-sm font-medium">Semantic Icons with Labels (aria-label)</h3>
         <div className="flex items-center gap-4">
           <div className="flex flex-col items-center gap-2">
-            <Icon icon={CheckCircle} size="md" className="text-success" label="Connected" />
-            <span className="text-xs text-muted-foreground">With label</span>
+            <Icon
+              icon={CheckCircle}
+              size="md"
+              className="text-success"
+              label="Connected"
+            />
+            <span className="text-muted-foreground text-xs">With label</span>
           </div>
           <div className="flex flex-col items-center gap-2">
-            <Icon icon={XCircle} size="md" className="text-error" label="Disconnected" />
-            <span className="text-xs text-muted-foreground">With label</span>
+            <Icon
+              icon={XCircle}
+              size="md"
+              className="text-error"
+              label="Disconnected"
+            />
+            <span className="text-muted-foreground text-xs">With label</span>
           </div>
         </div>
       </div>
@@ -306,19 +428,39 @@ export const AccessibilityCompliance: Story = {
         <h3 className="mb-3 text-sm font-medium">Semantic Color Compliance (7:1 Contrast)</h3>
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-3">
-            <Icon icon={CheckCircle} size="lg" className="text-success" label="Success" />
+            <Icon
+              icon={CheckCircle}
+              size="lg"
+              className="text-success"
+              label="Success"
+            />
             <span className="text-sm">Success (Green #22C55E)</span>
           </div>
           <div className="flex items-center gap-3">
-            <Icon icon={AlertTriangle} size="lg" className="text-warning" label="Warning" />
+            <Icon
+              icon={AlertTriangle}
+              size="lg"
+              className="text-warning"
+              label="Warning"
+            />
             <span className="text-sm">Warning (Amber #F59E0B)</span>
           </div>
           <div className="flex items-center gap-3">
-            <Icon icon={XCircle} size="lg" className="text-error" label="Error" />
+            <Icon
+              icon={XCircle}
+              size="lg"
+              className="text-error"
+              label="Error"
+            />
             <span className="text-sm">Error (Red #EF4444)</span>
           </div>
           <div className="flex items-center gap-3">
-            <Icon icon={Activity} size="lg" className="text-info" label="Info" />
+            <Icon
+              icon={Activity}
+              size="lg"
+              className="text-info"
+              label="Info"
+            />
             <span className="text-sm">Info (Blue #0EA5E9)</span>
           </div>
         </div>
@@ -327,12 +469,20 @@ export const AccessibilityCompliance: Story = {
       <div>
         <h3 className="mb-3 text-sm font-medium">Touch Target Sizes (44px minimum)</h3>
         <div className="flex flex-col gap-2">
-          <button className="flex items-center justify-center gap-2 rounded border border-border p-3">
-            <Icon icon={Wifi} size="lg" label="WiFi status" />
+          <button className="border-border flex items-center justify-center gap-2 rounded border p-3">
+            <Icon
+              icon={Wifi}
+              size="lg"
+              label="WiFi status"
+            />
             <span className="text-sm">Mobile (lg=24px icon in 44px target)</span>
           </button>
-          <button className="flex items-center justify-center gap-2 rounded border border-border p-2">
-            <Icon icon={Settings} size="md" label="Settings" />
+          <button className="border-border flex items-center justify-center gap-2 rounded border p-2">
+            <Icon
+              icon={Settings}
+              size="md"
+              label="Settings"
+            />
             <span className="text-sm">Desktop (md=20px icon in 36px target)</span>
           </button>
         </div>

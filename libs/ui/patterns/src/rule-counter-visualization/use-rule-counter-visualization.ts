@@ -140,15 +140,9 @@ export function useRuleCounterVisualization({
   const [previousCounter, setPreviousCounter] = useState<CounterData | null>(null);
 
   // Format current values
-  const formattedPackets = useMemo(
-    () => formatPackets(counter.packets),
-    [counter.packets]
-  );
+  const formattedPackets = useMemo(() => formatPackets(counter.packets), [counter.packets]);
 
-  const formattedBytes = useMemo(
-    () => formatBytes(counter.bytes),
-    [counter.bytes]
-  );
+  const formattedBytes = useMemo(() => formatBytes(counter.bytes), [counter.bytes]);
 
   // Calculate percentage of max bytes
   const percentOfMax = useMemo(() => {

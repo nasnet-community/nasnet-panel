@@ -136,9 +136,7 @@ export function topologicalSort(nodes: ReadonlyArray<DependencyNode>): Topologic
   }
 
   // Build adjacency list and in-degree count
-  const nodeMap = new Map<string, DependencyNode>(
-    nodes.map((n) => [n.id, n])
-  );
+  const nodeMap = new Map<string, DependencyNode>(nodes.map((n) => [n.id, n]));
   const inDegree = new Map<string, number>();
   const adjacencyList = new Map<string, string[]>();
 
@@ -195,8 +193,9 @@ export function topologicalSort(nodes: ReadonlyArray<DependencyNode>): Topologic
       success: false,
       sortedIds: [],
       cycle,
-      error: cycle
-        ? `Circular dependency detected: ${cycle.join(' -> ')} -> ${cycle[0]}`
+      error:
+        cycle ?
+          `Circular dependency detected: ${cycle.join(' -> ')} -> ${cycle[0]}`
         : 'Circular dependency detected',
     };
   }
@@ -221,9 +220,7 @@ export function topologicalSort(nodes: ReadonlyArray<DependencyNode>): Topologic
  * @internal Used internally by topologicalSort and detectCycles
  */
 function findCycle(nodes: ReadonlyArray<DependencyNode>): string[] | null {
-  const nodeMap = new Map<string, DependencyNode>(
-    nodes.map((n) => [n.id, n])
-  );
+  const nodeMap = new Map<string, DependencyNode>(nodes.map((n) => [n.id, n]));
   const visited = new Set<string>();
   const recursionStack = new Set<string>();
   const parent = new Map<string, string>();
@@ -304,9 +301,7 @@ export function reverseOrder(sortedIds: string[]): string[] {
  * ```
  */
 export function detectCycles(nodes: ReadonlyArray<DependencyNode>): CycleDetectionResult {
-  const nodeMap = new Map<string, DependencyNode>(
-    nodes.map((n) => [n.id, n])
-  );
+  const nodeMap = new Map<string, DependencyNode>(nodes.map((n) => [n.id, n]));
   const cycles: string[][] = [];
   const visited = new Set<string>();
   const recursionStack: string[] = [];
@@ -401,16 +396,11 @@ export function analyzeDependencies(nodes: ReadonlyArray<DependencyNode>): Depen
 
   // Find roots (no dependencies within the graph)
   const roots = nodes
-    .filter((n) =>
-      n.dependencies.length === 0 ||
-      n.dependencies.every((d) => !nodeSet.has(d))
-    )
+    .filter((n) => n.dependencies.length === 0 || n.dependencies.every((d) => !nodeSet.has(d)))
     .map((n) => n.id);
 
   // Find leaves (no dependents)
-  const leaves = nodes
-    .filter((n) => (dependents.get(n.id)?.size || 0) === 0)
-    .map((n) => n.id);
+  const leaves = nodes.filter((n) => (dependents.get(n.id)?.size || 0) === 0).map((n) => n.id);
 
   // Calculate levels using BFS
   const levels: string[][] = [];
@@ -571,9 +561,7 @@ export function validateDependencyGraph(
   const cycleResult = detectCycles(nodes);
   if (cycleResult.hasCycle) {
     for (const cycle of cycleResult.cycles) {
-      errors.push(
-        `Circular dependency detected: ${cycle.join(' -> ')} -> ${cycle[0]}`
-      );
+      errors.push(`Circular dependency detected: ${cycle.join(' -> ')} -> ${cycle[0]}`);
     }
   }
 

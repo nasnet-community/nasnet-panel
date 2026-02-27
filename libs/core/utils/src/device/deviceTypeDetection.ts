@@ -64,45 +64,45 @@ const HOSTNAME_PATTERNS: Array<[RegExp, DeviceType]> = [
  */
 const VENDOR_HINTS = {
   // Smartphones (most common)
-  'Apple': DeviceType.SMARTPHONE,
+  Apple: DeviceType.SMARTPHONE,
   'Samsung Electronics': DeviceType.SMARTPHONE,
-  'Google': DeviceType.SMARTPHONE,
-  'Xiaomi': DeviceType.SMARTPHONE,
-  'OnePlus': DeviceType.SMARTPHONE,
-  'Huawei': DeviceType.SMARTPHONE,
-  'OPPO': DeviceType.SMARTPHONE,
+  Google: DeviceType.SMARTPHONE,
+  Xiaomi: DeviceType.SMARTPHONE,
+  OnePlus: DeviceType.SMARTPHONE,
+  Huawei: DeviceType.SMARTPHONE,
+  OPPO: DeviceType.SMARTPHONE,
 
   // IoT Devices
-  'Espressif': DeviceType.IOT,
+  Espressif: DeviceType.IOT,
   'Raspberry Pi': DeviceType.IOT,
-  'Shelly': DeviceType.IOT,
+  Shelly: DeviceType.IOT,
 
   // Computers
-  'Microsoft': DeviceType.DESKTOP,
-  'Dell': DeviceType.LAPTOP,
-  'Lenovo': DeviceType.LAPTOP,
-  'HP': DeviceType.LAPTOP,
-  'Asus': DeviceType.LAPTOP,
+  Microsoft: DeviceType.DESKTOP,
+  Dell: DeviceType.LAPTOP,
+  Lenovo: DeviceType.LAPTOP,
+  HP: DeviceType.LAPTOP,
+  Asus: DeviceType.LAPTOP,
 
   // TVs
-  'Sony': DeviceType.TV,
+  Sony: DeviceType.TV,
   'LG Electronics': DeviceType.TV,
-  'Samsung': DeviceType.TV,
-  'TCL': DeviceType.TV,
-  'Vizio': DeviceType.TV,
+  Samsung: DeviceType.TV,
+  TCL: DeviceType.TV,
+  Vizio: DeviceType.TV,
 
   // Printers
   'Hewlett Packard': DeviceType.PRINTER,
-  'Canon': DeviceType.PRINTER,
-  'Epson': DeviceType.PRINTER,
-  'Brother': DeviceType.PRINTER,
-  'Xerox': DeviceType.PRINTER,
+  Canon: DeviceType.PRINTER,
+  Epson: DeviceType.PRINTER,
+  Brother: DeviceType.PRINTER,
+  Xerox: DeviceType.PRINTER,
 
   // Routers
-  'Ubiquiti': DeviceType.ROUTER,
-  'MikroTik': DeviceType.ROUTER,
+  Ubiquiti: DeviceType.ROUTER,
+  MikroTik: DeviceType.ROUTER,
   'TP-Link': DeviceType.ROUTER,
-  'Netgear': DeviceType.ROUTER,
+  Netgear: DeviceType.ROUTER,
   'D-Link': DeviceType.ROUTER,
 };
 

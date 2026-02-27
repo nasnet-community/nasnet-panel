@@ -17,25 +17,25 @@ import { LazyLogsTab } from '@/app/routes/router-panel/tabs/lazy';
 function LogsTabSkeleton() {
   return (
     <div
-      className="space-y-4 p-4 md:p-6 animate-fade-in-up"
+      className="animate-fade-in-up space-y-4 p-4 md:p-6"
       aria-busy="true"
       aria-label="Loading logs"
     >
       {/* Header with category accent */}
-      <div className="flex items-center gap-3 pb-3 border-b border-border">
-        <div className="h-8 w-1 rounded bg-logs" />
+      <div className="border-border flex items-center gap-3 border-b pb-3">
+        <div className="bg-logs h-8 w-1 rounded" />
         <Skeleton className="h-6 w-32" />
       </div>
 
       {/* Filter controls skeleton */}
-      <div className="flex flex-col sm:flex-row gap-3">
+      <div className="flex flex-col gap-3 sm:flex-row">
         <Skeleton className="h-10 w-32" />
         <Skeleton className="h-10 w-32" />
         <Skeleton className="h-10 w-full sm:w-48" />
       </div>
 
       {/* Logs table skeleton */}
-      <div className="rounded-lg border border-border overflow-hidden">
+      <div className="border-border overflow-hidden rounded-lg border">
         <Skeleton className="h-96 w-full" />
       </div>
     </div>

@@ -10,15 +10,21 @@ import { formatDistanceToNow } from 'date-fns';
 import { Bell } from 'lucide-react';
 
 import type { AlertSeverity } from '@nasnet/state/stores';
-import { Button, Badge, Popover, PopoverTrigger, PopoverContent, ScrollArea, Separator, Skeleton, cn } from '@nasnet/ui/primitives';
-
-
-
+import {
+  Button,
+  Badge,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  ScrollArea,
+  Separator,
+  Skeleton,
+  cn,
+} from '@nasnet/ui/primitives';
 
 import { useNotificationBell } from './useNotificationBell';
 
 import type { NotificationBellProps } from './types';
-
 
 /**
  * Get badge variant for alert severity
@@ -67,20 +73,26 @@ function NotificationBellDesktopComponent(props: NotificationBellProps) {
   const previewNotifications = notifications.slice(0, 5);
 
   return (
-    <Popover open={isOpen} onOpenChange={handleOpenChange}>
+    <Popover
+      open={isOpen}
+      onOpenChange={handleOpenChange}
+    >
       <PopoverTrigger asChild>
         <Button
           variant="ghost"
-          className={cn('relative h-11 w-11 rounded-full flex items-center justify-center hover:bg-muted transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-ring', className)}
+          className={cn(
+            'hover:bg-muted focus-visible:ring-ring relative flex h-11 w-11 items-center justify-center rounded-full transition-colors duration-150 focus-visible:ring-2',
+            className
+          )}
           aria-label={`Notifications (${unreadCount} unread)`}
           aria-live="polite"
           aria-atomic="true"
         >
-          <Bell className="h-5 w-5 text-muted-foreground" />
+          <Bell className="text-muted-foreground h-5 w-5" />
           {showBadge && (
             <Badge
               variant="error"
-              className="absolute -top-1 -right-1 h-5 min-w-[20px] rounded-full bg-error text-white text-xs font-bold flex items-center justify-center p-0"
+              className="bg-error absolute -right-1 -top-1 flex h-5 min-w-[20px] items-center justify-center rounded-full p-0 text-xs font-bold text-white"
               aria-hidden="true"
             >
               {formattedCount}
@@ -97,14 +109,14 @@ function NotificationBellDesktopComponent(props: NotificationBellProps) {
         aria-label="Notifications preview"
       >
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-border px-4 py-3">
-          <h3 className="text-sm font-semibold text-foreground">Notifications</h3>
+        <div className="border-border flex items-center justify-between border-b px-4 py-3">
+          <h3 className="text-foreground text-sm font-semibold">Notifications</h3>
           {unreadCount > 0 && (
             <Button
               variant="ghost"
               size="sm"
               onClick={handleMarkAllRead}
-              className="h-auto py-1 text-xs text-primary hover:text-primary"
+              className="text-primary hover:text-primary h-auto py-1 text-xs"
             >
               Mark all read
             </Button>
@@ -113,29 +125,31 @@ function NotificationBellDesktopComponent(props: NotificationBellProps) {
 
         {/* Notification list */}
         <ScrollArea className="max-h-[400px] overflow-y-auto">
-          {loading ? (
-            <div className="p-4 space-y-3">
+          {loading ?
+            <div className="space-y-3 p-4">
               {[...Array(3)].map((_, i) => (
-                <div key={i} className="space-y-2">
+                <div
+                  key={i}
+                  className="space-y-2"
+                >
                   <Skeleton className="h-4 w-3/4" />
                   <Skeleton className="h-3 w-full" />
                   <Skeleton className="h-3 w-1/2" />
                 </div>
               ))}
             </div>
-          ) : previewNotifications.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-8 px-4 text-center">
-              <Bell className="h-8 w-8 text-muted-foreground mb-2" />
-              <p className="text-sm text-muted-foreground">No notifications</p>
+          : previewNotifications.length === 0 ?
+            <div className="flex flex-col items-center justify-center px-4 py-8 text-center">
+              <Bell className="text-muted-foreground mb-2 h-8 w-8" />
+              <p className="text-muted-foreground text-sm">No notifications</p>
             </div>
-          ) : (
-            <ul className="py-0">
+          : <ul className="py-0">
               {previewNotifications.map((notification, index) => (
                 <li key={notification.id}>
                   <button
                     onClick={() => handleNotificationClick(notification)}
                     className={cn(
-                      'w-full text-left px-4 py-3 border-b border-border hover:bg-muted transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                      'border-border hover:bg-muted focus-visible:ring-ring w-full border-b px-4 py-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2',
                       !notification.read && 'bg-primary/5'
                     )}
                     tabIndex={0}
@@ -145,29 +159,29 @@ function NotificationBellDesktopComponent(props: NotificationBellProps) {
                       {/* Unread indicator */}
                       {!notification.read && (
                         <div
-                          className="mt-1.5 h-2 w-2 rounded-full bg-error flex-shrink-0"
+                          className="bg-error mt-1.5 h-2 w-2 flex-shrink-0 rounded-full"
                           aria-label="Unread"
                         />
                       )}
 
-                      <div className="flex-1 min-w-0 space-y-1">
+                      <div className="min-w-0 flex-1 space-y-1">
                         {/* Item icon */}
-                        <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center mb-2">
-                          <Bell className="h-4 w-4 text-muted-foreground" />
+                        <div className="bg-muted mb-2 flex h-8 w-8 items-center justify-center rounded-full">
+                          <Bell className="text-muted-foreground h-4 w-4" />
                         </div>
 
                         {/* Title */}
-                        <h4 className="text-sm font-medium text-foreground truncate">
+                        <h4 className="text-foreground truncate text-sm font-medium">
                           {notification.title}
                         </h4>
 
                         {/* Message */}
-                        <p className="text-xs text-muted-foreground line-clamp-2">
+                        <p className="text-muted-foreground line-clamp-2 text-xs">
                           {notification.message}
                         </p>
 
                         {/* Timestamp */}
-                        <p className="text-xs text-muted-foreground">
+                        <p className="text-muted-foreground text-xs">
                           {formatDistanceToNow(new Date(notification.receivedAt), {
                             addSuffix: true,
                           })}
@@ -178,13 +192,13 @@ function NotificationBellDesktopComponent(props: NotificationBellProps) {
                 </li>
               ))}
             </ul>
-          )}
+          }
         </ScrollArea>
 
         {/* Footer with "View all" */}
         {previewNotifications.length > 0 && (
           <>
-            <div className="border-t border-border px-4 py-2">
+            <div className="border-border border-t px-4 py-2">
               <Button
                 variant="ghost"
                 size="sm"

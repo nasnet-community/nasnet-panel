@@ -1,5 +1,5 @@
 // For more info, see https://github.com/storybookjs/eslint-plugin-storybook#configuration-flat-config-format
-import storybook from "eslint-plugin-storybook";
+import storybook from 'eslint-plugin-storybook';
 import { FlatCompat } from '@eslint/eslintrc';
 import js from '@eslint/js';
 import tsParser from '@typescript-eslint/parser';
@@ -251,11 +251,7 @@ export default [
             // State can depend on core, api-client, and shared
             {
               sourceTag: 'scope:state',
-              onlyDependOnLibsWithTags: [
-                'scope:core',
-                'scope:api-client',
-                'scope:shared',
-              ],
+              onlyDependOnLibsWithTags: ['scope:core', 'scope:api-client', 'scope:shared'],
             },
             // Core can only depend on shared
             {
@@ -301,10 +297,7 @@ export default [
   },
   // CommonJS configuration files
   {
-    files: [
-      '**/*.config.js',
-      '.stylelintrc.js',
-    ],
+    files: ['**/*.config.js', '.stylelintrc.js'],
     languageOptions: {
       sourceType: 'commonjs',
       globals: {

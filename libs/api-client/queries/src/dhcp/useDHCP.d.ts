@@ -12,12 +12,12 @@ import type { DHCPServer, DHCPPool, DHCPLease, DHCPClient } from '@nasnet/core/t
  * Follows TanStack Query best practices for hierarchical keys
  */
 export declare const dhcpKeys: {
-    all: readonly ["dhcp"];
-    servers: (routerIp: string) => readonly ["dhcp", "servers", string];
-    server: (routerIp: string, serverId: string) => readonly ["dhcp", "servers", string, string];
-    leases: (routerIp: string) => readonly ["dhcp", "leases", string];
-    clients: (routerIp: string) => readonly ["dhcp", "clients", string];
-    pools: (routerIp: string) => readonly ["dhcp", "pools", string];
+  all: readonly ['dhcp'];
+  servers: (routerIp: string) => readonly ['dhcp', 'servers', string];
+  server: (routerIp: string, serverId: string) => readonly ['dhcp', 'servers', string, string];
+  leases: (routerIp: string) => readonly ['dhcp', 'leases', string];
+  clients: (routerIp: string) => readonly ['dhcp', 'clients', string];
+  pools: (routerIp: string) => readonly ['dhcp', 'pools', string];
 };
 /**
  * Hook to fetch DHCP server configurations
@@ -40,7 +40,10 @@ export declare function useDHCPServers(routerIp: string): UseQueryResult<DHCPSer
  * @param serverId - DHCP server ID to fetch
  * @returns Query result with single DHCPServer or undefined
  */
-export declare function useDHCPServer(routerIp: string, serverId: string): UseQueryResult<DHCPServer | undefined, Error>;
+export declare function useDHCPServer(
+  routerIp: string,
+  serverId: string
+): UseQueryResult<DHCPServer | undefined, Error>;
 /**
  * Hook to fetch DHCP address pools
  *

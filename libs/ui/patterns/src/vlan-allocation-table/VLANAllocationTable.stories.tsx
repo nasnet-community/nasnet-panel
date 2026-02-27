@@ -131,7 +131,8 @@ export const Default: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Mixed allocation states showing active services, pending releases, and released VLANs.',
+        story:
+          'Mixed allocation states showing active services, pending releases, and released VLANs.',
       },
     },
   },
@@ -213,15 +214,13 @@ export const LargeDataset: Story = {
     allocations: Array.from({ length: 100 }, (_, i) => ({
       id: `${i + 1}`,
       vlanID: 100 + i,
-      serviceType: ['tor', 'singbox', 'xray', 'mtproxy', 'psiphon', 'adguard'][
-        i % 6
-      ],
+      serviceType: ['tor', 'singbox', 'xray', 'mtproxy', 'psiphon', 'adguard'][i % 6],
       instanceName: `Instance ${i + 1}`,
       bindIP: `10.${100 + i}.0.1`,
       interfaceName: `vlan${100 + i}`,
-      status: (
-        i % 10 === 0 ? 'RELEASING' : i % 20 === 0 ? 'RELEASED' : 'ALLOCATED'
-      ) as VLANAllocation['status'],
+      status: (i % 10 === 0 ? 'RELEASING'
+      : i % 20 === 0 ? 'RELEASED'
+      : 'ALLOCATED') as VLANAllocation['status'],
       allocatedAt: new Date(2026, 0, 1 + i, 10, 0, 0).toISOString(),
     })),
     loading: false,

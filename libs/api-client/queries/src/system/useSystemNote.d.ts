@@ -8,18 +8,18 @@ import { UseQueryResult } from '@tanstack/react-query';
  * System note data returned from RouterOS
  */
 export interface SystemNote {
-    /**
-     * The note content (can be empty string)
-     */
-    note: string;
-    /**
-     * Whether to show note at CLI login
-     */
-    showAtCliLogin: boolean;
-    /**
-     * Whether to show note at web login
-     */
-    showAtLogin: boolean;
+  /**
+   * The note content (can be empty string)
+   */
+  note: string;
+  /**
+   * Whether to show note at CLI login
+   */
+  showAtCliLogin: boolean;
+  /**
+   * Whether to show note at web login
+   */
+  showAtLogin: boolean;
 }
 /**
  * React Query hook for system note

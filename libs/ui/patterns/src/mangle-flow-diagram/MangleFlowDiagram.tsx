@@ -22,7 +22,6 @@ import type { MangleChain } from '@nasnet/core/types';
 import { usePlatform } from '@nasnet/ui/layouts';
 import { Card, Badge, Button, cn } from '@nasnet/ui/primitives';
 
-
 // ============================================================================
 // Types
 // ============================================================================
@@ -75,23 +74,23 @@ const ChainNode = memo(function ChainNode({
       onClick={onClick}
       className={cn(
         'relative flex flex-col items-center justify-center',
-        'min-w-[120px] h-20 px-4 py-2',
+        'h-20 min-w-[120px] px-4 py-2',
         'rounded-lg border-2 transition-all',
         isSelected ? 'border-primary bg-primary/10 shadow-md' : 'border-muted bg-background',
-        isHighlighted && 'ring-2 ring-warning ring-offset-2',
+        isHighlighted && 'ring-warning ring-2 ring-offset-2',
         'hover:border-primary/50 hover:shadow-sm',
-        'focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2'
+        'focus:ring-ring focus:outline-none focus:ring-2 focus:ring-offset-2'
       )}
       aria-label={`${label} chain - ${count} rules`}
       aria-pressed={isSelected}
     >
-      <span className="text-sm font-semibold text-foreground">{label}</span>
-      <span className="text-xs text-muted-foreground text-center">{description}</span>
+      <span className="text-foreground text-sm font-semibold">{label}</span>
+      <span className="text-muted-foreground text-center text-xs">{description}</span>
 
       {count > 0 && (
         <Badge
           variant={isSelected ? 'default' : 'secondary'}
-          className="absolute -top-2 -right-2 h-6 min-w-6 flex items-center justify-center"
+          className="absolute -right-2 -top-2 flex h-6 min-w-6 items-center justify-center"
         >
           {count}
         </Badge>
@@ -106,10 +105,10 @@ const ChainNode = memo(function ChainNode({
 
 const RoutingDecisionNode = memo(function RoutingDecisionNode() {
   return (
-    <div className="flex flex-col items-center justify-center min-w-[120px] h-20 px-4 py-2 rounded-lg border-2 border-dashed border-info bg-info/5">
-      <Router className="h-5 w-5 text-info mb-1" />
-      <span className="text-sm font-semibold text-info">Routing</span>
-      <span className="text-xs text-info/70">Decision</span>
+    <div className="border-info bg-info/5 flex h-20 min-w-[120px] flex-col items-center justify-center rounded-lg border-2 border-dashed px-4 py-2">
+      <Router className="text-info mb-1 h-5 w-5" />
+      <span className="text-info text-sm font-semibold">Routing</span>
+      <span className="text-info/70 text-xs">Decision</span>
     </div>
   );
 });
@@ -120,13 +119,19 @@ const RoutingDecisionNode = memo(function RoutingDecisionNode() {
 
 const HorizontalArrow = memo(function HorizontalArrow() {
   return (
-    <ArrowRight className="h-6 w-6 text-muted-foreground flex-shrink-0" aria-hidden="true" />
+    <ArrowRight
+      className="text-muted-foreground h-6 w-6 flex-shrink-0"
+      aria-hidden="true"
+    />
   );
 });
 
 const VerticalArrow = memo(function VerticalArrow() {
   return (
-    <ArrowDown className="h-6 w-6 text-muted-foreground flex-shrink-0" aria-hidden="true" />
+    <ArrowDown
+      className="text-muted-foreground h-6 w-6 flex-shrink-0"
+      aria-hidden="true"
+    />
   );
 });
 
@@ -190,13 +195,17 @@ export const MangleFlowDiagram = memo(function MangleFlowDiagram({
           {/* Header */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Package className="h-5 w-5 text-muted-foreground" />
+              <Package className="text-muted-foreground h-5 w-5" />
               <h3 className="text-sm font-semibold">Packet Flow</h3>
             </div>
 
             {selectedChain && (
-              <Button variant="outline" size="sm" onClick={handleClearSelection}>
-                <Filter className="h-4 w-4 mr-2" />
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleClearSelection}
+              >
+                <Filter className="mr-2 h-4 w-4" />
                 Clear Filter
               </Button>
             )}
@@ -206,8 +215,11 @@ export const MangleFlowDiagram = memo(function MangleFlowDiagram({
           <div className="flex items-center justify-between gap-4 overflow-x-auto pb-2">
             {/* PACKET IN */}
             <div className="flex flex-col items-center gap-1">
-              <Package className="h-6 w-6 text-success" aria-label="Packet In" />
-              <span className="text-xs text-muted-foreground whitespace-nowrap">PACKET IN</span>
+              <Package
+                className="text-success h-6 w-6"
+                aria-label="Packet In"
+              />
+              <span className="text-muted-foreground whitespace-nowrap text-xs">PACKET IN</span>
             </div>
 
             <HorizontalArrow />
@@ -282,27 +294,33 @@ export const MangleFlowDiagram = memo(function MangleFlowDiagram({
 
             {/* PACKET OUT */}
             <div className="flex flex-col items-center gap-1">
-              <Package className="h-6 w-6 text-destructive" aria-label="Packet Out" />
-              <span className="text-xs text-muted-foreground whitespace-nowrap">PACKET OUT</span>
+              <Package
+                className="text-destructive h-6 w-6"
+                aria-label="Packet Out"
+              />
+              <span className="text-muted-foreground whitespace-nowrap text-xs">PACKET OUT</span>
             </div>
           </div>
 
           {/* Legend */}
-          <div className="flex items-center gap-4 text-xs text-muted-foreground pt-2 border-t">
+          <div className="text-muted-foreground flex items-center gap-4 border-t pt-2 text-xs">
             <div className="flex items-center gap-2">
-              <div className="h-3 w-3 rounded-full bg-success" />
+              <div className="bg-success h-3 w-3 rounded-full" />
               <span>Incoming</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="h-3 w-3 rounded-full bg-info" />
+              <div className="bg-info h-3 w-3 rounded-full" />
               <span>Routing Decision</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="h-3 w-3 rounded-full bg-destructive" />
+              <div className="bg-destructive h-3 w-3 rounded-full" />
               <span>Outgoing</span>
             </div>
             <div className="flex items-center gap-2">
-              <Badge variant="secondary" className="h-5 min-w-5">
+              <Badge
+                variant="secondary"
+                className="h-5 min-w-5"
+              >
                 N
               </Badge>
               <span>Rule Count</span>
@@ -320,12 +338,16 @@ export const MangleFlowDiagram = memo(function MangleFlowDiagram({
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Package className="h-5 w-5 text-muted-foreground" />
+            <Package className="text-muted-foreground h-5 w-5" />
             <h3 className="text-sm font-semibold">Packet Flow</h3>
           </div>
 
           {selectedChain && (
-            <Button variant="outline" size="sm" onClick={handleClearSelection}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleClearSelection}
+            >
               Clear
             </Button>
           )}
@@ -335,8 +357,8 @@ export const MangleFlowDiagram = memo(function MangleFlowDiagram({
         <div className="flex flex-col items-center gap-3">
           {/* PACKET IN */}
           <div className="flex items-center gap-2">
-            <Package className="h-6 w-6 text-success" />
-            <span className="text-sm font-semibold text-success">PACKET IN</span>
+            <Package className="text-success h-6 w-6" />
+            <span className="text-success text-sm font-semibold">PACKET IN</span>
           </div>
 
           <VerticalArrow />
@@ -360,7 +382,7 @@ export const MangleFlowDiagram = memo(function MangleFlowDiagram({
           <VerticalArrow />
 
           {/* Input/Forward */}
-          <div className="flex flex-col gap-3 w-full items-center">
+          <div className="flex w-full flex-col items-center gap-3">
             <ChainNode
               chain="input"
               label="input"
@@ -412,8 +434,8 @@ export const MangleFlowDiagram = memo(function MangleFlowDiagram({
 
           {/* PACKET OUT */}
           <div className="flex items-center gap-2">
-            <Package className="h-6 w-6 text-destructive" />
-            <span className="text-sm font-semibold text-destructive">PACKET OUT</span>
+            <Package className="text-destructive h-6 w-6" />
+            <span className="text-destructive text-sm font-semibold">PACKET OUT</span>
           </div>
         </div>
       </div>

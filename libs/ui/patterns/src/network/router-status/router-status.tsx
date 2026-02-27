@@ -54,9 +54,9 @@ function StatusLiveRegion({
   }
 
   const reconnectText =
-    status === 'CONNECTING' && reconnectAttempt > 0
-      ? `, attempt ${reconnectAttempt} of ${maxReconnectAttempts}`
-      : '';
+    status === 'CONNECTING' && reconnectAttempt > 0 ?
+      `, attempt ${reconnectAttempt} of ${maxReconnectAttempts}`
+    : '';
 
   return (
     <div
@@ -65,7 +65,8 @@ function StatusLiveRegion({
       aria-atomic="true"
       className="sr-only"
     >
-      Router status changed to {statusLabel}{reconnectText}
+      Router status changed to {statusLabel}
+      {reconnectText}
     </div>
   );
 }
@@ -151,11 +152,15 @@ function RouterStatusComponent({
 
   // Select the appropriate presenter
   const content =
-    presenterType === 'mobile' ? (
-      <RouterStatusMobile state={state} className={className} />
-    ) : (
-      <RouterStatusDesktop state={state} className={className} />
-    );
+    presenterType === 'mobile' ?
+      <RouterStatusMobile
+        state={state}
+        className={className}
+      />
+    : <RouterStatusDesktop
+        state={state}
+        className={className}
+      />;
 
   return (
     <div className={cn('router-status', className)}>

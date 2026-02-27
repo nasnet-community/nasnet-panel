@@ -46,10 +46,10 @@ test.describe('Service Ports Management', () => {
     const editButton = httpRow.getByRole('button', { name: /edit/i });
     const deleteButton = httpRow.getByRole('button', { name: /delete/i });
 
-    if (await editButton.count() > 0) {
+    if ((await editButton.count()) > 0) {
       await expect(editButton).toBeDisabled();
     }
-    if (await deleteButton.count() > 0) {
+    if ((await deleteButton.count()) > 0) {
       await expect(deleteButton).toBeDisabled();
     }
   });
@@ -90,10 +90,10 @@ test.describe('Service Ports Management', () => {
     const editButton = myAppRow.getByRole('button', { name: /edit/i });
     const deleteButton = myAppRow.getByRole('button', { name: /delete/i });
 
-    if (await editButton.count() > 0) {
+    if ((await editButton.count()) > 0) {
       await expect(editButton).toBeEnabled();
     }
-    if (await deleteButton.count() > 0) {
+    if ((await deleteButton.count()) > 0) {
       await expect(deleteButton).toBeEnabled();
     }
   });
@@ -123,7 +123,7 @@ test.describe('Service Ports Management', () => {
     // Note: Implementation depends on multi-select component design
     // This is a placeholder - adjust based on actual component
     const serviceSelector = page.getByLabel(/select services/i);
-    if (await serviceSelector.count() > 0) {
+    if ((await serviceSelector.count()) > 0) {
       await serviceSelector.click();
       await page.getByText('HTTP', { exact: true }).click();
       await page.getByText('HTTPS', { exact: true }).click();
@@ -154,7 +154,7 @@ test.describe('Service Ports Management', () => {
     // Select HTTP and HTTPS services
     // (Adjust selector based on actual multi-select implementation)
     const serviceSelector = page.getByLabel(/select services/i);
-    if (await serviceSelector.count() > 0) {
+    if ((await serviceSelector.count()) > 0) {
       await serviceSelector.click();
       await page.getByText('HTTP', { exact: true }).click();
       await page.getByText('HTTPS', { exact: true }).click();
@@ -176,7 +176,7 @@ test.describe('Service Ports Management', () => {
     // Find destination port field
     const dstPortField = page.getByLabel(/destination port|dst port/i);
 
-    if (await dstPortField.count() > 0) {
+    if ((await dstPortField.count()) > 0) {
       // Click to open suggestions
       await dstPortField.click();
 
@@ -290,9 +290,11 @@ test.describe('Service Ports Management', () => {
 
   test('Protocol filter works', async ({ page }) => {
     // Find protocol filter dropdown
-    const protocolFilter = page.getByLabel(/protocol/i).or(page.getByRole('combobox', { name: /protocol/i }));
+    const protocolFilter = page
+      .getByLabel(/protocol/i)
+      .or(page.getByRole('combobox', { name: /protocol/i }));
 
-    if (await protocolFilter.count() > 0) {
+    if ((await protocolFilter.count()) > 0) {
       // Filter by TCP
       await protocolFilter.selectOption('tcp');
 

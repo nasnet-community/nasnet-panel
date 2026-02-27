@@ -15,13 +15,7 @@ describe('pingFormSchema', () => {
     });
 
     it('should accept valid IPv6 addresses', () => {
-      const valid = [
-        '2001:4860:4860::8888',
-        '::1',
-        '::',
-        'fe80::1',
-        '2001:db8::1',
-      ];
+      const valid = ['2001:4860:4860::8888', '::1', '::', 'fe80::1', '2001:db8::1'];
       valid.forEach((target) => {
         const result = pingFormSchema.safeParse({ target });
         expect(result.success, `${target} should be valid`).toBe(true);

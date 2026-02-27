@@ -134,15 +134,9 @@ export function useDnsLookup({ deviceId, onSuccess, onError }: UseDnsLookupOptio
     [dnsServersData?.dnsServers?.servers]
   );
 
-  const isSuccess = useMemo(
-    () => result !== null && !isErrorStatus(result.status),
-    [result]
-  );
+  const isSuccess = useMemo(() => result !== null && !isErrorStatus(result.status), [result]);
 
-  const isError = useMemo(
-    () => result !== null && isErrorStatus(result.status),
-    [result]
-  );
+  const isError = useMemo(() => result !== null && isErrorStatus(result.status), [result]);
 
   return {
     // State

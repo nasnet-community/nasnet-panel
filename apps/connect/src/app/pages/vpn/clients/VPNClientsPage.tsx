@@ -10,7 +10,7 @@ import { useNavigate, useParams, useSearch } from '@tanstack/react-router';
 import { RefreshCw, Plus, Monitor } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
-import { 
+import {
   useWireGuardPeers,
   useOpenVPNClients,
   useL2TPClients,
@@ -22,21 +22,14 @@ import {
 } from '@nasnet/api-client/queries';
 import type { VPNProtocol } from '@nasnet/core/types';
 import { useConnectionStore } from '@nasnet/state/stores';
-import { 
+import {
   VPNClientCard,
   VPNTypeSection,
   BackButton,
   ProtocolIconBadge,
   getProtocolLabel,
 } from '@nasnet/ui/patterns';
-import {
-  Button,
-  Skeleton,
-  Tabs,
-  TabsList,
-  TabsTrigger,
-  TabsContent,
-} from '@nasnet/ui/primitives';
+import { Button, Skeleton, Tabs, TabsList, TabsTrigger, TabsContent } from '@nasnet/ui/primitives';
 
 const ALL_PROTOCOLS: VPNProtocol[] = ['wireguard', 'openvpn', 'l2tp', 'pptp', 'sstp', 'ikev2'];
 
@@ -50,7 +43,7 @@ export const VPNClientsPage = React.memo(function VPNClientsPage() {
   const search = useSearch({ from: '/router/$id/vpn/clients' });
   const initialProtocol = (search as { protocol?: VPNProtocol }).protocol || null;
   const [activeTab, setActiveTab] = React.useState<VPNProtocol | 'all'>(initialProtocol || 'all');
-  
+
   const routerIp = useConnectionStore((state) => state.currentRouterIp) || '';
 
   // Fetch data for all protocols
@@ -66,7 +59,7 @@ export const VPNClientsPage = React.memo(function VPNClientsPage() {
   const toggleMutation = useToggleVPNInterface();
 
   // Combined loading state
-  const isLoading = 
+  const isLoading =
     wireguardPeersQuery.isLoading ||
     openvpnClientsQuery.isLoading ||
     l2tpClientsQuery.isLoading ||
@@ -74,7 +67,7 @@ export const VPNClientsPage = React.memo(function VPNClientsPage() {
     sstpClientsQuery.isLoading ||
     ipsecPeersQuery.isLoading;
 
-  const isFetching = 
+  const isFetching =
     wireguardPeersQuery.isFetching ||
     openvpnClientsQuery.isFetching ||
     l2tpClientsQuery.isFetching ||
@@ -106,26 +99,26 @@ export const VPNClientsPage = React.memo(function VPNClientsPage() {
 
   // Get IPsec active connection for a peer
   const getIPsecActive = (peerId: string) => {
-    return ipsecActiveQuery.data?.find(a => a.peer === peerId);
+    return ipsecActiveQuery.data?.find((a) => a.peer === peerId);
   };
 
   // WireGuard Peers (outgoing connections)
-  const wireguardPeers = wireguardPeersQuery.data?.filter(p => p.endpoint) || [];
-  
+  const wireguardPeers = wireguardPeersQuery.data?.filter((p) => p.endpoint) || [];
+
   // OpenVPN Clients
   const openvpnClients = openvpnClientsQuery.data || [];
-  
+
   // L2TP Clients
   const l2tpClients = l2tpClientsQuery.data || [];
-  
+
   // PPTP Clients
   const pptpClients = pptpClientsQuery.data || [];
-  
+
   // SSTP Clients
   const sstpClients = sstpClientsQuery.data || [];
-  
+
   // IPsec Peers (clients = non-passive mode)
-  const ipsecClientPeers = ipsecPeersQuery.data?.filter(p => !p.isPassive) || [];
+  const ipsecClientPeers = ipsecPeersQuery.data?.filter((p) => !p.isPassive) || [];
 
   // Render client section based on protocol
   const renderProtocolSection = (protocol: VPNProtocol) => {
@@ -137,8 +130,8 @@ export const VPNClientsPage = React.memo(function VPNClientsPage() {
             count={wireguardPeers.length}
             defaultExpanded={activeTab === 'wireguard' || activeTab === 'all'}
           >
-            {wireguardPeers.length > 0 ? (
-              <div className="grid gap-component-md md:grid-cols-2">
+            {wireguardPeers.length > 0 ?
+              <div className="gap-component-md grid md:grid-cols-2">
                 {wireguardPeers.map((peer) => (
                   <VPNClientCard
                     key={peer.id}
@@ -151,16 +144,22 @@ export const VPNClientsPage = React.memo(function VPNClientsPage() {
                     rx={peer.rx}
                     tx={peer.tx}
                     comment={peer.comment}
-                    onToggle={(id, enabled) => handleToggle(id, peer.interface, 'wireguard', enabled)}
+                    onToggle={(id, enabled) =>
+                      handleToggle(id, peer.interface, 'wireguard', enabled)
+                    }
                     onEdit={() => navigate({ to: `/vpn/clients/wireguard/${peer.id}/edit` as '/' })}
-                    onDelete={() => {/* TODO: Delete confirmation */}}
+                    onDelete={() => {
+                      /* TODO: Delete confirmation */
+                    }}
                     isToggling={toggleMutation.isPending}
                   />
                 ))}
               </div>
-            ) : (
-              <EmptyState protocol="wireguard" onAdd={() => navigate({ to: '/vpn/clients/wireguard/add' as '/' })} />
-            )}
+            : <EmptyState
+                protocol="wireguard"
+                onAdd={() => navigate({ to: '/vpn/clients/wireguard/add' as '/' })}
+              />
+            }
           </VPNTypeSection>
         );
 
@@ -171,8 +170,8 @@ export const VPNClientsPage = React.memo(function VPNClientsPage() {
             count={openvpnClients.length}
             defaultExpanded={activeTab === 'openvpn' || activeTab === 'all'}
           >
-            {openvpnClients.length > 0 ? (
-              <div className="grid gap-component-md md:grid-cols-2">
+            {openvpnClients.length > 0 ?
+              <div className="gap-component-md grid md:grid-cols-2">
                 {openvpnClients.map((client) => (
                   <VPNClientCard
                     key={client.id}
@@ -190,14 +189,18 @@ export const VPNClientsPage = React.memo(function VPNClientsPage() {
                     comment={client.comment}
                     onToggle={(id, enabled) => handleToggle(id, client.name, 'openvpn', enabled)}
                     onEdit={() => navigate({ to: `/vpn/clients/openvpn/${client.id}/edit` as '/' })}
-                    onDelete={() => {/* TODO: Delete confirmation */}}
+                    onDelete={() => {
+                      /* TODO: Delete confirmation */
+                    }}
                     isToggling={toggleMutation.isPending}
                   />
                 ))}
               </div>
-            ) : (
-              <EmptyState protocol="openvpn" onAdd={() => navigate({ to: '/vpn/clients/openvpn/add' as '/' })} />
-            )}
+            : <EmptyState
+                protocol="openvpn"
+                onAdd={() => navigate({ to: '/vpn/clients/openvpn/add' as '/' })}
+              />
+            }
           </VPNTypeSection>
         );
 
@@ -208,8 +211,8 @@ export const VPNClientsPage = React.memo(function VPNClientsPage() {
             count={l2tpClients.length}
             defaultExpanded={activeTab === 'l2tp' || activeTab === 'all'}
           >
-            {l2tpClients.length > 0 ? (
-              <div className="grid gap-component-md md:grid-cols-2">
+            {l2tpClients.length > 0 ?
+              <div className="gap-component-md grid md:grid-cols-2">
                 {l2tpClients.map((client) => (
                   <VPNClientCard
                     key={client.id}
@@ -228,14 +231,18 @@ export const VPNClientsPage = React.memo(function VPNClientsPage() {
                     comment={client.comment}
                     onToggle={(id, enabled) => handleToggle(id, client.name, 'l2tp', enabled)}
                     onEdit={() => navigate({ to: `/vpn/clients/l2tp/${client.id}/edit` as '/' })}
-                    onDelete={() => {/* TODO: Delete confirmation */}}
+                    onDelete={() => {
+                      /* TODO: Delete confirmation */
+                    }}
                     isToggling={toggleMutation.isPending}
                   />
                 ))}
               </div>
-            ) : (
-              <EmptyState protocol="l2tp" onAdd={() => navigate({ to: '/vpn/clients/l2tp/add' as '/' })} />
-            )}
+            : <EmptyState
+                protocol="l2tp"
+                onAdd={() => navigate({ to: '/vpn/clients/l2tp/add' as '/' })}
+              />
+            }
           </VPNTypeSection>
         );
 
@@ -246,8 +253,8 @@ export const VPNClientsPage = React.memo(function VPNClientsPage() {
             count={pptpClients.length}
             defaultExpanded={activeTab === 'pptp' || activeTab === 'all'}
           >
-            {pptpClients.length > 0 ? (
-              <div className="grid gap-component-md md:grid-cols-2">
+            {pptpClients.length > 0 ?
+              <div className="gap-component-md grid md:grid-cols-2">
                 {pptpClients.map((client) => (
                   <VPNClientCard
                     key={client.id}
@@ -266,14 +273,18 @@ export const VPNClientsPage = React.memo(function VPNClientsPage() {
                     comment={client.comment}
                     onToggle={(id, enabled) => handleToggle(id, client.name, 'pptp', enabled)}
                     onEdit={() => navigate({ to: `/vpn/clients/pptp/${client.id}/edit` as '/' })}
-                    onDelete={() => {/* TODO: Delete confirmation */}}
+                    onDelete={() => {
+                      /* TODO: Delete confirmation */
+                    }}
                     isToggling={toggleMutation.isPending}
                   />
                 ))}
               </div>
-            ) : (
-              <EmptyState protocol="pptp" onAdd={() => navigate({ to: '/vpn/clients/pptp/add' as '/' })} />
-            )}
+            : <EmptyState
+                protocol="pptp"
+                onAdd={() => navigate({ to: '/vpn/clients/pptp/add' as '/' })}
+              />
+            }
           </VPNTypeSection>
         );
 
@@ -284,8 +295,8 @@ export const VPNClientsPage = React.memo(function VPNClientsPage() {
             count={sstpClients.length}
             defaultExpanded={activeTab === 'sstp' || activeTab === 'all'}
           >
-            {sstpClients.length > 0 ? (
-              <div className="grid gap-component-md md:grid-cols-2">
+            {sstpClients.length > 0 ?
+              <div className="gap-component-md grid md:grid-cols-2">
                 {sstpClients.map((client) => (
                   <VPNClientCard
                     key={client.id}
@@ -305,14 +316,18 @@ export const VPNClientsPage = React.memo(function VPNClientsPage() {
                     comment={client.comment}
                     onToggle={(id, enabled) => handleToggle(id, client.name, 'sstp', enabled)}
                     onEdit={() => navigate({ to: `/vpn/clients/sstp/${client.id}/edit` as '/' })}
-                    onDelete={() => {/* TODO: Delete confirmation */}}
+                    onDelete={() => {
+                      /* TODO: Delete confirmation */
+                    }}
                     isToggling={toggleMutation.isPending}
                   />
                 ))}
               </div>
-            ) : (
-              <EmptyState protocol="sstp" onAdd={() => navigate({ to: '/vpn/clients/sstp/add' as '/' })} />
-            )}
+            : <EmptyState
+                protocol="sstp"
+                onAdd={() => navigate({ to: '/vpn/clients/sstp/add' as '/' })}
+              />
+            }
           </VPNTypeSection>
         );
 
@@ -323,8 +338,8 @@ export const VPNClientsPage = React.memo(function VPNClientsPage() {
             count={ipsecClientPeers.length}
             defaultExpanded={activeTab === 'ikev2' || activeTab === 'all'}
           >
-            {ipsecClientPeers.length > 0 ? (
-              <div className="grid gap-component-md md:grid-cols-2">
+            {ipsecClientPeers.length > 0 ?
+              <div className="gap-component-md grid md:grid-cols-2">
                 {ipsecClientPeers.map((peer) => {
                   const activeConn = getIPsecActive(peer.id);
                   return (
@@ -345,15 +360,19 @@ export const VPNClientsPage = React.memo(function VPNClientsPage() {
                       comment={peer.comment}
                       onToggle={(id, enabled) => handleToggle(id, peer.name, 'ikev2', enabled)}
                       onEdit={() => navigate({ to: `/vpn/clients/ikev2/${peer.id}/edit` as '/' })}
-                      onDelete={() => {/* TODO: Delete confirmation */}}
+                      onDelete={() => {
+                        /* TODO: Delete confirmation */
+                      }}
                       isToggling={toggleMutation.isPending}
                     />
                   );
                 })}
               </div>
-            ) : (
-              <EmptyState protocol="ikev2" onAdd={() => navigate({ to: '/vpn/clients/ikev2/add' as '/' })} />
-            )}
+            : <EmptyState
+                protocol="ikev2"
+                onAdd={() => navigate({ to: '/vpn/clients/ikev2/add' as '/' })}
+              />
+            }
           </VPNTypeSection>
         );
 
@@ -364,29 +383,27 @@ export const VPNClientsPage = React.memo(function VPNClientsPage() {
 
   return (
     <div className="px-page-mobile md:px-page-tablet lg:px-page-desktop py-component-lg animate-fade-in-up">
-      <div className="max-w-6xl mx-auto space-y-component-lg">
+      <div className="space-y-component-lg mx-auto max-w-6xl">
         {/* Header */}
         <div className="flex items-start justify-between">
-          <div className="flex items-center gap-component-md">
+          <div className="gap-component-md flex items-center">
             <BackButton to={routerId ? `/router/${routerId}/vpn` : '/vpn'} />
             <div>
-              <h1 className="text-2xl sm:text-3xl font-display font-bold text-foreground mb-1">
+              <h1 className="font-display text-foreground mb-1 text-2xl font-bold sm:text-3xl">
                 {t('clients.title')}
               </h1>
-              <p className="text-sm text-muted-foreground">
-                {t('clients.overview')}
-              </p>
+              <p className="text-muted-foreground text-sm">{t('clients.overview')}</p>
             </div>
           </div>
-          <div className="flex items-center gap-component-sm">
+          <div className="gap-component-sm flex items-center">
             <Button
               variant="outline"
               size="sm"
               onClick={refetchAll}
               disabled={isLoading || isFetching}
-              className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-h-[44px]"
+              className="focus-visible:ring-ring min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
             >
-              <RefreshCw className={`h-4 w-4 mr-2 ${isFetching ? 'animate-spin' : ''}`} />
+              <RefreshCw className={`mr-2 h-4 w-4 ${isFetching ? 'animate-spin' : ''}`} />
               <span className="hidden sm:inline">{t('button.refresh', { ns: 'common' })}</span>
             </Button>
           </div>
@@ -396,47 +413,62 @@ export const VPNClientsPage = React.memo(function VPNClientsPage() {
         {isLoading && (
           <div className="space-y-component-md">
             {[...Array(4)].map((_, i) => (
-              <Skeleton key={i} className="h-32 w-full rounded-card-sm" />
+              <Skeleton
+                key={i}
+                className="rounded-card-sm h-32 w-full"
+              />
             ))}
           </div>
         )}
 
         {/* Content */}
         {!isLoading && (
-          <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as VPNProtocol | 'all')}>
+          <Tabs
+            value={activeTab}
+            onValueChange={(v) => setActiveTab(v as VPNProtocol | 'all')}
+          >
             {/* Protocol Tabs */}
-            <TabsList className="w-full flex-wrap h-auto gap-component-sm bg-transparent p-0 mb-component-lg">
+            <TabsList className="gap-component-sm mb-component-lg h-auto w-full flex-wrap bg-transparent p-0">
               <TabsTrigger
                 value="all"
                 className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
               >
-                <Monitor className="h-4 w-4 mr-2" />
+                <Monitor className="mr-2 h-4 w-4" />
                 {t('button.all', { ns: 'common' })}
               </TabsTrigger>
               {ALL_PROTOCOLS.map((protocol) => (
-                <TabsTrigger 
-                  key={protocol} 
+                <TabsTrigger
+                  key={protocol}
                   value={protocol}
                   className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
                 >
-                  <ProtocolIconBadge protocol={protocol} variant="sm" className="mr-2" />
+                  <ProtocolIconBadge
+                    protocol={protocol}
+                    variant="sm"
+                    className="mr-2"
+                  />
                   {getProtocolLabel(protocol)}
                 </TabsTrigger>
               ))}
             </TabsList>
 
             {/* All Protocols Tab */}
-            <TabsContent value="all" className="space-y-6 mt-0">
+            <TabsContent
+              value="all"
+              className="mt-0 space-y-6"
+            >
               {ALL_PROTOCOLS.map((protocol) => (
-                <div key={protocol}>
-                  {renderProtocolSection(protocol)}
-                </div>
+                <div key={protocol}>{renderProtocolSection(protocol)}</div>
               ))}
             </TabsContent>
 
             {/* Individual Protocol Tabs */}
             {ALL_PROTOCOLS.map((protocol) => (
-              <TabsContent key={protocol} value={protocol} className="mt-0">
+              <TabsContent
+                key={protocol}
+                value={protocol}
+                className="mt-0"
+              >
                 {renderProtocolSection(protocol)}
               </TabsContent>
             ))}
@@ -460,19 +492,25 @@ interface EmptyStateProps {
 function EmptyState({ protocol, onAdd }: EmptyStateProps) {
   const { t } = useTranslation('vpn');
   return (
-    <div className="text-center py-component-lg bg-muted/30 rounded-card-sm">
-      <ProtocolIconBadge protocol={protocol} variant="lg" className="mx-auto mb-4" />
-      <h3 className="text-lg font-display font-semibold text-foreground mb-2">
+    <div className="py-component-lg bg-muted/30 rounded-card-sm text-center">
+      <ProtocolIconBadge
+        protocol={protocol}
+        variant="lg"
+        className="mx-auto mb-4"
+      />
+      <h3 className="font-display text-foreground mb-2 text-lg font-semibold">
         {t('clients.noClientsConfigured', { protocol: getProtocolLabel(protocol) })}
       </h3>
-      <p className="text-sm text-muted-foreground mb-4">
+      <p className="text-muted-foreground mb-4 text-sm">
         {t('clients.getStartedAddFirst', { protocol: getProtocolLabel(protocol) })}
       </p>
-      <Button onClick={onAdd} className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-h-[44px]">
-        <Plus className="h-4 w-4 mr-2" />
+      <Button
+        onClick={onAdd}
+        className="focus-visible:ring-ring min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+      >
+        <Plus className="mr-2 h-4 w-4" />
         {t('clients.addClient', { protocol: getProtocolLabel(protocol) })}
       </Button>
     </div>
   );
 }
-

@@ -7,7 +7,6 @@ import { CopyableValue } from './CopyableValue';
 
 import type { Meta, StoryObj } from '@storybook/react';
 
-
 const meta: Meta<typeof CopyableValue> = {
   title: 'Patterns/Clipboard/CopyableValue',
   component: CopyableValue,
@@ -184,16 +183,28 @@ export const Sizes: Story = {
   render: () => (
     <div className="space-y-4">
       <div className="flex items-center gap-4">
-        <span className="text-sm text-slate-500 w-12">XS:</span>
-        <CopyableValue value="192.168.1.1" type="ip" size="xs" />
+        <span className="w-12 text-sm text-slate-500">XS:</span>
+        <CopyableValue
+          value="192.168.1.1"
+          type="ip"
+          size="xs"
+        />
       </div>
       <div className="flex items-center gap-4">
-        <span className="text-sm text-slate-500 w-12">SM:</span>
-        <CopyableValue value="192.168.1.1" type="ip" size="sm" />
+        <span className="w-12 text-sm text-slate-500">SM:</span>
+        <CopyableValue
+          value="192.168.1.1"
+          type="ip"
+          size="sm"
+        />
       </div>
       <div className="flex items-center gap-4">
-        <span className="text-sm text-slate-500 w-12">Base:</span>
-        <CopyableValue value="192.168.1.1" type="ip" size="base" />
+        <span className="w-12 text-sm text-slate-500">Base:</span>
+        <CopyableValue
+          value="192.168.1.1"
+          type="ip"
+          size="base"
+        />
       </div>
     </div>
   ),
@@ -207,28 +218,40 @@ export const InTableContext: Story = {
     <table className="w-full text-sm">
       <thead>
         <tr className="border-b border-slate-200 dark:border-slate-700">
-          <th className="text-left py-2 px-4 font-medium text-slate-500">Device</th>
-          <th className="text-left py-2 px-4 font-medium text-slate-500">IP Address</th>
-          <th className="text-left py-2 px-4 font-medium text-slate-500">MAC Address</th>
+          <th className="px-4 py-2 text-left font-medium text-slate-500">Device</th>
+          <th className="px-4 py-2 text-left font-medium text-slate-500">IP Address</th>
+          <th className="px-4 py-2 text-left font-medium text-slate-500">MAC Address</th>
         </tr>
       </thead>
       <tbody>
         <tr className="border-b border-slate-100 dark:border-slate-800">
-          <td className="py-2 px-4">Laptop</td>
-          <td className="py-2 px-4">
-            <CopyableValue value="192.168.1.100" type="ip" />
+          <td className="px-4 py-2">Laptop</td>
+          <td className="px-4 py-2">
+            <CopyableValue
+              value="192.168.1.100"
+              type="ip"
+            />
           </td>
-          <td className="py-2 px-4">
-            <CopyableValue value="00:1A:2B:3C:4D:5E" type="mac" />
+          <td className="px-4 py-2">
+            <CopyableValue
+              value="00:1A:2B:3C:4D:5E"
+              type="mac"
+            />
           </td>
         </tr>
         <tr className="border-b border-slate-100 dark:border-slate-800">
-          <td className="py-2 px-4">Phone</td>
-          <td className="py-2 px-4">
-            <CopyableValue value="192.168.1.101" type="ip" />
+          <td className="px-4 py-2">Phone</td>
+          <td className="px-4 py-2">
+            <CopyableValue
+              value="192.168.1.101"
+              type="ip"
+            />
           </td>
-          <td className="py-2 px-4">
-            <CopyableValue value="AA:BB:CC:DD:EE:FF" type="mac" />
+          <td className="px-4 py-2">
+            <CopyableValue
+              value="AA:BB:CC:DD:EE:FF"
+              type="mac"
+            />
           </td>
         </tr>
       </tbody>
@@ -248,24 +271,36 @@ export const InTableContext: Story = {
  */
 export const InDetailView: Story = {
   render: () => (
-    <div className="space-y-3 p-4 bg-slate-50 dark:bg-slate-800 rounded-lg max-w-md">
+    <div className="max-w-md space-y-3 rounded-lg bg-slate-50 p-4 dark:bg-slate-800">
       <h3 className="font-semibold text-slate-900 dark:text-slate-50">Router Details</h3>
       <div className="space-y-2">
-        <div className="flex justify-between items-center py-2 border-b border-slate-200 dark:border-slate-700">
+        <div className="flex items-center justify-between border-b border-slate-200 py-2 dark:border-slate-700">
           <span className="text-sm text-slate-500">WAN IP</span>
-          <CopyableValue value="203.0.113.45" type="ip" />
+          <CopyableValue
+            value="203.0.113.45"
+            type="ip"
+          />
         </div>
-        <div className="flex justify-between items-center py-2 border-b border-slate-200 dark:border-slate-700">
+        <div className="flex items-center justify-between border-b border-slate-200 py-2 dark:border-slate-700">
           <span className="text-sm text-slate-500">LAN IP</span>
-          <CopyableValue value="192.168.88.1" type="ip" />
+          <CopyableValue
+            value="192.168.88.1"
+            type="ip"
+          />
         </div>
-        <div className="flex justify-between items-center py-2 border-b border-slate-200 dark:border-slate-700">
+        <div className="flex items-center justify-between border-b border-slate-200 py-2 dark:border-slate-700">
           <span className="text-sm text-slate-500">MAC</span>
-          <CopyableValue value="00:1A:2B:3C:4D:5E" type="mac" />
+          <CopyableValue
+            value="00:1A:2B:3C:4D:5E"
+            type="mac"
+          />
         </div>
-        <div className="flex justify-between items-center py-2">
+        <div className="flex items-center justify-between py-2">
           <span className="text-sm text-slate-500">API Key</span>
-          <CopyableValue value="sk_live_abc123xyz789" type="api-key" />
+          <CopyableValue
+            value="sk_live_abc123xyz789"
+            type="api-key"
+          />
         </div>
       </div>
     </div>

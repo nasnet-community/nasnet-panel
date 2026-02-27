@@ -16,7 +16,11 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useCustomServices } from '../hooks/useCustomServices';
-import type { ServicePortDefinition, ServicePortProtocol, ServicePortCategory } from '@nasnet/core/types';
+import type {
+  ServicePortDefinition,
+  ServicePortProtocol,
+  ServicePortCategory,
+} from '@nasnet/core/types';
 import {
   Table,
   TableBody,
@@ -65,7 +69,10 @@ const ProtocolBadge = React.memo(function ProtocolBadge({ protocol }: ProtocolBa
   const { t } = useTranslation('firewall');
 
   return (
-    <Badge variant={variant} className="text-xs uppercase">
+    <Badge
+      variant={variant}
+      className="text-xs uppercase"
+    >
       {t(`servicePorts.protocols.${protocol}`)}
     </Badge>
   );
@@ -84,7 +91,10 @@ const TypeBadge = React.memo(function TypeBadge({ isBuiltIn }: TypeBadgeProps) {
   const { t } = useTranslation('firewall');
 
   return (
-    <Badge variant={isBuiltIn ? 'default' : 'warning'} className="text-xs">
+    <Badge
+      variant={isBuiltIn ? 'default' : 'warning'}
+      className="text-xs"
+    >
       {t(`servicePorts.types.${isBuiltIn ? 'builtIn' : 'custom'}`)}
     </Badge>
   );
@@ -99,7 +109,10 @@ const LoadingState = React.memo(function LoadingState() {
   return (
     <div className="space-y-component-sm">
       {[...Array(5)].map((_, i) => (
-        <div key={i} className="flex items-center space-x-component-md">
+        <div
+          key={i}
+          className="space-x-component-md flex items-center"
+        >
           <Skeleton className="h-12 flex-1" />
         </div>
       ))}
@@ -120,8 +133,10 @@ interface EmptyStateProps {
 const EmptyState = React.memo(function EmptyState({ message, description }: EmptyStateProps) {
   return (
     <div className="flex flex-col items-center justify-center py-12 text-center">
-      <p className="text-lg font-medium text-muted-foreground">{message}</p>
-      {description && <p className="mt-component-sm text-sm text-muted-foreground">{description}</p>}
+      <p className="text-muted-foreground text-lg font-medium">{message}</p>
+      {description && (
+        <p className="mt-component-sm text-muted-foreground text-sm">{description}</p>
+      )}
     </div>
   );
 });
@@ -251,9 +266,12 @@ export const ServicePortsTableDesktop = React.memo(function ServicePortsTableDes
   return (
     <div className={cn('space-y-component-md', className)}>
       {/* Search and Filters */}
-      <div className="flex items-center gap-component-md">
+      <div className="gap-component-md flex items-center">
         <div className="relative flex-1">
-          <Search className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
+          <Search
+            className="text-muted-foreground absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2"
+            aria-hidden="true"
+          />
           <Input
             placeholder={t('servicePorts.placeholders.searchServices')}
             value={searchQuery}
@@ -263,8 +281,11 @@ export const ServicePortsTableDesktop = React.memo(function ServicePortsTableDes
           />
         </div>
 
-        <Select value={protocolFilter} onValueChange={setProtocolFilter}>
-          <SelectTrigger className="w-[150px] min-h-[44px]">
+        <Select
+          value={protocolFilter}
+          onValueChange={setProtocolFilter}
+        >
+          <SelectTrigger className="min-h-[44px] w-[150px]">
             <SelectValue placeholder={t('servicePorts.fields.protocol')} />
           </SelectTrigger>
           <SelectContent>
@@ -275,14 +296,22 @@ export const ServicePortsTableDesktop = React.memo(function ServicePortsTableDes
           </SelectContent>
         </Select>
 
-        <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-          <SelectTrigger className="w-[150px] min-h-[44px]">
+        <Select
+          value={categoryFilter}
+          onValueChange={setCategoryFilter}
+        >
+          <SelectTrigger className="min-h-[44px] w-[150px]">
             <SelectValue placeholder={t('servicePorts.fields.category')} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">{t('servicePorts.categories.all', 'All Categories')}</SelectItem>
+            <SelectItem value="all">
+              {t('servicePorts.categories.all', 'All Categories')}
+            </SelectItem>
             {CATEGORIES.map((category) => (
-              <SelectItem key={category} value={category}>
+              <SelectItem
+                key={category}
+                value={category}
+              >
                 {category}
               </SelectItem>
             ))}
@@ -291,23 +320,22 @@ export const ServicePortsTableDesktop = React.memo(function ServicePortsTableDes
       </div>
 
       {/* Table */}
-      {isLoading ? (
+      {isLoading ?
         <LoadingState />
-      ) : filteredAndSortedServices.length === 0 ? (
+      : filteredAndSortedServices.length === 0 ?
         <EmptyState
           message={
-            searchQuery || protocolFilter !== 'all' || categoryFilter !== 'all'
-              ? t('servicePorts.emptyStates.noServices')
-              : t('servicePorts.emptyStates.noServices')
+            searchQuery || protocolFilter !== 'all' || categoryFilter !== 'all' ?
+              t('servicePorts.emptyStates.noServices')
+            : t('servicePorts.emptyStates.noServices')
           }
           description={
-            searchQuery || protocolFilter !== 'all' || categoryFilter !== 'all'
-              ? t('servicePorts.emptyStates.noServicesDescription')
-              : undefined
+            searchQuery || protocolFilter !== 'all' || categoryFilter !== 'all' ?
+              t('servicePorts.emptyStates.noServicesDescription')
+            : undefined
           }
         />
-      ) : (
-        <div className="rounded-md border">
+      : <div className="rounded-md border">
           <Table>
             <TableHeader>
               <TableRow>
@@ -320,8 +348,13 @@ export const ServicePortsTableDesktop = React.memo(function ServicePortsTableDes
                 >
                   {t('servicePorts.fields.name')}
                   {sortField === 'name' && (
-                    <span className="ml-1" aria-hidden="true">
-                      {sortDirection === 'asc' ? <ChevronUp className="h-4 w-4 inline" /> : <ChevronDown className="h-4 w-4 inline" />}
+                    <span
+                      className="ml-1"
+                      aria-hidden="true"
+                    >
+                      {sortDirection === 'asc' ?
+                        <ChevronUp className="inline h-4 w-4" />
+                      : <ChevronDown className="inline h-4 w-4" />}
                     </span>
                   )}
                 </TableHead>
@@ -335,8 +368,13 @@ export const ServicePortsTableDesktop = React.memo(function ServicePortsTableDes
                 >
                   {t('servicePorts.fields.port')}
                   {sortField === 'port' && (
-                    <span className="ml-1" aria-hidden="true">
-                      {sortDirection === 'asc' ? <ChevronUp className="h-4 w-4 inline" /> : <ChevronDown className="h-4 w-4 inline" />}
+                    <span
+                      className="ml-1"
+                      aria-hidden="true"
+                    >
+                      {sortDirection === 'asc' ?
+                        <ChevronUp className="inline h-4 w-4" />
+                      : <ChevronDown className="inline h-4 w-4" />}
                     </span>
                   )}
                 </TableHead>
@@ -351,7 +389,7 @@ export const ServicePortsTableDesktop = React.memo(function ServicePortsTableDes
                     <div>
                       <p className="font-medium">{service.service}</p>
                       {service.description && (
-                        <p className="text-xs text-muted-foreground">{service.description}</p>
+                        <p className="text-muted-foreground text-xs">{service.description}</p>
                       )}
                     </div>
                   </TableCell>
@@ -365,16 +403,16 @@ export const ServicePortsTableDesktop = React.memo(function ServicePortsTableDes
                     <TypeBadge isBuiltIn={service.isBuiltIn} />
                   </TableCell>
                   <TableCell className="text-right">
-                    <div className="flex items-center justify-end gap-component-sm">
-                      {service.isBuiltIn ? (
+                    <div className="gap-component-sm flex items-center justify-end">
+                      {service.isBuiltIn ?
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <div className="flex items-center justify-end gap-component-sm">
+                            <div className="gap-component-sm flex items-center justify-end">
                               <Button
                                 variant="ghost"
                                 size="icon"
                                 disabled
-                                className="opacity-50 cursor-not-allowed"
+                                className="cursor-not-allowed opacity-50"
                                 aria-label={t('servicePorts.editService')}
                               >
                                 <Pencil className="h-4 w-4" />
@@ -383,7 +421,7 @@ export const ServicePortsTableDesktop = React.memo(function ServicePortsTableDes
                                 variant="ghost"
                                 size="icon"
                                 disabled
-                                className="opacity-50 cursor-not-allowed"
+                                className="cursor-not-allowed opacity-50"
                                 aria-label={t('servicePorts.deleteService')}
                               >
                                 <Trash2 className="h-4 w-4" />
@@ -394,8 +432,7 @@ export const ServicePortsTableDesktop = React.memo(function ServicePortsTableDes
                             {t('servicePorts.tooltips.builtInReadOnly')}
                           </TooltipContent>
                         </Tooltip>
-                      ) : (
-                        <>
+                      : <>
                           <Button
                             variant="ghost"
                             size="icon"
@@ -412,10 +449,10 @@ export const ServicePortsTableDesktop = React.memo(function ServicePortsTableDes
                             onClick={() => handleDeleteClick(service)}
                             aria-label={t('servicePorts.deleteService')}
                           >
-                            <Trash2 className="h-4 w-4 text-error" />
+                            <Trash2 className="text-error h-4 w-4" />
                           </Button>
                         </>
-                      )}
+                      }
                     </div>
                   </TableCell>
                 </TableRow>
@@ -423,17 +460,20 @@ export const ServicePortsTableDesktop = React.memo(function ServicePortsTableDes
             </TableBody>
           </Table>
         </div>
-      )}
+      }
 
       {/* Delete Confirmation Dialog */}
-      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+      <Dialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>{t('servicePorts.confirmations.deleteService')}</DialogTitle>
             <DialogDescription>
               {t('servicePorts.confirmations.deleteServiceDescription')}
               {serviceToDelete && (
-                <div className="mt-component-md rounded-md bg-muted p-component-sm">
+                <div className="mt-component-md bg-muted p-component-sm rounded-md">
                   <p className="font-medium">
                     {serviceToDelete.service} (Port {serviceToDelete.port})
                   </p>
@@ -442,10 +482,18 @@ export const ServicePortsTableDesktop = React.memo(function ServicePortsTableDes
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDeleteDialogOpen(false)} className="min-h-[44px]">
+            <Button
+              variant="outline"
+              onClick={() => setDeleteDialogOpen(false)}
+              className="min-h-[44px]"
+            >
               {t('servicePorts.buttons.cancel', 'Cancel')}
             </Button>
-            <Button variant="destructive" onClick={handleDeleteConfirm} className="min-h-[44px]">
+            <Button
+              variant="destructive"
+              onClick={handleDeleteConfirm}
+              className="min-h-[44px]"
+            >
               {t('servicePorts.deleteService')}
             </Button>
           </DialogFooter>

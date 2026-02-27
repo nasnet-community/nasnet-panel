@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "type": "module",
   "nx": {
-    "tags": ["type:lib", "scope:api-client"]
+    "tags": [
+      "type:lib",
+      "scope:api-client"
+    ]
   }
 }

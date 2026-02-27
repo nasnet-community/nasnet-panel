@@ -185,7 +185,7 @@ export const DarkMode: Story = {
   args: {},
   decorators: [
     (Story) => (
-      <div className="dark bg-slate-950 p-4 rounded-xl w-72">
+      <div className="dark w-72 rounded-xl bg-slate-950 p-4">
         <Story />
       </div>
     ),
@@ -211,9 +211,9 @@ export const InDashboardGrid: Story = {
   args: {},
   decorators: [
     (Story) => (
-      <div className="grid grid-cols-2 gap-4 w-[600px]">
+      <div className="grid w-[600px] grid-cols-2 gap-4">
         {/* Sibling placeholder */}
-        <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-4 h-48 flex items-center justify-center text-slate-400 text-sm">
+        <div className="flex h-48 items-center justify-center rounded-xl border border-slate-200 bg-white p-4 text-sm text-slate-400 dark:border-slate-800 dark:bg-slate-900">
           FirewallQuickStats
         </div>
         <Story />

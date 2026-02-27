@@ -18,7 +18,8 @@
 
 ## Pipeline Architecture
 
-The validation pipeline is a sequential 7-stage process that ensures configuration validity before applying to the router.
+The validation pipeline is a sequential 7-stage process that ensures configuration validity before
+applying to the router.
 
 ```mermaid
 flowchart TD
@@ -110,11 +111,13 @@ if (!result.success) {
 ```
 
 **When it runs:**
+
 - Always (required for all risk levels)
 - First in pipeline
 - Synchronously on client
 
 **Failures block further validation:**
+
 - If schema fails, remaining stages skipped
 - User must fix structure before applying
 - Fast fail prevents wasted backend calls
@@ -150,6 +153,7 @@ function validatePort(port: number): boolean {
 ```
 
 **Covered by:**
+
 - Zod refinements
 - Custom validators
 - Regex patterns
@@ -158,8 +162,9 @@ function validatePort(port: number): boolean {
 **Example with Zod:**
 
 ```typescript
-const IPAddressSchema = z.string()
-  .ip()  // Built-in IP validation
+const IPAddressSchema = z
+  .string()
+  .ip() // Built-in IP validation
   .refine((ip) => {
     const parts = ip.split('.');
     return parts[0] !== '127'; // Reject loopback
@@ -210,6 +215,7 @@ const conflicts: CrossResourceValidation['conflicts'] = [
 ```
 
 **Checked by backend:**
+
 - Run VALIDATE_CONFIGURATION GraphQL mutation
 - Pass current configuration for comparison
 - Returns conflicts with suggestions
@@ -228,7 +234,7 @@ import { buildDependencyGraph, detectCycles } from '@nasnet/core/utils';
 const changeSet = [
   {
     id: 'wg-server',
-    dependencies: ['lan-bridge'],  // Requires LAN bridge
+    dependencies: ['lan-bridge'], // Requires LAN bridge
   },
   {
     id: 'lan-bridge',
@@ -259,24 +265,22 @@ if (!valid) {
 interface DependencyStatus {
   resourceUuid: string;
   resourceType: string;
-  isActive: boolean;              // Can be used right now?
-  state: ResourceLifecycleState;  // DRAFT, VALID, ACTIVE, etc.
-  reason: string;                 // Why it's required
+  isActive: boolean; // Can be used right now?
+  state: ResourceLifecycleState; // DRAFT, VALID, ACTIVE, etc.
+  reason: string; // Why it's required
 }
 
 // Example validation
 const dependency: DependencyStatus = {
   resourceUuid: 'lan-bridge-001',
   resourceType: 'network.bridge',
-  isActive: true,           // ✓ Can be used
+  isActive: true, // ✓ Can be used
   state: 'ACTIVE',
   reason: 'WireGuard needs LAN interface to tunnel through',
 };
 
 if (!dependency.isActive) {
-  console.error(
-    `Cannot use ${dependency.resourceType}: ${dependency.reason}`
-  );
+  console.error(`Cannot use ${dependency.resourceType}: ${dependency.reason}`);
 }
 ```
 
@@ -368,13 +372,9 @@ import type { PlatformCapabilities, CapabilityLevel } from '@nasnet/core/types';
 // Platform capability check
 const capabilities: PlatformCapabilities = {
   isSupported: true,
-  level: 'FULL' as CapabilityLevel,  // NONE | BASIC | ADVANCED | FULL
+  level: 'FULL' as CapabilityLevel, // NONE | BASIC | ADVANCED | FULL
   minVersion: '6.48.0',
-  requiredPackages: [
-    'routeros-system',
-    'routeros-routing',
-    'routeros-container',
-  ],
+  requiredPackages: ['routeros-system', 'routeros-routing', 'routeros-container'],
   details: {
     maxPeers: 1000,
     maxConnections: 10000,
@@ -392,8 +392,7 @@ function validatePlatformSupport(
   // Check version
   if (!isVersionAtLeast(routerVersion, capabilities.minVersion)) {
     issues.push(
-      `Router version ${routerVersion} ` +
-      `is below minimum required ${capabilities.minVersion}`
+      `Router version ${routerVersion} ` + `is below minimum required ${capabilities.minVersion}`
     );
   }
 
@@ -446,14 +445,14 @@ interface DryRunValidation {
   }>;
   expectedOutcome: {
     systemRestart?: boolean;
-    downtime?: string;  // ISO 8601 duration
+    downtime?: string; // ISO 8601 duration
     affectedServices: string[];
   };
   warnings: Array<{
     severity: 'WARNING' | 'CRITICAL';
     message: string;
   }>;
-  estimatedApplyTime: number;  // milliseconds
+  estimatedApplyTime: number; // milliseconds
 }
 
 // Example
@@ -475,7 +474,7 @@ const dryRun: DryRunValidation = {
   ],
   expectedOutcome: {
     systemRestart: false,
-    downtime: 'PT0S',  // No downtime
+    downtime: 'PT0S', // No downtime
     affectedServices: ['DHCP', 'ARP'],
   },
   warnings: [
@@ -484,7 +483,7 @@ const dryRun: DryRunValidation = {
       message: 'DHCP scope may conflict with existing scope',
     },
   ],
-  estimatedApplyTime: 2500,  // 2.5 seconds
+  estimatedApplyTime: 2500, // 2.5 seconds
 };
 ```
 
@@ -571,33 +570,31 @@ const FirewallRuleSchema = z.object({
 });
 
 // Zod refinement (Stage 2 - Syntax)
-const RefinedSchema = FirewallRuleSchema
-  .refine(
-    (rule) => {
-      // If both ports specified, they must be in order
-      if (rule.srcPort && rule.dstPort) {
-        return rule.srcPort <= rule.dstPort;
-      }
-      return true;
-    },
-    {
-      message: 'Source port must be <= destination port',
-      path: ['dstPort'],
+const RefinedSchema = FirewallRuleSchema.refine(
+  (rule) => {
+    // If both ports specified, they must be in order
+    if (rule.srcPort && rule.dstPort) {
+      return rule.srcPort <= rule.dstPort;
     }
-  )
-  .refine(
-    (rule) => {
-      // Mark action requires comment
-      if (rule.action === 'mark' && !rule.comment) {
-        return false;
-      }
-      return true;
-    },
-    {
-      message: 'Mark action requires a comment for the mark name',
-      path: ['comment'],
+    return true;
+  },
+  {
+    message: 'Source port must be <= destination port',
+    path: ['dstPort'],
+  }
+).refine(
+  (rule) => {
+    // Mark action requires comment
+    if (rule.action === 'mark' && !rule.comment) {
+      return false;
     }
-  );
+    return true;
+  },
+  {
+    message: 'Mark action requires a comment for the mark name',
+    path: ['comment'],
+  }
+);
 
 // Validate
 const result = RefinedSchema.safeParse({
@@ -688,7 +685,7 @@ function useValidationWithCancel() {
       const response = await fetch('/api/validate', {
         method: 'POST',
         body: JSON.stringify(data),
-        signal: abortRef.current.signal,  // Pass signal
+        signal: abortRef.current.signal, // Pass signal
       });
 
       return await response.json();
@@ -738,7 +735,7 @@ function mapValidationErrorsToForm<T extends FieldValues>(
     const path = fieldPath.split('.') as any;
     form.setError(path, {
       type: 'custom',
-      message: messages[0],  // Show first error
+      message: messages[0], // Show first error
     });
   });
 }
@@ -1072,4 +1069,3 @@ function WANConfigForm() {
 - **universal-state-v2.md** - 8-layer model (validation is Layer 2)
 - **change-set-operations.md** - Atomic operations with validation
 - **forms.md** - React Hook Form patterns
-

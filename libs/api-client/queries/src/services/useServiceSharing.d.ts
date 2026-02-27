@@ -1,4 +1,11 @@
-import type { ExportServiceConfigInput, GenerateConfigQrInput, ImportServiceConfigInput, ExportServiceConfigPayload, GenerateConfigQrPayload, ImportServiceConfigPayload } from '@nasnet/api-client/generated';
+import type {
+  ExportServiceConfigInput,
+  GenerateConfigQrInput,
+  ImportServiceConfigInput,
+  ExportServiceConfigPayload,
+  GenerateConfigQrPayload,
+  ImportServiceConfigPayload,
+} from '@nasnet/api-client/generated';
 /**
  * Hook for exporting service configuration as JSON
  *
@@ -20,12 +27,14 @@ import type { ExportServiceConfigInput, GenerateConfigQrInput, ImportServiceConf
  * ```
  */
 export declare function useExportService(): {
-    exportService: (input: ExportServiceConfigInput) => Promise<import("@apollo/client").FetchResult<{
-        exportServiceConfig: ExportServiceConfigPayload;
-    }>>;
-    loading: boolean;
-    error: import("@apollo/client").ApolloError | undefined;
-    data: ExportServiceConfigPayload | undefined;
+  exportService: (input: ExportServiceConfigInput) => Promise<
+    import('@apollo/client').FetchResult<{
+      exportServiceConfig: ExportServiceConfigPayload;
+    }>
+  >;
+  loading: boolean;
+  error: import('@apollo/client').ApolloError | undefined;
+  data: ExportServiceConfigPayload | undefined;
 };
 /**
  * Hook for generating QR code for service configuration
@@ -49,12 +58,14 @@ export declare function useExportService(): {
  * ```
  */
 export declare function useGenerateConfigQR(): {
-    generateQR: (input: GenerateConfigQrInput) => Promise<import("@apollo/client").FetchResult<{
-        generateConfigQR: GenerateConfigQrPayload;
-    }>>;
-    loading: boolean;
-    error: import("@apollo/client").ApolloError | undefined;
-    data: GenerateConfigQrPayload | undefined;
+  generateQR: (input: GenerateConfigQrInput) => Promise<
+    import('@apollo/client').FetchResult<{
+      generateConfigQR: GenerateConfigQrPayload;
+    }>
+  >;
+  loading: boolean;
+  error: import('@apollo/client').ApolloError | undefined;
+  data: GenerateConfigQrPayload | undefined;
 };
 /**
  * Hook for importing service configuration (validation + apply)
@@ -82,12 +93,14 @@ export declare function useGenerateConfigQR(): {
  * ```
  */
 export declare function useImportService(): {
-    importService: (input: ImportServiceConfigInput) => Promise<import("@apollo/client").FetchResult<{
-        importServiceConfig: ImportServiceConfigPayload;
-    }>>;
-    loading: boolean;
-    error: import("@apollo/client").ApolloError | undefined;
-    data: ImportServiceConfigPayload | undefined;
+  importService: (input: ImportServiceConfigInput) => Promise<
+    import('@apollo/client').FetchResult<{
+      importServiceConfig: ImportServiceConfigPayload;
+    }>
+  >;
+  loading: boolean;
+  error: import('@apollo/client').ApolloError | undefined;
+  data: ImportServiceConfigPayload | undefined;
 };
 /**
  * Combined hook providing all service sharing operations
@@ -107,29 +120,35 @@ export declare function useImportService(): {
  * ```
  */
 export declare function useServiceSharing(): {
-    exportService: (input: ExportServiceConfigInput) => Promise<import("@apollo/client").FetchResult<{
-        exportServiceConfig: ExportServiceConfigPayload;
-    }>>;
-    generateQR: (input: GenerateConfigQrInput) => Promise<import("@apollo/client").FetchResult<{
-        generateConfigQR: GenerateConfigQrPayload;
-    }>>;
-    importService: (input: ImportServiceConfigInput) => Promise<import("@apollo/client").FetchResult<{
-        importServiceConfig: ImportServiceConfigPayload;
-    }>>;
-    loading: {
-        export: boolean;
-        qr: boolean;
-        import: boolean;
-    };
-    errors: {
-        export: import("@apollo/client").ApolloError | undefined;
-        qr: import("@apollo/client").ApolloError | undefined;
-        import: import("@apollo/client").ApolloError | undefined;
-    };
-    data: {
-        export: ExportServiceConfigPayload | undefined;
-        qr: GenerateConfigQrPayload | undefined;
-        import: ImportServiceConfigPayload | undefined;
-    };
+  exportService: (input: ExportServiceConfigInput) => Promise<
+    import('@apollo/client').FetchResult<{
+      exportServiceConfig: ExportServiceConfigPayload;
+    }>
+  >;
+  generateQR: (input: GenerateConfigQrInput) => Promise<
+    import('@apollo/client').FetchResult<{
+      generateConfigQR: GenerateConfigQrPayload;
+    }>
+  >;
+  importService: (input: ImportServiceConfigInput) => Promise<
+    import('@apollo/client').FetchResult<{
+      importServiceConfig: ImportServiceConfigPayload;
+    }>
+  >;
+  loading: {
+    export: boolean;
+    qr: boolean;
+    import: boolean;
+  };
+  errors: {
+    export: import('@apollo/client').ApolloError | undefined;
+    qr: import('@apollo/client').ApolloError | undefined;
+    import: import('@apollo/client').ApolloError | undefined;
+  };
+  data: {
+    export: ExportServiceConfigPayload | undefined;
+    qr: GenerateConfigQrPayload | undefined;
+    import: ImportServiceConfigPayload | undefined;
+  };
 };
 //# sourceMappingURL=useServiceSharing.d.ts.map

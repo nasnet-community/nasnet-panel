@@ -124,7 +124,8 @@ export async function validateCredentials(
       if (error.code === 'ECONNREFUSED') {
         return {
           isValid: false,
-          error: 'Cannot reach router proxy. Verify the proxy service is running and the IP address is correct.',
+          error:
+            'Cannot reach router proxy. Verify the proxy service is running and the IP address is correct.',
         };
       }
 
@@ -136,7 +137,11 @@ export async function validateCredentials(
       }
 
       // Handle errors from rosproxy
-      if (error.response?.data && typeof error.response.data === 'object' && 'status' in error.response.data) {
+      if (
+        error.response?.data &&
+        typeof error.response.data === 'object' &&
+        'status' in error.response.data
+      ) {
         const proxyResponse = error.response.data as { status: number; status_text?: string };
         if (proxyResponse.status === 401 || proxyResponse.status === 403) {
           return {
@@ -154,7 +159,8 @@ export async function validateCredentials(
 
     return {
       isValid: false,
-      error: error instanceof Error ? error.message : 'Unexpected error during credential validation.',
+      error:
+        error instanceof Error ? error.message : 'Unexpected error during credential validation.',
     };
   }
 }
@@ -178,10 +184,7 @@ export async function validateCredentials(
  * });
  * ```
  */
-export function saveCredentials(
-  routerId: string,
-  credentials: RouterCredentials
-): void {
+export function saveCredentials(routerId: string, credentials: RouterCredentials): void {
   try {
     const stored = loadAllCredentials();
 

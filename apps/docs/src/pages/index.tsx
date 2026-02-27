@@ -90,14 +90,20 @@ function HomepageHero() {
         />
         <h1 className="hero-title">NasNet Documentation</h1>
         <p className="hero-subtitle">
-          Architecture guides, API references, and developer docs for the
-          NasNet router management platform.
+          Architecture guides, API references, and developer docs for the NasNet router management
+          platform.
         </p>
         <div className="hero-ctas">
-          <Link className="button button--primary button--lg" to="/docs/frontend/intro">
+          <Link
+            className="button button--primary button--lg"
+            to="/docs/frontend/intro"
+          >
             Get Started →
           </Link>
-          <Link className="button button--outline button--lg" to="/docs/backend/intro">
+          <Link
+            className="button button--outline button--lg"
+            to="/docs/backend/intro"
+          >
             Backend Docs
           </Link>
         </div>
@@ -118,8 +124,14 @@ function SectionHeader({ title, description }: { title: string; description: str
 
 function DocCard({ name, description, link, color }: DocItem) {
   return (
-    <Link className="doc-card" to={link}>
-      <div className="card-accent-bar" style={{ background: color }} />
+    <Link
+      className="doc-card"
+      to={link}
+    >
+      <div
+        className="card-accent-bar"
+        style={{ background: color }}
+      />
       <h3 className="card-title">{name}</h3>
       <p className="card-desc">{description}</p>
       <span className="card-cta">
@@ -132,10 +144,16 @@ function DocCard({ name, description, link, color }: DocItem) {
 function DocSection({ title, description, items }: Section) {
   return (
     <section className="doc-section-container">
-      <SectionHeader title={title} description={description} />
+      <SectionHeader
+        title={title}
+        description={description}
+      />
       <div className="cards-grid">
         {items.map((item) => (
-          <DocCard key={item.name} {...item} />
+          <DocCard
+            key={item.name}
+            {...item}
+          />
         ))}
       </div>
     </section>
@@ -145,12 +163,18 @@ function DocSection({ title, description, items }: Section) {
 export default function Home(): JSX.Element {
   const { siteConfig } = useDocusaurusContext();
   return (
-    <Layout title={siteConfig.title} description={siteConfig.tagline}>
+    <Layout
+      title={siteConfig.title}
+      description={siteConfig.tagline}
+    >
       <HomepageHero />
       <main className="landing-main">
         <div>
           {sections.map((section) => (
-            <DocSection key={section.title} {...section} />
+            <DocSection
+              key={section.title}
+              {...section}
+            />
           ))}
         </div>
       </main>

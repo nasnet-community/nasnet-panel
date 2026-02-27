@@ -1,10 +1,15 @@
 # Form System, Network Inputs & Steppers (Layer 2)
 
-This document covers all Layer 2 pattern components related to forms, specialized inputs, and multi-step flows. These components live in `libs/ui/patterns/src/` and are exported from `@nasnet/ui/patterns`.
+This document covers all Layer 2 pattern components related to forms, specialized inputs, and
+multi-step flows. These components live in `libs/ui/patterns/src/` and are exported from
+`@nasnet/ui/patterns`.
 
 Cross-references:
-- See `primitives-reference.md` for the base `Form`, `FormItem`, `FormLabel`, `FormControl`, `FormMessage` primitives from `@nasnet/ui/primitives`.
-- See `multi-package-flows.md` for the full Apply-Confirm-Merge configuration pipeline where `ValidationProgress` is used end-to-end.
+
+- See `primitives-reference.md` for the base `Form`, `FormItem`, `FormLabel`, `FormControl`,
+  `FormMessage` primitives from `@nasnet/ui/primitives`.
+- See `multi-package-flows.md` for the full Apply-Confirm-Merge configuration pipeline where
+  `ValidationProgress` is used end-to-end.
 
 ---
 
@@ -14,17 +19,23 @@ Cross-references:
 
 The primitives package (`@nasnet/ui/primitives`) provides unstyled, Radix-based form primitives:
 
-- `Form`, `FormItem`, `FormLabel`, `FormControl`, `FormDescription`, `FormMessage` — shadcn/ui form wrappers built on `@hookform/resolvers` context.
-- These give you the raw semantic structure (label linkage, error regions, ARIA attributes) but carry no business logic.
+- `Form`, `FormItem`, `FormLabel`, `FormControl`, `FormDescription`, `FormMessage` — shadcn/ui form
+  wrappers built on `@hookform/resolvers` context.
+- These give you the raw semantic structure (label linkage, error regions, ARIA attributes) but
+  carry no business logic.
 
-Use Layer 1 primitives directly only when building entirely custom field layouts that do not need RHF integration helpers.
+Use Layer 1 primitives directly only when building entirely custom field layouts that do not need
+RHF integration helpers.
 
 ### Layer 2 Patterns
 
 The patterns package adds two things on top of the primitives:
 
-1. **RHF-integrated field wrappers** (`RHFFormField`, `FormArrayField`, `FormSubmitButton`, `FormFieldError`, `FormFieldDescription`) — components that connect to `useFormContext()` and own the Controller boilerplate.
-2. **Structural components** (`FormField`, `FormSection`) — layout wrappers for consistent spacing, collapsibility, and section-level error summaries.
+1. **RHF-integrated field wrappers** (`RHFFormField`, `FormArrayField`, `FormSubmitButton`,
+   `FormFieldError`, `FormFieldDescription`) — components that connect to `useFormContext()` and own
+   the Controller boilerplate.
+2. **Structural components** (`FormField`, `FormSection`) — layout wrappers for consistent spacing,
+   collapsibility, and section-level error summaries.
 
 ### React Hook Form + Zod Integration Pattern
 
@@ -34,11 +45,7 @@ Every form in the codebase follows this pattern:
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import {
-  RHFFormField,
-  FormSubmitButton,
-  FormSection,
-} from '@nasnet/ui/patterns';
+import { RHFFormField, FormSubmitButton, FormSection } from '@nasnet/ui/patterns';
 
 const schema = z.object({
   hostname: z.string().min(1, 'Required'),
@@ -57,8 +64,16 @@ function RouterForm() {
     <FormProvider {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <FormSection title="Router Identity">
-          <RHFFormField name="hostname" label="Hostname" required />
-          <RHFFormField name="ipAddress" label="IP Address" type="text" />
+          <RHFFormField
+            name="hostname"
+            label="Hostname"
+            required
+          />
+          <RHFFormField
+            name="ipAddress"
+            label="IP Address"
+            type="text"
+          />
         </FormSection>
         <FormSubmitButton loadingText="Saving...">Save</FormSubmitButton>
       </form>
@@ -67,7 +82,8 @@ function RouterForm() {
 }
 ```
 
-The `FormProvider` wraps everything so that `RHFFormField` and `FormSubmitButton` can call `useFormContext()` internally without needing `control` passed as a prop every time.
+The `FormProvider` wraps everything so that `RHFFormField` and `FormSubmitButton` can call
+`useFormContext()` internally without needing `control` passed as a prop every time.
 
 ---
 
@@ -78,11 +94,13 @@ The `FormProvider` wraps everything so that `RHFFormField` and `FormSubmitButton
 **File:** `libs/ui/patterns/src/rhf-form-field/RHFFormField.tsx`
 
 **Import:**
+
 ```tsx
 import { RHFFormField, type RHFFormFieldProps, type FieldMode } from '@nasnet/ui/patterns';
 ```
 
 **Props:**
+
 ```tsx
 export type FieldMode = 'editable' | 'readonly' | 'hidden' | 'computed';
 
@@ -127,11 +145,11 @@ export interface RHFFormFieldProps<TFieldValues extends FieldValues = FieldValue
 
 **Field Modes:**
 
-| Mode | Behavior |
-|------|----------|
-| `'editable'` | Normal interactive input |
-| `'readonly'` | Input rendered as disabled/muted, cannot be edited |
-| `'hidden'` | Component renders `null` — field is invisible |
+| Mode         | Behavior                                                            |
+| ------------ | ------------------------------------------------------------------- |
+| `'editable'` | Normal interactive input                                            |
+| `'readonly'` | Input rendered as disabled/muted, cannot be edited                  |
+| `'hidden'`   | Component renders `null` — field is invisible                       |
 | `'computed'` | Value derived from `computeFn(values)`, shown in muted italic style |
 
 **Usage Examples:**
@@ -176,7 +194,9 @@ export interface RHFFormFieldProps<TFieldValues extends FieldValues = FieldValue
 />
 ```
 
-The component generates unique IDs internally via `React.useId()` and links label, description, and error via `aria-describedby` and `htmlFor`. Errors are extracted from `formState.errors` using dot-notation path traversal to support nested fields.
+The component generates unique IDs internally via `React.useId()` and links label, description, and
+error via `aria-describedby` and `htmlFor`. Errors are extracted from `formState.errors` using
+dot-notation path traversal to support nested fields.
 
 ---
 
@@ -185,11 +205,13 @@ The component generates unique IDs internally via `React.useId()` and links labe
 **File:** `libs/ui/patterns/src/rhf-form-field/FormFieldError.tsx`
 
 **Import:**
+
 ```tsx
 import { FormFieldError, type FormFieldErrorProps } from '@nasnet/ui/patterns';
 ```
 
 **Props:**
+
 ```tsx
 export interface FormFieldErrorProps {
   message?: string;
@@ -199,7 +221,9 @@ export interface FormFieldErrorProps {
 }
 ```
 
-Renders an `AlertCircle` icon and error text with `role="alert"` and `aria-live="polite"`. Returns `null` when `message` is undefined or empty. Used internally by `RHFFormField` but can be used standalone for custom field implementations.
+Renders an `AlertCircle` icon and error text with `role="alert"` and `aria-live="polite"`. Returns
+`null` when `message` is undefined or empty. Used internally by `RHFFormField` but can be used
+standalone for custom field implementations.
 
 ---
 
@@ -208,11 +232,13 @@ Renders an `AlertCircle` icon and error text with `role="alert"` and `aria-live=
 **File:** `libs/ui/patterns/src/rhf-form-field/FormFieldDescription.tsx`
 
 **Import:**
+
 ```tsx
 import { FormFieldDescription, type FormFieldDescriptionProps } from '@nasnet/ui/patterns';
 ```
 
 **Props:**
+
 ```tsx
 export interface FormFieldDescriptionProps {
   children: React.ReactNode;
@@ -222,7 +248,9 @@ export interface FormFieldDescriptionProps {
 }
 ```
 
-Renders muted help text below a form field. Link it to the input via `aria-describedby={id}` for accessibility. Used internally by `RHFFormField` but available for standalone use in custom field implementations.
+Renders muted help text below a form field. Link it to the input via `aria-describedby={id}` for
+accessibility. Used internally by `RHFFormField` but available for standalone use in custom field
+implementations.
 
 ---
 
@@ -231,25 +259,31 @@ Renders muted help text below a form field. Link it to the input via `aria-descr
 **File:** `libs/ui/patterns/src/rhf-form-field/FormSubmitButton.tsx`
 
 **Import:**
+
 ```tsx
 import { FormSubmitButton, type FormSubmitButtonProps } from '@nasnet/ui/patterns';
 ```
 
 **Props:**
+
 ```tsx
 export interface FormSubmitButtonProps extends Omit<ButtonProps, 'type'> {
-  loadingText?: string;       // default: 'Submitting...'
+  loadingText?: string; // default: 'Submitting...'
   disableOnInvalid?: boolean; // default: false
 }
 ```
 
 Reads `isSubmitting` and `isValid` from `useFormContext()`. The button is automatically:
+
 - Disabled when `isSubmitting` is true (prevents double submission).
 - Shows a spinning `Loader2` icon with `loadingText` while submitting.
 - Optionally disabled when the form has validation errors if `disableOnInvalid` is set.
 
 ```tsx
-<FormSubmitButton loadingText="Applying changes..." disableOnInvalid>
+<FormSubmitButton
+  loadingText="Applying changes..."
+  disableOnInvalid
+>
   Apply Configuration
 </FormSubmitButton>
 ```
@@ -261,20 +295,22 @@ Reads `isSubmitting` and `isValid` from `useFormContext()`. The button is automa
 **File:** `libs/ui/patterns/src/rhf-form-field/FormArrayField.tsx`
 
 **Import:**
+
 ```tsx
 import { FormArrayField, type FormArrayFieldProps } from '@nasnet/ui/patterns';
 ```
 
 **Props:**
+
 ```tsx
 export interface FormArrayFieldProps<TFieldValues extends FieldValues = FieldValues> {
   name: ArrayPath<TFieldValues>;
   label: string;
   description?: string;
   defaultItem: FieldArray<TFieldValues, ArrayPath<TFieldValues>>;
-  maxItems?: number;          // default: 100
-  minItems?: number;          // default: 0
-  addButtonText?: string;     // default: 'Add'
+  maxItems?: number; // default: 100
+  minItems?: number; // default: 0
+  addButtonText?: string; // default: 'Add'
   renderItem: (props: {
     index: number;
     remove: () => void;
@@ -286,7 +322,8 @@ export interface FormArrayFieldProps<TFieldValues extends FieldValues = FieldVal
 }
 ```
 
-Wraps `useFieldArray` with a UI for adding and removing dynamic items. The `renderItem` function receives `fieldPrefix` (e.g., `"peers.0"`) so nested `RHFFormField` components can use it directly:
+Wraps `useFieldArray` with a UI for adding and removing dynamic items. The `renderItem` function
+receives `fieldPrefix` (e.g., `"peers.0"`) so nested `RHFFormField` components can use it directly:
 
 ```tsx
 <FormArrayField
@@ -308,7 +345,13 @@ Wraps `useFieldArray` with a UI for adding and removing dynamic items. The `rend
         placeholder="0.0.0.0/0"
       />
       {canRemove && (
-        <Button variant="ghost" size="sm" onClick={remove}>Remove</Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={remove}
+        >
+          Remove
+        </Button>
       )}
     </div>
   )}
@@ -322,11 +365,13 @@ Wraps `useFieldArray` with a UI for adding and removing dynamic items. The `rend
 **File:** `libs/ui/patterns/src/form-field/form-field.tsx`
 
 **Import:**
+
 ```tsx
 import { FormField, type FormFieldProps } from '@nasnet/ui/patterns';
 ```
 
 **Props:**
+
 ```tsx
 export interface FormFieldProps {
   label: string;
@@ -339,7 +384,9 @@ export interface FormFieldProps {
 }
 ```
 
-`FormField` is the non-RHF version. It clones its single child element and injects `id`, `aria-describedby`, and `aria-invalid` automatically. Use it when you control validation state yourself (e.g., with raw `useState` or a custom form library):
+`FormField` is the non-RHF version. It clones its single child element and injects `id`,
+`aria-describedby`, and `aria-invalid` automatically. Use it when you control validation state
+yourself (e.g., with raw `useState` or a custom form library):
 
 ```tsx
 <FormField
@@ -355,7 +402,9 @@ export interface FormFieldProps {
 </FormField>
 ```
 
-Note: When the child is not a single React element (e.g., you pass a fragment or multiple elements), `FormField` will render the children without ID injection. Pass `id` explicitly to the child in that case.
+Note: When the child is not a single React element (e.g., you pass a fragment or multiple elements),
+`FormField` will render the children without ID injection. Pass `id` explicitly to the child in that
+case.
 
 ---
 
@@ -364,29 +413,34 @@ Note: When the child is not a single React element (e.g., you pass a fragment or
 **File:** `libs/ui/patterns/src/form-section/FormSection.tsx`
 
 **Import:**
+
 ```tsx
 import { FormSection, type FormSectionProps } from '@nasnet/ui/patterns';
 ```
 
 **Props:**
+
 ```tsx
 export interface FormSectionProps {
   title: string;
   description?: string;
-  collapsible?: boolean;      // default: false
-  defaultOpen?: boolean;      // default: true (when collapsible)
+  collapsible?: boolean; // default: false
+  defaultOpen?: boolean; // default: true (when collapsible)
   children: React.ReactNode;
-  errors?: string[];          // Section-level error messages
-  storageKey?: string;        // localStorage key for collapse state persistence
-  helpId?: string;            // Help system integration
+  errors?: string[]; // Section-level error messages
+  storageKey?: string; // localStorage key for collapse state persistence
+  helpId?: string; // Help system integration
   className?: string;
-  asFieldset?: boolean;       // Use fieldset/legend HTML (default: true for non-collapsible)
+  asFieldset?: boolean; // Use fieldset/legend HTML (default: true for non-collapsible)
 }
 ```
 
-Groups related form fields under a titled section. When `collapsible` is true, an animated expand/collapse toggle is shown. Collapse state persists across navigations via `localStorage` when `storageKey` is provided (defaults to a slugified version of `title`).
+Groups related form fields under a titled section. When `collapsible` is true, an animated
+expand/collapse toggle is shown. Collapse state persists across navigations via `localStorage` when
+`storageKey` is provided (defaults to a slugified version of `title`).
 
-The `errors` array renders a `FormSectionErrors` summary block above the fields — useful for section-level cross-field validation errors that do not belong to a specific field.
+The `errors` array renders a `FormSectionErrors` summary block above the fields — useful for
+section-level cross-field validation errors that do not belong to a specific field.
 
 ```tsx
 <FormSection
@@ -396,13 +450,24 @@ The `errors` array renders a `FormSectionErrors` summary block above the fields 
   defaultOpen
   errors={networkErrors}
 >
-  <RHFFormField name="ipAddress" label="IP Address" required />
-  <RHFFormField name="gateway" label="Default Gateway" />
-  <RHFFormField name="dns" label="DNS Server" />
+  <RHFFormField
+    name="ipAddress"
+    label="IP Address"
+    required
+  />
+  <RHFFormField
+    name="gateway"
+    label="Default Gateway"
+  />
+  <RHFFormField
+    name="dns"
+    label="DNS Server"
+  />
 </FormSection>
 ```
 
 The `useFormSection` hook drives collapse logic internally:
+
 ```tsx
 // Used internally — not normally called from feature code
 import { useFormSection } from '@nasnet/ui/patterns';
@@ -418,16 +483,24 @@ const { isExpanded, toggle, expand, collapse } = useFormSection({
 
 ## Network Inputs
 
-All five network input components follow the same pattern: a headless hook containing all business logic, plus platform-specific presenters for Mobile and Desktop. The platform wrapper auto-detects breakpoint with `useMediaQuery` and renders the correct presenter.
+All five network input components follow the same pattern: a headless hook containing all business
+logic, plus platform-specific presenters for Mobile and Desktop. The platform wrapper auto-detects
+breakpoint with `useMediaQuery` and renders the correct presenter.
 
 Each is exported from `@nasnet/ui/patterns`:
+
 ```tsx
 import {
-  IPInput, useIPInput,
-  SubnetInput, useSubnetInput,
-  MACInput, useMACInput,
-  PortInput, usePortInput,
-  InterfaceSelector, useInterfaceSelector,
+  IPInput,
+  useIPInput,
+  SubnetInput,
+  useSubnetInput,
+  MACInput,
+  useMACInput,
+  PortInput,
+  usePortInput,
+  InterfaceSelector,
+  useInterfaceSelector,
 } from '@nasnet/ui/patterns';
 ```
 
@@ -438,6 +511,7 @@ All network inputs live under `libs/ui/patterns/src/network-inputs/`.
 ### IPInput
 
 **Files:**
+
 - `libs/ui/patterns/src/network-inputs/ip-input/ip-input.types.ts` — types
 - `libs/ui/patterns/src/network-inputs/ip-input/use-ip-input.ts` — headless hook
 - `libs/ui/patterns/src/network-inputs/ip-input/ip-input.tsx` — platform wrapper
@@ -445,6 +519,7 @@ All network inputs live under `libs/ui/patterns/src/network-inputs/`.
 - `libs/ui/patterns/src/network-inputs/ip-input/ip-input-mobile.tsx` — mobile presenter
 
 **Component Props:**
+
 ```tsx
 export interface IPInputProps {
   value?: string;
@@ -469,8 +544,9 @@ export interface IPInputProps {
 ```
 
 **Headless Hook Signature:**
+
 ```tsx
-function useIPInput(config?: UseIPInputConfig): UseIPInputReturn
+function useIPInput(config?: UseIPInputConfig): UseIPInputReturn;
 
 interface UseIPInputConfig {
   value?: string;
@@ -480,11 +556,11 @@ interface UseIPInputConfig {
 }
 
 interface UseIPInputReturn {
-  value: string;             // Complete IP string
-  segments: string[];        // 4 segments (IPv4) or 8 (IPv6)
+  value: string; // Complete IP string
+  segments: string[]; // 4 segments (IPv4) or 8 (IPv6)
   isValid: boolean;
   error: string | null;
-  ipType: IPType | null;     // 'private' | 'public' | 'loopback' | 'link-local' | 'multicast' | 'broadcast' | 'unspecified'
+  ipType: IPType | null; // 'private' | 'public' | 'loopback' | 'link-local' | 'multicast' | 'broadcast' | 'unspecified'
   cidrPrefix: string;
   detectedVersion: 'v4' | 'v6' | null;
   segmentRefs: RefObject<HTMLInputElement | null>[];
@@ -498,24 +574,30 @@ interface UseIPInputReturn {
   focusSegment: (index: number) => void;
   focusCidr: () => void;
   handleSegmentChange: (index: number, value: string, cursorPosition?: number) => void;
-  segmentCount: number;      // 4 for IPv4, 8 for IPv6
-  separator: string;         // '.' for IPv4, ':' for IPv6
-  maxSegmentLength: number;  // 3 for IPv4, 4 for IPv6
+  segmentCount: number; // 4 for IPv4, 8 for IPv6
+  separator: string; // '.' for IPv4, ':' for IPv6
+  maxSegmentLength: number; // 3 for IPv4, 4 for IPv6
 }
 ```
 
 **Validation rules:**
+
 - IPv4 octets: 0–255, no leading zeros.
 - IPv6 segments: up to 4 hex characters per segment.
 - Auto-advances focus on separator key (`.` or `:`) or when segment reaches max length.
-- Keyboard navigation: Arrow Left/Right moves between segments, Backspace moves back when empty, Home/End jump to first/last segment, `/` jumps to CIDR field.
-- Paste detection: extracts a full IP from pasted text (e.g., pasting `192.168.1.100/24` populates all segments and CIDR).
+- Keyboard navigation: Arrow Left/Right moves between segments, Backspace moves back when empty,
+  Home/End jump to first/last segment, `/` jumps to CIDR field.
+- Paste detection: extracts a full IP from pasted text (e.g., pasting `192.168.1.100/24` populates
+  all segments and CIDR).
 
 **Desktop vs Mobile:**
-- Desktop: Renders individual segment inputs separated by dots/colons, CIDR field appended with `/` separator.
+
+- Desktop: Renders individual segment inputs separated by dots/colons, CIDR field appended with `/`
+  separator.
 - Mobile: Single text input with real-time normalization and validation feedback.
 
 **Usage:**
+
 ```tsx
 // In a regular form
 <IPInput
@@ -545,6 +627,7 @@ interface UseIPInputReturn {
 ### SubnetInput
 
 **Files:**
+
 - `libs/ui/patterns/src/network-inputs/subnet-input/subnet-input.types.ts`
 - `libs/ui/patterns/src/network-inputs/subnet-input/use-subnet-input.ts`
 - `libs/ui/patterns/src/network-inputs/subnet-input/subnet-input.tsx`
@@ -552,9 +635,10 @@ interface UseIPInputReturn {
 - `libs/ui/patterns/src/network-inputs/subnet-input/subnet-input-mobile.tsx`
 
 **Component Props:**
+
 ```tsx
 export interface SubnetInputProps {
-  value?: string;             // Full CIDR: '192.168.1.0/24'
+  value?: string; // Full CIDR: '192.168.1.0/24'
   onChange?: (value: string) => void;
   showCalculations?: boolean; // Show host count, network addr, broadcast
   checkOverlap?: (cidr: string) => OverlapResult | null;
@@ -572,15 +656,16 @@ export interface SubnetInputProps {
 ```
 
 **Headless Hook Return:**
+
 ```tsx
 interface UseSubnetInputReturn {
-  value: string;             // Full CIDR (e.g., '192.168.1.0/24')
-  ipPart: string;            // IP address portion
-  prefixPart: number;        // Prefix length (0-32)
+  value: string; // Full CIDR (e.g., '192.168.1.0/24')
+  ipPart: string; // IP address portion
+  prefixPart: number; // Prefix length (0-32)
   isValid: boolean;
   error: string | null;
   networkInfo: SubnetInfo | null; // Calculated subnet info
-  overlap: OverlapResult | null;  // Conflict detection result
+  overlap: OverlapResult | null; // Conflict detection result
   setIP: (ip: string) => void;
   setPrefix: (prefix: number) => void;
   setValue: (cidr: string) => void;
@@ -590,19 +675,21 @@ interface UseSubnetInputReturn {
 ```
 
 The `SubnetInfo` structure returned in `networkInfo`:
+
 ```tsx
 interface SubnetInfo {
-  network: string;       // e.g., '192.168.1.0'
+  network: string; // e.g., '192.168.1.0'
   firstHost: string | null;
   lastHost: string | null;
   broadcast: string;
   hostCount: number;
   prefix: number;
-  mask: string;          // e.g., '255.255.255.0'
+  mask: string; // e.g., '255.255.255.0'
 }
 ```
 
 Pass a `checkOverlap` callback to enable real-time conflict detection against existing subnets:
+
 ```tsx
 <SubnetInput
   value={subnet}
@@ -613,7 +700,9 @@ Pass a `checkOverlap` callback to enable real-time conflict detection against ex
 ```
 
 **Desktop vs Mobile:**
-- Desktop: IP input with prefix dropdown showing mask and host count. Collapsible calculations panel below.
+
+- Desktop: IP input with prefix dropdown showing mask and host count. Collapsible calculations panel
+  below.
 - Mobile: Stacked layout, prefix shown as a numeric spinner. Calculations hidden behind a toggle.
 
 ---
@@ -621,6 +710,7 @@ Pass a `checkOverlap` callback to enable real-time conflict detection against ex
 ### MACInput
 
 **Files:**
+
 - `libs/ui/patterns/src/network-inputs/mac-input/mac-input.types.ts`
 - `libs/ui/patterns/src/network-inputs/mac-input/use-mac-input.ts`
 - `libs/ui/patterns/src/network-inputs/mac-input/mac-input.tsx`
@@ -628,6 +718,7 @@ Pass a `checkOverlap` callback to enable real-time conflict detection against ex
 - `libs/ui/patterns/src/network-inputs/mac-input/mac-input-mobile.tsx`
 
 **Component Props:**
+
 ```tsx
 export interface MACInputProps {
   value?: string;
@@ -651,9 +742,10 @@ export interface MACInputProps {
 ```
 
 **Headless Hook Return:**
+
 ```tsx
 interface UseMACInputReturn {
-  value: string;         // Normalized MAC (in chosen format)
+  value: string; // Normalized MAC (in chosen format)
   isValid: boolean;
   error: string | null;
   vendor: string | null; // OUI vendor name when showVendor is true
@@ -663,10 +755,12 @@ interface UseMACInputReturn {
 ```
 
 **Validation rules:**
+
 - Accepts colon, dash, and dotted formats as input and normalizes to the configured output format.
 - Valid MAC: 6 hex octets, each 0–FF.
 
 **Desktop vs Mobile:**
+
 - Desktop: Segmented hex octets separated by the chosen delimiter, vendor badge in corner.
 - Mobile: Single normalized input with live vendor badge displayed below.
 
@@ -675,6 +769,7 @@ interface UseMACInputReturn {
 ### PortInput
 
 **Files:**
+
 - `libs/ui/patterns/src/network-inputs/port-input/port-input.types.ts`
 - `libs/ui/patterns/src/network-inputs/port-input/use-port-input.ts`
 - `libs/ui/patterns/src/network-inputs/port-input/port-input.tsx`
@@ -682,6 +777,7 @@ interface UseMACInputReturn {
 - `libs/ui/patterns/src/network-inputs/port-input/port-input-mobile.tsx`
 
 **Component Props:**
+
 ```tsx
 export interface PortInputProps {
   value?: number | string;
@@ -699,8 +795,8 @@ export interface PortInputProps {
   label?: string;
   placeholder?: string;
   helpText?: string;
-  min?: number;    // default: 1
-  max?: number;    // default: 65535
+  min?: number; // default: 1
+  max?: number; // default: 65535
   className?: string;
   name?: string;
   required?: boolean;
@@ -712,11 +808,12 @@ export interface PortInputProps {
 ```
 
 **Headless Hook Return (abbreviated):**
+
 ```tsx
 interface UsePortInputReturn {
-  port: number | null;             // Parsed single port
-  portRange: PortRange | null;     // { start, end } in range mode
-  ports: number[];                 // Array in multi mode
+  port: number | null; // Parsed single port
+  portRange: PortRange | null; // { start, end } in range mode
+  ports: number[]; // Array in multi mode
   inputValue: string;
   rangeStartValue: string;
   rangeEndValue: string;
@@ -724,7 +821,7 @@ interface UsePortInputReturn {
   portCount: number;
   isValid: boolean;
   error: string | null;
-  serviceName: string | null;      // Well-known service name
+  serviceName: string | null; // Well-known service name
   protocol: 'tcp' | 'udp' | 'both';
   handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleRangeStartChange: (value: string) => void;
@@ -749,17 +846,22 @@ interface UsePortInputReturn {
 }
 ```
 
-**Suggestion categories:** `web`, `secure`, `database`, `messaging`, `mail`, `network`, `system`, `containers`, `mikrotik`, `recent`, `group`.
+**Suggestion categories:** `web`, `secure`, `database`, `messaging`, `mail`, `network`, `system`,
+`containers`, `mikrotik`, `recent`, `group`.
 
 **Desktop vs Mobile:**
-- Desktop: Full autocomplete dropdown with categorized suggestions, range shown as two adjacent fields.
-- Mobile: Simplified input with a bottom sheet for suggestion browsing; range mode uses a spinner pair.
+
+- Desktop: Full autocomplete dropdown with categorized suggestions, range shown as two adjacent
+  fields.
+- Mobile: Simplified input with a bottom sheet for suggestion browsing; range mode uses a spinner
+  pair.
 
 ---
 
 ### InterfaceSelector
 
 **Files:**
+
 - `libs/ui/patterns/src/network-inputs/interface-selector/interface-selector.types.ts`
 - `libs/ui/patterns/src/network-inputs/interface-selector/use-interface-selector.ts`
 - `libs/ui/patterns/src/network-inputs/interface-selector/interface-selector.tsx`
@@ -767,17 +869,18 @@ interface UsePortInputReturn {
 - `libs/ui/patterns/src/network-inputs/interface-selector/interface-selector-mobile.tsx`
 
 **Component Props:**
+
 ```tsx
 export interface InterfaceSelectorProps {
   routerId: string;
-  value?: string | string[];    // Single ID or array for multi-select
+  value?: string | string[]; // Single ID or array for multi-select
   onChange?: (value: string | string[]) => void;
   multiple?: boolean;
   /** Restrict to specific interface types */
   types?: ('ethernet' | 'bridge' | 'vlan' | 'wireless' | 'vpn' | 'tunnel' | 'loopback')[];
-  showStatus?: boolean;         // default: true
-  showIP?: boolean;             // default: true
-  excludeUsed?: boolean;        // Hide interfaces already in use
+  showStatus?: boolean; // default: true
+  showIP?: boolean; // default: true
+  excludeUsed?: boolean; // Hide interfaces already in use
   disabled?: boolean;
   error?: string;
   placeholder?: string;
@@ -789,6 +892,7 @@ export interface InterfaceSelectorProps {
 ```
 
 **Headless Hook Return:**
+
 ```tsx
 interface UseInterfaceSelectorReturn {
   interfaces: RouterInterface[];
@@ -811,6 +915,7 @@ interface UseInterfaceSelectorReturn {
 ```
 
 **Desktop vs Mobile:**
+
 - Desktop: Searchable combobox dropdown with type-filter tabs and status indicators.
 - Mobile: Full-screen bottom sheet with search, type filter pills, and item list.
 
@@ -838,18 +943,21 @@ interface UseInterfaceSelectorReturn {
 
 ## Firewall Rule Editors
 
-All rule editors follow the same pattern: a platform-aware wrapper rendering a Desktop or Mobile presenter, backed by a headless hook. They open as dialog sheets over the current page.
+All rule editors follow the same pattern: a platform-aware wrapper rendering a Desktop or Mobile
+presenter, backed by a headless hook. They open as dialog sheets over the current page.
 
 ### FilterRuleEditor
 
 **File:** `libs/ui/patterns/src/filter-rule-editor/FilterRuleEditor.tsx`
 
 **Import:**
+
 ```tsx
 import { FilterRuleEditor, type FilterRuleEditorProps } from '@nasnet/ui/patterns';
 ```
 
 **Props:**
+
 ```tsx
 export interface FilterRuleEditorProps {
   routerId: string;
@@ -860,14 +968,16 @@ export interface FilterRuleEditorProps {
   onDelete?: () => void | Promise<void>;
   isSaving?: boolean;
   isDeleting?: boolean;
-  mode?: 'create' | 'edit';  // default: 'create'
+  mode?: 'create' | 'edit'; // default: 'create'
   showChainDiagram?: boolean;
   addressLists?: string[];
   interfaceLists?: string[];
 }
 ```
 
-Key fields: chain (forward/input/output), action (accept/drop/reject/log), protocol, source/destination IP, source/destination port, in/out interface, connection state, comment. When `showChainDiagram` is true, the chain selector includes a visual packet-flow diagram.
+Key fields: chain (forward/input/output), action (accept/drop/reject/log), protocol,
+source/destination IP, source/destination port, in/out interface, connection state, comment. When
+`showChainDiagram` is true, the chain selector includes a visual packet-flow diagram.
 
 ```tsx
 <FilterRuleEditor
@@ -888,11 +998,13 @@ Key fields: chain (forward/input/output), action (accept/drop/reject/log), proto
 **File:** `libs/ui/patterns/src/mangle-rule-editor/MangleRuleEditor.tsx`
 
 **Import:**
+
 ```tsx
 import { MangleRuleEditor, type MangleRuleEditorProps } from '@nasnet/ui/patterns';
 ```
 
 **Props:**
+
 ```tsx
 export interface MangleRuleEditorProps {
   routerId: string;
@@ -910,7 +1022,9 @@ export interface MangleRuleEditorProps {
 }
 ```
 
-Key fields shared with FilterRuleEditor plus: action (mark-connection, mark-packet, mark-routing), new-connection-mark, new-packet-mark, new-routing-mark, DSCP value (with a `DscpSelectorProps`-driven UI showing common use cases).
+Key fields shared with FilterRuleEditor plus: action (mark-connection, mark-packet, mark-routing),
+new-connection-mark, new-packet-mark, new-routing-mark, DSCP value (with a
+`DscpSelectorProps`-driven UI showing common use cases).
 
 ---
 
@@ -919,11 +1033,13 @@ Key fields shared with FilterRuleEditor plus: action (mark-connection, mark-pack
 **File:** `libs/ui/patterns/src/raw-rule-editor/RawRuleEditor.tsx`
 
 **Import:**
+
 ```tsx
 import { RawRuleEditor, type RawRuleEditorProps } from '@nasnet/ui/patterns';
 ```
 
 **Props:**
+
 ```tsx
 export interface RawRuleEditorProps {
   routerId: string;
@@ -942,7 +1058,9 @@ export interface RawRuleEditorProps {
 }
 ```
 
-Used for rules in the RAW table (pre-routing/output chains that bypass connection tracking). Chains are limited to `prerouting` and `output`. When `showPerformanceTips` is true, inline tips explain the connection-tracking bypass benefit.
+Used for rules in the RAW table (pre-routing/output chains that bypass connection tracking). Chains
+are limited to `prerouting` and `output`. When `showPerformanceTips` is true, inline tips explain
+the connection-tracking bypass benefit.
 
 ---
 
@@ -951,11 +1069,13 @@ Used for rules in the RAW table (pre-routing/output chains that bypass connectio
 **File:** `libs/ui/patterns/src/rate-limit-rule-editor/RateLimitRuleEditor.tsx`
 
 **Import:**
+
 ```tsx
 import { RateLimitRuleEditor, type RateLimitRuleEditorProps } from '@nasnet/ui/patterns';
 ```
 
 **Props:**
+
 ```tsx
 export interface RateLimitRuleEditorProps {
   routerId: string;
@@ -971,7 +1091,9 @@ export interface RateLimitRuleEditorProps {
 }
 ```
 
-Key fields: target address list, max rate (with unit selector: bps/kbps/Mbps), burst limit, burst threshold, burst time, comment. No chain diagram (rate limiting is address-list based, not chain-based).
+Key fields: target address list, max rate (with unit selector: bps/kbps/Mbps), burst limit, burst
+threshold, burst time, comment. No chain diagram (rate limiting is address-list based, not
+chain-based).
 
 ---
 
@@ -980,11 +1102,13 @@ Key fields: target address list, max rate (with unit selector: bps/kbps/Mbps), b
 **File:** `libs/ui/patterns/src/schedule-editor/ScheduleEditor.tsx`
 
 **Import:**
+
 ```tsx
 import { ScheduleEditor, type ScheduleEditorProps } from '@nasnet/ui/patterns';
 ```
 
 **Props:**
+
 ```tsx
 export interface ScheduleEditorProps {
   routingID: string;
@@ -1000,7 +1124,10 @@ export interface ScheduleEditorProps {
 }
 ```
 
-Backed by `useScheduleEditor` hook which integrates RHF + Zod validation. Supports cron expressions, recurring schedules (daily/weekly/monthly), one-time schedules, and timezone selection. The Desktop presenter shows a cron preview and a visual time-picker; the Mobile presenter uses a segmented picker with a bottom sheet for timezone.
+Backed by `useScheduleEditor` hook which integrates RHF + Zod validation. Supports cron expressions,
+recurring schedules (daily/weekly/monthly), one-time schedules, and timezone selection. The Desktop
+presenter shows a cron preview and a visual time-picker; the Mobile presenter uses a segmented
+picker with a bottom sheet for timezone.
 
 ```tsx
 <ScheduleEditor
@@ -1017,12 +1144,14 @@ Backed by `useScheduleEditor` hook which integrates RHF + Zod validation. Suppor
 ## Port Knock Sequence Form
 
 **Files:**
+
 - `libs/ui/patterns/src/port-knock-sequence-form/PortKnockSequenceForm.tsx`
 - `libs/ui/patterns/src/port-knock-sequence-form/use-port-knock-sequence-form.ts`
 - `libs/ui/patterns/src/port-knock-sequence-form/PortKnockSequenceFormDesktop.tsx`
 - `libs/ui/patterns/src/port-knock-sequence-form/PortKnockSequenceFormMobile.tsx`
 
 **Import:**
+
 ```tsx
 import {
   PortKnockSequenceForm,
@@ -1033,16 +1162,18 @@ import {
 ```
 
 **Component Props:**
+
 ```tsx
 export interface PortKnockSequenceFormProps {
   formState: UsePortKnockSequenceFormReturn;
-  isEditMode?: boolean;    // default: false
-  isSubmitting?: boolean;  // default: false
+  isEditMode?: boolean; // default: false
+  isSubmitting?: boolean; // default: false
   className?: string;
 }
 ```
 
 **Hook Return:**
+
 ```tsx
 export interface UsePortKnockSequenceFormReturn {
   form: ReturnType<typeof useForm<PortKnockSequenceInput>>;
@@ -1050,16 +1181,20 @@ export interface UsePortKnockSequenceFormReturn {
   addKnockPort: () => void;
   removeKnockPort: (index: number) => void;
   reorderKnockPorts: (fromIndex: number, toIndex: number) => void;
-  preview: RulePreview[];    // Generated firewall rule preview
-  isLockoutRisk: boolean;    // True when sequence protects port 22 (SSH)
+  preview: RulePreview[]; // Generated firewall rule preview
+  isLockoutRisk: boolean; // True when sequence protects port 22 (SSH)
   onSubmit: (data: PortKnockSequenceInput) => void | Promise<void>;
 }
 ```
 
-The headless hook integrates RHF with `PortKnockSequenceSchema` from `@nasnet/core/types`. It detects SSH lockout risk when port 22 is included in the knock sequence and shows a warning in both presenters.
+The headless hook integrates RHF with `PortKnockSequenceSchema` from `@nasnet/core/types`. It
+detects SSH lockout risk when port 22 is included in the knock sequence and shows a warning in both
+presenters.
 
 **Desktop vs Mobile:**
-- Desktop: Two-column layout. Left: drag-and-drop sortable port list. Right: live firewall rule preview.
+
+- Desktop: Two-column layout. Left: drag-and-drop sortable port list. Right: live firewall rule
+  preview.
 - Mobile: Card-based list with long-press reordering (no drag-and-drop). Preview behind a toggle.
 
 ```tsx
@@ -1085,11 +1220,13 @@ function PortKnockingPage({ routerId }: { routerId: string }) {
 **File:** `libs/ui/patterns/src/file-upload-zone/FileUploadZone.tsx`
 
 **Import:**
+
 ```tsx
 import { FileUploadZone, type FileUploadZoneProps } from '@nasnet/ui/patterns';
 ```
 
 **Props:**
+
 ```tsx
 export interface FileUploadZoneProps {
   /** Accepted file extensions (e.g., ['.conf', '.json', '.rsc']) */
@@ -1098,20 +1235,23 @@ export interface FileUploadZoneProps {
   onFile: (file: File) => void;
   isLoading?: boolean;
   error?: string;
-  maxSize?: number;   // bytes, default: 10MB (10 * 1024 * 1024)
+  maxSize?: number; // bytes, default: 10MB (10 * 1024 * 1024)
   className?: string;
   disabled?: boolean;
 }
 ```
 
-Provides both drag-and-drop and click-to-browse file upload. Validates file type (against `accept` extension list) and file size (against `maxSize`) before calling `onFile`. Invalid files are silently rejected — show a validation message in the parent if needed.
+Provides both drag-and-drop and click-to-browse file upload. Validates file type (against `accept`
+extension list) and file size (against `maxSize`) before calling `onFile`. Invalid files are
+silently rejected — show a validation message in the parent if needed.
 
-States: default, drag-over (border highlights with primary color), loading (spinner), error (red border and error text).
+States: default, drag-over (border highlights with primary color), loading (spinner), error (red
+border and error text).
 
 ```tsx
 <FileUploadZone
   accept={['.rsc', '.conf', '.backup']}
-  maxSize={5 * 1024 * 1024}  // 5MB
+  maxSize={5 * 1024 * 1024} // 5MB
   onFile={async (file) => {
     const text = await file.text();
     parseConfig(text);
@@ -1125,21 +1265,22 @@ States: default, drag-over (border highlights with primary color), loading (spin
 
 ## Stepper System
 
-The stepper system is a complete headless + presenter architecture for multi-step wizards. All pieces are exported from `@nasnet/ui/patterns`.
+The stepper system is a complete headless + presenter architecture for multi-step wizards. All
+pieces are exported from `@nasnet/ui/patterns`.
 
 ### Overview of pieces
 
-| Export | Role |
-|--------|------|
-| `useStepper` | Core headless hook — all state and navigation |
-| `useStepperKeyboard` | Keyboard navigation side-effect hook |
-| `StepperProvider` / `useStepperContext` | Context for sharing stepper state without prop drilling |
-| `getStepperAriaProps` / `getStepAriaProps` / `getStepPanelAriaProps` | ARIA attribute generators |
-| `getStepAccessibleLabel` / `getStepChangeAnnouncement` | Screen reader text helpers |
-| `VStepper` | Vertical sidebar layout (desktop) |
-| `HStepper` | Horizontal header layout (tablet) |
-| `CStepper` | Three-column content wizard (desktop with live preview) |
-| `MiniStepper` | Mobile bottom-navigation layout |
+| Export                                                               | Role                                                    |
+| -------------------------------------------------------------------- | ------------------------------------------------------- |
+| `useStepper`                                                         | Core headless hook — all state and navigation           |
+| `useStepperKeyboard`                                                 | Keyboard navigation side-effect hook                    |
+| `StepperProvider` / `useStepperContext`                              | Context for sharing stepper state without prop drilling |
+| `getStepperAriaProps` / `getStepAriaProps` / `getStepPanelAriaProps` | ARIA attribute generators                               |
+| `getStepAccessibleLabel` / `getStepChangeAnnouncement`               | Screen reader text helpers                              |
+| `VStepper`                                                           | Vertical sidebar layout (desktop)                       |
+| `HStepper`                                                           | Horizontal header layout (tablet)                       |
+| `CStepper`                                                           | Three-column content wizard (desktop with live preview) |
+| `MiniStepper`                                                        | Mobile bottom-navigation layout                         |
 
 ---
 
@@ -1148,6 +1289,7 @@ The stepper system is a complete headless + presenter architecture for multi-ste
 **File:** `libs/ui/patterns/src/stepper/hooks/use-stepper.ts`
 
 **Import:**
+
 ```tsx
 import {
   useStepper,
@@ -1160,6 +1302,7 @@ import {
 ```
 
 **Configuration:**
+
 ```tsx
 interface StepConfig {
   id: string;
@@ -1167,7 +1310,7 @@ interface StepConfig {
   description?: string;
   validate?: (data: unknown) => Promise<ValidationResult>; // { valid: boolean; errors?: Record<string, string> }
   canSkip?: boolean;
-  icon?: string;     // icon name for presenters
+  icon?: string; // icon name for presenters
   metadata?: Record<string, unknown>;
 }
 
@@ -1176,13 +1319,14 @@ interface StepperConfig {
   onComplete?: (stepData: Map<string, unknown>) => void | Promise<void>;
   onStepChange?: (fromIndex: number, toIndex: number) => void;
   validateOnChange?: boolean; // default: true
-  initialStep?: number;       // default: 0
+  initialStep?: number; // default: 0
   initialStepData?: Map<string, unknown>;
-  freeNavigation?: boolean;   // default: false — allow jumping to any step
+  freeNavigation?: boolean; // default: false — allow jumping to any step
 }
 ```
 
 **Return value:**
+
 ```tsx
 interface UseStepperReturn {
   // Current state
@@ -1194,10 +1338,10 @@ interface UseStepperReturn {
   stepStates: Map<string, StepState>;
 
   // Navigation
-  next: () => Promise<boolean>;   // validates then advances
-  prev: () => void;               // goes back without validating
+  next: () => Promise<boolean>; // validates then advances
+  prev: () => void; // goes back without validating
   goTo: (index: number) => Promise<boolean>;
-  skip: () => boolean;            // only works if step.canSkip is true
+  skip: () => boolean; // only works if step.canSkip is true
 
   // Status flags
   isFirst: boolean;
@@ -1207,7 +1351,7 @@ interface UseStepperReturn {
   isCompleted: boolean;
 
   // Validation
-  errors: StepErrors;             // errors for current step
+  errors: StepErrors; // errors for current step
   stepsWithErrors: string[];
   setStepErrors: (stepId: string, errors: StepErrors) => void;
   clearErrors: () => void;
@@ -1219,7 +1363,7 @@ interface UseStepperReturn {
   getAllStepData: () => Map<string, unknown>;
 
   // Progress
-  progress: number;      // 0-100
+  progress: number; // 0-100
   completedCount: number;
   totalSteps: number;
 
@@ -1238,11 +1382,13 @@ interface UseStepperReturn {
 **File:** `libs/ui/patterns/src/stepper/hooks/use-stepper-keyboard.ts`
 
 **Import:**
+
 ```tsx
 import { useStepperKeyboard, getStepperKeyboardHints } from '@nasnet/ui/patterns';
 ```
 
 **Signature:**
+
 ```tsx
 function useStepperKeyboard(
   stepper: UseStepperReturn,
@@ -1250,10 +1396,11 @@ function useStepperKeyboard(
     enabled?: boolean;
     containerRef?: React.RefObject<HTMLElement>;
   }
-): void
+): void;
 ```
 
 Attaches keydown event listeners. Bindings:
+
 - `ArrowLeft` / `ArrowUp` — previous step
 - `ArrowRight` / `ArrowDown` — next step (if accessible)
 - `Enter` — call `stepper.next()` (validates)
@@ -1262,7 +1409,8 @@ Attaches keydown event listeners. Bindings:
 - `1`–`9` — jump to step by number
 - `Escape` — clear current step errors
 
-When `containerRef` is provided, events are scoped to that element; otherwise they are bound to `document`. Input fields within the container are not intercepted.
+When `containerRef` is provided, events are scoped to that element; otherwise they are bound to
+`document`. Input fields within the container are not intercepted.
 
 ---
 
@@ -1271,12 +1419,9 @@ When `containerRef` is provided, events are scoped to that element; otherwise th
 **File:** `libs/ui/patterns/src/stepper/stepper-context.tsx`
 
 **Import:**
+
 ```tsx
-import {
-  StepperProvider,
-  useStepperContext,
-  useOptionalStepperContext,
-} from '@nasnet/ui/patterns';
+import { StepperProvider, useStepperContext, useOptionalStepperContext } from '@nasnet/ui/patterns';
 ```
 
 ```tsx
@@ -1287,15 +1432,23 @@ const stepper = useStepper(config);
   <StepList />
   <StepContent />
   <StepNavigation />
-</StepperProvider>
+</StepperProvider>;
 
 // Read stepper from context in any child
 function StepNavigation() {
   const stepper = useStepperContext(); // throws if not in provider
   return (
     <div>
-      <Button onClick={stepper.prev} disabled={stepper.isFirst}>Back</Button>
-      <Button onClick={() => stepper.next()} disabled={stepper.isValidating}>
+      <Button
+        onClick={stepper.prev}
+        disabled={stepper.isFirst}
+      >
+        Back
+      </Button>
+      <Button
+        onClick={() => stepper.next()}
+        disabled={stepper.isValidating}
+      >
         {stepper.isLast ? 'Finish' : 'Next'}
       </Button>
     </div>
@@ -1303,7 +1456,8 @@ function StepNavigation() {
 }
 ```
 
-`useOptionalStepperContext()` returns `null` instead of throwing when used outside a provider — useful for components that can be used inside or outside a wizard.
+`useOptionalStepperContext()` returns `null` instead of throwing when used outside a provider —
+useful for components that can be used inside or outside a wizard.
 
 ---
 
@@ -1353,32 +1507,36 @@ const announcement = getStepChangeAnnouncement(stepper);
 **File:** `libs/ui/patterns/src/stepper/components/v-stepper/`
 
 **Props:**
+
 ```tsx
 interface VStepperProps {
   stepper: UseStepperReturn;
   className?: string;
-  width?: string | number;       // default: '256px'
-  showDescriptions?: boolean;    // default: true
-  showErrorCount?: boolean;      // default: false
+  width?: string | number; // default: '256px'
+  showDescriptions?: boolean; // default: true
+  showErrorCount?: boolean; // default: false
   'aria-label'?: string;
 }
 ```
 
-Vertical step list with connector lines between items. Each item shows step number/icon, title, description, and status indicator. Clickable for completed steps. Used as the left panel of `CStepper`.
+Vertical step list with connector lines between items. Each item shows step number/icon, title,
+description, and status indicator. Clickable for completed steps. Used as the left panel of
+`CStepper`.
 
 #### HStepper (Horizontal — Tablet Header)
 
 **File:** `libs/ui/patterns/src/stepper/components/h-stepper/`
 
 **Props:**
+
 ```tsx
 interface HStepperProps {
   stepper: UseStepperReturn;
   className?: string;
-  showTitles?: boolean;    // default: true
-  useIcons?: boolean;      // default: true
-  sticky?: boolean;        // default: true
-  stickyOffset?: string;   // default: '0'
+  showTitles?: boolean; // default: true
+  useIcons?: boolean; // default: true
+  sticky?: boolean; // default: true
+  stickyOffset?: string; // default: '0'
   allowSkipSteps?: boolean;
   onMenuClick?: () => void;
   showBackButton?: boolean; // default: true
@@ -1386,26 +1544,28 @@ interface HStepperProps {
 }
 ```
 
-Horizontal step indicator row. Steps shown as numbered circles connected by a progress bar. Collapses step titles on narrow viewports. Supports sticky positioning for wizard headers.
+Horizontal step indicator row. Steps shown as numbered circles connected by a progress bar.
+Collapses step titles on narrow viewports. Supports sticky positioning for wizard headers.
 
 #### CStepper (Content — Desktop Three-Column)
 
 **File:** `libs/ui/patterns/src/stepper/components/c-stepper/`
 
 **Props:**
+
 ```tsx
 interface CStepperProps {
   stepper: UseStepperReturn;
-  stepContent: React.ReactNode;    // Form fields for current step
+  stepContent: React.ReactNode; // Form fields for current step
   previewContent?: React.ReactNode; // Live config preview (right panel)
   className?: string;
-  previewTitle?: string;           // default: 'Preview'
-  defaultShowPreview?: boolean;    // default: true (auto-collapses below 1280px)
+  previewTitle?: string; // default: 'Preview'
+  defaultShowPreview?: boolean; // default: true (auto-collapses below 1280px)
   'aria-label'?: string;
   onPreviewToggle?: (visible: boolean) => void;
-  sidebarWidth?: string | number;  // default: 280px
-  previewWidth?: string | number;  // default: 320px
-  showStepDescriptions?: boolean;  // default: true
+  sidebarWidth?: string | number; // default: 280px
+  previewWidth?: string | number; // default: 320px
+  showStepDescriptions?: boolean; // default: true
   customNavigation?: React.ReactNode;
   navigationLabels?: {
     previous?: string;
@@ -1415,13 +1575,15 @@ interface CStepperProps {
 }
 ```
 
-Three-column layout: left sidebar (VStepper, 280px) + center content area (flexible) + right preview panel (320px, collapsible with Alt+P shortcut).
+Three-column layout: left sidebar (VStepper, 280px) + center content area (flexible) + right preview
+panel (320px, collapsible with Alt+P shortcut).
 
 `CStepperPreview` is exported as a standalone panel for custom embedding:
+
 ```tsx
 interface CStepperPreviewProps {
   children: React.ReactNode;
-  title?: string;    // default: 'Preview'
+  title?: string; // default: 'Preview'
   onClose: () => void;
   className?: string;
   width?: string | number;
@@ -1433,18 +1595,21 @@ interface CStepperPreviewProps {
 **File:** `libs/ui/patterns/src/stepper/components/mini-stepper/`
 
 **Props:**
+
 ```tsx
 interface MiniStepperProps {
   stepper: UseStepperReturn;
   stepContent: React.ReactNode;
   className?: string;
   onStepChange?: (step: StepConfig, index: number) => void;
-  disableSwipe?: boolean;  // default: false
+  disableSwipe?: boolean; // default: false
   'aria-label'?: string;
 }
 ```
 
-Mobile-optimized layout: top progress bar + current step title, full-width content area, fixed bottom bar with Back/Next buttons (44px height for touch targets). Supports swipe gestures to navigate (disable for forms with text inputs via `disableSwipe`).
+Mobile-optimized layout: top progress bar + current step title, full-width content area, fixed
+bottom bar with Back/Next buttons (44px height for touch targets). Supports swipe gestures to
+navigate (disable for forms with text inputs via `disableSwipe`).
 
 ---
 
@@ -1532,18 +1697,23 @@ function SetupWizard() {
 
   return (
     <StepperProvider stepper={stepper}>
-      <div ref={containerRef} tabIndex={-1}>
-        {isMobile ? (
-          <MiniStepper stepper={stepper} stepContent={stepContent} />
-        ) : (
-          <CStepper
+      <div
+        ref={containerRef}
+        tabIndex={-1}
+      >
+        {isMobile ?
+          <MiniStepper
+            stepper={stepper}
+            stepContent={stepContent}
+          />
+        : <CStepper
             stepper={stepper}
             stepContent={stepContent}
             previewContent={<ConfigPreview stepper={stepper} />}
             previewTitle="RouterOS Script"
             navigationLabels={{ complete: 'Apply Configuration' }}
           />
-        )}
+        }
       </div>
     </StepperProvider>
   );
@@ -1561,10 +1731,12 @@ function WANForm({ stepper }: { stepper: UseStepperReturn }) {
 
   return (
     <FormProvider {...form}>
-      <RHFFormField name="type" label="Connection Type" required />
-      {stepper.errors['type'] && (
-        <FormFieldError message={stepper.errors['type']} />
-      )}
+      <RHFFormField
+        name="type"
+        label="Connection Type"
+        required
+      />
+      {stepper.errors['type'] && <FormFieldError message={stepper.errors['type']} />}
     </FormProvider>
   );
 }
@@ -1575,11 +1747,13 @@ function WANForm({ stepper }: { stepper: UseStepperReturn }) {
 ## ValidationProgress
 
 **Files:**
+
 - `libs/ui/patterns/src/validation-progress/ValidationProgress.tsx`
 - `libs/ui/patterns/src/validation-progress/ValidationStage.tsx`
 - `libs/ui/patterns/src/validation-progress/types.ts`
 
 **Import:**
+
 ```tsx
 import {
   ValidationProgress,
@@ -1600,21 +1774,21 @@ import {
 ```tsx
 // The 7 stages in order
 type ValidationStageName =
-  | 'schema'          // 1. JSON schema / type validation
-  | 'syntax'          // 2. RouterOS syntax checks
-  | 'cross-resource'  // 3. Reference integrity across resources
-  | 'dependencies'    // 4. Dependency ordering and cycles
-  | 'network'         // 5. IP conflicts and subnet overlaps
-  | 'platform'        // 6. RouterOS version capability checks
-  | 'dry-run';        // 7. Simulated apply on test target
+  | 'schema' // 1. JSON schema / type validation
+  | 'syntax' // 2. RouterOS syntax checks
+  | 'cross-resource' // 3. Reference integrity across resources
+  | 'dependencies' // 4. Dependency ordering and cycles
+  | 'network' // 5. IP conflicts and subnet overlaps
+  | 'platform' // 6. RouterOS version capability checks
+  | 'dry-run'; // 7. Simulated apply on test target
 
 type ValidationStageStatus = 'pending' | 'running' | 'passed' | 'failed' | 'skipped';
 
 interface ValidationError {
   code: string;
   message: string;
-  fieldPath?: string;       // e.g., 'interfaces.0.address'
-  resourceUuid?: string;    // UUID of conflicting resource
+  fieldPath?: string; // e.g., 'interfaces.0.address'
+  resourceUuid?: string; // UUID of conflicting resource
   suggestedFix?: string;
 }
 
@@ -1636,6 +1810,7 @@ interface ValidationStageResult {
 ### ValidationProgress Component
 
 **Props:**
+
 ```tsx
 export interface ValidationProgressProps {
   stages?: ValidationStageResult[];
@@ -1654,6 +1829,7 @@ export interface ValidationProgressProps {
 ```
 
 The component:
+
 - Renders a header with animated status (spinning loader while running, check/X when complete).
 - Shows an animated progress bar tracking stages passed / total.
 - Lists all 7 stages with status icons; each stage row is clickable to expand error/warning details.
@@ -1673,9 +1849,9 @@ const {
   isValid,
   totalDurationMs,
   reset,
-  startStage,    // marks a stage as 'running' and increments index
+  startStage, // marks a stage as 'running' and increments index
   completeStage, // sets final result for a stage
-  finish,        // marks pipeline complete with pass/fail
+  finish, // marks pipeline complete with pass/fail
 } = useValidationProgress();
 ```
 
@@ -1684,8 +1860,15 @@ const {
 ```tsx
 function ApplyConfigDialog({ onConfirm }: { onConfirm: () => void }) {
   const {
-    stages, currentStageIndex, isComplete, isValid, totalDurationMs,
-    reset, startStage, completeStage, finish,
+    stages,
+    currentStageIndex,
+    isComplete,
+    isValid,
+    totalDurationMs,
+    reset,
+    startStage,
+    completeStage,
+    finish,
   } = useValidationProgress();
   const [isRunning, setIsRunning] = useState(false);
 
@@ -1695,7 +1878,13 @@ function ApplyConfigDialog({ onConfirm }: { onConfirm: () => void }) {
     const start = Date.now();
 
     const pipeline: ValidationStageName[] = [
-      'schema', 'syntax', 'cross-resource', 'dependencies', 'network', 'platform', 'dry-run',
+      'schema',
+      'syntax',
+      'cross-resource',
+      'dependencies',
+      'network',
+      'platform',
+      'dry-run',
     ];
 
     for (const stageName of pipeline) {
@@ -1748,14 +1937,15 @@ function ApplyConfigDialog({ onConfirm }: { onConfirm: () => void }) {
         />
 
         <DialogFooter className="gap-2">
-          {!isRunning && !isComplete && (
-            <Button onClick={runValidation}>Run Validation</Button>
-          )}
-          {isComplete && isValid && (
-            <Button onClick={onConfirm}>Apply Changes</Button>
-          )}
+          {!isRunning && !isComplete && <Button onClick={runValidation}>Run Validation</Button>}
+          {isComplete && isValid && <Button onClick={onConfirm}>Apply Changes</Button>}
           {isComplete && !isValid && (
-            <Button variant="outline" onClick={reset}>Fix Errors & Retry</Button>
+            <Button
+              variant="outline"
+              onClick={reset}
+            >
+              Fix Errors & Retry
+            </Button>
           )}
         </DialogFooter>
       </DialogContent>
@@ -1764,4 +1954,5 @@ function ApplyConfigDialog({ onConfirm }: { onConfirm: () => void }) {
 }
 ```
 
-See `multi-package-flows.md` for the complete Apply-Confirm-Merge flow that uses this component across the configuration pipeline.
+See `multi-package-flows.md` for the complete Apply-Confirm-Merge flow that uses this component
+across the configuration pipeline.

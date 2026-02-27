@@ -29,7 +29,14 @@ const MOCK_INTERFACES: RouterInterface[] = [
   { id: 'eth3', name: 'ether3', type: 'ethernet', status: 'down', usedBy: [] },
   { id: 'eth4', name: 'ether4', type: 'ethernet', status: 'disabled', usedBy: [] },
   { id: 'eth5', name: 'ether5', type: 'ethernet', status: 'up', usedBy: ['bridge-lan'] },
-  { id: 'br1', name: 'bridge-lan', type: 'bridge', status: 'up', ip: '10.0.0.1', usedBy: ['DHCP Server'] },
+  {
+    id: 'br1',
+    name: 'bridge-lan',
+    type: 'bridge',
+    status: 'up',
+    ip: '10.0.0.1',
+    usedBy: ['DHCP Server'],
+  },
   { id: 'wlan1', name: 'wlan1', type: 'wireless', status: 'up', ip: '192.168.88.1', usedBy: [] },
   { id: 'wlan2', name: 'wlan2', type: 'wireless', status: 'down', usedBy: [] },
   { id: 'vlan10', name: 'vlan10', type: 'vlan', status: 'up', ip: '10.10.0.1', usedBy: [] },
@@ -58,9 +65,7 @@ function makeLoadedOverride(
     setIsOpen: () => {},
     toggleSelection: (id: string) => {
       if (multiple) {
-        setSelected(
-          selected.includes(id) ? selected.filter((v) => v !== id) : [...selected, id]
-        );
+        setSelected(selected.includes(id) ? selected.filter((v) => v !== id) : [...selected, id]);
       } else {
         setSelected(selected.includes(id) ? [] : [id]);
       }
@@ -68,11 +73,10 @@ function makeLoadedOverride(
     clearSelection: () => setSelected([]),
     getInterfaceById: (id: string) => MOCK_INTERFACES.find((i) => i.id === id),
     getDisplayValue: () =>
-      selected.length === 0
-        ? ''
-        : selected.length === 1
-        ? (MOCK_INTERFACES.find((i) => i.id === selected[0])?.name ?? selected[0])
-        : `${selected.length} interfaces selected`,
+      selected.length === 0 ? ''
+      : selected.length === 1 ?
+        (MOCK_INTERFACES.find((i) => i.id === selected[0])?.name ?? selected[0])
+      : `${selected.length} interfaces selected`,
     retry: () => {},
   };
 }
@@ -97,10 +101,16 @@ function ControlledDesktopSelector(
         routerId="router-demo"
         multiple={multiple}
         value={multiple ? selected : (selected[0] ?? '')}
-        onChange={(v) => setSelected(Array.isArray(v) ? v : v ? [v] : [])}
+        onChange={(v) =>
+          setSelected(
+            Array.isArray(v) ? v
+            : v ? [v]
+            : []
+          )
+        }
         hookOverride={makeLoadedOverride(selected, setSelected, multiple)}
       />
-      <div className="p-3 rounded-md bg-muted text-xs font-mono text-muted-foreground">
+      <div className="bg-muted text-muted-foreground rounded-md p-3 font-mono text-xs">
         selected: {JSON.stringify(selected)}
       </div>
     </div>

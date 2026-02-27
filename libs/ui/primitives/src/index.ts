@@ -35,14 +35,7 @@ export { Button, buttonVariants } from './button';
 export type { ButtonProps } from './button';
 
 // Card
-export {
-  Card,
-  CardHeader,
-  CardFooter,
-  CardTitle,
-  CardDescription,
-  CardContent,
-} from './card';
+export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent } from './card';
 
 // Input
 export { Input } from './input';
@@ -245,7 +238,12 @@ export {
 
 // Accordion
 export { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from './accordion';
-export type { AccordionProps, AccordionItemProps, AccordionTriggerProps, AccordionContentProps } from './accordion';
+export type {
+  AccordionProps,
+  AccordionItemProps,
+  AccordionTriggerProps,
+  AccordionContentProps,
+} from './accordion';
 
 // Icon
 export { Icon } from './icon';

@@ -181,7 +181,10 @@ export const Simple: Story = {
   },
   decorators: [
     (Story) => (
-      <MockedProvider mocks={mockSimple} addTypename={false}>
+      <MockedProvider
+        mocks={mockSimple}
+        addTypename={false}
+      >
         <Story />
       </MockedProvider>
     ),
@@ -198,7 +201,10 @@ export const Complex: Story = {
   },
   decorators: [
     (Story) => (
-      <MockedProvider mocks={mockComplex} addTypename={false}>
+      <MockedProvider
+        mocks={mockComplex}
+        addTypename={false}
+      >
         <Story />
       </MockedProvider>
     ),
@@ -215,7 +221,10 @@ export const Empty: Story = {
   },
   decorators: [
     (Story) => (
-      <MockedProvider mocks={mockEmpty} addTypename={false}>
+      <MockedProvider
+        mocks={mockEmpty}
+        addTypename={false}
+      >
         <Story />
       </MockedProvider>
     ),
@@ -232,7 +241,10 @@ export const Loading: Story = {
   },
   decorators: [
     (Story) => (
-      <MockedProvider mocks={[]} addTypename={false}>
+      <MockedProvider
+        mocks={[]}
+        addTypename={false}
+      >
         <Story />
       </MockedProvider>
     ),
@@ -254,7 +266,10 @@ export const Mobile: Story = {
   },
   decorators: [
     (Story) => (
-      <MockedProvider mocks={mockComplex} addTypename={false}>
+      <MockedProvider
+        mocks={mockComplex}
+        addTypename={false}
+      >
         <Story />
       </MockedProvider>
     ),
@@ -302,7 +317,10 @@ export const Large: Story = {
       ];
 
       return (
-        <MockedProvider mocks={mocks} addTypename={false}>
+        <MockedProvider
+          mocks={mocks}
+          addTypename={false}
+        >
           <Story />
         </MockedProvider>
       );

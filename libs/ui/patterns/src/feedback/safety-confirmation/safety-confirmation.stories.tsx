@@ -9,7 +9,6 @@
 
 import { useState } from 'react';
 
-
 import { Button } from '@nasnet/ui/primitives';
 
 import { SafetyConfirmation } from './safety-confirmation';
@@ -105,7 +104,10 @@ function SafetyConfirmationDemo(
 
   return (
     <div className="flex flex-col items-center gap-4">
-      <Button variant="destructive" onClick={() => setOpen(true)}>
+      <Button
+        variant="destructive"
+        onClick={() => setOpen(true)}
+      >
         Trigger {props.title}
       </Button>
       <SafetyConfirmation
@@ -207,8 +209,8 @@ export const MobileVariant: Story = {
   globals: {
     viewport: {
       value: 'mobile1',
-      isRotated: false
-    }
+      isRotated: false,
+    },
   },
 };
 
@@ -252,14 +254,14 @@ export const DarkTheme: Story = {
   ),
 
   parameters: {
-    themes: { default: 'dark' }
+    themes: { default: 'dark' },
   },
 
   globals: {
     backgrounds: {
-      value: "dark"
-    }
-  }
+      value: 'dark',
+    },
+  },
 };
 
 /**
@@ -336,11 +338,7 @@ export const Playground: Story = {
   args: {
     title: 'Dangerous Operation',
     description: 'This is a dangerous operation that cannot be undone.',
-    consequences: [
-      'First consequence',
-      'Second consequence',
-      'Third consequence',
-    ],
+    consequences: ['First consequence', 'Second consequence', 'Third consequence'],
     confirmText: 'CONFIRM',
     countdownSeconds: 10,
     caseSensitive: true,

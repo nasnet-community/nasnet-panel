@@ -76,8 +76,7 @@ export const TabletView: Story = {
   parameters: {
     docs: {
       description: {
-        story:
-          'Device routing page at tablet viewport width with hybrid layout.',
+        story: 'Device routing page at tablet viewport width with hybrid layout.',
       },
     },
   },

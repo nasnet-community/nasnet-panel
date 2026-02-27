@@ -146,7 +146,14 @@ interface UseAlertsOptions {
  * ```
  */
 export function useAlerts(options: UseAlertsOptions = {}) {
-  const { deviceId, severity, acknowledged, limit = 50, offset = 0, enableSubscription = true } = options;
+  const {
+    deviceId,
+    severity,
+    acknowledged,
+    limit = 50,
+    offset = 0,
+    enableSubscription = true,
+  } = options;
 
   const queryResult = useQuery(GET_ALERTS, {
     variables: {

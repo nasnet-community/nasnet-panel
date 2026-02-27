@@ -136,12 +136,12 @@ function createMockStorageUsage(featureCount = 0) {
 // Test Utilities
 // =============================================================================
 
-function renderWithProviders(
-  ui: React.ReactElement,
-  mocks: MockedResponse[] = []
-) {
+function renderWithProviders(ui: React.ReactElement, mocks: MockedResponse[] = []) {
   return render(
-    <MockedProvider mocks={mocks} addTypename={false}>
+    <MockedProvider
+      mocks={mocks}
+      addTypename={false}
+    >
       <Toaster />
       {ui}
     </MockedProvider>
@@ -186,10 +186,7 @@ describe('StorageSettings - Rendering States', () => {
         request: { query: GET_STORAGE_INFO },
         result: {
           data: {
-            storageInfo: [
-              createMockFlashStorage(),
-              createMockStorageInfo({ path: '/usb1' }),
-            ],
+            storageInfo: [createMockFlashStorage(), createMockStorageInfo({ path: '/usb1' })],
           },
         },
       },
@@ -214,9 +211,7 @@ describe('StorageSettings - Rendering States', () => {
     expect(screen.getByText(/usb1/i)).toBeInTheDocument();
 
     // Verify enable storage controls are visible
-    expect(
-      screen.getByRole('switch', { name: /Enable External Storage/i })
-    ).toBeInTheDocument();
+    expect(screen.getByRole('switch', { name: /Enable External Storage/i })).toBeInTheDocument();
   });
 
   test('renders no storage detected', async () => {
@@ -243,20 +238,14 @@ describe('StorageSettings - Rendering States', () => {
 
     // Wait for data to load
     await waitFor(() => {
-      expect(
-        screen.getByText(/No external storage detected/i)
-      ).toBeInTheDocument();
+      expect(screen.getByText(/No external storage detected/i)).toBeInTheDocument();
     });
 
     // Verify helpful message about inserting USB
-    expect(
-      screen.getByText(/Connect a USB drive or disk/i)
-    ).toBeInTheDocument();
+    expect(screen.getByText(/Connect a USB drive or disk/i)).toBeInTheDocument();
 
     // Verify enable switch is disabled
-    expect(
-      screen.getByRole('switch', { name: /Enable External Storage/i })
-    ).toBeDisabled();
+    expect(screen.getByRole('switch', { name: /Enable External Storage/i })).toBeDisabled();
   });
 
   test('renders error state', async () => {
@@ -493,10 +482,7 @@ describe('StorageSettings - Configuration Actions', () => {
         request: { query: GET_STORAGE_INFO },
         result: {
           data: {
-            storageInfo: [
-              createMockFlashStorage(),
-              createMockStorageInfo({ path: '/usb1' }),
-            ],
+            storageInfo: [createMockFlashStorage(), createMockStorageInfo({ path: '/usb1' })],
           },
         },
       },
@@ -530,10 +516,7 @@ describe('StorageSettings - Configuration Actions', () => {
         request: { query: GET_STORAGE_INFO },
         result: {
           data: {
-            storageInfo: [
-              createMockFlashStorage(),
-              createMockStorageInfo({ path: '/usb1' }),
-            ],
+            storageInfo: [createMockFlashStorage(), createMockStorageInfo({ path: '/usb1' })],
           },
         },
       },
@@ -580,10 +563,7 @@ describe('StorageSettings - Configuration Actions', () => {
         request: { query: GET_STORAGE_INFO },
         result: {
           data: {
-            storageInfo: [
-              createMockFlashStorage(),
-              createMockStorageInfo({ path: '/usb1' }),
-            ],
+            storageInfo: [createMockFlashStorage(), createMockStorageInfo({ path: '/usb1' })],
           },
         },
       },
@@ -617,10 +597,7 @@ describe('StorageSettings - Configuration Actions', () => {
         request: { query: GET_STORAGE_INFO },
         result: {
           data: {
-            storageInfo: [
-              createMockFlashStorage(),
-              createMockStorageInfo({ path: '/usb1' }),
-            ],
+            storageInfo: [createMockFlashStorage(), createMockStorageInfo({ path: '/usb1' })],
           },
         },
       },
@@ -667,10 +644,7 @@ describe('StorageSettings - Configuration Actions', () => {
         request: { query: GET_STORAGE_INFO },
         result: {
           data: {
-            storageInfo: [
-              createMockFlashStorage(),
-              createMockStorageInfo({ path: '/usb1' }),
-            ],
+            storageInfo: [createMockFlashStorage(), createMockStorageInfo({ path: '/usb1' })],
           },
         },
       },
@@ -704,10 +678,7 @@ describe('StorageSettings - Configuration Actions', () => {
         request: { query: GET_STORAGE_INFO },
         result: {
           data: {
-            storageInfo: [
-              createMockFlashStorage(),
-              createMockStorageInfo({ path: '/usb1' }),
-            ],
+            storageInfo: [createMockFlashStorage(), createMockStorageInfo({ path: '/usb1' })],
           },
         },
       },
@@ -760,10 +731,7 @@ describe('StorageSettings - Progressive Disclosure', () => {
         request: { query: GET_STORAGE_INFO },
         result: {
           data: {
-            storageInfo: [
-              createMockFlashStorage(),
-              createMockStorageInfo({ path: '/usb1' }),
-            ],
+            storageInfo: [createMockFlashStorage(), createMockStorageInfo({ path: '/usb1' })],
           },
         },
       },
@@ -787,9 +755,7 @@ describe('StorageSettings - Progressive Disclosure', () => {
     // Verify essential elements are visible
     expect(screen.getByText(/Storage Configuration/i)).toBeInTheDocument();
     expect(screen.getByText(/Storage Usage/i)).toBeInTheDocument();
-    expect(
-      screen.getByRole('switch', { name: /Enable External Storage/i })
-    ).toBeInTheDocument();
+    expect(screen.getByRole('switch', { name: /Enable External Storage/i })).toBeInTheDocument();
 
     // Verify status badge is visible
     expect(screen.getByText(/Configured/i)).toBeInTheDocument();
@@ -803,10 +769,7 @@ describe('StorageSettings - Progressive Disclosure', () => {
         request: { query: GET_STORAGE_INFO },
         result: {
           data: {
-            storageInfo: [
-              createMockFlashStorage(),
-              createMockStorageInfo({ path: '/usb1' }),
-            ],
+            storageInfo: [createMockFlashStorage(), createMockStorageInfo({ path: '/usb1' })],
           },
         },
       },
@@ -864,10 +827,7 @@ describe('StorageSettings - Progressive Disclosure', () => {
         request: { query: GET_STORAGE_INFO },
         result: {
           data: {
-            storageInfo: [
-              createMockFlashStorage(),
-              createMockStorageInfo({ path: '/usb1' }),
-            ],
+            storageInfo: [createMockFlashStorage(), createMockStorageInfo({ path: '/usb1' })],
           },
         },
       },
@@ -925,10 +885,7 @@ describe('StorageSettings - Service Breakdown', () => {
         request: { query: GET_STORAGE_INFO },
         result: {
           data: {
-            storageInfo: [
-              createMockFlashStorage(),
-              createMockStorageInfo({ path: '/usb1' }),
-            ],
+            storageInfo: [createMockFlashStorage(), createMockStorageInfo({ path: '/usb1' })],
           },
         },
       },

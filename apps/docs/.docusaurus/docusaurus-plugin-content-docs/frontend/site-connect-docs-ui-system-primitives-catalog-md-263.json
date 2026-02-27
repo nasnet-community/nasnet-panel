@@ -1,7 +1,7 @@
 {
   "id": "ui-system/primitives-catalog",
   "title": "Primitives Catalog",
-  "description": "Layer 1 of the component architecture. All components are from libs/ui/primitives/src/ and imported via @nasnet/ui/primitives.",
+  "description": "Layer 1 of the component architecture. All components are from libs/ui/primitives/src/ and",
   "source": "@site/../connect/docs/ui-system/primitives-catalog.md",
   "sourceDirName": "ui-system",
   "slug": "/ui-system/primitives-catalog",

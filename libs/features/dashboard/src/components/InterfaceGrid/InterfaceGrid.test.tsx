@@ -94,7 +94,10 @@ describe('InterfaceGrid Platform Selection', () => {
     const { usePlatform } = await import('@nasnet/ui/layouts');
     vi.mocked(usePlatform).mockReturnValue('desktop');
     const { container } = render(
-      <MockedProvider mocks={[createSuccessMock(mockInterfaces)]} addTypename={false}>
+      <MockedProvider
+        mocks={[createSuccessMock(mockInterfaces)]}
+        addTypename={false}
+      >
         <InterfaceGrid deviceId="router-1" />
       </MockedProvider>
     );
@@ -106,7 +109,10 @@ describe('InterfaceGrid Platform Selection', () => {
     const { usePlatform } = await import('@nasnet/ui/layouts');
     vi.mocked(usePlatform).mockReturnValue('tablet');
     const { container } = render(
-      <MockedProvider mocks={[createSuccessMock(mockInterfaces)]} addTypename={false}>
+      <MockedProvider
+        mocks={[createSuccessMock(mockInterfaces)]}
+        addTypename={false}
+      >
         <InterfaceGrid deviceId="router-1" />
       </MockedProvider>
     );
@@ -118,7 +124,10 @@ describe('InterfaceGrid Platform Selection', () => {
     const { usePlatform } = await import('@nasnet/ui/layouts');
     vi.mocked(usePlatform).mockReturnValue('mobile');
     const { container } = render(
-      <MockedProvider mocks={[createSuccessMock(mockInterfaces)]} addTypename={false}>
+      <MockedProvider
+        mocks={[createSuccessMock(mockInterfaces)]}
+        addTypename={false}
+      >
         <InterfaceGrid deviceId="router-1" />
       </MockedProvider>
     );
@@ -130,7 +139,10 @@ describe('InterfaceGrid Platform Selection', () => {
 describe('Loading State', () => {
   it('should render skeleton cards when loading (desktop)', () => {
     render(
-      <MockedProvider mocks={[]} addTypename={false}>
+      <MockedProvider
+        mocks={[]}
+        addTypename={false}
+      >
         <InterfaceGridDesktop deviceId="router-1" />
       </MockedProvider>
     );
@@ -142,7 +154,10 @@ describe('Loading State', () => {
 
   it('should render 4 skeleton cards on desktop', () => {
     const { container } = render(
-      <MockedProvider mocks={[]} addTypename={false}>
+      <MockedProvider
+        mocks={[]}
+        addTypename={false}
+      >
         <InterfaceGridDesktop deviceId="router-1" />
       </MockedProvider>
     );
@@ -153,7 +168,10 @@ describe('Loading State', () => {
 
   it('should render 3 skeleton cards on tablet', () => {
     const { container } = render(
-      <MockedProvider mocks={[]} addTypename={false}>
+      <MockedProvider
+        mocks={[]}
+        addTypename={false}
+      >
         <InterfaceGridTablet deviceId="router-1" />
       </MockedProvider>
     );
@@ -164,7 +182,10 @@ describe('Loading State', () => {
 
   it('should render 2 skeleton cards on mobile', () => {
     const { container } = render(
-      <MockedProvider mocks={[]} addTypename={false}>
+      <MockedProvider
+        mocks={[]}
+        addTypename={false}
+      >
         <InterfaceGridMobile deviceId="router-1" />
       </MockedProvider>
     );
@@ -177,7 +198,10 @@ describe('Loading State', () => {
 describe('Error State', () => {
   it('should render error alert when query fails', async () => {
     render(
-      <MockedProvider mocks={[createErrorMock()]} addTypename={false}>
+      <MockedProvider
+        mocks={[createErrorMock()]}
+        addTypename={false}
+      >
         <InterfaceGridDesktop deviceId="router-1" />
       </MockedProvider>
     );
@@ -189,7 +213,10 @@ describe('Error State', () => {
 
   it('should render retry button in error state', async () => {
     render(
-      <MockedProvider mocks={[createErrorMock()]} addTypename={false}>
+      <MockedProvider
+        mocks={[createErrorMock()]}
+        addTypename={false}
+      >
         <InterfaceGridDesktop deviceId="router-1" />
       </MockedProvider>
     );
@@ -204,7 +231,10 @@ describe('Error State', () => {
     const refetchMock = vi.fn();
 
     render(
-      <MockedProvider mocks={[createErrorMock()]} addTypename={false}>
+      <MockedProvider
+        mocks={[createErrorMock()]}
+        addTypename={false}
+      >
         <InterfaceGridDesktop deviceId="router-1" />
       </MockedProvider>
     );
@@ -222,7 +252,10 @@ describe('Error State', () => {
 
   it('should display error icon', async () => {
     const { container } = render(
-      <MockedProvider mocks={[createErrorMock()]} addTypename={false}>
+      <MockedProvider
+        mocks={[createErrorMock()]}
+        addTypename={false}
+      >
         <InterfaceGridDesktop deviceId="router-1" />
       </MockedProvider>
     );
@@ -237,7 +270,10 @@ describe('Error State', () => {
 describe('Empty State', () => {
   it('should render empty message when no interfaces', async () => {
     render(
-      <MockedProvider mocks={[createSuccessMock([])]} addTypename={false}>
+      <MockedProvider
+        mocks={[createSuccessMock([])]}
+        addTypename={false}
+      >
         <InterfaceGridDesktop deviceId="router-1" />
       </MockedProvider>
     );
@@ -249,7 +285,10 @@ describe('Empty State', () => {
 
   it('should render helpful text in empty state', async () => {
     render(
-      <MockedProvider mocks={[createSuccessMock([])]} addTypename={false}>
+      <MockedProvider
+        mocks={[createSuccessMock([])]}
+        addTypename={false}
+      >
         <InterfaceGridDesktop deviceId="router-1" />
       </MockedProvider>
     );
@@ -263,7 +302,10 @@ describe('Empty State', () => {
 
   it('should render network icon in empty state', async () => {
     render(
-      <MockedProvider mocks={[createSuccessMock([])]} addTypename={false}>
+      <MockedProvider
+        mocks={[createSuccessMock([])]}
+        addTypename={false}
+      >
         <InterfaceGridDesktop deviceId="router-1" />
       </MockedProvider>
     );
@@ -277,7 +319,10 @@ describe('Empty State', () => {
 describe('Interface Rendering', () => {
   it('should render all interfaces when data loads', async () => {
     render(
-      <MockedProvider mocks={[createSuccessMock(mockInterfaces)]} addTypename={false}>
+      <MockedProvider
+        mocks={[createSuccessMock(mockInterfaces)]}
+        addTypename={false}
+      >
         <InterfaceGridDesktop deviceId="router-1" />
       </MockedProvider>
     );
@@ -292,7 +337,10 @@ describe('Interface Rendering', () => {
 
   it('should render interface cards with correct data', async () => {
     render(
-      <MockedProvider mocks={[createSuccessMock(mockInterfaces)]} addTypename={false}>
+      <MockedProvider
+        mocks={[createSuccessMock(mockInterfaces)]}
+        addTypename={false}
+      >
         <InterfaceGridDesktop deviceId="router-1" />
       </MockedProvider>
     );
@@ -305,7 +353,10 @@ describe('Interface Rendering', () => {
 
   it('should render grid with correct column count on desktop', async () => {
     const { container } = render(
-      <MockedProvider mocks={[createSuccessMock(mockInterfaces)]} addTypename={false}>
+      <MockedProvider
+        mocks={[createSuccessMock(mockInterfaces)]}
+        addTypename={false}
+      >
         <InterfaceGridDesktop deviceId="router-1" />
       </MockedProvider>
     );
@@ -318,7 +369,10 @@ describe('Interface Rendering', () => {
 
   it('should render grid with correct gap spacing', async () => {
     const { container } = render(
-      <MockedProvider mocks={[createSuccessMock(mockInterfaces)]} addTypename={false}>
+      <MockedProvider
+        mocks={[createSuccessMock(mockInterfaces)]}
+        addTypename={false}
+      >
         <InterfaceGridDesktop deviceId="router-1" />
       </MockedProvider>
     );
@@ -333,7 +387,10 @@ describe('Interface Rendering', () => {
 describe('Show All Toggle', () => {
   it('should show all 8 interfaces when exactly 8', async () => {
     render(
-      <MockedProvider mocks={[createSuccessMock(eightInterfaces)]} addTypename={false}>
+      <MockedProvider
+        mocks={[createSuccessMock(eightInterfaces)]}
+        addTypename={false}
+      >
         <InterfaceGridDesktop deviceId="router-1" />
       </MockedProvider>
     );
@@ -346,7 +403,10 @@ describe('Show All Toggle', () => {
 
   it('should show only first 8 interfaces when >8', async () => {
     render(
-      <MockedProvider mocks={[createSuccessMock(fifteenInterfaces)]} addTypename={false}>
+      <MockedProvider
+        mocks={[createSuccessMock(fifteenInterfaces)]}
+        addTypename={false}
+      >
         <InterfaceGridDesktop deviceId="router-1" />
       </MockedProvider>
     );
@@ -359,7 +419,10 @@ describe('Show All Toggle', () => {
 
   it('should render "Show all" button when >8 interfaces', async () => {
     render(
-      <MockedProvider mocks={[createSuccessMock(fifteenInterfaces)]} addTypename={false}>
+      <MockedProvider
+        mocks={[createSuccessMock(fifteenInterfaces)]}
+        addTypename={false}
+      >
         <InterfaceGridDesktop deviceId="router-1" />
       </MockedProvider>
     );
@@ -371,7 +434,10 @@ describe('Show All Toggle', () => {
 
   it('should not render "Show all" button when <=8 interfaces', async () => {
     render(
-      <MockedProvider mocks={[createSuccessMock(mockInterfaces)]} addTypename={false}>
+      <MockedProvider
+        mocks={[createSuccessMock(mockInterfaces)]}
+        addTypename={false}
+      >
         <InterfaceGridDesktop deviceId="router-1" />
       </MockedProvider>
     );
@@ -384,7 +450,10 @@ describe('Show All Toggle', () => {
   it('should show all interfaces when "Show all" clicked', async () => {
     const user = userEvent.setup();
     render(
-      <MockedProvider mocks={[createSuccessMock(fifteenInterfaces)]} addTypename={false}>
+      <MockedProvider
+        mocks={[createSuccessMock(fifteenInterfaces)]}
+        addTypename={false}
+      >
         <InterfaceGridDesktop deviceId="router-1" />
       </MockedProvider>
     );
@@ -405,7 +474,10 @@ describe('Show All Toggle', () => {
   it('should change button text to "Show less" when expanded', async () => {
     const user = userEvent.setup();
     render(
-      <MockedProvider mocks={[createSuccessMock(fifteenInterfaces)]} addTypename={false}>
+      <MockedProvider
+        mocks={[createSuccessMock(fifteenInterfaces)]}
+        addTypename={false}
+      >
         <InterfaceGridDesktop deviceId="router-1" />
       </MockedProvider>
     );
@@ -425,7 +497,10 @@ describe('Show All Toggle', () => {
   it('should collapse back to 8 when "Show less" clicked', async () => {
     const user = userEvent.setup();
     render(
-      <MockedProvider mocks={[createSuccessMock(fifteenInterfaces)]} addTypename={false}>
+      <MockedProvider
+        mocks={[createSuccessMock(fifteenInterfaces)]}
+        addTypename={false}
+      >
         <InterfaceGridDesktop deviceId="router-1" />
       </MockedProvider>
     );
@@ -457,7 +532,10 @@ describe('Detail Sheet', () => {
   it('should render detail sheet when interface selected', async () => {
     const user = userEvent.setup();
     render(
-      <MockedProvider mocks={[createSuccessMock(mockInterfaces)]} addTypename={false}>
+      <MockedProvider
+        mocks={[createSuccessMock(mockInterfaces)]}
+        addTypename={false}
+      >
         <InterfaceGridDesktop deviceId="router-1" />
       </MockedProvider>
     );
@@ -477,7 +555,10 @@ describe('Detail Sheet', () => {
   it('should close detail sheet when onOpenChange(false) called', async () => {
     const user = userEvent.setup();
     render(
-      <MockedProvider mocks={[createSuccessMock(mockInterfaces)]} addTypename={false}>
+      <MockedProvider
+        mocks={[createSuccessMock(mockInterfaces)]}
+        addTypename={false}
+      >
         <InterfaceGridDesktop deviceId="router-1" />
       </MockedProvider>
     );
@@ -506,7 +587,10 @@ describe('Detail Sheet', () => {
 describe('Data Integration', () => {
   it('should use useInterfaces hook with correct deviceId', async () => {
     render(
-      <MockedProvider mocks={[createSuccessMock(mockInterfaces)]} addTypename={false}>
+      <MockedProvider
+        mocks={[createSuccessMock(mockInterfaces)]}
+        addTypename={false}
+      >
         <InterfaceGrid deviceId="router-1" />
       </MockedProvider>
     );
@@ -519,7 +603,10 @@ describe('Data Integration', () => {
 
   it('should handle empty interfaces array', async () => {
     render(
-      <MockedProvider mocks={[createSuccessMock([])]} addTypename={false}>
+      <MockedProvider
+        mocks={[createSuccessMock([])]}
+        addTypename={false}
+      >
         <InterfaceGrid deviceId="router-1" />
       </MockedProvider>
     );
@@ -533,7 +620,10 @@ describe('Data Integration', () => {
 describe('Accessibility', () => {
   it('should have no accessibility violations (desktop)', async () => {
     const { container } = render(
-      <MockedProvider mocks={[createSuccessMock(mockInterfaces)]} addTypename={false}>
+      <MockedProvider
+        mocks={[createSuccessMock(mockInterfaces)]}
+        addTypename={false}
+      >
         <InterfaceGridDesktop deviceId="router-1" />
       </MockedProvider>
     );
@@ -548,7 +638,10 @@ describe('Accessibility', () => {
 
   it('should have no accessibility violations in loading state', async () => {
     const { container } = render(
-      <MockedProvider mocks={[]} addTypename={false}>
+      <MockedProvider
+        mocks={[]}
+        addTypename={false}
+      >
         <InterfaceGridDesktop deviceId="router-1" />
       </MockedProvider>
     );
@@ -559,7 +652,10 @@ describe('Accessibility', () => {
 
   it('should have no accessibility violations in error state', async () => {
     const { container } = render(
-      <MockedProvider mocks={[createErrorMock()]} addTypename={false}>
+      <MockedProvider
+        mocks={[createErrorMock()]}
+        addTypename={false}
+      >
         <InterfaceGridDesktop deviceId="router-1" />
       </MockedProvider>
     );
@@ -574,7 +670,10 @@ describe('Accessibility', () => {
 
   it('should have no accessibility violations in empty state', async () => {
     const { container } = render(
-      <MockedProvider mocks={[createSuccessMock([])]} addTypename={false}>
+      <MockedProvider
+        mocks={[createSuccessMock([])]}
+        addTypename={false}
+      >
         <InterfaceGridDesktop deviceId="router-1" />
       </MockedProvider>
     );
@@ -589,7 +688,10 @@ describe('Accessibility', () => {
 
   it('should have proper button labels for retry', async () => {
     render(
-      <MockedProvider mocks={[createErrorMock()]} addTypename={false}>
+      <MockedProvider
+        mocks={[createErrorMock()]}
+        addTypename={false}
+      >
         <InterfaceGridDesktop deviceId="router-1" />
       </MockedProvider>
     );
@@ -602,7 +704,10 @@ describe('Accessibility', () => {
 
   it('should have proper button labels for show all', async () => {
     render(
-      <MockedProvider mocks={[createSuccessMock(fifteenInterfaces)]} addTypename={false}>
+      <MockedProvider
+        mocks={[createSuccessMock(fifteenInterfaces)]}
+        addTypename={false}
+      >
         <InterfaceGridDesktop deviceId="router-1" />
       </MockedProvider>
     );

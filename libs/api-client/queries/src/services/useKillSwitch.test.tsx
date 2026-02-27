@@ -6,11 +6,7 @@ import { renderHook, waitFor } from '@testing-library/react';
 import { MockedProvider } from '@apollo/client/testing';
 import { describe, it, expect, vi } from 'vitest';
 import type { ReactNode } from 'react';
-import {
-  useKillSwitchStatus,
-  useSetKillSwitch,
-  useKillSwitchSubscription,
-} from './useKillSwitch';
+import { useKillSwitchStatus, useSetKillSwitch, useKillSwitchSubscription } from './useKillSwitch';
 import {
   GET_KILL_SWITCH_STATUS,
   SET_KILL_SWITCH,
@@ -49,15 +45,15 @@ describe('useKillSwitchStatus', () => {
     ];
 
     const wrapper = ({ children }: { children: ReactNode }) => (
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider
+        mocks={mocks}
+        addTypename={false}
+      >
         {children}
       </MockedProvider>
     );
 
-    const { result } = renderHook(
-      () => useKillSwitchStatus('router-1', 'device-123'),
-      { wrapper }
-    );
+    const { result } = renderHook(() => useKillSwitchStatus('router-1', 'device-123'), { wrapper });
 
     expect(result.current.loading).toBe(true);
 
@@ -71,7 +67,10 @@ describe('useKillSwitchStatus', () => {
 
   it('should skip query when routerId or deviceId is missing', () => {
     const wrapper = ({ children }: { children: ReactNode }) => (
-      <MockedProvider mocks={[]} addTypename={false}>
+      <MockedProvider
+        mocks={[]}
+        addTypename={false}
+      >
         {children}
       </MockedProvider>
     );
@@ -99,15 +98,15 @@ describe('useKillSwitchStatus', () => {
     ];
 
     const wrapper = ({ children }: { children: ReactNode }) => (
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider
+        mocks={mocks}
+        addTypename={false}
+      >
         {children}
       </MockedProvider>
     );
 
-    const { result } = renderHook(
-      () => useKillSwitchStatus('router-1', 'device-123'),
-      { wrapper }
-    );
+    const { result } = renderHook(() => useKillSwitchStatus('router-1', 'device-123'), { wrapper });
 
     await waitFor(() => {
       expect(result.current.error).toBeDefined();
@@ -165,7 +164,10 @@ describe('useSetKillSwitch', () => {
     ];
 
     const wrapper = ({ children }: { children: ReactNode }) => (
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider
+        mocks={mocks}
+        addTypename={false}
+      >
         {children}
       </MockedProvider>
     );
@@ -234,7 +236,10 @@ describe('useSetKillSwitch', () => {
     ];
 
     const wrapper = ({ children }: { children: ReactNode }) => (
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider
+        mocks={mocks}
+        addTypename={false}
+      >
         {children}
       </MockedProvider>
     );
@@ -303,7 +308,10 @@ describe('useSetKillSwitch', () => {
     ];
 
     const wrapper = ({ children }: { children: ReactNode }) => (
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider
+        mocks={mocks}
+        addTypename={false}
+      >
         {children}
       </MockedProvider>
     );
@@ -343,7 +351,10 @@ describe('useSetKillSwitch', () => {
     ];
 
     const wrapper = ({ children }: { children: ReactNode }) => (
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider
+        mocks={mocks}
+        addTypename={false}
+      >
         {children}
       </MockedProvider>
     );
@@ -366,7 +377,10 @@ describe('useSetKillSwitch', () => {
 describe('useKillSwitchSubscription', () => {
   it('should skip subscription when routerId is missing', () => {
     const wrapper = ({ children }: { children: ReactNode }) => (
-      <MockedProvider mocks={[]} addTypename={false}>
+      <MockedProvider
+        mocks={[]}
+        addTypename={false}
+      >
         {children}
       </MockedProvider>
     );

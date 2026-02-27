@@ -17,12 +17,7 @@ import {
 } from '@nasnet/api-client/queries';
 import { useConnectionStore } from '@nasnet/state/stores';
 import { usePlatform } from '@nasnet/ui/layouts';
-import {
-  DataTable,
-  EmptyState,
-  DHCPServerCard,
-  StatusBadge,
-} from '@nasnet/ui/patterns';
+import { DataTable, EmptyState, DHCPServerCard, StatusBadge } from '@nasnet/ui/patterns';
 import {
   Button,
   DropdownMenu,
@@ -107,9 +102,7 @@ export function DHCPServerList() {
     {
       accessorKey: 'name',
       header: 'Name',
-      cell: ({ row }: { row: any }) => (
-        <div className="font-medium">{row.original.name}</div>
-      ),
+      cell: ({ row }: { row: any }) => <div className="font-medium">{row.original.name}</div>,
     },
     {
       accessorKey: 'interface',
@@ -152,9 +145,7 @@ export function DHCPServerList() {
       id: 'leases',
       header: 'Active Leases',
       cell: ({ row }: { row: any }) => (
-        <div className="text-center font-medium">
-          {row.original.activeLeases || 0}
-        </div>
+        <div className="text-center font-medium">{row.original.activeLeases || 0}</div>
       ),
     },
     {
@@ -174,39 +165,56 @@ export function DHCPServerList() {
               variant="ghost"
               size="icon"
               aria-label={`Actions for ${row.original.name} server`}
-              className="min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              className="focus-visible:ring-ring min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
             >
-              <MoreVertical className="h-4 w-4" aria-hidden="true" />
+              <MoreVertical
+                className="h-4 w-4"
+                aria-hidden="true"
+              />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem onClick={() => handleView(row.original.id)}>
-              <Eye className="h-4 w-4 mr-2" aria-hidden="true" />
+              <Eye
+                className="mr-2 h-4 w-4"
+                aria-hidden="true"
+              />
               View Details
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => handleEdit(row.original.id)}>
-              <Edit className="h-4 w-4 mr-2" aria-hidden="true" />
+              <Edit
+                className="mr-2 h-4 w-4"
+                aria-hidden="true"
+              />
               Edit
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            {row.original.disabled ? (
+            {row.original.disabled ?
               <DropdownMenuItem onClick={() => handleEnable(row.original.id)}>
-                <Power className="h-4 w-4 mr-2" aria-hidden="true" />
+                <Power
+                  className="mr-2 h-4 w-4"
+                  aria-hidden="true"
+                />
                 Enable
               </DropdownMenuItem>
-            ) : (
-              <DropdownMenuItem onClick={() => handleDisable(row.original.id)}>
-                <PowerOff className="h-4 w-4 mr-2" aria-hidden="true" />
+            : <DropdownMenuItem onClick={() => handleDisable(row.original.id)}>
+                <PowerOff
+                  className="mr-2 h-4 w-4"
+                  aria-hidden="true"
+                />
                 Disable
               </DropdownMenuItem>
-            )}
+            }
             <DropdownMenuSeparator />
             <DropdownMenuItem
               onClick={() => handleDelete(row.original.id)}
               className="text-error"
               disabled={deletingId === row.original.id}
             >
-              <Trash2 className="h-4 w-4 mr-2" aria-hidden="true" />
+              <Trash2
+                className="mr-2 h-4 w-4"
+                aria-hidden="true"
+              />
               {deletingId === row.original.id ? 'Deleting...' : 'Delete'}
             </DropdownMenuItem>
           </DropdownMenuContent>
@@ -232,7 +240,7 @@ export function DHCPServerList() {
     }
 
     return (
-      <div className="grid gap-component-md">
+      <div className="gap-component-md grid">
         {servers.map((server) => (
           <DHCPServerCard
             key={server.id}
@@ -245,7 +253,7 @@ export function DHCPServerList() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-64">
+      <div className="flex h-64 items-center justify-center">
         <div className="text-muted-foreground">Loading DHCP servers...</div>
       </div>
     );
@@ -253,8 +261,8 @@ export function DHCPServerList() {
 
   if (!servers || servers.length === 0) {
     return (
-      <div className="container mx-auto py-component-lg category-networking">
-        <div className="flex justify-between items-center mb-component-lg">
+      <div className="py-component-lg category-networking container mx-auto">
+        <div className="mb-component-lg flex items-center justify-between">
           <div>
             <h1 className="font-display text-3xl font-bold">DHCP Servers</h1>
             <p className="text-muted-foreground mt-2">
@@ -276,8 +284,8 @@ export function DHCPServerList() {
   }
 
   return (
-    <div className="container mx-auto py-component-lg category-networking">
-      <div className="flex justify-between items-center mb-component-lg">
+    <div className="py-component-lg category-networking container mx-auto">
+      <div className="mb-component-lg flex items-center justify-between">
         <div>
           <h1 className="font-display text-3xl font-bold">DHCP Servers</h1>
           <p className="text-muted-foreground mt-2">
@@ -286,21 +294,23 @@ export function DHCPServerList() {
         </div>
         <Button
           onClick={handleCreateNew}
-          className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          className="focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
         >
-          <Plus className="h-4 w-4 mr-2" aria-hidden="true" />
+          <Plus
+            className="mr-2 h-4 w-4"
+            aria-hidden="true"
+          />
           Create DHCP Server
         </Button>
       </div>
 
-      {platform === 'mobile' ? (
+      {platform === 'mobile' ?
         renderMobileCards()
-      ) : (
-        <DataTable
+      : <DataTable
           columns={columns}
           data={servers as any[]}
         />
-      )}
+      }
     </div>
   );
 }

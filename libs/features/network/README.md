@@ -2,16 +2,18 @@
 
 Network interface management feature module for NasNetConnect.
 
-**Story:** NAS-6.1 - Interface List and Configuration
-**Epic:** Epic 6 - Network Management (Gate 5)
+**Story:** NAS-6.1 - Interface List and Configuration **Epic:** Epic 6 - Network Management (Gate 5)
 
 ## Overview
 
-Comprehensive network interface management with full CRUD operations, real-time updates, and responsive design. Provides list view, detail panels, settings editor, and batch operations with safety confirmations.
+Comprehensive network interface management with full CRUD operations, real-time updates, and
+responsive design. Provides list view, detail panels, settings editor, and batch operations with
+safety confirmations.
 
 ## Features
 
 ### ✅ Interface List
+
 - **Desktop:** DataTable with columns (name, type, status, enabled, IP, MTU, comment)
 - **Mobile:** Card view with touch-optimized interactions
 - **Filtering:** By type, status, and search
@@ -20,6 +22,7 @@ Comprehensive network interface management with full CRUD operations, real-time 
 - **Sorting & pagination:** Ready for large interface lists
 
 ### ✅ Interface Detail
+
 - **Desktop:** 600px right-side Sheet panel
 - **Mobile:** Full-screen dialog
 - **Tabs:** Status, Traffic, Configuration
@@ -27,12 +30,14 @@ Comprehensive network interface management with full CRUD operations, real-time 
 - **Quick actions:** Enable/disable, edit settings
 
 ### ✅ Interface Editor
+
 - **React Hook Form** with Zod validation
 - **Fields:** Enabled toggle, MTU (68-9000), Comment (max 255)
 - **Validation:** Client-side (Zod) + server-side error handling
 - **Feedback:** Toast notifications for success/error
 
 ### ✅ Batch Operations
+
 - **Actions:** Enable/Disable multiple interfaces
 - **Safety checks:** Gateway interface detection
 - **Confirmation dialog:** 3-second countdown for critical operations
@@ -50,6 +55,7 @@ InterfaceList (wrapper)
 ```
 
 **Separation of concerns:**
+
 - **Headless:** Business logic, state management, API calls
 - **Presenters:** Platform-specific UI (desktop table vs mobile cards)
 - **Auto-switching:** `usePlatform()` hook detects device
@@ -134,8 +140,16 @@ query GetInterfaces($routerId: ID!, $type: InterfaceType) {
 ```graphql
 mutation EnableInterface($routerId: ID!, $interfaceId: ID!) {
   enableInterface(routerId: $routerId, interfaceId: $interfaceId) {
-    interface { id name enabled status }
-    errors { code message }
+    interface {
+      id
+      name
+      enabled
+      status
+    }
+    errors {
+      code
+      message
+    }
   }
 }
 ```
@@ -165,6 +179,7 @@ const { interfaces, loading, error, refetch } = useInterfaceList('router-1');
 ```
 
 **Returns:**
+
 - `interfaces: Interface[]` - List of interfaces
 - `totalCount: number` - Total count
 - `loading: boolean` - Loading state
@@ -190,8 +205,8 @@ await updateInterface({
   variables: {
     routerId: 'router-1',
     interfaceId: '*1',
-    input: { mtu: 1400, comment: 'WAN' }
-  }
+    input: { mtu: 1400, comment: 'WAN' },
+  },
 });
 ```
 
@@ -204,7 +219,7 @@ const [enableInterface] = useEnableInterface();
 const [disableInterface] = useDisableInterface();
 
 await enableInterface({
-  variables: { routerId: 'router-1', interfaceId: '*1' }
+  variables: { routerId: 'router-1', interfaceId: '*1' },
 });
 ```
 
@@ -220,20 +235,22 @@ await batchOperation({
     routerId: 'router-1',
     input: {
       interfaceIds: ['*1', '*2', '*3'],
-      action: BatchInterfaceAction.Enable
-    }
-  }
+      action: BatchInterfaceAction.Enable,
+    },
+  },
 });
 ```
 
 ## Validation
 
 ### MTU Validation
+
 - **Range:** 68-9000 bytes (RouterOS limits)
 - **Client-side:** Zod schema validation
 - **Server-side:** Backend validation in InterfaceService
 
 ### Comment Validation
+
 - **Max length:** 255 characters
 - **Client-side:** Zod + textarea maxLength
 - **Server-side:** Backend validation
@@ -241,11 +258,13 @@ await batchOperation({
 ## Responsive Design
 
 ### Breakpoints
+
 - **Mobile:** < 640px (cards, bottom action bar)
 - **Tablet:** 640-1024px (hybrid)
 - **Desktop:** > 1024px (table, side panel)
 
 ### Touch Optimization
+
 - **44px minimum touch targets** (WCAG AAA)
 - **Swipe-friendly cards** on mobile
 - **Fixed bottom toolbar** for batch actions
@@ -253,18 +272,21 @@ await batchOperation({
 ## Accessibility (WCAG AAA)
 
 ### Keyboard Navigation
+
 - ✅ Tab through all interactive elements
 - ✅ Enter to open detail panel
 - ✅ Escape to close dialogs
 - ✅ Arrow keys in table navigation
 
 ### Screen Readers
+
 - ✅ ARIA labels on all controls
 - ✅ Form field descriptions
 - ✅ Status announcements for mutations
 - ✅ Live region updates for real-time data
 
 ### Visual
+
 - ✅ 7:1 contrast ratio (AAA)
 - ✅ Focus indicators (3px ring)
 - ✅ Reduced motion support
@@ -273,6 +295,7 @@ await batchOperation({
 ## Performance
 
 ### Optimizations
+
 - ✅ **Client-side filtering** - No server round-trips
 - ✅ **Memoized computations** - `useMemo` for filtered lists
 - ✅ **Optimistic updates** - Immediate UI feedback
@@ -280,6 +303,7 @@ await batchOperation({
 - ✅ **Subscription-based updates** - No polling overhead
 
 ### Future Enhancements
+
 - **Virtualization:** For 100+ interfaces, add `@tanstack/react-virtual`
 - **Server-side pagination:** When interface count > 500
 - **Traffic charts:** Real-time visualization with Chart.js
@@ -287,16 +311,19 @@ await batchOperation({
 ## Testing
 
 ### Unit Tests (TODO - Phase 10)
+
 ```bash
 npx nx test network
 ```
 
 ### E2E Tests (TODO - Phase 10)
+
 ```bash
 npx nx e2e connect-e2e --grep "interface"
 ```
 
 ### Accessibility Tests (TODO - Phase 10)
+
 ```bash
 npx pa11y-ci http://localhost:5173/dashboard/network
 ```
@@ -335,6 +362,7 @@ libs/features/network/
 ## Dependencies
 
 ### Required
+
 - `@nasnet/ui/primitives` - Base components (Button, Table, Sheet, Dialog)
 - `@nasnet/ui/patterns` - Composite patterns (DataTable, ResourceCard)
 - `@nasnet/ui/layouts` - Platform detection (`usePlatform`)
@@ -346,6 +374,7 @@ libs/features/network/
 - `@hookform/resolvers` - Zod integration
 
 ### Peer Dependencies
+
 - `react@18.x`
 - `react-dom@18.x`
 

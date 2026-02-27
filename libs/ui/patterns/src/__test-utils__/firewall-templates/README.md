@@ -1,23 +1,28 @@
 # Test Infrastructure for Firewall Templates
 
-This directory contains test utilities, fixtures, and templates for comprehensive testing of the Firewall Templates feature (NAS-7.6).
+This directory contains test utilities, fixtures, and templates for comprehensive testing of the
+Firewall Templates feature (NAS-7.6).
 
 ## Overview
 
-The test infrastructure has been prepared in advance to enable rapid test implementation once the pattern components and backend services are created. All files are ready to use with minimal modifications.
+The test infrastructure has been prepared in advance to enable rapid test implementation once the
+pattern components and backend services are created. All files are ready to use with minimal
+modifications.
 
 ## Story Reference
 
-**Story:** NAS-7.6 - Implement Firewall Templates
-**Location:** `Docs/sprint-artifacts/Epic7-Security-Firewall/NAS-7-6-implement-firewall-templates.md`
+**Story:** NAS-7.6 - Implement Firewall Templates **Location:**
+`Docs/sprint-artifacts/Epic7-Security-Firewall/NAS-7-6-implement-firewall-templates.md`
 
 ## Files Included
 
 ### Mock Data & Fixtures
 
 **`template-fixtures.ts`**
+
 - Complete mock data for FirewallTemplate, TemplateVariable, TemplateRule types
-- 5 built-in templates (Basic Security, Home Network, Gaming Optimized, IoT Isolation, Guest Network)
+- 5 built-in templates (Basic Security, Home Network, Gaming Optimized, IoT Isolation, Guest
+  Network)
 - 1 custom template example
 - Mock conflicts (DUPLICATE_RULE, IP_OVERLAP, CHAIN_CONFLICT, POSITION_CONFLICT)
 - Mock impact analysis (safe, moderate, high impact scenarios)
@@ -29,6 +34,7 @@ The test infrastructure has been prepared in advance to enable rapid test implem
 ## Test Coverage Requirements
 
 Per NAS-7.6 Task 7 specification:
+
 - **Line coverage:** 80% minimum
 - **Branch coverage:** 75% minimum
 - **Zero accessibility violations:** WCAG AAA (7:1 contrast, 44px touch targets)
@@ -50,18 +56,21 @@ Following the **Testing Trophy** pattern (from `Docs/test-design-system/test-lev
 ```
 
 ### Unit Tests (30%)
+
 - **Template transformation logic** - Variable substitution, rule resolution
 - **Conflict detection algorithm** - Duplicate rules, IP overlaps, chain conflicts
 - **Template validation** - Zod schemas, variable validation
 - **Helper functions** - Filtering, searching, categorization
 
 ### Integration Tests (50%)
+
 - **Apply/rollback flow** - Complete template application lifecycle
 - **IndexedDB operations** - Custom template CRUD via localforage
 - **GraphQL operations** - Query/mutation integration with Apollo Client
 - **State management** - XState machine transitions, Zustand store updates
 
 ### E2E Tests (10%)
+
 - **Browse gallery → Select template → Preview → Apply → Verify rules created**
 - **Create custom template → Export JSON → Import → Verify identical**
 - **Apply template → Click undo → Verify rollback**
@@ -69,6 +78,7 @@ Following the **Testing Trophy** pattern (from `Docs/test-design-system/test-lev
 - **Variable autocomplete from router interfaces**
 
 ### Accessibility Tests (Required for all components)
+
 - **axe-core automated testing** - Zero violations
 - **Keyboard navigation** - Tab order, Enter/Space activation, Escape to cancel
 - **Screen reader announcements** - Template selection, validation errors, success messages
@@ -78,32 +88,36 @@ Following the **Testing Trophy** pattern (from `Docs/test-design-system/test-lev
 
 ## Testing Tools
 
-| Layer | Tool | Purpose |
-|-------|------|---------|
-| Unit | Vitest | Fast unit testing (NOT Jest) |
-| Component | React Testing Library | Component behavior testing |
-| Integration | MSW (Mock Service Worker) | API mocking |
-| E2E | Playwright | Multi-browser E2E testing |
-| Accessibility | axe-core | WCAG AAA compliance |
-| Visual | Chromatic/Percy | Visual regression (if configured) |
+| Layer         | Tool                      | Purpose                           |
+| ------------- | ------------------------- | --------------------------------- |
+| Unit          | Vitest                    | Fast unit testing (NOT Jest)      |
+| Component     | React Testing Library     | Component behavior testing        |
+| Integration   | MSW (Mock Service Worker) | API mocking                       |
+| E2E           | Playwright                | Multi-browser E2E testing         |
+| Accessibility | axe-core                  | WCAG AAA compliance               |
+| Visual        | Chromatic/Percy           | Visual regression (if configured) |
 
 ## Mock Data Reference
 
 ### Built-in Templates
 
 1. **Basic Security** (SIMPLE)
+
    - 5 rules: Allow established, drop invalid, allow ICMP, allow LAN, drop all
    - Variables: LAN_INTERFACE, LAN_SUBNET
 
 2. **Home Network** (MODERATE)
+
    - 8 rules: NAT, basic protection, LAN to WAN forwarding
    - Variables: LAN_INTERFACE, WAN_INTERFACE, LAN_SUBNET
 
 3. **Gaming Optimized** (ADVANCED)
+
    - 12 rules: Low-latency, UPnP, traffic prioritization
    - Variables: LAN_INTERFACE, WAN_INTERFACE, LAN_SUBNET
 
 4. **IoT Isolation** (ADVANCED)
+
    - 10 rules: VLAN isolation, internet-only access
    - Variables: LAN_INTERFACE, WAN_INTERFACE, LAN_SUBNET, VLAN_ID
 
@@ -114,36 +128,37 @@ Following the **Testing Trophy** pattern (from `Docs/test-design-system/test-lev
 ### Custom Template
 
 **VPN Server Rules** (MODERATE)
+
 - 4 rules: OpenVPN port forwarding and firewall rules
 - Variables: WAN_INTERFACE
 
 ### Variable Types
 
-| Type | Example | Validation |
-|------|---------|------------|
-| INTERFACE | bridge1 | Must be in router's interface list |
-| SUBNET | 192.168.88.0/24 | Valid CIDR notation |
-| IP | 192.168.88.1 | Valid IPv4 address |
-| PORT | 8080 | 1-65535 |
-| VLAN_ID | 10 | 1-4094 |
-| STRING | any-text | Free-form string |
+| Type      | Example         | Validation                         |
+| --------- | --------------- | ---------------------------------- |
+| INTERFACE | bridge1         | Must be in router's interface list |
+| SUBNET    | 192.168.88.0/24 | Valid CIDR notation                |
+| IP        | 192.168.88.1    | Valid IPv4 address                 |
+| PORT      | 8080            | 1-65535                            |
+| VLAN_ID   | 10              | 1-4094                             |
+| STRING    | any-text        | Free-form string                   |
 
 ### Conflict Types
 
-| Type | Description | Example |
-|------|-------------|---------|
-| DUPLICATE_RULE | Similar rule exists | Allow established on input chain |
-| IP_OVERLAP | Subnet overlaps | 192.168.88.0/24 overlaps with existing |
-| CHAIN_CONFLICT | Chain config conflicts | Default drop rule already exists |
-| POSITION_CONFLICT | Position occupied | Position 0 already has a rule |
+| Type              | Description            | Example                                |
+| ----------------- | ---------------------- | -------------------------------------- |
+| DUPLICATE_RULE    | Similar rule exists    | Allow established on input chain       |
+| IP_OVERLAP        | Subnet overlaps        | 192.168.88.0/24 overlaps with existing |
+| CHAIN_CONFLICT    | Chain config conflicts | Default drop rule already exists       |
+| POSITION_CONFLICT | Position occupied      | Position 0 already has a rule          |
 
 ### Impact Analysis Scenarios
 
-| Scenario | Rules | Chains | Time | Warnings |
-|----------|-------|--------|------|----------|
-| Safe | 5 | input, forward | 2s | None |
-| Moderate | 8 | input, forward, srcnat | 3s | NAT added to end |
-| High | 15 | 7 chains | 8s | Performance impact warning |
+| Scenario | Rules | Chains                 | Time | Warnings                   |
+| -------- | ----- | ---------------------- | ---- | -------------------------- |
+| Safe     | 5     | input, forward         | 2s   | None                       |
+| Moderate | 8     | input, forward, srcnat | 3s   | NAT added to end           |
+| High     | 15    | 7 chains               | 8s   | Performance impact warning |
 
 ## Helper Functions
 
@@ -192,6 +207,7 @@ generateMockVariables(): Record<string, string>
 ### Step 1: Wait for Implementation
 
 The test infrastructure is ready, but requires actual implementation from:
+
 - **backend-dev**: Resolvers, built-in templates, conflict detection (Tasks 1.4-1.9, Task 2)
 - **frontend-dev**: UI components, hooks, XState machines (Tasks 3-6)
 
@@ -293,18 +309,18 @@ All GraphQL operations have mock responses ready:
 
 ```typescript
 // Queries
-mockFirewallTemplatesResponse              // Get all templates
-mockFirewallTemplatesByCategory(category)  // Filter by category
-mockPreviewTemplateResponse                 // Preview without conflicts
-mockPreviewTemplateWithConflictsResponse   // Preview with conflicts
-mockRouterInterfacesResponse               // Interface autocomplete
+mockFirewallTemplatesResponse; // Get all templates
+mockFirewallTemplatesByCategory(category); // Filter by category
+mockPreviewTemplateResponse; // Preview without conflicts
+mockPreviewTemplateWithConflictsResponse; // Preview with conflicts
+mockRouterInterfacesResponse; // Interface autocomplete
 
 // Mutations
-mockApplyTemplateResponse                  // Successful application
-mockApplyTemplateErrorResponse             // Partial failure
-mockRollbackTemplateResponse               // Successful rollback
-mockSaveTemplateResponse                   // Save custom template
-mockDeleteTemplateResponse                 // Delete custom template
+mockApplyTemplateResponse; // Successful application
+mockApplyTemplateErrorResponse; // Partial failure
+mockRollbackTemplateResponse; // Successful rollback
+mockSaveTemplateResponse; // Save custom template
+mockDeleteTemplateResponse; // Delete custom template
 ```
 
 ## Next Steps

@@ -71,25 +71,24 @@ const InterfaceDetailSheetComponent = React.memo(function InterfaceDetailSheet({
     return (
       <div className="space-y-component-md">
         {/* Interface header */}
-        <div className="flex items-center gap-component-sm">
-          <InterfaceTypeIcon type={iface.type} className="h-8 w-8" />
+        <div className="gap-component-sm flex items-center">
+          <InterfaceTypeIcon
+            type={iface.type}
+            className="h-8 w-8"
+          />
           <div>
-            <p className="font-semibold text-lg">{iface.name}</p>
-            <p className="text-sm text-muted-foreground capitalize">
-              {iface.type}
-            </p>
+            <p className="text-lg font-semibold">{iface.name}</p>
+            <p className="text-muted-foreground text-sm capitalize">{iface.type}</p>
           </div>
         </div>
 
         {/* Details grid - MAC and IP use font-mono for technical data (WCAG AAA) */}
-        <dl className="grid grid-cols-2 gap-x-component-md gap-y-component-sm text-sm">
+        <dl className="gap-x-component-md gap-y-component-sm grid grid-cols-2 text-sm">
           <dt className="text-muted-foreground">MAC Address</dt>
-          <dd className="font-mono text-xs break-all">{iface.mac || 'N/A'}</dd>
+          <dd className="break-all font-mono text-xs">{iface.mac || 'N/A'}</dd>
 
           <dt className="text-muted-foreground">IP Address</dt>
-          <dd className="font-mono text-xs break-all">
-            {iface.ip || 'Not assigned'}
-          </dd>
+          <dd className="break-all font-mono text-xs">{iface.ip || 'Not assigned'}</dd>
 
           <dt className="text-muted-foreground">MTU</dt>
           <dd>{iface.mtu}</dd>
@@ -128,9 +127,13 @@ const InterfaceDetailSheetComponent = React.memo(function InterfaceDetailSheet({
         {/* Navigation link */}
         <Link
           to="/dashboard/network"
-          className="inline-flex items-center gap-component-sm text-primary hover:underline mt-component-md"
+          className="gap-component-sm text-primary mt-component-md inline-flex items-center hover:underline"
         >
-          <Button variant="outline" size="sm" className="gap-component-sm">
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-component-sm"
+          >
             View in Network
             <ExternalLink className="h-4 w-4" />
           </Button>
@@ -144,7 +147,10 @@ const InterfaceDetailSheetComponent = React.memo(function InterfaceDetailSheet({
   // Desktop: use Dialog
   if (isDesktop) {
     return (
-      <Dialog open={open} onOpenChange={memoizedOnOpenChange}>
+      <Dialog
+        open={open}
+        onOpenChange={memoizedOnOpenChange}
+      >
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Interface Details</DialogTitle>
@@ -157,8 +163,14 @@ const InterfaceDetailSheetComponent = React.memo(function InterfaceDetailSheet({
 
   // Mobile/Tablet: use Sheet
   return (
-    <Sheet open={open} onOpenChange={memoizedOnOpenChange}>
-      <SheetContent side="bottom" className="h-auto max-h-[80vh]">
+    <Sheet
+      open={open}
+      onOpenChange={memoizedOnOpenChange}
+    >
+      <SheetContent
+        side="bottom"
+        className="h-auto max-h-[80vh]"
+      >
         <SheetHeader>
           <SheetTitle>Interface Details</SheetTitle>
         </SheetHeader>

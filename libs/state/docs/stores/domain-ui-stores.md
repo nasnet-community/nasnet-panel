@@ -1,12 +1,15 @@
 # Domain UI Stores
 
-Domain UI stores manage feature-specific user interface state like filters, view preferences, selections, and wizard draft data. They follow a consistent pattern across the codebase and are never used for server state (which belongs in Apollo Client).
+Domain UI stores manage feature-specific user interface state like filters, view preferences,
+selections, and wizard draft data. They follow a consistent pattern across the codebase and are
+never used for server state (which belongs in Apollo Client).
 
 **Source:** `libs/state/stores/src/*-ui.store.ts`
 
 ## Overview
 
 Each domain (firewall, DHCP, services, etc.) has a dedicated UI store that:
+
 - Manages **filters** (search, status, category, action)
 - Tracks **selections** (checked rows, expanded items)
 - Stores **wizard drafts** (recovered on page reload)
@@ -62,23 +65,24 @@ export const useDomainSearch = () => useDomainUIStore((state) => state.search);
 
 ## Catalog of 11 Domain UI Stores
 
-| Store | File | Primary Purpose | Key State |
-|-------|------|-----------------|-----------|
-| **Alert Notification** | `alert-notification.store.ts` | In-app notifications with deduplication | notifications, unreadCount, settings |
-| **Alert Rule Template** | `alert-rule-template-ui.store.ts` | Template browser, filtering, view mode | filters, sort, viewMode, dialogs |
-| **DHCP** | `dhcp-ui.store.ts` | DHCP server leases, pools | leaseSearch, leaseStatusFilter, wizardDraft |
-| **Service** | `service-ui.store.ts` | Feature marketplace instance management | serviceSearch, categoryFilter, statusFilter, wizardDraft, updateStage |
-| **Firewall Log** | `firewall-log-ui.store.ts` | Real-time log viewing with filters | filters, autoRefresh, refreshInterval, sortBy, expandedStats |
-| **Mangle** | `mangle-ui.store.ts` | Mangle rules by chain | selectedChain, expandedRules, actionFilter, compactMode |
-| **NAT** | `nat-ui.store.ts` | NAT rules by chain | selectedChain, expandedRules, actionFilter, compactMode |
-| **Port Knock** | `port-knock-ui.store.ts` | Port knocking sequences and logs | activeTab, showDisabledSequences, logStatusFilter, autoRefreshLog |
-| **Rate Limiting** | `rate-limiting-ui.store.ts` | Rate limit rules and statistics | selectedTab, showRuleEditor, actionFilter, expandedRules |
-| **Raw** | `raw-ui.store.ts` | RAW firewall rules with guides | selectedChain, filterSettings, ddosWizardOpen, expandedRules |
-| **Interface Stats** | `interface-stats-store.ts` | Interface traffic monitoring preferences | pollingInterval |
+| Store                   | File                              | Primary Purpose                          | Key State                                                             |
+| ----------------------- | --------------------------------- | ---------------------------------------- | --------------------------------------------------------------------- |
+| **Alert Notification**  | `alert-notification.store.ts`     | In-app notifications with deduplication  | notifications, unreadCount, settings                                  |
+| **Alert Rule Template** | `alert-rule-template-ui.store.ts` | Template browser, filtering, view mode   | filters, sort, viewMode, dialogs                                      |
+| **DHCP**                | `dhcp-ui.store.ts`                | DHCP server leases, pools                | leaseSearch, leaseStatusFilter, wizardDraft                           |
+| **Service**             | `service-ui.store.ts`             | Feature marketplace instance management  | serviceSearch, categoryFilter, statusFilter, wizardDraft, updateStage |
+| **Firewall Log**        | `firewall-log-ui.store.ts`        | Real-time log viewing with filters       | filters, autoRefresh, refreshInterval, sortBy, expandedStats          |
+| **Mangle**              | `mangle-ui.store.ts`              | Mangle rules by chain                    | selectedChain, expandedRules, actionFilter, compactMode               |
+| **NAT**                 | `nat-ui.store.ts`                 | NAT rules by chain                       | selectedChain, expandedRules, actionFilter, compactMode               |
+| **Port Knock**          | `port-knock-ui.store.ts`          | Port knocking sequences and logs         | activeTab, showDisabledSequences, logStatusFilter, autoRefreshLog     |
+| **Rate Limiting**       | `rate-limiting-ui.store.ts`       | Rate limit rules and statistics          | selectedTab, showRuleEditor, actionFilter, expandedRules              |
+| **Raw**                 | `raw-ui.store.ts`                 | RAW firewall rules with guides           | selectedChain, filterSettings, ddosWizardOpen, expandedRules          |
+| **Interface Stats**     | `interface-stats-store.ts`        | Interface traffic monitoring preferences | pollingInterval                                                       |
 
 ## Deep Dive: useAlertNotificationStore
 
-The **Alert Notification Store** is the most complex domain UI store, demonstrating advanced patterns worth studying.
+The **Alert Notification Store** is the most complex domain UI store, demonstrating advanced
+patterns worth studying.
 
 **Source:** `libs/state/stores/src/alert-notification.store.ts`
 
@@ -124,11 +128,7 @@ interface NotificationSettings {
 Prevents duplicate alerts from flooding the UI when multiple instances trigger simultaneously:
 
 ```typescript
-function isDuplicate(
-  notifications: InAppNotification[],
-  alertId: string,
-  now: number
-): boolean {
+function isDuplicate(notifications: InAppNotification[], alertId: string, now: number): boolean {
   return notifications.some((n) => {
     const age = now - new Date(n.receivedAt).getTime();
     return n.alertId === alertId && age < 2000; // 2-second window
@@ -140,7 +140,7 @@ addNotification: (notification) => {
     return; // Skip duplicate
   }
   // Add notification...
-}
+};
 ```
 
 #### 2. Auto-Filtering to 24 Hours
@@ -180,7 +180,9 @@ Only settings are persisted (notifications are memory-only):
 
 ```typescript
 persist(
-  (set, get) => ({ /* implementation */ }),
+  (set, get) => ({
+    /* implementation */
+  }),
   {
     name: 'alert-notification-store',
     partialize: (state) => ({
@@ -192,7 +194,7 @@ persist(
       }
     },
   }
-)
+);
 ```
 
 ### Common Actions
@@ -217,32 +219,25 @@ Optimized hooks prevent unnecessary re-renders:
 
 ```typescript
 // Get all notifications
-export const useNotifications = () =>
-  useAlertNotificationStore((state) => state.notifications);
+export const useNotifications = () => useAlertNotificationStore((state) => state.notifications);
 
 // Get unread count only (avoids re-render on read state changes)
-export const useUnreadCount = () =>
-  useAlertNotificationStore((state) => state.unreadCount);
+export const useUnreadCount = () => useAlertNotificationStore((state) => state.unreadCount);
 
 // Get unread notifications
 export const useUnreadNotifications = () =>
   useAlertNotificationStore((state) => state.notifications.filter((n) => !n.read));
 
 // Get settings
-export const useNotificationSettings = () =>
-  useAlertNotificationStore((state) => state.settings);
+export const useNotificationSettings = () => useAlertNotificationStore((state) => state.settings);
 
 // Filter by severity
 export const useNotificationsBySeverity = (severity: AlertSeverity) =>
-  useAlertNotificationStore((state) =>
-    state.notifications.filter((n) => n.severity === severity)
-  );
+  useAlertNotificationStore((state) => state.notifications.filter((n) => n.severity === severity));
 
 // Filter by device
 export const useNotificationsByDevice = (deviceId: string) =>
-  useAlertNotificationStore((state) =>
-    state.notifications.filter((n) => n.deviceId === deviceId)
-  );
+  useAlertNotificationStore((state) => state.notifications.filter((n) => n.deviceId === deviceId));
 ```
 
 ## Common Patterns Across Stores
@@ -347,6 +342,7 @@ Create a new domain UI store when:
 4. **The state is independent** from other domains (don't extend existing stores)
 
 **Do NOT create a domain UI store for:**
+
 - Server data (use Apollo Client with GraphQL)
 - Complex workflows (use XState machines)
 - Form state (use React Hook Form)
@@ -444,9 +440,11 @@ partialize: (state) => ({
 ## Summary
 
 Domain UI stores are the glue between features and the store system. They handle:
+
 - **Filters**: Transient search/filter state
 - **Selections**: Checked items, expanded rows
 - **Preferences**: View mode, compact mode, polling intervals
 - **Drafts**: Wizard work-in-progress data
 
-By following the consistent pattern, they keep features organized and prevent prop drilling while respecting the boundary between UI state and server state.
+By following the consistent pattern, they keep features organized and prevent prop drilling while
+respecting the boundary between UI state and server state.

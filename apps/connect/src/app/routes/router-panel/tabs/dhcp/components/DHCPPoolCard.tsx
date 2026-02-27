@@ -18,39 +18,46 @@ interface DHCPPoolCardProps {
   className?: string;
 }
 
-export const DHCPPoolCard = React.memo(function DHCPPoolCard({ pool, leases, className = '' }: DHCPPoolCardProps) {
+export const DHCPPoolCard = React.memo(function DHCPPoolCard({
+  pool,
+  leases,
+  className = '',
+}: DHCPPoolCardProps) {
   const { t } = useTranslation('network');
   // Ensure ranges is always an array
   const ranges = Array.isArray(pool.ranges) ? pool.ranges : [];
   const totalSize = calculatePoolSize(ranges);
-  const usedCount = leases.filter(l => l.status === 'bound').length;
+  const usedCount = leases.filter((l) => l.status === 'bound').length;
   const availableCount = totalSize - usedCount;
   const utilizationPercent = totalSize > 0 ? Math.round((usedCount / totalSize) * 100) : 0;
 
   return (
-    <div className={`bg-card rounded-card-sm border border-border border-l-4 border-l-category-dhcp p-4 shadow-sm ${className}`}>
+    <div
+      className={`bg-card rounded-card-sm border-border border-l-category-dhcp border border-l-4 p-4 shadow-sm ${className}`}
+    >
       {/* Header */}
-      <div className="flex items-center justify-between mb-3">
+      <div className="mb-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-category-dhcp/10 flex items-center justify-center">
-            <Database className="w-4 h-4 text-category-dhcp" aria-hidden={true} />
+          <div className="bg-category-dhcp/10 flex h-8 w-8 items-center justify-center rounded-lg">
+            <Database
+              className="text-category-dhcp h-4 w-4"
+              aria-hidden={true}
+            />
           </div>
           <div>
-            <h3 className="font-semibold text-foreground text-sm font-display">
-              {pool.name}
-            </h3>
-            <p className="text-xs text-muted-foreground">
-              {t('dhcp.poolLabel')}
-            </p>
+            <h3 className="text-foreground font-display text-sm font-semibold">{pool.name}</h3>
+            <p className="text-muted-foreground text-xs">{t('dhcp.poolLabel')}</p>
           </div>
         </div>
-        <span className={`text-lg font-bold font-mono ${getUtilizationTextColor(utilizationPercent)}`}>
+        <span
+          className={`font-mono text-lg font-bold ${getUtilizationTextColor(utilizationPercent)}`}
+        >
           {utilizationPercent}%
         </span>
       </div>
 
       {/* Progress Bar */}
-      <div className="w-full bg-muted rounded-full h-2 mb-3">
+      <div className="bg-muted mb-3 h-2 w-full rounded-full">
         <div
           className={`${getUtilizationBgColor(utilizationPercent)} h-2 rounded-full transition-all duration-300`}
           style={{ width: `${Math.min(utilizationPercent, 100)}%` }}
@@ -60,32 +67,35 @@ export const DHCPPoolCard = React.memo(function DHCPPoolCard({ pool, leases, cla
       {/* Stats Row */}
       <div className="grid grid-cols-3 gap-2 text-center">
         <div className="bg-muted rounded-md p-2">
-          <p className="text-lg font-bold text-foreground">{usedCount}</p>
-          <p className="text-xs text-muted-foreground">{t('dhcp.assigned')}</p>
+          <p className="text-foreground text-lg font-bold">{usedCount}</p>
+          <p className="text-muted-foreground text-xs">{t('dhcp.assigned')}</p>
         </div>
         <div className="bg-muted rounded-md p-2">
-          <p className="text-lg font-bold text-foreground">{availableCount}</p>
-          <p className="text-xs text-muted-foreground">{t('dhcp.available')}</p>
+          <p className="text-foreground text-lg font-bold">{availableCount}</p>
+          <p className="text-muted-foreground text-xs">{t('dhcp.available')}</p>
         </div>
         <div className="bg-muted rounded-md p-2">
-          <p className="text-lg font-bold text-foreground">{totalSize}</p>
-          <p className="text-xs text-muted-foreground">{t('dhcp.total')}</p>
+          <p className="text-foreground text-lg font-bold">{totalSize}</p>
+          <p className="text-muted-foreground text-xs">{t('dhcp.total')}</p>
         </div>
       </div>
 
       {/* IP Ranges */}
-      <div className="mt-3 pt-3 border-t border-border">
-        <p className="text-xs text-muted-foreground mb-1 font-display font-semibold">{t('dhcp.ipRanges')}</p>
+      <div className="border-border mt-3 border-t pt-3">
+        <p className="text-muted-foreground font-display mb-1 text-xs font-semibold">
+          {t('dhcp.ipRanges')}
+        </p>
         <div className="space-y-1">
-          {ranges.length > 0 ? (
+          {ranges.length > 0 ?
             ranges.map((range, idx) => (
-              <p key={idx} className="text-sm font-mono text-foreground">
+              <p
+                key={idx}
+                className="text-foreground font-mono text-sm"
+              >
                 {range}
               </p>
             ))
-          ) : (
-            <p className="text-sm text-muted-foreground italic">{t('dhcp.noRanges')}</p>
-          )}
+          : <p className="text-muted-foreground text-sm italic">{t('dhcp.noRanges')}</p>}
         </div>
       </div>
     </div>

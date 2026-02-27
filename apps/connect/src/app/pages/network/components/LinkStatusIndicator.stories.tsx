@@ -7,7 +7,6 @@ import { LinkStatusIndicator } from './LinkStatusIndicator';
 
 import type { Meta, StoryObj } from '@storybook/react';
 
-
 const meta: Meta<typeof LinkStatusIndicator> = {
   title: 'App/Network/LinkStatusIndicator',
   component: LinkStatusIndicator,
@@ -86,15 +85,15 @@ export const AllVariants: Story = {
   render: () => (
     <div className="flex flex-col gap-4 p-4">
       <div className="flex items-center gap-2">
-        <span className="w-24 text-xs text-muted-foreground">ether1:</span>
+        <span className="text-muted-foreground w-24 text-xs">ether1:</span>
         <LinkStatusIndicator linkStatus="up" />
       </div>
       <div className="flex items-center gap-2">
-        <span className="w-24 text-xs text-muted-foreground">ether2:</span>
+        <span className="text-muted-foreground w-24 text-xs">ether2:</span>
         <LinkStatusIndicator linkStatus="down" />
       </div>
       <div className="flex items-center gap-2">
-        <span className="w-24 text-xs text-muted-foreground">wlan1:</span>
+        <span className="text-muted-foreground w-24 text-xs">wlan1:</span>
         <LinkStatusIndicator linkStatus="unknown" />
       </div>
     </div>
@@ -129,15 +128,15 @@ export const WithCustomClassName: Story = {
 export const InTableCell: Story = {
   name: 'Inside Table Cell',
   render: () => (
-    <table className="text-sm border-collapse">
+    <table className="border-collapse text-sm">
       <thead>
-        <tr className="text-left text-muted-foreground">
-          <th className="pr-8 pb-2 font-medium">Interface</th>
-          <th className="pr-8 pb-2 font-medium">Type</th>
+        <tr className="text-muted-foreground text-left">
+          <th className="pb-2 pr-8 font-medium">Interface</th>
+          <th className="pb-2 pr-8 font-medium">Type</th>
           <th className="pb-2 font-medium">Link</th>
         </tr>
       </thead>
-      <tbody className="divide-y divide-border">
+      <tbody className="divide-border divide-y">
         {[
           { name: 'ether1', type: 'Ethernet', status: 'up' as const },
           { name: 'ether2', type: 'Ethernet', status: 'down' as const },
@@ -146,7 +145,7 @@ export const InTableCell: Story = {
         ].map((row) => (
           <tr key={row.name}>
             <td className="py-2 pr-8 font-mono text-xs">{row.name}</td>
-            <td className="py-2 pr-8 text-muted-foreground">{row.type}</td>
+            <td className="text-muted-foreground py-2 pr-8">{row.type}</td>
             <td className="py-2">
               <LinkStatusIndicator linkStatus={row.status} />
             </td>

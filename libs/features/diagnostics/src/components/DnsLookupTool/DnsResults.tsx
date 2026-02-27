@@ -30,9 +30,9 @@ export interface DnsResultsProps {
 export const DnsResults = memo(function DnsResults({ result, className }: DnsResultsProps) {
   // Sort records by priority for MX and SRV types
   const sortedRecords =
-    result.recordType === 'MX' || result.recordType === 'SRV'
-      ? sortRecordsByPriority(result.records)
-      : result.records;
+    result.recordType === 'MX' || result.recordType === 'SRV' ?
+      sortRecordsByPriority(result.records)
+    : result.records;
 
   // Helper to get query time color
   const getQueryTimeColor = (queryTimeMs: number): string => {
@@ -44,37 +44,66 @@ export const DnsResults = memo(function DnsResults({ result, className }: DnsRes
   return (
     <div className={cn('space-y-component-md', className)}>
       {/* Query Metadata Header */}
-      <div className="flex flex-wrap items-center gap-component-sm pb-component-sm border-border border-b">
-        <div className="flex items-center gap-component-sm">
-          <span className="text-sm text-muted-foreground">Server:</span>
-          <span className="text-sm font-mono text-foreground">{result.server}</span>
+      <div className="gap-component-sm pb-component-sm border-border flex flex-wrap items-center border-b">
+        <div className="gap-component-sm flex items-center">
+          <span className="text-muted-foreground text-sm">Server:</span>
+          <span className="text-foreground font-mono text-sm">{result.server}</span>
         </div>
-        <div className="flex items-center gap-component-sm">
-          <span className="text-sm text-muted-foreground">Query Time:</span>
-          <span className={cn('text-sm font-mono', getQueryTimeColor(result.queryTime))}>
+        <div className="gap-component-sm flex items-center">
+          <span className="text-muted-foreground text-sm">Query Time:</span>
+          <span className={cn('font-mono text-sm', getQueryTimeColor(result.queryTime))}>
             {result.queryTime}ms
           </span>
         </div>
         {result.authoritative && (
-          <Badge variant="secondary" className="text-xs">
+          <Badge
+            variant="secondary"
+            className="text-xs"
+          >
             Authoritative
           </Badge>
         )}
-        <Badge variant="outline" className="text-xs">
+        <Badge
+          variant="outline"
+          className="text-xs"
+        >
           {result.recordType}
         </Badge>
       </div>
 
       {/* Results Table */}
-      {sortedRecords.length > 0 ? (
+      {sortedRecords.length > 0 ?
         <Table aria-label="DNS lookup results">
           <TableHeader>
             <TableRow>
-              <TableHead scope="col" className="font-mono font-display">Type</TableHead>
-              <TableHead scope="col" className="font-mono font-display">Name</TableHead>
-              <TableHead scope="col" className="font-mono font-display">Value</TableHead>
-              <TableHead scope="col" className="font-mono font-display">TTL</TableHead>
-              <TableHead scope="col" className="w-12">
+              <TableHead
+                scope="col"
+                className="font-display font-mono"
+              >
+                Type
+              </TableHead>
+              <TableHead
+                scope="col"
+                className="font-display font-mono"
+              >
+                Name
+              </TableHead>
+              <TableHead
+                scope="col"
+                className="font-display font-mono"
+              >
+                Value
+              </TableHead>
+              <TableHead
+                scope="col"
+                className="font-display font-mono"
+              >
+                TTL
+              </TableHead>
+              <TableHead
+                scope="col"
+                className="w-12"
+              >
                 {/* Copy button column */}
               </TableHead>
             </TableRow>
@@ -83,15 +112,16 @@ export const DnsResults = memo(function DnsResults({ result, className }: DnsRes
             {sortedRecords.map((record, index) => (
               <TableRow key={index}>
                 <TableCell>
-                  <Badge variant="outline" className="font-mono text-xs">
+                  <Badge
+                    variant="outline"
+                    className="font-mono text-xs"
+                  >
                     {record.type}
                   </Badge>
                 </TableCell>
                 <TableCell className="font-mono text-sm">{record.name}</TableCell>
-                <TableCell className="font-mono text-sm">
-                  {formatRecordValue(record)}
-                </TableCell>
-                <TableCell className="text-sm text-muted-foreground">
+                <TableCell className="font-mono text-sm">{formatRecordValue(record)}</TableCell>
+                <TableCell className="text-muted-foreground text-sm">
                   {formatTTL(record.ttl)}
                 </TableCell>
                 <TableCell>
@@ -101,14 +131,13 @@ export const DnsResults = memo(function DnsResults({ result, className }: DnsRes
             ))}
           </TableBody>
         </Table>
-      ) : (
-        <div className="flex items-center justify-center py-component-xl text-muted-foreground">
+      : <div className="py-component-xl text-muted-foreground flex items-center justify-center">
           <p>No records found</p>
         </div>
-      )}
+      }
 
       {/* Record Count */}
-      <div className="text-sm text-muted-foreground text-right font-mono">
+      <div className="text-muted-foreground text-right font-mono text-sm">
         {sortedRecords.length} {sortedRecords.length === 1 ? 'record' : 'records'} found
       </div>
     </div>

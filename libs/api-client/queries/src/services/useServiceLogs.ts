@@ -1,8 +1,5 @@
 import { useQuery, useSubscription } from '@apollo/client';
-import {
-  GET_SERVICE_LOG_FILE,
-  SUBSCRIBE_SERVICE_LOGS,
-} from './logs-diagnostics.graphql';
+import { GET_SERVICE_LOG_FILE, SUBSCRIBE_SERVICE_LOGS } from './logs-diagnostics.graphql';
 
 /**
  * Log level for filtering

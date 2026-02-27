@@ -53,16 +53,26 @@ export function ServiceImportDialogMobile(props: ServiceImportDialogProps) {
   };
 
   return (
-    <Sheet open={open} onOpenChange={handleOpenChange}>
+    <Sheet
+      open={open}
+      onOpenChange={handleOpenChange}
+    >
       <SheetTrigger asChild>
         {trigger || (
-          <Button variant="outline" size="lg" className="w-full min-h-[44px]">
-            <Upload className="w-5 h-5 mr-2" />
+          <Button
+            variant="outline"
+            size="lg"
+            className="min-h-[44px] w-full"
+          >
+            <Upload className="mr-2 h-5 w-5" />
             Import
           </Button>
         )}
       </SheetTrigger>
-      <SheetContent side="bottom" className="h-[90vh]">
+      <SheetContent
+        side="bottom"
+        className="h-[90vh]"
+      >
         <SheetHeader>
           <SheetTitle>Import Service</SheetTitle>
           <SheetDescription>
@@ -94,8 +104,8 @@ export function ServiceImportDialogMobile(props: ServiceImportDialogProps) {
                   }}
                 />
                 <label htmlFor="file-upload-mobile">
-                  <div className="border-2 border-dashed rounded-lg p-6 text-center cursor-pointer hover:bg-accent transition-colors">
-                    <Upload className="w-12 h-12 mx-auto mb-3 text-muted-foreground" />
+                  <div className="hover:bg-accent cursor-pointer rounded-lg border-2 border-dashed p-6 text-center transition-colors">
+                    <Upload className="text-muted-foreground mx-auto mb-3 h-12 w-12" />
                     <p className="text-sm font-medium">Upload JSON File</p>
                   </div>
                 </label>
@@ -103,7 +113,10 @@ export function ServiceImportDialogMobile(props: ServiceImportDialogProps) {
 
               {/* Text Area Paste */}
               <div className="space-y-2">
-                <Label htmlFor="paste-content-mobile" className="text-base">
+                <Label
+                  htmlFor="paste-content-mobile"
+                  className="text-base"
+                >
                   Or paste JSON here
                 </Label>
                 <Textarea
@@ -133,7 +146,7 @@ export function ServiceImportDialogMobile(props: ServiceImportDialogProps) {
                   onClick={handleValidate}
                   disabled={!state.content.trim() || loading}
                   size="lg"
-                  className="w-full min-h-[44px]"
+                  className="min-h-[44px] w-full"
                 >
                   Validate & Continue
                 </Button>
@@ -141,7 +154,7 @@ export function ServiceImportDialogMobile(props: ServiceImportDialogProps) {
                   variant="outline"
                   onClick={() => handleOpenChange(false)}
                   size="lg"
-                  className="w-full min-h-[44px]"
+                  className="min-h-[44px] w-full"
                 >
                   Cancel
                 </Button>
@@ -152,13 +165,11 @@ export function ServiceImportDialogMobile(props: ServiceImportDialogProps) {
           {/* Step 2: Validate */}
           {state.step === 'validate' && (
             <div className="py-12 text-center">
-              <div className="w-20 h-20 mx-auto rounded-full bg-primary/10 flex items-center justify-center mb-4">
-                <Upload className="w-10 h-10 text-primary animate-pulse" />
+              <div className="bg-primary/10 mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full">
+                <Upload className="text-primary h-10 w-10 animate-pulse" />
               </div>
-              <h3 className="text-lg font-medium mb-2">Validating...</h3>
-              <p className="text-sm text-muted-foreground">
-                Running validation pipeline
-              </p>
+              <h3 className="mb-2 text-lg font-medium">Validating...</h3>
+              <p className="text-muted-foreground text-sm">Running validation pipeline</p>
             </div>
           )}
 
@@ -174,8 +185,14 @@ export function ServiceImportDialogMobile(props: ServiceImportDialogProps) {
                   <ScrollArea className="h-40 rounded-lg border p-3">
                     <div className="space-y-2">
                       {state.validationResult.errors.map((error, index) => (
-                        <div key={index} className="text-sm">
-                          <Badge variant="error" className="mr-2 text-xs">
+                        <div
+                          key={index}
+                          className="text-sm"
+                        >
+                          <Badge
+                            variant="error"
+                            className="mr-2 text-xs"
+                          >
                             {error.code}
                           </Badge>
                           <span className="text-xs">{error.message}</span>
@@ -192,8 +209,14 @@ export function ServiceImportDialogMobile(props: ServiceImportDialogProps) {
                   <div className="space-y-3">
                     <Label className="text-base">Provide Missing Values</Label>
                     {state.validationResult.redactedFields.map((field: string) => (
-                      <div key={field} className="space-y-1">
-                        <Label htmlFor={`redacted-${field}-mobile`} className="text-sm">
+                      <div
+                        key={field}
+                        className="space-y-1"
+                      >
+                        <Label
+                          htmlFor={`redacted-${field}-mobile`}
+                          className="text-sm"
+                        >
                           {field}
                         </Label>
                         <Input
@@ -201,7 +224,9 @@ export function ServiceImportDialogMobile(props: ServiceImportDialogProps) {
                           type={field.toLowerCase().includes('password') ? 'password' : 'text'}
                           placeholder={`Enter ${field}`}
                           value={state.redactedFieldValues[field] || ''}
-                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setRedactedFieldValue(field, e.target.value)}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                            setRedactedFieldValue(field, e.target.value)
+                          }
                           className="min-h-[44px]"
                         />
                       </div>
@@ -217,8 +242,7 @@ export function ServiceImportDialogMobile(props: ServiceImportDialogProps) {
                     <Alert variant="destructive">
                       <AlertCircle className="h-5 w-5" />
                       <AlertDescription>
-                        {state.validationResult.conflictingInstances.length} conflicting
-                        service(s)
+                        {state.validationResult.conflictingInstances.length} conflicting service(s)
                       </AlertDescription>
                     </Alert>
                     <RadioGroup
@@ -227,36 +251,51 @@ export function ServiceImportDialogMobile(props: ServiceImportDialogProps) {
                     >
                       <div className="space-y-3">
                         <div
-                          className="flex items-start space-x-3 rounded-lg border p-4 min-h-[44px] cursor-pointer"
+                          className="flex min-h-[44px] cursor-pointer items-start space-x-3 rounded-lg border p-4"
                           onClick={() => setConflictResolution('skip')}
                         >
-                          <RadioGroupItem value="skip" id="conflict-skip-mobile" />
-                          <Label htmlFor="conflict-skip-mobile" className="cursor-pointer flex-1">
+                          <RadioGroupItem
+                            value="skip"
+                            id="conflict-skip-mobile"
+                          />
+                          <Label
+                            htmlFor="conflict-skip-mobile"
+                            className="flex-1 cursor-pointer"
+                          >
                             <span className="font-medium">Skip</span>
-                            <p className="text-sm text-muted-foreground">Don't import</p>
+                            <p className="text-muted-foreground text-sm">Don't import</p>
                           </Label>
                         </div>
                         <div
-                          className="flex items-start space-x-3 rounded-lg border p-4 min-h-[44px] cursor-pointer"
+                          className="flex min-h-[44px] cursor-pointer items-start space-x-3 rounded-lg border p-4"
                           onClick={() => setConflictResolution('rename')}
                         >
-                          <RadioGroupItem value="rename" id="conflict-rename-mobile" />
-                          <Label htmlFor="conflict-rename-mobile" className="cursor-pointer flex-1">
+                          <RadioGroupItem
+                            value="rename"
+                            id="conflict-rename-mobile"
+                          />
+                          <Label
+                            htmlFor="conflict-rename-mobile"
+                            className="flex-1 cursor-pointer"
+                          >
                             <span className="font-medium">Rename</span>
-                            <p className="text-sm text-muted-foreground">Auto-rename</p>
+                            <p className="text-muted-foreground text-sm">Auto-rename</p>
                           </Label>
                         </div>
                         <div
-                          className="flex items-start space-x-3 rounded-lg border p-4 min-h-[44px] cursor-pointer"
+                          className="flex min-h-[44px] cursor-pointer items-start space-x-3 rounded-lg border p-4"
                           onClick={() => setConflictResolution('replace')}
                         >
-                          <RadioGroupItem value="replace" id="conflict-replace-mobile" />
+                          <RadioGroupItem
+                            value="replace"
+                            id="conflict-replace-mobile"
+                          />
                           <Label
                             htmlFor="conflict-replace-mobile"
-                            className="cursor-pointer flex-1"
+                            className="flex-1 cursor-pointer"
                           >
                             <span className="font-medium">Replace</span>
-                            <p className="text-sm text-muted-foreground">Replace existing</p>
+                            <p className="text-muted-foreground text-sm">Replace existing</p>
                           </Label>
                         </div>
                       </div>
@@ -278,7 +317,7 @@ export function ServiceImportDialogMobile(props: ServiceImportDialogProps) {
                     loading
                   }
                   size="lg"
-                  className="w-full min-h-[44px]"
+                  className="min-h-[44px] w-full"
                 >
                   Import Service
                 </Button>
@@ -286,9 +325,9 @@ export function ServiceImportDialogMobile(props: ServiceImportDialogProps) {
                   variant="outline"
                   onClick={reset}
                   size="lg"
-                  className="w-full min-h-[44px]"
+                  className="min-h-[44px] w-full"
                 >
-                  <ChevronLeft className="w-5 h-5 mr-2" />
+                  <ChevronLeft className="mr-2 h-5 w-5" />
                   Back
                 </Button>
               </div>
@@ -298,41 +337,46 @@ export function ServiceImportDialogMobile(props: ServiceImportDialogProps) {
           {/* Step 4: Importing */}
           {state.step === 'importing' && (
             <div className="py-12">
-              <div className="text-center mb-6">
-                <div className="w-20 h-20 mx-auto rounded-full bg-primary/10 flex items-center justify-center mb-4">
-                  <Download className="w-10 h-10 text-primary animate-pulse" />
+              <div className="mb-6 text-center">
+                <div className="bg-primary/10 mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full">
+                  <Download className="text-primary h-10 w-10 animate-pulse" />
                 </div>
-                <h3 className="text-lg font-medium mb-2">Importing...</h3>
-                <p className="text-sm text-muted-foreground">Creating service instance</p>
+                <h3 className="mb-2 text-lg font-medium">Importing...</h3>
+                <p className="text-muted-foreground text-sm">Creating service instance</p>
               </div>
-              <Progress value={state.progress} className="w-full" />
-              <p className="text-sm text-muted-foreground text-center mt-2">
-                {state.progress}%
-              </p>
+              <Progress
+                value={state.progress}
+                className="w-full"
+              />
+              <p className="text-muted-foreground mt-2 text-center text-sm">{state.progress}%</p>
             </div>
           )}
 
           {/* Step 5: Complete */}
           {state.step === 'complete' && (
             <>
-              <div className="text-center py-8">
-                <div className="w-20 h-20 mx-auto rounded-full bg-success/10 flex items-center justify-center mb-4">
-                  <CheckCircle2 className="w-10 h-10 text-success" />
+              <div className="py-8 text-center">
+                <div className="bg-success/10 mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full">
+                  <CheckCircle2 className="text-success h-10 w-10" />
                 </div>
-                <h3 className="text-lg font-medium mb-2">Import Complete!</h3>
-                <p className="text-sm text-muted-foreground">
+                <h3 className="mb-2 text-lg font-medium">Import Complete!</h3>
+                <p className="text-muted-foreground text-sm">
                   {state.packageData?.service.instanceName} imported
                 </p>
               </div>
               <div className="space-y-3">
-                <Button onClick={reset} size="lg" className="w-full min-h-[44px]">
+                <Button
+                  onClick={reset}
+                  size="lg"
+                  className="min-h-[44px] w-full"
+                >
                   Import Another
                 </Button>
                 <Button
                   variant="outline"
                   onClick={() => handleOpenChange(false)}
                   size="lg"
-                  className="w-full min-h-[44px]"
+                  className="min-h-[44px] w-full"
                 >
                   Close
                 </Button>

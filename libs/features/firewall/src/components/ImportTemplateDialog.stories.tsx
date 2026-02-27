@@ -73,7 +73,8 @@ const meta: Meta<typeof ImportTemplateDialog> = {
     },
     onImport: {
       action: 'onImport',
-      description: 'Async callback called with the parsed FirewallTemplate when import is confirmed',
+      description:
+        'Async callback called with the parsed FirewallTemplate when import is confirmed',
     },
     open: {
       control: 'boolean',

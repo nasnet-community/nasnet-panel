@@ -32,7 +32,6 @@ import type {
 } from './device-card.types';
 import type { LucideIcon } from 'lucide-react';
 
-
 /**
  * Confidence threshold for showing indicator
  * Show indicator when confidence is below this value
@@ -123,9 +122,7 @@ function formatMacAddress(mac: string): string {
  * // state.statusColor === 'success'
  * ```
  */
-export function useDeviceCard(
-  config: UseDeviceCardConfig
-): UseDeviceCardReturn {
+export function useDeviceCard(config: UseDeviceCardConfig): UseDeviceCardReturn {
   const { device, onConfigure, onBlock, onRename, onAssignStaticIp } = config;
 
   // Compute display name: customName > hostname > formatted MAC
@@ -136,10 +133,7 @@ export function useDeviceCard(
   }, [device.customName, device.hostname, device.mac]);
 
   // Format MAC address
-  const formattedMac = useMemo(
-    () => formatMacAddress(device.mac),
-    [device.mac]
-  );
+  const formattedMac = useMemo(() => formatMacAddress(device.mac), [device.mac]);
 
   // Select device type icon
   const deviceIcon = useMemo(
@@ -160,10 +154,7 @@ export function useDeviceCard(
   }, [device.online]);
 
   // Status text
-  const statusText = useMemo(
-    () => (device.online ? 'Online' : 'Offline'),
-    [device.online]
-  );
+  const statusText = useMemo(() => (device.online ? 'Online' : 'Offline'), [device.online]);
 
   // Connection type text
   const connectionText = useMemo(
@@ -172,10 +163,7 @@ export function useDeviceCard(
   );
 
   // Device type label
-  const deviceTypeLabel = useMemo(
-    () => DEVICE_TYPE_LABELS[device.deviceType],
-    [device.deviceType]
-  );
+  const deviceTypeLabel = useMemo(() => DEVICE_TYPE_LABELS[device.deviceType], [device.deviceType]);
 
   // Determine if confidence indicator should be shown
   const showConfidenceIndicator = useMemo(() => {

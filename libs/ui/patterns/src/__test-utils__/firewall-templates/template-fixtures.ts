@@ -143,7 +143,8 @@ export const mockDropRule: TemplateRule = {
 export const mockBasicSecurityTemplate: FirewallTemplate = {
   id: 'basic-security',
   name: 'Basic Security',
-  description: 'Essential firewall rules to secure your network. Blocks invalid packets, allows established connections, and drops unwanted traffic.',
+  description:
+    'Essential firewall rules to secure your network. Blocks invalid packets, allows established connections, and drops unwanted traffic.',
   category: 'BASIC' as TemplateCategory,
   complexity: 'SIMPLE' as TemplateComplexity,
   ruleCount: 5,
@@ -185,7 +186,8 @@ export const mockBasicSecurityTemplate: FirewallTemplate = {
 export const mockHomeNetworkTemplate: FirewallTemplate = {
   id: 'home-network',
   name: 'Home Network',
-  description: 'Complete home network setup with NAT, basic protection, and LAN access. Suitable for most home users.',
+  description:
+    'Complete home network setup with NAT, basic protection, and LAN access. Suitable for most home users.',
   category: 'HOME' as TemplateCategory,
   complexity: 'MODERATE' as TemplateComplexity,
   ruleCount: 8,
@@ -251,7 +253,8 @@ export const mockHomeNetworkTemplate: FirewallTemplate = {
 export const mockGamingOptimizedTemplate: FirewallTemplate = {
   id: 'gaming-optimized',
   name: 'Gaming Optimized',
-  description: 'Low-latency firewall rules for gaming. Prioritizes gaming traffic and enables UPnP for seamless multiplayer.',
+  description:
+    'Low-latency firewall rules for gaming. Prioritizes gaming traffic and enables UPnP for seamless multiplayer.',
   category: 'GAMING' as TemplateCategory,
   complexity: 'ADVANCED' as TemplateComplexity,
   ruleCount: 12,
@@ -270,11 +273,17 @@ export const mockGamingOptimizedTemplate: FirewallTemplate = {
 export const mockIotIsolationTemplate: FirewallTemplate = {
   id: 'iot-isolation',
   name: 'IoT Isolation',
-  description: 'Isolate IoT devices on a separate VLAN with restricted access. Allows internet but blocks LAN access.',
+  description:
+    'Isolate IoT devices on a separate VLAN with restricted access. Allows internet but blocks LAN access.',
   category: 'IOT' as TemplateCategory,
   complexity: 'ADVANCED' as TemplateComplexity,
   ruleCount: 10,
-  variables: [mockInterfaceVariable, mockWanInterfaceVariable, mockSubnetVariable, mockVlanIdVariable],
+  variables: [
+    mockInterfaceVariable,
+    mockWanInterfaceVariable,
+    mockSubnetVariable,
+    mockVlanIdVariable,
+  ],
   rules: [
     {
       table: 'FILTER' as FirewallTable,
@@ -308,7 +317,8 @@ export const mockIotIsolationTemplate: FirewallTemplate = {
 export const mockGuestNetworkTemplate: FirewallTemplate = {
   id: 'guest-network',
   name: 'Guest Network',
-  description: 'Isolated guest network with internet-only access. No access to your local network or devices.',
+  description:
+    'Isolated guest network with internet-only access. No access to your local network or devices.',
   category: 'GUEST' as TemplateCategory,
   complexity: 'MODERATE' as TemplateComplexity,
   ruleCount: 7,
@@ -390,7 +400,10 @@ export const mockBuiltInTemplates: FirewallTemplate[] = [
 
 export const mockCustomTemplates: FirewallTemplate[] = [mockCustomTemplate];
 
-export const mockAllTemplates: FirewallTemplate[] = [...mockBuiltInTemplates, ...mockCustomTemplates];
+export const mockAllTemplates: FirewallTemplate[] = [
+  ...mockBuiltInTemplates,
+  ...mockCustomTemplates,
+];
 
 // ============================================
 // MOCK CONFLICTS
@@ -424,10 +437,7 @@ export const mockPositionConflict: TemplateConflict = {
   proposedRule: mockFilterRule,
 };
 
-export const mockConflicts: TemplateConflict[] = [
-  mockDuplicateRuleConflict,
-  mockIpOverlapConflict,
-];
+export const mockConflicts: TemplateConflict[] = [mockDuplicateRuleConflict, mockIpOverlapConflict];
 
 // ============================================
 // MOCK IMPACT ANALYSIS
@@ -736,7 +746,6 @@ export function searchTemplates(templates: FirewallTemplate[], query: string): F
   const lowerQuery = query.toLowerCase();
   return templates.filter(
     (t) =>
-      t.name.toLowerCase().includes(lowerQuery) ||
-      t.description.toLowerCase().includes(lowerQuery)
+      t.name.toLowerCase().includes(lowerQuery) || t.description.toLowerCase().includes(lowerQuery)
   );
 }

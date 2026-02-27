@@ -10,7 +10,13 @@
  */
 
 import { useReducer, useCallback, useMemo } from 'react';
-import type { FirewallFilters, FirewallRule, FirewallChain, FirewallAction, FirewallProtocol } from '@nasnet/core/types';
+import type {
+  FirewallFilters,
+  FirewallRule,
+  FirewallChain,
+  FirewallAction,
+  FirewallProtocol,
+} from '@nasnet/core/types';
 
 /**
  * Filter action types for reducer dispatch
@@ -190,9 +196,7 @@ export interface UseRuleFiltersReturn {
  * filters.setSearch('port 443');
  * const filtered = filters.filterRules(allRules);
  */
-export function useRuleFilters(
-  initialFilters?: Partial<FirewallFilters>
-): UseRuleFiltersReturn {
+export function useRuleFilters(initialFilters?: Partial<FirewallFilters>): UseRuleFiltersReturn {
   const [filters, dispatch] = useReducer(
     filterReducer,
     initialFilters ? { ...DEFAULT_FILTERS, ...initialFilters } : DEFAULT_FILTERS
@@ -248,30 +252,3 @@ export function useRuleFilters(
     filterRules,
   };
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

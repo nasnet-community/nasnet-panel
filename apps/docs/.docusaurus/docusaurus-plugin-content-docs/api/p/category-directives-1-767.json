@@ -1,1 +1,12 @@
-{"categoryGeneratedIndex":{"title":"Directives overview","slug":"/category/directives-1","permalink":"/category/directives-1","sidebar":"defaultSidebar","navigation":{"previous":{"title":"Types","permalink":"/category/types"},"next":{"title":"auth","permalink":"/api/types/directives/auth"}}}}
+{
+  "categoryGeneratedIndex": {
+    "title": "Directives overview",
+    "slug": "/category/directives-1",
+    "permalink": "/category/directives-1",
+    "sidebar": "defaultSidebar",
+    "navigation": {
+      "previous": { "title": "Types", "permalink": "/category/types" },
+      "next": { "title": "auth", "permalink": "/api/types/directives/auth" }
+    }
+  }
+}

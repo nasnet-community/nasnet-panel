@@ -30,12 +30,8 @@ describe('DnsSettingsForm', () => {
     it('should render all form fields', () => {
       render(<DnsSettingsForm {...mockProps} />);
 
-      expect(
-        screen.getByRole('checkbox', { name: /allow remote requests/i })
-      ).toBeInTheDocument();
-      expect(
-        screen.getByRole('spinbutton', { name: /cache size/i })
-      ).toBeInTheDocument();
+      expect(screen.getByRole('checkbox', { name: /allow remote requests/i })).toBeInTheDocument();
+      expect(screen.getByRole('spinbutton', { name: /cache size/i })).toBeInTheDocument();
       expect(screen.getByText(/cache usage/i)).toBeInTheDocument();
     });
 
@@ -57,9 +53,7 @@ describe('DnsSettingsForm', () => {
       render(<DnsSettingsForm {...mockProps} />);
 
       expect(screen.getByText(/cache usage/i)).toBeInTheDocument();
-      expect(
-        screen.getByText(/1024 KB \/ 2048 KB \(50%\)/i)
-      ).toBeInTheDocument();
+      expect(screen.getByText(/1024 KB \/ 2048 KB \(50%\)/i)).toBeInTheDocument();
     });
 
     it('should show field help tooltips', () => {
@@ -99,13 +93,9 @@ describe('DnsSettingsForm', () => {
       await user.click(checkbox);
 
       await waitFor(() => {
-        expect(
-          screen.getByText(/enabling remote requests allows any device/i)
-        ).toBeInTheDocument();
+        expect(screen.getByText(/enabling remote requests allows any device/i)).toBeInTheDocument();
         expect(screen.getByRole('button', { name: /cancel/i })).toBeInTheDocument();
-        expect(
-          screen.getByRole('button', { name: /i understand/i })
-        ).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: /i understand/i })).toBeInTheDocument();
       });
     });
 
@@ -244,9 +234,7 @@ describe('DnsSettingsForm', () => {
       await user.tab();
 
       await waitFor(() => {
-        expect(
-          screen.getByText(/number must be less than or equal to 10240/i)
-        ).toBeInTheDocument();
+        expect(screen.getByText(/number must be less than or equal to 10240/i)).toBeInTheDocument();
       });
     });
 
@@ -263,9 +251,7 @@ describe('DnsSettingsForm', () => {
 
       // Should update the display (cache used stays same but size changes)
       await waitFor(() => {
-        expect(
-          screen.getByText(/1024 KB \/ 4096 KB/i)
-        ).toBeInTheDocument();
+        expect(screen.getByText(/1024 KB \/ 4096 KB/i)).toBeInTheDocument();
       });
     });
   });
@@ -275,7 +261,12 @@ describe('DnsSettingsForm', () => {
       const user = userEvent.setup();
       const onSubmit = vi.fn();
 
-      render(<DnsSettingsForm {...mockProps} onSubmit={onSubmit} />);
+      render(
+        <DnsSettingsForm
+          {...mockProps}
+          onSubmit={onSubmit}
+        />
+      );
 
       const cacheSizeInput = screen.getByRole('spinbutton', {
         name: /cache size/i,
@@ -296,7 +287,12 @@ describe('DnsSettingsForm', () => {
       const user = userEvent.setup();
       const onSubmit = vi.fn();
 
-      render(<DnsSettingsForm {...mockProps} onSubmit={onSubmit} />);
+      render(
+        <DnsSettingsForm
+          {...mockProps}
+          onSubmit={onSubmit}
+        />
+      );
 
       const cacheSizeInput = screen.getByRole('spinbutton', {
         name: /cache size/i,
@@ -327,9 +323,7 @@ describe('DnsSettingsForm', () => {
       expect(
         screen.getByRole('checkbox', { name: /allow remote requests/i })
       ).toHaveAccessibleName();
-      expect(
-        screen.getByRole('spinbutton', { name: /cache size/i })
-      ).toHaveAccessibleName();
+      expect(screen.getByRole('spinbutton', { name: /cache size/i })).toHaveAccessibleName();
     });
 
     it('should associate error messages with form fields', async () => {
@@ -345,9 +339,7 @@ describe('DnsSettingsForm', () => {
       await user.tab();
 
       await waitFor(() => {
-        const errorMessage = screen.getByText(
-          /number must be greater than or equal to 512/i
-        );
+        const errorMessage = screen.getByText(/number must be greater than or equal to 512/i);
         expect(errorMessage).toBeInTheDocument();
 
         // Error should be associated with input via aria-describedby or similar
@@ -425,13 +417,16 @@ describe('DnsSettingsForm', () => {
 
       render(<DnsSettingsForm {...propsWithFullCache} />);
 
-      expect(
-        screen.getByText(/2048 KB \/ 2048 KB \(100%\)/i)
-      ).toBeInTheDocument();
+      expect(screen.getByText(/2048 KB \/ 2048 KB \(100%\)/i)).toBeInTheDocument();
     });
 
     it('should handle loading state', () => {
-      render(<DnsSettingsForm {...mockProps} loading={true} />);
+      render(
+        <DnsSettingsForm
+          {...mockProps}
+          loading={true}
+        />
+      );
 
       // Form fields should be disabled during loading
       const checkbox = screen.getByRole('checkbox', {

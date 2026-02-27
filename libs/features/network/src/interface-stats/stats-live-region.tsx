@@ -112,8 +112,9 @@ const StatsLiveRegion = React.memo(function StatsLiveRegion({
   const hasErrors = totalErrors > 0;
 
   // Build announcement message
-  const announcement = hasErrors
-    ? `${interfaceName} statistics updated. Transmitted ${formatBytesForAnnouncement(
+  const announcement =
+    hasErrors ?
+      `${interfaceName} statistics updated. Transmitted ${formatBytesForAnnouncement(
         stats.txBytes
       )}, received ${formatBytesForAnnouncement(
         stats.rxBytes
@@ -127,7 +128,7 @@ const StatsLiveRegion = React.memo(function StatsLiveRegion({
       role="status"
       aria-live="polite"
       aria-atomic="true"
-      className="sr-only category-networking"
+      className="category-networking sr-only"
     >
       {announcement}
     </div>

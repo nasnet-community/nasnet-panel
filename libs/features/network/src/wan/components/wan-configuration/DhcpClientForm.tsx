@@ -89,12 +89,9 @@ export const DhcpClientForm = memo(function DhcpClientForm({
   loading = false,
   onCancel,
 }: DhcpClientFormProps) {
-  const [selectedInterface, setSelectedInterface] = useState<RouterInterface | null>(
-    null
-  );
+  const [selectedInterface, setSelectedInterface] = useState<RouterInterface | null>(null);
   const [showDefaultRouteWarning, setShowDefaultRouteWarning] = useState(false);
-  const [pendingFormValues, setPendingFormValues] =
-    useState<DhcpClientFormValues | null>(null);
+  const [pendingFormValues, setPendingFormValues] = useState<DhcpClientFormValues | null>(null);
 
   const form = useForm<DhcpClientFormValues>({
     resolver: zodResolver(dhcpClientSchema) as any,
@@ -108,41 +105,47 @@ export const DhcpClientForm = memo(function DhcpClientForm({
    * Handle interface selection
    * Updates form value and stores interface object
    */
-  const handleInterfaceSelect = useCallback((interfaceId: string | string[]) => {
-    // InterfaceSelector onChange returns the ID, need to find the interface
-    // For now, just update the form field with the ID
-    const selectedId = Array.isArray(interfaceId) ? interfaceId[0] : interfaceId;
-    form.setValue('interface', selectedId, {
-      shouldValidate: true,
-      shouldDirty: true,
-    });
-    // In a real scenario, would fetch the full interface object
-    // For demo purposes, create a minimal interface object
-    setSelectedInterface({
-      id: selectedId,
-      name: selectedId,
-      type: 'ethernet',
-      status: 'up',
-      mac: '',
-    } as RouterInterface);
-  }, [form]);
+  const handleInterfaceSelect = useCallback(
+    (interfaceId: string | string[]) => {
+      // InterfaceSelector onChange returns the ID, need to find the interface
+      // For now, just update the form field with the ID
+      const selectedId = Array.isArray(interfaceId) ? interfaceId[0] : interfaceId;
+      form.setValue('interface', selectedId, {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
+      // In a real scenario, would fetch the full interface object
+      // For demo purposes, create a minimal interface object
+      setSelectedInterface({
+        id: selectedId,
+        name: selectedId,
+        type: 'ethernet',
+        status: 'up',
+        mac: '',
+      } as RouterInterface);
+    },
+    [form]
+  );
 
   /**
    * Handle form submission with safety checks
    * Shows warning if adding default route that might conflict
    */
-  const handleFormSubmit = useCallback((values: DhcpClientFormValues) => {
-    // Check if we're adding a default route
-    if (values.shouldAddDefaultRoute) {
-      // TODO: In Phase 6, check for existing default routes
-      // For now, show warning to user
-      setPendingFormValues(values);
-      setShowDefaultRouteWarning(true);
-    } else {
-      // No default route, submit directly
-      onSubmit(values);
-    }
-  }, [onSubmit]);
+  const handleFormSubmit = useCallback(
+    (values: DhcpClientFormValues) => {
+      // Check if we're adding a default route
+      if (values.shouldAddDefaultRoute) {
+        // TODO: In Phase 6, check for existing default routes
+        // For now, show warning to user
+        setPendingFormValues(values);
+        setShowDefaultRouteWarning(true);
+      } else {
+        // No default route, submit directly
+        onSubmit(values);
+      }
+    },
+    [onSubmit]
+  );
 
   /**
    * Confirm default route warning and proceed with submission
@@ -165,7 +168,10 @@ export const DhcpClientForm = memo(function DhcpClientForm({
 
   return (
     <>
-      <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-component-lg">
+      <form
+        onSubmit={form.handleSubmit(handleFormSubmit)}
+        className="space-y-component-lg"
+      >
         {/* Interface Selection */}
         <FormSection
           title="Interface Configuration"
@@ -173,9 +179,9 @@ export const DhcpClientForm = memo(function DhcpClientForm({
         >
           <div className="space-y-component-md">
             <div>
-              <div className="flex items-center gap-component-md mb-component-md">
+              <div className="gap-component-md mb-component-md flex items-center">
                 <Label htmlFor="interface-selector">
-                  <Network className="inline h-4 w-4 mr-1" />
+                  <Network className="mr-1 inline h-4 w-4" />
                   Physical Interface
                 </Label>
                 <FieldHelp field="interface" />
@@ -190,7 +196,7 @@ export const DhcpClientForm = memo(function DhcpClientForm({
               />
               {form.formState.errors.interface && (
                 <p
-                  className="text-sm text-error mt-1"
+                  className="text-error mt-1 text-sm"
                   role="alert"
                   id="interface-error"
                 >
@@ -200,14 +206,14 @@ export const DhcpClientForm = memo(function DhcpClientForm({
             </div>
 
             {selectedInterface && (
-              <div className="rounded-card-sm border border-border bg-muted/50 p-component-md space-y-component-sm category-networking">
-                <h4 className="font-medium text-sm">
-                  Selected Interface Details
-                </h4>
-                <div className="grid grid-cols-2 gap-component-sm text-sm">
+              <div className="rounded-card-sm border-border bg-muted/50 p-component-md space-y-component-sm category-networking border">
+                <h4 className="text-sm font-medium">Selected Interface Details</h4>
+                <div className="gap-component-sm grid grid-cols-2 text-sm">
                   <div>
                     <span className="text-muted-foreground">Name:</span>
-                    <code className="ml-component-md font-mono text-xs">{selectedInterface.name}</code>
+                    <code className="ml-component-md font-mono text-xs">
+                      {selectedInterface.name}
+                    </code>
                   </div>
                   <div>
                     <span className="text-muted-foreground">Type:</span>
@@ -234,8 +240,8 @@ export const DhcpClientForm = memo(function DhcpClientForm({
         >
           <div className="space-y-component-md">
             {/* Add Default Route */}
-            <div className="flex items-center justify-between gap-component-lg">
-              <div className="flex items-center gap-component-md">
+            <div className="gap-component-lg flex items-center justify-between">
+              <div className="gap-component-md flex items-center">
                 <Label htmlFor="shouldAddDefaultRoute">Add Default Route</Label>
                 <FieldHelp field="shouldAddDefaultRoute" />
               </div>
@@ -253,8 +259,8 @@ export const DhcpClientForm = memo(function DhcpClientForm({
             </div>
 
             {/* Use Peer DNS */}
-            <div className="flex items-center justify-between gap-component-lg">
-              <div className="flex items-center gap-component-md">
+            <div className="gap-component-lg flex items-center justify-between">
+              <div className="gap-component-md flex items-center">
                 <Label htmlFor="shouldUsePeerDNS">Use Peer DNS</Label>
                 <FieldHelp field="shouldUsePeerDNS" />
               </div>
@@ -270,8 +276,8 @@ export const DhcpClientForm = memo(function DhcpClientForm({
             </div>
 
             {/* Use Peer NTP */}
-            <div className="flex items-center justify-between gap-component-lg">
-              <div className="flex items-center gap-component-md">
+            <div className="gap-component-lg flex items-center justify-between">
+              <div className="gap-component-md flex items-center">
                 <Label htmlFor="shouldUsePeerNTP">Use Peer NTP</Label>
                 <FieldHelp field="shouldUsePeerNTP" />
               </div>
@@ -294,7 +300,7 @@ export const DhcpClientForm = memo(function DhcpClientForm({
           description="Additional configuration options"
         >
           <div className="space-y-component-md">
-            <div className="flex items-center gap-component-md">
+            <div className="gap-component-md flex items-center">
               <Label htmlFor="comment">Comment</Label>
               <FieldHelp field="comment" />
             </div>
@@ -308,25 +314,32 @@ export const DhcpClientForm = memo(function DhcpClientForm({
               aria-describedby="comment-error comment-help"
             />
             {form.formState.errors.comment && (
-              <p id="comment-error" className="text-sm text-error" role="alert">
+              <p
+                id="comment-error"
+                className="text-error text-sm"
+                role="alert"
+              >
                 {form.formState.errors.comment.message}
               </p>
             )}
-            <p id="comment-help" className="text-xs text-muted-foreground">
+            <p
+              id="comment-help"
+              className="text-muted-foreground text-xs"
+            >
               {form.watch('comment')?.length || 0}/255 characters
             </p>
           </div>
         </FormSection>
 
         {/* Action Buttons */}
-        <div className="flex gap-component-md justify-end">
+        <div className="gap-component-md flex justify-end">
           {onCancel && (
             <Button
               type="button"
               variant="outline"
               onClick={onCancel}
               disabled={loading}
-              className="min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              className="focus-visible:ring-ring min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
             >
               Cancel
             </Button>
@@ -334,7 +347,7 @@ export const DhcpClientForm = memo(function DhcpClientForm({
           <Button
             type="submit"
             disabled={loading || !form.formState.isValid || !form.formState.isDirty}
-            className="min-w-[120px] min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            className="focus-visible:ring-ring min-h-[44px] min-w-[120px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
           >
             {loading ? 'Configuring...' : 'Configure DHCP'}
           </Button>
@@ -348,23 +361,24 @@ export const DhcpClientForm = memo(function DhcpClientForm({
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-component-md">
-              <AlertTriangle className="h-5 w-5 text-warning" aria-hidden="true" />
+            <DialogTitle className="gap-component-md flex items-center">
+              <AlertTriangle
+                className="text-warning h-5 w-5"
+                aria-hidden="true"
+              />
               Default Route Warning
             </DialogTitle>
             <DialogDescription className="space-y-component-md">
               <p>
-                You are about to add a <strong>default route</strong> via this
-                DHCP connection.
+                You are about to add a <strong>default route</strong> via this DHCP connection.
               </p>
               <p className="text-sm">
-                <strong>Warning:</strong> If you already have a default route
-                configured (e.g., another WAN connection), this may cause routing
-                conflicts.
+                <strong>Warning:</strong> If you already have a default route configured (e.g.,
+                another WAN connection), this may cause routing conflicts.
               </p>
-              <p className="text-sm text-muted-foreground">
-                Only proceed if this is your primary internet connection, or if
-                you have configured policy routing to handle multiple WAN links.
+              <p className="text-muted-foreground text-sm">
+                Only proceed if this is your primary internet connection, or if you have configured
+                policy routing to handle multiple WAN links.
               </p>
             </DialogDescription>
           </DialogHeader>
@@ -372,13 +386,13 @@ export const DhcpClientForm = memo(function DhcpClientForm({
             <Button
               variant="outline"
               onClick={handleCancelDefaultRoute}
-              className="min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              className="focus-visible:ring-ring min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
             >
               Cancel
             </Button>
             <Button
               onClick={handleConfirmDefaultRoute}
-              className="min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              className="focus-visible:ring-ring min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
             >
               I Understand, Proceed
             </Button>

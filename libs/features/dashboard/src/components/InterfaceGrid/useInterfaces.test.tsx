@@ -60,7 +60,10 @@ describe('useInterfaces', () => {
     ];
 
     const wrapper = ({ children }: { children: ReactNode }) => (
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider
+        mocks={mocks}
+        addTypename={false}
+      >
         {children}
       </MockedProvider>
     );
@@ -92,7 +95,10 @@ describe('useInterfaces', () => {
     ];
 
     const wrapper = ({ children }: { children: ReactNode }) => (
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider
+        mocks={mocks}
+        addTypename={false}
+      >
         {children}
       </MockedProvider>
     );
@@ -139,7 +145,10 @@ describe('useInterfaces', () => {
     ];
 
     const wrapper = ({ children }: { children: ReactNode }) => (
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider
+        mocks={mocks}
+        addTypename={false}
+      >
         {children}
       </MockedProvider>
     );
@@ -182,7 +191,10 @@ describe('useInterfaces', () => {
     ];
 
     const wrapper = ({ children }: { children: ReactNode }) => (
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider
+        mocks={mocks}
+        addTypename={false}
+      >
         {children}
       </MockedProvider>
     );
@@ -214,7 +226,10 @@ describe('useInterfaces', () => {
     ];
 
     const wrapper = ({ children }: { children: ReactNode }) => (
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider
+        mocks={mocks}
+        addTypename={false}
+      >
         {children}
       </MockedProvider>
     );
@@ -263,7 +278,10 @@ describe('useInterfaces', () => {
     ];
 
     const wrapper = ({ children }: { children: ReactNode }) => (
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider
+        mocks={mocks}
+        addTypename={false}
+      >
         {children}
       </MockedProvider>
     );
@@ -303,7 +321,10 @@ describe('useInterfaces', () => {
     ];
 
     const wrapper = ({ children }: { children: ReactNode }) => (
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider
+        mocks={mocks}
+        addTypename={false}
+      >
         {children}
       </MockedProvider>
     );

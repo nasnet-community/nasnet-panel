@@ -8,12 +8,5 @@ export { NetworkErrorDisplay } from './NetworkErrorDisplay';
 export type { NetworkErrorDisplayProps, NetworkErrorType } from './NetworkErrorDisplay';
 
 // Re-export offline indicator components for convenience
-export {
-  OfflineIndicator,
-  OfflineIndicatorCompact,
-  useNetworkStatus,
-} from '../offline-indicator';
-export type {
-  OfflineIndicatorProps,
-  OfflineIndicatorCompactProps,
-} from '../offline-indicator';
+export { OfflineIndicator, OfflineIndicatorCompact, useNetworkStatus } from '../offline-indicator';
+export type { OfflineIndicatorProps, OfflineIndicatorCompactProps } from '../offline-indicator';

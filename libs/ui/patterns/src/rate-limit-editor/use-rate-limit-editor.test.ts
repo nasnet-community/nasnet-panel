@@ -10,7 +10,11 @@
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 
-import { useRateLimitEditor , validateSourceAddress, validateAddressListName } from './use-rate-limit-editor';
+import {
+  useRateLimitEditor,
+  validateSourceAddress,
+  validateAddressListName,
+} from './use-rate-limit-editor';
 import {
   mockDropRule,
   mockTarpitRule,
@@ -30,9 +34,7 @@ describe('useRateLimitEditor', () => {
 
   describe('Initialization', () => {
     it('should initialize with default values', () => {
-      const { result } = renderHook(() =>
-        useRateLimitEditor({ onSubmit: mockOnSubmit })
-      );
+      const { result } = renderHook(() => useRateLimitEditor({ onSubmit: mockOnSubmit }));
 
       const rule = result.current.rule;
       expect(rule.connectionLimit).toBe(100);
@@ -77,9 +79,7 @@ describe('useRateLimitEditor', () => {
 
   describe('Form Validation', () => {
     it('should validate required fields', async () => {
-      const { result } = renderHook(() =>
-        useRateLimitEditor({ onSubmit: mockOnSubmit })
-      );
+      const { result } = renderHook(() => useRateLimitEditor({ onSubmit: mockOnSubmit }));
 
       // Remove required field
       act(() => {
@@ -92,9 +92,7 @@ describe('useRateLimitEditor', () => {
     });
 
     it('should validate connection limit is positive', async () => {
-      const { result } = renderHook(() =>
-        useRateLimitEditor({ onSubmit: mockOnSubmit })
-      );
+      const { result } = renderHook(() => useRateLimitEditor({ onSubmit: mockOnSubmit }));
 
       act(() => {
         result.current.form.setValue('connectionLimit', -10, { shouldValidate: true });
@@ -106,9 +104,7 @@ describe('useRateLimitEditor', () => {
     });
 
     it('should validate time window is valid enum', async () => {
-      const { result } = renderHook(() =>
-        useRateLimitEditor({ onSubmit: mockOnSubmit })
-      );
+      const { result } = renderHook(() => useRateLimitEditor({ onSubmit: mockOnSubmit }));
 
       act(() => {
         result.current.form.setValue('timeWindow', 'invalid' as any, {
@@ -122,9 +118,7 @@ describe('useRateLimitEditor', () => {
     });
 
     it('should validate action is valid enum', async () => {
-      const { result } = renderHook(() =>
-        useRateLimitEditor({ onSubmit: mockOnSubmit })
-      );
+      const { result } = renderHook(() => useRateLimitEditor({ onSubmit: mockOnSubmit }));
 
       act(() => {
         result.current.form.setValue('action', 'invalid' as any, { shouldValidate: true });
@@ -427,9 +421,7 @@ describe('useRateLimitEditor', () => {
     });
 
     it('should not submit if form is invalid', async () => {
-      const { result } = renderHook(() =>
-        useRateLimitEditor({ onSubmit: mockOnSubmit })
-      );
+      const { result } = renderHook(() => useRateLimitEditor({ onSubmit: mockOnSubmit }));
 
       // Make form invalid
       act(() => {
@@ -493,9 +485,7 @@ describe('useRateLimitEditor', () => {
 
   describe('Error Handling', () => {
     it('should extract error messages from form state', async () => {
-      const { result } = renderHook(() =>
-        useRateLimitEditor({ onSubmit: mockOnSubmit })
-      );
+      const { result } = renderHook(() => useRateLimitEditor({ onSubmit: mockOnSubmit }));
 
       // Set an invalid value that will trigger validation error
       act(() => {
@@ -540,12 +530,8 @@ describe('useRateLimitEditor', () => {
         expect(validateSourceAddress('invalid')).toBe('Invalid IP address or CIDR notation');
         // Note: The regex is simplified and doesn't validate octets are 0-255
         // '999.999.999.999' would pass the basic pattern but fail on the router
-        expect(validateSourceAddress('192.168.1')).toBe(
-          'Invalid IP address or CIDR notation'
-        );
-        expect(validateSourceAddress('not-an-ip')).toBe(
-          'Invalid IP address or CIDR notation'
-        );
+        expect(validateSourceAddress('192.168.1')).toBe('Invalid IP address or CIDR notation');
+        expect(validateSourceAddress('not-an-ip')).toBe('Invalid IP address or CIDR notation');
       });
     });
 
@@ -573,15 +559,9 @@ describe('useRateLimitEditor', () => {
       });
 
       it('should reject names with invalid characters', () => {
-        expect(validateAddressListName('rate limited')).toContain(
-          'alphanumeric characters'
-        );
-        expect(validateAddressListName('rate@limited')).toContain(
-          'alphanumeric characters'
-        );
-        expect(validateAddressListName('rate.limited')).toContain(
-          'alphanumeric characters'
-        );
+        expect(validateAddressListName('rate limited')).toContain('alphanumeric characters');
+        expect(validateAddressListName('rate@limited')).toContain('alphanumeric characters');
+        expect(validateAddressListName('rate.limited')).toContain('alphanumeric characters');
       });
     });
   });

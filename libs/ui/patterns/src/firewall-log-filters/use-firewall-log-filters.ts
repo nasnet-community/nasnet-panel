@@ -262,8 +262,9 @@ export function useFirewallLogFilters(
   const toggleAction = useCallback(
     (action: InferredAction) => {
       const currentActions = filters.actions;
-      const newActions = currentActions.includes(action)
-        ? currentActions.filter((a) => a !== action)
+      const newActions =
+        currentActions.includes(action) ?
+          currentActions.filter((a) => a !== action)
         : [...currentActions, action];
 
       onFiltersChange({

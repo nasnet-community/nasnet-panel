@@ -21,7 +21,8 @@ import {
   SelectContent,
   SelectItem,
   Badge,
- cn } from '@nasnet/ui/primitives';
+  cn,
+} from '@nasnet/ui/primitives';
 
 import { useKillSwitchToggle } from './useKillSwitchToggle';
 
@@ -57,16 +58,16 @@ export function KillSwitchToggleDesktop(props: KillSwitchToggleProps) {
 
   // Determine status variant
   const statusVariant =
-    statusColor === 'success'
-      ? 'default'
-      : statusColor === 'error'
-        ? 'error'
-        : statusColor === 'warning'
-          ? 'secondary'
-          : 'outline';
+    statusColor === 'success' ? 'default'
+    : statusColor === 'error' ? 'error'
+    : statusColor === 'warning' ? 'secondary'
+    : 'outline';
 
   // Determine icon
-  const StatusIcon = isActive ? ShieldAlert : enabled ? ShieldCheck : Shield;
+  const StatusIcon =
+    isActive ? ShieldAlert
+    : enabled ? ShieldCheck
+    : Shield;
 
   const isDisabled = disabled || isLoading || isSaving;
 
@@ -79,9 +80,7 @@ export function KillSwitchToggleDesktop(props: KillSwitchToggleProps) {
               <StatusIcon className="size-5" />
               Kill Switch
               {deviceName && (
-                <span className="text-sm font-normal text-muted-foreground">
-                  for {deviceName}
-                </span>
+                <span className="text-muted-foreground text-sm font-normal">for {deviceName}</span>
               )}
             </CardTitle>
             <CardDescription>
@@ -89,7 +88,10 @@ export function KillSwitchToggleDesktop(props: KillSwitchToggleProps) {
             </CardDescription>
           </div>
           <div className="flex items-center gap-3">
-            <Badge variant={statusVariant} className="text-xs">
+            <Badge
+              variant={statusVariant}
+              className="text-xs"
+            >
               {statusText}
             </Badge>
             <Switch
@@ -122,7 +124,7 @@ export function KillSwitchToggleDesktop(props: KillSwitchToggleProps) {
                   <SelectItem value="FALLBACK_SERVICE">Fallback to Another Service</SelectItem>
                 </SelectContent>
               </Select>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-muted-foreground text-xs">
                 {mode === 'BLOCK_ALL' && 'Block all traffic from this device'}
                 {mode === 'ALLOW_DIRECT' && 'Allow direct internet access (no VPN)'}
                 {mode === 'FALLBACK_SERVICE' && 'Route through a backup service'}
@@ -143,14 +145,17 @@ export function KillSwitchToggleDesktop(props: KillSwitchToggleProps) {
                   </SelectTrigger>
                   <SelectContent>
                     {availableInterfaces.map((iface) => (
-                      <SelectItem key={iface.id} value={iface.id}>
+                      <SelectItem
+                        key={iface.id}
+                        value={iface.id}
+                      >
                         {iface.label}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
                 {availableInterfaces.length === 0 && (
-                  <p className="flex items-center gap-1 text-xs text-error">
+                  <p className="text-error flex items-center gap-1 text-xs">
                     <AlertCircle className="size-3" />
                     No fallback services available
                   </p>
@@ -161,14 +166,12 @@ export function KillSwitchToggleDesktop(props: KillSwitchToggleProps) {
 
           {/* Active state indicator */}
           {isActive && activationTimeText && (
-            <div className="mt-4 rounded-md border border-l-4 border-l-error border-error bg-error-light p-3 transition-colors duration-150">
+            <div className="border-l-error border-error bg-error-light mt-4 rounded-md border border-l-4 p-3 transition-colors duration-150">
               <div className="flex items-start gap-2">
-                <ShieldAlert className="mt-0.5 size-4 text-error" />
+                <ShieldAlert className="text-error mt-0.5 size-4" />
                 <div className="flex-1 space-y-1">
-                  <p className="text-sm font-medium text-error-dark">
-                    Kill Switch Active
-                  </p>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-error-dark text-sm font-medium">Kill Switch Active</p>
+                  <p className="text-muted-foreground text-xs">
                     Triggered {activationTimeText} due to service health failure
                   </p>
                 </div>

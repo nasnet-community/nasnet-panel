@@ -6,7 +6,6 @@ import { ROUTES } from '@nasnet/core/constants';
 import { useRouterStore, useConnectionStore } from '@nasnet/state/stores';
 import { BackButton, StatusIndicator } from '@nasnet/ui/patterns';
 
-
 export interface RouterHeaderProps {
   /**
    * Router ID from URL params
@@ -48,16 +47,19 @@ export const RouterHeader = React.memo(function RouterHeader({ routerId }: Route
   const statusLabel = isConnected ? t('panel.connected') : t('panel.disconnected');
 
   return (
-    <div className="bg-card shadow-md rounded-card-lg border border-border p-4 md:p-6 mb-4 md:mb-6 brand-accent-line">
+    <div className="bg-card rounded-card-lg border-border brand-accent-line mb-4 border p-4 shadow-md md:mb-6 md:p-6">
       <div className="flex items-start gap-3 md:gap-4">
         {/* Back Button */}
-        <BackButton to={ROUTES.ROUTER_LIST} ariaLabel={t('panel.backButton')} />
+        <BackButton
+          to={ROUTES.ROUTER_LIST}
+          ariaLabel={t('panel.backButton')}
+        />
 
         {/* Router Information */}
-        <div className="flex-1 min-w-0">
+        <div className="min-w-0 flex-1">
           {/* Title and Status Row */}
-          <div className="flex flex-col md:flex-row md:items-center md:gap-3 mb-1">
-            <h1 className="text-xl md:text-2xl font-display font-bold text-foreground truncate">
+          <div className="mb-1 flex flex-col md:flex-row md:items-center md:gap-3">
+            <h1 className="font-display text-foreground truncate text-xl font-bold md:text-2xl">
               {router?.name || `Router ${routerId}`}
             </h1>
             <StatusIndicator
@@ -70,14 +72,21 @@ export const RouterHeader = React.memo(function RouterHeader({ routerId }: Route
           </div>
 
           {/* Metadata Row */}
-          <div className="flex flex-wrap items-center gap-2 md:gap-3 text-sm text-muted-foreground">
+          <div className="text-muted-foreground flex flex-wrap items-center gap-2 text-sm md:gap-3">
             {/* Router ID */}
-            <span className="font-mono">{t('panel.idLabel')}: {routerId}</span>
+            <span className="font-mono">
+              {t('panel.idLabel')}: {routerId}
+            </span>
 
             {/* IP Address */}
             {router?.ipAddress && (
               <>
-                <span className="hidden md:inline text-muted-foreground" aria-hidden="true">•</span>
+                <span
+                  className="text-muted-foreground hidden md:inline"
+                  aria-hidden="true"
+                >
+                  •
+                </span>
                 <span className="font-mono">{router.ipAddress}</span>
               </>
             )}
@@ -85,7 +94,12 @@ export const RouterHeader = React.memo(function RouterHeader({ routerId }: Route
             {/* Router Model (if available) */}
             {router?.model && (
               <>
-                <span className="hidden md:inline text-muted-foreground" aria-hidden="true">•</span>
+                <span
+                  className="text-muted-foreground hidden md:inline"
+                  aria-hidden="true"
+                >
+                  •
+                </span>
                 <span className="hidden lg:inline">{router.model}</span>
               </>
             )}

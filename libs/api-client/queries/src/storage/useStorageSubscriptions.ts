@@ -55,17 +55,14 @@ export function useStorageMountChanged(
   path?: string,
   onMountChanged?: (event: StorageMountEvent) => void
 ) {
-  const { data, loading, error } = useSubscription(
-    SUBSCRIBE_STORAGE_MOUNT_CHANGED,
-    {
-      variables: { path },
-      onData: ({ data: subscriptionData }: any) => {
-        if (subscriptionData?.data?.storageMountChanged && onMountChanged) {
-          onMountChanged(subscriptionData.data.storageMountChanged);
-        }
-      },
-    }
-  );
+  const { data, loading, error } = useSubscription(SUBSCRIBE_STORAGE_MOUNT_CHANGED, {
+    variables: { path },
+    onData: ({ data: subscriptionData }: any) => {
+      if (subscriptionData?.data?.storageMountChanged && onMountChanged) {
+        onMountChanged(subscriptionData.data.storageMountChanged);
+      }
+    },
+  });
 
   return {
     event: data?.storageMountChanged as StorageMountEvent | undefined,
@@ -86,17 +83,14 @@ export function useStorageSpaceChanged(
   path?: string,
   onSpaceChanged?: (event: StorageSpaceEvent) => void
 ) {
-  const { data, loading, error } = useSubscription(
-    SUBSCRIBE_STORAGE_SPACE_CHANGED,
-    {
-      variables: { path },
-      onData: ({ data: subscriptionData }: any) => {
-        if (subscriptionData?.data?.storageSpaceChanged && onSpaceChanged) {
-          onSpaceChanged(subscriptionData.data.storageSpaceChanged);
-        }
-      },
-    }
-  );
+  const { data, loading, error } = useSubscription(SUBSCRIBE_STORAGE_SPACE_CHANGED, {
+    variables: { path },
+    onData: ({ data: subscriptionData }: any) => {
+      if (subscriptionData?.data?.storageSpaceChanged && onSpaceChanged) {
+        onSpaceChanged(subscriptionData.data.storageSpaceChanged);
+      }
+    },
+  });
 
   return {
     event: data?.storageSpaceChanged as StorageSpaceEvent | undefined,
@@ -117,14 +111,8 @@ export function useStorageMonitoring(options?: {
   onMountChanged?: (event: StorageMountEvent) => void;
   onSpaceChanged?: (event: StorageSpaceEvent) => void;
 }) {
-  const mountSubscription = useStorageMountChanged(
-    options?.path,
-    options?.onMountChanged
-  );
-  const spaceSubscription = useStorageSpaceChanged(
-    options?.path,
-    options?.onSpaceChanged
-  );
+  const mountSubscription = useStorageMountChanged(options?.path, options?.onMountChanged);
+  const spaceSubscription = useStorageSpaceChanged(options?.path, options?.onSpaceChanged);
 
   return {
     mount: mountSubscription,

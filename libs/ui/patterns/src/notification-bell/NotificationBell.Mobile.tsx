@@ -25,16 +25,9 @@ import {
   cn,
 } from '@nasnet/ui/primitives';
 
-
-
-
-
-
-
 import { useNotificationBell } from './useNotificationBell';
 
 import type { NotificationBellProps } from './types';
-
 
 /**
  * Get badge variant for alert severity
@@ -79,20 +72,26 @@ function NotificationBellMobileComponent(props: NotificationBellProps) {
   const { className } = props;
 
   return (
-    <Sheet open={isOpen} onOpenChange={handleOpenChange}>
+    <Sheet
+      open={isOpen}
+      onOpenChange={handleOpenChange}
+    >
       <SheetTrigger asChild>
         <Button
           variant="ghost"
-          className={cn('relative h-11 w-11 rounded-full flex items-center justify-center hover:bg-muted transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-ring', className)}
+          className={cn(
+            'hover:bg-muted focus-visible:ring-ring relative flex h-11 w-11 items-center justify-center rounded-full transition-colors duration-150 focus-visible:ring-2',
+            className
+          )}
           aria-label={`Notifications (${unreadCount} unread)`}
           aria-live="polite"
           aria-atomic="true"
         >
-          <Bell className="h-5 w-5 text-muted-foreground" />
+          <Bell className="text-muted-foreground h-5 w-5" />
           {showBadge && (
             <Badge
               variant="error"
-              className="absolute -top-1 -right-1 h-5 min-w-[20px] rounded-full bg-error text-white text-xs font-bold flex items-center justify-center p-0"
+              className="bg-error absolute -right-1 -top-1 flex h-5 min-w-[20px] items-center justify-center rounded-full p-0 text-xs font-bold text-white"
               aria-hidden="true"
             >
               {formattedCount}
@@ -107,17 +106,15 @@ function NotificationBellMobileComponent(props: NotificationBellProps) {
         role="dialog"
         aria-label="Notifications"
       >
-        <SheetHeader className="border-b border-border px-4 py-3">
+        <SheetHeader className="border-border border-b px-4 py-3">
           <div className="flex items-center justify-between">
-            <SheetTitle className="text-sm font-semibold text-foreground">
-              Notifications
-            </SheetTitle>
+            <SheetTitle className="text-foreground text-sm font-semibold">Notifications</SheetTitle>
             {unreadCount > 0 && (
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={handleMarkAllRead}
-                className="h-auto py-1 text-xs text-primary hover:text-primary"
+                className="text-primary hover:text-primary h-auto py-1 text-xs"
               >
                 Mark all read
               </Button>
@@ -129,11 +126,14 @@ function NotificationBellMobileComponent(props: NotificationBellProps) {
         </SheetHeader>
 
         {/* Notification list */}
-        <ScrollArea className="flex-1 h-full">
-          {loading ? (
-            <div className="p-4 space-y-4">
+        <ScrollArea className="h-full flex-1">
+          {loading ?
+            <div className="space-y-4 p-4">
               {[...Array(3)].map((_, i) => (
-                <div key={i} className="space-y-3">
+                <div
+                  key={i}
+                  className="space-y-3"
+                >
                   <Skeleton className="h-5 w-3/4" />
                   <Skeleton className="h-4 w-full" />
                   <Skeleton className="h-4 w-full" />
@@ -141,24 +141,19 @@ function NotificationBellMobileComponent(props: NotificationBellProps) {
                 </div>
               ))}
             </div>
-          ) : notifications.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
-              <Bell className="h-16 w-16 text-muted-foreground mb-4 opacity-50" />
-              <p className="text-base text-muted-foreground font-medium">
-                No notifications
-              </p>
-              <p className="text-sm text-muted-foreground mt-2">
-                You're all caught up!
-              </p>
+          : notifications.length === 0 ?
+            <div className="flex flex-col items-center justify-center px-4 py-16 text-center">
+              <Bell className="text-muted-foreground mb-4 h-16 w-16 opacity-50" />
+              <p className="text-muted-foreground text-base font-medium">No notifications</p>
+              <p className="text-muted-foreground mt-2 text-sm">You're all caught up!</p>
             </div>
-          ) : (
-            <ul className="py-0">
+          : <ul className="py-0">
               {notifications.map((notification, index) => (
                 <li key={notification.id}>
                   <button
                     onClick={() => handleNotificationClick(notification)}
                     className={cn(
-                      'w-full text-left px-4 py-3 border-b border-border hover:bg-muted transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                      'border-border hover:bg-muted focus-visible:ring-ring w-full border-b px-4 py-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2',
                       !notification.read && 'bg-primary/5'
                     )}
                     tabIndex={0}
@@ -168,29 +163,29 @@ function NotificationBellMobileComponent(props: NotificationBellProps) {
                       {/* Unread indicator */}
                       {!notification.read && (
                         <div
-                          className="mt-1.5 h-2 w-2 rounded-full bg-error flex-shrink-0"
+                          className="bg-error mt-1.5 h-2 w-2 flex-shrink-0 rounded-full"
                           aria-label="Unread"
                         />
                       )}
 
-                      <div className="flex-1 min-w-0 space-y-1">
+                      <div className="min-w-0 flex-1 space-y-1">
                         {/* Item icon */}
-                        <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center mb-2">
-                          <Bell className="h-4 w-4 text-muted-foreground" />
+                        <div className="bg-muted mb-2 flex h-8 w-8 items-center justify-center rounded-full">
+                          <Bell className="text-muted-foreground h-4 w-4" />
                         </div>
 
                         {/* Title */}
-                        <h4 className="text-sm font-medium text-foreground">
+                        <h4 className="text-foreground text-sm font-medium">
                           {notification.title}
                         </h4>
 
                         {/* Message */}
-                        <p className="text-xs text-muted-foreground line-clamp-2">
+                        <p className="text-muted-foreground line-clamp-2 text-xs">
                           {notification.message}
                         </p>
 
                         {/* Timestamp */}
-                        <p className="text-xs text-muted-foreground">
+                        <p className="text-muted-foreground text-xs">
                           {formatDistanceToNow(new Date(notification.receivedAt), {
                             addSuffix: true,
                           })}
@@ -201,17 +196,17 @@ function NotificationBellMobileComponent(props: NotificationBellProps) {
                 </li>
               ))}
             </ul>
-          )}
+          }
         </ScrollArea>
 
         {/* Footer with "View all" - sticky at bottom */}
         {notifications.length > 0 && (
-          <div className="border-t border-border p-4 bg-background">
+          <div className="border-border bg-background border-t p-4">
             <Button
               variant="outline"
               size="lg"
               onClick={handleViewAll}
-              className="w-full min-h-[44px]"
+              className="min-h-[44px] w-full"
             >
               View all notifications
             </Button>

@@ -78,8 +78,7 @@ function isMacOS(): boolean {
 export function useGlobalShortcuts() {
   const platform = usePlatform();
   const { toggleCommandPalette } = useUIStore();
-  const { getByKeys, toggleOverlay, setPendingKey, shortcuts } =
-    useShortcutRegistry();
+  const { getByKeys, toggleOverlay, setPendingKey, shortcuts } = useShortcutRegistry();
 
   // Track pending key for multi-key sequences
   const pendingKeyRef = useRef<string | null>(null);

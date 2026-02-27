@@ -14,7 +14,6 @@ import { VPNServersPage } from './VPNServersPage';
 
 import type { Meta, StoryObj } from '@storybook/react';
 
-
 const meta: Meta<typeof VPNServersPage> = {
   title: 'App/Pages/VPNServersPage',
   component: VPNServersPage,
@@ -120,37 +119,50 @@ const MOCK_SERVERS: MockServer[] = [
 
 function ServerCard({ server }: { server: MockServer }) {
   return (
-    <div className="bg-card border border-border rounded-xl p-4 space-y-3">
+    <div className="bg-card border-border space-y-3 rounded-xl border p-4">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2 flex-wrap">
-          <span className="font-semibold text-foreground">{server.name}</span>
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-foreground font-semibold">{server.name}</span>
           <span
-            className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-              server.running
-                ? 'bg-success/10 text-success'
-                : 'bg-muted text-muted-foreground'
+            className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+              server.running ? 'bg-success/10 text-success' : 'bg-muted text-muted-foreground'
             }`}
           >
             {server.running ? 'Running' : 'Stopped'}
           </span>
-          <span className="text-xs px-2 py-0.5 rounded-full bg-accent text-accent-foreground">
+          <span className="bg-accent text-accent-foreground rounded-full px-2 py-0.5 text-xs">
             {server.protocol}
           </span>
         </div>
-        <div className="flex items-center gap-1 flex-shrink-0">
+        <div className="flex flex-shrink-0 items-center gap-1">
           <button
-            className={`w-10 h-6 rounded-full transition-colors ${
+            className={`h-6 w-10 rounded-full transition-colors ${
               !server.disabled ? 'bg-success' : 'bg-muted'
             }`}
             aria-label={`Toggle ${server.name}`}
           />
-          <button className="p-1.5 text-muted-foreground hover:text-foreground" aria-label="View details">🔍</button>
-          <button className="p-1.5 text-muted-foreground hover:text-foreground" aria-label="Edit">✏️</button>
-          <button className="p-1.5 text-muted-foreground hover:text-error" aria-label="Delete">🗑️</button>
+          <button
+            className="text-muted-foreground hover:text-foreground p-1.5"
+            aria-label="View details"
+          >
+            🔍
+          </button>
+          <button
+            className="text-muted-foreground hover:text-foreground p-1.5"
+            aria-label="Edit"
+          >
+            ✏️
+          </button>
+          <button
+            className="text-muted-foreground hover:text-error p-1.5"
+            aria-label="Delete"
+          >
+            🗑️
+          </button>
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
+      <div className="text-muted-foreground flex flex-wrap gap-3 text-xs">
         {server.port != null && <span>Port {server.port}</span>}
         {server.connectedClients != null && (
           <span>{server.connectedClients} connected clients</span>
@@ -159,23 +171,21 @@ function ServerCard({ server }: { server: MockServer }) {
         {server.tx != null && <span className="text-primary">↑ {formatBytes(server.tx)}</span>}
       </div>
 
-      {server.comment && (
-        <p className="text-xs text-muted-foreground italic">{server.comment}</p>
-      )}
+      {server.comment && <p className="text-muted-foreground text-xs italic">{server.comment}</p>}
     </div>
   );
 }
 
 function ProtocolTabs({ active }: { active: string }) {
   return (
-    <div className="flex flex-wrap gap-2 mb-6">
+    <div className="mb-6 flex flex-wrap gap-2">
       {['All', ...PROTOCOLS].map((p) => (
         <button
           key={p}
-          className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-            p === active
-              ? 'bg-primary text-primary-foreground'
-              : 'bg-card border border-border text-foreground hover:bg-accent/50'
+          className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+            p === active ?
+              'bg-primary text-primary-foreground'
+            : 'bg-card border-border text-foreground hover:bg-accent/50 border'
           }`}
         >
           {p}
@@ -188,16 +198,16 @@ function ProtocolTabs({ active }: { active: string }) {
 function EmptyProtocolSection({ protocol }: { protocol: string }) {
   const isUnique = ['L2TP', 'PPTP', 'SSTP'].includes(protocol);
   return (
-    <div className="text-center py-8 bg-muted/30 rounded-xl">
-      <h3 className="text-lg font-semibold text-foreground mb-2">
+    <div className="bg-muted/30 rounded-xl py-8 text-center">
+      <h3 className="text-foreground mb-2 text-lg font-semibold">
         No {protocol} {isUnique ? 'server' : 'servers'} configured
       </h3>
-      <p className="text-sm text-muted-foreground mb-4">
-        {isUnique
-          ? `Enable the ${protocol} server to allow incoming connections`
-          : `Add your first ${protocol} server to get started`}
+      <p className="text-muted-foreground mb-4 text-sm">
+        {isUnique ?
+          `Enable the ${protocol} server to allow incoming connections`
+        : `Add your first ${protocol} server to get started`}
       </p>
-      <button className="flex items-center gap-2 mx-auto px-4 py-2 bg-primary text-primary-foreground rounded-md text-sm min-h-[44px]">
+      <button className="bg-primary text-primary-foreground mx-auto flex min-h-[44px] items-center gap-2 rounded-md px-4 py-2 text-sm">
         {isUnique ? `Enable ${protocol} Server` : `+ Add ${protocol} Server`}
       </button>
     </div>
@@ -208,17 +218,17 @@ function PageHeader({ isLoading = false }: { isLoading?: boolean }) {
   return (
     <div className="flex items-start justify-between">
       <div className="flex items-center gap-4">
-        <button className="p-2 border border-border rounded-md text-sm min-h-[44px]">← Back</button>
+        <button className="border-border min-h-[44px] rounded-md border p-2 text-sm">← Back</button>
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-1">VPN Servers</h1>
-          <p className="text-sm text-muted-foreground">
+          <h1 className="text-foreground mb-1 text-2xl font-bold sm:text-3xl">VPN Servers</h1>
+          <p className="text-muted-foreground text-sm">
             Configure and manage your VPN server infrastructure
           </p>
         </div>
       </div>
       <button
         disabled={isLoading}
-        className="flex items-center gap-2 min-h-[44px] px-3 border border-border rounded-md text-sm disabled:opacity-50"
+        className="border-border flex min-h-[44px] items-center gap-2 rounded-md border px-3 text-sm disabled:opacity-50"
         aria-label="Refresh"
       >
         Refresh
@@ -237,21 +247,24 @@ function PageHeader({ isLoading = false }: { isLoading?: boolean }) {
 export const AllProtocols: Story = {
   name: 'All protocols – loaded',
   render: () => (
-    <div className="min-h-screen bg-background">
-      <div className="px-4 sm:px-6 py-6">
-        <div className="max-w-6xl mx-auto space-y-6">
+    <div className="bg-background min-h-screen">
+      <div className="px-4 py-6 sm:px-6">
+        <div className="mx-auto max-w-6xl space-y-6">
           <PageHeader />
           <ProtocolTabs active="All" />
 
           {/* WireGuard */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <h2 className="text-base font-semibold text-foreground">WireGuard</h2>
-              <span className="text-xs bg-muted px-2 py-0.5 rounded-full">2</span>
+              <h2 className="text-foreground text-base font-semibold">WireGuard</h2>
+              <span className="bg-muted rounded-full px-2 py-0.5 text-xs">2</span>
             </div>
             <div className="grid gap-4 md:grid-cols-2">
               {MOCK_SERVERS.filter((s) => s.protocol === 'WireGuard').map((s) => (
-                <ServerCard key={s.id} server={s} />
+                <ServerCard
+                  key={s.id}
+                  server={s}
+                />
               ))}
             </div>
           </div>
@@ -259,12 +272,15 @@ export const AllProtocols: Story = {
           {/* OpenVPN */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <h2 className="text-base font-semibold text-foreground">OpenVPN</h2>
-              <span className="text-xs bg-muted px-2 py-0.5 rounded-full">1</span>
+              <h2 className="text-foreground text-base font-semibold">OpenVPN</h2>
+              <span className="bg-muted rounded-full px-2 py-0.5 text-xs">1</span>
             </div>
             <div className="grid gap-4 md:grid-cols-2">
               {MOCK_SERVERS.filter((s) => s.protocol === 'OpenVPN').map((s) => (
-                <ServerCard key={s.id} server={s} />
+                <ServerCard
+                  key={s.id}
+                  server={s}
+                />
               ))}
             </div>
           </div>
@@ -272,18 +288,21 @@ export const AllProtocols: Story = {
           {/* L2TP */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <h2 className="text-base font-semibold text-foreground">L2TP</h2>
-              <span className="text-xs bg-muted px-2 py-0.5 rounded-full">1</span>
+              <h2 className="text-foreground text-base font-semibold">L2TP</h2>
+              <span className="bg-muted rounded-full px-2 py-0.5 text-xs">1</span>
             </div>
             <ServerCard server={MOCK_SERVERS.find((s) => s.protocol === 'L2TP') as MockServer} />
           </div>
 
           {/* PPTP / SSTP – empty */}
           {['PPTP', 'SSTP'].map((p) => (
-            <div key={p} className="space-y-2">
+            <div
+              key={p}
+              className="space-y-2"
+            >
               <div className="flex items-center justify-between">
-                <h2 className="text-base font-semibold text-foreground">{p}</h2>
-                <span className="text-xs bg-muted px-2 py-0.5 rounded-full">0</span>
+                <h2 className="text-foreground text-base font-semibold">{p}</h2>
+                <span className="bg-muted rounded-full px-2 py-0.5 text-xs">0</span>
               </div>
               <EmptyProtocolSection protocol={p} />
             </div>
@@ -292,12 +311,15 @@ export const AllProtocols: Story = {
           {/* IKEv2 */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <h2 className="text-base font-semibold text-foreground">IKEv2</h2>
-              <span className="text-xs bg-muted px-2 py-0.5 rounded-full">1</span>
+              <h2 className="text-foreground text-base font-semibold">IKEv2</h2>
+              <span className="bg-muted rounded-full px-2 py-0.5 text-xs">1</span>
             </div>
             <div className="grid gap-4 md:grid-cols-2">
               {MOCK_SERVERS.filter((s) => s.protocol === 'IKEv2').map((s) => (
-                <ServerCard key={s.id} server={s} />
+                <ServerCard
+                  key={s.id}
+                  server={s}
+                />
               ))}
             </div>
           </div>
@@ -322,19 +344,22 @@ export const AllProtocols: Story = {
 export const WireGuardTab: Story = {
   name: 'WireGuard tab selected',
   render: () => (
-    <div className="min-h-screen bg-background">
-      <div className="px-4 sm:px-6 py-6">
-        <div className="max-w-6xl mx-auto space-y-6">
+    <div className="bg-background min-h-screen">
+      <div className="px-4 py-6 sm:px-6">
+        <div className="mx-auto max-w-6xl space-y-6">
           <PageHeader />
           <ProtocolTabs active="WireGuard" />
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <h2 className="text-base font-semibold text-foreground">WireGuard</h2>
-              <span className="text-xs bg-muted px-2 py-0.5 rounded-full">2</span>
+              <h2 className="text-foreground text-base font-semibold">WireGuard</h2>
+              <span className="bg-muted rounded-full px-2 py-0.5 text-xs">2</span>
             </div>
             <div className="grid gap-4 md:grid-cols-2">
               {MOCK_SERVERS.filter((s) => s.protocol === 'WireGuard').map((s) => (
-                <ServerCard key={s.id} server={s} />
+                <ServerCard
+                  key={s.id}
+                  server={s}
+                />
               ))}
             </div>
           </div>
@@ -359,16 +384,19 @@ export const WireGuardTab: Story = {
 export const EmptyAllProtocols: Story = {
   name: 'Empty – no servers',
   render: () => (
-    <div className="min-h-screen bg-background">
-      <div className="px-4 sm:px-6 py-6">
-        <div className="max-w-6xl mx-auto space-y-6">
+    <div className="bg-background min-h-screen">
+      <div className="px-4 py-6 sm:px-6">
+        <div className="mx-auto max-w-6xl space-y-6">
           <PageHeader />
           <ProtocolTabs active="All" />
           {PROTOCOLS.map((p) => (
-            <div key={p} className="space-y-2">
+            <div
+              key={p}
+              className="space-y-2"
+            >
               <div className="flex items-center justify-between">
-                <h2 className="text-base font-semibold text-foreground">{p}</h2>
-                <span className="text-xs bg-muted px-2 py-0.5 rounded-full">0</span>
+                <h2 className="text-foreground text-base font-semibold">{p}</h2>
+                <span className="bg-muted rounded-full px-2 py-0.5 text-xs">0</span>
               </div>
               <EmptyProtocolSection protocol={p} />
             </div>
@@ -394,13 +422,20 @@ export const EmptyAllProtocols: Story = {
 export const Loading: Story = {
   name: 'Loading state',
   render: () => (
-    <div className="min-h-screen bg-background">
-      <div className="px-4 sm:px-6 py-6">
-        <div className="max-w-6xl mx-auto space-y-6">
+    <div className="bg-background min-h-screen">
+      <div className="px-4 py-6 sm:px-6">
+        <div className="mx-auto max-w-6xl space-y-6">
           <PageHeader isLoading />
-          <div className="space-y-4" role="status" aria-label="Loading VPN servers">
+          <div
+            className="space-y-4"
+            role="status"
+            aria-label="Loading VPN servers"
+          >
             {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="h-32 w-full rounded-xl bg-muted animate-pulse" />
+              <div
+                key={i}
+                className="bg-muted h-32 w-full animate-pulse rounded-xl"
+              />
             ))}
           </div>
         </div>

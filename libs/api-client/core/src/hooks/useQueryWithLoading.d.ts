@@ -7,21 +7,27 @@
  * @module @nasnet/api-client/core/hooks
  */
 import { DocumentNode } from '@apollo/client';
-import type { QueryHookOptions, QueryResult, TypedDocumentNode, OperationVariables } from '@apollo/client';
+import type {
+  QueryHookOptions,
+  QueryResult,
+  TypedDocumentNode,
+  OperationVariables,
+} from '@apollo/client';
 export interface QueryWithLoadingState<TData> {
-    /** True during initial load (no data yet) */
-    isInitialLoading: boolean;
-    /** True during background revalidation (has stale data) */
-    isRevalidating: boolean;
-    /** True if data is stale and being refreshed */
-    isStale: boolean;
-    /** True if any loading is happening */
-    isLoading: boolean;
-    /** Timestamp of last successful fetch */
-    lastUpdated: Date | null;
+  /** True during initial load (no data yet) */
+  isInitialLoading: boolean;
+  /** True during background revalidation (has stale data) */
+  isRevalidating: boolean;
+  /** True if data is stale and being refreshed */
+  isStale: boolean;
+  /** True if any loading is happening */
+  isLoading: boolean;
+  /** Timestamp of last successful fetch */
+  lastUpdated: Date | null;
 }
-export interface UseQueryWithLoadingResult<TData, TVariables extends OperationVariables> extends QueryResult<TData, TVariables>, QueryWithLoadingState<TData> {
-}
+export interface UseQueryWithLoadingResult<TData, TVariables extends OperationVariables>
+  extends QueryResult<TData, TVariables>,
+    QueryWithLoadingState<TData> {}
 /**
  * Enhanced useQuery hook that differentiates loading states.
  *
@@ -56,5 +62,11 @@ export interface UseQueryWithLoadingResult<TData, TVariables extends OperationVa
  * }
  * ```
  */
-export declare function useQueryWithLoading<TData = unknown, TVariables extends OperationVariables = OperationVariables>(query: DocumentNode | TypedDocumentNode<TData, TVariables>, options?: QueryHookOptions<TData, TVariables>): UseQueryWithLoadingResult<TData, TVariables>;
+export declare function useQueryWithLoading<
+  TData = unknown,
+  TVariables extends OperationVariables = OperationVariables,
+>(
+  query: DocumentNode | TypedDocumentNode<TData, TVariables>,
+  options?: QueryHookOptions<TData, TVariables>
+): UseQueryWithLoadingResult<TData, TVariables>;
 //# sourceMappingURL=useQueryWithLoading.d.ts.map

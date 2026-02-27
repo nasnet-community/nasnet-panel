@@ -184,8 +184,7 @@ export const InteractiveRemove: Story = {
   parameters: {
     docs: {
       description: {
-        story:
-          'Click the X button to remove static servers. Dynamic servers cannot be removed.',
+        story: 'Click the X button to remove static servers. Dynamic servers cannot be removed.',
       },
     },
   },

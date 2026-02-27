@@ -63,7 +63,10 @@ describe('Pattern Accessibility Tests (WCAG AAA)', () => {
   describe('StatusIndicator', () => {
     it('should have no accessibility violations', async () => {
       const { container } = render(
-        <StatusIndicator status="online" label="Connected" />
+        <StatusIndicator
+          status="online"
+          label="Connected"
+        />
       );
       const results = await axe(container);
       expect(results).toHaveNoViolations();
@@ -72,9 +75,18 @@ describe('Pattern Accessibility Tests (WCAG AAA)', () => {
     it('should have no violations with all statuses', async () => {
       const { container } = render(
         <div>
-          <StatusIndicator status="online" label="Online" />
-          <StatusIndicator status="offline" label="Offline" />
-          <StatusIndicator status="warning" label="Warning" />
+          <StatusIndicator
+            status="online"
+            label="Online"
+          />
+          <StatusIndicator
+            status="offline"
+            label="Offline"
+          />
+          <StatusIndicator
+            status="warning"
+            label="Warning"
+          />
         </div>
       );
       const results = await axe(container);
@@ -147,7 +159,10 @@ describe('Pattern Accessibility Tests (WCAG AAA)', () => {
   describe('FormField', () => {
     it('should have no accessibility violations', async () => {
       const { container } = render(
-        <FormField label="Email" description="Enter your email address">
+        <FormField
+          label="Email"
+          description="Enter your email address"
+        >
           <input type="email" />
         </FormField>
       );
@@ -188,9 +203,7 @@ describe('Pattern Accessibility Tests (WCAG AAA)', () => {
 
     describe('Mobile Presenter', () => {
       it('should have no accessibility violations', async () => {
-        const { container } = render(
-          <ResourceCardMobile resource={mockResource} />
-        );
+        const { container } = render(<ResourceCardMobile resource={mockResource} />);
         const results = await axe(container);
         expect(results).toHaveNoViolations();
       });
@@ -199,9 +212,7 @@ describe('Pattern Accessibility Tests (WCAG AAA)', () => {
         const { container } = render(
           <ResourceCardMobile
             resource={mockResource}
-            actions={[
-              { id: 'connect', label: 'Connect', onClick: () => {} },
-            ]}
+            actions={[{ id: 'connect', label: 'Connect', onClick: () => {} }]}
           />
         );
         const results = await axe(container);
@@ -211,9 +222,7 @@ describe('Pattern Accessibility Tests (WCAG AAA)', () => {
 
     describe('Desktop Presenter', () => {
       it('should have no accessibility violations', async () => {
-        const { container } = render(
-          <ResourceCardDesktop resource={mockResource} />
-        );
+        const { container } = render(<ResourceCardDesktop resource={mockResource} />);
         const results = await axe(container);
         expect(results).toHaveNoViolations();
       });
@@ -239,7 +248,11 @@ describe('Pattern Accessibility Tests (WCAG AAA)', () => {
     describe('Mobile Presenter', () => {
       it('should have no accessibility violations', async () => {
         const { container } = render(
-          <MetricDisplayMobile label="CPU Usage" value={85} unit="%" />
+          <MetricDisplayMobile
+            label="CPU Usage"
+            value={85}
+            unit="%"
+          />
         );
         const results = await axe(container);
         expect(results).toHaveNoViolations();
@@ -278,7 +291,11 @@ describe('Pattern Accessibility Tests (WCAG AAA)', () => {
     describe('Desktop Presenter', () => {
       it('should have no accessibility violations', async () => {
         const { container } = render(
-          <MetricDisplayDesktop label="Network" value={125} unit="Mbps" />
+          <MetricDisplayDesktop
+            label="Network"
+            value={125}
+            unit="Mbps"
+          />
         );
         const results = await axe(container);
         expect(results).toHaveNoViolations();
@@ -366,7 +383,11 @@ describe('Pattern Accessibility Tests (WCAG AAA)', () => {
     it('MetricDisplayDesktop is keyboard accessible when interactive', () => {
       const onClick = vi.fn();
       const { container } = render(
-        <MetricDisplayDesktop label="Test" value={100} onClick={onClick} />
+        <MetricDisplayDesktop
+          label="Test"
+          value={100}
+          onClick={onClick}
+        />
       );
 
       const button = container.querySelector('button');

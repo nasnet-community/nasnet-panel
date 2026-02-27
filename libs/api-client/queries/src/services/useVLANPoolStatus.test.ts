@@ -92,10 +92,9 @@ describe('useVLANPoolStatus', () => {
     const warningWrapper = ({ children }: { children: ReactNode }) =>
       React.createElement(MockedProvider, { mocks: warningMocks, addTypename: false }, children);
 
-    const { result } = renderHook(
-      () => useVLANPoolStatus('router-123', 0),
-      { wrapper: warningWrapper }
-    );
+    const { result } = renderHook(() => useVLANPoolStatus('router-123', 0), {
+      wrapper: warningWrapper,
+    });
 
     await waitFor(() => {
       expect(result.current.loading).toBe(false);
@@ -107,10 +106,7 @@ describe('useVLANPoolStatus', () => {
   });
 
   it('should skip query if no routerID provided', () => {
-    const { result } = renderHook(
-      () => useVLANPoolStatus('', 0),
-      { wrapper }
-    );
+    const { result } = renderHook(() => useVLANPoolStatus('', 0), { wrapper });
 
     expect(result.current.loading).toBe(false);
     expect(result.current.poolStatus).toBeUndefined();
@@ -130,10 +126,9 @@ describe('useVLANPoolStatus', () => {
     const errorWrapper = ({ children }: { children: ReactNode }) =>
       React.createElement(MockedProvider, { mocks: errorMocks, addTypename: false }, children);
 
-    const { result } = renderHook(
-      () => useVLANPoolStatus('router-123', 0),
-      { wrapper: errorWrapper }
-    );
+    const { result } = renderHook(() => useVLANPoolStatus('router-123', 0), {
+      wrapper: errorWrapper,
+    });
 
     await waitFor(() => {
       expect(result.current.error).toBeTruthy();
@@ -143,10 +138,7 @@ describe('useVLANPoolStatus', () => {
   });
 
   it('should use default poll interval of 30 seconds', async () => {
-    const { result } = renderHook(
-      () => useVLANPoolStatus('router-123'),
-      { wrapper }
-    );
+    const { result } = renderHook(() => useVLANPoolStatus('router-123'), { wrapper });
 
     await waitFor(() => {
       expect(result.current.loading).toBe(false);
@@ -171,10 +163,7 @@ describe('useVLANPoolStatus', () => {
   });
 
   it('should disable polling when interval is 0', async () => {
-    const { result } = renderHook(
-      () => useVLANPoolStatus('router-123', 0),
-      { wrapper }
-    );
+    const { result } = renderHook(() => useVLANPoolStatus('router-123', 0), { wrapper });
 
     await waitFor(() => {
       expect(result.current.loading).toBe(false);

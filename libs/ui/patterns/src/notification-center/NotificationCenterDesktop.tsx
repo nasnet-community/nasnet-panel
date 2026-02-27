@@ -43,11 +43,7 @@ const SEVERITY_OPTIONS: Array<{ value: AlertSeverity | 'ALL'; label: string }> =
  * - Empty state when no notifications
  * - Keyboard navigation (Escape to close, Arrow keys to navigate, Enter to activate)
  */
-function NotificationCenterDesktopComponent({
-  open,
-  onClose,
-  className,
-}: NotificationCenterProps) {
+function NotificationCenterDesktopComponent({ open, onClose, className }: NotificationCenterProps) {
   const {
     filteredNotifications,
     severityFilter,
@@ -74,9 +70,7 @@ function NotificationCenterDesktopComponent({
 
         case 'ArrowDown':
           e.preventDefault();
-          setFocusedIndex((prev) =>
-            prev < filteredNotifications.length - 1 ? prev + 1 : prev
-          );
+          setFocusedIndex((prev) => (prev < filteredNotifications.length - 1 ? prev + 1 : prev));
           break;
 
         case 'ArrowUp':
@@ -105,7 +99,7 @@ function NotificationCenterDesktopComponent({
   }, [focusedIndex]);
 
   const handleNotificationClick = useCallback(
-    (notification: typeof filteredNotifications[0]) => {
+    (notification: (typeof filteredNotifications)[0]) => {
       markAsRead(notification.id);
       // TODO: Navigate to relevant page based on notification.deviceId, notification.ruleId
       // For now, just mark as read
@@ -124,18 +118,27 @@ function NotificationCenterDesktopComponent({
   }, [clearAll]);
 
   return (
-    <Sheet open={open} onOpenChange={onClose}>
+    <Sheet
+      open={open}
+      onOpenChange={onClose}
+    >
       <SheetContent
         side="right"
-        className={cn('w-80 flex flex-col gap-0 p-0 bg-popover border border-border rounded-[var(--semantic-radius-card)] shadow-[var(--semantic-shadow-dropdown)]', className)}
+        className={cn(
+          'bg-popover border-border flex w-80 flex-col gap-0 rounded-[var(--semantic-radius-card)] border p-0 shadow-[var(--semantic-shadow-dropdown)]',
+          className
+        )}
       >
         {/* Header */}
-        <div className="px-4 py-3 border-b border-border flex-shrink-0">
+        <div className="border-border flex-shrink-0 border-b px-4 py-3">
           <div className="flex items-center justify-between">
-            <h3 className="text-sm font-semibold text-foreground">
+            <h3 className="text-foreground text-sm font-semibold">
               Notifications
               {unreadCount > 0 && (
-                <Badge variant="default" className="ml-2">
+                <Badge
+                  variant="default"
+                  className="ml-2"
+                >
                   {unreadCount}
                 </Badge>
               )}
@@ -148,7 +151,7 @@ function NotificationCenterDesktopComponent({
                   variant="ghost"
                   size="sm"
                   onClick={handleMarkAllRead}
-                  className="h-auto py-1 text-xs text-primary hover:text-primary"
+                  className="text-primary hover:text-primary h-auto py-1 text-xs"
                 >
                   Mark all read
                 </Button>
@@ -160,7 +163,7 @@ function NotificationCenterDesktopComponent({
                   variant="ghost"
                   size="sm"
                   onClick={handleClearAll}
-                  className="h-auto py-1 text-xs text-error hover:text-error"
+                  className="text-error hover:text-error h-auto py-1 text-xs"
                 >
                   Clear
                 </Button>
@@ -173,24 +176,23 @@ function NotificationCenterDesktopComponent({
                 onClick={onClose}
                 aria-label="Close notification center"
               >
-                <X className="w-4 h-4" />
+                <X className="h-4 w-4" />
               </Button>
             </div>
           </div>
         </div>
 
         {/* Notification list */}
-        <ScrollArea className="flex-1 max-h-[400px] overflow-y-auto">
-          {filteredNotifications.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-8 px-4 text-center">
-              <p className="text-sm text-muted-foreground">
-                {severityFilter === 'ALL'
-                  ? 'No notifications'
-                  : `No ${severityFilter.toLowerCase()} notifications`}
+        <ScrollArea className="max-h-[400px] flex-1 overflow-y-auto">
+          {filteredNotifications.length === 0 ?
+            <div className="flex flex-col items-center justify-center px-4 py-8 text-center">
+              <p className="text-muted-foreground text-sm">
+                {severityFilter === 'ALL' ?
+                  'No notifications'
+                : `No ${severityFilter.toLowerCase()} notifications`}
               </p>
             </div>
-          ) : (
-            <ul className="py-0">
+          : <ul className="py-0">
               {filteredNotifications.map((notification: InAppNotification, index: number) => (
                 <li
                   key={notification.id}
@@ -205,7 +207,7 @@ function NotificationCenterDesktopComponent({
                 </li>
               ))}
             </ul>
-          )}
+          }
         </ScrollArea>
       </SheetContent>
     </Sheet>

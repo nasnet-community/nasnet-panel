@@ -11,7 +11,6 @@ import type { SystemInfo } from '@nasnet/core/types/router';
 
 import { SystemInfoCard } from './SystemInfoCard';
 
-
 describe('SystemInfoCard', () => {
   const mockSystemInfo: SystemInfo = {
     identity: 'HomeRouter',
@@ -27,9 +26,9 @@ describe('SystemInfoCard', () => {
 
       expect(screen.getByText('System Information')).toBeInTheDocument();
       // Skeleton elements are rendered
-      const skeletons = screen.getAllByRole('generic').filter(
-        (el) => el.className.includes('animate-pulse')
-      );
+      const skeletons = screen
+        .getAllByRole('generic')
+        .filter((el) => el.className.includes('animate-pulse'));
       expect(skeletons.length).toBeGreaterThan(0);
     });
   });
@@ -46,7 +45,12 @@ describe('SystemInfoCard', () => {
     it('should render retry button when onRetry is provided', () => {
       const error = new Error('Network error');
       const onRetry = vi.fn();
-      render(<SystemInfoCard error={error} onRetry={onRetry} />);
+      render(
+        <SystemInfoCard
+          error={error}
+          onRetry={onRetry}
+        />
+      );
 
       const retryButton = screen.getByRole('button', { name: /retry/i });
       expect(retryButton).toBeInTheDocument();
@@ -56,7 +60,12 @@ describe('SystemInfoCard', () => {
       const user = userEvent.setup();
       const error = new Error('Network error');
       const onRetry = vi.fn();
-      render(<SystemInfoCard error={error} onRetry={onRetry} />);
+      render(
+        <SystemInfoCard
+          error={error}
+          onRetry={onRetry}
+        />
+      );
 
       const retryButton = screen.getByRole('button', { name: /retry/i });
       await user.click(retryButton);
@@ -150,7 +159,12 @@ describe('SystemInfoCard', () => {
     it('should have accessible retry button with icon and text', async () => {
       const error = new Error('Test error');
       const onRetry = vi.fn();
-      render(<SystemInfoCard error={error} onRetry={onRetry} />);
+      render(
+        <SystemInfoCard
+          error={error}
+          onRetry={onRetry}
+        />
+      );
 
       const retryButton = screen.getByRole('button', { name: /retry/i });
       expect(retryButton).toHaveAccessibleName();

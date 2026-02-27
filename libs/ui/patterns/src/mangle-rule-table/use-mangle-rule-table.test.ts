@@ -16,7 +16,6 @@ import type { MangleRule } from '@nasnet/core/types';
 
 import { useMangleRuleTable } from './use-mangle-rule-table';
 
-
 const mockRules: MangleRule[] = [
   {
     id: '*1',
@@ -64,9 +63,7 @@ const mockRules: MangleRule[] = [
 describe('useMangleRuleTable', () => {
   describe('Initialization', () => {
     it('initializes with provided data', () => {
-      const { result } = renderHook(() =>
-        useMangleRuleTable({ data: mockRules })
-      );
+      const { result } = renderHook(() => useMangleRuleTable({ data: mockRules }));
 
       expect(result.current.data).toHaveLength(3);
       expect(result.current.totalCount).toBe(3);
@@ -74,9 +71,7 @@ describe('useMangleRuleTable', () => {
     });
 
     it('initializes with default sort (position asc)', () => {
-      const { result } = renderHook(() =>
-        useMangleRuleTable({ data: mockRules })
-      );
+      const { result } = renderHook(() => useMangleRuleTable({ data: mockRules }));
 
       expect(result.current.sortBy).toBe('position');
       expect(result.current.sortDirection).toBe('asc');
@@ -98,9 +93,7 @@ describe('useMangleRuleTable', () => {
 
   describe('Sorting', () => {
     it('sorts by position ascending', () => {
-      const { result } = renderHook(() =>
-        useMangleRuleTable({ data: mockRules })
-      );
+      const { result } = renderHook(() => useMangleRuleTable({ data: mockRules }));
 
       expect(result.current.data[0].position).toBe(0);
       expect(result.current.data[1].position).toBe(1);
@@ -185,9 +178,7 @@ describe('useMangleRuleTable', () => {
 
   describe('Filtering', () => {
     it('filters by action', () => {
-      const { result } = renderHook(() =>
-        useMangleRuleTable({ data: mockRules })
-      );
+      const { result } = renderHook(() => useMangleRuleTable({ data: mockRules }));
 
       act(() => {
         result.current.setFilters({ action: 'mark-connection' });
@@ -199,35 +190,29 @@ describe('useMangleRuleTable', () => {
     });
 
     it('filters by protocol', () => {
-      const { result } = renderHook(() =>
-        useMangleRuleTable({ data: mockRules })
-      );
+      const { result } = renderHook(() => useMangleRuleTable({ data: mockRules }));
 
       act(() => {
         result.current.setFilters({ protocol: 'tcp' });
       });
 
       expect(result.current.data).toHaveLength(2);
-      expect(result.current.data.every(r => r.protocol === 'tcp')).toBe(true);
+      expect(result.current.data.every((r) => r.protocol === 'tcp')).toBe(true);
     });
 
     it('filters by status (enabled)', () => {
-      const { result } = renderHook(() =>
-        useMangleRuleTable({ data: mockRules })
-      );
+      const { result } = renderHook(() => useMangleRuleTable({ data: mockRules }));
 
       act(() => {
         result.current.setFilters({ status: 'enabled' });
       });
 
       expect(result.current.data).toHaveLength(2);
-      expect(result.current.data.every(r => !r.disabled)).toBe(true);
+      expect(result.current.data.every((r) => !r.disabled)).toBe(true);
     });
 
     it('filters by status (disabled)', () => {
-      const { result } = renderHook(() =>
-        useMangleRuleTable({ data: mockRules })
-      );
+      const { result } = renderHook(() => useMangleRuleTable({ data: mockRules }));
 
       act(() => {
         result.current.setFilters({ status: 'disabled' });
@@ -238,9 +223,7 @@ describe('useMangleRuleTable', () => {
     });
 
     it('filters by mark name (case-insensitive search)', () => {
-      const { result } = renderHook(() =>
-        useMangleRuleTable({ data: mockRules })
-      );
+      const { result } = renderHook(() => useMangleRuleTable({ data: mockRules }));
 
       act(() => {
         result.current.setFilters({ markName: 'VOIP' });
@@ -251,22 +234,18 @@ describe('useMangleRuleTable', () => {
     });
 
     it('filters by chain', () => {
-      const { result } = renderHook(() =>
-        useMangleRuleTable({ data: mockRules })
-      );
+      const { result } = renderHook(() => useMangleRuleTable({ data: mockRules }));
 
       act(() => {
         result.current.setFilters({ chain: 'prerouting' });
       });
 
       expect(result.current.data).toHaveLength(2);
-      expect(result.current.data.every(r => r.chain === 'prerouting')).toBe(true);
+      expect(result.current.data.every((r) => r.chain === 'prerouting')).toBe(true);
     });
 
     it('combines multiple filters', () => {
-      const { result } = renderHook(() =>
-        useMangleRuleTable({ data: mockRules })
-      );
+      const { result } = renderHook(() => useMangleRuleTable({ data: mockRules }));
 
       act(() => {
         result.current.setFilters({
@@ -279,9 +258,7 @@ describe('useMangleRuleTable', () => {
     });
 
     it('clears all filters', () => {
-      const { result } = renderHook(() =>
-        useMangleRuleTable({ data: mockRules })
-      );
+      const { result } = renderHook(() => useMangleRuleTable({ data: mockRules }));
 
       act(() => {
         result.current.setFilters({
@@ -304,9 +281,7 @@ describe('useMangleRuleTable', () => {
 
   describe('Drag-Drop State', () => {
     it('manages isDragging state', () => {
-      const { result } = renderHook(() =>
-        useMangleRuleTable({ data: mockRules })
-      );
+      const { result } = renderHook(() => useMangleRuleTable({ data: mockRules }));
 
       expect(result.current.isDragging).toBe(false);
 
@@ -318,9 +293,7 @@ describe('useMangleRuleTable', () => {
     });
 
     it('manages draggedItemId state', () => {
-      const { result } = renderHook(() =>
-        useMangleRuleTable({ data: mockRules })
-      );
+      const { result } = renderHook(() => useMangleRuleTable({ data: mockRules }));
 
       expect(result.current.draggedItemId).toBeNull();
 
@@ -332,9 +305,7 @@ describe('useMangleRuleTable', () => {
     });
 
     it('calls reorder with correct indices', () => {
-      const { result } = renderHook(() =>
-        useMangleRuleTable({ data: mockRules })
-      );
+      const { result } = renderHook(() => useMangleRuleTable({ data: mockRules }));
 
       // reorder logs to console - just verify it doesn't throw
       expect(() => {
@@ -347,41 +318,33 @@ describe('useMangleRuleTable', () => {
 
   describe('Column Definitions', () => {
     it('provides column definitions', () => {
-      const { result } = renderHook(() =>
-        useMangleRuleTable({ data: mockRules })
-      );
+      const { result } = renderHook(() => useMangleRuleTable({ data: mockRules }));
 
       expect(result.current.columns).toBeDefined();
       expect(result.current.columns.length).toBeGreaterThan(0);
     });
 
     it('includes position column', () => {
-      const { result } = renderHook(() =>
-        useMangleRuleTable({ data: mockRules })
-      );
+      const { result } = renderHook(() => useMangleRuleTable({ data: mockRules }));
 
-      const positionCol = result.current.columns.find(c => c.id === 'position');
+      const positionCol = result.current.columns.find((c) => c.id === 'position');
       expect(positionCol).toBeDefined();
       expect(positionCol?.sortable).toBe(true);
     });
 
     it('includes action column', () => {
-      const { result } = renderHook(() =>
-        useMangleRuleTable({ data: mockRules })
-      );
+      const { result } = renderHook(() => useMangleRuleTable({ data: mockRules }));
 
-      const actionCol = result.current.columns.find(c => c.id === 'action');
+      const actionCol = result.current.columns.find((c) => c.id === 'action');
       expect(actionCol).toBeDefined();
       expect(actionCol?.sortable).toBe(true);
     });
 
     it('includes packets and bytes columns', () => {
-      const { result } = renderHook(() =>
-        useMangleRuleTable({ data: mockRules })
-      );
+      const { result } = renderHook(() => useMangleRuleTable({ data: mockRules }));
 
-      const packetsCol = result.current.columns.find(c => c.id === 'packets');
-      const bytesCol = result.current.columns.find(c => c.id === 'bytes');
+      const packetsCol = result.current.columns.find((c) => c.id === 'packets');
+      const bytesCol = result.current.columns.find((c) => c.id === 'bytes');
 
       expect(packetsCol).toBeDefined();
       expect(bytesCol).toBeDefined();
@@ -392,17 +355,13 @@ describe('useMangleRuleTable', () => {
 
   describe('Counts', () => {
     it('tracks total count', () => {
-      const { result } = renderHook(() =>
-        useMangleRuleTable({ data: mockRules })
-      );
+      const { result } = renderHook(() => useMangleRuleTable({ data: mockRules }));
 
       expect(result.current.totalCount).toBe(3);
     });
 
     it('tracks filtered count', () => {
-      const { result } = renderHook(() =>
-        useMangleRuleTable({ data: mockRules })
-      );
+      const { result } = renderHook(() => useMangleRuleTable({ data: mockRules }));
 
       expect(result.current.filteredCount).toBe(3);
 

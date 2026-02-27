@@ -109,9 +109,7 @@ describe('useFirewallLogViewer', () => {
 
   describe('Initialization', () => {
     it('initializes with default state', () => {
-      const { result } = renderHook(() =>
-        useFirewallLogViewer({ routerId: 'router-1' })
-      );
+      const { result } = renderHook(() => useFirewallLogViewer({ routerId: 'router-1' }));
 
       expect(result.current.state.isAutoRefreshEnabled).toBe(true);
       expect(result.current.state.refreshInterval).toBe(5000);
@@ -141,9 +139,7 @@ describe('useFirewallLogViewer', () => {
     });
 
     it('loads logs from API', () => {
-      const { result } = renderHook(() =>
-        useFirewallLogViewer({ routerId: 'router-1' })
-      );
+      const { result } = renderHook(() => useFirewallLogViewer({ routerId: 'router-1' }));
 
       expect(result.current.logs).toHaveLength(3);
       expect(result.current.totalCount).toBe(3);
@@ -153,9 +149,7 @@ describe('useFirewallLogViewer', () => {
 
   describe('Filter Management', () => {
     it('updates filters', () => {
-      const { result } = renderHook(() =>
-        useFirewallLogViewer({ routerId: 'router-1' })
-      );
+      const { result } = renderHook(() => useFirewallLogViewer({ routerId: 'router-1' }));
 
       act(() => {
         result.current.setFilters({ action: 'drop' });
@@ -165,9 +159,7 @@ describe('useFirewallLogViewer', () => {
     });
 
     it('merges filter updates', () => {
-      const { result } = renderHook(() =>
-        useFirewallLogViewer({ routerId: 'router-1' })
-      );
+      const { result } = renderHook(() => useFirewallLogViewer({ routerId: 'router-1' }));
 
       act(() => {
         result.current.setFilters({ action: 'drop' });
@@ -184,9 +176,7 @@ describe('useFirewallLogViewer', () => {
     });
 
     it('clears all filters', () => {
-      const { result } = renderHook(() =>
-        useFirewallLogViewer({ routerId: 'router-1' })
-      );
+      const { result } = renderHook(() => useFirewallLogViewer({ routerId: 'router-1' }));
 
       act(() => {
         result.current.setFilters({
@@ -237,9 +227,7 @@ describe('useFirewallLogViewer', () => {
 
   describe('Auto-Refresh Control', () => {
     it('toggles auto-refresh', () => {
-      const { result } = renderHook(() =>
-        useFirewallLogViewer({ routerId: 'router-1' })
-      );
+      const { result } = renderHook(() => useFirewallLogViewer({ routerId: 'router-1' }));
 
       expect(result.current.state.isAutoRefreshEnabled).toBe(true);
 
@@ -257,9 +245,7 @@ describe('useFirewallLogViewer', () => {
     });
 
     it('sets refresh interval', () => {
-      const { result } = renderHook(() =>
-        useFirewallLogViewer({ routerId: 'router-1' })
-      );
+      const { result } = renderHook(() => useFirewallLogViewer({ routerId: 'router-1' }));
 
       act(() => {
         result.current.setRefreshInterval(10000);
@@ -270,9 +256,7 @@ describe('useFirewallLogViewer', () => {
     });
 
     it('disables auto-refresh when interval is false', () => {
-      const { result } = renderHook(() =>
-        useFirewallLogViewer({ routerId: 'router-1' })
-      );
+      const { result } = renderHook(() => useFirewallLogViewer({ routerId: 'router-1' }));
 
       act(() => {
         result.current.setRefreshInterval(false);
@@ -283,9 +267,7 @@ describe('useFirewallLogViewer', () => {
     });
 
     it('passes correct refetchInterval to useFirewallLogs', () => {
-      const { result } = renderHook(() =>
-        useFirewallLogViewer({ routerId: 'router-1' })
-      );
+      const { result } = renderHook(() => useFirewallLogViewer({ routerId: 'router-1' }));
 
       expect(useFirewallLogs).toHaveBeenCalledWith(
         'router-1',
@@ -307,9 +289,7 @@ describe('useFirewallLogViewer', () => {
     });
 
     it('disables polling when auto-refresh is off', () => {
-      const { result } = renderHook(() =>
-        useFirewallLogViewer({ routerId: 'router-1' })
-      );
+      const { result } = renderHook(() => useFirewallLogViewer({ routerId: 'router-1' }));
 
       act(() => {
         result.current.toggleAutoRefresh();
@@ -326,9 +306,7 @@ describe('useFirewallLogViewer', () => {
 
   describe('Log Selection', () => {
     it('selects a log', () => {
-      const { result } = renderHook(() =>
-        useFirewallLogViewer({ routerId: 'router-1' })
-      );
+      const { result } = renderHook(() => useFirewallLogViewer({ routerId: 'router-1' }));
 
       act(() => {
         result.current.selectLog(mockLogs[0]);
@@ -339,9 +317,7 @@ describe('useFirewallLogViewer', () => {
     });
 
     it('deselects log when passing null', () => {
-      const { result } = renderHook(() =>
-        useFirewallLogViewer({ routerId: 'router-1' })
-      );
+      const { result } = renderHook(() => useFirewallLogViewer({ routerId: 'router-1' }));
 
       act(() => {
         result.current.selectLog(mockLogs[0]);
@@ -359,9 +335,7 @@ describe('useFirewallLogViewer', () => {
 
   describe('Statistics Panel', () => {
     it('toggles stats panel', () => {
-      const { result } = renderHook(() =>
-        useFirewallLogViewer({ routerId: 'router-1' })
-      );
+      const { result } = renderHook(() => useFirewallLogViewer({ routerId: 'router-1' }));
 
       expect(result.current.state.expandedStats).toBe(false);
 
@@ -381,9 +355,7 @@ describe('useFirewallLogViewer', () => {
 
   describe('Sorting', () => {
     it('sorts logs by timestamp (default)', () => {
-      const { result } = renderHook(() =>
-        useFirewallLogViewer({ routerId: 'router-1' })
-      );
+      const { result } = renderHook(() => useFirewallLogViewer({ routerId: 'router-1' }));
 
       // Default sort is timestamp desc (newest first)
       expect(result.current.logs[0].id).toBe('3');
@@ -391,9 +363,7 @@ describe('useFirewallLogViewer', () => {
     });
 
     it('sets sort field', () => {
-      const { result } = renderHook(() =>
-        useFirewallLogViewer({ routerId: 'router-1' })
-      );
+      const { result } = renderHook(() => useFirewallLogViewer({ routerId: 'router-1' }));
 
       act(() => {
         result.current.setSortBy('action');
@@ -403,9 +373,7 @@ describe('useFirewallLogViewer', () => {
     });
 
     it('toggles sort order', () => {
-      const { result } = renderHook(() =>
-        useFirewallLogViewer({ routerId: 'router-1' })
-      );
+      const { result } = renderHook(() => useFirewallLogViewer({ routerId: 'router-1' }));
 
       expect(result.current.state.sortOrder).toBe('desc');
 
@@ -423,9 +391,7 @@ describe('useFirewallLogViewer', () => {
     });
 
     it('sorts logs by action ascending', () => {
-      const { result } = renderHook(() =>
-        useFirewallLogViewer({ routerId: 'router-1' })
-      );
+      const { result } = renderHook(() => useFirewallLogViewer({ routerId: 'router-1' }));
 
       act(() => {
         result.current.setSortBy('action');
@@ -439,9 +405,7 @@ describe('useFirewallLogViewer', () => {
     });
 
     it('sorts logs by srcIp', () => {
-      const { result } = renderHook(() =>
-        useFirewallLogViewer({ routerId: 'router-1' })
-      );
+      const { result } = renderHook(() => useFirewallLogViewer({ routerId: 'router-1' }));
 
       act(() => {
         result.current.setSortBy('srcIp');
@@ -455,9 +419,7 @@ describe('useFirewallLogViewer', () => {
 
   describe('Search Functionality', () => {
     it('sets search query', () => {
-      const { result } = renderHook(() =>
-        useFirewallLogViewer({ routerId: 'router-1' })
-      );
+      const { result } = renderHook(() => useFirewallLogViewer({ routerId: 'router-1' }));
 
       act(() => {
         result.current.setSearchQuery('192.168');
@@ -487,11 +449,14 @@ describe('useFirewallLogViewer', () => {
 
       // Should only show logs with 192.168 in message or IPs
       expect(result.current.logs.length).toBe(2);
-      expect(result.current.logs.every(log =>
-        log.message.includes('192.168') ||
-        log.parsed?.srcIp?.includes('192.168') ||
-        log.parsed?.dstIp?.includes('192.168')
-      )).toBe(true);
+      expect(
+        result.current.logs.every(
+          (log) =>
+            log.message.includes('192.168') ||
+            log.parsed?.srcIp?.includes('192.168') ||
+            log.parsed?.dstIp?.includes('192.168')
+        )
+      ).toBe(true);
 
       vi.useRealTimers();
     });
@@ -534,18 +499,13 @@ describe('useFirewallLogViewer', () => {
 
   describe('CSV Export', () => {
     it('exports logs to CSV', () => {
-      const { result } = renderHook(() =>
-        useFirewallLogViewer({ routerId: 'router-1' })
-      );
+      const { result } = renderHook(() => useFirewallLogViewer({ routerId: 'router-1' }));
 
       act(() => {
         result.current.exportToCSV();
       });
 
-      expect(exportLogsToCSV).toHaveBeenCalledWith(
-        expect.arrayContaining(mockLogs),
-        'router-1'
-      );
+      expect(exportLogsToCSV).toHaveBeenCalledWith(expect.arrayContaining(mockLogs), 'router-1');
     });
 
     it('exports filtered logs only', () => {
@@ -587,9 +547,7 @@ describe('useFirewallLogViewer', () => {
         error: null,
       });
 
-      const { result } = renderHook(() =>
-        useFirewallLogViewer({ routerId: 'router-1' })
-      );
+      const { result } = renderHook(() => useFirewallLogViewer({ routerId: 'router-1' }));
 
       expect(result.current.isLoading).toBe(true);
     });
@@ -602,9 +560,7 @@ describe('useFirewallLogViewer', () => {
         error,
       });
 
-      const { result } = renderHook(() =>
-        useFirewallLogViewer({ routerId: 'router-1' })
-      );
+      const { result } = renderHook(() => useFirewallLogViewer({ routerId: 'router-1' }));
 
       expect(result.current.error).toBe(error);
     });
@@ -612,9 +568,7 @@ describe('useFirewallLogViewer', () => {
 
   describe('Virtualization Support', () => {
     it('provides total and visible counts', () => {
-      const { result } = renderHook(() =>
-        useFirewallLogViewer({ routerId: 'router-1' })
-      );
+      const { result } = renderHook(() => useFirewallLogViewer({ routerId: 'router-1' }));
 
       expect(result.current.totalCount).toBe(3);
       expect(result.current.visibleCount).toBe(3);

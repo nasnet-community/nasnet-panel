@@ -48,12 +48,13 @@ describe('useAuthStore', () => {
   });
 
   afterEach(() => {
-    vi.useRealTimers();  // Reset fake timers if used
+    vi.useRealTimers(); // Reset fake timers if used
   });
 });
 ```
 
 **Why this matters:**
+
 - Store state is global and persistent across tests
 - localStorage carries over between tests without reset
 - Fake timers must be restored to prevent test interference
@@ -114,6 +115,7 @@ describe('setAuth', () => {
 ```
 
 **Key patterns:**
+
 - Use `useAuthStore.getState()` to get current state
 - Call actions through `getState()` actions
 - Assert state changes immediately
@@ -186,6 +188,7 @@ describe('Persistence', () => {
 ```
 
 **Key patterns:**
+
 - Test persistence to localStorage (check key and format)
 - Test date serialization (ISO strings in JSON)
 - Test `partialize` function filters sensitive fields
@@ -208,19 +211,19 @@ describe('Token Expiry Helpers', () => {
     vi.setSystemTime(now);
 
     useAuthStore.setState({
-      tokenExpiry: new Date(now.getTime() + 2 * 60 * 1000),  // expires in 2 min
+      tokenExpiry: new Date(now.getTime() + 2 * 60 * 1000), // expires in 2 min
       isAuthenticated: true,
     });
 
     const { isTokenExpiringSoon } = useAuthStore.getState();
-    expect(isTokenExpiringSoon()).toBe(true);  // Within 5-minute default threshold
+    expect(isTokenExpiringSoon()).toBe(true); // Within 5-minute default threshold
   });
 
   it('getTimeUntilExpiry should return milliseconds remaining', () => {
     const now = new Date('2024-01-01T12:00:00Z');
     vi.setSystemTime(now);
 
-    const expiresInMs = 30 * 60 * 1000;  // 30 minutes
+    const expiresInMs = 30 * 60 * 1000; // 30 minutes
     useAuthStore.setState({
       tokenExpiry: new Date(now.getTime() + expiresInMs),
       isAuthenticated: true,
@@ -235,6 +238,7 @@ describe('Token Expiry Helpers', () => {
 ```
 
 **Key patterns:**
+
 - Use `vi.useFakeTimers()` to control time
 - Set system time with `vi.setSystemTime()`
 - Advance time with `vi.advanceTimersByTime(ms)`
@@ -263,7 +267,7 @@ useConnectionStore.setState({
 
 // Now test behavior from that state
 const { hasExceededMaxAttempts } = useConnectionStore.getState();
-expect(hasExceededMaxAttempts()).toBe(false);  // Under limit
+expect(hasExceededMaxAttempts()).toBe(false); // Under limit
 ```
 
 ## Testing XState Machines
@@ -297,6 +301,7 @@ describe('Wizard Machine', () => {
 ```
 
 **Key patterns:**
+
 - Call `createActor(machine, {})` to create instance
 - Call `actor.start()` to begin state machine
 - Use `actor.getSnapshot()` to inspect current state
@@ -335,6 +340,7 @@ it('should go back from step 2 to step 1', async () => {
 ```
 
 **Key patterns:**
+
 - Send events with `actor.send({ type: 'EVENT_NAME', ... })`
 - Wait for async operations: `await new Promise(resolve => setTimeout(resolve, ms))`
 - Use `vi.waitFor()` for better async handling
@@ -379,6 +385,7 @@ it('should advance step on successful validation', async () => {
 ```
 
 **Key patterns:**
+
 - Guards prevent unwanted transitions
 - Actions modify context during transitions
 - Mock service calls with `vi.fn()`
@@ -433,6 +440,7 @@ it('should transition to ready on successful validation', async () => {
 ```
 
 **Key patterns:**
+
 - Mock service functions with `vi.fn()`
 - Use `mockResolvedValue()` for successful async
 - Use `mockRejectedValue()` for errors
@@ -498,6 +506,7 @@ describe('persistMachineState', () => {
 ```
 
 **Key patterns:**
+
 - Test save/restore cycle
 - Verify localStorage format (key, structure)
 - Test timestamp handling
@@ -539,6 +548,7 @@ Object.defineProperty(window, 'localStorage', {
 ```
 
 **Usage in tests:**
+
 ```typescript
 beforeEach(() => {
   localStorageMock.clear();
@@ -582,7 +592,8 @@ it('should handle time-based expiry', () => {
 Mock async operations in tests:
 
 ```typescript
-const validateStep = vi.fn()
+const validateStep = vi
+  .fn()
   .mockResolvedValueOnce({ valid: true })
   .mockRejectedValueOnce(new Error('Network error'));
 

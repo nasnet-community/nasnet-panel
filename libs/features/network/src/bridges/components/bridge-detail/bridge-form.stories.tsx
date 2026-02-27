@@ -58,10 +58,7 @@ export const EditMode: Story = {
       priority: 32768,
       vlanFiltering: false,
       pvid: 1,
-      ports: [
-        { interface: 'ether2' as const } as any,
-        { interface: 'ether3' as const } as any,
-      ],
+      ports: [{ interface: 'ether2' as const } as any, { interface: 'ether3' as const } as any],
       dependentDhcpServers: [],
       dependentRoutes: [],
       ipAddresses: [],
@@ -87,9 +84,7 @@ export const EditModeWithVlanFiltering: Story = {
       priority: 32768,
       vlanFiltering: true,
       pvid: 100,
-      ports: [
-        { interface: 'wlan1' as const } as any,
-      ],
+      ports: [{ interface: 'wlan1' as const } as any],
       dependentDhcpServers: [],
       dependentRoutes: [],
       ipAddresses: [],

@@ -37,13 +37,16 @@ export interface ParseError {
 // ============================================
 
 /** @description IPv4 address pattern (e.g., 192.168.1.1) */
-const IPV4_PATTERN = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+const IPV4_PATTERN =
+  /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
 
 /** @description CIDR notation pattern (e.g., 192.168.1.0/24) */
-const CIDR_PATTERN = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\/(?:3[0-2]|[12]?[0-9])$/;
+const CIDR_PATTERN =
+  /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\/(?:3[0-2]|[12]?[0-9])$/;
 
 /** @description IP range pattern (e.g., 192.168.1.1-192.168.1.100) */
-const IP_RANGE_PATTERN = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)-(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+const IP_RANGE_PATTERN =
+  /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)-(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
 
 /** @description Duration pattern for timeout (e.g., "1d", "12h", "30m", "60s") */
 const DURATION_PATTERN = /^\d+[smhdw]$/;
@@ -91,7 +94,7 @@ export function detectFormat(content: string): 'csv' | 'json' | 'txt' | 'unknown
 
   // CSV detection (has commas)
   const lines = trimmed.split('\n');
-  const hasCommas = lines.some(line => line.includes(','));
+  const hasCommas = lines.some((line) => line.includes(','));
   if (hasCommas) {
     return 'csv';
   }
@@ -113,7 +116,10 @@ export function parseCSV(content: string): ParseResult {
   const data: ParsedAddress[] = [];
   const errors: ParseError[] = [];
 
-  const lines = content.split('\n').map(line => line.trim()).filter(Boolean);
+  const lines = content
+    .split('\n')
+    .map((line) => line.trim())
+    .filter(Boolean);
 
   lines.forEach((line, index) => {
     const lineNumber = index + 1;
@@ -123,7 +129,7 @@ export function parseCSV(content: string): ParseResult {
       return;
     }
 
-    const parts = line.split(',').map(part => part.trim());
+    const parts = line.split(',').map((part) => part.trim());
     const address = parts[0];
     const comment = parts[1] || undefined;
     const timeout = parts[2] || undefined;
@@ -133,7 +139,8 @@ export function parseCSV(content: string): ParseResult {
       errors.push({
         line: lineNumber,
         address,
-        message: 'Invalid IP format. Must be IPv4, CIDR (192.168.1.0/24), or range (192.168.1.1-192.168.1.100)',
+        message:
+          'Invalid IP format. Must be IPv4, CIDR (192.168.1.0/24), or range (192.168.1.1-192.168.1.100)',
       });
       return;
     }
@@ -283,7 +290,10 @@ export function parseTXT(content: string): ParseResult {
   const data: ParsedAddress[] = [];
   const errors: ParseError[] = [];
 
-  const lines = content.split('\n').map(line => line.trim()).filter(Boolean);
+  const lines = content
+    .split('\n')
+    .map((line) => line.trim())
+    .filter(Boolean);
 
   lines.forEach((line, index) => {
     const lineNumber = index + 1;
@@ -333,11 +343,13 @@ export function parseAddressList(content: string, format?: 'csv' | 'json' | 'txt
       return {
         success: false,
         data: [],
-        errors: [{
-          line: 0,
-          address: '',
-          message: 'Unable to detect format. Please specify CSV, JSON, or TXT',
-        }],
+        errors: [
+          {
+            line: 0,
+            address: '',
+            message: 'Unable to detect format. Please specify CSV, JSON, or TXT',
+          },
+        ],
       };
   }
 }
@@ -392,7 +404,7 @@ export async function validateInBatches(
     }
 
     // Allow UI to breathe
-    await new Promise(resolve => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
   }
 
   return {

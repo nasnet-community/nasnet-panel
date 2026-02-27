@@ -68,14 +68,20 @@ export function ServiceImportDialogDesktop(props: ServiceImportDialogProps) {
   };
 
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
+    <Dialog
+      open={open}
+      onOpenChange={handleOpenChange}
+    >
       {trigger || (
-        <Button variant="outline" size="sm">
-          <Upload className="w-4 h-4 mr-2" />
+        <Button
+          variant="outline"
+          size="sm"
+        >
+          <Upload className="mr-2 h-4 w-4" />
           Import
         </Button>
       )}
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Import Service Configuration</DialogTitle>
           <DialogDescription>
@@ -92,10 +98,8 @@ export function ServiceImportDialogDesktop(props: ServiceImportDialogProps) {
           <div className="space-y-4">
             {/* File Upload / Drag-and-Drop */}
             <div
-              className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
-                isDragging
-                  ? 'border-primary bg-primary/5'
-                  : 'border-border hover:border-primary/50'
+              className={`rounded-lg border-2 border-dashed p-8 text-center transition-colors ${
+                isDragging ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50'
               }`}
               onDrop={handleDrop}
               onDragOver={(e) => {
@@ -117,12 +121,13 @@ export function ServiceImportDialogDesktop(props: ServiceImportDialogProps) {
                   }
                 }}
               />
-              <label htmlFor="file-upload" className="cursor-pointer">
-                <Upload className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-                <p className="text-sm font-medium mb-1">
-                  Drop JSON file here or click to browse
-                </p>
-                <p className="text-xs text-muted-foreground">
+              <label
+                htmlFor="file-upload"
+                className="cursor-pointer"
+              >
+                <Upload className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
+                <p className="mb-1 text-sm font-medium">Drop JSON file here or click to browse</p>
+                <p className="text-muted-foreground text-xs">
                   Supports service configuration JSON files
                 </p>
               </label>
@@ -149,7 +154,7 @@ export function ServiceImportDialogDesktop(props: ServiceImportDialogProps) {
               <FileText className="h-4 w-4" />
               <AlertDescription>
                 <p className="font-medium">Expected format:</p>
-                <ul className="text-sm space-y-1 ml-4 list-disc mt-1">
+                <ul className="ml-4 mt-1 list-disc space-y-1 text-sm">
                   <li>JSON file exported from another NasNetConnect instance</li>
                   <li>Must include version, service configuration, and metadata</li>
                   <li>Redacted secrets will require user input</li>
@@ -167,7 +172,10 @@ export function ServiceImportDialogDesktop(props: ServiceImportDialogProps) {
 
             {/* Actions */}
             <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => handleOpenChange(false)}>
+              <Button
+                variant="outline"
+                onClick={() => handleOpenChange(false)}
+              >
                 Cancel
               </Button>
               <Button
@@ -183,13 +191,11 @@ export function ServiceImportDialogDesktop(props: ServiceImportDialogProps) {
         {/* Step 2: Validate (loading state) */}
         {state.step === 'validate' && (
           <div className="py-12 text-center">
-            <div className="w-16 h-16 mx-auto rounded-full bg-primary/10 flex items-center justify-center mb-4">
-              <Upload className="w-8 h-8 text-primary animate-pulse" />
+            <div className="bg-primary/10 mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full">
+              <Upload className="text-primary h-8 w-8 animate-pulse" />
             </div>
-            <h3 className="text-lg font-medium mb-2">Validating configuration...</h3>
-            <p className="text-sm text-muted-foreground">
-              Running 7-stage validation pipeline
-            </p>
+            <h3 className="mb-2 text-lg font-medium">Validating configuration...</h3>
+            <p className="text-muted-foreground text-sm">Running 7-stage validation pipeline</p>
           </div>
         )}
 
@@ -203,11 +209,17 @@ export function ServiceImportDialogDesktop(props: ServiceImportDialogProps) {
                 <ScrollArea className="h-48 rounded-lg border p-4">
                   <div className="space-y-2">
                     {state.validationResult.errors.map((error, index) => (
-                      <div key={index} className="text-sm">
-                        <Badge variant="error" className="mr-2">
+                      <div
+                        key={index}
+                        className="text-sm"
+                      >
+                        <Badge
+                          variant="error"
+                          className="mr-2"
+                        >
                           {error.code}
                         </Badge>
-                        <span className="font-mono text-error">{error.field || 'global'}:</span>{' '}
+                        <span className="text-error font-mono">{error.field || 'global'}:</span>{' '}
                         {error.message}
                       </div>
                     ))}
@@ -223,8 +235,14 @@ export function ServiceImportDialogDesktop(props: ServiceImportDialogProps) {
                   <Label>Provide Values for Redacted Fields</Label>
                   <div className="space-y-3 rounded-lg border p-4">
                     {state.validationResult.redactedFields.map((field: string) => (
-                      <div key={field} className="space-y-1">
-                        <Label htmlFor={`redacted-${field}`} className="text-sm">
+                      <div
+                        key={field}
+                        className="space-y-1"
+                      >
+                        <Label
+                          htmlFor={`redacted-${field}`}
+                          className="text-sm"
+                        >
                           {field}
                         </Label>
                         <Input
@@ -232,7 +250,9 @@ export function ServiceImportDialogDesktop(props: ServiceImportDialogProps) {
                           type={field.toLowerCase().includes('password') ? 'password' : 'text'}
                           placeholder={`Enter ${field}`}
                           value={state.redactedFieldValues[field] || ''}
-                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setRedactedFieldValue(field, e.target.value)}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                            setRedactedFieldValue(field, e.target.value)
+                          }
                         />
                       </div>
                     ))}
@@ -258,28 +278,46 @@ export function ServiceImportDialogDesktop(props: ServiceImportDialogProps) {
                   >
                     <div className="space-y-2">
                       <div className="flex items-start space-x-2 rounded-lg border p-3">
-                        <RadioGroupItem value="skip" id="conflict-skip" />
-                        <Label htmlFor="conflict-skip" className="cursor-pointer flex-1">
+                        <RadioGroupItem
+                          value="skip"
+                          id="conflict-skip"
+                        />
+                        <Label
+                          htmlFor="conflict-skip"
+                          className="flex-1 cursor-pointer"
+                        >
                           <span className="font-medium">Skip</span>
-                          <p className="text-sm text-muted-foreground">
+                          <p className="text-muted-foreground text-sm">
                             Don't import if conflicts exist
                           </p>
                         </Label>
                       </div>
                       <div className="flex items-start space-x-2 rounded-lg border p-3">
-                        <RadioGroupItem value="rename" id="conflict-rename" />
-                        <Label htmlFor="conflict-rename" className="cursor-pointer flex-1">
+                        <RadioGroupItem
+                          value="rename"
+                          id="conflict-rename"
+                        />
+                        <Label
+                          htmlFor="conflict-rename"
+                          className="flex-1 cursor-pointer"
+                        >
                           <span className="font-medium">Rename</span>
-                          <p className="text-sm text-muted-foreground">
+                          <p className="text-muted-foreground text-sm">
                             Auto-rename to avoid conflicts
                           </p>
                         </Label>
                       </div>
                       <div className="flex items-start space-x-2 rounded-lg border p-3">
-                        <RadioGroupItem value="replace" id="conflict-replace" />
-                        <Label htmlFor="conflict-replace" className="cursor-pointer flex-1">
+                        <RadioGroupItem
+                          value="replace"
+                          id="conflict-replace"
+                        />
+                        <Label
+                          htmlFor="conflict-replace"
+                          className="flex-1 cursor-pointer"
+                        >
                           <span className="font-medium">Replace</span>
-                          <p className="text-sm text-muted-foreground">
+                          <p className="text-muted-foreground text-sm">
                             Replace existing service (destructive)
                           </p>
                         </Label>
@@ -291,7 +329,10 @@ export function ServiceImportDialogDesktop(props: ServiceImportDialogProps) {
 
             {/* Actions */}
             <div className="flex justify-between">
-              <Button variant="outline" onClick={reset}>
+              <Button
+                variant="outline"
+                onClick={reset}
+              >
                 Back
               </Button>
               <Button
@@ -315,19 +356,18 @@ export function ServiceImportDialogDesktop(props: ServiceImportDialogProps) {
         {/* Step 4: Importing */}
         {state.step === 'importing' && (
           <div className="py-12">
-            <div className="text-center mb-6">
-              <div className="w-16 h-16 mx-auto rounded-full bg-primary/10 flex items-center justify-center mb-4">
-                <Download className="w-8 h-8 text-primary animate-pulse" />
+            <div className="mb-6 text-center">
+              <div className="bg-primary/10 mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full">
+                <Download className="text-primary h-8 w-8 animate-pulse" />
               </div>
-              <h3 className="text-lg font-medium mb-2">Importing service...</h3>
-              <p className="text-sm text-muted-foreground">
-                Creating service instance on router
-              </p>
+              <h3 className="mb-2 text-lg font-medium">Importing service...</h3>
+              <p className="text-muted-foreground text-sm">Creating service instance on router</p>
             </div>
-            <Progress value={state.progress} className="w-full" />
-            <p className="text-sm text-muted-foreground text-center mt-2">
-              {state.progress}%
-            </p>
+            <Progress
+              value={state.progress}
+              className="w-full"
+            />
+            <p className="text-muted-foreground mt-2 text-center text-sm">{state.progress}%</p>
           </div>
         )}
 
@@ -335,17 +375,20 @@ export function ServiceImportDialogDesktop(props: ServiceImportDialogProps) {
         {state.step === 'complete' && (
           <div className="space-y-6 py-8">
             <div className="text-center">
-              <div className="w-16 h-16 mx-auto rounded-full bg-success/10 flex items-center justify-center mb-4">
-                <CheckCircle2 className="w-8 h-8 text-success" />
+              <div className="bg-success/10 mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full">
+                <CheckCircle2 className="text-success h-8 w-8" />
               </div>
-              <h3 className="text-lg font-medium mb-2">Import Complete!</h3>
-              <p className="text-sm text-muted-foreground">
+              <h3 className="mb-2 text-lg font-medium">Import Complete!</h3>
+              <p className="text-muted-foreground text-sm">
                 Service {state.packageData?.service.instanceName} has been imported successfully
               </p>
             </div>
             <div className="flex justify-end gap-2">
               <Button onClick={reset}>Import Another</Button>
-              <Button variant="default" onClick={() => handleOpenChange(false)}>
+              <Button
+                variant="default"
+                onClick={() => handleOpenChange(false)}
+              >
                 Close
               </Button>
             </div>

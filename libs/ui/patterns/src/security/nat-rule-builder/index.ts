@@ -18,7 +18,4 @@ export type {
   ProtocolSelectorProps,
 } from './nat-rule-builder.types';
 
-export type {
-  UseNATRuleBuilderOptions,
-  UseNATRuleBuilderReturn,
-} from './use-nat-rule-builder';
+export type { UseNATRuleBuilderOptions, UseNATRuleBuilderReturn } from './use-nat-rule-builder';

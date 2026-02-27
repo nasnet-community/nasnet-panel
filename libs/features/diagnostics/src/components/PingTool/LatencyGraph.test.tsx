@@ -34,9 +34,7 @@ describe('LatencyGraph', () => {
   });
 
   it('should render chart title', () => {
-    const results: PingResult[] = [
-      { ...baseResult, seq: 1, time: 12.5 },
-    ];
+    const results: PingResult[] = [{ ...baseResult, seq: 1, time: 12.5 }];
 
     render(<LatencyGraph results={results} />);
 
@@ -44,9 +42,7 @@ describe('LatencyGraph', () => {
   });
 
   it('should render chart with accessibility attributes', () => {
-    const results: PingResult[] = [
-      { ...baseResult, seq: 1, time: 12.5 },
-    ];
+    const results: PingResult[] = [{ ...baseResult, seq: 1, time: 12.5 }];
 
     const { container } = render(<LatencyGraph results={results} />);
 
@@ -113,12 +109,13 @@ describe('LatencyGraph', () => {
   });
 
   it('should accept optional className prop', () => {
-    const results: PingResult[] = [
-      { ...baseResult, seq: 1, time: 12.5 },
-    ];
+    const results: PingResult[] = [{ ...baseResult, seq: 1, time: 12.5 }];
 
     const { container } = render(
-      <LatencyGraph results={results} className="custom-class" />
+      <LatencyGraph
+        results={results}
+        className="custom-class"
+      />
     );
 
     const wrapper = container.querySelector('[role="img"]');
@@ -207,9 +204,7 @@ describe('LatencyGraph', () => {
   });
 
   it('should render chart container with proper width class', () => {
-    const results: PingResult[] = [
-      { ...baseResult, seq: 1, time: 12.5 },
-    ];
+    const results: PingResult[] = [{ ...baseResult, seq: 1, time: 12.5 }];
 
     const { container } = render(<LatencyGraph results={results} />);
 
@@ -232,9 +227,7 @@ describe('LatencyGraph', () => {
   });
 
   it('should handle single ping result', () => {
-    const results: PingResult[] = [
-      { ...baseResult, seq: 1, time: 12.5 },
-    ];
+    const results: PingResult[] = [{ ...baseResult, seq: 1, time: 12.5 }];
 
     const { container } = render(<LatencyGraph results={results} />);
 

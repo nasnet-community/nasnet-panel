@@ -60,32 +60,25 @@ export interface ScanStoragePayload {
 export function useStorageMutations() {
   const client = useApolloClient();
 
-  const [configureStorage, configureMutation] = useMutation(
-    CONFIGURE_EXTERNAL_STORAGE,
-    {
-      refetchQueries: [
-        GET_STORAGE_CONFIG,
-        GET_STORAGE_INFO,
-        GET_STORAGE_USAGE,
-      ],
-      // Optimistic update for immediate UI feedback
-      optimisticResponse: (variables) => ({
-        configureExternalStorage: {
-          __typename: 'ConfigureExternalStoragePayload',
-          config: {
-            __typename: 'StorageConfig',
-            enabled: variables.input.enabled ?? true,
-            path: variables.input.path,
-            storageInfo: null,
-            updatedAt: new Date().toISOString(),
-            isAvailable: false, // Will be updated after validation
-          },
+  const [configureStorage, configureMutation] = useMutation(CONFIGURE_EXTERNAL_STORAGE, {
+    refetchQueries: [GET_STORAGE_CONFIG, GET_STORAGE_INFO, GET_STORAGE_USAGE],
+    // Optimistic update for immediate UI feedback
+    optimisticResponse: (variables) => ({
+      configureExternalStorage: {
+        __typename: 'ConfigureExternalStoragePayload',
+        config: {
+          __typename: 'StorageConfig',
+          enabled: variables.input.enabled ?? true,
+          path: variables.input.path,
           storageInfo: null,
-          errors: null,
+          updatedAt: new Date().toISOString(),
+          isAvailable: false, // Will be updated after validation
         },
-      }),
-    }
-  );
+        storageInfo: null,
+        errors: null,
+      },
+    }),
+  });
 
   const [resetStorage, resetMutation] = useMutation(RESET_EXTERNAL_STORAGE, {
     refetchQueries: [GET_STORAGE_CONFIG, GET_STORAGE_INFO, GET_STORAGE_USAGE],
@@ -108,8 +101,7 @@ export function useStorageMutations() {
      */
     configureStorage: async (input: ConfigureExternalStorageInput) => {
       const result = await configureStorage({ variables: { input } });
-      return result.data
-        ?.configureExternalStorage as ConfigureExternalStoragePayload;
+      return result.data?.configureExternalStorage as ConfigureExternalStoragePayload;
     },
 
     /**
@@ -118,8 +110,7 @@ export function useStorageMutations() {
      */
     resetStorage: async (input?: ResetExternalStorageInput) => {
       const result = await resetStorage({ variables: { input } });
-      return result.data
-        ?.resetExternalStorage as ResetExternalStoragePayload;
+      return result.data?.resetExternalStorage as ResetExternalStoragePayload;
     },
 
     /**

@@ -274,10 +274,22 @@ describe('PORT_CATEGORY_LABELS constant', () => {
   });
 
   it('should have labels for all categories', () => {
-    const categories = ['web', 'secure', 'database', 'messaging', 'mail', 'network', 'system', 'containers', 'mikrotik'];
+    const categories = [
+      'web',
+      'secure',
+      'database',
+      'messaging',
+      'mail',
+      'network',
+      'system',
+      'containers',
+      'mikrotik',
+    ];
     categories.forEach((category) => {
       expect(PORT_CATEGORY_LABELS[category as keyof typeof PORT_CATEGORY_LABELS]).toBeDefined();
-      expect(typeof PORT_CATEGORY_LABELS[category as keyof typeof PORT_CATEGORY_LABELS]).toBe('string');
+      expect(typeof PORT_CATEGORY_LABELS[category as keyof typeof PORT_CATEGORY_LABELS]).toBe(
+        'string'
+      );
     });
   });
 });

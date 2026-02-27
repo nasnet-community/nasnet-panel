@@ -12,7 +12,6 @@ import type { LogSeverity } from '@nasnet/core/types/router';
 
 import { SeverityBadge } from './SeverityBadge';
 
-
 describe('SeverityBadge', () => {
   describe('Render and Display', () => {
     it('should render debug severity badge', () => {
@@ -113,13 +112,23 @@ describe('SeverityBadge', () => {
     });
 
     it('should render as button when onRemove provided', () => {
-      render(<SeverityBadge severity="error" onRemove={mockOnRemove} />);
+      render(
+        <SeverityBadge
+          severity="error"
+          onRemove={mockOnRemove}
+        />
+      );
       const badge = screen.getByRole('button', { name: /remove error filter/i });
       expect(badge).toBeInTheDocument();
     });
 
     it('should show X icon when onRemove provided', () => {
-      const { container } = render(<SeverityBadge severity="error" onRemove={mockOnRemove} />);
+      const { container } = render(
+        <SeverityBadge
+          severity="error"
+          onRemove={mockOnRemove}
+        />
+      );
       // X icon from lucide-react
       const xIcon = container.querySelector('svg');
       expect(xIcon).toBeInTheDocument();
@@ -127,7 +136,12 @@ describe('SeverityBadge', () => {
 
     it('should call onRemove when clicked', async () => {
       const user = userEvent.setup();
-      render(<SeverityBadge severity="warning" onRemove={mockOnRemove} />);
+      render(
+        <SeverityBadge
+          severity="warning"
+          onRemove={mockOnRemove}
+        />
+      );
 
       const badge = screen.getByRole('button', { name: /remove warning filter/i });
       await user.click(badge);
@@ -136,18 +150,33 @@ describe('SeverityBadge', () => {
     });
 
     it('should have proper aria-label for remove button', () => {
-      render(<SeverityBadge severity="critical" onRemove={mockOnRemove} />);
+      render(
+        <SeverityBadge
+          severity="critical"
+          onRemove={mockOnRemove}
+        />
+      );
       expect(screen.getByRole('button', { name: 'Remove Critical filter' })).toBeInTheDocument();
     });
 
     it('should show hover effect', () => {
-      render(<SeverityBadge severity="error" onRemove={mockOnRemove} />);
+      render(
+        <SeverityBadge
+          severity="error"
+          onRemove={mockOnRemove}
+        />
+      );
       const badge = screen.getByRole('button', { name: /remove error filter/i });
       expect(badge.className).toContain('hover:opacity-80');
     });
 
     it('should show focus styles', () => {
-      render(<SeverityBadge severity="error" onRemove={mockOnRemove} />);
+      render(
+        <SeverityBadge
+          severity="error"
+          onRemove={mockOnRemove}
+        />
+      );
       const badge = screen.getByRole('button', { name: /remove error filter/i });
       expect(badge.className).toContain('focus:outline-none');
       expect(badge.className).toContain('focus:ring-2');
@@ -163,14 +192,24 @@ describe('SeverityBadge', () => {
 
     it('should have proper ARIA attributes for dismissible badge', () => {
       const mockOnRemove = vi.fn();
-      render(<SeverityBadge severity="warning" onRemove={mockOnRemove} />);
+      render(
+        <SeverityBadge
+          severity="warning"
+          onRemove={mockOnRemove}
+        />
+      );
       const badge = screen.getByRole('button');
       expect(badge).toHaveAttribute('aria-label', 'Remove Warning filter');
     });
 
     it('should mark X icon as aria-hidden', () => {
       const mockOnRemove = vi.fn();
-      const { container } = render(<SeverityBadge severity="error" onRemove={mockOnRemove} />);
+      const { container } = render(
+        <SeverityBadge
+          severity="error"
+          onRemove={mockOnRemove}
+        />
+      );
       const xIcon = container.querySelector('svg');
       expect(xIcon).toHaveAttribute('aria-hidden', 'true');
     });
@@ -179,21 +218,34 @@ describe('SeverityBadge', () => {
   describe('Custom Props', () => {
     it('should accept and apply custom className', () => {
       const { container } = render(
-        <SeverityBadge severity="info" className="custom-class" />
+        <SeverityBadge
+          severity="info"
+          className="custom-class"
+        />
       );
       const badge = container.querySelector('.custom-class');
       expect(badge).toBeInTheDocument();
     });
 
     it('should merge custom className with severity styles', () => {
-      render(<SeverityBadge severity="error" className="custom-class" />);
+      render(
+        <SeverityBadge
+          severity="error"
+          className="custom-class"
+        />
+      );
       const badge = screen.getByText('Error');
       expect(badge.className).toContain('custom-class');
       expect(badge.className).toContain('text-red');
     });
 
     it('should pass through additional HTML attributes', () => {
-      render(<SeverityBadge severity="info" data-testid="custom-badge" />);
+      render(
+        <SeverityBadge
+          severity="info"
+          data-testid="custom-badge"
+        />
+      );
       const badge = screen.getByTestId('custom-badge');
       expect(badge).toBeInTheDocument();
     });

@@ -128,10 +128,7 @@ export interface CollapsibleSidebarProps {
  * ```
  */
 export const CollapsibleSidebar = React.memo(
-  React.forwardRef<
-    HTMLElement,
-    CollapsibleSidebarProps
-  >(
+  React.forwardRef<HTMLElement, CollapsibleSidebarProps>(
     (
       {
         children,
@@ -175,7 +172,7 @@ export const CollapsibleSidebar = React.memo(
         <aside
           ref={ref}
           className={cn(
-            'relative flex flex-col h-full',
+            'relative flex h-full flex-col',
             'bg-card',
             'border-border',
             position === 'left' ? 'border-r' : 'border-l',
@@ -186,17 +183,13 @@ export const CollapsibleSidebar = React.memo(
           style={{
             width: currentWidth,
             minWidth: currentWidth,
-            transitionDuration: prefersReducedMotion
-              ? '0ms'
-              : `${ANIMATION_DURATIONS.SIDEBAR}ms`,
+            transitionDuration: prefersReducedMotion ? '0ms' : `${ANIMATION_DURATIONS.SIDEBAR}ms`,
           }}
           aria-label={isCollapsed ? 'Collapsed sidebar' : 'Expanded sidebar'}
           data-collapsed={isCollapsed}
         >
           {/* Sidebar content */}
-          <div className="flex-1 overflow-y-auto overflow-x-hidden">
-            {children}
-          </div>
+          <div className="flex-1 overflow-y-auto overflow-x-hidden">{children}</div>
 
           {/* Collapse toggle button */}
           {showToggle && onToggle && (
@@ -207,14 +200,14 @@ export const CollapsibleSidebar = React.memo(
                 position === 'left' ? '-right-3' : '-left-3',
                 togglePositionClasses[togglePosition],
                 // Button styles
-                'w-6 h-6 rounded-full',
+                'h-6 w-6 rounded-full',
                 'bg-card',
-                'border border-border',
+                'border-border border',
                 'shadow-sm',
                 'flex items-center justify-center',
                 // Interaction
                 'hover:bg-accent',
-                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+                'focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
                 'active:scale-95',
                 // Transition
                 !prefersReducedMotion && 'transition-all duration-150'
@@ -222,10 +215,9 @@ export const CollapsibleSidebar = React.memo(
               aria-expanded={!isCollapsed}
               aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
               title={`${isCollapsed ? 'Expand' : 'Collapse'} sidebar (${
-                typeof navigator !== 'undefined' &&
-                navigator.platform?.includes('Mac')
-                  ? '⌘'
-                  : 'Ctrl'
+                typeof navigator !== 'undefined' && navigator.platform?.includes('Mac') ?
+                  '⌘'
+                : 'Ctrl'
               }+B)`}
             >
               <CollapseIcon
@@ -260,13 +252,12 @@ const CollapseIcon = React.memo(function CollapseIcon({
   // Determine rotation based on collapse state and position
   // Left sidebar: collapsed points right (expand), expanded points left (collapse)
   // Right sidebar: opposite
-  const shouldRotate =
-    position === 'left' ? isCollapsed : !isCollapsed;
+  const shouldRotate = position === 'left' ? isCollapsed : !isCollapsed;
 
   return (
     <svg
       className={cn(
-        'w-4 h-4 text-muted-foreground',
+        'text-muted-foreground h-4 w-4',
         !prefersReducedMotion && 'transition-transform duration-200',
         shouldRotate && 'rotate-180'
       )}
@@ -329,10 +320,7 @@ export function CollapsibleSidebarProvider({
   toggle?: () => void;
   children: React.ReactNode;
 }) {
-  const value = React.useMemo(
-    () => ({ isCollapsed, toggle }),
-    [isCollapsed, toggle]
-  );
+  const value = React.useMemo(() => ({ isCollapsed, toggle }), [isCollapsed, toggle]);
 
   return (
     <CollapsibleSidebarContext.Provider value={value}>

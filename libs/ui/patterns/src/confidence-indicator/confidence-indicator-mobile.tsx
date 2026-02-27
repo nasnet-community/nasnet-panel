@@ -20,10 +20,7 @@ import {
   cn,
 } from '@nasnet/ui/primitives';
 
-import {
-  ConfidenceIndicatorBase,
-  ConfidenceIndicatorDot,
-} from './confidence-indicator-base';
+import { ConfidenceIndicatorBase, ConfidenceIndicatorDot } from './confidence-indicator-base';
 import { ConfidenceTooltipFull } from './confidence-tooltip';
 
 import type { ConfidenceIndicatorPresenterProps } from './confidence-indicator.types';
@@ -63,7 +60,10 @@ export function ConfidenceIndicatorMobile({
   };
 
   return (
-    <Sheet open={isOpen} onOpenChange={setIsOpen}>
+    <Sheet
+      open={isOpen}
+      onOpenChange={setIsOpen}
+    >
       <SheetTrigger asChild>
         <button
           type="button"
@@ -74,7 +74,7 @@ export function ConfidenceIndicatorMobile({
             'inline-flex items-center justify-center',
             'rounded-full p-2',
             'transition-colors active:opacity-80',
-            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+            'focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
             className
           )}
           aria-label={state.ariaLabel}
@@ -94,13 +94,14 @@ export function ConfidenceIndicatorMobile({
       >
         <SheetHeader className="text-left">
           <SheetTitle className="flex items-center gap-2">
-            <ConfidenceIndicatorBase state={state} size="sm" />
+            <ConfidenceIndicatorBase
+              state={state}
+              size="sm"
+            />
             <span>Detection Confidence</span>
           </SheetTitle>
           <SheetDescription>
-            {state.showPercentage
-              ? `${state.levelLabel} (${state.percentage}%)`
-              : state.levelLabel}
+            {state.showPercentage ? `${state.levelLabel} (${state.percentage}%)` : state.levelLabel}
           </SheetDescription>
         </SheetHeader>
         <div className="mt-4">
@@ -134,7 +135,10 @@ export function ConfidenceIndicatorMobileCompact({
   };
 
   return (
-    <Sheet open={isOpen} onOpenChange={setIsOpen}>
+    <Sheet
+      open={isOpen}
+      onOpenChange={setIsOpen}
+    >
       <SheetTrigger asChild>
         <button
           type="button"
@@ -143,26 +147,33 @@ export function ConfidenceIndicatorMobileCompact({
             // Touch target: minimum 44px, but visually smaller
             'min-h-[44px] min-w-[44px]',
             'inline-flex items-center justify-center',
-            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+            'focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
             className
           )}
           aria-label={state.ariaLabel}
           aria-expanded={isOpen}
           aria-haspopup="dialog"
         >
-          <ConfidenceIndicatorDot level={state.level} size="md" />
+          <ConfidenceIndicatorDot
+            level={state.level}
+            size="md"
+          />
         </button>
       </SheetTrigger>
-      <SheetContent side="bottom" className="rounded-t-xl">
+      <SheetContent
+        side="bottom"
+        className="rounded-t-xl"
+      >
         <SheetHeader className="text-left">
           <SheetTitle className="flex items-center gap-2">
-            <ConfidenceIndicatorBase state={state} size="sm" />
+            <ConfidenceIndicatorBase
+              state={state}
+              size="sm"
+            />
             <span>Detection Confidence</span>
           </SheetTitle>
           <SheetDescription>
-            {state.showPercentage
-              ? `${state.levelLabel} (${state.percentage}%)`
-              : state.levelLabel}
+            {state.showPercentage ? `${state.levelLabel} (${state.percentage}%)` : state.levelLabel}
           </SheetDescription>
         </SheetHeader>
         <div className="mt-4">

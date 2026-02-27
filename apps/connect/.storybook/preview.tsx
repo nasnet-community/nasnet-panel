@@ -46,9 +46,7 @@ const preview: Preview = {
     },
     a11y: {
       config: {
-        rules: [
-          { id: 'color-contrast-enhanced', enabled: true },
-        ],
+        rules: [{ id: 'color-contrast-enhanced', enabled: true }],
       },
     },
   },
@@ -63,8 +61,11 @@ const preview: Preview = {
               <PlatformProvider>
                 <AnimationProvider>
                   <ToastProvider>
-                    <div className={isDark ? 'dark' : ''} data-theme={isDark ? 'dark' : 'light'}>
-                      <div className="p-4 min-h-screen bg-background text-foreground">
+                    <div
+                      className={isDark ? 'dark' : ''}
+                      data-theme={isDark ? 'dark' : 'light'}
+                    >
+                      <div className="bg-background text-foreground min-h-screen p-4">
                         <Story />
                       </div>
                     </div>

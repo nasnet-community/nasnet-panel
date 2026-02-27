@@ -14,7 +14,10 @@ import type { Meta, StoryObj } from '@storybook/react';
 // Mock data helpers
 // ---------------------------------------------------------------------------
 
-function makeProbe(probeNumber: number, latencyMs: number | null): {
+function makeProbe(
+  probeNumber: number,
+  latencyMs: number | null
+): {
   probeNumber: number;
   latencyMs: number | null;
   success: boolean;
@@ -36,9 +39,9 @@ function makeHop(
 ): TracerouteHop {
   const successfulLatencies = latencies.filter((l): l is number => l !== null);
   const avgLatencyMs =
-    successfulLatencies.length > 0
-      ? successfulLatencies.reduce((a, b) => a + b, 0) / successfulLatencies.length
-      : null;
+    successfulLatencies.length > 0 ?
+      successfulLatencies.reduce((a, b) => a + b, 0) / successfulLatencies.length
+    : null;
 
   const lostProbes = latencies.filter((l) => l === null).length;
   const packetLoss = (lostProbes / latencies.length) * 100;
@@ -67,23 +70,23 @@ const realisticHops: TracerouteHop[] = [
 
 const highLatencyHops: TracerouteHop[] = [
   makeHop(1, '192.168.1.1', [1.0, 1.1, 0.9], { hostname: 'router.local' }),
-  makeHop(2, '203.0.113.1', [75.3, 80.1, 72.9]),   // yellow — acceptable
+  makeHop(2, '203.0.113.1', [75.3, 80.1, 72.9]), // yellow — acceptable
   makeHop(3, '198.51.100.1', [180.5, 195.2, 172.8]), // red — poor
   makeHop(4, '8.8.8.8', [210.1, 225.4, 198.7], { hostname: 'dns.google' }),
 ];
 
 const withTimeoutsHops: TracerouteHop[] = [
   makeHop(1, '192.168.1.1', [0.8, 0.7, 0.9], { hostname: 'router.local' }),
-  makeHop(2, null, [null, null, null]),               // full timeout
-  makeHop(3, null, [null, null, null]),               // full timeout
+  makeHop(2, null, [null, null, null]), // full timeout
+  makeHop(3, null, [null, null, null]), // full timeout
   makeHop(4, '203.0.113.50', [22.1, 21.8, 22.3]),
   makeHop(5, '8.8.8.8', [24.5, 24.1, 24.9], { hostname: 'dns.google' }),
 ];
 
 const withPacketLossHops: TracerouteHop[] = [
   makeHop(1, '192.168.1.1', [0.5, 0.6, 0.5]),
-  makeHop(2, '10.0.0.1', [5.0, null, 4.8]),          // 33% loss
-  makeHop(3, '72.14.232.1', [null, null, 15.3]),      // 67% loss
+  makeHop(2, '10.0.0.1', [5.0, null, 4.8]), // 33% loss
+  makeHop(3, '72.14.232.1', [null, null, 15.3]), // 67% loss
   makeHop(4, '8.8.8.8', [18.1, 17.9, 18.5], { hostname: 'dns.google' }),
 ];
 

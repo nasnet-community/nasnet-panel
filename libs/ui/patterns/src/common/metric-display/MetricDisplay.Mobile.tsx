@@ -40,13 +40,11 @@ function MetricDisplayMobileComponent(props: MetricDisplayProps) {
   } = useMetricDisplay(props);
 
   // Render trend icon
-  const TrendIcon = trendIconName === 'arrow-up'
-    ? ArrowUp
-    : trendIconName === 'arrow-down'
-      ? ArrowDown
-      : trendIconName === 'minus'
-        ? Minus
-        : null;
+  const TrendIcon =
+    trendIconName === 'arrow-up' ? ArrowUp
+    : trendIconName === 'arrow-down' ? ArrowDown
+    : trendIconName === 'minus' ? Minus
+    : null;
 
   // Memoize keyboard handler for stable reference
   const handleKeyDown = useCallback(
@@ -64,14 +62,14 @@ function MetricDisplayMobileComponent(props: MetricDisplayProps) {
     return (
       <div
         className={cn(
-          'bg-card border border-border rounded-[var(--semantic-radius-card)]',
+          'bg-card border-border rounded-[var(--semantic-radius-card)] border',
           'shadow-[var(--semantic-shadow-card)] dark:shadow-none',
           sizeClasses.container,
           className
         )}
       >
-        <div className="flex flex-col items-center text-center gap-2">
-          <Skeleton className="h-4 w-20 mb-2" />
+        <div className="flex flex-col items-center gap-2 text-center">
+          <Skeleton className="mb-2 h-4 w-20" />
           <Skeleton className="h-8 w-32" />
         </div>
       </div>
@@ -86,13 +84,13 @@ function MetricDisplayMobileComponent(props: MetricDisplayProps) {
       onClick={onClick}
       onKeyDown={handleKeyDown}
       className={cn(
-        'w-full text-center bg-card border border-border rounded-[var(--semantic-radius-card)]',
+        'bg-card border-border w-full rounded-[var(--semantic-radius-card)] border text-center',
         'shadow-[var(--semantic-shadow-card)] dark:shadow-none',
-        'transition-all duration-150 flex flex-col items-center gap-2',
+        'flex flex-col items-center gap-2 transition-all duration-150',
         isInteractive && [
           'min-h-[44px] cursor-pointer',
-          'active:scale-[0.98] active:bg-muted',
-          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+          'active:bg-muted active:scale-[0.98]',
+          'focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
         ],
         sizeClasses.container,
         className
@@ -102,7 +100,7 @@ function MetricDisplayMobileComponent(props: MetricDisplayProps) {
       {Icon && (
         <div
           className={cn(
-            'h-10 w-10 rounded-lg bg-muted flex items-center justify-center',
+            'bg-muted flex h-10 w-10 items-center justify-center rounded-lg',
             'text-muted-foreground'
           )}
         >
@@ -111,29 +109,21 @@ function MetricDisplayMobileComponent(props: MetricDisplayProps) {
       )}
 
       {/* Value */}
-      <span className={cn('text-xl font-bold font-display', valueClasses)}>
-        {formattedValue}
-      </span>
+      <span className={cn('font-display text-xl font-bold', valueClasses)}>{formattedValue}</span>
 
       {/* Label */}
-      <span className="text-sm text-muted-foreground">
-        {label}
-      </span>
+      <span className="text-muted-foreground text-sm">{label}</span>
 
       {/* Trend indicator */}
       {TrendIcon && props.trendValue && (
         <span className={cn('inline-flex items-center gap-0.5 text-xs font-medium', trendClasses)}>
-          <TrendIcon className="w-3 h-3" />
+          <TrendIcon className="h-3 w-3" />
           <span>{props.trendValue}</span>
         </span>
       )}
 
       {/* Description */}
-      {description && (
-        <p className="mt-1 text-xs text-muted-foreground">
-          {description}
-        </p>
-      )}
+      {description && <p className="text-muted-foreground mt-1 text-xs">{description}</p>}
     </Component>
   );
 }

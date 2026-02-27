@@ -10,7 +10,6 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-
 import { ServiceTemplateCard } from './ServiceTemplateCard';
 
 import type { ServiceTemplate, TemplateAction } from './types';
@@ -147,35 +146,65 @@ describe('ServiceTemplateCard', () => {
     };
 
     it('renders author name', () => {
-      renderWithWrapper(<ServiceTemplateCard template={sharedTemplate} showMetadata />);
+      renderWithWrapper(
+        <ServiceTemplateCard
+          template={sharedTemplate}
+          showMetadata
+        />
+      );
       expect(screen.getByText('NetworkAdmin')).toBeInTheDocument();
     });
 
     it('renders formatted download count', () => {
-      renderWithWrapper(<ServiceTemplateCard template={sharedTemplate} showMetadata />);
+      renderWithWrapper(
+        <ServiceTemplateCard
+          template={sharedTemplate}
+          showMetadata
+        />
+      );
       expect(screen.getByText('2.5K')).toBeInTheDocument();
     });
 
     it('renders rating', () => {
-      renderWithWrapper(<ServiceTemplateCard template={sharedTemplate} showMetadata />);
+      renderWithWrapper(
+        <ServiceTemplateCard
+          template={sharedTemplate}
+          showMetadata
+        />
+      );
       expect(screen.getByText('4.8')).toBeInTheDocument();
     });
 
     it('hides metadata when showMetadata is false', () => {
-      renderWithWrapper(<ServiceTemplateCard template={sharedTemplate} showMetadata={false} />);
+      renderWithWrapper(
+        <ServiceTemplateCard
+          template={sharedTemplate}
+          showMetadata={false}
+        />
+      );
       expect(screen.queryByText('NetworkAdmin')).not.toBeInTheDocument();
     });
   });
 
   describe('Actions', () => {
     it('renders primary action button', () => {
-      renderWithWrapper(<ServiceTemplateCard template={mockTemplate} actions={mockActions} />);
+      renderWithWrapper(
+        <ServiceTemplateCard
+          template={mockTemplate}
+          actions={mockActions}
+        />
+      );
       expect(screen.getByRole('button', { name: 'Install' })).toBeInTheDocument();
     });
 
     it('calls onClick when primary action is clicked', async () => {
       const user = userEvent.setup();
-      renderWithWrapper(<ServiceTemplateCard template={mockTemplate} actions={mockActions} />);
+      renderWithWrapper(
+        <ServiceTemplateCard
+          template={mockTemplate}
+          actions={mockActions}
+        />
+      );
 
       const installButton = screen.getByRole('button', { name: 'Install' });
       await user.click(installButton);
@@ -192,7 +221,12 @@ describe('ServiceTemplateCard', () => {
           loading: true,
         },
       ];
-      renderWithWrapper(<ServiceTemplateCard template={mockTemplate} actions={loadingActions} />);
+      renderWithWrapper(
+        <ServiceTemplateCard
+          template={mockTemplate}
+          actions={loadingActions}
+        />
+      );
       expect(screen.getByText('Installing')).toBeInTheDocument();
     });
 
@@ -205,13 +239,23 @@ describe('ServiceTemplateCard', () => {
           disabled: true,
         },
       ];
-      renderWithWrapper(<ServiceTemplateCard template={mockTemplate} actions={disabledActions} />);
+      renderWithWrapper(
+        <ServiceTemplateCard
+          template={mockTemplate}
+          actions={disabledActions}
+        />
+      );
       const installButton = screen.getByRole('button', { name: 'Install' });
       expect(installButton).toBeDisabled();
     });
 
     it('renders secondary actions in dropdown', () => {
-      renderWithWrapper(<ServiceTemplateCard template={mockTemplate} actions={mockActions} />);
+      renderWithWrapper(
+        <ServiceTemplateCard
+          template={mockTemplate}
+          actions={mockActions}
+        />
+      );
       // Dropdown trigger should be present for secondary actions
       const moreButton = screen.getByLabelText('More actions');
       expect(moreButton).toBeInTheDocument();
@@ -290,7 +334,12 @@ describe('ServiceTemplateCard', () => {
     });
 
     it('has correct ARIA label on action button', () => {
-      renderWithWrapper(<ServiceTemplateCard template={mockTemplate} actions={mockActions} />);
+      renderWithWrapper(
+        <ServiceTemplateCard
+          template={mockTemplate}
+          actions={mockActions}
+        />
+      );
       expect(screen.getByRole('button', { name: 'Install' })).toBeInTheDocument();
     });
 

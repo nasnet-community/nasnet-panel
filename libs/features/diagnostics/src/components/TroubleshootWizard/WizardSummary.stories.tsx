@@ -23,7 +23,7 @@ const meta: Meta<typeof WizardSummary> = {
   },
   decorators: [
     (Story) => (
-      <div className="w-full max-w-2xl p-6 bg-background">
+      <div className="bg-background w-full max-w-2xl p-6">
         <Story />
       </div>
     ),
@@ -218,7 +218,11 @@ export const IssuesResolved: Story = {
     steps: [
       passedWanStep,
       passedGatewayStep,
-      { ...failedDnsStep, status: 'passed', result: { success: true, message: 'DNS now working after fix', executionTimeMs: 310 } },
+      {
+        ...failedDnsStep,
+        status: 'passed',
+        result: { success: true, message: 'DNS now working after fix', executionTimeMs: 310 },
+      },
       passedNatStep,
       skippedInternetStep,
     ],
@@ -324,7 +328,11 @@ export const SingleFixApplied: Story = {
     steps: [
       {
         ...passedWanStep,
-        result: { success: true, message: 'WAN interface enabled successfully', executionTimeMs: 800 },
+        result: {
+          success: true,
+          message: 'WAN interface enabled successfully',
+          executionTimeMs: 800,
+        },
       },
       passedGatewayStep,
       passedInternetStep,

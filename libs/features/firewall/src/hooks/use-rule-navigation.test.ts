@@ -186,9 +186,7 @@ describe('useRuleNavigation', () => {
         isLoading: false,
       } as any);
 
-      const { result } = renderHook(() =>
-        useRuleNavigation({ routerId: differentRouterId })
-      );
+      const { result } = renderHook(() => useRuleNavigation({ routerId: differentRouterId }));
 
       result.current.navigateToRule('*2');
 
@@ -305,10 +303,9 @@ describe('useRuleNavigation', () => {
         isLoading: false,
       } as any);
 
-      const { result, rerender } = renderHook(
-        ({ routerId }) => useRuleNavigation({ routerId }),
-        { initialProps: { routerId: 'router-1' } }
-      );
+      const { result, rerender } = renderHook(({ routerId }) => useRuleNavigation({ routerId }), {
+        initialProps: { routerId: 'router-1' },
+      });
 
       result.current.navigateToRule('*1');
       expect(mockNavigate).toHaveBeenCalledWith(

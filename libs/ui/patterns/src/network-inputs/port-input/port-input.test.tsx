@@ -170,9 +170,7 @@ describe('Port Validation Utilities', () => {
     });
 
     it('should return error for invalid ranges', () => {
-      expect(getPortValidationError('9000-8000', 'range')).toBe(
-        'Start port must be <= end port'
-      );
+      expect(getPortValidationError('9000-8000', 'range')).toBe('Start port must be <= end port');
     });
 
     it('should return null for valid multi-port lists', () => {
@@ -196,18 +194,12 @@ describe('Port Validation Utilities', () => {
     });
 
     it('should format port range', () => {
-      expect(formatPortDisplay({ start: 8080, end: 8090 }, 'range')).toBe(
-        '8080-8090 (11 ports)'
-      );
-      expect(formatPortDisplay({ start: 80, end: 80 }, 'range')).toBe(
-        '80-80 (1 port)'
-      );
+      expect(formatPortDisplay({ start: 8080, end: 8090 }, 'range')).toBe('8080-8090 (11 ports)');
+      expect(formatPortDisplay({ start: 80, end: 80 }, 'range')).toBe('80-80 (1 port)');
     });
 
     it('should format multi-port list', () => {
-      expect(formatPortDisplay([80, 443, 8080], 'multi')).toBe(
-        '80, 443, 8080 (3 ports)'
-      );
+      expect(formatPortDisplay([80, 443, 8080], 'multi')).toBe('80, 443, 8080 (3 ports)');
       expect(formatPortDisplay([22], 'multi')).toBe('22 (1 port)');
     });
 
@@ -235,9 +227,7 @@ describe('usePortInput Hook', () => {
     });
 
     it('should parse valid port input', () => {
-      const { result } = renderHook(() =>
-        usePortInput({ mode: 'single', value: 443 })
-      );
+      const { result } = renderHook(() => usePortInput({ mode: 'single', value: 443 }));
 
       expect(result.current.port).toBe(443);
       expect(result.current.isValid).toBe(true);
@@ -262,9 +252,7 @@ describe('usePortInput Hook', () => {
 
     it('should call onChange when value changes', () => {
       const onChange = vi.fn();
-      const { result } = renderHook(() =>
-        usePortInput({ mode: 'single', onChange })
-      );
+      const { result } = renderHook(() => usePortInput({ mode: 'single', onChange }));
 
       act(() => {
         result.current.handleChange({
@@ -277,9 +265,7 @@ describe('usePortInput Hook', () => {
 
     it('should clear value', () => {
       const onChange = vi.fn();
-      const { result } = renderHook(() =>
-        usePortInput({ mode: 'single', value: 80, onChange })
-      );
+      const { result } = renderHook(() => usePortInput({ mode: 'single', value: 80, onChange }));
 
       act(() => {
         result.current.clear();
@@ -291,9 +277,7 @@ describe('usePortInput Hook', () => {
 
   describe('Range Mode', () => {
     it('should parse valid port range', () => {
-      const { result } = renderHook(() =>
-        usePortInput({ mode: 'range', value: '8080-8090' })
-      );
+      const { result } = renderHook(() => usePortInput({ mode: 'range', value: '8080-8090' }));
 
       expect(result.current.portRange).toEqual({ start: 8080, end: 8090 });
       expect(result.current.portCount).toBe(11);
@@ -302,9 +286,7 @@ describe('usePortInput Hook', () => {
 
     it('should handle range start/end changes', () => {
       const onChange = vi.fn();
-      const { result } = renderHook(() =>
-        usePortInput({ mode: 'range', onChange })
-      );
+      const { result } = renderHook(() => usePortInput({ mode: 'range', onChange }));
 
       act(() => {
         result.current.handleRangeStartChange('8080');
@@ -334,9 +316,7 @@ describe('usePortInput Hook', () => {
 
   describe('Multi Mode', () => {
     it('should parse multi-port string', () => {
-      const { result } = renderHook(() =>
-        usePortInput({ mode: 'multi', value: '80,443,8080' })
-      );
+      const { result } = renderHook(() => usePortInput({ mode: 'multi', value: '80,443,8080' }));
 
       expect(result.current.ports).toEqual([80, 443, 8080]);
       expect(result.current.portCount).toBe(3);
@@ -344,9 +324,7 @@ describe('usePortInput Hook', () => {
 
     it('should add port in multi mode', () => {
       const onChange = vi.fn();
-      const { result } = renderHook(() =>
-        usePortInput({ mode: 'multi', onChange })
-      );
+      const { result } = renderHook(() => usePortInput({ mode: 'multi', onChange }));
 
       act(() => {
         result.current.handleAddPort(80);
@@ -363,9 +341,7 @@ describe('usePortInput Hook', () => {
 
     it('should not add duplicate ports', () => {
       const onChange = vi.fn();
-      const { result } = renderHook(() =>
-        usePortInput({ mode: 'multi', value: '80', onChange })
-      );
+      const { result } = renderHook(() => usePortInput({ mode: 'multi', value: '80', onChange }));
 
       act(() => {
         result.current.handleAddPort(80);
@@ -391,17 +367,13 @@ describe('usePortInput Hook', () => {
 
   describe('Suggestions', () => {
     it('should show suggestions when enabled', () => {
-      const { result } = renderHook(() =>
-        usePortInput({ mode: 'single', showSuggestions: true })
-      );
+      const { result } = renderHook(() => usePortInput({ mode: 'single', showSuggestions: true }));
 
       expect(result.current.suggestions.length).toBeGreaterThan(0);
     });
 
     it('should navigate suggestions with arrow keys', () => {
-      const { result } = renderHook(() =>
-        usePortInput({ mode: 'single', showSuggestions: true })
-      );
+      const { result } = renderHook(() => usePortInput({ mode: 'single', showSuggestions: true }));
 
       act(() => {
         result.current.handleFocus();
@@ -453,7 +425,12 @@ describe('PortInput Component', () => {
     });
 
     it('should display service name for well-known ports', () => {
-      render(<PortInput value={443} showService />);
+      render(
+        <PortInput
+          value={443}
+          showService
+        />
+      );
 
       expect(screen.getByText('HTTPS')).toBeInTheDocument();
     });
@@ -472,7 +449,12 @@ describe('PortInput Component', () => {
     });
 
     it('should be disabled when disabled prop is true', () => {
-      render(<PortInput label="Port" disabled />);
+      render(
+        <PortInput
+          label="Port"
+          disabled
+        />
+      );
 
       expect(screen.getByLabelText('Port')).toBeDisabled();
     });
@@ -480,14 +462,24 @@ describe('PortInput Component', () => {
 
   describe('Range Mode', () => {
     it('should render two inputs for range mode', () => {
-      render(<PortInput mode="range" label="Port Range" />);
+      render(
+        <PortInput
+          mode="range"
+          label="Port Range"
+        />
+      );
 
       expect(screen.getByLabelText('Start port')).toBeInTheDocument();
       expect(screen.getByLabelText('End port')).toBeInTheDocument();
     });
 
     it('should display port count for valid range', () => {
-      render(<PortInput mode="range" value="8080-8090" />);
+      render(
+        <PortInput
+          mode="range"
+          value="8080-8090"
+        />
+      );
 
       expect(screen.getByText('11 ports')).toBeInTheDocument();
     });
@@ -495,7 +487,12 @@ describe('PortInput Component', () => {
 
   describe('Multi Mode', () => {
     it('should render port chips', () => {
-      render(<PortInput mode="multi" value="80,443,8080" />);
+      render(
+        <PortInput
+          mode="multi"
+          value="80,443,8080"
+        />
+      );
 
       expect(screen.getByText('80')).toBeInTheDocument();
       expect(screen.getByText('443')).toBeInTheDocument();
@@ -503,7 +500,12 @@ describe('PortInput Component', () => {
     });
 
     it('should display port count', () => {
-      render(<PortInput mode="multi" value="80,443,8080" />);
+      render(
+        <PortInput
+          mode="multi"
+          value="80,443,8080"
+        />
+      );
 
       expect(screen.getByText('3 ports selected')).toBeInTheDocument();
     });
@@ -514,7 +516,12 @@ describe('PortInput Component', () => {
       const onChange = vi.fn();
       const user = userEvent.setup();
 
-      render(<PortInput label="Port" onChange={onChange} />);
+      render(
+        <PortInput
+          label="Port"
+          onChange={onChange}
+        />
+      );
 
       const input = screen.getByLabelText('Port');
       await user.type(input, '443');
@@ -542,7 +549,11 @@ describe('PortInput Component', () => {
 describe('PortInput Accessibility', () => {
   it('should have no accessibility violations (single mode)', async () => {
     const { container } = render(
-      <PortInput label="Port" value={443} showService />
+      <PortInput
+        label="Port"
+        value={443}
+        showService
+      />
     );
 
     const results = await axe(container);
@@ -551,7 +562,11 @@ describe('PortInput Accessibility', () => {
 
   it('should have no accessibility violations (range mode)', async () => {
     const { container } = render(
-      <PortInput mode="range" label="Port Range" value="8080-8090" />
+      <PortInput
+        mode="range"
+        label="Port Range"
+        value="8080-8090"
+      />
     );
 
     const results = await axe(container);
@@ -560,7 +575,11 @@ describe('PortInput Accessibility', () => {
 
   it('should have no accessibility violations (multi mode)', async () => {
     const { container } = render(
-      <PortInput mode="multi" label="Ports" value="80,443" />
+      <PortInput
+        mode="multi"
+        label="Ports"
+        value="80,443"
+      />
     );
 
     const results = await axe(container);
@@ -569,7 +588,10 @@ describe('PortInput Accessibility', () => {
 
   it('should have no accessibility violations with error', async () => {
     const { container } = render(
-      <PortInput label="Port" error="Invalid port" />
+      <PortInput
+        label="Port"
+        error="Invalid port"
+      />
     );
 
     const results = await axe(container);
@@ -590,7 +612,12 @@ describe('PortInput Accessibility', () => {
   });
 
   it('should have aria-invalid when there is an error', () => {
-    render(<PortInput label="Port" error="Invalid" />);
+    render(
+      <PortInput
+        label="Port"
+        error="Invalid"
+      />
+    );
 
     expect(screen.getByLabelText('Port')).toHaveAttribute('aria-invalid', 'true');
   });
@@ -603,14 +630,25 @@ describe('PortInput Accessibility', () => {
 describe('Platform Presenters', () => {
   describe('PortInputDesktop', () => {
     it('should render desktop layout', () => {
-      render(<PortInputDesktop label="Port" value={443} showService />);
+      render(
+        <PortInputDesktop
+          label="Port"
+          value={443}
+          showService
+        />
+      );
 
       expect(screen.getByLabelText('Port')).toBeInTheDocument();
       expect(screen.getByText('HTTPS')).toBeInTheDocument();
     });
 
     it('should render range mode side-by-side', () => {
-      render(<PortInputDesktop mode="range" value="8080-8090" />);
+      render(
+        <PortInputDesktop
+          mode="range"
+          value="8080-8090"
+        />
+      );
 
       expect(screen.getByLabelText('Start port')).toBeInTheDocument();
       expect(screen.getByLabelText('End port')).toBeInTheDocument();
@@ -619,7 +657,13 @@ describe('Platform Presenters', () => {
 
   describe('PortInputMobile', () => {
     it('should render mobile layout', () => {
-      render(<PortInputMobile label="Port" value={443} showService />);
+      render(
+        <PortInputMobile
+          label="Port"
+          value={443}
+          showService
+        />
+      );
 
       expect(screen.getByLabelText('Port')).toBeInTheDocument();
       // Service shown below input on mobile
@@ -659,27 +703,21 @@ describe('Edge Cases', () => {
   });
 
   it('should handle minimum port (1)', () => {
-    const { result } = renderHook(() =>
-      usePortInput({ mode: 'single', value: 1 })
-    );
+    const { result } = renderHook(() => usePortInput({ mode: 'single', value: 1 }));
 
     expect(result.current.port).toBe(1);
     expect(result.current.isValid).toBe(true);
   });
 
   it('should handle maximum port (65535)', () => {
-    const { result } = renderHook(() =>
-      usePortInput({ mode: 'single', value: 65535 })
-    );
+    const { result } = renderHook(() => usePortInput({ mode: 'single', value: 65535 }));
 
     expect(result.current.port).toBe(65535);
     expect(result.current.isValid).toBe(true);
   });
 
   it('should handle single-port range (8080-8080)', () => {
-    const { result } = renderHook(() =>
-      usePortInput({ mode: 'range', value: '8080-8080' })
-    );
+    const { result } = renderHook(() => usePortInput({ mode: 'range', value: '8080-8080' }));
 
     expect(result.current.portRange).toEqual({ start: 8080, end: 8080 });
     expect(result.current.portCount).toBe(1);
@@ -699,9 +737,7 @@ describe('Edge Cases', () => {
   });
 
   it('should deduplicate ports in multi mode', () => {
-    const { result } = renderHook(() =>
-      usePortInput({ mode: 'multi', value: '80,80,443,443' })
-    );
+    const { result } = renderHook(() => usePortInput({ mode: 'multi', value: '80,80,443,443' }));
 
     expect(result.current.ports).toEqual([80, 443]);
     expect(result.current.portCount).toBe(2);

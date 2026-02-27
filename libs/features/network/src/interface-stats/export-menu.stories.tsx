@@ -87,10 +87,10 @@ export const Disabled: Story = {
  */
 export const InsideCardHeader: Story = {
   render: (args) => (
-    <div className="flex items-center justify-between rounded-md border bg-card px-component-sm py-component-xs shadow-sm w-[480px]">
+    <div className="bg-card px-component-sm py-component-xs flex w-[480px] items-center justify-between rounded-md border shadow-sm">
       <div className="flex flex-col">
         <span className="text-sm font-semibold">ether1 - WAN</span>
-        <span className="text-xs text-muted-foreground">Traffic Statistics</span>
+        <span className="text-muted-foreground text-xs">Traffic Statistics</span>
       </div>
       <ExportMenu {...args} />
     </div>
@@ -130,8 +130,8 @@ export const LoadingData: Story = {
  */
 export const MultipleMenus: Story = {
   render: () => (
-    <div className="flex items-center gap-component-md">
-      <div className="flex items-center gap-component-sm">
+    <div className="gap-component-md flex items-center">
+      <div className="gap-component-sm flex items-center">
         <span className="text-sm font-medium">ether1</span>
         <ExportMenu
           onExportCsv={fn()}

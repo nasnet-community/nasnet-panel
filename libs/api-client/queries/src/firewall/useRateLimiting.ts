@@ -74,7 +74,8 @@ interface RawAddressListEntry {
 /**
  * Input for creating a rate limit rule
  */
-export interface CreateRateLimitRuleInput extends Omit<RateLimitRuleInput, 'id' | 'packets' | 'bytes'> {}
+export interface CreateRateLimitRuleInput
+  extends Omit<RateLimitRuleInput, 'id' | 'packets' | 'bytes'> {}
 
 /**
  * Input for updating a rate limit rule
@@ -134,9 +135,8 @@ function transformRateLimitRule(raw: RawFilterRule): RateLimitRule | null {
     srcAddressList: raw['src-address-list'],
     connectionLimit: rate.limit,
     timeWindow: rate.timeWindow,
-    action: raw.action === 'add-src-to-address-list'
-      ? 'add-to-list'
-      : (raw.action as 'drop' | 'tarpit'),
+    action:
+      raw.action === 'add-src-to-address-list' ? 'add-to-list' : (raw.action as 'drop' | 'tarpit'),
     addressList: raw['address-list'],
     addressListTimeout: raw['address-list-timeout'],
     comment: raw.comment,
@@ -196,15 +196,12 @@ function transformBlockedIP(raw: RawAddressListEntry): BlockedIP {
  * Fetch all firewall filter rules with connection-rate matcher
  */
 async function fetchRateLimitRules(routerId: string): Promise<RateLimitRule[]> {
-  const response = await makeRouterOSRequest<RawFilterRule[]>(
-    routerId,
-    'ip/firewall/filter',
-    {
-      params: {
-        '.proplist': '.id,chain,action,connection-rate,src-address,src-address-list,address-list,address-list-timeout,comment,disabled,packets,bytes',
-      },
-    }
-  );
+  const response = await makeRouterOSRequest<RawFilterRule[]>(routerId, 'ip/firewall/filter', {
+    params: {
+      '.proplist':
+        '.id,chain,action,connection-rate,src-address,src-address-list,address-list,address-list-timeout,comment,disabled,packets,bytes',
+    },
+  });
 
   if (!response.success || !response.data) {
     throw new Error(response.error || 'Failed to fetch rate limit rules');
@@ -212,19 +209,14 @@ async function fetchRateLimitRules(routerId: string): Promise<RateLimitRule[]> {
 
   // Filter and transform only rules with connection-rate matcher
   const data = response.data;
-  return data
-    .map(transformRateLimitRule)
-    .filter((rule): rule is RateLimitRule => rule !== null);
+  return data.map(transformRateLimitRule).filter((rule): rule is RateLimitRule => rule !== null);
 }
 
 /**
  * Fetch SYN flood protection configuration from RAW table
  */
 async function fetchSynFloodConfig(routerId: string): Promise<SynFloodConfig> {
-  const response = await makeRouterOSRequest<RawRAWRule[]>(
-    routerId,
-    'ip/firewall/raw'
-  );
+  const response = await makeRouterOSRequest<RawRAWRule[]>(routerId, 'ip/firewall/raw');
 
   if (!response.success || !response.data) {
     throw new Error(response.error || 'Failed to fetch SYN flood config');
@@ -354,14 +346,10 @@ async function createRateLimitRule(
     body.comment = input.comment;
   }
 
-  const response = await makeRouterOSRequest<{ ret: string }>(
-    routerId,
-    'ip/firewall/filter/add',
-    {
-      method: 'POST',
-      body,
-    }
-  );
+  const response = await makeRouterOSRequest<{ ret: string }>(routerId, 'ip/firewall/filter/add', {
+    method: 'POST',
+    body,
+  });
 
   if (!response.success || !response.data) {
     throw new Error(response.error || 'Failed to create rate limit rule');
@@ -423,47 +411,39 @@ async function updateRateLimitRule(
     body.disabled = input.isDisabled;
   }
 
-  await makeRouterOSRequest(
-    routerId,
-    'ip/firewall/filter/set',
-    {
-      method: 'POST',
-      body,
-    }
-  );
+  await makeRouterOSRequest(routerId, 'ip/firewall/filter/set', {
+    method: 'POST',
+    body,
+  });
 }
 
 /**
  * Delete a rate limit rule
  */
 async function deleteRateLimitRule(routerId: string, ruleId: string): Promise<void> {
-  await makeRouterOSRequest(
-    routerId,
-    'ip/firewall/filter/remove',
-    {
-      method: 'POST',
-      body: {
-        '.id': ruleId,
-      },
-    }
-  );
+  await makeRouterOSRequest(routerId, 'ip/firewall/filter/remove', {
+    method: 'POST',
+    body: {
+      '.id': ruleId,
+    },
+  });
 }
 
 /**
  * Toggle a rate limit rule (enable/disable)
  */
-async function toggleRateLimitRule(routerId: string, ruleId: string, disabled: boolean): Promise<void> {
-  await makeRouterOSRequest(
-    routerId,
-    'ip/firewall/filter/set',
-    {
-      method: 'POST',
-      body: {
-        '.id': ruleId,
-        disabled,
-      },
-    }
-  );
+async function toggleRateLimitRule(
+  routerId: string,
+  ruleId: string,
+  disabled: boolean
+): Promise<void> {
+  await makeRouterOSRequest(routerId, 'ip/firewall/filter/set', {
+    method: 'POST',
+    body: {
+      '.id': ruleId,
+      disabled,
+    },
+  });
 }
 
 /**
@@ -471,10 +451,7 @@ async function toggleRateLimitRule(routerId: string, ruleId: string, disabled: b
  */
 async function updateSynFloodConfig(routerId: string, config: SynFloodConfig): Promise<void> {
   // Fetch existing SYN flood rule
-  const response = await makeRouterOSRequest<RawRAWRule[]>(
-    routerId,
-    'ip/firewall/raw'
-  );
+  const response = await makeRouterOSRequest<RawRAWRule[]>(routerId, 'ip/firewall/raw');
 
   const rawRules = response.data;
   const existingRule = rawRules?.find((rule: RawRAWRule) =>
@@ -484,16 +461,12 @@ async function updateSynFloodConfig(routerId: string, config: SynFloodConfig): P
   if (!config.isEnabled) {
     // Remove existing rule if disabling
     if (existingRule) {
-      await makeRouterOSRequest(
-        routerId,
-        'ip/firewall/raw/remove',
-        {
-          method: 'POST',
-          body: {
-            '.id': existingRule['.id'],
-          },
-        }
-      );
+      await makeRouterOSRequest(routerId, 'ip/firewall/raw/remove', {
+        method: 'POST',
+        body: {
+          '.id': existingRule['.id'],
+        },
+      });
     }
     return;
   }
@@ -511,27 +484,19 @@ async function updateSynFloodConfig(routerId: string, config: SynFloodConfig): P
 
   if (existingRule) {
     // Update existing rule
-    await makeRouterOSRequest(
-      routerId,
-      'ip/firewall/raw/set',
-      {
-        method: 'POST',
-        body: {
-          '.id': existingRule['.id'],
-          ...body,
-        },
-      }
-    );
+    await makeRouterOSRequest(routerId, 'ip/firewall/raw/set', {
+      method: 'POST',
+      body: {
+        '.id': existingRule['.id'],
+        ...body,
+      },
+    });
   } else {
     // Create new rule
-    await makeRouterOSRequest(
-      routerId,
-      'ip/firewall/raw/add',
-      {
-        method: 'POST',
-        body,
-      }
-    );
+    await makeRouterOSRequest(routerId, 'ip/firewall/raw/add', {
+      method: 'POST',
+      body,
+    });
   }
 }
 
@@ -539,35 +504,27 @@ async function updateSynFloodConfig(routerId: string, config: SynFloodConfig): P
  * Whitelist an IP address
  */
 async function whitelistIP(routerId: string, input: WhitelistIPInput): Promise<void> {
-  await makeRouterOSRequest(
-    routerId,
-    'ip/firewall/address-list/add',
-    {
-      method: 'POST',
-      body: {
-        list: 'rate-limit-whitelist',
-        address: input.address,
-        timeout: input.timeout || '', // Empty string for permanent
-        comment: input.comment,
-      },
-    }
-  );
+  await makeRouterOSRequest(routerId, 'ip/firewall/address-list/add', {
+    method: 'POST',
+    body: {
+      list: 'rate-limit-whitelist',
+      address: input.address,
+      timeout: input.timeout || '', // Empty string for permanent
+      comment: input.comment,
+    },
+  });
 }
 
 /**
  * Remove a blocked IP from address list
  */
 async function removeBlockedIP(routerId: string, entryId: string): Promise<void> {
-  await makeRouterOSRequest(
-    routerId,
-    'ip/firewall/address-list/remove',
-    {
-      method: 'POST',
-      body: {
-        '.id': entryId,
-      },
-    }
-  );
+  await makeRouterOSRequest(routerId, 'ip/firewall/address-list/remove', {
+    method: 'POST',
+    body: {
+      '.id': entryId,
+    },
+  });
 }
 
 // =============================================================================
@@ -736,9 +693,7 @@ export function useUpdateRateLimitRule(routerId: string) {
       if (previousRules) {
         queryClient.setQueryData<RateLimitRule[]>(
           rateLimitingKeys.rules(routerId),
-          previousRules.map((rule) =>
-            rule.id === input.id ? { ...rule, ...input } : rule
-          )
+          previousRules.map((rule) => (rule.id === input.id ? { ...rule, ...input } : rule))
         );
       }
 

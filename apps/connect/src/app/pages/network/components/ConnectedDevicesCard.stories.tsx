@@ -3,7 +3,6 @@
  * ARP/DHCP device summary card with status breakdown and device list
  */
 
-
 import type { ARPEntry } from '@nasnet/core/types';
 
 import { ConnectedDevicesCard } from './ConnectedDevicesCard';

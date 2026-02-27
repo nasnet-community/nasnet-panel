@@ -60,14 +60,7 @@ import type { SubnetInputProps } from './subnet-input.types';
  * - Full accessibility support
  */
 export const SubnetInput = memo(function SubnetInput(props: SubnetInputProps) {
-  const {
-    value,
-    onChange,
-    checkOverlap,
-    error,
-    showCalculations = true,
-    ...restProps
-  } = props;
+  const { value, onChange, checkOverlap, error, showCalculations = true, ...restProps } = props;
 
   // Use the headless hook for all logic
   const state = useSubnetInput({

@@ -63,8 +63,8 @@ export const EmptyState: Story = {
         >
           <strong style={{ color: '#EFC729' }}>Empty State</strong>
           <br />
-          The router list is empty. Users see an onboarding prompt with
-          an icon, description, and "Add Your First Router" button.
+          The router list is empty. Users see an onboarding prompt with an icon, description, and
+          "Add Your First Router" button.
         </div>
         <Story />
       </div>

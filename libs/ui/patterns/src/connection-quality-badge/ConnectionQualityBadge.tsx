@@ -11,7 +11,7 @@ import { memo } from 'react';
 
 import { Signal, SignalHigh, SignalLow, SignalMedium, Zap } from 'lucide-react';
 
-import { Badge , cn } from '@nasnet/ui/primitives';
+import { Badge, cn } from '@nasnet/ui/primitives';
 
 import { useConnectionIndicator } from '../connection-indicator/useConnectionIndicator';
 
@@ -50,9 +50,9 @@ export interface ConnectionQualityBadgeProps {
  * Quality level based on latency thresholds
  */
 const QUALITY_THRESHOLDS = {
-  EXCELLENT: 50,   // < 50ms
-  GOOD: 100,       // < 100ms
-  MODERATE: 200,   // < 200ms
+  EXCELLENT: 50, // < 50ms
+  GOOD: 100, // < 100ms
+  MODERATE: 200, // < 200ms
   // > 200ms = poor
 };
 
@@ -181,12 +181,8 @@ export const ConnectionQualityBadge = memo(function ConnectionQualityBadge({
       aria-label={`Connection quality: ${label}${latencyMs !== null ? `, ${latencyMs}ms latency` : ''}`}
     >
       {showIcon && <QualityIcon quality={quality} />}
-      {showLatency && latencyMs !== null && (
-        <span>{latencyMs}ms</span>
-      )}
-      {!showLatency && !showIcon && (
-        <span>{label}</span>
-      )}
+      {showLatency && latencyMs !== null && <span>{latencyMs}ms</span>}
+      {!showLatency && !showIcon && <span>{label}</span>}
     </Badge>
   );
 });
@@ -211,4 +207,3 @@ export function useConnectionQuality() {
     color: QUALITY_COLORS[quality],
   };
 }
-

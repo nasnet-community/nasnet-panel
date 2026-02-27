@@ -45,7 +45,12 @@
  * }, [event]);
  * ```
  */
-import type { KillSwitchStatus, SetKillSwitchInput, DeviceRouting, DeviceRoutingEvent } from '@nasnet/api-client/generated/types';
+import type {
+  KillSwitchStatus,
+  SetKillSwitchInput,
+  DeviceRouting,
+  DeviceRoutingEvent,
+} from '@nasnet/api-client/generated/types';
 /**
  * Hook to fetch kill switch status for a device
  *
@@ -73,11 +78,16 @@ import type { KillSwitchStatus, SetKillSwitchInput, DeviceRouting, DeviceRouting
  * );
  * ```
  */
-export declare function useKillSwitchStatus(routerId: string, deviceId: string): {
-    status: KillSwitchStatus | undefined;
-    loading: boolean;
-    error: import("@apollo/client").ApolloError | undefined;
-    refetch: (variables?: Partial<import("@apollo/client").OperationVariables> | undefined) => Promise<import("@apollo/client").ApolloQueryResult<any>>;
+export declare function useKillSwitchStatus(
+  routerId: string,
+  deviceId: string
+): {
+  status: KillSwitchStatus | undefined;
+  loading: boolean;
+  error: import('@apollo/client').ApolloError | undefined;
+  refetch: (
+    variables?: Partial<import('@apollo/client').OperationVariables> | undefined
+  ) => Promise<import('@apollo/client').ApolloQueryResult<any>>;
 };
 /**
  * Hook to set kill switch configuration for a device
@@ -121,11 +131,14 @@ export declare function useKillSwitchStatus(routerId: string, deviceId: string):
  * };
  * ```
  */
-export declare function useSetKillSwitch(): readonly [(input: SetKillSwitchInput) => Promise<DeviceRouting>, {
+export declare function useSetKillSwitch(): readonly [
+  (input: SetKillSwitchInput) => Promise<DeviceRouting>,
+  {
     readonly loading: boolean;
-    readonly error: import("@apollo/client").ApolloError | undefined;
+    readonly error: import('@apollo/client').ApolloError | undefined;
     readonly data: DeviceRouting | undefined;
-}];
+  },
+];
 /**
  * Hook to subscribe to real-time kill switch changes
  *
@@ -158,9 +171,9 @@ export declare function useSetKillSwitch(): readonly [(input: SetKillSwitchInput
  * ```
  */
 export declare function useKillSwitchSubscription(routerId: string): {
-    event: DeviceRoutingEvent | null;
-    loading: boolean;
-    error: import("@apollo/client").ApolloError | undefined;
+  event: DeviceRoutingEvent | null;
+  loading: boolean;
+  error: import('@apollo/client').ApolloError | undefined;
 };
 export type { KillSwitchStatus, SetKillSwitchInput, DeviceRouting, DeviceRoutingEvent };
 //# sourceMappingURL=useKillSwitch.d.ts.map

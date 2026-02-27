@@ -246,9 +246,9 @@ function computeSummary(context: TroubleshootContext): DiagnosticSummary {
     skippedSteps,
     appliedFixes: context.appliedFixes,
     durationMs:
-      context.endTime && context.startTime
-        ? context.endTime.getTime() - context.startTime.getTime()
-        : 0,
+      context.endTime && context.startTime ?
+        context.endTime.getTime() - context.startTime.getTime()
+      : 0,
     finalStatus,
   };
 }
@@ -269,8 +269,9 @@ function getMessagesForStep(step: DiagnosticStep) {
     description: stepMessages?.description || step.description,
     runningMessage: stepMessages?.running || 'Running diagnostic...',
     passedMessage: stepMessages?.passed || 'Check passed',
-    failedMessage: step.result?.issueCode
-      ? (stepMessages?.failed as Record<string, string>)?.[step.result.issueCode] ||
+    failedMessage:
+      step.result?.issueCode ?
+        (stepMessages?.failed as Record<string, string>)?.[step.result.issueCode] ||
         step.result?.message
       : step.result?.message || 'Check failed',
   };

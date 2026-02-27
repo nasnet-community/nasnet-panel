@@ -47,7 +47,8 @@ export const HealthyStatus: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'VPN infrastructure is healthy. Status hero shows green background with animated pulse icon.',
+        story:
+          'VPN infrastructure is healthy. Status hero shows green background with animated pulse icon.',
       },
     },
   },
@@ -67,7 +68,8 @@ export const WarningStatus: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Some VPN connections need attention. Amber background with alert icon shows number of issues.',
+        story:
+          'Some VPN connections need attention. Amber background with alert icon shows number of issues.',
       },
     },
   },
@@ -87,7 +89,8 @@ export const CriticalStatus: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'VPN infrastructure has errors. Red background with error icon displays multiple issues.',
+        story:
+          'VPN infrastructure has errors. Red background with error icon displays multiple issues.',
       },
     },
   },

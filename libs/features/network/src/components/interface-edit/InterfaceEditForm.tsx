@@ -33,10 +33,7 @@ const INTERFACE_SETTINGS_SCHEMA = z.object({
     .max(9000, 'MTU cannot exceed 9000 bytes')
     .optional()
     .or(z.literal('')),
-  comment: z
-    .string()
-    .max(255, 'Comment cannot exceed 255 characters')
-    .optional(),
+  comment: z.string().max(255, 'Comment cannot exceed 255 characters').optional(),
 });
 
 const MIN_MTU = 68;
@@ -84,61 +81,65 @@ export const InterfaceEditForm = memo(function InterfaceEditForm({
     },
   });
 
-  const handleSubmit = useCallback(async (values: InterfaceSettingsFormData) => {
-    try {
-      const result = await updateInterface({
-        variables: {
-          routerId,
-          interfaceId: iface.id,
-          input: {
-            enabled: values.enabled,
-            mtu: values.mtu === '' ? null : Number(values.mtu),
-            comment: values.comment || null,
+  const handleSubmit = useCallback(
+    async (values: InterfaceSettingsFormData) => {
+      try {
+        const result = await updateInterface({
+          variables: {
+            routerId,
+            interfaceId: iface.id,
+            input: {
+              enabled: values.enabled,
+              mtu: values.mtu === '' ? null : Number(values.mtu),
+              comment: values.comment || null,
+            },
           },
-        },
-      });
+        });
 
-      const data = result.data?.updateInterface;
-      if (data?.errors && data.errors.length > 0) {
-        // Show validation errors from backend
-        data.errors.forEach((error: { message: string }) => {
-          toast({
-            title: 'Validation error',
-            description: error.message,
-            variant: 'error',
+        const data = result.data?.updateInterface;
+        if (data?.errors && data.errors.length > 0) {
+          // Show validation errors from backend
+          data.errors.forEach((error: { message: string }) => {
+            toast({
+              title: 'Validation error',
+              description: error.message,
+              variant: 'error',
+            });
           });
-        });
-      } else {
-        // Success
+        } else {
+          // Success
+          toast({
+            title: 'Interface updated',
+            description: `${iface.name} settings have been saved successfully`,
+          });
+          onSuccess?.();
+        }
+      } catch (error) {
         toast({
-          title: 'Interface updated',
-          description: `${iface.name} settings have been saved successfully`,
+          title: 'Update failed',
+          description: error instanceof Error ? error.message : 'Unknown error occurred',
+          variant: 'error',
         });
-        onSuccess?.();
       }
-    } catch (error) {
-      toast({
-        title: 'Update failed',
-        description: error instanceof Error ? error.message : 'Unknown error occurred',
-        variant: 'error',
-      });
-    }
-  }, [updateInterface, routerId, iface.id, iface.name, onSuccess, toast]);
+    },
+    [updateInterface, routerId, iface.id, iface.name, onSuccess, toast]
+  );
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-component-lg category-networking">
+      <form
+        onSubmit={form.handleSubmit(handleSubmit)}
+        className="space-y-component-lg category-networking"
+      >
         {/* Enabled toggle */}
         <FormField
           control={form.control}
           name="enabled"
           render={({ field }) => (
-            <FormItem className="flex flex-row items-center justify-between rounded-card-sm border border-border p-component-md">
+            <FormItem className="rounded-card-sm border-border p-component-md flex flex-row items-center justify-between border">
               <div className="space-y-component-xs">
-                <FormLabel className="text-base font-display">Enable Interface</FormLabel>
-                <FormDescription>
-                  Enable or disable this network interface
-                </FormDescription>
+                <FormLabel className="font-display text-base">Enable Interface</FormLabel>
+                <FormDescription>Enable or disable this network interface</FormDescription>
               </div>
               <FormControl>
                 <Switch
@@ -205,7 +206,7 @@ export const InterfaceEditForm = memo(function InterfaceEditForm({
         />
 
         {/* Form actions */}
-        <div className="flex gap-component-sm justify-end pt-component-lg">
+        <div className="gap-component-sm pt-component-lg flex justify-end">
           {onCancel && (
             <Button
               type="button"
@@ -217,7 +218,11 @@ export const InterfaceEditForm = memo(function InterfaceEditForm({
               Cancel
             </Button>
           )}
-          <Button type="submit" disabled={loading} className="min-h-[44px]">
+          <Button
+            type="submit"
+            disabled={loading}
+            className="min-h-[44px]"
+          >
             {loading ? 'Saving...' : 'Save Changes'}
           </Button>
         </div>

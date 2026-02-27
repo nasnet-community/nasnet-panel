@@ -26,18 +26,20 @@ function FormWrapper({
   children: React.ReactNode;
   onSubmit?: (data: Record<string, unknown>) => void;
 }) {
-  const schema = z.object({
-    username: z.string().min(3, 'Username must be at least 3 characters'),
-    email: z.string().email('Invalid email address'),
-    password: z.string().min(8, 'Password must be at least 8 characters'),
-    confirmPassword: z.string(),
-    firstName: z.string().optional(),
-    lastName: z.string().optional(),
-    fullName: z.string().optional(),
-  }).refine((data) => data.password === data.confirmPassword, {
-    message: 'Passwords do not match',
-    path: ['confirmPassword'],
-  });
+  const schema = z
+    .object({
+      username: z.string().min(3, 'Username must be at least 3 characters'),
+      email: z.string().email('Invalid email address'),
+      password: z.string().min(8, 'Password must be at least 8 characters'),
+      confirmPassword: z.string(),
+      firstName: z.string().optional(),
+      lastName: z.string().optional(),
+      fullName: z.string().optional(),
+    })
+    .refine((data) => data.password === data.confirmPassword, {
+      message: 'Passwords do not match',
+      path: ['confirmPassword'],
+    });
 
   const methods = useForm({
     defaultValues: {
@@ -55,7 +57,10 @@ function FormWrapper({
 
   return (
     <FormProvider {...methods}>
-      <form onSubmit={methods.handleSubmit(onSubmit)} className="space-y-4 max-w-md">
+      <form
+        onSubmit={methods.handleSubmit(onSubmit)}
+        className="max-w-md space-y-4"
+      >
         {children}
       </form>
     </FormProvider>
@@ -143,15 +148,19 @@ export const ReadonlyMode: Story = {
 export const ComputedMode: Story = {
   render: () => (
     <FormWrapper>
-      <RHFFormField name="firstName" label="First Name" />
-      <RHFFormField name="lastName" label="Last Name" />
+      <RHFFormField
+        name="firstName"
+        label="First Name"
+      />
+      <RHFFormField
+        name="lastName"
+        label="Last Name"
+      />
       <RHFFormField
         name="fullName"
         label="Full Name"
         mode="computed"
-        computeFn={(values) =>
-          `${values.firstName || ''} ${values.lastName || ''}`.trim()
-        }
+        computeFn={(values) => `${values.firstName || ''} ${values.lastName || ''}`.trim()}
         description="Automatically computed from first and last name"
       />
     </FormWrapper>
@@ -164,9 +173,7 @@ export const ComputedMode: Story = {
  * Standalone error message
  */
 export const ErrorMessage: StoryObj<typeof FormFieldError> = {
-  render: () => (
-    <FormFieldError message="This field is required" />
-  ),
+  render: () => <FormFieldError message="This field is required" />,
 };
 
 /**
@@ -174,10 +181,10 @@ export const ErrorMessage: StoryObj<typeof FormFieldError> = {
  */
 export const NoError: StoryObj<typeof FormFieldError> = {
   render: () => (
-    <div className="p-4 border rounded">
-      <p className="text-sm text-muted-foreground mb-2">FormFieldError with no message:</p>
+    <div className="rounded border p-4">
+      <p className="text-muted-foreground mb-2 text-sm">FormFieldError with no message:</p>
       <FormFieldError />
-      <p className="text-sm text-muted-foreground mt-2">(Nothing renders above)</p>
+      <p className="text-muted-foreground mt-2 text-sm">(Nothing renders above)</p>
     </div>
   ),
 };
@@ -204,12 +211,12 @@ export const SubmitButtonStates: StoryObj<typeof FormSubmitButton> = {
   render: () => (
     <div className="space-y-4">
       <FormWrapper>
-        <p className="text-sm text-muted-foreground mb-2">Normal state:</p>
+        <p className="text-muted-foreground mb-2 text-sm">Normal state:</p>
         <FormSubmitButton>Save Changes</FormSubmitButton>
       </FormWrapper>
 
       <FormWrapper>
-        <p className="text-sm text-muted-foreground mb-2">With loading text:</p>
+        <p className="text-muted-foreground mb-2 text-sm">With loading text:</p>
         <FormSubmitButton loadingText="Saving...">Save Changes</FormSubmitButton>
       </FormWrapper>
     </div>
@@ -242,7 +249,10 @@ export const ArrayField: StoryObj<typeof FormArrayField> = {
 
       return (
         <FormProvider {...methods}>
-          <form onSubmit={methods.handleSubmit((data) => console.log(data))} className="space-y-4">
+          <form
+            onSubmit={methods.handleSubmit((data) => console.log(data))}
+            className="space-y-4"
+          >
             <FormArrayField
               name="peers"
               label="VPN Peers"

@@ -8,7 +8,6 @@ import { ResourceUsageBar } from './ResourceUsageBar';
 
 import type { Meta, StoryObj } from '@storybook/react';
 
-
 const meta: Meta<typeof ResourceUsageBar> = {
   title: 'Patterns/ResourceUsageBar',
   component: ResourceUsageBar,
@@ -300,24 +299,49 @@ export const AllStates: Story = {
   render: () => (
     <div className="space-y-4">
       <div>
-        <h3 className="text-sm font-semibold mb-2">Idle (0%)</h3>
-        <ResourceUsageBar used={0} total={1024} resourceType="memory" unit="MB" />
+        <h3 className="mb-2 text-sm font-semibold">Idle (0%)</h3>
+        <ResourceUsageBar
+          used={0}
+          total={1024}
+          resourceType="memory"
+          unit="MB"
+        />
       </div>
       <div>
-        <h3 className="text-sm font-semibold mb-2">Normal (50%)</h3>
-        <ResourceUsageBar used={512} total={1024} resourceType="memory" unit="MB" />
+        <h3 className="mb-2 text-sm font-semibold">Normal (50%)</h3>
+        <ResourceUsageBar
+          used={512}
+          total={1024}
+          resourceType="memory"
+          unit="MB"
+        />
       </div>
       <div>
-        <h3 className="text-sm font-semibold mb-2">Warning (68%)</h3>
-        <ResourceUsageBar used={700} total={1024} resourceType="memory" unit="MB" />
+        <h3 className="mb-2 text-sm font-semibold">Warning (68%)</h3>
+        <ResourceUsageBar
+          used={700}
+          total={1024}
+          resourceType="memory"
+          unit="MB"
+        />
       </div>
       <div>
-        <h3 className="text-sm font-semibold mb-2">Critical (88%)</h3>
-        <ResourceUsageBar used={900} total={1024} resourceType="memory" unit="MB" />
+        <h3 className="mb-2 text-sm font-semibold">Critical (88%)</h3>
+        <ResourceUsageBar
+          used={900}
+          total={1024}
+          resourceType="memory"
+          unit="MB"
+        />
       </div>
       <div>
-        <h3 className="text-sm font-semibold mb-2">Danger (98%)</h3>
-        <ResourceUsageBar used={1000} total={1024} resourceType="memory" unit="MB" />
+        <h3 className="mb-2 text-sm font-semibold">Danger (98%)</h3>
+        <ResourceUsageBar
+          used={1000}
+          total={1024}
+          resourceType="memory"
+          unit="MB"
+        />
       </div>
     </div>
   ),
@@ -336,11 +360,31 @@ export const AllStates: Story = {
  */
 export const MultipleResources: Story = {
   render: () => (
-    <div className="space-y-4 max-w-2xl">
-      <ResourceUsageBar used={768} total={1024} resourceType="memory" unit="MB" />
-      <ResourceUsageBar used={45} total={100} resourceType="cpu" unit="%" />
-      <ResourceUsageBar used={120} total={500} resourceType="disk" unit="GB" />
-      <ResourceUsageBar used={850} total={1000} resourceType="network" unit="Mbps" />
+    <div className="max-w-2xl space-y-4">
+      <ResourceUsageBar
+        used={768}
+        total={1024}
+        resourceType="memory"
+        unit="MB"
+      />
+      <ResourceUsageBar
+        used={45}
+        total={100}
+        resourceType="cpu"
+        unit="%"
+      />
+      <ResourceUsageBar
+        used={120}
+        total={500}
+        resourceType="disk"
+        unit="GB"
+      />
+      <ResourceUsageBar
+        used={850}
+        total={1000}
+        resourceType="network"
+        unit="Mbps"
+      />
     </div>
   ),
   parameters: {

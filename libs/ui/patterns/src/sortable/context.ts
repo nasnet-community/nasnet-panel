@@ -25,7 +25,9 @@ SortableContext.displayName = 'SortableContext';
 /**
  * Get sortable context (throws if not within SortableList)
  */
-export function useSortableContext<T extends SortableItemData = SortableItemData>(): SortableContextValue<T> {
+export function useSortableContext<
+  T extends SortableItemData = SortableItemData,
+>(): SortableContextValue<T> {
   const context = React.useContext(SortableContext);
 
   if (!context) {
@@ -38,7 +40,9 @@ export function useSortableContext<T extends SortableItemData = SortableItemData
 /**
  * Get sortable context (returns null if not within SortableList)
  */
-export function useSortableContextOptional<T extends SortableItemData = SortableItemData>(): SortableContextValue<T> | null {
+export function useSortableContextOptional<
+  T extends SortableItemData = SortableItemData,
+>(): SortableContextValue<T> | null {
   return React.useContext(SortableContext) as SortableContextValue<T> | null;
 }
 

@@ -29,9 +29,7 @@ export const PppoeInterfaceStep = memo(function PppoeInterfaceStep({
   stepper,
   className,
 }: PppoeInterfaceStepProps) {
-  const [selectedInterface, setSelectedInterface] = useState<RouterInterface | null>(
-    null
-  );
+  const [selectedInterface, setSelectedInterface] = useState<RouterInterface | null>(null);
 
   const form = useForm<PppoeInterfaceStepFormValues>({
     resolver: zodResolver(pppoeInterfaceStepSchema),
@@ -44,15 +42,18 @@ export const PppoeInterfaceStep = memo(function PppoeInterfaceStep({
   /**
    * Handle interface selection
    */
-  const handleInterfaceSelect = useCallback((value: string | string[]) => {
-    const selectedId = Array.isArray(value) ? value[0] : value;
-    // In a real implementation, we'd fetch the interface details by ID
-    // For now, we just store the ID
-    form.setValue('interface', selectedId, {
-      shouldValidate: true,
-      shouldDirty: true,
-    });
-  }, [form]);
+  const handleInterfaceSelect = useCallback(
+    (value: string | string[]) => {
+      const selectedId = Array.isArray(value) ? value[0] : value;
+      // In a real implementation, we'd fetch the interface details by ID
+      // For now, we just store the ID
+      form.setValue('interface', selectedId, {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
+    },
+    [form]
+  );
 
   // Auto-save form data to stepper
   useEffect(() => {
@@ -71,9 +72,12 @@ export const PppoeInterfaceStep = memo(function PppoeInterfaceStep({
         <div className="space-y-component-md">
           {/* PPPoE Interface Name */}
           <div>
-            <div className="flex items-center gap-component-sm mb-component-md">
+            <div className="gap-component-sm mb-component-md flex items-center">
               <Label htmlFor="pppoe-name">
-                <Network className="inline h-4 w-4 mr-component-xs" aria-hidden="true" />
+                <Network
+                  className="mr-component-xs inline h-4 w-4"
+                  aria-hidden="true"
+                />
                 PPPoE Interface Name
               </Label>
               <FieldHelp field="name" />
@@ -84,23 +88,33 @@ export const PppoeInterfaceStep = memo(function PppoeInterfaceStep({
               placeholder="pppoe-wan"
               {...form.register('name')}
               aria-describedby="name-error name-help"
-              className="font-mono text-sm category-networking"
+              className="category-networking font-mono text-sm"
             />
             {form.formState.errors.name && (
-              <p id="name-error" className="text-sm text-error mt-component-xs" role="alert">
+              <p
+                id="name-error"
+                className="text-error mt-component-xs text-sm"
+                role="alert"
+              >
                 {form.formState.errors.name.message}
               </p>
             )}
-            <p id="name-help" className="text-xs text-muted-foreground mt-component-xs">
+            <p
+              id="name-help"
+              className="text-muted-foreground mt-component-xs text-xs"
+            >
               Letters, numbers, hyphens, and underscores only (max 64 characters)
             </p>
           </div>
 
           {/* Physical Interface Selection */}
           <div>
-            <div className="flex items-center gap-component-sm mb-component-md">
+            <div className="gap-component-sm mb-component-md flex items-center">
               <Label htmlFor="interface-selector">Physical Interface</Label>
-              <FieldHelp field="interface" aria-label="Help about physical interface selection" />
+              <FieldHelp
+                field="interface"
+                aria-label="Help about physical interface selection"
+              />
             </div>
             <InterfaceSelector
               id="interface-selector"
@@ -111,7 +125,7 @@ export const PppoeInterfaceStep = memo(function PppoeInterfaceStep({
             />
             {form.formState.errors.interface && (
               <p
-                className="text-sm text-error mt-1"
+                className="text-error mt-1 text-sm"
                 role="alert"
                 id="interface-error"
               >
@@ -122,11 +136,9 @@ export const PppoeInterfaceStep = memo(function PppoeInterfaceStep({
 
           {/* Selected Interface Details */}
           {selectedInterface && (
-            <div className="rounded-lg border bg-muted/50 p-component-md space-y-component-sm category-networking">
-              <h4 className="font-medium text-sm">
-                Selected Interface Details
-              </h4>
-              <div className="grid grid-cols-2 gap-component-sm text-sm">
+            <div className="bg-muted/50 p-component-md space-y-component-sm category-networking rounded-lg border">
+              <h4 className="text-sm font-medium">Selected Interface Details</h4>
+              <div className="gap-component-sm grid grid-cols-2 text-sm">
                 <div>
                   <span className="text-muted-foreground">Name:</span>
                   <span className="ml-component-md font-mono text-xs">
@@ -146,9 +158,9 @@ export const PppoeInterfaceStep = memo(function PppoeInterfaceStep({
                   </div>
                 )}
               </div>
-              <p className="text-xs text-muted-foreground pt-component-md border-t">
+              <p className="text-muted-foreground pt-component-md border-t text-xs">
                 <strong>Note:</strong> PPPoE will create a virtual interface named{' '}
-                <code className="bg-muted px-component-xs py-0.5 rounded font-mono text-xs">
+                <code className="bg-muted px-component-xs rounded py-0.5 font-mono text-xs">
                   {form.watch('name')}
                 </code>{' '}
                 bound to this physical interface.

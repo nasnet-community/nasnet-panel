@@ -1,4 +1,10 @@
-import type { ConfigSchema, ApplyServiceConfigInput, ValidateServiceConfigInput, ConfigValidationResult, ApplyConfigPayload } from '@nasnet/api-client/generated';
+import type {
+  ConfigSchema,
+  ApplyServiceConfigInput,
+  ValidateServiceConfigInput,
+  ConfigValidationResult,
+  ApplyConfigPayload,
+} from '@nasnet/api-client/generated';
 /**
  * Hook to get configuration schema for a service type
  *
@@ -14,10 +20,12 @@ import type { ConfigSchema, ApplyServiceConfigInput, ValidateServiceConfigInput,
  * ```
  */
 export declare function useServiceConfigSchema(serviceType: string): {
-    schema: ConfigSchema | undefined;
-    loading: boolean;
-    error: import("@apollo/client").ApolloError | undefined;
-    refetch: (variables?: Partial<import("@apollo/client").OperationVariables> | undefined) => Promise<import("@apollo/client").ApolloQueryResult<any>>;
+  schema: ConfigSchema | undefined;
+  loading: boolean;
+  error: import('@apollo/client').ApolloError | undefined;
+  refetch: (
+    variables?: Partial<import('@apollo/client').OperationVariables> | undefined
+  ) => Promise<import('@apollo/client').ApolloQueryResult<any>>;
 };
 /**
  * Hook to get current configuration for a service instance
@@ -31,11 +39,16 @@ export declare function useServiceConfigSchema(serviceType: string): {
  * }
  * ```
  */
-export declare function useInstanceConfig(routerID: string, instanceID: string): {
-    config: Record<string, unknown> | undefined;
-    loading: boolean;
-    error: import("@apollo/client").ApolloError | undefined;
-    refetch: (variables?: Partial<import("@apollo/client").OperationVariables> | undefined) => Promise<import("@apollo/client").ApolloQueryResult<any>>;
+export declare function useInstanceConfig(
+  routerID: string,
+  instanceID: string
+): {
+  config: Record<string, unknown> | undefined;
+  loading: boolean;
+  error: import('@apollo/client').ApolloError | undefined;
+  refetch: (
+    variables?: Partial<import('@apollo/client').OperationVariables> | undefined
+  ) => Promise<import('@apollo/client').ApolloQueryResult<any>>;
 };
 /**
  * Hook for validating service configuration
@@ -58,9 +71,9 @@ export declare function useInstanceConfig(routerID: string, instanceID: string):
  * ```
  */
 export declare function useValidateServiceConfig(): {
-    validateConfig: (input: ValidateServiceConfigInput) => Promise<ConfigValidationResult>;
-    loading: boolean;
-    error: import("@apollo/client").ApolloError | undefined;
+  validateConfig: (input: ValidateServiceConfigInput) => Promise<ConfigValidationResult>;
+  loading: boolean;
+  error: import('@apollo/client').ApolloError | undefined;
 };
 /**
  * Hook for applying service configuration
@@ -83,9 +96,9 @@ export declare function useValidateServiceConfig(): {
  * ```
  */
 export declare function useApplyServiceConfig(): {
-    applyConfig: (input: ApplyServiceConfigInput) => Promise<ApplyConfigPayload>;
-    loading: boolean;
-    error: import("@apollo/client").ApolloError | undefined;
+  applyConfig: (input: ApplyServiceConfigInput) => Promise<ApplyConfigPayload>;
+  loading: boolean;
+  error: import('@apollo/client').ApolloError | undefined;
 };
 /**
  * Combined hook providing all service configuration operations
@@ -113,24 +126,32 @@ export declare function useApplyServiceConfig(): {
  * }
  * ```
  */
-export declare function useServiceConfigOperations(serviceType: string, routerID: string, instanceID: string): {
-    schema: ConfigSchema | undefined;
-    config: Record<string, unknown> | undefined;
-    validateConfig: (input: ValidateServiceConfigInput) => Promise<ConfigValidationResult>;
-    applyConfig: (input: ApplyServiceConfigInput) => Promise<ApplyConfigPayload>;
-    refetchSchema: (variables?: Partial<import("@apollo/client").OperationVariables> | undefined) => Promise<import("@apollo/client").ApolloQueryResult<any>>;
-    refetchConfig: (variables?: Partial<import("@apollo/client").OperationVariables> | undefined) => Promise<import("@apollo/client").ApolloQueryResult<any>>;
-    loading: {
-        schema: boolean;
-        config: boolean;
-        validating: boolean;
-        applying: boolean;
-    };
-    errors: {
-        schema: import("@apollo/client").ApolloError | undefined;
-        config: import("@apollo/client").ApolloError | undefined;
-        validation: import("@apollo/client").ApolloError | undefined;
-        application: import("@apollo/client").ApolloError | undefined;
-    };
+export declare function useServiceConfigOperations(
+  serviceType: string,
+  routerID: string,
+  instanceID: string
+): {
+  schema: ConfigSchema | undefined;
+  config: Record<string, unknown> | undefined;
+  validateConfig: (input: ValidateServiceConfigInput) => Promise<ConfigValidationResult>;
+  applyConfig: (input: ApplyServiceConfigInput) => Promise<ApplyConfigPayload>;
+  refetchSchema: (
+    variables?: Partial<import('@apollo/client').OperationVariables> | undefined
+  ) => Promise<import('@apollo/client').ApolloQueryResult<any>>;
+  refetchConfig: (
+    variables?: Partial<import('@apollo/client').OperationVariables> | undefined
+  ) => Promise<import('@apollo/client').ApolloQueryResult<any>>;
+  loading: {
+    schema: boolean;
+    config: boolean;
+    validating: boolean;
+    applying: boolean;
+  };
+  errors: {
+    schema: import('@apollo/client').ApolloError | undefined;
+    config: import('@apollo/client').ApolloError | undefined;
+    validation: import('@apollo/client').ApolloError | undefined;
+    application: import('@apollo/client').ApolloError | undefined;
+  };
 };
 //# sourceMappingURL=useServiceConfig.d.ts.map

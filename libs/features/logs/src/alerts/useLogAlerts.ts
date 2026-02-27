@@ -72,13 +72,9 @@ export function useLogAlerts(): UseLogAlertsReturn {
   const { toast } = useToast();
   const alertService = React.useMemo(() => getLogAlertService(), []);
 
-  const [settings, setSettings] = React.useState<AlertSettings>(() =>
-    alertService.getSettings()
-  );
+  const [settings, setSettings] = React.useState<AlertSettings>(() => alertService.getSettings());
   const [notificationPermission, setNotificationPermission] =
-    React.useState<NotificationPermission>(() =>
-      alertService.getNotificationPermission()
-    );
+    React.useState<NotificationPermission>(() => alertService.getNotificationPermission());
 
   // Set up toast handler
   React.useEffect(() => {
@@ -184,30 +180,3 @@ export function useLogAlerts(): UseLogAlertsReturn {
     processLogs: handleProcessLogs,
   };
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

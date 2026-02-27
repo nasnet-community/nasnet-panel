@@ -1,7 +1,7 @@
 {
   "id": "operations/development-workflow",
   "title": "Development Workflow",
-  "description": "Day-to-day guide for developing the apps/connect frontend. Covers environment startup, HMR behaviour, debugging, common development tasks, and the PR process.",
+  "description": "Day-to-day guide for developing the apps/connect frontend. Covers environment startup, HMR",
   "source": "@site/../connect/docs/operations/development-workflow.md",
   "sourceDirName": "operations",
   "slug": "/operations/development-workflow",

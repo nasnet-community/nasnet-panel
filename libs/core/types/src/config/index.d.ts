@@ -40,40 +40,40 @@ export type ThemeMode = 'light' | 'dark' | 'system';
  * ```
  */
 export interface AppConfig {
-    /** API server configuration */
-    api: {
-        /** Base URL for API endpoints */
-        baseUrl: string;
-        /** Request timeout in milliseconds */
-        timeout: number;
-    };
-    /** UI/UX preferences */
-    ui: {
-        /** Color theme mode */
-        theme: ThemeMode;
-        /** Preferred language code (e.g., 'en', 'es') */
-        language: string;
-    };
-    /** Default router connection settings */
-    router: {
-        /** Default RouterOS API port */
-        defaultPort: number;
-        /** Number of reconnection attempts */
-        retryAttempts: number;
-        /** Delay between retry attempts in milliseconds */
-        retryDelay: number;
-    };
-    /** Feature enablement flags */
-    features: {
-        /** Enable WireGuard VPN support */
-        isWireGuardVPNEnabled: boolean;
-        /** Enable DHCP monitoring and management */
-        isDHCPMonitoringEnabled: boolean;
-        /** Enable firewall rules viewer */
-        isFirewallViewerEnabled: boolean;
-        /** Enable safety pipeline for config changes */
-        isSafetyPipelineEnabled: boolean;
-    };
+  /** API server configuration */
+  api: {
+    /** Base URL for API endpoints */
+    baseUrl: string;
+    /** Request timeout in milliseconds */
+    timeout: number;
+  };
+  /** UI/UX preferences */
+  ui: {
+    /** Color theme mode */
+    theme: ThemeMode;
+    /** Preferred language code (e.g., 'en', 'es') */
+    language: string;
+  };
+  /** Default router connection settings */
+  router: {
+    /** Default RouterOS API port */
+    defaultPort: number;
+    /** Number of reconnection attempts */
+    retryAttempts: number;
+    /** Delay between retry attempts in milliseconds */
+    retryDelay: number;
+  };
+  /** Feature enablement flags */
+  features: {
+    /** Enable WireGuard VPN support */
+    isWireGuardVPNEnabled: boolean;
+    /** Enable DHCP monitoring and management */
+    isDHCPMonitoringEnabled: boolean;
+    /** Enable firewall rules viewer */
+    isFirewallViewerEnabled: boolean;
+    /** Enable safety pipeline for config changes */
+    isSafetyPipelineEnabled: boolean;
+  };
 }
 /**
  * Router connection credentials and settings
@@ -95,20 +95,20 @@ export interface AppConfig {
  * ```
  */
 export interface RouterConnectionConfig {
-    /** Router IP address or hostname */
-    address: string;
-    /** API port to connect to */
-    port: number;
-    /** Username for authentication */
-    username: string;
-    /** Password for authentication */
-    password: string;
-    /** Whether to use TLS/SSL encryption */
-    useTLS: boolean;
-    /** Whether to verify TLS certificate validity */
-    verifyCertificate: boolean;
-    /** Connection timeout in milliseconds */
-    timeout: number;
+  /** Router IP address or hostname */
+  address: string;
+  /** API port to connect to */
+  port: number;
+  /** Username for authentication */
+  username: string;
+  /** Password for authentication */
+  password: string;
+  /** Whether to use TLS/SSL encryption */
+  useTLS: boolean;
+  /** Whether to verify TLS certificate validity */
+  verifyCertificate: boolean;
+  /** Connection timeout in milliseconds */
+  timeout: number;
 }
 /**
  * Application runtime state and user preferences
@@ -130,18 +130,18 @@ export interface RouterConnectionConfig {
  * ```
  */
 export interface ApplicationState {
-    /** Currently active router connection (if connected) */
-    currentRouter?: RouterConnectionConfig;
-    /** List of previously saved router connections */
-    readonly savedRouters: readonly RouterConnectionConfig[];
-    /** User interface preferences */
-    userPreferences: {
-        /** Preferred color theme */
-        theme: ThemeMode;
-        /** Preferred UI language code */
-        language: string;
-        /** Auto-refresh interval in milliseconds (0 to disable) */
-        autoRefreshInterval: number;
-    };
+  /** Currently active router connection (if connected) */
+  currentRouter?: RouterConnectionConfig;
+  /** List of previously saved router connections */
+  readonly savedRouters: readonly RouterConnectionConfig[];
+  /** User interface preferences */
+  userPreferences: {
+    /** Preferred color theme */
+    theme: ThemeMode;
+    /** Preferred UI language code */
+    language: string;
+    /** Auto-refresh interval in milliseconds (0 to disable) */
+    autoRefreshInterval: number;
+  };
 }
 //# sourceMappingURL=index.d.ts.map

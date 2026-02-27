@@ -148,7 +148,7 @@ const Skeleton = React.memo(
         <div
           ref={ref}
           className={cn(
-            'rounded-[var(--semantic-radius-input)] bg-muted',
+            'bg-muted rounded-[var(--semantic-radius-input)]',
             shouldAnimate && 'animate-pulse',
             className
           )}
@@ -225,7 +225,7 @@ const SkeletonText = React.memo(
             <div
               key={index}
               className={cn(
-                'rounded-[var(--semantic-radius-input)] bg-muted',
+                'bg-muted rounded-[var(--semantic-radius-input)]',
                 shouldAnimate && 'animate-pulse'
               )}
               style={{
@@ -297,13 +297,16 @@ const SkeletonCard = React.memo(
     ) => {
       const prefersReducedMotion = useReducedMotion();
       const shouldAnimate = animate && !prefersReducedMotion;
-      const baseClass = cn('rounded-[var(--semantic-radius-input)] bg-muted', shouldAnimate && 'animate-pulse');
+      const baseClass = cn(
+        'bg-muted rounded-[var(--semantic-radius-input)]',
+        shouldAnimate && 'animate-pulse'
+      );
 
       return (
         <div
           ref={ref}
           className={cn(
-            'rounded-[var(--semantic-radius-card)] border border-border bg-card p-4 space-y-4',
+            'border-border bg-card space-y-4 rounded-[var(--semantic-radius-card)] border p-4',
             className
           )}
           role="presentation"
@@ -319,7 +322,10 @@ const SkeletonCard = React.memo(
           )}
 
           {/* Content area */}
-          <div className={cn(baseClass, 'w-full')} style={{ height: contentHeight }} />
+          <div
+            className={cn(baseClass, 'w-full')}
+            style={{ height: contentHeight }}
+          />
 
           {/* Footer with action buttons */}
           {showFooter && (
@@ -376,20 +382,13 @@ SkeletonCard.displayName = 'SkeletonCard';
  */
 const SkeletonTable = React.memo(
   React.forwardRef<HTMLDivElement, SkeletonTableProps>(
-    (
-      {
-        className,
-        rows = 5,
-        columns = 4,
-        showHeader = true,
-        animate = true,
-        ...props
-      },
-      ref
-    ) => {
+    ({ className, rows = 5, columns = 4, showHeader = true, animate = true, ...props }, ref) => {
       const prefersReducedMotion = useReducedMotion();
       const shouldAnimate = animate && !prefersReducedMotion;
-      const baseClass = cn('rounded-[var(--semantic-radius-input)] bg-muted', shouldAnimate && 'animate-pulse');
+      const baseClass = cn(
+        'bg-muted rounded-[var(--semantic-radius-input)]',
+        shouldAnimate && 'animate-pulse'
+      );
 
       return (
         <div
@@ -401,17 +400,23 @@ const SkeletonTable = React.memo(
         >
           {/* Header */}
           {showHeader && (
-            <div className="flex gap-4 pb-3 border-b border-border">
+            <div className="border-border flex gap-4 border-b pb-3">
               {Array.from({ length: columns }).map((_, i) => (
-                <div key={i} className={cn(baseClass, 'h-4 flex-1')} />
+                <div
+                  key={i}
+                  className={cn(baseClass, 'h-4 flex-1')}
+                />
               ))}
             </div>
           )}
 
           {/* Rows */}
-          <div className="divide-y divide-border">
+          <div className="divide-border divide-y">
             {Array.from({ length: rows }).map((_, rowIndex) => (
-              <div key={rowIndex} className="flex gap-4 py-3">
+              <div
+                key={rowIndex}
+                className="flex gap-4 py-3"
+              >
                 {Array.from({ length: columns }).map((_, colIndex) => (
                   <div
                     key={colIndex}
@@ -487,7 +492,10 @@ const SkeletonChart = React.memo(
     ) => {
       const prefersReducedMotion = useReducedMotion();
       const shouldAnimate = animate && !prefersReducedMotion;
-      const baseClass = cn('rounded-[var(--semantic-radius-card)] bg-muted', shouldAnimate && 'animate-pulse');
+      const baseClass = cn(
+        'bg-muted rounded-[var(--semantic-radius-card)]',
+        shouldAnimate && 'animate-pulse'
+      );
 
       return (
         <div
@@ -508,9 +516,12 @@ const SkeletonChart = React.memo(
 
           {/* Legend */}
           {showLegend && (
-            <div className="flex gap-4 justify-center">
+            <div className="flex justify-center gap-4">
               {Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="flex items-center gap-2">
+                <div
+                  key={i}
+                  className="flex items-center gap-2"
+                >
                   <div className={cn(baseClass, 'h-3 w-3 rounded-full')} />
                   <div className={cn(baseClass, 'h-3 w-16')} />
                 </div>
@@ -576,16 +587,7 @@ const avatarSizes = {
  */
 const SkeletonAvatar = React.memo(
   React.forwardRef<HTMLDivElement, SkeletonAvatarProps>(
-    (
-      {
-        className,
-        size = 'md',
-        shape = 'circle',
-        animate = true,
-        ...props
-      },
-      ref
-    ) => {
+    ({ className, size = 'md', shape = 'circle', animate = true, ...props }, ref) => {
       const prefersReducedMotion = useReducedMotion();
       const shouldAnimate = animate && !prefersReducedMotion;
 
@@ -612,11 +614,4 @@ SkeletonAvatar.displayName = 'SkeletonAvatar';
 // Exports
 // ============================================================================
 
-export {
-  Skeleton,
-  SkeletonText,
-  SkeletonCard,
-  SkeletonTable,
-  SkeletonChart,
-  SkeletonAvatar,
-};
+export { Skeleton, SkeletonText, SkeletonCard, SkeletonTable, SkeletonChart, SkeletonAvatar };

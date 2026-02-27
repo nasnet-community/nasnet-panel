@@ -20,5 +20,7 @@ import type { SSSTPInterface } from '@nasnet/core/types';
  * const { data: sstpInterfaces, isLoading, isError } = useSSTPInterfaces(routerIp || '');
  * ```
  */
-export declare function useSSTPInterfaces(routerIp: string): UseQueryResult<SSSTPInterface[], Error>;
+export declare function useSSTPInterfaces(
+  routerIp: string
+): UseQueryResult<SSSTPInterface[], Error>;
 //# sourceMappingURL=useSSTPInterfaces.d.ts.map

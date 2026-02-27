@@ -119,26 +119,32 @@ const VariableInput = React.memo(function VariableInput({
   onChange,
   error,
 }: VariableInputProps) {
-  const handleChange = React.useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const val = e.target.value;
+  const handleChange = React.useCallback(
+    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      const val = e.target.value;
 
-    // Convert to number for INTEGER/DURATION/PERCENTAGE types
-    if (variable.type !== 'STRING') {
-      const num = parseInt(val, 10);
-      onChange(isNaN(num) ? '' : num);
-    } else {
-      onChange(val);
-    }
-  }, [variable.type, onChange]);
+      // Convert to number for INTEGER/DURATION/PERCENTAGE types
+      if (variable.type !== 'STRING') {
+        const num = parseInt(val, 10);
+        onChange(isNaN(num) ? '' : num);
+      } else {
+        onChange(val);
+      }
+    },
+    [variable.type, onChange]
+  );
 
-  const inputProps = React.useMemo(() => ({
-    id: variable.name,
-    value: value?.toString() || '',
-    onChange: handleChange,
-    className: cn('min-h-[44px]', error && 'border-error focus-visible:ring-error/50'),
-    'aria-invalid': !!error,
-    'aria-describedby': error ? `${variable.name}-error` : undefined,
-  }), [variable.name, value, error, handleChange]);
+  const inputProps = React.useMemo(
+    () => ({
+      id: variable.name,
+      value: value?.toString() || '',
+      onChange: handleChange,
+      className: cn('min-h-[44px]', error && 'border-error focus-visible:ring-error/50'),
+      'aria-invalid': !!error,
+      'aria-describedby': error ? `${variable.name}-error` : undefined,
+    }),
+    [variable.name, value, error, handleChange]
+  );
 
   // Determine input type based on variable type
   const getInputType = React.useCallback(() => {
@@ -154,27 +160,35 @@ const VariableInput = React.memo(function VariableInput({
 
   return (
     <div className="space-y-component-sm">
-      <Label htmlFor={variable.name} className="text-sm font-medium">
+      <Label
+        htmlFor={variable.name}
+        className="text-sm font-medium"
+      >
         {variable.label}
         {variable.required && <span className="text-error ml-component-sm">*</span>}
       </Label>
 
-      {variable.type === 'STRING' && variable.description ? (
-        <Textarea {...inputProps} placeholder={variable.defaultValue} rows={3} />
-      ) : (
-        <Input
+      {variable.type === 'STRING' && variable.description ?
+        <Textarea
+          {...inputProps}
+          placeholder={variable.defaultValue}
+          rows={3}
+        />
+      : <Input
           {...inputProps}
           type={getInputType()}
           placeholder={variable.defaultValue}
           min={variable.min}
           max={variable.max}
         />
-      )}
+      }
 
       {/* Variable constraints */}
-      <div className="flex items-center gap-component-md text-xs text-muted-foreground">
+      <div className="gap-component-md text-muted-foreground flex items-center text-xs">
         {variable.defaultValue && (
-          <span>Default: <code className="font-mono text-xs">{variable.defaultValue}</code></span>
+          <span>
+            Default: <code className="font-mono text-xs">{variable.defaultValue}</code>
+          </span>
         )}
         {variable.min !== undefined && <span>Min: {variable.min}</span>}
         {variable.max !== undefined && <span>Max: {variable.max}</span>}
@@ -182,11 +196,15 @@ const VariableInput = React.memo(function VariableInput({
       </div>
 
       {variable.description && (
-        <p className="text-xs text-muted-foreground">{variable.description}</p>
+        <p className="text-muted-foreground text-xs">{variable.description}</p>
       )}
 
       {error && (
-        <p id={`${variable.name}-error`} className="text-xs text-error" role="alert">
+        <p
+          id={`${variable.name}-error`}
+          className="text-error text-xs"
+          role="alert"
+        >
           {error}
         </p>
       )}
@@ -237,7 +255,10 @@ const PreviewSection = React.memo(function PreviewSection({
   if (Object.keys(variables).length === 0) {
     return (
       <Alert>
-        <AlertCircle className="h-4 w-4" aria-hidden="true" />
+        <AlertCircle
+          className="h-4 w-4"
+          aria-hidden="true"
+        />
         <AlertDescription className="text-sm">
           Fill in the variables above to preview the resolved conditions
         </AlertDescription>
@@ -257,7 +278,10 @@ const PreviewSection = React.memo(function PreviewSection({
   if (error) {
     return (
       <Alert variant="destructive">
-        <AlertCircle className="h-4 w-4" aria-hidden="true" />
+        <AlertCircle
+          className="h-4 w-4"
+          aria-hidden="true"
+        />
         <AlertDescription className="text-sm">{error.message}</AlertDescription>
       </Alert>
     );
@@ -266,16 +290,17 @@ const PreviewSection = React.memo(function PreviewSection({
   if (!validationInfo?.isValid) {
     return (
       <Alert variant="destructive">
-        <AlertCircle className="h-4 w-4" aria-hidden="true" />
+        <AlertCircle
+          className="h-4 w-4"
+          aria-hidden="true"
+        />
         <AlertDescription>
-          <p className="font-medium mb-2">Validation Errors:</p>
-          <ul className="list-disc list-inside space-y-1 text-sm">
+          <p className="mb-2 font-medium">Validation Errors:</p>
+          <ul className="list-inside list-disc space-y-1 text-sm">
             {validationInfo?.missingVariables.map((variable) => (
               <li key={variable}>Missing required variable: {variable}</li>
             ))}
-            {validationInfo?.warnings.map((warning, idx) => (
-              <li key={idx}>{warning}</li>
-            ))}
+            {validationInfo?.warnings.map((warning, idx) => <li key={idx}>{warning}</li>)}
           </ul>
         </AlertDescription>
       </Alert>
@@ -284,26 +309,35 @@ const PreviewSection = React.memo(function PreviewSection({
 
   return (
     <div className="space-y-component-sm">
-      <div className="flex items-center gap-component-sm">
-        <CheckCircle2 className="h-4 w-4 text-success" aria-hidden="true" />
-        <span className="text-sm font-medium text-success">
-          Preview Valid - Ready to Apply
-        </span>
+      <div className="gap-component-sm flex items-center">
+        <CheckCircle2
+          className="text-success h-4 w-4"
+          aria-hidden="true"
+        />
+        <span className="text-success text-sm font-medium">Preview Valid - Ready to Apply</span>
       </div>
 
       <div className="space-y-component-sm">
-        <Label className="text-sm font-medium">Resolved Conditions ({resolvedConditions.length})</Label>
+        <Label className="text-sm font-medium">
+          Resolved Conditions ({resolvedConditions.length})
+        </Label>
         {resolvedConditions.map((condition, index) => (
-          <Card key={index} className="bg-muted/50">
+          <Card
+            key={index}
+            className="bg-muted/50"
+          >
             <CardContent className="p-component-sm">
-              <div className="flex items-center gap-component-sm text-sm flex-wrap">
-                <code className="font-mono text-xs bg-background px-component-sm py-component-xs rounded-[var(--semantic-radius-button)]">
+              <div className="gap-component-sm flex flex-wrap items-center text-sm">
+                <code className="bg-background px-component-sm py-component-xs rounded-[var(--semantic-radius-button)] font-mono text-xs">
                   {condition.field}
                 </code>
-                <Badge variant="outline" className="text-xs">
+                <Badge
+                  variant="outline"
+                  className="text-xs"
+                >
                   {operatorLabels[condition.operator] || condition.operator}
                 </Badge>
-                <code className="font-mono text-xs bg-muted px-component-sm py-component-xs rounded-[var(--semantic-radius-button)]">
+                <code className="bg-muted px-component-sm py-component-xs rounded-[var(--semantic-radius-button)] font-mono text-xs">
                   {condition.value}
                 </code>
               </div>
@@ -348,15 +382,18 @@ const FormContent = React.memo(function FormContent({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit as any)} className="space-y-component-lg">
+      <form
+        onSubmit={form.handleSubmit(onSubmit as any)}
+        className="space-y-component-lg"
+      >
         {/* Template info */}
         <div className="space-y-component-sm">
-          <div className="flex items-center gap-component-sm">
+          <div className="gap-component-sm flex items-center">
             <Badge variant="outline">{template.category}</Badge>
             <Badge variant="secondary">{template.severity}</Badge>
             {template.isBuiltIn && <Badge>Built-in</Badge>}
           </div>
-          <p className="text-sm text-muted-foreground">{template.description}</p>
+          <p className="text-muted-foreground text-sm">{template.description}</p>
         </div>
 
         <Separator />
@@ -392,7 +429,10 @@ const FormContent = React.memo(function FormContent({
         {/* Preview section */}
         <div className="space-y-component-sm">
           <h4 className="text-sm font-semibold">Preview</h4>
-          <PreviewSection templateId={template.id} variables={variables || {}} />
+          <PreviewSection
+            templateId={template.id}
+            variables={variables || {}}
+          />
         </div>
 
         <Separator />
@@ -446,9 +486,14 @@ const FormContent = React.memo(function FormContent({
           <Button
             type="submit"
             disabled={isLoading}
-            className="w-full sm:w-auto min-h-[44px]"
+            className="min-h-[44px] w-full sm:w-auto"
           >
-            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />}
+            {isLoading && (
+              <Loader2
+                className="mr-2 h-4 w-4 animate-spin"
+                aria-hidden="true"
+              />
+            )}
             {isLoading ? 'Creating Alert Rule...' : 'Apply Template'}
           </Button>
         </DialogFooter>
@@ -472,17 +517,19 @@ FormContent.displayName = 'FormContent';
  * @param props - Component props
  * @returns React component
  */
-export const AlertTemplateApplyDialog = React.memo(
-  function AlertTemplateApplyDialog(props: AlertTemplateApplyDialogProps) {
+export const AlertTemplateApplyDialog = React.memo(function AlertTemplateApplyDialog(
+  props: AlertTemplateApplyDialogProps
+) {
   const { templateId, open, onClose, onSuccess, onError } = props;
 
   const isDesktop = useMediaQuery('(min-width: 640px)');
 
   // Fetch template data
-  const { data: templateData, loading: templateLoading, error: templateError } = useAlertRuleTemplate(
-    templateId || '',
-    { enabled: !!templateId && open }
-  );
+  const {
+    data: templateData,
+    loading: templateLoading,
+    error: templateError,
+  } = useAlertRuleTemplate(templateId || '', { enabled: !!templateId && open });
 
   const template = templateData?.alertRuleTemplate;
 
@@ -494,12 +541,16 @@ export const AlertTemplateApplyDialog = React.memo(
     resolver: zodResolver(applyAlertRuleTemplateInputSchema) as any,
     defaultValues: {
       templateId: templateId || '',
-      variables: template?.variables.reduce((acc, variable) => {
-        if (variable.defaultValue) {
-          acc[variable.name] = variable.defaultValue;
-        }
-        return acc;
-      }, {} as Record<string, string | number>) || {},
+      variables:
+        template?.variables.reduce(
+          (acc, variable) => {
+            if (variable.defaultValue) {
+              acc[variable.name] = variable.defaultValue;
+            }
+            return acc;
+          },
+          {} as Record<string, string | number>
+        ) || {},
       customizations: {
         enabled: true,
       },
@@ -511,12 +562,15 @@ export const AlertTemplateApplyDialog = React.memo(
     if (template) {
       form.reset({
         templateId: template.id,
-        variables: template.variables.reduce((acc, variable) => {
-          if (variable.defaultValue) {
-            acc[variable.name] = variable.defaultValue;
-          }
-          return acc;
-        }, {} as Record<string, string | number>),
+        variables: template.variables.reduce(
+          (acc, variable) => {
+            if (variable.defaultValue) {
+              acc[variable.name] = variable.defaultValue;
+            }
+            return acc;
+          },
+          {} as Record<string, string | number>
+        ),
         customizations: {
           enabled: true,
         },
@@ -557,59 +611,71 @@ export const AlertTemplateApplyDialog = React.memo(
       </div>
     );
 
-    return isDesktop ? (
-      <Dialog open={open} onOpenChange={onClose}>
-        <DialogContent className="max-w-2xl max-h-[90vh]">
-          <DialogHeader>
-            <DialogTitle>Apply Template</DialogTitle>
-            <DialogDescription>Loading template...</DialogDescription>
-          </DialogHeader>
-          {content}
-        </DialogContent>
-      </Dialog>
-    ) : (
-      <Sheet open={open} onOpenChange={onClose}>
-        <SheetContent side="bottom" className="max-h-[90vh]">
-          <SheetHeader>
-            <SheetTitle>Apply Template</SheetTitle>
-            <SheetDescription>Loading template...</SheetDescription>
-          </SheetHeader>
-          {content}
-        </SheetContent>
-      </Sheet>
-    );
+    return isDesktop ?
+        <Dialog
+          open={open}
+          onOpenChange={onClose}
+        >
+          <DialogContent className="max-h-[90vh] max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Apply Template</DialogTitle>
+              <DialogDescription>Loading template...</DialogDescription>
+            </DialogHeader>
+            {content}
+          </DialogContent>
+        </Dialog>
+      : <Sheet
+          open={open}
+          onOpenChange={onClose}
+        >
+          <SheetContent
+            side="bottom"
+            className="max-h-[90vh]"
+          >
+            <SheetHeader>
+              <SheetTitle>Apply Template</SheetTitle>
+              <SheetDescription>Loading template...</SheetDescription>
+            </SheetHeader>
+            {content}
+          </SheetContent>
+        </Sheet>;
   }
 
   // Error state
   if (templateError || !template) {
     const errorContent = (
       <Alert variant="destructive">
-        <AlertCircle className="h-4 w-4" aria-hidden="true" />
-        <AlertDescription>
-          {templateError?.message || 'Failed to load template'}
-        </AlertDescription>
+        <AlertCircle
+          className="h-4 w-4"
+          aria-hidden="true"
+        />
+        <AlertDescription>{templateError?.message || 'Failed to load template'}</AlertDescription>
       </Alert>
     );
 
-    return isDesktop ? (
-      <Dialog open={open} onOpenChange={onClose}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Apply Template</DialogTitle>
-          </DialogHeader>
-          {errorContent}
-        </DialogContent>
-      </Dialog>
-    ) : (
-      <Sheet open={open} onOpenChange={onClose}>
-        <SheetContent side="bottom">
-          <SheetHeader>
-            <SheetTitle>Apply Template</SheetTitle>
-          </SheetHeader>
-          <div className="mt-4">{errorContent}</div>
-        </SheetContent>
-      </Sheet>
-    );
+    return isDesktop ?
+        <Dialog
+          open={open}
+          onOpenChange={onClose}
+        >
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Apply Template</DialogTitle>
+            </DialogHeader>
+            {errorContent}
+          </DialogContent>
+        </Dialog>
+      : <Sheet
+          open={open}
+          onOpenChange={onClose}
+        >
+          <SheetContent side="bottom">
+            <SheetHeader>
+              <SheetTitle>Apply Template</SheetTitle>
+            </SheetHeader>
+            <div className="mt-4">{errorContent}</div>
+          </SheetContent>
+        </Sheet>;
   }
 
   const formContent = (
@@ -628,13 +694,14 @@ export const AlertTemplateApplyDialog = React.memo(
   // Desktop: Use Dialog
   if (isDesktop) {
     return (
-      <Dialog open={open} onOpenChange={onClose}>
-        <DialogContent className="max-w-2xl max-h-[90vh]">
+      <Dialog
+        open={open}
+        onOpenChange={onClose}
+      >
+        <DialogContent className="max-h-[90vh] max-w-2xl">
           <DialogHeader>
             <DialogTitle>{template.name}</DialogTitle>
-            <DialogDescription>
-              Configure variables and apply this template
-            </DialogDescription>
+            <DialogDescription>Configure variables and apply this template</DialogDescription>
           </DialogHeader>
           {formContent}
         </DialogContent>
@@ -644,19 +711,22 @@ export const AlertTemplateApplyDialog = React.memo(
 
   // Mobile: Use Sheet
   return (
-    <Sheet open={open} onOpenChange={onClose}>
-      <SheetContent side="bottom" className="max-h-[90vh]">
+    <Sheet
+      open={open}
+      onOpenChange={onClose}
+    >
+      <SheetContent
+        side="bottom"
+        className="max-h-[90vh]"
+      >
         <SheetHeader>
           <SheetTitle>{template.name}</SheetTitle>
-          <SheetDescription>
-            Configure variables and apply this template
-          </SheetDescription>
+          <SheetDescription>Configure variables and apply this template</SheetDescription>
         </SheetHeader>
         <div className="mt-4">{formContent}</div>
       </SheetContent>
     </Sheet>
   );
-  }
-);
+});
 
 AlertTemplateApplyDialog.displayName = 'AlertTemplateApplyDialog';

@@ -33,7 +33,9 @@ export async function executeDiagnosticStep(
 
     const stepType = STEP_TYPE_MAP[stepId];
     if (!stepType) {
-      throw new Error(`Unsupported diagnostic step "${stepId}". Supported steps: wan, gateway, internet, dns, nat`);
+      throw new Error(
+        `Unsupported diagnostic step "${stepId}". Supported steps: wan, gateway, internet, dns, nat`
+      );
     }
 
     // Execute the diagnostic step via GraphQL
@@ -46,7 +48,9 @@ export async function executeDiagnosticStep(
     });
 
     if (!data?.runTroubleshootStep?.step?.result) {
-      throw new Error('Diagnostic step failed to return a result. The backend may be overloaded or the router connection may have been lost.');
+      throw new Error(
+        'Diagnostic step failed to return a result. The backend may be overloaded or the router connection may have been lost.'
+      );
     }
 
     const result = data.runTroubleshootStep.step.result;
@@ -61,7 +65,10 @@ export async function executeDiagnosticStep(
     } as DiagnosticResult;
   } catch (error) {
     const executionTimeMs = Date.now() - startTime;
-    const errorMessage = error instanceof Error ? error.message : 'Diagnostic step execution failed. Please check your router connection and try again.';
+    const errorMessage =
+      error instanceof Error ?
+        error.message
+      : 'Diagnostic step execution failed. Please check your router connection and try again.';
     return {
       success: false,
       message: errorMessage,

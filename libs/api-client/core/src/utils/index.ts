@@ -16,11 +16,7 @@ export {
   isNetworkError,
   isValidationError,
 } from './error-messages';
-export type {
-  ErrorCategory,
-  ErrorSeverity,
-  ErrorInfo,
-} from './error-messages';
+export type { ErrorCategory, ErrorSeverity, ErrorInfo } from './error-messages';
 
 // Error Logging - Structured error logging for observability
 export {

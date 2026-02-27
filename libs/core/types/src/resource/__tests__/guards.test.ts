@@ -42,9 +42,7 @@ import {
 // Test Fixtures
 // ============================================================================
 
-function createMockResource(
-  overrides: Partial<Resource> = {}
-): Resource {
+function createMockResource(overrides: Partial<Resource> = {}): Resource {
   return {
     uuid: 'test-uuid',
     id: 'test-resource',
@@ -138,7 +136,16 @@ describe('Resource Type Guards', () => {
   describe('Layer Presence Guards', () => {
     it('hasValidation should check for validation layer', () => {
       const withValidation = createMockResource({
-        validation: { canApply: true, stage: 'COMPLETE', errors: [], warnings: [], conflicts: [], requiredDependencies: [], validatedAt: '2024-01-01T00:00:00Z', validationDurationMs: 100 },
+        validation: {
+          canApply: true,
+          stage: 'COMPLETE',
+          errors: [],
+          warnings: [],
+          conflicts: [],
+          requiredDependencies: [],
+          validatedAt: '2024-01-01T00:00:00Z',
+          validationDurationMs: 100,
+        },
       });
       const withoutValidation = createMockResource();
 
@@ -200,7 +207,7 @@ describe('Resource Type Guards', () => {
       const withPlatform = createMockResource({
         platform: {
           current: 'MIKROTIK' as const,
-          capabilities: { isSupported: true, level: 'FULL' as const }
+          capabilities: { isSupported: true, level: 'FULL' as const },
         },
       });
       const withoutPlatform = createMockResource();
@@ -213,10 +220,30 @@ describe('Resource Type Guards', () => {
   describe('State Guards', () => {
     it('isDraft should check for DRAFT state', () => {
       const draft = createMockResource({
-        metadata: { state: 'DRAFT', createdAt: '', createdBy: '', updatedAt: '', updatedBy: '', version: 1, tags: [], isFavorite: false, isPinned: false },
+        metadata: {
+          state: 'DRAFT',
+          createdAt: '',
+          createdBy: '',
+          updatedAt: '',
+          updatedBy: '',
+          version: 1,
+          tags: [],
+          isFavorite: false,
+          isPinned: false,
+        },
       });
       const active = createMockResource({
-        metadata: { state: 'ACTIVE', createdAt: '', createdBy: '', updatedAt: '', updatedBy: '', version: 1, tags: [], isFavorite: false, isPinned: false },
+        metadata: {
+          state: 'ACTIVE',
+          createdAt: '',
+          createdBy: '',
+          updatedAt: '',
+          updatedBy: '',
+          version: 1,
+          tags: [],
+          isFavorite: false,
+          isPinned: false,
+        },
       });
 
       expect(isDraft(draft)).toBe(true);
@@ -225,56 +252,136 @@ describe('Resource Type Guards', () => {
 
     it('isValidating should check for VALIDATING state', () => {
       const validating = createMockResource({
-        metadata: { state: 'VALIDATING', createdAt: '', createdBy: '', updatedAt: '', updatedBy: '', version: 1, tags: [], isFavorite: false, isPinned: false },
+        metadata: {
+          state: 'VALIDATING',
+          createdAt: '',
+          createdBy: '',
+          updatedAt: '',
+          updatedBy: '',
+          version: 1,
+          tags: [],
+          isFavorite: false,
+          isPinned: false,
+        },
       });
       expect(isValidating(validating)).toBe(true);
     });
 
     it('isValid should check for VALID state', () => {
       const valid = createMockResource({
-        metadata: { state: 'VALID', createdAt: '', createdBy: '', updatedAt: '', updatedBy: '', version: 1, tags: [], isFavorite: false, isPinned: false },
+        metadata: {
+          state: 'VALID',
+          createdAt: '',
+          createdBy: '',
+          updatedAt: '',
+          updatedBy: '',
+          version: 1,
+          tags: [],
+          isFavorite: false,
+          isPinned: false,
+        },
       });
       expect(isValid(valid)).toBe(true);
     });
 
     it('isApplying should check for APPLYING state', () => {
       const applying = createMockResource({
-        metadata: { state: 'APPLYING', createdAt: '', createdBy: '', updatedAt: '', updatedBy: '', version: 1, tags: [], isFavorite: false, isPinned: false },
+        metadata: {
+          state: 'APPLYING',
+          createdAt: '',
+          createdBy: '',
+          updatedAt: '',
+          updatedBy: '',
+          version: 1,
+          tags: [],
+          isFavorite: false,
+          isPinned: false,
+        },
       });
       expect(isApplying(applying)).toBe(true);
     });
 
     it('isActive should check for ACTIVE state', () => {
       const active = createMockResource({
-        metadata: { state: 'ACTIVE', createdAt: '', createdBy: '', updatedAt: '', updatedBy: '', version: 1, tags: [], isFavorite: false, isPinned: false },
+        metadata: {
+          state: 'ACTIVE',
+          createdAt: '',
+          createdBy: '',
+          updatedAt: '',
+          updatedBy: '',
+          version: 1,
+          tags: [],
+          isFavorite: false,
+          isPinned: false,
+        },
       });
       expect(isActive(active)).toBe(true);
     });
 
     it('isDegraded should check for DEGRADED state', () => {
       const degraded = createMockResource({
-        metadata: { state: 'DEGRADED', createdAt: '', createdBy: '', updatedAt: '', updatedBy: '', version: 1, tags: [], isFavorite: false, isPinned: false },
+        metadata: {
+          state: 'DEGRADED',
+          createdAt: '',
+          createdBy: '',
+          updatedAt: '',
+          updatedBy: '',
+          version: 1,
+          tags: [],
+          isFavorite: false,
+          isPinned: false,
+        },
       });
       expect(isDegraded(degraded)).toBe(true);
     });
 
     it('isError should check for ERROR state', () => {
       const error = createMockResource({
-        metadata: { state: 'ERROR', createdAt: '', createdBy: '', updatedAt: '', updatedBy: '', version: 1, tags: [], isFavorite: false, isPinned: false },
+        metadata: {
+          state: 'ERROR',
+          createdAt: '',
+          createdBy: '',
+          updatedAt: '',
+          updatedBy: '',
+          version: 1,
+          tags: [],
+          isFavorite: false,
+          isPinned: false,
+        },
       });
       expect(isError(error)).toBe(true);
     });
 
     it('isDeprecated should check for DEPRECATED state', () => {
       const deprecated = createMockResource({
-        metadata: { state: 'DEPRECATED', createdAt: '', createdBy: '', updatedAt: '', updatedBy: '', version: 1, tags: [], isFavorite: false, isPinned: false },
+        metadata: {
+          state: 'DEPRECATED',
+          createdAt: '',
+          createdBy: '',
+          updatedAt: '',
+          updatedBy: '',
+          version: 1,
+          tags: [],
+          isFavorite: false,
+          isPinned: false,
+        },
       });
       expect(isDeprecated(deprecated)).toBe(true);
     });
 
     it('isArchived should check for ARCHIVED state', () => {
       const archived = createMockResource({
-        metadata: { state: 'ARCHIVED', createdAt: '', createdBy: '', updatedAt: '', updatedBy: '', version: 1, tags: [], isFavorite: false, isPinned: false },
+        metadata: {
+          state: 'ARCHIVED',
+          createdAt: '',
+          createdBy: '',
+          updatedAt: '',
+          updatedBy: '',
+          version: 1,
+          tags: [],
+          isFavorite: false,
+          isPinned: false,
+        },
       });
       expect(isArchived(archived)).toBe(true);
     });

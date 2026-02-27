@@ -1,7 +1,7 @@
 {
   "id": "offline-first",
   "title": "Offline-First Architecture",
-  "description": "NasNetConnect operates in environments where network connectivity to the MikroTik router is inherently unstable — server rooms, mobile devices, and embedded containers. The offline-first system ensures the UI remains functional and consistent across degraded and fully disconnected states. It is composed of three cooperating modules: cache persistence (Apollo InMemoryCache → IndexedDB via localforage), offline detection (four signal sources converging to a Zustand network store), and an offline mutation queue (FIFO, deduplicated, auto-replaying queue backed by IndexedDB). Together they allow the app to serve cached data immediately on load, detect connectivity changes within seconds, and defer mutations until the connection is restored.",
+  "description": "NasNetConnect operates in environments where network connectivity to the MikroTik router is",
   "source": "@site/../../libs/api-client/docs/offline-first.md",
   "sourceDirName": ".",
   "slug": "/offline-first",

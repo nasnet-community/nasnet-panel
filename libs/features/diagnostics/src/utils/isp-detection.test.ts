@@ -140,9 +140,7 @@ describe('detectISP', () => {
 
     await detectISP('203.0.113.42');
 
-    expect(global.fetch).toHaveBeenCalledWith(
-      'http://ip-api.com/json/203.0.113.42?fields=isp,org'
-    );
+    expect(global.fetch).toHaveBeenCalledWith('http://ip-api.com/json/203.0.113.42?fields=isp,org');
   });
 });
 
@@ -152,9 +150,7 @@ describe('getWanIpForISPDetection', () => {
   });
 
   it('should extract WAN IP from DHCP client', async () => {
-    const mockExecuteCommand = vi.fn().mockResolvedValue([
-      { address: '203.0.113.42/24' },
-    ]);
+    const mockExecuteCommand = vi.fn().mockResolvedValue([{ address: '203.0.113.42/24' }]);
     const mockDetectWanInterface = vi.fn();
 
     const result = await getWanIpForISPDetection(
@@ -172,7 +168,8 @@ describe('getWanIpForISPDetection', () => {
   });
 
   it('should fall back to WAN interface addresses if DHCP has no IP', async () => {
-    const mockExecuteCommand = vi.fn()
+    const mockExecuteCommand = vi
+      .fn()
       .mockResolvedValueOnce([]) // DHCP has no addresses
       .mockResolvedValueOnce([{ address: '192.168.1.100/24' }]); // WAN interface addresses
     const mockDetectWanInterface = vi.fn().mockResolvedValue('ether1');
@@ -189,7 +186,8 @@ describe('getWanIpForISPDetection', () => {
   });
 
   it('should return null if no WAN IP is found', async () => {
-    const mockExecuteCommand = vi.fn()
+    const mockExecuteCommand = vi
+      .fn()
       .mockResolvedValueOnce([]) // DHCP empty
       .mockResolvedValueOnce([]); // WAN interface empty
     const mockDetectWanInterface = vi.fn().mockResolvedValue('ether1');
@@ -217,7 +215,8 @@ describe('getWanIpForISPDetection', () => {
   });
 
   it('should handle DHCP client with undefined address field', async () => {
-    const mockExecuteCommand = vi.fn()
+    const mockExecuteCommand = vi
+      .fn()
       .mockResolvedValueOnce([{ name: 'dhcp1' }]) // DHCP has no address
       .mockResolvedValueOnce([{ address: '10.0.0.5/24' }]);
     const mockDetectWanInterface = vi.fn().mockResolvedValue('ether1');
@@ -232,9 +231,7 @@ describe('getWanIpForISPDetection', () => {
   });
 
   it('should extract IP from CIDR notation correctly', async () => {
-    const mockExecuteCommand = vi.fn().mockResolvedValue([
-      { address: '198.51.100.1/32' },
-    ]);
+    const mockExecuteCommand = vi.fn().mockResolvedValue([{ address: '198.51.100.1/32' }]);
     const mockDetectWanInterface = vi.fn();
 
     const result = await getWanIpForISPDetection(
@@ -247,10 +244,9 @@ describe('getWanIpForISPDetection', () => {
   });
 
   it('should use first DHCP client result if multiple exist', async () => {
-    const mockExecuteCommand = vi.fn().mockResolvedValue([
-      { address: '203.0.113.10/24' },
-      { address: '203.0.113.11/24' },
-    ]);
+    const mockExecuteCommand = vi
+      .fn()
+      .mockResolvedValue([{ address: '203.0.113.10/24' }, { address: '203.0.113.11/24' }]);
     const mockDetectWanInterface = vi.fn();
 
     const result = await getWanIpForISPDetection(
@@ -263,9 +259,7 @@ describe('getWanIpForISPDetection', () => {
   });
 
   it('should handle detection failures with error logging', async () => {
-    const mockExecuteCommand = vi.fn().mockRejectedValue(
-      new Error('Router unreachable')
-    );
+    const mockExecuteCommand = vi.fn().mockRejectedValue(new Error('Router unreachable'));
     const mockDetectWanInterface = vi.fn();
 
     // Spy on console.warn

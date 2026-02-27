@@ -1,7 +1,11 @@
 import { useEffect, useRef } from 'react';
 
 import { useTranslation } from '@nasnet/core/i18n';
-import { useConnectionStore, type ConnectionState, type ConnectionActions } from '@nasnet/state/stores';
+import {
+  useConnectionStore,
+  type ConnectionState,
+  type ConnectionActions,
+} from '@nasnet/state/stores';
 import { useToast } from '@nasnet/ui/primitives';
 
 /**

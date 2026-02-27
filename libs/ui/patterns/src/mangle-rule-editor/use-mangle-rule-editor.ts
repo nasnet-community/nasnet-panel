@@ -226,27 +226,20 @@ function generateMangleRulePreview(rule: Partial<MangleRule>): string {
 /**
  * Get action description based on action type
  */
-function getActionDescription(
-  action: MangleAction | undefined,
-  rule: Partial<MangleRule>
-): string {
+function getActionDescription(action: MangleAction | undefined, rule: Partial<MangleRule>): string {
   if (!action) return '';
 
   switch (action) {
     case 'mark-connection':
-      return rule.newConnectionMark
-        ? `Mark connection '${rule.newConnectionMark}'`
+      return rule.newConnectionMark ?
+          `Mark connection '${rule.newConnectionMark}'`
         : 'Mark connection';
 
     case 'mark-packet':
-      return rule.newPacketMark
-        ? `Mark packet '${rule.newPacketMark}'`
-        : 'Mark packet';
+      return rule.newPacketMark ? `Mark packet '${rule.newPacketMark}'` : 'Mark packet';
 
     case 'mark-routing':
-      return rule.newRoutingMark
-        ? `Mark routing '${rule.newRoutingMark}'`
-        : 'Mark routing';
+      return rule.newRoutingMark ? `Mark routing '${rule.newRoutingMark}'` : 'Mark routing';
 
     case 'change-dscp':
       if (rule.newDscp !== undefined) {

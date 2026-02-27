@@ -98,19 +98,28 @@ function FirewallQuickStatsContent({ className }: FirewallQuickStatsProps) {
     );
   }, [rules]);
 
-  const totalActive = actionTotals.accept + actionTotals.drop + actionTotals.reject + actionTotals.other;
+  const totalActive =
+    actionTotals.accept + actionTotals.drop + actionTotals.reject + actionTotals.other;
   const maxChainCount = Math.max(...chainStats.map((s) => s.total), 1);
 
   if (isLoading) {
     return (
-      <div className={cn('bg-card rounded-[var(--semantic-radius-card)] border border-border p-component-md', className)}>
-        <div className="animate-pulse space-y-component-md">
-          <div className="h-4 bg-muted rounded w-24" />
+      <div
+        className={cn(
+          'bg-card border-border p-component-md rounded-[var(--semantic-radius-card)] border',
+          className
+        )}
+      >
+        <div className="space-y-component-md animate-pulse">
+          <div className="bg-muted h-4 w-24 rounded" />
           <div className="space-y-component-sm">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="space-y-component-sm">
-                <div className="h-3 bg-muted rounded w-16" />
-                <div className="h-2 bg-muted rounded-full" />
+              <div
+                key={i}
+                className="space-y-component-sm"
+              >
+                <div className="bg-muted h-3 w-16 rounded" />
+                <div className="bg-muted h-2 rounded-full" />
               </div>
             ))}
           </div>
@@ -121,11 +130,14 @@ function FirewallQuickStatsContent({ className }: FirewallQuickStatsProps) {
 
   if (!rules || rules.length === 0) {
     return (
-      <div className={cn('bg-card rounded-[var(--semantic-radius-card)] border border-border p-component-md', className)}>
-        <h3 className="text-sm font-semibold text-foreground mb-component-sm">
-          Firewall Rules
-        </h3>
-        <p className="text-sm text-muted-foreground">
+      <div
+        className={cn(
+          'bg-card border-border p-component-md rounded-[var(--semantic-radius-card)] border',
+          className
+        )}
+      >
+        <h3 className="text-foreground mb-component-sm text-sm font-semibold">Firewall Rules</h3>
+        <p className="text-muted-foreground text-sm">
           No firewall rules configured. Create rules to manage traffic filtering.
         </p>
       </div>
@@ -133,24 +145,26 @@ function FirewallQuickStatsContent({ className }: FirewallQuickStatsProps) {
   }
 
   return (
-    <div className={cn('bg-card rounded-[var(--semantic-radius-card)] border border-border p-component-md', className)}>
-      <h3 className="text-sm font-semibold text-foreground mb-component-md">
-        Rules by Chain
-      </h3>
+    <div
+      className={cn(
+        'bg-card border-border p-component-md rounded-[var(--semantic-radius-card)] border',
+        className
+      )}
+    >
+      <h3 className="text-foreground mb-component-md text-sm font-semibold">Rules by Chain</h3>
       <div className="space-y-component-md mb-component-lg">
         {chainStats.map((stat) => (
           <div key={stat.chain}>
-            <div className="flex items-center justify-between mb-component-xs">
-              <span className="text-xs font-medium text-foreground uppercase">
-                {stat.chain}
-              </span>
-              <span className="text-xs text-muted-foreground font-mono">
-                {stat.total}
-              </span>
+            <div className="mb-component-xs flex items-center justify-between">
+              <span className="text-foreground text-xs font-medium uppercase">{stat.chain}</span>
+              <span className="text-muted-foreground font-mono text-xs">{stat.total}</span>
             </div>
-            <div className="w-full bg-muted rounded-[var(--semantic-radius-badge)] h-2">
+            <div className="bg-muted h-2 w-full rounded-[var(--semantic-radius-badge)]">
               <div
-                className={cn(stat.color, 'h-2 rounded-[var(--semantic-radius-badge)] transition-all duration-300')}
+                className={cn(
+                  stat.color,
+                  'h-2 rounded-[var(--semantic-radius-badge)] transition-all duration-300'
+                )}
                 style={{ width: `${(stat.total / maxChainCount) * 100}%` }}
               />
             </div>
@@ -158,12 +172,10 @@ function FirewallQuickStatsContent({ className }: FirewallQuickStatsProps) {
         ))}
       </div>
 
-      <h3 className="text-sm font-semibold text-foreground mb-component-md">
-        Action Totals
-      </h3>
-      <div className="flex items-center gap-component-sm mb-component-sm">
+      <h3 className="text-foreground mb-component-md text-sm font-semibold">Action Totals</h3>
+      <div className="gap-component-sm mb-component-sm flex items-center">
         <div
-          className="flex-1 flex h-3 rounded-[var(--semantic-radius-badge)] overflow-hidden bg-muted"
+          className="bg-muted flex h-3 flex-1 overflow-hidden rounded-[var(--semantic-radius-badge)]"
           role="img"
           aria-label={`Action distribution: ${actionTotals.accept} accept, ${actionTotals.drop} drop, ${actionTotals.reject} reject`}
         >
@@ -192,21 +204,30 @@ function FirewallQuickStatsContent({ className }: FirewallQuickStatsProps) {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-component-sm text-xs">
-        <div className="flex items-center gap-component-xs">
-          <span className="w-2.5 h-2.5 rounded-[var(--semantic-radius-badge)] bg-success" aria-hidden="true" />
+      <div className="gap-component-sm grid grid-cols-2 text-xs">
+        <div className="gap-component-xs flex items-center">
+          <span
+            className="bg-success h-2.5 w-2.5 rounded-[var(--semantic-radius-badge)]"
+            aria-hidden="true"
+          />
           <span className="text-muted-foreground">
             Accept <span className="font-medium">{actionTotals.accept}</span>
           </span>
         </div>
-        <div className="flex items-center gap-component-xs">
-          <span className="w-2.5 h-2.5 rounded-[var(--semantic-radius-badge)] bg-error" aria-hidden="true" />
+        <div className="gap-component-xs flex items-center">
+          <span
+            className="bg-error h-2.5 w-2.5 rounded-[var(--semantic-radius-badge)]"
+            aria-hidden="true"
+          />
           <span className="text-muted-foreground">
             Drop <span className="font-medium">{actionTotals.drop}</span>
           </span>
         </div>
-        <div className="flex items-center gap-component-xs">
-          <span className="w-2.5 h-2.5 rounded-[var(--semantic-radius-badge)] bg-warning" aria-hidden="true" />
+        <div className="gap-component-xs flex items-center">
+          <span
+            className="bg-warning h-2.5 w-2.5 rounded-[var(--semantic-radius-badge)]"
+            aria-hidden="true"
+          />
           <span className="text-muted-foreground">
             Reject <span className="font-medium">{actionTotals.reject}</span>
           </span>
@@ -218,28 +239,3 @@ function FirewallQuickStatsContent({ className }: FirewallQuickStatsProps) {
 
 export const FirewallQuickStats = React.memo(FirewallQuickStatsContent);
 FirewallQuickStats.displayName = 'FirewallQuickStats';
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

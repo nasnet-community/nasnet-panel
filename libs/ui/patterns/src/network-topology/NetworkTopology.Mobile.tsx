@@ -9,24 +9,11 @@
 
 import { memo, useState, useCallback } from 'react';
 
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  Badge,
-  cn,
-} from '@nasnet/ui/primitives';
+import { Card, CardContent, CardHeader, CardTitle, Badge, cn } from '@nasnet/ui/primitives';
 
 import { RouterIcon, WanIcon, LanIcon, DeviceIcon } from './icons';
 
-import type {
-  NetworkTopologyProps,
-  RouterInfo,
-  WanInterface,
-  LanNetwork,
-  Device,
-} from './types';
+import type { NetworkTopologyProps, RouterInfo, WanInterface, LanNetwork, Device } from './types';
 
 export interface NetworkTopologyMobileProps extends NetworkTopologyProps {
   /** Whether to initially expand sections */
@@ -41,7 +28,10 @@ function StatusBadge({
 }: {
   status: 'online' | 'offline' | 'connected' | 'disconnected' | 'pending' | 'unknown';
 }) {
-  const config: Record<string, { variant: 'default' | 'secondary' | 'error' | 'outline'; label: string }> = {
+  const config: Record<
+    string,
+    { variant: 'default' | 'secondary' | 'error' | 'outline'; label: string }
+  > = {
     online: { variant: 'default', label: 'Online' },
     offline: { variant: 'secondary', label: 'Offline' },
     connected: { variant: 'default', label: 'Connected' },
@@ -78,22 +68,22 @@ function Section({ title, count, defaultExpanded = false, children }: SectionPro
         className={cn(
           'flex w-full items-center justify-between px-4 py-3',
           'text-left font-medium transition-colors',
-          'hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring'
+          'hover:bg-muted/50 focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-2'
         )}
         aria-expanded={expanded}
         aria-controls={`section-${title.toLowerCase().replace(/\s+/g, '-')}`}
       >
         <span className="flex items-center gap-2">
           {title}
-          <Badge variant="secondary" className="text-xs">
+          <Badge
+            variant="secondary"
+            className="text-xs"
+          >
             {count}
           </Badge>
         </span>
         <svg
-          className={cn(
-            'h-4 w-4 transition-transform duration-200',
-            expanded && 'rotate-180'
-          )}
+          className={cn('h-4 w-4 transition-transform duration-200', expanded && 'rotate-180')}
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -124,14 +114,15 @@ function Section({ title, count, defaultExpanded = false, children }: SectionPro
  */
 function RouterCard({ router }: { router: RouterInfo }) {
   return (
-    <Card className="mb-4 bg-card border border-border rounded-[var(--semantic-radius-card)] shadow-[var(--semantic-shadow-card)]">
-      <CardHeader className="flex flex-row items-center gap-4 pb-2 p-component-md">
-        <RouterIcon size={48} status={router.status} />
+    <Card className="bg-card border-border mb-4 rounded-[var(--semantic-radius-card)] border shadow-[var(--semantic-shadow-card)]">
+      <CardHeader className="p-component-md flex flex-row items-center gap-4 pb-2">
+        <RouterIcon
+          size={48}
+          status={router.status}
+        />
         <div className="flex-1">
           <CardTitle className="text-lg">{router.name}</CardTitle>
-          {router.model && (
-            <p className="text-sm text-muted-foreground">{router.model}</p>
-          )}
+          {router.model && <p className="text-muted-foreground text-sm">{router.model}</p>}
         </div>
         <StatusBadge status={router.status} />
       </CardHeader>
@@ -144,16 +135,15 @@ function RouterCard({ router }: { router: RouterInfo }) {
  */
 function WanItem({ wan }: { wan: WanInterface }) {
   return (
-    <div className="flex items-center gap-3 rounded-[var(--semantic-radius-input)] border border-border p-component-sm mb-2 last:mb-0 bg-background/50">
-      <WanIcon size={32} status={wan.status} />
-      <div className="flex-1 min-w-0">
-        <p className="font-medium truncate">{wan.name}</p>
-        {wan.ip && (
-          <p className="font-mono text-sm text-muted-foreground">{wan.ip}</p>
-        )}
-        {wan.provider && (
-          <p className="text-xs text-muted-foreground">{wan.provider}</p>
-        )}
+    <div className="border-border p-component-sm bg-background/50 mb-2 flex items-center gap-3 rounded-[var(--semantic-radius-input)] border last:mb-0">
+      <WanIcon
+        size={32}
+        status={wan.status}
+      />
+      <div className="min-w-0 flex-1">
+        <p className="truncate font-medium">{wan.name}</p>
+        {wan.ip && <p className="text-muted-foreground font-mono text-sm">{wan.ip}</p>}
+        {wan.provider && <p className="text-muted-foreground text-xs">{wan.provider}</p>}
       </div>
       <StatusBadge status={wan.status} />
     </div>
@@ -165,15 +155,22 @@ function WanItem({ wan }: { wan: WanInterface }) {
  */
 function LanItem({ lan }: { lan: LanNetwork }) {
   return (
-    <div className="flex items-center gap-3 rounded-[var(--semantic-radius-input)] border border-border p-component-sm mb-2 last:mb-0 bg-background/50">
-      <LanIcon size={32} status="connected" deviceCount={lan.deviceCount} />
-      <div className="flex-1 min-w-0">
-        <p className="font-medium truncate">{lan.name}</p>
-        <p className="font-mono text-sm text-muted-foreground">{lan.cidr}</p>
-        <p className="text-xs text-muted-foreground">Gateway: {lan.gateway}</p>
+    <div className="border-border p-component-sm bg-background/50 mb-2 flex items-center gap-3 rounded-[var(--semantic-radius-input)] border last:mb-0">
+      <LanIcon
+        size={32}
+        status="connected"
+        deviceCount={lan.deviceCount}
+      />
+      <div className="min-w-0 flex-1">
+        <p className="truncate font-medium">{lan.name}</p>
+        <p className="text-muted-foreground font-mono text-sm">{lan.cidr}</p>
+        <p className="text-muted-foreground text-xs">Gateway: {lan.gateway}</p>
       </div>
       {lan.deviceCount !== undefined && (
-        <Badge variant="outline" className="shrink-0">
+        <Badge
+          variant="outline"
+          className="shrink-0"
+        >
           {lan.deviceCount} devices
         </Badge>
       )}
@@ -186,16 +183,16 @@ function LanItem({ lan }: { lan: LanNetwork }) {
  */
 function DeviceItem({ device }: { device: Device }) {
   return (
-    <div className="flex items-center gap-3 rounded-[var(--semantic-radius-input)] border border-border p-component-sm mb-2 last:mb-0 bg-background/50 min-h-[44px]">
-      <DeviceIcon size={28} type={device.type} status={device.status} />
-      <div className="flex-1 min-w-0">
-        <p className="font-medium truncate">{device.name}</p>
-        {device.ip && (
-          <p className="font-mono text-sm text-muted-foreground">{device.ip}</p>
-        )}
-        {device.mac && (
-          <p className="font-mono text-xs text-muted-foreground">{device.mac}</p>
-        )}
+    <div className="border-border p-component-sm bg-background/50 mb-2 flex min-h-[44px] items-center gap-3 rounded-[var(--semantic-radius-input)] border last:mb-0">
+      <DeviceIcon
+        size={28}
+        type={device.type}
+        status={device.status}
+      />
+      <div className="min-w-0 flex-1">
+        <p className="truncate font-medium">{device.name}</p>
+        {device.ip && <p className="text-muted-foreground font-mono text-sm">{device.ip}</p>}
+        {device.mac && <p className="text-muted-foreground font-mono text-xs">{device.mac}</p>}
       </div>
       <StatusBadge status={device.status} />
     </div>
@@ -230,7 +227,7 @@ export const NetworkTopologyMobile = memo(function NetworkTopologyMobile({
       <RouterCard router={router} />
 
       {/* Collapsible sections */}
-      <Card className="bg-card border border-border rounded-[var(--semantic-radius-card)] shadow-[var(--semantic-shadow-card)]">
+      <Card className="bg-card border-border rounded-[var(--semantic-radius-card)] border shadow-[var(--semantic-shadow-card)]">
         <CardContent className="p-0">
           {/* WAN Interfaces Section */}
           <Section
@@ -238,13 +235,17 @@ export const NetworkTopologyMobile = memo(function NetworkTopologyMobile({
             count={wanInterfaces.length}
             defaultExpanded={defaultExpanded}
           >
-            {wanInterfaces.length > 0 ? (
-              wanInterfaces.map((wan) => <WanItem key={wan.id} wan={wan} />)
-            ) : (
-              <p className="py-4 text-center text-sm text-muted-foreground">
+            {wanInterfaces.length > 0 ?
+              wanInterfaces.map((wan) => (
+                <WanItem
+                  key={wan.id}
+                  wan={wan}
+                />
+              ))
+            : <p className="text-muted-foreground py-4 text-center text-sm">
                 No WAN interfaces configured
               </p>
-            )}
+            }
           </Section>
 
           {/* LAN Networks Section */}
@@ -253,13 +254,17 @@ export const NetworkTopologyMobile = memo(function NetworkTopologyMobile({
             count={lanNetworks.length}
             defaultExpanded={defaultExpanded}
           >
-            {lanNetworks.length > 0 ? (
-              lanNetworks.map((lan) => <LanItem key={lan.id} lan={lan} />)
-            ) : (
-              <p className="py-4 text-center text-sm text-muted-foreground">
+            {lanNetworks.length > 0 ?
+              lanNetworks.map((lan) => (
+                <LanItem
+                  key={lan.id}
+                  lan={lan}
+                />
+              ))
+            : <p className="text-muted-foreground py-4 text-center text-sm">
                 No LAN networks configured
               </p>
-            )}
+            }
           </Section>
 
           {/* Devices Section */}
@@ -270,7 +275,10 @@ export const NetworkTopologyMobile = memo(function NetworkTopologyMobile({
               defaultExpanded={false}
             >
               {devices.map((device) => (
-                <DeviceItem key={device.id} device={device} />
+                <DeviceItem
+                  key={device.id}
+                  device={device}
+                />
               ))}
             </Section>
           )}
@@ -278,15 +286,13 @@ export const NetworkTopologyMobile = memo(function NetworkTopologyMobile({
       </Card>
 
       {/* Connection summary */}
-      <div className="mt-4 flex justify-center gap-4 text-xs text-muted-foreground">
+      <div className="text-muted-foreground mt-4 flex justify-center gap-4 text-xs">
         <div className="flex items-center gap-1.5">
-          <span className="h-2 w-2 rounded-full bg-success" />
-          <span>
-            {wanInterfaces.filter((w) => w.status === 'connected').length} Connected
-          </span>
+          <span className="bg-success h-2 w-2 rounded-full" />
+          <span>{wanInterfaces.filter((w) => w.status === 'connected').length} Connected</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <span className="h-2 w-2 rounded-full bg-muted-foreground" />
+          <span className="bg-muted-foreground h-2 w-2 rounded-full" />
           <span>
             {wanInterfaces.filter((w) => w.status === 'disconnected').length} Disconnected
           </span>

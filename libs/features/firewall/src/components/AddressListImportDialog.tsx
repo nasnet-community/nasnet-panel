@@ -127,17 +127,16 @@ function AddressListImportDialogContent({
     }
 
     const detectedFormat = format === 'unknown' ? detectFormat(content) : format;
-    const result = parseAddressList(content, detectedFormat === 'unknown' ? undefined : detectedFormat);
+    const result = parseAddressList(
+      content,
+      detectedFormat === 'unknown' ? undefined : detectedFormat
+    );
 
     // For large imports, validate in batches
     if (result.data.length > 100) {
-      const validatedResult = await validateInBatches(
-        result.data,
-        100,
-        (current, total) => {
-          setImportProgress((current / total) * 50); // First 50% for validation
-        }
-      );
+      const validatedResult = await validateInBatches(result.data, 100, (current, total) => {
+        setImportProgress((current / total) * 50); // First 50% for validation
+      });
       setParseResult(validatedResult);
     } else {
       setParseResult(result);
@@ -184,18 +183,25 @@ function AddressListImportDialogContent({
         />
         <datalist id="existing-lists">
           {existingLists.map((list) => (
-            <option key={list} value={list} />
+            <option
+              key={list}
+              value={list}
+            />
           ))}
         </datalist>
-        <p className="text-sm text-muted-foreground">
-          Add entries to an existing list or create a new one. IPs must be valid IPv4 or IPv6 addresses.
+        <p className="text-muted-foreground text-sm">
+          Add entries to an existing list or create a new one. IPs must be valid IPv4 or IPv6
+          addresses.
         </p>
       </div>
 
       {/* Format Selection */}
       <div className="space-y-component-sm gap-component-sm">
         <Label htmlFor="format">File Format</Label>
-        <Select value={format} onValueChange={(v) => setFormat(v as typeof format)}>
+        <Select
+          value={format}
+          onValueChange={(v) => setFormat(v as typeof format)}
+        >
           <SelectTrigger id="format">
             <SelectValue />
           </SelectTrigger>
@@ -211,10 +217,8 @@ function AddressListImportDialogContent({
       {/* File Upload / Drag-and-Drop */}
       <div
         className={cn(
-          'border-2 border-dashed rounded-md p-component-lg text-center transition-colors',
-          isDragging
-            ? 'border-primary bg-primary/5'
-            : 'border-border hover:border-primary/50'
+          'p-component-lg rounded-md border-2 border-dashed text-center transition-colors',
+          isDragging ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50'
         )}
         onDrop={handleDrop}
         onDragOver={handleDragOver}
@@ -230,14 +234,13 @@ function AddressListImportDialogContent({
             if (file) handleFileUpload(file);
           }}
         />
-        <label htmlFor="file-upload" className="cursor-pointer">
-          <Upload className="w-12 h-12 mx-auto mb-component-md text-muted-foreground" />
-          <p className="text-sm font-medium mb-component-xs">
-            Drop file here or click to browse
-          </p>
-          <p className="text-xs text-muted-foreground">
-            Supports CSV, JSON, and TXT files
-          </p>
+        <label
+          htmlFor="file-upload"
+          className="cursor-pointer"
+        >
+          <Upload className="mb-component-md text-muted-foreground mx-auto h-12 w-12" />
+          <p className="mb-component-xs text-sm font-medium">Drop file here or click to browse</p>
+          <p className="text-muted-foreground text-xs">Supports CSV, JSON, and TXT files</p>
         </label>
       </div>
 
@@ -259,17 +262,25 @@ function AddressListImportDialogContent({
         <FileText className="h-4 w-4" />
         <AlertDescription className="space-y-2">
           <p className="font-medium">Supported formats:</p>
-          <ul className="text-sm space-y-1 ml-4 list-disc">
-            <li>CSV: <code className="text-xs">192.168.1.1,My comment,1d</code></li>
-            <li>JSON: <code className="text-xs">[{`{"address": "192.168.1.1", "comment": "..."}`}]</code></li>
+          <ul className="ml-4 list-disc space-y-1 text-sm">
+            <li>
+              CSV: <code className="text-xs">192.168.1.1,My comment,1d</code>
+            </li>
+            <li>
+              JSON:{' '}
+              <code className="text-xs">[{`{"address": "192.168.1.1", "comment": "..."}`}]</code>
+            </li>
             <li>TXT: One IP per line</li>
           </ul>
         </AlertDescription>
       </Alert>
 
       {/* Actions */}
-      <div className="flex justify-end gap-component-md">
-        <Button variant="outline" onClick={handleClose}>
+      <div className="gap-component-md flex justify-end">
+        <Button
+          variant="outline"
+          onClick={handleClose}
+        >
           Cancel
         </Button>
         <Button
@@ -285,17 +296,17 @@ function AddressListImportDialogContent({
   const renderPreviewStep = () => (
     <div className="space-y-component-md">
       {/* Summary */}
-      <div className="grid grid-cols-2 gap-component-md">
-        <div className="rounded-md border p-component-md">
-          <div className="flex items-center gap-component-sm mb-component-sm">
-            <CheckCircle2 className="w-5 h-5 text-success" />
+      <div className="gap-component-md grid grid-cols-2">
+        <div className="p-component-md rounded-md border">
+          <div className="gap-component-sm mb-component-sm flex items-center">
+            <CheckCircle2 className="text-success h-5 w-5" />
             <span className="font-medium">Valid Entries</span>
           </div>
           <p className="text-2xl font-bold">{parseResult?.data.length || 0}</p>
         </div>
-        <div className="rounded-md border p-component-md">
-          <div className="flex items-center gap-component-sm mb-component-sm">
-            <AlertCircle className="w-5 h-5 text-error" />
+        <div className="p-component-md rounded-md border">
+          <div className="gap-component-sm mb-component-sm flex items-center">
+            <AlertCircle className="text-error h-5 w-5" />
             <span className="font-medium">Errors</span>
           </div>
           <p className="text-2xl font-bold">{parseResult?.errors.length || 0}</p>
@@ -308,23 +319,24 @@ function AddressListImportDialogContent({
           <div className="flex items-center justify-between">
             <Label>Validation Errors</Label>
             {parseResult.errors.length > 100 && (
-              <Badge variant="secondary">
-                Showing first 100 of {parseResult.errors.length}
-              </Badge>
+              <Badge variant="secondary">Showing first 100 of {parseResult.errors.length}</Badge>
             )}
           </div>
-          <ScrollArea className="h-48 rounded-card-sm border p-component-md">
+          <ScrollArea className="rounded-card-sm p-component-md h-48 border">
             <div className="space-y-component-sm">
               {parseResult.errors.slice(0, 100).map((error, index) => (
-                <div key={index} className="text-sm">
-                  <span className="font-mono text-error">Line {error.line}:</span>{' '}
+                <div
+                  key={index}
+                  className="text-sm"
+                >
+                  <span className="text-error font-mono">Line {error.line}:</span>{' '}
                   <span className="font-mono">{error.address}</span> - {error.message}
                 </div>
               ))}
             </div>
           </ScrollArea>
           {parseResult.errors.length > 100 && (
-            <p className="text-sm text-muted-foreground">
+            <p className="text-muted-foreground text-sm">
               Download full error report to see all {parseResult.errors.length} errors.
             </p>
           )}
@@ -335,16 +347,24 @@ function AddressListImportDialogContent({
       {parseResult && parseResult.data.length > 0 && (
         <div className="space-y-component-sm gap-component-sm">
           <Label>Preview (first 10 entries)</Label>
-          <ScrollArea className="h-48 rounded-md border p-component-md">
+          <ScrollArea className="p-component-md h-48 rounded-md border">
             <div className="space-y-component-sm gap-component-sm">
               {parseResult.data.slice(0, 10).map((entry, index) => (
-                <div key={index} className="text-sm font-mono">
+                <div
+                  key={index}
+                  className="font-mono text-sm"
+                >
                   {entry.address}
                   {entry.comment && (
-                    <span className="text-muted-foreground ml-component-sm">// {entry.comment}</span>
+                    <span className="text-muted-foreground ml-component-sm">
+                      // {entry.comment}
+                    </span>
                   )}
                   {entry.timeout && (
-                    <Badge variant="secondary" className="ml-component-sm">
+                    <Badge
+                      variant="secondary"
+                      className="ml-component-sm"
+                    >
                       {entry.timeout}
                     </Badge>
                   )}
@@ -363,12 +383,18 @@ function AddressListImportDialogContent({
       )}
 
       {/* Actions */}
-      <div className="flex justify-between gap-component-md">
-        <Button variant="outline" onClick={handleReset}>
+      <div className="gap-component-md flex justify-between">
+        <Button
+          variant="outline"
+          onClick={handleReset}
+        >
           Back
         </Button>
-        <div className="flex gap-component-md">
-          <Button variant="outline" onClick={handleClose}>
+        <div className="gap-component-md flex">
+          <Button
+            variant="outline"
+            onClick={handleClose}
+          >
             Cancel
           </Button>
           <Button
@@ -386,16 +412,19 @@ function AddressListImportDialogContent({
     <div className="space-y-component-md py-component-xl">
       <div className="text-center">
         <div className="mb-component-lg">
-          <div className="w-16 h-16 mx-auto rounded-full bg-primary/10 flex items-center justify-center">
-            <Upload className="w-8 h-8 text-primary animate-pulse" />
+          <div className="bg-primary/10 mx-auto flex h-16 w-16 items-center justify-center rounded-full">
+            <Upload className="text-primary h-8 w-8 animate-pulse" />
           </div>
         </div>
-        <h3 className="text-lg font-medium mb-component-sm">Importing entries...</h3>
-        <p className="text-sm text-muted-foreground mb-component-md">
+        <h3 className="mb-component-sm text-lg font-medium">Importing entries...</h3>
+        <p className="text-muted-foreground mb-component-md text-sm">
           Importing {parseResult?.data.length || 0} entries to {targetList}
         </p>
-        <Progress value={importProgress} className="w-full" />
-        <p className="text-sm text-muted-foreground mt-component-sm">
+        <Progress
+          value={importProgress}
+          className="w-full"
+        />
+        <p className="text-muted-foreground mt-component-sm text-sm">
           {importProgress.toFixed(0)}%
         </p>
       </div>
@@ -406,18 +435,21 @@ function AddressListImportDialogContent({
     <div className="space-y-component-md py-component-xl">
       <div className="text-center">
         <div className="mb-component-lg">
-          <div className="w-16 h-16 mx-auto rounded-full bg-success/10 flex items-center justify-center">
-            <CheckCircle2 className="w-8 h-8 text-success" />
+          <div className="bg-success/10 mx-auto flex h-16 w-16 items-center justify-center rounded-full">
+            <CheckCircle2 className="text-success h-8 w-8" />
           </div>
         </div>
-        <h3 className="text-lg font-medium mb-component-sm">Import Complete!</h3>
-        <p className="text-sm text-muted-foreground">
+        <h3 className="mb-component-sm text-lg font-medium">Import Complete!</h3>
+        <p className="text-muted-foreground text-sm">
           Successfully imported {parseResult?.data.length || 0} entries to {targetList}
         </p>
       </div>
-      <div className="flex justify-end gap-component-md">
+      <div className="gap-component-md flex justify-end">
         <Button onClick={handleReset}>Import More</Button>
-        <Button variant="default" onClick={handleClose}>
+        <Button
+          variant="default"
+          onClick={handleClose}
+        >
           Close
         </Button>
       </div>
@@ -443,16 +475,24 @@ export function AddressListImportDialog({
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className={className}>
-          <Upload className="w-4 h-4 mr-component-sm" aria-hidden="true" />
+        <Button
+          variant="outline"
+          size="sm"
+          className={className}
+        >
+          <Upload
+            className="mr-component-sm h-4 w-4"
+            aria-hidden="true"
+          />
           Import
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Import Address List Entries</DialogTitle>
           <DialogDescription>
-            Upload a CSV, JSON, or TXT file to bulk import addresses. The file will be validated before importing.
+            Upload a CSV, JSON, or TXT file to bulk import addresses. The file will be validated
+            before importing.
           </DialogDescription>
         </DialogHeader>
         <AddressListImportDialogContent

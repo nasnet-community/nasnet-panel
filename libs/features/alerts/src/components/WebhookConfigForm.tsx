@@ -75,11 +75,9 @@ export const WebhookConfigForm = memo(function WebhookConfigForm(props: WebhookC
   // Render appropriate presenter
   return (
     <div className={cn(className)}>
-      {isMobile ? (
+      {isMobile ?
         <WebhookConfigFormMobile webhookForm={webhookForm} />
-      ) : (
-        <WebhookConfigFormDesktop webhookForm={webhookForm} />
-      )}
+      : <WebhookConfigFormDesktop webhookForm={webhookForm} />}
     </div>
   );
 });

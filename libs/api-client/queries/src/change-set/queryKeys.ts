@@ -40,8 +40,7 @@ export const changeSetKeys = {
     [...changeSetKeys.details(), routerId, changeSetId] as const,
 
   /** Validation results */
-  validation: (changeSetId: string) =>
-    [...changeSetKeys.all, 'validation', changeSetId] as const,
+  validation: (changeSetId: string) => [...changeSetKeys.all, 'validation', changeSetId] as const,
 } as const;
 
 /**

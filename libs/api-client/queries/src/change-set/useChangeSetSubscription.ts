@@ -16,10 +16,7 @@ import type {
   ChangeSetItemStatus,
   ChangeSetError,
 } from '@nasnet/core/types';
-import {
-  CHANGE_SET_PROGRESS_EVENT_FRAGMENT,
-  CHANGE_SET_STATUS_EVENT_FRAGMENT,
-} from './fragments';
+import { CHANGE_SET_PROGRESS_EVENT_FRAGMENT, CHANGE_SET_STATUS_EVENT_FRAGMENT } from './fragments';
 import { useApplyChangeSet } from './useChangeSetMutations';
 
 // ============================================================================
@@ -201,8 +198,9 @@ export function useChangeSetProgressSubscription(
     },
   });
 
-  const eventData: ChangeSetProgressEvent | undefined = data?.changeSetProgress
-    ? {
+  const eventData: ChangeSetProgressEvent | undefined =
+    data?.changeSetProgress ?
+      {
         changeSetId: data.changeSetProgress.changeSetId,
         status: data.changeSetProgress.status,
         currentItem: data.changeSetProgress.currentItem,
@@ -247,22 +245,19 @@ export function useChangeSetStatusSubscription(
 ): SubscriptionResult<ChangeSetStatusEvent> {
   const { skip = false, onStatusChange, onSubscriptionError } = options;
 
-  const { data, loading, error } = useSubscription(
-    CHANGE_SET_STATUS_CHANGED_SUBSCRIPTION,
-    {
-      variables: { routerId },
-      skip: skip || !routerId,
-      onData: ({ data: eventData }) => {
-        if (!eventData?.data?.changeSetStatusChanged || !onStatusChange) return;
+  const { data, loading, error } = useSubscription(CHANGE_SET_STATUS_CHANGED_SUBSCRIPTION, {
+    variables: { routerId },
+    skip: skip || !routerId,
+    onData: ({ data: eventData }) => {
+      if (!eventData?.data?.changeSetStatusChanged || !onStatusChange) return;
 
-        const event: ChangeSetStatusEvent = eventData.data.changeSetStatusChanged;
-        onStatusChange(event);
-      },
-      onError: (err) => {
-        onSubscriptionError?.(err);
-      },
-    }
-  );
+      const event: ChangeSetStatusEvent = eventData.data.changeSetStatusChanged;
+      onStatusChange(event);
+    },
+    onError: (err) => {
+      onSubscriptionError?.(err);
+    },
+  });
 
   return {
     data: data?.changeSetStatusChanged,
@@ -400,7 +395,11 @@ export function useApplyWithProgress(
   const errorRef = useRef<ChangeSetError | ApolloError | undefined>(undefined);
 
   // Use imported mutation hook
-  const { mutate: applyMutation, loading: applyLoading, error: mutationError } = useApplyChangeSet();
+  const {
+    mutate: applyMutation,
+    loading: applyLoading,
+    error: mutationError,
+  } = useApplyChangeSet();
 
   // Subscribe to progress
   const { data: progress } = useChangeSetProgressSubscription(changeSetId, {

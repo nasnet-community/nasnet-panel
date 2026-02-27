@@ -81,7 +81,10 @@ const setupGraphQLMock = async (page: Page) => {
 /**
  * Trigger test alert via backend API helper
  */
-const triggerTestAlert = async (page: Page, severity: 'CRITICAL' | 'WARNING' | 'INFO' = 'WARNING') => {
+const triggerTestAlert = async (
+  page: Page,
+  severity: 'CRITICAL' | 'WARNING' | 'INFO' = 'WARNING'
+) => {
   // Simulate WebSocket alert event by directly calling the subscription callback
   // In real implementation, this would trigger via backend API
   const alert = createMockAlert({ severity });

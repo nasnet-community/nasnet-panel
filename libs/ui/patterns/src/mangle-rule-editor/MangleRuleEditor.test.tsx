@@ -82,7 +82,12 @@ describe('MangleRuleEditor', () => {
     });
 
     it('does not render when open is false', () => {
-      render(<MangleRuleEditor {...defaultProps} open={false} />);
+      render(
+        <MangleRuleEditor
+          {...defaultProps}
+          open={false}
+        />
+      );
 
       // Dialog should not be in the document when closed
       expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
@@ -214,7 +219,12 @@ describe('MangleRuleEditor', () => {
       const onClose = vi.fn();
       const user = userEvent.setup();
 
-      render(<MangleRuleEditor {...defaultProps} onClose={onClose} />);
+      render(
+        <MangleRuleEditor
+          {...defaultProps}
+          onClose={onClose}
+        />
+      );
 
       // Find cancel/close button
       const closeButton = screen.getByRole('button', { name: /close|cancel/i });
@@ -292,7 +302,12 @@ describe('MangleRuleEditor', () => {
     });
 
     it('does not show delete button in create mode', () => {
-      render(<MangleRuleEditor {...defaultProps} mode="create" />);
+      render(
+        <MangleRuleEditor
+          {...defaultProps}
+          mode="create"
+        />
+      );
 
       const deleteButton = screen.queryByRole('button', { name: /delete/i });
       expect(deleteButton).not.toBeInTheDocument();
@@ -301,7 +316,12 @@ describe('MangleRuleEditor', () => {
 
   describe('Loading States', () => {
     it('disables save button when isSaving is true', () => {
-      render(<MangleRuleEditor {...defaultProps} isSaving={true} />);
+      render(
+        <MangleRuleEditor
+          {...defaultProps}
+          isSaving={true}
+        />
+      );
 
       const saveButton = screen.getByRole('button', { name: /save|saving/i });
       expect(saveButton).toBeDisabled();
@@ -452,7 +472,7 @@ describe('MangleRuleEditor', () => {
         // Combined inputs and selects should have labels
         const allControls = [...inputs, ...selects];
         if (allControls.length > 0) {
-          allControls.forEach(control => {
+          allControls.forEach((control) => {
             expect(control).toHaveAccessibleName();
           });
         }
@@ -502,13 +522,23 @@ describe('MangleRuleEditor', () => {
 
     it('handles empty address lists', () => {
       expect(() =>
-        render(<MangleRuleEditor {...defaultProps} addressLists={[]} />)
+        render(
+          <MangleRuleEditor
+            {...defaultProps}
+            addressLists={[]}
+          />
+        )
       ).not.toThrow();
     });
 
     it('handles empty interface lists', () => {
       expect(() =>
-        render(<MangleRuleEditor {...defaultProps} interfaceLists={[]} />)
+        render(
+          <MangleRuleEditor
+            {...defaultProps}
+            interfaceLists={[]}
+          />
+        )
       ).not.toThrow();
     });
   });

@@ -44,16 +44,12 @@ vi.mock('./use-port-knock-sequence-form', () => ({
 
 describe('PortKnockSequenceForm - Smoke Tests', () => {
   it('renders without crashing', () => {
-    const { container } = render(
-      <PortKnockSequenceForm formState={vi.fn() as any} />
-    );
+    const { container } = render(<PortKnockSequenceForm formState={vi.fn() as any} />);
     expect(container).toBeInTheDocument();
   });
 
   it('renders form with data-testid', () => {
-    const { container } = render(
-      <PortKnockSequenceForm formState={vi.fn() as any} />
-    );
+    const { container } = render(<PortKnockSequenceForm formState={vi.fn() as any} />);
     const form = container.querySelector('[data-testid="knock-sequence-form"]');
     expect(form).toBeInTheDocument();
   });
@@ -73,27 +69,19 @@ describe('PortKnockSequenceForm - Smoke Tests', () => {
       isEnabled: true,
     };
 
-    const { container } = render(
-      <PortKnockSequenceForm
-        formState={vi.fn() as any}
-      />
-    );
+    const { container } = render(<PortKnockSequenceForm formState={vi.fn() as any} />);
     expect(container).toBeInTheDocument();
   });
 
   it('calls onSubmit when form is submitted', () => {
-    const { container } = render(
-      <PortKnockSequenceForm formState={vi.fn() as any} />
-    );
+    const { container } = render(<PortKnockSequenceForm formState={vi.fn() as any} />);
 
     // Component should mount successfully
     expect(container).toBeInTheDocument();
   });
 
   it('calls onCancel when cancel is clicked', () => {
-    const { container } = render(
-      <PortKnockSequenceForm formState={vi.fn() as any} />
-    );
+    const { container } = render(<PortKnockSequenceForm formState={vi.fn() as any} />);
 
     // Component should mount successfully
     expect(container).toBeInTheDocument();

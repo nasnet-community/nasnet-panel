@@ -3,7 +3,6 @@
  * Covers: default/compact/detailed variants, clean traffic, traffic with errors, traffic with drops, combined issues
  */
 
-
 import { type TrafficStatistics } from '@nasnet/core/types';
 
 import { TrafficStats } from './TrafficStats';
@@ -42,8 +41,8 @@ type Story = StoryObj<typeof TrafficStats>;
 
 const cleanStats: TrafficStatistics = {
   interfaceId: 'ether1',
-  rxBytes: 1_572_864_000,   // ~1.5 GB
-  txBytes: 314_572_800,     // ~300 MB
+  rxBytes: 1_572_864_000, // ~1.5 GB
+  txBytes: 314_572_800, // ~300 MB
   rxPackets: 2_450_000,
   txPackets: 890_000,
   rxErrors: 0,
@@ -54,8 +53,8 @@ const cleanStats: TrafficStatistics = {
 
 const statsWithErrors: TrafficStatistics = {
   interfaceId: 'ether2',
-  rxBytes: 524_288_000,     // ~500 MB
-  txBytes: 209_715_200,     // ~200 MB
+  rxBytes: 524_288_000, // ~500 MB
+  txBytes: 209_715_200, // ~200 MB
   rxPackets: 1_200_000,
   txPackets: 450_000,
   rxErrors: 37,
@@ -66,8 +65,8 @@ const statsWithErrors: TrafficStatistics = {
 
 const statsWithDrops: TrafficStatistics = {
   interfaceId: 'bridge1',
-  rxBytes: 104_857_600,     // ~100 MB
-  txBytes: 52_428_800,      // ~50 MB
+  rxBytes: 104_857_600, // ~100 MB
+  txBytes: 52_428_800, // ~50 MB
   rxPackets: 600_000,
   txPackets: 200_000,
   rxErrors: 0,
@@ -78,8 +77,8 @@ const statsWithDrops: TrafficStatistics = {
 
 const statsWithAllIssues: TrafficStatistics = {
   interfaceId: 'vlan10',
-  rxBytes: 10_485_760,      // ~10 MB
-  txBytes: 5_242_880,       // ~5 MB
+  rxBytes: 10_485_760, // ~10 MB
+  txBytes: 5_242_880, // ~5 MB
   rxPackets: 85_000,
   txPackets: 22_000,
   rxErrors: 8,

@@ -63,8 +63,9 @@ function StepAnnouncer({
   stepTitle: string;
   hasErrors: boolean;
 }) {
-  const message = hasErrors
-    ? `Step ${currentIndex + 1} of ${totalSteps}: ${stepTitle}. This step has validation errors.`
+  const message =
+    hasErrors ?
+      `Step ${currentIndex + 1} of ${totalSteps}: ${stepTitle}. This step has validation errors.`
     : `Step ${currentIndex + 1} of ${totalSteps}: ${stepTitle}`;
 
   return (
@@ -172,18 +173,18 @@ function HStepperComponent({
           className="container mx-auto py-3"
         >
           {/* Header row: Back button + Step label + Menu button */}
-          <div className="flex items-center gap-2 px-4 mb-3">
+          <div className="mb-3 flex items-center gap-2 px-4">
             {/* Back button */}
             {showBackButton && !isFirst && (
               <button
                 type="button"
                 onClick={prev}
                 className={cn(
-                  'p-2 rounded-md',
+                  'rounded-md p-2',
                   'hover:bg-muted',
                   'transition-colors duration-200',
                   'motion-reduce:transition-none',
-                  'focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2'
+                  'focus-visible:ring-ring focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2'
                 )}
                 aria-label="Go to previous step"
               >
@@ -195,7 +196,7 @@ function HStepperComponent({
             {(!showBackButton || isFirst) && <div className="w-9" />}
 
             {/* Step label: "Step X of Y: Title" */}
-            <span className="text-sm font-medium flex-1 truncate">
+            <span className="flex-1 truncate text-sm font-medium">
               Step {currentIndex + 1} of {totalSteps}: {currentStep.title}
             </span>
 
@@ -205,11 +206,11 @@ function HStepperComponent({
                 type="button"
                 onClick={onMenuClick}
                 className={cn(
-                  'p-2 rounded-md',
+                  'rounded-md p-2',
                   'hover:bg-muted',
                   'transition-colors duration-200',
                   'motion-reduce:transition-none',
-                  'focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2'
+                  'focus-visible:ring-ring focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2'
                 )}
                 aria-label="Open step menu"
               >
@@ -227,23 +228,18 @@ function HStepperComponent({
           />
 
           {/* Step indicators */}
-          <ol
-            className="relative flex justify-between px-4 pt-2"
-          >
+          <ol className="relative flex justify-between px-4 pt-2">
             {steps.map((step, index) => {
               const stepState = stepStates.get(step.id);
               const isActive = index === currentIndex;
               const isCompleted = completedSteps.has(step.id);
-              const hasError = stepState?.errors
-                ? Object.keys(stepState.errors).length > 0
-                : false;
+              const hasError = stepState?.errors ? Object.keys(stepState.errors).length > 0 : false;
 
               // Determine if step is clickable
               // Can click: completed steps, or any step if allowSkipSteps
               // Cannot click: current step, future steps (unless allowSkipSteps)
               const isClickable =
-                (isCompleted || (allowSkipSteps && !isActive)) &&
-                index !== currentIndex;
+                (isCompleted || (allowSkipSteps && !isActive)) && index !== currentIndex;
 
               return (
                 <li key={step.id}>

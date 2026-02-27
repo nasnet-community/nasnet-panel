@@ -197,10 +197,7 @@ describe('storeDnsConfigForRollback', () => {
     const rollbackCmd = await storeDnsConfigForRollback('router-123', mockExecuteCommand);
 
     expect(rollbackCmd).toBe('/ip/dns/set servers=8.8.8.8,8.8.4.4');
-    expect(mockExecuteCommand).toHaveBeenCalledWith(
-      'router-123',
-      '/ip/dns/print'
-    );
+    expect(mockExecuteCommand).toHaveBeenCalledWith('router-123', '/ip/dns/print');
   });
 
   it('should return null if servers field is missing', async () => {
@@ -215,9 +212,7 @@ describe('storeDnsConfigForRollback', () => {
   });
 
   it('should return null on command execution error', async () => {
-    const mockExecuteCommand = vi.fn().mockRejectedValue(
-      new Error('Router offline')
-    );
+    const mockExecuteCommand = vi.fn().mockRejectedValue(new Error('Router offline'));
 
     const rollbackCmd = await storeDnsConfigForRollback('router-123', mockExecuteCommand);
 
@@ -246,9 +241,7 @@ describe('storeDnsConfigForRollback', () => {
   });
 
   it('should log warning on error', async () => {
-    const mockExecuteCommand = vi.fn().mockRejectedValue(
-      new Error('DNS query failed')
-    );
+    const mockExecuteCommand = vi.fn().mockRejectedValue(new Error('DNS query failed'));
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
     await storeDnsConfigForRollback('router-123', mockExecuteCommand);

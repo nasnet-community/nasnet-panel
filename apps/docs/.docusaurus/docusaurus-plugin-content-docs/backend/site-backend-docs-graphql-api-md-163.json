@@ -1,7 +1,7 @@
 {
   "id": "graphql-api",
   "title": "GraphQL API Layer",
-  "description": "Schema-first GraphQL API with domain-organized resolvers, custom directives, and DataLoader batching.",
+  "description": "Schema-first GraphQL API with domain-organized resolvers, custom directives, and DataLoader",
   "source": "@site/../backend/docs/graphql-api.md",
   "sourceDirName": ".",
   "slug": "/graphql-api",

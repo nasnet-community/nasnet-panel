@@ -10,7 +10,8 @@ const meta: Meta<typeof LoadingSkeleton> = {
     layout: 'fullscreen',
     docs: {
       description: {
-        component: 'Loading skeleton placeholder for WiFi dashboard. Shows pulsing placeholders while data is being fetched.',
+        component:
+          'Loading skeleton placeholder for WiFi dashboard. Shows pulsing placeholders while data is being fetched.',
       },
     },
   },
@@ -23,7 +24,8 @@ export const Default: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Standard WiFi loading skeleton with header, stats grid, interface cards, and clients table placeholders.',
+        story:
+          'Standard WiFi loading skeleton with header, stats grid, interface cards, and clients table placeholders.',
       },
     },
   },
@@ -45,7 +47,8 @@ export const Desktop: Story = {
     viewport: { defaultViewport: 'desktop' },
     docs: {
       description: {
-        story: 'Loading skeleton on desktop viewport. Stats grid displays all 4 columns with full spacing.',
+        story:
+          'Loading skeleton on desktop viewport. Stats grid displays all 4 columns with full spacing.',
       },
     },
   },

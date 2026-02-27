@@ -7,7 +7,6 @@
  * @see NAS-4A.13: Build Form Section Component
  */
 
-
 import * as React from 'react';
 
 import { Input, Label, cn } from '@nasnet/ui/primitives';
@@ -98,9 +97,7 @@ function MockFormField({
       <Input
         id={id}
         placeholder={placeholder}
-        className={cn(
-          error && 'border-error focus-visible:ring-error'
-        )}
+        className={cn(error && 'border-error focus-visible:ring-error')}
       />
     </div>
   );
@@ -118,9 +115,18 @@ export const Basic: Story = {
   },
   render: (args) => (
     <FormSection {...args}>
-      <MockFormField label="IP Address" placeholder="192.168.1.1" />
-      <MockFormField label="Subnet Mask" placeholder="255.255.255.0" />
-      <MockFormField label="Gateway" placeholder="192.168.1.254" />
+      <MockFormField
+        label="IP Address"
+        placeholder="192.168.1.1"
+      />
+      <MockFormField
+        label="Subnet Mask"
+        placeholder="255.255.255.0"
+      />
+      <MockFormField
+        label="Gateway"
+        placeholder="192.168.1.254"
+      />
     </FormSection>
   ),
 };
@@ -138,9 +144,18 @@ export const CollapsibleCollapsed: Story = {
   },
   render: (args) => (
     <FormSection {...args}>
-      <MockFormField label="MTU" placeholder="1500" />
-      <MockFormField label="DNS Server 1" placeholder="8.8.8.8" />
-      <MockFormField label="DNS Server 2" placeholder="8.8.4.4" />
+      <MockFormField
+        label="MTU"
+        placeholder="1500"
+      />
+      <MockFormField
+        label="DNS Server 1"
+        placeholder="8.8.8.8"
+      />
+      <MockFormField
+        label="DNS Server 2"
+        placeholder="8.8.4.4"
+      />
     </FormSection>
   ),
 };
@@ -157,9 +172,18 @@ export const CollapsibleExpanded: Story = {
   },
   render: (args) => (
     <FormSection {...args}>
-      <MockFormField label="Username" placeholder="admin" />
-      <MockFormField label="Password" placeholder="••••••••" />
-      <MockFormField label="Pre-shared Key" placeholder="Enter PSK" />
+      <MockFormField
+        label="Username"
+        placeholder="admin"
+      />
+      <MockFormField
+        label="Password"
+        placeholder="••••••••"
+      />
+      <MockFormField
+        label="Pre-shared Key"
+        placeholder="Enter PSK"
+      />
     </FormSection>
   ),
 };
@@ -171,13 +195,19 @@ export const WithDescription: Story = {
   args: {
     title: 'DNS Configuration',
     description:
-      'Configure DNS servers for name resolution. You can use your ISP\'s DNS servers or public DNS services like Google (8.8.8.8) or Cloudflare (1.1.1.1).',
+      "Configure DNS servers for name resolution. You can use your ISP's DNS servers or public DNS services like Google (8.8.8.8) or Cloudflare (1.1.1.1).",
     collapsible: false,
   },
   render: (args) => (
     <FormSection {...args}>
-      <MockFormField label="Primary DNS" placeholder="8.8.8.8" />
-      <MockFormField label="Secondary DNS" placeholder="8.8.4.4" />
+      <MockFormField
+        label="Primary DNS"
+        placeholder="8.8.8.8"
+      />
+      <MockFormField
+        label="Secondary DNS"
+        placeholder="8.8.4.4"
+      />
     </FormSection>
   ),
 };
@@ -199,9 +229,21 @@ export const WithErrors: Story = {
   },
   render: (args) => (
     <FormSection {...args}>
-      <MockFormField label="IP Address" placeholder="192.168.1.1" error />
-      <MockFormField label="Subnet Mask" placeholder="255.255.255.0" error />
-      <MockFormField label="Gateway" placeholder="192.168.1.254" error />
+      <MockFormField
+        label="IP Address"
+        placeholder="192.168.1.1"
+        error
+      />
+      <MockFormField
+        label="Subnet Mask"
+        placeholder="255.255.255.0"
+        error
+      />
+      <MockFormField
+        label="Gateway"
+        placeholder="192.168.1.254"
+        error
+      />
     </FormSection>
   ),
 };
@@ -219,9 +261,18 @@ export const WithHelpIntegration: Story = {
   },
   render: (args) => (
     <FormSection {...args}>
-      <MockFormField label="Pool Start" placeholder="192.168.1.100" />
-      <MockFormField label="Pool End" placeholder="192.168.1.200" />
-      <MockFormField label="Lease Time" placeholder="1d" />
+      <MockFormField
+        label="Pool Start"
+        placeholder="192.168.1.100"
+      />
+      <MockFormField
+        label="Pool End"
+        placeholder="192.168.1.200"
+      />
+      <MockFormField
+        label="Lease Time"
+        placeholder="1d"
+      />
     </FormSection>
   ),
 };
@@ -238,10 +289,22 @@ export const NestedFormFields: Story = {
   },
   render: (args) => (
     <FormSection {...args}>
-      <MockFormField label="Interface Name" placeholder="wg0" />
-      <MockFormField label="Private Key" placeholder="Generated automatically" />
-      <MockFormField label="Listen Port" placeholder="51820" />
-      <MockFormField label="Address" placeholder="10.0.0.1/24" />
+      <MockFormField
+        label="Interface Name"
+        placeholder="wg0"
+      />
+      <MockFormField
+        label="Private Key"
+        placeholder="Generated automatically"
+      />
+      <MockFormField
+        label="Listen Port"
+        placeholder="51820"
+      />
+      <MockFormField
+        label="Address"
+        placeholder="10.0.0.1/24"
+      />
     </FormSection>
   ),
 };
@@ -257,8 +320,14 @@ export const MultipleSections: Story = {
         title="General Settings"
         description="Basic interface configuration"
       >
-        <MockFormField label="Interface Name" placeholder="eth0" />
-        <MockFormField label="MAC Address" placeholder="00:00:00:00:00:00" />
+        <MockFormField
+          label="Interface Name"
+          placeholder="eth0"
+        />
+        <MockFormField
+          label="MAC Address"
+          placeholder="00:00:00:00:00:00"
+        />
       </FormSection>
 
       <FormSection
@@ -266,8 +335,15 @@ export const MultipleSections: Story = {
         description="IPv4 address settings"
         errors={['IP address is invalid']}
       >
-        <MockFormField label="IP Address" placeholder="192.168.1.1" error />
-        <MockFormField label="Subnet Mask" placeholder="255.255.255.0" />
+        <MockFormField
+          label="IP Address"
+          placeholder="192.168.1.1"
+          error
+        />
+        <MockFormField
+          label="Subnet Mask"
+          placeholder="255.255.255.0"
+        />
       </FormSection>
 
       <FormSection
@@ -276,8 +352,14 @@ export const MultipleSections: Story = {
         collapsible
         defaultOpen={false}
       >
-        <MockFormField label="MTU" placeholder="1500" />
-        <MockFormField label="VLAN ID" placeholder="Optional" />
+        <MockFormField
+          label="MTU"
+          placeholder="1500"
+        />
+        <MockFormField
+          label="VLAN ID"
+          placeholder="Optional"
+        />
       </FormSection>
     </div>
   ),
@@ -298,16 +380,26 @@ export const DarkTheme: Story = {
   render: (args) => (
     <div className="dark">
       <FormSection {...args}>
-        <MockFormField label="Source Address" placeholder="0.0.0.0/0" error />
-        <MockFormField label="Destination Address" placeholder="any" />
-        <MockFormField label="Action" placeholder="accept" />
+        <MockFormField
+          label="Source Address"
+          placeholder="0.0.0.0/0"
+          error
+        />
+        <MockFormField
+          label="Destination Address"
+          placeholder="any"
+        />
+        <MockFormField
+          label="Action"
+          placeholder="accept"
+        />
       </FormSection>
     </div>
   ),
   globals: {
     backgrounds: {
-      value: "dark"
-    }
+      value: 'dark',
+    },
   },
 };
 
@@ -325,23 +417,32 @@ export const MobileViewport: Story = {
   },
 
   parameters: {
-    platform: 'mobile'
+    platform: 'mobile',
   },
 
   render: (args) => (
     <FormSection {...args}>
-      <MockFormField label="Network Name (SSID)" placeholder="MyNetwork" />
-      <MockFormField label="Password" placeholder="••••••••" />
-      <MockFormField label="Security Mode" placeholder="WPA2" />
+      <MockFormField
+        label="Network Name (SSID)"
+        placeholder="MyNetwork"
+      />
+      <MockFormField
+        label="Password"
+        placeholder="••••••••"
+      />
+      <MockFormField
+        label="Security Mode"
+        placeholder="WPA2"
+      />
     </FormSection>
   ),
 
   globals: {
     viewport: {
       value: 'mobile',
-      isRotated: false
-    }
-  }
+      isRotated: false,
+    },
+  },
 };
 
 /**
@@ -354,7 +455,7 @@ export const ErrorsOnly: StoryObj<typeof FormSectionErrors> = {
       <h3 className="text-lg font-semibold">Single Error</h3>
       <FormSectionErrors errors={['IP address is invalid']} />
 
-      <h3 className="text-lg font-semibold mt-6">Multiple Errors</h3>
+      <h3 className="mt-6 text-lg font-semibold">Multiple Errors</h3>
       <FormSectionErrors
         errors={[
           'IP address is invalid',
@@ -363,8 +464,8 @@ export const ErrorsOnly: StoryObj<typeof FormSectionErrors> = {
         ]}
       />
 
-      <h3 className="text-lg font-semibold mt-6">No Errors (renders nothing)</h3>
-      <div className="p-4 bg-slate-100 dark:bg-slate-800 rounded">
+      <h3 className="mt-6 text-lg font-semibold">No Errors (renders nothing)</h3>
+      <div className="rounded bg-slate-100 p-4 dark:bg-slate-800">
         <FormSectionErrors errors={[]} />
         <p className="text-sm text-slate-500">(Nothing renders above)</p>
       </div>
@@ -398,8 +499,14 @@ export const AccessibilityTest: Story = {
   },
   render: (args) => (
     <FormSection {...args}>
-      <MockFormField label="Test Field 1" placeholder="Focus here" />
-      <MockFormField label="Test Field 2" placeholder="Tab to here" />
+      <MockFormField
+        label="Test Field 1"
+        placeholder="Focus here"
+      />
+      <MockFormField
+        label="Test Field 2"
+        placeholder="Tab to here"
+      />
     </FormSection>
   ),
 };

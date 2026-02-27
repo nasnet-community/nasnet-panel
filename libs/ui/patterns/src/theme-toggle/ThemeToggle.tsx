@@ -49,25 +49,26 @@ function ThemeToggleComponent({ className }: ThemeToggleProps) {
    */
   const handleToggle = useCallback(() => {
     const nextTheme: ThemeMode =
-      theme === 'light' ? 'dark' : theme === 'dark' ? 'system' : 'light';
+      theme === 'light' ? 'dark'
+      : theme === 'dark' ? 'system'
+      : 'light';
     setTheme(nextTheme);
   }, [theme, setTheme]);
 
   // Memoize icon selection and labels for performance
   const { Icon, currentLabel, nextLabel, ariaLabel } = useMemo(() => {
-    const icon = theme === 'dark' ? Moon : theme === 'light' ? Sun : Monitor;
+    const icon =
+      theme === 'dark' ? Moon
+      : theme === 'light' ? Sun
+      : Monitor;
     const current =
-      theme === 'light'
-        ? 'light mode'
-        : theme === 'dark'
-          ? 'dark mode'
-          : 'system mode';
+      theme === 'light' ? 'light mode'
+      : theme === 'dark' ? 'dark mode'
+      : 'system mode';
     const next =
-      theme === 'light'
-        ? 'dark mode'
-        : theme === 'dark'
-          ? 'system mode'
-          : 'light mode';
+      theme === 'light' ? 'dark mode'
+      : theme === 'dark' ? 'system mode'
+      : 'light mode';
     return {
       Icon: icon,
       currentLabel: current,
@@ -81,15 +82,12 @@ function ThemeToggleComponent({ className }: ThemeToggleProps) {
       variant="ghost"
       size="icon"
       onClick={handleToggle}
-      className={cn(
-        'rounded-full hover:bg-accent transition-all duration-200',
-        className
-      )}
+      className={cn('hover:bg-accent rounded-full transition-all duration-200', className)}
       aria-label={ariaLabel}
       aria-pressed={theme === 'dark'}
       title={ariaLabel}
     >
-      <Icon className="h-5 w-5 text-muted-foreground transition-transform duration-300 hover:rotate-12" />
+      <Icon className="text-muted-foreground h-5 w-5 transition-transform duration-300 hover:rotate-12" />
     </Button>
   );
 }

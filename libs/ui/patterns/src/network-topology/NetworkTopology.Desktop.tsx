@@ -9,7 +9,7 @@
 
 import { memo, useRef, useState, useCallback, useEffect } from 'react';
 
-import { cn , useReducedMotion } from '@nasnet/ui/primitives';
+import { cn, useReducedMotion } from '@nasnet/ui/primitives';
 
 import { ConnectionPath, ConnectionPathStatic } from './ConnectionPath';
 import { RouterIcon, WanIcon, LanIcon, DeviceIcon } from './icons';
@@ -85,7 +85,14 @@ const TopologyNodeElement = memo(function TopologyNodeElement({
         return (
           <DeviceIcon
             size={32}
-            type={(node.data as { type?: string }).type as 'computer' | 'phone' | 'tablet' | 'iot' | 'unknown'}
+            type={
+              (node.data as { type?: string }).type as
+                | 'computer'
+                | 'phone'
+                | 'tablet'
+                | 'iot'
+                | 'unknown'
+            }
             status={node.status as 'online' | 'offline'}
           />
         );
@@ -95,7 +102,10 @@ const TopologyNodeElement = memo(function TopologyNodeElement({
   };
 
   // Calculate icon offset for centering
-  const iconSize = node.type === 'router' ? 64 : node.type === 'device' ? 32 : 48;
+  const iconSize =
+    node.type === 'router' ? 64
+    : node.type === 'device' ? 32
+    : 48;
   const iconOffset = iconSize / 2;
 
   return (
@@ -135,10 +145,11 @@ const TopologyNodeElement = memo(function TopologyNodeElement({
         />
 
         {/* Icon */}
-        <foreignObject width={iconSize} height={iconSize}>
-          <div className="flex h-full w-full items-center justify-center">
-            {renderIcon()}
-          </div>
+        <foreignObject
+          width={iconSize}
+          height={iconSize}
+        >
+          <div className="flex h-full w-full items-center justify-center">{renderIcon()}</div>
         </foreignObject>
 
         {/* Label below icon */}
@@ -206,17 +217,12 @@ export const NetworkTopologyDesktop = memo(function NetworkTopologyDesktop(
   }, []);
 
   // Get topology data from headless hook
-  const {
-    nodes,
-    connections,
-    viewBox,
-    getTooltipContent,
-    handleKeyNavigation,
-  } = useNetworkTopology(topologyProps, {
-    containerWidth: dimensions.width,
-    containerHeight: dimensions.height,
-    showDevices,
-  });
+  const { nodes, connections, viewBox, getTooltipContent, handleKeyNavigation } =
+    useNetworkTopology(topologyProps, {
+      containerWidth: dimensions.width,
+      containerHeight: dimensions.height,
+      showDevices,
+    });
 
   // Use static paths when reduced motion is preferred
   const PathComponent = reducedMotion ? ConnectionPathStatic : ConnectionPath;
@@ -226,7 +232,7 @@ export const NetworkTopologyDesktop = memo(function NetworkTopologyDesktop(
       ref={containerRef}
       className={cn(
         'relative min-h-[300px] w-full overflow-hidden',
-        'bg-card border border-border rounded-[var(--semantic-radius-card)]',
+        'bg-card border-border rounded-[var(--semantic-radius-card)] border',
         'shadow-[var(--semantic-shadow-card)]',
         className
       )}
@@ -240,8 +246,8 @@ export const NetworkTopologyDesktop = memo(function NetworkTopologyDesktop(
       >
         <title>Network Topology</title>
         <desc>
-          Visual diagram of the network configuration showing the router at
-          center with WAN connections on the left and LAN networks on the right.
+          Visual diagram of the network configuration showing the router at center with WAN
+          connections on the left and LAN networks on the right.
           {showDevices && ' Connected devices are shown on the far right.'}
         </desc>
 
@@ -275,20 +281,20 @@ export const NetworkTopologyDesktop = memo(function NetworkTopologyDesktop(
       {/* Legend */}
       <div
         className={cn(
-          'absolute bottom-2 left-2 flex gap-4 rounded-[var(--semantic-radius-input)] bg-card/90 px-3 py-1.5',
-          'text-xs text-muted-foreground backdrop-blur-sm border border-border'
+          'bg-card/90 absolute bottom-2 left-2 flex gap-4 rounded-[var(--semantic-radius-input)] px-3 py-1.5',
+          'text-muted-foreground border-border border text-xs backdrop-blur-sm'
         )}
       >
         <div className="flex items-center gap-1.5">
-          <span className="h-2 w-2 rounded-full bg-success" />
+          <span className="bg-success h-2 w-2 rounded-full" />
           <span>Connected</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <span className="h-2 w-2 rounded-full bg-muted-foreground" />
+          <span className="bg-muted-foreground h-2 w-2 rounded-full" />
           <span>Disconnected</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <span className="h-2 w-2 rounded-full bg-warning" />
+          <span className="bg-warning h-2 w-2 rounded-full" />
           <span>Pending</span>
         </div>
       </div>

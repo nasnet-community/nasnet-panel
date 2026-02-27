@@ -5,20 +5,9 @@
  * @see NAS-4.18: Implement Animation System (Framer Motion)
  */
 
-import React, {
-  type ReactNode,
-  useCallback,
-  useRef,
-  useEffect,
-  useState,
-} from 'react';
+import React, { type ReactNode, useCallback, useRef, useEffect, useState } from 'react';
 
-import {
-  motion,
-  AnimatePresence,
-  useDragControls,
-  type PanInfo,
-} from 'framer-motion';
+import { motion, AnimatePresence, useDragControls, type PanInfo } from 'framer-motion';
 
 import { cn } from '@nasnet/ui/primitives';
 
@@ -104,8 +93,7 @@ export function BottomSheet({
     (_event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
       if (!swipeToDismiss) return;
 
-      const shouldDismiss =
-        info.offset.y > swipeThreshold || info.velocity.y > velocityThreshold;
+      const shouldDismiss = info.offset.y > swipeThreshold || info.velocity.y > velocityThreshold;
 
       if (shouldDismiss) {
         onClose();
@@ -144,9 +132,7 @@ export function BottomSheet({
       'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
     );
     const firstElement = focusableElements[0] as HTMLElement;
-    const lastElement = focusableElements[
-      focusableElements.length - 1
-    ] as HTMLElement;
+    const lastElement = focusableElements[focusableElements.length - 1] as HTMLElement;
 
     // Focus first element on open
     firstElement?.focus();
@@ -213,7 +199,7 @@ export function BottomSheet({
             className={cn(
               'fixed inset-x-0 bottom-0 z-50',
               'max-h-[90vh] overflow-hidden',
-              'rounded-t-2xl bg-background shadow-lg',
+              'bg-background rounded-t-2xl shadow-lg',
               'touch-pan-y',
               className
             )}
@@ -227,7 +213,7 @@ export function BottomSheet({
                 <div
                   role="separator"
                   aria-label="Drag handle. Swipe down to dismiss."
-                  className="h-1.5 w-12 rounded-full bg-muted-foreground/30"
+                  className="bg-muted-foreground/30 h-1.5 w-12 rounded-full"
                   onPointerDown={(e) => dragControls.start(e)}
                 />
               </div>
@@ -261,15 +247,7 @@ export const BottomSheetHeader = React.memo(function BottomSheetHeader({
   className,
 }: BottomSheetHeaderProps) {
   return (
-    <div
-      className={cn(
-        'border-b px-4 py-3',
-        'text-lg font-semibold',
-        className
-      )}
-    >
-      {children}
-    </div>
+    <div className={cn('border-b px-4 py-3', 'text-lg font-semibold', className)}>{children}</div>
   );
 });
 
@@ -317,13 +295,7 @@ export const BottomSheetFooter = React.memo(function BottomSheetFooter({
   className,
 }: BottomSheetFooterProps) {
   return (
-    <div
-      className={cn(
-        'border-t px-4 py-3',
-        'flex items-center justify-end gap-2',
-        className
-      )}
-    >
+    <div className={cn('border-t px-4 py-3', 'flex items-center justify-end gap-2', className)}>
       {children}
     </div>
   );

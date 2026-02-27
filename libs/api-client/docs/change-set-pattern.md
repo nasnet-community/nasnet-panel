@@ -5,7 +5,13 @@ title: Change Set Pattern
 
 # Change Set Pattern
 
-A Change Set is an ordered, atomic batch of resource operations (creates, updates, and deletes) that must all succeed or all roll back together. Rather than applying individual mutations one at a time and hoping the router ends up in a consistent state, a Change Set lets UI flows compose several operations — create a bridge, add a DHCP server, write three firewall rules — and commit them in a single transactional unit. The `libs/api-client/queries/src/change-set/` module provides GraphQL fragments, query hooks, mutation hooks, and real-time subscription hooks that implement every stage of this lifecycle.
+A Change Set is an ordered, atomic batch of resource operations (creates, updates, and deletes) that
+must all succeed or all roll back together. Rather than applying individual mutations one at a time
+and hoping the router ends up in a consistent state, a Change Set lets UI flows compose several
+operations — create a bridge, add a DHCP server, write three firewall rules — and commit them in a
+single transactional unit. The `libs/api-client/queries/src/change-set/` module provides GraphQL
+fragments, query hooks, mutation hooks, and real-time subscription hooks that implement every stage
+of this lifecycle.
 
 ---
 
@@ -26,7 +32,9 @@ A Change Set is an ordered, atomic batch of resource operations (creates, update
 
 ## Apply-Confirm-Merge Lifecycle
 
-A Change Set moves through the following status transitions. The client drives all transitions via mutations; the server confirms each transition and broadcasts progress events via WebSocket subscription.
+A Change Set moves through the following status transitions. The client drives all transitions via
+mutations; the server confirms each transition and broadcasts progress events via WebSocket
+subscription.
 
 ```mermaid
 stateDiagram-v2
@@ -96,12 +104,14 @@ stateDiagram-v2
 ### Base Fragments
 
 **`CHANGE_SET_ITEM_LIGHT_FRAGMENT`** (`ChangeSetItemLight`) — for progress tracking:
+
 ```ts
 // fragments.ts:18
 // id, name, resourceType, resourceCategory, operation, status, applyOrder, error
 ```
 
 **`CHANGE_SET_ITEM_FULL_FRAGMENT`** (`ChangeSetItemFull`) — for detail views:
+
 ```ts
 // fragments.ts:34
 // id, name, description, resourceType, resourceCategory, resourceUuid,
@@ -110,24 +120,28 @@ stateDiagram-v2
 ```
 
 **`CHANGE_SET_VALIDATION_ERROR_FRAGMENT`** (`ChangeSetValidationError`):
+
 ```ts
 // fragments.ts:57
 // itemId, field, message, severity, code
 ```
 
 **`CHANGE_SET_CONFLICT_FRAGMENT`** (`ChangeSetConflict`):
+
 ```ts
 // fragments.ts:70
 // itemId1, itemId2OrResourceUuid, isExternalConflict, description, resolution
 ```
 
 **`MISSING_DEPENDENCY_FRAGMENT`** (`MissingDependency`):
+
 ```ts
 // fragments.ts:83
 // itemId, missingResourceType, missingResourceId
 ```
 
 **`CHANGE_SET_VALIDATION_RESULT_FRAGMENT`** (`ChangeSetValidationResult`):
+
 ```ts
 // fragments.ts:94
 // canApply
@@ -139,12 +153,14 @@ stateDiagram-v2
 ```
 
 **`ROLLBACK_STEP_FRAGMENT`** (`RollbackStep`):
+
 ```ts
 // fragments.ts:119
 // itemId, operation, restoreState, resourceUuid, success, error, rollbackOrder
 ```
 
 **`CHANGE_SET_ERROR_FRAGMENT`** (`ChangeSetError`):
+
 ```ts
 // fragments.ts:134
 // message, failedItemId, code
@@ -155,6 +171,7 @@ stateDiagram-v2
 ### Composite Fragments
 
 **`CHANGE_SET_SUMMARY_FRAGMENT`** (`ChangeSetSummary`) — for list views:
+
 ```ts
 // fragments.ts:152
 // id, name, status
@@ -163,6 +180,7 @@ stateDiagram-v2
 ```
 
 **`CHANGE_SET_FULL_FRAGMENT`** (`ChangeSetFull`) — for detail views:
+
 ```ts
 // fragments.ts:172
 fragment ChangeSetFull on ChangeSet {
@@ -185,6 +203,7 @@ fragment ChangeSetFull on ChangeSet {
 ```
 
 **`CHANGE_SET_PROGRESS_FRAGMENT`** (`ChangeSetProgress`) — lightweight for live tracking:
+
 ```ts
 // fragments.ts:207
 // id, name, status, version
@@ -195,12 +214,14 @@ fragment ChangeSetFull on ChangeSet {
 ### Subscription Event Fragments
 
 **`CURRENT_ITEM_INFO_FRAGMENT`** (`CurrentItemInfo`):
+
 ```ts
 // fragments.ts:231
 // id, name, operation, status
 ```
 
 **`CHANGE_SET_PROGRESS_EVENT_FRAGMENT`** (`ChangeSetProgressEvent`):
+
 ```ts
 // fragments.ts:243
 // changeSetId, status
@@ -212,6 +233,7 @@ fragment ChangeSetFull on ChangeSet {
 ```
 
 **`CHANGE_SET_STATUS_EVENT_FRAGMENT`** (`ChangeSetStatusEvent`):
+
 ```ts
 // fragments.ts:266
 // changeSetId, previousStatus, newStatus
@@ -226,23 +248,23 @@ fragment ChangeSetFull on ChangeSet {
 **Source file:** `libs/api-client/queries/src/change-set/queryKeys.ts`
 
 ```ts
-changeSetKeys.all                                        // ['changeSets']
-changeSetKeys.lists()                                    // ['changeSets', 'list']
-changeSetKeys.list('r-abc', { status: 'DRAFT' })         // ['changeSets', 'list', 'r-abc', { status: 'DRAFT' }]
-changeSetKeys.details()                                  // ['changeSets', 'detail']
-changeSetKeys.detail('r-abc', 'cs-id')                   // ['changeSets', 'detail', 'r-abc', 'cs-id']
-changeSetKeys.validation('cs-id')                        // ['changeSets', 'validation', 'cs-id']
+changeSetKeys.all; // ['changeSets']
+changeSetKeys.lists(); // ['changeSets', 'list']
+changeSetKeys.list('r-abc', { status: 'DRAFT' }); // ['changeSets', 'list', 'r-abc', { status: 'DRAFT' }]
+changeSetKeys.details(); // ['changeSets', 'detail']
+changeSetKeys.detail('r-abc', 'cs-id'); // ['changeSets', 'detail', 'r-abc', 'cs-id']
+changeSetKeys.validation('cs-id'); // ['changeSets', 'validation', 'cs-id']
 ```
 
 **Invalidation helpers:**
 
 ```ts
 // Trigger refetch of all change sets for a router
-changeSetInvalidations.router('r-abc')
+changeSetInvalidations.router('r-abc');
 // Returns: { refetchQueries: [{ query: 'changeSets', variables: { routerId: 'r-abc' } }] }
 
 // Evict a specific change set from cache
-changeSetInvalidations.changeSet('cs-id')
+changeSetInvalidations.changeSet('cs-id');
 // Calls: cache.evict({ id: 'ChangeSet:cs-id' }) + cache.gc()
 ```
 
@@ -254,7 +276,8 @@ changeSetInvalidations.changeSet('cs-id')
 
 ### `useChangeSet`
 
-Fetches a single change set by ID. Returns the full `ChangeSet` object using `ChangeSetFull` fragment.
+Fetches a single change set by ID. Returns the full `ChangeSet` object using `ChangeSetFull`
+fragment.
 
 ```ts
 function useChangeSet(
@@ -266,16 +289,16 @@ function useChangeSet(
   loading: boolean;
   error: ApolloError | undefined;
   refetch: () => Promise<void>;
-}
+};
 ```
 
 **`GetChangeSetOptions`:**
 
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `skip` | `boolean` | `false` | Skip if IDs not yet available |
-| `pollInterval` | `number` | — | Background polling in ms |
-| `fetchPolicy` | Apollo fetch policy | `'cache-first'` | Cache behaviour |
+| Option         | Type                | Default         | Description                   |
+| -------------- | ------------------- | --------------- | ----------------------------- |
+| `skip`         | `boolean`           | `false`         | Skip if IDs not yet available |
+| `pollInterval` | `number`            | —               | Background polling in ms      |
+| `fetchPolicy`  | Apollo fetch policy | `'cache-first'` | Cache behaviour               |
 
 ```graphql
 query GetChangeSet($id: ID!, $routerId: ID!) {
@@ -287,7 +310,8 @@ query GetChangeSet($id: ID!, $routerId: ID!) {
 
 ### `useLazyChangeSet`
 
-On-demand version for cases where the change set ID is determined by user interaction rather than URL params.
+On-demand version for cases where the change set ID is determined by user interaction rather than
+URL params.
 
 ```ts
 function useLazyChangeSet(): {
@@ -295,7 +319,7 @@ function useLazyChangeSet(): {
   changeSet: ChangeSet | undefined;
   loading: boolean;
   error: ApolloError | undefined;
-}
+};
 ```
 
 ```tsx
@@ -320,17 +344,17 @@ function useChangeSets(
   loading: boolean;
   error: ApolloError | undefined;
   refetch: () => Promise<void>;
-}
+};
 ```
 
 **`ListChangeSetsOptions`:**
 
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `status` | `ChangeSetStatus` | — | Filter by status |
-| `includeCompleted` | `boolean` | `false` | Include COMPLETED/FAILED entries |
-| `skip` | `boolean` | `false` | Skip execution |
-| `pollInterval` | `number` | — | Background polling |
+| Option             | Type              | Default | Description                      |
+| ------------------ | ----------------- | ------- | -------------------------------- |
+| `status`           | `ChangeSetStatus` | —       | Filter by status                 |
+| `includeCompleted` | `boolean`         | `false` | Include COMPLETED/FAILED entries |
+| `skip`             | `boolean`         | `false` | Skip execution                   |
+| `pollInterval`     | `number`          | —       | Background polling               |
 
 ```graphql
 query ListChangeSets($routerId: ID!, $status: ChangeSetStatus, $includeCompleted: Boolean) {
@@ -353,7 +377,7 @@ function useActiveChangeSets(
   hasActive: boolean;
   loading: boolean;
   error: ApolloError | undefined;
-}
+};
 ```
 
 ```tsx
@@ -369,7 +393,7 @@ Returns only the count of change sets in DRAFT or READY state. Designed for badg
 function usePendingChangeSetsCount(routerId: string | undefined): {
   count: number;
   isLoading: boolean;
-}
+};
 ```
 
 ```tsx
@@ -401,8 +425,10 @@ Creates a new empty change set in DRAFT status.
 ```ts
 function useCreateChangeSet(): {
   mutate: (input: CreateChangeSetInput) => Promise<ChangeSet>;
-  loading: boolean; error: ApolloError | undefined; reset: () => void;
-}
+  loading: boolean;
+  error: ApolloError | undefined;
+  reset: () => void;
+};
 ```
 
 ```ts
@@ -410,15 +436,21 @@ interface CreateChangeSetInput {
   routerId: string;
   name: string;
   description?: string;
-  source?: string;  // e.g. 'guest-network-wizard', 'import', 'manual'
+  source?: string; // e.g. 'guest-network-wizard', 'import', 'manual'
 }
 ```
 
 ```graphql
 mutation CreateChangeSet($input: CreateChangeSetInput!) {
   createChangeSet(input: $input) {
-    changeSet { ...ChangeSetFull }
-    errors { message code field }
+    changeSet {
+      ...ChangeSetFull
+    }
+    errors {
+      message
+      code
+      field
+    }
   }
 }
 ```
@@ -449,22 +481,28 @@ function useAddChangeSetItem(): {
 interface ChangeSetItemInput {
   resourceType: string;
   resourceCategory: ResourceCategory;
-  resourceUuid?: string;        // Required for UPDATE and DELETE operations
+  resourceUuid?: string; // Required for UPDATE and DELETE operations
   name: string;
   description?: string;
-  operation: ChangeOperation;   // 'CREATE' | 'UPDATE' | 'DELETE'
+  operation: ChangeOperation; // 'CREATE' | 'UPDATE' | 'DELETE'
   configuration: Record<string, unknown>;
-  previousState?: Record<string, unknown>;  // Snapshot for rollback
-  dependencies?: string[];      // Item IDs this item depends on
+  previousState?: Record<string, unknown>; // Snapshot for rollback
+  dependencies?: string[]; // Item IDs this item depends on
 }
 ```
 
 ```graphql
 mutation AddChangeSetItem($changeSetId: ID!, $input: ChangeSetItemInput!) {
   addChangeSetItem(changeSetId: $changeSetId, input: $input) {
-    changeSet { ...ChangeSetFull }
+    changeSet {
+      ...ChangeSetFull
+    }
     itemId
-    errors { message code field }
+    errors {
+      message
+      code
+      field
+    }
   }
 }
 ```
@@ -503,8 +541,14 @@ interface UpdateChangeSetItemInput {
 ```graphql
 mutation UpdateChangeSetItem($changeSetId: ID!, $itemId: ID!, $input: UpdateChangeSetItemInput!) {
   updateChangeSetItem(changeSetId: $changeSetId, itemId: $itemId, input: $input) {
-    changeSet { ...ChangeSetFull }
-    errors { message code field }
+    changeSet {
+      ...ChangeSetFull
+    }
+    errors {
+      message
+      code
+      field
+    }
   }
 }
 ```
@@ -523,15 +567,22 @@ function useRemoveChangeSetItem(): {
 ```graphql
 mutation RemoveChangeSetItem($changeSetId: ID!, $itemId: ID!) {
   removeChangeSetItem(changeSetId: $changeSetId, itemId: $itemId) {
-    changeSet { ...ChangeSetFull }
-    errors { message code field }
+    changeSet {
+      ...ChangeSetFull
+    }
+    errors {
+      message
+      code
+      field
+    }
   }
 }
 ```
 
 ### `useValidateChangeSet`
 
-Runs the full validation pipeline on all items. Returns both the updated `ChangeSet` and a standalone `ChangeSetValidationResult`.
+Runs the full validation pipeline on all items. Returns both the updated `ChangeSet` and a
+standalone `ChangeSetValidationResult`.
 
 ```ts
 function useValidateChangeSet(): {
@@ -544,9 +595,17 @@ function useValidateChangeSet(): {
 ```graphql
 mutation ValidateChangeSet($changeSetId: ID!) {
   validateChangeSet(changeSetId: $changeSetId) {
-    changeSet   { ...ChangeSetFull }
-    validation  { ...ChangeSetValidationResult }
-    errors { message code field }
+    changeSet {
+      ...ChangeSetFull
+    }
+    validation {
+      ...ChangeSetValidationResult
+    }
+    errors {
+      message
+      code
+      field
+    }
   }
 }
 ```
@@ -556,14 +615,16 @@ const { validation } = await validateChangeSet.mutate(cs.id);
 if (validation.canApply) {
   setReadyToApply(true);
 } else {
-  const blocking = validation.errors.filter(e => e.severity === 'ERROR');
+  const blocking = validation.errors.filter((e) => e.severity === 'ERROR');
   showValidationErrors(blocking);
 }
 ```
 
 ### `useApplyChangeSet`
 
-Initiates the apply operation. The mutation returns quickly with the initial `{ changeSetId, status }` — the actual per-item progress streams via `useChangeSetProgressSubscription`.
+Initiates the apply operation. The mutation returns quickly with the initial
+`{ changeSetId, status }` — the actual per-item progress streams via
+`useChangeSetProgressSubscription`.
 
 ```ts
 function useApplyChangeSet(): {
@@ -586,12 +647,17 @@ mutation ApplyChangeSet($changeSetId: ID!) {
   applyChangeSet(changeSetId: $changeSetId) {
     changeSetId
     status
-    errors { message code field }
+    errors {
+      message
+      code
+      field
+    }
   }
 }
 ```
 
-> The apply mutation does not return `ChangeSetFull` — it only returns the initial status. Subscribe to `useChangeSetProgressSubscription` for real-time item-by-item updates.
+> The apply mutation does not return `ChangeSetFull` — it only returns the initial status. Subscribe
+> to `useChangeSetProgressSubscription` for real-time item-by-item updates.
 
 ```tsx
 await applyChangeSet.mutate(cs.id, {
@@ -615,16 +681,23 @@ function useCancelChangeSet(): {
 ```graphql
 mutation CancelChangeSet($changeSetId: ID!) {
   cancelChangeSet(changeSetId: $changeSetId) {
-    changeSet { ...ChangeSetFull }
+    changeSet {
+      ...ChangeSetFull
+    }
     success
-    errors { message code field }
+    errors {
+      message
+      code
+      field
+    }
   }
 }
 ```
 
 ### `useRollbackChangeSet`
 
-Rolls back a failed or partially-applied change set. Executes the `rollbackPlan` steps in reverse `rollbackOrder`.
+Rolls back a failed or partially-applied change set. Executes the `rollbackPlan` steps in reverse
+`rollbackOrder`.
 
 ```ts
 function useRollbackChangeSet(): {
@@ -637,10 +710,16 @@ function useRollbackChangeSet(): {
 ```graphql
 mutation RollbackChangeSet($changeSetId: ID!) {
   rollbackChangeSet(changeSetId: $changeSetId) {
-    changeSet { ...ChangeSetFull }
+    changeSet {
+      ...ChangeSetFull
+    }
     success
     failedItems
-    errors { message code field }
+    errors {
+      message
+      code
+      field
+    }
   }
 }
 ```
@@ -654,7 +733,8 @@ if (!success) {
 
 ### `useDeleteChangeSet`
 
-Permanently deletes a change set and evicts it from the Apollo cache. Cannot delete a change set that is currently APPLYING.
+Permanently deletes a change set and evicts it from the Apollo cache. Cannot delete a change set
+that is currently APPLYING.
 
 ```ts
 function useDeleteChangeSet(): {
@@ -667,12 +747,17 @@ function useDeleteChangeSet(): {
 mutation DeleteChangeSet($changeSetId: ID!) {
   deleteChangeSet(changeSetId: $changeSetId) {
     success
-    errors { message code field }
+    errors {
+      message
+      code
+      field
+    }
   }
 }
 ```
 
-Cache eviction happens in the Apollo `update` callback (see [Cache Eviction on Delete](#cache-eviction-on-delete)).
+Cache eviction happens in the Apollo `update` callback (see
+[Cache Eviction on Delete](#cache-eviction-on-delete)).
 
 ---
 
@@ -680,21 +765,36 @@ Cache eviction happens in the Apollo `update` callback (see [Cache Eviction on D
 
 **Source file:** `libs/api-client/queries/src/change-set/useChangeSetMutations.ts:630`
 
-`useChangeSetOperations` composes all nine mutation hooks into a single ergonomic object. It also exposes a unified `isLoading` flag that is `true` if any individual mutation is in flight.
+`useChangeSetOperations` composes all nine mutation hooks into a single ergonomic object. It also
+exposes a unified `isLoading` flag that is `true` if any individual mutation is in flight.
 
 ```ts
 function useChangeSetOperations(): {
-  create:      (input: CreateChangeSetInput) => Promise<ChangeSet>;
-  addItem:     (changeSetId: string, input: ChangeSetItemInput) => Promise<{ changeSet: ChangeSet; itemId: string }>;
-  updateItem:  (changeSetId: string, itemId: string, input: UpdateChangeSetItemInput) => Promise<ChangeSet>;
-  removeItem:  (changeSetId: string, itemId: string) => Promise<ChangeSet>;
-  validate:    (changeSetId: string) => Promise<{ changeSet: ChangeSet; validation: ChangeSetValidationResult }>;
-  apply:       (changeSetId: string, options?: ApplyChangeSetOptions) => Promise<{ changeSetId: string; status: ChangeSetStatus }>;
-  cancel:      (changeSetId: string) => Promise<{ changeSet: ChangeSet; success: boolean }>;
-  rollback:    (changeSetId: string) => Promise<{ changeSet: ChangeSet; success: boolean; failedItems: string[] }>;
-  delete:      (changeSetId: string) => Promise<{ success: boolean }>;
-  isLoading:   boolean;
-}
+  create: (input: CreateChangeSetInput) => Promise<ChangeSet>;
+  addItem: (
+    changeSetId: string,
+    input: ChangeSetItemInput
+  ) => Promise<{ changeSet: ChangeSet; itemId: string }>;
+  updateItem: (
+    changeSetId: string,
+    itemId: string,
+    input: UpdateChangeSetItemInput
+  ) => Promise<ChangeSet>;
+  removeItem: (changeSetId: string, itemId: string) => Promise<ChangeSet>;
+  validate: (
+    changeSetId: string
+  ) => Promise<{ changeSet: ChangeSet; validation: ChangeSetValidationResult }>;
+  apply: (
+    changeSetId: string,
+    options?: ApplyChangeSetOptions
+  ) => Promise<{ changeSetId: string; status: ChangeSetStatus }>;
+  cancel: (changeSetId: string) => Promise<{ changeSet: ChangeSet; success: boolean }>;
+  rollback: (
+    changeSetId: string
+  ) => Promise<{ changeSet: ChangeSet; success: boolean; failedItems: string[] }>;
+  delete: (changeSetId: string) => Promise<{ success: boolean }>;
+  isLoading: boolean;
+};
 ```
 
 ```tsx
@@ -749,30 +849,31 @@ All subscription hooks return:
 ```ts
 interface SubscriptionResult<T> {
   data: T | undefined;
-  loading: boolean;         // true until first event received
+  loading: boolean; // true until first event received
   error: ApolloError | undefined;
-  isConnected: boolean;     // false if skip, no ID, or error
+  isConnected: boolean; // false if skip, no ID, or error
 }
 ```
 
 ### `useChangeSetProgressSubscription`
 
-Streams per-item progress during a change set apply operation. Each event carries the current item, a percentage, and an estimated time to completion.
+Streams per-item progress during a change set apply operation. Each event carries the current item,
+a percentage, and an estimated time to completion.
 
 ```ts
 function useChangeSetProgressSubscription(
   changeSetId: string | undefined,
   options?: UseChangeSetProgressOptions
-): SubscriptionResult<ChangeSetProgressEvent>
+): SubscriptionResult<ChangeSetProgressEvent>;
 ```
 
 ```ts
 interface UseChangeSetProgressOptions {
   skip?: boolean;
-  onProgress?: (event: ChangeSetProgressEvent) => void;   // Every event
-  onComplete?: (event: ChangeSetProgressEvent) => void;   // status === 'COMPLETED'
-  onError?: (event: ChangeSetProgressEvent) => void;      // status === 'FAILED' | 'PARTIAL_FAILURE' | 'ROLLED_BACK'
-  onSubscriptionError?: (error: ApolloError) => void;     // WebSocket error
+  onProgress?: (event: ChangeSetProgressEvent) => void; // Every event
+  onComplete?: (event: ChangeSetProgressEvent) => void; // status === 'COMPLETED'
+  onError?: (event: ChangeSetProgressEvent) => void; // status === 'FAILED' | 'PARTIAL_FAILURE' | 'ROLLED_BACK'
+  onSubscriptionError?: (error: ApolloError) => void; // WebSocket error
 }
 ```
 
@@ -783,7 +884,7 @@ interface ChangeSetProgressEvent {
   currentItem: CurrentItemInfo | null;
   appliedCount: number;
   totalCount: number;
-  progressPercent: number;          // 0–100
+  progressPercent: number; // 0–100
   estimatedRemainingMs: number | null;
   error: ChangeSetError | null;
   timestamp: string;
@@ -792,8 +893,8 @@ interface ChangeSetProgressEvent {
 interface CurrentItemInfo {
   id: string;
   name: string;
-  operation: ChangeOperation;     // 'CREATE' | 'UPDATE' | 'DELETE'
-  status: ChangeSetItemStatus;    // 'PENDING' | 'APPLYING' | 'APPLIED' | 'FAILED'
+  operation: ChangeOperation; // 'CREATE' | 'UPDATE' | 'DELETE'
+  status: ChangeSetItemStatus; // 'PENDING' | 'APPLYING' | 'APPLIED' | 'FAILED'
 }
 ```
 
@@ -805,7 +906,8 @@ subscription ChangeSetProgress($changeSetId: ID!) {
 }
 ```
 
-The hook tracks a `completedRef` to fire `onComplete` and `onError` callbacks exactly once, preventing duplicate calls if the subscription delivers an additional event after completion.
+The hook tracks a `completedRef` to fire `onComplete` and `onError` callbacks exactly once,
+preventing duplicate calls if the subscription delivers an additional event after completion.
 
 ```tsx
 const { data, isConnected } = useChangeSetProgressSubscription(cs.id, {
@@ -834,13 +936,14 @@ return (
 
 ### `useChangeSetStatusSubscription`
 
-Subscribes to status transitions for any change set on a given router. Useful for global notifications (e.g. top-level toast) when changes complete in a background tab.
+Subscribes to status transitions for any change set on a given router. Useful for global
+notifications (e.g. top-level toast) when changes complete in a background tab.
 
 ```ts
 function useChangeSetStatusSubscription(
   routerId: string | undefined,
   options?: UseChangeSetStatusOptions
-): SubscriptionResult<ChangeSetStatusEvent>
+): SubscriptionResult<ChangeSetStatusEvent>;
 ```
 
 ```ts
@@ -893,13 +996,13 @@ function useChangeSetSubscriptions(
   progress: SubscriptionResult<ChangeSetProgressEvent>;
   statusChange: SubscriptionResult<ChangeSetStatusEvent>;
   isConnected: boolean;
-}
+};
 ```
 
 ```ts
 interface UseChangeSetSubscriptionsOptions {
-  progress?: boolean;         // Subscribe to apply progress (default: true)
-  statusChanges?: boolean;    // Subscribe to router-level status events (default: false)
+  progress?: boolean; // Subscribe to apply progress (default: true)
+  statusChanges?: boolean; // Subscribe to router-level status events (default: false)
   skip?: boolean;
   onProgress?: (event: ChangeSetProgressEvent) => void;
   onComplete?: (event: ChangeSetProgressEvent) => void;
@@ -923,7 +1026,9 @@ const { progress, isConnected } = useChangeSetSubscriptions(cs.id, routerId, {
 
 **Source file:** `libs/api-client/queries/src/change-set/useChangeSetSubscription.ts:381`
 
-`useApplyWithProgress` is a utility hook that combines `useApplyChangeSet` and `useChangeSetProgressSubscription` into a single interface for components that want the complete apply workflow with minimal wiring.
+`useApplyWithProgress` is a utility hook that combines `useApplyChangeSet` and
+`useChangeSetProgressSubscription` into a single interface for components that want the complete
+apply workflow with minimal wiring.
 
 ```ts
 function useApplyWithProgress(
@@ -939,26 +1044,27 @@ function useApplyWithProgress(
   isComplete: boolean;
   error: ChangeSetError | ApolloError | undefined;
   reset: () => void;
-}
+};
 ```
 
 **Internal implementation:**
+
 1. `apply()` sets `isApplyingRef.current = true` then calls the apply mutation
-2. The progress subscription activates only when `isApplyingRef.current` is true (via `skip: !isApplyingRef.current`)
+2. The progress subscription activates only when `isApplyingRef.current` is true (via
+   `skip: !isApplyingRef.current`)
 3. On `onComplete` or `onError` from the subscription, `isApplyingRef.current` is cleared
 4. `reset()` clears all local state for re-use
 
 ```tsx
-const { apply, progress, isApplying, isComplete, error } =
-  useApplyWithProgress(cs.id, {
-    onComplete: () => {
-      toast.success('All changes applied!');
-      navigate('/dashboard');
-    },
-    onError: (err) => {
-      toast.error('Apply failed');
-    },
-  });
+const { apply, progress, isApplying, isComplete, error } = useApplyWithProgress(cs.id, {
+  onComplete: () => {
+    toast.success('All changes applied!');
+    navigate('/dashboard');
+  },
+  onError: (err) => {
+    toast.error('Apply failed');
+  },
+});
 
 return (
   <div>
@@ -966,7 +1072,11 @@ return (
       onClick={apply}
       disabled={isApplying || isComplete}
     >
-      {isApplying ? 'Applying…' : isComplete ? 'Applied' : 'Apply Changes'}
+      {isApplying ?
+        'Applying…'
+      : isComplete ?
+        'Applied'
+      : 'Apply Changes'}
     </Button>
 
     {isApplying && (
@@ -986,7 +1096,8 @@ return (
 
 ## Cache Eviction on Delete
 
-When `useDeleteChangeSet` executes successfully, the Apollo `update` callback removes the `ChangeSet` object from the in-memory cache and runs garbage collection:
+When `useDeleteChangeSet` executes successfully, the Apollo `update` callback removes the
+`ChangeSet` object from the in-memory cache and runs garbage collection:
 
 ```ts
 // useChangeSetMutations.ts:586
@@ -1006,19 +1117,29 @@ const [mutation] = useMutation(DELETE_CHANGE_SET_MUTATION, {
 ```
 
 This ensures:
-- The deleted change set disappears from every `useChangeSets` result immediately without waiting for a refetch.
-- Any component currently rendering that change set will receive `undefined` and should handle it (e.g. redirect to the list page).
-- `cache.gc()` removes any dangling `ChangeSetItem`, `ChangeSetError`, and `RollbackStep` objects that were only referenced by the now-evicted change set.
 
-The analogous pattern exists in `useDeleteResource` in the resource mutations module (see `libs/api-client/queries/src/resources/useResourceMutations.ts:308`).
+- The deleted change set disappears from every `useChangeSets` result immediately without waiting
+  for a refetch.
+- Any component currently rendering that change set will receive `undefined` and should handle it
+  (e.g. redirect to the list page).
+- `cache.gc()` removes any dangling `ChangeSetItem`, `ChangeSetError`, and `RollbackStep` objects
+  that were only referenced by the now-evicted change set.
+
+The analogous pattern exists in `useDeleteResource` in the resource mutations module (see
+`libs/api-client/queries/src/resources/useResourceMutations.ts:308`).
 
 ---
 
 ## Cross-References
 
 - **`./intro.md`** — Library overview and import aliases
-- **`./apollo-client.md`** — Apollo Client setup, InMemoryCache, type policies referenced by change set queries
-- **`./websocket-subscriptions.md`** — WebSocket transport that powers `useChangeSetProgressSubscription`
-- **`./universal-state-resource-model.md`** — The `Resource` model and `useResourceMutations` that Change Sets operate on
-- **`./domain-query-hooks.md`** — Domain hooks that compose Change Sets for specific workflows (e.g. VPN setup wizard)
-- **`./service-lifecycle.md`** — Service install/uninstall flows that use Change Sets for atomic feature provisioning
+- **`./apollo-client.md`** — Apollo Client setup, InMemoryCache, type policies referenced by change
+  set queries
+- **`./websocket-subscriptions.md`** — WebSocket transport that powers
+  `useChangeSetProgressSubscription`
+- **`./universal-state-resource-model.md`** — The `Resource` model and `useResourceMutations` that
+  Change Sets operate on
+- **`./domain-query-hooks.md`** — Domain hooks that compose Change Sets for specific workflows (e.g.
+  VPN setup wizard)
+- **`./service-lifecycle.md`** — Service install/uninstall flows that use Change Sets for atomic
+  feature provisioning

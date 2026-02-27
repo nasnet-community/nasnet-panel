@@ -18,13 +18,19 @@ enum ServiceTemplateCategory {
 Template deployment scope
 """
 enum TemplateScope {
-  """Single service instance"""
+  """
+  Single service instance
+  """
   SINGLE
 
-  """Multiple independent services"""
+  """
+  Multiple independent services
+  """
   MULTIPLE
 
-  """Chained services (e.g., Tor -> Xray)"""
+  """
+  Chained services (e.g., Tor -> Xray)
+  """
   CHAIN
 }
 
@@ -55,33 +61,53 @@ enum TemplateInstallationStatus {
 Configuration variable for a template
 """
 type TemplateVariable {
-  """Variable name (e.g., 'TOR_NAME')"""
+  """
+  Variable name (e.g., 'TOR_NAME')
+  """
   name: String!
 
-  """Variable type"""
+  """
+  Variable type
+  """
   type: TemplateVariableType!
 
-  """Whether the variable is required"""
+  """
+  Whether the variable is required
+  """
   required: Boolean!
 
-  """Default value (can be null)"""
+  """
+  Default value (can be null)
+  """
   default: JSON
 
-  """Human-readable description"""
+  """
+  Human-readable description
+  """
   description: String!
 
-  """Display label for UI"""
+  """
+  Display label for UI
+  """
   label: String!
 
-  """Regex pattern for validation"""
+  """
+  Regex pattern for validation
+  """
   validationPattern: String
 
-  """Minimum value for number types"""
+  """
+  Minimum value for number types
+  """
   minValue: Float
 
-  """Maximum value for number types"""
+  """
+  Maximum value for number types
+  """
   maxValue: Float
 
-  """Allowed values for enum types"""
+  """
+  Allowed values for enum types
+  """
   enumValues: [JSON!]
 }

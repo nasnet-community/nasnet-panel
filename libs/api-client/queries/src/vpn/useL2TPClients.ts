@@ -71,10 +71,7 @@ function transformL2TPClient(raw: L2TPClientRaw): L2TPClient {
  * Fetch L2TP clients from RouterOS
  */
 async function fetchL2TPClients(routerIp: string): Promise<L2TPClient[]> {
-  const result = await makeRouterOSRequest<L2TPClientRaw[]>(
-    routerIp,
-    'interface/l2tp-client'
-  );
+  const result = await makeRouterOSRequest<L2TPClientRaw[]>(routerIp, 'interface/l2tp-client');
 
   if (!result.success || !result.data) {
     throw new Error(result.error || 'Failed to fetch L2TP clients');
@@ -101,4 +98,3 @@ export function useL2TPClients(routerIp: string): UseQueryResult<L2TPClient[], E
     enabled: !!routerIp,
   });
 }
-

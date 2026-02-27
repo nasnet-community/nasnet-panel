@@ -215,16 +215,28 @@ export const AllSizes: Story = {
   render: () => (
     <div className="flex items-center gap-6">
       <div className="flex flex-col items-center gap-2">
-        <span className="text-xs text-muted-foreground">Small</span>
-        <ConfidenceIndicator confidence={95} size="sm" variant="desktop" />
+        <span className="text-muted-foreground text-xs">Small</span>
+        <ConfidenceIndicator
+          confidence={95}
+          size="sm"
+          variant="desktop"
+        />
       </div>
       <div className="flex flex-col items-center gap-2">
-        <span className="text-xs text-muted-foreground">Medium</span>
-        <ConfidenceIndicator confidence={95} size="md" variant="desktop" />
+        <span className="text-muted-foreground text-xs">Medium</span>
+        <ConfidenceIndicator
+          confidence={95}
+          size="md"
+          variant="desktop"
+        />
       </div>
       <div className="flex flex-col items-center gap-2">
-        <span className="text-xs text-muted-foreground">Large</span>
-        <ConfidenceIndicator confidence={95} size="lg" variant="desktop" />
+        <span className="text-muted-foreground text-xs">Large</span>
+        <ConfidenceIndicator
+          confidence={95}
+          size="lg"
+          variant="desktop"
+        />
       </div>
     </div>
   ),
@@ -246,7 +258,7 @@ export const DarkTheme: Story = {
   },
   decorators: [
     (Story) => (
-      <div className="dark bg-slate-950 p-8 rounded-lg">
+      <div className="dark rounded-lg bg-slate-950 p-8">
         <Story />
       </div>
     ),
@@ -264,7 +276,7 @@ export const AllLevels: Story = {
   render: () => (
     <div className="flex flex-col gap-6">
       <div className="flex items-center gap-4">
-        <span className="text-sm text-muted-foreground w-20">High:</span>
+        <span className="text-muted-foreground w-20 text-sm">High:</span>
         <ConfidenceIndicator
           confidence={95}
           method="Auto-detected via DHCP"
@@ -273,7 +285,7 @@ export const AllLevels: Story = {
         />
       </div>
       <div className="flex items-center gap-4">
-        <span className="text-sm text-muted-foreground w-20">Medium:</span>
+        <span className="text-muted-foreground w-20 text-sm">Medium:</span>
         <ConfidenceIndicator
           confidence={75}
           method="Inferred from network scan"
@@ -282,7 +294,7 @@ export const AllLevels: Story = {
         />
       </div>
       <div className="flex items-center gap-4">
-        <span className="text-sm text-muted-foreground w-20">Low:</span>
+        <span className="text-muted-foreground w-20 text-sm">Low:</span>
         <ConfidenceIndicator
           confidence={45}
           method="Best guess from partial data"
@@ -301,28 +313,52 @@ export const BoundaryValues: Story = {
   render: () => (
     <div className="flex flex-col gap-4">
       <div className="flex items-center gap-4">
-        <span className="text-xs text-muted-foreground w-32">90% (high boundary)</span>
-        <ConfidenceIndicator confidence={90} variant="desktop" showLabel />
+        <span className="text-muted-foreground w-32 text-xs">90% (high boundary)</span>
+        <ConfidenceIndicator
+          confidence={90}
+          variant="desktop"
+          showLabel
+        />
       </div>
       <div className="flex items-center gap-4">
-        <span className="text-xs text-muted-foreground w-32">89% (medium boundary)</span>
-        <ConfidenceIndicator confidence={89} variant="desktop" showLabel />
+        <span className="text-muted-foreground w-32 text-xs">89% (medium boundary)</span>
+        <ConfidenceIndicator
+          confidence={89}
+          variant="desktop"
+          showLabel
+        />
       </div>
       <div className="flex items-center gap-4">
-        <span className="text-xs text-muted-foreground w-32">60% (medium boundary)</span>
-        <ConfidenceIndicator confidence={60} variant="desktop" showLabel />
+        <span className="text-muted-foreground w-32 text-xs">60% (medium boundary)</span>
+        <ConfidenceIndicator
+          confidence={60}
+          variant="desktop"
+          showLabel
+        />
       </div>
       <div className="flex items-center gap-4">
-        <span className="text-xs text-muted-foreground w-32">59% (low boundary)</span>
-        <ConfidenceIndicator confidence={59} variant="desktop" showLabel />
+        <span className="text-muted-foreground w-32 text-xs">59% (low boundary)</span>
+        <ConfidenceIndicator
+          confidence={59}
+          variant="desktop"
+          showLabel
+        />
       </div>
       <div className="flex items-center gap-4">
-        <span className="text-xs text-muted-foreground w-32">0% (minimum)</span>
-        <ConfidenceIndicator confidence={0} variant="desktop" showLabel />
+        <span className="text-muted-foreground w-32 text-xs">0% (minimum)</span>
+        <ConfidenceIndicator
+          confidence={0}
+          variant="desktop"
+          showLabel
+        />
       </div>
       <div className="flex items-center gap-4">
-        <span className="text-xs text-muted-foreground w-32">100% (maximum)</span>
-        <ConfidenceIndicator confidence={100} variant="desktop" showLabel />
+        <span className="text-muted-foreground w-32 text-xs">100% (maximum)</span>
+        <ConfidenceIndicator
+          confidence={100}
+          variant="desktop"
+          showLabel
+        />
       </div>
     </div>
   ),
@@ -341,8 +377,13 @@ export const WithFormField: Story = {
     const [value, setValue] = React.useState('192.168.1.1');
 
     return (
-      <div className="flex flex-col gap-4 w-[300px]">
-        <label htmlFor="gateway-input" className="text-sm font-medium">Default Gateway</label>
+      <div className="flex w-[300px] flex-col gap-4">
+        <label
+          htmlFor="gateway-input"
+          className="text-sm font-medium"
+        >
+          Default Gateway
+        </label>
         <div className="flex items-center gap-2">
           <Input
             id="gateway-input"
@@ -360,13 +401,13 @@ export const WithFormField: Story = {
             />
           )}
           {isEditing && (
-            <span className="text-xs text-muted-foreground whitespace-nowrap">Manual entry</span>
+            <span className="text-muted-foreground whitespace-nowrap text-xs">Manual entry</span>
           )}
         </div>
         {isEditing && (
           <button
             onClick={() => setIsEditing(false)}
-            className="text-xs text-primary underline self-start"
+            className="text-primary self-start text-xs underline"
           >
             Revert to auto-detected value
           </button>
@@ -385,14 +426,14 @@ export const WithFormField: Story = {
  */
 export const SetupWizardUseCase: Story = {
   render: () => (
-    <div className="flex flex-col gap-6 w-[400px]">
+    <div className="flex w-[400px] flex-col gap-6">
       <h3 className="text-lg font-semibold">Network Configuration</h3>
 
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <span className="text-sm">WAN Connection Type</span>
           <div className="flex items-center gap-2">
-            <span className="text-sm font-mono">DHCP</span>
+            <span className="font-mono text-sm">DHCP</span>
             <ConfidenceIndicator
               confidence={92}
               method="Auto-detected via interface probe"
@@ -404,7 +445,7 @@ export const SetupWizardUseCase: Story = {
         <div className="flex items-center justify-between">
           <span className="text-sm">Default Gateway</span>
           <div className="flex items-center gap-2">
-            <span className="text-sm font-mono">192.168.1.1</span>
+            <span className="font-mono text-sm">192.168.1.1</span>
             <ConfidenceIndicator
               confidence={98}
               method="Confirmed via DHCP response"
@@ -416,7 +457,7 @@ export const SetupWizardUseCase: Story = {
         <div className="flex items-center justify-between">
           <span className="text-sm">DNS Servers</span>
           <div className="flex items-center gap-2">
-            <span className="text-sm font-mono">8.8.8.8, 8.8.4.4</span>
+            <span className="font-mono text-sm">8.8.8.8, 8.8.4.4</span>
             <ConfidenceIndicator
               confidence={72}
               method="Inferred from router config"
@@ -428,7 +469,7 @@ export const SetupWizardUseCase: Story = {
         <div className="flex items-center justify-between">
           <span className="text-sm">Router Model</span>
           <div className="flex items-center gap-2">
-            <span className="text-sm font-mono">hAP ac²</span>
+            <span className="font-mono text-sm">hAP ac²</span>
             <ConfidenceIndicator
               confidence={55}
               method="Best match from fingerprint"
@@ -456,9 +497,18 @@ export const BaseComponent: Story = {
 
     return (
       <div className="flex items-center gap-4">
-        <ConfidenceIndicatorBase state={highState} size="md" />
-        <ConfidenceIndicatorBase state={mediumState} size="md" />
-        <ConfidenceIndicatorBase state={lowState} size="md" />
+        <ConfidenceIndicatorBase
+          state={highState}
+          size="md"
+        />
+        <ConfidenceIndicatorBase
+          state={mediumState}
+          size="md"
+        />
+        <ConfidenceIndicatorBase
+          state={lowState}
+          size="md"
+        />
       </div>
     );
   },
@@ -470,9 +520,18 @@ export const BaseComponent: Story = {
 export const DotVariant: Story = {
   render: () => (
     <div className="flex items-center gap-4">
-      <ConfidenceIndicatorDot level="high" size="sm" />
-      <ConfidenceIndicatorDot level="medium" size="md" />
-      <ConfidenceIndicatorDot level="low" size="lg" />
+      <ConfidenceIndicatorDot
+        level="high"
+        size="sm"
+      />
+      <ConfidenceIndicatorDot
+        level="medium"
+        size="md"
+      />
+      <ConfidenceIndicatorDot
+        level="low"
+        size="lg"
+      />
     </div>
   ),
 };

@@ -12,8 +12,4 @@ export { HStepper } from './h-stepper';
 export { HStepperProgress } from './h-stepper-progress';
 export { HStepperItem } from './h-stepper-item';
 
-export type {
-  HStepperProps,
-  HStepperProgressProps,
-  HStepperItemProps,
-} from './h-stepper.types';
+export type { HStepperProps, HStepperProgressProps, HStepperItemProps } from './h-stepper.types';

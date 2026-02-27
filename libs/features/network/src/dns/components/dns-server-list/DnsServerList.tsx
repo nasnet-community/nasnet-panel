@@ -72,9 +72,7 @@ export interface DnsServerListProps {
  * />
  * ```
  */
-export const DnsServerList = memo(function DnsServerList(
-  props: DnsServerListProps
-) {
+export const DnsServerList = memo(function DnsServerList(props: DnsServerListProps) {
   const platform = usePlatform();
 
   if (platform === 'mobile') {

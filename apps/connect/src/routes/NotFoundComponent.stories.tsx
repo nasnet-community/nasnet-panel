@@ -2,13 +2,13 @@ import type { Meta, StoryObj } from '@storybook/react';
 
 function NotFoundComponent() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
+    <div className="bg-background flex min-h-screen items-center justify-center">
       <div className="text-center">
-        <h1 className="text-6xl font-bold text-muted">404</h1>
-        <p className="text-xl text-muted-foreground mt-4">Page not found</p>
+        <h1 className="text-muted text-6xl font-bold">404</h1>
+        <p className="text-muted-foreground mt-4 text-xl">Page not found</p>
         <a
           href="/"
-          className="mt-6 inline-block min-h-[44px] px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary-hover focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          className="bg-primary text-primary-foreground hover:bg-primary-hover focus-visible:ring-ring mt-6 inline-block min-h-[44px] rounded px-4 py-2 focus-visible:ring-2 focus-visible:ring-offset-2"
         >
           Go Home
         </a>
@@ -52,7 +52,8 @@ export const MobileView: Story = {
     },
     docs: {
       description: {
-        story: '404 Not Found page optimized for mobile devices with centered layout and accessible button.',
+        story:
+          '404 Not Found page optimized for mobile devices with centered layout and accessible button.',
       },
     },
   },

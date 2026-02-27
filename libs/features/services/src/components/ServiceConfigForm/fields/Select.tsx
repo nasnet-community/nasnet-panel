@@ -80,13 +80,20 @@ export const Select = React.memo(function Select({
   );
 
   return (
-    <SelectPrimitive value={value || ''} onValueChange={handleValueChange} disabled={disabled}>
+    <SelectPrimitive
+      value={value || ''}
+      onValueChange={handleValueChange}
+      disabled={disabled}
+    >
       <SelectTrigger className={className}>
         <SelectValue placeholder={placeholder || 'Select an option'} />
       </SelectTrigger>
       <SelectContent>
         {normalizedOptions.map(({ value: optionValue, label: optionLabel }) => (
-          <SelectItem key={optionValue} value={optionValue}>
+          <SelectItem
+            key={optionValue}
+            value={optionValue}
+          >
             {optionLabel}
           </SelectItem>
         ))}

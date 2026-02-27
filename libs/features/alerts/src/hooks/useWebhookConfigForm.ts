@@ -127,8 +127,9 @@ export function useWebhookConfigForm(
   // Initialize form with React Hook Form + Zod
   const form = useForm<WebhookConfig>({
     resolver: zodResolver(webhookConfigSchema) as any,
-    defaultValues: webhook
-      ? {
+    defaultValues:
+      webhook ?
+        {
           name: webhook.name,
           description: webhook.description || '',
           url: webhook.url,
@@ -139,7 +140,7 @@ export function useWebhookConfigForm(
           template: webhook.template,
           customTemplate: webhook.customTemplate || '',
           headers: webhook.headers || {},
-          method: webhook.method as 'POST' | 'PUT' || 'POST',
+          method: (webhook.method as 'POST' | 'PUT') || 'POST',
           signingSecret: '', // Never populate from server
           timeoutSeconds: webhook.timeoutSeconds,
           retryEnabled: webhook.retryEnabled,
@@ -278,15 +279,7 @@ export function useWebhookConfigForm(
         }
       })(e);
     },
-    [
-      rhfHandleSubmit,
-      isEditMode,
-      webhook,
-      createWebhook,
-      updateWebhook,
-      onSuccess,
-      onError,
-    ]
+    [rhfHandleSubmit, isEditMode, webhook, createWebhook, updateWebhook, onSuccess, onError]
   );
 
   /**
@@ -311,9 +304,7 @@ export function useWebhookConfigForm(
       });
 
       if (result.data?.testWebhook.errors?.length) {
-        const errorMessages = result.data.testWebhook.errors
-          .map((e) => e.message)
-          .join(', ');
+        const errorMessages = result.data.testWebhook.errors.map((e) => e.message).join(', ');
         setTestResult({
           success: false,
           message: errorMessages,
@@ -325,8 +316,9 @@ export function useWebhookConfigForm(
       if (testData) {
         setTestResult({
           success: testData.success,
-          message: testData.success
-            ? `Test webhook sent successfully! (${testData.statusCode})`
+          message:
+            testData.success ?
+              `Test webhook sent successfully! (${testData.statusCode})`
             : testData.errorMessage || 'Test failed',
           statusCode: testData.statusCode,
           responseTimeMs: testData.responseTimeMs,
@@ -359,26 +351,26 @@ export function useWebhookConfigForm(
    */
   const reset = useCallback(() => {
     form.reset(
-      webhook
-        ? {
-            name: webhook.name,
-            description: webhook.description || '',
-            url: webhook.url,
-            authType: webhook.authType,
-            username: webhook.username || '',
-            password: '',
-            bearerToken: webhook.bearerToken || '',
-            template: webhook.template,
-            customTemplate: webhook.customTemplate || '',
-            headers: webhook.headers || {},
-            method: webhook.method as 'POST' | 'PUT' || 'POST',
-            signingSecret: '',
-            timeoutSeconds: webhook.timeoutSeconds,
-            retryEnabled: webhook.retryEnabled,
-            maxRetries: webhook.maxRetries,
-            enabled: webhook.enabled,
-          }
-        : DEFAULT_WEBHOOK_CONFIG
+      webhook ?
+        {
+          name: webhook.name,
+          description: webhook.description || '',
+          url: webhook.url,
+          authType: webhook.authType,
+          username: webhook.username || '',
+          password: '',
+          bearerToken: webhook.bearerToken || '',
+          template: webhook.template,
+          customTemplate: webhook.customTemplate || '',
+          headers: webhook.headers || {},
+          method: (webhook.method as 'POST' | 'PUT') || 'POST',
+          signingSecret: '',
+          timeoutSeconds: webhook.timeoutSeconds,
+          retryEnabled: webhook.retryEnabled,
+          maxRetries: webhook.maxRetries,
+          enabled: webhook.enabled,
+        }
+      : DEFAULT_WEBHOOK_CONFIG
     );
     setTestResult(undefined);
     setSigningSecret(undefined);

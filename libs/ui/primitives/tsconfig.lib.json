@@ -9,5 +9,13 @@
     "tsBuildInfoFile": "../../../dist/out-tsc/ui-primitives.tsbuildinfo"
   },
   "include": ["src/**/*.ts", "src/**/*.tsx"],
-  "exclude": ["src/**/*.spec.ts", "src/**/*.spec.tsx", "src/**/*.test.ts", "src/**/*.test.tsx", "src/**/*.stories.ts", "src/**/*.stories.tsx", "src/test/**"]
+  "exclude": [
+    "src/**/*.spec.ts",
+    "src/**/*.spec.tsx",
+    "src/**/*.test.ts",
+    "src/**/*.test.tsx",
+    "src/**/*.stories.ts",
+    "src/**/*.stories.tsx",
+    "src/test/**"
+  ]
 }

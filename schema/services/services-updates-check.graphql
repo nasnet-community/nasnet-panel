@@ -8,7 +8,9 @@ extend type Mutation {
   Queries GitHub Releases API for new versions.
   """
   checkForUpdates(
-    """Router ID"""
+    """
+    Router ID
+    """
     routerID: ID!
   ): Int!
 }

@@ -1,6 +1,7 @@
 # UI Layouts Library
 
-Layout components for NasNetConnect following the design system with dual-theme support and mobile-first patterns.
+Layout components for NasNetConnect following the design system with dual-theme support and
+mobile-first patterns.
 
 ## Design System
 
@@ -20,6 +21,7 @@ All components follow the NasNetConnect design system:
 Main application wrapper with header, sidebar, and footer support.
 
 **Features:**
+
 - Theme-aware surface colors
 - Sticky header with elevation
 - Collapsible sidebar with smooth transitions
@@ -39,7 +41,7 @@ import { AppShell } from '@nasnet/ui/layouts';
   sidebarCollapsed={false}
 >
   <YourContent />
-</AppShell>
+</AppShell>;
 ```
 
 ### PageContainer
@@ -47,6 +49,7 @@ import { AppShell } from '@nasnet/ui/layouts';
 Page content wrapper with title, description, and actions.
 
 **Features:**
+
 - Font-display typography for titles
 - Responsive padding (p-4 mobile, p-6 desktop)
 - Optional card variants (elevated, flat)
@@ -67,7 +70,7 @@ import { PageContainer } from '@nasnet/ui/layouts';
   maxWidth="xl"
 >
   <YourContent />
-</PageContainer>
+</PageContainer>;
 ```
 
 ### SidebarLayout
@@ -75,6 +78,7 @@ import { PageContainer } from '@nasnet/ui/layouts';
 Flexible sidebar + content layout with responsive behavior.
 
 **Features:**
+
 - Design system gap spacing (gap-3 md:gap-4)
 - Surface colors for sidebar
 - Border styling with border-default
@@ -93,7 +97,7 @@ import { SidebarLayout } from '@nasnet/ui/layouts';
   gap="md"
 >
   <MainContent />
-</SidebarLayout>
+</SidebarLayout>;
 ```
 
 ### BottomNavigation
@@ -101,6 +105,7 @@ import { SidebarLayout } from '@nasnet/ui/layouts';
 Mobile-first bottom navigation bar following Direction 4 (Action-First) pattern.
 
 **Features:**
+
 - Fixed bottom position with safe-area support
 - Active state with primary color indicator
 - Icon + label layout
@@ -124,7 +129,7 @@ const navItems = [
   items={navItems}
   activeId="home"
   onItemClick={(id) => navigate(id)}
-/>
+/>;
 ```
 
 ### MobileHeader
@@ -132,6 +137,7 @@ const navItems = [
 Mobile-optimized header with greeting and page title following Direction 1 (Clean Minimal) pattern.
 
 **Features:**
+
 - Time-aware greeting (Good morning/afternoon/evening)
 - Font-display typography
 - Optional actions area
@@ -148,7 +154,7 @@ import { MobileHeader } from '@nasnet/ui/layouts';
   greeting={true} // or custom string
   subtitle="All systems online"
   actions={<ThemeToggle />}
-/>
+/>;
 ```
 
 ### CardLayout
@@ -156,6 +162,7 @@ import { MobileHeader } from '@nasnet/ui/layouts';
 Grid/flex container for card-based content with responsive columns.
 
 **Features:**
+
 - Auto-responsive columns (1→2→3 based on screen size)
 - Design system gap spacing
 - Variant support (elevated, interactive, flat)
@@ -175,7 +182,7 @@ import { CardLayout } from '@nasnet/ui/layouts';
   <StatusCard />
   <VPNCard />
   <MonitorCard />
-</CardLayout>
+</CardLayout>;
 ```
 
 ### StatusLayout
@@ -183,6 +190,7 @@ import { CardLayout } from '@nasnet/ui/layouts';
 Status/connection banner area with semantic colors.
 
 **Features:**
+
 - Sticky positioning option
 - Semantic color support (success, warning, error, info)
 - Smooth expand/collapse animations
@@ -201,14 +209,16 @@ import { StatusLayout } from '@nasnet/ui/layouts';
   onDismiss={() => setShowBanner(false)}
 >
   <div>Connection unstable. Reconnecting...</div>
-</StatusLayout>
+</StatusLayout>;
 ```
 
 ### MobileAppShell
 
-Complete mobile-first responsive application shell integrating header, navigation, and status banners.
+Complete mobile-first responsive application shell integrating header, navigation, and status
+banners.
 
 **Features:**
+
 - Integrates MobileHeader + BottomNavigation
 - Status banner area
 - Optional desktop sidebar
@@ -241,7 +251,7 @@ import { MobileAppShell } from '@nasnet/ui/layouts';
   showSidebarOnDesktop={true}
 >
   <YourContent />
-</MobileAppShell>
+</MobileAppShell>;
 ```
 
 ## Design Tokens Reference
@@ -293,15 +303,15 @@ rounded-button          // 12px buttons
 ### Utilities
 
 ```tsx
-card-elevated          // Elevated card with shadow
-card-interactive       // Hoverable card
-card-flat              // Flat card with subtle background
+card - elevated; // Elevated card with shadow
+card - interactive; // Hoverable card
+card - flat; // Flat card with subtle background
 
-text-muted             // Muted text color
-text-emphasis          // Emphasized text
+text - muted; // Muted text color
+text - emphasis; // Emphasized text
 
-safe-top               // Safe area for device notches (top)
-safe-bottom            // Safe area for device notches/home indicator (bottom)
+safe - top; // Safe area for device notches (top)
+safe - bottom; // Safe area for device notches/home indicator (bottom)
 ```
 
 ## Responsive Behavior
@@ -343,6 +353,7 @@ document.documentElement.classList.toggle('dark');
 ### Testing
 
 All components should be tested in:
+
 - Both light and dark themes
 - All responsive breakpoints
 - With keyboard navigation
@@ -368,31 +379,3 @@ import {
 ## License
 
 Part of the NasNetConnect project.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

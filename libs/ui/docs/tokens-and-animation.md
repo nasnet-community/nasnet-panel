@@ -1,14 +1,17 @@
 # Design Tokens & Animation System
 
-**Source package:** `libs/ui/tokens/`
-**Motion components:** `libs/ui/patterns/src/motion/`
-**Cross-reference:** [layouts-and-platform.md](./layouts-and-platform.md) for platform-specific timing, [primitives-reference.md](./primitives-reference.md) for `useReducedMotion` hook.
+**Source package:** `libs/ui/tokens/` **Motion components:** `libs/ui/patterns/src/motion/`
+**Cross-reference:** [layouts-and-platform.md](./layouts-and-platform.md) for platform-specific
+timing, [primitives-reference.md](./primitives-reference.md) for `useReducedMotion` hook.
 
 ---
 
 ## Three-Tier Token Architecture
 
-NasNetConnect uses a strict three-tier token architecture defined in `libs/ui/tokens/src/tokens.json`. Approximately 200 tokens are organized across the three tiers. The build pipeline processes the JSON source and emits CSS variables, TypeScript constants, and a Tailwind config extension.
+NasNetConnect uses a strict three-tier token architecture defined in
+`libs/ui/tokens/src/tokens.json`. Approximately 200 tokens are organized across the three tiers. The
+build pipeline processes the JSON source and emits CSS variables, TypeScript constants, and a
+Tailwind config extension.
 
 ```
 Tier 1: Primitives (~80 tokens)   — raw values, never used directly in components
@@ -68,7 +71,8 @@ Raw, named values with no meaning attached. Their only role is to be referenced 
 
 ### Tier 2: Semantic Tokens
 
-Tokens with intent. These are the tokens you reference in component code. They point to Tier 1 values through the `{primitive.x.y}` reference syntax.
+Tokens with intent. These are the tokens you reference in component code. They point to Tier 1
+values through the `{primitive.x.y}` reference syntax.
 
 ```json
 // semantic.color.primary
@@ -109,7 +113,8 @@ Tokens with intent. These are the tokens you reference in component code. They p
 
 ### Tier 3: Component Tokens
 
-Tokens scoped to a single component. Defined under `component.*` in `tokens.json`. Do not reference them outside their component.
+Tokens scoped to a single component. Defined under `component.*` in `tokens.json`. Do not reference
+them outside their component.
 
 ```json
 // component.button.primary
@@ -152,6 +157,7 @@ Tokens scoped to a single component. Defined under `component.*` in `tokens.json
 ## Token Build Pipeline
 
 Source and build files:
+
 - **Source:** `libs/ui/tokens/src/tokens.json`
 - **Build script:** `libs/ui/tokens/build.js`
 - **TypeScript animation tokens:** `libs/ui/tokens/src/animation.ts`
@@ -160,12 +166,12 @@ Source and build files:
 
 Running the build script produces four files under `libs/ui/tokens/dist/`:
 
-| Output file | Contents |
-|---|---|
-| `dist/variables.css` | CSS custom properties for `:root` and `.dark` |
-| `dist/tokens.ts` | TypeScript constants with `designTokens`, `cssVar()`, `getToken()` |
-| `dist/tokens.d.ts` | Type definitions for the above |
-| `dist/tailwind.config.js` | Tailwind theme extension mapping CSS variables to utilities |
+| Output file               | Contents                                                           |
+| ------------------------- | ------------------------------------------------------------------ |
+| `dist/variables.css`      | CSS custom properties for `:root` and `.dark`                      |
+| `dist/tokens.ts`          | TypeScript constants with `designTokens`, `cssVar()`, `getToken()` |
+| `dist/tokens.d.ts`        | Type definitions for the above                                     |
+| `dist/tailwind.config.js` | Tailwind theme extension mapping CSS variables to utilities        |
 
 ### Running the Build
 
@@ -177,7 +183,8 @@ npx nx build ui-tokens
 node libs/ui/tokens/build.js --watch
 ```
 
-The build script resolves all `{reference.path}` tokens, merges dark overrides, and emits only the diff between light and dark into the `.dark {}` block.
+The build script resolves all `{reference.path}` tokens, merges dark overrides, and emits only the
+diff between light and dark into the `.dark {}` block.
 
 ---
 
@@ -194,41 +201,41 @@ Real examples from `dist/variables.css`:
 ```css
 :root {
   /* Tier 1 primitives */
-  --primitive-color-brand-amber-500: #EFC729;
+  --primitive-color-brand-amber-500: #efc729;
   --primitive-spacing-4: 1rem;
   --primitive-shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), ...;
 
   /* Tier 2 semantic */
-  --semantic-color-primary-DEFAULT: #EFC729;
-  --semantic-color-primary-hover: #D4A50E;
-  --semantic-color-success-DEFAULT: #22C55E;
-  --semantic-color-surface-background: #F1F5F9;
-  --semantic-color-surface-card: #FFFFFF;
-  --semantic-color-category-security: #EF4444;
-  --semantic-color-network-wan: #F97316;
-  --semantic-color-networkStatus-connected: #22C55E;
-  --semantic-confidence-high: #16A34A;
+  --semantic-color-primary-DEFAULT: #efc729;
+  --semantic-color-primary-hover: #d4a50e;
+  --semantic-color-success-DEFAULT: #22c55e;
+  --semantic-color-surface-background: #f1f5f9;
+  --semantic-color-surface-card: #ffffff;
+  --semantic-color-category-security: #ef4444;
+  --semantic-color-network-wan: #f97316;
+  --semantic-color-networkStatus-connected: #22c55e;
+  --semantic-confidence-high: #16a34a;
   --semantic-radius-button: 0.75rem;
   --semantic-shadow-card: 0 4px 6px -1px rgb(0 0 0 / 0.1), ...;
   --semantic-animation-wizard-stepTransition: 300ms;
   --semantic-animation-wizard-easing: cubic-bezier(0.4, 0, 0.2, 1);
 
   /* Tier 3 component */
-  --component-button-primary-bg: #EFC729;
+  --component-button-primary-bg: #efc729;
   --component-card-borderRadius: 1rem;
-  --component-stepper-activeColor: #EFC729;
+  --component-stepper-activeColor: #efc729;
   --component-stepper-itemSize: 2rem;
   --component-stepper-itemSizeMobile: 2.5rem;
 }
 
 /* Dark theme overrides — only tokens that differ */
-[data-theme="dark"],
+[data-theme='dark'],
 .dark {
-  --semantic-color-surface-background: #0F172A;
-  --semantic-color-surface-card: #1E293B;
-  --semantic-color-text-primary: #F8FAFC;
+  --semantic-color-surface-background: #0f172a;
+  --semantic-color-surface-card: #1e293b;
+  --semantic-color-text-primary: #f8fafc;
   --semantic-color-border-DEFAULT: #334155;
-  --semantic-color-networkStatus-connected: #4ADE80;
+  --semantic-color-networkStatus-connected: #4ade80;
 }
 ```
 
@@ -281,7 +288,8 @@ const successColor = getToken('semantic.color.success.DEFAULT');
 
 ## Tailwind Mapping
 
-The build script emits `dist/tailwind.config.js` which maps every CSS variable to a Tailwind utility class. The app's `tailwind.config.js` extends this.
+The build script emits `dist/tailwind.config.js` which maps every CSS variable to a Tailwind utility
+class. The app's `tailwind.config.js` extends this.
 
 ### Color Utilities
 
@@ -351,29 +359,29 @@ bg-confidence-lowBg    text-confidence-lowText
 
 ```tsx
 // Shadows
-shadow-card      // semantic shadow for cards
-shadow-dropdown  // semantic shadow for dropdowns
-shadow-modal     // semantic shadow for modals
+shadow - card; // semantic shadow for cards
+shadow - dropdown; // semantic shadow for dropdowns
+shadow - modal; // semantic shadow for modals
 
 // Border radius
-rounded-button   // semantic.radius.button (xl = 12px)
-rounded-card     // semantic.radius.card (2xl = 16px)
-rounded-input    // semantic.radius.input (lg = 8px)
+rounded - button; // semantic.radius.button (xl = 12px)
+rounded - card; // semantic.radius.card (2xl = 16px)
+rounded - input; // semantic.radius.input (lg = 8px)
 
 // Wizard layout spacing
-w-wizard-sidebar       // 280px
-w-wizard-preview       // 320px
-max-w-wizard-content   // 720px
-spacing-wizard-step-gap
+w - wizard - sidebar; // 280px
+w - wizard - preview; // 320px
+max - w - wizard - content; // 720px
+spacing - wizard - step - gap;
 
 // Stepper component
-w-stepper-item         // 2rem
-w-stepper-item-mobile  // 2.5rem
+w - stepper - item; // 2rem
+w - stepper - item - mobile; // 2.5rem
 
 // Animation timing
-duration-step          // semantic.animation.wizard.stepTransition (300ms)
-duration-validation    // semantic.animation.wizard.validationFeedback (150ms)
-ease-step              // cubic-bezier(0.4, 0, 0.2, 1)
+duration - step; // semantic.animation.wizard.stepTransition (300ms)
+duration - validation; // semantic.animation.wizard.validationFeedback (150ms)
+ease - step; // cubic-bezier(0.4, 0, 0.2, 1)
 ```
 
 ---
@@ -382,25 +390,27 @@ ease-step              // cubic-bezier(0.4, 0, 0.2, 1)
 
 ### How It Works
 
-The build script compares light and dark token values and emits only changed variables into the `.dark {}` block. The selector targets both `[data-theme="dark"]` (data attribute) and `.dark` (class), which matches Tailwind's `darkMode: 'class'` strategy.
+The build script compares light and dark token values and emits only changed variables into the
+`.dark {}` block. The selector targets both `[data-theme="dark"]` (data attribute) and `.dark`
+(class), which matches Tailwind's `darkMode: 'class'` strategy.
 
 ```css
-[data-theme="dark"],
+[data-theme='dark'],
 .dark {
   /* Only overridden tokens are emitted */
-  --semantic-color-surface-background: #0F172A;
-  --semantic-color-surface-card: #1E293B;
+  --semantic-color-surface-background: #0f172a;
+  --semantic-color-surface-card: #1e293b;
   --semantic-color-surface-muted: #334155;
-  --semantic-color-text-primary: #F8FAFC;
-  --semantic-color-text-secondary: #CBD5E1;
+  --semantic-color-text-primary: #f8fafc;
+  --semantic-color-text-secondary: #cbd5e1;
   --semantic-color-border-DEFAULT: #334155;
   /* networkStatus — brighter for dark backgrounds */
-  --semantic-color-networkStatus-connected: #4ADE80;
-  --semantic-color-networkStatus-pending: #FBBF24;
-  --semantic-color-networkStatus-error: #F87171;
+  --semantic-color-networkStatus-connected: #4ade80;
+  --semantic-color-networkStatus-pending: #fbbf24;
+  --semantic-color-networkStatus-error: #f87171;
   /* Confidence — darker backgrounds, brighter text */
-  --semantic-confidence-highBg: #14532D;
-  --semantic-confidence-highText: #86EFAC;
+  --semantic-confidence-highBg: #14532d;
+  --semantic-confidence-highText: #86efac;
 }
 ```
 
@@ -435,7 +445,9 @@ The `dark` key in `tokens.json` contains only the overrides:
 
 ### ThemeProvider Integration
 
-Theme is toggled by adding or removing the `dark` class on `<html>`. The UI store in `@nasnet/state/stores` manages the `theme` value, and the ThemeProvider (in `apps/connect/src/app/providers/index.tsx`) syncs it to the DOM.
+Theme is toggled by adding or removing the `dark` class on `<html>`. The UI store in
+`@nasnet/state/stores` manages the `theme` value, and the ThemeProvider (in
+`apps/connect/src/app/providers/index.tsx`) syncs it to the DOM.
 
 ---
 
@@ -443,18 +455,19 @@ Theme is toggled by adding or removing the `dark` class on `<html>`. The UI stor
 
 **Source:** `libs/ui/tokens/src/animation.ts`
 
-All animation tokens are TypeScript-only (not in `tokens.json`) and are exported directly from `@nasnet/ui/tokens`.
+All animation tokens are TypeScript-only (not in `tokens.json`) and are exported directly from
+`@nasnet/ui/tokens`.
 
 ### Tier 1: Duration Values (`durations`)
 
 ```typescript
 import { durations } from '@nasnet/ui/tokens';
 
-durations.instant  // 0    — no animation
-durations.fast     // 100  — micro-interactions: button hover, toggle, status change
-durations.normal   // 200  — standard animations: modal enter, content fade
-durations.slow     // 300  — page transitions, complex sequences
-durations.slower   // 500  — rarely used, very slow transitions
+durations.instant; // 0    — no animation
+durations.fast; // 100  — micro-interactions: button hover, toggle, status change
+durations.normal; // 200  — standard animations: modal enter, content fade
+durations.slow; // 300  — page transitions, complex sequences
+durations.slower; // 500  — rarely used, very slow transitions
 ```
 
 ### Tier 1: Easing Curves (`easings`)
@@ -465,16 +478,16 @@ Cubic bezier arrays for Framer Motion's `ease` property:
 import { easings } from '@nasnet/ui/tokens';
 
 // ease-out: fast start, slow end — for entering elements
-easings.enter   // [0, 0, 0.2, 1]
+easings.enter; // [0, 0, 0.2, 1]
 
 // ease-in: slow start, fast end — for exiting elements
-easings.exit    // [0.4, 0, 1, 1]
+easings.exit; // [0.4, 0, 1, 1]
 
 // ease-in-out: smooth repositioning — for layout changes
-easings.move    // [0.4, 0, 0.2, 1]
+easings.move; // [0.4, 0, 0.2, 1]
 
 // linear: constant speed — for progress indicators
-easings.linear  // [0, 0, 1, 1]
+easings.linear; // [0, 0, 1, 1]
 ```
 
 ### Tier 1: Spring Configurations (`springs`)
@@ -482,15 +495,16 @@ easings.linear  // [0, 0, 1, 1]
 ```typescript
 import { springs } from '@nasnet/ui/tokens';
 
-springs.default  // { type: 'spring', stiffness: 300, damping: 30 }
-springs.gentle   // { type: 'spring', stiffness: 200, damping: 25 }
-springs.bouncy   // { type: 'spring', stiffness: 400, damping: 20 }
-springs.stiff    // { type: 'spring', stiffness: 500, damping: 35 }
+springs.default; // { type: 'spring', stiffness: 300, damping: 30 }
+springs.gentle; // { type: 'spring', stiffness: 200, damping: 25 }
+springs.bouncy; // { type: 'spring', stiffness: 400, damping: 20 }
+springs.stiff; // { type: 'spring', stiffness: 500, damping: 35 }
 ```
 
 ### Tier 2: Platform-Aware Tokens (`getAnimationTokens`)
 
-Mobile animations run 25% faster to feel snappier on touch devices. Exit transitions are an additional 25% faster than enter transitions regardless of platform.
+Mobile animations run 25% faster to feel snappier on touch devices. Exit transitions are an
+additional 25% faster than enter transitions regardless of platform.
 
 ```typescript
 import { getAnimationTokens } from '@nasnet/ui/tokens';
@@ -515,13 +529,13 @@ The `AnimationTokens` interface:
 
 ```typescript
 interface AnimationTokens {
-  pageTransition: { enter: number; exit: number };   // ms
-  modal:          { enter: number; exit: number };   // ms
-  drawer:         { enter: number; exit: number };   // ms
-  listReorder:    number;                            // ms
-  microInteraction: number;                          // ms
-  skeleton:       { duration: number; repeat: number }; // seconds
-  connectionPulse:{ duration: number; repeat: number }; // seconds
+  pageTransition: { enter: number; exit: number }; // ms
+  modal: { enter: number; exit: number }; // ms
+  drawer: { enter: number; exit: number }; // ms
+  listReorder: number; // ms
+  microInteraction: number; // ms
+  skeleton: { duration: number; repeat: number }; // seconds
+  connectionPulse: { duration: number; repeat: number }; // seconds
 }
 ```
 
@@ -537,22 +551,22 @@ Pre-configured `Transition` objects ready to pass to `motion` components:
 import { transitions } from '@nasnet/ui/tokens';
 
 // Standard content transitions
-transitions.enter      // ease-out, 200ms  — modal/panel enter
-transitions.exit       // ease-in,  150ms  — modal/panel exit (25% faster)
-transitions.move       // ease-in-out, 200ms — layout repositioning
-transitions.fast       // ease-out, 100ms  — micro-interactions
+transitions.enter; // ease-out, 200ms  — modal/panel enter
+transitions.exit; // ease-in,  150ms  — modal/panel exit (25% faster)
+transitions.move; // ease-in-out, 200ms — layout repositioning
+transitions.fast; // ease-out, 100ms  — micro-interactions
 
 // Page-level transitions
-transitions.pageEnter  // ease-out, 300ms
-transitions.pageExit   // ease-in,  225ms
+transitions.pageEnter; // ease-out, 300ms
+transitions.pageExit; // ease-in,  225ms
 
 // Spring transitions
-transitions.spring       // stiffness:300, damping:30
-transitions.springGentle // stiffness:200, damping:25
-transitions.springBouncy // stiffness:400, damping:20
+transitions.spring; // stiffness:300, damping:30
+transitions.springGentle; // stiffness:200, damping:25
+transitions.springBouncy; // stiffness:400, damping:20
 
 // Special
-transitions.instant      // duration:0 — no animation
+transitions.instant; // duration:0 — no animation
 ```
 
 Usage with Framer Motion:
@@ -566,92 +580,92 @@ import { transitions } from '@nasnet/ui/tokens';
   animate={{ opacity: 1, y: 0 }}
   exit={{ opacity: 0, y: -10 }}
   transition={transitions.enter}
-/>
+/>;
 ```
 
 ---
 
 ## Animation Presets
 
-**Source:** `libs/ui/patterns/src/motion/presets.ts`
-**Import:** `import { fadeIn, slideUp, ... } from '@nasnet/ui/patterns/motion'`
+**Source:** `libs/ui/patterns/src/motion/presets.ts` **Import:**
+`import { fadeIn, slideUp, ... } from '@nasnet/ui/patterns/motion'`
 
 Presets are Framer Motion `Variants` objects with `initial`, `animate`, and `exit` states baked in.
 
 ### Fade Variants
 
 ```typescript
-fadeIn     // opacity: 0 → 1, uses enterTransition / exitTransition
-fadeOut    // stays at 1, exit fades to 0
+fadeIn; // opacity: 0 → 1, uses enterTransition / exitTransition
+fadeOut; // stays at 1, exit fades to 0
 ```
 
 ### Slide Variants
 
 ```typescript
-slideUp     // y: 20 → 0 enter, y: 0 → -10 exit
-slideDown   // y: -20 → 0 enter, y: 0 → 10 exit
-slideLeft   // x: 20 → 0 enter (slides in from right), x: 0 → -10 exit
-slideRight  // x: -20 → 0 enter (slides in from left), x: 0 → 10 exit
+slideUp; // y: 20 → 0 enter, y: 0 → -10 exit
+slideDown; // y: -20 → 0 enter, y: 0 → 10 exit
+slideLeft; // x: 20 → 0 enter (slides in from right), x: 0 → -10 exit
+slideRight; // x: -20 → 0 enter (slides in from left), x: 0 → 10 exit
 ```
 
 ### Scale Variants
 
 ```typescript
-scaleIn   // scale: 0.95 → 1 — modals, popovers, toasts
-scaleOut  // stays at 1, scale: 1 → 0.95 on exit
-popIn     // scale: 0.8 → 1 with spring physics — badges, attention elements
+scaleIn; // scale: 0.95 → 1 — modals, popovers, toasts
+scaleOut; // stays at 1, scale: 1 → 0.95 on exit
+popIn; // scale: 0.8 → 1 with spring physics — badges, attention elements
 ```
 
 ### Page Transition Variants
 
 ```typescript
-pageFade      // opacity: 0 → 1, uses pageEnterTransition / pageExitTransition
-pageSlideUp   // opacity + y: 20 → 0, uses pageEnterTransition
+pageFade; // opacity: 0 → 1, uses pageEnterTransition / pageExitTransition
+pageSlideUp; // opacity + y: 20 → 0, uses pageEnterTransition
 ```
 
 ### Drawer and Sheet Variants
 
 ```typescript
-drawerRight   // x: '100%' → 0 — desktop right drawer
-drawerLeft    // x: '-100%' → 0 — desktop left drawer
-bottomSheet   // y: '100%' → 0 — mobile bottom sheet
-backdrop      // opacity: 0 → 1, fast (100ms)
+drawerRight; // x: '100%' → 0 — desktop right drawer
+drawerLeft; // x: '-100%' → 0 — desktop left drawer
+bottomSheet; // y: '100%' → 0 — mobile bottom sheet
+backdrop; // opacity: 0 → 1, fast (100ms)
 ```
 
 ### Stagger Variants (for Lists)
 
 ```typescript
 // Wrap list with staggerContainer, items with staggerItem
-staggerContainer      // staggerChildren: 0.05s, delayChildren: 0.1s
-staggerItem           // opacity + y: 10 → 0 per item
-staggerContainerFast  // staggerChildren: 0.02s — for long lists
+staggerContainer; // staggerChildren: 0.05s, delayChildren: 0.1s
+staggerItem; // opacity + y: 10 → 0 per item
+staggerContainerFast; // staggerChildren: 0.02s — for long lists
 ```
 
 ### Reduced Motion Variants
 
 ```typescript
-reducedMotionFade     // minimal fade (0.1s enter, 0.05s exit)
-reducedMotionInstant  // opacity: 1, instant exit
+reducedMotionFade; // minimal fade (0.1s enter, 0.05s exit)
+reducedMotionInstant; // opacity: 1, instant exit
 ```
 
 ### Micro-Interaction Variants
 
 ```typescript
-buttonPress      // scale: 1 → 0.97 on tap, 1.02 on hover
-hoverLift        // y: 0 → -2 on hover
-pulse            // scale + opacity pulse, 2s, infinite
-connectionPulse  // scale: 1 → 1.15 → 1, 2s, infinite
-shimmer          // x: '-100%' → '100%', 1.5s, infinite — skeleton loaders
+buttonPress; // scale: 1 → 0.97 on tap, 1.02 on hover
+hoverLift; // y: 0 → -2 on hover
+pulse; // scale + opacity pulse, 2s, infinite
+connectionPulse; // scale: 1 → 1.15 → 1, 2s, infinite
+shimmer; // x: '-100%' → '100%', 1.5s, infinite — skeleton loaders
 ```
 
 ### Layout and State Variants
 
 ```typescript
-listItem      // opacity + y: 10 → 0, uses moveTransition
-collapse      // height: 0 → 'auto', opacity: 0 → 1
+listItem; // opacity + y: 10 → 0, uses moveTransition
+collapse; // height: 0 → 'auto', opacity: 0 → 1
 
-successCheck  // SVG pathLength: 0 → 1 with opacity
-errorShake    // x: [0, -10, 10, -10, 10, 0], 0.4s
+successCheck; // SVG pathLength: 0 → 1 with opacity
+errorShake; // x: [0, -10, 10, -10, 10, 0], 0.4s
 ```
 
 ### Utility: `getVariant`
@@ -674,12 +688,29 @@ All components are exported from `@nasnet/ui/patterns/motion`:
 
 ```typescript
 import {
-  AnimationProvider, useAnimation, useAnimationOptional, MotionConfig,
-  PageTransition, PageTransitionWrapper, usePageTransition,
-  BottomSheet, BottomSheetHeader, BottomSheetContent, BottomSheetFooter, useBottomSheet,
-  AnimatedList, DragHandle, StaggeredList, StaggeredItem,
-  SharedElement, SharedElementRoot, SharedElementGroup, SharedImage,
-  useInViewAnimation, useRevealAnimation, useStaggeredReveal,
+  AnimationProvider,
+  useAnimation,
+  useAnimationOptional,
+  MotionConfig,
+  PageTransition,
+  PageTransitionWrapper,
+  usePageTransition,
+  BottomSheet,
+  BottomSheetHeader,
+  BottomSheetContent,
+  BottomSheetFooter,
+  useBottomSheet,
+  AnimatedList,
+  DragHandle,
+  StaggeredList,
+  StaggeredItem,
+  SharedElement,
+  SharedElementRoot,
+  SharedElementGroup,
+  SharedImage,
+  useInViewAnimation,
+  useRevealAnimation,
+  useStaggeredReveal,
   AnimationErrorBoundary,
 } from '@nasnet/ui/patterns/motion';
 ```
@@ -690,18 +721,16 @@ import {
 
 **File:** `libs/ui/patterns/src/motion/AnimationProvider.tsx`
 
-The context provider that wires together reduced motion preference (from `@nasnet/state/stores` `animationsEnabled`) and platform detection (from `@nasnet/ui/layouts` `usePlatform`). Must be placed high in the component tree.
+The context provider that wires together reduced motion preference (from `@nasnet/state/stores`
+`animationsEnabled`) and platform detection (from `@nasnet/ui/layouts` `usePlatform`). Must be
+placed high in the component tree.
 
 ```tsx
 import { AnimationProvider } from '@nasnet/ui/patterns/motion';
 
 // In apps/connect/src/app/providers/index.tsx
 export function Providers({ children }: { children: ReactNode }) {
-  return (
-    <AnimationProvider>
-      {children}
-    </AnimationProvider>
-  );
+  return <AnimationProvider>{children}</AnimationProvider>;
 }
 ```
 
@@ -712,11 +741,12 @@ import { useAnimation } from '@nasnet/ui/patterns/motion';
 import { slideUp } from '@nasnet/ui/patterns/motion';
 
 function MyComponent() {
-  const { reducedMotion, platform, tokens, getVariant, getTransition, getDuration } = useAnimation();
+  const { reducedMotion, platform, tokens, getVariant, getTransition, getDuration } =
+    useAnimation();
 
   return (
     <motion.div
-      variants={getVariant(slideUp)}    // swaps to reducedMotionFade if needed
+      variants={getVariant(slideUp)} // swaps to reducedMotionFade if needed
       initial="initial"
       animate="animate"
       exit="exit"
@@ -728,7 +758,8 @@ function MyComponent() {
 }
 ```
 
-**`useAnimationOptional()`** — same as `useAnimation()` but returns `null` instead of throwing when used outside the provider.
+**`useAnimationOptional()`** — same as `useAnimation()` but returns `null` instead of throwing when
+used outside the provider.
 
 **`MotionConfig`** — override animation settings for a subtree:
 
@@ -738,7 +769,7 @@ import { MotionConfig } from '@nasnet/ui/patterns/motion';
 // Disable animations for form fields
 <MotionConfig reducedMotion>
   <FormFields />
-</MotionConfig>
+</MotionConfig>;
 ```
 
 ---
@@ -786,7 +817,7 @@ const { variants, enterTransition, exitTransition, reducedMotion } = usePageTran
   transition={enterTransition}
 >
   Content
-</motion.div>
+</motion.div>;
 ```
 
 ---
@@ -799,7 +830,10 @@ Mobile-optimized bottom sheet with swipe-to-dismiss gesture, focus trap, and esc
 
 ```tsx
 import {
-  BottomSheet, BottomSheetHeader, BottomSheetContent, BottomSheetFooter,
+  BottomSheet,
+  BottomSheetHeader,
+  BottomSheetContent,
+  BottomSheetFooter,
   useBottomSheet,
 } from '@nasnet/ui/patterns/motion';
 
@@ -814,11 +848,11 @@ function RouterActionsSheet() {
         isOpen={isOpen}
         onClose={close}
         aria-label="Router actions"
-        swipeThreshold={100}      // pixels to drag before dismissing
-        velocityThreshold={500}   // pixels/sec flick velocity to dismiss
-        swipeToDismiss            // default: true
-        showBackdrop              // default: true
-        closeOnBackdropClick      // default: true
+        swipeThreshold={100} // pixels to drag before dismissing
+        velocityThreshold={500} // pixels/sec flick velocity to dismiss
+        swipeToDismiss // default: true
+        showBackdrop // default: true
+        closeOnBackdropClick // default: true
       >
         <BottomSheetHeader>Router Actions</BottomSheetHeader>
         <BottomSheetContent>
@@ -833,7 +867,8 @@ function RouterActionsSheet() {
 }
 ```
 
-Reduced motion: when `reducedMotion` is true the `bottomSheet` variant is replaced with `reducedMotionFade` and drag-to-dismiss is disabled.
+Reduced motion: when `reducedMotion` is true the `bottomSheet` variant is replaced with
+`reducedMotionFade` and drag-to-dismiss is disabled.
 
 ---
 
@@ -853,10 +888,10 @@ function FirewallRuleList({ rules, onReorder }) {
       onReorder={onReorder}
       getKey={(rule) => rule.id}
       axis="y"
-      animateEntrance  // animate items on initial render
+      animateEntrance // animate items on initial render
     >
       {(rule, index, dragControls) => (
-        <div className="flex items-center gap-2 rounded-card border p-3">
+        <div className="rounded-card flex items-center gap-2 border p-3">
           <DragHandle onPointerDown={(e) => dragControls.start(e)} />
           <span>{rule.name}</span>
         </div>
@@ -877,10 +912,11 @@ import { StaggeredList, StaggeredItem } from '@nasnet/ui/patterns/motion';
       <ServiceCard service={service} />
     </StaggeredItem>
   ))}
-</StaggeredList>
+</StaggeredList>;
 ```
 
-Reduced motion: `AnimatedList` and `StaggeredList` both fall back to a static `<div>` list when `reducedMotion` is true.
+Reduced motion: `AnimatedList` and `StaggeredList` both fall back to a static `<div>` list when
+`reducedMotion` is true.
 
 ---
 
@@ -924,11 +960,14 @@ import { SharedElementGroup } from '@nasnet/ui/patterns/motion';
 
 <SharedElementGroup id="vpn-servers">
   {servers.map((server) => (
-    <SharedElement key={server.id} layoutId={server.id}>
+    <SharedElement
+      key={server.id}
+      layoutId={server.id}
+    >
       <ServerCard server={server} />
     </SharedElement>
   ))}
-</SharedElementGroup>
+</SharedElementGroup>;
 ```
 
 ---
@@ -940,13 +979,17 @@ import { SharedElementGroup } from '@nasnet/ui/patterns/motion';
 Scroll-triggered animations using Framer Motion's `useInView`.
 
 ```tsx
-import { useInViewAnimation, useRevealAnimation, useStaggeredReveal } from '@nasnet/ui/patterns/motion';
+import {
+  useInViewAnimation,
+  useRevealAnimation,
+  useStaggeredReveal,
+} from '@nasnet/ui/patterns/motion';
 
 // Basic in-view detection
 function FadeSection() {
   const { ref, isInView, shouldAnimate } = useInViewAnimation({
-    once: true,    // only animate the first time it enters view
-    amount: 0.3,   // 30% of element visible to trigger
+    once: true, // only animate the first time it enters view
+    amount: 0.3, // 30% of element visible to trigger
   });
 
   return (
@@ -964,9 +1007,9 @@ function FadeSection() {
 // Convenience hook with ready-to-use props
 function RevealCard() {
   const { ref, isInView, initial, animate, transition } = useRevealAnimation({
-    direction: 'up',  // 'up' | 'down' | 'left' | 'right' | 'none'
-    distance: 20,     // pixels
-    delay: 100,       // ms
+    direction: 'up', // 'up' | 'down' | 'left' | 'right' | 'none'
+    distance: 20, // pixels
+    delay: 100, // ms
     once: true,
   });
 
@@ -986,7 +1029,7 @@ function RevealCard() {
 function ServiceGrid({ services }) {
   const { ref, isInView, getItemDelay } = useStaggeredReveal({
     itemCount: services.length,
-    staggerDelay: 50,   // ms between each item
+    staggerDelay: 50, // ms between each item
     baseDelay: 0,
     once: true,
   });
@@ -1008,7 +1051,8 @@ function ServiceGrid({ services }) {
 }
 ```
 
-Reduced motion: `isInView` is forced to `true` and `shouldAnimate` is `false` when reduced motion is enabled, so content appears immediately without any transform.
+Reduced motion: `isInView` is forced to `true` and `shouldAnimate` is `false` when reduced motion is
+enabled, so content appears immediately without any transform.
 
 ---
 
@@ -1039,25 +1083,28 @@ const seconds = msToSeconds(200); // => 0.2
 
 ### Integration with `useAnimation`
 
-The `useAnimation()` hook from `AnimationProvider` is the preferred way to access reduced motion state in components. It reads `animationsEnabled` from the Zustand UI store (which users can toggle in settings) rather than directly from the `prefers-reduced-motion` media query:
+The `useAnimation()` hook from `AnimationProvider` is the preferred way to access reduced motion
+state in components. It reads `animationsEnabled` from the Zustand UI store (which users can toggle
+in settings) rather than directly from the `prefers-reduced-motion` media query:
 
 ```typescript
 const { reducedMotion, getVariant, getTransition, getDuration } = useAnimation();
 
 // getVariant — swap full variant for reduced variant
-const myVariants = getVariant(slideUp);            // reducedMotionFade if reduced
+const myVariants = getVariant(slideUp); // reducedMotionFade if reduced
 const myVariants = getVariant(slideUp, myFallback); // custom fallback
 
 // getTransition — returns { duration: 0 } if reduced
-const t = getTransition('enter');   // transitions.enter or instant
+const t = getTransition('enter'); // transitions.enter or instant
 
 // getDuration — returns 0 if reduced
-const ms = getDuration(300);        // 300 or 0
+const ms = getDuration(300); // 300 or 0
 ```
 
 ### CSS Reduced Motion
 
-Token-driven CSS transitions also respect the `prefers-reduced-motion` media query through the `semantic.animation.reducedMotion` tokens:
+Token-driven CSS transitions also respect the `prefers-reduced-motion` media query through the
+`semantic.animation.reducedMotion` tokens:
 
 ```css
 /* In components using wizard animation tokens */
@@ -1069,22 +1116,26 @@ Token-driven CSS transitions also respect the `prefers-reduced-motion` media que
 
 ### The `reducedMotionFade` Preset
 
-When `reducedMotion` is true, most motion components swap their variant for `reducedMotionFade`. This preset still provides a subtle opacity change (0.1s enter, 0.05s exit) to give visual feedback without spatial movement:
+When `reducedMotion` is true, most motion components swap their variant for `reducedMotionFade`.
+This preset still provides a subtle opacity change (0.1s enter, 0.05s exit) to give visual feedback
+without spatial movement:
 
 ```typescript
 // libs/ui/patterns/src/motion/presets.ts
 export const reducedMotionFade: Variants = {
   initial: { opacity: 0 },
   animate: { opacity: 1, transition: { duration: 0.1 } },
-  exit:    { opacity: 0, transition: { duration: 0.05 } },
+  exit: { opacity: 0, transition: { duration: 0.05 } },
 };
 
 // For cases that need truly instant transitions
 export const reducedMotionInstant: Variants = {
   initial: { opacity: 1 },
   animate: { opacity: 1 },
-  exit:    { opacity: 0, transition: { duration: 0 } },
+  exit: { opacity: 0, transition: { duration: 0 } },
 };
 ```
 
-See [primitives-reference.md](./primitives-reference.md) for the `useReducedMotion` primitive hook, and [layouts-and-platform.md](./layouts-and-platform.md) for how `getAnimationTokens(platform)` ties platform detection to animation timing.
+See [primitives-reference.md](./primitives-reference.md) for the `useReducedMotion` primitive hook,
+and [layouts-and-platform.md](./layouts-and-platform.md) for how `getAnimationTokens(platform)` ties
+platform detection to animation timing.

@@ -11,15 +11,7 @@
 import * as React from 'react';
 import { useCallback, useRef, useState } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import {
-  Search,
-  X,
-  Filter,
-  Copy,
-  RefreshCw,
-  Trash2,
-  ChevronDown,
-} from 'lucide-react';
+import { Search, X, Filter, Copy, RefreshCw, Trash2, ChevronDown } from 'lucide-react';
 
 import {
   Button,
@@ -128,21 +120,24 @@ function ServiceLogViewerDesktopComponent(props: ServiceLogViewerProps) {
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle>Service Logs</CardTitle>
-          <div className="flex items-center gap-component-sm">
+          <div className="gap-component-sm flex items-center">
             {/* Total count */}
-            <span className="text-sm text-muted-foreground">
+            <span className="text-muted-foreground text-sm">
               {searchResults.length} / {totalEntries} lines
             </span>
 
             {/* Auto-scroll toggle */}
-            <div className="flex items-center gap-component-sm">
+            <div className="gap-component-sm flex items-center">
               <Switch
                 id="auto-scroll"
                 checked={autoScroll}
                 onCheckedChange={setAutoScroll}
                 aria-label="Auto-scroll to bottom"
               />
-              <Label htmlFor="auto-scroll" className="text-sm cursor-pointer">
+              <Label
+                htmlFor="auto-scroll"
+                className="cursor-pointer text-sm"
+              >
                 Auto-scroll
               </Label>
             </div>
@@ -150,23 +145,41 @@ function ServiceLogViewerDesktopComponent(props: ServiceLogViewerProps) {
             {/* Actions dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm">
+                <Button
+                  variant="outline"
+                  size="sm"
+                >
                   Actions
-                  <ChevronDown className="ml-2 h-4 w-4" aria-hidden="true" />
+                  <ChevronDown
+                    className="ml-2 h-4 w-4"
+                    aria-hidden="true"
+                  />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuItem onClick={handleCopy}>
-                  <Copy className="mr-2 h-4 w-4" aria-hidden="true" />
+                  <Copy
+                    className="mr-2 h-4 w-4"
+                    aria-hidden="true"
+                  />
                   {copySuccess ? 'Copied!' : 'Copy to Clipboard'}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={refreshLogs}>
-                  <RefreshCw className="mr-2 h-4 w-4" aria-hidden="true" />
+                  <RefreshCw
+                    className="mr-2 h-4 w-4"
+                    aria-hidden="true"
+                  />
                   Refresh Logs
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={clearLogs} className="text-error">
-                  <Trash2 className="mr-2 h-4 w-4" aria-hidden="true" />
+                <DropdownMenuItem
+                  onClick={clearLogs}
+                  className="text-error"
+                >
+                  <Trash2
+                    className="mr-2 h-4 w-4"
+                    aria-hidden="true"
+                  />
                   Clear Logs
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -175,10 +188,13 @@ function ServiceLogViewerDesktopComponent(props: ServiceLogViewerProps) {
         </div>
 
         {/* Filters */}
-        <div className="flex items-center gap-component-sm mt-component-md">
+        <div className="gap-component-sm mt-component-md flex items-center">
           {/* Search */}
           <div className="relative flex-1">
-            <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" aria-hidden="true" />
+            <Search
+              className="text-muted-foreground absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2"
+              aria-hidden="true"
+            />
             <Input
               type="text"
               placeholder="Search logs..."
@@ -190,10 +206,13 @@ function ServiceLogViewerDesktopComponent(props: ServiceLogViewerProps) {
             {hasSearch && (
               <button
                 onClick={handleClearSearch}
-                className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-sm"
+                className="text-muted-foreground hover:text-foreground focus-visible:ring-ring absolute right-2 top-1/2 -translate-y-1/2 rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
                 aria-label="Clear search"
               >
-                <X className="h-4 w-4" aria-hidden="true" />
+                <X
+                  className="h-4 w-4"
+                  aria-hidden="true"
+                />
               </button>
             )}
           </div>
@@ -201,16 +220,28 @@ function ServiceLogViewerDesktopComponent(props: ServiceLogViewerProps) {
           {/* Level filter dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm">
-                <Filter className="mr-2 h-4 w-4" aria-hidden="true" />
+              <Button
+                variant="outline"
+                size="sm"
+              >
+                <Filter
+                  className="mr-2 h-4 w-4"
+                  aria-hidden="true"
+                />
                 {levelFilter || 'All Levels'}
-                <ChevronDown className="ml-2 h-4 w-4" aria-hidden="true" />
+                <ChevronDown
+                  className="ml-2 h-4 w-4"
+                  aria-hidden="true"
+                />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={handleClearFilter}>
                 All Levels
-                <Badge variant="secondary" className="ml-auto">
+                <Badge
+                  variant="secondary"
+                  className="ml-auto"
+                >
                   {totalEntries}
                 </Badge>
               </DropdownMenuItem>
@@ -222,7 +253,10 @@ function ServiceLogViewerDesktopComponent(props: ServiceLogViewerProps) {
                   disabled={levelCounts[level] === 0}
                 >
                   <span className={getLogLevelColor(level)}>{level}</span>
-                  <Badge variant="secondary" className="ml-auto">
+                  <Badge
+                    variant="secondary"
+                    className="ml-auto"
+                  >
                     {levelCounts[level]}
                   </Badge>
                 </DropdownMenuItem>
@@ -235,22 +269,25 @@ function ServiceLogViewerDesktopComponent(props: ServiceLogViewerProps) {
       <CardContent className="p-0">
         {/* Error state */}
         {error && (
-          <div className="p-component-md text-sm text-error">
+          <div className="p-component-md text-error text-sm">
             Error loading logs: {error.message}
           </div>
         )}
 
         {/* Loading state */}
         {isLoading && !searchResults.length && (
-          <div className="p-component-md text-sm text-muted-foreground" role="status">Loading logs...</div>
+          <div
+            className="p-component-md text-muted-foreground text-sm"
+            role="status"
+          >
+            Loading logs...
+          </div>
         )}
 
         {/* Empty state */}
         {!isLoading && !searchResults.length && (
-          <div className="p-component-md text-sm text-muted-foreground text-center">
-            {hasSearch || levelFilter
-              ? 'No logs match your filters'
-              : 'No logs available yet'}
+          <div className="p-component-md text-muted-foreground text-center text-sm">
+            {hasSearch || levelFilter ? 'No logs match your filters' : 'No logs available yet'}
           </div>
         )}
 
@@ -260,7 +297,7 @@ function ServiceLogViewerDesktopComponent(props: ServiceLogViewerProps) {
             ref={parentRef}
             role="log"
             aria-label="Service log entries"
-            className="h-[500px] border-t border-border overflow-auto scrollbar-thin"
+            className="border-border scrollbar-thin h-[500px] overflow-auto border-t"
           >
             <div
               style={{
@@ -286,10 +323,10 @@ function ServiceLogViewerDesktopComponent(props: ServiceLogViewerProps) {
                       transform: `translateY(${virtualRow.start}px)`,
                     }}
                     className={cn(
-                      'flex items-center px-component-md border-b border-border',
+                      'px-component-md border-border flex items-center border-b',
                       'font-mono text-xs leading-none',
-                      'cursor-pointer hover:bg-accent/50 transition-colors',
-                      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+                      'hover:bg-accent/50 cursor-pointer transition-colors',
+                      'focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
                       bgColor
                     )}
                     onClick={() => handleEntryClick(entry)}
@@ -300,9 +337,7 @@ function ServiceLogViewerDesktopComponent(props: ServiceLogViewerProps) {
                     <span className="text-muted-foreground w-24 shrink-0 font-mono">
                       {formatLogTimestamp(entry.timestamp)}
                     </span>
-                    <span className={`w-16 shrink-0 font-bold ${textColor}`}>
-                      [{entry.level}]
-                    </span>
+                    <span className={`w-16 shrink-0 font-bold ${textColor}`}>[{entry.level}]</span>
                     <span className="text-muted-foreground w-32 shrink-0 truncate font-mono">
                       {entry.source}
                     </span>

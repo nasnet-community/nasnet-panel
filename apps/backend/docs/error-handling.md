@@ -1,10 +1,12 @@
 # Error Handling & Structured Logging
 
-> Hierarchical error types, automatic log-level routing, GraphQL error presentation, and sensitive-data redaction across the NasNetConnect backend.
+> Hierarchical error types, automatic log-level routing, GraphQL error presentation, and
+> sensitive-data redaction across the NasNetConnect backend.
 
-**Packages:** `internal/apperrors/`, `internal/logger/`
-**Key Files:** `apperrors/errors.go`, `apperrors/presenter.go`, `apperrors/logging.go`, `apperrors/redactor.go`, `apperrors/suggestions.go`, `logger/logger.go`
-**Prerequisites:** [See: 03-graphql-api.md §Error Handling], [See: 12-security.md §Audit Logging]
+**Packages:** `internal/apperrors/`, `internal/logger/` **Key Files:** `apperrors/errors.go`,
+`apperrors/presenter.go`, `apperrors/logging.go`, `apperrors/redactor.go`,
+`apperrors/suggestions.go`, `logger/logger.go` **Prerequisites:** [See: 03-graphql-api.md §Error
+Handling], [See: 12-security.md §Audit Logging]
 
 ---
 
@@ -12,10 +14,15 @@
 
 NasNetConnect uses a two-layer approach to error handling:
 
-1. **`internal/apperrors`** — A domain-specific error hierarchy with codes, categories, suggested fixes, and documentation URLs. All errors that cross a package boundary should be expressed as a `RouterError` or one of its specializations.
-2. **`internal/logger`** — A thin wrapper around `go.uber.org/zap` that initializes a global logger, attaches request-ID correlation, and exposes convenience helpers for context-aware logging.
+1. **`internal/apperrors`** — A domain-specific error hierarchy with codes, categories, suggested
+   fixes, and documentation URLs. All errors that cross a package boundary should be expressed as a
+   `RouterError` or one of its specializations.
+2. **`internal/logger`** — A thin wrapper around `go.uber.org/zap` that initializes a global logger,
+   attaches request-ID correlation, and exposes convenience helpers for context-aware logging.
 
-The two layers connect through `apperrors.LogLevel()`, which maps each error category to the appropriate zap level, and `apperrors.ErrorFields()`, which extracts structured zap fields (with automatic redaction of sensitive keys) for use in `logger.Error(…)` calls.
+The two layers connect through `apperrors.LogLevel()`, which maps each error category to the
+appropriate zap level, and `apperrors.ErrorFields()`, which extracts structured zap fields (with
+automatic redaction of sensitive keys) for use in `logger.Error(…)` calls.
 
 ---
 
@@ -64,17 +71,18 @@ apperrors.LogError(logger, err)
 
 Every error has an `ErrorCategory` string and a short alphanumeric error code.
 
-| Category | Prefix | Example Code | Log Level |
-|----------|--------|-------------|-----------|
-| `platform` | P1xx | `P100` PlatformNotSupported | Warn |
-| `protocol` | R2xx | `R200` ConnectionFailed | Warn |
-| `network` | N3xx | `N300` HostUnreachable | Warn |
-| `validation` | V4xx | `V400` ValidationFailed | Warn |
-| `auth` | A5xx | `A500` AuthFailed | **Info** |
-| `resource` | S6xx | `S600` ResourceNotFound | Warn |
-| `internal` | I5xx | `I500` Internal | **Error** |
+| Category     | Prefix | Example Code                | Log Level |
+| ------------ | ------ | --------------------------- | --------- |
+| `platform`   | P1xx   | `P100` PlatformNotSupported | Warn      |
+| `protocol`   | R2xx   | `R200` ConnectionFailed     | Warn      |
+| `network`    | N3xx   | `N300` HostUnreachable      | Warn      |
+| `validation` | V4xx   | `V400` ValidationFailed     | Warn      |
+| `auth`       | A5xx   | `A500` AuthFailed           | **Info**  |
+| `resource`   | S6xx   | `S600` ResourceNotFound     | Warn      |
+| `internal`   | I5xx   | `I500` Internal             | **Error** |
 
-Auth failures are intentionally logged at `Info` because they are expected operational events; internal errors are `Error` because they require investigation.
+Auth failures are intentionally logged at `Info` because they are expected operational events;
+internal errors are `Error` because they require investigation.
 
 #### Base Type: `RouterError`
 
@@ -97,15 +105,15 @@ func (e *RouterError) WithCause(err) *RouterError
 
 #### Specialized Error Types
 
-| Type | Constructor | Extra Fields |
-|------|------------|-------------|
-| `PlatformError` | `NewPlatformError(code, msg, platform)` | `Platform`, `Version`, `NativeError` |
-| `ProtocolError` | `NewProtocolError(code, msg, protocol)` | `Protocol`, `RouterID`, `RouterHost`, `ConnectionID` |
-| `ValidationError` | `NewValidationError(field, value, constraint)` | `Field`, `Value`, `Constraint` |
-| `AuthError` | `NewAuthError(code, msg)` | `RequiredPermission`, `CurrentPermission`, `UserID` |
-| `NetworkError` | `NewNetworkError(code, msg, host)` | `Host`, `Port`, `Timeout` |
-| `ResourceError` | `NewResourceError(code, msg, type, id)` | `ResourceType`, `ResourceID`, `CurrentState` |
-| `InternalError` | `NewInternalError(msg, cause)` | `StackTrace` (dev only), `Component` |
+| Type              | Constructor                                    | Extra Fields                                         |
+| ----------------- | ---------------------------------------------- | ---------------------------------------------------- |
+| `PlatformError`   | `NewPlatformError(code, msg, platform)`        | `Platform`, `Version`, `NativeError`                 |
+| `ProtocolError`   | `NewProtocolError(code, msg, protocol)`        | `Protocol`, `RouterID`, `RouterHost`, `ConnectionID` |
+| `ValidationError` | `NewValidationError(field, value, constraint)` | `Field`, `Value`, `Constraint`                       |
+| `AuthError`       | `NewAuthError(code, msg)`                      | `RequiredPermission`, `CurrentPermission`, `UserID`  |
+| `NetworkError`    | `NewNetworkError(code, msg, host)`             | `Host`, `Port`, `Timeout`                            |
+| `ResourceError`   | `NewResourceError(code, msg, type, id)`        | `ResourceType`, `ResourceID`, `CurrentState`         |
+| `InternalError`   | `NewInternalError(msg, cause)`                 | `StackTrace` (dev only), `Component`                 |
 
 Fluid builder methods attach extra context without mutating the original:
 
@@ -137,7 +145,8 @@ NewGraphQLProtocolError(ctx, message, protocol, routerID string) *gqlerror.Error
 
 ### Error Presentation for GraphQL (`presenter.go`)
 
-`ErrorPresenter` is registered as the gqlgen error presenter (see `03-graphql-api.md`). It runs on every error returned from a resolver before it is sent to the client.
+`ErrorPresenter` is registered as the gqlgen error presenter (see `03-graphql-api.md`). It runs on
+every error returned from a resolver before it is sent to the client.
 
 ```go
 func ErrorPresenter(ctx context.Context, err error) *gqlerror.Error
@@ -174,20 +183,22 @@ srv.SetErrorPresenter(presenter)
 
 ```json
 {
-  "errors": [{
-    "message": "Validation failed for field 'listenPort': must be >= 1024",
-    "path": ["createService", "input", "listenPort"],
-    "extensions": {
-      "code": "V400",
-      "category": "validation",
-      "field": "input.listenPort",
-      "value": 80,
-      "recoverable": true,
-      "requestId": "01H7XK…",
-      "suggestedFix": "The field 'listenPort' is out of range. Use a value >= 1024.",
-      "docsUrl": "https://docs.nasnet.io/errors/validation#v400"
+  "errors": [
+    {
+      "message": "Validation failed for field 'listenPort': must be >= 1024",
+      "path": ["createService", "input", "listenPort"],
+      "extensions": {
+        "code": "V400",
+        "category": "validation",
+        "field": "input.listenPort",
+        "value": 80,
+        "recoverable": true,
+        "requestId": "01H7XK…",
+        "suggestedFix": "The field 'listenPort' is out of range. Use a value >= 1024.",
+        "docsUrl": "https://docs.nasnet.io/errors/validation#v400"
+      }
     }
-  }]
+  ]
 }
 ```
 
@@ -197,13 +208,15 @@ srv.SetErrorPresenter(presenter)
 func ErrorRecoverer(ctx context.Context, p interface{}) error
 ```
 
-Registered as gqlgen's `RecoverFunc`. Converts panics to `InternalError` with the request ID and panic value attached to the context map.
+Registered as gqlgen's `RecoverFunc`. Converts panics to `InternalError` with the request ID and
+panic value attached to the context map.
 
 ---
 
 ### Suggested Fixes & Docs URLs (`suggestions.go`)
 
-`SuggestedFix(err)` inspects the concrete error type and code to produce a human-readable action item:
+`SuggestedFix(err)` inspects the concrete error type and code to produce a human-readable action
+item:
 
 - **Validation** — field name + constraint description
 - **Protocol** — per-code hint mentioning the protocol and possible causes
@@ -218,26 +231,28 @@ Registered as gqlgen's `RecoverFunc`. Converts panics to `InternalError` with th
 https://docs.nasnet.io/errors/{category_path}#{lowercase_code}
 ```
 
-`TroubleshootingSteps(err)` returns an ordered `[]string` checklist for `protocol` and `network` errors (also included in the GraphQL error extension).
+`TroubleshootingSteps(err)` returns an ordered `[]string` checklist for `protocol` and `network`
+errors (also included in the GraphQL error extension).
 
 `HTTPStatusCode(err)` maps error categories to HTTP status codes for any REST error responses:
 
-| Category | Status |
-|----------|--------|
-| `validation` | 400 |
-| `auth` (session/credentials) | 401 |
-| `auth` (permissions) | 403 |
-| `resource` (not found) | 404 |
-| `resource` (locked/busy) | 409 |
-| `resource` (bad state) | 422 |
-| `network`, `protocol` | 503 |
-| `internal` | 500 |
+| Category                     | Status |
+| ---------------------------- | ------ |
+| `validation`                 | 400    |
+| `auth` (session/credentials) | 401    |
+| `auth` (permissions)         | 403    |
+| `resource` (not found)       | 404    |
+| `resource` (locked/busy)     | 409    |
+| `resource` (bad state)       | 422    |
+| `network`, `protocol`        | 503    |
+| `internal`                   | 500    |
 
 ---
 
 ### Sensitive Data Redaction (`redactor.go`)
 
-The redactor automatically removes credentials and PII from error context before they appear in logs or API responses.
+The redactor automatically removes credentials and PII from error context before they appear in logs
+or API responses.
 
 **Key-based redaction** — `IsSensitiveKey(key)` matches (case-insensitive):
 
@@ -323,14 +338,14 @@ logger.ErrorCtx(ctx, "msg", ...)
 
 **JSON field names** (production output):
 
-| Key | Content |
-|-----|---------|
-| `timestamp` | ISO 8601 |
-| `level` | `debug` / `info` / `warn` / `error` |
-| `caller` | `package/file.go:line` |
-| `message` | log message |
-| `request_id` | from context (when set) |
-| `stacktrace` | only in development mode |
+| Key          | Content                             |
+| ------------ | ----------------------------------- |
+| `timestamp`  | ISO 8601                            |
+| `level`      | `debug` / `info` / `warn` / `error` |
+| `caller`     | `package/file.go:line`              |
+| `message`    | log message                         |
+| `request_id` | from context (when set)             |
+| `stacktrace` | only in development mode            |
 
 ---
 
@@ -386,7 +401,8 @@ el.WithRequestID(ctx).LogWithDuration(err, elapsed)
 
 The request ID flows through every layer:
 
-1. **Middleware** (`internal/middleware/request_id.go`) generates a ULID at the HTTP boundary and stores it:
+1. **Middleware** (`internal/middleware/request_id.go`) generates a ULID at the HTTP boundary and
+   stores it:
    ```go
    ctx = apperrors.WithRequestID(ctx, ulid.New())
    ```
@@ -394,24 +410,28 @@ The request ID flows through every layer:
 3. **`logger.WithRequestID(ctx)`** attaches it as a `request_id` zap field.
 4. **`apperrors.ErrorPresenter`** includes it in every GraphQL error extension.
 
-This allows correlating a client-facing error with the exact server log line using only the `requestId` value.
+This allows correlating a client-facing error with the exact server log line using only the
+`requestId` value.
 
 ---
 
 ## GraphQL Directive Error Handling
 
-The `@validate`, `@auth`, `@sensitive`, and `@capability` directives in `internal/graphql/directives/` each produce structured `*gqlerror.Error` objects with typed error codes:
+The `@validate`, `@auth`, `@sensitive`, and `@capability` directives in
+`internal/graphql/directives/` each produce structured `*gqlerror.Error` objects with typed error
+codes:
 
-| Directive | Code | Category |
-|-----------|------|----------|
-| `@validate` | `V400` | validation |
-| `@auth` (unauthenticated) | `A401` | auth |
-| `@auth` (wrong role) | `A401` | auth |
-| `@capability` (missing) | `C403` | capability |
+| Directive                 | Code   | Category   |
+| ------------------------- | ------ | ---------- |
+| `@validate`               | `V400` | validation |
+| `@auth` (unauthenticated) | `A401` | auth       |
+| `@auth` (wrong role)      | `A401` | auth       |
+| `@capability` (missing)   | `C403` | capability |
 
 All include `suggestedFix`, `docsUrl`, `requestId`, and `recoverable` in extensions.
 
-The `@sensitive` directive marks fields for log redaction: when `GetSensitiveFields(ctx)` shows a field is sensitive, `redactIfSensitive()` replaces the value with `[REDACTED]` in error extensions.
+The `@sensitive` directive marks fields for log redaction: when `GetSensitiveFields(ctx)` shows a
+field is sensitive, `redactIfSensitive()` replaces the value with `[REDACTED]` in error extensions.
 
 ---
 

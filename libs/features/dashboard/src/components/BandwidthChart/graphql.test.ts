@@ -28,9 +28,7 @@ describe('BandwidthChart GraphQL Operations', () => {
 
     it('should include required variables', () => {
       const definition = GET_BANDWIDTH_HISTORY.definitions[0] as any;
-      const variableNames = definition.variableDefinitions?.map(
-        (v: any) => v.variable.name.value
-      );
+      const variableNames = definition.variableDefinitions?.map((v: any) => v.variable.name.value);
       expect(variableNames).toContain('deviceId');
       expect(variableNames).toContain('timeRange');
       expect(variableNames).toContain('aggregation');
@@ -38,9 +36,7 @@ describe('BandwidthChart GraphQL Operations', () => {
 
     it('should include optional interface filter variable', () => {
       const definition = GET_BANDWIDTH_HISTORY.definitions[0] as any;
-      const variableNames = definition.variableDefinitions?.map(
-        (v: any) => v.variable.name.value
-      );
+      const variableNames = definition.variableDefinitions?.map((v: any) => v.variable.name.value);
       expect(variableNames).toContain('interfaceId');
     });
   });
@@ -64,17 +60,13 @@ describe('BandwidthChart GraphQL Operations', () => {
 
     it('should include required variables', () => {
       const definition = BANDWIDTH_UPDATE.definitions[0] as any;
-      const variableNames = definition.variableDefinitions?.map(
-        (v: any) => v.variable.name.value
-      );
+      const variableNames = definition.variableDefinitions?.map((v: any) => v.variable.name.value);
       expect(variableNames).toContain('deviceId');
     });
 
     it('should include optional interface filter variable', () => {
       const definition = BANDWIDTH_UPDATE.definitions[0] as any;
-      const variableNames = definition.variableDefinitions?.map(
-        (v: any) => v.variable.name.value
-      );
+      const variableNames = definition.variableDefinitions?.map((v: any) => v.variable.name.value);
       expect(variableNames).toContain('interfaceId');
     });
   });

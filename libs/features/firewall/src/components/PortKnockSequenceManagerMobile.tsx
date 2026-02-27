@@ -62,23 +62,37 @@ interface SequenceCardProps {
 /**
  * @description Card component for a single port knock sequence
  */
-const SequenceCard = memo(function SequenceCard({ sequence, onEdit, onToggle, onDelete }: SequenceCardProps) {
+const SequenceCard = memo(function SequenceCard({
+  sequence,
+  onEdit,
+  onToggle,
+  onDelete,
+}: SequenceCardProps) {
   return (
     <Card className={sequence.isEnabled ? '' : 'opacity-50'}>
       <CardHeader className="pb-component-sm">
         <div className="flex items-start justify-between">
           <div className="flex-1">
-            <div className="flex items-center gap-component-md mb-component-sm">
-              <h3 className="font-semibold text-base">{sequence.name}</h3>
+            <div className="gap-component-md mb-component-sm flex items-center">
+              <h3 className="text-base font-semibold">{sequence.name}</h3>
               {sequence.protectedPort === 22 && (
-                <ShieldAlert className="h-4 w-4 text-warning" aria-label="SSH protected service" />
+                <ShieldAlert
+                  className="text-warning h-4 w-4"
+                  aria-label="SSH protected service"
+                />
               )}
             </div>
-            <div className="flex items-center gap-component-md">
-              <Badge variant={sequence.isEnabled ? 'success' : 'secondary'} className="text-xs">
+            <div className="gap-component-md flex items-center">
+              <Badge
+                variant={sequence.isEnabled ? 'success' : 'secondary'}
+                className="text-xs"
+              >
                 {sequence.isEnabled ? 'Active' : 'Disabled'}
               </Badge>
-              <Badge variant="secondary" className="font-mono text-xs">
+              <Badge
+                variant="secondary"
+                className="font-mono text-xs"
+              >
                 {sequence.protectedProtocol.toUpperCase()}:{sequence.protectedPort}
               </Badge>
             </div>
@@ -92,45 +106,63 @@ const SequenceCard = memo(function SequenceCard({ sequence, onEdit, onToggle, on
         </div>
       </CardHeader>
 
-      <CardContent className="pt-0 space-y-component-md">
+      <CardContent className="space-y-component-md pt-0">
         {/* Knock Sequence */}
         <div>
-          <div className="text-xs font-medium text-muted-foreground mb-component-sm">Knock Sequence</div>
-          <div className="flex flex-wrap gap-component-md">
+          <div className="text-muted-foreground mb-component-sm text-xs font-medium">
+            Knock Sequence
+          </div>
+          <div className="gap-component-md flex flex-wrap">
             {sequence.knockPorts.map((port, index) => (
-              <Badge key={index} variant="outline" className="font-mono text-xs">
-                {port.port} <span className="text-muted-foreground ml-1">{port.protocol.toUpperCase()}</span>
+              <Badge
+                key={index}
+                variant="outline"
+                className="font-mono text-xs"
+              >
+                {port.port}{' '}
+                <span className="text-muted-foreground ml-1">{port.protocol.toUpperCase()}</span>
               </Badge>
             ))}
           </div>
         </div>
 
         {/* Stats */}
-        <div className="flex items-center gap-component-xl text-xs text-muted-foreground">
-          <div className="flex items-center gap-component-md">
-            <Activity className="h-3 w-3" aria-hidden="true" />
-            <span>Recent: <strong className="font-mono">{sequence.recentAccessCount || 0}</strong></span>
+        <div className="gap-component-xl text-muted-foreground flex items-center text-xs">
+          <div className="gap-component-md flex items-center">
+            <Activity
+              className="h-3 w-3"
+              aria-hidden="true"
+            />
+            <span>
+              Recent: <strong className="font-mono">{sequence.recentAccessCount || 0}</strong>
+            </span>
           </div>
-          <div className="flex items-center gap-component-md">
-            <Clock className="h-3 w-3" aria-hidden="true" />
+          <div className="gap-component-md flex items-center">
+            <Clock
+              className="h-3 w-3"
+              aria-hidden="true"
+            />
             <span>Knock: {sequence.knockTimeout}</span>
           </div>
-          <div className="flex items-center gap-component-md">
-            <Clock className="h-3 w-3" aria-hidden="true" />
+          <div className="gap-component-md flex items-center">
+            <Clock
+              className="h-3 w-3"
+              aria-hidden="true"
+            />
             <span>Access: {sequence.accessTimeout}</span>
           </div>
         </div>
 
         {/* Actions */}
-        <div className="flex gap-component-md pt-component-sm">
+        <div className="gap-component-md pt-component-sm flex">
           <Button
             variant="outline"
             size="sm"
             onClick={() => onEdit?.(sequence.id!)}
             aria-label={`Edit ${sequence.name} sequence`}
-            className="flex-1 min-h-[44px]"
+            className="min-h-[44px] flex-1"
           >
-            <Pencil className="h-4 w-4 mr-2" />
+            <Pencil className="mr-2 h-4 w-4" />
             Edit
           </Button>
           <Button
@@ -140,7 +172,7 @@ const SequenceCard = memo(function SequenceCard({ sequence, onEdit, onToggle, on
             aria-label={`Delete ${sequence.name} sequence`}
             className="min-h-[44px]"
           >
-            <Trash2 className="h-4 w-4 text-error" />
+            <Trash2 className="text-error h-4 w-4" />
           </Button>
         </div>
       </CardContent>
@@ -171,19 +203,22 @@ export const PortKnockSequenceManagerMobile = memo(function PortKnockSequenceMan
 
   const sequences = data?.portKnockSequences || [];
 
-  const handleToggle = useCallback(async (sequence: PortKnockSequence) => {
-    try {
-      await toggleSequence({
-        variables: {
-          routerId: activeRouterId!,
-          id: sequence.id!,
-          enabled: !sequence.isEnabled,
-        },
-      });
-    } catch (err) {
-      console.error('Failed to toggle port knock sequence:', err);
-    }
-  }, [activeRouterId, toggleSequence]);
+  const handleToggle = useCallback(
+    async (sequence: PortKnockSequence) => {
+      try {
+        await toggleSequence({
+          variables: {
+            routerId: activeRouterId!,
+            id: sequence.id!,
+            enabled: !sequence.isEnabled,
+          },
+        });
+      } catch (err) {
+        console.error('Failed to toggle port knock sequence:', err);
+      }
+    },
+    [activeRouterId, toggleSequence]
+  );
 
   const handleDeleteClick = useCallback((sequence: PortKnockSequence) => {
     setSequenceToDelete(sequence);
@@ -225,15 +260,23 @@ export const PortKnockSequenceManagerMobile = memo(function PortKnockSequenceMan
 
   if (sequences.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-12 space-y-component-md">
-        <ShieldAlert className="h-12 w-12 text-muted-foreground" />
-        <div className="text-center px-4">
-          <h3 className="text-lg font-semibold mb-component-sm font-display">No Port Knock Sequences</h3>
-          <p className="text-sm text-muted-foreground mb-component-md">
+      <div className="space-y-component-md flex flex-col items-center justify-center py-12">
+        <ShieldAlert className="text-muted-foreground h-12 w-12" />
+        <div className="px-4 text-center">
+          <h3 className="mb-component-sm font-display text-lg font-semibold">
+            No Port Knock Sequences
+          </h3>
+          <p className="text-muted-foreground mb-component-md text-sm">
             Create a knock sequence to protect sensitive services.
           </p>
           {onCreate && (
-            <Button onClick={onCreate} aria-label="Create first port knock sequence" className="w-full min-h-[44px]">Create First Sequence</Button>
+            <Button
+              onClick={onCreate}
+              aria-label="Create first port knock sequence"
+              className="min-h-[44px] w-full"
+            >
+              Create First Sequence
+            </Button>
           )}
         </div>
       </div>
@@ -255,26 +298,37 @@ export const PortKnockSequenceManagerMobile = memo(function PortKnockSequenceMan
       </div>
 
       {/* Delete Confirmation Dialog */}
-      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+      <Dialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Delete Port Knock Sequence</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete the sequence "{sequenceToDelete?.name}"?
-              This will remove all associated firewall rules.
+              Are you sure you want to delete the sequence "{sequenceToDelete?.name}"? This will
+              remove all associated firewall rules.
               {sequenceToDelete?.protectedPort === 22 && (
-                <div className="mt-component-sm p-component-sm bg-warning/10 border border-warning rounded-lg text-sm">
+                <div className="mt-component-sm p-component-sm bg-warning/10 border-warning rounded-lg border text-sm">
                   <strong>Warning:</strong> This sequence protects SSH. Ensure you have alternative
                   access before deleting.
                 </div>
               )}
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter className="flex-col gap-component-md">
-            <Button variant="destructive" onClick={handleDeleteConfirm} className="min-h-[44px] w-full">
+          <DialogFooter className="gap-component-md flex-col">
+            <Button
+              variant="destructive"
+              onClick={handleDeleteConfirm}
+              className="min-h-[44px] w-full"
+            >
               Delete
             </Button>
-            <Button variant="outline" onClick={() => setDeleteDialogOpen(false)} className="min-h-[44px] w-full">
+            <Button
+              variant="outline"
+              onClick={() => setDeleteDialogOpen(false)}
+              className="min-h-[44px] w-full"
+            >
               Cancel
             </Button>
           </DialogFooter>

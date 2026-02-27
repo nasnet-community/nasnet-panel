@@ -135,10 +135,7 @@ export const UpdateAllPanel = React.memo(function UpdateAllPanel(props: UpdateAl
   }, [updates]);
 
   // Total updates available
-  const totalUpdates = useMemo(
-    () => updates.filter((u) => u.updateAvailable).length,
-    [updates]
-  );
+  const totalUpdates = useMemo(() => updates.filter((u) => u.updateAvailable).length, [updates]);
 
   // Sort updates by severity (highest first)
   const sortedUpdates = useMemo(() => {
@@ -169,9 +166,12 @@ export const UpdateAllPanel = React.memo(function UpdateAllPanel(props: UpdateAl
   }, [onUpdateAll]);
 
   // Handle individual update
-  const handleUpdate = useCallback((instanceId: string) => {
-    onUpdate?.(instanceId);
-  }, [onUpdate]);
+  const handleUpdate = useCallback(
+    (instanceId: string) => {
+      onUpdate?.(instanceId);
+    },
+    [onUpdate]
+  );
 
   // Handle dialog close
   const handleDialogClose = useCallback(() => {
@@ -190,12 +190,15 @@ export const UpdateAllPanel = React.memo(function UpdateAllPanel(props: UpdateAl
           <div className="flex items-center justify-between">
             <div>
               <CardTitle className="flex items-center gap-2">
-                <Icon icon={RefreshCw} className="h-5 w-5" aria-hidden="true" />
+                <Icon
+                  icon={RefreshCw}
+                  className="h-5 w-5"
+                  aria-hidden="true"
+                />
                 Updates Available
               </CardTitle>
               <CardDescription>
-                {totalUpdates} {totalUpdates === 1 ? 'update' : 'updates'} ready
-                to install
+                {totalUpdates} {totalUpdates === 1 ? 'update' : 'updates'} ready to install
               </CardDescription>
             </div>
             <Button
@@ -216,28 +219,44 @@ export const UpdateAllPanel = React.memo(function UpdateAllPanel(props: UpdateAl
             updateCounts.MAJOR > 0 ||
             updateCounts.MINOR > 0 ||
             updateCounts.PATCH > 0) && (
-            <div className="flex flex-wrap gap-component-md">
+            <div className="gap-component-md flex flex-wrap">
               {updateCounts.SECURITY > 0 && (
                 <Badge className={SEVERITY_COLORS.SECURITY}>
-                  <Icon icon={ShieldAlert} className="h-3 w-3 mr-1" aria-hidden="true" />
+                  <Icon
+                    icon={ShieldAlert}
+                    className="mr-1 h-3 w-3"
+                    aria-hidden="true"
+                  />
                   {updateCounts.SECURITY} Security
                 </Badge>
               )}
               {updateCounts.MAJOR > 0 && (
                 <Badge className={SEVERITY_COLORS.MAJOR}>
-                  <Icon icon={AlertCircle} className="h-3 w-3 mr-1" aria-hidden="true" />
+                  <Icon
+                    icon={AlertCircle}
+                    className="mr-1 h-3 w-3"
+                    aria-hidden="true"
+                  />
                   {updateCounts.MAJOR} Major
                 </Badge>
               )}
               {updateCounts.MINOR > 0 && (
                 <Badge className={SEVERITY_COLORS.MINOR}>
-                  <Icon icon={ArrowUp} className="h-3 w-3 mr-1" aria-hidden="true" />
+                  <Icon
+                    icon={ArrowUp}
+                    className="mr-1 h-3 w-3"
+                    aria-hidden="true"
+                  />
                   {updateCounts.MINOR} Minor
                 </Badge>
               )}
               {updateCounts.PATCH > 0 && (
                 <Badge className={SEVERITY_COLORS.PATCH}>
-                  <Icon icon={CheckCircle} className="h-3 w-3 mr-1" aria-hidden="true" />
+                  <Icon
+                    icon={CheckCircle}
+                    className="mr-1 h-3 w-3"
+                    aria-hidden="true"
+                  />
                   {updateCounts.PATCH} Patch
                 </Badge>
               )}
@@ -247,12 +266,15 @@ export const UpdateAllPanel = React.memo(function UpdateAllPanel(props: UpdateAl
           {/* Security warning if security updates present */}
           {updateCounts.SECURITY > 0 && (
             <Alert variant="destructive">
-              <Icon icon={ShieldAlert} className="h-4 w-4" />
+              <Icon
+                icon={ShieldAlert}
+                className="h-4 w-4"
+              />
               <AlertTitle>Security Updates Available</AlertTitle>
               <AlertDescription>
                 {updateCounts.SECURITY}{' '}
-                {updateCounts.SECURITY === 1 ? 'update includes' : 'updates include'}{' '}
-                security fixes. We recommend updating as soon as possible.
+                {updateCounts.SECURITY === 1 ? 'update includes' : 'updates include'} security
+                fixes. We recommend updating as soon as possible.
               </AlertDescription>
             </Alert>
           )}
@@ -262,30 +284,29 @@ export const UpdateAllPanel = React.memo(function UpdateAllPanel(props: UpdateAl
             {sortedUpdates.slice(0, 5).map((update) => {
               const isUpdating = updatingInstances[update.instanceId];
               const progress = updateProgress[update.instanceId] ?? 0;
-              const SeverityIcon = update.severity
-                ? SEVERITY_ICONS[update.severity]
-                : CheckCircle;
+              const SeverityIcon = update.severity ? SEVERITY_ICONS[update.severity] : CheckCircle;
 
               return (
                 <div
                   key={update.instanceId}
-                  className="flex items-center justify-between p-component-md rounded-md bg-muted/50"
+                  className="p-component-md bg-muted/50 flex items-center justify-between rounded-md"
                 >
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-component-sm mb-component-sm">
-                      <SeverityIcon className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
-                      <span className="font-medium text-sm truncate">
-                        {update.instanceName}
-                      </span>
+                  <div className="min-w-0 flex-1">
+                    <div className="gap-component-sm mb-component-sm flex items-center">
+                      <SeverityIcon
+                        className="h-4 w-4 flex-shrink-0"
+                        aria-hidden="true"
+                      />
+                      <span className="truncate text-sm font-medium">{update.instanceName}</span>
                       {/* Version numbers - technical data with monospace */}
-                      <code className="text-xs text-muted-foreground font-mono">
+                      <code className="text-muted-foreground font-mono text-xs">
                         v{update.currentVersion} → v{update.latestVersion}
                       </code>
                     </div>
                     {isUpdating && (
                       <Progress
                         value={progress}
-                        className="h-1.5 mt-component-sm"
+                        className="mt-component-sm h-1.5"
                         aria-label={`Update progress for ${update.instanceName}: ${progress}%`}
                         aria-valuenow={progress}
                         aria-valuemin={0}
@@ -311,7 +332,7 @@ export const UpdateAllPanel = React.memo(function UpdateAllPanel(props: UpdateAl
 
           {/* Show "and X more" if there are more updates */}
           {sortedUpdates.length > 5 && (
-            <p className="text-sm text-muted-foreground text-center">
+            <p className="text-muted-foreground text-center text-sm">
               and {sortedUpdates.length - 5} more...
             </p>
           )}
@@ -319,25 +340,30 @@ export const UpdateAllPanel = React.memo(function UpdateAllPanel(props: UpdateAl
       </Card>
 
       {/* Confirmation Dialog */}
-      <Dialog open={confirmDialogOpen} onOpenChange={handleDialogClose}>
+      <Dialog
+        open={confirmDialogOpen}
+        onOpenChange={handleDialogClose}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Update All Services?</DialogTitle>
             <DialogDescription>
-              This will update {totalUpdates}{' '}
-              {totalUpdates === 1 ? 'service' : 'services'} sequentially (one at a
-              time). Each service will be stopped, updated, and restarted.
+              This will update {totalUpdates} {totalUpdates === 1 ? 'service' : 'services'}{' '}
+              sequentially (one at a time). Each service will be stopped, updated, and restarted.
             </DialogDescription>
           </DialogHeader>
 
           {updateCounts.SECURITY > 0 && (
             <Alert>
-              <Icon icon={ShieldAlert} className="h-4 w-4" />
+              <Icon
+                icon={ShieldAlert}
+                className="h-4 w-4"
+              />
               <AlertTitle>Security Updates Included</AlertTitle>
               <AlertDescription>
                 {updateCounts.SECURITY}{' '}
-                {updateCounts.SECURITY === 1 ? 'update includes' : 'updates include'}{' '}
-                security fixes.
+                {updateCounts.SECURITY === 1 ? 'update includes' : 'updates include'} security
+                fixes.
               </AlertDescription>
             </Alert>
           )}

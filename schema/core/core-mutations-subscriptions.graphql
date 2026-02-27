@@ -30,29 +30,16 @@ type Mutation {
 
   # Interface Management
   "Update interface settings (MTU, comment, ARP mode)"
-  updateInterface(
-    routerId: ID!
-    interfaceId: ID!
-    input: UpdateInterfaceInput!
-  ): UpdateInterfacePayload!
+  updateInterface(routerId: ID!, interfaceId: ID!, input: UpdateInterfaceInput!): UpdateInterfacePayload!
 
   "Enable an interface"
-  enableInterface(
-    routerId: ID!
-    interfaceId: ID!
-  ): UpdateInterfacePayload!
+  enableInterface(routerId: ID!, interfaceId: ID!): UpdateInterfacePayload!
 
   "Disable an interface"
-  disableInterface(
-    routerId: ID!
-    interfaceId: ID!
-  ): UpdateInterfacePayload!
+  disableInterface(routerId: ID!, interfaceId: ID!): UpdateInterfacePayload!
 
   "Batch operation on multiple interfaces"
-  batchInterfaceOperation(
-    routerId: ID!
-    input: BatchInterfaceInput!
-  ): BatchInterfacePayload!
+  batchInterfaceOperation(routerId: ID!, input: BatchInterfaceInput!): BatchInterfacePayload!
 
   # Device Scanning mutations are defined in scanner.graphql
 }
@@ -66,16 +53,10 @@ type Subscription {
   routerStatusChanged(routerId: ID): RouterStatusEvent!
 
   "Subscribe to real-time resource metrics updates"
-  resourceMetrics(
-    "Device ID to monitor"
-    deviceId: ID!
-  ): ResourceMetrics! @realtime(interval: 2000)
+  resourceMetrics("Device ID to monitor" deviceId: ID!): ResourceMetrics! @realtime(interval: 2000)
 
   "Subscribe to interface traffic updates"
-  interfaceTraffic(
-    routerId: ID!
-    interfaceId: ID
-  ): InterfaceTrafficEvent! @realtime(interval: 1000)
+  interfaceTraffic(routerId: ID!, interfaceId: ID): InterfaceTrafficEvent! @realtime(interval: 1000)
 
   "Subscribe to resource updates (create, update, delete)"
   resourceUpdated(resourceId: ID): ResourceUpdatedEvent!

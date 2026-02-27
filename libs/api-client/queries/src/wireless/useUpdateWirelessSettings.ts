@@ -69,9 +69,7 @@ function getAuthenticationTypes(mode: WirelessSecurityOption): string[] {
  * Update wireless interface configuration
  * Makes multiple API calls based on which settings are being changed
  */
-async function updateWirelessSettings(
-  request: UpdateWirelessSettingsRequest
-): Promise<void> {
+async function updateWirelessSettings(request: UpdateWirelessSettingsRequest): Promise<void> {
   const {
     routerIp,
     interfaceId,
@@ -118,14 +116,10 @@ async function updateWirelessSettings(
 
   // Only make interface API call if there are updates beyond the ID
   if (Object.keys(interfaceUpdates).length > 1) {
-    const result = await makeRouterOSRequest<void>(
-      routerIp,
-      'interface/wifi/set',
-      {
-        method: 'POST',
-        body: interfaceUpdates,
-      }
-    );
+    const result = await makeRouterOSRequest<void>(routerIp, 'interface/wifi/set', {
+      method: 'POST',
+      body: interfaceUpdates,
+    });
 
     if (!result.success) {
       throw new Error(result.error || 'Failed to update interface settings');
@@ -154,14 +148,10 @@ async function updateWirelessSettings(
 
   // Only make security API call if there are updates beyond the ID
   if (Object.keys(securityUpdates).length > 1) {
-    const result = await makeRouterOSRequest<void>(
-      routerIp,
-      'interface/wifi/security/set',
-      {
-        method: 'POST',
-        body: securityUpdates,
-      }
-    );
+    const result = await makeRouterOSRequest<void>(routerIp, 'interface/wifi/security/set', {
+      method: 'POST',
+      body: securityUpdates,
+    });
 
     if (!result.success) {
       throw new Error(result.error || 'Failed to update security settings');
@@ -264,7 +254,11 @@ function getErrorMessage(error: unknown): string {
     if (error.message.includes('ssid')) {
       return 'Invalid SSID format. Please check your network name.';
     }
-    if (error.message.includes('password') || error.message.includes('key') || error.message.includes('passphrase')) {
+    if (
+      error.message.includes('password') ||
+      error.message.includes('key') ||
+      error.message.includes('passphrase')
+    ) {
       return 'Invalid password. WPA2/WPA3 requires at least 8 characters.';
     }
     if (error.message.includes('permission') || error.message.includes('auth')) {

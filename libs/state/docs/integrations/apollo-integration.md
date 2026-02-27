@@ -1,8 +1,11 @@
 # Apollo Client & Zustand Integration
 
-Apollo Client manages all server state (router config, logs, VPN lists, etc.) while Zustand stores manage UI state. The two systems are integrated through **Apollo Links** that access Zustand stores using `.getState()` to read current context (router ID, authentication tokens) without React hooks.
+Apollo Client manages all server state (router config, logs, VPN lists, etc.) while Zustand stores
+manage UI state. The two systems are integrated through **Apollo Links** that access Zustand stores
+using `.getState()` to read current context (router ID, authentication tokens) without React hooks.
 
 **Source:**
+
 - `libs/api-client/core/src/apollo/apollo-auth-link.ts`
 - `libs/api-client/core/src/apollo/apollo-error-link.ts`
 - `libs/state/stores/src/index.ts`
@@ -49,7 +52,8 @@ Apollo Client manages all server state (router config, logs, VPN lists, etc.) wh
 
 ## Pattern: Reading State Outside React
 
-Apollo Links are middleware that runs **outside React hooks**. To access Zustand state, use `.getState()`:
+Apollo Links are middleware that runs **outside React hooks**. To access Zustand state, use
+`.getState()`:
 
 ```typescript
 // ✅ CORRECT - getState() reads current state outside React
@@ -134,9 +138,9 @@ import { authLink } from '@nasnet/api-client/core';
 
 const client = new ApolloClient({
   link: from([
-    authLink,      // Inject auth headers first
-    errorLink,     // Handle errors
-    httpLink,      // Execute HTTP request
+    authLink, // Inject auth headers first
+    errorLink, // Handle errors
+    httpLink, // Execute HTTP request
   ]),
   cache: new InMemoryCache(),
 });
@@ -227,9 +231,7 @@ function handleNetworkError(error: Error) {
   });
 
   // Dispatch event for network tracking
-  window.dispatchEvent(
-    new CustomEvent('network:error', { detail: { error } })
-  );
+  window.dispatchEvent(new CustomEvent('network:error', { detail: { error } }));
 }
 ```
 
@@ -248,15 +250,15 @@ if (checkValidationError(errorCode)) {
 
 ### Error Codes
 
-| Code | Handling |
-|------|----------|
-| `UNAUTHENTICATED` | Clear auth, show "Session expired", dispatch `auth:expired` event |
-| `FORBIDDEN` | Show "Access denied" notification |
-| `NOT_FOUND` | Show "Resource not found" notification |
-| `VALIDATION_FAILED` | Skip (form handles) |
-| HTTP `401` | Same as UNAUTHENTICATED |
-| HTTP `403` | Same as FORBIDDEN |
-| Network timeout/offline | Show "Network error" notification |
+| Code                    | Handling                                                          |
+| ----------------------- | ----------------------------------------------------------------- |
+| `UNAUTHENTICATED`       | Clear auth, show "Session expired", dispatch `auth:expired` event |
+| `FORBIDDEN`             | Show "Access denied" notification                                 |
+| `NOT_FOUND`             | Show "Resource not found" notification                            |
+| `VALIDATION_FAILED`     | Skip (form handles)                                               |
+| HTTP `401`              | Same as UNAUTHENTICATED                                           |
+| HTTP `403`              | Same as FORBIDDEN                                                 |
+| Network timeout/offline | Show "Network error" notification                                 |
 
 ### Usage in Apollo Setup
 
@@ -266,9 +268,9 @@ import { errorLink } from '@nasnet/api-client/core';
 
 const client = new ApolloClient({
   link: from([
-    errorLink,     // Handle errors first
-    authLink,      // Add auth headers
-    httpLink,      // Execute HTTP request
+    errorLink, // Handle errors first
+    authLink, // Add auth headers
+    httpLink, // Execute HTTP request
   ]),
   cache: new InMemoryCache(),
 });
@@ -424,8 +426,7 @@ const wsLink = new GraphQLWsLink(
 const splitLink = ApolloLink.split(
   ({ query }) => {
     const definition = getMainDefinition(query);
-    return definition.kind === 'OperationDefinition' &&
-      definition.operation === 'subscription';
+    return definition.kind === 'OperationDefinition' && definition.operation === 'subscription';
   },
   wsLink,
   httpLink
@@ -434,9 +435,9 @@ const splitLink = ApolloLink.split(
 // Chain all links in order
 export const apolloClient = new ApolloClient({
   link: from([
-    errorLink,      // Error handling (catches errors)
-    authLink,       // Auth context (adds headers)
-    splitLink,      // HTTP or WebSocket (executes request)
+    errorLink, // Error handling (catches errors)
+    authLink, // Auth context (adds headers)
+    splitLink, // HTTP or WebSocket (executes request)
   ]),
   cache: new InMemoryCache(),
   defaultOptions: {
@@ -449,9 +450,11 @@ export const apolloClient = new ApolloClient({
 
 ## Token Refresh Integration
 
-The **token refresh** system proactively renews JWT tokens before expiration to maintain user sessions seamlessly.
+The **token refresh** system proactively renews JWT tokens before expiration to maintain user
+sessions seamlessly.
 
 **Source:**
+
 - `libs/state/stores/src/hooks/useTokenRefresh.ts`
 - `libs/api-client/core/src/apollo/apollo-auth-link.ts`
 
@@ -516,6 +519,7 @@ const REFRESH_THRESHOLD_MS = 5 * 60_000;
 Monitors token expiry and automatically refreshes tokens before they expire.
 
 **Options:**
+
 ```typescript
 interface UseTokenRefreshOptions {
   /**
@@ -542,9 +546,9 @@ interface UseTokenRefreshOptions {
 }
 
 interface TokenRefreshResult {
-  token: string;           // New access token
-  expiresAt: Date;         // Expiration time
-  refreshToken?: string;   // Optional new refresh token
+  token: string; // New access token
+  expiresAt: Date; // Expiration time
+  refreshToken?: string; // Optional new refresh token
 }
 ```
 
@@ -572,7 +576,7 @@ function AuthProvider({ children }) {
       window.location.href = '/login';
     },
 
-    showNotifications: true,  // Show "Session expiring" toast if max retries exceeded
+    showNotifications: true, // Show "Session expiring" toast if max retries exceeded
   });
 
   return children;
@@ -600,6 +604,7 @@ function AuthProvider({ children }) {
 ```
 
 **Key benefits:**
+
 - Users never see "Session expired" errors during normal operation
 - Background refresh keeps session alive across long workflows
 - Seamless retry of failed requests after token update
@@ -609,9 +614,11 @@ function AuthProvider({ children }) {
 
 ## Error Recovery Integration
 
-The **error recovery** system provides utilities for automatically retrying failed operations and recovering from various error states.
+The **error recovery** system provides utilities for automatically retrying failed operations and
+recovering from various error states.
 
 **Source:**
+
 - `libs/state/stores/src/utils/recovery.ts`
 - `libs/api-client/core/src/apollo/apollo-error-link.ts`
 
@@ -652,14 +659,16 @@ The **error recovery** system provides utilities for automatically retrying fail
 Executes an operation with automatic retry and exponential backoff.
 
 **Signature:**
+
 ```typescript
 function withRetry<T>(
   operation: () => Promise<T>,
   config: RetryConfig = {}
-): Promise<RetryResult<T>>
+): Promise<RetryResult<T>>;
 ```
 
 **Configuration:**
+
 ```typescript
 interface RetryConfig {
   /** Maximum number of retry attempts (default: 3) */
@@ -685,19 +694,16 @@ interface RetryConfig {
 import { withRetry } from '@nasnet/state/stores';
 
 // Retry fetching router data
-const result = await withRetry(
-  () => fetchRouterConfig(routerId),
-  {
-    maxRetries: 3,
-    onRetry: (attempt, error) => {
-      console.log(`Retry ${attempt}: ${error.message}`);
-    },
-    shouldRetry: (error) => {
-      // Don't retry auth errors
-      return error.message !== 'Unauthorized';
-    },
-  }
-);
+const result = await withRetry(() => fetchRouterConfig(routerId), {
+  maxRetries: 3,
+  onRetry: (attempt, error) => {
+    console.log(`Retry ${attempt}: ${error.message}`);
+  },
+  shouldRetry: (error) => {
+    // Don't retry auth errors
+    return error.message !== 'Unauthorized';
+  },
+});
 
 if (result.success) {
   console.log('Data:', result.data);
@@ -707,6 +713,7 @@ if (result.success) {
 ```
 
 **Backoff timing:**
+
 ```
 Attempt 0: ~1s delay
 Attempt 1: ~2s delay
@@ -719,15 +726,16 @@ Attempt 3: ~8s delay (max)
 Creates a set of recovery actions for an error, giving users options to recover.
 
 **Returns:**
+
 ```typescript
 interface RecoveryActions {
-  retry: () => Promise<void>;           // Retry the operation
+  retry: () => Promise<void>; // Retry the operation
   clearCacheAndRetry: () => Promise<void>; // Clear Apollo cache, then retry
-  copyReport: () => Promise<void>;      // Copy error details to clipboard
-  reportIssue: () => void;              // Open GitHub issue reporter
-  reload: () => void;                   // Reload the page
-  goHome: () => void;                   // Navigate to home
-  goBack: () => void;                   // Navigate back in history
+  copyReport: () => Promise<void>; // Copy error details to clipboard
+  reportIssue: () => void; // Open GitHub issue reporter
+  reload: () => void; // Reload the page
+  goHome: () => void; // Navigate to home
+  goBack: () => void; // Navigate back in history
 }
 ```
 
@@ -781,22 +789,25 @@ await clearAllCache();
 
 // Option 2: Clear cache and reload
 // (for severe corruption)
-await clearCacheAndReload();  // Reloads after 500ms
+await clearCacheAndReload(); // Reloads after 500ms
 ```
 
 **What gets cleared:**
+
 - Apollo InMemoryCache
-- localStorage cache entries (apollo-*, *-cache)
-- sessionStorage cache entries (apollo-*, *-cache)
+- localStorage cache entries (apollo-_, _-cache)
+- sessionStorage cache entries (apollo-_, _-cache)
 - Zustand stores are NOT automatically cleared (only cache)
 
 ---
 
 ## Reconnection Integration
 
-The **reconnection** system handles WebSocket reconnection with exponential backoff and integrates with Apollo subscriptions.
+The **reconnection** system handles WebSocket reconnection with exponential backoff and integrates
+with Apollo subscriptions.
 
 **Source:**
+
 - `libs/state/stores/src/utils/reconnect.ts`
 - `libs/api-client/core/src/apollo/` (WebSocket link)
 
@@ -830,12 +841,14 @@ The **reconnection** system handles WebSocket reconnection with exponential back
 Calculates exponential backoff with jitter to prevent thundering herd.
 
 **Formula:**
+
 ```
 delay = min(baseDelay * 2^attempt + jitter, maxDelay)
        = min(1000 * 2^n + random(0-1000), 30000)
 ```
 
 **Timing:**
+
 ```typescript
 calculateBackoff(0) → ~1-2s
 calculateBackoff(1) → ~2-3s
@@ -846,11 +859,12 @@ calculateBackoff(5+) → ~30s (capped)
 ```
 
 **Example:**
+
 ```typescript
 import { calculateBackoff } from '@nasnet/state/stores';
 
 // Get delay for attempt 2
-const delay = calculateBackoff(2);  // ~4000-5000ms
+const delay = calculateBackoff(2); // ~4000-5000ms
 await sleep(delay);
 await reconnect();
 ```
@@ -860,12 +874,13 @@ await reconnect();
 Creates a manager for handling WebSocket reconnection with status tracking.
 
 **Configuration:**
+
 ```typescript
 interface ReconnectionManagerConfig {
-  maxAttempts?: number;        // Default: 10
+  maxAttempts?: number; // Default: 10
   connect: () => Promise<void>; // Actual connection function
   onStatusChange?: (status: WebSocketStatus) => void;
-  showNotifications?: boolean;  // Default: true
+  showNotifications?: boolean; // Default: true
 }
 
 type WebSocketStatus = 'connecting' | 'connected' | 'disconnected' | 'error';
@@ -894,7 +909,7 @@ const reconnectionManager = createReconnectionManager({
     console.log('WebSocket status:', status);
     useConnectionStore.getState().setWsStatus(status);
   },
-  showNotifications: true,  // Show toast on connection/reconnection
+  showNotifications: true, // Show toast on connection/reconnection
 });
 
 // Handle connection loss
@@ -910,12 +925,13 @@ window.addEventListener('online', () => {
 ```
 
 **Manager API:**
+
 ```typescript
-manager.start();              // Start reconnection attempts
-manager.stop();               // Stop trying to reconnect
-manager.reset();              // Reset attempt counter
-manager.getAttempts();        // Get current attempt number
-manager.isActive();           // Check if reconnecting
+manager.start(); // Start reconnection attempts
+manager.stop(); // Stop trying to reconnect
+manager.reset(); // Reset attempt counter
+manager.getAttempts(); // Get current attempt number
+manager.isActive(); // Check if reconnecting
 ```
 
 ### createLatencyUpdater Function
@@ -923,19 +939,21 @@ manager.isActive();           // Check if reconnecting
 Debounced latency updater to track WebSocket ping latency without excessive store updates.
 
 **Usage:**
+
 ```typescript
 import { createLatencyUpdater } from '@nasnet/state/stores';
 
-const updateLatency = createLatencyUpdater(100);  // Update at most every 100ms
+const updateLatency = createLatencyUpdater(100); // Update at most every 100ms
 
 // In WebSocket ping handler
 wsClient.on('pong', (time) => {
   const latencyMs = Date.now() - time;
-  updateLatency(currentRouterId, latencyMs);  // Debounced update
+  updateLatency(currentRouterId, latencyMs); // Debounced update
 });
 ```
 
 **Benefits:**
+
 - Prevents excessive Zustand updates during high-frequency pings
 - Limits store updates to max 10/second (100ms interval)
 - Keeps connection latency visible without performance impact
@@ -945,10 +963,7 @@ wsClient.on('pong', (time) => {
 The reconnection utilities update `useConnectionStore`:
 
 ```typescript
-import {
-  useConnectionStore,
-  type WebSocketStatus,
-} from '@nasnet/state/stores';
+import { useConnectionStore, type WebSocketStatus } from '@nasnet/state/stores';
 
 // Reconnection manager updates these
 useConnectionStore.getState().setWsStatus('connecting');
@@ -960,15 +975,16 @@ useConnectionStore.getState().updateLatency(routerId, latencyMs);
 ```
 
 **Reading connection state:**
+
 ```typescript
 // Check if WebSocket is connected
-const connected = useConnectionStore(state => state.websocketConnected);
+const connected = useConnectionStore((state) => state.websocketConnected);
 
 // Get current latency
-const latency = useConnectionStore(state => state.latencies[currentRouterId]);
+const latency = useConnectionStore((state) => state.latencies[currentRouterId]);
 
 // Get reconnection attempts
-const attempts = useConnectionStore(state => state.reconnectAttempts);
+const attempts = useConnectionStore((state) => state.reconnectAttempts);
 ```
 
 ---
@@ -999,10 +1015,7 @@ test('auth link injects token', () => {
 ```typescript
 test('error link handles 401 errors', async () => {
   // Mock notification store to track calls
-  const addNotificationSpy = jest.spyOn(
-    useNotificationStore.getState(),
-    'addNotification'
-  );
+  const addNotificationSpy = jest.spyOn(useNotificationStore.getState(), 'addNotification');
 
   // Trigger 401 error
   const error = new Error('Unauthorized');
@@ -1011,9 +1024,7 @@ test('error link handles 401 errors', async () => {
   errorLink.onError(error);
 
   // Verify notification was shown
-  expect(addNotificationSpy).toHaveBeenCalledWith(
-    expect.objectContaining({ type: 'error' })
-  );
+  expect(addNotificationSpy).toHaveBeenCalledWith(expect.objectContaining({ type: 'error' }));
 });
 ```
 
@@ -1021,9 +1032,12 @@ test('error link handles 401 errors', async () => {
 
 ## Section Guide
 
-- **Token Refresh Integration** - Proactive JWT token refresh to maintain sessions (see `useTokenRefresh` hook)
-- **Error Recovery Integration** - Retry logic, cache clearing, and error reporting (see `withRetry`, `createRecoveryActions`)
-- **Reconnection Integration** - WebSocket reconnection with exponential backoff (see `createReconnectionManager`, `createLatencyUpdater`)
+- **Token Refresh Integration** - Proactive JWT token refresh to maintain sessions (see
+  `useTokenRefresh` hook)
+- **Error Recovery Integration** - Retry logic, cache clearing, and error reporting (see
+  `withRetry`, `createRecoveryActions`)
+- **Reconnection Integration** - WebSocket reconnection with exponential backoff (see
+  `createReconnectionManager`, `createLatencyUpdater`)
 
 ---
 
@@ -1032,9 +1046,11 @@ test('error link handles 401 errors', async () => {
 Apollo Client and Zustand integration enables:
 
 1. **Auth Context**: Auth link reads `useAuthStore.getState()` to inject JWT tokens
-2. **Error Handling**: Error link updates `useAuthStore` on 401, shows notifications via `useNotificationStore`
+2. **Error Handling**: Error link updates `useAuthStore` on 401, shows notifications via
+   `useNotificationStore`
 3. **Real-time Updates**: Subscriptions push data into Zustand stores (e.g., alerts, statistics)
 4. **Connection State**: WebSocket state lives in `useConnectionStore` for reactive UI
 5. **Separation of Concerns**: Apollo manages server state, Zustand manages UI state
 
-This architecture keeps server and UI state cleanly separated while allowing them to communicate when needed.
+This architecture keeps server and UI state cleanly separated while allowing them to communicate
+when needed.

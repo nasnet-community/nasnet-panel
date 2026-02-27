@@ -106,7 +106,10 @@ describe('VirtualizedList', () => {
       <VirtualizedList
         items={items}
         renderItem={({ item, isFocused }) => (
-          <div data-testid={`item-${item.id}`} data-focused={isFocused}>
+          <div
+            data-testid={`item-${item.id}`}
+            data-focused={isFocused}
+          >
             {item.name}
           </div>
         )}

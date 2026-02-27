@@ -135,9 +135,7 @@ describe('useDeviceRoutingMatrix', () => {
 
   describe('Selection State', () => {
     it('should initialize with empty selection', () => {
-      const { result } = renderHook(() =>
-        useDeviceRoutingMatrix(mockMatrix, mockActions)
-      );
+      const { result } = renderHook(() => useDeviceRoutingMatrix(mockMatrix, mockActions));
 
       expect(result.current.selectedDevices.size).toBe(0);
       expect(result.current.selectionCount).toBe(0);
@@ -145,9 +143,7 @@ describe('useDeviceRoutingMatrix', () => {
     });
 
     it('should toggle device selection', () => {
-      const { result } = renderHook(() =>
-        useDeviceRoutingMatrix(mockMatrix, mockActions)
-      );
+      const { result } = renderHook(() => useDeviceRoutingMatrix(mockMatrix, mockActions));
 
       // Select device
       act(() => {
@@ -167,9 +163,7 @@ describe('useDeviceRoutingMatrix', () => {
     });
 
     it('should select all devices', () => {
-      const { result } = renderHook(() =>
-        useDeviceRoutingMatrix(mockMatrix, mockActions)
-      );
+      const { result } = renderHook(() => useDeviceRoutingMatrix(mockMatrix, mockActions));
 
       act(() => {
         result.current.selectAll();
@@ -182,9 +176,7 @@ describe('useDeviceRoutingMatrix', () => {
     });
 
     it('should clear all selections', () => {
-      const { result } = renderHook(() =>
-        useDeviceRoutingMatrix(mockMatrix, mockActions)
-      );
+      const { result } = renderHook(() => useDeviceRoutingMatrix(mockMatrix, mockActions));
 
       // Select some devices
       act(() => {
@@ -205,9 +197,7 @@ describe('useDeviceRoutingMatrix', () => {
     });
 
     it('should handle range selection with shift+click', () => {
-      const { result } = renderHook(() =>
-        useDeviceRoutingMatrix(mockMatrix, mockActions)
-      );
+      const { result } = renderHook(() => useDeviceRoutingMatrix(mockMatrix, mockActions));
 
       // Select first device (no shift)
       act(() => {
@@ -226,9 +216,7 @@ describe('useDeviceRoutingMatrix', () => {
     });
 
     it('should select range programmatically', () => {
-      const { result } = renderHook(() =>
-        useDeviceRoutingMatrix(mockMatrix, mockActions)
-      );
+      const { result } = renderHook(() => useDeviceRoutingMatrix(mockMatrix, mockActions));
 
       act(() => {
         result.current.selectRange(0, 1);
@@ -243,9 +231,7 @@ describe('useDeviceRoutingMatrix', () => {
 
   describe('Filtering', () => {
     it('should initialize with default filters', () => {
-      const { result } = renderHook(() =>
-        useDeviceRoutingMatrix(mockMatrix, mockActions)
-      );
+      const { result } = renderHook(() => useDeviceRoutingMatrix(mockMatrix, mockActions));
 
       expect(result.current.filters).toEqual({
         search: '',
@@ -256,9 +242,7 @@ describe('useDeviceRoutingMatrix', () => {
     });
 
     it('should filter devices by search (hostname)', () => {
-      const { result } = renderHook(() =>
-        useDeviceRoutingMatrix(mockMatrix, mockActions)
-      );
+      const { result } = renderHook(() => useDeviceRoutingMatrix(mockMatrix, mockActions));
 
       act(() => {
         result.current.setSearch('laptop');
@@ -269,9 +253,7 @@ describe('useDeviceRoutingMatrix', () => {
     });
 
     it('should filter devices by search (IP address)', () => {
-      const { result } = renderHook(() =>
-        useDeviceRoutingMatrix(mockMatrix, mockActions)
-      );
+      const { result } = renderHook(() => useDeviceRoutingMatrix(mockMatrix, mockActions));
 
       act(() => {
         result.current.setSearch('192.168.1.100');
@@ -282,9 +264,7 @@ describe('useDeviceRoutingMatrix', () => {
     });
 
     it('should filter devices by search (MAC address)', () => {
-      const { result } = renderHook(() =>
-        useDeviceRoutingMatrix(mockMatrix, mockActions)
-      );
+      const { result } = renderHook(() => useDeviceRoutingMatrix(mockMatrix, mockActions));
 
       act(() => {
         result.current.setSearch('aa:bb:cc:dd:ee:01');
@@ -295,9 +275,7 @@ describe('useDeviceRoutingMatrix', () => {
     });
 
     it('should filter devices by routing status (routed)', () => {
-      const { result } = renderHook(() =>
-        useDeviceRoutingMatrix(mockMatrix, mockActions)
-      );
+      const { result } = renderHook(() => useDeviceRoutingMatrix(mockMatrix, mockActions));
 
       act(() => {
         result.current.setRoutingStatus('routed');
@@ -308,9 +286,7 @@ describe('useDeviceRoutingMatrix', () => {
     });
 
     it('should filter devices by routing status (unrouted)', () => {
-      const { result } = renderHook(() =>
-        useDeviceRoutingMatrix(mockMatrix, mockActions)
-      );
+      const { result } = renderHook(() => useDeviceRoutingMatrix(mockMatrix, mockActions));
 
       act(() => {
         result.current.setRoutingStatus('unrouted');
@@ -321,9 +297,7 @@ describe('useDeviceRoutingMatrix', () => {
     });
 
     it('should filter devices by service instance', () => {
-      const { result } = renderHook(() =>
-        useDeviceRoutingMatrix(mockMatrix, mockActions)
-      );
+      const { result } = renderHook(() => useDeviceRoutingMatrix(mockMatrix, mockActions));
 
       act(() => {
         result.current.setServiceFilter('instance-tor');
@@ -334,9 +308,7 @@ describe('useDeviceRoutingMatrix', () => {
     });
 
     it('should combine multiple filters', () => {
-      const { result } = renderHook(() =>
-        useDeviceRoutingMatrix(mockMatrix, mockActions)
-      );
+      const { result } = renderHook(() => useDeviceRoutingMatrix(mockMatrix, mockActions));
 
       act(() => {
         result.current.setRoutingStatus('unrouted');
@@ -349,9 +321,7 @@ describe('useDeviceRoutingMatrix', () => {
     });
 
     it('should clear all filters', () => {
-      const { result } = renderHook(() =>
-        useDeviceRoutingMatrix(mockMatrix, mockActions)
-      );
+      const { result } = renderHook(() => useDeviceRoutingMatrix(mockMatrix, mockActions));
 
       // Set multiple filters
       act(() => {
@@ -376,9 +346,7 @@ describe('useDeviceRoutingMatrix', () => {
 
   describe('Computed Values', () => {
     it('should create device routing map', () => {
-      const { result } = renderHook(() =>
-        useDeviceRoutingMatrix(mockMatrix, mockActions)
-      );
+      const { result } = renderHook(() => useDeviceRoutingMatrix(mockMatrix, mockActions));
 
       expect(result.current.deviceRoutingMap.size).toBe(1);
       expect(result.current.deviceRoutingMap.has('dev-2')).toBe(true);
@@ -386,9 +354,7 @@ describe('useDeviceRoutingMatrix', () => {
     });
 
     it('should filter available interfaces by gateway status', () => {
-      const { result } = renderHook(() =>
-        useDeviceRoutingMatrix(mockMatrix, mockActions)
-      );
+      const { result } = renderHook(() => useDeviceRoutingMatrix(mockMatrix, mockActions));
 
       // Only interfaces with gatewayStatus 'up' or 'active' should be available
       expect(result.current.availableInterfaces).toHaveLength(2);
@@ -397,9 +363,7 @@ describe('useDeviceRoutingMatrix', () => {
     });
 
     it('should calculate canBulkAssign correctly', () => {
-      const { result } = renderHook(() =>
-        useDeviceRoutingMatrix(mockMatrix, mockActions)
-      );
+      const { result } = renderHook(() => useDeviceRoutingMatrix(mockMatrix, mockActions));
 
       // Initially false (no selection)
       expect(result.current.canBulkAssign).toBe(false);
@@ -420,9 +384,7 @@ describe('useDeviceRoutingMatrix', () => {
         interfaces: [],
       };
 
-      const { result } = renderHook(() =>
-        useDeviceRoutingMatrix(matrixNoInterfaces, mockActions)
-      );
+      const { result } = renderHook(() => useDeviceRoutingMatrix(matrixNoInterfaces, mockActions));
 
       act(() => {
         result.current.toggleSelection('dev-1');
@@ -434,9 +396,7 @@ describe('useDeviceRoutingMatrix', () => {
 
   describe('Action Handlers', () => {
     it('should call onAssign and clear selection', async () => {
-      const { result } = renderHook(() =>
-        useDeviceRoutingMatrix(mockMatrix, mockActions)
-      );
+      const { result } = renderHook(() => useDeviceRoutingMatrix(mockMatrix, mockActions));
 
       // Select device
       act(() => {
@@ -455,9 +415,7 @@ describe('useDeviceRoutingMatrix', () => {
     });
 
     it('should call onRemove', async () => {
-      const { result } = renderHook(() =>
-        useDeviceRoutingMatrix(mockMatrix, mockActions)
-      );
+      const { result } = renderHook(() => useDeviceRoutingMatrix(mockMatrix, mockActions));
 
       await act(async () => {
         await result.current.handleRemove('routing-1');
@@ -467,9 +425,7 @@ describe('useDeviceRoutingMatrix', () => {
     });
 
     it('should call onBulkAssign with selected devices and clear selection', async () => {
-      const { result } = renderHook(() =>
-        useDeviceRoutingMatrix(mockMatrix, mockActions)
-      );
+      const { result } = renderHook(() => useDeviceRoutingMatrix(mockMatrix, mockActions));
 
       // Select multiple devices
       act(() => {
@@ -494,9 +450,7 @@ describe('useDeviceRoutingMatrix', () => {
 
   describe('Helper Functions', () => {
     it('should get device routing by device ID', () => {
-      const { result } = renderHook(() =>
-        useDeviceRoutingMatrix(mockMatrix, mockActions)
-      );
+      const { result } = renderHook(() => useDeviceRoutingMatrix(mockMatrix, mockActions));
 
       const routing = result.current.getDeviceRouting('dev-2');
       expect(routing).toBeDefined();
@@ -507,9 +461,7 @@ describe('useDeviceRoutingMatrix', () => {
     });
 
     it('should get interface name by interface ID', () => {
-      const { result } = renderHook(() =>
-        useDeviceRoutingMatrix(mockMatrix, mockActions)
-      );
+      const { result } = renderHook(() => useDeviceRoutingMatrix(mockMatrix, mockActions));
 
       expect(result.current.getInterfaceName('iface-1')).toBe('Tor Exit');
       expect(result.current.getInterfaceName('iface-2')).toBe('Xray');
@@ -538,9 +490,7 @@ describe('useDeviceRoutingMatrix', () => {
         devices: [],
       };
 
-      const { result } = renderHook(() =>
-        useDeviceRoutingMatrix(emptyMatrix, mockActions)
-      );
+      const { result } = renderHook(() => useDeviceRoutingMatrix(emptyMatrix, mockActions));
 
       expect(result.current.filteredDevices).toHaveLength(0);
       expect(result.current.selectionCount).toBe(0);
@@ -572,9 +522,7 @@ describe('useDeviceRoutingMatrix', () => {
         devices: devicesWithMissingFields,
       };
 
-      const { result } = renderHook(() =>
-        useDeviceRoutingMatrix(minimalMatrix, mockActions)
-      );
+      const { result } = renderHook(() => useDeviceRoutingMatrix(minimalMatrix, mockActions));
 
       expect(result.current.filteredDevices).toHaveLength(1);
 
@@ -587,9 +535,7 @@ describe('useDeviceRoutingMatrix', () => {
     });
 
     it('should handle selection after filtering', () => {
-      const { result } = renderHook(() =>
-        useDeviceRoutingMatrix(mockMatrix, mockActions)
-      );
+      const { result } = renderHook(() => useDeviceRoutingMatrix(mockMatrix, mockActions));
 
       // Select all devices
       act(() => {

@@ -8,7 +8,9 @@ extend type Subscription {
   Emits events when schedules are created, updated, deleted, or when activation state changes.
   """
   scheduleChanged(
-    """Router ID to subscribe to"""
+    """
+    Router ID to subscribe to
+    """
     routerID: ID!
   ): ScheduleEvent!
 }

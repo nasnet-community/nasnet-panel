@@ -44,11 +44,7 @@ const SEVERITY_OPTIONS: Array<{ value: AlertSeverity | 'ALL'; label: string }> =
  * - Bottom action bar with "Mark all read" and "Clear" buttons
  * - Empty state when no notifications
  */
-function NotificationCenterMobileComponent({
-  open,
-  onClose,
-  className,
-}: NotificationCenterProps) {
+function NotificationCenterMobileComponent({ open, onClose, className }: NotificationCenterProps) {
   const {
     filteredNotifications,
     severityFilter,
@@ -61,7 +57,7 @@ function NotificationCenterMobileComponent({
   } = useNotificationCenter();
 
   const handleNotificationClick = useCallback(
-    (notification: typeof filteredNotifications[0]) => {
+    (notification: (typeof filteredNotifications)[0]) => {
       markAsRead(notification.id);
       // TODO: Navigate to relevant page based on notification.deviceId, notification.ruleId
       // For now, just mark as read
@@ -80,18 +76,27 @@ function NotificationCenterMobileComponent({
   }, [clearAll]);
 
   return (
-    <Sheet open={open} onOpenChange={onClose}>
+    <Sheet
+      open={open}
+      onOpenChange={onClose}
+    >
       <SheetContent
         side="bottom"
-        className={cn('h-full flex flex-col gap-0 p-0 bg-popover border-t border-border rounded-[var(--semantic-radius-card)]', className)}
+        className={cn(
+          'bg-popover border-border flex h-full flex-col gap-0 rounded-[var(--semantic-radius-card)] border-t p-0',
+          className
+        )}
       >
         {/* Header */}
-        <div className="px-4 py-3 border-b border-border flex-shrink-0">
+        <div className="border-border flex-shrink-0 border-b px-4 py-3">
           <div className="flex items-center justify-between">
-            <h3 className="text-sm font-semibold text-foreground">
+            <h3 className="text-foreground text-sm font-semibold">
               Notifications
               {unreadCount > 0 && (
-                <Badge variant="default" className="ml-2">
+                <Badge
+                  variant="default"
+                  className="ml-2"
+                >
                   {unreadCount}
                 </Badge>
               )}
@@ -104,26 +109,28 @@ function NotificationCenterMobileComponent({
               aria-label="Close notification center"
               className="h-11 w-11"
             >
-              <X className="w-5 h-5" />
+              <X className="h-5 w-5" />
             </Button>
           </div>
         </div>
 
         {/* Notification list */}
         <ScrollArea className="flex-1 overflow-y-auto">
-          {filteredNotifications.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
-              <p className="text-sm text-muted-foreground font-medium">
-                {severityFilter === 'ALL'
-                  ? 'No notifications'
-                  : `No ${severityFilter.toLowerCase()} notifications`}
+          {filteredNotifications.length === 0 ?
+            <div className="flex flex-col items-center justify-center px-4 py-16 text-center">
+              <p className="text-muted-foreground text-sm font-medium">
+                {severityFilter === 'ALL' ?
+                  'No notifications'
+                : `No ${severityFilter.toLowerCase()} notifications`}
               </p>
             </div>
-          ) : (
-            <ul className="py-0">
+          : <ul className="py-0">
               {filteredNotifications.map((notification: InAppNotification) => (
-                <li key={notification.id} className="border-b border-border last:border-b-0">
-                  <div className="px-4 py-3 min-h-[44px]">
+                <li
+                  key={notification.id}
+                  className="border-border border-b last:border-b-0"
+                >
+                  <div className="min-h-[44px] px-4 py-3">
                     <NotificationItem
                       notification={notification}
                       onClick={handleNotificationClick}
@@ -132,12 +139,12 @@ function NotificationCenterMobileComponent({
                 </li>
               ))}
             </ul>
-          )}
+          }
         </ScrollArea>
 
         {/* Bottom action bar - fixed at bottom, 44px touch targets */}
         {filteredNotifications.length > 0 && (
-          <div className="p-4 border-t border-border bg-popover flex gap-3 flex-shrink-0">
+          <div className="border-border bg-popover flex flex-shrink-0 gap-3 border-t p-4">
             {unreadCount > 0 && (
               <Button
                 variant="outline"
@@ -151,7 +158,7 @@ function NotificationCenterMobileComponent({
             <Button
               variant="outline"
               onClick={handleClearAll}
-              className="h-11 flex-1 text-error hover:text-error border-error/30"
+              className="text-error hover:text-error border-error/30 h-11 flex-1"
             >
               Clear all
             </Button>

@@ -26,10 +26,14 @@ const LazyTemplatesPage = lazy(() =>
  */
 function TemplatesPageSkeleton() {
   return (
-    <div className="space-y-4 p-4 animate-fade-in-up" aria-busy="true" aria-label="Loading firewall templates">
+    <div
+      className="animate-fade-in-up space-y-4 p-4"
+      aria-busy="true"
+      aria-label="Loading firewall templates"
+    >
       <div className="flex items-center justify-between">
         <div className="space-y-2">
-          <Skeleton className="h-8 w-64 font-display" />
+          <Skeleton className="font-display h-8 w-64" />
           <Skeleton className="h-4 w-96" />
         </div>
         <div className="flex gap-2">
@@ -37,7 +41,7 @@ function TemplatesPageSkeleton() {
           <Skeleton className="h-10 w-28" />
         </div>
       </div>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <div className="space-y-4">
           <Skeleton className="h-10 w-full" />
           <div className="grid grid-cols-2 gap-4">

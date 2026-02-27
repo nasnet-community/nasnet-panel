@@ -6,59 +6,72 @@
  *
  * @module @nasnet/api-client/queries/services
  */
-import { type QueryHookOptions, type MutationHookOptions, type SubscriptionHookOptions } from '@apollo/client';
-import type { SystemResources, InstanceResourceUsage, ResourceUsage, ResourceLimits, ResourceRequirements, ResourceStatus, SetResourceLimitsInput, ResourceLimitsPayload } from '@nasnet/api-client/generated';
+import {
+  type QueryHookOptions,
+  type MutationHookOptions,
+  type SubscriptionHookOptions,
+} from '@apollo/client';
+import type {
+  SystemResources,
+  InstanceResourceUsage,
+  ResourceUsage,
+  ResourceLimits,
+  ResourceRequirements,
+  ResourceStatus,
+  SetResourceLimitsInput,
+  ResourceLimitsPayload,
+} from '@nasnet/api-client/generated';
 /**
  * GraphQL query for system resources
  * Fetches complete resource allocation state including per-instance usage
  */
-export declare const GET_SYSTEM_RESOURCES: import("graphql").DocumentNode;
+export declare const GET_SYSTEM_RESOURCES: import('graphql').DocumentNode;
 /**
  * GraphQL mutation for setting resource limits
  * Updates memory and CPU resource constraints for a service instance
  */
-export declare const SET_RESOURCE_LIMITS: import("graphql").DocumentNode;
+export declare const SET_RESOURCE_LIMITS: import('graphql').DocumentNode;
 /**
  * GraphQL subscription for real-time resource usage updates
  * Streams resource usage changes for a specific instance
  */
-export declare const SUBSCRIBE_RESOURCE_USAGE: import("graphql").DocumentNode;
+export declare const SUBSCRIBE_RESOURCE_USAGE: import('graphql').DocumentNode;
 /**
  * Variables for GET_SYSTEM_RESOURCES query
  */
 export interface GetSystemResourcesVariables {
-    routerID: string;
+  routerID: string;
 }
 /**
  * Result type for GET_SYSTEM_RESOURCES query
  */
 export interface GetSystemResourcesResult {
-    systemResources: SystemResources;
+  systemResources: SystemResources;
 }
 /**
  * Variables for SET_RESOURCE_LIMITS mutation
  */
 export interface SetResourceLimitsVariables {
-    input: SetResourceLimitsInput;
+  input: SetResourceLimitsInput;
 }
 /**
  * Result type for SET_RESOURCE_LIMITS mutation
  */
 export interface SetResourceLimitsResult {
-    setResourceLimits: ResourceLimitsPayload;
+  setResourceLimits: ResourceLimitsPayload;
 }
 /**
  * Variables for SUBSCRIBE_RESOURCE_USAGE subscription
  */
 export interface ResourceUsageChangedVariables {
-    routerID: string;
-    instanceID: string;
+  routerID: string;
+  instanceID: string;
 }
 /**
  * Result type for SUBSCRIBE_RESOURCE_USAGE subscription
  */
 export interface ResourceUsageChangedResult {
-    resourceUsageChanged: ResourceUsage;
+  resourceUsageChanged: ResourceUsage;
 }
 /**
  * Hook for querying system resource allocation and usage.
@@ -98,7 +111,13 @@ export interface ResourceUsageChangedResult {
  * }
  * ```
  */
-export declare function useSystemResources(routerID: string, options?: QueryHookOptions<GetSystemResourcesResult, GetSystemResourcesVariables>): import("@apollo/client").InteropQueryResult<GetSystemResourcesResult, GetSystemResourcesVariables>;
+export declare function useSystemResources(
+  routerID: string,
+  options?: QueryHookOptions<GetSystemResourcesResult, GetSystemResourcesVariables>
+): import('@apollo/client').InteropQueryResult<
+  GetSystemResourcesResult,
+  GetSystemResourcesVariables
+>;
 /**
  * Hook for setting resource limits on a service instance.
  *
@@ -162,7 +181,14 @@ export declare function useSystemResources(routerID: string, options?: QueryHook
  * }
  * ```
  */
-export declare function useSetResourceLimits(options?: MutationHookOptions<SetResourceLimitsResult, SetResourceLimitsVariables>): import("@apollo/client").MutationTuple<SetResourceLimitsResult, SetResourceLimitsVariables, import("@apollo/client").DefaultContext, import("@apollo/client").ApolloCache<any>>;
+export declare function useSetResourceLimits(
+  options?: MutationHookOptions<SetResourceLimitsResult, SetResourceLimitsVariables>
+): import('@apollo/client').MutationTuple<
+  SetResourceLimitsResult,
+  SetResourceLimitsVariables,
+  import('@apollo/client').DefaultContext,
+  import('@apollo/client').ApolloCache<any>
+>;
 /**
  * Hook for subscribing to real-time resource usage changes.
  *
@@ -215,12 +241,25 @@ export declare function useSetResourceLimits(options?: MutationHookOptions<SetRe
  * }
  * ```
  */
-export declare function useResourceUsageSubscription(routerID: string, instanceID: string, options?: SubscriptionHookOptions<ResourceUsageChangedResult, ResourceUsageChangedVariables>): {
-    restart: () => void;
-    loading: boolean;
-    data?: ResourceUsageChangedResult | undefined;
-    error?: import("@apollo/client").ApolloError;
-    variables?: ResourceUsageChangedVariables | undefined;
+export declare function useResourceUsageSubscription(
+  routerID: string,
+  instanceID: string,
+  options?: SubscriptionHookOptions<ResourceUsageChangedResult, ResourceUsageChangedVariables>
+): {
+  restart: () => void;
+  loading: boolean;
+  data?: ResourceUsageChangedResult | undefined;
+  error?: import('@apollo/client').ApolloError;
+  variables?: ResourceUsageChangedVariables | undefined;
 };
-export type { SystemResources, InstanceResourceUsage, ResourceUsage, ResourceLimits, ResourceRequirements, ResourceStatus, SetResourceLimitsInput, ResourceLimitsPayload, };
+export type {
+  SystemResources,
+  InstanceResourceUsage,
+  ResourceUsage,
+  ResourceLimits,
+  ResourceRequirements,
+  ResourceStatus,
+  SetResourceLimitsInput,
+  ResourceLimitsPayload,
+};
 //# sourceMappingURL=useSystemResources.d.ts.map

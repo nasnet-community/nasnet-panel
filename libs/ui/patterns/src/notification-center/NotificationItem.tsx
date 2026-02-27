@@ -58,11 +58,7 @@ function getSeverityIconClass(severity: AlertSeverity): string {
  * - Click to navigate and mark as read
  * - Hover state
  */
-function NotificationItemComponent({
-  notification,
-  onClick,
-  className,
-}: NotificationItemProps) {
+function NotificationItemComponent({ notification, onClick, className }: NotificationItemProps) {
   const Icon = getSeverityIcon(notification.severity);
   const iconClass = getSeverityIconClass(notification.severity);
 
@@ -82,8 +78,8 @@ function NotificationItemComponent({
       onClick={handleClick}
       onKeyDown={handleKeyDown}
       className={cn(
-        'w-full text-left relative flex gap-3 px-4 py-3 border-b border-border transition-colors',
-        'hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+        'border-border relative flex w-full gap-3 border-b px-4 py-3 text-left transition-colors',
+        'hover:bg-muted focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-2',
         !notification.read && 'bg-primary/5',
         notification.read && 'bg-popover',
         'cursor-pointer',
@@ -93,31 +89,30 @@ function NotificationItemComponent({
       {/* Unread indicator */}
       {!notification.read && (
         <div
-          className="absolute top-3 left-2 h-2 w-2 rounded-full bg-error flex-shrink-0"
+          className="bg-error absolute left-2 top-3 h-2 w-2 flex-shrink-0 rounded-full"
           aria-label="Unread"
         />
       )}
 
       {/* Item icon */}
-      <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
-        <Icon className={cn('h-4 w-4', iconClass)} aria-hidden="true" />
+      <div className="bg-muted flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full">
+        <Icon
+          className={cn('h-4 w-4', iconClass)}
+          aria-hidden="true"
+        />
       </div>
 
       {/* Content */}
-      <div className="flex-1 min-w-0 space-y-1">
+      <div className="min-w-0 flex-1 space-y-1">
         {/* Title */}
-        <h4 className="text-sm font-medium text-foreground truncate">
-          {notification.title}
-        </h4>
+        <h4 className="text-foreground truncate text-sm font-medium">{notification.title}</h4>
 
         {/* Message */}
-        <p className="text-xs text-muted-foreground line-clamp-2">
-          {notification.message}
-        </p>
+        <p className="text-muted-foreground line-clamp-2 text-xs">{notification.message}</p>
 
         {/* Timestamp */}
         <time
-          className="block text-xs text-muted-foreground"
+          className="text-muted-foreground block text-xs"
           dateTime={notification.receivedAt}
         >
           {formatDistanceToNow(new Date(notification.receivedAt), { addSuffix: true })}

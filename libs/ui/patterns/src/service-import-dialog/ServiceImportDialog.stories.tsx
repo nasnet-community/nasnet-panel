@@ -161,7 +161,7 @@ export const ControlledState: Story = {
       <div className="space-y-4">
         <button
           onClick={() => setOpen(true)}
-          className="px-4 py-2 bg-primary text-primary-foreground rounded-md"
+          className="bg-primary text-primary-foreground rounded-md px-4 py-2"
         >
           Open Import Dialog
         </button>
@@ -193,7 +193,8 @@ export const ValidJSON: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Paste this JSON to test the validation flow:\n\n```json\n' + mockValidJSON + '\n```',
+        story:
+          'Paste this JSON to test the validation flow:\n\n```json\n' + mockValidJSON + '\n```',
       },
     },
   },
@@ -244,7 +245,7 @@ export const CustomTrigger: Story = {
   args: {
     routerID: 'router-1',
     trigger: (
-      <button className="px-6 py-3 bg-gradient-to-r from-secondary to-primary text-white rounded-lg font-medium">
+      <button className="from-secondary to-primary rounded-lg bg-gradient-to-r px-6 py-3 font-medium text-white">
         📥 Import Service Configuration
       </button>
     ),
@@ -327,9 +328,7 @@ export const ImportRedactedFieldsInteraction: Story = {
     // Step 2: Wait for redacted field prompts to appear
     await waitFor(
       async () => {
-        await expect(
-          canvas.findByLabelText(/password/i)
-        ).resolves.toBeInTheDocument();
+        await expect(canvas.findByLabelText(/password/i)).resolves.toBeInTheDocument();
       },
       { timeout: 3000 }
     );

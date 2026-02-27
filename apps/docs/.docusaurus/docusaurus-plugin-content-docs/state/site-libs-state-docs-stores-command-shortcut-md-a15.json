@@ -1,7 +1,7 @@
 {
   "id": "stores/command-shortcut",
   "title": "Command and Shortcut Registry Stores",
-  "description": "This document covers the command palette and keyboard shortcut systems that power NasNetConnect's fast navigation and power-user experience.",
+  "description": "This document covers the command palette and keyboard shortcut systems that power NasNetConnect's",
   "source": "@site/../../libs/state/docs/stores/command-shortcut.md",
   "sourceDirName": "stores",
   "slug": "/stores/command-shortcut",

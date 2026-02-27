@@ -100,12 +100,7 @@ function clampConfidence(confidence: number): number {
 export function useConfidenceIndicator(
   config: UseConfidenceIndicatorConfig
 ): UseConfidenceIndicatorReturn {
-  const {
-    confidence,
-    method,
-    onOverride,
-    showPercentage = true,
-  } = config;
+  const { confidence, method, onOverride, showPercentage = true } = config;
 
   // Clamp and memoize the percentage
   const percentage = useMemo(() => clampConfidence(confidence), [confidence]);

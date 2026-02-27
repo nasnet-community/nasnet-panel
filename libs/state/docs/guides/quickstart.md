@@ -1,6 +1,7 @@
 # Quickstart Guide: State Management in 10 Minutes
 
-Get up and running with Zustand stores and XState machines. This guide covers the basics of reading state, dispatching actions, and subscribing to changes.
+Get up and running with Zustand stores and XState machines. This guide covers the basics of reading
+state, dispatching actions, and subscribing to changes.
 
 **Source:** `libs/state/stores/src/` and `libs/state/machines/src/`
 
@@ -441,7 +442,8 @@ Learn more about specific subsystems:
 1. **[Domain UI Stores](../stores/domain-ui-stores.md)** - Feature-specific state patterns
 2. **[Apollo Integration](../integrations/apollo-integration.md)** - Connect stores to GraphQL
 3. **[Accessibility](../integrations/a11y-provider.md)** - Accessibility preferences
-4. **[Cross-Feature Communication](../integrations/cross-feature-sharing.md)** - Share state between features
+4. **[Cross-Feature Communication](../integrations/cross-feature-sharing.md)** - Share state between
+   features
 5. **[Adding a Store](./adding-a-store.md)** - Create your own store
 6. **[Adding a Machine](./adding-a-machine.md)** - Create your own XState machine
 
@@ -501,4 +503,5 @@ You now know:
 4. ✅ Common patterns (filters, selections, drafts)
 5. ✅ Where to learn more
 
-Start building! Check the [Domain UI Stores](../stores/domain-ui-stores.md) guide next for feature-specific patterns.
+Start building! Check the [Domain UI Stores](../stores/domain-ui-stores.md) guide next for
+feature-specific patterns.

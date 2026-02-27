@@ -41,5 +41,10 @@
  * }
  * ```
  */
-export declare function useTriggerDigestNow(): import("@apollo/client").MutationTuple<any, import("@apollo/client").OperationVariables, import("@apollo/client").DefaultContext, import("@apollo/client").ApolloCache<any>>;
+export declare function useTriggerDigestNow(): import('@apollo/client').MutationTuple<
+  any,
+  import('@apollo/client').OperationVariables,
+  import('@apollo/client').DefaultContext,
+  import('@apollo/client').ApolloCache<any>
+>;
 //# sourceMappingURL=useTriggerDigestNow.d.ts.map

@@ -128,8 +128,8 @@ the offline detector listens to.
 The `retryLink` retries network failures up to 3 times with jitter. It does **not** retry 4xx client
 errors, which are not transient.
 
-See [`../state-management/apollo-client.md`](../state-management/apollo-client.md) for the
-full Apollo Client configuration reference.
+See [`../state-management/apollo-client.md`](../state-management/apollo-client.md) for the full
+Apollo Client configuration reference.
 
 ## REST Client Error Handling
 

@@ -24,12 +24,7 @@ export type ServiceStatus =
 /**
  * Service category types
  */
-export type ServiceCategory =
-  | 'privacy'
-  | 'proxy'
-  | 'dns'
-  | 'security'
-  | 'monitoring';
+export type ServiceCategory = 'privacy' | 'proxy' | 'dns' | 'security' | 'monitoring';
 
 /**
  * Action button configuration

@@ -1,1 +1,12 @@
-{"categoryGeneratedIndex":{"title":"Directives overview","slug":"/category/directives","permalink":"/category/directives","sidebar":"defaultSidebar","navigation":{"previous":{"title":"Operations","permalink":"/category/operations"},"next":{"title":"include","permalink":"/api/operations/directives/include"}}}}
+{
+  "categoryGeneratedIndex": {
+    "title": "Directives overview",
+    "slug": "/category/directives",
+    "permalink": "/category/directives",
+    "sidebar": "defaultSidebar",
+    "navigation": {
+      "previous": { "title": "Operations", "permalink": "/category/operations" },
+      "next": { "title": "include", "permalink": "/api/operations/directives/include" }
+    }
+  }
+}

@@ -76,37 +76,29 @@ export interface MobileHeaderProps {
   className?: string;
 }
 
-
 /**
  * MobileHeader - Responsive page header component
  * Provides semantic HTML header with optional greeting, title, subtitle, and actions.
  */
 const MobileHeaderImpl = React.forwardRef<HTMLElement, MobileHeaderProps>(
   ({ title, actions, className }, ref) => {
-
     return (
       <header
         ref={ref}
         className={cn(
           'sticky top-0 z-40',
-          'h-16 bg-card/80 backdrop-blur-md',
-          'border-b border-border',
+          'bg-card/80 h-16 backdrop-blur-md',
+          'border-border border-b',
           'px-page-mobile md:px-page-tablet lg:px-page-desktop',
           'pt-safe',
           'flex items-center',
           className
         )}
       >
-        <div className="flex-1 min-w-0">
-          <h1 className="text-lg font-semibold text-foreground truncate">
-            {title}
-          </h1>
+        <div className="min-w-0 flex-1">
+          <h1 className="text-foreground truncate text-lg font-semibold">{title}</h1>
         </div>
-        {actions && (
-          <div className="flex items-center gap-2 flex-shrink-0 ml-4">
-            {actions}
-          </div>
-        )}
+        {actions && <div className="ml-4 flex flex-shrink-0 items-center gap-2">{actions}</div>}
       </header>
     );
   }
@@ -118,28 +110,3 @@ MobileHeaderImpl.displayName = 'MobileHeader';
  * MobileHeader - Page header component for responsive layouts
  */
 export const MobileHeader = React.memo(MobileHeaderImpl);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

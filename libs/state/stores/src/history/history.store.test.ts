@@ -26,9 +26,7 @@ import {
 import type { UndoableActionInput } from './types';
 
 // Helper to create a test action
-function createTestAction(
-  overrides: Partial<UndoableActionInput> = {}
-): UndoableActionInput {
+function createTestAction(overrides: Partial<UndoableActionInput> = {}): UndoableActionInput {
   const executeFn = vi.fn();
   const undoFn = vi.fn();
 
@@ -302,9 +300,7 @@ describe('useHistoryStore', () => {
       pushAction(createTestAction({ description: 'First' }));
       pushAction(createTestAction({ description: 'Second' }));
 
-      expect(selectLastAction(useHistoryStore.getState())?.description).toBe(
-        'Second'
-      );
+      expect(selectLastAction(useHistoryStore.getState())?.description).toBe('Second');
     });
 
     it('selectHistoryLength returns past length', () => {

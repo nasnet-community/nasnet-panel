@@ -75,7 +75,8 @@ export const Default: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Default stale indicator with a Clock icon, relative timestamp, and a refresh button.',
+        story:
+          'Default stale indicator with a Clock icon, relative timestamp, and a refresh button.',
       },
     },
   },
@@ -92,7 +93,8 @@ export const Offline: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Offline mode: the icon switches to WifiOff and the refresh button is hidden (you cannot refresh without a connection).',
+        story:
+          'Offline mode: the icon switches to WifiOff and the refresh button is hidden (you cannot refresh without a connection).',
       },
     },
   },
@@ -129,7 +131,8 @@ export const CustomMessage: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Override the default message with a domain-specific string (e.g. from a page that knows the data type).',
+        story:
+          'Override the default message with a domain-specific string (e.g. from a page that knows the data type).',
       },
     },
   },
@@ -137,10 +140,25 @@ export const CustomMessage: Story = {
 
 export const Sizes: Story = {
   render: () => (
-    <div className="flex flex-col gap-4 items-start">
-      <StaleIndicator isStale size="sm" lastUpdated={fiveMinutesAgo} onRefresh={fn()} />
-      <StaleIndicator isStale size="md" lastUpdated={fiveMinutesAgo} onRefresh={fn()} />
-      <StaleIndicator isStale size="lg" lastUpdated={fiveMinutesAgo} onRefresh={fn()} />
+    <div className="flex flex-col items-start gap-4">
+      <StaleIndicator
+        isStale
+        size="sm"
+        lastUpdated={fiveMinutesAgo}
+        onRefresh={fn()}
+      />
+      <StaleIndicator
+        isStale
+        size="md"
+        lastUpdated={fiveMinutesAgo}
+        onRefresh={fn()}
+      />
+      <StaleIndicator
+        isStale
+        size="lg"
+        lastUpdated={fiveMinutesAgo}
+        onRefresh={fn()}
+      />
     </div>
   ),
   parameters: {
@@ -160,7 +178,8 @@ export const FreshDataHidden: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'When `isStale` is false the component returns null and renders nothing. This story demonstrates the absent output.',
+        story:
+          'When `isStale` is false the component returns null and renders nothing. This story demonstrates the absent output.',
       },
     },
   },
@@ -168,9 +187,9 @@ export const FreshDataHidden: Story = {
 
 export const InContext: Story = {
   render: () => (
-    <div className="w-[420px] rounded-xl border border-border bg-card p-4 space-y-3">
+    <div className="border-border bg-card w-[420px] space-y-3 rounded-xl border p-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-foreground">DHCP Leases</h3>
+        <h3 className="text-foreground text-sm font-semibold">DHCP Leases</h3>
         <StaleIndicator
           isStale
           size="sm"
@@ -178,7 +197,7 @@ export const InContext: Story = {
           onRefresh={fn()}
         />
       </div>
-      <p className="text-xs text-muted-foreground">
+      <p className="text-muted-foreground text-xs">
         Showing 24 leases — data may have changed since last sync.
       </p>
     </div>
@@ -187,7 +206,8 @@ export const InContext: Story = {
     layout: 'padded',
     docs: {
       description: {
-        story: 'Real-world placement: a sm StaleIndicator badge inline with a page heading inside a card.',
+        story:
+          'Real-world placement: a sm StaleIndicator badge inline with a page heading inside a card.',
       },
     },
   },

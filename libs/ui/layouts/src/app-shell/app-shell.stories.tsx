@@ -72,9 +72,9 @@ type Story = StoryObj<typeof AppShell>;
 // ---------------------------------------------------------------------------
 
 const MockHeader = (
-  <header className="h-full flex items-center px-6 gap-4">
-    <span className="font-semibold text-lg">NasNetConnect</span>
-    <nav className="flex gap-4 ml-auto text-sm text-muted-foreground">
+  <header className="flex h-full items-center gap-4 px-6">
+    <span className="text-lg font-semibold">NasNetConnect</span>
+    <nav className="text-muted-foreground ml-auto flex gap-4 text-sm">
       <a href="#dashboard">Dashboard</a>
       <a href="#network">Network</a>
       <a href="#firewall">Firewall</a>
@@ -83,13 +83,13 @@ const MockHeader = (
 );
 
 const MockSidebar = (
-  <nav className="p-4 flex flex-col gap-2 h-full">
+  <nav className="flex h-full flex-col gap-2 p-4">
     {['Dashboard', 'Network', 'VPN', 'Firewall', 'Diagnostics', 'Services', 'Settings'].map(
       (item) => (
         <a
           key={item}
           href={`#${item.toLowerCase()}`}
-          className="px-3 py-2 rounded-md text-sm text-foreground hover:bg-accent cursor-pointer transition-colors"
+          className="text-foreground hover:bg-accent cursor-pointer rounded-md px-3 py-2 text-sm transition-colors"
         >
           {item}
         </a>
@@ -99,15 +99,15 @@ const MockSidebar = (
 );
 
 const MockContent = (
-  <section className="p-6 flex flex-col gap-4">
-    <div className="h-24 rounded-lg bg-muted flex items-center justify-center text-muted-foreground text-sm">
+  <section className="flex flex-col gap-4 p-6">
+    <div className="bg-muted text-muted-foreground flex h-24 items-center justify-center rounded-lg text-sm">
       Main content area
     </div>
     <div className="grid grid-cols-3 gap-4">
       {[1, 2, 3].map((n) => (
         <article
           key={n}
-          className="h-32 rounded-lg bg-muted/50 border border-border flex items-center justify-center"
+          className="bg-muted/50 border-border flex h-32 items-center justify-center rounded-lg border"
         >
           Card {n}
         </article>
@@ -117,13 +117,16 @@ const MockContent = (
 );
 
 const MockFooter = (
-  <footer className="px-6 py-3 text-xs text-muted-foreground">
+  <footer className="text-muted-foreground px-6 py-3 text-xs">
     NasNetConnect v1.0.0 &mdash; MikroTik Router Management
   </footer>
 );
 
 const MockBanner = (
-  <div className="bg-warning text-white px-6 py-2 text-sm text-center" role="alert">
+  <div
+    className="bg-warning px-6 py-2 text-center text-sm text-white"
+    role="alert"
+  >
     Offline mode active &mdash; changes will be applied when reconnected
   </div>
 );
@@ -171,12 +174,15 @@ export const CollapsedSidebar: Story = {
   args: {
     header: MockHeader,
     sidebar: (
-      <nav className="p-2 flex flex-col gap-2 items-center h-full" aria-label="Collapsed navigation">
+      <nav
+        className="flex h-full flex-col items-center gap-2 p-2"
+        aria-label="Collapsed navigation"
+      >
         {['D', 'N', 'V', 'F', 'X', 'S', '⚙'].map((icon, i) => (
           <button
             key={i}
             type="button"
-            className="w-10 h-10 rounded-md bg-muted flex items-center justify-center text-sm font-medium cursor-pointer hover:bg-accent transition-colors"
+            className="bg-muted hover:bg-accent flex h-10 w-10 cursor-pointer items-center justify-center rounded-md text-sm font-medium transition-colors"
             aria-label={`Navigation item ${i + 1}`}
           >
             {icon}

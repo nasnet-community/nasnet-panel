@@ -7,7 +7,9 @@ title: Security Patterns
 
 **Reference:** `libs/core/forms/src/` | `libs/api-client/` | Layered Security Architecture
 
-NasNetConnect deliberately implements minimal security code in `libs/core` because security is handled at specialized layers. This guide documents the security architecture, trust boundaries, and safe patterns for core library usage.
+NasNetConnect deliberately implements minimal security code in `libs/core` because security is
+handled at specialized layers. This guide documents the security architecture, trust boundaries, and
+safe patterns for core library usage.
 
 ## Table of Contents
 
@@ -39,11 +41,13 @@ const ipConfigSchema = z.object({
 ```
 
 **What it does:**
+
 - Type validation (is it the right shape?)
 - Format validation (valid IP address?)
 - Range validation (within allowed values?)
 
 **What it does NOT do:**
+
 - Authorization (is this user allowed to change this?)
 - Resource uniqueness (is this IP already in use?)
 - Platform compatibility (does this router support this?)
@@ -56,12 +60,12 @@ const ipConfigSchema = z.object({
 directive @auth(roles: [String!]!) on FIELD_DEFINITION
 
 type Mutation {
-  createVPN(input: VPNInput!): VPN!
-    @auth(roles: ["admin", "vpn-manager"])
+  createVPN(input: VPNInput!): VPN! @auth(roles: ["admin", "vpn-manager"])
 }
 ```
 
 Backend checks:
+
 - Is user authenticated?
 - Does user have required role?
 - Can user access this resource (tenant isolation)?
@@ -82,7 +86,8 @@ return <div>{userInput}</div>;  // Displayed as text, not executed
 
 ## Input Validation as Trust Boundary
 
-Input validation is the **only** layer that `libs/core` directly handles. It validates at the system boundary where user data enters the application.
+Input validation is the **only** layer that `libs/core` directly handles. It validates at the system
+boundary where user data enters the application.
 
 ### Zod Schema Validation
 
@@ -93,15 +98,16 @@ import { z } from 'zod';
 
 // Define validation at form definition time
 const routerConfigSchema = z.object({
-  routerName: z.string()
+  routerName: z
+    .string()
     .min(1, 'Name is required')
     .max(63, 'Name too long')
     .regex(/^[a-zA-Z0-9-]+$/, 'Only alphanumeric and hyphens'),
 
-  wanPort: z.enum(['ether1', 'ether2', 'sfp1'])
-    .describe('Which port handles WAN traffic'),
+  wanPort: z.enum(['ether1', 'ether2', 'sfp1']).describe('Which port handles WAN traffic'),
 
-  upstreamDNS: z.array(z.string().ip())
+  upstreamDNS: z
+    .array(z.string().ip())
     .min(1, 'At least one DNS server required')
     .max(3, 'Maximum 3 DNS servers'),
 });
@@ -124,6 +130,7 @@ const schema = z.object({
 ```
 
 **Built-in validators** (from `libs/core/forms/src/network-validators.ts`):
+
 - IP address (IPv4/IPv6)
 - CIDR notation (10.0.0.0/8)
 - MAC address (00:11:22:33:44:55)
@@ -149,6 +156,7 @@ if port < 1 || port > 65535 {
 ```
 
 **Pattern:**
+
 ```
 User Input
     ↓
@@ -161,7 +169,8 @@ Backend Validation (Go) - Final verification
 
 ## Error Message Safety
 
-Errors must never reveal sensitive information. NasNetConnect uses several patterns to ensure error safety:
+Errors must never reveal sensitive information. NasNetConnect uses several patterns to ensure error
+safety:
 
 ### ValidationError Never Contains PII
 
@@ -196,12 +205,12 @@ import { mapBackendErrors } from '@nasnet/core/forms';
 // Backend might return detailed error with sensitive info
 const backendError = {
   code: 'ROUTER_OFFLINE',
-  message: 'Router at 192.168.100.50 is offline',  // Reveals IP!
+  message: 'Router at 192.168.100.50 is offline', // Reveals IP!
   details: {
     routerId: 'abc-123-xyz',
     lastSeen: '2024-02-26T14:30:00Z',
-    adminEmail: 'admin@company.com',  // Reveals admin email!
-  }
+    adminEmail: 'admin@company.com', // Reveals admin email!
+  },
 };
 
 // mapBackendErrors sanitizes before display
@@ -235,16 +244,18 @@ const error: ValidationError = {
   code: 'PORT_IN_USE',
   message: 'Port 22 is already in use',
   fieldPath: 'port',
-  suggestedFix: 'Use port 2222 or higher for SSH access',  // Safe suggestion
+  suggestedFix: 'Use port 2222 or higher for SSH access', // Safe suggestion
 };
 ```
 
 Good suggested fixes:
+
 - ✓ "Try port 2222 instead"
 - ✓ "Enable DHCP to auto-assign IP"
 - ✓ "Remove the duplicate resource first"
 
 Bad suggested fixes:
+
 - ✗ "SSH service running on router-prod-001 is using port 22"
 - ✗ "IP already assigned to admin account"
 - ✗ "Contact user john@company.com to resolve this"
@@ -293,17 +304,18 @@ const message = `Port ${userInput} is already in use`;
 
 ```typescript
 // Never done in libs/core
-eval(userInput);              // ❌ Never
-new Function(userInput);       // ❌ Never
-JSON.parse(userInput);         // Safe for JSON
-(new Function(userInput))();   // ❌ Never
+eval(userInput); // ❌ Never
+new Function(userInput); // ❌ Never
+JSON.parse(userInput); // Safe for JSON
+new Function(userInput)(); // ❌ Never
 ```
 
 ---
 
 ## Auth Token Handling
 
-Authentication is completely handled in `libs/api-client`, NOT in `libs/core`. Core has no access to auth state.
+Authentication is completely handled in `libs/api-client`, NOT in `libs/core`. Core has no access to
+auth state.
 
 ### JWT Token Management (libs/api-client)
 
@@ -321,12 +333,13 @@ const authLink = setContext((_, { headers }) => {
     headers: {
       ...headers,
       authorization: token ? `Bearer ${token}` : '',
-    }
+    },
   };
 });
 ```
 
 **Why NOT in libs/core:**
+
 - Core has no React dependency (auth link requires Apollo)
 - Core has no knowledge of HTTP headers
 - Core is just validation logic
@@ -408,7 +421,7 @@ When adding new functionality to `libs/core`, verify:
 
 ```typescript
 // Bad - building validation dynamically
-const regex = new RegExp(userInput);  // Could be infinite regex
+const regex = new RegExp(userInput); // Could be infinite regex
 schema = z.string().regex(regex);
 
 // Good - whitelist allowed patterns
@@ -426,9 +439,10 @@ schema = z.string().regex(pattern);
 // Backend concern, NOT libs/core
 // But validate filename format client-side
 const schema = z.object({
-  filename: z.string()
+  filename: z
+    .string()
     .regex(/^[a-zA-Z0-9._-]+$/)
-    .refine(f => !f.includes('..'), 'Invalid filename'),
+    .refine((f) => !f.includes('..'), 'Invalid filename'),
 });
 ```
 
@@ -446,6 +460,7 @@ const regex = /^[a-zA-Z0-9]+$/;
 ### CSRF (Cross-Site Request Forgery)
 
 **Handled at backend layer:**
+
 - CORS headers configured correctly
 - SameSite cookie attribute set
 - CSRF tokens validated (if needed)

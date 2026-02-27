@@ -82,7 +82,10 @@ export const DynamicField = React.memo(function DynamicField({
             {field.label}
             {field.required && (
               <>
-                <span className="text-error ml-1" aria-hidden="true">
+                <span
+                  className="text-error ml-1"
+                  aria-hidden="true"
+                >
                   *
                 </span>
                 <span className="sr-only">(required)</span>
@@ -90,16 +93,9 @@ export const DynamicField = React.memo(function DynamicField({
             )}
           </FormLabel>
           <FormControl>
-            {renderFieldInputWithContext(
-              field,
-              formField,
-              disabled,
-              !!fieldState.error
-            )}
+            {renderFieldInputWithContext(field, formField, disabled, !!fieldState.error)}
           </FormControl>
-          {field.description && (
-            <FormDescription>{field.description}</FormDescription>
-          )}
+          {field.description && <FormDescription>{field.description}</FormDescription>}
           <FormMessage role="alert" />
         </FormItem>
       )}
@@ -113,11 +109,7 @@ DynamicField.displayName = 'DynamicField';
  * Renders the appropriate input component based on field type
  * @internal
  */
-function renderFieldInput(
-  field: ConfigSchemaField,
-  value: any,
-  disabled?: boolean
-) {
+function renderFieldInput(field: ConfigSchemaField, value: any, disabled?: boolean) {
   // This helper determines which component to use
   const fieldType = (field.type as string) || 'TEXT';
 

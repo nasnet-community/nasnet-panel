@@ -10,12 +10,14 @@ import { z } from 'zod';
 /**
  * @description Helper regex to validate CIDR notation (e.g. 203.0.113.10/30)
  */
-const CIDR_REGEX = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\/(?:3[0-2]|[12]?[0-9])$/;
+const CIDR_REGEX =
+  /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\/(?:3[0-2]|[12]?[0-9])$/;
 
 /**
  * @description Helper regex to validate IPv4 address (e.g. 203.0.113.1)
  */
-const IPV4_REGEX = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+const IPV4_REGEX =
+  /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
 
 /**
  * @description Schema for static IP WAN configuration form
@@ -65,10 +67,7 @@ export const staticIPSchema = z
     /**
      * Primary DNS server in IPv4 format (optional, e.g. 1.1.1.1 or 8.8.8.8)
      */
-    primaryDNS: z
-      .string()
-      .regex(IPV4_REGEX, 'Primary DNS must be a valid IPv4 address')
-      .optional(),
+    primaryDNS: z.string().regex(IPV4_REGEX, 'Primary DNS must be a valid IPv4 address').optional(),
 
     /**
      * Secondary DNS server in IPv4 format (optional)
@@ -81,10 +80,7 @@ export const staticIPSchema = z
     /**
      * Optional comment for identification (max 255 characters)
      */
-    comment: z
-      .string()
-      .max(255, 'Comment cannot exceed 255 characters')
-      .optional(),
+    comment: z.string().max(255, 'Comment cannot exceed 255 characters').optional(),
   })
   .refine(
     (data) => {

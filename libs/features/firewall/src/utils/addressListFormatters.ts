@@ -33,7 +33,7 @@ export type ExportFormat = 'csv' | 'json' | 'routeros';
 export function formatCSV(entries: AddressListEntry[]): string {
   const lines = ['IP,Comment,Timeout']; // Header row
 
-  entries.forEach(entry => {
+  entries.forEach((entry) => {
     const address = entry.address || '';
     const comment = entry.comment ? `"${entry.comment.replace(/"/g, '""')}"` : '';
     const timeout = entry.timeout || '';
@@ -50,7 +50,7 @@ export function formatCSV(entries: AddressListEntry[]): string {
  * @returns JSON string with 2-space indentation
  */
 export function formatJSON(entries: AddressListEntry[]): string {
-  const data = entries.map(entry => ({
+  const data = entries.map((entry) => ({
     address: entry.address,
     ...(entry.comment && { comment: entry.comment }),
     ...(entry.timeout && { timeout: entry.timeout }),
@@ -79,7 +79,7 @@ export function formatRouterOSScript(entries: AddressListEntry[], listName: stri
     '# Add entries',
   ];
 
-  entries.forEach(entry => {
+  entries.forEach((entry) => {
     const parts = [`list="${listName}"`, `address=${entry.address}`];
 
     if (entry.comment) {
@@ -167,11 +167,7 @@ export function getMimeType(format: ExportFormat): string {
  * @param filename - Filename without extension
  * @param format - Export format (extension added automatically)
  */
-export function downloadFile(
-  content: string,
-  filename: string,
-  format: ExportFormat
-): void {
+export function downloadFile(content: string, filename: string, format: ExportFormat): void {
   const blob = new Blob([content], { type: getMimeType(format) });
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
@@ -246,7 +242,11 @@ export function formatFileSize(bytes: number): string {
  * @param listName - Optional list name (required for RouterOS format)
  * @returns Formatted size string (B, KB, or MB)
  */
-export function estimateSize(entries: AddressListEntry[], format: ExportFormat, listName?: string): string {
+export function estimateSize(
+  entries: AddressListEntry[],
+  format: ExportFormat,
+  listName?: string
+): string {
   const content = formatAddressList(entries, format, listName);
   const bytes = new Blob([content]).size;
   return formatFileSize(bytes);

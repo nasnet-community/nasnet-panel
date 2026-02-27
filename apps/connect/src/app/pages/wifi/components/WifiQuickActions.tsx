@@ -13,7 +13,10 @@ interface WifiQuickActionsProps {
   isRefreshing?: boolean;
 }
 
-export const WifiQuickActions = React.memo(function WifiQuickActions({ onRefresh, isRefreshing }: WifiQuickActionsProps) {
+export const WifiQuickActions = React.memo(function WifiQuickActions({
+  onRefresh,
+  isRefreshing,
+}: WifiQuickActionsProps) {
   const { t } = useTranslation('wifi');
   const [showRestartDialog, setShowRestartDialog] = useState(false);
 
@@ -24,20 +27,20 @@ export const WifiQuickActions = React.memo(function WifiQuickActions({ onRefresh
 
   return (
     <>
-      <div className="flex items-center gap-component-sm">
+      <div className="gap-component-sm flex items-center">
         <button
           onClick={onRefresh}
           disabled={isRefreshing}
-          className="inline-flex items-center gap-component-sm px-component-md py-component-sm text-sm font-medium text-primary-foreground bg-primary border border-primary rounded-md hover:bg-primary/90 transition-colors disabled:opacity-50 min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          className="gap-component-sm px-component-md py-component-sm text-primary-foreground bg-primary border-primary hover:bg-primary/90 focus-visible:ring-ring inline-flex min-h-[44px] items-center rounded-md border text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-50"
         >
-          <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+          <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
           {t('quickActions.refresh')}
         </button>
         <button
           onClick={() => setShowRestartDialog(true)}
-          className="inline-flex items-center gap-component-sm px-component-md py-component-sm text-sm font-medium text-warning bg-warning/10 border border-warning/30 rounded-md hover:bg-warning/20 transition-colors min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          className="gap-component-sm px-component-md py-component-sm text-warning bg-warning/10 border-warning/30 hover:bg-warning/20 focus-visible:ring-ring inline-flex min-h-[44px] items-center rounded-md border text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
         >
-          <Power className="w-4 h-4" />
+          <Power className="h-4 w-4" />
           {t('quickActions.restartWiFi')}
         </button>
       </div>
@@ -56,21 +59,23 @@ export const WifiQuickActions = React.memo(function WifiQuickActions({ onRefresh
             role="presentation"
             tabIndex={-1}
           />
-          <div className="relative bg-card rounded-card-lg p-component-lg max-w-md mx-4 shadow-xl">
-            <h3 className="text-lg font-semibold font-display text-foreground mb-component-sm">{t('quickActions.restartConfirmTitle')}</h3>
-            <p className="text-sm text-muted-foreground mb-component-md">
+          <div className="bg-card rounded-card-lg p-component-lg relative mx-4 max-w-md shadow-xl">
+            <h3 className="font-display text-foreground mb-component-sm text-lg font-semibold">
+              {t('quickActions.restartConfirmTitle')}
+            </h3>
+            <p className="text-muted-foreground mb-component-md text-sm">
               {t('quickActions.restartConfirmMessage')}
             </p>
-            <div className="flex justify-end gap-component-md">
+            <div className="gap-component-md flex justify-end">
               <button
                 onClick={() => setShowRestartDialog(false)}
-                className="px-component-md py-component-sm text-sm font-medium text-foreground bg-muted border border-border hover:bg-muted/80 rounded-md transition-colors min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                className="px-component-md py-component-sm text-foreground bg-muted border-border hover:bg-muted/80 focus-visible:ring-ring min-h-[44px] rounded-md border text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
               >
                 {t('button.cancel', { ns: 'common' })}
               </button>
               <button
                 onClick={handleRestart}
-                className="px-component-md py-component-sm text-sm font-medium text-warning-foreground bg-warning hover:bg-warning/90 rounded-md transition-colors min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                className="px-component-md py-component-sm text-warning-foreground bg-warning hover:bg-warning/90 focus-visible:ring-ring min-h-[44px] rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
               >
                 {t('quickActions.restartWiFi')}
               </button>
@@ -83,24 +88,3 @@ export const WifiQuickActions = React.memo(function WifiQuickActions({ onRefresh
 });
 
 WifiQuickActions.displayName = 'WifiQuickActions';
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

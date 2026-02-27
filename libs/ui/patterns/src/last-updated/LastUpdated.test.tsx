@@ -54,7 +54,12 @@ describe('LastUpdated', () => {
   it('should apply custom className', () => {
     const timestamp = Date.now();
     const customClass = 'my-custom-class';
-    const { container } = render(<LastUpdated timestamp={timestamp} className={customClass} />);
+    const { container } = render(
+      <LastUpdated
+        timestamp={timestamp}
+        className={customClass}
+      />
+    );
 
     const wrapper = container.firstChild as HTMLElement;
     expect(wrapper?.className).toContain(customClass);

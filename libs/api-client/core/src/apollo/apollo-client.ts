@@ -50,10 +50,7 @@ const wsLink = new GraphQLWsLink(wsClient);
 const splitLink = split(
   ({ query }) => {
     const definition = getMainDefinition(query);
-    return (
-      definition.kind === 'OperationDefinition' &&
-      definition.operation === 'subscription'
-    );
+    return definition.kind === 'OperationDefinition' && definition.operation === 'subscription';
   },
   wsLink,
   authLink.concat(httpLink)
@@ -260,32 +257,31 @@ const cache = new InMemoryCache({
  * </ApolloProvider>
  * ```
  */
-export const apolloClient: ApolloClient<NormalizedCacheObject> =
-  new ApolloClient({
-    link,
-    cache,
-    defaultOptions: {
-      watchQuery: {
-        // Return cached data immediately, then update with network
-        fetchPolicy: 'cache-and-network',
-        // After initial fetch, use cache to avoid redundant network requests on re-render
-        nextFetchPolicy: 'cache-first',
-        // Return partial data even if some fields errored
-        errorPolicy: 'all',
-      },
-      query: {
-        // Use cache if available, otherwise fetch
-        fetchPolicy: 'cache-first',
-        errorPolicy: 'all',
-      },
-      mutate: {
-        // Return partial data on error
-        errorPolicy: 'all',
-      },
+export const apolloClient: ApolloClient<NormalizedCacheObject> = new ApolloClient({
+  link,
+  cache,
+  defaultOptions: {
+    watchQuery: {
+      // Return cached data immediately, then update with network
+      fetchPolicy: 'cache-and-network',
+      // After initial fetch, use cache to avoid redundant network requests on re-render
+      nextFetchPolicy: 'cache-first',
+      // Return partial data even if some fields errored
+      errorPolicy: 'all',
     },
-    // Enable React DevTools integration in development
-    connectToDevTools: import.meta.env.DEV,
-  });
+    query: {
+      // Use cache if available, otherwise fetch
+      fetchPolicy: 'cache-first',
+      errorPolicy: 'all',
+    },
+    mutate: {
+      // Return partial data on error
+      errorPolicy: 'all',
+    },
+  },
+  // Enable React DevTools integration in development
+  connectToDevTools: import.meta.env.DEV,
+});
 
 // Export cache for direct access (cache persistence, etc.)
 export { cache as apolloCache };

@@ -47,10 +47,7 @@ import { TRIGGER_DIGEST_NOW, GET_DIGEST_QUEUE_COUNT, GET_DIGEST_HISTORY } from '
 export function useTriggerDigestNow() {
   return useMutation(TRIGGER_DIGEST_NOW, {
     // Refetch queue count after triggering to show updated count
-    refetchQueries: [
-      { query: GET_DIGEST_QUEUE_COUNT },
-      { query: GET_DIGEST_HISTORY },
-    ],
+    refetchQueries: [{ query: GET_DIGEST_QUEUE_COUNT }, { query: GET_DIGEST_HISTORY }],
     // Await refetch queries to ensure UI updates after delivery
     awaitRefetchQueries: true,
   });

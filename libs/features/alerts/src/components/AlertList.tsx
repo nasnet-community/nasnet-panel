@@ -81,7 +81,10 @@ export const AlertList = memo(
     if (loading && !data) {
       return (
         <div className="flex items-center justify-center py-12">
-          <Spinner size="lg" aria-label="Loading alerts" />
+          <Spinner
+            size="lg"
+            aria-label="Loading alerts"
+          />
         </div>
       );
     }
@@ -94,7 +97,7 @@ export const AlertList = memo(
           aria-live="assertive"
         >
           <p className="font-medium">Failed to load alerts</p>
-          <p className="text-sm mt-component-xs">{error.message}</p>
+          <p className="mt-component-xs text-sm">{error.message}</p>
         </div>
       );
     }
@@ -105,13 +108,17 @@ export const AlertList = memo(
 
     if (alerts.length === 0) {
       return (
-        <div className="text-center py-component-xl text-muted-foreground">
-          <Icon icon={Inbox} className="h-12 w-12 mx-auto mb-component-lg opacity-30" aria-hidden="true" />
-          <p className="text-lg font-display font-semibold">No alerts found</p>
-          <p className="text-sm mt-component-sm">
-            {shouldShowAcknowledged
-              ? 'No alerts match your filters.'
-              : 'All caught up! No active alerts at the moment.'}
+        <div className="py-component-xl text-muted-foreground text-center">
+          <Icon
+            icon={Inbox}
+            className="mb-component-lg mx-auto h-12 w-12 opacity-30"
+            aria-hidden="true"
+          />
+          <p className="font-display text-lg font-semibold">No alerts found</p>
+          <p className="mt-component-sm text-sm">
+            {shouldShowAcknowledged ?
+              'No alerts match your filters.'
+            : 'All caught up! No active alerts at the moment.'}
           </p>
         </div>
       );
@@ -127,24 +134,24 @@ export const AlertList = memo(
             <div
               key={alert.id}
               className={cn(
-                'p-component-md border-l-4 border-border rounded-[var(--semantic-radius-card)] shadow-sm transition-opacity',
+                'p-component-md border-border rounded-[var(--semantic-radius-card)] border-l-4 shadow-sm transition-opacity',
                 isAcknowledged && 'opacity-60',
                 severityInfo.borderClass
               )}
             >
-              <div className="flex items-start justify-between gap-component-md">
-                <div className="flex-1 min-w-0">
+              <div className="gap-component-md flex items-start justify-between">
+                <div className="min-w-0 flex-1">
                   {/* Title and Severity */}
-                  <div className="flex items-center gap-component-sm mb-component-sm flex-wrap">
+                  <div className="gap-component-sm mb-component-sm flex flex-wrap items-center">
                     <span
                       className={cn(
-                        'inline-block px-component-sm py-0.5 text-xs font-medium rounded',
+                        'px-component-sm inline-block rounded py-0.5 text-xs font-medium',
                         severityInfo.badgeClass
                       )}
                     >
                       {severityInfo.label}
                     </span>
-                    <h3 className="font-semibold text-sm truncate">{alert.title}</h3>
+                    <h3 className="truncate text-sm font-semibold">{alert.title}</h3>
                     {/* Queued alert badge */}
                     <QueuedAlertBadge
                       queuedUntil={alert.data?.queuedUntil}
@@ -153,10 +160,10 @@ export const AlertList = memo(
                   </div>
 
                   {/* Message */}
-                  <p className="text-sm text-muted-foreground mb-component-sm">{alert.message}</p>
+                  <p className="text-muted-foreground mb-component-sm text-sm">{alert.message}</p>
 
                   {/* Metadata */}
-                  <div className="flex items-center gap-component-md text-xs text-muted-foreground">
+                  <div className="gap-component-md text-muted-foreground flex items-center text-xs">
                     <span>
                       {formatDistanceToNow(new Date(alert.triggeredAt), { addSuffix: true })}
                     </span>
@@ -172,9 +179,8 @@ export const AlertList = memo(
 
                   {/* Acknowledgment Info */}
                   {isAcknowledged && (
-                    <div className="mt-component-sm text-xs text-muted-foreground">
-                      Acknowledged by {alert.acknowledgedBy} •
-                      {' '}
+                    <div className="mt-component-sm text-muted-foreground text-xs">
+                      Acknowledged by {alert.acknowledgedBy} •{' '}
                       {formatDistanceToNow(new Date(alert.acknowledgedAt!), {
                         addSuffix: true,
                       })}
@@ -189,20 +195,22 @@ export const AlertList = memo(
                     disabled={isAcknowledging}
                     aria-label={`Acknowledge alert: ${alert.title}`}
                     className={cn(
-                      'min-h-[44px] px-component-md py-component-sm text-sm border border-border rounded-[var(--semantic-radius-button)]',
-                      'hover:bg-muted disabled:opacity-50 transition-colors',
-                      'whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                      'px-component-md py-component-sm border-border min-h-[44px] rounded-[var(--semantic-radius-button)] border text-sm',
+                      'hover:bg-muted transition-colors disabled:opacity-50',
+                      'focus-visible:ring-ring whitespace-nowrap focus-visible:outline-none focus-visible:ring-2',
                       'focus-visible:ring-offset-2'
                     )}
                   >
-                    {isAcknowledging ? (
+                    {isAcknowledging ?
                       <>
-                        <Spinner size="sm" className="inline mr-1" aria-hidden="true" />
+                        <Spinner
+                          size="sm"
+                          className="mr-1 inline"
+                          aria-hidden="true"
+                        />
                         Acknowledging...
                       </>
-                    ) : (
-                      'Acknowledge'
-                    )}
+                    : 'Acknowledge'}
                   </button>
                 )}
               </div>
@@ -212,12 +220,12 @@ export const AlertList = memo(
 
         {/* Pagination Info */}
         {hasNextPage && (
-          <div className="text-center pt-component-lg">
+          <div className="pt-component-lg text-center">
             <button
               aria-label={`Load more alerts, ${totalCount - alerts.length} remaining`}
               className={cn(
-                'text-sm text-primary hover:underline rounded-[var(--semantic-radius-button)]',
-                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                'text-primary rounded-[var(--semantic-radius-button)] text-sm hover:underline',
+                'focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-2',
                 'focus-visible:ring-offset-2'
               )}
             >

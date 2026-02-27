@@ -87,7 +87,7 @@ export const WithConfirmation: Story = {
   },
   render: (args) => (
     <div className="space-y-4">
-      <p className="text-sm text-muted-foreground">
+      <p className="text-muted-foreground text-sm">
         Language change requires confirmation (simulated delay)
       </p>
       <LanguageSwitcher {...args} />
@@ -100,11 +100,14 @@ export const WithConfirmation: Story = {
  */
 export const InHeader: Story = {
   render: (args) => (
-    <div className="flex items-center gap-2 p-4 border-b bg-background">
+    <div className="bg-background flex items-center gap-2 border-b p-4">
       <div className="flex-1">
         <p className="font-semibold">App Header</p>
       </div>
-      <LanguageSwitcher {...args} showLabel={true} />
+      <LanguageSwitcher
+        {...args}
+        showLabel={true}
+      />
     </div>
   ),
 };
@@ -120,8 +123,11 @@ export const MobileLayout: Story = {
   },
   render: (args) => (
     <div className="space-y-4">
-      <p className="text-sm text-muted-foreground">Mobile-sized viewport</p>
-      <LanguageSwitcher {...args} showLabel={true} />
+      <p className="text-muted-foreground text-sm">Mobile-sized viewport</p>
+      <LanguageSwitcher
+        {...args}
+        showLabel={true}
+      />
     </div>
   ),
 };
@@ -137,8 +143,11 @@ export const DesktopLayout: Story = {
   },
   render: (args) => (
     <div className="space-y-4">
-      <p className="text-sm text-muted-foreground">Desktop-sized viewport</p>
-      <LanguageSwitcher {...args} showLabel={true} />
+      <p className="text-muted-foreground text-sm">Desktop-sized viewport</p>
+      <LanguageSwitcher
+        {...args}
+        showLabel={true}
+      />
     </div>
   ),
 };
@@ -149,11 +158,20 @@ export const DesktopLayout: Story = {
 export const Multiple: Story = {
   render: (args) => (
     <div className="space-y-4">
-      <p className="text-sm text-muted-foreground">Multiple language switchers</p>
+      <p className="text-muted-foreground text-sm">Multiple language switchers</p>
       <div className="flex gap-2">
-        <LanguageSwitcher {...args} showLabel={false} />
-        <LanguageSwitcher {...args} showLabel={false} />
-        <LanguageSwitcher {...args} showLabel={true} />
+        <LanguageSwitcher
+          {...args}
+          showLabel={false}
+        />
+        <LanguageSwitcher
+          {...args}
+          showLabel={false}
+        />
+        <LanguageSwitcher
+          {...args}
+          showLabel={true}
+        />
       </div>
     </div>
   ),
@@ -168,8 +186,11 @@ export const DarkMode: Story = {
   },
   render: (args) => (
     <div className="dark">
-      <div className="p-4 bg-slate-950 rounded">
-        <LanguageSwitcher {...args} showLabel={true} />
+      <div className="rounded bg-slate-950 p-4">
+        <LanguageSwitcher
+          {...args}
+          showLabel={true}
+        />
       </div>
     </div>
   ),

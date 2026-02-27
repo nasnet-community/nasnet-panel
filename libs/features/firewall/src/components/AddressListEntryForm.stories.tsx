@@ -49,7 +49,7 @@ const meta: Meta<typeof AddressListEntryForm> = {
   },
   decorators: [
     (Story) => (
-      <div className="w-[480px] p-6 border rounded-lg bg-background">
+      <div className="bg-background w-[480px] rounded-lg border p-6">
         <Story />
       </div>
     ),

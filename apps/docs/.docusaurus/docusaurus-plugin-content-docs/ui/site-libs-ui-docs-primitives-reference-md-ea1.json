@@ -1,7 +1,7 @@
 {
   "id": "primitives-reference",
   "title": "Primitives Reference (Layer 1)",
-  "description": "Layer 1 is the foundation of the NasNetConnect component architecture. These are the lowest-level building blocks",
+  "description": "Layer 1 is the foundation of the NasNetConnect component architecture. These are the lowest-level",
   "source": "@site/../../libs/ui/docs/primitives-reference.md",
   "sourceDirName": ".",
   "slug": "/primitives-reference",

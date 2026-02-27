@@ -14,30 +14,30 @@ component catalogs. This one stitches everything together so you can read one pa
 _exactly_ what executes when a user resizes a browser, applies a configuration, drags a firewall
 rule, or pastes an IP list.
 
-**Prerequisites:** Read [intro.md](./intro.md) and [quick-start.md](./quick-start.md) first.
-The three-layer dependency hierarchy is assumed knowledge throughout.
+**Prerequisites:** Read [intro.md](./intro.md) and [quick-start.md](./quick-start.md) first. The
+three-layer dependency hierarchy is assumed knowledge throughout.
 
 ---
 
 ## Package Abbreviations Used in Annotations
 
-| Annotation | Package | Import alias |
-|------------|---------|--------------|
-| `[layouts]` | `libs/ui/layouts` | `@nasnet/ui/layouts` |
-| `[patterns]` | `libs/ui/patterns` | `@nasnet/ui/patterns` |
+| Annotation     | Package              | Import alias            |
+| -------------- | -------------------- | ----------------------- |
+| `[layouts]`    | `libs/ui/layouts`    | `@nasnet/ui/layouts`    |
+| `[patterns]`   | `libs/ui/patterns`   | `@nasnet/ui/patterns`   |
 | `[primitives]` | `libs/ui/primitives` | `@nasnet/ui/primitives` |
-| `[tokens]` | `libs/ui/tokens` | `@nasnet/ui/tokens` |
-| `[state]` | `libs/state/stores` | `@nasnet/state/stores` |
-| `[features]` | `libs/features/*` | `@nasnet/features/*` |
-| `[app]` | `apps/connect/src` | `@/` |
+| `[tokens]`     | `libs/ui/tokens`     | `@nasnet/ui/tokens`     |
+| `[state]`      | `libs/state/stores`  | `@nasnet/state/stores`  |
+| `[features]`   | `libs/features/*`    | `@nasnet/features/*`    |
+| `[app]`        | `apps/connect/src`   | `@/`                    |
 
 ---
 
 ## Flow 1: Responsive Page with Platform-Specific Layouts
 
-**Entry point:** `apps/connect/src/app/providers/index.tsx` mounts `ResponsiveShell`.
-**End state:** The correct shell (mobile or desktop) is mounted, the sidebar toggle works via
-keyboard, and pattern components inside the page automatically choose their platform presenters.
+**Entry point:** `apps/connect/src/app/providers/index.tsx` mounts `ResponsiveShell`. **End state:**
+The correct shell (mobile or desktop) is mounted, the sidebar toggle works via keyboard, and pattern
+components inside the page automatically choose their platform presenters.
 
 ### Stage 1 — Viewport observation
 
@@ -58,19 +58,23 @@ export function usePlatform(debounceMs = 100): Platform {
 // Mapping: xs→mobile  sm,md→tablet  lg,xl→desktop
 function breakpointToPlatform(breakpoint: Breakpoint): Platform {
   switch (breakpoint) {
-    case 'xs':  return 'mobile';
+    case 'xs':
+      return 'mobile';
     case 'sm':
-    case 'md':  return 'tablet';
+    case 'md':
+      return 'tablet';
     case 'lg':
-    case 'xl':  return 'desktop';
-    default:    return 'desktop';
+    case 'xl':
+      return 'desktop';
+    default:
+      return 'desktop';
   }
 }
 ```
 
 `useBreakpoint` [layouts] attaches a `ResizeObserver` to `document.documentElement` and returns
-`'xs' | 'sm' | 'md' | 'lg' | 'xl'`. Updates are debounced (default 100 ms). SSR defaults to
-`1024px` (desktop) so there is no server-side layout shift.
+`'xs' | 'sm' | 'md' | 'lg' | 'xl'`. Updates are debounced (default 100 ms). SSR defaults to `1024px`
+(desktop) so there is no server-side layout shift.
 
 ### Stage 2 — Shell selection
 
@@ -78,81 +82,94 @@ function breakpointToPlatform(breakpoint: Breakpoint): Platform {
 
 ```tsx
 // libs/ui/layouts/src/responsive-shell/ResponsiveShell.tsx
-import { AppShell }       from '../app-shell';         // [layouts]
-import { MobileAppShell } from '../mobile-app-shell';  // [layouts]
-import { usePlatform }    from './usePlatform';         // [layouts]
+import { AppShell } from '../app-shell'; // [layouts]
+import { MobileAppShell } from '../mobile-app-shell'; // [layouts]
+import { usePlatform } from './usePlatform'; // [layouts]
 
-export const ResponsiveShell = React.memo(React.forwardRef<HTMLDivElement, ResponsiveShellProps>(
-  ({ children, sidebar, header, mobileHeaderProps, mobileNavigationProps,
-     sidebarCollapsed = false, onSidebarToggle, forcePlatform, className }, ref) => {
+export const ResponsiveShell = React.memo(
+  React.forwardRef<HTMLDivElement, ResponsiveShellProps>(
+    (
+      {
+        children,
+        sidebar,
+        header,
+        mobileHeaderProps,
+        mobileNavigationProps,
+        sidebarCollapsed = false,
+        onSidebarToggle,
+        forcePlatform,
+        className,
+      },
+      ref
+    ) => {
+      const detectedPlatform = usePlatform(); // [layouts]
+      const platform = forcePlatform ?? detectedPlatform;
+      const prefersReducedMotion = useReducedMotion(); // [layouts]
 
-    const detectedPlatform = usePlatform();          // [layouts]
-    const platform = forcePlatform ?? detectedPlatform;
-    const prefersReducedMotion = useReducedMotion(); // [layouts]
+      // Keyboard shortcut: Cmd+B / Ctrl+B to collapse sidebar
+      React.useEffect(() => {
+        if (platform === 'mobile' || !onSidebarToggle) return;
+        const handleKeyDown = (event: KeyboardEvent) => {
+          if ((event.metaKey || event.ctrlKey) && event.key === 'b') {
+            event.preventDefault();
+            onSidebarToggle(); // [state] — calls useSidebarStore.toggle()
+          }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+      }, [platform, onSidebarToggle]);
 
-    // Keyboard shortcut: Cmd+B / Ctrl+B to collapse sidebar
-    React.useEffect(() => {
-      if (platform === 'mobile' || !onSidebarToggle) return;
-      const handleKeyDown = (event: KeyboardEvent) => {
-        if ((event.metaKey || event.ctrlKey) && event.key === 'b') {
-          event.preventDefault();
-          onSidebarToggle();  // [state] — calls useSidebarStore.toggle()
-        }
-      };
-      window.addEventListener('keydown', handleKeyDown);
-      return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [platform, onSidebarToggle]);
+      if (platform === 'mobile') {
+        return (
+          <MobileAppShell // [layouts] — bottom navigation + stacked layout
+            ref={ref}
+            header={mobileHeaderProps}
+            navigation={mobileNavigationProps}
+          >
+            {children}
+          </MobileAppShell>
+        );
+      }
 
-    if (platform === 'mobile') {
+      // tablet or desktop → AppShell with collapsible sidebar
+      const effectiveCollapsed = platform === 'tablet' ? false : sidebarCollapsed;
       return (
-        <MobileAppShell    // [layouts] — bottom navigation + stacked layout
-          ref={ref}
-          header={mobileHeaderProps}
-          navigation={mobileNavigationProps}
-        >
-          {children}
-        </MobileAppShell>
+        <div className="bg-background min-h-screen">
+          <AppShell // [layouts] — fixed sidebar + header layout
+            ref={ref}
+            header={header}
+            sidebar={enhancedSidebar}
+            sidebarCollapsed={effectiveCollapsed}
+            className={className}
+          >
+            {children}
+          </AppShell>
+        </div>
       );
     }
-
-    // tablet or desktop → AppShell with collapsible sidebar
-    const effectiveCollapsed = platform === 'tablet' ? false : sidebarCollapsed;
-    return (
-      <div className="bg-background min-h-screen">
-        <AppShell       // [layouts] — fixed sidebar + header layout
-          ref={ref}
-          header={header}
-          sidebar={enhancedSidebar}
-          sidebarCollapsed={effectiveCollapsed}
-          className={className}
-        >
-          {children}
-        </AppShell>
-      </div>
-    );
-  }
-));
+  )
+);
 ```
 
 ### Stage 3 — Sidebar state (app layer wires Zustand)
 
-`ResponsiveShell` cannot import from `@nasnet/state/stores` (library dependency rule). The app
-layer injects sidebar state via props:
+`ResponsiveShell` cannot import from `@nasnet/state/stores` (library dependency rule). The app layer
+injects sidebar state via props:
 
 ```tsx
 // apps/connect/src/app/providers/index.tsx
-import { ResponsiveShell } from '@nasnet/ui/layouts';         // [layouts]
-import { useSidebarStore }  from '@nasnet/state/stores';       // [state]
+import { ResponsiveShell } from '@nasnet/ui/layouts'; // [layouts]
+import { useSidebarStore } from '@nasnet/state/stores'; // [state]
 
 function AppProviders({ children }: { children: React.ReactNode }) {
-  const { desktopCollapsed, toggle } = useSidebarStore();      // [state] — Zustand store
+  const { desktopCollapsed, toggle } = useSidebarStore(); // [state] — Zustand store
 
   return (
-    <ResponsiveShell                                           // [layouts]
+    <ResponsiveShell // [layouts]
       sidebar={<NavigationSidebar />}
       header={<AppHeader />}
-      sidebarCollapsed={desktopCollapsed}  // injected from [state]
-      onSidebarToggle={toggle}             // injected from [state]
+      sidebarCollapsed={desktopCollapsed} // injected from [state]
+      onSidebarToggle={toggle} // injected from [state]
       mobileNavigationProps={{ activeId: 'home', items: NAV_ITEMS }}
     >
       {children}
@@ -211,9 +228,8 @@ ensures all components observe the same viewport width on a given frame.
 
 ## Flow 2: Configuration Apply Pipeline
 
-**Entry point:** User clicks "Apply" on a configuration form.
-**End state:** Changes are applied to the router, a 10-second undo window is shown, and the
-ChangeSet is confirmed or rolled back.
+**Entry point:** User clicks "Apply" on a configuration form. **End state:** Changes are applied to
+the router, a 10-second undo window is shown, and the ChangeSet is confirmed or rolled back.
 
 ### Stage 1 — ValidationProgress gates the apply
 
@@ -221,10 +237,7 @@ Before `Apply` becomes clickable, `ValidationProgress` [patterns] must reach `is
 
 ```tsx
 // Feature-layer usage (libs/features/*/src/components/ConfigApplyPanel.tsx)
-import {
-  ValidationProgress,
-  useValidationProgress,
-} from '@nasnet/ui/patterns';                    // [patterns]
+import { ValidationProgress, useValidationProgress } from '@nasnet/ui/patterns'; // [patterns]
 
 function ConfigApplyPanel({ changeset }) {
   const {
@@ -232,11 +245,11 @@ function ConfigApplyPanel({ changeset }) {
     currentStageIndex,
     isComplete,
     isValid,
-    startStage,       // call to move a stage to 'running'
-    completeStage,    // call with ValidationStageResult to mark passed/failed
-    finish,           // call when all 7 stages are done
+    startStage, // call to move a stage to 'running'
+    completeStage, // call with ValidationStageResult to mark passed/failed
+    finish, // call when all 7 stages are done
     reset,
-  } = useValidationProgress();               // [patterns] — hook manages stage state
+  } = useValidationProgress(); // [patterns] — hook manages stage state
 
   // Drive the pipeline from GraphQL subscription events
   useEffect(() => {
@@ -245,12 +258,12 @@ function ConfigApplyPanel({ changeset }) {
   }, [changeset]);
 
   return (
-    <ValidationProgress   // [patterns]
+    <ValidationProgress // [patterns]
       stages={stages}
       currentStage={currentStageIndex}
       isComplete={isComplete}
       isValid={isValid}
-      autoExpandFailed    // auto-expands failed stages
+      autoExpandFailed // auto-expands failed stages
     />
   );
 }
@@ -277,25 +290,25 @@ by invoking `startStage` and `completeStage`.
 
 ### Stage 2 — Progress bar animation
 
-`ValidationProgress` [patterns] uses Framer Motion for the animated progress bar. It consumes
-token values directly from `@nasnet/ui/tokens`:
+`ValidationProgress` [patterns] uses Framer Motion for the animated progress bar. It consumes token
+values directly from `@nasnet/ui/tokens`:
 
 ```tsx
 // libs/ui/patterns/src/validation-progress/ValidationProgress.tsx
-import { motion } from 'framer-motion';  // from @nasnet/ui/patterns/motion re-export
+import { motion } from 'framer-motion'; // from @nasnet/ui/patterns/motion re-export
 
 // Animated progress bar
 <motion.div
   className={cn(
     'h-full rounded-full transition-colors',
-    summary.failed > 0 ? 'bg-error' :
-    isComplete        ? 'bg-success' :
-                        'bg-primary'    // Tailwind → CSS var --color-primary (Tier 2 token)
+    summary.failed > 0 ? 'bg-error'
+    : isComplete ? 'bg-success'
+    : 'bg-primary' // Tailwind → CSS var --color-primary (Tier 2 token)
   )}
   initial={{ width: 0 }}
   animate={{ width: `${((passed + failed + skipped) / stages.length) * 100}%` }}
-  transition={{ duration: 0.3, ease: 'easeOut' }}  // inline — short interactions don't need token
-/>
+  transition={{ duration: 0.3, ease: 'easeOut' }} // inline — short interactions don't need token
+/>;
 ```
 
 ### Stage 3 — Conflict display
@@ -304,22 +317,22 @@ When `cross-resource` stage fails, `ConflictList` [patterns] renders the conflic
 
 ```tsx
 import { ConflictList, ConflictCard } from '@nasnet/ui/patterns'; // [patterns]
-import type { ResourceConflict }       from '@nasnet/ui/patterns'; // [patterns]
+import type { ResourceConflict } from '@nasnet/ui/patterns'; // [patterns]
 
 // Feature-layer conflict display
 <ConflictList
   conflicts={validationResult.conflicts}
   onResolve={(conflict, resolution) => applyResolution(conflict, resolution)}
-/>
+/>;
 ```
 
-`ConflictCard` [patterns] is built on `Card` [primitives] and uses `StatusBadge` [patterns] to
-show severity (`warning` / `error`).
+`ConflictCard` [patterns] is built on `Card` [primitives] and uses `StatusBadge` [patterns] to show
+severity (`warning` / `error`).
 
 ### Stage 4 — Apply button with loading state
 
 ```tsx
-import { Button } from '@nasnet/ui/primitives';   // [primitives]
+import { Button } from '@nasnet/ui/primitives'; // [primitives]
 
 <Button
   variant="default"
@@ -329,7 +342,7 @@ import { Button } from '@nasnet/ui/primitives';   // [primitives]
   onClick={handleApply}
 >
   Apply Configuration
-</Button>
+</Button>;
 ```
 
 `Button` [primitives] sets `aria-busy="true"` and renders a `Spinner` [primitives] during the
@@ -363,28 +376,31 @@ Button "Apply"                    [primitives]
 
 ## Flow 3: Sortable Firewall Rules
 
-**Entry point:** `FirewallRuleList` [patterns] is rendered in the firewall page.
-**End state:** User drags a rule to a new position (or uses keyboard/mobile buttons); the new order
-is persisted, an animated reorder plays, and screen readers hear an announcement.
+**Entry point:** `FirewallRuleList` [patterns] is rendered in the firewall page. **End state:** User
+drags a rule to a new position (or uses keyboard/mobile buttons); the new order is persisted, an
+animated reorder plays, and screen readers hear an announcement.
 
 ### Stage 1 — Entry component delegates to platform presenter
 
 ```tsx
 // libs/ui/patterns/src/sortable/domain/FirewallRuleList.tsx
-import { usePlatform }        from '@nasnet/ui/layouts';   // [layouts]
-import { cn, Badge }          from '@nasnet/ui/primitives'; // [primitives]
+import { usePlatform } from '@nasnet/ui/layouts'; // [layouts]
+import { cn, Badge } from '@nasnet/ui/primitives'; // [primitives]
 import { SortableListDesktop } from '../components/SortableListDesktop';
-import { SortableListMobile }  from '../components/SortableListMobile';
+import { SortableListMobile } from '../components/SortableListMobile';
 import type { FirewallRule, SortableItemData, ReorderEvent } from '../types';
 
 export const FirewallRuleList: React.FC<FirewallRuleListProps> = ({
-  rules, onReorder, onDelete, onEdit,
+  rules,
+  onReorder,
+  onDelete,
+  onEdit,
 }) => {
   const platform = usePlatform?.() ?? 'desktop'; // [layouts]
 
   if (platform === 'desktop') {
     return (
-      <SortableListDesktop<FirewallRule>   // drag-and-drop variant
+      <SortableListDesktop<FirewallRule> // drag-and-drop variant
         items={rules}
         onReorder={onReorder}
         renderItem={renderItem}
@@ -397,7 +413,7 @@ export const FirewallRuleList: React.FC<FirewallRuleListProps> = ({
   }
 
   return (
-    <SortableListMobile<FirewallRule>      // up/down button variant (no drag)
+    <SortableListMobile<FirewallRule> // up/down button variant (no drag)
       items={rules}
       onReorder={onReorder}
       renderItem={renderItem}
@@ -533,12 +549,12 @@ export const listItem: Variants = {
   animate: {
     opacity: 1,
     y: 0,
-    transition: moveTransition,  // transitions.move from [tokens]
+    transition: moveTransition, // transitions.move from [tokens]
   },
   exit: {
     opacity: 0,
     y: -10,
-    transition: exitTransition,  // transitions.exit from [tokens]
+    transition: exitTransition, // transitions.exit from [tokens]
   },
 };
 ```
@@ -575,8 +591,8 @@ position 3 of 12. Dropped rule 3."_
       └── useSortableList.moveUp/Down [patterns]
 ```
 
-**Packages involved:** `patterns`, `primitives`, `layouts` (via `usePlatform`), `tokens`
-(animation values).
+**Packages involved:** `patterns`, `primitives`, `layouts` (via `usePlatform`), `tokens` (animation
+values).
 
 **See also:** [shared-hooks.md](./shared-hooks.md) for `useSortableList` return type,
 [tokens-and-animation.md](./tokens-and-animation.md) for animation token values.
@@ -585,9 +601,9 @@ position 3 of 12. Dropped rule 3."_
 
 ## Flow 4: Token Build Pipeline
 
-**Entry point:** Developer defines a new token in `libs/ui/tokens/src/tokens.json`.
-**End state:** A Tailwind utility class `bg-primary` on a component renders as `#EFC729` (Golden
-Amber) in light mode and a different value in dark mode.
+**Entry point:** Developer defines a new token in `libs/ui/tokens/src/tokens.json`. **End state:** A
+Tailwind utility class `bg-primary` on a component renders as `#EFC729` (Golden Amber) in light mode
+and a different value in dark mode.
 
 ### Stage 1 — Source definition in tokens.json
 
@@ -607,8 +623,8 @@ Amber) in light mode and a different value in dark mode.
     "color": {
       "primary": {
         "DEFAULT": "{primitive.color.brand.amber.500}",
-        "hover":   "{primitive.color.brand.amber.600}",
-        "active":  "{primitive.color.brand.amber.700}",
+        "hover": "{primitive.color.brand.amber.600}",
+        "active": "{primitive.color.brand.amber.700}",
         "foreground": "{primitive.color.neutral.slate.900}"
       }
     }
@@ -637,7 +653,7 @@ async function buildTokens() {
 
   const lightTokens = {
     ...resolveReferences(tokens.primitive, tokens),
-    semantic:  resolveReferences(tokens.semantic, tokens),
+    semantic: resolveReferences(tokens.semantic, tokens),
     component: resolveReferences(tokens.component, tokens),
   };
 
@@ -645,7 +661,10 @@ async function buildTokens() {
   const darkOverrides = resolveReferences(tokens.dark, tokens);
   const darkTokens = {
     ...lightTokens,
-    semantic: { ...lightTokens.semantic, color: { ...lightTokens.semantic?.color, ...darkOverrides.semantic?.color } },
+    semantic: {
+      ...lightTokens.semantic,
+      color: { ...lightTokens.semantic?.color, ...darkOverrides.semantic?.color },
+    },
   };
 
   // 3. Emit dist/variables.css with :root { --color-primary: #EFC729; }
@@ -657,14 +676,14 @@ Output file `dist/variables.css` contains:
 
 ```css
 :root {
-  --color-primary: #EFC729;
+  --color-primary: #efc729;
   --color-primary-hover: #d4aa1a;
   --color-primary-foreground: #0f172a;
   /* ... ~200 more variables */
 }
 
 .dark {
-  --color-primary: #EFC729;   /* same in this case — amber stays amber in dark mode */
+  --color-primary: #efc729; /* same in this case — amber stays amber in dark mode */
   --color-primary-foreground: #f8fafc;
   /* ... dark overrides */
 }
@@ -678,8 +697,8 @@ Output file `dist/variables.css` contains:
 // libs/ui/tokens/src/animation.ts
 export const durations = { fast: 100, normal: 200, slow: 300, slower: 500 } as const;
 export const transitions = {
-  enter:     { duration: durations.normal / 1000, ease: easings.enter } as Transition,
-  pageEnter: { duration: durations.slow   / 1000, ease: easings.enter } as Transition,
+  enter: { duration: durations.normal / 1000, ease: easings.enter } as Transition,
+  pageEnter: { duration: durations.slow / 1000, ease: easings.enter } as Transition,
   // ...
 } as const;
 ```
@@ -725,7 +744,7 @@ theme: {
 // Any component
 import { Button } from '@nasnet/ui/primitives'; // [primitives]
 
-<Button variant="default">Apply</Button>
+<Button variant="default">Apply</Button>;
 
 // Button renders with class: bg-primary
 // Tailwind expands: bg-primary → background-color: var(--color-primary)
@@ -751,15 +770,15 @@ bg-primary                   → background-color: var(--color-primary)
 **Packages involved:** `tokens` (source, build, CSS output, TypeScript exports), `primitives`
 (consumes CSS vars), `patterns` (consumes TypeScript animation tokens).
 
-**See also:** [tokens-and-animation.md](./tokens-and-animation.md) for the full three-tier
-token reference.
+**See also:** [tokens-and-animation.md](./tokens-and-animation.md) for the full three-tier token
+reference.
 
 ---
 
 ## Flow 5: Animation Pipeline
 
-**Entry point:** User navigates to a new route; `PageTransition` wraps the route content.
-**End state:** The old page fades out (225 ms ease-in), the new page fades in (300 ms ease-out),
+**Entry point:** User navigates to a new route; `PageTransition` wraps the route content. **End
+state:** The old page fades out (225 ms ease-in), the new page fades in (300 ms ease-out),
 reduced-motion users see an instant swap.
 
 ### Stage 1 — Token values set the timing budget
@@ -767,14 +786,14 @@ reduced-motion users see an instant swap.
 ```ts
 // libs/ui/tokens/src/animation.ts  [tokens]
 export const durations = { slow: 300 } as const;
-export const easings   = {
-  enter: [0, 0, 0.2, 1] as const,  // ease-out: fast start, slow end
-  exit:  [0.4, 0, 1, 1] as const,  // ease-in: slow start, fast end
+export const easings = {
+  enter: [0, 0, 0.2, 1] as const, // ease-out: fast start, slow end
+  exit: [0.4, 0, 1, 1] as const, // ease-in: slow start, fast end
 } as const;
 
 export const transitions = {
   pageEnter: { duration: 300 / 1000, ease: easings.enter } as Transition, // 300ms ease-out
-  pageExit:  { duration: 225 / 1000, ease: easings.exit  } as Transition, // 225ms ease-in
+  pageExit: { duration: 225 / 1000, ease: easings.exit } as Transition, // 225ms ease-in
 } as const;
 ```
 
@@ -785,8 +804,8 @@ export function getAnimationTokens(platform: Platform): AnimationTokens {
   const mobileFactor = platform === 'mobile' ? 0.75 : 1;
   return {
     pageTransition: {
-      enter: durations.slow * mobileFactor,   // desktop: 300ms, mobile: 225ms
-      exit:  durations.slow * mobileFactor * 0.75, // desktop: 225ms, mobile: 169ms
+      enter: durations.slow * mobileFactor, // desktop: 300ms, mobile: 225ms
+      exit: durations.slow * mobileFactor * 0.75, // desktop: 225ms, mobile: 169ms
     },
     // ...
   };
@@ -797,18 +816,18 @@ export function getAnimationTokens(platform: Platform): AnimationTokens {
 
 ```ts
 // libs/ui/patterns/src/motion/presets.ts  [patterns]
-import { transitions } from '@nasnet/ui/tokens';  // [tokens]
+import { transitions } from '@nasnet/ui/tokens'; // [tokens]
 
 export const pageFade: Variants = {
   initial: { opacity: 0 },
-  animate: { opacity: 1,  transition: transitions.pageEnter },  // 300ms ease-out
-  exit:    { opacity: 0,  transition: transitions.pageExit  },  // 225ms ease-in
+  animate: { opacity: 1, transition: transitions.pageEnter }, // 300ms ease-out
+  exit: { opacity: 0, transition: transitions.pageExit }, // 225ms ease-in
 };
 
 export const pageSlideUp: Variants = {
   initial: { opacity: 0, y: 20 },
   animate: { opacity: 1, y: 0, transition: transitions.pageEnter },
-  exit:    { opacity: 0, y: -20, transition: transitions.pageExit },
+  exit: { opacity: 0, y: -20, transition: transitions.pageExit },
 };
 ```
 
@@ -820,7 +839,9 @@ export const pageSlideUp: Variants = {
 export function AnimationProvider({ children }: AnimationProviderProps) {
   return (
     <AnimationContext.Provider value={contextValue}>
-      <MotionConfig reducedMotion="user"> {/* respects OS preference */}
+      <MotionConfig reducedMotion="user">
+        {' '}
+        {/* respects OS preference */}
         {children}
       </MotionConfig>
     </AnimationContext.Provider>
@@ -836,34 +857,35 @@ disabled for users with that preference enabled.
 
 ```tsx
 // apps/connect/src/routes/__root.tsx (or per-route wrapper)
-import {
-  PageTransition,
-  AnimatePresence,
-  pageFade,
-} from '@nasnet/ui/patterns';          // [patterns] — motion re-exports
+import { PageTransition, AnimatePresence, pageFade } from '@nasnet/ui/patterns'; // [patterns] — motion re-exports
 
 // In the router outlet:
 <AnimatePresence mode="wait">
-  <PageTransition key={location.pathname} variant="fade">
+  <PageTransition
+    key={location.pathname}
+    variant="fade"
+  >
     <Outlet />
   </PageTransition>
-</AnimatePresence>
+</AnimatePresence>;
 ```
 
-`PageTransition` [patterns] selects a variant (`pageFade` or `pageSlideUp`) from the
-`presets.ts` [patterns] catalog and applies `usePageTransition` hook logic:
+`PageTransition` [patterns] selects a variant (`pageFade` or `pageSlideUp`) from the `presets.ts`
+[patterns] catalog and applies `usePageTransition` hook logic:
 
 ```tsx
 // libs/ui/patterns/src/motion/PageTransition.tsx [patterns]
-import { motion, AnimatePresence }  from 'framer-motion';
-import { pageFade, pageSlideUp }   from './presets';   // [patterns]
-import { useAnimation }             from './AnimationProvider';
+import { motion, AnimatePresence } from 'framer-motion';
+import { pageFade, pageSlideUp } from './presets'; // [patterns]
+import { useAnimation } from './AnimationProvider';
 
 export function PageTransition({ children, variant = 'fade', key }: PageTransitionProps) {
   const { prefersReducedMotion } = useAnimation(); // [patterns]
-  const variants = prefersReducedMotion
-    ? reducedMotionFade   // [patterns] — opacity only, 100ms
-    : variant === 'slide' ? pageSlideUp : pageFade;  // [patterns]
+  const variants =
+    prefersReducedMotion ?
+      reducedMotionFade // [patterns] — opacity only, 100ms
+    : variant === 'slide' ? pageSlideUp
+    : pageFade; // [patterns]
 
   return (
     <motion.div
@@ -928,18 +950,15 @@ reference, [primitives-reference.md](./primitives-reference.md) for `useReducedM
 
 ## Flow 6: CategoryAccent Contextual Theming
 
-**Entry point:** A feature page wraps its content in `CategoryAccentProvider` [primitives].
-**End state:** Every component inside that subtree picks up an orange (`#F97316`) accent for the
-firewall category without any explicit color prop being passed.
+**Entry point:** A feature page wraps its content in `CategoryAccentProvider` [primitives]. **End
+state:** Every component inside that subtree picks up an orange (`#F97316`) accent for the firewall
+category without any explicit color prop being passed.
 
 ### Stage 1 — Provider injects context
 
 ```tsx
 // A feature page — libs/features/firewall/src/pages/FirewallPage.tsx
-import {
-  CategoryAccentProvider,
-  type Category,
-} from '@nasnet/ui/primitives';                  // [primitives]
+import { CategoryAccentProvider, type Category } from '@nasnet/ui/primitives'; // [primitives]
 
 export function FirewallPage() {
   return (
@@ -958,10 +977,12 @@ Inside `CategoryAccentProvider` [primitives]:
 export function CategoryAccentProvider({ children, defaultCategory }: CategoryAccentProviderProps) {
   const [category, setCategory] = useState<Category | null>(defaultCategory ?? null);
 
-  const meta = useMemo(() => category ? CATEGORY_META[category] : null, [category]);
+  const meta = useMemo(() => (category ? CATEGORY_META[category] : null), [category]);
 
   return (
-    <CategoryAccentContext.Provider value={{ category, meta, setCategory, getCategoryMeta, categories: CATEGORIES }}>
+    <CategoryAccentContext.Provider
+      value={{ category, meta, setCategory, getCategoryMeta, categories: CATEGORIES }}
+    >
       {children}
     </CategoryAccentContext.Provider>
   );
@@ -976,7 +997,7 @@ export const CATEGORY_META: Record<Category, CategoryMeta> = {
   firewall: {
     id: 'firewall',
     label: 'Firewall',
-    cssVar: '--semantic-color-category-firewall',  // maps to #F97316 (orange)
+    cssVar: '--semantic-color-category-firewall', // maps to #F97316 (orange)
     bgClass: 'bg-category-firewall',
     textClass: 'text-category-firewall',
     borderClass: 'border-category-firewall',
@@ -989,24 +1010,21 @@ export const CATEGORY_META: Record<Category, CategoryMeta> = {
 
 ```tsx
 // libs/features/firewall/src/components/FirewallStatusHero.tsx
-import {
-  useCategoryAccent,
-  CategoryAccentProvider,
-} from '@nasnet/ui/primitives';               // [primitives]
-import { cn } from '@nasnet/ui/primitives';   // [primitives]
+import { useCategoryAccent, CategoryAccentProvider } from '@nasnet/ui/primitives'; // [primitives]
+import { cn } from '@nasnet/ui/primitives'; // [primitives]
 import { Card } from '@nasnet/ui/primitives'; // [primitives]
 
 export function FirewallStatusHero() {
-  const { meta } = useCategoryAccent();       // [primitives] — throws if no provider above
+  const { meta } = useCategoryAccent(); // [primitives] — throws if no provider above
 
   return (
-    <Card className={cn(
-      'border-l-4',
-      meta?.borderClass   // 'border-category-firewall' → CSS var → #F97316
-    )}>
-      <h2 className={cn(meta?.textClass)}>    // 'text-category-firewall'
-        Firewall
-      </h2>
+    <Card
+      className={cn(
+        'border-l-4',
+        meta?.borderClass // 'border-category-firewall' → CSS var → #F97316
+      )}
+    >
+      <h2 className={cn(meta?.textClass)}> // 'text-category-firewall' Firewall</h2>
     </Card>
   );
 }
@@ -1019,7 +1037,7 @@ The CSS variable `--semantic-color-category-firewall` is defined in `dist/variab
 
 ```css
 :root {
-  --semantic-color-category-firewall: #F97316;  /* orange */
+  --semantic-color-category-firewall: #f97316; /* orange */
 }
 ```
 
@@ -1040,17 +1058,19 @@ multiple category sections):
 function MultiCategoryPage() {
   return (
     <CategoryAccentProvider defaultCategory="firewall">
-      <FirewallSection />    {/* orange */}
+      <FirewallSection /> {/* orange */}
       <CategorySwitcher to="vpn">
-        <VPNSection />       {/* green after switch */}
+        <VPNSection /> {/* green after switch */}
       </CategorySwitcher>
     </CategoryAccentProvider>
   );
 }
 
 function CategorySwitcher({ to, children }: { to: Category; children: ReactNode }) {
-  const { setCategory } = useCategoryAccent();  // [primitives]
-  useEffect(() => { setCategory(to); }, [to]);
+  const { setCategory } = useCategoryAccent(); // [primitives]
+  useEffect(() => {
+    setCategory(to);
+  }, [to]);
   return <>{children}</>;
 }
 ```
@@ -1072,18 +1092,17 @@ Orange accent color                  visible in sidebar icon, border, text, badg
 **Packages involved:** `primitives` (provider, hook, CATEGORY_META), `tokens` (CSS variables for
 category colors).
 
-**See also:** [primitives-reference.md](./primitives-reference.md) for
-`CategoryAccentProvider` props, [tokens-and-animation.md](./tokens-and-animation.md) for the
-14 category color values.
+**See also:** [primitives-reference.md](./primitives-reference.md) for `CategoryAccentProvider`
+props, [tokens-and-animation.md](./tokens-and-animation.md) for the 14 category color values.
 
 ---
 
 ## Flow 7: Help System with Simple/Technical Mode
 
-**Entry point:** `FieldHelp` [patterns] is placed next to a form label.
-**End state:** On desktop a popover opens showing context-sensitive help in simple or technical
-language. On mobile a bottom sheet opens instead. Switching the global mode toggle updates all
-`FieldHelp` instances simultaneously.
+**Entry point:** `FieldHelp` [patterns] is placed next to a form label. **End state:** On desktop a
+popover opens showing context-sensitive help in simple or technical language. On mobile a bottom
+sheet opens instead. Switching the global mode toggle updates all `FieldHelp` instances
+simultaneously.
 
 ### Stage 1 — Global mode state lives in Zustand
 
@@ -1100,15 +1119,15 @@ language. On mobile a bottom sheet opens instead. Switching the global mode togg
 import { useHelpModeStore, type HelpMode } from '@nasnet/state/stores'; // [state]
 
 export function useHelpMode(): UseHelpModeReturn {
-  const mode       = useHelpModeStore((state) => state.mode);
+  const mode = useHelpModeStore((state) => state.mode);
   const toggleMode = useHelpModeStore((state) => state.toggleMode);
-  const setMode    = useHelpModeStore((state) => state.setMode);
+  const setMode = useHelpModeStore((state) => state.setMode);
 
   return {
     mode,
     toggleMode,
     setMode,
-    isSimple:    mode === 'simple',
+    isSimple: mode === 'simple',
     isTechnical: mode === 'technical',
   };
 }
@@ -1118,15 +1137,15 @@ export function useHelpMode(): UseHelpModeReturn {
 
 ```ts
 // libs/ui/patterns/src/help/use-field-help.ts  [patterns]
-import { useTranslation }  from '@nasnet/core/i18n';
-import { useHelpMode }     from './use-help-mode';  // [patterns]
+import { useTranslation } from '@nasnet/core/i18n';
+import { useHelpMode } from './use-help-mode'; // [patterns]
 
 export function useFieldHelp(config: FieldHelpConfig): UseFieldHelpReturn {
   const { field, mode: propMode } = config;
-  const { t, ready }             = useTranslation('network');
-  const { mode: globalMode, toggleMode } = useHelpMode();  // [patterns]
+  const { t, ready } = useTranslation('network');
+  const { mode: globalMode, toggleMode } = useHelpMode(); // [patterns]
 
-  const mode: HelpMode = propMode ?? globalMode;  // prop overrides global
+  const mode: HelpMode = propMode ?? globalMode; // prop overrides global
 
   // Load content from i18n namespace 'network'
   // Key structure: help.<field>.title.<mode>, help.<field>.description.<mode>
@@ -1141,11 +1160,14 @@ export function useFieldHelp(config: FieldHelpConfig): UseFieldHelpReturn {
         defaultValue: t(`help.${field}.description.simple`, { defaultValue: '' }),
       }),
       examples: t(`help.${field}.examples`, { returnObjects: true, defaultValue: [] }),
-      link:     t(`help.${field}.link`, { defaultValue: '' }),
+      link: t(`help.${field}.link`, { defaultValue: '' }),
     };
   }, [t, field, mode, ready]);
 
-  const ariaLabel = useMemo(() => `Help for ${content.title || field} field`, [content.title, field]);
+  const ariaLabel = useMemo(
+    () => `Help for ${content.title || field} field`,
+    [content.title, field]
+  );
   const [isOpen, setIsOpen] = useState(false);
   const toggle = useCallback(() => setIsOpen((prev) => !prev), []);
 
@@ -1157,19 +1179,29 @@ export function useFieldHelp(config: FieldHelpConfig): UseFieldHelpReturn {
 
 ```tsx
 // libs/ui/patterns/src/help/field-help.tsx  [patterns]
-import { usePlatform }     from '@nasnet/ui/layouts';  // [layouts]
+import { usePlatform } from '@nasnet/ui/layouts'; // [layouts]
 import { FieldHelpDesktop } from './field-help-desktop';
-import { FieldHelpMobile }  from './field-help-mobile';
-import { useFieldHelp }     from './use-field-help';   // [patterns]
+import { FieldHelpMobile } from './field-help-mobile';
+import { useFieldHelp } from './use-field-help'; // [patterns]
 
 export const FieldHelp = React.memo(function FieldHelp({ field, mode, placement }: FieldHelpProps) {
-  const platform  = usePlatform();                     // [layouts]
+  const platform = usePlatform(); // [layouts]
   const helpState = useFieldHelp({ field, mode, placement }); // [patterns]
 
   if (platform === 'mobile') {
-    return <FieldHelpMobile  field={field} helpState={helpState} />; // bottom sheet
+    return (
+      <FieldHelpMobile
+        field={field}
+        helpState={helpState}
+      />
+    ); // bottom sheet
   }
-  return <FieldHelpDesktop   field={field} helpState={helpState} />; // popover
+  return (
+    <FieldHelpDesktop
+      field={field}
+      helpState={helpState}
+    />
+  ); // popover
 });
 ```
 
@@ -1180,24 +1212,39 @@ export const FieldHelp = React.memo(function FieldHelp({ field, mode, placement 
 ```tsx
 // libs/ui/patterns/src/help/field-help-desktop.tsx  [patterns]
 import { Popover, PopoverTrigger, PopoverContent } from '@nasnet/ui/primitives'; // [primitives]
-import { HelpIcon }   from './help-icon';   // [patterns]
+import { HelpIcon } from './help-icon'; // [patterns]
 import { HelpPopover } from './help-popover'; // [patterns]
 
 export function FieldHelpDesktop({ field, helpState }: FieldHelpDesktopProps) {
   const { content, isOpen, setIsOpen, ariaLabel } = helpState;
 
   return (
-    <Popover open={isOpen} onOpenChange={setIsOpen}>
+    <Popover
+      open={isOpen}
+      onOpenChange={setIsOpen}
+    >
       <PopoverTrigger asChild>
-        <HelpIcon field={field} aria-label={ariaLabel} onClick={helpState.toggle} />
+        <HelpIcon
+          field={field}
+          aria-label={ariaLabel}
+          onClick={helpState.toggle}
+        />
       </PopoverTrigger>
-      <PopoverContent side="right" className="w-72 p-4">
-        <h4 className="font-medium text-sm">{content.title}</h4>
-        <p className="text-xs text-muted-foreground mt-1">{content.description}</p>
+      <PopoverContent
+        side="right"
+        className="w-72 p-4"
+      >
+        <h4 className="text-sm font-medium">{content.title}</h4>
+        <p className="text-muted-foreground mt-1 text-xs">{content.description}</p>
         {content.examples?.length > 0 && (
           <ul className="mt-2 space-y-1">
             {content.examples.map((ex) => (
-              <li key={ex} className="font-mono text-xs">{ex}</li>
+              <li
+                key={ex}
+                className="font-mono text-xs"
+              >
+                {ex}
+              </li>
             ))}
           </ul>
         )}
@@ -1219,13 +1266,20 @@ export function FieldHelpMobile({ field, helpState }: FieldHelpMobileProps) {
 
   return (
     <>
-      <HelpIcon field={field} aria-label={ariaLabel} onClick={toggle} />
-      <BottomSheet open={isOpen} onOpenChange={setIsOpen}>
+      <HelpIcon
+        field={field}
+        aria-label={ariaLabel}
+        onClick={toggle}
+      />
+      <BottomSheet
+        open={isOpen}
+        onOpenChange={setIsOpen}
+      >
         <BottomSheetHeader>
           <h3 className="font-semibold">{content.title}</h3>
         </BottomSheetHeader>
         <BottomSheetContent>
-          <p className="text-sm text-muted-foreground">{content.description}</p>
+          <p className="text-muted-foreground text-sm">{content.description}</p>
         </BottomSheetContent>
       </BottomSheet>
     </>
@@ -1237,14 +1291,18 @@ export function FieldHelpMobile({ field, helpState }: FieldHelpMobileProps) {
 
 ```tsx
 // libs/ui/patterns/src/help/help-mode-toggle.tsx  [patterns]
-import { useHelpMode } from './use-help-mode';  // [patterns]
-import { Button }      from '@nasnet/ui/primitives'; // [primitives]
+import { useHelpMode } from './use-help-mode'; // [patterns]
+import { Button } from '@nasnet/ui/primitives'; // [primitives]
 
 export function HelpModeToggle() {
   const { isSimple, toggleMode } = useHelpMode(); // [patterns]
 
   return (
-    <Button variant="ghost" size="sm" onClick={toggleMode}>
+    <Button
+      variant="ghost"
+      size="sm"
+      onClick={toggleMode}
+    >
       {isSimple ? 'Switch to Technical' : 'Switch to Simple'}
     </Button>
   );
@@ -1276,21 +1334,20 @@ FieldHelp                        [patterns]
           └── PopoverContent     [primitives]
 ```
 
-**Packages involved:** `patterns` (FieldHelp, useFieldHelp, useHelpMode, presenters,
-BottomSheet, HelpModeToggle), `primitives` (Popover), `layouts` (usePlatform), `state/stores`
-(useHelpModeStore).
+**Packages involved:** `patterns` (FieldHelp, useFieldHelp, useHelpMode, presenters, BottomSheet,
+HelpModeToggle), `primitives` (Popover), `layouts` (usePlatform), `state/stores` (useHelpModeStore).
 
-**See also:** [patterns-domain-components.md](./patterns-domain-components.md) for
-`BottomSheet` API, [patterns-forms-and-inputs.md](./patterns-forms-and-inputs.md) for
-integrating `FieldHelp` next to `RHFFormField`.
+**See also:** [patterns-domain-components.md](./patterns-domain-components.md) for `BottomSheet`
+API, [patterns-forms-and-inputs.md](./patterns-forms-and-inputs.md) for integrating `FieldHelp` next
+to `RHFFormField`.
 
 ---
 
 ## Flow 8: Clipboard Pipeline
 
-**Entry point:** User selects rows in a data table and clicks "Copy as CSV".
-**End state:** CSV data is in the system clipboard. User pastes it into a text area elsewhere.
-`usePasteImport` parses and validates the content, making the parsed items available for preview.
+**Entry point:** User selects rows in a data table and clicks "Copy as CSV". **End state:** CSV data
+is in the system clipboard. User pastes it into a text area elsewhere. `usePasteImport` parses and
+validates the content, making the parsed items available for preview.
 
 ### Stage 1 — useClipboard provides the primitive copy operation
 
@@ -1301,25 +1358,28 @@ export function useClipboard(options: UseClipboardOptions = {}): UseClipboardRet
   const [copied, setCopied] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const copy = useCallback(async (value: string): Promise<boolean> => {
-    setIsLoading(true);
-    try {
-      if (navigator.clipboard?.writeText) {
-        await navigator.clipboard.writeText(value);  // Modern Clipboard API
-      } else {
-        fallbackCopyText(value);  // execCommand fallback for older browsers
+  const copy = useCallback(
+    async (value: string): Promise<boolean> => {
+      setIsLoading(true);
+      try {
+        if (navigator.clipboard?.writeText) {
+          await navigator.clipboard.writeText(value); // Modern Clipboard API
+        } else {
+          fallbackCopyText(value); // execCommand fallback for older browsers
+        }
+        setCopied(true);
+        setTimeout(() => setCopied(false), timeout); // auto-reset after 2s
+        onSuccess?.(value);
+        return true;
+      } catch (err) {
+        onError?.(err instanceof Error ? err : new Error('Copy failed'));
+        return false;
+      } finally {
+        setIsLoading(false);
       }
-      setCopied(true);
-      setTimeout(() => setCopied(false), timeout); // auto-reset after 2s
-      onSuccess?.(value);
-      return true;
-    } catch (err) {
-      onError?.(err instanceof Error ? err : new Error('Copy failed'));
-      return false;
-    } finally {
-      setIsLoading(false);
-    }
-  }, [timeout, onSuccess, onError]);
+    },
+    [timeout, onSuccess, onError]
+  );
 
   return { copy, copied, error, reset, isLoading };
 }
@@ -1338,23 +1398,44 @@ export function useBulkCopy(options: UseBulkCopyOptions = {}): UseBulkCopyReturn
   const [format, setFormat] = useState<ExportFormat>(defaultFormat);
   const { copy, copied, error, reset: resetClipboard, isLoading } = useClipboard();
 
-  const copyItems = useCallback(async <T extends Record<string, unknown>>(
-    items: T[],
-    columns?: (keyof T)[]
-  ): Promise<boolean> => {
-    const cols = columns ?? Object.keys(items[0]) as (keyof T)[];
-    let content: string;
+  const copyItems = useCallback(
+    async <T extends Record<string, unknown>>(
+      items: T[],
+      columns?: (keyof T)[]
+    ): Promise<boolean> => {
+      const cols = columns ?? (Object.keys(items[0]) as (keyof T)[]);
+      let content: string;
 
-    switch (format) {
-      case 'csv':  content = toCSV(items, cols, csvDelimiter, includeHeader); break;
-      case 'json': content = JSON.stringify(items, null, 2); break;
-      case 'text': content = items.map(item => cols.map(c => String(item[c] ?? '')).join('\t')).join('\n'); break;
-    }
+      switch (format) {
+        case 'csv':
+          content = toCSV(items, cols, csvDelimiter, includeHeader);
+          break;
+        case 'json':
+          content = JSON.stringify(items, null, 2);
+          break;
+        case 'text':
+          content = items
+            .map((item) => cols.map((c) => String(item[c] ?? '')).join('\t'))
+            .join('\n');
+          break;
+      }
 
-    return copy(content);  // delegates to useClipboard [patterns]
-  }, [format, csvDelimiter, includeHeader, copy]);
+      return copy(content); // delegates to useClipboard [patterns]
+    },
+    [format, csvDelimiter, includeHeader, copy]
+  );
 
-  return { copyItems, format, setFormat, copied, copiedCount, error, reset, isLoading, supportedFormats: SUPPORTED_FORMATS };
+  return {
+    copyItems,
+    format,
+    setFormat,
+    copied,
+    copiedCount,
+    error,
+    reset,
+    isLoading,
+    supportedFormats: SUPPORTED_FORMATS,
+  };
 }
 ```
 
@@ -1363,8 +1444,8 @@ export function useBulkCopy(options: UseBulkCopyOptions = {}): UseBulkCopyReturn
 ```tsx
 // libs/features/firewall/src/components/AddressListView.tsx  [features/firewall]
 import { useBulkCopy, type ExportFormat } from '@nasnet/ui/patterns'; // [patterns]
-import { Button, Select, SelectItem }     from '@nasnet/ui/primitives'; // [primitives]
-import { Check, Copy }                    from 'lucide-react';
+import { Button, Select, SelectItem } from '@nasnet/ui/primitives'; // [primitives]
+import { Check, Copy } from 'lucide-react';
 
 export function AddressListBulkActions({ selectedRows }: { selectedRows: AddressListEntry[] }) {
   const { copyItems, format, setFormat, copied, isLoading } = useBulkCopy({
@@ -1376,7 +1457,10 @@ export function AddressListBulkActions({ selectedRows }: { selectedRows: Address
 
   return (
     <div className="flex items-center gap-2">
-      <Select value={format} onValueChange={(v) => setFormat(v as ExportFormat)}>
+      <Select
+        value={format}
+        onValueChange={(v) => setFormat(v as ExportFormat)}
+      >
         <SelectItem value="csv">CSV</SelectItem>
         <SelectItem value="json">JSON</SelectItem>
         <SelectItem value="text">Plain Text</SelectItem>
@@ -1389,7 +1473,9 @@ export function AddressListBulkActions({ selectedRows }: { selectedRows: Address
         isLoading={isLoading}
         aria-label="Copy selected rows to clipboard"
       >
-        {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+        {copied ?
+          <Check className="h-4 w-4" />
+        : <Copy className="h-4 w-4" />}
         {copied ? 'Copied!' : 'Copy'}
       </Button>
     </div>
@@ -1402,34 +1488,44 @@ export function AddressListBulkActions({ selectedRows }: { selectedRows: Address
 ```tsx
 // libs/features/firewall/src/components/AddressListImportDialog.tsx  [features/firewall]
 import { usePasteImport, type ParseResult } from '@nasnet/ui/patterns'; // [patterns]
-import { Textarea }                          from '@nasnet/ui/primitives'; // [primitives]
+import { Textarea } from '@nasnet/ui/primitives'; // [primitives]
 
 export function AddressListImportDialog() {
   const [preview, setPreview] = useState<ParseResult | null>(null);
 
   const { handlePaste, parseResult, clearResult, isParsing } = usePasteImport({
-    type: 'auto',    // auto-detect: 'ip-list' | 'csv' | 'routeros'
+    type: 'auto', // auto-detect: 'ip-list' | 'csv' | 'routeros'
     maxItems: 1000,
     onParsed: (result) => setPreview(result),
-    onError:  (err)    => console.error('Parse error:', err),
+    onError: (err) => console.error('Parse error:', err),
   });
 
   return (
     <div>
       <Textarea
         placeholder="Paste IP addresses, CSV data, or RouterOS commands..."
-        onPaste={handlePaste}   // fires usePasteImport.handlePaste
+        onPaste={handlePaste} // fires usePasteImport.handlePaste
       />
 
       {preview && (
         <div>
-          <p>{preview.items.length} valid items, {preview.errors.length} errors</p>
+          <p>
+            {preview.items.length} valid items, {preview.errors.length} errors
+          </p>
           {preview.errors.map((err) => (
-            <p key={err.line} className="text-destructive text-xs">
+            <p
+              key={err.line}
+              className="text-destructive text-xs"
+            >
               Line {err.line}: {err.message}
             </p>
           ))}
-          <Button onClick={() => { importItems(preview.items); clearResult(); }}>
+          <Button
+            onClick={() => {
+              importItems(preview.items);
+              clearResult();
+            }}
+          >
             Import {preview.items.length} items
           </Button>
         </div>
@@ -1449,9 +1545,12 @@ function detectImportType(content: string): ImportType {
   const firstLine = content.trim().split('\n')[0] ?? '';
 
   if (firstLine.startsWith('/') || firstLine.includes('add chain=')) return 'routeros';
-  if (firstLine.includes(',') || firstLine.includes('\t'))            return 'csv';
+  if (firstLine.includes(',') || firstLine.includes('\t')) return 'csv';
 
-  const allIPs = content.split('\n').filter(l => l.trim()).every(l => isValidIP(l.trim()));
+  const allIPs = content
+    .split('\n')
+    .filter((l) => l.trim())
+    .every((l) => isValidIP(l.trim()));
   if (allIPs) return 'ip-list';
 
   return 'auto';
@@ -1493,27 +1592,26 @@ User clicks Import
   └── clearResult()               → setParseResult(null)
 ```
 
-**Packages involved:** `patterns` (useClipboard, useBulkCopy, usePasteImport), `primitives`
-(Button, Select, Textarea).
+**Packages involved:** `patterns` (useClipboard, useBulkCopy, usePasteImport), `primitives` (Button,
+Select, Textarea).
 
-**See also:** [shared-hooks.md](./shared-hooks.md#clipboard-hooks) for the complete hook
-signatures, [primitives-reference.md](./primitives-reference.md) for `Button` loading state
-and `Select` props.
+**See also:** [shared-hooks.md](./shared-hooks.md#clipboard-hooks) for the complete hook signatures,
+[primitives-reference.md](./primitives-reference.md) for `Button` loading state and `Select` props.
 
 ---
 
 ## Summary Table
 
-| # | Flow | Packages Involved | Key Components | Key Hooks | Doc References |
-|---|------|-------------------|----------------|-----------|----------------|
-| 1 | Responsive Page | `layouts`, `patterns`, `primitives`, `state/stores` | `ResponsiveShell`, `MobileAppShell`, `AppShell`, `BottomNavigation` | `usePlatform`, `useSidebarStore` | [03](./layouts-and-platform.md), [08](./shared-hooks.md) |
-| 2 | Config Apply Pipeline | `patterns`, `primitives`, `tokens` | `ValidationProgress`, `ValidationStage`, `ConflictList`, `ConflictCard`, `Button` | `useValidationProgress` | [06](./patterns-forms-and-inputs.md), [05](./patterns-status-and-data.md) |
-| 3 | Sortable Firewall Rules | `patterns`, `primitives`, `layouts`, `tokens` | `FirewallRuleList`, `SortableList`, `SortableItem`, `DragHandle`, `AnimatedList` | `useSortableList`, `useMultiSelect`, `usePlatform` | [07](./patterns-domain-components.md), [04](./tokens-and-animation.md) |
-| 4 | Token Build Pipeline | `tokens`, `primitives`, `patterns` | `Button` (consumer) | — (build-time) | [04](./tokens-and-animation.md) |
-| 5 | Animation Pipeline | `tokens`, `patterns`, `layouts` | `PageTransition`, `AnimationProvider`, `AnimatePresence` | `useReducedMotion`, `useAnimation`, `getAnimationTokens` | [04](./tokens-and-animation.md), [02](./primitives-reference.md) |
-| 6 | CategoryAccent Theming | `primitives`, `tokens` | `CategoryAccentProvider` | `useCategoryAccent`, `getCategoryMeta` | [02](./primitives-reference.md), [04](./tokens-and-animation.md) |
-| 7 | Help System | `patterns`, `primitives`, `layouts`, `state/stores` | `FieldHelp`, `FieldHelpDesktop`, `FieldHelpMobile`, `HelpModeToggle`, `BottomSheet`, `Popover` | `useFieldHelp`, `useHelpMode`, `usePlatform` | [07](./patterns-domain-components.md), [06](./patterns-forms-and-inputs.md) |
-| 8 | Clipboard Pipeline | `patterns`, `primitives` | `Button`, `Select`, `Textarea` | `useClipboard`, `useBulkCopy`, `usePasteImport` | [08](./shared-hooks.md) |
+| #   | Flow                    | Packages Involved                                   | Key Components                                                                                 | Key Hooks                                                | Doc References                                                              |
+| --- | ----------------------- | --------------------------------------------------- | ---------------------------------------------------------------------------------------------- | -------------------------------------------------------- | --------------------------------------------------------------------------- |
+| 1   | Responsive Page         | `layouts`, `patterns`, `primitives`, `state/stores` | `ResponsiveShell`, `MobileAppShell`, `AppShell`, `BottomNavigation`                            | `usePlatform`, `useSidebarStore`                         | [03](./layouts-and-platform.md), [08](./shared-hooks.md)                    |
+| 2   | Config Apply Pipeline   | `patterns`, `primitives`, `tokens`                  | `ValidationProgress`, `ValidationStage`, `ConflictList`, `ConflictCard`, `Button`              | `useValidationProgress`                                  | [06](./patterns-forms-and-inputs.md), [05](./patterns-status-and-data.md)   |
+| 3   | Sortable Firewall Rules | `patterns`, `primitives`, `layouts`, `tokens`       | `FirewallRuleList`, `SortableList`, `SortableItem`, `DragHandle`, `AnimatedList`               | `useSortableList`, `useMultiSelect`, `usePlatform`       | [07](./patterns-domain-components.md), [04](./tokens-and-animation.md)      |
+| 4   | Token Build Pipeline    | `tokens`, `primitives`, `patterns`                  | `Button` (consumer)                                                                            | — (build-time)                                           | [04](./tokens-and-animation.md)                                             |
+| 5   | Animation Pipeline      | `tokens`, `patterns`, `layouts`                     | `PageTransition`, `AnimationProvider`, `AnimatePresence`                                       | `useReducedMotion`, `useAnimation`, `getAnimationTokens` | [04](./tokens-and-animation.md), [02](./primitives-reference.md)            |
+| 6   | CategoryAccent Theming  | `primitives`, `tokens`                              | `CategoryAccentProvider`                                                                       | `useCategoryAccent`, `getCategoryMeta`                   | [02](./primitives-reference.md), [04](./tokens-and-animation.md)            |
+| 7   | Help System             | `patterns`, `primitives`, `layouts`, `state/stores` | `FieldHelp`, `FieldHelpDesktop`, `FieldHelpMobile`, `HelpModeToggle`, `BottomSheet`, `Popover` | `useFieldHelp`, `useHelpMode`, `usePlatform`             | [07](./patterns-domain-components.md), [06](./patterns-forms-and-inputs.md) |
+| 8   | Clipboard Pipeline      | `patterns`, `primitives`                            | `Button`, `Select`, `Textarea`                                                                 | `useClipboard`, `useBulkCopy`, `usePasteImport`          | [08](./shared-hooks.md)                                                     |
 
 ---
 
@@ -1530,24 +1628,24 @@ apps/ → features/ → patterns/ → primitives/ → tokens (CSS vars)
                     state/stores (read by patterns via hooks, injected to layouts via app)
 ```
 
-The only apparent exception is `useHelpMode` [patterns] importing from `@nasnet/state/stores`.
-This is intentional: `state/stores` is not in the `libs/ui/` hierarchy and is allowed to be
-imported by `patterns`. `layouts` cannot import from `state/stores` (library rule) which is why
+The only apparent exception is `useHelpMode` [patterns] importing from `@nasnet/state/stores`. This
+is intentional: `state/stores` is not in the `libs/ui/` hierarchy and is allowed to be imported by
+`patterns`. `layouts` cannot import from `state/stores` (library rule) which is why
 `ResponsiveShell` receives sidebar state as props injected from the app layer.
 
 ---
 
 ## Further Reading
 
-| Topic | Document |
-|-------|---------|
-| All 40 primitive components | [primitives-reference.md](./primitives-reference.md) |
-| Shell and page layout components | [layouts-and-platform.md](./layouts-and-platform.md) |
-| Token system and animation | [tokens-and-animation.md](./tokens-and-animation.md) |
-| Status and data display patterns | [patterns-status-and-data.md](./patterns-status-and-data.md) |
-| Form system, RHFFormField, ValidationProgress | [patterns-forms-and-inputs.md](./patterns-forms-and-inputs.md) |
+| Topic                                                      | Document                                                         |
+| ---------------------------------------------------------- | ---------------------------------------------------------------- |
+| All 40 primitive components                                | [primitives-reference.md](./primitives-reference.md)             |
+| Shell and page layout components                           | [layouts-and-platform.md](./layouts-and-platform.md)             |
+| Token system and animation                                 | [tokens-and-animation.md](./tokens-and-animation.md)             |
+| Status and data display patterns                           | [patterns-status-and-data.md](./patterns-status-and-data.md)     |
+| Form system, RHFFormField, ValidationProgress              | [patterns-forms-and-inputs.md](./patterns-forms-and-inputs.md)   |
 | Domain components (ServiceCard, DeviceRoutingMatrix, etc.) | [patterns-domain-components.md](./patterns-domain-components.md) |
-| All shared hooks | [shared-hooks.md](./shared-hooks.md) |
-| Authoritative design system | See `Docs/design/README.md` |
-| Platform presenter deep-dive | See `Docs/design/PLATFORM_PRESENTER_GUIDE.md` |
-| Architecture patterns | See `Docs/architecture/novel-pattern-designs.md` |
+| All shared hooks                                           | [shared-hooks.md](./shared-hooks.md)                             |
+| Authoritative design system                                | See `Docs/design/README.md`                                      |
+| Platform presenter deep-dive                               | See `Docs/design/PLATFORM_PRESENTER_GUIDE.md`                    |
+| Architecture patterns                                      | See `Docs/architecture/novel-pattern-designs.md`                 |

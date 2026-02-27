@@ -130,10 +130,10 @@ export function SynFloodConfigPanelDesktop({
       >
         {/* Main Configuration Card */}
         <Card className="p-6">
-          <h3 className="text-lg font-semibold mb-4">SYN Flood Protection</h3>
-          <p className="text-sm text-muted-foreground mb-6">
-            Protect against SYN flood attacks by limiting incoming SYN packets per second.
-            Uses RouterOS RAW firewall table for efficient processing.
+          <h3 className="mb-4 text-lg font-semibold">SYN Flood Protection</h3>
+          <p className="text-muted-foreground mb-6 text-sm">
+            Protect against SYN flood attacks by limiting incoming SYN packets per second. Uses
+            RouterOS RAW firewall table for efficient processing.
           </p>
 
           <div className="space-y-6">
@@ -147,14 +147,20 @@ export function SynFloodConfigPanelDesktop({
                 className="h-4 w-4 rounded border-gray-300"
                 aria-label="Enable SYN flood protection"
               />
-              <label htmlFor="enabled" className="text-sm font-medium">
+              <label
+                htmlFor="enabled"
+                className="text-sm font-medium"
+              >
                 Enable SYN Flood Protection
               </label>
             </div>
 
             {/* Warning for low limits */}
             {showLowLimitWarning && (
-              <Alert variant="warning" role="alert">
+              <Alert
+                variant="warning"
+                role="alert"
+              >
                 <AlertDescription>
                   SYN limit below 100/s may block legitimate high-traffic applications and services.
                 </AlertDescription>
@@ -164,13 +170,22 @@ export function SynFloodConfigPanelDesktop({
             {/* Presets Dropdown */}
             <div className="space-y-2">
               <Label htmlFor="preset">Quick Presets</Label>
-              <Select onValueChange={applyPreset} disabled={!enabled}>
-                <SelectTrigger id="preset" className="w-full">
+              <Select
+                onValueChange={applyPreset}
+                disabled={!enabled}
+              >
+                <SelectTrigger
+                  id="preset"
+                  className="w-full"
+                >
                   <SelectValue placeholder="Select a preset..." />
                 </SelectTrigger>
                 <SelectContent>
                   {SYN_FLOOD_PRESETS.map((preset) => (
-                    <SelectItem key={preset.label} value={preset.label}>
+                    <SelectItem
+                      key={preset.label}
+                      value={preset.label}
+                    >
                       {preset.label} ({preset.synLimit}/s, burst: {preset.burst})
                     </SelectItem>
                   ))}
@@ -182,7 +197,11 @@ export function SynFloodConfigPanelDesktop({
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="synLimit">SYN Limit (packets/second)</Label>
-                <span className="text-sm font-medium" aria-live="polite" aria-atomic="true">
+                <span
+                  className="text-sm font-medium"
+                  aria-live="polite"
+                  aria-atomic="true"
+                >
                   {synLimit}
                 </span>
               </div>
@@ -199,7 +218,7 @@ export function SynFloodConfigPanelDesktop({
                 aria-label="SYN limit"
                 aria-valuetext={`${synLimit} packets per second`}
               />
-              <p className="text-xs text-muted-foreground">
+              <p className="text-muted-foreground text-xs">
                 Maximum SYN packets allowed per second (1-10,000)
               </p>
             </div>
@@ -208,7 +227,11 @@ export function SynFloodConfigPanelDesktop({
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="burst">Burst</Label>
-                <span className="text-sm font-medium" aria-live="polite" aria-atomic="true">
+                <span
+                  className="text-sm font-medium"
+                  aria-live="polite"
+                  aria-atomic="true"
+                >
                   {burst}
                 </span>
               </div>
@@ -225,7 +248,7 @@ export function SynFloodConfigPanelDesktop({
                 aria-label="Burst limit"
                 aria-valuetext={`${burst} packets`}
               />
-              <p className="text-xs text-muted-foreground">
+              <p className="text-muted-foreground text-xs">
                 Allowed burst above the limit (1-1,000)
               </p>
             </div>
@@ -240,7 +263,10 @@ export function SynFloodConfigPanelDesktop({
                 }
                 disabled={!enabled}
               >
-                <SelectTrigger id="action" className="w-full">
+                <SelectTrigger
+                  id="action"
+                  className="w-full"
+                >
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -248,17 +274,17 @@ export function SynFloodConfigPanelDesktop({
                   <SelectItem value="tarpit">Tarpit (slow down attacker)</SelectItem>
                 </SelectContent>
               </Select>
-              <p className="text-xs text-muted-foreground">
-                {action === 'drop'
-                  ? 'Drop excess SYN packets immediately'
-                  : 'Slow down excess connections (uses more resources)'}
+              <p className="text-muted-foreground text-xs">
+                {action === 'drop' ?
+                  'Drop excess SYN packets immediately'
+                : 'Slow down excess connections (uses more resources)'}
               </p>
             </div>
 
             {/* Preview */}
             {enabled && previewText && (
-              <div className="p-3 bg-muted rounded-md">
-                <p className="text-sm font-mono">{previewText}</p>
+              <div className="bg-muted rounded-md p-3">
+                <p className="font-mono text-sm">{previewText}</p>
               </div>
             )}
           </div>
@@ -284,7 +310,10 @@ export function SynFloodConfigPanelDesktop({
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={!isDirty || isSubmitting || loading}>
+            <Button
+              type="submit"
+              disabled={!isDirty || isSubmitting || loading}
+            >
               {isSubmitting ? 'Saving...' : 'Save Changes'}
             </Button>
           </div>

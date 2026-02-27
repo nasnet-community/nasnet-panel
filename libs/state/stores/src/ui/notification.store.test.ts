@@ -51,9 +51,7 @@ describe('useNotificationStore', () => {
       expect(id).toBeTruthy();
       expect(id).toMatch(/^notification-\d+-/);
       expect(useNotificationStore.getState().notifications).toHaveLength(1);
-      expect(useNotificationStore.getState().notifications[0].title).toBe(
-        'Test notification'
-      );
+      expect(useNotificationStore.getState().notifications[0].title).toBe('Test notification');
     });
 
     it('should add notification with message', () => {
@@ -302,8 +300,7 @@ describe('useNotificationStore', () => {
 
   describe('removeNotification Action', () => {
     it('should remove notification by ID', () => {
-      const { addNotification, removeNotification } =
-        useNotificationStore.getState();
+      const { addNotification, removeNotification } = useNotificationStore.getState();
 
       const id = addNotification({
         type: 'success',
@@ -333,8 +330,7 @@ describe('useNotificationStore', () => {
 
   describe('updateNotification Action', () => {
     it('should update notification properties', () => {
-      const { addNotification, updateNotification } =
-        useNotificationStore.getState();
+      const { addNotification, updateNotification } = useNotificationStore.getState();
 
       const id = addNotification({
         type: 'progress',
@@ -350,8 +346,7 @@ describe('useNotificationStore', () => {
     });
 
     it('should update multiple properties', () => {
-      const { addNotification, updateNotification } =
-        useNotificationStore.getState();
+      const { addNotification, updateNotification } = useNotificationStore.getState();
 
       const id = addNotification({
         type: 'progress',
@@ -371,8 +366,7 @@ describe('useNotificationStore', () => {
 
   describe('clearAllNotifications Action', () => {
     it('should remove all notifications', () => {
-      const { addNotification, clearAllNotifications } =
-        useNotificationStore.getState();
+      const { addNotification, clearAllNotifications } = useNotificationStore.getState();
 
       vi.advanceTimersByTime(100);
       addNotification({ type: 'success', title: 'Test 1' });
@@ -393,8 +387,7 @@ describe('useNotificationStore', () => {
 
   describe('getNotification Method', () => {
     it('should return notification by ID', () => {
-      const { addNotification, getNotification } =
-        useNotificationStore.getState();
+      const { addNotification, getNotification } = useNotificationStore.getState();
 
       const id = addNotification({
         type: 'success',
@@ -472,9 +465,7 @@ describe('useNotificationStore', () => {
       vi.advanceTimersByTime(100);
       addNotification({ type: 'warning', title: 'Warning 2' });
 
-      const warnings = selectNotificationsByType('warning')(
-        useNotificationStore.getState()
-      );
+      const warnings = selectNotificationsByType('warning')(useNotificationStore.getState());
       expect(warnings).toHaveLength(2);
     });
   });

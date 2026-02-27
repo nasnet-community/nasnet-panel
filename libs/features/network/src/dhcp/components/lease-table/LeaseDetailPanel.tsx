@@ -83,13 +83,20 @@ function LeaseDetailPanelComponent({
       <div className="space-y-component-md">
         {/* Device Information Section */}
         <div>
-          <div className="mb-component-sm flex items-center gap-component-sm text-sm font-semibold text-foreground">
-            <Icon icon={Globe} className="h-4 w-4" aria-hidden="true" />
+          <div className="mb-component-sm gap-component-sm text-foreground flex items-center text-sm font-semibold">
+            <Icon
+              icon={Globe}
+              className="h-4 w-4"
+              aria-hidden="true"
+            />
             Device Information
           </div>
-          <dl className="grid grid-cols-[auto_1fr] gap-x-component-md gap-y-component-sm text-sm">
+          <dl className="gap-x-component-md gap-y-component-sm grid grid-cols-[auto_1fr] text-sm">
             <dt className="text-muted-foreground">MAC Address:</dt>
-            <dd className="flex items-center gap-component-sm font-mono" title={formatMACAddress(lease.macAddress)}>
+            <dd
+              className="gap-component-sm flex items-center font-mono"
+              title={formatMACAddress(lease.macAddress)}
+            >
               {formatMACAddress(lease.macAddress)}
               <Button
                 variant="ghost"
@@ -98,11 +105,13 @@ function LeaseDetailPanelComponent({
                 className="h-6 w-6 p-0"
                 aria-label="Copy MAC address"
               >
-                <Icon icon={Copy} className="h-3 w-3" aria-hidden="true" />
+                <Icon
+                  icon={Copy}
+                  className="h-3 w-3"
+                  aria-hidden="true"
+                />
               </Button>
-              {copied && (
-                <span className="text-xs text-success">Copied!</span>
-              )}
+              {copied && <span className="text-success text-xs">Copied!</span>}
             </dd>
 
             <dt className="text-muted-foreground">Hostname:</dt>
@@ -119,13 +128,22 @@ function LeaseDetailPanelComponent({
 
         {/* Assignment Details Section */}
         <div>
-          <div className="mb-component-sm flex items-center gap-component-sm text-sm font-semibold text-foreground">
-            <Icon icon={Info} className="h-4 w-4" aria-hidden="true" />
+          <div className="mb-component-sm gap-component-sm text-foreground flex items-center text-sm font-semibold">
+            <Icon
+              icon={Info}
+              className="h-4 w-4"
+              aria-hidden="true"
+            />
             Assignment Details
           </div>
-          <dl className="grid grid-cols-[auto_1fr] gap-x-component-md gap-y-component-sm text-sm">
+          <dl className="gap-x-component-md gap-y-component-sm grid grid-cols-[auto_1fr] text-sm">
             <dt className="text-muted-foreground">IP Address:</dt>
-            <dd className="font-mono font-medium" title={lease.address}>{lease.address}</dd>
+            <dd
+              className="font-mono font-medium"
+              title={lease.address}
+            >
+              {lease.address}
+            </dd>
 
             <dt className="text-muted-foreground">Server:</dt>
             <dd>{lease.server}</dd>
@@ -137,7 +155,7 @@ function LeaseDetailPanelComponent({
 
             <dt className="text-muted-foreground">Status:</dt>
             <dd>
-              <div className="flex items-center gap-component-sm">
+              <div className="gap-component-sm flex items-center">
                 <StatusBadge status={lease.status} />
                 {lease.blocked && <StatusBadge status="stopped" />}
               </div>
@@ -147,11 +165,15 @@ function LeaseDetailPanelComponent({
 
         {/* Timing Information Section */}
         <div>
-          <div className="mb-component-sm flex items-center gap-component-sm text-sm font-semibold text-foreground">
-            <Icon icon={Clock} className="h-4 w-4" aria-hidden="true" />
+          <div className="mb-component-sm gap-component-sm text-foreground flex items-center text-sm font-semibold">
+            <Icon
+              icon={Clock}
+              className="h-4 w-4"
+              aria-hidden="true"
+            />
             Timing Information
           </div>
-          <dl className="grid grid-cols-[auto_1fr] gap-x-component-md gap-y-component-sm text-sm">
+          <dl className="gap-x-component-md gap-y-component-sm grid grid-cols-[auto_1fr] text-sm">
             <dt className="text-muted-foreground">Expires:</dt>
             <dd>{formatExpirationTime(lease.expiresAfter)}</dd>
 
@@ -163,11 +185,9 @@ function LeaseDetailPanelComponent({
         </div>
 
         {/* Quick Actions */}
-        <div className="flex items-center gap-component-sm border-t pt-component-md">
-          <span className="text-sm font-medium text-muted-foreground">
-            Quick Actions:
-          </span>
-          <div className="flex gap-component-sm">
+        <div className="gap-component-sm pt-component-md flex items-center border-t">
+          <span className="text-muted-foreground text-sm font-medium">Quick Actions:</span>
+          <div className="gap-component-sm flex">
             {lease.dynamic && onMakeStatic && (
               <Button
                 variant="outline"
@@ -176,7 +196,11 @@ function LeaseDetailPanelComponent({
                 className="gap-component-sm"
                 aria-label="Make this lease static"
               >
-                <Icon icon={Lock} className="h-3 w-3" aria-hidden="true" />
+                <Icon
+                  icon={Lock}
+                  className="h-3 w-3"
+                  aria-hidden="true"
+                />
                 Make Static
               </Button>
             )}
@@ -188,7 +212,11 @@ function LeaseDetailPanelComponent({
                 className="gap-component-sm"
                 aria-label="Delete this lease"
               >
-                <Icon icon={Trash2} className="h-3 w-3" aria-hidden="true" />
+                <Icon
+                  icon={Trash2}
+                  className="h-3 w-3"
+                  aria-hidden="true"
+                />
                 Delete
               </Button>
             )}

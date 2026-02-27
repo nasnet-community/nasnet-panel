@@ -57,8 +57,7 @@ type Story = StoryObj<typeof StorageUsageBar>;
 
 /** 16 GB total, variable used */
 const GB16 = (16 * 1024 * 1024 * 1024).toString();
-const usedBytes = (percent: number) =>
-  Math.round((parseInt(GB16, 10) * percent) / 100).toString();
+const usedBytes = (percent: number) => Math.round((parseInt(GB16, 10) * percent) / 100).toString();
 
 // ---------------------------------------------------------------------------
 // Stories
@@ -141,7 +140,7 @@ export const SmallFlashStorage: Story = {
   args: {
     usagePercent: 78,
     totalBytes: (32 * 1024 * 1024).toString(),
-    usedBytes: (Math.round(32 * 1024 * 1024 * 0.78)).toString(),
+    usedBytes: Math.round(32 * 1024 * 1024 * 0.78).toString(),
   },
 };
 
@@ -150,7 +149,7 @@ export const SmallFlashStorage: Story = {
  */
 export const AllThresholds: Story = {
   render: () => (
-    <div className="space-y-6 max-w-lg">
+    <div className="max-w-lg space-y-6">
       {(
         [
           { label: 'Healthy (42%)', percent: 42 },
@@ -160,7 +159,7 @@ export const AllThresholds: Story = {
         ] as const
       ).map(({ label, percent }) => (
         <div key={label}>
-          <p className="text-sm font-medium mb-2 text-muted-foreground">{label}</p>
+          <p className="text-muted-foreground mb-2 text-sm font-medium">{label}</p>
           <StorageUsageBar
             usagePercent={percent}
             totalBytes={GB16}

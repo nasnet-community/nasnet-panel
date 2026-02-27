@@ -243,8 +243,8 @@ export const Loading: Story = {
 export const ComparisonGrid: Story = {
   render: () => (
     <div className="space-y-4">
-      <div className="text-sm font-medium mb-2">Firewall Rules Traffic Comparison</div>
-      <div className="space-y-2 border rounded-lg p-4">
+      <div className="mb-2 text-sm font-medium">Firewall Rules Traffic Comparison</div>
+      <div className="space-y-2 rounded-lg border p-4">
         <CounterCell
           packets={9999999}
           bytes={99999999999}
@@ -253,7 +253,7 @@ export const ComparisonGrid: Story = {
           showRate={true}
           showBar={true}
         />
-        <div className="border-t my-2" />
+        <div className="my-2 border-t" />
         <CounterCell
           packets={1234567}
           bytes={9876543210}
@@ -262,7 +262,7 @@ export const ComparisonGrid: Story = {
           showRate={true}
           showBar={true}
         />
-        <div className="border-t my-2" />
+        <div className="my-2 border-t" />
         <CounterCell
           packets={456789}
           bytes={234567890}
@@ -271,7 +271,7 @@ export const ComparisonGrid: Story = {
           showRate={true}
           showBar={true}
         />
-        <div className="border-t my-2" />
+        <div className="my-2 border-t" />
         <CounterCell
           packets={1234}
           bytes={5678900}
@@ -280,7 +280,7 @@ export const ComparisonGrid: Story = {
           showRate={true}
           showBar={true}
         />
-        <div className="border-t my-2" />
+        <div className="my-2 border-t" />
         <CounterCell
           packets={0}
           bytes={0}

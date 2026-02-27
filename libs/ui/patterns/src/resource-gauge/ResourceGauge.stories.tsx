@@ -2,7 +2,6 @@ import { ResourceGauge } from './ResourceGauge';
 
 import type { Meta, StoryObj } from '@storybook/react';
 
-
 const meta: Meta<typeof ResourceGauge> = {
   title: 'Patterns/ResourceGauge',
   component: ResourceGauge,
@@ -106,9 +105,24 @@ export const Loading: Story = {
 export const TrioLayout: Story = {
   render: () => (
     <div className="flex gap-4">
-      <ResourceGauge label="CPU" value={34} status="healthy" subtitle="4 cores" />
-      <ResourceGauge label="Memory" value={72} status="warning" subtitle="36 MB / 50 MB" />
-      <ResourceGauge label="Disk" value={91} status="critical" subtitle="910 MB / 1 GB" />
+      <ResourceGauge
+        label="CPU"
+        value={34}
+        status="healthy"
+        subtitle="4 cores"
+      />
+      <ResourceGauge
+        label="Memory"
+        value={72}
+        status="warning"
+        subtitle="36 MB / 50 MB"
+      />
+      <ResourceGauge
+        label="Disk"
+        value={91}
+        status="critical"
+        subtitle="910 MB / 1 GB"
+      />
     </div>
   ),
   parameters: {

@@ -49,7 +49,10 @@ describe('useUpdateVLANPoolConfig', () => {
   ];
 
   const wrapper = ({ children }: { children: ReactNode }) => (
-    <MockedProvider mocks={mocks} addTypename={false}>
+    <MockedProvider
+      mocks={mocks}
+      addTypename={false}
+    >
       {children}
     </MockedProvider>
   );
@@ -94,7 +97,10 @@ describe('useUpdateVLANPoolConfig', () => {
     ];
 
     const errorWrapper = ({ children }: { children: ReactNode }) => (
-      <MockedProvider mocks={errorMocks} addTypename={false}>
+      <MockedProvider
+        mocks={errorMocks}
+        addTypename={false}
+      >
         {children}
       </MockedProvider>
     );
@@ -134,7 +140,10 @@ describe('useUpdateVLANPoolConfig', () => {
     ];
 
     const nullWrapper = ({ children }: { children: ReactNode }) => (
-      <MockedProvider mocks={nullMocks} addTypename={false}>
+      <MockedProvider
+        mocks={nullMocks}
+        addTypename={false}
+      >
         {children}
       </MockedProvider>
     );
@@ -174,7 +183,10 @@ describe('useUpdateVLANPoolConfig', () => {
     ];
 
     const boundaryWrapper = ({ children }: { children: ReactNode }) => (
-      <MockedProvider mocks={boundaryMocks} addTypename={false}>
+      <MockedProvider
+        mocks={boundaryMocks}
+        addTypename={false}
+      >
         {children}
       </MockedProvider>
     );
@@ -205,7 +217,10 @@ describe('useUpdateVLANPoolConfig', () => {
     ];
 
     const networkErrorWrapper = ({ children }: { children: ReactNode }) => (
-      <MockedProvider mocks={networkErrorMocks} addTypename={false}>
+      <MockedProvider
+        mocks={networkErrorMocks}
+        addTypename={false}
+      >
         {children}
       </MockedProvider>
     );

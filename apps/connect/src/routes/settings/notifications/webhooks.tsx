@@ -54,7 +54,7 @@ export function WebhooksPage() {
   };
 
   return (
-    <div className="container max-w-4xl mx-auto py-6 px-4 space-y-6">
+    <div className="container mx-auto max-w-4xl space-y-6 px-4 py-6">
       {/* Header */}
       <div className="space-y-4">
         <Button
@@ -63,30 +63,28 @@ export function WebhooksPage() {
           onClick={() => navigate({ to: '/settings/notifications' })}
           className="gap-2"
         >
-          <ArrowLeft className="w-4 h-4" />
+          <ArrowLeft className="h-4 w-4" />
           {t('webhook.backToNotifications')}
         </Button>
 
         <div className="flex items-start gap-4">
-          <div className="p-3 bg-primary/10 rounded-lg">
-            <WebhookIcon className="w-6 h-6 text-primary" />
+          <div className="bg-primary/10 rounded-lg p-3">
+            <WebhookIcon className="text-primary h-6 w-6" />
           </div>
           <div className="flex-1">
             <h1 className="text-3xl font-bold">{t('webhook.title')}</h1>
-            <p className="text-muted-foreground mt-2">
-              {t('webhook.description')}
-            </p>
+            <p className="text-muted-foreground mt-2">{t('webhook.description')}</p>
           </div>
         </div>
       </div>
 
       {/* Info Card */}
-      <div className="bg-muted/50 border rounded-lg p-4 space-y-2">
-        <h3 className="font-semibold flex items-center gap-2">
+      <div className="bg-muted/50 space-y-2 rounded-lg border p-4">
+        <h3 className="flex items-center gap-2 font-semibold">
           <span>💡</span>
           {t('webhook.aboutWebhooks')}
         </h3>
-        <ul className="text-sm text-muted-foreground space-y-1 ml-6 list-disc">
+        <ul className="text-muted-foreground ml-6 list-disc space-y-1 text-sm">
           <li>{t('webhook.info1')}</li>
           <li>{t('webhook.info2')}</li>
           <li>{t('webhook.info3')}</li>
@@ -96,7 +94,7 @@ export function WebhooksPage() {
       </div>
 
       {/* Webhook Configuration Form */}
-      <div className="bg-card border rounded-lg p-6">
+      <div className="bg-card rounded-lg border p-6">
         <WebhookConfigForm
           onSuccess={handleSuccess}
           onError={handleError}
@@ -104,9 +102,10 @@ export function WebhooksPage() {
       </div>
 
       {/* Security Note */}
-      <div className="bg-warning/10 border border-warning/30 rounded-lg p-4">
-        <p className="text-sm text-warning-foreground">
-          <span className="font-semibold">🔒 {t('webhook.securityNoteTitle')}</span> {t('webhook.securityNoteText')}
+      <div className="bg-warning/10 border-warning/30 rounded-lg border p-4">
+        <p className="text-warning-foreground text-sm">
+          <span className="font-semibold">🔒 {t('webhook.securityNoteTitle')}</span>{' '}
+          {t('webhook.securityNoteText')}
         </p>
       </div>
     </div>

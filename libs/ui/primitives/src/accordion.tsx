@@ -66,8 +66,13 @@ const Accordion = React.forwardRef<HTMLDivElement, AccordionProps>(
     const handleValueChange = onValueChange || setInternalValue;
 
     return (
-      <AccordionContext.Provider value={{ value: currentValue, onValueChange: handleValueChange, type }}>
-        <div ref={ref} className={cn('space-y-2', className)}>
+      <AccordionContext.Provider
+        value={{ value: currentValue, onValueChange: handleValueChange, type }}
+      >
+        <div
+          ref={ref}
+          className={cn('space-y-2', className)}
+        >
           {children}
         </div>
       </AccordionContext.Provider>
@@ -111,9 +116,7 @@ const AccordionItem = React.forwardRef<HTMLDivElement, AccordionItemProps>(
 
     const onToggle = React.useCallback(() => {
       if (type === 'multiple' && Array.isArray(value)) {
-        const newValue = isOpen
-          ? value.filter((v) => v !== itemValue)
-          : [...value, itemValue];
+        const newValue = isOpen ? value.filter((v) => v !== itemValue) : [...value, itemValue];
         onValueChange?.(newValue);
       } else {
         onValueChange?.(isOpen ? '' : itemValue);
@@ -122,8 +125,14 @@ const AccordionItem = React.forwardRef<HTMLDivElement, AccordionItemProps>(
 
     return (
       <AccordionItemContext.Provider value={{ value: itemValue, isOpen, onToggle }}>
-        <CollapsiblePrimitive.Root open={isOpen} onOpenChange={onToggle}>
-          <div ref={ref} className={cn('border-border rounded-[var(--semantic-radius-card)]', className)}>
+        <CollapsiblePrimitive.Root
+          open={isOpen}
+          onOpenChange={onToggle}
+        >
+          <div
+            ref={ref}
+            className={cn('border-border rounded-[var(--semantic-radius-card)]', className)}
+          >
             {children}
           </div>
         </CollapsiblePrimitive.Root>
@@ -151,10 +160,10 @@ const AccordionTrigger = React.forwardRef<HTMLButtonElement, AccordionTriggerPro
         <button
           ref={ref}
           className={cn(
-            'flex w-full min-h-[44px] items-center justify-between px-component-md py-component-sm font-medium',
+            'px-component-md py-component-sm flex min-h-[44px] w-full items-center justify-between font-medium',
             'transition-colors duration-200',
             'hover:bg-muted/50',
-            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+            'focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
             '[&[data-state=open]>svg]:rotate-180',
             className
           )}

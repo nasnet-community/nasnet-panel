@@ -158,9 +158,7 @@ const resourcesTemplate: AlertRuleTemplate = {
   category: 'RESOURCES',
   severity: 'WARNING',
   eventType: 'system.cpu.high',
-  conditions: [
-    { field: 'cpu_percent', operator: 'GREATER_THAN', value: '{{CPU_THRESHOLD}}' },
-  ],
+  conditions: [{ field: 'cpu_percent', operator: 'GREATER_THAN', value: '{{CPU_THRESHOLD}}' }],
   channels: ['inapp'],
   variables: [
     {
@@ -238,7 +236,8 @@ export const NoVariables: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'When a template has no variables the tabbed layout is replaced by a single details view with a direct Apply button.',
+        story:
+          'When a template has no variables the tabbed layout is replaced by a single details view with a direct Apply button.',
       },
     },
   },
@@ -259,7 +258,8 @@ export const SecurityTemplate: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Security category template showcasing multiple variables and a group-by throttle configuration.',
+        story:
+          'Security category template showcasing multiple variables and a group-by throttle configuration.',
       },
     },
   },
@@ -296,7 +296,8 @@ export const CustomTemplateWithDelete: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'User-created (non-built-in) templates show a destructive Delete button that is hidden for built-in templates.',
+        story:
+          'User-created (non-built-in) templates show a destructive Delete button that is hidden for built-in templates.',
       },
     },
   },
@@ -318,7 +319,8 @@ export const Submitting: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'While the template is being applied all action buttons are disabled to prevent duplicate submissions.',
+        story:
+          'While the template is being applied all action buttons are disabled to prevent duplicate submissions.',
       },
     },
   },

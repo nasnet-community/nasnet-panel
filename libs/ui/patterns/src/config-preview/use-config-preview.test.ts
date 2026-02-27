@@ -44,9 +44,7 @@ set name=ether1
 /ip address
 add address=192.168.1.1/24`;
 
-      const { result } = renderHook(() =>
-        useConfigPreview({ script, collapsible: true })
-      );
+      const { result } = renderHook(() => useConfigPreview({ script, collapsible: true }));
 
       expect(result.current.sections.length).toBe(2);
       expect(result.current.sections[0].header).toBe('/interface ethernet');
@@ -56,18 +54,14 @@ add address=192.168.1.1/24`;
     it('handles scripts without sections', () => {
       const script = '# This is just a comment\n# Another comment';
 
-      const { result } = renderHook(() =>
-        useConfigPreview({ script, collapsible: true })
-      );
+      const { result } = renderHook(() => useConfigPreview({ script, collapsible: true }));
 
       // Should still create a section for the content
       expect(result.current.sections.length).toBeGreaterThan(0);
     });
 
     it('handles empty scripts', () => {
-      const { result } = renderHook(() =>
-        useConfigPreview({ script: '', collapsible: true })
-      );
+      const { result } = renderHook(() => useConfigPreview({ script: '', collapsible: true }));
 
       expect(result.current.totalLines).toBe(1); // Empty string splits to ['']
     });
@@ -79,14 +73,10 @@ add address=192.168.1.1/24`;
 /interface ethernet
 set name=ether1`;
 
-      const { result } = renderHook(() =>
-        useConfigPreview({ script, collapsible: true })
-      );
+      const { result } = renderHook(() => useConfigPreview({ script, collapsible: true }));
 
       // Should have preamble section and one command section
-      const preambleSection = result.current.sections.find(
-        (s) => s.header === '__preamble__'
-      );
+      const preambleSection = result.current.sections.find((s) => s.header === '__preamble__');
       expect(preambleSection).toBeDefined();
     });
   });
@@ -95,9 +85,7 @@ set name=ether1`;
     it('all sections expanded by default', () => {
       const script = `/interface\nset name=eth1\n\n/ip address\nadd address=1.1.1.1`;
 
-      const { result } = renderHook(() =>
-        useConfigPreview({ script, collapsible: true })
-      );
+      const { result } = renderHook(() => useConfigPreview({ script, collapsible: true }));
 
       expect(result.current.sections.every((s) => s.isExpanded)).toBe(true);
     });
@@ -105,9 +93,7 @@ set name=ether1`;
     it('toggleSection toggles a specific section', () => {
       const script = `/interface\nset name=eth1\n\n/ip address\nadd address=1.1.1.1`;
 
-      const { result } = renderHook(() =>
-        useConfigPreview({ script, collapsible: true })
-      );
+      const { result } = renderHook(() => useConfigPreview({ script, collapsible: true }));
 
       const sectionId = result.current.sections[0].id;
 
@@ -122,9 +108,7 @@ set name=ether1`;
     it('expandAll expands all sections', () => {
       const script = `/interface\nset\n\n/ip address\nadd`;
 
-      const { result } = renderHook(() =>
-        useConfigPreview({ script, collapsible: true })
-      );
+      const { result } = renderHook(() => useConfigPreview({ script, collapsible: true }));
 
       // Collapse all first
       act(() => {
@@ -144,9 +128,7 @@ set name=ether1`;
     it('collapseAll collapses all sections', () => {
       const script = `/interface\nset\n\n/ip address\nadd`;
 
-      const { result } = renderHook(() =>
-        useConfigPreview({ script, collapsible: true })
-      );
+      const { result } = renderHook(() => useConfigPreview({ script, collapsible: true }));
 
       act(() => {
         result.current.collapseAll();
@@ -173,9 +155,7 @@ set name=ether1`;
       const onCopy = vi.fn();
       const script = '/interface ethernet';
 
-      const { result } = renderHook(() =>
-        useConfigPreview({ script, onCopy })
-      );
+      const { result } = renderHook(() => useConfigPreview({ script, onCopy }));
 
       await act(async () => {
         await result.current.copyToClipboard();
@@ -215,9 +195,7 @@ set name=ether1`;
     });
 
     it('generates fallback filename without router name', () => {
-      const { result } = renderHook(() =>
-        useConfigPreview({ script: 'test' })
-      );
+      const { result } = renderHook(() => useConfigPreview({ script: 'test' }));
 
       expect(result.current.filename).toMatch(/^config-\d{4}-\d{2}-\d{2}\.rsc$/);
     });
@@ -235,9 +213,7 @@ set name=ether1`;
     });
 
     it('calls downloadAsFile without errors', () => {
-      const { result } = renderHook(() =>
-        useConfigPreview({ script: 'test script' })
-      );
+      const { result } = renderHook(() => useConfigPreview({ script: 'test script' }));
 
       // Mock DOM methods
       const createObjectURL = vi.fn().mockReturnValue('blob:test');
@@ -271,9 +247,7 @@ set name=ether1`;
     it('calls onDownload callback when provided', () => {
       const onDownload = vi.fn();
 
-      const { result } = renderHook(() =>
-        useConfigPreview({ script: 'test', onDownload })
-      );
+      const { result } = renderHook(() => useConfigPreview({ script: 'test', onDownload }));
 
       // Mock DOM methods
       global.URL.createObjectURL = vi.fn().mockReturnValue('blob:test');
@@ -281,8 +255,12 @@ set name=ether1`;
 
       const mockLink = { href: '', download: '', click: vi.fn() };
       vi.spyOn(document, 'createElement').mockReturnValue(mockLink as unknown as HTMLAnchorElement);
-      vi.spyOn(document.body, 'appendChild').mockImplementation(() => mockLink as unknown as HTMLAnchorElement);
-      vi.spyOn(document.body, 'removeChild').mockImplementation(() => mockLink as unknown as HTMLAnchorElement);
+      vi.spyOn(document.body, 'appendChild').mockImplementation(
+        () => mockLink as unknown as HTMLAnchorElement
+      );
+      vi.spyOn(document.body, 'removeChild').mockImplementation(
+        () => mockLink as unknown as HTMLAnchorElement
+      );
 
       act(() => {
         result.current.downloadAsFile();

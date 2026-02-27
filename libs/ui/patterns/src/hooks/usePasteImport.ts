@@ -170,12 +170,14 @@ export interface UsePasteImportReturn {
 /**
  * IPv4 address regex (with optional CIDR notation)
  */
-const IPV4_REGEX = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(?:\/(?:3[0-2]|[12]?[0-9]))?$/;
+const IPV4_REGEX =
+  /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(?:\/(?:3[0-2]|[12]?[0-9]))?$/;
 
 /**
  * IPv6 address regex (simplified)
  */
-const IPV6_REGEX = /^(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$|^::(?:[0-9a-fA-F]{1,4}:){0,5}[0-9a-fA-F]{1,4}$/;
+const IPV6_REGEX =
+  /^(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$|^::(?:[0-9a-fA-F]{1,4}:){0,5}[0-9a-fA-F]{1,4}$/;
 
 /**
  * Validate IP address (v4 or v6)
@@ -351,7 +353,11 @@ function parseRouterOS(content: string, maxItems: number): ParseResult {
     currentCommand = '';
 
     // Validate command structure (basic check)
-    if (fullCommand.startsWith('/') || fullCommand.includes(' add ') || fullCommand.includes(' set ')) {
+    if (
+      fullCommand.startsWith('/') ||
+      fullCommand.includes(' add ') ||
+      fullCommand.includes(' set ')
+    ) {
       items.push({ line: lineNum, original: fullCommand, value: fullCommand });
     } else {
       errors.push({

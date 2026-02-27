@@ -41,16 +41,12 @@ async function killConnection(variables: KillConnectionVariables): Promise<void>
 
   // RouterOS REST API uses POST to /rest/ip/firewall/connection/remove
   // with the connection ID in the request body
-  const result = await makeRouterOSRequest<void>(
-    routerIp,
-    'ip/firewall/connection/remove',
-    {
-      method: 'POST',
-      body: {
-        '.id': connectionId,
-      },
-    }
-  );
+  const result = await makeRouterOSRequest<void>(routerIp, 'ip/firewall/connection/remove', {
+    method: 'POST',
+    body: {
+      '.id': connectionId,
+    },
+  });
 
   if (!result.success) {
     throw new Error(result.error || 'Failed to terminate connection');

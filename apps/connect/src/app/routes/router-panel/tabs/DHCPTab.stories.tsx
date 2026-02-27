@@ -10,7 +10,8 @@ const meta: Meta<typeof DHCPTab> = {
     layout: 'fullscreen',
     docs: {
       description: {
-        component: 'Complete DHCP management tab displaying DHCP overview, address pools, servers, active leases, and WAN DHCP clients. Integrates multiple DHCP-related components in a unified dashboard.',
+        component:
+          'Complete DHCP management tab displaying DHCP overview, address pools, servers, active leases, and WAN DHCP clients. Integrates multiple DHCP-related components in a unified dashboard.',
       },
     },
   },
@@ -30,7 +31,8 @@ export const Default: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Complete DHCP tab in default state. Note: This component uses router hooks (useConnectionStore, useDHCPServers, useDHCPLeases, useDHCPClients, useDHCPPools) which require proper context setup. In Storybook, data loading is mocked through Apollo Client and Zustand store setup.',
+        story:
+          'Complete DHCP tab in default state. Note: This component uses router hooks (useConnectionStore, useDHCPServers, useDHCPLeases, useDHCPClients, useDHCPPools) which require proper context setup. In Storybook, data loading is mocked through Apollo Client and Zustand store setup.',
       },
     },
   },
@@ -39,7 +41,14 @@ export const Default: Story = {
 export const MobileView: Story = {
   decorators: [
     (Story) => (
-      <div style={{ backgroundColor: '#f8f9fa', minHeight: '100vh', maxWidth: '375px', margin: '0 auto' }}>
+      <div
+        style={{
+          backgroundColor: '#f8f9fa',
+          minHeight: '100vh',
+          maxWidth: '375px',
+          margin: '0 auto',
+        }}
+      >
         <Story />
       </div>
     ),
@@ -59,7 +68,14 @@ export const MobileView: Story = {
 export const TabletView: Story = {
   decorators: [
     (Story) => (
-      <div style={{ backgroundColor: '#f8f9fa', minHeight: '100vh', maxWidth: '768px', margin: '0 auto' }}>
+      <div
+        style={{
+          backgroundColor: '#f8f9fa',
+          minHeight: '100vh',
+          maxWidth: '768px',
+          margin: '0 auto',
+        }}
+      >
         <Story />
       </div>
     ),
@@ -70,7 +86,8 @@ export const TabletView: Story = {
     },
     docs: {
       description: {
-        story: 'DHCP tab on tablet viewport. Hybrid layout with collapsible sidebar considerations.',
+        story:
+          'DHCP tab on tablet viewport. Hybrid layout with collapsible sidebar considerations.',
       },
     },
   },
@@ -79,7 +96,14 @@ export const TabletView: Story = {
 export const DesktopView: Story = {
   decorators: [
     (Story) => (
-      <div style={{ backgroundColor: '#f8f9fa', minHeight: '100vh', maxWidth: '1400px', margin: '0 auto' }}>
+      <div
+        style={{
+          backgroundColor: '#f8f9fa',
+          minHeight: '100vh',
+          maxWidth: '1400px',
+          margin: '0 auto',
+        }}
+      >
         <Story />
       </div>
     ),

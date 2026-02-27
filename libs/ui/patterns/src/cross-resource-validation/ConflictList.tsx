@@ -56,9 +56,9 @@ export function ConflictList({
   className,
 }: ConflictListProps) {
   const [expandedIds, setExpandedIds] = React.useState<Set<string>>(new Set());
-  const [activeSeverityFilter, setActiveSeverityFilter] = React.useState<
-    ConflictSeverity | 'all'
-  >('all');
+  const [activeSeverityFilter, setActiveSeverityFilter] = React.useState<ConflictSeverity | 'all'>(
+    'all'
+  );
 
   // Filter conflicts by severity
   const filteredConflicts = React.useMemo(() => {
@@ -114,16 +114,16 @@ export function ConflictList({
   if (conflicts.length === 0) {
     return (
       <div
-        className={cn(
-          'flex flex-col items-center justify-center p-8 text-center',
-          className
-        )}
+        className={cn('flex flex-col items-center justify-center p-8 text-center', className)}
         role="status"
         aria-label="No conflicts"
       >
-        <CheckCircle2 className="h-12 w-12 text-success mb-4" aria-hidden="true" />
-        <p className="text-lg font-medium text-foreground">All Clear</p>
-        <p className="text-sm text-muted-foreground">{emptyMessage}</p>
+        <CheckCircle2
+          className="text-success mb-4 h-12 w-12"
+          aria-hidden="true"
+        />
+        <p className="text-foreground text-lg font-medium">All Clear</p>
+        <p className="text-muted-foreground text-sm">{emptyMessage}</p>
       </div>
     );
   }
@@ -132,29 +132,38 @@ export function ConflictList({
     <div className={cn('space-y-4', className)}>
       {/* Header */}
       {showSummary && (
-        <div className="flex items-center justify-between flex-wrap gap-4">
+        <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
-            <h2 className="text-lg font-semibold text-foreground">{title}</h2>
+            <h2 className="text-foreground text-lg font-semibold">{title}</h2>
             <div
-              className="flex items-center gap-3 mt-1"
+              className="mt-1 flex items-center gap-3"
               role="status"
               aria-label="Conflict summary"
             >
               {counts.error > 0 && (
-                <span className="flex items-center gap-1 text-sm text-error">
-                  <AlertCircle className="h-4 w-4" aria-hidden="true" />
+                <span className="text-error flex items-center gap-1 text-sm">
+                  <AlertCircle
+                    className="h-4 w-4"
+                    aria-hidden="true"
+                  />
                   {counts.error} {counts.error === 1 ? 'error' : 'errors'}
                 </span>
               )}
               {counts.warning > 0 && (
-                <span className="flex items-center gap-1 text-sm text-warning">
-                  <AlertTriangle className="h-4 w-4" aria-hidden="true" />
+                <span className="text-warning flex items-center gap-1 text-sm">
+                  <AlertTriangle
+                    className="h-4 w-4"
+                    aria-hidden="true"
+                  />
                   {counts.warning} {counts.warning === 1 ? 'warning' : 'warnings'}
                 </span>
               )}
               {counts.info > 0 && (
-                <span className="flex items-center gap-1 text-sm text-info">
-                  <Info className="h-4 w-4" aria-hidden="true" />
+                <span className="text-info flex items-center gap-1 text-sm">
+                  <Info
+                    className="h-4 w-4"
+                    aria-hidden="true"
+                  />
                   {counts.info} info
                 </span>
               )}
@@ -164,8 +173,15 @@ export function ConflictList({
           {/* Controls */}
           <div className="flex items-center gap-2">
             {/* Severity filter */}
-            <div className="flex items-center gap-1" role="group" aria-label="Filter by severity">
-              <Filter className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+            <div
+              className="flex items-center gap-1"
+              role="group"
+              aria-label="Filter by severity"
+            >
+              <Filter
+                className="text-muted-foreground h-4 w-4"
+                aria-hidden="true"
+              />
               <Button
                 variant={activeSeverityFilter === 'all' ? 'default' : 'ghost'}
                 size="sm"
@@ -194,11 +210,19 @@ export function ConflictList({
             </div>
 
             {/* Expand/Collapse all */}
-            <div className="border-l pl-2 ml-2">
-              <Button variant="ghost" size="sm" onClick={expandAll}>
+            <div className="ml-2 border-l pl-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={expandAll}
+              >
                 Expand All
               </Button>
-              <Button variant="ghost" size="sm" onClick={collapseAll}>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={collapseAll}
+              >
                 Collapse All
               </Button>
             </div>
@@ -207,7 +231,11 @@ export function ConflictList({
       )}
 
       {/* Conflict cards */}
-      <div className="space-y-3" role="list" aria-label="Conflicts">
+      <div
+        className="space-y-3"
+        role="list"
+        aria-label="Conflicts"
+      >
         {filteredConflicts.map((conflict) => (
           <ConflictCard
             key={conflict.id}
@@ -221,7 +249,7 @@ export function ConflictList({
 
       {/* Filtered empty state */}
       {filteredConflicts.length === 0 && conflicts.length > 0 && (
-        <div className="text-center py-8 text-muted-foreground">
+        <div className="text-muted-foreground py-8 text-center">
           <p>No conflicts match the current filter</p>
           <Button
             variant="link"

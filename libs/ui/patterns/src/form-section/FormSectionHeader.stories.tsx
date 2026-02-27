@@ -193,7 +193,7 @@ export const InteractiveToggle: Story = {
     const [isExpanded, setIsExpanded] = React.useState(true);
 
     return (
-      <div className="w-96 rounded-lg border border-border overflow-hidden">
+      <div className="border-border w-96 overflow-hidden rounded-lg border">
         <FormSectionHeader
           title="WireGuard Interface"
           description="Click to toggle this section"
@@ -206,11 +206,14 @@ export const InteractiveToggle: Story = {
           reducedMotion={false}
         />
         {isExpanded && (
-          <div id="interactive-content" className="p-4 border-t border-border">
-            <p className="text-sm text-muted-foreground">
+          <div
+            id="interactive-content"
+            className="border-border border-t p-4"
+          >
+            <p className="text-muted-foreground text-sm">
               Section is <strong>expanded</strong>. Click the header above to collapse.
             </p>
-            <p className="mt-2 text-xs text-muted-foreground font-mono">
+            <p className="text-muted-foreground mt-2 font-mono text-xs">
               isExpanded: {String(isExpanded)}
             </p>
           </div>

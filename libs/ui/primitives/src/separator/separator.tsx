@@ -1,10 +1,10 @@
-"use client"
+'use client';
 
-import * as React from "react"
+import * as React from 'react';
 
-import * as SeparatorPrimitive from "@radix-ui/react-separator"
+import * as SeparatorPrimitive from '@radix-ui/react-separator';
 
-import { cn } from "../lib/utils"
+import { cn } from '../lib/utils';
 
 /**
  * Props for Separator component.
@@ -70,28 +70,22 @@ export interface SeparatorProps
  * ```
  */
 const Separator = React.memo(
-  React.forwardRef<
-    React.ElementRef<typeof SeparatorPrimitive.Root>,
-    SeparatorProps
-  >(
-    (
-      { className, orientation = "horizontal", decorative = true, ...props },
-      ref
-    ) => (
+  React.forwardRef<React.ElementRef<typeof SeparatorPrimitive.Root>, SeparatorProps>(
+    ({ className, orientation = 'horizontal', decorative = true, ...props }, ref) => (
       <SeparatorPrimitive.Root
         ref={ref}
         decorative={decorative}
         orientation={orientation}
         className={cn(
-          "shrink-0 bg-border",
-          orientation === "horizontal" ? "h-px w-full" : "h-full w-px",
+          'bg-border shrink-0',
+          orientation === 'horizontal' ? 'h-px w-full' : 'h-full w-px',
           className
         )}
         {...props}
       />
     )
   )
-)
-Separator.displayName = 'Separator'
+);
+Separator.displayName = 'Separator';
 
-export { Separator }
+export { Separator };

@@ -145,7 +145,10 @@ describe('PingStatistics', () => {
 
   it('should accept optional className prop', () => {
     const { container } = render(
-      <PingStatistics statistics={baseStats} className="custom-class" />
+      <PingStatistics
+        statistics={baseStats}
+        className="custom-class"
+      />
     );
 
     const wrapper = container.firstChild;

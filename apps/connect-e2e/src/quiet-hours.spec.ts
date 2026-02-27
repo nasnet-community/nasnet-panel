@@ -69,7 +69,10 @@ const setupQuietHoursGraphQLMock = async (page: Page) => {
 /**
  * Create mock alert for testing
  */
-const createMockAlert = (severity: 'CRITICAL' | 'WARNING' | 'INFO' = 'WARNING', isQueued = false) => ({
+const createMockAlert = (
+  severity: 'CRITICAL' | 'WARNING' | 'INFO' = 'WARNING',
+  isQueued = false
+) => ({
   id: `alert-${Date.now()}-${Math.random()}`,
   title: `Test ${severity} Alert`,
   message: 'This is a test alert message',
@@ -100,7 +103,9 @@ test.describe('Quiet Hours Configuration', () => {
   test('configure quiet hours and save settings', async ({ page }) => {
     // Find and expand quiet hours section
     await page.getByRole('heading', { name: /quiet hours/i }).waitFor();
-    const quietHoursSection = page.locator('[data-testid="quiet-hours-config"], .quiet-hours-config').first();
+    const quietHoursSection = page
+      .locator('[data-testid="quiet-hours-config"], .quiet-hours-config')
+      .first();
 
     // If section is collapsed, expand it
     const expandButton = page.getByRole('button', { name: /quiet hours/i }).first();
@@ -112,7 +117,9 @@ test.describe('Quiet Hours Configuration', () => {
     await page.waitForTimeout(500); // Allow animation to complete
 
     // Configure time range (22:00 - 08:00)
-    const startTimeInput = page.locator('input[name="startTime"], input[placeholder*="Start"]').first();
+    const startTimeInput = page
+      .locator('input[name="startTime"], input[placeholder*="Start"]')
+      .first();
     const endTimeInput = page.locator('input[name="endTime"], input[placeholder*="End"]').first();
 
     await startTimeInput.fill('22:00');
@@ -130,7 +137,7 @@ test.describe('Quiet Hours Configuration', () => {
       const dayButton = page.getByRole('button', { name: new RegExp(day, 'i') });
       if (await dayButton.isVisible()) {
         // Toggle on if not already selected
-        const isSelected = await dayButton.getAttribute('aria-pressed') === 'true';
+        const isSelected = (await dayButton.getAttribute('aria-pressed')) === 'true';
         if (!isSelected) {
           await dayButton.click();
         }
@@ -142,7 +149,7 @@ test.describe('Quiet Hours Configuration', () => {
     for (const day of weekendDays) {
       const dayButton = page.getByRole('button', { name: new RegExp(day, 'i') });
       if (await dayButton.isVisible()) {
-        const isSelected = await dayButton.getAttribute('aria-pressed') === 'true';
+        const isSelected = (await dayButton.getAttribute('aria-pressed')) === 'true';
         if (isSelected) {
           await dayButton.click();
         }
@@ -178,8 +185,12 @@ test.describe('Quiet Hours Configuration', () => {
     }
 
     // Verify settings persisted
-    const startTimeAfterReload = page.locator('input[name="startTime"], input[placeholder*="Start"]').first();
-    const endTimeAfterReload = page.locator('input[name="endTime"], input[placeholder*="End"]').first();
+    const startTimeAfterReload = page
+      .locator('input[name="startTime"], input[placeholder*="Start"]')
+      .first();
+    const endTimeAfterReload = page
+      .locator('input[name="endTime"], input[placeholder*="End"]')
+      .first();
 
     await expect(startTimeAfterReload).toHaveValue('22:00');
     await expect(endTimeAfterReload).toHaveValue('08:00');
@@ -273,7 +284,9 @@ test.describe('Quiet Hours Configuration', () => {
     }
 
     // Find timezone selector (combobox or select)
-    const timezoneSelector = page.locator('input[placeholder*="timezone" i], select[name="timezone"]').first();
+    const timezoneSelector = page
+      .locator('input[placeholder*="timezone" i], select[name="timezone"]')
+      .first();
     await timezoneSelector.click();
 
     // Type to search for timezone
@@ -334,7 +347,9 @@ test.describe('Quiet Hours Configuration', () => {
     }
 
     // Try to set invalid time format
-    const startTimeInput = page.locator('input[name="startTime"], input[placeholder*="Start"]').first();
+    const startTimeInput = page
+      .locator('input[name="startTime"], input[placeholder*="Start"]')
+      .first();
     await startTimeInput.fill('25:00'); // Invalid hour
 
     // Verify error message appears
@@ -393,7 +408,9 @@ test.describe('Quiet Hours Cross-Browser', () => {
     await expect(page.getByRole('heading', { name: /quiet hours/i })).toBeVisible();
 
     // On mobile, layout should be single column (no grid-cols-2)
-    const quietHoursCard = page.locator('[data-testid="quiet-hours-config"], .quiet-hours-config').first();
+    const quietHoursCard = page
+      .locator('[data-testid="quiet-hours-config"], .quiet-hours-config')
+      .first();
     const hasGridCols2 = await quietHoursCard.evaluate((el) =>
       el.className.includes('grid-cols-2')
     );
@@ -411,7 +428,9 @@ test.describe('Quiet Hours Cross-Browser', () => {
     await expect(page.getByRole('heading', { name: /quiet hours/i })).toBeVisible();
 
     // On desktop, should use 2-column grid
-    const quietHoursCard = page.locator('[data-testid="quiet-hours-config"], .quiet-hours-config').first();
+    const quietHoursCard = page
+      .locator('[data-testid="quiet-hours-config"], .quiet-hours-config')
+      .first();
     const hasGridCols2 = await quietHoursCard.evaluate((el) =>
       el.className.includes('grid-cols-2')
     );

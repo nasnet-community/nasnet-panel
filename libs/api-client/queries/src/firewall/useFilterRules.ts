@@ -28,7 +28,8 @@ import type { FilterRule, FilterChain } from '@nasnet/core/types';
  */
 export const firewallKeys = {
   all: (routerId: string) => ['firewall', routerId] as const,
-  filter: (routerId: string, chain?: FilterChain) => [...firewallKeys.all(routerId), 'filter', chain] as const,
+  filter: (routerId: string, chain?: FilterChain) =>
+    [...firewallKeys.all(routerId), 'filter', chain] as const,
   nat: (routerId: string) => [...firewallKeys.all(routerId), 'nat'] as const,
   counters: (routerId: string) => [...firewallKeys.all(routerId), 'counters'] as const,
 };
@@ -88,7 +89,10 @@ interface RawFilterRule {
  */
 function parseCommaSeparated(value?: string): string[] | undefined {
   if (!value) return undefined;
-  return value.split(',').map(s => s.trim()).filter(Boolean);
+  return value
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
 }
 
 /**
@@ -238,9 +242,8 @@ export function useFilterRules(
   options?: UseFilterRulesOptions
 ): UseQueryResult<FilterRule[], Error> {
   return useQuery({
-    queryKey: options?.chain
-      ? firewallKeys.filter(routerId, options.chain)
-      : firewallKeys.filter(routerId),
+    queryKey:
+      options?.chain ? firewallKeys.filter(routerId, options.chain) : firewallKeys.filter(routerId),
     queryFn: () => fetchFilterRules(routerId, options?.chain),
     staleTime: 5 * 60 * 1000, // 5 minutes
     enabled: !!routerId && (options?.enabled ?? true),

@@ -87,8 +87,7 @@ export const useRawUIStore = create<RawUIState>()(
       setSelectedChain: (chain) => set({ selectedChain: chain }),
 
       // Performance section
-      setPerformanceSectionExpanded: (expanded) =>
-        set({ performanceSectionExpanded: expanded }),
+      setPerformanceSectionExpanded: (expanded) => set({ performanceSectionExpanded: expanded }),
 
       // Filter settings
       setFilterSettings: (filters) =>
@@ -115,8 +114,9 @@ export const useRawUIStore = create<RawUIState>()(
       // Expanded rules
       toggleRuleExpansion: (ruleId) =>
         set((state) => ({
-          expandedRules: state.expandedRules.includes(ruleId)
-            ? state.expandedRules.filter((id) => id !== ruleId)
+          expandedRules:
+            state.expandedRules.includes(ruleId) ?
+              state.expandedRules.filter((id) => id !== ruleId)
             : [...state.expandedRules, ruleId],
         })),
 

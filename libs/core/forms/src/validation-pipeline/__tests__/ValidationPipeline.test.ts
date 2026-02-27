@@ -10,17 +10,10 @@ import {
   createValidationPipeline,
 } from '../ValidationPipeline';
 
-import type {
-  ValidationRequest,
-  ValidationResponse,
-  ValidationStageResult,
-} from '../types';
+import type { ValidationRequest, ValidationResponse, ValidationStageResult } from '../types';
 
 describe('ValidationPipeline', () => {
-  const mockValidateFn = vi.fn<
-    [ValidationRequest],
-    Promise<ValidationResponse>
-  >();
+  const mockValidateFn = vi.fn<[ValidationRequest], Promise<ValidationResponse>>();
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -32,10 +25,7 @@ describe('ValidationPipeline', () => {
       isValid: true,
     });
 
-    const pipeline = new ValidationPipeline(
-      { validateFn: mockValidateFn },
-      { riskLevel: 'low' }
-    );
+    const pipeline = new ValidationPipeline({ validateFn: mockValidateFn }, { riskLevel: 'low' });
 
     const result = await pipeline.validate('test-resource', { name: 'test' });
 
@@ -172,9 +162,7 @@ describe('ValidationPipeline', () => {
     const result = await pipeline.validate('test', {});
 
     // The pipeline should mark remaining stages as skipped after first failure
-    const crossResourceStage = result.stages.find(
-      (s) => s.stage === 'cross-resource'
-    );
+    const crossResourceStage = result.stages.find((s) => s.stage === 'cross-resource');
     expect(crossResourceStage?.status).toBe('skipped');
   });
 
@@ -194,9 +182,7 @@ describe('ValidationPipeline', () => {
 
     const result = await pipeline.validate('test', {});
 
-    const crossResourceStage = result.stages.find(
-      (s) => s.stage === 'cross-resource'
-    );
+    const crossResourceStage = result.stages.find((s) => s.stage === 'cross-resource');
     expect(crossResourceStage?.status).toBe('skipped');
   });
 
@@ -206,9 +192,7 @@ describe('ValidationPipeline', () => {
     const onProgress = vi.fn();
 
     mockValidateFn.mockResolvedValue({
-      stages: [
-        { stage: 'syntax', status: 'passed', errors: [], warnings: [] },
-      ],
+      stages: [{ stage: 'syntax', status: 'passed', errors: [], warnings: [] }],
       isValid: true,
     });
 
@@ -240,9 +224,7 @@ describe('ValidationPipeline', () => {
     const result = await pipeline.validate('test', {});
 
     expect(result.isValid).toBe(false);
-    expect(result.errors.some((e) => e.message.includes('unavailable'))).toBe(
-      true
-    );
+    expect(result.errors.some((e) => e.message.includes('unavailable'))).toBe(true);
   });
 
   it('can be aborted', async () => {
@@ -250,9 +232,7 @@ describe('ValidationPipeline', () => {
     mockValidateFn.mockImplementation(async () => {
       await new Promise((resolve) => setTimeout(resolve, 100));
       return {
-        stages: [
-          { stage: 'syntax', status: 'passed', errors: [], warnings: [] },
-        ],
+        stages: [{ stage: 'syntax', status: 'passed', errors: [], warnings: [] }],
         isValid: true,
       };
     });

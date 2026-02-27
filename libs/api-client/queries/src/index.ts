@@ -71,10 +71,7 @@ export { useServiceInstances, useServiceInstance } from './services/useServiceIn
 export type { ServiceInstance, ServiceStatus } from './services/useServiceInstances';
 
 export { useInstallService } from './services/useInstallService';
-export type {
-  InstallServiceInput,
-  InstallServiceVariables,
-} from './services/useInstallService';
+export type { InstallServiceInput, InstallServiceVariables } from './services/useInstallService';
 
 export { useInstanceMutations } from './services/useInstanceMutations';
 
@@ -101,15 +98,9 @@ export {
   useInstanceStatusChanged,
   useInstanceMonitoring,
 } from './services/useInstanceSubscriptions';
-export type {
-  InstallProgress,
-  InstanceStatusChanged,
-} from './services/useInstanceSubscriptions';
+export type { InstallProgress, InstanceStatusChanged } from './services/useInstanceSubscriptions';
 
-export {
-  useVirtualInterfaces,
-  useVirtualInterface,
-} from './services/useVirtualInterfaces';
+export { useVirtualInterfaces, useVirtualInterface } from './services/useVirtualInterfaces';
 export type {
   VirtualInterface,
   GatewayType,
@@ -120,9 +111,7 @@ export type {
 export { useBridgeStatus } from './services/useBridgeStatus';
 export type { BridgeStatus } from './services/useBridgeStatus';
 
-export {
-  useInstanceIsolation,
-} from './services/useInstanceIsolation';
+export { useInstanceIsolation } from './services/useInstanceIsolation';
 export type {
   GetInstanceIsolationVariables,
   GetInstanceIsolationResult,
@@ -134,7 +123,10 @@ export type { GatewayInfo, UseGatewayStatusOptions } from './services/useGateway
 
 export { useInstanceHealth } from './services/useInstanceHealth';
 export { useInstanceHealthSubscription } from './services/useInstanceHealthSubscription';
-export { useConfigureHealthCheck, validateHealthCheckConfig } from './services/useConfigureHealthCheck';
+export {
+  useConfigureHealthCheck,
+  validateHealthCheckConfig,
+} from './services/useConfigureHealthCheck';
 
 export {
   usePortAllocations,
@@ -147,11 +139,7 @@ export type {
   UsePortAllocationsReturn,
 } from './services/usePortRegistry';
 
-export {
-  useDependencies,
-  useDependents,
-  useDependencyGraph,
-} from './services/useDependencies';
+export { useDependencies, useDependents, useDependencyGraph } from './services/useDependencies';
 export type {
   DependencyType,
   ServiceDependency,
@@ -162,10 +150,7 @@ export type {
 } from './services/useDependencies';
 
 export { useDependencyMutations } from './services/useDependencyMutations';
-export type {
-  AddDependencyInput,
-  RemoveDependencyInput,
-} from './services/useDependencyMutations';
+export type { AddDependencyInput, RemoveDependencyInput } from './services/useDependencyMutations';
 
 export { useBootSequenceProgress } from './services/useBootSequenceProgress';
 export type {
@@ -238,10 +223,7 @@ export {
   useSetKillSwitch,
   useKillSwitchSubscription,
 } from './services/useKillSwitch';
-export type {
-  KillSwitchStatus,
-  SetKillSwitchInput,
-} from './services/useKillSwitch';
+export type { KillSwitchStatus, SetKillSwitchInput } from './services/useKillSwitch';
 
 export {
   useRoutingSchedules,
@@ -293,29 +275,21 @@ export {
   GET_FEATURE_VERIFICATION,
   GET_INSTANCE_VERIFICATION_STATUS,
 } from './services/useFeatureVerification';
-export { REVERIFY_INSTANCE, REVERIFY_INSTANCE as REVERIFY_INSTANCE_MUTATION } from './services/useReverifyFeature';
-
 export {
-  GET_VIRTUAL_INTERFACES,
-  GET_VIRTUAL_INTERFACE,
-} from './services/useVirtualInterfaces';
+  REVERIFY_INSTANCE,
+  REVERIFY_INSTANCE as REVERIFY_INSTANCE_MUTATION,
+} from './services/useReverifyFeature';
+
+export { GET_VIRTUAL_INTERFACES, GET_VIRTUAL_INTERFACE } from './services/useVirtualInterfaces';
 export { GET_BRIDGE_STATUS } from './services/useBridgeStatus';
 
-export {
-  GET_INSTANCE_ISOLATION,
-} from './services/useInstanceIsolation';
+export { GET_INSTANCE_ISOLATION } from './services/useInstanceIsolation';
 
-export {
-  INSTANCE_HEALTH_QUERY,
-} from './services/useInstanceHealth';
+export { INSTANCE_HEALTH_QUERY } from './services/useInstanceHealth';
 
-export {
-  INSTANCE_HEALTH_CHANGED_SUBSCRIPTION,
-} from './services/useInstanceHealthSubscription';
+export { INSTANCE_HEALTH_CHANGED_SUBSCRIPTION } from './services/useInstanceHealthSubscription';
 
-export {
-  CONFIGURE_HEALTH_CHECK_MUTATION,
-} from './services/useConfigureHealthCheck';
+export { CONFIGURE_HEALTH_CHECK_MUTATION } from './services/useConfigureHealthCheck';
 
 export {
   GET_VLAN_ALLOCATIONS,

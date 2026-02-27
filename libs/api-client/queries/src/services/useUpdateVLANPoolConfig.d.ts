@@ -3,8 +3,8 @@ import type { VLANPoolStatus } from './useVLANPoolStatus';
  * Input for updating VLAN pool configuration
  */
 export interface UpdateVLANPoolConfigInput {
-    poolStart: number;
-    poolEnd: number;
+  poolStart: number;
+  poolEnd: number;
 }
 /**
  * Hook to update VLAN pool configuration
@@ -35,9 +35,9 @@ export interface UpdateVLANPoolConfigInput {
  * ```
  */
 export declare function useUpdateVLANPoolConfig(): {
-    updatePoolConfig: (input: UpdateVLANPoolConfigInput) => Promise<VLANPoolStatus>;
-    loading: boolean;
-    error: import("@apollo/client").ApolloError | undefined;
-    poolStatus: VLANPoolStatus | undefined;
+  updatePoolConfig: (input: UpdateVLANPoolConfigInput) => Promise<VLANPoolStatus>;
+  loading: boolean;
+  error: import('@apollo/client').ApolloError | undefined;
+  poolStatus: VLANPoolStatus | undefined;
 };
 //# sourceMappingURL=useUpdateVLANPoolConfig.d.ts.map

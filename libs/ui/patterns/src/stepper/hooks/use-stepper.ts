@@ -172,19 +172,16 @@ export function useStepper(config: StepperConfig): UseStepperReturn {
   /**
    * Update step state
    */
-  const updateStepState = useCallback(
-    (stepId: string, updates: Partial<StepState>) => {
-      setStepStates((prev) => {
-        const newStates = new Map(prev);
-        const current = newStates.get(stepId);
-        if (current) {
-          newStates.set(stepId, { ...current, ...updates });
-        }
-        return newStates;
-      });
-    },
-    []
-  );
+  const updateStepState = useCallback((stepId: string, updates: Partial<StepState>) => {
+    setStepStates((prev) => {
+      const newStates = new Map(prev);
+      const current = newStates.get(stepId);
+      if (current) {
+        newStates.set(stepId, { ...current, ...updates });
+      }
+      return newStates;
+    });
+  }, []);
 
   /**
    * Mark step as completed
@@ -301,8 +298,7 @@ export function useStepper(config: StepperConfig): UseStepperReturn {
       }
     } catch (error) {
       // Handle validation errors
-      const errorMessage =
-        error instanceof Error ? error.message : 'Validation failed';
+      const errorMessage = error instanceof Error ? error.message : 'Validation failed';
       setStepErrors(step.id, { _validation: errorMessage });
       validationInProgressRef.current = false;
       setIsValidating(false);
@@ -384,15 +380,7 @@ export function useStepper(config: StepperConfig): UseStepperReturn {
     // Set previous step as active
     setCurrentIndex(prevIndex);
     updateStepState(steps[prevIndex].id, { status: 'active' });
-  }, [
-    isFirst,
-    currentIndex,
-    currentStep.id,
-    steps,
-    stepStates,
-    updateStepState,
-    onStepChange,
-  ]);
+  }, [isFirst, currentIndex, currentStep.id, steps, stepStates, updateStepState, onStepChange]);
 
   /**
    * Jump to a specific step by index
@@ -507,12 +495,7 @@ export function useStepper(config: StepperConfig): UseStepperReturn {
       const state = stepStates.get(step.id);
 
       // Can access completed, skipped, or current step
-      return (
-        state?.completed ||
-        state?.skipped ||
-        index === currentIndex ||
-        index < currentIndex
-      );
+      return state?.completed || state?.skipped || index === currentIndex || index < currentIndex;
     },
     [steps, freeNavigation, stepStates, currentIndex]
   );

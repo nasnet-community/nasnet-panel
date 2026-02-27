@@ -4,7 +4,6 @@ import { DHCPServersSection } from './DHCPServersSection';
 
 import type { Meta, StoryObj } from '@storybook/react';
 
-
 const meta: Meta<typeof DHCPServersSection> = {
   title: 'App/DHCP/DHCPServersSection',
   component: DHCPServersSection,
@@ -13,7 +12,8 @@ const meta: Meta<typeof DHCPServersSection> = {
     layout: 'centered',
     docs: {
       description: {
-        component: 'Compact DHCP server list with key metrics and status. Displays server name, interface, lease time, assigned pool, and active/disabled status.',
+        component:
+          'Compact DHCP server list with key metrics and status. Displays server name, interface, lease time, assigned pool, and active/disabled status.',
       },
     },
   },
@@ -67,7 +67,8 @@ export const Default: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Two active DHCP servers with different lease times and pool assignments. Both are enabled and functioning.',
+        story:
+          'Two active DHCP servers with different lease times and pool assignments. Both are enabled and functioning.',
       },
     },
   },
@@ -94,7 +95,8 @@ export const WithDisabledServer: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Three servers including one disabled. Disabled server shows reduced opacity and DISABLED badge.',
+        story:
+          'Three servers including one disabled. Disabled server shows reduced opacity and DISABLED badge.',
       },
     },
   },

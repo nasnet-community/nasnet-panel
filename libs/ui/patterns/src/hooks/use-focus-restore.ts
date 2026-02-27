@@ -121,9 +121,7 @@ export interface UseFocusRestoreOptions {
  * @param options - Configuration options
  * @returns Focus management functions
  */
-export function useFocusRestore(
-  options: UseFocusRestoreOptions = {}
-): UseFocusRestoreReturn {
+export function useFocusRestore(options: UseFocusRestoreOptions = {}): UseFocusRestoreReturn {
   const { autoSave = false, autoRestore = false, fallback, restoreDelay = 0 } = options;
 
   // Store reference to the trigger element
@@ -292,9 +290,7 @@ export interface UseFocusManagementReturn {
  * Focus management hook for dialogs
  * Combines focus restoration, focus trapping, and escape handling
  */
-export function useFocusManagement(
-  options: UseFocusManagementOptions
-): UseFocusManagementReturn {
+export function useFocusManagement(options: UseFocusManagementOptions): UseFocusManagementReturn {
   const { isOpen, onClose, trapFocus = true, closeOnEscape = true } = options;
 
   const dialogRef = useRef<HTMLElement>(null);

@@ -46,7 +46,7 @@ const meta: Meta<typeof FileUploadZone> = {
   },
   decorators: [
     (Story) => (
-      <div className="w-full max-w-md mx-auto">
+      <div className="mx-auto w-full max-w-md">
         <Story />
       </div>
     ),
@@ -91,7 +91,8 @@ export const BackupRestore: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Accepts only `.backup` files with a generous 50 MB limit suitable for full router backups.',
+        story:
+          'Accepts only `.backup` files with a generous 50 MB limit suitable for full router backups.',
       },
     },
   },
@@ -108,7 +109,8 @@ export const AnyFileType: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'When `accept` is an empty array all file types are accepted and the help text below the zone is omitted.',
+        story:
+          'When `accept` is an empty array all file types are accepted and the help text below the zone is omitted.',
       },
     },
   },
@@ -162,7 +164,8 @@ export const DisabledState: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'When `disabled` is true the zone is visually dimmed and all interaction (click and drop) is blocked.',
+        story:
+          'When `disabled` is true the zone is visually dimmed and all interaction (click and drop) is blocked.',
       },
     },
   },
@@ -195,26 +198,36 @@ export const Interactive: Story = {
     };
 
     return (
-      <div className="space-y-4 max-w-md">
+      <div className="max-w-md space-y-4">
         <FileUploadZone
           accept={['.conf', '.rsc', '.backup']}
           onFile={handleFile}
           isLoading={status === 'loading'}
-          error={status === 'error' ? `"${filename}" could not be processed. Try a .conf or .backup file.` : undefined}
+          error={
+            status === 'error' ?
+              `"${filename}" could not be processed. Try a .conf or .backup file.`
+            : undefined
+          }
           disabled={status === 'done'}
         />
 
         {status === 'done' && (
-          <div className="rounded-lg border border-success/30 bg-success/10 px-4 py-3 text-sm text-success flex items-center justify-between">
+          <div className="border-success/30 bg-success/10 text-success flex items-center justify-between rounded-lg border px-4 py-3 text-sm">
             <span>"{filename}" uploaded successfully.</span>
-            <button onClick={reset} className="text-xs underline hover:no-underline">
+            <button
+              onClick={reset}
+              className="text-xs underline hover:no-underline"
+            >
               Reset
             </button>
           </div>
         )}
 
         {status === 'error' && (
-          <button onClick={reset} className="text-xs text-muted-foreground underline hover:no-underline">
+          <button
+            onClick={reset}
+            className="text-muted-foreground text-xs underline hover:no-underline"
+          >
             Try again
           </button>
         )}

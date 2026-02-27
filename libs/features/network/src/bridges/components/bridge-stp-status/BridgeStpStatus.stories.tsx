@@ -2,7 +2,6 @@ import { BridgeStpStatus } from './BridgeStpStatus';
 
 import type { Meta, StoryObj } from '@storybook/react';
 
-
 /**
  * Bridge STP Status Component Stories
  * Demonstrates real-time spanning tree monitoring

@@ -36,14 +36,24 @@ describe('PreFlightDialog', () => {
 
   describe('Component Rendering', () => {
     it('should render dialog when open', () => {
-      render(<PreFlightDialog {...defaultProps} variant="desktop" />);
+      render(
+        <PreFlightDialog
+          {...defaultProps}
+          variant="desktop"
+        />
+      );
 
       expect(screen.getByText('Insufficient Memory')).toBeInTheDocument();
       expect(screen.getByText(/AdGuard Home/)).toBeInTheDocument();
     });
 
     it('should display resource summary', () => {
-      render(<PreFlightDialog {...defaultProps} variant="desktop" />);
+      render(
+        <PreFlightDialog
+          {...defaultProps}
+          variant="desktop"
+        />
+      );
 
       expect(screen.getByText('256 MB')).toBeInTheDocument(); // Required
       expect(screen.getByText('200 MB')).toBeInTheDocument(); // Available
@@ -51,7 +61,12 @@ describe('PreFlightDialog', () => {
     });
 
     it('should render all service suggestions', () => {
-      render(<PreFlightDialog {...defaultProps} variant="desktop" />);
+      render(
+        <PreFlightDialog
+          {...defaultProps}
+          variant="desktop"
+        />
+      );
 
       expect(screen.getByText('Tor')).toBeInTheDocument();
       expect(screen.getByText('Xray')).toBeInTheDocument();
@@ -59,7 +74,12 @@ describe('PreFlightDialog', () => {
     });
 
     it('should show memory values for each service', () => {
-      render(<PreFlightDialog {...defaultProps} variant="desktop" />);
+      render(
+        <PreFlightDialog
+          {...defaultProps}
+          variant="desktop"
+        />
+      );
 
       expect(screen.getByText('64 MB')).toBeInTheDocument(); // Tor
       expect(screen.getByText('32 MB')).toBeInTheDocument(); // Xray
@@ -68,7 +88,10 @@ describe('PreFlightDialog', () => {
 
     it('should render mobile variant with Sheet', () => {
       const { container } = render(
-        <PreFlightDialog {...defaultProps} variant="mobile" />
+        <PreFlightDialog
+          {...defaultProps}
+          variant="mobile"
+        />
       );
 
       // Mobile uses Sheet component
@@ -77,7 +100,10 @@ describe('PreFlightDialog', () => {
 
     it('should render desktop variant with Dialog', () => {
       const { container } = render(
-        <PreFlightDialog {...defaultProps} variant="desktop" />
+        <PreFlightDialog
+          {...defaultProps}
+          variant="desktop"
+        />
       );
 
       // Desktop uses Dialog component
@@ -92,7 +118,10 @@ describe('PreFlightDialog', () => {
         return (
           <div>
             {state.suggestions.map((s) => (
-              <div key={s.id} data-testid={`service-${s.id}`}>
+              <div
+                key={s.id}
+                data-testid={`service-${s.id}`}
+              >
                 {s.selected ? 'selected' : 'not-selected'}
               </div>
             ))}
@@ -146,7 +175,12 @@ describe('PreFlightDialog', () => {
 
   describe('Selection Interaction', () => {
     it('should toggle selection when checkbox is clicked', () => {
-      render(<PreFlightDialog {...defaultProps} variant="desktop" />);
+      render(
+        <PreFlightDialog
+          {...defaultProps}
+          variant="desktop"
+        />
+      );
 
       const checkbox = screen.getAllByRole('checkbox')[1]; // Second service (Xray)
 
@@ -163,7 +197,12 @@ describe('PreFlightDialog', () => {
     });
 
     it('should select all when "Select All" is clicked', () => {
-      render(<PreFlightDialog {...defaultProps} variant="desktop" />);
+      render(
+        <PreFlightDialog
+          {...defaultProps}
+          variant="desktop"
+        />
+      );
 
       const selectAllButton = screen.getByText('Select All');
       fireEvent.click(selectAllButton);
@@ -175,7 +214,12 @@ describe('PreFlightDialog', () => {
     });
 
     it('should clear all when "Clear All" is clicked', () => {
-      render(<PreFlightDialog {...defaultProps} variant="desktop" />);
+      render(
+        <PreFlightDialog
+          {...defaultProps}
+          variant="desktop"
+        />
+      );
 
       const clearAllButton = screen.getByText(/Clear/);
       fireEvent.click(clearAllButton);
@@ -323,7 +367,10 @@ describe('PreFlightDialog', () => {
         return (
           <div>
             <button onClick={state.clearAll}>Clear</button>
-            <button onClick={state.handleConfirm} disabled={!state.isSufficient}>
+            <button
+              onClick={state.handleConfirm}
+              disabled={!state.isSufficient}
+            >
               Confirm
             </button>
           </div>
@@ -343,20 +390,33 @@ describe('PreFlightDialog', () => {
   describe('Accessibility', () => {
     it('should have proper dialog role', () => {
       const { container } = render(
-        <PreFlightDialog {...defaultProps} variant="desktop" />
+        <PreFlightDialog
+          {...defaultProps}
+          variant="desktop"
+        />
       );
 
       expect(container.querySelector('[role="dialog"]')).toBeInTheDocument();
     });
 
     it('should have accessible dialog title', () => {
-      render(<PreFlightDialog {...defaultProps} variant="desktop" />);
+      render(
+        <PreFlightDialog
+          {...defaultProps}
+          variant="desktop"
+        />
+      );
 
       expect(screen.getByText('Insufficient Memory')).toBeInTheDocument();
     });
 
     it('should have accessible checkboxes with labels', () => {
-      render(<PreFlightDialog {...defaultProps} variant="desktop" />);
+      render(
+        <PreFlightDialog
+          {...defaultProps}
+          variant="desktop"
+        />
+      );
 
       const checkboxes = screen.getAllByRole('checkbox');
       expect(checkboxes.length).toBe(3);

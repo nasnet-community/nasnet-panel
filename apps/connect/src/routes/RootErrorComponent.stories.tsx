@@ -2,17 +2,21 @@ import type { Meta, StoryObj } from '@storybook/react';
 
 function RootErrorComponent({ error }: { error: Error }) {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background" role="alert" aria-live="assertive">
-      <div className="max-w-md p-8 bg-card text-card-foreground rounded-lg shadow-lg border border-border">
-        <h1 className="text-2xl font-bold text-error mb-4">Application Error</h1>
+    <div
+      className="bg-background flex min-h-screen items-center justify-center"
+      role="alert"
+      aria-live="assertive"
+    >
+      <div className="bg-card text-card-foreground border-border max-w-md rounded-lg border p-8 shadow-lg">
+        <h1 className="text-error mb-4 text-2xl font-bold">Application Error</h1>
         <p className="text-muted-foreground mb-4">{error.message}</p>
         <button
           onClick={() => window.location.reload()}
-          className="min-h-[44px] px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary-hover focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          className="bg-primary text-primary-foreground hover:bg-primary-hover focus-visible:ring-ring min-h-[44px] rounded px-4 py-2 focus-visible:ring-2 focus-visible:ring-offset-2"
         >
           Reload Application
         </button>
-        <pre className="mt-4 p-4 bg-muted rounded text-xs overflow-auto text-foreground">
+        <pre className="bg-muted text-foreground mt-4 overflow-auto rounded p-4 text-xs">
           {error.stack}
         </pre>
       </div>
@@ -28,7 +32,8 @@ const meta: Meta<typeof RootErrorComponent> = {
     layout: 'fullscreen',
     docs: {
       description: {
-        component: 'Root-level error boundary component. Displays application errors with error details and reload button.',
+        component:
+          'Root-level error boundary component. Displays application errors with error details and reload button.',
       },
     },
   },
@@ -51,12 +56,15 @@ export const Default: Story = {
  */
 export const WithStackTrace: Story = {
   args: {
-    error: new Error('Failed to fetch router configuration: Network timeout occurred after 30 seconds'),
+    error: new Error(
+      'Failed to fetch router configuration: Network timeout occurred after 30 seconds'
+    ),
   },
   parameters: {
     docs: {
       description: {
-        story: 'Error state showing full stack trace. Stack traces are only displayed in development mode.',
+        story:
+          'Error state showing full stack trace. Stack traces are only displayed in development mode.',
       },
     },
   },
@@ -89,7 +97,8 @@ export const Mobile: Story = {
     viewport: { defaultViewport: 'mobile1' },
     docs: {
       description: {
-        story: 'Error state rendered on mobile viewport with optimized spacing and touch-friendly button.',
+        story:
+          'Error state rendered on mobile viewport with optimized spacing and touch-friendly button.',
       },
     },
   },

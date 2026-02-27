@@ -9,22 +9,11 @@
  */
 
 import { useState, useCallback, memo } from 'react';
-import {
-  Button,
-  Dialog,
-  DialogContent,
-  Sheet,
-  SheetContent,
-  Icon,
-} from '@nasnet/ui/primitives';
+import { Button, Dialog, DialogContent, Sheet, SheetContent, Icon } from '@nasnet/ui/primitives';
 import { Plus } from 'lucide-react';
 import { usePlatform } from '@nasnet/ui/layouts';
 import type { Route } from '@nasnet/api-client/generated';
-import {
-  useCreateRoute,
-  useUpdateRoute,
-  useDeleteRoute,
-} from '@nasnet/api-client/queries';
+import { useCreateRoute, useUpdateRoute, useDeleteRoute } from '@nasnet/api-client/queries';
 
 import { RouteList, useRouteList } from '../components/routes/RouteList';
 import { RouteForm } from '../components/routes/RouteForm';
@@ -47,7 +36,9 @@ export interface RoutesPageProps {
  * - Gateway reachability checking
  * - Platform-aware UI (mobile/desktop)
  */
-export const RoutesPage = memo(function RoutesPage({ routerId = 'default-router' }: RoutesPageProps) {
+export const RoutesPage = memo(function RoutesPage({
+  routerId = 'default-router',
+}: RoutesPageProps) {
   const platform = usePlatform();
 
   // Form state
@@ -169,11 +160,11 @@ export const RoutesPage = memo(function RoutesPage({ routerId = 'default-router'
   ];
 
   return (
-    <div className="container mx-auto px-page-mobile md:px-page-tablet lg:px-page-desktop py-page-mobile md:py-page-tablet lg:py-page-desktop space-y-component-lg">
+    <div className="px-page-mobile md:px-page-tablet lg:px-page-desktop py-page-mobile md:py-page-tablet lg:py-page-desktop space-y-component-lg container mx-auto">
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold font-display">Routes</h1>
+          <h1 className="font-display text-2xl font-bold">Routes</h1>
           <p className="text-muted-foreground mt-component-sm">
             Manage static routes to direct traffic to specific networks
           </p>
@@ -183,35 +174,47 @@ export const RoutesPage = memo(function RoutesPage({ routerId = 'default-router'
           className="min-h-[44px]"
           aria-label="Add new static route"
         >
-          <Icon icon={Plus} className="mr-2 h-4 w-4" />
+          <Icon
+            icon={Plus}
+            className="mr-2 h-4 w-4"
+          />
           Add Route
         </Button>
       </div>
 
       {/* Route List */}
-      <RouteList {...routeListHook} routerId={routerId} />
+      <RouteList
+        {...routeListHook}
+        routerId={routerId}
+      />
 
       {/* Form Dialog/Sheet */}
-      {platform === 'mobile' ? (
-        <Sheet open={isFormOpen} onOpenChange={setIsFormOpen}>
-          <SheetContent side="bottom" className="h-[90vh] overflow-y-auto p-component-md">
+      {platform === 'mobile' ?
+        <Sheet
+          open={isFormOpen}
+          onOpenChange={setIsFormOpen}
+        >
+          <SheetContent
+            side="bottom"
+            className="p-component-md h-[90vh] overflow-y-auto"
+          >
             <RouteForm
               mode={formMode}
               routerId={routerId}
               interfaces={MOCK_INTERFACES}
               availableTables={routeListHook.availableTables}
               initialValues={
-                selectedRoute
-                  ? {
-                      destination: selectedRoute.destination,
-                      gateway: selectedRoute.gateway,
-                      interface: selectedRoute.interface,
-                      distance: selectedRoute.distance,
-                      routingMark: selectedRoute.routingMark,
-                      routingTable: selectedRoute.routingTable || 'main',
-                      comment: selectedRoute.comment,
-                    }
-                  : undefined
+                selectedRoute ?
+                  {
+                    destination: selectedRoute.destination,
+                    gateway: selectedRoute.gateway,
+                    interface: selectedRoute.interface,
+                    distance: selectedRoute.distance,
+                    routingMark: selectedRoute.routingMark,
+                    routingTable: selectedRoute.routingTable || 'main',
+                    comment: selectedRoute.comment,
+                  }
+                : undefined
               }
               onSubmit={handleFormSubmit}
               onCancel={handleFormCancel}
@@ -219,26 +222,28 @@ export const RoutesPage = memo(function RoutesPage({ routerId = 'default-router'
             />
           </SheetContent>
         </Sheet>
-      ) : (
-        <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      : <Dialog
+          open={isFormOpen}
+          onOpenChange={setIsFormOpen}
+        >
+          <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
             <RouteForm
               mode={formMode}
               routerId={routerId}
               interfaces={MOCK_INTERFACES}
               availableTables={routeListHook.availableTables}
               initialValues={
-                selectedRoute
-                  ? {
-                      destination: selectedRoute.destination,
-                      gateway: selectedRoute.gateway,
-                      interface: selectedRoute.interface,
-                      distance: selectedRoute.distance,
-                      routingMark: selectedRoute.routingMark,
-                      routingTable: selectedRoute.routingTable || 'main',
-                      comment: selectedRoute.comment,
-                    }
-                  : undefined
+                selectedRoute ?
+                  {
+                    destination: selectedRoute.destination,
+                    gateway: selectedRoute.gateway,
+                    interface: selectedRoute.interface,
+                    distance: selectedRoute.distance,
+                    routingMark: selectedRoute.routingMark,
+                    routingTable: selectedRoute.routingTable || 'main',
+                    comment: selectedRoute.comment,
+                  }
+                : undefined
               }
               onSubmit={handleFormSubmit}
               onCancel={handleFormCancel}
@@ -246,7 +251,7 @@ export const RoutesPage = memo(function RoutesPage({ routerId = 'default-router'
             />
           </DialogContent>
         </Dialog>
-      )}
+      }
 
       {/* Delete Confirmation */}
       {routeToDelete && (

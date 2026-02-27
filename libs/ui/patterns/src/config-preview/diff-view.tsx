@@ -60,27 +60,15 @@ function getDiffPrefix(type: DiffLine['type']): string {
  * />
  * ```
  */
-export function DiffView({
-  lines,
-  showLineNumbers = true,
-  className,
-}: DiffViewProps) {
+export function DiffView({ lines, showLineNumbers = true, className }: DiffViewProps) {
   // Calculate max line number width for formatting
   const maxOldLineNumber = useMemo(
-    () =>
-      Math.max(
-        ...lines.filter((l) => l.oldLineNumber).map((l) => l.oldLineNumber || 0),
-        0
-      ),
+    () => Math.max(...lines.filter((l) => l.oldLineNumber).map((l) => l.oldLineNumber || 0), 0),
     [lines]
   );
 
   const maxNewLineNumber = useMemo(
-    () =>
-      Math.max(
-        ...lines.filter((l) => l.newLineNumber).map((l) => l.newLineNumber || 0),
-        0
-      ),
+    () => Math.max(...lines.filter((l) => l.newLineNumber).map((l) => l.newLineNumber || 0), 0),
     [lines]
   );
 
@@ -95,15 +83,12 @@ export function DiffView({
             {lines.map((line, index) => (
               <tr
                 key={index}
-                className={cn(
-                  'hover:bg-muted/30',
-                  getDiffLineClasses(line.type)
-                )}
+                className={cn('hover:bg-muted/30', getDiffLineClasses(line.type))}
               >
                 {/* Diff prefix (+/-/space) */}
                 <td
                   className={cn(
-                    'w-6 text-center select-none font-bold',
+                    'w-6 select-none text-center font-bold',
                     line.type === 'added' && 'text-success',
                     line.type === 'removed' && 'text-destructive'
                   )}
@@ -116,7 +101,7 @@ export function DiffView({
                   <>
                     {/* Old line number */}
                     <td
-                      className="px-2 py-0.5 text-right select-none text-muted-foreground border-r border-border"
+                      className="text-muted-foreground border-border select-none border-r px-2 py-0.5 text-right"
                       style={{ width: `${oldLineWidth + 1}ch` }}
                     >
                       {line.type !== 'added' ? line.oldLineNumber : ''}
@@ -124,7 +109,7 @@ export function DiffView({
 
                     {/* New line number */}
                     <td
-                      className="px-2 py-0.5 text-right select-none text-muted-foreground border-r border-border"
+                      className="text-muted-foreground border-border select-none border-r px-2 py-0.5 text-right"
                       style={{ width: `${newLineWidth + 1}ch` }}
                     >
                       {line.type !== 'removed' ? line.newLineNumber : ''}
@@ -133,9 +118,7 @@ export function DiffView({
                 )}
 
                 {/* Content */}
-                <td className="pl-4 py-0.5 text-foreground">
-                  {line.content || '\u00A0'}
-                </td>
+                <td className="text-foreground py-0.5 pl-4">{line.content || '\u00A0'}</td>
               </tr>
             ))}
           </tbody>

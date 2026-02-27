@@ -1,7 +1,7 @@
 {
   "id": "data-fetching/codegen",
   "title": "GraphQL Code Generation",
-  "description": "The project uses @graphql-codegen/cli to generate TypeScript types, Apollo React hooks, and a fragment matcher from the GraphQL schema. Generated files are never edited by hand.",
+  "description": "The project uses @graphql-codegen/cli to generate TypeScript types, Apollo React hooks, and a",
   "source": "@site/../connect/docs/data-fetching/codegen.md",
   "sourceDirName": "data-fetching",
   "slug": "/data-fetching/codegen",

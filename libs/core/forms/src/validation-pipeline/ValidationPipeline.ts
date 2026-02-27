@@ -95,10 +95,7 @@ export class ValidationPipeline {
    * @param {ValidationPipelineOptions} options - Options including validation function and callbacks
    * @param {ValidationPipelineConfig} config - Configuration for stage selection and error handling
    */
-  constructor(
-    options: ValidationPipelineOptions,
-    config: ValidationPipelineConfig
-  ) {
+  constructor(options: ValidationPipelineOptions, config: ValidationPipelineConfig) {
     this.options = options;
     this.config = config;
   }
@@ -224,9 +221,7 @@ export class ValidationPipeline {
    * @param {Record<string, unknown>} data - Form data to validate
    * @returns {Promise<ValidationStageResult>} Schema validation stage result
    */
-  private async runSchemaValidation(
-    data: Record<string, unknown>
-  ): Promise<ValidationStageResult> {
+  private async runSchemaValidation(data: Record<string, unknown>): Promise<ValidationStageResult> {
     const startTime = performance.now();
     this.options.onStageStart?.('schema');
 
@@ -313,10 +308,7 @@ export class ValidationPipeline {
           result.status = 'failed';
           result.errors.push({
             code: 'VALIDATION_ERROR',
-            message:
-              error instanceof Error
-                ? error.message
-                : 'Validation service unavailable',
+            message: error instanceof Error ? error.message : 'Validation service unavailable',
             severity: 'error',
             stage,
           });

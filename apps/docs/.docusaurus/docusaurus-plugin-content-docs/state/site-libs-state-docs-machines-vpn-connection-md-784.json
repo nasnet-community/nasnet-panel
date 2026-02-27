@@ -1,7 +1,7 @@
 {
   "id": "machines/vpn-connection",
   "title": "VPN Connection Machine (Feature Example)",
-  "description": "The VPN Connection Machine demonstrates a practical XState machine for VPN lifecycle management. It handles connection, disconnection, automatic reconnection with exponential backoff, and real-time metrics collection.",
+  "description": "The VPN Connection Machine demonstrates a practical XState machine for VPN lifecycle management.",
   "source": "@site/../../libs/state/docs/machines/vpn-connection.md",
   "sourceDirName": "machines",
   "slug": "/machines/vpn-connection",

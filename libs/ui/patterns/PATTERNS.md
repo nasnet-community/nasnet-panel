@@ -1,10 +1,13 @@
 # Pattern Component Guide
 
-This guide explains how to create pattern components following the **Headless + Platform Presenters** architecture defined in [ADR-018](../../../Docs/architecture/adrs/018-headless-platform-presenters.md).
+This guide explains how to create pattern components following the **Headless + Platform
+Presenters** architecture defined in
+[ADR-018](../../../Docs/architecture/adrs/018-headless-platform-presenters.md).
 
 ## Overview
 
-Pattern components (Layer 2) sit between primitives (Layer 1) and domain components (Layer 3). They provide:
+Pattern components (Layer 2) sit between primitives (Layer 1) and domain components (Layer 3). They
+provide:
 
 - **Reusable UX patterns** that compose primitives
 - **Automatic responsive behavior** via platform presenters
@@ -94,15 +97,9 @@ export function useResourceCard<T extends Resource>(
   const { resource, actions = [], expanded = false, onToggle } = props;
 
   // Derived state (memoized)
-  const status = useMemo(
-    () => resource.runtime?.status || 'unknown',
-    [resource.runtime?.status]
-  );
+  const status = useMemo(() => resource.runtime?.status || 'unknown', [resource.runtime?.status]);
 
-  const isOnline = useMemo(
-    () => status === 'online' || status === 'connected',
-    [status]
-  );
+  const isOnline = useMemo(() => status === 'online' || status === 'connected', [status]);
 
   const statusColor = useMemo(() => getStatusColor(status), [status]);
 
@@ -270,10 +267,7 @@ export { ResourceCardMobile } from './ResourceCard.Mobile';
 export { ResourceCardDesktop } from './ResourceCard.Desktop';
 
 export { useResourceCard } from './useResourceCard';
-export type {
-  UseResourceCardProps,
-  UseResourceCardReturn,
-} from './useResourceCard';
+export type { UseResourceCardProps, UseResourceCardReturn } from './useResourceCard';
 ```
 
 ### Step 5: Write Tests
@@ -422,18 +416,18 @@ export const WithActions: Story = {
 
 ### Common (30 patterns)
 
-| Pattern | Description |
-|---------|-------------|
-| ResourceCard | Generic resource display with status and actions |
-| StatusBadge | Status indicator with live pulse animation |
-| DataTable | Virtualized table with sorting/filtering |
-| EmptyState | No data placeholder with CTA |
-| LoadingSkeleton | Content placeholder with animation |
-| ConfirmDialog | Dangerous operation confirmation |
-| FormField | Form field with label, input, error |
-| Toast | Notification system (via Sonner) |
-| MetricDisplay | Bandwidth/CPU/uptime metrics |
-| ConnectionIndicator | Real-time connection status |
+| Pattern             | Description                                      |
+| ------------------- | ------------------------------------------------ |
+| ResourceCard        | Generic resource display with status and actions |
+| StatusBadge         | Status indicator with live pulse animation       |
+| DataTable           | Virtualized table with sorting/filtering         |
+| EmptyState          | No data placeholder with CTA                     |
+| LoadingSkeleton     | Content placeholder with animation               |
+| ConfirmDialog       | Dangerous operation confirmation                 |
+| FormField           | Form field with label, input, error              |
+| Toast               | Notification system (via Sonner)                 |
+| MetricDisplay       | Bandwidth/CPU/uptime metrics                     |
+| ConnectionIndicator | Real-time connection status                      |
 
 ### Domain (26 patterns)
 

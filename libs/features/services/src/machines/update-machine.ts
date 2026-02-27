@@ -140,8 +140,7 @@ export const updateMachine = setup({
     /**
      * Check if progress indicates completion
      */
-    isCompleteStage: ({ context }) =>
-      context.stage === 'COMPLETE' && context.progress >= 100,
+    isCompleteStage: ({ context }) => context.stage === 'COMPLETE' && context.progress >= 100,
 
     /**
      * Check if progress indicates failure
@@ -158,12 +157,10 @@ export const updateMachine = setup({
      * Initialize context for new update
      */
     setUpdateTarget: assign({
-      instanceId: ({ event }) =>
-        (event as { type: 'START_UPDATE'; instanceId: string }).instanceId,
+      instanceId: ({ event }) => (event as { type: 'START_UPDATE'; instanceId: string }).instanceId,
       fromVersion: ({ event }) =>
         (event as { type: 'START_UPDATE'; fromVersion: string }).fromVersion,
-      toVersion: ({ event }) =>
-        (event as { type: 'START_UPDATE'; toVersion: string }).toVersion,
+      toVersion: ({ event }) => (event as { type: 'START_UPDATE'; toVersion: string }).toVersion,
       stage: () => 'PENDING' as UpdateStage,
       progress: () => 0,
       message: () => 'Initializing update...',
@@ -177,12 +174,9 @@ export const updateMachine = setup({
      * Update progress information
      */
     updateProgress: assign({
-      stage: ({ event }) =>
-        (event as { type: 'PROGRESS'; stage: UpdateStage }).stage,
-      progress: ({ event }) =>
-        (event as { type: 'PROGRESS'; progress: number }).progress,
-      message: ({ event }) =>
-        (event as { type: 'PROGRESS'; message: string }).message,
+      stage: ({ event }) => (event as { type: 'PROGRESS'; stage: UpdateStage }).stage,
+      progress: ({ event }) => (event as { type: 'PROGRESS'; progress: number }).progress,
+      message: ({ event }) => (event as { type: 'PROGRESS'; message: string }).message,
     }),
 
     /**
@@ -193,8 +187,7 @@ export const updateMachine = setup({
       progress: () => 100,
       message: () => 'Update completed successfully',
       completedAt: () => new Date(),
-      toVersion: ({ event }) =>
-        (event as { type: 'COMPLETE'; toVersion: string }).toVersion,
+      toVersion: ({ event }) => (event as { type: 'COMPLETE'; toVersion: string }).toVersion,
     }),
 
     /**
@@ -202,8 +195,7 @@ export const updateMachine = setup({
      */
     setRolledBack: assign({
       stage: () => 'ROLLED_BACK' as UpdateStage,
-      error: ({ event }) =>
-        (event as { type: 'ROLLED_BACK'; error: string }).error,
+      error: ({ event }) => (event as { type: 'ROLLED_BACK'; error: string }).error,
       rolledBack: () => true,
       message: () => 'Update rolled back due to health check failure',
       completedAt: () => new Date(),

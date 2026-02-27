@@ -73,9 +73,7 @@ describe('useRateLimitStatsOverview', () => {
 
   describe('Initialization', () => {
     it('should load stats successfully', () => {
-      const { result } = renderHook(() =>
-        useRateLimitStatsOverview({ routerId: '192.168.1.1' })
-      );
+      const { result } = renderHook(() => useRateLimitStatsOverview({ routerId: '192.168.1.1' }));
 
       expect(result.current.state.stats).toEqual(mockStatsWithActivity);
       expect(result.current.state.loading).toBe(false);
@@ -83,9 +81,7 @@ describe('useRateLimitStatsOverview', () => {
     });
 
     it('should initialize with default polling interval (5s)', () => {
-      const { result } = renderHook(() =>
-        useRateLimitStatsOverview({ routerId: '192.168.1.1' })
-      );
+      const { result } = renderHook(() => useRateLimitStatsOverview({ routerId: '192.168.1.1' }));
 
       expect(result.current.state.pollingInterval).toBe('5s');
     });
@@ -98,9 +94,7 @@ describe('useRateLimitStatsOverview', () => {
         refetch: vi.fn(),
       } as any as UseQueryResult<typeof mockStatsWithActivity>);
 
-      const { result } = renderHook(() =>
-        useRateLimitStatsOverview({ routerId: '192.168.1.1' })
-      );
+      const { result } = renderHook(() => useRateLimitStatsOverview({ routerId: '192.168.1.1' }));
 
       expect(result.current.state.loading).toBe(true);
       expect(result.current.state.stats).toBeNull();
@@ -115,9 +109,7 @@ describe('useRateLimitStatsOverview', () => {
         refetch: vi.fn(),
       } as any as UseQueryResult<typeof mockStatsWithActivity>);
 
-      const { result } = renderHook(() =>
-        useRateLimitStatsOverview({ routerId: '192.168.1.1' })
-      );
+      const { result } = renderHook(() => useRateLimitStatsOverview({ routerId: '192.168.1.1' }));
 
       expect(result.current.state.error).toBe('Failed to fetch stats');
       expect(result.current.state.stats).toBeNull();
@@ -126,9 +118,7 @@ describe('useRateLimitStatsOverview', () => {
 
   describe('Polling Interval', () => {
     it('should change polling interval', () => {
-      const { result } = renderHook(() =>
-        useRateLimitStatsOverview({ routerId: '192.168.1.1' })
-      );
+      const { result } = renderHook(() => useRateLimitStatsOverview({ routerId: '192.168.1.1' }));
 
       expect(result.current.state.pollingInterval).toBe('5s');
 
@@ -140,9 +130,7 @@ describe('useRateLimitStatsOverview', () => {
     });
 
     it('should support all polling intervals', () => {
-      const { result } = renderHook(() =>
-        useRateLimitStatsOverview({ routerId: '192.168.1.1' })
-      );
+      const { result } = renderHook(() => useRateLimitStatsOverview({ routerId: '192.168.1.1' }));
 
       const intervals = ['5s', '10s', '30s', '60s'] as const;
 
@@ -167,9 +155,7 @@ describe('useRateLimitStatsOverview', () => {
 
   describe('Chart Data Transformation', () => {
     it('should transform trigger events to chart data', () => {
-      const { result } = renderHook(() =>
-        useRateLimitStatsOverview({ routerId: '192.168.1.1' })
-      );
+      const { result } = renderHook(() => useRateLimitStatsOverview({ routerId: '192.168.1.1' }));
 
       const chartData = result.current.state.chartData;
       expect(chartData).toHaveLength(mockStatsWithActivity.triggerEvents.length);
@@ -191,9 +177,7 @@ describe('useRateLimitStatsOverview', () => {
         refetch: vi.fn(),
       } as any as UseQueryResult<typeof mockStatsWithActivity>);
 
-      const { result } = renderHook(() =>
-        useRateLimitStatsOverview({ routerId: '192.168.1.1' })
-      );
+      const { result } = renderHook(() => useRateLimitStatsOverview({ routerId: '192.168.1.1' }));
 
       const chartData = result.current.state.chartData;
       expect(chartData).toHaveLength(mockStatsEmpty.triggerEvents.length);
@@ -208,9 +192,7 @@ describe('useRateLimitStatsOverview', () => {
         refetch: vi.fn(),
       } as any as UseQueryResult<typeof mockStatsWithActivity>);
 
-      const { result } = renderHook(() =>
-        useRateLimitStatsOverview({ routerId: '192.168.1.1' })
-      );
+      const { result } = renderHook(() => useRateLimitStatsOverview({ routerId: '192.168.1.1' }));
 
       expect(result.current.state.chartData).toEqual([]);
     });
@@ -231,9 +213,7 @@ describe('useRateLimitStatsOverview', () => {
         refetch: vi.fn(),
       } as any as UseQueryResult<typeof mockStatsWithActivity>);
 
-      const { result } = renderHook(() =>
-        useRateLimitStatsOverview({ routerId: '192.168.1.1' })
-      );
+      const { result } = renderHook(() => useRateLimitStatsOverview({ routerId: '192.168.1.1' }));
 
       expect(result.current.state.trend).toBe(50); // 100 - 50
     });
@@ -252,9 +232,7 @@ describe('useRateLimitStatsOverview', () => {
         refetch: vi.fn(),
       } as any as UseQueryResult<typeof mockStatsWithActivity>);
 
-      const { result } = renderHook(() =>
-        useRateLimitStatsOverview({ routerId: '192.168.1.1' })
-      );
+      const { result } = renderHook(() => useRateLimitStatsOverview({ routerId: '192.168.1.1' }));
 
       expect(result.current.state.trend).toBe(-50); // 50 - 100
     });
@@ -270,9 +248,7 @@ describe('useRateLimitStatsOverview', () => {
         refetch: vi.fn(),
       } as any as UseQueryResult<typeof mockStatsWithActivity>);
 
-      const { result } = renderHook(() =>
-        useRateLimitStatsOverview({ routerId: '192.168.1.1' })
-      );
+      const { result } = renderHook(() => useRateLimitStatsOverview({ routerId: '192.168.1.1' }));
 
       expect(result.current.state.trend).toBe(0);
     });
@@ -285,9 +261,7 @@ describe('useRateLimitStatsOverview', () => {
         refetch: vi.fn(),
       } as any as UseQueryResult<typeof mockStatsWithActivity>);
 
-      const { result } = renderHook(() =>
-        useRateLimitStatsOverview({ routerId: '192.168.1.1' })
-      );
+      const { result } = renderHook(() => useRateLimitStatsOverview({ routerId: '192.168.1.1' }));
 
       expect(result.current.state.trend).toBe(0);
     });
@@ -295,9 +269,7 @@ describe('useRateLimitStatsOverview', () => {
 
   describe('CSV Export', () => {
     it('should export stats to CSV', () => {
-      const { result } = renderHook(() =>
-        useRateLimitStatsOverview({ routerId: '192.168.1.1' })
-      );
+      const { result } = renderHook(() => useRateLimitStatsOverview({ routerId: '192.168.1.1' }));
 
       act(() => {
         result.current.actions.exportToCsv();
@@ -316,9 +288,7 @@ describe('useRateLimitStatsOverview', () => {
     });
 
     it('should include correct CSV headers', () => {
-      const { result } = renderHook(() =>
-        useRateLimitStatsOverview({ routerId: '192.168.1.1' })
-      );
+      const { result } = renderHook(() => useRateLimitStatsOverview({ routerId: '192.168.1.1' }));
 
       // Spy on Blob constructor
       const blobSpy = vi.spyOn(global, 'Blob');
@@ -333,9 +303,7 @@ describe('useRateLimitStatsOverview', () => {
     });
 
     it('should include data rows in CSV', () => {
-      const { result } = renderHook(() =>
-        useRateLimitStatsOverview({ routerId: '192.168.1.1' })
-      );
+      const { result } = renderHook(() => useRateLimitStatsOverview({ routerId: '192.168.1.1' }));
 
       const blobSpy = vi.spyOn(global, 'Blob');
 
@@ -362,9 +330,7 @@ describe('useRateLimitStatsOverview', () => {
         refetch: vi.fn(),
       } as any as UseQueryResult<typeof mockStatsWithActivity>);
 
-      const { result } = renderHook(() =>
-        useRateLimitStatsOverview({ routerId: '192.168.1.1' })
-      );
+      const { result } = renderHook(() => useRateLimitStatsOverview({ routerId: '192.168.1.1' }));
 
       // Should not throw
       act(() => {
@@ -376,9 +342,7 @@ describe('useRateLimitStatsOverview', () => {
     });
 
     it('should include top IP in CSV export', () => {
-      const { result } = renderHook(() =>
-        useRateLimitStatsOverview({ routerId: '192.168.1.1' })
-      );
+      const { result } = renderHook(() => useRateLimitStatsOverview({ routerId: '192.168.1.1' }));
 
       const blobSpy = vi.spyOn(global, 'Blob');
 
@@ -402,9 +366,7 @@ describe('useRateLimitStatsOverview', () => {
         refetch: vi.fn(),
       } as any as UseQueryResult<typeof mockStatsWithActivity>);
 
-      const { result } = renderHook(() =>
-        useRateLimitStatsOverview({ routerId: '192.168.1.1' })
-      );
+      const { result } = renderHook(() => useRateLimitStatsOverview({ routerId: '192.168.1.1' }));
 
       const blobSpy = vi.spyOn(global, 'Blob');
 
@@ -417,9 +379,7 @@ describe('useRateLimitStatsOverview', () => {
     });
 
     it('should generate filename with current date', () => {
-      const { result } = renderHook(() =>
-        useRateLimitStatsOverview({ routerId: '192.168.1.1' })
-      );
+      const { result } = renderHook(() => useRateLimitStatsOverview({ routerId: '192.168.1.1' }));
 
       act(() => {
         result.current.actions.exportToCsv();
@@ -443,9 +403,7 @@ describe('useRateLimitStatsOverview', () => {
         refetch: mockRefetch,
       } as any as UseQueryResult<typeof mockStatsWithActivity>);
 
-      const { result } = renderHook(() =>
-        useRateLimitStatsOverview({ routerId: '192.168.1.1' })
-      );
+      const { result } = renderHook(() => useRateLimitStatsOverview({ routerId: '192.168.1.1' }));
 
       act(() => {
         result.current.actions.refresh();
@@ -457,13 +415,9 @@ describe('useRateLimitStatsOverview', () => {
 
   describe('Last Updated', () => {
     it('should track last updated timestamp', () => {
-      const { result } = renderHook(() =>
-        useRateLimitStatsOverview({ routerId: '192.168.1.1' })
-      );
+      const { result } = renderHook(() => useRateLimitStatsOverview({ routerId: '192.168.1.1' }));
 
-      expect(result.current.state.lastUpdated).toEqual(
-        mockStatsWithActivity.lastUpdated
-      );
+      expect(result.current.state.lastUpdated).toEqual(mockStatsWithActivity.lastUpdated);
     });
 
     it('should handle missing last updated', () => {
@@ -474,9 +428,7 @@ describe('useRateLimitStatsOverview', () => {
         refetch: vi.fn(),
       } as any as UseQueryResult<typeof mockStatsWithActivity>);
 
-      const { result } = renderHook(() =>
-        useRateLimitStatsOverview({ routerId: '192.168.1.1' })
-      );
+      const { result } = renderHook(() => useRateLimitStatsOverview({ routerId: '192.168.1.1' }));
 
       expect(result.current.state.lastUpdated).toBeNull();
     });
@@ -524,9 +476,7 @@ describe('useRateLimitStatsOverview', () => {
         refetch: vi.fn(),
       } as any as UseQueryResult<typeof mockStatsWithActivity>);
 
-      const { result } = renderHook(() =>
-        useRateLimitStatsOverview({ routerId: '192.168.1.1' })
-      );
+      const { result } = renderHook(() => useRateLimitStatsOverview({ routerId: '192.168.1.1' }));
 
       expect(result.current.state.chartData).toEqual([]);
       expect(result.current.state.trend).toBe(0);
@@ -540,9 +490,7 @@ describe('useRateLimitStatsOverview', () => {
         refetch: vi.fn(),
       } as any as UseQueryResult<typeof mockStatsWithActivity>);
 
-      const { result } = renderHook(() =>
-        useRateLimitStatsOverview({ routerId: '192.168.1.1' })
-      );
+      const { result } = renderHook(() => useRateLimitStatsOverview({ routerId: '192.168.1.1' }));
 
       expect(result.current.state.stats?.totalBlocked).toBe(50);
       expect(result.current.state.chartData.length).toBe(24);

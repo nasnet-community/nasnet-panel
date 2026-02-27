@@ -78,7 +78,14 @@ describe('Button', () => {
     });
 
     it('shows loadingText when provided', () => {
-      render(<Button isLoading loadingText="Saving...">Save</Button>);
+      render(
+        <Button
+          isLoading
+          loadingText="Saving..."
+        >
+          Save
+        </Button>
+      );
       expect(screen.getByText('Saving...')).toBeInTheDocument();
     });
 
@@ -91,7 +98,14 @@ describe('Button', () => {
       const user = userEvent.setup();
       const handleClick = vi.fn();
 
-      render(<Button isLoading onClick={handleClick}>Save</Button>);
+      render(
+        <Button
+          isLoading
+          onClick={handleClick}
+        >
+          Save
+        </Button>
+      );
       const button = screen.getByRole('button');
       await user.click(button);
 
@@ -99,17 +113,38 @@ describe('Button', () => {
     });
 
     it('combines disabled and loading states', () => {
-      render(<Button isLoading disabled>Save</Button>);
+      render(
+        <Button
+          isLoading
+          disabled
+        >
+          Save
+        </Button>
+      );
       const button = screen.getByRole('button');
       expect(button).toBeDisabled();
       expect(button).toHaveAttribute('aria-busy', 'true');
     });
 
     it('shows different spinner sizes based on button size', () => {
-      const { rerender } = render(<Button isLoading size="sm">Small</Button>);
+      const { rerender } = render(
+        <Button
+          isLoading
+          size="sm"
+        >
+          Small
+        </Button>
+      );
       expect(screen.getByRole('status')).toBeInTheDocument();
 
-      rerender(<Button isLoading size="lg">Large</Button>);
+      rerender(
+        <Button
+          isLoading
+          size="lg"
+        >
+          Large
+        </Button>
+      );
       expect(screen.getByRole('status')).toBeInTheDocument();
     });
   });
@@ -212,7 +247,10 @@ describe('Button', () => {
 
     it('applies button classes to asChild element', () => {
       render(
-        <Button asChild variant="secondary">
+        <Button
+          asChild
+          variant="secondary"
+        >
           <a href="https://example.com">Link</a>
         </Button>
       );
@@ -315,7 +353,14 @@ describe('Button', () => {
     });
 
     it('disables when both disabled and isLoading are true', () => {
-      render(<Button disabled isLoading>Test</Button>);
+      render(
+        <Button
+          disabled
+          isLoading
+        >
+          Test
+        </Button>
+      );
       const button = screen.getByRole('button');
       expect(button).toBeDisabled();
       expect(button).toHaveAttribute('aria-busy', 'true');

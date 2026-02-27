@@ -64,7 +64,10 @@ interface RouterPanelProps {
  * }
  * ```
  */
-export const RouterPanel = React.memo(function RouterPanel({ routerId, children }: RouterPanelProps) {
+export const RouterPanel = React.memo(function RouterPanel({
+  routerId,
+  children,
+}: RouterPanelProps) {
   const id = routerId;
   const navigate = useNavigate();
 
@@ -91,20 +94,20 @@ export const RouterPanel = React.memo(function RouterPanel({ routerId, children 
   useEffect(() => {
     if (id) {
       const routerData = useRouterStore.getState().getRouter(id);
-      
+
       // If router doesn't exist, navigate back to router list
       if (!routerData) {
         console.warn(`Router ${id} not found, redirecting to router list`);
         navigate({ to: ROUTES.ROUTER_LIST });
         return;
       }
-      
+
       if (routerData?.ipAddress) {
         useConnectionStore.getState().setCurrentRouter(id, routerData.ipAddress);
 
         // Load saved credentials for API client
         const savedCredentials = loadCredentials(id);
-        
+
         if (savedCredentials) {
           // Use saved credentials
           storeCredentials({
@@ -130,10 +133,7 @@ export const RouterPanel = React.memo(function RouterPanel({ routerId, children 
   }, [id, navigate]); // Only depend on id and navigate - Zustand actions are stable
 
   // Handle credential submission
-  const handleCredentialSubmit = (
-    creds: RouterCredentials,
-    shouldSave: boolean
-  ) => {
+  const handleCredentialSubmit = (creds: RouterCredentials, shouldSave: boolean) => {
     if (!id) return;
 
     setIsValidatingCredentials(true);
@@ -178,10 +178,10 @@ export const RouterPanel = React.memo(function RouterPanel({ routerId, children 
   }, [navigate]);
 
   return (
-    <div className="flex flex-col h-full animate-fade-in-up">
+    <div className="animate-fade-in-up flex h-full flex-col">
       {/* Router Header with status and info */}
-      <div className="px-4 pt-4 md:px-6 md:pt-6 brand-gradient-subtle">
-        <div className="max-w-7xl mx-auto">
+      <div className="brand-gradient-subtle px-4 pt-4 md:px-6 md:pt-6">
+        <div className="mx-auto max-w-7xl">
           <RouterHeader routerId={id || ''} />
         </div>
       </div>
@@ -192,9 +192,7 @@ export const RouterPanel = React.memo(function RouterPanel({ routerId, children 
       </div>
 
       {/* Tab content area - with bottom padding on mobile for bottom nav */}
-      <div className="flex-1 overflow-auto pb-20 md:pb-0">
-        {children}
-      </div>
+      <div className="flex-1 overflow-auto pb-20 md:pb-0">{children}</div>
 
       {/* Credential Dialog - shows when no saved credentials exist */}
       <CredentialDialog

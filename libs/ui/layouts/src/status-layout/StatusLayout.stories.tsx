@@ -64,8 +64,7 @@ export const Warning: Story = {
 
 export const Error: Story = {
   args: {
-    children:
-      'Configuration failed: Access denied. Please check your permissions and try again.',
+    children: 'Configuration failed: Access denied. Please check your permissions and try again.',
     status: 'error',
     visible: true,
     sticky: true,

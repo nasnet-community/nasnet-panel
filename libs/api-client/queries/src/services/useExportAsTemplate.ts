@@ -110,9 +110,7 @@ export function useExportAsTemplate(
     ],
   });
 
-  const exportAsTemplate = async (
-    input: ExportAsTemplateInput
-  ): Promise<ServiceTemplate> => {
+  const exportAsTemplate = async (input: ExportAsTemplateInput): Promise<ServiceTemplate> => {
     const result = await exportMutation({
       variables: { input },
     });

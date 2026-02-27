@@ -14,10 +14,15 @@
  * const { data } = useDnsCacheStats('router-1', false);
  * ```
  */
-export declare function useDnsCacheStats(deviceId: string, enabled?: boolean): {
-    cacheStats: any;
-    loading: boolean;
-    error: import("@apollo/client").ApolloError | undefined;
-    refetch: (variables?: Partial<import("@apollo/client").OperationVariables> | undefined) => Promise<import("@apollo/client").ApolloQueryResult<any>>;
+export declare function useDnsCacheStats(
+  deviceId: string,
+  enabled?: boolean
+): {
+  cacheStats: any;
+  loading: boolean;
+  error: import('@apollo/client').ApolloError | undefined;
+  refetch: (
+    variables?: Partial<import('@apollo/client').OperationVariables> | undefined
+  ) => Promise<import('@apollo/client').ApolloQueryResult<any>>;
 };
 //# sourceMappingURL=useDnsCacheStats.d.ts.map

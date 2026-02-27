@@ -40,7 +40,12 @@ describe('NumberField', () => {
   });
 
   it('sets both min and max for constrained range', () => {
-    const { container } = render(<NumberField min={1} max={65535} />);
+    const { container } = render(
+      <NumberField
+        min={1}
+        max={65535}
+      />
+    );
     const input = container.querySelector('input');
 
     expect(input).toHaveAttribute('min', '1');
@@ -64,14 +69,24 @@ describe('NumberField', () => {
   });
 
   it('disables input when disabled prop is true', () => {
-    render(<NumberField placeholder="Disabled" disabled={true} />);
+    render(
+      <NumberField
+        placeholder="Disabled"
+        disabled={true}
+      />
+    );
     const input = screen.getByPlaceholderText('Disabled') as HTMLInputElement;
 
     expect(input.disabled).toBe(true);
   });
 
   it('sets aria-invalid when provided', () => {
-    render(<NumberField placeholder="Field" aria-invalid={true} />);
+    render(
+      <NumberField
+        placeholder="Field"
+        aria-invalid={true}
+      />
+    );
     const input = screen.getByPlaceholderText('Field');
 
     expect(input).toHaveAttribute('aria-invalid', 'true');
@@ -80,25 +95,24 @@ describe('NumberField', () => {
   it('forwards ref correctly', () => {
     const ref = { current: null };
     render(
-      <NumberField ref={ref} placeholder="Test" />
+      <NumberField
+        ref={ref}
+        placeholder="Test"
+      />
     );
 
     expect(ref.current).toBeInstanceOf(HTMLInputElement);
   });
 
   it('applies custom className', () => {
-    const { container } = render(
-      <NumberField className="custom-class" />
-    );
+    const { container } = render(<NumberField className="custom-class" />);
     const input = container.querySelector('input');
 
     expect(input?.className).toContain('custom-class');
   });
 
   it('combines monospace font with custom className', () => {
-    const { container } = render(
-      <NumberField className="custom-style" />
-    );
+    const { container } = render(<NumberField className="custom-style" />);
     const input = container.querySelector('input');
     const classes = input?.className || '';
 

@@ -27,11 +27,7 @@ import { devtools, persist } from 'zustand/middleware';
 /**
  * WebSocket connection status
  */
-export type WebSocketStatus =
-  | 'connecting'
-  | 'connected'
-  | 'disconnected'
-  | 'error';
+export type WebSocketStatus = 'connecting' | 'connected' | 'disconnected' | 'error';
 
 /**
  * Protocol used for router communication
@@ -297,11 +293,9 @@ export const useConnectionStore = create<ConnectionState & ConnectionActions>()(
               isReconnecting: status === 'connecting',
               // Legacy compatibility mapping
               state:
-                status === 'connected'
-                  ? 'connected'
-                  : status === 'connecting'
-                    ? 'reconnecting'
-                    : 'disconnected',
+                status === 'connected' ? 'connected'
+                : status === 'connecting' ? 'reconnecting'
+                : 'disconnected',
             },
             false,
             `setWsStatus/${status}`
@@ -487,27 +481,22 @@ export const selectWsStatus = (state: ConnectionState) => state.wsStatus;
 /**
  * Select whether currently connected
  */
-export const selectIsConnected = (state: ConnectionState) =>
-  state.wsStatus === 'connected';
+export const selectIsConnected = (state: ConnectionState) => state.wsStatus === 'connected';
 
 /**
  * Select whether currently reconnecting
  */
-export const selectIsReconnecting = (state: ConnectionState) =>
-  state.isReconnecting;
+export const selectIsReconnecting = (state: ConnectionState) => state.isReconnecting;
 
 /**
  * Select active router ID
  */
-export const selectActiveRouterId = (state: ConnectionState) =>
-  state.activeRouterId;
+export const selectActiveRouterId = (state: ConnectionState) => state.activeRouterId;
 
 /**
  * Select active router connection info
  */
-export const selectActiveRouterConnection = (
-  state: ConnectionState
-): RouterConnection | null => {
+export const selectActiveRouterConnection = (state: ConnectionState): RouterConnection | null => {
   if (!state.activeRouterId) return null;
   return state.routers[state.activeRouterId] ?? null;
 };
@@ -515,8 +504,7 @@ export const selectActiveRouterConnection = (
 /**
  * Select reconnection attempts
  */
-export const selectReconnectAttempts = (state: ConnectionState) =>
-  state.reconnectAttempts;
+export const selectReconnectAttempts = (state: ConnectionState) => state.reconnectAttempts;
 
 /**
  * Select whether max reconnection attempts exceeded

@@ -181,7 +181,10 @@ export async function storeDnsConfigForRollback(
     }
     return null;
   } catch (error) {
-    console.warn('Failed to capture DNS config for rollback:', error instanceof Error ? error.message : 'Unknown error');
+    console.warn(
+      'Failed to capture DNS config for rollback:',
+      error instanceof Error ? error.message : 'Unknown error'
+    );
     return null;
   }
 }

@@ -1,7 +1,7 @@
 {
   "id": "intro",
   "title": "Introduction",
-  "description": "The @nasnet/core library is the shared foundation for the NasNetConnect frontend. It provides type-safe constants, shared TypeScript interfaces, utility functions, and React form/validation infrastructure used by all features.",
+  "description": "The @nasnet/core library is the shared foundation for the NasNetConnect frontend. It provides",
   "source": "@site/../../libs/core/docs/intro.md",
   "sourceDirName": ".",
   "slug": "/intro",

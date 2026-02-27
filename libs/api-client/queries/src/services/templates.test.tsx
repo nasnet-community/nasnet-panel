@@ -66,7 +66,10 @@ const mockCustomTemplate: ServiceTemplate = {
 function createWrapper(mocks: unknown[]) {
   return function Wrapper({ children }: { children: ReactNode }) {
     return (
-      <MockedProvider mocks={mocks as readonly MockedResponse[]} addTypename={true}>
+      <MockedProvider
+        mocks={mocks as readonly MockedResponse[]}
+        addTypename={true}
+      >
         {children}
       </MockedProvider>
     );
@@ -122,10 +125,9 @@ describe('useServiceTemplates', () => {
       },
     ];
 
-    const { result } = renderHook(
-      () => useServiceTemplates({ searchQuery: 'privacy' }),
-      { wrapper: createWrapper(mocks) }
-    );
+    const { result } = renderHook(() => useServiceTemplates({ searchQuery: 'privacy' }), {
+      wrapper: createWrapper(mocks),
+    });
 
     await waitFor(() => {
       expect(result.current.loading).toBe(false);
@@ -151,10 +153,9 @@ describe('useServiceTemplates', () => {
       },
     ];
 
-    const { result } = renderHook(
-      () => useServiceTemplates({ includeBuiltIn: false }),
-      { wrapper: createWrapper(mocks) }
-    );
+    const { result } = renderHook(() => useServiceTemplates({ includeBuiltIn: false }), {
+      wrapper: createWrapper(mocks),
+    });
 
     await waitFor(() => {
       expect(result.current.loading).toBe(false);
@@ -201,10 +202,9 @@ describe('useInstallTemplate', () => {
     ];
 
     const onCompleted = vi.fn();
-    const { result } = renderHook(
-      () => useInstallTemplate({ onCompleted }),
-      { wrapper: createWrapper(mocks) }
-    );
+    const { result } = renderHook(() => useInstallTemplate({ onCompleted }), {
+      wrapper: createWrapper(mocks),
+    });
 
     // Call mutation
     await result.current.installTemplate({
@@ -242,10 +242,9 @@ describe('useInstallTemplate', () => {
     ];
 
     const onError = vi.fn();
-    const { result } = renderHook(
-      () => useInstallTemplate({ onError }),
-      { wrapper: createWrapper(mocks) }
-    );
+    const { result } = renderHook(() => useInstallTemplate({ onError }), {
+      wrapper: createWrapper(mocks),
+    });
 
     try {
       await result.current.installTemplate({
@@ -292,10 +291,9 @@ describe('useExportAsTemplate', () => {
     ];
 
     const onCompleted = vi.fn();
-    const { result } = renderHook(
-      () => useExportAsTemplate({ onCompleted }),
-      { wrapper: createWrapper(mocks) }
-    );
+    const { result } = renderHook(() => useExportAsTemplate({ onCompleted }), {
+      wrapper: createWrapper(mocks),
+    });
 
     await result.current.exportAsTemplate({
       routerID: 'router-1',
@@ -343,10 +341,9 @@ describe('useImportTemplate', () => {
     ];
 
     const onCompleted = vi.fn();
-    const { result } = renderHook(
-      () => useImportTemplate({ onCompleted }),
-      { wrapper: createWrapper(mocks) }
-    );
+    const { result } = renderHook(() => useImportTemplate({ onCompleted }), {
+      wrapper: createWrapper(mocks),
+    });
 
     await result.current.importTemplate({
       routerID: 'router-1',
@@ -382,10 +379,9 @@ describe('useDeleteTemplate', () => {
     ];
 
     const onCompleted = vi.fn();
-    const { result } = renderHook(
-      () => useDeleteTemplate({ onCompleted }),
-      { wrapper: createWrapper(mocks) }
-    );
+    const { result } = renderHook(() => useDeleteTemplate({ onCompleted }), {
+      wrapper: createWrapper(mocks),
+    });
 
     const success = await result.current.deleteTemplate({
       routerID: 'router-1',
@@ -415,10 +411,9 @@ describe('useDeleteTemplate', () => {
     ];
 
     const onError = vi.fn();
-    const { result } = renderHook(
-      () => useDeleteTemplate({ onError }),
-      { wrapper: createWrapper(mocks) }
-    );
+    const { result } = renderHook(() => useDeleteTemplate({ onError }), {
+      wrapper: createWrapper(mocks),
+    });
 
     try {
       await result.current.deleteTemplate({

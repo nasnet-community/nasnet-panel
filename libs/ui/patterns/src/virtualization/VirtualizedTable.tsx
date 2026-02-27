@@ -226,11 +226,9 @@ function VirtualizedTableInner<T>({
   const totalSize = virtualizer.getTotalSize();
 
   // Padding for virtualization positioning
-  const paddingTop = virtualRows.length > 0 ? virtualRows[0]?.start ?? 0 : 0;
+  const paddingTop = virtualRows.length > 0 ? (virtualRows[0]?.start ?? 0) : 0;
   const paddingBottom =
-    virtualRows.length > 0
-      ? totalSize - (virtualRows[virtualRows.length - 1]?.end ?? 0)
-      : 0;
+    virtualRows.length > 0 ? totalSize - (virtualRows[virtualRows.length - 1]?.end ?? 0) : 0;
 
   // Handle row click
   const handleRowClick = useCallback(
@@ -292,8 +290,8 @@ function VirtualizedTableInner<T>({
           key={header.id}
           scope="col"
           className={cn(
-            'px-4 py-2 text-left text-sm font-medium text-muted-foreground border-b border-border',
-            isSortable && 'cursor-pointer select-none hover:bg-muted/50',
+            'text-muted-foreground border-border border-b px-4 py-2 text-left text-sm font-medium',
+            isSortable && 'hover:bg-muted/50 cursor-pointer select-none',
             headerClassName
           )}
           style={{
@@ -303,22 +301,29 @@ function VirtualizedTableInner<T>({
           onClick={isSortable ? header.column.getToggleSortingHandler() : undefined}
           colSpan={header.colSpan}
           aria-sort={
-            isSortable
-              ? sortDirection === 'asc'
-                ? 'ascending'
-                : sortDirection === 'desc'
-                  ? 'descending'
-                  : 'none'
-              : undefined
+            isSortable ?
+              sortDirection === 'asc' ?
+                'ascending'
+              : sortDirection === 'desc' ?
+                'descending'
+              : 'none'
+            : undefined
           }
         >
           <div className="flex items-center gap-2">
-            {header.isPlaceholder
-              ? null
-              : flexRender(header.column.columnDef.header, header.getContext())}
+            {header.isPlaceholder ? null : (
+              flexRender(header.column.columnDef.header, header.getContext())
+            )}
             {isSortable && (
-              <span className="text-xs" aria-hidden="true">
-                {sortDirection === 'asc' ? '↑' : sortDirection === 'desc' ? '↓' : '↕'}
+              <span
+                className="text-xs"
+                aria-hidden="true"
+              >
+                {sortDirection === 'asc' ?
+                  '↑'
+                : sortDirection === 'desc' ?
+                  '↓'
+                : '↕'}
               </span>
             )}
           </div>
@@ -334,7 +339,7 @@ function VirtualizedTableInner<T>({
       return (
         <td
           key={cell.id}
-          className={cn('px-4 py-2 text-sm border-b border-border', cellClassName)}
+          className={cn('border-border border-b px-4 py-2 text-sm', cellClassName)}
           style={{
             width: cell.column.getSize(),
             minWidth: cell.column.getSize(),
@@ -356,10 +361,10 @@ function VirtualizedTableInner<T>({
         <tr
           key={row.id}
           className={cn(
-            'border-b border-border transition-colors',
+            'border-border border-b transition-colors',
             isSelected && 'bg-primary/10',
-            onRowClick && 'cursor-pointer hover:bg-muted/50',
-            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+            onRowClick && 'hover:bg-muted/50 cursor-pointer',
+            'focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
             getRowClassName(row)
           )}
           style={style}
@@ -386,8 +391,8 @@ function VirtualizedTableInner<T>({
         style={{ height }}
         aria-busy="true"
       >
-        <div className="flex items-center justify-center h-full">
-          <div className="animate-pulse text-muted-foreground">Loading...</div>
+        <div className="flex h-full items-center justify-center">
+          <div className="text-muted-foreground animate-pulse">Loading...</div>
         </div>
       </div>
     );
@@ -404,16 +409,14 @@ function VirtualizedTableInner<T>({
       >
         {/* Still render header */}
         <table className={cn('w-full border-collapse', tableClassName)}>
-          <thead className={stickyHeader ? 'sticky top-0 z-10 bg-background' : undefined}>
+          <thead className={stickyHeader ? 'bg-background sticky top-0 z-10' : undefined}>
             {headerGroups.map((headerGroup) => (
-              <tr key={headerGroup.id}>
-                {headerGroup.headers.map(renderHeader)}
-              </tr>
+              <tr key={headerGroup.id}>{headerGroup.headers.map(renderHeader)}</tr>
             ))}
           </thead>
         </table>
         {emptyContent || (
-          <div className="flex items-center justify-center h-32 text-muted-foreground">
+          <div className="text-muted-foreground flex h-32 items-center justify-center">
             No data to display
           </div>
         )}
@@ -433,46 +436,50 @@ function VirtualizedTableInner<T>({
       <table className={cn('w-full border-collapse', tableClassName)}>
         {/* Header */}
         <thead
-          className={cn(stickyHeader && 'sticky z-10 bg-background')}
+          className={cn(stickyHeader && 'bg-background sticky z-10')}
           style={stickyHeader ? { top: 0 } : undefined}
         >
           {headerGroups.map((headerGroup) => (
-            <tr key={headerGroup.id}>
-              {headerGroup.headers.map(renderHeader)}
-            </tr>
+            <tr key={headerGroup.id}>{headerGroup.headers.map(renderHeader)}</tr>
           ))}
         </thead>
 
         {/* Body */}
         <tbody>
-          {shouldVirtualize ? (
-            <>
-              {/* Top padding for virtualization */}
-              {paddingTop > 0 && (
-                <tr>
-                  <td style={{ height: paddingTop }} colSpan={columns.length} />
-                </tr>
-              )}
+          {
+            shouldVirtualize ?
+              <>
+                {/* Top padding for virtualization */}
+                {paddingTop > 0 && (
+                  <tr>
+                    <td
+                      style={{ height: paddingTop }}
+                      colSpan={columns.length}
+                    />
+                  </tr>
+                )}
 
-              {/* Virtualized rows */}
-              {virtualRows.map((virtualRow) => {
-                const row = rows[virtualRow.index];
-                return renderRow(row, {
-                  height: virtualRow.size,
-                });
-              })}
+                {/* Virtualized rows */}
+                {virtualRows.map((virtualRow) => {
+                  const row = rows[virtualRow.index];
+                  return renderRow(row, {
+                    height: virtualRow.size,
+                  });
+                })}
 
-              {/* Bottom padding for virtualization */}
-              {paddingBottom > 0 && (
-                <tr>
-                  <td style={{ height: paddingBottom }} colSpan={columns.length} />
-                </tr>
-              )}
-            </>
-          ) : (
-            // Non-virtualized rendering for small datasets
-            rows.map((row) => renderRow(row))
-          )}
+                {/* Bottom padding for virtualization */}
+                {paddingBottom > 0 && (
+                  <tr>
+                    <td
+                      style={{ height: paddingBottom }}
+                      colSpan={columns.length}
+                    />
+                  </tr>
+                )}
+              </>
+              // Non-virtualized rendering for small datasets
+            : rows.map((row) => renderRow(row))
+          }
         </tbody>
       </table>
     </div>

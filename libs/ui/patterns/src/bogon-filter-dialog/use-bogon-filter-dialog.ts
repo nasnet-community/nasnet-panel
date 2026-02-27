@@ -117,9 +117,7 @@ export function useBogonFilterDialog(
   // State
   // ========================================
 
-  const [selectedInterface, setSelectedInterface] = useState<string>(
-    availableInterfaces[0] || ''
-  );
+  const [selectedInterface, setSelectedInterface] = useState<string>(availableInterfaces[0] || '');
 
   const [selectedCategories, setSelectedCategories] = useState<Set<BogonCategory>>(
     new Set<BogonCategory>([

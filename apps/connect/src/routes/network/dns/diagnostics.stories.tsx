@@ -48,8 +48,7 @@ export const WithCacheView: Story = {
   parameters: {
     docs: {
       description: {
-        story:
-          'DNS diagnostics page focused on viewing cached DNS entries and cache statistics.',
+        story: 'DNS diagnostics page focused on viewing cached DNS entries and cache statistics.',
       },
     },
   },

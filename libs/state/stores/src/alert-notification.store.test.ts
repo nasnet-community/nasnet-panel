@@ -338,7 +338,8 @@ describe('AlertNotificationStore', () => {
       expect(result.current.notifications).toHaveLength(100);
 
       // The first notification (alert-0 through alert-4) should be dropped
-      const firstNotification = result.current.notifications[result.current.notifications.length - 1];
+      const firstNotification =
+        result.current.notifications[result.current.notifications.length - 1];
       expect(parseInt(firstNotification.alertId.split('-')[1])).toBeGreaterThanOrEqual(5);
 
       // The last notification should be alert-104

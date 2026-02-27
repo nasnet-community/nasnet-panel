@@ -8,27 +8,27 @@
 import { UseQueryResult } from '@tanstack/react-query';
 import type { Connection, ConnectionFilters } from '@nasnet/core/types';
 export interface UseConnectionsOptions {
-    /**
-     * Target router IP address
-     */
-    routerIp: string;
-    /**
-     * Optional filters for connections
-     */
-    filters?: ConnectionFilters;
-    /**
-     * Enable automatic polling (default: true)
-     * Connections change frequently, so polling is enabled by default
-     */
-    enablePolling?: boolean;
-    /**
-     * Polling interval in milliseconds (default: 5000ms = 5s)
-     */
-    pollingInterval?: number;
-    /**
-     * Skip query execution if true
-     */
-    enabled?: boolean;
+  /**
+   * Target router IP address
+   */
+  routerIp: string;
+  /**
+   * Optional filters for connections
+   */
+  filters?: ConnectionFilters;
+  /**
+   * Enable automatic polling (default: true)
+   * Connections change frequently, so polling is enabled by default
+   */
+  enablePolling?: boolean;
+  /**
+   * Polling interval in milliseconds (default: 5000ms = 5s)
+   */
+  pollingInterval?: number;
+  /**
+   * Skip query execution if true
+   */
+  enabled?: boolean;
 }
 /**
  * React Query hook for active firewall connections
@@ -65,5 +65,11 @@ export interface UseConnectionsOptions {
  * }
  * ```
  */
-export declare function useConnections({ routerIp, filters, enablePolling, pollingInterval, enabled, }: UseConnectionsOptions): UseQueryResult<Connection[], Error>;
+export declare function useConnections({
+  routerIp,
+  filters,
+  enablePolling,
+  pollingInterval,
+  enabled,
+}: UseConnectionsOptions): UseQueryResult<Connection[], Error>;
 //# sourceMappingURL=useConnections.d.ts.map

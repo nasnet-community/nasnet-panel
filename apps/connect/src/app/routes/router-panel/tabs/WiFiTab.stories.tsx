@@ -33,7 +33,8 @@ export const Loading: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'WiFiTab displays loading skeleton while fetching wireless interfaces and connected clients.',
+        story:
+          'WiFiTab displays loading skeleton while fetching wireless interfaces and connected clients.',
       },
     },
   },
@@ -47,7 +48,8 @@ export const ErrorState: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'WiFiTab displays error message when wireless interface query fails with retry button.',
+        story:
+          'WiFiTab displays error message when wireless interface query fails with retry button.',
       },
     },
   },

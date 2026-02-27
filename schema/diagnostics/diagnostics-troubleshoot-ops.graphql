@@ -98,12 +98,7 @@ extend type Mutation {
   """
   Apply a suggested fix for a failed diagnostic step
   """
-  applyTroubleshootFix(
-    "Session ID"
-    sessionId: ID!
-    "Issue code to fix"
-    issueCode: String!
-  ): ApplyFixPayload!
+  applyTroubleshootFix("Session ID" sessionId: ID!, "Issue code to fix" issueCode: String!): ApplyFixPayload!
 
   """
   Verify a fix by re-running the diagnostic step

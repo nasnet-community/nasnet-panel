@@ -37,10 +37,7 @@ export {
 // Example: export { useResourceCard } from '../common/resource-card/useResourceCard';
 
 // Focus Management - @see NAS-4.17
-export {
-  useFocusRestore,
-  useFocusManagement,
-} from './use-focus-restore';
+export { useFocusRestore, useFocusManagement } from './use-focus-restore';
 export type {
   UseFocusRestoreReturn,
   UseFocusRestoreOptions,
@@ -58,10 +55,7 @@ export type {
 } from './useToast';
 
 // Unsaved Changes - @see NAS-4.24
-export {
-  useUnsavedChanges,
-  getUnsavedChangesMessage,
-} from './useUnsavedChanges';
+export { useUnsavedChanges, getUnsavedChangesMessage } from './useUnsavedChanges';
 export type {
   UseUnsavedChangesOptions,
   UseUnsavedChangesReturn,
@@ -74,11 +68,7 @@ export { useClipboard, CLIPBOARD_TIMEOUT_MS } from './useClipboard';
 export type { UseClipboardOptions, UseClipboardReturn } from './useClipboard';
 
 export { useBulkCopy, SUPPORTED_FORMATS, FORMAT_LABELS } from './useBulkCopy';
-export type {
-  UseBulkCopyOptions,
-  UseBulkCopyReturn,
-  ExportFormat,
-} from './useBulkCopy';
+export type { UseBulkCopyOptions, UseBulkCopyReturn, ExportFormat } from './useBulkCopy';
 
 export { usePasteImport } from './usePasteImport';
 export type {

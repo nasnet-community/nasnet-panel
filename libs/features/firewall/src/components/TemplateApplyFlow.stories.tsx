@@ -23,7 +23,8 @@ import type { Meta, StoryObj } from '@storybook/react';
 const mockBasicTemplate: FirewallTemplate = {
   id: 'tpl-basic-security',
   name: 'Basic Home Security',
-  description: 'Essential firewall rules for a home network. Allows established connections, SSH from LAN, and drops everything else.',
+  description:
+    'Essential firewall rules for a home network. Allows established connections, SSH from LAN, and drops everything else.',
   category: 'HOME',
   complexity: 'SIMPLE',
   ruleCount: 5,
@@ -50,11 +51,46 @@ const mockBasicTemplate: FirewallTemplate = {
     },
   ],
   rules: [
-    { table: 'FILTER' as const, chain: 'input', action: 'accept', position: 0, comment: 'Accept established', properties: { connectionState: ['established', 'related'] } },
-    { table: 'FILTER' as const, chain: 'input', action: 'accept', position: 1, comment: 'Accept SSH from LAN', properties: { protocol: 'tcp', dstPort: '22', srcAddress: '{{LAN_SUBNET}}' } },
-    { table: 'FILTER' as const, chain: 'input', action: 'drop', position: 2, comment: 'Drop all other input', properties: {} },
-    { table: 'FILTER' as const, chain: 'forward', action: 'accept', position: 3, comment: 'Accept established forwards', properties: { connectionState: ['established', 'related'] } },
-    { table: 'FILTER' as const, chain: 'forward', action: 'drop', position: 4, comment: 'Drop other forwards', properties: {} },
+    {
+      table: 'FILTER' as const,
+      chain: 'input',
+      action: 'accept',
+      position: 0,
+      comment: 'Accept established',
+      properties: { connectionState: ['established', 'related'] },
+    },
+    {
+      table: 'FILTER' as const,
+      chain: 'input',
+      action: 'accept',
+      position: 1,
+      comment: 'Accept SSH from LAN',
+      properties: { protocol: 'tcp', dstPort: '22', srcAddress: '{{LAN_SUBNET}}' },
+    },
+    {
+      table: 'FILTER' as const,
+      chain: 'input',
+      action: 'drop',
+      position: 2,
+      comment: 'Drop all other input',
+      properties: {},
+    },
+    {
+      table: 'FILTER' as const,
+      chain: 'forward',
+      action: 'accept',
+      position: 3,
+      comment: 'Accept established forwards',
+      properties: { connectionState: ['established', 'related'] },
+    },
+    {
+      table: 'FILTER' as const,
+      chain: 'forward',
+      action: 'drop',
+      position: 4,
+      comment: 'Drop other forwards',
+      properties: {},
+    },
   ],
 };
 
@@ -62,7 +98,8 @@ const mockBasicTemplate: FirewallTemplate = {
 const mockAdvancedTemplate: FirewallTemplate = {
   id: 'tpl-advanced-vpn',
   name: 'Advanced VPN Security Suite',
-  description: 'Comprehensive firewall ruleset for VPN-protected networks with IDS integration, QoS mangle, and NAT rules.',
+  description:
+    'Comprehensive firewall ruleset for VPN-protected networks with IDS integration, QoS mangle, and NAT rules.',
   category: 'VPN',
   complexity: 'EXPERT',
   ruleCount: 18,
@@ -71,15 +108,42 @@ const mockAdvancedTemplate: FirewallTemplate = {
   createdAt: null,
   updatedAt: null,
   variables: [
-    { name: 'WAN_INTERFACE', label: 'WAN Interface', type: 'INTERFACE', isRequired: true, defaultValue: 'ether1' },
-    { name: 'LAN_INTERFACE', label: 'LAN Interface', type: 'INTERFACE', isRequired: true, defaultValue: 'bridge1' },
-    { name: 'VPN_SUBNET', label: 'VPN Subnet', type: 'SUBNET', isRequired: true, defaultValue: '10.0.0.0/24' },
-    { name: 'DNS_SERVER', label: 'DNS Server IP', type: 'IP', isRequired: false, defaultValue: '1.1.1.1' },
+    {
+      name: 'WAN_INTERFACE',
+      label: 'WAN Interface',
+      type: 'INTERFACE',
+      isRequired: true,
+      defaultValue: 'ether1',
+    },
+    {
+      name: 'LAN_INTERFACE',
+      label: 'LAN Interface',
+      type: 'INTERFACE',
+      isRequired: true,
+      defaultValue: 'bridge1',
+    },
+    {
+      name: 'VPN_SUBNET',
+      label: 'VPN Subnet',
+      type: 'SUBNET',
+      isRequired: true,
+      defaultValue: '10.0.0.0/24',
+    },
+    {
+      name: 'DNS_SERVER',
+      label: 'DNS Server IP',
+      type: 'IP',
+      isRequired: false,
+      defaultValue: '1.1.1.1',
+    },
     { name: 'SSH_PORT', label: 'SSH Port', type: 'PORT', isRequired: false, defaultValue: '22' },
   ],
   rules: Array.from({ length: 18 }, (_, i) => ({
     table: 'FILTER' as const,
-    chain: i % 3 === 0 ? 'input' : i % 3 === 1 ? 'forward' : 'output',
+    chain:
+      i % 3 === 0 ? 'input'
+      : i % 3 === 1 ? 'forward'
+      : 'output',
     action: 'accept',
     position: i,
     comment: `Rule ${i + 1}`,
@@ -107,7 +171,8 @@ const mockConflictPreviewResult = {
   conflicts: [
     {
       type: 'DUPLICATE_RULE' as const,
-      message: 'Rule #3 (Drop all other input) conflicts with existing rule *7 — both drop all input traffic.',
+      message:
+        'Rule #3 (Drop all other input) conflicts with existing rule *7 — both drop all input traffic.',
       existingRuleId: '*7',
     },
   ],
@@ -138,7 +203,9 @@ const onPreviewHang = fn().mockImplementation(() => new Promise(() => {}));
 // Apply that hangs indefinitely — keeps the machine in 'applying' state
 const onApplyHang = fn().mockImplementation(() => new Promise(() => {}));
 const onApplySuccess = fn().mockResolvedValue(mockApplyResult);
-const onApplyError = fn().mockRejectedValue(new Error('Failed to write rules: router connection timeout'));
+const onApplyError = fn().mockRejectedValue(
+  new Error('Failed to write rules: router connection timeout')
+);
 // Rollback that hangs indefinitely — keeps the machine in 'rollingBack' state
 const _onRollbackHang = fn().mockImplementation(() => new Promise(() => {}));
 const onRollback = fn().mockResolvedValue(undefined);
@@ -359,7 +426,7 @@ export const NullTemplate: Story = {
     docs: {
       description: {
         story:
-          'template=null renders null. The parent page gates this component\'s visibility by passing a selected template object.',
+          "template=null renders null. The parent page gates this component's visibility by passing a selected template object.",
       },
     },
   },

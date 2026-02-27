@@ -56,25 +56,45 @@ vi.mock('../components/ServicePortsTable', () => ({
 }));
 
 vi.mock('../components/AddServiceDialog', () => ({
-  AddServiceDialog: ({ open, onOpenChange }: { open: boolean; onOpenChange: (o: boolean) => void }) =>
-    open ? (
-      <div data-testid="add-service-dialog" data-open="true">
+  AddServiceDialog: ({
+    open,
+    onOpenChange,
+  }: {
+    open: boolean;
+    onOpenChange: (o: boolean) => void;
+  }) =>
+    open ?
+      <div
+        data-testid="add-service-dialog"
+        data-open="true"
+      >
         <button onClick={() => onOpenChange(false)}>Close Add Service</button>
       </div>
-    ) : (
-      <div data-testid="add-service-dialog" data-open="false" />
-    ),
+    : <div
+        data-testid="add-service-dialog"
+        data-open="false"
+      />,
 }));
 
 vi.mock('../components/ServiceGroupDialog', () => ({
-  ServiceGroupDialog: ({ open, onOpenChange }: { open: boolean; onOpenChange: (o: boolean) => void }) =>
-    open ? (
-      <div data-testid="service-group-dialog" data-open="true">
+  ServiceGroupDialog: ({
+    open,
+    onOpenChange,
+  }: {
+    open: boolean;
+    onOpenChange: (o: boolean) => void;
+  }) =>
+    open ?
+      <div
+        data-testid="service-group-dialog"
+        data-open="true"
+      >
         <button onClick={() => onOpenChange(false)}>Close Service Group</button>
       </div>
-    ) : (
-      <div data-testid="service-group-dialog" data-open="false" />
-    ),
+    : <div
+        data-testid="service-group-dialog"
+        data-open="false"
+      />,
 }));
 
 // Mock useCustomServices hook
@@ -192,14 +212,14 @@ describe('ServicePortsPage', () => {
       await user.click(groupsTab);
 
       expect(screen.getByText('No service groups defined')).toBeInTheDocument();
-      expect(screen.getByText('Create groups to quickly select multiple services')).toBeInTheDocument();
+      expect(
+        screen.getByText('Create groups to quickly select multiple services')
+      ).toBeInTheDocument();
     });
 
     it('shows placeholder message in Groups tab when groups exist', async () => {
       mockUseCustomServices.mockReturnValue({
-        serviceGroups: [
-          { id: 'group-1', name: 'web', ports: [80, 443], protocol: 'tcp' },
-        ],
+        serviceGroups: [{ id: 'group-1', name: 'web', ports: [80, 443], protocol: 'tcp' }],
         services: [],
         customServices: [],
         addService: vi.fn(),
@@ -276,7 +296,9 @@ describe('ServicePortsPage', () => {
 
       // Initially shows Add Service (not Close Add Service)
       const addServiceButtons = screen.getAllByRole('button', { name: /Add Service/ });
-      const actualAddButton = addServiceButtons.find((btn) => btn.textContent?.includes('Add Service') && !btn.textContent?.includes('Close'));
+      const actualAddButton = addServiceButtons.find(
+        (btn) => btn.textContent?.includes('Add Service') && !btn.textContent?.includes('Close')
+      );
       expect(actualAddButton).toBeDefined();
 
       // Switch to Groups tab
@@ -299,7 +321,9 @@ describe('ServicePortsPage', () => {
       renderServicePortsPage();
 
       const buttons = screen.getAllByRole('button', { name: /Add Service/ });
-      const addButton = buttons.find((btn) => btn.textContent?.includes('Add Service') && !btn.textContent?.includes('Close'));
+      const addButton = buttons.find(
+        (btn) => btn.textContent?.includes('Add Service') && !btn.textContent?.includes('Close')
+      );
       await user.click(addButton!);
 
       await waitFor(() => {
@@ -314,7 +338,9 @@ describe('ServicePortsPage', () => {
 
       // Open dialog
       const buttons = screen.getAllByRole('button', { name: /Add Service/ });
-      const addButton = buttons.find((btn) => btn.textContent?.includes('Add Service') && !btn.textContent?.includes('Close'));
+      const addButton = buttons.find(
+        (btn) => btn.textContent?.includes('Add Service') && !btn.textContent?.includes('Close')
+      );
       await user.click(addButton!);
 
       // Wait for dialog to open
@@ -377,7 +403,9 @@ describe('ServicePortsPage', () => {
 
       // Open dialog
       const buttons = screen.getAllByRole('button', { name: /Add Service/ });
-      const addButton = buttons.find((btn) => btn.textContent?.includes('Add Service') && !btn.textContent?.includes('Close'));
+      const addButton = buttons.find(
+        (btn) => btn.textContent?.includes('Add Service') && !btn.textContent?.includes('Close')
+      );
       await user.click(addButton!);
 
       // Wait for dialog to open

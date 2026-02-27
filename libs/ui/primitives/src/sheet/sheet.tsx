@@ -18,23 +18,23 @@
  * </Sheet>
  * ```
  */
-"use client"
+'use client';
 
-import * as React from "react"
+import * as React from 'react';
 
-import * as SheetPrimitive from "@radix-ui/react-dialog"
-import { cva, type VariantProps } from "class-variance-authority"
-import { X } from "lucide-react"
+import * as SheetPrimitive from '@radix-ui/react-dialog';
+import { cva, type VariantProps } from 'class-variance-authority';
+import { X } from 'lucide-react';
 
-import { cn } from "../lib/utils"
+import { cn } from '../lib/utils';
 
-const Sheet = SheetPrimitive.Root
+const Sheet = SheetPrimitive.Root;
 
-const SheetTrigger = SheetPrimitive.Trigger
+const SheetTrigger = SheetPrimitive.Trigger;
 
-const SheetClose = SheetPrimitive.Close
+const SheetClose = SheetPrimitive.Close;
 
-const SheetPortal = SheetPrimitive.Portal
+const SheetPortal = SheetPrimitive.Portal;
 
 /**
  * SheetOverlay - Semi-transparent backdrop behind the sheet.
@@ -59,34 +59,34 @@ const SheetOverlay = React.memo(
   >(({ className, ...props }, ref) => (
     <SheetPrimitive.Overlay
       className={cn(
-        "fixed inset-0 z-50 bg-black/50 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+        'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-black/50',
         className
       )}
       {...props}
       ref={ref}
     />
   ))
-)
-SheetOverlay.displayName = SheetPrimitive.Overlay.displayName
+);
+SheetOverlay.displayName = SheetPrimitive.Overlay.displayName;
 
 const sheetVariants = cva(
-  "fixed z-50 gap-4 bg-card text-card-foreground border-border p-6 shadow-[var(--semantic-shadow-modal)] transition ease-out data-[state=closed]:duration-300 data-[state=open]:duration-300 data-[state=open]:animate-in data-[state=closed]:animate-out",
+  'bg-card text-card-foreground border-border data-[state=open]:animate-in data-[state=closed]:animate-out fixed z-50 gap-4 p-6 shadow-[var(--semantic-shadow-modal)] transition ease-out data-[state=closed]:duration-300 data-[state=open]:duration-300',
   {
     variants: {
       side: {
-        top: "inset-x-0 top-0 border-b data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top",
+        top: 'data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top inset-x-0 top-0 border-b',
         bottom:
-          "inset-x-0 bottom-0 border-t data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom",
-        left: "inset-y-0 left-0 h-full w-[80%] border-r rounded-r-[var(--semantic-radius-modal)] data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left sm:w-[400px]",
+          'data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom inset-x-0 bottom-0 border-t',
+        left: 'data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left inset-y-0 left-0 h-full w-[80%] rounded-r-[var(--semantic-radius-modal)] border-r sm:w-[400px]',
         right:
-          "inset-y-0 right-0 h-full w-[80%] border-l rounded-l-[var(--semantic-radius-modal)] data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right sm:w-[400px]",
+          'data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right inset-y-0 right-0 h-full w-[80%] rounded-l-[var(--semantic-radius-modal)] border-l sm:w-[400px]',
       },
     },
     defaultVariants: {
-      side: "right",
+      side: 'right',
     },
   }
-)
+);
 
 /**
  * Props for SheetContent component
@@ -119,30 +119,29 @@ interface SheetContentProps
  * ```
  */
 const SheetContent = React.memo(
-  React.forwardRef<
-    React.ElementRef<typeof SheetPrimitive.Content>,
-    SheetContentProps
-  >(({ side = "right", className, children, ...props }, ref) => (
-    <SheetPortal>
-      <SheetOverlay />
-      <SheetPrimitive.Content
-        ref={ref}
-        className={cn(sheetVariants({ side }), className)}
-        {...props}
-      >
-        {children}
-        <SheetPrimitive.Close
-          className="absolute right-4 top-4 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary"
-          aria-label="Close panel"
+  React.forwardRef<React.ElementRef<typeof SheetPrimitive.Content>, SheetContentProps>(
+    ({ side = 'right', className, children, ...props }, ref) => (
+      <SheetPortal>
+        <SheetOverlay />
+        <SheetPrimitive.Content
+          ref={ref}
+          className={cn(sheetVariants({ side }), className)}
+          {...props}
         >
-          <X className="h-4 w-4" />
-          <span className="sr-only">Close</span>
-        </SheetPrimitive.Close>
-      </SheetPrimitive.Content>
-    </SheetPortal>
-  ))
-)
-SheetContent.displayName = SheetPrimitive.Content.displayName
+          {children}
+          <SheetPrimitive.Close
+            className="ring-offset-background focus-visible:ring-ring data-[state=open]:bg-secondary absolute right-4 top-4 flex min-h-[44px] min-w-[44px] items-center justify-center rounded-sm opacity-70 transition-opacity hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none"
+            aria-label="Close panel"
+          >
+            <X className="h-4 w-4" />
+            <span className="sr-only">Close</span>
+          </SheetPrimitive.Close>
+        </SheetPrimitive.Content>
+      </SheetPortal>
+    )
+  )
+);
+SheetContent.displayName = SheetPrimitive.Content.displayName;
 
 /**
  * SheetHeader - Container for sheet title and description.
@@ -159,21 +158,13 @@ SheetContent.displayName = SheetPrimitive.Content.displayName
  * </SheetHeader>
  * ```
  */
-const SheetHeader = React.memo(
-  ({
-    className,
-    ...props
-  }: React.HTMLAttributes<HTMLDivElement>) => (
-    <div
-      className={cn(
-        "flex flex-col space-y-2 text-left",
-        className
-      )}
-      {...props}
-    />
-  )
-)
-SheetHeader.displayName = "SheetHeader"
+const SheetHeader = React.memo(({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div
+    className={cn('flex flex-col space-y-2 text-left', className)}
+    {...props}
+  />
+));
+SheetHeader.displayName = 'SheetHeader';
 
 /**
  * SheetFooter - Container for sheet action buttons.
@@ -193,21 +184,13 @@ SheetHeader.displayName = "SheetHeader"
  * </SheetFooter>
  * ```
  */
-const SheetFooter = React.memo(
-  ({
-    className,
-    ...props
-  }: React.HTMLAttributes<HTMLDivElement>) => (
-    <div
-      className={cn(
-        "flex flex-col-reverse sm:flex-row sm:justify-end gap-2 mt-6",
-        className
-      )}
-      {...props}
-    />
-  )
-)
-SheetFooter.displayName = "SheetFooter"
+const SheetFooter = React.memo(({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div
+    className={cn('mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end', className)}
+    {...props}
+  />
+));
+SheetFooter.displayName = 'SheetFooter';
 
 /**
  * SheetTitle - Primary heading within the sheet.
@@ -230,12 +213,12 @@ const SheetTitle = React.memo(
   >(({ className, ...props }, ref) => (
     <SheetPrimitive.Title
       ref={ref}
-      className={cn("font-display text-lg font-semibold text-card-foreground", className)}
+      className={cn('font-display text-card-foreground text-lg font-semibold', className)}
       {...props}
     />
   ))
-)
-SheetTitle.displayName = SheetPrimitive.Title.displayName
+);
+SheetTitle.displayName = SheetPrimitive.Title.displayName;
 
 /**
  * SheetDescription - Secondary text or supporting information in sheet.
@@ -261,12 +244,12 @@ const SheetDescription = React.memo(
   >(({ className, ...props }, ref) => (
     <SheetPrimitive.Description
       ref={ref}
-      className={cn("text-sm text-muted-foreground", className)}
+      className={cn('text-muted-foreground text-sm', className)}
       {...props}
     />
   ))
-)
-SheetDescription.displayName = SheetPrimitive.Description.displayName
+);
+SheetDescription.displayName = SheetPrimitive.Description.displayName;
 
 export {
   Sheet,
@@ -279,4 +262,4 @@ export {
   SheetFooter,
   SheetTitle,
   SheetDescription,
-}
+};

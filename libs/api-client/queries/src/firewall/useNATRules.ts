@@ -259,7 +259,9 @@ export function useCreatePortForward(routerIp: string) {
         toPorts: config.toPorts,
         inInterface: config.inInterface,
         dstAddress: config.dstAddress,
-        comment: config.comment || `Port forward ${config.dstPort} -> ${config.toAddresses}:${config.toPorts}`,
+        comment:
+          config.comment ||
+          `Port forward ${config.dstPort} -> ${config.toAddresses}:${config.toPorts}`,
         disabled: config.disabled ?? false,
       };
 

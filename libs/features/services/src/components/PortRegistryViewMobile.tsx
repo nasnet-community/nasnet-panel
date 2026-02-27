@@ -76,42 +76,40 @@ interface PortCardProps {
 const PortCard = memo(function PortCard({ allocation }: PortCardProps) {
   return (
     <Card className="p-component-sm touch-manipulation">
-      <div className="flex items-center justify-between min-h-[44px]">
+      <div className="flex min-h-[44px] items-center justify-between">
         {/* Left: Port and Protocol badges */}
-        <div className="flex items-center gap-component-sm flex-1 min-w-0">
+        <div className="gap-component-sm flex min-w-0 flex-1 items-center">
           <Badge
             variant="outline"
-            className="font-mono font-bold text-base px-3 py-1 text-category-vpn"
+            className="text-category-vpn px-3 py-1 font-mono text-base font-bold"
           >
             {allocation.port}
           </Badge>
           <Badge
             variant={allocation.protocol === 'TCP' ? 'secondary' : 'default'}
-            className="uppercase text-xs"
+            className="text-xs uppercase"
           >
             {allocation.protocol}
           </Badge>
         </div>
 
         {/* Right: Timestamp */}
-        <span className="text-xs text-muted-foreground shrink-0 ml-2">
+        <span className="text-muted-foreground ml-2 shrink-0 text-xs">
           {formatRelativeTime(allocation.allocatedAt)}
         </span>
       </div>
 
       {/* Instance ID */}
       <div className="mt-component-sm">
-        <div className="text-xs text-muted-foreground">Instance</div>
-        <div className="text-sm font-medium truncate">
-          {allocation.instanceID}
-        </div>
+        <div className="text-muted-foreground text-xs">Instance</div>
+        <div className="truncate text-sm font-medium">{allocation.instanceID}</div>
       </div>
 
       {/* Notes (if present) */}
       {allocation.notes && (
         <div className="mt-component-sm">
-          <div className="text-xs text-muted-foreground">Purpose</div>
-          <div className="text-sm line-clamp-2">{allocation.notes}</div>
+          <div className="text-muted-foreground text-xs">Purpose</div>
+          <div className="line-clamp-2 text-sm">{allocation.notes}</div>
         </div>
       )}
     </Card>
@@ -138,27 +136,38 @@ const ServiceGroup = memo(function ServiceGroup({
   const [isOpen, setIsOpen] = useState(defaultOpen);
 
   return (
-    <Collapsible.Root open={isOpen} onOpenChange={setIsOpen}>
+    <Collapsible.Root
+      open={isOpen}
+      onOpenChange={setIsOpen}
+    >
       <Card>
         {/* Collapsible Trigger - 44px minimum height */}
         <Collapsible.Trigger asChild>
           <button
-            className="w-full p-component-sm flex items-center justify-between min-h-[44px] touch-manipulation hover:bg-muted/50 transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-[var(--semantic-radius-card)]"
+            className="p-component-sm hover:bg-muted/50 focus-visible:ring-ring flex min-h-[44px] w-full touch-manipulation items-center justify-between rounded-[var(--semantic-radius-card)] transition-colors focus-visible:ring-2 focus-visible:ring-offset-2"
             aria-label={`Toggle ${serviceType} ports`}
           >
-            <div className="flex items-center gap-component-sm">
-              <Badge variant="outline" className="font-semibold">
+            <div className="gap-component-sm flex items-center">
+              <Badge
+                variant="outline"
+                className="font-semibold"
+              >
                 {serviceType}
               </Badge>
-              <span className="text-sm text-muted-foreground">
+              <span className="text-muted-foreground text-sm">
                 {allocations.length} {allocations.length === 1 ? 'port' : 'ports'}
               </span>
             </div>
-            {isOpen ? (
-              <ChevronUp className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
-            ) : (
-              <ChevronDown className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
-            )}
+            {isOpen ?
+              <ChevronUp
+                className="text-muted-foreground h-5 w-5"
+                aria-hidden="true"
+              />
+            : <ChevronDown
+                className="text-muted-foreground h-5 w-5"
+                aria-hidden="true"
+              />
+            }
           </button>
         </Collapsible.Trigger>
 
@@ -166,7 +175,10 @@ const ServiceGroup = memo(function ServiceGroup({
         <Collapsible.Content>
           <div className="px-component-sm pb-component-sm space-y-component-sm">
             {allocations.map((allocation) => (
-              <PortCard key={allocation.id} allocation={allocation} />
+              <PortCard
+                key={allocation.id}
+                allocation={allocation}
+              />
             ))}
           </div>
         </Collapsible.Content>
@@ -194,10 +206,7 @@ export const PortRegistryViewMobile = memo(function PortRegistryViewMobile({
    * Get service types sorted alphabetically for consistent display
    * Memoized to prevent unnecessary re-renders of ServiceGroup components
    */
-  const serviceTypes = useMemo(
-    () => Object.keys(groupedByService).sort(),
-    [groupedByService]
-  );
+  const serviceTypes = useMemo(() => Object.keys(groupedByService).sort(), [groupedByService]);
 
   return (
     <div className={cn('space-y-component-md pb-20', className)}>
@@ -205,11 +214,17 @@ export const PortRegistryViewMobile = memo(function PortRegistryViewMobile({
       <Card>
         <CardHeader className="pb-component-sm">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-component-sm">
-              <Network className="h-5 w-5" aria-hidden="true" />
+            <div className="gap-component-sm flex items-center">
+              <Network
+                className="h-5 w-5"
+                aria-hidden="true"
+              />
               <CardTitle className="text-lg">Port Registry</CardTitle>
             </div>
-            <Badge variant="outline" className="text-sm px-2 py-1">
+            <Badge
+              variant="outline"
+              className="px-2 py-1 text-sm"
+            >
               {sortedAllocations.length}
             </Badge>
           </div>
@@ -223,13 +238,13 @@ export const PortRegistryViewMobile = memo(function PortRegistryViewMobile({
           <Button
             variant="outline"
             size="lg"
-            className="w-full min-h-[44px]"
+            className="min-h-[44px] w-full"
             onClick={() => refetch()}
             disabled={loading}
             aria-label="Refresh port allocations"
           >
             <RefreshCw
-              className={cn('h-4 w-4 mr-2', loading && 'animate-spin')}
+              className={cn('mr-2 h-4 w-4', loading && 'animate-spin')}
               aria-hidden="true"
             />
             Refresh
@@ -253,7 +268,7 @@ export const PortRegistryViewMobile = memo(function PortRegistryViewMobile({
             <div className="text-error mb-2 text-sm font-medium">
               Failed to load port allocations
             </div>
-            <p className="text-xs text-muted-foreground mb-4">{error.message}</p>
+            <p className="text-muted-foreground mb-4 text-xs">{error.message}</p>
             <Button
               variant="outline"
               size="lg"
@@ -270,7 +285,7 @@ export const PortRegistryViewMobile = memo(function PortRegistryViewMobile({
       {!loading && sortedAllocations.length === 0 && !error && (
         <Card>
           <CardContent className="p-component-lg text-center">
-            <div className="text-muted-foreground mx-auto mb-component-sm flex justify-center">
+            <div className="text-muted-foreground mb-component-sm mx-auto flex justify-center">
               <svg
                 className="h-12 w-12 stroke-1"
                 xmlns="http://www.w3.org/2000/svg"
@@ -285,8 +300,8 @@ export const PortRegistryViewMobile = memo(function PortRegistryViewMobile({
                 />
               </svg>
             </div>
-            <h3 className="font-semibold mb-component-sm">No Port Allocations</h3>
-            <p className="text-sm text-muted-foreground">
+            <h3 className="mb-component-sm font-semibold">No Port Allocations</h3>
+            <p className="text-muted-foreground text-sm">
               Ports will appear here when service instances are created.
             </p>
           </CardContent>

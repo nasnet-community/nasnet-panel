@@ -8,36 +8,45 @@
  * @see Docs/sprint-artifacts/Epic7-Security-Firewall/NAS-7-11-implement-connection-rate-limiting.md
  */
 import { UseQueryResult } from '@tanstack/react-query';
-import { RateLimitRule, RateLimitRuleInput, SynFloodConfig, BlockedIP, RateLimitStats } from '@nasnet/core/types';
+import {
+  RateLimitRule,
+  RateLimitRuleInput,
+  SynFloodConfig,
+  BlockedIP,
+  RateLimitStats,
+} from '@nasnet/core/types';
 /**
  * Input for creating a rate limit rule
  */
-export interface CreateRateLimitRuleInput extends Omit<RateLimitRuleInput, 'id' | 'packets' | 'bytes'> {
-}
+export interface CreateRateLimitRuleInput
+  extends Omit<RateLimitRuleInput, 'id' | 'packets' | 'bytes'> {}
 /**
  * Input for updating a rate limit rule
  */
 export interface UpdateRateLimitRuleInput extends Partial<CreateRateLimitRuleInput> {
-    id: string;
+  id: string;
 }
 /**
  * Input for whitelisting an IP
  */
 export interface WhitelistIPInput {
-    address: string;
-    timeout?: string;
-    comment?: string;
+  address: string;
+  timeout?: string;
+  comment?: string;
 }
 /**
  * Query keys for rate limiting operations
  * Follows TanStack Query best practices for hierarchical keys
  */
 export declare const rateLimitingKeys: {
-    all: (routerId: string) => readonly ["rateLimiting", string];
-    rules: (routerId: string) => readonly ["rateLimiting", "rules", string];
-    synFlood: (routerId: string) => readonly ["rateLimiting", "synFlood", string];
-    stats: (routerId: string) => readonly ["rateLimiting", "stats", string];
-    blockedIPs: (routerId: string, listNames: string[]) => readonly ["rateLimiting", "blockedIPs", string, string[]];
+  all: (routerId: string) => readonly ['rateLimiting', string];
+  rules: (routerId: string) => readonly ['rateLimiting', 'rules', string];
+  synFlood: (routerId: string) => readonly ['rateLimiting', 'synFlood', string];
+  stats: (routerId: string) => readonly ['rateLimiting', 'stats', string];
+  blockedIPs: (
+    routerId: string,
+    listNames: string[]
+  ) => readonly ['rateLimiting', 'blockedIPs', string, string[]];
 };
 /**
  * Hook to fetch all rate limit rules
@@ -50,9 +59,12 @@ export declare const rateLimitingKeys: {
  * @returns Query result with RateLimitRule[] data
  */
 interface UseRateLimitRulesOptions {
-    enabled?: boolean;
+  enabled?: boolean;
 }
-export declare function useRateLimitRules(routerId: string, options?: UseRateLimitRulesOptions): UseQueryResult<RateLimitRule[], Error>;
+export declare function useRateLimitRules(
+  routerId: string,
+  options?: UseRateLimitRulesOptions
+): UseQueryResult<RateLimitRule[], Error>;
 /**
  * Hook to fetch SYN flood protection configuration
  *
@@ -64,9 +76,12 @@ export declare function useRateLimitRules(routerId: string, options?: UseRateLim
  * @returns Query result with SynFloodConfig data
  */
 interface UseSynFloodConfigOptions {
-    enabled?: boolean;
+  enabled?: boolean;
 }
-export declare function useSynFloodConfig(routerId: string, options?: UseSynFloodConfigOptions): UseQueryResult<SynFloodConfig, Error>;
+export declare function useSynFloodConfig(
+  routerId: string,
+  options?: UseSynFloodConfigOptions
+): UseQueryResult<SynFloodConfig, Error>;
 /**
  * Hook to fetch rate limit statistics
  *
@@ -78,10 +93,13 @@ export declare function useSynFloodConfig(routerId: string, options?: UseSynFloo
  * @returns Query result with RateLimitStats data
  */
 interface UseRateLimitStatsOptions {
-    enabled?: boolean;
-    pollingInterval?: number;
+  enabled?: boolean;
+  pollingInterval?: number;
 }
-export declare function useRateLimitStats(routerId: string, options?: UseRateLimitStatsOptions): UseQueryResult<RateLimitStats, Error>;
+export declare function useRateLimitStats(
+  routerId: string,
+  options?: UseRateLimitStatsOptions
+): UseQueryResult<RateLimitStats, Error>;
 /**
  * Hook to fetch blocked IPs from address lists
  *
@@ -94,9 +112,13 @@ export declare function useRateLimitStats(routerId: string, options?: UseRateLim
  * @returns Query result with BlockedIP[] data
  */
 interface UseBlockedIPsOptions {
-    enabled?: boolean;
+  enabled?: boolean;
 }
-export declare function useBlockedIPs(routerId: string, listNames: string[], options?: UseBlockedIPsOptions): UseQueryResult<BlockedIP[], Error>;
+export declare function useBlockedIPs(
+  routerId: string,
+  listNames: string[],
+  options?: UseBlockedIPsOptions
+): UseQueryResult<BlockedIP[], Error>;
 /**
  * Hook to create a new rate limit rule
  *
@@ -105,10 +127,13 @@ export declare function useBlockedIPs(routerId: string, listNames: string[], opt
  *
  * @returns Mutation function and state
  */
-export declare function useCreateRateLimitRule(routerId: string): import("@tanstack/react-query").UseMutationResult<{
-    action: "drop" | "tarpit" | "add-to-list";
+export declare function useCreateRateLimitRule(
+  routerId: string
+): import('@tanstack/react-query').UseMutationResult<
+  {
+    action: 'drop' | 'tarpit' | 'add-to-list';
     connectionLimit: number;
-    timeWindow: "per-second" | "per-minute" | "per-hour";
+    timeWindow: 'per-second' | 'per-minute' | 'per-hour';
     isDisabled: boolean;
     id?: string | undefined;
     srcAddress?: string | undefined;
@@ -118,7 +143,11 @@ export declare function useCreateRateLimitRule(routerId: string): import("@tanst
     bytes?: number | undefined;
     addressList?: string | undefined;
     addressListTimeout?: string | undefined;
-}, Error, CreateRateLimitRuleInput, unknown>;
+  },
+  Error,
+  CreateRateLimitRuleInput,
+  unknown
+>;
 /**
  * Hook to update an existing rate limit rule
  *
@@ -127,22 +156,31 @@ export declare function useCreateRateLimitRule(routerId: string): import("@tanst
  *
  * @returns Mutation function and state
  */
-export declare function useUpdateRateLimitRule(routerId: string): import("@tanstack/react-query").UseMutationResult<void, Error, UpdateRateLimitRuleInput, {
-    previousRules: {
-        action: "drop" | "tarpit" | "add-to-list";
-        connectionLimit: number;
-        timeWindow: "per-second" | "per-minute" | "per-hour";
-        isDisabled: boolean;
-        id?: string | undefined;
-        srcAddress?: string | undefined;
-        srcAddressList?: string | undefined;
-        comment?: string | undefined;
-        packets?: number | undefined;
-        bytes?: number | undefined;
-        addressList?: string | undefined;
-        addressListTimeout?: string | undefined;
-    }[] | undefined;
-}>;
+export declare function useUpdateRateLimitRule(
+  routerId: string
+): import('@tanstack/react-query').UseMutationResult<
+  void,
+  Error,
+  UpdateRateLimitRuleInput,
+  {
+    previousRules:
+      | {
+          action: 'drop' | 'tarpit' | 'add-to-list';
+          connectionLimit: number;
+          timeWindow: 'per-second' | 'per-minute' | 'per-hour';
+          isDisabled: boolean;
+          id?: string | undefined;
+          srcAddress?: string | undefined;
+          srcAddressList?: string | undefined;
+          comment?: string | undefined;
+          packets?: number | undefined;
+          bytes?: number | undefined;
+          addressList?: string | undefined;
+          addressListTimeout?: string | undefined;
+        }[]
+      | undefined;
+  }
+>;
 /**
  * Hook to delete a rate limit rule
  *
@@ -151,22 +189,31 @@ export declare function useUpdateRateLimitRule(routerId: string): import("@tanst
  *
  * @returns Mutation function and state
  */
-export declare function useDeleteRateLimitRule(routerId: string): import("@tanstack/react-query").UseMutationResult<void, Error, string, {
-    previousRules: {
-        action: "drop" | "tarpit" | "add-to-list";
-        connectionLimit: number;
-        timeWindow: "per-second" | "per-minute" | "per-hour";
-        isDisabled: boolean;
-        id?: string | undefined;
-        srcAddress?: string | undefined;
-        srcAddressList?: string | undefined;
-        comment?: string | undefined;
-        packets?: number | undefined;
-        bytes?: number | undefined;
-        addressList?: string | undefined;
-        addressListTimeout?: string | undefined;
-    }[] | undefined;
-}>;
+export declare function useDeleteRateLimitRule(
+  routerId: string
+): import('@tanstack/react-query').UseMutationResult<
+  void,
+  Error,
+  string,
+  {
+    previousRules:
+      | {
+          action: 'drop' | 'tarpit' | 'add-to-list';
+          connectionLimit: number;
+          timeWindow: 'per-second' | 'per-minute' | 'per-hour';
+          isDisabled: boolean;
+          id?: string | undefined;
+          srcAddress?: string | undefined;
+          srcAddressList?: string | undefined;
+          comment?: string | undefined;
+          packets?: number | undefined;
+          bytes?: number | undefined;
+          addressList?: string | undefined;
+          addressListTimeout?: string | undefined;
+        }[]
+      | undefined;
+  }
+>;
 /**
  * Hook to toggle a rate limit rule (enable/disable)
  *
@@ -175,25 +222,34 @@ export declare function useDeleteRateLimitRule(routerId: string): import("@tanst
  *
  * @returns Mutation function and state
  */
-export declare function useToggleRateLimitRule(routerId: string): import("@tanstack/react-query").UseMutationResult<void, Error, {
+export declare function useToggleRateLimitRule(
+  routerId: string
+): import('@tanstack/react-query').UseMutationResult<
+  void,
+  Error,
+  {
     ruleId: string;
     disabled: boolean;
-}, {
-    previousRules: {
-        action: "drop" | "tarpit" | "add-to-list";
-        connectionLimit: number;
-        timeWindow: "per-second" | "per-minute" | "per-hour";
-        isDisabled: boolean;
-        id?: string | undefined;
-        srcAddress?: string | undefined;
-        srcAddressList?: string | undefined;
-        comment?: string | undefined;
-        packets?: number | undefined;
-        bytes?: number | undefined;
-        addressList?: string | undefined;
-        addressListTimeout?: string | undefined;
-    }[] | undefined;
-}>;
+  },
+  {
+    previousRules:
+      | {
+          action: 'drop' | 'tarpit' | 'add-to-list';
+          connectionLimit: number;
+          timeWindow: 'per-second' | 'per-minute' | 'per-hour';
+          isDisabled: boolean;
+          id?: string | undefined;
+          srcAddress?: string | undefined;
+          srcAddressList?: string | undefined;
+          comment?: string | undefined;
+          packets?: number | undefined;
+          bytes?: number | undefined;
+          addressList?: string | undefined;
+          addressListTimeout?: string | undefined;
+        }[]
+      | undefined;
+  }
+>;
 /**
  * Hook to update SYN flood protection configuration
  *
@@ -201,12 +257,19 @@ export declare function useToggleRateLimitRule(routerId: string): import("@tanst
  *
  * @returns Mutation function and state
  */
-export declare function useUpdateSynFloodConfig(routerId: string): import("@tanstack/react-query").UseMutationResult<void, Error, {
-    action: "drop" | "tarpit";
+export declare function useUpdateSynFloodConfig(
+  routerId: string
+): import('@tanstack/react-query').UseMutationResult<
+  void,
+  Error,
+  {
+    action: 'drop' | 'tarpit';
     burst: number;
     isEnabled: boolean;
     synLimit: number;
-}, unknown>;
+  },
+  unknown
+>;
 /**
  * Hook to whitelist an IP address
  *
@@ -214,7 +277,9 @@ export declare function useUpdateSynFloodConfig(routerId: string): import("@tans
  *
  * @returns Mutation function and state
  */
-export declare function useWhitelistIP(routerId: string): import("@tanstack/react-query").UseMutationResult<void, Error, WhitelistIPInput, unknown>;
+export declare function useWhitelistIP(
+  routerId: string
+): import('@tanstack/react-query').UseMutationResult<void, Error, WhitelistIPInput, unknown>;
 /**
  * Hook to remove a blocked IP from address list
  *
@@ -222,6 +287,8 @@ export declare function useWhitelistIP(routerId: string): import("@tanstack/reac
  *
  * @returns Mutation function and state
  */
-export declare function useRemoveBlockedIP(routerId: string): import("@tanstack/react-query").UseMutationResult<void, Error, string, unknown>;
+export declare function useRemoveBlockedIP(
+  routerId: string
+): import('@tanstack/react-query').UseMutationResult<void, Error, string, unknown>;
 export {};
 //# sourceMappingURL=useRateLimiting.d.ts.map

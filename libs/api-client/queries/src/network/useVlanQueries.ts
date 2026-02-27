@@ -1,11 +1,6 @@
 import { useQuery, useSubscription } from '@apollo/client';
 import { useEffect } from 'react';
-import {
-  GET_VLANS,
-  GET_VLAN,
-  CHECK_VLAN_ID_AVAILABLE,
-  VLAN_CHANGED,
-} from './vlan-queries.graphql';
+import { GET_VLANS, GET_VLAN, CHECK_VLAN_ID_AVAILABLE, VLAN_CHANGED } from './vlan-queries.graphql';
 
 /**
  * Hook to fetch and subscribe to the VLAN list

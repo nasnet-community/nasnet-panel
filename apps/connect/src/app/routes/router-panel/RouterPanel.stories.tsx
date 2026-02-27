@@ -50,7 +50,8 @@ export const WithCredentialDialog: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'RouterPanel displays credential dialog when user needs to authenticate with the router for batch job execution.',
+        story:
+          'RouterPanel displays credential dialog when user needs to authenticate with the router for batch job execution.',
       },
     },
   },
@@ -74,7 +75,8 @@ export const MobileView: Story = {
     },
     docs: {
       description: {
-        story: 'RouterPanel responsive layout optimized for mobile with bottom tab navigation and adaptive spacing.',
+        story:
+          'RouterPanel responsive layout optimized for mobile with bottom tab navigation and adaptive spacing.',
       },
     },
   },
@@ -95,7 +97,8 @@ export const WithConfigurationWizard: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'RouterPanel displays configuration import wizard on initial router connection if no configuration has been imported.',
+        story:
+          'RouterPanel displays configuration import wizard on initial router connection if no configuration has been imported.',
       },
     },
   },
@@ -119,7 +122,8 @@ export const Desktop: Story = {
     },
     docs: {
       description: {
-        story: 'RouterPanel responsive layout optimized for desktop with top tab navigation and dense data presentation.',
+        story:
+          'RouterPanel responsive layout optimized for desktop with top tab navigation and dense data presentation.',
       },
     },
   },

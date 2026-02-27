@@ -161,7 +161,7 @@ function SafetyFeedbackComponent({
   return (
     <div
       className={cn(
-        'rounded-2xl md:rounded-3xl border-2 p-6 shadow-lg transition-all duration-200 animate-slide-down',
+        'animate-slide-down rounded-2xl border-2 p-6 shadow-lg transition-all duration-200 md:rounded-3xl',
         config.bgColor,
         config.borderColor,
         className
@@ -173,61 +173,54 @@ function SafetyFeedbackComponent({
         {/* Icon */}
         <div
           className={cn(
-            'flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center',
+            'flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl',
             config.bgColor
           )}
         >
-          <Icon className={cn('w-6 h-6', config.iconColor)} />
+          <Icon className={cn('h-6 w-6', config.iconColor)} />
         </div>
 
         {/* Content */}
-        <div className="flex-1 min-w-0">
+        <div className="min-w-0 flex-1">
           {/* Message */}
-          <h3 className={cn('text-lg font-semibold mb-2', config.textColor)}>
-            {message}
-          </h3>
+          <h3 className={cn('mb-2 text-lg font-semibold', config.textColor)}>{message}</h3>
 
           {/* Details - expandable if long */}
           {details && (
             <>
-              {details.length > 100 ? (
+              {details.length > 100 ?
                 <div>
                   <button
                     onClick={() => setIsExpanded(!isExpanded)}
                     className={cn(
-                      'flex items-center gap-2 text-sm mb-2 hover:underline focus:outline-none focus:ring-2 focus:ring-primary-500 rounded',
+                      'focus:ring-primary-500 mb-2 flex items-center gap-2 rounded text-sm hover:underline focus:outline-none focus:ring-2',
                       config.textColor
                     )}
                   >
-                    {isExpanded ? (
+                    {isExpanded ?
                       <>
-                        <ChevronUp className="w-4 h-4" />
+                        <ChevronUp className="h-4 w-4" />
                         Hide Details
                       </>
-                    ) : (
-                      <>
-                        <ChevronDown className="w-4 h-4" />
+                    : <>
+                        <ChevronDown className="h-4 w-4" />
                         Show Details
                       </>
-                    )}
+                    }
                   </button>
                   {isExpanded && (
-                    <p className="text-sm text-slate-700 dark:text-slate-300 mb-4 whitespace-pre-wrap">
+                    <p className="mb-4 whitespace-pre-wrap text-sm text-slate-700 dark:text-slate-300">
                       {details}
                     </p>
                   )}
                 </div>
-              ) : (
-                <p className="text-sm text-slate-700 dark:text-slate-300 mb-4">
-                  {details}
-                </p>
-              )}
+              : <p className="mb-4 text-sm text-slate-700 dark:text-slate-300">{details}</p>}
             </>
           )}
 
           {/* Actions */}
           {actions.length > 0 && (
-            <div className="flex flex-wrap gap-2 mt-4">
+            <div className="mt-4 flex flex-wrap gap-2">
               {actions.map((action, index) => (
                 <Button
                   key={index}

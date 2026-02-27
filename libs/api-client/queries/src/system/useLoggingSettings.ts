@@ -48,18 +48,14 @@ export interface LoggingAction {
 export const loggingKeys = {
   all: [...systemKeys.all, 'logging'] as const,
   rules: (routerIp: string) => [...loggingKeys.all, 'rules', routerIp] as const,
-  actions: (routerIp: string) =>
-    [...loggingKeys.all, 'actions', routerIp] as const,
+  actions: (routerIp: string) => [...loggingKeys.all, 'actions', routerIp] as const,
 };
 
 /**
  * Fetch logging rules
  */
 async function fetchLoggingRules(routerIp: string): Promise<LoggingRule[]> {
-  const result = await makeRouterOSRequest<LoggingRule[]>(
-    routerIp,
-    'system/logging'
-  );
+  const result = await makeRouterOSRequest<LoggingRule[]>(routerIp, 'system/logging');
 
   if (!result.success || !result.data) {
     throw new Error(result.error || 'Failed to fetch logging rules');
@@ -72,10 +68,7 @@ async function fetchLoggingRules(routerIp: string): Promise<LoggingRule[]> {
  * Fetch logging actions (destinations)
  */
 async function fetchLoggingActions(routerIp: string): Promise<LoggingAction[]> {
-  const result = await makeRouterOSRequest<LoggingAction[]>(
-    routerIp,
-    'system/logging/action'
-  );
+  const result = await makeRouterOSRequest<LoggingAction[]>(routerIp, 'system/logging/action');
 
   if (!result.success || !result.data) {
     throw new Error(result.error || 'Failed to fetch logging actions');
@@ -87,9 +80,7 @@ async function fetchLoggingActions(routerIp: string): Promise<LoggingAction[]> {
 /**
  * Hook for fetching logging rules
  */
-export function useLoggingRules(
-  routerIp: string
-): UseQueryResult<LoggingRule[], Error> {
+export function useLoggingRules(routerIp: string): UseQueryResult<LoggingRule[], Error> {
   return useQuery({
     queryKey: loggingKeys.rules(routerIp),
     queryFn: () => fetchLoggingRules(routerIp),
@@ -101,9 +92,7 @@ export function useLoggingRules(
 /**
  * Hook for fetching logging actions
  */
-export function useLoggingActions(
-  routerIp: string
-): UseQueryResult<LoggingAction[], Error> {
+export function useLoggingActions(routerIp: string): UseQueryResult<LoggingAction[], Error> {
   return useQuery({
     queryKey: loggingKeys.actions(routerIp),
     queryFn: () => fetchLoggingActions(routerIp),
@@ -158,14 +147,10 @@ export function useCreateLoggingRule(
 
   return useMutation({
     mutationFn: async (input: CreateLoggingRuleInput) => {
-      const result = await makeRouterOSRequest<LoggingRule>(
-        routerIp,
-        'system/logging/add',
-        {
-          method: 'POST',
-          body: JSON.stringify(input),
-        }
-      );
+      const result = await makeRouterOSRequest<LoggingRule>(routerIp, 'system/logging/add', {
+        method: 'POST',
+        body: JSON.stringify(input),
+      });
 
       if (!result.success) {
         throw new Error(result.error || 'Failed to create logging rule');
@@ -189,14 +174,10 @@ export function useUpdateLoggingRule(
 
   return useMutation({
     mutationFn: async ({ id, ...input }: UpdateLoggingRuleInput) => {
-      const result = await makeRouterOSRequest(
-        routerIp,
-        `system/logging/set`,
-        {
-          method: 'POST',
-          body: JSON.stringify({ '.id': id, ...input }),
-        }
-      );
+      const result = await makeRouterOSRequest(routerIp, `system/logging/set`, {
+        method: 'POST',
+        body: JSON.stringify({ '.id': id, ...input }),
+      });
 
       if (!result.success) {
         throw new Error(result.error || 'Failed to update logging rule');
@@ -211,21 +192,15 @@ export function useUpdateLoggingRule(
 /**
  * Hook for deleting a logging rule
  */
-export function useDeleteLoggingRule(
-  routerIp: string
-): UseMutationResult<void, Error, string> {
+export function useDeleteLoggingRule(routerIp: string): UseMutationResult<void, Error, string> {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (ruleId: string) => {
-      const result = await makeRouterOSRequest(
-        routerIp,
-        `system/logging/remove`,
-        {
-          method: 'POST',
-          body: JSON.stringify({ '.id': ruleId }),
-        }
-      );
+      const result = await makeRouterOSRequest(routerIp, `system/logging/remove`, {
+        method: 'POST',
+        body: JSON.stringify({ '.id': ruleId }),
+      });
 
       if (!result.success) {
         throw new Error(result.error || 'Failed to delete logging rule');
@@ -247,9 +222,7 @@ export function useToggleLoggingRule(
 
   return useMutation({
     mutationFn: async ({ id, disabled }) => {
-      const endpoint = disabled
-        ? 'system/logging/disable'
-        : 'system/logging/enable';
+      const endpoint = disabled ? 'system/logging/disable' : 'system/logging/enable';
 
       const result = await makeRouterOSRequest(routerIp, endpoint, {
         method: 'POST',
@@ -276,14 +249,10 @@ export function useUpdateLoggingAction(
 
   return useMutation({
     mutationFn: async ({ id, ...input }: UpdateLoggingActionInput) => {
-      const result = await makeRouterOSRequest(
-        routerIp,
-        `system/logging/action/set`,
-        {
-          method: 'POST',
-          body: JSON.stringify({ '.id': id, ...input }),
-        }
-      );
+      const result = await makeRouterOSRequest(routerIp, `system/logging/action/set`, {
+        method: 'POST',
+        body: JSON.stringify({ '.id': id, ...input }),
+      });
 
       if (!result.success) {
         throw new Error(result.error || 'Failed to update logging action');
@@ -294,30 +263,3 @@ export function useUpdateLoggingAction(
     },
   });
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

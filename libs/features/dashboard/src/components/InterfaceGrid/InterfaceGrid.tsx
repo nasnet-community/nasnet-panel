@@ -44,20 +44,18 @@ import type { InterfaceGridProps } from './types';
  * @example
  * <InterfaceGrid deviceId="uuid-123" />
  */
-export const InterfaceGrid = memo(
-  function InterfaceGrid(props: InterfaceGridProps) {
-    const platform = usePlatform();
+export const InterfaceGrid = memo(function InterfaceGrid(props: InterfaceGridProps) {
+  const platform = usePlatform();
 
-    switch (platform) {
-      case 'mobile':
-        return <InterfaceGridMobile {...props} />;
-      case 'tablet':
-        return <InterfaceGridTablet {...props} />;
-      default:
-        return <InterfaceGridDesktop {...props} />;
-    }
-  },
-);
+  switch (platform) {
+    case 'mobile':
+      return <InterfaceGridMobile {...props} />;
+    case 'tablet':
+      return <InterfaceGridTablet {...props} />;
+    default:
+      return <InterfaceGridDesktop {...props} />;
+  }
+});
 
 InterfaceGrid.displayName = 'InterfaceGrid';
 

@@ -9,7 +9,6 @@
  * @see ADR-018: Headless + Platform Presenters
  */
 
-
 import { within, userEvent, expect, waitFor } from 'storybook/test';
 
 import { Button, Card, CardContent, CardHeader, CardTitle, Input } from '@nasnet/ui/primitives';
@@ -206,18 +205,16 @@ export const BasicUsage: Story = {
           <CardHeader>
             <CardTitle className="flex items-center justify-between">
               <span>{stepper.currentStep.title}</span>
-              <span className="text-sm text-muted-foreground">
+              <span className="text-muted-foreground text-sm">
                 Step {stepper.currentIndex + 1} of {stepper.totalSteps}
               </span>
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <p className="text-muted-foreground">
-              {stepper.currentStep.description}
-            </p>
+            <p className="text-muted-foreground">{stepper.currentStep.description}</p>
 
             {/* Progress indicator */}
-            <div className="w-full bg-muted rounded-full h-2">
+            <div className="bg-muted h-2 w-full rounded-full">
               <div
                 className="bg-primary h-2 rounded-full transition-all"
                 style={{ width: `${stepper.progress}%` }}
@@ -225,8 +222,8 @@ export const BasicUsage: Story = {
             </div>
 
             {/* Step content placeholder */}
-            <div className="min-h-[100px] p-4 border rounded-lg bg-muted/20">
-              <p className="text-sm text-muted-foreground">
+            <div className="bg-muted/20 min-h-[100px] rounded-lg border p-4">
+              <p className="text-muted-foreground text-sm">
                 Step content for "{stepper.currentStep.id}" goes here
               </p>
             </div>
@@ -240,9 +237,7 @@ export const BasicUsage: Story = {
               >
                 Back
               </Button>
-              <Button onClick={() => stepper.next()}>
-                {stepper.isLast ? 'Complete' : 'Next'}
-              </Button>
+              <Button onClick={() => stepper.next()}>{stepper.isLast ? 'Complete' : 'Next'}</Button>
             </div>
           </CardContent>
         </Card>
@@ -274,16 +269,19 @@ export const WithValidation: Story = {
           <CardHeader>
             <CardTitle className="flex items-center justify-between">
               <span>{stepper.currentStep.title}</span>
-              <span className="text-sm text-muted-foreground">
-                {stepper.progress}% complete
-              </span>
+              <span className="text-muted-foreground text-sm">{stepper.progress}% complete</span>
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             {/* Step-specific forms */}
             {stepper.currentStep.id === 'wan' && (
               <div className="space-y-2">
-                <label htmlFor="wan-ip-input" className="text-sm font-medium">WAN IP Address</label>
+                <label
+                  htmlFor="wan-ip-input"
+                  className="text-sm font-medium"
+                >
+                  WAN IP Address
+                </label>
                 <Input
                   id="wan-ip-input"
                   placeholder="192.168.1.1"
@@ -292,14 +290,19 @@ export const WithValidation: Story = {
                   className={stepper.errors.ip ? 'border-destructive' : ''}
                 />
                 {stepper.errors.ip && (
-                  <p className="text-sm text-destructive">{stepper.errors.ip}</p>
+                  <p className="text-destructive text-sm">{stepper.errors.ip}</p>
                 )}
               </div>
             )}
 
             {stepper.currentStep.id === 'lan' && (
               <div className="space-y-2">
-                <label htmlFor="lan-subnet-input" className="text-sm font-medium">LAN Subnet</label>
+                <label
+                  htmlFor="lan-subnet-input"
+                  className="text-sm font-medium"
+                >
+                  LAN Subnet
+                </label>
                 <Input
                   id="lan-subnet-input"
                   placeholder="192.168.0.0/24"
@@ -308,7 +311,7 @@ export const WithValidation: Story = {
                   className={stepper.errors.subnet ? 'border-destructive' : ''}
                 />
                 {stepper.errors.subnet && (
-                  <p className="text-sm text-destructive">{stepper.errors.subnet}</p>
+                  <p className="text-destructive text-sm">{stepper.errors.subnet}</p>
                 )}
               </div>
             )}
@@ -327,9 +330,7 @@ export const WithValidation: Story = {
             )}
 
             {/* Validation status */}
-            {stepper.isValidating && (
-              <p className="text-sm text-muted-foreground">Validating...</p>
-            )}
+            {stepper.isValidating && <p className="text-muted-foreground text-sm">Validating...</p>}
 
             {/* Navigation */}
             <div className="flex justify-between">
@@ -381,22 +382,27 @@ export const WithSkipSteps: Story = {
             <CardTitle>{stepper.currentStep.title}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <p className="text-sm text-muted-foreground">
+            <p className="text-muted-foreground text-sm">
               This step is {currentCanSkip ? 'optional' : 'required'}.
             </p>
 
             <div className="flex gap-2">
-              <Button variant="outline" onClick={stepper.prev} disabled={stepper.isFirst}>
+              <Button
+                variant="outline"
+                onClick={stepper.prev}
+                disabled={stepper.isFirst}
+              >
                 Back
               </Button>
               {currentCanSkip && (
-                <Button variant="outline" onClick={stepper.skip}>
+                <Button
+                  variant="outline"
+                  onClick={stepper.skip}
+                >
                   Skip
                 </Button>
               )}
-              <Button onClick={() => stepper.next()}>
-                {stepper.isLast ? 'Complete' : 'Next'}
-              </Button>
+              <Button onClick={() => stepper.next()}>{stepper.isLast ? 'Complete' : 'Next'}</Button>
             </div>
           </CardContent>
         </Card>
@@ -441,20 +447,20 @@ export const FreeNavigation: Story = {
               ))}
             </div>
 
-            <div className="p-4 border rounded-lg">
+            <div className="rounded-lg border p-4">
               <h3 className="font-medium">{stepper.currentStep.title}</h3>
-              <p className="text-sm text-muted-foreground">
-                {stepper.currentStep.description}
-              </p>
+              <p className="text-muted-foreground text-sm">{stepper.currentStep.description}</p>
             </div>
 
             <div className="flex justify-between">
-              <Button variant="outline" onClick={stepper.prev} disabled={stepper.isFirst}>
+              <Button
+                variant="outline"
+                onClick={stepper.prev}
+                disabled={stepper.isFirst}
+              >
                 Back
               </Button>
-              <Button onClick={() => stepper.next()}>
-                {stepper.isLast ? 'Complete' : 'Next'}
-              </Button>
+              <Button onClick={() => stepper.next()}>{stepper.isLast ? 'Complete' : 'Next'}</Button>
             </div>
           </CardContent>
         </Card>
@@ -491,15 +497,13 @@ export const ProgressTracking: Story = {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="text-center">
-              <div className="text-4xl font-bold text-primary">
-                {stepper.progress}%
-              </div>
-              <div className="text-sm text-muted-foreground">
+              <div className="text-primary text-4xl font-bold">{stepper.progress}%</div>
+              <div className="text-muted-foreground text-sm">
                 {stepper.completedCount} of {stepper.totalSteps} steps completed
               </div>
             </div>
 
-            <div className="w-full bg-muted rounded-full h-3">
+            <div className="bg-muted h-3 w-full rounded-full">
               <div
                 className="bg-primary h-3 rounded-full transition-all duration-300"
                 style={{ width: `${stepper.progress}%` }}
@@ -512,18 +516,18 @@ export const ProgressTracking: Story = {
 
             <div className="text-center">
               <p className="font-medium">{stepper.currentStep.title}</p>
-              <p className="text-xs text-muted-foreground">
-                Step {stepper.currentIndex + 1}
-              </p>
+              <p className="text-muted-foreground text-xs">Step {stepper.currentIndex + 1}</p>
             </div>
 
             <div className="flex justify-center gap-2">
-              <Button variant="outline" onClick={stepper.prev} disabled={stepper.isFirst}>
+              <Button
+                variant="outline"
+                onClick={stepper.prev}
+                disabled={stepper.isFirst}
+              >
                 Back
               </Button>
-              <Button onClick={() => stepper.next()}>
-                {stepper.isLast ? 'Finish' : 'Next'}
-              </Button>
+              <Button onClick={() => stepper.next()}>{stepper.isLast ? 'Finish' : 'Next'}</Button>
             </div>
           </CardContent>
         </Card>
@@ -555,30 +559,34 @@ export const ResetFunctionality: Story = {
             <CardTitle>Reset Functionality</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {stepper.isCompleted ? (
-              <div className="text-center space-y-4">
+            {stepper.isCompleted ?
+              <div className="space-y-4 text-center">
                 <p className="text-success font-medium">Wizard Completed!</p>
                 <Button onClick={stepper.reset}>Start Over</Button>
               </div>
-            ) : (
-              <>
+            : <>
                 <p className="font-medium">{stepper.currentStep.title}</p>
-                <p className="text-sm text-muted-foreground">
-                  Progress: {stepper.progress}%
-                </p>
+                <p className="text-muted-foreground text-sm">Progress: {stepper.progress}%</p>
                 <div className="flex gap-2">
-                  <Button variant="outline" onClick={stepper.prev} disabled={stepper.isFirst}>
+                  <Button
+                    variant="outline"
+                    onClick={stepper.prev}
+                    disabled={stepper.isFirst}
+                  >
                     Back
                   </Button>
                   <Button onClick={() => stepper.next()}>
                     {stepper.isLast ? 'Complete' : 'Next'}
                   </Button>
-                  <Button variant="destructive" onClick={stepper.reset}>
+                  <Button
+                    variant="destructive"
+                    onClick={stepper.reset}
+                  >
                     Reset
                   </Button>
                 </div>
               </>
-            )}
+            }
           </CardContent>
         </Card>
       );
@@ -607,33 +615,64 @@ export const APIReference: Story = {
             <CardTitle>useStepper Return Values</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-2 gap-4 text-sm font-mono">
+            <div className="grid grid-cols-2 gap-4 font-mono text-sm">
               <div className="space-y-1">
                 <p className="text-muted-foreground">Navigation State</p>
-                <p>currentIndex: <span className="text-primary">{stepper.currentIndex}</span></p>
-                <p>currentStep.id: <span className="text-primary">{stepper.currentStep.id}</span></p>
-                <p>isFirst: <span className="text-primary">{String(stepper.isFirst)}</span></p>
-                <p>isLast: <span className="text-primary">{String(stepper.isLast)}</span></p>
-                <p>canProceed: <span className="text-primary">{String(stepper.canProceed)}</span></p>
+                <p>
+                  currentIndex: <span className="text-primary">{stepper.currentIndex}</span>
+                </p>
+                <p>
+                  currentStep.id: <span className="text-primary">{stepper.currentStep.id}</span>
+                </p>
+                <p>
+                  isFirst: <span className="text-primary">{String(stepper.isFirst)}</span>
+                </p>
+                <p>
+                  isLast: <span className="text-primary">{String(stepper.isLast)}</span>
+                </p>
+                <p>
+                  canProceed: <span className="text-primary">{String(stepper.canProceed)}</span>
+                </p>
               </div>
               <div className="space-y-1">
                 <p className="text-muted-foreground">Progress</p>
-                <p>progress: <span className="text-primary">{stepper.progress}%</span></p>
-                <p>completedCount: <span className="text-primary">{stepper.completedCount}</span></p>
-                <p>totalSteps: <span className="text-primary">{stepper.totalSteps}</span></p>
-                <p>isCompleted: <span className="text-primary">{String(stepper.isCompleted)}</span></p>
-                <p>isValidating: <span className="text-primary">{String(stepper.isValidating)}</span></p>
+                <p>
+                  progress: <span className="text-primary">{stepper.progress}%</span>
+                </p>
+                <p>
+                  completedCount: <span className="text-primary">{stepper.completedCount}</span>
+                </p>
+                <p>
+                  totalSteps: <span className="text-primary">{stepper.totalSteps}</span>
+                </p>
+                <p>
+                  isCompleted: <span className="text-primary">{String(stepper.isCompleted)}</span>
+                </p>
+                <p>
+                  isValidating: <span className="text-primary">{String(stepper.isValidating)}</span>
+                </p>
               </div>
             </div>
 
-            <div className="flex gap-2 mt-4">
-              <Button size="sm" onClick={stepper.prev} disabled={stepper.isFirst}>
+            <div className="mt-4 flex gap-2">
+              <Button
+                size="sm"
+                onClick={stepper.prev}
+                disabled={stepper.isFirst}
+              >
                 prev()
               </Button>
-              <Button size="sm" onClick={() => stepper.next()}>
+              <Button
+                size="sm"
+                onClick={() => stepper.next()}
+              >
                 next()
               </Button>
-              <Button size="sm" variant="outline" onClick={stepper.reset}>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={stepper.reset}
+              >
                 reset()
               </Button>
             </div>
@@ -660,7 +699,10 @@ export const InteractiveTest: Story = {
       });
 
       return (
-        <div className="space-y-4" data-testid="wizard">
+        <div
+          className="space-y-4"
+          data-testid="wizard"
+        >
           <p data-testid="current-step">{stepper.currentStep.title}</p>
           <p data-testid="step-index">{stepper.currentIndex}</p>
           <p data-testid="progress">{stepper.progress}%</p>
@@ -672,7 +714,10 @@ export const InteractiveTest: Story = {
             >
               Back
             </Button>
-            <Button data-testid="next-btn" onClick={() => stepper.next()}>
+            <Button
+              data-testid="next-btn"
+              onClick={() => stepper.next()}
+            >
               {stepper.isLast ? 'Complete' : 'Next'}
             </Button>
           </div>
@@ -754,20 +799,24 @@ export const DarkTheme: Story = {
       });
 
       return (
-        <div className="dark bg-background p-4 rounded-lg">
+        <div className="bg-background dark rounded-lg p-4">
           <Card className="w-[400px]">
             <CardHeader>
               <CardTitle>{stepper.currentStep.title}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="w-full bg-muted rounded-full h-2">
+              <div className="bg-muted h-2 w-full rounded-full">
                 <div
                   className="bg-primary h-2 rounded-full"
                   style={{ width: `${stepper.progress}%` }}
                 />
               </div>
               <div className="flex gap-2">
-                <Button variant="outline" onClick={stepper.prev} disabled={stepper.isFirst}>
+                <Button
+                  variant="outline"
+                  onClick={stepper.prev}
+                  disabled={stepper.isFirst}
+                >
                   Back
                 </Button>
                 <Button onClick={() => stepper.next()}>
@@ -784,7 +833,7 @@ export const DarkTheme: Story = {
   },
   globals: {
     backgrounds: {
-      value: "dark"
-    }
+      value: 'dark',
+    },
   },
 };

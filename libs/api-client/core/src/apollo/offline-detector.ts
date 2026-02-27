@@ -56,9 +56,7 @@ type CleanupFunction = () => void;
  * }, []);
  * ```
  */
-export function setupOfflineDetector(
-  config: OfflineDetectorConfig = {}
-): CleanupFunction {
+export function setupOfflineDetector(config: OfflineDetectorConfig = {}): CleanupFunction {
   const { healthEndpoint, healthCheckInterval, healthCheckTimeout } = {
     ...DEFAULT_CONFIG,
     ...config,
@@ -229,7 +227,5 @@ export function isOffline(): boolean {
  */
 export function isDegraded(): boolean {
   const state = useNetworkStore.getState();
-  return (
-    state.isOnline && (!state.isRouterReachable || !state.isRouterConnected)
-  );
+  return state.isOnline && (!state.isRouterReachable || !state.isRouterConnected);
 }

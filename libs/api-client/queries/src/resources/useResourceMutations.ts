@@ -7,11 +7,7 @@
  * @module @nasnet/api-client/queries/resources
  */
 
-import {
-  useMutation,
-  type ApolloError,
-  type MutationHookOptions,
-} from '@apollo/client';
+import { useMutation, type ApolloError, type MutationHookOptions } from '@apollo/client';
 import { gql } from '@apollo/client';
 import { useCallback } from 'react';
 import type {
@@ -272,8 +268,8 @@ export function useUpdateResource<TConfig = unknown>() {
       updateResource: {
         __typename: 'Resource',
         uuid: input.uuid,
-        ...input.configuration && { configuration: input.configuration },
-        ...input.metadata && { metadata: input.metadata },
+        ...(input.configuration && { configuration: input.configuration }),
+        ...(input.metadata && { metadata: input.metadata }),
       },
     }),
   });

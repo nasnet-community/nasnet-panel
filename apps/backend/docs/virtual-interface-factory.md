@@ -1,22 +1,31 @@
 # Virtual Interface Factory (VIF)
 
-> Transforms service instances into routable VLAN-isolated network interfaces on MikroTik routers, enabling per-device traffic steering through services like Tor, sing-box, and Xray.
+> Transforms service instances into routable VLAN-isolated network interfaces on MikroTik routers,
+> enabling per-device traffic steering through services like Tor, sing-box, and Xray.
 
-**Packages:** `internal/vif/`, `internal/vif/routing/`, `internal/vif/traffic/`, `internal/vif/isolation/`
+**Packages:** `internal/vif/`, `internal/vif/routing/`, `internal/vif/traffic/`,
+`internal/vif/isolation/`
 
-**Key Files:** `vif/types.go`, `vif/interface_factory.go`, `vif/bridge.go`, `vif/gateway_manager.go`, `vif/gateway_config.go`, `routing/chain_router.go`, `routing/pbr_engine.go`, `traffic/aggregator.go`, `traffic/quota_enforcer.go`, `isolation/kill_switch_listener.go`
+**Key Files:** `vif/types.go`, `vif/interface_factory.go`, `vif/bridge.go`,
+`vif/gateway_manager.go`, `vif/gateway_config.go`, `routing/chain_router.go`,
+`routing/pbr_engine.go`, `traffic/aggregator.go`, `traffic/quota_enforcer.go`,
+`isolation/kill_switch_listener.go`
 
-**Prerequisites:** [See: 06-service-orchestrator.md §BridgeOrchestrator], [See: 04-router-communication.md §RouterPort]
+**Prerequisites:** [See: 06-service-orchestrator.md §BridgeOrchestrator], [See:
+04-router-communication.md §RouterPort]
 
 ---
 
 ## Overview
 
-The Virtual Interface Factory (VIF) is a core architectural innovation that solves a fundamental challenge: how do you route specific client devices through a privacy service (Tor, VPN, proxy) running inside a container on the router, while keeping other devices on the normal internet?
+The Virtual Interface Factory (VIF) is a core architectural innovation that solves a fundamental
+challenge: how do you route specific client devices through a privacy service (Tor, VPN, proxy)
+running inside a container on the router, while keeping other devices on the normal internet?
 
 **The answer: VLAN-isolated virtual interfaces with policy-based routing.**
 
 Each service instance gets:
+
 - A dedicated **VLAN interface** on the MikroTik router (e.g., `nnc-tor-myrelay`, VLAN ID 42)
 - An **IP address** in the `10.99.x.0/24` space (e.g., `10.99.42.1/24`)
 - A **dedicated routing table** with a default route through the service
@@ -55,12 +64,12 @@ graph TD
 
 **`types.go` — VLAN Allocation**
 
-| Type | Description |
-|------|-------------|
-| `VLANAllocator` | Interface: `Allocate(ctx, routerID, instanceID, serviceType) (int, error)` / `Release(ctx, routerID, id) error` |
-| `SimpleVLANAllocator` | In-memory sequential allocator (unit tests only) |
-| `NetworkVLANAllocatorAdapter` | Wraps `network.VLANAllocator` (DB-backed, production) |
-| `VLANPurpose` | `ingress`, `egress`, or `""` (legacy) |
+| Type                          | Description                                                                                                     |
+| ----------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| `VLANAllocator`               | Interface: `Allocate(ctx, routerID, instanceID, serviceType) (int, error)` / `Release(ctx, routerID, id) error` |
+| `SimpleVLANAllocator`         | In-memory sequential allocator (unit tests only)                                                                |
+| `NetworkVLANAllocatorAdapter` | Wraps `network.VLANAllocator` (DB-backed, production)                                                           |
+| `VLANPurpose`                 | `ingress`, `egress`, or `""` (legacy)                                                                           |
 
 ```go
 // Production wiring
@@ -101,15 +110,18 @@ type InterfaceFactoryConfig struct {
 7. Publish interface.created event
 ```
 
-On any step failure: all previous steps are rolled back in reverse order. The DB record is set to `status=error`.
+On any step failure: all previous steps are rolled back in reverse order. The DB record is set to
+`status=error`.
 
 **Naming conventions:**
+
 - Interface: `nnc-{featureID}-{instanceName}` (e.g., `nnc-tor-myrelay`)
 - IP: `10.99.{vlanID}.1/24`
 - Routing table / mark: `{featureID}-{instanceName}`
 - Gateway IP: `10.99.{vlanID}.2`
 
 **`RemoveInterface`** — Reverse teardown (best-effort):
+
 1. Update DB status to `removing`
 2. Remove default route
 3. Remove routing table
@@ -122,7 +134,8 @@ On any step failure: all previous steps are rolled back in reverse order. The DB
 
 **`bridge.go` — BridgeOrchestrator**
 
-Coordinates the full bridge lifecycle: VLAN allocation, interface creation, optional TUN gateway, and VIF reconciliation.
+Coordinates the full bridge lifecycle: VLAN allocation, interface creation, optional TUN gateway,
+and VIF reconciliation.
 
 ```go
 type BridgeOrchestrator struct {
@@ -147,13 +160,15 @@ type BridgeOrchestrator struct {
 
 **`TeardownBridge(ctx, instanceID)`** — Reverses setup in order.
 
-**`ReconcileOnStartup(ctx)`** — Called at boot to detect and clean up orphaned VIF records (DB records without matching router resources).
+**`ReconcileOnStartup(ctx)`** — Called at boot to detect and clean up orphaned VIF records (DB
+records without matching router resources).
 
 ---
 
 **`gateway_config.go` — Gateway Configuration**
 
-Generates YAML configuration for `hev-socks5-tunnel`, which bridges a SOCKS5 proxy to a kernel TUN interface.
+Generates YAML configuration for `hev-socks5-tunnel`, which bridges a SOCKS5 proxy to a kernel TUN
+interface.
 
 ```go
 type GatewayConfig struct {
@@ -193,6 +208,7 @@ type GatewayInstance struct {
 ```
 
 **`StartGateway(ctx, instance, manifest)`**
+
 1. `GenerateGatewayConfig` → write YAML config file
 2. Build `ProcessConfig` for `hev-socks5-tunnel`
 3. Register + start via `ProcessSupervisor`
@@ -231,6 +247,7 @@ type CreateRoutingChainInput struct {
 **`chain_router_hops.go`** — Creates per-hop router rules with LIFO rollback:
 
 For each hop:
+
 1. Create mangle rule: `src-mac → mark-routing=chain-{chainID}-hop{N}`
 2. Create routing rule: `routing-mark=chain-{chainID}-hop{N} → use table chain-{chainID}-hop{N}`
 3. Create DB `ChainHop` record
@@ -279,6 +296,7 @@ type DeviceRoutingAssignment struct {
 ```
 
 **`AssignDeviceRouting(ctx, deviceID, instanceID)`**
+
 1. Check for existing mangle rule conflict
 2. Create mangle rule: `chain=prerouting src-mac={MAC} action=mark-routing new-routing-mark={mark}`
 3. Save `DeviceRouting` record to DB
@@ -294,7 +312,8 @@ Traffic statistics collection and quota enforcement.
 
 **`aggregator.go` — TrafficAggregator**
 
-Write-behind buffer for high-frequency traffic data (polled every 10s by the resource poller, flushed to DB every 5 minutes).
+Write-behind buffer for high-frequency traffic data (polled every 10s by the resource poller,
+flushed to DB every 5 minutes).
 
 ```go
 type TrafficAggregator struct {
@@ -304,13 +323,14 @@ type TrafficAggregator struct {
 }
 ```
 
-| Constant | Value |
-|----------|-------|
-| `FlushInterval` | 5 minutes |
-| `RetentionDays` | 30 days |
-| `CleanupInterval` | 24 hours |
+| Constant          | Value     |
+| ----------------- | --------- |
+| `FlushInterval`   | 5 minutes |
+| `RetentionDays`   | 30 days   |
+| `CleanupInterval` | 24 hours  |
 
-**`hourlyStats`** accumulates `txBytes`, `rxBytes`, `txPackets`, `rxPackets` per instance per hour bucket. On flush, upserts `ServiceTrafficHourly` records.
+**`hourlyStats`** accumulates `txBytes`, `rxBytes`, `txPackets`, `rxPackets` per instance per hour
+bucket. On flush, upserts `ServiceTrafficHourly` records.
 
 **`quota_enforcer.go` — QuotaEnforcer**
 
@@ -353,20 +373,22 @@ func (l *KillSwitchListener) Start() error  // subscribes to health events
 
 **Health → Kill Switch Logic:**
 
-| Event | Action |
-|-------|--------|
-| Service becomes `UNHEALTHY` | Activate kill switch → block all device traffic |
-| Service recovers to `HEALTHY` | Deactivate kill switch → resume device traffic |
+| Event                         | Action                                          |
+| ----------------------------- | ----------------------------------------------- |
+| Service becomes `UNHEALTHY`   | Activate kill switch → block all device traffic |
+| Service recovers to `HEALTHY` | Deactivate kill switch → resume device traffic  |
 
 **Kill Switch Implementation**
 
-Blocking: creates MikroTik firewall rule `chain=forward src-mac={MAC} action=reject` for all devices routed through the affected instance.
+Blocking: creates MikroTik firewall rule `chain=forward src-mac={MAC} action=reject` for all devices
+routed through the affected instance.
 
 Resuming: removes the blocking rules.
 
 **`kill_switch_coordinator_test.go`**
 
-Tests coordinator behavior: concurrent activation, idempotent operations, and recovery after health restoration.
+Tests coordinator behavior: concurrent activation, idempotent operations, and recovery after health
+restoration.
 
 ---
 
@@ -447,12 +469,13 @@ graph TD
 
 Two implementations of `VLANAllocator`:
 
-| Impl | Use Case | Backing |
-|------|----------|---------|
-| `SimpleVLANAllocator` | Unit tests | In-memory map, sequential |
+| Impl                          | Use Case   | Backing                                     |
+| ----------------------------- | ---------- | ------------------------------------------- |
+| `SimpleVLANAllocator`         | Unit tests | In-memory map, sequential                   |
 | `NetworkVLANAllocatorAdapter` | Production | `network.VLANAllocator` with DB persistence |
 
-VLAN IDs are scoped per router. The allocator tracks `(routerID, instanceID, serviceType)` to enable deterministic re-allocation after restarts.
+VLAN IDs are scoped per router. The allocator tracks `(routerID, instanceID, serviceType)` to enable
+deterministic re-allocation after restarts.
 
 Production VLAN range: typically `10–4000` (MikroTik supports 1–4094).
 
@@ -476,6 +499,7 @@ if cfg.VLANAllocator != nil {
 ```
 
 **Key parameters:**
+
 - `parentIface`: parent MikroTik interface for VLAN tagging (default: `ether1`)
 - `hevBinaryPath`: path to `hev-socks5-tunnel` binary (default: `/app/hev-socks5-tunnel`)
 - `AllowedBaseDir`: base path for service files (isolation verifier)
@@ -484,15 +508,15 @@ if cfg.VLANAllocator != nil {
 
 ## Error Handling
 
-| Error | Behavior |
-|-------|----------|
-| VLAN allocation failure | `SetupBridge` returns error; no router changes made |
-| VLAN interface creation failure | Rollback previous steps; DB record set to `error` |
-| Gateway start failure | VIF remains (can retry); instance marked degraded |
-| Hop creation failure | Entire chain rolled back in reverse order |
-| Kill switch activation failure | Logged as error; best-effort on all devices |
-| Traffic flush failure | Logged; in-memory buffer retained for next flush |
-| Quota enforcement failure | Logged; does not stop the service |
+| Error                           | Behavior                                            |
+| ------------------------------- | --------------------------------------------------- |
+| VLAN allocation failure         | `SetupBridge` returns error; no router changes made |
+| VLAN interface creation failure | Rollback previous steps; DB record set to `error`   |
+| Gateway start failure           | VIF remains (can retry); instance marked degraded   |
+| Hop creation failure            | Entire chain rolled back in reverse order           |
+| Kill switch activation failure  | Logged as error; best-effort on all devices         |
+| Traffic flush failure           | Logged; in-memory buffer retained for next flush    |
+| Quota enforcement failure       | Logged; does not stop the service                   |
 
 All VIF operations emit events to the event bus for audit and UI updates.
 
@@ -502,11 +526,13 @@ All VIF operations emit events to the event bus for audit and UI updates.
 
 **`benchmark_test.go`**
 
-Benchmarks VIF operations: VLAN allocation throughput, interface name generation, routing mark lookups.
+Benchmarks VIF operations: VLAN allocation throughput, interface name generation, routing mark
+lookups.
 
 **`isolation/kill_switch_coordinator_test.go`**
 
 Tests concurrent kill switch activation, idempotency, and state recovery:
+
 - Multiple simultaneous activations for the same instance
 - Deactivation when no blocking rules exist
 - Round-trip activate → deactivate → verify clean state
@@ -515,8 +541,10 @@ Tests concurrent kill switch activation, idempotency, and state recovery:
 
 ## Cross-References
 
-- [See: 06-service-orchestrator.md §lifecycle_starter] — `setupBridgeIfNeeded` calls `BridgeOrchestrator.SetupBridge`
-- [See: 04-router-communication.md §RouterPort] — All VIF router commands go through `router.RouterPort`
+- [See: 06-service-orchestrator.md §lifecycle_starter] — `setupBridgeIfNeeded` calls
+  `BridgeOrchestrator.SetupBridge`
+- [See: 04-router-communication.md §RouterPort] — All VIF router commands go through
+  `router.RouterPort`
 - [See: 11-data-layer.md §VirtualInterface] — Ent schema for VIF persistence
 - [See: 05-event-system.md] — Events: `interface.created`, `interface.removed`, `device.routed`, `EventTypeHealthChanged`
 - [See: ADR 007 — IP Binding Isolation] — Design rationale for per-instance binding

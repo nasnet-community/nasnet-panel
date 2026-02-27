@@ -59,9 +59,7 @@ export function clearCredentials(): void {
  * @param config Axios request config
  * @returns Modified config with Authorization header
  */
-export function authInterceptor(
-  config: InternalAxiosRequestConfig
-): InternalAxiosRequestConfig {
+export function authInterceptor(config: InternalAxiosRequestConfig): InternalAxiosRequestConfig {
   const credentials = getStoredCredentials();
 
   if (credentials && credentials.username && credentials.password) {

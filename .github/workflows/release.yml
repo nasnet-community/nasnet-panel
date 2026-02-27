@@ -20,7 +20,7 @@ on:
 permissions:
   contents: write
   packages: write
-  id-token: write  # Required for cosign keyless signing
+  id-token: write # Required for cosign keyless signing
 
 concurrency:
   group: release-${{ github.ref }}

@@ -54,9 +54,8 @@ function DayOfWeekSelectorComponent({
     (day: DayOfWeek) => {
       if (disabled) return;
 
-      const newValue = value.includes(day)
-        ? value.filter((d) => d !== day)
-        : [...value, day].sort();
+      const newValue =
+        value.includes(day) ? value.filter((d) => d !== day) : [...value, day].sort();
 
       // Ensure at least one day is selected
       if (newValue.length > 0) {
@@ -67,7 +66,7 @@ function DayOfWeekSelectorComponent({
   );
 
   return (
-    <div className={cn('flex flex-wrap gap-component-sm', className)}>
+    <div className={cn('gap-component-sm flex flex-wrap', className)}>
       {days.map((day) => {
         const isSelected = value.includes(day.value);
         return (
@@ -79,7 +78,7 @@ function DayOfWeekSelectorComponent({
             disabled={disabled}
             onClick={() => handleDayToggle(day.value)}
             className={cn(
-              'min-h-[44px] min-w-[44px] sm:min-w-[60px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2', // WCAG AAA touch target (44px minimum)
+              'focus-visible:ring-ring min-h-[44px] min-w-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 sm:min-w-[60px]', // WCAG AAA touch target (44px minimum)
               isSelected && 'bg-primary text-primary-foreground',
               !isSelected && 'hover:bg-muted'
             )}

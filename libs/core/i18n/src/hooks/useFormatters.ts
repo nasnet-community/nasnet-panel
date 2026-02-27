@@ -95,10 +95,7 @@ export function useFormatters() {
      * // => "January 15, 2024, 2:30 PM" (or locale equivalent)
      * ```
      */
-    const formatDate = (
-      date: Date | string | number,
-      options: DateFormatOptions = {}
-    ): string => {
+    const formatDate = (date: Date | string | number, options: DateFormatOptions = {}): string => {
       const { style = 'medium', includeTime = false } = options;
       const dateObj = date instanceof Date ? date : new Date(date);
 
@@ -136,15 +133,8 @@ export function useFormatters() {
      * // => "1,234.5" (en-US) or "1.234,5" (de-DE)
      * ```
      */
-    const formatNumber = (
-      value: number,
-      options: NumberFormatOptions = {}
-    ): string => {
-      const {
-        style = 'decimal',
-        minimumFractionDigits = 0,
-        maximumFractionDigits = 2,
-      } = options;
+    const formatNumber = (value: number, options: NumberFormatOptions = {}): string => {
+      const { style = 'decimal', minimumFractionDigits = 0, maximumFractionDigits = 2 } = options;
 
       return new Intl.NumberFormat(locale, {
         style,

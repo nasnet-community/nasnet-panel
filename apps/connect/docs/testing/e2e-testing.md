@@ -1,10 +1,11 @@
 # E2E Testing
 
-End-to-end tests verify complete user journeys in a real browser. They sit at the top of the testing pyramid and are used sparingly — only for the most critical workflows where a failure would be catastrophic (router configuration changes, firewall rule management, VPN provisioning).
+End-to-end tests verify complete user journeys in a real browser. They sit at the top of the testing
+pyramid and are used sparingly — only for the most critical workflows where a failure would be
+catastrophic (router configuration changes, firewall rule management, VPN provisioning).
 
-**Tool:** Playwright
-**Project:** `apps/connect-e2e/`
-**Config:** `apps/connect-e2e/playwright.config.ts`
+**Tool:** Playwright **Project:** `apps/connect-e2e/` **Config:**
+`apps/connect-e2e/playwright.config.ts`
 
 ---
 
@@ -14,13 +15,14 @@ End-to-end tests verify complete user journeys in a real browser. They sit at th
 
 E2E tests operate against three router environments:
 
-| Tier | Project name | Test pattern | Router source |
-|------|-------------|--------------|---------------|
-| 1 — Mock | `chromium`, `firefox`, `webkit` | All `*.spec.ts` | MSW in the running app |
-| 2 — CHR Docker | `chr-integration` | `chr-*.spec.ts` | RouterOS CHR Docker container |
-| 3 — Physical | Manual only | n/a | Real MikroTik hardware |
+| Tier           | Project name                    | Test pattern    | Router source                 |
+| -------------- | ------------------------------- | --------------- | ----------------------------- |
+| 1 — Mock       | `chromium`, `firefox`, `webkit` | All `*.spec.ts` | MSW in the running app        |
+| 2 — CHR Docker | `chr-integration`               | `chr-*.spec.ts` | RouterOS CHR Docker container |
+| 3 — Physical   | Manual only                     | n/a             | Real MikroTik hardware        |
 
-For most E2E tests, the frontend runs against its MSW mocks — no real router is needed. CHR (Cloud Hosted Router) tests exercise real RouterOS behavior in CI.
+For most E2E tests, the frontend runs against its MSW mocks — no real router is needed. CHR (Cloud
+Hosted Router) tests exercise real RouterOS behavior in CI.
 
 ---
 
@@ -32,22 +34,27 @@ For most E2E tests, the frontend runs against its MSW mocks — no real router i
 export default defineConfig({
   ...nxE2EPreset(__filename, { testDir: './src' }),
 
-  timeout: 30000,        // 30s per test
+  timeout: 30000, // 30s per test
   expect: { timeout: 5000 },
 
-  retries: process.env.CI ? 3 : 1,  // 3 retries in CI for transient failures
+  retries: process.env.CI ? 3 : 1, // 3 retries in CI for transient failures
 
-  reporter: process.env.CI
-    ? [['github'], ['html', { open: 'never' }], ['json', { outputFile: 'test-results/results.json' }]]
+  reporter:
+    process.env.CI ?
+      [
+        ['github'],
+        ['html', { open: 'never' }],
+        ['json', { outputFile: 'test-results/results.json' }],
+      ]
     : [['list'], ['html', { open: 'on-failure' }]],
 
   use: {
     baseURL: process.env.BASE_URL || 'http://localhost:4200',
-    trace: 'on-first-retry',        // Trace when test fails (first retry)
-    screenshot: 'only-on-failure',  // Screenshot on failure
-    video: 'on-first-retry',        // Video on first retry
-    actionTimeout: 10000,           // 10s for each action
-    navigationTimeout: 15000,       // 15s for navigation
+    trace: 'on-first-retry', // Trace when test fails (first retry)
+    screenshot: 'only-on-failure', // Screenshot on failure
+    video: 'on-first-retry', // Video on first retry
+    actionTimeout: 10000, // 10s for each action
+    navigationTimeout: 15000, // 15s for navigation
   },
 
   // Auto-start the preview server
@@ -169,7 +176,8 @@ test('disables interface with confirmation', async ({ page }) => {
 
 ### Danger Operations (Countdown Confirm)
 
-For critical operations (disabling a gateway interface), the confirm button is disabled until a countdown completes:
+For critical operations (disabling a gateway interface), the confirm button is disabled until a
+countdown completes:
 
 ```typescript
 test('batch disables with safety warning for gateway', async ({ page }) => {
@@ -261,7 +269,8 @@ test.describe('Accessibility', () => {
 
 ## CHR Docker Integration Tests
 
-CHR (Cloud Hosted Router) tests run against a real RouterOS instance in Docker. They are tagged with the `chr-` prefix and run only in the `chr-integration` Playwright project.
+CHR (Cloud Hosted Router) tests run against a real RouterOS instance in Docker. They are tagged with
+the `chr-` prefix and run only in the `chr-integration` Playwright project.
 
 ### Setting Up CHR
 
@@ -307,14 +316,14 @@ test.describe('CHR Health Checks', () => {
 
 ### CHR Environment Variables
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `CHR_HOST` | `localhost` | CHR container hostname |
-| `CHR_API_PORT` | `8728` | RouterOS API port |
-| `CHR_SSH_PORT` | `2222` | SSH port |
-| `CHR_HTTP_PORT` | `8080` | HTTP/web interface port |
-| `CHR_ROUTER_URL` | `http://localhost:8080` | Full URL for web requests |
-| `SKIP_CHR_TESTS` | (unset) | Set to `true` to skip all CHR tests |
+| Variable         | Default                 | Description                         |
+| ---------------- | ----------------------- | ----------------------------------- |
+| `CHR_HOST`       | `localhost`             | CHR container hostname              |
+| `CHR_API_PORT`   | `8728`                  | RouterOS API port                   |
+| `CHR_SSH_PORT`   | `2222`                  | SSH port                            |
+| `CHR_HTTP_PORT`  | `8080`                  | HTTP/web interface port             |
+| `CHR_ROUTER_URL` | `http://localhost:8080` | Full URL for web requests           |
+| `SKIP_CHR_TESTS` | (unset)                 | Set to `true` to skip all CHR tests |
 
 ### CHR Utilities
 
@@ -337,29 +346,29 @@ test.afterAll(async () => {
 
 ## Available Test Specs
 
-| File | Coverage area |
-|------|---------------|
-| `interface-management.spec.ts` | Network interface list, detail panel, edit, enable/disable, mobile, accessibility |
-| `wan-configuration.spec.ts` | WAN interface setup, DHCP/static/PPPoE |
-| `firewall-filter-rules.spec.ts` | Firewall filter rule CRUD |
-| `firewall-mangle-rules.spec.ts` | Mangle rule management |
-| `firewall-nat-configuration.spec.ts` | NAT/port forwarding |
-| `firewall-port-knocking.spec.ts` | Port knocking sequences |
-| `firewall-raw-rules.spec.ts` | Raw table rules |
-| `firewall-service-ports.spec.ts` | Service port management |
-| `firewall-templates.spec.ts` | Firewall template application |
-| `address-lists.spec.ts` | Firewall address list management |
-| `dns-diagnostics.spec.ts` | DNS lookup tool |
-| `troubleshoot-wizard.spec.ts` | Troubleshooting wizard flow |
-| `services.spec.ts` | Feature marketplace install/uninstall |
-| `storage-management.spec.ts` | Storage configuration |
-| `webhook-notifications.spec.ts` | Webhook channel setup |
-| `alert-rule-templates.spec.ts` | Alert rule from templates |
-| `in-app-notifications.spec.ts` | In-app notification center |
-| `quiet-hours.spec.ts` | Notification quiet hours config |
-| `rate-limiting.spec.ts` | Rate limiting rules |
-| `bridges/bridge-workflow.spec.ts` | Bridge interface creation workflow |
-| `chr-integration.spec.ts` | CHR Docker real RouterOS tests |
+| File                                 | Coverage area                                                                     |
+| ------------------------------------ | --------------------------------------------------------------------------------- |
+| `interface-management.spec.ts`       | Network interface list, detail panel, edit, enable/disable, mobile, accessibility |
+| `wan-configuration.spec.ts`          | WAN interface setup, DHCP/static/PPPoE                                            |
+| `firewall-filter-rules.spec.ts`      | Firewall filter rule CRUD                                                         |
+| `firewall-mangle-rules.spec.ts`      | Mangle rule management                                                            |
+| `firewall-nat-configuration.spec.ts` | NAT/port forwarding                                                               |
+| `firewall-port-knocking.spec.ts`     | Port knocking sequences                                                           |
+| `firewall-raw-rules.spec.ts`         | Raw table rules                                                                   |
+| `firewall-service-ports.spec.ts`     | Service port management                                                           |
+| `firewall-templates.spec.ts`         | Firewall template application                                                     |
+| `address-lists.spec.ts`              | Firewall address list management                                                  |
+| `dns-diagnostics.spec.ts`            | DNS lookup tool                                                                   |
+| `troubleshoot-wizard.spec.ts`        | Troubleshooting wizard flow                                                       |
+| `services.spec.ts`                   | Feature marketplace install/uninstall                                             |
+| `storage-management.spec.ts`         | Storage configuration                                                             |
+| `webhook-notifications.spec.ts`      | Webhook channel setup                                                             |
+| `alert-rule-templates.spec.ts`       | Alert rule from templates                                                         |
+| `in-app-notifications.spec.ts`       | In-app notification center                                                        |
+| `quiet-hours.spec.ts`                | Notification quiet hours config                                                   |
+| `rate-limiting.spec.ts`              | Rate limiting rules                                                               |
+| `bridges/bridge-workflow.spec.ts`    | Bridge interface creation workflow                                                |
+| `chr-integration.spec.ts`            | CHR Docker real RouterOS tests                                                    |
 
 ---
 
@@ -393,6 +402,7 @@ SKIP_CHR_TESTS=true npx playwright test
 ## CI Integration
 
 In CI (GitHub Actions), Playwright runs:
+
 - All standard tests against Chromium, Firefox, and WebKit
 - CHR integration tests if a CHR Docker container is available
 - HTML report and JSON results saved as artifacts

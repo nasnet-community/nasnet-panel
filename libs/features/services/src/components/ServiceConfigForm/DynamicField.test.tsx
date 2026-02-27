@@ -15,7 +15,10 @@ function TestWrapper({ field, defaultValue }: { field: ConfigSchemaField; defaul
   return (
     <FormProvider {...form}>
       <form>
-        <DynamicField field={field} form={form} />
+        <DynamicField
+          field={field}
+          form={form}
+        />
       </form>
     </FormProvider>
   );
@@ -85,7 +88,12 @@ describe('DynamicField', () => {
         sensitive: false,
       };
 
-      render(<TestWrapper field={field} defaultValue={5} />);
+      render(
+        <TestWrapper
+          field={field}
+          defaultValue={5}
+        />
+      );
 
       expect(screen.getByLabelText(/Workers/)).toBeInTheDocument();
     });
@@ -107,7 +115,12 @@ describe('DynamicField', () => {
         sensitive: false,
       };
 
-      render(<TestWrapper field={field} defaultValue={8080} />);
+      render(
+        <TestWrapper
+          field={field}
+          defaultValue={8080}
+        />
+      );
 
       expect(screen.getByLabelText(/Port/)).toBeInTheDocument();
     });
@@ -219,7 +232,12 @@ describe('DynamicField', () => {
         sensitive: false,
       };
 
-      render(<TestWrapper field={field} defaultValue={false} />);
+      render(
+        <TestWrapper
+          field={field}
+          defaultValue={false}
+        />
+      );
 
       expect(screen.getByLabelText(/Enabled/)).toBeInTheDocument();
     });
@@ -265,7 +283,12 @@ describe('DynamicField', () => {
         sensitive: false,
       };
 
-      render(<TestWrapper field={field} defaultValue={[]} />);
+      render(
+        <TestWrapper
+          field={field}
+          defaultValue={[]}
+        />
+      );
 
       // MULTI_SELECT uses Popover with a button trigger
       expect(screen.getByText('Protocols')).toBeInTheDocument();
@@ -289,11 +312,18 @@ describe('DynamicField', () => {
         sensitive: false,
       };
 
-      render(<TestWrapper field={field} defaultValue={[]} />);
+      render(
+        <TestWrapper
+          field={field}
+          defaultValue={[]}
+        />
+      );
 
       // ArrayField is a composite component, so check for the label text instead
       expect(screen.getByText('DNS Servers')).toBeInTheDocument();
-      expect(screen.getByPlaceholderText(/Enter value and press Enter or click Add/)).toBeInTheDocument();
+      expect(
+        screen.getByPlaceholderText(/Enter value and press Enter or click Add/)
+      ).toBeInTheDocument();
     });
 
     it('should render TEXT field type for file paths', () => {
@@ -456,7 +486,12 @@ describe('DynamicField', () => {
         sensitive: false,
       };
 
-      render(<TestWrapper field={field} defaultValue={5} />);
+      render(
+        <TestWrapper
+          field={field}
+          defaultValue={5}
+        />
+      );
 
       expect(screen.getByText('Number of worker processes')).toBeInTheDocument();
     });
@@ -516,7 +551,11 @@ describe('DynamicField', () => {
         return (
           <FormProvider {...form}>
             <form>
-              <DynamicField field={field} form={form} disabled={true} />
+              <DynamicField
+                field={field}
+                form={form}
+                disabled={true}
+              />
             </form>
           </FormProvider>
         );

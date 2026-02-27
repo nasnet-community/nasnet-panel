@@ -14,7 +14,6 @@ import { VlanManagementPage } from './VlanManagementPage';
 
 import type { Meta, StoryObj } from '@storybook/react';
 
-
 const meta: Meta<typeof VlanManagementPage> = {
   title: 'App/Pages/VlanManagementPage',
   component: VlanManagementPage,
@@ -95,8 +94,8 @@ export const TopologyView: Story = {
         >
           <strong style={{ color: '#EFC729' }}>Topology View description</strong>
           <br />
-          Clicking the "Topology View" tab renders VlanTopology which visualises
-          VLAN parent–child relationships. Example hierarchy:
+          Clicking the "Topology View" tab renders VlanTopology which visualises VLAN parent–child
+          relationships. Example hierarchy:
           <br />• ether1 → vlan10 (Management), vlan20 (Guest)
           <br />• ether2 → vlan30 (IoT), vlan40 (Cameras)
           <br />• bridge1 → vlan100 (Trunk)
@@ -193,7 +192,8 @@ export const Mobile: Story = {
     viewport: { defaultViewport: 'mobile1' },
     docs: {
       description: {
-        story: 'VlanManagementPage rendered on a mobile viewport (375px). Verifies the "Create VLAN" button, tabs, and list/topology views adapt to narrow screens.',
+        story:
+          'VlanManagementPage rendered on a mobile viewport (375px). Verifies the "Create VLAN" button, tabs, and list/topology views adapt to narrow screens.',
       },
     },
   },
@@ -211,7 +211,8 @@ export const Desktop: Story = {
     viewport: { defaultViewport: 'desktop' },
     docs: {
       description: {
-        story: 'VlanManagementPage rendered on a desktop viewport (1280px+). Full-width layout with spacious controls and data presentation.',
+        story:
+          'VlanManagementPage rendered on a desktop viewport (1280px+). Full-width layout with spacious controls and data presentation.',
       },
     },
   },

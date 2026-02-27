@@ -100,9 +100,8 @@ export function SyntaxHighlight({
                   .replace(/&/g, '&amp;')
                   .replace(/</g, '&lt;')
                   .replace(/>/g, '&gt;');
-                currentLine += className
-                  ? `<span class="${className}">${escapedPart}</span>`
-                  : escapedPart;
+                currentLine +=
+                  className ? `<span class="${className}">${escapedPart}</span>` : escapedPart;
               }
             } else {
               processNode(child);
@@ -127,7 +126,7 @@ export function SyntaxHighlight({
     return (
       <pre className={cn('m-0 p-4', className)}>
         <code
-          className="block font-mono text-sm whitespace-pre text-slate-50 config-preview-syntax"
+          className="config-preview-syntax block whitespace-pre font-mono text-sm text-slate-50"
           dangerouslySetInnerHTML={{ __html: highlightedHtml }}
         />
       </pre>
@@ -136,19 +135,22 @@ export function SyntaxHighlight({
 
   return (
     <pre className={cn('m-0 p-0', className)}>
-      <code className="block font-mono text-sm whitespace-pre text-slate-50 config-preview-syntax">
+      <code className="config-preview-syntax block whitespace-pre font-mono text-sm text-slate-50">
         <table className="w-full border-collapse">
           <tbody>
             {lines.map((line, index) => (
-              <tr key={index} className="hover:bg-slate-800/50">
+              <tr
+                key={index}
+                className="hover:bg-slate-800/50"
+              >
                 <td
-                  className="pr-4 py-0.5 text-right select-none text-muted-foreground/50 border-r border-slate-700"
+                  className="text-muted-foreground/50 select-none border-r border-slate-700 py-0.5 pr-4 text-right"
                   style={{ width: `${lineNumberWidth + 2}ch` }}
                 >
                   {startLineNumber + index}
                 </td>
                 <td
-                  className="pl-4 py-0.5"
+                  className="py-0.5 pl-4"
                   dangerouslySetInnerHTML={{
                     __html: highlightedLines[index] || line || '&nbsp;',
                   }}

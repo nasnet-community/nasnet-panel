@@ -1,8 +1,5 @@
 import { useSubscription } from '@apollo/client';
-import {
-  SUBSCRIBE_INSTALL_PROGRESS,
-  SUBSCRIBE_INSTANCE_STATUS_CHANGED,
-} from './services.graphql';
+import { SUBSCRIBE_INSTALL_PROGRESS, SUBSCRIBE_INSTANCE_STATUS_CHANGED } from './services.graphql';
 
 /**
  * Installation progress event from subscription
@@ -100,28 +97,22 @@ export function useInstallProgress(routerId: string, enabled: boolean = true) {
  * }, [data]);
  * ```
  */
-export function useInstanceStatusChanged(
-  routerId: string,
-  enabled: boolean = true
-) {
-  const { data, loading, error } = useSubscription(
-    SUBSCRIBE_INSTANCE_STATUS_CHANGED,
-    {
-      variables: { routerID: routerId },
-      skip: !enabled || !routerId,
-      // Apollo Client automatically updates the normalized cache
-      onData: ({ client, data }) => {
-        if (data.data?.instanceStatusChanged) {
-          const change = data.data.instanceStatusChanged;
-          // Cache is updated automatically
-          // Additional side effects can be added here (e.g., notifications, analytics)
-          console.log(
-            `Instance status changed: ${change.instanceID} (${change.oldStatus} → ${change.newStatus})`
-          );
-        }
-      },
-    }
-  );
+export function useInstanceStatusChanged(routerId: string, enabled: boolean = true) {
+  const { data, loading, error } = useSubscription(SUBSCRIBE_INSTANCE_STATUS_CHANGED, {
+    variables: { routerID: routerId },
+    skip: !enabled || !routerId,
+    // Apollo Client automatically updates the normalized cache
+    onData: ({ client, data }) => {
+      if (data.data?.instanceStatusChanged) {
+        const change = data.data.instanceStatusChanged;
+        // Cache is updated automatically
+        // Additional side effects can be added here (e.g., notifications, analytics)
+        console.log(
+          `Instance status changed: ${change.instanceID} (${change.oldStatus} → ${change.newStatus})`
+        );
+      }
+    },
+  });
 
   return {
     statusChange: data?.instanceStatusChanged as InstanceStatusChanged | undefined,

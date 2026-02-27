@@ -163,8 +163,15 @@ export const wellKnownPorts: Record<number, string> = {
 // Interface Test Data
 // ============================================================================
 
-export const interfaceTypes = ['ethernet', 'bridge', 'vlan', 'wireless', 'loopback', 'tunnel'] as const;
-export type InterfaceType = typeof interfaceTypes[number];
+export const interfaceTypes = [
+  'ethernet',
+  'bridge',
+  'vlan',
+  'wireless',
+  'loopback',
+  'tunnel',
+] as const;
+export type InterfaceType = (typeof interfaceTypes)[number];
 
 export const mockInterfaces = [
   {

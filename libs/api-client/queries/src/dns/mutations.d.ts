@@ -31,7 +31,12 @@
  * };
  * ```
  */
-export declare function useUpdateDNSSettings(): import("@apollo/client").MutationTuple<any, import("@apollo/client").OperationVariables, import("@apollo/client").DefaultContext, import("@apollo/client").ApolloCache<any>>;
+export declare function useUpdateDNSSettings(): import('@apollo/client').MutationTuple<
+  any,
+  import('@apollo/client').OperationVariables,
+  import('@apollo/client').DefaultContext,
+  import('@apollo/client').ApolloCache<any>
+>;
 /**
  * Hook to create a new DNS static entry
  *
@@ -59,7 +64,12 @@ export declare function useUpdateDNSSettings(): import("@apollo/client").Mutatio
  * };
  * ```
  */
-export declare function useCreateDNSStaticEntry(): import("@apollo/client").MutationTuple<any, import("@apollo/client").OperationVariables, import("@apollo/client").DefaultContext, import("@apollo/client").ApolloCache<any>>;
+export declare function useCreateDNSStaticEntry(): import('@apollo/client').MutationTuple<
+  any,
+  import('@apollo/client').OperationVariables,
+  import('@apollo/client').DefaultContext,
+  import('@apollo/client').ApolloCache<any>
+>;
 /**
  * Hook to update an existing DNS static entry
  *
@@ -88,7 +98,12 @@ export declare function useCreateDNSStaticEntry(): import("@apollo/client").Muta
  * };
  * ```
  */
-export declare function useUpdateDNSStaticEntry(): import("@apollo/client").MutationTuple<any, import("@apollo/client").OperationVariables, import("@apollo/client").DefaultContext, import("@apollo/client").ApolloCache<any>>;
+export declare function useUpdateDNSStaticEntry(): import('@apollo/client').MutationTuple<
+  any,
+  import('@apollo/client').OperationVariables,
+  import('@apollo/client').DefaultContext,
+  import('@apollo/client').ApolloCache<any>
+>;
 /**
  * Hook to delete a DNS static entry
  *
@@ -111,5 +126,10 @@ export declare function useUpdateDNSStaticEntry(): import("@apollo/client").Muta
  * };
  * ```
  */
-export declare function useDeleteDNSStaticEntry(): import("@apollo/client").MutationTuple<any, import("@apollo/client").OperationVariables, import("@apollo/client").DefaultContext, import("@apollo/client").ApolloCache<any>>;
+export declare function useDeleteDNSStaticEntry(): import('@apollo/client').MutationTuple<
+  any,
+  import('@apollo/client').OperationVariables,
+  import('@apollo/client').DefaultContext,
+  import('@apollo/client').ApolloCache<any>
+>;
 //# sourceMappingURL=mutations.d.ts.map

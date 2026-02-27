@@ -38,47 +38,45 @@ const STATUS_ICONS: Record<UsageStatus, typeof Circle> = {
  * Status color classes (semantic tokens)
  * Uses: success (green), warning (amber), error (red), muted (gray)
  */
-const STATUS_COLORS: Record<
-  UsageStatus,
-  { bg: string; fill: string; text: string; icon: string }
-> = {
-  idle: {
-    bg: 'bg-muted',
-    fill: 'bg-muted-foreground',
-    text: 'text-muted-foreground',
-    icon: 'text-muted-foreground',
-  },
-  normal: {
-    bg: 'bg-success-light',
-    fill: 'bg-success',
-    text: 'text-success-dark',
-    icon: 'text-success',
-  },
-  warning: {
-    bg: 'bg-warning-light',
-    fill: 'bg-warning',
-    text: 'text-warning-dark',
-    icon: 'text-warning',
-  },
-  critical: {
-    bg: 'bg-warning-light',
-    fill: 'bg-warning',
-    text: 'text-warning-dark',
-    icon: 'text-warning',
-  },
-  danger: {
-    bg: 'bg-error-light',
-    fill: 'bg-error',
-    text: 'text-error-dark',
-    icon: 'text-error',
-  },
-  unknown: {
-    bg: 'bg-muted',
-    fill: 'bg-muted-foreground',
-    text: 'text-muted-foreground',
-    icon: 'text-muted-foreground',
-  },
-};
+const STATUS_COLORS: Record<UsageStatus, { bg: string; fill: string; text: string; icon: string }> =
+  {
+    idle: {
+      bg: 'bg-muted',
+      fill: 'bg-muted-foreground',
+      text: 'text-muted-foreground',
+      icon: 'text-muted-foreground',
+    },
+    normal: {
+      bg: 'bg-success-light',
+      fill: 'bg-success',
+      text: 'text-success-dark',
+      icon: 'text-success',
+    },
+    warning: {
+      bg: 'bg-warning-light',
+      fill: 'bg-warning',
+      text: 'text-warning-dark',
+      icon: 'text-warning',
+    },
+    critical: {
+      bg: 'bg-warning-light',
+      fill: 'bg-warning',
+      text: 'text-warning-dark',
+      icon: 'text-warning',
+    },
+    danger: {
+      bg: 'bg-error-light',
+      fill: 'bg-error',
+      text: 'text-error-dark',
+      icon: 'text-error',
+    },
+    unknown: {
+      bg: 'bg-muted',
+      fill: 'bg-muted-foreground',
+      text: 'text-muted-foreground',
+      icon: 'text-muted-foreground',
+    },
+  };
 
 // ===== Component =====
 
@@ -102,16 +100,19 @@ function ResourceUsageBarDesktopBase(props: ResourceUsageBarProps) {
       aria-label={state.label}
     >
       {/* Label and Icon */}
-      <div className="flex items-center gap-2 min-w-[100px]">
-        <Icon className={cn('h-3.5 w-3.5', colors.icon)} aria-label={state.statusLabel} />
-        <span className="text-sm font-medium text-foreground">{state.label}</span>
+      <div className="flex min-w-[100px] items-center gap-2">
+        <Icon
+          className={cn('h-3.5 w-3.5', colors.icon)}
+          aria-label={state.statusLabel}
+        />
+        <span className="text-foreground text-sm font-medium">{state.label}</span>
       </div>
 
       {/* Progress Bar - h-2 (8px) rounded-full */}
-      <div className="flex-1 min-w-[120px]">
+      <div className="min-w-[120px] flex-1">
         <div
           className={cn(
-            'relative h-2 w-full rounded-full overflow-hidden',
+            'relative h-2 w-full overflow-hidden rounded-full',
             colors.bg,
             'transition-all duration-200'
           )}
@@ -124,10 +125,7 @@ function ResourceUsageBarDesktopBase(props: ResourceUsageBarProps) {
         >
           {/* Fill - rounded-full to match track */}
           <div
-            className={cn(
-              'h-full rounded-full transition-all duration-500 ease-out',
-              colors.fill
-            )}
+            className={cn('h-full rounded-full transition-all duration-500 ease-out', colors.fill)}
             style={{ width: `${state.percentage}%` }}
           />
         </div>
@@ -135,19 +133,15 @@ function ResourceUsageBarDesktopBase(props: ResourceUsageBarProps) {
 
       {/* Values Display */}
       {showValues && (
-        <div className="flex items-center gap-2 min-w-[160px] text-xs">
+        <div className="flex min-w-[160px] items-center gap-2 text-xs">
           <div className="flex flex-col items-end">
             <span className="text-muted-foreground">Used</span>
-            <span className={cn('font-medium font-mono', colors.text)}>
-              {state.usedText}
-            </span>
+            <span className={cn('font-mono font-medium', colors.text)}>{state.usedText}</span>
           </div>
           <span className="text-muted-foreground">/</span>
           <div className="flex flex-col items-start">
             <span className="text-muted-foreground">Total</span>
-            <span className="font-medium font-mono text-foreground">
-              {state.totalText}
-            </span>
+            <span className="text-foreground font-mono font-medium">{state.totalText}</span>
           </div>
         </div>
       )}

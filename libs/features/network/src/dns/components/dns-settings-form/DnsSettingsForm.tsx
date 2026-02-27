@@ -26,10 +26,7 @@ import {
   Button,
 } from '@nasnet/ui/primitives';
 import { FieldHelp } from '@nasnet/ui/patterns';
-import {
-  dnsSettingsSchema,
-  type DNSSettingsFormValues,
-} from '../../schemas';
+import { dnsSettingsSchema, type DNSSettingsFormValues } from '../../schemas';
 import { AlertTriangle } from 'lucide-react';
 
 /**
@@ -81,8 +78,7 @@ export const DnsSettingsForm = memo(function DnsSettingsForm({
   loading = false,
 }: DnsSettingsFormProps) {
   const [showSecurityWarning, setShowSecurityWarning] = useState(false);
-  const [pendingRemoteRequestValue, setPendingRemoteRequestValue] =
-    useState(false);
+  const [pendingRemoteRequestValue, setPendingRemoteRequestValue] = useState(false);
 
   const form = useForm<DNSSettingsFormValues>({
     resolver: zodResolver(dnsSettingsSchema),
@@ -131,13 +127,14 @@ export const DnsSettingsForm = memo(function DnsSettingsForm({
 
   return (
     <>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-component-lg category-networking">
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="space-y-component-lg category-networking"
+      >
         {/* Remote Requests Toggle */}
-        <div className="flex items-center justify-between gap-component-md">
-          <div className="flex items-center gap-component-xs">
-            <Label htmlFor="allowRemoteRequests">
-              Allow Remote Requests
-            </Label>
+        <div className="gap-component-md flex items-center justify-between">
+          <div className="gap-component-xs flex items-center">
+            <Label htmlFor="allowRemoteRequests">Allow Remote Requests</Label>
             <FieldHelp field="remoteRequests" />
           </div>
           <Switch
@@ -151,7 +148,7 @@ export const DnsSettingsForm = memo(function DnsSettingsForm({
 
         {/* Cache Size Configuration */}
         <div className="space-y-component-xs">
-          <div className="flex items-center gap-component-xs">
+          <div className="gap-component-xs flex items-center">
             <Label htmlFor="cacheSize">Cache Size (KB)</Label>
             <FieldHelp field="cacheSize" />
           </div>
@@ -168,7 +165,7 @@ export const DnsSettingsForm = memo(function DnsSettingsForm({
           {form.formState.errors.cacheSize && (
             <p
               id="cacheSize-error"
-              className="text-sm text-error"
+              className="text-error text-sm"
               role="alert"
             >
               {form.formState.errors.cacheSize.message}
@@ -176,7 +173,7 @@ export const DnsSettingsForm = memo(function DnsSettingsForm({
           )}
           <p
             id="cacheSize-help"
-            className="text-xs text-muted-foreground"
+            className="text-muted-foreground text-xs"
           >
             Valid range: 512 KB to 10240 KB (10 MB)
           </p>
@@ -186,21 +183,21 @@ export const DnsSettingsForm = memo(function DnsSettingsForm({
         <div className="space-y-component-xs">
           <Label>Cache Usage</Label>
           <div className="space-y-component-xs">
-            <div className="flex items-center gap-component-xs">
+            <div className="gap-component-xs flex items-center">
               <Progress
                 value={cacheUsedPercent}
                 className={`flex-1 ${getCacheUsageColor()}`}
                 aria-label={`Cache usage: ${cacheUsedPercent}%`}
               />
-              <span className="text-sm font-mono text-muted-foreground min-w-[3rem] text-right">
+              <span className="text-muted-foreground min-w-[3rem] text-right font-mono text-sm">
                 {cacheUsedPercent}%
               </span>
             </div>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-muted-foreground text-sm">
               {cacheUsed} KB / {form.watch('cacheSize')} KB used
             </p>
             {cacheUsedPercent >= 90 && (
-              <p className="text-sm text-error flex items-center gap-component-xs">
+              <p className="text-error gap-component-xs flex items-center text-sm">
                 <AlertTriangle className="h-4 w-4" />
                 Cache nearly full - consider increasing cache size
               </p>
@@ -212,7 +209,7 @@ export const DnsSettingsForm = memo(function DnsSettingsForm({
         <Button
           type="submit"
           disabled={loading || !form.formState.isDirty}
-          className="w-full min-h-[44px]"
+          className="min-h-[44px] w-full"
         >
           {loading ? 'Saving...' : 'Save DNS Settings'}
         </Button>
@@ -225,29 +222,30 @@ export const DnsSettingsForm = memo(function DnsSettingsForm({
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-component-xs">
-              <AlertTriangle className="h-5 w-5 text-warning" />
+            <DialogTitle className="gap-component-xs flex items-center">
+              <AlertTriangle className="text-warning h-5 w-5" />
               Security Warning
             </DialogTitle>
             <DialogDescription className="space-y-component-md">
               <p>
                 Enabling remote requests allows <strong>ANY device</strong> on{' '}
-                <strong>ANY network</strong> to use this router as a DNS
-                server.
+                <strong>ANY network</strong> to use this router as a DNS server.
               </p>
               <p className="text-sm">
-                <strong>Recommendation:</strong> Ensure firewall rules block
-                external DNS queries (UDP/TCP port 53) from untrusted networks.
+                <strong>Recommendation:</strong> Ensure firewall rules block external DNS queries
+                (UDP/TCP port 53) from untrusted networks.
               </p>
-              <p className="text-sm text-muted-foreground">
-                This setting should only be enabled if you understand the
-                security implications and have proper firewall protection in
-                place.
+              <p className="text-muted-foreground text-sm">
+                This setting should only be enabled if you understand the security implications and
+                have proper firewall protection in place.
               </p>
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={handleCancelSecurityWarning}>
+            <Button
+              variant="outline"
+              onClick={handleCancelSecurityWarning}
+            >
               Cancel
             </Button>
             <Button

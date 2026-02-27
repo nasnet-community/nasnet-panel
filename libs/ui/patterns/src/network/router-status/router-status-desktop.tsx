@@ -73,14 +73,17 @@ function RouterStatusDesktopComponent({ state, className }: RouterStatusPresente
   // Error state
   if (error) {
     return (
-      <Card className={cn('w-full border-semantic-error/50', className)}>
+      <Card className={cn('border-semantic-error/50 w-full', className)}>
         <CardContent className="p-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <StatusIndicator status="ERROR" size="md" />
+              <StatusIndicator
+                status="ERROR"
+                size="md"
+              />
               <div>
-                <p className="text-sm font-medium text-semantic-error">Connection Error</p>
-                <p className="text-xs text-muted-foreground">{error.message}</p>
+                <p className="text-semantic-error text-sm font-medium">Connection Error</p>
+                <p className="text-muted-foreground text-xs">{error.message}</p>
               </div>
             </div>
             <Button
@@ -89,7 +92,7 @@ function RouterStatusDesktopComponent({ state, className }: RouterStatusPresente
               onClick={() => state.reconnect()}
               className="text-semantic-error hover:text-semantic-error"
             >
-              <RefreshCw className="h-4 w-4 mr-1" />
+              <RefreshCw className="mr-1 h-4 w-4" />
               Retry
             </Button>
           </div>
@@ -101,56 +104,50 @@ function RouterStatusDesktopComponent({ state, className }: RouterStatusPresente
   return (
     <Card className={cn('w-full', className)}>
       <CardContent className="p-component-md lg:p-component-lg">
-        <div className="flex items-center justify-between gap-component-lg">
+        <div className="gap-component-lg flex items-center justify-between">
           {/* Status Section */}
-          <div className="flex items-center gap-component-lg min-w-0">
+          <div className="gap-component-lg flex min-w-0 items-center">
             {/* Router Icon Container */}
             <div
               className={cn(
-                'flex items-center justify-center h-12 w-12 rounded-lg shrink-0',
+                'flex h-12 w-12 shrink-0 items-center justify-center rounded-lg',
                 'bg-primary/10'
               )}
             >
-              {data.status === 'CONNECTING' ? (
+              {data.status === 'CONNECTING' ?
                 <RefreshCw
                   className={cn('h-6 w-6 animate-spin', STATUS_TEXT_COLORS[data.status])}
                   aria-hidden="true"
                 />
-              ) : data.status === 'DISCONNECTED' || data.status === 'ERROR' ? (
+              : data.status === 'DISCONNECTED' || data.status === 'ERROR' ?
                 <WifiOff
                   className={cn('h-6 w-6', STATUS_TEXT_COLORS[data.status])}
                   aria-hidden="true"
                 />
-              ) : (
-                <Wifi
+              : <Wifi
                   className={cn('h-6 w-6', STATUS_TEXT_COLORS[data.status])}
                   aria-hidden="true"
                 />
-              )}
+              }
             </div>
 
             {/* Status Text */}
             <div className="min-w-0">
-              <h3 className={cn('text-lg font-semibold text-foreground')}>
-                Router
-              </h3>
+              <h3 className={cn('text-foreground text-lg font-semibold')}>Router</h3>
 
               {/* Router Model */}
-              {data.model && (
-                <p className="text-sm text-muted-foreground">
-                  {data.model}
-                </p>
-              )}
+              {data.model && <p className="text-muted-foreground text-sm">{data.model}</p>}
 
               {/* Uptime */}
               {data.uptime && (
-                <p className="font-mono text-sm text-muted-foreground">
-                  Uptime: {data.uptime}
-                </p>
+                <p className="text-muted-foreground font-mono text-sm">Uptime: {data.uptime}</p>
               )}
 
               {/* Status Badge */}
-              <StatusIndicator status={data.status} size="sm" />
+              <StatusIndicator
+                status={data.status}
+                size="sm"
+              />
             </div>
           </div>
 
@@ -160,18 +157,21 @@ function RouterStatusDesktopComponent({ state, className }: RouterStatusPresente
               <Button
                 variant="ghost"
                 size="icon"
-                className="shrink-0 focus:ring-2 focus:ring-primary focus:ring-offset-2"
+                className="focus:ring-primary shrink-0 focus:ring-2 focus:ring-offset-2"
                 aria-label="Router status actions"
               >
                 <MoreVertical className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuContent
+              align="end"
+              className="w-48"
+            >
               <DropdownMenuItem
                 onClick={() => state.refresh()}
                 className="cursor-pointer"
               >
-                <RefreshCw className="h-4 w-4 mr-2" />
+                <RefreshCw className="mr-2 h-4 w-4" />
                 Refresh Status
               </DropdownMenuItem>
 
@@ -180,7 +180,7 @@ function RouterStatusDesktopComponent({ state, className }: RouterStatusPresente
                   onClick={() => state.reconnect()}
                   className="cursor-pointer"
                 >
-                  <Wifi className="h-4 w-4 mr-2" />
+                  <Wifi className="mr-2 h-4 w-4" />
                   Reconnect
                 </DropdownMenuItem>
               )}
@@ -190,7 +190,7 @@ function RouterStatusDesktopComponent({ state, className }: RouterStatusPresente
                   onClick={() => state.cancelReconnect()}
                   className="cursor-pointer"
                 >
-                  <X className="h-4 w-4 mr-2" />
+                  <X className="mr-2 h-4 w-4" />
                   Cancel Reconnect
                 </DropdownMenuItem>
               )}
@@ -200,9 +200,9 @@ function RouterStatusDesktopComponent({ state, className }: RouterStatusPresente
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
                     onClick={() => state.disconnect()}
-                    className="cursor-pointer text-semantic-error focus:text-semantic-error"
+                    className="text-semantic-error focus:text-semantic-error cursor-pointer"
                   >
-                    <Unplug className="h-4 w-4 mr-2" />
+                    <Unplug className="mr-2 h-4 w-4" />
                     Disconnect
                   </DropdownMenuItem>
                 </>

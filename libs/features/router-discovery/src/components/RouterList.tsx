@@ -81,17 +81,12 @@ export const RouterList = memo(function RouterList({
   const sortedRouters = useMemo(() => {
     return [...routers].sort((a, b) => {
       // Online routers first
-      if (a.connectionStatus === 'online' && b.connectionStatus !== 'online')
-        return -1;
-      if (a.connectionStatus !== 'online' && b.connectionStatus === 'online')
-        return 1;
+      if (a.connectionStatus === 'online' && b.connectionStatus !== 'online') return -1;
+      if (a.connectionStatus !== 'online' && b.connectionStatus === 'online') return 1;
 
       // Then by last connected (most recent first)
       if (a.lastConnected && b.lastConnected) {
-        return (
-          new Date(b.lastConnected).getTime() -
-          new Date(a.lastConnected).getTime()
-        );
+        return new Date(b.lastConnected).getTime() - new Date(a.lastConnected).getTime();
       }
       if (a.lastConnected) return -1;
       if (b.lastConnected) return 1;
@@ -105,11 +100,11 @@ export const RouterList = memo(function RouterList({
 
   if (routers.length === 0) {
     return (
-      <div className={cn('text-center py-12', className)}>
+      <div className={cn('py-12 text-center', className)}>
         {emptyState || (
           <div>
             <svg
-              className="mx-auto h-12 w-12 text-muted-foreground"
+              className="text-muted-foreground mx-auto h-12 w-12"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -122,10 +117,8 @@ export const RouterList = memo(function RouterList({
                 d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
               />
             </svg>
-            <h3 className="mt-2 text-sm font-medium text-foreground">
-              No routers found
-            </h3>
-            <p className="mt-1 text-sm text-muted-foreground">
+            <h3 className="text-foreground mt-2 text-sm font-medium">No routers found</h3>
+            <p className="text-muted-foreground mt-1 text-sm">
               Scan your network or add a router manually to get started
             </p>
           </div>
@@ -137,31 +130,28 @@ export const RouterList = memo(function RouterList({
   return (
     <div className={cn('space-y-component-md', className)}>
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-foreground">
+        <h3 className="text-foreground text-lg font-semibold">
           {routers.length} Router{routers.length !== 1 ? 's' : ''}
         </h3>
 
         {/* Status Summary */}
-        <div className="flex items-center gap-component-lg text-sm text-muted-foreground">
+        <div className="gap-component-lg text-muted-foreground flex items-center text-sm">
           {routers.filter((r) => r.connectionStatus === 'online').length > 0 && (
-            <span className="flex items-center gap-component-sm">
-              <div className="h-2 w-2 bg-success rounded-full" />
-              {routers.filter((r) => r.connectionStatus === 'online').length}{' '}
-              Online
+            <span className="gap-component-sm flex items-center">
+              <div className="bg-success h-2 w-2 rounded-full" />
+              {routers.filter((r) => r.connectionStatus === 'online').length} Online
             </span>
           )}
-          {routers.filter((r) => r.connectionStatus === 'offline').length >
-            0 && (
-            <span className="flex items-center gap-component-sm">
-              <div className="h-2 w-2 bg-muted-foreground rounded-full" />
-              {routers.filter((r) => r.connectionStatus === 'offline').length}{' '}
-              Offline
+          {routers.filter((r) => r.connectionStatus === 'offline').length > 0 && (
+            <span className="gap-component-sm flex items-center">
+              <div className="bg-muted-foreground h-2 w-2 rounded-full" />
+              {routers.filter((r) => r.connectionStatus === 'offline').length} Offline
             </span>
           )}
         </div>
       </div>
 
-      <div className="grid gap-component-md">
+      <div className="gap-component-md grid">
         <AnimatePresence mode="popLayout">
           {sortedRouters.map((router, index) => (
             <motion.div

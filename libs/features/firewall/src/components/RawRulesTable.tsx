@@ -40,18 +40,19 @@ export interface RawRulesTableProps {
  * @param props - Component props
  * @returns Platform-appropriate RAW rules table
  */
-export const RawRulesTable = memo(function RawRulesTable({
-  className,
-  chain
-}: RawRulesTableProps) {
+export const RawRulesTable = memo(function RawRulesTable({ className, chain }: RawRulesTableProps) {
   // Platform detection: <640px = Mobile, >=640px = Desktop
   const isMobile = useMediaQuery('(max-width: 640px)');
 
-  return isMobile ? (
-    <RawRulesTableMobile className={cn(className)} chain={chain} />
-  ) : (
-    <RawRulesTableDesktop className={cn(className)} chain={chain} />
-  );
+  return isMobile ?
+      <RawRulesTableMobile
+        className={cn(className)}
+        chain={chain}
+      />
+    : <RawRulesTableDesktop
+        className={cn(className)}
+        chain={chain}
+      />;
 });
 
 RawRulesTable.displayName = 'RawRulesTable';

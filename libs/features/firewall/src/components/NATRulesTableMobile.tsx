@@ -29,7 +29,10 @@ import type { NATRule } from '@nasnet/core/types';
 // CONSTANTS
 // ============================================================================
 
-const NAT_ACTION_VARIANTS: Record<string, 'default' | 'info' | 'secondary' | 'warning' | 'outline'> = {
+const NAT_ACTION_VARIANTS: Record<
+  string,
+  'default' | 'info' | 'secondary' | 'warning' | 'outline'
+> = {
   masquerade: 'info',
   'dst-nat': 'secondary',
   'src-nat': 'default',
@@ -48,7 +51,12 @@ const NATActionBadge = memo(function NATActionBadge({ action }: { action: string
   const variant = NAT_ACTION_VARIANTS[action] || 'outline';
 
   return (
-    <Badge variant={variant} className="text-xs" role="img" aria-label={`NAT action: ${action}`}>
+    <Badge
+      variant={variant}
+      className="text-xs"
+      role="img"
+      aria-label={`NAT action: ${action}`}
+    >
       {action}
     </Badge>
   );
@@ -64,7 +72,12 @@ const NATActionBadge = memo(function NATActionBadge({ action }: { action: string
  */
 const ChainBadge = memo(function ChainBadge({ chain }: { chain: string }) {
   return (
-    <Badge variant="secondary" className="font-mono text-xs" role="img" aria-label={`Chain: ${chain}`}>
+    <Badge
+      variant="secondary"
+      className="font-mono text-xs"
+      role="img"
+      aria-label={`Chain: ${chain}`}
+    >
       {chain}
     </Badge>
   );
@@ -91,18 +104,16 @@ interface RuleCardProps {
  */
 const RuleCard = memo(function RuleCard({ rule, onEdit, onDelete, onToggle }: RuleCardProps) {
   return (
-    <Card className={rule.disabled ? 'opacity-50 bg-muted/50' : ''}>
+    <Card className={rule.disabled ? 'bg-muted/50 opacity-50' : ''}>
       <CardHeader className="pb-component-sm">
-        <div className="flex items-start justify-between gap-component-sm">
-          <div className="flex-1 space-y-component-sm">
-            <div className="flex items-center gap-component-sm flex-wrap">
-              <span className="font-mono text-xs text-muted-foreground">#{rule.order}</span>
+        <div className="gap-component-sm flex items-start justify-between">
+          <div className="space-y-component-sm flex-1">
+            <div className="gap-component-sm flex flex-wrap items-center">
+              <span className="text-muted-foreground font-mono text-xs">#{rule.order}</span>
               <ChainBadge chain={rule.chain} />
               <NATActionBadge action={rule.action} />
             </div>
-            {rule.comment && (
-              <CardTitle className="text-sm font-normal">{rule.comment}</CardTitle>
-            )}
+            {rule.comment && <CardTitle className="text-sm font-normal">{rule.comment}</CardTitle>}
           </div>
 
           {/* Actions Menu */}
@@ -111,33 +122,50 @@ const RuleCard = memo(function RuleCard({ rule, onEdit, onDelete, onToggle }: Ru
               <Button
                 variant="ghost"
                 size="icon"
-                className="min-h-[44px] min-w-[44px] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                className="focus-visible:ring-ring min-h-[44px] min-w-[44px] focus-visible:ring-2 focus-visible:ring-offset-2"
                 aria-label={`Actions for NAT rule ${rule.order}`}
               >
-                <MoreVertical className="h-4 w-4" aria-hidden="true" />
+                <MoreVertical
+                  className="h-4 w-4"
+                  aria-hidden="true"
+                />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => onEdit(rule)}>
-                <Edit className="h-4 w-4 mr-component-sm" aria-hidden="true" />
+                <Edit
+                  className="mr-component-sm h-4 w-4"
+                  aria-hidden="true"
+                />
                 Edit
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => onToggle(rule.id, !rule.disabled)}>
-                {rule.disabled ? (
+                {rule.disabled ?
                   <>
-                    <Eye className="h-4 w-4 mr-component-sm" aria-hidden="true" />
+                    <Eye
+                      className="mr-component-sm h-4 w-4"
+                      aria-hidden="true"
+                    />
                     Enable
                   </>
-                ) : (
-                  <>
-                    <EyeOff className="h-4 w-4 mr-component-sm" aria-hidden="true" />
+                : <>
+                    <EyeOff
+                      className="mr-component-sm h-4 w-4"
+                      aria-hidden="true"
+                    />
                     Disable
                   </>
-                )}
+                }
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => onDelete(rule.id)} className="text-error">
-                <Trash2 className="h-4 w-4 mr-component-sm" aria-hidden="true" />
+              <DropdownMenuItem
+                onClick={() => onDelete(rule.id)}
+                className="text-error"
+              >
+                <Trash2
+                  className="mr-component-sm h-4 w-4"
+                  aria-hidden="true"
+                />
                 Delete
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -196,7 +224,9 @@ const RuleCard = memo(function RuleCard({ rule, onEdit, onDelete, onToggle }: Ru
         {rule.toAddresses && (
           <div className="flex justify-between">
             <span className="text-muted-foreground">To Addresses:</span>
-            <span className={`font-mono font-medium text-sm ${rule.disabled ? 'line-through' : ''}`}>
+            <span
+              className={`font-mono text-sm font-medium ${rule.disabled ? 'line-through' : ''}`}
+            >
               {rule.toAddresses}
             </span>
           </div>
@@ -204,7 +234,9 @@ const RuleCard = memo(function RuleCard({ rule, onEdit, onDelete, onToggle }: Ru
         {rule.toPorts && (
           <div className="flex justify-between">
             <span className="text-muted-foreground">To Ports:</span>
-            <span className={`font-mono font-medium text-sm ${rule.disabled ? 'line-through' : ''}`}>
+            <span
+              className={`font-mono text-sm font-medium ${rule.disabled ? 'line-through' : ''}`}
+            >
               {rule.toPorts}
             </span>
           </div>
@@ -241,7 +273,10 @@ export interface NATRulesTableMobileProps {
   onEditRule?: (rule: NATRule) => void;
 }
 
-export const NATRulesTableMobile = memo(function NATRulesTableMobile({ chain, onEditRule }: NATRulesTableMobileProps) {
+export const NATRulesTableMobile = memo(function NATRulesTableMobile({
+  chain,
+  onEditRule,
+}: NATRulesTableMobileProps) {
   const routerIp = useConnectionStore((state) => state.currentRouterIp) || '';
   const { data: allRules, isLoading, error } = useNATRules(routerIp);
   const { showDisabledRules } = useNATUIStore();
@@ -261,9 +296,12 @@ export const NATRulesTableMobile = memo(function NATRulesTableMobile({ chain, on
   // Handlers
   // ========================================
 
-  const handleEdit = useCallback((rule: NATRule) => {
-    onEditRule?.(rule);
-  }, [onEditRule]);
+  const handleEdit = useCallback(
+    (rule: NATRule) => {
+      onEditRule?.(rule);
+    },
+    [onEditRule]
+  );
 
   const handleDelete = useCallback((ruleId: string) => {
     setRuleToDelete(ruleId);
@@ -289,22 +327,25 @@ export const NATRulesTableMobile = memo(function NATRulesTableMobile({ chain, on
     }
   }, [ruleToDelete, deleteRuleMutation]);
 
-  const handleToggle = useCallback(async (ruleId: string, disabled: boolean) => {
-    try {
-      await toggleRuleMutation.mutateAsync({ ruleId, disabled });
-      toast({
-        title: disabled ? 'NAT Rule Disabled' : 'NAT Rule Enabled',
-        description: `The NAT rule has been ${disabled ? 'disabled' : 'enabled'}.`,
-        variant: 'default',
-      });
-    } catch (error) {
-      toast({
-        title: 'Failed to Toggle NAT Rule',
-        description: error instanceof Error ? error.message : 'Unknown error occurred',
-        variant: 'destructive',
-      });
-    }
-  }, [toggleRuleMutation]);
+  const handleToggle = useCallback(
+    async (ruleId: string, disabled: boolean) => {
+      try {
+        await toggleRuleMutation.mutateAsync({ ruleId, disabled });
+        toast({
+          title: disabled ? 'NAT Rule Disabled' : 'NAT Rule Enabled',
+          description: `The NAT rule has been ${disabled ? 'disabled' : 'enabled'}.`,
+          variant: 'default',
+        });
+      } catch (error) {
+        toast({
+          title: 'Failed to Toggle NAT Rule',
+          description: error instanceof Error ? error.message : 'Unknown error occurred',
+          variant: 'destructive',
+        });
+      }
+    },
+    [toggleRuleMutation]
+  );
 
   // ========================================
   // Render States
@@ -314,8 +355,11 @@ export const NATRulesTableMobile = memo(function NATRulesTableMobile({ chain, on
     return (
       <div className="space-y-component-sm p-component-md">
         {[1, 2, 3].map((i) => (
-          <div key={i} className="animate-pulse">
-            <div className="h-32 bg-muted rounded-lg" />
+          <div
+            key={i}
+            className="animate-pulse"
+          >
+            <div className="bg-muted h-32 rounded-lg" />
           </div>
         ))}
       </div>
@@ -324,7 +368,10 @@ export const NATRulesTableMobile = memo(function NATRulesTableMobile({ chain, on
 
   if (error) {
     return (
-      <div className="p-component-md text-error" role="alert">
+      <div
+        className="p-component-md text-error"
+        role="alert"
+      >
         Error loading NAT rules: {error.message}
       </div>
     );
@@ -332,7 +379,7 @@ export const NATRulesTableMobile = memo(function NATRulesTableMobile({ chain, on
 
   if (!filteredRules || filteredRules.length === 0) {
     return (
-      <div className="p-component-xl text-center text-muted-foreground">
+      <div className="p-component-xl text-muted-foreground text-center">
         No NAT rules found {chain && chain !== 'all' ? `in ${chain} chain` : ''}
       </div>
     );
@@ -340,9 +387,16 @@ export const NATRulesTableMobile = memo(function NATRulesTableMobile({ chain, on
 
   return (
     <>
-      <div className="space-y-component-sm p-component-md" role="list" aria-label="NAT rules">
+      <div
+        className="space-y-component-sm p-component-md"
+        role="list"
+        aria-label="NAT rules"
+      >
         {filteredRules.map((rule) => (
-          <div key={rule.id} role="listitem">
+          <div
+            key={rule.id}
+            role="listitem"
+          >
             <RuleCard
               rule={rule}
               onEdit={handleEdit}

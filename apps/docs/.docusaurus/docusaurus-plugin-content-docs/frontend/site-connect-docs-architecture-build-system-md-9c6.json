@@ -1,7 +1,7 @@
 {
   "id": "architecture/build-system",
   "title": "Build System",
-  "description": "The apps/connect frontend is built with Vite via the @nx/vite Nx executor. All Vite configuration lives in apps/connect/vite.config.ts.",
+  "description": "The apps/connect frontend is built with Vite via the @nx/vite Nx executor. All Vite",
   "source": "@site/../connect/docs/architecture/build-system.md",
   "sourceDirName": "architecture",
   "slug": "/architecture/build-system",

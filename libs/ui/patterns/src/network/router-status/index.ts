@@ -16,11 +16,7 @@ export { RouterStatusDesktop } from './router-status-desktop';
 export { RouterStatusMobile } from './router-status-mobile';
 
 // Status indicator
-export {
-  StatusIndicator,
-  STATUS_TEXT_COLORS,
-  STATUS_BG_COLORS,
-} from './status-indicator';
+export { StatusIndicator, STATUS_TEXT_COLORS, STATUS_BG_COLORS } from './status-indicator';
 
 // Headless hooks
 export { useRouterStatus } from './use-router-status';

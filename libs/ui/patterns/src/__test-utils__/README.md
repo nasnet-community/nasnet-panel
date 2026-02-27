@@ -1,16 +1,19 @@
 # Test Infrastructure for Connection Tracking
 
-This directory contains test utilities, fixtures, and templates for comprehensive testing of the Connection Tracking feature (NAS-7.4).
+This directory contains test utilities, fixtures, and templates for comprehensive testing of the
+Connection Tracking feature (NAS-7.4).
 
 ## Overview
 
-The test infrastructure has been prepared in advance to enable rapid test implementation once the pattern components are created. All files are ready to use with minimal modifications.
+The test infrastructure has been prepared in advance to enable rapid test implementation once the
+pattern components are created. All files are ready to use with minimal modifications.
 
 ## Files Included
 
 ### Mock Data & Fixtures
 
 **`connection-tracking-fixtures.ts`**
+
 - Complete mock data for Connection and ConnectionTrackingSettings types
 - Helper functions for filtering and duration conversion
 - GraphQL mock responses for queries and mutations
@@ -19,12 +22,14 @@ The test infrastructure has been prepared in advance to enable rapid test implem
 ### Unit Test Templates
 
 **`../connection-list/use-connection-list.test.ts`**
+
 - 15+ test cases for the useConnectionList hook
 - Tests for wildcard IP filtering (`192.168.1.*`, `*.*.*.1`, etc.)
 - Port, protocol, and state filtering tests
 - Sorting and pause/resume functionality tests
 
 **`../connection-tracking-settings/use-connection-tracking-settings.test.ts`**
+
 - 10+ test cases for the useConnectionTrackingSettings hook
 - Zod schema validation tests
 - Duration parsing/formatting tests
@@ -33,6 +38,7 @@ The test infrastructure has been prepared in advance to enable rapid test implem
 ### Component Test Templates
 
 **`../connection-list/ConnectionList.test.tsx`**
+
 - React Testing Library tests with MockedProvider
 - Loading, empty, error state tests
 - Filtering UI tests (debounced input)
@@ -41,6 +47,7 @@ The test infrastructure has been prepared in advance to enable rapid test implem
 - Platform presenter tests (Mobile vs Desktop)
 
 **`../connection-tracking-settings/ConnectionTrackingSettings.test.tsx`**
+
 - Settings form rendering tests
 - Validation error tests
 - Dangerous level confirmation dialog tests
@@ -49,6 +56,7 @@ The test infrastructure has been prepared in advance to enable rapid test implem
 ### Storybook Stories
 
 **`../connection-list/ConnectionList.stories.tsx`**
+
 - Empty state
 - Loading state
 - Few connections (6 entries)
@@ -59,6 +67,7 @@ The test infrastructure has been prepared in advance to enable rapid test implem
 - Accessibility test story
 
 **`../connection-tracking-settings/ConnectionTrackingSettings.stories.tsx`**
+
 - Default state
 - Modified state
 - Disabled tracking
@@ -72,6 +81,7 @@ The test infrastructure has been prepared in advance to enable rapid test implem
 ### E2E Test Template
 
 **`../../../apps/connect-e2e/src/firewall-connections.spec.ts`**
+
 - Playwright E2E tests for complete user workflows
 - Connection list view tests
 - Auto-refresh behavior tests
@@ -87,6 +97,7 @@ The test infrastructure has been prepared in advance to enable rapid test implem
 ### Step 1: Pattern Components Ready
 
 Once the frontend-pattern-agent completes Tasks 3-7, the following components will be available:
+
 - `libs/ui/patterns/src/connection-list/use-connection-list.ts`
 - `libs/ui/patterns/src/connection-list/ConnectionList.tsx`
 - `libs/ui/patterns/src/connection-tracking-settings/use-connection-tracking-settings.ts`
@@ -108,7 +119,8 @@ import { GET_CONNECTIONS } from '@nasnet/api-client/queries';
 
 ### Step 3: Uncomment Test Code
 
-Each test has complete describe blocks and test cases commented out with `// TODO:` markers. Simply uncomment the code and run the tests.
+Each test has complete describe blocks and test cases commented out with `// TODO:` markers. Simply
+uncomment the code and run the tests.
 
 ### Step 4: Run Tests
 
@@ -156,7 +168,7 @@ Navigate to "Patterns > Connection Tracking" to view the stories.
 ### Filter Examples
 
 - `mockIpFilter` - Filter by exact IP (192.168.1.100)
-- `mockWildcardFilter` - Wildcard IP (192.168.1.*)
+- `mockWildcardFilter` - Wildcard IP (192.168.1.\*)
 - `mockProtocolFilter` - Filter by TCP
 - `mockPortFilter` - Filter by port 443
 - `mockStateFilter` - Filter by established state
@@ -165,6 +177,7 @@ Navigate to "Patterns > Connection Tracking" to view the stories.
 ## Test Coverage Goals
 
 Per NAS-7.4 specification:
+
 - **Line coverage:** 80% minimum
 - **Branch coverage:** 75% minimum
 - **Zero accessibility violations:** WCAG AAA (7:1 contrast, 44px touch targets)

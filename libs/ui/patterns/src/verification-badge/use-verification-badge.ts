@@ -53,7 +53,9 @@ export const STATUS_LABELS = {
 /**
  * Map GraphQL VerificationStatus enum to UI-friendly status
  */
-function mapGraphQLStatus(graphqlStatus: typeof GraphQLStatus[keyof typeof GraphQLStatus] | undefined): VerificationStatus {
+function mapGraphQLStatus(
+  graphqlStatus: (typeof GraphQLStatus)[keyof typeof GraphQLStatus] | undefined
+): VerificationStatus {
   switch (graphqlStatus) {
     case GraphQLStatus.Valid:
       return 'verified';
@@ -161,10 +163,7 @@ export function useVerificationBadge(
 
   // Extract hash preview and full hash (use binaryHash, fallback to archiveHash)
   const fullHash = verification?.binaryHash ?? verification?.archiveHash ?? null;
-  const hashPreview = useMemo(
-    () => extractHashPreview(fullHash),
-    [fullHash]
-  );
+  const hashPreview = useMemo(() => extractHashPreview(fullHash), [fullHash]);
 
   // No explicit error message in BinaryVerification - derive from status
   const errorMessage = status === 'failed' ? 'Binary hash mismatch detected' : null;

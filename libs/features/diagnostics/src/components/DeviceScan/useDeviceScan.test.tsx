@@ -15,7 +15,10 @@ import { useDeviceScan, RUN_DEVICE_SCAN, DEVICE_SCAN_PROGRESS } from './useDevic
 
 const createWrapper = (mocks: MockedResponse[]) => {
   return ({ children }: { children: ReactNode }) => (
-    <MockedProvider mocks={mocks} addTypename={false}>
+    <MockedProvider
+      mocks={mocks}
+      addTypename={false}
+    >
       {children}
     </MockedProvider>
   );
@@ -53,10 +56,7 @@ describe('useDeviceScan', () => {
       const mocks: MockedResponse[] = [];
       const wrapper = createWrapper(mocks);
 
-      const { result } = renderHook(
-        () => useDeviceScan({ deviceId: mockDeviceId }),
-        { wrapper }
-      );
+      const { result } = renderHook(() => useDeviceScan({ deviceId: mockDeviceId }), { wrapper });
 
       expect(result.current.status).toBe('idle');
       expect(result.current.progress).toBe(0);
@@ -97,10 +97,7 @@ describe('useDeviceScan', () => {
 
       const wrapper = createWrapper(mocks);
 
-      const { result } = renderHook(
-        () => useDeviceScan({ deviceId: mockDeviceId }),
-        { wrapper }
-      );
+      const { result } = renderHook(() => useDeviceScan({ deviceId: mockDeviceId }), { wrapper });
 
       act(() => {
         result.current.startScan('192.168.88.0/24', 'bridge1');
@@ -204,10 +201,7 @@ describe('useDeviceScan', () => {
 
       const wrapper = createWrapper(mocks);
 
-      const { result } = renderHook(
-        () => useDeviceScan({ deviceId: mockDeviceId }),
-        { wrapper }
-      );
+      const { result } = renderHook(() => useDeviceScan({ deviceId: mockDeviceId }), { wrapper });
 
       act(() => {
         result.current.startScan('192.168.88.0/24');
@@ -269,10 +263,7 @@ describe('useDeviceScan', () => {
 
       const wrapper = createWrapper(mocks);
 
-      const { result } = renderHook(
-        () => useDeviceScan({ deviceId: mockDeviceId }),
-        { wrapper }
-      );
+      const { result } = renderHook(() => useDeviceScan({ deviceId: mockDeviceId }), { wrapper });
 
       act(() => {
         result.current.startScan('192.168.88.0/24');
@@ -370,10 +361,7 @@ describe('useDeviceScan', () => {
       const mocks: MockedResponse[] = [];
       const wrapper = createWrapper(mocks);
 
-      const { result } = renderHook(
-        () => useDeviceScan({ deviceId: mockDeviceId }),
-        { wrapper }
-      );
+      const { result } = renderHook(() => useDeviceScan({ deviceId: mockDeviceId }), { wrapper });
 
       act(() => {
         result.current.reset();

@@ -77,10 +77,7 @@ interface ErrorBoundaryState {
  * </ErrorBoundary>
  * ```
  */
-export class ErrorBoundary extends React.Component<
-  ErrorBoundaryProps,
-  ErrorBoundaryState
-> {
+export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
   constructor(props: ErrorBoundaryProps) {
     super(props);
     this.state = {
@@ -120,10 +117,7 @@ export class ErrorBoundary extends React.Component<
    * Reset when resetKey changes
    */
   override componentDidUpdate(prevProps: ErrorBoundaryProps): void {
-    if (
-      this.state.hasError &&
-      prevProps.resetKey !== this.props.resetKey
-    ) {
+    if (this.state.hasError && prevProps.resetKey !== this.props.resetKey) {
       this.resetErrorBoundary();
     }
   }
@@ -162,13 +156,13 @@ export class ErrorBoundary extends React.Component<
       return (
         <div
           role="alert"
-          className="p-4 border border-error/30 bg-error/10 rounded-lg"
+          className="border-error/30 bg-error/10 rounded-lg border p-4"
         >
-          <h3 className="font-medium text-error">Something went wrong</h3>
-          <p className="text-sm text-muted-foreground mt-1">{error.message}</p>
+          <h3 className="text-error font-medium">Something went wrong</h3>
+          <p className="text-muted-foreground mt-1 text-sm">{error.message}</p>
           <button
             onClick={this.resetErrorBoundary}
-            className="mt-3 px-3 py-1.5 text-sm bg-error text-white rounded hover:bg-error/90"
+            className="bg-error hover:bg-error/90 mt-3 rounded px-3 py-1.5 text-sm text-white"
           >
             Try again
           </button>

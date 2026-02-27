@@ -207,10 +207,7 @@ export function useViewportWidth(debounceMs = 100): number {
  * }
  * ```
  */
-export function isBreakpointAtLeast(
-  current: Breakpoint,
-  target: Breakpoint
-): boolean {
+export function isBreakpointAtLeast(current: Breakpoint, target: Breakpoint): boolean {
   const order: Breakpoint[] = ['xs', 'sm', 'md', 'lg', 'xl'];
   return order.indexOf(current) >= order.indexOf(target);
 }
@@ -234,10 +231,7 @@ export function isBreakpointAtLeast(
  * }
  * ```
  */
-export function isBreakpointAtMost(
-  current: Breakpoint,
-  target: Breakpoint
-): boolean {
+export function isBreakpointAtMost(current: Breakpoint, target: Breakpoint): boolean {
   const order: Breakpoint[] = ['xs', 'sm', 'md', 'lg', 'xl'];
   return order.indexOf(current) <= order.indexOf(target);
 }

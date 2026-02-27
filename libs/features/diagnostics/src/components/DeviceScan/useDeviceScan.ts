@@ -197,12 +197,10 @@ export function useDeviceScan({
     setStats({ scannedCount, totalCount, elapsedTime });
 
     // Enrich devices with vendor lookup (frontend-side)
-    const enrichedDevices = discoveredDevices.map(
-      (d: Omit<DiscoveredDevice, 'vendor'>) => ({
-        ...d,
-        vendor: lookupVendor(d.mac),
-      })
-    );
+    const enrichedDevices = discoveredDevices.map((d: Omit<DiscoveredDevice, 'vendor'>) => ({
+      ...d,
+      vendor: lookupVendor(d.mac),
+    }));
     setDevices(enrichedDevices);
 
     // Handle completion
@@ -300,31 +298,37 @@ export function useDeviceScan({
   }, []);
 
   // Memoize computed boolean flags
-  const computedFlags = useMemo(() => ({
-    isScanning: status === 'scanning',
-    isComplete: status === 'completed',
-    isCancelled: status === 'cancelled',
-    isIdle: status === 'idle',
-    hasError: status === 'error',
-  }), [status]);
+  const computedFlags = useMemo(
+    () => ({
+      isScanning: status === 'scanning',
+      isComplete: status === 'completed',
+      isCancelled: status === 'cancelled',
+      isIdle: status === 'idle',
+      hasError: status === 'error',
+    }),
+    [status]
+  );
 
   // Memoize return value to prevent unnecessary re-renders in consumers
-  const returnValue = useMemo<UseDeviceScanReturn>(() => ({
-    // State
-    status,
-    progress,
-    devices,
-    error,
-    stats,
+  const returnValue = useMemo<UseDeviceScanReturn>(
+    () => ({
+      // State
+      status,
+      progress,
+      devices,
+      error,
+      stats,
 
-    // Computed State
-    ...computedFlags,
+      // Computed State
+      ...computedFlags,
 
-    // Actions
-    startScan,
-    stopScan,
-    reset,
-  }), [status, progress, devices, error, stats, computedFlags, startScan, stopScan, reset]);
+      // Actions
+      startScan,
+      stopScan,
+      reset,
+    }),
+    [status, progress, devices, error, stats, computedFlags, startScan, stopScan, reset]
+  );
 
   return returnValue;
 }

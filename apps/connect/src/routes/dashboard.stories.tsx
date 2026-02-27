@@ -11,7 +11,6 @@ import { DashboardPage } from '@/app/pages/dashboard/DashboardPage';
 
 import type { Meta, StoryObj } from '@storybook/react';
 
-
 const meta: Meta<typeof DashboardPage> = {
   title: 'App/Dashboard/DashboardPage',
   component: DashboardPage,
@@ -25,7 +24,7 @@ const meta: Meta<typeof DashboardPage> = {
           'StatusCard with overall network health, a VPNCardEnhanced toggle, a row of ' +
           'QuickActionButton shortcuts (WiFi, Network, Firewall, Settings, Troubleshoot), ' +
           'resource monitoring gauges (CPU, Memory, Disk), and a HardwareCard. ' +
-          'All data is fetched from the Zustand connection store\'s current router IP.',
+          "All data is fetched from the Zustand connection store's current router IP.",
       },
     },
   },

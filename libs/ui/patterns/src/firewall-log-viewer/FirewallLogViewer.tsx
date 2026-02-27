@@ -40,8 +40,8 @@ function LoadingSkeleton() {
     <Card>
       <CardContent className="pt-6">
         <div className="space-y-4">
-          <div className="h-12 bg-muted rounded" />
-          <div className="h-64 bg-muted rounded" />
+          <div className="bg-muted h-12 rounded" />
+          <div className="bg-muted h-64 rounded" />
         </div>
       </CardContent>
     </Card>

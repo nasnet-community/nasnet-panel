@@ -139,7 +139,10 @@ function ServiceTrafficPanelMobileComponent({
     return (
       <div className={cn('space-y-component-md', className)}>
         <Alert variant="destructive">
-          <Icon icon={AlertCircle} className="h-4 w-4" />
+          <Icon
+            icon={AlertCircle}
+            className="h-4 w-4"
+          />
           <AlertDescription>{error.message}</AlertDescription>
         </Alert>
       </div>
@@ -155,8 +158,12 @@ function ServiceTrafficPanelMobileComponent({
       {/* Header Card */}
       <Card>
         <CardHeader>
-          <div className="flex items-center gap-component-sm">
-            <Icon icon={Activity} className="h-5 w-5 text-primary" aria-hidden="true" />
+          <div className="gap-component-sm flex items-center">
+            <Icon
+              icon={Activity}
+              className="text-primary h-5 w-5"
+              aria-hidden="true"
+            />
             <CardTitle className="text-lg">{instanceName}</CardTitle>
           </div>
           <CardDescription>Traffic Statistics</CardDescription>
@@ -166,15 +173,19 @@ function ServiceTrafficPanelMobileComponent({
       {/* Quota Alert */}
       {quotaExceeded && (
         <Alert variant="destructive">
-          <Icon icon={AlertCircle} className="h-4 w-4" />
-          <AlertDescription>
-            Traffic quota limit has been exceeded
-          </AlertDescription>
+          <Icon
+            icon={AlertCircle}
+            className="h-4 w-4"
+          />
+          <AlertDescription>Traffic quota limit has been exceeded</AlertDescription>
         </Alert>
       )}
       {quotaWarning && !quotaExceeded && (
         <Alert variant="warning">
-          <Icon icon={AlertCircle} className="h-4 w-4" />
+          <Icon
+            icon={AlertCircle}
+            className="h-4 w-4"
+          />
           <AlertDescription>
             Approaching traffic quota limit ({quotaUsagePercent.toFixed(1)}%)
           </AlertDescription>
@@ -189,23 +200,31 @@ function ServiceTrafficPanelMobileComponent({
           </CardHeader>
           <CardContent className="space-y-component-sm">
             {uploadRate !== null && (
-              <div className="flex items-center justify-between rounded-lg bg-muted p-component-md">
-                <div className="flex items-center gap-component-sm">
-                  <Icon icon={TrendingUp} className="h-5 w-5 text-category-vpn" aria-hidden="true" />
+              <div className="bg-muted p-component-md flex items-center justify-between rounded-lg">
+                <div className="gap-component-sm flex items-center">
+                  <Icon
+                    icon={TrendingUp}
+                    className="text-category-vpn h-5 w-5"
+                    aria-hidden="true"
+                  />
                   <span className="text-sm font-medium">Upload</span>
                 </div>
-                <span className="text-lg font-mono font-semibold">
+                <span className="font-mono text-lg font-semibold">
                   {formatBitsPerSecBigInt(uploadRate)}
                 </span>
               </div>
             )}
             {downloadRate !== null && (
-              <div className="flex items-center justify-between rounded-lg bg-muted p-component-md">
-                <div className="flex items-center gap-component-sm">
-                  <Icon icon={TrendingDown} className="h-5 w-5 text-success" aria-hidden="true" />
+              <div className="bg-muted p-component-md flex items-center justify-between rounded-lg">
+                <div className="gap-component-sm flex items-center">
+                  <Icon
+                    icon={TrendingDown}
+                    className="text-success h-5 w-5"
+                    aria-hidden="true"
+                  />
                   <span className="text-sm font-medium">Download</span>
                 </div>
-                <span className="text-lg font-mono font-semibold">
+                <span className="font-mono text-lg font-semibold">
                   {formatBitsPerSecBigInt(downloadRate)}
                 </span>
               </div>
@@ -220,15 +239,15 @@ function ServiceTrafficPanelMobileComponent({
           <CardTitle className="text-base">Total Traffic</CardTitle>
         </CardHeader>
         <CardContent className="space-y-component-sm">
-          <div className="flex justify-between rounded-lg bg-muted p-component-md">
+          <div className="bg-muted p-component-md flex justify-between rounded-lg">
             <span className="text-sm font-medium">Total Upload</span>
-            <span className="text-sm font-mono font-semibold">
+            <span className="font-mono text-sm font-semibold">
               {formatBytesBigInt(BigInt(stats.totalUploadBytes))}
             </span>
           </div>
-          <div className="flex justify-between rounded-lg bg-muted p-component-md">
+          <div className="bg-muted p-component-md flex justify-between rounded-lg">
             <span className="text-sm font-medium">Total Download</span>
-            <span className="text-sm font-mono font-semibold">
+            <span className="font-mono text-sm font-semibold">
               {formatBytesBigInt(BigInt(stats.totalDownloadBytes))}
             </span>
           </div>
@@ -241,7 +260,14 @@ function ServiceTrafficPanelMobileComponent({
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle className="text-base">Traffic Quota</CardTitle>
-              <Badge variant={quotaExceeded ? 'error' : quotaWarning ? 'warning' : 'default'}>
+              <Badge
+                variant={
+                  quotaExceeded ? 'error'
+                  : quotaWarning ?
+                    'warning'
+                  : 'default'
+                }
+              >
                 {stats.quota.period}
               </Badge>
             </div>
@@ -262,12 +288,12 @@ function ServiceTrafficPanelMobileComponent({
                   quotaWarning && !quotaExceeded && '[&>div]:bg-warning'
                 )}
               />
-              <div className="flex justify-between text-xs text-muted-foreground">
+              <div className="text-muted-foreground flex justify-between text-xs">
                 <span>Limit: {formatBytesBigInt(BigInt(stats.quota.limitBytes))}</span>
                 <span>{quotaUsagePercent.toFixed(1)}%</span>
               </div>
             </div>
-            <div className="flex justify-between rounded-lg bg-muted p-component-sm text-sm">
+            <div className="bg-muted p-component-sm flex justify-between rounded-lg text-sm">
               <span className="text-muted-foreground">Action</span>
               <span className="font-medium">{stats.quota.action.replace('_', ' ')}</span>
             </div>
@@ -287,22 +313,20 @@ function ServiceTrafficPanelMobileComponent({
             {stats.deviceBreakdown.slice(0, 3).map((device) => (
               <div
                 key={device.deviceID}
-                className="rounded-lg border bg-card p-component-sm"
+                className="bg-card p-component-sm rounded-lg border"
               >
                 <div className="flex items-start justify-between">
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate">
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium">
                       {device.deviceName || device.ipAddress || 'Unknown'}
                     </p>
-                    <p className="text-xs text-muted-foreground truncate">
-                      {device.ipAddress}
-                    </p>
+                    <p className="text-muted-foreground truncate text-xs">{device.ipAddress}</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-sm font-mono font-semibold">
+                    <p className="font-mono text-sm font-semibold">
                       {formatBytesBigInt(BigInt(device.totalBytes))}
                     </p>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-muted-foreground text-xs">
                       {device.percentOfTotal.toFixed(0)}%
                     </p>
                   </div>

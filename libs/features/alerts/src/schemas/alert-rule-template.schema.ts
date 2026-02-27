@@ -62,7 +62,10 @@ export const alertRuleTemplateVariableSchema = z.object({
     .string()
     .min(1, 'Variable name is required (must be provided)')
     .max(50, 'Variable name must not exceed 50 characters')
-    .regex(/^[A-Z][A-Z0-9_]*$/, 'Variable name must be uppercase with underscores, starting with a letter (e.g., CPU_THRESHOLD)'),
+    .regex(
+      /^[A-Z][A-Z0-9_]*$/,
+      'Variable name must be uppercase with underscores, starting with a letter (e.g., CPU_THRESHOLD)'
+    ),
   label: z
     .string()
     .min(1, 'Variable label is required (must be provided)')
@@ -131,9 +134,14 @@ export const alertRuleTemplateSchema = z.object({
   eventType: z
     .string()
     .min(1, 'Event type is required (must be provided)')
-    .regex(/^[a-z]+\.[a-z_]+$/, 'Event type must use format "category.event_name" with lowercase letters, numbers, and underscores'),
+    .regex(
+      /^[a-z]+\.[a-z_]+$/,
+      'Event type must use format "category.event_name" with lowercase letters, numbers, and underscores'
+    ),
   severity: alertSeveritySchema,
-  conditions: z.array(alertConditionSchema).min(1, 'At least one condition is required (add a condition to proceed)'),
+  conditions: z
+    .array(alertConditionSchema)
+    .min(1, 'At least one condition is required (add a condition to proceed)'),
   channels: z
     .array(z.string().min(1, 'Channel must not be empty'))
     .min(1, 'At least one notification channel is required (select a channel to proceed)')
@@ -252,7 +260,9 @@ export const alertRuleTemplateImportSchema = alertRuleTemplateSchema.omit({
  * @param conditions Array of alert conditions to scan
  * @returns Array of extracted variable names found in conditions
  */
-function extractVariablesFromConditions(conditions: z.infer<typeof alertConditionSchema>[]): string[] {
+function extractVariablesFromConditions(
+  conditions: z.infer<typeof alertConditionSchema>[]
+): string[] {
   const regex = /\{\{([A-Z][A-Z0-9_]*)\}\}/g;
   const variables = new Set<string>();
 

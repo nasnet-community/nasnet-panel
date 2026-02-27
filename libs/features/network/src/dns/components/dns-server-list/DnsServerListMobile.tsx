@@ -30,91 +30,89 @@ export function DnsServerListMobile({
   return (
     <div className="space-y-component-sm category-networking">
       {/* DNS Servers List */}
-      {servers.length > 0 ? (
-        <div className="space-y-component-xs">
-          {servers.map((server, index) => (
-            <Card key={server.id} className="overflow-hidden category-networking">
-              <CardContent className="p-component-sm">
-                <div className="flex items-center gap-component-sm">
-                  {/* Drag Handle (static servers only) */}
-                  {!server.isDynamic && (
-                    <div className="flex-shrink-0 text-muted-foreground touch-manipulation">
-                      <GripVertical className="h-5 w-5" />
-                    </div>
-                  )}
-
-                  {/* Icon */}
-                  <Globe
-                    className={`h-5 w-5 flex-shrink-0 ${
-                      server.isDynamic
-                        ? 'text-muted-foreground'
-                        : 'text-primary'
-                    }`}
-                  />
-
-                  {/* Server Info */}
-                  <div className="flex-1 min-w-0">
-                    <div className="font-mono text-sm truncate">
-                      {server.address}
-                    </div>
-                    {index === 0 && !server.isDynamic && (
-                      <div className="text-xs text-muted-foreground">
-                        Primary
+      {
+        servers.length > 0 ?
+          <div className="space-y-component-xs">
+            {servers.map((server, index) => (
+              <Card
+                key={server.id}
+                className="category-networking overflow-hidden"
+              >
+                <CardContent className="p-component-sm">
+                  <div className="gap-component-sm flex items-center">
+                    {/* Drag Handle (static servers only) */}
+                    {!server.isDynamic && (
+                      <div className="text-muted-foreground flex-shrink-0 touch-manipulation">
+                        <GripVertical className="h-5 w-5" />
                       </div>
                     )}
-                  </div>
 
-                  {/* Dynamic Badge or Remove Button */}
-                  {server.isDynamic ? (
-                    <Badge variant="secondary" className="flex-shrink-0">
-                      Dynamic
-                    </Badge>
-                  ) : (
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      onClick={() => onRemove(server.id)}
-                      disabled={isLoading}
-                      aria-label={`Remove DNS server ${server.address}`}
-                      className="flex-shrink-0 min-h-[44px] min-w-[44px]"
-                    >
-                      <X className="h-5 w-5" />
-                    </Button>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      ) : (
-        // Empty state
-        <Card>
-          <CardContent className="p-component-lg text-center">
-            <Globe className="h-12 w-12 mx-auto mb-component-md text-muted-foreground opacity-50" />
-            <p className="text-sm text-muted-foreground mb-component-xs">
-              No DNS servers configured
-            </p>
-            <p className="text-xs text-muted-foreground/70">
-              Add a static DNS server below
-            </p>
-          </CardContent>
-        </Card>
-      )}
+                    {/* Icon */}
+                    <Globe
+                      className={`h-5 w-5 flex-shrink-0 ${
+                        server.isDynamic ? 'text-muted-foreground' : 'text-primary'
+                      }`}
+                    />
+
+                    {/* Server Info */}
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate font-mono text-sm">{server.address}</div>
+                      {index === 0 && !server.isDynamic && (
+                        <div className="text-muted-foreground text-xs">Primary</div>
+                      )}
+                    </div>
+
+                    {/* Dynamic Badge or Remove Button */}
+                    {server.isDynamic ?
+                      <Badge
+                        variant="secondary"
+                        className="flex-shrink-0"
+                      >
+                        Dynamic
+                      </Badge>
+                    : <Button
+                        size="icon"
+                        variant="ghost"
+                        onClick={() => onRemove(server.id)}
+                        disabled={isLoading}
+                        aria-label={`Remove DNS server ${server.address}`}
+                        className="min-h-[44px] min-w-[44px] flex-shrink-0"
+                      >
+                        <X className="h-5 w-5" />
+                      </Button>
+                    }
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+          // Empty state
+        : <Card>
+            <CardContent className="p-component-lg text-center">
+              <Globe className="mb-component-md text-muted-foreground mx-auto h-12 w-12 opacity-50" />
+              <p className="text-muted-foreground mb-component-xs text-sm">
+                No DNS servers configured
+              </p>
+              <p className="text-muted-foreground/70 text-xs">Add a static DNS server below</p>
+            </CardContent>
+          </Card>
+
+      }
 
       {/* Add DNS Server Button */}
       <Button
         onClick={onAdd}
         variant="outline"
-        className="w-full min-h-[44px]"
+        className="min-h-[44px] w-full"
         disabled={isLoading}
         aria-label="Add a new DNS server"
       >
-        <Plus className="h-5 w-5 mr-component-sm" />
+        <Plus className="mr-component-sm h-5 w-5" />
         Add DNS Server
       </Button>
 
       {/* Help Text */}
-      <div className="text-xs text-muted-foreground space-y-component-sm px-component-sm">
+      <div className="text-muted-foreground space-y-component-sm px-component-sm text-xs">
         <p>
           <strong>Static:</strong> Manually configured, higher priority
         </p>

@@ -14,14 +14,7 @@ import type { LucideIcon } from 'lucide-react';
  * Device type classification
  * Used for icon selection and vendor-based inference
  */
-export type DeviceType =
-  | 'computer'
-  | 'phone'
-  | 'tablet'
-  | 'iot'
-  | 'printer'
-  | 'gaming'
-  | 'unknown';
+export type DeviceType = 'computer' | 'phone' | 'tablet' | 'iot' | 'printer' | 'gaming' | 'unknown';
 
 /**
  * Connection type for network devices

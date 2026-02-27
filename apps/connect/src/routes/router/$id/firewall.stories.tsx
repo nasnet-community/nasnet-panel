@@ -59,8 +59,7 @@ export const LoadingMobile: Story = {
     viewport: { defaultViewport: 'mobile1' },
     docs: {
       description: {
-        story:
-          'Skeleton loading state on a mobile viewport. Content blocks stretch full-width.',
+        story: 'Skeleton loading state on a mobile viewport. Content blocks stretch full-width.',
       },
     },
   },

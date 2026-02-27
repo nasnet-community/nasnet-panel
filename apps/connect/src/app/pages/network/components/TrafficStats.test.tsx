@@ -9,7 +9,6 @@ import { type TrafficStatistics } from '@nasnet/core/types';
 
 import { TrafficStats } from './TrafficStats';
 
-
 describe('TrafficStats', () => {
   const mockStats: TrafficStatistics = {
     interfaceId: '*1',

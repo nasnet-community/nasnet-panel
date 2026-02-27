@@ -46,13 +46,16 @@ export const GatewayStatusCardMobile = memo(function GatewayStatusCardMobile({
     <Card className="w-full">
       <CardHeader className="pb-component-sm">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-component-md">
-            <Badge className={stateColorMap[gateway.state]} aria-label="Gateway state">
+          <div className="gap-component-md flex items-center">
+            <Badge
+              className={stateColorMap[gateway.state]}
+              aria-label="Gateway state"
+            >
               {stateLabel[gateway.state]}
             </Badge>
             {gateway.state === GatewayState.RUNNING && (
               <div
-                className="h-2 w-2 rounded-full bg-success animate-pulse"
+                className="bg-success h-2 w-2 animate-pulse rounded-full"
                 aria-hidden="false"
                 role="status"
                 aria-label="Gateway is healthy"
@@ -67,11 +70,16 @@ export const GatewayStatusCardMobile = memo(function GatewayStatusCardMobile({
             aria-label={isExpanded ? 'Collapse details' : 'Expand details'}
             aria-expanded={isExpanded}
           >
-            {isExpanded ? (
-              <ChevronUp className="h-5 w-5" aria-hidden="true" />
-            ) : (
-              <ChevronDown className="h-5 w-5" aria-hidden="true" />
-            )}
+            {isExpanded ?
+              <ChevronUp
+                className="h-5 w-5"
+                aria-hidden="true"
+              />
+            : <ChevronDown
+                className="h-5 w-5"
+                aria-hidden="true"
+              />
+            }
           </Button>
         </div>
       </CardHeader>
@@ -80,9 +88,9 @@ export const GatewayStatusCardMobile = memo(function GatewayStatusCardMobile({
         <CardContent className="space-y-component-md pt-0">
           {/* TUN interface name */}
           {gateway.tunName && (
-            <div className="flex flex-col gap-component-xs">
-              <span className="text-xs text-muted-foreground">TUN Interface</span>
-              <code className="rounded bg-muted px-component-sm py-component-xs font-mono text-sm text-foreground">
+            <div className="gap-component-xs flex flex-col">
+              <span className="text-muted-foreground text-xs">TUN Interface</span>
+              <code className="bg-muted px-component-sm py-component-xs text-foreground rounded font-mono text-sm">
                 {gateway.tunName}
               </code>
             </div>
@@ -90,17 +98,17 @@ export const GatewayStatusCardMobile = memo(function GatewayStatusCardMobile({
 
           {/* Process ID - technical data with monospace font */}
           {gateway.pid != null && gateway.pid > 0 && (
-            <div className="flex flex-col gap-component-xs">
-              <span className="text-xs text-muted-foreground">Process ID</span>
-              <code className="font-mono text-sm text-foreground">{gateway.pid}</code>
+            <div className="gap-component-xs flex flex-col">
+              <span className="text-muted-foreground text-xs">Process ID</span>
+              <code className="text-foreground font-mono text-sm">{gateway.pid}</code>
             </div>
           )}
 
           {/* Uptime */}
           {gateway.uptime != null && gateway.uptime > 0 && (
-            <div className="flex flex-col gap-component-xs">
-              <span className="text-xs text-muted-foreground">Uptime</span>
-              <span className="font-mono text-sm text-foreground">
+            <div className="gap-component-xs flex flex-col">
+              <span className="text-muted-foreground text-xs">Uptime</span>
+              <span className="text-foreground font-mono text-sm">
                 {formatUptime(gateway.uptime)}
               </span>
             </div>
@@ -108,9 +116,9 @@ export const GatewayStatusCardMobile = memo(function GatewayStatusCardMobile({
 
           {/* Last health check */}
           {gateway.lastHealthCheck && (
-            <div className="flex flex-col gap-component-xs">
-              <span className="text-xs text-muted-foreground">Last Health Check</span>
-              <span className="text-sm text-foreground">
+            <div className="gap-component-xs flex flex-col">
+              <span className="text-muted-foreground text-xs">Last Health Check</span>
+              <span className="text-foreground text-sm">
                 {new Date(gateway.lastHealthCheck).toLocaleString()}
               </span>
             </div>
@@ -118,17 +126,19 @@ export const GatewayStatusCardMobile = memo(function GatewayStatusCardMobile({
 
           {/* Error message */}
           {gateway.state === GatewayState.ERROR && gateway.errorMessage && (
-            <div className="flex flex-col gap-component-xs">
-              <span className="text-xs text-error">Error Message</span>
-              <p className="text-sm text-error">{gateway.errorMessage}</p>
+            <div className="gap-component-xs flex flex-col">
+              <span className="text-error text-xs">Error Message</span>
+              <p className="text-error text-sm">{gateway.errorMessage}</p>
             </div>
           )}
 
           {/* Service info */}
-          <div className="mt-component-lg flex flex-col gap-component-xs border-t border-border pt-component-md">
-            <span className="text-xs text-muted-foreground">Service Instance</span>
-            <span className="text-sm text-foreground">{serviceName}</span>
-            <code className="mt-component-xs font-mono text-xs text-muted-foreground">{instanceId}</code>
+          <div className="mt-component-lg gap-component-xs border-border pt-component-md flex flex-col border-t">
+            <span className="text-muted-foreground text-xs">Service Instance</span>
+            <span className="text-foreground text-sm">{serviceName}</span>
+            <code className="mt-component-xs text-muted-foreground font-mono text-xs">
+              {instanceId}
+            </code>
           </div>
         </CardContent>
       )}

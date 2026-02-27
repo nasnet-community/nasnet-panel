@@ -18,12 +18,7 @@ import { devtools } from 'zustand/middleware';
 /**
  * Shortcut group for categorization in the overlay
  */
-export type ShortcutGroup =
-  | 'navigation'
-  | 'global'
-  | 'actions'
-  | 'editing'
-  | 'context';
+export type ShortcutGroup = 'navigation' | 'global' | 'actions' | 'editing' | 'context';
 
 /**
  * Shortcut definition
@@ -118,9 +113,7 @@ const defaultState: ShortcutRegistryState = {
  * // The useGlobalShortcuts hook handles keyboard event listening
  * ```
  */
-export const useShortcutRegistry = create<
-  ShortcutRegistryState & ShortcutRegistryActions
->()(
+export const useShortcutRegistry = create<ShortcutRegistryState & ShortcutRegistryActions>()(
   devtools(
     (set, get) => ({
       // Initial state
@@ -162,8 +155,7 @@ export const useShortcutRegistry = create<
 
       getAllShortcuts: () => Array.from(get().shortcuts.values()),
 
-      getByGroup: (group) =>
-        Array.from(get().shortcuts.values()).filter((s) => s.group === group),
+      getByGroup: (group) => Array.from(get().shortcuts.values()).filter((s) => s.group === group),
 
       getContextualShortcuts: () => {
         const { shortcuts, currentRoute } = get();
@@ -193,14 +185,12 @@ export const useShortcutRegistry = create<
 /**
  * Select overlay open state
  */
-export const selectShortcutOverlayOpen = (state: ShortcutRegistryState) =>
-  state.overlayOpen;
+export const selectShortcutOverlayOpen = (state: ShortcutRegistryState) => state.overlayOpen;
 
 /**
  * Select pending key
  */
-export const selectPendingKey = (state: ShortcutRegistryState) =>
-  state.pendingKey;
+export const selectPendingKey = (state: ShortcutRegistryState) => state.pendingKey;
 
 // ===== Helper functions =====
 
@@ -217,9 +207,7 @@ export const subscribeShortcutRegistry = useShortcutRegistry.subscribe;
 /**
  * Group shortcuts by category for display
  */
-export function groupShortcutsByCategory(
-  shortcuts: Shortcut[]
-): Map<ShortcutGroup, Shortcut[]> {
+export function groupShortcutsByCategory(shortcuts: Shortcut[]): Map<ShortcutGroup, Shortcut[]> {
   const groups = new Map<ShortcutGroup, Shortcut[]>();
 
   for (const shortcut of shortcuts) {

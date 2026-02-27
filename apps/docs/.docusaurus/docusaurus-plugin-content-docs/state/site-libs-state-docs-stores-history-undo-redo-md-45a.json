@@ -1,7 +1,7 @@
 {
   "id": "stores/history-undo-redo",
   "title": "History & Undo/Redo Store",
-  "description": "This document covers the undo/redo history system that enables users to reverse actions with keyboard shortcuts.",
+  "description": "This document covers the undo/redo history system that enables users to reverse actions with",
   "source": "@site/../../libs/state/docs/stores/history-undo-redo.md",
   "sourceDirName": "stores",
   "slug": "/stores/history-undo-redo",

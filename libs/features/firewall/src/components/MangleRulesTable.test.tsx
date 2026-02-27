@@ -75,7 +75,8 @@ vi.mock('react-i18next', () => ({
         'mangle.dialogs.deleteRule.title': 'Delete Mangle Rule?',
         'mangle.dialogs.deleteRule.description': 'This action cannot be undone.',
         'mangle.dialogs.deleteRule.warning': 'This will:',
-        'mangle.dialogs.deleteRule.consequences': 'Remove the rule, Reorder subsequent rules, Take effect immediately',
+        'mangle.dialogs.deleteRule.consequences':
+          'Remove the rule, Reorder subsequent rules, Take effect immediately',
         'button.cancel': 'Cancel',
         'button.delete': 'Delete',
       };

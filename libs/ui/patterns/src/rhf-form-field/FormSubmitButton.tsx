@@ -40,15 +40,20 @@ export interface FormSubmitButtonProps extends Omit<ButtonProps, 'type'> {
  * ```
  */
 export const FormSubmitButton = React.forwardRef<HTMLButtonElement, FormSubmitButtonProps>(
-  ({
-    children,
-    loadingText = 'Submitting...',
-    disableOnInvalid = false,
-    disabled,
-    className,
-    ...props
-  }, ref) => {
-    const { formState: { isSubmitting, isValid } } = useFormContext();
+  (
+    {
+      children,
+      loadingText = 'Submitting...',
+      disableOnInvalid = false,
+      disabled,
+      className,
+      ...props
+    },
+    ref
+  ) => {
+    const {
+      formState: { isSubmitting, isValid },
+    } = useFormContext();
 
     // Button is disabled if:
     // - Explicitly disabled
@@ -63,7 +68,7 @@ export const FormSubmitButton = React.forwardRef<HTMLButtonElement, FormSubmitBu
         disabled={isDisabled}
         variant="default"
         className={cn(
-          'relative w-full sm:w-auto h-10',
+          'relative h-10 w-full sm:w-auto',
           isDisabled && 'opacity-50',
           isSubmitting && 'cursor-wait',
           className
@@ -72,14 +77,15 @@ export const FormSubmitButton = React.forwardRef<HTMLButtonElement, FormSubmitBu
         aria-disabled={isDisabled}
         {...props}
       >
-        {isSubmitting ? (
+        {isSubmitting ?
           <>
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
+            <Loader2
+              className="mr-2 h-4 w-4 animate-spin"
+              aria-hidden="true"
+            />
             <span>{loadingText}</span>
           </>
-        ) : (
-          children
-        )}
+        : children}
       </Button>
     );
   }

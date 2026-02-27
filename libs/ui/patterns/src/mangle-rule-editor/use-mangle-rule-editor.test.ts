@@ -21,7 +21,6 @@ import type { MangleRule } from '@nasnet/core/types';
 
 import { useMangleRuleEditor, validateMarkName } from './use-mangle-rule-editor';
 
-
 describe('useMangleRuleEditor', () => {
   describe('Initialization', () => {
     it('initializes with default values', () => {
@@ -43,9 +42,7 @@ describe('useMangleRuleEditor', () => {
         dstPort: '80',
       };
 
-      const { result } = renderHook(() =>
-        useMangleRuleEditor({ initialRule })
-      );
+      const { result } = renderHook(() => useMangleRuleEditor({ initialRule }));
 
       expect(result.current.rule.chain).toBe('forward');
       expect(result.current.rule.action).toBe('mark-packet');
@@ -139,7 +136,13 @@ describe('useMangleRuleEditor', () => {
     it('accepts valid mark names', async () => {
       const { result } = renderHook(() => useMangleRuleEditor());
 
-      const validNames = ['valid_mark', 'valid-mark', 'ValidMark123', '_underscore', 'a'.repeat(63)];
+      const validNames = [
+        'valid_mark',
+        'valid-mark',
+        'ValidMark123',
+        '_underscore',
+        'a'.repeat(63),
+      ];
 
       for (const name of validNames) {
         await act(async () => {
@@ -162,7 +165,9 @@ describe('useMangleRuleEditor', () => {
       });
 
       expect(result.current.errors.newConnectionMark).toBeDefined();
-      expect(result.current.errors.newConnectionMark).toContain('letters, numbers, underscores, and hyphens');
+      expect(result.current.errors.newConnectionMark).toContain(
+        'letters, numbers, underscores, and hyphens'
+      );
     });
 
     it('rejects mark names exceeding 63 characters', async () => {
@@ -377,9 +382,7 @@ describe('useMangleRuleEditor', () => {
         newPacketMark: 'initial_mark',
       };
 
-      const { result } = renderHook(() =>
-        useMangleRuleEditor({ initialRule })
-      );
+      const { result } = renderHook(() => useMangleRuleEditor({ initialRule }));
 
       // Make changes
       act(() => {

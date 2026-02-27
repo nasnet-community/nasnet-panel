@@ -88,7 +88,10 @@ function DeviceListItemComponent({
   // Auto-detect platform using CSS media queries for SSR compatibility
   // This avoids hydration mismatches and works on first render
   return (
-    <div className={cn('contents', className)} role="presentation">
+    <div
+      className={cn('contents', className)}
+      role="presentation"
+    >
       {/* Mobile: shown on small screens (<640px) */}
       <div className="sm:hidden">
         <DeviceListItemMobile {...presenterProps} />

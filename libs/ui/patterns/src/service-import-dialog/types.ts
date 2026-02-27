@@ -3,10 +3,7 @@
  * Pattern component for importing service configurations
  */
 
-import type {
-  ImportValidationResult,
-  ImportValidationError,
-} from '@nasnet/api-client/generated';
+import type { ImportValidationResult, ImportValidationError } from '@nasnet/api-client/generated';
 
 /**
  * Import source type

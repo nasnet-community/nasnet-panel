@@ -93,9 +93,23 @@ function PhoneIcon({ fillOpacity }: { fillOpacity: number }) {
         fillOpacity="0.3"
       />
       {/* Home button / indicator */}
-      <circle cx="16" cy="27" r="2" fill="currentColor" fillOpacity="0.5" />
+      <circle
+        cx="16"
+        cy="27"
+        r="2"
+        fill="currentColor"
+        fillOpacity="0.5"
+      />
       {/* Speaker notch */}
-      <rect x="13" y="3" width="6" height="1" rx="0.5" fill="currentColor" fillOpacity="0.5" />
+      <rect
+        x="13"
+        y="3"
+        width="6"
+        height="1"
+        rx="0.5"
+        fill="currentColor"
+        fillOpacity="0.5"
+      />
     </>
   );
 }
@@ -129,7 +143,13 @@ function TabletIcon({ fillOpacity }: { fillOpacity: number }) {
         fillOpacity="0.3"
       />
       {/* Home button */}
-      <circle cx="16" cy="26" r="1.5" fill="currentColor" fillOpacity="0.5" />
+      <circle
+        cx="16"
+        cy="26"
+        r="1.5"
+        fill="currentColor"
+        fillOpacity="0.5"
+      />
     </>
   );
 }
@@ -167,9 +187,20 @@ function IotIcon({ fillOpacity }: { fillOpacity: number }) {
         strokeLinecap="round"
         fill="none"
       />
-      <circle cx="16" cy="21" r="2" fill="currentColor" />
+      <circle
+        cx="16"
+        cy="21"
+        r="2"
+        fill="currentColor"
+      />
       {/* Power indicator */}
-      <circle cx="22" cy="10" r="2" fill="currentColor" fillOpacity="0.7" />
+      <circle
+        cx="22"
+        cy="10"
+        r="2"
+        fill="currentColor"
+        fillOpacity="0.7"
+      />
     </>
   );
 }
@@ -198,7 +229,12 @@ function UnknownIcon({ fillOpacity }: { fillOpacity: number }) {
         strokeLinecap="round"
         fill="none"
       />
-      <circle cx="16" cy="21" r="1.5" fill="currentColor" />
+      <circle
+        cx="16"
+        cy="21"
+        r="1.5"
+        fill="currentColor"
+      />
     </>
   );
 }
@@ -256,8 +292,12 @@ export const DeviceIcon = memo(function DeviceIcon({
       aria-label={ariaLabel || `${deviceLabel} ${status}`}
       role="img"
     >
-      <title>{deviceLabel} - {status}</title>
-      <desc>{deviceLabel} icon showing {status} status</desc>
+      <title>
+        {deviceLabel} - {status}
+      </title>
+      <desc>
+        {deviceLabel} icon showing {status} status
+      </desc>
       {renderIcon()}
     </svg>
   );

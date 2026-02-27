@@ -5,15 +5,19 @@ title: Error Handling
 
 # Error Handling (Layer 2)
 
-NasNetConnect provides a comprehensive error boundary system and error UI components to gracefully handle failures at every level of the application. Error boundaries prevent entire app crashes when individual components or features fail, ensuring users can recover and continue working.
+NasNetConnect provides a comprehensive error boundary system and error UI components to gracefully
+handle failures at every level of the application. Error boundaries prevent entire app crashes when
+individual components or features fail, ensuring users can recover and continue working.
 
-This document covers the error boundary hierarchy, error display components, and integration patterns for both Layer 2 (Patterns) and applications.
+This document covers the error boundary hierarchy, error display components, and integration
+patterns for both Layer 2 (Patterns) and applications.
 
 ---
 
 ## Error Boundary Hierarchy
 
-Error boundaries in NasNetConnect are organized into a three-tier hierarchy, from outermost to innermost:
+Error boundaries in NasNetConnect are organized into a three-tier hierarchy, from outermost to
+innermost:
 
 ```
 AppErrorBoundary (catastrophic failures → full-page error)
@@ -23,7 +27,8 @@ RouteErrorBoundary (route-level errors → per-route isolation)
 ComponentErrorBoundary (feature errors → inline recovery)
 ```
 
-Each level catches errors that escape from inner levels and displays an appropriate fallback UI. This layering prevents a single error from crashing the entire application.
+Each level catches errors that escape from inner levels and displays an appropriate fallback UI.
+This layering prevents a single error from crashing the entire application.
 
 ### AppErrorBoundary
 
@@ -32,16 +37,17 @@ The outermost error boundary that catches catastrophic failures escaping all oth
 **File:** `libs/ui/patterns/src/error-boundary/AppErrorBoundary.tsx`
 
 **Import:**
+
 ```tsx
 import { AppErrorBoundary } from '@nasnet/ui/patterns';
 ```
 
 **Props:**
 
-| Name | Type | Default | Description |
-|------|------|---------|-------------|
-| `children` | `React.ReactNode` | — | Content to protect |
-| `onError` | `(error: Error, errorInfo: React.ErrorInfo) => void` | — | Error logging callback for telemetry |
+| Name       | Type                                                 | Default | Description                          |
+| ---------- | ---------------------------------------------------- | ------- | ------------------------------------ |
+| `children` | `React.ReactNode`                                    | —       | Content to protect                   |
+| `onError`  | `(error: Error, errorInfo: React.ErrorInfo) => void` | —       | Error logging callback for telemetry |
 
 **Usage:**
 
@@ -52,10 +58,12 @@ import { AppErrorBoundary } from '@nasnet/ui/patterns';
 
 export default function App() {
   return (
-    <AppErrorBoundary onError={(error, info) => {
-      // Log to telemetry service
-      console.error('Catastrophic error:', error);
-    }}>
+    <AppErrorBoundary
+      onError={(error, info) => {
+        // Log to telemetry service
+        console.error('Catastrophic error:', error);
+      }}
+    >
       <ApolloProvider client={apolloClient}>
         <ThemeProvider>
           <RouterProvider router={router} />
@@ -66,7 +74,8 @@ export default function App() {
 }
 ```
 
-**Fallback UI:** Full-page error display with reload button, error details (in dev mode), and issue reporting. Logged errors include timestamp, URL, user agent, and component stack.
+**Fallback UI:** Full-page error display with reload button, error details (in dev mode), and issue
+reporting. Logged errors include timestamp, URL, user agent, and component stack.
 
 ---
 
@@ -77,21 +86,19 @@ Route-level error boundary that isolates errors to specific routes and auto-rese
 **File:** `libs/ui/patterns/src/error-boundary/RouteErrorBoundary.tsx`
 
 **Imports:**
+
 ```tsx
-import {
-  RouteErrorBoundary,
-  RouteErrorDisplay
-} from '@nasnet/ui/patterns';
+import { RouteErrorBoundary, RouteErrorDisplay } from '@nasnet/ui/patterns';
 ```
 
 **Props:**
 
-| Name | Type | Default | Description |
-|------|------|---------|-------------|
-| `children` | `React.ReactNode` | — | Route content to protect |
-| `onError` | `(error: Error, errorInfo: React.ErrorInfo) => void` | — | Error callback |
-| `fallback` | `React.ReactNode \| function` | — | Custom fallback UI |
-| `className` | `string` | — | Container class name |
+| Name        | Type                                                 | Default | Description              |
+| ----------- | ---------------------------------------------------- | ------- | ------------------------ |
+| `children`  | `React.ReactNode`                                    | —       | Route content to protect |
+| `onError`   | `(error: Error, errorInfo: React.ErrorInfo) => void` | —       | Error callback           |
+| `fallback`  | `React.ReactNode \| function`                        | —       | Custom fallback UI       |
+| `className` | `string`                                             | —       | Container class name     |
 
 **Usage in route components:**
 
@@ -124,12 +131,16 @@ Or use the standalone `RouteErrorDisplay` component as a TanStack Router errorCo
 ```tsx
 export const Route = createFileRoute('/router/$id')({
   errorComponent: ({ error, reset }) => (
-    <RouteErrorDisplay error={error} reset={reset} />
+    <RouteErrorDisplay
+      error={error}
+      reset={reset}
+    />
   ),
 });
 ```
 
-**Auto-reset:** The boundary automatically resets when the route pathname changes, allowing users to navigate away from the error and return to normal operation.
+**Auto-reset:** The boundary automatically resets when the route pathname changes, allowing users to
+navigate away from the error and return to normal operation.
 
 ---
 
@@ -140,23 +151,21 @@ Feature-level error boundary for individual components/widgets with inline error
 **File:** `libs/ui/patterns/src/error-boundary/ComponentErrorBoundary.tsx`
 
 **Imports:**
+
 ```tsx
-import {
-  ComponentErrorBoundary,
-  InlineErrorCard
-} from '@nasnet/ui/patterns';
+import { ComponentErrorBoundary, InlineErrorCard } from '@nasnet/ui/patterns';
 ```
 
 **Props:**
 
-| Name | Type | Default | Description |
-|------|------|---------|-------------|
-| `children` | `React.ReactNode` | — | Component to protect |
-| `onError` | `(error: Error, errorInfo: React.ErrorInfo) => void` | — | Error callback |
-| `fallback` | `React.ReactNode \| function` | — | Custom fallback UI |
-| `componentName` | `string` | — | Display name in error message |
-| `className` | `string` | — | Container class name |
-| `minimal` | `boolean` | `false` | Show minimal inline variant |
+| Name            | Type                                                 | Default | Description                   |
+| --------------- | ---------------------------------------------------- | ------- | ----------------------------- |
+| `children`      | `React.ReactNode`                                    | —       | Component to protect          |
+| `onError`       | `(error: Error, errorInfo: React.ErrorInfo) => void` | —       | Error callback                |
+| `fallback`      | `React.ReactNode \| function`                        | —       | Custom fallback UI            |
+| `componentName` | `string`                                             | —       | Display name in error message |
+| `className`     | `string`                                             | —       | Container class name          |
+| `minimal`       | `boolean`                                            | `false` | Show minimal inline variant   |
 
 **Usage - Standard variant:**
 
@@ -169,7 +178,10 @@ import {
 **Usage - Minimal inline variant:**
 
 ```tsx
-<ComponentErrorBoundary minimal componentName="Quick Stats">
+<ComponentErrorBoundary
+  minimal
+  componentName="Quick Stats"
+>
   <QuickStatsRow />
 </ComponentErrorBoundary>
 ```
@@ -181,7 +193,7 @@ import {
   componentName="Traffic Chart"
   onError={(error) => trackError(error)}
   fallback={({ error, resetErrorBoundary }) => (
-    <div className="p-4 bg-amber-50 rounded">
+    <div className="rounded bg-amber-50 p-4">
       <p>Chart unavailable</p>
       <button onClick={resetErrorBoundary}>Reload Chart</button>
     </div>
@@ -191,17 +203,20 @@ import {
 </ComponentErrorBoundary>
 ```
 
-**Fallback UI:** Inline error card showing component name, error message, retry button, and expandable technical details (minimal variant shows icon + title + retry only).
+**Fallback UI:** Inline error card showing component name, error message, retry button, and
+expandable technical details (minimal variant shows icon + title + retry only).
 
 ---
 
 ## withErrorBoundary HOC
 
-Higher-order component for declaratively wrapping components with ComponentErrorBoundary without modifying JSX structure.
+Higher-order component for declaratively wrapping components with ComponentErrorBoundary without
+modifying JSX structure.
 
 **File:** `libs/ui/patterns/src/error-boundary/withErrorBoundary.tsx`
 
 **Import:**
+
 ```tsx
 import { withErrorBoundary } from '@nasnet/ui/patterns';
 ```
@@ -212,18 +227,18 @@ import { withErrorBoundary } from '@nasnet/ui/patterns';
 function withErrorBoundary<P extends object>(
   Component: React.ComponentType<P>,
   options?: WithErrorBoundaryOptions
-): React.ComponentType<P>
+): React.ComponentType<P>;
 ```
 
 **Options:**
 
-| Name | Type | Default | Description |
-|------|------|---------|-------------|
-| `fallback` | `React.ReactNode \| function` | — | Custom fallback UI |
-| `onError` | `(error: Error, errorInfo: React.ErrorInfo) => void` | — | Error callback |
-| `componentName` | `string` | — | Display name (defaults to Component.displayName or Component.name) |
-| `minimal` | `boolean` | `false` | Use minimal error display |
-| `className` | `string` | — | Container class name |
+| Name            | Type                                                 | Default | Description                                                        |
+| --------------- | ---------------------------------------------------- | ------- | ------------------------------------------------------------------ |
+| `fallback`      | `React.ReactNode \| function`                        | —       | Custom fallback UI                                                 |
+| `onError`       | `(error: Error, errorInfo: React.ErrorInfo) => void` | —       | Error callback                                                     |
+| `componentName` | `string`                                             | —       | Display name (defaults to Component.displayName or Component.name) |
+| `minimal`       | `boolean`                                            | `false` | Use minimal error display                                          |
+| `className`     | `string`                                             | —       | Container class name                                               |
 
 **Usage - Basic:**
 
@@ -231,7 +246,7 @@ function withErrorBoundary<P extends object>(
 const SafeWidget = withErrorBoundary(MyWidget);
 
 // Use like a normal component
-<SafeWidget data={data} />
+<SafeWidget data={data} />;
 ```
 
 **Usage - With options:**
@@ -269,7 +284,8 @@ function DashboardWidgets() {
 
 ## Error UI Components
 
-Layer 2 components for displaying errors in various contexts. These are used by error boundaries but can also be used standalone.
+Layer 2 components for displaying errors in various contexts. These are used by error boundaries but
+can also be used standalone.
 
 ### ErrorCard
 
@@ -278,27 +294,28 @@ Inline error display card with retry action, expandable technical details, and m
 **File:** `libs/ui/patterns/src/error-card/ErrorCard.tsx`
 
 **Import:**
+
 ```tsx
 import { ErrorCard } from '@nasnet/ui/patterns';
 ```
 
 **Props:**
 
-| Name | Type | Default | Description |
-|------|------|---------|-------------|
-| `type` | `'error' \| 'warning' \| 'network' \| 'auth' \| 'not-found'` | `'error'` | Error category for styling/icon |
-| `title` | `string` | — | Main error title (required) |
-| `description` | `string` | — | Human-readable description |
-| `technicalMessage` | `string` | — | Technical error message (in details) |
-| `errorCode` | `string` | — | Error code badge (e.g., "N300") |
-| `stackTrace` | `string` | — | Stack trace (dev mode only) |
-| `onRetry` | `() => void` | — | Retry handler |
-| `onSecondaryAction` | `() => void` | — | Secondary action handler |
-| `secondaryActionLabel` | `string` | — | Secondary action button text |
-| `onReport` | `() => void` | — | Issue report handler |
-| `variant` | `'default' \| 'compact' \| 'minimal'` | `'default'` | Display variant |
-| `autoFocus` | `boolean` | `false` | Auto-focus retry button |
-| `className` | `string` | — | Additional class name |
+| Name                   | Type                                                         | Default     | Description                          |
+| ---------------------- | ------------------------------------------------------------ | ----------- | ------------------------------------ |
+| `type`                 | `'error' \| 'warning' \| 'network' \| 'auth' \| 'not-found'` | `'error'`   | Error category for styling/icon      |
+| `title`                | `string`                                                     | —           | Main error title (required)          |
+| `description`          | `string`                                                     | —           | Human-readable description           |
+| `technicalMessage`     | `string`                                                     | —           | Technical error message (in details) |
+| `errorCode`            | `string`                                                     | —           | Error code badge (e.g., "N300")      |
+| `stackTrace`           | `string`                                                     | —           | Stack trace (dev mode only)          |
+| `onRetry`              | `() => void`                                                 | —           | Retry handler                        |
+| `onSecondaryAction`    | `() => void`                                                 | —           | Secondary action handler             |
+| `secondaryActionLabel` | `string`                                                     | —           | Secondary action button text         |
+| `onReport`             | `() => void`                                                 | —           | Issue report handler                 |
+| `variant`              | `'default' \| 'compact' \| 'minimal'`                        | `'default'` | Display variant                      |
+| `autoFocus`            | `boolean`                                                    | `false`     | Auto-focus retry button              |
+| `className`            | `string`                                                     | —           | Additional class name                |
 
 **Usage - Default variant:**
 
@@ -345,28 +362,29 @@ Full-page error display for critical failures that prevent the entire page from 
 **File:** `libs/ui/patterns/src/error-page/ErrorPage.tsx`
 
 **Import:**
+
 ```tsx
 import { ErrorPage } from '@nasnet/ui/patterns';
 ```
 
 **Props:**
 
-| Name | Type | Default | Description |
-|------|------|---------|-------------|
-| `variant` | `'error' \| 'network' \| 'unauthorized' \| 'not-found' \| 'server-error'` | `'error'` | Error type for default messaging |
-| `statusCode` | `number` | — | HTTP status code to display |
-| `title` | `string` | — | Custom error title |
-| `description` | `string` | — | Custom error description |
-| `technicalMessage` | `string` | — | Technical error message |
-| `errorCode` | `string` | — | Error code identifier |
-| `stackTrace` | `string` | — | Stack trace (dev only) |
-| `onRetry` | `() => void` | — | Retry handler |
-| `retryLabel` | `string` | `'Try Again'` | Retry button label |
-| `showHomeButton` | `boolean` | `true` | Show home/dashboard button |
-| `showBackButton` | `boolean` | `false` | Show back button |
-| `onReport` | `() => void` | — | Report issue handler |
-| `className` | `string` | — | Additional class name |
-| `children` | `React.ReactNode` | — | Additional content below error |
+| Name               | Type                                                                      | Default       | Description                      |
+| ------------------ | ------------------------------------------------------------------------- | ------------- | -------------------------------- |
+| `variant`          | `'error' \| 'network' \| 'unauthorized' \| 'not-found' \| 'server-error'` | `'error'`     | Error type for default messaging |
+| `statusCode`       | `number`                                                                  | —             | HTTP status code to display      |
+| `title`            | `string`                                                                  | —             | Custom error title               |
+| `description`      | `string`                                                                  | —             | Custom error description         |
+| `technicalMessage` | `string`                                                                  | —             | Technical error message          |
+| `errorCode`        | `string`                                                                  | —             | Error code identifier            |
+| `stackTrace`       | `string`                                                                  | —             | Stack trace (dev only)           |
+| `onRetry`          | `() => void`                                                              | —             | Retry handler                    |
+| `retryLabel`       | `string`                                                                  | `'Try Again'` | Retry button label               |
+| `showHomeButton`   | `boolean`                                                                 | `true`        | Show home/dashboard button       |
+| `showBackButton`   | `boolean`                                                                 | `false`       | Show back button                 |
+| `onReport`         | `() => void`                                                              | —             | Report issue handler             |
+| `className`        | `string`                                                                  | —             | Additional class name            |
+| `children`         | `React.ReactNode`                                                         | —             | Additional content below error   |
 
 **Usage - Generic error:**
 
@@ -419,33 +437,35 @@ import { ErrorPage } from '@nasnet/ui/patterns';
 
 ### NetworkErrorDisplay
 
-Specialized error display for network and connectivity issues with troubleshooting tips and auto-retry status.
+Specialized error display for network and connectivity issues with troubleshooting tips and
+auto-retry status.
 
 **File:** `libs/ui/patterns/src/network-error/NetworkErrorDisplay.tsx`
 
 **Import:**
+
 ```tsx
 import { NetworkErrorDisplay } from '@nasnet/ui/patterns';
 ```
 
 **Props:**
 
-| Name | Type | Default | Description |
-|------|------|---------|-------------|
-| `type` | `'offline' \| 'timeout' \| 'connection-refused' \| 'dns-failed' \| 'server-error' \| 'unknown'` | `'unknown'` | Network error type |
-| `title` | `string` | — | Custom title (overrides default) |
-| `description` | `string` | — | Custom description |
-| `technicalMessage` | `string` | — | Technical error message |
-| `errorCode` | `string` | — | Error code |
-| `onRetry` | `() => void` | — | Retry handler |
-| `isRetrying` | `boolean` | `false` | Show auto-retry in progress |
-| `retryAttempt` | `number` | — | Current retry attempt number |
-| `maxRetries` | `number` | — | Max retry attempts |
-| `nextRetryIn` | `number` | — | Seconds until next retry |
-| `showTroubleshooting` | `boolean` | `false` | Show troubleshooting tips |
-| `onOpenSettings` | `() => void` | — | Open network settings handler |
-| `variant` | `'default' \| 'compact'` | `'default'` | Display variant |
-| `className` | `string` | — | Additional class name |
+| Name                  | Type                                                                                            | Default     | Description                      |
+| --------------------- | ----------------------------------------------------------------------------------------------- | ----------- | -------------------------------- |
+| `type`                | `'offline' \| 'timeout' \| 'connection-refused' \| 'dns-failed' \| 'server-error' \| 'unknown'` | `'unknown'` | Network error type               |
+| `title`               | `string`                                                                                        | —           | Custom title (overrides default) |
+| `description`         | `string`                                                                                        | —           | Custom description               |
+| `technicalMessage`    | `string`                                                                                        | —           | Technical error message          |
+| `errorCode`           | `string`                                                                                        | —           | Error code                       |
+| `onRetry`             | `() => void`                                                                                    | —           | Retry handler                    |
+| `isRetrying`          | `boolean`                                                                                       | `false`     | Show auto-retry in progress      |
+| `retryAttempt`        | `number`                                                                                        | —           | Current retry attempt number     |
+| `maxRetries`          | `number`                                                                                        | —           | Max retry attempts               |
+| `nextRetryIn`         | `number`                                                                                        | —           | Seconds until next retry         |
+| `showTroubleshooting` | `boolean`                                                                                       | `false`     | Show troubleshooting tips        |
+| `onOpenSettings`      | `() => void`                                                                                    | —           | Open network settings handler    |
+| `variant`             | `'default' \| 'compact'`                                                                        | `'default'` | Display variant                  |
+| `className`           | `string`                                                                                        | —           | Additional class name            |
 
 **Usage - Basic offline error:**
 
@@ -481,9 +501,11 @@ import { NetworkErrorDisplay } from '@nasnet/ui/patterns';
 />
 ```
 
-**Troubleshooting tips include:** Connection status verification, router restart suggestions, IP address verification, firewall checks, and multi-device testing.
+**Troubleshooting tips include:** Connection status verification, router restart suggestions, IP
+address verification, firewall checks, and multi-device testing.
 
-**Network status integration:** When type is 'offline', the component detects when connection is restored and shows a "Connection restored" success state.
+**Network status integration:** When type is 'offline', the component detects when connection is
+restored and shows a "Connection restored" success state.
 
 ---
 
@@ -494,29 +516,26 @@ Form validation error summary for displaying section-level validation errors.
 **File:** `libs/ui/patterns/src/form-section/FormSectionErrors.tsx`
 
 **Import:**
+
 ```tsx
 import { FormSectionErrors } from '@nasnet/ui/patterns';
 ```
 
 **Props:**
 
-| Name | Type | Default | Description |
-|------|------|---------|-------------|
-| `errors` | `string[]` | — | Array of error messages |
-| `className` | `string` | — | Additional class name |
+| Name        | Type       | Default | Description             |
+| ----------- | ---------- | ------- | ----------------------- |
+| `errors`    | `string[]` | —       | Array of error messages |
+| `className` | `string`   | —       | Additional class name   |
 
 **Usage:**
 
 ```tsx
-<FormSectionErrors
-  errors={[
-    'IP address is invalid',
-    'Subnet mask is required',
-  ]}
-/>
+<FormSectionErrors errors={['IP address is invalid', 'Subnet mask is required']} />
 ```
 
-**Features:** Error count display, individual error list with bullets, semantic error styling (red color tokens), ARIA live region for screen readers.
+**Features:** Error count display, individual error list with bullets, semantic error styling (red
+color tokens), ARIA live region for screen readers.
 
 ---
 
@@ -527,10 +546,7 @@ import { FormSectionErrors } from '@nasnet/ui/patterns';
 Implement exponential backoff for automated retry logic:
 
 ```tsx
-function useRetryableQuery<T>(
-  queryFn: () => Promise<T>,
-  maxRetries = 3
-) {
+function useRetryableQuery<T>(queryFn: () => Promise<T>, maxRetries = 3) {
   const [data, setData] = React.useState<T | null>(null);
   const [error, setError] = React.useState<Error | null>(null);
   const [isRetrying, setIsRetrying] = React.useState(false);
@@ -553,7 +569,7 @@ function useRetryableQuery<T>(
 
       if (retryCount < maxRetries) {
         setTimeout(() => {
-          setRetryCount(r => r + 1);
+          setRetryCount((r) => r + 1);
           execute();
         }, backoffMs);
       }
@@ -578,20 +594,20 @@ function DataTable() {
       fallback={({ resetErrorBoundary }) => (
         <Card>
           <CardContent className="p-6 text-center">
-            <AlertCircle className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
-            <p className="text-sm text-muted-foreground mb-4">
-              Unable to load table data
-            </p>
-            <Button onClick={resetErrorBoundary} variant="outline" size="sm">
+            <AlertCircle className="text-muted-foreground mx-auto mb-2 h-8 w-8" />
+            <p className="text-muted-foreground mb-4 text-sm">Unable to load table data</p>
+            <Button
+              onClick={resetErrorBoundary}
+              variant="outline"
+              size="sm"
+            >
               Try again
             </Button>
           </CardContent>
         </Card>
       )}
     >
-      <table>
-        {/* table content */}
-      </table>
+      <table>{/* table content */}</table>
     </ComponentErrorBoundary>
   );
 }
@@ -723,7 +739,8 @@ const client = new ApolloClient({
 });
 ```
 
-Error boundaries catch render errors from components; Apollo error handling catches GraphQL/network errors from queries and mutations.
+Error boundaries catch render errors from components; Apollo error handling catches GraphQL/network
+errors from queries and mutations.
 
 ### Form Error Integration
 
@@ -737,7 +754,7 @@ function DataForm() {
     <ComponentErrorBoundary componentName="Data Form">
       <form onSubmit={form.handleSubmit(onSubmit)}>
         {/* Form validation errors from React Hook Form */}
-        <FormSectionErrors errors={Object.values(form.formState.errors).map(e => e?.message)} />
+        <FormSectionErrors errors={Object.values(form.formState.errors).map((e) => e?.message)} />
 
         {/* Form fields */}
         <input {...form.register('name')} />
@@ -758,9 +775,12 @@ function DataForm() {
 3. **Retry buttons:** Include retry where possible; users expect to recover errors.
 4. **Technical details:** Show details only in dev mode; hide in production for non-technical users.
 5. **Logging:** Log all caught errors for debugging and monitoring.
-6. **Test error states:** Use Storybook stories or error-throwing test components to verify error UI.
-7. **Combine boundaries:** Use error boundaries with Suspense for complete error + loading state coverage.
-8. **Error messages:** Write user-friendly error messages; map technical errors to actionable guidance.
+6. **Test error states:** Use Storybook stories or error-throwing test components to verify error
+   UI.
+7. **Combine boundaries:** Use error boundaries with Suspense for complete error + loading state
+   coverage.
+8. **Error messages:** Write user-friendly error messages; map technical errors to actionable
+   guidance.
 
 ---
 
@@ -768,7 +788,9 @@ function DataForm() {
 
 - **Suspense & Skeletons:** `patterns-status-and-data.md` (LoadingSkeleton component)
 - **Primitives:** `primitives-reference.md` (Button, Card, AlertTriangle icons)
-- **Design System:** `Docs/design/DESIGN_TOKENS.md` (error semantic colors: red for errors, info colors for network)
-- **Architecture:** `Docs/architecture/frontend-architecture.md` (Error handling in state management)
-- **Testing:** `Docs/architecture/implementation-patterns/testing-strategy-patterns.md` (Testing error boundaries)
-
+- **Design System:** `Docs/design/DESIGN_TOKENS.md` (error semantic colors: red for errors, info
+  colors for network)
+- **Architecture:** `Docs/architecture/frontend-architecture.md` (Error handling in state
+  management)
+- **Testing:** `Docs/architecture/implementation-patterns/testing-strategy-patterns.md` (Testing
+  error boundaries)

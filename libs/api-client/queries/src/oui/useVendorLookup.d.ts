@@ -14,9 +14,9 @@
  * Query keys for OUI lookups
  */
 export declare const ouiKeys: {
-    all: readonly ["oui"];
-    vendor: (mac: string) => readonly ["oui", "vendor", string];
-    batch: (macs: string[]) => readonly ["oui", "batch", ...string[]];
+  all: readonly ['oui'];
+  vendor: (mac: string) => readonly ['oui', 'vendor', string];
+  batch: (macs: string[]) => readonly ['oui', 'batch', ...string[]];
 };
 /**
  * Hook to lookup MAC vendor name from OUI

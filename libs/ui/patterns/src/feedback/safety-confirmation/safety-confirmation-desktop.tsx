@@ -101,11 +101,14 @@ export function SafetyConfirmationDesktop({
   };
 
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
+    <Dialog
+      open={open}
+      onOpenChange={handleOpenChange}
+    >
       <DialogContent
         className={cn(
           'sm:max-w-md',
-          'bg-card border border-border rounded-[var(--semantic-radius-card)]',
+          'bg-card border-border rounded-[var(--semantic-radius-card)] border',
           'p-6'
         )}
         onPointerDownOutside={(e) => {
@@ -127,13 +130,16 @@ export function SafetyConfirmationDesktop({
           {/* Custom header with warning styling */}
           <SafetyConfirmationHeader title={title} />
 
-          <DialogTitle id="safety-dialog-title" className="sr-only">
+          <DialogTitle
+            id="safety-dialog-title"
+            className="sr-only"
+          >
             {title}
           </DialogTitle>
 
           <DialogDescription
             id="safety-dialog-description"
-            className="pt-2 text-sm text-muted-foreground"
+            className="text-muted-foreground pt-2 text-sm"
           >
             {description}
           </DialogDescription>
@@ -181,10 +187,10 @@ export function SafetyConfirmationDesktop({
             variant="destructive"
             onClick={handleConfirm}
             disabled={!canConfirm || isProcessing}
-            className="w-full sm:w-auto bg-error hover:bg-error/90"
+            className="bg-error hover:bg-error/90 w-full sm:w-auto"
             aria-label={isProcessing ? 'Processing confirmation' : `Confirm ${title}`}
           >
-            {isProcessing ? (
+            {isProcessing ?
               <>
                 <Loader2
                   className="mr-2 h-4 w-4 animate-spin"
@@ -193,9 +199,7 @@ export function SafetyConfirmationDesktop({
                 />
                 Processing...
               </>
-            ) : (
-              'Confirm'
-            )}
+            : 'Confirm'}
           </Button>
         </DialogFooter>
       </DialogContent>

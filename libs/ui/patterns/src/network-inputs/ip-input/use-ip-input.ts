@@ -15,11 +15,7 @@
 
 import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 
-import type {
-  UseIPInputConfig,
-  UseIPInputReturn,
-  IPType,
-} from './ip-input.types';
+import type { UseIPInputConfig, UseIPInputReturn, IPType } from './ip-input.types';
 
 // ============================================================================
 // Validation Utilities
@@ -65,10 +61,7 @@ export function isValidIPv6(ip: string): boolean {
 /**
  * Validates if a CIDR prefix is valid for the given IP version.
  */
-export function isValidCIDRPrefix(
-  prefix: string,
-  version: 'v4' | 'v6'
-): boolean {
+export function isValidCIDRPrefix(prefix: string, version: 'v4' | 'v6'): boolean {
   if (prefix === '') return true;
   const num = parseInt(prefix, 10);
   if (isNaN(num)) return false;
@@ -138,9 +131,7 @@ export function getIPTypeLabel(type: IPType): string {
  */
 function extractIPv4FromText(text: string): string | null {
   // Match IPv4 pattern, optionally with CIDR
-  const match = text.match(
-    /(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(?:\/(\d{1,3}))?/
-  );
+  const match = text.match(/(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(?:\/(\d{1,3}))?/);
   return match ? match[0] : null;
 }
 
@@ -189,12 +180,7 @@ function extractCIDRPrefix(ip: string): string {
  * @returns State and handlers for IP input component
  */
 export function useIPInput(config: UseIPInputConfig = {}): UseIPInputReturn {
-  const {
-    value: controlledValue,
-    onChange,
-    version = 'v4',
-    allowCIDR = false,
-  } = config;
+  const { value: controlledValue, onChange, version = 'v4', allowCIDR = false } = config;
 
   // Determine segment count based on version
   const isIPv6 = version === 'v6';
@@ -223,9 +209,7 @@ export function useIPInput(config: UseIPInputConfig = {}): UseIPInputReturn {
     if (!controlledValue) {
       return isIPv6 ? Array(8).fill('') : ['', '', '', ''];
     }
-    return isIPv6
-      ? parseIPv6ToSegments(controlledValue)
-      : parseIPv4ToSegments(controlledValue);
+    return isIPv6 ? parseIPv6ToSegments(controlledValue) : parseIPv4ToSegments(controlledValue);
   }, [controlledValue, isIPv6]);
 
   const initialCIDR = useMemo(() => {
@@ -240,9 +224,8 @@ export function useIPInput(config: UseIPInputConfig = {}): UseIPInputReturn {
   // Sync with controlled value
   useEffect(() => {
     if (controlledValue !== undefined) {
-      const newSegments = isIPv6
-        ? parseIPv6ToSegments(controlledValue)
-        : parseIPv4ToSegments(controlledValue);
+      const newSegments =
+        isIPv6 ? parseIPv6ToSegments(controlledValue) : parseIPv4ToSegments(controlledValue);
       setSegments(newSegments);
       if (allowCIDR) {
         setCidrPrefixState(extractCIDRPrefix(controlledValue));
@@ -369,9 +352,7 @@ export function useIPInput(config: UseIPInputConfig = {}): UseIPInputReturn {
 
   const setValue = useCallback(
     (newValue: string) => {
-      const newSegments = isIPv6
-        ? parseIPv6ToSegments(newValue)
-        : parseIPv4ToSegments(newValue);
+      const newSegments = isIPv6 ? parseIPv6ToSegments(newValue) : parseIPv4ToSegments(newValue);
       setSegments(newSegments);
       if (allowCIDR) {
         const newCidr = extractCIDRPrefix(newValue);
@@ -414,30 +395,24 @@ export function useIPInput(config: UseIPInputConfig = {}): UseIPInputReturn {
         setSegment(segmentIndex, cleaned);
       }
     },
-    [
-      setValue,
-      setSegment,
-      focusSegment,
-      focusCidr,
-      allowCIDR,
-      segmentCount,
-      maxSegmentLength,
-    ]
+    [setValue, setSegment, focusSegment, focusCidr, allowCIDR, segmentCount, maxSegmentLength]
   );
 
   const handleSegmentChange = useCallback(
     (index: number, newValue: string, _cursorPosition?: number) => {
       // Clean input - only allow digits for IPv4, hex for IPv6
-      const cleaned = isIPv6
-        ? newValue.replace(/[^0-9a-fA-F]/g, '').slice(0, maxSegmentLength)
+      const cleaned =
+        isIPv6 ?
+          newValue.replace(/[^0-9a-fA-F]/g, '').slice(0, maxSegmentLength)
         : newValue.replace(/[^0-9]/g, '').slice(0, maxSegmentLength);
 
       // Check for separator input (auto-advance)
       if (newValue.includes(separator) || newValue.includes('.')) {
         // User typed a separator - advance to next segment
         const beforeSeparator = newValue.split(/[.:]/)[0];
-        const cleanedBefore = isIPv6
-          ? beforeSeparator.replace(/[^0-9a-fA-F]/g, '').slice(0, maxSegmentLength)
+        const cleanedBefore =
+          isIPv6 ?
+            beforeSeparator.replace(/[^0-9a-fA-F]/g, '').slice(0, maxSegmentLength)
           : beforeSeparator.replace(/[^0-9]/g, '').slice(0, maxSegmentLength);
 
         setSegment(index, cleanedBefore);
@@ -453,10 +428,7 @@ export function useIPInput(config: UseIPInputConfig = {}): UseIPInputReturn {
       setSegment(index, cleaned);
 
       // Auto-advance when segment is full
-      if (
-        cleaned.length === maxSegmentLength &&
-        index < segmentCount - 1
-      ) {
+      if (cleaned.length === maxSegmentLength && index < segmentCount - 1) {
         // For IPv4, also check if value is valid (>= 26 means next char would make > 255)
         if (!isIPv6) {
           const num = parseInt(cleaned, 10);
@@ -569,13 +541,7 @@ export function useIPInput(config: UseIPInputConfig = {}): UseIPInputReturn {
           break;
       }
     },
-    [
-      focusSegment,
-      segmentRefs,
-      segmentCount,
-      allowCIDR,
-      focusCidr,
-    ]
+    [focusSegment, segmentRefs, segmentCount, allowCIDR, focusCidr]
   );
 
   const handleCidrKeyDown = useCallback(

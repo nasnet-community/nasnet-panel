@@ -28,51 +28,53 @@ function MockDHCPSummaryCard({
 }: MockDHCPSummaryCardProps) {
   return (
     <Card
-      className={`h-full transition-all duration-200 ${linkTo ? 'hover:shadow-md hover:-translate-y-0.5 cursor-pointer' : ''} ${className}`}
+      className={`h-full transition-all duration-200 ${linkTo ? 'cursor-pointer hover:-translate-y-0.5 hover:shadow-md' : ''} ${className}`}
     >
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-info/10 dark:bg-info/20 flex items-center justify-center">
-              <Network className="w-4 h-4 text-info" />
+            <div className="bg-info/10 dark:bg-info/20 flex h-8 w-8 items-center justify-center rounded-lg">
+              <Network className="text-info h-4 w-4" />
             </div>
             <CardTitle className="text-base font-semibold">{serverName}</CardTitle>
           </div>
-          {linkTo && <ChevronRight className="w-4 h-4 text-muted-foreground" />}
+          {linkTo && <ChevronRight className="text-muted-foreground h-4 w-4" />}
         </div>
       </CardHeader>
       <CardContent className="pt-0">
-        {isLoading ? (
+        {isLoading ?
           <div className="flex items-center justify-center py-4">
-            <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+            <Loader2 className="text-muted-foreground h-6 w-6 animate-spin" />
           </div>
-        ) : (
-          <div className="space-y-3">
+        : <div className="space-y-3">
             <div className="flex items-center gap-3">
-              <Users className="w-5 h-5 text-muted-foreground" />
+              <Users className="text-muted-foreground h-5 w-5" />
               <div>
-                <p className="text-2xl font-bold text-foreground">
+                <p className="text-foreground text-2xl font-bold">
                   {activeLeases}
                   {totalCapacity && (
-                    <span className="text-sm text-muted-foreground font-normal ml-1">
+                    <span className="text-muted-foreground ml-1 text-sm font-normal">
                       / {totalCapacity}
                     </span>
                   )}
                 </p>
-                <p className="text-xs text-muted-foreground">Active Leases</p>
+                <p className="text-muted-foreground text-xs">Active Leases</p>
               </div>
             </div>
 
             {ipRange && (
-              <div className="pt-2 border-t border-border">
-                <p className="text-xs text-muted-foreground">IP Range</p>
-                <p className="text-sm font-mono text-foreground truncate" title={ipRange}>
+              <div className="border-border border-t pt-2">
+                <p className="text-muted-foreground text-xs">IP Range</p>
+                <p
+                  className="text-foreground truncate font-mono text-sm"
+                  title={ipRange}
+                >
                   {ipRange}
                 </p>
               </div>
             )}
           </div>
-        )}
+        }
       </CardContent>
     </Card>
   );
@@ -189,7 +191,7 @@ export const NoLink: Story = {
 
 export const MultipleServers: Story = {
   render: () => (
-    <div className="grid grid-cols-2 gap-4 w-[500px]">
+    <div className="grid w-[500px] grid-cols-2 gap-4">
       <MockDHCPSummaryCard
         activeLeases={45}
         totalCapacity={100}
@@ -235,7 +237,7 @@ export const InDashboard: Story = {
         ipRange="192.168.1.100-192.168.1.200"
         serverName="DHCP Server"
       />
-      <div className="p-4 rounded-lg border bg-card text-sm text-muted-foreground">
+      <div className="bg-card text-muted-foreground rounded-lg border p-4 text-sm">
         Other dashboard cards would go here...
       </div>
     </div>

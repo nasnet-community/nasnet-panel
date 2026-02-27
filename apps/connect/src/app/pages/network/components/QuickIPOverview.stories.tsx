@@ -6,7 +6,6 @@
  * Prop-driven — no stores or routing required.
  */
 
-
 import type { IPAddress } from '@nasnet/core/types';
 
 import { QuickIPOverview } from './QuickIPOverview';
@@ -197,8 +196,7 @@ export const Empty: Story = {
   parameters: {
     docs: {
       description: {
-        story:
-          'No IP addresses are configured. Renders the empty-state placeholder message.',
+        story: 'No IP addresses are configured. Renders the empty-state placeholder message.',
       },
     },
   },

@@ -102,19 +102,25 @@ const TimeRangeSelector = React.memo(function TimeRangeSelector({
   onChange,
   className,
 }: TimeRangeSelectorProps) {
-  const handleChange = useCallback(
-    (val: string) => onChange(val as TimeRangePreset),
-    [onChange]
-  );
+  const handleChange = useCallback((val: string) => onChange(val as TimeRangePreset), [onChange]);
 
   return (
-    <Select value={value} onValueChange={handleChange}>
-      <SelectTrigger className={cn('font-mono', className)} aria-label="Time range">
+    <Select
+      value={value}
+      onValueChange={handleChange}
+    >
+      <SelectTrigger
+        className={cn('font-mono', className)}
+        aria-label="Time range"
+      >
         <SelectValue placeholder="Select time range" />
       </SelectTrigger>
       <SelectContent>
         {TIME_RANGE_PRESETS.map((range) => (
-          <SelectItem key={range.value} value={range.value}>
+          <SelectItem
+            key={range.value}
+            value={range.value}
+          >
             {range.label}
           </SelectItem>
         ))}

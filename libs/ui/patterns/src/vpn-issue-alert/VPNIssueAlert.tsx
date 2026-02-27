@@ -17,15 +17,9 @@ import { XCircle, AlertTriangle, Info } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
 import type { VPNIssue } from '@nasnet/core/types';
-import {
-  Alert,
-  AlertTitle,
-  AlertDescription,
-  Icon,
-} from '@nasnet/ui/primitives';
+import { Alert, AlertTitle, AlertDescription, Icon } from '@nasnet/ui/primitives';
 
 import { ProtocolIcon, getProtocolLabel } from '../protocol-icon';
-
 
 export interface VPNIssueAlertProps {
   /** The issue to display */
@@ -61,13 +55,13 @@ function formatRelativeTime(date: Date): string {
   const now = new Date();
   const diff = now.getTime() - date.getTime();
   const minutes = Math.floor(diff / 60000);
-  
+
   if (minutes < 1) return 'Just now';
   if (minutes < 60) return `${minutes}m ago`;
-  
+
   const hours = Math.floor(minutes / 60);
   if (hours < 24) return `${hours}h ago`;
-  
+
   const days = Math.floor(hours / 24);
   return `${days}d ago`;
 }
@@ -76,11 +70,7 @@ function formatRelativeTime(date: Date): string {
  * VPNIssueAlert Component
  * Shows a single VPN issue/warning
  */
-function VPNIssueAlertComponent({
-  issue,
-  onDismiss,
-  className = '',
-}: VPNIssueAlertProps) {
+function VPNIssueAlertComponent({ issue, onDismiss, className = '' }: VPNIssueAlertProps) {
   const config = getSeverityConfig(issue.severity);
 
   const handleDismiss = useCallback(() => {
@@ -91,38 +81,43 @@ function VPNIssueAlertComponent({
     <Alert
       variant={config.variant}
       className={`relative border-l-4 ${
-        issue.severity === 'error'
-          ? 'border-l-error bg-error-light/50 dark:bg-error/10'
-          : 'border-l-warning bg-warning-light/50 dark:bg-warning/10'
+        issue.severity === 'error' ?
+          'border-l-error bg-error-light/50 dark:bg-error/10'
+        : 'border-l-warning bg-warning-light/50 dark:bg-warning/10'
       } ${className}`}
     >
       <div className="flex items-start gap-3">
-        <Icon icon={config.icon} className={`w-5 h-5 ${config.iconClass} flex-shrink-0 mt-0.5`} />
-        <div className="flex-1 min-w-0">
-          <AlertTitle className="flex items-center gap-2 mb-1">
-            <ProtocolIcon protocol={issue.protocol} size={16} />
+        <Icon
+          icon={config.icon}
+          className={`h-5 w-5 ${config.iconClass} mt-0.5 flex-shrink-0`}
+        />
+        <div className="min-w-0 flex-1">
+          <AlertTitle className="mb-1 flex items-center gap-2">
+            <ProtocolIcon
+              protocol={issue.protocol}
+              size={16}
+            />
             <span className="font-medium">
               {getProtocolLabel(issue.protocol)} {issue.entityType}
             </span>
             <span className="text-muted-foreground font-normal">·</span>
-            <span className="text-muted-foreground font-normal truncate">
-              {issue.entityName}
-            </span>
+            <span className="text-muted-foreground truncate font-normal">{issue.entityName}</span>
           </AlertTitle>
-          <AlertDescription className="text-sm">
-            {issue.message}
-          </AlertDescription>
-          <p className="text-xs text-muted-foreground mt-1">
+          <AlertDescription className="text-sm">{issue.message}</AlertDescription>
+          <p className="text-muted-foreground mt-1 text-xs">
             {formatRelativeTime(issue.timestamp)}
           </p>
         </div>
         {onDismiss && (
           <button
             onClick={handleDismiss}
-            className="p-1 rounded-md hover:bg-muted/50 transition-colors"
+            className="hover:bg-muted/50 rounded-md p-1 transition-colors"
             aria-label="Dismiss"
           >
-            <Icon icon={XCircle} className="w-4 h-4 text-muted-foreground" />
+            <Icon
+              icon={XCircle}
+              className="text-muted-foreground h-4 w-4"
+            />
           </button>
         )}
       </div>
@@ -166,11 +161,12 @@ function VPNIssuesListComponent({
   if (issues.length === 0) {
     return (
       <Alert className={className}>
-        <Icon icon={Info} className="w-5 h-5 text-info" />
+        <Icon
+          icon={Info}
+          className="text-info h-5 w-5"
+        />
         <AlertTitle>No Issues</AlertTitle>
-        <AlertDescription>
-          All VPN connections are working properly.
-        </AlertDescription>
+        <AlertDescription>All VPN connections are working properly.</AlertDescription>
       </Alert>
     );
   }
@@ -178,13 +174,16 @@ function VPNIssuesListComponent({
   return (
     <div className={`space-y-3 ${className}`}>
       {displayedIssues.map((issue) => (
-        <VPNIssueAlert key={issue.id} issue={issue} />
+        <VPNIssueAlert
+          key={issue.id}
+          issue={issue}
+        />
       ))}
 
-      {(showSeeAll && hiddenCount > 0) && (
+      {showSeeAll && hiddenCount > 0 && (
         <button
           onClick={handleSeeAll}
-          className="w-full py-2 text-sm text-primary hover:text-primary/80 font-medium transition-colors"
+          className="text-primary hover:text-primary/80 w-full py-2 text-sm font-medium transition-colors"
         >
           View {hiddenCount} more {hiddenCount === 1 ? 'issue' : 'issues'}
         </button>
@@ -195,4 +194,3 @@ function VPNIssuesListComponent({
 
 export const VPNIssuesList = memo(VPNIssuesListComponent);
 VPNIssuesList.displayName = 'VPNIssuesList';
-

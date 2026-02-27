@@ -122,7 +122,8 @@ export const HorizontalLayout: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Inline spinner with label in horizontal orientation — ideal for form submit states.',
+        story:
+          'Inline spinner with label in horizontal orientation — ideal for form submit states.',
       },
     },
   },
@@ -135,9 +136,15 @@ export const AllSizes: Story = {
   render: () => (
     <div className="flex items-end gap-8">
       {(['sm', 'md', 'lg', 'xl'] as const).map((size) => (
-        <div key={size} className="flex flex-col items-center gap-2">
-          <LoadingSpinner size={size} label={`${size} spinner`} />
-          <span className="text-xs text-muted-foreground font-mono">{size}</span>
+        <div
+          key={size}
+          className="flex flex-col items-center gap-2"
+        >
+          <LoadingSpinner
+            size={size}
+            label={`${size} spinner`}
+          />
+          <span className="text-muted-foreground font-mono text-xs">{size}</span>
         </div>
       ))}
     </div>
@@ -156,7 +163,7 @@ export const AllSizes: Story = {
  */
 export const CenteredAndPadded: Story = {
   render: () => (
-    <div className="w-80 border border-border rounded-2xl bg-card">
+    <div className="border-border bg-card w-80 rounded-2xl border">
       <LoadingSpinner
         centered
         padded
@@ -169,7 +176,8 @@ export const CenteredAndPadded: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Centred with padding inside a card container — the typical full-section loading state.',
+        story:
+          'Centred with padding inside a card container — the typical full-section loading state.',
       },
     },
   },
@@ -180,7 +188,7 @@ export const CenteredAndPadded: Story = {
  */
 export const FullPageLoading: Story = {
   render: () => (
-    <div className="flex items-center justify-center h-64 w-full">
+    <div className="flex h-64 w-full items-center justify-center">
       <LoadingSpinner
         size="xl"
         label="Connecting to router..."

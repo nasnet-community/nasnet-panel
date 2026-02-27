@@ -7,11 +7,12 @@
 
 import { useMachine } from '@xstate/react';
 import { useCallback, useEffect } from 'react';
-import {
-  useInstallTemplate,
-  useTemplateInstallProgress,
-} from '@nasnet/api-client/queries';
-import type { ServiceTemplate, TemplateInstallResult, TemplateInstallProgress } from '@nasnet/api-client/generated';
+import { useInstallTemplate, useTemplateInstallProgress } from '@nasnet/api-client/queries';
+import type {
+  ServiceTemplate,
+  TemplateInstallResult,
+  TemplateInstallProgress,
+} from '@nasnet/api-client/generated';
 
 import { createTemplateInstallMachine } from './templateInstallMachine';
 import type { TemplateInstallContext } from './templateInstallMachine';

@@ -10,7 +10,6 @@ import { type ARPEntry } from '@nasnet/core/types';
 
 import { ARPTable } from './ARPTable';
 
-
 describe('ARPTable', () => {
   const mockEntries: ARPEntry[] = [
     {

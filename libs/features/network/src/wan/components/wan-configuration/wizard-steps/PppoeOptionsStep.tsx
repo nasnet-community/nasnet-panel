@@ -34,10 +34,7 @@ const DEFAULT_SHOULD_USE_PEER_DNS = true;
 /**
  * @description Advanced options step for PPPoE configuration
  */
-export function PppoeOptionsStep({
-  stepper,
-  className,
-}: PppoeOptionsStepProps) {
+export function PppoeOptionsStep({ stepper, className }: PppoeOptionsStepProps) {
   const form = useForm<PppoeOptionsStepFormValues>({
     resolver: zodResolver(pppoeOptionsStepSchema) as any,
     defaultValues: stepper.getStepData('options') || {
@@ -78,14 +75,14 @@ export function PppoeOptionsStep({
         <div className="space-y-4">
           {/* MTU Presets */}
           <div>
-            <Label className="mb-component-md flex items-center gap-component-sm">
+            <Label className="mb-component-md gap-component-sm flex items-center">
               <Zap
                 className="h-4 w-4"
                 aria-hidden="true"
               />
               Quick Presets
             </Label>
-            <div className="grid grid-cols-2 gap-component-sm">
+            <div className="gap-component-sm grid grid-cols-2">
               {Object.entries(MTU_PRESETS).map(([key, preset]) => (
                 <Button
                   key={key}
@@ -94,8 +91,7 @@ export function PppoeOptionsStep({
                   size="sm"
                   onClick={() => handleApplyMTUPreset(preset.value)}
                   className={cn(
-                    form.watch('mtu') === preset.value &&
-                      'border-primary bg-primary/10'
+                    form.watch('mtu') === preset.value && 'border-primary bg-primary/10'
                   )}
                   aria-label={`Set MTU to ${preset.label} (${preset.value} bytes)`}
                 >
@@ -107,7 +103,7 @@ export function PppoeOptionsStep({
 
           {/* MTU Input */}
           <div>
-            <div className="flex items-center gap-component-sm mb-component-md">
+            <div className="gap-component-sm mb-component-md flex items-center">
               <Label htmlFor="mtu">MTU (bytes)</Label>
               <FieldHelp field="mtu" />
             </div>
@@ -117,27 +113,30 @@ export function PppoeOptionsStep({
               min={512}
               max={65535}
               step={8}
-              className="font-mono category-networking"
+              className="category-networking font-mono"
               {...form.register('mtu', { valueAsNumber: true })}
               aria-describedby="mtu-error mtu-help"
             />
             {form.formState.errors.mtu && (
               <p
                 id="mtu-error"
-                className="text-sm text-error mt-component-xs"
+                className="text-error mt-component-xs text-sm"
                 role="alert"
               >
                 {form.formState.errors.mtu.message}
               </p>
             )}
-            <p id="mtu-help" className="text-xs text-muted-foreground mt-component-xs">
+            <p
+              id="mtu-help"
+              className="text-muted-foreground mt-component-xs text-xs"
+            >
               Valid range: 512-65535 bytes (recommended: 1492 for PPPoE)
             </p>
           </div>
 
           {/* MRU Input */}
           <div>
-            <div className="flex items-center gap-component-sm mb-component-md">
+            <div className="gap-component-sm mb-component-md flex items-center">
               <Label htmlFor="mru">MRU (bytes)</Label>
               <FieldHelp field="mru" />
             </div>
@@ -147,20 +146,23 @@ export function PppoeOptionsStep({
               min={512}
               max={65535}
               step={8}
-              className="font-mono category-networking"
+              className="category-networking font-mono"
               {...form.register('mru', { valueAsNumber: true })}
               aria-describedby="mru-error mru-help"
             />
             {form.formState.errors.mru && (
               <p
                 id="mru-error"
-                className="text-sm text-error mt-component-xs"
+                className="text-error mt-component-xs text-sm"
                 role="alert"
               >
                 {form.formState.errors.mru.message}
               </p>
             )}
-            <p id="mru-help" className="text-xs text-muted-foreground mt-component-xs">
+            <p
+              id="mru-help"
+              className="text-muted-foreground mt-component-xs text-xs"
+            >
               Valid range: 512-65535 bytes (usually same as MTU)
             </p>
           </div>
@@ -174,8 +176,8 @@ export function PppoeOptionsStep({
       >
         <div className="space-y-component-md">
           {/* Add Default Route */}
-          <div className="flex items-center justify-between gap-component-lg">
-            <div className="flex items-center gap-component-sm">
+          <div className="gap-component-lg flex items-center justify-between">
+            <div className="gap-component-sm flex items-center">
               <Label htmlFor="add-default-route">Add Default Route</Label>
               <FieldHelp field="shouldAddDefaultRoute" />
             </div>
@@ -190,8 +192,8 @@ export function PppoeOptionsStep({
           </div>
 
           {/* Use Peer DNS */}
-          <div className="flex items-center justify-between gap-component-lg">
-            <div className="flex items-center gap-component-sm">
+          <div className="gap-component-lg flex items-center justify-between">
+            <div className="gap-component-sm flex items-center">
               <Label htmlFor="use-peer-dns">Use Peer DNS</Label>
               <FieldHelp field="shouldUsePeerDNS" />
             </div>
@@ -213,7 +215,7 @@ export function PppoeOptionsStep({
         description="Optional comment for this connection"
       >
         <div className="space-y-component-sm">
-          <div className="flex items-center gap-component-sm">
+          <div className="gap-component-sm flex items-center">
             <Label htmlFor="comment">Comment</Label>
             <FieldHelp field="comment" />
           </div>
@@ -229,13 +231,16 @@ export function PppoeOptionsStep({
           {form.formState.errors.comment && (
             <p
               id="comment-error"
-              className="text-sm text-error"
+              className="text-error text-sm"
               role="alert"
             >
               {form.formState.errors.comment.message}
             </p>
           )}
-          <p id="comment-help" className="text-xs text-muted-foreground">
+          <p
+            id="comment-help"
+            className="text-muted-foreground text-xs"
+          >
             {form.watch('comment')?.length || 0}/255 characters
           </p>
         </div>

@@ -7,7 +7,9 @@ title: Error Handling Patterns
 
 **Reference:** `libs/core/forms/src/` | Universal State v2 Layer 2 (Validation & Error Processing)
 
-Error handling in NasNetConnect follows a multi-layered approach that bridges backend validation errors with frontend form field errors. This guide documents the error type hierarchy, mapping patterns, and best practices for displaying errors to users.
+Error handling in NasNetConnect follows a multi-layered approach that bridges backend validation
+errors with frontend form field errors. This guide documents the error type hierarchy, mapping
+patterns, and best practices for displaying errors to users.
 
 ## Table of Contents
 
@@ -23,33 +25,35 @@ Error handling in NasNetConnect follows a multi-layered approach that bridges ba
 
 ## Error Type Hierarchy
 
-NasNetConnect uses a structured error type system to handle validation failures at different levels. All error types are defined in `libs/core/forms/src/types.ts`.
+NasNetConnect uses a structured error type system to handle validation failures at different levels.
+All error types are defined in `libs/core/forms/src/types.ts`.
 
 ### ValidationError
 
-The primary error type for validation failures. Represents a single validation error that occurred during any stage of the validation pipeline.
+The primary error type for validation failures. Represents a single validation error that occurred
+during any stage of the validation pipeline.
 
 ```typescript
 interface ValidationError {
-  code: string;           // Machine-readable error code (e.g., 'PORT_CONFLICT')
-  message: string;        // Human-readable error message for display
-  fieldPath?: string;     // Nested field path (e.g., 'peers.0.endpoint', 'ipConfig.address')
-  resourceUuid?: string;  // UUID of conflicting/related resource
-  suggestedFix?: string;  // Optional suggestion for how to resolve the error
+  code: string; // Machine-readable error code (e.g., 'PORT_CONFLICT')
+  message: string; // Human-readable error message for display
+  fieldPath?: string; // Nested field path (e.g., 'peers.0.endpoint', 'ipConfig.address')
+  resourceUuid?: string; // UUID of conflicting/related resource
+  suggestedFix?: string; // Optional suggestion for how to resolve the error
 }
 ```
 
 **Common Error Codes:**
 
-| Code | Description | Example |
-|------|-------------|---------|
-| `PORT_IN_USE` | Port is already allocated | Port 22 is in use by SSH service |
-| `IP_CONFLICT` | IP address already assigned | 192.168.1.1 is assigned to WAN interface |
-| `VLAN_OVERLAP` | VLAN range overlaps with another | VLAN 100-110 overlaps with existing 105-115 |
-| `NAME_DUPLICATE` | Resource name already exists | Bridge named "br-main" already exists |
-| `INVALID_FORMAT` | Value doesn't match expected format | Email must contain @ symbol |
-| `MISSING_DEPENDENCY` | Required dependency missing | VPN requires active WAN connection |
-| `ROUTER_UNSUPPORTED` | Feature not supported on this router | Feature requires RouterOS v6.48+ |
+| Code                 | Description                          | Example                                     |
+| -------------------- | ------------------------------------ | ------------------------------------------- |
+| `PORT_IN_USE`        | Port is already allocated            | Port 22 is in use by SSH service            |
+| `IP_CONFLICT`        | IP address already assigned          | 192.168.1.1 is assigned to WAN interface    |
+| `VLAN_OVERLAP`       | VLAN range overlaps with another     | VLAN 100-110 overlaps with existing 105-115 |
+| `NAME_DUPLICATE`     | Resource name already exists         | Bridge named "br-main" already exists       |
+| `INVALID_FORMAT`     | Value doesn't match expected format  | Email must contain @ symbol                 |
+| `MISSING_DEPENDENCY` | Required dependency missing          | VPN requires active WAN connection          |
+| `ROUTER_UNSUPPORTED` | Feature not supported on this router | Feature requires RouterOS v6.48+            |
 
 **Example:**
 
@@ -59,30 +63,31 @@ const error: ValidationError = {
   message: 'Port 22 is already in use by the SSH service',
   fieldPath: 'port',
   resourceUuid: 'ssh-service-uuid',
-  suggestedFix: 'Change to port 2222 or disable the SSH service'
+  suggestedFix: 'Change to port 2222 or disable the SSH service',
 };
 ```
 
 ### ValidationWarning
 
-Non-blocking warnings that indicate potential issues but don't prevent validation from passing. Warnings are raised when something might be problematic but is technically valid.
+Non-blocking warnings that indicate potential issues but don't prevent validation from passing.
+Warnings are raised when something might be problematic but is technically valid.
 
 ```typescript
 interface ValidationWarning {
-  code: string;      // Machine-readable warning code
-  message: string;   // Human-readable message
+  code: string; // Machine-readable warning code
+  message: string; // Human-readable message
   fieldPath?: string; // Optional field path
 }
 ```
 
 **Common Warning Codes:**
 
-| Code | Description |
-|------|-------------|
-| `RISKY_SETTING` | Configuration could cause issues (e.g., disabling firewall) |
+| Code                 | Description                                                      |
+| -------------------- | ---------------------------------------------------------------- |
+| `RISKY_SETTING`      | Configuration could cause issues (e.g., disabling firewall)      |
 | `PERFORMANCE_IMPACT` | Change may impact performance (e.g., enabling packet inspection) |
-| `DEPRECATION` | Feature is deprecated but still works |
-| `UNUSUAL_VALUE` | Setting deviates significantly from common patterns |
+| `DEPRECATION`        | Feature is deprecated but still works                            |
+| `UNUSUAL_VALUE`      | Setting deviates significantly from common patterns              |
 
 **Example:**
 
@@ -90,23 +95,24 @@ interface ValidationWarning {
 const warning: ValidationWarning = {
   code: 'RISKY_SETTING',
   message: 'Disabling the firewall will expose your network to threats',
-  fieldPath: 'firewall.enabled'
+  fieldPath: 'firewall.enabled',
 };
 ```
 
 ### ResourceConflict
 
-Detailed information about conflicts with other resources in the network. Provides context about what resource is conflicting and how.
+Detailed information about conflicts with other resources in the network. Provides context about
+what resource is conflicting and how.
 
 ```typescript
 interface ResourceConflict {
-  type: ConflictType;                    // Type of conflict: 'ip' | 'port' | 'vlan' | 'name' | 'other'
-  fieldPath: string;                     // Field that has the conflict
-  conflictingResourceUuid: string;        // UUID of the conflicting resource
-  conflictingResourceName: string;        // Human-readable name of conflicting resource
-  currentValue: string;                  // Value causing conflict
-  conflictingValue: string;               // Value it conflicts with
-  suggestedFix?: string;                  // How to resolve conflict
+  type: ConflictType; // Type of conflict: 'ip' | 'port' | 'vlan' | 'name' | 'other'
+  fieldPath: string; // Field that has the conflict
+  conflictingResourceUuid: string; // UUID of the conflicting resource
+  conflictingResourceName: string; // Human-readable name of conflicting resource
+  currentValue: string; // Value causing conflict
+  conflictingValue: string; // Value it conflicts with
+  suggestedFix?: string; // How to resolve conflict
 }
 ```
 
@@ -120,21 +126,22 @@ const conflict: ResourceConflict = {
   conflictingResourceName: 'VPN Service',
   currentValue: '1194',
   conflictingValue: '1194',
-  suggestedFix: 'Use port 1195 or higher'
+  suggestedFix: 'Use port 1195 or higher',
 };
 ```
 
 ### ValidationStageResult
 
-Result object from a single validation stage. Contains all errors, warnings, and metadata about that stage's execution.
+Result object from a single validation stage. Contains all errors, warnings, and metadata about that
+stage's execution.
 
 ```typescript
 interface ValidationStageResult {
-  stage: ValidationStage;        // Which stage: 'schema' | 'syntax' | 'cross-resource' | etc.
+  stage: ValidationStage; // Which stage: 'schema' | 'syntax' | 'cross-resource' | etc.
   status: ValidationStageStatus; // Status: 'pending' | 'running' | 'passed' | 'failed' | 'skipped'
-  readonly errors: readonly ValidationError[];     // Errors from this stage
-  readonly warnings: readonly ValidationWarning[];  // Warnings from this stage
-  durationMs?: number;           // Time taken to execute this stage (ms)
+  readonly errors: readonly ValidationError[]; // Errors from this stage
+  readonly warnings: readonly ValidationWarning[]; // Warnings from this stage
+  durationMs?: number; // Time taken to execute this stage (ms)
 }
 ```
 
@@ -148,24 +155,25 @@ const stageResult: ValidationStageResult = {
     {
       code: 'PORT_IN_USE',
       message: 'Port 1194 is already in use',
-      fieldPath: 'port'
-    }
+      fieldPath: 'port',
+    },
   ],
   warnings: [],
-  durationMs: 245
+  durationMs: 245,
 };
 ```
 
 ### ValidationResult
 
-The complete validation result after all applicable stages have executed. This is what's returned from the validation pipeline.
+The complete validation result after all applicable stages have executed. This is what's returned
+from the validation pipeline.
 
 ```typescript
 interface ValidationResult {
-  isValid: boolean;                    // true if no errors occurred
-  stages: ValidationStageResult[];      // Results from all executed stages
-  errors: ValidationError[];            // Flattened list of all errors
-  conflicts: ResourceConflict[];        // All cross-resource conflicts detected
+  isValid: boolean; // true if no errors occurred
+  stages: ValidationStageResult[]; // Results from all executed stages
+  errors: ValidationError[]; // Flattened list of all errors
+  conflicts: ResourceConflict[]; // All cross-resource conflicts detected
 }
 ```
 
@@ -193,7 +201,9 @@ const result: ValidationResult = {
 
 ## Backend Error to Form Error Mapping
 
-The `mapBackendErrors.ts` module provides utilities to convert backend validation errors into React Hook Form field errors. This bridges the gap between server-side validation and client-side form state.
+The `mapBackendErrors.ts` module provides utilities to convert backend validation errors into React
+Hook Form field errors. This bridges the gap between server-side validation and client-side form
+state.
 
 ### mapBackendErrorsToForm()
 
@@ -203,7 +213,7 @@ Maps an array of backend `ValidationError` objects to React Hook Form field erro
 function mapBackendErrorsToForm<T extends FieldValues>(
   errors: ValidationError[],
   setError: UseFormSetError<T>
-): void
+): void;
 ```
 
 **What it does:**
@@ -247,13 +257,14 @@ function CreateVPNForm() {
 
 ### clearServerErrors()
 
-Clears all server-type errors from the form before re-validation. Call this before making a new API call to prevent stale server errors.
+Clears all server-type errors from the form before re-validation. Call this before making a new API
+call to prevent stale server errors.
 
 ```typescript
 function clearServerErrors<T extends FieldValues>(
   errors: Record<string, { type?: string }>,
   clearErrors: UseFormClearErrors<T>
-): void
+): void;
 ```
 
 **Usage:**
@@ -289,7 +300,7 @@ Converts a single `ValidationError` to a React Hook Form error object.
 function toFormError(error: ValidationError): {
   type: string;
   message: string;
-}
+};
 ```
 
 **Usage:**
@@ -297,7 +308,7 @@ function toFormError(error: ValidationError): {
 ```typescript
 const backendError: ValidationError = {
   code: 'EMAIL_EXISTS',
-  message: 'Email already registered'
+  message: 'Email already registered',
 };
 
 const formError = toFormError(backendError);
@@ -309,9 +320,7 @@ const formError = toFormError(backendError);
 Groups errors by their `fieldPath` for batch processing or display.
 
 ```typescript
-function groupErrorsByField(
-  errors: ValidationError[]
-): Map<string, ValidationError[]>
+function groupErrorsByField(errors: ValidationError[]): Map<string, ValidationError[]>;
 ```
 
 **Usage:**
@@ -322,7 +331,7 @@ import { groupErrorsByField } from '@nasnet/core/forms';
 const errors = [
   { fieldPath: 'email', message: 'Already exists' },
   { fieldPath: 'email', message: 'Invalid domain' },
-  { fieldPath: 'name', message: 'Too short' }
+  { fieldPath: 'name', message: 'Too short' },
 ];
 
 const grouped = groupErrorsByField(errors);
@@ -332,7 +341,7 @@ const grouped = groupErrorsByField(errors);
 // }
 
 // Now display all errors for a field
-grouped.get('email')?.forEach(err => console.log(err.message));
+grouped.get('email')?.forEach((err) => console.log(err.message));
 // "Already exists"
 // "Invalid domain"
 ```
@@ -342,7 +351,7 @@ grouped.get('email')?.forEach(err => console.log(err.message));
 Creates a single formatted error message from multiple errors on the same field.
 
 ```typescript
-function combineFieldErrors(errors: ValidationError[]): string
+function combineFieldErrors(errors: ValidationError[]): string;
 ```
 
 **Usage:**
@@ -352,7 +361,7 @@ import { combineFieldErrors } from '@nasnet/core/forms';
 
 const errors = [
   { fieldPath: 'email', message: 'Already registered' },
-  { fieldPath: 'email', message: 'Blocked domain' }
+  { fieldPath: 'email', message: 'Blocked domain' },
 ];
 
 const message = combineFieldErrors(errors);
@@ -370,25 +379,21 @@ const message = combineFieldErrors(errors);
 
 ## i18n Error Messages
 
-Error messages support internationalization through the `error-messages.ts` module. Validation error codes map to translation keys for multi-language support.
+Error messages support internationalization through the `error-messages.ts` module. Validation error
+codes map to translation keys for multi-language support.
 
 ### createZodErrorMap()
 
 Creates a custom Zod error map that integrates with i18n. Maps Zod issue codes to translation keys.
 
 ```typescript
-function createZodErrorMap(
-  t: TranslateFunction = defaultTranslate
-): ZodErrorMap
+function createZodErrorMap(t: TranslateFunction = defaultTranslate): ZodErrorMap;
 ```
 
 **The Translation Function:**
 
 ```typescript
-type TranslateFunction = (
-  key: string,
-  params?: Record<string, string | number>
-) => string;
+type TranslateFunction = (key: string, params?: Record<string, string | number>) => string;
 ```
 
 **Usage with react-i18next:**
@@ -401,7 +406,10 @@ function MyForm() {
   const { t } = useTranslation('validation');
 
   // Option 1: Use locally
-  const schema = z.string().email().parse(input, { errorMap: createZodErrorMap(t) });
+  const schema = z
+    .string()
+    .email()
+    .parse(input, { errorMap: createZodErrorMap(t) });
 
   // Option 2: Set globally
   setGlobalErrorMap(t);
@@ -444,10 +452,11 @@ defaultTranslate('validation.string.min', { min: 5 });
 
 ### setGlobalErrorMap()
 
-Sets the global Zod error map for all future schemas. Useful when you want all validation errors to use i18n.
+Sets the global Zod error map for all future schemas. Useful when you want all validation errors to
+use i18n.
 
 ```typescript
-function setGlobalErrorMap(t?: TranslateFunction): void
+function setGlobalErrorMap(t?: TranslateFunction): void;
 ```
 
 **Usage:**
@@ -472,9 +481,7 @@ function App() {
 Utility function to safely format error objects for display. Handles various input types.
 
 ```typescript
-function formatValidationError(
-  error: string | { message: string } | undefined
-): string
+function formatValidationError(error: string | { message: string } | undefined): string;
 ```
 
 **Usage:**
@@ -499,42 +506,50 @@ formatValidationError(undefined);
 
 ## Error Flow Through Validation Pipeline
 
-Errors flow through the 7-stage validation pipeline, with different error types being generated at each stage:
+Errors flow through the 7-stage validation pipeline, with different error types being generated at
+each stage:
 
 ### Stage 1: Schema (Client-Side)
+
 - **Error Type:** Zod schema violations
 - **Examples:** Type mismatches, missing required fields
 - **Mapping:** Zod errors → ValidationError
 - **Message Source:** i18n or default messages
 
 ### Stage 2: Syntax (Client-Side)
+
 - **Error Type:** Format violations
 - **Examples:** Invalid IP addresses, malformed email, bad CIDR notation
 - **Mapping:** Syntax validators → ValidationError
 - **Message Source:** Custom validators
 
 ### Stage 3: Cross-Resource (Backend)
+
 - **Error Type:** Resource conflicts
 - **Examples:** Duplicate IPs, port conflicts, name collisions
 - **Mapping:** Backend conflict detection → ValidationError + ResourceConflict
 - **Message Source:** Backend API
 
 ### Stage 4: Dependencies (Backend)
+
 - **Error Type:** Missing or invalid dependencies
 - **Examples:** WAN interface required but not active
 - **Mapping:** Dependency graph analysis → ValidationError
 
 ### Stage 5: Network (Backend)
+
 - **Error Type:** Network-level validation
 - **Examples:** IP unreachable, VLAN unavailable
 - **Mapping:** Network tests → ValidationError
 
 ### Stage 6: Platform (Backend)
+
 - **Error Type:** Router capability issues
 - **Examples:** Feature not supported on RouterOS version
 - **Mapping:** Capability check → ValidationError
 
 ### Stage 7: Dry-Run (Backend)
+
 - **Error Type:** Simulation failures
 - **Examples:** Configuration would fail if applied
 - **Mapping:** Dry-run results → ValidationError
@@ -585,7 +600,10 @@ function EmailField({ form }) {
         className={error ? 'border-red-500' : ''}
       />
       {error && (
-        <span className="text-red-500 text-sm" role="alert">
+        <span
+          className="text-sm text-red-500"
+          role="alert"
+        >
           {error.message}
         </span>
       )}
@@ -603,11 +621,14 @@ function ValidationErrorSummary({ result }) {
   if (result.isValid) return null;
 
   return (
-    <div className="bg-red-50 border border-red-200 rounded p-4 mb-4">
-      <h3 className="font-bold text-red-900 mb-2">Validation Failed</h3>
+    <div className="mb-4 rounded border border-red-200 bg-red-50 p-4">
+      <h3 className="mb-2 font-bold text-red-900">Validation Failed</h3>
       <ul className="space-y-1">
         {result.errors.map((err, i) => (
-          <li key={i} className="text-red-700 text-sm">
+          <li
+            key={i}
+            className="text-sm text-red-700"
+          >
             {err.fieldPath && <strong>{err.fieldPath}: </strong>}
             {err.message}
           </li>
@@ -625,12 +646,10 @@ When an error has a `suggestedFix`, display it as actionable help.
 ```tsx
 function ErrorWithSuggestion({ error }) {
   return (
-    <div className="border-l-4 border-red-500 p-3 bg-red-50">
+    <div className="border-l-4 border-red-500 bg-red-50 p-3">
       <p className="font-semibold text-red-900">{error.message}</p>
       {error.suggestedFix && (
-        <p className="text-sm text-red-700 mt-1">
-          💡 Suggestion: {error.suggestedFix}
-        </p>
+        <p className="mt-1 text-sm text-red-700">💡 Suggestion: {error.suggestedFix}</p>
       )}
     </div>
   );
@@ -644,7 +663,7 @@ When a conflict exists with another resource, show context.
 ```tsx
 function ConflictDisplay({ conflict }) {
   return (
-    <div className="border-l-4 border-amber-500 p-3 bg-amber-50">
+    <div className="border-l-4 border-amber-500 bg-amber-50 p-3">
       <p className="font-semibold text-amber-900">
         {conflict.type === 'port' && `Port ${conflict.currentValue}`}
         {conflict.type === 'ip' && `IP ${conflict.currentValue}`}
@@ -652,15 +671,13 @@ function ConflictDisplay({ conflict }) {
         {' is already in use by '}
         <strong>{conflict.conflictingResourceName}</strong>
       </p>
-      <p className="text-sm text-amber-800 mt-1">
+      <p className="mt-1 text-sm text-amber-800">
         Current value: {conflict.currentValue}
         {' | Conflicting value: '}
         {conflict.conflictingValue}
       </p>
       {conflict.suggestedFix && (
-        <p className="text-sm text-amber-700 mt-2">
-          Suggested: {conflict.suggestedFix}
-        </p>
+        <p className="mt-2 text-sm text-amber-700">Suggested: {conflict.suggestedFix}</p>
       )}
     </div>
   );
@@ -674,7 +691,7 @@ Display warnings as non-blocking alerts.
 ```tsx
 function WarningAlert({ warning }) {
   return (
-    <div className="border-l-4 border-yellow-500 p-3 bg-yellow-50">
+    <div className="border-l-4 border-yellow-500 bg-yellow-50 p-3">
       <p className="text-sm text-yellow-900">
         <strong>Warning:</strong> {warning.message}
       </p>
@@ -715,13 +732,13 @@ import { mapBackendErrorsToForm, clearServerErrors } from '@nasnet/core/forms';
 const schema = z.object({
   email: z.string().email('Invalid email'),
   port: z.number().min(1).max(65535),
-  vpnName: z.string().min(1, 'Name required')
+  vpnName: z.string().min(1, 'Name required'),
 });
 
 function CreateVPNForm() {
   const form = useForm({
     resolver: zodResolver(schema),
-    mode: 'onBlur'
+    mode: 'onBlur',
   });
 
   async function onSubmit(data) {
@@ -742,10 +759,13 @@ function CreateVPNForm() {
   }
 
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+    <form
+      onSubmit={form.handleSubmit(onSubmit)}
+      className="space-y-4"
+    >
       {/* Server errors summary */}
       {form.formState.errors.root && (
-        <div className="bg-red-50 p-3 rounded border border-red-200">
+        <div className="rounded border border-red-200 bg-red-50 p-3">
           {form.formState.errors.root.message}
         </div>
       )}
@@ -759,9 +779,7 @@ function CreateVPNForm() {
           onFocus={() => clearServerErrors(form.formState.errors, form.clearErrors)}
         />
         {form.formState.errors.email && (
-          <span className="text-red-500 text-sm">
-            {form.formState.errors.email.message}
-          </span>
+          <span className="text-sm text-red-500">{form.formState.errors.email.message}</span>
         )}
       </div>
 
@@ -775,9 +793,7 @@ function CreateVPNForm() {
           onFocus={() => clearServerErrors(form.formState.errors, form.clearErrors)}
         />
         {form.formState.errors.port && (
-          <span className="text-red-500 text-sm">
-            {form.formState.errors.port.message}
-          </span>
+          <span className="text-sm text-red-500">{form.formState.errors.port.message}</span>
         )}
       </div>
 
@@ -790,13 +806,14 @@ function CreateVPNForm() {
           onFocus={() => clearServerErrors(form.formState.errors, form.clearErrors)}
         />
         {form.formState.errors.vpnName && (
-          <span className="text-red-500 text-sm">
-            {form.formState.errors.vpnName.message}
-          </span>
+          <span className="text-sm text-red-500">{form.formState.errors.vpnName.message}</span>
         )}
       </div>
 
-      <button type="submit" disabled={form.formState.isSubmitting}>
+      <button
+        type="submit"
+        disabled={form.formState.isSubmitting}
+      >
         {form.formState.isSubmitting ? 'Creating...' : 'Create VPN'}
       </button>
     </form>
@@ -818,7 +835,7 @@ function WANConfigForm() {
     schema: wanSchema,
     strategy: 'high', // Full 7-stage validation for high-risk WAN changes
     resourceUuid: routerId,
-    enabled: form.formState.isDirty
+    enabled: form.formState.isDirty,
   });
 
   async function onValidate() {
@@ -827,11 +844,11 @@ function WANConfigForm() {
 
     if (!result.isValid) {
       // Display all errors
-      result.errors.forEach(err => {
+      result.errors.forEach((err) => {
         if (err.fieldPath) {
           form.setError(err.fieldPath as any, {
             type: 'server',
-            message: err.message
+            message: err.message,
           });
         }
       });
@@ -839,7 +856,7 @@ function WANConfigForm() {
       // Display conflicts
       if (result.conflicts.length > 0) {
         form.setError('root', {
-          message: `${result.conflicts.length} conflicts detected`
+          message: `${result.conflicts.length} conflicts detected`,
         });
       }
     }
@@ -849,11 +866,18 @@ function WANConfigForm() {
     <form>
       {/* Validation progress */}
       <div className="space-y-1">
-        {pipeline.stages.map(stage => (
-          <div key={stage.stage} className="flex items-center gap-2">
-            <span className="w-24 text-sm font-mono">{stage.stage}</span>
+        {pipeline.stages.map((stage) => (
+          <div
+            key={stage.stage}
+            className="flex items-center gap-2"
+          >
+            <span className="w-24 font-mono text-sm">{stage.stage}</span>
             <span className="text-xs text-gray-600">
-              {stage.status === 'failed' ? '✗' : stage.status === 'passed' ? '✓' : '...'}
+              {stage.status === 'failed' ?
+                '✗'
+              : stage.status === 'passed' ?
+                '✓'
+              : '...'}
             </span>
             {stage.durationMs && (
               <span className="text-xs text-gray-500">({stage.durationMs}ms)</span>
@@ -874,21 +898,26 @@ function WANConfigForm() {
       </button>
 
       {validationResult && (
-        <div className={validationResult.isValid ? 'bg-green-50' : 'bg-red-50'} className="p-4 rounded mt-4">
-          {validationResult.isValid ? (
+        <div
+          className={validationResult.isValid ? 'bg-green-50' : 'bg-red-50'}
+          className="mt-4 rounded p-4"
+        >
+          {validationResult.isValid ?
             <p className="text-green-900">All validations passed!</p>
-          ) : (
-            <div>
-              <p className="font-bold text-red-900 mb-2">Validation failed:</p>
+          : <div>
+              <p className="mb-2 font-bold text-red-900">Validation failed:</p>
               <ul className="space-y-1">
                 {validationResult.errors.map((err, i) => (
-                  <li key={i} className="text-red-700 text-sm">
+                  <li
+                    key={i}
+                    className="text-sm text-red-700"
+                  >
                     {err.message}
                   </li>
                 ))}
               </ul>
             </div>
-          )}
+          }
         </div>
       )}
     </form>
@@ -904,11 +933,7 @@ function WANConfigForm() {
 
 ```typescript
 import { describe, it, expect } from 'vitest';
-import {
-  mapBackendErrorsToForm,
-  groupErrorsByField,
-  combineFieldErrors
-} from '@nasnet/core/forms';
+import { mapBackendErrorsToForm, groupErrorsByField, combineFieldErrors } from '@nasnet/core/forms';
 import type { ValidationError } from '@nasnet/core/forms';
 
 describe('Error Mapping', () => {
@@ -916,7 +941,7 @@ describe('Error Mapping', () => {
     const errors: ValidationError[] = [
       { fieldPath: 'email', message: 'Already exists', code: 'DUPLICATE' },
       { fieldPath: 'email', message: 'Invalid domain', code: 'INVALID_FORMAT' },
-      { fieldPath: 'port', message: 'In use', code: 'PORT_IN_USE' }
+      { fieldPath: 'port', message: 'In use', code: 'PORT_IN_USE' },
     ];
 
     const grouped = groupErrorsByField(errors);
@@ -928,7 +953,7 @@ describe('Error Mapping', () => {
   it('should combine multiple errors for same field', () => {
     const errors: ValidationError[] = [
       { fieldPath: 'email', message: 'Already exists', code: 'DUPLICATE' },
-      { fieldPath: 'email', message: 'Invalid domain', code: 'INVALID_FORMAT' }
+      { fieldPath: 'email', message: 'Invalid domain', code: 'INVALID_FORMAT' },
     ];
 
     const combined = combineFieldErrors(errors);
@@ -938,7 +963,7 @@ describe('Error Mapping', () => {
 
   it('should handle nested field paths', () => {
     const errors: ValidationError[] = [
-      { fieldPath: 'peers.0.endpoint', message: 'Invalid endpoint', code: 'INVALID_FORMAT' }
+      { fieldPath: 'peers.0.endpoint', message: 'Invalid endpoint', code: 'INVALID_FORMAT' },
     ];
 
     const grouped = groupErrorsByField(errors);
@@ -957,7 +982,7 @@ describe('Form Error Handling', () => {
 
     const backendErrors: ValidationError[] = [
       { fieldPath: 'email', message: 'Email already registered', code: 'DUPLICATE' },
-      { fieldPath: 'port', message: 'Port in use', code: 'PORT_IN_USE' }
+      { fieldPath: 'port', message: 'Port in use', code: 'PORT_IN_USE' },
     ];
 
     mapBackendErrorsToForm(backendErrors, result.current.setError);
@@ -974,7 +999,8 @@ describe('Form Error Handling', () => {
 
 ## Best Practices
 
-1. **Always provide fieldPath** - Errors without `fieldPath` should be displayed as form-level errors, not field-level
+1. **Always provide fieldPath** - Errors without `fieldPath` should be displayed as form-level
+   errors, not field-level
 2. **Use suggestedFix generously** - Help users understand how to resolve conflicts
 3. **Clear server errors on field edit** - Users expect errors to disappear when they start typing
 4. **Group similar errors** - Use `groupErrorsByField()` when displaying multiple errors per field

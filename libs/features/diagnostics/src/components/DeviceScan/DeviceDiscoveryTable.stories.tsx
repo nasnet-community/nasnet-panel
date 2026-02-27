@@ -33,8 +33,9 @@ function makeDevice(
     interface: iface,
     responseTime,
     firstSeen: new Date().toISOString(),
-    dhcpLease: hasDhcp
-      ? {
+    dhcpLease:
+      hasDhcp ?
+        {
           expires: new Date(Date.now() + 6 * 60 * 60 * 1000).toISOString(),
           server: '192.168.88.1',
           status: 'bound',
@@ -48,9 +49,33 @@ const sampleDevices: DiscoveredDevice[] = [
   makeDevice('192.168.88.10', 'AA:BB:CC:DD:EE:01', 'Apple', 'macbook-pro.lan', 'bridge1', 3, true),
   makeDevice('192.168.88.11', '11:22:33:44:55:01', 'Samsung', null, 'bridge1', 5, true),
   makeDevice('192.168.88.12', 'DE:AD:BE:EF:00:01', null, null, 'bridge1', 7, false),
-  makeDevice('192.168.88.13', 'CA:FE:BA:BE:00:01', 'Dell', 'workstation-01.lan', 'bridge1', 2, true),
-  makeDevice('192.168.88.14', '00:1A:2B:3C:4D:01', 'Raspberry Pi', 'pi-hole.lan', 'bridge1', 4, true),
-  makeDevice('192.168.88.15', 'FE:DC:BA:98:76:01', 'Ubiquiti', 'ap-living-room.lan', 'bridge1', 6, false),
+  makeDevice(
+    '192.168.88.13',
+    'CA:FE:BA:BE:00:01',
+    'Dell',
+    'workstation-01.lan',
+    'bridge1',
+    2,
+    true
+  ),
+  makeDevice(
+    '192.168.88.14',
+    '00:1A:2B:3C:4D:01',
+    'Raspberry Pi',
+    'pi-hole.lan',
+    'bridge1',
+    4,
+    true
+  ),
+  makeDevice(
+    '192.168.88.15',
+    'FE:DC:BA:98:76:01',
+    'Ubiquiti',
+    'ap-living-room.lan',
+    'bridge1',
+    6,
+    false
+  ),
 ];
 
 const selectedDevice = sampleDevices[1]; // macbook-pro
@@ -95,7 +120,9 @@ export const Empty: Story = {
   },
   parameters: {
     docs: {
-      description: { story: 'No devices discovered yet — the table renders with a "0 devices found" footer.' },
+      description: {
+        story: 'No devices discovered yet — the table renders with a "0 devices found" footer.',
+      },
     },
   },
 };

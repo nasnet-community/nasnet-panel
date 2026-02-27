@@ -4,7 +4,6 @@
  * Comprehensive stories demonstrating all ResourceBudgetPanel states and scenarios.
  */
 
-
 import { ResourceBudgetPanel } from './ResourceBudgetPanel';
 
 import type { ServiceInstanceResource, SystemResourceTotals } from './types';

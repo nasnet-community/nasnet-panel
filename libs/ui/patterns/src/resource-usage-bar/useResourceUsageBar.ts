@@ -210,9 +210,7 @@ function getStatusLabel(status: UsageStatus): string {
  * }
  * ```
  */
-export function useResourceUsageBar(
-  props: ResourceUsageBarProps
-): UseResourceUsageBarReturn {
+export function useResourceUsageBar(props: ResourceUsageBarProps): UseResourceUsageBarReturn {
   const {
     used,
     total,
@@ -239,10 +237,7 @@ export function useResourceUsageBar(
   }, [used, total]);
 
   // Determine status based on thresholds (memoized)
-  const status = useMemo(
-    () => calculateStatus(percentage, thresholds),
-    [percentage, thresholds]
-  );
+  const status = useMemo(() => calculateStatus(percentage, thresholds), [percentage, thresholds]);
 
   // Get semantic color token
   const colorToken = STATUS_COLOR_MAP[status];

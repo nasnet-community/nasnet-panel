@@ -87,27 +87,24 @@ function formatDateTime(timestamp: number): string {
 /**
  * Custom tooltip for bandwidth chart
  */
-const BandwidthTooltip = React.memo(function BandwidthTooltip({
-  active,
-  payload,
-  label,
-}: any) {
+const BandwidthTooltip = React.memo(function BandwidthTooltip({ active, payload, label }: any) {
   if (!active || !payload || !payload.length) return null;
 
   return (
-    <div className={cn('rounded-md border border-border bg-card p-component-sm shadow-md')}>
-      <p className="mb-component-sm text-sm font-medium text-foreground">{formatDateTime(label)}</p>
+    <div className={cn('border-border bg-card p-component-sm rounded-md border shadow-md')}>
+      <p className="mb-component-sm text-foreground text-sm font-medium">{formatDateTime(label)}</p>
       <div className="space-y-component-sm">
         {payload.map((entry: any) => (
-          <div key={entry.dataKey} className="flex items-center gap-component-sm text-sm">
+          <div
+            key={entry.dataKey}
+            className="gap-component-sm flex items-center text-sm"
+          >
             <div
               className="h-3 w-3 rounded-full"
               style={{ backgroundColor: entry.color }}
             />
             <span className="text-muted-foreground">{entry.name}:</span>
-            <span className="font-mono font-semibold">
-              {formatBandwidth(entry.value)}
-            </span>
+            <span className="font-mono font-semibold">{formatBandwidth(entry.value)}</span>
           </div>
         ))}
       </div>
@@ -211,9 +208,7 @@ const BandwidthChartComponent = forwardRef<HTMLDivElement, BandwidthChartProps>(
       return (
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
-          <AlertDescription>
-            Failed to load bandwidth chart: {error.message}
-          </AlertDescription>
+          <AlertDescription>Failed to load bandwidth chart: {error.message}</AlertDescription>
         </Alert>
       );
     }
@@ -221,8 +216,8 @@ const BandwidthChartComponent = forwardRef<HTMLDivElement, BandwidthChartProps>(
     // Empty state
     if (chartData.length === 0) {
       return (
-        <div className="flex h-[400px] items-center justify-center rounded-[var(--semantic-radius-card)] border border-border border-dashed bg-muted">
-          <p className="text-sm text-muted-foreground">
+        <div className="border-border bg-muted flex h-[400px] items-center justify-center rounded-[var(--semantic-radius-card)] border border-dashed">
+          <p className="text-muted-foreground text-sm">
             No data available for the selected time range
           </p>
         </div>
@@ -232,9 +227,7 @@ const BandwidthChartComponent = forwardRef<HTMLDivElement, BandwidthChartProps>(
     // Accessibility label
     const ariaLabel = `Bandwidth chart for ${interfaceName}. Peak transmit: ${formatBandwidth(
       peakTx
-    )}, Peak receive: ${formatBandwidth(peakRx)}. Chart shows ${
-      chartData.length
-    } data points.`;
+    )}, Peak receive: ${formatBandwidth(peakRx)}. Chart shows ${chartData.length} data points.`;
 
     return (
       <div
@@ -244,9 +237,19 @@ const BandwidthChartComponent = forwardRef<HTMLDivElement, BandwidthChartProps>(
         aria-label={ariaLabel}
       >
         <div className="h-[400px] w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={chartData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
+          <ResponsiveContainer
+            width="100%"
+            height="100%"
+          >
+            <LineChart
+              data={chartData}
+              margin={{ top: 5, right: 20, bottom: 5, left: 0 }}
+            >
+              <CartesianGrid
+                strokeDasharray="3 3"
+                stroke="hsl(var(--border))"
+                opacity={0.3}
+              />
 
               <XAxis
                 dataKey="time"

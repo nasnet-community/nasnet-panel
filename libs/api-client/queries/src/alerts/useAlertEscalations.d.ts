@@ -3,23 +3,23 @@
  * @module useAlertEscalations
  */
 export interface AlertEscalation {
-    id: string;
-    alertId: string;
-    ruleId: string;
-    currentLevel: number;
-    maxLevel: number;
-    status: 'PENDING' | 'RESOLVED' | 'MAX_REACHED';
-    nextEscalationAt?: string;
-    resolvedAt?: string;
-    resolvedBy?: string;
-    createdAt: string;
-    updatedAt: string;
+  id: string;
+  alertId: string;
+  ruleId: string;
+  currentLevel: number;
+  maxLevel: number;
+  status: 'PENDING' | 'RESOLVED' | 'MAX_REACHED';
+  nextEscalationAt?: string;
+  resolvedAt?: string;
+  resolvedBy?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 export interface UseAlertEscalationsOptions {
-    status?: 'PENDING' | 'RESOLVED' | 'MAX_REACHED';
-    limit?: number;
-    offset?: number;
-    pollInterval?: number;
+  status?: 'PENDING' | 'RESOLVED' | 'MAX_REACHED';
+  limit?: number;
+  offset?: number;
+  pollInterval?: number;
 }
 /**
  * Hook to fetch alert escalations with optional filtering
@@ -33,7 +33,9 @@ export interface UseAlertEscalationsOptions {
  * });
  * ```
  */
-export declare function useAlertEscalations(options?: UseAlertEscalationsOptions): import("@apollo/client").InteropQueryResult<any, import("@apollo/client").OperationVariables>;
+export declare function useAlertEscalations(
+  options?: UseAlertEscalationsOptions
+): import('@apollo/client').InteropQueryResult<any, import('@apollo/client').OperationVariables>;
 /**
  * Hook to fetch a single alert with its escalation status
  *
@@ -46,7 +48,9 @@ export declare function useAlertEscalations(options?: UseAlertEscalationsOptions
  * }
  * ```
  */
-export declare function useAlertWithEscalation(alertId: string): import("@apollo/client").InteropQueryResult<any, import("@apollo/client").OperationVariables>;
+export declare function useAlertWithEscalation(
+  alertId: string
+): import('@apollo/client').InteropQueryResult<any, import('@apollo/client').OperationVariables>;
 /**
  * Hook to poll for active escalations (auto-refreshing)
  *
@@ -55,5 +59,7 @@ export declare function useAlertWithEscalation(alertId: string): import("@apollo
  * const { data, loading } = useActiveEscalations(15000); // Poll every 15s
  * ```
  */
-export declare function useActiveEscalations(pollInterval?: number): import("@apollo/client").InteropQueryResult<any, import("@apollo/client").OperationVariables>;
+export declare function useActiveEscalations(
+  pollInterval?: number
+): import('@apollo/client').InteropQueryResult<any, import('@apollo/client').OperationVariables>;
 //# sourceMappingURL=useAlertEscalations.d.ts.map

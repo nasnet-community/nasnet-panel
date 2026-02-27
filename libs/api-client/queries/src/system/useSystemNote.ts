@@ -42,10 +42,7 @@ interface RouterOSNoteResponse {
  * Endpoint: GET /rest/system/note
  */
 async function fetchSystemNote(routerIp: string): Promise<SystemNote> {
-  const result = await makeRouterOSRequest<RouterOSNoteResponse>(
-    routerIp,
-    'system/note'
-  );
+  const result = await makeRouterOSRequest<RouterOSNoteResponse>(routerIp, 'system/note');
 
   if (!result.success || !result.data) {
     throw new Error(result.error || 'Failed to fetch system note');
@@ -81,9 +78,7 @@ async function fetchSystemNote(routerIp: string): Promise<SystemNote> {
  * }
  * ```
  */
-export function useSystemNote(
-  routerIp: string
-): UseQueryResult<SystemNote, Error> {
+export function useSystemNote(routerIp: string): UseQueryResult<SystemNote, Error> {
   return useQuery({
     queryKey: systemKeys.note(routerIp),
     queryFn: () => fetchSystemNote(routerIp),
@@ -92,4 +87,3 @@ export function useSystemNote(
     enabled: !!routerIp,
   });
 }
-

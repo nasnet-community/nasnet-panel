@@ -7,31 +7,49 @@ Traffic statistics for a service instance.
 Tracks uploaded/downloaded bytes with historical data retention.
 """
 type ServiceTrafficStats {
-  """Instance ID"""
+  """
+  Instance ID
+  """
   instanceID: ID!
 
-  """Total bytes uploaded (transmitted)"""
+  """
+  Total bytes uploaded (transmitted)
+  """
   totalUploadBytes: Int!
 
-  """Total bytes downloaded (received)"""
+  """
+  Total bytes downloaded (received)
+  """
   totalDownloadBytes: Int!
 
-  """Upload bytes in current period (day/week/month)"""
+  """
+  Upload bytes in current period (day/week/month)
+  """
   currentPeriodUpload: Int!
 
-  """Download bytes in current period (day/week/month)"""
+  """
+  Download bytes in current period (day/week/month)
+  """
   currentPeriodDownload: Int!
 
-  """Historical data points for chart visualization"""
+  """
+  Historical data points for chart visualization
+  """
   history: [TrafficDataPoint!]!
 
-  """Per-device breakdown (if available)"""
+  """
+  Per-device breakdown (if available)
+  """
   deviceBreakdown: [DeviceTrafficBreakdown!]!
 
-  """Traffic quota configuration (if set)"""
+  """
+  Traffic quota configuration (if set)
+  """
   quota: TrafficQuota
 
-  """Timestamp of last statistics update"""
+  """
+  Timestamp of last statistics update
+  """
   lastUpdated: DateTime!
 }
 
@@ -40,16 +58,24 @@ A single traffic data point for time-series visualization.
 Represents traffic volume at a specific timestamp.
 """
 type TrafficDataPoint {
-  """Timestamp of this data point"""
+  """
+  Timestamp of this data point
+  """
   timestamp: DateTime!
 
-  """Bytes uploaded in this interval"""
+  """
+  Bytes uploaded in this interval
+  """
   uploadBytes: Int!
 
-  """Bytes downloaded in this interval"""
+  """
+  Bytes downloaded in this interval
+  """
   downloadBytes: Int!
 
-  """Total bytes (upload + download)"""
+  """
+  Total bytes (upload + download)
+  """
   totalBytes: Int!
 }
 
@@ -58,28 +84,44 @@ Per-device traffic breakdown for a service instance.
 Shows which devices are consuming bandwidth through this service.
 """
 type DeviceTrafficBreakdown {
-  """Device identifier (MAC or IP)"""
+  """
+  Device identifier (MAC or IP)
+  """
   deviceID: String!
 
-  """Device MAC address"""
+  """
+  Device MAC address
+  """
   macAddress: String
 
-  """Device IP address"""
+  """
+  Device IP address
+  """
   ipAddress: String
 
-  """Device hostname (if available)"""
+  """
+  Device hostname (if available)
+  """
   deviceName: String
 
-  """Bytes uploaded by this device"""
+  """
+  Bytes uploaded by this device
+  """
   uploadBytes: Int!
 
-  """Bytes downloaded by this device"""
+  """
+  Bytes downloaded by this device
+  """
   downloadBytes: Int!
 
-  """Total bytes (upload + download)"""
+  """
+  Total bytes (upload + download)
+  """
   totalBytes: Int!
 
-  """Percentage of total service traffic"""
+  """
+  Percentage of total service traffic
+  """
   percentOfTotal: Float!
 }
 
@@ -88,49 +130,79 @@ Traffic quota configuration for a service instance.
 Allows setting bandwidth limits with automated warnings and actions.
 """
 type TrafficQuota {
-  """Quota ID"""
+  """
+  Quota ID
+  """
   id: ID!
 
-  """Instance ID this quota applies to"""
+  """
+  Instance ID this quota applies to
+  """
   instanceID: ID!
 
-  """Maximum bytes allowed per period (0 = unlimited)"""
+  """
+  Maximum bytes allowed per period (0 = unlimited)
+  """
   limitBytes: Int!
 
-  """Quota period (daily, weekly, monthly)"""
+  """
+  Quota period (daily, weekly, monthly)
+  """
   period: QuotaPeriod!
 
-  """Action to take when quota is reached"""
+  """
+  Action to take when quota is reached
+  """
   action: QuotaAction!
 
-  """Bytes consumed in current period"""
+  """
+  Bytes consumed in current period
+  """
   consumedBytes: Int!
 
-  """Remaining bytes in current period"""
+  """
+  Remaining bytes in current period
+  """
   remainingBytes: Int!
 
-  """Usage percentage (0-100)"""
+  """
+  Usage percentage (0-100)
+  """
   usagePercent: Float!
 
-  """Whether quota limit has been reached"""
+  """
+  Whether quota limit has been reached
+  """
   limitReached: Boolean!
 
-  """Warning threshold percentage (0-100, triggers warning alert)"""
+  """
+  Warning threshold percentage (0-100, triggers warning alert)
+  """
   warningThreshold: Int!
 
-  """Whether warning threshold has been exceeded"""
+  """
+  Whether warning threshold has been exceeded
+  """
   warningTriggered: Boolean!
 
-  """When the current period started"""
+  """
+  When the current period started
+  """
   periodStartedAt: DateTime!
 
-  """When the current period will reset"""
+  """
+  When the current period will reset
+  """
   periodEndsAt: DateTime!
 
-  """Timestamp when quota was created"""
+  """
+  Timestamp when quota was created
+  """
   createdAt: DateTime!
 
-  """Timestamp when quota was last updated"""
+  """
+  Timestamp when quota was last updated
+  """
   updatedAt: DateTime!
 }
 
@@ -138,13 +210,19 @@ type TrafficQuota {
 Quota period for traffic limits.
 """
 enum QuotaPeriod {
-  """Reset daily at midnight"""
+  """
+  Reset daily at midnight
+  """
   DAILY
 
-  """Reset weekly on Sunday at midnight"""
+  """
+  Reset weekly on Sunday at midnight
+  """
   WEEKLY
 
-  """Reset monthly on the 1st at midnight"""
+  """
+  Reset monthly on the 1st at midnight
+  """
   MONTHLY
 }
 
@@ -152,15 +230,23 @@ enum QuotaPeriod {
 Action to take when traffic quota is reached.
 """
 enum QuotaAction {
-  """Log a warning but continue allowing traffic"""
+  """
+  Log a warning but continue allowing traffic
+  """
   LOG_ONLY
 
-  """Send alert notification to user"""
+  """
+  Send alert notification to user
+  """
   ALERT
 
-  """Stop the service instance to prevent further traffic"""
+  """
+  Stop the service instance to prevent further traffic
+  """
   STOP_SERVICE
 
-  """Throttle bandwidth to a lower speed"""
+  """
+  Throttle bandwidth to a lower speed
+  """
   THROTTLE
 }

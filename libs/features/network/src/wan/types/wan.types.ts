@@ -13,12 +13,7 @@ export type WANConnectionType = 'DHCP' | 'PPPOE' | 'STATIC_IP' | 'LTE' | 'NONE';
 /**
  * WAN connection status
  */
-export type WANStatus =
-  | 'CONNECTED'
-  | 'CONNECTING'
-  | 'DISCONNECTED'
-  | 'ERROR'
-  | 'DISABLED';
+export type WANStatus = 'CONNECTED' | 'CONNECTING' | 'DISCONNECTED' | 'ERROR' | 'DISABLED';
 
 /**
  * WAN health status

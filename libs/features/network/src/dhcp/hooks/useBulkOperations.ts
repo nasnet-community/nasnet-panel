@@ -29,10 +29,7 @@ export interface BulkOperationResult {
  */
 export interface UseBulkOperationsReturn {
   /** Convert multiple leases to static bindings */
-  makeAllStatic: (
-    leaseIds: string[],
-    leases: DHCPLease[]
-  ) => Promise<BulkOperationResult>;
+  makeAllStatic: (leaseIds: string[], leases: DHCPLease[]) => Promise<BulkOperationResult>;
 
   /** Delete multiple leases */
   deleteMultiple: (leaseIds: string[]) => Promise<BulkOperationResult>;
@@ -156,13 +153,9 @@ export function useBulkOperations(routerIp: string): UseBulkOperationsReturn {
    * @param leaseIds - Array of lease IDs to delete
    * @returns Result with success/failure counts
    */
-  const deleteMultiple = async (
-    leaseIds: string[]
-  ): Promise<BulkOperationResult> => {
+  const deleteMultiple = async (leaseIds: string[]): Promise<BulkOperationResult> => {
     // Execute all mutations in parallel
-    const results = await Promise.allSettled(
-      leaseIds.map((id) => deleteMutation.mutateAsync(id))
-    );
+    const results = await Promise.allSettled(leaseIds.map((id) => deleteMutation.mutateAsync(id)));
 
     // Count successes and failures
     const succeeded = results.filter((r) => r.status === 'fulfilled').length;

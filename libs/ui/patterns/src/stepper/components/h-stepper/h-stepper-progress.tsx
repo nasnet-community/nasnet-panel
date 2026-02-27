@@ -47,9 +47,7 @@ export function HStepperProgress({
     }
 
     // Find the first step with an error - progress stops there
-    const firstErrorIndex = steps.findIndex((step) =>
-      stepsWithErrors.includes(step.id)
-    );
+    const firstErrorIndex = steps.findIndex((step) => stepsWithErrors.includes(step.id));
 
     // If there's an error before or at current position, cap progress there
     if (firstErrorIndex !== -1 && firstErrorIndex <= activeStep) {
@@ -61,7 +59,7 @@ export function HStepperProgress({
 
   return (
     <div
-      className={cn('relative h-0.5 mx-4 mb-2', className)}
+      className={cn('relative mx-4 mb-2 h-0.5', className)}
       role="progressbar"
       aria-valuenow={activeStep + 1}
       aria-valuemin={1}
@@ -70,7 +68,7 @@ export function HStepperProgress({
     >
       {/* Background track - border color (pending) */}
       <div
-        className="absolute inset-0 rounded-full bg-border"
+        className="bg-border absolute inset-0 rounded-full"
         aria-hidden="true"
       />
 

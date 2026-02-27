@@ -11,14 +11,7 @@ import * as React from 'react';
 
 import { Label, Input } from '@nasnet/ui/primitives';
 
-import {
-  FieldHelp,
-  HelpModeToggle,
-  HelpIcon,
-  HelpPopover,
-  HelpSheet,
-  useHelpMode,
-} from './index';
+import { FieldHelp, HelpModeToggle, HelpIcon, HelpPopover, HelpSheet, useHelpMode } from './index';
 
 import type { HelpContent } from './help.types';
 import type { Meta, StoryObj } from '@storybook/react';
@@ -56,7 +49,20 @@ const meta: Meta<typeof FieldHelp> = {
   argTypes: {
     field: {
       control: 'select',
-      options: ['ip', 'gateway', 'subnet', 'mac', 'port', 'interface', 'dns', 'vlan', 'dhcp', 'firewall', 'nat', 'mtu'],
+      options: [
+        'ip',
+        'gateway',
+        'subnet',
+        'mac',
+        'port',
+        'interface',
+        'dns',
+        'vlan',
+        'dhcp',
+        'firewall',
+        'nat',
+        'mtu',
+      ],
       description: 'Field key for looking up help content in i18n',
     },
     mode: {
@@ -185,7 +191,7 @@ export const TechnicalMode: Story = {
   },
   render: (args) => (
     <div className="space-y-4">
-      <p className="text-sm text-muted-foreground">
+      <p className="text-muted-foreground text-sm">
         Mode set to "technical" - will show advanced terminology
       </p>
       <div className="flex items-center gap-2">
@@ -206,7 +212,7 @@ export const SimpleMode: Story = {
   },
   render: (args) => (
     <div className="space-y-4">
-      <p className="text-sm text-muted-foreground">
+      <p className="text-muted-foreground text-sm">
         Mode set to "simple" - will show beginner-friendly explanations
       </p>
       <div className="flex items-center gap-2">
@@ -230,7 +236,7 @@ export const MobileVariant: Story = {
   },
   render: (args) => (
     <div className="space-y-4">
-      <p className="text-sm text-muted-foreground">
+      <p className="text-muted-foreground text-sm">
         Resize viewport to mobile to see bottom sheet variant
       </p>
       <div className="flex items-center gap-2">
@@ -242,8 +248,8 @@ export const MobileVariant: Story = {
   globals: {
     viewport: {
       value: 'mobile1',
-      isRotated: false
-    }
+      isRotated: false,
+    },
   },
 };
 
@@ -256,16 +262,22 @@ export const MobileVariant: Story = {
  */
 export const AllFieldTypes: Story = {
   render: () => (
-    <div className="space-y-6 w-80">
+    <div className="w-80 space-y-6">
       <h3 className="font-semibold">Network Field Help Examples</h3>
 
       {(['ip', 'gateway', 'subnet', 'mac', 'port', 'interface'] as const).map((field) => (
-        <div key={field} className="flex items-center justify-between">
+        <div
+          key={field}
+          className="flex items-center justify-between"
+        >
           <div className="flex items-center gap-2">
             <Label className="capitalize">{field}</Label>
             <FieldHelp field={field} />
           </div>
-          <Input placeholder="..." className="w-32" />
+          <Input
+            placeholder="..."
+            className="w-32"
+          />
         </div>
       ))}
     </div>
@@ -284,24 +296,24 @@ export const ModeToggle: StoryObj<typeof HelpModeToggle> = {
     const { mode } = useHelpMode();
 
     return (
-      <div className="space-y-6 p-4 border rounded-lg">
+      <div className="space-y-6 rounded-lg border p-4">
         <div className="space-y-2">
           <h3 className="font-semibold">Help Mode Toggle</h3>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-muted-foreground text-sm">
             Toggle between Simple and Technical terminology
           </p>
         </div>
 
         <HelpModeToggle />
 
-        <div className="pt-4 border-t">
+        <div className="border-t pt-4">
           <p className="text-sm">
             Current mode: <strong className="text-primary">{mode}</strong>
           </p>
         </div>
 
-        <div className="pt-4 border-t">
-          <h4 className="text-sm font-medium mb-2">Preview with current mode:</h4>
+        <div className="border-t pt-4">
+          <h4 className="mb-2 text-sm font-medium">Preview with current mode:</h4>
           <div className="flex items-center gap-2">
             <Label>Gateway</Label>
             <FieldHelp field="gateway" />
@@ -333,13 +345,16 @@ export const CompactModeToggle: StoryObj<typeof HelpModeToggle> = {
  */
 export const FormFieldIntegration: Story = {
   render: () => (
-    <div className="space-y-4 w-80">
+    <div className="w-80 space-y-4">
       <div className="space-y-2">
         <div className="flex items-center gap-1">
           <Label htmlFor="ip-input">IP Address</Label>
           <FieldHelp field="ip" />
         </div>
-        <Input id="ip-input" placeholder="192.168.1.100" />
+        <Input
+          id="ip-input"
+          placeholder="192.168.1.100"
+        />
       </div>
 
       <div className="space-y-2">
@@ -347,7 +362,10 @@ export const FormFieldIntegration: Story = {
           <Label htmlFor="gateway-input">Gateway</Label>
           <FieldHelp field="gateway" />
         </div>
-        <Input id="gateway-input" placeholder="192.168.1.1" />
+        <Input
+          id="gateway-input"
+          placeholder="192.168.1.1"
+        />
       </div>
 
       <div className="space-y-2">
@@ -355,7 +373,10 @@ export const FormFieldIntegration: Story = {
           <Label htmlFor="dns-input">DNS Server</Label>
           <FieldHelp field="dns" />
         </div>
-        <Input id="dns-input" placeholder="8.8.8.8" />
+        <Input
+          id="dns-input"
+          placeholder="8.8.8.8"
+        />
       </div>
     </div>
   ),
@@ -374,7 +395,7 @@ export const DarkTheme: Story = {
   },
   decorators: [
     (Story) => (
-      <div className="dark bg-background p-8 rounded-lg">
+      <div className="bg-background dark rounded-lg p-8">
         <div className="flex items-center gap-2">
           <Label>IP Address</Label>
           <Story />
@@ -384,8 +405,8 @@ export const DarkTheme: Story = {
   ],
   globals: {
     backgrounds: {
-      value: "dark"
-    }
+      value: 'dark',
+    },
   },
 };
 
@@ -403,7 +424,10 @@ export const RTLLayout: Story = {
   },
   decorators: [
     (Story) => (
-      <div dir="rtl" className="p-8">
+      <div
+        dir="rtl"
+        className="p-8"
+      >
         <div className="flex items-center gap-2">
           <Label>Gateway</Label>
           <Story />
@@ -424,11 +448,23 @@ export const HelpIconStandalone: StoryObj<typeof HelpIcon> = {
   render: () => (
     <div className="space-y-4">
       <div className="flex items-center gap-4">
-        <HelpIcon field="ip" size="sm" onClick={() => alert('Small icon clicked')} />
-        <HelpIcon field="ip" size="md" onClick={() => alert('Medium icon clicked')} />
-        <HelpIcon field="ip" size="lg" onClick={() => alert('Large icon clicked')} />
+        <HelpIcon
+          field="ip"
+          size="sm"
+          onClick={() => alert('Small icon clicked')}
+        />
+        <HelpIcon
+          field="ip"
+          size="md"
+          onClick={() => alert('Medium icon clicked')}
+        />
+        <HelpIcon
+          field="ip"
+          size="lg"
+          onClick={() => alert('Large icon clicked')}
+        />
       </div>
-      <p className="text-sm text-muted-foreground">
+      <p className="text-muted-foreground text-sm">
         Click icons to see alert (in real use, this opens help content)
       </p>
     </div>
@@ -450,7 +486,7 @@ export const HelpPopoverStandalone: StoryObj<typeof HelpPopover> = {
         onOpenChange={setOpen}
       >
         <button
-          className="px-4 py-2 bg-primary text-primary-foreground rounded"
+          className="bg-primary text-primary-foreground rounded px-4 py-2"
           onClick={() => setOpen(true)}
         >
           Show Popover
@@ -470,7 +506,7 @@ export const HelpSheetStandalone: StoryObj<typeof HelpSheet> = {
     return (
       <>
         <button
-          className="px-4 py-2 bg-primary text-primary-foreground rounded"
+          className="bg-primary text-primary-foreground rounded px-4 py-2"
           onClick={() => setOpen(true)}
         >
           Show Sheet
@@ -498,7 +534,7 @@ export const KeyboardNavigation: Story = {
   },
   render: (args) => (
     <div className="space-y-4">
-      <p className="text-sm text-muted-foreground">
+      <p className="text-muted-foreground text-sm">
         Tab to focus the help icon, press Enter or Space to open, Escape to close.
       </p>
       <div className="flex items-center gap-2">
@@ -530,7 +566,10 @@ export const MinimalContent: Story = {
         open={open}
         onOpenChange={setOpen}
       >
-        <HelpIcon field="custom" onClick={() => setOpen(!open)} />
+        <HelpIcon
+          field="custom"
+          onClick={() => setOpen(!open)}
+        />
       </HelpPopover>
     );
   },

@@ -10,7 +10,6 @@
  * existing addresses on the same router.
  */
 
-
 import { IPAddressForm } from './IPAddressForm';
 
 import type { IPAddressFormProps } from './types';
@@ -24,7 +23,7 @@ const mockInterfaces = [
   { id: 'ether1', name: 'ether1', type: 'ethernet' },
   { id: 'ether2', name: 'ether2', type: 'ethernet' },
   { id: 'bridge1', name: 'bridge1', type: 'bridge' },
-  { id: 'wlan1',  name: 'wlan1',  type: 'wireless' },
+  { id: 'wlan1', name: 'wlan1', type: 'wireless' },
   { id: 'vlan10', name: 'vlan10', type: 'vlan', disabled: true },
 ];
 

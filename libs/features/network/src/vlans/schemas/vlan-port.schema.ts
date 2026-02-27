@@ -83,14 +83,10 @@ export const vlanPortConfigSchema = z
     }
 
     // Trunk mode: At least one tagged VLAN is recommended
-    if (
-      data.mode === 'trunk' &&
-      (!data.taggedVlanIds || data.taggedVlanIds.length === 0)
-    ) {
+    if (data.mode === 'trunk' && (!data.taggedVlanIds || data.taggedVlanIds.length === 0)) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message:
-          'At least one tagged VLAN is recommended for trunk mode',
+        message: 'At least one tagged VLAN is recommended for trunk mode',
         path: ['taggedVlanIds'],
       });
     }
@@ -111,8 +107,7 @@ export const vlanPortConfigSchema = z
     if (data.taggedVlanIds && data.taggedVlanIds.length > MAX_VLANS_PER_PORT) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message:
-          `More than ${MAX_VLANS_PER_PORT} VLANs may not be supported by all hardware`,
+        message: `More than ${MAX_VLANS_PER_PORT} VLANs may not be supported by all hardware`,
         path: ['taggedVlanIds'],
       });
     }

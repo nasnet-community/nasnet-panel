@@ -135,27 +135,28 @@ function InAppNotificationPreferencesComponent({
     <Card className={className}>
       <CardHeader>
         <CardTitle>In-App Notification Preferences</CardTitle>
-        <CardDescription>
-          Configure how notifications appear in the application
-        </CardDescription>
+        <CardDescription>Configure how notifications appear in the application</CardDescription>
       </CardHeader>
 
       <CardContent className="space-y-component-lg">
         {/* Enable/Disable Toggle */}
         <div className="flex items-center justify-between">
           <div className="space-y-component-md">
-            <div className="flex items-center gap-component-md">
+            <div className="gap-component-md flex items-center">
               <Icon
                 icon={settings.enabled ? Bell : BellOff}
                 size="sm"
                 className={settings.enabled ? 'text-category-monitoring' : 'text-muted-foreground'}
                 aria-hidden="true"
               />
-              <Label htmlFor="notifications-enabled" className="font-medium">
+              <Label
+                htmlFor="notifications-enabled"
+                className="font-medium"
+              >
                 Enable Notifications
               </Label>
             </div>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-muted-foreground text-sm">
               Show in-app notifications for alert events
             </p>
           </div>
@@ -172,75 +173,101 @@ function InAppNotificationPreferencesComponent({
           <>
             {/* Severity Filter */}
             <div className="space-y-component-sm">
-              <Label htmlFor="severity-filter" className="font-medium">
+              <Label
+                htmlFor="severity-filter"
+                className="font-medium"
+              >
                 Severity Filter
               </Label>
-              <Select value={selectedSeverity} onValueChange={handleSeverityFilterChange}>
-                <SelectTrigger id="severity-filter" className="w-full">
+              <Select
+                value={selectedSeverity}
+                onValueChange={handleSeverityFilterChange}
+              >
+                <SelectTrigger
+                  id="severity-filter"
+                  className="w-full"
+                >
                   <SelectValue placeholder="Select minimum severity" />
                 </SelectTrigger>
                 <SelectContent>
                   {SEVERITY_OPTIONS.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
+                    <SelectItem
+                      key={option.value}
+                      value={option.value}
+                    >
                       <div className="flex flex-col">
                         <span className="font-medium">{option.label}</span>
-                        <span className="text-xs text-muted-foreground">
-                          {option.description}
-                        </span>
+                        <span className="text-muted-foreground text-xs">{option.description}</span>
                       </div>
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-muted-foreground text-xs">
                 Only show notifications matching or exceeding this severity level
               </p>
             </div>
 
             {/* Auto-Dismiss Timing */}
             <div className="space-y-component-sm">
-              <Label htmlFor="auto-dismiss" className="font-medium">
+              <Label
+                htmlFor="auto-dismiss"
+                className="font-medium"
+              >
                 Auto-Dismiss Timing
               </Label>
-              <Select value={selectedAutoDismiss} onValueChange={handleAutoDismissChange}>
-                <SelectTrigger id="auto-dismiss" className="w-full">
+              <Select
+                value={selectedAutoDismiss}
+                onValueChange={handleAutoDismissChange}
+              >
+                <SelectTrigger
+                  id="auto-dismiss"
+                  className="w-full"
+                >
                   <SelectValue placeholder="Select auto-dismiss timing" />
                 </SelectTrigger>
                 <SelectContent>
                   {AUTO_DISMISS_OPTIONS.map((option) => (
-                    <SelectItem key={option.value} value={option.value.toString()}>
+                    <SelectItem
+                      key={option.value}
+                      value={option.value.toString()}
+                    >
                       <div className="flex flex-col">
                         <span className="font-medium">{option.label}</span>
-                        <span className="text-xs text-muted-foreground">
-                          {option.description}
-                        </span>
+                        <span className="text-muted-foreground text-xs">{option.description}</span>
                       </div>
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-              <p className="text-xs text-muted-foreground">
-                {settings.autoDismissTiming === 0
-                  ? 'Notifications remain visible until manually dismissed'
-                  : `Notifications automatically close after ${settings.autoDismissTiming / 1000} seconds`}
+              <p className="text-muted-foreground text-xs">
+                {settings.autoDismissTiming === 0 ?
+                  'Notifications remain visible until manually dismissed'
+                : `Notifications automatically close after ${settings.autoDismissTiming / 1000} seconds`
+                }
               </p>
             </div>
 
             {/* Sound Toggle */}
             <div className="flex items-center justify-between">
               <div className="space-y-component-md">
-                <div className="flex items-center gap-component-md">
+                <div className="gap-component-md flex items-center">
                   <Icon
                     icon={settings.soundEnabled ? Volume2 : VolumeX}
                     size="sm"
-                    className={settings.soundEnabled ? 'text-category-monitoring' : 'text-muted-foreground'}
+                    className={
+                      settings.soundEnabled ? 'text-category-monitoring' : 'text-muted-foreground'
+                    }
                     aria-hidden="true"
                   />
-                  <Label htmlFor="sound-enabled" className="font-medium">
+                  <Label
+                    htmlFor="sound-enabled"
+                    className="font-medium"
+                  >
                     Notification Sound
                   </Label>
                 </div>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-muted-foreground text-sm">
                   Play audio alert when notifications arrive
                 </p>
               </div>
@@ -256,10 +283,10 @@ function InAppNotificationPreferencesComponent({
 
         {/* Help text when disabled */}
         {!settings.enabled && (
-          <div className="p-component-lg bg-muted rounded-[var(--semantic-radius-card)] text-sm text-muted-foreground">
+          <div className="p-component-lg bg-muted text-muted-foreground rounded-[var(--semantic-radius-card)] text-sm">
             <p>
-              In-app notifications are currently disabled. Enable them to receive real-time
-              alerts in the application.
+              In-app notifications are currently disabled. Enable them to receive real-time alerts
+              in the application.
             </p>
           </div>
         )}

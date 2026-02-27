@@ -18,8 +18,9 @@ Route guards for TanStack Router and component-level authentication checks.
 Protects routes from unauthenticated access. Redirects to login with return URL preservation.
 
 **Type signature:**
+
 ```typescript
-function requireAuth({ location }: { location: RouteLocation }): void
+function requireAuth({ location }: { location: RouteLocation }): void;
 ```
 
 **Usage with TanStack Router:**
@@ -31,12 +32,13 @@ import { requireAuth } from '@nasnet/state/stores';
 export const dashboardRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/dashboard',
-  beforeLoad: requireAuth,  // Apply guard here
+  beforeLoad: requireAuth, // Apply guard here
   component: Dashboard,
 });
 ```
 
 **How it works:**
+
 1. Checks if `isAuthenticated` is true
 2. Validates token expiry
 3. If not authenticated or token expired:
@@ -45,6 +47,7 @@ export const dashboardRoute = createRoute({
    - User can be redirected back after login
 
 **Behavior:**
+
 - ✅ Authenticated + valid token → Allow access
 - ❌ Not authenticated OR token expired → Redirect to `/login?redirect=/dashboard`
 
@@ -53,15 +56,16 @@ export const dashboardRoute = createRoute({
 Creates a route guard that checks for specific permissions.
 
 **Type signature:**
+
 ```typescript
-function requirePermission(permission: string): (context: { location: RouteLocation }) => void
+function requirePermission(permission: string): (context: { location: RouteLocation }) => void;
 ```
 
 **Usage:**
 
 ```tsx
 export const adminRoute = createRoute({
-  beforeLoad: requirePermission('admin'),  // Only admins
+  beforeLoad: requirePermission('admin'), // Only admins
   component: AdminPanel,
 });
 
@@ -72,6 +76,7 @@ export const reportsRoute = createRoute({
 ```
 
 **How it works:**
+
 1. First checks authentication (calls `requireAuth`)
 2. Then checks user permissions
 3. If permission missing:
@@ -79,6 +84,7 @@ export const reportsRoute = createRoute({
    - Includes required permission in search params
 
 **Behavior:**
+
 - ✅ Authenticated + has permission → Allow access
 - ❌ Authenticated but missing permission → Redirect to `/unauthorized?required=admin`
 - ❌ Not authenticated → Redirect to `/login`
@@ -88,8 +94,9 @@ export const reportsRoute = createRoute({
 Redirects authenticated users away from guest-only pages (login, register, etc).
 
 **Type signature:**
+
 ```typescript
-function requireGuest({ location }: { location: RouteLocation }): void
+function requireGuest({ location }: { location: RouteLocation }): void;
 ```
 
 **Usage:**
@@ -102,12 +109,14 @@ export const loginRoute = createRoute({
 ```
 
 **How it works:**
+
 1. Checks if user is authenticated AND token is valid
 2. If both true:
    - Gets redirect URL from `search.redirect` param
    - Redirects to that URL or `/dashboard` if not specified
 
 **Behavior:**
+
 - ✅ Not authenticated → Allow access to login page
 - ❌ Authenticated + valid token → Redirect to dashboard (or redirect param)
 
@@ -120,14 +129,15 @@ React hooks for checking auth status within components.
 Provides current auth status for conditional rendering.
 
 **Type signature:**
+
 ```typescript
 interface AuthStatus {
-  isAuthenticated: boolean;    // User logged in with valid token
-  isExpired: boolean;          // Token has expired
-  isExpiringSoon: boolean;     // Token expires within 5 minutes
+  isAuthenticated: boolean; // User logged in with valid token
+  isExpired: boolean; // Token has expired
+  isExpiringSoon: boolean; // Token expires within 5 minutes
 }
 
-function useRequireAuth(): AuthStatus
+function useRequireAuth(): AuthStatus;
 ```
 
 **Usage:**
@@ -149,6 +159,7 @@ function ProtectedContent() {
 ```
 
 **When to use:**
+
 - Conditional rendering based on auth status
 - Showing session expiry warnings
 - Protecting component-level features
@@ -158,8 +169,9 @@ function ProtectedContent() {
 Check if user has a specific permission.
 
 **Type signature:**
+
 ```typescript
-function useHasPermission(permission: string): boolean
+function useHasPermission(permission: string): boolean;
 ```
 
 **Usage:**
@@ -168,13 +180,14 @@ function useHasPermission(permission: string): boolean
 function AdminButton() {
   const hasAdminAccess = useHasPermission('admin');
 
-  if (!hasAdminAccess) return null;  // Don't render button
+  if (!hasAdminAccess) return null; // Don't render button
 
   return <Button onClick={openAdminPanel}>Admin Panel</Button>;
 }
 ```
 
 **Permissions example:**
+
 - `'admin'` - Full system access
 - `'reports:read'` - Can view reports
 - `'reports:write'` - Can create/edit reports
@@ -185,6 +198,7 @@ function AdminButton() {
 Get current logged-in user information.
 
 **Type signature:**
+
 ```typescript
 interface User {
   id: string;
@@ -193,7 +207,7 @@ interface User {
   permissions: string[];
 }
 
-function useCurrentUser(): User | null
+function useCurrentUser(): User | null;
 ```
 
 **Usage:**
@@ -209,13 +223,7 @@ function UserGreeting() {
 
 function PermissionsList() {
   const user = useCurrentUser();
-  return (
-    <ul>
-      {user?.permissions.map((p) => (
-        <li key={p}>{p}</li>
-      ))}
-    </ul>
-  );
+  return <ul>{user?.permissions.map((p) => <li key={p}>{p}</li>)}</ul>;
 }
 ```
 
@@ -224,6 +232,7 @@ function PermissionsList() {
 Get stable references to auth actions.
 
 **Type signature:**
+
 ```typescript
 interface AuthActions {
   login: (token, user, expiresAt, refreshToken) => void;
@@ -231,7 +240,7 @@ interface AuthActions {
   updateActivity: () => void;
 }
 
-function useAuthActions(): AuthActions
+function useAuthActions(): AuthActions;
 ```
 
 **Usage:**
@@ -241,7 +250,10 @@ function LogoutButton() {
   const { logout } = useAuthActions();
 
   return (
-    <Button onClick={logout} variant="destructive">
+    <Button
+      onClick={logout}
+      variant="destructive"
+    >
       Logout
     </Button>
   );
@@ -257,21 +269,23 @@ function LogoutButton() {
 Proactively refreshes JWT tokens before expiry to maintain sessions.
 
 **Type signature:**
+
 ```typescript
 export interface UseTokenRefreshOptions {
   refreshTokenFn: () => Promise<TokenRefreshResult>;
   onReauthRequired?: () => void;
   showNotifications?: boolean;
-  checkInterval?: number;  // Default: 60000ms (1 minute)
+  checkInterval?: number; // Default: 60000ms (1 minute)
 }
 
-function useTokenRefresh(options: UseTokenRefreshOptions): void
+function useTokenRefresh(options: UseTokenRefreshOptions): void;
 ```
 
 **Constants:**
+
 ```typescript
-const REFRESH_CHECK_INTERVAL_MS = 60_000;      // Check every 1 minute
-const MAX_REFRESH_ATTEMPTS = 3;                 // Max 3 attempts before re-auth
+const REFRESH_CHECK_INTERVAL_MS = 60_000; // Check every 1 minute
+const MAX_REFRESH_ATTEMPTS = 3; // Max 3 attempts before re-auth
 ```
 
 **Usage:**
@@ -293,7 +307,7 @@ function AuthProvider({ children }) {
       // User needs to log in again
       navigate('/login');
     },
-    showNotifications: true,  // Show toast on errors
+    showNotifications: true, // Show toast on errors
   });
 
   return children;
@@ -301,6 +315,7 @@ function AuthProvider({ children }) {
 ```
 
 **How it works:**
+
 1. Checks token expiry every 60 seconds
 2. If token expires within 5 minutes AND should retry:
    - Calls `refreshTokenFn()`
@@ -312,6 +327,7 @@ function AuthProvider({ children }) {
    - After 3 failures: shows notification + calls `onReauthRequired()`
 
 **Refresh flow:**
+
 ```
 60s interval check
   ↓
@@ -325,7 +341,9 @@ Token expiring within 5 minutes? AND can retry?
 ```
 
 **When refresh fails:**
-- After 3 failed attempts, user sees notification: *"Your session is about to expire. Please log in again."*
+
+- After 3 failed attempts, user sees notification: _"Your session is about to expire. Please log in
+  again."_
 - `onReauthRequired()` callback is triggered
 - Typically redirects to login page
 
@@ -334,10 +352,11 @@ Token expiring within 5 minutes? AND can retry?
 Create a refresh function from Apollo GraphQL mutation.
 
 **Type signature:**
+
 ```typescript
 function createMutationRefreshFn(
   mutation: () => Promise<{ token: string; expiresAt: string; refreshToken?: string }>
-): TokenRefreshFn
+): TokenRefreshFn;
 ```
 
 **Usage:**
@@ -374,21 +393,16 @@ WebSocket reconnection with exponential backoff.
 Calculate delay for retry attempt with jitter.
 
 **Type signature:**
+
 ```typescript
-function calculateBackoff(attempt: number): number
+function calculateBackoff(attempt: number): number;
 ```
 
 **Formula:** `min(baseDelay * 2^attempt + jitter, maxDelay)`
 
-**Delay schedule:**
-| Attempt | Delay | Total |
-|---------|-------|-------|
-| 0 | ~1-2s | ~1-2s |
-| 1 | ~2-3s | ~3-5s |
-| 2 | ~4-5s | ~7-10s |
-| 3 | ~8-9s | ~15-19s |
-| 4 | ~16-17s | ~31-36s |
-| 5+ | ~30s (capped) | 30+ seconds |
+**Delay schedule:** | Attempt | Delay | Total | |---------|-------|-------| | 0 | ~1-2s | ~1-2s | |
+1 | ~2-3s | ~3-5s | | 2 | ~4-5s | ~7-10s | | 3 | ~8-9s | ~15-19s | | 4 | ~16-17s | ~31-36s | | 5+ |
+~30s (capped) | 30+ seconds |
 
 **Usage:**
 
@@ -405,21 +419,23 @@ for (let attempt = 0; attempt < maxAttempts; attempt++) {
 }
 ```
 
-**Why jitter?** Prevents thundering herd — when many clients reconnect simultaneously, they don't all retry at the same time.
+**Why jitter?** Prevents thundering herd — when many clients reconnect simultaneously, they don't
+all retry at the same time.
 
 ### `sleep` — Promise-Based Delay
 
 Sleep for specified duration.
 
 **Type signature:**
+
 ```typescript
-function sleep(ms: number): Promise<void>
+function sleep(ms: number): Promise<void>;
 ```
 
 **Usage:**
 
 ```typescript
-await sleep(1000);  // Wait 1 second
+await sleep(1000); // Wait 1 second
 // Or in loops
 await sleep(calculateBackoff(attempt));
 ```
@@ -429,23 +445,24 @@ await sleep(calculateBackoff(attempt));
 Manages reconnection with exponential backoff and connection store integration.
 
 **Type signature:**
+
 ```typescript
 interface ReconnectionManagerConfig {
-  maxAttempts?: number;                        // Default: 10
-  connect: () => Promise<void>;                // Connection function
+  maxAttempts?: number; // Default: 10
+  connect: () => Promise<void>; // Connection function
   onStatusChange?: (status: WebSocketStatus) => void;
-  showNotifications?: boolean;                 // Default: true
+  showNotifications?: boolean; // Default: true
 }
 
 interface ReconnectionManager {
-  start: () => void;                           // Start reconnection
-  stop: () => void;                            // Stop reconnection
-  reset: () => void;                           // Reset attempt counter
-  getAttempts: () => number;                   // Get current attempt count
-  isActive: () => boolean;                     // Check if reconnecting
+  start: () => void; // Start reconnection
+  stop: () => void; // Stop reconnection
+  reset: () => void; // Reset attempt counter
+  getAttempts: () => number; // Get current attempt count
+  isActive: () => boolean; // Check if reconnecting
 }
 
-function createReconnectionManager(config: ReconnectionManagerConfig): ReconnectionManager
+function createReconnectionManager(config: ReconnectionManagerConfig): ReconnectionManager;
 ```
 
 **Usage:**
@@ -478,6 +495,7 @@ manager.reset();
 ```
 
 **Behavior:**
+
 - Automatically updates connection store status
 - Shows toast notifications on error/success
 - Stops after max attempts (default 10)
@@ -488,8 +506,9 @@ manager.reset();
 Create a debounced latency update function.
 
 **Type signature:**
+
 ```typescript
-function createLatencyUpdater(intervalMs?: number): (routerId: string, latencyMs: number) => void
+function createLatencyUpdater(intervalMs?: number): (routerId: string, latencyMs: number) => void;
 ```
 
 **Default interval:** 100ms
@@ -497,7 +516,7 @@ function createLatencyUpdater(intervalMs?: number): (routerId: string, latencyMs
 **Usage:**
 
 ```typescript
-const updateLatency = createLatencyUpdater(100);  // Throttle to max 1 update per 100ms
+const updateLatency = createLatencyUpdater(100); // Throttle to max 1 update per 100ms
 
 // In WebSocket ping handler
 websocket.on('pong', (latencyMs) => {
@@ -506,7 +525,8 @@ websocket.on('pong', (latencyMs) => {
 });
 ```
 
-**Why throttle?** Without throttling, frequent pings cause excessive store updates and re-renders. Throttling limits updates to reasonable intervals.
+**Why throttle?** Without throttling, frequent pings cause excessive store updates and re-renders.
+Throttling limits updates to reasonable intervals.
 
 ## Error Recovery Utilities
 
@@ -519,12 +539,13 @@ Retry, cache clearing, and error reporting.
 Execute operation with exponential backoff retry.
 
 **Type signature:**
+
 ```typescript
 interface RetryConfig {
-  maxRetries?: number;                         // Default: 3
-  initialDelayMs?: number;                     // Default: 1000
-  maxDelayMs?: number;                         // Default: 30000
-  showNotifications?: boolean;                 // Default: true
+  maxRetries?: number; // Default: 3
+  initialDelayMs?: number; // Default: 1000
+  maxDelayMs?: number; // Default: 30000
+  showNotifications?: boolean; // Default: true
   onRetry?: (attempt: number, error: Error) => void;
   onMaxRetriesExceeded?: (error: Error) => void;
   shouldRetry?: (error: Error, attempt: number) => boolean;
@@ -540,25 +561,22 @@ interface RetryResult<T> {
 async function withRetry<T>(
   operation: () => Promise<T>,
   config?: RetryConfig
-): Promise<RetryResult<T>>
+): Promise<RetryResult<T>>;
 ```
 
 **Usage:**
 
 ```typescript
-const result = await withRetry(
-  () => fetchRouterData(routerId),
-  {
-    maxRetries: 3,
-    onRetry: (attempt, error) => {
-      console.log(`Retry ${attempt}: ${error.message}`);
-    },
-    shouldRetry: (error) => {
-      // Don't retry authentication errors
-      return error.code !== 'AUTH_FAILED';
-    },
-  }
-);
+const result = await withRetry(() => fetchRouterData(routerId), {
+  maxRetries: 3,
+  onRetry: (attempt, error) => {
+    console.log(`Retry ${attempt}: ${error.message}`);
+  },
+  shouldRetry: (error) => {
+    // Don't retry authentication errors
+    return error.code !== 'AUTH_FAILED';
+  },
+});
 
 if (result.success) {
   console.log('Data:', result.data);
@@ -574,11 +592,12 @@ if (result.success) {
 Create a function that can be called to retry an operation.
 
 **Type signature:**
+
 ```typescript
 function createRetryHandler<T>(
   operation: () => Promise<T>,
   config?: RetryConfig
-): () => Promise<RetryResult<T>>
+): () => Promise<RetryResult<T>>;
 ```
 
 **Usage:**
@@ -599,11 +618,7 @@ function DataComponent() {
     }
   );
 
-  return error ? (
-    <ErrorCard onRetry={retry} />
-  ) : (
-    <DataDisplay data={data} />
-  );
+  return error ? <ErrorCard onRetry={retry} /> : <DataDisplay data={data} />;
 }
 ```
 
@@ -612,11 +627,13 @@ function DataComponent() {
 Clear Apollo cache and localStorage cache keys.
 
 **Type signature:**
+
 ```typescript
-async function clearAllCache(): Promise<void>
+async function clearAllCache(): Promise<void>;
 ```
 
 **What it clears:**
+
 - All localStorage keys starting with `apollo-` or containing `-cache`
 - All sessionStorage cache keys
 - Shows success notification
@@ -637,8 +654,9 @@ window.location.reload();
 Clear cache and reload page in one call.
 
 **Type signature:**
+
 ```typescript
-async function clearCacheAndReload(): Promise<void>
+async function clearCacheAndReload(): Promise<void>;
 ```
 
 **Usage:**
@@ -654,22 +672,20 @@ await clearCacheAndReload();
 Create structured error report for bug reporting.
 
 **Type signature:**
+
 ```typescript
 interface IssueReport {
-  message: string;           // Error message
-  code?: string;             // Error code
-  stack?: string;            // Stack trace
-  component?: string;        // Component name
-  url: string;               // Current URL
-  timestamp: string;         // ISO timestamp
-  userAgent: string;         // Browser info
-  context?: Record<string, unknown>;  // Additional context
+  message: string; // Error message
+  code?: string; // Error code
+  stack?: string; // Stack trace
+  component?: string; // Component name
+  url: string; // Current URL
+  timestamp: string; // ISO timestamp
+  userAgent: string; // Browser info
+  context?: Record<string, unknown>; // Additional context
 }
 
-function generateIssueReport(
-  error: Error,
-  context?: Record<string, unknown>
-): IssueReport
+function generateIssueReport(error: Error, context?: Record<string, unknown>): IssueReport;
 ```
 
 **Usage:**
@@ -688,26 +704,21 @@ console.log(JSON.stringify(report, null, 2));
 Generate error report and copy to clipboard.
 
 **Type signature:**
+
 ```typescript
-async function copyIssueReport(
-  error: Error,
-  context?: Record<string, unknown>
-): Promise<void>
+async function copyIssueReport(error: Error, context?: Record<string, unknown>): Promise<void>;
 ```
 
 **Usage:**
 
 ```tsx
-<Button
-  onClick={() =>
-    copyIssueReport(error, { routerId: selectedRouterId })
-  }
->
+<Button onClick={() => copyIssueReport(error, { routerId: selectedRouterId })}>
   Copy Error Details
 </Button>
 ```
 
 **Behavior:**
+
 - Copies JSON report to clipboard
 - Shows success notification
 - Falls back to console log if clipboard unavailable
@@ -717,11 +728,9 @@ async function copyIssueReport(
 Open GitHub issues page with pre-filled error report.
 
 **Type signature:**
+
 ```typescript
-function openIssueReporter(
-  error: Error,
-  context?: Record<string, unknown>
-): void
+function openIssueReporter(error: Error, context?: Record<string, unknown>): void;
 ```
 
 **Usage:**
@@ -739,6 +748,7 @@ function openIssueReporter(
 ```
 
 **What it does:**
+
 - Generates structured issue body
 - Opens GitHub issues page
 - Pre-fills title and description
@@ -749,6 +759,7 @@ function openIssueReporter(
 Create set of recovery actions for an error.
 
 **Type signature:**
+
 ```typescript
 interface RecoveryActions {
   retry: () => Promise<void>;
@@ -764,7 +775,7 @@ function createRecoveryActions(
   error: Error,
   retryFn?: () => Promise<void>,
   context?: Record<string, unknown>
-): RecoveryActions
+): RecoveryActions;
 ```
 
 **Usage:**
@@ -791,12 +802,13 @@ function ErrorBoundary({ error, onRetry }) {
 React hook for creating recovery actions.
 
 **Type signature:**
+
 ```typescript
 function useRecoveryActions(
   error: Error | null,
   retryFn?: () => Promise<void>,
   context?: Record<string, unknown>
-): RecoveryActions | null
+): RecoveryActions | null;
 ```
 
 **Usage:**
@@ -824,18 +836,18 @@ function DataComponent() {
 
 When to use each utility:
 
-| Scenario | Use | Example |
-|----------|-----|---------|
-| Protect route from unauth | `requireAuth` | Dashboard route |
-| Require specific permission | `requirePermission` | Admin panel route |
-| Redirect authenticated users | `requireGuest` | Login page route |
-| Check auth in component | `useRequireAuth` | Conditional rendering |
-| Check single permission | `useHasPermission` | Show/hide button |
-| Maintain token freshness | `useTokenRefresh` | AuthProvider setup |
-| Auto-reconnect WebSocket | `createReconnectionManager` | Connection loss handling |
-| Retry failed operations | `withRetry` | Fetch errors |
-| Report errors to users | `createRecoveryActions` | Error boundary |
-| Clear corrupted data | `clearAllCache` | Severe errors |
+| Scenario                     | Use                         | Example                  |
+| ---------------------------- | --------------------------- | ------------------------ |
+| Protect route from unauth    | `requireAuth`               | Dashboard route          |
+| Require specific permission  | `requirePermission`         | Admin panel route        |
+| Redirect authenticated users | `requireGuest`              | Login page route         |
+| Check auth in component      | `useRequireAuth`            | Conditional rendering    |
+| Check single permission      | `useHasPermission`          | Show/hide button         |
+| Maintain token freshness     | `useTokenRefresh`           | AuthProvider setup       |
+| Auto-reconnect WebSocket     | `createReconnectionManager` | Connection loss handling |
+| Retry failed operations      | `withRetry`                 | Fetch errors             |
+| Report errors to users       | `createRecoveryActions`     | Error boundary           |
+| Clear corrupted data         | `clearAllCache`             | Severe errors            |
 
 ## See Also
 

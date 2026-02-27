@@ -55,7 +55,10 @@ export const WithLabel: Story = {
 export const Checked: Story = {
   render: () => (
     <div className="flex items-center space-x-2">
-      <Switch id="enabled" defaultChecked />
+      <Switch
+        id="enabled"
+        defaultChecked
+      />
       <Label htmlFor="enabled">Enabled</Label>
     </div>
   ),
@@ -65,14 +68,27 @@ export const Disabled: Story = {
   render: () => (
     <div className="space-y-4">
       <div className="flex items-center space-x-2">
-        <Switch id="disabled-off" disabled />
-        <Label htmlFor="disabled-off" className="text-muted-foreground">
+        <Switch
+          id="disabled-off"
+          disabled
+        />
+        <Label
+          htmlFor="disabled-off"
+          className="text-muted-foreground"
+        >
           Disabled Off
         </Label>
       </div>
       <div className="flex items-center space-x-2">
-        <Switch id="disabled-on" disabled defaultChecked />
-        <Label htmlFor="disabled-on" className="text-muted-foreground">
+        <Switch
+          id="disabled-on"
+          disabled
+          defaultChecked
+        />
+        <Label
+          htmlFor="disabled-on"
+          className="text-muted-foreground"
+        >
           Disabled On
         </Label>
       </div>
@@ -82,33 +98,33 @@ export const Disabled: Story = {
 
 export const SettingsForm: Story = {
   render: () => (
-    <div className="space-y-4 max-w-md">
+    <div className="max-w-md space-y-4">
       <h3 className="text-lg font-medium">Network Settings</h3>
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <div className="space-y-0.5">
             <Label htmlFor="dhcp">DHCP Server</Label>
-            <p className="text-sm text-muted-foreground">
-              Automatically assign IP addresses
-            </p>
+            <p className="text-muted-foreground text-sm">Automatically assign IP addresses</p>
           </div>
-          <Switch id="dhcp" defaultChecked />
+          <Switch
+            id="dhcp"
+            defaultChecked
+          />
         </div>
         <div className="flex items-center justify-between">
           <div className="space-y-0.5">
             <Label htmlFor="firewall">Firewall</Label>
-            <p className="text-sm text-muted-foreground">
-              Block unauthorized access
-            </p>
+            <p className="text-muted-foreground text-sm">Block unauthorized access</p>
           </div>
-          <Switch id="firewall" defaultChecked />
+          <Switch
+            id="firewall"
+            defaultChecked
+          />
         </div>
         <div className="flex items-center justify-between">
           <div className="space-y-0.5">
             <Label htmlFor="logging">Logging</Label>
-            <p className="text-sm text-muted-foreground">
-              Record system events
-            </p>
+            <p className="text-muted-foreground text-sm">Record system events</p>
           </div>
           <Switch id="logging" />
         </div>
@@ -129,7 +145,10 @@ export const Mobile: Story = {
         <Label htmlFor="wifi-mobile">WiFi</Label>
         <div className="flex items-center justify-between">
           <span className="text-sm">Enable wireless connection</span>
-          <Switch id="wifi-mobile" defaultChecked />
+          <Switch
+            id="wifi-mobile"
+            defaultChecked
+          />
         </div>
       </div>
     </div>
@@ -145,14 +164,17 @@ export const Tablet: Story = {
   render: () => (
     <div className="max-w-md">
       <div className="space-y-4">
-        <div className="flex items-center justify-between rounded-lg border border-border p-4">
+        <div className="border-border flex items-center justify-between rounded-lg border p-4">
           <div className="space-y-1">
             <Label htmlFor="nat-tablet">Network Address Translation</Label>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-muted-foreground text-xs">
               Translate internal addresses to external IP
             </p>
           </div>
-          <Switch id="nat-tablet" defaultChecked />
+          <Switch
+            id="nat-tablet"
+            defaultChecked
+          />
         </div>
       </div>
     </div>
@@ -166,24 +188,29 @@ export const Desktop: Story = {
     },
   },
   render: () => (
-    <div className="space-y-6 max-w-2xl">
+    <div className="max-w-2xl space-y-6">
       <div className="space-y-4">
         <h2 className="text-xl font-semibold">Advanced Settings</h2>
-        <div className="grid gap-6 border-t border-border pt-6">
+        <div className="border-border grid gap-6 border-t pt-6">
           <div className="flex items-start justify-between">
             <div className="space-y-2">
               <Label htmlFor="jumbo-desktop">Jumbo Frames</Label>
-              <p className="text-sm text-muted-foreground max-w-xs">
-                Enable support for frames larger than standard Ethernet (1500 bytes). Can improve throughput for high-speed networks.
+              <p className="text-muted-foreground max-w-xs text-sm">
+                Enable support for frames larger than standard Ethernet (1500 bytes). Can improve
+                throughput for high-speed networks.
               </p>
             </div>
-            <Switch id="jumbo-desktop" defaultChecked />
+            <Switch
+              id="jumbo-desktop"
+              defaultChecked
+            />
           </div>
-          <div className="flex items-start justify-between border-t border-border pt-6">
+          <div className="border-border flex items-start justify-between border-t pt-6">
             <div className="space-y-2">
               <Label htmlFor="csum-desktop">Checksum Offload</Label>
-              <p className="text-sm text-muted-foreground max-w-xs">
-                Offload checksum calculation to hardware. Reduces CPU usage but may cause issues with some devices.
+              <p className="text-muted-foreground max-w-xs text-sm">
+                Offload checksum calculation to hardware. Reduces CPU usage but may cause issues
+                with some devices.
               </p>
             </div>
             <Switch id="csum-desktop" />
@@ -217,20 +244,27 @@ export const AccessibilityTest: Story = {
     <div className="space-y-6">
       <div className="space-y-2">
         <h3 className="font-medium">Keyboard Navigation Test</h3>
-        <p className="text-sm text-muted-foreground">
-          Use Tab to focus, Space or Enter to toggle
-        </p>
-        <div className="flex items-center gap-2 rounded-lg border border-border bg-muted/50 p-4">
+        <p className="text-muted-foreground text-sm">Use Tab to focus, Space or Enter to toggle</p>
+        <div className="border-border bg-muted/50 flex items-center gap-2 rounded-lg border p-4">
           <Switch id="a11y-1" />
           <Label htmlFor="a11y-1">First Switch</Label>
         </div>
-        <div className="flex items-center gap-2 rounded-lg border border-border bg-muted/50 p-4">
-          <Switch id="a11y-2" defaultChecked />
+        <div className="border-border bg-muted/50 flex items-center gap-2 rounded-lg border p-4">
+          <Switch
+            id="a11y-2"
+            defaultChecked
+          />
           <Label htmlFor="a11y-2">Second Switch</Label>
         </div>
-        <div className="flex items-center gap-2 rounded-lg border border-border bg-muted/50 p-4">
-          <Switch id="a11y-3" disabled />
-          <Label htmlFor="a11y-3" className="text-muted-foreground">
+        <div className="border-border bg-muted/50 flex items-center gap-2 rounded-lg border p-4">
+          <Switch
+            id="a11y-3"
+            disabled
+          />
+          <Label
+            htmlFor="a11y-3"
+            className="text-muted-foreground"
+          >
             Third Switch (disabled)
           </Label>
         </div>

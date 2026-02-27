@@ -8,7 +8,9 @@ extend type Query {
   Returns instances that have updates available.
   """
   availableUpdates(
-    """Router ID"""
+    """
+    Router ID
+    """
     routerID: ID!
   ): [UpdateInfo!]!
 
@@ -17,10 +19,14 @@ extend type Query {
   Returns null if no update available.
   """
   instanceUpdateInfo(
-    """Router ID"""
+    """
+    Router ID
+    """
     routerID: ID!
 
-    """Instance ID"""
+    """
+    Instance ID
+    """
     instanceID: ID!
   ): UpdateInfo
 }

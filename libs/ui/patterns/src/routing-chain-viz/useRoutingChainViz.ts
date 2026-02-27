@@ -1,10 +1,5 @@
 import { useMemo } from 'react';
-import type {
-  RoutingChainData,
-  ChainHopData,
-  HopHealth,
-  UseRoutingChainVizReturn,
-} from './types';
+import type { RoutingChainData, ChainHopData, HopHealth, UseRoutingChainVizReturn } from './types';
 
 function getHopHealth(hop: ChainHopData): HopHealth {
   if (!hop.healthy) return 'unhealthy';
@@ -16,8 +11,7 @@ function getHopHealth(hop: ChainHopData): HopHealth {
 function getOverallHealth(hops: ChainHopData[]): HopHealth {
   if (hops.length === 0) return 'unknown';
   if (hops.some((h) => !h.healthy)) return 'unhealthy';
-  if (hops.some((h) => h.latencyMs !== null && h.latencyMs > 200))
-    return 'degraded';
+  if (hops.some((h) => h.latencyMs !== null && h.latencyMs > 200)) return 'degraded';
   return 'healthy';
 }
 
@@ -34,9 +28,7 @@ const KILL_SWITCH_LABELS: Record<string, string> = {
   ALLOW_DIRECT: 'Allow Direct Connection',
 };
 
-export function useRoutingChainViz(
-  chain: RoutingChainData | null
-): UseRoutingChainVizReturn {
+export function useRoutingChainViz(chain: RoutingChainData | null): UseRoutingChainVizReturn {
   return useMemo(() => {
     if (!chain) {
       return {
@@ -66,8 +58,9 @@ export function useRoutingChainViz(
       chain.deviceMac ||
       `Device ${chain.deviceId.slice(0, 8)}`;
 
-    const killSwitchLabel = chain.killSwitchEnabled
-      ? `Kill Switch: ${KILL_SWITCH_LABELS[chain.killSwitchMode] || chain.killSwitchMode}`
+    const killSwitchLabel =
+      chain.killSwitchEnabled ?
+        `Kill Switch: ${KILL_SWITCH_LABELS[chain.killSwitchMode] || chain.killSwitchMode}`
       : 'Kill Switch: Disabled';
 
     const hopNames = hops.map((h) => h.serviceName).join(' → ');

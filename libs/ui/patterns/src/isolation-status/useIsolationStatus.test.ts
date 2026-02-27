@@ -589,7 +589,7 @@ describe('useIsolationStatus', () => {
     it('should export LAYER_ICONS', () => {
       expect(LAYER_ICONS).toMatchObject({
         'IP Binding': 'Network',
-        'Directory': 'FolderLock',
+        Directory: 'FolderLock',
         'Port Registry': 'Webhook',
         'Process Binding': 'Activity',
       });

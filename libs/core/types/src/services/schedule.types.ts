@@ -329,9 +329,7 @@ export function formatTimeRange(startTime: string, endTime: string): string {
  */
 export function formatDays(days: number[]): string {
   const sorted = [...days].sort((a, b) => a - b);
-  return sorted
-    .map((day) => DAYS_OF_WEEK.find((d) => d.value === day)?.short || '')
-    .join(', ');
+  return sorted.map((day) => DAYS_OF_WEEK.find((d) => d.value === day)?.short || '').join(', ');
 }
 
 /**

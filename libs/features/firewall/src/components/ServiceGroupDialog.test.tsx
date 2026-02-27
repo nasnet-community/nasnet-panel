@@ -128,7 +128,12 @@ const defaultProps = {
 };
 
 function renderDialog(props = {}) {
-  return render(<ServiceGroupDialog {...defaultProps} {...props} />);
+  return render(
+    <ServiceGroupDialog
+      {...defaultProps}
+      {...props}
+    />
+  );
 }
 
 async function openServicePicker(user: ReturnType<typeof userEvent.setup>) {
@@ -136,10 +141,7 @@ async function openServicePicker(user: ReturnType<typeof userEvent.setup>) {
   await user.click(pickerButton);
 }
 
-async function selectService(
-  user: ReturnType<typeof userEvent.setup>,
-  serviceName: string
-) {
+async function selectService(user: ReturnType<typeof userEvent.setup>, serviceName: string) {
   const option = screen.getByRole('option', { name: new RegExp(serviceName, 'i') });
   await user.click(option);
 }
@@ -151,9 +153,7 @@ async function selectService(
 describe('ServiceGroupDialog', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.spyOn(useCustomServicesModule, 'useCustomServices').mockReturnValue(
-      mockUseCustomServices
-    );
+    vi.spyOn(useCustomServicesModule, 'useCustomServices').mockReturnValue(mockUseCustomServices);
   });
 
   afterEach(() => {
@@ -170,9 +170,7 @@ describe('ServiceGroupDialog', () => {
 
       expect(screen.getByRole('dialog')).toBeInTheDocument();
       expect(screen.getByText('Create Group')).toBeInTheDocument();
-      expect(
-        screen.getByText(/group multiple services together/i)
-      ).toBeInTheDocument();
+      expect(screen.getByText(/group multiple services together/i)).toBeInTheDocument();
     });
 
     it('renders in edit mode with pre-selected services', () => {
@@ -233,9 +231,7 @@ describe('ServiceGroupDialog', () => {
       await user.click(submitButton);
 
       await waitFor(() => {
-        expect(
-          screen.getByText(/group must contain at least one port/i)
-        ).toBeInTheDocument();
+        expect(screen.getByText(/group must contain at least one port/i)).toBeInTheDocument();
       });
     });
 
@@ -605,10 +601,20 @@ describe('ServiceGroupDialog', () => {
       await user.type(nameInput, 'test');
 
       // Close dialog
-      rerender(<ServiceGroupDialog {...defaultProps} open={false} />);
+      rerender(
+        <ServiceGroupDialog
+          {...defaultProps}
+          open={false}
+        />
+      );
 
       // Re-open dialog
-      rerender(<ServiceGroupDialog {...defaultProps} open={true} />);
+      rerender(
+        <ServiceGroupDialog
+          {...defaultProps}
+          open={true}
+        />
+      );
 
       // Verify form is reset
       expect(screen.getByLabelText(/group name/i)).toHaveValue('');

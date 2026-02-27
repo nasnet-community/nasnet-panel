@@ -12,7 +12,16 @@
  * @see WCAG 4.1.3: Status Messages
  */
 
-import { useState, useCallback, useEffect, createContext, useContext, useRef, memo, type ReactNode } from 'react';
+import {
+  useState,
+  useCallback,
+  useEffect,
+  createContext,
+  useContext,
+  useRef,
+  memo,
+  type ReactNode,
+} from 'react';
 
 import { cn } from '@nasnet/ui/primitives';
 
@@ -347,11 +356,7 @@ function VisuallyHiddenComponent({
   as: Component = 'span',
   className,
 }: VisuallyHiddenProps) {
-  return (
-    <Component className={cn('sr-only', className)}>
-      {children}
-    </Component>
-  );
+  return <Component className={cn('sr-only', className)}>{children}</Component>;
 }
 
 export const VisuallyHidden = memo(VisuallyHiddenComponent);

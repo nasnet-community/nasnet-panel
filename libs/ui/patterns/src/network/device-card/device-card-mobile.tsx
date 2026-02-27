@@ -10,14 +10,7 @@
 
 import { useState, useCallback } from 'react';
 
-import {
-  Edit,
-  Network,
-  Ban,
-  Settings,
-  History,
-  ChevronRight,
-} from 'lucide-react';
+import { Edit, Network, Ban, Settings, History, ChevronRight } from 'lucide-react';
 
 import {
   Button,
@@ -138,10 +131,10 @@ export function DeviceCardMobile({
       <Card
         id={id}
         className={cn(
-          'group relative p-component-md transition-all duration-200 active:scale-[0.98]',
-          'bg-card border border-border rounded-[var(--semantic-radius-card)]',
+          'p-component-md group relative transition-all duration-200 active:scale-[0.98]',
+          'bg-card border-border rounded-[var(--semantic-radius-card)] border',
           'shadow-[var(--semantic-shadow-card)]',
-          isSelected && 'border-primary ring-2 ring-primary/20',
+          isSelected && 'border-primary ring-primary/20 ring-2',
           'min-h-[44px]', // WCAG AAA touch target
           className
         )}
@@ -158,17 +151,18 @@ export function DeviceCardMobile({
       >
         <div className="flex items-center gap-3">
           {/* Device icon container */}
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-muted border border-border">
-            <Icon className="h-5 w-5 text-foreground" aria-hidden="true" />
+          <div className="bg-muted border-border flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border">
+            <Icon
+              className="text-foreground h-5 w-5"
+              aria-hidden="true"
+            />
           </div>
 
           {/* Content */}
-          <div className="flex-1 min-w-0">
+          <div className="min-w-0 flex-1">
             {/* Name + Status row */}
             <div className="flex items-center justify-between gap-2">
-              <h3 className="truncate text-sm font-semibold text-foreground">
-                {displayName}
-              </h3>
+              <h3 className="text-foreground truncate text-sm font-semibold">{displayName}</h3>
               <span
                 className={cn(statusDotVariants({ status: statusColor }))}
                 aria-hidden="true"
@@ -176,31 +170,46 @@ export function DeviceCardMobile({
             </div>
 
             {/* Info row */}
-            <div className="mt-0.5 flex items-center gap-2 text-xs text-muted-foreground">
+            <div className="text-muted-foreground mt-0.5 flex items-center gap-2 text-xs">
               {device.ip && <span className="font-mono">{device.ip}</span>}
               {device.ip && <span aria-hidden="true">•</span>}
               <span className={cn(connectionBadgeVariants({ type: device.connectionType }))}>
-                <ConnectionIcon className="h-3 w-3" aria-hidden="true" />
+                <ConnectionIcon
+                  className="h-3 w-3"
+                  aria-hidden="true"
+                />
                 {connectionText}
               </span>
             </div>
           </div>
 
           {/* Chevron indicator */}
-          <ChevronRight className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
+          <ChevronRight
+            className="text-muted-foreground h-5 w-5"
+            aria-hidden="true"
+          />
         </div>
       </Card>
 
       {/* Bottom Sheet for device details */}
-      <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-        <SheetContent side="bottom" className="h-[70vh] overflow-y-auto">
+      <Sheet
+        open={isSheetOpen}
+        onOpenChange={setIsSheetOpen}
+      >
+        <SheetContent
+          side="bottom"
+          className="h-[70vh] overflow-y-auto"
+        >
           <SheetHeader className="pb-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-muted/50">
-                <Icon className="h-6 w-6 text-foreground" aria-hidden="true" />
+              <div className="bg-muted/50 flex h-12 w-12 items-center justify-center rounded-lg">
+                <Icon
+                  className="text-foreground h-6 w-6"
+                  aria-hidden="true"
+                />
               </div>
-              <div className="flex-1 min-w-0">
-                {isRenaming ? (
+              <div className="min-w-0 flex-1">
+                {isRenaming ?
                   <Input
                     value={renameValue}
                     onChange={(e) => setRenameValue(e.target.value)}
@@ -216,10 +225,8 @@ export function DeviceCardMobile({
                     autoFocus
                     aria-label="Device name"
                   />
-                ) : (
-                  <SheetTitle className="truncate">{displayName}</SheetTitle>
-                )}
-                <SheetDescription className="truncate mt-0.5">
+                : <SheetTitle className="truncate">{displayName}</SheetTitle>}
+                <SheetDescription className="mt-0.5 truncate">
                   {vendorName || deviceTypeLabel}
                 </SheetDescription>
               </div>
@@ -239,25 +246,28 @@ export function DeviceCardMobile({
           <Separator />
 
           {/* Device Details */}
-          <div className="py-4 space-y-4">
+          <div className="space-y-4 py-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <dt className="text-xs text-muted-foreground">IP Address</dt>
+                <dt className="text-muted-foreground text-xs">IP Address</dt>
                 <dd className="font-mono text-sm">{device.ip || 'N/A'}</dd>
               </div>
               <div>
-                <dt className="text-xs text-muted-foreground">MAC Address</dt>
+                <dt className="text-muted-foreground text-xs">MAC Address</dt>
                 <dd className="font-mono text-sm">{formattedMac}</dd>
               </div>
               <div>
-                <dt className="text-xs text-muted-foreground">Connection</dt>
+                <dt className="text-muted-foreground text-xs">Connection</dt>
                 <dd className="flex items-center gap-1 text-sm">
-                  <ConnectionIcon className="h-4 w-4" aria-hidden="true" />
+                  <ConnectionIcon
+                    className="h-4 w-4"
+                    aria-hidden="true"
+                  />
                   {connectionText}
                 </dd>
               </div>
               <div>
-                <dt className="text-xs text-muted-foreground">Device Type</dt>
+                <dt className="text-muted-foreground text-xs">Device Type</dt>
                 <dd className="flex items-center gap-2 text-sm">
                   {deviceTypeLabel}
                   {showConfidenceIndicator && deviceTypeConfidence !== undefined && (
@@ -271,27 +281,23 @@ export function DeviceCardMobile({
               </div>
               {vendorName && (
                 <div className="col-span-2">
-                  <dt className="text-xs text-muted-foreground">Vendor</dt>
+                  <dt className="text-muted-foreground text-xs">Vendor</dt>
                   <dd className="text-sm">{vendorName}</dd>
                 </div>
               )}
               {device.signalStrength !== undefined && (
                 <div>
-                  <dt className="text-xs text-muted-foreground">Signal</dt>
+                  <dt className="text-muted-foreground text-xs">Signal</dt>
                   <dd className="text-sm">{device.signalStrength} dBm</dd>
                 </div>
               )}
               <div>
-                <dt className="text-xs text-muted-foreground">First Seen</dt>
-                <dd className="text-sm">
-                  {new Date(device.firstSeen).toLocaleDateString()}
-                </dd>
+                <dt className="text-muted-foreground text-xs">First Seen</dt>
+                <dd className="text-sm">{new Date(device.firstSeen).toLocaleDateString()}</dd>
               </div>
               <div>
-                <dt className="text-xs text-muted-foreground">Last Seen</dt>
-                <dd className="text-sm">
-                  {new Date(device.lastSeen).toLocaleString()}
-                </dd>
+                <dt className="text-muted-foreground text-xs">Last Seen</dt>
+                <dd className="text-sm">{new Date(device.lastSeen).toLocaleString()}</dd>
               </div>
             </div>
           </div>
@@ -300,13 +306,13 @@ export function DeviceCardMobile({
 
           {/* Actions */}
           {showActions && (
-            <div className="py-4 space-y-2">
-              <h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">
+            <div className="space-y-2 py-4">
+              <h4 className="text-muted-foreground mb-3 text-xs font-medium uppercase tracking-wider">
                 Actions
               </h4>
               <Button
                 variant="outline"
-                className="w-full justify-start h-12 min-h-[44px]"
+                className="h-12 min-h-[44px] w-full justify-start"
                 onClick={() => {
                   setIsRenaming(true);
                 }}
@@ -316,7 +322,7 @@ export function DeviceCardMobile({
               </Button>
               <Button
                 variant="outline"
-                className="w-full justify-start h-12 min-h-[44px]"
+                className="h-12 min-h-[44px] w-full justify-start"
                 onClick={() => setShowStaticIpDialog(true)}
               >
                 <Network className="mr-3 h-4 w-4" />
@@ -324,7 +330,7 @@ export function DeviceCardMobile({
               </Button>
               <Button
                 variant="outline"
-                className="w-full justify-start h-12 min-h-[44px]"
+                className="h-12 min-h-[44px] w-full justify-start"
                 onClick={() => {
                   handleConfigure();
                   setIsSheetOpen(false);
@@ -335,7 +341,7 @@ export function DeviceCardMobile({
               </Button>
               <Button
                 variant="outline"
-                className="w-full justify-start h-12 min-h-[44px]"
+                className="h-12 min-h-[44px] w-full justify-start"
                 onClick={() => {
                   handleConfigure();
                   setIsSheetOpen(false);
@@ -347,7 +353,7 @@ export function DeviceCardMobile({
               <Separator className="my-3" />
               <Button
                 variant="outline"
-                className="w-full justify-start h-12 min-h-[44px] text-destructive hover:text-destructive hover:bg-destructive/10 border-destructive/30"
+                className="text-destructive hover:text-destructive hover:bg-destructive/10 border-destructive/30 h-12 min-h-[44px] w-full justify-start"
                 onClick={() => setShowBlockConfirmation(true)}
               >
                 <Ban className="mr-3 h-4 w-4" />
@@ -359,13 +365,14 @@ export function DeviceCardMobile({
       </Sheet>
 
       {/* Static IP Assignment Dialog */}
-      <Dialog open={showStaticIpDialog} onOpenChange={setShowStaticIpDialog}>
+      <Dialog
+        open={showStaticIpDialog}
+        onOpenChange={setShowStaticIpDialog}
+      >
         <DialogContent className="max-w-[90vw] sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Assign Static IP</DialogTitle>
-            <DialogDescription>
-              Assign a static IP address to {displayName}.
-            </DialogDescription>
+            <DialogDescription>Assign a static IP address to {displayName}.</DialogDescription>
           </DialogHeader>
           <div className="py-4">
             <Input

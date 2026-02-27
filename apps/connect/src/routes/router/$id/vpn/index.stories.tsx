@@ -2,7 +2,6 @@ import { Skeleton } from '@nasnet/ui/primitives';
 
 import type { Meta, StoryObj } from '@storybook/react';
 
-
 /**
  * VPN Index route renders the VPNDashboard component, which depends on
  * TanStack Router params and useVPNStats. Since we cannot render the real
@@ -13,12 +12,12 @@ import type { Meta, StoryObj } from '@storybook/react';
 
 function VPNRouteSkeleton() {
   return (
-    <div className="px-4 sm:px-6 py-6">
-      <div className="max-w-6xl mx-auto space-y-6">
+    <div className="px-4 py-6 sm:px-6">
+      <div className="mx-auto max-w-6xl space-y-6">
         {/* Header */}
         <div className="flex items-start justify-between">
           <div>
-            <Skeleton className="h-9 w-52 mb-2" />
+            <Skeleton className="mb-2 h-9 w-52" />
             <Skeleton className="h-4 w-72" />
           </div>
           <Skeleton className="h-10 w-24" />
@@ -26,14 +25,17 @@ function VPNRouteSkeleton() {
         {/* Status Hero */}
         <Skeleton className="h-48 w-full rounded-2xl" />
         {/* Navigation Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <Skeleton className="h-36 rounded-xl" />
           <Skeleton className="h-36 rounded-xl" />
         </div>
         {/* Protocol Stats Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
           {[...Array(6)].map((_, i) => (
-            <Skeleton key={i} className="h-32 rounded-xl" />
+            <Skeleton
+              key={i}
+              className="h-32 rounded-xl"
+            />
           ))}
         </div>
       </div>
@@ -43,35 +45,33 @@ function VPNRouteSkeleton() {
 
 function VPNRouteError() {
   return (
-    <div className="px-4 sm:px-6 py-6">
-      <div className="max-w-6xl mx-auto space-y-6">
+    <div className="px-4 py-6 sm:px-6">
+      <div className="mx-auto max-w-6xl space-y-6">
         <div className="flex items-start justify-between">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-1">
-              VPN Dashboard
-            </h1>
-            <p className="text-sm text-muted-foreground">
+            <h1 className="text-foreground mb-1 text-2xl font-bold sm:text-3xl">VPN Dashboard</h1>
+            <p className="text-muted-foreground text-sm">
               Monitor and manage your VPN infrastructure
             </p>
           </div>
           <button
-            className="flex items-center gap-2 min-h-[44px] min-w-[44px] px-3 border border-border rounded-md text-sm"
+            className="border-border flex min-h-[44px] min-w-[44px] items-center gap-2 rounded-md border px-3 text-sm"
             aria-label="Refresh VPN dashboard"
           >
             Refresh
           </button>
         </div>
         <div
-          className="bg-error/10 dark:bg-error/20 border-2 border-error rounded-2xl p-6"
+          className="bg-error/10 dark:bg-error/20 border-error rounded-2xl border-2 p-6"
           role="alert"
         >
-          <h3 className="text-lg font-semibold text-foreground mb-2">
+          <h3 className="text-foreground mb-2 text-lg font-semibold">
             Failed to load VPN statistics
           </h3>
-          <p className="text-sm text-muted-foreground mb-4">
+          <p className="text-muted-foreground mb-4 text-sm">
             Unable to retrieve VPN data from the router. Please check your connection.
           </p>
-          <button className="px-3 py-2 border border-border rounded-md text-sm min-h-[44px]">
+          <button className="border-border min-h-[44px] rounded-md border px-3 py-2 text-sm">
             Try Again
           </button>
         </div>

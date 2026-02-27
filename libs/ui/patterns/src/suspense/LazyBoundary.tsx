@@ -87,10 +87,10 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
       // Default error UI
       return (
         <div className="flex flex-col items-center justify-center p-4 text-center">
-          <div className="text-destructive font-medium mb-2">Something went wrong</div>
+          <div className="text-destructive mb-2 font-medium">Something went wrong</div>
           <button
             onClick={this.resetError}
-            className="text-sm text-primary hover:underline"
+            className="text-primary text-sm hover:underline"
           >
             Try again
           </button>
@@ -134,7 +134,7 @@ export function SkeletonLoader({
   switch (variant) {
     case 'card':
       return (
-        <div className={cn('p-4 space-y-4', className)}>
+        <div className={cn('space-y-4 p-4', className)}>
           <div className={cn(baseClass, 'h-6 w-1/2')} />
           <div className={cn(baseClass, 'h-32 w-full')} />
           <div className="flex gap-2">
@@ -148,16 +148,25 @@ export function SkeletonLoader({
       return (
         <div className={cn('space-y-2', className)}>
           {/* Header */}
-          <div className="flex gap-4 pb-2 border-b">
+          <div className="flex gap-4 border-b pb-2">
             {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className={cn(baseClass, 'h-4 flex-1')} />
+              <div
+                key={i}
+                className={cn(baseClass, 'h-4 flex-1')}
+              />
             ))}
           </div>
           {/* Rows */}
           {Array.from({ length: rows }).map((_, i) => (
-            <div key={i} className="flex gap-4 py-2">
+            <div
+              key={i}
+              className="flex gap-4 py-2"
+            >
               {Array.from({ length: 4 }).map((_, j) => (
-                <div key={j} className={cn(baseClass, 'h-4 flex-1')} />
+                <div
+                  key={j}
+                  className={cn(baseClass, 'h-4 flex-1')}
+                />
               ))}
             </div>
           ))}
@@ -167,7 +176,7 @@ export function SkeletonLoader({
     case 'chart':
       return (
         <div className={cn('p-4', className)}>
-          {showTitle && <div className={cn(baseClass, 'h-6 w-1/3 mb-4')} />}
+          {showTitle && <div className={cn(baseClass, 'mb-4 h-6 w-1/3')} />}
           <div className={cn(baseClass, 'h-48 w-full')} />
         </div>
       );
@@ -176,7 +185,7 @@ export function SkeletonLoader({
     default:
       return (
         <div className={cn('space-y-2', className)}>
-          {showTitle && <div className={cn(baseClass, 'h-6 w-1/3 mb-4')} />}
+          {showTitle && <div className={cn(baseClass, 'mb-4 h-6 w-1/3')} />}
           {Array.from({ length: rows }).map((_, i) => (
             <div
               key={i}
@@ -251,12 +260,18 @@ export function LazyBoundary({
   skeletonRows = 3,
 }: LazyBoundaryProps) {
   const suspenseFallback = fallback ?? (
-    <SkeletonLoader variant={skeletonVariant} rows={skeletonRows} />
+    <SkeletonLoader
+      variant={skeletonVariant}
+      rows={skeletonRows}
+    />
   );
 
   return (
     <div className={className}>
-      <ErrorBoundary fallback={errorFallback} onError={onError}>
+      <ErrorBoundary
+        fallback={errorFallback}
+        onError={onError}
+      >
         <Suspense fallback={suspenseFallback}>{children}</Suspense>
       </ErrorBoundary>
     </div>

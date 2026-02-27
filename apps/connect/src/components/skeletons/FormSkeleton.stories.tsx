@@ -10,7 +10,8 @@ const meta: Meta<typeof FormSkeleton> = {
     layout: 'centered',
     docs: {
       description: {
-        component: 'Loading skeleton for form views. Used for configuration forms, settings pages, etc. Provides a skeleton layout with section headers, form fields with labels, helper text, and action buttons.',
+        component:
+          'Loading skeleton for form views. Used for configuration forms, settings pages, etc. Provides a skeleton layout with section headers, form fields with labels, helper text, and action buttons.',
       },
     },
   },
@@ -33,7 +34,13 @@ export const WithSections: Story = {
     showSections: true,
     showActions: true,
   },
-  decorators: [(Story) => <div style={{ width: 600 }}><Story /></div>],
+  decorators: [
+    (Story) => (
+      <div style={{ width: 600 }}>
+        <Story />
+      </div>
+    ),
+  ],
 };
 
 export const Compact: Story = {
@@ -41,7 +48,13 @@ export const Compact: Story = {
     fields: 3,
     showActions: false,
   },
-  decorators: [(Story) => <div style={{ width: 400 }}><Story /></div>],
+  decorators: [
+    (Story) => (
+      <div style={{ width: 400 }}>
+        <Story />
+      </div>
+    ),
+  ],
 };
 
 export const Wide: Story = {
@@ -51,5 +64,11 @@ export const Wide: Story = {
     sections: 2,
     showActions: true,
   },
-  decorators: [(Story) => <div style={{ width: 800 }}><Story /></div>],
+  decorators: [
+    (Story) => (
+      <div style={{ width: 800 }}>
+        <Story />
+      </div>
+    ),
+  ],
 };

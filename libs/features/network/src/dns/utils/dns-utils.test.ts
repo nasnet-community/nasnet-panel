@@ -244,9 +244,7 @@ describe('isDuplicateHostname', () => {
     expect(isDuplicateHostname('nas.local', existingEntries, '1')).toBe(false);
 
     // But other entries should still be detected as duplicates
-    expect(isDuplicateHostname('printer.local', existingEntries, '1')).toBe(
-      true
-    );
+    expect(isDuplicateHostname('printer.local', existingEntries, '1')).toBe(true);
   });
 
   it('should trim whitespace when checking', () => {
@@ -259,10 +257,7 @@ describe('isDuplicateHostname', () => {
   });
 
   it('should handle entries without IDs', () => {
-    const entriesWithoutIds = [
-      { name: 'nas.local' },
-      { name: 'printer.local' },
-    ];
+    const entriesWithoutIds = [{ name: 'nas.local' }, { name: 'printer.local' }];
 
     expect(isDuplicateHostname('nas.local', entriesWithoutIds)).toBe(true);
     expect(isDuplicateHostname('router.local', entriesWithoutIds)).toBe(false);

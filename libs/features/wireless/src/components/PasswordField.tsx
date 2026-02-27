@@ -26,11 +26,7 @@ export interface PasswordFieldProps {
  *
  * @description Sensitive field component with password masking and reveal toggle
  */
-function PasswordFieldComponent({
-  password,
-  label = 'Password',
-  className,
-}: PasswordFieldProps) {
+function PasswordFieldComponent({ password, label = 'Password', className }: PasswordFieldProps) {
   const [isVisible, setIsVisible] = React.useState(false);
   const [copied, setCopied] = React.useState(false);
 
@@ -56,13 +52,11 @@ function PasswordFieldComponent({
 
   return (
     <div className={cn('flex items-center justify-between', className)}>
-      <span className="text-sm text-muted-foreground">
-        {label}
-      </span>
-      <div className="flex items-center gap-component-sm">
+      <span className="text-muted-foreground text-sm">{label}</span>
+      <div className="gap-component-sm flex items-center">
         {/* Password display */}
         <code
-          className="text-sm font-mono text-foreground"
+          className="text-foreground font-mono text-sm"
           aria-label={isVisible ? 'Password visible' : 'Password hidden'}
         >
           {isVisible ? password : '••••••••'}
@@ -72,7 +66,7 @@ function PasswordFieldComponent({
         <button
           onClick={handleToggleVisibility}
           type="button"
-          className="h-11 w-11 flex items-center justify-center rounded hover:bg-muted transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          className="hover:bg-muted focus-visible:ring-ring flex h-11 w-11 items-center justify-center rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
           aria-label={isVisible ? 'Hide password' : 'Show password'}
           aria-pressed={isVisible}
         >
@@ -88,7 +82,7 @@ function PasswordFieldComponent({
           <button
             onClick={handleCopy}
             type="button"
-            className="h-11 w-11 flex items-center justify-center rounded hover:bg-muted transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            className="hover:bg-muted focus-visible:ring-ring flex h-11 w-11 items-center justify-center rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
             aria-label="Copy password"
           >
             <Icon

@@ -35,9 +35,7 @@ import type { NATRuleBuilderProps } from './nat-rule-builder.types';
  * - Mobile (<640px): Sheet with card-based form sections, 44px touch targets
  * - Tablet/Desktop (>=640px): Dialog with inline form and live preview panel
  */
-export const NATRuleBuilder = memo(function NATRuleBuilder(
-  props: NATRuleBuilderProps
-) {
+export const NATRuleBuilder = memo(function NATRuleBuilder(props: NATRuleBuilderProps) {
   const platform = usePlatform();
 
   switch (platform) {

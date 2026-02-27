@@ -153,11 +153,7 @@ export function useKillSwitchStatus(routerId: string, deviceId: string) {
  */
 export function useSetKillSwitch() {
   const [setKillSwitchMutation, mutationState] = useMutation(SET_KILL_SWITCH, {
-    refetchQueries: [
-      GET_DEVICE_ROUTING_MATRIX,
-      GET_DEVICE_ROUTINGS,
-      GET_KILL_SWITCH_STATUS,
-    ],
+    refetchQueries: [GET_DEVICE_ROUTING_MATRIX, GET_DEVICE_ROUTINGS, GET_KILL_SWITCH_STATUS],
   });
 
   const setKillSwitch = useCallback(

@@ -22,7 +22,7 @@ const meta: Meta<typeof ProtocolSelector> = {
   },
   decorators: [
     (Story) => (
-      <div className="max-w-lg mx-auto">
+      <div className="mx-auto max-w-lg">
         <Story />
       </div>
     ),

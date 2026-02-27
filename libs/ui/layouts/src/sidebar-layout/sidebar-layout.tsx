@@ -54,20 +54,13 @@ const gapClasses = {
  */
 const SidebarLayoutImpl = React.forwardRef<HTMLDivElement, SidebarLayoutProps>(
   (
-    {
-      children,
-      sidebar,
-      sidebarWidth = '16rem',
-      sidebarPosition = 'left',
-      gap = 'md',
-      className,
-    },
+    { children, sidebar, sidebarWidth = '16rem', sidebarPosition = 'left', gap = 'md', className },
     ref
   ) => {
     const sidebarElement = (
       <aside
         className={cn(
-          'shrink-0 bg-card border-border transition-all duration-300 ease-in-out',
+          'bg-card border-border shrink-0 transition-all duration-300 ease-in-out',
           'border-r'
         )}
         style={{ width: sidebarWidth }}
@@ -76,16 +69,16 @@ const SidebarLayoutImpl = React.forwardRef<HTMLDivElement, SidebarLayoutProps>(
       </aside>
     );
 
-      return (
-        <section
-          ref={ref}
-          className={cn('flex flex-col md:flex-row', gapClasses[gap], className)}
-        >
-          {sidebarPosition === 'left' && sidebarElement}
-          <main className="min-w-0 flex-1">{children}</main>
-          {sidebarPosition === 'right' && sidebarElement}
-        </section>
-      );
+    return (
+      <section
+        ref={ref}
+        className={cn('flex flex-col md:flex-row', gapClasses[gap], className)}
+      >
+        {sidebarPosition === 'left' && sidebarElement}
+        <main className="min-w-0 flex-1">{children}</main>
+        {sidebarPosition === 'right' && sidebarElement}
+      </section>
+    );
   }
 );
 

@@ -217,7 +217,13 @@ const mockCustomTemplate: FirewallTemplate = {
 const mockCurrentRules = [
   { id: '*1', chain: 'input', action: 'accept', comment: 'Accept established', disabled: false },
   { id: '*2', chain: 'input', action: 'drop', comment: 'Drop invalid', disabled: false },
-  { id: '*3', chain: 'forward', action: 'accept', comment: 'Accept LAN forwarded', disabled: false },
+  {
+    id: '*3',
+    chain: 'forward',
+    action: 'accept',
+    comment: 'Accept LAN forwarded',
+    disabled: false,
+  },
 ];
 
 /**
@@ -279,7 +285,7 @@ const meta = {
   decorators: [
     (Story) => (
       <QueryClientProvider client={queryClient}>
-        <div className="min-h-screen bg-background">
+        <div className="bg-background min-h-screen">
           <Story />
         </div>
       </QueryClientProvider>

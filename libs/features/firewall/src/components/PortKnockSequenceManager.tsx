@@ -40,34 +40,30 @@ export interface PortKnockSequenceManagerProps {
  * @param props.onCreate - Callback when creating a new sequence
  * @returns Platform-appropriate port knock sequence manager
  */
-const PortKnockSequenceManagerComponent = React.memo(
-  function PortKnockSequenceManagerComponent({
-    className,
-    onEdit,
-    onCreate,
-  }: PortKnockSequenceManagerProps) {
-    // Platform detection: Mobile (<640px), Tablet (640-1024px), Desktop (>1024px)
-    const platform = usePlatform();
+const PortKnockSequenceManagerComponent = React.memo(function PortKnockSequenceManagerComponent({
+  className,
+  onEdit,
+  onCreate,
+}: PortKnockSequenceManagerProps) {
+  // Platform detection: Mobile (<640px), Tablet (640-1024px), Desktop (>1024px)
+  const platform = usePlatform();
 
-    // Memoize callbacks for stable references
-    const memoizedOnEdit = useCallback(onEdit || (() => {}), [onEdit]);
-    const memoizedOnCreate = useCallback(onCreate || (() => {}), [onCreate]);
+  // Memoize callbacks for stable references
+  const memoizedOnEdit = useCallback(onEdit || (() => {}), [onEdit]);
+  const memoizedOnCreate = useCallback(onCreate || (() => {}), [onCreate]);
 
-    return platform === 'mobile' ? (
+  return platform === 'mobile' ?
       <PortKnockSequenceManagerMobile
         className={className}
         onEdit={memoizedOnEdit}
         onCreate={memoizedOnCreate}
       />
-    ) : (
-      <PortKnockSequenceManagerDesktop
+    : <PortKnockSequenceManagerDesktop
         className={className}
         onEdit={memoizedOnEdit}
         onCreate={memoizedOnCreate}
-      />
-    );
-  }
-);
+      />;
+});
 
 PortKnockSequenceManagerComponent.displayName = 'PortKnockSequenceManager';
 

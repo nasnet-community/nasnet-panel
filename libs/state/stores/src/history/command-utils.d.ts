@@ -61,13 +61,13 @@ export declare function executeAction(action: UndoableActionInput): Promise<stri
  * ```
  */
 export declare function createEditAction<T>(params: {
-    fieldName: string;
-    oldValue: T;
-    newValue: T;
-    apply: (value: T) => void | Promise<void>;
-    resourceId?: string;
-    resourceType?: string;
-    scope?: ActionScope;
+  fieldName: string;
+  oldValue: T;
+  newValue: T;
+  apply: (value: T) => void | Promise<void>;
+  resourceId?: string;
+  resourceType?: string;
+  scope?: ActionScope;
 }): UndoableActionInput;
 /**
  * Create a delete action with restore capability
@@ -85,13 +85,13 @@ export declare function createEditAction<T>(params: {
  * ```
  */
 export declare function createDeleteAction<T>(params: {
-    itemName: string;
-    deletedItem: T;
-    onDelete: () => void | Promise<void>;
-    onRestore: (item: T) => void | Promise<void>;
-    resourceId?: string;
-    resourceType?: string;
-    scope?: ActionScope;
+  itemName: string;
+  deletedItem: T;
+  onDelete: () => void | Promise<void>;
+  onRestore: (item: T) => void | Promise<void>;
+  resourceId?: string;
+  resourceType?: string;
+  scope?: ActionScope;
 }): UndoableActionInput;
 /**
  * Create a create action with delete as undo
@@ -110,11 +110,11 @@ export declare function createDeleteAction<T>(params: {
  * ```
  */
 export declare function createCreateAction<TId = string>(params: {
-    itemName: string;
-    onCreate: () => TId | Promise<TId>;
-    onDelete: (id: TId) => void | Promise<void>;
-    resourceType?: string;
-    scope?: ActionScope;
+  itemName: string;
+  onCreate: () => TId | Promise<TId>;
+  onDelete: (id: TId) => void | Promise<void>;
+  resourceType?: string;
+  scope?: ActionScope;
 }): UndoableActionInput;
 /**
  * Create a reorder action for list item movements
@@ -131,13 +131,13 @@ export declare function createCreateAction<TId = string>(params: {
  * ```
  */
 export declare function createReorderAction(params: {
-    listName: string;
-    fromIndex: number;
-    toIndex: number;
-    apply: (fromIndex: number, toIndex: number) => void | Promise<void>;
-    resourceId?: string;
-    resourceType?: string;
-    scope?: ActionScope;
+  listName: string;
+  fromIndex: number;
+  toIndex: number;
+  apply: (fromIndex: number, toIndex: number) => void | Promise<void>;
+  resourceId?: string;
+  resourceType?: string;
+  scope?: ActionScope;
 }): UndoableActionInput;
 /**
  * Create a composite action that groups multiple changes as one undoable unit
@@ -156,14 +156,14 @@ export declare function createReorderAction(params: {
  * ```
  */
 export declare function createCompositeAction(params: {
-    description: string;
-    actions: Array<{
-        execute: () => void | Promise<void>;
-        undo: () => void | Promise<void>;
-    }>;
-    scope?: ActionScope;
-    resourceId?: string;
-    resourceType?: string;
+  description: string;
+  actions: Array<{
+    execute: () => void | Promise<void>;
+    undo: () => void | Promise<void>;
+  }>;
+  scope?: ActionScope;
+  resourceId?: string;
+  resourceType?: string;
 }): UndoableActionInput;
 /**
  * Create an undoable action for a Change Set
@@ -193,10 +193,10 @@ export declare function createCompositeAction(params: {
  * ```
  */
 export declare function createChangeSetAction(params: {
-    changeSetId: string;
-    changeSetName: string;
-    onReapply: () => void | Promise<void>;
-    onRollback: () => void | Promise<void>;
+  changeSetId: string;
+  changeSetName: string;
+  onReapply: () => void | Promise<void>;
+  onRollback: () => void | Promise<void>;
 }): UndoableActionInput;
 /**
  * Execute multiple actions as a single batch
@@ -214,13 +214,13 @@ export declare function createChangeSetAction(params: {
  * ```
  */
 export declare function executeBatch(params: {
-    description: string;
-    actions: Array<{
-        execute: () => void | Promise<void>;
-        undo: () => void | Promise<void>;
-    }>;
-    scope?: ActionScope;
-    resourceType?: string;
+  description: string;
+  actions: Array<{
+    execute: () => void | Promise<void>;
+    undo: () => void | Promise<void>;
+  }>;
+  scope?: ActionScope;
+  resourceType?: string;
 }): Promise<string>;
 /**
  * Hook to get undo/redo capabilities for a specific field
@@ -242,9 +242,9 @@ export declare function executeBatch(params: {
  * ```
  */
 export declare function useFieldEdit(params: {
-    fieldName: string;
-    resourceId?: string;
-    resourceType?: string;
-    scope?: ActionScope;
+  fieldName: string;
+  resourceId?: string;
+  resourceType?: string;
+  scope?: ActionScope;
 }): <T>(oldValue: T, newValue: T, apply: (value: T) => void | Promise<void>) => string;
 //# sourceMappingURL=command-utils.d.ts.map

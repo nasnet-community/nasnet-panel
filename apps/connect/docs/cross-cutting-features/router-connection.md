@@ -1,8 +1,11 @@
 # Router Connection
 
-The router connection system handles discovering routers on the network, validating credentials, establishing connections, and maintaining them over time with heartbeat monitoring and automatic reconnection.
+The router connection system handles discovering routers on the network, validating credentials,
+establishing connections, and maintaining them over time with heartbeat monitoring and automatic
+reconnection.
 
 **Key files:**
+
 - `libs/features/router-discovery/src/` — discovery UI components and services
 - `libs/state/stores/src/connection/connection.store.ts` — connection state (Zustand)
 - `libs/state/stores/src/router/router.store.ts` — router list and metadata
@@ -12,6 +15,7 @@ The router connection system handles discovering routers on the network, validat
 - `libs/api-client/core/` — Apollo client with auth links
 
 **Cross-references:**
+
 - See `../state-management/zustand-stores.md` for store patterns
 - See `../data-fetching/graphql-hooks.md` for Apollo client setup
 
@@ -36,10 +40,13 @@ interface NetworkScannerProps {
 ```
 
 The scanner:
+
 1. Validates the subnet string via `validateSubnet()`
-2. Gets the default subnet via `getDefaultSubnet()` (from browser network info or fallback to `192.168.88.0/24`)
+2. Gets the default subnet via `getDefaultSubnet()` (from browser network info or fallback to
+   `192.168.88.0/24`)
 3. Calls `startNetworkScan(subnet)` from `scanService`
-4. The backend scans the subnet by sending ARP/ICMP probes and checking for RouterOS API on port 8728
+4. The backend scans the subnet by sending ARP/ICMP probes and checking for RouterOS API on port
+   8728
 5. Returns `ScanResult[]` with IP address, MAC, hostname, and RouterOS version when detected
 
 Progress is shown with animated feedback (`framer-motion`) during the scan, with a cancel button.
@@ -72,11 +79,13 @@ Validates the IP address format before submitting.
 
 `libs/features/router-discovery/src/components/RouterList.tsx`
 
-Displays discovered/saved routers with connection status indicator. Used on the router selection page.
+Displays discovered/saved routers with connection status indicator. Used on the router selection
+page.
 
 `libs/features/router-discovery/src/components/RouterCard.tsx`
 
 Per-router card showing:
+
 - Router IP and hostname
 - RouterOS version (if discovered)
 - Connection status badge (connected/disconnected)
@@ -104,9 +113,11 @@ interface CredentialDialogProps {
 }
 ```
 
-Default credentials auto-fill from `DEFAULT_CREDENTIALS` (username: `admin`, password: empty string) — the MikroTik factory default.
+Default credentials auto-fill from `DEFAULT_CREDENTIALS` (username: `admin`, password: empty string)
+— the MikroTik factory default.
 
-The `saveCredentials` flag controls whether credentials are stored in the router store for future connections.
+The `saveCredentials` flag controls whether credentials are stored in the router store for future
+connections.
 
 ### Credential Validation
 
@@ -133,7 +144,8 @@ testConnection.mutate(
 );
 ```
 
-The validation calls the backend which attempts to connect to the RouterOS API (`/rest/system/identity`) and returns the router identity on success.
+The validation calls the backend which attempts to connect to the RouterOS API
+(`/rest/system/identity`) and returns the router identity on success.
 
 ---
 
@@ -157,7 +169,7 @@ interface ConnectionState {
 
   // Reconnection tracking
   reconnectAttempts: number;
-  maxReconnectAttempts: number;  // Default: 10
+  maxReconnectAttempts: number; // Default: 10
   isReconnecting: boolean;
 
   // Legacy compatibility fields (deprecated but present)
@@ -178,7 +190,8 @@ interface RouterConnection {
 
 ### Persistence
 
-Only `activeRouterId` persists to localStorage. All connection status resets on page reload (forces a fresh connection check).
+Only `activeRouterId` persists to localStorage. All connection status resets on page reload (forces
+a fresh connection check).
 
 ### Key Actions
 
@@ -213,12 +226,12 @@ const exceeded = store.hasExceededMaxAttempts(); // boolean
 
 ```typescript
 // ✅ GOOD: Only re-renders when wsStatus changes
-const wsStatus = useConnectionStore(state => state.wsStatus);
+const wsStatus = useConnectionStore((state) => state.wsStatus);
 
 // ✅ GOOD: Multiple fields with shallow comparison
 import { shallow } from 'zustand/shallow';
 const { wsStatus, isReconnecting } = useConnectionStore(
-  state => ({ wsStatus: state.wsStatus, isReconnecting: state.isReconnecting }),
+  (state) => ({ wsStatus: state.wsStatus, isReconnecting: state.isReconnecting }),
   shallow
 );
 
@@ -230,7 +243,8 @@ const store = useConnectionStore();
 
 ## WebSocket Lifecycle
 
-NasNet uses Apollo Client's WebSocket link for GraphQL subscriptions (real-time router data). The connection lifecycle:
+NasNet uses Apollo Client's WebSocket link for GraphQL subscriptions (real-time router data). The
+connection lifecycle:
 
 ```
 Page load → Apollo initializes WS link
@@ -251,7 +265,8 @@ Page load → Apollo initializes WS link
                         [wsStatus: 'connecting']
 ```
 
-The Apollo WebSocket link is configured in `libs/api-client/core/` with subscription support. When the WS connects, it's used for all GraphQL subscriptions. REST queries fall back to HTTP.
+The Apollo WebSocket link is configured in `libs/api-client/core/` with subscription support. When
+the WS connects, it's used for all GraphQL subscriptions. REST queries fall back to HTTP.
 
 ---
 
@@ -270,6 +285,7 @@ function App() {
 ```
 
 Behavior:
+
 - Runs every **30 seconds** (when `currentRouterIp` is set)
 - Sends `GET /system/identity` to RouterOS REST API with a 5-second timeout
 - On success: calls `store.setConnected()` if not already connected
@@ -278,8 +294,8 @@ Behavior:
 
 ```typescript
 const HEARTBEAT_CONFIG = {
-  interval: 30_000,  // 30 seconds
-  timeout: 5000,     // 5 second request timeout
+  interval: 30_000, // 30 seconds
+  timeout: 5000, // 5 second request timeout
 };
 ```
 
@@ -331,15 +347,18 @@ On successful reconnect: `resetReconnection()` clears attempt counter.
 
 ## Protocol Selection
 
-When a router is connected, the backend selects the communication protocol based on what's available:
+When a router is connected, the backend selects the communication protocol based on what's
+available:
 
-| Protocol | Port | Usage |
-|----------|------|-------|
-| REST | 443/80 | Primary (RouterOS 7+) |
-| RouterOS API | 8728/8729 | Fallback (RouterOS 6) |
-| SSH | 22 | Command-level operations |
+| Protocol     | Port      | Usage                    |
+| ------------ | --------- | ------------------------ |
+| REST         | 443/80    | Primary (RouterOS 7+)    |
+| RouterOS API | 8728/8729 | Fallback (RouterOS 6)    |
+| SSH          | 22        | Command-level operations |
 
-The active protocol is stored in `RouterConnection.protocol`. The `ProtocolSelector` component (in `libs/features/configuration-import/src/components/ProtocolSelector.tsx`) is used in the configuration import wizard to let users choose which protocol to use for bulk command execution.
+The active protocol is stored in `RouterConnection.protocol`. The `ProtocolSelector` component (in
+`libs/features/configuration-import/src/components/ProtocolSelector.tsx`) is used in the
+configuration import wizard to let users choose which protocol to use for bulk command execution.
 
 Available protocols are fetched via:
 
@@ -355,13 +374,14 @@ The UI exposes connection status through:
 
 1. **AppHeader** — global WS status indicator (green dot / red dot)
 2. **RouterCard** — per-router status in the router list
-3. **RouterHeader** (in `apps/connect/src/app/routes/router-panel/components/RouterHeader.tsx`) — active router status in the panel header
+3. **RouterHeader** (in `apps/connect/src/app/routes/router-panel/components/RouterHeader.tsx`) —
+   active router status in the panel header
 
 Status display mapping:
 
-| wsStatus | Indicator | Label |
-|----------|-----------|-------|
-| connected | Green dot | "Connected" |
-| connecting | Amber pulse | "Connecting..." |
-| disconnected | Gray dot | "Disconnected" |
-| error | Red dot | Error message |
+| wsStatus     | Indicator   | Label           |
+| ------------ | ----------- | --------------- |
+| connected    | Green dot   | "Connected"     |
+| connecting   | Amber pulse | "Connecting..." |
+| disconnected | Gray dot    | "Disconnected"  |
+| error        | Red dot     | Error message   |

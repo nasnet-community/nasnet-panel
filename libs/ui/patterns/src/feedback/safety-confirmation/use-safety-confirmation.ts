@@ -69,13 +69,7 @@ function getUrgencyLevel(remaining: number, total: number): UrgencyLevel {
 export function useSafetyConfirmation(
   config: UseSafetyConfirmationConfig
 ): UseSafetyConfirmationReturn {
-  const {
-    confirmText,
-    countdownSeconds = 10,
-    caseSensitive = true,
-    onConfirm,
-    onCancel,
-  } = config;
+  const { confirmText, countdownSeconds = 10, caseSensitive = true, onConfirm, onCancel } = config;
 
   // ===== Input State =====
   const [typedText, setTypedText] = useState('');
@@ -110,10 +104,7 @@ export function useSafetyConfirmation(
   );
 
   // ===== Derived: Formatted Time =====
-  const formattedTime = useMemo(
-    () => formatTime(countdownRemaining),
-    [countdownRemaining]
-  );
+  const formattedTime = useMemo(() => formatTime(countdownRemaining), [countdownRemaining]);
 
   // ===== Derived: Can Confirm =====
   const canConfirm = useMemo(() => {

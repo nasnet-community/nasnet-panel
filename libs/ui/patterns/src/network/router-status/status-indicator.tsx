@@ -18,9 +18,9 @@ import type { ConnectionStatus, StatusIndicatorProps, StatusIndicatorSize } from
  * Tailwind size classes for indicator dot
  */
 const SIZE_CLASSES: Record<StatusIndicatorSize, string> = {
-  sm: 'h-3 w-3',   // 12px
-  md: 'h-4 w-4',   // 16px
-  lg: 'h-6 w-6',   // 24px
+  sm: 'h-3 w-3', // 12px
+  md: 'h-4 w-4', // 16px
+  lg: 'h-6 w-6', // 24px
 };
 
 // ===== Color Mappings =====
@@ -104,7 +104,7 @@ export function StatusIndicator({
       aria-label={ariaLabel || STATUS_ARIA_LABELS[status]}
       className={cn(
         // Base styles
-        'inline-block rounded-full shrink-0',
+        'inline-block shrink-0 rounded-full',
         // Size
         SIZE_CLASSES[size],
         // Color

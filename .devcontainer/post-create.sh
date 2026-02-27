@@ -1,159 +1,90 @@
 #!/bin/bash
-# NasNetConnect DevContainer Post-Create Script
-# Runs after the container is created to set up the development environment
-#
-# This script ensures:
-# - npm dependencies are installed
-# - Go modules are downloaded
-# - Generated files are up to date
-# - Environment is validated
-#
-# Target: npm run dev should work within 30 seconds after this completes (AC-3)
+set -e
 
-set -e  # Exit on error
-
-# Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
-NC='\033[0m' # No Color
+NC='\033[0m'
 
 echo -e "${BLUE}"
-echo "╔══════════════════════════════════════════════════════════╗"
-echo "║           NasNetConnect DevContainer Setup               ║"
-echo "╚══════════════════════════════════════════════════════════╝"
+echo "============================================"
+echo "    NasNetConnect DevContainer Setup"
+echo "============================================"
 echo -e "${NC}"
 
-# Track timing
 START_TIME=$(date +%s)
 
-# Function to print step
-step() {
-    echo -e "\n${GREEN}▶${NC} $1"
-}
+step() { echo -e "\n${GREEN}>>${NC} $1"; }
+success() { echo -e "${GREEN}OK${NC} $1"; }
+warn() { echo -e "${YELLOW}!!${NC} $1"; }
 
-# Function to print success
-success() {
-    echo -e "${GREEN}✓${NC} $1"
-}
-
-# Function to print warning
-warn() {
-    echo -e "${YELLOW}⚠${NC} $1"
-}
-
-# Function to print error
-error() {
-    echo -e "${RED}✗${NC} $1"
-}
-
-# 1. Validate environment
-step "Validating development environment..."
-
+# 1. Validate tools
+step "Validating tools..."
 echo "  Node.js: $(node --version)"
 echo "  npm:     $(npm --version)"
 echo "  Go:      $(go version | cut -d' ' -f3)"
-
-if command -v docker &> /dev/null; then
-    echo "  Docker:  $(docker --version | cut -d' ' -f3 | tr -d ',')"
-else
-    warn "Docker not available (Docker-in-Docker may not be enabled)"
-fi
-
-if command -v air &> /dev/null; then
-    echo "  air:     $(air -v 2>&1 | head -1 || echo 'installed')"
-else
-    warn "air not found, installing..."
-    go install github.com/air-verse/air@latest
-fi
+command -v docker &>/dev/null && echo "  Docker:  $(docker --version | cut -d' ' -f3 | tr -d ',')" || warn "Docker not available"
 
 # 2. Install npm dependencies
 step "Installing npm dependencies..."
-
-if [ -d "node_modules" ] && [ -f "node_modules/.package-lock.json" ]; then
-    success "node_modules exists, running npm ci for consistency..."
+if [ -f "package-lock.json" ]; then
     npm ci --loglevel=error
 else
-    echo "  Fresh install, this may take a moment..."
     npm install --loglevel=error
 fi
-
 success "npm dependencies installed"
 
-# 3. Download Go modules
+# 3. Initialize git hooks (Husky)
+step "Setting up git hooks..."
+npm run prepare 2>/dev/null || warn "Husky setup skipped"
+success "Git hooks configured"
+
+# 4. Download Go modules
 step "Downloading Go modules..."
-
 if [ -f "apps/backend/go.mod" ]; then
-    cd apps/backend
-    go mod download
-    go mod verify
-    cd ../..
+    cd apps/backend && go mod download && cd ../..
     success "Go modules downloaded"
-else
-    warn "Go module not found at apps/backend/go.mod"
 fi
 
-# 4. Run code generation (if codegen script exists)
+# 5. Install pinned Go dev tools
+step "Installing Go dev tools (pinned versions)..."
+GO_TOOLS=(
+    "github.com/air-verse/air@v1.61.7"
+    "github.com/golangci/golangci-lint/cmd/golangci-lint@v2.1.6"
+    "golang.org/x/tools/gopls@v0.18.1"
+    "github.com/go-delve/delve/cmd/dlv@v1.24.2"
+    "github.com/zricethezav/gitleaks/v8/cmd/gitleaks@v8.21.2"
+)
+for tool in "${GO_TOOLS[@]}"; do
+    name="${tool##*/}"
+    name="${name%%@*}"
+    echo "  ${name}..."
+    go install "${tool}" 2>/dev/null || warn "Failed: ${tool}"
+done
+success "Go tools installed"
+
+# 6. Run code generation
 step "Running code generation..."
+npm run codegen --if-present 2>/dev/null || warn "Codegen skipped"
 
-if npm run --silent 2>/dev/null | grep -q "codegen"; then
-    npm run codegen --if-present || warn "codegen script not found or failed"
-    success "Code generation complete"
-else
-    warn "No codegen script found in package.json (will be added later)"
-fi
-
-# 5. Verify Nx workspace
+# 7. Verify Nx workspace
 step "Verifying Nx workspace..."
+npx nx --version &>/dev/null && success "Nx $(npx nx --version)" || warn "Nx not found"
 
-if npx nx --version &> /dev/null; then
-    echo "  Nx version: $(npx nx --version)"
-    success "Nx workspace verified"
-else
-    error "Nx not available"
-fi
+# 8. Pre-install Playwright browsers
+step "Pre-installing Playwright (chromium)..."
+npx playwright install chromium --with-deps 2>/dev/null || warn "Playwright install skipped"
 
-# 6. Trust git directory (for Windows/mounted volumes)
-step "Configuring git safe directory..."
-
-git config --global --add safe.directory /workspaces/nasnet 2>/dev/null || true
-git config --global --add safe.directory "$(pwd)" 2>/dev/null || true
-success "Git safe directory configured"
-
-# 7. Create .env files if they don't exist
-step "Checking environment files..."
-
-if [ ! -f "apps/connect/.env.development" ]; then
-    cat > apps/connect/.env.development << 'EOF'
-VITE_API_URL=http://localhost:8080
-VITE_WS_URL=ws://localhost:8080
-EOF
-    success "Created apps/connect/.env.development"
-else
-    success "Environment file already exists"
-fi
-
-# Calculate elapsed time
 END_TIME=$(date +%s)
 ELAPSED=$((END_TIME - START_TIME))
 
-echo -e "\n${BLUE}"
-echo "╔══════════════════════════════════════════════════════════╗"
-echo "║              Setup Complete! (${ELAPSED}s)                       ║"
-echo "╚══════════════════════════════════════════════════════════╝"
-echo -e "${NC}"
-
-echo -e "${GREEN}Quick Start Commands:${NC}"
+echo -e "\n${BLUE}============================================${NC}"
+echo -e "${GREEN}Setup complete in ${ELAPSED}s${NC}"
 echo ""
-echo "  npm run dev:frontend     # Start frontend (port 5173)"
-echo "  npm run dev:backend      # Start backend (port 8080)"
-echo "  npm run dev:all          # Start both frontend + backend"
-echo ""
-echo "  npm run lint             # Run linting"
-echo "  npm run typecheck        # TypeScript type checking"
-echo "  npm run ci               # Run all CI checks"
-echo ""
-echo "  npx nx graph             # Visualize project dependencies"
-echo ""
-echo -e "${BLUE}Happy coding! 🚀${NC}"
+echo "  npm run dev:all        Start frontend + backend"
+echo "  npm run dev:frontend   Frontend only (port 5173)"
+echo "  npm run dev:backend    Backend only (port 8080)"
+echo "  npm run codegen        Regenerate types"
+echo "  npx nx graph           Visualize dependencies"
+echo -e "${BLUE}============================================${NC}"

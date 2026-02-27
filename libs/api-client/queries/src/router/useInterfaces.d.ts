@@ -10,12 +10,15 @@ import type { NetworkInterface, TrafficStatistics, ARPEntry, IPAddress } from '@
  * Follows TanStack Query best practices for hierarchical keys
  */
 export declare const interfaceKeys: {
-    all: readonly ["interfaces"];
-    lists: (routerIp: string) => readonly ["interfaces", "list", string];
-    list: (routerIp: string) => readonly ["interfaces", "list", string];
-    traffic: (routerIp: string, interfaceId: string) => readonly ["interfaces", "traffic", string, string];
-    arp: (routerIp: string) => readonly ["arp", string];
-    ipAddresses: (routerIp: string) => readonly ["ip", "addresses", string];
+  all: readonly ['interfaces'];
+  lists: (routerIp: string) => readonly ['interfaces', 'list', string];
+  list: (routerIp: string) => readonly ['interfaces', 'list', string];
+  traffic: (
+    routerIp: string,
+    interfaceId: string
+  ) => readonly ['interfaces', 'traffic', string, string];
+  arp: (routerIp: string) => readonly ['arp', string];
+  ipAddresses: (routerIp: string) => readonly ['ip', 'addresses', string];
 };
 /**
  * Hook to fetch all network interfaces
@@ -38,7 +41,10 @@ export declare function useInterfaces(routerIp: string): UseQueryResult<NetworkI
  * @param interfaceId - RouterOS interface ID
  * @returns Query result with TrafficStatistics
  */
-export declare function useInterfaceTraffic(routerIp: string, interfaceId: string): UseQueryResult<TrafficStatistics, Error>;
+export declare function useInterfaceTraffic(
+  routerIp: string,
+  interfaceId: string
+): UseQueryResult<TrafficStatistics, Error>;
 /**
  * Hook to fetch ARP table entries
  * Auto-refreshes every 10 seconds

@@ -132,12 +132,9 @@ describe('useRelativeTime', () => {
 
   it('should handle timestamp updates correctly', () => {
     const initialTimestamp = new Date(Date.now() - 10000);
-    const { result, rerender } = renderHook(
-      ({ timestamp }) => useRelativeTime(timestamp),
-      {
-        initialProps: { timestamp: initialTimestamp },
-      }
-    );
+    const { result, rerender } = renderHook(({ timestamp }) => useRelativeTime(timestamp), {
+      initialProps: { timestamp: initialTimestamp },
+    });
 
     expect(result.current).toBe('Updated 10 seconds ago');
 

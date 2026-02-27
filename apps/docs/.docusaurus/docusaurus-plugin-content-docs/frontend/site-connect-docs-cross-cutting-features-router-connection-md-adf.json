@@ -1,7 +1,7 @@
 {
   "id": "cross-cutting-features/router-connection",
   "title": "Router Connection",
-  "description": "The router connection system handles discovering routers on the network, validating credentials, establishing connections, and maintaining them over time with heartbeat monitoring and automatic reconnection.",
+  "description": "The router connection system handles discovering routers on the network, validating credentials,",
   "source": "@site/../connect/docs/cross-cutting-features/router-connection.md",
   "sourceDirName": "cross-cutting-features",
   "slug": "/cross-cutting-features/router-connection",

@@ -32,56 +32,56 @@ import { createLazyWithPreload } from '@nasnet/ui/patterns';
  * Firewall Tab - Heavy due to large rule tables
  * Estimated chunk size: ~50KB
  */
-export const [LazyFirewallTab, preloadFirewallTab] = createLazyWithPreload(
-  () => import('./FirewallTab').then((m) => ({ default: m.FirewallTab }))
+export const [LazyFirewallTab, preloadFirewallTab] = createLazyWithPreload(() =>
+  import('./FirewallTab').then((m) => ({ default: m.FirewallTab }))
 );
 
 /**
  * Logs Tab - Heavy due to virtualization and log processing
  * Estimated chunk size: ~40KB
  */
-export const [LazyLogsTab, preloadLogsTab] = createLazyWithPreload(
-  () => import('./LogsTab').then((m) => ({ default: m.LogsTab }))
+export const [LazyLogsTab, preloadLogsTab] = createLazyWithPreload(() =>
+  import('./LogsTab').then((m) => ({ default: m.LogsTab }))
 );
 
 /**
  * DHCP Tab - Heavy due to lease table and pool management
  * Estimated chunk size: ~35KB
  */
-export const [LazyDHCPTab, preloadDHCPTab] = createLazyWithPreload(
-  () => import('./DHCPTab').then((m) => ({ default: m.DHCPTab }))
+export const [LazyDHCPTab, preloadDHCPTab] = createLazyWithPreload(() =>
+  import('./DHCPTab').then((m) => ({ default: m.DHCPTab }))
 );
 
 /**
  * DNS Tab - Heavy due to server list, static entries table, and forms
  * Estimated chunk size: ~30KB
  */
-export const [LazyDnsTab, preloadDnsTab] = createLazyWithPreload(
-  () => import('./DnsTab').then((m) => ({ default: m.DnsTab }))
+export const [LazyDnsTab, preloadDnsTab] = createLazyWithPreload(() =>
+  import('./DnsTab').then((m) => ({ default: m.DnsTab }))
 );
 
 /**
  * VPN Tab - Heavy due to protocol-specific components
  * Estimated chunk size: ~45KB
  */
-export const [LazyVPNTab, preloadVPNTab] = createLazyWithPreload(
-  () => import('./VPNTab').then((m) => ({ default: m.VPNTab }))
+export const [LazyVPNTab, preloadVPNTab] = createLazyWithPreload(() =>
+  import('./VPNTab').then((m) => ({ default: m.VPNTab }))
 );
 
 /**
  * Plugin Store Tab - Heavy due to plugin cards and marketplace
  * Estimated chunk size: ~30KB
  */
-export const [LazyPluginStoreTab, preloadPluginStoreTab] = createLazyWithPreload(
-  () => import('./PluginStoreTab').then((m) => ({ default: m.PluginStoreTab }))
+export const [LazyPluginStoreTab, preloadPluginStoreTab] = createLazyWithPreload(() =>
+  import('./PluginStoreTab').then((m) => ({ default: m.PluginStoreTab }))
 );
 
 /**
  * Network Tab - Medium complexity
  * Estimated chunk size: ~25KB
  */
-export const [LazyNetworkTab, preloadNetworkTab] = createLazyWithPreload(
-  () => import('./NetworkTab').then((m) => ({ default: m.NetworkTab }))
+export const [LazyNetworkTab, preloadNetworkTab] = createLazyWithPreload(() =>
+  import('./NetworkTab').then((m) => ({ default: m.NetworkTab }))
 );
 
 // ===== Preload All Heavy Tabs =====

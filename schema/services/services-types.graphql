@@ -14,64 +14,104 @@ Available service that can be installed from the Feature Marketplace.
 Represents a downloadable network service with metadata from the manifest.
 """
 type AvailableService {
-  """Unique service identifier (e.g., 'tor', 'sing-box', 'xray')"""
+  """
+  Unique service identifier (e.g., 'tor', 'sing-box', 'xray')
+  """
   id: ID!
 
-  """Display name"""
+  """
+  Display name
+  """
   name: String!
 
-  """Service description"""
+  """
+  Service description
+  """
   description: String!
 
-  """Service version"""
+  """
+  Service version
+  """
   version: String!
 
-  """Service category (VPN, Privacy, DNS, Messaging)"""
+  """
+  Service category (VPN, Privacy, DNS, Messaging)
+  """
   category: String!
 
-  """Service author"""
+  """
+  Service author
+  """
   author: String!
 
-  """License"""
+  """
+  License
+  """
   license: String!
 
-  """Homepage URL"""
+  """
+  Homepage URL
+  """
   homepage: String
 
-  """Icon filename or URL"""
+  """
+  Icon filename or URL
+  """
   icon: String
 
-  """Tags for filtering and search"""
+  """
+  Tags for filtering and search
+  """
   tags: [String!]!
 
-  """Supported architectures"""
+  """
+  Supported architectures
+  """
   architectures: [String!]!
 
-  """Minimum RouterOS version required"""
+  """
+  Minimum RouterOS version required
+  """
   minRouterOSVersion: String
 
-  """Required packages"""
+  """
+  Required packages
+  """
   requiredPackages: [String!]!
 
-  """Required ports"""
+  """
+  Required ports
+  """
   requiredPorts: [Int!]!
 
-  """Required memory in MB"""
+  """
+  Required memory in MB
+  """
   requiredMemoryMB: Int!
 
-  """Required disk space in MB"""
+  """
+  Required disk space in MB
+  """
   requiredDiskMB: Int!
 
-  """Docker image name"""
+  """
+  Docker image name
+  """
   dockerImage: String!
 
-  """Docker image tag"""
+  """
+  Docker image tag
+  """
   dockerTag: String!
 
-  """Default configuration (JSON)"""
+  """
+  Default configuration (JSON)
+  """
   defaultConfig: JSON
 
-  """Configuration schema (JSON Schema)"""
+  """
+  Configuration schema (JSON Schema)
+  """
   configSchema: JSON
 }
 
@@ -80,52 +120,84 @@ Service instance running on a router.
 Represents an installed and potentially running service instance.
 """
 type ServiceInstance implements Node {
-  """Instance ID (ULID)"""
+  """
+  Instance ID (ULID)
+  """
   id: ID!
 
-  """Feature identifier (e.g., 'tor', 'sing-box')"""
+  """
+  Feature identifier (e.g., 'tor', 'sing-box')
+  """
   featureID: String!
 
-  """Human-readable instance name"""
+  """
+  Human-readable instance name
+  """
   instanceName: String!
 
-  """Router ID this instance belongs to"""
+  """
+  Router ID this instance belongs to
+  """
   routerID: String!
 
-  """Current lifecycle status"""
+  """
+  Current lifecycle status
+  """
   status: ServiceInstanceStatus!
 
-  """VLAN ID for network isolation"""
+  """
+  VLAN ID for network isolation
+  """
   vlanID: Int
 
-  """IP address to bind the service to"""
+  """
+  IP address to bind the service to
+  """
   bindIP: String
 
-  """Ports used by this service instance"""
+  """
+  Ports used by this service instance
+  """
   ports: [Int!]!
 
-  """Service-specific configuration (JSON)"""
+  """
+  Service-specific configuration (JSON)
+  """
   config: JSON
 
-  """Path to the service binary"""
+  """
+  Path to the service binary
+  """
   binaryPath: String
 
-  """Version of the service binary"""
+  """
+  Version of the service binary
+  """
   binaryVersion: String
 
-  """SHA256 checksum of the binary"""
+  """
+  SHA256 checksum of the binary
+  """
   binaryChecksum: String
 
-  """Binary verification information (null if verification not enabled)"""
+  """
+  Binary verification information (null if verification not enabled)
+  """
   verification: BinaryVerification
 
-  """When the instance was created"""
+  """
+  When the instance was created
+  """
   createdAt: DateTime!
 
-  """Last update timestamp"""
+  """
+  Last update timestamp
+  """
   updatedAt: DateTime!
 
-  """The router this instance belongs to"""
+  """
+  The router this instance belongs to
+  """
   router: Router
 }
 
@@ -133,28 +205,44 @@ type ServiceInstance implements Node {
 Service instance lifecycle status.
 """
 enum ServiceInstanceStatus {
-  """Binary is being downloaded and installed"""
+  """
+  Binary is being downloaded and installed
+  """
   INSTALLING
 
-  """Binary installed, ready to start"""
+  """
+  Binary installed, ready to start
+  """
   INSTALLED
 
-  """Process is starting"""
+  """
+  Process is starting
+  """
   STARTING
 
-  """Process is running"""
+  """
+  Process is running
+  """
   RUNNING
 
-  """Process is stopping"""
+  """
+  Process is stopping
+  """
   STOPPING
 
-  """Process is stopped"""
+  """
+  Process is stopped
+  """
   STOPPED
 
-  """Operation failed"""
+  """
+  Operation failed
+  """
   FAILED
 
-  """Instance is being deleted"""
+  """
+  Instance is being deleted
+  """
   DELETING
 }
 
@@ -162,25 +250,39 @@ enum ServiceInstanceStatus {
 Installation progress event.
 """
 type InstallProgress {
-  """Instance ID"""
+  """
+  Instance ID
+  """
   instanceID: ID!
 
-  """Feature ID"""
+  """
+  Feature ID
+  """
   featureID: String!
 
-  """Bytes downloaded"""
+  """
+  Bytes downloaded
+  """
   bytesDownloaded: Int!
 
-  """Total bytes to download"""
+  """
+  Total bytes to download
+  """
   totalBytes: Int!
 
-  """Download progress percentage (0-100)"""
+  """
+  Download progress percentage (0-100)
+  """
   percent: Float!
 
-  """Current status (downloading, verifying, completed, failed)"""
+  """
+  Current status (downloading, verifying, completed, failed)
+  """
   status: String!
 
-  """Error message if failed"""
+  """
+  Error message if failed
+  """
   errorMessage: String
 }
 
@@ -188,15 +290,23 @@ type InstallProgress {
 Instance status change event.
 """
 type InstanceStatusChanged {
-  """Instance ID"""
+  """
+  Instance ID
+  """
   instanceID: ID!
 
-  """Previous status"""
+  """
+  Previous status
+  """
   previousStatus: ServiceInstanceStatus!
 
-  """New status"""
+  """
+  New status
+  """
   newStatus: ServiceInstanceStatus!
 
-  """Timestamp of the change"""
+  """
+  Timestamp of the change
+  """
   timestamp: DateTime!
 }

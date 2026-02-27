@@ -84,15 +84,14 @@ export const DHCPLeaseManagementDesktop = React.memo(function DHCPLeaseManagemen
     await deleteMultiple(selectedLeases);
   }, [selectedLeases, deleteMultiple]);
   return (
-    <div className="flex h-full flex-col gap-component-lg p-component-lg">
+    <div className="gap-component-lg p-component-lg flex h-full flex-col">
       {/* Page Header */}
       <div className="flex items-start justify-between">
         <div className="space-y-component-sm">
-          <h1 className="font-display text-3xl font-semibold tracking-tight">
-            DHCP Leases
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            View and manage DHCP leases across all servers. Make leases static or delete them in bulk.
+          <h1 className="font-display text-3xl font-semibold tracking-tight">DHCP Leases</h1>
+          <p className="text-muted-foreground text-sm">
+            View and manage DHCP leases across all servers. Make leases static or delete them in
+            bulk.
           </p>
         </div>
 
@@ -101,9 +100,12 @@ export const DHCPLeaseManagementDesktop = React.memo(function DHCPLeaseManagemen
           variant="outline"
           disabled={isLoading || leases.length === 0}
           aria-label="Export leases to CSV"
-          className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          className="focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
         >
-          <Download className="mr-component-sm h-4 w-4" aria-hidden="true" />
+          <Download
+            className="mr-component-sm h-4 w-4"
+            aria-hidden="true"
+          />
           Export CSV
         </Button>
       </div>
@@ -124,13 +126,11 @@ export const DHCPLeaseManagementDesktop = React.memo(function DHCPLeaseManagemen
       {/* Error State */}
       {isError && (
         <div
-          className="rounded-[var(--semantic-radius-card)] border border-error bg-error/10 p-component-md"
+          className="border-error bg-error/10 p-component-md rounded-[var(--semantic-radius-card)] border"
           role="alert"
         >
-          <p className="text-sm font-medium text-error">
-            Failed to load DHCP leases
-          </p>
-          <p className="mt-component-xs text-sm text-muted-foreground">
+          <p className="text-error text-sm font-medium">Failed to load DHCP leases</p>
+          <p className="mt-component-xs text-muted-foreground text-sm">
             {error?.message || 'An unexpected error occurred'}
           </p>
         </div>
@@ -151,10 +151,10 @@ export const DHCPLeaseManagementDesktop = React.memo(function DHCPLeaseManagemen
 
       {/* Empty State */}
       {!isLoading && !isError && leases.length === 0 && (
-        <div className="flex flex-1 items-center justify-center rounded-[var(--semantic-radius-card)] border border-dashed border-border p-component-lg">
+        <div className="border-border p-component-lg flex flex-1 items-center justify-center rounded-[var(--semantic-radius-card)] border border-dashed">
           <div className="text-center">
             <p className="text-sm font-medium">No DHCP leases found</p>
-            <p className="mt-component-sm text-sm text-muted-foreground">
+            <p className="mt-component-sm text-muted-foreground text-sm">
               Try adjusting your filters or check that DHCP servers are configured
             </p>
           </div>

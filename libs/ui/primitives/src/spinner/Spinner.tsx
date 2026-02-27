@@ -35,10 +35,10 @@ export interface SpinnerProps extends React.SVGAttributes<SVGSVGElement> {
 // ============================================================================
 
 const sizeClasses = {
-  sm: 'h-4 w-4',    // 16px
-  md: 'h-6 w-6',    // 24px (default)
-  lg: 'h-8 w-8',    // 32px
-  xl: 'h-12 w-12',  // 48px
+  sm: 'h-4 w-4', // 16px
+  md: 'h-6 w-6', // 24px (default)
+  lg: 'h-8 w-8', // 32px
+  xl: 'h-12 w-12', // 48px
 } as const;
 
 // ============================================================================
@@ -72,7 +72,10 @@ const Spinner = React.memo(
       const prefersReducedMotion = useReducedMotion();
 
       return (
-        <span role="status" className="inline-flex">
+        <span
+          role="status"
+          className="inline-flex"
+        >
           <Loader2
             ref={ref}
             className={cn(

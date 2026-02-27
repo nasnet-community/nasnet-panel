@@ -1,13 +1,13 @@
 # Network Feature
 
-The network feature covers the `NetworkDashboard` page and the `libs/features/network/`
-library, which together provide interface management, DHCP, DNS, VLAN, WAN,
-bridge, and IP-address configuration.
+The network feature covers the `NetworkDashboard` page and the `libs/features/network/` library,
+which together provide interface management, DHCP, DNS, VLAN, WAN, bridge, and IP-address
+configuration.
 
 ## Network Dashboard
 
-`NetworkDashboard` (`apps/connect/src/app/pages/network/NetworkDashboard.tsx`)
-renders four sections:
+`NetworkDashboard` (`apps/connect/src/app/pages/network/NetworkDashboard.tsx`) renders four
+sections:
 
 ```
 NetworkDashboard
@@ -20,17 +20,17 @@ NetworkDashboard
 
 ### Data Sources
 
-| Section | Hook | GraphQL target |
-|---------|------|---------------|
-| Interfaces | `useInterfaces(routerIp)` | Router interfaces |
-| ARP table | `useARPTable(routerIp)` | ARP entries |
+| Section      | Hook                       | GraphQL target      |
+| ------------ | -------------------------- | ------------------- |
+| Interfaces   | `useInterfaces(routerIp)`  | Router interfaces   |
+| ARP table    | `useARPTable(routerIp)`    | ARP entries         |
 | IP addresses | `useIPAddresses(routerIp)` | IP address bindings |
-| DHCP servers | `useDHCPServers(routerIp)` | DHCP server list |
-| DHCP leases | `useDHCPLeases(routerIp)` | Current leases |
-| DHCP pools | `useDHCPPools(routerIp)` | Pool definitions |
+| DHCP servers | `useDHCPServers(routerIp)` | DHCP server list    |
+| DHCP leases  | `useDHCPLeases(routerIp)`  | Current leases      |
+| DHCP pools   | `useDHCPPools(routerIp)`   | Pool definitions    |
 
-All queries are fired in parallel; interfaces are used as the loading gate (the
-skeleton is shown until `isLoadingInterfaces` resolves).
+All queries are fired in parallel; interfaces are used as the loading gate (the skeleton is shown
+until `isLoadingInterfaces` resolves).
 
 ## Component Inventory
 
@@ -38,60 +38,59 @@ skeleton is shown until `isLoadingInterfaces` resolves).
 
 (`apps/connect/src/app/pages/network/components/`)
 
-| Component | Purpose |
-|-----------|---------|
-| `InterfaceGridCard` | Compact interface card; expands to show type, MAC, MTU, and traffic stats |
-| `InterfaceCard` | Alternative card layout for list view |
-| `InterfaceList` | Vertical list of interfaces |
-| `InterfaceCompactList` | Ultra-compact list for sidebar use |
-| `InterfaceIPConfig` | IP address assignment panel for a single interface |
-| `InterfaceTypeIcon` | Icon resolved from interface type (ether, wlan, bridge, vlan, …) |
-| `TrafficStats` | RX/TX bytes + packet counts with `default`, `compact`, and `detailed` variants |
-| `TrafficIndicator` | Mini RX/TX arrows indicator |
-| `TrafficOverviewCard` | Card wrapping aggregate traffic stats |
-| `DHCPPoolSummary` | DHCP server count, lease utilisation, pool ranges |
-| `ConnectedDevicesCard` | ARP table with device names, IPs, MACs, vendor lookup |
-| `ARPTable` | Sortable ARP table with search |
-| `QuickIPOverview` | Assigned IPs across all interfaces |
-| `NetworkStatusHero` | Full hero banner showing overall network health |
-| `NetworkStatusHeroDisplay` | Inner display portion of the hero |
-| `NetworkStatusHeader` | Compact header variant |
-| `NetworkQuickStats` | Up/down counts, IP count, device count mini-stats |
-| `NetworkStatsGrid` | Grid layout for multiple stat widgets |
-| `NetworkDetailSection` | Section wrapper with title and "view all" link |
-| `NetworkActionButtons` | Primary action CTA buttons |
-| `NetworkTopBar` | Page-level top bar with title and search |
-| `VPNStatusCard` | VPN tunnel status mini-card |
-| `StatusBadge` | Online / offline / degraded / unknown badge |
-| `LinkStatusIndicator` | Green/amber/red link-up indicator with animated ping |
-| `SectionHeader` | Consistent section heading with optional count badge |
-| `LoadingSkeleton` | Shimmer skeleton for the full network dashboard |
-| `ErrorDisplay` | Error boundary display with retry button |
+| Component                  | Purpose                                                                        |
+| -------------------------- | ------------------------------------------------------------------------------ |
+| `InterfaceGridCard`        | Compact interface card; expands to show type, MAC, MTU, and traffic stats      |
+| `InterfaceCard`            | Alternative card layout for list view                                          |
+| `InterfaceList`            | Vertical list of interfaces                                                    |
+| `InterfaceCompactList`     | Ultra-compact list for sidebar use                                             |
+| `InterfaceIPConfig`        | IP address assignment panel for a single interface                             |
+| `InterfaceTypeIcon`        | Icon resolved from interface type (ether, wlan, bridge, vlan, …)               |
+| `TrafficStats`             | RX/TX bytes + packet counts with `default`, `compact`, and `detailed` variants |
+| `TrafficIndicator`         | Mini RX/TX arrows indicator                                                    |
+| `TrafficOverviewCard`      | Card wrapping aggregate traffic stats                                          |
+| `DHCPPoolSummary`          | DHCP server count, lease utilisation, pool ranges                              |
+| `ConnectedDevicesCard`     | ARP table with device names, IPs, MACs, vendor lookup                          |
+| `ARPTable`                 | Sortable ARP table with search                                                 |
+| `QuickIPOverview`          | Assigned IPs across all interfaces                                             |
+| `NetworkStatusHero`        | Full hero banner showing overall network health                                |
+| `NetworkStatusHeroDisplay` | Inner display portion of the hero                                              |
+| `NetworkStatusHeader`      | Compact header variant                                                         |
+| `NetworkQuickStats`        | Up/down counts, IP count, device count mini-stats                              |
+| `NetworkStatsGrid`         | Grid layout for multiple stat widgets                                          |
+| `NetworkDetailSection`     | Section wrapper with title and "view all" link                                 |
+| `NetworkActionButtons`     | Primary action CTA buttons                                                     |
+| `NetworkTopBar`            | Page-level top bar with title and search                                       |
+| `VPNStatusCard`            | VPN tunnel status mini-card                                                    |
+| `StatusBadge`              | Online / offline / degraded / unknown badge                                    |
+| `LinkStatusIndicator`      | Green/amber/red link-up indicator with animated ping                           |
+| `SectionHeader`            | Consistent section heading with optional count badge                           |
+| `LoadingSkeleton`          | Shimmer skeleton for the full network dashboard                                |
+| `ErrorDisplay`             | Error boundary display with retry button                                       |
 
 ### `InterfaceGridCard` Behaviour
 
-`InterfaceGridCard` (`components/InterfaceGridCard.tsx`) is the core interface
-widget on the network dashboard:
+`InterfaceGridCard` (`components/InterfaceGridCard.tsx`) is the core interface widget on the network
+dashboard:
 
 - Shows a pulsing green dot when `status === 'running' && linkStatus === 'up'`.
 - Shows an amber dot when running but link is down.
 - Muted and 60 % opacity when not running.
 - Clicking expands an inline detail panel (type, MAC, MTU, packet counts).
-- Calls `useInterfaceTraffic(routerIp, iface.id)` to fetch live RX/TX bytes,
-  displayed in compact form (arrows + formatted bytes) in the collapsed header.
+- Calls `useInterfaceTraffic(routerIp, iface.id)` to fetch live RX/TX bytes, displayed in compact
+  form (arrows + formatted bytes) in the collapsed header.
 
 ### `TrafficStats` Variants
 
 `TrafficStats` (`components/TrafficStats.tsx`) accepts a `variant` prop:
 
-| Variant | Description |
-|---------|-------------|
-| `default` | Two-row progress bars for download/upload with packet counts and error highlights |
-| `compact` | Inline RX/TX + optional warning triangle |
-| `detailed` | Full grid of RX/TX bytes, packets, drops, errors |
+| Variant    | Description                                                                       |
+| ---------- | --------------------------------------------------------------------------------- |
+| `default`  | Two-row progress bars for download/upload with packet counts and error highlights |
+| `compact`  | Inline RX/TX + optional warning triangle                                          |
+| `detailed` | Full grid of RX/TX bytes, packets, drops, errors                                  |
 
-An alert role banner is rendered when `txErrors + rxErrors > 0` or
-`txDrops + rxDrops > 0`.
+An alert role banner is rendered when `txErrors + rxErrors > 0` or `txDrops + rxDrops > 0`.
 
 ## Feature Library (`libs/features/network/`)
 
@@ -116,12 +115,12 @@ dhcp/
 
 DHCP routes (`apps/connect/src/routes/network/dhcp/`):
 
-| Route | Page |
-|-------|------|
-| `/network/dhcp` | `index.tsx` — server list |
-| `/network/dhcp/new` | `new.tsx` — add server wizard |
-| `/network/dhcp/$serverId` | `$serverId.tsx` — server detail |
-| `/network/dhcp/leases` | `leases.tsx` — all-routers lease view |
+| Route                     | Page                                  |
+| ------------------------- | ------------------------------------- |
+| `/network/dhcp`           | `index.tsx` — server list             |
+| `/network/dhcp/new`       | `new.tsx` — add server wizard         |
+| `/network/dhcp/$serverId` | `$serverId.tsx` — server detail       |
+| `/network/dhcp/leases`    | `leases.tsx` — all-routers lease view |
 
 ### DNS (`dns/`)
 
@@ -143,6 +142,7 @@ DNS route: `/network/dns/diagnostics` — DNS Lookup Tool
 (`apps/connect/src/routes/network/dns/diagnostics.tsx`).
 
 `DnsSettingsForm` includes fields for:
+
 - Maximum cache size
 - Maximum TTL
 - DoH (DNS-over-HTTPS) server URL
@@ -162,8 +162,8 @@ vlans/
 └── schemas/                  # Zod schema for VLAN configuration
 ```
 
-`VlanManagementPage` (`apps/connect/src/app/pages/VlanManagementPage.tsx`) is
-the dedicated VLAN management page.
+`VlanManagementPage` (`apps/connect/src/app/pages/VlanManagementPage.tsx`) is the dedicated VLAN
+management page.
 
 ### WAN (`wan/`)
 
@@ -186,6 +186,7 @@ wan/
 ```
 
 WAN types (`wan/types/wan.types.ts`):
+
 - `DhcpClient` — automatic IP from ISP.
 - `Pppoe` — PPPoE credential-based.
 - `LteModem` — mobile broadband with APN settings.
@@ -204,34 +205,35 @@ bridges/
 └── hooks/                    # Bridge query hooks
 ```
 
-`BridgePortDiagram` visualises which physical ports belong to each bridge
-interface, and the available (unassigned) interfaces.
+`BridgePortDiagram` visualises which physical ports belong to each bridge interface, and the
+available (unassigned) interfaces.
 
 ### IP Addresses (`components/ip-address/`)
 
 Shared across network sub-modules:
 
-| Component | Purpose |
-|-----------|---------|
-| `IPAddressList` | Table of IP addresses with edit/delete per row |
-| `IPAddressForm` | Add/edit form with CIDR validation |
-| `IPAddressDeleteDialog` | Confirmation dialog for IP removal |
+| Component               | Purpose                                        |
+| ----------------------- | ---------------------------------------------- |
+| `IPAddressList`         | Table of IP addresses with edit/delete per row |
+| `IPAddressForm`         | Add/edit form with CIDR validation             |
+| `IPAddressDeleteDialog` | Confirmation dialog for IP removal             |
 
 Validation (`validation.test.ts`) covers IPv4, IPv6, and CIDR notation.
 
 ### Interface Components (`components/interface-*/`)
 
-| Component | Purpose |
-|-----------|---------|
-| `InterfaceList` | Full interface list with status, type, and batch actions |
-| `InterfaceDetail` | Platform-adaptive detailed interface view |
-| `InterfaceDetail.Desktop` | Desktop presenter with side-by-side layout |
-| `InterfaceEditForm` | Edit interface settings (name, MTU, comment, disabled) |
-| `BatchConfirmDialog` | Bulk enable/disable/rename confirmation |
+| Component                 | Purpose                                                  |
+| ------------------------- | -------------------------------------------------------- |
+| `InterfaceList`           | Full interface list with status, type, and batch actions |
+| `InterfaceDetail`         | Platform-adaptive detailed interface view                |
+| `InterfaceDetail.Desktop` | Desktop presenter with side-by-side layout               |
+| `InterfaceEditForm`       | Edit interface settings (name, MTU, comment, disabled)   |
+| `BatchConfirmDialog`      | Bulk enable/disable/rename confirmation                  |
 
 ### Interface Statistics (`interface-stats/`)
 
 `use-interface-stats-panel.ts` provides the headless hook that powers:
+
 - `bandwidth-chart.stories.tsx` — bandwidth history chart.
 - `error-rate-indicator.stories.tsx` — error/drop rate badges.
 - `interface-comparison.stories.tsx` — side-by-side interface comparison.
@@ -240,37 +242,37 @@ Panel types are defined in `interface-stats-panel.types.ts`.
 
 ### Route Management (`components/routes/`)
 
-| Component | Purpose |
-|-----------|---------|
-| `RouteList` | Static route table with sorting and filtering |
-| `RouteForm` | Add/edit a static route (destination, gateway, distance) |
-| `RouteDeleteConfirmation` | Delete route confirmation |
+| Component                 | Purpose                                                  |
+| ------------------------- | -------------------------------------------------------- |
+| `RouteList`               | Static route table with sorting and filtering            |
+| `RouteForm`               | Add/edit a static route (destination, gateway, distance) |
+| `RouteDeleteConfirmation` | Delete route confirmation                                |
 
-`useRouteForm.ts` and `useRouteList.ts` are the headless hooks.
-Route page: `libs/features/network/src/pages/RoutesPage`.
+`useRouteForm.ts` and `useRouteList.ts` are the headless hooks. Route page:
+`libs/features/network/src/pages/RoutesPage`.
 
 ### DNS Benchmark and Cache
 
-`DnsBenchmark` (`components/DnsBenchmark/`) — tests response time of configured
-DNS servers.
+`DnsBenchmark` (`components/DnsBenchmark/`) — tests response time of configured DNS servers.
 
-`DnsCachePanel` (`components/DnsCachePanel/`) — shows cached DNS entries with
-TTL countdown and a flush action.
+`DnsCachePanel` (`components/DnsCachePanel/`) — shows cached DNS entries with TTL countdown and a
+flush action.
 
 ## Status Indicators
 
 `StatusBadge` (`apps/connect/src/app/pages/network/components/StatusBadge.tsx`):
 
-| Status value | Colour token | Label |
-|-------------|-------------|-------|
-| `online` / `running` | `semantic.success` | Online |
-| `degraded` | `semantic.warning` | Degraded |
-| `offline` | `semantic.error` | Offline |
-| `unknown` | `semantic.muted` | Unknown |
+| Status value         | Colour token       | Label    |
+| -------------------- | ------------------ | -------- |
+| `online` / `running` | `semantic.success` | Online   |
+| `degraded`           | `semantic.warning` | Degraded |
+| `offline`            | `semantic.error`   | Offline  |
+| `unknown`            | `semantic.muted`   | Unknown  |
 
 `LinkStatusIndicator` adds an animated pulsing ring when status is `up`.
 
 `InterfaceTypeIcon` maps MikroTik interface types to Lucide icons:
+
 - `ether` → Plug
 - `wlan` → Wifi
 - `bridge` → GitMerge
@@ -282,7 +284,6 @@ TTL countdown and a flush action.
 
 ## Related
 
-- `../data-fetching/graphql-hooks.md` — `useInterfaces`, `useARPTable`,
-  `useIPAddresses`, `useDHCPLeases`, `useInterfaceTraffic`, and related hooks.
-- `../ui-system/patterns-catalog.md` — shared patterns used in lists,
-  detail panels, and cards.
+- `../data-fetching/graphql-hooks.md` — `useInterfaces`, `useARPTable`, `useIPAddresses`,
+  `useDHCPLeases`, `useInterfaceTraffic`, and related hooks.
+- `../ui-system/patterns-catalog.md` — shared patterns used in lists, detail panels, and cards.

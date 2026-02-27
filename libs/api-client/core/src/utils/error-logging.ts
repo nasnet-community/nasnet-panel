@@ -171,10 +171,7 @@ export function logError(entry: ErrorLogInput): void {
 
   // Development: log to console immediately
   if (import.meta.env.DEV) {
-    console.group(
-      `%c[Error ${entry.code || 'UNKNOWN'}]`,
-      'color: #ef4444; font-weight: bold;'
-    );
+    console.group(`%c[Error ${entry.code || 'UNKNOWN'}]`, 'color: #ef4444; font-weight: bold;');
     console.error('Message:', entry.message);
     if (entry.operation) console.log('Operation:', entry.operation);
     if (entry.context) console.log('Context:', entry.context);
@@ -265,9 +262,7 @@ export function logComponentError(
     message: error.message,
     component,
     stack: error.stack,
-    context: errorInfo?.componentStack
-      ? { componentStack: errorInfo.componentStack }
-      : undefined,
+    context: errorInfo?.componentStack ? { componentStack: errorInfo.componentStack } : undefined,
   });
 }
 

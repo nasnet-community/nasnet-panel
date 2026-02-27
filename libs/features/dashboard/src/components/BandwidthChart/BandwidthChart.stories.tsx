@@ -118,7 +118,8 @@ export const Default: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Default 5-minute view with real-time data updates. Shows TX (upload) in blue and RX (download) in green.',
+        story:
+          'Default 5-minute view with real-time data updates. Shows TX (upload) in blue and RX (download) in green.',
       },
     },
   },
@@ -163,7 +164,8 @@ export const OneHour: Story = {
   parameters: {
     docs: {
       description: {
-        story: '1-hour view with 1-minute averaged data points. Subscription disabled, query-only mode.',
+        story:
+          '1-hour view with 1-minute averaged data points. Subscription disabled, query-only mode.',
       },
     },
   },
@@ -207,7 +209,8 @@ export const TwentyFourHours: Story = {
   parameters: {
     docs: {
       description: {
-        story: '24-hour view with 5-minute averaged data points. Shows longer-term bandwidth patterns.',
+        story:
+          '24-hour view with 5-minute averaged data points. Shows longer-term bandwidth patterns.',
       },
     },
   },
@@ -253,7 +256,8 @@ export const InterfaceFiltered: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Bandwidth data filtered to a specific interface (ether1). Useful for per-interface analysis.',
+        story:
+          'Bandwidth data filtered to a specific interface (ether1). Useful for per-interface analysis.',
       },
     },
   },
@@ -287,7 +291,8 @@ export const Loading: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Loading skeleton state while bandwidth data is being fetched. Respects prefers-reduced-motion.',
+        story:
+          'Loading skeleton state while bandwidth data is being fetched. Respects prefers-reduced-motion.',
       },
     },
   },
@@ -364,7 +369,8 @@ export const Empty: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Empty state when no bandwidth data is available. Suggests checking router connection.',
+        story:
+          'Empty state when no bandwidth data is available. Suggests checking router connection.',
       },
     },
   },
@@ -410,7 +416,8 @@ export const Mobile: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Mobile presenter with 200px chart height, simplified controls, and tap-optimized tooltips.',
+        story:
+          'Mobile presenter with 200px chart height, simplified controls, and tap-optimized tooltips.',
       },
     },
     viewport: {
@@ -508,7 +515,8 @@ export const ReducedMotion: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Chart with animations disabled for users who prefer reduced motion (WCAG AAA compliance).',
+        story:
+          'Chart with animations disabled for users who prefer reduced motion (WCAG AAA compliance).',
       },
     },
   },

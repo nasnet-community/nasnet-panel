@@ -52,13 +52,23 @@ describe('ResourceBudgetPanel', () => {
 
   describe('Component Rendering', () => {
     it('should render system totals section', () => {
-      render(<ResourceBudgetPanel {...defaultProps} variant="desktop" />);
+      render(
+        <ResourceBudgetPanel
+          {...defaultProps}
+          variant="desktop"
+        />
+      );
 
       expect(screen.getByText('System Resources')).toBeInTheDocument();
     });
 
     it('should display all instances', () => {
-      render(<ResourceBudgetPanel {...defaultProps} variant="desktop" />);
+      render(
+        <ResourceBudgetPanel
+          {...defaultProps}
+          variant="desktop"
+        />
+      );
 
       expect(screen.getByText('Tor')).toBeInTheDocument();
       expect(screen.getByText('Xray')).toBeInTheDocument();
@@ -66,7 +76,12 @@ describe('ResourceBudgetPanel', () => {
     });
 
     it('should show instance count', () => {
-      render(<ResourceBudgetPanel {...defaultProps} variant="desktop" />);
+      render(
+        <ResourceBudgetPanel
+          {...defaultProps}
+          variant="desktop"
+        />
+      );
 
       expect(screen.getByText(/Service Instances \(3\)/)).toBeInTheDocument();
     });
@@ -85,7 +100,10 @@ describe('ResourceBudgetPanel', () => {
 
     it('should render mobile variant', () => {
       const { container } = render(
-        <ResourceBudgetPanel {...defaultProps} variant="mobile" />
+        <ResourceBudgetPanel
+          {...defaultProps}
+          variant="mobile"
+        />
       );
 
       // Mobile uses cards
@@ -93,7 +111,12 @@ describe('ResourceBudgetPanel', () => {
     });
 
     it('should render desktop variant with table', () => {
-      render(<ResourceBudgetPanel {...defaultProps} variant="desktop" />);
+      render(
+        <ResourceBudgetPanel
+          {...defaultProps}
+          variant="desktop"
+        />
+      );
 
       expect(screen.getByRole('table')).toBeInTheDocument();
     });
@@ -101,7 +124,12 @@ describe('ResourceBudgetPanel', () => {
 
   describe('System Totals Display', () => {
     it('should show correct system memory values', () => {
-      render(<ResourceBudgetPanel {...defaultProps} variant="desktop" />);
+      render(
+        <ResourceBudgetPanel
+          {...defaultProps}
+          variant="desktop"
+        />
+      );
 
       // Total Memory label
       expect(screen.getByText('Total Memory')).toBeInTheDocument();
@@ -111,7 +139,12 @@ describe('ResourceBudgetPanel', () => {
     });
 
     it('should show running and stopped instance counts', () => {
-      render(<ResourceBudgetPanel {...defaultProps} variant="desktop" />);
+      render(
+        <ResourceBudgetPanel
+          {...defaultProps}
+          variant="desktop"
+        />
+      );
 
       expect(screen.getByText('2')).toBeInTheDocument(); // Running instances
       expect(screen.getByText('1')).toBeInTheDocument(); // Stopped instances
@@ -125,7 +158,10 @@ describe('ResourceBudgetPanel', () => {
         return (
           <div>
             {state.instances.map((i) => (
-              <div key={i.id} data-testid={`instance-${i.id}`}>
+              <div
+                key={i.id}
+                data-testid={`instance-${i.id}`}
+              >
                 {i.name}: {i.usagePercent}%
               </div>
             ))}
@@ -143,7 +179,12 @@ describe('ResourceBudgetPanel', () => {
     });
 
     it('should toggle sort direction when same column clicked', () => {
-      render(<ResourceBudgetPanel {...defaultProps} variant="desktop" />);
+      render(
+        <ResourceBudgetPanel
+          {...defaultProps}
+          variant="desktop"
+        />
+      );
 
       const nameHeader = screen.getByText('Service Name');
 
@@ -159,7 +200,12 @@ describe('ResourceBudgetPanel', () => {
     });
 
     it('should sort by name', () => {
-      render(<ResourceBudgetPanel {...defaultProps} variant="desktop" />);
+      render(
+        <ResourceBudgetPanel
+          {...defaultProps}
+          variant="desktop"
+        />
+      );
 
       const nameHeader = screen.getByText('Service Name');
       fireEvent.click(nameHeader);
@@ -170,7 +216,12 @@ describe('ResourceBudgetPanel', () => {
     });
 
     it('should sort by status', () => {
-      render(<ResourceBudgetPanel {...defaultProps} variant="desktop" />);
+      render(
+        <ResourceBudgetPanel
+          {...defaultProps}
+          variant="desktop"
+        />
+      );
 
       const statusHeader = screen.getByText('Status');
       fireEvent.click(statusHeader);
@@ -181,7 +232,12 @@ describe('ResourceBudgetPanel', () => {
     });
 
     it('should sort by memory used', () => {
-      render(<ResourceBudgetPanel {...defaultProps} variant="desktop" />);
+      render(
+        <ResourceBudgetPanel
+          {...defaultProps}
+          variant="desktop"
+        />
+      );
 
       const memoryHeader = screen.getByText('Memory Used');
       fireEvent.click(memoryHeader);
@@ -290,7 +346,11 @@ describe('ResourceBudgetPanel', () => {
   describe('Loading State', () => {
     it('should show loading message when isLoading is true', () => {
       render(
-        <ResourceBudgetPanel {...defaultProps} isLoading={true} variant="desktop" />
+        <ResourceBudgetPanel
+          {...defaultProps}
+          isLoading={true}
+          variant="desktop"
+        />
       );
 
       expect(screen.getByText('Loading resource data...')).toBeInTheDocument();
@@ -298,7 +358,11 @@ describe('ResourceBudgetPanel', () => {
 
     it('should not show instances when loading', () => {
       render(
-        <ResourceBudgetPanel {...defaultProps} isLoading={true} variant="desktop" />
+        <ResourceBudgetPanel
+          {...defaultProps}
+          isLoading={true}
+          variant="desktop"
+        />
       );
 
       expect(screen.queryByText('Tor')).not.toBeInTheDocument();
@@ -333,20 +397,35 @@ describe('ResourceBudgetPanel', () => {
 
   describe('Accessibility', () => {
     it('should have table role for desktop variant', () => {
-      render(<ResourceBudgetPanel {...defaultProps} variant="desktop" />);
+      render(
+        <ResourceBudgetPanel
+          {...defaultProps}
+          variant="desktop"
+        />
+      );
 
       expect(screen.getByRole('table')).toBeInTheDocument();
     });
 
     it('should have sortable column headers with keyboard support', () => {
-      render(<ResourceBudgetPanel {...defaultProps} variant="desktop" />);
+      render(
+        <ResourceBudgetPanel
+          {...defaultProps}
+          variant="desktop"
+        />
+      );
 
       const nameHeader = screen.getByText('Service Name');
       expect(nameHeader.closest('th')).toHaveClass('cursor-pointer');
     });
 
     it('should have proper heading hierarchy', () => {
-      render(<ResourceBudgetPanel {...defaultProps} variant="desktop" />);
+      render(
+        <ResourceBudgetPanel
+          {...defaultProps}
+          variant="desktop"
+        />
+      );
 
       expect(screen.getByText('System Resources')).toBeInTheDocument();
       expect(screen.getByText(/Service Instances/)).toBeInTheDocument();

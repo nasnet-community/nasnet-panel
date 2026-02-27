@@ -8,7 +8,6 @@ import React, { useState } from 'react';
 import { Network } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
-
 import { type NetworkInterface } from '@nasnet/core/types';
 
 import { InterfaceCard } from './InterfaceCard';
@@ -19,7 +18,10 @@ interface InterfaceListProps {
   defaultCollapsed?: boolean;
 }
 
-export const InterfaceList = React.memo(function InterfaceList({ interfaces, defaultCollapsed = false }: InterfaceListProps) {
+export const InterfaceList = React.memo(function InterfaceList({
+  interfaces,
+  defaultCollapsed = false,
+}: InterfaceListProps) {
   const { t } = useTranslation('network');
   const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed);
   const [showAll, setShowAll] = useState(false);
@@ -31,13 +33,14 @@ export const InterfaceList = React.memo(function InterfaceList({ interfaces, def
 
   if (interfaces.length === 0) {
     return (
-      <div className="text-center py-component-lg">
-        <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center mx-auto mb-component-md">
-          <Network className="w-6 h-6 text-muted-foreground" aria-hidden="true" />
+      <div className="py-component-lg text-center">
+        <div className="bg-muted mb-component-md mx-auto flex h-12 w-12 items-center justify-center rounded-full">
+          <Network
+            className="text-muted-foreground h-6 w-6"
+            aria-hidden="true"
+          />
         </div>
-        <p className="text-muted-foreground text-sm">
-          {t('interfaces.notFound')}
-        </p>
+        <p className="text-muted-foreground text-sm">{t('interfaces.notFound')}</p>
       </div>
     );
   }
@@ -51,19 +54,25 @@ export const InterfaceList = React.memo(function InterfaceList({ interfaces, def
         isCollapsed={isCollapsed}
         onToggle={() => setIsCollapsed(!isCollapsed)}
         action={
-          hasMore && !isCollapsed
-            ? {
-                label: showAll ? t('button.showLess', { ns: 'common' }) : t('interfaces.viewAll', { count: interfaces.length }),
-                onClick: () => setShowAll(!showAll),
-              }
-            : undefined
+          hasMore && !isCollapsed ?
+            {
+              label:
+                showAll ?
+                  t('button.showLess', { ns: 'common' })
+                : t('interfaces.viewAll', { count: interfaces.length }),
+              onClick: () => setShowAll(!showAll),
+            }
+          : undefined
         }
       />
 
       {!isCollapsed && (
-        <div className="grid gap-component-sm md:gap-component-md md:grid-cols-2 lg:grid-cols-3 animate-fade-in-up stagger-children">
+        <div className="gap-component-sm md:gap-component-md animate-fade-in-up stagger-children grid md:grid-cols-2 lg:grid-cols-3">
           {displayedInterfaces.map((iface) => (
-            <InterfaceCard key={iface.id} interface={iface} />
+            <InterfaceCard
+              key={iface.id}
+              interface={iface}
+            />
           ))}
         </div>
       )}

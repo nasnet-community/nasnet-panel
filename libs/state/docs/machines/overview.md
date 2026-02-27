@@ -1,6 +1,8 @@
 # XState Machines Overview
 
-**XState v5** is a robust state management library for orchestrating complex multi-step workflows in NasNetConnect. This overview catalogs all available machines, the factory pattern used to create them, and when to use XState versus other state management tools.
+**XState v5** is a robust state management library for orchestrating complex multi-step workflows in
+NasNetConnect. This overview catalogs all available machines, the factory pattern used to create
+them, and when to use XState versus other state management tools.
 
 **Source:** `libs/state/machines/src/`
 
@@ -8,13 +10,13 @@
 
 NasNetConnect provides **5 core XState machines** for different use cases:
 
-| Machine | Purpose | States | Key Features |
-|---------|---------|--------|--------------|
-| **Wizard Machine** | Multi-step form wizards with validation and session recovery | `step`, `validating`, `submitting`, `completed`, `cancelled` | Step navigation, async validation, localStorage persistence |
-| **Config Pipeline Machine** | Safety-first configuration changes with preview and rollback | 12 states: `idle`, `draft`, `validating`, `invalid`, `previewing`, `confirming`, `applying`, `verifying`, `active`, `rollback`, `rolled_back`, `error` | Validation pipeline, diff preview, high-risk acknowledgment, auto-rollback on failure |
-| **Resource Lifecycle Machine** | Universal State v2 resource management (apply, verify, degrade, archive) | 9 states: `draft`, `validating`, `valid`, `applying`, `active`, `degraded`, `error`, `deprecated`, `archived` | Async validation, apply with rollback, degradation detection, sync from router |
-| **Change Set Machine** | Atomic multi-resource operations with dependency-ordered apply | 10 states: `idle`, `validating`, `ready`, `applying` (with sub-states), `completed`, `rollingBack`, `rolledBack`, `failed`, `partialFailure`, `cancelled` | Topological sort, progress tracking, reverse-order rollback, partial failure handling |
-| **VPN Connection Machine** | VPN lifecycle management (connect, disconnect, reconnect with backoff) | 6 states: `disconnected`, `connecting`, `connected`, `reconnecting`, `disconnecting`, `error` | Connection timeout, exponential backoff reconnection, metrics collection, graceful disconnect |
+| Machine                        | Purpose                                                                  | States                                                                                                                                                    | Key Features                                                                                  |
+| ------------------------------ | ------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| **Wizard Machine**             | Multi-step form wizards with validation and session recovery             | `step`, `validating`, `submitting`, `completed`, `cancelled`                                                                                              | Step navigation, async validation, localStorage persistence                                   |
+| **Config Pipeline Machine**    | Safety-first configuration changes with preview and rollback             | 12 states: `idle`, `draft`, `validating`, `invalid`, `previewing`, `confirming`, `applying`, `verifying`, `active`, `rollback`, `rolled_back`, `error`    | Validation pipeline, diff preview, high-risk acknowledgment, auto-rollback on failure         |
+| **Resource Lifecycle Machine** | Universal State v2 resource management (apply, verify, degrade, archive) | 9 states: `draft`, `validating`, `valid`, `applying`, `active`, `degraded`, `error`, `deprecated`, `archived`                                             | Async validation, apply with rollback, degradation detection, sync from router                |
+| **Change Set Machine**         | Atomic multi-resource operations with dependency-ordered apply           | 10 states: `idle`, `validating`, `ready`, `applying` (with sub-states), `completed`, `rollingBack`, `rolledBack`, `failed`, `partialFailure`, `cancelled` | Topological sort, progress tracking, reverse-order rollback, partial failure handling         |
+| **VPN Connection Machine**     | VPN lifecycle management (connect, disconnect, reconnect with backoff)   | 6 states: `disconnected`, `connecting`, `connected`, `reconnecting`, `disconnecting`, `error`                                                             | Connection timeout, exponential backoff reconnection, metrics collection, graceful disconnect |
 
 ## Factory Pattern
 
@@ -27,9 +29,7 @@ interface MyContext {
   error: string | null;
 }
 
-type MyEvent =
-  | { type: 'LOAD'; data: string }
-  | { type: 'RESET' };
+type MyEvent = { type: 'LOAD'; data: string } | { type: 'RESET' };
 
 // 2. Create machine with setup()
 const myMachine = setup({
@@ -46,7 +46,7 @@ const myMachine = setup({
     hasData: ({ context }) => context.data.length > 0,
   },
   actions: {
-    setData: assign({ data: ({ event }) => event.type === 'LOAD' ? event.data : '' }),
+    setData: assign({ data: ({ event }) => (event.type === 'LOAD' ? event.data : '') }),
   },
 }).createMachine({
   id: 'myMachine',
@@ -62,6 +62,7 @@ const myMachine = setup({
 ```
 
 **Key benefits:**
+
 - **Type-safe:** Full TypeScript support for context, events, and guards
 - **Composable:** Actors (async operations) are invoked with input and type-checked
 - **Testable:** Pure state transitions, no side effects in state definitions
@@ -85,7 +86,8 @@ flowchart TD
 
 **Real-world examples:**
 
-- **Config Pipeline:** User edits WireGuard settings → validates → previews changes → confirms → applies → verifies → auto-rollback on failure ✓ **Use XState**
+- **Config Pipeline:** User edits WireGuard settings → validates → previews changes → confirms →
+  applies → verifies → auto-rollback on failure ✓ **Use XState**
 - **Wizard:** Multi-step VPN setup with per-step validation and session recovery ✓ **Use XState**
 - **User Login Form:** Simple email/password form ✓ **Use React Hook Form + Zod**
 - **Theme Toggle:** Global dark/light mode state ✓ **Use Zustand**
@@ -106,12 +108,10 @@ XState v5 uses an **actor model** where machines are actors that:
 const machine = setup({
   actors: {
     // Async operation that returns data
-    fetchData: fromPromise<DataType, InputType>(
-      async ({ input }) => {
-        const response = await api.getData(input);
-        return response; // Auto-resolves to onDone
-      }
-    ),
+    fetchData: fromPromise<DataType, InputType>(async ({ input }) => {
+      const response = await api.getData(input);
+      return response; // Auto-resolves to onDone
+    }),
   },
 }).createMachine({
   // ... setup ...
@@ -278,15 +278,13 @@ function MyComponent() {
 ```typescript
 const machine = setup({
   actors: {
-    riskyOperation: fromPromise<Result, Input>(
-      async ({ input }) => {
-        try {
-          return await operation(input);
-        } catch (error) {
-          throw new Error(`Operation failed: ${error.message}`);
-        }
+    riskyOperation: fromPromise<Result, Input>(async ({ input }) => {
+      try {
+        return await operation(input);
+      } catch (error) {
+        throw new Error(`Operation failed: ${error.message}`);
       }
-    ),
+    }),
   },
 }).createMachine({
   states: {
@@ -372,13 +370,13 @@ interface Context {
 
 ## Quick Reference
 
-| Need | See |
-|------|-----|
-| Multi-step wizard | `wizard.md` + `useWizard()` hook |
-| Config changes with validation | `config-pipeline.md` + `useConfigPipeline()` hook |
-| Resource CRUD lifecycle | `resource-lifecycle.md` + `useResourceLifecycle()` hook |
-| Multi-resource atomic operations | `change-set-machine.md` + `createChangeSetMachine()` |
-| VPN connect/disconnect | `vpn-connection.md` + `useVPNConnection()` hook |
-| Save wizard progress | `persistence.md` + `persistMachineState()` |
-| Real-time state updates | Emit events with `emit()` action |
-| Async API calls | Invoke actors with `fromPromise()` |
+| Need                             | See                                                     |
+| -------------------------------- | ------------------------------------------------------- |
+| Multi-step wizard                | `wizard.md` + `useWizard()` hook                        |
+| Config changes with validation   | `config-pipeline.md` + `useConfigPipeline()` hook       |
+| Resource CRUD lifecycle          | `resource-lifecycle.md` + `useResourceLifecycle()` hook |
+| Multi-resource atomic operations | `change-set-machine.md` + `createChangeSetMachine()`    |
+| VPN connect/disconnect           | `vpn-connection.md` + `useVPNConnection()` hook         |
+| Save wizard progress             | `persistence.md` + `persistMachineState()`              |
+| Real-time state updates          | Emit events with `emit()` action                        |
+| Async API calls                  | Invoke actors with `fromPromise()`                      |

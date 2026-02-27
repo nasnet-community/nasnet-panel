@@ -180,10 +180,7 @@ export function clearMachineState(machineId: string): void {
  * }
  * ```
  */
-export function hasSavedSession(
-  machineId: string,
-  maxAge: number = SESSION_TIMEOUT_MS
-): boolean {
+export function hasSavedSession(machineId: string, maxAge: number = SESSION_TIMEOUT_MS): boolean {
   return restoreMachineState(machineId, maxAge) !== null;
 }
 

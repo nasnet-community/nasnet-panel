@@ -250,7 +250,9 @@ describe('VPNPage', () => {
 
     it('should display page description', () => {
       render(<VPNPage />);
-      expect(screen.getByText(/View your VPN setup and monitor interface status/i)).toBeInTheDocument();
+      expect(
+        screen.getByText(/View your VPN setup and monitor interface status/i)
+      ).toBeInTheDocument();
     });
   });
 });

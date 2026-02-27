@@ -75,12 +75,14 @@ describe('ServiceConfigForm - Integration & Platform Presenters', () => {
   };
 
   // Helper to create a test wrapper with real React Hook Form
-  function TestWrapper({ formState, children }: { formState: UseServiceConfigFormReturn; children: React.ReactNode }) {
-    return (
-      <FormProvider {...formState.form}>
-        {children}
-      </FormProvider>
-    );
+  function TestWrapper({
+    formState,
+    children,
+  }: {
+    formState: UseServiceConfigFormReturn;
+    children: React.ReactNode;
+  }) {
+    return <FormProvider {...formState.form}>{children}</FormProvider>;
   }
 
   const useCreateMockFormState = (
@@ -225,7 +227,12 @@ describe('ServiceConfigForm - Integration & Platform Presenters', () => {
 
       const formState = useCreateMockFormState();
 
-      render(<ServiceConfigForm formState={formState} title="Tor Config" />);
+      render(
+        <ServiceConfigForm
+          formState={formState}
+          title="Tor Config"
+        />
+      );
 
       // Mobile should render title
       expect(screen.getByText('Tor Config')).toBeInTheDocument();
@@ -269,7 +276,12 @@ describe('ServiceConfigForm - Integration & Platform Presenters', () => {
 
       const formState = useCreateMockFormState();
 
-      render(<ServiceConfigForm formState={formState} title="Tor Config" />);
+      render(
+        <ServiceConfigForm
+          formState={formState}
+          title="Tor Config"
+        />
+      );
 
       // Tablet uses desktop presenter (as per platform logic: mobile vs non-mobile)
       expect(screen.getByRole('tablist')).toBeInTheDocument();
@@ -280,7 +292,12 @@ describe('ServiceConfigForm - Integration & Platform Presenters', () => {
 
       const formState = useCreateMockFormState();
 
-      const { rerender } = render(<ServiceConfigForm formState={formState} title="Config" />);
+      const { rerender } = render(
+        <ServiceConfigForm
+          formState={formState}
+          title="Config"
+        />
+      );
 
       // Initially mobile - should show cards
       expect(screen.getByText('General')).toBeInTheDocument();
@@ -289,7 +306,12 @@ describe('ServiceConfigForm - Integration & Platform Presenters', () => {
       // Switch to desktop
       mockUsePlatform.mockReturnValue('desktop');
 
-      rerender(<ServiceConfigForm formState={formState} title="Config" />);
+      rerender(
+        <ServiceConfigForm
+          formState={formState}
+          title="Config"
+        />
+      );
 
       // Now desktop - should show tabs
       expect(screen.getByRole('tablist')).toBeInTheDocument();
@@ -301,7 +323,11 @@ describe('ServiceConfigForm - Integration & Platform Presenters', () => {
       // Test mobile
       mockUsePlatform.mockReturnValue('mobile');
       const { rerender } = render(
-        <ServiceConfigForm formState={formState} title="Config" readOnly={true} />
+        <ServiceConfigForm
+          formState={formState}
+          title="Config"
+          readOnly={true}
+        />
       );
 
       let submitButton = screen.queryByRole('button', { name: /save|apply/i });
@@ -310,7 +336,13 @@ describe('ServiceConfigForm - Integration & Platform Presenters', () => {
 
       // Test desktop
       mockUsePlatform.mockReturnValue('desktop');
-      rerender(<ServiceConfigForm formState={formState} title="Config" readOnly={true} />);
+      rerender(
+        <ServiceConfigForm
+          formState={formState}
+          title="Config"
+          readOnly={true}
+        />
+      );
 
       submitButton = screen.queryByRole('button', { name: /save|apply/i });
       expect(submitButton === null || submitButton.hasAttribute('disabled')).toBe(true);
@@ -417,7 +449,12 @@ describe('ServiceConfigForm - Integration & Platform Presenters', () => {
       const onCancel = vi.fn();
       const formState = useCreateMockFormState();
 
-      render(<ServiceConfigForm formState={formState} onCancel={onCancel} />);
+      render(
+        <ServiceConfigForm
+          formState={formState}
+          onCancel={onCancel}
+        />
+      );
 
       // Desktop should show cancel button
       const cancelButton = screen.getByRole('button', { name: /cancel/i });

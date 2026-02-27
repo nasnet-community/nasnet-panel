@@ -102,7 +102,9 @@ test.describe('Navigation', () => {
     await page.waitForLoadState('networkidle');
 
     // Verify mangle rules table or empty state is visible
-    const tableOrEmpty = page.locator('[data-testid="mangle-rules-table"], [data-testid="empty-state"]');
+    const tableOrEmpty = page.locator(
+      '[data-testid="mangle-rules-table"], [data-testid="empty-state"]'
+    );
     await expect(tableOrEmpty.first()).toBeVisible();
 
     // Verify chain tabs are displayed
@@ -350,7 +352,10 @@ test.describe('Delete Rule', () => {
     await page.waitForLoadState('networkidle');
 
     // Click delete
-    await page.getByRole('button', { name: /delete/i }).first().click();
+    await page
+      .getByRole('button', { name: /delete/i })
+      .first()
+      .click();
 
     // Wait for confirmation
     const confirmDialog = page.getByRole('alertdialog');

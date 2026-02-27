@@ -109,24 +109,40 @@ export const AllStatuses: Story = {
   render: () => (
     <div className="flex items-center gap-4">
       <div className="flex flex-col items-center gap-2">
-        <DriftBadge status="synced" showTooltip={false} />
-        <span className="text-xs text-muted-foreground">synced</span>
+        <DriftBadge
+          status="synced"
+          showTooltip={false}
+        />
+        <span className="text-muted-foreground text-xs">synced</span>
       </div>
       <div className="flex flex-col items-center gap-2">
-        <DriftBadge status="drifted" count={3} showTooltip={false} />
-        <span className="text-xs text-muted-foreground">drifted</span>
+        <DriftBadge
+          status="drifted"
+          count={3}
+          showTooltip={false}
+        />
+        <span className="text-muted-foreground text-xs">drifted</span>
       </div>
       <div className="flex flex-col items-center gap-2">
-        <DriftBadge status="error" showTooltip={false} />
-        <span className="text-xs text-muted-foreground">error</span>
+        <DriftBadge
+          status="error"
+          showTooltip={false}
+        />
+        <span className="text-muted-foreground text-xs">error</span>
       </div>
       <div className="flex flex-col items-center gap-2">
-        <DriftBadge status="pending" showTooltip={false} />
-        <span className="text-xs text-muted-foreground">pending</span>
+        <DriftBadge
+          status="pending"
+          showTooltip={false}
+        />
+        <span className="text-muted-foreground text-xs">pending</span>
       </div>
       <div className="flex flex-col items-center gap-2">
-        <DriftBadge status="checking" showTooltip={false} />
-        <span className="text-xs text-muted-foreground">checking</span>
+        <DriftBadge
+          status="checking"
+          showTooltip={false}
+        />
+        <span className="text-muted-foreground text-xs">checking</span>
       </div>
     </div>
   ),
@@ -136,16 +152,31 @@ export const AllSizes: Story = {
   render: () => (
     <div className="flex items-center gap-6">
       <div className="flex flex-col items-center gap-2">
-        <DriftBadge status="drifted" count={2} size="sm" showTooltip={false} />
-        <span className="text-xs text-muted-foreground">sm</span>
+        <DriftBadge
+          status="drifted"
+          count={2}
+          size="sm"
+          showTooltip={false}
+        />
+        <span className="text-muted-foreground text-xs">sm</span>
       </div>
       <div className="flex flex-col items-center gap-2">
-        <DriftBadge status="drifted" count={2} size="md" showTooltip={false} />
-        <span className="text-xs text-muted-foreground">md</span>
+        <DriftBadge
+          status="drifted"
+          count={2}
+          size="md"
+          showTooltip={false}
+        />
+        <span className="text-muted-foreground text-xs">md</span>
       </div>
       <div className="flex flex-col items-center gap-2">
-        <DriftBadge status="drifted" count={2} size="lg" showTooltip={false} />
-        <span className="text-xs text-muted-foreground">lg</span>
+        <DriftBadge
+          status="drifted"
+          count={2}
+          size="lg"
+          showTooltip={false}
+        />
+        <span className="text-muted-foreground text-xs">lg</span>
       </div>
     </div>
   ),
@@ -164,12 +195,12 @@ export const Interactive: Story = {
           onClick={() => setClicked(true)}
         />
         {clicked && (
-          <span className="text-sm text-muted-foreground">
+          <span className="text-muted-foreground text-sm">
             Drift resolution modal would open here.
           </span>
         )}
         {!clicked && (
-          <span className="text-sm text-muted-foreground">Click the badge to trigger action</span>
+          <span className="text-muted-foreground text-sm">Click the badge to trigger action</span>
         )}
       </div>
     );
@@ -179,7 +210,7 @@ export const Interactive: Story = {
 export const InTableContext: Story = {
   render: () => (
     <div className="w-[480px] rounded-lg border">
-      <div className="grid grid-cols-[1fr_auto_auto] items-center gap-4 border-b px-4 py-3 text-sm font-medium text-muted-foreground">
+      <div className="text-muted-foreground grid grid-cols-[1fr_auto_auto] items-center gap-4 border-b px-4 py-3 text-sm font-medium">
         <span>Interface</span>
         <span>Status</span>
         <span>Drift</span>
@@ -195,7 +226,7 @@ export const InTableContext: Story = {
           key={row.name}
           className="grid grid-cols-[1fr_auto_auto] items-center gap-4 border-b px-4 py-3 last:border-0"
         >
-          <span className="text-sm font-mono">{row.name}</span>
+          <span className="font-mono text-sm">{row.name}</span>
           <span className={`text-sm ${row.status === 'Up' ? 'text-success' : 'text-error'}`}>
             {row.status}
           </span>
@@ -227,9 +258,22 @@ export const Mobile: Story = {
   parameters: { viewport: { defaultViewport: 'mobile1' } },
   render: () => (
     <div className="flex flex-col items-center gap-4 p-4">
-      <DriftBadge status="synced" size="sm" showTooltip={false} />
-      <DriftBadge status="drifted" count={2} size="sm" showTooltip={false} />
-      <DriftBadge status="checking" size="sm" showTooltip={false} />
+      <DriftBadge
+        status="synced"
+        size="sm"
+        showTooltip={false}
+      />
+      <DriftBadge
+        status="drifted"
+        count={2}
+        size="sm"
+        showTooltip={false}
+      />
+      <DriftBadge
+        status="checking"
+        size="sm"
+        showTooltip={false}
+      />
     </div>
   ),
 };
@@ -241,9 +285,22 @@ export const Tablet: Story = {
   parameters: { viewport: { defaultViewport: 'tablet' } },
   render: () => (
     <div className="flex items-center gap-6 p-4">
-      <DriftBadge status="synced" size="md" showTooltip={false} />
-      <DriftBadge status="drifted" count={3} size="md" showTooltip={false} />
-      <DriftBadge status="error" size="md" showTooltip={false} />
+      <DriftBadge
+        status="synced"
+        size="md"
+        showTooltip={false}
+      />
+      <DriftBadge
+        status="drifted"
+        count={3}
+        size="md"
+        showTooltip={false}
+      />
+      <DriftBadge
+        status="error"
+        size="md"
+        showTooltip={false}
+      />
     </div>
   ),
 };
@@ -255,7 +312,12 @@ export const Desktop: Story = {
   parameters: { viewport: { defaultViewport: 'desktop' } },
   render: () => (
     <div className="flex items-center gap-8 p-4">
-      <DriftBadge status="synced" size="lg" showTooltip={true} lastChecked={new Date()} />
+      <DriftBadge
+        status="synced"
+        size="lg"
+        showTooltip={true}
+        lastChecked={new Date()}
+      />
       <DriftBadge
         status="drifted"
         count={5}
@@ -263,7 +325,11 @@ export const Desktop: Story = {
         showTooltip={true}
         lastChecked={new Date(Date.now() - 10 * 60 * 1000)}
       />
-      <DriftBadge status="checking" size="lg" showTooltip={true} />
+      <DriftBadge
+        status="checking"
+        size="lg"
+        showTooltip={true}
+      />
     </div>
   ),
 };
@@ -295,7 +361,7 @@ export const KeyboardNavigable: Story = {
     const [activated, setActivated] = React.useState(false);
     return (
       <div className="flex flex-col gap-4">
-        <p className="text-sm text-muted-foreground">
+        <p className="text-muted-foreground text-sm">
           Press Tab to focus badge, then Enter or Space to activate (interactive mode)
         </p>
         <DriftBadge
@@ -307,7 +373,7 @@ export const KeyboardNavigable: Story = {
           onClick={() => setActivated(!activated)}
         />
         {activated && (
-          <p className="text-sm font-medium text-success">Badge activated via keyboard!</p>
+          <p className="text-success text-sm font-medium">Badge activated via keyboard!</p>
         )}
       </div>
     );

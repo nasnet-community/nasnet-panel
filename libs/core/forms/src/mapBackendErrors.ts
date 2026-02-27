@@ -110,9 +110,7 @@ export function toFormError(error: ValidationError): {
  * // }
  * ```
  */
-export function groupErrorsByField(
-  errors: ValidationError[]
-): Map<string, ValidationError[]> {
+export function groupErrorsByField(errors: ValidationError[]): Map<string, ValidationError[]> {
   const grouped = new Map<string, ValidationError[]>();
 
   errors.forEach((error) => {

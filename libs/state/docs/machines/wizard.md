@@ -1,9 +1,11 @@
 # Wizard Machine (Multi-Step Flows)
 
-The **Wizard Machine** provides a reusable pattern for multi-step form wizards with per-step validation, session persistence, and recovery. It's ideal for complex setup flows like VPN configuration, device pairing, or service installation.
+The **Wizard Machine** provides a reusable pattern for multi-step form wizards with per-step
+validation, session persistence, and recovery. It's ideal for complex setup flows like VPN
+configuration, device pairing, or service installation.
 
-**Source:** `libs/state/machines/src/wizardMachine.ts`
-**Hook:** `libs/state/machines/src/hooks/useWizard.ts`
+**Source:** `libs/state/machines/src/wizardMachine.ts` **Hook:**
+`libs/state/machines/src/hooks/useWizard.ts`
 
 ## Complete State Chart
 
@@ -29,13 +31,13 @@ stateDiagram-v2
 
 ## States Reference
 
-| State | Purpose | Transitions |
-|-------|---------|-------------|
-| **step** | Active wizard step | NEXT → validating (with step data), BACK → decrementStep, GOTO → goToStep (if allowed), SET_DATA (stay), CANCEL → cancelled, RESTORE |
-| **validating** | Running step validation | onDone (valid & last) → submitting, onDone (valid & not last) → step (incrementStep), onDone (invalid) → step (show errors), onError → step |
-| **submitting** | Executing wizard onSubmit | onDone → completed, onError → step (show form error) |
-| **completed** | Wizard finished successfully | (Terminal - no transitions) |
-| **cancelled** | Wizard cancelled by user | (Terminal - no transitions) |
+| State          | Purpose                      | Transitions                                                                                                                                 |
+| -------------- | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| **step**       | Active wizard step           | NEXT → validating (with step data), BACK → decrementStep, GOTO → goToStep (if allowed), SET_DATA (stay), CANCEL → cancelled, RESTORE        |
+| **validating** | Running step validation      | onDone (valid & last) → submitting, onDone (valid & not last) → step (incrementStep), onDone (invalid) → step (show errors), onError → step |
+| **submitting** | Executing wizard onSubmit    | onDone → completed, onError → step (show form error)                                                                                        |
+| **completed**  | Wizard finished successfully | (Terminal - no transitions)                                                                                                                 |
+| **cancelled**  | Wizard cancelled by user     | (Terminal - no transitions)                                                                                                                 |
 
 ## Context
 
@@ -65,26 +67,26 @@ interface WizardContext<TData = Record<string, unknown>> {
 
 ```typescript
 type WizardEvent<TData = Record<string, unknown>> =
-  | { type: 'NEXT'; data?: Partial<TData> }              // Advance with data
-  | { type: 'BACK' }                                      // Go back
-  | { type: 'GOTO'; step: number }                        // Jump to step
-  | { type: 'VALIDATE' }                                  // Manual validation
-  | { type: 'SUBMIT' }                                    // Submit (internal)
-  | { type: 'CANCEL' }                                    // Cancel wizard
+  | { type: 'NEXT'; data?: Partial<TData> } // Advance with data
+  | { type: 'BACK' } // Go back
+  | { type: 'GOTO'; step: number } // Jump to step
+  | { type: 'VALIDATE' } // Manual validation
+  | { type: 'SUBMIT' } // Submit (internal)
+  | { type: 'CANCEL' } // Cancel wizard
   | { type: 'RESTORE'; savedContext: WizardContext<TData> } // Resume from session
-  | { type: 'SET_DATA'; data: Partial<TData> }           // Update data without advancing
-  | { type: 'CLEAR_ERRORS' };                            // Clear validation errors
+  | { type: 'SET_DATA'; data: Partial<TData> } // Update data without advancing
+  | { type: 'CLEAR_ERRORS' }; // Clear validation errors
 ```
 
 ## Guards
 
 ```typescript
 {
-  canGoBack: boolean;       // currentStep > 1
-  canGoForward: boolean;    // currentStep < totalSteps
-  isLastStep: boolean;      // currentStep === totalSteps
-  isNotLastStep: boolean;   // currentStep < totalSteps
-  canGoToStep: boolean;     // targetStep valid and allowed (targetStep <= currentStep or canSkip)
+  canGoBack: boolean; // currentStep > 1
+  canGoForward: boolean; // currentStep < totalSteps
+  isLastStep: boolean; // currentStep === totalSteps
+  isNotLastStep: boolean; // currentStep < totalSteps
+  canGoToStep: boolean; // targetStep valid and allowed (targetStep <= currentStep or canSkip)
   validationPassed: boolean; // Validation succeeded
 }
 ```
@@ -93,13 +95,13 @@ type WizardEvent<TData = Record<string, unknown>> =
 
 ```typescript
 {
-  incrementStep();          // currentStep++, clear errors
-  decrementStep();          // currentStep--, clear errors
-  goToStep(step);           // currentStep = step, clear errors
-  mergeData(data);          // Merge NEXT/SET_DATA into data
-  setValidationErrors();    // Store validation errors from validation result
-  clearErrors();            // Clear errors object
-  restoreContext();         // Restore saved session (currentStep, data, sessionId)
+  incrementStep(); // currentStep++, clear errors
+  decrementStep(); // currentStep--, clear errors
+  goToStep(step); // currentStep = step, clear errors
+  mergeData(data); // Merge NEXT/SET_DATA into data
+  setValidationErrors(); // Store validation errors from validation result
+  clearErrors(); // Clear errors object
+  restoreContext(); // Restore saved session (currentStep, data, sessionId)
 }
 ```
 
@@ -177,7 +179,7 @@ function VPNSetupWizard() {
     },
     {
       autoPersist: true,
-      autoRestore: false,  // Show restore prompt
+      autoRestore: false, // Show restore prompt
       onComplete: () => {
         toast.success('VPN configured successfully!');
         navigate('/vpn');
@@ -206,12 +208,8 @@ function VPNSetupWizard() {
         return (
           <ProviderSelection
             selected={wizard.data.provider}
-            onSelect={(provider) =>
-              wizard.setData({ provider })
-            }
-            onNext={(provider) =>
-              wizard.next({ provider })
-            }
+            onSelect={(provider) => wizard.setData({ provider })}
+            onNext={(provider) => wizard.next({ provider })}
           />
         );
       case 2:
@@ -228,9 +226,7 @@ function VPNSetupWizard() {
           <CredentialsForm
             credentials={wizard.data.credentials}
             errors={wizard.errors}
-            onNext={(creds) =>
-              wizard.next({ credentials: creds })
-            }
+            onNext={(creds) => wizard.next({ credentials: creds })}
           />
         );
       default:
@@ -272,7 +268,7 @@ interface UseWizardReturn<TData> {
   data: Partial<TData>;
   errors: Record<string, string>;
   sessionId: string;
-  progress: number;  // 0-100
+  progress: number; // 0-100
 
   // Status
   isValidating: boolean;
@@ -344,7 +340,7 @@ const pairingWizard = useWizard<DevicePairingData>(
 
 ```tsx
 // Option 1: Validate on each step advance
-wizard.next(stepData);  // Validation happens automatically
+wizard.next(stepData); // Validation happens automatically
 
 // Option 2: Manual validation (for preview)
 const validateAll = async () => {
@@ -397,7 +393,7 @@ localStorage['nasnet-machine-vpn-setup'] = JSON.stringify({
   context: {
     currentStep: 2,
     totalSteps: 3,
-    data: { provider: 'wireguard', /* ... */ },
+    data: { provider: 'wireguard' /* ... */ },
     errors: {},
     sessionId: 'uuid-123',
   },
@@ -414,9 +410,9 @@ if (wizard.canRestore) {
   // Show resume prompt
   return (
     <ResumePrompt
-      onResume={wizard.restore}    // Resume from step 2
-      onDiscard={wizard.discardSession}  // Start over
-      age={wizard.savedSessionAge}  // "2 hours ago"
+      onResume={wizard.restore} // Resume from step 2
+      onDiscard={wizard.discardSession} // Start over
+      age={wizard.savedSessionAge} // "2 hours ago"
     />
   );
 }
@@ -427,12 +423,9 @@ if (wizard.canRestore) {
 If all steps are pre-validated, wizard can auto-advance:
 
 ```typescript
-const wizardWithSkip = useWizard(
-  config,
-  {
-    autoPersist: true,
-  }
-);
+const wizardWithSkip = useWizard(config, {
+  autoPersist: true,
+});
 
 useEffect(() => {
   // Auto-advance if current step is valid

@@ -4,42 +4,42 @@
  */
 import type { RouterCredentials } from '@nasnet/core/types';
 export interface CredentialDialogProps {
-    /**
-     * Whether the dialog is open
-     */
-    isOpen: boolean;
-    /**
-     * Router IP address being connected to
-     */
-    routerIp: string;
-    /**
-     * Optional router name for display
-     */
-    routerName?: string;
-    /**
-     * Whether validation is in progress
-     */
-    isValidating?: boolean;
-    /**
-     * Validation error message
-     */
-    validationError?: string;
-    /**
-     * Callback when user submits credentials
-     */
-    onSubmit?: (credentials: RouterCredentials, saveCredentials: boolean) => void;
-    /**
-     * Callback when user cancels
-     */
-    onCancel?: () => void;
-    /**
-     * Initial credentials (for retry scenarios)
-     */
-    initialCredentials?: RouterCredentials;
-    /**
-     * Optional CSS class name
-     */
-    className?: string;
+  /**
+   * Whether the dialog is open
+   */
+  isOpen: boolean;
+  /**
+   * Router IP address being connected to
+   */
+  routerIp: string;
+  /**
+   * Optional router name for display
+   */
+  routerName?: string;
+  /**
+   * Whether validation is in progress
+   */
+  isValidating?: boolean;
+  /**
+   * Validation error message
+   */
+  validationError?: string;
+  /**
+   * Callback when user submits credentials
+   */
+  onSubmit?: (credentials: RouterCredentials, saveCredentials: boolean) => void;
+  /**
+   * Callback when user cancels
+   */
+  onCancel?: () => void;
+  /**
+   * Initial credentials (for retry scenarios)
+   */
+  initialCredentials?: RouterCredentials;
+  /**
+   * Optional CSS class name
+   */
+  className?: string;
 }
 /**
  * CredentialDialog Component
@@ -64,5 +64,5 @@ export interface CredentialDialogProps {
  * />
  * ```
  */
-export declare const CredentialDialog: import("react").NamedExoticComponent<CredentialDialogProps>;
+export declare const CredentialDialog: import('react').NamedExoticComponent<CredentialDialogProps>;
 //# sourceMappingURL=CredentialDialog.d.ts.map

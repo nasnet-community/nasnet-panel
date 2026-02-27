@@ -28,13 +28,23 @@ describe('LeaseCard', () => {
 
     it('should render "Unknown Device" when hostname is undefined', () => {
       const lease = createMockLease({ hostname: undefined });
-      render(<LeaseCard {...defaultProps} lease={lease} />);
+      render(
+        <LeaseCard
+          {...defaultProps}
+          lease={lease}
+        />
+      );
 
       expect(screen.getByText('Unknown Device')).toBeInTheDocument();
     });
 
     it('should render "New" badge when isNew is true', () => {
-      render(<LeaseCard {...defaultProps} isNew={true} />);
+      render(
+        <LeaseCard
+          {...defaultProps}
+          isNew={true}
+        />
+      );
 
       const badge = screen.getByText('New');
       expect(badge).toBeInTheDocument();
@@ -42,7 +52,12 @@ describe('LeaseCard', () => {
     });
 
     it('should not render "New" badge when isNew is false', () => {
-      render(<LeaseCard {...defaultProps} isNew={false} />);
+      render(
+        <LeaseCard
+          {...defaultProps}
+          isNew={false}
+        />
+      );
 
       expect(screen.queryByText('New')).not.toBeInTheDocument();
     });
@@ -57,7 +72,12 @@ describe('LeaseCard', () => {
 
     it('should render blocked indicator for blocked leases', () => {
       const lease = createMockLease({ blocked: true });
-      render(<LeaseCard {...defaultProps} lease={lease} />);
+      render(
+        <LeaseCard
+          {...defaultProps}
+          lease={lease}
+        />
+      );
 
       expect(screen.getByText('Blocked')).toBeInTheDocument();
     });
@@ -268,7 +288,12 @@ describe('LeaseCard', () => {
   describe('Status indicators', () => {
     it('should render bound status with green color', () => {
       const lease = createMockLease({ status: 'bound' });
-      render(<LeaseCard {...defaultProps} lease={lease} />);
+      render(
+        <LeaseCard
+          {...defaultProps}
+          lease={lease}
+        />
+      );
 
       const badge = screen.getByText('bound');
       expect(badge.closest('span')).toHaveClass('bg-semantic-success');
@@ -276,7 +301,12 @@ describe('LeaseCard', () => {
 
     it('should render waiting status with yellow color', () => {
       const lease = createMockLease({ status: 'waiting' });
-      render(<LeaseCard {...defaultProps} lease={lease} />);
+      render(
+        <LeaseCard
+          {...defaultProps}
+          lease={lease}
+        />
+      );
 
       const badge = screen.getByText('waiting');
       expect(badge.closest('span')).toHaveClass('bg-semantic-warning');
@@ -290,7 +320,12 @@ describe('LeaseCard', () => {
 
     it('should show "never" for static leases', () => {
       const lease = createMockLease({ expiresAfter: 'never', dynamic: false });
-      render(<LeaseCard {...defaultProps} lease={lease} />);
+      render(
+        <LeaseCard
+          {...defaultProps}
+          lease={lease}
+        />
+      );
 
       expect(screen.getByText('never')).toBeInTheDocument();
     });

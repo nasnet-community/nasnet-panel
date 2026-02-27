@@ -114,7 +114,10 @@ describe('logActionRegistry', () => {
   describe('extractDataFromMessage', () => {
     it('should extract IP address from firewall add-to-whitelist action', () => {
       const action = logActionsByTopic.firewall[1]; // add-to-whitelist
-      const ip = extractDataFromMessage('Blocked from 192.168.1.5 trying to access port 80', action);
+      const ip = extractDataFromMessage(
+        'Blocked from 192.168.1.5 trying to access port 80',
+        action
+      );
       expect(ip).toBe('192.168.1.5');
     });
 
@@ -169,10 +172,7 @@ describe('logActionRegistry', () => {
 
   describe('action properties validation', () => {
     it('should have consistent action structure', () => {
-      const allActions = [
-        ...Object.values(logActionsByTopic).flat(),
-        ...commonLogActions,
-      ];
+      const allActions = [...Object.values(logActionsByTopic).flat(), ...commonLogActions];
 
       for (const action of allActions) {
         expect(action.id).toBeDefined();
@@ -186,10 +186,7 @@ describe('logActionRegistry', () => {
     });
 
     it('should have unique action IDs across all topics and common', () => {
-      const allActions = [
-        ...Object.values(logActionsByTopic).flat(),
-        ...commonLogActions,
-      ];
+      const allActions = [...Object.values(logActionsByTopic).flat(), ...commonLogActions];
       const ids = allActions.map((a) => a.id);
       const uniqueIds = new Set(ids);
 

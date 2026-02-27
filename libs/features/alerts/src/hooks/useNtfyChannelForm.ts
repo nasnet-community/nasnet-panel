@@ -126,9 +126,7 @@ export function useNtfyChannelForm(
 
   // Testing state
   const [isTesting, setIsTesting] = useState(false);
-  const [testResult, setTestResult] = useState<
-    { success: boolean; message: string } | undefined
-  >();
+  const [testResult, setTestResult] = useState<{ success: boolean; message: string } | undefined>();
 
   /**
    * Check if authentication is enabled

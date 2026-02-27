@@ -48,7 +48,12 @@ describe('FixSuggestion', () => {
     it('should render fix title', () => {
       const fix = createFix();
 
-      render(<FixSuggestion {...defaultProps} fix={fix} />);
+      render(
+        <FixSuggestion
+          {...defaultProps}
+          fix={fix}
+        />
+      );
 
       expect(screen.getByText('Enable WAN Interface')).toBeInTheDocument();
     });
@@ -56,17 +61,25 @@ describe('FixSuggestion', () => {
     it('should render fix description', () => {
       const fix = createFix();
 
-      render(<FixSuggestion {...defaultProps} fix={fix} />);
+      render(
+        <FixSuggestion
+          {...defaultProps}
+          fix={fix}
+        />
+      );
 
-      expect(
-        screen.getByText(/Your WAN interface is disabled/)
-      ).toBeInTheDocument();
+      expect(screen.getByText(/Your WAN interface is disabled/)).toBeInTheDocument();
     });
 
     it('should have warning border and background', () => {
       const fix = createFix();
 
-      const { container } = render(<FixSuggestion {...defaultProps} fix={fix} />);
+      const { container } = render(
+        <FixSuggestion
+          {...defaultProps}
+          fix={fix}
+        />
+      );
 
       const card = container.firstChild as HTMLElement;
       expect(card.className).toContain('border-warning/50');
@@ -78,7 +91,12 @@ describe('FixSuggestion', () => {
     it('should show high confidence badge with check icon', () => {
       const fix = createFix({ confidence: 'high' });
 
-      const { container } = render(<FixSuggestion {...defaultProps} fix={fix} />);
+      const { container } = render(
+        <FixSuggestion
+          {...defaultProps}
+          fix={fix}
+        />
+      );
 
       expect(screen.getByText(/high confidence/i)).toBeInTheDocument();
       expect(container.querySelector('.lucide-check-circle-2')).toBeInTheDocument();
@@ -87,7 +105,12 @@ describe('FixSuggestion', () => {
     it('should show medium confidence badge with alert icon', () => {
       const fix = createFix({ confidence: 'medium' });
 
-      const { container } = render(<FixSuggestion {...defaultProps} fix={fix} />);
+      const { container } = render(
+        <FixSuggestion
+          {...defaultProps}
+          fix={fix}
+        />
+      );
 
       expect(screen.getByText(/medium confidence/i)).toBeInTheDocument();
       expect(container.querySelector('.lucide-alert-circle')).toBeInTheDocument();
@@ -96,24 +119,42 @@ describe('FixSuggestion', () => {
     it('should show low confidence badge', () => {
       const fix = createFix({ confidence: 'low' });
 
-      render(<FixSuggestion {...defaultProps} fix={fix} />);
+      render(
+        <FixSuggestion
+          {...defaultProps}
+          fix={fix}
+        />
+      );
 
       expect(screen.getByText(/low confidence/i)).toBeInTheDocument();
     });
 
     it('should apply correct colors for confidence levels', () => {
       const { container, rerender } = render(
-        <FixSuggestion {...defaultProps} fix={createFix({ confidence: 'high' })} />
+        <FixSuggestion
+          {...defaultProps}
+          fix={createFix({ confidence: 'high' })}
+        />
       );
 
       let badge = screen.getByText(/high confidence/i);
       expect(badge.className).toContain('text-success');
 
-      rerender(<FixSuggestion {...defaultProps} fix={createFix({ confidence: 'medium' })} />);
+      rerender(
+        <FixSuggestion
+          {...defaultProps}
+          fix={createFix({ confidence: 'medium' })}
+        />
+      );
       badge = screen.getByText(/medium confidence/i);
       expect(badge.className).toContain('text-warning');
 
-      rerender(<FixSuggestion {...defaultProps} fix={createFix({ confidence: 'low' })} />);
+      rerender(
+        <FixSuggestion
+          {...defaultProps}
+          fix={createFix({ confidence: 'low' })}
+        />
+      );
       badge = screen.getByText(/low confidence/i);
       expect(badge.className).toContain('text-error');
     });
@@ -123,7 +164,12 @@ describe('FixSuggestion', () => {
     it('should show Apply Fix button for automated fix', () => {
       const fix = createFix({ isManualFix: false });
 
-      render(<FixSuggestion {...defaultProps} fix={fix} />);
+      render(
+        <FixSuggestion
+          {...defaultProps}
+          fix={fix}
+        />
+      );
 
       expect(screen.getByRole('button', { name: /apply fix/i })).toBeInTheDocument();
     });
@@ -133,7 +179,13 @@ describe('FixSuggestion', () => {
       const onApply = vi.fn();
       const fix = createFix({ isManualFix: false });
 
-      render(<FixSuggestion {...defaultProps} fix={fix} onApply={onApply} />);
+      render(
+        <FixSuggestion
+          {...defaultProps}
+          fix={fix}
+          onApply={onApply}
+        />
+      );
 
       await user.click(screen.getByRole('button', { name: /apply fix/i }));
 
@@ -143,7 +195,13 @@ describe('FixSuggestion', () => {
     it('should show applying state with spinner', () => {
       const fix = createFix({ isManualFix: false });
 
-      const { container } = render(<FixSuggestion {...defaultProps} fix={fix} status="applying" />);
+      const { container } = render(
+        <FixSuggestion
+          {...defaultProps}
+          fix={fix}
+          status="applying"
+        />
+      );
 
       expect(screen.getByText(/applying fix/i)).toBeInTheDocument();
       expect(container.querySelector('.lucide-loader-2')).toBeInTheDocument();
@@ -153,7 +211,13 @@ describe('FixSuggestion', () => {
     it('should disable buttons when applying', () => {
       const fix = createFix({ isManualFix: false });
 
-      render(<FixSuggestion {...defaultProps} fix={fix} status="applying" />);
+      render(
+        <FixSuggestion
+          {...defaultProps}
+          fix={fix}
+          status="applying"
+        />
+      );
 
       expect(screen.getByRole('button', { name: /applying fix/i })).toBeDisabled();
       expect(screen.getByRole('button', { name: /skip/i })).toBeDisabled();
@@ -162,7 +226,13 @@ describe('FixSuggestion', () => {
     it('should show applied state with check icon', () => {
       const fix = createFix({ isManualFix: false });
 
-      const { container } = render(<FixSuggestion {...defaultProps} fix={fix} status="applied" />);
+      const { container } = render(
+        <FixSuggestion
+          {...defaultProps}
+          fix={fix}
+          status="applied"
+        />
+      );
 
       expect(screen.getByText(/applied/i)).toBeInTheDocument();
       expect(container.querySelector('.lucide-check-circle-2')).toBeInTheDocument();
@@ -171,7 +241,13 @@ describe('FixSuggestion', () => {
     it('should disable Apply button when applied', () => {
       const fix = createFix({ isManualFix: false });
 
-      render(<FixSuggestion {...defaultProps} fix={fix} status="applied" />);
+      render(
+        <FixSuggestion
+          {...defaultProps}
+          fix={fix}
+          status="applied"
+        />
+      );
 
       expect(screen.getByRole('button', { name: /applied/i })).toBeDisabled();
     });
@@ -179,7 +255,13 @@ describe('FixSuggestion', () => {
     it('should show Try Again when failed', () => {
       const fix = createFix({ isManualFix: false });
 
-      render(<FixSuggestion {...defaultProps} fix={fix} status="failed" />);
+      render(
+        <FixSuggestion
+          {...defaultProps}
+          fix={fix}
+          status="failed"
+        />
+      );
 
       expect(screen.getByRole('button', { name: /try again/i })).toBeInTheDocument();
     });
@@ -189,7 +271,12 @@ describe('FixSuggestion', () => {
     it('should not show Apply Fix button for manual fix', () => {
       const fix = createFix({ isManualFix: true });
 
-      render(<FixSuggestion {...defaultProps} fix={fix} />);
+      render(
+        <FixSuggestion
+          {...defaultProps}
+          fix={fix}
+        />
+      );
 
       expect(screen.queryByRole('button', { name: /apply fix/i })).not.toBeInTheDocument();
     });
@@ -197,7 +284,12 @@ describe('FixSuggestion', () => {
     it('should show Continue button for manual fix', () => {
       const fix = createFix({ isManualFix: true });
 
-      render(<FixSuggestion {...defaultProps} fix={fix} />);
+      render(
+        <FixSuggestion
+          {...defaultProps}
+          fix={fix}
+        />
+      );
 
       expect(screen.getByRole('button', { name: /continue/i })).toBeInTheDocument();
     });
@@ -212,7 +304,12 @@ describe('FixSuggestion', () => {
         ],
       });
 
-      render(<FixSuggestion {...defaultProps} fix={fix} />);
+      render(
+        <FixSuggestion
+          {...defaultProps}
+          fix={fix}
+        />
+      );
 
       expect(screen.getByText(/follow these steps/i)).toBeInTheDocument();
       expect(screen.getByText('Check the cable connection')).toBeInTheDocument();
@@ -226,7 +323,12 @@ describe('FixSuggestion', () => {
         manualSteps: ['Step 1', 'Step 2', 'Step 3'],
       });
 
-      const { container } = render(<FixSuggestion {...defaultProps} fix={fix} />);
+      const { container } = render(
+        <FixSuggestion
+          {...defaultProps}
+          fix={fix}
+        />
+      );
 
       const list = container.querySelector('ol');
       expect(list).toBeInTheDocument();
@@ -238,7 +340,13 @@ describe('FixSuggestion', () => {
       const onSkip = vi.fn();
       const fix = createFix({ isManualFix: true });
 
-      render(<FixSuggestion {...defaultProps} fix={fix} onSkip={onSkip} />);
+      render(
+        <FixSuggestion
+          {...defaultProps}
+          fix={fix}
+          onSkip={onSkip}
+        />
+      );
 
       await user.click(screen.getByRole('button', { name: /continue/i }));
 
@@ -250,7 +358,12 @@ describe('FixSuggestion', () => {
     it('should not show command preview by default', () => {
       const fix = createFix();
 
-      render(<FixSuggestion {...defaultProps} fix={fix} />);
+      render(
+        <FixSuggestion
+          {...defaultProps}
+          fix={fix}
+        />
+      );
 
       expect(screen.queryByText(/RouterOS Command/i)).not.toBeInTheDocument();
     });
@@ -258,7 +371,13 @@ describe('FixSuggestion', () => {
     it('should show command preview when enabled', () => {
       const fix = createFix();
 
-      render(<FixSuggestion {...defaultProps} fix={fix} showCommandPreview={true} />);
+      render(
+        <FixSuggestion
+          {...defaultProps}
+          fix={fix}
+          showCommandPreview={true}
+        />
+      );
 
       expect(screen.getByText(/RouterOS Command/i)).toBeInTheDocument();
       expect(screen.getByText('/interface/enable [find name=ether1]')).toBeInTheDocument();
@@ -268,7 +387,11 @@ describe('FixSuggestion', () => {
       const fix = createFix();
 
       const { container } = render(
-        <FixSuggestion {...defaultProps} fix={fix} showCommandPreview={true} />
+        <FixSuggestion
+          {...defaultProps}
+          fix={fix}
+          showCommandPreview={true}
+        />
       );
 
       const commandBlock = container.querySelector('code');
@@ -279,7 +402,13 @@ describe('FixSuggestion', () => {
     it('should not show command preview for manual fixes', () => {
       const fix = createFix({ isManualFix: true, command: '' });
 
-      render(<FixSuggestion {...defaultProps} fix={fix} showCommandPreview={true} />);
+      render(
+        <FixSuggestion
+          {...defaultProps}
+          fix={fix}
+          showCommandPreview={true}
+        />
+      );
 
       expect(screen.queryByText(/RouterOS Command/i)).not.toBeInTheDocument();
     });
@@ -299,7 +428,13 @@ describe('FixSuggestion', () => {
         isManualFix: true,
       });
 
-      render(<FixSuggestion {...defaultProps} fix={fix} ispInfo={ispInfo} />);
+      render(
+        <FixSuggestion
+          {...defaultProps}
+          fix={fix}
+          ispInfo={ispInfo}
+        />
+      );
 
       expect(screen.getByText(/ISP Information/i)).toBeInTheDocument();
       expect(screen.getByText('Provider: Comcast')).toBeInTheDocument();
@@ -311,7 +446,13 @@ describe('FixSuggestion', () => {
         isManualFix: true,
       });
 
-      render(<FixSuggestion {...defaultProps} fix={fix} ispInfo={ispInfo} />);
+      render(
+        <FixSuggestion
+          {...defaultProps}
+          fix={fix}
+          ispInfo={ispInfo}
+        />
+      );
 
       const phoneLink = screen.getByRole('link', { name: /1-800-COMCAST/i });
       expect(phoneLink).toHaveAttribute('href', 'tel:1-800-COMCAST');
@@ -323,7 +464,13 @@ describe('FixSuggestion', () => {
         isManualFix: true,
       });
 
-      render(<FixSuggestion {...defaultProps} fix={fix} ispInfo={ispInfo} />);
+      render(
+        <FixSuggestion
+          {...defaultProps}
+          fix={fix}
+          ispInfo={ispInfo}
+        />
+      );
 
       const websiteLink = screen.getByRole('link', { name: /comcast.com\/support/i });
       expect(websiteLink).toHaveAttribute('href', 'https://www.comcast.com/support');
@@ -337,7 +484,13 @@ describe('FixSuggestion', () => {
         isManualFix: true,
       });
 
-      render(<FixSuggestion {...defaultProps} fix={fix} ispInfo={ispInfo} />);
+      render(
+        <FixSuggestion
+          {...defaultProps}
+          fix={fix}
+          ispInfo={ispInfo}
+        />
+      );
 
       expect(screen.queryByText(/ISP Information/i)).not.toBeInTheDocument();
     });
@@ -348,9 +501,20 @@ describe('FixSuggestion', () => {
         isManualFix: true,
       });
 
-      const noIspInfo: ISPInfo = { detected: false, name: null, supportPhone: null, supportUrl: null };
+      const noIspInfo: ISPInfo = {
+        detected: false,
+        name: null,
+        supportPhone: null,
+        supportUrl: null,
+      };
 
-      render(<FixSuggestion {...defaultProps} fix={fix} ispInfo={noIspInfo} />);
+      render(
+        <FixSuggestion
+          {...defaultProps}
+          fix={fix}
+          ispInfo={noIspInfo}
+        />
+      );
 
       expect(screen.queryByText(/ISP Information/i)).not.toBeInTheDocument();
     });
@@ -368,7 +532,13 @@ describe('FixSuggestion', () => {
         supportUrl: null,
       };
 
-      render(<FixSuggestion {...defaultProps} fix={fix} ispInfo={partialIspInfo} />);
+      render(
+        <FixSuggestion
+          {...defaultProps}
+          fix={fix}
+          ispInfo={partialIspInfo}
+        />
+      );
 
       expect(screen.getByText('Provider: Local ISP')).toBeInTheDocument();
       expect(screen.queryByText(/Phone/i)).not.toBeInTheDocument();
@@ -380,7 +550,12 @@ describe('FixSuggestion', () => {
     it('should show Skip button', () => {
       const fix = createFix();
 
-      render(<FixSuggestion {...defaultProps} fix={fix} />);
+      render(
+        <FixSuggestion
+          {...defaultProps}
+          fix={fix}
+        />
+      );
 
       expect(screen.getByRole('button', { name: /skip/i })).toBeInTheDocument();
     });
@@ -390,7 +565,13 @@ describe('FixSuggestion', () => {
       const onSkip = vi.fn();
       const fix = createFix();
 
-      render(<FixSuggestion {...defaultProps} fix={fix} onSkip={onSkip} />);
+      render(
+        <FixSuggestion
+          {...defaultProps}
+          fix={fix}
+          onSkip={onSkip}
+        />
+      );
 
       await user.click(screen.getByRole('button', { name: /skip/i }));
 
@@ -400,7 +581,13 @@ describe('FixSuggestion', () => {
     it('should disable Skip button when applying', () => {
       const fix = createFix();
 
-      render(<FixSuggestion {...defaultProps} fix={fix} status="applying" />);
+      render(
+        <FixSuggestion
+          {...defaultProps}
+          fix={fix}
+          status="applying"
+        />
+      );
 
       expect(screen.getByRole('button', { name: /skip/i })).toBeDisabled();
     });
@@ -408,7 +595,13 @@ describe('FixSuggestion', () => {
     it('should enable Skip button when not applying', () => {
       const fix = createFix();
 
-      render(<FixSuggestion {...defaultProps} fix={fix} status="idle" />);
+      render(
+        <FixSuggestion
+          {...defaultProps}
+          fix={fix}
+          status="idle"
+        />
+      );
 
       expect(screen.getByRole('button', { name: /skip/i })).not.toBeDisabled();
     });
@@ -418,7 +611,12 @@ describe('FixSuggestion', () => {
     it('should have proper touch target size for buttons (min 44px)', () => {
       const fix = createFix();
 
-      render(<FixSuggestion {...defaultProps} fix={fix} />);
+      render(
+        <FixSuggestion
+          {...defaultProps}
+          fix={fix}
+        />
+      );
 
       const applyButton = screen.getByRole('button', { name: /apply fix/i });
       const skipButton = screen.getByRole('button', { name: /skip/i });
@@ -430,7 +628,12 @@ describe('FixSuggestion', () => {
     it('should have accessible button labels', () => {
       const fix = createFix();
 
-      render(<FixSuggestion {...defaultProps} fix={fix} />);
+      render(
+        <FixSuggestion
+          {...defaultProps}
+          fix={fix}
+        />
+      );
 
       const applyButton = screen.getByRole('button', { name: /apply fix/i });
       expect(applyButton).toHaveAccessibleName();
@@ -442,7 +645,12 @@ describe('FixSuggestion', () => {
     it('should link Apply button to fix description with aria-describedby', () => {
       const fix = createFix();
 
-      render(<FixSuggestion {...defaultProps} fix={fix} />);
+      render(
+        <FixSuggestion
+          {...defaultProps}
+          fix={fix}
+        />
+      );
 
       const applyButton = screen.getByRole('button', { name: /apply fix/i });
       expect(applyButton).toHaveAttribute('aria-describedby', `fix-description-${fix.issueCode}`);
@@ -451,7 +659,12 @@ describe('FixSuggestion', () => {
     it('should hide decorative icons from screen readers', () => {
       const fix = createFix();
 
-      const { container } = render(<FixSuggestion {...defaultProps} fix={fix} />);
+      const { container } = render(
+        <FixSuggestion
+          {...defaultProps}
+          fix={fix}
+        />
+      );
 
       const icons = container.querySelectorAll('[aria-hidden="true"]');
       expect(icons.length).toBeGreaterThan(0);
@@ -460,7 +673,12 @@ describe('FixSuggestion', () => {
     it('should have proper heading hierarchy', () => {
       const fix = createFix();
 
-      const { container } = render(<FixSuggestion {...defaultProps} fix={fix} />);
+      const { container } = render(
+        <FixSuggestion
+          {...defaultProps}
+          fix={fix}
+        />
+      );
 
       const heading = container.querySelector('h3');
       expect(heading).toBeInTheDocument();
@@ -480,7 +698,13 @@ describe('FixSuggestion', () => {
         supportUrl: 'https://example.com',
       };
 
-      render(<FixSuggestion {...defaultProps} fix={fix} ispInfo={ispInfo} />);
+      render(
+        <FixSuggestion
+          {...defaultProps}
+          fix={fix}
+          ispInfo={ispInfo}
+        />
+      );
 
       const link = screen.getByRole('link', { name: /example.com/i });
       expect(link).toHaveAttribute('rel', 'noopener noreferrer');
@@ -491,7 +715,12 @@ describe('FixSuggestion', () => {
     it('should handle missing confidence gracefully', () => {
       const fix = createFix({ confidence: undefined });
 
-      render(<FixSuggestion {...defaultProps} fix={fix} />);
+      render(
+        <FixSuggestion
+          {...defaultProps}
+          fix={fix}
+        />
+      );
 
       expect(screen.queryByText(/confidence/i)).not.toBeInTheDocument();
     });
@@ -502,7 +731,12 @@ describe('FixSuggestion', () => {
         manualSteps: [],
       });
 
-      render(<FixSuggestion {...defaultProps} fix={fix} />);
+      render(
+        <FixSuggestion
+          {...defaultProps}
+          fix={fix}
+        />
+      );
 
       expect(screen.queryByText(/follow these steps/i)).not.toBeInTheDocument();
     });
@@ -510,7 +744,13 @@ describe('FixSuggestion', () => {
     it('should handle empty command', () => {
       const fix = createFix({ command: '' });
 
-      render(<FixSuggestion {...defaultProps} fix={fix} showCommandPreview={true} />);
+      render(
+        <FixSuggestion
+          {...defaultProps}
+          fix={fix}
+          showCommandPreview={true}
+        />
+      );
 
       expect(screen.queryByText(/RouterOS Command/i)).not.toBeInTheDocument();
     });
@@ -523,7 +763,12 @@ describe('FixSuggestion', () => {
           'The component should handle this gracefully without layout issues.',
       });
 
-      render(<FixSuggestion {...defaultProps} fix={fix} />);
+      render(
+        <FixSuggestion
+          {...defaultProps}
+          fix={fix}
+        />
+      );
 
       expect(screen.getByText(/This is a very long description/)).toBeInTheDocument();
     });
@@ -534,7 +779,13 @@ describe('FixSuggestion', () => {
         isManualFix: true,
       });
 
-      render(<FixSuggestion {...defaultProps} fix={fix} ispInfo={undefined} />);
+      render(
+        <FixSuggestion
+          {...defaultProps}
+          fix={fix}
+          ispInfo={undefined}
+        />
+      );
 
       expect(screen.queryByText(/ISP Information/i)).not.toBeInTheDocument();
     });

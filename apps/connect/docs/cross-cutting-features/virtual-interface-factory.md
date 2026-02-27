@@ -1,13 +1,17 @@
 # Virtual Interface Factory (VIF)
 
-A Virtual Interface (VIF) is a dedicated network interface created on the MikroTik router for each service instance. It provides complete network isolation: each service gets its own VLAN, IP address, and routing mark, so service traffic is kept separate from LAN, WAN, and other services.
+A Virtual Interface (VIF) is a dedicated network interface created on the MikroTik router for each
+service instance. It provides complete network isolation: each service gets its own VLAN, IP
+address, and routing mark, so service traffic is kept separate from LAN, WAN, and other services.
 
 **Key files:**
+
 - `libs/api-client/queries/src/services/useVirtualInterfaces.ts` — GraphQL hooks
 - `apps/backend/internal/vif/` — backend VIF management (reference)
 - `apps/backend/internal/ent-schema/schema/virtualinterface.go` — database schema
 
 **Cross-references:**
+
 - See `service-marketplace.md` for how services use VIFs
 - See `../data-fetching/graphql-hooks.md` for polling patterns
 
@@ -17,15 +21,16 @@ A Virtual Interface (VIF) is a dedicated network interface created on the MikroT
 
 Each service instance gets:
 
-| Resource | Purpose |
-|----------|---------|
-| VLAN ID | Traffic segregation at Layer 2 |
-| IP address | Unique address in a private subnet |
-| Routing mark | Policy-based routing — routes service traffic separately |
-| TUN interface (optional) | For services that need a tun/tap device (e.g., VPN clients) |
-| Gateway tunnel (optional) | For chain routing through another service |
+| Resource                  | Purpose                                                     |
+| ------------------------- | ----------------------------------------------------------- |
+| VLAN ID                   | Traffic segregation at Layer 2                              |
+| IP address                | Unique address in a private subnet                          |
+| Routing mark              | Policy-based routing — routes service traffic separately    |
+| TUN interface (optional)  | For services that need a tun/tap device (e.g., VPN clients) |
+| Gateway tunnel (optional) | For chain routing through another service                   |
 
-This means a Tor instance and a sing-box instance on the same router are completely isolated. If sing-box is misconfigured and drops all traffic, Tor continues running normally.
+This means a Tor instance and a sing-box instance on the same router are completely isolated. If
+sing-box is misconfigured and drops all traffic, Tor continues running normally.
 
 ---
 
@@ -59,22 +64,35 @@ On error during creation or removal: status becomes `ERROR`.
 ```graphql
 type VirtualInterface {
   id: ID!
-  instanceId: ID!           # Service instance this VIF belongs to
-  name: String!             # Interface name on the router (e.g., "vlan100-tor")
-  vlanId: Int!              # VLAN tag (auto-allocated from VLAN pool)
-  ipAddress: String!        # IP address (e.g., "10.100.0.1/24")
+  instanceId: ID! # Service instance this VIF belongs to
+  name: String! # Interface name on the router (e.g., "vlan100-tor")
+  vlanId: Int! # VLAN tag (auto-allocated from VLAN pool)
+  ipAddress: String! # IP address (e.g., "10.100.0.1/24")
   gatewayType: GatewayType! # NONE or HEV_SOCKS5_TUNNEL
   gatewayStatus: GatewayStatus!
-  tunName: String           # TUN device name (optional)
-  routingMark: String!      # MikroTik routing mark for PBR
+  tunName: String # TUN device name (optional)
+  routingMark: String! # MikroTik routing mark for PBR
   status: VirtualInterfaceStatus!
   createdAt: DateTime!
   updatedAt: DateTime!
 }
 
-enum VirtualInterfaceStatus { CREATING, ACTIVE, ERROR, REMOVING }
-enum GatewayType { NONE, HEV_SOCKS5_TUNNEL }
-enum GatewayStatus { STOPPED, STARTING, RUNNING, FAILED }
+enum VirtualInterfaceStatus {
+  CREATING
+  ACTIVE
+  ERROR
+  REMOVING
+}
+enum GatewayType {
+  NONE
+  HEV_SOCKS5_TUNNEL
+}
+enum GatewayStatus {
+  STOPPED
+  STARTING
+  RUNNING
+  FAILED
+}
 ```
 
 ---
@@ -146,7 +164,7 @@ interface VirtualInterface {
   name: string;
   vlanId: number;
   ipAddress: string;
-  gatewayType: GatewayType;     // NONE | HEV_SOCKS5_TUNNEL
+  gatewayType: GatewayType; // NONE | HEV_SOCKS5_TUNNEL
   gatewayStatus: GatewayStatus; // STOPPED | STARTING | RUNNING | FAILED
   tunName?: string;
   routingMark: string;
@@ -162,24 +180,31 @@ interface VirtualInterface {
 
 ### VLAN Isolation
 
-Each VIF is assigned a VLAN ID from the VLAN pool (tracked by `useVLANAllocations`). Traffic from the service is tagged with this VLAN ID, so the MikroTik bridge separates it at hardware level.
+Each VIF is assigned a VLAN ID from the VLAN pool (tracked by `useVLANAllocations`). Traffic from
+the service is tagged with this VLAN ID, so the MikroTik bridge separates it at hardware level.
 
 ### IP Addressing
 
-Each VIF gets a /24 subnet from a private pool (e.g., `10.100.{vlanId}.0/24`). The service binds to the `.1` address; the router interface is the gateway.
+Each VIF gets a /24 subnet from a private pool (e.g., `10.100.{vlanId}.0/24`). The service binds to
+the `.1` address; the router interface is the gateway.
 
 ### Policy-Based Routing (PBR)
 
-The `routingMark` is applied to packets from the service's process. The router uses this mark to route packets through a specific routing table — separate from the main routing table. This allows:
+The `routingMark` is applied to packets from the service's process. The router uses this mark to
+route packets through a specific routing table — separate from the main routing table. This allows:
+
 - Service traffic to exit through a specific WAN interface
 - Service traffic to chain through another proxy service (gateway)
 - Kill-switch enforcement when the gateway is down
 
 ### Gateway Chaining
 
-When `gatewayType` is `HEV_SOCKS5_TUNNEL`, the VIF's gateway routes all service egress through a local SOCKS5 tunnel that connects to another service instance. This is how you chain Tor → sing-box or Psiphon → sing-box.
+When `gatewayType` is `HEV_SOCKS5_TUNNEL`, the VIF's gateway routes all service egress through a
+local SOCKS5 tunnel that connects to another service instance. This is how you chain Tor → sing-box
+or Psiphon → sing-box.
 
-The `gatewayStatus` field tells the frontend whether the gateway tunnel is running. If `gatewayStatus` is `FAILED`, the kill-switch may activate (see `useKillSwitch`).
+The `gatewayStatus` field tells the frontend whether the gateway tunnel is running. If
+`gatewayStatus` is `FAILED`, the kill-switch may activate (see `useKillSwitch`).
 
 ---
 
@@ -187,21 +212,21 @@ The `gatewayStatus` field tells the frontend whether the gateway tunnel is runni
 
 Status badges in the UI:
 
-| Status | Color | Meaning |
-|--------|-------|---------|
-| ACTIVE | Green | VIF is fully configured and routing traffic |
+| Status   | Color | Meaning                                         |
+| -------- | ----- | ----------------------------------------------- |
+| ACTIVE   | Green | VIF is fully configured and routing traffic     |
 | CREATING | Amber | VIF is being provisioned (polling until ACTIVE) |
-| ERROR | Red | Provisioning failed; manual inspection needed |
-| REMOVING | Amber | VIF teardown in progress |
+| ERROR    | Red   | Provisioning failed; manual inspection needed   |
+| REMOVING | Amber | VIF teardown in progress                        |
 
 Gateway status badges:
 
-| Status | Color | Meaning |
-|--------|-------|---------|
-| RUNNING | Green | Gateway tunnel is active |
-| STOPPED | Gray | Gateway not in use or stopped |
-| STARTING | Amber | Gateway tunnel starting up |
-| FAILED | Red | Gateway tunnel failed; kill-switch may activate |
+| Status   | Color | Meaning                                         |
+| -------- | ----- | ----------------------------------------------- |
+| RUNNING  | Green | Gateway tunnel is active                        |
+| STOPPED  | Gray  | Gateway not in use or stopped                   |
+| STARTING | Amber | Gateway tunnel starting up                      |
+| FAILED   | Red   | Gateway tunnel failed; kill-switch may activate |
 
 ---
 
@@ -223,4 +248,5 @@ const { updatePoolConfig } = useUpdateVLANPoolConfig();
 const { cleanupOrphanedVLANs } = useCleanupOrphanedVLANs();
 ```
 
-The VLAN pool is shown in `VLANSettingsPage` (`libs/features/services/src/pages/VLANSettingsPage.tsx`).
+The VLAN pool is shown in `VLANSettingsPage`
+(`libs/features/services/src/pages/VLANSettingsPage.tsx`).

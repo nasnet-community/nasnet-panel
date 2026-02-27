@@ -114,16 +114,20 @@ export const BogonFilterDialogMobile = memo(function BogonFilterDialogMobile({
   const isGenerating = batchMutation.isPending;
 
   return (
-    <Sheet open={open} onOpenChange={onClose}>
-      <SheetContent side="bottom" className="h-[90vh] overflow-y-auto">
+    <Sheet
+      open={open}
+      onOpenChange={onClose}
+    >
+      <SheetContent
+        side="bottom"
+        className="h-[90vh] overflow-y-auto"
+      >
         <SheetHeader>
           <SheetTitle className="flex items-center gap-2">
-            <Shield className="h-5 w-5 text-primary" />
+            <Shield className="text-primary h-5 w-5" />
             Bogon Filter
           </SheetTitle>
-          <SheetDescription>
-            Block non-routable IPs to prevent spoofing
-          </SheetDescription>
+          <SheetDescription>Block non-routable IPs to prevent spoofing</SheetDescription>
         </SheetHeader>
 
         <div className="space-y-4 py-4">
@@ -143,7 +147,11 @@ export const BogonFilterDialogMobile = memo(function BogonFilterDialogMobile({
                 </SelectTrigger>
                 <SelectContent>
                   {availableInterfaces.map((iface) => (
-                    <SelectItem key={iface} value={iface} className="py-3">
+                    <SelectItem
+                      key={iface}
+                      value={iface}
+                      className="py-3"
+                    >
                       {iface}
                     </SelectItem>
                   ))}
@@ -157,7 +165,8 @@ export const BogonFilterDialogMobile = memo(function BogonFilterDialogMobile({
             <Alert variant="warning">
               <AlertTriangle className="h-4 w-4" />
               <AlertDescription className="text-sm">
-                <strong>Warning:</strong> Blocking private addresses may prevent LAN access. Only use on WAN.
+                <strong>Warning:</strong> Blocking private addresses may prevent LAN access. Only
+                use on WAN.
               </AlertDescription>
             </Alert>
           )}
@@ -196,10 +205,10 @@ export const BogonFilterDialogMobile = memo(function BogonFilterDialogMobile({
                 <div
                   key={category}
                   className={cn(
-                    'p-3 border rounded-lg cursor-pointer transition-colors',
-                    dialog.isCategorySelected(category)
-                      ? 'border-primary bg-primary/5'
-                      : 'hover:border-primary/50'
+                    'cursor-pointer rounded-lg border p-3 transition-colors',
+                    dialog.isCategorySelected(category) ?
+                      'border-primary bg-primary/5'
+                    : 'hover:border-primary/50'
                   )}
                   onClick={() => !isGenerating && dialog.toggleCategory(category)}
                 >
@@ -210,20 +219,20 @@ export const BogonFilterDialogMobile = memo(function BogonFilterDialogMobile({
                       disabled={isGenerating}
                       className="mt-1"
                     />
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <p className="font-medium text-sm capitalize">
+                    <div className="min-w-0 flex-1">
+                      <div className="mb-1 flex items-center gap-2">
+                        <p className="text-sm font-medium capitalize">
                           {category.replace(/([A-Z])/g, ' $1').trim()}
                         </p>
                         {dialog.isCategorySelected(category) && (
-                          <Check className="h-4 w-4 text-primary" />
+                          <Check className="text-primary h-4 w-4" />
                         )}
                       </div>
-                      <p className="text-xs text-muted-foreground mb-1">
+                      <p className="text-muted-foreground mb-1 text-xs">
                         {dialog.getCategoryDescription(category)}
                       </p>
-                      <p className="text-xs text-muted-foreground flex items-start gap-1">
-                        <Info className="h-3 w-3 mt-0.5 flex-shrink-0" />
+                      <p className="text-muted-foreground flex items-start gap-1 text-xs">
+                        <Info className="mt-0.5 h-3 w-3 flex-shrink-0" />
                         {dialog.getSecurityRecommendation(category)}
                       </p>
                     </div>
@@ -237,10 +246,13 @@ export const BogonFilterDialogMobile = memo(function BogonFilterDialogMobile({
           {isGenerating && progress && (
             <Card>
               <CardContent className="p-4">
-                <p className="text-sm font-medium mb-2">
+                <p className="mb-2 text-sm font-medium">
                   Creating... ({progress.current} / {progress.total})
                 </p>
-                <Progress value={progress.percentage} className="h-2" />
+                <Progress
+                  value={progress.percentage}
+                  className="h-2"
+                />
               </CardContent>
             </Card>
           )}
@@ -251,18 +263,16 @@ export const BogonFilterDialogMobile = memo(function BogonFilterDialogMobile({
             type="button"
             onClick={handleGenerate}
             disabled={!dialog.isValid || isGenerating}
-            className="w-full h-11"
+            className="h-11 w-full"
           >
-            {isGenerating
-              ? 'Generating...'
-              : `Generate ${dialog.ruleCount} Rules`}
+            {isGenerating ? 'Generating...' : `Generate ${dialog.ruleCount} Rules`}
           </Button>
           <Button
             type="button"
             variant="outline"
             onClick={onClose}
             disabled={isGenerating}
-            className="w-full h-11"
+            className="h-11 w-full"
           >
             Cancel
           </Button>

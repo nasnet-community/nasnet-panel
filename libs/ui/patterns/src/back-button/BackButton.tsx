@@ -43,14 +43,7 @@ export interface BackButtonProps {
  * - Story 0.9.6: Return to Router List
  */
 const BackButtonComponent = React.forwardRef<HTMLButtonElement, BackButtonProps>(
-  (
-    {
-      to,
-      ariaLabel = 'Go back',
-      className,
-    },
-    ref
-  ) => {
+  ({ to, ariaLabel = 'Go back', className }, ref) => {
     const navigate = useNavigate();
 
     const handleClick = React.useCallback(() => {
@@ -64,13 +57,14 @@ const BackButtonComponent = React.forwardRef<HTMLButtonElement, BackButtonProps>
         variant="ghost"
         size="icon"
         onClick={handleClick}
-        className={cn(
-          'rounded-full transition-colors hover:bg-muted',
-          className
-        )}
+        className={cn('hover:bg-muted rounded-full transition-colors', className)}
         aria-label={ariaLabel}
       >
-        <Icon icon={ArrowLeft} size="md" className="text-muted-foreground" />
+        <Icon
+          icon={ArrowLeft}
+          size="md"
+          className="text-muted-foreground"
+        />
       </Button>
     );
   }

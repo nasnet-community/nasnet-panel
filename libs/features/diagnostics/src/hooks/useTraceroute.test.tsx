@@ -21,7 +21,10 @@ import {
 const createWrapper = (mocks: MockedResponse[]) => {
   return function Wrapper({ children }: { children: ReactNode }) {
     return (
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider
+        mocks={mocks}
+        addTypename={false}
+      >
         {children}
       </MockedProvider>
     );
@@ -112,10 +115,7 @@ describe('useTraceroute', () => {
       const mocks: MockedResponse[] = [];
       const wrapper = createWrapper(mocks);
 
-      const { result } = renderHook(
-        () => useTraceroute({ deviceId: mockDeviceId }),
-        { wrapper }
-      );
+      const { result } = renderHook(() => useTraceroute({ deviceId: mockDeviceId }), { wrapper });
 
       expect(result.current.isRunning).toBe(false);
       expect(result.current.hops).toEqual([]);
@@ -149,10 +149,7 @@ describe('useTraceroute', () => {
 
       const wrapper = createWrapper(mocks);
 
-      const { result } = renderHook(
-        () => useTraceroute({ deviceId: mockDeviceId }),
-        { wrapper }
-      );
+      const { result } = renderHook(() => useTraceroute({ deviceId: mockDeviceId }), { wrapper });
 
       await act(async () => {
         await result.current.run(mockTracerouteInput);
@@ -186,10 +183,7 @@ describe('useTraceroute', () => {
 
       const wrapper = createWrapper(mocks);
 
-      const { result } = renderHook(
-        () => useTraceroute({ deviceId: mockDeviceId }),
-        { wrapper }
-      );
+      const { result } = renderHook(() => useTraceroute({ deviceId: mockDeviceId }), { wrapper });
 
       // Manually set some state (simulating previous run)
       act(() => {
@@ -227,10 +221,9 @@ describe('useTraceroute', () => {
 
       const wrapper = createWrapper(mocks);
 
-      const { result } = renderHook(
-        () => useTraceroute({ deviceId: mockDeviceId, onError }),
-        { wrapper }
-      );
+      const { result } = renderHook(() => useTraceroute({ deviceId: mockDeviceId, onError }), {
+        wrapper,
+      });
 
       await act(async () => {
         await result.current.run(mockTracerouteInput);
@@ -281,10 +274,7 @@ describe('useTraceroute', () => {
 
       const wrapper = createWrapper(mocks);
 
-      const { result } = renderHook(
-        () => useTraceroute({ deviceId: mockDeviceId }),
-        { wrapper }
-      );
+      const { result } = renderHook(() => useTraceroute({ deviceId: mockDeviceId }), { wrapper });
 
       // Start traceroute
       await act(async () => {
@@ -307,10 +297,7 @@ describe('useTraceroute', () => {
       const mocks: MockedResponse[] = [];
       const wrapper = createWrapper(mocks);
 
-      const { result } = renderHook(
-        () => useTraceroute({ deviceId: mockDeviceId }),
-        { wrapper }
-      );
+      const { result } = renderHook(() => useTraceroute({ deviceId: mockDeviceId }), { wrapper });
 
       // Try to cancel without starting
       await act(async () => {
@@ -448,10 +435,7 @@ describe('useTraceroute', () => {
 
       const wrapper = createWrapper(mocks);
 
-      const { result } = renderHook(
-        () => useTraceroute({ deviceId: mockDeviceId }),
-        { wrapper }
-      );
+      const { result } = renderHook(() => useTraceroute({ deviceId: mockDeviceId }), { wrapper });
 
       await act(async () => {
         await result.current.run(mockTracerouteInput);
@@ -513,10 +497,9 @@ describe('useTraceroute', () => {
 
       const wrapper = createWrapper(mocks);
 
-      const { result } = renderHook(
-        () => useTraceroute({ deviceId: mockDeviceId, onComplete }),
-        { wrapper }
-      );
+      const { result } = renderHook(() => useTraceroute({ deviceId: mockDeviceId, onComplete }), {
+        wrapper,
+      });
 
       await act(async () => {
         await result.current.run(mockTracerouteInput);
@@ -579,10 +562,9 @@ describe('useTraceroute', () => {
 
       const wrapper = createWrapper(mocks);
 
-      const { result } = renderHook(
-        () => useTraceroute({ deviceId: mockDeviceId, onError }),
-        { wrapper }
-      );
+      const { result } = renderHook(() => useTraceroute({ deviceId: mockDeviceId, onError }), {
+        wrapper,
+      });
 
       await act(async () => {
         await result.current.run(mockTracerouteInput);
@@ -643,10 +625,9 @@ describe('useTraceroute', () => {
 
       const wrapper = createWrapper(mocks);
 
-      const { result } = renderHook(
-        () => useTraceroute({ deviceId: mockDeviceId, onCancelled }),
-        { wrapper }
-      );
+      const { result } = renderHook(() => useTraceroute({ deviceId: mockDeviceId, onCancelled }), {
+        wrapper,
+      });
 
       await act(async () => {
         await result.current.run(mockTracerouteInput);
@@ -706,10 +687,7 @@ describe('useTraceroute', () => {
 
       const wrapper = createWrapper(mocks);
 
-      const { result } = renderHook(
-        () => useTraceroute({ deviceId: mockDeviceId }),
-        { wrapper }
-      );
+      const { result } = renderHook(() => useTraceroute({ deviceId: mockDeviceId }), { wrapper });
 
       await act(async () => {
         await result.current.run(mockTracerouteInput);
@@ -790,10 +768,7 @@ describe('useTraceroute', () => {
 
       const wrapper = createWrapper(mocks);
 
-      const { result } = renderHook(
-        () => useTraceroute({ deviceId: mockDeviceId }),
-        { wrapper }
-      );
+      const { result } = renderHook(() => useTraceroute({ deviceId: mockDeviceId }), { wrapper });
 
       await act(async () => {
         await result.current.run(mockTracerouteInput);

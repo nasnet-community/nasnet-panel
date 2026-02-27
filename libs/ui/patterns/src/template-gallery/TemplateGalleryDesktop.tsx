@@ -85,10 +85,15 @@ function FilterPanel({ gallery }: FilterPanelProps) {
   };
 
   return (
-    <div className="w-64 border-r border-border bg-muted/30 p-component-md space-y-component-lg">
+    <div className="border-border bg-muted/30 p-component-md space-y-component-lg w-64 border-r">
       {/* Clear filters button */}
       {hasActiveFilter && (
-        <Button variant="outline" size="sm" onClick={clearFilter} className="w-full min-h-[44px]">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={clearFilter}
+          className="min-h-[44px] w-full"
+        >
           Clear Filters
         </Button>
       )}
@@ -118,8 +123,8 @@ function FilterPanel({ gallery }: FilterPanelProps) {
                 key={cat}
                 onClick={() => setFilter({ category: cat })}
                 className={cn(
-                  'w-full text-left px-component-md py-component-sm rounded-[var(--semantic-radius-button)]',
-                  'text-sm transition-colors hover:bg-muted',
+                  'px-component-md py-component-sm w-full rounded-[var(--semantic-radius-button)] text-left',
+                  'hover:bg-muted text-sm transition-colors',
                   isActive && 'bg-primary text-primary-foreground hover:bg-primary/90'
                 )}
               >
@@ -127,7 +132,7 @@ function FilterPanel({ gallery }: FilterPanelProps) {
                   <span>{categoryLabels[cat]}</span>
                   <Badge
                     variant={isActive ? 'secondary' : 'outline'}
-                    className="text-xs rounded-[var(--semantic-radius-badge)]"
+                    className="rounded-[var(--semantic-radius-badge)] text-xs"
                   >
                     {count}
                   </Badge>
@@ -151,8 +156,8 @@ function FilterPanel({ gallery }: FilterPanelProps) {
                 key={comp}
                 onClick={() => setFilter({ complexity: comp })}
                 className={cn(
-                  'w-full text-left px-component-md py-component-sm rounded-[var(--semantic-radius-button)]',
-                  'text-sm transition-colors hover:bg-muted',
+                  'px-component-md py-component-sm w-full rounded-[var(--semantic-radius-button)] text-left',
+                  'hover:bg-muted text-sm transition-colors',
                   isActive && 'bg-primary text-primary-foreground hover:bg-primary/90'
                 )}
               >
@@ -160,7 +165,7 @@ function FilterPanel({ gallery }: FilterPanelProps) {
                   <span>{complexityLabels[comp]}</span>
                   <Badge
                     variant={isActive ? 'secondary' : 'outline'}
-                    className="text-xs rounded-[var(--semantic-radius-badge)]"
+                    className="rounded-[var(--semantic-radius-badge)] text-xs"
                   >
                     {count}
                   </Badge>
@@ -183,8 +188,8 @@ function FilterPanel({ gallery }: FilterPanelProps) {
               })
             }
             className={cn(
-              'w-full text-left px-component-md py-component-sm rounded-[var(--semantic-radius-button)]',
-              'text-sm transition-colors hover:bg-muted',
+              'px-component-md py-component-sm w-full rounded-[var(--semantic-radius-button)] text-left',
+              'hover:bg-muted text-sm transition-colors',
               filter.builtInOnly && 'bg-primary text-primary-foreground hover:bg-primary/90'
             )}
           >
@@ -198,8 +203,8 @@ function FilterPanel({ gallery }: FilterPanelProps) {
               })
             }
             className={cn(
-              'w-full text-left px-component-md py-component-sm rounded-[var(--semantic-radius-button)]',
-              'text-sm transition-colors hover:bg-muted',
+              'px-component-md py-component-sm w-full rounded-[var(--semantic-radius-button)] text-left',
+              'hover:bg-muted text-sm transition-colors',
               filter.customOnly && 'bg-primary text-primary-foreground hover:bg-primary/90'
             )}
           >
@@ -235,13 +240,15 @@ function TemplateGalleryDesktopComponent({
       <FilterPanel gallery={gallery} />
 
       {/* Main content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex flex-1 flex-col overflow-hidden">
         {/* Header with sort controls */}
-        <div className="border-b border-border p-component-md bg-background">
+        <div className="border-border p-component-md bg-background border-b">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-2xl font-semibold font-display text-foreground">Template Gallery</h2>
-              <p className="text-sm text-muted-foreground">
+              <h2 className="font-display text-foreground text-2xl font-semibold">
+                Template Gallery
+              </h2>
+              <p className="text-muted-foreground text-sm">
                 {filteredCount} {filteredCount === 1 ? 'template' : 'templates'}
               </p>
             </div>
@@ -264,9 +271,7 @@ function TemplateGalleryDesktopComponent({
               variant="outline"
               size="sm"
               className="min-h-[44px]"
-              onClick={() =>
-                setSort(sort.field === 'name' ? 'complexity' : 'name')
-              }
+              onClick={() => setSort(sort.field === 'name' ? 'complexity' : 'name')}
             >
               {sort.direction === 'asc' ? '↑ Ascending' : '↓ Descending'}
             </Button>
@@ -274,19 +279,18 @@ function TemplateGalleryDesktopComponent({
         </div>
 
         {/* Template grid */}
-        <div className="flex-1 overflow-y-auto p-component-lg">
-          {loading ? (
-            <div className="flex items-center justify-center h-full">
+        <div className="p-component-lg flex-1 overflow-y-auto">
+          {loading ?
+            <div className="flex h-full items-center justify-center">
               <div className="text-muted-foreground">Loading templates...</div>
             </div>
-          ) : filteredTemplates.length === 0 ? (
+          : filteredTemplates.length === 0 ?
             <EmptyState
               icon={FileText}
               title="No templates found"
               description="Try adjusting your filters or search criteria."
             />
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-component-md">
+          : <div className="gap-component-md grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3">
               {filteredTemplates.map((template) => (
                 <TemplateCard
                   key={template.id}
@@ -298,7 +302,7 @@ function TemplateGalleryDesktopComponent({
                 />
               ))}
             </div>
-          )}
+          }
         </div>
       </div>
     </div>

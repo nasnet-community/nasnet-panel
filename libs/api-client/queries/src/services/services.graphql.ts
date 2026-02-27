@@ -43,16 +43,8 @@ export const GET_AVAILABLE_SERVICES = gql`
  * List all service instances for a router
  */
 export const GET_SERVICE_INSTANCES = gql`
-  query GetServiceInstances(
-    $routerID: ID!
-    $status: ServiceStatus
-    $featureID: String
-  ) {
-    serviceInstances(
-      routerID: $routerID
-      status: $status
-      featureID: $featureID
-    ) {
+  query GetServiceInstances($routerID: ID!, $status: ServiceStatus, $featureID: String) {
+    serviceInstances(routerID: $routerID, status: $status, featureID: $featureID) {
       id
       featureID
       instanceName

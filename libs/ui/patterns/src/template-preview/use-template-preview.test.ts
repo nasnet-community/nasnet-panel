@@ -257,12 +257,11 @@ describe('useTemplatePreview', () => {
     });
 
     it('should set loading state during preview', async () => {
-      const onGeneratePreview = vi.fn().mockImplementation(
-        () =>
-          new Promise((resolve) =>
-            setTimeout(() => resolve(mockPreviewResult), 100)
-          )
-      );
+      const onGeneratePreview = vi
+        .fn()
+        .mockImplementation(
+          () => new Promise((resolve) => setTimeout(() => resolve(mockPreviewResult), 100))
+        );
 
       const { result } = renderHook(() =>
         useTemplatePreview({

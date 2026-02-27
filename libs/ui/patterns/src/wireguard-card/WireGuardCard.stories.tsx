@@ -87,23 +87,21 @@ function MockWireGuardCard({
   const [isExpanded, setIsExpanded] = React.useState(defaultExpanded);
   const [copied, setCopied] = React.useState(false);
 
-  const status = wgInterface.isDisabled
-    ? 'offline'
-    : wgInterface.isRunning
-    ? 'online'
+  const status =
+    wgInterface.isDisabled ? 'offline'
+    : wgInterface.isRunning ? 'online'
     : 'warning';
 
-  const statusLabel = wgInterface.isDisabled
-    ? 'Disabled'
-    : wgInterface.isRunning
-    ? 'Active'
+  const statusLabel =
+    wgInterface.isDisabled ? 'Disabled'
+    : wgInterface.isRunning ? 'Active'
     : 'Inactive';
 
   // Truncate public key for display: first 8 chars + ellipsis + last 4 chars
   const displayKey =
-    wgInterface.publicKey.length > 12
-      ? `${wgInterface.publicKey.slice(0, 8)}...${wgInterface.publicKey.slice(-4)}`
-      : wgInterface.publicKey;
+    wgInterface.publicKey.length > 12 ?
+      `${wgInterface.publicKey.slice(0, 8)}...${wgInterface.publicKey.slice(-4)}`
+    : wgInterface.publicKey;
 
   const handleCopy = () => {
     setCopied(true);
@@ -130,14 +128,21 @@ function MockWireGuardCard({
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1">
-            <CardTitle className="text-lg font-semibold text-foreground">
+            <CardTitle className="text-foreground text-lg font-semibold">
               {wgInterface.name}
             </CardTitle>
-            <StatusIndicator status={status} label={statusLabel} className="mt-2" />
+            <StatusIndicator
+              status={status}
+              label={statusLabel}
+              className="mt-2"
+            />
           </div>
           <div className="flex items-center gap-2">
             {peerCount > 0 && (
-              <Badge variant="secondary" className="rounded-full">
+              <Badge
+                variant="secondary"
+                className="rounded-full"
+              >
                 {peerCount} {peerCount === 1 ? 'peer' : 'peers'}
               </Badge>
             )}
@@ -146,11 +151,11 @@ function MockWireGuardCard({
                 variant="ghost"
                 size="sm"
                 onClick={() => setIsExpanded(!isExpanded)}
-                className="p-1 h-8 w-8 rounded-button"
+                className="rounded-button h-8 w-8 p-1"
                 aria-label={isExpanded ? 'Collapse peers' : 'Expand peers'}
               >
                 <span
-                  className={`inline-block transition-transform duration-200 text-muted-foreground ${
+                  className={`text-muted-foreground inline-block transition-transform duration-200 ${
                     isExpanded ? 'rotate-180' : ''
                   }`}
                 >
@@ -163,44 +168,46 @@ function MockWireGuardCard({
       </CardHeader>
 
       <CardContent className="space-y-4 pt-0">
-        <div className="space-y-0 divide-y divide-border">
-          <div className="flex justify-between items-center py-3">
-            <span className="text-sm font-medium text-muted-foreground">Port</span>
-            <span className="text-sm font-semibold text-foreground">{wgInterface.listenPort}</span>
+        <div className="divide-border space-y-0 divide-y">
+          <div className="flex items-center justify-between py-3">
+            <span className="text-muted-foreground text-sm font-medium">Port</span>
+            <span className="text-foreground text-sm font-semibold">{wgInterface.listenPort}</span>
           </div>
-          <div className="flex justify-between items-center py-3">
-            <span className="text-sm font-medium text-muted-foreground">MTU</span>
-            <span className="text-sm font-semibold text-foreground">{wgInterface.mtu}</span>
+          <div className="flex items-center justify-between py-3">
+            <span className="text-muted-foreground text-sm font-medium">MTU</span>
+            <span className="text-foreground text-sm font-semibold">{wgInterface.mtu}</span>
           </div>
         </div>
 
         {/* Connection Stats */}
-        {(wgInterface.rx !== undefined || wgInterface.tx !== undefined || wgInterface.lastHandshake) && (
-          <div className="pt-4 space-y-3">
-            <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+        {(wgInterface.rx !== undefined ||
+          wgInterface.tx !== undefined ||
+          wgInterface.lastHandshake) && (
+          <div className="space-y-3 pt-4">
+            <div className="text-muted-foreground text-xs font-semibold uppercase tracking-wide">
               Connection Stats
             </div>
-            <div className="space-y-0 divide-y divide-border">
+            <div className="divide-border space-y-0 divide-y">
               {wgInterface.rx !== undefined && (
-                <div className="flex justify-between items-center py-2">
-                  <span className="text-sm font-medium text-muted-foreground">Received</span>
-                  <span className="text-sm font-mono font-semibold text-foreground">
+                <div className="flex items-center justify-between py-2">
+                  <span className="text-muted-foreground text-sm font-medium">Received</span>
+                  <span className="text-foreground font-mono text-sm font-semibold">
                     {formatBytes(wgInterface.rx)}
                   </span>
                 </div>
               )}
               {wgInterface.tx !== undefined && (
-                <div className="flex justify-between items-center py-2">
-                  <span className="text-sm font-medium text-muted-foreground">Transmitted</span>
-                  <span className="text-sm font-mono font-semibold text-foreground">
+                <div className="flex items-center justify-between py-2">
+                  <span className="text-muted-foreground text-sm font-medium">Transmitted</span>
+                  <span className="text-foreground font-mono text-sm font-semibold">
                     {formatBytes(wgInterface.tx)}
                   </span>
                 </div>
               )}
               {wgInterface.lastHandshake && (
-                <div className="flex justify-between items-center py-2">
-                  <span className="text-sm font-medium text-muted-foreground">Last Handshake</span>
-                  <span className="text-sm font-semibold text-foreground">
+                <div className="flex items-center justify-between py-2">
+                  <span className="text-muted-foreground text-sm font-medium">Last Handshake</span>
+                  <span className="text-foreground text-sm font-semibold">
                     {formatHandshake(wgInterface.lastHandshake)}
                   </span>
                 </div>
@@ -210,11 +217,13 @@ function MockWireGuardCard({
         )}
 
         {/* Public Key */}
-        <div className="pt-4 border-t border-border">
+        <div className="border-border border-t pt-4">
           <div className="flex items-center justify-between gap-3">
-            <div className="flex-1 min-w-0">
-              <span className="text-xs font-medium text-muted-foreground block mb-2">Public Key</span>
-              <code className="text-xs font-mono bg-muted px-3 py-2 rounded-button block truncate text-foreground">
+            <div className="min-w-0 flex-1">
+              <span className="text-muted-foreground mb-2 block text-xs font-medium">
+                Public Key
+              </span>
+              <code className="bg-muted rounded-button text-foreground block truncate px-3 py-2 font-mono text-xs">
                 {displayKey}
               </code>
             </div>
@@ -222,7 +231,7 @@ function MockWireGuardCard({
               variant="outline"
               size="sm"
               onClick={handleCopy}
-              className="flex-shrink-0 rounded-button gap-1"
+              className="rounded-button flex-shrink-0 gap-1"
             >
               {copied ? 'Copied!' : 'Copy'}
             </Button>
@@ -231,18 +240,18 @@ function MockWireGuardCard({
 
         {/* Expandable Peers Section */}
         {isExpanded && (
-          <div className="pt-4 border-t border-border space-y-4">
-            <h4 className="text-sm font-semibold text-foreground">Connected Peers</h4>
+          <div className="border-border space-y-4 border-t pt-4">
+            <h4 className="text-foreground text-sm font-semibold">Connected Peers</h4>
 
             {peersLoading && (
               <div className="space-y-3">
-                <Skeleton className="h-32 w-full rounded-card-sm" />
-                <Skeleton className="h-32 w-full rounded-card-sm" />
+                <Skeleton className="rounded-card-sm h-32 w-full" />
+                <Skeleton className="rounded-card-sm h-32 w-full" />
               </div>
             )}
 
             {peersError && (
-              <div className="text-sm text-destructive bg-destructive/10 px-4 py-3 rounded-card-sm">
+              <div className="text-destructive bg-destructive/10 rounded-card-sm px-4 py-3 text-sm">
                 Failed to load peers for this interface
               </div>
             )}
@@ -250,13 +259,16 @@ function MockWireGuardCard({
             {!peersLoading && !peersError && peers.length > 0 && (
               <div className="space-y-3">
                 {peers.map((peer) => (
-                  <PeerListItem key={peer.id} peer={peer} />
+                  <PeerListItem
+                    key={peer.id}
+                    peer={peer}
+                  />
                 ))}
               </div>
             )}
 
             {!peersLoading && !peersError && peers.length === 0 && (
-              <div className="text-sm text-muted-foreground italic text-center py-6 bg-muted/50 rounded-card-sm">
+              <div className="text-muted-foreground bg-muted/50 rounded-card-sm py-6 text-center text-sm italic">
                 No peers configured for this interface
               </div>
             )}

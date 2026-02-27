@@ -76,24 +76,17 @@ const ChainNode = React.memo(function ChainNode({
         width={width}
         height={height}
         rx={BORDER_RADIUS}
-        className={`
-          transition-all duration-200
-          ${
-            isHighlighted
-              ? 'fill-primary stroke-primary stroke-2'
-              : isActive
-              ? 'fill-muted stroke-border'
-              : 'fill-background stroke-border'
-          }
-        `}
+        className={`transition-all duration-200 ${
+          isHighlighted ? 'fill-primary stroke-primary stroke-2'
+          : isActive ? 'fill-muted stroke-border'
+          : 'fill-background stroke-border'
+        } `}
       />
 
       {/* Label */}
       <text
         className={`text-xs font-medium ${
-          isHighlighted
-            ? 'fill-primary-foreground'
-            : 'fill-foreground'
+          isHighlighted ? 'fill-primary-foreground' : 'fill-foreground'
         }`}
         textAnchor="middle"
         dy="-0.2em"
@@ -104,7 +97,7 @@ const ChainNode = React.memo(function ChainNode({
       {/* Count badge */}
       {count > 0 && (
         <text
-          className="text-[10px] fill-muted-foreground"
+          className="fill-muted-foreground text-[10px]"
           textAnchor="middle"
           dy="1.2em"
         >
@@ -129,25 +122,16 @@ interface ArrowPathProps {
 /**
  * Arrow path component - Animated dashed line showing traffic flow direction
  */
-const ArrowPath = React.memo(function ArrowPath({
-  d,
-  isAnimated,
-  isHighlighted,
-}: ArrowPathProps) {
+const ArrowPath = React.memo(function ArrowPath({ d, isAnimated, isHighlighted }: ArrowPathProps) {
   return (
     <>
       {/* Base path */}
       <path
         d={d}
         fill="none"
-        className={`
-          transition-all duration-200
-          ${
-            isHighlighted
-              ? 'stroke-primary stroke-2'
-              : 'stroke-border'
-          }
-        `}
+        className={`transition-all duration-200 ${
+          isHighlighted ? 'stroke-primary stroke-2' : 'stroke-border'
+        } `}
         markerEnd="url(#arrowhead)"
       />
       {/* Animated overlay */}
@@ -193,9 +177,12 @@ export const TrafficFlowDiagram = React.memo(function TrafficFlowDiagram({
   const { data: filterRules } = useFilterRules(routerIp);
   const { data: natRules } = useNATRules(routerIp);
 
-  const handleChainClick = useCallback((chain: FirewallChain) => {
-    onChainClick?.(chain);
-  }, [onChainClick]);
+  const handleChainClick = useCallback(
+    (chain: FirewallChain) => {
+      onChainClick?.(chain);
+    },
+    [onChainClick]
+  );
 
   // Calculate rule counts per chain
   const chainCounts = useMemo(() => {
@@ -230,31 +217,32 @@ export const TrafficFlowDiagram = React.memo(function TrafficFlowDiagram({
   const SVG_WIDTH = 700;
   const SVG_HEIGHT = 200;
 
-  const NODE_POSITIONS = useMemo(() => ({
-    prerouting: { x: 80, y: 50 },
-    routing: { x: 220, y: 50 },
-    forward: { x: 420, y: 50 },
-    postrouting: { x: 580, y: 50 },
-    input: { x: 220, y: 150 },
-    local: { x: 350, y: 150 },
-    output: { x: 480, y: 150 },
-  }), []);
+  const NODE_POSITIONS = useMemo(
+    () => ({
+      prerouting: { x: 80, y: 50 },
+      routing: { x: 220, y: 50 },
+      forward: { x: 420, y: 50 },
+      postrouting: { x: 580, y: 50 },
+      input: { x: 220, y: 150 },
+      local: { x: 350, y: 150 },
+      output: { x: 480, y: 150 },
+    }),
+    []
+  );
 
   return (
     <div className={className}>
       {/* Section header */}
       <div className="px-component-sm mb-component-md">
-        <h2 className="text-lg font-display font-semibold">Traffic Flow</h2>
-        <p className="text-sm text-muted-foreground">
-          Packet path through firewall chains
-        </p>
+        <h2 className="font-display text-lg font-semibold">Traffic Flow</h2>
+        <p className="text-muted-foreground text-sm">Packet path through firewall chains</p>
       </div>
 
       {/* Diagram container */}
-      <div className="bg-card rounded-[var(--semantic-radius-card)] border border-border p-component-md overflow-x-auto">
+      <div className="bg-card border-border p-component-md overflow-x-auto rounded-[var(--semantic-radius-card)] border">
         <svg
           viewBox={`0 0 ${SVG_WIDTH} ${SVG_HEIGHT}`}
-          className="w-full h-auto min-w-[600px]"
+          className="h-auto w-full min-w-[600px]"
           style={{ maxHeight: '250px' }}
           aria-label="Firewall chain packet flow diagram"
         >
@@ -282,7 +270,10 @@ export const TrafficFlowDiagram = React.memo(function TrafficFlowDiagram({
               refY="3.5"
               orient="auto"
             >
-              <polygon points="0 0, 10 3.5, 0 7" className="fill-primary" />
+              <polygon
+                points="0 0, 10 3.5, 0 7"
+                className="fill-primary"
+              />
             </marker>
           </defs>
 
@@ -357,14 +348,14 @@ export const TrafficFlowDiagram = React.memo(function TrafficFlowDiagram({
             <text
               x={10}
               y={35}
-              className="text-xs fill-muted-foreground"
+              className="fill-muted-foreground text-xs"
             >
               IN
             </text>
             <text
               x={SVG_WIDTH - 30}
               y={35}
-              className="text-xs fill-muted-foreground"
+              className="fill-muted-foreground text-xs"
             >
               OUT
             </text>
@@ -396,7 +387,7 @@ export const TrafficFlowDiagram = React.memo(function TrafficFlowDiagram({
                 style={{ transform: 'rotate(45deg) scale(0.7)' }}
               />
               <text
-                className="text-[9px] font-medium fill-foreground"
+                className="fill-foreground text-[9px] font-medium"
                 textAnchor="middle"
                 dy="0.3em"
               >
@@ -451,7 +442,7 @@ export const TrafficFlowDiagram = React.memo(function TrafficFlowDiagram({
                 className="fill-secondary stroke-secondary-foreground/50"
               />
               <text
-                className="text-[10px] font-medium fill-secondary-foreground"
+                className="fill-secondary-foreground text-[10px] font-medium"
                 textAnchor="middle"
                 dy="0.3em"
               >
@@ -475,17 +466,17 @@ export const TrafficFlowDiagram = React.memo(function TrafficFlowDiagram({
       </div>
 
       {/* Legend */}
-      <div className="mt-component-sm px-component-sm flex flex-wrap items-center gap-component-md text-xs text-muted-foreground">
-        <span className="flex items-center gap-component-sm">
-          <span className="inline-block w-4 h-0.5 bg-border" />
+      <div className="mt-component-sm px-component-sm gap-component-md text-muted-foreground flex flex-wrap items-center text-xs">
+        <span className="gap-component-sm flex items-center">
+          <span className="bg-border inline-block h-0.5 w-4" />
           Packet flow
         </span>
-        <span className="flex items-center gap-component-sm">
-          <span className="inline-block w-6 h-0.5 border-t-2 border-dashed border-primary" />
+        <span className="gap-component-sm flex items-center">
+          <span className="border-primary inline-block h-0.5 w-6 border-t-2 border-dashed" />
           Active traffic
         </span>
-        <span className="flex items-center gap-component-sm">
-          <span className="inline-block w-3 h-3 rounded-[var(--semantic-radius-badge)] bg-muted border border-border" />
+        <span className="gap-component-sm flex items-center">
+          <span className="bg-muted border-border inline-block h-3 w-3 rounded-[var(--semantic-radius-badge)] border" />
           Chain (click to filter)
         </span>
       </div>
@@ -493,4 +484,3 @@ export const TrafficFlowDiagram = React.memo(function TrafficFlowDiagram({
   );
 });
 TrafficFlowDiagram.displayName = 'TrafficFlowDiagram';
-

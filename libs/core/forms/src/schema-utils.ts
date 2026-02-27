@@ -40,10 +40,10 @@ export function makePartial<T extends ZodRawShape>(
  * @param extension - Schema to merge
  * @returns Merged schema
  */
-export function mergeSchemas<
-  T extends ZodRawShape,
-  U extends ZodRawShape
->(base: ZodObject<T>, extension: ZodObject<U>): ZodObject<T & U> {
+export function mergeSchemas<T extends ZodRawShape, U extends ZodRawShape>(
+  base: ZodObject<T>,
+  extension: ZodObject<U>
+): ZodObject<T & U> {
   return base.merge(extension) as unknown as ZodObject<T & U>;
 }
 
@@ -63,14 +63,11 @@ export function mergeSchemas<
  * // Schema with only name and email fields
  * ```
  */
-export function pickFields<
-  T extends ZodRawShape,
-  K extends keyof T
->(schema: ZodObject<T>, keys: K[]): ZodObject<Pick<T, K>> {
-  const mask = keys.reduce(
-    (acc, key) => ({ ...acc, [key]: true }),
-    {} as { [P in K]: true }
-  );
+export function pickFields<T extends ZodRawShape, K extends keyof T>(
+  schema: ZodObject<T>,
+  keys: K[]
+): ZodObject<Pick<T, K>> {
+  const mask = keys.reduce((acc, key) => ({ ...acc, [key]: true }), {} as { [P in K]: true });
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return schema.pick(mask as any) as unknown as ZodObject<Pick<T, K>>;
 }
@@ -91,14 +88,11 @@ export function pickFields<
  * // Schema with only name and email fields
  * ```
  */
-export function omitFields<
-  T extends ZodRawShape,
-  K extends keyof T
->(schema: ZodObject<T>, keys: K[]): ZodObject<Omit<T, K>> {
-  const mask = keys.reduce(
-    (acc, key) => ({ ...acc, [key]: true }),
-    {} as { [P in K]: true }
-  );
+export function omitFields<T extends ZodRawShape, K extends keyof T>(
+  schema: ZodObject<T>,
+  keys: K[]
+): ZodObject<Omit<T, K>> {
+  const mask = keys.reduce((acc, key) => ({ ...acc, [key]: true }), {} as { [P in K]: true });
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return schema.omit(mask as any) as unknown as ZodObject<Omit<T, K>>;
 }
@@ -109,7 +103,11 @@ export function omitFields<
  *
  * @returns Zod schema for optional string
  */
-export function optionalString(): z.ZodEffects<z.ZodOptional<z.ZodString>, string | undefined, string | undefined> {
+export function optionalString(): z.ZodEffects<
+  z.ZodOptional<z.ZodString>,
+  string | undefined,
+  string | undefined
+> {
   return z
     .string()
     .optional()
@@ -122,9 +120,7 @@ export function optionalString(): z.ZodEffects<z.ZodOptional<z.ZodString>, strin
  * @param message - Custom error message
  * @returns Zod schema for non-empty string
  */
-export function requiredString(
-  message = 'This field is required'
-): z.ZodString {
+export function requiredString(message = 'This field is required'): z.ZodString {
   return z.string().min(1, message);
 }
 

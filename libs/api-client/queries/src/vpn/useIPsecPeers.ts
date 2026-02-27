@@ -48,10 +48,7 @@ function transformIPsecPeer(raw: IPsecPeerRaw): IPsecPeer {
  * Fetch IPsec peers from RouterOS
  */
 async function fetchIPsecPeers(routerIp: string): Promise<IPsecPeer[]> {
-  const result = await makeRouterOSRequest<IPsecPeerRaw[]>(
-    routerIp,
-    'ip/ipsec/peer'
-  );
+  const result = await makeRouterOSRequest<IPsecPeerRaw[]>(routerIp, 'ip/ipsec/peer');
 
   if (!result.success || !result.data) {
     throw new Error(result.error || 'Failed to fetch IPsec peers');
@@ -78,4 +75,3 @@ export function useIPsecPeers(routerIp: string): UseQueryResult<IPsecPeer[], Err
     enabled: !!routerIp,
   });
 }
-

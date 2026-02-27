@@ -18,16 +18,15 @@ import { TemplatesPage } from './TemplatesPage';
 vi.mock('@nasnet/ui/patterns/template-gallery', () => ({
   TemplateGallery: ({ gallery, onApplyTemplate, loading }: any) => (
     <div data-testid="template-gallery">
-      {loading ? (
+      {loading ?
         <div>Loading...</div>
-      ) : (
-        <>
+      : <>
           <div>Templates: {gallery.filteredTemplates.length}</div>
           <button onClick={() => onApplyTemplate?.(gallery.filteredTemplates[0])}>
             Apply First Template
           </button>
         </>
-      )}
+      }
     </div>
   ),
   useTemplateGallery: ({ templates, onSelect }: any) => ({
@@ -64,9 +63,7 @@ vi.mock('../components/SaveTemplateDialog', () => ({
   SaveTemplateDialog: ({ trigger, onSave }: any) => (
     <div data-testid="save-template-dialog">
       {trigger}
-      <button onClick={() => onSave({ id: 'custom', name: 'Custom' })}>
-        Save
-      </button>
+      <button onClick={() => onSave({ id: 'custom', name: 'Custom' })}>Save</button>
     </div>
   ),
 }));
@@ -75,9 +72,7 @@ vi.mock('../components/ImportTemplateDialog', () => ({
   ImportTemplateDialog: ({ trigger, onImport }: any) => (
     <div data-testid="import-template-dialog">
       {trigger}
-      <button onClick={() => onImport({ id: 'imported', name: 'Imported' })}>
-        Import
-      </button>
+      <button onClick={() => onImport({ id: 'imported', name: 'Imported' })}>Import</button>
     </div>
   ),
 }));
@@ -176,7 +171,11 @@ function renderTemplatesPage(props = {}) {
 
   return render(
     <QueryClientProvider client={queryClient}>
-      <TemplatesPage routerId="192.168.88.1" currentRules={[]} {...props} />
+      <TemplatesPage
+        routerId="192.168.88.1"
+        currentRules={[]}
+        {...props}
+      />
     </QueryClientProvider>
   );
 }
@@ -263,27 +262,31 @@ describe('TemplatesPage', () => {
   it('should show empty state when no templates available', () => {
     // The mocks are already set up at the module level
     // Re-configure them to return empty templates
-    vi.mocked(
-      require('@nasnet/api-client/queries') as typeof import('@nasnet/api-client/queries'),
-      { partial: true }
-    ).useTemplates?.mockReturnValue({
-      data: [],
-      isLoading: false,
-      error: null,
-    } as any);
+    vi
+      .mocked(
+        require('@nasnet/api-client/queries') as typeof import('@nasnet/api-client/queries'),
+        { partial: true }
+      )
+      .useTemplates?.mockReturnValue({
+        data: [],
+        isLoading: false,
+        error: null,
+      } as any);
 
-    vi.mocked(
-      require('../hooks/useCustomTemplates') as typeof import('../hooks/useCustomTemplates'),
-      { partial: true }
-    ).useCustomTemplates?.mockReturnValue({
-      templates: [],
-      loading: false,
-      error: null,
-      save: vi.fn(),
-      remove: vi.fn(),
-      exportTemplates: vi.fn(),
-      importTemplates: vi.fn(),
-    } as any);
+    vi
+      .mocked(
+        require('../hooks/useCustomTemplates') as typeof import('../hooks/useCustomTemplates'),
+        { partial: true }
+      )
+      .useCustomTemplates?.mockReturnValue({
+        templates: [],
+        loading: false,
+        error: null,
+        save: vi.fn(),
+        remove: vi.fn(),
+        exportTemplates: vi.fn(),
+        importTemplates: vi.fn(),
+      } as any);
 
     renderTemplatesPage();
 

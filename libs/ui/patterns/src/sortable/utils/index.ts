@@ -14,7 +14,4 @@ export {
   keyboardAnnouncements,
 } from './announcements';
 
-export type {
-  AnnouncementData,
-  CreateAnnouncementsOptions,
-} from './announcements';
+export type { AnnouncementData, CreateAnnouncementsOptions } from './announcements';

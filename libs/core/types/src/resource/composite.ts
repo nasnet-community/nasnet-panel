@@ -210,9 +210,7 @@ export function resourceToReference(resource: Resource): ResourceReference {
  * const status = aggregateCompositeStatus(children);
  * console.log(`Health: ${status.overallHealth}, Active: ${status.activeCount}`);
  */
-export function aggregateCompositeStatus(
-  subResources: Resource[]
-): CompositeResourceStatus {
+export function aggregateCompositeStatus(subResources: Resource[]): CompositeResourceStatus {
   if (subResources.length === 0) {
     return {
       totalCount: 0,
@@ -369,10 +367,7 @@ export function buildResourceTree(
       state: resource.metadata?.state ?? 'DRAFT',
       isRunning: resource.runtime?.isRunning ?? false,
       health: resource.runtime?.health ?? 'UNKNOWN',
-      children:
-        depth < maxDepth
-          ? resourceChildren.map((c) => buildNode(c, depth + 1))
-          : [],
+      children: depth < maxDepth ? resourceChildren.map((c) => buildNode(c, depth + 1)) : [],
       depth,
     };
   }
@@ -394,9 +389,7 @@ export function buildResourceTree(
  * const flat = flattenResourceTree(tree);
  * flat.forEach(node => console.log(node.id));
  */
-export function flattenResourceTree(
-  tree: CompositeResourceNode
-): CompositeResourceNode[] {
+export function flattenResourceTree(tree: CompositeResourceNode): CompositeResourceNode[] {
   const result: CompositeResourceNode[] = [tree];
 
   for (const child of tree.children) {
@@ -452,9 +445,7 @@ export function findNodeInTree(
  * // Apply in order: order.roots first, then order.ordered
  * // Skip or handle order.circular separately
  */
-export function resolveDependencyOrder(
-  resources: Resource[]
-): DependencyOrder {
+export function resolveDependencyOrder(resources: Resource[]): DependencyOrder {
   const graph = new Map<string, Set<string>>();
   const inDegree = new Map<string, number>();
 
@@ -575,9 +566,7 @@ export function canSafelyDelete(
  *   console.log(`Type: ${type}, Count: ${resourceGroup.length}`);
  * });
  */
-export function groupResourcesByType(
-  resources: Resource[]
-): Map<string, Resource[]> {
+export function groupResourcesByType(resources: Resource[]): Map<string, Resource[]> {
   const groups = new Map<string, Resource[]>();
 
   for (const resource of resources) {
@@ -602,9 +591,7 @@ export function groupResourcesByType(
  * const groups = groupResourcesByCategory(resources);
  * const vpnResources = groups.get('VPN') || [];
  */
-export function groupResourcesByCategory(
-  resources: Resource[]
-): Map<ResourceCategory, Resource[]> {
+export function groupResourcesByCategory(resources: Resource[]): Map<ResourceCategory, Resource[]> {
   const groups = new Map<ResourceCategory, Resource[]>();
 
   for (const resource of resources) {
@@ -674,10 +661,7 @@ export function filterResourcesByHealth(
  * const dependents = findDependents(dhcpServer, allResources);
  * console.log(`${dependents.length} resources depend on this server`);
  */
-export function findDependents(
-  resource: Resource,
-  allResources: Resource[]
-): Resource[] {
+export function findDependents(resource: Resource, allResources: Resource[]): Resource[] {
   return allResources.filter((r) => {
     const deps = r.relationships?.dependsOn ?? [];
     return deps.some((dep) => dep.uuid === resource.uuid);
@@ -697,10 +681,7 @@ export function findDependents(
  * const dependencies = findDependencies(service, allResources);
  * console.log(`This service depends on ${dependencies.length} resources`);
  */
-export function findDependencies(
-  resource: Resource,
-  allResources: Resource[]
-): Resource[] {
+export function findDependencies(resource: Resource, allResources: Resource[]): Resource[] {
   const depUuids = (resource.relationships?.dependsOn ?? []).map((d) => d.uuid);
   return allResources.filter((r) => depUuids.includes(r.uuid));
 }
@@ -739,8 +720,7 @@ export function hasSubResources(resource: Resource): boolean {
  * const roots = resources.filter(isRootResource);
  */
 export function isRootResource(resource: Resource): boolean {
-  return resource.relationships?.parent === undefined ||
-    resource.relationships?.parent === null;
+  return resource.relationships?.parent === undefined || resource.relationships?.parent === null;
 }
 
 /**
@@ -758,4 +738,3 @@ export function isLeafResource(resource: Resource): boolean {
   const children = resource.relationships?.children ?? [];
   return children.length === 0;
 }
-

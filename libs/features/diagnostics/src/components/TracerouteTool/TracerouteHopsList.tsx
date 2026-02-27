@@ -68,7 +68,7 @@ export const TracerouteHopsList = memo(function TracerouteHopsList({
 }: TracerouteHopsListProps) {
   if (hops.length === 0) {
     return (
-      <div className="text-center text-muted-foreground py-component-xl">
+      <div className="text-muted-foreground py-component-xl text-center">
         <p>No hops discovered yet</p>
       </div>
     );
@@ -88,84 +88,80 @@ export const TracerouteHopsList = memo(function TracerouteHopsList({
           <div
             key={hop.hopNumber}
             className={cn(
-              'flex items-start gap-component-lg p-component-md rounded-card-sm border bg-card transition-colors',
+              'gap-component-lg p-component-md rounded-card-sm bg-card flex items-start border transition-colors',
               'hover:bg-accent/50'
             )}
             role="listitem"
           >
             {/* Hop number */}
-            <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-              <span className="text-sm font-mono font-semibold text-primary">
-                {hop.hopNumber}
-              </span>
+            <div className="bg-primary/10 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full">
+              <span className="text-primary font-mono text-sm font-semibold">{hop.hopNumber}</span>
             </div>
 
             {/* Hop details */}
-            <div className="flex-1 min-w-0">
+            <div className="min-w-0 flex-1">
               {/* Address and hostname */}
-              <div className="flex items-center gap-component-sm mb-1">
-                {hop.status === 'TIMEOUT' || hop.status === 'UNREACHABLE' ? (
-                  <AlertCircle className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                ) : (
-                  <Server className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                )}
-                <div className="flex-1 min-w-0">
-                  {hop.address ? (
+              <div className="gap-component-sm mb-1 flex items-center">
+                {hop.status === 'TIMEOUT' || hop.status === 'UNREACHABLE' ?
+                  <AlertCircle className="text-muted-foreground h-4 w-4 flex-shrink-0" />
+                : <Server className="text-muted-foreground h-4 w-4 flex-shrink-0" />}
+                <div className="min-w-0 flex-1">
+                  {hop.address ?
                     <>
-                      <span className="font-mono text-sm font-medium break-all">
-                        {hop.address}
-                      </span>
+                      <span className="break-all font-mono text-sm font-medium">{hop.address}</span>
                       {hop.hostname && hop.hostname !== hop.address && (
-                        <span className="text-xs text-muted-foreground ml-2 break-all">
+                        <span className="text-muted-foreground ml-2 break-all text-xs">
                           ({hop.hostname})
                         </span>
                       )}
                     </>
-                  ) : (
-                    <span className="text-sm text-muted-foreground font-mono">
+                  : <span className="text-muted-foreground font-mono text-sm">
                       * * * (no response)
                     </span>
-                  )}
+                  }
                 </div>
               </div>
 
               {/* Latency and probes */}
-              <div className="flex items-center gap-component-xl text-sm">
-                <div className="flex items-center gap-component-md">
-                  <Clock className={cn('h-3 w-3', latencyColorClass)} aria-hidden="true" />
+              <div className="gap-component-xl flex items-center text-sm">
+                <div className="gap-component-md flex items-center">
+                  <Clock
+                    className={cn('h-3 w-3', latencyColorClass)}
+                    aria-hidden="true"
+                  />
                   <span className={cn('font-mono font-medium', latencyColorClass)}>
                     {formatLatency(hop.avgLatencyMs)}
                   </span>
                 </div>
 
                 {/* Individual probe latencies */}
-                <div className="flex items-center gap-component-md text-xs text-muted-foreground font-mono">
+                <div className="gap-component-md text-muted-foreground flex items-center font-mono text-xs">
                   {hop.probes.map((probe, idx) => (
                     <span
                       key={`${hop.hopNumber}-probe-${probe.probeNumber}`}
                       className={cn(
-                        probe.success && probe.latencyMs !== null
-                          ? getLatencyColorClass(probe.latencyMs!)
-                          : 'text-muted-foreground'
+                        probe.success && probe.latencyMs !== null ?
+                          getLatencyColorClass(probe.latencyMs!)
+                        : 'text-muted-foreground'
                       )}
                     >
-                      {probe.success && probe.latencyMs != null
-                        ? `${probe.latencyMs.toFixed(1)}`
-                        : '*'}
+                      {probe.success && probe.latencyMs != null ?
+                        `${probe.latencyMs.toFixed(1)}`
+                      : '*'}
                     </span>
                   ))}
                 </div>
 
                 {/* Packet loss indicator */}
                 {hop.packetLoss > 0 && (
-                  <span className="text-xs text-error font-medium">
+                  <span className="text-error text-xs font-medium">
                     {hop.packetLoss.toFixed(0)}% loss
                   </span>
                 )}
 
                 {/* ICMP code if available */}
                 {hasTimeout && hop.probes.some((p) => p.icmpCode) && (
-                  <span className="text-xs text-muted-foreground">
+                  <span className="text-muted-foreground text-xs">
                     {hop.probes.find((p) => p.icmpCode)?.icmpCode}
                   </span>
                 )}
@@ -179,20 +175,18 @@ export const TracerouteHopsList = memo(function TracerouteHopsList({
       {isRunning && (
         <div
           className={cn(
-            'flex items-center gap-component-md p-component-md rounded-card-sm border bg-card border-dashed',
+            'gap-component-md p-component-md rounded-card-sm bg-card flex items-center border border-dashed',
             'opacity-50'
           )}
           role="status"
           aria-live="polite"
           aria-label="Discovering next hop"
         >
-          <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-            <span className="text-sm font-mono font-semibold text-primary">
-              {hops.length + 1}
-            </span>
+          <div className="bg-primary/10 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full">
+            <span className="text-primary font-mono text-sm font-semibold">{hops.length + 1}</span>
           </div>
           <div className="flex-1">
-            <div className="text-xs text-muted-foreground">
+            <div className="text-muted-foreground text-xs">
               Discovering hop {hops.length + 1}...
             </div>
           </div>

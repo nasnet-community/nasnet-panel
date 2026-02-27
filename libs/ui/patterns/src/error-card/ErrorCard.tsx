@@ -199,7 +199,7 @@ function ErrorCardComponent({
     return (
       <div
         className={cn(
-          'flex items-center gap-2 p-2 rounded-lg text-sm',
+          'flex items-center gap-2 rounded-lg p-2 text-sm',
           colors.bg,
           colors.border,
           'border',
@@ -208,16 +208,22 @@ function ErrorCardComponent({
         role="alert"
         aria-live="polite"
       >
-        <Icon className={cn('w-4 h-4 flex-shrink-0', colors.iconColor)} aria-hidden="true" />
+        <Icon
+          className={cn('h-4 w-4 flex-shrink-0', colors.iconColor)}
+          aria-hidden="true"
+        />
         <span className={cn('flex-1 truncate', colors.textColor)}>{title}</span>
         {onRetry && (
           <button
             ref={retryButtonRef}
             onClick={handleRetry}
-            className={cn('p-1 rounded hover:bg-background/50', colors.textColor)}
+            className={cn('hover:bg-background/50 rounded p-1', colors.textColor)}
             aria-label="Retry"
           >
-            <RefreshCw className="w-4 h-4" aria-hidden="true" />
+            <RefreshCw
+              className="h-4 w-4"
+              aria-hidden="true"
+            />
           </button>
         )}
       </div>
@@ -229,7 +235,7 @@ function ErrorCardComponent({
     return (
       <div
         className={cn(
-          'flex items-center gap-3 p-3 rounded-lg border',
+          'flex items-center gap-3 rounded-lg border p-3',
           colors.bg,
           colors.border,
           className
@@ -237,18 +243,27 @@ function ErrorCardComponent({
         role="alert"
         aria-live="polite"
       >
-        <div className={cn('w-8 h-8 rounded-lg flex items-center justify-center', colors.iconBg)}>
-          <Icon className={cn('w-4 h-4', colors.iconColor)} aria-hidden="true" />
+        <div className={cn('flex h-8 w-8 items-center justify-center rounded-lg', colors.iconBg)}>
+          <Icon
+            className={cn('h-4 w-4', colors.iconColor)}
+            aria-hidden="true"
+          />
         </div>
-        <div className="flex-1 min-w-0">
-          <p className="font-medium text-foreground text-sm">{title}</p>
-          {description && (
-            <p className="text-xs text-muted-foreground truncate">{description}</p>
-          )}
+        <div className="min-w-0 flex-1">
+          <p className="text-foreground text-sm font-medium">{title}</p>
+          {description && <p className="text-muted-foreground truncate text-xs">{description}</p>}
         </div>
         {onRetry && (
-          <Button ref={retryButtonRef} size="sm" variant="outline" onClick={handleRetry}>
-            <RefreshCw className="w-3.5 h-3.5 mr-1" aria-hidden="true" />
+          <Button
+            ref={retryButtonRef}
+            size="sm"
+            variant="outline"
+            onClick={handleRetry}
+          >
+            <RefreshCw
+              className="mr-1 h-3.5 w-3.5"
+              aria-hidden="true"
+            />
             Retry
           </Button>
         )}
@@ -259,7 +274,12 @@ function ErrorCardComponent({
   // Default variant - full card
   return (
     <Card
-      className={cn('bg-error-light/50 border border-error/20 dark:bg-red-900/10 dark:border-red-900/30', colors.border, colors.bg, className)}
+      className={cn(
+        'bg-error-light/50 border-error/20 border dark:border-red-900/30 dark:bg-red-900/10',
+        colors.border,
+        colors.bg,
+        className
+      )}
       role="alert"
       aria-live="polite"
     >
@@ -267,16 +287,19 @@ function ErrorCardComponent({
         <div className="flex items-start gap-3">
           {/* Error Icon */}
           <div className="flex-shrink-0">
-            <Icon className={cn('h-6 w-6 text-error', colors.iconColor)} aria-hidden="true" />
+            <Icon
+              className={cn('text-error h-6 w-6', colors.iconColor)}
+              aria-hidden="true"
+            />
           </div>
 
           {/* Error Content */}
-          <div className="flex-1 min-w-0">
+          <div className="min-w-0 flex-1">
             {/* Title with optional error code */}
-            <div className="flex items-center gap-2 flex-wrap">
-              <h4 className="text-sm font-semibold text-error-dark dark:text-red-400">{title}</h4>
+            <div className="flex flex-wrap items-center gap-2">
+              <h4 className="text-error-dark text-sm font-semibold dark:text-red-400">{title}</h4>
               {errorCode && (
-                <span className="text-xs font-mono text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
+                <span className="text-muted-foreground bg-muted rounded px-1.5 py-0.5 font-mono text-xs">
                   {errorCode}
                 </span>
               )}
@@ -284,20 +307,32 @@ function ErrorCardComponent({
 
             {/* Description */}
             {description && (
-              <p className="text-sm text-error-dark/80 dark:text-red-300 mt-1">{description}</p>
+              <p className="text-error-dark/80 mt-1 text-sm dark:text-red-300">{description}</p>
             )}
 
             {/* Actions */}
-            <div className="flex flex-wrap items-center gap-2 mt-4">
+            <div className="mt-4 flex flex-wrap items-center gap-2">
               {onRetry && (
-                <Button ref={retryButtonRef} size="sm" variant="default" onClick={handleRetry}>
-                  <RefreshCw className="w-3.5 h-3.5 mr-1.5" aria-hidden="true" />
+                <Button
+                  ref={retryButtonRef}
+                  size="sm"
+                  variant="default"
+                  onClick={handleRetry}
+                >
+                  <RefreshCw
+                    className="mr-1.5 h-3.5 w-3.5"
+                    aria-hidden="true"
+                  />
                   Retry
                 </Button>
               )}
 
               {onSecondaryAction && secondaryActionLabel && (
-                <Button size="sm" variant="outline" onClick={handleSecondaryAction}>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={handleSecondaryAction}
+                >
                   {secondaryActionLabel}
                 </Button>
               )}
@@ -305,29 +340,37 @@ function ErrorCardComponent({
               {(technicalMessage || stackTrace) && (
                 <button
                   onClick={() => setShowDetails(!showDetails)}
-                  className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1 text-sm transition-colors"
                   aria-expanded={showDetails}
                 >
-                  {showDetails ? (
+                  {showDetails ?
                     <>
-                      <ChevronUp className="w-3.5 h-3.5" aria-hidden="true" />
+                      <ChevronUp
+                        className="h-3.5 w-3.5"
+                        aria-hidden="true"
+                      />
                       Hide details
                     </>
-                  ) : (
-                    <>
-                      <ChevronDown className="w-3.5 h-3.5" aria-hidden="true" />
+                  : <>
+                      <ChevronDown
+                        className="h-3.5 w-3.5"
+                        aria-hidden="true"
+                      />
                       Show details
                     </>
-                  )}
+                  }
                 </button>
               )}
 
               {onReport && (
                 <button
                   onClick={handleReport}
-                  className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors ml-auto"
+                  className="text-muted-foreground hover:text-foreground ml-auto inline-flex items-center gap-1 text-sm transition-colors"
                 >
-                  <Bug className="w-3.5 h-3.5" aria-hidden="true" />
+                  <Bug
+                    className="h-3.5 w-3.5"
+                    aria-hidden="true"
+                  />
                   Report
                 </button>
               )}
@@ -335,14 +378,12 @@ function ErrorCardComponent({
 
             {/* Technical Details */}
             {showDetails && (technicalMessage || stackTrace) && (
-              <div className="mt-3 p-3 bg-muted rounded-lg">
+              <div className="bg-muted mt-3 rounded-lg p-3">
                 {technicalMessage && (
-                  <p className="text-xs font-mono text-foreground break-all">
-                    {technicalMessage}
-                  </p>
+                  <p className="text-foreground break-all font-mono text-xs">{technicalMessage}</p>
                 )}
                 {import.meta.env.DEV && stackTrace && (
-                  <pre className="mt-2 text-xs text-muted-foreground overflow-auto max-h-32 whitespace-pre-wrap">
+                  <pre className="text-muted-foreground mt-2 max-h-32 overflow-auto whitespace-pre-wrap text-xs">
                     {stackTrace}
                   </pre>
                 )}

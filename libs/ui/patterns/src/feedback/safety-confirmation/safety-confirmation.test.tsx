@@ -61,7 +61,12 @@ describe('SafetyConfirmation', () => {
     });
 
     it('should not render when open is false', () => {
-      render(<SafetyConfirmation {...defaultProps} open={false} />);
+      render(
+        <SafetyConfirmation
+          {...defaultProps}
+          open={false}
+        />
+      );
 
       expect(screen.queryAllByText('Factory Reset')).toHaveLength(0);
     });
@@ -150,7 +155,12 @@ describe('SafetyConfirmation', () => {
 
     it('should call onConfirm when Confirm button is clicked after countdown', async () => {
       const onConfirm = vi.fn().mockResolvedValue(undefined);
-      render(<SafetyConfirmation {...defaultProps} onConfirm={onConfirm} />);
+      render(
+        <SafetyConfirmation
+          {...defaultProps}
+          onConfirm={onConfirm}
+        />
+      );
 
       const input = screen.getByRole('textbox');
       fireEvent.change(input, { target: { value: 'RESET' } });
@@ -233,7 +243,12 @@ describe('SafetyConfirmation', () => {
     });
 
     it('should force mobile presenter when specified', () => {
-      render(<SafetyConfirmation {...defaultProps} presenter="mobile" />);
+      render(
+        <SafetyConfirmation
+          {...defaultProps}
+          presenter="mobile"
+        />
+      );
 
       // Mobile uses Sheet which still has role="dialog"
       expect(screen.getByRole('dialog')).toBeInTheDocument();
@@ -241,7 +256,12 @@ describe('SafetyConfirmation', () => {
 
     it('should force desktop presenter when specified', () => {
       // The presenter prop overrides platform detection
-      render(<SafetyConfirmation {...defaultProps} presenter="desktop" />);
+      render(
+        <SafetyConfirmation
+          {...defaultProps}
+          presenter="desktop"
+        />
+      );
 
       expect(screen.getByRole('dialog')).toBeInTheDocument();
     });
@@ -310,7 +330,12 @@ describe('SafetyConfirmationDesktop', () => {
   });
 
   it('should render using Dialog primitive', () => {
-    render(<SafetyConfirmationDesktop {...defaultProps} hook={createMockHook()} />);
+    render(
+      <SafetyConfirmationDesktop
+        {...defaultProps}
+        hook={createMockHook()}
+      />
+    );
 
     expect(screen.getByRole('dialog')).toBeInTheDocument();
     // Title appears both in header and sr-only DialogTitle
@@ -354,7 +379,12 @@ describe('SafetyConfirmationMobile', () => {
   });
 
   it('should render using Sheet primitive', () => {
-    render(<SafetyConfirmationMobile {...defaultProps} hook={createMockHook()} />);
+    render(
+      <SafetyConfirmationMobile
+        {...defaultProps}
+        hook={createMockHook()}
+      />
+    );
 
     // Sheet also uses dialog role
     expect(screen.getByRole('dialog')).toBeInTheDocument();
@@ -363,7 +393,12 @@ describe('SafetyConfirmationMobile', () => {
   });
 
   it('should have larger touch targets on mobile', () => {
-    render(<SafetyConfirmationMobile {...defaultProps} hook={createMockHook()} />);
+    render(
+      <SafetyConfirmationMobile
+        {...defaultProps}
+        hook={createMockHook()}
+      />
+    );
 
     const confirmButton = screen.getByRole('button', { name: /confirm/i });
     const cancelButton = screen.getByRole('button', { name: /cancel/i });

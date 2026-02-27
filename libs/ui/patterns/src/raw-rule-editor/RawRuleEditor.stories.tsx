@@ -71,7 +71,8 @@ const meta = {
     layout: 'centered',
     docs: {
       description: {
-        component: 'RAW rule creation and editing dialog with performance tips and action-specific fields.',
+        component:
+          'RAW rule creation and editing dialog with performance tips and action-specific fields.',
       },
     },
     a11y: {

@@ -66,18 +66,21 @@ export const NetworkDetailSection = React.memo(function NetworkDetailSection({
     return (
       <div
         className={cn(
-          'bg-card rounded-card-lg border border-border p-component-md shadow-sm',
-          className,
+          'bg-card rounded-card-lg border-border p-component-md border shadow-sm',
+          className
         )}
         aria-busy="true"
         aria-label={`Loading ${title}`}
       >
         <div className="animate-pulse space-y-3">
-          <div className="h-4 bg-muted rounded w-32" />
+          <div className="bg-muted h-4 w-32 rounded" />
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="flex justify-between gap-4">
-              <div className="h-3 bg-muted rounded w-24" />
-              <div className="h-3 bg-muted rounded w-36" />
+            <div
+              key={i}
+              className="flex justify-between gap-4"
+            >
+              <div className="bg-muted h-3 w-24 rounded" />
+              <div className="bg-muted h-3 w-36 rounded" />
             </div>
           ))}
         </div>
@@ -88,8 +91,8 @@ export const NetworkDetailSection = React.memo(function NetworkDetailSection({
   return (
     <section
       className={cn(
-        'bg-card rounded-card-lg border border-border p-component-md shadow-sm',
-        className,
+        'bg-card rounded-card-lg border-border p-component-md border shadow-sm',
+        className
       )}
       aria-labelledby={`nds-title-${title.replace(/\s+/g, '-').toLowerCase()}`}
     >
@@ -97,13 +100,11 @@ export const NetworkDetailSection = React.memo(function NetworkDetailSection({
       <div className="mb-3">
         <h3
           id={`nds-title-${title.replace(/\s+/g, '-').toLowerCase()}`}
-          className="text-sm font-semibold text-foreground font-display category-header category-header-networking"
+          className="text-foreground font-display category-header category-header-networking text-sm font-semibold"
         >
           {title}
         </h3>
-        {description && (
-          <p className="mt-0.5 text-xs text-muted-foreground">{description}</p>
-        )}
+        {description && <p className="text-muted-foreground mt-0.5 text-xs">{description}</p>}
       </div>
 
       {/* Key-value rows */}
@@ -117,30 +118,26 @@ export const NetworkDetailSection = React.memo(function NetworkDetailSection({
             <dd
               className={cn(
                 'text-right',
-                item.mono
-                  ? 'font-mono text-xs text-foreground'
-                  : 'text-foreground',
+                item.mono ? 'text-foreground font-mono text-xs' : 'text-foreground'
               )}
             >
-              {item.badge ? (
+              {item.badge ?
                 <span
                   className={cn(
-                    'inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium',
-                    BADGE_CLASSES[item.badge],
+                    'inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium',
+                    BADGE_CLASSES[item.badge]
                   )}
                 >
                   {item.value}
                 </span>
-              ) : (
-                item.value
-              )}
+              : item.value}
             </dd>
           </div>
         ))}
       </dl>
 
       {items.length === 0 && (
-        <p className="text-xs text-muted-foreground">{t('status.noDetailsAvailable')}</p>
+        <p className="text-muted-foreground text-xs">{t('status.noDetailsAvailable')}</p>
       )}
     </section>
   );

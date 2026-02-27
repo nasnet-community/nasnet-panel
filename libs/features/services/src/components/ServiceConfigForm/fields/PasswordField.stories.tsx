@@ -67,10 +67,11 @@ export const WithValue: Story = {
   render: (args) => (
     <div className="space-y-2">
       <Label htmlFor="password-field">Service Password</Label>
-      <PasswordField {...args} id="password-field" />
-      <p className="text-xs text-muted-foreground">
-        Click the icon to reveal/hide the password
-      </p>
+      <PasswordField
+        {...args}
+        id="password-field"
+      />
+      <p className="text-muted-foreground text-xs">Click the icon to reveal/hide the password</p>
     </div>
   ),
   parameters: {
@@ -95,8 +96,11 @@ export const APIKeyField: Story = {
   render: (args) => (
     <div className="space-y-2">
       <Label htmlFor="api-key-field">API Key</Label>
-      <PasswordField {...args} id="api-key-field" />
-      <p className="text-xs text-muted-foreground">
+      <PasswordField
+        {...args}
+        id="api-key-field"
+      />
+      <p className="text-muted-foreground text-xs">
         Your API key is hidden for security. Reveal only when needed.
       </p>
     </div>
@@ -123,8 +127,11 @@ export const Disabled: Story = {
   render: (args) => (
     <div className="space-y-2">
       <Label htmlFor="locked-password">Auth Password (locked)</Label>
-      <PasswordField {...args} id="locked-password" />
-      <p className="text-xs text-muted-foreground">
+      <PasswordField
+        {...args}
+        id="locked-password"
+      />
+      <p className="text-muted-foreground text-xs">
         Password cannot be changed while the service is running.
       </p>
     </div>
@@ -149,10 +156,12 @@ export const WithError: Story = {
   render: (args) => (
     <div className="space-y-2">
       <Label htmlFor="error-password">Database Password</Label>
-      <PasswordField {...args} id="error-password" aria-invalid={true} />
-      <p className="text-xs text-error">
-        Password must be at least 8 characters long
-      </p>
+      <PasswordField
+        {...args}
+        id="error-password"
+        aria-invalid={true}
+      />
+      <p className="text-error text-xs">Password must be at least 8 characters long</p>
     </div>
   ),
   parameters: {
@@ -174,8 +183,11 @@ export const Empty: Story = {
   render: (args) => (
     <div className="space-y-2">
       <Label htmlFor="new-password">New Service Password</Label>
-      <PasswordField {...args} id="new-password" />
-      <p className="text-xs text-muted-foreground">
+      <PasswordField
+        {...args}
+        id="new-password"
+      />
+      <p className="text-muted-foreground text-xs">
         Requirements: 8+ characters, uppercase, number, symbol
       </p>
     </div>

@@ -16,8 +16,6 @@ import { RouteDeleteConfirmation } from './RouteDeleteConfirmation';
 
 import type { Meta, StoryObj } from '@storybook/react';
 
-
-
 /**
  * Mock route data for stories
  */
@@ -105,13 +103,17 @@ function RouteDeleteConfirmationWrapper({
   };
 
   return (
-    <div className="flex flex-col items-center gap-component-md p-component-xl">
-      <div className="flex flex-col items-center gap-component-sm text-center">
+    <div className="gap-component-md p-component-xl flex flex-col items-center">
+      <div className="gap-component-sm flex flex-col items-center text-center">
         <h3 className="text-lg font-semibold">Route Management</h3>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-muted-foreground text-sm">
           Click below to delete route: <code className="font-mono">{route.destination}</code>
         </p>
-        <Button variant="destructive" size="lg" onClick={() => setOpen(true)}>
+        <Button
+          variant="destructive"
+          size="lg"
+          onClick={() => setOpen(true)}
+        >
           Delete Route
         </Button>
       </div>
@@ -241,7 +243,8 @@ export const AdvancedRoute: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Deleting route with custom routing mark and table. Shows full route details in warning.',
+        story:
+          'Deleting route with custom routing mark and table. Shows full route details in warning.',
       },
     },
   },
@@ -306,7 +309,7 @@ export const DesktopView: Story = {
  */
 export const DarkMode: Story = {
   render: () => (
-    <div className="dark bg-background min-h-screen flex items-center justify-center">
+    <div className="bg-background dark flex min-h-screen items-center justify-center">
       <RouteDeleteConfirmationWrapper route={mockDefaultRoute} />
     </div>
   ),
@@ -330,8 +333,11 @@ export const Submitting: Story = {
     const [loading, setLoading] = useState(false);
 
     return (
-      <div className="flex flex-col items-center gap-component-md">
-        <Button variant="destructive" onClick={() => setOpen(true)}>
+      <div className="gap-component-md flex flex-col items-center">
+        <Button
+          variant="destructive"
+          onClick={() => setOpen(true)}
+        >
           Delete Route
         </Button>
         <RouteDeleteConfirmation
@@ -371,7 +377,8 @@ export const Playground: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Playground story with customizable route properties. Use controls to test different scenarios.',
+        story:
+          'Playground story with customizable route properties. Use controls to test different scenarios.',
       },
     },
   },

@@ -80,10 +80,7 @@ const PROTOCOL_SERVICE_MAP: Record<ExecutionProtocol, string> = {
  * Endpoint: GET /rest/ip/service
  */
 async function fetchIPServices(routerIp: string): Promise<IPService[]> {
-  const result = await makeRouterOSRequest<RouterOSServiceEntry[]>(
-    routerIp,
-    'ip/service'
-  );
+  const result = await makeRouterOSRequest<RouterOSServiceEntry[]>(routerIp, 'ip/service');
 
   if (!result.success || !result.data) {
     throw new Error(result.error || 'Failed to fetch IP services');
@@ -120,9 +117,7 @@ async function fetchIPServices(routerIp: string): Promise<IPService[]> {
  * }
  * ```
  */
-export function useIPServices(
-  routerIp: string
-): UseQueryResult<IPService[], Error> {
+export function useIPServices(routerIp: string): UseQueryResult<IPService[], Error> {
   return useQuery({
     queryKey: ipKeys.services(routerIp),
     queryFn: () => fetchIPServices(routerIp),
@@ -167,4 +162,3 @@ export function useEnabledProtocols(routerIp: string): {
     error: error ?? null,
   };
 }
-

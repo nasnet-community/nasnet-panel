@@ -8,39 +8,39 @@ import type { ServiceTemplate, ExportAsTemplateInput } from '@nasnet/api-client/
  * Options for useExportAsTemplate hook
  */
 export interface UseExportAsTemplateOptions {
-    /**
-     * Callback invoked on successful export
-     */
-    onCompleted?: (template: ServiceTemplate) => void;
-    /**
-     * Callback invoked on error
-     */
-    onError?: (error: Error) => void;
+  /**
+   * Callback invoked on successful export
+   */
+  onCompleted?: (template: ServiceTemplate) => void;
+  /**
+   * Callback invoked on error
+   */
+  onError?: (error: Error) => void;
 }
 /**
  * Return type for useExportAsTemplate hook
  */
 export interface UseExportAsTemplateReturn {
-    /**
-     * Mutation function to export instances as a template
-     */
-    exportAsTemplate: (input: ExportAsTemplateInput) => Promise<ServiceTemplate>;
-    /**
-     * Loading state
-     */
-    loading: boolean;
-    /**
-     * Error object if mutation failed
-     */
-    error: Error | undefined;
-    /**
-     * Exported template data
-     */
-    template: ServiceTemplate | undefined;
-    /**
-     * Reset mutation state
-     */
-    reset: () => void;
+  /**
+   * Mutation function to export instances as a template
+   */
+  exportAsTemplate: (input: ExportAsTemplateInput) => Promise<ServiceTemplate>;
+  /**
+   * Loading state
+   */
+  loading: boolean;
+  /**
+   * Error object if mutation failed
+   */
+  error: Error | undefined;
+  /**
+   * Exported template data
+   */
+  template: ServiceTemplate | undefined;
+  /**
+   * Reset mutation state
+   */
+  reset: () => void;
 }
 /**
  * Hook to export existing service instances as a reusable template
@@ -66,5 +66,7 @@ export interface UseExportAsTemplateReturn {
  * });
  * ```
  */
-export declare function useExportAsTemplate(options?: UseExportAsTemplateOptions): UseExportAsTemplateReturn;
+export declare function useExportAsTemplate(
+  options?: UseExportAsTemplateOptions
+): UseExportAsTemplateReturn;
 //# sourceMappingURL=useExportAsTemplate.d.ts.map

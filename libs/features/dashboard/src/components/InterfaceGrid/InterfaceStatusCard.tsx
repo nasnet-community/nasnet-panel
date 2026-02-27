@@ -45,11 +45,9 @@ const InterfaceStatusCardComponent = React.memo(function InterfaceStatusCard(
   // Desktop uses the full desktop presenter
   const presenter = useMemo(
     () =>
-      platform === 'desktop' ? (
+      platform === 'desktop' ?
         <InterfaceStatusCardDesktop {...props} />
-      ) : (
-        <InterfaceStatusCardMobile {...props} />
-      ),
+      : <InterfaceStatusCardMobile {...props} />,
     [platform, props]
   );
 

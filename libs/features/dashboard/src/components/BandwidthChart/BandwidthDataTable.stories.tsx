@@ -60,7 +60,10 @@ const meta: Meta<typeof BandwidthDataTable> = {
   decorators: [
     (Story) => (
       // Force visible so the table renders in Storybook canvas
-      <div data-visible="true" style={{ maxWidth: '900px' }}>
+      <div
+        data-visible="true"
+        style={{ maxWidth: '900px' }}
+      >
         <Story />
       </div>
     ),
@@ -186,7 +189,8 @@ export const SingleRow: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Minimal dataset with a single data point. Verifies the table renders correctly without looping.',
+        story:
+          'Minimal dataset with a single data point. Verifies the table renders correctly without looping.',
       },
     },
   },

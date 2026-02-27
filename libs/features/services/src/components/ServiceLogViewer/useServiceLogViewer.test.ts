@@ -134,10 +134,34 @@ describe('useServiceLogViewer', () => {
       const { useServiceLogs } = await import('@nasnet/api-client/queries');
 
       const entries: LogEntry[] = [
-        { timestamp: '2024-01-01T00:00:00Z', level: 'INFO', message: 'Info 1', source: 'test', rawLine: 'Info 1' },
-        { timestamp: '2024-01-01T00:00:01Z', level: 'ERROR', message: 'Error 1', source: 'test', rawLine: 'Error 1' },
-        { timestamp: '2024-01-01T00:00:02Z', level: 'INFO', message: 'Info 2', source: 'test', rawLine: 'Info 2' },
-        { timestamp: '2024-01-01T00:00:03Z', level: 'WARN', message: 'Warn 1', source: 'test', rawLine: 'Warn 1' },
+        {
+          timestamp: '2024-01-01T00:00:00Z',
+          level: 'INFO',
+          message: 'Info 1',
+          source: 'test',
+          rawLine: 'Info 1',
+        },
+        {
+          timestamp: '2024-01-01T00:00:01Z',
+          level: 'ERROR',
+          message: 'Error 1',
+          source: 'test',
+          rawLine: 'Error 1',
+        },
+        {
+          timestamp: '2024-01-01T00:00:02Z',
+          level: 'INFO',
+          message: 'Info 2',
+          source: 'test',
+          rawLine: 'Info 2',
+        },
+        {
+          timestamp: '2024-01-01T00:00:03Z',
+          level: 'WARN',
+          message: 'Warn 1',
+          source: 'test',
+          rawLine: 'Warn 1',
+        },
       ];
 
       vi.mocked(useServiceLogs).mockReturnValue({
@@ -178,11 +202,41 @@ describe('useServiceLogViewer', () => {
       const { useServiceLogs } = await import('@nasnet/api-client/queries');
 
       const entries: LogEntry[] = [
-        { timestamp: '2024-01-01T00:00:00Z', level: 'INFO', message: 'Info 1', source: 'test', rawLine: 'Info 1' },
-        { timestamp: '2024-01-01T00:00:01Z', level: 'ERROR', message: 'Error 1', source: 'test', rawLine: 'Error 1' },
-        { timestamp: '2024-01-01T00:00:02Z', level: 'INFO', message: 'Info 2', source: 'test', rawLine: 'Info 2' },
-        { timestamp: '2024-01-01T00:00:03Z', level: 'ERROR', message: 'Error 2', source: 'test', rawLine: 'Error 2' },
-        { timestamp: '2024-01-01T00:00:04Z', level: 'WARN', message: 'Warn 1', source: 'test', rawLine: 'Warn 1' },
+        {
+          timestamp: '2024-01-01T00:00:00Z',
+          level: 'INFO',
+          message: 'Info 1',
+          source: 'test',
+          rawLine: 'Info 1',
+        },
+        {
+          timestamp: '2024-01-01T00:00:01Z',
+          level: 'ERROR',
+          message: 'Error 1',
+          source: 'test',
+          rawLine: 'Error 1',
+        },
+        {
+          timestamp: '2024-01-01T00:00:02Z',
+          level: 'INFO',
+          message: 'Info 2',
+          source: 'test',
+          rawLine: 'Info 2',
+        },
+        {
+          timestamp: '2024-01-01T00:00:03Z',
+          level: 'ERROR',
+          message: 'Error 2',
+          source: 'test',
+          rawLine: 'Error 2',
+        },
+        {
+          timestamp: '2024-01-01T00:00:04Z',
+          level: 'WARN',
+          message: 'Warn 1',
+          source: 'test',
+          rawLine: 'Warn 1',
+        },
       ];
 
       vi.mocked(useServiceLogs).mockReturnValue({
@@ -209,9 +263,27 @@ describe('useServiceLogViewer', () => {
       const { useServiceLogs } = await import('@nasnet/api-client/queries');
 
       const entries: LogEntry[] = [
-        { timestamp: '2024-01-01T00:00:00Z', level: 'INFO', message: 'Connection established', source: 'network', rawLine: 'Connection established' },
-        { timestamp: '2024-01-01T00:00:01Z', level: 'ERROR', message: 'Database error', source: 'database', rawLine: 'Database error' },
-        { timestamp: '2024-01-01T00:00:02Z', level: 'INFO', message: 'Request processed', source: 'api', rawLine: 'Request processed' },
+        {
+          timestamp: '2024-01-01T00:00:00Z',
+          level: 'INFO',
+          message: 'Connection established',
+          source: 'network',
+          rawLine: 'Connection established',
+        },
+        {
+          timestamp: '2024-01-01T00:00:01Z',
+          level: 'ERROR',
+          message: 'Database error',
+          source: 'database',
+          rawLine: 'Database error',
+        },
+        {
+          timestamp: '2024-01-01T00:00:02Z',
+          level: 'INFO',
+          message: 'Request processed',
+          source: 'api',
+          rawLine: 'Request processed',
+        },
       ];
 
       vi.mocked(useServiceLogs).mockReturnValue({
@@ -254,8 +326,20 @@ describe('useServiceLogViewer', () => {
       const { useServiceLogs } = await import('@nasnet/api-client/queries');
 
       const entries: LogEntry[] = [
-        { timestamp: '2024-01-01T00:00:00Z', level: 'INFO', message: 'Test message', source: 'network', rawLine: 'Test message' },
-        { timestamp: '2024-01-01T00:00:01Z', level: 'INFO', message: 'Another log', source: 'test-service', rawLine: 'Another log' },
+        {
+          timestamp: '2024-01-01T00:00:00Z',
+          level: 'INFO',
+          message: 'Test message',
+          source: 'network',
+          rawLine: 'Test message',
+        },
+        {
+          timestamp: '2024-01-01T00:00:01Z',
+          level: 'INFO',
+          message: 'Another log',
+          source: 'test-service',
+          rawLine: 'Another log',
+        },
       ];
 
       vi.mocked(useServiceLogs).mockReturnValue({
@@ -288,7 +372,13 @@ describe('useServiceLogViewer', () => {
       const { useServiceLogs } = await import('@nasnet/api-client/queries');
 
       const entries: LogEntry[] = [
-        { timestamp: '2024-01-01T00:00:00Z', level: 'INFO', message: 'Log 1', source: 'test', rawLine: 'Log 1' },
+        {
+          timestamp: '2024-01-01T00:00:00Z',
+          level: 'INFO',
+          message: 'Log 1',
+          source: 'test',
+          rawLine: 'Log 1',
+        },
       ];
 
       vi.mocked(useServiceLogs).mockReturnValue({

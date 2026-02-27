@@ -1,7 +1,7 @@
 {
   "id": "testing-and-accessibility",
   "title": "Testing & Accessibility",
-  "description": "This document covers the testing infrastructure and WCAG AAA accessibility compliance for NasNetConnect's UI libraries. Our testing strategy enables rigorous accessibility verification while supporting rapid iteration through platform-responsive testing utilities.",
+  "description": "This document covers the testing infrastructure and WCAG AAA accessibility compliance for",
   "source": "@site/../../libs/ui/docs/testing-and-accessibility.md",
   "sourceDirName": ".",
   "slug": "/testing-and-accessibility",

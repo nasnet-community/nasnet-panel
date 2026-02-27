@@ -7,13 +7,13 @@ import type { RouterCredentials } from '@nasnet/core/types';
  * Validation result from credential test
  */
 export interface CredentialValidationResult {
-    isValid: boolean;
-    error?: string;
-    routerInfo?: {
-        identity?: string;
-        model?: string;
-        version?: string;
-    };
+  isValid: boolean;
+  error?: string;
+  routerInfo?: {
+    identity?: string;
+    model?: string;
+    version?: string;
+  };
 }
 /**
  * Validates credentials by attempting connection to router through proxy
@@ -42,7 +42,10 @@ export interface CredentialValidationResult {
  * }
  * ```
  */
-export declare function validateCredentials(ipAddress: string, credentials: RouterCredentials): Promise<CredentialValidationResult>;
+export declare function validateCredentials(
+  ipAddress: string,
+  credentials: RouterCredentials
+): Promise<CredentialValidationResult>;
 /**
  * Saves credentials to localStorage
  *
@@ -136,8 +139,8 @@ export declare function getRoutersWithCredentials(): string[];
  * for handling storage and persistence issues.
  */
 export declare class CredentialError extends Error {
-    code: 'SAVE_FAILED' | 'REMOVE_FAILED' | 'CLEAR_FAILED';
-    constructor(message: string, code: 'SAVE_FAILED' | 'REMOVE_FAILED' | 'CLEAR_FAILED');
+  code: 'SAVE_FAILED' | 'REMOVE_FAILED' | 'CLEAR_FAILED';
+  constructor(message: string, code: 'SAVE_FAILED' | 'REMOVE_FAILED' | 'CLEAR_FAILED');
 }
 /**
  * Default credentials (common MikroTik defaults)

@@ -68,32 +68,22 @@ const ServiceCard = memo(function ServiceCard({
 
   if (compact) {
     return (
-      <div className="flex items-center justify-between py-component-sm">
-        <div className="flex items-center gap-component-sm">
+      <div className="py-component-sm flex items-center justify-between">
+        <div className="gap-component-sm flex items-center">
           <span
-            className={cn(
-              'w-2 h-2 rounded-full',
-              isEnabled ? 'bg-success' : 'bg-muted'
-            )}
+            className={cn('h-2 w-2 rounded-full', isEnabled ? 'bg-success' : 'bg-muted')}
             aria-hidden="true"
           />
           <Icon
             icon={getServiceIcon(service.name)}
-            className="w-4 h-4"
+            className="h-4 w-4"
             aria-hidden="true"
           />
-          <span
-            className={cn(
-              'text-xs',
-              isEnabled
-                ? 'text-foreground'
-                : 'text-muted-foreground'
-            )}
-          >
+          <span className={cn('text-xs', isEnabled ? 'text-foreground' : 'text-muted-foreground')}>
             {getServiceDescription(service.name)}
           </span>
         </div>
-        <span className="text-xs font-mono">{service.port}</span>
+        <span className="font-mono text-xs">{service.port}</span>
       </div>
     );
   }
@@ -101,10 +91,8 @@ const ServiceCard = memo(function ServiceCard({
   return (
     <div
       className={cn(
-        'relative overflow-hidden rounded-md border p-component-md transition-all',
-        isEnabled
-          ? 'border-success/20 bg-success/5'
-          : 'border-border bg-muted/30'
+        'p-component-md relative overflow-hidden rounded-md border transition-all',
+        isEnabled ? 'border-success/20 bg-success/5' : 'border-border bg-muted/30'
       )}
     >
       {/* Status indicator dot */}
@@ -112,49 +100,39 @@ const ServiceCard = memo(function ServiceCard({
         <span
           className={cn(
             'inline-block h-2 w-2 rounded-full',
-            isEnabled
-              ? 'bg-success shadow-sm shadow-success/50'
-              : 'bg-muted'
+            isEnabled ? 'bg-success shadow-success/50 shadow-sm' : 'bg-muted'
           )}
           aria-hidden="true"
         />
       </div>
 
       {/* Icon and name */}
-      <div className="flex items-start gap-component-md">
+      <div className="gap-component-md flex items-start">
         <Icon
           icon={getServiceIcon(service.name)}
-          className="w-6 h-6"
+          className="h-6 w-6"
           aria-hidden="true"
         />
-        <div className="flex-1 min-w-0">
+        <div className="min-w-0 flex-1">
           <p
             className={cn(
-              'font-medium truncate',
-              isEnabled
-                ? 'text-foreground'
-                : 'text-muted-foreground'
+              'truncate font-medium',
+              isEnabled ? 'text-foreground' : 'text-muted-foreground'
             )}
           >
             {getServiceDescription(service.name)}
           </p>
-          <p className="text-sm text-muted-foreground">
-            Port{' '}
-            <span className="font-mono">
-              {service.port}
-            </span>
+          <p className="text-muted-foreground text-sm">
+            Port <span className="font-mono">{service.port}</span>
           </p>
         </div>
       </div>
 
       {/* Address restriction if set */}
       {service.address && (
-        <div className="mt-component-sm pt-component-sm border-t border-border">
-          <p className="text-xs text-muted-foreground">
-            Allowed:{' '}
-            <span className="font-mono">
-              {service.address}
-            </span>
+        <div className="mt-component-sm pt-component-sm border-border border-t">
+          <p className="text-muted-foreground text-xs">
+            Allowed: <span className="font-mono">{service.address}</span>
           </p>
         </div>
       )}
@@ -195,14 +173,14 @@ export const ServicesStatus = memo(function ServicesStatus({
   if (isLoading) {
     if (compact) {
       return (
-        <div className={cn(
-          'bg-card rounded-md border border-border p-component-md',
-          className
-        )}>
-          <div className="animate-pulse space-y-component-sm">
-            <div className="h-4 bg-muted rounded w-24" />
+        <div className={cn('bg-card border-border p-component-md rounded-md border', className)}>
+          <div className="space-y-component-sm animate-pulse">
+            <div className="bg-muted h-4 w-24 rounded" />
             {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="h-6 bg-muted rounded" />
+              <div
+                key={i}
+                className="bg-muted h-6 rounded"
+              />
             ))}
           </div>
         </div>
@@ -212,15 +190,13 @@ export const ServicesStatus = memo(function ServicesStatus({
       <div className={className}>
         <div className="px-component-sm mb-component-md">
           <h2 className="text-lg font-semibold">Router Services</h2>
-          <p className="text-sm text-muted-foreground">
-            Network services and their status
-          </p>
+          <p className="text-muted-foreground text-sm">Network services and their status</p>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-component-sm">
+        <div className="gap-component-sm grid grid-cols-2 md:grid-cols-4">
           {[...Array(8)].map((_, i) => (
             <div
               key={i}
-              className="h-24 animate-pulse bg-muted rounded-md"
+              className="bg-muted h-24 animate-pulse rounded-md"
             />
           ))}
         </div>
@@ -231,9 +207,9 @@ export const ServicesStatus = memo(function ServicesStatus({
   // Error state
   if (error) {
     return (
-      <div className={cn('p-component-md rounded-md border border-error/50 bg-error/5', className)}>
-        <p className="text-sm text-error font-medium">Unable to load services</p>
-        <p className="text-xs text-error/80 mt-component-sm">
+      <div className={cn('p-component-md border-error/50 bg-error/5 rounded-md border', className)}>
+        <p className="text-error text-sm font-medium">Unable to load services</p>
+        <p className="text-error/80 mt-component-sm text-xs">
           {error.message || 'Please try again or contact support.'}
         </p>
       </div>
@@ -243,21 +219,19 @@ export const ServicesStatus = memo(function ServicesStatus({
   // Empty state
   if (!services || services.length === 0) {
     return (
-      <div className={cn(
-        'p-component-lg rounded-md border border-border bg-muted/30 text-center',
-        className
-      )}>
+      <div
+        className={cn(
+          'p-component-lg border-border bg-muted/30 rounded-md border text-center',
+          className
+        )}
+      >
         <Icon
           icon={WifiOff}
-          className="w-8 h-8 text-muted-foreground mx-auto mb-component-sm"
+          className="text-muted-foreground mb-component-sm mx-auto h-8 w-8"
           aria-hidden="true"
         />
-        <p className="text-sm font-medium text-foreground mb-component-sm">
-          No services found
-        </p>
-        <p className="text-xs text-muted-foreground">
-          Router services could not be retrieved.
-        </p>
+        <p className="text-foreground mb-component-sm text-sm font-medium">No services found</p>
+        <p className="text-muted-foreground text-xs">Router services could not be retrieved.</p>
       </div>
     );
   }
@@ -269,24 +243,23 @@ export const ServicesStatus = memo(function ServicesStatus({
   // Compact mode for sidebar
   if (compact) {
     return (
-      <div className={cn(
-        'bg-card rounded-md border border-border p-component-md',
-        className
-      )}>
-        <div className="flex items-center justify-between mb-component-sm">
-          <h3 className="text-sm font-semibold text-foreground">
-            Services
-          </h3>
-          <span className="text-xs text-muted-foreground">
+      <div className={cn('bg-card border-border p-component-md rounded-md border', className)}>
+        <div className="mb-component-sm flex items-center justify-between">
+          <h3 className="text-foreground text-sm font-semibold">Services</h3>
+          <span className="text-muted-foreground text-xs">
             <span className="text-success font-medium">{enabledCount}</span>/{totalCount}
           </span>
         </div>
         <div className="space-y-component-xs">
           {services.slice(0, 6).map((service) => (
-            <ServiceCard key={service.id} service={service} compact />
+            <ServiceCard
+              key={service.id}
+              service={service}
+              compact
+            />
           ))}
           {services.length > 6 && (
-            <p className="text-xs text-muted-foreground text-center pt-component-sm">
+            <p className="text-muted-foreground pt-component-sm text-center text-xs">
               +{services.length - 6} more
             </p>
           )}
@@ -301,27 +274,23 @@ export const ServicesStatus = memo(function ServicesStatus({
       <div className="px-component-sm mb-component-md flex items-center justify-between">
         <div>
           <h2 className="text-lg font-semibold">Router Services</h2>
-          <p className="text-sm text-muted-foreground">
-            Network services and their status
-          </p>
+          <p className="text-muted-foreground text-sm">Network services and their status</p>
         </div>
-        <div className="text-sm text-muted-foreground">
-          <span className="text-success font-medium">
-            {enabledCount}
-          </span>{' '}
-          / {totalCount} enabled
+        <div className="text-muted-foreground text-sm">
+          <span className="text-success font-medium">{enabledCount}</span> / {totalCount} enabled
         </div>
       </div>
 
       {/* Services grid */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-component-sm">
+      <div className="gap-component-sm grid grid-cols-2 md:grid-cols-4">
         {services.map((service) => (
-          <ServiceCard key={service.id} service={service} />
+          <ServiceCard
+            key={service.id}
+            service={service}
+          />
         ))}
       </div>
     </div>
   );
 });
 ServicesStatus.displayName = 'ServicesStatus';
-
-

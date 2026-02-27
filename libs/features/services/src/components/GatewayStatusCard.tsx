@@ -63,21 +63,19 @@ function GatewayStatusCardComponent({
   const detectedPlatform = usePlatform();
   const platform = presenter || detectedPlatform;
 
-  return platform === 'mobile' ? (
-    <GatewayStatusCardMobile
-      gateway={gateway}
-      instanceId={instanceId}
-      serviceName={serviceName}
-      className={className}
-    />
-  ) : (
-    <GatewayStatusCardDesktop
-      gateway={gateway}
-      instanceId={instanceId}
-      serviceName={serviceName}
-      className={className}
-    />
-  );
+  return platform === 'mobile' ?
+      <GatewayStatusCardMobile
+        gateway={gateway}
+        instanceId={instanceId}
+        serviceName={serviceName}
+        className={className}
+      />
+    : <GatewayStatusCardDesktop
+        gateway={gateway}
+        instanceId={instanceId}
+        serviceName={serviceName}
+        className={className}
+      />;
 }
 
 export const GatewayStatusCard = memo(GatewayStatusCardComponent);

@@ -61,11 +61,11 @@ export function ConfigPreview(props: ConfigPreviewProps) {
 
   // Determine which presenter to use
   const effectivePresenter =
-    props.presenter === 'auto' || props.presenter === undefined
-      ? platform === 'mobile'
-        ? 'mobile'
-        : 'desktop'
-      : props.presenter;
+    props.presenter === 'auto' || props.presenter === undefined ?
+      platform === 'mobile' ?
+        'mobile'
+      : 'desktop'
+    : props.presenter;
 
   // Render the appropriate presenter
   if (effectivePresenter === 'mobile') {

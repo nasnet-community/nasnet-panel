@@ -61,16 +61,22 @@ export const UnusedRulesFilter = memo(function UnusedRulesFilter({
   currentSort,
   className,
 }: UnusedRulesFilterProps) {
-  const handleFilterChange = useCallback((checked: boolean) => {
-    onFilterChange(checked);
-  }, [onFilterChange]);
+  const handleFilterChange = useCallback(
+    (checked: boolean) => {
+      onFilterChange(checked);
+    },
+    [onFilterChange]
+  );
 
-  const handleSortChange = useCallback((value: string) => {
-    onSortChange(value as SortOption);
-  }, [onSortChange]);
+  const handleSortChange = useCallback(
+    (value: string) => {
+      onSortChange(value as SortOption);
+    },
+    [onSortChange]
+  );
 
   return (
-    <Card className={cn('border border-border', className)}>
+    <Card className={cn('border-border border', className)}>
       <CardContent className="pt-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           {/* Unused Rules Filter */}
@@ -83,7 +89,7 @@ export const UnusedRulesFilter = memo(function UnusedRulesFilter({
             />
             <Label
               htmlFor="show-unused-only"
-              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+              className="cursor-pointer text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
             >
               Show only unused rules (0 packets)
             </Label>
@@ -91,10 +97,16 @@ export const UnusedRulesFilter = memo(function UnusedRulesFilter({
 
           {/* Sort Options */}
           <div className="flex items-center gap-2">
-            <Label htmlFor="sort-by" className="text-sm font-medium shrink-0">
+            <Label
+              htmlFor="sort-by"
+              className="shrink-0 text-sm font-medium"
+            >
               Sort by:
             </Label>
-            <Select value={currentSort} onValueChange={handleSortChange}>
+            <Select
+              value={currentSort}
+              onValueChange={handleSortChange}
+            >
               <SelectTrigger
                 id="sort-by"
                 className="w-[200px]"
@@ -104,12 +116,8 @@ export const UnusedRulesFilter = memo(function UnusedRulesFilter({
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="default">Default order</SelectItem>
-                <SelectItem value="packets-asc">
-                  Packet count: Low to High
-                </SelectItem>
-                <SelectItem value="packets-desc">
-                  Packet count: High to Low
-                </SelectItem>
+                <SelectItem value="packets-asc">Packet count: Low to High</SelectItem>
+                <SelectItem value="packets-desc">Packet count: High to Low</SelectItem>
               </SelectContent>
             </Select>
           </div>

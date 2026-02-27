@@ -83,20 +83,23 @@ function RuleCard({ rule, onEdit, onDuplicate, onDelete, onToggle, onShowStats }
 
   return (
     <Card
-      className={`${rule.isDisabled ? 'opacity-50 bg-slate-50 dark:bg-slate-800/50' : ''} ${isUnused ? 'bg-muted/50' : ''}`}
+      className={`${rule.isDisabled ? 'bg-slate-50 opacity-50 dark:bg-slate-800/50' : ''} ${isUnused ? 'bg-muted/50' : ''}`}
     >
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
           <div className="flex-1">
-            <CardTitle className="text-base font-semibold mb-2">
+            <CardTitle className="mb-2 text-base font-semibold">
               <span className="font-mono text-sm">
                 {rule.srcAddress || rule.srcAddressList || 'any'}
               </span>
             </CardTitle>
-            <div className="flex items-center gap-2 flex-wrap">
+            <div className="flex flex-wrap items-center gap-2">
               <ActionBadge action={rule.action} />
               {rule.action === 'add-to-list' && rule.addressList && (
-                <Badge variant="outline" className="font-mono text-xs">
+                <Badge
+                  variant="outline"
+                  className="font-mono text-xs"
+                >
                   {rule.addressList}
                 </Badge>
               )}
@@ -112,7 +115,7 @@ function RuleCard({ rule, onEdit, onDuplicate, onDelete, onToggle, onShowStats }
       </CardHeader>
       <CardContent className="space-y-3">
         {/* Rate Limit Info */}
-        <div className="flex items-center justify-between py-2 border-t border-slate-200 dark:border-slate-700">
+        <div className="flex items-center justify-between border-t border-slate-200 py-2 dark:border-slate-700">
           <span className="text-sm text-slate-600 dark:text-slate-400">Limit</span>
           <span className="text-sm font-semibold">
             {rule.connectionLimit} {timeWindowDisplay}
@@ -122,11 +125,11 @@ function RuleCard({ rule, onEdit, onDuplicate, onDelete, onToggle, onShowStats }
         {/* Triggered Count */}
         <button
           onClick={() => onShowStats(rule)}
-          className="w-full flex items-center justify-between py-2 border-t border-slate-200 dark:border-slate-700 min-h-[44px]"
+          className="flex min-h-[44px] w-full items-center justify-between border-t border-slate-200 py-2 dark:border-slate-700"
         >
           <span className="text-sm text-slate-600 dark:text-slate-400">Triggered</span>
           <div className="flex items-center gap-2">
-            <span className="text-sm font-mono">{rule.packets ?? 0}</span>
+            <span className="font-mono text-sm">{rule.packets ?? 0}</span>
             <ChevronRight className="h-4 w-4 text-slate-400" />
           </div>
         </button>
@@ -137,27 +140,27 @@ function RuleCard({ rule, onEdit, onDuplicate, onDelete, onToggle, onShowStats }
             variant="outline"
             size="sm"
             onClick={() => onEdit(rule)}
-            className="flex-1 min-h-[44px]"
+            className="min-h-[44px] flex-1"
             aria-label="Edit rule"
           >
-            <Pencil className="h-4 w-4 mr-2" />
+            <Pencil className="mr-2 h-4 w-4" />
             Edit
           </Button>
           <Button
             variant="outline"
             size="sm"
             onClick={() => onDuplicate(rule)}
-            className="flex-1 min-h-[44px]"
+            className="min-h-[44px] flex-1"
             aria-label="Duplicate rule"
           >
-            <Copy className="h-4 w-4 mr-2" />
+            <Copy className="mr-2 h-4 w-4" />
             Copy
           </Button>
           <Button
             variant="outline"
             size="sm"
             onClick={() => onDelete(rule)}
-            className="text-red-600 hover:text-red-700 dark:text-red-400 min-h-[44px]"
+            className="min-h-[44px] text-red-600 hover:text-red-700 dark:text-red-400"
             aria-label="Delete rule"
           >
             <Trash2 className="h-4 w-4" />
@@ -172,7 +175,8 @@ function RuleCard({ rule, onEdit, onDuplicate, onDelete, onToggle, onShowStats }
 // Main Mobile Presenter Component
 // ============================================================================
 
-export interface RateLimitRulesTableMobileProps extends Omit<RateLimitRulesTablePresenterProps, 'onReorder' | 'pollingInterval'> {
+export interface RateLimitRulesTableMobileProps
+  extends Omit<RateLimitRulesTablePresenterProps, 'onReorder' | 'pollingInterval'> {
   editingRule: RateLimitRule | null;
   deleteConfirmRule: RateLimitRule | null;
   statsRule: RateLimitRule | null;
@@ -226,7 +230,7 @@ export function RateLimitRulesTableMobile({
   if (error) {
     return (
       <div className={`p-4 text-red-600 dark:text-red-400 ${className || ''}`}>
-        <p className="text-sm font-semibold mb-1">Error loading rate limit rules</p>
+        <p className="mb-1 text-sm font-semibold">Error loading rate limit rules</p>
         <p className="text-xs">{error.message}</p>
       </div>
     );
@@ -236,8 +240,11 @@ export function RateLimitRulesTableMobile({
   if (!rules || rules.length === 0) {
     return (
       <div className={`p-6 text-center ${className || ''}`}>
-        <p className="text-slate-500 dark:text-slate-400 mb-4">No rate limit rules found</p>
-        <Button onClick={() => onEdit({} as RateLimitRule)} className="min-h-[44px]">
+        <p className="mb-4 text-slate-500 dark:text-slate-400">No rate limit rules found</p>
+        <Button
+          onClick={() => onEdit({} as RateLimitRule)}
+          className="min-h-[44px]"
+        >
           Add Rate Limit Rule
         </Button>
       </div>
@@ -261,21 +268,29 @@ export function RateLimitRulesTableMobile({
       </div>
 
       {/* Edit/Create Sheet */}
-      <Sheet open={!!editingRule} onOpenChange={(open) => !open && closeEdit()}>
-        <SheetContent side="bottom" className="h-[90vh] overflow-y-auto">
+      <Sheet
+        open={!!editingRule}
+        onOpenChange={(open) => !open && closeEdit()}
+      >
+        <SheetContent
+          side="bottom"
+          className="h-[90vh] overflow-y-auto"
+        >
           <SheetHeader>
             <SheetTitle>
               {editingRule?.id ? 'Edit Rate Limit Rule' : 'Add Rate Limit Rule'}
             </SheetTitle>
             <SheetDescription>
-              {editingRule?.id ? 'Modify the rate limit rule configuration' : 'Create a new rate limit rule'}
+              {editingRule?.id ?
+                'Modify the rate limit rule configuration'
+              : 'Create a new rate limit rule'}
             </SheetDescription>
           </SheetHeader>
           <div className="py-4">
             <p className="text-sm text-slate-600 dark:text-slate-400">
               RateLimitRuleEditor component will be integrated here (Task #2)
             </p>
-            <pre className="mt-4 p-4 bg-slate-100 dark:bg-slate-800 rounded text-xs overflow-auto">
+            <pre className="mt-4 overflow-auto rounded bg-slate-100 p-4 text-xs dark:bg-slate-800">
               {JSON.stringify(editingRule, null, 2)}
             </pre>
           </div>
@@ -283,7 +298,10 @@ export function RateLimitRulesTableMobile({
       </Sheet>
 
       {/* Delete Confirmation Dialog */}
-      <Dialog open={!!deleteConfirmRule} onOpenChange={(open) => !open && closeDelete()}>
+      <Dialog
+        open={!!deleteConfirmRule}
+        onOpenChange={(open) => !open && closeDelete()}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Delete Rate Limit Rule?</DialogTitle>
@@ -312,22 +330,26 @@ export function RateLimitRulesTableMobile({
 
       {/* Statistics Panel */}
       {statsRule && (
-        <Sheet open={!!statsRule} onOpenChange={(open) => !open && closeStats()}>
-          <SheetContent side="bottom" className="h-[60vh]">
+        <Sheet
+          open={!!statsRule}
+          onOpenChange={(open) => !open && closeStats()}
+        >
+          <SheetContent
+            side="bottom"
+            className="h-[60vh]"
+          >
             <SheetHeader>
               <SheetTitle>Rule Statistics</SheetTitle>
-              <SheetDescription>
-                Traffic and trigger statistics
-              </SheetDescription>
+              <SheetDescription>Traffic and trigger statistics</SheetDescription>
             </SheetHeader>
-            <div className="py-4 space-y-4">
-              <div className="flex justify-between items-center py-3 border-b border-slate-200 dark:border-slate-700">
+            <div className="space-y-4 py-4">
+              <div className="flex items-center justify-between border-b border-slate-200 py-3 dark:border-slate-700">
                 <span className="text-sm text-slate-600 dark:text-slate-400">Packets</span>
-                <span className="text-lg font-mono font-semibold">{statsRule.packets ?? 0}</span>
+                <span className="font-mono text-lg font-semibold">{statsRule.packets ?? 0}</span>
               </div>
-              <div className="flex justify-between items-center py-3 border-b border-slate-200 dark:border-slate-700">
+              <div className="flex items-center justify-between border-b border-slate-200 py-3 dark:border-slate-700">
                 <span className="text-sm text-slate-600 dark:text-slate-400">Bytes</span>
-                <span className="text-lg font-mono font-semibold">{statsRule.bytes ?? 0}</span>
+                <span className="font-mono text-lg font-semibold">{statsRule.bytes ?? 0}</span>
               </div>
             </div>
           </SheetContent>

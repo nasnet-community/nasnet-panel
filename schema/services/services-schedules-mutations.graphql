@@ -8,10 +8,14 @@ extend type Mutation {
   Validates time format, timezone, and days. Triggers immediate schedule evaluation.
   """
   createSchedule(
-    """Router ID"""
+    """
+    Router ID
+    """
     routerID: ID!
 
-    """Schedule input"""
+    """
+    Schedule input
+    """
     input: CreateScheduleInput!
   ): RoutingSchedule!
 
@@ -20,13 +24,19 @@ extend type Mutation {
   Triggers immediate schedule evaluation.
   """
   updateSchedule(
-    """Router ID"""
+    """
+    Router ID
+    """
     routerID: ID!
 
-    """Schedule ID to update"""
+    """
+    Schedule ID to update
+    """
     scheduleID: ID!
 
-    """Schedule input"""
+    """
+    Schedule input
+    """
     input: UpdateScheduleInput!
   ): RoutingSchedule!
 
@@ -35,10 +45,14 @@ extend type Mutation {
   Triggers immediate schedule evaluation to ensure routing state is correct.
   """
   deleteSchedule(
-    """Router ID"""
+    """
+    Router ID
+    """
     routerID: ID!
 
-    """Schedule ID to delete"""
+    """
+    Schedule ID to delete
+    """
     scheduleID: ID!
   ): Boolean!
 }

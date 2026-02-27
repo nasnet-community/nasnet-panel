@@ -206,12 +206,9 @@ describe('useFirewallLogs', () => {
     });
 
     it('respects enabled option', async () => {
-      const { result } = renderHook(
-        () => useFirewallLogs(ROUTER_ID, { enabled: false }),
-        {
-          wrapper: createWrapper(),
-        }
-      );
+      const { result } = renderHook(() => useFirewallLogs(ROUTER_ID, { enabled: false }), {
+        wrapper: createWrapper(),
+      });
 
       expect(result.current.status).toBe('pending');
       expect(mockMakeRouterOSRequest).not.toHaveBeenCalled();
@@ -224,12 +221,9 @@ describe('useFirewallLogs', () => {
         timestamp: Date.now(),
       });
 
-      const { result } = renderHook(
-        () => useFirewallLogs(ROUTER_ID, { pageSize: 100 }),
-        {
-          wrapper: createWrapper(),
-        }
-      );
+      const { result } = renderHook(() => useFirewallLogs(ROUTER_ID, { pageSize: 100 }), {
+        wrapper: createWrapper(),
+      });
 
       await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
@@ -276,7 +270,7 @@ describe('useFirewallLogs', () => {
       await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
       // Should only include input chain logs
-      expect(result.current.data!.every(log => log.parsed.chain === 'input')).toBe(true);
+      expect(result.current.data!.every((log) => log.parsed.chain === 'input')).toBe(true);
     });
 
     it('filters by action', async () => {
@@ -295,7 +289,7 @@ describe('useFirewallLogs', () => {
       await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
       // Should only include drop action logs
-      expect(result.current.data!.every(log => log.parsed.action === 'drop')).toBe(true);
+      expect(result.current.data!.every((log) => log.parsed.action === 'drop')).toBe(true);
     });
 
     it('filters by source IP with wildcards', async () => {
@@ -315,9 +309,9 @@ describe('useFirewallLogs', () => {
 
       // Should only include logs matching the wildcard pattern
       expect(result.current.data!.length).toBeGreaterThan(0);
-      expect(result.current.data!.every(log =>
-        log.parsed.srcIp?.startsWith('192.168.1.')
-      )).toBe(true);
+      expect(result.current.data!.every((log) => log.parsed.srcIp?.startsWith('192.168.1.'))).toBe(
+        true
+      );
     });
 
     it('filters by destination IP with wildcards', async () => {
@@ -393,9 +387,9 @@ describe('useFirewallLogs', () => {
       await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
       // Should only include logs with the prefix
-      expect(result.current.data!.every(log =>
-        log.parsed.prefix?.includes('DROPPED-WAN')
-      )).toBe(true);
+      expect(result.current.data!.every((log) => log.parsed.prefix?.includes('DROPPED-WAN'))).toBe(
+        true
+      );
     });
 
     it('applies rate limiting', async () => {
@@ -445,11 +439,14 @@ describe('useFirewallLogs', () => {
       await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
       // Should apply all filters
-      expect(result.current.data!.every(log =>
-        log.parsed.chain === 'input' &&
-        log.parsed.action === 'drop' &&
-        log.parsed.srcIp?.startsWith('192.168.')
-      )).toBe(true);
+      expect(
+        result.current.data!.every(
+          (log) =>
+            log.parsed.chain === 'input' &&
+            log.parsed.action === 'drop' &&
+            log.parsed.srcIp?.startsWith('192.168.')
+        )
+      ).toBe(true);
     });
   });
 
@@ -604,12 +601,7 @@ describe('useFirewallLogs', () => {
         filters,
       ]);
 
-      expect(firewallLogKeys.stats(ROUTER_ID)).toEqual([
-        'firewall',
-        ROUTER_ID,
-        'logs',
-        'stats',
-      ]);
+      expect(firewallLogKeys.stats(ROUTER_ID)).toEqual(['firewall', ROUTER_ID, 'logs', 'stats']);
     });
   });
 });

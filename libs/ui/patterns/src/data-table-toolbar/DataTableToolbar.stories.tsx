@@ -65,8 +65,11 @@ export const SearchOnly: Story = {
   render: (args) => (
     <DataTableToolbar {...args}>
       <div className="flex flex-1 items-center gap-2">
-        <Search className="h-4 w-4 text-muted-foreground" />
-        <Input placeholder="Search interfaces..." className="max-w-sm" />
+        <Search className="text-muted-foreground h-4 w-4" />
+        <Input
+          placeholder="Search interfaces..."
+          className="max-w-sm"
+        />
       </div>
     </DataTableToolbar>
   ),
@@ -79,8 +82,11 @@ export const SearchWithAction: Story = {
   render: (args) => (
     <DataTableToolbar {...args}>
       <div className="flex flex-1 items-center gap-2">
-        <Search className="h-4 w-4 text-muted-foreground" />
-        <Input placeholder="Search leases..." className="max-w-sm" />
+        <Search className="text-muted-foreground h-4 w-4" />
+        <Input
+          placeholder="Search leases..."
+          className="max-w-sm"
+        />
       </div>
       <Button size="sm">
         <Plus className="mr-2 h-4 w-4" />
@@ -96,26 +102,41 @@ export const SearchWithAction: Story = {
 export const FullFeatured: Story = {
   render: (args) => (
     <DataTableToolbar {...args}>
-      <div className="flex flex-1 items-center gap-2 flex-wrap">
+      <div className="flex flex-1 flex-wrap items-center gap-2">
         <div className="relative">
-          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input placeholder="Search firewall rules..." className="pl-8 max-w-xs" />
+          <Search className="text-muted-foreground absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2" />
+          <Input
+            placeholder="Search firewall rules..."
+            className="max-w-xs pl-8"
+          />
         </div>
-        <Badge variant="secondary" className="gap-1 cursor-pointer hover:bg-destructive/10">
+        <Badge
+          variant="secondary"
+          className="hover:bg-destructive/10 cursor-pointer gap-1"
+        >
           chain: input
           <X className="h-3 w-3" />
         </Badge>
-        <Badge variant="secondary" className="gap-1 cursor-pointer hover:bg-destructive/10">
+        <Badge
+          variant="secondary"
+          className="hover:bg-destructive/10 cursor-pointer gap-1"
+        >
           action: accept
           <X className="h-3 w-3" />
         </Badge>
       </div>
       <div className="flex items-center gap-2">
-        <Button variant="outline" size="sm">
+        <Button
+          variant="outline"
+          size="sm"
+        >
           <Filter className="mr-2 h-4 w-4" />
           Filter
         </Button>
-        <Button variant="outline" size="sm">
+        <Button
+          variant="outline"
+          size="sm"
+        >
           <Download className="mr-2 h-4 w-4" />
           Export
         </Button>
@@ -152,11 +173,12 @@ export const WithRefreshAndCount: Story = {
       return (
         <DataTableToolbar {...args}>
           <div className="flex flex-1 items-center gap-2">
-            <Search className="h-4 w-4 text-muted-foreground" />
-            <Input placeholder="Search..." className="max-w-sm" />
-            <span className="text-sm text-muted-foreground ml-1">
-              24 results
-            </span>
+            <Search className="text-muted-foreground h-4 w-4" />
+            <Input
+              placeholder="Search..."
+              className="max-w-sm"
+            />
+            <span className="text-muted-foreground ml-1 text-sm">24 results</span>
           </div>
           <Button
             variant="outline"
@@ -164,9 +186,7 @@ export const WithRefreshAndCount: Story = {
             onClick={handleRefresh}
             disabled={loading}
           >
-            <RefreshCw
-              className={`mr-2 h-4 w-4 ${loading ? 'animate-spin' : ''}`}
-            />
+            <RefreshCw className={`mr-2 h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
             {loading ? 'Refreshing...' : 'Refresh'}
           </Button>
         </DataTableToolbar>
@@ -190,21 +210,20 @@ export const WithRefreshAndCount: Story = {
 export const ReadOnlyFiltersView: Story = {
   render: (args) => (
     <DataTableToolbar {...args}>
-      <div className="flex items-center gap-2 flex-wrap">
-        <span className="text-sm text-muted-foreground font-medium">
-          Active filters:
-        </span>
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="text-muted-foreground text-sm font-medium">Active filters:</span>
         <Badge variant="outline">Status: Online</Badge>
         <Badge variant="outline">Type: Ethernet</Badge>
         <Badge variant="outline">IP: 192.168.x.x</Badge>
       </div>
-      <span className="text-sm text-muted-foreground">3 of 12 interfaces</span>
+      <span className="text-muted-foreground text-sm">3 of 12 interfaces</span>
     </DataTableToolbar>
   ),
   parameters: {
     docs: {
       description: {
-        story: 'Read-only toolbar displaying active filter chips and a result count — useful for view-only dashboards.',
+        story:
+          'Read-only toolbar displaying active filter chips and a result count — useful for view-only dashboards.',
       },
     },
   },
@@ -215,12 +234,21 @@ export const ReadOnlyFiltersView: Story = {
  */
 export const WithCustomClassName: Story = {
   render: (args) => (
-    <DataTableToolbar {...args} className="bg-primary/5 border-primary/20">
+    <DataTableToolbar
+      {...args}
+      className="bg-primary/5 border-primary/20"
+    >
       <div className="flex flex-1 items-center gap-2">
-        <Search className="h-4 w-4 text-primary" />
-        <Input placeholder="Search..." className="max-w-sm border-primary/30" />
+        <Search className="text-primary h-4 w-4" />
+        <Input
+          placeholder="Search..."
+          className="border-primary/30 max-w-sm"
+        />
       </div>
-      <Button size="sm" variant="outline">
+      <Button
+        size="sm"
+        variant="outline"
+      >
         <Plus className="mr-2 h-4 w-4" />
         New
       </Button>

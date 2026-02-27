@@ -1,7 +1,7 @@
 {
   "id": "guides/testing-patterns",
   "title": "Testing Patterns",
-  "description": "This guide documents the testing patterns and best practices used across libs/core in the NasNetConnect project.",
+  "description": "This guide documents the testing patterns and best practices used across libs/core in the",
   "source": "@site/../../libs/core/docs/guides/testing-patterns.md",
   "sourceDirName": "guides",
   "slug": "/guides/testing-patterns",

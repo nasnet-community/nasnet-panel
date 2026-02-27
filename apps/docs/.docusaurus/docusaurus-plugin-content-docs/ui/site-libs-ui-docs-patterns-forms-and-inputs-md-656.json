@@ -1,7 +1,7 @@
 {
   "id": "patterns-forms-and-inputs",
   "title": "Form System, Network Inputs & Steppers (Layer 2)",
-  "description": "This document covers all Layer 2 pattern components related to forms, specialized inputs, and multi-step flows. These components live in libs/ui/patterns/src/ and are exported from @nasnet/ui/patterns.",
+  "description": "This document covers all Layer 2 pattern components related to forms, specialized inputs, and",
   "source": "@site/../../libs/ui/docs/patterns-forms-and-inputs.md",
   "sourceDirName": ".",
   "slug": "/patterns-forms-and-inputs",

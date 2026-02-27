@@ -20,11 +20,11 @@ import { z } from 'zod';
  * Mangle Chain - 5 chain points in packet processing
  */
 export const MangleChainSchema = z.enum([
-  'prerouting',  // Before routing decision
-  'input',       // Packets destined for the router itself
-  'forward',     // Packets passing through the router
-  'output',      // Packets originating from the router
-  'postrouting'  // After routing decision, before packet out
+  'prerouting', // Before routing decision
+  'input', // Packets destined for the router itself
+  'forward', // Packets passing through the router
+  'output', // Packets originating from the router
+  'postrouting', // After routing decision, before packet out
 ]);
 
 export type MangleChain = z.infer<typeof MangleChainSchema>;
@@ -34,21 +34,21 @@ export type MangleChain = z.infer<typeof MangleChainSchema>;
  */
 export const MangleActionSchema = z.enum([
   // Mark actions (for QoS and routing)
-  'mark-connection',  // Mark all packets in connection
-  'mark-packet',      // Mark individual packets
-  'mark-routing',     // Mark for routing decisions
+  'mark-connection', // Mark all packets in connection
+  'mark-packet', // Mark individual packets
+  'mark-routing', // Mark for routing decisions
 
   // QoS/TTL manipulation
-  'change-ttl',       // Modify Time To Live
-  'change-dscp',      // Modify Differentiated Services Code Point
-  'change-mss',       // Modify Maximum Segment Size
+  'change-ttl', // Modify Time To Live
+  'change-dscp', // Modify Differentiated Services Code Point
+  'change-mss', // Modify Maximum Segment Size
 
   // Flow control
-  'passthrough',      // Continue processing (no terminal action)
-  'accept',           // Accept packet (terminal)
-  'drop',             // Drop packet (terminal)
-  'jump',             // Jump to another chain
-  'log',              // Log packet
+  'passthrough', // Continue processing (no terminal action)
+  'accept', // Accept packet (terminal)
+  'drop', // Drop packet (terminal)
+  'jump', // Jump to another chain
+  'log', // Log packet
 ]);
 
 export type MangleAction = z.infer<typeof MangleActionSchema>;
@@ -57,11 +57,11 @@ export type MangleAction = z.infer<typeof MangleActionSchema>;
  * Connection State for matching
  */
 export const ConnectionStateSchema = z.enum([
-  'established',  // Active connection
-  'new',          // New connection
-  'related',      // Related to existing connection
-  'invalid',      // Invalid connection
-  'untracked',    // Not tracked
+  'established', // Active connection
+  'new', // New connection
+  'related', // Related to existing connection
+  'invalid', // Invalid connection
+  'untracked', // Not tracked
 ]);
 
 export type ConnectionState = z.infer<typeof ConnectionStateSchema>;
@@ -70,8 +70,8 @@ export type ConnectionState = z.infer<typeof ConnectionStateSchema>;
  * NAT State for matching
  */
 export const ConnectionNatStateSchema = z.enum([
-  'srcnat',  // Source NAT
-  'dstnat',  // Destination NAT
+  'srcnat', // Source NAT
+  'dstnat', // Destination NAT
 ]);
 
 export type ConnectionNatState = z.infer<typeof ConnectionNatStateSchema>;
@@ -130,15 +130,15 @@ export const MangleRuleSchema = z.object({
   // ========================================
   // Matchers - Basic
   // ========================================
-  protocol: z.string().optional(),  // tcp, udp, icmp, etc.
-  srcAddress: z.string().optional(),  // IPv4/IPv6/CIDR
-  dstAddress: z.string().optional(),  // IPv4/IPv6/CIDR
-  srcPort: z.string().optional(),     // port or range (e.g., "80" or "80-443")
-  dstPort: z.string().optional(),     // port or range
-  srcAddressList: z.string().optional(),  // Reference to address list
-  dstAddressList: z.string().optional(),  // Reference to address list
-  inInterface: z.string().optional(),     // Input interface name
-  outInterface: z.string().optional(),    // Output interface name
+  protocol: z.string().optional(), // tcp, udp, icmp, etc.
+  srcAddress: z.string().optional(), // IPv4/IPv6/CIDR
+  dstAddress: z.string().optional(), // IPv4/IPv6/CIDR
+  srcPort: z.string().optional(), // port or range (e.g., "80" or "80-443")
+  dstPort: z.string().optional(), // port or range
+  srcAddressList: z.string().optional(), // Reference to address list
+  dstAddressList: z.string().optional(), // Reference to address list
+  inInterface: z.string().optional(), // Input interface name
+  outInterface: z.string().optional(), // Output interface name
   inInterfaceList: z.string().optional(), // Input interface list name
   outInterfaceList: z.string().optional(), // Output interface list name
 
@@ -151,17 +151,17 @@ export const MangleRuleSchema = z.object({
   // ========================================
   // Matchers - Marks (match existing marks)
   // ========================================
-  connectionMark: z.string().optional(),  // Match existing connection mark
-  packetMark: z.string().optional(),      // Match existing packet mark
-  routingMark: z.string().optional(),     // Match existing routing mark
+  connectionMark: z.string().optional(), // Match existing connection mark
+  packetMark: z.string().optional(), // Match existing packet mark
+  routingMark: z.string().optional(), // Match existing routing mark
 
   // ========================================
   // Matchers - Advanced
   // ========================================
-  packetSize: z.string().optional(),      // e.g., "64-1500"
-  layer7Protocol: z.string().optional(),  // Layer 7 protocol name
-  content: z.string().optional(),         // Content matching pattern
-  tcpFlags: z.string().optional(),        // TCP flags (e.g., "syn,!fin,!rst,!ack")
+  packetSize: z.string().optional(), // e.g., "64-1500"
+  layer7Protocol: z.string().optional(), // Layer 7 protocol name
+  content: z.string().optional(), // Content matching pattern
+  tcpFlags: z.string().optional(), // TCP flags (e.g., "syn,!fin,!rst,!ack")
 
   // ========================================
   // Actions - Marks (set new marks)
@@ -181,13 +181,13 @@ export const MangleRuleSchema = z.object({
   // ========================================
   // Actions - TTL/MSS
   // ========================================
-  newTtl: z.string().optional(),  // "set:X", "increment:X", "decrement:X"
-  newMss: z.number().int().optional(),  // Clamp MSS value
+  newTtl: z.string().optional(), // "set:X", "increment:X", "decrement:X"
+  newMss: z.number().int().optional(), // Clamp MSS value
 
   // ========================================
   // Actions - Jump
   // ========================================
-  jumpTarget: z.string().optional(),  // Chain name to jump to
+  jumpTarget: z.string().optional(), // Chain name to jump to
 
   // ========================================
   // Meta
@@ -265,9 +265,24 @@ export const DSCP_CLASSES: DscpClass[] = [
   { value: 20, name: 'AF22', description: 'Assured Forwarding 2-2', useCase: 'Transactional data' },
   { value: 22, name: 'AF23', description: 'Assured Forwarding 2-3', useCase: 'Transactional data' },
 
-  { value: 26, name: 'AF31', description: 'Assured Forwarding 3-1', useCase: 'Multimedia streaming' },
-  { value: 28, name: 'AF32', description: 'Assured Forwarding 3-2', useCase: 'Multimedia streaming' },
-  { value: 30, name: 'AF33', description: 'Assured Forwarding 3-3', useCase: 'Multimedia streaming' },
+  {
+    value: 26,
+    name: 'AF31',
+    description: 'Assured Forwarding 3-1',
+    useCase: 'Multimedia streaming',
+  },
+  {
+    value: 28,
+    name: 'AF32',
+    description: 'Assured Forwarding 3-2',
+    useCase: 'Multimedia streaming',
+  },
+  {
+    value: 30,
+    name: 'AF33',
+    description: 'Assured Forwarding 3-3',
+    useCase: 'Multimedia streaming',
+  },
 
   { value: 34, name: 'AF41', description: 'Assured Forwarding 4-1', useCase: 'Interactive video' },
   { value: 36, name: 'AF42', description: 'Assured Forwarding 4-2', useCase: 'Interactive video' },
@@ -281,7 +296,7 @@ export const DSCP_CLASSES: DscpClass[] = [
  * Get DSCP class by value
  */
 export function getDscpClass(value: number): DscpClass | undefined {
-  return DSCP_CLASSES.find(c => c.value === value);
+  return DSCP_CLASSES.find((c) => c.value === value);
 }
 
 /**

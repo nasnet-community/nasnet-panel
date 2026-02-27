@@ -63,13 +63,9 @@ describe('useLogCorrelation', () => {
     });
 
     it('should create individual groups for single entries below minGroupSize', () => {
-      const logs = [
-        createLogEntry('1', new Date(baseTime), 'firewall', 'info'),
-      ];
+      const logs = [createLogEntry('1', new Date(baseTime), 'firewall', 'info')];
 
-      const { result } = renderHook(() =>
-        useLogCorrelation(logs, { minGroupSize: 2 })
-      );
+      const { result } = renderHook(() => useLogCorrelation(logs, { minGroupSize: 2 }));
 
       expect(result.current.groups.length).toBe(1);
       expect(result.current.groups[0].entries.length).toBe(1);
@@ -207,10 +203,9 @@ describe('useLogCorrelation', () => {
 
     it('should update when logs change', () => {
       const logs1 = [createLogEntry('1', new Date(baseTime), 'firewall', 'info')];
-      const { result, rerender } = renderHook(
-        ({ logs }) => useLogCorrelation(logs),
-        { initialProps: { logs: logs1 } }
-      );
+      const { result, rerender } = renderHook(({ logs }) => useLogCorrelation(logs), {
+        initialProps: { logs: logs1 },
+      });
 
       expect(result.current.flatLogs).toHaveLength(1);
 

@@ -48,7 +48,7 @@ export function DeviceListItemTablet({
     <div
       id={id}
       className={cn(
-        'border border-border rounded-lg',
+        'border-border rounded-lg border',
         'overflow-hidden',
         'transition-shadow hover:shadow-md',
         className
@@ -65,7 +65,7 @@ export function DeviceListItemTablet({
           'flex items-center gap-3',
           'hover:bg-accent/30',
           'transition-colors',
-          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset'
+          'focus-visible:ring-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset'
         )}
       >
         {/* Device icon */}
@@ -77,20 +77,18 @@ export function DeviceListItemTablet({
             'bg-muted'
           )}
         >
-          <DeviceIcon className="h-6 w-6 text-muted-foreground" />
+          <DeviceIcon className="text-muted-foreground h-6 w-6" />
         </div>
 
         {/* Device info */}
-        <div className="flex-1 min-w-0">
+        <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <span className="font-medium text-base truncate">
-              {state.displayName}
-            </span>
+            <span className="truncate text-base font-medium">{state.displayName}</span>
             {state.isNew && (
               <Badge
                 variant="info"
                 className={cn(
-                  'text-xs px-1.5 py-0.5',
+                  'px-1.5 py-0.5 text-xs',
                   '@media (prefers-reduced-motion: no-preference)',
                   'animate-pulse'
                 )}
@@ -99,16 +97,19 @@ export function DeviceListItemTablet({
               </Badge>
             )}
             {state.isStatic && (
-              <Badge variant="outline" className="text-xs">
+              <Badge
+                variant="outline"
+                className="text-xs"
+              >
                 Static
               </Badge>
             )}
           </div>
-          <div className="flex items-center gap-2 mt-1">
-            <span className="text-sm text-muted-foreground">{state.ipAddress}</span>
+          <div className="mt-1 flex items-center gap-2">
+            <span className="text-muted-foreground text-sm">{state.ipAddress}</span>
             <StatusBadge status={device.status} />
           </div>
-          <div className="text-xs text-muted-foreground mt-0.5">
+          <div className="text-muted-foreground mt-0.5 text-xs">
             {state.deviceTypeLabel} · Connected {state.connectionDuration}
           </div>
         </div>
@@ -116,7 +117,7 @@ export function DeviceListItemTablet({
         {/* Expand indicator */}
         <ChevronDown
           className={cn(
-            'h-5 w-5 text-muted-foreground flex-shrink-0',
+            'text-muted-foreground h-5 w-5 flex-shrink-0',
             'transition-transform duration-200',
             state.isExpanded && 'rotate-180'
           )}
@@ -125,17 +126,15 @@ export function DeviceListItemTablet({
 
       {/* Expanded details */}
       {state.isExpanded && (
-        <div className="px-4 pb-4 pt-2 bg-muted/30 border-t border-border">
+        <div className="bg-muted/30 border-border border-t px-4 pb-4 pt-2">
           <div className="grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
             <div>
-              <div className="text-xs font-medium text-muted-foreground mb-1">
-                MAC Address
-              </div>
-              <div className="text-sm font-mono">{state.macAddress}</div>
+              <div className="text-muted-foreground mb-1 text-xs font-medium">MAC Address</div>
+              <div className="font-mono text-sm">{state.macAddress}</div>
             </div>
 
             <div>
-              <div className="text-xs font-medium text-muted-foreground mb-1">
+              <div className="text-muted-foreground mb-1 text-xs font-medium">
                 Connection Duration
               </div>
               <div className="text-sm">{state.connectionDuration}</div>
@@ -143,38 +142,28 @@ export function DeviceListItemTablet({
 
             {state.vendor && (
               <div>
-                <div className="text-xs font-medium text-muted-foreground mb-1">
-                  Vendor
-                </div>
+                <div className="text-muted-foreground mb-1 text-xs font-medium">Vendor</div>
                 <div className="text-sm">{state.vendor}</div>
               </div>
             )}
 
             <div>
-              <div className="text-xs font-medium text-muted-foreground mb-1">
-                Device Type
-              </div>
+              <div className="text-muted-foreground mb-1 text-xs font-medium">Device Type</div>
               <div className="text-sm">{state.deviceTypeLabel}</div>
             </div>
 
             <div>
-              <div className="text-xs font-medium text-muted-foreground mb-1">
-                Lease Expires
-              </div>
+              <div className="text-muted-foreground mb-1 text-xs font-medium">Lease Expires</div>
               <div className="text-sm">{state.expiration}</div>
             </div>
 
             <div>
-              <div className="text-xs font-medium text-muted-foreground mb-1">
-                DHCP Server
-              </div>
+              <div className="text-muted-foreground mb-1 text-xs font-medium">DHCP Server</div>
               <div className="text-sm">{state.server}</div>
             </div>
 
             <div>
-              <div className="text-xs font-medium text-muted-foreground mb-1">
-                Status
-              </div>
+              <div className="text-muted-foreground mb-1 text-xs font-medium">Status</div>
               <div className="text-sm">{state.statusLabel}</div>
             </div>
           </div>

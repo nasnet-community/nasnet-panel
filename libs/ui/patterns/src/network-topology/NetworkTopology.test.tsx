@@ -54,11 +54,23 @@ const mockWanInterfaces = [
 ];
 
 const mockLanNetworks = [
-  { id: 'lan-1', name: 'Main LAN', cidr: '192.168.1.0/24', gateway: '192.168.1.1', deviceCount: 10 },
+  {
+    id: 'lan-1',
+    name: 'Main LAN',
+    cidr: '192.168.1.0/24',
+    gateway: '192.168.1.1',
+    deviceCount: 10,
+  },
 ];
 
 const mockDevices = [
-  { id: 'dev-1', name: 'Desktop PC', ip: '192.168.1.10', type: 'computer' as const, status: 'online' as const },
+  {
+    id: 'dev-1',
+    name: 'Desktop PC',
+    ip: '192.168.1.10',
+    type: 'computer' as const,
+    status: 'online' as const,
+  },
 ];
 
 const defaultProps = {
@@ -229,7 +241,12 @@ describe('NetworkTopologyMobile', () => {
     });
 
     it('renders device section when devices provided', () => {
-      render(<NetworkTopologyMobile {...defaultProps} devices={mockDevices} />);
+      render(
+        <NetworkTopologyMobile
+          {...defaultProps}
+          devices={mockDevices}
+        />
+      );
 
       expect(screen.getByText('Devices')).toBeInTheDocument();
     });
@@ -246,7 +263,12 @@ describe('NetworkTopologyMobile', () => {
   describe('interactions', () => {
     it('expands sections when clicked', async () => {
       const user = userEvent.setup();
-      render(<NetworkTopologyMobile {...defaultProps} defaultExpanded={false} />);
+      render(
+        <NetworkTopologyMobile
+          {...defaultProps}
+          defaultExpanded={false}
+        />
+      );
 
       const wanButton = screen.getByRole('button', { name: /WAN Interfaces/i });
       await user.click(wanButton);
@@ -256,7 +278,12 @@ describe('NetworkTopologyMobile', () => {
 
     it('collapses sections when clicked again', async () => {
       const user = userEvent.setup();
-      render(<NetworkTopologyMobile {...defaultProps} defaultExpanded={true} />);
+      render(
+        <NetworkTopologyMobile
+          {...defaultProps}
+          defaultExpanded={true}
+        />
+      );
 
       const wanButton = screen.getByRole('button', { name: /WAN Interfaces/i });
 
@@ -302,13 +329,23 @@ describe('NetworkTopologyMobile', () => {
     });
 
     it('shows Connected badge for connected WAN', () => {
-      render(<NetworkTopologyMobile {...defaultProps} defaultExpanded={true} />);
+      render(
+        <NetworkTopologyMobile
+          {...defaultProps}
+          defaultExpanded={true}
+        />
+      );
 
       expect(screen.getByText('Connected')).toBeInTheDocument();
     });
 
     it('shows Disconnected badge for disconnected WAN', () => {
-      render(<NetworkTopologyMobile {...defaultProps} defaultExpanded={true} />);
+      render(
+        <NetworkTopologyMobile
+          {...defaultProps}
+          defaultExpanded={true}
+        />
+      );
 
       expect(screen.getByText('Disconnected')).toBeInTheDocument();
     });

@@ -21,11 +21,7 @@ import {
 } from 'lucide-react';
 import { Controller } from 'react-hook-form';
 
-import {
-  NatChainSchema,
-  NatActionSchema,
-  ProtocolSchema,
-} from '@nasnet/core/types';
+import { NatChainSchema, NatActionSchema, ProtocolSchema } from '@nasnet/core/types';
 import {
   Sheet,
   SheetContent,
@@ -33,7 +29,6 @@ import {
   SheetTitle,
   SheetDescription,
   SheetFooter,
-
   Button,
   Card,
   Input,
@@ -45,13 +40,12 @@ import {
   Switch,
   Badge,
   Separator,
-  Label} from '@nasnet/ui/primitives';
+  Label,
+} from '@nasnet/ui/primitives';
 
 import { useNATRuleBuilder } from './use-nat-rule-builder';
 import { ConfirmationDialog } from '../../confirmation-dialog';
 import { RHFFormField } from '../../rhf-form-field';
-
-
 
 import type { NATRuleBuilderProps } from './nat-rule-builder.types';
 
@@ -127,27 +121,29 @@ export const NATRuleBuilderMobile = memo(function NATRuleBuilderMobile({
 
   return (
     <>
-      <Sheet open={open} onOpenChange={onClose}>
+      <Sheet
+        open={open}
+        onOpenChange={onClose}
+      >
         <SheetContent
           side="bottom"
-          className="h-[95vh] flex flex-col p-0"
+          className="flex h-[95vh] flex-col p-0"
         >
           {/* Header */}
-          <SheetHeader className="px-4 pt-4 pb-3 border-b">
+          <SheetHeader className="border-b px-4 pb-3 pt-4">
             <div className="flex items-center gap-3">
-              <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10">
-                <Shield className="w-5 h-5 text-primary" />
+              <div className="bg-primary/10 flex h-10 w-10 items-center justify-center rounded-lg">
+                <Shield className="text-primary h-5 w-5" />
               </div>
               <div className="flex-1">
-                <SheetTitle>
-                  {mode === 'edit' ? 'Edit NAT Rule' : 'Create NAT Rule'}
-                </SheetTitle>
-                <SheetDescription>
-                  {rule.chain || 'NAT'} chain configuration
-                </SheetDescription>
+                <SheetTitle>{mode === 'edit' ? 'Edit NAT Rule' : 'Create NAT Rule'}</SheetTitle>
+                <SheetDescription>{rule.chain || 'NAT'} chain configuration</SheetDescription>
               </div>
               {rule.action && (
-                <Badge variant="secondary" className="text-xs">
+                <Badge
+                  variant="secondary"
+                  className="text-xs"
+                >
                   {rule.action.toUpperCase()}
                 </Badge>
               )}
@@ -155,12 +151,12 @@ export const NATRuleBuilderMobile = memo(function NATRuleBuilderMobile({
           </SheetHeader>
 
           {/* Form Content - Scrollable */}
-          <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
+          <div className="flex-1 space-y-4 overflow-y-auto px-4 py-4">
             {/* Chain and Action Section */}
-            <Card className="p-component-md border-t-2 border-t-category-firewall">
-              <div className="flex items-center gap-2 mb-4">
-                <Network className="w-4 h-4 text-category-firewall" />
-                <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider">
+            <Card className="p-component-md border-t-category-firewall border-t-2">
+              <div className="mb-4 flex items-center gap-2">
+                <Network className="text-category-firewall h-4 w-4" />
+                <h3 className="text-foreground text-sm font-semibold uppercase tracking-wider">
                   NAT Configuration
                 </h3>
               </div>
@@ -178,16 +174,23 @@ export const NATRuleBuilderMobile = memo(function NATRuleBuilderMobile({
                     name="chain"
                     control={control}
                     render={({ field }) => (
-                      <Select value={field.value} onValueChange={field.onChange}>
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      >
                         <SelectTrigger className="h-11">
                           <SelectValue placeholder="Select chain" />
                         </SelectTrigger>
                         <SelectContent>
                           {NatChainSchema.options.map((chain: string) => (
-                            <SelectItem key={chain} value={chain} className="min-h-[44px]">
+                            <SelectItem
+                              key={chain}
+                              value={chain}
+                              className="min-h-[44px]"
+                            >
                               <div className="flex flex-col items-start py-1">
                                 <span className="font-medium">{chain}</span>
-                                <span className="text-xs text-muted-foreground">
+                                <span className="text-muted-foreground text-xs">
                                   {chain === 'srcnat' ? 'Outgoing' : 'Incoming'}
                                 </span>
                               </div>
@@ -211,13 +214,20 @@ export const NATRuleBuilderMobile = memo(function NATRuleBuilderMobile({
                     name="action"
                     control={control}
                     render={({ field }) => (
-                      <Select value={field.value} onValueChange={field.onChange}>
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      >
                         <SelectTrigger className="h-11">
                           <SelectValue placeholder="Select action" />
                         </SelectTrigger>
                         <SelectContent>
                           {NatActionSchema.options.map((action: string) => (
-                            <SelectItem key={action} value={action} className="min-h-[44px]">
+                            <SelectItem
+                              key={action}
+                              value={action}
+                              className="min-h-[44px]"
+                            >
                               {action}
                             </SelectItem>
                           ))}
@@ -234,16 +244,16 @@ export const NATRuleBuilderMobile = memo(function NATRuleBuilderMobile({
               <button
                 type="button"
                 onClick={() => toggleSection('matchers')}
-                className="flex items-center justify-between w-full mb-4 min-h-[44px]"
+                className="mb-4 flex min-h-[44px] w-full items-center justify-between"
               >
                 <div className="flex items-center gap-2">
-                  <Settings className="w-4 h-4 text-muted-foreground" />
-                  <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider">
+                  <Settings className="text-muted-foreground h-4 w-4" />
+                  <h3 className="text-foreground text-sm font-semibold uppercase tracking-wider">
                     Traffic Matchers
                   </h3>
                 </div>
                 <ChevronDown
-                  className={`w-4 h-4 transition-transform ${
+                  className={`h-4 w-4 transition-transform ${
                     expandedSections.matchers ? 'rotate-180' : ''
                   }`}
                 />
@@ -263,7 +273,10 @@ export const NATRuleBuilderMobile = memo(function NATRuleBuilderMobile({
                         name="protocol"
                         control={control}
                         render={({ field }) => (
-                          <Select value={field.value} onValueChange={field.onChange}>
+                          <Select
+                            value={field.value}
+                            onValueChange={field.onChange}
+                          >
                             <SelectTrigger className="h-11">
                               <SelectValue placeholder="Any" />
                             </SelectTrigger>
@@ -392,16 +405,16 @@ export const NATRuleBuilderMobile = memo(function NATRuleBuilderMobile({
                 <button
                   type="button"
                   onClick={() => toggleSection('interfaces')}
-                  className="flex items-center justify-between w-full mb-4 min-h-[44px]"
+                  className="mb-4 flex min-h-[44px] w-full items-center justify-between"
                 >
                   <div className="flex items-center gap-2">
-                    <Globe className="w-4 h-4 text-muted-foreground" />
-                    <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider">
+                    <Globe className="text-muted-foreground h-4 w-4" />
+                    <h3 className="text-foreground text-sm font-semibold uppercase tracking-wider">
                       Interfaces
                     </h3>
                   </div>
                   <ChevronDown
-                    className={`w-4 h-4 transition-transform ${
+                    className={`h-4 w-4 transition-transform ${
                       expandedSections.interfaces ? 'rotate-180' : ''
                     }`}
                   />
@@ -421,12 +434,18 @@ export const NATRuleBuilderMobile = memo(function NATRuleBuilderMobile({
                           name="inInterface"
                           control={control}
                           render={({ field }) => (
-                            <Select value={field.value} onValueChange={field.onChange}>
+                            <Select
+                              value={field.value}
+                              onValueChange={field.onChange}
+                            >
                               <SelectTrigger className="h-11">
                                 <SelectValue placeholder="Any" />
                               </SelectTrigger>
                               <SelectContent>
-                                <SelectItem value="" className="min-h-[44px]">
+                                <SelectItem
+                                  value=""
+                                  className="min-h-[44px]"
+                                >
                                   Any
                                 </SelectItem>
                                 {interfaces.map((iface) => (
@@ -457,12 +476,18 @@ export const NATRuleBuilderMobile = memo(function NATRuleBuilderMobile({
                           name="outInterface"
                           control={control}
                           render={({ field }) => (
-                            <Select value={field.value} onValueChange={field.onChange}>
+                            <Select
+                              value={field.value}
+                              onValueChange={field.onChange}
+                            >
                               <SelectTrigger className="h-11">
                                 <SelectValue placeholder="Any" />
                               </SelectTrigger>
                               <SelectContent>
-                                <SelectItem value="" className="min-h-[44px]">
+                                <SelectItem
+                                  value=""
+                                  className="min-h-[44px]"
+                                >
                                   Any
                                 </SelectItem>
                                 {interfaces.map((iface) => (
@@ -493,12 +518,18 @@ export const NATRuleBuilderMobile = memo(function NATRuleBuilderMobile({
                           name="inInterfaceList"
                           control={control}
                           render={({ field }) => (
-                            <Select value={field.value} onValueChange={field.onChange}>
+                            <Select
+                              value={field.value}
+                              onValueChange={field.onChange}
+                            >
                               <SelectTrigger className="h-11">
                                 <SelectValue placeholder="None" />
                               </SelectTrigger>
                               <SelectContent>
-                                <SelectItem value="" className="min-h-[44px]">
+                                <SelectItem
+                                  value=""
+                                  className="min-h-[44px]"
+                                >
                                   None
                                 </SelectItem>
                                 {interfaceLists.map((list) => (
@@ -528,12 +559,18 @@ export const NATRuleBuilderMobile = memo(function NATRuleBuilderMobile({
                           name="outInterfaceList"
                           control={control}
                           render={({ field }) => (
-                            <Select value={field.value} onValueChange={field.onChange}>
+                            <Select
+                              value={field.value}
+                              onValueChange={field.onChange}
+                            >
                               <SelectTrigger className="h-11">
                                 <SelectValue placeholder="None" />
                               </SelectTrigger>
                               <SelectContent>
-                                <SelectItem value="" className="min-h-[44px]">
+                                <SelectItem
+                                  value=""
+                                  className="min-h-[44px]"
+                                >
                                   None
                                 </SelectItem>
                                 {interfaceLists.map((list) => (
@@ -562,16 +599,16 @@ export const NATRuleBuilderMobile = memo(function NATRuleBuilderMobile({
                 <button
                   type="button"
                   onClick={() => toggleSection('translation')}
-                  className="flex items-center justify-between w-full mb-4 min-h-[44px]"
+                  className="mb-4 flex min-h-[44px] w-full items-center justify-between"
                 >
                   <div className="flex items-center gap-2">
-                    <ArrowRight className="w-4 h-4 text-primary" />
-                    <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider">
+                    <ArrowRight className="text-primary h-4 w-4" />
+                    <h3 className="text-foreground text-sm font-semibold uppercase tracking-wider">
                       Translation
                     </h3>
                   </div>
                   <ChevronDown
-                    className={`w-4 h-4 transition-transform ${
+                    className={`h-4 w-4 transition-transform ${
                       expandedSections.translation ? 'rotate-180' : ''
                     }`}
                   />
@@ -635,16 +672,16 @@ export const NATRuleBuilderMobile = memo(function NATRuleBuilderMobile({
               <button
                 type="button"
                 onClick={() => toggleSection('options')}
-                className="flex items-center justify-between w-full mb-4 min-h-[44px]"
+                className="mb-4 flex min-h-[44px] w-full items-center justify-between"
               >
                 <div className="flex items-center gap-2">
-                  <Info className="w-4 h-4 text-muted-foreground" />
-                  <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider">
+                  <Info className="text-muted-foreground h-4 w-4" />
+                  <h3 className="text-foreground text-sm font-semibold uppercase tracking-wider">
                     Options
                   </h3>
                 </div>
                 <ChevronDown
-                  className={`w-4 h-4 transition-transform ${
+                  className={`h-4 w-4 transition-transform ${
                     expandedSections.options ? 'rotate-180' : ''
                   }`}
                 />
@@ -674,14 +711,15 @@ export const NATRuleBuilderMobile = memo(function NATRuleBuilderMobile({
                   </RHFFormField>
 
                   {/* Disabled Toggle - 44px touch target */}
-                  <div className="flex items-center justify-between min-h-[44px]">
+                  <div className="flex min-h-[44px] items-center justify-between">
                     <div className="space-y-0.5">
-                      <Label htmlFor="disabled" className="text-sm">
+                      <Label
+                        htmlFor="disabled"
+                        className="text-sm"
+                      >
                         Disabled
                       </Label>
-                      <p className="text-xs text-muted-foreground">
-                        Create in disabled state
-                      </p>
+                      <p className="text-muted-foreground text-xs">Create in disabled state</p>
                     </div>
                     <Controller
                       name="disabled"
@@ -698,14 +736,15 @@ export const NATRuleBuilderMobile = memo(function NATRuleBuilderMobile({
 
                   {/* Log Toggle - 44px touch target */}
                   {isFieldVisible('log') && (
-                    <div className="flex items-center justify-between min-h-[44px]">
+                    <div className="flex min-h-[44px] items-center justify-between">
                       <div className="space-y-0.5">
-                        <Label htmlFor="log" className="text-sm">
+                        <Label
+                          htmlFor="log"
+                          className="text-sm"
+                        >
                           Log Packets
                         </Label>
-                        <p className="text-xs text-muted-foreground">
-                          Log matching packets
-                        </p>
+                        <p className="text-muted-foreground text-xs">Log matching packets</p>
                       </div>
                       <Controller
                         name="log"
@@ -752,16 +791,16 @@ export const NATRuleBuilderMobile = memo(function NATRuleBuilderMobile({
               <button
                 type="button"
                 onClick={() => toggleSection('preview')}
-                className="flex items-center justify-between w-full mb-4 min-h-[44px]"
+                className="mb-4 flex min-h-[44px] w-full items-center justify-between"
               >
                 <div className="flex items-center gap-2">
-                  <Info className="w-4 h-4 text-muted-foreground" />
-                  <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider">
+                  <Info className="text-muted-foreground h-4 w-4" />
+                  <h3 className="text-foreground text-sm font-semibold uppercase tracking-wider">
                     Preview
                   </h3>
                 </div>
                 <ChevronDown
-                  className={`w-4 h-4 transition-transform ${
+                  className={`h-4 w-4 transition-transform ${
                     expandedSections.preview ? 'rotate-180' : ''
                   }`}
                 />
@@ -770,13 +809,13 @@ export const NATRuleBuilderMobile = memo(function NATRuleBuilderMobile({
               {expandedSections.preview && (
                 <div className="space-y-3">
                   <div>
-                    <p className="text-xs text-muted-foreground mb-1">Description:</p>
+                    <p className="text-muted-foreground mb-1 text-xs">Description:</p>
                     <p className="text-sm font-medium">{description}</p>
                   </div>
                   <Separator />
                   <div>
-                    <p className="text-xs text-muted-foreground mb-1">CLI:</p>
-                    <code className="block text-xs bg-background p-2 rounded border overflow-x-auto">
+                    <p className="text-muted-foreground mb-1 text-xs">CLI:</p>
+                    <code className="bg-background block overflow-x-auto rounded border p-2 text-xs">
                       {preview}
                     </code>
                   </div>
@@ -789,8 +828,8 @@ export const NATRuleBuilderMobile = memo(function NATRuleBuilderMobile({
           </div>
 
           {/* Footer - Sticky */}
-          <SheetFooter className="sticky bottom-0 bg-background border-t px-4 py-3">
-            <div className="flex flex-col gap-2 w-full">
+          <SheetFooter className="bg-background sticky bottom-0 border-t px-4 py-3">
+            <div className="flex w-full flex-col gap-2">
               {mode === 'edit' && onDelete && (
                 <Button
                   type="button"
@@ -798,9 +837,9 @@ export const NATRuleBuilderMobile = memo(function NATRuleBuilderMobile({
                   size="lg"
                   onClick={handleDelete}
                   disabled={isDeleting || isSaving}
-                  className="w-full min-h-[44px]"
+                  className="min-h-[44px] w-full"
                 >
-                  <Trash2 className="w-4 h-4 mr-2" />
+                  <Trash2 className="mr-2 h-4 w-4" />
                   Delete Rule
                 </Button>
               )}
@@ -812,7 +851,7 @@ export const NATRuleBuilderMobile = memo(function NATRuleBuilderMobile({
                   size="lg"
                   onClick={onClose}
                   disabled={isSaving || isDeleting}
-                  className="flex-1 min-h-[44px]"
+                  className="min-h-[44px] flex-1"
                 >
                   Cancel
                 </Button>
@@ -821,9 +860,13 @@ export const NATRuleBuilderMobile = memo(function NATRuleBuilderMobile({
                   size="lg"
                   onClick={builder.onSubmit}
                   disabled={!formState.isValid || isSaving || isDeleting}
-                  className="flex-1 min-h-[44px]"
+                  className="min-h-[44px] flex-1"
                 >
-                  {isSaving ? 'Saving...' : mode === 'edit' ? 'Save' : 'Create'}
+                  {isSaving ?
+                    'Saving...'
+                  : mode === 'edit' ?
+                    'Save'
+                  : 'Create'}
                 </Button>
               </div>
             </div>

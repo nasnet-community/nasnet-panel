@@ -9,12 +9,7 @@
 import { useState } from 'react';
 
 import { FirewallRuleList, type FirewallRule } from '../domain';
-import {
-  SortableList,
-  SortableListDesktop,
-  SortableListMobile,
-  useSortableList,
-} from '../index';
+import { SortableList, SortableListDesktop, SortableListMobile, useSortableList } from '../index';
 
 import type { SortableItemData, SortableItemRenderOptions } from '../types';
 import type { Meta, StoryObj } from '@storybook/react';
@@ -170,10 +165,10 @@ export const Basic: Story = {
           items={items}
           onReorder={(event) => setItems(event.items)}
           renderItem={(item: SimpleItem) => (
-            <div className="p-3 bg-card border border-border rounded-lg">
+            <div className="bg-card border-border rounded-lg border p-3">
               <div className="font-medium">{item.label}</div>
               {item.description && (
-                <div className="text-sm text-muted-foreground">{item.description}</div>
+                <div className="text-muted-foreground text-sm">{item.description}</div>
               )}
             </div>
           )}
@@ -198,7 +193,7 @@ export const WithPositionNumbers: Story = {
           onReorder={(event) => setItems(event.items)}
           showPositionNumbers={true}
           renderItem={(item: SimpleItem) => (
-            <div className="p-3 bg-card border border-border rounded-lg">
+            <div className="bg-card border-border rounded-lg border p-3">
               <div className="font-medium">{item.label}</div>
             </div>
           )}
@@ -218,7 +213,7 @@ export const Desktop: Story = {
 
     return (
       <div className="max-w-lg">
-        <p className="text-sm text-muted-foreground mb-4">
+        <p className="text-muted-foreground mb-4 text-sm">
           Right-click on an item to see the context menu with move options.
         </p>
         <SortableListDesktop<SimpleItem>
@@ -240,7 +235,7 @@ export const Desktop: Story = {
             <div className="py-1">
               <div className="font-medium">{item.label}</div>
               {item.description && (
-                <div className="text-xs text-muted-foreground">{item.description}</div>
+                <div className="text-muted-foreground text-xs">{item.description}</div>
               )}
             </div>
           )}
@@ -273,7 +268,7 @@ export const Mobile: Story = {
 
     return (
       <div className="max-w-sm">
-        <p className="text-sm text-muted-foreground mb-4">
+        <p className="text-muted-foreground mb-4 text-sm">
           Long-press to drag, or use the up/down buttons.
         </p>
         <SortableListMobile<SimpleItem>
@@ -285,7 +280,7 @@ export const Mobile: Story = {
             <div>
               <div className="font-medium">{item.label}</div>
               {item.description && (
-                <div className="text-xs text-muted-foreground">{item.description}</div>
+                <div className="text-muted-foreground text-xs">{item.description}</div>
               )}
             </div>
           )}
@@ -297,8 +292,8 @@ export const Mobile: Story = {
   globals: {
     viewport: {
       value: 'mobile1',
-      isRotated: false
-    }
+      isRotated: false,
+    },
   },
 };
 
@@ -311,9 +306,9 @@ export const MultiSelect: Story = {
 
     return (
       <div className="max-w-md">
-        <p className="text-sm text-muted-foreground mb-4">
-          Use Shift+click for range selection, Ctrl/Cmd+click for toggle.
-          Drag any selected item to move all selected items together.
+        <p className="text-muted-foreground mb-4 text-sm">
+          Use Shift+click for range selection, Ctrl/Cmd+click for toggle. Drag any selected item to
+          move all selected items together.
         </p>
         <SortableList<SimpleItem>
           items={items}
@@ -321,7 +316,7 @@ export const MultiSelect: Story = {
           multiSelect={true}
           renderItem={(item: SimpleItem, options: SortableItemRenderOptions) => (
             <div
-              className={`p-3 bg-card border rounded-lg transition-colors ${
+              className={`bg-card rounded-lg border p-3 transition-colors ${
                 options.isSelected ? 'border-primary bg-primary/5' : 'border-border'
               }`}
             >
@@ -344,7 +339,7 @@ export const FirewallRules: Story = {
 
     return (
       <div className="max-w-2xl">
-        <h3 className="text-lg font-semibold mb-4">Firewall Filter Rules</h3>
+        <h3 className="mb-4 text-lg font-semibold">Firewall Filter Rules</h3>
         <FirewallRuleList
           rules={rules}
           onReorder={(event) => setRules(event.items)}
@@ -376,11 +371,9 @@ export const EmptyState: Story = {
         onReorder={() => {}}
         renderItem={() => null}
         emptyState={
-          <div className="text-center py-8">
+          <div className="py-8 text-center">
             <p className="text-muted-foreground">No items yet</p>
-            <p className="text-sm text-muted-foreground mt-1">
-              Add some items to get started
-            </p>
+            <p className="text-muted-foreground mt-1 text-sm">Add some items to get started</p>
           </div>
         }
         aria-label="Empty sortable list"
@@ -401,7 +394,7 @@ export const Playground: Story = {
 
     return (
       <div className="max-w-lg">
-        <div className="flex flex-wrap gap-4 mb-6 p-4 bg-muted/50 rounded-lg">
+        <div className="bg-muted/50 mb-6 flex flex-wrap gap-4 rounded-lg p-4">
           <label className="flex items-center gap-2 text-sm">
             <input
               type="checkbox"
@@ -438,19 +431,18 @@ export const Playground: Story = {
           showDragHandle={showHandles}
           multiSelect={multiSelect}
           renderItem={(item: SimpleItem) => (
-            <div className="p-3 bg-card border border-border rounded-lg">
+            <div className="bg-card border-border rounded-lg border p-3">
               <div className="font-medium">{item.label}</div>
               {item.description && (
-                <div className="text-sm text-muted-foreground">{item.description}</div>
+                <div className="text-muted-foreground text-sm">{item.description}</div>
               )}
             </div>
           )}
           aria-label="Playground sortable list"
         />
 
-        <div className="mt-4 p-3 bg-muted/30 rounded text-xs text-muted-foreground">
-          <strong>Current order:</strong>{' '}
-          {items.map((i) => i.label).join(', ')}
+        <div className="bg-muted/30 text-muted-foreground mt-4 rounded p-3 text-xs">
+          <strong>Current order:</strong> {items.map((i) => i.label).join(', ')}
         </div>
       </div>
     );
@@ -470,18 +462,18 @@ export const WithUndoRedo: Story = {
 
     return (
       <div className="max-w-md">
-        <div className="flex gap-2 mb-4">
+        <div className="mb-4 flex gap-2">
           <button
             onClick={() => sortable.undo()}
             disabled={!sortable.canUndo}
-            className="px-3 py-1.5 text-sm bg-muted rounded disabled:opacity-50"
+            className="bg-muted rounded px-3 py-1.5 text-sm disabled:opacity-50"
           >
             Undo (Cmd+Z)
           </button>
           <button
             onClick={() => sortable.redo()}
             disabled={!sortable.canRedo}
-            className="px-3 py-1.5 text-sm bg-muted rounded disabled:opacity-50"
+            className="bg-muted rounded px-3 py-1.5 text-sm disabled:opacity-50"
           >
             Redo (Cmd+Shift+Z)
           </button>
@@ -491,7 +483,7 @@ export const WithUndoRedo: Story = {
           items={sortable.items}
           onReorder={(event) => setItems(event.items)}
           renderItem={(item: SimpleItem) => (
-            <div className="p-3 bg-card border border-border rounded-lg">
+            <div className="bg-card border-border rounded-lg border p-3">
               <div className="font-medium">{item.label}</div>
             </div>
           )}

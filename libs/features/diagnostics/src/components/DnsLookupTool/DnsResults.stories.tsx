@@ -59,9 +59,7 @@ export const ARecord: Story = {
       hostname: 'google.com',
       recordType: 'A',
       queryTime: 42,
-      records: [
-        { name: 'google.com', type: 'A', ttl: 300, data: '142.250.185.46' },
-      ],
+      records: [{ name: 'google.com', type: 'A', ttl: 300, data: '142.250.185.46' }],
     }),
   },
 };
@@ -89,7 +87,8 @@ export const MultipleARecords: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Four A records for a load-balanced domain. Record count in the footer updates accordingly.',
+        story:
+          'Four A records for a load-balanced domain. Record count in the footer updates accordingly.',
       },
     },
   },
@@ -109,11 +108,41 @@ export const MXRecords: Story = {
       queryTime: 125,
       records: [
         // Intentionally out of priority order to verify sorting
-        { name: 'gmail.com', type: 'MX', ttl: 3600, data: 'alt2.gmail-smtp-in.l.google.com', priority: 20 },
-        { name: 'gmail.com', type: 'MX', ttl: 3600, data: 'gmail-smtp-in.l.google.com', priority: 5 },
-        { name: 'gmail.com', type: 'MX', ttl: 3600, data: 'alt1.gmail-smtp-in.l.google.com', priority: 10 },
-        { name: 'gmail.com', type: 'MX', ttl: 3600, data: 'alt3.gmail-smtp-in.l.google.com', priority: 30 },
-        { name: 'gmail.com', type: 'MX', ttl: 3600, data: 'alt4.gmail-smtp-in.l.google.com', priority: 40 },
+        {
+          name: 'gmail.com',
+          type: 'MX',
+          ttl: 3600,
+          data: 'alt2.gmail-smtp-in.l.google.com',
+          priority: 20,
+        },
+        {
+          name: 'gmail.com',
+          type: 'MX',
+          ttl: 3600,
+          data: 'gmail-smtp-in.l.google.com',
+          priority: 5,
+        },
+        {
+          name: 'gmail.com',
+          type: 'MX',
+          ttl: 3600,
+          data: 'alt1.gmail-smtp-in.l.google.com',
+          priority: 10,
+        },
+        {
+          name: 'gmail.com',
+          type: 'MX',
+          ttl: 3600,
+          data: 'alt3.gmail-smtp-in.l.google.com',
+          priority: 30,
+        },
+        {
+          name: 'gmail.com',
+          type: 'MX',
+          ttl: 3600,
+          data: 'alt4.gmail-smtp-in.l.google.com',
+          priority: 40,
+        },
       ],
     }),
   },
@@ -170,9 +199,7 @@ export const AuthoritativeResponse: Story = {
       queryTime: 12,
       authoritative: true,
       server: '192.168.1.1',
-      records: [
-        { name: 'ns1.example.com', type: 'A', ttl: 86400, data: '203.0.113.10' },
-      ],
+      records: [{ name: 'ns1.example.com', type: 'A', ttl: 86400, data: '203.0.113.10' }],
     }),
   },
   parameters: {
@@ -198,9 +225,7 @@ export const SlowQueryTime: Story = {
       recordType: 'A',
       queryTime: 350,
       server: '192.168.50.1',
-      records: [
-        { name: 'example.com', type: 'A', ttl: 300, data: '93.184.216.34' },
-      ],
+      records: [{ name: 'example.com', type: 'A', ttl: 300, data: '93.184.216.34' }],
     }),
   },
   parameters: {

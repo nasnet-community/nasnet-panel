@@ -1,9 +1,6 @@
 import { useQuery, useSubscription } from '@apollo/client';
 import { useEffect, useState } from 'react';
-import {
-  GET_BOOT_SEQUENCE_PROGRESS,
-  SUBSCRIBE_BOOT_SEQUENCE_EVENTS,
-} from './services.graphql';
+import { GET_BOOT_SEQUENCE_PROGRESS, SUBSCRIBE_BOOT_SEQUENCE_EVENTS } from './services.graphql';
 
 /**
  * Boot sequence progress state
@@ -75,13 +72,10 @@ export function useBootSequenceProgress() {
   const [latestEvent, setLatestEvent] = useState<BootSequenceEvent | null>(null);
 
   // Query for current progress state
-  const { data, loading, error, refetch } = useQuery(
-    GET_BOOT_SEQUENCE_PROGRESS,
-    {
-      fetchPolicy: 'cache-and-network',
-      pollInterval: 0, // Rely on subscription for updates
-    }
-  );
+  const { data, loading, error, refetch } = useQuery(GET_BOOT_SEQUENCE_PROGRESS, {
+    fetchPolicy: 'cache-and-network',
+    pollInterval: 0, // Rely on subscription for updates
+  });
 
   // Subscribe to real-time boot sequence events
   const {

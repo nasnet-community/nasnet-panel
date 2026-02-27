@@ -7,12 +7,7 @@
  */
 
 import { useMemo, useState } from 'react';
-import {
-  Button,
-  Card,
-  CardContent,
-  Badge,
-} from '@nasnet/ui/primitives';
+import { Button, Card, CardContent, Badge } from '@nasnet/ui/primitives';
 import { EmptyState, ConfirmationDialog } from '@nasnet/ui/patterns';
 import { Edit2, Trash2, Plus, FileText, Globe } from 'lucide-react';
 import { formatTTL } from '../../utils';
@@ -32,9 +27,7 @@ export function DnsStaticEntriesListMobile({
   onAdd,
   isLoading = false,
 }: DnsStaticEntriesListProps) {
-  const [entryToDelete, setEntryToDelete] = useState<DNSStaticEntry | null>(
-    null
-  );
+  const [entryToDelete, setEntryToDelete] = useState<DNSStaticEntry | null>(null);
 
   // Sort entries alphabetically by hostname
   const sortedEntries = useMemo(() => {
@@ -72,41 +65,43 @@ export function DnsStaticEntriesListMobile({
         {/* Entries List */}
         <div className="space-y-component-sm">
           {sortedEntries.map((entry) => (
-            <Card key={entry['.id']} className="overflow-hidden bg-card">
+            <Card
+              key={entry['.id']}
+              className="bg-card overflow-hidden"
+            >
               <CardContent className="p-component-sm">
                 <div className="space-y-component-sm">
                   {/* Hostname */}
-                  <div className="flex items-start gap-component-sm">
-                    <Globe className="h-5 w-5 flex-shrink-0 text-primary mt-0.5" />
-                    <div className="flex-1 min-w-0">
-                      <div className="font-medium truncate">{entry.name}</div>
-                      <div className="font-mono text-sm text-muted-foreground">
-                        {entry.address}
-                      </div>
+                  <div className="gap-component-sm flex items-start">
+                    <Globe className="text-primary mt-0.5 h-5 w-5 flex-shrink-0" />
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate font-medium">{entry.name}</div>
+                      <div className="text-muted-foreground font-mono text-sm">{entry.address}</div>
                     </div>
                   </div>
 
                   {/* TTL and Comment */}
-                  <div className="flex items-center gap-component-sm text-xs text-muted-foreground">
-                    <Badge variant="secondary" className="text-xs">
+                  <div className="gap-component-sm text-muted-foreground flex items-center text-xs">
+                    <Badge
+                      variant="secondary"
+                      className="text-xs"
+                    >
                       TTL: {formatTTL(parseInt(entry.ttl))}
                     </Badge>
-                    {entry.comment && (
-                      <span className="truncate flex-1">{entry.comment}</span>
-                    )}
+                    {entry.comment && <span className="flex-1 truncate">{entry.comment}</span>}
                   </div>
 
                   {/* Actions */}
-                  <div className="flex gap-component-sm pt-1">
+                  <div className="gap-component-sm flex pt-1">
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={() => onEdit(entry)}
                       disabled={isLoading}
-                      className="flex-1 h-11"
+                      className="h-11 flex-1"
                       aria-label={`Edit DNS entry ${entry.name}`}
                     >
-                      <Edit2 className="h-4 w-4 mr-2" />
+                      <Edit2 className="mr-2 h-4 w-4" />
                       Edit
                     </Button>
                     <Button
@@ -114,10 +109,10 @@ export function DnsStaticEntriesListMobile({
                       size="sm"
                       onClick={() => setEntryToDelete(entry)}
                       disabled={isLoading}
-                      className="flex-1 h-11"
+                      className="h-11 flex-1"
                       aria-label={`Delete DNS entry ${entry.name}`}
                     >
-                      <Trash2 className="h-4 w-4 mr-2" />
+                      <Trash2 className="mr-2 h-4 w-4" />
                       Delete
                     </Button>
                   </div>
@@ -131,9 +126,9 @@ export function DnsStaticEntriesListMobile({
         <Button
           onClick={onAdd}
           variant="outline"
-          className="w-full h-11" // 44px touch target
+          className="h-11 w-full" // 44px touch target
         >
-          <Plus className="h-5 w-5 mr-2" />
+          <Plus className="mr-2 h-5 w-5" />
           Add Static Entry
         </Button>
       </div>
@@ -144,9 +139,9 @@ export function DnsStaticEntriesListMobile({
         onOpenChange={(open) => !open && setEntryToDelete(null)}
         title="Delete Entry"
         description={
-          entryToDelete
-            ? `Delete "${entryToDelete.name}"? This hostname will no longer resolve.`
-            : ''
+          entryToDelete ?
+            `Delete "${entryToDelete.name}"? This hostname will no longer resolve.`
+          : ''
         }
         confirmLabel="Delete"
         cancelLabel="Cancel"

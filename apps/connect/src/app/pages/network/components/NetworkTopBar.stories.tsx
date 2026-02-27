@@ -7,7 +7,6 @@
  * Prop-driven — no stores or routing required.
  */
 
-
 import type { SystemInfo } from '@nasnet/core/types';
 
 import { NetworkTopBar } from './NetworkTopBar';
@@ -29,7 +28,7 @@ const fullRouterInfo: SystemInfo = {
 const minimalRouterInfo: SystemInfo = {
   identity: 'Router-01',
   model: 'hEX S',
-  routerOsVersion: '',      // version intentionally blank
+  routerOsVersion: '', // version intentionally blank
   cpuArchitecture: 'mipsbe',
 };
 
@@ -110,8 +109,7 @@ export const Warning: Story = {
   parameters: {
     docs: {
       description: {
-        story:
-          'Partial connectivity or degraded service. Amber dot + "Degraded" label.',
+        story: 'Partial connectivity or degraded service. Amber dot + "Degraded" label.',
       },
     },
   },

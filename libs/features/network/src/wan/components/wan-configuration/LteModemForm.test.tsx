@@ -32,7 +32,10 @@ vi.mock('@nasnet/ui/primitives', () => ({
   Input: (props: any) => <input {...props} />,
   Button: ({ children, ...props }: any) => <button {...props}>{children}</button>,
   Select: ({ children, value, onValueChange }: any) => (
-    <select value={value} onChange={(e) => onValueChange(e.target.value)}>
+    <select
+      value={value}
+      onChange={(e) => onValueChange(e.target.value)}
+    >
       {children}
     </select>
   ),
@@ -78,7 +81,13 @@ describe('LteModemForm', () => {
     });
 
     it('should render signal strength indicator when signal data provided', () => {
-      render(<LteModemForm {...defaultProps} signalStrength={-75} signalQuality={85} />);
+      render(
+        <LteModemForm
+          {...defaultProps}
+          signalStrength={-75}
+          signalQuality={85}
+        />
+      );
 
       expect(screen.getByText(/Signal Status/i)).toBeInTheDocument();
       expect(screen.getByText(/-75 dBm/i)).toBeInTheDocument();
@@ -161,7 +170,12 @@ describe('LteModemForm', () => {
     });
 
     it('should show password visibility toggle', () => {
-      render(<LteModemForm {...defaultProps} initialData={{ authProtocol: 'pap' }} />);
+      render(
+        <LteModemForm
+          {...defaultProps}
+          initialData={{ authProtocol: 'pap' }}
+        />
+      );
 
       const passwordToggles = screen.getAllByRole('button', { name: '' });
       expect(passwordToggles.length).toBeGreaterThan(0);
@@ -270,37 +284,67 @@ describe('LteModemForm', () => {
 
   describe('Signal Strength Display', () => {
     it('should show "Excellent" for strong signal (-70 dBm)', () => {
-      render(<LteModemForm {...defaultProps} signalStrength={-70} />);
+      render(
+        <LteModemForm
+          {...defaultProps}
+          signalStrength={-70}
+        />
+      );
 
       expect(screen.getByText(/Excellent/i)).toBeInTheDocument();
     });
 
     it('should show "Good" for good signal (-80 dBm)', () => {
-      render(<LteModemForm {...defaultProps} signalStrength={-80} />);
+      render(
+        <LteModemForm
+          {...defaultProps}
+          signalStrength={-80}
+        />
+      );
 
       expect(screen.getByText(/Good/i)).toBeInTheDocument();
     });
 
     it('should show "Fair" for fair signal (-90 dBm)', () => {
-      render(<LteModemForm {...defaultProps} signalStrength={-90} />);
+      render(
+        <LteModemForm
+          {...defaultProps}
+          signalStrength={-90}
+        />
+      );
 
       expect(screen.getByText(/Fair/i)).toBeInTheDocument();
     });
 
     it('should show "Poor" for poor signal (-110 dBm)', () => {
-      render(<LteModemForm {...defaultProps} signalStrength={-110} />);
+      render(
+        <LteModemForm
+          {...defaultProps}
+          signalStrength={-110}
+        />
+      );
 
       expect(screen.getByText(/Poor/i)).toBeInTheDocument();
     });
 
     it('should show "No Signal" for very weak signal (-125 dBm)', () => {
-      render(<LteModemForm {...defaultProps} signalStrength={-125} />);
+      render(
+        <LteModemForm
+          {...defaultProps}
+          signalStrength={-125}
+        />
+      );
 
       expect(screen.getByText(/No Signal/i)).toBeInTheDocument();
     });
 
     it('should render signal strength bars', () => {
-      const { container } = render(<LteModemForm {...defaultProps} signalStrength={-80} />);
+      const { container } = render(
+        <LteModemForm
+          {...defaultProps}
+          signalStrength={-80}
+        />
+      );
 
       // Should have 5 signal bars
       const signalBars = container.querySelectorAll('[class*="rounded-sm"]');
@@ -317,7 +361,12 @@ describe('LteModemForm', () => {
         enabled: false,
       };
 
-      render(<LteModemForm {...defaultProps} initialData={initialData} />);
+      render(
+        <LteModemForm
+          {...defaultProps}
+          initialData={initialData}
+        />
+      );
 
       const interfaceInput = screen.getByPlaceholderText('lte1') as HTMLInputElement;
       expect(interfaceInput.value).toBe('lte1');

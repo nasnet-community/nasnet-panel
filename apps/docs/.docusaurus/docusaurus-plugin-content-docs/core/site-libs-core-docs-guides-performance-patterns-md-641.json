@@ -1,7 +1,7 @@
 {
   "id": "guides/performance-patterns",
   "title": "Performance Patterns",
-  "description": "Reference: libs/core/utils/src/hooks/ | libs/core/forms/src/ | Performance Optimization Patterns",
+  "description": "Reference: libs/core/utils/src/hooks/ | libs/core/forms/src/ | Performance Optimization",
   "source": "@site/../../libs/core/docs/guides/performance-patterns.md",
   "sourceDirName": "guides",
   "slug": "/guides/performance-patterns",

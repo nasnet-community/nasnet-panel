@@ -1,7 +1,7 @@
 {
   "id": "translator-layer",
   "title": "Translator Layer",
-  "description": "Bidirectional translation between GraphQL field names and RouterOS property names, with type conversion, SSH response parsing, and protocol-specific command formatting.",
+  "description": "Bidirectional translation between GraphQL field names and RouterOS property names, with type",
   "source": "@site/../backend/docs/translator-layer.md",
   "sourceDirName": ".",
   "slug": "/translator-layer",

@@ -2,14 +2,14 @@
  * VLAN pool status for a router
  */
 export interface VLANPoolStatus {
-    routerID: string;
-    totalVLANs: number;
-    allocatedVLANs: number;
-    availableVLANs: number;
-    utilization: number;
-    shouldWarn: boolean;
-    poolStart: number;
-    poolEnd: number;
+  routerID: string;
+  totalVLANs: number;
+  allocatedVLANs: number;
+  availableVLANs: number;
+  utilization: number;
+  shouldWarn: boolean;
+  poolStart: number;
+  poolEnd: number;
 }
 /**
  * Hook to fetch VLAN pool status with automatic polling
@@ -37,10 +37,15 @@ export interface VLANPoolStatus {
  * const { poolStatus } = useVLANPoolStatus('router-123', 0);
  * ```
  */
-export declare function useVLANPoolStatus(routerID: string, pollInterval?: number): {
-    poolStatus: VLANPoolStatus | undefined;
-    loading: boolean;
-    error: import("@apollo/client").ApolloError | undefined;
-    refetch: (variables?: Partial<import("@apollo/client").OperationVariables> | undefined) => Promise<import("@apollo/client").ApolloQueryResult<any>>;
+export declare function useVLANPoolStatus(
+  routerID: string,
+  pollInterval?: number
+): {
+  poolStatus: VLANPoolStatus | undefined;
+  loading: boolean;
+  error: import('@apollo/client').ApolloError | undefined;
+  refetch: (
+    variables?: Partial<import('@apollo/client').OperationVariables> | undefined
+  ) => Promise<import('@apollo/client').ApolloQueryResult<any>>;
 };
 //# sourceMappingURL=useVLANPoolStatus.d.ts.map

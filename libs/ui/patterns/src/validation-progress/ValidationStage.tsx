@@ -29,11 +29,7 @@ import {
 
 import { cn } from '@nasnet/ui/primitives';
 
-import type {
-  ValidationStageName,
-  ValidationStageResult,
-  StageMeta,
-} from './types';
+import type { ValidationStageName, ValidationStageResult, StageMeta } from './types';
 
 /**
  * Stage metadata mapping.
@@ -167,11 +163,11 @@ export const ValidationStage = React.memo(function ValidationStage({
       {showConnector && (
         <div
           className={cn(
-            'absolute left-4 top-12 w-0.5 h-4 bg-border ml-4',
-            result.status === 'passed' ? 'bg-success/30' :
-            result.status === 'failed' ? 'bg-error/30' :
-            result.status === 'running' ? 'bg-primary/30' :
-            'bg-border'
+            'bg-border absolute left-4 top-12 ml-4 h-4 w-0.5',
+            result.status === 'passed' ? 'bg-success/30'
+            : result.status === 'failed' ? 'bg-error/30'
+            : result.status === 'running' ? 'bg-primary/30'
+            : 'bg-border'
           )}
         />
       )}
@@ -182,8 +178,8 @@ export const ValidationStage = React.memo(function ValidationStage({
         onClick={onToggle}
         disabled={!hasDetails}
         className={cn(
-          'w-full flex items-center gap-3 p-3 rounded-lg transition-colors',
-          'hover:bg-accent/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+          'flex w-full items-center gap-3 rounded-lg p-3 transition-colors',
+          'hover:bg-accent/50 focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-2',
           hasDetails && 'cursor-pointer',
           !hasDetails && 'cursor-default'
         )}
@@ -192,7 +188,7 @@ export const ValidationStage = React.memo(function ValidationStage({
         {/* Status icon - per spec: h-8 w-8 rounded-full */}
         <div
           className={cn(
-            'flex-shrink-0 h-8 w-8 rounded-full flex items-center justify-center',
+            'flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full',
             config.bgClass
           )}
         >
@@ -200,30 +196,28 @@ export const ValidationStage = React.memo(function ValidationStage({
         </div>
 
         {/* Stage info */}
-        <div className="flex-1 min-w-0 text-left">
+        <div className="min-w-0 flex-1 text-left">
           <div className="flex items-center gap-2">
-            <span className="font-medium text-sm text-foreground">{meta.label}</span>
-            {result.durationMs !== undefined && result.status !== 'pending' && result.status !== 'running' && (
-              <span className="text-xs text-muted-foreground">
-                {result.durationMs}ms
-              </span>
-            )}
+            <span className="text-foreground text-sm font-medium">{meta.label}</span>
+            {result.durationMs !== undefined &&
+              result.status !== 'pending' &&
+              result.status !== 'running' && (
+                <span className="text-muted-foreground text-xs">{result.durationMs}ms</span>
+              )}
           </div>
-          <p className="text-xs text-muted-foreground mt-0.5 truncate">
-            {meta.description}
-          </p>
+          <p className="text-muted-foreground mt-0.5 truncate text-xs">{meta.description}</p>
 
           {/* Error/warning counts */}
           {hasDetails && (
-            <div className="flex items-center gap-3 mt-1.5">
+            <div className="mt-1.5 flex items-center gap-3">
               {result.errors.length > 0 && (
-                <span className="flex items-center gap-1 text-xs text-error">
+                <span className="text-error flex items-center gap-1 text-xs">
                   <XCircle className="h-3 w-3" />
                   {result.errors.length} error{result.errors.length !== 1 ? 's' : ''}
                 </span>
               )}
               {result.warnings.length > 0 && (
-                <span className="flex items-center gap-1 text-xs text-warning">
+                <span className="text-warning flex items-center gap-1 text-xs">
                   <AlertTriangle className="h-3 w-3" />
                   {result.warnings.length} warning{result.warnings.length !== 1 ? 's' : ''}
                 </span>
@@ -235,11 +229,9 @@ export const ValidationStage = React.memo(function ValidationStage({
         {/* Expand/collapse arrow */}
         {hasDetails && (
           <div className="flex-shrink-0">
-            {isExpanded ? (
-              <ChevronDown className="h-4 w-4 text-muted-foreground" />
-            ) : (
-              <ChevronRight className="h-4 w-4 text-muted-foreground" />
-            )}
+            {isExpanded ?
+              <ChevronDown className="text-muted-foreground h-4 w-4" />
+            : <ChevronRight className="text-muted-foreground h-4 w-4" />}
           </div>
         )}
       </button>
@@ -254,26 +246,24 @@ export const ValidationStage = React.memo(function ValidationStage({
             transition={{ duration: 0.2 }}
             className="overflow-hidden"
           >
-            <div className="ml-12 mr-3 pb-3 space-y-2">
+            <div className="ml-12 mr-3 space-y-2 pb-3">
               {/* Errors */}
               {result.errors.map((error, i) => (
                 <div
                   key={`error-${i}`}
-                  className="p-2.5 rounded-md bg-error/5 border border-error/20"
+                  className="bg-error/5 border-error/20 rounded-md border p-2.5"
                 >
                   <div className="flex items-start gap-2">
-                    <XCircle className="h-4 w-4 text-error flex-shrink-0 mt-0.5" />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm text-error font-medium">
-                        {error.message}
-                      </p>
+                    <XCircle className="text-error mt-0.5 h-4 w-4 flex-shrink-0" />
+                    <div className="min-w-0 flex-1">
+                      <p className="text-error text-sm font-medium">{error.message}</p>
                       {error.fieldPath && (
-                        <p className="text-xs text-muted-foreground mt-0.5">
+                        <p className="text-muted-foreground mt-0.5 text-xs">
                           Field: <code className="font-mono">{error.fieldPath}</code>
                         </p>
                       )}
                       {error.suggestedFix && (
-                        <p className="text-xs text-muted-foreground mt-1">
+                        <p className="text-muted-foreground mt-1 text-xs">
                           Suggestion: {error.suggestedFix}
                         </p>
                       )}
@@ -286,16 +276,14 @@ export const ValidationStage = React.memo(function ValidationStage({
               {result.warnings.map((warning, i) => (
                 <div
                   key={`warning-${i}`}
-                  className="p-2.5 rounded-md bg-warning/5 border border-warning/20"
+                  className="bg-warning/5 border-warning/20 rounded-md border p-2.5"
                 >
                   <div className="flex items-start gap-2">
-                    <AlertTriangle className="h-4 w-4 text-warning flex-shrink-0 mt-0.5" />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm text-warning font-medium">
-                        {warning.message}
-                      </p>
+                    <AlertTriangle className="text-warning mt-0.5 h-4 w-4 flex-shrink-0" />
+                    <div className="min-w-0 flex-1">
+                      <p className="text-warning text-sm font-medium">{warning.message}</p>
                       {warning.fieldPath && (
-                        <p className="text-xs text-muted-foreground mt-0.5">
+                        <p className="text-muted-foreground mt-0.5 text-xs">
                           Field: <code className="font-mono">{warning.fieldPath}</code>
                         </p>
                       )}

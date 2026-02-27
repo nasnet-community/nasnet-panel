@@ -15,23 +15,11 @@ export { createApiClient, apiClient } from './client';
 export type { ApiClientConfig } from './client';
 
 // Router proxy client (rosproxy backend)
-export {
-  makeRouterOSRequest,
-  createProxyQueryFn,
-  createProxyMutationFn,
-} from './router-proxy';
-export type {
-  RouterOSRequestOptions,
-  RouterOSResponse,
-} from './router-proxy';
+export { makeRouterOSRequest, createProxyQueryFn, createProxyMutationFn } from './router-proxy';
+export type { RouterOSRequestOptions, RouterOSResponse } from './router-proxy';
 
 // Types
-export type {
-  ApiResponse,
-  ApiErrorResponse,
-  StoredCredentials,
-  RetryConfig,
-} from './types';
+export type { ApiResponse, ApiErrorResponse, StoredCredentials, RetryConfig } from './types';
 export { ApiError } from './types';
 
 // Interceptors and utilities
@@ -111,13 +99,5 @@ export {
 export type { ErrorLogEntry, ErrorLogInput } from './utils';
 
 // GraphQL error handling hook
-export {
-  useGraphQLError,
-  isApolloError,
-  getApolloErrorCode,
-} from './hooks';
-export type {
-  ProcessedError,
-  UseGraphQLErrorReturn,
-  UseGraphQLErrorOptions,
-} from './hooks';
+export { useGraphQLError, isApolloError, getApolloErrorCode } from './hooks';
+export type { ProcessedError, UseGraphQLErrorReturn, UseGraphQLErrorOptions } from './hooks';

@@ -21,9 +21,9 @@ import type { RawRule, RawChain } from '@nasnet/core/types';
  * Follows TanStack Query best practices for hierarchical keys
  */
 export declare const rawRulesKeys: {
-    all: (routerId: string) => readonly ["raw", string];
-    byChain: (routerId: string, chain: RawChain) => readonly ["raw", string, "prerouting" | "output"];
-    detail: (routerId: string, ruleId: string) => readonly ["raw", string, string];
+  all: (routerId: string) => readonly ['raw', string];
+  byChain: (routerId: string, chain: RawChain) => readonly ['raw', string, 'prerouting' | 'output'];
+  detail: (routerId: string, ruleId: string) => readonly ['raw', string, string];
 };
 /**
  * Hook to fetch RAW rules
@@ -38,16 +38,19 @@ export declare const rawRulesKeys: {
  * @returns Query result with RawRule[] data
  */
 interface UseRawRulesOptions {
-    chain?: RawChain;
-    enabled?: boolean;
-    /**
-     * Polling interval in milliseconds for real-time counter updates
-     * Set to false to disable polling (default)
-     * Recommended intervals: 5000, 10000, 30000, 60000 (5s, 10s, 30s, 60s)
-     */
-    refetchInterval?: number | false;
+  chain?: RawChain;
+  enabled?: boolean;
+  /**
+   * Polling interval in milliseconds for real-time counter updates
+   * Set to false to disable polling (default)
+   * Recommended intervals: 5000, 10000, 30000, 60000 (5s, 10s, 30s, 60s)
+   */
+  refetchInterval?: number | false;
 }
-export declare function useRawRules(routerId: string, options?: UseRawRulesOptions): UseQueryResult<RawRule[], Error>;
+export declare function useRawRules(
+  routerId: string,
+  options?: UseRawRulesOptions
+): UseQueryResult<RawRule[], Error>;
 /**
  * Hook to fetch a single RAW rule
  *
@@ -56,19 +59,26 @@ export declare function useRawRules(routerId: string, options?: UseRawRulesOptio
  * @param options - Query options
  * @returns Query result with RawRule data
  */
-export declare function useRawRule(routerId: string, ruleId: string, options?: {
+export declare function useRawRule(
+  routerId: string,
+  ruleId: string,
+  options?: {
     enabled?: boolean;
-}): UseQueryResult<RawRule, Error>;
+  }
+): UseQueryResult<RawRule, Error>;
 /**
  * Create a new RAW rule
  * Endpoint: POST /rest/ip/firewall/raw/add
  */
-export declare function useCreateRawRule(routerId: string): UseMutationResult<unknown, Error, Partial<{
-    chain: "prerouting" | "output";
-    action: "accept" | "drop" | "jump" | "log" | "notrack";
+export declare function useCreateRawRule(routerId: string): UseMutationResult<
+  unknown,
+  Error,
+  Partial<{
+    chain: 'prerouting' | 'output';
+    action: 'accept' | 'drop' | 'jump' | 'log' | 'notrack';
     disabled: boolean;
     id?: string | undefined;
-    protocol?: "tcp" | "udp" | "icmp" | "ipv6-icmp" | "all" | undefined;
+    protocol?: 'tcp' | 'udp' | 'icmp' | 'ipv6-icmp' | 'all' | undefined;
     srcAddress?: string | undefined;
     dstAddress?: string | undefined;
     srcPort?: string | undefined;
@@ -81,48 +91,69 @@ export declare function useCreateRawRule(routerId: string): UseMutationResult<un
     packets?: number | undefined;
     bytes?: number | undefined;
     order?: number | undefined;
-    limit?: {
-        rate: string;
-        burst?: number | undefined;
-    } | undefined;
-}>, unknown>;
+    limit?:
+      | {
+          rate: string;
+          burst?: number | undefined;
+        }
+      | undefined;
+  }>,
+  unknown
+>;
 /**
  * Update an existing RAW rule
  * Endpoint: POST /rest/ip/firewall/raw/set
  */
-export declare function useUpdateRawRule(routerId: string): UseMutationResult<unknown, Error, {
+export declare function useUpdateRawRule(routerId: string): UseMutationResult<
+  unknown,
+  Error,
+  {
     ruleId: string;
     updates: Partial<RawRule>;
-}, unknown>;
+  },
+  unknown
+>;
 /**
  * Delete a RAW rule
  * Endpoint: POST /rest/ip/firewall/raw/remove
  */
-export declare function useDeleteRawRule(routerId: string): UseMutationResult<unknown, Error, string, unknown>;
+export declare function useDeleteRawRule(
+  routerId: string
+): UseMutationResult<unknown, Error, string, unknown>;
 /**
  * Reorder RAW rules (drag-drop)
  * Endpoint: POST /rest/ip/firewall/raw/move
  */
-export declare function useReorderRawRules(routerId: string): UseMutationResult<unknown, Error, {
+export declare function useReorderRawRules(routerId: string): UseMutationResult<
+  unknown,
+  Error,
+  {
     ruleId: string;
     destination: number;
-}, unknown>;
+  },
+  unknown
+>;
 /**
  * Toggle enable/disable state of a RAW rule (convenience wrapper)
  * Endpoint: POST /rest/ip/firewall/raw/set
  */
-export declare function useToggleRawRule(routerId: string): UseMutationResult<unknown, Error, {
+export declare function useToggleRawRule(routerId: string): UseMutationResult<
+  unknown,
+  Error,
+  {
     ruleId: string;
     disabled: boolean;
-}, unknown>;
+  },
+  unknown
+>;
 /**
  * Progress callback for batch operations
  */
 export interface BatchProgress {
-    current: number;
-    total: number;
-    percentage: number;
-    currentItem?: string;
+  current: number;
+  total: number;
+  percentage: number;
+  currentItem?: string;
 }
 /**
  * Batch create RAW rules (for DDoS wizard, bogon filter)
@@ -131,14 +162,19 @@ export interface BatchProgress {
  * @param routerId - Target router ID
  * @returns Mutation hook with progress tracking
  */
-export declare function useBatchCreateRawRules(routerId: string): UseMutationResult<{
+export declare function useBatchCreateRawRules(routerId: string): UseMutationResult<
+  {
     success: number;
     failed: number;
     errors: Error[];
-}, Error, {
+  },
+  Error,
+  {
     rules: Partial<RawRule>[];
     onProgress?: (progress: BatchProgress) => void;
-}, unknown>;
+  },
+  unknown
+>;
 /**
  * Batch delete RAW rules
  * Deletes multiple rules sequentially with progress tracking
@@ -146,14 +182,19 @@ export declare function useBatchCreateRawRules(routerId: string): UseMutationRes
  * @param routerId - Target router ID
  * @returns Mutation hook with progress tracking
  */
-export declare function useBatchDeleteRawRules(routerId: string): UseMutationResult<{
+export declare function useBatchDeleteRawRules(routerId: string): UseMutationResult<
+  {
     success: number;
     failed: number;
     errors: Error[];
-}, Error, {
+  },
+  Error,
+  {
     ruleIds: string[];
     onProgress?: (progress: BatchProgress) => void;
-}, unknown>;
+  },
+  unknown
+>;
 /**
  * Batch update RAW rules
  * Updates multiple rules sequentially with progress tracking
@@ -161,16 +202,21 @@ export declare function useBatchDeleteRawRules(routerId: string): UseMutationRes
  * @param routerId - Target router ID
  * @returns Mutation hook with progress tracking
  */
-export declare function useBatchUpdateRawRules(routerId: string): UseMutationResult<{
+export declare function useBatchUpdateRawRules(routerId: string): UseMutationResult<
+  {
     success: number;
     failed: number;
     errors: Error[];
-}, Error, {
+  },
+  Error,
+  {
     updates: Array<{
-        ruleId: string;
-        updates: Partial<RawRule>;
+      ruleId: string;
+      updates: Partial<RawRule>;
     }>;
     onProgress?: (progress: BatchProgress) => void;
-}, unknown>;
+  },
+  unknown
+>;
 export {};
 //# sourceMappingURL=useRawRules.d.ts.map

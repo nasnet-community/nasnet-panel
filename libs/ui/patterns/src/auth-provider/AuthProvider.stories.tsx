@@ -16,7 +16,8 @@ const meta: Meta<typeof AuthProvider> = {
   parameters: {
     docs: {
       description: {
-        component: 'Authentication context provider with session management and permission checking.',
+        component:
+          'Authentication context provider with session management and permission checking.',
       },
     },
     layout: 'padded',
@@ -70,22 +71,22 @@ function AuthConsumer() {
   const auth = useAuth();
 
   return (
-    <div className="space-y-4 p-4 border rounded-lg bg-card">
+    <div className="bg-card space-y-4 rounded-lg border p-4">
       <div>
         <p className="text-sm font-medium">Authenticated:</p>
-        <p className="text-sm text-muted-foreground">{auth.isAuthenticated ? 'Yes' : 'No'}</p>
+        <p className="text-muted-foreground text-sm">{auth.isAuthenticated ? 'Yes' : 'No'}</p>
       </div>
 
       {auth.user && (
         <>
           <div>
             <p className="text-sm font-medium">User:</p>
-            <p className="text-sm text-muted-foreground">{auth.user.username}</p>
+            <p className="text-muted-foreground text-sm">{auth.user.username}</p>
           </div>
 
           <div>
             <p className="text-sm font-medium">Permissions:</p>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-muted-foreground text-sm">
               {auth.user.permissions.join(', ') || 'None'}
             </p>
           </div>
@@ -96,7 +97,7 @@ function AuthConsumer() {
         {auth.isAuthenticated && (
           <button
             onClick={() => auth.logout()}
-            className="px-3 py-1 text-sm bg-destructive text-destructive-foreground rounded hover:bg-destructive/90"
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded px-3 py-1 text-sm"
           >
             Logout
           </button>
@@ -128,7 +129,7 @@ export const WithSessionWarning: Story = {
   render: (args) => (
     <AuthProvider {...args}>
       <div className="space-y-4">
-        <p className="text-sm text-muted-foreground">
+        <p className="text-muted-foreground text-sm">
           Session warning will appear when 2 minutes remain
         </p>
         <AuthConsumer />
@@ -144,7 +145,7 @@ export const RequireAuthShown: Story = {
   render: (args) => (
     <AuthProvider {...args}>
       <RequireAuth fallback={<p>Not authenticated</p>}>
-        <div className="p-4 border border-success/20 bg-success/10 rounded">
+        <div className="border-success/20 bg-success/10 rounded border p-4">
           <p className="text-success">This content is only shown when authenticated</p>
         </div>
       </RequireAuth>
@@ -162,12 +163,12 @@ export const RequireAuthWithPermissions: Story = {
         fallback={<p>Not authenticated</p>}
         permissions={['admin']}
         unauthorizedFallback={
-          <div className="p-4 border border-warning/20 bg-warning/10 rounded">
+          <div className="border-warning/20 bg-warning/10 rounded border p-4">
             <p className="text-warning">You need admin permission to view this</p>
           </div>
         }
       >
-        <div className="p-4 border border-secondary/20 bg-secondary/10 rounded">
+        <div className="border-secondary/20 bg-secondary/10 rounded border p-4">
           <p className="text-secondary">Admin content only</p>
         </div>
       </RequireAuth>
@@ -185,7 +186,7 @@ export const WithAutoRefresh: Story = {
   render: (args) => (
     <AuthProvider {...args}>
       <div className="space-y-4">
-        <p className="text-sm text-muted-foreground">
+        <p className="text-muted-foreground text-sm">
           Token will automatically refresh before expiration
         </p>
         <AuthConsumer />

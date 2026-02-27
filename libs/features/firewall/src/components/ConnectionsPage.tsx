@@ -92,13 +92,11 @@ export const ConnectionsPage = memo(function ConnectionsPage() {
   // ============================================================================
 
   // Fetch current settings
-  const {
-    data: currentSettings,
-    isLoading: isLoadingSettings,
-  } = useConnectionTrackingSettingsQuery({
-    routerIp: routerId || '',
-    enabled: !!routerId,
-  });
+  const { data: currentSettings, isLoading: isLoadingSettings } =
+    useConnectionTrackingSettingsQuery({
+      routerIp: routerId || '',
+      enabled: !!routerId,
+    });
 
   // Update settings mutation (AC4: Dangerous confirmation)
   const { mutate: updateSettings } = useUpdateConnectionTracking({
@@ -122,9 +120,12 @@ export const ConnectionsPage = memo(function ConnectionsPage() {
   // Settings form hook (Dangerous confirmation handled by ConnectionTrackingSettings component)
   const settingsHook = useConnectionTrackingSettings({
     initialSettings: currentSettings,
-    onSubmit: useCallback(async (settings) => {
-      updateSettings({ settings });
-    }, [updateSettings]),
+    onSubmit: useCallback(
+      async (settings) => {
+        updateSettings({ settings });
+      },
+      [updateSettings]
+    ),
   });
 
   // ============================================================================
@@ -134,10 +135,17 @@ export const ConnectionsPage = memo(function ConnectionsPage() {
   // Early return if no router selected
   if (!routerId) {
     return (
-      <div className="flex items-center justify-center h-full p-component-xl" role="status" aria-label="No router selected">
+      <div
+        className="p-component-xl flex h-full items-center justify-center"
+        role="status"
+        aria-label="No router selected"
+      >
         <div className="text-center">
-          <Activity className="w-12 h-12 mx-auto mb-component-md text-muted-foreground" aria-hidden="true" />
-          <h2 className="text-xl font-semibold mb-component-sm">No Router Selected</h2>
+          <Activity
+            className="mb-component-md text-muted-foreground mx-auto h-12 w-12"
+            aria-hidden="true"
+          />
+          <h2 className="mb-component-sm text-xl font-semibold">No Router Selected</h2>
           <p className="text-muted-foreground">
             Please select a router to view connection tracking.
           </p>
@@ -157,26 +165,38 @@ export const ConnectionsPage = memo(function ConnectionsPage() {
       </header>
 
       {/* Tabs */}
-      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as typeof activeTab)}>
+      <Tabs
+        value={activeTab}
+        onValueChange={(v) => setActiveTab(v as typeof activeTab)}
+      >
         <TabsList className="bg-muted">
           <TabsTrigger
             value="list"
-            className="flex items-center gap-component-sm"
+            className="gap-component-sm flex items-center"
           >
-            <Activity className="w-4 h-4" aria-hidden="true" />
+            <Activity
+              className="h-4 w-4"
+              aria-hidden="true"
+            />
             <span>Connections</span>
           </TabsTrigger>
           <TabsTrigger
             value="settings"
-            className="flex items-center gap-component-sm"
+            className="gap-component-sm flex items-center"
           >
-            <Settings className="w-4 h-4" aria-hidden="true" />
+            <Settings
+              className="h-4 w-4"
+              aria-hidden="true"
+            />
             <span>Settings</span>
           </TabsTrigger>
         </TabsList>
 
         {/* Connections List Tab */}
-        <TabsContent value="list" className="space-y-component-lg mt-component-xl">
+        <TabsContent
+          value="list"
+          className="space-y-component-lg mt-component-xl"
+        >
           <ConnectionList
             connectionList={connectionListHook}
             onKillConnection={handleKillConnection}
@@ -186,7 +206,10 @@ export const ConnectionsPage = memo(function ConnectionsPage() {
         </TabsContent>
 
         {/* Settings Tab */}
-        <TabsContent value="settings" className="space-y-component-lg mt-component-xl">
+        <TabsContent
+          value="settings"
+          className="space-y-component-lg mt-component-xl"
+        >
           <ConnectionTrackingSettings
             settingsHook={settingsHook}
             loading={isLoadingSettings}

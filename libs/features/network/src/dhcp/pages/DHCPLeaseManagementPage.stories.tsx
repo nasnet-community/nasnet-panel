@@ -61,7 +61,7 @@ const boundLeases: DHCPLease[] = [
     macAddress: 'DE:AD:BE:EF:00:01',
     hostname: 'printer-office',
     status: 'bound',
-    dynamic: false,      // static binding
+    dynamic: false, // static binding
     server: 'dhcp1',
     expiresAfter: undefined,
   }),
@@ -92,7 +92,9 @@ const servers = [
   { name: 'dhcp2', interface: 'bridge-iot' },
 ];
 
-const _noopAsync = async () => { /* no-op for mock actions */ };
+const _noopAsync = async () => {
+  /* no-op for mock actions */
+};
 
 // ---------------------------------------------------------------------------
 // Meta – stories are written against DHCPLeaseManagementDesktop because the
@@ -136,7 +138,7 @@ export const Default: Story = {
   args: {
     leases: boundLeases,
     servers,
-    newLeaseIds: new Set(['lease-4']),   // lease-4 will show a "New" badge
+    newLeaseIds: new Set(['lease-4']), // lease-4 will show a "New" badge
     isLoading: false,
     isError: false,
     selectedLeases: [],

@@ -143,7 +143,8 @@ export const StaticDevice: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'A statically configured device (the router itself). The DHCP lease section is hidden.',
+        story:
+          'A statically configured device (the router itself). The DHCP lease section is hidden.',
       },
     },
   },
@@ -177,7 +178,8 @@ export const LeaseExpiringSoon: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'DHCP lease expires in ~30 minutes — the "Expires In" field shows a short countdown.',
+        story:
+          'DHCP lease expires in ~30 minutes — the "Expires In" field shows a short countdown.',
       },
     },
   },
@@ -209,8 +211,7 @@ export const NoRouterContext: Story = {
   parameters: {
     docs: {
       description: {
-        story:
-          'When no routerId is provided the "Add to Known Devices" button is disabled.',
+        story: 'When no routerId is provided the "Add to Known Devices" button is disabled.',
       },
     },
   },

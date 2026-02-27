@@ -76,10 +76,11 @@ log_level=INFO`,
   render: (args) => (
     <div className="space-y-2">
       <Label htmlFor="config-field">Configuration</Label>
-      <TextArea {...args} id="config-field" />
-      <p className="text-xs text-muted-foreground">
-        Supports INI, YAML, and JSON formats
-      </p>
+      <TextArea
+        {...args}
+        id="config-field"
+      />
+      <p className="text-muted-foreground text-xs">Supports INI, YAML, and JSON formats</p>
     </div>
   ),
   parameters: {
@@ -108,17 +109,17 @@ echo "Service ready"`,
   render: (args) => (
     <div className="space-y-2">
       <Label htmlFor="script-field">Startup Script</Label>
-      <TextArea {...args} id="script-field" />
-      <p className="text-xs text-muted-foreground">
-        Bash script (#!/bin/bash)
-      </p>
+      <TextArea
+        {...args}
+        id="script-field"
+      />
+      <p className="text-muted-foreground text-xs">Bash script (#!/bin/bash)</p>
     </div>
   ),
   parameters: {
     docs: {
       description: {
-        story:
-          'Larger TextArea field for storing executable scripts or code snippets.',
+        story: 'Larger TextArea field for storing executable scripts or code snippets.',
       },
     },
   },
@@ -135,17 +136,17 @@ export const Notes: Story = {
   render: (args) => (
     <div className="space-y-2">
       <Label htmlFor="notes-field">Notes</Label>
-      <TextArea {...args} id="notes-field" />
-      <p className="text-xs text-muted-foreground">
-        Optional: Document any special configuration
-      </p>
+      <TextArea
+        {...args}
+        id="notes-field"
+      />
+      <p className="text-muted-foreground text-xs">Optional: Document any special configuration</p>
     </div>
   ),
   parameters: {
     docs: {
       description: {
-        story:
-          'Compact TextArea field (3 rows) for short notes or descriptions.',
+        story: 'Compact TextArea field (3 rows) for short notes or descriptions.',
       },
     },
   },
@@ -162,17 +163,17 @@ export const LongForm: Story = {
   render: (args) => (
     <div className="space-y-2">
       <Label htmlFor="docs-field">Documentation</Label>
-      <TextArea {...args} id="docs-field" />
-      <p className="text-xs text-muted-foreground">
-        Use Markdown for formatting
-      </p>
+      <TextArea
+        {...args}
+        id="docs-field"
+      />
+      <p className="text-muted-foreground text-xs">Use Markdown for formatting</p>
     </div>
   ),
   parameters: {
     docs: {
       description: {
-        story:
-          'Larger TextArea field (12 rows) for long-form content and detailed documentation.',
+        story: 'Larger TextArea field (12 rows) for long-form content and detailed documentation.',
       },
     },
   },
@@ -193,8 +194,11 @@ Service is running and configuration is locked`,
   render: (args) => (
     <div className="space-y-2">
       <Label htmlFor="locked-config">Read-only Configuration</Label>
-      <TextArea {...args} id="locked-config" />
-      <p className="text-xs text-muted-foreground">
+      <TextArea
+        {...args}
+        id="locked-config"
+      />
+      <p className="text-muted-foreground text-xs">
         This configuration is locked while the service is running.
       </p>
     </div>
@@ -220,8 +224,12 @@ export const WithError: Story = {
   render: (args) => (
     <div className="space-y-2">
       <Label htmlFor="json-field">Service Configuration (JSON)</Label>
-      <TextArea {...args} id="json-field" aria-invalid={true} />
-      <p className="text-xs text-error">
+      <TextArea
+        {...args}
+        id="json-field"
+        aria-invalid={true}
+      />
+      <p className="text-error text-xs">
         Invalid JSON syntax. Please check for missing commas or brackets.
       </p>
     </div>

@@ -103,12 +103,7 @@ type Query {
 
   # Interface Queries (require active router connection)
   "Get a network interface by ID"
-  interface(
-    "Router to query"
-    routerId: ID!
-    "Interface ID"
-    id: ID!
-  ): Interface @capability(requires: ["interface"])
+  interface("Router to query" routerId: ID!, "Interface ID" id: ID!): Interface @capability(requires: ["interface"])
 
   "List interfaces on a router"
   interfaces(
@@ -126,12 +121,7 @@ type Query {
 
   # Version Compatibility Queries
   "Check if a feature is supported on a specific router"
-  isFeatureSupported(
-    "Router to check"
-    routerId: ID!
-    "Feature identifier"
-    featureId: String!
-  ): FeatureSupport!
+  isFeatureSupported("Router to check" routerId: ID!, "Feature identifier" featureId: String!): FeatureSupport!
 
   "Get all features supported by a router"
   supportedFeatures(routerId: ID!): [FeatureSupport!]!
@@ -144,12 +134,7 @@ type Query {
 
   # Upgrade Recommendation Queries
   "Get upgrade recommendation for a specific feature on a router"
-  upgradeRecommendation(
-    "Router to check"
-    routerId: ID!
-    "Feature to enable"
-    featureId: String!
-  ): UpgradeRecommendation
+  upgradeRecommendation("Router to check" routerId: ID!, "Feature to enable" featureId: String!): UpgradeRecommendation
 
   "Get all upgrade recommendations for a router"
   upgradeRecommendations(routerId: ID!): [UpgradeRecommendation!]!

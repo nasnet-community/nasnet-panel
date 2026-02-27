@@ -21,7 +21,6 @@ import { GET_ALERT_RULE_TEMPLATES } from '@nasnet/api-client/queries';
 
 import { AlertTemplateBrowserNew } from './AlertTemplateBrowserNew';
 
-
 import type { Meta, StoryObj } from '@storybook/react';
 
 // =============================================================================
@@ -124,9 +123,7 @@ const securityTemplate = {
   category: 'SECURITY',
   severity: 'CRITICAL',
   eventType: 'auth.login.failed',
-  conditions: [
-    { field: 'failure_count', operator: 'GREATER_THAN', value: '{{MAX_FAILURES}}' },
-  ],
+  conditions: [{ field: 'failure_count', operator: 'GREATER_THAN', value: '{{MAX_FAILURES}}' }],
   channels: ['email', 'inapp', 'webhook'],
   variables: [
     {
@@ -244,7 +241,10 @@ export const Default: Story = {
   },
   decorators: [
     (Story) => (
-      <MockedProvider mocks={buildAllTemplatesMock(300)} addTypename={false}>
+      <MockedProvider
+        mocks={buildAllTemplatesMock(300)}
+        addTypename={false}
+      >
         <Story />
       </MockedProvider>
     ),
@@ -279,7 +279,8 @@ export const FilteredByNetwork: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Browser opened with the NETWORK category pre-selected via the `initialCategory` prop.',
+        story:
+          'Browser opened with the NETWORK category pre-selected via the `initialCategory` prop.',
       },
     },
   },
@@ -322,7 +323,10 @@ export const Loading: Story = {
   },
   decorators: [
     (Story) => (
-      <MockedProvider mocks={buildAllTemplatesMock(60000)} addTypename={false}>
+      <MockedProvider
+        mocks={buildAllTemplatesMock(60000)}
+        addTypename={false}
+      >
         <Story />
       </MockedProvider>
     ),
@@ -411,7 +415,10 @@ export const Mobile: Story = {
   },
   decorators: [
     (Story) => (
-      <MockedProvider mocks={buildAllTemplatesMock(200)} addTypename={false}>
+      <MockedProvider
+        mocks={buildAllTemplatesMock(200)}
+        addTypename={false}
+      >
         <Story />
       </MockedProvider>
     ),
@@ -420,7 +427,8 @@ export const Mobile: Story = {
     viewport: { defaultViewport: 'mobile1' },
     docs: {
       description: {
-        story: 'On viewports narrower than 640px the component renders the touch-optimised mobile presenter with a bottom-sheet filter panel.',
+        story:
+          'On viewports narrower than 640px the component renders the touch-optimised mobile presenter with a bottom-sheet filter panel.',
       },
     },
   },

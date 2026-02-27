@@ -19,7 +19,6 @@ import { useConnectionTrackingSettings } from './use-connection-tracking-setting
 
 import type { ConnectionTrackingSettings } from './types';
 
-
 describe('useConnectionTrackingSettings', () => {
   describe('Initialization', () => {
     it('should initialize with default settings', () => {
@@ -320,9 +319,9 @@ describe('useConnectionTrackingSettings', () => {
     });
 
     it('should set isSubmitting during submission', async () => {
-      const onSubmit = vi.fn().mockImplementation(
-        () => new Promise((resolve) => setTimeout(resolve, 100))
-      );
+      const onSubmit = vi
+        .fn()
+        .mockImplementation(() => new Promise((resolve) => setTimeout(resolve, 100)));
 
       const { result } = renderHook(() =>
         useConnectionTrackingSettings({

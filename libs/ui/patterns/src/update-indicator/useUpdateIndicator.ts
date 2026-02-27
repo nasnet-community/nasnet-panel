@@ -237,9 +237,7 @@ function formatRelativeTime(isoDate: string): string {
  * }
  * ```
  */
-export function useUpdateIndicator(
-  props: UpdateIndicatorProps
-): UseUpdateIndicatorReturn {
+export function useUpdateIndicator(props: UpdateIndicatorProps): UseUpdateIndicatorReturn {
   const {
     instanceId,
     instanceName,
@@ -278,9 +276,8 @@ export function useUpdateIndicator(
   // Format version strings
   const currentVersionText = formatVersion(currentVersion);
   const latestVersionText = latestVersion ? formatVersion(latestVersion) : '';
-  const versionChangeText = latestVersion
-    ? `${currentVersionText} → ${latestVersionText}`
-    : currentVersionText;
+  const versionChangeText =
+    latestVersion ? `${currentVersionText} → ${latestVersionText}` : currentVersionText;
 
   // Format release date
   const releaseDateText = useMemo(
@@ -289,10 +286,7 @@ export function useUpdateIndicator(
   );
 
   // Format binary size
-  const binarySizeText = useMemo(
-    () => (binarySize ? formatBytes(binarySize) : null),
-    [binarySize]
-  );
+  const binarySizeText = useMemo(() => (binarySize ? formatBytes(binarySize) : null), [binarySize]);
 
   // Determine button states
   const updateDisabled = isUpdating || !updateAvailable;
@@ -303,10 +297,7 @@ export function useUpdateIndicator(
 
   // Determine if in terminal state
   const isTerminalState = useMemo(
-    () =>
-      updateStage === 'COMPLETE' ||
-      updateStage === 'FAILED' ||
-      updateStage === 'ROLLED_BACK',
+    () => updateStage === 'COMPLETE' || updateStage === 'FAILED' || updateStage === 'ROLLED_BACK',
     [updateStage]
   );
 

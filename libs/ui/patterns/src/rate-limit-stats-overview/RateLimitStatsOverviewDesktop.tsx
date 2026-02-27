@@ -10,7 +10,11 @@ import { memo } from 'react';
 import { TrendingUp, TrendingDown, Download, RefreshCw } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 
-import { Card, CardContent, CardHeader, CardTitle ,
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
   Button,
   Select,
   SelectContent,
@@ -20,7 +24,8 @@ import { Card, CardContent, CardHeader, CardTitle ,
   Skeleton,
   Alert,
   AlertDescription,
- cn } from '@nasnet/ui/primitives';
+  cn,
+} from '@nasnet/ui/primitives';
 
 import { POLLING_INTERVAL_CONFIGS } from './types';
 import { useRateLimitStatsOverview } from './use-rate-limit-stats-overview';
@@ -47,7 +52,7 @@ function ChartTooltip({ active, payload }: any) {
 
   const data = payload[0].payload;
   return (
-    <div className="rounded-md border bg-popover p-3 shadow-md">
+    <div className="bg-popover rounded-md border p-3 shadow-md">
       <p className="mb-2 text-sm font-medium">{formatChartTime(data.timestamp)}</p>
       <div className="flex items-center gap-2 text-sm">
         <div className="h-3 w-3 rounded-full bg-[hsl(var(--category-firewall))]" />
@@ -78,7 +83,9 @@ function ChartTooltip({ active, payload }: any) {
  * <RateLimitStatsOverviewDesktop routerId="192.168.1.1" />
  * ```
  */
-export const RateLimitStatsOverviewDesktop = memo(function RateLimitStatsOverviewDesktop(props: RateLimitStatsOverviewProps) {
+export const RateLimitStatsOverviewDesktop = memo(function RateLimitStatsOverviewDesktop(
+  props: RateLimitStatsOverviewProps
+) {
   const { className } = props;
   const { state, actions } = useRateLimitStatsOverview(props);
 
@@ -96,7 +103,10 @@ export const RateLimitStatsOverviewDesktop = memo(function RateLimitStatsOvervie
   // Error state
   if (state.error) {
     return (
-      <Alert variant="destructive" className={className}>
+      <Alert
+        variant="destructive"
+        className={className}
+      >
         <AlertDescription>{state.error}</AlertDescription>
       </Alert>
     );
@@ -121,35 +131,56 @@ export const RateLimitStatsOverviewDesktop = memo(function RateLimitStatsOvervie
         <h3 className="text-lg font-semibold">Rate Limiting Statistics</h3>
         <div className="flex items-center gap-3">
           {/* Polling interval selector */}
-          <Select value={pollingInterval} onValueChange={actions.setPollingInterval}>
-            <SelectTrigger className="w-[180px]" aria-label="Update interval">
+          <Select
+            value={pollingInterval}
+            onValueChange={actions.setPollingInterval}
+          >
+            <SelectTrigger
+              className="w-[180px]"
+              aria-label="Update interval"
+            >
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {(Object.keys(POLLING_INTERVAL_CONFIGS) as Array<keyof typeof POLLING_INTERVAL_CONFIGS>).map(
-                (interval) => {
-                  const config = POLLING_INTERVAL_CONFIGS[interval];
-                  return (
-                    <SelectItem key={interval} value={interval}>
-                      <div className="flex flex-col">
-                        <span className="font-medium">{config.label}</span>
-                        <span className="text-xs text-muted-foreground">{config.description}</span>
-                      </div>
-                    </SelectItem>
-                  );
-                }
-              )}
+              {(
+                Object.keys(POLLING_INTERVAL_CONFIGS) as Array<
+                  keyof typeof POLLING_INTERVAL_CONFIGS
+                >
+              ).map((interval) => {
+                const config = POLLING_INTERVAL_CONFIGS[interval];
+                return (
+                  <SelectItem
+                    key={interval}
+                    value={interval}
+                  >
+                    <div className="flex flex-col">
+                      <span className="font-medium">{config.label}</span>
+                      <span className="text-muted-foreground text-xs">{config.description}</span>
+                    </div>
+                  </SelectItem>
+                );
+              })}
             </SelectContent>
           </Select>
 
           {/* Refresh button */}
-          <Button variant="outline" size="sm" onClick={actions.refresh} aria-label="Refresh statistics">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={actions.refresh}
+            aria-label="Refresh statistics"
+          >
             <RefreshCw className="h-4 w-4" />
           </Button>
 
           {/* Export CSV button */}
-          <Button variant="outline" size="sm" onClick={actions.exportToCsv} aria-label="Export to CSV">
-            <Download className="h-4 w-4 mr-2" />
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={actions.exportToCsv}
+            aria-label="Export to CSV"
+          >
+            <Download className="mr-2 h-4 w-4" />
             Export CSV
           </Button>
         </div>
@@ -164,7 +195,7 @@ export const RateLimitStatsOverviewDesktop = memo(function RateLimitStatsOvervie
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
-              <div className="text-4xl font-mono font-bold tabular-nums">
+              <div className="font-mono text-4xl font-bold tabular-nums">
                 {stats.totalBlocked.toLocaleString()}
               </div>
               {trend !== 0 && (
@@ -174,18 +205,16 @@ export const RateLimitStatsOverviewDesktop = memo(function RateLimitStatsOvervie
                     trend > 0 ? 'text-red-600' : 'text-green-600'
                   )}
                 >
-                  {trend > 0 ? (
+                  {trend > 0 ?
                     <TrendingUp className="h-4 w-4" />
-                  ) : (
-                    <TrendingDown className="h-4 w-4" />
-                  )}
+                  : <TrendingDown className="h-4 w-4" />}
                   <span className="font-medium">
                     {Math.abs(trend).toLocaleString()} from last hour
                   </span>
                 </div>
               )}
               {state.lastUpdated && (
-                <p className="text-xs text-muted-foreground">
+                <p className="text-muted-foreground text-xs">
                   Last updated: {state.lastUpdated.toLocaleTimeString()}
                 </p>
               )}
@@ -199,14 +228,23 @@ export const RateLimitStatsOverviewDesktop = memo(function RateLimitStatsOvervie
             <CardTitle className="text-sm font-medium">24-Hour Activity</CardTitle>
           </CardHeader>
           <CardContent>
-            {chartData.length === 0 ? (
-              <div className="flex h-[200px] items-center justify-center text-sm text-muted-foreground">
+            {chartData.length === 0 ?
+              <div className="text-muted-foreground flex h-[200px] items-center justify-center text-sm">
                 No activity data available
               </div>
-            ) : (
-              <div className="h-[200px] w-full" role="img" aria-label="24-hour blocked connections timeline">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={chartData} margin={{ top: 5, right: 5, bottom: 5, left: 5 }}>
+            : <div
+                className="h-[200px] w-full"
+                role="img"
+                aria-label="24-hour blocked connections timeline"
+              >
+                <ResponsiveContainer
+                  width="100%"
+                  height="100%"
+                >
+                  <BarChart
+                    data={chartData}
+                    margin={{ top: 5, right: 5, bottom: 5, left: 5 }}
+                  >
                     <CartesianGrid
                       strokeDasharray="3 3"
                       stroke="hsl(var(--border))"
@@ -236,7 +274,7 @@ export const RateLimitStatsOverviewDesktop = memo(function RateLimitStatsOvervie
                   </BarChart>
                 </ResponsiveContainer>
               </div>
-            )}
+            }
           </CardContent>
         </Card>
       </div>
@@ -247,41 +285,43 @@ export const RateLimitStatsOverviewDesktop = memo(function RateLimitStatsOvervie
           <CardTitle className="text-sm font-medium">Top 5 Blocked IP Addresses</CardTitle>
         </CardHeader>
         <CardContent>
-          {topBlockedIPs.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No blocked IPs yet</p>
-          ) : (
-            <div className="space-y-2">
+          {topBlockedIPs.length === 0 ?
+            <p className="text-muted-foreground text-sm">No blocked IPs yet</p>
+          : <div className="space-y-2">
               {topBlockedIPs.map((ip, index) => (
                 <div
                   key={ip.address}
                   className="flex items-center justify-between rounded-md border p-3"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="flex h-6 w-6 items-center justify-center rounded-full bg-muted text-xs font-semibold">
+                    <div className="bg-muted flex h-6 w-6 items-center justify-center rounded-full text-xs font-semibold">
                       {index + 1}
                     </div>
                     <span className="font-mono text-sm font-medium">{ip.address}</span>
-                    <span className="text-xs text-muted-foreground">({ip.list})</span>
+                    <span className="text-muted-foreground text-xs">({ip.list})</span>
                   </div>
                   <div className="text-right">
                     <div className="text-sm font-semibold">
                       {ip.blockCount.toLocaleString()} blocks
                     </div>
                     {ip.timeout && (
-                      <div className="text-xs text-muted-foreground">
-                        Timeout: {ip.timeout}
-                      </div>
+                      <div className="text-muted-foreground text-xs">Timeout: {ip.timeout}</div>
                     )}
                   </div>
                 </div>
               ))}
             </div>
-          )}
+          }
         </CardContent>
       </Card>
 
       {/* Live region for accessibility */}
-      <div role="status" aria-live="polite" aria-atomic="true" className="sr-only">
+      <div
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+        className="sr-only"
+      >
         Rate limiting statistics updated. Total blocked: {stats.totalBlocked.toLocaleString()}.
         {trend !== 0 && ` Trend: ${trend > 0 ? 'increasing' : 'decreasing'} by ${Math.abs(trend)}.`}
       </div>

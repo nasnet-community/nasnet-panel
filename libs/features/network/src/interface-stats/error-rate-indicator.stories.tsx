@@ -181,7 +181,8 @@ export const ZeroErrors: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Ideal baseline: 0.000% error rate on a newly provisioned or fully healthy interface.',
+        story:
+          'Ideal baseline: 0.000% error rate on a newly provisioned or fully healthy interface.',
       },
     },
   },

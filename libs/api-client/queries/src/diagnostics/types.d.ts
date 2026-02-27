@@ -7,156 +7,156 @@
  * Diagnostic step type
  */
 export declare enum TroubleshootStepType {
-    WAN = "WAN",
-    GATEWAY = "GATEWAY",
-    INTERNET = "INTERNET",
-    DNS = "DNS",
-    NAT = "NAT"
+  WAN = 'WAN',
+  GATEWAY = 'GATEWAY',
+  INTERNET = 'INTERNET',
+  DNS = 'DNS',
+  NAT = 'NAT',
 }
 /**
  * Status of a diagnostic step
  */
 export declare enum TroubleshootStepStatus {
-    PENDING = "PENDING",
-    RUNNING = "RUNNING",
-    PASSED = "PASSED",
-    FAILED = "FAILED",
-    SKIPPED = "SKIPPED"
+  PENDING = 'PENDING',
+  RUNNING = 'RUNNING',
+  PASSED = 'PASSED',
+  FAILED = 'FAILED',
+  SKIPPED = 'SKIPPED',
 }
 /**
  * Confidence level for a fix suggestion
  */
 export declare enum FixConfidence {
-    HIGH = "HIGH",
-    MEDIUM = "MEDIUM",
-    LOW = "LOW"
+  HIGH = 'HIGH',
+  MEDIUM = 'MEDIUM',
+  LOW = 'LOW',
 }
 /**
  * Status of a fix application
  */
 export declare enum FixApplicationStatus {
-    AVAILABLE = "AVAILABLE",
-    APPLYING = "APPLYING",
-    APPLIED = "APPLIED",
-    FAILED = "FAILED",
-    ISSUE_PERSISTS = "ISSUE_PERSISTS"
+  AVAILABLE = 'AVAILABLE',
+  APPLYING = 'APPLYING',
+  APPLIED = 'APPLIED',
+  FAILED = 'FAILED',
+  ISSUE_PERSISTS = 'ISSUE_PERSISTS',
 }
 /**
  * Overall status of a troubleshooting session
  */
 export declare enum TroubleshootSessionStatus {
-    IDLE = "IDLE",
-    INITIALIZING = "INITIALIZING",
-    RUNNING = "RUNNING",
-    AWAITING_FIX_DECISION = "AWAITING_FIX_DECISION",
-    APPLYING_FIX = "APPLYING_FIX",
-    VERIFYING_FIX = "VERIFYING_FIX",
-    COMPLETED = "COMPLETED",
-    CANCELLED = "CANCELLED"
+  IDLE = 'IDLE',
+  INITIALIZING = 'INITIALIZING',
+  RUNNING = 'RUNNING',
+  AWAITING_FIX_DECISION = 'AWAITING_FIX_DECISION',
+  APPLYING_FIX = 'APPLYING_FIX',
+  VERIFYING_FIX = 'VERIFYING_FIX',
+  COMPLETED = 'COMPLETED',
+  CANCELLED = 'CANCELLED',
 }
 /**
  * Result of a single diagnostic step
  */
 export interface TroubleshootStepResult {
-    success: boolean;
-    message: string;
-    details?: string;
-    executionTimeMs: number;
-    issueCode?: string;
-    target?: string;
+  success: boolean;
+  message: string;
+  details?: string;
+  executionTimeMs: number;
+  issueCode?: string;
+  target?: string;
 }
 /**
  * Suggested fix for a failed diagnostic step
  */
 export interface TroubleshootFixSuggestion {
-    issueCode: string;
-    title: string;
-    explanation: string;
-    confidence: FixConfidence;
-    requiresConfirmation: boolean;
-    isManualFix: boolean;
-    manualSteps?: string[];
-    command?: string;
-    rollbackCommand?: string;
+  issueCode: string;
+  title: string;
+  explanation: string;
+  confidence: FixConfidence;
+  requiresConfirmation: boolean;
+  isManualFix: boolean;
+  manualSteps?: string[];
+  command?: string;
+  rollbackCommand?: string;
 }
 /**
  * ISP contact information
  */
 export interface ISPInfo {
-    name: string;
-    phone?: string;
-    url?: string;
+  name: string;
+  phone?: string;
+  url?: string;
 }
 /**
  * A single step in the troubleshooting wizard
  */
 export interface TroubleshootStep {
-    id: TroubleshootStepType;
-    name: string;
-    description: string;
-    status: TroubleshootStepStatus;
-    result?: TroubleshootStepResult;
-    fix?: TroubleshootFixSuggestion;
-    startedAt?: string;
-    completedAt?: string;
+  id: TroubleshootStepType;
+  name: string;
+  description: string;
+  status: TroubleshootStepStatus;
+  result?: TroubleshootStepResult;
+  fix?: TroubleshootFixSuggestion;
+  startedAt?: string;
+  completedAt?: string;
 }
 /**
  * Complete troubleshooting session
  */
 export interface TroubleshootSession {
-    id: string;
-    routerId: string;
-    steps: TroubleshootStep[];
-    currentStepIndex: number;
-    status: TroubleshootSessionStatus;
-    wanInterface?: string;
-    gateway?: string;
-    ispInfo?: ISPInfo;
-    appliedFixes: string[];
-    startedAt: string;
-    completedAt?: string;
+  id: string;
+  routerId: string;
+  steps: TroubleshootStep[];
+  currentStepIndex: number;
+  status: TroubleshootSessionStatus;
+  wanInterface?: string;
+  gateway?: string;
+  ispInfo?: ISPInfo;
+  appliedFixes: string[];
+  startedAt: string;
+  completedAt?: string;
 }
 /**
  * Network configuration detection result
  */
 export interface NetworkConfigDetection {
-    wanInterface: string;
-    gateway?: string;
-    ispInfo?: ISPInfo;
+  wanInterface: string;
+  gateway?: string;
+  ispInfo?: ISPInfo;
 }
 /**
  * Result of starting a troubleshooting session
  */
 export interface StartTroubleshootPayload {
-    session?: TroubleshootSession;
-    errors?: Array<{
-        code: string;
-        message: string;
-        field?: string;
-    }>;
+  session?: TroubleshootSession;
+  errors?: Array<{
+    code: string;
+    message: string;
+    field?: string;
+  }>;
 }
 /**
  * Result of running a diagnostic step
  */
 export interface RunTroubleshootStepPayload {
-    step: TroubleshootStep;
-    errors?: Array<{
-        code: string;
-        message: string;
-        field?: string;
-    }>;
+  step: TroubleshootStep;
+  errors?: Array<{
+    code: string;
+    message: string;
+    field?: string;
+  }>;
 }
 /**
  * Result of applying a fix
  */
 export interface ApplyFixPayload {
-    success: boolean;
+  success: boolean;
+  message: string;
+  status: FixApplicationStatus;
+  errors?: Array<{
+    code: string;
     message: string;
-    status: FixApplicationStatus;
-    errors?: Array<{
-        code: string;
-        message: string;
-        field?: string;
-    }>;
+    field?: string;
+  }>;
 }
 //# sourceMappingURL=types.d.ts.map

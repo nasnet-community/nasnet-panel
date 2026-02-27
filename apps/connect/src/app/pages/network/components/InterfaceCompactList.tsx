@@ -8,7 +8,6 @@ import React from 'react';
 import { ChevronRight, ArrowDown, ArrowUp } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
-
 import { useInterfaceTraffic } from '@nasnet/api-client/queries';
 import { type NetworkInterface } from '@nasnet/core/types';
 import { formatBytes } from '@nasnet/core/utils';
@@ -24,7 +23,11 @@ interface InterfaceCompactListProps {
   maxItems?: number;
 }
 
-const InterfaceListItem = React.memo(function InterfaceListItem({ iface }: { iface: NetworkInterface }) {
+const InterfaceListItem = React.memo(function InterfaceListItem({
+  iface,
+}: {
+  iface: NetworkInterface;
+}) {
   const { t } = useTranslation('network');
   const routerIp = useConnectionStore((state) => state.currentRouterIp) || '';
   const { data: trafficStats } = useInterfaceTraffic(routerIp, iface.id);
@@ -33,35 +36,56 @@ const InterfaceListItem = React.memo(function InterfaceListItem({ iface }: { ifa
   const isLinkUp = iface.linkStatus === 'up';
 
   return (
-    <div className="flex items-center justify-between py-component-sm border-b border-border last:border-b-0">
-      <div className="flex items-center gap-component-sm">
+    <div className="py-component-sm border-border flex items-center justify-between border-b last:border-b-0">
+      <div className="gap-component-sm flex items-center">
         <span
           className={cn(
-            'w-2 h-2 rounded-full',
-            isRunning && isLinkUp ? 'bg-success' : isRunning ? 'bg-warning' : 'bg-muted-foreground'
+            'h-2 w-2 rounded-full',
+            isRunning && isLinkUp ? 'bg-success'
+            : isRunning ? 'bg-warning'
+            : 'bg-muted-foreground'
           )}
           aria-hidden="true"
         />
-        <InterfaceTypeIcon type={iface.type} className="w-3.5 h-3.5 text-muted-foreground" />
-        <span className="font-display font-semibold text-foreground text-sm">{iface.name}</span>
+        <InterfaceTypeIcon
+          type={iface.type}
+          className="text-muted-foreground h-3.5 w-3.5"
+        />
+        <span className="font-display text-foreground text-sm font-semibold">{iface.name}</span>
       </div>
-      <div className="flex items-center gap-component-md">
-        {trafficStats && isRunning && isLinkUp ? (
-          <span className="text-muted-foreground text-xs font-mono flex items-center gap-component-sm">
-            <span className="flex items-center gap-component-xs">
-              <ArrowDown className="w-3 h-3 text-success" aria-hidden="true" />
+      <div className="gap-component-md flex items-center">
+        {trafficStats && isRunning && isLinkUp ?
+          <span className="text-muted-foreground gap-component-sm flex items-center font-mono text-xs">
+            <span className="gap-component-xs flex items-center">
+              <ArrowDown
+                className="text-success h-3 w-3"
+                aria-hidden="true"
+              />
               {formatBytes(trafficStats.rxBytes)}
             </span>
             <span className="flex items-center gap-0.5">
-              <ArrowUp className="w-3 h-3 text-category-monitoring" aria-hidden="true" />
+              <ArrowUp
+                className="text-category-monitoring h-3 w-3"
+                aria-hidden="true"
+              />
               {formatBytes(trafficStats.txBytes)}
             </span>
           </span>
-        ) : (
-          <span className={cn('text-xs', isRunning && isLinkUp ? 'text-success' : isRunning ? 'text-warning' : 'text-muted-foreground')}>
-            {isRunning && isLinkUp ? t('status.active', { ns: 'common' }) : isRunning ? t('interfaces.noLink') : t('status.disabled', { ns: 'common' })}
+        : <span
+            className={cn(
+              'text-xs',
+              isRunning && isLinkUp ? 'text-success'
+              : isRunning ? 'text-warning'
+              : 'text-muted-foreground'
+            )}
+          >
+            {isRunning && isLinkUp ?
+              t('status.active', { ns: 'common' })
+            : isRunning ?
+              t('interfaces.noLink')
+            : t('status.disabled', { ns: 'common' })}
           </span>
-        )}
+        }
         {/* View all button for accessibility */}
       </div>
     </div>
@@ -83,13 +107,16 @@ export const InterfaceCompactList = React.memo(function InterfaceCompactList({
     return (
       <div className="px-component-lg py-component-sm space-y-component-md animate-pulse">
         {[1, 2, 3].map((i) => (
-          <div key={i} className="flex items-center justify-between py-component-sm">
-            <div className="flex items-center gap-component-sm">
-              <div className="w-2 h-2 bg-muted rounded-full" />
-              <div className="w-4 h-4 bg-muted rounded" />
-              <div className="h-4 bg-muted rounded w-20" />
+          <div
+            key={i}
+            className="py-component-sm flex items-center justify-between"
+          >
+            <div className="gap-component-sm flex items-center">
+              <div className="bg-muted h-2 w-2 rounded-full" />
+              <div className="bg-muted h-4 w-4 rounded" />
+              <div className="bg-muted h-4 w-20 rounded" />
             </div>
-            <div className="h-3 bg-muted rounded w-16" />
+            <div className="bg-muted h-3 w-16 rounded" />
           </div>
         ))}
       </div>
@@ -99,52 +126,34 @@ export const InterfaceCompactList = React.memo(function InterfaceCompactList({
   return (
     <div className="px-component-lg py-component-sm">
       {/* Header */}
-      <div className="flex justify-between items-center mb-component-sm">
-        <p className="font-display font-semibold text-muted-foreground text-xs uppercase tracking-wide">{t('interfaces.title')}</p>
+      <div className="mb-component-sm flex items-center justify-between">
+        <p className="font-display text-muted-foreground text-xs font-semibold uppercase tracking-wide">
+          {t('interfaces.title')}
+        </p>
         {hasMore && (
-          <button className="text-primary text-xs flex items-center gap-component-xs hover:text-primary/80 transition-colors min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-lg px-component-sm">
+          <button className="text-primary gap-component-xs hover:text-primary/80 focus-visible:ring-ring px-component-sm flex min-h-[44px] items-center rounded-lg text-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2">
             {t('button.viewAll', { ns: 'common' })}
-            <ChevronRight className="w-3 h-3" />
+            <ChevronRight className="h-3 w-3" />
           </button>
         )}
       </div>
 
       {/* Interface List */}
       <div className="space-y-0">
-        {displayedInterfaces.length === 0 ? (
-          <p className="text-muted-foreground text-sm py-4 text-center">{t('interfaces.notFound')}</p>
-        ) : (
-          displayedInterfaces.map((iface) => (
-            <InterfaceListItem key={iface.id} iface={iface} />
+        {displayedInterfaces.length === 0 ?
+          <p className="text-muted-foreground py-4 text-center text-sm">
+            {t('interfaces.notFound')}
+          </p>
+        : displayedInterfaces.map((iface) => (
+            <InterfaceListItem
+              key={iface.id}
+              iface={iface}
+            />
           ))
-        )}
+        }
       </div>
     </div>
   );
 });
 
 InterfaceCompactList.displayName = 'InterfaceCompactList';
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

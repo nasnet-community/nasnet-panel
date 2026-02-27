@@ -278,7 +278,8 @@ export const LargeTemplate: Story = {
       ...mockTemplateMultiService,
       id: 'tpl-004',
       name: 'Psiphon Pro Suite',
-      description: 'Full Psiphon censorship circumvention suite with SSH, meek, and obfuscated tunnels.',
+      description:
+        'Full Psiphon censorship circumvention suite with SSH, meek, and obfuscated tunnels.',
       scope: 'MULTIPLE',
       services: [
         ...mockTemplateMultiService.services,
@@ -327,7 +328,11 @@ export const LargeTemplate: Story = {
           type: 'ENUM' as const,
           required: true,
           default: 'MEEK' as any,
-          enumValues: [{ value: 'MEEK' }, { value: 'OBFUSCATED_SSH' }, { value: 'UNFRONTED_MEEK' }] as any,
+          enumValues: [
+            { value: 'MEEK' },
+            { value: 'OBFUSCATED_SSH' },
+            { value: 'UNFRONTED_MEEK' },
+          ] as any,
           minValue: null,
           maxValue: null,
           validationPattern: null,

@@ -1,1 +1,15 @@
-{"categoryGeneratedIndex":{"title":"Scalars overview","slug":"/category/scalars","permalink":"/category/scalars","sidebar":"defaultSidebar","navigation":{"previous":{"title":"WireGuardServer","permalink":"/api/types/objects/wire-guard-server"},"next":{"title":"Bandwidth","permalink":"/api/types/scalars/bandwidth"}}}}
+{
+  "categoryGeneratedIndex": {
+    "title": "Scalars overview",
+    "slug": "/category/scalars",
+    "permalink": "/category/scalars",
+    "sidebar": "defaultSidebar",
+    "navigation": {
+      "previous": {
+        "title": "WireGuardServer",
+        "permalink": "/api/types/objects/wire-guard-server"
+      },
+      "next": { "title": "Bandwidth", "permalink": "/api/types/scalars/bandwidth" }
+    }
+  }
+}

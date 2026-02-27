@@ -171,7 +171,7 @@ const ERROR_CODE_MESSAGES: Record<string, ErrorInfo> = {
     i18nKey: 'errors.auth.failed',
   },
   A501: {
-    message: 'You don\'t have permission for this action',
+    message: "You don't have permission for this action",
     severity: 'warning',
     recoverable: false,
     action: 'Contact administrator',
@@ -322,10 +322,7 @@ export function isRecoverableError(code: string | undefined): boolean {
  * // "Something went wrong"
  * ```
  */
-export function getErrorMessage(
-  code: string | undefined,
-  fallbackMessage?: string
-): string {
+export function getErrorMessage(code: string | undefined, fallbackMessage?: string): string {
   if (!code) {
     return fallbackMessage || 'An error occurred. Please try again.';
   }
@@ -365,10 +362,7 @@ export function getErrorMessage(
  * // }
  * ```
  */
-export function getErrorInfo(
-  code: string | undefined,
-  fallbackMessage?: string
-): ErrorInfo {
+export function getErrorInfo(code: string | undefined, fallbackMessage?: string): ErrorInfo {
   if (!code) {
     return {
       message: fallbackMessage || 'An error occurred. Please try again.',

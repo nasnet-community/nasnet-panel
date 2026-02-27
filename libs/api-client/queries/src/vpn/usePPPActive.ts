@@ -50,10 +50,7 @@ function transformPPPActive(raw: PPPActiveRaw): PPPActiveConnection {
  * Fetch PPP active connections from RouterOS
  */
 async function fetchPPPActive(routerIp: string): Promise<PPPActiveConnection[]> {
-  const result = await makeRouterOSRequest<PPPActiveRaw[]>(
-    routerIp,
-    'ppp/active'
-  );
+  const result = await makeRouterOSRequest<PPPActiveRaw[]>(routerIp, 'ppp/active');
 
   if (!result.success || !result.data) {
     throw new Error(result.error || 'Failed to fetch PPP active connections');
@@ -80,4 +77,3 @@ export function usePPPActive(routerIp: string): UseQueryResult<PPPActiveConnecti
     enabled: !!routerIp,
   });
 }
-

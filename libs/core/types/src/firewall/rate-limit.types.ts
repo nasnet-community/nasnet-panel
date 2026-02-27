@@ -18,9 +18,9 @@ import { z } from 'zod';
  * Defines the action taken against connections that exceed the configured limit
  */
 export const RateLimitActionSchema = z.enum([
-  'drop',          // Drop excess connections immediately
-  'tarpit',        // Trap connections in tarpit (slow response)
-  'add-to-list',   // Add source IP to address list for blocking
+  'drop', // Drop excess connections immediately
+  'tarpit', // Trap connections in tarpit (slow response)
+  'add-to-list', // Add source IP to address list for blocking
 ]);
 
 /**
@@ -35,9 +35,9 @@ export type RateLimitAction = z.infer<typeof RateLimitActionSchema>;
  * Defines the time window for rate limit calculation
  */
 export const TimeWindowSchema = z.enum([
-  'per-second',  // Connections per second
-  'per-minute',  // Connections per minute
-  'per-hour',    // Connections per hour
+  'per-second', // Connections per second
+  'per-minute', // Connections per minute
+  'per-hour', // Connections per hour
 ]);
 
 /**
@@ -126,11 +126,7 @@ export const SynFloodConfigSchema = z.object({
     .int()
     .min(1, 'SYN limit must be at least 1')
     .max(10000, 'SYN limit cannot exceed 10000'), // packets per second
-  burst: z
-    .number()
-    .int()
-    .min(1, 'Burst must be at least 1')
-    .max(1000, 'Burst cannot exceed 1000'),
+  burst: z.number().int().min(1, 'Burst must be at least 1').max(1000, 'Burst cannot exceed 1000'),
   action: z.enum(['drop', 'tarpit']),
 });
 
@@ -175,12 +171,14 @@ export type BlockedIP = z.infer<typeof BlockedIPSchema>;
 export const RateLimitStatsSchema = z.object({
   totalBlocked: z.number(),
   topBlockedIPs: z.array(BlockedIPSchema).readonly(),
-  triggerEvents: z.array(
-    z.object({
-      hour: z.string(),
-      count: z.number(),
-    })
-  ).readonly(),
+  triggerEvents: z
+    .array(
+      z.object({
+        hour: z.string(),
+        count: z.number(),
+      })
+    )
+    .readonly(),
   lastUpdated: z.date(),
 });
 
@@ -359,7 +357,11 @@ export const CONNECTION_LIMIT_PRESETS = [
   { label: 'Moderate (100/min)', limit: 100, timeWindow: 'per-minute' as TimeWindow },
   { label: 'Relaxed (500/min)', limit: 500, timeWindow: 'per-minute' as TimeWindow },
   { label: 'Very Relaxed (1000/min)', limit: 1000, timeWindow: 'per-minute' as TimeWindow },
-] as const satisfies readonly { readonly label: string; readonly limit: number; readonly timeWindow: TimeWindow }[];
+] as const satisfies readonly {
+  readonly label: string;
+  readonly limit: number;
+  readonly timeWindow: TimeWindow;
+}[];
 
 /**
  * SYN limit presets for SYN flood protection
@@ -376,4 +378,8 @@ export const SYN_LIMIT_PRESETS = [
   { label: 'Strict', synLimit: 100, burst: 5 },
   { label: 'Moderate', synLimit: 200, burst: 10 },
   { label: 'Relaxed', synLimit: 500, burst: 20 },
-] as const satisfies readonly { readonly label: string; readonly synLimit: number; readonly burst: number }[];
+] as const satisfies readonly {
+  readonly label: string;
+  readonly synLimit: number;
+  readonly burst: number;
+}[];

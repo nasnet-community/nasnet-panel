@@ -1,24 +1,33 @@
 # Translator Layer
 
-> Bidirectional translation between GraphQL field names and RouterOS property names, with type conversion, SSH response parsing, and protocol-specific command formatting.
+> Bidirectional translation between GraphQL field names and RouterOS property names, with type
+> conversion, SSH response parsing, and protocol-specific command formatting.
 
-**Packages:** `internal/translator/`, `internal/translator/formatters/`, `internal/router/ssh/`, `internal/router/ssh/parser/`
-**Key Files:** `translator/formatters/formatter.go`, `translator/formatters/api_formatter.go`, `router/ssh/translator.go`, `router/ssh/parser/table_parser.go`, `router/ssh/parser/terse_parser.go`, `router/ssh/parser/detail_parser.go`, `router/ssh/parser/keyvalue_parser.go`, `router/ssh/parser/errors.go`
-**Prerequisites:** [See: 04-router-communication.md §Package Reference]
+**Packages:** `internal/translator/`, `internal/translator/formatters/`, `internal/router/ssh/`,
+`internal/router/ssh/parser/` **Key Files:** `translator/formatters/formatter.go`,
+`translator/formatters/api_formatter.go`, `router/ssh/translator.go`,
+`router/ssh/parser/table_parser.go`, `router/ssh/parser/terse_parser.go`,
+`router/ssh/parser/detail_parser.go`, `router/ssh/parser/keyvalue_parser.go`,
+`router/ssh/parser/errors.go` **Prerequisites:** [See: 04-router-communication.md §Package Reference]
 
 ---
 
 ## Overview
 
-The translator layer sits between the GraphQL API and the RouterOS protocol adapters. Its purpose is to convert between two incompatible naming and type systems:
+The translator layer sits between the GraphQL API and the RouterOS protocol adapters. Its purpose is
+to convert between two incompatible naming and type systems:
 
 - **GraphQL** uses camelCase field names and Go-native types (`bool`, `int`, `time.Duration`)
-- **RouterOS** uses kebab-case property names and string-encoded values (`"yes"`/`"no"`, `"1d2h30m"`, `"1500"`)
+- **RouterOS** uses kebab-case property names and string-encoded values (`"yes"`/`"no"`,
+  `"1d2h30m"`, `"1500"`)
 
 The layer has two major sub-systems:
 
-1. **Field mapping and type conversion** (`internal/translator/`) — Translates field names and value types bidirectionally using a registry of explicit mappings with automatic camelCase↔kebab-case fallback.
-2. **SSH response parsing** (`internal/router/ssh/parser/`) — Parses the four RouterOS CLI output formats (terse, table, detail, key-value) into structured records.
+1. **Field mapping and type conversion** (`internal/translator/`) — Translates field names and value
+   types bidirectionally using a registry of explicit mappings with automatic camelCase↔kebab-case
+   fallback.
+2. **SSH response parsing** (`internal/router/ssh/parser/`) — Parses the four RouterOS CLI output
+   formats (terse, table, detail, key-value) into structured records.
 
 ---
 
@@ -117,7 +126,8 @@ func (r *FieldMappingRegistry) GetMappingsForPath(path string) map[string]*Field
 func (r *FieldMappingRegistry) TranslateFieldName(graphqlField string) string
 ```
 
-The registry is populated via `BuildDefaultRegistry()`, which registers mappings for all known RouterOS paths including `/interface`, `/ip/address`, `/system/resource`, and others.
+The registry is populated via `BuildDefaultRegistry()`, which registers mappings for all known
+RouterOS paths including `/interface`, `/ip/address`, `/system/resource`, and others.
 
 #### Automatic Name Conversion
 
@@ -138,7 +148,8 @@ func CamelToKebab(s string) string
 func KebabToCamel(s string) string
 ```
 
-Note: MikroTik internal fields prefixed with `.` (`.id`, `.nextid`) have the dot stripped during conversion.
+Note: MikroTik internal fields prefixed with `.` (`.id`, `.nextid`) have the dot stripped during
+conversion.
 
 #### Type Parsers (RouterOS → Go)
 
@@ -187,7 +198,8 @@ func FormatMikroTikValue(v interface{}, ft FieldType) string
 
 #### Response Translator
 
-The `ResponseTranslator` takes a `CanonicalResponse` from a protocol adapter and produces a GraphQL-ready response:
+The `ResponseTranslator` takes a `CanonicalResponse` from a protocol adapter and produces a
+GraphQL-ready response:
 
 ```go
 // ResponseTranslator converts RouterOS protocol responses to GraphQL format.
@@ -217,6 +229,7 @@ func (t *ResponseTranslator) translateRecord(path string, record map[string]inte
 ```
 
 **Key invariants:**
+
 - `disabled=yes` → `enabled=false` (field renamed and value inverted)
 - `.id=*1` → `id=*1` (dot prefix stripped)
 - Nil registry falls back gracefully to auto-conversion
@@ -256,7 +269,8 @@ func (srt *StreamingResponseTranslator) TranslateChannel(ctx context.Context, in
 
 ### `internal/translator/formatters`
 
-Protocol-specific command formatting. Converts `CanonicalCommand` to protocol bytes and parses responses back.
+Protocol-specific command formatting. Converts `CanonicalCommand` to protocol bytes and parses
+responses back.
 
 #### ProtocolFormatter Interface
 
@@ -283,6 +297,7 @@ func (r *FormatterRegistry) Parse(protocol translator.Protocol, response []byte)
 Handles the RouterOS Binary API protocol (port 8728/8729).
 
 **Format output:** A JSON-encoded `APICommand` struct:
+
 ```go
 type APICommand struct {
     Command string   `json:"command"` // e.g., "/interface/ethernet/print"
@@ -290,46 +305,35 @@ type APICommand struct {
 }
 ```
 
-**Action-to-verb mapping:**
-| Canonical Action | API Verb |
-|-----------------|----------|
-| `print`, `get`  | `print`  |
-| `add`           | `add`    |
-| `set`, `enable`, `disable` | `set` |
-| `remove`        | `remove` |
-| `move`          | `move`   |
+**Action-to-verb mapping:** | Canonical Action | API Verb | |-----------------|----------| |
+`print`, `get` | `print` | | `add` | `add` | | `set`, `enable`, `disable` | `set` | | `remove` |
+`remove` | | `move` | `move` |
 
 **Enable/Disable encoding:**
+
 - `ActionEnable` → `=disabled=no`
 - `ActionDisable` → `=disabled=yes`
 
-**Filter operators:**
-| Operator | API Syntax |
-|----------|-----------|
-| Equals   | `?field=value` |
-| Greater  | `?field>value` |
-| Less     | `?field<value` |
-| Contains | `?field~value` (regex) |
+**Filter operators:** | Operator | API Syntax | |----------|-----------| | Equals | `?field=value` |
+| Greater | `?field>value` | | Less | `?field<value` | | Contains | `?field~value` (regex) |
 
 **Parse behavior:**
+
 1. First attempts JSON unmarshalling as `APIResponse` (preferred path)
 2. Falls back to parsing raw `!re`/`!done`/`!trap` protocol lines
 3. Errors are categorized by RouterOS category code (0–5) and message content
 
-**Error categorization:**
-| Category/Message Pattern | ErrorCategory |
-|--------------------------|---------------|
-| "not found", "no such item" | `NotFound` |
-| "already", "duplicate" | `Conflict` |
-| "invalid", "bad" | `Validation` |
-| Category 4 (login failure) | `Permission` |
-| All others | `Internal` |
+**Error categorization:** | Category/Message Pattern | ErrorCategory |
+|--------------------------|---------------| | "not found", "no such item" | `NotFound` | |
+"already", "duplicate" | `Conflict` | | "invalid", "bad" | `Validation` | | Category 4 (login
+failure) | `Permission` | | All others | `Internal` |
 
 ---
 
 ### `internal/router/ssh`
 
-SSH-specific translator that bridges between the `router.RouterPort` command interface and the SSH parser.
+SSH-specific translator that bridges between the `router.RouterPort` command interface and the SSH
+parser.
 
 ```go
 // Translator wraps the SSH parser service and normalizer.
@@ -351,34 +355,36 @@ func GetParseHintsFromCommand(cmd router.Command) parser.ParseHints
 
 **Action-to-CommandType mapping:**
 
-| router.Command.Action | parser.CommandType |
-|----------------------|-------------------|
-| `"print"`            | `CommandPrint`    |
-| `"print detail"`     | `CommandPrintDetail` |
-| `"print terse"`      | `CommandPrintTerse` |
-| `"export"`           | `CommandExport`   |
-| `"export verbose"`   | `CommandExportVerbose` |
-| `"get"`              | `CommandGet`      |
-| (any other)          | `CommandPrint`    |
+| router.Command.Action | parser.CommandType     |
+| --------------------- | ---------------------- |
+| `"print"`             | `CommandPrint`         |
+| `"print detail"`      | `CommandPrintDetail`   |
+| `"print terse"`       | `CommandPrintTerse`    |
+| `"export"`            | `CommandExport`        |
+| `"export verbose"`    | `CommandExportVerbose` |
+| `"get"`               | `CommandGet`           |
+| (any other)           | `CommandPrint`         |
 
 ---
 
 ### `internal/router/ssh/parser`
 
-The SSH parser sub-system detects the CLI output format automatically and dispatches to the appropriate strategy.
+The SSH parser sub-system detects the CLI output format automatically and dispatches to the
+appropriate strategy.
 
 #### Parser Strategies and Priority
 
 Four strategies compete to parse each response. The `SSHParserService` tries them in priority order:
 
-| Strategy | Priority | Trigger |
-|----------|----------|---------|
-| Terse    | 1        | `CommandPrintTerse` hint OR semicolon-separated `key=value` pairs |
+| Strategy | Priority | Trigger                                                                                         |
+| -------- | -------- | ----------------------------------------------------------------------------------------------- |
+| Terse    | 1        | `CommandPrintTerse` hint OR semicolon-separated `key=value` pairs                               |
 | Table    | 2        | Flag definition line (`Flags: X - disabled`) OR `#` header OR multiple uppercase column headers |
-| Detail   | 3        | `CommandPrintDetail` hint OR indented `key=value` rows with continuation lines |
-| KeyValue | 5        | `CommandSystemResource`/`CommandGet` hint OR ≥3 `key: value` colon-separated lines |
+| Detail   | 3        | `CommandPrintDetail` hint OR indented `key=value` rows with continuation lines                  |
+| KeyValue | 5        | `CommandSystemResource`/`CommandGet` hint OR ≥3 `key: value` colon-separated lines              |
 
 All strategies implement `ParserStrategy`:
+
 ```go
 type ParserStrategy interface {
     Name() string
@@ -388,25 +394,29 @@ type ParserStrategy interface {
 }
 ```
 
-All strategies respect context cancellation and pass the `Normalizer` to normalize field names before returning resources.
+All strategies respect context cancellation and pass the `Normalizer` to normalize field names
+before returning resources.
 
 #### Terse Parser (`terse_parser.go`)
 
 RouterOS 6.43+ preferred format. Most reliable.
 
 **Input format:**
+
 ```
 .id=*1;name=vpn-usa;listen-port=51820;mtu=1420;running=true
 .id=*2;name=vpn-eu;listen-port=51821;mtu=1420;running=true
 ```
 
-Each line is a single resource. Pairs are semicolon-separated `key=value`. Quoted values (single or double) are supported and unquoted.
+Each line is a single resource. Pairs are semicolon-separated `key=value`. Quoted values (single or
+double) are supported and unquoted.
 
 #### Table Parser (`table_parser.go`)
 
 Fixed-width column format for list output.
 
 **Input format:**
+
 ```
 Flags: X - disabled, R - running
  #   NAME      LISTEN-PORT   MTU    RUNNING
@@ -415,19 +425,23 @@ Flags: X - disabled, R - running
 ```
 
 Row extraction steps:
+
 1. Parse `Flags:` line for flag character definitions
 2. Locate header line (by uppercase words or `#` prefix)
 3. Extract column positions using regex on header
 4. For each data row: extract row number, flag characters, then column values by position
 5. Fall back to whitespace splitting if position-based extraction yields no data
 
-**Flag characters:** `X` (disabled), `R` (running), `D` (dynamic), `I` (inactive), `A` (active), `C` (complete), `S` (static), `H` (hw-offload), `P` (passive), `B` (backup), `M` (master), `L` (log), `E` (established)
+**Flag characters:** `X` (disabled), `R` (running), `D` (dynamic), `I` (inactive), `A` (active), `C`
+(complete), `S` (static), `H` (hw-offload), `P` (passive), `B` (backup), `M` (master), `L` (log),
+`E` (established)
 
 #### Detail Parser (`detail_parser.go`)
 
 Multi-line records for `print detail` output.
 
 **Input format:**
+
 ```
 0 R name="vpn-usa" listen-port=51820 mtu=1420 private-key="xxx"
     running=true disabled=false
@@ -436,13 +450,16 @@ Multi-line records for `print detail` output.
     running=true disabled=false
 ```
 
-Row boundaries: Row start lines have ≤5 leading spaces and begin with a digit optionally followed by flag characters. Continuation lines have ≥4 leading spaces. A state machine handles quoted values (including `=` inside quotes).
+Row boundaries: Row start lines have ≤5 leading spaces and begin with a digit optionally followed by
+flag characters. Continuation lines have ≥4 leading spaces. A state machine handles quoted values
+(including `=` inside quotes).
 
 #### Key-Value Parser (`keyvalue_parser.go`)
 
 Single-resource colon-separated format for system info commands.
 
 **Input format:**
+
 ```
 uptime: 2w3d12h30m45s
 version: 7.13.2 (stable)
@@ -451,7 +468,8 @@ cpu-load: 5
 free-memory: 512.0MiB
 ```
 
-Produces a single resource from all `key: value` pairs. Requires ≥3 valid key-value lines for format detection.
+Produces a single resource from all `key: value` pairs. Requires ≥3 valid key-value lines for format
+detection.
 
 #### ParseResult and ParseWarning
 
@@ -492,20 +510,21 @@ type ParseError struct {
 
 **Error codes:**
 
-| Code | Meaning | Retryable |
-|------|---------|-----------|
-| `PARSE_TIMEOUT` | Parsing timed out | Yes |
-| `INVALID_FORMAT` | Could not detect format | No |
-| `UNKNOWN_COMMAND` | Command type not supported | No |
-| `PARTIAL_PARSE` | Some rows failed | No |
-| `OUTPUT_TOO_LARGE` | Output exceeds size limit | No |
-| `MALFORMED_TABLE` | Table header/column issue | No |
-| `MALFORMED_DETAIL` | Detail format quote/indent issue | No |
-| `MALFORMED_EXPORT` | Export format truncated | No |
-| `NO_MATCHING_PARSER` | No strategy matched | No |
-| `EMPTY_OUTPUT` | Router returned nothing | No |
+| Code                 | Meaning                          | Retryable |
+| -------------------- | -------------------------------- | --------- |
+| `PARSE_TIMEOUT`      | Parsing timed out                | Yes       |
+| `INVALID_FORMAT`     | Could not detect format          | No        |
+| `UNKNOWN_COMMAND`    | Command type not supported       | No        |
+| `PARTIAL_PARSE`      | Some rows failed                 | No        |
+| `OUTPUT_TOO_LARGE`   | Output exceeds size limit        | No        |
+| `MALFORMED_TABLE`    | Table header/column issue        | No        |
+| `MALFORMED_DETAIL`   | Detail format quote/indent issue | No        |
+| `MALFORMED_EXPORT`   | Export format truncated          | No        |
+| `NO_MATCHING_PARSER` | No strategy matched              | No        |
+| `EMPTY_OUTPUT`       | Router returned nothing          | No        |
 
-Constructor functions include `WithSuggestions()` and `WithRawSnippet()` for building contextual errors.
+Constructor functions include `WithSuggestions()` and `WithRawSnippet()` for building contextual
+errors.
 
 ---
 
@@ -531,6 +550,7 @@ RouterOS command: {"mac-address": "AA:BB:CC:DD:EE:FF", "mtu": "1500", "disabled"
 
 ## Cross-References
 
-- [See: 04-router-communication.md §Package Reference] — Router adapters that consume formatted commands and produce CanonicalResponse
+- [See: 04-router-communication.md §Package Reference] — Router adapters that consume formatted commands
+  and produce CanonicalResponse
 - [See: 03-graphql-api.md] — GraphQL resolvers that call ResponseTranslator
 - [See: 08-provisioning-engine.md] — Provisioning uses FieldMappingRegistry for config generation

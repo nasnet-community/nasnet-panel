@@ -10,7 +10,8 @@ const meta: Meta<typeof LoadingSkeleton> = {
     layout: 'fullscreen',
     docs: {
       description: {
-        component: 'Simplified layout skeleton matching the network page design. Shows loading state for interfaces section, connected devices, IP addresses, and DHCP configuration with responsive grid layout.',
+        component:
+          'Simplified layout skeleton matching the network page design. Shows loading state for interfaces section, connected devices, IP addresses, and DHCP configuration with responsive grid layout.',
       },
     },
   },

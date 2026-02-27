@@ -48,9 +48,7 @@ interface UseInterfacesReturn {
  *   return interfaces.map(iface => <InterfaceCard key={iface.id} data={iface} />);
  * }
  */
-export function useInterfaces({
-  deviceId,
-}: UseInterfacesProps): UseInterfacesReturn {
+export function useInterfaces({ deviceId }: UseInterfacesProps): UseInterfacesReturn {
   // Primary: Real-time subscription for status changes
   const { data: subscriptionData, error: subError } = useSubscription(
     INTERFACE_STATUS_SUBSCRIPTION,
@@ -83,10 +81,7 @@ export function useInterfaces({
   }, [hasSubscriptionData, subscriptionData, queryData]);
 
   // Sort interfaces by type priority (ethernet first, then bridge, wireless, etc.)
-  const interfaces = useMemo(
-    () => sortInterfacesByPriority(rawInterfaces),
-    [rawInterfaces]
-  );
+  const interfaces = useMemo(() => sortInterfacesByPriority(rawInterfaces), [rawInterfaces]);
 
   // Combine errors (subscription error takes precedence)
   const error = subError || queryError || null;

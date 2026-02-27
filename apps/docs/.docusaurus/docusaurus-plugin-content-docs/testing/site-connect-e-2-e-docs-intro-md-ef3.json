@@ -1,7 +1,7 @@
 {
   "id": "intro",
   "title": "Introduction",
-  "description": "End-to-end tests for NasNet using Playwright. These tests validate the full application stack across multiple browsers.",
+  "description": "End-to-end tests for NasNet using Playwright. These tests validate the full application stack",
   "source": "@site/../connect-e2e/docs/intro.md",
   "sourceDirName": ".",
   "slug": "/intro",

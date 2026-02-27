@@ -16,15 +16,15 @@
  * };
  */
 export interface RouterboardInfo {
-    /** Device serial number */
-    serialNumber: string;
-    /** Currently installed firmware version */
-    currentFirmware: string;
-    /** Factory-installed firmware version */
-    factoryFirmware: string;
-    /** Routerboard model identifier */
-    model: string;
-    /** Hardware revision */
-    revision: string;
+  /** Device serial number */
+  serialNumber: string;
+  /** Currently installed firmware version */
+  currentFirmware: string;
+  /** Factory-installed firmware version */
+  factoryFirmware: string;
+  /** Routerboard model identifier */
+  model: string;
+  /** Hardware revision */
+  revision: string;
 }
 //# sourceMappingURL=hardware.d.ts.map

@@ -1,6 +1,14 @@
 import * as React from 'react';
 
-import { AlertCircle, CheckCircle2, AlertTriangle, Info, Terminal, Zap, MessageSquare } from 'lucide-react';
+import {
+  AlertCircle,
+  CheckCircle2,
+  AlertTriangle,
+  Info,
+  Terminal,
+  Zap,
+  MessageSquare,
+} from 'lucide-react';
 
 import { Alert, AlertTitle, AlertDescription } from './alert';
 
@@ -43,9 +51,7 @@ export const Default: Story = {
     <Alert>
       <Terminal className="h-4 w-4" />
       <AlertTitle>Heads up!</AlertTitle>
-      <AlertDescription>
-        You can add components to your app using the cli.
-      </AlertDescription>
+      <AlertDescription>You can add components to your app using the cli.</AlertDescription>
     </Alert>
   ),
 };
@@ -56,41 +62,31 @@ export const AllVariants: Story = {
       <Alert variant="default">
         <Info className="h-4 w-4" />
         <AlertTitle>Default Alert</AlertTitle>
-        <AlertDescription>
-          This is a default alert for general information.
-        </AlertDescription>
+        <AlertDescription>This is a default alert for general information.</AlertDescription>
       </Alert>
 
       <Alert variant="success">
         <CheckCircle2 className="h-4 w-4" />
         <AlertTitle>Success!</AlertTitle>
-        <AlertDescription>
-          Your configuration has been saved successfully.
-        </AlertDescription>
+        <AlertDescription>Your configuration has been saved successfully.</AlertDescription>
       </Alert>
 
       <Alert variant="warning">
         <AlertTriangle className="h-4 w-4" />
         <AlertTitle>Warning</AlertTitle>
-        <AlertDescription>
-          Your session is about to expire. Please save your work.
-        </AlertDescription>
+        <AlertDescription>Your session is about to expire. Please save your work.</AlertDescription>
       </Alert>
 
       <Alert variant="destructive">
         <AlertCircle className="h-4 w-4" />
         <AlertTitle>Error</AlertTitle>
-        <AlertDescription>
-          Connection failed. Please check your network settings.
-        </AlertDescription>
+        <AlertDescription>Connection failed. Please check your network settings.</AlertDescription>
       </Alert>
 
       <Alert variant="info">
         <Info className="h-4 w-4" />
         <AlertTitle>Did you know?</AlertTitle>
-        <AlertDescription>
-          You can use keyboard shortcuts to navigate faster.
-        </AlertDescription>
+        <AlertDescription>You can use keyboard shortcuts to navigate faster.</AlertDescription>
       </Alert>
     </div>
   ),
@@ -142,7 +138,8 @@ export const Tablet: Story = {
         <Info className="h-5 w-5" />
         <AlertTitle>System Update Available</AlertTitle>
         <AlertDescription>
-          A new firmware version is available. Update now to get the latest features and security fixes.
+          A new firmware version is available. Update now to get the latest features and security
+          fixes.
         </AlertDescription>
       </Alert>
     </div>
@@ -161,7 +158,8 @@ export const Desktop: Story = {
         <Zap className="h-5 w-5" />
         <AlertTitle>Critical Configuration Issue</AlertTitle>
         <AlertDescription>
-          A critical configuration conflict was detected. This may impact your network connectivity. Please review the affected rules and resolve the conflict immediately.
+          A critical configuration conflict was detected. This may impact your network connectivity.
+          Please review the affected rules and resolve the conflict immediately.
         </AlertDescription>
       </Alert>
     </div>
@@ -193,7 +191,7 @@ export const LongContent: Story = {
         <p className="mb-2">
           When configuring your network interfaces, keep these best practices in mind:
         </p>
-        <ul className="list-disc list-inside space-y-1 text-sm">
+        <ul className="list-inside list-disc space-y-1 text-sm">
           <li>Always backup your configuration before making changes</li>
           <li>Test settings on a non-critical interface first</li>
           <li>Document all custom rules and their purpose</li>
@@ -212,12 +210,15 @@ export const DynamicAlert: Story = {
       <div className="space-y-4">
         <button
           onClick={() => setIsVisible(!isVisible)}
-          className="rounded-md bg-primary px-4 py-2 text-primary-foreground hover:bg-primary/90"
+          className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-md px-4 py-2"
         >
           {isVisible ? 'Hide' : 'Show'} Dynamic Alert
         </button>
         {isVisible && (
-          <Alert variant="success" live>
+          <Alert
+            variant="success"
+            live
+          >
             <CheckCircle2 className="h-4 w-4" />
             <AlertTitle>Success!</AlertTitle>
             <AlertDescription>

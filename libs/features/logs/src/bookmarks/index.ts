@@ -4,30 +4,3 @@
  */
 
 export * from './useLogBookmarks';
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

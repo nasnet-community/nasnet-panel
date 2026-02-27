@@ -130,7 +130,10 @@ export const AllSizes: Story = {
       <Button size="sm">Small (9px)</Button>
       <Button size="default">Default (11px)</Button>
       <Button size="lg">Large (12px)</Button>
-      <Button size="icon" aria-label="Email">
+      <Button
+        size="icon"
+        aria-label="Email"
+      >
         <Mail className="h-4 w-4" />
       </Button>
     </div>
@@ -204,13 +207,24 @@ export const LoadingState: Story = {
 export const LoadingVariants: Story = {
   render: () => (
     <div className="flex gap-4">
-      <Button isLoading loadingText="Saving...">
+      <Button
+        isLoading
+        loadingText="Saving..."
+      >
         Save Changes
       </Button>
-      <Button variant="secondary" isLoading loadingText="Loading...">
+      <Button
+        variant="secondary"
+        isLoading
+        loadingText="Loading..."
+      >
         Secondary Loading
       </Button>
-      <Button variant="outline" isLoading loadingText="Processing...">
+      <Button
+        variant="outline"
+        isLoading
+        loadingText="Processing..."
+      >
         Outline Loading
       </Button>
     </div>
@@ -218,7 +232,8 @@ export const LoadingVariants: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Loading state works across all variants. Spinner appears before text, button disables, and aria-busy is set.',
+        story:
+          'Loading state works across all variants. Spinner appears before text, button disables, and aria-busy is set.',
       },
     },
   },
@@ -232,13 +247,22 @@ export const DisabledState: Story = {
   render: () => (
     <div className="flex gap-4">
       <Button disabled>Disabled Default</Button>
-      <Button variant="secondary" disabled>
+      <Button
+        variant="secondary"
+        disabled
+      >
         Disabled Secondary
       </Button>
-      <Button variant="destructive" disabled>
+      <Button
+        variant="destructive"
+        disabled
+      >
         Disabled Destructive
       </Button>
-      <Button variant="outline" disabled>
+      <Button
+        variant="outline"
+        disabled
+      >
         Disabled Outline
       </Button>
     </div>
@@ -259,7 +283,10 @@ export const DisabledState: Story = {
  */
 export const SuccessState: Story = {
   render: () => (
-    <Button variant="default" disabled>
+    <Button
+      variant="default"
+      disabled
+    >
       <Check className="h-4 w-4" />
       Saved Successfully
     </Button>
@@ -267,7 +294,8 @@ export const SuccessState: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Success state shown momentarily after operation completes (500–1000ms). Pair with toast for visibility.',
+        story:
+          'Success state shown momentarily after operation completes (500–1000ms). Pair with toast for visibility.',
       },
     },
   },
@@ -280,13 +308,24 @@ export const SuccessState: Story = {
 export const IconOnly: Story = {
   render: () => (
     <div className="flex gap-4">
-      <Button size="icon" variant="ghost" aria-label="Send email">
+      <Button
+        size="icon"
+        variant="ghost"
+        aria-label="Send email"
+      >
         <Mail className="h-4 w-4" />
       </Button>
-      <Button size="icon" variant="outline" aria-label="Download file">
+      <Button
+        size="icon"
+        variant="outline"
+        aria-label="Download file"
+      >
         <Download className="h-4 w-4" />
       </Button>
-      <Button size="icon" aria-label="Confirm action">
+      <Button
+        size="icon"
+        aria-label="Confirm action"
+      >
         <Check className="h-4 w-4" />
       </Button>
     </div>
@@ -294,7 +333,8 @@ export const IconOnly: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Icon-only buttons MUST include aria-label for accessibility. Touch target: 44px on mobile, 32px on desktop.',
+        story:
+          'Icon-only buttons MUST include aria-label for accessibility. Touch target: 44px on mobile, 32px on desktop.',
       },
     },
   },
@@ -307,7 +347,11 @@ export const IconOnly: Story = {
 export const AsChild: Story = {
   render: () => (
     <Button asChild>
-      <a href="https://example.com" target="_blank" rel="noopener noreferrer">
+      <a
+        href="https://example.com"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
         Go to Dashboard
       </a>
     </Button>
@@ -315,7 +359,8 @@ export const AsChild: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'asChild renders button styling on any element (link, custom component). Useful for consistent styling with different semantics.',
+        story:
+          'asChild renders button styling on any element (link, custom component). Useful for consistent styling with different semantics.',
       },
     },
   },
@@ -334,7 +379,8 @@ export const Mobile: Story = {
     },
     docs: {
       description: {
-        story: 'Mobile (< 640px): 44px minimum touch target, 8px spacing between targets, bottom layout for dense actions.',
+        story:
+          'Mobile (< 640px): 44px minimum touch target, 8px spacing between targets, bottom layout for dense actions.',
       },
     },
   },
@@ -353,7 +399,8 @@ export const Tablet: Story = {
     },
     docs: {
       description: {
-        story: 'Tablet (640–1024px): Balanced touch and click interaction, 38–44px targets, support landscape/portrait.',
+        story:
+          'Tablet (640–1024px): Balanced touch and click interaction, 38–44px targets, support landscape/portrait.',
       },
     },
   },
@@ -372,7 +419,8 @@ export const Desktop: Story = {
     },
     docs: {
       description: {
-        story: 'Desktop (> 1024px): 32–38px click targets, hover effects visible, keyboard shortcuts available.',
+        story:
+          'Desktop (> 1024px): 32–38px click targets, hover effects visible, keyboard shortcuts available.',
       },
     },
   },
@@ -388,7 +436,8 @@ export const EdgeCase_NoContent: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Edge case: Button with no children (icon-only should use size="icon" with aria-label instead).',
+        story:
+          'Edge case: Button with no children (icon-only should use size="icon" with aria-label instead).',
       },
     },
   },
@@ -405,7 +454,8 @@ export const EdgeCase_LongText: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Edge case: Long text wrapping. Use for i18n testing (German ~30% longer than English).',
+        story:
+          'Edge case: Long text wrapping. Use for i18n testing (German ~30% longer than English).',
       },
     },
   },

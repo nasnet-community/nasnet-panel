@@ -1,4 +1,3 @@
-
 import { ProtocolIcon, ProtocolIconBadge } from './ProtocolIcon';
 
 import type { ProtocolIconBadgeProps } from './ProtocolIcon';
@@ -79,11 +78,17 @@ export const IKEv2: IconStory = {
 
 export const AllProtocols: IconStory = {
   render: () => (
-    <div className="flex items-center gap-6 flex-wrap">
+    <div className="flex flex-wrap items-center gap-6">
       {ALL_PROTOCOLS.map((protocol) => (
-        <div key={protocol} className="flex flex-col items-center gap-1.5">
-          <ProtocolIcon protocol={protocol} size={24} />
-          <span className="text-[10px] font-mono text-muted-foreground uppercase tracking-wide">
+        <div
+          key={protocol}
+          className="flex flex-col items-center gap-1.5"
+        >
+          <ProtocolIcon
+            protocol={protocol}
+            size={24}
+          />
+          <span className="text-muted-foreground font-mono text-[10px] uppercase tracking-wide">
             {protocol}
           </span>
         </div>
@@ -93,7 +98,8 @@ export const AllProtocols: IconStory = {
   parameters: {
     docs: {
       description: {
-        story: 'All six protocol icons with their protocol label underneath — useful as a visual token reference.',
+        story:
+          'All six protocol icons with their protocol label underneath — useful as a visual token reference.',
       },
     },
   },
@@ -103,9 +109,15 @@ export const Sizes: IconStory = {
   render: () => (
     <div className="flex items-end gap-6">
       {([16, 20, 24, 32, 40] as const).map((size) => (
-        <div key={size} className="flex flex-col items-center gap-1.5">
-          <ProtocolIcon protocol="wireguard" size={size} />
-          <span className="text-[10px] font-mono text-muted-foreground">{size}px</span>
+        <div
+          key={size}
+          className="flex flex-col items-center gap-1.5"
+        >
+          <ProtocolIcon
+            protocol="wireguard"
+            size={size}
+          />
+          <span className="text-muted-foreground font-mono text-[10px]">{size}px</span>
         </div>
       ))}
     </div>
@@ -158,7 +170,12 @@ const _badgeMeta: Meta<typeof ProtocolIconBadgeDemo> = {
 // so we use named render stories directly with the ProtocolIcon file.
 
 export const BadgeDefault: IconStory = {
-  render: () => <ProtocolIconBadge protocol="wireguard" variant="md" />,
+  render: () => (
+    <ProtocolIconBadge
+      protocol="wireguard"
+      variant="md"
+    />
+  ),
   parameters: {
     docs: {
       description: {
@@ -170,11 +187,17 @@ export const BadgeDefault: IconStory = {
 
 export const BadgeAllProtocols: IconStory = {
   render: () => (
-    <div className="flex items-center gap-4 flex-wrap">
+    <div className="flex flex-wrap items-center gap-4">
       {ALL_PROTOCOLS.map((protocol) => (
-        <div key={protocol} className="flex flex-col items-center gap-1.5">
-          <ProtocolIconBadge protocol={protocol} variant="md" />
-          <span className="text-[10px] font-mono text-muted-foreground uppercase tracking-wide">
+        <div
+          key={protocol}
+          className="flex flex-col items-center gap-1.5"
+        >
+          <ProtocolIconBadge
+            protocol={protocol}
+            variant="md"
+          />
+          <span className="text-muted-foreground font-mono text-[10px] uppercase tracking-wide">
             {protocol}
           </span>
         </div>
@@ -194,9 +217,15 @@ export const BadgeSizes: IconStory = {
   render: () => (
     <div className="flex items-end gap-6">
       {(['sm', 'md', 'lg'] as const).map((variant) => (
-        <div key={variant} className="flex flex-col items-center gap-1.5">
-          <ProtocolIconBadge protocol="wireguard" variant={variant} />
-          <span className="text-[10px] font-mono text-muted-foreground">{variant}</span>
+        <div
+          key={variant}
+          className="flex flex-col items-center gap-1.5"
+        >
+          <ProtocolIconBadge
+            protocol="wireguard"
+            variant={variant}
+          />
+          <span className="text-muted-foreground font-mono text-[10px]">{variant}</span>
         </div>
       ))}
     </div>
@@ -212,19 +241,27 @@ export const BadgeSizes: IconStory = {
 
 export const InContextVPNCard: IconStory = {
   render: () => (
-    <div className="w-[320px] rounded-xl border border-border bg-card p-4 space-y-4">
+    <div className="border-border bg-card w-[320px] space-y-4 rounded-xl border p-4">
       {(
         [
           { protocol: 'wireguard', name: 'Office WireGuard', clients: 12, status: 'Active' },
-          { protocol: 'openvpn',   name: 'Remote Access',   clients: 3,  status: 'Active' },
-          { protocol: 'l2tp',      name: 'Legacy L2TP',     clients: 0,  status: 'Disabled' },
+          { protocol: 'openvpn', name: 'Remote Access', clients: 3, status: 'Active' },
+          { protocol: 'l2tp', name: 'Legacy L2TP', clients: 0, status: 'Disabled' },
         ] as const
       ).map(({ protocol, name, clients, status }) => (
-        <div key={protocol} className="flex items-center gap-3">
-          <ProtocolIconBadge protocol={protocol} variant="sm" />
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-foreground truncate">{name}</p>
-            <p className="text-xs text-muted-foreground">{clients} clients · {status}</p>
+        <div
+          key={protocol}
+          className="flex items-center gap-3"
+        >
+          <ProtocolIconBadge
+            protocol={protocol}
+            variant="sm"
+          />
+          <div className="min-w-0 flex-1">
+            <p className="text-foreground truncate text-sm font-medium">{name}</p>
+            <p className="text-muted-foreground text-xs">
+              {clients} clients · {status}
+            </p>
           </div>
         </div>
       ))}

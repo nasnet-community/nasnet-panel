@@ -118,17 +118,15 @@ const LeaseTableComponent = React.forwardRef<HTMLDivElement, LeaseTableProps>(
             comparison = compareIPAddresses(a.address, b.address);
             break;
           case 'hostname':
-            comparison = (a.hostname || 'Unknown').localeCompare(
-              b.hostname || 'Unknown'
-            );
+            comparison = (a.hostname || 'Unknown').localeCompare(b.hostname || 'Unknown');
             break;
           case 'expiration':
             // Static leases (no expiration) sort last
             if (!a.expiresAfter && !b.expiresAfter) return 0;
             if (!a.expiresAfter) return 1;
             if (!b.expiresAfter) return -1;
-            comparison = parseExpirationToSeconds(a.expiresAfter) -
-              parseExpirationToSeconds(b.expiresAfter);
+            comparison =
+              parseExpirationToSeconds(a.expiresAfter) - parseExpirationToSeconds(b.expiresAfter);
             break;
           case 'macAddress':
             comparison = a.macAddress.localeCompare(b.macAddress);
@@ -142,7 +140,10 @@ const LeaseTableComponent = React.forwardRef<HTMLDivElement, LeaseTableProps>(
     // Loading skeleton
     if (isLoading) {
       return (
-        <div ref={ref} className={cn('space-y-4', className)}>
+        <div
+          ref={ref}
+          className={cn('space-y-4', className)}
+        >
           <Skeleton className="h-10 w-full max-w-sm" />
           <div className="rounded-md border">
             <Table>
@@ -158,11 +159,21 @@ const LeaseTableComponent = React.forwardRef<HTMLDivElement, LeaseTableProps>(
               <TableBody>
                 {[1, 2, 3, 4, 5].map((i) => (
                   <TableRow key={i}>
-                    <TableCell><Skeleton className="h-4 w-28" /></TableCell>
-                    <TableCell><Skeleton className="h-4 w-32" /></TableCell>
-                    <TableCell><Skeleton className="h-4 w-24" /></TableCell>
-                    <TableCell><Skeleton className="h-6 w-16" /></TableCell>
-                    <TableCell><Skeleton className="h-4 w-20" /></TableCell>
+                    <TableCell>
+                      <Skeleton className="h-4 w-28" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton className="h-4 w-32" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton className="h-4 w-24" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton className="h-6 w-16" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton className="h-4 w-20" />
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -175,8 +186,11 @@ const LeaseTableComponent = React.forwardRef<HTMLDivElement, LeaseTableProps>(
     // Empty state
     if (leases.length === 0) {
       return (
-        <div ref={ref} className={cn('space-y-4', className)}>
-          <div className="rounded-md border p-8 text-center text-muted-foreground">
+        <div
+          ref={ref}
+          className={cn('space-y-4', className)}
+        >
+          <div className="text-muted-foreground rounded-md border p-8 text-center">
             No DHCP leases found
           </div>
         </div>
@@ -184,7 +198,10 @@ const LeaseTableComponent = React.forwardRef<HTMLDivElement, LeaseTableProps>(
     }
 
     return (
-      <div ref={ref} className={cn('space-y-4', className)}>
+      <div
+        ref={ref}
+        className={cn('space-y-4', className)}
+      >
         {/* Search input */}
         <div className="flex items-center gap-4">
           <Input
@@ -193,7 +210,7 @@ const LeaseTableComponent = React.forwardRef<HTMLDivElement, LeaseTableProps>(
             onChange={(e) => setSearchTerm(e.target.value)}
             className="max-w-sm"
           />
-          <span className="text-sm text-muted-foreground">
+          <span className="text-muted-foreground text-sm">
             {sortedLeases.length} of {leases.length} leases
           </span>
         </div>
@@ -204,26 +221,26 @@ const LeaseTableComponent = React.forwardRef<HTMLDivElement, LeaseTableProps>(
             <TableHeader>
               <TableRow>
                 <TableHead
-                  className="cursor-pointer select-none hover:bg-muted/50"
+                  className="hover:bg-muted/50 cursor-pointer select-none"
                   onClick={() => handleSort('ipAddress')}
                 >
                   IP Address{getSortIndicator('ipAddress')}
                 </TableHead>
                 <TableHead
-                  className="cursor-pointer select-none hover:bg-muted/50"
+                  className="hover:bg-muted/50 cursor-pointer select-none"
                   onClick={() => handleSort('macAddress')}
                 >
                   MAC Address{getSortIndicator('macAddress')}
                 </TableHead>
                 <TableHead
-                  className="cursor-pointer select-none hover:bg-muted/50"
+                  className="hover:bg-muted/50 cursor-pointer select-none"
                   onClick={() => handleSort('hostname')}
                 >
                   Hostname{getSortIndicator('hostname')}
                 </TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead
-                  className="cursor-pointer select-none hover:bg-muted/50"
+                  className="hover:bg-muted/50 cursor-pointer select-none"
                   onClick={() => handleSort('expiration')}
                 >
                   Expires{getSortIndicator('expiration')}
@@ -231,55 +248,39 @@ const LeaseTableComponent = React.forwardRef<HTMLDivElement, LeaseTableProps>(
               </TableRow>
             </TableHeader>
             <TableBody>
-              {sortedLeases.length === 0 ? (
+              {sortedLeases.length === 0 ?
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center text-muted-foreground">
+                  <TableCell
+                    colSpan={5}
+                    className="text-muted-foreground text-center"
+                  >
                     No leases match your search
                   </TableCell>
                 </TableRow>
-              ) : (
-                sortedLeases.map((lease) => (
+              : sortedLeases.map((lease) => (
                   <TableRow
                     key={lease.id}
-                    className={cn(
-                      lease.blocked && 'bg-muted/30 text-muted-foreground'
-                    )}
+                    className={cn(lease.blocked && 'bg-muted/30 text-muted-foreground')}
                   >
-                    <TableCell
-                      className={cn(
-                        'font-mono',
-                        lease.blocked && 'line-through'
-                      )}
-                    >
+                    <TableCell className={cn('font-mono', lease.blocked && 'line-through')}>
                       {lease.address}
                     </TableCell>
-                    <TableCell
-                      className={cn(
-                        'font-mono text-xs',
-                        lease.blocked && 'line-through'
-                      )}
-                    >
+                    <TableCell className={cn('font-mono text-xs', lease.blocked && 'line-through')}>
                       {formatMACAddress(lease.macAddress)}
                     </TableCell>
                     <TableCell className={cn(lease.blocked && 'line-through')}>
-                      {lease.hostname || (
-                        <span className="text-muted-foreground">Unknown</span>
-                      )}
+                      {lease.hostname || <span className="text-muted-foreground">Unknown</span>}
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
                         <StatusBadge status={lease.status} />
-                        {!lease.dynamic && (
-                          <StatusBadge status="static" />
-                        )}
+                        {!lease.dynamic && <StatusBadge status="static" />}
                       </div>
                     </TableCell>
-                    <TableCell>
-                      {formatExpirationTime(lease.expiresAfter)}
-                    </TableCell>
+                    <TableCell>{formatExpirationTime(lease.expiresAfter)}</TableCell>
                   </TableRow>
                 ))
-              )}
+              }
             </TableBody>
           </Table>
         </div>

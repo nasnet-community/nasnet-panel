@@ -34,10 +34,14 @@ extend type Mutation {
   Checks if the binary hash matches the stored hash from install-time.
   """
   reverifyInstance(
-    """Router ID"""
+    """
+    Router ID
+    """
     routerID: ID!
 
-    """Instance ID to reverify"""
+    """
+    Instance ID to reverify
+    """
     instanceID: ID!
   ): ReverifyPayload!
 }
@@ -46,10 +50,14 @@ extend type Mutation {
 Payload for service instance mutations.
 """
 type ServiceInstancePayload {
-  """The service instance (null if operation failed)"""
+  """
+  The service instance (null if operation failed)
+  """
   instance: ServiceInstance
 
-  """Mutation errors"""
+  """
+  Mutation errors
+  """
   errors: [MutationError!]
 }
 
@@ -57,22 +65,34 @@ type ServiceInstancePayload {
 Payload for reverification mutation.
 """
 type ReverifyPayload {
-  """Instance ID that was reverified"""
+  """
+  Instance ID that was reverified
+  """
   instanceID: ID!
 
-  """Whether reverification passed"""
+  """
+  Whether reverification passed
+  """
   success: Boolean!
 
-  """Current binary hash"""
+  """
+  Current binary hash
+  """
   currentHash: String
 
-  """Expected binary hash (from install-time)"""
+  """
+  Expected binary hash (from install-time)
+  """
   expectedHash: String
 
-  """Error message if verification failed"""
+  """
+  Error message if verification failed
+  """
   errorMessage: String
 
-  """Mutation errors"""
+  """
+  Mutation errors
+  """
   errors: [MutationError!]
 }
 
@@ -86,7 +106,9 @@ extend type Subscription {
   Emits progress updates during binary download and installation.
   """
   installProgress(
-    """Router ID to subscribe to"""
+    """
+    Router ID to subscribe to
+    """
     routerID: ID!
   ): InstallProgress!
 
@@ -95,7 +117,9 @@ extend type Subscription {
   Emits events when any instance changes state.
   """
   instanceStatusChanged(
-    """Router ID to subscribe to"""
+    """
+    Router ID to subscribe to
+    """
     routerID: ID!
   ): InstanceStatusChanged!
 
@@ -104,7 +128,9 @@ extend type Subscription {
   Emits events when binaries are verified, verification fails, or integrity checks fail.
   """
   verificationEvents(
-    """Router ID to subscribe to"""
+    """
+    Router ID to subscribe to
+    """
     routerID: ID!
   ): VerificationEvent!
 

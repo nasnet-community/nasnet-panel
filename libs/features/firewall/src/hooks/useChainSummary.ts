@@ -55,7 +55,7 @@ export function useChainSummary(rules: FirewallRule[] | undefined): ChainSummary
     // Aggregate rules
     rules.forEach((rule) => {
       const chain = rule.chain;
-      
+
       // Get or create summary for this chain
       if (!chainMap.has(chain)) {
         chainMap.set(chain, {
@@ -96,10 +96,8 @@ export function useChainSummary(rules: FirewallRule[] | undefined): ChainSummary
 
     // Convert map to array, sorted by chain priority
     const chainOrder: FirewallChain[] = ['input', 'forward', 'output', 'prerouting', 'postrouting'];
-    
-    return chainOrder
-      .filter((chain) => chainMap.has(chain))
-      .map((chain) => chainMap.get(chain)!);
+
+    return chainOrder.filter((chain) => chainMap.has(chain)).map((chain) => chainMap.get(chain)!);
   }, [rules]);
 }
 
@@ -111,11 +109,11 @@ export function useChainSummary(rules: FirewallRule[] | undefined): ChainSummary
  */
 export function getChainColor(chain: FirewallChain): string {
   const CHAIN_COLORS: Record<FirewallChain, string> = {
-    input: 'info',           // Blue for incoming traffic
-    forward: 'warning',      // Amber for pass-through
-    output: 'success',       // Green for outgoing
-    prerouting: 'info',      // Blue for pre-routing
-    postrouting: 'success',  // Green for post-routing
+    input: 'info', // Blue for incoming traffic
+    forward: 'warning', // Amber for pass-through
+    output: 'success', // Green for outgoing
+    prerouting: 'info', // Blue for pre-routing
+    postrouting: 'success', // Green for post-routing
   };
   return CHAIN_COLORS[chain] || 'muted';
 }
@@ -136,30 +134,3 @@ export function getChainDescription(chain: FirewallChain): string {
   };
   return CHAIN_DESCRIPTIONS[chain] || chain;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

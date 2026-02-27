@@ -39,7 +39,9 @@ export interface ConnectionBannerProps {
  * - Place in app layout below header
  * - Will automatically show/hide based on connection state
  */
-export const ConnectionBanner = memo(function ConnectionBanner({ className }: ConnectionBannerProps = {}) {
+export const ConnectionBanner = memo(function ConnectionBanner({
+  className,
+}: ConnectionBannerProps = {}) {
   const state = useConnectionStore((store) => store.state);
 
   // Don't render when connected
@@ -52,7 +54,7 @@ export const ConnectionBanner = memo(function ConnectionBanner({ className }: Co
   return (
     <div
       className={cn(
-        'w-full py-component-sm px-component-md text-center',
+        'py-component-sm px-component-md w-full text-center',
         isReconnecting ? 'bg-warning text-warning-foreground animate-pulse' : 'bg-error text-white',
         'transition-colors duration-150',
         className
@@ -61,16 +63,21 @@ export const ConnectionBanner = memo(function ConnectionBanner({ className }: Co
       aria-live="assertive"
       aria-atomic="true"
     >
-      <div className="flex items-center justify-center gap-component-sm">
-        {isReconnecting ? (
-          <Wifi className="h-4 w-4 animate-pulse flex-shrink-0" aria-hidden="true" />
-        ) : (
-          <AlertTriangle className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
-        )}
+      <div className="gap-component-sm flex items-center justify-center">
+        {isReconnecting ?
+          <Wifi
+            className="h-4 w-4 flex-shrink-0 animate-pulse"
+            aria-hidden="true"
+          />
+        : <AlertTriangle
+            className="h-4 w-4 flex-shrink-0"
+            aria-hidden="true"
+          />
+        }
         <p className="text-sm font-medium">
-          {isReconnecting
-            ? 'Reconnecting to router...'
-            : 'Connection lost. Attempting to reconnect...'}
+          {isReconnecting ?
+            'Reconnecting to router...'
+          : 'Connection lost. Attempting to reconnect...'}
         </p>
       </div>
     </div>

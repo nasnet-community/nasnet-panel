@@ -1,5 +1,5 @@
-import { createRequire } from "node:module";
-import { fileURLToPath } from "node:url";
+import { createRequire } from 'node:module';
+import { fileURLToPath } from 'node:url';
 import { join, dirname, resolve } from 'path';
 
 import type { StorybookConfig } from '@storybook/react-vite';
@@ -17,10 +17,7 @@ const root = resolve(__dirname, '../../..');
 const config: StorybookConfig = {
   stories: ['../src/**/*.stories.@(js|jsx|ts|tsx|mdx)'],
 
-  addons: [
-    getAbsolutePath('@storybook/addon-a11y'),
-    getAbsolutePath('@storybook/addon-docs'),
-  ],
+  addons: [getAbsolutePath('@storybook/addon-a11y'), getAbsolutePath('@storybook/addon-docs')],
 
   framework: {
     name: getAbsolutePath('@storybook/react-vite') as '@storybook/react-vite',
@@ -54,7 +51,10 @@ const config: StorybookConfig = {
           '@nasnet/features/wireless': resolve(root, 'libs/features/wireless/src'),
           '@nasnet/features/firewall': resolve(root, 'libs/features/firewall/src'),
           '@nasnet/features/logs': resolve(root, 'libs/features/logs/src'),
-          '@nasnet/features/configuration-import': resolve(root, 'libs/features/configuration-import/src'),
+          '@nasnet/features/configuration-import': resolve(
+            root,
+            'libs/features/configuration-import/src'
+          ),
           '@nasnet/features/network': resolve(root, 'libs/features/network/src'),
           '@nasnet/features/alerts': resolve(root, 'libs/features/alerts/src'),
           '@nasnet/features/diagnostics': resolve(root, 'libs/features/diagnostics/src'),

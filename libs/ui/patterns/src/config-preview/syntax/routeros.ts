@@ -29,8 +29,7 @@ const routeros: LanguageFn = (hljs) => ({
   case_insensitive: true,
   keywords: {
     // Action keywords that modify configuration
-    keyword:
-      'add set remove print export find get enable disable move copy paste edit where',
+    keyword: 'add set remove print export find get enable disable move copy paste edit where',
     // Boolean literals
     literal: 'yes no true false',
     // Common interface and service types
@@ -139,10 +138,7 @@ export function highlightRouterOS(code: string): string {
     return hljs.highlight(code, { language: 'routeros' }).value;
   } catch {
     // Fallback to plain text if highlighting fails
-    return code
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;');
+    return code.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   }
 }
 

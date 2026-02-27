@@ -49,52 +49,43 @@ export function DashboardPage() {
   } = useRouterboard(routerIp);
 
   // Calculate CPU status
-  const cpuStatus = resourceData?.cpuLoad
-    ? calculateStatus(resourceData.cpuLoad)
-    : 'healthy';
+  const cpuStatus = resourceData?.cpuLoad ? calculateStatus(resourceData.cpuLoad) : 'healthy';
 
   // Calculate memory usage
-  const memoryUsed = resourceData
-    ? resourceData.totalMemory - resourceData.freeMemory
-    : 0;
-  const memoryPercentage = resourceData
-    ? (memoryUsed / resourceData.totalMemory) * 100
-    : 0;
+  const memoryUsed = resourceData ? resourceData.totalMemory - resourceData.freeMemory : 0;
+  const memoryPercentage = resourceData ? (memoryUsed / resourceData.totalMemory) * 100 : 0;
   const memoryStatus = calculateStatus(memoryPercentage);
-  const memorySubtitle = resourceData
-    ? `${formatBytes(memoryUsed)} / ${formatBytes(resourceData.totalMemory)}`
+  const memorySubtitle =
+    resourceData ?
+      `${formatBytes(memoryUsed)} / ${formatBytes(resourceData.totalMemory)}`
     : undefined;
 
   // Calculate disk usage
-  const diskUsed = resourceData
-    ? resourceData.totalHddSpace - resourceData.freeHddSpace
-    : 0;
-  const diskPercentage = resourceData
-    ? (diskUsed / resourceData.totalHddSpace) * 100
-    : 0;
+  const diskUsed = resourceData ? resourceData.totalHddSpace - resourceData.freeHddSpace : 0;
+  const diskPercentage = resourceData ? (diskUsed / resourceData.totalHddSpace) * 100 : 0;
   const diskStatus = calculateStatus(diskPercentage);
-  const diskSubtitle = resourceData
-    ? `${formatBytes(diskUsed)} / ${formatBytes(resourceData.totalHddSpace)}`
+  const diskSubtitle =
+    resourceData ?
+      `${formatBytes(diskUsed)} / ${formatBytes(resourceData.totalHddSpace)}`
     : undefined;
 
   // Determine overall network status
   const getNetworkStatus = () => {
     if (isLoading || resourceLoading) return 'loading';
     if (error || resourceError) return 'error';
-    if (cpuStatus === 'critical' || memoryStatus === 'critical' || diskStatus === 'critical') return 'error';
-    if (cpuStatus === 'warning' || memoryStatus === 'warning' || diskStatus === 'warning') return 'warning';
+    if (cpuStatus === 'critical' || memoryStatus === 'critical' || diskStatus === 'critical')
+      return 'error';
+    if (cpuStatus === 'warning' || memoryStatus === 'warning' || diskStatus === 'warning')
+      return 'warning';
     return 'healthy';
   };
 
   const networkStatus = getNetworkStatus();
   const statusMessage =
-    networkStatus === 'healthy'
-      ? t('routerHealth.allOnline')
-      : networkStatus === 'warning'
-      ? t('routerHealth.attentionNeeded')
-      : networkStatus === 'error'
-      ? t('routerHealth.issuesDetected')
-      : t('common.loading');
+    networkStatus === 'healthy' ? t('routerHealth.allOnline')
+    : networkStatus === 'warning' ? t('routerHealth.attentionNeeded')
+    : networkStatus === 'error' ? t('routerHealth.issuesDetected')
+    : t('common.loading');
 
   // Get device count (placeholder - would come from actual API)
   const deviceCount = 12; // TODO: Get from actual connected devices API
@@ -105,7 +96,11 @@ export function DashboardPage() {
   // Status card metrics
   const statusMetrics = [
     { value: deviceCount, label: t('quickActions.devices') },
-    { value: resourceData?.cpuLoad ? Math.round(100 - resourceData.cpuLoad) : '--', label: t('quickActions.available'), unit: '%' },
+    {
+      value: resourceData?.cpuLoad ? Math.round(100 - resourceData.cpuLoad) : '--',
+      label: t('quickActions.available'),
+      unit: '%',
+    },
     { value: uptimeFormatted, label: t('quickActions.uptime') },
   ];
 
@@ -116,7 +111,7 @@ export function DashboardPage() {
   };
 
   return (
-    <div className="px-page-mobile md:px-page-tablet lg:px-page-desktop py-6 space-y-6 animate-fade-in-up">
+    <div className="px-page-mobile md:px-page-tablet lg:px-page-desktop animate-fade-in-up space-y-6 py-6">
       {/* Hero Status Card - Clean Minimal Design */}
       <StatusCard
         status={networkStatus}
@@ -138,8 +133,10 @@ export function DashboardPage() {
 
       {/* Quick Actions Grid */}
       <div>
-        <p className="text-sm font-semibold font-display text-muted-foreground mb-3 uppercase tracking-wider">{t('quickActions.title')}</p>
-        <div className="grid grid-cols-5 gap-component-md stagger-children">
+        <p className="font-display text-muted-foreground mb-3 text-sm font-semibold uppercase tracking-wider">
+          {t('quickActions.title')}
+        </p>
+        <div className="gap-component-md stagger-children grid grid-cols-5">
           <QuickActionButton
             icon={Wifi}
             label={t('quickActions.wifi')}
@@ -163,18 +160,25 @@ export function DashboardPage() {
           <QuickActionButton
             icon={AlertCircle}
             label={t('quickActions.troubleshoot')}
-            onClick={() => navigate({ to: '/dashboard/troubleshoot', search: { routerId: routerIp, autoStart: false } })}
+            onClick={() =>
+              navigate({
+                to: '/dashboard/troubleshoot',
+                search: { routerId: routerIp, autoStart: false },
+              })
+            }
           />
         </div>
       </div>
 
       {/* Resource Monitoring Section */}
       <div>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold font-display text-foreground">{t('resources.title')}</h2>
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="font-display text-foreground text-lg font-semibold">
+            {t('resources.title')}
+          </h2>
           <LastUpdated timestamp={dataUpdatedAt} />
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-component-md bg-card rounded-card-lg p-component-md border border-border shadow-sm">
+        <div className="gap-component-md bg-card rounded-card-lg p-component-md border-border grid grid-cols-1 border shadow-sm md:grid-cols-2 lg:grid-cols-4">
           {/* System Information Card */}
           <SystemInfoCard
             data={data}
@@ -213,8 +217,10 @@ export function DashboardPage() {
 
       {/* Hardware Details Section */}
       <div>
-        <h2 className="text-lg font-semibold font-display text-foreground mb-4">{t('overview.hardware')}</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-component-md bg-card rounded-card-lg p-component-md border border-border shadow-sm">
+        <h2 className="font-display text-foreground mb-4 text-lg font-semibold">
+          {t('overview.hardware')}
+        </h2>
+        <div className="gap-component-md bg-card rounded-card-lg p-component-md border-border grid grid-cols-1 border shadow-sm md:grid-cols-2 lg:grid-cols-4">
           <HardwareCard
             data={hardwareData}
             isLoading={hardwareLoading}

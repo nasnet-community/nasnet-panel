@@ -15,7 +15,6 @@ import { ServiceAlertsTab } from './ServiceAlertsTab';
 
 import type { Meta, StoryObj } from '@storybook/react';
 
-
 // ---------------------------------------------------------------------------
 // Meta
 // ---------------------------------------------------------------------------

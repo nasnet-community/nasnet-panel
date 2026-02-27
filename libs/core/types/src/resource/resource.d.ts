@@ -5,7 +5,15 @@
  * Reference: ADR-012 - Universal State v2
  * Reference: Docs/architecture/data-architecture.md
  */
-import type { ValidationResult, DeploymentState, RuntimeState, TelemetryData, ResourceMetadata, ResourceRelationships, PlatformInfo } from './layers';
+import type {
+  ValidationResult,
+  DeploymentState,
+  RuntimeState,
+  TelemetryData,
+  ResourceMetadata,
+  ResourceRelationships,
+  PlatformInfo,
+} from './layers';
 import type { ResourceLifecycleState } from './lifecycle';
 /**
  * Categories of managed resources in the Universal State v2 model.
@@ -22,18 +30,18 @@ import type { ResourceLifecycleState } from './lifecycle';
  * @see Resource for the main resource interface
  */
 export declare const ResourceCategory: {
-    /** Network topology: WAN Links, LAN Networks, VLANs */
-    readonly NETWORK: "NETWORK";
-    /** VPN connectivity: WireGuard, OpenVPN, IPsec */
-    readonly VPN: "VPN";
-    /** System infrastructure: Certificates, NTP, DDNS */
-    readonly INFRASTRUCTURE: "INFRASTRUCTURE";
-    /** Application-level: Port Forwarding, Game Rules */
-    readonly APPLICATION: "APPLICATION";
-    /** Marketplace features: Tor, AdGuard, sing-box */
-    readonly FEATURE: "FEATURE";
-    /** Community extensions: Third-party plugins */
-    readonly PLUGIN: "PLUGIN";
+  /** Network topology: WAN Links, LAN Networks, VLANs */
+  readonly NETWORK: 'NETWORK';
+  /** VPN connectivity: WireGuard, OpenVPN, IPsec */
+  readonly VPN: 'VPN';
+  /** System infrastructure: Certificates, NTP, DDNS */
+  readonly INFRASTRUCTURE: 'INFRASTRUCTURE';
+  /** Application-level: Port Forwarding, Game Rules */
+  readonly APPLICATION: 'APPLICATION';
+  /** Marketplace features: Tor, AdGuard, sing-box */
+  readonly FEATURE: 'FEATURE';
+  /** Community extensions: Third-party plugins */
+  readonly PLUGIN: 'PLUGIN';
 };
 /** Inferred type for resource categories */
 export type ResourceCategory = (typeof ResourceCategory)[keyof typeof ResourceCategory];
@@ -48,14 +56,14 @@ export type ResourceCategory = (typeof ResourceCategory)[keyof typeof ResourceCa
  * @see Resource for the main resource interface
  */
 export declare const ResourceLayer: {
-    readonly CONFIGURATION: "CONFIGURATION";
-    readonly VALIDATION: "VALIDATION";
-    readonly DEPLOYMENT: "DEPLOYMENT";
-    readonly RUNTIME: "RUNTIME";
-    readonly TELEMETRY: "TELEMETRY";
-    readonly METADATA: "METADATA";
-    readonly RELATIONSHIPS: "RELATIONSHIPS";
-    readonly PLATFORM: "PLATFORM";
+  readonly CONFIGURATION: 'CONFIGURATION';
+  readonly VALIDATION: 'VALIDATION';
+  readonly DEPLOYMENT: 'DEPLOYMENT';
+  readonly RUNTIME: 'RUNTIME';
+  readonly TELEMETRY: 'TELEMETRY';
+  readonly METADATA: 'METADATA';
+  readonly RELATIONSHIPS: 'RELATIONSHIPS';
+  readonly PLATFORM: 'PLATFORM';
 };
 /** Inferred type for resource layers */
 export type ResourceLayer = (typeof ResourceLayer)[keyof typeof ResourceLayer];
@@ -73,54 +81,54 @@ export type ResourceLayer = (typeof ResourceLayer)[keyof typeof ResourceLayer];
  * 8. platform - Capabilities and field mappings
  */
 export interface Resource<TConfig = unknown> {
-    /** Globally unique identifier (ULID) */
-    uuid: string;
-    /** Scoped identifier for readability (e.g., 'vpn.wg.client:usa-vpn:a1b2') */
-    id: string;
-    /** Resource type identifier (e.g., 'vpn.wireguard.client') */
-    type: string;
-    /** Resource category */
-    category: ResourceCategory;
-    /**
-     * Layer 1: CONFIGURATION - User's desired config
-     * Mutable by user. Validated by Zod on client, GraphQL on server.
-     */
-    configuration: TConfig;
-    /**
-     * Layer 2: VALIDATION - Pre-flight check results
-     * Computed by backend. Updated on every configuration change.
-     */
-    validation?: ValidationResult | null;
-    /**
-     * Layer 3: DEPLOYMENT - What's actually on router
-     * Written after Apply-Confirm. Includes router-generated fields.
-     */
-    deployment?: DeploymentState | null;
-    /**
-     * Layer 4: RUNTIME - Live operational state
-     * Polled/streamed from router. Read-only.
-     */
-    runtime?: RuntimeState | null;
-    /**
-     * Layer 5: TELEMETRY - Time-series metrics
-     * Historical data collected over time. Read-only.
-     */
-    telemetry?: TelemetryData | null;
-    /**
-     * Layer 6: METADATA - Resource lifecycle info
-     * System-managed. Includes tags, version, ownership.
-     */
-    metadata: ResourceMetadata;
-    /**
-     * Layer 7: RELATIONSHIPS - Dependencies
-     * Embedded in config (user-defined) + explicit table (system-discovered).
-     */
-    relationships?: ResourceRelationships | null;
-    /**
-     * Layer 8: PLATFORM - Capabilities and field mappings
-     * From platform adapter. Router-specific behavior.
-     */
-    platform?: PlatformInfo | null;
+  /** Globally unique identifier (ULID) */
+  uuid: string;
+  /** Scoped identifier for readability (e.g., 'vpn.wg.client:usa-vpn:a1b2') */
+  id: string;
+  /** Resource type identifier (e.g., 'vpn.wireguard.client') */
+  type: string;
+  /** Resource category */
+  category: ResourceCategory;
+  /**
+   * Layer 1: CONFIGURATION - User's desired config
+   * Mutable by user. Validated by Zod on client, GraphQL on server.
+   */
+  configuration: TConfig;
+  /**
+   * Layer 2: VALIDATION - Pre-flight check results
+   * Computed by backend. Updated on every configuration change.
+   */
+  validation?: ValidationResult | null;
+  /**
+   * Layer 3: DEPLOYMENT - What's actually on router
+   * Written after Apply-Confirm. Includes router-generated fields.
+   */
+  deployment?: DeploymentState | null;
+  /**
+   * Layer 4: RUNTIME - Live operational state
+   * Polled/streamed from router. Read-only.
+   */
+  runtime?: RuntimeState | null;
+  /**
+   * Layer 5: TELEMETRY - Time-series metrics
+   * Historical data collected over time. Read-only.
+   */
+  telemetry?: TelemetryData | null;
+  /**
+   * Layer 6: METADATA - Resource lifecycle info
+   * System-managed. Includes tags, version, ownership.
+   */
+  metadata: ResourceMetadata;
+  /**
+   * Layer 7: RELATIONSHIPS - Dependencies
+   * Embedded in config (user-defined) + explicit table (system-discovered).
+   */
+  relationships?: ResourceRelationships | null;
+  /**
+   * Layer 8: PLATFORM - Capabilities and field mappings
+   * From platform adapter. Router-specific behavior.
+   */
+  platform?: PlatformInfo | null;
 }
 /**
  * Lightweight resource representation for list views and summary displays.
@@ -132,18 +140,18 @@ export interface Resource<TConfig = unknown> {
  * @see ResourceCardData for dashboard card data
  */
 export interface ResourceListItem {
-    /** Globally unique identifier (ULID) */
-    uuid: string;
-    /** Scoped identifier for readability */
-    id: string;
-    /** Resource type identifier */
-    type: string;
-    /** Resource category */
-    category: ResourceCategory;
-    /** Essential metadata */
-    readonly metadata: Pick<ResourceMetadata, 'state' | 'tags' | 'updatedAt' | 'isFavorite'>;
-    /** Optional runtime state for status display */
-    readonly runtime?: Pick<RuntimeState, 'isRunning' | 'health' | 'lastUpdated'> | null;
+  /** Globally unique identifier (ULID) */
+  uuid: string;
+  /** Scoped identifier for readability */
+  id: string;
+  /** Resource type identifier */
+  type: string;
+  /** Resource category */
+  category: ResourceCategory;
+  /** Essential metadata */
+  readonly metadata: Pick<ResourceMetadata, 'state' | 'tags' | 'updatedAt' | 'isFavorite'>;
+  /** Optional runtime state for status display */
+  readonly runtime?: Pick<RuntimeState, 'isRunning' | 'health' | 'lastUpdated'> | null;
 }
 /**
  * Resource data optimized for dashboard card rendering.
@@ -155,20 +163,26 @@ export interface ResourceListItem {
  * @see ResourceListItem for lightweight list view data
  */
 export interface ResourceCardData {
-    /** Globally unique identifier (ULID) */
-    uuid: string;
-    /** Scoped identifier for readability */
-    id: string;
-    /** Resource type identifier */
-    type: string;
-    /** Resource category */
-    category: ResourceCategory;
-    /** Configuration preview (full or partial) */
-    configuration: unknown;
-    /** Rich metadata for card display */
-    readonly metadata: Pick<ResourceMetadata, 'state' | 'version' | 'tags' | 'description' | 'isFavorite' | 'isPinned'>;
-    /** Runtime state with connection and error details */
-    readonly runtime?: Pick<RuntimeState, 'isRunning' | 'health' | 'errorMessage' | 'activeConnections' | 'uptime'> | null;
+  /** Globally unique identifier (ULID) */
+  uuid: string;
+  /** Scoped identifier for readability */
+  id: string;
+  /** Resource type identifier */
+  type: string;
+  /** Resource category */
+  category: ResourceCategory;
+  /** Configuration preview (full or partial) */
+  configuration: unknown;
+  /** Rich metadata for card display */
+  readonly metadata: Pick<
+    ResourceMetadata,
+    'state' | 'version' | 'tags' | 'description' | 'isFavorite' | 'isPinned'
+  >;
+  /** Runtime state with connection and error details */
+  readonly runtime?: Pick<
+    RuntimeState,
+    'isRunning' | 'health' | 'errorMessage' | 'activeConnections' | 'uptime'
+  > | null;
 }
 /**
  * Reference to another resource used in relationships and dependencies.
@@ -180,16 +194,16 @@ export interface ResourceCardData {
  * @see ResourceRelationshipEdge for usage in graphs
  */
 export interface ResourceReference {
-    /** Resource UUID */
-    readonly uuid: string;
-    /** Resource scoped ID */
-    readonly id: string;
-    /** Resource type */
-    readonly type: string;
-    /** Resource category */
-    readonly category: ResourceCategory;
-    /** Current lifecycle state */
-    readonly state: ResourceLifecycleState;
+  /** Resource UUID */
+  readonly uuid: string;
+  /** Resource scoped ID */
+  readonly id: string;
+  /** Resource type */
+  readonly type: string;
+  /** Resource category */
+  readonly category: ResourceCategory;
+  /** Current lifecycle state */
+  readonly state: ResourceLifecycleState;
 }
 /**
  * Types of relationships between resources in the dependency graph.
@@ -202,19 +216,20 @@ export interface ResourceReference {
  * @see Resource.relationships for relationship storage
  */
 export declare const ResourceRelationshipType: {
-    /** Child depends on parent */
-    readonly DEPENDS_ON: "DEPENDS_ON";
-    /** Traffic routes via this resource */
-    readonly ROUTES_VIA: "ROUTES_VIA";
-    /** Parent-child hierarchy */
-    readonly PARENT_CHILD: "PARENT_CHILD";
-    /** Resources are in the same group */
-    readonly GROUP: "GROUP";
-    /** Custom relationship */
-    readonly CUSTOM: "CUSTOM";
+  /** Child depends on parent */
+  readonly DEPENDS_ON: 'DEPENDS_ON';
+  /** Traffic routes via this resource */
+  readonly ROUTES_VIA: 'ROUTES_VIA';
+  /** Parent-child hierarchy */
+  readonly PARENT_CHILD: 'PARENT_CHILD';
+  /** Resources are in the same group */
+  readonly GROUP: 'GROUP';
+  /** Custom relationship */
+  readonly CUSTOM: 'CUSTOM';
 };
 /** Inferred type for relationship types */
-export type ResourceRelationshipType = (typeof ResourceRelationshipType)[keyof typeof ResourceRelationshipType];
+export type ResourceRelationshipType =
+  (typeof ResourceRelationshipType)[keyof typeof ResourceRelationshipType];
 /**
  * Directed edge in the resource relationship graph.
  *
@@ -225,12 +240,12 @@ export type ResourceRelationshipType = (typeof ResourceRelationshipType)[keyof t
  * @see CompositeResource.relationships for full graph
  */
 export interface ResourceRelationshipEdge {
-    /** Source resource UUID */
-    readonly from: string;
-    /** Target resource UUID */
-    readonly to: string;
-    /** Relationship type */
-    readonly type: ResourceRelationshipType;
+  /** Source resource UUID */
+  readonly from: string;
+  /** Target resource UUID */
+  readonly to: string;
+  /** Relationship type */
+  readonly type: ResourceRelationshipType;
 }
 /**
  * A complete resource composition with all related sub-resources and relationships.
@@ -243,11 +258,11 @@ export interface ResourceRelationshipEdge {
  * @see ResourceRelationshipEdge for edge structure
  */
 export interface CompositeResource<TRoot extends Resource = Resource> {
-    /** The root resource */
-    readonly root: TRoot;
-    /** All child/related resources */
-    readonly children: readonly Resource[];
-    /** Flattened relationship graph */
-    readonly relationships: readonly ResourceRelationshipEdge[];
+  /** The root resource */
+  readonly root: TRoot;
+  /** All child/related resources */
+  readonly children: readonly Resource[];
+  /** Flattened relationship graph */
+  readonly relationships: readonly ResourceRelationshipEdge[];
 }
 //# sourceMappingURL=resource.d.ts.map

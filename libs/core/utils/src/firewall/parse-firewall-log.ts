@@ -252,9 +252,5 @@ export function parseFirewallLogMessage(message: string): ParsedFirewallLog {
  * @returns true if valid, false otherwise
  */
 export function isValidParsedLog(parsed: ParsedFirewallLog): boolean {
-  return (
-    parsed.chain !== undefined &&
-    parsed.action !== undefined &&
-    parsed.protocol !== undefined
-  );
+  return parsed.chain !== undefined && parsed.action !== undefined && parsed.protocol !== undefined;
 }

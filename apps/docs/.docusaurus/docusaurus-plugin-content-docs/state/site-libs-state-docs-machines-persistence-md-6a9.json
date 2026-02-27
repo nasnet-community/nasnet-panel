@@ -1,7 +1,7 @@
 {
   "id": "machines/persistence",
   "title": "State Persistence API",
-  "description": "The State Persistence API provides localStorage-based persistence for XState machines, enabling session recovery after browser close/crash. It's used by wizards, config pipelines, and other long-running workflows to let users resume from where they left off.",
+  "description": "The State Persistence API provides localStorage-based persistence for XState machines, enabling",
   "source": "@site/../../libs/state/docs/machines/persistence.md",
   "sourceDirName": "machines",
   "slug": "/machines/persistence",

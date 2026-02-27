@@ -16,8 +16,8 @@ import { cn } from '@nasnet/ui/utils';
  * Threshold configuration for warning and critical states
  */
 export interface GaugeThresholds {
-  warning: number;   // Amber threshold (e.g., 70%)
-  critical: number;  // Red threshold (e.g., 90%)
+  warning: number; // Amber threshold (e.g., 70%)
+  critical: number; // Red threshold (e.g., 90%)
 }
 
 /**
@@ -77,11 +77,12 @@ export const CircularGauge = memo(function CircularGauge({
   const offset = circumference - (clampedValue / 100) * circumference;
 
   // AC 5.2.3: Threshold-based semantic colors
-  const color = clampedValue >= thresholds.critical
-    ? 'stroke-error'      // Red: Critical state
-    : clampedValue >= thresholds.warning
-    ? 'stroke-warning'    // Amber: Warning state
-    : 'stroke-success';   // Green: Normal state
+  const color =
+    clampedValue >= thresholds.critical ?
+      'stroke-error' // Red: Critical state
+    : clampedValue >= thresholds.warning ?
+      'stroke-warning' // Amber: Warning state
+    : 'stroke-success'; // Green: Normal state
 
   // Determine if clickable
   const isClickable = !!onClick;
@@ -103,9 +104,16 @@ export const CircularGauge = memo(function CircularGauge({
   // Content JSX
   const content = (
     <>
-      <div className="relative" style={{ width: diameter, height: diameter }}>
+      <div
+        className="relative"
+        style={{ width: diameter, height: diameter }}
+      >
         {/* Background circle */}
-        <svg className="w-full h-full -rotate-90" role="img" aria-label={`${label} gauge at ${clampedValue}%`}>
+        <svg
+          className="h-full w-full -rotate-90"
+          role="img"
+          aria-label={`${label} gauge at ${clampedValue}%`}
+        >
           {/* Base track (muted gray) */}
           <circle
             cx={diameter / 2}
@@ -136,9 +144,7 @@ export const CircularGauge = memo(function CircularGauge({
 
         {/* Center text overlay */}
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span className={cn('font-bold font-mono', fontSize)}>
-            {clampedValue}%
-          </span>
+          <span className={cn('font-mono font-bold', fontSize)}>{clampedValue}%</span>
         </div>
       </div>
 
@@ -146,7 +152,7 @@ export const CircularGauge = memo(function CircularGauge({
       <div className="text-center">
         <p className="font-medium">{label}</p>
         {sublabel && (
-          <p className="text-sm text-muted-foreground font-mono space-y-component-xs">{sublabel}</p>
+          <p className="text-muted-foreground space-y-component-xs font-mono text-sm">{sublabel}</p>
         )}
       </div>
     </>
@@ -159,10 +165,10 @@ export const CircularGauge = memo(function CircularGauge({
         type="button"
         onClick={handleClick}
         className={cn(
-          'flex flex-col items-center gap-component-sm',
+          'gap-component-sm flex flex-col items-center',
           'cursor-pointer hover:opacity-80',
           'min-h-[44px] min-w-[44px]', // WCAG AAA touch target
-          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+          'focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
           'transition-opacity',
           className
         )}
@@ -175,7 +181,7 @@ export const CircularGauge = memo(function CircularGauge({
 
   return (
     <div
-      className={cn('flex flex-col items-center gap-component-sm', className)}
+      className={cn('gap-component-sm flex flex-col items-center', className)}
       {...elementProps}
     >
       {content}

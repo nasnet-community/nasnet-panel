@@ -16,13 +16,7 @@
  */
 
 import React, { useMemo } from 'react';
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-  Skeleton,
-} from '@nasnet/ui/primitives';
+import { Card, CardHeader, CardTitle, CardContent, Skeleton } from '@nasnet/ui/primitives';
 
 import type { RecentLogsSkeletonProps } from './types';
 
@@ -49,9 +43,7 @@ import type { RecentLogsSkeletonProps } from './types';
  *
  * @see Skeleton - Primitive component for loading placeholders
  */
-function RecentLogsSkeletonComponent({
-  className,
-}: RecentLogsSkeletonProps) {
+function RecentLogsSkeletonComponent({ className }: RecentLogsSkeletonProps) {
   /**
    * Memoized skeleton rows to prevent re-renders
    * Creates 3 rows matching log entry visual structure
@@ -59,12 +51,15 @@ function RecentLogsSkeletonComponent({
   const skeletonRows = useMemo(
     () =>
       Array.from({ length: 3 }).map((_, i) => (
-        <div key={i} className="flex items-start gap-component-md p-component-md h-16">
+        <div
+          key={i}
+          className="gap-component-md p-component-md flex h-16 items-start"
+        >
           {/* Icon/severity indicator skeleton */}
-          <Skeleton className="h-5 w-5 rounded shrink-0" />
+          <Skeleton className="h-5 w-5 shrink-0 rounded" />
           <div className="flex-1 space-y-2">
             {/* Timestamp and duration row */}
-            <div className="flex items-center gap-component-sm">
+            <div className="gap-component-sm flex items-center">
               <Skeleton className="h-5 w-16" />
               <Skeleton className="h-4 w-12" />
             </div>
@@ -79,9 +74,9 @@ function RecentLogsSkeletonComponent({
   return (
     <Card className={className}>
       {/* Header with skeleton controls */}
-      <CardHeader className="flex flex-row items-center justify-between pb-component-sm">
+      <CardHeader className="pb-component-sm flex flex-row items-center justify-between">
         <CardTitle className="text-base">Recent Logs</CardTitle>
-        <div className="flex items-center gap-component-sm">
+        <div className="gap-component-sm flex items-center">
           {/* Topic filter button skeleton */}
           <Skeleton className="h-9 w-9" />
           {/* View All button skeleton */}
@@ -89,9 +84,7 @@ function RecentLogsSkeletonComponent({
         </div>
       </CardHeader>
       {/* Log entries skeleton */}
-      <CardContent className="pt-0 space-y-component-sm">
-        {skeletonRows}
-      </CardContent>
+      <CardContent className="space-y-component-sm pt-0">{skeletonRows}</CardContent>
     </Card>
   );
 }

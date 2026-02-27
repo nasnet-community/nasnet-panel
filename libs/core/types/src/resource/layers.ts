@@ -42,8 +42,7 @@ export const ValidationStage = {
 } as const;
 
 /** Inferred type for validation stages */
-export type ValidationStage =
-  (typeof ValidationStage)[keyof typeof ValidationStage];
+export type ValidationStage = (typeof ValidationStage)[keyof typeof ValidationStage];
 
 /**
  * Severity levels for validation issues.
@@ -65,8 +64,7 @@ export const ValidationSeverity = {
 } as const;
 
 /** Inferred type for validation severity */
-export type ValidationSeverity =
-  (typeof ValidationSeverity)[keyof typeof ValidationSeverity];
+export type ValidationSeverity = (typeof ValidationSeverity)[keyof typeof ValidationSeverity];
 
 /**
  * Single validation issue (error or warning) from the validation pipeline.
@@ -615,8 +613,7 @@ export const RouterPlatform = {
 } as const;
 
 /** Inferred type for router platforms */
-export type RouterPlatform =
-  (typeof RouterPlatform)[keyof typeof RouterPlatform];
+export type RouterPlatform = (typeof RouterPlatform)[keyof typeof RouterPlatform];
 
 /**
  * Capability levels for resource support on different platforms.
@@ -639,8 +636,7 @@ export const CapabilityLevel = {
 } as const;
 
 /** Inferred type for capability levels */
-export type CapabilityLevel =
-  (typeof CapabilityLevel)[keyof typeof CapabilityLevel];
+export type CapabilityLevel = (typeof CapabilityLevel)[keyof typeof CapabilityLevel];
 
 /**
  * Platform-specific capabilities and requirements for a resource type.

@@ -5,7 +5,9 @@ title: Introduction
 
 # Core Library: Shared Foundation
 
-The **`@nasnet/core`** library is the shared foundation for the NasNetConnect frontend. It provides type-safe constants, shared TypeScript interfaces, utility functions, and React form/validation infrastructure used by all features.
+The **`@nasnet/core`** library is the shared foundation for the NasNetConnect frontend. It provides
+type-safe constants, shared TypeScript interfaces, utility functions, and React form/validation
+infrastructure used by all features.
 
 ## Library Structure
 
@@ -83,12 +85,14 @@ The core library enforces strict dependency boundaries:
 ```
 
 **Rules:**
+
 - ✅ **Core CAN** depend on: External libraries (Zod, i18next, TypeScript)
 - ❌ **Core CANNOT** depend on: apps/, features/, ui/ libraries
 - ✅ **All other libraries CAN** import from core
 - ✅ **React dependencies** allowed only in forms/ and i18n/
 
 Why? Core types and utilities should be reusable by:
+
 - The Go backend (type definitions)
 - CLI tools and build scripts
 - Testing utilities
@@ -110,6 +114,7 @@ All aliases are defined in `apps/connect/vite.config.ts`:
 ```
 
 **Usage:**
+
 ```typescript
 import type { FilterRule } from '@nasnet/core/types';
 import { validateIPv4, formatBytes } from '@nasnet/core/utils';
@@ -122,9 +127,11 @@ import { useTranslation } from '@nasnet/core/i18n';
 
 ### types/ — Type Definitions
 
-Pure TypeScript interfaces with **zero dependencies**. These define the data model across the application.
+Pure TypeScript interfaces with **zero dependencies**. These define the data model across the
+application.
 
 **Key Categories:**
+
 - **Firewall** (`firewall/`) - FilterRule, MangleRule, NATRule, RawRule, PortKnock, RateLimit
 - **Resource** (`resource/`) - Universal State v2 (8-layer resource model)
 - **API** (`api/`) - Backend request/response types
@@ -133,6 +140,7 @@ Pure TypeScript interfaces with **zero dependencies**. These define the data mod
 - **DHCP** - Pool, lease, fingerprint types
 
 **No React** - types/ can be used in:
+
 - Go type stubs (code generation)
 - CLI tools
 - Testing utilities
@@ -164,6 +172,7 @@ See [constants.md](./sub-libraries/constants.md) for complete reference.
 ### forms/ — React Hook Form Integration
 
 Builds on top of React Hook Form + Zod for:
+
 - Multi-stage validation pipelines
 - Form state persistence
 - Resource synchronization
@@ -175,6 +184,7 @@ Builds on top of React Hook Form + Zod for:
 ### i18n/ — Internationalization
 
 i18next setup with:
+
 - Language detection
 - RTL/LTR support
 - Translation providers
@@ -189,10 +199,12 @@ Each sub-library is a **Nx library** with:
 **SourceRoot:** `libs/core/{name}/src`
 
 **Targets (in project.json):**
+
 - `lint` - ESLint
 - `typecheck` - TypeScript checking
 
 **TypeScript Configuration:**
+
 ```json
 {
   "compilerOptions": {
@@ -210,6 +222,7 @@ Each sub-library is a **Nx library** with:
 ### Adding to Existing Sub-Library
 
 1. **Create the file** in `libs/core/{name}/src/{module}.ts`:
+
    ```typescript
    // libs/core/types/src/my-feature.ts
    export interface MyType {
@@ -219,11 +232,13 @@ Each sub-library is a **Nx library** with:
    ```
 
 2. **Export from sub-library index** in `libs/core/{name}/src/index.ts`:
+
    ```typescript
    export type { MyType } from './my-feature';
    ```
 
 3. **Verify alias works** - import should auto-resolve:
+
    ```typescript
    import type { MyType } from '@nasnet/core/types';
    ```
@@ -233,11 +248,13 @@ Each sub-library is a **Nx library** with:
 ### Adding a New Sub-Library (Advanced)
 
 1. **Create directory structure:**
+
    ```bash
    mkdir -p libs/core/newlib/src
    ```
 
 2. **Create package.json:**
+
    ```json
    {
      "name": "@nasnet/core-newlib",
@@ -256,15 +273,18 @@ Each sub-library is a **Nx library** with:
 ## Testing Conventions
 
 ### Test Files Location
+
 - Collocated with source: `module.test.ts` or `module.spec.ts`
 - Shared fixtures in `__tests__/` folder
 
 ### Testing Frameworks
+
 - **Unit tests:** Vitest (4x faster than Jest)
 - **Type tests:** TypeScript strict mode
 - **Coverage:** Aim for 80%+ coverage
 
 ### Example Test
+
 ```typescript
 // libs/core/utils/src/validation/ipv4.test.ts
 import { describe, it, expect } from 'vitest';
@@ -282,6 +302,7 @@ describe('validateIPv4', () => {
 ```
 
 Run tests:
+
 ```bash
 npm run test                    # All tests
 npx nx test @nasnet/core-types # Single sub-library
@@ -292,6 +313,7 @@ npx nx test @nasnet/core-types # Single sub-library
 TypeScript types mirror **Go structs** for consistency:
 
 **Backend (Go):**
+
 ```go
 type FilterRule struct {
   ID       string `db:"id"`
@@ -302,6 +324,7 @@ type FilterRule struct {
 ```
 
 **Frontend (TypeScript):**
+
 ```typescript
 export interface FilterRule {
   id: string;
@@ -314,6 +337,7 @@ export interface FilterRule {
 **Connection:** GraphQL schema bridges both (see `schema/` directory).
 
 Code generation creates:
+
 - Go → GraphQL types
 - GraphQL → TypeScript types
 
@@ -324,6 +348,7 @@ See Docs/architecture/data-architecture.md for Universal State v2 (8-layer model
 ### No React in Core Types/Utils/Constants
 
 Keeps these modules tree-shakeable and reusable:
+
 - ✅ Can be used in Node.js scripts
 - ✅ Can be imported by Go code generators
 - ✅ Zero runtime dependencies (types/)
@@ -332,6 +357,7 @@ Keeps these modules tree-shakeable and reusable:
 ### Zod for All Validation
 
 All form validation uses **Zod schemas**:
+
 ```typescript
 const schema = z.object({
   port: z.number().min(1).max(65535),
@@ -340,6 +366,7 @@ const schema = z.object({
 ```
 
 **Benefits:**
+
 - Type-safe runtime validation
 - Automatic TypeScript inference
 - Composable validators
@@ -363,25 +390,28 @@ See `Docs/architecture/data-architecture.md` for details.
 
 ## Architectural Boundaries
 
-`libs/core` is deliberately **headless** — it contains no platform-specific UI logic, no visual components, and no rendering. Understanding what lives in core vs. what lives elsewhere is critical:
+`libs/core` is deliberately **headless** — it contains no platform-specific UI logic, no visual
+components, and no rendering. Understanding what lives in core vs. what lives elsewhere is critical:
 
-| Concern | Where It Lives | NOT in libs/core |
-|---------|---------------|------------------|
-| Platform detection (`usePlatform`) | `libs/ui/patterns` | Core has no knowledge of mobile/tablet/desktop |
-| State machines (XState) | `libs/state/machines` | Core provides types consumed by machines |
-| GraphQL hooks (Apollo) | `libs/api-client/queries` | Core provides types, api-client provides hooks |
-| Visual components | `libs/ui/primitives`, `libs/ui/patterns` | Core has zero UI components |
-| Auth token handling | `libs/api-client/core` (Apollo links) | Core has no auth state |
-| Router communication | `apps/backend` (Go proxy) | Core is frontend-only |
-| Storybook stories | `libs/ui/*/stories` | Core has no visual components to story |
+| Concern                            | Where It Lives                           | NOT in libs/core                               |
+| ---------------------------------- | ---------------------------------------- | ---------------------------------------------- |
+| Platform detection (`usePlatform`) | `libs/ui/patterns`                       | Core has no knowledge of mobile/tablet/desktop |
+| State machines (XState)            | `libs/state/machines`                    | Core provides types consumed by machines       |
+| GraphQL hooks (Apollo)             | `libs/api-client/queries`                | Core provides types, api-client provides hooks |
+| Visual components                  | `libs/ui/primitives`, `libs/ui/patterns` | Core has zero UI components                    |
+| Auth token handling                | `libs/api-client/core` (Apollo links)    | Core has no auth state                         |
+| Router communication               | `apps/backend` (Go proxy)                | Core is frontend-only                          |
+| Storybook stories                  | `libs/ui/*/stories`                      | Core has no visual components to story         |
 
 **Why this matters:**
+
 - Core can be used in non-React contexts (CLI tools, code generators, test utilities)
 - Core types and utils are tree-shakeable with zero UI framework dependencies
 - Only `libs/core/forms` and `libs/core/i18n` have React dependencies (by design)
 - This separation enables sharing types with the Go backend via code generation
 
 **Boundary violations to avoid:**
+
 - Never import from `@nasnet/ui/*` in core (upward dependency)
 - Never import from `@nasnet/features/*` in core (upward dependency)
 - Never import from `@nasnet/api-client` in core (peer dependency)
@@ -390,6 +420,7 @@ See `Docs/architecture/data-architecture.md` for details.
 ## Related Documentation
 
 ### Sub-Library References
+
 - [README.md](./README.md) - Master index with architecture diagram
 - [constants.md](./sub-libraries/constants.md) - Routes, endpoints, socket events, ports
 - [types.md](./sub-libraries/types.md) - Complete type reference
@@ -398,13 +429,19 @@ See `Docs/architecture/data-architecture.md` for details.
 - [i18n.md](./sub-libraries/i18n.md) - Internationalization
 
 ### Cross-Cutting Guides
-- [error-handling-patterns.md](./guides/error-handling-patterns.md) - Error types, backend mapping, i18n messages
-- [graphql-integration-guide.md](./guides/graphql-integration-guide.md) - Type flow, codegen, Apollo patterns
+
+- [error-handling-patterns.md](./guides/error-handling-patterns.md) - Error types, backend mapping,
+  i18n messages
+- [graphql-integration-guide.md](./guides/graphql-integration-guide.md) - Type flow, codegen, Apollo
+  patterns
 - [testing-patterns.md](./guides/testing-patterns.md) - Vitest setup, hook testing, mock strategies
-- [state-machines-guide.md](./guides/state-machines-guide.md) - XState machines for complex workflows
-- [accessibility-patterns.md](./guides/accessibility-patterns.md) - A11yProvider, WCAG AAA compliance
+- [state-machines-guide.md](./guides/state-machines-guide.md) - XState machines for complex
+  workflows
+- [accessibility-patterns.md](./guides/accessibility-patterns.md) - A11yProvider, WCAG AAA
+  compliance
 - [performance-patterns.md](./guides/performance-patterns.md) - Auto-scroll, caching, bundle size
 - [security-patterns.md](./guides/security-patterns.md) - Input validation, error safety
 
 ### System Architecture
+
 - System-wide architecture (see Docs/architecture/index.md)

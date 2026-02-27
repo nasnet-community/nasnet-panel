@@ -7,7 +7,7 @@
  */
 
 export { useSortableList } from './useSortableList';
-export type { } from './useSortableList';
+export type {} from './useSortableList';
 
 export { useMultiSelect } from './useMultiSelect';
 export type { UseMultiSelectOptions, UseMultiSelectReturn } from './useMultiSelect';

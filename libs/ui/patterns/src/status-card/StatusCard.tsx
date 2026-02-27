@@ -120,28 +120,18 @@ const getStatusConfig = (status: NetworkStatus): StatusConfig => {
  * @returns Rendered StatusCard component
  */
 const StatusCardBase = React.forwardRef<HTMLDivElement, StatusCardProps>(
-  (
-    {
-      status,
-      message,
-      metrics = [],
-      subtitle,
-      onClick,
-      className,
-      ...props
-    },
-    ref
-  ) => {
+  ({ status, message, metrics = [], subtitle, onClick, className, ...props }, ref) => {
     const config = useMemo(() => getStatusConfig(status), [status]);
     const Icon = config.icon;
 
     const cardClassName = useMemo(
       () =>
         cn(
-          'bg-card border border-border rounded-[var(--semantic-radius-card)]',
+          'bg-card border-border rounded-[var(--semantic-radius-card)] border',
           'shadow-[var(--semantic-shadow-card)] dark:shadow-none',
           'transition-all duration-200',
-          onClick && 'cursor-pointer hover:shadow-[var(--semantic-shadow-card)] hover:-translate-y-1',
+          onClick &&
+            'cursor-pointer hover:-translate-y-1 hover:shadow-[var(--semantic-shadow-card)]',
           className
         ),
       [onClick, className]
@@ -158,10 +148,10 @@ const StatusCardBase = React.forwardRef<HTMLDivElement, StatusCardProps>(
       >
         <div className="p-component-md md:p-component-lg">
           {/* Status Header */}
-          <div className="flex items-center justify-between mb-6">
+          <div className="mb-6 flex items-center justify-between">
             <div className="flex-1">
               {subtitle && (
-                <p className="text-sm font-medium text-muted-foreground mb-1">{subtitle}</p>
+                <p className="text-muted-foreground mb-1 text-sm font-medium">{subtitle}</p>
               )}
               <div className="flex items-center gap-2">
                 <span
@@ -173,7 +163,7 @@ const StatusCardBase = React.forwardRef<HTMLDivElement, StatusCardProps>(
                   aria-hidden="true"
                 />
                 <p
-                  className={cn('text-lg font-semibold font-display', config.textColor)}
+                  className={cn('font-display text-lg font-semibold', config.textColor)}
                   role="status"
                   aria-live="polite"
                 >
@@ -183,16 +173,12 @@ const StatusCardBase = React.forwardRef<HTMLDivElement, StatusCardProps>(
             </div>
             <div
               className={cn(
-                'h-12 w-12 rounded-lg flex items-center justify-center flex-shrink-0',
+                'flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg',
                 config.bgColor
               )}
             >
               <Icon
-                className={cn(
-                  'h-6 w-6',
-                  config.iconColor,
-                  config.pulseClass
-                )}
+                className={cn('h-6 w-6', config.iconColor, config.pulseClass)}
                 aria-hidden="true"
               />
             </div>
@@ -203,17 +189,13 @@ const StatusCardBase = React.forwardRef<HTMLDivElement, StatusCardProps>(
             <div className="grid grid-cols-3 gap-4 text-center">
               {metrics.map((metric, index) => (
                 <div key={index}>
-                  <p className="text-2xl font-bold font-display text-foreground">
+                  <p className="font-display text-foreground text-2xl font-bold">
                     {metric.value}
                     {metric.unit && (
-                      <span className="text-sm text-muted-foreground ml-1">
-                        {metric.unit}
-                      </span>
+                      <span className="text-muted-foreground ml-1 text-sm">{metric.unit}</span>
                     )}
                   </p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {metric.label}
-                  </p>
+                  <p className="text-muted-foreground mt-1 text-xs">{metric.label}</p>
                 </div>
               ))}
             </div>
@@ -231,26 +213,3 @@ StatusCardBase.displayName = 'StatusCard';
  * Prevents unnecessary re-renders when props don't change
  */
 export const StatusCard = React.memo(StatusCardBase);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

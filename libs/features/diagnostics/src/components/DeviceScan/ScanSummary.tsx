@@ -94,7 +94,15 @@ function downloadAsFile(content: string, filename: string, mimeType: string): vo
  * @internal
  */
 function exportAsCSV(devices: DiscoveredDevice[], subnet: string): void {
-  const headers = ['IP Address', 'MAC Address', 'Vendor', 'Hostname', 'Interface', 'Response Time (ms)', 'DHCP Status'];
+  const headers = [
+    'IP Address',
+    'MAC Address',
+    'Vendor',
+    'Hostname',
+    'Interface',
+    'Response Time (ms)',
+    'DHCP Status',
+  ];
   const rows = devices.map((device) => [
     device.ip,
     device.mac,
@@ -196,57 +204,65 @@ export const ScanSummary = memo(function ScanSummary({
 
   return (
     <Card className={cn('p-component-lg', className)}>
-      <h3 className="text-lg font-semibold font-display text-category-networking mb-component-md">Scan Summary</h3>
+      <h3 className="font-display text-category-networking mb-component-md text-lg font-semibold">
+        Scan Summary
+      </h3>
       {/* Note: This component is memoized to prevent unnecessary re-renders */}
 
       {/* Statistics Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-component-md mb-component-lg">
+      <div className="gap-component-md mb-component-lg grid grid-cols-2 md:grid-cols-4">
         <div>
-          <p className="text-sm text-muted-foreground">Total Devices</p>
+          <p className="text-muted-foreground text-sm">Total Devices</p>
           <p className="text-2xl font-bold">{devices.length}</p>
         </div>
         <div>
-          <p className="text-sm text-muted-foreground">Scan Duration</p>
+          <p className="text-muted-foreground text-sm">Scan Duration</p>
           <p className="text-2xl font-bold">{formatElapsedTime(stats.elapsedTime)}</p>
         </div>
         <div>
-          <p className="text-sm text-muted-foreground">DHCP / Static</p>
+          <p className="text-muted-foreground text-sm">DHCP / Static</p>
           <p className="text-2xl font-bold">
             {dhcpCount} / {staticCount}
           </p>
         </div>
         <div>
-          <p className="text-sm text-muted-foreground">Unique Vendors</p>
+          <p className="text-muted-foreground text-sm">Unique Vendors</p>
           <p className="text-2xl font-bold">{uniqueVendors}</p>
         </div>
       </div>
 
       {/* Subnet Information */}
       <div className="mb-component-lg">
-        <p className="text-sm text-muted-foreground">Subnet Scanned</p>
-        <p className="text-sm font-mono">{subnet}</p>
+        <p className="text-muted-foreground text-sm">Subnet Scanned</p>
+        <p className="font-mono text-sm">{subnet}</p>
       </div>
 
       {/* Export Actions */}
-      <div className="flex gap-component-sm">
+      <div className="gap-component-sm flex">
         <Button
           variant="outline"
           size="sm"
           onClick={handleExportCSV}
-          className="flex items-center gap-component-sm min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          className="gap-component-sm focus-visible:ring-ring flex min-h-[44px] items-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
           aria-label="Export scan results as CSV file"
         >
-          <Download className="w-4 h-4" aria-hidden="true" />
+          <Download
+            className="h-4 w-4"
+            aria-hidden="true"
+          />
           Export CSV
         </Button>
         <Button
           variant="outline"
           size="sm"
           onClick={handleExportJSON}
-          className="flex items-center gap-component-sm min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          className="gap-component-sm focus-visible:ring-ring flex min-h-[44px] items-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
           aria-label="Export scan results as JSON file"
         >
-          <Download className="w-4 h-4" aria-hidden="true" />
+          <Download
+            className="h-4 w-4"
+            aria-hidden="true"
+          />
           Export JSON
         </Button>
       </div>

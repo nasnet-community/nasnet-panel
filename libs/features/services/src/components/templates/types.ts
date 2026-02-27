@@ -16,7 +16,12 @@
  * @see {@link 6-component-library.md} for TemplatesBrowser pattern documentation
  */
 
-import type { ServiceTemplate, ServiceTemplateCategory, TemplateScope, TemplateInstallProgress } from '@nasnet/api-client/generated';
+import type {
+  ServiceTemplate,
+  ServiceTemplateCategory,
+  TemplateScope,
+  TemplateInstallProgress,
+} from '@nasnet/api-client/generated';
 import type { Actor } from 'xstate';
 
 /**

@@ -120,7 +120,10 @@ export const Default: Story = {
   },
   decorators: [
     (Story) => (
-      <MockedProvider mocks={mockSuccess} addTypename={false}>
+      <MockedProvider
+        mocks={mockSuccess}
+        addTypename={false}
+      >
         <div className="p-component-lg">
           <Story />
         </div>
@@ -138,7 +141,10 @@ export const Empty: Story = {
   },
   decorators: [
     (Story) => (
-      <MockedProvider mocks={mockEmpty} addTypename={false}>
+      <MockedProvider
+        mocks={mockEmpty}
+        addTypename={false}
+      >
         <div className="p-component-lg">
           <Story />
         </div>
@@ -156,7 +162,10 @@ export const ErrorState: Story = {
   },
   decorators: [
     (Story) => (
-      <MockedProvider mocks={mockErrorResponse} addTypename={false}>
+      <MockedProvider
+        mocks={mockErrorResponse}
+        addTypename={false}
+      >
         <div className="p-component-lg">
           <Story />
         </div>
@@ -174,7 +183,10 @@ export const Loading: Story = {
   },
   decorators: [
     (Story) => (
-      <MockedProvider mocks={[]} addTypename={false}>
+      <MockedProvider
+        mocks={[]}
+        addTypename={false}
+      >
         <div className="p-component-lg">
           <Story />
         </div>
@@ -197,7 +209,10 @@ export const Mobile: Story = {
   },
   decorators: [
     (Story) => (
-      <MockedProvider mocks={mockSuccess} addTypename={false}>
+      <MockedProvider
+        mocks={mockSuccess}
+        addTypename={false}
+      >
         <div className="p-component-sm">
           <Story />
         </div>
@@ -245,7 +260,10 @@ export const ManyVlans: Story = {
       ];
 
       return (
-        <MockedProvider mocks={mocks} addTypename={false}>
+        <MockedProvider
+          mocks={mocks}
+          addTypename={false}
+        >
           <div className="p-component-lg">
             <Story />
           </div>

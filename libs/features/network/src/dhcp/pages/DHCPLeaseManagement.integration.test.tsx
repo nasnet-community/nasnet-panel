@@ -24,7 +24,12 @@ vi.mock('@nasnet/ui/layouts', () => ({
   usePlatform: vi.fn(),
 }));
 
-import { useDHCPLeases, useMakeLeaseStatic, useDeleteLease, useDHCPServers } from '@nasnet/api-client/queries';
+import {
+  useDHCPLeases,
+  useMakeLeaseStatic,
+  useDeleteLease,
+  useDHCPServers,
+} from '@nasnet/api-client/queries';
 import { useDHCPUIStore } from '@nasnet/state/stores';
 import { useToast } from '@nasnet/ui/primitives';
 import { usePlatform } from '@nasnet/ui/layouts';
@@ -378,7 +383,9 @@ describe('DHCP Lease Management Integration', () => {
       // Selection should persist if lease is still visible
       await waitFor(() => {
         const updatedCheckboxes = screen.getAllByRole('checkbox');
-        const firstLeaseCheckbox = updatedCheckboxes.find((cb) => cb.getAttribute('aria-label')?.includes('lease-1'));
+        const firstLeaseCheckbox = updatedCheckboxes.find((cb) =>
+          cb.getAttribute('aria-label')?.includes('lease-1')
+        );
         if (firstLeaseCheckbox) {
           expect(firstLeaseCheckbox).toBeChecked();
         }

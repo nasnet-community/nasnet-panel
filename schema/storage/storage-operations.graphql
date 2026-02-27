@@ -14,7 +14,9 @@ extend type Query {
   Shows flash vs external usage and per-feature breakdown.
   """
   storageUsage(
-    """Router ID to query storage for (optional, defaults to current router)"""
+    """
+    Router ID to query storage for (optional, defaults to current router)
+    """
     routerId: ID
   ): StorageUsage!
 
@@ -29,7 +31,9 @@ extend type Query {
   Returns features marked as unavailable due to missing storage.
   """
   unavailableFeatures(
-    """Router ID to query (optional, defaults to current router)"""
+    """
+    Router ID to query (optional, defaults to current router)
+    """
     routerId: ID
   ): [ServiceInstance!]!
 }
@@ -44,17 +48,13 @@ extend type Mutation {
   Validates path exists and is writable, then persists to settings.
   Future installations will use external storage for binaries.
   """
-  configureExternalStorage(
-    input: ConfigureExternalStorageInput!
-  ): ConfigureExternalStoragePayload!
+  configureExternalStorage(input: ConfigureExternalStorageInput!): ConfigureExternalStoragePayload!
 
   """
   Reset external storage configuration to use flash only.
   Optionally migrates existing binaries back to flash.
   """
-  resetExternalStorage(
-    input: ResetExternalStorageInput
-  ): ResetExternalStoragePayload!
+  resetExternalStorage(input: ResetExternalStorageInput): ResetExternalStoragePayload!
 
   """
   Manually trigger storage detection scan.
@@ -71,13 +71,19 @@ extend type Mutation {
 Payload for configureExternalStorage mutation.
 """
 type ConfigureExternalStoragePayload {
-  """Storage configuration after update"""
+  """
+  Storage configuration after update
+  """
   config: StorageConfig
 
-  """Storage info for configured path"""
+  """
+  Storage info for configured path
+  """
   storageInfo: StorageInfo
 
-  """Mutation errors"""
+  """
+  Mutation errors
+  """
   errors: [MutationError!]
 }
 
@@ -85,13 +91,19 @@ type ConfigureExternalStoragePayload {
 Payload for resetExternalStorage mutation.
 """
 type ResetExternalStoragePayload {
-  """Whether reset was successful"""
+  """
+  Whether reset was successful
+  """
   success: Boolean!
 
-  """Number of features migrated to flash (if requested)"""
+  """
+  Number of features migrated to flash (if requested)
+  """
   featuresMigrated: Int!
 
-  """Mutation errors"""
+  """
+  Mutation errors
+  """
   errors: [MutationError!]
 }
 
@@ -99,13 +111,19 @@ type ResetExternalStoragePayload {
 Payload for scanStorage mutation.
 """
 type ScanStoragePayload {
-  """Detected storage locations"""
+  """
+  Detected storage locations
+  """
   storageInfo: [StorageInfo!]!
 
-  """Number of new storage locations detected"""
+  """
+  Number of new storage locations detected
+  """
   newStorageCount: Int!
 
-  """Mutation errors"""
+  """
+  Mutation errors
+  """
   errors: [MutationError!]
 }
 
@@ -119,7 +137,9 @@ extend type Subscription {
   Emits when external storage becomes available or unavailable.
   """
   storageMountChanged(
-    """Optional path filter (if not provided, all storage events)"""
+    """
+    Optional path filter (if not provided, all storage events)
+    """
     path: String
   ): StorageMountEvent!
 
@@ -128,7 +148,9 @@ extend type Subscription {
   Emits when storage usage crosses 80%, 90%, or 95% thresholds.
   """
   storageSpaceChanged(
-    """Optional path filter (if not provided, all storage events)"""
+    """
+    Optional path filter (if not provided, all storage events)
+    """
     path: String
   ): StorageSpaceEvent!
 }

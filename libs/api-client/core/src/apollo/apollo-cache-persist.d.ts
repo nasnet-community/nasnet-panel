@@ -11,14 +11,14 @@ import { InMemoryCache } from '@apollo/client';
  * Configuration for cache persistence
  */
 export interface CachePersistConfig {
-    /** Maximum cache size in bytes (default: 5MB) */
-    maxSize?: number;
-    /** Debounce delay in milliseconds before writing to storage (default: 1000ms) */
-    debounce?: number;
-    /** Storage key for the cache (default: 'apollo-cache-persist') */
-    key?: string;
-    /** Whether to log debug information (default: false in production) */
-    debug?: boolean;
+  /** Maximum cache size in bytes (default: 5MB) */
+  maxSize?: number;
+  /** Debounce delay in milliseconds before writing to storage (default: 1000ms) */
+  debounce?: number;
+  /** Storage key for the cache (default: 'apollo-cache-persist') */
+  key?: string;
+  /** Whether to log debug information (default: false in production) */
+  debug?: boolean;
 }
 /**
  * Initialize cache persistence.
@@ -45,7 +45,10 @@ export interface CachePersistConfig {
  * }
  * ```
  */
-export declare function initializeCachePersistence(cache: InMemoryCache, config?: CachePersistConfig): Promise<void>;
+export declare function initializeCachePersistence(
+  cache: InMemoryCache,
+  config?: CachePersistConfig
+): Promise<void>;
 /**
  * Clear persisted cache from storage.
  *

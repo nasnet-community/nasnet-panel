@@ -112,7 +112,8 @@ export const Default: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Empty form for creating a new port knock sequence. The right-hand visualizer updates as ports are added.',
+        story:
+          'Empty form for creating a new port knock sequence. The right-hand visualizer updates as ports are added.',
       },
     },
   },
@@ -180,7 +181,8 @@ export const RDPProtection: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Four-knock sequence for RDP protection. No SSH lockout warning appears. The visualizer renders all four stages.',
+        story:
+          'Four-knock sequence for RDP protection. No SSH lockout warning appears. The visualizer renders all four stages.',
       },
     },
   },

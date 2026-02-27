@@ -25,7 +25,6 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-
   Button,
   Card,
   Input,
@@ -77,7 +76,14 @@ export const RateLimitRuleEditorDesktop = memo(function RateLimitRuleEditorDeskt
   const { control, formState } = form;
 
   // Get action-specific badge color
-  const actionBadgeVariant = useMemo((): 'default' | 'secondary' | 'outline' | 'error' | 'success' | 'warning' | 'info' => {
+  const actionBadgeVariant = useMemo(():
+    | 'default'
+    | 'secondary'
+    | 'outline'
+    | 'error'
+    | 'success'
+    | 'warning'
+    | 'info' => {
     const action = rule.action;
     if (!action) return 'default';
 
@@ -89,11 +95,14 @@ export const RateLimitRuleEditorDesktop = memo(function RateLimitRuleEditorDeskt
 
   return (
     <FormProvider {...form}>
-      <Dialog open={open} onOpenChange={onClose}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+      <Dialog
+        open={open}
+        onOpenChange={onClose}
+      >
+        <DialogContent className="max-h-[90vh] max-w-3xl overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Shield className="h-5 w-5 text-primary" />
+              <Shield className="text-primary h-5 w-5" />
               {mode === 'create' ? 'Create Rate Limit Rule' : 'Edit Rate Limit Rule'}
             </DialogTitle>
             <DialogDescription>
@@ -101,31 +110,30 @@ export const RateLimitRuleEditorDesktop = memo(function RateLimitRuleEditorDeskt
             </DialogDescription>
           </DialogHeader>
 
-          <form onSubmit={editor.handleSubmit} className="space-y-6">
+          <form
+            onSubmit={editor.handleSubmit}
+            className="space-y-6"
+          >
             {/* Live Preview */}
-            <Card className="p-component-md bg-info-light border border-info/20 rounded-[var(--semantic-radius-card)] border-t-2 border-t-category-firewall">
+            <Card className="p-component-md bg-info-light border-info/20 border-t-category-firewall rounded-[var(--semantic-radius-card)] border border-t-2">
               <div className="flex items-start gap-3">
-                <Info className="h-5 w-5 text-info mt-0.5" />
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs font-semibold text-info-dark mb-1">Rule Preview</p>
-                  <p className="text-xs text-muted-foreground font-mono break-words">
-                    {preview}
-                  </p>
+                <Info className="text-info mt-0.5 h-5 w-5" />
+                <div className="min-w-0 flex-1">
+                  <p className="text-info-dark mb-1 text-xs font-semibold">Rule Preview</p>
+                  <p className="text-muted-foreground break-words font-mono text-xs">{preview}</p>
                 </div>
-                <Badge variant={actionBadgeVariant}>
-                  {rule.action || 'No action'}
-                </Badge>
+                <Badge variant={actionBadgeVariant}>{rule.action || 'No action'}</Badge>
               </div>
             </Card>
 
             {/* Rate Limit Configuration */}
             <div className="space-y-component-md">
-              <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+              <h3 className="text-muted-foreground flex items-center gap-2 text-xs font-semibold uppercase tracking-wider">
                 <Clock className="h-4 w-4" />
                 Rate Limit Configuration
               </h3>
 
-              <div className="grid grid-cols-2 gap-component-md">
+              <div className="gap-component-md grid grid-cols-2">
                 <FormField
                   name="connectionLimit"
                   label="Connection Limit"
@@ -179,13 +187,19 @@ export const RateLimitRuleEditorDesktop = memo(function RateLimitRuleEditorDeskt
                     name="timeWindow"
                     control={control}
                     render={({ field }) => (
-                      <Select value={field.value} onValueChange={field.onChange}>
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      >
                         <SelectTrigger>
                           <SelectValue placeholder="Select time window" />
                         </SelectTrigger>
                         <SelectContent>
                           {TimeWindowSchema.options.map((window: string) => (
-                            <SelectItem key={window} value={window}>
+                            <SelectItem
+                              key={window}
+                              value={window}
+                            >
                               {window === 'per-second' && 'Per Second'}
                               {window === 'per-minute' && 'Per Minute'}
                               {window === 'per-hour' && 'Per Hour'}
@@ -203,7 +217,7 @@ export const RateLimitRuleEditorDesktop = memo(function RateLimitRuleEditorDeskt
 
             {/* Action Configuration */}
             <div className="space-y-component-md">
-              <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+              <h3 className="text-muted-foreground flex items-center gap-2 text-xs font-semibold uppercase tracking-wider">
                 <AlertCircle className="h-4 w-4" />
                 Action Configuration
               </h3>
@@ -218,13 +232,19 @@ export const RateLimitRuleEditorDesktop = memo(function RateLimitRuleEditorDeskt
                   name="action"
                   control={control}
                   render={({ field }) => (
-                    <Select value={field.value} onValueChange={field.onChange}>
+                    <Select
+                      value={field.value}
+                      onValueChange={field.onChange}
+                    >
                       <SelectTrigger>
                         <SelectValue placeholder="Select action" />
                       </SelectTrigger>
                       <SelectContent>
                         {RateLimitActionSchema.options.map((action: string) => (
-                          <SelectItem key={action} value={action}>
+                          <SelectItem
+                            key={action}
+                            value={action}
+                          >
                             {action === 'drop' && 'Drop - Block connections immediately'}
                             {action === 'tarpit' && 'Tarpit - Slow down connections'}
                             {action === 'add-to-list' && 'Add to List - Add IP to address list'}
@@ -250,28 +270,33 @@ export const RateLimitRuleEditorDesktop = memo(function RateLimitRuleEditorDeskt
                       control={control}
                       render={({ field }) => (
                         <div className="space-y-2">
-                          {addressLists.length > 0 ? (
-                            <Select value={field.value || ''} onValueChange={field.onChange}>
+                          {addressLists.length > 0 ?
+                            <Select
+                              value={field.value || ''}
+                              onValueChange={field.onChange}
+                            >
                               <SelectTrigger>
                                 <SelectValue placeholder="Select address list" />
                               </SelectTrigger>
                               <SelectContent>
                                 {addressLists.map((list) => (
-                                  <SelectItem key={list} value={list}>
+                                  <SelectItem
+                                    key={list}
+                                    value={list}
+                                  >
                                     {list}
                                   </SelectItem>
                                 ))}
                               </SelectContent>
                             </Select>
-                          ) : (
-                            <Input
+                          : <Input
                               {...field}
                               placeholder="e.g., rate-limited"
                               value={field.value || ''}
                             />
-                          )}
+                          }
                           {addressListExists === false && field.value && (
-                            <p className="text-xs text-warning flex items-center gap-1">
+                            <p className="text-warning flex items-center gap-1 text-xs">
                               <AlertCircle className="h-3 w-3" />
                               Address list will be created automatically
                             </p>
@@ -291,13 +316,19 @@ export const RateLimitRuleEditorDesktop = memo(function RateLimitRuleEditorDeskt
                       control={control}
                       render={({ field }) => (
                         <div className="space-y-2">
-                          <Select value={field.value || ''} onValueChange={field.onChange}>
+                          <Select
+                            value={field.value || ''}
+                            onValueChange={field.onChange}
+                          >
                             <SelectTrigger>
                               <SelectValue placeholder="Select timeout" />
                             </SelectTrigger>
                             <SelectContent>
                               {TIMEOUT_PRESETS.map((preset: { value: string; label: string }) => (
-                                <SelectItem key={preset.value} value={preset.value}>
+                                <SelectItem
+                                  key={preset.value}
+                                  value={preset.value}
+                                >
                                   {preset.label}
                                 </SelectItem>
                               ))}
@@ -315,7 +346,7 @@ export const RateLimitRuleEditorDesktop = memo(function RateLimitRuleEditorDeskt
 
             {/* Source Matching */}
             <div className="space-y-component-md">
-              <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+              <h3 className="text-muted-foreground flex items-center gap-2 text-xs font-semibold uppercase tracking-wider">
                 <Network className="h-4 w-4" />
                 Source Matching (optional)
               </h3>
@@ -368,7 +399,7 @@ export const RateLimitRuleEditorDesktop = memo(function RateLimitRuleEditorDeskt
                   onClick={onDelete}
                   disabled={isDeleting || isSaving}
                 >
-                  <Trash2 className="h-4 w-4 mr-2" />
+                  <Trash2 className="mr-2 h-4 w-4" />
                   Delete
                 </Button>
               )}
@@ -388,7 +419,11 @@ export const RateLimitRuleEditorDesktop = memo(function RateLimitRuleEditorDeskt
                 onClick={editor.handleSubmit}
                 disabled={!formState.isValid || isSaving || isDeleting}
               >
-                {isSaving ? 'Saving...' : mode === 'create' ? 'Create Rule' : 'Save Changes'}
+                {isSaving ?
+                  'Saving...'
+                : mode === 'create' ?
+                  'Create Rule'
+                : 'Save Changes'}
               </Button>
             </div>
           </DialogFooter>

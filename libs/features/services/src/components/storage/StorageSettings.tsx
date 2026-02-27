@@ -39,11 +39,9 @@ export interface StorageSettingsProps {
 function StorageSettingsComponent({ className }: StorageSettingsProps) {
   const platform = usePlatform();
 
-  return platform === 'mobile' ? (
-    <StorageSettingsMobile className={className} />
-  ) : (
-    <StorageSettingsDesktop className={className} />
-  );
+  return platform === 'mobile' ?
+      <StorageSettingsMobile className={className} />
+    : <StorageSettingsDesktop className={className} />;
 }
 
 export const StorageSettings = memo(StorageSettingsComponent);

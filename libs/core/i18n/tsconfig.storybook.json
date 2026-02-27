@@ -8,8 +8,5 @@
     "emitDeclarationOnly": false,
     "declarationMap": false
   },
-  "include": [
-    "src/**/*.stories.ts",
-    "src/**/*.stories.tsx"
-  ]
+  "include": ["src/**/*.stories.ts", "src/**/*.stories.tsx"]
 }

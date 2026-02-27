@@ -1,6 +1,7 @@
 # Wizard Forms
 
-Multi-step forms in NasNetConnect use `useWizardPersistence` to manage step navigation, data collection, and state persistence across page reloads.
+Multi-step forms in NasNetConnect use `useWizardPersistence` to manage step navigation, data
+collection, and state persistence across page reloads.
 
 File: `libs/core/forms/src/useWizardPersistence.ts`
 
@@ -19,20 +20,20 @@ File: `libs/core/forms/src/useWizardPersistence.ts`
 ```typescript
 function useWizardPersistence<TStepData extends Record<string, FieldValues>>(
   options: UseWizardPersistenceOptions<TStepData>
-): UseWizardPersistenceReturn<TStepData>
+): UseWizardPersistenceReturn<TStepData>;
 ```
 
 ### Options
 
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `storageKey` | `string` | required | Unique key for this wizard in storage |
-| `stepIds` | `string[]` | required | Ordered list of step identifiers |
-| `initialStep` | `string \| number` | `stepIds[0]` | Starting step |
-| `storage` | `Storage` | `sessionStorage` | Storage backend |
-| `ttlMs` | `number` | `86400000` (24 h) | How long before saved state expires |
-| `onRestore` | `(state) => void` | — | Called when saved state is restored |
-| `onExpire` | `() => void` | — | Called when saved state expires |
+| Option        | Type               | Default           | Description                           |
+| ------------- | ------------------ | ----------------- | ------------------------------------- |
+| `storageKey`  | `string`           | required          | Unique key for this wizard in storage |
+| `stepIds`     | `string[]`         | required          | Ordered list of step identifiers      |
+| `initialStep` | `string \| number` | `stepIds[0]`      | Starting step                         |
+| `storage`     | `Storage`          | `sessionStorage`  | Storage backend                       |
+| `ttlMs`       | `number`           | `86400000` (24 h) | How long before saved state expires   |
+| `onRestore`   | `(state) => void`  | —                 | Called when saved state is restored   |
+| `onExpire`    | `() => void`       | —                 | Called when saved state expires       |
 
 ### Full Example
 
@@ -124,41 +125,41 @@ function WireGuardSetupWizard() {
 
 ### Navigation State
 
-| Property | Type | Description |
-|----------|------|-------------|
-| `currentStep` | `string` | Current step ID |
-| `currentStepIndex` | `number` | 0-based index |
-| `completedSteps` | `string[]` | IDs of completed steps |
-| `progress` | `number` | 0–100 based on completed / total |
-| `isFirstStep` | `boolean` | On the first step |
-| `isLastStep` | `boolean` | On the last step |
-| `wasRestored` | `boolean` | `true` if state was loaded from storage |
+| Property           | Type       | Description                             |
+| ------------------ | ---------- | --------------------------------------- |
+| `currentStep`      | `string`   | Current step ID                         |
+| `currentStepIndex` | `number`   | 0-based index                           |
+| `completedSteps`   | `string[]` | IDs of completed steps                  |
+| `progress`         | `number`   | 0–100 based on completed / total        |
+| `isFirstStep`      | `boolean`  | On the first step                       |
+| `isLastStep`       | `boolean`  | On the last step                        |
+| `wasRestored`      | `boolean`  | `true` if state was loaded from storage |
 
 ### Data Methods
 
-| Method | Description |
-|--------|-------------|
-| `getStepData(stepId)` | Get saved data for a step (typed) |
-| `setStepData(stepId, data)` | Save data for a step (typed) |
-| `getAllStepData()` | Returns `Partial<TStepData>` with all step data |
-| `setMetadata(meta)` | Store arbitrary wizard metadata |
+| Method                      | Description                                     |
+| --------------------------- | ----------------------------------------------- |
+| `getStepData(stepId)`       | Get saved data for a step (typed)               |
+| `setStepData(stepId, data)` | Save data for a step (typed)                    |
+| `getAllStepData()`          | Returns `Partial<TStepData>` with all step data |
+| `setMetadata(meta)`         | Store arbitrary wizard metadata                 |
 
 ### Navigation Methods
 
-| Method | Description |
-|--------|-------------|
+| Method                      | Description                                          |
+| --------------------------- | ---------------------------------------------------- |
 | `goToStep(stepId \| index)` | Navigate to a specific step (enforces `canGoToStep`) |
-| `nextStep()` | Advance to the next step |
-| `prevStep()` | Go back to the previous step |
-| `completeStep(stepId)` | Mark a step as completed |
-| `isStepCompleted(stepId)` | Check if a step is completed |
-| `canGoToStep(stepId)` | Returns `true` if navigation is allowed |
+| `nextStep()`                | Advance to the next step                             |
+| `prevStep()`                | Go back to the previous step                         |
+| `completeStep(stepId)`      | Mark a step as completed                             |
+| `isStepCompleted(stepId)`   | Check if a step is completed                         |
+| `canGoToStep(stepId)`       | Returns `true` if navigation is allowed              |
 
 ### Lifecycle Methods
 
-| Method | Description |
-|--------|-------------|
-| `reset()` | Reset to initial state and persist |
+| Method               | Description                                   |
+| -------------------- | --------------------------------------------- |
+| `reset()`            | Reset to initial state and persist            |
 | `clearPersistence()` | Delete saved state and reset to initial state |
 
 ## Navigation Rules
@@ -200,13 +201,14 @@ function NetworkStep({ defaultValues, onComplete, onBack }) {
 
 ## TTL and Expiry
 
-State older than `ttlMs` is automatically discarded when the wizard mounts. The `onExpire` callback fires in this case so you can show a notification:
+State older than `ttlMs` is automatically discarded when the wizard mounts. The `onExpire` callback
+fires in this case so you can show a notification:
 
 ```typescript
 const wizard = useWizardPersistence({
   storageKey: 'setup-wizard',
   stepIds: ['step1', 'step2', 'step3'],
-  ttlMs: 30 * 60 * 1000,  // 30 minutes
+  ttlMs: 30 * 60 * 1000, // 30 minutes
   onExpire: () => {
     toast.info('Your wizard session expired. Starting fresh.');
   },
@@ -215,7 +217,9 @@ const wizard = useWizardPersistence({
 
 ## Combining With useFormPersistence
 
-`useWizardPersistence` handles wizard-level state (current step, completed steps, step data). For within-step persistence (user mid-step when they refresh), you can additionally use `useFormPersistence` on individual step forms:
+`useWizardPersistence` handles wizard-level state (current step, completed steps, step data). For
+within-step persistence (user mid-step when they refresh), you can additionally use
+`useFormPersistence` on individual step forms:
 
 ```typescript
 function BasicStep({ defaultValues, onComplete }) {

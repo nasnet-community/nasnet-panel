@@ -8,14 +8,7 @@ import * as React from 'react';
 
 import { memo } from 'react';
 
-import {
-  Shield,
-  Lock,
-  Network,
-  KeyRound,
-  Globe,
-  ShieldCheck
-} from 'lucide-react';
+import { Shield, Lock, Network, KeyRound, Globe, ShieldCheck } from 'lucide-react';
 
 import { cn } from '@nasnet/ui/primitives';
 
@@ -91,11 +84,7 @@ function getProtocolConfig(protocol: VPNProtocol) {
  * ProtocolIcon Component
  * Renders the appropriate icon for a VPN protocol
  */
-function ProtocolIconComponent({
-  protocol,
-  size = 20,
-  className
-}: ProtocolIconProps) {
+function ProtocolIconComponent({ protocol, size = 20, className }: ProtocolIconProps) {
   const config = getProtocolConfig(protocol);
   const Icon = config.Icon;
 
@@ -124,7 +113,7 @@ export interface ProtocolIconBadgeProps extends ProtocolIconProps {
 function ProtocolIconBadgeComponent({
   protocol,
   variant = 'md',
-  className
+  className,
 }: ProtocolIconBadgeProps) {
   const config = getProtocolConfig(protocol);
   const Icon = config.Icon;
@@ -142,7 +131,7 @@ function ProtocolIconBadgeComponent({
       className={cn(
         sizes.container,
         config.bgClass,
-        'rounded-xl flex items-center justify-center',
+        'flex items-center justify-center rounded-xl',
         className
       )}
     >

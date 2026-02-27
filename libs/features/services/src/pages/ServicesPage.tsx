@@ -33,7 +33,15 @@ import {
   useSelectedServices,
 } from '@nasnet/state/stores';
 import { InstanceManager, ResourceBudgetPanel, ServiceImportDialog } from '@nasnet/ui/patterns';
-import { Button, Card, CardContent, CardHeader, CardTitle, Separator, Skeleton } from '@nasnet/ui/primitives';
+import {
+  Button,
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Separator,
+  Skeleton,
+} from '@nasnet/ui/primitives';
 import { cn } from '@nasnet/ui/utils';
 
 import { InstallDialog } from '../components/InstallDialog';
@@ -75,12 +83,7 @@ export const ServicesPage = React.memo(function ServicesPage({
   const { t } = useTranslation();
 
   // Fetch service instances
-  const {
-    instances,
-    loading,
-    error,
-    refetch,
-  } = useServiceInstances(routerId);
+  const { instances, loading, error, refetch } = useServiceInstances(routerId);
 
   // Storage configuration
   const { config: storageConfig } = useStorageConfig();
@@ -101,8 +104,7 @@ export const ServicesPage = React.memo(function ServicesPage({
   const [checkForUpdates] = useCheckForUpdates();
 
   // Instance mutations
-  const { startInstance, stopInstance, restartInstance, deleteInstance } =
-    useInstanceMutations();
+  const { startInstance, stopInstance, restartInstance, deleteInstance } = useInstanceMutations();
 
   // TODO: Add real-time subscription for service sharing events when available
   // const { event: sharingEvent } = useServiceConfigSharedSubscription(routerId);
@@ -138,7 +140,11 @@ export const ServicesPage = React.memo(function ServicesPage({
 
   // Stop dependents dialog state (NAS-8.19)
   const [stopDialogOpen, setStopDialogOpen] = useState(false);
-  const [pendingStopInstance, setPendingStopInstance] = useState<{ id: string; name: string; featureId: string } | null>(null);
+  const [pendingStopInstance, setPendingStopInstance] = useState<{
+    id: string;
+    name: string;
+    featureId: string;
+  } | null>(null);
 
   // Resource overview section state
   const [resourcesOpen, setResourcesOpen] = useState(true); // Expanded by default
@@ -235,31 +241,21 @@ export const ServicesPage = React.memo(function ServicesPage({
         switch (operation) {
           case 'start':
             await Promise.all(
-              instanceIds.map((id) =>
-                startInstance({ routerID: routerId, instanceID: id })
-              )
+              instanceIds.map((id) => startInstance({ routerID: routerId, instanceID: id }))
             );
-            toast.success(
-              t('services.bulkOperations.startSuccess', { count: instanceIds.length })
-            );
+            toast.success(t('services.bulkOperations.startSuccess', { count: instanceIds.length }));
             break;
 
           case 'stop':
             await Promise.all(
-              instanceIds.map((id) =>
-                stopInstance({ routerID: routerId, instanceID: id })
-              )
+              instanceIds.map((id) => stopInstance({ routerID: routerId, instanceID: id }))
             );
-            toast.success(
-              t('services.bulkOperations.stopSuccess', { count: instanceIds.length })
-            );
+            toast.success(t('services.bulkOperations.stopSuccess', { count: instanceIds.length }));
             break;
 
           case 'restart':
             await Promise.all(
-              instanceIds.map((id) =>
-                restartInstance({ routerID: routerId, instanceID: id })
-              )
+              instanceIds.map((id) => restartInstance({ routerID: routerId, instanceID: id }))
             );
             toast.success(
               t('services.bulkOperations.restartSuccess', { count: instanceIds.length })
@@ -269,9 +265,7 @@ export const ServicesPage = React.memo(function ServicesPage({
           case 'delete':
             // Confirmation handled by InstanceManager
             await Promise.all(
-              instanceIds.map((id) =>
-                deleteInstance({ routerID: routerId, instanceID: id })
-              )
+              instanceIds.map((id) => deleteInstance({ routerID: routerId, instanceID: id }))
             );
             toast.success(
               t('services.bulkOperations.deleteSuccess', { count: instanceIds.length })
@@ -286,9 +280,7 @@ export const ServicesPage = React.memo(function ServicesPage({
         await refetch();
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : t('common.unknownError');
-        toast.error(
-          t('services.bulkOperations.error', { operation, message: errorMessage })
-        );
+        toast.error(t('services.bulkOperations.error', { operation, message: errorMessage }));
       }
     },
     [
@@ -331,10 +323,8 @@ export const ServicesPage = React.memo(function ServicesPage({
     const systemTotals = {
       totalMemoryUsed: resources.allocatedRAM,
       totalMemoryAvailable: resources.totalRAM,
-      runningInstances: resourceInstances.filter((i) => i.status === 'running')
-        .length,
-      stoppedInstances: resourceInstances.filter((i) => i.status === 'stopped')
-        .length,
+      runningInstances: resourceInstances.filter((i) => i.status === 'running').length,
+      stoppedInstances: resourceInstances.filter((i) => i.status === 'stopped').length,
     };
 
     return { instances: resourceInstances, systemTotals };
@@ -354,16 +344,21 @@ export const ServicesPage = React.memo(function ServicesPage({
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-component-md">
+            <div className="gap-component-md flex items-center">
               <div>
-                <h1 className="text-2xl font-display text-foreground">{t('services.page.title')}</h1>
-                <p className="text-sm text-muted-foreground mt-component-sm">
+                <h1 className="font-display text-foreground text-2xl">
+                  {t('services.page.title')}
+                </h1>
+                <p className="text-muted-foreground mt-component-sm text-sm">
                   {t('services.page.subtitle')}
                 </p>
               </div>
-              <Cpu className="h-6 w-6 text-category-vpn" aria-hidden="true" />
+              <Cpu
+                className="text-category-vpn h-6 w-6"
+                aria-hidden="true"
+              />
             </div>
-            <div className="flex items-center gap-component-md">
+            <div className="gap-component-md flex items-center">
               <Button
                 variant="outline"
                 size="lg"
@@ -371,7 +366,10 @@ export const ServicesPage = React.memo(function ServicesPage({
                 aria-label={t('services.sharing.import.button')}
                 className="min-h-[44px]"
               >
-                <Upload className="w-4 h-4 mr-component-sm" aria-hidden="true" />
+                <Upload
+                  className="mr-component-sm h-4 w-4"
+                  aria-hidden="true"
+                />
                 {t('services.sharing.import.button')}
               </Button>
               <Button
@@ -392,8 +390,18 @@ export const ServicesPage = React.memo(function ServicesPage({
                   className="mr-component-sm"
                   aria-hidden="true"
                 >
-                  <line x1="12" y1="5" x2="12" y2="19" />
-                  <line x1="5" y1="12" x2="19" y2="12" />
+                  <line
+                    x1="12"
+                    y1="5"
+                    x2="12"
+                    y2="19"
+                  />
+                  <line
+                    x1="5"
+                    y1="12"
+                    x2="19"
+                    y2="12"
+                  />
                 </svg>
                 {t('services.actions.install')}
               </Button>
@@ -409,39 +417,52 @@ export const ServicesPage = React.memo(function ServicesPage({
       >
         <Card>
           <Collapsible.Trigger asChild>
-            <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" role="button" aria-label={t('services.sections.resourceOverview.toggle')} tabIndex={0}>
+            <CardHeader
+              className="hover:bg-muted/50 focus-visible:ring-ring min-h-[44px] cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+              role="button"
+              aria-label={t('services.sections.resourceOverview.toggle')}
+              tabIndex={0}
+            >
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-component-md">
-                  <Cpu className="h-5 w-5 text-category-vpn" aria-hidden="true" />
+                <div className="gap-component-md flex items-center">
+                  <Cpu
+                    className="text-category-vpn h-5 w-5"
+                    aria-hidden="true"
+                  />
                   <CardTitle>{t('services.sections.resourceOverview.title')}</CardTitle>
                   {resourcesData && (
-                    <span className="text-xs px-component-sm py-component-xs rounded-full bg-category-vpn/10 text-category-vpn">
+                    <span className="px-component-sm py-component-xs bg-category-vpn/10 text-category-vpn rounded-full text-xs">
                       {resourcesData.systemResources.instances.length} instances
                     </span>
                   )}
                 </div>
-                {resourcesOpen ? (
-                  <ChevronUp className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
-                ) : (
-                  <ChevronDown className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
-                )}
+                {resourcesOpen ?
+                  <ChevronUp
+                    className="text-muted-foreground h-5 w-5"
+                    aria-hidden="true"
+                  />
+                : <ChevronDown
+                    className="text-muted-foreground h-5 w-5"
+                    aria-hidden="true"
+                  />
+                }
               </div>
             </CardHeader>
           </Collapsible.Trigger>
           <Collapsible.Content>
             <Separator />
             <CardContent className="pt-component-lg">
-              {resourcesLoading ? (
+              {resourcesLoading ?
                 <div className="space-y-component-md">
                   <Skeleton className="h-16 w-full" />
                   <Skeleton className="h-32 w-full" />
                 </div>
-              ) : resourcesError ? (
-                <div className="text-center py-8 text-muted-foreground">
+              : resourcesError ?
+                <div className="text-muted-foreground py-8 text-center">
                   <p className="text-sm">Failed to load resource data</p>
-                  <p className="text-xs mt-1">{resourcesError.message}</p>
+                  <p className="mt-1 text-xs">{resourcesError.message}</p>
                 </div>
-              ) : resourceBudgetData ? (
+              : resourceBudgetData ?
                 <ResourceBudgetPanel
                   instances={resourceBudgetData.instances}
                   systemTotals={resourceBudgetData.systemTotals}
@@ -450,11 +471,10 @@ export const ServicesPage = React.memo(function ServicesPage({
                   onInstanceClick={handleResourceInstanceClick}
                   emptyMessage="No service instances running"
                 />
-              ) : (
-                <div className="text-center py-8 text-muted-foreground">
+              : <div className="text-muted-foreground py-8 text-center">
                   <p className="text-sm">No resource data available</p>
                 </div>
-              )}
+              }
             </CardContent>
           </Collapsible.Content>
         </Card>
@@ -462,23 +482,39 @@ export const ServicesPage = React.memo(function ServicesPage({
 
       {/* Available Updates Section (NAS-8.7) */}
       {updatesData && updatesData.length > 0 && (
-        <Collapsible.Root open={updatesOpen} onOpenChange={setUpdatesOpen}>
+        <Collapsible.Root
+          open={updatesOpen}
+          onOpenChange={setUpdatesOpen}
+        >
           <Card>
             <Collapsible.Trigger asChild>
-              <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" role="button" aria-label={t('services.sections.updates.toggle')} tabIndex={0}>
+              <CardHeader
+                className="hover:bg-muted/50 focus-visible:ring-ring min-h-[44px] cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+                role="button"
+                aria-label={t('services.sections.updates.toggle')}
+                tabIndex={0}
+              >
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-component-md">
-                    <ArrowUp className="h-5 w-5 text-warning" aria-hidden="true" />
+                  <div className="gap-component-md flex items-center">
+                    <ArrowUp
+                      className="text-warning h-5 w-5"
+                      aria-hidden="true"
+                    />
                     <CardTitle>{t('services.sections.updates.title')}</CardTitle>
-                    <span className="text-xs px-component-sm py-component-xs rounded-full bg-warning/10 text-warning">
+                    <span className="px-component-sm py-component-xs bg-warning/10 text-warning rounded-full text-xs">
                       {updatesData.length} update{updatesData.length !== 1 ? 's' : ''}
                     </span>
                   </div>
-                  {updatesOpen ? (
-                    <ChevronUp className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
-                  ) : (
-                    <ChevronDown className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
-                  )}
+                  {updatesOpen ?
+                    <ChevronUp
+                      className="text-muted-foreground h-5 w-5"
+                      aria-hidden="true"
+                    />
+                  : <ChevronDown
+                      className="text-muted-foreground h-5 w-5"
+                      aria-hidden="true"
+                    />
+                  }
                 </div>
               </CardHeader>
             </Collapsible.Trigger>
@@ -503,25 +539,41 @@ export const ServicesPage = React.memo(function ServicesPage({
       )}
 
       {/* Storage Management Section */}
-      <Collapsible.Root open={storageOpen} onOpenChange={setStorageOpen}>
+      <Collapsible.Root
+        open={storageOpen}
+        onOpenChange={setStorageOpen}
+      >
         <Card>
           <Collapsible.Trigger asChild>
-            <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" role="button" aria-label={t('services.sections.storage.toggle')} tabIndex={0}>
+            <CardHeader
+              className="hover:bg-muted/50 focus-visible:ring-ring min-h-[44px] cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+              role="button"
+              aria-label={t('services.sections.storage.toggle')}
+              tabIndex={0}
+            >
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-component-md">
-                  <HardDrive className="h-5 w-5 text-category-vpn" aria-hidden="true" />
+                <div className="gap-component-md flex items-center">
+                  <HardDrive
+                    className="text-category-vpn h-5 w-5"
+                    aria-hidden="true"
+                  />
                   <CardTitle>{t('services.sections.storage.title')}</CardTitle>
                   {storageConfig?.enabled && (
-                    <span className="text-xs px-component-sm py-component-xs rounded-full bg-category-vpn/10 text-category-vpn">
+                    <span className="px-component-sm py-component-xs bg-category-vpn/10 text-category-vpn rounded-full text-xs">
                       Configured
                     </span>
                   )}
                 </div>
-                {storageOpen ? (
-                  <ChevronUp className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
-                ) : (
-                  <ChevronDown className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
-                )}
+                {storageOpen ?
+                  <ChevronUp
+                    className="text-muted-foreground h-5 w-5"
+                    aria-hidden="true"
+                  />
+                : <ChevronDown
+                    className="text-muted-foreground h-5 w-5"
+                    aria-hidden="true"
+                  />
+                }
               </div>
             </CardHeader>
           </Collapsible.Trigger>
@@ -535,20 +587,36 @@ export const ServicesPage = React.memo(function ServicesPage({
       </Collapsible.Root>
 
       {/* Port Allocations Section (NAS-8.16) */}
-      <Collapsible.Root open={portsOpen} onOpenChange={setPortsOpen}>
+      <Collapsible.Root
+        open={portsOpen}
+        onOpenChange={setPortsOpen}
+      >
         <Card>
           <Collapsible.Trigger asChild>
-            <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" role="button" aria-label={t('services.sections.ports.toggle')} tabIndex={0}>
+            <CardHeader
+              className="hover:bg-muted/50 focus-visible:ring-ring min-h-[44px] cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+              role="button"
+              aria-label={t('services.sections.ports.toggle')}
+              tabIndex={0}
+            >
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-component-md">
-                  <Network className="h-5 w-5 text-category-vpn" aria-hidden="true" />
+                <div className="gap-component-md flex items-center">
+                  <Network
+                    className="text-category-vpn h-5 w-5"
+                    aria-hidden="true"
+                  />
                   <CardTitle>{t('services.sections.ports.title')}</CardTitle>
                 </div>
-                {portsOpen ? (
-                  <ChevronUp className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
-                ) : (
-                  <ChevronDown className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
-                )}
+                {portsOpen ?
+                  <ChevronUp
+                    className="text-muted-foreground h-5 w-5"
+                    aria-hidden="true"
+                  />
+                : <ChevronDown
+                    className="text-muted-foreground h-5 w-5"
+                    aria-hidden="true"
+                  />
+                }
               </div>
             </CardHeader>
           </Collapsible.Trigger>
@@ -578,14 +646,17 @@ export const ServicesPage = React.memo(function ServicesPage({
         onViewModeChange={setViewMode}
         showMetrics={showMetrics}
         emptyState={
-          <div className="text-center py-component-lg bg-muted/30 rounded-[var(--semantic-radius-card)]">
-            <h3 className="text-lg font-display mb-component-sm text-foreground">
+          <div className="py-component-lg bg-muted/30 rounded-[var(--semantic-radius-card)] text-center">
+            <h3 className="font-display mb-component-sm text-foreground text-lg">
               {t('services.empty.title')}
             </h3>
-            <p className="text-sm text-muted-foreground mb-component-md">
+            <p className="text-muted-foreground mb-component-md text-sm">
               {t('services.empty.description')}
             </p>
-            <Button onClick={() => setInstallDialogOpen(true)} className="min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+            <Button
+              onClick={() => setInstallDialogOpen(true)}
+              className="focus-visible:ring-ring min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+            >
               {t('services.empty.action')}
             </Button>
           </div>
@@ -660,9 +731,7 @@ function getCategoryFromFeatureId(featureId: string): Service['category'] {
  * Map resource status to instance status
  * Maps ResourceStatus enum to ServiceInstanceResource status
  */
-function getInstanceStatus(
-  resourceStatus: string
-): 'running' | 'stopped' | 'pending' | 'error' {
+function getInstanceStatus(resourceStatus: string): 'running' | 'stopped' | 'pending' | 'error' {
   // Resource status comes from backend as OK, WARNING, CRITICAL
   // We map these to instance running states
   // All states except error map to running since resource monitoring

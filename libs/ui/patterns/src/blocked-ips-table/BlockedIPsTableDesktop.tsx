@@ -178,9 +178,7 @@ export const BlockedIPsTableDesktop = memo(function BlockedIPsTableDesktop({
   const handleBulkWhitelistSubmit = async () => {
     if (!onWhitelist) return;
 
-    await Promise.all(
-      selectedIPs.map((address) => onWhitelist(address, bulkWhitelistTimeout))
-    );
+    await Promise.all(selectedIPs.map((address) => onWhitelist(address, bulkWhitelistTimeout)));
     setBulkWhitelistDialogOpen(false);
     clearSelection();
   };
@@ -236,13 +234,13 @@ export const BlockedIPsTableDesktop = memo(function BlockedIPsTableDesktop({
       createTextColumn('address', 'IP Address', {
         size: 140,
         cell: (info) => (
-          <span className="font-mono text-sm text-foreground">{String(info.getValue())}</span>
+          <span className="text-foreground font-mono text-sm">{String(info.getValue())}</span>
         ),
       }),
       createTextColumn('list', 'List', {
         size: 120,
         cell: (info) => (
-          <span className="text-sm text-muted-foreground">{String(info.getValue())}</span>
+          <span className="text-muted-foreground text-sm">{String(info.getValue())}</span>
         ),
       }),
       {
@@ -253,7 +251,9 @@ export const BlockedIPsTableDesktop = memo(function BlockedIPsTableDesktop({
         cell: (info) => {
           const count = info.getValue() as number;
           return (
-            <span className="font-mono text-sm text-muted-foreground">{count.toLocaleString()}</span>
+            <span className="text-muted-foreground font-mono text-sm">
+              {count.toLocaleString()}
+            </span>
           );
         },
       },
@@ -264,11 +264,7 @@ export const BlockedIPsTableDesktop = memo(function BlockedIPsTableDesktop({
         size: 120,
         cell: (info) => {
           const date = info.getValue() as Date | undefined;
-          return (
-            <span className="text-sm text-muted-foreground">
-              {formatRelativeTime(date)}
-            </span>
-          );
+          return <span className="text-muted-foreground text-sm">{formatRelativeTime(date)}</span>;
         },
       },
       {
@@ -278,11 +274,7 @@ export const BlockedIPsTableDesktop = memo(function BlockedIPsTableDesktop({
         size: 120,
         cell: (info) => {
           const date = info.getValue() as Date | undefined;
-          return (
-            <span className="text-sm text-muted-foreground">
-              {formatRelativeTime(date)}
-            </span>
-          );
+          return <span className="text-muted-foreground text-sm">{formatRelativeTime(date)}</span>;
         },
       },
       {
@@ -293,7 +285,9 @@ export const BlockedIPsTableDesktop = memo(function BlockedIPsTableDesktop({
         cell: (info) => {
           const timeout = info.getValue() as string | undefined;
           return (
-            <span className="font-mono text-sm text-muted-foreground">{timeout || 'permanent'}</span>
+            <span className="text-muted-foreground font-mono text-sm">
+              {timeout || 'permanent'}
+            </span>
           );
         },
       },
@@ -305,7 +299,7 @@ export const BlockedIPsTableDesktop = memo(function BlockedIPsTableDesktop({
         cell: (info) => {
           const entry = info.row.original;
           return (
-            <div className="flex items-center gap-component-sm">
+            <div className="gap-component-sm flex items-center">
               <Button
                 variant="ghost"
                 size="sm"
@@ -314,7 +308,7 @@ export const BlockedIPsTableDesktop = memo(function BlockedIPsTableDesktop({
                   handleWhitelistClick(entry.address);
                 }}
                 disabled={isWhitelisting}
-                className="text-sm text-foreground hover:bg-muted"
+                className="text-foreground hover:bg-muted text-sm"
                 aria-label={`Whitelist ${entry.address}`}
               >
                 Whitelist
@@ -327,7 +321,7 @@ export const BlockedIPsTableDesktop = memo(function BlockedIPsTableDesktop({
                   handleRemoveClick(entry.address);
                 }}
                 disabled={isRemoving}
-                className="text-sm text-error hover:text-error hover:bg-error-light/30"
+                className="text-error hover:text-error hover:bg-error-light/30 text-sm"
                 aria-label={`Remove ${entry.address}`}
               >
                 Remove
@@ -371,24 +365,21 @@ export const BlockedIPsTableDesktop = memo(function BlockedIPsTableDesktop({
   }, [hasActiveFilter, clearFilter]);
 
   return (
-    <div className={cn('flex flex-col gap-component-md', className)}>
+    <div className={cn('gap-component-md flex flex-col', className)}>
       {/* Header with stats and controls */}
       <div className="flex items-center justify-between">
-        <div className="text-xs text-muted-foreground font-medium">
-          {hasActiveFilter ? (
+        <div className="text-muted-foreground text-xs font-medium">
+          {hasActiveFilter ?
             <>
-              Showing {filteredCount.toLocaleString()} of{' '}
-              {totalCount.toLocaleString()} blocked IPs
+              Showing {filteredCount.toLocaleString()} of {totalCount.toLocaleString()} blocked IPs
             </>
-          ) : (
-            <>{totalCount.toLocaleString()} blocked IPs</>
-          )}
+          : <>{totalCount.toLocaleString()} blocked IPs</>}
         </div>
 
-        <div className="flex items-center gap-component-md">
+        <div className="gap-component-md flex items-center">
           {hasSelection && (
             <>
-              <span className="text-xs text-muted-foreground font-medium">
+              <span className="text-muted-foreground text-xs font-medium">
                 {selectedIPs.length} selected
               </span>
               <Button
@@ -424,23 +415,28 @@ export const BlockedIPsTableDesktop = memo(function BlockedIPsTableDesktop({
       </div>
 
       {/* Filter Controls */}
-      <div className="flex items-center gap-component-md">
+      <div className="gap-component-md flex items-center">
         <Input
           placeholder="Filter by IP address (supports wildcards: 192.168.1.*)"
           value={filter.ipAddress || ''}
           onChange={(e) => setFilter({ ipAddress: e.target.value })}
-          className="flex-1 h-10 text-sm rounded-[var(--semantic-radius-input)]"
+          className="h-10 flex-1 rounded-[var(--semantic-radius-input)] text-sm"
           aria-label="Filter by IP address"
         />
         {hasActiveFilter && (
-          <Button variant="outline" size="sm" onClick={clearFilter} className="text-xs">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={clearFilter}
+            className="text-xs"
+          >
             Clear Filters
           </Button>
         )}
       </div>
 
       {/* Blocked IPs Table */}
-      <div className="bg-card border border-border rounded-[var(--semantic-radius-card)] overflow-hidden">
+      <div className="bg-card border-border overflow-hidden rounded-[var(--semantic-radius-card)] border">
         <VirtualizedTable
           data={filteredBlockedIPs}
           columns={columns}
@@ -464,7 +460,10 @@ export const BlockedIPsTableDesktop = memo(function BlockedIPsTableDesktop({
       </div>
 
       {/* Whitelist Dialog */}
-      <Dialog open={whitelistDialogOpen} onOpenChange={setWhitelistDialogOpen}>
+      <Dialog
+        open={whitelistDialogOpen}
+        onOpenChange={setWhitelistDialogOpen}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Whitelist IP Address</DialogTitle>
@@ -474,14 +473,25 @@ export const BlockedIPsTableDesktop = memo(function BlockedIPsTableDesktop({
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <label htmlFor="timeout-select" className="text-sm font-medium">Timeout</label>
-              <Select value={whitelistTimeout} onValueChange={setWhitelistTimeout}>
+              <label
+                htmlFor="timeout-select"
+                className="text-sm font-medium"
+              >
+                Timeout
+              </label>
+              <Select
+                value={whitelistTimeout}
+                onValueChange={setWhitelistTimeout}
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   {WHITELIST_TIMEOUT_PRESETS.map((preset) => (
-                    <SelectItem key={preset.value} value={preset.value}>
+                    <SelectItem
+                      key={preset.value}
+                      value={preset.value}
+                    >
                       {preset.label}
                     </SelectItem>
                   ))}
@@ -489,7 +499,12 @@ export const BlockedIPsTableDesktop = memo(function BlockedIPsTableDesktop({
               </Select>
             </div>
             <div className="space-y-2">
-              <label htmlFor="whitelist-comment" className="text-sm font-medium">Comment (optional)</label>
+              <label
+                htmlFor="whitelist-comment"
+                className="text-sm font-medium"
+              >
+                Comment (optional)
+              </label>
               <Input
                 id="whitelist-comment"
                 value={whitelistComment}
@@ -499,10 +514,16 @@ export const BlockedIPsTableDesktop = memo(function BlockedIPsTableDesktop({
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setWhitelistDialogOpen(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setWhitelistDialogOpen(false)}
+            >
               Cancel
             </Button>
-            <Button onClick={handleWhitelistSubmit} disabled={isWhitelisting}>
+            <Button
+              onClick={handleWhitelistSubmit}
+              disabled={isWhitelisting}
+            >
               Whitelist
             </Button>
           </DialogFooter>
@@ -510,19 +531,29 @@ export const BlockedIPsTableDesktop = memo(function BlockedIPsTableDesktop({
       </Dialog>
 
       {/* Remove Confirmation Dialog */}
-      <Dialog open={removeDialogOpen} onOpenChange={setRemoveDialogOpen}>
+      <Dialog
+        open={removeDialogOpen}
+        onOpenChange={setRemoveDialogOpen}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Remove Blocked IP</DialogTitle>
             <DialogDescription>
-              Are you sure you want to remove {removeIP} from the blocked list? This action cannot be undone.
+              Are you sure you want to remove {removeIP} from the blocked list? This action cannot
+              be undone.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setRemoveDialogOpen(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setRemoveDialogOpen(false)}
+            >
               Cancel
             </Button>
-            <Button onClick={handleRemoveSubmit} disabled={isRemoving}>
+            <Button
+              onClick={handleRemoveSubmit}
+              disabled={isRemoving}
+            >
               Remove
             </Button>
           </DialogFooter>
@@ -530,24 +561,39 @@ export const BlockedIPsTableDesktop = memo(function BlockedIPsTableDesktop({
       </Dialog>
 
       {/* Bulk Whitelist Dialog */}
-      <Dialog open={bulkWhitelistDialogOpen} onOpenChange={setBulkWhitelistDialogOpen}>
+      <Dialog
+        open={bulkWhitelistDialogOpen}
+        onOpenChange={setBulkWhitelistDialogOpen}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Whitelist Selected IPs</DialogTitle>
             <DialogDescription>
-              Add {selectedIPs.length} selected IP{selectedIPs.length !== 1 ? 's' : ''} to the whitelist.
+              Add {selectedIPs.length} selected IP{selectedIPs.length !== 1 ? 's' : ''} to the
+              whitelist.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <label htmlFor="bulk-timeout-select" className="text-sm font-medium">Timeout</label>
-              <Select value={bulkWhitelistTimeout} onValueChange={setBulkWhitelistTimeout}>
+              <label
+                htmlFor="bulk-timeout-select"
+                className="text-sm font-medium"
+              >
+                Timeout
+              </label>
+              <Select
+                value={bulkWhitelistTimeout}
+                onValueChange={setBulkWhitelistTimeout}
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   {WHITELIST_TIMEOUT_PRESETS.map((preset) => (
-                    <SelectItem key={preset.value} value={preset.value}>
+                    <SelectItem
+                      key={preset.value}
+                      value={preset.value}
+                    >
                       {preset.label}
                     </SelectItem>
                   ))}
@@ -556,10 +602,16 @@ export const BlockedIPsTableDesktop = memo(function BlockedIPsTableDesktop({
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setBulkWhitelistDialogOpen(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setBulkWhitelistDialogOpen(false)}
+            >
               Cancel
             </Button>
-            <Button onClick={handleBulkWhitelistSubmit} disabled={isWhitelisting}>
+            <Button
+              onClick={handleBulkWhitelistSubmit}
+              disabled={isWhitelisting}
+            >
               Whitelist All
             </Button>
           </DialogFooter>
@@ -567,19 +619,29 @@ export const BlockedIPsTableDesktop = memo(function BlockedIPsTableDesktop({
       </Dialog>
 
       {/* Bulk Remove Confirmation Dialog */}
-      <Dialog open={bulkRemoveDialogOpen} onOpenChange={setBulkRemoveDialogOpen}>
+      <Dialog
+        open={bulkRemoveDialogOpen}
+        onOpenChange={setBulkRemoveDialogOpen}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Remove Selected Blocked IPs</DialogTitle>
             <DialogDescription>
-              Are you sure you want to remove {selectedIPs.length} blocked IP{selectedIPs.length !== 1 ? 's' : ''}? This action cannot be undone.
+              Are you sure you want to remove {selectedIPs.length} blocked IP
+              {selectedIPs.length !== 1 ? 's' : ''}? This action cannot be undone.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setBulkRemoveDialogOpen(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setBulkRemoveDialogOpen(false)}
+            >
               Cancel
             </Button>
-            <Button onClick={handleBulkRemoveSubmit} disabled={isRemoving}>
+            <Button
+              onClick={handleBulkRemoveSubmit}
+              disabled={isRemoving}
+            >
               Remove All
             </Button>
           </DialogFooter>

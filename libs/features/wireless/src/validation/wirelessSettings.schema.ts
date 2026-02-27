@@ -52,10 +52,7 @@ const COUNTRY_CODE_LENGTH = 2;
 const ssidSchema = z
   .string()
   .min(SSID_MIN_LENGTH, `SSID must be at least ${SSID_MIN_LENGTH} character`)
-  .max(
-    SSID_MAX_LENGTH,
-    `SSID must not exceed ${SSID_MAX_LENGTH} characters (WiFi standard limit)`
-  )
+  .max(SSID_MAX_LENGTH, `SSID must not exceed ${SSID_MAX_LENGTH} characters (WiFi standard limit)`)
   .regex(
     /^[\x20-\x7E]+$/,
     'SSID must contain only printable ASCII characters (no special symbols)'
@@ -93,13 +90,10 @@ const passwordSchema = z
 const channelSchema = z
   .string()
   .optional()
-  .refine(
-    (val) => !val || val === 'auto' || /^\d+$/.test(val),
-    {
-      message:
-        'Channel must be either "auto" (recommended) or a numeric channel number (e.g., 1, 6, 11 for 2.4GHz or 36+ for 5GHz)',
-    }
-  );
+  .refine((val) => !val || val === 'auto' || /^\d+$/.test(val), {
+    message:
+      'Channel must be either "auto" (recommended) or a numeric channel number (e.g., 1, 6, 11 for 2.4GHz or 36+ for 5GHz)',
+  });
 
 /**
  * Channel width validation schema
@@ -133,10 +127,7 @@ const channelWidthSchema = z
  */
 const txPowerSchema = z
   .number()
-  .min(
-    TX_POWER_MIN_DBM,
-    `TX Power must be at least ${TX_POWER_MIN_DBM} dBm (reduces interference)`
-  )
+  .min(TX_POWER_MIN_DBM, `TX Power must be at least ${TX_POWER_MIN_DBM} dBm (reduces interference)`)
   .max(
     TX_POWER_MAX_DBM,
     `TX Power must not exceed ${TX_POWER_MAX_DBM} dBm (regulatory limit for most regions)`
@@ -286,6 +277,4 @@ export const defaultWirelessSettings: WirelessSettingsFormData = {
  */
 export const wirelessSettingsPartialSchema = wirelessSettingsSchema.partial();
 
-export type WirelessSettingsPartialData = z.infer<
-  typeof wirelessSettingsPartialSchema
->;
+export type WirelessSettingsPartialData = z.infer<typeof wirelessSettingsPartialSchema>;

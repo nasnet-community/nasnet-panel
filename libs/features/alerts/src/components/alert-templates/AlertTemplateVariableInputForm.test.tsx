@@ -112,9 +112,7 @@ describe('AlertTemplateVariableInputForm', () => {
         />
       );
 
-      expect(
-        screen.getByText('This template has no configurable variables.')
-      ).toBeInTheDocument();
+      expect(screen.getByText('This template has no configurable variables.')).toBeInTheDocument();
 
       expect(screen.getByText('Apply Template')).toBeInTheDocument();
     });

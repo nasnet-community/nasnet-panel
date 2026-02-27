@@ -10,14 +10,9 @@
 
 import { useState } from 'react';
 
-
 import { IPAddressList } from './IPAddressList';
 
-import type {
-  IPAddressData,
-  IPAddressFilters,
-  IPAddressSortOptions,
-} from './types';
+import type { IPAddressData, IPAddressFilters, IPAddressSortOptions } from './types';
 import type { Meta, StoryObj } from '@storybook/react';
 
 // ---------------------------------------------------------------------------
@@ -152,7 +147,12 @@ export const Default: Story = {
 
 /** Skeleton rows displayed while the query is in flight. */
 export const Loading: Story = {
-  render: () => <StatefulList loading={true} addresses={[]} />,
+  render: () => (
+    <StatefulList
+      loading={true}
+      addresses={[]}
+    />
+  ),
 };
 
 /** Empty state when no IP addresses are configured on the router. */

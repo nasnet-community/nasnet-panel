@@ -11,7 +11,6 @@ import type { UseStepperReturn } from '@nasnet/ui/patterns';
 import { cn } from '@nasnet/ui/utils';
 import { Code, Network, User, Settings } from 'lucide-react';
 
-
 interface PppoeInterfaceData {
   name?: string;
   interface?: string;
@@ -43,11 +42,7 @@ interface PppoePreviewStepProps {
 /**
  * @description Preview step for PPPoE configuration
  */
-export function PppoePreviewStep({
-  routerId,
-  stepper,
-  className,
-}: PppoePreviewStepProps) {
+export function PppoePreviewStep({ routerId, stepper, className }: PppoePreviewStepProps) {
   const interfaceData = stepper.getStepData<PppoeInterfaceData>('interface');
   const credentialsData = stepper.getStepData<PppoeCredentialsData>('credentials');
   const optionsData = stepper.getStepData<PppoeOptionsData>('options');
@@ -85,76 +80,72 @@ export function PppoePreviewStep({
       >
         <div className="space-y-component-md">
           {/* Interface Summary */}
-          <div className="rounded-[var(--semantic-radius-card)] border border-border bg-muted px-component-md py-component-md">
-            <div className="flex items-center gap-component-sm mb-3">
+          <div className="border-border bg-muted px-component-md py-component-md rounded-[var(--semantic-radius-card)] border">
+            <div className="gap-component-sm mb-3 flex items-center">
               <Network
-                className="h-4 w-4 text-primary"
+                className="text-primary h-4 w-4"
                 aria-hidden="true"
               />
-              <h4 className="font-medium text-sm">Interface Configuration</h4>
+              <h4 className="text-sm font-medium">Interface Configuration</h4>
             </div>
             <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
               <dt className="text-muted-foreground">PPPoE Interface:</dt>
-              <dd className="font-mono text-foreground">{interfaceData?.name || '-'}</dd>
+              <dd className="text-foreground font-mono">{interfaceData?.name || '-'}</dd>
               <dt className="text-muted-foreground">Physical Interface:</dt>
-              <dd className="font-mono text-foreground">{interfaceData?.interface || '-'}</dd>
+              <dd className="text-foreground font-mono">{interfaceData?.interface || '-'}</dd>
             </dl>
           </div>
 
           {/* Credentials Summary */}
-          <div className="rounded-[var(--semantic-radius-card)] border border-border bg-muted px-component-md py-component-md">
-            <div className="flex items-center gap-component-sm mb-3">
+          <div className="border-border bg-muted px-component-md py-component-md rounded-[var(--semantic-radius-card)] border">
+            <div className="gap-component-sm mb-3 flex items-center">
               <User
-                className="h-4 w-4 text-primary"
+                className="text-primary h-4 w-4"
                 aria-hidden="true"
               />
-              <h4 className="font-medium text-sm">ISP Credentials</h4>
+              <h4 className="text-sm font-medium">ISP Credentials</h4>
             </div>
             <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
               <dt className="text-muted-foreground">Username:</dt>
-              <dd className="font-mono text-foreground">{credentialsData?.username || '-'}</dd>
+              <dd className="text-foreground font-mono">{credentialsData?.username || '-'}</dd>
               <dt className="text-muted-foreground">Password:</dt>
-              <dd className="font-mono text-foreground">
+              <dd className="text-foreground font-mono">
                 {credentialsData?.password ? '••••••••' : '-'}
               </dd>
               {credentialsData?.serviceName && (
                 <>
                   <dt className="text-muted-foreground">Service Name:</dt>
-                  <dd className="font-mono text-foreground">{credentialsData.serviceName}</dd>
+                  <dd className="text-foreground font-mono">{credentialsData.serviceName}</dd>
                 </>
               )}
             </dl>
           </div>
 
           {/* Options Summary */}
-          <div className="rounded-[var(--semantic-radius-card)] border border-border bg-muted px-component-md py-component-md">
-            <div className="flex items-center gap-component-sm mb-3">
+          <div className="border-border bg-muted px-component-md py-component-md rounded-[var(--semantic-radius-card)] border">
+            <div className="gap-component-sm mb-3 flex items-center">
               <Settings
-                className="h-4 w-4 text-primary"
+                className="text-primary h-4 w-4"
                 aria-hidden="true"
               />
-              <h4 className="font-medium text-sm">Advanced Options</h4>
+              <h4 className="text-sm font-medium">Advanced Options</h4>
             </div>
             <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
               <dt className="text-muted-foreground">MTU:</dt>
-              <dd className="font-mono text-foreground">{optionsData?.mtu || 1492} bytes</dd>
+              <dd className="text-foreground font-mono">{optionsData?.mtu || 1492} bytes</dd>
               <dt className="text-muted-foreground">MRU:</dt>
-              <dd className="font-mono text-foreground">{optionsData?.mru || 1492} bytes</dd>
+              <dd className="text-foreground font-mono">{optionsData?.mru || 1492} bytes</dd>
               <dt className="text-muted-foreground">Default Route:</dt>
               <dd>
-                {optionsData?.addDefaultRoute ? (
+                {optionsData?.addDefaultRoute ?
                   <span className="text-success">Enabled</span>
-                ) : (
-                  <span className="text-warning">Disabled</span>
-                )}
+                : <span className="text-warning">Disabled</span>}
               </dd>
               <dt className="text-muted-foreground">Use Peer DNS:</dt>
               <dd>
-                {optionsData?.usePeerDNS ? (
+                {optionsData?.usePeerDNS ?
                   <span className="text-success">Enabled</span>
-                ) : (
-                  <span className="text-muted-foreground">Disabled</span>
-                )}
+                : <span className="text-muted-foreground">Disabled</span>}
               </dd>
               {optionsData?.comment && (
                 <>
@@ -172,20 +163,20 @@ export function PppoePreviewStep({
         title="RouterOS Commands"
         description="The following commands will be executed on the router"
       >
-        <div className="rounded-[var(--semantic-radius-card)] border border-border bg-muted px-component-md py-component-md">
-          <div className="flex items-center gap-component-sm mb-3">
+        <div className="border-border bg-muted px-component-md py-component-md rounded-[var(--semantic-radius-card)] border">
+          <div className="gap-component-sm mb-3 flex items-center">
             <Code
-              className="h-4 w-4 text-primary"
+              className="text-primary h-4 w-4"
               aria-hidden="true"
             />
-            <h4 className="font-medium text-sm">Command Preview</h4>
+            <h4 className="text-sm font-medium">Command Preview</h4>
           </div>
-          <pre className="text-xs font-mono overflow-x-auto bg-background px-component-sm py-component-sm rounded-[var(--semantic-radius-card)] border border-border">
+          <pre className="bg-background px-component-sm py-component-sm border-border overflow-x-auto rounded-[var(--semantic-radius-card)] border font-mono text-xs">
             {commandPreview}
           </pre>
-          <p className="text-xs text-muted-foreground mt-2">
-            <strong>Note:</strong> Password is masked for security. The actual
-            password will be transmitted securely.
+          <p className="text-muted-foreground mt-2 text-xs">
+            <strong>Note:</strong> Password is masked for security. The actual password will be
+            transmitted securely.
           </p>
         </div>
       </FormSection>

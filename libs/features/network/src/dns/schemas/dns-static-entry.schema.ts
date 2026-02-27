@@ -35,7 +35,8 @@ import { z } from 'zod';
  * - "ends-with-dot." (ends with dot)
  * - "bad..double" (consecutive dots)
  */
-const HOSTNAME_PATTERN = /^[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?)*$/;
+const HOSTNAME_PATTERN =
+  /^[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?)*$/;
 
 /** Minimum TTL value in seconds (0 seconds) */
 const TTL_MIN_SECONDS = 0;
@@ -94,10 +95,7 @@ export const dnsStaticEntrySchema = z.object({
     })
     .min(1, 'Hostname is required')
     .max(253, 'Hostname too long (max 253 characters)')
-    .regex(
-      HOSTNAME_PATTERN,
-      'Invalid hostname format. Use letters, digits, hyphens, and dots.'
-    ),
+    .regex(HOSTNAME_PATTERN, 'Invalid hostname format. Use letters, digits, hyphens, and dots.'),
 
   /**
    * IPv4 address this hostname resolves to
@@ -150,10 +148,7 @@ export const dnsStaticEntrySchema = z.object({
    * - "Development API server"
    * - "Mail server (backup)"
    */
-  comment: z
-    .string()
-    .max(255, 'Comment too long (max 255 characters)')
-    .optional(),
+  comment: z.string().max(255, 'Comment too long (max 255 characters)').optional(),
 });
 
 // ============================================================================

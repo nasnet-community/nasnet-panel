@@ -61,7 +61,14 @@ const MOCK_INTERFACES: RouterInterface[] = [
   { id: 'eth3', name: 'ether3', type: 'ethernet', status: 'down', usedBy: [] },
   { id: 'eth4', name: 'ether4', type: 'ethernet', status: 'disabled', usedBy: [] },
   { id: 'eth5', name: 'ether5', type: 'ethernet', status: 'up', usedBy: ['bridge-lan'] },
-  { id: 'br1', name: 'bridge-lan', type: 'bridge', status: 'up', ip: '10.0.0.1', usedBy: ['DHCP Server'] },
+  {
+    id: 'br1',
+    name: 'bridge-lan',
+    type: 'bridge',
+    status: 'up',
+    ip: '10.0.0.1',
+    usedBy: ['DHCP Server'],
+  },
   { id: 'wlan1', name: 'wlan1', type: 'wireless', status: 'up', ip: '192.168.88.1', usedBy: [] },
   { id: 'wlan2', name: 'wlan2', type: 'wireless', status: 'down', usedBy: [] },
   { id: 'vlan10', name: 'vlan10', type: 'vlan', status: 'up', ip: '10.10.0.1', usedBy: [] },
@@ -84,17 +91,8 @@ const MOCK_INTERFACES: RouterInterface[] = [
  * @param config - InterfaceSelectorProps configuration
  * @returns UseInterfaceSelectorReturn with all state and handlers
  */
-export function useInterfaceSelector(
-  config: InterfaceSelectorProps
-): UseInterfaceSelectorReturn {
-  const {
-    routerId,
-    value,
-    onChange,
-    multiple = false,
-    types = [],
-    excludeUsed = false,
-  } = config;
+export function useInterfaceSelector(config: InterfaceSelectorProps): UseInterfaceSelectorReturn {
+  const { routerId, value, onChange, multiple = false, types = [], excludeUsed = false } = config;
 
   // TODO: Replace with real GraphQL subscription
   // const { data, loading, error, refetch } = useSubscription(INTERFACES_SUBSCRIPTION, {
@@ -125,23 +123,27 @@ export function useInterfaceSelector(
     let result = interfaces;
 
     // Filter by type (if types prop provided, use that; otherwise use typeFilter state)
-    const activeTypes = types.length > 0 ? types : (typeFilter !== 'all' ? [typeFilter] : []);
+    const activeTypes =
+      types.length > 0 ? types
+      : typeFilter !== 'all' ? [typeFilter]
+      : [];
     if (activeTypes.length > 0) {
-      result = result.filter(iface => activeTypes.includes(iface.type));
+      result = result.filter((iface) => activeTypes.includes(iface.type));
     }
 
     // Filter out used interfaces if requested
     if (excludeUsed) {
-      result = result.filter(iface => !iface.usedBy || iface.usedBy.length === 0);
+      result = result.filter((iface) => !iface.usedBy || iface.usedBy.length === 0);
     }
 
     // Search filter
     if (debouncedSearch) {
       const query = debouncedSearch.toLowerCase();
-      result = result.filter(iface =>
-        iface.name.toLowerCase().includes(query) ||
-        iface.ip?.toLowerCase().includes(query) ||
-        iface.comment?.toLowerCase().includes(query)
+      result = result.filter(
+        (iface) =>
+          iface.name.toLowerCase().includes(query) ||
+          iface.ip?.toLowerCase().includes(query) ||
+          iface.comment?.toLowerCase().includes(query)
       );
     }
 
@@ -149,25 +151,32 @@ export function useInterfaceSelector(
   }, [interfaces, types, typeFilter, excludeUsed, debouncedSearch]);
 
   // Selection handlers
-  const toggleSelection = useCallback((id: string) => {
-    if (multiple) {
-      const newValues = selectedValues.includes(id)
-        ? selectedValues.filter(v => v !== id)
-        : [...selectedValues, id];
-      onChange?.(newValues);
-    } else {
-      onChange?.(id);
-      setIsOpen(false);
-    }
-  }, [multiple, selectedValues, onChange]);
+  const toggleSelection = useCallback(
+    (id: string) => {
+      if (multiple) {
+        const newValues =
+          selectedValues.includes(id) ?
+            selectedValues.filter((v) => v !== id)
+          : [...selectedValues, id];
+        onChange?.(newValues);
+      } else {
+        onChange?.(id);
+        setIsOpen(false);
+      }
+    },
+    [multiple, selectedValues, onChange]
+  );
 
   const clearSelection = useCallback(() => {
     onChange?.(multiple ? [] : '');
   }, [multiple, onChange]);
 
-  const getInterfaceById = useCallback((id: string) => {
-    return interfaces.find(iface => iface.id === id);
-  }, [interfaces]);
+  const getInterfaceById = useCallback(
+    (id: string) => {
+      return interfaces.find((iface) => iface.id === id);
+    },
+    [interfaces]
+  );
 
   // Get display value for current selection
   const getDisplayValue = useCallback(() => {

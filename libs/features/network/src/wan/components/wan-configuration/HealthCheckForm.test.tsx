@@ -51,22 +51,16 @@ describe('HealthCheckForm', () => {
     it('should render enable toggle', () => {
       render(<HealthCheckForm {...mockProps} />);
 
-      expect(
-        screen.getByLabelText(/Enable Health Monitoring/i)
-      ).toBeInTheDocument();
+      expect(screen.getByLabelText(/Enable Health Monitoring/i)).toBeInTheDocument();
     });
 
     it('should render target presets', () => {
       render(<HealthCheckForm {...mockProps} />);
 
-      expect(
-        screen.getByRole('button', { name: /Cloudflare/i })
-      ).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /Cloudflare/i })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: /Google/i })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: /Quad9/i })).toBeInTheDocument();
-      expect(
-        screen.getByRole('button', { name: /Gateway/i })
-      ).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /Gateway/i })).toBeInTheDocument();
     });
 
     it('should render interval presets', () => {
@@ -75,20 +69,14 @@ describe('HealthCheckForm', () => {
       expect(screen.getByRole('button', { name: /Fast/i })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: /Normal/i })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: /Slow/i })).toBeInTheDocument();
-      expect(
-        screen.getByRole('button', { name: /Minimal/i })
-      ).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /Minimal/i })).toBeInTheDocument();
     });
 
     it('should render action buttons', () => {
       render(<HealthCheckForm {...mockProps} />);
 
-      expect(
-        screen.getByRole('button', { name: /cancel/i })
-      ).toBeInTheDocument();
-      expect(
-        screen.getByRole('button', { name: /Apply Health Check/i })
-      ).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /cancel/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /Apply Health Check/i })).toBeInTheDocument();
     });
 
     it('should show warning when health monitoring is disabled', async () => {
@@ -100,12 +88,8 @@ describe('HealthCheckForm', () => {
       await user.click(enableToggle);
 
       await waitFor(() => {
-        expect(
-          screen.getByText(/Health Monitoring Disabled/i)
-        ).toBeInTheDocument();
-        expect(
-          screen.getByText(/WAN link failures will not be detected/i)
-        ).toBeInTheDocument();
+        expect(screen.getByText(/Health Monitoring Disabled/i)).toBeInTheDocument();
+        expect(screen.getByText(/WAN link failures will not be detected/i)).toBeInTheDocument();
       });
     });
 
@@ -121,9 +105,7 @@ describe('HealthCheckForm', () => {
       await user.click(enableToggle);
 
       await waitFor(() => {
-        expect(
-          screen.queryByLabelText(/Target Host\/IP/i)
-        ).not.toBeInTheDocument();
+        expect(screen.queryByLabelText(/Target Host\/IP/i)).not.toBeInTheDocument();
       });
     });
   });
@@ -138,9 +120,7 @@ describe('HealthCheckForm', () => {
       });
       await user.click(cloudflareButton);
 
-      const targetInput = screen.getByLabelText(
-        /Target Host\/IP/i
-      ) as HTMLInputElement;
+      const targetInput = screen.getByLabelText(/Target Host\/IP/i) as HTMLInputElement;
 
       await waitFor(() => {
         expect(targetInput.value).toBe('1.1.1.1');
@@ -154,9 +134,7 @@ describe('HealthCheckForm', () => {
       const googleButton = screen.getByRole('button', { name: /Google/i });
       await user.click(googleButton);
 
-      const targetInput = screen.getByLabelText(
-        /Target Host\/IP/i
-      ) as HTMLInputElement;
+      const targetInput = screen.getByLabelText(/Target Host\/IP/i) as HTMLInputElement;
 
       await waitFor(() => {
         expect(targetInput.value).toBe('8.8.8.8');
@@ -165,14 +143,17 @@ describe('HealthCheckForm', () => {
 
     it('should apply Gateway preset with actual gateway IP', async () => {
       const user = userEvent.setup();
-      render(<HealthCheckForm {...mockProps} gateway="192.168.1.1" />);
+      render(
+        <HealthCheckForm
+          {...mockProps}
+          gateway="192.168.1.1"
+        />
+      );
 
       const gatewayButton = screen.getByRole('button', { name: /Gateway/i });
       await user.click(gatewayButton);
 
-      const targetInput = screen.getByLabelText(
-        /Target Host\/IP/i
-      ) as HTMLInputElement;
+      const targetInput = screen.getByLabelText(/Target Host\/IP/i) as HTMLInputElement;
 
       await waitFor(() => {
         expect(targetInput.value).toBe('192.168.1.1');
@@ -180,7 +161,12 @@ describe('HealthCheckForm', () => {
     });
 
     it('should not show Gateway preset if no gateway provided', () => {
-      render(<HealthCheckForm {...mockProps} gateway={undefined} />);
+      render(
+        <HealthCheckForm
+          {...mockProps}
+          gateway={undefined}
+        />
+      );
 
       const gatewayButton = screen.queryByRole('button', { name: /Gateway/i });
       expect(gatewayButton).not.toBeInTheDocument();
@@ -209,9 +195,7 @@ describe('HealthCheckForm', () => {
       const fastButton = screen.getByRole('button', { name: /Fast/i });
       await user.click(fastButton);
 
-      const intervalInput = screen.getByLabelText(
-        /Interval \(seconds\)/i
-      ) as HTMLInputElement;
+      const intervalInput = screen.getByLabelText(/Interval \(seconds\)/i) as HTMLInputElement;
 
       await waitFor(() => {
         expect(intervalInput.value).toBe('5');
@@ -225,9 +209,7 @@ describe('HealthCheckForm', () => {
       const normalButton = screen.getByRole('button', { name: /Normal/i });
       await user.click(normalButton);
 
-      const intervalInput = screen.getByLabelText(
-        /Interval \(seconds\)/i
-      ) as HTMLInputElement;
+      const intervalInput = screen.getByLabelText(/Interval \(seconds\)/i) as HTMLInputElement;
 
       await waitFor(() => {
         expect(intervalInput.value).toBe('10');
@@ -262,9 +244,7 @@ describe('HealthCheckForm', () => {
       await user.click(submitButton);
 
       await waitFor(() => {
-        expect(
-          screen.getByText(/Invalid IP address or hostname/i)
-        ).toBeInTheDocument();
+        expect(screen.getByText(/Invalid IP address or hostname/i)).toBeInTheDocument();
       });
     });
 
@@ -320,9 +300,7 @@ describe('HealthCheckForm', () => {
       await user.click(submitButton);
 
       await waitFor(() => {
-        expect(
-          screen.getByText(/Interval must not exceed 300 seconds/i)
-        ).toBeInTheDocument();
+        expect(screen.getByText(/Interval must not exceed 300 seconds/i)).toBeInTheDocument();
       });
     });
 
@@ -340,9 +318,7 @@ describe('HealthCheckForm', () => {
       await user.click(submitButton);
 
       await waitFor(() => {
-        expect(
-          screen.getByText(/Timeout must not exceed 30 seconds/i)
-        ).toBeInTheDocument();
+        expect(screen.getByText(/Timeout must not exceed 30 seconds/i)).toBeInTheDocument();
       });
     });
 
@@ -361,9 +337,7 @@ describe('HealthCheckForm', () => {
       await user.type(timeoutInput, '15');
 
       await waitFor(() => {
-        expect(
-          screen.getByText(/Timeout must be less than interval/i)
-        ).toBeInTheDocument();
+        expect(screen.getByText(/Timeout must be less than interval/i)).toBeInTheDocument();
       });
     });
 
@@ -381,9 +355,7 @@ describe('HealthCheckForm', () => {
       await user.click(submitButton);
 
       await waitFor(() => {
-        expect(
-          screen.getByText(/Failure threshold must not exceed 10/i)
-        ).toBeInTheDocument();
+        expect(screen.getByText(/Failure threshold must not exceed 10/i)).toBeInTheDocument();
       });
     });
   });
@@ -392,7 +364,12 @@ describe('HealthCheckForm', () => {
     it('should call onSuccess after successful configuration', async () => {
       const user = userEvent.setup();
       const onSuccess = vi.fn();
-      render(<HealthCheckForm {...mockProps} onSuccess={onSuccess} />);
+      render(
+        <HealthCheckForm
+          {...mockProps}
+          onSuccess={onSuccess}
+        />
+      );
 
       // Form is valid by default (enabled with default values)
       const submitButton = screen.getByRole('button', {
@@ -408,7 +385,12 @@ describe('HealthCheckForm', () => {
     it('should call onCancel when cancel button clicked', async () => {
       const user = userEvent.setup();
       const onCancel = vi.fn();
-      render(<HealthCheckForm {...mockProps} onCancel={onCancel} />);
+      render(
+        <HealthCheckForm
+          {...mockProps}
+          onCancel={onCancel}
+        />
+      );
 
       const cancelButton = screen.getByRole('button', { name: /cancel/i });
       await user.click(cancelButton);
@@ -425,9 +407,7 @@ describe('HealthCheckForm', () => {
       await user.click(enableToggle);
 
       await waitFor(() => {
-        expect(
-          screen.getByRole('button', { name: /Disable Health Check/i })
-        ).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: /Disable Health Check/i })).toBeInTheDocument();
       });
     });
   });
@@ -443,16 +423,17 @@ describe('HealthCheckForm', () => {
         comment: 'Custom health check',
       };
 
-      render(<HealthCheckForm {...mockProps} initialValues={initialValues} />);
+      render(
+        <HealthCheckForm
+          {...mockProps}
+          initialValues={initialValues}
+        />
+      );
 
-      const targetInput = screen.getByLabelText(
-        /Target Host\/IP/i
-      ) as HTMLInputElement;
+      const targetInput = screen.getByLabelText(/Target Host\/IP/i) as HTMLInputElement;
       expect(targetInput.value).toBe('9.9.9.9');
 
-      const intervalInput = screen.getByLabelText(
-        /Interval \(seconds\)/i
-      ) as HTMLInputElement;
+      const intervalInput = screen.getByLabelText(/Interval \(seconds\)/i) as HTMLInputElement;
       expect(intervalInput.value).toBe('30');
 
       const commentInput = screen.getByLabelText(/Comment/i) as HTMLInputElement;
@@ -464,19 +445,11 @@ describe('HealthCheckForm', () => {
     it('should have accessible labels for all inputs', () => {
       render(<HealthCheckForm {...mockProps} />);
 
-      expect(
-        screen.getByLabelText(/Enable Health Monitoring/i)
-      ).toHaveAccessibleName();
+      expect(screen.getByLabelText(/Enable Health Monitoring/i)).toHaveAccessibleName();
       expect(screen.getByLabelText(/Target Host\/IP/i)).toHaveAccessibleName();
-      expect(
-        screen.getByLabelText(/Interval \(seconds\)/i)
-      ).toHaveAccessibleName();
-      expect(
-        screen.getByLabelText(/Timeout \(seconds\)/i)
-      ).toHaveAccessibleName();
-      expect(
-        screen.getByLabelText(/Failure Threshold/i)
-      ).toHaveAccessibleName();
+      expect(screen.getByLabelText(/Interval \(seconds\)/i)).toHaveAccessibleName();
+      expect(screen.getByLabelText(/Timeout \(seconds\)/i)).toHaveAccessibleName();
+      expect(screen.getByLabelText(/Failure Threshold/i)).toHaveAccessibleName();
     });
 
     it('should associate error messages with inputs', async () => {
@@ -501,12 +474,8 @@ describe('HealthCheckForm', () => {
     it('should have accessible navigation buttons', () => {
       render(<HealthCheckForm {...mockProps} />);
 
-      expect(
-        screen.getByRole('button', { name: /cancel/i })
-      ).toHaveAccessibleName();
-      expect(
-        screen.getByRole('button', { name: /Apply Health Check/i })
-      ).toHaveAccessibleName();
+      expect(screen.getByRole('button', { name: /cancel/i })).toHaveAccessibleName();
+      expect(screen.getByRole('button', { name: /Apply Health Check/i })).toHaveAccessibleName();
     });
   });
 });

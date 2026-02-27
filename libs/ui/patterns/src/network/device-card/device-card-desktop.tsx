@@ -11,14 +11,7 @@
 import * as React from 'react';
 import { useState, useCallback } from 'react';
 
-import {
-  Edit,
-  Network,
-  Ban,
-  MoreVertical,
-  Settings,
-  History,
-} from 'lucide-react';
+import { Edit, Network, Ban, MoreVertical, Settings, History } from 'lucide-react';
 
 import {
   Button,
@@ -136,7 +129,6 @@ export function DeviceCardDesktop({
     setShowStaticIpDialog(false);
   }, [staticIpValue, handleAssignStaticIp, onAssignStaticIp]);
 
-
   // Handle card click
   const handleCardClick = useCallback(() => {
     if (onClick && !isRenaming) {
@@ -162,12 +154,12 @@ export function DeviceCardDesktop({
       <Card
         id={id}
         className={cn(
-          'group relative p-component-md transition-all duration-200',
-          'bg-card border border-border rounded-[var(--semantic-radius-card)]',
+          'p-component-md group relative transition-all duration-200',
+          'bg-card border-border rounded-[var(--semantic-radius-card)] border',
           'shadow-[var(--semantic-shadow-card)]',
-          onClick && !isRenaming && 'cursor-pointer hover:shadow-lg transition-shadow duration-200',
-          isSelected && 'border-primary ring-2 ring-primary/20',
-          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2',
+          onClick && !isRenaming && 'cursor-pointer transition-shadow duration-200 hover:shadow-lg',
+          isSelected && 'border-primary ring-primary/20 ring-2',
+          'focus-visible:ring-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
           className
         )}
         role="article"
@@ -178,15 +170,18 @@ export function DeviceCardDesktop({
       >
         <div className="flex items-start gap-4">
           {/* Device icon container */}
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-muted border border-border">
-            <Icon className="h-5 w-5 text-foreground" aria-hidden="true" />
+          <div className="bg-muted border-border flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border">
+            <Icon
+              className="text-foreground h-5 w-5"
+              aria-hidden="true"
+            />
           </div>
 
           {/* Content */}
-          <div className="flex-1 min-w-0">
+          <div className="min-w-0 flex-1">
             {/* Header row: Name + Status */}
             <div className="flex items-center justify-between gap-2">
-              {isRenaming ? (
+              {isRenaming ?
                 <Input
                   value={renameValue}
                   onChange={(e) => setRenameValue(e.target.value)}
@@ -197,11 +192,7 @@ export function DeviceCardDesktop({
                   onClick={(e) => e.stopPropagation()}
                   aria-label="Device name"
                 />
-              ) : (
-                <h3 className="truncate text-sm font-semibold text-foreground">
-                  {displayName}
-                </h3>
-              )}
+              : <h3 className="text-foreground truncate text-sm font-semibold">{displayName}</h3>}
               <span
                 className={cn(statusBadgeVariants({ status: statusColor }))}
                 role="status"
@@ -216,7 +207,7 @@ export function DeviceCardDesktop({
             </div>
 
             {/* Secondary info row: Vendor + IP */}
-            <div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
+            <div className="text-muted-foreground mt-1 flex items-center gap-2 text-xs">
               {vendorName && <span className="truncate">{vendorName}</span>}
               {vendorName && device.ip && <span aria-hidden="true">•</span>}
               {device.ip && <span className="font-mono">{device.ip}</span>}
@@ -225,9 +216,7 @@ export function DeviceCardDesktop({
             {/* Tertiary row: MAC + Connection + Confidence */}
             <div className="mt-2 flex flex-wrap items-center gap-2">
               {/* MAC address */}
-              <span className="font-mono text-xs text-muted-foreground">
-                {formattedMac}
-              </span>
+              <span className="text-muted-foreground font-mono text-xs">{formattedMac}</span>
 
               {/* Connection type */}
               <span
@@ -237,7 +226,10 @@ export function DeviceCardDesktop({
                   })
                 )}
               >
-                <ConnectionIcon className="h-3 w-3" aria-hidden="true" />
+                <ConnectionIcon
+                  className="h-3 w-3"
+                  aria-hidden="true"
+                />
                 {connectionText}
               </span>
 
@@ -314,13 +306,16 @@ export function DeviceCardDesktop({
       </Card>
 
       {/* Static IP Assignment Dialog */}
-      <Dialog open={showStaticIpDialog} onOpenChange={setShowStaticIpDialog}>
+      <Dialog
+        open={showStaticIpDialog}
+        onOpenChange={setShowStaticIpDialog}
+      >
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Assign Static IP</DialogTitle>
             <DialogDescription>
-              Assign a static IP address to {displayName}. This will configure
-              the DHCP server to always assign this IP to this device.
+              Assign a static IP address to {displayName}. This will configure the DHCP server to
+              always assign this IP to this device.
             </DialogDescription>
           </DialogHeader>
           <div className="py-4">

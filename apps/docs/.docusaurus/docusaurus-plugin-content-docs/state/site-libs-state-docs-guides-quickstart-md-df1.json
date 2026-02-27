@@ -1,7 +1,7 @@
 {
   "id": "guides/quickstart",
   "title": "Quickstart Guide: State Management in 10 Minutes",
-  "description": "Get up and running with Zustand stores and XState machines. This guide covers the basics of reading state, dispatching actions, and subscribing to changes.",
+  "description": "Get up and running with Zustand stores and XState machines. This guide covers the basics of reading",
   "source": "@site/../../libs/state/docs/guides/quickstart.md",
   "sourceDirName": "guides",
   "slug": "/guides/quickstart",

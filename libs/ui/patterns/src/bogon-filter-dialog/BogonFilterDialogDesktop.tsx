@@ -109,11 +109,14 @@ export const BogonFilterDialogDesktop = memo(function BogonFilterDialogDesktop({
   const isGenerating = batchMutation.isPending;
 
   return (
-    <Dialog open={open} onOpenChange={onClose}>
+    <Dialog
+      open={open}
+      onOpenChange={onClose}
+    >
       <DialogContent className="max-w-3xl">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Shield className="h-5 w-5 text-primary" />
+            <Shield className="text-primary h-5 w-5" />
             Bogon Filter Setup
           </DialogTitle>
           <DialogDescription>
@@ -125,7 +128,10 @@ export const BogonFilterDialogDesktop = memo(function BogonFilterDialogDesktop({
         <div className="space-y-6">
           {/* Interface Selection */}
           <div>
-            <label htmlFor="wan-interface-select" className="text-sm font-medium mb-2 block">
+            <label
+              htmlFor="wan-interface-select"
+              className="mb-2 block text-sm font-medium"
+            >
               WAN Interface
             </label>
             <Select
@@ -138,13 +144,16 @@ export const BogonFilterDialogDesktop = memo(function BogonFilterDialogDesktop({
               </SelectTrigger>
               <SelectContent>
                 {availableInterfaces.map((iface) => (
-                  <SelectItem key={iface} value={iface}>
+                  <SelectItem
+                    key={iface}
+                    value={iface}
+                  >
                     {iface}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
-            <p className="text-xs text-muted-foreground mt-1">
+            <p className="text-muted-foreground mt-1 text-xs">
               Rules will be applied to incoming traffic on this interface
             </p>
           </div>
@@ -154,15 +163,20 @@ export const BogonFilterDialogDesktop = memo(function BogonFilterDialogDesktop({
             <Alert variant="warning">
               <AlertTriangle className="h-4 w-4" />
               <AlertDescription>
-                <strong>Warning:</strong> Blocking private addresses (10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16) may prevent access from your LAN. Only enable this on WAN interfaces.
+                <strong>Warning:</strong> Blocking private addresses (10.0.0.0/8, 172.16.0.0/12,
+                192.168.0.0/16) may prevent access from your LAN. Only enable this on WAN
+                interfaces.
               </AlertDescription>
             </Alert>
           )}
 
           {/* Category Selection */}
           <div>
-            <div className="flex items-center justify-between mb-3">
-              <label htmlFor="bogon-categories" className="text-sm font-medium">
+            <div className="mb-3 flex items-center justify-between">
+              <label
+                htmlFor="bogon-categories"
+                className="text-sm font-medium"
+              >
                 Bogon Categories ({dialog.selectedCategories.size} selected)
               </label>
               <div className="flex gap-2">
@@ -192,10 +206,10 @@ export const BogonFilterDialogDesktop = memo(function BogonFilterDialogDesktop({
                 <Card
                   key={category}
                   className={cn(
-                    'p-4 cursor-pointer transition-colors',
-                    dialog.isCategorySelected(category)
-                      ? 'border-primary bg-primary/5'
-                      : 'hover:border-primary/50'
+                    'cursor-pointer p-4 transition-colors',
+                    dialog.isCategorySelected(category) ?
+                      'border-primary bg-primary/5'
+                    : 'hover:border-primary/50'
                   )}
                   onClick={() => !isGenerating && dialog.toggleCategory(category)}
                 >
@@ -205,20 +219,20 @@ export const BogonFilterDialogDesktop = memo(function BogonFilterDialogDesktop({
                       onCheckedChange={() => dialog.toggleCategory(category)}
                       disabled={isGenerating}
                     />
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <p className="font-medium text-sm capitalize">
+                    <div className="min-w-0 flex-1">
+                      <div className="mb-1 flex items-center gap-2">
+                        <p className="text-sm font-medium capitalize">
                           {category.replace(/([A-Z])/g, ' $1').trim()}
                         </p>
                         {dialog.isCategorySelected(category) && (
-                          <Check className="h-4 w-4 text-primary" />
+                          <Check className="text-primary h-4 w-4" />
                         )}
                       </div>
-                      <p className="text-xs text-muted-foreground mb-1">
+                      <p className="text-muted-foreground mb-1 text-xs">
                         {dialog.getCategoryDescription(category)}
                       </p>
-                      <p className="text-xs text-muted-foreground flex items-start gap-1">
-                        <Info className="h-3 w-3 mt-0.5 flex-shrink-0" />
+                      <p className="text-muted-foreground flex items-start gap-1 text-xs">
+                        <Info className="mt-0.5 h-3 w-3 flex-shrink-0" />
                         {dialog.getSecurityRecommendation(category)}
                       </p>
                     </div>
@@ -231,14 +245,15 @@ export const BogonFilterDialogDesktop = memo(function BogonFilterDialogDesktop({
           {/* Progress Indicator */}
           {isGenerating && progress && (
             <Card className="p-4">
-              <p className="text-sm font-medium mb-2">
+              <p className="mb-2 text-sm font-medium">
                 Creating rules... ({progress.current} / {progress.total})
               </p>
-              <Progress value={progress.percentage} className="h-2" />
+              <Progress
+                value={progress.percentage}
+                className="h-2"
+              />
               {progress.currentItem && (
-                <p className="text-xs text-muted-foreground mt-2">
-                  {progress.currentItem}
-                </p>
+                <p className="text-muted-foreground mt-2 text-xs">{progress.currentItem}</p>
               )}
             </Card>
           )}
@@ -258,9 +273,7 @@ export const BogonFilterDialogDesktop = memo(function BogonFilterDialogDesktop({
             onClick={handleGenerate}
             disabled={!dialog.isValid || isGenerating}
           >
-            {isGenerating
-              ? 'Generating...'
-              : `Generate ${dialog.ruleCount} Rules`}
+            {isGenerating ? 'Generating...' : `Generate ${dialog.ruleCount} Rules`}
           </Button>
         </DialogFooter>
       </DialogContent>

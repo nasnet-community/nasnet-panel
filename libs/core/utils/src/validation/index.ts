@@ -35,9 +35,7 @@ import { z } from 'zod';
  * ipAddressSchema.parse('192.168.1.1') // OK
  * ipAddressSchema.parse('999.999.999.999') // throws ZodError
  */
-export const ipAddressSchema = z.string()
-  .ip({ version: 'v4' })
-  .describe('Valid IPv4 address');
+export const ipAddressSchema = z.string().ip({ version: 'v4' }).describe('Valid IPv4 address');
 
 /**
  * CIDR notation validation schema
@@ -49,8 +47,11 @@ export const ipAddressSchema = z.string()
  * cidrSchema.parse('10.0.0.0/8') // OK
  * cidrSchema.parse('192.168.1.1') // throws ZodError (missing prefix)
  */
-export const cidrSchema = z.string()
-  .regex(/^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$/)
+export const cidrSchema = z
+  .string()
+  .regex(
+    /^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$/
+  )
   .describe('CIDR subnet notation (e.g., 192.168.1.0/24)');
 
 /**
@@ -64,7 +65,8 @@ export const cidrSchema = z.string()
  * portSchema.parse(0) // throws ZodError (min: 1)
  * portSchema.parse(70000) // throws ZodError (max: 65535)
  */
-export const portSchema = z.number()
+export const portSchema = z
+  .number()
   .int()
   .min(1)
   .max(65535)
@@ -80,7 +82,8 @@ export const portSchema = z.number()
  * macAddressSchema.parse('aa-bb-cc-dd-ee-00') // OK
  * macAddressSchema.parse('aabbccddee00') // throws ZodError (missing separators)
  */
-export const macAddressSchema = z.string()
+export const macAddressSchema = z
+  .string()
   .regex(/^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$/)
   .describe('MAC address in XX:XX:XX:XX:XX:XX format');
 
@@ -96,15 +99,17 @@ export const macAddressSchema = z.string()
  *   password: 'secret',
  * }) // OK (uses defaults for port, useTLS, etc.)
  */
-export const routerConnectionConfigSchema = z.object({
-  address: ipAddressSchema,
-  port: portSchema.default(80),
-  username: z.string().min(1),
-  password: z.string().min(1),
-  useTLS: z.boolean().default(false),
-  timeout: z.number().int().min(1000).max(60000).default(5000),
-  retries: z.number().int().min(0).max(5).default(2)
-}).describe('Router connection configuration');
+export const routerConnectionConfigSchema = z
+  .object({
+    address: ipAddressSchema,
+    port: portSchema.default(80),
+    username: z.string().min(1),
+    password: z.string().min(1),
+    useTLS: z.boolean().default(false),
+    timeout: z.number().int().min(1000).max(60000).default(5000),
+    retries: z.number().int().min(0).max(5).default(2),
+  })
+  .describe('Router connection configuration');
 
 /**
  * WAN configuration schema
@@ -114,12 +119,14 @@ export const routerConnectionConfigSchema = z.object({
  * @example
  * wanConfigSchema.parse({ type: 'dhcp', enabled: true }) // OK
  */
-export const wanConfigSchema = z.object({
-  type: z.enum(['pppoe', 'dhcp', 'static', 'lte']),
-  enabled: z.boolean().default(true),
-  mtu: z.number().int().min(576).max(9000).optional(),
-  vlan: z.number().int().min(1).max(4094).optional()
-}).describe('WAN interface configuration');
+export const wanConfigSchema = z
+  .object({
+    type: z.enum(['pppoe', 'dhcp', 'static', 'lte']),
+    enabled: z.boolean().default(true),
+    mtu: z.number().int().min(576).max(9000).optional(),
+    vlan: z.number().int().min(1).max(4094).optional(),
+  })
+  .describe('WAN interface configuration');
 
 /**
  * LAN configuration schema
@@ -133,13 +140,15 @@ export const wanConfigSchema = z.object({
  *   subnet: '192.168.1.0/24',
  * }) // OK
  */
-export const lanConfigSchema = z.object({
-  interface: z.string(),
-  ip: ipAddressSchema,
-  subnet: cidrSchema,
-  bridge: z.boolean().default(false),
-  enabled: z.boolean().default(true)
-}).describe('LAN interface configuration');
+export const lanConfigSchema = z
+  .object({
+    interface: z.string(),
+    ip: ipAddressSchema,
+    subnet: cidrSchema,
+    bridge: z.boolean().default(false),
+    enabled: z.boolean().default(true),
+  })
+  .describe('LAN interface configuration');
 
 /**
  * VPN configuration schema
@@ -153,14 +162,16 @@ export const lanConfigSchema = z.object({
  *   server: 'vpn.example.com',
  * }) // OK
  */
-export const vpnConfigSchema = z.object({
-  protocol: z.enum(['wireguard', 'openvpn', 'l2tp', 'pptp', 'sstp', 'ikev2']),
-  enabled: z.boolean().default(false),
-  server: z.string().optional(),
-  username: z.string().optional(),
-  password: z.string().optional(),
-  certificate: z.string().optional()
-}).describe('VPN configuration');
+export const vpnConfigSchema = z
+  .object({
+    protocol: z.enum(['wireguard', 'openvpn', 'l2tp', 'pptp', 'sstp', 'ikev2']),
+    enabled: z.boolean().default(false),
+    server: z.string().optional(),
+    username: z.string().optional(),
+    password: z.string().optional(),
+    certificate: z.string().optional(),
+  })
+  .describe('VPN configuration');
 
 /**
  * Firewall rule schema
@@ -175,16 +186,18 @@ export const vpnConfigSchema = z.object({
  *   action: 'accept',
  * }) // OK
  */
-export const firewallRuleSchema = z.object({
-  name: z.string().min(1),
-  protocol: z.enum(['tcp', 'udp', 'both', 'icmp']),
-  sourceIP: ipAddressSchema.optional(),
-  sourcePort: portSchema.optional(),
-  destIP: ipAddressSchema.optional(),
-  destPort: portSchema.optional(),
-  action: z.enum(['accept', 'drop', 'reject']),
-  enabled: z.boolean().default(true)
-}).describe('Firewall rule');
+export const firewallRuleSchema = z
+  .object({
+    name: z.string().min(1),
+    protocol: z.enum(['tcp', 'udp', 'both', 'icmp']),
+    sourceIP: ipAddressSchema.optional(),
+    sourcePort: portSchema.optional(),
+    destIP: ipAddressSchema.optional(),
+    destPort: portSchema.optional(),
+    action: z.enum(['accept', 'drop', 'reject']),
+    enabled: z.boolean().default(true),
+  })
+  .describe('Firewall rule');
 
 /**
  * Router status request schema
@@ -195,9 +208,11 @@ export const firewallRuleSchema = z.object({
  * routerStatusRequestSchema.parse({ timeout: 10000 }) // OK
  * routerStatusRequestSchema.parse({}) // OK (all fields optional)
  */
-export const routerStatusRequestSchema = z.object({
-  timeout: z.number().int().min(1000).optional()
-}).describe('Router status request');
+export const routerStatusRequestSchema = z
+  .object({
+    timeout: z.number().int().min(1000).optional(),
+  })
+  .describe('Router status request');
 
 /**
  * Router status response schema
@@ -213,14 +228,16 @@ export const routerStatusRequestSchema = z.object({
  *   timestamp: new Date().toISOString(),
  * }) // OK
  */
-export const routerStatusResponseSchema = z.object({
-  uptime: z.number(),
-  cpu: z.number().min(0).max(100),
-  memory: z.number().min(0).max(100),
-  disk: z.number().min(0).max(100),
-  temperature: z.number().optional(),
-  timestamp: z.string().datetime()
-}).describe('Router status response');
+export const routerStatusResponseSchema = z
+  .object({
+    uptime: z.number(),
+    cpu: z.number().min(0).max(100),
+    memory: z.number().min(0).max(100),
+    disk: z.number().min(0).max(100),
+    temperature: z.number().optional(),
+    timestamp: z.string().datetime(),
+  })
+  .describe('Router status response');
 
 /**
  * Application configuration schema
@@ -238,22 +255,24 @@ export const routerStatusResponseSchema = z.object({
  *   router: { defaultPort: 80, defaultTimeout: 5000, maxRetries: 2 },
  * }) // OK
  */
-export const appConfigSchema = z.object({
-  api: z.object({
-    baseUrl: z.string().url(),
-    timeout: z.number().int().min(1000),
-    retries: z.number().int().min(0)
-  }),
-  ui: z.object({
-    theme: z.enum(['light', 'dark']).default('light'),
-    language: z.enum(['en', 'fa', 'de']).default('en')
-  }),
-  router: z.object({
-    defaultPort: portSchema.default(80),
-    defaultTimeout: z.number().int().min(1000),
-    maxRetries: z.number().int().min(0)
+export const appConfigSchema = z
+  .object({
+    api: z.object({
+      baseUrl: z.string().url(),
+      timeout: z.number().int().min(1000),
+      retries: z.number().int().min(0),
+    }),
+    ui: z.object({
+      theme: z.enum(['light', 'dark']).default('light'),
+      language: z.enum(['en', 'fa', 'de']).default('en'),
+    }),
+    router: z.object({
+      defaultPort: portSchema.default(80),
+      defaultTimeout: z.number().int().min(1000),
+      maxRetries: z.number().int().min(0),
+    }),
   })
-}).describe('Application configuration');
+  .describe('Application configuration');
 
 /**
  * User preferences schema
@@ -271,13 +290,17 @@ export const appConfigSchema = z.object({
  *   },
  * }) // OK
  */
-export const userPreferencesSchema = z.object({
-  theme: z.enum(['light', 'dark']).optional(),
-  language: z.enum(['en', 'fa', 'de']).optional(),
-  autoConnect: z.boolean().optional(),
-  notifications: z.object({
-    enabled: z.boolean(),
-    showWarnings: z.boolean(),
-    showErrors: z.boolean()
-  }).optional()
-}).describe('User preferences');
+export const userPreferencesSchema = z
+  .object({
+    theme: z.enum(['light', 'dark']).optional(),
+    language: z.enum(['en', 'fa', 'de']).optional(),
+    autoConnect: z.boolean().optional(),
+    notifications: z
+      .object({
+        enabled: z.boolean(),
+        showWarnings: z.boolean(),
+        showErrors: z.boolean(),
+      })
+      .optional(),
+  })
+  .describe('User preferences');

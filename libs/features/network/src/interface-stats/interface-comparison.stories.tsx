@@ -35,9 +35,7 @@ const mixedStatus: InterfaceInfo[] = [
   { id: 'bridge1', name: 'bridge1 - Internal', status: 'degraded' },
 ];
 
-const singleInterface: InterfaceInfo[] = [
-  { id: 'ether1', name: 'ether1 - WAN', status: 'online' },
-];
+const singleInterface: InterfaceInfo[] = [{ id: 'ether1', name: 'ether1 - WAN', status: 'online' }];
 
 const largeFleet: InterfaceInfo[] = [
   { id: 'ether1', name: 'ether1 - WAN', status: 'online' },

@@ -65,7 +65,10 @@ export interface PortKnockLogViewerProps {
  * @description Maps status to color variant and icon
  */
 const StatusBadge = ({ status }: { status: string }) => {
-  const VARIANT_MAP: Record<string, { variant: 'success' | 'error' | 'warning'; icon: typeof CheckCircle }> = {
+  const VARIANT_MAP: Record<
+    string,
+    { variant: 'success' | 'error' | 'warning'; icon: typeof CheckCircle }
+  > = {
     success: { variant: 'success', icon: CheckCircle },
     failed: { variant: 'error', icon: XCircle },
     partial: { variant: 'warning', icon: AlertTriangle },
@@ -75,8 +78,14 @@ const StatusBadge = ({ status }: { status: string }) => {
   const Icon = config.icon;
 
   return (
-    <Badge variant={config.variant} className="text-xs">
-      <Icon className="h-3 w-3 mr-component-xs" aria-hidden="true" />
+    <Badge
+      variant={config.variant}
+      className="text-xs"
+    >
+      <Icon
+        className="mr-component-xs h-3 w-3"
+        aria-hidden="true"
+      />
       {status}
     </Badge>
   );
@@ -122,7 +131,7 @@ const FilterBar = ({
   onExport,
 }: FilterBarProps) => {
   return (
-    <div className="flex flex-col sm:flex-row gap-component-md mb-component-md">
+    <div className="gap-component-md mb-component-md flex flex-col sm:flex-row">
       <div className="flex-1">
         <Input
           placeholder="Filter by IP..."
@@ -134,7 +143,10 @@ const FilterBar = ({
         />
       </div>
       <div className="w-full sm:w-48">
-        <Select value={statusFilter} onValueChange={(v) => onStatusFilterChange(v as KnockStatusFilter)}>
+        <Select
+          value={statusFilter}
+          onValueChange={(v) => onStatusFilterChange(v as KnockStatusFilter)}
+        >
           <SelectTrigger data-testid="status-filter">
             <SelectValue placeholder="All statuses" />
           </SelectTrigger>
@@ -146,18 +158,29 @@ const FilterBar = ({
           </SelectContent>
         </Select>
       </div>
-      <div className="flex items-center gap-component-sm">
+      <div className="gap-component-sm flex items-center">
         <Switch
           id="auto-refresh"
           checked={autoRefresh}
           onCheckedChange={onAutoRefreshChange}
         />
-        <Label htmlFor="auto-refresh" className="text-sm">
+        <Label
+          htmlFor="auto-refresh"
+          className="text-sm"
+        >
           Auto-refresh
         </Label>
       </div>
-      <Button variant="outline" size="sm" onClick={onExport} aria-label="Export log to CSV">
-        <Download className="h-4 w-4 mr-component-sm" aria-hidden="true" />
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={onExport}
+        aria-label="Export log to CSV"
+      >
+        <Download
+          className="mr-component-sm h-4 w-4"
+          aria-hidden="true"
+        />
         Export CSV
       </Button>
     </div>
@@ -232,22 +255,25 @@ export const PortKnockLogViewer = ({ className }: PortKnockLogViewerProps) => {
   if (isLoading) {
     return (
       <div className={cn('flex items-center justify-center py-12', className)}>
-        <div className="animate-pulse text-muted-foreground">Loading port knock log...</div>
+        <div className="text-muted-foreground animate-pulse">Loading port knock log...</div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className={cn('p-component-md rounded-lg bg-error/10', className)}>
-        <p className="font-medium text-error">Error loading port knock log</p>
-        <p className="text-sm text-error/80 mt-component-xs">{error.message}</p>
+      <div className={cn('p-component-md bg-error/10 rounded-lg', className)}>
+        <p className="text-error font-medium">Error loading port knock log</p>
+        <p className="text-error/80 mt-component-xs text-sm">{error.message}</p>
       </div>
     );
   }
 
   return (
-    <div className={cn(className)} data-testid="log-viewer">
+    <div
+      className={cn(className)}
+      data-testid="log-viewer"
+    >
       <FilterBar
         statusFilter={logStatusFilter}
         onStatusFilterChange={setLogStatusFilter}
@@ -258,18 +284,17 @@ export const PortKnockLogViewer = ({ className }: PortKnockLogViewerProps) => {
         onExport={handleExport}
       />
 
-      {attempts.length === 0 ? (
+      {attempts.length === 0 ?
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-12">
-            <Shield className="h-12 w-12 text-muted-foreground mb-component-md" />
-            <h3 className="text-lg font-semibold mb-component-sm">No Knock Attempts</h3>
-            <p className="text-sm text-muted-foreground">
+            <Shield className="text-muted-foreground mb-component-md h-12 w-12" />
+            <h3 className="mb-component-sm text-lg font-semibold">No Knock Attempts</h3>
+            <p className="text-muted-foreground text-sm">
               Knock attempts will appear here when sequences are triggered.
             </p>
           </CardContent>
         </Card>
-      ) : (
-        <>
+      : <>
           <Table>
             <TableHeader>
               <TableRow>
@@ -285,13 +310,19 @@ export const PortKnockLogViewer = ({ className }: PortKnockLogViewerProps) => {
             </TableHeader>
             <TableBody>
               {attempts.map((attempt, index) => (
-                <TableRow key={attempt.id} data-testid={`log-entry-${index}`}>
+                <TableRow
+                  key={attempt.id}
+                  data-testid={`log-entry-${index}`}
+                >
                   <TableCell className="font-mono text-xs">
                     {new Date(attempt.timestamp).toLocaleString()}
                   </TableCell>
 
                   <TableCell>
-                    <Badge variant="secondary" className="font-mono text-xs">
+                    <Badge
+                      variant="secondary"
+                      className="font-mono text-xs"
+                    >
                       {attempt.sequenceName}
                     </Badge>
                   </TableCell>
@@ -305,8 +336,8 @@ export const PortKnockLogViewer = ({ className }: PortKnockLogViewerProps) => {
                   </TableCell>
 
                   <TableCell>
-                    <div className="flex items-center gap-component-sm">
-                      <div className="w-20 bg-muted rounded-full h-2">
+                    <div className="gap-component-sm flex items-center">
+                      <div className="bg-muted h-2 w-20 rounded-full">
                         <div
                           className={cn(
                             'h-full rounded-full transition-all',
@@ -315,21 +346,30 @@ export const PortKnockLogViewer = ({ className }: PortKnockLogViewerProps) => {
                             attempt.status === 'partial' && 'bg-warning'
                           )}
                           style={{
-                            width: `${(() => { const parts = attempt.progress.split('/'); return parts.length === 2 ? (parseInt(parts[0]) / parseInt(parts[1])) * 100 : 0; })()}%`,
+                            width: `${(() => {
+                              const parts = attempt.progress.split('/');
+                              return parts.length === 2 ?
+                                  (parseInt(parts[0]) / parseInt(parts[1])) * 100
+                                : 0;
+                            })()}%`,
                           }}
                           aria-hidden="true"
                         />
                       </div>
-                      <span className="text-xs text-muted-foreground font-mono">
+                      <span className="text-muted-foreground font-mono text-xs">
                         {attempt.progress}
                       </span>
                     </div>
                   </TableCell>
 
                   <TableCell>
-                    <div className="flex gap-component-sm">
+                    <div className="gap-component-sm flex">
                       {attempt.portsHit.map((port, index) => (
-                        <Badge key={`port-${index}`} variant="outline" className="font-mono text-xs">
+                        <Badge
+                          key={`port-${index}`}
+                          variant="outline"
+                          className="font-mono text-xs"
+                        >
                           {port}
                         </Badge>
                       ))}
@@ -337,7 +377,10 @@ export const PortKnockLogViewer = ({ className }: PortKnockLogViewerProps) => {
                   </TableCell>
 
                   <TableCell>
-                    <Badge variant="secondary" className="font-mono text-xs">
+                    <Badge
+                      variant="secondary"
+                      className="font-mono text-xs"
+                    >
                       {attempt.protectedPort}
                     </Badge>
                   </TableCell>
@@ -349,7 +392,10 @@ export const PortKnockLogViewer = ({ className }: PortKnockLogViewerProps) => {
                         size="sm"
                         aria-label="Block this IP address"
                       >
-                        <Ban className="h-4 w-4 text-error" aria-hidden="true" />
+                        <Ban
+                          className="text-error h-4 w-4"
+                          aria-hidden="true"
+                        />
                       </Button>
                     )}
                   </TableCell>
@@ -359,26 +405,27 @@ export const PortKnockLogViewer = ({ className }: PortKnockLogViewerProps) => {
           </Table>
 
           {hasNextPage && (
-            <div className="flex justify-center mt-component-md">
+            <div className="mt-component-md flex justify-center">
               <Button
                 variant="outline"
                 onClick={() => fetchNextPage()}
                 disabled={isFetchingNextPage}
                 aria-label={isFetchingNextPage ? 'Loading more entries' : 'Load more entries'}
               >
-                {isFetchingNextPage ? (
+                {isFetchingNextPage ?
                   <>
-                    <RefreshCw className="h-4 w-4 mr-component-sm animate-spin" aria-hidden="true" />
+                    <RefreshCw
+                      className="mr-component-sm h-4 w-4 animate-spin"
+                      aria-hidden="true"
+                    />
                     Loading...
                   </>
-                ) : (
-                  'Load More'
-                )}
+                : 'Load More'}
               </Button>
             </div>
           )}
         </>
-      )}
+      }
     </div>
   );
 };

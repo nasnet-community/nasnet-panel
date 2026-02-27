@@ -214,7 +214,8 @@ export const Desktop: Story = {
     viewport: { defaultViewport: 'desktop' },
     docs: {
       description: {
-        story: 'Desktop presenter (≥640px) with two-column grid — time range and timezone side by side.',
+        story:
+          'Desktop presenter (≥640px) with two-column grid — time range and timezone side by side.',
       },
     },
   },

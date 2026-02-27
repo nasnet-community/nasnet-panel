@@ -4,7 +4,6 @@ import { VPNProtocolStatsCard } from './VPNProtocolStatsCard';
 
 import type { Meta, StoryObj } from '@storybook/react';
 
-
 const wireguardStats: VPNProtocolStats = {
   protocol: 'wireguard',
   serverCount: 2,
@@ -12,7 +11,7 @@ const wireguardStats: VPNProtocolStats = {
   activeServerConnections: 8,
   activeClientConnections: 2,
   totalRx: 1_073_741_824, // 1 GB
-  totalTx: 536_870_912,   // 512 MB
+  totalTx: 536_870_912, // 512 MB
 };
 
 const openvpnStats: VPNProtocolStats = {
@@ -41,8 +40,8 @@ const ikev2Stats: VPNProtocolStats = {
   clientCount: 1,
   activeServerConnections: 0,
   activeClientConnections: 1,
-  totalRx: 314_572_800,  // 300 MB
-  totalTx: 104_857_600,  // 100 MB
+  totalRx: 314_572_800, // 300 MB
+  totalTx: 104_857_600, // 100 MB
 };
 
 const meta: Meta<typeof VPNProtocolStatsCard> = {
@@ -75,7 +74,8 @@ export const WireGuardActive: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'WireGuard protocol with active server and client connections. The green "Active" indicator appears when any connections are live.',
+        story:
+          'WireGuard protocol with active server and client connections. The green "Active" indicator appears when any connections are live.',
       },
     },
   },
@@ -103,7 +103,8 @@ export const L2TPInactive: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'L2TP protocol configured but with no active connections and zero traffic. The "Active" indicator is absent.',
+        story:
+          'L2TP protocol configured but with no active connections and zero traffic. The "Active" indicator is absent.',
       },
     },
   },
@@ -131,7 +132,8 @@ export const CompactVariant: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Compact variant collapses to a 2-column grid (servers + clients only) and hides the connection-detail footer, suitable for dashboard overviews.',
+        story:
+          'Compact variant collapses to a 2-column grid (servers + clients only) and hides the connection-detail footer, suitable for dashboard overviews.',
       },
     },
   },
@@ -146,7 +148,8 @@ export const Clickable: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'When an onClick handler is provided the card gains a pointer cursor and a lift hover effect.',
+        story:
+          'When an onClick handler is provided the card gains a pointer cursor and a lift hover effect.',
       },
     },
   },
@@ -154,32 +157,37 @@ export const Clickable: Story = {
 
 export const AllProtocols: Story = {
   render: () => (
-    <div className="grid grid-cols-1 gap-4 w-[680px]">
-      {([
-        wireguardStats,
-        openvpnStats,
-        l2tpStats,
-        ikev2Stats,
-        {
-          protocol: 'pptp' as const,
-          serverCount: 1,
-          clientCount: 1,
-          activeServerConnections: 3,
-          activeClientConnections: 0,
-          totalRx: 52_428_800,
-          totalTx: 26_214_400,
-        },
-        {
-          protocol: 'sstp' as const,
-          serverCount: 0,
-          clientCount: 0,
-          activeServerConnections: 0,
-          activeClientConnections: 0,
-          totalRx: 0,
-          totalTx: 0,
-        },
-      ] satisfies VPNProtocolStats[]).map((stats) => (
-        <VPNProtocolStatsCard key={stats.protocol} stats={stats} />
+    <div className="grid w-[680px] grid-cols-1 gap-4">
+      {(
+        [
+          wireguardStats,
+          openvpnStats,
+          l2tpStats,
+          ikev2Stats,
+          {
+            protocol: 'pptp' as const,
+            serverCount: 1,
+            clientCount: 1,
+            activeServerConnections: 3,
+            activeClientConnections: 0,
+            totalRx: 52_428_800,
+            totalTx: 26_214_400,
+          },
+          {
+            protocol: 'sstp' as const,
+            serverCount: 0,
+            clientCount: 0,
+            activeServerConnections: 0,
+            activeClientConnections: 0,
+            totalRx: 0,
+            totalTx: 0,
+          },
+        ] satisfies VPNProtocolStats[]
+      ).map((stats) => (
+        <VPNProtocolStatsCard
+          key={stats.protocol}
+          stats={stats}
+        />
       ))}
     </div>
   ),
@@ -187,7 +195,8 @@ export const AllProtocols: Story = {
     layout: 'padded',
     docs: {
       description: {
-        story: 'All six supported VPN protocols rendered together, demonstrating the protocol-icon colour system and varying activity levels.',
+        story:
+          'All six supported VPN protocols rendered together, demonstrating the protocol-icon colour system and varying activity levels.',
       },
     },
   },

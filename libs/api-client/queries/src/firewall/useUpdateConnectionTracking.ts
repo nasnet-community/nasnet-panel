@@ -167,17 +167,13 @@ async function updateConnectionTrackingSettings(
   const payload = transformToRouterOSFormat(settings);
 
   // RouterOS REST API uses POST to /rest/ip/firewall/connection/tracking/set
-  const result = await makeRouterOSRequest<void>(
-    routerIp,
-    'ip/firewall/connection/tracking/set',
-    {
-      method: 'POST',
-      body: {
-        '.id': '*0', // Connection tracking settings have a single entry with ID *0
-        ...payload,
-      },
-    }
-  );
+  const result = await makeRouterOSRequest<void>(routerIp, 'ip/firewall/connection/tracking/set', {
+    method: 'POST',
+    body: {
+      '.id': '*0', // Connection tracking settings have a single entry with ID *0
+      ...payload,
+    },
+  });
 
   if (!result.success) {
     throw new Error(result.error || 'Failed to update connection tracking settings');

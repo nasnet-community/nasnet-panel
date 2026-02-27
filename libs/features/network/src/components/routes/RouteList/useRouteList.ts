@@ -10,11 +10,7 @@ import { useState, useMemo, useCallback } from 'react';
 import { useRoutes } from '@nasnet/api-client/queries';
 import type { Route } from '@nasnet/api-client/generated';
 
-import type {
-  RouteFilters,
-  RouteSortOptions,
-  RouteListProps,
-} from './types';
+import type { RouteFilters, RouteSortOptions, RouteListProps } from './types';
 
 export interface UseRouteListOptions {
   /** Router ID to fetch routes from */
@@ -33,8 +29,7 @@ export interface UseRouteListOptions {
   pollInterval?: number;
 }
 
-export interface UseRouteListReturn
-  extends Omit<RouteListProps, 'routerId'> {
+export interface UseRouteListReturn extends Omit<RouteListProps, 'routerId'> {
   /** Refetch routes from server */
   refetch: () => void;
 }

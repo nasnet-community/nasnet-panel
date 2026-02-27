@@ -1,7 +1,7 @@
 {
   "id": "sub-libraries/types",
   "title": "Core Types Reference",
-  "description": "Complete documentation of all types exported from @nasnet/core/types. This library provides the complete type system for NasNetConnect, including the Universal State v2 model, resource management, and domain-specific types.",
+  "description": "Complete documentation of all types exported from @nasnet/core/types. This library provides the",
   "source": "@site/../../libs/core/docs/sub-libraries/types.md",
   "sourceDirName": "sub-libraries",
   "slug": "/sub-libraries/types",

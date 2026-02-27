@@ -8,11 +8,7 @@
  * @see NAS-4.14: Implement Change Sets (Atomic Multi-Resource Operations)
  */
 
-import {
-  useMutation,
-  type ApolloError,
-  type ApolloCache,
-} from '@apollo/client';
+import { useMutation, type ApolloError, type ApolloCache } from '@apollo/client';
 import { gql } from '@apollo/client';
 import { useCallback } from 'react';
 import type {
@@ -23,10 +19,7 @@ import type {
   ChangeSetValidationResult,
   ResourceCategory,
 } from '@nasnet/core/types';
-import {
-  CHANGE_SET_FULL_FRAGMENT,
-  CHANGE_SET_VALIDATION_RESULT_FRAGMENT,
-} from './fragments';
+import { CHANGE_SET_FULL_FRAGMENT, CHANGE_SET_VALIDATION_RESULT_FRAGMENT } from './fragments';
 
 // ============================================================================
 // Types
@@ -131,11 +124,7 @@ const ADD_CHANGE_SET_ITEM_MUTATION = gql`
 `;
 
 const UPDATE_CHANGE_SET_ITEM_MUTATION = gql`
-  mutation UpdateChangeSetItem(
-    $changeSetId: ID!
-    $itemId: ID!
-    $input: UpdateChangeSetItemInput!
-  ) {
+  mutation UpdateChangeSetItem($changeSetId: ID!, $itemId: ID!, $input: UpdateChangeSetItemInput!) {
     updateChangeSetItem(changeSetId: $changeSetId, itemId: $itemId, input: $input) {
       changeSet {
         ...ChangeSetFull
@@ -586,7 +575,9 @@ export function useDeleteChangeSet() {
     update(cache, { data }, { variables }) {
       if (data?.deleteChangeSet?.success) {
         // Remove from cache
-        cache.evict({ id: cache.identify({ __typename: 'ChangeSet', id: variables?.changeSetId }) });
+        cache.evict({
+          id: cache.identify({ __typename: 'ChangeSet', id: variables?.changeSetId }),
+        });
         cache.gc();
       }
     },

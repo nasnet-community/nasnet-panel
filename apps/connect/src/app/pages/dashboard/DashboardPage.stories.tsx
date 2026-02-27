@@ -17,7 +17,6 @@ import { DashboardPage } from './DashboardPage';
 
 import type { Meta, StoryObj } from '@storybook/react';
 
-
 const meta: Meta<typeof DashboardPage> = {
   title: 'App/Pages/DashboardPage',
   component: DashboardPage,

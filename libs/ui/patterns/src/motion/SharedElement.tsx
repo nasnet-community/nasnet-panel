@@ -184,17 +184,17 @@ export interface SharedImageProps extends Omit<HTMLMotionProps<'img'>, 'layoutId
  * />
  * ```
  */
-export function SharedImage({
-  layoutId,
-  src,
-  alt,
-  className,
-  ...props
-}: SharedImageProps) {
+export function SharedImage({ layoutId, src, alt, className, ...props }: SharedImageProps) {
   const animation = useAnimationOptional();
 
   if (animation?.reducedMotion) {
-    return <img src={src} alt={alt} className={className} />;
+    return (
+      <img
+        src={src}
+        alt={alt}
+        className={className}
+      />
+    );
   }
 
   return (

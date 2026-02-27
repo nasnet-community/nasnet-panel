@@ -10,15 +10,8 @@
 
 import * as React from 'react';
 
-import type {
-  ValidationError,
-} from './types';
-import type {
-  FieldValues,
-  UseFormReturn,
-  Path,
-} from 'react-hook-form';
-
+import type { ValidationError } from './types';
+import type { FieldValues, UseFormReturn, Path } from 'react-hook-form';
 
 /**
  * Options for useFormResourceSync hook.
@@ -230,10 +223,7 @@ export function useFormResourceSync<T extends FieldValues = FieldValues>(
     return diff;
   }, [formValues, trackChanges]);
 
-  const changedFields = React.useMemo(
-    () => Object.keys(changes) as Array<Path<T>>,
-    [changes]
-  );
+  const changedFields = React.useMemo(() => Object.keys(changes) as Array<Path<T>>, [changes]);
 
   // Convert form errors to ValidationError format
   const validationErrors = React.useMemo<ValidationError[]>(() => {
@@ -274,7 +264,17 @@ export function useFormResourceSync<T extends FieldValues = FieldValues>(
       isSaving,
       hasSourceChanged,
     }),
-    [optimistic, formValues, isValid, isValidating, validationErrors, error, isDirty, isSaving, hasSourceChanged]
+    [
+      optimistic,
+      formValues,
+      isValid,
+      isValidating,
+      validationErrors,
+      error,
+      isDirty,
+      isSaving,
+      hasSourceChanged,
+    ]
   );
 
   // Actions

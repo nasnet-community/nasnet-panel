@@ -74,19 +74,22 @@ const CPUBreakdownModal = React.memo(function CPUBreakdownModal({
   );
 
   return (
-    <Dialog open={open} onOpenChange={handleClose}>
+    <Dialog
+      open={open}
+      onOpenChange={handleClose}
+    >
       <DialogContent className={cn('max-w-md', className)}>
         <DialogHeader>
           <DialogTitle className="text-lg font-semibold">CPU Core Breakdown</DialogTitle>
         </DialogHeader>
 
         {/* Overall CPU usage summary */}
-        <div className="mb-component-lg p-component-md rounded-card-sm bg-card border border-border">
-          <div className="flex items-center justify-between mb-component-xs">
-            <span className="text-sm font-medium text-foreground">Overall Usage</span>
-            <span className="text-2xl font-bold font-mono text-foreground">{overallUsage}%</span>
+        <div className="mb-component-lg p-component-md rounded-card-sm bg-card border-border border">
+          <div className="mb-component-xs flex items-center justify-between">
+            <span className="text-foreground text-sm font-medium">Overall Usage</span>
+            <span className="text-foreground font-mono text-2xl font-bold">{overallUsage}%</span>
           </div>
-          <div className="text-xs text-muted-foreground">
+          <div className="text-muted-foreground text-xs">
             {coreCount} core{coreCount > 1 ? 's' : ''}
             {frequency && ` @ ${(frequency / 1000).toFixed(2)} GHz`}
           </div>
@@ -95,22 +98,23 @@ const CPUBreakdownModal = React.memo(function CPUBreakdownModal({
         {/* Per-core usage bars */}
         <div className="space-y-component-md">
           {perCoreUsage.map((usage, index) => (
-            <div key={`core-${index}`} className="space-y-component-xs">
+            <div
+              key={`core-${index}`}
+              className="space-y-component-xs"
+            >
               <div className="flex items-center justify-between text-sm">
-                <span className="font-medium text-foreground">Core {index + 1}</span>
-                <span className="font-mono text-muted-foreground">{usage}%</span>
+                <span className="text-foreground font-medium">Core {index + 1}</span>
+                <span className="text-muted-foreground font-mono">{usage}%</span>
               </div>
 
               {/* Horizontal bar */}
-              <div className="h-2 bg-muted rounded-pill overflow-hidden">
+              <div className="bg-muted rounded-pill h-2 overflow-hidden">
                 <div
                   className={cn(
-                    'h-full rounded-pill transition-all duration-500',
-                    usage >= 90
-                      ? 'bg-error'
-                      : usage >= 70
-                        ? 'bg-warning'
-                        : 'bg-success'
+                    'rounded-pill h-full transition-all duration-500',
+                    usage >= 90 ? 'bg-error'
+                    : usage >= 70 ? 'bg-warning'
+                    : 'bg-success'
                   )}
                   style={{ width: `${Math.min(100, Math.max(0, usage))}%` }}
                   role="meter"
@@ -125,7 +129,7 @@ const CPUBreakdownModal = React.memo(function CPUBreakdownModal({
         </div>
 
         {/* Accessibility note */}
-        <p className="text-xs text-muted-foreground mt-component-lg">
+        <p className="text-muted-foreground mt-component-lg text-xs">
           Press ESC or click outside to close
         </p>
       </DialogContent>

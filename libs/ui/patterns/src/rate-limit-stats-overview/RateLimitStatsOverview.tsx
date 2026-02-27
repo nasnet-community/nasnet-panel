@@ -36,14 +36,14 @@ import type { RateLimitStatsOverviewProps } from './types';
  * <RateLimitStatsOverview routerId="192.168.1.1" />
  * ```
  */
-export const RateLimitStatsOverview = memo(function RateLimitStatsOverview(props: RateLimitStatsOverviewProps) {
+export const RateLimitStatsOverview = memo(function RateLimitStatsOverview(
+  props: RateLimitStatsOverviewProps
+) {
   const platform = usePlatform();
 
-  return platform === 'mobile' ? (
-    <RateLimitStatsOverviewMobile {...props} />
-  ) : (
-    <RateLimitStatsOverviewDesktop {...props} />
-  );
+  return platform === 'mobile' ?
+      <RateLimitStatsOverviewMobile {...props} />
+    : <RateLimitStatsOverviewDesktop {...props} />;
 });
 
 RateLimitStatsOverview.displayName = 'RateLimitStatsOverview';

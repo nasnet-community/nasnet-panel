@@ -144,7 +144,7 @@ export const LeaseCard = React.memo(function LeaseCard({
         {swipeDirection === 'right' && !isStatic && (
           <div
             className={cn(
-              'absolute left-0 top-0 bottom-0 flex items-center justify-start px-4',
+              'absolute bottom-0 left-0 top-0 flex items-center justify-start px-4',
               'bg-primary text-foreground',
               'transition-opacity',
               Math.abs(swipeOffset) > 60 ? 'opacity-100' : 'opacity-60'
@@ -152,7 +152,11 @@ export const LeaseCard = React.memo(function LeaseCard({
             style={{ width: Math.abs(swipeOffset) }}
             aria-hidden="true"
           >
-            <Icon icon={Pin} size="md" className="text-foreground" />
+            <Icon
+              icon={Pin}
+              size="md"
+              className="text-foreground"
+            />
           </div>
         )}
 
@@ -160,7 +164,7 @@ export const LeaseCard = React.memo(function LeaseCard({
         {swipeDirection === 'left' && (
           <div
             className={cn(
-              'absolute right-0 top-0 bottom-0 flex items-center justify-end px-4',
+              'absolute bottom-0 right-0 top-0 flex items-center justify-end px-4',
               'bg-error/20 text-foreground',
               'transition-opacity',
               Math.abs(swipeOffset) > 60 ? 'opacity-100' : 'opacity-60'
@@ -168,7 +172,11 @@ export const LeaseCard = React.memo(function LeaseCard({
             style={{ width: Math.abs(swipeOffset) }}
             aria-hidden="true"
           >
-            <Icon icon={Trash2} size="md" className="text-foreground" />
+            <Icon
+              icon={Trash2}
+              size="md"
+              className="text-foreground"
+            />
           </div>
         )}
 
@@ -179,7 +187,7 @@ export const LeaseCard = React.memo(function LeaseCard({
           role="listitem"
           aria-label={ariaLabel}
           className={cn(
-            'border-b border-border last:border-b-0 rounded-none',
+            'border-border rounded-none border-b last:border-b-0',
             'hover:bg-accent/50 active:bg-accent',
             'transition-all duration-200',
             className
@@ -196,7 +204,7 @@ export const LeaseCard = React.memo(function LeaseCard({
               'w-full px-4 py-3 text-left',
               'flex items-start gap-3',
               'min-h-[44px]', // WCAG AAA touch target
-              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2'
+              'focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2'
             )}
           >
             {/* Icon/Avatar */}
@@ -214,18 +222,16 @@ export const LeaseCard = React.memo(function LeaseCard({
             </div>
 
             {/* Lease info */}
-            <div className="flex-1 min-w-0">
+            <div className="min-w-0 flex-1">
               {/* Top row: IP + New badge */}
-              <div className="flex items-center gap-component-sm mb-component-xs">
-                <span className="font-mono font-semibold text-base truncate">
-                  {lease.address}
-                </span>
+              <div className="gap-component-sm mb-component-xs flex items-center">
+                <span className="truncate font-mono text-base font-semibold">{lease.address}</span>
                 {isNew && (
                   <Badge
                     variant="info"
                     pulse
                     className={cn(
-                      'text-xs px-1.5 py-0',
+                      'px-1.5 py-0 text-xs',
                       '@media (prefers-reduced-motion: reduce)',
                       'animate-none'
                     )}
@@ -236,13 +242,13 @@ export const LeaseCard = React.memo(function LeaseCard({
               </div>
 
               {/* Middle row: Hostname */}
-              <div className="text-sm text-muted-foreground truncate mb-component-xs">
+              <div className="text-muted-foreground mb-component-xs truncate text-sm">
                 {lease.hostname || 'Unknown'}
               </div>
 
               {/* Bottom row: MAC + Status */}
-              <div className="flex items-center gap-component-sm flex-wrap">
-                <span className="text-xs font-mono text-muted-foreground">
+              <div className="gap-component-sm flex flex-wrap items-center">
+                <span className="text-muted-foreground font-mono text-xs">
                   {formatMACAddress(lease.macAddress)}
                 </span>
                 <StatusBadge status={isStatic ? 'static' : lease.status} />
@@ -253,35 +259,36 @@ export const LeaseCard = React.memo(function LeaseCard({
             <Icon
               icon={ChevronDown}
               size="md"
-              className={cn(
-                'text-muted-foreground',
-                'transition-transform duration-200'
-              )}
+              className={cn('text-muted-foreground', 'transition-transform duration-200')}
             />
           </button>
         </Card>
       </div>
 
       {/* Bottom sheet for expanded details */}
-      <Sheet open={isExpanded} onOpenChange={setIsExpanded}>
-        <SheetContent side="bottom" className="h-[80vh]">
+      <Sheet
+        open={isExpanded}
+        onOpenChange={setIsExpanded}
+      >
+        <SheetContent
+          side="bottom"
+          className="h-[80vh]"
+        >
           <SheetHeader>
             <SheetTitle>{lease.address}</SheetTitle>
-            <SheetDescription>
-              {lease.hostname || 'Unknown hostname'}
-            </SheetDescription>
+            <SheetDescription>{lease.hostname || 'Unknown hostname'}</SheetDescription>
           </SheetHeader>
 
           {/* Detailed info */}
           <div className="mt-component-lg space-y-component-md">
             {/* Status card */}
-            <div className="grid grid-cols-2 gap-component-md">
+            <div className="gap-component-md grid grid-cols-2">
               <div>
-                <div className="text-xs text-muted-foreground mb-component-xs">Status</div>
+                <div className="text-muted-foreground mb-component-xs text-xs">Status</div>
                 <StatusBadge status={isStatic ? 'static' : lease.status} />
               </div>
               <div>
-                <div className="text-xs text-muted-foreground mb-component-xs">Expires</div>
+                <div className="text-muted-foreground mb-component-xs text-xs">Expires</div>
                 <div className="text-sm font-medium">{expiration}</div>
               </div>
             </div>
@@ -289,33 +296,31 @@ export const LeaseCard = React.memo(function LeaseCard({
             {/* Network info */}
             <div className="space-y-component-md">
               <div>
-                <div className="text-xs text-muted-foreground mb-component-xs">IP Address</div>
-                <div className="text-sm font-mono">{lease.address}</div>
+                <div className="text-muted-foreground mb-component-xs text-xs">IP Address</div>
+                <div className="font-mono text-sm">{lease.address}</div>
               </div>
 
               <div>
-                <div className="text-xs text-muted-foreground mb-component-xs">MAC Address</div>
-                <div className="text-sm font-mono">{formatMACAddress(lease.macAddress)}</div>
+                <div className="text-muted-foreground mb-component-xs text-xs">MAC Address</div>
+                <div className="font-mono text-sm">{formatMACAddress(lease.macAddress)}</div>
               </div>
 
               {lease.clientId && (
                 <div>
-                  <div className="text-xs text-muted-foreground mb-component-xs">Client ID</div>
-                  <div className="text-sm font-mono">{lease.clientId}</div>
+                  <div className="text-muted-foreground mb-component-xs text-xs">Client ID</div>
+                  <div className="font-mono text-sm">{lease.clientId}</div>
                 </div>
               )}
 
               <div>
-                <div className="text-xs text-muted-foreground mb-component-xs">DHCP Server</div>
+                <div className="text-muted-foreground mb-component-xs text-xs">DHCP Server</div>
                 <div className="text-sm">{lease.server}</div>
               </div>
 
               {lease.lastSeen && (
                 <div>
-                  <div className="text-xs text-muted-foreground mb-component-xs">Last Seen</div>
-                  <div className="text-sm">
-                    {new Date(lease.lastSeen).toLocaleString()}
-                  </div>
+                  <div className="text-muted-foreground mb-component-xs text-xs">Last Seen</div>
+                  <div className="text-sm">{new Date(lease.lastSeen).toLocaleString()}</div>
                 </div>
               )}
             </div>
@@ -326,13 +331,17 @@ export const LeaseCard = React.memo(function LeaseCard({
                 <Button
                   variant="outline"
                   size="lg"
-                  className="w-full min-h-[44px]"
+                  className="min-h-[44px] w-full"
                   onClick={() => {
                     onMakeStatic(lease);
                     setIsExpanded(false);
                   }}
                 >
-                  <Icon icon={Pin} size="sm" className="mr-component-sm" />
+                  <Icon
+                    icon={Pin}
+                    size="sm"
+                    className="mr-component-sm"
+                  />
                   Make Static
                 </Button>
               )}
@@ -340,13 +349,17 @@ export const LeaseCard = React.memo(function LeaseCard({
                 <Button
                   variant="destructive"
                   size="lg"
-                  className="w-full min-h-[44px]"
+                  className="min-h-[44px] w-full"
                   onClick={() => {
                     onDelete(lease);
                     setIsExpanded(false);
                   }}
                 >
-                  <Icon icon={Trash2} size="sm" className="mr-component-sm" />
+                  <Icon
+                    icon={Trash2}
+                    size="sm"
+                    className="mr-component-sm"
+                  />
                   Delete Lease
                 </Button>
               )}

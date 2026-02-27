@@ -128,7 +128,10 @@ export const InterfaceSelectorDesktop = memo(function InterfaceSelectorDesktop(
       )}
 
       {/* Main trigger and popover */}
-      <Popover open={isOpen} onOpenChange={setIsOpen}>
+      <Popover
+        open={isOpen}
+        onOpenChange={setIsOpen}
+      >
         <PopoverTrigger asChild>
           <Button
             id={id}
@@ -141,14 +144,12 @@ export const InterfaceSelectorDesktop = memo(function InterfaceSelectorDesktop(
             aria-invalid={!!displayError}
             disabled={disabled}
             className={cn(
-              'w-full h-10 justify-between font-normal font-mono',
+              'h-10 w-full justify-between font-mono font-normal',
               !displayValue && 'text-muted-foreground',
               displayError && 'border-error'
             )}
           >
-            <span className="truncate">
-              {displayValue || placeholder}
-            </span>
+            <span className="truncate">{displayValue || placeholder}</span>
             <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
@@ -159,23 +160,23 @@ export const InterfaceSelectorDesktop = memo(function InterfaceSelectorDesktop(
           onKeyDown={handleKeyDown}
         >
           {/* Search and filter header */}
-          <div className="p-3 border-b border-border space-y-3">
+          <div className="border-border space-y-3 border-b p-3">
             {/* Search input - monospace for network data */}
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Search className="text-muted-foreground absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2" />
               <Input
                 ref={searchInputRef}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search interfaces..."
-                className="pl-9 h-9 font-mono text-sm"
+                className="h-9 pl-9 font-mono text-sm"
                 aria-label="Search interfaces"
               />
               {searchQuery && (
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7 p-0"
+                  className="absolute right-1 top-1/2 h-7 w-7 -translate-y-1/2 p-0"
                   onClick={() => setSearchQuery('')}
                   aria-label="Clear search"
                 >
@@ -202,15 +203,18 @@ export const InterfaceSelectorDesktop = memo(function InterfaceSelectorDesktop(
               role="listbox"
               aria-label="Interface list"
               aria-multiselectable={multiple}
-              className="p-2 space-y-1"
+              className="space-y-1 p-2"
             >
               {/* Loading state */}
               {isLoading && (
                 <div className="space-y-2">
                   {[...Array(4)].map((_, i) => (
-                    <div key={i} className="flex items-center gap-3 p-2">
+                    <div
+                      key={i}
+                      className="flex items-center gap-3 p-2"
+                    >
                       <Skeleton className="h-5 w-5 rounded-full" />
-                      <div className="space-y-1.5 flex-1">
+                      <div className="flex-1 space-y-1.5">
                         <Skeleton className="h-4 w-24" />
                         <Skeleton className="h-3 w-32" />
                       </div>
@@ -223,10 +227,8 @@ export const InterfaceSelectorDesktop = memo(function InterfaceSelectorDesktop(
               {/* Error state */}
               {!isLoading && subscriptionError && (
                 <div className="flex flex-col items-center justify-center py-8 text-center">
-                  <AlertCircle className="h-8 w-8 text-destructive mb-2" />
-                  <p className="text-sm text-muted-foreground mb-3">
-                    Failed to load interfaces
-                  </p>
+                  <AlertCircle className="text-destructive mb-2 h-8 w-8" />
+                  <p className="text-muted-foreground mb-3 text-sm">Failed to load interfaces</p>
                   <Button
                     variant="outline"
                     size="sm"
@@ -241,33 +243,33 @@ export const InterfaceSelectorDesktop = memo(function InterfaceSelectorDesktop(
 
               {/* Empty state */}
               {!isLoading && !subscriptionError && filteredInterfaces.length === 0 && (
-                <div className="py-8 text-center text-sm text-muted-foreground">
+                <div className="text-muted-foreground py-8 text-center text-sm">
                   {searchQuery ? 'No interfaces match your search' : 'No interfaces available'}
                 </div>
               )}
 
               {/* Interface items */}
-              {!isLoading && !subscriptionError && filteredInterfaces.map((iface) => (
-                <InterfaceItem
-                  key={iface.id}
-                  interface={iface}
-                  selected={selectedValues.includes(iface.id)}
-                  onSelect={() => toggleSelection(iface.id)}
-                  showCheckbox={multiple}
-                  showStatus={showStatus}
-                  showIP={showIP}
-                />
-              ))}
+              {!isLoading &&
+                !subscriptionError &&
+                filteredInterfaces.map((iface) => (
+                  <InterfaceItem
+                    key={iface.id}
+                    interface={iface}
+                    selected={selectedValues.includes(iface.id)}
+                    onSelect={() => toggleSelection(iface.id)}
+                    showCheckbox={multiple}
+                    showStatus={showStatus}
+                    showIP={showIP}
+                  />
+                ))}
             </div>
           </ScrollArea>
 
           {/* Footer with result count */}
           {!isLoading && !subscriptionError && filteredInterfaces.length > 0 && (
-            <div className="px-3 py-2 border-t border-border text-xs text-muted-foreground">
+            <div className="border-border text-muted-foreground border-t px-3 py-2 text-xs">
               {filteredInterfaces.length} interface{filteredInterfaces.length !== 1 ? 's' : ''}
-              {selectedValues.length > 0 && (
-                <span> · {selectedValues.length} selected</span>
-              )}
+              {selectedValues.length > 0 && <span> · {selectedValues.length} selected</span>}
             </div>
           )}
         </PopoverContent>
@@ -286,7 +288,10 @@ export const InterfaceSelectorDesktop = memo(function InterfaceSelectorDesktop(
                 variant="secondary"
                 className="gap-1 pl-1.5 pr-1"
               >
-                <InterfaceTypeIcon type={iface.type} size={3} />
+                <InterfaceTypeIcon
+                  type={iface.type}
+                  size={3}
+                />
                 <span className="text-xs">{iface.name}</span>
                 <button
                   type="button"
@@ -294,7 +299,7 @@ export const InterfaceSelectorDesktop = memo(function InterfaceSelectorDesktop(
                     e.stopPropagation();
                     toggleSelection(id);
                   }}
-                  className="ml-0.5 rounded-full p-0.5 hover:bg-muted"
+                  className="hover:bg-muted ml-0.5 rounded-full p-0.5"
                   aria-label={`Remove ${iface.name}`}
                 >
                   <X className="h-3 w-3" />
@@ -307,7 +312,10 @@ export const InterfaceSelectorDesktop = memo(function InterfaceSelectorDesktop(
 
       {/* Error message */}
       {displayError && (
-        <p className="text-sm text-destructive" role="alert">
+        <p
+          className="text-destructive text-sm"
+          role="alert"
+        >
           {displayError}
         </p>
       )}

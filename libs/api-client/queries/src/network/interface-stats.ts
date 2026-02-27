@@ -8,7 +8,13 @@
  * - Configurable polling intervals for live updates
  */
 
-import { gql, useQuery, useSubscription, type QueryHookOptions, type SubscriptionHookOptions } from '@apollo/client';
+import {
+  gql,
+  useQuery,
+  useSubscription,
+  type QueryHookOptions,
+  type SubscriptionHookOptions,
+} from '@apollo/client';
 import type {
   InterfaceStats,
   InterfaceStatsHistory,
@@ -83,16 +89,8 @@ export const GET_INTERFACE_STATS_HISTORY = gql`
  * Receives periodic updates at the specified interval
  */
 export const INTERFACE_STATS_UPDATED = gql`
-  subscription InterfaceStatsUpdated(
-    $routerId: ID!
-    $interfaceId: ID!
-    $interval: Duration
-  ) {
-    interfaceStatsUpdated(
-      routerId: $routerId
-      interfaceId: $interfaceId
-      interval: $interval
-    ) {
+  subscription InterfaceStatsUpdated($routerId: ID!, $interfaceId: ID!, $interval: Duration) {
+    interfaceStatsUpdated(routerId: $routerId, interfaceId: $interfaceId, interval: $interval) {
       txBytes
       rxBytes
       txPackets
@@ -218,14 +216,14 @@ export function useInterfaceStatsHistoryQuery({
   skip = false,
   options,
 }: UseInterfaceStatsHistoryOptions) {
-  return useQuery<
-    { interfaceStatsHistory: InterfaceStatsHistory },
-    QueryInterfaceStatsHistoryArgs
-  >(GET_INTERFACE_STATS_HISTORY, {
-    variables: { routerId, interfaceId, timeRange, interval },
-    skip,
-    ...(options as any),
-  });
+  return useQuery<{ interfaceStatsHistory: InterfaceStatsHistory }, QueryInterfaceStatsHistoryArgs>(
+    GET_INTERFACE_STATS_HISTORY,
+    {
+      variables: { routerId, interfaceId, timeRange, interval },
+      skip,
+      ...(options as any),
+    }
+  );
 }
 
 /**

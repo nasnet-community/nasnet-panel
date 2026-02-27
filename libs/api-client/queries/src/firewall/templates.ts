@@ -67,7 +67,13 @@ async function fetchTemplates(filters?: TemplateFilters): Promise<FirewallTempla
   const templates: FirewallTemplate[] = [];
 
   // Load built-in templates
-  const builtInIds = ['basic-security', 'home-network', 'gaming-optimized', 'iot-isolation', 'guest-network'];
+  const builtInIds = [
+    'basic-security',
+    'home-network',
+    'gaming-optimized',
+    'iot-isolation',
+    'guest-network',
+  ];
 
   for (const id of builtInIds) {
     try {
@@ -166,16 +172,12 @@ async function applyTemplate(input: ApplyTemplateInput): Promise<FirewallTemplat
  * Endpoint: POST /api/firewall/templates/rollback
  */
 async function rollbackTemplate(input: RollbackTemplateInput): Promise<void> {
-  const result = await makeRouterOSRequest(
-    input.routerId,
-    'firewall/templates/rollback',
-    {
-      method: 'POST',
-      body: JSON.stringify({
-        rollbackId: input.rollbackId,
-      }),
-    }
-  );
+  const result = await makeRouterOSRequest(input.routerId, 'firewall/templates/rollback', {
+    method: 'POST',
+    body: JSON.stringify({
+      rollbackId: input.rollbackId,
+    }),
+  });
 
   if (!result.success) {
     throw new Error(result.error || 'Failed to rollback template');
@@ -206,7 +208,9 @@ interface UseTemplatesOptions {
   enabled?: boolean;
 }
 
-export function useTemplates(options?: UseTemplatesOptions): UseQueryResult<FirewallTemplate[], Error> {
+export function useTemplates(
+  options?: UseTemplatesOptions
+): UseQueryResult<FirewallTemplate[], Error> {
   return useQuery({
     queryKey: firewallTemplateKeys.list(options?.filters),
     queryFn: () => fetchTemplates(options?.filters),
@@ -270,8 +274,9 @@ export function usePreviewTemplate(
   options?: UsePreviewTemplateOptions
 ): UseQueryResult<TemplatePreviewResult, Error> {
   return useQuery({
-    queryKey: input
-      ? firewallTemplateKeys.preview(input.routerId, input.templateId, input.variables)
+    queryKey:
+      input ?
+        firewallTemplateKeys.preview(input.routerId, input.templateId, input.variables)
       : ['preview-placeholder'],
     queryFn: () => previewTemplate(input!),
     enabled: !!input && (options?.enabled ?? true),

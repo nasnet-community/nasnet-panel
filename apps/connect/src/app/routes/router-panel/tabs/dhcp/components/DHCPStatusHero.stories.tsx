@@ -4,7 +4,6 @@ import { DHCPStatusHero } from './DHCPStatusHero';
 
 import type { Meta, StoryObj } from '@storybook/react';
 
-
 const meta: Meta<typeof DHCPStatusHero> = {
   title: 'App/DHCP/DHCPStatusHero',
   component: DHCPStatusHero,
@@ -13,7 +12,8 @@ const meta: Meta<typeof DHCPStatusHero> = {
     layout: 'fullscreen',
     docs: {
       description: {
-        component: 'Dashboard Pro style stats grid showing DHCP overview metrics. Displays active leases, pool utilization, available IPs, active servers, and WAN client status.',
+        component:
+          'Dashboard Pro style stats grid showing DHCP overview metrics. Displays active leases, pool utilization, available IPs, active servers, and WAN client status.',
       },
     },
   },
@@ -97,7 +97,8 @@ export const Default: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'DHCP overview with healthy metrics. 45 active leases out of 151 total pool size (30% utilization), 2 active servers, all WAN clients connected.',
+        story:
+          'DHCP overview with healthy metrics. 45 active leases out of 151 total pool size (30% utilization), 2 active servers, all WAN clients connected.',
       },
     },
   },
@@ -135,8 +136,20 @@ export const PartialWANConnectivity: Story = {
     leases: mockLeases,
     pools: mockPools,
     clients: [
-      { id: 'client-1', interface: 'ether3', status: 'bound' as const, address: '10.0.0.1', disabled: false },
-      { id: 'client-2', interface: 'ether4', status: 'searching' as const, address: undefined, disabled: false },
+      {
+        id: 'client-1',
+        interface: 'ether3',
+        status: 'bound' as const,
+        address: '10.0.0.1',
+        disabled: false,
+      },
+      {
+        id: 'client-2',
+        interface: 'ether4',
+        status: 'searching' as const,
+        address: undefined,
+        disabled: false,
+      },
     ],
     isLoading: false,
   },

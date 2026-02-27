@@ -12,11 +12,7 @@ import { memo } from 'react';
 import { Clock, Calendar, Info, Trash2, Zap } from 'lucide-react';
 import { Controller } from 'react-hook-form';
 
-import {
-  DAYS_OF_WEEK,
-  DAY_PRESETS,
-  type DayPresetKey,
-} from '@nasnet/core/types';
+import { DAYS_OF_WEEK, DAY_PRESETS, type DayPresetKey } from '@nasnet/core/types';
 import {
   Dialog,
   DialogContent,
@@ -24,13 +20,13 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-
   Button,
   Card,
   Input,
   Checkbox,
   Badge,
-  Label} from '@nasnet/ui/primitives';
+  Label,
+} from '@nasnet/ui/primitives';
 
 import { RHFFormField } from '../rhf-form-field';
 import { useScheduleEditor } from './use-schedule-editor';
@@ -72,31 +68,30 @@ export const ScheduleEditorDesktop = memo(function ScheduleEditorDesktop({
   const { control, formState } = form;
 
   return (
-    <Dialog open={open} onOpenChange={onClose}>
+    <Dialog
+      open={open}
+      onOpenChange={onClose}
+    >
       <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle>
-            {mode === 'create' ? 'Create Schedule' : 'Edit Schedule'}
-          </DialogTitle>
-          <DialogDescription>
-            Set when routing should be automatically activated
-          </DialogDescription>
+          <DialogTitle>{mode === 'create' ? 'Create Schedule' : 'Edit Schedule'}</DialogTitle>
+          <DialogDescription>Set when routing should be automatically activated</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6">
           {/* Live Preview */}
-          <Card className="p-4 bg-info-light border border-info rounded-[var(--semantic-radius-card)]">
+          <Card className="bg-info-light border-info rounded-[var(--semantic-radius-card)] border p-4">
             <div className="flex items-start gap-3">
-              <Info className="h-5 w-5 text-info-dark mt-0.5 flex-shrink-0" />
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-info-dark mb-1">Preview</p>
-                <p className="text-sm text-muted-foreground whitespace-pre-wrap font-mono">
+              <Info className="text-info-dark mt-0.5 h-5 w-5 flex-shrink-0" />
+              <div className="min-w-0 flex-1">
+                <p className="text-info-dark mb-1 text-sm font-medium">Preview</p>
+                <p className="text-muted-foreground whitespace-pre-wrap font-mono text-sm">
                   {preview}
                 </p>
               </div>
               {schedule.enabled && (
                 <Badge variant="success">
-                  <Zap className="h-3 w-3 mr-1" />
+                  <Zap className="mr-1 h-3 w-3" />
                   Enabled
                 </Badge>
               )}
@@ -112,19 +107,19 @@ export const ScheduleEditorDesktop = memo(function ScheduleEditorDesktop({
 
             {/* Day Presets */}
             <div className="flex gap-2">
-              {(Object.entries(DAY_PRESETS) as [DayPresetKey, typeof DAY_PRESETS[DayPresetKey]][]).map(
-                ([key, preset]) => (
-                  <Button
-                    key={key}
-                    type="button"
-                    variant={selectedPreset === key ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => applyPreset(key)}
-                  >
-                    {preset.label}
-                  </Button>
-                )
-              )}
+              {(
+                Object.entries(DAY_PRESETS) as [DayPresetKey, (typeof DAY_PRESETS)[DayPresetKey]][]
+              ).map(([key, preset]) => (
+                <Button
+                  key={key}
+                  type="button"
+                  variant={selectedPreset === key ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => applyPreset(key)}
+                >
+                  {preset.label}
+                </Button>
+              ))}
             </div>
 
             {/* Individual Days */}
@@ -153,7 +148,7 @@ export const ScheduleEditorDesktop = memo(function ScheduleEditorDesktop({
                           />
                           <Label
                             htmlFor={`day-${day.value}`}
-                            className="text-xs font-medium cursor-pointer"
+                            className="cursor-pointer text-xs font-medium"
                           >
                             {day.short}
                           </Label>
@@ -188,7 +183,7 @@ export const ScheduleEditorDesktop = memo(function ScheduleEditorDesktop({
                       {...field}
                       type="time"
                       value={field.value || ''}
-                      className="font-mono rounded-[var(--semantic-radius-input)]"
+                      className="rounded-[var(--semantic-radius-input)] font-mono"
                     />
                   )}
                 />
@@ -215,7 +210,7 @@ export const ScheduleEditorDesktop = memo(function ScheduleEditorDesktop({
                       {...field}
                       type="time"
                       value={field.value || ''}
-                      className="font-mono rounded-[var(--semantic-radius-input)]"
+                      className="rounded-[var(--semantic-radius-input)] font-mono"
                     />
                   )}
                 />
@@ -239,9 +234,9 @@ export const ScheduleEditorDesktop = memo(function ScheduleEditorDesktop({
                     {...field}
                     placeholder="America/New_York"
                     value={field.value || ''}
-                    className="font-mono rounded-[var(--semantic-radius-input)]"
+                    className="rounded-[var(--semantic-radius-input)] font-mono"
                   />
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-muted-foreground text-xs">
                     Current timezone: {Intl.DateTimeFormat().resolvedOptions().timeZone}
                   </p>
                 </div>
@@ -250,7 +245,7 @@ export const ScheduleEditorDesktop = memo(function ScheduleEditorDesktop({
           </RHFFormField>
         </div>
 
-        <DialogFooter className="flex justify-between items-center">
+        <DialogFooter className="flex items-center justify-between">
           <div>
             {mode === 'edit' && onDelete && (
               <Button
@@ -259,7 +254,7 @@ export const ScheduleEditorDesktop = memo(function ScheduleEditorDesktop({
                 onClick={onDelete}
                 disabled={isDeleting || isSaving}
               >
-                <Trash2 className="h-4 w-4 mr-2" />
+                <Trash2 className="mr-2 h-4 w-4" />
                 Delete
               </Button>
             )}
@@ -279,7 +274,11 @@ export const ScheduleEditorDesktop = memo(function ScheduleEditorDesktop({
               onClick={editor.onSubmit}
               disabled={!formState.isValid || isSaving || isDeleting}
             >
-              {isSaving ? 'Saving...' : mode === 'create' ? 'Create' : 'Save'}
+              {isSaving ?
+                'Saving...'
+              : mode === 'create' ?
+                'Create'
+              : 'Save'}
             </Button>
           </div>
         </DialogFooter>

@@ -4,11 +4,11 @@
  */
 
 import { useQuery, UseQueryResult } from '@tanstack/react-query';
-import type { 
-  VPNDashboardStats, 
+import type {
+  VPNDashboardStats,
   VPNProtocolStats,
   VPNIssue,
-  VPNProtocol 
+  VPNProtocol,
 } from '@nasnet/core/types';
 import { vpnKeys } from './queryKeys';
 
@@ -47,7 +47,7 @@ export function useVPNStats(routerIp: string): UseQueryResult<VPNDashboardStats,
   const pppActiveQuery = usePPPActive(routerIp);
 
   // Combine loading states
-  const isLoading = 
+  const isLoading =
     wireguardQuery.isLoading ||
     openvpnServersQuery.isLoading ||
     openvpnClientsQuery.isLoading ||
@@ -81,7 +81,9 @@ export function useVPNStats(routerIp: string): UseQueryResult<VPNDashboardStats,
       const protocolStats: VPNProtocolStats[] = [];
 
       // WireGuard stats
-      const wgActiveServers = wireguardInterfaces.filter(i => !i.isDisabled && i.isRunning).length;
+      const wgActiveServers = wireguardInterfaces.filter(
+        (i) => !i.isDisabled && i.isRunning
+      ).length;
       const wgRx = wireguardInterfaces.reduce((sum, i) => sum + (i.rx || 0), 0);
       const wgTx = wireguardInterfaces.reduce((sum, i) => sum + (i.tx || 0), 0);
       protocolStats.push({
@@ -89,15 +91,15 @@ export function useVPNStats(routerIp: string): UseQueryResult<VPNDashboardStats,
         serverCount: wireguardInterfaces.length,
         clientCount: wireguardPeers.length,
         activeServerConnections: wgActiveServers,
-        activeClientConnections: wireguardPeers.filter(p => !p.isDisabled).length,
+        activeClientConnections: wireguardPeers.filter((p) => !p.isDisabled).length,
         totalRx: wgRx,
         totalTx: wgTx,
       });
 
       // OpenVPN stats
-      const ovpnActiveServers = openvpnServers.filter(s => !s.isDisabled && s.isRunning).length;
-      const ovpnActiveClients = openvpnClients.filter(c => !c.isDisabled && c.isRunning).length;
-      const ovpnServerConnections = pppActive.filter(p => p.service === 'ovpn').length;
+      const ovpnActiveServers = openvpnServers.filter((s) => !s.isDisabled && s.isRunning).length;
+      const ovpnActiveClients = openvpnClients.filter((c) => !c.isDisabled && c.isRunning).length;
+      const ovpnServerConnections = pppActive.filter((p) => p.service === 'ovpn').length;
       const ovpnRx = openvpnClients.reduce((sum, c) => sum + (c.rx || 0), 0);
       const ovpnTx = openvpnClients.reduce((sum, c) => sum + (c.tx || 0), 0);
       protocolStats.push({
@@ -112,8 +114,8 @@ export function useVPNStats(routerIp: string): UseQueryResult<VPNDashboardStats,
 
       // L2TP stats
       const l2tpServerActive = l2tpServer?.isRunning ? 1 : 0;
-      const l2tpActiveClients = l2tpClients.filter(c => !c.isDisabled && c.isRunning).length;
-      const l2tpServerConnections = pppActive.filter(p => p.service === 'l2tp').length;
+      const l2tpActiveClients = l2tpClients.filter((c) => !c.isDisabled && c.isRunning).length;
+      const l2tpServerConnections = pppActive.filter((p) => p.service === 'l2tp').length;
       const l2tpRx = l2tpClients.reduce((sum, c) => sum + (c.rx || 0), 0);
       const l2tpTx = l2tpClients.reduce((sum, c) => sum + (c.tx || 0), 0);
       protocolStats.push({
@@ -128,8 +130,8 @@ export function useVPNStats(routerIp: string): UseQueryResult<VPNDashboardStats,
 
       // PPTP stats
       const pptpServerActive = pptpServer?.isRunning ? 1 : 0;
-      const pptpActiveClients = pptpClients.filter(c => !c.isDisabled && c.isRunning).length;
-      const pptpServerConnections = pppActive.filter(p => p.service === 'pptp').length;
+      const pptpActiveClients = pptpClients.filter((c) => !c.isDisabled && c.isRunning).length;
+      const pptpServerConnections = pppActive.filter((p) => p.service === 'pptp').length;
       const pptpRx = pptpClients.reduce((sum, c) => sum + (c.rx || 0), 0);
       const pptpTx = pptpClients.reduce((sum, c) => sum + (c.tx || 0), 0);
       protocolStats.push({
@@ -144,8 +146,8 @@ export function useVPNStats(routerIp: string): UseQueryResult<VPNDashboardStats,
 
       // SSTP stats
       const sstpServerActive = sstpServer?.isRunning ? 1 : 0;
-      const sstpActiveClients = sstpClients.filter(c => !c.isDisabled && c.isRunning).length;
-      const sstpServerConnections = pppActive.filter(p => p.service === 'sstp').length;
+      const sstpActiveClients = sstpClients.filter((c) => !c.isDisabled && c.isRunning).length;
+      const sstpServerConnections = pppActive.filter((p) => p.service === 'sstp').length;
       const sstpRx = sstpClients.reduce((sum, c) => sum + (c.rx || 0), 0);
       const sstpTx = sstpClients.reduce((sum, c) => sum + (c.tx || 0), 0);
       protocolStats.push({
@@ -159,16 +161,16 @@ export function useVPNStats(routerIp: string): UseQueryResult<VPNDashboardStats,
       });
 
       // IKEv2/IPsec stats
-      const ipsecServerPeers = ipsecPeers.filter(p => p.isPassive);
-      const ipsecClientPeers = ipsecPeers.filter(p => !p.isPassive);
+      const ipsecServerPeers = ipsecPeers.filter((p) => p.isPassive);
+      const ipsecClientPeers = ipsecPeers.filter((p) => !p.isPassive);
       const ipsecRx = ipsecActive.reduce((sum, a) => sum + (a.rx || 0), 0);
       const ipsecTx = ipsecActive.reduce((sum, a) => sum + (a.tx || 0), 0);
       protocolStats.push({
         protocol: 'ikev2',
         serverCount: ipsecServerPeers.length,
         clientCount: ipsecClientPeers.length,
-        activeServerConnections: ipsecActive.filter(a => a.side === 'responder').length,
-        activeClientConnections: ipsecActive.filter(a => a.side === 'initiator').length,
+        activeServerConnections: ipsecActive.filter((a) => a.side === 'responder').length,
+        activeClientConnections: ipsecActive.filter((a) => a.side === 'initiator').length,
         totalRx: ipsecRx,
         totalTx: ipsecTx,
       });
@@ -176,11 +178,19 @@ export function useVPNStats(routerIp: string): UseQueryResult<VPNDashboardStats,
       // Calculate totals
       const totalServers = protocolStats.reduce((sum, p) => sum + p.serverCount, 0);
       const totalClients = protocolStats.reduce((sum, p) => sum + p.clientCount, 0);
-      const activeServers = protocolStats.reduce((sum, p) => 
-        sum + (p.serverCount > 0 && p.activeServerConnections > 0 ? 1 : 0), 0);
+      const activeServers = protocolStats.reduce(
+        (sum, p) => sum + (p.serverCount > 0 && p.activeServerConnections > 0 ? 1 : 0),
+        0
+      );
       const activeClients = protocolStats.reduce((sum, p) => sum + p.activeClientConnections, 0);
-      const totalServerConnections = protocolStats.reduce((sum, p) => sum + p.activeServerConnections, 0);
-      const totalClientConnections = protocolStats.reduce((sum, p) => sum + p.activeClientConnections, 0);
+      const totalServerConnections = protocolStats.reduce(
+        (sum, p) => sum + p.activeServerConnections,
+        0
+      );
+      const totalClientConnections = protocolStats.reduce(
+        (sum, p) => sum + p.activeClientConnections,
+        0
+      );
       const totalRx = protocolStats.reduce((sum, p) => sum + p.totalRx, 0);
       const totalTx = protocolStats.reduce((sum, p) => sum + p.totalTx, 0);
 
@@ -188,48 +198,54 @@ export function useVPNStats(routerIp: string): UseQueryResult<VPNDashboardStats,
       const issues: VPNIssue[] = [];
 
       // Check for disabled but configured clients
-      openvpnClients.filter(c => c.isDisabled).forEach(c => {
-        issues.push({
-          id: `ovpn-client-disabled-${c.id}`,
-          severity: 'warning',
-          protocol: 'openvpn',
-          entityType: 'client',
-          entityName: c.name,
-          message: 'OpenVPN client is disabled',
-          timestamp: new Date(),
+      openvpnClients
+        .filter((c) => c.isDisabled)
+        .forEach((c) => {
+          issues.push({
+            id: `ovpn-client-disabled-${c.id}`,
+            severity: 'warning',
+            protocol: 'openvpn',
+            entityType: 'client',
+            entityName: c.name,
+            message: 'OpenVPN client is disabled',
+            timestamp: new Date(),
+          });
         });
-      });
 
-      l2tpClients.filter(c => c.isDisabled).forEach(c => {
-        issues.push({
-          id: `l2tp-client-disabled-${c.id}`,
-          severity: 'warning',
-          protocol: 'l2tp',
-          entityType: 'client',
-          entityName: c.name,
-          message: 'L2TP client is disabled',
-          timestamp: new Date(),
+      l2tpClients
+        .filter((c) => c.isDisabled)
+        .forEach((c) => {
+          issues.push({
+            id: `l2tp-client-disabled-${c.id}`,
+            severity: 'warning',
+            protocol: 'l2tp',
+            entityType: 'client',
+            entityName: c.name,
+            message: 'L2TP client is disabled',
+            timestamp: new Date(),
+          });
         });
-      });
 
       // Check for not running but enabled clients
-      openvpnClients.filter(c => !c.isDisabled && !c.isRunning).forEach(c => {
-        issues.push({
-          id: `ovpn-client-notrunning-${c.id}`,
-          severity: 'error',
-          protocol: 'openvpn',
-          entityType: 'client',
-          entityName: c.name,
-          message: 'OpenVPN client is not connected',
-          timestamp: new Date(),
+      openvpnClients
+        .filter((c) => !c.isDisabled && !c.isRunning)
+        .forEach((c) => {
+          issues.push({
+            id: `ovpn-client-notrunning-${c.id}`,
+            severity: 'error',
+            protocol: 'openvpn',
+            entityType: 'client',
+            entityName: c.name,
+            message: 'OpenVPN client is not connected',
+            timestamp: new Date(),
+          });
         });
-      });
 
       // Determine overall health
       let overallHealth: 'healthy' | 'warning' | 'critical' = 'healthy';
-      const errorCount = issues.filter(i => i.severity === 'error').length;
-      const warningCount = issues.filter(i => i.severity === 'warning').length;
-      
+      const errorCount = issues.filter((i) => i.severity === 'error').length;
+      const warningCount = issues.filter((i) => i.severity === 'warning').length;
+
       if (errorCount > 0) {
         overallHealth = 'critical';
       } else if (warningCount > 0) {
@@ -257,4 +273,3 @@ export function useVPNStats(routerIp: string): UseQueryResult<VPNDashboardStats,
     enabled: !!routerIp && !isLoading,
   });
 }
-

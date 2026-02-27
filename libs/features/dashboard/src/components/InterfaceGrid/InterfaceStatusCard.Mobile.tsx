@@ -87,9 +87,9 @@ const InterfaceStatusCardMobileComponent = React.memo(function InterfaceStatusCa
       onClick={memoizedHandleClick}
       onKeyDown={handleKeyDown}
       className={cn(
-        'cursor-pointer transition-all min-h-[44px]', // 44px touch target (WCAG AAA)
+        'min-h-[44px] cursor-pointer transition-all', // 44px touch target (WCAG AAA)
         'active:bg-accent', // Touch feedback
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+        'focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
         status.bgClass,
         !prefersReducedMotion && isStatusChanged && 'animate-pulse',
         className
@@ -98,12 +98,12 @@ const InterfaceStatusCardMobileComponent = React.memo(function InterfaceStatusCa
       <CardContent className="p-component-sm">
         {/* Compact header: Icon + Name + Status */}
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-component-sm min-w-0">
+          <div className="gap-component-sm flex min-w-0 items-center">
             <InterfaceTypeIcon
               type={iface.type}
               className="h-4 w-4 shrink-0"
             />
-            <span className="font-medium text-sm truncate">{iface.name}</span>
+            <span className="truncate text-sm font-medium">{iface.name}</span>
           </div>
           <StatusIcon
             className={cn('h-4 w-4 shrink-0', status.iconClass)}
@@ -112,19 +112,22 @@ const InterfaceStatusCardMobileComponent = React.memo(function InterfaceStatusCa
         </div>
 
         {/* Combined traffic on single line */}
-        <div className="text-xs text-muted-foreground mt-component-xs">
+        <div className="text-muted-foreground mt-component-xs text-xs">
           ↑{formatTrafficRate(iface.txRate)} ↓{formatTrafficRate(iface.rxRate)}
         </div>
 
         {/* IP address if available */}
         {iface.ip && (
-          <div className="text-xs font-mono text-muted-foreground mt-component-xs truncate">
+          <div className="text-muted-foreground mt-component-xs truncate font-mono text-xs">
             {iface.ip}
           </div>
         )}
 
         {/* Screen reader details */}
-        <span id={detailsId} className="sr-only">
+        <span
+          id={detailsId}
+          className="sr-only"
+        >
           Status {status.label}, TX: {formatTrafficRate(iface.txRate)}, RX:{' '}
           {formatTrafficRate(iface.rxRate)}
         </span>

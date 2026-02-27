@@ -112,12 +112,7 @@ export interface AuthActions {
    * @param expiresAt - Token expiration timestamp
    * @param refreshToken - Optional refresh token
    */
-  setAuth: (
-    token: string,
-    user: User,
-    expiresAt: Date,
-    refreshToken?: string
-  ) => void;
+  setAuth: (token: string, user: User, expiresAt: Date, refreshToken?: string) => void;
 
   /**
    * Clear all authentication state (logout)
@@ -327,13 +322,11 @@ export const useAuthStore = create<AuthState & AuthActions>()(
             'incrementRefreshAttempts'
           ),
 
-        resetRefreshAttempts: () =>
-          set({ refreshAttempts: 0 }, false, 'resetRefreshAttempts'),
+        resetRefreshAttempts: () => set({ refreshAttempts: 0 }, false, 'resetRefreshAttempts'),
 
         // ===== Activity Tracking =====
 
-        updateLastActivity: () =>
-          set({ lastActivity: new Date() }, false, 'updateLastActivity'),
+        updateLastActivity: () => set({ lastActivity: new Date() }, false, 'updateLastActivity'),
 
         // ===== Token State Queries =====
 
@@ -382,7 +375,9 @@ export const useAuthStore = create<AuthState & AuthActions>()(
     ),
     {
       name: 'auth-store',
-      enabled: typeof window !== 'undefined' && (typeof import.meta !== 'undefined' ? import.meta.env?.DEV !== false : true),
+      enabled:
+        typeof window !== 'undefined' &&
+        (typeof import.meta !== 'undefined' ? import.meta.env?.DEV !== false : true),
     }
   )
 );
@@ -423,8 +418,7 @@ export const selectMaxRefreshExceeded = (state: AuthState) =>
 /**
  * Select user permissions
  */
-export const selectPermissions = (state: AuthState) =>
-  state.user?.permissions ?? [];
+export const selectPermissions = (state: AuthState) => state.user?.permissions ?? [];
 
 /**
  * Check if user has a specific permission

@@ -52,13 +52,10 @@ const createMockState = (
     error: null,
     isOnline: status === 'CONNECTED',
     statusLabel:
-      status === 'CONNECTED'
-        ? 'Connected'
-        : status === 'CONNECTING'
-          ? 'Connecting...'
-          : status === 'DISCONNECTED'
-            ? 'Disconnected'
-            : 'Error',
+      status === 'CONNECTED' ? 'Connected'
+      : status === 'CONNECTING' ? 'Connecting...'
+      : status === 'DISCONNECTED' ? 'Disconnected'
+      : 'Error',
     lastSeenRelative: status !== 'CONNECTED' ? '30 seconds ago' : null,
     refresh: async () => console.log('Refresh clicked'),
     reconnect: async () => console.log('Reconnect clicked'),
@@ -69,10 +66,7 @@ const createMockState = (
 };
 
 // Apollo mock for subscription
-const createSubscriptionMock = (
-  routerId: string,
-  status: ConnectionStatus
-): MockedResponse => ({
+const createSubscriptionMock = (routerId: string, status: ConnectionStatus): MockedResponse => ({
   request: {
     query: ROUTER_STATUS_CHANGED_SUBSCRIPTION,
     variables: { routerId },
@@ -112,7 +106,7 @@ const meta: Meta<typeof RouterStatus> = {
         mocks={[createSubscriptionMock('router-1', 'CONNECTED')]}
         addTypename={false}
       >
-        <div className="p-4 max-w-md">
+        <div className="max-w-md p-4">
           <StoryComponent />
         </div>
       </MockedProvider>
@@ -238,8 +232,8 @@ export const MobileCompact: Story = {
   globals: {
     viewport: {
       value: 'mobile1',
-      isRotated: false
-    }
+      isRotated: false,
+    },
   },
 };
 
@@ -259,8 +253,8 @@ export const MobileDisconnected: Story = {
   globals: {
     viewport: {
       value: 'mobile1',
-      isRotated: false
-    }
+      isRotated: false,
+    },
   },
 };
 
@@ -279,8 +273,8 @@ export const MobileReconnecting: Story = {
   globals: {
     viewport: {
       value: 'mobile1',
-      isRotated: false
-    }
+      isRotated: false,
+    },
   },
 };
 
@@ -290,7 +284,7 @@ export const MobileReconnecting: Story = {
 export const DarkMode: Story = {
   decorators: [
     (StoryComponent) => (
-      <div className="dark bg-gray-900 p-4 rounded-lg">
+      <div className="dark rounded-lg bg-gray-900 p-4">
         <StoryComponent />
       </div>
     ),
@@ -301,8 +295,8 @@ export const DarkMode: Story = {
   },
   globals: {
     backgrounds: {
-      value: "dark"
-    }
+      value: 'dark',
+    },
   },
 };
 
@@ -326,15 +320,24 @@ export const StatusIndicatorSizes: Story = {
   render: () => (
     <div className="flex items-center gap-4">
       <div className="flex flex-col items-center gap-2">
-        <StatusIndicator status="CONNECTED" size="sm" />
+        <StatusIndicator
+          status="CONNECTED"
+          size="sm"
+        />
         <span className="text-xs">Small (12px)</span>
       </div>
       <div className="flex flex-col items-center gap-2">
-        <StatusIndicator status="CONNECTED" size="md" />
+        <StatusIndicator
+          status="CONNECTED"
+          size="md"
+        />
         <span className="text-xs">Medium (16px)</span>
       </div>
       <div className="flex flex-col items-center gap-2">
-        <StatusIndicator status="CONNECTED" size="lg" />
+        <StatusIndicator
+          status="CONNECTED"
+          size="lg"
+        />
         <span className="text-xs">Large (24px)</span>
       </div>
     </div>
@@ -348,19 +351,31 @@ export const StatusIndicatorStates: Story = {
   render: () => (
     <div className="flex items-center gap-6">
       <div className="flex flex-col items-center gap-2">
-        <StatusIndicator status="CONNECTED" size="lg" />
+        <StatusIndicator
+          status="CONNECTED"
+          size="lg"
+        />
         <span className="text-xs">Connected</span>
       </div>
       <div className="flex flex-col items-center gap-2">
-        <StatusIndicator status="CONNECTING" size="lg" />
+        <StatusIndicator
+          status="CONNECTING"
+          size="lg"
+        />
         <span className="text-xs">Connecting</span>
       </div>
       <div className="flex flex-col items-center gap-2">
-        <StatusIndicator status="DISCONNECTED" size="lg" />
+        <StatusIndicator
+          status="DISCONNECTED"
+          size="lg"
+        />
         <span className="text-xs">Disconnected</span>
       </div>
       <div className="flex flex-col items-center gap-2">
-        <StatusIndicator status="ERROR" size="lg" />
+        <StatusIndicator
+          status="ERROR"
+          size="lg"
+        />
         <span className="text-xs">Error</span>
       </div>
     </div>
@@ -389,10 +404,8 @@ export const Interactive: Story = {
             <button
               key={s}
               onClick={() => setStatus(s)}
-              className={`px-3 py-1 rounded text-sm ${
-                status === s
-                  ? 'bg-primary text-primary-foreground'
-                  : 'bg-gray-100 dark:bg-gray-800'
+              className={`rounded px-3 py-1 text-sm ${
+                status === s ? 'bg-primary text-primary-foreground' : 'bg-gray-100 dark:bg-gray-800'
               }`}
             >
               {s}
@@ -422,17 +435,19 @@ export const Accessibility: Story = {
 
     const handleStatusChange = () => {
       const nextStatus =
-        status === 'CONNECTED'
-          ? 'DISCONNECTED'
-          : status === 'DISCONNECTED'
-            ? 'CONNECTING'
-            : status === 'CONNECTING'
-              ? 'ERROR'
-              : 'CONNECTED';
+        status === 'CONNECTED' ? 'DISCONNECTED'
+        : status === 'DISCONNECTED' ? 'CONNECTING'
+        : status === 'CONNECTING' ? 'ERROR'
+        : 'CONNECTED';
 
       setStatus(nextStatus);
       setAnnouncement(
-        `Router status changed to ${nextStatus === 'CONNECTED' ? 'Connected' : nextStatus === 'CONNECTING' ? 'Connecting' : nextStatus === 'DISCONNECTED' ? 'Disconnected' : 'Error'}`
+        `Router status changed to ${
+          nextStatus === 'CONNECTED' ? 'Connected'
+          : nextStatus === 'CONNECTING' ? 'Connecting'
+          : nextStatus === 'DISCONNECTED' ? 'Disconnected'
+          : 'Error'
+        }`
       );
 
       // Clear announcement after 3 seconds
@@ -441,13 +456,13 @@ export const Accessibility: Story = {
 
     return (
       <div className="space-y-4">
-        <p className="text-sm text-muted-foreground">
+        <p className="text-muted-foreground text-sm">
           Click the button to cycle through status changes and see ARIA live announcements.
         </p>
 
         <button
           onClick={handleStatusChange}
-          className="px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90 focus:ring-2 focus:ring-primary focus:ring-offset-2"
+          className="bg-primary text-primary-foreground hover:bg-primary/90 focus:ring-primary rounded px-4 py-2 focus:ring-2 focus:ring-offset-2"
         >
           Change Status
         </button>
@@ -457,7 +472,7 @@ export const Accessibility: Story = {
         {/* Visible ARIA announcement (for demo purposes) */}
         {announcement && (
           <div
-            className="p-3 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded text-sm"
+            className="rounded bg-blue-100 p-3 text-sm text-blue-800 dark:bg-blue-900 dark:text-blue-200"
             aria-hidden="true"
           >
             <strong>Screen reader would announce:</strong> {announcement}

@@ -63,8 +63,8 @@ export const RoutingStep = React.memo(function RoutingStep({
   );
 
   const description = useMemo(() => {
-    return hasSuggestions
-      ? 'Select routing rules to apply for your newly installed services'
+    return hasSuggestions ?
+        'Select routing rules to apply for your newly installed services'
       : 'This template has no routing suggestions';
   }, [hasSuggestions]);
 
@@ -79,14 +79,14 @@ export const RoutingStep = React.memo(function RoutingStep({
     <div className={cn('space-y-component-lg', className)}>
       <div>
         <h2 className="text-lg font-semibold">Configure Routing (Optional)</h2>
-        <p className="text-sm text-muted-foreground mt-component-sm">{description}</p>
+        <p className="text-muted-foreground mt-component-sm text-sm">{description}</p>
       </div>
 
-      {hasSuggestions ? (
+      {hasSuggestions ?
         <>
           <Card>
             <CardHeader>
-              <CardTitle className="text-base flex items-center gap-component-sm">
+              <CardTitle className="gap-component-sm flex items-center text-base">
                 <Icon
                   icon={Route}
                   className="h-4 w-4"
@@ -103,7 +103,7 @@ export const RoutingStep = React.memo(function RoutingStep({
                 return (
                   <div
                     key={ruleId}
-                    className="flex items-start gap-component-md p-component-sm rounded-[var(--semantic-radius-button)] border border-border hover:bg-muted/50 transition-colors"
+                    className="gap-component-md p-component-sm border-border hover:bg-muted/50 flex items-start rounded-[var(--semantic-radius-button)] border transition-colors"
                   >
                     <Checkbox
                       id={ruleId}
@@ -112,14 +112,14 @@ export const RoutingStep = React.memo(function RoutingStep({
                       className="mt-1"
                       aria-label={`Select routing rule: ${rule.description}`}
                     />
-                    <div className="flex-1 space-y-component-sm">
+                    <div className="space-y-component-sm flex-1">
                       <Label
                         htmlFor={ruleId}
                         className="cursor-pointer font-medium"
                       >
                         {rule.description}
                       </Label>
-                      <div className="text-sm text-muted-foreground space-y-component-sm">
+                      <div className="text-muted-foreground space-y-component-sm text-sm">
                         <p>
                           <span className="font-medium">Devices:</span>{' '}
                           <span className="font-mono">{rule.devicePattern}</span>
@@ -137,9 +137,7 @@ export const RoutingStep = React.memo(function RoutingStep({
                         {rule.destinationPort && (
                           <p>
                             <span className="font-medium">Port:</span>{' '}
-                            <span className="font-mono">
-                              {rule.destinationPort}
-                            </span>
+                            <span className="font-mono">{rule.destinationPort}</span>
                           </p>
                         )}
                       </div>
@@ -147,7 +145,7 @@ export const RoutingStep = React.memo(function RoutingStep({
                     {isSelected && (
                       <Icon
                         icon={CheckCircle2}
-                        className="h-5 w-5 text-primary shrink-0"
+                        className="text-primary h-5 w-5 shrink-0"
                         aria-hidden="true"
                       />
                     )}
@@ -160,10 +158,10 @@ export const RoutingStep = React.memo(function RoutingStep({
           {selectedRuleIds.length > 0 && (
             <Card className="border-primary border-2">
               <CardContent className="pt-component-md">
-                <div className="flex items-center gap-component-sm text-sm">
+                <div className="gap-component-sm flex items-center text-sm">
                   <Icon
                     icon={CheckCircle2}
-                    className="h-4 w-4 text-primary"
+                    className="text-primary h-4 w-4"
                     aria-hidden="true"
                   />
                   <span className="font-medium">
@@ -175,23 +173,22 @@ export const RoutingStep = React.memo(function RoutingStep({
             </Card>
           )}
         </>
-      ) : (
-        <Card>
+      : <Card>
           <CardContent className="py-component-lg text-center">
             <Icon
               icon={Route}
-              className="h-12 w-12 mx-auto text-muted-foreground/50 mb-component-md"
+              className="text-muted-foreground/50 mb-component-md mx-auto h-12 w-12"
               aria-hidden="true"
             />
             <p className="text-muted-foreground">
               This template doesn't include routing suggestions
             </p>
-            <p className="text-sm text-muted-foreground mt-component-md">
+            <p className="text-muted-foreground mt-component-md text-sm">
               You can configure routing manually later
             </p>
           </CardContent>
         </Card>
-      )}
+      }
     </div>
   );
 });

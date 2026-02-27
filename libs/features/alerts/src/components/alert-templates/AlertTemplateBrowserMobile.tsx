@@ -76,8 +76,7 @@ interface FilterSheetProps {
 }
 
 function FilterSheet({ browser }: FilterSheetProps) {
-  const { filter, setFilter, clearFilter, hasActiveFilter, categoryCount, severityCount } =
-    browser;
+  const { filter, setFilter, clearFilter, hasActiveFilter, categoryCount, severityCount } = browser;
 
   const categories = getAllCategories();
   const severities = ['CRITICAL', 'WARNING', 'INFO'] as const;
@@ -91,10 +90,17 @@ function FilterSheet({ browser }: FilterSheetProps) {
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button variant="outline" size="default" className="w-full min-h-[44px]">
+        <Button
+          variant="outline"
+          size="default"
+          className="min-h-[44px] w-full"
+        >
           <span>Filters</span>
           {hasActiveFilter && (
-            <Badge variant="secondary" className="ml-2">
+            <Badge
+              variant="secondary"
+              className="ml-2"
+            >
               Active
             </Badge>
           )}
@@ -115,7 +121,7 @@ function FilterSheet({ browser }: FilterSheetProps) {
             <Button
               variant="outline"
               onClick={clearFilter}
-              className="w-full min-h-[44px]"
+              className="min-h-[44px] w-full"
               aria-label="Clear all filters"
             >
               Clear All Filters
@@ -139,21 +145,24 @@ function FilterSheet({ browser }: FilterSheetProps) {
           {/* Category filter */}
           <div className="space-y-component-sm">
             <Label>Category</Label>
-            <div className="grid grid-cols-2 gap-component-sm">
+            <div className="gap-component-sm grid grid-cols-2">
               {/* All categories option */}
               <button
                 onClick={() => setFilter({ category: 'all' })}
                 className={cn(
-                  'min-h-[44px] px-3 py-2 rounded-md text-sm transition-colors',
-                  'border hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 outline-none',
+                  'min-h-[44px] rounded-md px-3 py-2 text-sm transition-colors',
+                  'hover:bg-muted focus-visible:ring-ring border outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
                   filter.category === 'all' &&
                     'bg-primary text-primary-foreground hover:bg-primary/90'
                 )}
                 aria-label="Show all categories"
               >
-                <div className="flex flex-col items-start gap-component-xs">
+                <div className="gap-component-xs flex flex-col items-start">
                   <span className="text-xs font-medium">All</span>
-                  <Badge variant="outline" className="text-xs">
+                  <Badge
+                    variant="outline"
+                    className="text-xs"
+                  >
                     {browser.totalCount}
                   </Badge>
                 </div>
@@ -169,15 +178,18 @@ function FilterSheet({ browser }: FilterSheetProps) {
                     key={cat.id}
                     onClick={() => setFilter({ category: cat.id })}
                     className={cn(
-                      'min-h-[44px] px-3 py-2 rounded-md text-sm transition-colors',
-                      'border hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 outline-none',
+                      'min-h-[44px] rounded-md px-3 py-2 text-sm transition-colors',
+                      'hover:bg-muted focus-visible:ring-ring border outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
                       isActive && 'bg-primary text-primary-foreground hover:bg-primary/90'
                     )}
                     aria-label={`Filter by ${cat.label} category`}
                   >
-                    <div className="flex flex-col items-start gap-component-xs">
+                    <div className="gap-component-xs flex flex-col items-start">
                       <span className="text-xs font-medium">{cat.label}</span>
-                      <Badge variant="outline" className="text-xs">
+                      <Badge
+                        variant="outline"
+                        className="text-xs"
+                      >
                         {count}
                       </Badge>
                     </div>
@@ -190,21 +202,24 @@ function FilterSheet({ browser }: FilterSheetProps) {
           {/* Severity filter */}
           <div className="space-y-component-sm">
             <Label>Severity</Label>
-            <div className="grid grid-cols-2 gap-component-sm">
+            <div className="gap-component-sm grid grid-cols-2">
               {/* All severities option */}
               <button
                 onClick={() => setFilter({ severity: 'all' })}
                 className={cn(
-                  'min-h-[44px] px-3 py-2 rounded-md text-sm transition-colors',
-                  'border hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 outline-none',
+                  'min-h-[44px] rounded-md px-3 py-2 text-sm transition-colors',
+                  'hover:bg-muted focus-visible:ring-ring border outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
                   filter.severity === 'all' &&
                     'bg-primary text-primary-foreground hover:bg-primary/90'
                 )}
                 aria-label="Show all severities"
               >
-                <div className="flex flex-col items-start gap-component-xs">
+                <div className="gap-component-xs flex flex-col items-start">
                   <span className="text-xs font-medium">All</span>
-                  <Badge variant="outline" className="text-xs">
+                  <Badge
+                    variant="outline"
+                    className="text-xs"
+                  >
                     {browser.totalCount}
                   </Badge>
                 </div>
@@ -220,15 +235,18 @@ function FilterSheet({ browser }: FilterSheetProps) {
                     key={sev}
                     onClick={() => setFilter({ severity: sev })}
                     className={cn(
-                      'min-h-[44px] px-3 py-2 rounded-md text-sm transition-colors',
-                      'border hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 outline-none',
+                      'min-h-[44px] rounded-md px-3 py-2 text-sm transition-colors',
+                      'hover:bg-muted focus-visible:ring-ring border outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
                       isActive && 'bg-primary text-primary-foreground hover:bg-primary/90'
                     )}
                     aria-label={`Filter by ${severityLabels[sev]} severity`}
                   >
-                    <div className="flex flex-col items-start gap-component-xs">
+                    <div className="gap-component-xs flex flex-col items-start">
                       <span className="text-xs font-medium">{severityLabels[sev]}</span>
-                      <Badge variant="outline" className="text-xs">
+                      <Badge
+                        variant="outline"
+                        className="text-xs"
+                      >
                         {count}
                       </Badge>
                     </div>
@@ -241,7 +259,7 @@ function FilterSheet({ browser }: FilterSheetProps) {
           {/* Built-in / Custom toggle */}
           <div className="space-y-component-sm">
             <Label>Template Type</Label>
-            <div className="grid grid-cols-2 gap-component-sm">
+            <div className="gap-component-sm grid grid-cols-2">
               <button
                 onClick={() =>
                   setFilter({
@@ -250,8 +268,8 @@ function FilterSheet({ browser }: FilterSheetProps) {
                   })
                 }
                 className={cn(
-                  'min-h-[44px] px-4 py-2 rounded-md text-sm transition-colors',
-                  'border hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 outline-none',
+                  'min-h-[44px] rounded-md px-4 py-2 text-sm transition-colors',
+                  'hover:bg-muted focus-visible:ring-ring border outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
                   filter.builtInOnly && 'bg-primary text-primary-foreground hover:bg-primary/90'
                 )}
                 aria-label="Show only built-in templates"
@@ -266,8 +284,8 @@ function FilterSheet({ browser }: FilterSheetProps) {
                   })
                 }
                 className={cn(
-                  'min-h-[44px] px-4 py-2 rounded-md text-sm transition-colors',
-                  'border hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 outline-none',
+                  'min-h-[44px] rounded-md px-4 py-2 text-sm transition-colors',
+                  'hover:bg-muted focus-visible:ring-ring border outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
                   filter.customOnly && 'bg-primary text-primary-foreground hover:bg-primary/90'
                 )}
                 aria-label="Show only custom templates"
@@ -318,8 +336,8 @@ const TemplateCardComponent = React.memo(function TemplateCardComponent({
   return (
     <Card
       className={cn(
-        'cursor-pointer transition-all focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
-        isSelected && 'ring-2 ring-primary'
+        'focus-visible:ring-ring cursor-pointer transition-all focus-visible:ring-2 focus-visible:ring-offset-2',
+        isSelected && 'ring-primary ring-2'
       )}
       onClick={onClick}
       role="button"
@@ -333,17 +351,23 @@ const TemplateCardComponent = React.memo(function TemplateCardComponent({
       }}
     >
       <CardHeader className="pb-component-sm">
-        <div className="flex flex-col gap-component-sm">
+        <div className="gap-component-sm flex flex-col">
           <CardTitle className="text-base">{template.name}</CardTitle>
-          <div className="flex flex-wrap items-center gap-component-sm">
-            <Badge variant="outline" className={cn('text-xs', categoryMeta.color)}>
+          <div className="gap-component-sm flex flex-wrap items-center">
+            <Badge
+              variant="outline"
+              className={cn('text-xs', categoryMeta.color)}
+            >
               {categoryMeta.label}
             </Badge>
             <Badge className={cn('text-xs', severityColors[template.severity])}>
               {template.severity}
             </Badge>
             {template.isBuiltIn && (
-              <Badge variant="secondary" className="text-xs">
+              <Badge
+                variant="secondary"
+                className="text-xs"
+              >
                 Built-in
               </Badge>
             )}
@@ -352,8 +376,8 @@ const TemplateCardComponent = React.memo(function TemplateCardComponent({
       </CardHeader>
 
       <CardContent className="pb-component-sm">
-        <CardDescription className="text-sm line-clamp-2">{template.description}</CardDescription>
-        <div className="flex items-center gap-component-sm mt-component-sm text-xs text-muted-foreground">
+        <CardDescription className="line-clamp-2 text-sm">{template.description}</CardDescription>
+        <div className="gap-component-sm mt-component-sm text-muted-foreground flex items-center text-xs">
           <div>
             <span className="font-medium">{template.conditions.length}</span> condition
             {template.conditions.length !== 1 && 's'}
@@ -365,7 +389,7 @@ const TemplateCardComponent = React.memo(function TemplateCardComponent({
         </div>
       </CardContent>
 
-      <CardFooter className="flex gap-component-sm pt-0">
+      <CardFooter className="gap-component-sm flex pt-0">
         <Button
           variant="default"
           size="sm"
@@ -373,7 +397,7 @@ const TemplateCardComponent = React.memo(function TemplateCardComponent({
             e.stopPropagation();
             onApply();
           }}
-          className="flex-1 min-h-[44px]"
+          className="min-h-[44px] flex-1"
           aria-label={`Apply template ${template.name}`}
         >
           Apply
@@ -430,20 +454,30 @@ export const AlertTemplateBrowserMobile = React.memo(function AlertTemplateBrows
   loading = false,
   className,
 }: AlertTemplateBrowserMobileProps) {
-  const { filteredTemplates, filteredCount, sort, setSort, selection, selectTemplate, applyTemplate } =
-    browser;
+  const {
+    filteredTemplates,
+    filteredCount,
+    sort,
+    setSort,
+    selection,
+    selectTemplate,
+    applyTemplate,
+  } = browser;
 
   return (
     <div
-      className={cn('flex flex-col h-full', className)}
+      className={cn('flex h-full flex-col', className)}
       role="main"
       aria-label="Alert template browser"
     >
       {/* Header */}
-      <div className="border-b border-border p-component-md space-y-component-sm bg-card">
+      <div className="border-border p-component-md space-y-component-sm bg-card border-b">
         <div>
           <h1 className="text-lg font-semibold">Alert Rule Templates</h1>
-          <p className="text-sm text-muted-foreground" aria-live="polite">
+          <p
+            className="text-muted-foreground text-sm"
+            aria-live="polite"
+          >
             {filteredCount} {filteredCount === 1 ? 'template' : 'templates'}
           </p>
         </div>
@@ -458,17 +492,29 @@ export const AlertTemplateBrowserMobile = React.memo(function AlertTemplateBrows
           className="w-full"
           aria-label="Sort templates by"
         >
-          <TabsList className="w-full grid grid-cols-4 min-h-[44px]">
-            <TabsTrigger value="name" className="text-xs">
+          <TabsList className="grid min-h-[44px] w-full grid-cols-4">
+            <TabsTrigger
+              value="name"
+              className="text-xs"
+            >
               Name
             </TabsTrigger>
-            <TabsTrigger value="severity" className="text-xs">
+            <TabsTrigger
+              value="severity"
+              className="text-xs"
+            >
               Level
             </TabsTrigger>
-            <TabsTrigger value="category" className="text-xs">
+            <TabsTrigger
+              value="category"
+              className="text-xs"
+            >
               Type
             </TabsTrigger>
-            <TabsTrigger value="updatedAt" className="text-xs">
+            <TabsTrigger
+              value="updatedAt"
+              className="text-xs"
+            >
               Date
             </TabsTrigger>
           </TabsList>
@@ -476,20 +522,23 @@ export const AlertTemplateBrowserMobile = React.memo(function AlertTemplateBrows
       </div>
 
       {/* Template list */}
-      <div className="flex-1 overflow-y-auto p-component-md">
-        {loading ? (
+      <div className="p-component-md flex-1 overflow-y-auto">
+        {loading ?
           <div
-            className="flex items-center justify-center h-full"
+            className="flex h-full items-center justify-center"
             role="status"
             aria-live="polite"
           >
             <div className="text-muted-foreground">Loading templates...</div>
           </div>
-        ) : filteredTemplates.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full space-y-component-md" role="status">
-            <div className="text-center space-y-component-sm">
+        : filteredTemplates.length === 0 ?
+          <div
+            className="space-y-component-md flex h-full flex-col items-center justify-center"
+            role="status"
+          >
+            <div className="space-y-component-sm text-center">
               <h3 className="text-base font-semibold">No templates found</h3>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-muted-foreground text-sm">
                 Try adjusting your filters or search criteria.
               </p>
             </div>
@@ -503,10 +552,16 @@ export const AlertTemplateBrowserMobile = React.memo(function AlertTemplateBrows
               </Button>
             )}
           </div>
-        ) : (
-          <div className="space-y-component-sm" role="list" aria-label="Alert rule templates">
+        : <div
+            className="space-y-component-sm"
+            role="list"
+            aria-label="Alert rule templates"
+          >
             {filteredTemplates.map((template) => (
-              <div key={template.id} role="listitem">
+              <div
+                key={template.id}
+                role="listitem"
+              >
                 <TemplateCardComponent
                   template={template}
                   isSelected={selection.selectedId === template.id}
@@ -522,7 +577,7 @@ export const AlertTemplateBrowserMobile = React.memo(function AlertTemplateBrows
               </div>
             ))}
           </div>
-        )}
+        }
       </div>
     </div>
   );

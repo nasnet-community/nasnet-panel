@@ -15,13 +15,8 @@ import * as React from 'react';
 
 import { Plus, Filter } from 'lucide-react';
 
-import { ServiceTemplateCard , EmptyState } from '@nasnet/ui/patterns';
-import {
-  Button,
-  Card,
-  CardContent,
-  Skeleton,
-} from '@nasnet/ui/primitives';
+import { ServiceTemplateCard, EmptyState } from '@nasnet/ui/patterns';
+import { Button, Card, CardContent, Skeleton } from '@nasnet/ui/primitives';
 
 import { TemplateFilters } from './TemplateFilters';
 
@@ -59,7 +54,8 @@ const MOCK_TEMPLATES: MockTemplate[] = [
   {
     id: 'tpl-1',
     name: 'Privacy Stack',
-    description: 'Complete privacy setup with Tor, Psiphon, and DNS filtering for all devices on the network.',
+    description:
+      'Complete privacy setup with Tor, Psiphon, and DNS filtering for all devices on the network.',
     category: 'PRIVACY',
     isBuiltIn: true,
     version: '1.2.0',
@@ -155,13 +151,13 @@ function MockDesktopBrowser({
   const [filters, setFilters] = React.useState<TemplateBrowserFilters>(DEFAULT_FILTERS);
 
   return (
-    <div className="flex h-[640px] border border-border rounded-lg overflow-hidden">
+    <div className="border-border flex h-[640px] overflow-hidden rounded-lg border">
       {/* Sidebar */}
       <aside
-        className="w-72 border-r border-border bg-muted/10 p-6 overflow-y-auto shrink-0"
+        className="border-border bg-muted/10 w-72 shrink-0 overflow-y-auto border-r p-6"
         aria-label="Template filters"
       >
-        <h2 className="text-lg font-semibold mb-6">Filters</h2>
+        <h2 className="mb-6 text-lg font-semibold">Filters</h2>
         <TemplateFilters
           filters={filters}
           onFiltersChange={(p) => setFilters((prev) => ({ ...prev, ...p }))}
@@ -171,27 +167,35 @@ function MockDesktopBrowser({
       </aside>
 
       {/* Main content */}
-      <main className="flex-1 overflow-y-auto" aria-label="Service templates">
-        <div className="border-b border-border bg-background p-6 sticky top-0 z-10">
+      <main
+        className="flex-1 overflow-y-auto"
+        aria-label="Service templates"
+      >
+        <div className="border-border bg-background sticky top-0 z-10 border-b p-6">
           <h1 className="text-2xl font-bold">Service Templates</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            {loading
-              ? 'Loading templates…'
-              : `${templates.length} template${templates.length !== 1 ? 's' : ''} available`}
+          <p className="text-muted-foreground mt-1 text-sm">
+            {loading ?
+              'Loading templates…'
+            : `${templates.length} template${templates.length !== 1 ? 's' : ''} available`}
           </p>
         </div>
 
         {error && (
           <div className="p-6">
-            <Card className="border-error" role="alert">
+            <Card
+              className="border-error"
+              role="alert"
+            >
               <CardContent className="p-6">
-                <h3 className="font-semibold text-error mb-2">
-                  Failed to load templates
-                </h3>
-                <p className="text-sm text-muted-foreground mb-4">
+                <h3 className="text-error mb-2 font-semibold">Failed to load templates</h3>
+                <p className="text-muted-foreground mb-4 text-sm">
                   Network request timed out. Check router connectivity.
                 </p>
-                <Button variant="outline" size="sm" onClick={noop}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={noop}
+                >
                   Retry
                 </Button>
               </CardContent>
@@ -201,12 +205,15 @@ function MockDesktopBrowser({
 
         {loading && !error && (
           <div
-            className="p-6 grid grid-cols-2 gap-6"
+            className="grid grid-cols-2 gap-6 p-6"
             role="status"
             aria-label="Loading templates"
           >
             {[1, 2, 3, 4].map((i) => (
-              <Skeleton key={i} className="h-64 w-full rounded-lg" />
+              <Skeleton
+                key={i}
+                className="h-64 w-full rounded-lg"
+              />
             ))}
           </div>
         )}
@@ -217,14 +224,14 @@ function MockDesktopBrowser({
               icon={Plus}
               title="No templates found"
               description={
-                hasActiveFilters
-                  ? 'Try adjusting your filters to see more results'
-                  : 'No service templates available'
+                hasActiveFilters ?
+                  'Try adjusting your filters to see more results'
+                : 'No service templates available'
               }
               action={
-                hasActiveFilters
-                  ? { label: 'Reset Filters', onClick: noop, variant: 'outline' as const }
-                  : undefined
+                hasActiveFilters ?
+                  { label: 'Reset Filters', onClick: noop, variant: 'outline' as const }
+                : undefined
               }
             />
           </div>
@@ -232,7 +239,7 @@ function MockDesktopBrowser({
 
         {!loading && !error && templates.length > 0 && (
           <div
-            className="p-6 grid grid-cols-2 gap-6"
+            className="grid grid-cols-2 gap-6 p-6"
             role="list"
             aria-label="Service templates list"
           >
@@ -270,15 +277,23 @@ function MockMobileBrowser({
   hasActiveFilters?: boolean;
 }) {
   return (
-    <div className="flex flex-col h-[640px] w-[375px] border border-border rounded-lg overflow-hidden">
+    <div className="border-border flex h-[640px] w-[375px] flex-col overflow-hidden rounded-lg border">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-border bg-background sticky top-0 z-10">
+      <div className="border-border bg-background sticky top-0 z-10 flex items-center justify-between border-b p-4">
         <h1 className="text-lg font-semibold">Service Templates</h1>
-        <Button variant="outline" size="default" className="min-h-[44px]" aria-label="Open filters">
-          <Filter className="mr-2 h-4 w-4" aria-hidden="true" />
+        <Button
+          variant="outline"
+          size="default"
+          className="min-h-[44px]"
+          aria-label="Open filters"
+        >
+          <Filter
+            className="mr-2 h-4 w-4"
+            aria-hidden="true"
+          />
           Filters
           {hasActiveFilters && (
-            <span className="ml-2 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs text-primary-foreground">
+            <span className="bg-primary text-primary-foreground ml-2 flex h-5 w-5 items-center justify-center rounded-full text-xs">
               !
             </span>
           )}
@@ -288,12 +303,17 @@ function MockMobileBrowser({
       {error && (
         <div className="p-4">
           <div
-            className="rounded-lg bg-error/10 p-4 text-error"
+            className="bg-error/10 text-error rounded-lg p-4"
             role="alert"
           >
             <p className="font-medium">Failed to load templates</p>
-            <p className="text-sm mt-1">Network request timed out.</p>
-            <Button variant="outline" size="sm" onClick={noop} className="mt-3 min-h-[44px]">
+            <p className="mt-1 text-sm">Network request timed out.</p>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={noop}
+              className="mt-3 min-h-[44px]"
+            >
               Retry
             </Button>
           </div>
@@ -301,27 +321,34 @@ function MockMobileBrowser({
       )}
 
       {loading && !error && (
-        <div className="p-4 space-y-4" role="status" aria-label="Loading templates">
+        <div
+          className="space-y-4 p-4"
+          role="status"
+          aria-label="Loading templates"
+        >
           {[1, 2, 3].map((i) => (
-            <Skeleton key={i} className="h-48 w-full rounded-lg" />
+            <Skeleton
+              key={i}
+              className="h-48 w-full rounded-lg"
+            />
           ))}
         </div>
       )}
 
       {!loading && !error && templates.length === 0 && (
-        <div className="flex-1 flex items-center justify-center p-8">
+        <div className="flex flex-1 items-center justify-center p-8">
           <EmptyState
             icon={Plus}
             title="No templates found"
             description={
-              hasActiveFilters
-                ? 'Try adjusting your filters to see more results'
-                : 'No service templates available'
+              hasActiveFilters ?
+                'Try adjusting your filters to see more results'
+              : 'No service templates available'
             }
             action={
-              hasActiveFilters
-                ? { label: 'Reset Filters', onClick: noop, variant: 'outline' as const }
-                : undefined
+              hasActiveFilters ?
+                { label: 'Reset Filters', onClick: noop, variant: 'outline' as const }
+              : undefined
             }
           />
         </div>
@@ -329,7 +356,7 @@ function MockMobileBrowser({
 
       {!loading && !error && templates.length > 0 && (
         <div
-          className="flex-1 overflow-y-auto p-4 space-y-4"
+          className="flex-1 space-y-4 overflow-y-auto p-4"
           role="list"
           aria-label="Service templates list"
         >
@@ -404,7 +431,12 @@ export const DesktopDefault: Story = {
  * Desktop — skeleton loading state while templates are fetched.
  */
 export const DesktopLoading: Story = {
-  render: () => <MockDesktopBrowser loading templates={[]} />,
+  render: () => (
+    <MockDesktopBrowser
+      loading
+      templates={[]}
+    />
+  ),
   parameters: {
     docs: {
       description: { story: 'Four skeleton cards shown during initial data fetch.' },
@@ -417,7 +449,10 @@ export const DesktopLoading: Story = {
  */
 export const DesktopEmptyFiltered: Story = {
   render: () => (
-    <MockDesktopBrowser templates={[]} hasActiveFilters />
+    <MockDesktopBrowser
+      templates={[]}
+      hasActiveFilters
+    />
   ),
   parameters: {
     docs: {
@@ -432,7 +467,12 @@ export const DesktopEmptyFiltered: Story = {
  * Desktop — error state when the API request fails.
  */
 export const DesktopError: Story = {
-  render: () => <MockDesktopBrowser error templates={[]} />,
+  render: () => (
+    <MockDesktopBrowser
+      error
+      templates={[]}
+    />
+  ),
   parameters: {
     docs: {
       description: { story: 'Error card with Retry button when the network request fails.' },
@@ -459,7 +499,12 @@ export const MobileDefault: Story = {
  * Mobile — skeleton loading state.
  */
 export const MobileLoading: Story = {
-  render: () => <MockMobileBrowser loading templates={[]} />,
+  render: () => (
+    <MockMobileBrowser
+      loading
+      templates={[]}
+    />
+  ),
   parameters: {
     viewport: { defaultViewport: 'mobile1' },
     docs: {

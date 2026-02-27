@@ -1,7 +1,7 @@
 {
   "id": "feature-network",
   "title": "Feature: Network (libs/features/network)",
-  "description": "The network feature module is the largest and most complex feature library in NasNetConnect. It provides comprehensive management for all network-layer concerns on a MikroTik router: physical interfaces, IP address assignments, static routes, bridge configurations, VLAN registries, DHCP servers and leases, DNS settings, WAN connections, and interface traffic statistics. The module is organized into 10 distinct sub-modules, each encapsulating its own components, hooks, schemas, and pages.",
+  "description": "The network feature module is the largest and most complex feature library in NasNetConnect. It",
   "source": "@site/../../libs/features/docs/feature-network.md",
   "sourceDirName": ".",
   "slug": "/feature-network",

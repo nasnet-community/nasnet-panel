@@ -4,7 +4,6 @@
  * Interactive documentation and visual testing for ServiceTemplateCard pattern.
  */
 
-
 import { ServiceTemplateCard } from './ServiceTemplateCard';
 
 import type { ServiceTemplate, TemplateAction } from './types';
@@ -114,7 +113,8 @@ const adBlockTemplate: ServiceTemplate = {
 const enterpriseSecurityTemplate: ServiceTemplate = {
   id: '4',
   name: 'Enterprise Security Bundle',
-  description: 'Comprehensive security template with monitoring, IDS, and threat detection for business networks',
+  description:
+    'Comprehensive security template with monitoring, IDS, and threat detection for business networks',
   category: 'security',
   scope: 'shared',
   icon: '🛡️',

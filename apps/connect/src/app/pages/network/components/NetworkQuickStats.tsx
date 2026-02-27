@@ -64,21 +64,18 @@ export const NetworkQuickStats = React.memo(function NetworkQuickStats({
   if (isLoading) {
     return (
       <div
-        className={cn(
-          'grid grid-cols-2 sm:grid-cols-4 gap-component-md',
-          className,
-        )}
+        className={cn('gap-component-md grid grid-cols-2 sm:grid-cols-4', className)}
         aria-busy="true"
         aria-label={t('status.loading')}
       >
         {Array.from({ length: 4 }).map((_, i) => (
           <div
             key={i}
-            className="animate-pulse bg-card rounded-card-lg border border-border p-component-md"
+            className="bg-card rounded-card-lg border-border p-component-md animate-pulse border"
           >
-            <div className="w-8 h-8 rounded-lg bg-muted mb-3" />
-            <div className="h-6 bg-muted rounded w-12 mb-1" />
-            <div className="h-3 bg-muted rounded w-20" />
+            <div className="bg-muted mb-3 h-8 w-8 rounded-lg" />
+            <div className="bg-muted mb-1 h-6 w-12 rounded" />
+            <div className="bg-muted h-3 w-20 rounded" />
           </div>
         ))}
       </div>
@@ -87,10 +84,7 @@ export const NetworkQuickStats = React.memo(function NetworkQuickStats({
 
   return (
     <div
-      className={cn(
-        'grid grid-cols-2 sm:grid-cols-4 gap-component-md',
-        className,
-      )}
+      className={cn('gap-component-md grid grid-cols-2 sm:grid-cols-4', className)}
       role="list"
       aria-label={t('status.quickStats')}
     >
@@ -102,17 +96,25 @@ export const NetworkQuickStats = React.memo(function NetworkQuickStats({
           <div
             key={idx}
             role="listitem"
-            className="bg-card rounded-card-lg border border-border p-component-md"
+            className="bg-card rounded-card-lg border-border p-component-md border"
           >
-            <div className={cn('w-8 h-8 rounded-card-sm flex items-center justify-center mb-3', iconClass)}>
-              <Icon className="w-4 h-4" aria-hidden="true" />
+            <div
+              className={cn(
+                'rounded-card-sm mb-3 flex h-8 w-8 items-center justify-center',
+                iconClass
+              )}
+            >
+              <Icon
+                className="h-4 w-4"
+                aria-hidden="true"
+              />
             </div>
-            <p className="text-2xl font-bold font-mono text-foreground leading-none mb-1">
+            <p className="text-foreground mb-1 font-mono text-2xl font-bold leading-none">
               {stat.value}
             </p>
-            <p className="text-xs text-muted-foreground font-display">{stat.label}</p>
+            <p className="text-muted-foreground font-display text-xs">{stat.label}</p>
             {stat.subLabel && (
-              <p className="text-xs text-muted-foreground mt-0.5">{stat.subLabel}</p>
+              <p className="text-muted-foreground mt-0.5 text-xs">{stat.subLabel}</p>
             )}
           </div>
         );

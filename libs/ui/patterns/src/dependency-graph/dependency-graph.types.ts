@@ -37,7 +37,6 @@ type GraphQLDependencyGraph = DependencyGraph;
 type GraphQLNode = DependencyGraphNode;
 type GraphQLEdge = DependencyGraphEdge;
 
-
 /**
  * Enhanced node with computed layout properties
  */

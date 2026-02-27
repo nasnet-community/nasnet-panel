@@ -112,15 +112,18 @@ function RouteTypeBadge({ type, dynamic }: { type: string; dynamic: boolean }) {
     unreachable: 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200',
     prohibit: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
   };
-  const colorClass = typeColors[type] || 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200';
+  const colorClass =
+    typeColors[type] || 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200';
 
   return (
-    <div className="flex gap-1 items-center">
-      <span className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded-md ${colorClass}`}>
+    <div className="flex items-center gap-1">
+      <span
+        className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ${colorClass}`}
+      >
         {type}
       </span>
       {dynamic && (
-        <span className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-md bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
+        <span className="inline-flex items-center rounded-md bg-purple-100 px-2 py-1 text-xs font-medium text-purple-800 dark:bg-purple-900 dark:text-purple-200">
           dynamic
         </span>
       )}
@@ -149,7 +152,7 @@ function StaticRoutingTable({ routes }: { routes: RouteEntry[] }) {
           <TableRow
             key={route.id}
             className={[
-              route.disabled ? 'opacity-50 bg-slate-50 dark:bg-slate-800/50' : '',
+              route.disabled ? 'bg-slate-50 opacity-50 dark:bg-slate-800/50' : '',
               route.active ? 'bg-green-50 dark:bg-green-950' : '',
               isDefaultRoute(route.destination) ? 'border-l-4 border-l-blue-500' : '',
             ].join(' ')}
@@ -168,14 +171,15 @@ function StaticRoutingTable({ routes }: { routes: RouteEntry[] }) {
             </TableCell>
             <TableCell className="text-center">{route.distance}</TableCell>
             <TableCell>
-              <RouteTypeBadge type={route.routeType} dynamic={route.dynamic} />
+              <RouteTypeBadge
+                type={route.routeType}
+                dynamic={route.dynamic}
+              />
             </TableCell>
             <TableCell className="text-center">
-              {route.active ? (
-                <span className="text-green-600 dark:text-green-400 font-medium">●</span>
-              ) : (
-                <span className="text-slate-300 dark:text-slate-600">○</span>
-              )}
+              {route.active ?
+                <span className="font-medium text-green-600 dark:text-green-400">●</span>
+              : <span className="text-slate-300 dark:text-slate-600">○</span>}
             </TableCell>
           </TableRow>
         ))}
@@ -226,7 +230,7 @@ type Story = StoryObj<typeof RoutingTablePlaceholder>;
  */
 export const Populated: Story = {
   render: () => (
-    <div className="p-6 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800">
+    <div className="rounded-xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
       <StaticRoutingTable routes={MOCK_ROUTES} />
     </div>
   ),
@@ -237,7 +241,7 @@ export const Populated: Story = {
  */
 export const DefaultRouteHighlighted: Story = {
   render: () => (
-    <div className="p-6 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800">
+    <div className="rounded-xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
       <StaticRoutingTable routes={MOCK_ROUTES.filter((r) => r.destination === '0.0.0.0/0')} />
     </div>
   ),
@@ -248,7 +252,7 @@ export const DefaultRouteHighlighted: Story = {
  */
 export const ActiveRoutesOnly: Story = {
   render: () => (
-    <div className="p-6 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800">
+    <div className="rounded-xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
       <StaticRoutingTable routes={MOCK_ROUTES.filter((r) => r.active && !r.disabled)} />
     </div>
   ),
@@ -260,7 +264,7 @@ export const ActiveRoutesOnly: Story = {
  */
 export const WithDisabledRoute: Story = {
   render: () => (
-    <div className="p-6 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800">
+    <div className="rounded-xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
       <StaticRoutingTable routes={MOCK_ROUTES.filter((r) => r.disabled || r.id === '1')} />
     </div>
   ),
@@ -274,10 +278,10 @@ export const LoadingState: Story = {
   render: () => (
     <div className="p-4">
       <div className="animate-pulse space-y-4">
-        <div className="h-10 bg-slate-200 dark:bg-slate-700 rounded" />
-        <div className="h-16 bg-slate-200 dark:bg-slate-700 rounded" />
-        <div className="h-16 bg-slate-200 dark:bg-slate-700 rounded" />
-        <div className="h-16 bg-slate-200 dark:bg-slate-700 rounded" />
+        <div className="h-10 rounded bg-slate-200 dark:bg-slate-700" />
+        <div className="h-16 rounded bg-slate-200 dark:bg-slate-700" />
+        <div className="h-16 rounded bg-slate-200 dark:bg-slate-700" />
+        <div className="h-16 rounded bg-slate-200 dark:bg-slate-700" />
       </div>
     </div>
   ),
@@ -299,8 +303,6 @@ export const ErrorState: Story = {
  */
 export const EmptyState: Story = {
   render: () => (
-    <div className="p-8 text-center text-slate-500 dark:text-slate-400">
-      No routes found
-    </div>
+    <div className="p-8 text-center text-slate-500 dark:text-slate-400">No routes found</div>
   ),
 };

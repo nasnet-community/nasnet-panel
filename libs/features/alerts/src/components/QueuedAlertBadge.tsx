@@ -74,13 +74,17 @@ const QueuedAlertBadge = ({
     return (
       <div
         className={cn(
-          'inline-flex items-center gap-component-sm px-component-sm py-component-xs rounded-[var(--semantic-radius-badge)] text-xs font-medium',
-          'bg-warning/10 text-warning border border-warning/20',
+          'gap-component-sm px-component-sm py-component-xs inline-flex items-center rounded-[var(--semantic-radius-badge)] text-xs font-medium',
+          'bg-warning/10 text-warning border-warning/20 border',
           className
         )}
         aria-label={t('status.bypassedQuietHours')}
       >
-        <Icon icon={AlertCircle} className="h-3.5 w-3.5" aria-hidden="true" />
+        <Icon
+          icon={AlertCircle}
+          className="h-3.5 w-3.5"
+          aria-hidden="true"
+        />
         <span>{t('status.bypassedQuietHours')}</span>
       </div>
     );
@@ -88,20 +92,27 @@ const QueuedAlertBadge = ({
 
   // Show queued badge with delivery time countdown
   if (queuedUntil) {
-    const hoursText = hoursUntilDelivery === 0 ? t('status.soon') : t('status.hoursUntil', { hours: hoursUntilDelivery });
+    const hoursText =
+      hoursUntilDelivery === 0 ?
+        t('status.soon')
+      : t('status.hoursUntil', { hours: hoursUntilDelivery });
 
     return (
       <div
         className={cn(
-          'inline-flex items-center gap-component-sm px-component-sm py-component-xs rounded-[var(--semantic-radius-badge)] text-xs font-medium',
-          'bg-info/10 text-info border border-info/20',
+          'gap-component-sm px-component-sm py-component-xs inline-flex items-center rounded-[var(--semantic-radius-badge)] text-xs font-medium',
+          'bg-info/10 text-info border-info/20 border',
           className
         )}
         title={t('status.queuedTooltip', { time: deliveryTimeFormatted })}
         aria-label={`${t('status.queued')}: ${hoursText}`}
         aria-live="polite"
       >
-        <Icon icon={Clock} className="h-3.5 w-3.5" aria-hidden="true" />
+        <Icon
+          icon={Clock}
+          className="h-3.5 w-3.5"
+          aria-hidden="true"
+        />
         <span>
           {t('status.queued')} • {hoursText}
         </span>

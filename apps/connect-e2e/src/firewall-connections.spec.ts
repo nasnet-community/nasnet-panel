@@ -31,7 +31,7 @@ function generateMockConnection(id: number) {
     'connection-state': states[id % states.length],
     timeout: `${300 - (id % 300)}s`,
     packets: `${100 + id}`,
-    bytes: `${10000 + (id * 100)}`,
+    bytes: `${10000 + id * 100}`,
     assured: id % 2 === 0 ? 'true' : 'false',
     confirmed: id % 3 === 0 ? 'true' : 'false',
   };
@@ -250,9 +250,9 @@ test.describe('Connection Filtering', () => {
 
   test('should filter by protocol', async ({ page }) => {
     // Click protocol select
-    const protocolSelect = page.locator('[data-testid="filter-protocol"]').or(
-      page.getByRole('combobox', { name: /protocol/i })
-    );
+    const protocolSelect = page
+      .locator('[data-testid="filter-protocol"]')
+      .or(page.getByRole('combobox', { name: /protocol/i }));
     await protocolSelect.click();
 
     // Select TCP
@@ -268,9 +268,9 @@ test.describe('Connection Filtering', () => {
 
   test('should filter by state', async ({ page }) => {
     // Click state select
-    const stateSelect = page.locator('[data-testid="filter-state"]').or(
-      page.getByRole('combobox', { name: /state/i })
-    );
+    const stateSelect = page
+      .locator('[data-testid="filter-state"]')
+      .or(page.getByRole('combobox', { name: /state/i }));
     await stateSelect.click();
 
     // Select established
@@ -383,8 +383,14 @@ test.describe('Kill Connection', () => {
     });
 
     // Click kill, confirm
-    await page.getByRole('button', { name: /kill.*connection/i }).first().click();
-    await page.getByRole('button', { name: /confirm|kill/i }).last().click();
+    await page
+      .getByRole('button', { name: /kill.*connection/i })
+      .first()
+      .click();
+    await page
+      .getByRole('button', { name: /confirm|kill/i })
+      .last()
+      .click();
 
     // Verify success toast
     await expect(page.getByText(/terminated|killed/i)).toBeVisible({ timeout: 3000 });
@@ -409,7 +415,10 @@ test.describe('Kill Connection', () => {
     });
 
     // Click kill, cancel
-    await page.getByRole('button', { name: /kill.*connection/i }).first().click();
+    await page
+      .getByRole('button', { name: /kill.*connection/i })
+      .first()
+      .click();
     await page.getByRole('button', { name: /cancel/i }).click();
 
     // Verify dialog closes without killing
@@ -430,7 +439,9 @@ test.describe('Connection Tracking Settings', () => {
     await page.getByRole('tab', { name: /settings/i }).click();
 
     // Verify settings form visible
-    await expect(page.getByText(/connection tracking.*settings|tracking configuration/i)).toBeVisible();
+    await expect(
+      page.getByText(/connection tracking.*settings|tracking configuration/i)
+    ).toBeVisible();
   });
 
   test('should display current settings', async ({ page }) => {
@@ -480,7 +491,10 @@ test.describe('Connection Tracking Settings', () => {
     await expect(dialog).toBeVisible({ timeout: 2000 });
 
     // Confirm action
-    await page.getByRole('button', { name: /confirm|save/i }).last().click();
+    await page
+      .getByRole('button', { name: /confirm|save/i })
+      .last()
+      .click();
 
     // Verify success toast
     await expect(page.getByText(/settings.*updated|saved/i)).toBeVisible({ timeout: 3000 });
@@ -565,7 +579,10 @@ test.describe('Keyboard Navigation', () => {
     });
 
     // Open kill dialog
-    await page.getByRole('button', { name: /kill.*connection/i }).first().click();
+    await page
+      .getByRole('button', { name: /kill.*connection/i })
+      .first()
+      .click();
 
     // Wait for dialog to appear
     await expect(page.getByRole('dialog')).toBeVisible();
@@ -618,8 +635,8 @@ test.describe('Accessibility', () => {
     // Check first few buttons have accessible names
     for (let i = 0; i < Math.min(count, 10); i++) {
       const button = buttons.nth(i);
-      const accessibleName = await button.getAttribute('aria-label').catch(() => null)
-        || await button.textContent();
+      const accessibleName =
+        (await button.getAttribute('aria-label').catch(() => null)) || (await button.textContent());
       expect(accessibleName).toBeTruthy();
     }
   });
@@ -645,8 +662,8 @@ test.describe('Accessibility', () => {
     // Verify focus indicator exists
     expect(
       focusedElement?.outline !== 'none' ||
-      focusedElement?.boxShadow !== 'none' ||
-      parseFloat(focusedElement?.outlineWidth || '0') > 0
+        focusedElement?.boxShadow !== 'none' ||
+        parseFloat(focusedElement?.outlineWidth || '0') > 0
     ).toBe(true);
   });
 
@@ -719,7 +736,10 @@ test.describe('Performance', () => {
     await page.waitForLoadState('networkidle');
 
     // Find scroll container
-    const scrollContainer = page.locator('[data-virtualized="true"]').or(page.locator('table')).first();
+    const scrollContainer = page
+      .locator('[data-virtualized="true"]')
+      .or(page.locator('table'))
+      .first();
 
     // Scroll rapidly and measure performance
     const startTime = Date.now();

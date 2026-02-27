@@ -1,7 +1,7 @@
 {
   "id": "feature-modules/network",
   "title": "Network Feature",
-  "description": "The network feature covers the NetworkDashboard page and the libs/features/network/",
+  "description": "The network feature covers the NetworkDashboard page and the libs/features/network/ library,",
   "source": "@site/../connect/docs/feature-modules/network.md",
   "sourceDirName": "feature-modules",
   "slug": "/feature-modules/network",

@@ -43,16 +43,15 @@ function CustomTooltip({ active, payload }: any) {
   const date = new Date(data.timestamp);
 
   return (
-    <div className="bg-background border border-border rounded-lg shadow-lg p-3">
-      <p className="text-sm font-medium text-foreground mb-2">
-        {date.toLocaleString()}
-      </p>
+    <div className="bg-background border-border rounded-lg border p-3 shadow-lg">
+      <p className="text-foreground mb-2 text-sm font-medium">{date.toLocaleString()}</p>
       <div className="space-y-1">
-        <p className="text-sm text-muted-foreground">
-          <span className="font-medium text-foreground">Bytes:</span> {formatBytes(data.bytes)}
+        <p className="text-muted-foreground text-sm">
+          <span className="text-foreground font-medium">Bytes:</span> {formatBytes(data.bytes)}
         </p>
-        <p className="text-sm text-muted-foreground">
-          <span className="font-medium text-foreground">Packets:</span> {data.packets.toLocaleString()}
+        <p className="text-muted-foreground text-sm">
+          <span className="text-foreground font-medium">Packets:</span>{' '}
+          {data.packets.toLocaleString()}
         </p>
       </div>
     </div>
@@ -73,22 +72,42 @@ export function TrafficHistoryChart({
   if (!data || data.length === 0) {
     return (
       <div
-        className={`flex items-center justify-center bg-muted/30 rounded-lg ${className}`}
+        className={`bg-muted/30 flex items-center justify-center rounded-lg ${className}`}
         style={{ height }}
       >
-        <p className="text-sm text-muted-foreground">No traffic data available</p>
+        <p className="text-muted-foreground text-sm">No traffic data available</p>
       </div>
     );
   }
 
   return (
     <div className={className}>
-      <ResponsiveContainer width="100%" height={height}>
-        <AreaChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+      <ResponsiveContainer
+        width="100%"
+        height={height}
+      >
+        <AreaChart
+          data={data}
+          margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
+        >
           <defs>
-            <linearGradient id="colorBytes" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#4972BA" stopOpacity={0.8} />
-              <stop offset="95%" stopColor="#4972BA" stopOpacity={0} />
+            <linearGradient
+              id="colorBytes"
+              x1="0"
+              y1="0"
+              x2="0"
+              y2="1"
+            >
+              <stop
+                offset="5%"
+                stopColor="#4972BA"
+                stopOpacity={0.8}
+              />
+              <stop
+                offset="95%"
+                stopColor="#4972BA"
+                stopOpacity={0}
+              />
             </linearGradient>
           </defs>
           <XAxis

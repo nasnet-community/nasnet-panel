@@ -142,9 +142,7 @@ test.describe('Bridge Configuration Workflow', () => {
 
       // Warning dialog should appear
       await expect(page.getByText(/Enable VLAN Filtering/i)).toBeVisible();
-      await expect(
-        page.getByText(/may disrupt network connectivity/i)
-      ).toBeVisible();
+      await expect(page.getByText(/may disrupt network connectivity/i)).toBeVisible();
 
       // Confirm warning
       await page.getByRole('button', { name: /Enable VLAN Filtering/i }).click();
@@ -173,9 +171,7 @@ test.describe('Bridge Configuration Workflow', () => {
       await expect(page.getByRole('table')).toContainText('ether4');
 
       // Verify STP role and state are displayed
-      await expect(
-        page.getByRole('row', { name: /ether4/i })
-      ).toBeVisible();
+      await expect(page.getByRole('row', { name: /ether4/i })).toBeVisible();
     });
 
     // Step 6: Delete bridge

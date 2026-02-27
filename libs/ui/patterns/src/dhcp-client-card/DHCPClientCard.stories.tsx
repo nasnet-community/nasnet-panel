@@ -4,7 +4,6 @@ import { DHCPClientCard } from './DHCPClientCard';
 
 import type { Meta, StoryObj } from '@storybook/react';
 
-
 // ---------------------------------------------------------------------------
 // Mock data
 // ---------------------------------------------------------------------------
@@ -95,7 +94,8 @@ export const Bound: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Fully bound WAN client showing IP address, gateway, primary and secondary DNS, DHCP server address, and lease expiry time.',
+        story:
+          'Fully bound WAN client showing IP address, gateway, primary and secondary DNS, DHCP server address, and lease expiry time.',
       },
     },
   },
@@ -108,7 +108,8 @@ export const BoundSingleDns: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Bound client with only a primary DNS — the "Secondary DNS" row is omitted from the card.',
+        story:
+          'Bound client with only a primary DNS — the "Secondary DNS" row is omitted from the card.',
       },
     },
   },
@@ -121,7 +122,8 @@ export const Searching: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'LTE interface actively searching for a DHCP server — displays a spinner with the text "Searching for DHCP server...".',
+        story:
+          'LTE interface actively searching for a DHCP server — displays a spinner with the text "Searching for DHCP server...".',
       },
     },
   },
@@ -134,7 +136,8 @@ export const Requesting: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Client found a DHCP server and is now requesting an address — spinner remains visible with "Requesting IP address...".',
+        story:
+          'Client found a DHCP server and is now requesting an address — spinner remains visible with "Requesting IP address...".',
       },
     },
   },
@@ -147,7 +150,8 @@ export const Stopped: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'DHCP client is configured but stopped (e.g. manually halted). A short text placeholder is shown instead of lease details.',
+        story:
+          'DHCP client is configured but stopped (e.g. manually halted). A short text placeholder is shown instead of lease details.',
       },
     },
   },
@@ -160,7 +164,8 @@ export const Disabled: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'DHCP client is disabled at the interface level — the placeholder reads "DHCP Client Disabled".',
+        story:
+          'DHCP client is disabled at the interface level — the placeholder reads "DHCP Client Disabled".',
       },
     },
   },
@@ -168,7 +173,7 @@ export const Disabled: Story = {
 
 export const AllStatuses: Story = {
   render: () => (
-    <div className="grid grid-cols-1 gap-4 w-[360px]">
+    <div className="grid w-[360px] grid-cols-1 gap-4">
       <DHCPClientCard client={boundClient} />
       <DHCPClientCard client={searchingClient} />
       <DHCPClientCard client={requestingClient} />
@@ -180,7 +185,8 @@ export const AllStatuses: Story = {
     layout: 'padded',
     docs: {
       description: {
-        story: 'All five status variants stacked to compare the card body behaviour across every possible DHCP client state.',
+        story:
+          'All five status variants stacked to compare the card body behaviour across every possible DHCP client state.',
       },
     },
   },

@@ -3,21 +3,36 @@
  *
  * @returns Mutation function, loading state, error, and data
  */
-export declare function useUpdateInterface(): import("@apollo/client").MutationTuple<any, import("@apollo/client").OperationVariables, import("@apollo/client").DefaultContext, import("@apollo/client").ApolloCache<any>>;
+export declare function useUpdateInterface(): import('@apollo/client').MutationTuple<
+  any,
+  import('@apollo/client').OperationVariables,
+  import('@apollo/client').DefaultContext,
+  import('@apollo/client').ApolloCache<any>
+>;
 /**
  * Hook for enabling a disabled interface
  * Includes optimistic response for immediate UI feedback
  *
  * @returns Mutation function, loading state, error, and data
  */
-export declare function useEnableInterface(): import("@apollo/client").MutationTuple<any, import("@apollo/client").OperationVariables, import("@apollo/client").DefaultContext, import("@apollo/client").ApolloCache<any>>;
+export declare function useEnableInterface(): import('@apollo/client').MutationTuple<
+  any,
+  import('@apollo/client').OperationVariables,
+  import('@apollo/client').DefaultContext,
+  import('@apollo/client').ApolloCache<any>
+>;
 /**
  * Hook for disabling an active interface
  * Includes optimistic response for immediate UI feedback
  *
  * @returns Mutation function, loading state, error, and data
  */
-export declare function useDisableInterface(): import("@apollo/client").MutationTuple<any, import("@apollo/client").OperationVariables, import("@apollo/client").DefaultContext, import("@apollo/client").ApolloCache<any>>;
+export declare function useDisableInterface(): import('@apollo/client').MutationTuple<
+  any,
+  import('@apollo/client').OperationVariables,
+  import('@apollo/client').DefaultContext,
+  import('@apollo/client').ApolloCache<any>
+>;
 /**
  * Hook for performing batch operations on multiple interfaces
  * Supports ENABLE, DISABLE, and UPDATE actions
@@ -40,5 +55,10 @@ export declare function useDisableInterface(): import("@apollo/client").Mutation
  * });
  * ```
  */
-export declare function useBatchInterfaceOperation(): import("@apollo/client").MutationTuple<any, import("@apollo/client").OperationVariables, import("@apollo/client").DefaultContext, import("@apollo/client").ApolloCache<any>>;
+export declare function useBatchInterfaceOperation(): import('@apollo/client').MutationTuple<
+  any,
+  import('@apollo/client').OperationVariables,
+  import('@apollo/client').DefaultContext,
+  import('@apollo/client').ApolloCache<any>
+>;
 //# sourceMappingURL=useInterfaceMutations.d.ts.map

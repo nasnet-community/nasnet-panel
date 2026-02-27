@@ -2,16 +2,26 @@
 
 ## Overview
 
-The alert system evaluates domain events against user-defined rules and delivers notifications through multiple channels. It is built around a stateless evaluation loop: every event published on the event bus is matched against cached alert rules, filtered through suppression layers, and routed to notification channels with retry logic and dead-letter queuing.
+The alert system evaluates domain events against user-defined rules and delivers notifications
+through multiple channels. It is built around a stateless evaluation loop: every event published on
+the event bus is matched against cached alert rules, filtered through suppression layers, and routed
+to notification channels with retry logic and dead-letter queuing.
 
 Key design principles:
 
-- **Rule evaluation is in-memory** — rules are cached on startup and refreshed on rule change events, avoiding database reads per event.
-- **Three suppression layers** — storm detection (global rate limit), per-rule throttle windows, and quiet hours (time-of-day blocking) work independently and compose.
-- **Channels are pluggable** — the `notifications.Channel` interface is the only contract; adding a channel requires implementing `Name()`, `Send()`, and `Test()`.
-- **Digest vs. immediate delivery** — channels opt-in to digest mode; quiet hours silently queue notifications and flush them as grouped digests when quiet hours end.
-- **Best-effort retry** — failed deliveries retry three times with exponential backoff; exhausted deliveries go to a dead-letter queue rather than being silently dropped.
-- **Service alert bridge** — a separate bridge component listens to service lifecycle events and synthesises alert notifications using the same pipeline, with per-instance rate limiting and auto-provisioned default rules.
+- **Rule evaluation is in-memory** — rules are cached on startup and refreshed on rule change
+  events, avoiding database reads per event.
+- **Three suppression layers** — storm detection (global rate limit), per-rule throttle windows, and
+  quiet hours (time-of-day blocking) work independently and compose.
+- **Channels are pluggable** — the `notifications.Channel` interface is the only contract; adding a
+  channel requires implementing `Name()`, `Send()`, and `Test()`.
+- **Digest vs. immediate delivery** — channels opt-in to digest mode; quiet hours silently queue
+  notifications and flush them as grouped digests when quiet hours end.
+- **Best-effort retry** — failed deliveries retry three times with exponential backoff; exhausted
+  deliveries go to a dead-letter queue rather than being silently dropped.
+- **Service alert bridge** — a separate bridge component listens to service lifecycle events and
+  synthesises alert notifications using the same pipeline, with per-instance rate limiting and
+  auto-provisioned default rules.
 
 ---
 
@@ -104,25 +114,25 @@ type EngineConfig struct {
 
 #### Key Functions
 
-| Function | File | Description |
-|---|---|---|
-| `NewEngine(cfg EngineConfig) *Engine` | `engine.go` | Creates engine; builds escalation engine from dispatcher if not injected |
-| `Engine.Start(ctx) error` | `engine.go` | Loads rule cache, subscribes to all events and rule-change events, starts throttle summary worker (5 min) and digest delivery worker (1 min) |
-| `Engine.HandleEvent(ctx, Event) error` | `engine.go` | Entry point: storm check → rule lookup → per-rule `evaluateRule` |
-| `Engine.Stop(ctx) error` | `engine.go` | Stops digest ticker, throttle manager, escalation engine |
-| `Engine.getMatchingRules(eventType) []*ent.AlertRule` | `engine.go` | Read-locked scan of rules cache filtering by `rule.EventType` |
-| `Engine.refreshRulesCache(ctx) error` | `engine.go` | Queries `alertrule.Enabled(true)`, replaces cache atomically |
-| `Engine.handleRuleChange(ctx, Event) error` | `engine.go` | Subscribed to `alert.rule.{created,updated,deleted}`; calls `refreshRulesCache` |
-| `Engine.trackSuppression(ruleID, reason)` | `engine.go` | Increments suppression counter under mutex |
-| `Engine.getAndResetSuppression(ruleID) (count, reason)` | `engine.go` | Atomically reads and clears suppression state |
-| `evaluateRule(ctx, rule, eventType, eventData, startTime)` | `engine_evaluate.go` | Condition parsing → throttle → quiet hours → `createAlert` |
-| `createAlert(ctx, rule, eventType, eventData)` | `engine_evaluate.go` | Persists `AlertLog`, tracks with escalation engine, publishes `alert.created` event, dispatches notification |
-| `handleQuietHoursCheck(ctx, rule, notification) bool` | `engine_evaluate.go` | Returns true (alert suppressed) if inside a quiet hours window |
-| `queueForDigest(deviceID, alert)` | `engine_evaluate.go` | Enqueues into `AlertQueue` for batch delivery |
-| `publishAlertEvent(ctx, alert)` | `engine_evaluate.go` | Publishes `alert.created` typed event on event bus |
-| `runDigestDelivery(ctx)` | `engine_evaluate.go` | Background goroutine: ticks every 1 minute, calls `deliverQueuedAlerts` |
-| `deliverQueuedAlerts(ctx)` | `engine_evaluate.go` | Drains `AlertQueue.DequeueAll()`, formats digest, dispatches via Dispatcher |
-| `FormatDigest(alerts []QueuedAlert) string` | `engine_evaluate.go` | Groups by severity (CRITICAL → ERROR → WARNING → INFO), counts by event type, includes timestamp range |
+| Function                                                   | File                 | Description                                                                                                                                  |
+| ---------------------------------------------------------- | -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| `NewEngine(cfg EngineConfig) *Engine`                      | `engine.go`          | Creates engine; builds escalation engine from dispatcher if not injected                                                                     |
+| `Engine.Start(ctx) error`                                  | `engine.go`          | Loads rule cache, subscribes to all events and rule-change events, starts throttle summary worker (5 min) and digest delivery worker (1 min) |
+| `Engine.HandleEvent(ctx, Event) error`                     | `engine.go`          | Entry point: storm check → rule lookup → per-rule `evaluateRule`                                                                             |
+| `Engine.Stop(ctx) error`                                   | `engine.go`          | Stops digest ticker, throttle manager, escalation engine                                                                                     |
+| `Engine.getMatchingRules(eventType) []*ent.AlertRule`      | `engine.go`          | Read-locked scan of rules cache filtering by `rule.EventType`                                                                                |
+| `Engine.refreshRulesCache(ctx) error`                      | `engine.go`          | Queries `alertrule.Enabled(true)`, replaces cache atomically                                                                                 |
+| `Engine.handleRuleChange(ctx, Event) error`                | `engine.go`          | Subscribed to `alert.rule.{created,updated,deleted}`; calls `refreshRulesCache`                                                              |
+| `Engine.trackSuppression(ruleID, reason)`                  | `engine.go`          | Increments suppression counter under mutex                                                                                                   |
+| `Engine.getAndResetSuppression(ruleID) (count, reason)`    | `engine.go`          | Atomically reads and clears suppression state                                                                                                |
+| `evaluateRule(ctx, rule, eventType, eventData, startTime)` | `engine_evaluate.go` | Condition parsing → throttle → quiet hours → `createAlert`                                                                                   |
+| `createAlert(ctx, rule, eventType, eventData)`             | `engine_evaluate.go` | Persists `AlertLog`, tracks with escalation engine, publishes `alert.created` event, dispatches notification                                 |
+| `handleQuietHoursCheck(ctx, rule, notification) bool`      | `engine_evaluate.go` | Returns true (alert suppressed) if inside a quiet hours window                                                                               |
+| `queueForDigest(deviceID, alert)`                          | `engine_evaluate.go` | Enqueues into `AlertQueue` for batch delivery                                                                                                |
+| `publishAlertEvent(ctx, alert)`                            | `engine_evaluate.go` | Publishes `alert.created` typed event on event bus                                                                                           |
+| `runDigestDelivery(ctx)`                                   | `engine_evaluate.go` | Background goroutine: ticks every 1 minute, calls `deliverQueuedAlerts`                                                                      |
+| `deliverQueuedAlerts(ctx)`                                 | `engine_evaluate.go` | Drains `AlertQueue.DequeueAll()`, formats digest, dispatches via Dispatcher                                                                  |
+| `FormatDigest(alerts []QueuedAlert) string`                | `engine_evaluate.go` | Groups by severity (CRITICAL → ERROR → WARNING → INFO), counts by event type, includes timestamp range                                       |
 
 #### Condition Evaluation
 
@@ -137,7 +147,8 @@ type Condition struct {
 }
 ```
 
-Evaluation iterates all conditions with AND semantics. A rule fires when all conditions are satisfied or when the rule has no conditions (unconditional match).
+Evaluation iterates all conditions with AND semantics. A rule fires when all conditions are
+satisfied or when the rule has no conditions (unconditional match).
 
 ---
 
@@ -163,15 +174,15 @@ type AlertQueue struct {
 }
 ```
 
-| Function | Description |
-|---|---|
-| `NewAlertQueue() *AlertQueue` | Creates empty queue |
-| `Enqueue(alert QueuedAlert)` | Appends to device bucket under mutex |
+| Function                                | Description                                                          |
+| --------------------------------------- | -------------------------------------------------------------------- |
+| `NewAlertQueue() *AlertQueue`           | Creates empty queue                                                  |
+| `Enqueue(alert QueuedAlert)`            | Appends to device bucket under mutex                                 |
 | `DequeueAll() map[string][]QueuedAlert` | Atomically drains and returns all queued alerts, resets internal map |
-| `Count() int` | Total alerts across all devices |
-| `Clear()` | Drops all queued alerts |
-| `GetByDevice(deviceID) []QueuedAlert` | Read copy for a single device |
-| `FormatDigest(deviceID) string` | Formats per-device digest as human-readable summary |
+| `Count() int`                           | Total alerts across all devices                                      |
+| `Clear()`                               | Drops all queued alerts                                              |
+| `GetByDevice(deviceID) []QueuedAlert`   | Read copy for a single device                                        |
+| `FormatDigest(deviceID) string`         | Formats per-device digest as human-readable summary                  |
 
 #### `quiet_hours_queue.go`
 
@@ -200,15 +211,17 @@ type QuietHoursQueueManager struct {
 }
 ```
 
-| Function | Description |
-|---|---|
-| `NewQuietHoursQueueManager(channels []string, callback DeliveryCallback) *QuietHoursQueueManager` | Creates per-channel queues, starts 1-minute background worker |
-| `ShouldQueue(channelName string, quietHoursActive bool) bool` | Returns true when quiet hours are active and channel exists |
-| `Enqueue(channelName string, notification Notification) error` | Appends to channel queue; returns error if full (max 100) |
-| `processQueues(ctx)` | Background tick handler: purges expired notifications (TTL 24h), delivers queued notifications to channels whose quiet hours have ended |
-| `FlushAll(ctx) error` | Forces delivery of all queued notifications regardless of quiet hours state; used on shutdown |
+| Function                                                                                          | Description                                                                                                                             |
+| ------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `NewQuietHoursQueueManager(channels []string, callback DeliveryCallback) *QuietHoursQueueManager` | Creates per-channel queues, starts 1-minute background worker                                                                           |
+| `ShouldQueue(channelName string, quietHoursActive bool) bool`                                     | Returns true when quiet hours are active and channel exists                                                                             |
+| `Enqueue(channelName string, notification Notification) error`                                    | Appends to channel queue; returns error if full (max 100)                                                                               |
+| `processQueues(ctx)`                                                                              | Background tick handler: purges expired notifications (TTL 24h), delivers queued notifications to channels whose quiet hours have ended |
+| `FlushAll(ctx) error`                                                                             | Forces delivery of all queued notifications regardless of quiet hours state; used on shutdown                                           |
 
-The manager does **not** evaluate quiet hours itself — the caller (`handleQuietHoursCheck`) determines whether quiet hours are active. The manager's background worker re-evaluates on each tick by calling `ShouldQueue` and delivering when it returns false.
+The manager does **not** evaluate quiet hours itself — the caller (`handleQuietHoursCheck`)
+determines whether quiet hours are active. The manager's background worker re-evaluates on each tick
+by calling `ShouldQueue` and delivering when it returns false.
 
 ---
 
@@ -238,13 +251,13 @@ type FailedDelivery struct {
 }
 ```
 
-| Function | Description |
-|---|---|
-| `NewDispatcher(channels []Channel, digestService *DigestService, templateService TemplateService) *Dispatcher` | Registers channels by name |
-| `Dispatch(ctx, notification Notification) error` | Splits channels into immediate vs. digest; queues digests with `QuietHoursQueueManager`, sends immediate via `dispatchToChannel` |
-| `TestChannel(ctx, channelName string, config map[string]interface{}) error` | Calls `channel.Test(ctx, config)` |
-| `GetChannel(name string) (Channel, bool)` | Returns channel by name |
-| `GetDeadLetterQueue() []FailedDelivery` | Returns snapshot of failed deliveries |
+| Function                                                                                                       | Description                                                                                                                      |
+| -------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| `NewDispatcher(channels []Channel, digestService *DigestService, templateService TemplateService) *Dispatcher` | Registers channels by name                                                                                                       |
+| `Dispatch(ctx, notification Notification) error`                                                               | Splits channels into immediate vs. digest; queues digests with `QuietHoursQueueManager`, sends immediate via `dispatchToChannel` |
+| `TestChannel(ctx, channelName string, config map[string]interface{}) error`                                    | Calls `channel.Test(ctx, config)`                                                                                                |
+| `GetChannel(name string) (Channel, bool)`                                                                      | Returns channel by name                                                                                                          |
+| `GetDeadLetterQueue() []FailedDelivery`                                                                        | Returns snapshot of failed deliveries                                                                                            |
 
 **`Channel` interface:**
 
@@ -269,14 +282,14 @@ type Notification struct {
 
 #### `dispatcher_routing.go`
 
-| Function | Description |
-|---|---|
-| `dispatchToChannel(ctx, channel Channel, notification Notification) error` | Renders template then calls `deliverWithRetries` |
-| `renderAlertTemplate(notification Notification) (Notification, error)` | Applies template service if `notification.Data["template_id"]` is set |
-| `resolveAlert(ctx, alertID string) (*ent.AlertLog, error)` | Looks up alert from DB for enrichment |
+| Function                                                                    | Description                                                                                                                                                             |
+| --------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `dispatchToChannel(ctx, channel Channel, notification Notification) error`  | Renders template then calls `deliverWithRetries`                                                                                                                        |
+| `renderAlertTemplate(notification Notification) (Notification, error)`      | Applies template service if `notification.Data["template_id"]` is set                                                                                                   |
+| `resolveAlert(ctx, alertID string) (*ent.AlertLog, error)`                  | Looks up alert from DB for enrichment                                                                                                                                   |
 | `deliverWithRetries(ctx, channel Channel, notification Notification) error` | Retry loop: attempts up to `maxRetries+1` times; backoff doubles each attempt starting from `initialBackoff` (1s → 2s → 4s); on exhaustion appends to dead-letter queue |
-| `isRetryable(err error) bool` | Returns true for network errors, timeouts, and errors containing "temporary:"; returns false for invalid-config errors and "unauthorized" |
-| `HandleAlertCreated(ctx, Event) error` | Event bus subscriber for `alert.created`; extracts alert ID, resolves alert, dispatches notification |
+| `isRetryable(err error) bool`                                               | Returns true for network errors, timeouts, and errors containing "temporary:"; returns false for invalid-config errors and "unauthorized"                               |
+| `HandleAlertCreated(ctx, Event) error`                                      | Event bus subscriber for `alert.created`; extracts alert ID, resolves alert, dispatches notification                                                                    |
 
 **Retry and backoff:**
 
@@ -305,18 +318,20 @@ type NtfyConfig struct {
 ```
 
 Security properties:
+
 - Rejects non-HTTPS URLs at config parse time.
 - Resolves server hostname and blocks private IP ranges (SSRF protection via `isPrivateIP`).
 
 Priority mapping:
 
-| Severity | ntfy Priority |
-|---|---|
-| `CRITICAL` | 5 (urgent) |
-| `WARNING` | 4 (high) |
-| default | 3 (default) |
+| Severity   | ntfy Priority |
+| ---------- | ------------- |
+| `CRITICAL` | 5 (urgent)    |
+| `WARNING`  | 4 (high)      |
+| default    | 3 (default)   |
 
-Tags: `CRITICAL` → `["rotating_light"]`, `WARNING` → `["warning"]`, `INFO` → `["information_source"]`.
+Tags: `CRITICAL` → `["rotating_light"]`, `WARNING` → `["warning"]`, `INFO` →
+`["information_source"]`.
 
 Key functions: `NewNtfyChannel`, `Send`, `Test`, `ParseNtfyConfig`, `isPrivateIP`.
 
@@ -332,17 +347,23 @@ type TelegramConfig struct {
 }
 ```
 
-Delivery uses `errgroup` for parallel sends to all chat IDs. Partial success (some chats succeeded, some failed) returns a combined error while still recording the success count.
+Delivery uses `errgroup` for parallel sends to all chat IDs. Partial success (some chats succeeded,
+some failed) returns a combined error while still recording the success count.
 
 Message format:
-- `MarkdownV2` parse mode with full character escaping (`markdownV2Replacer` covers all 19 special characters).
+
+- `MarkdownV2` parse mode with full character escaping (`markdownV2Replacer` covers all 19 special
+  characters).
 - Severity emoji prefix: CRITICAL = 🔴, WARNING = 🟠, INFO = 🟢, default = 🔔.
 - Optional router name, event type, and triggered-at fields from `notification.Data`.
-- Inline keyboard "View in NasNet" button constructed from `base_url` + `alert_id` in `notification.Data`.
+- Inline keyboard "View in NasNet" button constructed from `base_url` + `alert_id` in
+  `notification.Data`.
 
-Rate limiting: returns a `temporary:` prefixed error on HTTP 429 with `retry_after` seconds from Telegram's response; this makes the error retryable by `isRetryable`.
+Rate limiting: returns a `temporary:` prefixed error on HTTP 429 with `retry_after` seconds from
+Telegram's response; this makes the error retryable by `isRetryable`.
 
-Key functions: `NewTelegramChannel`, `Send`, `sendMessageToChat`, `Test`, `formatMessage`, `escapeMarkdownV2`, `buildInlineKeyboard`, `ParseTelegramConfig`.
+Key functions: `NewTelegramChannel`, `Send`, `sendMessageToChat`, `Test`, `formatMessage`,
+`escapeMarkdownV2`, `buildInlineKeyboard`, `ParseTelegramConfig`.
 
 #### `pushover.go` — Pushover Channel
 
@@ -357,19 +378,22 @@ type PushoverConfig struct {
 
 Priority mapping:
 
-| Severity | Pushover Priority | Behaviour |
-|---|---|---|
-| `CRITICAL` | 2 (emergency) | Requires acknowledgement; sends receipt token |
-| `WARNING` | 1 (high) | Bypasses quiet hours on device |
-| default | 0 (normal) | Standard delivery |
+| Severity   | Pushover Priority | Behaviour                                     |
+| ---------- | ----------------- | --------------------------------------------- |
+| `CRITICAL` | 2 (emergency)     | Requires acknowledgement; sends receipt token |
+| `WARNING`  | 1 (high)          | Bypasses quiet hours on device                |
+| default    | 0 (normal)        | Standard delivery                             |
 
-Emergency priority (CRITICAL) returns a receipt token stored in the response. This receipt can be cancelled via `CancelReceipt(ctx, receiptToken string) error` if the alert is acknowledged.
+Emergency priority (CRITICAL) returns a receipt token stored in the response. This receipt can be
+cancelled via `CancelReceipt(ctx, receiptToken string) error` if the alert is acknowledged.
 
-Usage tracking: Pushover API returns `X-Limit-App-Limit`, `X-Limit-App-Remaining`, `X-Limit-App-Reset` headers; these are extracted and available for monitoring.
+Usage tracking: Pushover API returns `X-Limit-App-Limit`, `X-Limit-App-Remaining`,
+`X-Limit-App-Reset` headers; these are extracted and available for monitoring.
 
 `ValidateCredentials(ctx) error` sends a validation request without sending a message.
 
-Key functions: `NewPushoverChannel`, `Send`, `Test`, `CancelReceipt`, `ValidateCredentials`, `ParsePushoverConfig`.
+Key functions: `NewPushoverChannel`, `Send`, `Test`, `CancelReceipt`, `ValidateCredentials`,
+`ParsePushoverConfig`.
 
 #### `inapp.go` — In-App Channel
 
@@ -381,7 +405,9 @@ type InAppChannel struct {
 }
 ```
 
-`Send` creates an `AlertNotificationEvent` via `notifications.NewAlertNotificationEvent` and publishes it to the event bus. GraphQL subscription resolvers listen for this event type and push it to connected WebSocket clients.
+`Send` creates an `AlertNotificationEvent` via `notifications.NewAlertNotificationEvent` and
+publishes it to the event bus. GraphQL subscription resolvers listen for this event type and push it
+to connected WebSocket clients.
 
 This channel has no configuration fields and always succeeds unless the event bus is nil.
 
@@ -408,16 +434,23 @@ type EmailConfig struct {
 ```
 
 Message construction:
-1. `buildTemplateData` extracts device name, device IP, event type, rule name, severity, suggested actions, and alert ID from `notification.Data`.
-2. `buildMultipartMessage` constructs a `multipart/alternative` MIME message with `text/plain` and `text/html` parts rendered from Go templates in the embedded `alerts` package (`email/default-body.txt` and `email/default-body.html`).
+
+1. `buildTemplateData` extracts device name, device IP, event type, rule name, severity, suggested
+   actions, and alert ID from `notification.Data`.
+2. `buildMultipartMessage` constructs a `multipart/alternative` MIME message with `text/plain` and
+   `text/html` parts rendered from Go templates in the embedded `alerts` package
+   (`email/default-body.txt` and `email/default-body.html`).
 3. Custom headers: `X-NasNet-Alert-ID`, `X-NasNet-Severity`.
 4. Subject format: `[NasNet Alert - <SEVERITY>] <Title>`.
 
 TLS options:
-- `UseTLS=false`: uses `smtp.SendMail` (STARTTLS if available).
-- `UseTLS=true`: establishes a TLS connection via `tls.Dialer` before SMTP handshake (SMTPS/port 465).
 
-Key functions: `NewEmailChannel`, `Send`, `buildTemplateData`, `buildMultipartMessage`, `renderTemplate`, `sendSMTP`, `sendWithTLS`, `Test`, `ParseEmailConfig`.
+- `UseTLS=false`: uses `smtp.SendMail` (STARTTLS if available).
+- `UseTLS=true`: establishes a TLS connection via `tls.Dialer` before SMTP handshake (SMTPS/port
+  465).
+
+Key functions: `NewEmailChannel`, `Send`, `buildTemplateData`, `buildMultipartMessage`,
+`renderTemplate`, `sendSMTP`, `sendWithTLS`, `Test`, `ParseEmailConfig`.
 
 #### `webhook.go` — Webhook Channel
 
@@ -433,21 +466,26 @@ type WebhookConfig struct {
 ```
 
 Security properties:
+
 - Rejects non-HTTPS URLs.
 - Resolves URL hostname and blocks private IP ranges (same `isPrivateIP` helper as ntfy).
 - Signs request body with HMAC-SHA256: `X-NasNet-Signature: sha256=<hex>`.
 
-Slack-aware payload: if `notification.Data["slack_compatible"]` is true, `SendDigest` constructs a Slack Block Kit payload instead of the default JSON structure.
+Slack-aware payload: if `notification.Data["slack_compatible"]` is true, `SendDigest` constructs a
+Slack Block Kit payload instead of the default JSON structure.
 
-`ValidateWebhookURL(url string) error` performs hostname resolution and SSRF check without sending a request.
+`ValidateWebhookURL(url string) error` performs hostname resolution and SSRF check without sending a
+request.
 
-Key functions: `NewWebhookChannel`, `Send`, `SendDigest`, `ValidateWebhookURL`, `Test`, `ParseWebhookConfig`.
+Key functions: `NewWebhookChannel`, `Send`, `SendDigest`, `ValidateWebhookURL`, `Test`,
+`ParseWebhookConfig`.
 
 ---
 
 ### `internal/alerts/bridge` — Service Alert Bridge
 
-**`Bridge`** (`bridge.go`) connects the service orchestrator event stream to the alert notification pipeline.
+**`Bridge`** (`bridge.go`) connects the service orchestrator event stream to the alert notification
+pipeline.
 
 ```go
 type Bridge struct {
@@ -464,20 +502,22 @@ type Bridge struct {
 
 **Subscribed event types:**
 
-| Event Type | Severity | Default Behaviour |
-|---|---|---|
-| `service.started` | INFO | Notify |
-| `service.stopped` | INFO | Notify |
-| `service.failed` | CRITICAL | Notify |
-| `service.updated` | INFO | Notify |
-| `service.crashed` | CRITICAL | Notify |
-| `service.error` | WARNING | Notify |
-| `service.traffic.quota_exceeded` | WARNING | Notify |
-| `service.killswitch_activated` | CRITICAL | Notify |
-| `service.update.available` | INFO | Notify |
-| `service.update.installed` | INFO | Notify |
+| Event Type                       | Severity | Default Behaviour |
+| -------------------------------- | -------- | ----------------- |
+| `service.started`                | INFO     | Notify            |
+| `service.stopped`                | INFO     | Notify            |
+| `service.failed`                 | CRITICAL | Notify            |
+| `service.updated`                | INFO     | Notify            |
+| `service.crashed`                | CRITICAL | Notify            |
+| `service.error`                  | WARNING  | Notify            |
+| `service.traffic.quota_exceeded` | WARNING  | Notify            |
+| `service.killswitch_activated`   | CRITICAL | Notify            |
+| `service.update.available`       | INFO     | Notify            |
+| `service.update.installed`       | INFO     | Notify            |
 
-**Rate limiting:** Each service instance gets a bucket of 100 events per 5-minute sliding window. Events exceeding the rate are silently dropped with a log warning. This prevents a crash-looping service from flooding notification channels.
+**Rate limiting:** Each service instance gets a bucket of 100 events per 5-minute sliding window.
+Events exceeding the rate are silently dropped with a log warning. This prevents a crash-looping
+service from flooding notification channels.
 
 **Event processing pipeline:**
 
@@ -493,7 +533,9 @@ graph TD
     D --> D2["Dispatcher.Dispatch"]
 ```
 
-**`createDefaultRulesIfNeeded(ctx, serviceType string) error`** — called on `service.started`. Checks if any alert rules exist for the service. If none, creates 8 default rules:
+**`createDefaultRulesIfNeeded(ctx, serviceType string) error`** — called on `service.started`.
+Checks if any alert rules exist for the service. If none, creates 8 default rules:
+
 1. Service started (INFO)
 2. Service stopped (INFO)
 3. Service failed (CRITICAL)
@@ -503,19 +545,21 @@ graph TD
 7. Update available (INFO)
 8. Update installed (INFO)
 
-Default rules are created with throttle windows to avoid notification storms during repeated restarts.
+Default rules are created with throttle windows to avoid notification storms during repeated
+restarts.
 
 ---
 
 ### `internal/services/svcalert` — Digest History Service
 
-**`svcalert.Service`** (`service_digest.go`) provides digest management APIs exposed through GraphQL resolvers.
+**`svcalert.Service`** (`service_digest.go`) provides digest management APIs exposed through GraphQL
+resolvers.
 
-| Function | Description |
-|---|---|
-| `GetDigestQueueCount(ctx) (int, error)` | Returns count of alerts currently queued in `AlertQueue` |
+| Function                                                   | Description                                                                                                        |
+| ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| `GetDigestQueueCount(ctx) (int, error)`                    | Returns count of alerts currently queued in `AlertQueue`                                                           |
 | `GetDigestHistory(ctx, limit int) ([]DigestRecord, error)` | Queries DB for past digest deliveries; groups by `digestID`; formats period as "X minutes", "X hours", or "X days" |
-| `TriggerDigestNow(ctx) error` | Forces immediate delivery of all queued alerts, bypassing the 1-minute ticker |
+| `TriggerDigestNow(ctx) error`                              | Forces immediate delivery of all queued alerts, bypassing the 1-minute ticker                                      |
 
 `DigestRecord`:
 
@@ -578,35 +622,37 @@ graph TD
 
 ### Alert Rule Fields (`ent.AlertRule`)
 
-| Field | Type | Description |
-|---|---|---|
-| `ID` | string (ULID) | Unique rule identifier |
-| `Name` | string | Human-readable rule name |
-| `Description` | string | Used as notification message if set |
-| `EventType` | string | Exact event type string to match (e.g. `"service.failed"`) |
-| `Conditions` | JSON | Array of `{field, operator, value}` condition objects |
-| `Enabled` | bool | Only enabled rules are loaded into cache |
-| `Severity` | string | `"CRITICAL"`, `"WARNING"`, `"INFO"` |
-| `ThrottleWindow` | duration | Minimum time between firings of this rule |
-| `QuietHours` | JSON | Time-of-day window(s) when notifications are suppressed |
-| `EscalationPolicy` | JSON | Escalation chain configuration |
-| `ChannelIDs` | []string | Which notification channels receive this alert |
+| Field              | Type          | Description                                                |
+| ------------------ | ------------- | ---------------------------------------------------------- |
+| `ID`               | string (ULID) | Unique rule identifier                                     |
+| `Name`             | string        | Human-readable rule name                                   |
+| `Description`      | string        | Used as notification message if set                        |
+| `EventType`        | string        | Exact event type string to match (e.g. `"service.failed"`) |
+| `Conditions`       | JSON          | Array of `{field, operator, value}` condition objects      |
+| `Enabled`          | bool          | Only enabled rules are loaded into cache                   |
+| `Severity`         | string        | `"CRITICAL"`, `"WARNING"`, `"INFO"`                        |
+| `ThrottleWindow`   | duration      | Minimum time between firings of this rule                  |
+| `QuietHours`       | JSON          | Time-of-day window(s) when notifications are suppressed    |
+| `EscalationPolicy` | JSON          | Escalation chain configuration                             |
+| `ChannelIDs`       | []string      | Which notification channels receive this alert             |
 
 ### Storm Detector Configuration
 
 `DefaultStormConfig()` returns:
 
-| Parameter | Default | Description |
-|---|---|---|
-| `ThresholdRate` | 100 events/min | Global rate above which all alerts are suppressed |
-| `CooldownPeriod` | 60 seconds | How long suppression continues after storm clears |
-| `WindowSize` | 60 seconds | Sliding window for rate calculation |
+| Parameter        | Default        | Description                                       |
+| ---------------- | -------------- | ------------------------------------------------- |
+| `ThresholdRate`  | 100 events/min | Global rate above which all alerts are suppressed |
+| `CooldownPeriod` | 60 seconds     | How long suppression continues after storm clears |
+| `WindowSize`     | 60 seconds     | Sliding window for rate calculation               |
 
-Configurable via `NewStormDetector(config StormConfig, clock Clock)`. The `Clock` interface allows injection of a test clock.
+Configurable via `NewStormDetector(config StormConfig, clock Clock)`. The `Clock` interface allows
+injection of a test clock.
 
 ### Notification Channel Configuration Examples
 
 **Email (SMTP)**:
+
 ```json
 {
   "smtp_host": "smtp.example.com",
@@ -621,6 +667,7 @@ Configurable via `NewStormDetector(config StormConfig, clock Clock)`. The `Clock
 ```
 
 **Telegram**:
+
 ```json
 {
   "bot_token": "123456:ABC-DEF",
@@ -629,6 +676,7 @@ Configurable via `NewStormDetector(config StormConfig, clock Clock)`. The `Clock
 ```
 
 **ntfy**:
+
 ```json
 {
   "server_url": "https://ntfy.example.com",
@@ -638,16 +686,18 @@ Configurable via `NewStormDetector(config StormConfig, clock Clock)`. The `Clock
 ```
 
 **Webhook**:
+
 ```json
 {
   "url": "https://hooks.example.com/nasnet",
   "secret": "hmac-signing-secret",
   "method": "POST",
-  "headers": {"X-Source": "nasnet"}
+  "headers": { "X-Source": "nasnet" }
 }
 ```
 
 **Pushover**:
+
 ```json
 {
   "user_key": "uXXXXX",
@@ -659,21 +709,21 @@ Configurable via `NewStormDetector(config StormConfig, clock Clock)`. The `Clock
 
 ## Error Handling
 
-| Scenario | Behaviour |
-|---|---|
-| Storm detector threshold exceeded | All matching rules suppressed; suppression count tracked; logged at WARN |
-| ThrottleManager blocks rule | Rule suppressed; suppression count tracked per rule ID |
-| Quiet hours active | Alert persisted to DB; queued in AlertQueue; delivered as digest when quiet hours end |
-| Channel `Send` returns error | Retry up to 3 times with exponential backoff (1s, 2s, 4s) |
-| Error matches `isRetryable=false` | No retry; goes directly to dead-letter queue |
-| All retries exhausted | Appended to `Dispatcher.deadLetterQueue` with attempt count and last error |
-| Event payload unmarshal failure | Logged at WARN; `eventData` set to empty map; evaluation continues |
-| Rule cache miss (rule deleted after cache load) | `getRuleByID` falls back to DB query |
-| `createDefaultRulesIfNeeded` DB error | Logged at WARN; bridge continues processing; no rules created |
-| Quiet hours queue full (>100 notifications per channel) | `Enqueue` returns error; notification silently dropped at bridge; logged |
-| Notification TTL exceeded (>24h in quiet hours queue) | Purged by background worker; never delivered |
-| Escalation engine nil | `createAlert` skips escalation tracking; notification still dispatched |
-| In-app event bus nil | `InAppChannel.Send` returns error immediately (not retried as configuration error) |
+| Scenario                                                | Behaviour                                                                             |
+| ------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| Storm detector threshold exceeded                       | All matching rules suppressed; suppression count tracked; logged at WARN              |
+| ThrottleManager blocks rule                             | Rule suppressed; suppression count tracked per rule ID                                |
+| Quiet hours active                                      | Alert persisted to DB; queued in AlertQueue; delivered as digest when quiet hours end |
+| Channel `Send` returns error                            | Retry up to 3 times with exponential backoff (1s, 2s, 4s)                             |
+| Error matches `isRetryable=false`                       | No retry; goes directly to dead-letter queue                                          |
+| All retries exhausted                                   | Appended to `Dispatcher.deadLetterQueue` with attempt count and last error            |
+| Event payload unmarshal failure                         | Logged at WARN; `eventData` set to empty map; evaluation continues                    |
+| Rule cache miss (rule deleted after cache load)         | `getRuleByID` falls back to DB query                                                  |
+| `createDefaultRulesIfNeeded` DB error                   | Logged at WARN; bridge continues processing; no rules created                         |
+| Quiet hours queue full (>100 notifications per channel) | `Enqueue` returns error; notification silently dropped at bridge; logged              |
+| Notification TTL exceeded (>24h in quiet hours queue)   | Purged by background worker; never delivered                                          |
+| Escalation engine nil                                   | `createAlert` skips escalation tracking; notification still dispatched                |
+| In-app event bus nil                                    | `InAppChannel.Send` returns error immediately (not retried as configuration error)    |
 
 ---
 
@@ -682,6 +732,7 @@ Configurable via `NewStormDetector(config StormConfig, clock Clock)`. The `Clock
 The alert system has several testable seams:
 
 **Engine with mock event bus:**
+
 ```go
 bus := events.NewTestBus()
 engine := alerts.NewEngine(alerts.EngineConfig{
@@ -692,6 +743,7 @@ engine := alerts.NewEngine(alerts.EngineConfig{
 ```
 
 **Deterministic storm detection:**
+
 ```go
 clock := &MockClock{now: time.Now()}
 detector := alerts.NewStormDetector(alerts.StormConfig{
@@ -702,6 +754,7 @@ detector := alerts.NewStormDetector(alerts.StormConfig{
 ```
 
 **Channel delivery verification:**
+
 ```go
 type mockChannel struct {
     received []notifications.Notification
@@ -713,11 +766,13 @@ func (m *mockChannel) Send(ctx context.Context, n notifications.Notification) er
 ```
 
 **Quiet hours queue flushing:**
+
 ```go
 manager.FlushAll(ctx) // delivers all queued notifications immediately
 ```
 
 **Dead-letter queue inspection:**
+
 ```go
 failed := dispatcher.GetDeadLetterQueue()
 assert.Len(t, failed, 1)
@@ -725,6 +780,7 @@ assert.Equal(t, "email", failed[0].ChannelName)
 ```
 
 **Service bridge default rules:**
+
 ```go
 // Trigger service.started event and verify 8 rules were created
 bus.Publish(ctx, events.NewServiceEvent("service.started", instance))
@@ -736,11 +792,11 @@ assert.Len(t, rules, 8)
 
 ## Cross-References
 
-| Topic | Document |
-|---|---|
-| Event bus and event types | `event-system.md` |
-| GraphQL alert subscriptions | `graphql-api.md` |
-| Service orchestrator (emits service.* events) | `service-orchestrator.md` |
-| Provisioning engine | `provisioning-engine.md` |
-| Database schema (AlertRule, AlertLog) | `data-layer.md` |
-| Bootstrap wiring (alert engine startup) | `application-bootstrap.md` |
+| Topic                                          | Document                   |
+| ---------------------------------------------- | -------------------------- |
+| Event bus and event types                      | `event-system.md`          |
+| GraphQL alert subscriptions                    | `graphql-api.md`           |
+| Service orchestrator (emits service.\* events) | `service-orchestrator.md`  |
+| Provisioning engine                            | `provisioning-engine.md`   |
+| Database schema (AlertRule, AlertLog)          | `data-layer.md`            |
+| Bootstrap wiring (alert engine startup)        | `application-bootstrap.md` |

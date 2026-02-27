@@ -75,9 +75,7 @@ export interface UseRuleNavigationReturn {
  * }
  * ```
  */
-export function useRuleNavigation({
-  routerId,
-}: UseRuleNavigationOptions): UseRuleNavigationReturn {
+export function useRuleNavigation({ routerId }: UseRuleNavigationOptions): UseRuleNavigationReturn {
   const navigate = useNavigate();
 
   // Fetch all filter rules (cached by TanStack Query)

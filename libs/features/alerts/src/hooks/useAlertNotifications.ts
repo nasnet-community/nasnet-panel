@@ -21,10 +21,7 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useSubscription, gql } from '@apollo/client';
 import { useToast } from '@nasnet/ui/patterns';
-import {
-  useAlertNotificationStore,
-  type AlertSeverity,
-} from '@nasnet/state/stores';
+import { useAlertNotificationStore, type AlertSeverity } from '@nasnet/state/stores';
 import { selectActiveRouterId, useConnectionStore } from '@nasnet/state/stores';
 
 // ===== GraphQL Subscription =====
@@ -149,10 +146,7 @@ function playAlertSound(severity: AlertSeverity, soundEnabled: boolean): void {
 /**
  * Get auto-dismiss duration based on severity and user settings
  */
-function getAutoDismissDuration(
-  severity: AlertSeverity,
-  userDuration: number
-): number | null {
+function getAutoDismissDuration(severity: AlertSeverity, userDuration: number): number | null {
   // Critical alerts: never auto-dismiss (require acknowledgment)
   if (severity === 'CRITICAL') {
     return null;
@@ -178,10 +172,7 @@ function getAutoDismissDuration(
 /**
  * Check if alert passes severity filter
  */
-function passesSeverityFilter(
-  severity: AlertSeverity,
-  filter: AlertSeverity | 'ALL'
-): boolean {
+function passesSeverityFilter(severity: AlertSeverity, filter: AlertSeverity | 'ALL'): boolean {
   if (filter === 'ALL') return true;
 
   // Severity hierarchy: CRITICAL > WARNING > INFO
@@ -231,9 +222,7 @@ function passesSeverityFilter(
  * }
  * ```
  */
-export function useAlertNotifications(
-  options: UseAlertNotificationsOptions = {}
-): void {
+export function useAlertNotifications(options: UseAlertNotificationsOptions = {}): void {
   const { deviceId: overrideDeviceId, enabled = true } = options;
 
   // Get active router ID from connection store
@@ -274,8 +263,9 @@ export function useAlertNotifications(
       const toastOptions = {
         message: alert.message,
         duration: autoDismissDuration,
-        action: route
-          ? {
+        action:
+          route ?
+            {
               label: 'View',
               onClick: () => {
                 window.location.href = route;

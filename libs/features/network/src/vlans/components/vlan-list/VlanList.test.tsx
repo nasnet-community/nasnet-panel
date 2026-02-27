@@ -53,7 +53,10 @@ const mocks = [
 describe('VlanList', () => {
   it('should render VLAN list', async () => {
     render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider
+        mocks={mocks}
+        addTypename={false}
+      >
         <VlanList routerId="router-1" />
       </MockedProvider>
     );
@@ -70,7 +73,10 @@ describe('VlanList', () => {
 
   it('should show loading state', () => {
     render(
-      <MockedProvider mocks={[]} addTypename={false}>
+      <MockedProvider
+        mocks={[]}
+        addTypename={false}
+      >
         <VlanList routerId="router-1" />
       </MockedProvider>
     );
@@ -94,7 +100,10 @@ describe('VlanList', () => {
     ];
 
     render(
-      <MockedProvider mocks={emptyMocks} addTypename={false}>
+      <MockedProvider
+        mocks={emptyMocks}
+        addTypename={false}
+      >
         <VlanList routerId="router-1" />
       </MockedProvider>
     );
@@ -108,7 +117,10 @@ describe('VlanList', () => {
     const user = userEvent.setup();
 
     render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider
+        mocks={mocks}
+        addTypename={false}
+      >
         <VlanList routerId="router-1" />
       </MockedProvider>
     );
@@ -131,7 +143,10 @@ describe('VlanList', () => {
 
   it('should have accessible labels', async () => {
     render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider
+        mocks={mocks}
+        addTypename={false}
+      >
         <VlanList routerId="router-1" />
       </MockedProvider>
     );
@@ -177,7 +192,10 @@ describe('VlanList', () => {
     ];
 
     render(
-      <MockedProvider mocks={mixedStatusMocks} addTypename={false}>
+      <MockedProvider
+        mocks={mixedStatusMocks}
+        addTypename={false}
+      >
         <VlanList routerId="router-1" />
       </MockedProvider>
     );

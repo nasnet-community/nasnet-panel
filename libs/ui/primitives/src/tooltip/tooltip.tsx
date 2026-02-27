@@ -28,19 +28,19 @@
  * @param className - Optional CSS classes for styling the content
  * @returns Tooltip component with automatic positioning and keyboard accessibility
  */
-'use client'
+'use client';
 
-import * as React from 'react'
+import * as React from 'react';
 
-import * as TooltipPrimitive from '@radix-ui/react-tooltip'
+import * as TooltipPrimitive from '@radix-ui/react-tooltip';
 
-import { cn } from '../lib/utils'
+import { cn } from '../lib/utils';
 
-const TooltipProvider = TooltipPrimitive.Provider
+const TooltipProvider = TooltipPrimitive.Provider;
 
-const Tooltip = TooltipPrimitive.Root
+const Tooltip = TooltipPrimitive.Root;
 
-const TooltipTrigger = TooltipPrimitive.Trigger
+const TooltipTrigger = TooltipPrimitive.Trigger;
 
 /**
  * TooltipContent - Floating tooltip content panel.
@@ -59,11 +59,11 @@ const TooltipContent = React.memo(
     const computedClassName = React.useMemo(
       () =>
         cn(
-          'z-50 overflow-hidden rounded-md bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 px-3 py-1.5 text-xs font-medium shadow-[var(--semantic-shadow-tooltip)] animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 max-w-xs',
+          'animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 max-w-xs overflow-hidden rounded-md bg-slate-900 px-3 py-1.5 text-xs font-medium text-white shadow-[var(--semantic-shadow-tooltip)] dark:bg-slate-100 dark:text-slate-900',
           className
         ),
       [className]
-    )
+    );
 
     return (
       <TooltipPrimitive.Content
@@ -72,9 +72,9 @@ const TooltipContent = React.memo(
         className={computedClassName}
         {...props}
       />
-    )
+    );
   })
-)
-TooltipContent.displayName = TooltipPrimitive.Content.displayName
+);
+TooltipContent.displayName = TooltipPrimitive.Content.displayName;
 
-export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider }
+export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider };

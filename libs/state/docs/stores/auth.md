@@ -9,18 +9,18 @@ Deep-dive into JWT token management, user session state, and authentication life
 ```typescript
 interface AuthState {
   // Token State
-  token: string | null;              // JWT access token
-  tokenExpiry: Date | null;           // Expiration timestamp
-  refreshToken: string | null;        // Refresh token for new access tokens
+  token: string | null; // JWT access token
+  tokenExpiry: Date | null; // Expiration timestamp
+  refreshToken: string | null; // Refresh token for new access tokens
 
   // User State
-  user: User | null;                  // Current user profile
-  isAuthenticated: boolean;           // Whether user is logged in
+  user: User | null; // Current user profile
+  isAuthenticated: boolean; // Whether user is logged in
 
   // Session State
-  isRefreshing: boolean;              // Token refresh in progress
-  refreshAttempts: number;            // Number of refresh attempts (max 3)
-  lastActivity: Date | null;          // Last user activity timestamp
+  isRefreshing: boolean; // Token refresh in progress
+  refreshAttempts: number; // Number of refresh attempts (max 3)
+  lastActivity: Date | null; // Last user activity timestamp
 }
 ```
 
@@ -28,10 +28,10 @@ interface AuthState {
 
 ```typescript
 interface User {
-  id: string;                         // Unique identifier
-  username: string;                   // Display name
-  email: string | null;               // Email address (optional)
-  permissions: string[];              // Permission array
+  id: string; // Unique identifier
+  username: string; // Display name
+  email: string | null; // Email address (optional)
+  permissions: string[]; // Permission array
 }
 ```
 
@@ -40,23 +40,25 @@ interface User {
 ### Authentication Actions
 
 **`setAuth(token, user, expiresAt, refreshToken?)`** - Set authentication state after login
+
 ```typescript
 const { setAuth } = useAuthStore();
 
 setAuth(
-  'eyJhbGc...',                       // JWT token
+  'eyJhbGc...', // JWT token
   {
     id: 'user-123',
     username: 'admin',
     email: 'admin@router.local',
-    permissions: ['admin', 'read', 'write']
+    permissions: ['admin', 'read', 'write'],
   },
-  new Date(Date.now() + 3600000),    // Expires in 1 hour
-  'refresh-token-xyz'                 // Optional refresh token
+  new Date(Date.now() + 3600000), // Expires in 1 hour
+  'refresh-token-xyz' // Optional refresh token
 );
 ```
 
 **`clearAuth()`** - Clear all authentication state (logout)
+
 ```typescript
 const { clearAuth } = useAuthStore();
 clearAuth();
@@ -65,19 +67,22 @@ clearAuth();
 ### Token Refresh State
 
 **`setRefreshing(isRefreshing)`** - Set refreshing state during token renewal
+
 ```typescript
 const { setRefreshing } = useAuthStore();
-setRefreshing(true);  // Start refresh
+setRefreshing(true); // Start refresh
 setRefreshing(false); // Refresh complete
 ```
 
 **`incrementRefreshAttempts()`** - Increment refresh attempt counter
+
 ```typescript
 const { incrementRefreshAttempts } = useAuthStore();
 incrementRefreshAttempts(); // Calls on each failed refresh
 ```
 
 **`resetRefreshAttempts()`** - Reset attempt counter on successful refresh
+
 ```typescript
 const { resetRefreshAttempts } = useAuthStore();
 resetRefreshAttempts(); // Call on refresh success
@@ -86,6 +91,7 @@ resetRefreshAttempts(); // Call on refresh success
 ### Activity Tracking
 
 **`updateLastActivity()`** - Update last activity timestamp
+
 ```typescript
 const { updateLastActivity } = useAuthStore();
 updateLastActivity(); // Called on user interaction
@@ -94,6 +100,7 @@ updateLastActivity(); // Called on user interaction
 ### Token State Queries
 
 **`isTokenExpiringSoon(): boolean`** - Check if token expires within 5 minutes
+
 ```typescript
 const { isTokenExpiringSoon } = useAuthStore();
 
@@ -103,6 +110,7 @@ if (isTokenExpiringSoon()) {
 ```
 
 **`getTimeUntilExpiry(): number | null`** - Get milliseconds until token expiry
+
 ```typescript
 const { getTimeUntilExpiry } = useAuthStore();
 
@@ -113,6 +121,7 @@ if (msUntilExpiry && msUntilExpiry < 300000) {
 ```
 
 **`shouldAttemptRefresh(): boolean`** - Check if refresh should be attempted
+
 ```typescript
 const { shouldAttemptRefresh } = useAuthStore();
 
@@ -130,16 +139,16 @@ if (shouldAttemptRefresh()) {
 
 Optimized selectors for minimal re-renders:
 
-| Selector | Returns | Usage |
-|----------|---------|-------|
-| `selectIsAuthenticated` | `boolean` | Check if user is logged in |
-| `selectUser` | `User \| null` | Get current user profile |
-| `selectToken` | `string \| null` | Get access token |
-| `selectIsRefreshing` | `boolean` | Check if refresh in progress |
-| `selectRefreshAttempts` | `number` | Get current refresh attempt count |
-| `selectMaxRefreshExceeded` | `boolean` | Check if max attempts (3) exceeded |
-| `selectPermissions` | `string[]` | Get user permissions array |
-| `selectHasPermission(perm)` | `boolean` | Check if user has permission |
+| Selector                    | Returns          | Usage                              |
+| --------------------------- | ---------------- | ---------------------------------- |
+| `selectIsAuthenticated`     | `boolean`        | Check if user is logged in         |
+| `selectUser`                | `User \| null`   | Get current user profile           |
+| `selectToken`               | `string \| null` | Get access token                   |
+| `selectIsRefreshing`        | `boolean`        | Check if refresh in progress       |
+| `selectRefreshAttempts`     | `number`         | Get current refresh attempt count  |
+| `selectMaxRefreshExceeded`  | `boolean`        | Check if max attempts (3) exceeded |
+| `selectPermissions`         | `string[]`       | Get user permissions array         |
+| `selectHasPermission(perm)` | `boolean`        | Check if user has permission       |
 
 **Example:**
 
@@ -147,11 +156,11 @@ Optimized selectors for minimal re-renders:
 import { shallow } from 'zustand/shallow';
 
 // ✅ Good: Only re-renders on user change
-const user = useAuthStore(state => state.user);
+const user = useAuthStore((state) => state.user);
 
 // ✅ Good: Multiple fields with shallow comparison
 const { user, token } = useAuthStore(
-  state => ({ user: state.user, token: state.token }),
+  (state) => ({ user: state.user, token: state.token }),
   shallow
 );
 
@@ -166,11 +175,13 @@ const { user, token, isRefreshing } = useAuthStore();
 For access outside React components:
 
 **`getAuthState(): AuthState & AuthActions`** - Get current store state
+
 ```typescript
 const { token, isAuthenticated } = getAuthState();
 ```
 
 **`subscribeAuthState(listener)`** - Subscribe to store changes
+
 ```typescript
 const unsubscribe = subscribeAuthState((state) => {
   console.log('Auth changed:', state.isAuthenticated);
@@ -179,6 +190,7 @@ const unsubscribe = subscribeAuthState((state) => {
 ```
 
 **`isAuthenticated(): boolean`** - Check if currently authenticated (faster)
+
 ```typescript
 // Used in route guards and Apollo auth links
 if (isAuthenticated()) {
@@ -187,6 +199,7 @@ if (isAuthenticated()) {
 ```
 
 **`getAuthToken(): string | null`** - Get current valid token
+
 ```typescript
 // Used in Apollo auth link to get token for requests
 const token = getAuthToken();
@@ -267,7 +280,8 @@ const authStorage: StateStorage = {
 };
 ```
 
-**Why custom handler?** Default JSON serialization converts Date to ISO strings, which breaks expiry comparison logic. Custom handler rehydrates Date objects on load.
+**Why custom handler?** Default JSON serialization converts Date to ISO strings, which breaks expiry
+comparison logic. Custom handler rehydrates Date objects on load.
 
 ### Partialize Configuration
 
@@ -284,6 +298,7 @@ partialize: (state) => ({
 ```
 
 **NOT persisted (reset on reload):**
+
 - `isRefreshing` - Session state
 - `refreshAttempts` - Session state
 - `lastActivity` - Ephemeral
@@ -387,15 +402,17 @@ Time-travel debugging: Step through auth state changes
 ## Performance Tips
 
 1. **Always use selectors**, never subscribe to whole store:
+
    ```typescript
    // ✅ Good
-   const isAuth = useAuthStore(s => s.isAuthenticated);
+   const isAuth = useAuthStore((s) => s.isAuthenticated);
 
    // ❌ Bad
    const { isAuthenticated } = useAuthStore();
    ```
 
 2. **Use out-of-React access** in non-component code:
+
    ```typescript
    // In route guards, Apollo links, utilities
    if (isAuthenticated()) {

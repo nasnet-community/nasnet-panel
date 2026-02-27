@@ -14,7 +14,7 @@
 
 import * as React from 'react';
 
-import { cn , Spinner } from '@nasnet/ui/primitives';
+import { cn, Spinner } from '@nasnet/ui/primitives';
 
 // ============================================================================
 // Types
@@ -102,24 +102,25 @@ export const LoadingOverlay = React.memo(function LoadingOverlay({
       )}
     >
       {/* Spinner */}
-      <Spinner size={spinnerSize} className="text-primary" />
+      <Spinner
+        size={spinnerSize}
+        className="text-primary"
+      />
 
       {/* Message */}
       {message && (
-        <p className="mt-4 text-sm text-muted-foreground motion-safe:animate-pulse">{message}</p>
+        <p className="text-muted-foreground mt-4 text-sm motion-safe:animate-pulse">{message}</p>
       )}
 
       {/* Description */}
-      {description && (
-        <p className="mt-1 text-xs text-muted-foreground">{description}</p>
-      )}
+      {description && <p className="text-muted-foreground mt-1 text-xs">{description}</p>}
 
       {/* Progress bar */}
       {progress !== undefined && (
         <div className="mt-4 w-48">
-          <div className="h-2 w-full rounded-full bg-muted">
+          <div className="bg-muted h-2 w-full rounded-full">
             <div
-              className="h-full rounded-full bg-primary transition-all duration-300"
+              className="bg-primary h-full rounded-full transition-all duration-300"
               style={{ width: `${Math.min(100, Math.max(0, progress))}%` }}
               role="progressbar"
               aria-valuenow={progress}
@@ -127,9 +128,7 @@ export const LoadingOverlay = React.memo(function LoadingOverlay({
               aria-valuemax={100}
             />
           </div>
-          <p className="mt-1 text-center text-xs text-muted-foreground">
-            {Math.round(progress)}%
-          </p>
+          <p className="text-muted-foreground mt-1 text-center text-xs">{Math.round(progress)}%</p>
         </div>
       )}
     </div>

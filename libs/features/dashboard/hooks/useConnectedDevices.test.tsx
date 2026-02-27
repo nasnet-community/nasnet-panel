@@ -119,7 +119,7 @@ describe('useConnectedDevices', () => {
       });
 
       expect(result.current.devices).toHaveLength(2);
-      expect(result.current.devices.map(d => d.id)).toEqual(['1', '4']);
+      expect(result.current.devices.map((d) => d.id)).toEqual(['1', '4']);
     });
 
     it('should detect device type from hostname', () => {
@@ -321,10 +321,9 @@ describe('useConnectedDevices', () => {
         error: null,
       } as any);
 
-      const { result, rerender } = renderHook(
-        () => useConnectedDevices('192.168.88.1'),
-        { wrapper }
-      );
+      const { result, rerender } = renderHook(() => useConnectedDevices('192.168.88.1'), {
+        wrapper,
+      });
 
       const firstDevices = result.current.devices;
       rerender();
@@ -364,15 +363,16 @@ describe('useConnectedDevices', () => {
           error: null,
         } as any);
 
-      const { result, rerender } = renderHook(
-        () => useConnectedDevices('192.168.88.1'),
-        { wrapper }
-      );
+      const { result, rerender } = renderHook(() => useConnectedDevices('192.168.88.1'), {
+        wrapper,
+      });
 
       expect(result.current.devices[0].isNew).toBe(false);
 
       rerender();
-      expect(result.current.devices.find(d => d.macAddress === '11:22:33:44:55:66')?.isNew).toBe(true);
+      expect(result.current.devices.find((d) => d.macAddress === '11:22:33:44:55:66')?.isNew).toBe(
+        true
+      );
     });
 
     it('should keep existing MAC as not new', () => {
@@ -384,10 +384,9 @@ describe('useConnectedDevices', () => {
         error: null,
       } as any);
 
-      const { result, rerender } = renderHook(
-        () => useConnectedDevices('192.168.88.1'),
-        { wrapper }
-      );
+      const { result, rerender } = renderHook(() => useConnectedDevices('192.168.88.1'), {
+        wrapper,
+      });
 
       expect(result.current.devices[0].isNew).toBe(false);
       rerender();
@@ -411,13 +410,12 @@ describe('useConnectedDevices', () => {
           error: null,
         } as any);
 
-      const { result, rerender } = renderHook(
-        () => useConnectedDevices('192.168.88.1'),
-        { wrapper }
-      );
+      const { result, rerender } = renderHook(() => useConnectedDevices('192.168.88.1'), {
+        wrapper,
+      });
 
       rerender();
-      const newDevices = result.current.devices.filter(d => d.isNew);
+      const newDevices = result.current.devices.filter((d) => d.isNew);
       expect(newDevices).toHaveLength(2);
     });
 
@@ -436,10 +434,9 @@ describe('useConnectedDevices', () => {
           error: null,
         } as any);
 
-      const { result, rerender } = renderHook(
-        () => useConnectedDevices('192.168.88.1'),
-        { wrapper }
-      );
+      const { result, rerender } = renderHook(() => useConnectedDevices('192.168.88.1'), {
+        wrapper,
+      });
 
       // Add new device
       rerender();
@@ -470,10 +467,9 @@ describe('useConnectedDevices', () => {
           error: null,
         } as any);
 
-      const { result, rerender } = renderHook(
-        () => useConnectedDevices('192.168.88.1'),
-        { wrapper }
-      );
+      const { result, rerender } = renderHook(() => useConnectedDevices('192.168.88.1'), {
+        wrapper,
+      });
 
       rerender();
       expect(result.current.devices[0].isNew).toBe(true);
@@ -497,10 +493,9 @@ describe('useConnectedDevices', () => {
         error: null,
       } as any);
 
-      const { result, rerender } = renderHook(
-        () => useConnectedDevices('192.168.88.1'),
-        { wrapper }
-      );
+      const { result, rerender } = renderHook(() => useConnectedDevices('192.168.88.1'), {
+        wrapper,
+      });
 
       for (let i = 0; i < 5; i++) {
         rerender();
@@ -525,10 +520,9 @@ describe('useConnectedDevices', () => {
           error: null,
         } as any);
 
-      const { result, rerender } = renderHook(
-        () => useConnectedDevices('192.168.88.1'),
-        { wrapper }
-      );
+      const { result, rerender } = renderHook(() => useConnectedDevices('192.168.88.1'), {
+        wrapper,
+      });
 
       expect(result.current.devices[0].macAddress).toBe('AA:BB:CC:DD:EE:FF');
       rerender();
@@ -551,10 +545,9 @@ describe('useConnectedDevices', () => {
           error: null,
         } as any);
 
-      const { result, rerender } = renderHook(
-        () => useConnectedDevices('192.168.88.1'),
-        { wrapper }
-      );
+      const { result, rerender } = renderHook(() => useConnectedDevices('192.168.88.1'), {
+        wrapper,
+      });
 
       rerender();
       expect(result.current.devices[0].isNew).toBe(true);
@@ -587,10 +580,9 @@ describe('useConnectedDevices', () => {
           error: null,
         } as any);
 
-      const { result, rerender } = renderHook(
-        () => useConnectedDevices('192.168.88.1'),
-        { wrapper }
-      );
+      const { result, rerender } = renderHook(() => useConnectedDevices('192.168.88.1'), {
+        wrapper,
+      });
 
       expect(result.current.devices[0].isNew).toBe(false);
       rerender(); // Disconnects
@@ -618,10 +610,9 @@ describe('useConnectedDevices', () => {
           error: null,
         } as any);
 
-      const { result, rerender } = renderHook(
-        () => useConnectedDevices('192.168.88.1'),
-        { wrapper }
-      );
+      const { result, rerender } = renderHook(() => useConnectedDevices('192.168.88.1'), {
+        wrapper,
+      });
 
       rerender(); // Disconnects
 
@@ -668,7 +659,7 @@ describe('useConnectedDevices', () => {
         { wrapper }
       );
 
-      expect(result.current.devices.map(d => d.hostname)).toEqual([
+      expect(result.current.devices.map((d) => d.hostname)).toEqual([
         'Alpha-Laptop',
         'Beta-Desktop',
         'Zebra-Phone',
@@ -693,11 +684,7 @@ describe('useConnectedDevices', () => {
         { wrapper }
       );
 
-      expect(result.current.devices.map(d => d.hostname)).toEqual([
-        'Alpha',
-        'BETA',
-        'zebra',
-      ]);
+      expect(result.current.devices.map((d) => d.hostname)).toEqual(['Alpha', 'BETA', 'zebra']);
     });
 
     it('should sort by IP address correctly', () => {
@@ -707,12 +694,11 @@ describe('useConnectedDevices', () => {
         error: null,
       } as any);
 
-      const { result } = renderHook(
-        () => useConnectedDevices('192.168.88.1', { sortBy: 'ip' }),
-        { wrapper }
-      );
+      const { result } = renderHook(() => useConnectedDevices('192.168.88.1', { sortBy: 'ip' }), {
+        wrapper,
+      });
 
-      expect(result.current.devices.map(d => d.ipAddress)).toEqual([
+      expect(result.current.devices.map((d) => d.ipAddress)).toEqual([
         '192.168.88.10',
         '192.168.88.100',
         '192.168.88.200',
@@ -733,12 +719,11 @@ describe('useConnectedDevices', () => {
         error: null,
       } as any);
 
-      const { result } = renderHook(
-        () => useConnectedDevices('192.168.88.1', { sortBy: 'ip' }),
-        { wrapper }
-      );
+      const { result } = renderHook(() => useConnectedDevices('192.168.88.1', { sortBy: 'ip' }), {
+        wrapper,
+      });
 
-      expect(result.current.devices.map(d => d.ipAddress)).toEqual([
+      expect(result.current.devices.map((d) => d.ipAddress)).toEqual([
         '192.168.88.5',
         '192.168.88.10',
         '192.168.88.100',
@@ -758,7 +743,7 @@ describe('useConnectedDevices', () => {
         { wrapper }
       );
 
-      expect(result.current.devices.map(d => d.id)).toEqual(['1', '2', '3']);
+      expect(result.current.devices.map((d) => d.id)).toEqual(['1', '2', '3']);
     });
 
     it('should sort by duration (longest connected first)', () => {
@@ -773,7 +758,7 @@ describe('useConnectedDevices', () => {
         { wrapper }
       );
 
-      expect(result.current.devices.map(d => d.id)).toEqual(['3', '2', '1']);
+      expect(result.current.devices.map((d) => d.id)).toEqual(['3', '2', '1']);
     });
 
     it('should default to duration sort when sortBy is undefined', () => {
@@ -783,12 +768,9 @@ describe('useConnectedDevices', () => {
         error: null,
       } as any);
 
-      const { result } = renderHook(
-        () => useConnectedDevices('192.168.88.1'),
-        { wrapper }
-      );
+      const { result } = renderHook(() => useConnectedDevices('192.168.88.1'), { wrapper });
 
-      expect(result.current.devices.map(d => d.id)).toEqual(['3', '2', '1']);
+      expect(result.current.devices.map((d) => d.id)).toEqual(['3', '2', '1']);
     });
 
     it('should create new array for sorting (immutability)', () => {
@@ -976,9 +958,7 @@ describe('useConnectedDevices', () => {
     });
 
     it('should set totalCount matching devices.length', () => {
-      const devices = Array.from({ length: 12 }, (_, i) =>
-        createMockLease({ id: `${i}` })
-      );
+      const devices = Array.from({ length: 12 }, (_, i) => createMockLease({ id: `${i}` }));
 
       vi.mocked(dhcpQueries.useDHCPLeases).mockReturnValue({
         data: devices,
@@ -1260,10 +1240,9 @@ describe('useConnectedDevices', () => {
           error: null,
         } as any);
 
-      const { result, rerender } = renderHook(
-        () => useConnectedDevices('192.168.88.1'),
-        { wrapper }
-      );
+      const { result, rerender } = renderHook(() => useConnectedDevices('192.168.88.1'), {
+        wrapper,
+      });
 
       expect(result.current.devices[0].id).toBe('1');
       rerender();
@@ -1290,10 +1269,9 @@ describe('useConnectedDevices', () => {
           error: null,
         } as any);
 
-      const { result, rerender } = renderHook(
-        () => useConnectedDevices('192.168.88.1'),
-        { wrapper }
-      );
+      const { result, rerender } = renderHook(() => useConnectedDevices('192.168.88.1'), {
+        wrapper,
+      });
 
       expect(result.current.isDhcpEnabled).toBe(false);
       rerender();
@@ -1328,9 +1306,7 @@ describe('useConnectedDevices', () => {
       } as any);
 
       vi.mocked(dhcpQueries.useDHCPServers).mockReturnValue({
-        data: [
-          { id: '1', name: 'dhcp1', disabled: false, interface: 'bridge' },
-        ],
+        data: [{ id: '1', name: 'dhcp1', disabled: false, interface: 'bridge' }],
         isLoading: false,
         error: null,
       } as any);
@@ -1376,8 +1352,7 @@ describe('useConnectedDevices', () => {
       } as any);
 
       const { result, rerender } = renderHook(
-        ({ sortBy }: UseConnectedDevicesOptions) =>
-          useConnectedDevices('192.168.88.1', { sortBy }),
+        ({ sortBy }: UseConnectedDevicesOptions) => useConnectedDevices('192.168.88.1', { sortBy }),
         { wrapper, initialProps: { sortBy: 'hostname' as const } }
       );
 

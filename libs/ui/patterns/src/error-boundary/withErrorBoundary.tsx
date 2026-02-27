@@ -82,7 +82,10 @@ export function withErrorBoundary<P extends object>(
       minimal={minimal}
       className={className}
     >
-      <Component {...props} ref={ref} />
+      <Component
+        {...props}
+        ref={ref}
+      />
     </ComponentErrorBoundary>
   ));
 
@@ -119,7 +122,10 @@ export function useErrorBoundaryWrapper(
 ) {
   return React.useCallback(
     (children: React.ReactNode, componentName?: string) => (
-      <ComponentErrorBoundary {...options} componentName={componentName}>
+      <ComponentErrorBoundary
+        {...options}
+        componentName={componentName}
+      >
         {children}
       </ComponentErrorBoundary>
     ),

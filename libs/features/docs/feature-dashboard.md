@@ -950,7 +950,5 @@ Available story files:
 - **Design Tokens:** `Docs/design/DESIGN_TOKENS.md` — Semantic colors for health states
 - **GraphQL Subscriptions:** `Docs/architecture/api-contracts.md` — Subscription patterns
 - **State Management:** `Docs/architecture/frontend-architecture.md` — Apollo Client + Zustand
-- **Logs Feature:** [feature-logs.md](./feature-logs.md) — Full logs feature (used by
-  `LogViewer`)
-- **Diagnostics Feature:** [feature-diagnostics.md](./feature-diagnostics.md) — Diagnostic
-  tools
+- **Logs Feature:** [feature-logs.md](./feature-logs.md) — Full logs feature (used by `LogViewer`)
+- **Diagnostics Feature:** [feature-diagnostics.md](./feature-diagnostics.md) — Diagnostic tools

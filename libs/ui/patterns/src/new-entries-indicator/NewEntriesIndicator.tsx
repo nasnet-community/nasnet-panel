@@ -8,7 +8,7 @@ import * as React from 'react';
 
 import { ChevronDown } from 'lucide-react';
 
-import { Button , cn } from '@nasnet/ui/primitives';
+import { Button, cn } from '@nasnet/ui/primitives';
 
 export interface NewEntriesIndicatorProps extends React.HTMLAttributes<HTMLButtonElement> {
   /**
@@ -61,9 +61,9 @@ function NewEntriesIndicatorComponent({
       size="sm"
       onClick={onClick}
       className={cn(
-        'fixed bottom-20 left-1/2 -translate-x-1/2 z-50',
-        'shadow-lg hover:shadow-xl animate-in slide-in-from-bottom-2 fade-in-0',
-        'gap-2 rounded-full bg-primary hover:bg-primary text-primary-foreground',
+        'fixed bottom-20 left-1/2 z-50 -translate-x-1/2',
+        'animate-in slide-in-from-bottom-2 fade-in-0 shadow-lg hover:shadow-xl',
+        'bg-primary hover:bg-primary text-primary-foreground gap-2 rounded-full',
         'transition-all duration-200',
         className
       )}

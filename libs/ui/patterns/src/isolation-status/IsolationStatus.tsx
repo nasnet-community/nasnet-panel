@@ -84,13 +84,7 @@ import type { IsolationStatusProps } from './types';
  * ```
  */
 const IsolationStatus = memo(function IsolationStatusComponent(props: IsolationStatusProps) {
-  const {
-    variant = 'auto',
-    size = 'md',
-    className,
-    id,
-    ...config
-  } = props;
+  const { variant = 'auto', size = 'md', className, id, ...config } = props;
 
   // Get computed state from headless hook
   const state = useIsolationStatus(config);

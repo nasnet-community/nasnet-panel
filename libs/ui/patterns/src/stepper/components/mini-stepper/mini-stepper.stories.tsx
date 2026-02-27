@@ -106,9 +106,9 @@ function WithValidationMiniStepper() {
         <div className="space-y-4">
           <StepContent step={stepper.currentStep} />
           {Object.keys(stepper.errors).length > 0 && (
-            <div className="p-3 bg-destructive/10 text-destructive rounded-md text-sm">
+            <div className="bg-destructive/10 text-destructive rounded-md p-3 text-sm">
               <strong>Validation Errors:</strong>
-              <ul className="mt-1 list-disc list-inside">
+              <ul className="mt-1 list-inside list-disc">
                 {Object.entries(stepper.errors).map(([field, error]) => (
                   <li key={field}>{error}</li>
                 ))}
@@ -133,7 +133,7 @@ function DisabledSwipeMiniStepper() {
       stepContent={
         <div className="space-y-4">
           <StepContent step={stepper.currentStep} />
-          <p className="text-sm text-muted-foreground italic">
+          <p className="text-muted-foreground text-sm italic">
             Swipe navigation is disabled. Use buttons to navigate.
           </p>
         </div>
@@ -164,16 +164,14 @@ function StepContent({ step }: { step: StepConfig }) {
   return (
     <div className="space-y-4">
       <h2 className="text-xl font-semibold">{step.title}</h2>
-      {step.description && (
-        <p className="text-muted-foreground">{step.description}</p>
-      )}
-      <div className="p-4 bg-muted rounded-lg">
+      {step.description && <p className="text-muted-foreground">{step.description}</p>}
+      <div className="bg-muted rounded-lg p-4">
         <p className="text-sm">
           This is placeholder content for the <strong>{step.title}</strong> step.
         </p>
-        <p className="text-sm text-muted-foreground mt-2">
-          In a real application, this would contain form fields, configuration
-          options, or informational content relevant to this step.
+        <p className="text-muted-foreground mt-2 text-sm">
+          In a real application, this would contain form fields, configuration options, or
+          informational content relevant to this step.
         </p>
       </div>
     </div>
@@ -186,36 +184,45 @@ function FormStepContent({ step }: { step: StepConfig }) {
       <h2 className="text-xl font-semibold">{step.title}</h2>
       <form className="space-y-4">
         <div>
-          <label htmlFor="ip" className="block text-sm font-medium mb-1">
+          <label
+            htmlFor="ip"
+            className="mb-1 block text-sm font-medium"
+          >
             IP Address
           </label>
           <input
             id="ip"
             type="text"
             placeholder="192.168.1.1"
-            className="w-full p-3 border border-input rounded-md bg-background"
+            className="border-input bg-background w-full rounded-md border p-3"
           />
         </div>
         <div>
-          <label htmlFor="subnet" className="block text-sm font-medium mb-1">
+          <label
+            htmlFor="subnet"
+            className="mb-1 block text-sm font-medium"
+          >
             Subnet Mask
           </label>
           <input
             id="subnet"
             type="text"
             placeholder="255.255.255.0"
-            className="w-full p-3 border border-input rounded-md bg-background"
+            className="border-input bg-background w-full rounded-md border p-3"
           />
         </div>
         <div>
-          <label htmlFor="gateway" className="block text-sm font-medium mb-1">
+          <label
+            htmlFor="gateway"
+            className="mb-1 block text-sm font-medium"
+          >
             Gateway
           </label>
           <input
             id="gateway"
             type="text"
             placeholder="192.168.1.1"
-            className="w-full p-3 border border-input rounded-md bg-background"
+            className="border-input bg-background w-full rounded-md border p-3"
           />
         </div>
       </form>
@@ -274,7 +281,7 @@ return (
   },
   decorators: [
     (Story) => (
-      <div className="h-screen bg-background">
+      <div className="bg-background h-screen">
         <Story />
       </div>
     ),
@@ -350,7 +357,8 @@ export const WithForm: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Mini Stepper with form content. Swipe is disabled to prevent interference with form inputs.',
+        story:
+          'Mini Stepper with form content. Swipe is disabled to prevent interference with form inputs.',
       },
     },
   },
@@ -361,7 +369,8 @@ export const ReducedMotion: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Mini Stepper respects prefers-reduced-motion. Enable reduced motion in your OS to see the difference.',
+        story:
+          'Mini Stepper respects prefers-reduced-motion. Enable reduced motion in your OS to see the difference.',
       },
     },
     chromatic: {
@@ -378,12 +387,12 @@ export const DarkMode: Story = {
       description: {
         story: 'Mini Stepper in dark mode. Uses semantic color tokens for automatic theming.',
       },
-    }
+    },
   },
 
   decorators: [
     (Story) => (
-      <div className="h-screen bg-background dark">
+      <div className="bg-background dark h-screen">
         <Story />
       </div>
     ),
@@ -391,7 +400,7 @@ export const DarkMode: Story = {
 
   globals: {
     backgrounds: {
-      value: "dark"
-    }
-  }
+      value: 'dark',
+    },
+  },
 };

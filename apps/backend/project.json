@@ -17,7 +17,10 @@
     "build": {
       "executor": "nx:run-commands",
       "outputs": ["{workspaceRoot}/dist/apps/backend"],
-      "options": { "command": "node tools/copy-frontend.mjs && cd apps/backend && go build -tags=prod -ldflags=\"-s -w\" -o ../../dist/apps/backend/backend ./cmd/nnc/", "cwd": "." },
+      "options": {
+        "command": "node tools/copy-frontend.mjs && cd apps/backend && go build -tags=prod -ldflags=\"-s -w\" -o ../../dist/apps/backend/backend ./cmd/nnc/",
+        "cwd": "."
+      },
       "dependsOn": ["connect:build"]
     },
     "codegen": {
@@ -35,11 +38,17 @@
     },
     "lint": {
       "executor": "nx:run-commands",
-      "options": { "command": "node -e \"const{execSync}=require('child_process');const p=require('path');const gcl=p.resolve(__dirname,'../../.bin/custom-gcl'+(process.platform==='win32'?'.exe':''));try{execSync(gcl+' version',{stdio:'ignore'});}catch{console.log('custom-gcl not found. Run: cd <root> && golangci-lint custom');process.exit(0);}try{execSync(gcl+' run --tests=false --allow-parallel-runners --config ../../.golangci.yml ./...',{stdio:'inherit',cwd:'.'});}catch(e){process.exit(e.status||1);}\"", "cwd": "apps/backend" }
+      "options": {
+        "command": "node -e \"const{execSync}=require('child_process');const p=require('path');const gcl=p.resolve(__dirname,'../../.bin/custom-gcl'+(process.platform==='win32'?'.exe':''));try{execSync(gcl+' version',{stdio:'ignore'});}catch{console.log('custom-gcl not found. Run: cd <root> && golangci-lint custom');process.exit(0);}try{execSync(gcl+' run --tests=false --allow-parallel-runners --config ../../.golangci.yml ./...',{stdio:'inherit',cwd:'.'});}catch(e){process.exit(e.status||1);}\"",
+        "cwd": "apps/backend"
+      }
     },
     "lint:fix": {
       "executor": "nx:run-commands",
-      "options": { "command": "node -e \"const{execSync}=require('child_process');const p=require('path');const gcl=p.resolve(__dirname,'../../.bin/custom-gcl'+(process.platform==='win32'?'.exe':''));try{execSync(gcl+' version',{stdio:'ignore'});}catch{console.log('custom-gcl not found. Run: cd <root> && golangci-lint custom');process.exit(0);}try{execSync(gcl+' run --tests=false --allow-parallel-runners --config ../../.golangci.yml --fix ./...',{stdio:'inherit',cwd:'.'});}catch(e){process.exit(e.status||1);}\"", "cwd": "apps/backend" }
+      "options": {
+        "command": "node -e \"const{execSync}=require('child_process');const p=require('path');const gcl=p.resolve(__dirname,'../../.bin/custom-gcl'+(process.platform==='win32'?'.exe':''));try{execSync(gcl+' version',{stdio:'ignore'});}catch{console.log('custom-gcl not found. Run: cd <root> && golangci-lint custom');process.exit(0);}try{execSync(gcl+' run --tests=false --allow-parallel-runners --config ../../.golangci.yml --fix ./...',{stdio:'inherit',cwd:'.'});}catch(e){process.exit(e.status||1);}\"",
+        "cwd": "apps/backend"
+      }
     },
     "build:check": {
       "executor": "nx:run-commands",
@@ -52,10 +61,7 @@
     "check": {
       "executor": "nx:run-commands",
       "options": {
-        "commands": [
-          "nx run backend:typecheck",
-          "nx run backend:lint"
-        ],
+        "commands": ["nx run backend:typecheck", "nx run backend:lint"],
         "parallel": false
       }
     },

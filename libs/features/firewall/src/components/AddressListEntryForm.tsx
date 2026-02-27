@@ -18,12 +18,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { cn } from '@nasnet/ui/utils';
 
-import {
-  Button,
-  Input,
-  Label,
-  Textarea,
-} from '@nasnet/ui/primitives';
+import { Button, Input, Label, Textarea } from '@nasnet/ui/primitives';
 
 import { addressListEntrySchema } from '../schemas/addressListSchemas';
 import type { AddressListEntryFormData } from '../schemas/addressListSchemas';
@@ -112,18 +107,20 @@ export const AddressListEntryForm = ({
     }
   }, [watchedAddress]);
 
-  const handleFormSubmit = useCallback(async (data: AddressListEntryFormData) => {
-    try {
-      await onSubmit(data);
-      reset();
-    } catch (error) {
-      console.error('Form submission error:', error);
-    }
-  }, [onSubmit, reset]);
+  const handleFormSubmit = useCallback(
+    async (data: AddressListEntryFormData) => {
+      try {
+        await onSubmit(data);
+        reset();
+      } catch (error) {
+        console.error('Form submission error:', error);
+      }
+    },
+    [onSubmit, reset]
+  );
 
-  const listOptions = showCreateNewList
-    ? []
-    : existingLists.map((list) => ({ value: list, label: list }));
+  const listOptions =
+    showCreateNewList ? [] : existingLists.map((list) => ({ value: list, label: list }));
 
   return (
     <form
@@ -134,11 +131,14 @@ export const AddressListEntryForm = ({
       <div className="space-y-component-md">
         {/* List Selection */}
         <div className="space-y-component-sm gap-component-sm">
-          <Label htmlFor="list" className="text-sm font-medium">
+          <Label
+            htmlFor="list"
+            className="text-sm font-medium"
+          >
             List Name <span className="text-error">*</span>
           </Label>
 
-          {showCreateNewList ? (
+          {showCreateNewList ?
             <div className="space-y-component-sm gap-component-sm">
               <Input
                 id="list"
@@ -160,26 +160,27 @@ export const AddressListEntryForm = ({
                 Choose existing list
               </Button>
             </div>
-          ) : (
-            <div className="space-y-component-sm gap-component-sm">
-              {existingLists.length > 0 ? (
+          : <div className="space-y-component-sm gap-component-sm">
+              {existingLists.length > 0 ?
                 <select
                   id="list"
                   {...register('list')}
                   disabled={isLoading || isSubmitting}
                   aria-invalid={!!errors.list}
                   aria-describedby={errors.list ? 'list-error' : undefined}
-                  className="flex h-10 w-full rounded-md border border-border bg-card px-3 py-2 text-sm text-foreground ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="border-border bg-card text-foreground ring-offset-background focus-visible:ring-ring flex h-10 w-full rounded-md border px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <option value="">Select a list...</option>
                   {existingLists.map((list) => (
-                    <option key={list} value={list}>
+                    <option
+                      key={list}
+                      value={list}
+                    >
                       {list}
                     </option>
                   ))}
                 </select>
-              ) : (
-                <Input
+              : <Input
                   id="list"
                   {...register('list')}
                   placeholder="Enter new list name"
@@ -188,7 +189,7 @@ export const AddressListEntryForm = ({
                   aria-describedby={errors.list ? 'list-error' : undefined}
                   className="font-mono"
                 />
-              )}
+              }
               <Button
                 type="button"
                 variant="ghost"
@@ -200,10 +201,13 @@ export const AddressListEntryForm = ({
                 Create new list
               </Button>
             </div>
-          )}
+          }
 
           {errors.list && (
-            <p id="list-error" className="text-sm text-error">
+            <p
+              id="list-error"
+              className="text-error text-sm"
+            >
               {errors.list.message}
             </p>
           )}
@@ -211,7 +215,10 @@ export const AddressListEntryForm = ({
 
         {/* Address Input */}
         <div className="space-y-component-sm gap-component-sm">
-          <Label htmlFor="address" className="text-sm font-medium">
+          <Label
+            htmlFor="address"
+            className="text-sm font-medium"
+          >
             Address <span className="text-error">*</span>
           </Label>
 
@@ -226,9 +233,9 @@ export const AddressListEntryForm = ({
               className="font-mono"
             />
 
-            <div className="flex items-center gap-component-sm text-xs text-muted-foreground">
+            <div className="gap-component-sm text-muted-foreground flex items-center text-xs">
               <span>Format detected:</span>
-              <span className="font-mono font-semibold text-foreground">
+              <span className="text-foreground font-mono font-semibold">
                 {addressFormat === ADDRESS_FORMAT_OPTIONS.IP && 'Single IP'}
                 {addressFormat === ADDRESS_FORMAT_OPTIONS.CIDR && 'CIDR Subnet'}
                 {addressFormat === ADDRESS_FORMAT_OPTIONS.RANGE && 'IP Range'}
@@ -236,20 +243,29 @@ export const AddressListEntryForm = ({
             </div>
           </div>
 
-          {errors.address ? (
-            <p id="address-error" className="text-sm text-error">
+          {errors.address ?
+            <p
+              id="address-error"
+              className="text-error text-sm"
+            >
               {errors.address.message}
             </p>
-          ) : (
-            <p id="address-help" className="text-xs text-muted-foreground">
-              Enter IP address, CIDR notation (e.g., 192.168.1.0/24), or range (e.g., 192.168.1.1-192.168.1.100)
+          : <p
+              id="address-help"
+              className="text-muted-foreground text-xs"
+            >
+              Enter IP address, CIDR notation (e.g., 192.168.1.0/24), or range (e.g.,
+              192.168.1.1-192.168.1.100)
             </p>
-          )}
+          }
         </div>
 
         {/* Timeout Field */}
         <div className="space-y-component-sm gap-component-sm">
-          <Label htmlFor="timeout" className="text-sm font-medium">
+          <Label
+            htmlFor="timeout"
+            className="text-sm font-medium"
+          >
             Timeout (optional)
           </Label>
 
@@ -263,20 +279,29 @@ export const AddressListEntryForm = ({
             className="font-mono"
           />
 
-          {errors.timeout ? (
-            <p id="timeout-error" className="text-sm text-error">
+          {errors.timeout ?
+            <p
+              id="timeout-error"
+              className="text-error text-sm"
+            >
               {errors.timeout.message}
             </p>
-          ) : (
-            <p id="timeout-help" className="text-xs text-muted-foreground">
-              Duration after which entry is removed (e.g., &quot;1d&quot; = 1 day, &quot;12h&quot; = 12 hours, &quot;30m&quot; = 30 minutes)
+          : <p
+              id="timeout-help"
+              className="text-muted-foreground text-xs"
+            >
+              Duration after which entry is removed (e.g., &quot;1d&quot; = 1 day, &quot;12h&quot; =
+              12 hours, &quot;30m&quot; = 30 minutes)
             </p>
-          )}
+          }
         </div>
 
         {/* Comment Field */}
         <div className="space-y-component-sm gap-component-sm">
-          <Label htmlFor="comment" className="text-sm font-medium">
+          <Label
+            htmlFor="comment"
+            className="text-sm font-medium"
+          >
             Comment (optional)
           </Label>
 
@@ -292,18 +317,21 @@ export const AddressListEntryForm = ({
           />
 
           {errors.comment && (
-            <p id="comment-error" className="text-sm text-error">
+            <p
+              id="comment-error"
+              className="text-error text-sm"
+            >
               {errors.comment.message}
             </p>
           )}
 
-          <p className="text-xs text-muted-foreground text-right">
+          <p className="text-muted-foreground text-right text-xs">
             {watch('comment')?.length || 0} / {MAX_COMMENT_LENGTH} characters
           </p>
         </div>
 
         {/* Action Buttons */}
-        <div className="flex justify-end gap-component-sm pt-component-lg">
+        <div className="gap-component-sm pt-component-lg flex justify-end">
           {onCancel && (
             <Button
               type="button"

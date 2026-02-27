@@ -7,13 +7,7 @@ import { vlanSchema, getVlanWarnings } from './vlan.schema';
 describe('vlanSchema', () => {
   describe('name validation', () => {
     it('should accept valid VLAN names', () => {
-      const validNames = [
-        'vlan-10',
-        'guest_network',
-        'VLAN100',
-        'iot-devices',
-        'management_vlan',
-      ];
+      const validNames = ['vlan-10', 'guest_network', 'VLAN100', 'iot-devices', 'management_vlan'];
 
       validNames.forEach((name) => {
         const result = vlanSchema.safeParse({

@@ -12,11 +12,7 @@ import { memo } from 'react';
 import { Clock, Calendar, Info, Trash2, Zap } from 'lucide-react';
 import { Controller } from 'react-hook-form';
 
-import {
-  DAYS_OF_WEEK,
-  DAY_PRESETS,
-  type DayPresetKey,
-} from '@nasnet/core/types';
+import { DAYS_OF_WEEK, DAY_PRESETS, type DayPresetKey } from '@nasnet/core/types';
 import {
   Sheet,
   SheetContent,
@@ -24,12 +20,12 @@ import {
   SheetTitle,
   SheetDescription,
   SheetFooter,
-
   Button,
   Card,
   Input,
   Badge,
-  Label} from '@nasnet/ui/primitives';
+  Label,
+} from '@nasnet/ui/primitives';
 
 import { RHFFormField } from '../rhf-form-field';
 import { useScheduleEditor } from './use-schedule-editor';
@@ -72,39 +68,42 @@ export const ScheduleEditorMobile = memo(function ScheduleEditorMobile({
   const { control, formState } = form;
 
   return (
-    <Sheet open={open} onOpenChange={onClose}>
-      <SheetContent side="bottom" className="h-[90vh] flex flex-col">
+    <Sheet
+      open={open}
+      onOpenChange={onClose}
+    >
+      <SheetContent
+        side="bottom"
+        className="flex h-[90vh] flex-col"
+      >
         <SheetHeader>
-          <SheetTitle>
-            {mode === 'create' ? 'Create Schedule' : 'Edit Schedule'}
-          </SheetTitle>
-          <SheetDescription>
-            Set when routing should be automatically activated
-          </SheetDescription>
+          <SheetTitle>{mode === 'create' ? 'Create Schedule' : 'Edit Schedule'}</SheetTitle>
+          <SheetDescription>Set when routing should be automatically activated</SheetDescription>
         </SheetHeader>
 
-        <div className="flex-1 overflow-y-auto space-y-4 pb-20">
+        <div className="flex-1 space-y-4 overflow-y-auto pb-20">
           {/* Live Preview */}
-          <Card className="p-4 bg-info-light border border-info rounded-[var(--semantic-radius-card)]">
+          <Card className="bg-info-light border-info rounded-[var(--semantic-radius-card)] border p-4">
             <div className="flex items-start gap-3">
-              <Info className="h-5 w-5 text-info-dark mt-0.5 flex-shrink-0" />
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-info-dark mb-1">Preview</p>
-                <p className="text-sm text-muted-foreground whitespace-pre-wrap">
-                  {preview}
-                </p>
+              <Info className="text-info-dark mt-0.5 h-5 w-5 flex-shrink-0" />
+              <div className="min-w-0 flex-1">
+                <p className="text-info-dark mb-1 text-sm font-medium">Preview</p>
+                <p className="text-muted-foreground whitespace-pre-wrap text-sm">{preview}</p>
               </div>
             </div>
             {schedule.enabled && (
-              <Badge variant="success" className="mt-2">
-                <Zap className="h-3 w-3 mr-1" />
+              <Badge
+                variant="success"
+                className="mt-2"
+              >
+                <Zap className="mr-1 h-3 w-3" />
                 Enabled
               </Badge>
             )}
           </Card>
 
           {/* Day Selection */}
-          <Card className="p-4 space-y-4">
+          <Card className="space-y-4 p-4">
             <div className="flex items-center gap-2">
               <Calendar className="h-4 w-4" />
               <h3 className="text-sm font-semibold">Active Days</h3>
@@ -112,20 +111,20 @@ export const ScheduleEditorMobile = memo(function ScheduleEditorMobile({
 
             {/* Day Presets */}
             <div className="flex gap-2">
-              {(Object.entries(DAY_PRESETS) as [DayPresetKey, typeof DAY_PRESETS[DayPresetKey]][]).map(
-                ([key, preset]) => (
-                  <Button
-                    key={key}
-                    type="button"
-                    variant={selectedPreset === key ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => applyPreset(key)}
-                    className="flex-1 h-9"
-                  >
-                    {preset.label}
-                  </Button>
-                )
-              )}
+              {(
+                Object.entries(DAY_PRESETS) as [DayPresetKey, (typeof DAY_PRESETS)[DayPresetKey]][]
+              ).map(([key, preset]) => (
+                <Button
+                  key={key}
+                  type="button"
+                  variant={selectedPreset === key ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => applyPreset(key)}
+                  className="h-9 flex-1"
+                >
+                  {preset.label}
+                </Button>
+              ))}
             </div>
 
             {/* Individual Days */}
@@ -147,15 +146,11 @@ export const ScheduleEditorMobile = memo(function ScheduleEditorMobile({
                           key={day.value}
                           type="button"
                           onClick={() => toggleDay(day.value)}
-                          className={`
-                            flex-1 min-w-[60px] h-11 rounded-md border-2 transition-colors
-                            flex flex-col items-center justify-center
-                            ${
-                              isSelected
-                                ? 'bg-primary border-primary text-primary-foreground'
-                                : 'bg-background border-border hover:border-primary/50'
-                            }
-                          `}
+                          className={`flex h-11 min-w-[60px] flex-1 flex-col items-center justify-center rounded-md border-2 transition-colors ${
+                            isSelected ?
+                              'bg-primary border-primary text-primary-foreground'
+                            : 'bg-background border-border hover:border-primary/50'
+                          } `}
                         >
                           <span className="text-xs font-semibold">{day.short}</span>
                         </button>
@@ -168,7 +163,7 @@ export const ScheduleEditorMobile = memo(function ScheduleEditorMobile({
           </Card>
 
           {/* Time Range */}
-          <Card className="p-4 space-y-4">
+          <Card className="space-y-4 p-4">
             <div className="flex items-center gap-2">
               <Clock className="h-4 w-4" />
               <h3 className="text-sm font-semibold">Active Time</h3>
@@ -188,7 +183,7 @@ export const ScheduleEditorMobile = memo(function ScheduleEditorMobile({
                     {...field}
                     type="time"
                     value={field.value || ''}
-                    className="h-11 text-base font-mono"
+                    className="h-11 font-mono text-base"
                   />
                 )}
               />
@@ -208,7 +203,7 @@ export const ScheduleEditorMobile = memo(function ScheduleEditorMobile({
                     {...field}
                     type="time"
                     value={field.value || ''}
-                    className="h-11 text-base font-mono"
+                    className="h-11 font-mono text-base"
                   />
                 )}
               />
@@ -216,7 +211,7 @@ export const ScheduleEditorMobile = memo(function ScheduleEditorMobile({
           </Card>
 
           {/* Timezone */}
-          <Card className="p-4 space-y-4">
+          <Card className="space-y-4 p-4">
             <RHFFormField
               name="timezone"
               label="Timezone"
@@ -237,14 +232,14 @@ export const ScheduleEditorMobile = memo(function ScheduleEditorMobile({
               />
             </RHFFormField>
 
-            <div className="text-xs text-muted-foreground">
+            <div className="text-muted-foreground text-xs">
               Current timezone: {Intl.DateTimeFormat().resolvedOptions().timeZone}
             </div>
           </Card>
         </div>
 
-        <SheetFooter className="fixed bottom-0 left-0 right-0 p-4 bg-background border-t">
-          <div className="flex flex-col gap-2 w-full">
+        <SheetFooter className="bg-background fixed bottom-0 left-0 right-0 border-t p-4">
+          <div className="flex w-full flex-col gap-2">
             {mode === 'edit' && onDelete && (
               <Button
                 type="button"
@@ -254,7 +249,7 @@ export const ScheduleEditorMobile = memo(function ScheduleEditorMobile({
                 disabled={isDeleting || isSaving}
                 className="h-11"
               >
-                <Trash2 className="h-4 w-4 mr-2" />
+                <Trash2 className="mr-2 h-4 w-4" />
                 Delete Schedule
               </Button>
             )}
@@ -266,7 +261,7 @@ export const ScheduleEditorMobile = memo(function ScheduleEditorMobile({
                 size="lg"
                 onClick={onClose}
                 disabled={isSaving || isDeleting}
-                className="flex-1 h-11"
+                className="h-11 flex-1"
               >
                 Cancel
               </Button>
@@ -275,9 +270,13 @@ export const ScheduleEditorMobile = memo(function ScheduleEditorMobile({
                 size="lg"
                 onClick={editor.onSubmit}
                 disabled={!formState.isValid || isSaving || isDeleting}
-                className="flex-1 h-11"
+                className="h-11 flex-1"
               >
-                {isSaving ? 'Saving...' : mode === 'create' ? 'Create' : 'Save'}
+                {isSaving ?
+                  'Saving...'
+                : mode === 'create' ?
+                  'Create'
+                : 'Save'}
               </Button>
             </div>
           </div>

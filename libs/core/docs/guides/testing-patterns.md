@@ -5,7 +5,8 @@ title: Testing Patterns
 
 # Testing Patterns
 
-This guide documents the testing patterns and best practices used across `libs/core` in the NasNetConnect project.
+This guide documents the testing patterns and best practices used across `libs/core` in the
+NasNetConnect project.
 
 ## Vitest Setup
 
@@ -43,6 +44,7 @@ export default defineConfig({
 ```
 
 **Key settings:**
+
 - `environment: 'jsdom'` — Simulates browser environment for React components
 - `globals: true` — Enables `describe()`, `it()`, `expect()` without imports
 - **Coverage thresholds:** 80% lines, 75% branches (enforced in CI)
@@ -75,13 +77,7 @@ Located in `libs/core/utils/src/network/ip.test.ts`:
 
 ```typescript
 import { describe, it, expect } from 'vitest';
-import {
-  isValidIPv4,
-  isValidSubnet,
-  compareIPv4,
-  isValidMACAddress,
-  formatMACAddress
-} from './ip';
+import { isValidIPv4, isValidSubnet, compareIPv4, isValidMACAddress, formatMACAddress } from './ip';
 
 describe('IP Utilities', () => {
   describe('isValidIPv4', () => {
@@ -106,9 +102,9 @@ describe('IP Utilities', () => {
     });
 
     it('should reject invalid CIDR notation', () => {
-      expect(isValidSubnet('192.168.1.0')).toBe(false);  // Missing prefix
-      expect(isValidSubnet('192.168.1.0/33')).toBe(false);  // Invalid prefix
-      expect(isValidSubnet('256.1.1.1/24')).toBe(false);  // Invalid IP
+      expect(isValidSubnet('192.168.1.0')).toBe(false); // Missing prefix
+      expect(isValidSubnet('192.168.1.0/33')).toBe(false); // Invalid prefix
+      expect(isValidSubnet('256.1.1.1/24')).toBe(false); // Invalid IP
     });
   });
 
@@ -134,9 +130,9 @@ describe('IP Utilities', () => {
     });
 
     it('should reject invalid MAC addresses', () => {
-      expect(isValidMACAddress('AA:BB:CC:DD:EE')).toBe(false);  // Too short
-      expect(isValidMACAddress('GG:HH:II:JJ:KK:LL')).toBe(false);  // Invalid hex
-      expect(isValidMACAddress('')).toBe(false);  // Empty
+      expect(isValidMACAddress('AA:BB:CC:DD:EE')).toBe(false); // Too short
+      expect(isValidMACAddress('GG:HH:II:JJ:KK:LL')).toBe(false); // Invalid hex
+      expect(isValidMACAddress('')).toBe(false); // Empty
     });
   });
 
@@ -162,12 +158,7 @@ Located in `libs/core/utils/src/formatters/formatters.test.ts`:
 
 ```typescript
 import { describe, it, expect } from 'vitest';
-import {
-  formatBytes,
-  formatDuration,
-  formatUptime,
-  formatNumber,
-} from './index';
+import { formatBytes, formatDuration, formatUptime, formatNumber } from './index';
 
 describe('Formatter Utilities', () => {
   describe('formatBytes', () => {
@@ -288,7 +279,7 @@ describe('Status Calculators', () => {
 
     it('should return degraded when latency is high', () => {
       const status = calculateStatus({
-        latency: 2000,  // High latency
+        latency: 2000, // High latency
         packetLoss: 0,
         uptime: 99.9,
         isConnected: true,
@@ -405,6 +396,7 @@ describe('useReducedMotion', () => {
 ```
 
 **Key patterns:**
+
 1. Mock `matchMedia` using `vi.fn()` and `vi.stubGlobal()`
 2. Test both "not set" and "set" cases
 3. Simulate user preference changes with `act()`
@@ -450,7 +442,7 @@ describe('useAutoScroll', () => {
     // Scroll to bottom: scrollTop + clientHeight >= scrollHeight - threshold
     Object.defineProperty(scrollContainer, 'scrollTop', {
       writable: true,
-      value: 500,  // 500 + 500 = 1000 >= (1000 - 100)
+      value: 500, // 500 + 500 = 1000 >= (1000 - 100)
     });
 
     act(() => {
@@ -471,7 +463,7 @@ describe('useAutoScroll', () => {
     // Scroll up significantly
     Object.defineProperty(scrollContainer, 'scrollTop', {
       writable: true,
-      value: 200,  // 200 + 500 = 700 < 900 (1000 - 100)
+      value: 200, // 200 + 500 = 700 < 900 (1000 - 100)
     });
 
     act(() => {
@@ -550,6 +542,7 @@ describe('useAutoScroll', () => {
 ```
 
 **Key patterns:**
+
 1. Mock DOM element properties with `Object.defineProperty()`
 2. Simulate scroll events with `dispatchEvent(new Event('scroll'))`
 3. Use `act()` to wrap state updates
@@ -610,6 +603,7 @@ describe('useRelativeTime', () => {
 ```
 
 **Key patterns:**
+
 1. Use `vi.useFakeTimers()` to control time
 2. Use `vi.advanceTimersByTime()` to simulate passage of time
 3. Test multiple time intervals with parameterized tests
@@ -658,9 +652,9 @@ describe('Zod Validation Schemas', () => {
     });
 
     it('should reject invalid CIDR notation', () => {
-      expect(cidrSchema.safeParse('192.168.1.0').success).toBe(false);  // Missing prefix
-      expect(cidrSchema.safeParse('192.168.1.0/33').success).toBe(false);  // Invalid prefix
-      expect(cidrSchema.safeParse('256.1.1.1/24').success).toBe(false);  // Invalid IP
+      expect(cidrSchema.safeParse('192.168.1.0').success).toBe(false); // Missing prefix
+      expect(cidrSchema.safeParse('192.168.1.0/33').success).toBe(false); // Invalid prefix
+      expect(cidrSchema.safeParse('256.1.1.1/24').success).toBe(false); // Invalid IP
     });
   });
 
@@ -672,9 +666,9 @@ describe('Zod Validation Schemas', () => {
     });
 
     it('should reject invalid port numbers', () => {
-      expect(portSchema.safeParse(0).success).toBe(false);  // Min is 1
-      expect(portSchema.safeParse(70000).success).toBe(false);  // Max is 65535
-      expect(portSchema.safeParse(-1).success).toBe(false);  // Negative
+      expect(portSchema.safeParse(0).success).toBe(false); // Min is 1
+      expect(portSchema.safeParse(70000).success).toBe(false); // Max is 65535
+      expect(portSchema.safeParse(-1).success).toBe(false); // Negative
     });
   });
 
@@ -686,8 +680,8 @@ describe('Zod Validation Schemas', () => {
     });
 
     it('should reject invalid MAC addresses', () => {
-      expect(macAddressSchema.safeParse('AA:BB:CC:DD:EE').success).toBe(false);  // Too short
-      expect(macAddressSchema.safeParse('GG:HH:II:JJ:KK:LL').success).toBe(false);  // Invalid hex
+      expect(macAddressSchema.safeParse('AA:BB:CC:DD:EE').success).toBe(false); // Too short
+      expect(macAddressSchema.safeParse('GG:HH:II:JJ:KK:LL').success).toBe(false); // Invalid hex
     });
   });
 
@@ -700,8 +694,8 @@ describe('Zod Validation Schemas', () => {
       });
       expect(result.success).toBe(true);
       if (result.success) {
-        expect(result.data.port).toBe(80);  // Default
-        expect(result.data.timeout).toBe(5000);  // Default
+        expect(result.data.port).toBe(80); // Default
+        expect(result.data.timeout).toBe(5000); // Default
       }
     });
 
@@ -721,7 +715,7 @@ describe('Zod Validation Schemas', () => {
     it('should reject invalid config', () => {
       const result = routerConnectionConfigSchema.safeParse({
         address: 'invalid',
-        username: '',  // Empty not allowed
+        username: '', // Empty not allowed
         password: 'secret',
       });
       expect(result.success).toBe(false);
@@ -732,7 +726,7 @@ describe('Zod Validation Schemas', () => {
         address: '192.168.1.1',
         username: 'admin',
         password: 'secret',
-        timeout: 100,  // Too low (min: 1000)
+        timeout: 100, // Too low (min: 1000)
       });
       expect(result.success).toBe(false);
     });
@@ -741,6 +735,7 @@ describe('Zod Validation Schemas', () => {
 ```
 
 **Pattern:**
+
 1. Use `safeParse()` which returns `{ success: boolean; data?: T; error?: ZodError }`
 2. Test both valid and invalid cases
 3. Test default values with optional fields
@@ -769,9 +764,7 @@ describe('Async Validation', () => {
   });
 
   it('should debounce validation calls', async () => {
-    const { result } = renderHook(() =>
-      useAsyncValidation(mockValidatorFn, { debounceMs: 300 })
-    );
+    const { result } = renderHook(() => useAsyncValidation(mockValidatorFn, { debounceMs: 300 }));
 
     // Trigger validation 3 times rapidly
     act(() => {
@@ -788,13 +781,9 @@ describe('Async Validation', () => {
   });
 
   it('should cancel pending validations on new request', async () => {
-    const slowValidator = vi.fn(
-      () => new Promise(resolve => setTimeout(resolve, 1000))
-    );
+    const slowValidator = vi.fn(() => new Promise((resolve) => setTimeout(resolve, 1000)));
 
-    const { result } = renderHook(() =>
-      useAsyncValidation(slowValidator)
-    );
+    const { result } = renderHook(() => useAsyncValidation(slowValidator));
 
     act(() => {
       result.current.validate({ attempt: 1 });
@@ -812,13 +801,9 @@ describe('Async Validation', () => {
   });
 
   it('should handle validation errors', async () => {
-    const errorValidator = vi.fn().mockRejectedValue(
-      new Error('Validation failed')
-    );
+    const errorValidator = vi.fn().mockRejectedValue(new Error('Validation failed'));
 
-    const { result } = renderHook(() =>
-      useAsyncValidation(errorValidator)
-    );
+    const { result } = renderHook(() => useAsyncValidation(errorValidator));
 
     act(() => {
       result.current.validate({ field: 'value' });
@@ -831,9 +816,7 @@ describe('Async Validation', () => {
   });
 
   it('should track validation state', async () => {
-    const { result } = renderHook(() =>
-      useAsyncValidation(mockValidatorFn)
-    );
+    const { result } = renderHook(() => useAsyncValidation(mockValidatorFn));
 
     expect(result.current.isValidating).toBe(false);
 
@@ -937,7 +920,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 // Mock i18n module
 vi.mock('@nasnet/core/i18n', () => ({
   useTranslation: () => ({
-    t: (key: string, ...args: any[]) => key,  // Return key as-is for testing
+    t: (key: string, ...args: any[]) => key, // Return key as-is for testing
   }),
   useFormatters: () => ({
     formatNumber: (n: number) => n.toLocaleString(),
@@ -972,7 +955,7 @@ describe('Storage Mocks', () => {
         delete store[key];
       },
       clear: () => {
-        Object.keys(store).forEach(key => delete store[key]);
+        Object.keys(store).forEach((key) => delete store[key]);
       },
       length: 0,
       key: (index: number) => Object.keys(store)[index] || null,
@@ -1095,6 +1078,7 @@ coverage: {
 ```
 
 **Excluding from coverage:**
+
 - Type-only files (`**/*.d.ts`, `**/types/**`)
 - Configuration files (`**/*.config.*`)
 - Test setup files (`src/test/**`)
@@ -1112,14 +1096,14 @@ coverage: {
 
 ## Summary
 
-| Category | Pattern | Tool |
-|----------|---------|------|
-| Pure functions | Simple `expect(func(input)).toBe(output)` | Vitest |
-| Validators/Schemas | `safeParse()` with valid/invalid cases | Zod + Vitest |
-| React hooks | `renderHook()` + `act()` + mocking | @testing-library/react |
-| Async operations | `vi.fn().mockResolvedValue()` + `waitFor()` | Vitest + @testing-library |
-| DOM/Timers | `vi.useFakeTimers()`, `vi.stubGlobal()` | Vitest |
-| Test data | Factory functions in `__fixtures__/` | Fixtures |
+| Category           | Pattern                                     | Tool                      |
+| ------------------ | ------------------------------------------- | ------------------------- |
+| Pure functions     | Simple `expect(func(input)).toBe(output)`   | Vitest                    |
+| Validators/Schemas | `safeParse()` with valid/invalid cases      | Zod + Vitest              |
+| React hooks        | `renderHook()` + `act()` + mocking          | @testing-library/react    |
+| Async operations   | `vi.fn().mockResolvedValue()` + `waitFor()` | Vitest + @testing-library |
+| DOM/Timers         | `vi.useFakeTimers()`, `vi.stubGlobal()`     | Vitest                    |
+| Test data          | Factory functions in `__fixtures__/`        | Fixtures                  |
 
 ---
 
@@ -1128,4 +1112,5 @@ coverage: {
 - [Vitest Documentation](https://vitest.dev/)
 - [React Testing Library Docs](https://testing-library.com/react)
 - [Zod Documentation](https://zod.dev/)
-- `Docs/architecture/implementation-patterns/18-testing-strategy-patterns.md` — Full testing architecture guide
+- `Docs/architecture/implementation-patterns/18-testing-strategy-patterns.md` — Full testing
+  architecture guide

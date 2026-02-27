@@ -295,30 +295,36 @@ export function useCustomTemplates(): UseCustomTemplatesResult {
   /**
    * Save a template
    */
-  const save = useCallback(async (template: FirewallTemplate) => {
-    try {
-      await customTemplatesStore.save(template);
-      await load(); // Reload to get updated list
-    } catch (err) {
-      const error = err instanceof Error ? err : new Error('Failed to save template');
-      setError(error);
-      throw error;
-    }
-  }, [load]);
+  const save = useCallback(
+    async (template: FirewallTemplate) => {
+      try {
+        await customTemplatesStore.save(template);
+        await load(); // Reload to get updated list
+      } catch (err) {
+        const error = err instanceof Error ? err : new Error('Failed to save template');
+        setError(error);
+        throw error;
+      }
+    },
+    [load]
+  );
 
   /**
    * Remove a template
    */
-  const remove = useCallback(async (id: string) => {
-    try {
-      await customTemplatesStore.remove(id);
-      await load(); // Reload to get updated list
-    } catch (err) {
-      const error = err instanceof Error ? err : new Error('Failed to remove template');
-      setError(error);
-      throw error;
-    }
-  }, [load]);
+  const remove = useCallback(
+    async (id: string) => {
+      try {
+        await customTemplatesStore.remove(id);
+        await load(); // Reload to get updated list
+      } catch (err) {
+        const error = err instanceof Error ? err : new Error('Failed to remove template');
+        setError(error);
+        throw error;
+      }
+    },
+    [load]
+  );
 
   /**
    * Clear all templates
@@ -351,11 +357,14 @@ export function useCustomTemplates(): UseCustomTemplatesResult {
   /**
    * Import templates from JSON
    */
-  const importTemplates = useCallback(async (json: string): Promise<number> => {
-    const imported = await customTemplatesStore.import(json);
-    await load(); // Reload to show imported templates
-    return imported;
-  }, [load]);
+  const importTemplates = useCallback(
+    async (json: string): Promise<number> => {
+      const imported = await customTemplatesStore.import(json);
+      await load(); // Reload to show imported templates
+      return imported;
+    },
+    [load]
+  );
 
   // Load templates on mount
   useEffect(() => {

@@ -70,8 +70,11 @@ export const AccessMode: Story = {
   },
   decorators: [
     (Story) => (
-      <MockedProvider mocks={mockMutation} addTypename={false}>
-        <div className="min-h-screen flex items-center justify-center p-component-lg">
+      <MockedProvider
+        mocks={mockMutation}
+        addTypename={false}
+      >
+        <div className="p-component-lg flex min-h-screen items-center justify-center">
           <Story />
         </div>
       </MockedProvider>
@@ -97,8 +100,11 @@ export const TrunkMode: Story = {
   },
   decorators: [
     (Story) => (
-      <MockedProvider mocks={mockMutation} addTypename={false}>
-        <div className="min-h-screen flex items-center justify-center p-component-lg">
+      <MockedProvider
+        mocks={mockMutation}
+        addTypename={false}
+      >
+        <div className="p-component-lg flex min-h-screen items-center justify-center">
           <Story />
         </div>
       </MockedProvider>
@@ -123,8 +129,11 @@ export const TrunkModeNoNative: Story = {
   },
   decorators: [
     (Story) => (
-      <MockedProvider mocks={mockMutation} addTypename={false}>
-        <div className="min-h-screen flex items-center justify-center p-component-lg">
+      <MockedProvider
+        mocks={mockMutation}
+        addTypename={false}
+      >
+        <div className="p-component-lg flex min-h-screen items-center justify-center">
           <Story />
         </div>
       </MockedProvider>
@@ -145,8 +154,11 @@ export const Empty: Story = {
   },
   decorators: [
     (Story) => (
-      <MockedProvider mocks={mockMutation} addTypename={false}>
-        <div className="min-h-screen flex items-center justify-center p-component-lg">
+      <MockedProvider
+        mocks={mockMutation}
+        addTypename={false}
+      >
+        <div className="p-component-lg flex min-h-screen items-center justify-center">
           <Story />
         </div>
       </MockedProvider>
@@ -180,8 +192,11 @@ export const WithPreview: Story = {
   },
   decorators: [
     (Story) => (
-      <MockedProvider mocks={mockMutation} addTypename={false}>
-        <div className="min-h-screen flex items-center justify-center p-component-lg">
+      <MockedProvider
+        mocks={mockMutation}
+        addTypename={false}
+      >
+        <div className="p-component-lg flex min-h-screen items-center justify-center">
           <Story />
         </div>
       </MockedProvider>
@@ -200,17 +215,18 @@ export const ManyVlans: Story = {
     initialValues: {
       mode: 'trunk',
       pvid: 1,
-      taggedVlanIds: [
-        10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150,
-      ],
+      taggedVlanIds: [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150],
     },
     onSuccess: fn(),
     onCancel: fn(),
   },
   decorators: [
     (Story) => (
-      <MockedProvider mocks={mockMutation} addTypename={false}>
-        <div className="min-h-screen flex items-center justify-center p-component-lg">
+      <MockedProvider
+        mocks={mockMutation}
+        addTypename={false}
+      >
+        <div className="p-component-lg flex min-h-screen items-center justify-center">
           <Story />
         </div>
       </MockedProvider>

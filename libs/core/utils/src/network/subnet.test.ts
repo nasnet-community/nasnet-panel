@@ -7,7 +7,7 @@ import {
   getPrefixMask,
   getMaskPrefix,
   isValidMask,
-  getSubnetInfo
+  getSubnetInfo,
 } from './subnet';
 
 describe('Subnet Utilities', () => {

@@ -110,9 +110,9 @@ export const Empty: Story = {
     loading: false,
     error: null,
     emptyState: (
-      <div className="text-center py-8">
+      <div className="py-8 text-center">
         <p className="text-muted-foreground">No service instances found.</p>
-        <p className="text-sm text-muted-foreground">Install services to get started.</p>
+        <p className="text-muted-foreground text-sm">Install services to get started.</p>
       </div>
     ),
   },

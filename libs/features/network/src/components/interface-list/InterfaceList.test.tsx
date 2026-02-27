@@ -108,7 +108,10 @@ describe('InterfaceList', () => {
 
   it('renders interface list with data', async () => {
     render(
-      <MockedProvider mocks={mocks} addTypename={true}>
+      <MockedProvider
+        mocks={mocks}
+        addTypename={true}
+      >
         <InterfaceList routerId="router-1" />
       </MockedProvider>
     );
@@ -126,7 +129,10 @@ describe('InterfaceList', () => {
 
   it('filters by type', async () => {
     render(
-      <MockedProvider mocks={mocks} addTypename={true}>
+      <MockedProvider
+        mocks={mocks}
+        addTypename={true}
+      >
         <InterfaceList routerId="router-1" />
       </MockedProvider>
     );
@@ -149,7 +155,10 @@ describe('InterfaceList', () => {
 
   it('filters by status', async () => {
     render(
-      <MockedProvider mocks={mocks} addTypename={true}>
+      <MockedProvider
+        mocks={mocks}
+        addTypename={true}
+      >
         <InterfaceList routerId="router-1" />
       </MockedProvider>
     );
@@ -172,7 +181,10 @@ describe('InterfaceList', () => {
 
   it('searches by name', async () => {
     render(
-      <MockedProvider mocks={mocks} addTypename={true}>
+      <MockedProvider
+        mocks={mocks}
+        addTypename={true}
+      >
         <InterfaceList routerId="router-1" />
       </MockedProvider>
     );
@@ -195,7 +207,10 @@ describe('InterfaceList', () => {
 
   it('clears all filters', async () => {
     render(
-      <MockedProvider mocks={mocks} addTypename={true}>
+      <MockedProvider
+        mocks={mocks}
+        addTypename={true}
+      >
         <InterfaceList routerId="router-1" />
       </MockedProvider>
     );
@@ -226,7 +241,10 @@ describe('InterfaceList', () => {
 
   it('selects multiple interfaces', async () => {
     render(
-      <MockedProvider mocks={mocks} addTypename={true}>
+      <MockedProvider
+        mocks={mocks}
+        addTypename={true}
+      >
         <InterfaceList routerId="router-1" />
       </MockedProvider>
     );
@@ -252,7 +270,10 @@ describe('InterfaceList', () => {
 
   it('clears selection', async () => {
     render(
-      <MockedProvider mocks={mocks} addTypename={true}>
+      <MockedProvider
+        mocks={mocks}
+        addTypename={true}
+      >
         <InterfaceList routerId="router-1" />
       </MockedProvider>
     );
@@ -282,7 +303,10 @@ describe('InterfaceList', () => {
 
   it('opens detail panel on row click', async () => {
     render(
-      <MockedProvider mocks={mocks} addTypename={true}>
+      <MockedProvider
+        mocks={mocks}
+        addTypename={true}
+      >
         <InterfaceList routerId="router-1" />
       </MockedProvider>
     );
@@ -318,7 +342,10 @@ describe('InterfaceList', () => {
     ];
 
     render(
-      <MockedProvider mocks={loadingMocks} addTypename={true}>
+      <MockedProvider
+        mocks={loadingMocks}
+        addTypename={true}
+      >
         <InterfaceList routerId="router-1" />
       </MockedProvider>
     );
@@ -338,7 +365,10 @@ describe('InterfaceList', () => {
     ];
 
     render(
-      <MockedProvider mocks={errorMocks} addTypename={true}>
+      <MockedProvider
+        mocks={errorMocks}
+        addTypename={true}
+      >
         <InterfaceList routerId="router-1" />
       </MockedProvider>
     );

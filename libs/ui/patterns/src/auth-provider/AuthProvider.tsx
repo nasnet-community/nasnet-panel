@@ -227,8 +227,9 @@ function AuthProviderComponent({
 
   // Enable automatic token refresh
   useTokenRefresh({
-    refreshTokenFn: onRefreshToken
-      ? async () => {
+    refreshTokenFn:
+      onRefreshToken ?
+        async () => {
           const result = await onRefreshToken();
           return {
             token: result.accessToken,
@@ -236,7 +237,9 @@ function AuthProviderComponent({
             refreshToken: result.refreshToken,
           };
         }
-      : async () => { throw new Error('No refresh function provided'); },
+      : async () => {
+          throw new Error('No refresh function provided');
+        },
     onReauthRequired: () => {
       clearAuth();
       onSessionExpired?.();
@@ -363,7 +366,10 @@ function AuthProviderComponent({
 }
 
 export const AuthProvider = forwardRef<HTMLDivElement, AuthProviderProps>((props, ref) => (
-  <div ref={ref} style={{ display: 'contents' }}>
+  <div
+    ref={ref}
+    style={{ display: 'contents' }}
+  >
     <AuthProviderComponent {...props} />
   </div>
 ));
@@ -443,4 +449,3 @@ export function RequireAuth({
 
   return <>{children}</>;
 }
-

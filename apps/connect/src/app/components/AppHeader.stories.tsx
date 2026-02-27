@@ -6,7 +6,6 @@
  * the stores so the component renders without a live router or backend.
  */
 
-
 import { useEffect } from 'react';
 
 import { useConnectionStore, useAlertNotificationStore } from '@nasnet/state/stores';
@@ -42,7 +41,10 @@ function SeedStores({ connectionState, routerIp = '', unreadCount = 0 }: SeedPro
         alertId: `alert-${i}`,
         title: `Alert #${i + 1}`,
         message: `This is a sample notification message for alert ${i + 1}.`,
-        severity: i % 3 === 0 ? 'CRITICAL' : i % 3 === 1 ? 'WARNING' : 'INFO',
+        severity:
+          i % 3 === 0 ? 'CRITICAL'
+          : i % 3 === 1 ? 'WARNING'
+          : 'INFO',
       });
     }
   }, [connectionState, routerIp, unreadCount]);
@@ -55,7 +57,7 @@ function AppHeaderStory(props: SeedProps) {
   return (
     <div style={{ width: '375px' }}>
       <SeedStores {...props} />
-      <div className="bg-background border-b border-border h-16">
+      <div className="bg-background border-border h-16 border-b">
         <AppHeader />
       </div>
     </div>
@@ -100,7 +102,8 @@ export const Connected: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Header with an active router connection. The router IP is shown as the display name and the status indicator is green.',
+        story:
+          'Header with an active router connection. The router IP is shown as the display name and the status indicator is green.',
       },
     },
   },
@@ -130,7 +133,8 @@ export const Reconnecting: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Transitional state while the app re-establishes a lost connection. The amber dot pulses.',
+        story:
+          'Transitional state while the app re-establishes a lost connection. The amber dot pulses.',
       },
     },
   },
@@ -145,7 +149,8 @@ export const Disconnected: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Fully offline state. The display name falls back to "NasNetConnect" and the status dot is red.',
+        story:
+          'Fully offline state. The display name falls back to "NasNetConnect" and the status dot is red.',
       },
     },
   },
@@ -160,7 +165,8 @@ export const DisconnectedWithManyNotifications: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Disconnected with a large number of unread notifications, verifying badge overflow display.',
+        story:
+          'Disconnected with a large number of unread notifications, verifying badge overflow display.',
       },
     },
   },
@@ -179,7 +185,8 @@ export const Mobile: Story = {
     viewport: { defaultViewport: 'mobile1' },
     docs: {
       description: {
-        story: 'AppHeader rendered on a mobile viewport (375px). Logo, connection status, and notification bell are properly spaced for touch interaction.',
+        story:
+          'AppHeader rendered on a mobile viewport (375px). Logo, connection status, and notification bell are properly spaced for touch interaction.',
       },
     },
   },
@@ -198,7 +205,8 @@ export const Desktop: Story = {
     viewport: { defaultViewport: 'desktop' },
     docs: {
       description: {
-        story: 'AppHeader rendered on a desktop viewport (1280px+). Full-width layout with spacious controls and clear visual hierarchy.',
+        story:
+          'AppHeader rendered on a desktop viewport (1280px+). Full-width layout with spacious controls and clear visual hierarchy.',
       },
     },
   },

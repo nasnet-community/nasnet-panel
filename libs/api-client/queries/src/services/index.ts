@@ -86,18 +86,12 @@ export type { ServiceInstance, ServiceStatus } from './useServiceInstances';
 
 // Mutation Hooks
 export { useInstallService } from './useInstallService';
-export type {
-  InstallServiceInput,
-  InstallServiceVariables,
-} from './useInstallService';
+export type { InstallServiceInput, InstallServiceVariables } from './useInstallService';
 
 export { useInstanceMutations } from './useInstanceMutations';
 
 // Verification Hooks
-export {
-  useFeatureVerification,
-  useInstanceVerificationStatus,
-} from './useFeatureVerification';
+export { useFeatureVerification, useInstanceVerificationStatus } from './useFeatureVerification';
 export type {
   GetFeatureVerificationVariables,
   GetFeatureVerificationResult,
@@ -106,10 +100,7 @@ export type {
 } from './useFeatureVerification';
 
 export { useReverifyFeature } from './useReverifyFeature';
-export type {
-  ReverifyInstanceVariables,
-  ReverifyInstanceResult,
-} from './useReverifyFeature';
+export type { ReverifyInstanceVariables, ReverifyInstanceResult } from './useReverifyFeature';
 
 // Subscription Hooks
 export {
@@ -118,16 +109,10 @@ export {
   useInstanceStatusChanged,
   useInstanceMonitoring,
 } from './useInstanceSubscriptions';
-export type {
-  InstallProgress,
-  InstanceStatusChanged,
-} from './useInstanceSubscriptions';
+export type { InstallProgress, InstanceStatusChanged } from './useInstanceSubscriptions';
 
 // Virtual Interface Hooks
-export {
-  useVirtualInterfaces,
-  useVirtualInterface,
-} from './useVirtualInterfaces';
+export { useVirtualInterfaces, useVirtualInterface } from './useVirtualInterfaces';
 export type {
   VirtualInterface,
   GatewayType,
@@ -140,9 +125,7 @@ export { useBridgeStatus } from './useBridgeStatus';
 export type { BridgeStatus } from './useBridgeStatus';
 
 // Isolation Status Hooks (NAS-8.4)
-export {
-  useInstanceIsolation,
-} from './useInstanceIsolation';
+export { useInstanceIsolation } from './useInstanceIsolation';
 export type {
   GetInstanceIsolationVariables,
   GetInstanceIsolationResult,
@@ -159,11 +142,7 @@ export { useInstanceHealthSubscription } from './useInstanceHealthSubscription';
 export { useConfigureHealthCheck, validateHealthCheckConfig } from './useConfigureHealthCheck';
 
 // Port Registry Hooks
-export {
-  usePortAllocations,
-  useCheckPortAvailability,
-  useOrphanedPorts,
-} from './usePortRegistry';
+export { usePortAllocations, useCheckPortAvailability, useOrphanedPorts } from './usePortRegistry';
 export type {
   PortAllocationFilters,
   PortAllocationSort,
@@ -171,11 +150,7 @@ export type {
 } from './usePortRegistry';
 
 // Dependency Management Hooks (NAS-8.19)
-export {
-  useDependencies,
-  useDependents,
-  useDependencyGraph,
-} from './useDependencies';
+export { useDependencies, useDependents, useDependencyGraph } from './useDependencies';
 export type {
   DependencyType,
   ServiceDependency,
@@ -186,10 +161,7 @@ export type {
 } from './useDependencies';
 
 export { useDependencyMutations } from './useDependencyMutations';
-export type {
-  AddDependencyInput,
-  RemoveDependencyInput,
-} from './useDependencyMutations';
+export type { AddDependencyInput, RemoveDependencyInput } from './useDependencyMutations';
 
 export { useBootSequenceProgress } from './useBootSequenceProgress';
 export type {
@@ -261,15 +233,8 @@ export type {
 } from './useDeviceRouting';
 
 // Kill Switch Hooks (NAS-8.14)
-export {
-  useKillSwitchStatus,
-  useSetKillSwitch,
-  useKillSwitchSubscription,
-} from './useKillSwitch';
-export type {
-  KillSwitchStatus,
-  SetKillSwitchInput,
-} from './useKillSwitch';
+export { useKillSwitchStatus, useSetKillSwitch, useKillSwitchSubscription } from './useKillSwitch';
+export type { KillSwitchStatus, SetKillSwitchInput } from './useKillSwitch';
 
 // Time-Based Service Scheduling Hooks (NAS-8.X)
 export {
@@ -323,29 +288,21 @@ export {
   GET_FEATURE_VERIFICATION,
   GET_INSTANCE_VERIFICATION_STATUS,
 } from './useFeatureVerification';
-export { REVERIFY_INSTANCE, REVERIFY_INSTANCE as REVERIFY_INSTANCE_MUTATION } from './useReverifyFeature';
-
 export {
-  GET_VIRTUAL_INTERFACES,
-  GET_VIRTUAL_INTERFACE,
-} from './useVirtualInterfaces';
+  REVERIFY_INSTANCE,
+  REVERIFY_INSTANCE as REVERIFY_INSTANCE_MUTATION,
+} from './useReverifyFeature';
+
+export { GET_VIRTUAL_INTERFACES, GET_VIRTUAL_INTERFACE } from './useVirtualInterfaces';
 export { GET_BRIDGE_STATUS } from './useBridgeStatus';
 
-export {
-  GET_INSTANCE_ISOLATION,
-} from './useInstanceIsolation';
+export { GET_INSTANCE_ISOLATION } from './useInstanceIsolation';
 
-export {
-  INSTANCE_HEALTH_QUERY,
-} from './useInstanceHealth';
+export { INSTANCE_HEALTH_QUERY } from './useInstanceHealth';
 
-export {
-  INSTANCE_HEALTH_CHANGED_SUBSCRIPTION,
-} from './useInstanceHealthSubscription';
+export { INSTANCE_HEALTH_CHANGED_SUBSCRIPTION } from './useInstanceHealthSubscription';
 
-export {
-  CONFIGURE_HEALTH_CHECK_MUTATION,
-} from './useConfigureHealthCheck';
+export { CONFIGURE_HEALTH_CHECK_MUTATION } from './useConfigureHealthCheck';
 
 export {
   GET_VLAN_ALLOCATIONS,
@@ -411,11 +368,7 @@ export {
 } from './useServiceAlerts';
 
 // Service Logs & Diagnostics Hooks (NAS-8.12)
-export {
-  useServiceLogFile,
-  useServiceLogsSubscription,
-  useServiceLogs,
-} from './useServiceLogs';
+export { useServiceLogFile, useServiceLogsSubscription, useServiceLogs } from './useServiceLogs';
 export type { LogLevel, LogEntry, ServiceLogFile } from './useServiceLogs';
 
 export {
@@ -487,28 +440,16 @@ export {
 
 // Service Templates Hooks (NAS-8.9)
 export { useServiceTemplates } from './useServiceTemplates';
-export type {
-  UseServiceTemplatesOptions,
-  UseServiceTemplatesReturn,
-} from './useServiceTemplates';
+export type { UseServiceTemplatesOptions, UseServiceTemplatesReturn } from './useServiceTemplates';
 
 export { useInstallTemplate } from './useInstallTemplate';
-export type {
-  UseInstallTemplateOptions,
-  UseInstallTemplateReturn,
-} from './useInstallTemplate';
+export type { UseInstallTemplateOptions, UseInstallTemplateReturn } from './useInstallTemplate';
 
 export { useExportAsTemplate } from './useExportAsTemplate';
-export type {
-  UseExportAsTemplateOptions,
-  UseExportAsTemplateReturn,
-} from './useExportAsTemplate';
+export type { UseExportAsTemplateOptions, UseExportAsTemplateReturn } from './useExportAsTemplate';
 
 export { useImportTemplate } from './useImportTemplate';
-export type {
-  UseImportTemplateOptions,
-  UseImportTemplateReturn,
-} from './useImportTemplate';
+export type { UseImportTemplateOptions, UseImportTemplateReturn } from './useImportTemplate';
 
 export { useDeleteTemplate } from './useDeleteTemplate';
 export type {

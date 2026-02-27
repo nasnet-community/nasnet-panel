@@ -18,5 +18,10 @@ export const Route = createFileRoute('/router/$id/services/$instanceId')({
 export function ServiceDetailRoute() {
   const { id: routerId, instanceId } = Route.useParams();
 
-  return <ServiceDetailPage routerId={routerId} instanceId={instanceId} />;
+  return (
+    <ServiceDetailPage
+      routerId={routerId}
+      instanceId={instanceId}
+    />
+  );
 }

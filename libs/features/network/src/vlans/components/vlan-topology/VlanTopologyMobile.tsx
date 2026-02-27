@@ -86,9 +86,7 @@ function VlanTopologyMobileComponent({
     return (
       <Card className={className}>
         <CardContent className="py-12 text-center">
-          <div className="animate-pulse text-muted-foreground">
-            Loading VLAN topology...
-          </div>
+          <div className="text-muted-foreground animate-pulse">Loading VLAN topology...</div>
         </CardContent>
       </Card>
     );
@@ -98,9 +96,7 @@ function VlanTopologyMobileComponent({
     return (
       <Card className={className}>
         <CardContent className="py-12">
-          <p className="text-center text-error">
-            Failed to load VLAN topology: {error.message}
-          </p>
+          <p className="text-error text-center">Failed to load VLAN topology: {error.message}</p>
         </CardContent>
       </Card>
     );
@@ -112,7 +108,7 @@ function VlanTopologyMobileComponent({
         <CardContent className="py-12 text-center">
           <Icon
             icon={Network}
-            className="h-12 w-12 mx-auto mb-component-md text-muted-foreground"
+            className="mb-component-md text-muted-foreground mx-auto h-12 w-12"
             aria-hidden="true"
           />
           <p className="text-muted-foreground">No VLANs configured</p>
@@ -126,7 +122,7 @@ function VlanTopologyMobileComponent({
       {/* Statistics Cards */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-component-sm">
+          <CardTitle className="gap-component-sm flex items-center">
             <Icon
               icon={Network}
               className="h-5 w-5"
@@ -136,25 +132,21 @@ function VlanTopologyMobileComponent({
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 gap-component-sm">
-            <div className="rounded-[var(--semantic-radius-card)] border border-border p-component-sm space-y-component-xs">
-              <p className="text-sm text-muted-foreground">Total VLANs</p>
+          <div className="gap-component-sm grid grid-cols-2">
+            <div className="border-border p-component-sm space-y-component-xs rounded-[var(--semantic-radius-card)] border">
+              <p className="text-muted-foreground text-sm">Total VLANs</p>
               <p className="text-2xl font-bold">{stats.totalVlans}</p>
             </div>
-            <div className="rounded-[var(--semantic-radius-card)] border border-border p-component-sm space-y-component-xs">
-              <p className="text-sm text-muted-foreground">Running</p>
-              <p className="text-2xl font-bold text-success">
-                {stats.runningVlans}
-              </p>
+            <div className="border-border p-component-sm space-y-component-xs rounded-[var(--semantic-radius-card)] border">
+              <p className="text-muted-foreground text-sm">Running</p>
+              <p className="text-success text-2xl font-bold">{stats.runningVlans}</p>
             </div>
-            <div className="rounded-[var(--semantic-radius-card)] border border-border p-component-sm space-y-component-xs">
-              <p className="text-sm text-muted-foreground">Disabled</p>
-              <p className="text-2xl font-bold text-muted-foreground">
-                {stats.disabledVlans}
-              </p>
+            <div className="border-border p-component-sm space-y-component-xs rounded-[var(--semantic-radius-card)] border">
+              <p className="text-muted-foreground text-sm">Disabled</p>
+              <p className="text-muted-foreground text-2xl font-bold">{stats.disabledVlans}</p>
             </div>
-            <div className="rounded-[var(--semantic-radius-card)] border border-border p-component-sm space-y-component-xs">
-              <p className="text-sm text-muted-foreground">Interfaces</p>
+            <div className="border-border p-component-sm space-y-component-xs rounded-[var(--semantic-radius-card)] border">
+              <p className="text-muted-foreground text-sm">Interfaces</p>
               <p className="text-2xl font-bold">{stats.parentInterfaces}</p>
             </div>
           </div>
@@ -175,39 +167,37 @@ function VlanTopologyMobileComponent({
               aria-label={`${isExpanded ? 'Collapse' : 'Expand'} VLANs on ${iface.name}`}
             >
               <CardHeader className="pb-component-sm">
-                <div className="flex items-center gap-component-sm">
-                  {isExpanded ? (
+                <div className="gap-component-sm flex items-center">
+                  {isExpanded ?
                     <Icon
                       icon={ChevronDown}
-                      className="h-5 w-5 text-muted-foreground shrink-0"
+                      className="text-muted-foreground h-5 w-5 shrink-0"
                       aria-hidden="true"
                     />
-                  ) : (
-                    <Icon
+                  : <Icon
                       icon={ChevronRight}
-                      className="h-5 w-5 text-muted-foreground shrink-0"
+                      className="text-muted-foreground h-5 w-5 shrink-0"
                       aria-hidden="true"
                     />
-                  )}
+                  }
 
-                  <div className="flex-1 flex items-start justify-between gap-component-sm">
-                    <div className="flex items-center gap-component-xs">
+                  <div className="gap-component-sm flex flex-1 items-start justify-between">
+                    <div className="gap-component-xs flex items-center">
                       <Icon
                         icon={Network}
                         className="h-5 w-5 shrink-0"
                         aria-hidden="true"
                       />
                       <div className="text-left">
-                        <CardTitle className="text-base font-mono">
-                          {iface.name}
-                        </CardTitle>
-                        <p className="text-sm text-muted-foreground capitalize">
-                          {iface.type}
-                        </p>
+                        <CardTitle className="font-mono text-base">{iface.name}</CardTitle>
+                        <p className="text-muted-foreground text-sm capitalize">{iface.type}</p>
                       </div>
                     </div>
 
-                    <Badge variant="outline" className="shrink-0">
+                    <Badge
+                      variant="outline"
+                      className="shrink-0"
+                    >
                       {iface.vlans.length}
                     </Badge>
                   </div>
@@ -217,7 +207,7 @@ function VlanTopologyMobileComponent({
 
             {/* VLANs List */}
             {isExpanded && iface.vlans.length > 0 && (
-              <CardContent className="pt-0 space-y-component-sm">
+              <CardContent className="space-y-component-sm pt-0">
                 {iface.vlans.map((vlan) => (
                   <button
                     key={vlan.id}
@@ -225,44 +215,53 @@ function VlanTopologyMobileComponent({
                       e.stopPropagation();
                       handleVlanSelect(vlan.id);
                     }}
-                    className="w-full p-component-sm rounded-[var(--semantic-radius-card)] border border-border hover:border-primary/50 transition-all text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                    className="p-component-sm border-border hover:border-primary/50 focus-visible:ring-ring w-full rounded-[var(--semantic-radius-card)] border text-left transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
                     aria-label={`Select VLAN ${vlan.vlanId}: ${vlan.name}`}
                   >
                     <div className="space-y-component-sm">
-                      <div className="flex items-start justify-between gap-component-xs">
-                        <div className="flex items-center gap-component-xs">
+                      <div className="gap-component-xs flex items-start justify-between">
+                        <div className="gap-component-xs flex items-center">
                           <Badge
                             variant="outline"
-                            className="font-mono min-w-[50px] justify-center shrink-0"
+                            className="min-w-[50px] shrink-0 justify-center font-mono"
                           >
                             {vlan.vlanId}
                           </Badge>
                           <p className="font-medium">{vlan.name}</p>
                         </div>
 
-                        {vlan.isDisabled ? (
-                          <Badge variant="secondary" className="shrink-0">
+                        {vlan.isDisabled ?
+                          <Badge
+                            variant="secondary"
+                            className="shrink-0"
+                          >
                             Disabled
                           </Badge>
-                        ) : vlan.isRunning ? (
-                          <Badge variant="success" className="shrink-0">
+                        : vlan.isRunning ?
+                          <Badge
+                            variant="success"
+                            className="shrink-0"
+                          >
                             Running
                           </Badge>
-                        ) : (
-                          <Badge variant="warning" className="shrink-0">
+                        : <Badge
+                            variant="warning"
+                            className="shrink-0"
+                          >
                             Down
                           </Badge>
-                        )}
+                        }
                       </div>
 
                       {vlan.comment && (
-                        <p className="text-sm text-muted-foreground">
-                          {vlan.comment}
-                        </p>
+                        <p className="text-muted-foreground text-sm">{vlan.comment}</p>
                       )}
 
                       {vlan.mtu && (
-                        <Badge variant="outline" className="font-mono text-xs category-networking">
+                        <Badge
+                          variant="outline"
+                          className="category-networking font-mono text-xs"
+                        >
                           MTU {vlan.mtu}
                         </Badge>
                       )}

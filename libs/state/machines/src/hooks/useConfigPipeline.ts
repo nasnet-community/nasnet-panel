@@ -293,7 +293,10 @@ export interface UseConfigPipelineOptions {
  * ```
  */
 export function useConfigPipeline<TConfig = unknown>(
-  pipelineConfig: Omit<ConfigPipelineConfig<TConfig>, 'id' | 'onSuccess' | 'onRollback' | 'onError'>,
+  pipelineConfig: Omit<
+    ConfigPipelineConfig<TConfig>,
+    'id' | 'onSuccess' | 'onRollback' | 'onError'
+  >,
   options: UseConfigPipelineOptions
 ): UseConfigPipelineReturn<TConfig> {
   const {
@@ -336,10 +339,9 @@ export function useConfigPipeline<TConfig = unknown>(
 
   // Current state as string
   const currentState = (
-    typeof snapshot.value === 'string'
-      ? snapshot.value
-      : Object.keys(snapshot.value)[0]
-  ) as ConfigPipelineState;
+    typeof snapshot.value === 'string' ?
+      snapshot.value
+    : Object.keys(snapshot.value)[0]) as ConfigPipelineState;
 
   // Handle validation error callback
   useEffect(() => {
@@ -443,7 +445,10 @@ export function useConfigPipeline<TConfig = unknown>(
  * Automatically advances through states when possible
  */
 export function useQuickConfigPipeline<TConfig = unknown>(
-  pipelineConfig: Omit<ConfigPipelineConfig<TConfig>, 'id' | 'onSuccess' | 'onRollback' | 'onError'>,
+  pipelineConfig: Omit<
+    ConfigPipelineConfig<TConfig>,
+    'id' | 'onSuccess' | 'onRollback' | 'onError'
+  >,
   options: UseConfigPipelineOptions
 ): UseConfigPipelineReturn<TConfig> & {
   /**

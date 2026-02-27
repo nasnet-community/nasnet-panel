@@ -62,38 +62,28 @@ export function useDependencyMutations() {
   const client = useApolloClient();
 
   const [addDependencyMutation, addMutationState] = useMutation(ADD_DEPENDENCY, {
-    refetchQueries: [
-      GET_DEPENDENCIES,
-      GET_DEPENDENTS,
-      GET_DEPENDENCY_GRAPH,
-    ],
+    refetchQueries: [GET_DEPENDENCIES, GET_DEPENDENTS, GET_DEPENDENCY_GRAPH],
   });
 
-  const [removeDependencyMutation, removeMutationState] = useMutation(
-    REMOVE_DEPENDENCY,
-    {
-      onCompleted: (data) => {
-        if (data?.removeDependency) {
-          // Dependency removed successfully, invalidate cache
-          client.refetchQueries({
-            include: [GET_DEPENDENCIES, GET_DEPENDENTS, GET_DEPENDENCY_GRAPH],
-          });
-        }
-      },
-    }
-  );
+  const [removeDependencyMutation, removeMutationState] = useMutation(REMOVE_DEPENDENCY, {
+    onCompleted: (data) => {
+      if (data?.removeDependency) {
+        // Dependency removed successfully, invalidate cache
+        client.refetchQueries({
+          include: [GET_DEPENDENCIES, GET_DEPENDENTS, GET_DEPENDENCY_GRAPH],
+        });
+      }
+    },
+  });
 
-  const [triggerBootSequenceMutation, triggerMutationState] = useMutation(
-    TRIGGER_BOOT_SEQUENCE
-  );
+  const [triggerBootSequenceMutation, triggerMutationState] = useMutation(TRIGGER_BOOT_SEQUENCE);
 
   return {
     /**
      * Add a new dependency relationship between service instances
      * Pre-validates that the relationship won't create a cycle
      */
-    addDependency: (input: AddDependencyInput) =>
-      addDependencyMutation({ variables: { input } }),
+    addDependency: (input: AddDependencyInput) => addDependencyMutation({ variables: { input } }),
 
     /**
      * Remove an existing dependency relationship

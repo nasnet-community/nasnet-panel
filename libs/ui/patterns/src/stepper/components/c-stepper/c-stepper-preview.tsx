@@ -60,72 +60,71 @@ const previewVariantsReduced = {
  * </CStepperPreview>
  * ```
  */
-export const CStepperPreview = React.forwardRef<
-  HTMLDivElement,
-  CStepperPreviewProps
->(function CStepperPreview(
-  { children, title = 'Preview', onClose, className, width = 320 },
-  ref
-) {
-  const prefersReducedMotion = useReducedMotion();
+export const CStepperPreview = React.forwardRef<HTMLDivElement, CStepperPreviewProps>(
+  function CStepperPreview({ children, title = 'Preview', onClose, className, width = 320 }, ref) {
+    const prefersReducedMotion = useReducedMotion();
 
-  // Calculate width style
-  const widthStyle = typeof width === 'number' ? `${width}px` : width;
+    // Calculate width style
+    const widthStyle = typeof width === 'number' ? `${width}px` : width;
 
-  return (
-    <motion.aside
-      ref={ref}
-      className={cn(
-        'shrink-0 border-l border-border bg-background overflow-hidden',
-        // RTL support - border flips automatically with dir attribute
-        'rtl:border-l-0 rtl:border-r',
-        className
-      )}
-      style={{ width: widthStyle }}
-      initial="hidden"
-      animate="visible"
-      exit="hidden"
-      variants={prefersReducedMotion ? previewVariantsReduced : previewVariants}
-      role="complementary"
-      aria-label={`${title} panel`}
-    >
-      <div
-        className="flex flex-col h-full"
-        style={{ width: widthStyle, minWidth: widthStyle }}
+    return (
+      <motion.aside
+        ref={ref}
+        className={cn(
+          'border-border bg-background shrink-0 overflow-hidden border-l',
+          // RTL support - border flips automatically with dir attribute
+          'rtl:border-l-0 rtl:border-r',
+          className
+        )}
+        style={{ width: widthStyle }}
+        initial="hidden"
+        animate="visible"
+        exit="hidden"
+        variants={prefersReducedMotion ? previewVariantsReduced : previewVariants}
+        role="complementary"
+        aria-label={`${title} panel`}
       >
-        {/* Header - sticky at top */}
-        <div className="sticky top-0 z-10 bg-background border-b border-border">
-          <div className="flex items-center justify-between p-4">
-            <h3 className="font-semibold text-sm text-foreground">{title}</h3>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onClose}
-              aria-label={`Close ${title.toLowerCase()} panel`}
-              className="h-8 w-8 p-0"
-            >
-              <X className="h-4 w-4" aria-hidden="true" />
-            </Button>
+        <div
+          className="flex h-full flex-col"
+          style={{ width: widthStyle, minWidth: widthStyle }}
+        >
+          {/* Header - sticky at top */}
+          <div className="bg-background border-border sticky top-0 z-10 border-b">
+            <div className="flex items-center justify-between p-4">
+              <h3 className="text-foreground text-sm font-semibold">{title}</h3>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onClose}
+                aria-label={`Close ${title.toLowerCase()} panel`}
+                className="h-8 w-8 p-0"
+              >
+                <X
+                  className="h-4 w-4"
+                  aria-hidden="true"
+                />
+              </Button>
+            </div>
+          </div>
+
+          {/* Content - scrollable */}
+          <div className="flex-1 overflow-y-auto p-4">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key="preview-content"
+                initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0 }}
+                transition={{ duration: prefersReducedMotion ? 0 : 0.15 }}
+              >
+                {children}
+              </motion.div>
+            </AnimatePresence>
           </div>
         </div>
-
-        {/* Content - scrollable */}
-        <div className="flex-1 overflow-y-auto p-4">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key="preview-content"
-              initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0 }}
-              transition={{ duration: prefersReducedMotion ? 0 : 0.15 }}
-            >
-              {children}
-            </motion.div>
-          </AnimatePresence>
-        </div>
-      </div>
-    </motion.aside>
-  );
-});
+      </motion.aside>
+    );
+  }
+);
 
 CStepperPreview.displayName = 'CStepperPreview';

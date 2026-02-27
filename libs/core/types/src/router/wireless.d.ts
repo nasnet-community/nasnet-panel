@@ -11,36 +11,36 @@
  * Represents a single wireless radio interface on the router with its configuration and status.
  */
 export interface WirelessInterface {
-    /** RouterOS internal ID (e.g., "*1") */
-    readonly id: string;
-    /** Interface name (e.g., "wlan1", "wlan2") */
-    name: string;
-    /** MAC address of the wireless interface */
-    macAddress: string;
-    /** SSID (network name) - can be null if not configured */
-    ssid: string | null;
-    /** Whether the interface is disabled */
-    disabled: boolean;
-    /** Whether the interface is actually transmitting */
-    running: boolean;
-    /** Frequency band (2.4GHz, 5GHz, 6GHz) */
-    band: FrequencyBand;
-    /** Frequency in MHz (e.g., 2412, 5180) */
-    frequency: number;
-    /** Channel number or identifier */
-    channel: string;
-    /** Operating mode (AP, station, etc.) */
-    mode: WirelessMode;
-    /** Transmission power in dBm */
-    txPower: number;
-    /** Name of the security profile used */
-    securityProfile: string;
-    /** Number of connected clients */
-    connectedClients: number;
-    /** Regulatory domain country code (optional) */
-    countryCode?: string;
-    /** Whether SSID broadcast is hidden */
-    hideSsid?: boolean;
+  /** RouterOS internal ID (e.g., "*1") */
+  readonly id: string;
+  /** Interface name (e.g., "wlan1", "wlan2") */
+  name: string;
+  /** MAC address of the wireless interface */
+  macAddress: string;
+  /** SSID (network name) - can be null if not configured */
+  ssid: string | null;
+  /** Whether the interface is disabled */
+  disabled: boolean;
+  /** Whether the interface is actually transmitting */
+  running: boolean;
+  /** Frequency band (2.4GHz, 5GHz, 6GHz) */
+  band: FrequencyBand;
+  /** Frequency in MHz (e.g., 2412, 5180) */
+  frequency: number;
+  /** Channel number or identifier */
+  channel: string;
+  /** Operating mode (AP, station, etc.) */
+  mode: WirelessMode;
+  /** Transmission power in dBm */
+  txPower: number;
+  /** Name of the security profile used */
+  securityProfile: string;
+  /** Number of connected clients */
+  connectedClients: number;
+  /** Regulatory domain country code (optional) */
+  countryCode?: string;
+  /** Whether SSID broadcast is hidden */
+  hideSsid?: boolean;
 }
 /**
  * Frequency bands supported by wireless interfaces
@@ -65,7 +65,13 @@ export type FrequencyBand = '2.4GHz' | '5GHz' | '6GHz' | 'Unknown';
  * - `wds-slave` - WDS Slave (wireless distribution system)
  * - `alignment-only` - Alignment mode (no forwarding, signal testing)
  */
-export type WirelessMode = 'ap-bridge' | 'station' | 'station-bridge' | 'station-pseudobridge' | 'wds-slave' | 'alignment-only';
+export type WirelessMode =
+  | 'ap-bridge'
+  | 'station'
+  | 'station-bridge'
+  | 'station-pseudobridge'
+  | 'wds-slave'
+  | 'alignment-only';
 /**
  * Security profile for wireless networks
  *
@@ -73,22 +79,22 @@ export type WirelessMode = 'ap-bridge' | 'station' | 'station-bridge' | 'station
  * Defines the security configuration for a wireless interface.
  */
 export interface SecurityProfile {
-    /** RouterOS internal ID */
-    readonly id: string;
-    /** Profile name (e.g., "default", "guest") */
-    name: string;
-    /** Security mode */
-    mode: SecurityMode;
-    /** Authentication types enabled */
-    authenticationTypes: readonly AuthenticationType[];
-    /** WPA pre-shared key (hidden in UI) */
-    wpaPreSharedKey?: string;
-    /** WPA2 pre-shared key (hidden in UI) */
-    wpa2PreSharedKey?: string;
-    /** Unicast cipher algorithms */
-    unicastCiphers: readonly Cipher[];
-    /** Group cipher algorithms */
-    groupCiphers: readonly Cipher[];
+  /** RouterOS internal ID */
+  readonly id: string;
+  /** Profile name (e.g., "default", "guest") */
+  name: string;
+  /** Security mode */
+  mode: SecurityMode;
+  /** Authentication types enabled */
+  authenticationTypes: readonly AuthenticationType[];
+  /** WPA pre-shared key (hidden in UI) */
+  wpaPreSharedKey?: string;
+  /** WPA2 pre-shared key (hidden in UI) */
+  wpa2PreSharedKey?: string;
+  /** Unicast cipher algorithms */
+  unicastCiphers: readonly Cipher[];
+  /** Group cipher algorithms */
+  groupCiphers: readonly Cipher[];
 }
 /**
  * Security modes for wireless networks
@@ -108,7 +114,13 @@ export type SecurityMode = 'none' | 'static-keys-required' | 'dynamic-keys';
  * - PSK variants use pre-shared key (password)
  * - EAP variants use enterprise authentication (RADIUS)
  */
-export type AuthenticationType = 'wpa-psk' | 'wpa2-psk' | 'wpa3-psk' | 'wpa-eap' | 'wpa2-eap' | 'wpa3-eap';
+export type AuthenticationType =
+  | 'wpa-psk'
+  | 'wpa2-psk'
+  | 'wpa3-psk'
+  | 'wpa-eap'
+  | 'wpa2-eap'
+  | 'wpa3-eap';
 /**
  * Cipher algorithms
  *
@@ -136,14 +148,14 @@ export type ChannelWidth = '20MHz' | '40MHz' | '80MHz' | '160MHz';
  * Extended interface with additional details for configuration views.
  */
 export interface WirelessInterfaceDetail extends WirelessInterface {
-    /** Channel width (20MHz, 40MHz, 80MHz, 160MHz) */
-    channelWidth: ChannelWidth;
-    /** Signal strength in dBm (station mode only, negative value) */
-    signalStrength?: number;
-    /** Connected AP SSID (station mode only) */
-    connectedTo?: string;
-    /** Full security profile details (optional) */
-    securityProfileDetails?: SecurityProfile;
+  /** Channel width (20MHz, 40MHz, 80MHz, 160MHz) */
+  channelWidth: ChannelWidth;
+  /** Signal strength in dBm (station mode only, negative value) */
+  signalStrength?: number;
+  /** Connected AP SSID (station mode only) */
+  connectedTo?: string;
+  /** Full security profile details (optional) */
+  securityProfileDetails?: SecurityProfile;
 }
 /**
  * Security level indicators for wireless networks
@@ -209,30 +221,30 @@ export type WirelessSecurityOption = 'none' | 'wpa2-psk' | 'wpa3-psk' | 'wpa2-wp
  * Represents a device currently connected to a wireless interface.
  */
 export interface WirelessClient {
-    /** RouterOS internal ID */
-    readonly id: string;
-    /** MAC address of the connected client */
-    macAddress: string;
-    /** Interface the client is connected to */
-    interface: string;
-    /** Signal strength in dBm (negative value, closer to 0 is better) */
-    signalStrength: number;
-    /** TX rate in Mbps */
-    txRate: number;
-    /** RX rate in Mbps */
-    rxRate: number;
-    /** Uptime/connection duration string (e.g., "2h30m") */
-    uptime: string;
-    /** Last activity time string */
-    lastActivity: string;
-    /** Bytes received from client */
-    rxBytes: number;
-    /** Bytes transmitted to client */
-    txBytes: number;
-    /** Packets received from client */
-    rxPackets: number;
-    /** Packets transmitted to client */
-    txPackets: number;
+  /** RouterOS internal ID */
+  readonly id: string;
+  /** MAC address of the connected client */
+  macAddress: string;
+  /** Interface the client is connected to */
+  interface: string;
+  /** Signal strength in dBm (negative value, closer to 0 is better) */
+  signalStrength: number;
+  /** TX rate in Mbps */
+  txRate: number;
+  /** RX rate in Mbps */
+  rxRate: number;
+  /** Uptime/connection duration string (e.g., "2h30m") */
+  uptime: string;
+  /** Last activity time string */
+  lastActivity: string;
+  /** Bytes received from client */
+  rxBytes: number;
+  /** Bytes transmitted to client */
+  txBytes: number;
+  /** Packets received from client */
+  rxPackets: number;
+  /** Packets transmitted to client */
+  txPackets: number;
 }
 /**
  * Wireless settings update payload
@@ -242,21 +254,21 @@ export interface WirelessClient {
  * All fields are optional (partial updates supported).
  */
 export interface WirelessSettingsUpdate {
-    /** Network name (SSID) - must be 1-32 characters */
-    ssid?: string;
-    /** Password/passphrase for the network - must be 8-63 characters for WPA/WPA2/WPA3 */
-    password?: string;
-    /** Channel number (1-165) or 'auto' for automatic selection */
-    channel?: string;
-    /** Channel width (20MHz, 40MHz, 80MHz, 160MHz) */
-    channelWidth?: ChannelWidth;
-    /** Transmission power in dBm (specific values depend on radio capabilities) */
-    txPower?: number;
-    /** Whether to hide the SSID from broadcast */
-    hideSsid?: boolean;
-    /** Security mode selection */
-    securityMode?: WirelessSecurityOption;
-    /** Country/region code for regulatory compliance (e.g., "US", "GB") */
-    countryCode?: string;
+  /** Network name (SSID) - must be 1-32 characters */
+  ssid?: string;
+  /** Password/passphrase for the network - must be 8-63 characters for WPA/WPA2/WPA3 */
+  password?: string;
+  /** Channel number (1-165) or 'auto' for automatic selection */
+  channel?: string;
+  /** Channel width (20MHz, 40MHz, 80MHz, 160MHz) */
+  channelWidth?: ChannelWidth;
+  /** Transmission power in dBm (specific values depend on radio capabilities) */
+  txPower?: number;
+  /** Whether to hide the SSID from broadcast */
+  hideSsid?: boolean;
+  /** Security mode selection */
+  securityMode?: WirelessSecurityOption;
+  /** Country/region code for regulatory compliance (e.g., "US", "GB") */
+  countryCode?: string;
 }
 //# sourceMappingURL=wireless.d.ts.map

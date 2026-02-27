@@ -72,9 +72,9 @@ function FallbackState() {
  */
 function DetailRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex justify-between items-center py-3 border-b border-slate-200 dark:border-slate-700 last:border-b-0">
+    <div className="flex items-center justify-between border-b border-slate-200 py-3 last:border-b-0 dark:border-slate-700">
       <span className="text-sm font-medium text-slate-500 dark:text-slate-400">{label}</span>
-      <span className="text-sm font-mono text-slate-900 dark:text-slate-50">{value}</span>
+      <span className="font-mono text-sm text-slate-900 dark:text-slate-50">{value}</span>
     </div>
   );
 }
@@ -95,22 +95,20 @@ const SerialNumberRow = React.memo(function SerialNumberRow({
   }, [copy, serialNumber]);
 
   return (
-    <div className="flex justify-between items-center py-3 border-b border-slate-200 dark:border-slate-700">
+    <div className="flex items-center justify-between border-b border-slate-200 py-3 dark:border-slate-700">
       <span className="text-sm font-medium text-slate-500 dark:text-slate-400">Serial Number</span>
       <div className="flex items-center gap-2">
-        <span className="text-sm font-mono text-slate-900 dark:text-slate-50">{serialNumber}</span>
+        <span className="font-mono text-sm text-slate-900 dark:text-slate-50">{serialNumber}</span>
         <Button
           variant="ghost"
           size="icon"
-          className="h-8 w-8 rounded-button hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+          className="rounded-button h-8 w-8 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800"
           onClick={handleCopy}
           aria-label={copied ? 'Copied' : 'Copy serial number'}
         >
-          {copied ? (
-            <Check className="h-4 w-4 text-success" />
-          ) : (
-            <Copy className="h-4 w-4 text-slate-500 dark:text-slate-400" />
-          )}
+          {copied ?
+            <Check className="text-success h-4 w-4" />
+          : <Copy className="h-4 w-4 text-slate-500 dark:text-slate-400" />}
         </Button>
       </div>
     </div>
@@ -162,12 +160,24 @@ export const HardwareCard = React.memo(function HardwareCard({
       </CardHeader>
       <CardContent className="space-y-0 pt-0">
         <SerialNumberRow serialNumber={data.serialNumber} />
-        <DetailRow label="Model" value={data.model} />
-        <DetailRow label="Firmware" value={data.currentFirmware} />
+        <DetailRow
+          label="Model"
+          value={data.model}
+        />
+        <DetailRow
+          label="Firmware"
+          value={data.currentFirmware}
+        />
         {showFactoryFirmware && (
-          <DetailRow label="Factory Firmware" value={data.factoryFirmware} />
+          <DetailRow
+            label="Factory Firmware"
+            value={data.factoryFirmware}
+          />
         )}
-        <DetailRow label="Revision" value={data.revision} />
+        <DetailRow
+          label="Revision"
+          value={data.revision}
+        />
       </CardContent>
     </Card>
   );

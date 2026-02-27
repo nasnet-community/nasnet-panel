@@ -7,7 +7,15 @@
  * @module @nasnet/core/types/resource
  */
 import type { Resource, ResourceCategory, CompositeResource } from './resource';
-import type { ValidationResult, DeploymentState, RuntimeState, TelemetryData, ResourceMetadata, ResourceRelationships, PlatformInfo } from './layers';
+import type {
+  ValidationResult,
+  DeploymentState,
+  RuntimeState,
+  TelemetryData,
+  ResourceMetadata,
+  ResourceRelationships,
+  PlatformInfo,
+} from './layers';
 import type { ResourceLifecycleState } from './lifecycle';
 /**
  * Check if resource is a VPN resource.
@@ -194,7 +202,7 @@ export declare function hasResourceTypePrefix(resource: Resource, prefix: string
  * }
  */
 export declare function hasValidation(resource: Resource): resource is Resource & {
-    validation: ValidationResult;
+  validation: ValidationResult;
 };
 /**
  * Check if resource has deployment data.
@@ -211,7 +219,7 @@ export declare function hasValidation(resource: Resource): resource is Resource 
  * }
  */
 export declare function hasDeployment(resource: Resource): resource is Resource & {
-    deployment: DeploymentState;
+  deployment: DeploymentState;
 };
 /**
  * Check if resource has runtime data.
@@ -228,7 +236,7 @@ export declare function hasDeployment(resource: Resource): resource is Resource 
  * }
  */
 export declare function hasRuntime(resource: Resource): resource is Resource & {
-    runtime: RuntimeState;
+  runtime: RuntimeState;
 };
 /**
  * Check if resource has telemetry data.
@@ -245,7 +253,7 @@ export declare function hasRuntime(resource: Resource): resource is Resource & {
  * }
  */
 export declare function hasTelemetry(resource: Resource): resource is Resource & {
-    telemetry: TelemetryData;
+  telemetry: TelemetryData;
 };
 /**
  * Check if resource has relationships data.
@@ -262,7 +270,7 @@ export declare function hasTelemetry(resource: Resource): resource is Resource &
  * }
  */
 export declare function hasRelationships(resource: Resource): resource is Resource & {
-    relationships: ResourceRelationships;
+  relationships: ResourceRelationships;
 };
 /**
  * Check if resource has platform data.
@@ -279,7 +287,7 @@ export declare function hasRelationships(resource: Resource): resource is Resour
  * }
  */
 export declare function hasPlatform(resource: Resource): resource is Resource & {
-    platform: PlatformInfo;
+  platform: PlatformInfo;
 };
 /**
  * Check if value is a composite resource.

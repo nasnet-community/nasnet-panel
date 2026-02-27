@@ -60,7 +60,10 @@ export const Default: Story = {
 export const Checked: Story = {
   render: () => (
     <div className="flex items-center space-x-2">
-      <Checkbox id="checked" defaultChecked />
+      <Checkbox
+        id="checked"
+        defaultChecked
+      />
       <Label htmlFor="checked">Checked by default</Label>
     </div>
   ),
@@ -70,14 +73,27 @@ export const Disabled: Story = {
   render: () => (
     <div className="space-y-4">
       <div className="flex items-center space-x-2">
-        <Checkbox id="disabled" disabled />
-        <Label htmlFor="disabled" className="text-muted-foreground">
+        <Checkbox
+          id="disabled"
+          disabled
+        />
+        <Label
+          htmlFor="disabled"
+          className="text-muted-foreground"
+        >
           Disabled unchecked
         </Label>
       </div>
       <div className="flex items-center space-x-2">
-        <Checkbox id="disabled-checked" disabled defaultChecked />
-        <Label htmlFor="disabled-checked" className="text-muted-foreground">
+        <Checkbox
+          id="disabled-checked"
+          disabled
+          defaultChecked
+        />
+        <Label
+          htmlFor="disabled-checked"
+          className="text-muted-foreground"
+        >
           Disabled checked
         </Label>
       </div>
@@ -91,7 +107,7 @@ export const WithDescription: Story = {
       <Checkbox id="terms-desc" />
       <div className="grid gap-1.5 leading-none">
         <Label htmlFor="terms-desc">Accept terms and conditions</Label>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-muted-foreground text-sm">
           You agree to our Terms of Service and Privacy Policy.
         </p>
       </div>
@@ -105,11 +121,17 @@ export const FormGroup: Story = {
       <Label className="text-base font-medium">Select features</Label>
       <div className="space-y-2">
         <div className="flex items-center space-x-2">
-          <Checkbox id="firewall" defaultChecked />
+          <Checkbox
+            id="firewall"
+            defaultChecked
+          />
           <Label htmlFor="firewall">Firewall Rules</Label>
         </div>
         <div className="flex items-center space-x-2">
-          <Checkbox id="vpn" defaultChecked />
+          <Checkbox
+            id="vpn"
+            defaultChecked
+          />
           <Label htmlFor="vpn">VPN Configuration</Label>
         </div>
         <div className="flex items-center space-x-2">
@@ -135,18 +157,27 @@ export const Mobile: Story = {
     },
   },
   render: () => (
-    <div className="space-y-4 w-full">
+    <div className="w-full space-y-4">
       <Label className="text-base font-medium">Preferences</Label>
       <div className="space-y-3">
         <div className="flex items-center gap-3 p-2">
-          <Checkbox id="mobile-notif" defaultChecked />
-          <Label htmlFor="mobile-notif" className="text-base">
+          <Checkbox
+            id="mobile-notif"
+            defaultChecked
+          />
+          <Label
+            htmlFor="mobile-notif"
+            className="text-base"
+          >
             Enable notifications
           </Label>
         </div>
         <div className="flex items-center gap-3 p-2">
           <Checkbox id="mobile-analytics" />
-          <Label htmlFor="mobile-analytics" className="text-base">
+          <Label
+            htmlFor="mobile-analytics"
+            className="text-base"
+          >
             Share analytics
           </Label>
         </div>
@@ -165,11 +196,14 @@ export const Tablet: Story = {
     },
   },
   render: () => (
-    <div className="space-y-4 w-full max-w-md">
+    <div className="w-full max-w-md space-y-4">
       <Label className="text-base font-medium">System Settings</Label>
       <div className="space-y-3">
         <div className="flex items-center gap-2">
-          <Checkbox id="tablet-auto" defaultChecked />
+          <Checkbox
+            id="tablet-auto"
+            defaultChecked
+          />
           <Label htmlFor="tablet-auto">Auto-update</Label>
         </div>
         <div className="flex items-center gap-2">
@@ -177,7 +211,10 @@ export const Tablet: Story = {
           <Label htmlFor="tablet-dark">Dark mode</Label>
         </div>
         <div className="flex items-center gap-2">
-          <Checkbox id="tablet-backup" defaultChecked />
+          <Checkbox
+            id="tablet-backup"
+            defaultChecked
+          />
           <Label htmlFor="tablet-backup">Automatic backups</Label>
         </div>
       </div>
@@ -195,15 +232,21 @@ export const Desktop: Story = {
     },
   },
   render: () => (
-    <div className="space-y-4 w-full max-w-lg">
+    <div className="w-full max-w-lg space-y-4">
       <Label className="text-base font-medium">Advanced Options</Label>
       <div className="space-y-2">
         <div className="flex items-center space-x-2 p-1">
-          <Checkbox id="desktop-compression" defaultChecked />
+          <Checkbox
+            id="desktop-compression"
+            defaultChecked
+          />
           <Label htmlFor="desktop-compression">Enable compression</Label>
         </div>
         <div className="flex items-center space-x-2 p-1">
-          <Checkbox id="desktop-encryption" defaultChecked />
+          <Checkbox
+            id="desktop-encryption"
+            defaultChecked
+          />
           <Label htmlFor="desktop-encryption">Enable encryption</Label>
         </div>
         <div className="flex items-center space-x-2 p-1">
@@ -231,7 +274,7 @@ export const Controlled: Story = {
           />
           <Label htmlFor="controlled">Accept terms</Label>
         </div>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-muted-foreground text-sm">
           Checkbox is currently: <strong>{checked ? 'checked' : 'unchecked'}</strong>
         </p>
       </div>
@@ -241,7 +284,7 @@ export const Controlled: Story = {
     const checkbox = canvasElement.querySelector('input[type="checkbox"]') as HTMLInputElement;
     if (checkbox) {
       checkbox.click();
-      await new Promise(r => setTimeout(r, 100));
+      await new Promise((r) => setTimeout(r, 100));
       checkbox.click();
     }
   },

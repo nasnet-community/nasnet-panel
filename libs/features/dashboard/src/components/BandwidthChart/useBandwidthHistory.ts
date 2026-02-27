@@ -19,13 +19,11 @@
 
 import { useSubscription, useQuery } from '@apollo/client';
 import { useMemo, useEffect, useRef, useState } from 'react';
-import { GET_BANDWIDTH_HISTORY as BANDWIDTH_HISTORY_QUERY, BANDWIDTH_UPDATE as BANDWIDTH_SUBSCRIPTION } from './graphql';
 import {
-  TIME_RANGE_MAP,
-  AGGREGATION_MAP,
-  MAX_DATA_POINTS,
-  appendDataPoint,
-} from './utils';
+  GET_BANDWIDTH_HISTORY as BANDWIDTH_HISTORY_QUERY,
+  BANDWIDTH_UPDATE as BANDWIDTH_SUBSCRIPTION,
+} from './graphql';
+import { TIME_RANGE_MAP, AGGREGATION_MAP, MAX_DATA_POINTS, appendDataPoint } from './utils';
 import type {
   TimeRange,
   BandwidthDataPoint,
@@ -57,9 +55,7 @@ import type {
  * @param config - Hook configuration (deviceId, timeRange, interfaceId)
  * @returns Object with data, loading, error states, refetch function, subscription status
  */
-export function useBandwidthHistory(
-  config: UseBandwidthHistoryConfig
-): UseBandwidthHistoryReturn {
+export function useBandwidthHistory(config: UseBandwidthHistoryConfig): UseBandwidthHistoryReturn {
   const { deviceId, timeRange, interfaceId } = config;
   const dataRef = useRef<BandwidthDataPoint[]>([]);
   const [subscriptionActive, setSubscriptionActive] = useState(true);
@@ -123,23 +119,22 @@ export function useBandwidthHistory(
     if (!historyData?.bandwidthHistory) return null;
 
     // Map GraphQL response to typed data points
-    const historical = historyData.bandwidthHistory.dataPoints.map(
-      (dp: any) => ({
-        timestamp: new Date(dp.timestamp).getTime(),
-        txRate: dp.txRate,
-        rxRate: dp.rxRate,
-        txBytes: dp.txBytes,
-        rxBytes: dp.rxBytes,
-      })
-    );
+    const historical = historyData.bandwidthHistory.dataPoints.map((dp: any) => ({
+      timestamp: new Date(dp.timestamp).getTime(),
+      txRate: dp.txRate,
+      rxRate: dp.rxRate,
+      txBytes: dp.txBytes,
+      rxBytes: dp.rxBytes,
+    }));
 
     // Store in ref for real-time updates (doesn't trigger re-render)
     dataRef.current = historical;
 
     // Get current rates from latest data point or subscription
     const lastPoint = historical[historical.length - 1];
-    const currentRates = realtimeData?.bandwidth
-      ? {
+    const currentRates =
+      realtimeData?.bandwidth ?
+        {
           tx: realtimeData.bandwidth.txRate,
           rx: realtimeData.bandwidth.rxRate,
         }
@@ -173,11 +168,7 @@ export function useBandwidthHistory(
     };
 
     // Append and trim to max points for performance (prevents memory leaks)
-    dataRef.current = appendDataPoint(
-      dataRef.current,
-      newPoint,
-      MAX_DATA_POINTS[timeRange]
-    );
+    dataRef.current = appendDataPoint(dataRef.current, newPoint, MAX_DATA_POINTS[timeRange]);
   }, [realtimeData, timeRange]);
 
   return {

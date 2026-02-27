@@ -147,11 +147,7 @@ export class RateLimitAlertService {
    * TODO: Epic 18 Integration Point #3
    * Aggregate multiple blocks into single notification
    */
-  emitBulkBlockEvent(
-    blockedCount: number,
-    routerId: string,
-    timeWindow: string
-  ): void {
+  emitBulkBlockEvent(blockedCount: number, routerId: string, timeWindow: string): void {
     if (!this.config.enabled) {
       return;
     }

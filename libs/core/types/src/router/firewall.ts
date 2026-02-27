@@ -382,17 +382,17 @@ export interface ChainSummary {
  * These represent detailed states of established connections.
  */
 export type ConnectionTrackingState =
-  | 'established'   // Connection fully established
-  | 'new'           // New connection
-  | 'related'       // Related to established connection
-  | 'invalid'       // Invalid/untracked
-  | 'time-wait'     // TCP TIME_WAIT state
-  | 'syn-sent'      // TCP SYN_SENT state
-  | 'syn-received'  // TCP SYN_RECEIVED state
-  | 'fin-wait'      // TCP FIN_WAIT state
-  | 'close-wait'    // TCP CLOSE_WAIT state
-  | 'last-ack'      // TCP LAST_ACK state
-  | 'close';        // TCP CLOSE state
+  | 'established' // Connection fully established
+  | 'new' // New connection
+  | 'related' // Related to established connection
+  | 'invalid' // Invalid/untracked
+  | 'time-wait' // TCP TIME_WAIT state
+  | 'syn-sent' // TCP SYN_SENT state
+  | 'syn-received' // TCP SYN_RECEIVED state
+  | 'fin-wait' // TCP FIN_WAIT state
+  | 'close-wait' // TCP CLOSE_WAIT state
+  | 'last-ack' // TCP LAST_ACK state
+  | 'close'; // TCP CLOSE state
 
 /**
  * Active connection entry from connection tracking table

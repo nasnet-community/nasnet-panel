@@ -46,7 +46,10 @@ function FormWrapper({
 
   return (
     <FormProvider {...methods}>
-      <form onSubmit={methods.handleSubmit(onSubmit)} className="space-y-4 w-72">
+      <form
+        onSubmit={methods.handleSubmit(onSubmit)}
+        className="w-72 space-y-4"
+      >
         {children}
       </form>
     </FormProvider>
@@ -175,7 +178,8 @@ export const CustomLoadingText: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Custom loadingText shown during async submission. Submit the form in the canvas to observe the transition.',
+        story:
+          'Custom loadingText shown during async submission. Submit the form in the canvas to observe the transition.',
       },
     },
   },
@@ -191,15 +195,18 @@ export const DisabledOnInvalid: Story = {
   render: () => (
     <FormWrapper mode="onChange">
       <div className="space-y-2">
-        <label htmlFor="name" className="text-sm font-medium">Name (min 3 chars)</label>
+        <label
+          htmlFor="name"
+          className="text-sm font-medium"
+        >
+          Name (min 3 chars)
+        </label>
         {/* Plain input connected via RHF register pattern shown inline */}
-        <p className="text-xs text-muted-foreground">
+        <p className="text-muted-foreground text-xs">
           Type at least 3 characters to enable the submit button.
         </p>
       </div>
-      <FormSubmitButton disableOnInvalid>
-        Save (requires valid form)
-      </FormSubmitButton>
+      <FormSubmitButton disableOnInvalid>Save (requires valid form)</FormSubmitButton>
     </FormWrapper>
   ),
   parameters: {
@@ -226,7 +233,8 @@ export const ExplicitlyDisabled: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Disabled unconditionally via the disabled prop. Used when save is blocked by an external condition.',
+        story:
+          'Disabled unconditionally via the disabled prop. Used when save is blocked by an external condition.',
       },
     },
   },
@@ -247,7 +255,8 @@ export const DestructiveVariant: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Destructive variant used for dangerous submit actions such as factory reset or bulk delete.',
+        story:
+          'Destructive variant used for dangerous submit actions such as factory reset or bulk delete.',
       },
     },
   },
@@ -261,7 +270,7 @@ export const DestructiveVariant: Story = {
 export const AllSizes: Story = {
   render: () => (
     <FormWrapper>
-      <div className="flex flex-col gap-3 items-start">
+      <div className="flex flex-col items-start gap-3">
         <FormSubmitButton size="sm">Small</FormSubmitButton>
         <FormSubmitButton size="default">Default</FormSubmitButton>
         <FormSubmitButton size="lg">Large</FormSubmitButton>

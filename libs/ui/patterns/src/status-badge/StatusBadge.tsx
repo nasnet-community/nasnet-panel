@@ -103,11 +103,15 @@ const StatusBadgeBase = React.forwardRef<HTMLSpanElement, StatusBadgeProps>(
         {showDot && (
           <span
             className={cn(
-              'h-2 w-2 rounded-full flex-shrink-0',
+              'h-2 w-2 flex-shrink-0 rounded-full',
               getDotColor(badgeVariant as string),
-              ['bound', 'waiting', 'offered', 'searching', 'requesting'].includes(badgeVariant as string)
-                ? 'animate-pulse'
-                : ''
+              (
+                ['bound', 'waiting', 'offered', 'searching', 'requesting'].includes(
+                  badgeVariant as string
+                )
+              ) ?
+                'animate-pulse'
+              : ''
             )}
             aria-hidden="true"
           />
@@ -130,7 +134,7 @@ export const StatusBadge = React.memo(StatusBadgeBase);
  * Formats status enum to human-readable label
  * Memoized to prevent unnecessary object recreation
  */
-const formatStatusLabel = ((status: string): string => {
+const formatStatusLabel = (status: string): string => {
   const labelMap: Record<string, string> = {
     bound: 'Bound',
     waiting: 'Waiting',
@@ -143,7 +147,7 @@ const formatStatusLabel = ((status: string): string => {
   };
 
   return labelMap[status] || status;
-});
+};
 
 /**
  * Badge variant styles from CVA

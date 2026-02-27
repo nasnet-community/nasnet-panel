@@ -11,7 +11,7 @@ import {
   Cable,
   ScrollText,
   Store,
-  Boxes
+  Boxes,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
@@ -157,8 +157,7 @@ export const TabNavigation = React.memo(function TabNavigation() {
   const lastSegment = pathSegments[pathSegments.length - 1];
 
   // If last segment is router ID, we're on overview (index route)
-  const activeTab =
-    lastSegment === id || !lastSegment ? 'overview' : lastSegment;
+  const activeTab = lastSegment === id || !lastSegment ? 'overview' : lastSegment;
 
   // Preload all heavy tabs when entering router panel
   // This ensures fast tab switches after initial load
@@ -199,15 +198,15 @@ export const TabNavigation = React.memo(function TabNavigation() {
     <>
       {/* Desktop Navigation - Top Tabs */}
       <nav
-        className="hidden md:block border-b border-border bg-transparent"
+        className="border-border hidden border-b bg-transparent md:block"
         role="navigation"
         aria-label="Router panel sections"
       >
-        <div className="max-w-7xl mx-auto flex items-center gap-1">
+        <div className="mx-auto flex max-w-7xl items-center gap-1">
           {tabs.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.value;
-            
+
             return (
               <button
                 key={tab.value}
@@ -220,14 +219,17 @@ export const TabNavigation = React.memo(function TabNavigation() {
                 aria-label={tab.ariaLabel}
                 className={cn(
                   'flex items-center gap-2 px-4 py-3 text-sm font-medium transition-all duration-200',
-                  'border-b-2 border-transparent focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+                  'focus-visible:ring-ring border-b-2 border-transparent focus-visible:ring-2 focus-visible:ring-offset-2',
                   'hover:text-secondary',
-                  isActive
-                    ? 'border-secondary text-secondary font-semibold'
-                    : 'text-muted-foreground'
+                  isActive ?
+                    'border-secondary text-secondary font-semibold'
+                  : 'text-muted-foreground'
                 )}
               >
-                <Icon className="h-4 w-4" aria-hidden="true" />
+                <Icon
+                  className="h-4 w-4"
+                  aria-hidden="true"
+                />
                 <span>{tab.label}</span>
               </button>
             );
@@ -237,16 +239,16 @@ export const TabNavigation = React.memo(function TabNavigation() {
 
       {/* Mobile Navigation - Bottom Bar */}
       <nav
-        className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-muted border-t border-border shadow-lg safe-bottom"
+        className="bg-muted border-border safe-bottom fixed bottom-0 left-0 right-0 z-50 border-t shadow-lg md:hidden"
         role="navigation"
         aria-label="Router panel sections"
       >
-        <div className="grid grid-cols-10 h-16">
+        <div className="grid h-16 grid-cols-10">
           {tabs.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.value;
             const displayLabel = tab.mobileLabel || tab.label;
-            
+
             return (
               <button
                 key={tab.value}
@@ -258,23 +260,16 @@ export const TabNavigation = React.memo(function TabNavigation() {
                 aria-label={tab.ariaLabel}
                 className={cn(
                   'flex flex-col items-center justify-center gap-1 transition-all duration-200',
-                  'focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-h-[44px]',
+                  'focus-visible:ring-ring min-h-[44px] focus-visible:ring-2 focus-visible:ring-offset-2',
                   'active:scale-95',
-                  isActive
-                    ? 'text-secondary font-semibold'
-                    : 'text-muted-foreground'
+                  isActive ? 'text-secondary font-semibold' : 'text-muted-foreground'
                 )}
               >
                 <Icon
-                  className={cn(
-                    'h-5 w-5 transition-transform',
-                    isActive && 'scale-110'
-                  )}
+                  className={cn('h-5 w-5 transition-transform', isActive && 'scale-110')}
                   aria-hidden="true"
                 />
-                <span className="text-[10px] font-medium leading-none">
-                  {displayLabel}
-                </span>
+                <span className="text-[10px] font-medium leading-none">{displayLabel}</span>
               </button>
             );
           })}

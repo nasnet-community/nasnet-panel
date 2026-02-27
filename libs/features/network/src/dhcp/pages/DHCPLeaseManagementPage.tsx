@@ -62,18 +62,21 @@ export const DHCPLeaseManagementPage = React.memo(function DHCPLeaseManagementPa
     isError: hasError,
     error,
     clearSelection: pageData.clearLeaseSelection,
-    exportToCSV: () => { /* TODO: implement CSV export */ },
+    exportToCSV: () => {
+      /* TODO: implement CSV export */
+    },
   };
 
   // Transform servers for mobile presenter (expects string[] of names)
-  const serverNames = pageData.servers.map(s => s.name);
+  const serverNames = pageData.servers.map((s) => s.name);
 
   // Render platform-specific presenter
-  return platform === 'mobile' ? (
-    <DHCPLeaseManagementMobile {...presenterProps} servers={serverNames} />
-  ) : (
-    <DHCPLeaseManagementDesktop {...presenterProps} />
-  );
+  return platform === 'mobile' ?
+      <DHCPLeaseManagementMobile
+        {...presenterProps}
+        servers={serverNames}
+      />
+    : <DHCPLeaseManagementDesktop {...presenterProps} />;
 });
 
 DHCPLeaseManagementPage.displayName = 'DHCPLeaseManagementPage';

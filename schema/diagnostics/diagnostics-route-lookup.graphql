@@ -78,9 +78,5 @@ extend type Query {
   Look up which route will be used for a destination IP.
   Supports optional source address for policy routing testing.
   """
-  routeLookup(
-    routerId: ID!
-    destination: IPv4!
-    source: IPv4
-  ): RouteLookupResult!
+  routeLookup(routerId: ID!, destination: IPv4!, source: IPv4): RouteLookupResult!
 }

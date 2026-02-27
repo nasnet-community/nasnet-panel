@@ -164,7 +164,10 @@ describe('TroubleshootWizard', () => {
 
       render(
         <MockedProvider mocks={[]}>
-          <TroubleshootWizard {...defaultProps} onClose={onClose} />
+          <TroubleshootWizard
+            {...defaultProps}
+            onClose={onClose}
+          />
         </MockedProvider>
       );
 
@@ -181,7 +184,10 @@ describe('TroubleshootWizard', () => {
 
       render(
         <MockedProvider mocks={[]}>
-          <TroubleshootWizard {...defaultProps} onClose={onClose} />
+          <TroubleshootWizard
+            {...defaultProps}
+            onClose={onClose}
+          />
         </MockedProvider>
       );
 
@@ -330,9 +336,7 @@ describe('TroubleshootWizard', () => {
 
       // FixSuggestion component should be rendered
       expect(screen.getByText('Enable WAN Interface')).toBeInTheDocument();
-      expect(
-        screen.getByText(/your wan interface is disabled/i)
-      ).toBeInTheDocument();
+      expect(screen.getByText(/your wan interface is disabled/i)).toBeInTheDocument();
     });
 
     it('should call applyFix when apply button is clicked', async () => {
@@ -501,7 +505,12 @@ describe('TroubleshootWizard', () => {
             name: 'WAN Interface Check',
             description: 'Checking WAN interface status',
             status: 'passed',
-            result: { success: true, message: 'WAN interface is running', issueCode: undefined, executionTimeMs: 100 },
+            result: {
+              success: true,
+              message: 'WAN interface is running',
+              issueCode: undefined,
+              executionTimeMs: 100,
+            },
             fix: undefined,
           },
           {
@@ -509,7 +518,12 @@ describe('TroubleshootWizard', () => {
             name: 'Gateway Connectivity',
             description: 'Testing gateway reachability',
             status: 'passed',
-            result: { success: true, message: 'Gateway is reachable', issueCode: undefined, executionTimeMs: 200 },
+            result: {
+              success: true,
+              message: 'Gateway is reachable',
+              issueCode: undefined,
+              executionTimeMs: 200,
+            },
             fix: undefined,
           },
           {
@@ -517,7 +531,12 @@ describe('TroubleshootWizard', () => {
             name: 'Internet Connectivity',
             description: 'Testing internet connection',
             status: 'passed',
-            result: { success: true, message: 'Internet is reachable', issueCode: undefined, executionTimeMs: 300 },
+            result: {
+              success: true,
+              message: 'Internet is reachable',
+              issueCode: undefined,
+              executionTimeMs: 300,
+            },
             fix: undefined,
           },
           {
@@ -525,7 +544,12 @@ describe('TroubleshootWizard', () => {
             name: 'DNS Resolution',
             description: 'Testing DNS resolution',
             status: 'passed',
-            result: { success: true, message: 'DNS is working', issueCode: undefined, executionTimeMs: 150 },
+            result: {
+              success: true,
+              message: 'DNS is working',
+              issueCode: undefined,
+              executionTimeMs: 150,
+            },
             fix: undefined,
           },
           {
@@ -533,7 +557,12 @@ describe('TroubleshootWizard', () => {
             name: 'NAT Configuration',
             description: 'Verifying NAT rules',
             status: 'passed',
-            result: { success: true, message: 'NAT is configured', issueCode: undefined, executionTimeMs: 100 },
+            result: {
+              success: true,
+              message: 'NAT is configured',
+              issueCode: undefined,
+              executionTimeMs: 100,
+            },
             fix: undefined,
           },
         ],
@@ -583,7 +612,10 @@ describe('TroubleshootWizard', () => {
 
       render(
         <MockedProvider mocks={[]}>
-          <TroubleshootWizard {...defaultProps} autoStart={true} />
+          <TroubleshootWizard
+            {...defaultProps}
+            autoStart={true}
+          />
         </MockedProvider>
       );
 
@@ -650,7 +682,10 @@ describe('TroubleshootWizard', () => {
 
       render(
         <MockedProvider mocks={[]}>
-          <TroubleshootWizard {...defaultProps} ispInfo={ispInfo} />
+          <TroubleshootWizard
+            {...defaultProps}
+            ispInfo={ispInfo}
+          />
         </MockedProvider>
       );
 
@@ -682,7 +717,10 @@ describe('TroubleshootWizard', () => {
 
       render(
         <MockedProvider mocks={[]}>
-          <TroubleshootWizard {...defaultProps} onClose={onClose} />
+          <TroubleshootWizard
+            {...defaultProps}
+            onClose={onClose}
+          />
         </MockedProvider>
       );
 
@@ -744,7 +782,9 @@ describe('TroubleshootWizard', () => {
 
       // Error should be displayed (exact implementation depends on error UI)
       // For now, we just verify the component renders without crashing
-      expect(screen.getByRole('heading', { name: /no internet troubleshooting/i })).toBeInTheDocument();
+      expect(
+        screen.getByRole('heading', { name: /no internet troubleshooting/i })
+      ).toBeInTheDocument();
     });
   });
 

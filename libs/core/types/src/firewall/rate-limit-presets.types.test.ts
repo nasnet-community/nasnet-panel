@@ -77,7 +77,10 @@ describe('routerOSToConnectionRate', () => {
 
   it('handles edge cases', () => {
     expect(routerOSToConnectionRate('0/1s')).toEqual({ limit: 0, timeWindow: 'per-second' });
-    expect(routerOSToConnectionRate('999999/1m')).toEqual({ limit: 999999, timeWindow: 'per-minute' });
+    expect(routerOSToConnectionRate('999999/1m')).toEqual({
+      limit: 999999,
+      timeWindow: 'per-minute',
+    });
   });
 
   it('roundtrip conversion works correctly', () => {
@@ -110,15 +113,15 @@ describe('DEFAULT_RATE_LIMIT_RULE', () => {
 describe('TIMEOUT_PRESETS', () => {
   it('contains expected timeout values', () => {
     expect(TIMEOUT_PRESETS).toHaveLength(5);
-    expect(TIMEOUT_PRESETS.find(p => p.value === '1h')).toBeDefined();
-    expect(TIMEOUT_PRESETS.find(p => p.value === '6h')).toBeDefined();
-    expect(TIMEOUT_PRESETS.find(p => p.value === '1d')).toBeDefined();
-    expect(TIMEOUT_PRESETS.find(p => p.value === '1w')).toBeDefined();
-    expect(TIMEOUT_PRESETS.find(p => p.value === '')).toBeDefined(); // Permanent
+    expect(TIMEOUT_PRESETS.find((p) => p.value === '1h')).toBeDefined();
+    expect(TIMEOUT_PRESETS.find((p) => p.value === '6h')).toBeDefined();
+    expect(TIMEOUT_PRESETS.find((p) => p.value === '1d')).toBeDefined();
+    expect(TIMEOUT_PRESETS.find((p) => p.value === '1w')).toBeDefined();
+    expect(TIMEOUT_PRESETS.find((p) => p.value === '')).toBeDefined(); // Permanent
   });
 
   it('all presets have label and value', () => {
-    TIMEOUT_PRESETS.forEach(preset => {
+    TIMEOUT_PRESETS.forEach((preset) => {
       expect(preset.label).toBeTruthy();
       expect(preset.value).toBeDefined();
     });
@@ -131,7 +134,7 @@ describe('CONNECTION_LIMIT_PRESETS', () => {
   });
 
   it('all presets have label, limit, and timeWindow', () => {
-    CONNECTION_LIMIT_PRESETS.forEach(preset => {
+    CONNECTION_LIMIT_PRESETS.forEach((preset) => {
       expect(preset.label).toBeTruthy();
       expect(preset.limit).toBeGreaterThan(0);
       expect(['per-second', 'per-minute', 'per-hour']).toContain(preset.timeWindow);
@@ -139,7 +142,7 @@ describe('CONNECTION_LIMIT_PRESETS', () => {
   });
 
   it('presets are ordered from strict to relaxed', () => {
-    const limits = CONNECTION_LIMIT_PRESETS.map(p => p.limit);
+    const limits = CONNECTION_LIMIT_PRESETS.map((p) => p.limit);
     for (let i = 1; i < limits.length; i++) {
       expect(limits[i]).toBeGreaterThan(limits[i - 1]);
     }
@@ -152,7 +155,7 @@ describe('SYN_LIMIT_PRESETS', () => {
   });
 
   it('all presets have label, synLimit, and burst', () => {
-    SYN_LIMIT_PRESETS.forEach(preset => {
+    SYN_LIMIT_PRESETS.forEach((preset) => {
       expect(preset.label).toBeTruthy();
       expect(preset.synLimit).toBeGreaterThan(0);
       expect(preset.burst).toBeGreaterThan(0);
@@ -160,7 +163,7 @@ describe('SYN_LIMIT_PRESETS', () => {
   });
 
   it('presets are ordered from strict to relaxed', () => {
-    const synLimits = SYN_LIMIT_PRESETS.map(p => p.synLimit);
+    const synLimits = SYN_LIMIT_PRESETS.map((p) => p.synLimit);
     for (let i = 1; i < synLimits.length; i++) {
       expect(synLimits[i]).toBeGreaterThan(synLimits[i - 1]);
     }

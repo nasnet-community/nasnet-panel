@@ -53,7 +53,9 @@ export interface PortKnockingPageProps {
 // Main Component
 // ============================================================================
 
-export const PortKnockingPage = memo(function PortKnockingPage({ className }: PortKnockingPageProps) {
+export const PortKnockingPage = memo(function PortKnockingPage({
+  className,
+}: PortKnockingPageProps) {
   const { t } = useTranslation('firewall');
   const { activeRouterId } = useConnectionStore();
   const {
@@ -69,10 +71,7 @@ export const PortKnockingPage = memo(function PortKnockingPage({ className }: Po
   const [updateSequence] = useUpdatePortKnockSequence();
 
   // Fetch sequence data when editing
-  const { data: editData } = usePortKnockSequence(
-    activeRouterId!,
-    editingSequenceId || '',
-  );
+  const { data: editData } = usePortKnockSequence(activeRouterId!, editingSequenceId || '');
 
   const editSequence = editData?.portKnockSequence;
 
@@ -84,16 +83,19 @@ export const PortKnockingPage = memo(function PortKnockingPage({ className }: Po
 
   // Initialize form
   const formState = usePortKnockSequenceForm({
-    initialValues: isEditMode ? {
-      name: editSequence.name,
-      knockPorts: editSequence.knockPorts,
-      protectedPort: editSequence.protectedPort,
-      protectedProtocol: editSequence.protectedProtocol,
-      accessTimeout: editSequence.accessTimeout,
-      knockTimeout: editSequence.knockTimeout,
-      isEnabled: editSequence.isEnabled,
-      id: editSequence.id,
-    } : undefined,
+    initialValues:
+      isEditMode ?
+        {
+          name: editSequence.name,
+          knockPorts: editSequence.knockPorts,
+          protectedPort: editSequence.protectedPort,
+          protectedProtocol: editSequence.protectedProtocol,
+          accessTimeout: editSequence.accessTimeout,
+          knockTimeout: editSequence.knockTimeout,
+          isEnabled: editSequence.isEnabled,
+          id: editSequence.id,
+        }
+      : undefined,
     onSubmit: useCallback(
       async (data: PortKnockSequenceInput) => {
         setIsSubmitting(true);
@@ -131,10 +133,13 @@ export const PortKnockingPage = memo(function PortKnockingPage({ className }: Po
     setCreateDialogOpen(true);
   }, [setEditingSequenceId, setCreateDialogOpen]);
 
-  const handleEdit = useCallback((sequenceId: string) => {
-    setEditingSequenceId(sequenceId);
-    setCreateDialogOpen(true);
-  }, [setEditingSequenceId, setCreateDialogOpen]);
+  const handleEdit = useCallback(
+    (sequenceId: string) => {
+      setEditingSequenceId(sequenceId);
+      setCreateDialogOpen(true);
+    },
+    [setEditingSequenceId, setCreateDialogOpen]
+  );
 
   const handleCloseDialog = useCallback(() => {
     setCreateDialogOpen(false);
@@ -146,13 +151,21 @@ export const PortKnockingPage = memo(function PortKnockingPage({ className }: Po
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold font-display">Port Knocking</h1>
+          <h1 className="font-display text-3xl font-bold">Port Knocking</h1>
           <p className="text-muted-foreground mt-component-sm">
             Protect sensitive services behind secret knock sequences
           </p>
         </div>
-        <Button onClick={handleCreate} aria-label="Create new port knock sequence" className="min-h-[44px]">
-          <Icon icon={Plus} className="h-4 w-4 mr-component-sm" aria-hidden="true" />
+        <Button
+          onClick={handleCreate}
+          aria-label="Create new port knock sequence"
+          className="min-h-[44px]"
+        >
+          <Icon
+            icon={Plus}
+            className="mr-component-sm h-4 w-4"
+            aria-hidden="true"
+          />
           Create Sequence
         </Button>
       </div>
@@ -160,51 +173,81 @@ export const PortKnockingPage = memo(function PortKnockingPage({ className }: Po
       {/* Info Card */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-component-md">
-            <Icon icon={Shield} className="h-5 w-5 text-category-firewall" aria-hidden="true" />
+          <CardTitle className="gap-component-md flex items-center">
+            <Icon
+              icon={Shield}
+              className="text-category-firewall h-5 w-5"
+              aria-hidden="true"
+            />
             What is Port Knocking?
           </CardTitle>
           <CardDescription>
-            Port knocking hides services by requiring a secret sequence of connection attempts
-            to specific ports before granting access. This prevents port scanning and unauthorized
+            Port knocking hides services by requiring a secret sequence of connection attempts to
+            specific ports before granting access. This prevents port scanning and unauthorized
             access to sensitive services like SSH.
           </CardDescription>
         </CardHeader>
       </Card>
 
       {/* Tabs */}
-      <Tabs value={activeTab} onValueChange={(val) => setActiveTab(val as 'sequences' | 'log')}>
+      <Tabs
+        value={activeTab}
+        onValueChange={(val) => setActiveTab(val as 'sequences' | 'log')}
+      >
         <TabsList>
           <TabsTrigger value="sequences">
-            <Icon icon={Shield} className="h-4 w-4 mr-component-sm" aria-hidden="true" />
+            <Icon
+              icon={Shield}
+              className="mr-component-sm h-4 w-4"
+              aria-hidden="true"
+            />
             Sequences
           </TabsTrigger>
           <TabsTrigger value="log">
-            <Icon icon={ScrollText} className="h-4 w-4 mr-component-sm" aria-hidden="true" />
+            <Icon
+              icon={ScrollText}
+              className="mr-component-sm h-4 w-4"
+              aria-hidden="true"
+            />
             Knock Log
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="sequences" className="mt-component-lg">
-          <PortKnockSequenceManager onEdit={handleEdit} onCreate={handleCreate} />
+        <TabsContent
+          value="sequences"
+          className="mt-component-lg"
+        >
+          <PortKnockSequenceManager
+            onEdit={handleEdit}
+            onCreate={handleCreate}
+          />
         </TabsContent>
 
-        <TabsContent value="log" className="mt-component-lg">
+        <TabsContent
+          value="log"
+          className="mt-component-lg"
+        >
           <PortKnockLogViewer />
         </TabsContent>
       </Tabs>
 
       {/* Create/Edit Dialog */}
-      <Sheet open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
-        <SheetContent side="right" className="w-full sm:max-w-4xl overflow-y-auto">
+      <Sheet
+        open={createDialogOpen}
+        onOpenChange={setCreateDialogOpen}
+      >
+        <SheetContent
+          side="right"
+          className="w-full overflow-y-auto sm:max-w-4xl"
+        >
           <SheetHeader>
             <SheetTitle>
               {isEditMode ? 'Edit Port Knock Sequence' : 'Create Port Knock Sequence'}
             </SheetTitle>
             <SheetDescription>
-              {isEditMode
-                ? 'Modify the knock sequence configuration.'
-                : 'Define a secret knock sequence to protect a service.'}
+              {isEditMode ?
+                'Modify the knock sequence configuration.'
+              : 'Define a secret knock sequence to protect a service.'}
             </SheetDescription>
           </SheetHeader>
 

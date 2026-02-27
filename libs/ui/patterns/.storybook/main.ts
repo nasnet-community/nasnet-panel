@@ -1,6 +1,6 @@
 // This file has been automatically migrated to valid ESM format by Storybook.
-import { createRequire } from "node:module";
-import { fileURLToPath } from "node:url";
+import { createRequire } from 'node:module';
+import { fileURLToPath } from 'node:url';
 import { join, dirname } from 'path';
 
 import type { StorybookConfig } from '@storybook/react-vite';
@@ -24,10 +24,7 @@ const config: StorybookConfig = {
     '../../../../apps/connect/src/**/*.stories.@(js|jsx|ts|tsx|mdx)',
   ],
 
-  addons: [
-    getAbsolutePath('@storybook/addon-a11y'),
-    getAbsolutePath("@storybook/addon-docs")
-  ],
+  addons: [getAbsolutePath('@storybook/addon-a11y'), getAbsolutePath('@storybook/addon-docs')],
 
   framework: {
     name: getAbsolutePath('@storybook/react-vite') as '@storybook/react-vite',
@@ -64,14 +61,20 @@ const config: StorybookConfig = {
           '@nasnet/features/alerts': join(__dirname, '../../../features/alerts/src'),
           '@nasnet/features/services': join(__dirname, '../../../features/services/src'),
           '@nasnet/features/wireless': join(__dirname, '../../../features/wireless/src'),
-          '@nasnet/features/configuration-import': join(__dirname, '../../../features/configuration-import/src'),
-          '@nasnet/features/router-discovery': join(__dirname, '../../../features/router-discovery/src'),
+          '@nasnet/features/configuration-import': join(
+            __dirname,
+            '../../../features/configuration-import/src'
+          ),
+          '@nasnet/features/router-discovery': join(
+            __dirname,
+            '../../../features/router-discovery/src'
+          ),
           '@nasnet/features/logs': join(__dirname, '../../../features/logs/src'),
           '@': join(__dirname, '../../../../apps/connect/src'),
         },
       },
     };
-  }
+  },
 };
 
 export default config;

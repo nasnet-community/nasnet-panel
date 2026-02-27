@@ -41,11 +41,14 @@ export const CounterCellMobile = memo(function CounterCellMobile({
       {/* Header with unused badge */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Activity className="h-5 w-5 text-muted-foreground" />
+          <Activity className="text-muted-foreground h-5 w-5" />
           <span className="text-sm font-medium">Traffic</span>
         </div>
         {isUnused && (
-          <Badge variant="outline" className="text-xs">
+          <Badge
+            variant="outline"
+            className="text-xs"
+          >
             Unused
           </Badge>
         )}
@@ -54,11 +57,11 @@ export const CounterCellMobile = memo(function CounterCellMobile({
       {/* Counters - Vertical Stack */}
       <div className="flex flex-col gap-2">
         {/* Packets */}
-        <div className="flex items-center justify-between min-h-[44px] px-3 py-2 rounded-md bg-muted/50">
-          <span className="text-sm text-muted-foreground">Packets</span>
+        <div className="bg-muted/50 flex min-h-[44px] items-center justify-between rounded-md px-3 py-2">
+          <span className="text-muted-foreground text-sm">Packets</span>
           <span
             className={cn(
-              'text-base font-mono tabular-nums font-medium',
+              'font-mono text-base font-medium tabular-nums',
               isUnused && 'text-muted-foreground'
             )}
           >
@@ -67,11 +70,11 @@ export const CounterCellMobile = memo(function CounterCellMobile({
         </div>
 
         {/* Bytes */}
-        <div className="flex items-center justify-between min-h-[44px] px-3 py-2 rounded-md bg-muted/50">
-          <span className="text-sm text-muted-foreground">Bytes</span>
+        <div className="bg-muted/50 flex min-h-[44px] items-center justify-between rounded-md px-3 py-2">
+          <span className="text-muted-foreground text-sm">Bytes</span>
           <span
             className={cn(
-              'text-base font-mono tabular-nums font-medium',
+              'font-mono text-base font-medium tabular-nums',
               isUnused && 'text-muted-foreground'
             )}
           >
@@ -84,12 +87,8 @@ export const CounterCellMobile = memo(function CounterCellMobile({
       {showBar && (
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-xs text-muted-foreground">
-              Relative Traffic
-            </span>
-            <span className="text-xs font-medium tabular-nums">
-              {percentOfMax.toFixed(1)}%
-            </span>
+            <span className="text-muted-foreground text-xs">Relative Traffic</span>
+            <span className="text-xs font-medium tabular-nums">{percentOfMax.toFixed(1)}%</span>
           </div>
           <Progress
             value={percentOfMax}

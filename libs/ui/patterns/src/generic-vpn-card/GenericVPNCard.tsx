@@ -36,12 +36,14 @@ export interface GenericVPNCardProps {
  */
 function GenericVPNCardComponent({ vpnInterface, onClick }: GenericVPNCardProps) {
   // Determine status for display
-  const status = vpnInterface.isDisabled ? 'offline' : vpnInterface.isRunning ? 'online' : 'warning';
+  const status =
+    vpnInterface.isDisabled ? 'offline'
+    : vpnInterface.isRunning ? 'online'
+    : 'warning';
 
-  const statusLabel = vpnInterface.isDisabled
-    ? 'Disabled'
-    : vpnInterface.isRunning
-    ? 'Connected'
+  const statusLabel =
+    vpnInterface.isDisabled ? 'Disabled'
+    : vpnInterface.isRunning ? 'Connected'
     : 'Disconnected';
 
   // Get protocol-specific label
@@ -50,23 +52,37 @@ function GenericVPNCardComponent({ vpnInterface, onClick }: GenericVPNCardProps)
   return (
     <Card
       onClick={onClick}
-      onKeyDown={onClick ? (e: React.KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick(); } } : undefined}
+      onKeyDown={
+        onClick ?
+          (e: React.KeyboardEvent) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              onClick();
+            }
+          }
+        : undefined
+      }
       tabIndex={onClick ? 0 : undefined}
       role={onClick ? 'button' : undefined}
       className={`rounded-card-sm md:rounded-card-lg shadow-sm transition-all ${
-        onClick ? 'cursor-pointer hover:shadow-md hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 outline-none' : ''
+        onClick ?
+          'hover:bg-muted focus-visible:ring-ring cursor-pointer outline-none hover:shadow-md focus-visible:ring-2 focus-visible:ring-offset-2'
+        : ''
       }`}
       aria-label={`${vpnInterface.name} ${protocolLabel} VPN - ${statusLabel}`}
     >
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1">
-            <CardTitle className="text-lg font-semibold text-foreground">
+            <CardTitle className="text-foreground text-lg font-semibold">
               {vpnInterface.name}
             </CardTitle>
             <div className="mt-2 flex items-center gap-2">
-              <StatusIndicator status={status} label={statusLabel} />
-              <span className="text-xs text-muted-foreground font-medium uppercase tracking-wide">
+              <StatusIndicator
+                status={status}
+                label={statusLabel}
+              />
+              <span className="text-muted-foreground text-xs font-medium uppercase tracking-wide">
                 {protocolLabel}
               </span>
             </div>
@@ -74,40 +90,43 @@ function GenericVPNCardComponent({ vpnInterface, onClick }: GenericVPNCardProps)
         </div>
       </CardHeader>
       <CardContent className="space-y-0 pt-0">
-        <div className="divide-y divide-border">
-          <div className="flex justify-between items-start py-3">
-            <span className="text-sm font-medium text-muted-foreground">Remote Server</span>
-            <span className="text-sm font-semibold text-foreground text-right">
+        <div className="divide-border divide-y">
+          <div className="flex items-start justify-between py-3">
+            <span className="text-muted-foreground text-sm font-medium">Remote Server</span>
+            <span className="text-foreground text-right text-sm font-semibold">
               {vpnInterface.connectTo || 'Not configured'}
             </span>
           </div>
 
           {vpnInterface.user && (
-            <div className="flex justify-between items-center py-3">
-              <span className="text-sm font-medium text-muted-foreground">Username</span>
-              <span className="text-sm font-mono font-semibold text-foreground">
+            <div className="flex items-center justify-between py-3">
+              <span className="text-muted-foreground text-sm font-medium">Username</span>
+              <span className="text-foreground font-mono text-sm font-semibold">
                 {vpnInterface.user}
               </span>
             </div>
           )}
 
           {vpnInterface.comment && (
-            <div className="flex justify-between items-start py-3">
-              <span className="text-sm font-medium text-muted-foreground">Comment</span>
-              <span className="text-xs text-muted-foreground italic text-right max-w-xs">
+            <div className="flex items-start justify-between py-3">
+              <span className="text-muted-foreground text-sm font-medium">Comment</span>
+              <span className="text-muted-foreground max-w-xs text-right text-xs italic">
                 {vpnInterface.comment}
               </span>
             </div>
           )}
 
-          {'verifyServerCertificate' in vpnInterface && vpnInterface.verifyServerCertificate !== undefined && (
-            <div className="flex justify-between items-center py-3">
-              <span className="text-sm font-medium text-muted-foreground">Verify Certificate</span>
-              <span className="text-sm font-semibold text-foreground">
-                {vpnInterface.verifyServerCertificate ? 'Yes' : 'No'}
-              </span>
-            </div>
-          )}
+          {'verifyServerCertificate' in vpnInterface &&
+            vpnInterface.verifyServerCertificate !== undefined && (
+              <div className="flex items-center justify-between py-3">
+                <span className="text-muted-foreground text-sm font-medium">
+                  Verify Certificate
+                </span>
+                <span className="text-foreground text-sm font-semibold">
+                  {vpnInterface.verifyServerCertificate ? 'Yes' : 'No'}
+                </span>
+              </div>
+            )}
         </div>
       </CardContent>
     </Card>

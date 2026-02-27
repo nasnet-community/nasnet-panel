@@ -11,10 +11,12 @@
  * ```
  */
 export declare function useBridges(routerId: string): {
-    bridges: any;
-    loading: boolean;
-    error: import("@apollo/client").ApolloError | undefined;
-    refetch: (variables?: Partial<import("@apollo/client").OperationVariables> | undefined) => Promise<import("@apollo/client").ApolloQueryResult<any>>;
+  bridges: any;
+  loading: boolean;
+  error: import('@apollo/client').ApolloError | undefined;
+  refetch: (
+    variables?: Partial<import('@apollo/client').OperationVariables> | undefined
+  ) => Promise<import('@apollo/client').ApolloQueryResult<any>>;
 };
 /**
  * Hook to fetch detailed information for a single bridge
@@ -30,10 +32,12 @@ export declare function useBridges(routerId: string): {
  * ```
  */
 export declare function useBridgeDetail(uuid: string): {
-    bridge: any;
-    loading: boolean;
-    error: import("@apollo/client").ApolloError | undefined;
-    refetch: (variables?: Partial<import("@apollo/client").OperationVariables> | undefined) => Promise<import("@apollo/client").ApolloQueryResult<any>>;
+  bridge: any;
+  loading: boolean;
+  error: import('@apollo/client').ApolloError | undefined;
+  refetch: (
+    variables?: Partial<import('@apollo/client').OperationVariables> | undefined
+  ) => Promise<import('@apollo/client').ApolloQueryResult<any>>;
 };
 /**
  * Hook to fetch bridge ports for a specific bridge
@@ -48,10 +52,12 @@ export declare function useBridgeDetail(uuid: string): {
  * ```
  */
 export declare function useBridgePorts(bridgeId: string): {
-    ports: any;
-    loading: boolean;
-    error: import("@apollo/client").ApolloError | undefined;
-    refetch: (variables?: Partial<import("@apollo/client").OperationVariables> | undefined) => Promise<import("@apollo/client").ApolloQueryResult<any>>;
+  ports: any;
+  loading: boolean;
+  error: import('@apollo/client').ApolloError | undefined;
+  refetch: (
+    variables?: Partial<import('@apollo/client').OperationVariables> | undefined
+  ) => Promise<import('@apollo/client').ApolloQueryResult<any>>;
 };
 /**
  * Hook to fetch bridge VLANs for a specific bridge
@@ -65,10 +71,12 @@ export declare function useBridgePorts(bridgeId: string): {
  * ```
  */
 export declare function useBridgeVlans(bridgeId: string): {
-    vlans: any;
-    loading: boolean;
-    error: import("@apollo/client").ApolloError | undefined;
-    refetch: (variables?: Partial<import("@apollo/client").OperationVariables> | undefined) => Promise<import("@apollo/client").ApolloQueryResult<any>>;
+  vlans: any;
+  loading: boolean;
+  error: import('@apollo/client').ApolloError | undefined;
+  refetch: (
+    variables?: Partial<import('@apollo/client').OperationVariables> | undefined
+  ) => Promise<import('@apollo/client').ApolloQueryResult<any>>;
 };
 /**
  * Hook to fetch interfaces available to add to a bridge
@@ -83,10 +91,12 @@ export declare function useBridgeVlans(bridgeId: string): {
  * ```
  */
 export declare function useAvailableInterfacesForBridge(routerId: string): {
-    interfaces: any;
-    loading: boolean;
-    error: import("@apollo/client").ApolloError | undefined;
-    refetch: (variables?: Partial<import("@apollo/client").OperationVariables> | undefined) => Promise<import("@apollo/client").ApolloQueryResult<any>>;
+  interfaces: any;
+  loading: boolean;
+  error: import('@apollo/client').ApolloError | undefined;
+  refetch: (
+    variables?: Partial<import('@apollo/client').OperationVariables> | undefined
+  ) => Promise<import('@apollo/client').ApolloQueryResult<any>>;
 };
 /**
  * Hook to subscribe to STP status changes for a bridge
@@ -101,7 +111,7 @@ export declare function useAvailableInterfacesForBridge(routerId: string): {
  * ```
  */
 export declare function useBridgeStpStatus(bridgeId: string): {
-    stpStatus: any;
-    error: import("@apollo/client").ApolloError | undefined;
+  stpStatus: any;
+  error: import('@apollo/client').ApolloError | undefined;
 };
 //# sourceMappingURL=useBridgeQueries.d.ts.map

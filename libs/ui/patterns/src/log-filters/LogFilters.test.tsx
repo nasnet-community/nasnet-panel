@@ -12,7 +12,6 @@ import type { LogTopic, LogSeverity } from '@nasnet/core/types/router';
 
 import { LogFilters } from './LogFilters';
 
-
 describe('LogFilters', () => {
   const mockOnTopicsChange = vi.fn();
   const mockOnSeveritiesChange = vi.fn();
@@ -22,10 +21,7 @@ describe('LogFilters', () => {
   });
 
   // Helper function to render LogFilters with default props
-  const renderLogFilters = (
-    topics: LogTopic[] = [],
-    severities: LogSeverity[] = []
-  ) => {
+  const renderLogFilters = (topics: LogTopic[] = [], severities: LogSeverity[] = []) => {
     return render(
       <LogFilters
         topics={topics}
@@ -226,7 +222,12 @@ describe('LogFilters', () => {
       const user = userEvent.setup();
       render(
         <div>
-          <LogFilters topics={[]} onTopicsChange={mockOnTopicsChange} severities={[]} onSeveritiesChange={mockOnSeveritiesChange} />
+          <LogFilters
+            topics={[]}
+            onTopicsChange={mockOnTopicsChange}
+            severities={[]}
+            onSeveritiesChange={mockOnSeveritiesChange}
+          />
           <button>Outside Button</button>
         </div>
       );

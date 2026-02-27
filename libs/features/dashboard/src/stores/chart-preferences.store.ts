@@ -51,10 +51,7 @@ interface ChartPreferencesState {
  * @constant
  * @type {Pick<ChartPreferencesState, 'timeRange' | 'interfaceId'>}
  */
-const DEFAULT_PREFERENCES: Pick<
-  ChartPreferencesState,
-  'timeRange' | 'interfaceId'
-> = {
+const DEFAULT_PREFERENCES: Pick<ChartPreferencesState, 'timeRange' | 'interfaceId'> = {
   timeRange: '5m', // Default to 5-minute real-time view
   interfaceId: null, // Default to all interfaces
 };

@@ -1,7 +1,7 @@
 {
   "id": "machines/wizard",
   "title": "Wizard Machine (Multi-Step Flows)",
-  "description": "The Wizard Machine provides a reusable pattern for multi-step form wizards with per-step validation, session persistence, and recovery. It's ideal for complex setup flows like VPN configuration, device pairing, or service installation.",
+  "description": "The Wizard Machine provides a reusable pattern for multi-step form wizards with per-step",
   "source": "@site/../../libs/state/docs/machines/wizard.md",
   "sourceDirName": "machines",
   "slug": "/machines/wizard",

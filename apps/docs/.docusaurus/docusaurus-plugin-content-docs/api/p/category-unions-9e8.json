@@ -1,1 +1,12 @@
-{"categoryGeneratedIndex":{"title":"Unions overview","slug":"/category/unions","permalink":"/category/unions","sidebar":"defaultSidebar","navigation":{"previous":{"title":"ULID","permalink":"/api/types/scalars/ulid"},"next":{"title":"StorageMountEvent","permalink":"/api/types/unions/storage-mount-event"}}}}
+{
+  "categoryGeneratedIndex": {
+    "title": "Unions overview",
+    "slug": "/category/unions",
+    "permalink": "/category/unions",
+    "sidebar": "defaultSidebar",
+    "navigation": {
+      "previous": { "title": "ULID", "permalink": "/api/types/scalars/ulid" },
+      "next": { "title": "StorageMountEvent", "permalink": "/api/types/unions/storage-mount-event" }
+    }
+  }
+}

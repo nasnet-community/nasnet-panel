@@ -4,7 +4,6 @@ import { StatusBadge } from './StatusBadge';
 
 import type { Meta, StoryObj } from '@storybook/react';
 
-
 const meta: Meta<typeof StatusBadge> = {
   title: 'Patterns/Common/StatusBadge',
   component: StatusBadge,
@@ -24,7 +23,16 @@ const meta: Meta<typeof StatusBadge> = {
   argTypes: {
     status: {
       control: 'select',
-      options: ['bound', 'waiting', 'offered', 'busy', 'searching', 'requesting', 'stopped', 'static'],
+      options: [
+        'bound',
+        'waiting',
+        'offered',
+        'busy',
+        'searching',
+        'requesting',
+        'stopped',
+        'static',
+      ],
       description: 'Status type that determines the badge color',
     },
     label: {
@@ -55,7 +63,8 @@ export const LeaseStatuses: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'DHCP lease statuses: bound (active), waiting (pending), offered (in negotiation), busy (address conflict).',
+        story:
+          'DHCP lease statuses: bound (active), waiting (pending), offered (in negotiation), busy (address conflict).',
       },
     },
   },
@@ -72,7 +81,8 @@ export const ClientStatuses: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'DHCP client statuses: searching (looking for server), requesting (getting lease), stopped (inactive).',
+        story:
+          'DHCP client statuses: searching (looking for server), requesting (getting lease), stopped (inactive).',
       },
     },
   },
@@ -82,7 +92,10 @@ export const StaticEntry: Story = {
   render: () => (
     <div className="flex gap-3">
       <StatusBadge status="static" />
-      <StatusBadge variant="default" label="Unknown" />
+      <StatusBadge
+        variant="default"
+        label="Unknown"
+      />
     </div>
   ),
   parameters: {
@@ -97,9 +110,18 @@ export const StaticEntry: Story = {
 export const CustomLabels: Story = {
   render: () => (
     <div className="flex flex-wrap gap-3">
-      <StatusBadge status="bound" label="Active" />
-      <StatusBadge status="waiting" label="Pending" />
-      <StatusBadge status="busy" label="Conflict" />
+      <StatusBadge
+        status="bound"
+        label="Active"
+      />
+      <StatusBadge
+        status="waiting"
+        label="Pending"
+      />
+      <StatusBadge
+        status="busy"
+        label="Conflict"
+      />
     </div>
   ),
   parameters: {
@@ -113,8 +135,8 @@ export const CustomLabels: Story = {
 
 export const InContext: Story = {
   render: () => (
-    <div className="w-80 p-4 rounded-lg border bg-card">
-      <h3 className="text-sm font-medium mb-3">DHCP Leases</h3>
+    <div className="bg-card w-80 rounded-lg border p-4">
+      <h3 className="mb-3 text-sm font-medium">DHCP Leases</h3>
       <div className="space-y-2">
         <div className="flex items-center justify-between text-sm">
           <span className="font-mono">192.168.1.100</span>
@@ -148,7 +170,7 @@ export const AllVariants: Story = {
   render: () => (
     <div className="space-y-4">
       <div>
-        <h3 className="text-sm font-medium mb-2 text-muted-foreground">Lease Statuses</h3>
+        <h3 className="text-muted-foreground mb-2 text-sm font-medium">Lease Statuses</h3>
         <div className="flex flex-wrap gap-2">
           <StatusBadge status="bound" />
           <StatusBadge status="waiting" />
@@ -157,7 +179,7 @@ export const AllVariants: Story = {
         </div>
       </div>
       <div>
-        <h3 className="text-sm font-medium mb-2 text-muted-foreground">Client Statuses</h3>
+        <h3 className="text-muted-foreground mb-2 text-sm font-medium">Client Statuses</h3>
         <div className="flex flex-wrap gap-2">
           <StatusBadge status="searching" />
           <StatusBadge status="requesting" />
@@ -165,10 +187,13 @@ export const AllVariants: Story = {
         </div>
       </div>
       <div>
-        <h3 className="text-sm font-medium mb-2 text-muted-foreground">Other</h3>
+        <h3 className="text-muted-foreground mb-2 text-sm font-medium">Other</h3>
         <div className="flex flex-wrap gap-2">
           <StatusBadge status="static" />
-          <StatusBadge variant="default" label="Default" />
+          <StatusBadge
+            variant="default"
+            label="Default"
+          />
         </div>
       </div>
     </div>

@@ -13,7 +13,9 @@ import type { ValidationStageResult, ValidationStageName } from '../types';
 // Mock framer-motion to avoid animation issues in tests
 vi.mock('framer-motion', () => ({
   motion: {
-    div: ({ children, ...props }: React.HTMLAttributes<HTMLDivElement>) => <div {...props}>{children}</div>,
+    div: ({ children, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
+      <div {...props}>{children}</div>
+    ),
   },
   AnimatePresence: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
@@ -33,11 +35,7 @@ describe('ValidationStage', () => {
   });
 
   it('renders stage with passed status', () => {
-    render(
-      <ValidationStage
-        result={{ ...baseResult, status: 'passed', durationMs: 45 }}
-      />
-    );
+    render(<ValidationStage result={{ ...baseResult, status: 'passed', durationMs: 45 }} />);
     expect(screen.getByText('Schema')).toBeInTheDocument();
     expect(screen.getByText('45ms')).toBeInTheDocument();
   });
@@ -48,9 +46,7 @@ describe('ValidationStage', () => {
         result={{
           ...baseResult,
           status: 'failed',
-          errors: [
-            { code: 'E001', message: 'Invalid format', fieldPath: 'email' },
-          ],
+          errors: [{ code: 'E001', message: 'Invalid format', fieldPath: 'email' }],
         }}
         isExpanded
       />
@@ -109,16 +105,33 @@ describe('ValidationProgress', () => {
       { stage: 'schema', status: 'passed', errors: [], warnings: [] },
       { stage: 'syntax', status: 'passed', errors: [], warnings: [] },
     ];
-    render(<ValidationProgress stages={stages} isComplete isValid />);
+    render(
+      <ValidationProgress
+        stages={stages}
+        isComplete
+        isValid
+      />
+    );
     expect(screen.getByText('Validation Passed')).toBeInTheDocument();
   });
 
   it('shows "Validation Failed" when complete and invalid', () => {
     const stages: ValidationStageResult[] = [
       { stage: 'schema', status: 'passed', errors: [], warnings: [] },
-      { stage: 'syntax', status: 'failed', errors: [{ code: 'E001', message: 'Error' }], warnings: [] },
+      {
+        stage: 'syntax',
+        status: 'failed',
+        errors: [{ code: 'E001', message: 'Error' }],
+        warnings: [],
+      },
     ];
-    render(<ValidationProgress stages={stages} isComplete isValid={false} />);
+    render(
+      <ValidationProgress
+        stages={stages}
+        isComplete
+        isValid={false}
+      />
+    );
     expect(screen.getByText('Validation Failed')).toBeInTheDocument();
   });
 
@@ -155,7 +168,13 @@ describe('ValidationProgress', () => {
         warnings: [],
       },
     ];
-    render(<ValidationProgress stages={stages} isComplete isValid={false} />);
+    render(
+      <ValidationProgress
+        stages={stages}
+        isComplete
+        isValid={false}
+      />
+    );
     // Multiple elements may show the error count (stage badge + summary)
     expect(screen.getAllByText(/2 errors/).length).toBeGreaterThan(0);
   });

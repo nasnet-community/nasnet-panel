@@ -265,9 +265,7 @@ describe('RateLimitingPage', () => {
         )
       ).toBeInTheDocument();
       expect(
-        screen.getByText(
-          'Warning: Changing SYN flood settings may affect legitimate connections'
-        )
+        screen.getByText('Warning: Changing SYN flood settings may affect legitimate connections')
       ).toBeInTheDocument();
     });
 

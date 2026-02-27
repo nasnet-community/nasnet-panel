@@ -6,13 +6,19 @@
 Kill switch behavior when any hop in a chain fails.
 """
 enum KillSwitchMode {
-  """Block all traffic from the device"""
+  """
+  Block all traffic from the device
+  """
   BLOCK_ALL
 
-  """Fall back to a specified service"""
+  """
+  Fall back to a specified service
+  """
   FALLBACK_SERVICE
 
-  """Allow direct internet access (no VPN)"""
+  """
+  Allow direct internet access (no VPN)
+  """
   ALLOW_DIRECT
 }
 
@@ -21,28 +27,44 @@ Kill switch status information for monitoring.
 Provides visibility into kill switch state and activation history.
 """
 type KillSwitchStatus {
-  """Whether kill switch is enabled"""
+  """
+  Whether kill switch is enabled
+  """
   enabled: Boolean!
 
-  """Kill switch behavior mode"""
+  """
+  Kill switch behavior mode
+  """
   mode: KillSwitchMode!
 
-  """Whether kill switch is currently active (blocking traffic)"""
+  """
+  Whether kill switch is currently active (blocking traffic)
+  """
   active: Boolean!
 
-  """Timestamp when kill switch was last activated"""
+  """
+  Timestamp when kill switch was last activated
+  """
   lastActivatedAt: DateTime
 
-  """Timestamp when kill switch was last deactivated"""
+  """
+  Timestamp when kill switch was last deactivated
+  """
   lastDeactivatedAt: DateTime
 
-  """Fallback interface ID (if mode=FALLBACK_SERVICE)"""
+  """
+  Fallback interface ID (if mode=FALLBACK_SERVICE)
+  """
   fallbackInterfaceID: String
 
-  """Number of times kill switch has been activated"""
+  """
+  Number of times kill switch has been activated
+  """
   activationCount: Int!
 
-  """Reason for most recent activation (service_down, health_check_failed, etc.)"""
+  """
+  Reason for most recent activation (service_down, health_check_failed, etc.)
+  """
   lastActivationReason: String
 }
 
@@ -51,49 +73,79 @@ A multi-hop routing chain that routes device traffic through multiple services s
 Example: Device -> VPN -> Tor -> Internet for layered privacy.
 """
 type RoutingChain implements Node {
-  """Chain ID (ULID)"""
+  """
+  Chain ID (ULID)
+  """
   id: ID!
 
-  """Target device identifier"""
+  """
+  Target device identifier
+  """
   deviceId: ID!
 
-  """Device MAC address (when routing_mode=MAC)"""
+  """
+  Device MAC address (when routing_mode=MAC)
+  """
   deviceMac: String
 
-  """Device IP address (when routing_mode=IP)"""
+  """
+  Device IP address (when routing_mode=IP)
+  """
   deviceIp: String
 
-  """Human-readable device name"""
+  """
+  Human-readable device name
+  """
   deviceName: String
 
-  """Ordered list of service hops in this chain"""
+  """
+  Ordered list of service hops in this chain
+  """
   hops: [ChainHop!]!
 
-  """Whether this chain is currently active"""
+  """
+  Whether this chain is currently active
+  """
   active: Boolean!
 
-  """Routing mode (MAC or IP matching)"""
+  """
+  Routing mode (MAC or IP matching)
+  """
   routingMode: RoutingMode!
 
-  """Whether kill switch is enabled for this chain"""
+  """
+  Whether kill switch is enabled for this chain
+  """
   killSwitchEnabled: Boolean!
 
-  """Kill switch behavior mode"""
+  """
+  Kill switch behavior mode
+  """
   killSwitchMode: KillSwitchMode!
 
-  """Whether kill switch is currently blocking traffic"""
+  """
+  Whether kill switch is currently blocking traffic
+  """
   killSwitchActive: Boolean!
 
-  """Timestamp when kill switch was last activated"""
+  """
+  Timestamp when kill switch was last activated
+  """
   killSwitchActivatedAt: DateTime
 
-  """Total latency across all hops in milliseconds"""
+  """
+  Total latency across all hops in milliseconds
+  """
   totalLatencyMs: Float
 
-  """Chain creation timestamp"""
+  """
+  Chain creation timestamp
+  """
   createdAt: DateTime!
 
-  """Last update timestamp"""
+  """
+  Last update timestamp
+  """
   updatedAt: DateTime!
 }
 
@@ -101,24 +153,38 @@ type RoutingChain implements Node {
 A single hop in a multi-hop routing chain, referencing one VirtualInterface.
 """
 type ChainHop implements Node {
-  """Hop ID (ULID)"""
+  """
+  Hop ID (ULID)
+  """
   id: ID!
 
-  """1-based position in the chain (1 = first hop, 2 = second, etc.)"""
+  """
+  1-based position in the chain (1 = first hop, 2 = second, etc.)
+  """
   order: Int!
 
-  """Virtual interface for this hop"""
+  """
+  Virtual interface for this hop
+  """
   interface: VirtualInterface!
 
-  """MikroTik routing mark (e.g., chain-abc123-hop1)"""
+  """
+  MikroTik routing mark (e.g., chain-abc123-hop1)
+  """
   routingMark: String!
 
-  """Latency for this hop in milliseconds (-1 if unreachable)"""
+  """
+  Latency for this hop in milliseconds (-1 if unreachable)
+  """
   latencyMs: Float
 
-  """Whether this hop is currently healthy"""
+  """
+  Whether this hop is currently healthy
+  """
   healthy: Boolean!
 
-  """Whether kill switch is active for this hop"""
+  """
+  Whether kill switch is active for this hop
+  """
   killSwitchActive: Boolean!
 }

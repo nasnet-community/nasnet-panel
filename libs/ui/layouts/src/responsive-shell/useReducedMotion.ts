@@ -83,8 +83,8 @@ function getReducedMotionPreference(): boolean {
  * ```
  */
 export function useReducedMotion(): boolean {
-  const [prefersReducedMotion, setPrefersReducedMotion] = useState<boolean>(
-    () => getReducedMotionPreference()
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState<boolean>(() =>
+    getReducedMotionPreference()
   );
 
   useEffect(() => {
@@ -142,10 +142,7 @@ export function useReducedMotion(): boolean {
  * }
  * ```
  */
-export function useAnimationDuration(
-  normalDuration: number,
-  reducedDuration = 0
-): number {
+export function useAnimationDuration(normalDuration: number, reducedDuration = 0): number {
   const prefersReducedMotion = useReducedMotion();
   return prefersReducedMotion ? reducedDuration : normalDuration;
 }
@@ -205,9 +202,8 @@ export function useMotionConfig(durationMs = ANIMATION_DURATIONS.DEFAULT) {
     /** Whether animations should play */
     shouldAnimate: !prefersReducedMotion,
     /** Transition config for Framer Motion */
-    transition: prefersReducedMotion
-      ? { duration: 0 }
-      : { duration: durationMs / 1000, ease: 'easeOut' },
+    transition:
+      prefersReducedMotion ? { duration: 0 } : { duration: durationMs / 1000, ease: 'easeOut' },
     /** Duration in milliseconds */
     duration: prefersReducedMotion ? 0 : durationMs,
     /** Duration in seconds (for CSS/Framer Motion) */
@@ -238,14 +234,10 @@ export function useMotionClasses() {
 
   return {
     /** Apply transition-all with motion-safe duration */
-    transitionClass: prefersReducedMotion
-      ? 'transition-none'
-      : 'transition-all',
+    transitionClass: prefersReducedMotion ? 'transition-none' : 'transition-all',
     /** Duration class */
     durationClass: prefersReducedMotion ? 'duration-0' : 'duration-200',
     /** Combined transition + duration */
-    motionClass: prefersReducedMotion
-      ? 'transition-none'
-      : 'transition-all duration-200 ease-out',
+    motionClass: prefersReducedMotion ? 'transition-none' : 'transition-all duration-200 ease-out',
   };
 }

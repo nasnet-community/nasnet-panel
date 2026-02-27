@@ -106,9 +106,12 @@ export const NetworkScanner = memo(function NetworkScanner({
   /**
    * Handles router selection from results
    */
-  const handleSelectRouter = useCallback((result: ScanResult) => {
-    onRouterSelect?.(result);
-  }, [onRouterSelect]);
+  const handleSelectRouter = useCallback(
+    (result: ScanResult) => {
+      onRouterSelect?.(result);
+    },
+    [onRouterSelect]
+  );
 
   return (
     <div className={cn('space-y-component-lg', className)}>
@@ -117,11 +120,11 @@ export const NetworkScanner = memo(function NetworkScanner({
         <div>
           <label
             htmlFor="subnet"
-            className="block text-sm font-medium text-foreground mb-component-sm"
+            className="text-foreground mb-component-sm block text-sm font-medium"
           >
             Network Subnet
           </label>
-          <div className="flex gap-component-sm">
+          <div className="gap-component-sm flex">
             <input
               id="subnet"
               type="text"
@@ -129,19 +132,28 @@ export const NetworkScanner = memo(function NetworkScanner({
               onChange={(e) => setSubnet(e.target.value)}
               disabled={isScanning}
               placeholder="192.168.88.0/24"
-              className={cn('flex-1 px-component-sm py-component-sm border rounded-[var(--semantic-radius-button)] shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-card text-foreground disabled:opacity-50 font-mono', 'border-border')}
+              className={cn(
+                'px-component-sm py-component-sm focus-visible:ring-ring bg-card text-foreground flex-1 rounded-[var(--semantic-radius-button)] border font-mono shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-50',
+                'border-border'
+              )}
               aria-describedby="subnet-help"
             />
             <button
               onClick={handleStartScan}
               disabled={isScanning}
               aria-label={isScanning ? 'Scanning network' : 'Scan network'}
-              className={cn('min-h-[44px] px-component-md py-component-sm rounded-[var(--semantic-radius-button)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors', 'bg-primary text-primary-foreground hover:bg-primary/90')}
+              className={cn(
+                'px-component-md py-component-sm focus-visible:ring-ring min-h-[44px] rounded-[var(--semantic-radius-button)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
+                'bg-primary text-primary-foreground hover:bg-primary/90'
+              )}
             >
               {isScanning ? 'Scanning...' : 'Scan Network'}
             </button>
           </div>
-          <p id="subnet-help" className="mt-component-sm text-sm text-muted-foreground">
+          <p
+            id="subnet-help"
+            className="mt-component-sm text-muted-foreground text-sm"
+          >
             Enter subnet in CIDR notation (e.g., 192.168.88.0/24)
           </p>
         </div>
@@ -154,13 +166,13 @@ export const NetworkScanner = memo(function NetworkScanner({
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="p-component-md bg-error/10 border border-error/20 rounded-md"
+            className="p-component-md bg-error/10 border-error/20 rounded-md border"
             role="alert"
           >
             <div className="flex">
               <div className="flex-shrink-0">
                 <svg
-                  className="h-5 w-5 text-error"
+                  className="text-error h-5 w-5"
                   viewBox="0 0 20 20"
                   fill="currentColor"
                   aria-hidden="true"
@@ -173,12 +185,8 @@ export const NetworkScanner = memo(function NetworkScanner({
                 </svg>
               </div>
               <div className="ml-3">
-                <h3 className="text-sm font-medium text-error">
-                  Scan Failed
-                </h3>
-                <p className="mt-1 text-sm text-error/80">
-                  {error}
-                </p>
+                <h3 className="text-error text-sm font-medium">Scan Failed</h3>
+                <p className="text-error/80 mt-1 text-sm">{error}</p>
               </div>
             </div>
           </motion.div>
@@ -192,53 +200,55 @@ export const NetworkScanner = memo(function NetworkScanner({
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
-            className="p-component-lg bg-muted border border-border rounded-[var(--semantic-radius-card)]"
+            className="p-component-lg bg-muted border-border rounded-[var(--semantic-radius-card)] border"
             role="status"
             aria-label="Network scan in progress"
           >
             <div className="space-y-component-md">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-display font-semibold text-foreground">
+                <h3 className="font-display text-foreground text-lg font-semibold">
                   Scanning Network...
                 </h3>
-                <div className="flex items-center gap-component-sm">
-                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary" role="status" aria-hidden="true" />
-                  <span className="text-sm font-medium text-muted-foreground">
+                <div className="gap-component-sm flex items-center">
+                  <div
+                    className="border-primary h-5 w-5 animate-spin rounded-full border-b-2"
+                    role="status"
+                    aria-hidden="true"
+                  />
+                  <span className="text-muted-foreground text-sm font-medium">
                     {scanProgress.scannedHosts} / {scanProgress.totalHosts}
                   </span>
                 </div>
               </div>
 
               {/* Progress Bar */}
-              <div className="w-full bg-muted rounded-full h-2 overflow-hidden" role="progressbar" aria-valuenow={Math.round((scanProgress.scannedHosts / scanProgress.totalHosts) * 100)} aria-valuemin={0} aria-valuemax={100}>
+              <div
+                className="bg-muted h-2 w-full overflow-hidden rounded-full"
+                role="progressbar"
+                aria-valuenow={Math.round(
+                  (scanProgress.scannedHosts / scanProgress.totalHosts) * 100
+                )}
+                aria-valuemin={0}
+                aria-valuemax={100}
+              >
                 <motion.div
-                  className="h-full bg-primary"
+                  className="bg-primary h-full"
                   initial={{ width: 0 }}
                   animate={{
-                    width: `${
-                      (scanProgress.scannedHosts / scanProgress.totalHosts) * 100
-                    }%`,
+                    width: `${(scanProgress.scannedHosts / scanProgress.totalHosts) * 100}%`,
                   }}
                   transition={{ duration: 0.3 }}
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-component-md text-sm">
+              <div className="gap-component-md grid grid-cols-2 text-sm">
                 <div>
-                  <span className="text-muted-foreground">
-                    Current IP:
-                  </span>
-                  <p className="font-mono text-foreground">
-                    {scanProgress.currentIp}
-                  </p>
+                  <span className="text-muted-foreground">Current IP:</span>
+                  <p className="text-foreground font-mono">{scanProgress.currentIp}</p>
                 </div>
                 <div>
-                  <span className="text-muted-foreground">
-                    Routers Found:
-                  </span>
-                  <p className="font-semibold text-foreground">
-                    {scanProgress.foundRouters}
-                  </p>
+                  <span className="text-muted-foreground">Routers Found:</span>
+                  <p className="text-foreground font-semibold">{scanProgress.foundRouters}</p>
                 </div>
               </div>
             </div>
@@ -254,49 +264,49 @@ export const NetworkScanner = memo(function NetworkScanner({
             animate={{ opacity: 1, y: 0 }}
             className="space-y-component-md"
           >
-            <h3 className="text-lg font-display font-semibold text-foreground">
+            <h3 className="font-display text-foreground text-lg font-semibold">
               Found {scanResults.length} Router{scanResults.length !== 1 ? 's' : ''}
             </h3>
-            <div className="grid gap-component-md" role="list" aria-label="Discovered routers">
+            <div
+              className="gap-component-md grid"
+              role="list"
+              aria-label="Discovered routers"
+            >
               {scanResults.map((result) => (
                 <motion.button
                   key={result.ipAddress}
                   role="listitem"
                   onClick={() => handleSelectRouter(result)}
                   aria-label={`Select router ${result.ipAddress}${result.model ? `, model ${result.model}` : ''}`}
-                  className="min-h-[44px] p-component-md bg-card border border-border rounded-[var(--semantic-radius-card)] hover:border-primary hover:shadow-md transition-all text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  className="p-component-md bg-card border-border hover:border-primary focus-visible:ring-ring min-h-[44px] rounded-[var(--semantic-radius-card)] border text-left transition-all hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                 >
                   <div className="flex items-start justify-between">
                     <div className="space-y-component-sm">
-                      <p className="font-mono font-semibold text-foreground">
-                        {result.ipAddress}
-                      </p>
+                      <p className="text-foreground font-mono font-semibold">{result.ipAddress}</p>
                       {result.model && (
-                        <p className="text-sm text-muted-foreground">
-                          Model: {result.model}
-                        </p>
+                        <p className="text-muted-foreground text-sm">Model: {result.model}</p>
                       )}
                       {result.routerOsVersion && (
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-muted-foreground text-sm">
                           RouterOS: {result.routerOsVersion}
                         </p>
                       )}
                       {result.macAddress && (
-                        <p className="text-xs font-mono text-muted-foreground">
+                        <p className="text-muted-foreground font-mono text-xs">
                           MAC: {result.macAddress}
                         </p>
                       )}
                     </div>
-                    <div className="flex flex-col items-end gap-component-sm">
+                    <div className="gap-component-sm flex flex-col items-end">
                       {result.isReachable && (
-                        <span className="inline-flex items-center px-component-sm py-component-sm rounded-full text-xs font-medium bg-success/10 text-success">
+                        <span className="px-component-sm py-component-sm bg-success/10 text-success inline-flex items-center rounded-full text-xs font-medium">
                           Online
                         </span>
                       )}
                       {result.responseTime !== undefined && (
-                        <span className="text-xs text-muted-foreground">
+                        <span className="text-muted-foreground text-xs">
                           {result.responseTime}ms
                         </span>
                       )}
@@ -311,9 +321,12 @@ export const NetworkScanner = memo(function NetworkScanner({
 
       {/* No Results Message */}
       {!isScanning && scanResults.length === 0 && !error && scanProgress && (
-        <div className="text-center py-component-xl text-muted-foreground" role="status">
+        <div
+          className="py-component-xl text-muted-foreground text-center"
+          role="status"
+        >
           <svg
-            className="mx-auto h-12 w-12 text-muted-foreground"
+            className="text-muted-foreground mx-auto h-12 w-12"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -327,7 +340,7 @@ export const NetworkScanner = memo(function NetworkScanner({
             />
           </svg>
           <p className="mt-2">No routers found on the network</p>
-          <p className="text-sm mt-1">Try scanning a different subnet</p>
+          <p className="mt-1 text-sm">Try scanning a different subnet</p>
         </div>
       )}
     </div>

@@ -81,7 +81,7 @@ Dialog for importing alert rule templates from JSON files.
   },
   decorators: [
     (Story) => (
-      <div className="min-h-screen flex items-center justify-center p-8">
+      <div className="flex min-h-screen items-center justify-center p-8">
         <Story />
       </div>
     ),
@@ -227,7 +227,10 @@ export const Default: Story = {
   },
   decorators: [
     (Story) => (
-      <MockedProvider mocks={successMocks} addTypename={false}>
+      <MockedProvider
+        mocks={successMocks}
+        addTypename={false}
+      >
         <Story />
       </MockedProvider>
     ),
@@ -246,7 +249,10 @@ export const InvalidJSON: Story = {
   },
   decorators: [
     (Story) => (
-      <MockedProvider mocks={validationErrorMocks} addTypename={false}>
+      <MockedProvider
+        mocks={validationErrorMocks}
+        addTypename={false}
+      >
         <Story />
       </MockedProvider>
     ),
@@ -273,7 +279,10 @@ export const Success: Story = {
   },
   decorators: [
     (Story) => (
-      <MockedProvider mocks={successMocks} addTypename={false}>
+      <MockedProvider
+        mocks={successMocks}
+        addTypename={false}
+      >
         <Story />
       </MockedProvider>
     ),

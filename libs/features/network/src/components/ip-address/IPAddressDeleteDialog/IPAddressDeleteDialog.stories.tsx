@@ -21,7 +21,6 @@ import { Button } from '@nasnet/ui/primitives';
 
 import { IPAddressDeleteDialog } from './IPAddressDeleteDialog';
 
-
 import type { Meta, StoryObj } from '@storybook/react';
 
 // ---------------------------------------------------------------------------
@@ -74,10 +73,20 @@ function withDependenciesMock(ipId: string) {
         ipAddressDependencies: {
           canDelete: true,
           dhcpServers: [
-            { id: 'dhcp-1', name: 'dhcp-lan', network: '192.168.1.0/24', __typename: 'DHCPServerDep' },
+            {
+              id: 'dhcp-1',
+              name: 'dhcp-lan',
+              network: '192.168.1.0/24',
+              __typename: 'DHCPServerDep',
+            },
           ],
           routes: [
-            { id: 'route-1', destination: '0.0.0.0/0', gateway: '192.168.1.254', __typename: 'RouteDep' },
+            {
+              id: 'route-1',
+              destination: '0.0.0.0/0',
+              gateway: '192.168.1.254',
+              __typename: 'RouteDep',
+            },
           ],
           natRules: [
             { id: 'nat-1', chain: 'srcnat', action: 'masquerade', __typename: 'NATRuleDep' },
@@ -106,10 +115,20 @@ function cannotDeleteMock(ipId: string) {
           canDelete: false,
           dhcpServers: [
             { id: 'dhcp-1', name: 'dhcp-lan', network: '10.0.0.0/8', __typename: 'DHCPServerDep' },
-            { id: 'dhcp-2', name: 'dhcp-guest', network: '10.10.0.0/24', __typename: 'DHCPServerDep' },
+            {
+              id: 'dhcp-2',
+              name: 'dhcp-guest',
+              network: '10.10.0.0/24',
+              __typename: 'DHCPServerDep',
+            },
           ],
           routes: [
-            { id: 'route-1', destination: '0.0.0.0/0', gateway: '10.0.0.254', __typename: 'RouteDep' },
+            {
+              id: 'route-1',
+              destination: '0.0.0.0/0',
+              gateway: '10.0.0.254',
+              __typename: 'RouteDep',
+            },
           ],
           natRules: [
             { id: 'nat-1', chain: 'srcnat', action: 'masquerade', __typename: 'NATRuleDep' },
@@ -138,7 +157,12 @@ interface WrapperProps {
   autoOpen?: boolean;
 }
 
-function DialogWrapper({ ipAddress, loading: externalLoading, mocks, autoOpen = true }: WrapperProps) {
+function DialogWrapper({
+  ipAddress,
+  loading: externalLoading,
+  mocks,
+  autoOpen = true,
+}: WrapperProps) {
   const [open, setOpen] = useState(autoOpen);
   const [deleting, setDeleting] = useState(false);
 
@@ -151,14 +175,20 @@ function DialogWrapper({ ipAddress, loading: externalLoading, mocks, autoOpen = 
   };
 
   return (
-    <MockedProvider mocks={mocks} addTypename={true}>
-      <div className="flex flex-col items-center gap-component-md p-component-xl">
-        <div className="text-center space-y-component-xs">
-          <p className="text-sm text-muted-foreground">
+    <MockedProvider
+      mocks={mocks}
+      addTypename={true}
+    >
+      <div className="gap-component-md p-component-xl flex flex-col items-center">
+        <div className="space-y-component-xs text-center">
+          <p className="text-muted-foreground text-sm">
             Click to open the delete dialog for{' '}
-            <code className="font-mono text-xs bg-muted rounded px-1">{ipAddress.address}</code>
+            <code className="bg-muted rounded px-1 font-mono text-xs">{ipAddress.address}</code>
           </p>
-          <Button variant="destructive" onClick={() => setOpen(true)}>
+          <Button
+            variant="destructive"
+            onClick={() => setOpen(true)}
+          >
             Delete IP Address
           </Button>
         </div>
@@ -231,7 +261,10 @@ type Story = StoryObj<typeof IPAddressDeleteDialog>;
 export const NoDependencies: Story = {
   name: 'Safe to delete (no dependencies)',
   render: () => (
-    <DialogWrapper ipAddress={ipWan} mocks={[noDependenciesMock(ipWan.id)]} />
+    <DialogWrapper
+      ipAddress={ipWan}
+      mocks={[noDependenciesMock(ipWan.id)]}
+    />
   ),
   parameters: {
     docs: {
@@ -251,7 +284,10 @@ export const NoDependencies: Story = {
 export const WithDependencies: Story = {
   name: 'Has dependencies (delete allowed)',
   render: () => (
-    <DialogWrapper ipAddress={ipLan} mocks={[withDependenciesMock(ipLan.id)]} />
+    <DialogWrapper
+      ipAddress={ipLan}
+      mocks={[withDependenciesMock(ipLan.id)]}
+    />
   ),
   parameters: {
     docs: {
@@ -271,7 +307,10 @@ export const WithDependencies: Story = {
 export const CannotDelete: Story = {
   name: 'Cannot delete (blocked)',
   render: () => (
-    <DialogWrapper ipAddress={ipLan} mocks={[cannotDeleteMock(ipLan.id)]} />
+    <DialogWrapper
+      ipAddress={ipLan}
+      mocks={[cannotDeleteMock(ipLan.id)]}
+    />
   ),
   parameters: {
     docs: {
@@ -291,7 +330,11 @@ export const CannotDelete: Story = {
 export const DeletingInProgress: Story = {
   name: 'Deleting – in progress',
   render: () => (
-    <DialogWrapper ipAddress={ipWan} mocks={[noDependenciesMock(ipWan.id)]} loading={true} />
+    <DialogWrapper
+      ipAddress={ipWan}
+      mocks={[noDependenciesMock(ipWan.id)]}
+      loading={true}
+    />
   ),
   parameters: {
     docs: {
@@ -311,7 +354,10 @@ export const DeletingInProgress: Story = {
 export const PublicWanAddress: Story = {
   name: 'Public WAN address',
   render: () => (
-    <DialogWrapper ipAddress={ipPublic} mocks={[noDependenciesMock(ipPublic.id)]} />
+    <DialogWrapper
+      ipAddress={ipPublic}
+      mocks={[noDependenciesMock(ipPublic.id)]}
+    />
   ),
   parameters: {
     docs: {
@@ -329,7 +375,10 @@ export const PublicWanAddress: Story = {
 export const IPv6Address: Story = {
   name: 'IPv6 address',
   render: () => (
-    <DialogWrapper ipAddress={ipv6} mocks={[noDependenciesMock(ipv6.id)]} />
+    <DialogWrapper
+      ipAddress={ipv6}
+      mocks={[noDependenciesMock(ipv6.id)]}
+    />
   ),
   parameters: {
     docs: {

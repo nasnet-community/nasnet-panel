@@ -35,7 +35,10 @@ describe('usePushoverUsage', () => {
     ];
 
     const wrapper = ({ children }: { children?: React.ReactNode }) => (
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider
+        mocks={mocks}
+        addTypename={false}
+      >
         {children}
       </MockedProvider>
     );
@@ -79,7 +82,10 @@ describe('usePushoverUsage', () => {
     ];
 
     const wrapper = ({ children }: { children?: React.ReactNode }) => (
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider
+        mocks={mocks}
+        addTypename={false}
+      >
         {children}
       </MockedProvider>
     );
@@ -113,7 +119,10 @@ describe('usePushoverUsage', () => {
     ];
 
     const wrapper = ({ children }: { children?: React.ReactNode }) => (
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider
+        mocks={mocks}
+        addTypename={false}
+      >
         {children}
       </MockedProvider>
     );
@@ -138,7 +147,10 @@ describe('usePushoverUsage', () => {
     ];
 
     const wrapper = ({ children }: { children?: React.ReactNode }) => (
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider
+        mocks={mocks}
+        addTypename={false}
+      >
         {children}
       </MockedProvider>
     );
@@ -167,7 +179,10 @@ describe('usePushoverUsage', () => {
     ];
 
     const wrapper = ({ children }: { children?: React.ReactNode }) => (
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider
+        mocks={mocks}
+        addTypename={false}
+      >
         {children}
       </MockedProvider>
     );
@@ -215,7 +230,10 @@ describe('usePushoverUsage', () => {
     ];
 
     const wrapper = ({ children }: { children?: React.ReactNode }) => (
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider
+        mocks={mocks}
+        addTypename={false}
+      >
         {children}
       </MockedProvider>
     );

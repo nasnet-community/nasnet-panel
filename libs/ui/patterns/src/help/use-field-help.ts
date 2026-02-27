@@ -18,12 +18,7 @@ import { useTranslation } from '@nasnet/core/i18n';
 
 import { useHelpMode } from './use-help-mode';
 
-import type {
-  FieldHelpConfig,
-  UseFieldHelpReturn,
-  HelpContent,
-  HelpMode,
-} from './help.types';
+import type { FieldHelpConfig, UseFieldHelpReturn, HelpContent, HelpMode } from './help.types';
 
 /**
  * Default help content when translation is missing or loading

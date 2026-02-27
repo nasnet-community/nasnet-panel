@@ -1,4 +1,4 @@
-import { Card, CardContent, CardHeader, CardTitle , cn } from '@nasnet/ui/primitives';
+import { Card, CardContent, CardHeader, CardTitle, cn } from '@nasnet/ui/primitives';
 
 import type { VLANPoolGaugeProps } from './VLANPoolGauge';
 
@@ -36,14 +36,19 @@ export function VLANPoolGaugeDesktop({
   const strokeDashoffset = circumference - (utilization / 100) * circumference;
 
   return (
-    <Card className={cn('bg-card border border-border rounded-[var(--semantic-radius-card)] hover:shadow-md transition-shadow', className)}>
+    <Card
+      className={cn(
+        'bg-card border-border rounded-[var(--semantic-radius-card)] border transition-shadow hover:shadow-md',
+        className
+      )}
+    >
       <CardHeader>
-        <CardTitle className="text-lg flex items-center justify-between">
+        <CardTitle className="flex items-center justify-between text-lg">
           VLAN Pool Utilization
           {shouldWarn && (
-            <span className="text-xs font-normal text-warning flex items-center gap-component-sm">
+            <span className="text-warning gap-component-sm flex items-center text-xs font-normal">
               <svg
-                className="w-4 h-4"
+                className="h-4 w-4"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -61,10 +66,13 @@ export function VLANPoolGaugeDesktop({
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="flex items-center gap-component-lg">
+        <div className="gap-component-lg flex items-center">
           {/* Circular gauge */}
-          <div className="relative inline-flex items-center justify-center flex-shrink-0">
-            <svg height={radius * 2} width={radius * 2}>
+          <div className="relative inline-flex flex-shrink-0 items-center justify-center">
+            <svg
+              height={radius * 2}
+              width={radius * 2}
+            >
               {/* Background circle */}
               <circle
                 stroke="currentColor"
@@ -96,37 +104,29 @@ export function VLANPoolGaugeDesktop({
 
             {/* Center text */}
             <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <div className={cn('text-2xl font-bold', getColor())}>
-                {utilization.toFixed(0)}%
-              </div>
+              <div className={cn('text-2xl font-bold', getColor())}>{utilization.toFixed(0)}%</div>
             </div>
           </div>
 
           {/* Stats grid */}
-          <div className="flex-1 grid grid-cols-3 gap-component-md">
+          <div className="gap-component-md grid flex-1 grid-cols-3">
             <div>
-              <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+              <div className="text-muted-foreground text-xs font-medium uppercase tracking-wider">
                 Allocated
               </div>
-              <div className="text-lg font-semibold mt-2">
-                {allocated.toLocaleString()}
-              </div>
+              <div className="mt-2 text-lg font-semibold">{allocated.toLocaleString()}</div>
             </div>
             <div>
-              <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+              <div className="text-muted-foreground text-xs font-medium uppercase tracking-wider">
                 Available
               </div>
-              <div className="text-lg font-semibold mt-2">
-                {available.toLocaleString()}
-              </div>
+              <div className="mt-2 text-lg font-semibold">{available.toLocaleString()}</div>
             </div>
             <div>
-              <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+              <div className="text-muted-foreground text-xs font-medium uppercase tracking-wider">
                 Total
               </div>
-              <div className="text-lg font-semibold mt-2">
-                {total.toLocaleString()}
-              </div>
+              <div className="mt-2 text-lg font-semibold">{total.toLocaleString()}</div>
             </div>
           </div>
         </div>

@@ -38,7 +38,7 @@ const blockList: AddressListEntry[] = [
 ];
 
 const largeList: AddressListEntry[] = Array.from({ length: 150 }, (_, i) => ({
-  address: `10.${Math.floor(i / 255)}.${Math.floor((i % 255) / 16)}.${i % 16 + 1}`,
+  address: `10.${Math.floor(i / 255)}.${Math.floor((i % 255) / 16)}.${(i % 16) + 1}`,
   comment: `Auto-blocked #${i + 1}`,
   timeout: i % 3 === 0 ? '1d' : undefined,
 }));

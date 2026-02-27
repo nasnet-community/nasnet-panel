@@ -107,20 +107,14 @@ export function ConnectionFilterBar({
   );
 
   // Debounced callbacks
-  const debouncedIpChange = useDebouncedCallback(
-    (value: string) => {
-      onFilterChange({ ipAddress: value });
-    },
-    debounceMs
-  );
+  const debouncedIpChange = useDebouncedCallback((value: string) => {
+    onFilterChange({ ipAddress: value });
+  }, debounceMs);
 
-  const debouncedPortChange = useDebouncedCallback(
-    (value: string) => {
-      const port = value.trim() === '' ? undefined : parseInt(value, 10);
-      onFilterChange({ port: isNaN(port as number) ? undefined : port });
-    },
-    debounceMs
-  );
+  const debouncedPortChange = useDebouncedCallback((value: string) => {
+    const port = value.trim() === '' ? undefined : parseInt(value, 10);
+    onFilterChange({ port: isNaN(port as number) ? undefined : port });
+  }, debounceMs);
 
   // Handle IP input change
   const handleIpChange = React.useCallback(
@@ -169,17 +163,12 @@ export function ConnectionFilterBar({
   }, [onClearFilter]);
 
   return (
-    <div
-      className={cn(
-        'flex flex-col gap-4 md:flex-row md:items-end md:gap-3',
-        className
-      )}
-    >
+    <div className={cn('flex flex-col gap-4 md:flex-row md:items-end md:gap-3', className)}>
       {/* IP Filter */}
-      <div className="flex-1 min-w-0">
+      <div className="min-w-0 flex-1">
         <label
           htmlFor="filter-ip"
-          className="block text-sm font-medium mb-2 text-foreground"
+          className="text-foreground mb-2 block text-sm font-medium"
         >
           IP Address
         </label>
@@ -198,7 +187,7 @@ export function ConnectionFilterBar({
       <div className="w-full md:w-32">
         <label
           htmlFor="filter-port"
-          className="block text-sm font-medium mb-2 text-foreground"
+          className="text-foreground mb-2 block text-sm font-medium"
         >
           Port
         </label>
@@ -218,7 +207,7 @@ export function ConnectionFilterBar({
       <div className="w-full md:w-40">
         <label
           htmlFor="filter-protocol"
-          className="block text-sm font-medium mb-2 text-foreground"
+          className="text-foreground mb-2 block text-sm font-medium"
         >
           Protocol
         </label>
@@ -226,12 +215,18 @@ export function ConnectionFilterBar({
           value={filter.protocol || 'all'}
           onValueChange={handleProtocolChange}
         >
-          <SelectTrigger id="filter-protocol" className="w-full">
+          <SelectTrigger
+            id="filter-protocol"
+            className="w-full"
+          >
             <SelectValue placeholder="Protocol" />
           </SelectTrigger>
           <SelectContent>
             {PROTOCOL_OPTIONS.map((option) => (
-              <SelectItem key={option.value} value={option.value}>
+              <SelectItem
+                key={option.value}
+                value={option.value}
+              >
                 {option.label}
               </SelectItem>
             ))}
@@ -243,17 +238,26 @@ export function ConnectionFilterBar({
       <div className="w-full md:w-40">
         <label
           htmlFor="filter-state"
-          className="block text-sm font-medium mb-2 text-foreground"
+          className="text-foreground mb-2 block text-sm font-medium"
         >
           State
         </label>
-        <Select value={filter.state || 'all'} onValueChange={handleStateChange}>
-          <SelectTrigger id="filter-state" className="w-full">
+        <Select
+          value={filter.state || 'all'}
+          onValueChange={handleStateChange}
+        >
+          <SelectTrigger
+            id="filter-state"
+            className="w-full"
+          >
             <SelectValue placeholder="State" />
           </SelectTrigger>
           <SelectContent>
             {STATE_OPTIONS.map((option) => (
-              <SelectItem key={option.value} value={option.value}>
+              <SelectItem
+                key={option.value}
+                value={option.value}
+              >
                 {option.label}
               </SelectItem>
             ))}

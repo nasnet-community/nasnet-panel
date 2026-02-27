@@ -57,19 +57,11 @@ export interface WirelessSettingsFormProps {
 /**
  * Form section header component
  */
-function SectionHeader({
-  icon: Icon,
-  title,
-}: {
-  icon: React.ElementType;
-  title: string;
-}) {
+function SectionHeader({ icon: Icon, title }: { icon: React.ElementType; title: string }) {
   return (
-    <div className="flex items-center gap-component-sm mb-component-md">
-      <Icon className="h-4 w-4 text-muted-foreground" />
-      <h3 className="text-sm font-semibold font-display text-foreground">
-        {title}
-      </h3>
+    <div className="gap-component-sm mb-component-md flex items-center">
+      <Icon className="text-muted-foreground h-4 w-4" />
+      <h3 className="font-display text-foreground text-sm font-semibold">{title}</h3>
     </div>
   );
 }
@@ -89,14 +81,10 @@ function FieldLabel({
   return (
     <label
       htmlFor={htmlFor}
-      className="text-sm font-medium text-foreground"
+      className="text-foreground text-sm font-medium"
     >
       {children}
-      {optional && (
-        <span className="ml-1 text-xs text-muted-foreground">
-          (optional)
-        </span>
-      )}
+      {optional && <span className="text-muted-foreground ml-1 text-xs">(optional)</span>}
     </label>
   );
 }
@@ -107,7 +95,11 @@ function FieldLabel({
 function FieldError({ id, message }: { id: string; message?: string }) {
   if (!message) return null;
   return (
-    <p id={id} className="text-sm text-error" role="alert">
+    <p
+      id={id}
+      className="text-error text-sm"
+      role="alert"
+    >
       {message}
     </p>
   );
@@ -118,7 +110,10 @@ function FieldError({ id, message }: { id: string; message?: string }) {
  */
 function HelpText({ id, children }: { id: string; children: React.ReactNode }) {
   return (
-    <p id={id} className="text-xs text-muted-foreground">
+    <p
+      id={id}
+      className="text-muted-foreground text-xs"
+    >
       {children}
     </p>
   );
@@ -214,7 +209,10 @@ export function WirelessSettingsForm({
     >
       {/* Basic Settings Section */}
       <section>
-        <SectionHeader icon={Wifi} title="Basic Settings" />
+        <SectionHeader
+          icon={Wifi}
+          title="Basic Settings"
+        />
         <div className="space-y-component-md">
           {/* SSID Field */}
           <div className="space-y-component-sm">
@@ -228,12 +226,18 @@ export function WirelessSettingsForm({
               aria-invalid={errors.ssid ? 'true' : 'false'}
               aria-describedby={errors.ssid ? 'ssid-error' : undefined}
             />
-            <FieldError id="ssid-error" message={errors.ssid?.message} />
+            <FieldError
+              id="ssid-error"
+              message={errors.ssid?.message}
+            />
           </div>
 
           {/* Password Field */}
           <div className="space-y-component-sm">
-            <FieldLabel htmlFor="password" optional>
+            <FieldLabel
+              htmlFor="password"
+              optional
+            >
               Password
             </FieldLabel>
             <div className="relative">
@@ -244,38 +248,35 @@ export function WirelessSettingsForm({
                 placeholder="Leave blank to keep current"
                 disabled={isSubmitting}
                 aria-invalid={errors.password ? 'true' : 'false'}
-                aria-describedby={
-                  errors.password ? 'password-error' : 'password-help'
-                }
+                aria-describedby={errors.password ? 'password-error' : 'password-help'}
                 className="pr-10"
               />
               <button
                 type="button"
                 onClick={togglePasswordVisibility}
-                className="absolute right-2 top-1/2 -translate-y-1/2 p-component-xs rounded-[var(--semantic-radius-button)] hover:bg-muted transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                className="p-component-xs hover:bg-muted focus-visible:ring-ring absolute right-2 top-1/2 -translate-y-1/2 rounded-[var(--semantic-radius-button)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
                 aria-label={showPassword ? 'Hide password' : 'Show password'}
                 tabIndex={-1}
               >
-                {showPassword ? (
-                  <EyeOff className="h-4 w-4 text-muted-foreground" />
-                ) : (
-                  <Eye className="h-4 w-4 text-muted-foreground" />
-                )}
+                {showPassword ?
+                  <EyeOff className="text-muted-foreground h-4 w-4" />
+                : <Eye className="text-muted-foreground h-4 w-4" />}
               </button>
             </div>
             {!errors.password && (
-              <HelpText id="password-help">
-                Minimum 8 characters for WPA2/WPA3
-              </HelpText>
+              <HelpText id="password-help">Minimum 8 characters for WPA2/WPA3</HelpText>
             )}
-            <FieldError id="password-error" message={errors.password?.message} />
+            <FieldError
+              id="password-error"
+              message={errors.password?.message}
+            />
           </div>
 
           {/* Hide SSID Toggle */}
-          <div className="flex items-center justify-between py-component-sm">
+          <div className="py-component-sm flex items-center justify-between">
             <div className="space-y-component-xs">
               <FieldLabel htmlFor="hideSsid">Hide Network</FieldLabel>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-muted-foreground text-xs">
                 Network won't appear in device WiFi lists
               </p>
             </div>
@@ -297,7 +298,10 @@ export function WirelessSettingsForm({
 
       {/* Radio Settings Section */}
       <section>
-        <SectionHeader icon={Radio} title="Radio Settings" />
+        <SectionHeader
+          icon={Radio}
+          title="Radio Settings"
+        />
         <div className="space-y-component-md">
           {/* Channel Selection */}
           <div className="space-y-component-sm">
@@ -316,7 +320,10 @@ export function WirelessSettingsForm({
                   </SelectTrigger>
                   <SelectContent>
                     {channelOptions.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
+                      <SelectItem
+                        key={option.value}
+                        value={option.value}
+                      >
                         {option.label}
                       </SelectItem>
                     ))}
@@ -324,9 +331,7 @@ export function WirelessSettingsForm({
                 </Select>
               )}
             />
-            <HelpText id="channel-help">
-              Auto is recommended for best performance
-            </HelpText>
+            <HelpText id="channel-help">Auto is recommended for best performance</HelpText>
           </div>
 
           {/* Channel Width Selection */}
@@ -346,7 +351,10 @@ export function WirelessSettingsForm({
                   </SelectTrigger>
                   <SelectContent>
                     {channelWidthOptions.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
+                      <SelectItem
+                        key={option.value}
+                        value={option.value}
+                      >
                         {option.label}
                       </SelectItem>
                     ))}
@@ -387,16 +395,17 @@ export function WirelessSettingsForm({
                 </Select>
               )}
             />
-            <HelpText id="power-help">
-              Higher power extends range but uses more energy
-            </HelpText>
+            <HelpText id="power-help">Higher power extends range but uses more energy</HelpText>
           </div>
         </div>
       </section>
 
       {/* Security Section */}
       <section>
-        <SectionHeader icon={Shield} title="Security" />
+        <SectionHeader
+          icon={Shield}
+          title="Security"
+        />
         <div className="space-y-component-md">
           {/* Security Mode Selection */}
           <div className="space-y-component-sm">
@@ -407,9 +416,7 @@ export function WirelessSettingsForm({
               render={({ field }) => (
                 <Select
                   value={field.value}
-                  onValueChange={(val) =>
-                    field.onChange(val as WirelessSecurityOption)
-                  }
+                  onValueChange={(val) => field.onChange(val as WirelessSecurityOption)}
                   disabled={isSubmitting}
                 >
                   <SelectTrigger id="securityMode">
@@ -417,7 +424,10 @@ export function WirelessSettingsForm({
                   </SelectTrigger>
                   <SelectContent>
                     {SECURITY_MODE_OPTIONS.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
+                      <SelectItem
+                        key={option.value}
+                        value={option.value}
+                      >
                         <div className="flex flex-col">
                           <span>{option.label}</span>
                         </div>
@@ -436,11 +446,17 @@ export function WirelessSettingsForm({
 
       {/* Regional Section */}
       <section>
-        <SectionHeader icon={Globe} title="Regional" />
+        <SectionHeader
+          icon={Globe}
+          title="Regional"
+        />
         <div className="space-y-component-md">
           {/* Country Selection */}
           <div className="space-y-component-sm">
-            <FieldLabel htmlFor="countryCode" optional>
+            <FieldLabel
+              htmlFor="countryCode"
+              optional
+            >
               Country/Region
             </FieldLabel>
             <Controller
@@ -457,7 +473,10 @@ export function WirelessSettingsForm({
                   </SelectTrigger>
                   <SelectContent>
                     {COUNTRY_OPTIONS.map((option) => (
-                      <SelectItem key={option.code} value={option.code}>
+                      <SelectItem
+                        key={option.code}
+                        value={option.code}
+                      >
                         {option.name}
                       </SelectItem>
                     ))}
@@ -477,7 +496,7 @@ export function WirelessSettingsForm({
       </section>
 
       {/* Form Actions */}
-      <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-component-md pt-component-md border-t border-border">
+      <div className="gap-component-md pt-component-md border-border flex flex-col-reverse border-t sm:flex-row sm:justify-end">
         <Button
           type="button"
           variant="outline"
@@ -487,7 +506,11 @@ export function WirelessSettingsForm({
         >
           Cancel
         </Button>
-        <Button type="submit" disabled={isSubmitting} className="min-h-[44px]">
+        <Button
+          type="submit"
+          disabled={isSubmitting}
+          className="min-h-[44px]"
+        >
           {isSubmitting ? 'Saving...' : 'Save Changes'}
         </Button>
       </div>

@@ -325,7 +325,8 @@ async function bulkCreateAddressListEntries(
           address: entry.address,
           comment: entry.comment,
           timeout: entry.timeout,
-        }).then(() => ({ success: true, index: start + idx }))
+        })
+          .then(() => ({ success: true, index: start + idx }))
           .catch((error) => ({
             success: false,
             index: start + idx,
@@ -341,7 +342,12 @@ async function bulkCreateAddressListEntries(
           successCount++;
         } else {
           failedCount++;
-          const val = result.value as { success: boolean; index: number; address: string; message: any };
+          const val = result.value as {
+            success: boolean;
+            index: number;
+            address: string;
+            message: any;
+          };
           errors.push({
             index: val.index,
             address: val.address,
@@ -452,8 +458,7 @@ export function useCreateAddressListEntry(routerId: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (input: CreateAddressListEntryInput) =>
-      createAddressListEntry(routerId, input),
+    mutationFn: (input: CreateAddressListEntryInput) => createAddressListEntry(routerId, input),
     onSuccess: (data, variables) => {
       // Invalidate all address lists to refresh counts
       queryClient.invalidateQueries({ queryKey: addressListKeys.lists(routerId) });

@@ -2,7 +2,6 @@ import { Skeleton } from '@nasnet/ui/primitives';
 
 import type { Meta, StoryObj } from '@storybook/react';
 
-
 /**
  * Loading skeleton for RawPage (replicated from route file)
  * The actual RawPage is lazy-loaded from @nasnet/features/firewall,
@@ -91,7 +90,8 @@ export const NarrowViewport: Story = {
     viewport: { defaultViewport: 'mobile1' },
     docs: {
       description: {
-        story: 'Skeleton at mobile viewport width to verify the info panel and tab bar wrap properly.',
+        story:
+          'Skeleton at mobile viewport width to verify the info panel and tab bar wrap properly.',
       },
     },
   },

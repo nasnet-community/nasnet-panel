@@ -110,10 +110,7 @@ export function useStatsExport({ interfaceId, interfaceName }: UseStatsExportOpt
         point.rxErrors.toString(),
       ]);
 
-      const csv = [
-        headers.join(','),
-        ...rows.map((row) => row.join(',')),
-      ].join('\n');
+      const csv = [headers.join(','), ...rows.map((row) => row.join(','))].join('\n');
 
       const startDate = formatDateForFilename(timeRange.start);
       const endDate = formatDateForFilename(timeRange.end);

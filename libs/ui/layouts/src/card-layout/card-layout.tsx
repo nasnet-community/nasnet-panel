@@ -79,8 +79,9 @@ const columnClasses = {
 const getVariantClasses = (prefersReducedMotion: boolean) => ({
   elevated: 'bg-card rounded-[var(--semantic-radius-card)] shadow-[var(--semantic-shadow-card)]',
   interactive: cn(
-    'bg-card border border-border rounded-[var(--semantic-radius-card)]',
-    !prefersReducedMotion && 'hover:shadow-[var(--semantic-shadow-card)] transition-shadow duration-150'
+    'bg-card border-border rounded-[var(--semantic-radius-card)] border',
+    !prefersReducedMotion &&
+      'transition-shadow duration-150 hover:shadow-[var(--semantic-shadow-card)]'
   ),
   flat: 'bg-card border border-border rounded-[var(--semantic-radius-card)]',
 });
@@ -104,10 +105,7 @@ const CardLayoutImpl = React.forwardRef<HTMLDivElement, CardLayoutProps>(
       return React.Children.map(children, (child) => {
         if (React.isValidElement(child)) {
           return React.cloneElement(child, {
-            className: cn(
-              variantClasses[variant],
-              child.props.className
-            ),
+            className: cn(variantClasses[variant], child.props.className),
           } as { className?: string });
         }
         return child;
@@ -117,12 +115,7 @@ const CardLayoutImpl = React.forwardRef<HTMLDivElement, CardLayoutProps>(
     return (
       <div
         ref={ref}
-        className={cn(
-          'grid',
-          columnClasses[columns],
-          gapClasses[gap],
-          className
-        )}
+        className={cn('grid', columnClasses[columns], gapClasses[gap], className)}
         role="region"
         aria-label="Card layout"
       >
@@ -138,31 +131,3 @@ CardLayoutImpl.displayName = 'CardLayout';
  * CardLayout - Responsive grid for card-based layouts
  */
 export const CardLayout = React.memo(CardLayoutImpl);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

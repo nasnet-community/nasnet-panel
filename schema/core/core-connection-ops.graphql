@@ -34,16 +34,10 @@ extend type Mutation {
   ): SetPreferredProtocolPayload!
 
   "Manually trigger reconnection to a router"
-  reconnectRouter(
-    "Router ID"
-    routerId: ID!
-  ): ReconnectRouterPayload!
+  reconnectRouter("Router ID" routerId: ID!): ReconnectRouterPayload!
 
   "Perform immediate health check on a router"
-  checkRouterHealth(
-    "Router ID"
-    routerId: ID!
-  ): HealthCheckResult!
+  checkRouterHealth("Router ID" routerId: ID!): HealthCheckResult!
 }
 
 # -----------------------------------------------------------------------------
@@ -78,16 +72,10 @@ type ReconnectRouterPayload {
 
 extend type Subscription {
   "Subscribe to connection health updates"
-  connectionHealth(
-    "Router ID to monitor (optional, all routers if not specified)"
-    routerId: ID
-  ): HealthCheckResult!
+  connectionHealth("Router ID to monitor (optional, all routers if not specified)" routerId: ID): HealthCheckResult!
 
   "Subscribe to circuit breaker state changes"
-  circuitBreakerChanged(
-    "Router ID to monitor"
-    routerId: ID!
-  ): CircuitBreakerEvent!
+  circuitBreakerChanged("Router ID to monitor" routerId: ID!): CircuitBreakerEvent!
 }
 
 """

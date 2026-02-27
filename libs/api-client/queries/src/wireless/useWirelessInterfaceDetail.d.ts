@@ -25,5 +25,8 @@ import { type WirelessInterfaceDetail } from '@nasnet/core/types';
  * }
  * ```
  */
-export declare function useWirelessInterfaceDetail(routerIp: string, interfaceName: string): UseQueryResult<WirelessInterfaceDetail, Error>;
+export declare function useWirelessInterfaceDetail(
+  routerIp: string,
+  interfaceName: string
+): UseQueryResult<WirelessInterfaceDetail, Error>;
 //# sourceMappingURL=useWirelessInterfaceDetail.d.ts.map

@@ -104,18 +104,16 @@ const createPreviewMock = (
   },
 });
 
-const createApplyMock = (
-  success = true,
-  alertRuleId = 'rule-123'
-): MockedResponse => ({
+const createApplyMock = (success = true, alertRuleId = 'rule-123'): MockedResponse => ({
   request: {
     query: APPLY_ALERT_RULE_TEMPLATE,
     variables: expect.anything(),
   },
   result: {
     data: {
-      applyAlertRuleTemplate: success
-        ? {
+      applyAlertRuleTemplate:
+        success ?
+          {
             alertRule: {
               id: alertRuleId,
               name: 'High CPU Alert',
@@ -161,7 +159,10 @@ function renderDialog({
 }: RenderOptions = {}) {
   return {
     ...render(
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider
+        mocks={mocks}
+        addTypename={false}
+      >
         <AlertTemplateApplyDialog
           templateId={templateId}
           open={open}
@@ -393,9 +394,7 @@ describe('AlertTemplateApplyDialog', () => {
       renderDialog();
 
       await waitFor(() => {
-        expect(
-          screen.getByText(/fill in the variables above to preview/i)
-        ).toBeInTheDocument();
+        expect(screen.getByText(/fill in the variables above to preview/i)).toBeInTheDocument();
       });
     });
 
@@ -424,11 +423,7 @@ describe('AlertTemplateApplyDialog', () => {
 
     it('should show validation errors in preview', async () => {
       const user = userEvent.setup();
-      const previewMock = createPreviewMock(
-        mockTemplate.id,
-        { CPU_THRESHOLD: 80 },
-        false
-      );
+      const previewMock = createPreviewMock(mockTemplate.id, { CPU_THRESHOLD: 80 }, false);
 
       renderDialog({
         mocks: [createTemplateMock(), previewMock],

@@ -47,11 +47,7 @@ export { useStepperKeyboard, getStepperKeyboardHints } from './hooks/use-stepper
 
 // ===== Context =====
 
-export {
-  StepperProvider,
-  useStepperContext,
-  useOptionalStepperContext,
-} from './stepper-context';
+export { StepperProvider, useStepperContext, useOptionalStepperContext } from './stepper-context';
 export type { StepperProviderProps } from './stepper-context';
 
 // ===== ARIA Helpers =====

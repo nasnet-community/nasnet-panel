@@ -34,9 +34,7 @@ function FormWrapper({
 
   return (
     <FormProvider {...methods}>
-      <form onSubmit={methods.handleSubmit(onSubmit)}>
-        {children}
-      </form>
+      <form onSubmit={methods.handleSubmit(onSubmit)}>{children}</form>
     </FormProvider>
   );
 }
@@ -65,7 +63,10 @@ describe('RHFFormField', () => {
   it('renders label and input', () => {
     render(
       <FormWrapper defaultValues={{ name: '' }}>
-        <RHFFormField name="name" label="Username" />
+        <RHFFormField
+          name="name"
+          label="Username"
+        />
       </FormWrapper>
     );
 
@@ -75,7 +76,11 @@ describe('RHFFormField', () => {
   it('shows required indicator', () => {
     render(
       <FormWrapper defaultValues={{ name: '' }}>
-        <RHFFormField name="name" label="Username" required />
+        <RHFFormField
+          name="name"
+          label="Username"
+          required
+        />
       </FormWrapper>
     );
 
@@ -102,8 +107,14 @@ describe('RHFFormField', () => {
     });
 
     render(
-      <FormWrapper defaultValues={{ name: '' }} schema={schema}>
-        <RHFFormField name="name" label="Name" />
+      <FormWrapper
+        defaultValues={{ name: '' }}
+        schema={schema}
+      >
+        <RHFFormField
+          name="name"
+          label="Name"
+        />
       </FormWrapper>
     );
 
@@ -121,7 +132,10 @@ describe('RHFFormField', () => {
     it('renders editable field by default', () => {
       render(
         <FormWrapper defaultValues={{ name: 'test' }}>
-          <RHFFormField name="name" label="Name" />
+          <RHFFormField
+            name="name"
+            label="Name"
+          />
         </FormWrapper>
       );
 
@@ -133,7 +147,11 @@ describe('RHFFormField', () => {
     it('renders readonly field when mode is readonly', () => {
       render(
         <FormWrapper defaultValues={{ name: 'test' }}>
-          <RHFFormField name="name" label="Name" mode="readonly" />
+          <RHFFormField
+            name="name"
+            label="Name"
+            mode="readonly"
+          />
         </FormWrapper>
       );
 
@@ -145,7 +163,11 @@ describe('RHFFormField', () => {
     it('renders nothing when mode is hidden', () => {
       const { container } = render(
         <FormWrapper defaultValues={{ name: 'test' }}>
-          <RHFFormField name="name" label="Name" mode="hidden" />
+          <RHFFormField
+            name="name"
+            label="Name"
+            mode="hidden"
+          />
         </FormWrapper>
       );
 
@@ -160,9 +182,7 @@ describe('RHFFormField', () => {
             name="fullName"
             label="Full Name"
             mode="computed"
-            computeFn={(values) =>
-              `${values.firstName || ''} ${values.lastName || ''}`.trim()
-            }
+            computeFn={(values) => `${values.firstName || ''} ${values.lastName || ''}`.trim()}
           />
         </FormWrapper>
       );

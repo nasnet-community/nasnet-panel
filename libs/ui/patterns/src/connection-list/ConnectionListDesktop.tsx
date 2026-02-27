@@ -7,7 +7,6 @@
 
 import * as React from 'react';
 
-
 import { Filter, Network } from 'lucide-react';
 
 import { Button, cn } from '@nasnet/ui/primitives';
@@ -89,16 +88,12 @@ export function ConnectionListDesktop({
       createTextColumn('protocol', 'Protocol', {
         size: 80,
         cell: (info) => (
-          <span className="uppercase text-xs font-mono">
-            {String(info.getValue())}
-          </span>
+          <span className="font-mono text-xs uppercase">{String(info.getValue())}</span>
         ),
       }),
       createTextColumn('srcAddress', 'Source IP', {
         size: 140,
-        cell: (info) => (
-          <span className="font-mono text-xs">{String(info.getValue())}</span>
-        ),
+        cell: (info) => <span className="font-mono text-xs">{String(info.getValue())}</span>,
       }),
       {
         id: 'srcPort',
@@ -107,16 +102,12 @@ export function ConnectionListDesktop({
         size: 80,
         cell: (info) => {
           const port = info.getValue() as number | undefined;
-          return (
-            <span className="font-mono text-xs">{port !== undefined ? port : '-'}</span>
-          );
+          return <span className="font-mono text-xs">{port !== undefined ? port : '-'}</span>;
         },
       },
       createTextColumn('dstAddress', 'Dest IP', {
         size: 140,
-        cell: (info) => (
-          <span className="font-mono text-xs">{String(info.getValue())}</span>
-        ),
+        cell: (info) => <span className="font-mono text-xs">{String(info.getValue())}</span>,
       }),
       {
         id: 'dstPort',
@@ -125,9 +116,7 @@ export function ConnectionListDesktop({
         size: 80,
         cell: (info) => {
           const port = info.getValue() as number | undefined;
-          return (
-            <span className="font-mono text-xs">{port !== undefined ? port : '-'}</span>
-          );
+          return <span className="font-mono text-xs">{port !== undefined ? port : '-'}</span>;
         },
       },
       {
@@ -147,9 +136,7 @@ export function ConnectionListDesktop({
         size: 80,
         cell: (info) => {
           const timeout = info.getValue() as string;
-          return (
-            <span className="font-mono text-xs">{timeout}</span>
-          );
+          return <span className="font-mono text-xs">{timeout}</span>;
         },
       },
       {
@@ -159,9 +146,7 @@ export function ConnectionListDesktop({
         size: 90,
         cell: (info) => {
           const bytes = info.getValue() as number;
-          return (
-            <span className="font-mono text-xs">{formatBytes(bytes)}</span>
-          );
+          return <span className="font-mono text-xs">{formatBytes(bytes)}</span>;
         },
       },
       {
@@ -171,9 +156,7 @@ export function ConnectionListDesktop({
         size: 80,
         cell: (info) => {
           const packets = info.getValue() as number;
-          return (
-            <span className="font-mono text-xs">{packets.toLocaleString()}</span>
-          );
+          return <span className="font-mono text-xs">{packets.toLocaleString()}</span>;
         },
       },
       {
@@ -183,21 +166,21 @@ export function ConnectionListDesktop({
         enableSorting: false,
         cell: (info) => {
           const connection = info.row.original;
-          return onKillConnection ? (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={(e) => {
-                e.stopPropagation();
-                onKillConnection(connection);
-              }}
-              disabled={isKillingConnection}
-              className="text-error hover:text-error/90 hover:bg-error/10"
-              aria-label={`Kill connection from ${connection.srcAddress} to ${connection.dstAddress}`}
-            >
-              Kill
-            </Button>
-          ) : null;
+          return onKillConnection ?
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onKillConnection(connection);
+                }}
+                disabled={isKillingConnection}
+                className="text-error hover:text-error/90 hover:bg-error/10"
+                aria-label={`Kill connection from ${connection.srcAddress} to ${connection.dstAddress}`}
+              >
+                Kill
+              </Button>
+            : null;
         },
       },
     ],
@@ -234,15 +217,12 @@ export function ConnectionListDesktop({
     <div className={cn('flex flex-col gap-4', className)}>
       {/* Header with stats and controls */}
       <div className="flex items-center justify-between">
-        <div className="text-sm text-muted-foreground">
-          {hasActiveFilter ? (
+        <div className="text-muted-foreground text-sm">
+          {hasActiveFilter ?
             <>
-              Showing {filteredCount.toLocaleString()} of{' '}
-              {totalCount.toLocaleString()} connections
+              Showing {filteredCount.toLocaleString()} of {totalCount.toLocaleString()} connections
             </>
-          ) : (
-            <>{totalCount.toLocaleString()} active connections</>
-          )}
+          : <>{totalCount.toLocaleString()} active connections</>}
         </div>
 
         <div className="flex items-center gap-2">
@@ -282,7 +262,7 @@ export function ConnectionListDesktop({
         estimateRowHeight={40}
         loading={loading}
         emptyContent={emptyContent}
-        className="border rounded-lg"
+        className="rounded-lg border"
         aria-label="Connection tracking table"
         initialSorting={[{ id: sort.field, desc: sort.direction === 'desc' }]}
         onSortingChange={(sorting) => {

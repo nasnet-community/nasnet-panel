@@ -170,9 +170,7 @@ const interfaceColumns: DataTableColumn<NetworkInterface>[] = [
   {
     key: 'name',
     header: 'Interface',
-    cell: (item) => (
-      <span className="font-mono font-semibold text-foreground">{item.name}</span>
-    ),
+    cell: (item) => <span className="text-foreground font-mono font-semibold">{item.name}</span>,
   },
   { key: 'type', header: 'Type' },
   {
@@ -182,9 +180,9 @@ const interfaceColumns: DataTableColumn<NetworkInterface>[] = [
       <Badge
         variant={item.status === 'online' ? 'default' : 'secondary'}
         className={
-          item.status === 'online'
-            ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
-            : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'
+          item.status === 'online' ?
+            'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
+          : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'
         }
       >
         {item.status}
@@ -208,9 +206,11 @@ const interfaceColumns: DataTableColumn<NetworkInterface>[] = [
 ];
 
 const dhcpColumns: DataTableColumn<DHCPLease>[] = [
-  { key: 'hostname', header: 'Hostname', cell: (item) => (
-    <span className="font-mono">{item.hostname}</span>
-  )},
+  {
+    key: 'hostname',
+    header: 'Hostname',
+    cell: (item) => <span className="font-mono">{item.hostname}</span>,
+  },
   { key: 'ipAddress', header: 'IP Address', className: 'font-mono text-sm' },
   { key: 'macAddress', header: 'MAC Address', className: 'font-mono text-sm' },
   { key: 'expiresIn', header: 'Expires In' },
@@ -220,9 +220,9 @@ const dhcpColumns: DataTableColumn<DHCPLease>[] = [
     cell: (item) => (
       <Badge
         className={
-          item.status === 'bound'
-            ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
-            : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300'
+          item.status === 'bound' ?
+            'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
+          : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300'
         }
       >
         {item.status}
@@ -232,18 +232,14 @@ const dhcpColumns: DataTableColumn<DHCPLease>[] = [
 ];
 
 const firewallColumns: DataTableColumn<FirewallRule>[] = [
-  { key: 'chain', header: 'Chain', cell: (item) => (
-    <Badge variant="outline">{item.chain}</Badge>
-  )},
+  { key: 'chain', header: 'Chain', cell: (item) => <Badge variant="outline">{item.chain}</Badge> },
   {
     key: 'action',
     header: 'Action',
     cell: (item) => (
       <span
         className={
-          item.action === 'accept'
-            ? 'text-green-600 font-semibold'
-            : 'text-red-600 font-semibold'
+          item.action === 'accept' ? 'font-semibold text-green-600' : 'font-semibold text-red-600'
         }
       >
         {item.action.toUpperCase()}
@@ -373,13 +369,13 @@ export const ClickableRows: Story = {
     columns: dhcpColumns as unknown as DataTableColumn<Record<string, unknown>>[],
     data: dhcpLeases as unknown as Record<string, unknown>[],
     keyExtractor: (item) => (item as unknown as DHCPLease).id,
-    onRowClick: (item) =>
-      alert(`Selected: ${(item as unknown as DHCPLease).hostname}`),
+    onRowClick: (item) => alert(`Selected: ${(item as unknown as DHCPLease).hostname}`),
   },
   parameters: {
     docs: {
       description: {
-        story: 'When `onRowClick` is provided rows gain a pointer cursor and trigger the callback on click.',
+        story:
+          'When `onRowClick` is provided rows gain a pointer cursor and trigger the callback on click.',
       },
     },
   },

@@ -1,7 +1,7 @@
 {
   "id": "stores/domain-ui-stores",
   "title": "Domain UI Stores",
-  "description": "Domain UI stores manage feature-specific user interface state like filters, view preferences, selections, and wizard draft data. They follow a consistent pattern across the codebase and are never used for server state (which belongs in Apollo Client).",
+  "description": "Domain UI stores manage feature-specific user interface state like filters, view preferences,",
   "source": "@site/../../libs/state/docs/stores/domain-ui-stores.md",
   "sourceDirName": "stores",
   "slug": "/stores/domain-ui-stores",

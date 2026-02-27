@@ -7,7 +7,7 @@ import {
   parseCIDR,
   compareIPv4,
   isValidMACAddress,
-  formatMACAddress
+  formatMACAddress,
 } from './ip';
 
 describe('IP Utilities', () => {

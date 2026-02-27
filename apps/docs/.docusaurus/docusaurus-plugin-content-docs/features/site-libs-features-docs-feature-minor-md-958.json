@@ -1,7 +1,7 @@
 {
   "id": "feature-minor",
   "title": "Feature: Wireless, Router Discovery, and Configuration Import",
-  "description": "This document covers three focused feature modules: the Wireless library (libs/features/wireless), the Router Discovery library (libs/features/router-discovery), and the Configuration Import library (libs/features/configuration-import). All three are consumed primarily by apps/connect/src/ and follow the same Layer 3 domain component architecture as the other feature libraries.",
+  "description": "This document covers three focused feature modules: the Wireless library",
   "source": "@site/../../libs/features/docs/feature-minor.md",
   "sourceDirName": ".",
   "slug": "/feature-minor",

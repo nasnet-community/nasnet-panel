@@ -105,7 +105,12 @@ describe('useAuthStore', () => {
   describe('setAuth', () => {
     it('should set user data when authenticating', () => {
       const { setAuth } = useAuthStore.getState();
-      const user: User = { id: '1', username: 'testuser', email: null, permissions: ['read', 'write'] };
+      const user: User = {
+        id: '1',
+        username: 'testuser',
+        email: null,
+        permissions: ['read', 'write'],
+      };
       const expiresAt = new Date(Date.now() + 3600 * 1000);
 
       setAuth('token', user, expiresAt);

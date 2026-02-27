@@ -87,10 +87,7 @@ describe('BridgePortDiagram', () => {
       refetch: mockRefetchInterfaces,
     });
 
-    (queries.useAddBridgePort as any).mockReturnValue([
-      mockAddBridgePort,
-      { loading: false },
-    ]);
+    (queries.useAddBridgePort as any).mockReturnValue([mockAddBridgePort, { loading: false }]);
 
     (queries.useRemoveBridgePort as any).mockReturnValue([
       mockRemoveBridgePort,
@@ -99,7 +96,12 @@ describe('BridgePortDiagram', () => {
   });
 
   it('renders bridge ports section', () => {
-    render(<BridgePortDiagram bridgeId="bridge-1" routerId="router-1" />);
+    render(
+      <BridgePortDiagram
+        bridgeId="bridge-1"
+        routerId="router-1"
+      />
+    );
 
     expect(screen.getByText('Bridge Ports')).toBeInTheDocument();
     expect(screen.getByText('ether2')).toBeInTheDocument();
@@ -107,7 +109,12 @@ describe('BridgePortDiagram', () => {
   });
 
   it('renders available interfaces section', () => {
-    render(<BridgePortDiagram bridgeId="bridge-1" routerId="router-1" />);
+    render(
+      <BridgePortDiagram
+        bridgeId="bridge-1"
+        routerId="router-1"
+      />
+    );
 
     expect(screen.getByText('Available Interfaces')).toBeInTheDocument();
     expect(screen.getByText('ether4')).toBeInTheDocument();
@@ -115,7 +122,12 @@ describe('BridgePortDiagram', () => {
   });
 
   it('displays port VLAN information', () => {
-    render(<BridgePortDiagram bridgeId="bridge-1" routerId="router-1" />);
+    render(
+      <BridgePortDiagram
+        bridgeId="bridge-1"
+        routerId="router-1"
+      />
+    );
 
     // Check PVID display
     expect(screen.getByText(/PVID: 1/i)).toBeInTheDocument();
@@ -129,7 +141,12 @@ describe('BridgePortDiagram', () => {
   });
 
   it('displays STP role and state badges', () => {
-    render(<BridgePortDiagram bridgeId="bridge-1" routerId="router-1" />);
+    render(
+      <BridgePortDiagram
+        bridgeId="bridge-1"
+        routerId="router-1"
+      />
+    );
 
     expect(screen.getByText('designated')).toBeInTheDocument();
     expect(screen.getByText('root')).toBeInTheDocument();
@@ -137,7 +154,12 @@ describe('BridgePortDiagram', () => {
   });
 
   it('displays edge port indicator', () => {
-    render(<BridgePortDiagram bridgeId="bridge-1" routerId="router-1" />);
+    render(
+      <BridgePortDiagram
+        bridgeId="bridge-1"
+        routerId="router-1"
+      />
+    );
 
     const edgeBadges = screen.getAllByText('Edge');
     expect(edgeBadges).toHaveLength(1); // Only ether3 is edge
@@ -151,7 +173,12 @@ describe('BridgePortDiagram', () => {
       refetch: mockRefetchPorts,
     });
 
-    render(<BridgePortDiagram bridgeId="bridge-1" routerId="router-1" />);
+    render(
+      <BridgePortDiagram
+        bridgeId="bridge-1"
+        routerId="router-1"
+      />
+    );
 
     expect(screen.getByText(/No ports assigned/i)).toBeInTheDocument();
     expect(screen.getByText(/Drag an interface/i)).toBeInTheDocument();
@@ -165,7 +192,12 @@ describe('BridgePortDiagram', () => {
       refetch: mockRefetchPorts,
     });
 
-    render(<BridgePortDiagram bridgeId="bridge-1" routerId="router-1" />);
+    render(
+      <BridgePortDiagram
+        bridgeId="bridge-1"
+        routerId="router-1"
+      />
+    );
 
     // Should show skeleton loaders
     expect(screen.queryByText('ether2')).not.toBeInTheDocument();
@@ -179,7 +211,12 @@ describe('BridgePortDiagram', () => {
       refetch: mockRefetchPorts,
     });
 
-    render(<BridgePortDiagram bridgeId="bridge-1" routerId="router-1" />);
+    render(
+      <BridgePortDiagram
+        bridgeId="bridge-1"
+        routerId="router-1"
+      />
+    );
 
     expect(screen.getByText(/Failed to load bridge ports/i)).toBeInTheDocument();
   });
@@ -192,7 +229,12 @@ describe('BridgePortDiagram', () => {
       refetch: mockRefetchInterfaces,
     });
 
-    render(<BridgePortDiagram bridgeId="bridge-1" routerId="router-1" />);
+    render(
+      <BridgePortDiagram
+        bridgeId="bridge-1"
+        routerId="router-1"
+      />
+    );
 
     // Should show skeleton loaders in available interfaces section
     expect(screen.queryByText('ether4')).not.toBeInTheDocument();
@@ -206,14 +248,24 @@ describe('BridgePortDiagram', () => {
       refetch: mockRefetchInterfaces,
     });
 
-    render(<BridgePortDiagram bridgeId="bridge-1" routerId="router-1" />);
+    render(
+      <BridgePortDiagram
+        bridgeId="bridge-1"
+        routerId="router-1"
+      />
+    );
 
     expect(screen.getByText(/No interfaces available/i)).toBeInTheDocument();
   });
 
   it('shows remove confirmation dialog when remove button is clicked', async () => {
     const user = userEvent.setup();
-    render(<BridgePortDiagram bridgeId="bridge-1" routerId="router-1" />);
+    render(
+      <BridgePortDiagram
+        bridgeId="bridge-1"
+        routerId="router-1"
+      />
+    );
 
     // Find port node and hover to reveal actions
     const portNode = screen.getByText('ether2').closest('div');
@@ -243,7 +295,12 @@ describe('BridgePortDiagram', () => {
       },
     });
 
-    render(<BridgePortDiagram bridgeId="bridge-1" routerId="router-1" />);
+    render(
+      <BridgePortDiagram
+        bridgeId="bridge-1"
+        routerId="router-1"
+      />
+    );
 
     // Click remove button
     const removeButtons = screen.getAllByLabelText(/Remove.*from bridge/i);
@@ -277,7 +334,12 @@ describe('BridgePortDiagram', () => {
       },
     });
 
-    render(<BridgePortDiagram bridgeId="bridge-1" routerId="router-1" />);
+    render(
+      <BridgePortDiagram
+        bridgeId="bridge-1"
+        routerId="router-1"
+      />
+    );
 
     // Remove port
     const removeButtons = screen.getAllByLabelText(/Remove.*from bridge/i);
@@ -313,14 +375,24 @@ describe('BridgePortDiagram', () => {
   });
 
   it('displays interface type badges for available interfaces', () => {
-    render(<BridgePortDiagram bridgeId="bridge-1" routerId="router-1" />);
+    render(
+      <BridgePortDiagram
+        bridgeId="bridge-1"
+        routerId="router-1"
+      />
+    );
 
     expect(screen.getByText('ether')).toBeInTheDocument();
     expect(screen.getByText('wlan')).toBeInTheDocument();
   });
 
   it('displays MAC addresses for available interfaces', () => {
-    render(<BridgePortDiagram bridgeId="bridge-1" routerId="router-1" />);
+    render(
+      <BridgePortDiagram
+        bridgeId="bridge-1"
+        routerId="router-1"
+      />
+    );
 
     expect(screen.getByText('00:11:22:33:44:66')).toBeInTheDocument();
     expect(screen.getByText('AA:BB:CC:DD:EE:FF')).toBeInTheDocument();

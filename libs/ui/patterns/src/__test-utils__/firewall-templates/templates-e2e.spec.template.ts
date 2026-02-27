@@ -113,9 +113,7 @@ test.describe('Firewall Templates - Template Gallery', () => {
     // Filter by HOME category
     await page.click('[data-testid="category-tab-HOME"]');
     await expect(page.locator('[data-testid="template-card"]')).toHaveCount(1);
-    await expect(
-      page.locator('[data-testid="template-card-home-network"]')
-    ).toBeVisible();
+    await expect(page.locator('[data-testid="template-card-home-network"]')).toBeVisible();
   });
 
   test('Search templates by name', async ({ page }) => {
@@ -124,9 +122,7 @@ test.describe('Firewall Templates - Template Gallery', () => {
     // Search for "security"
     await page.fill('[data-testid="template-search"]', 'security');
     await expect(page.locator('[data-testid="template-card"]')).toHaveCount(1);
-    await expect(
-      page.locator('[data-testid="template-card-basic-security"]')
-    ).toBeVisible();
+    await expect(page.locator('[data-testid="template-card-basic-security"]')).toBeVisible();
   });
 
   test('Keyboard navigation through templates', async ({ page }) => {
@@ -346,9 +342,7 @@ test.describe('Firewall Templates - Apply and Rollback', () => {
 
     // Verify rollback confirmation
     await expect(page.locator('[data-testid="rollback-success-toast"]')).toBeVisible();
-    await expect(page.locator('[data-testid="rollback-success-toast"]')).toContainText(
-      'reverted'
-    );
+    await expect(page.locator('[data-testid="rollback-success-toast"]')).toContainText('reverted');
 
     // Verify undo button disappears
     await expect(page.locator('[data-testid="undo-button"]')).not.toBeVisible();
@@ -358,9 +352,7 @@ test.describe('Firewall Templates - Apply and Rollback', () => {
     await expect(page.locator('[data-testid="undo-button"]')).toBeVisible();
 
     // Verify countdown decreases
-    const initialTime = await page
-      .locator('[data-testid="undo-countdown"]')
-      .textContent();
+    const initialTime = await page.locator('[data-testid="undo-countdown"]').textContent();
     await page.waitForTimeout(2000);
     const newTime = await page.locator('[data-testid="undo-countdown"]').textContent();
 
@@ -410,9 +402,7 @@ test.describe('Firewall Templates - Custom Templates', () => {
     await page.click('[data-testid="save-template-confirm-button"]');
 
     // Verify success
-    await expect(page.locator('[data-testid="success-toast"]')).toContainText(
-      'Template saved'
-    );
+    await expect(page.locator('[data-testid="success-toast"]')).toContainText('Template saved');
 
     // Verify template appears in Custom Templates section
     await page.click('[data-testid="category-tab-CUSTOM"]');
@@ -492,9 +482,7 @@ test.describe('Firewall Templates - Custom Templates', () => {
     await page.click('[data-testid="confirm-import-button"]');
 
     // Verify success
-    await expect(page.locator('[data-testid="success-toast"]')).toContainText(
-      'Template imported'
-    );
+    await expect(page.locator('[data-testid="success-toast"]')).toContainText('Template imported');
   });
 
   test('AC5: Import invalid template shows errors', async ({ page }) => {

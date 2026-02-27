@@ -173,10 +173,7 @@ export interface ResponsiveShellProps {
  * ```
  */
 export const ResponsiveShell = React.memo(
-  React.forwardRef<
-    HTMLDivElement,
-    ResponsiveShellProps
-  >(
+  React.forwardRef<HTMLDivElement, ResponsiveShellProps>(
     (
       {
         children,
@@ -236,48 +233,49 @@ export const ResponsiveShell = React.memo(
       const effectiveCollapsed = platform === 'tablet' ? false : sidebarCollapsed;
 
       // Create enhanced sidebar with collapse behavior
-      const enhancedSidebar = sidebar ? (
-        <div
-          className={cn(
-            'h-full flex flex-col',
-            !prefersReducedMotion && 'transition-all duration-200 ease-out'
-          )}
-        >
-          {sidebar}
-          {/* Collapse toggle button (tablet/desktop) */}
-          {onSidebarToggle && (
-            <button
-              type="button"
-              onClick={onSidebarToggle}
-              className={cn(
-                'absolute -right-3 top-1/2 -translate-y-1/2 z-10',
-                'w-6 h-6 rounded-full',
-                'bg-muted',
-                'border border-border',
-                'flex items-center justify-center',
-                'hover:bg-accent',
-                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
-                !prefersReducedMotion && 'transition-colors duration-150'
-              )}
-              aria-expanded={!effectiveCollapsed}
-              aria-label={effectiveCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-              title={`${effectiveCollapsed ? 'Expand' : 'Collapse'} sidebar (${
-                navigator.platform.includes('Mac') ? '⌘' : 'Ctrl'
-              }+B)`}
-            >
-              <Icon
-                icon={ChevronLeft}
+      const enhancedSidebar =
+        sidebar ?
+          <div
+            className={cn(
+              'flex h-full flex-col',
+              !prefersReducedMotion && 'transition-all duration-200 ease-out'
+            )}
+          >
+            {sidebar}
+            {/* Collapse toggle button (tablet/desktop) */}
+            {onSidebarToggle && (
+              <button
+                type="button"
+                onClick={onSidebarToggle}
                 className={cn(
-                  'w-4 h-4 text-muted-foreground',
-                  !prefersReducedMotion && 'transition-transform duration-200',
-                  effectiveCollapsed && 'rotate-180'
+                  'absolute -right-3 top-1/2 z-10 -translate-y-1/2',
+                  'h-6 w-6 rounded-full',
+                  'bg-muted',
+                  'border-border border',
+                  'flex items-center justify-center',
+                  'hover:bg-accent',
+                  'focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
+                  !prefersReducedMotion && 'transition-colors duration-150'
                 )}
-                aria-hidden="true"
-              />
-            </button>
-          )}
-        </div>
-      ) : undefined;
+                aria-expanded={!effectiveCollapsed}
+                aria-label={effectiveCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+                title={`${effectiveCollapsed ? 'Expand' : 'Collapse'} sidebar (${
+                  navigator.platform.includes('Mac') ? '⌘' : 'Ctrl'
+                }+B)`}
+              >
+                <Icon
+                  icon={ChevronLeft}
+                  className={cn(
+                    'text-muted-foreground h-4 w-4',
+                    !prefersReducedMotion && 'transition-transform duration-200',
+                    effectiveCollapsed && 'rotate-180'
+                  )}
+                  aria-hidden="true"
+                />
+              </button>
+            )}
+          </div>
+        : undefined;
 
       // Render tablet/desktop layout
       return (

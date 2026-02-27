@@ -19,9 +19,7 @@ vi.mock('@nasnet/api-client/queries', () => ({
 }));
 
 vi.mock('@nasnet/state/stores', () => ({
-  useConnectionStore: vi.fn((selector) =>
-    selector({ currentRouterIp: '192.168.88.1' })
-  ),
+  useConnectionStore: vi.fn((selector) => selector({ currentRouterIp: '192.168.88.1' })),
 }));
 
 const createWrapper = () => {
@@ -73,10 +71,9 @@ describe('useLogStream', () => {
         refetch: vi.fn(),
       } as any);
 
-      const { result } = renderHook(
-        () => useLogStream({ deviceId: '192.168.88.1', topics: [] }),
-        { wrapper: createWrapper() }
-      );
+      const { result } = renderHook(() => useLogStream({ deviceId: '192.168.88.1', topics: [] }), {
+        wrapper: createWrapper(),
+      });
 
       expect(result.current.logs).toHaveLength(3);
       expect(result.current.logs[0].id).toBe('log-3'); // Newest first
@@ -100,8 +97,7 @@ describe('useLogStream', () => {
       } as any);
 
       const { result } = renderHook(
-        () =>
-          useLogStream({ deviceId: '192.168.88.1', topics: [], maxEntries: 10 }),
+        () => useLogStream({ deviceId: '192.168.88.1', topics: [], maxEntries: 10 }),
         { wrapper: createWrapper() }
       );
 
@@ -119,10 +115,9 @@ describe('useLogStream', () => {
         refetch: vi.fn(),
       } as any);
 
-      renderHook(
-        () => useLogStream({ deviceId: '192.168.88.1', topics: [] }),
-        { wrapper: createWrapper() }
-      );
+      renderHook(() => useLogStream({ deviceId: '192.168.88.1', topics: [] }), {
+        wrapper: createWrapper(),
+      });
 
       expect(queries.useSystemLogs).toHaveBeenCalledWith(
         '192.168.88.1',
@@ -167,10 +162,9 @@ describe('useLogStream', () => {
         refetch: vi.fn(),
       } as any);
 
-      const { result } = renderHook(
-        () => useLogStream({ deviceId: '192.168.88.1', topics: [] }),
-        { wrapper: createWrapper() }
-      );
+      const { result } = renderHook(() => useLogStream({ deviceId: '192.168.88.1', topics: [] }), {
+        wrapper: createWrapper(),
+      });
 
       expect(result.current.loading).toBe(true);
       expect(result.current.logs).toEqual([]);
@@ -185,10 +179,9 @@ describe('useLogStream', () => {
         refetch: vi.fn(),
       } as any);
 
-      const { result } = renderHook(
-        () => useLogStream({ deviceId: '192.168.88.1', topics: [] }),
-        { wrapper: createWrapper() }
-      );
+      const { result } = renderHook(() => useLogStream({ deviceId: '192.168.88.1', topics: [] }), {
+        wrapper: createWrapper(),
+      });
 
       expect(result.current.error).toBe(mockError);
       expect(result.current.logs).toEqual([]);
@@ -204,10 +197,9 @@ describe('useLogStream', () => {
         refetch: vi.fn(),
       } as any);
 
-      renderHook(
-        () => useLogStream({ deviceId: '192.168.88.1', topics: [] }),
-        { wrapper: createWrapper() }
-      );
+      renderHook(() => useLogStream({ deviceId: '192.168.88.1', topics: [] }), {
+        wrapper: createWrapper(),
+      });
 
       expect(queries.useSystemLogs).toHaveBeenCalledWith(
         '192.168.88.1',
@@ -228,10 +220,9 @@ describe('useLogStream', () => {
         refetch: mockRefetch,
       } as any);
 
-      const { result } = renderHook(
-        () => useLogStream({ deviceId: '192.168.88.1', topics: [] }),
-        { wrapper: createWrapper() }
-      );
+      const { result } = renderHook(() => useLogStream({ deviceId: '192.168.88.1', topics: [] }), {
+        wrapper: createWrapper(),
+      });
 
       result.current.refetch();
       expect(mockRefetch).toHaveBeenCalled();
@@ -245,10 +236,9 @@ describe('useLogStream', () => {
         refetch: vi.fn(),
       } as any);
 
-      const { result } = renderHook(
-        () => useLogStream({ deviceId: '192.168.88.1', topics: [] }),
-        { wrapper: createWrapper() }
-      );
+      const { result } = renderHook(() => useLogStream({ deviceId: '192.168.88.1', topics: [] }), {
+        wrapper: createWrapper(),
+      });
 
       expect(result.current.totalCount).toBe(3);
       expect(result.current.hasMore).toBe(false);

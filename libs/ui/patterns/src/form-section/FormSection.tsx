@@ -100,7 +100,10 @@ export function FormSection({
   const content = (
     <>
       {/* Error summary */}
-      <FormSectionErrors errors={errors} className="mb-4" />
+      <FormSectionErrors
+        errors={errors}
+        className="mb-4"
+      />
 
       {/* Form fields (children) */}
       <div className="space-y-4">{children}</div>
@@ -109,16 +112,11 @@ export function FormSection({
 
   return (
     <Wrapper
-      className={cn(
-        'border-b border-border pb-6 space-y-6',
-        className
-      )}
+      className={cn('border-border space-y-6 border-b pb-6', className)}
       aria-labelledby={collapsible ? headingId : undefined}
     >
       {/* Hidden legend for fieldset accessibility */}
-      {useFieldset && (
-        <legend className="sr-only">{title}</legend>
-      )}
+      {useFieldset && <legend className="sr-only">{title}</legend>}
 
       {/* Visual header */}
       <FormSectionHeader
@@ -135,7 +133,7 @@ export function FormSection({
       />
 
       {/* Content area - animated for collapsible, static otherwise */}
-      {collapsible ? (
+      {collapsible ?
         <AnimatePresence initial={false}>
           {isExpanded && (
             <motion.div
@@ -150,11 +148,7 @@ export function FormSection({
             </motion.div>
           )}
         </AnimatePresence>
-      ) : (
-        <div id={contentId}>
-          {content}
-        </div>
-      )}
+      : <div id={contentId}>{content}</div>}
     </Wrapper>
   );
 }

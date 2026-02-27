@@ -104,8 +104,7 @@ export const StringOptions: Story = {
   parameters: {
     docs: {
       description: {
-        story:
-          'Options provided as simple strings rather than {value, label} objects.',
+        story: 'Options provided as simple strings rather than {value, label} objects.',
       },
     },
   },
@@ -129,8 +128,7 @@ export const Disabled: Story = {
   parameters: {
     docs: {
       description: {
-        story:
-          'Disabled mode. The dropdown and all remove buttons are non-interactive.',
+        story: 'Disabled mode. The dropdown and all remove buttons are non-interactive.',
       },
     },
   },
@@ -161,8 +159,7 @@ export const ManyOptions: Story = {
   parameters: {
     docs: {
       description: {
-        story:
-          'Long list of options. The dropdown scrolls internally to show all options.',
+        story: 'Long list of options. The dropdown scrolls internally to show all options.',
       },
     },
   },
@@ -219,7 +216,7 @@ export const Interactive: Story = {
               { value: 'au', label: 'Australia' },
             ]}
           />
-          <div className="text-xs text-muted-foreground">
+          <div className="text-muted-foreground text-xs">
             Selected {countries.length} countries:{' '}
             {countries.length > 0 ? countries.join(', ') : 'none'}
           </div>

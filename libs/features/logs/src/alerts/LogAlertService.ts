@@ -253,15 +253,12 @@ export class LogAlertService {
       critical: '🚨',
     };
 
-    const notification = new Notification(
-      `${severityEmoji[log.severity]} ${rule.name}`,
-      {
-        body: `[${log.topic}] ${log.message}`,
-        icon: '/favicon.ico',
-        tag: `log-alert-${log.topic}`,
-        requireInteraction: log.severity === 'critical',
-      }
-    );
+    const notification = new Notification(`${severityEmoji[log.severity]} ${rule.name}`, {
+      body: `[${log.topic}] ${log.message}`,
+      icon: '/favicon.ico',
+      tag: `log-alert-${log.topic}`,
+      requireInteraction: log.severity === 'critical',
+    });
 
     notification.onclick = () => {
       window.focus();
@@ -329,8 +326,7 @@ export class LogAlertService {
       this.updateRateLimit(log.topic);
 
       // Determine notification type
-      const notificationType =
-        rule.notificationType || this.settings.notificationPreference;
+      const notificationType = rule.notificationType || this.settings.notificationPreference;
 
       // Show notifications based on preference
       if (notificationType === 'browser' || notificationType === 'both') {
@@ -387,30 +383,3 @@ export function getLogAlertService(): LogAlertService {
   }
   return alertServiceInstance;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

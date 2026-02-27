@@ -1,8 +1,5 @@
 import { useState, useMemo, useCallback } from 'react';
-import {
-  useVlans,
-  useDeleteVlan,
-} from '@nasnet/api-client/queries';
+import { useVlans, useDeleteVlan } from '@nasnet/api-client/queries';
 import { toast } from 'sonner';
 
 /** Toast duration for deletion notification (10 seconds allows undo window) */
@@ -56,18 +53,16 @@ export function useVlanList(routerId: string) {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = useState('');
   const [parentInterfaceFilter, setParentInterfaceFilter] = useState<string | null>(null);
-  const [vlanIdRangeFilter, setVlanIdRangeFilter] = useState<{ min?: number; max?: number } | null>(null);
+  const [vlanIdRangeFilter, setVlanIdRangeFilter] = useState<{ min?: number; max?: number } | null>(
+    null
+  );
   const [selectedVlanId, setSelectedVlanId] = useState<string | null>(null);
 
   // Filtered VLANs
   const filteredVlans = useMemo(() => {
     return vlans
-      .filter((vlan: any) =>
-        vlan.name.toLowerCase().includes(searchQuery.toLowerCase())
-      )
-      .filter((vlan: any) =>
-        !parentInterfaceFilter || vlan.interface.id === parentInterfaceFilter
-      )
+      .filter((vlan: any) => vlan.name.toLowerCase().includes(searchQuery.toLowerCase()))
+      .filter((vlan: any) => !parentInterfaceFilter || vlan.interface.id === parentInterfaceFilter)
       .filter((vlan: any) => {
         if (!vlanIdRangeFilter) return true;
         const { min, max } = vlanIdRangeFilter;

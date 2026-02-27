@@ -10,7 +10,6 @@ import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi } from 'vitest';
 import { axe } from 'vitest-axe';
 
-
 import { OverlapWarning } from './overlap-warning';
 import { PrefixSelector } from './prefix-selector';
 import { SubnetCalculations } from './subnet-calculations';
@@ -46,9 +45,7 @@ describe('useSubnetInput', () => {
         <span data-testid="networkInfo">
           {state.networkInfo ? JSON.stringify(state.networkInfo) : ''}
         </span>
-        <span data-testid="overlap">
-          {state.overlap ? JSON.stringify(state.overlap) : ''}
-        </span>
+        <span data-testid="overlap">{state.overlap ? JSON.stringify(state.overlap) : ''}</span>
         <button onClick={() => state.setIP('10.0.0.0')}>Set IP</button>
         <button onClick={() => state.setPrefix(16)}>Set Prefix</button>
         <button onClick={() => state.setValue('172.16.0.0/12')}>Set Value</button>
@@ -70,9 +67,7 @@ describe('useSubnetInput', () => {
     it('validates 192.168.1.0/24 correctly', () => {
       render(<HookTester value="192.168.1.0/24" />);
 
-      const networkInfo = JSON.parse(
-        screen.getByTestId('networkInfo').textContent || '{}'
-      );
+      const networkInfo = JSON.parse(screen.getByTestId('networkInfo').textContent || '{}');
 
       expect(networkInfo.network).toBe('192.168.1.0');
       expect(networkInfo.broadcast).toBe('192.168.1.255');
@@ -98,9 +93,7 @@ describe('useSubnetInput', () => {
       render(<HookTester value="0.0.0.0/0" />);
 
       expect(screen.getByTestId('isValid')).toHaveTextContent('true');
-      const networkInfo = JSON.parse(
-        screen.getByTestId('networkInfo').textContent || '{}'
-      );
+      const networkInfo = JSON.parse(screen.getByTestId('networkInfo').textContent || '{}');
       expect(networkInfo.prefix).toBe(0);
     });
 
@@ -108,9 +101,7 @@ describe('useSubnetInput', () => {
       render(<HookTester value="192.168.1.1/32" />);
 
       expect(screen.getByTestId('isValid')).toHaveTextContent('true');
-      const networkInfo = JSON.parse(
-        screen.getByTestId('networkInfo').textContent || '{}'
-      );
+      const networkInfo = JSON.parse(screen.getByTestId('networkInfo').textContent || '{}');
       expect(networkInfo.hostCount).toBe(1);
     });
 
@@ -118,9 +109,7 @@ describe('useSubnetInput', () => {
       render(<HookTester value="192.168.1.0/31" />);
 
       expect(screen.getByTestId('isValid')).toHaveTextContent('true');
-      const networkInfo = JSON.parse(
-        screen.getByTestId('networkInfo').textContent || '{}'
-      );
+      const networkInfo = JSON.parse(screen.getByTestId('networkInfo').textContent || '{}');
       expect(networkInfo.hostCount).toBe(2);
     });
   });
@@ -130,7 +119,12 @@ describe('useSubnetInput', () => {
       const onChange = vi.fn();
       const user = userEvent.setup();
 
-      render(<HookTester value="192.168.1.0/24" onChange={onChange} />);
+      render(
+        <HookTester
+          value="192.168.1.0/24"
+          onChange={onChange}
+        />
+      );
 
       await user.click(screen.getByText('Set IP'));
       expect(onChange).toHaveBeenCalledWith('10.0.0.0/24');
@@ -140,7 +134,12 @@ describe('useSubnetInput', () => {
       const onChange = vi.fn();
       const user = userEvent.setup();
 
-      render(<HookTester value="192.168.1.0/24" onChange={onChange} />);
+      render(
+        <HookTester
+          value="192.168.1.0/24"
+          onChange={onChange}
+        />
+      );
 
       await user.click(screen.getByText('Set Prefix'));
       expect(onChange).toHaveBeenCalledWith('192.168.1.0/16');
@@ -150,7 +149,12 @@ describe('useSubnetInput', () => {
       const onChange = vi.fn();
       const user = userEvent.setup();
 
-      render(<HookTester value="192.168.1.0/24" onChange={onChange} />);
+      render(
+        <HookTester
+          value="192.168.1.0/24"
+          onChange={onChange}
+        />
+      );
 
       await user.click(screen.getByText('Set Value'));
       expect(onChange).toHaveBeenCalledWith('172.16.0.0/12');
@@ -160,7 +164,12 @@ describe('useSubnetInput', () => {
       const onChange = vi.fn();
       const user = userEvent.setup();
 
-      render(<HookTester value="192.168.1.0/24" onChange={onChange} />);
+      render(
+        <HookTester
+          value="192.168.1.0/24"
+          onChange={onChange}
+        />
+      );
 
       await user.click(screen.getByText('Clear'));
       expect(onChange).toHaveBeenCalledWith('');
@@ -175,19 +184,27 @@ describe('useSubnetInput', () => {
         resourceType: 'DHCP Pool',
       });
 
-      render(<HookTester value="192.168.1.0/24" checkOverlap={checkOverlap} />);
+      render(
+        <HookTester
+          value="192.168.1.0/24"
+          checkOverlap={checkOverlap}
+        />
+      );
 
       expect(checkOverlap).toHaveBeenCalledWith('192.168.1.0/24');
-      const overlap = JSON.parse(
-        screen.getByTestId('overlap').textContent || '{}'
-      );
+      const overlap = JSON.parse(screen.getByTestId('overlap').textContent || '{}');
       expect(overlap.overlappingCidr).toBe('192.168.0.0/16');
     });
 
     it('returns null overlap when no conflict', () => {
       const checkOverlap = vi.fn().mockReturnValue(null);
 
-      render(<HookTester value="10.0.0.0/8" checkOverlap={checkOverlap} />);
+      render(
+        <HookTester
+          value="10.0.0.0/8"
+          checkOverlap={checkOverlap}
+        />
+      );
 
       expect(screen.getByTestId('overlap')).toHaveTextContent('');
     });
@@ -195,7 +212,12 @@ describe('useSubnetInput', () => {
 
   describe('external error', () => {
     it('shows external error message', () => {
-      render(<HookTester value="192.168.1.0/24" error="Custom error message" />);
+      render(
+        <HookTester
+          value="192.168.1.0/24"
+          error="Custom error message"
+        />
+      );
 
       expect(screen.getByTestId('error')).toHaveTextContent('Custom error message');
       expect(screen.getByTestId('isValid')).toHaveTextContent('false');
@@ -205,9 +227,7 @@ describe('useSubnetInput', () => {
   describe('prefix options', () => {
     it('provides common prefix options', () => {
       expect(COMMON_PREFIX_OPTIONS).toHaveLength(7);
-      expect(COMMON_PREFIX_OPTIONS.map((o) => o.prefix)).toEqual([
-        8, 16, 22, 24, 28, 30, 32,
-      ]);
+      expect(COMMON_PREFIX_OPTIONS.map((o) => o.prefix)).toEqual([8, 16, 22, 24, 28, 30, 32]);
     });
 
     it('includes correct host counts', () => {
@@ -382,7 +402,12 @@ describe('OverlapWarning', () => {
     const onShowDetails = vi.fn();
     const user = userEvent.setup();
 
-    render(<OverlapWarning overlap={mockOverlap} onShowDetails={onShowDetails} />);
+    render(
+      <OverlapWarning
+        overlap={mockOverlap}
+        onShowDetails={onShowDetails}
+      />
+    );
 
     await user.click(screen.getByText('Overlap Detected'));
 

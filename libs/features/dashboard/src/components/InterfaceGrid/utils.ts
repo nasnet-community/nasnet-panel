@@ -48,10 +48,7 @@ export function formatTrafficRate(bitsPerSecond: number): string {
  */
 export function formatLinkSpeed(speed: string | undefined): string {
   if (!speed) return '';
-  return speed
-    .replace('Gbps', 'G')
-    .replace('Mbps', 'M')
-    .replace('Kbps', 'K');
+  return speed.replace('Gbps', 'G').replace('Mbps', 'M').replace('Kbps', 'K');
 }
 
 /**
@@ -93,14 +90,12 @@ export const INTERFACE_TYPE_PRIORITY: Record<InterfaceType, number> = {
  * //   { type: 'vpn', name: 'wg1' },
  * // ]
  */
-export function sortInterfacesByPriority<
-  T extends { type: InterfaceType; name: string },
->(interfaces: T[]): T[] {
+export function sortInterfacesByPriority<T extends { type: InterfaceType; name: string }>(
+  interfaces: T[]
+): T[] {
   return [...interfaces].sort((a, b) => {
-    const priorityDiff =
-      INTERFACE_TYPE_PRIORITY[a.type] - INTERFACE_TYPE_PRIORITY[b.type];
+    const priorityDiff = INTERFACE_TYPE_PRIORITY[a.type] - INTERFACE_TYPE_PRIORITY[b.type];
     if (priorityDiff !== 0) return priorityDiff;
     return a.name.localeCompare(b.name);
   });
 }
-

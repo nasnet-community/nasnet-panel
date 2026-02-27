@@ -6,11 +6,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { createActor } from 'xstate';
 
-import type {
-  ChangeSet,
-  ChangeSetItem,
-  ChangeSetValidationResult,
-} from '@nasnet/core/types';
+import type { ChangeSet, ChangeSetItem, ChangeSetValidationResult } from '@nasnet/core/types';
 
 import {
   createChangeSetMachine,
@@ -23,8 +19,9 @@ import {
 
 // Mock dependencies
 vi.mock('@nasnet/core/utils', () => ({
-  buildDependencyGraph: vi.fn((items: ChangeSetItem[]) =>
-    new Map(items.map((item) => [item.id, { id: item.id, dependencies: item.dependencies }]))
+  buildDependencyGraph: vi.fn(
+    (items: ChangeSetItem[]) =>
+      new Map(items.map((item) => [item.id, { id: item.id, dependencies: item.dependencies }]))
   ),
   topologicalSort: vi.fn(() => ({
     success: true,
@@ -388,7 +385,8 @@ describe('createChangeSetMachine', () => {
     });
 
     it('should set error details correctly', async () => {
-      const applyFn = vi.fn()
+      const applyFn = vi
+        .fn()
         .mockResolvedValueOnce({ confirmedState: {}, resourceUuid: 'uuid-1' })
         .mockRejectedValueOnce(new Error('Second item failed'));
 
@@ -465,9 +463,11 @@ describe('createChangeSetMachine', () => {
   describe('Cancellation', () => {
     it('should transition to cancelled from validating', async () => {
       // Create a slow validation that we can cancel
-      const validateFn = vi.fn().mockImplementation(() =>
-        new Promise((resolve) => setTimeout(() => resolve(createSuccessValidation()), 1000))
-      );
+      const validateFn = vi
+        .fn()
+        .mockImplementation(
+          () => new Promise((resolve) => setTimeout(() => resolve(createSuccessValidation()), 1000))
+        );
       const config = createMachineConfig({ validateChangeSet: validateFn });
       const machine = createChangeSetMachine(config);
       const actor = createActor(machine, {});

@@ -6,31 +6,49 @@
 Service specification within a template
 """
 type ServiceSpec {
-  """Service type (feature ID like 'tor', 'xray-core')"""
+  """
+  Service type (feature ID like 'tor', 'xray-core')
+  """
   serviceType: String!
 
-  """Instance name template (supports variables)"""
+  """
+  Instance name template (supports variables)
+  """
   name: String!
 
-  """Service-specific configuration overrides"""
+  """
+  Service-specific configuration overrides
+  """
   configOverrides: JSON
 
-  """Service dependencies (references other services in template)"""
+  """
+  Service dependencies (references other services in template)
+  """
   dependsOn: [String!]
 
-  """Memory limit in MB"""
+  """
+  Memory limit in MB
+  """
   memoryLimitMB: Int
 
-  """CPU shares"""
+  """
+  CPU shares
+  """
   cpuShares: Int
 
-  """Whether this service needs Virtual Interface Factory"""
+  """
+  Whether this service needs Virtual Interface Factory
+  """
   requiresBridge: Boolean
 
-  """VLAN ID (null = auto-allocate)"""
+  """
+  VLAN ID (null = auto-allocate)
+  """
   vlanID: Int
 
-  """Port mappings"""
+  """
+  Port mappings
+  """
   portMappings: [PortMapping!]
 }
 
@@ -38,16 +56,24 @@ type ServiceSpec {
 Port mapping specification
 """
 type PortMapping {
-  """Container port"""
+  """
+  Container port
+  """
   internal: Int!
 
-  """Host port (0 = auto-allocate)"""
+  """
+  Host port (0 = auto-allocate)
+  """
   external: Int!
 
-  """Protocol (tcp/udp)"""
+  """
+  Protocol (tcp/udp)
+  """
   protocol: String!
 
-  """Purpose description"""
+  """
+  Purpose description
+  """
   purpose: String
 }
 
@@ -55,19 +81,29 @@ type PortMapping {
 Routing suggestion for a template
 """
 type SuggestedRoutingRule {
-  """Device name pattern (e.g., 'all', 'phone-*')"""
+  """
+  Device name pattern (e.g., 'all', 'phone-*')
+  """
   devicePattern: String!
 
-  """Target service name from template"""
+  """
+  Target service name from template
+  """
   targetService: String!
 
-  """Protocol filter"""
+  """
+  Protocol filter
+  """
   protocol: String
 
-  """Destination port filter"""
+  """
+  Destination port filter
+  """
   destinationPort: Int
 
-  """Rule description"""
+  """
+  Rule description
+  """
   description: String!
 }
 
@@ -75,19 +111,29 @@ type SuggestedRoutingRule {
 Resource usage estimate
 """
 type ResourceEstimate {
-  """Total estimated memory in MB"""
+  """
+  Total estimated memory in MB
+  """
   totalMemoryMB: Int!
 
-  """Total CPU shares"""
+  """
+  Total CPU shares
+  """
   totalCPUShares: Int!
 
-  """Disk space needed in MB"""
+  """
+  Disk space needed in MB
+  """
   diskSpaceMB: Int!
 
-  """Number of network ports"""
+  """
+  Number of network ports
+  """
   networkPorts: Int!
 
-  """Number of VLANs required"""
+  """
+  Number of VLANs required
+  """
   vlansRequired: Int!
 }
 
@@ -95,60 +141,98 @@ type ResourceEstimate {
 Service template
 """
 type ServiceTemplate implements Node {
-  """Template ID (ULID)"""
+  """
+  Template ID (ULID)
+  """
   id: ID!
 
-  """Template name"""
+  """
+  Template name
+  """
   name: String!
 
-  """Detailed description"""
+  """
+  Detailed description
+  """
   description: String!
 
-  """Template category"""
+  """
+  Template category
+  """
   category: ServiceTemplateCategory!
 
-  """Deployment scope"""
+  """
+  Deployment scope
+  """
   scope: TemplateScope!
 
-  """Template version"""
+  """
+  Template version
+  """
   version: String!
 
-  """Whether this is a built-in template"""
+  """
+  Whether this is a built-in template
+  """
   isBuiltIn: Boolean!
 
-  """Template author"""
+  """
+  Template author
+  """
   author: String
 
-  """Router ID (null for built-in templates)"""
+  """
+  Router ID (null for built-in templates)
+  """
   routerID: String
 
-  """Services to deploy"""
+  """
+  Services to deploy
+  """
   services: [ServiceSpec!]!
 
-  """Configuration variables"""
+  """
+  Configuration variables
+  """
   configVariables: [TemplateVariable!]!
 
-  """Routing suggestions"""
+  """
+  Routing suggestions
+  """
   suggestedRouting: [SuggestedRoutingRule!]
 
-  """Resource estimates"""
+  """
+  Resource estimates
+  """
   estimatedResources: ResourceEstimate
 
-  """Search tags"""
+  """
+  Search tags
+  """
   tags: [String!]
 
-  """Prerequisites"""
+  """
+  Prerequisites
+  """
   prerequisites: [String!]
 
-  """Documentation"""
+  """
+  Documentation
+  """
   documentation: String
 
-  """Usage examples"""
+  """
+  Usage examples
+  """
   examples: [String!]
 
-  """Creation timestamp"""
+  """
+  Creation timestamp
+  """
   createdAt: DateTime!
 
-  """Last update timestamp"""
+  """
+  Last update timestamp
+  """
   updatedAt: DateTime!
 }

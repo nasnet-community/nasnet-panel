@@ -71,13 +71,7 @@ export interface UseMultiSelectReturn {
 export function useMultiSelect<T extends SortableItemData>(
   options: UseMultiSelectOptions<T>
 ): UseMultiSelectReturn {
-  const {
-    items,
-    enabled = true,
-    maxSelection,
-    onSelectionChange,
-    initialSelection = [],
-  } = options;
+  const { items, enabled = true, maxSelection, onSelectionChange, initialSelection = [] } = options;
 
   // ============================================================================
   // State
@@ -114,10 +108,7 @@ export function useMultiSelect<T extends SortableItemData>(
   // Selection Methods
   // ============================================================================
 
-  const isSelected = useCallback(
-    (id: UniqueIdentifier) => selectedIds.has(id),
-    [selectedIds]
-  );
+  const isSelected = useCallback((id: UniqueIdentifier) => selectedIds.has(id), [selectedIds]);
 
   const canAddToSelection = useCallback(
     (count = 1) => {
@@ -127,13 +118,10 @@ export function useMultiSelect<T extends SortableItemData>(
     [selectedIds.size, maxSelection]
   );
 
-  const select = useCallback(
-    (id: UniqueIdentifier) => {
-      setSelectedIds(new Set([id]));
-      lastSelectedRef.current = id;
-    },
-    []
-  );
+  const select = useCallback((id: UniqueIdentifier) => {
+    setSelectedIds(new Set([id]));
+    lastSelectedRef.current = id;
+  }, []);
 
   const addToSelection = useCallback(
     (id: UniqueIdentifier) => {

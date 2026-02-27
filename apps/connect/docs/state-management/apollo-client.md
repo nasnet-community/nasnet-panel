@@ -2,7 +2,9 @@
 
 Source: `libs/api-client/core/src/apollo/`
 
-Apollo Client is configured as a singleton instance exported from `libs/api-client/core/src/apollo/apollo-client.ts`. It assembles a link chain, an in-memory cache with custom type policies, and default fetch-policy options.
+Apollo Client is configured as a singleton instance exported from
+`libs/api-client/core/src/apollo/apollo-client.ts`. It assembles a link chain, an in-memory cache
+with custom type policies, and default fetch-policy options.
 
 ---
 
@@ -29,14 +31,14 @@ const link = from([errorLink, retryLink, splitLink]);
 
 Each link has a focused responsibility:
 
-| Link | File | Responsibility |
-|------|------|----------------|
-| `errorLink` | `apollo-error-link.ts` | Catch GraphQL and network errors, show notifications, clear auth on 401 |
-| `retryLink` | `apollo-retry-link.ts` | Retry transient network failures with exponential backoff |
-| `splitLink` | `apollo-client.ts` (inline) | Route subscriptions to WebSocket, everything else to HTTP |
-| `authLink` | `apollo-auth-link.ts` | Inject `X-Router-Id` and `Authorization` headers |
-| `httpLink` | `apollo-client.ts` (inline) | Send HTTP requests to `/graphql` with credentials included |
-| `wsLink` | `apollo-ws-client.ts` | WebSocket transport for subscriptions via `graphql-ws` |
+| Link        | File                        | Responsibility                                                          |
+| ----------- | --------------------------- | ----------------------------------------------------------------------- |
+| `errorLink` | `apollo-error-link.ts`      | Catch GraphQL and network errors, show notifications, clear auth on 401 |
+| `retryLink` | `apollo-retry-link.ts`      | Retry transient network failures with exponential backoff               |
+| `splitLink` | `apollo-client.ts` (inline) | Route subscriptions to WebSocket, everything else to HTTP               |
+| `authLink`  | `apollo-auth-link.ts`       | Inject `X-Router-Id` and `Authorization` headers                        |
+| `httpLink`  | `apollo-client.ts` (inline) | Send HTTP requests to `/graphql` with credentials included              |
+| `wsLink`    | `apollo-ws-client.ts`       | WebSocket transport for subscriptions via `graphql-ws`                  |
 
 ---
 
@@ -46,8 +48,11 @@ Each link has a focused responsibility:
 
 Injects two headers on every query and mutation:
 
-- `X-Router-Id` — the currently active router ID, read from `useConnectionStore.getState().currentRouterId`
-- `Authorization` — either a `Bearer <jwt>` from `useAuthStore` (via `getAuthToken()`), or `Basic <base64>` from router credentials stored in `sessionStorage` keyed as `router-credentials-<routerId>`
+- `X-Router-Id` — the currently active router ID, read from
+  `useConnectionStore.getState().currentRouterId`
+- `Authorization` — either a `Bearer <jwt>` from `useAuthStore` (via `getAuthToken()`), or
+  `Basic <base64>` from router credentials stored in `sessionStorage` keyed as
+  `router-credentials-<routerId>`
 
 ```ts
 export const authLink = setContext((_, { headers }) => {
@@ -64,7 +69,8 @@ export const authLink = setContext((_, { headers }) => {
 });
 ```
 
-The auth priority is: JWT Bearer token first, Basic auth second. This enables both the JWT-authenticated admin flow and the legacy Basic auth flow used for direct router access.
+The auth priority is: JWT Bearer token first, Basic auth second. This enables both the
+JWT-authenticated admin flow and the legacy Basic auth flow used for direct router access.
 
 ---
 
@@ -76,21 +82,21 @@ Handles all GraphQL and network errors centrally:
 
 **GraphQL error codes handled:**
 
-| Code | Action |
-|------|--------|
-| `UNAUTHENTICATED` | Calls `useAuthStore.getState().clearAuth()`, dispatches `auth:expired` event |
-| `FORBIDDEN` | Shows "Access denied" notification |
-| `NOT_FOUND` | Shows "Not found" warning notification |
-| `VALIDATION_FAILED` (and A5xx variants) | Skipped — left to form-level handling |
-| Other codes | Maps through `getErrorInfo()` for user-friendly messages |
+| Code                                    | Action                                                                       |
+| --------------------------------------- | ---------------------------------------------------------------------------- |
+| `UNAUTHENTICATED`                       | Calls `useAuthStore.getState().clearAuth()`, dispatches `auth:expired` event |
+| `FORBIDDEN`                             | Shows "Access denied" notification                                           |
+| `NOT_FOUND`                             | Shows "Not found" warning notification                                       |
+| `VALIDATION_FAILED` (and A5xx variants) | Skipped — left to form-level handling                                        |
+| Other codes                             | Maps through `getErrorInfo()` for user-friendly messages                     |
 
 **HTTP status codes handled:**
 
-| Status | Action |
-|--------|--------|
-| 401 | Same as `UNAUTHENTICATED` |
-| 403 | Shows "Access denied" notification |
-| Other | Shows generic "Network error" notification |
+| Status | Action                                     |
+| ------ | ------------------------------------------ |
+| 401    | Same as `UNAUTHENTICATED`                  |
+| 403    | Shows "Access denied" notification         |
+| Other  | Shows generic "Network error" notification |
 
 Custom error links can be created via `createErrorLink(options)` for testing or isolated components.
 
@@ -105,16 +111,16 @@ Retries **network errors only** (not GraphQL errors). Client errors (4xx) are ne
 ```ts
 export const retryLink = new RetryLink({
   delay: {
-    initial: 300,   // ms before first retry
-    max: 3000,      // ms maximum delay
-    jitter: true,   // adds random jitter
+    initial: 300, // ms before first retry
+    max: 3000, // ms maximum delay
+    jitter: true, // adds random jitter
   },
   attempts: {
     max: 3,
     retryIf: (error) => {
       const isNetworkError = !!error && !error.result;
-      const isClientError = typeof error?.statusCode === 'number'
-        && error.statusCode >= 400 && error.statusCode < 500;
+      const isClientError =
+        typeof error?.statusCode === 'number' && error.statusCode >= 400 && error.statusCode < 500;
       return isNetworkError && !isClientError;
     },
   },
@@ -131,17 +137,15 @@ Defined inline in `apollo-client.ts`. Routes operations based on type:
 const splitLink = split(
   ({ query }) => {
     const definition = getMainDefinition(query);
-    return (
-      definition.kind === 'OperationDefinition' &&
-      definition.operation === 'subscription'
-    );
+    return definition.kind === 'OperationDefinition' && definition.operation === 'subscription';
   },
   wsLink,
   authLink.concat(httpLink)
 );
 ```
 
-Note that `authLink` is only composed with `httpLink`, not `wsLink`. The WebSocket client handles its own authentication via `connectionParams`.
+Note that `authLink` is only composed with `httpLink`, not `wsLink`. The WebSocket client handles
+its own authentication via `connectionParams`.
 
 ---
 
@@ -149,11 +153,13 @@ Note that `authLink` is only composed with `httpLink`, not `wsLink`. The WebSock
 
 `libs/api-client/core/src/apollo/apollo-ws-client.ts`
 
-Uses `graphql-ws` with the `createClient` factory. The default export `wsClient` is created with `createWsClient()`.
+Uses `graphql-ws` with the `createClient` factory. The default export `wsClient` is created with
+`createWsClient()`.
 
 **URL detection:** Automatically uses `wss:` when the page is served over HTTPS, `ws:` otherwise.
 
-**Authentication:** On each connection (and reconnection), `connectionParams` is called to re-read current credentials:
+**Authentication:** On each connection (and reconnection), `connectionParams` is called to re-read
+current credentials:
 
 ```ts
 connectionParams: () => {
@@ -166,24 +172,24 @@ connectionParams: () => {
 **Reconnection strategy:**
 
 | Attempt | Delay (approx.) |
-|---------|-----------------|
-| 1 | ~1 s |
-| 2 | ~2 s |
-| 3 | ~4 s |
-| 4 | ~8 s |
-| 5 | ~16 s |
-| 6+ | ~30 s (capped) |
+| ------- | --------------- |
+| 1       | ~1 s            |
+| 2       | ~2 s            |
+| 3       | ~4 s            |
+| 4       | ~8 s            |
+| 5       | ~16 s           |
+| 6+      | ~30 s (capped)  |
 
 Maximum 10 attempts. Does **not** retry on close codes `4401` (auth failed) or `4403` (forbidden).
 
 **Connection lifecycle events** update `useConnectionStore`:
 
-| Event | Store action |
-|-------|-------------|
-| `connecting` | `setWsStatus('connecting')` |
-| `connected` | `setWsStatus('connected')`, `resetReconnection()` |
+| Event              | Store action                                                   |
+| ------------------ | -------------------------------------------------------------- |
+| `connecting`       | `setWsStatus('connecting')`                                    |
+| `connected`        | `setWsStatus('connected')`, `resetReconnection()`              |
 | `closed` (unclean) | `setWsStatus('error', reason)`, `incrementReconnectAttempts()` |
-| `error` | `setWsStatus('error', message)` |
+| `error`            | `setWsStatus('error', message)`                                |
 
 ---
 
@@ -192,12 +198,14 @@ Maximum 10 attempts. Does **not** retry on close codes `4401` (auth failed) or `
 `libs/api-client/core/src/apollo/apollo-client.ts`
 
 The `InMemoryCache` uses:
+
 - `possibleTypes` from codegen output for union/interface resolution
 - Custom type policies for resources and pagination
 
 ### Resource Type Policies
 
-All resources are keyed by `uuid` (ULID), not `id`. This is required because the Universal State v2 model uses ULIDs as stable identifiers.
+All resources are keyed by `uuid` (ULID), not `id`. This is required because the Universal State v2
+model uses ULIDs as stable identifiers.
 
 ```ts
 Resource: {
@@ -229,12 +237,12 @@ Resource: {
 
 **Merge strategy by layer:**
 
-| Layer | Strategy | Reason |
-|-------|----------|--------|
-| `runtime` | Merge | Real-time metrics; incoming may be partial updates |
-| `telemetry` | Merge + append | History should accumulate |
-| `deployment` | Replace | Applied state snapshot; must be authoritative |
-| `validation` | Replace | Latest validation result is the only relevant one |
+| Layer        | Strategy       | Reason                                             |
+| ------------ | -------------- | -------------------------------------------------- |
+| `runtime`    | Merge          | Real-time metrics; incoming may be partial updates |
+| `telemetry`  | Merge + append | History should accumulate                          |
+| `deployment` | Replace        | Applied state snapshot; must be authoritative      |
+| `validation` | Replace        | Latest validation result is the only relevant one  |
 
 ### Pagination Policies
 
@@ -299,7 +307,7 @@ import { initializeCachePersistence, apolloCache } from '@nasnet/api-client/core
 // Call before first render to hydrate cache from storage
 await initializeCachePersistence(apolloCache, {
   maxSize: 5 * 1024 * 1024, // 5 MB
-  debounce: 1000,           // Write to storage after 1s of inactivity
+  debounce: 1000, // Write to storage after 1s of inactivity
   key: 'nasnet-apollo-cache',
 });
 ```
@@ -321,7 +329,8 @@ apolloClient.clearStore();
 
 `libs/api-client/core/src/apollo/apollo-provider.tsx`
 
-Wraps the app with `ApolloProvider` using the pre-configured `apolloClient` singleton. Import from `@nasnet/api-client/core`.
+Wraps the app with `ApolloProvider` using the pre-configured `apolloClient` singleton. Import from
+`@nasnet/api-client/core`.
 
 ---
 
@@ -329,4 +338,5 @@ Wraps the app with `ApolloProvider` using the pre-configured `apolloClient` sing
 
 `libs/api-client/core/src/apollo/apollo-mock-provider.tsx`
 
-Used in Storybook and unit tests to provide a mock Apollo client without making real network requests. Accepts `mocks` for `MockedProvider`.
+Used in Storybook and unit tests to provide a mock Apollo client without making real network
+requests. Accepts `mocks` for `MockedProvider`.

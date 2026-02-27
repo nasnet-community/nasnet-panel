@@ -79,7 +79,7 @@ export const ConfigurationInput = memo(function ConfigurationInput({
       // Validate file type
       const validExtensions = ['.rsc', '.txt', '.conf'];
       const fileExtension = '.' + file.name.split('.').pop()?.toLowerCase();
-      
+
       if (!validExtensions.includes(fileExtension)) {
         // Still allow the file, just warn
         console.warn('Unexpected file extension:', fileExtension);
@@ -189,15 +189,18 @@ export const ConfigurationInput = memo(function ConfigurationInput({
   return (
     <div className={cn('space-y-component-md', className)}>
       {/* External Link */}
-      <div className="flex items-center gap-component-sm p-component-md bg-secondary/10 rounded-lg border border-border">
-        <ExternalLink className="w-4 h-4 text-secondary flex-shrink-0" aria-hidden="true" />
-        <p className="text-sm text-foreground">
+      <div className="gap-component-sm p-component-md bg-secondary/10 border-border flex items-center rounded-lg border">
+        <ExternalLink
+          className="text-secondary h-4 w-4 flex-shrink-0"
+          aria-hidden="true"
+        />
+        <p className="text-foreground text-sm">
           Get your configuration from{' '}
           <a
             href="https://connect.starlink4iran.com/"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-secondary hover:underline font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-sm"
+            className="text-secondary focus-visible:ring-ring rounded-sm font-medium hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
           >
             NASNET Connect
           </a>
@@ -205,7 +208,11 @@ export const ConfigurationInput = memo(function ConfigurationInput({
       </div>
 
       {/* Mode Tabs */}
-      <div className="flex gap-component-sm p-component-sm bg-muted rounded-lg" role="tablist" aria-label="Configuration input method">
+      <div
+        className="gap-component-sm p-component-sm bg-muted flex rounded-lg"
+        role="tablist"
+        aria-label="Configuration input method"
+      >
         <button
           type="button"
           role="tab"
@@ -213,13 +220,16 @@ export const ConfigurationInput = memo(function ConfigurationInput({
           aria-controls="panel-upload"
           onClick={() => setMode('upload')}
           disabled={disabled}
-          className={`min-h-[44px] flex-1 flex items-center justify-center gap-component-sm px-component-sm py-component-sm rounded-md text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${
-            mode === 'upload'
-              ? 'bg-card text-foreground shadow-sm'
-              : 'text-muted-foreground hover:text-foreground'
-          } ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+          className={`gap-component-sm px-component-sm py-component-sm focus-visible:ring-ring flex min-h-[44px] flex-1 items-center justify-center rounded-md text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${
+            mode === 'upload' ?
+              'bg-card text-foreground shadow-sm'
+            : 'text-muted-foreground hover:text-foreground'
+          } ${disabled ? 'cursor-not-allowed opacity-50' : ''}`}
         >
-          <Upload className="w-4 h-4" aria-hidden="true" />
+          <Upload
+            className="h-4 w-4"
+            aria-hidden="true"
+          />
           Upload File
         </button>
         <button
@@ -229,20 +239,23 @@ export const ConfigurationInput = memo(function ConfigurationInput({
           aria-controls="panel-paste"
           onClick={() => setMode('paste')}
           disabled={disabled}
-          className={`min-h-[44px] flex-1 flex items-center justify-center gap-component-sm px-component-sm py-component-sm rounded-md text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${
-            mode === 'paste'
-              ? 'bg-card text-foreground shadow-sm'
-              : 'text-muted-foreground hover:text-foreground'
-          } ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+          className={`gap-component-sm px-component-sm py-component-sm focus-visible:ring-ring flex min-h-[44px] flex-1 items-center justify-center rounded-md text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${
+            mode === 'paste' ?
+              'bg-card text-foreground shadow-sm'
+            : 'text-muted-foreground hover:text-foreground'
+          } ${disabled ? 'cursor-not-allowed opacity-50' : ''}`}
         >
-          <Clipboard className="w-4 h-4" aria-hidden="true" />
+          <Clipboard
+            className="h-4 w-4"
+            aria-hidden="true"
+          />
           Paste Config
         </button>
       </div>
 
       {/* Input Area */}
       <AnimatePresence mode="wait">
-        {mode === 'upload' ? (
+        {mode === 'upload' ?
           <motion.div
             key="upload"
             initial={{ opacity: 0, y: 10 }}
@@ -269,47 +282,44 @@ export const ConfigurationInput = memo(function ConfigurationInput({
               onDragLeave={handleDragLeave}
               onDrop={handleDrop}
               onClick={handleBrowseClick}
-              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleBrowseClick(); } }}
-              tabIndex={0}
-              className={`
-                relative p-component-xl border-2 border-dashed rounded-xl cursor-pointer
-                transition-all duration-200
-                focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2
-                ${
-                  isDragOver
-                    ? 'border-primary bg-primary/5'
-                    : 'border-border hover:border-primary/60 hover:bg-muted/50'
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  handleBrowseClick();
                 }
-                ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
-                ${error ? 'border-error' : ''}
-              `}
+              }}
+              tabIndex={0}
+              className={`p-component-xl focus-visible:ring-ring relative cursor-pointer rounded-xl border-2 border-dashed transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${
+                isDragOver ?
+                  'border-primary bg-primary/5'
+                : 'border-border hover:border-primary/60 hover:bg-muted/50'
+              } ${disabled ? 'cursor-not-allowed opacity-50' : ''} ${error ? 'border-error' : ''} `}
             >
               <div className="flex flex-col items-center text-center">
-                {fileName ? (
+                {fileName ?
                   <>
-                    <div className="w-12 h-12 rounded-full bg-success/10 flex items-center justify-center mb-3">
-                      <FileText className="w-6 h-6 text-success" aria-hidden="true" />
+                    <div className="bg-success/10 mb-3 flex h-12 w-12 items-center justify-center rounded-full">
+                      <FileText
+                        className="text-success h-6 w-6"
+                        aria-hidden="true"
+                      />
                     </div>
-                    <p className="text-sm font-medium text-foreground">
-                      {fileName}
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-1">
+                    <p className="text-foreground text-sm font-medium">{fileName}</p>
+                    <p className="text-muted-foreground mt-1 text-xs">
                       Click to replace or drop a new file
                     </p>
                   </>
-                ) : (
-                  <>
-                    <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center mb-3">
-                      <Upload className="w-6 h-6 text-muted-foreground" aria-hidden="true" />
+                : <>
+                    <div className="bg-muted mb-3 flex h-12 w-12 items-center justify-center rounded-full">
+                      <Upload
+                        className="text-muted-foreground h-6 w-6"
+                        aria-hidden="true"
+                      />
                     </div>
-                    <p className="text-sm font-medium text-foreground">
-                      Drop .rsc file here
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      or click to browse
-                    </p>
+                    <p className="text-foreground text-sm font-medium">Drop .rsc file here</p>
+                    <p className="text-muted-foreground mt-1 text-xs">or click to browse</p>
                   </>
-                )}
+                }
               </div>
 
               {/* Drag overlay */}
@@ -317,17 +327,14 @@ export const ConfigurationInput = memo(function ConfigurationInput({
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  className="absolute inset-0 flex items-center justify-center bg-primary/10 rounded-xl"
+                  className="bg-primary/10 absolute inset-0 flex items-center justify-center rounded-xl"
                 >
-                  <p className="text-primary font-medium">
-                    Drop to upload
-                  </p>
+                  <p className="text-primary font-medium">Drop to upload</p>
                 </motion.div>
               )}
             </div>
           </motion.div>
-        ) : (
-          <motion.div
+        : <motion.div
             key="paste"
             id="panel-paste"
             role="tabpanel"
@@ -344,9 +351,12 @@ export const ConfigurationInput = memo(function ConfigurationInput({
                 onClick={handlePasteFromClipboard}
                 disabled={disabled}
                 aria-label="Paste configuration from clipboard"
-                className="min-h-[44px] flex items-center gap-component-sm px-component-sm py-component-sm text-xs font-medium text-secondary hover:bg-secondary/10 rounded-md transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                className="gap-component-sm px-component-sm py-component-sm text-secondary hover:bg-secondary/10 focus-visible:ring-ring flex min-h-[44px] items-center rounded-md text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-50"
               >
-                <Clipboard className="w-3.5 h-3.5" aria-hidden="true" />
+                <Clipboard
+                  className="h-3.5 w-3.5"
+                  aria-hidden="true"
+                />
                 Paste from clipboard
               </button>
             </div>
@@ -359,15 +369,7 @@ export const ConfigurationInput = memo(function ConfigurationInput({
                 disabled={disabled}
                 aria-label="Router configuration content"
                 placeholder="Paste your RouterOS configuration here..."
-                className={`
-                  w-full h-48 p-component-md font-mono text-sm
-                  bg-muted
-                  border rounded-xl resize-none
-                  placeholder:text-muted-foreground
-                  focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2
-                  ${error ? 'border-error' : 'border-border'}
-                  ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
-                `}
+                className={`p-component-md bg-muted placeholder:text-muted-foreground focus-visible:ring-ring h-48 w-full resize-none rounded-xl border font-mono text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${error ? 'border-error' : 'border-border'} ${disabled ? 'cursor-not-allowed opacity-50' : ''} `}
               />
 
               {/* Clear button */}
@@ -376,35 +378,50 @@ export const ConfigurationInput = memo(function ConfigurationInput({
                   type="button"
                   onClick={handleClear}
                   aria-label="Clear configuration content"
-                  className="absolute top-2 right-2 p-component-sm min-h-[44px] min-w-[44px] flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted rounded-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  className="p-component-sm text-muted-foreground hover:text-foreground hover:bg-muted focus-visible:ring-ring absolute right-2 top-2 flex min-h-[44px] min-w-[44px] items-center justify-center rounded-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
                 >
-                  <X className="w-4 h-4" aria-hidden="true" />
+                  <X
+                    className="h-4 w-4"
+                    aria-hidden="true"
+                  />
                 </button>
               )}
             </div>
 
             {/* Character count */}
             <div className="flex justify-end">
-              <span className="text-xs text-muted-foreground font-mono" role="status">
+              <span
+                className="text-muted-foreground font-mono text-xs"
+                role="status"
+              >
                 {charCount.toLocaleString()} characters
               </span>
             </div>
           </motion.div>
-        )}
+        }
       </AnimatePresence>
 
       {/* Error message */}
       {error && (
-        <p className="text-sm text-error flex items-center gap-component-sm" role="alert">
-          <span className="w-1 h-1 rounded-full bg-error" aria-hidden="true" />
+        <p
+          className="text-error gap-component-sm flex items-center text-sm"
+          role="alert"
+        >
+          <span
+            className="bg-error h-1 w-1 rounded-full"
+            aria-hidden="true"
+          />
           {error}
         </p>
       )}
 
       {/* File name indicator */}
       {fileName && mode === 'paste' && (
-        <p className="text-xs text-muted-foreground flex items-center gap-component-sm">
-          <FileText className="w-3.5 h-3.5" aria-hidden="true" />
+        <p className="text-muted-foreground gap-component-sm flex items-center text-xs">
+          <FileText
+            className="h-3.5 w-3.5"
+            aria-hidden="true"
+          />
           Loaded from: {fileName}
         </p>
       )}
@@ -413,4 +430,3 @@ export const ConfigurationInput = memo(function ConfigurationInput({
 });
 
 ConfigurationInput.displayName = 'ConfigurationInput';
-

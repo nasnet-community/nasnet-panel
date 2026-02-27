@@ -124,9 +124,7 @@ export interface UseRouterStatusSubscriptionReturn {
  * }
  * ```
  */
-export function useRouterStatusSubscription(
-  routerId: string
-): UseRouterStatusSubscriptionReturn {
+export function useRouterStatusSubscription(routerId: string): UseRouterStatusSubscriptionReturn {
   const { data, loading, error } = useSubscription<RouterStatusSubscriptionData>(
     ROUTER_STATUS_CHANGED_SUBSCRIPTION,
     {

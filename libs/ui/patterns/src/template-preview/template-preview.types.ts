@@ -120,12 +120,9 @@ export const InterfaceVariableSchema = z
 /**
  * Zod schema for SUBNET variable type
  */
-export const SubnetVariableSchema = z.string().refine(
-  (value) => isValidCIDR(value),
-  {
-    message: 'Invalid subnet format (use CIDR notation, e.g., 192.168.1.0/24)',
-  }
-);
+export const SubnetVariableSchema = z.string().refine((value) => isValidCIDR(value), {
+  message: 'Invalid subnet format (use CIDR notation, e.g., 192.168.1.0/24)',
+});
 
 /**
  * Zod schema for IP variable type
@@ -194,9 +191,7 @@ export function createTemplateVariablesSchema(
     const baseSchema = getVariableSchema(variable.type);
 
     // Make optional if not required
-    shape[variable.name] = variable.isRequired
-      ? baseSchema
-      : baseSchema.optional();
+    shape[variable.name] = variable.isRequired ? baseSchema : baseSchema.optional();
   });
 
   return z.object(shape);

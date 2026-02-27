@@ -17,7 +17,6 @@ import { fn, within, userEvent } from 'storybook/test';
 
 import type { ServicePortDefinition } from '@nasnet/core/types';
 
-
 import { ServicePortsTable } from './ServicePortsTable';
 import { useCustomServices } from '../hooks/useCustomServices';
 
@@ -118,7 +117,7 @@ const meta: Meta<typeof ServicePortsTable> = {
   },
   decorators: [
     (Story) => (
-      <div className="min-h-screen bg-background p-8">
+      <div className="bg-background min-h-screen p-8">
         <Story />
       </div>
     ),
@@ -135,7 +134,8 @@ export const Default: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Default view showing only built-in services. Actions are disabled for read-only services.',
+        story:
+          'Default view showing only built-in services. Actions are disabled for read-only services.',
       },
     },
     mockData: [
@@ -269,16 +269,19 @@ export const LoadingState: Story = {
           <div className="relative flex-1">
             <input
               type="text"
-              className="w-full rounded-md border bg-background px-10 py-2"
+              className="bg-background w-full rounded-md border px-10 py-2"
               disabled
             />
           </div>
-          <div className="h-10 w-[150px] rounded-md border bg-muted" />
-          <div className="h-10 w-[150px] rounded-md border bg-muted" />
+          <div className="bg-muted h-10 w-[150px] rounded-md border" />
+          <div className="bg-muted h-10 w-[150px] rounded-md border" />
         </div>
         <div className="space-y-2">
           {[...Array(5)].map((_, i) => (
-            <div key={i} className="h-12 rounded-md bg-muted animate-pulse" />
+            <div
+              key={i}
+              className="bg-muted h-12 animate-pulse rounded-md"
+            />
           ))}
         </div>
       </div>
@@ -351,4 +354,3 @@ export const DesktopWithFilters: Story = {
     await userEvent.click(tcpOption);
   },
 };
-

@@ -22,7 +22,8 @@ import {
   selectFutureActions,
   selectCanUndo,
   selectCanRedo,
- formatShortcutKeys } from '@nasnet/state/stores';
+  formatShortcutKeys,
+} from '@nasnet/state/stores';
 
 // =============================================================================
 // Types
@@ -128,9 +129,7 @@ export interface UseHistoryPanelReturn {
  * }
  * ```
  */
-export function useHistoryPanel(
-  options: UseHistoryPanelOptions = {}
-): UseHistoryPanelReturn {
+export function useHistoryPanel(options: UseHistoryPanelOptions = {}): UseHistoryPanelReturn {
   const { onClose, onAnnounce } = options;
 
   // Store selectors
@@ -149,9 +148,7 @@ export function useHistoryPanel(
 
   // Detect platform for shortcut display
   const isMac = useMemo(
-    () =>
-      typeof navigator !== 'undefined' &&
-      navigator.platform.toLowerCase().includes('mac'),
+    () => typeof navigator !== 'undefined' && navigator.platform.toLowerCase().includes('mac'),
     []
   );
 
@@ -336,8 +333,7 @@ export function useHistoryPanel(
     () => ({
       role: 'listbox' as const,
       'aria-label': 'Undo history',
-      'aria-activedescendant':
-        focusedIndex >= 0 ? `history-item-${focusedIndex}` : undefined,
+      'aria-activedescendant': focusedIndex >= 0 ? `history-item-${focusedIndex}` : undefined,
     }),
     [focusedIndex]
   );

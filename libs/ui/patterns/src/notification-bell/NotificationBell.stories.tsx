@@ -209,8 +209,7 @@ export const MobilePresenter: Story = {
     },
     docs: {
       description: {
-        story:
-          'Mobile presenter using Sheet (bottom drawer) with large touch targets.',
+        story: 'Mobile presenter using Sheet (bottom drawer) with large touch targets.',
       },
     },
   },

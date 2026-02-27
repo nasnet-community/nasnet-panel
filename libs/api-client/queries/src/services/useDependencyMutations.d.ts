@@ -3,17 +3,17 @@ import type { DependencyType } from './useDependencies';
  * Input for adding a dependency relationship
  */
 export interface AddDependencyInput {
-    fromInstanceId: string;
-    toInstanceId: string;
-    dependencyType: DependencyType;
-    autoStart: boolean;
-    healthTimeoutSeconds: number;
+  fromInstanceId: string;
+  toInstanceId: string;
+  dependencyType: DependencyType;
+  autoStart: boolean;
+  healthTimeoutSeconds: number;
 }
 /**
  * Input for removing a dependency relationship
  */
 export interface RemoveDependencyInput {
-    dependencyId: string;
+  dependencyId: string;
 }
 /**
  * Hook providing all dependency management mutations
@@ -47,35 +47,37 @@ export interface RemoveDependencyInput {
  * ```
  */
 export declare function useDependencyMutations(): {
-    /**
-     * Add a new dependency relationship between service instances
-     * Pre-validates that the relationship won't create a cycle
-     */
-    addDependency: (input: AddDependencyInput) => Promise<import("@apollo/client").FetchResult<any>>;
-    /**
-     * Remove an existing dependency relationship
-     */
-    removeDependency: (input: RemoveDependencyInput) => Promise<import("@apollo/client").FetchResult<any>>;
-    /**
-     * Manually trigger the boot sequence for auto-start instances
-     * Useful for testing or re-running boot sequence after failures
-     */
-    triggerBootSequence: () => Promise<import("@apollo/client").FetchResult<any>>;
-    /**
-     * Loading states for each mutation
-     */
-    loading: {
-        add: boolean;
-        remove: boolean;
-        trigger: boolean;
-    };
-    /**
-     * Error states for each mutation
-     */
-    errors: {
-        add: import("@apollo/client").ApolloError | undefined;
-        remove: import("@apollo/client").ApolloError | undefined;
-        trigger: import("@apollo/client").ApolloError | undefined;
-    };
+  /**
+   * Add a new dependency relationship between service instances
+   * Pre-validates that the relationship won't create a cycle
+   */
+  addDependency: (input: AddDependencyInput) => Promise<import('@apollo/client').FetchResult<any>>;
+  /**
+   * Remove an existing dependency relationship
+   */
+  removeDependency: (
+    input: RemoveDependencyInput
+  ) => Promise<import('@apollo/client').FetchResult<any>>;
+  /**
+   * Manually trigger the boot sequence for auto-start instances
+   * Useful for testing or re-running boot sequence after failures
+   */
+  triggerBootSequence: () => Promise<import('@apollo/client').FetchResult<any>>;
+  /**
+   * Loading states for each mutation
+   */
+  loading: {
+    add: boolean;
+    remove: boolean;
+    trigger: boolean;
+  };
+  /**
+   * Error states for each mutation
+   */
+  errors: {
+    add: import('@apollo/client').ApolloError | undefined;
+    remove: import('@apollo/client').ApolloError | undefined;
+    trigger: import('@apollo/client').ApolloError | undefined;
+  };
 };
 //# sourceMappingURL=useDependencyMutations.d.ts.map

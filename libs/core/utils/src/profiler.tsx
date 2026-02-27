@@ -30,11 +30,7 @@
  * ```
  */
 
-import React, {
-  Profiler,
-  type ProfilerOnRenderCallback,
-  type PropsWithChildren,
-} from 'react';
+import React, { Profiler, type ProfilerOnRenderCallback, type PropsWithChildren } from 'react';
 
 /**
  * 60fps frame budget in milliseconds
@@ -140,7 +136,10 @@ export const ProfilerWrapper = React.memo(function ProfilerWrapper({
   };
 
   return (
-    <Profiler id={id} onRender={handleRender}>
+    <Profiler
+      id={id}
+      onRender={handleRender}
+    >
       {children}
     </Profiler>
   );
@@ -237,7 +236,10 @@ export function withProfiler<P extends object>(
   options?: Omit<ProfilerWrapperProps, 'id' | 'children'>
 ): React.ComponentType<P> {
   const Wrapped = React.memo((props: P) => (
-    <ProfilerWrapper id={id} {...options}>
+    <ProfilerWrapper
+      id={id}
+      {...options}
+    >
       <Component {...props} />
     </ProfilerWrapper>
   ));

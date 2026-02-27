@@ -1,9 +1,12 @@
 # Platform Presenters Pattern
 
-NasNetConnect uses a **Headless + Platform Presenters** architecture as the core responsive design strategy. This is not standard CSS-only responsive design — it is a deliberate component architecture that separates business logic from rendering, then renders entirely different component trees per platform.
+NasNetConnect uses a **Headless + Platform Presenters** architecture as the core responsive design
+strategy. This is not standard CSS-only responsive design — it is a deliberate component
+architecture that separates business logic from rendering, then renders entirely different component
+trees per platform.
 
-**Authoritative reference:** `Docs/design/PLATFORM_PRESENTER_GUIDE.md`
-**ADR reference:** ADR-018 (Headless Platform Presenters)
+**Authoritative reference:** `Docs/design/PLATFORM_PRESENTER_GUIDE.md` **ADR reference:** ADR-018
+(Headless Platform Presenters)
 
 ## Why This Pattern
 
@@ -12,15 +15,16 @@ MikroTik administrators use the app in very different contexts:
 - **In server rooms on mobile** — needs large touch targets, simplified flows, bottom navigation
 - **At a desk on desktop** — needs dense data tables, keyboard shortcuts, collapsible sidebars
 
-A single CSS-responsive component cannot adequately serve both. Instead, the architecture provides entirely separate presenter components per platform, sharing only the business logic layer.
+A single CSS-responsive component cannot adequately serve both. Instead, the architecture provides
+entirely separate presenter components per platform, sharing only the business logic layer.
 
 ## Three Platform Targets
 
-| Platform | Viewport | Breakpoints | UX Paradigm |
-|----------|----------|-------------|-------------|
-| **Mobile** | `<640px` | `xs` | Consumer-grade simplicity, bottom tab bar, 44px touch targets, swipe gestures |
-| **Tablet** | `640–1024px` | `sm`, `md` | Hybrid, collapsible sidebar, balanced density |
-| **Desktop** | `>1024px` | `lg`, `xl` | Pro-grade power user, dense data tables, keyboard shortcuts, fixed sidebar |
+| Platform    | Viewport     | Breakpoints | UX Paradigm                                                                   |
+| ----------- | ------------ | ----------- | ----------------------------------------------------------------------------- |
+| **Mobile**  | `<640px`     | `xs`        | Consumer-grade simplicity, bottom tab bar, 44px touch targets, swipe gestures |
+| **Tablet**  | `640–1024px` | `sm`, `md`  | Hybrid, collapsible sidebar, balanced density                                 |
+| **Desktop** | `>1024px`    | `lg`, `xl`  | Pro-grade power user, dense data tables, keyboard shortcuts, fixed sidebar    |
 
 ## Breakpoint System
 
@@ -34,7 +38,8 @@ lg  1024-1279px → desktop
 xl  1280px+    → desktop
 ```
 
-The `useBreakpoint()` hook uses `ResizeObserver` on `document.documentElement` (more efficient than `window.resize`) with 100ms debounce to prevent excessive re-renders.
+The `useBreakpoint()` hook uses `ResizeObserver` on `document.documentElement` (more efficient than
+`window.resize`) with 100ms debounce to prevent excessive re-renders.
 
 ## The usePlatform() Hook
 
@@ -60,6 +65,7 @@ export function ResourceCard<T>(props: ResourceCardProps<T>) {
 ```
 
 The hook maps breakpoints to platforms:
+
 - `xs` → `'mobile'`
 - `sm`, `md` → `'tablet'`
 - `lg`, `xl` → `'desktop'`
@@ -68,16 +74,16 @@ It is SSR-compatible: defaults to `'desktop'` (1024px) when `window` is undefine
 
 ### Additional Platform Hooks
 
-| Hook | Returns | Use Case |
-|------|---------|---------|
-| `usePlatform()` | `'mobile' \| 'tablet' \| 'desktop'` | Primary platform detection |
-| `usePlatformWithBreakpoint()` | `{ platform, breakpoint }` | Need both coarse and fine-grained info |
-| `useIsMobile()` | `boolean` | Simple mobile check |
-| `useIsTablet()` | `boolean` | Simple tablet check |
-| `useIsDesktop()` | `boolean` | Simple desktop check |
-| `useIsTouchPlatform()` | `boolean` | True for mobile and tablet |
-| `usePlatformConfig(config)` | `T` | Select config object by platform |
-| `useBreakpoint()` | `'xs' \| 'sm' \| 'md' \| 'lg' \| 'xl'` | Fine-grained breakpoint |
+| Hook                          | Returns                                | Use Case                               |
+| ----------------------------- | -------------------------------------- | -------------------------------------- |
+| `usePlatform()`               | `'mobile' \| 'tablet' \| 'desktop'`    | Primary platform detection             |
+| `usePlatformWithBreakpoint()` | `{ platform, breakpoint }`             | Need both coarse and fine-grained info |
+| `useIsMobile()`               | `boolean`                              | Simple mobile check                    |
+| `useIsTablet()`               | `boolean`                              | Simple tablet check                    |
+| `useIsDesktop()`              | `boolean`                              | Simple desktop check                   |
+| `useIsTouchPlatform()`        | `boolean`                              | True for mobile and tablet             |
+| `usePlatformConfig(config)`   | `T`                                    | Select config object by platform       |
+| `useBreakpoint()`             | `'xs' \| 'sm' \| 'md' \| 'lg' \| 'xl'` | Fine-grained breakpoint                |
 
 ### usePlatformConfig
 
@@ -85,19 +91,25 @@ For components that change configuration rather than entire rendering trees:
 
 ```tsx
 const layout = usePlatformConfig({
-  mobile:  { columns: 1, gap: 'sm', compact: true },
-  tablet:  { columns: 2, gap: 'md', compact: false },
+  mobile: { columns: 1, gap: 'sm', compact: true },
+  tablet: { columns: 2, gap: 'md', compact: false },
   desktop: { columns: 3, gap: 'lg', compact: false },
 });
 
-return <Grid columns={layout.columns} gap={layout.gap} />;
+return (
+  <Grid
+    columns={layout.columns}
+    gap={layout.gap}
+  />
+);
 ```
 
 ## PlatformProvider
 
 **Source:** `libs/ui/layouts/src/responsive-shell/PlatformProvider.tsx`
 
-`PlatformProvider` wraps the application to supply platform detection via React Context. It supports manual override for testing or previewing specific platform layouts.
+`PlatformProvider` wraps the application to supply platform detection via React Context. It supports
+manual override for testing or previewing specific platform layouts.
 
 ```tsx
 // Root of the app (apps/connect/src/app/providers/index.tsx)
@@ -135,12 +147,13 @@ Declarative rendering based on platform:
 
 ### PlatformDebugger
 
-Development-only overlay showing current platform with override buttons. Only visible when `NODE_ENV === 'development'`:
+Development-only overlay showing current platform with override buttons. Only visible when
+`NODE_ENV === 'development'`:
 
 ```tsx
 <PlatformProvider>
   <App />
-  <PlatformDebugger />  {/* Shows M/T/D buttons in bottom-right corner */}
+  <PlatformDebugger /> {/* Shows M/T/D buttons in bottom-right corner */}
 </PlatformProvider>
 ```
 
@@ -169,7 +182,10 @@ export function useResourceCard<T>(props: ResourceCardProps<T>) {
 export function ResourceCardMobile<T>(props: ResourceCardProps<T>) {
   const { item, handleSelect, handleDelete } = useResourceCard(props);
   return (
-    <div className="p-4 min-h-[44px]" onClick={handleSelect}>
+    <div
+      className="min-h-[44px] p-4"
+      onClick={handleSelect}
+    >
       {/* Simplified mobile layout */}
     </div>
   );
@@ -179,7 +195,10 @@ export function ResourceCardMobile<T>(props: ResourceCardProps<T>) {
 export function ResourceCardDesktop<T>(props: ResourceCardProps<T>) {
   const { item, handleSelect, handleDelete } = useResourceCard(props);
   return (
-    <div className="p-2 hover:bg-muted cursor-pointer" onClick={handleSelect}>
+    <div
+      className="hover:bg-muted cursor-pointer p-2"
+      onClick={handleSelect}
+    >
       {/* Dense desktop layout with more columns */}
     </div>
   );
@@ -207,7 +226,8 @@ export function ResourceCard<T>(props: ResourceCardProps<T>) {
 
 ## Layout-Level Platform Adaptation
 
-The `ResponsiveShell` in `libs/ui/layouts/src/responsive-shell/ResponsiveShell.tsx` is the top-level layout adapter. It selects between two fundamentally different layout shells:
+The `ResponsiveShell` in `libs/ui/layouts/src/responsive-shell/ResponsiveShell.tsx` is the top-level
+layout adapter. It selects between two fundamentally different layout shells:
 
 ```
 Mobile (<640px):
@@ -226,6 +246,7 @@ Tablet/Desktop (640px+):
 ```
 
 Desktop sidebar behavior:
+
 - **Tablet:** Always expanded (ignores collapse state)
 - **Desktop:** Respects `sidebarCollapsed` prop (persisted in Zustand store)
 - **Keyboard shortcut:** `Cmd+B` / `Ctrl+B` toggles sidebar
@@ -235,6 +256,7 @@ Desktop sidebar behavior:
 **Source:** `libs/ui/layouts/src/mobile-app-shell/mobile-app-shell.tsx`
 
 Key mobile-specific behaviors:
+
 - `pb-16` on `<main>` reserves space for the 64px bottom navigation bar
 - `safe-area-inset-bottom` support for notched devices (iOS)
 - 44px minimum touch targets on all interactive elements
@@ -242,7 +264,8 @@ Key mobile-specific behaviors:
 
 **Source:** `libs/ui/layouts/src/bottom-navigation/`
 
-The `BottomNavigation` component renders a fixed bottom tab bar (the primary navigation on mobile). Navigation items use icons with optional labels.
+The `BottomNavigation` component renders a fixed bottom tab bar (the primary navigation on mobile).
+Navigation items use icons with optional labels.
 
 ## Desktop Sidebar Details
 
@@ -253,9 +276,11 @@ Expanded:  w-64 (256px) — shows icons + labels
 Collapsed: w-16 (64px)  — shows icons only
 ```
 
-Width transitions use CSS `transition-all` with duration from `ANIMATION_DURATIONS.SIDEBAR`. Reduced motion is respected: `prefersReducedMotion ? '0ms' : durationMs`.
+Width transitions use CSS `transition-all` with duration from `ANIMATION_DURATIONS.SIDEBAR`. Reduced
+motion is respected: `prefersReducedMotion ? '0ms' : durationMs`.
 
-The `CollapsibleSidebarContext` provides `isCollapsed` to child components so navigation items can hide their labels:
+The `CollapsibleSidebarContext` provides `isCollapsed` to child components so navigation items can
+hide their labels:
 
 ```tsx
 function NavItem({ icon, label }) {
@@ -271,7 +296,8 @@ function NavItem({ icon, label }) {
 
 ## Wiring Sidebar State
 
-The sidebar state is managed in a Zustand store at `libs/state/stores/`. The `ui/layouts` library cannot import from `state/` (violates library boundaries), so state is passed via props:
+The sidebar state is managed in a Zustand store at `libs/state/stores/`. The `ui/layouts` library
+cannot import from `state/` (violates library boundaries), so state is passed via props:
 
 ```tsx
 // apps/connect — wires Zustand store to ResponsiveShell
@@ -316,4 +342,5 @@ export const DesktopView: Story = {
 };
 ```
 
-For unit tests, pass `forcePlatform` prop directly to `ResponsiveShell`, or use `PlatformProvider initialPlatform` in RTL renders.
+For unit tests, pass `forcePlatform` prop directly to `ResponsiveShell`, or use
+`PlatformProvider initialPlatform` in RTL renders.

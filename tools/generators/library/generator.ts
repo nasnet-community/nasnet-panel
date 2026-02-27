@@ -40,8 +40,7 @@ function normalizeOptions(options: LibraryGeneratorSchema): NormalizedOptions {
   const libNames = names(options.name);
 
   // Determine scope from directory or explicit option
-  const scopeTag =
-    options.scope || DIRECTORY_TO_SCOPE[options.directory] || 'shared';
+  const scopeTag = options.scope || DIRECTORY_TO_SCOPE[options.directory] || 'shared';
 
   // Build project name from directory structure
   const dirParts = options.directory.replace('libs/', '').split('/');
@@ -100,15 +99,10 @@ export default async function libraryGenerator(
   const normalizedOptions = normalizeOptions(options);
 
   // Generate files from templates
-  generateFiles(
-    tree,
-    path.join(__dirname, 'files'),
-    normalizedOptions.projectRoot,
-    {
-      ...normalizedOptions,
-      tmpl: '', // Used to strip .template extension
-    }
-  );
+  generateFiles(tree, path.join(__dirname, 'files'), normalizedOptions.projectRoot, {
+    ...normalizedOptions,
+    tmpl: '', // Used to strip .template extension
+  });
 
   // Update tsconfig.base.json paths
   if (!options.dryRun) {

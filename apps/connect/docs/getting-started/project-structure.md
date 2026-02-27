@@ -7,7 +7,8 @@ title: Project Structure
 
 ## Monorepo Layout
 
-NasNetConnect is a **Nx monorepo**. The `apps/connect` frontend is one application within a larger workspace:
+NasNetConnect is a **Nx monorepo**. The `apps/connect` frontend is one application within a larger
+workspace:
 
 ```
 NasNet/
@@ -174,7 +175,8 @@ apps/connect/
 
 ### Strict Dependency Rules
 
-The monorepo enforces a one-way dependency hierarchy. **Higher layers may import from lower layers but not vice versa:**
+The monorepo enforces a one-way dependency hierarchy. **Higher layers may import from lower layers
+but not vice versa:**
 
 ```
 apps/connect
@@ -188,43 +190,45 @@ libs/core/*
 (nothing — pure utilities only)
 ```
 
-**Key rule:** Feature libraries (`libs/features/*`) **cannot** import from other feature libraries. Cross-feature communication goes through shared libs or the app layer.
+**Key rule:** Feature libraries (`libs/features/*`) **cannot** import from other feature libraries.
+Cross-feature communication goes through shared libs or the app layer.
 
 ### Library Quick Reference
 
-| Library | Import Path | Contents |
-|---------|------------|----------|
-| UI Primitives | `@nasnet/ui/primitives` | shadcn/ui + Radix components (~40) |
-| UI Patterns | `@nasnet/ui/patterns` | Composite components with platform presenters (~56) |
-| UI Layouts | `@nasnet/ui/layouts` | Page shells, responsive layout wrappers |
-| UI Utils | `@nasnet/ui/utils` | `cn()` utility, class merging |
-| Design Tokens | `@nasnet/ui/tokens` | Animation tokens (TypeScript) |
-| Token CSS | `@nasnet/ui/tokens/variables.css` | CSS custom properties (compiled from tokens.json) |
-| Core Types | `@nasnet/core/types` | Shared TypeScript interfaces |
-| Core Utils | `@nasnet/core/utils` | Pure utility functions |
-| Core Constants | `@nasnet/core/constants` | App constants, well-known ports, routes |
-| Core Forms | `@nasnet/core/forms` | Form utilities, validation helpers |
-| Core i18n | `@nasnet/core/i18n` | i18next setup, providers, hooks |
-| API Client Core | `@nasnet/api-client/core` | Apollo Client setup, links, cache config |
-| API Client Queries | `@nasnet/api-client/queries` | Domain-specific GraphQL hooks |
-| API Client Generated | `@nasnet/api-client/generated` | Auto-generated types, hooks, Zod schemas |
-| State Stores | `@nasnet/state/stores` | Zustand stores (UI, sidebar, notifications) |
-| Feature: Dashboard | `@nasnet/features/dashboard` | Dashboard feature module |
-| Feature: Firewall | `@nasnet/features/firewall` | Firewall feature module |
-| Feature: Wireless | `@nasnet/features/wireless` | Wi-Fi feature module |
-| Feature: Network | `@nasnet/features/network` | Network feature module |
-| Feature: Alerts | `@nasnet/features/alerts` | Alerts and notification components |
-| Feature: Logs | `@nasnet/features/logs` | Log viewer feature module |
-| Feature: Diagnostics | `@nasnet/features/diagnostics` | Diagnostics feature module |
-| Feature: Services | `@nasnet/features/services` | Plugin marketplace feature module |
-| Feature: Config Import | `@nasnet/features/configuration-import` | Config import feature module |
-| Feature: Router Discovery | `@nasnet/features/router-discovery` | Router discovery feature module |
+| Library                   | Import Path                             | Contents                                            |
+| ------------------------- | --------------------------------------- | --------------------------------------------------- |
+| UI Primitives             | `@nasnet/ui/primitives`                 | shadcn/ui + Radix components (~40)                  |
+| UI Patterns               | `@nasnet/ui/patterns`                   | Composite components with platform presenters (~56) |
+| UI Layouts                | `@nasnet/ui/layouts`                    | Page shells, responsive layout wrappers             |
+| UI Utils                  | `@nasnet/ui/utils`                      | `cn()` utility, class merging                       |
+| Design Tokens             | `@nasnet/ui/tokens`                     | Animation tokens (TypeScript)                       |
+| Token CSS                 | `@nasnet/ui/tokens/variables.css`       | CSS custom properties (compiled from tokens.json)   |
+| Core Types                | `@nasnet/core/types`                    | Shared TypeScript interfaces                        |
+| Core Utils                | `@nasnet/core/utils`                    | Pure utility functions                              |
+| Core Constants            | `@nasnet/core/constants`                | App constants, well-known ports, routes             |
+| Core Forms                | `@nasnet/core/forms`                    | Form utilities, validation helpers                  |
+| Core i18n                 | `@nasnet/core/i18n`                     | i18next setup, providers, hooks                     |
+| API Client Core           | `@nasnet/api-client/core`               | Apollo Client setup, links, cache config            |
+| API Client Queries        | `@nasnet/api-client/queries`            | Domain-specific GraphQL hooks                       |
+| API Client Generated      | `@nasnet/api-client/generated`          | Auto-generated types, hooks, Zod schemas            |
+| State Stores              | `@nasnet/state/stores`                  | Zustand stores (UI, sidebar, notifications)         |
+| Feature: Dashboard        | `@nasnet/features/dashboard`            | Dashboard feature module                            |
+| Feature: Firewall         | `@nasnet/features/firewall`             | Firewall feature module                             |
+| Feature: Wireless         | `@nasnet/features/wireless`             | Wi-Fi feature module                                |
+| Feature: Network          | `@nasnet/features/network`              | Network feature module                              |
+| Feature: Alerts           | `@nasnet/features/alerts`               | Alerts and notification components                  |
+| Feature: Logs             | `@nasnet/features/logs`                 | Log viewer feature module                           |
+| Feature: Diagnostics      | `@nasnet/features/diagnostics`          | Diagnostics feature module                          |
+| Feature: Services         | `@nasnet/features/services`             | Plugin marketplace feature module                   |
+| Feature: Config Import    | `@nasnet/features/configuration-import` | Config import feature module                        |
+| Feature: Router Discovery | `@nasnet/features/router-discovery`     | Router discovery feature module                     |
 
 ---
 
 ## Import Aliases
 
-All aliases are defined in `apps/connect/vite.config.ts` and resolve to absolute paths in the monorepo:
+All aliases are defined in `apps/connect/vite.config.ts` and resolve to absolute paths in the
+monorepo:
 
 ```typescript
 '@/'                              → 'apps/connect/src/'
@@ -272,15 +276,15 @@ import { cn } from '@nasnet/ui/utils';
 
 ## Key Files to Know
 
-| File | Purpose |
-|------|---------|
-| `src/main.tsx` | App entry point: creates the TanStack Router instance, initializes i18n |
-| `src/routeTree.gen.ts` | Auto-generated by TanStack Router — never edit manually |
-| `src/routes/__root.tsx` | Root layout: wraps all routes with providers, shell, header, sidebar |
-| `src/app/providers/index.tsx` | Root `<Providers>` component — 8 nested context providers |
-| `vite.config.ts` | All import aliases, dev server proxy, build chunk splitting |
-| `tsconfig.app.json` | TypeScript config — strict mode, path aliases |
-| `vitest.config.ts` | Test runner config — jsdom environment, setup files, coverage |
+| File                          | Purpose                                                                 |
+| ----------------------------- | ----------------------------------------------------------------------- |
+| `src/main.tsx`                | App entry point: creates the TanStack Router instance, initializes i18n |
+| `src/routeTree.gen.ts`        | Auto-generated by TanStack Router — never edit manually                 |
+| `src/routes/__root.tsx`       | Root layout: wraps all routes with providers, shell, header, sidebar    |
+| `src/app/providers/index.tsx` | Root `<Providers>` component — 8 nested context providers               |
+| `vite.config.ts`              | All import aliases, dev server proxy, build chunk splitting             |
+| `tsconfig.app.json`           | TypeScript config — strict mode, path aliases                           |
+| `vitest.config.ts`            | Test runner config — jsdom environment, setup files, coverage           |
 
 ---
 

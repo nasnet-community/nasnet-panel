@@ -1,7 +1,7 @@
 {
   "id": "feature-modules/firewall",
   "title": "Firewall Feature",
-  "description": "The firewall feature (libs/features/firewall/) provides comprehensive MikroTik",
+  "description": "The firewall feature (libs/features/firewall/) provides comprehensive MikroTik firewall management",
   "source": "@site/../connect/docs/feature-modules/firewall.md",
   "sourceDirName": "feature-modules",
   "slug": "/feature-modules/firewall",

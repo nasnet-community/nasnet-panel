@@ -10,8 +10,8 @@ import type { RouterService } from '@nasnet/core/types';
  * Follows TanStack Query best practices for hierarchical keys
  */
 export declare const servicesKeys: {
-    all: readonly ["services"];
-    list: (routerIp: string) => readonly ["services", "list", string];
+  all: readonly ['services'];
+  list: (routerIp: string) => readonly ['services', 'list', string];
 };
 /**
  * Hook to fetch router services
@@ -26,8 +26,11 @@ export declare const servicesKeys: {
  * @returns Query result with RouterService[] data
  */
 interface UseServicesOptions {
-    enabled?: boolean;
+  enabled?: boolean;
 }
-export declare function useServices(routerIp: string, options?: UseServicesOptions): UseQueryResult<RouterService[], Error>;
+export declare function useServices(
+  routerIp: string,
+  options?: UseServicesOptions
+): UseQueryResult<RouterService[], Error>;
 export {};
 //# sourceMappingURL=useServices.d.ts.map

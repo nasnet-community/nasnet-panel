@@ -1,6 +1,7 @@
 # Network Configuration Guide
 
-Cross-cutting guide for network types, IP validation, subnet calculation, port lookup, and VPN protocols.
+Cross-cutting guide for network types, IP validation, subnet calculation, port lookup, and VPN
+protocols.
 
 ## Table of Contents
 
@@ -15,7 +16,8 @@ Cross-cutting guide for network types, IP validation, subnet calculation, port l
 
 ## Network Type Hierarchy
 
-NasNetConnect organizes network configuration into a clear hierarchy: **WAN → LAN → VPN → Interfaces**.
+NasNetConnect organizes network configuration into a clear hierarchy: **WAN → LAN → VPN →
+Interfaces**.
 
 ### WAN (Wide Area Network) - `types/router/wan.ts`
 
@@ -41,18 +43,19 @@ export interface WANLink {
 
 **WAN Types:**
 
-| Type | Purpose | Key Fields |
-|------|---------|-----------|
-| **PPPoE** | DSL/dial-up connections | interface, username, password, profile |
-| **DHCP** | ISP-assigned dynamic IP | interface, usePeerDNS, hasDefaultRoute |
+| Type       | Purpose                 | Key Fields                                     |
+| ---------- | ----------------------- | ---------------------------------------------- |
+| **PPPoE**  | DSL/dial-up connections | interface, username, password, profile         |
+| **DHCP**   | ISP-assigned dynamic IP | interface, usePeerDNS, hasDefaultRoute         |
 | **Static** | Manual static IP config | interface, address (CIDR), gateway, dnsServers |
-| **LTE** | Mobile/cellular backup | interface, apn, networkNameLabel |
+| **LTE**    | Mobile/cellular backup  | interface, apn, networkNameLabel               |
 
 **Example - Static WAN:**
+
 ```typescript
 const staticWAN: WANStaticConfig = {
   interface: 'ether1',
-  address: '203.0.113.50/24',  // CIDR format required
+  address: '203.0.113.50/24', // CIDR format required
   gateway: '203.0.113.1',
   dnsServers: ['8.8.8.8', '8.8.4.4'],
 };
@@ -71,7 +74,7 @@ export interface LANInterface {
   name: string;
   type: 'ethernet' | 'bridge' | 'vlan';
   isEnabled: boolean;
-  mtu?: number;  // Defaults to 1500
+  mtu?: number; // Defaults to 1500
 }
 
 // Bridge connecting multiple interfaces
@@ -79,7 +82,7 @@ export interface LANBridge {
   id: string;
   name: string;
   isEnabled: boolean;
-  ports: readonly string[];           // ether1, ether2, etc.
+  ports: readonly string[]; // ether1, ether2, etc.
   hasAdministrativePathCost: boolean;
   vlanMode?: 'on' | 'off';
 }
@@ -88,13 +91,14 @@ export interface LANBridge {
 export interface LANNetwork {
   id: string;
   name: string;
-  address: string;                    // CIDR: "192.168.88.0/24"
-  interface: string;                  // Which interface
+  address: string; // CIDR: "192.168.88.0/24"
+  interface: string; // Which interface
   isDisabled: boolean;
 }
 ```
 
 **Example - Bridge Setup:**
+
 ```typescript
 const bridge: LANBridge = {
   id: 'br0',
@@ -123,18 +127,18 @@ Low-level interface abstractions with status tracking:
 
 ```typescript
 export type InterfaceType =
-  | 'ether'       // Ethernet port
-  | 'bridge'      // Bridge interface
-  | 'vlan'        // VLAN subinterface
-  | 'wireless'    // Wireless interface
-  | 'wlan'        // WiFi SSID
-  | 'pppoe'       // PPP over Ethernet
-  | 'vpn'         // VPN tunnel
-  | 'wireguard'   // WireGuard tunnel
-  | 'vrrp'        // Virtual Router Redundancy
-  | 'bond'        // Bond/link aggregation
-  | 'loopback'    // Loopback interface
-  | 'lte'         // Cellular modem
+  | 'ether' // Ethernet port
+  | 'bridge' // Bridge interface
+  | 'vlan' // VLAN subinterface
+  | 'wireless' // Wireless interface
+  | 'wlan' // WiFi SSID
+  | 'pppoe' // PPP over Ethernet
+  | 'vpn' // VPN tunnel
+  | 'wireguard' // WireGuard tunnel
+  | 'vrrp' // Virtual Router Redundancy
+  | 'bond' // Bond/link aggregation
+  | 'loopback' // Loopback interface
+  | 'lte' // Cellular modem
   | 'other';
 
 export interface NetworkInterface {
@@ -151,8 +155,8 @@ export interface NetworkInterface {
 // Traffic statistics
 export interface TrafficStatistics {
   interfaceId: string;
-  txBytes: number;    // Transmitted
-  rxBytes: number;    // Received
+  txBytes: number; // Transmitted
+  rxBytes: number; // Received
   txPackets: number;
   rxPackets: number;
   txErrors: number;
@@ -184,14 +188,14 @@ export interface VPNConnection {
 
 **VPN Protocol Differences:**
 
-| Protocol | Mode | Key Strength | Config Complexity |
-|----------|------|--------------|------------------|
-| **WireGuard** | Client/Server | Modern, fast, simple | ⭐ Very simple |
-| **OpenVPN** | Client/Server | Wide compatibility | ⭐⭐ Moderate |
-| **L2TP** | Client/Server | Layer 2 tunneling | ⭐⭐⭐ Complex |
-| **PPTP** | Client/Server | Legacy, fast | ⭐ Very simple |
-| **SSTP** | Client/Server | Windows support | ⭐⭐ Moderate |
-| **IKEv2** | Client/Server | Mobile-friendly | ⭐⭐⭐ Complex |
+| Protocol      | Mode          | Key Strength         | Config Complexity |
+| ------------- | ------------- | -------------------- | ----------------- |
+| **WireGuard** | Client/Server | Modern, fast, simple | ⭐ Very simple    |
+| **OpenVPN**   | Client/Server | Wide compatibility   | ⭐⭐ Moderate     |
+| **L2TP**      | Client/Server | Layer 2 tunneling    | ⭐⭐⭐ Complex    |
+| **PPTP**      | Client/Server | Legacy, fast         | ⭐ Very simple    |
+| **SSTP**      | Client/Server | Windows support      | ⭐⭐ Moderate     |
+| **IKEv2**     | Client/Server | Mobile-friendly      | ⭐⭐⭐ Complex    |
 
 ---
 
@@ -303,8 +307,8 @@ const PortSchema = z
 // Example: WAN Static Config Form
 const WANStaticConfigSchema = z.object({
   interface: z.string().min(1),
-  address: IPAddressSchema,        // Must be CIDR format
-  gateway: IPAddressSchema,        // Just the IP (no CIDR)
+  address: IPAddressSchema, // Must be CIDR format
+  gateway: IPAddressSchema, // Just the IP (no CIDR)
   dnsServers: z.array(z.string()),
 });
 ```
@@ -356,17 +360,17 @@ const info = getSubnetInfo('192.168.1.0/24');
 import { getHostCount, getPrefixMask } from '@nasnet/core/utils/network';
 
 // Small office
-getHostCount(25);  // 126 hosts, netmask: 255.255.255.128
+getHostCount(25); // 126 hosts, netmask: 255.255.255.128
 // - 1 gateway + 1 broadcast = 126 usable
 
 // Medium office
-getHostCount(24);  // 254 hosts, netmask: 255.255.255.0
+getHostCount(24); // 254 hosts, netmask: 255.255.255.0
 
 // Large network
-getHostCount(22);  // 1022 hosts, netmask: 255.255.252.0
+getHostCount(22); // 1022 hosts, netmask: 255.255.252.0
 
 // Point-to-point VPN (RFC 3021)
-getHostCount(31);  // 2 hosts, netmask: 255.255.255.254
+getHostCount(31); // 2 hosts, netmask: 255.255.255.254
 // - No network/broadcast addresses needed
 // - Used for router-to-router links
 ```
@@ -377,12 +381,12 @@ getHostCount(31);  // 2 hosts, netmask: 255.255.255.254
 import { isIPInSubnet } from '@nasnet/core/utils/network';
 
 // Verify client is in pool
-isIPInSubnet('192.168.1.100', '192.168.1.0/24');  // true
-isIPInSubnet('192.168.2.100', '192.168.1.0/24');  // false
+isIPInSubnet('192.168.1.100', '192.168.1.0/24'); // true
+isIPInSubnet('192.168.2.100', '192.168.1.0/24'); // false
 
 // Guest network verification
-isIPInSubnet('10.0.0.50', '10.0.0.0/25');  // true (first half)
-isIPInSubnet('10.0.0.150', '10.0.0.0/25');  // false (second half, different subnet)
+isIPInSubnet('10.0.0.50', '10.0.0.0/25'); // true (first half)
+isIPInSubnet('10.0.0.150', '10.0.0.0/25'); // false (second half, different subnet)
 ```
 
 ### Example 4: CIDR to Netmask Conversion
@@ -391,18 +395,18 @@ isIPInSubnet('10.0.0.150', '10.0.0.0/25');  // false (second half, different sub
 import { getPrefixMask, getMaskPrefix } from '@nasnet/core/utils/network';
 
 // CIDR notation → netmask
-getPrefixMask(8);   // "255.0.0.0"
-getPrefixMask(16);  // "255.255.0.0"
-getPrefixMask(24);  // "255.255.255.0"
-getPrefixMask(25);  // "255.255.255.128"
+getPrefixMask(8); // "255.0.0.0"
+getPrefixMask(16); // "255.255.0.0"
+getPrefixMask(24); // "255.255.255.0"
+getPrefixMask(25); // "255.255.255.128"
 
 // Legacy netmask → CIDR prefix
-getMaskPrefix('255.255.255.0');    // 24
-getMaskPrefix('255.255.0.0');      // 16
-getMaskPrefix('255.255.255.128');  // 25
+getMaskPrefix('255.255.255.0'); // 24
+getMaskPrefix('255.255.0.0'); // 16
+getMaskPrefix('255.255.255.128'); // 25
 
 // Validation: non-contiguous mask is invalid
-getMaskPrefix('255.255.255.1');    // -1 (invalid)
+getMaskPrefix('255.255.255.1'); // -1 (invalid)
 ```
 
 ---
@@ -418,65 +422,67 @@ export interface WellKnownPort {
   port: number;
   service: string;
   protocol: 'tcp' | 'udp' | 'both';
-  category: PortCategory;  // 'web', 'secure', 'database', etc.
+  category: PortCategory; // 'web', 'secure', 'database', etc.
   description?: string;
-  builtIn: boolean;        // true = read-only
+  builtIn: boolean; // true = read-only
 }
 
 export type PortCategory =
-  | 'web'         // HTTP, HTTPS, dev servers
-  | 'secure'      // SSH, RDP, VNC, FTP
-  | 'database'    // MySQL, PostgreSQL, MongoDB, Redis
-  | 'messaging'   // AMQP, MQTT, Kafka, XMPP, IRC
-  | 'mail'        // SMTP, POP3, IMAP
-  | 'network'     // DNS, DHCP, NTP, SNMP, VPN, Syslog
-  | 'system'      // System services
-  | 'containers'  // Docker, Kubernetes, etcd, Consul
-  | 'mikrotik';   // Winbox, RouterOS API, bandwidth test
+  | 'web' // HTTP, HTTPS, dev servers
+  | 'secure' // SSH, RDP, VNC, FTP
+  | 'database' // MySQL, PostgreSQL, MongoDB, Redis
+  | 'messaging' // AMQP, MQTT, Kafka, XMPP, IRC
+  | 'mail' // SMTP, POP3, IMAP
+  | 'network' // DNS, DHCP, NTP, SNMP, VPN, Syslog
+  | 'system' // System services
+  | 'containers' // Docker, Kubernetes, etcd, Consul
+  | 'mikrotik'; // Winbox, RouterOS API, bandwidth test
 ```
 
 **Port Database Sample:**
 
-| Port | Service | Protocol | Category | Description |
-|------|---------|----------|----------|-------------|
-| 22 | SSH | TCP | secure | Secure Shell |
-| 53 | DNS | both | network | Domain Name System |
-| 80 | HTTP | TCP | web | Hypertext Transfer Protocol |
-| 443 | HTTPS | TCP | web | HTTP over TLS/SSL |
-| 3306 | MySQL | TCP | database | MySQL/MariaDB |
-| 5432 | PostgreSQL | TCP | database | PostgreSQL |
-| 8291 | Winbox | TCP | mikrotik | MikroTik Winbox |
-| 8728 | RouterOS-API | TCP | mikrotik | RouterOS API |
-| 51820 | WireGuard | UDP | network | WireGuard VPN |
+| Port  | Service      | Protocol | Category | Description                 |
+| ----- | ------------ | -------- | -------- | --------------------------- |
+| 22    | SSH          | TCP      | secure   | Secure Shell                |
+| 53    | DNS          | both     | network  | Domain Name System          |
+| 80    | HTTP         | TCP      | web      | Hypertext Transfer Protocol |
+| 443   | HTTPS        | TCP      | web      | HTTP over TLS/SSL           |
+| 3306  | MySQL        | TCP      | database | MySQL/MariaDB               |
+| 5432  | PostgreSQL   | TCP      | database | PostgreSQL                  |
+| 8291  | Winbox       | TCP      | mikrotik | MikroTik Winbox             |
+| 8728  | RouterOS-API | TCP      | mikrotik | RouterOS API                |
+| 51820 | WireGuard    | UDP      | network  | WireGuard VPN               |
 
 ### Port Lookup Functions
 
 ```typescript
 // Look up service by port
 export function getServiceByPort(port: number, protocol?: PortProtocol): string | null;
-getServiceByPort(80);           // "HTTP"
-getServiceByPort(443, 'tcp');   // "HTTPS"
-getServiceByPort(12345);        // null
+getServiceByPort(80); // "HTTP"
+getServiceByPort(443, 'tcp'); // "HTTPS"
+getServiceByPort(12345); // null
 
 // Get full port entry
 export function getPortEntry(port: number, protocol?: PortProtocol): WellKnownPort | null;
-getPortEntry(443)
+getPortEntry(443);
 // => { port: 443, service: 'HTTPS', protocol: 'tcp', category: 'web', ... }
 
 // Get all ports in category
 export function getPortsByCategory(category: PortCategory): WellKnownPort[];
-getPortsByCategory('web')
+getPortsByCategory('web');
 // => [HTTP, HTTPS, HTTP-Alt, 8080, 8443, 3000, ...]
 
 // Search ports (for autocomplete)
 export function searchPorts(query: string, limit?: number): WellKnownPort[];
-searchPorts('http');     // [HTTP, HTTPS, HTTP-Alt, ...]
-searchPorts('22');       // [SSH]
-searchPorts('sql');      // [MySQL, MSSQL, PostgreSQL, ...]
+searchPorts('http'); // [HTTP, HTTPS, HTTP-Alt, ...]
+searchPorts('22'); // [SSH]
+searchPorts('sql'); // [MySQL, MSSQL, PostgreSQL, ...]
 
 // Get suggestions grouped by category
-export function getSuggestionsByCategory(categories?: PortCategory[]): Record<PortCategory, WellKnownPort[]>;
-getSuggestionsByCategory(['web', 'secure', 'database'])
+export function getSuggestionsByCategory(
+  categories?: PortCategory[]
+): Record<PortCategory, WellKnownPort[]>;
+getSuggestionsByCategory(['web', 'secure', 'database']);
 // => { web: [...], secure: [...], database: [...] }
 ```
 
@@ -496,7 +502,7 @@ export const PORT_PRESETS = {
 const natRule = {
   chain: 'dstnat',
   action: 'dst-nat',
-  dstPort: PORT_PRESETS.webServer[0],  // 80
+  dstPort: PORT_PRESETS.webServer[0], // 80
   toAddresses: '192.168.1.100',
   toPorts: '8080',
 };
@@ -524,15 +530,15 @@ export const PORT_CATEGORY_LABELS = {
 
 ### Protocol Selection Matrix
 
-| Feature | WireGuard | OpenVPN | L2TP | PPTP | SSTP | IKEv2 |
-|---------|-----------|---------|------|------|------|-------|
-| **Port** | 51820 UDP | 1194 UDP/TCP | 1701 UDP | 1723 TCP | 443 TCP | 500 UDP |
-| **Speed** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐ |
-| **Security** | Modern | Excellent | Good | Weak | Good | Excellent |
-| **Setup Ease** | Very Easy | Complex | Complex | Easy | Moderate | Moderate |
-| **Compatibility** | Newer | Universal | Old | Old | Windows | Mobile |
-| **Encryption** | ChaCha20-Poly1305 | AES-256 | IPsec | MPPE | TLS 1.2 | IKEv2 Suite |
-| **Mobile Roaming** | Excellent | Fair | Good | Good | Good | ⭐⭐⭐⭐⭐ |
+| Feature            | WireGuard         | OpenVPN      | L2TP     | PPTP     | SSTP     | IKEv2       |
+| ------------------ | ----------------- | ------------ | -------- | -------- | -------- | ----------- |
+| **Port**           | 51820 UDP         | 1194 UDP/TCP | 1701 UDP | 1723 TCP | 443 TCP  | 500 UDP     |
+| **Speed**          | ⭐⭐⭐⭐⭐        | ⭐⭐⭐⭐     | ⭐⭐⭐   | ⭐⭐⭐⭐ | ⭐⭐⭐   | ⭐⭐⭐      |
+| **Security**       | Modern            | Excellent    | Good     | Weak     | Good     | Excellent   |
+| **Setup Ease**     | Very Easy         | Complex      | Complex  | Easy     | Moderate | Moderate    |
+| **Compatibility**  | Newer             | Universal    | Old      | Old      | Windows  | Mobile      |
+| **Encryption**     | ChaCha20-Poly1305 | AES-256      | IPsec    | MPPE     | TLS 1.2  | IKEv2 Suite |
+| **Mobile Roaming** | Excellent         | Fair         | Good     | Good     | Good     | ⭐⭐⭐⭐⭐  |
 
 ### WireGuard (Recommended Modern Choice)
 
@@ -635,6 +641,7 @@ export function WANConfigForm() {
 ```
 
 **Validation at this layer:**
+
 - IP format validation
 - CIDR notation enforcement
 - Port range validation
@@ -647,8 +654,8 @@ export function WANConfigForm() {
 
 input WANStaticConfigInput {
   interface: String!
-  address: String!       # CIDR format: "192.168.1.0/24"
-  gateway: String!       # Plain IP
+  address: String! # CIDR format: "192.168.1.0/24"
+  gateway: String! # Plain IP
   dnsServers: [String!]!
 }
 
@@ -760,14 +767,20 @@ console.log(`Network: ${info.network}, First host: ${info.firstHost}`);
 
 ```typescript
 // ❌ Before: Hardcoded port numbers scattered everywhere
-if (port === 443) { /* handle HTTPS */ }
-if (port === 22) { /* handle SSH */ }
+if (port === 443) {
+  /* handle HTTPS */
+}
+if (port === 22) {
+  /* handle SSH */
+}
 
 // ✅ After: Use well-known ports database
 import { getServiceByPort, searchPorts } from '@nasnet/core/constants/well-known-ports';
 
 const service = getServiceByPort(port);
-if (service === 'HTTPS') { /* handle HTTPS */ }
+if (service === 'HTTPS') {
+  /* handle HTTPS */
+}
 
 // For autocomplete
 const suggestions = searchPorts(userInput);

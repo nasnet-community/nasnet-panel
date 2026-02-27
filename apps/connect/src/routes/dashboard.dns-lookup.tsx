@@ -27,16 +27,19 @@ export function DnsLookupPage() {
 
   if (!deviceId) {
     return (
-      <div className="flex items-center justify-center min-h-screen p-4">
-        <div className="max-w-md w-full bg-error/10 border border-error/20 rounded-lg p-6 text-center" role="alert">
-          <h2 className="text-lg font-semibold text-error mb-2">{t('dnsLookup.noRouterSelected')}</h2>
-          <p className="text-sm text-muted-foreground mb-4">
-            {t('dnsLookup.selectRouterMessage')}
-          </p>
+      <div className="flex min-h-screen items-center justify-center p-4">
+        <div
+          className="bg-error/10 border-error/20 w-full max-w-md rounded-lg border p-6 text-center"
+          role="alert"
+        >
+          <h2 className="text-error mb-2 text-lg font-semibold">
+            {t('dnsLookup.noRouterSelected')}
+          </h2>
+          <p className="text-muted-foreground mb-4 text-sm">{t('dnsLookup.selectRouterMessage')}</p>
           <button
             onClick={() => navigate({ to: '/dashboard' })}
             aria-label={t('dnsLookup.returnToDashboard')}
-            className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
+            className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-md px-4 py-2"
           >
             {t('dnsLookup.returnToDashboard')}
           </button>
@@ -46,12 +49,10 @@ export function DnsLookupPage() {
   }
 
   return (
-    <div className="container py-6 space-y-6">
+    <div className="container space-y-6 py-6">
       <div className="space-y-2">
-        <h1 className="text-3xl font-bold tracking-tight">{t("dnsLookup.title")}</h1>
-        <p className="text-muted-foreground">
-          {t('dnsLookup.description')}
-        </p>
+        <h1 className="text-3xl font-bold tracking-tight">{t('dnsLookup.title')}</h1>
+        <p className="text-muted-foreground">{t('dnsLookup.description')}</p>
       </div>
 
       <DnsLookupTool deviceId={deviceId} />

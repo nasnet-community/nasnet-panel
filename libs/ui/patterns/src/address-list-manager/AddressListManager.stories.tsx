@@ -103,8 +103,9 @@ function generateList(
     entryCount,
     dynamicCount,
     referencingRulesCount,
-    entries: withEntries
-      ? Array.from({ length: Math.min(entryCount, 50) }, (_, i) =>
+    entries:
+      withEntries ?
+        Array.from({ length: Math.min(entryCount, 50) }, (_, i) =>
           generateEntry(i, name, i < dynamicCount)
         )
       : undefined,
@@ -292,9 +293,7 @@ export const ExpandedList: Story = {
     const rows = canvas.queryAllByRole('button', { hidden: false });
     if (rows.length > 0) {
       // Try to find and click an expand button
-      const expandButtons = rows.filter((btn) =>
-        btn.textContent?.includes('trusted_devices')
-      );
+      const expandButtons = rows.filter((btn) => btn.textContent?.includes('trusted_devices'));
       if (expandButtons.length > 0) {
         await userEvent.click(expandButtons[0]);
       }

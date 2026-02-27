@@ -44,7 +44,11 @@ export interface ManualRouterEntryProps {
  * />
  * ```
  */
-export const ManualRouterEntry = memo(function ManualRouterEntry({ onSubmit, onCancel, className }: ManualRouterEntryProps) {
+export const ManualRouterEntry = memo(function ManualRouterEntry({
+  onSubmit,
+  onCancel,
+  className,
+}: ManualRouterEntryProps) {
   const [ipAddress, setIpAddress] = useState('');
   const [routerName, setRouterName] = useState('');
   const [errors, setErrors] = useState<{
@@ -63,46 +67,51 @@ export const ManualRouterEntry = memo(function ManualRouterEntry({ onSubmit, onC
   /**
    * Handles IP address input change with validation
    */
-  const handleIpChange = useCallback((value: string) => {
-    setIpAddress(value);
+  const handleIpChange = useCallback(
+    (value: string) => {
+      setIpAddress(value);
 
-    // Clear error when user starts typing
-    if (errors.ipAddress) {
-      setErrors({});
-    }
-  }, [errors.ipAddress]);
+      // Clear error when user starts typing
+      if (errors.ipAddress) {
+        setErrors({});
+      }
+    },
+    [errors.ipAddress]
+  );
 
   /**
    * Handles form submission
    */
-  const handleSubmit = useCallback((e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = useCallback(
+    (e: React.FormEvent) => {
+      e.preventDefault();
 
-    // Validate IP address
-    if (!ipAddress.trim()) {
-      setErrors({ ipAddress: 'IP address is required' });
-      return;
-    }
+      // Validate IP address
+      if (!ipAddress.trim()) {
+        setErrors({ ipAddress: 'IP address is required' });
+        return;
+      }
 
-    if (!validateIpAddress(ipAddress)) {
-      setErrors({
-        ipAddress:
-          'Invalid IP address format. Use IPv4 format (e.g., 192.168.88.1)',
+      if (!validateIpAddress(ipAddress)) {
+        setErrors({
+          ipAddress: 'Invalid IP address format. Use IPv4 format (e.g., 192.168.88.1)',
+        });
+        return;
+      }
+
+      // Submit data
+      onSubmit?.({
+        ipAddress: ipAddress.trim(),
+        name: routerName.trim() || undefined,
       });
-      return;
-    }
 
-    // Submit data
-    onSubmit?.({
-      ipAddress: ipAddress.trim(),
-      name: routerName.trim() || undefined,
-    });
-
-    // Reset form
-    setIpAddress('');
-    setRouterName('');
-    setErrors({});
-  }, [ipAddress, routerName, validateIpAddress, onSubmit]);
+      // Reset form
+      setIpAddress('');
+      setRouterName('');
+      setErrors({});
+    },
+    [ipAddress, routerName, validateIpAddress, onSubmit]
+  );
 
   /**
    * Handles cancel action
@@ -118,29 +127,36 @@ export const ManualRouterEntry = memo(function ManualRouterEntry({ onSubmit, onC
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className={cn('bg-card border border-border rounded-[var(--semantic-radius-card)] shadow-sm', className)}
+      className={cn(
+        'bg-card border-border rounded-[var(--semantic-radius-card)] border shadow-sm',
+        className
+      )}
     >
       <div className="p-component-lg">
         <div className="mb-component-md">
-          <h3 className="text-lg font-display font-semibold text-foreground">
+          <h3 className="font-display text-foreground text-lg font-semibold">
             Add Router Manually
           </h3>
-          <p className="mt-component-sm text-sm text-muted-foreground">
+          <p className="mt-component-sm text-muted-foreground text-sm">
             Enter the IP address of your MikroTik router
           </p>
         </div>
 
         {/* Help paragraph */}
-        <p className="text-xs text-muted-foreground mb-component-md">
+        <p className="text-muted-foreground mb-component-md text-xs">
           💡 Tip: Default MikroTik IP addresses are typically 192.168.88.1, 192.168.1.1, or 10.0.0.1
         </p>
 
-        <form onSubmit={handleSubmit} className="space-y-component-md" aria-label="Add router manually">
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-component-md"
+          aria-label="Add router manually"
+        >
           {/* IP Address Input */}
           <div>
             <label
               htmlFor="ipAddress"
-              className="block text-sm font-medium text-foreground mb-component-sm"
+              className="text-foreground mb-component-sm block text-sm font-medium"
             >
               IP Address <span className="text-error">*</span>
             </label>
@@ -153,7 +169,10 @@ export const ManualRouterEntry = memo(function ManualRouterEntry({ onSubmit, onC
               aria-required="true"
               aria-invalid={!!errors.ipAddress}
               aria-describedby={errors.ipAddress ? 'ipAddress-error' : 'ipAddress-hint'}
-              className={cn('w-full min-h-[44px] px-component-sm py-component-sm border rounded-[var(--semantic-radius-button)] shadow-sm bg-card text-foreground font-mono focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2', errors.ipAddress ? 'border-error' : 'border-border')}
+              className={cn(
+                'px-component-sm py-component-sm bg-card text-foreground focus-visible:ring-ring min-h-[44px] w-full rounded-[var(--semantic-radius-button)] border font-mono shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
+                errors.ipAddress ? 'border-error' : 'border-border'
+              )}
               style={{ fontFamily: 'var(--font-mono)' }}
               autoFocus
             />
@@ -162,13 +181,16 @@ export const ManualRouterEntry = memo(function ManualRouterEntry({ onSubmit, onC
                 id="ipAddress-error"
                 initial={{ opacity: 0, y: -5 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="mt-component-sm text-sm text-error"
+                className="mt-component-sm text-error text-sm"
                 role="alert"
               >
                 {errors.ipAddress}
               </motion.p>
             )}
-            <p id="ipAddress-hint" className="mt-component-sm text-xs text-muted-foreground">
+            <p
+              id="ipAddress-hint"
+              className="mt-component-sm text-muted-foreground text-xs"
+            >
               Enter IPv4 address (e.g., 192.168.88.1)
             </p>
           </div>
@@ -177,10 +199,9 @@ export const ManualRouterEntry = memo(function ManualRouterEntry({ onSubmit, onC
           <div>
             <label
               htmlFor="routerName"
-              className="block text-sm font-medium text-foreground mb-component-sm"
+              className="text-foreground mb-component-sm block text-sm font-medium"
             >
-              Router Name{' '}
-              <span className="text-muted-foreground">(optional)</span>
+              Router Name <span className="text-muted-foreground">(optional)</span>
             </label>
             <input
               id="routerName"
@@ -189,19 +210,28 @@ export const ManualRouterEntry = memo(function ManualRouterEntry({ onSubmit, onC
               onChange={(e) => setRouterName(e.target.value)}
               placeholder="My Router"
               aria-describedby="routerName-hint"
-              className={cn('w-full min-h-[44px] px-component-sm py-component-sm border rounded-[var(--semantic-radius-button)] shadow-sm bg-card text-foreground font-display focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2', 'border-border')}
+              className={cn(
+                'px-component-sm py-component-sm bg-card text-foreground font-display focus-visible:ring-ring min-h-[44px] w-full rounded-[var(--semantic-radius-button)] border shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
+                'border-border'
+              )}
             />
-            <p id="routerName-hint" className="mt-component-sm text-xs text-muted-foreground">
+            <p
+              id="routerName-hint"
+              className="mt-component-sm text-muted-foreground text-xs"
+            >
               Give your router a friendly name for easy identification
             </p>
           </div>
 
           {/* Action Buttons */}
-          <div className="flex gap-component-md pt-component-sm">
+          <div className="gap-component-md pt-component-sm flex">
             <button
               type="submit"
               aria-label="Add router"
-              className={cn('flex-1 min-h-[44px] px-component-md py-component-sm rounded-[var(--semantic-radius-button)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 transition-colors font-medium', 'bg-primary text-primary-foreground hover:bg-primary/90')}
+              className={cn(
+                'px-component-md py-component-sm focus-visible:ring-ring min-h-[44px] flex-1 rounded-[var(--semantic-radius-button)] font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
+                'bg-primary text-primary-foreground hover:bg-primary/90'
+              )}
             >
               Add Router
             </button>
@@ -210,7 +240,10 @@ export const ManualRouterEntry = memo(function ManualRouterEntry({ onSubmit, onC
                 type="button"
                 onClick={handleCancel}
                 aria-label="Cancel adding router"
-                className={cn('min-h-[44px] px-component-md py-component-sm rounded-[var(--semantic-radius-button)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 transition-colors font-medium', 'bg-muted text-foreground hover:bg-muted/80')}
+                className={cn(
+                  'px-component-md py-component-sm focus-visible:ring-ring min-h-[44px] rounded-[var(--semantic-radius-button)] font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
+                  'bg-muted text-foreground hover:bg-muted/80'
+                )}
               >
                 Cancel
               </button>
@@ -220,18 +253,21 @@ export const ManualRouterEntry = memo(function ManualRouterEntry({ onSubmit, onC
       </div>
 
       {/* Common IP Presets */}
-      <div className="px-component-lg py-component-md bg-muted/50 border-t border-border rounded-b-[var(--semantic-radius-card)]">
-        <p className="text-xs font-medium text-muted-foreground mb-component-sm">
+      <div className="px-component-lg py-component-md bg-muted/50 border-border rounded-b-[var(--semantic-radius-card)] border-t">
+        <p className="text-muted-foreground mb-component-sm text-xs font-medium">
           Common MikroTik IPs:
         </p>
-        <div className="flex flex-wrap gap-component-sm">
+        <div className="gap-component-sm flex flex-wrap">
           {['192.168.88.1', '192.168.1.1', '10.0.0.1'].map((preset) => (
             <button
               key={preset}
               type="button"
               onClick={() => setIpAddress(preset)}
               aria-label={`Use IP address ${preset}`}
-              className={cn('min-h-[44px] px-component-sm py-component-sm text-xs font-mono border rounded-[var(--semantic-radius-button)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2', 'bg-card border-border hover:border-primary hover:bg-primary/5')}
+              className={cn(
+                'px-component-sm py-component-sm focus-visible:ring-ring min-h-[44px] rounded-[var(--semantic-radius-button)] border font-mono text-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
+                'bg-card border-border hover:border-primary hover:bg-primary/5'
+              )}
             >
               {preset}
             </button>

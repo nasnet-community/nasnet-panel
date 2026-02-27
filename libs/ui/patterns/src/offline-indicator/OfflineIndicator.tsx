@@ -11,7 +11,7 @@ import { useState, useEffect, memo } from 'react';
 
 import { WifiOff, Wifi, X } from 'lucide-react';
 
-import { Alert, AlertTitle, AlertDescription, Button , cn } from '@nasnet/ui/primitives';
+import { Alert, AlertTitle, AlertDescription, Button, cn } from '@nasnet/ui/primitives';
 
 // ===== Types =====
 
@@ -107,15 +107,14 @@ export function useNetworkStatus() {
  * />
  * ```
  */
-export const OfflineIndicator = memo(
-  function OfflineIndicator({
-    position = 'top',
-    dismissible = false,
-    offlineMessage = "You're offline. Some features may be unavailable.",
-    onlineMessage = "You're back online!",
-    onlineDuration = 3000,
-    className,
-  }: OfflineIndicatorProps) {
+export const OfflineIndicator = memo(function OfflineIndicator({
+  position = 'top',
+  dismissible = false,
+  offlineMessage = "You're offline. Some features may be unavailable.",
+  onlineMessage = "You're back online!",
+  onlineDuration = 3000,
+  className,
+}: OfflineIndicatorProps) {
   const { isOnline, wasOffline, setWasOffline } = useNetworkStatus();
   const [showOnlineMessage, setShowOnlineMessage] = useState(false);
   const [dismissed, setDismissed] = useState(false);
@@ -168,19 +167,17 @@ export const OfflineIndicator = memo(
       <Alert
         variant={isOffline ? 'destructive' : 'default'}
         className={cn(
-          'max-w-xl mx-auto shadow-lg',
+          'mx-auto max-w-xl shadow-lg',
           'flex items-center justify-between',
-          isOffline
-            ? 'bg-semantic-error text-white border-semantic-error'
-            : 'bg-semantic-success text-white border-semantic-success'
+          isOffline ?
+            'bg-semantic-error border-semantic-error text-white'
+          : 'bg-semantic-success border-semantic-success text-white'
         )}
       >
         <div className="flex items-center gap-3">
-          {isOffline ? (
+          {isOffline ?
             <WifiOff className="h-5 w-5 flex-shrink-0" />
-          ) : (
-            <Wifi className="h-5 w-5 flex-shrink-0" />
-          )}
+          : <Wifi className="h-5 w-5 flex-shrink-0" />}
 
           <div>
             <AlertTitle className="text-sm font-semibold">
@@ -197,7 +194,7 @@ export const OfflineIndicator = memo(
             variant="ghost"
             size="sm"
             onClick={() => setDismissed(true)}
-            className="text-white hover:bg-white/20 -mr-2"
+            className="-mr-2 text-white hover:bg-white/20"
             aria-label="Dismiss notification"
           >
             <X className="h-4 w-4" />
@@ -224,31 +221,30 @@ export interface OfflineIndicatorCompactProps {
  *
  * Shows a small icon when offline, suitable for headers/nav bars.
  */
-export const OfflineIndicatorCompact = memo(
-  function OfflineIndicatorCompact({ className }: OfflineIndicatorCompactProps) {
-    const { isOnline } = useNetworkStatus();
+export const OfflineIndicatorCompact = memo(function OfflineIndicatorCompact({
+  className,
+}: OfflineIndicatorCompactProps) {
+  const { isOnline } = useNetworkStatus();
 
-    if (isOnline) {
-      return null;
-    }
-
-    return (
-      <div
-        className={cn(
-          'inline-flex items-center gap-1 px-2 py-1 rounded',
-          'bg-semantic-error/10 text-semantic-error',
-          'text-xs font-medium',
-          className
-        )}
-        role="status"
-        aria-label="You are currently offline"
-      >
-        <WifiOff className="h-3.5 w-3.5" />
-        <span className="hidden sm:inline">Offline</span>
-      </div>
-    );
+  if (isOnline) {
+    return null;
   }
-);
+
+  return (
+    <div
+      className={cn(
+        'inline-flex items-center gap-1 rounded px-2 py-1',
+        'bg-semantic-error/10 text-semantic-error',
+        'text-xs font-medium',
+        className
+      )}
+      role="status"
+      aria-label="You are currently offline"
+    >
+      <WifiOff className="h-3.5 w-3.5" />
+      <span className="hidden sm:inline">Offline</span>
+    </div>
+  );
+});
 
 OfflineIndicatorCompact.displayName = 'OfflineIndicatorCompact';
-

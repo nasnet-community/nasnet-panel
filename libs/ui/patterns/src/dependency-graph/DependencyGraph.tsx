@@ -57,10 +57,7 @@ import type { DependencyGraphProps } from './dependency-graph.types';
  * />
  * ```
  */
-const DependencyGraphInner = React.forwardRef<
-  HTMLDivElement,
-  DependencyGraphProps
->(
+const DependencyGraphInner = React.forwardRef<HTMLDivElement, DependencyGraphProps>(
   (
     {
       graph,
@@ -112,12 +109,18 @@ const DependencyGraphInner = React.forwardRef<
       >
         {/* Mobile: shown on small screens (<640px) */}
         <div className="sm:hidden">
-          <DependencyGraphMobile {...presenterProps} className="" />
+          <DependencyGraphMobile
+            {...presenterProps}
+            className=""
+          />
         </div>
 
         {/* Desktop: shown on larger screens (>=640px) */}
         <div className="hidden sm:block">
-          <DependencyGraphDesktop {...presenterProps} className="" />
+          <DependencyGraphDesktop
+            {...presenterProps}
+            className=""
+          />
         </div>
       </div>
     );

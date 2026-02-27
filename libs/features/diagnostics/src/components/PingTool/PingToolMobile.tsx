@@ -81,9 +81,12 @@ export const PingToolMobile = memo(function PingToolMobile({
   });
 
   // Stable form submission handler with useCallback
-  const onSubmit = useCallback((values: PingFormValues) => {
-    ping.startPing(values);
-  }, [ping]);
+  const onSubmit = useCallback(
+    (values: PingFormValues) => {
+      ping.startPing(values);
+    },
+    [ping]
+  );
 
   return (
     <div className="space-y-component-md">
@@ -93,7 +96,10 @@ export const PingToolMobile = memo(function PingToolMobile({
           <CardTitle className="text-lg">Ping Diagnostic</CardTitle>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-component-lg">
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="space-y-component-lg"
+          >
             {/* Target input with monospace for IPs */}
             <div className="space-y-component-sm">
               <Label htmlFor="ping-target-mobile">Target</Label>
@@ -105,16 +111,22 @@ export const PingToolMobile = memo(function PingToolMobile({
                 {...register('target')}
               />
               {errors.target && (
-                <p className="text-xs text-error" role="alert">
+                <p
+                  className="text-error text-xs"
+                  role="alert"
+                >
                   {errors.target.message}
                 </p>
               )}
             </div>
 
             {/* Compact advanced options */}
-            <div className="grid grid-cols-2 gap-component-md">
+            <div className="gap-component-md grid grid-cols-2">
               <div className="space-y-component-sm">
-                <Label htmlFor="ping-count-mobile" className="text-xs">
+                <Label
+                  htmlFor="ping-count-mobile"
+                  className="text-xs"
+                >
                   Count
                 </Label>
                 <Input
@@ -127,7 +139,10 @@ export const PingToolMobile = memo(function PingToolMobile({
                 />
               </div>
               <div className="space-y-component-sm">
-                <Label htmlFor="ping-timeout-mobile" className="text-xs">
+                <Label
+                  htmlFor="ping-timeout-mobile"
+                  className="text-xs"
+                >
                   Timeout (ms)
                 </Label>
                 <Input
@@ -142,7 +157,7 @@ export const PingToolMobile = memo(function PingToolMobile({
             </div>
 
             {/* Action button */}
-            {!ping.isRunning ? (
+            {!ping.isRunning ?
               <Button
                 type="submit"
                 disabled={!isValid || ping.isStarting}
@@ -150,20 +165,24 @@ export const PingToolMobile = memo(function PingToolMobile({
                 size="lg"
                 aria-label="Start ping"
               >
-                {ping.isStarting ? (
+                {ping.isStarting ?
                   <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" aria-hidden="true" />
+                    <Loader2
+                      className="mr-2 h-4 w-4 animate-spin"
+                      aria-hidden="true"
+                    />
                     Starting...
                   </>
-                ) : (
-                  <>
-                    <Play className="w-4 h-4 mr-2" aria-hidden="true" />
+                : <>
+                    <Play
+                      className="mr-2 h-4 w-4"
+                      aria-hidden="true"
+                    />
                     Start Ping
                   </>
-                )}
+                }
               </Button>
-            ) : (
-              <Button
+            : <Button
                 type="button"
                 variant="destructive"
                 onClick={ping.stop}
@@ -172,24 +191,29 @@ export const PingToolMobile = memo(function PingToolMobile({
                 size="lg"
                 aria-label="Stop ping"
               >
-                {ping.isStopping ? (
+                {ping.isStopping ?
                   <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" aria-hidden="true" />
+                    <Loader2
+                      className="mr-2 h-4 w-4 animate-spin"
+                      aria-hidden="true"
+                    />
                     Stopping...
                   </>
-                ) : (
-                  <>
-                    <Square className="w-4 h-4 mr-2" aria-hidden="true" />
+                : <>
+                    <Square
+                      className="mr-2 h-4 w-4"
+                      aria-hidden="true"
+                    />
                     Stop Ping
                   </>
-                )}
+                }
               </Button>
-            )}
+            }
 
             {/* Error display */}
             {ping.error && (
               <div
-                className="p-component-md border border-error bg-error/10 rounded-card-sm text-xs text-error"
+                className="p-component-md border-error bg-error/10 rounded-card-sm text-error border text-xs"
                 role="alert"
               >
                 {ping.error}
@@ -203,16 +227,30 @@ export const PingToolMobile = memo(function PingToolMobile({
       {ping.results.length > 0 && (
         <Sheet>
           <SheetTrigger asChild>
-            <Button variant="outline" className="w-full" size="lg">
+            <Button
+              variant="outline"
+              className="w-full"
+              size="lg"
+            >
               View Results ({ping.results.length}/{ping.count})
-              <ChevronRight className="w-4 h-4 ml-2" aria-hidden="true" />
+              <ChevronRight
+                className="ml-2 h-4 w-4"
+                aria-hidden="true"
+              />
             </Button>
           </SheetTrigger>
-          <SheetContent side="bottom" className="h-[90vh] overflow-y-auto">
+          <SheetContent
+            side="bottom"
+            className="h-[90vh] overflow-y-auto"
+          >
             <SheetHeader>
               <SheetTitle>Ping Results</SheetTitle>
             </SheetHeader>
-            <div className="space-y-component-xl mt-component-lg" role="log" aria-label="Ping results">
+            <div
+              className="space-y-component-xl mt-component-lg"
+              role="log"
+              aria-label="Ping results"
+            >
               <PingResults results={ping.results} />
               <LatencyGraph results={ping.results} />
               <PingStatistics statistics={ping.statistics} />

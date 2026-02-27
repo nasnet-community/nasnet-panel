@@ -1,8 +1,12 @@
 # XState Machines Reference
 
-This document catalogues every XState machine in NasNetConnect. Machines are used for workflows where simple boolean flags or Zustand state become insufficient — specifically where there are multiple sequential async steps, guards that prevent invalid transitions, and rollback/error recovery paths.
+This document catalogues every XState machine in NasNetConnect. Machines are used for workflows
+where simple boolean flags or Zustand state become insufficient — specifically where there are
+multiple sequential async steps, guards that prevent invalid transitions, and rollback/error
+recovery paths.
 
-All machines use **XState v5** (`xstate@5.x`) with the `setup()` API. The `@xstate/react` package provides `useMachine()` and `useActor()` for React integration.
+All machines use **XState v5** (`xstate@5.x`) with the `setup()` API. The `@xstate/react` package
+provides `useMachine()` and `useActor()` for React integration.
 
 ## Table of Contents
 
@@ -49,8 +53,12 @@ const machine = setup({
 }).createMachine({
   id: 'myMachine',
   initial: 'idle',
-  context: { /* initial context */ },
-  states: { /* states */ },
+  context: {
+    /* initial context */
+  },
+  states: {
+    /* states */
+  },
 });
 
 // React usage
@@ -58,18 +66,22 @@ const [state, send] = useMachine(machine);
 send({ type: 'MY_EVENT', value: 42 });
 ```
 
-**Factory functions** (machines that return different instances per configuration) use `setup().createMachine()` inside a function rather than at the module level.
+**Factory functions** (machines that return different instances per configuration) use
+`setup().createMachine()` inside a function rather than at the module level.
 
 ---
 
 ## createConfigPipelineMachine
 
-**File:** `libs/state/machines/src/configPipelineMachine.ts`
-**Export:** `createConfigPipelineMachine<TConfig>(config)`, `createSimpleConfigPipelineMachine<TConfig>(config)`
+**File:** `libs/state/machines/src/configPipelineMachine.ts` **Export:**
+`createConfigPipelineMachine<TConfig>(config)`, `createSimpleConfigPipelineMachine<TConfig>(config)`
 
 ### Purpose
 
-The core safety pipeline for all configuration changes in NasNetConnect. Prevents accidental network lockouts by enforcing: validation before apply, explicit acknowledgment for high-risk operations, and automatic rollback if verification fails. This is a **generic machine** parameterized by the configuration type `TConfig`.
+The core safety pipeline for all configuration changes in NasNetConnect. Prevents accidental network
+lockouts by enforcing: validation before apply, explicit acknowledgment for high-risk operations,
+and automatic rollback if verification fails. This is a **generic machine** parameterized by the
+configuration type `TConfig`.
 
 ### When It Is Used
 
@@ -117,43 +129,43 @@ The core safety pipeline for all configuration changes in NasNetConnect. Prevent
 
 ### States
 
-| State        | Description                                          |
-|--------------|------------------------------------------------------|
-| `idle`       | Waiting for first edit                               |
-| `draft`      | User is modifying configuration                      |
-| `validating` | Running 7-stage async validation pipeline            |
-| `invalid`    | Validation failed; errors shown to user              |
-| `previewing` | Showing diff of proposed changes                     |
-| `confirming` | High-risk acknowledgment dialog (countdown)          |
-| `applying`   | Sending configuration to router via API              |
-| `verifying`  | Polling/checking that router accepted the change     |
-| `active`     | Final success state                                  |
-| `rollback`   | Executing rollback after verification failure        |
-| `rolled_back`| Final state: safe rollback complete                  |
-| `error`      | Unrecoverable error; offers RETRY, FORCE_ROLLBACK, RESET |
+| State         | Description                                              |
+| ------------- | -------------------------------------------------------- |
+| `idle`        | Waiting for first edit                                   |
+| `draft`       | User is modifying configuration                          |
+| `validating`  | Running 7-stage async validation pipeline                |
+| `invalid`     | Validation failed; errors shown to user                  |
+| `previewing`  | Showing diff of proposed changes                         |
+| `confirming`  | High-risk acknowledgment dialog (countdown)              |
+| `applying`    | Sending configuration to router via API                  |
+| `verifying`   | Polling/checking that router accepted the change         |
+| `active`      | Final success state                                      |
+| `rollback`    | Executing rollback after verification failure            |
+| `rolled_back` | Final state: safe rollback complete                      |
+| `error`       | Unrecoverable error; offers RETRY, FORCE_ROLLBACK, RESET |
 
 ### Events
 
-| Event          | From States           | Description                              |
-|----------------|-----------------------|------------------------------------------|
-| `EDIT`         | idle, draft, invalid, previewing | Update pending configuration    |
-| `VALIDATE`     | draft                 | Start the validation pipeline            |
-| `CONFIRM`      | previewing            | Proceed to apply (or confirming if high-risk) |
-| `ACKNOWLEDGED` | confirming            | User acknowledges high-risk warning      |
-| `CANCEL`       | draft, invalid, previewing, confirming | Abandon pipeline         |
-| `RETRY`        | error                 | Retry from validating                    |
-| `FORCE_ROLLBACK`| error               | Manually trigger rollback (requires rollbackData) |
-| `RESET`        | error                 | Return to idle                           |
+| Event            | From States                            | Description                                       |
+| ---------------- | -------------------------------------- | ------------------------------------------------- |
+| `EDIT`           | idle, draft, invalid, previewing       | Update pending configuration                      |
+| `VALIDATE`       | draft                                  | Start the validation pipeline                     |
+| `CONFIRM`        | previewing                             | Proceed to apply (or confirming if high-risk)     |
+| `ACKNOWLEDGED`   | confirming                             | User acknowledges high-risk warning               |
+| `CANCEL`         | draft, invalid, previewing, confirming | Abandon pipeline                                  |
+| `RETRY`          | error                                  | Retry from validating                             |
+| `FORCE_ROLLBACK` | error                                  | Manually trigger rollback (requires rollbackData) |
+| `RESET`          | error                                  | Return to idle                                    |
 
 ### Guards
 
-| Guard              | Condition                                              |
-|--------------------|--------------------------------------------------------|
-| `hasValidationErrors` | `output.errors.length > 0`                        |
-| `noValidationErrors`  | `output.errors.length === 0`                      |
-| `isHighRisk`          | `context.diff?.isHighRisk === true`               |
-| `isNotHighRisk`       | `context.diff?.isHighRisk !== true`               |
-| `hasRollbackData`     | `context.rollbackData !== null`                   |
+| Guard                 | Condition                           |
+| --------------------- | ----------------------------------- |
+| `hasValidationErrors` | `output.errors.length > 0`          |
+| `noValidationErrors`  | `output.errors.length === 0`        |
+| `isHighRisk`          | `context.diff?.isHighRisk === true` |
+| `isNotHighRisk`       | `context.diff?.isHighRisk !== true` |
+| `hasRollbackData`     | `context.rollbackData !== null`     |
 
 ### Context Shape
 
@@ -163,9 +175,9 @@ interface ConfigPipelineContext<TConfig> {
   originalConfig: TConfig | null;
   pendingConfig: TConfig | null;
   validationErrors: ValidationError[];
-  diff: ConfigDiff | null;          // isHighRisk flag lives here
-  rollbackData: TConfig | null;     // Populated after successful apply
-  applyStartedAt: number | null;    // Timestamp for UI countdown display
+  diff: ConfigDiff | null; // isHighRisk flag lives here
+  rollbackData: TConfig | null; // Populated after successful apply
+  applyStartedAt: number | null; // Timestamp for UI countdown display
   errorMessage: string | null;
 }
 ```
@@ -175,8 +187,13 @@ interface ConfigPipelineContext<TConfig> {
 ```typescript
 interface ConfigPipelineConfig<TConfig> {
   id?: string;
-  runValidationPipeline: (config: TConfig) => Promise<{ errors: ValidationError[]; diff: ConfigDiff }>;
-  applyConfig: (params: { resourceId: string; config: TConfig }) => Promise<{ rollbackData: TConfig }>;
+  runValidationPipeline: (
+    config: TConfig
+  ) => Promise<{ errors: ValidationError[]; diff: ConfigDiff }>;
+  applyConfig: (params: {
+    resourceId: string;
+    config: TConfig;
+  }) => Promise<{ rollbackData: TConfig }>;
   verifyApplied: (resourceId: string) => Promise<void>;
   executeRollback: (rollbackData: TConfig) => Promise<void>;
   onSuccess?: () => void;
@@ -239,22 +256,23 @@ if (state.matches('invalid')) {
 ### Helper Utilities
 
 ```typescript
-isPipelineFinal(state)       // → boolean (active | rolled_back)
-isPipelineCancellable(state) // → boolean (draft | invalid | previewing | confirming)
-isPipelineProcessing(state)  // → boolean (validating | applying | verifying | rollback)
-getPipelineStateDescription(state) // → string for UI labels
+isPipelineFinal(state); // → boolean (active | rolled_back)
+isPipelineCancellable(state); // → boolean (draft | invalid | previewing | confirming)
+isPipelineProcessing(state); // → boolean (validating | applying | verifying | rollback)
+getPipelineStateDescription(state); // → string for UI labels
 ```
 
 ---
 
 ## createChangeSetMachine
 
-**File:** `libs/state/machines/src/changeSetMachine.ts`
-**Export:** `createChangeSetMachine(config)`
+**File:** `libs/state/machines/src/changeSetMachine.ts` **Export:** `createChangeSetMachine(config)`
 
 ### Purpose
 
-Orchestrates atomic multi-resource operations. While `createConfigPipelineMachine` handles a single resource, this machine applies an entire **change set** of items in topologically-sorted dependency order. If any item fails, it automatically rolls back all previously applied items in reverse order.
+Orchestrates atomic multi-resource operations. While `createConfigPipelineMachine` handles a single
+resource, this machine applies an entire **change set** of items in topologically-sorted dependency
+order. If any item fails, it automatically rolls back all previously applied items in reverse order.
 
 ### When It Is Used
 
@@ -288,34 +306,36 @@ Orchestrates atomic multi-resource operations. While `createConfigPipelineMachin
                                     applyingItem (loop)
 ```
 
-The `applying` state is a compound state with two sub-states: `applyingItem` (executing the current item's API call) and `checkingMore` (an `always` transition that decides whether to loop to the next item or transition to `completed`).
+The `applying` state is a compound state with two sub-states: `applyingItem` (executing the current
+item's API call) and `checkingMore` (an `always` transition that decides whether to loop to the next
+item or transition to `completed`).
 
 ### States
 
-| State          | Description                                            |
-|----------------|--------------------------------------------------------|
-| `idle`         | Ready to receive a change set via LOAD event           |
-| `validating`   | Running async validation on all items                  |
-| `ready`        | Validation passed; awaiting user confirmation          |
-| `applying`     | Compound: applyingItem → checkingMore → loop or done   |
-| `completed`    | Final: all items applied successfully                  |
-| `rollingBack`  | Executing rollback steps in reverse order              |
-| `rolledBack`   | Final: rollback successful                             |
-| `failed`       | Apply or validation failed; offers retry/rollback/reset|
-| `partialFailure`| Final: rollback itself partially failed (manual intervention required) |
-| `cancelled`    | Final: user cancelled                                  |
+| State            | Description                                                            |
+| ---------------- | ---------------------------------------------------------------------- |
+| `idle`           | Ready to receive a change set via LOAD event                           |
+| `validating`     | Running async validation on all items                                  |
+| `ready`          | Validation passed; awaiting user confirmation                          |
+| `applying`       | Compound: applyingItem → checkingMore → loop or done                   |
+| `completed`      | Final: all items applied successfully                                  |
+| `rollingBack`    | Executing rollback steps in reverse order                              |
+| `rolledBack`     | Final: rollback successful                                             |
+| `failed`         | Apply or validation failed; offers retry/rollback/reset                |
+| `partialFailure` | Final: rollback itself partially failed (manual intervention required) |
+| `cancelled`      | Final: user cancelled                                                  |
 
 ### Events
 
-| Event            | From States              | Description                               |
-|------------------|--------------------------|-------------------------------------------|
-| `LOAD`           | idle                     | Load a change set into machine context    |
-| `START_VALIDATION`| idle                    | Begin validation                          |
-| `APPLY`          | ready                    | Start applying items                      |
-| `CANCEL`         | validating, ready, applying | Cancel operation                       |
-| `RETRY`          | failed                   | Re-run validation                         |
-| `FORCE_ROLLBACK` | failed, cancelled        | Manually trigger rollback                 |
-| `RESET`          | ready, failed, cancelled | Return machine to idle                    |
+| Event              | From States                 | Description                            |
+| ------------------ | --------------------------- | -------------------------------------- |
+| `LOAD`             | idle                        | Load a change set into machine context |
+| `START_VALIDATION` | idle                        | Begin validation                       |
+| `APPLY`            | ready                       | Start applying items                   |
+| `CANCEL`           | validating, ready, applying | Cancel operation                       |
+| `RETRY`            | failed                      | Re-run validation                      |
+| `FORCE_ROLLBACK`   | failed, cancelled           | Manually trigger rollback              |
+| `RESET`            | ready, failed, cancelled    | Return machine to idle                 |
 
 ### Context Shape
 
@@ -324,20 +344,21 @@ interface ChangeSetMachineContext {
   changeSet: ChangeSet | null;
   routerId: string | null;
   validationResult: ChangeSetValidationResult | null;
-  currentItemIndex: number;          // Position in sortedItems array
-  sortedItems: ChangeSetItem[];      // Topologically sorted apply order
-  appliedItems: ChangeSetItem[];     // Items successfully applied so far
-  rollbackPlan: RollbackStep[];      // Built up as items are applied (reverse order)
+  currentItemIndex: number; // Position in sortedItems array
+  sortedItems: ChangeSetItem[]; // Topologically sorted apply order
+  appliedItems: ChangeSetItem[]; // Items successfully applied so far
+  rollbackPlan: RollbackStep[]; // Built up as items are applied (reverse order)
   error: ChangeSetError | null;
   errorMessage: string | null;
-  cancelRequested: boolean;          // Set by CANCEL during applying
+  cancelRequested: boolean; // Set by CANCEL during applying
   applyStartedAt: number | null;
 }
 ```
 
 ### Rollback Plan Construction
 
-As each item is applied, a `RollbackStep` is prepended to `context.rollbackPlan`. This means the rollback plan is always in reverse apply order (last applied = first to roll back):
+As each item is applied, a `RollbackStep` is prepended to `context.rollbackPlan`. This means the
+rollback plan is always in reverse apply order (last applied = first to roll back):
 
 ```typescript
 // CREATE → DELETE
@@ -353,15 +374,26 @@ import { useActor } from '@xstate/react';
 
 const machine = createChangeSetMachine({
   validateChangeSet: async (changeSet) => {
-    const response = await client.query({ query: VALIDATE_CHANGE_SET, variables: { id: changeSet.id } });
+    const response = await client.query({
+      query: VALIDATE_CHANGE_SET,
+      variables: { id: changeSet.id },
+    });
     return response.data.validation;
   },
   applyItem: async ({ item, routerId }) => {
     const response = await client.mutate({
       mutation: APPLY_RESOURCE,
-      variables: { routerId, itemId: item.id, operation: item.operation, config: item.configuration },
+      variables: {
+        routerId,
+        itemId: item.id,
+        operation: item.operation,
+        config: item.configuration,
+      },
     });
-    return { confirmedState: response.data.confirmedState, resourceUuid: response.data.resourceUuid };
+    return {
+      confirmedState: response.data.confirmedState,
+      resourceUuid: response.data.resourceUuid,
+    };
   },
   rollbackItem: async ({ rollbackStep, routerId }) => {
     await client.mutate({ mutation: ROLLBACK_RESOURCE, variables: { routerId, ...rollbackStep } });
@@ -388,12 +420,14 @@ send({ type: 'APPLY' });
 
 ## createTemplateApplyMachine
 
-**File:** `libs/features/firewall/src/machines/template-apply.machine.ts`
-**Export:** `createTemplateApplyMachine(config)`
+**File:** `libs/features/firewall/src/machines/template-apply.machine.ts` **Export:**
+`createTemplateApplyMachine(config)`
 
 ### Purpose
 
-Safety pipeline for applying firewall rule templates. Adds template-specific concerns on top of the basic config pipeline: variable resolution, conflict detection, impact analysis, high-risk thresholds, and a 10-second undo (rollback) window after successful apply.
+Safety pipeline for applying firewall rule templates. Adds template-specific concerns on top of the
+basic config pipeline: variable resolution, conflict detection, impact analysis, high-risk
+thresholds, and a 10-second undo (rollback) window after successful apply.
 
 ### When It Is Used
 
@@ -437,22 +471,23 @@ Safety pipeline for applying firewall rule templates. Adds template-specific con
 
 ### States
 
-| State        | Description                                                 |
-|--------------|-------------------------------------------------------------|
-| `idle`       | Waiting for template selection                              |
-| `configuring`| User filling in template variable values                    |
-| `previewing` | Async: calling previewTemplate API                          |
-| `reviewing`  | User inspecting resolved rules and conflict report          |
-| `confirming` | High-risk acknowledgment for large or conflicting templates |
-| `applying`   | Async: calling applyTemplate API                            |
-| `success`    | Apply succeeded; 10-second rollback window active           |
-| `rollingBack`| Async: calling executeRollback API                          |
-| `rolledBack` | Rollback complete                                           |
-| `error`      | Apply or rollback failed                                    |
+| State         | Description                                                 |
+| ------------- | ----------------------------------------------------------- |
+| `idle`        | Waiting for template selection                              |
+| `configuring` | User filling in template variable values                    |
+| `previewing`  | Async: calling previewTemplate API                          |
+| `reviewing`   | User inspecting resolved rules and conflict report          |
+| `confirming`  | High-risk acknowledgment for large or conflicting templates |
+| `applying`    | Async: calling applyTemplate API                            |
+| `success`     | Apply succeeded; 10-second rollback window active           |
+| `rollingBack` | Async: calling executeRollback API                          |
+| `rolledBack`  | Rollback complete                                           |
+| `error`       | Apply or rollback failed                                    |
 
 ### High-Risk Thresholds
 
-A template application is classified as high-risk (requiring explicit acknowledgment) when any of these conditions are true:
+A template application is classified as high-risk (requiring explicit acknowledgment) when any of
+these conditions are true:
 
 - Adding more than 10 new rules (`impactAnalysis.newRulesCount > 10`)
 - Affecting more than 3 firewall chains (`impactAnalysis.affectedChains.length > 3`)
@@ -461,17 +496,17 @@ A template application is classified as high-risk (requiring explicit acknowledg
 
 ### Events
 
-| Event              | From States           | Description                                  |
-|--------------------|-----------------------|----------------------------------------------|
-| `SELECT_TEMPLATE`  | idle                  | Select template and router                   |
-| `UPDATE_VARIABLES` | configuring, reviewing| Update variable values                       |
-| `PREVIEW`          | configuring           | Generate preview with conflict detection     |
-| `CONFIRM`          | reviewing             | Proceed to apply (or confirming if high-risk)|
-| `ACKNOWLEDGED`     | confirming            | Explicitly acknowledge high-risk operation   |
-| `ROLLBACK`         | success, error        | Initiate rollback                            |
-| `RETRY`            | error                 | Retry from previewing                        |
-| `CANCEL`           | configuring, reviewing, confirming | Abandon flow                 |
-| `RESET`            | success, rolledBack, error | Return to idle                         |
+| Event              | From States                        | Description                                   |
+| ------------------ | ---------------------------------- | --------------------------------------------- |
+| `SELECT_TEMPLATE`  | idle                               | Select template and router                    |
+| `UPDATE_VARIABLES` | configuring, reviewing             | Update variable values                        |
+| `PREVIEW`          | configuring                        | Generate preview with conflict detection      |
+| `CONFIRM`          | reviewing                          | Proceed to apply (or confirming if high-risk) |
+| `ACKNOWLEDGED`     | confirming                         | Explicitly acknowledge high-risk operation    |
+| `ROLLBACK`         | success, error                     | Initiate rollback                             |
+| `RETRY`            | error                              | Retry from previewing                         |
+| `CANCEL`           | configuring, reviewing, confirming | Abandon flow                                  |
+| `RESET`            | success, rolledBack, error         | Return to idle                                |
 
 ### Context Shape
 
@@ -483,14 +518,17 @@ interface TemplateApplyContext {
   validationErrors: Array<{ field: string; message: string }>;
   previewResult: TemplatePreviewResult | null;
   applyResult: FirewallTemplateResult | null;
-  applyStartedAt: number | null;    // For 10-second rollback countdown UI
+  applyStartedAt: number | null; // For 10-second rollback countdown UI
   errorMessage: string | null;
 }
 ```
 
 ### 10-Second Rollback Window
 
-After `success` is entered, `applyStartedAt` is set to `Date.now()`. The UI reads this to display a countdown. The user can send `ROLLBACK` at any time while in `success` state (there is no machine-enforced timeout — the 10 seconds is a UI convention). If the user navigates away or dismisses without rolling back, they must use `RESET` to clear the machine.
+After `success` is entered, `applyStartedAt` is set to `Date.now()`. The UI reads this to display a
+countdown. The user can send `ROLLBACK` at any time while in `success` state (there is no
+machine-enforced timeout — the 10 seconds is a UI convention). If the user navigates away or
+dismisses without rolling back, they must use `RESET` to clear the machine.
 
 ### Usage Example
 
@@ -525,22 +563,24 @@ actor.send({ type: 'CONFIRM' });
 ### Helper Utilities
 
 ```typescript
-isTemplateFinal(state)       // success | rolledBack
-isTemplateCancellable(state) // configuring | reviewing | confirming
-isTemplateProcessing(state)  // previewing | applying | rollingBack
-getTemplateStateDescription(state) // Human-readable label
+isTemplateFinal(state); // success | rolledBack
+isTemplateCancellable(state); // configuring | reviewing | confirming
+isTemplateProcessing(state); // previewing | applying | rollingBack
+getTemplateStateDescription(state); // Human-readable label
 ```
 
 ---
 
 ## createResourceLifecycleMachine
 
-**File:** `libs/state/machines/src/resourceLifecycleMachine.ts`
-**Export:** `createResourceLifecycleMachine<TConfig>(config)`
+**File:** `libs/state/machines/src/resourceLifecycleMachine.ts` **Export:**
+`createResourceLifecycleMachine<TConfig>(config)`
 
 ### Purpose
 
-Models the complete 9-state lifecycle of a Universal State v2 resource from initial creation through eventual archiving. Handles the validation-apply-verify loop, runtime degradation detection, and sync from router.
+Models the complete 9-state lifecycle of a Universal State v2 resource from initial creation through
+eventual archiving. Handles the validation-apply-verify loop, runtime degradation detection, and
+sync from router.
 
 ### When It Is Used
 
@@ -577,35 +617,35 @@ Models the complete 9-state lifecycle of a Universal State v2 resource from init
 
 ### States
 
-| State        | Description                                         |
-|--------------|-----------------------------------------------------|
-| `draft`      | Resource created or edited, not yet validated       |
-| `validating` | Async: running 7-stage validation pipeline          |
-| `valid`      | Validation passed; ready to apply                   |
-| `applying`   | Async: pushing configuration to router              |
-| `active`     | Running on router; receiving real-time runtime updates|
-| `degraded`   | Running but health is DEGRADED or CRITICAL          |
-| `error`      | Validation or apply failure                         |
-| `deprecated` | Marked for eventual removal                         |
-| `archived`   | Final state; resource permanently decommissioned    |
-| `syncing`    | Async: pulling current configuration from router    |
+| State        | Description                                            |
+| ------------ | ------------------------------------------------------ |
+| `draft`      | Resource created or edited, not yet validated          |
+| `validating` | Async: running 7-stage validation pipeline             |
+| `valid`      | Validation passed; ready to apply                      |
+| `applying`   | Async: pushing configuration to router                 |
+| `active`     | Running on router; receiving real-time runtime updates |
+| `degraded`   | Running but health is DEGRADED or CRITICAL             |
+| `error`      | Validation or apply failure                            |
+| `deprecated` | Marked for eventual removal                            |
+| `archived`   | Final state; resource permanently decommissioned       |
+| `syncing`    | Async: pulling current configuration from router       |
 
 ### Events
 
-| Event            | From States               | Description                                |
-|------------------|---------------------------|--------------------------------------------|
-| `EDIT`           | draft, valid, active, degraded, error | Update pending configuration   |
-| `VALIDATE`       | draft                     | Start validation (requires `uuid`)         |
-| `APPLY`          | valid                     | Push configuration to router               |
-| `RUNTIME_UPDATE` | active, degraded          | Real-time health/metrics update            |
-| `DEGRADE`        | active                    | Manual degradation signal                  |
-| `RECOVER`        | degraded                  | Recovery signal (health restored)          |
-| `DEPRECATE`      | active, degraded          | Mark for removal                           |
-| `RESTORE`        | deprecated                | Reactivate deprecated resource             |
-| `ARCHIVE`        | deprecated                | Permanently archive                        |
-| `RETRY`          | error                     | Retry validation (max 3 attempts)          |
-| `RESET`          | error                     | Clear errors and return to draft           |
-| `SYNC`           | active                    | Pull current state from router             |
+| Event            | From States                           | Description                        |
+| ---------------- | ------------------------------------- | ---------------------------------- |
+| `EDIT`           | draft, valid, active, degraded, error | Update pending configuration       |
+| `VALIDATE`       | draft                                 | Start validation (requires `uuid`) |
+| `APPLY`          | valid                                 | Push configuration to router       |
+| `RUNTIME_UPDATE` | active, degraded                      | Real-time health/metrics update    |
+| `DEGRADE`        | active                                | Manual degradation signal          |
+| `RECOVER`        | degraded                              | Recovery signal (health restored)  |
+| `DEPRECATE`      | active, degraded                      | Mark for removal                   |
+| `RESTORE`        | deprecated                            | Reactivate deprecated resource     |
+| `ARCHIVE`        | deprecated                            | Permanently archive                |
+| `RETRY`          | error                                 | Retry validation (max 3 attempts)  |
+| `RESET`          | error                                 | Clear errors and return to draft   |
+| `SYNC`           | active                                | Pull current state from router     |
 
 ### Context Shape
 
@@ -617,20 +657,21 @@ interface ResourceLifecycleContext<TConfig> {
   configuration: TConfig | null;
   pendingConfiguration: TConfig | null;
   validationResult: ValidationResult | null;
-  runtime: RuntimeState | null;        // CPU, memory, health from router
+  runtime: RuntimeState | null; // CPU, memory, health from router
   errorMessage: string | null;
   errorCode: string | null;
   rollbackData: TConfig | null;
   lastTransitionAt: number | null;
   retryCount: number;
-  maxRetries: number;                  // Default: 3
+  maxRetries: number; // Default: 3
   degradationReason: string | null;
 }
 ```
 
 ### Runtime Updates
 
-When the router reports a health change via a subscription event, `RUNTIME_UPDATE` is sent. In the `active` state, this uses guards to decide whether to transition to `degraded`:
+When the router reports a health change via a subscription event, `RUNTIME_UPDATE` is sent. In the
+`active` state, this uses guards to decide whether to transition to `degraded`:
 
 ```typescript
 RUNTIME_UPDATE: [
@@ -645,18 +686,20 @@ RUNTIME_UPDATE: [
 ],
 ```
 
-In the `degraded` state, `RUNTIME_UPDATE` with `health === 'HEALTHY'` automatically transitions back to `active`.
+In the `degraded` state, `RUNTIME_UPDATE` with `health === 'HEALTHY'` automatically transitions back
+to `active`.
 
 ---
 
 ## createWizardMachine
 
-**File:** `libs/state/machines/src/wizardMachine.ts`
-**Export:** `createWizardMachine<TData>(config)` (exports V2 which is the recommended version)
+**File:** `libs/state/machines/src/wizardMachine.ts` **Export:**
+`createWizardMachine<TData>(config)` (exports V2 which is the recommended version)
 
 ### Purpose
 
-Reusable multi-step wizard with per-step async validation, session persistence (for crash recovery), and data accumulation across steps. Generic over the wizard's data type `TData`.
+Reusable multi-step wizard with per-step async validation, session persistence (for crash recovery),
+and data accumulation across steps. Generic over the wizard's data type `TData`.
 
 ### When It Is Used
 
@@ -689,36 +732,36 @@ completed  step (with _form error)
 
 ### States
 
-| State        | Description                                          |
-|--------------|------------------------------------------------------|
-| `step`       | User is editing the current step's fields            |
-| `validating` | Async: calling validateStep for the current step     |
-| `submitting` | Async: calling onSubmit with all accumulated data    |
-| `completed`  | Final: wizard finished successfully                  |
-| `cancelled`  | Final: user cancelled                                |
+| State        | Description                                       |
+| ------------ | ------------------------------------------------- |
+| `step`       | User is editing the current step's fields         |
+| `validating` | Async: calling validateStep for the current step  |
+| `submitting` | Async: calling onSubmit with all accumulated data |
+| `completed`  | Final: wizard finished successfully               |
+| `cancelled`  | Final: user cancelled                             |
 
 ### Events
 
-| Event          | From States   | Description                                |
-|----------------|---------------|--------------------------------------------|
-| `NEXT`         | step          | Validate and advance (or submit on last step) |
-| `BACK`         | step          | Go back (guard: canGoBack)                 |
-| `SET_DATA`     | step          | Update field values without advancing      |
-| `CLEAR_ERRORS` | step          | Clear validation error messages            |
-| `CANCEL`       | step          | Abandon wizard                             |
-| `RESTORE`      | step          | Restore previously saved session context   |
-| `GOTO`         | step          | Jump to specific step (V1 only)            |
+| Event          | From States | Description                                   |
+| -------------- | ----------- | --------------------------------------------- |
+| `NEXT`         | step        | Validate and advance (or submit on last step) |
+| `BACK`         | step        | Go back (guard: canGoBack)                    |
+| `SET_DATA`     | step        | Update field values without advancing         |
+| `CLEAR_ERRORS` | step        | Clear validation error messages               |
+| `CANCEL`       | step        | Abandon wizard                                |
+| `RESTORE`      | step        | Restore previously saved session context      |
+| `GOTO`         | step        | Jump to specific step (V1 only)               |
 
 ### Context Shape
 
 ```typescript
 interface WizardContext<TData> {
-  currentStep: number;        // 1-indexed
+  currentStep: number; // 1-indexed
   totalSteps: number;
-  data: Partial<TData>;       // Accumulated across all steps
-  errors: Record<string, string>;  // Field-level validation errors
-  sessionId: string;          // UUID for session persistence/recovery
-  canSkip: boolean;           // Whether forward navigation is allowed without validation
+  data: Partial<TData>; // Accumulated across all steps
+  errors: Record<string, string>; // Field-level validation errors
+  sessionId: string; // UUID for session persistence/recovery
+  canSkip: boolean; // Whether forward navigation is allowed without validation
 }
 ```
 
@@ -728,7 +771,10 @@ interface WizardContext<TData> {
 interface WizardConfig<TData> {
   id: string;
   totalSteps: number;
-  validateStep: (step: number, data: Partial<TData>) => Promise<{ valid: boolean; errors?: Record<string, string> }>;
+  validateStep: (
+    step: number,
+    data: Partial<TData>
+  ) => Promise<{ valid: boolean; errors?: Record<string, string> }>;
   onSubmit: (data: TData) => Promise<void>;
   initialData?: Partial<TData>;
   persist?: boolean;
@@ -757,7 +803,7 @@ const installWizard = createWizardMachine<ServiceInstallData>({
     const result = schema.safeParse(data);
     if (!result.success) {
       const errors: Record<string, string> = {};
-      result.error.issues.forEach(issue => {
+      result.error.issues.forEach((issue) => {
         errors[issue.path.join('.')] = issue.message;
       });
       return { valid: false, errors };
@@ -785,13 +831,17 @@ if (state.context.errors.instanceName) {
 
 ### Session Recovery
 
-The `RESTORE` event allows rehydrating wizard state from a persisted draft (e.g., from `useServiceUIStore.wizardDraft`):
+The `RESTORE` event allows rehydrating wizard state from a persisted draft (e.g., from
+`useServiceUIStore.wizardDraft`):
 
 ```typescript
 const draft = useServiceWizardDraft();
 useEffect(() => {
   if (draft) {
-    send({ type: 'RESTORE', savedContext: { currentStep: draft.step, data: draft.data, sessionId: draft.sessionId } });
+    send({
+      type: 'RESTORE',
+      savedContext: { currentStep: draft.step, data: draft.data, sessionId: draft.sessionId },
+    });
   }
 }, []);
 ```
@@ -800,12 +850,14 @@ useEffect(() => {
 
 ## updateMachine
 
-**File:** `libs/features/services/src/machines/update-machine.ts`
-**Export:** `updateMachine` (singleton, not a factory)
+**File:** `libs/features/services/src/machines/update-machine.ts` **Export:** `updateMachine`
+(singleton, not a factory)
 
 ### Purpose
 
-Manages the lifecycle of a service instance update. Unlike other machines, this is a singleton (not a factory) because the update states are simple and don't vary by configuration. Progress events arrive via GraphQL subscription and are fed into the machine with `send()`.
+Manages the lifecycle of a service instance update. Unlike other machines, this is a singleton (not
+a factory) because the update states are simple and don't vary by configuration. Progress events
+arrive via GraphQL subscription and are fed into the machine with `send()`.
 
 ### When It Is Used
 
@@ -829,29 +881,30 @@ Manages the lifecycle of a service instance update. Unlike other machines, this 
                               idle
 ```
 
-The `updating` state also accepts `PROGRESS` events (without transition — just context update) and `CANCEL` (back to idle with reset).
+The `updating` state also accepts `PROGRESS` events (without transition — just context update) and
+`CANCEL` (back to idle with reset).
 
 ### States
 
-| State       | Description                                             |
-|-------------|---------------------------------------------------------|
-| `idle`      | Ready for a new update                                  |
-| `updating`  | Update in progress; receives PROGRESS subscription events|
-| `complete`  | Update succeeded                                        |
-| `rolledBack`| Update was automatically rolled back by health check    |
-| `failed`    | Update failed with error                                |
+| State        | Description                                               |
+| ------------ | --------------------------------------------------------- |
+| `idle`       | Ready for a new update                                    |
+| `updating`   | Update in progress; receives PROGRESS subscription events |
+| `complete`   | Update succeeded                                          |
+| `rolledBack` | Update was automatically rolled back by health check      |
+| `failed`     | Update failed with error                                  |
 
 ### Events
 
-| Event           | From States | Description                                          |
-|-----------------|-------------|------------------------------------------------------|
-| `START_UPDATE`  | idle        | Begin update with instance and version info          |
-| `PROGRESS`      | updating    | Progress event from subscription (no transition)     |
-| `COMPLETE`      | updating    | Update finished successfully                         |
-| `ROLLED_BACK`   | updating    | Backend health check triggered rollback              |
-| `FAILED`        | updating    | Update failed with error message                     |
-| `CANCEL`        | updating    | User cancels (returns to idle immediately)           |
-| `RESET`         | complete, rolledBack, failed | Return to idle                      |
+| Event          | From States                  | Description                                      |
+| -------------- | ---------------------------- | ------------------------------------------------ |
+| `START_UPDATE` | idle                         | Begin update with instance and version info      |
+| `PROGRESS`     | updating                     | Progress event from subscription (no transition) |
+| `COMPLETE`     | updating                     | Update finished successfully                     |
+| `ROLLED_BACK`  | updating                     | Backend health check triggered rollback          |
+| `FAILED`       | updating                     | Update failed with error message                 |
+| `CANCEL`       | updating                     | User cancels (returns to idle immediately)       |
+| `RESET`        | complete, rolledBack, failed | Return to idle                                   |
 
 ### Context Shape
 
@@ -860,9 +913,9 @@ interface UpdateContext {
   instanceId: string | null;
   fromVersion: string | null;
   toVersion: string | null;
-  stage: UpdateStage;           // 'PENDING' | 'DOWNLOADING' | 'INSTALLING' | 'VERIFYING' | 'COMPLETE' | 'FAILED' | 'ROLLED_BACK'
-  progress: number;             // 0-100
-  message: string;              // Human-readable status message
+  stage: UpdateStage; // 'PENDING' | 'DOWNLOADING' | 'INSTALLING' | 'VERIFYING' | 'COMPLETE' | 'FAILED' | 'ROLLED_BACK'
+  progress: number; // 0-100
+  message: string; // Human-readable status message
   error: string | null;
   rolledBack: boolean;
   startedAt: Date | null;
@@ -899,12 +952,14 @@ const { progress, message, stage } = state.context;
 
 ## pingMachine
 
-**File:** `libs/features/diagnostics/src/machines/ping-machine.ts`
-**Export:** `pingMachine` (singleton)
+**File:** `libs/features/diagnostics/src/machines/ping-machine.ts` **Export:** `pingMachine`
+(singleton)
 
 ### Purpose
 
-Manages the lifecycle of a single ping diagnostic test. Tracks results as they arrive from a backend subscription, computes statistics in real time, and automatically transitions to `complete` when all expected packets have been received.
+Manages the lifecycle of a single ping diagnostic test. Tracks results as they arrive from a backend
+subscription, computes statistics in real time, and automatically transitions to `complete` when all
+expected packets have been received.
 
 ### When It Is Used
 
@@ -927,36 +982,38 @@ Manages the lifecycle of a single ping diagnostic test. Tracks results as they a
                               ▲ START from any terminal state
 ```
 
-In `running`, `RESULT_RECEIVED` triggers a guard (`isComplete`) that checks if `results.length + 1 >= count`. When true, the machine transitions to `complete`; otherwise it stays in `running` and accumulates the result.
+In `running`, `RESULT_RECEIVED` triggers a guard (`isComplete`) that checks if
+`results.length + 1 >= count`. When true, the machine transitions to `complete`; otherwise it stays
+in `running` and accumulates the result.
 
 ### States
 
-| State      | Description                                            |
-|------------|--------------------------------------------------------|
-| `idle`     | Ready to start a test                                  |
-| `running`  | Test in progress; accumulating results                 |
-| `stopped`  | User manually stopped; results preserved               |
-| `complete` | All packets sent; final statistics available           |
-| `error`    | Test failed; error message in context                  |
+| State      | Description                                  |
+| ---------- | -------------------------------------------- |
+| `idle`     | Ready to start a test                        |
+| `running`  | Test in progress; accumulating results       |
+| `stopped`  | User manually stopped; results preserved     |
+| `complete` | All packets sent; final statistics available |
+| `error`    | Test failed; error message in context        |
 
 ### Events
 
-| Event              | From States | Description                                    |
-|--------------------|-------------|------------------------------------------------|
-| `START`            | any         | Begin new test (resets all state)              |
-| `JOB_STARTED`      | running     | Backend job ID received                        |
-| `RESULT_RECEIVED`  | running     | New ping result from subscription              |
-| `STOP`             | running     | User manually stops test                       |
-| `ERROR`            | running     | Test failed with error                         |
+| Event             | From States | Description                       |
+| ----------------- | ----------- | --------------------------------- |
+| `START`           | any         | Begin new test (resets all state) |
+| `JOB_STARTED`     | running     | Backend job ID received           |
+| `RESULT_RECEIVED` | running     | New ping result from subscription |
+| `STOP`            | running     | User manually stops test          |
+| `ERROR`           | running     | Test failed with error            |
 
 ### Context Shape
 
 ```typescript
 interface PingContext {
-  target: string;            // Host or IP being pinged
-  count: number;             // Total packets to send
-  jobId: string | null;      // Backend job ID for cancellation
-  results: PingResult[];     // RTT, sequence number, success per packet
+  target: string; // Host or IP being pinged
+  count: number; // Total packets to send
+  jobId: string | null; // Backend job ID for cancellation
+  results: PingResult[]; // RTT, sequence number, success per packet
   statistics: PingStatistics; // min/max/avg/stdDev RTT, sent/received/lost/lossPercent
   error: string | null;
 }
@@ -964,7 +1021,9 @@ interface PingContext {
 
 ### Statistics Calculation
 
-After each `RESULT_RECEIVED`, the `updateStatistics` action calls `calculateStatistics(context.results)` to recompute all statistics from the current results array. This keeps statistics live-updating during the test.
+After each `RESULT_RECEIVED`, the `updateStatistics` action calls
+`calculateStatistics(context.results)` to recompute all statistics from the current results array.
+This keeps statistics live-updating during the test.
 
 ### Usage Example
 
@@ -985,20 +1044,22 @@ useEffect(() => {
 }, [subscriptionData]);
 
 // Subscribe to specific context slices (performance optimization)
-const statistics = useSelector(pingActor, state => state.context.statistics);
-const isRunning = useSelector(pingActor, state => state.matches('running'));
+const statistics = useSelector(pingActor, (state) => state.context.statistics);
+const isRunning = useSelector(pingActor, (state) => state.matches('running'));
 ```
 
 ---
 
 ## createTroubleshootMachine
 
-**File:** `libs/features/diagnostics/src/machines/troubleshoot-machine.ts`
-**Export:** `createTroubleshootMachine(routerId)`
+**File:** `libs/features/diagnostics/src/machines/troubleshoot-machine.ts` **Export:**
+`createTroubleshootMachine(routerId)`
 
 ### Purpose
 
-Guides the user through a 5-step network diagnostic wizard (WAN → Gateway → Internet → DNS → NAT). For each failing step, it optionally presents a suggested fix, applies it, and verifies whether the fix resolved the issue. Uses compound states for the diagnostic loop.
+Guides the user through a 5-step network diagnostic wizard (WAN → Gateway → Internet → DNS → NAT).
+For each failing step, it optionally presents a suggested fix, applies it, and verifies whether the
+fix resolved the issue. Uses compound states for the diagnostic loop.
 
 ### When It Is Used
 
@@ -1059,45 +1120,39 @@ A global `CANCEL` event transitions from any state to `idle`.
 
 ### States
 
-**Top-level:**
-| State                | Description                                         |
-|----------------------|-----------------------------------------------------|
-| `idle`               | Waiting to start                                    |
-| `initializing`       | Detecting WAN interface and gateway                 |
-| `runningDiagnostic`  | Compound: executing diagnostic steps                |
-| `completed`          | All steps finished                                  |
+**Top-level:** | State | Description |
+|----------------------|-----------------------------------------------------| | `idle` | Waiting to
+start | | `initializing` | Detecting WAN interface and gateway | | `runningDiagnostic` | Compound:
+executing diagnostic steps | | `completed` | All steps finished |
 
-**Inside `runningDiagnostic`:**
-| Sub-state            | Description                                         |
-|----------------------|-----------------------------------------------------|
-| `executingStep`      | Running current diagnostic step async               |
-| `stepComplete`       | `always` transition evaluator                       |
-| `awaitingFixDecision`| Showing suggested fix; waiting for user             |
-| `applyingFix`        | Applying the suggested fix async                    |
-| `verifyingFix`       | Re-running diagnostic to confirm fix worked         |
-| `nextStep`           | `always` transition: increment index or complete    |
+**Inside `runningDiagnostic`:** | Sub-state | Description |
+|----------------------|-----------------------------------------------------| | `executingStep` |
+Running current diagnostic step async | | `stepComplete` | `always` transition evaluator | |
+`awaitingFixDecision`| Showing suggested fix; waiting for user | | `applyingFix` | Applying the
+suggested fix async | | `verifyingFix` | Re-running diagnostic to confirm fix worked | | `nextStep`
+| `always` transition: increment index or complete |
 
 ### Events
 
-| Event        | From States                    | Description                             |
-|--------------|--------------------------------|-----------------------------------------|
-| `START`      | idle                           | Begin diagnostics                       |
-| `APPLY_FIX`  | awaitingFixDecision            | Apply the suggested fix                 |
-| `SKIP_FIX`   | awaitingFixDecision            | Skip fix, continue to next step         |
-| `RESTART`    | completed                      | Reset all steps and return to idle      |
-| `CANCEL`     | any (global)                   | Abort and return to idle                |
+| Event       | From States         | Description                        |
+| ----------- | ------------------- | ---------------------------------- |
+| `START`     | idle                | Begin diagnostics                  |
+| `APPLY_FIX` | awaitingFixDecision | Apply the suggested fix            |
+| `SKIP_FIX`  | awaitingFixDecision | Skip fix, continue to next step    |
+| `RESTART`   | completed           | Reset all steps and return to idle |
+| `CANCEL`    | any (global)        | Abort and return to idle           |
 
 ### Context Shape
 
 ```typescript
 interface TroubleshootContext {
   routerId: string;
-  wanInterface: string;          // Detected in initializing (default: 'ether1')
-  gateway: string | null;        // Detected default gateway
-  steps: DiagnosticStep[];       // Status and results for each of 5 steps
-  currentStepIndex: number;      // 0-indexed position in steps array
+  wanInterface: string; // Detected in initializing (default: 'ether1')
+  gateway: string | null; // Detected default gateway
+  steps: DiagnosticStep[]; // Status and results for each of 5 steps
+  currentStepIndex: number; // 0-indexed position in steps array
   overallStatus: 'idle' | 'running' | 'completed';
-  appliedFixes: string[];        // Issue codes of fixes that were applied
+  appliedFixes: string[]; // Issue codes of fixes that were applied
   startTime: Date | null;
   endTime: Date | null;
   error: string | null;
@@ -1109,7 +1164,7 @@ interface DiagnosticStep {
   description: string;
   status: 'pending' | 'running' | 'passed' | 'failed';
   result?: DiagnosticResult;
-  fix?: DiagnosticFix;           // Populated from fix-registry when step fails
+  fix?: DiagnosticFix; // Populated from fix-registry when step fails
 }
 ```
 
@@ -1120,32 +1175,41 @@ The machine uses XState's `provide()` at runtime to inject diagnostic implementa
 ```typescript
 const machine = createTroubleshootMachine(routerId);
 
-const actor = createActor(machine.provide({
-  actors: {
-    detectNetworkConfig: fromPromise(async ({ input }) => {
-      const config = await api.detectWanInterface(input.routerId);
-      return { wanInterface: config.interface, gateway: config.gateway };
-    }),
-    executeDiagnosticStep: fromPromise(async ({ input }) => {
-      return api.runDiagnosticStep(input.step.id, input.routerId, input.wanInterface, input.gateway);
-    }),
-    applyFix: fromPromise(async ({ input }) => {
-      return api.applyDiagnosticFix(input.routerId, input.fix);
-    }),
-  },
-})).start();
+const actor = createActor(
+  machine.provide({
+    actors: {
+      detectNetworkConfig: fromPromise(async ({ input }) => {
+        const config = await api.detectWanInterface(input.routerId);
+        return { wanInterface: config.interface, gateway: config.gateway };
+      }),
+      executeDiagnosticStep: fromPromise(async ({ input }) => {
+        return api.runDiagnosticStep(
+          input.step.id,
+          input.routerId,
+          input.wanInterface,
+          input.gateway
+        );
+      }),
+      applyFix: fromPromise(async ({ input }) => {
+        return api.applyDiagnosticFix(input.routerId, input.fix);
+      }),
+    },
+  })
+).start();
 ```
 
 ---
 
 ## createVPNConnectionMachine
 
-**File:** `libs/state/machines/src/vpnConnectionMachine.ts`
-**Export:** `createVPNConnectionMachine(services)`, `useVPNConnection(services)`
+**File:** `libs/state/machines/src/vpnConnectionMachine.ts` **Export:**
+`createVPNConnectionMachine(services)`, `useVPNConnection(services)`
 
 ### Purpose
 
-Manages the VPN connection lifecycle: connection establishment with 30-second timeout, automatic reconnection with exponential backoff (max 3 attempts), real-time metrics updates, and graceful disconnection.
+Manages the VPN connection lifecycle: connection establishment with 30-second timeout, automatic
+reconnection with exponential backoff (max 3 attempts), real-time metrics updates, and graceful
+disconnection.
 
 ### When It Is Used
 
@@ -1177,41 +1241,42 @@ Manages the VPN connection lifecycle: connection establishment with 30-second ti
                                       disconnected
 ```
 
-The `reconnecting` state also has a 10-second timeout that forces `disconnected` if the reconnection attempt hangs.
+The `reconnecting` state also has a 10-second timeout that forces `disconnected` if the reconnection
+attempt hangs.
 
 ### States
 
-| State           | Description                                         |
-|-----------------|-----------------------------------------------------|
-| `disconnected`  | Not connected; clears connection context on entry   |
-| `connecting`    | Establishing connection (30s timeout)               |
-| `connected`     | Active connection; receives real-time metrics       |
-| `reconnecting`  | Auto-reconnect with exponential backoff             |
-| `disconnecting` | Graceful closure (close API call)                   |
-| `error`         | Connection failed; offers RETRY or DISMISS          |
+| State           | Description                                       |
+| --------------- | ------------------------------------------------- |
+| `disconnected`  | Not connected; clears connection context on entry |
+| `connecting`    | Establishing connection (30s timeout)             |
+| `connected`     | Active connection; receives real-time metrics     |
+| `reconnecting`  | Auto-reconnect with exponential backoff           |
+| `disconnecting` | Graceful closure (close API call)                 |
+| `error`         | Connection failed; offers RETRY or DISMISS        |
 
 ### Events
 
-| Event              | From States       | Description                                   |
-|--------------------|-------------------|-----------------------------------------------|
-| `CONNECT`          | disconnected      | Initiate connection with serverAddress + provider |
-| `DISCONNECT`       | connected         | Graceful disconnect                           |
-| `METRICS_UPDATE`   | connected         | Real-time bandwidth/traffic data (no transition) |
-| `CONNECTION_LOST`  | connected         | Unexpected drop; triggers reconnect           |
-| `RETRY`            | error             | Retry after error                             |
-| `DISMISS`          | error             | Dismiss error and go to disconnected          |
+| Event             | From States  | Description                                       |
+| ----------------- | ------------ | ------------------------------------------------- |
+| `CONNECT`         | disconnected | Initiate connection with serverAddress + provider |
+| `DISCONNECT`      | connected    | Graceful disconnect                               |
+| `METRICS_UPDATE`  | connected    | Real-time bandwidth/traffic data (no transition)  |
+| `CONNECTION_LOST` | connected    | Unexpected drop; triggers reconnect               |
+| `RETRY`           | error        | Retry after error                                 |
+| `DISMISS`         | error        | Dismiss error and go to disconnected              |
 
 ### Context Shape
 
 ```typescript
 interface VPNConnectionContext {
   connectionId: string | null;
-  provider: string | null;          // 'wireguard' | 'openvpn' | etc.
+  provider: string | null; // 'wireguard' | 'openvpn' | etc.
   serverAddress: string | null;
   metrics: ConnectionMetrics | null; // Bandwidth, uptime, packets
   error: string | null;
   reconnectAttempts: number;
-  maxReconnectAttempts: number;      // Default: 3
+  maxReconnectAttempts: number; // Default: 3
 }
 ```
 
@@ -1221,7 +1286,7 @@ The `attemptReconnect` actor applies backoff before calling the reconnection API
 
 ```typescript
 const delay = BACKOFF_BASE_MS * Math.pow(2, input.attempt || 0);
-await new Promise(resolve => setTimeout(resolve, Math.min(delay, 8000)));
+await new Promise((resolve) => setTimeout(resolve, Math.min(delay, 8000)));
 // attempt 0 → 1s, attempt 1 → 2s, attempt 2 → 4s, capped at 8s
 ```
 
@@ -1260,7 +1325,9 @@ function VPNStatusPanel() {
 }
 ```
 
-Return value includes: `state`, `connectionId`, `provider`, `serverAddress`, `metrics`, `error`, `reconnectAttempts`, `isConnected`, `isConnecting`, `isError`, `connect()`, `disconnect()`, `retry()`, `dismissError()`, `updateMetrics()`, `reportConnectionLost()`.
+Return value includes: `state`, `connectionId`, `provider`, `serverAddress`, `metrics`, `error`,
+`reconnectAttempts`, `isConnected`, `isConnecting`, `isError`, `connect()`, `disconnect()`,
+`retry()`, `dismissError()`, `updateMetrics()`, `reportConnectionLost()`.
 
 ---
 
@@ -1270,7 +1337,8 @@ NasNetConnect uses two patterns for defining machines:
 
 ### Factory Functions (Most Machines)
 
-Used when the machine needs different async implementations per use case, or when multiple independent instances must coexist:
+Used when the machine needs different async implementations per use case, or when multiple
+independent instances must coexist:
 
 ```typescript
 // Each call produces a distinct machine instance with its own actor
@@ -1280,11 +1348,14 @@ const troubleshootMachine1 = createTroubleshootMachine('router-id-1');
 const troubleshootMachine2 = createTroubleshootMachine('router-id-2');
 ```
 
-Factory machines: `createConfigPipelineMachine`, `createChangeSetMachine`, `createTemplateApplyMachine`, `createResourceLifecycleMachine`, `createWizardMachine`, `createTroubleshootMachine`, `createVPNConnectionMachine`.
+Factory machines: `createConfigPipelineMachine`, `createChangeSetMachine`,
+`createTemplateApplyMachine`, `createResourceLifecycleMachine`, `createWizardMachine`,
+`createTroubleshootMachine`, `createVPNConnectionMachine`.
 
 ### Singleton Machines (Simple Workflows)
 
-Used when the machine is stateless by configuration (all variation comes from events/context) and only one instance runs at a time per component:
+Used when the machine is stateless by configuration (all variation comes from events/context) and
+only one instance runs at a time per component:
 
 ```typescript
 // The machine definition is shared; each useMachine() call creates a new actor
@@ -1300,11 +1371,14 @@ Singleton machines: `updateMachine`, `pingMachine`.
 ### Choosing the Right Pattern
 
 Use a **factory** when:
-- The machine needs access to specific API functions (e.g., `applyConfig` for a specific resource type)
+
+- The machine needs access to specific API functions (e.g., `applyConfig` for a specific resource
+  type)
 - Multiple isolated instances run simultaneously (e.g., one troubleshooter per router panel)
 - The machine has configurable callbacks (`onSuccess`, `onError`)
 
 Use a **singleton** when:
+
 - All variation is driven by events and context (no closure dependencies)
 - Only one instance runs at a time within a component tree
 - The machine is simple and self-contained

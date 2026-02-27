@@ -1,7 +1,7 @@
 {
   "id": "flows/service-update-flow",
   "title": "Flow: Service Update",
-  "description": "Traces the lifecycle of a service binary update — from scheduled version check through atomic 6-phase swap with config migration, health validation, and crash recovery.",
+  "description": "Traces the lifecycle of a service binary update — from scheduled version check through atomic",
   "source": "@site/../backend/docs/flows/service-update-flow.md",
   "sourceDirName": "flows",
   "slug": "/flows/service-update-flow",

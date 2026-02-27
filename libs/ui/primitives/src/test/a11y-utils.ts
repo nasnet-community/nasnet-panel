@@ -105,10 +105,7 @@ export interface TestA11yOptions {
  * });
  * ```
  */
-export async function testA11y(
-  ui: ReactElement,
-  options: TestA11yOptions = {}
-): Promise<void> {
+export async function testA11y(ui: ReactElement, options: TestA11yOptions = {}): Promise<void> {
   const { axeOptions, rules, wcagLevel = 'AAA' } = options;
 
   const { container } = render(ui);
@@ -212,9 +209,7 @@ export function getTabOrder(container: HTMLElement): HTMLElement[] {
     '[contenteditable]',
   ].join(', ');
 
-  const elements = Array.from(
-    container.querySelectorAll<HTMLElement>(focusableSelector)
-  );
+  const elements = Array.from(container.querySelectorAll<HTMLElement>(focusableSelector));
 
   // Sort by tabindex (elements with tabindex > 0 come first, in order)
   // Then by DOM order for tabindex = 0 or no tabindex
@@ -249,10 +244,7 @@ export function getTabOrder(container: HTMLElement): HTMLElement[] {
  * expect(hasMinimumTouchTarget(button)).toBe(true);
  * ```
  */
-export function hasMinimumTouchTarget(
-  element: HTMLElement,
-  minSize: number = 44
-): boolean {
+export function hasMinimumTouchTarget(element: HTMLElement, minSize: number = 44): boolean {
   const rect = element.getBoundingClientRect();
   return rect.width >= minSize && rect.height >= minSize;
 }
@@ -288,9 +280,7 @@ export function getElementsWithSmallTouchTargets(
     '[role="switch"]',
   ].join(', ');
 
-  const elements = Array.from(
-    container.querySelectorAll<HTMLElement>(interactiveSelector)
-  );
+  const elements = Array.from(container.querySelectorAll<HTMLElement>(interactiveSelector));
 
   return elements.filter((el) => !hasMinimumTouchTarget(el, minSize));
 }
@@ -353,19 +343,18 @@ export function getContrastRatio(foreground: string, background: string): number
 function getLuminance(color: string): number {
   const hex = color.replace('#', '');
   const fullHex =
-    hex.length === 3
-      ? hex
-          .split('')
-          .map((c) => c + c)
-          .join('')
-      : hex;
+    hex.length === 3 ?
+      hex
+        .split('')
+        .map((c) => c + c)
+        .join('')
+    : hex;
 
   const r = parseInt(fullHex.substr(0, 2), 16) / 255;
   const g = parseInt(fullHex.substr(2, 2), 16) / 255;
   const b = parseInt(fullHex.substr(4, 2), 16) / 255;
 
-  const toLinear = (c: number) =>
-    c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+  const toLinear = (c: number) => (c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4));
 
   return 0.2126 * toLinear(r) + 0.7152 * toLinear(g) + 0.0722 * toLinear(b);
 }

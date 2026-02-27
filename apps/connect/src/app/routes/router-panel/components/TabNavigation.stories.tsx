@@ -30,7 +30,6 @@ import { cn } from '@nasnet/ui/primitives';
 
 import type { Meta, StoryObj } from '@storybook/react';
 
-
 // ---------------------------------------------------------------------------
 // Visual replica (avoids router-context dependency in Storybook)
 // ---------------------------------------------------------------------------
@@ -44,16 +43,39 @@ interface TabDef {
 }
 
 const TAB_DEFS: TabDef[] = [
-  { value: 'overview', label: 'Overview', icon: LayoutDashboard, ariaLabel: 'Router overview and status' },
+  {
+    value: 'overview',
+    label: 'Overview',
+    icon: LayoutDashboard,
+    ariaLabel: 'Router overview and status',
+  },
   { value: 'wifi', label: 'WiFi', icon: Wifi, ariaLabel: 'WiFi configuration' },
   { value: 'vpn', label: 'VPN', icon: Shield, ariaLabel: 'VPN configuration' },
-  { value: 'firewall', label: 'Firewall', mobileLabel: 'FW', icon: ShieldAlert, ariaLabel: 'Firewall settings' },
+  {
+    value: 'firewall',
+    label: 'Firewall',
+    mobileLabel: 'FW',
+    icon: ShieldAlert,
+    ariaLabel: 'Firewall settings',
+  },
   { value: 'dhcp', label: 'DHCP', icon: Network, ariaLabel: 'DHCP server configuration' },
   { value: 'dns', label: 'DNS', icon: Globe, ariaLabel: 'DNS configuration and servers' },
-  { value: 'network', label: 'Network', mobileLabel: 'Net', icon: Cable, ariaLabel: 'Network settings' },
+  {
+    value: 'network',
+    label: 'Network',
+    mobileLabel: 'Net',
+    icon: Cable,
+    ariaLabel: 'Network settings',
+  },
   { value: 'logs', label: 'Logs', icon: ScrollText, ariaLabel: 'System logs' },
   { value: 'plugins', label: 'Store', icon: Store, ariaLabel: 'Plugin store' },
-  { value: 'services', label: 'Services', mobileLabel: 'Svc', icon: Boxes, ariaLabel: 'Service management' },
+  {
+    value: 'services',
+    label: 'Services',
+    mobileLabel: 'Svc',
+    icon: Boxes,
+    ariaLabel: 'Service management',
+  },
 ];
 
 interface TabNavigationPreviewProps {
@@ -69,11 +91,11 @@ function TabNavigationPreview({ activeTab, variant }: TabNavigationPreviewProps)
   if (variant === 'desktop') {
     return (
       <nav
-        className="border-b border-default bg-transparent"
+        className="border-default border-b bg-transparent"
         role="navigation"
         aria-label="Router panel sections"
       >
-        <div className="max-w-7xl mx-auto flex items-center gap-1">
+        <div className="mx-auto flex max-w-7xl items-center gap-1">
           {TAB_DEFS.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.value;
@@ -85,12 +107,15 @@ function TabNavigationPreview({ activeTab, variant }: TabNavigationPreviewProps)
                 aria-label={tab.ariaLabel}
                 className={cn(
                   'flex items-center gap-2 px-4 py-3 text-sm font-medium transition-all duration-200',
-                  'border-b-2 border-transparent focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+                  'focus-visible:ring-ring border-b-2 border-transparent focus-visible:ring-2 focus-visible:ring-offset-2',
                   'hover:text-primary',
                   isActive ? 'border-primary text-primary' : 'text-muted-foreground'
                 )}
               >
-                <Icon className="h-4 w-4" aria-hidden="true" />
+                <Icon
+                  className="h-4 w-4"
+                  aria-hidden="true"
+                />
                 <span>{tab.label}</span>
               </button>
             );
@@ -103,12 +128,12 @@ function TabNavigationPreview({ activeTab, variant }: TabNavigationPreviewProps)
   // Mobile bottom bar
   return (
     <nav
-      className="surface-secondary border-t border-default shadow-lg"
+      className="surface-secondary border-default border-t shadow-lg"
       role="navigation"
       aria-label="Router panel sections"
       style={{ width: 375 }}
     >
-      <div className="grid grid-cols-10 h-16">
+      <div className="grid h-16 grid-cols-10">
         {TAB_DEFS.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.value;
@@ -121,7 +146,7 @@ function TabNavigationPreview({ activeTab, variant }: TabNavigationPreviewProps)
               aria-label={tab.ariaLabel}
               className={cn(
                 'flex flex-col items-center justify-center gap-1 transition-all duration-200',
-                'focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-h-[44px]',
+                'focus-visible:ring-ring min-h-[44px] focus-visible:ring-2 focus-visible:ring-offset-2',
                 isActive ? 'text-primary' : 'text-muted-foreground'
               )}
             >

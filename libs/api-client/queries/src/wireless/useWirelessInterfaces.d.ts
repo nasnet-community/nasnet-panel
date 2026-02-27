@@ -10,9 +10,12 @@ import type { WirelessInterface } from '@nasnet/core/types';
  * Follows hierarchical pattern: ['domain', 'resource', ...params]
  */
 export declare const wirelessKeys: {
-    readonly all: readonly ["wireless"];
-    readonly interfaces: (routerIp: string) => readonly ["wireless", "interfaces", string];
-    readonly interface: (routerIp: string, id: string) => readonly ["wireless", "interfaces", string, string];
+  readonly all: readonly ['wireless'];
+  readonly interfaces: (routerIp: string) => readonly ['wireless', 'interfaces', string];
+  readonly interface: (
+    routerIp: string,
+    id: string
+  ) => readonly ['wireless', 'interfaces', string, string];
 };
 /**
  * React Query hook for wireless interfaces
@@ -33,5 +36,7 @@ export declare const wirelessKeys: {
  * }
  * ```
  */
-export declare function useWirelessInterfaces(routerIp: string): UseQueryResult<WirelessInterface[], Error>;
+export declare function useWirelessInterfaces(
+  routerIp: string
+): UseQueryResult<WirelessInterface[], Error>;
 //# sourceMappingURL=useWirelessInterfaces.d.ts.map

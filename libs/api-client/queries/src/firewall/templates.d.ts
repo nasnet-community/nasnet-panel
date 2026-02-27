@@ -11,31 +11,31 @@ import type { FirewallTemplate, TemplatePreviewResult } from '@nasnet/core/types
  * Template list filters
  */
 export interface TemplateFilters {
-    category?: string;
-    complexity?: string;
+  category?: string;
+  complexity?: string;
 }
 /**
  * Preview template input
  */
 export interface PreviewTemplateInput {
-    routerId: string;
-    templateId: string;
-    variables: Record<string, string>;
+  routerId: string;
+  templateId: string;
+  variables: Record<string, string>;
 }
 /**
  * Apply template input
  */
 export interface ApplyTemplateInput {
-    routerId: string;
-    templateId: string;
-    variables: Record<string, string>;
+  routerId: string;
+  templateId: string;
+  variables: Record<string, string>;
 }
 /**
  * Rollback template input
  */
 export interface RollbackTemplateInput {
-    routerId: string;
-    rollbackId: string;
+  routerId: string;
+  rollbackId: string;
 }
 /**
  * Hook to fetch all firewall templates
@@ -53,10 +53,12 @@ export interface RollbackTemplateInput {
  * ```
  */
 interface UseTemplatesOptions {
-    filters?: TemplateFilters;
-    enabled?: boolean;
+  filters?: TemplateFilters;
+  enabled?: boolean;
 }
-export declare function useTemplates(options?: UseTemplatesOptions): UseQueryResult<FirewallTemplate[], Error>;
+export declare function useTemplates(
+  options?: UseTemplatesOptions
+): UseQueryResult<FirewallTemplate[], Error>;
 /**
  * Hook to fetch a specific template by ID
  *
@@ -70,9 +72,12 @@ export declare function useTemplates(options?: UseTemplatesOptions): UseQueryRes
  * ```
  */
 interface UseTemplateOptions {
-    enabled?: boolean;
+  enabled?: boolean;
 }
-export declare function useTemplate(templateId: string | null, options?: UseTemplateOptions): UseQueryResult<FirewallTemplate, Error>;
+export declare function useTemplate(
+  templateId: string | null,
+  options?: UseTemplateOptions
+): UseQueryResult<FirewallTemplate, Error>;
 /**
  * Hook to preview a template with variable resolution
  *
@@ -90,9 +95,12 @@ export declare function useTemplate(templateId: string | null, options?: UseTemp
  * ```
  */
 interface UsePreviewTemplateOptions {
-    enabled?: boolean;
+  enabled?: boolean;
 }
-export declare function usePreviewTemplate(input: PreviewTemplateInput | null, options?: UsePreviewTemplateOptions): UseQueryResult<TemplatePreviewResult, Error>;
+export declare function usePreviewTemplate(
+  input: PreviewTemplateInput | null,
+  options?: UsePreviewTemplateOptions
+): UseQueryResult<TemplatePreviewResult, Error>;
 /**
  * Hook to apply a firewall template
  *
@@ -111,12 +119,17 @@ export declare function usePreviewTemplate(input: PreviewTemplateInput | null, o
  * });
  * ```
  */
-export declare function useApplyTemplate(): import("@tanstack/react-query").UseMutationResult<{
+export declare function useApplyTemplate(): import('@tanstack/react-query').UseMutationResult<
+  {
     errors: readonly string[];
     isSuccessful: boolean;
     appliedRulesCount: number;
     rollbackId: string;
-}, Error, ApplyTemplateInput, unknown>;
+  },
+  Error,
+  ApplyTemplateInput,
+  unknown
+>;
 /**
  * Hook to rollback a template application
  *
@@ -134,6 +147,11 @@ export declare function useApplyTemplate(): import("@tanstack/react-query").UseM
  * });
  * ```
  */
-export declare function useRollbackTemplate(): import("@tanstack/react-query").UseMutationResult<void, Error, RollbackTemplateInput, unknown>;
+export declare function useRollbackTemplate(): import('@tanstack/react-query').UseMutationResult<
+  void,
+  Error,
+  RollbackTemplateInput,
+  unknown
+>;
 export {};
 //# sourceMappingURL=templates.d.ts.map

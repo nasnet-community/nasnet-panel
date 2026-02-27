@@ -5,7 +5,7 @@ run:
   timeout: 15m
   tests: false
   modules-download-mode: readonly
-  go: "1.26"
+  go: '1.26'
 
 linters:
   disable:
@@ -13,81 +13,81 @@ linters:
   # Enable a comprehensive set of 50+ linters
   enable:
     # Default/Essential linters
-    - errcheck          # Check for unchecked errors
-    - gosimple          # Simplify code
-    - govet             # Vet examines Go source code
-    - ineffassign       # Detect ineffectual assignments
-    - staticcheck       # Static analysis
-    - unused            # Check for unused code
-    - typecheck         # Parses and type-checks Go code
+    - errcheck # Check for unchecked errors
+    - gosimple # Simplify code
+    - govet # Vet examines Go source code
+    - ineffassign # Detect ineffectual assignments
+    - staticcheck # Static analysis
+    - unused # Check for unused code
+    - typecheck # Parses and type-checks Go code
 
     # Code Quality
-    - bodyclose         # Check HTTP response body is closed
-    - contextcheck      # Check context.Context usage
-    - dogsled           # Check for blank identifier assignments
-    - dupl              # Detect duplicate code
-    - durationcheck     # Check for time.Duration mistakes
-    - errorlint         # Check error handling
-    - exhaustive        # Check exhaustiveness of enum switch statements
-    - copyloopvar       # Check for loop variable capture (Go 1.22+)
-    - gochecknoinits    # Check for init functions
-    - goconst           # Find repeated strings that could be constants
-    - gocritic          # Check for bugs, performance, style issues
-    - gocyclo           # Check cyclomatic complexity
+    - bodyclose # Check HTTP response body is closed
+    - contextcheck # Check context.Context usage
+    - dogsled # Check for blank identifier assignments
+    - dupl # Detect duplicate code
+    - durationcheck # Check for time.Duration mistakes
+    - errorlint # Check error handling
+    - exhaustive # Check exhaustiveness of enum switch statements
+    - copyloopvar # Check for loop variable capture (Go 1.22+)
+    - gochecknoinits # Check for init functions
+    - goconst # Find repeated strings that could be constants
+    - gocritic # Check for bugs, performance, style issues
+    - gocyclo # Check cyclomatic complexity
     #- godot             # Check that comments end in a period
-    - gofmt             # Check code is formatted
-    - goimports         # Check imports are formatted
-    - goprintffuncname  # Check printf-like function names
-    - gosec             # Security checks
-    - lll               # Check line length
-    - makezero          # Find slice declarations not initialized to zero
-    - misspell          # Find misspelled words
-    - nakedret          # Find naked returns in large functions
-    - nestif            # Check for deeply nested if statements
-    - nilerr            # Check for nil error returns
-    - nilnil            # Check for nil/nil returns
-    - noctx             # Check for http requests without context
-    - nolintlint        # Check ill-formed nolint directives
-    - prealloc          # Find slice preallocations
-    - predeclared       # Find shadowed predeclared identifiers
-    - revive            # Configurable linter
-    - rowserrcheck      # Check sql.Rows.Err is called
-    - sqlclosecheck     # Check SQL rows/statements are closed
-    - stylecheck        # Style checks
-    - usetesting        # Check test environment usage
-    - tparallel         # Check test parallelization
-    - unconvert         # Remove unnecessary type conversions
-    - unparam           # Check for unused function parameters
-    - wastedassign      # Find wasted assignments
-    - whitespace        # Check for unnecessary whitespace
+    - gofmt # Check code is formatted
+    - goimports # Check imports are formatted
+    - goprintffuncname # Check printf-like function names
+    - gosec # Security checks
+    - lll # Check line length
+    - makezero # Find slice declarations not initialized to zero
+    - misspell # Find misspelled words
+    - nakedret # Find naked returns in large functions
+    - nestif # Check for deeply nested if statements
+    - nilerr # Check for nil error returns
+    - nilnil # Check for nil/nil returns
+    - noctx # Check for http requests without context
+    - nolintlint # Check ill-formed nolint directives
+    - prealloc # Find slice preallocations
+    - predeclared # Find shadowed predeclared identifiers
+    - revive # Configurable linter
+    - rowserrcheck # Check sql.Rows.Err is called
+    - sqlclosecheck # Check SQL rows/statements are closed
+    - stylecheck # Style checks
+    - usetesting # Check test environment usage
+    - tparallel # Check test parallelization
+    - unconvert # Remove unnecessary type conversions
+    - unparam # Check for unused function parameters
+    - wastedassign # Find wasted assignments
+    - whitespace # Check for unnecessary whitespace
 
     # Additional security and quality
-    - asciicheck        # Check for non-ASCII identifiers
-    - bidichk           # Check for dangerous unicode characters
-    - decorder          # Check declaration order
-    - errchkjson        # Check json error handling
-    - errname           # Check error naming conventions
-    - protogetter       # Check for direct proto field access
-    - forcetypeassert   # Check type assertions
-    - gomoddirectives   # Check go.mod directives
-    - grouper           # Check grouping declarations
-    - importas          # Enforce import aliases
-    - interfacebloat    # Check interface size
-    - loggercheck       # Check logger arguments
-    - maintidx          # Check maintainability index
-    - musttag           # Check struct tags
+    - asciicheck # Check for non-ASCII identifiers
+    - bidichk # Check for dangerous unicode characters
+    - decorder # Check declaration order
+    - errchkjson # Check json error handling
+    - errname # Check error naming conventions
+    - protogetter # Check for direct proto field access
+    - forcetypeassert # Check type assertions
+    - gomoddirectives # Check go.mod directives
+    - grouper # Check grouping declarations
+    - importas # Enforce import aliases
+    - interfacebloat # Check interface size
+    - loggercheck # Check logger arguments
+    - maintidx # Check maintainability index
+    - musttag # Check struct tags
     - nosprintfhostport # Check sprintf host:port
-    - promlinter        # Check Prometheus metrics
-    - reassign          # Check variable reassignment
-    - tagalign          # Check struct tag alignment
-    - thelper           # Check test helpers
-    - usestdlibvars     # Check for standard library vars
-    - zerologlint       # Check zerolog usage
+    - promlinter # Check Prometheus metrics
+    - reassign # Check variable reassignment
+    - tagalign # Check struct tag alignment
+    - thelper # Check test helpers
+    - usestdlibvars # Check for standard library vars
+    - zerologlint # Check zerolog usage
 
     # Architecture & safety linters
-    - nilaway           # Detect nil pointer dereferences across function boundaries
-    - wrapcheck         # Ensure errors from external packages are wrapped with context
-    - depguard          # Enforce import dependency rules (architecture boundaries)
+    - nilaway # Detect nil pointer dereferences across function boundaries
+    - wrapcheck # Ensure errors from external packages are wrapped with context
+    - depguard # Enforce import dependency rules (architecture boundaries)
 
 linters-settings:
   govet:
@@ -130,11 +130,11 @@ linters-settings:
     disabled-checks:
       - whyNoLint
       - wrapperFunc
-      - commentFormatting  # Too opinionated for existing code
-      - hugeParam          # Will be addressed gradually
+      - commentFormatting # Too opinionated for existing code
+      - hugeParam # Will be addressed gradually
     settings:
       rangeValCopy:
-        sizeThreshold: 512  # Allow larger value copies for now
+        sizeThreshold: 512 # Allow larger value copies for now
 
   gofmt:
     simplify: true
@@ -148,12 +148,12 @@ linters-settings:
 
   gosec:
     excludes:
-      - G101  # Look for hard coded credentials (too many false positives)
+      - G101 # Look for hard coded credentials (too many false positives)
     config:
-      G306: "0644"
+      G306: '0644'
 
   gosimple:
-    checks: ["all"]
+    checks: ['all']
 
   lll:
     line-length: 140
@@ -214,8 +214,8 @@ linters-settings:
   stylecheck:
     checks:
       - all
-      - -ST1000  # Package comment check (too strict)
-      - -ST1003  # Underscore in package names (allows _test)
+      - -ST1000 # Package comment check (too strict)
+      - -ST1003 # Underscore in package names (allows _test)
 
   tagliatelle:
     case:
@@ -229,14 +229,14 @@ linters-settings:
 
   wrapcheck:
     ignoreSigs:
-      - ".Errorf("
-      - "errors.New("
-      - "errors.Unwrap("
-      - ".Wrap("
-      - ".Wrapf("
-      - ".WithMessage("
-      - ".WithMessagef("
-      - ".WithStack("
+      - '.Errorf('
+      - 'errors.New('
+      - 'errors.Unwrap('
+      - '.Wrap('
+      - '.Wrapf('
+      - '.WithMessage('
+      - '.WithMessagef('
+      - '.WithStack('
     ignorePackageGlobs:
       - encoding/*
       - io
@@ -246,18 +246,18 @@ linters-settings:
     rules:
       prevent-internal-leaks:
         files:
-          - "!$test"
+          - '!$test'
         deny:
-          - pkg: "backend/cmd"
-            desc: "internal packages must not import from cmd/"
-          - pkg: "backend/graph/resolver"
-            desc: "internal packages must not import resolver layer"
+          - pkg: 'backend/cmd'
+            desc: 'internal packages must not import from cmd/'
+          - pkg: 'backend/graph/resolver'
+            desc: 'internal packages must not import resolver layer'
       resolver-isolation:
         files:
-          - "**/graph/resolver/**"
+          - '**/graph/resolver/**'
         deny:
-          - pkg: "backend/cmd"
-            desc: "resolvers must not import cmd package"
+          - pkg: 'backend/cmd'
+            desc: 'resolvers must not import cmd package'
 
   whitespace:
     multi-if: true
@@ -282,7 +282,7 @@ issues:
 
     # Exclude some security checks in test code
     - path: _test\.go
-      text: "G"
+      text: 'G'
       linters:
         - gosec
 
@@ -290,13 +290,12 @@ issues:
     # Phase 1: Suppress unused parameter warnings (will fix in Task 7)
     - linters:
         - revive
-      text: "unused-parameter"
+      text: 'unused-parameter'
 
     # Phase 2: Suppress naming convention warnings (will fix in Task 7)
     - linters:
         - revive
-      text: "(var-naming|receiver-naming)"
-
+      text: '(var-naming|receiver-naming)'
 
     # Phase 4: Suppress goconst warnings in generated code
     - path: generated/

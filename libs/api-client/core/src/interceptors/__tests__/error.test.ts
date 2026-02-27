@@ -9,17 +9,15 @@ describe('Error Interceptor', () => {
   });
 
   describe('error message mapping', () => {
-    const createAxiosError = (
-      status?: number,
-      message?: string
-    ): AxiosError => ({
-      message: message || 'Network Error',
-      code: 'ERR_NETWORK',
-      config: { url: 'http://localhost/api/test' },
-      isAxiosError: true,
-      toJSON: () => ({}),
-      ...(status && { response: { status, data: {}, headers: {} } }),
-    } as AxiosError);
+    const createAxiosError = (status?: number, message?: string): AxiosError =>
+      ({
+        message: message || 'Network Error',
+        code: 'ERR_NETWORK',
+        config: { url: 'http://localhost/api/test' },
+        isAxiosError: true,
+        toJSON: () => ({}),
+        ...(status && { response: { status, data: {}, headers: {} } }),
+      }) as AxiosError;
 
     it('should handle network errors (no response)', async () => {
       const error = createAxiosError();

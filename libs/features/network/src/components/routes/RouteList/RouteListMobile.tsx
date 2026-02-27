@@ -116,9 +116,7 @@ function RouteListMobileComponent({
         <Input
           placeholder="Search destination, gateway..."
           value={filters.searchText || ''}
-          onChange={(e) =>
-            onFiltersChange({ ...filters, searchText: e.target.value })
-          }
+          onChange={(e) => onFiltersChange({ ...filters, searchText: e.target.value })}
           className="min-h-[44px]"
           aria-label="Search routes"
         />
@@ -129,13 +127,19 @@ function RouteListMobileComponent({
             onFiltersChange({ ...filters, table: value === 'all' ? undefined : value })
           }
         >
-          <SelectTrigger className="min-h-[44px]" aria-label="Filter by routing table">
+          <SelectTrigger
+            className="min-h-[44px]"
+            aria-label="Filter by routing table"
+          >
             <SelectValue placeholder="All tables" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All tables</SelectItem>
             {availableTables.map((table) => (
-              <SelectItem key={table} value={table}>
+              <SelectItem
+                key={table}
+                value={table}
+              >
                 {table}
               </SelectItem>
             ))}
@@ -151,7 +155,10 @@ function RouteListMobileComponent({
             })
           }
         >
-          <SelectTrigger className="min-h-[44px]" aria-label="Filter by route type">
+          <SelectTrigger
+            className="min-h-[44px]"
+            aria-label="Filter by route type"
+          >
             <SelectValue placeholder="All types" />
           </SelectTrigger>
           <SelectContent>
@@ -164,14 +171,12 @@ function RouteListMobileComponent({
           </SelectContent>
         </Select>
 
-        <label className="flex items-center gap-2 cursor-pointer min-h-[44px]">
+        <label className="flex min-h-[44px] cursor-pointer items-center gap-2">
           <input
             type="checkbox"
             checked={filters.activeOnly || false}
-            onChange={(e) =>
-              onFiltersChange({ ...filters, activeOnly: e.target.checked })
-            }
-            className="h-5 w-5 rounded border-border focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            onChange={(e) => onFiltersChange({ ...filters, activeOnly: e.target.checked })}
+            className="border-border focus-visible:ring-ring h-5 w-5 rounded focus-visible:ring-2 focus-visible:ring-offset-2"
             aria-label="Show active routes only"
           />
           <span className="text-sm">Active only</span>
@@ -180,23 +185,27 @@ function RouteListMobileComponent({
 
       {/* Error message */}
       {error && (
-        <div role="alert" className="flex items-center gap-component-sm rounded-lg border border-error bg-error/10 p-component-sm text-sm text-error">
-          <AlertCircle className="h-4 w-4" aria-hidden="true" />
+        <div
+          role="alert"
+          className="gap-component-sm border-error bg-error/10 p-component-sm text-error flex items-center rounded-lg border text-sm"
+        >
+          <AlertCircle
+            className="h-4 w-4"
+            aria-hidden="true"
+          />
           <p>{error}</p>
         </div>
       )}
 
       {/* Loading state */}
       {loading && (
-        <div className="text-center py-component-lg text-muted-foreground">
-          Loading routes...
-        </div>
+        <div className="py-component-lg text-muted-foreground text-center">Loading routes...</div>
       )}
 
       {/* Empty state */}
       {!loading && filteredRoutes.length === 0 && (
         <Card>
-          <CardContent className="py-component-lg text-center text-muted-foreground">
+          <CardContent className="py-component-lg text-muted-foreground text-center">
             No routes found. Add a route to get started.
           </CardContent>
         </Card>
@@ -219,7 +228,7 @@ function RouteListMobileComponent({
 
       {/* Footer info */}
       {!loading && filteredRoutes.length > 0 && (
-        <div className="text-sm text-muted-foreground text-center pb-component-sm">
+        <div className="text-muted-foreground pb-component-sm text-center text-sm">
           Showing {filteredRoutes.length} of {routes.length} route
           {routes.length !== 1 ? 's' : ''}
         </div>
@@ -239,12 +248,7 @@ interface RouteCardProps {
   onToggleDisabled?: (route: Route) => void;
 }
 
-function RouteCard({
-  route,
-  onEdit,
-  onDelete,
-  onToggleDisabled,
-}: RouteCardProps) {
+function RouteCard({ route, onEdit, onDelete, onToggleDisabled }: RouteCardProps) {
   const isStatic = route.type === 'STATIC';
   const { variant, text } = getRouteTypeBadge(route.type);
   const isDefaultRoute = route.destination === '0.0.0.0/0';
@@ -252,31 +256,42 @@ function RouteCard({
   return (
     <Card>
       <CardHeader className="pb-component-sm">
-        <div className="flex items-start justify-between gap-component-sm">
+        <div className="gap-component-sm flex items-start justify-between">
           <div className="flex-1">
-            <code className="text-base font-mono font-semibold">
-              {route.destination}
-            </code>
-            <div className="mt-1 flex flex-wrap gap-component-sm">
-              <Badge variant={variant} className="text-xs">
+            <code className="font-mono text-base font-semibold">{route.destination}</code>
+            <div className="gap-component-sm mt-1 flex flex-wrap">
+              <Badge
+                variant={variant}
+                className="text-xs"
+              >
                 {text}
               </Badge>
               {isDefaultRoute && (
-                <Badge variant="default" className="text-xs">
+                <Badge
+                  variant="default"
+                  className="text-xs"
+                >
                   Default
                 </Badge>
               )}
               {route.disabled && (
-                <Badge variant="outline" className="text-xs">
+                <Badge
+                  variant="outline"
+                  className="text-xs"
+                >
                   Disabled
                 </Badge>
               )}
             </div>
           </div>
-          <div className="flex items-center gap-component-sm">
+          <div className="gap-component-sm flex items-center">
             <StatusDot className={route.active ? 'bg-success' : 'bg-muted'} />
-            <span className="text-xs text-muted-foreground">
-              {route.disabled ? 'Disabled' : route.active ? 'Active' : 'Inactive'}
+            <span className="text-muted-foreground text-xs">
+              {route.disabled ?
+                'Disabled'
+              : route.active ?
+                'Active'
+              : 'Inactive'}
             </span>
           </div>
         </div>
@@ -286,7 +301,7 @@ function RouteCard({
         {route.gateway && (
           <div className="flex justify-between text-sm">
             <span className="text-muted-foreground">Gateway:</span>
-            <code className="text-sm font-mono text-foreground">{route.gateway}</code>
+            <code className="text-foreground font-mono text-sm">{route.gateway}</code>
           </div>
         )}
 
@@ -332,18 +347,21 @@ function RouteCard({
         <div className="pt-component-sm space-y-component-sm">
           <Button
             variant="outline"
-            className="w-full min-h-[44px]"
+            className="min-h-[44px] w-full"
             onClick={() => onEdit?.(route)}
             disabled={!isStatic}
             aria-label={`Edit route ${route.destination}`}
           >
-            <Edit className="mr-2 h-4 w-4" aria-hidden="true" />
+            <Edit
+              className="mr-2 h-4 w-4"
+              aria-hidden="true"
+            />
             Edit
           </Button>
-          <div className="flex gap-component-sm">
+          <div className="gap-component-sm flex">
             <Button
               variant="outline"
-              className="flex-1 min-h-[44px]"
+              className="min-h-[44px] flex-1"
               onClick={() => onToggleDisabled?.(route)}
               disabled={!isStatic}
               aria-label={`${route.disabled ? 'Enable' : 'Disable'} route ${route.destination}`}
@@ -352,12 +370,15 @@ function RouteCard({
             </Button>
             <Button
               variant="destructive"
-              className="flex-1 min-h-[44px]"
+              className="min-h-[44px] flex-1"
               onClick={() => onDelete?.(route)}
               disabled={!isStatic}
               aria-label={`Delete route ${route.destination}`}
             >
-              <Trash className="mr-2 h-4 w-4" aria-hidden="true" />
+              <Trash
+                className="mr-2 h-4 w-4"
+                aria-hidden="true"
+              />
               Delete
             </Button>
           </div>

@@ -101,9 +101,7 @@ function generateId(): string {
  * Get operation name from mutation document
  */
 function getOperationName(mutation: DocumentNode): string {
-  const definition = mutation.definitions.find(
-    (def) => def.kind === 'OperationDefinition'
-  );
+  const definition = mutation.definitions.find((def) => def.kind === 'OperationDefinition');
 
   if (definition?.kind === 'OperationDefinition' && definition.name) {
     return definition.name.value;
@@ -157,9 +155,7 @@ export class OfflineMutationQueue {
    */
   private async loadFromStorage(): Promise<void> {
     try {
-      const stored = await this.storage.getItem<SerializedMutation[]>(
-        this.config.storageKey
-      );
+      const stored = await this.storage.getItem<SerializedMutation[]>(this.config.storageKey);
 
       if (stored && Array.isArray(stored)) {
         // Note: We can't deserialize DocumentNode from string in the browser
@@ -172,9 +168,7 @@ export class OfflineMutationQueue {
         }));
 
         if (this.queue.length > 0 && import.meta.env.DEV) {
-          console.log(
-            `[Offline Queue] Loaded ${this.queue.length} pending mutations`
-          );
+          console.log(`[Offline Queue] Loaded ${this.queue.length} pending mutations`);
         }
       }
     } catch (error) {
@@ -217,9 +211,7 @@ export class OfflineMutationQueue {
     optimisticResponse?: unknown
   ): Promise<string> {
     if (this.queue.length >= this.config.maxQueueSize) {
-      throw new Error(
-        `Offline queue is full (max ${this.config.maxQueueSize} mutations)`
-      );
+      throw new Error(`Offline queue is full (max ${this.config.maxQueueSize} mutations)`);
     }
 
     const operationName = getOperationName(mutation);
@@ -272,9 +264,7 @@ export class OfflineMutationQueue {
    * @param client - Apollo Client instance
    * @returns Number of successfully replayed mutations
    */
-  async replayAll(
-    client: ApolloClient<NormalizedCacheObject>
-  ): Promise<number> {
+  async replayAll(client: ApolloClient<NormalizedCacheObject>): Promise<number> {
     if (this.isReplaying) {
       console.warn('[Offline Queue] Replay already in progress');
       return 0;
@@ -305,9 +295,7 @@ export class OfflineMutationQueue {
         await this.remove(queuedMutation.id);
 
         if (import.meta.env.DEV) {
-          console.log(
-            `[Offline Queue] Replayed ${queuedMutation.operationName}`
-          );
+          console.log(`[Offline Queue] Replayed ${queuedMutation.operationName}`);
         }
       } catch (error) {
         queuedMutation.retryCount++;
@@ -325,9 +313,7 @@ export class OfflineMutationQueue {
         }
 
         // Wait before next retry
-        await new Promise((resolve) =>
-          setTimeout(resolve, this.config.retryDelay)
-        );
+        await new Promise((resolve) => setTimeout(resolve, this.config.retryDelay));
       }
     }
 
@@ -380,9 +366,7 @@ export const offlineQueue = new OfflineMutationQueue();
  * @param client - Apollo Client instance
  * @returns Cleanup function
  */
-export function setupAutoReplay(
-  client: ApolloClient<NormalizedCacheObject>
-): () => void {
+export function setupAutoReplay(client: ApolloClient<NormalizedCacheObject>): () => void {
   const handleOnline = async () => {
     const { isRouterReachable } = useNetworkStore.getState();
 

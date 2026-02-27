@@ -8,7 +8,6 @@ import { memo } from 'react';
 import { ArrowUp, ArrowDown, AlertTriangle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
-
 import { type TrafficStatistics } from '@nasnet/core/types';
 import { formatBytes, formatNumber } from '@nasnet/core/utils';
 
@@ -32,17 +31,31 @@ export const TrafficStats = memo(function TrafficStats({
 
   if (variant === 'compact') {
     return (
-      <div className={cn('flex items-center gap-4 text-xs font-mono min-h-[44px] content-center', className)}>
-        <span className="flex items-center gap-1.5 text-success">
-          <ArrowDown className="w-3 h-3 flex-shrink-0" aria-hidden="true" />
+      <div
+        className={cn(
+          'flex min-h-[44px] content-center items-center gap-4 font-mono text-xs',
+          className
+        )}
+      >
+        <span className="text-success flex items-center gap-1.5">
+          <ArrowDown
+            className="h-3 w-3 flex-shrink-0"
+            aria-hidden="true"
+          />
           <span className="font-mono">{formatBytes(stats.rxBytes)}</span>
         </span>
-        <span className="flex items-center gap-1.5 text-secondary">
-          <ArrowUp className="w-3 h-3 flex-shrink-0" aria-hidden="true" />
+        <span className="text-secondary flex items-center gap-1.5">
+          <ArrowUp
+            className="h-3 w-3 flex-shrink-0"
+            aria-hidden="true"
+          />
           <span className="font-mono">{formatBytes(stats.txBytes)}</span>
         </span>
         {hasIssues && (
-          <AlertTriangle className="w-3 h-3 text-warning flex-shrink-0" aria-hidden="true" />
+          <AlertTriangle
+            className="text-warning h-3 w-3 flex-shrink-0"
+            aria-hidden="true"
+          />
         )}
       </div>
     );
@@ -54,44 +67,54 @@ export const TrafficStats = memo(function TrafficStats({
       <div className="space-y-4">
         {/* Download */}
         <div>
-          <div className="flex items-center justify-between mb-2">
+          <div className="mb-2 flex items-center justify-between">
             <div className="flex items-center gap-2 text-sm font-medium">
-              <ArrowDown className="w-4 h-4 text-success flex-shrink-0" aria-hidden="true" />
+              <ArrowDown
+                className="text-success h-4 w-4 flex-shrink-0"
+                aria-hidden="true"
+              />
               <span className="text-foreground">{t('traffic.download')}</span>
             </div>
-            <span className="text-sm font-mono font-medium text-foreground">
+            <span className="text-foreground font-mono text-sm font-medium">
               {formatBytes(stats.rxBytes)}
             </span>
           </div>
-          <div className="h-2.5 bg-muted rounded-full overflow-hidden shadow-sm">
-            <div className="h-full bg-gradient-to-r from-success/70 to-success rounded-full w-full" />
+          <div className="bg-muted h-2.5 overflow-hidden rounded-full shadow-sm">
+            <div className="from-success/70 to-success h-full w-full rounded-full bg-gradient-to-r" />
           </div>
-          <div className="flex justify-between mt-2 text-xs text-muted-foreground">
+          <div className="text-muted-foreground mt-2 flex justify-between text-xs">
             <span className="font-mono">{t('traffic.packets', { count: stats.rxPackets })}</span>
             {stats.rxErrors > 0 && (
-              <span className="text-error font-mono font-medium">{t('traffic.errors', { count: stats.rxErrors })}</span>
+              <span className="text-error font-mono font-medium">
+                {t('traffic.errors', { count: stats.rxErrors })}
+              </span>
             )}
           </div>
         </div>
 
         {/* Upload */}
         <div>
-          <div className="flex items-center justify-between mb-2">
+          <div className="mb-2 flex items-center justify-between">
             <div className="flex items-center gap-2 text-sm font-medium">
-              <ArrowUp className="w-4 h-4 text-secondary flex-shrink-0" aria-hidden="true" />
+              <ArrowUp
+                className="text-secondary h-4 w-4 flex-shrink-0"
+                aria-hidden="true"
+              />
               <span className="text-foreground">{t('traffic.upload')}</span>
             </div>
-            <span className="text-sm font-mono font-medium text-foreground">
+            <span className="text-foreground font-mono text-sm font-medium">
               {formatBytes(stats.txBytes)}
             </span>
           </div>
-          <div className="h-2.5 bg-muted rounded-full overflow-hidden shadow-sm">
-            <div className="h-full bg-gradient-to-r from-secondary/70 to-secondary rounded-full w-full" />
+          <div className="bg-muted h-2.5 overflow-hidden rounded-full shadow-sm">
+            <div className="from-secondary/70 to-secondary h-full w-full rounded-full bg-gradient-to-r" />
           </div>
-          <div className="flex justify-between mt-2 text-xs text-muted-foreground">
+          <div className="text-muted-foreground mt-2 flex justify-between text-xs">
             <span className="font-mono">{t('traffic.packets', { count: stats.txPackets })}</span>
             {stats.txErrors > 0 && (
-              <span className="text-error font-mono font-medium">{t('traffic.errors', { count: stats.txErrors })}</span>
+              <span className="text-error font-mono font-medium">
+                {t('traffic.errors', { count: stats.txErrors })}
+              </span>
             )}
           </div>
         </div>
@@ -99,12 +122,17 @@ export const TrafficStats = memo(function TrafficStats({
 
       {/* Issues Alert */}
       {hasIssues && (
-        <div className="flex items-start gap-3 p-3 bg-warning/15 border border-warning/30 rounded-card-sm shadow-sm" role="alert" aria-live="assertive">
-          <AlertTriangle className="w-4 h-4 text-warning flex-shrink-0 mt-0.5" aria-hidden="true" />
+        <div
+          className="bg-warning/15 border-warning/30 rounded-card-sm flex items-start gap-3 border p-3 shadow-sm"
+          role="alert"
+          aria-live="assertive"
+        >
+          <AlertTriangle
+            className="text-warning mt-0.5 h-4 w-4 flex-shrink-0"
+            aria-hidden="true"
+          />
           <div className="text-xs">
-            <p className="font-medium text-warning">
-              {t('traffic.hasIssues')}
-            </p>
+            <p className="text-warning font-medium">{t('traffic.hasIssues')}</p>
             <p className="text-warning/90 mt-1 font-mono">
               {hasErrors && t('traffic.errorsSummary', { count: stats.rxErrors + stats.txErrors })}
               {hasErrors && hasDrops && ', '}
@@ -116,34 +144,42 @@ export const TrafficStats = memo(function TrafficStats({
 
       {/* Detailed Stats Grid */}
       {variant === 'detailed' && (
-        <div className="grid grid-cols-2 gap-3 pt-4 border-t border-border">
+        <div className="border-border grid grid-cols-2 gap-3 border-t pt-4">
           <div className="bg-muted rounded-card-sm p-3.5 shadow-sm">
-            <p className="text-xs text-muted-foreground mb-2 font-medium">{t('traffic.rxPackets')}</p>
-            <p className="text-sm font-mono font-medium text-foreground">
+            <p className="text-muted-foreground mb-2 text-xs font-medium">
+              {t('traffic.rxPackets')}
+            </p>
+            <p className="text-foreground font-mono text-sm font-medium">
               {formatNumber(stats.rxPackets)}
             </p>
           </div>
           <div className="bg-muted rounded-card-sm p-3.5 shadow-sm">
-            <p className="text-xs text-muted-foreground mb-2 font-medium">{t('traffic.txPackets')}</p>
-            <p className="text-sm font-mono font-medium text-foreground">
+            <p className="text-muted-foreground mb-2 text-xs font-medium">
+              {t('traffic.txPackets')}
+            </p>
+            <p className="text-foreground font-mono text-sm font-medium">
               {formatNumber(stats.txPackets)}
             </p>
           </div>
           <div className="bg-muted rounded-card-sm p-3.5 shadow-sm">
-            <p className="text-xs text-muted-foreground mb-2 font-medium">{t('traffic.rxDrops')}</p>
-            <p className={cn(
-              'text-sm font-mono font-medium',
-              stats.rxDrops > 0 ? 'text-error' : 'text-foreground'
-            )}>
+            <p className="text-muted-foreground mb-2 text-xs font-medium">{t('traffic.rxDrops')}</p>
+            <p
+              className={cn(
+                'font-mono text-sm font-medium',
+                stats.rxDrops > 0 ? 'text-error' : 'text-foreground'
+              )}
+            >
               {formatNumber(stats.rxDrops)}
             </p>
           </div>
           <div className="bg-muted rounded-card-sm p-3.5 shadow-sm">
-            <p className="text-xs text-muted-foreground mb-2 font-medium">{t('traffic.txDrops')}</p>
-            <p className={cn(
-              'text-sm font-mono font-medium',
-              stats.txDrops > 0 ? 'text-error' : 'text-foreground'
-            )}>
+            <p className="text-muted-foreground mb-2 text-xs font-medium">{t('traffic.txDrops')}</p>
+            <p
+              className={cn(
+                'font-mono text-sm font-medium',
+                stats.txDrops > 0 ? 'text-error' : 'text-foreground'
+              )}
+            >
               {formatNumber(stats.txDrops)}
             </p>
           </div>

@@ -62,16 +62,66 @@ const createMockDevice = (
 // Generate N devices with variety
 const generateDevices = (count: number): ConnectedDeviceEnriched[] => {
   const deviceTemplates = [
-    { hostname: 'Johns-iPhone', deviceType: DeviceType.SMARTPHONE, vendor: 'Apple, Inc.', mac: 'A4:83:E7' },
-    { hostname: 'Marys-iPad', deviceType: DeviceType.TABLET, vendor: 'Apple, Inc.', mac: '00:1D:4F' },
-    { hostname: 'Work-MacBook-Pro', deviceType: DeviceType.LAPTOP, vendor: 'Apple, Inc.', mac: 'AC:87:A3' },
-    { hostname: 'Desktop-PC', deviceType: DeviceType.DESKTOP, vendor: 'Dell Inc.', mac: '00:14:22' },
-    { hostname: 'Galaxy-S23', deviceType: DeviceType.SMARTPHONE, vendor: 'Samsung', mac: '00:00:F0' },
-    { hostname: 'MikroTik-Router', deviceType: DeviceType.ROUTER, vendor: 'MikroTik', mac: '4C:5E:0C' },
-    { hostname: 'ESP32-Sensor', deviceType: DeviceType.IOT, vendor: 'Espressif Inc.', mac: '24:0A:C4' },
-    { hostname: 'HP-LaserJet', deviceType: DeviceType.PRINTER, vendor: 'Hewlett Packard', mac: '00:1E:0B' },
-    { hostname: 'Samsung-TV', deviceType: DeviceType.TV, vendor: 'Samsung Electronics', mac: '00:26:5D' },
-    { hostname: 'PlayStation-5', deviceType: DeviceType.GAMING_CONSOLE, vendor: 'Sony', mac: 'B8:B8:8D' },
+    {
+      hostname: 'Johns-iPhone',
+      deviceType: DeviceType.SMARTPHONE,
+      vendor: 'Apple, Inc.',
+      mac: 'A4:83:E7',
+    },
+    {
+      hostname: 'Marys-iPad',
+      deviceType: DeviceType.TABLET,
+      vendor: 'Apple, Inc.',
+      mac: '00:1D:4F',
+    },
+    {
+      hostname: 'Work-MacBook-Pro',
+      deviceType: DeviceType.LAPTOP,
+      vendor: 'Apple, Inc.',
+      mac: 'AC:87:A3',
+    },
+    {
+      hostname: 'Desktop-PC',
+      deviceType: DeviceType.DESKTOP,
+      vendor: 'Dell Inc.',
+      mac: '00:14:22',
+    },
+    {
+      hostname: 'Galaxy-S23',
+      deviceType: DeviceType.SMARTPHONE,
+      vendor: 'Samsung',
+      mac: '00:00:F0',
+    },
+    {
+      hostname: 'MikroTik-Router',
+      deviceType: DeviceType.ROUTER,
+      vendor: 'MikroTik',
+      mac: '4C:5E:0C',
+    },
+    {
+      hostname: 'ESP32-Sensor',
+      deviceType: DeviceType.IOT,
+      vendor: 'Espressif Inc.',
+      mac: '24:0A:C4',
+    },
+    {
+      hostname: 'HP-LaserJet',
+      deviceType: DeviceType.PRINTER,
+      vendor: 'Hewlett Packard',
+      mac: '00:1E:0B',
+    },
+    {
+      hostname: 'Samsung-TV',
+      deviceType: DeviceType.TV,
+      vendor: 'Samsung Electronics',
+      mac: '00:26:5D',
+    },
+    {
+      hostname: 'PlayStation-5',
+      deviceType: DeviceType.GAMING_CONSOLE,
+      vendor: 'Sony',
+      mac: 'B8:B8:8D',
+    },
   ];
 
   return Array.from({ length: count }, (_, i) => {

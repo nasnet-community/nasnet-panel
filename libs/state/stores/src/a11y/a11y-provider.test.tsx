@@ -260,7 +260,10 @@ describe('A11yProvider', () => {
     function TestComponent() {
       const announce = useAnnounce();
       return (
-        <button onClick={() => announce('Test announcement')} data-testid="announce-btn">
+        <button
+          onClick={() => announce('Test announcement')}
+          data-testid="announce-btn"
+        >
           Announce
         </button>
       );
@@ -291,7 +294,10 @@ describe('A11yProvider', () => {
       function AssertiveTestComponent() {
         const announce = useAnnounce();
         return (
-          <button onClick={() => announce('Urgent!', 'assertive')} data-testid="announce-btn">
+          <button
+            onClick={() => announce('Urgent!', 'assertive')}
+            data-testid="announce-btn"
+          >
             Announce
           </button>
         );

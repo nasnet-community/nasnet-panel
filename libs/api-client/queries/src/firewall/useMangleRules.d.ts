@@ -20,8 +20,11 @@ import type { MangleRule, MangleChain } from '@nasnet/core/types';
  * Follows TanStack Query best practices for hierarchical keys
  */
 export declare const mangleRulesKeys: {
-    all: (routerId: string) => readonly ["mangle", string];
-    byChain: (routerId: string, chain: MangleChain) => readonly ["mangle", string, "prerouting" | "input" | "forward" | "output" | "postrouting"];
+  all: (routerId: string) => readonly ['mangle', string];
+  byChain: (
+    routerId: string,
+    chain: MangleChain
+  ) => readonly ['mangle', string, 'prerouting' | 'input' | 'forward' | 'output' | 'postrouting'];
 };
 /**
  * Hook to fetch mangle rules
@@ -35,19 +38,38 @@ export declare const mangleRulesKeys: {
  * @returns Query result with MangleRule[] data
  */
 interface UseMangleRulesOptions {
-    chain?: MangleChain;
-    enabled?: boolean;
+  chain?: MangleChain;
+  enabled?: boolean;
 }
-export declare function useMangleRules(routerId: string, options?: UseMangleRulesOptions): UseQueryResult<MangleRule[], Error>;
+export declare function useMangleRules(
+  routerId: string,
+  options?: UseMangleRulesOptions
+): UseQueryResult<MangleRule[], Error>;
 /**
  * Create a new mangle rule
  * Endpoint: POST /rest/ip/firewall/mangle/add
  */
-export declare function useCreateMangleRule(routerId: string): import("@tanstack/react-query").UseMutationResult<unknown, Error, Partial<{
+export declare function useCreateMangleRule(
+  routerId: string
+): import('@tanstack/react-query').UseMutationResult<
+  unknown,
+  Error,
+  Partial<{
     passthrough: boolean;
     log: boolean;
-    chain: "prerouting" | "input" | "forward" | "output" | "postrouting";
-    action: "passthrough" | "mark-connection" | "mark-packet" | "mark-routing" | "change-ttl" | "change-dscp" | "change-mss" | "accept" | "drop" | "jump" | "log";
+    chain: 'prerouting' | 'input' | 'forward' | 'output' | 'postrouting';
+    action:
+      | 'passthrough'
+      | 'mark-connection'
+      | 'mark-packet'
+      | 'mark-routing'
+      | 'change-ttl'
+      | 'change-dscp'
+      | 'change-mss'
+      | 'accept'
+      | 'drop'
+      | 'jump'
+      | 'log';
     disabled: boolean;
     id?: string | undefined;
     position?: number | undefined;
@@ -62,8 +84,8 @@ export declare function useCreateMangleRule(routerId: string): import("@tanstack
     outInterface?: string | undefined;
     inInterfaceList?: string | undefined;
     outInterfaceList?: string | undefined;
-    connectionState?: ("established" | "new" | "related" | "invalid" | "untracked")[] | undefined;
-    connectionNatState?: ("srcnat" | "dstnat")[] | undefined;
+    connectionState?: ('established' | 'new' | 'related' | 'invalid' | 'untracked')[] | undefined;
+    connectionNatState?: ('srcnat' | 'dstnat')[] | undefined;
     connectionMark?: string | undefined;
     packetMark?: string | undefined;
     routingMark?: string | undefined;
@@ -82,35 +104,60 @@ export declare function useCreateMangleRule(routerId: string): import("@tanstack
     logPrefix?: string | undefined;
     packets?: number | undefined;
     bytes?: number | undefined;
-}>, unknown>;
+  }>,
+  unknown
+>;
 /**
  * Update an existing mangle rule
  * Endpoint: POST /rest/ip/firewall/mangle/set
  */
-export declare function useUpdateMangleRule(routerId: string): import("@tanstack/react-query").UseMutationResult<unknown, Error, {
+export declare function useUpdateMangleRule(
+  routerId: string
+): import('@tanstack/react-query').UseMutationResult<
+  unknown,
+  Error,
+  {
     ruleId: string;
     updates: Partial<MangleRule>;
-}, unknown>;
+  },
+  unknown
+>;
 /**
  * Delete a mangle rule
  * Endpoint: POST /rest/ip/firewall/mangle/remove
  */
-export declare function useDeleteMangleRule(routerId: string): import("@tanstack/react-query").UseMutationResult<unknown, Error, string, unknown>;
+export declare function useDeleteMangleRule(
+  routerId: string
+): import('@tanstack/react-query').UseMutationResult<unknown, Error, string, unknown>;
 /**
  * Move a mangle rule to a new position (drag-drop reordering)
  * Endpoint: POST /rest/ip/firewall/mangle/move
  */
-export declare function useMoveMangleRule(routerId: string): import("@tanstack/react-query").UseMutationResult<unknown, Error, {
+export declare function useMoveMangleRule(
+  routerId: string
+): import('@tanstack/react-query').UseMutationResult<
+  unknown,
+  Error,
+  {
     ruleId: string;
     destination: number;
-}, unknown>;
+  },
+  unknown
+>;
 /**
  * Toggle enable/disable state of a mangle rule (convenience wrapper)
  * Endpoint: POST /rest/ip/firewall/mangle/set
  */
-export declare function useToggleMangleRule(routerId: string): import("@tanstack/react-query").UseMutationResult<unknown, Error, {
+export declare function useToggleMangleRule(
+  routerId: string
+): import('@tanstack/react-query').UseMutationResult<
+  unknown,
+  Error,
+  {
     ruleId: string;
     disabled: boolean;
-}, unknown>;
+  },
+  unknown
+>;
 export {};
 //# sourceMappingURL=useMangleRules.d.ts.map

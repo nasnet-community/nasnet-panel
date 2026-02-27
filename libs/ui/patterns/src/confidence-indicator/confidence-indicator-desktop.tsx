@@ -18,10 +18,7 @@ import {
   cn,
 } from '@nasnet/ui/primitives';
 
-import {
-  ConfidenceIndicatorBase,
-  ConfidenceLevelLabel,
-} from './confidence-indicator-base';
+import { ConfidenceIndicatorBase, ConfidenceLevelLabel } from './confidence-indicator-base';
 import { ConfidenceTooltipCompact } from './confidence-tooltip';
 
 import type { ConfidenceIndicatorPresenterProps } from './confidence-indicator.types';
@@ -77,7 +74,10 @@ const ConfidenceIndicatorDesktop = React.memo(function ConfidenceIndicatorDeskto
 
   return (
     <TooltipProvider delayDuration={300}>
-      <Tooltip open={isOpen} onOpenChange={setIsOpen}>
+      <Tooltip
+        open={isOpen}
+        onOpenChange={setIsOpen}
+      >
         <TooltipTrigger asChild>
           <div
             className={cn(
@@ -150,16 +150,19 @@ export function ConfidenceIndicatorDesktopExtended({
           <div
             id={id}
             className={cn(
-              'inline-flex items-center gap-2 px-2 py-1 rounded-md',
-              'transition-colors hover:bg-muted/50',
-              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+              'inline-flex items-center gap-2 rounded-md px-2 py-1',
+              'hover:bg-muted/50 transition-colors',
+              'focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-2',
               className
             )}
             tabIndex={0}
             role="button"
             aria-label={state.ariaLabel}
           >
-            <ConfidenceIndicatorBase state={state} size={size} />
+            <ConfidenceIndicatorBase
+              state={state}
+              size={size}
+            />
             <div className="flex flex-col">
               <ConfidenceLevelLabel
                 state={state}
@@ -167,14 +170,17 @@ export function ConfidenceIndicatorDesktopExtended({
                 showPercentage={state.showPercentage}
               />
               {state.method && (
-                <span className="text-xs text-muted-foreground truncate max-w-[200px]">
+                <span className="text-muted-foreground max-w-[200px] truncate text-xs">
                   {state.method}
                 </span>
               )}
             </div>
           </div>
         </TooltipTrigger>
-        <TooltipContent side="top" className="p-3">
+        <TooltipContent
+          side="top"
+          className="p-3"
+        >
           <ConfidenceTooltipCompact
             state={state}
             onOverride={state.canOverride ? state.handleOverride : undefined}

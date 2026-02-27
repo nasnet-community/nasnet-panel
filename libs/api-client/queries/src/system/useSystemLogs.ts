@@ -50,11 +50,11 @@ export interface UseSystemLogsOptions {
 /**
  * Fetches system logs from RouterOS via rosproxy
  * Transforms RouterOS API response to LogEntry type
- * 
+ *
  * Uses POST /rest/log/print with JSON body per MikroTik REST API spec:
  * - .proplist: specifies which fields to return
  * - .query: filters results (optional)
- * 
+ *
  * Note: RouterOS REST API doesn't support a native 'limit' parameter.
  * We fetch all logs and limit in frontend for simplicity.
  */
@@ -90,14 +90,10 @@ async function fetchSystemLogs(
   }
 
   // Use POST method with /log/print endpoint
-  const result = await makeRouterOSRequest<RouterOSLogEntry[]>(
-    routerIp,
-    'log/print',
-    {
-      method: 'POST',
-      body: requestBody,
-    }
-  );
+  const result = await makeRouterOSRequest<RouterOSLogEntry[]>(routerIp, 'log/print', {
+    method: 'POST',
+    body: requestBody,
+  });
 
   if (!result.success || !result.data) {
     throw new Error(result.error || 'Failed to fetch system logs');
@@ -172,17 +168,10 @@ function parseTopics(topicsStr: string): {
   const topics = topicsStr.split(',').map((t) => t.trim());
 
   // Common severity levels in topics
-  const severityValues: LogSeverity[] = [
-    'debug',
-    'info',
-    'warning',
-    'error',
-    'critical',
-  ];
+  const severityValues: LogSeverity[] = ['debug', 'info', 'warning', 'error', 'critical'];
   const severity: LogSeverity =
-    (topics.find((t) => severityValues.includes(t as LogSeverity)) as
-      | LogSeverity
-      | undefined) || 'info';
+    (topics.find((t) => severityValues.includes(t as LogSeverity)) as LogSeverity | undefined) ||
+    'info';
 
   // Valid topic values (excluding severities)
   const topicValues: LogTopic[] = [
@@ -202,9 +191,7 @@ function parseTopics(topicsStr: string): {
     'error',
   ];
   const topic: LogTopic =
-    (topics.find((t) => topicValues.includes(t as LogTopic)) as
-      | LogTopic
-      | undefined) || 'system';
+    (topics.find((t) => topicValues.includes(t as LogTopic)) as LogTopic | undefined) || 'system';
 
   return { topic, severity };
 }

@@ -1,7 +1,7 @@
 {
   "id": "patterns-domain-components",
   "title": "Domain-Specific Pattern Components (Layer 2)",
-  "description": "This document covers the domain-specific pattern components exported from @nasnet/ui/patterns. These are",
+  "description": "This document covers the domain-specific pattern components exported from @nasnet/ui/patterns.",
   "source": "@site/../../libs/ui/docs/patterns-domain-components.md",
   "sourceDirName": ".",
   "slug": "/patterns-domain-components",

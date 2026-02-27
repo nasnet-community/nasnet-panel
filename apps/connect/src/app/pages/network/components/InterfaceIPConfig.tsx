@@ -130,18 +130,27 @@ export const InterfaceIPConfig = React.memo(function InterfaceIPConfig({
             return (
               <div
                 key={interfaceName}
-                className="bg-card border-border overflow-hidden rounded-card-sm border"
+                className="bg-card border-border rounded-card-sm overflow-hidden border"
               >
                 {/* Interface Header */}
                 <button
                   onClick={() => toggleInterface(interfaceName)}
-                  className="hover:bg-muted/50 flex w-full items-center justify-between p-3 transition-colors md:p-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-h-[44px]"
+                  className="hover:bg-muted/50 focus-visible:ring-ring flex min-h-[44px] w-full items-center justify-between p-3 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 md:p-4"
                 >
-                  <div className="flex items-center gap-component-md">
+                  <div className="gap-component-md flex items-center">
                     {isExpanded ?
-                      <ChevronDown className="text-muted-foreground h-4 w-4" aria-hidden="true" />
-                    : <ChevronRight className="text-muted-foreground h-4 w-4" aria-hidden="true" />}
-                    <span className="font-display font-semibold text-foreground text-sm">{interfaceName}</span>
+                      <ChevronDown
+                        className="text-muted-foreground h-4 w-4"
+                        aria-hidden="true"
+                      />
+                    : <ChevronRight
+                        className="text-muted-foreground h-4 w-4"
+                        aria-hidden="true"
+                      />
+                    }
+                    <span className="font-display text-foreground text-sm font-semibold">
+                      {interfaceName}
+                    </span>
                     <span className="bg-muted text-muted-foreground rounded px-2 py-0.5 text-xs font-medium">
                       {t('ipConfig.addressCount', { count: ips.length })}
                     </span>
@@ -149,7 +158,7 @@ export const InterfaceIPConfig = React.memo(function InterfaceIPConfig({
 
                   {/* Quick preview of first IP */}
                   {!isExpanded && ips.length > 0 && (
-                    <span className="text-muted-foreground hidden font-mono text-xs sm:block break-all">
+                    <span className="text-muted-foreground hidden break-all font-mono text-xs sm:block">
                       {ips[0].address}
                     </span>
                   )}
@@ -166,20 +175,20 @@ export const InterfaceIPConfig = React.memo(function InterfaceIPConfig({
                           key={ip.id}
                           className="border-border border-b p-3 last:border-b-0 md:p-4"
                         >
-                          <div className="mb-2 flex flex-wrap items-center justify-between gap-component-sm">
-                            <span className="text-foreground font-mono text-sm font-medium break-all">
+                          <div className="gap-component-sm mb-2 flex flex-wrap items-center justify-between">
+                            <span className="text-foreground break-all font-mono text-sm font-medium">
                               {ip.address}
                             </span>
                             {getTypeBadge(ip)}
                           </div>
 
                           {networkInfo && (
-                            <div className="mt-3 grid grid-cols-1 gap-component-sm sm:grid-cols-3">
+                            <div className="gap-component-sm mt-3 grid grid-cols-1 sm:grid-cols-3">
                               <div className="bg-muted rounded-card-sm p-2">
                                 <p className="text-muted-foreground mb-0.5 text-xs font-medium">
                                   {t('ipConfig.network')}
                                 </p>
-                                <p className="text-foreground font-mono text-xs break-all">
+                                <p className="text-foreground break-all font-mono text-xs">
                                   {networkInfo.network}
                                 </p>
                               </div>
@@ -187,7 +196,7 @@ export const InterfaceIPConfig = React.memo(function InterfaceIPConfig({
                                 <p className="text-muted-foreground mb-0.5 text-xs font-medium">
                                   {t('ipConfig.netmask')}
                                 </p>
-                                <p className="text-foreground font-mono text-xs break-all">
+                                <p className="text-foreground break-all font-mono text-xs">
                                   {networkInfo.netmask}
                                 </p>
                               </div>
@@ -195,7 +204,7 @@ export const InterfaceIPConfig = React.memo(function InterfaceIPConfig({
                                 <p className="text-muted-foreground mb-0.5 text-xs font-medium">
                                   {t('ipConfig.broadcast')}
                                 </p>
-                                <p className="text-foreground font-mono text-xs break-all">
+                                <p className="text-foreground break-all font-mono text-xs">
                                   {networkInfo.broadcast}
                                 </p>
                               </div>

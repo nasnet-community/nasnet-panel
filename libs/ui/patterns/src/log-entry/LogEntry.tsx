@@ -15,8 +15,6 @@ import { cn } from '@nasnet/ui/primitives';
 
 import { SeverityBadge } from '../severity-badge';
 
-
-
 /**
  * Topic badge styling variants
  * Maps LogTopic to color classes
@@ -26,19 +24,23 @@ const topicBadgeVariants = cva(
   {
     variants: {
       topic: {
-        system: 'bg-slate-100 text-slate-700 ring-slate-600/20 dark:bg-slate-800 dark:text-slate-400 dark:ring-slate-500/20',
+        system:
+          'bg-slate-100 text-slate-700 ring-slate-600/20 dark:bg-slate-800 dark:text-slate-400 dark:ring-slate-500/20',
         firewall: 'bg-error/10 text-error ring-error/20 dark:bg-error/20 dark:text-red-400',
         wireless: 'bg-info/10 text-info ring-info/20 dark:bg-info/20 dark:text-sky-400',
         dhcp: 'bg-success/10 text-success ring-success/20 dark:bg-success/20 dark:text-green-400',
         dns: 'bg-purple-50 text-purple-700 ring-purple-600/20 dark:bg-purple-500/20 dark:text-purple-400',
         ppp: 'bg-orange-50 text-orange-700 ring-orange-600/20 dark:bg-orange-500/20 dark:text-orange-400',
         vpn: 'bg-cyan-50 text-cyan-700 ring-cyan-600/20 dark:bg-cyan-500/20 dark:text-cyan-400',
-        interface: 'bg-indigo-50 text-indigo-700 ring-indigo-600/20 dark:bg-indigo-500/20 dark:text-indigo-400',
+        interface:
+          'bg-indigo-50 text-indigo-700 ring-indigo-600/20 dark:bg-indigo-500/20 dark:text-indigo-400',
         route: 'bg-teal-50 text-teal-700 ring-teal-600/20 dark:bg-teal-500/20 dark:text-teal-400',
         script: 'bg-pink-50 text-pink-700 ring-pink-600/20 dark:bg-pink-500/20 dark:text-pink-400',
-        critical: 'bg-error/20 text-error ring-error/30 dark:bg-error/30 dark:text-red-300 font-bold',
+        critical:
+          'bg-error/20 text-error ring-error/30 dark:bg-error/30 font-bold dark:text-red-300',
         info: 'bg-info/10 text-info ring-info/20 dark:bg-info/20 dark:text-sky-400',
-        warning: 'bg-warning/10 text-warning ring-warning/20 dark:bg-warning/20 dark:text-amber-400',
+        warning:
+          'bg-warning/10 text-warning ring-warning/20 dark:bg-warning/20 dark:text-amber-400',
         error: 'bg-error/10 text-error ring-error/20 dark:bg-error/20 dark:text-red-400',
       },
     },
@@ -124,22 +126,28 @@ export const LogEntry = React.memo(
       const { timestamp, topic, severity, message } = entry;
       const [copied, setCopied] = React.useState(false);
 
-      const handleCopy = React.useCallback(async (e: React.MouseEvent) => {
-        e.stopPropagation();
-        const text = `[${new Date(timestamp).toISOString()}] [${topic}] [${severity}] ${message}`;
-        try {
-          await navigator.clipboard.writeText(text);
-          setCopied(true);
-          setTimeout(() => setCopied(false), 2000);
-        } catch {
-          console.error('Failed to copy');
-        }
-      }, [timestamp, topic, severity, message]);
+      const handleCopy = React.useCallback(
+        async (e: React.MouseEvent) => {
+          e.stopPropagation();
+          const text = `[${new Date(timestamp).toISOString()}] [${topic}] [${severity}] ${message}`;
+          try {
+            await navigator.clipboard.writeText(text);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+          } catch {
+            console.error('Failed to copy');
+          }
+        },
+        [timestamp, topic, severity, message]
+      );
 
-      const handleBookmark = React.useCallback((e: React.MouseEvent) => {
-        e.stopPropagation();
-        onToggleBookmark?.(entry);
-      }, [entry, onToggleBookmark]);
+      const handleBookmark = React.useCallback(
+        (e: React.MouseEvent) => {
+          e.stopPropagation();
+          onToggleBookmark?.(entry);
+        },
+        [entry, onToggleBookmark]
+      );
 
       // Highlight search term in message
       const renderMessage = React.useMemo(() => {
@@ -152,16 +160,14 @@ export const LogEntry = React.memo(
         const parts = message.split(regex);
 
         return parts.map((part, index) =>
-          regex.test(part) ? (
+          regex.test(part) ?
             <mark
               key={index}
               className="bg-primary-200 dark:bg-primary-700 rounded px-0.5"
             >
               {part}
             </mark>
-          ) : (
-            <span key={index}>{part}</span>
-          )
+          : <span key={index}>{part}</span>
         );
       }, [searchTerm, message]);
 
@@ -171,8 +177,8 @@ export const LogEntry = React.memo(
           <div
             ref={ref}
             className={cn(
-              'group flex flex-col gap-1.5 py-2 px-3 text-sm border-b border-slate-200 dark:border-slate-700',
-              'hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors',
+              'group flex flex-col gap-1.5 border-b border-slate-200 px-3 py-2 text-sm dark:border-slate-700',
+              'transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50',
               className
             )}
             {...props}
@@ -180,22 +186,22 @@ export const LogEntry = React.memo(
             {/* Top row: time + severity */}
             <div className="flex items-center gap-2">
               <time
-                className="text-slate-500 dark:text-slate-400 font-mono text-xs"
+                className="font-mono text-xs text-slate-500 dark:text-slate-400"
                 dateTime={new Date(timestamp).toISOString()}
               >
                 {formatTimestamp(timestamp, showDate)}
               </time>
               <SeverityBadge severity={severity} />
-              <span className={cn(topicBadgeVariants({ topic }), 'text-[10px] px-1.5 py-0')}>
+              <span className={cn(topicBadgeVariants({ topic }), 'px-1.5 py-0 text-[10px]')}>
                 {formatTopicLabel(topic)}
               </span>
 
               {/* Actions */}
-              <div className="ml-auto flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+              <div className="ml-auto flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
                 {onToggleBookmark && (
                   <button
                     onClick={handleBookmark}
-                    className="p-1 rounded hover:bg-slate-200 dark:hover:bg-slate-700"
+                    className="rounded p-1 hover:bg-slate-200 dark:hover:bg-slate-700"
                     aria-label={isBookmarked ? 'Remove bookmark' : 'Bookmark'}
                   >
                     <Pin
@@ -208,20 +214,18 @@ export const LogEntry = React.memo(
                 )}
                 <button
                   onClick={handleCopy}
-                  className="p-1 rounded hover:bg-slate-200 dark:hover:bg-slate-700"
+                  className="rounded p-1 hover:bg-slate-200 dark:hover:bg-slate-700"
                   aria-label="Copy log entry"
                 >
-                  {copied ? (
-                    <Check className="h-3 w-3 text-success" />
-                  ) : (
-                    <Copy className="h-3 w-3 text-muted-foreground" />
-                  )}
+                  {copied ?
+                    <Check className="text-success h-3 w-3" />
+                  : <Copy className="text-muted-foreground h-3 w-3" />}
                 </button>
               </div>
             </div>
 
             {/* Message */}
-            <p className="text-slate-900 dark:text-slate-50 text-xs break-words line-clamp-2">
+            <p className="line-clamp-2 break-words text-xs text-slate-900 dark:text-slate-50">
               {renderMessage}
             </p>
           </div>
@@ -233,22 +237,22 @@ export const LogEntry = React.memo(
         <div
           ref={ref}
           className={cn(
-            'group flex items-start gap-3 py-3 px-4 text-sm border-b border-slate-200 dark:border-slate-700',
-            'hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors',
+            'group flex items-start gap-3 border-b border-slate-200 px-4 py-3 text-sm dark:border-slate-700',
+            'transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50',
             className
           )}
           {...props}
         >
           {/* Timestamp */}
           <time
-            className="text-slate-500 dark:text-slate-400 font-mono text-xs whitespace-nowrap shrink-0 w-20 md:w-28 font-medium"
+            className="w-20 shrink-0 whitespace-nowrap font-mono text-xs font-medium text-slate-500 md:w-28 dark:text-slate-400"
             dateTime={new Date(timestamp).toISOString()}
           >
             {formatTimestamp(timestamp, showDate)}
           </time>
 
           {/* Topic Badge - hidden on small screens */}
-          <span className={cn(topicBadgeVariants({ topic }), 'shrink-0 hidden sm:inline-flex')}>
+          <span className={cn(topicBadgeVariants({ topic }), 'hidden shrink-0 sm:inline-flex')}>
             {formatTopicLabel(topic)}
           </span>
 
@@ -256,16 +260,16 @@ export const LogEntry = React.memo(
           <SeverityBadge severity={severity} />
 
           {/* Message */}
-          <p className="flex-1 text-slate-900 dark:text-slate-50 break-words leading-relaxed min-w-0">
+          <p className="min-w-0 flex-1 break-words leading-relaxed text-slate-900 dark:text-slate-50">
             {renderMessage}
           </p>
 
           {/* Actions - shown on hover */}
-          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+          <div className="flex shrink-0 items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
             {onToggleBookmark && (
               <button
                 onClick={handleBookmark}
-                className="p-1.5 rounded-button hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                className="rounded-button p-1.5 transition-colors hover:bg-slate-200 dark:hover:bg-slate-700"
                 aria-label={isBookmarked ? 'Remove bookmark' : 'Bookmark'}
               >
                 <Pin
@@ -278,14 +282,12 @@ export const LogEntry = React.memo(
             )}
             <button
               onClick={handleCopy}
-              className="p-1.5 rounded-button hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+              className="rounded-button p-1.5 transition-colors hover:bg-slate-200 dark:hover:bg-slate-700"
               aria-label="Copy log entry"
             >
-              {copied ? (
-                <Check className="h-4 w-4 text-success" />
-              ) : (
-                <Copy className="h-4 w-4 text-muted-foreground" />
-              )}
+              {copied ?
+                <Check className="text-success h-4 w-4" />
+              : <Copy className="text-muted-foreground h-4 w-4" />}
             </button>
           </div>
         </div>

@@ -131,83 +131,70 @@ function VPNStatusHeroComponent({
   const isLoading = status === 'loading';
 
   return (
-    <Card className={cn('overflow-hidden rounded-[var(--semantic-radius-card)] shadow-[var(--semantic-shadow-card)]', className)} role="status" aria-label={`VPN health: ${config.title}`}>
+    <Card
+      className={cn(
+        'overflow-hidden rounded-[var(--semantic-radius-card)] shadow-[var(--semantic-shadow-card)]',
+        className
+      )}
+      role="status"
+      aria-label={`VPN health: ${config.title}`}
+    >
       <CardContent className={cn('p-0', config.bgClass)}>
         {/* Hero Section */}
-        <div className="p-6 sm:p-8 text-center">
+        <div className="p-6 text-center sm:p-8">
           <div
             className={cn(
-              'h-16 w-16 mx-auto mb-4 rounded-full flex items-center justify-center',
+              'mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full',
               config.iconBg,
               isHealthy && 'animate-pulse'
             )}
           >
-            <Icon
-              className={cn(
-                'h-8 w-8',
-                config.accentColor,
-                isLoading && 'animate-spin'
-              )}
-            />
+            <Icon className={cn('h-8 w-8', config.accentColor, isLoading && 'animate-spin')} />
           </div>
-          <h2 className={cn('text-2xl font-bold font-display mb-1 text-foreground')}>
+          <h2 className={cn('font-display text-foreground mb-1 text-2xl font-bold')}>
             {config.title}
           </h2>
-          <p className="text-sm text-muted-foreground">
-            {config.subtitle}
-          </p>
+          <p className="text-muted-foreground text-sm">{config.subtitle}</p>
           {issueCount > 0 && status !== 'healthy' && (
-            <p className="mt-2 text-sm font-medium text-foreground">
+            <p className="text-foreground mt-2 text-sm font-medium">
               {issueCount} {issueCount === 1 ? 'issue' : 'issues'} found
             </p>
           )}
         </div>
 
         {/* Stats Bar */}
-        <div className="bg-muted border-t border-border px-6 sm:px-8 py-4">
+        <div className="bg-muted border-border border-t px-6 py-4 sm:px-8">
           <div className="grid grid-cols-4 gap-4 text-center">
             {/* Servers */}
             <div className="flex flex-col items-center">
-              <Server className="h-5 w-5 mb-1 text-muted-foreground" />
-              <p className="text-xl font-bold text-foreground">
-                {totalServers}
-              </p>
-              <p className="text-xs text-muted-foreground">
-                Servers
-              </p>
+              <Server className="text-muted-foreground mb-1 h-5 w-5" />
+              <p className="text-foreground text-xl font-bold">{totalServers}</p>
+              <p className="text-muted-foreground text-xs">Servers</p>
             </div>
 
             {/* Clients */}
             <div className="flex flex-col items-center">
-              <Monitor className="h-5 w-5 mb-1 text-muted-foreground" />
-              <p className="text-xl font-bold text-foreground">
-                {totalClients}
-              </p>
-              <p className="text-xs text-muted-foreground">
-                Clients
-              </p>
+              <Monitor className="text-muted-foreground mb-1 h-5 w-5" />
+              <p className="text-foreground text-xl font-bold">{totalClients}</p>
+              <p className="text-muted-foreground text-xs">Clients</p>
             </div>
 
             {/* Active */}
             <div className="flex flex-col items-center">
-              <Activity className="h-5 w-5 mb-1 text-muted-foreground" />
-              <p className="text-xl font-bold text-foreground">
+              <Activity className="text-muted-foreground mb-1 h-5 w-5" />
+              <p className="text-foreground text-xl font-bold">
                 {activeServerConnections + activeClientConnections}
               </p>
-              <p className="text-xs text-muted-foreground">
-                Active
-              </p>
+              <p className="text-muted-foreground text-xs">Active</p>
             </div>
 
             {/* Traffic */}
             <div className="flex flex-col items-center">
-              <ArrowDownUp className="h-5 w-5 mb-1 text-muted-foreground" />
-              <p className="text-lg font-bold font-mono text-foreground">
+              <ArrowDownUp className="text-muted-foreground mb-1 h-5 w-5" />
+              <p className="text-foreground font-mono text-lg font-bold">
                 {formatBytes(totalRx + totalTx)}
               </p>
-              <p className="text-xs text-muted-foreground">
-                Traffic
-              </p>
+              <p className="text-muted-foreground text-xs">Traffic</p>
             </div>
           </div>
         </div>
@@ -217,9 +204,9 @@ function VPNStatusHeroComponent({
 }
 
 export const VPNStatusHero = memo(
-  forwardRef<HTMLDivElement, VPNStatusHeroProps>(
-    (props, ref) => <VPNStatusHeroComponent {...props} />
-  )
+  forwardRef<HTMLDivElement, VPNStatusHeroProps>((props, ref) => (
+    <VPNStatusHeroComponent {...props} />
+  ))
 );
 
 VPNStatusHero.displayName = 'VPNStatusHero';

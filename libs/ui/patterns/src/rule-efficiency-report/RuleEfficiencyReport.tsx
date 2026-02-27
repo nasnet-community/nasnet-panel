@@ -34,7 +34,8 @@ import {
   DialogHeader,
   DialogTitle,
   ScrollArea,
- cn } from '@nasnet/ui/primitives';
+  cn,
+} from '@nasnet/ui/primitives';
 
 import { detectRedundantRules } from './detect-redundancy';
 import { suggestReorder } from './suggest-reorder';
@@ -71,7 +72,11 @@ interface SuggestionCardProps {
   onPreview: (suggestion: Suggestion) => void;
 }
 
-const SuggestionCard = memo(function SuggestionCard({ suggestion, onApply, onPreview }: SuggestionCardProps) {
+const SuggestionCard = memo(function SuggestionCard({
+  suggestion,
+  onApply,
+  onPreview,
+}: SuggestionCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
 
@@ -94,7 +99,7 @@ const SuggestionCard = memo(function SuggestionCard({ suggestion, onApply, onPre
         <CardHeader className="pb-3">
           <div className="flex items-start justify-between">
             <div className="flex-1">
-              <div className="flex items-center gap-2 mb-2">
+              <div className="mb-2 flex items-center gap-2">
                 <Badge variant={getSeverityVariant(suggestion.severity)}>
                   {getSeverityLabel(suggestion.severity)}
                 </Badge>
@@ -105,9 +110,7 @@ const SuggestionCard = memo(function SuggestionCard({ suggestion, onApply, onPre
           </div>
         </CardHeader>
         <CardContent className="space-y-3">
-          <CardDescription className="text-sm">
-            {suggestion.description}
-          </CardDescription>
+          <CardDescription className="text-sm">{suggestion.description}</CardDescription>
 
           {suggestion.estimatedImpact && (
             <Alert>
@@ -120,7 +123,7 @@ const SuggestionCard = memo(function SuggestionCard({ suggestion, onApply, onPre
           <div>
             <button
               onClick={() => setIsExpanded(!isExpanded)}
-              className="text-sm font-medium text-primary hover:underline focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded"
+              className="text-primary focus:ring-primary rounded text-sm font-medium hover:underline focus:outline-none focus:ring-2 focus:ring-offset-2"
               aria-expanded={isExpanded}
               aria-controls={`affected-rules-${suggestion.id}`}
             >
@@ -130,11 +133,14 @@ const SuggestionCard = memo(function SuggestionCard({ suggestion, onApply, onPre
             {isExpanded && (
               <div
                 id={`affected-rules-${suggestion.id}`}
-                className="mt-2 p-3 bg-muted rounded-md"
+                className="bg-muted mt-2 rounded-md p-3"
               >
                 <ul className="space-y-1 text-sm">
                   {suggestion.affectedRules.map((ruleId) => (
-                    <li key={ruleId} className="font-mono">
+                    <li
+                      key={ruleId}
+                      className="font-mono"
+                    >
                       Rule ID: {ruleId}
                     </li>
                   ))}
@@ -167,19 +173,22 @@ const SuggestionCard = memo(function SuggestionCard({ suggestion, onApply, onPre
       </Card>
 
       {/* Confirmation Dialog */}
-      <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
+      <Dialog
+        open={showConfirmDialog}
+        onOpenChange={setShowConfirmDialog}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Confirm Action</DialogTitle>
             <DialogDescription>
-              {suggestion.action === 'delete'
-                ? 'This will permanently delete the redundant rule. This action cannot be undone.'
-                : 'This is a high-severity change. Please review carefully before applying.'}
+              {suggestion.action === 'delete' ?
+                'This will permanently delete the redundant rule. This action cannot be undone.'
+              : 'This is a high-severity change. Please review carefully before applying.'}
             </DialogDescription>
           </DialogHeader>
           <div className="py-4">
-            <p className="text-sm font-medium mb-2">Suggestion:</p>
-            <p className="text-sm text-muted-foreground">{suggestion.description}</p>
+            <p className="mb-2 text-sm font-medium">Suggestion:</p>
+            <p className="text-muted-foreground text-sm">{suggestion.description}</p>
           </div>
           <DialogFooter>
             <Button
@@ -208,9 +217,9 @@ const EmptyState = memo(function EmptyState({ type }: { type: 'redundancy' | 're
   return (
     <Card className="border-dashed">
       <CardContent className="flex flex-col items-center justify-center py-12 text-center">
-        <div className="rounded-full bg-muted p-3 mb-4">
+        <div className="bg-muted mb-4 rounded-full p-3">
           <svg
-            className="w-6 h-6 text-muted-foreground"
+            className="text-muted-foreground h-6 w-6"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -224,13 +233,13 @@ const EmptyState = memo(function EmptyState({ type }: { type: 'redundancy' | 're
             />
           </svg>
         </div>
-        <h3 className="text-lg font-semibold mb-2">
+        <h3 className="mb-2 text-lg font-semibold">
           No {type === 'redundancy' ? 'Redundancy' : 'Reordering'} Issues Found
         </h3>
-        <p className="text-sm text-muted-foreground max-w-sm">
-          {type === 'redundancy'
-            ? 'Your firewall rules appear to be optimized with no redundant rules detected.'
-            : 'Your firewall rules are already ordered efficiently for performance.'}
+        <p className="text-muted-foreground max-w-sm text-sm">
+          {type === 'redundancy' ?
+            'Your firewall rules appear to be optimized with no redundant rules detected.'
+          : 'Your firewall rules are already ordered efficiently for performance.'}
         </p>
       </CardContent>
     </Card>
@@ -270,7 +279,10 @@ function RuleEfficiencyReportComponent({
         )}
       </CardHeader>
       <CardContent>
-        <Tabs defaultValue="redundancy" className="w-full">
+        <Tabs
+          defaultValue="redundancy"
+          className="w-full"
+        >
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="redundancy">
               Redundancy {redundancySuggestions.length > 0 && `(${redundancySuggestions.length})`}
@@ -280,12 +292,14 @@ function RuleEfficiencyReportComponent({
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="redundancy" className="mt-4">
+          <TabsContent
+            value="redundancy"
+            className="mt-4"
+          >
             <ScrollArea className="h-[500px] pr-4">
-              {redundancySuggestions.length === 0 ? (
+              {redundancySuggestions.length === 0 ?
                 <EmptyState type="redundancy" />
-              ) : (
-                <div>
+              : <div>
                   {redundancySuggestions.map((suggestion) => (
                     <SuggestionCard
                       key={suggestion.id}
@@ -295,16 +309,18 @@ function RuleEfficiencyReportComponent({
                     />
                   ))}
                 </div>
-              )}
+              }
             </ScrollArea>
           </TabsContent>
 
-          <TabsContent value="reorder" className="mt-4">
+          <TabsContent
+            value="reorder"
+            className="mt-4"
+          >
             <ScrollArea className="h-[500px] pr-4">
-              {reorderSuggestions.length === 0 ? (
+              {reorderSuggestions.length === 0 ?
                 <EmptyState type="reorder" />
-              ) : (
-                <div>
+              : <div>
                   {reorderSuggestions.map((suggestion) => (
                     <SuggestionCard
                       key={suggestion.id}
@@ -314,7 +330,7 @@ function RuleEfficiencyReportComponent({
                     />
                   ))}
                 </div>
-              )}
+              }
             </ScrollArea>
           </TabsContent>
         </Tabs>

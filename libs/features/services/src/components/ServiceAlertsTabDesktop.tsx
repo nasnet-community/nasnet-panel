@@ -18,7 +18,15 @@
 import * as React from 'react';
 import { useCallback, memo } from 'react';
 import { formatDistanceToNow, format } from 'date-fns';
-import { Loader2, AlertTriangle, Search, CheckCircle2, Info, ChevronLeft, ChevronRight } from 'lucide-react';
+import {
+  Loader2,
+  AlertTriangle,
+  Search,
+  CheckCircle2,
+  Info,
+  ChevronLeft,
+  ChevronRight,
+} from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
 import {
@@ -72,7 +80,7 @@ function getSeverityDisplay(severity: AlertSeverity): {
 function getIconComponent(iconName: string): React.ComponentType<any> {
   const iconMap: Record<string, React.ComponentType<any>> = {
     'alert-triangle': AlertTriangle,
-    'info': Info,
+    info: Info,
   };
   return iconMap[iconName] || Info;
 }
@@ -149,8 +157,8 @@ function ServiceAlertsTabDesktopComponent({
   );
 
   // Select all checkbox state
-  const allSelected = filteredAlerts.length > 0 &&
-    filteredAlerts.every((alert) => selectedAlertIds.has(alert.id));
+  const allSelected =
+    filteredAlerts.length > 0 && filteredAlerts.every((alert) => selectedAlertIds.has(alert.id));
   const someSelected = hasSelection && !allSelected;
 
   // Loading state
@@ -159,9 +167,12 @@ function ServiceAlertsTabDesktopComponent({
       <div className={cn('p-component-lg', className)}>
         <Card>
           <CardContent className="p-component-xl">
-            <div className="flex flex-col items-center justify-center gap-component-md">
-              <Icon icon={Loader2} className="h-10 w-10 animate-spin text-primary" />
-              <p className="text-sm text-muted-foreground">Loading alerts...</p>
+            <div className="gap-component-md flex flex-col items-center justify-center">
+              <Icon
+                icon={Loader2}
+                className="text-primary h-10 w-10 animate-spin"
+              />
+              <p className="text-muted-foreground text-sm">Loading alerts...</p>
             </div>
           </CardContent>
         </Card>
@@ -175,11 +186,14 @@ function ServiceAlertsTabDesktopComponent({
       <div className={cn('p-component-lg', className)}>
         <Card className="border-error">
           <CardContent className="p-component-xl">
-            <div className="flex flex-col items-center gap-component-md">
-              <Icon icon={AlertTriangle} className="h-10 w-10 text-error" />
+            <div className="gap-component-md flex flex-col items-center">
+              <Icon
+                icon={AlertTriangle}
+                className="text-error h-10 w-10"
+              />
               <div className="text-center">
-                <h3 className="font-semibold text-lg mb-2">Error Loading Alerts</h3>
-                <p className="text-sm text-muted-foreground">{error.message}</p>
+                <h3 className="mb-2 text-lg font-semibold">Error Loading Alerts</h3>
+                <p className="text-muted-foreground text-sm">{error.message}</p>
               </div>
             </div>
           </CardContent>
@@ -195,17 +209,11 @@ function ServiceAlertsTabDesktopComponent({
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle>Service Alerts</CardTitle>
-            <div className="flex items-center gap-component-sm">
+            <div className="gap-component-sm flex items-center">
               <Badge variant="outline">Total: {stats.total}</Badge>
-              {stats.critical > 0 && (
-                <Badge variant="error">Critical: {stats.critical}</Badge>
-              )}
-              {stats.warning > 0 && (
-                <Badge variant="warning">Warning: {stats.warning}</Badge>
-              )}
-              {stats.info > 0 && (
-                <Badge variant="info">Info: {stats.info}</Badge>
-              )}
+              {stats.critical > 0 && <Badge variant="error">Critical: {stats.critical}</Badge>}
+              {stats.warning > 0 && <Badge variant="warning">Warning: {stats.warning}</Badge>}
+              {stats.info > 0 && <Badge variant="info">Info: {stats.info}</Badge>}
               {stats.unacknowledged > 0 && (
                 <Badge variant="outline">Unacked: {stats.unacknowledged}</Badge>
               )}
@@ -213,11 +221,14 @@ function ServiceAlertsTabDesktopComponent({
           </div>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center gap-component-md flex-wrap">
+          <div className="gap-component-md flex flex-wrap items-center">
             {/* Search */}
-            <div className="flex-1 min-w-[250px]">
+            <div className="min-w-[250px] flex-1">
               <div className="relative">
-                <Icon icon={Search} className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Icon
+                  icon={Search}
+                  className="text-muted-foreground absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2"
+                />
                 <Input
                   type="search"
                   placeholder="Search alerts..."
@@ -253,17 +264,22 @@ function ServiceAlertsTabDesktopComponent({
                 disabled={acknowledging}
                 aria-label={`Acknowledge ${selectedAlertIds.size} alerts`}
               >
-                {acknowledging ? (
+                {acknowledging ?
                   <>
-                    <Icon icon={Loader2} className="h-4 w-4 animate-spin mr-2" />
+                    <Icon
+                      icon={Loader2}
+                      className="mr-2 h-4 w-4 animate-spin"
+                    />
                     Acknowledging...
                   </>
-                ) : (
-                  <>
-                    <Icon icon={CheckCircle2} className="h-4 w-4 mr-2" />
+                : <>
+                    <Icon
+                      icon={CheckCircle2}
+                      className="mr-2 h-4 w-4"
+                    />
                     Acknowledge {selectedAlertIds.size}
                   </>
-                )}
+                }
               </Button>
             )}
           </div>
@@ -297,31 +313,33 @@ function ServiceAlertsTabDesktopComponent({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredAlerts.length === 0 ? (
+            {filteredAlerts.length === 0 ?
               <TableRow>
-                <TableCell colSpan={7} className="h-32 text-center">
-                  <div className="flex flex-col items-center gap-component-sm">
-                    <Icon icon={Info} className="h-8 w-8 text-muted-foreground" />
-                    <p className="text-sm text-muted-foreground">
-                      {filters.severity || filters.searchTerm
-                        ? 'No alerts match your filters.'
-                        : 'No alerts for this service yet.'}
+                <TableCell
+                  colSpan={7}
+                  className="h-32 text-center"
+                >
+                  <div className="gap-component-sm flex flex-col items-center">
+                    <Icon
+                      icon={Info}
+                      className="text-muted-foreground h-8 w-8"
+                    />
+                    <p className="text-muted-foreground text-sm">
+                      {filters.severity || filters.searchTerm ?
+                        'No alerts match your filters.'
+                      : 'No alerts for this service yet.'}
                     </p>
                   </div>
                 </TableCell>
               </TableRow>
-            ) : (
-              filteredAlerts.map((alert) => {
+            : filteredAlerts.map((alert) => {
                 const severityDisplay = getSeverityDisplay(alert.severity);
                 const isSelected = selectedAlertIds.has(alert.id);
 
                 return (
                   <TableRow
                     key={alert.id}
-                    className={cn(
-                      'hover:bg-muted/50 cursor-pointer',
-                      isSelected && 'bg-muted/30'
-                    )}
+                    className={cn('hover:bg-muted/50 cursor-pointer', isSelected && 'bg-muted/30')}
                     onClick={() => toggleSelect(alert.id)}
                   >
                     <TableCell onClick={(e) => e.stopPropagation()}>
@@ -331,11 +349,9 @@ function ServiceAlertsTabDesktopComponent({
                         aria-label={`Select alert ${alert.title}`}
                       />
                     </TableCell>
-                    <TableCell className="text-sm text-muted-foreground">
+                    <TableCell className="text-muted-foreground text-sm">
                       <div className="flex flex-col">
-                        <span>
-                          {format(new Date(alert.triggeredAt), 'MMM d, HH:mm')}
-                        </span>
+                        <span>{format(new Date(alert.triggeredAt), 'MMM d, HH:mm')}</span>
                         <span className="text-xs">
                           {formatDistanceToNow(new Date(alert.triggeredAt), {
                             addSuffix: true,
@@ -348,25 +364,37 @@ function ServiceAlertsTabDesktopComponent({
                         variant={severityDisplay.variant}
                         className="inline-flex items-center gap-1"
                       >
-                        <Icon icon={getIconComponent(severityDisplay.iconName) as LucideIcon} className="h-3 w-3" />
+                        <Icon
+                          icon={getIconComponent(severityDisplay.iconName) as LucideIcon}
+                          className="h-3 w-3"
+                        />
                         {alert.severity}
                       </Badge>
                     </TableCell>
                     <TableCell className="font-medium">
-                      <div className="max-w-[200px] truncate" title={alert.title}>
+                      <div
+                        className="max-w-[200px] truncate"
+                        title={alert.title}
+                      >
                         {alert.title}
                       </div>
                     </TableCell>
-                    <TableCell className="text-sm text-muted-foreground">
-                      <div className="max-w-[300px] truncate" title={alert.message}>
+                    <TableCell className="text-muted-foreground text-sm">
+                      <div
+                        className="max-w-[300px] truncate"
+                        title={alert.message}
+                      >
                         {alert.message}
                       </div>
                     </TableCell>
                     <TableCell>
-                      {alert.acknowledgedAt ? (
-                        <div className="text-xs text-muted-foreground">
-                          <div className="flex items-center gap-1 text-success">
-                            <Icon icon={CheckCircle2} className="h-3 w-3" />
+                      {alert.acknowledgedAt ?
+                        <div className="text-muted-foreground text-xs">
+                          <div className="text-success flex items-center gap-1">
+                            <Icon
+                              icon={CheckCircle2}
+                              className="h-3 w-3"
+                            />
                             Acknowledged
                           </div>
                           <div className="mt-0.5">
@@ -375,9 +403,7 @@ function ServiceAlertsTabDesktopComponent({
                             })}
                           </div>
                         </div>
-                      ) : (
-                        <Badge variant="outline">Pending</Badge>
-                      )}
+                      : <Badge variant="outline">Pending</Badge>}
                     </TableCell>
                     <TableCell onClick={(e) => e.stopPropagation()}>
                       {!alert.acknowledgedAt && (
@@ -388,7 +414,10 @@ function ServiceAlertsTabDesktopComponent({
                           disabled={acknowledging}
                           aria-label={`Acknowledge alert: ${alert.title}`}
                         >
-                          <Icon icon={CheckCircle2} className="h-4 w-4 mr-1" />
+                          <Icon
+                            icon={CheckCircle2}
+                            className="mr-1 h-4 w-4"
+                          />
                           Acknowledge
                         </Button>
                       )}
@@ -396,7 +425,7 @@ function ServiceAlertsTabDesktopComponent({
                   </TableRow>
                 );
               })
-            )}
+            }
           </TableBody>
         </Table>
       </Card>
@@ -405,21 +434,21 @@ function ServiceAlertsTabDesktopComponent({
       {pagination.totalPages > 1 && (
         <Card>
           <CardContent className="p-component-md">
-            <div className="flex items-center justify-between flex-wrap gap-component-md">
-              <div className="flex items-center gap-component-sm flex-wrap">
-                <span className="text-sm text-muted-foreground">
+            <div className="gap-component-md flex flex-wrap items-center justify-between">
+              <div className="gap-component-sm flex flex-wrap items-center">
+                <span className="text-muted-foreground text-sm">
                   Page {pagination.currentPage} of {pagination.totalPages}
                 </span>
-                <span className="text-sm text-muted-foreground">•</span>
-                <span className="text-sm text-muted-foreground">
+                <span className="text-muted-foreground text-sm">•</span>
+                <span className="text-muted-foreground text-sm">
                   {pagination.totalCount} total alerts
                 </span>
               </div>
 
-              <div className="flex items-center gap-component-md">
+              <div className="gap-component-md flex items-center">
                 {/* Page size selector */}
-                <div className="flex items-center gap-component-sm">
-                  <span className="text-sm text-muted-foreground">Per page:</span>
+                <div className="gap-component-sm flex items-center">
+                  <span className="text-muted-foreground text-sm">Per page:</span>
                   <Select
                     value={pagination.pageSize.toString()}
                     onValueChange={handlePageSizeChange}
@@ -437,7 +466,7 @@ function ServiceAlertsTabDesktopComponent({
                 </div>
 
                 {/* Page navigation */}
-                <div className="flex items-center gap-component-sm">
+                <div className="gap-component-sm flex items-center">
                   <Button
                     variant="outline"
                     size="sm"
@@ -446,7 +475,10 @@ function ServiceAlertsTabDesktopComponent({
                     aria-label="Go to previous page"
                     className="min-h-[44px]"
                   >
-                    <Icon icon={ChevronLeft} className="h-4 w-4" />
+                    <Icon
+                      icon={ChevronLeft}
+                      className="h-4 w-4"
+                    />
                     Previous
                   </Button>
                   <Button
@@ -458,7 +490,10 @@ function ServiceAlertsTabDesktopComponent({
                     className="min-h-[44px]"
                   >
                     Next
-                    <Icon icon={ChevronRight} className="h-4 w-4" />
+                    <Icon
+                      icon={ChevronRight}
+                      className="h-4 w-4"
+                    />
                   </Button>
                 </div>
               </div>

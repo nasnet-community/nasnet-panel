@@ -64,11 +64,7 @@ export interface RouteErrorDisplayProps {
  * });
  * ```
  */
-export function RouteErrorDisplay({
-  error,
-  reset,
-  className,
-}: RouteErrorDisplayProps) {
+export function RouteErrorDisplay({ error, reset, className }: RouteErrorDisplayProps) {
   const [showDetails, setShowDetails] = React.useState(false);
 
   const handleGoBack = () => {
@@ -86,50 +82,59 @@ export function RouteErrorDisplay({
     error.message.includes('fetch') ||
     error.name === 'NetworkError';
 
-  const errorTitle = isNetworkError
-    ? 'Connection Error'
-    : 'Something went wrong';
+  const errorTitle = isNetworkError ? 'Connection Error' : 'Something went wrong';
 
-  const errorDescription = isNetworkError
-    ? 'Unable to load this page. Please check your connection and try again.'
+  const errorDescription =
+    isNetworkError ?
+      'Unable to load this page. Please check your connection and try again.'
     : 'We encountered an error loading this page. Please try again.';
 
   return (
     <div
-      className={cn(
-        'flex items-center justify-center min-h-[400px] p-6',
-        className
-      )}
+      className={cn('flex min-h-[400px] items-center justify-center p-6', className)}
       role="alert"
       aria-live="polite"
     >
-      <div className="max-w-md w-full text-center">
+      <div className="w-full max-w-md text-center">
         {/* Error Icon */}
-        <div className="flex justify-center mb-4">
-          <div className="w-14 h-14 bg-error/10 rounded-2xl flex items-center justify-center">
-            <AlertCircle className="w-7 h-7 text-error" aria-hidden="true" />
+        <div className="mb-4 flex justify-center">
+          <div className="bg-error/10 flex h-14 w-14 items-center justify-center rounded-2xl">
+            <AlertCircle
+              className="text-error h-7 w-7"
+              aria-hidden="true"
+            />
           </div>
         </div>
 
         {/* Error Title */}
-        <h2 className="text-xl font-semibold text-foreground mb-2">
-          {errorTitle}
-        </h2>
+        <h2 className="text-foreground mb-2 text-xl font-semibold">{errorTitle}</h2>
 
         {/* Error Description */}
         <p className="text-muted-foreground mb-6">{errorDescription}</p>
 
         {/* Action Buttons */}
-        <div className="flex flex-col sm:flex-row gap-3 justify-center mb-4">
+        <div className="mb-4 flex flex-col justify-center gap-3 sm:flex-row">
           {reset && (
-            <Button onClick={reset} variant="default">
-              <RefreshCw className="w-4 h-4 mr-2" aria-hidden="true" />
+            <Button
+              onClick={reset}
+              variant="default"
+            >
+              <RefreshCw
+                className="mr-2 h-4 w-4"
+                aria-hidden="true"
+              />
               Try Again
             </Button>
           )}
 
-          <Button onClick={handleGoBack} variant="outline">
-            <ArrowLeft className="w-4 h-4 mr-2" aria-hidden="true" />
+          <Button
+            onClick={handleGoBack}
+            variant="outline"
+          >
+            <ArrowLeft
+              className="mr-2 h-4 w-4"
+              aria-hidden="true"
+            />
             Go Back
           </Button>
         </div>
@@ -137,28 +142,29 @@ export function RouteErrorDisplay({
         {/* Home Link */}
         <button
           onClick={handleGoHome}
-          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+          className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1.5 text-sm transition-colors"
         >
-          <Home className="w-4 h-4" aria-hidden="true" />
+          <Home
+            className="h-4 w-4"
+            aria-hidden="true"
+          />
           Go to Dashboard
         </button>
 
         {/* Expandable Details */}
-        <div className="mt-6 pt-4 border-t border-border">
+        <div className="border-border mt-6 border-t pt-4">
           <button
             onClick={() => setShowDetails(!showDetails)}
-            className="text-sm text-muted-foreground hover:text-foreground"
+            className="text-muted-foreground hover:text-foreground text-sm"
           >
             {showDetails ? 'Hide details' : 'Show details'}
           </button>
 
           {showDetails && (
-            <div className="mt-3 p-3 bg-muted rounded-lg text-left">
-              <p className="text-xs font-mono text-foreground break-all">
-                {error.message}
-              </p>
+            <div className="bg-muted mt-3 rounded-lg p-3 text-left">
+              <p className="text-foreground break-all font-mono text-xs">{error.message}</p>
               {import.meta.env.DEV && error.stack && (
-                <pre className="mt-2 text-xs text-muted-foreground overflow-auto max-h-24">
+                <pre className="text-muted-foreground mt-2 max-h-24 overflow-auto text-xs">
                   {error.stack}
                 </pre>
               )}
@@ -173,11 +179,13 @@ export function RouteErrorDisplay({
 /**
  * Default fallback for RouteErrorBoundary
  */
-function RouteErrorFallback({
-  error,
-  resetErrorBoundary,
-}: ErrorBoundaryFallbackProps) {
-  return <RouteErrorDisplay error={error} reset={resetErrorBoundary} />;
+function RouteErrorFallback({ error, resetErrorBoundary }: ErrorBoundaryFallbackProps) {
+  return (
+    <RouteErrorDisplay
+      error={error}
+      reset={resetErrorBoundary}
+    />
+  );
 }
 
 /**
@@ -237,9 +245,7 @@ export function RouteErrorBoundary({
   );
 
   const defaultFallback = React.useCallback(
-    (props: ErrorBoundaryFallbackProps) => (
-      <RouteErrorFallback {...props} />
-    ),
+    (props: ErrorBoundaryFallbackProps) => <RouteErrorFallback {...props} />,
     []
   );
 

@@ -240,7 +240,8 @@ export const WithFilters: Story = {
     },
     docs: {
       description: {
-        story: 'Filtered view showing only dropped packets from 192.168.1.* subnet in the last hour.',
+        story:
+          'Filtered view showing only dropped packets from 192.168.1.* subnet in the last hour.',
       },
     },
   },
@@ -319,7 +320,8 @@ export const WithAutoRefresh: Story = {
     },
     docs: {
       description: {
-        story: 'Log viewer with auto-refresh enabled at 3-second intervals. Useful for monitoring live traffic.',
+        story:
+          'Log viewer with auto-refresh enabled at 3-second intervals. Useful for monitoring live traffic.',
       },
     },
   },
@@ -377,7 +379,8 @@ export const MobileLayout: Story = {
     },
     docs: {
       description: {
-        story: 'Mobile layout with card-based log entries, bottom sheet filters, and 44px touch targets.',
+        story:
+          'Mobile layout with card-based log entries, bottom sheet filters, and 44px touch targets.',
       },
     },
   },
@@ -419,9 +422,7 @@ export const WithSearch: Story = {
   },
   parameters: {
     mockData: {
-      logs: sampleLogs.filter((log) =>
-        log.message.toLowerCase().includes('192.168.1')
-      ),
+      logs: sampleLogs.filter((log) => log.message.toLowerCase().includes('192.168.1')),
       isLoading: false,
       error: null,
       searchQuery: '192.168.1',
@@ -462,7 +463,8 @@ export const SecurityMonitoring: Story = {
     },
     docs: {
       description: {
-        story: 'Security monitoring view showing only dropped packets with statistics panel for threat analysis.',
+        story:
+          'Security monitoring view showing only dropped packets with statistics panel for threat analysis.',
       },
     },
   },
@@ -484,7 +486,8 @@ export const Refreshing: Story = {
     },
     docs: {
       description: {
-        story: 'Active refresh state showing "Refreshing..." indicator while keeping current logs visible.',
+        story:
+          'Active refresh state showing "Refreshing..." indicator while keeping current logs visible.',
       },
     },
   },

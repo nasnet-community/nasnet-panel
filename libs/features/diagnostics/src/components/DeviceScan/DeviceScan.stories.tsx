@@ -83,16 +83,22 @@ const generateLargeDataset = (count: number): DiscoveredDevice[] => {
   return Array.from({ length: count }, (_, i) => ({
     ip: `192.168.${Math.floor(i / 254)}.${(i % 254) + 1}`,
     mac: `${(i % 256).toString(16).padStart(2, '0')}:${((i >> 8) % 256).toString(16).padStart(2, '0')}:AA:BB:CC:DD`,
-    vendor: i % 5 === 0 ? 'MikroTik' : i % 3 === 0 ? 'Apple Inc.' : null,
+    vendor:
+      i % 5 === 0 ? 'MikroTik'
+      : i % 3 === 0 ? 'Apple Inc.'
+      : null,
     hostname: i % 2 === 0 ? `device-${i}` : null,
     interface: 'bridge1',
     responseTime: Math.floor(Math.random() * 50) + 5,
     firstSeen: new Date(Date.now() - i * 1000).toISOString(),
-    dhcpLease: i % 3 === 0 ? {
-      expires: new Date(Date.now() + 86400000).toISOString(),
-      server: '192.168.88.1',
-      status: 'bound',
-    } : undefined,
+    dhcpLease:
+      i % 3 === 0 ?
+        {
+          expires: new Date(Date.now() + 86400000).toISOString(),
+          server: '192.168.88.1',
+          status: 'bound',
+        }
+      : undefined,
   }));
 };
 
@@ -170,11 +176,14 @@ export const DesktopScanComplete: Story = {
   args: {
     status: 'completed',
     progress: 100,
-    devices: [...mockDevices, ...mockDevices.map((d, i) => ({
-      ...d,
-      ip: `192.168.88.${110 + i}`,
-      mac: `${(i + 10).toString(16).padStart(2, '0')}:${d.mac.slice(3)}`,
-    }))],
+    devices: [
+      ...mockDevices,
+      ...mockDevices.map((d, i) => ({
+        ...d,
+        ip: `192.168.88.${110 + i}`,
+        mac: `${(i + 10).toString(16).padStart(2, '0')}:${d.mac.slice(3)}`,
+      })),
+    ],
     error: null,
     stats: {
       scannedCount: 254,

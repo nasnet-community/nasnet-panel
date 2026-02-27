@@ -32,11 +32,9 @@ import type { DnsBenchmarkProps } from './types';
 function DnsBenchmarkComponent(props: DnsBenchmarkProps) {
   const platform = usePlatform();
 
-  return platform === 'mobile' ? (
-    <DnsBenchmarkMobile {...props} />
-  ) : (
-    <DnsBenchmarkDesktop {...props} />
-  );
+  return platform === 'mobile' ?
+      <DnsBenchmarkMobile {...props} />
+    : <DnsBenchmarkDesktop {...props} />;
 }
 
 DnsBenchmarkComponent.displayName = 'DnsBenchmarkComponent';

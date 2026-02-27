@@ -88,23 +88,27 @@ function AddToAddressListContextMenuInner({
   // HANDLERS
   // ============================================
 
-  const handleAddToExistingList = useCallback(async (listName: string) => {
-    if (!onAddToList) return;
+  const handleAddToExistingList = useCallback(
+    async (listName: string) => {
+      if (!onAddToList) return;
 
-    try {
-      await onAddToList(listName, ipAddress);
-      toast({
-        title: 'Added to address list',
-        description: `${ipAddress} has been added to "${listName}".`,
-      });
-    } catch (error) {
-      toast({
-        title: 'Failed to add to list',
-        description: error instanceof Error ? error.message : 'Unable to add IP to list. Please try again.',
-        variant: 'destructive',
-      });
-    }
-  }, [onAddToList, ipAddress, toast]);
+      try {
+        await onAddToList(listName, ipAddress);
+        toast({
+          title: 'Added to address list',
+          description: `${ipAddress} has been added to "${listName}".`,
+        });
+      } catch (error) {
+        toast({
+          title: 'Failed to add to list',
+          description:
+            error instanceof Error ? error.message : 'Unable to add IP to list. Please try again.',
+          variant: 'destructive',
+        });
+      }
+    },
+    [onAddToList, ipAddress, toast]
+  );
 
   const handleCreateNewList = useCallback(async () => {
     if (!newListName.trim() || !onAddToList) return;
@@ -121,7 +125,10 @@ function AddToAddressListContextMenuInner({
     } catch (error) {
       toast({
         title: 'Failed to create list',
-        description: error instanceof Error ? error.message : 'Unable to create address list. Please try again.',
+        description:
+          error instanceof Error ?
+            error.message
+          : 'Unable to create address list. Please try again.',
         variant: 'destructive',
       });
     } finally {
@@ -136,12 +143,13 @@ function AddToAddressListContextMenuInner({
   return (
     <>
       <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          {children}
-        </DropdownMenuTrigger>
+        <DropdownMenuTrigger asChild>{children}</DropdownMenuTrigger>
 
-        <DropdownMenuContent align="start" className="w-56">
-          {existingLists.length > 0 ? (
+        <DropdownMenuContent
+          align="start"
+          className="w-56"
+        >
+          {existingLists.length > 0 ?
             <>
               <DropdownMenuSub>
                 <DropdownMenuSubTrigger>
@@ -165,11 +173,13 @@ function AddToAddressListContextMenuInner({
 
               <DropdownMenuSeparator />
             </>
-          ) : (
-            <DropdownMenuItem disabled className="text-muted-foreground">
+          : <DropdownMenuItem
+              disabled
+              className="text-muted-foreground"
+            >
               No existing lists
             </DropdownMenuItem>
-          )}
+          }
 
           <DropdownMenuItem
             onClick={() => setShowCreateDialog(true)}
@@ -181,7 +191,10 @@ function AddToAddressListContextMenuInner({
       </DropdownMenu>
 
       {/* Create New List Dialog */}
-      <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
+      <Dialog
+        open={showCreateDialog}
+        onOpenChange={setShowCreateDialog}
+      >
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Create New Address List</DialogTitle>
@@ -206,7 +219,10 @@ function AddToAddressListContextMenuInner({
                 }}
                 autoFocus
               />
-              <p id="list-name-hint" className="text-xs text-muted-foreground">
+              <p
+                id="list-name-hint"
+                className="text-muted-foreground text-xs"
+              >
                 Only letters, numbers, underscores, and hyphens allowed
               </p>
             </div>
@@ -214,11 +230,16 @@ function AddToAddressListContextMenuInner({
             <div className="space-y-component-sm">
               <Label htmlFor="ip-display">IP Address</Label>
               <div className="px-component-sm py-component-xs bg-muted rounded-md">
-                <code id="ip-display" className="text-sm font-mono">{ipAddress}</code>
+                <code
+                  id="ip-display"
+                  className="font-mono text-sm"
+                >
+                  {ipAddress}
+                </code>
               </div>
             </div>
 
-            <div className="flex justify-end gap-component-sm">
+            <div className="gap-component-sm flex justify-end">
               <Button
                 variant="outline"
                 onClick={() => {

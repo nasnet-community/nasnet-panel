@@ -51,14 +51,24 @@ describe('TextField', () => {
   });
 
   it('disables input when disabled prop is true', () => {
-    render(<TextField placeholder="Disabled field" disabled={true} />);
+    render(
+      <TextField
+        placeholder="Disabled field"
+        disabled={true}
+      />
+    );
     const input = screen.getByPlaceholderText('Disabled field') as HTMLInputElement;
 
     expect(input.disabled).toBe(true);
   });
 
   it('sets aria-invalid when provided', () => {
-    render(<TextField placeholder="Field" aria-invalid={true} />);
+    render(
+      <TextField
+        placeholder="Field"
+        aria-invalid={true}
+      />
+    );
     const input = screen.getByPlaceholderText('Field');
 
     expect(input).toHaveAttribute('aria-invalid', 'true');
@@ -67,16 +77,17 @@ describe('TextField', () => {
   it('forwards ref correctly', () => {
     const ref = { current: null };
     render(
-      <TextField ref={ref} placeholder="Test" />
+      <TextField
+        ref={ref}
+        placeholder="Test"
+      />
     );
 
     expect(ref.current).toBeInstanceOf(HTMLInputElement);
   });
 
   it('applies custom className', () => {
-    const { container } = render(
-      <TextField className="custom-class" />
-    );
+    const { container } = render(<TextField className="custom-class" />);
     const input = container.querySelector('input');
 
     expect(input?.className).toContain('custom-class');

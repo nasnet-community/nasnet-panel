@@ -12,7 +12,6 @@ import type { RawRule } from '@nasnet/core/types';
 
 import { RawRuleEditor } from './RawRuleEditor';
 
-
 // Mock platform hook
 vi.mock('@nasnet/ui/layouts', () => ({
   usePlatform: () => 'desktop',
@@ -104,7 +103,12 @@ describe('RawRuleEditor', () => {
     const user = userEvent.setup();
     const onSave = vi.fn();
 
-    render(<RawRuleEditor {...defaultProps} onSave={onSave} />);
+    render(
+      <RawRuleEditor
+        {...defaultProps}
+        onSave={onSave}
+      />
+    );
 
     // Fill in form
     const commentInput = screen.getByPlaceholderText(/Description/i);
@@ -129,7 +133,12 @@ describe('RawRuleEditor', () => {
     const user = userEvent.setup();
     const onClose = vi.fn();
 
-    render(<RawRuleEditor {...defaultProps} onClose={onClose} />);
+    render(
+      <RawRuleEditor
+        {...defaultProps}
+        onClose={onClose}
+      />
+    );
 
     const cancelButton = screen.getByRole('button', { name: /Cancel/i });
     await user.click(cancelButton);
@@ -178,7 +187,12 @@ describe('RawRuleEditor', () => {
   });
 
   it('shows loading state when isSaving is true', () => {
-    render(<RawRuleEditor {...defaultProps} isSaving={true} />);
+    render(
+      <RawRuleEditor
+        {...defaultProps}
+        isSaving={true}
+      />
+    );
 
     expect(screen.getByText(/Saving.../i)).toBeInTheDocument();
   });

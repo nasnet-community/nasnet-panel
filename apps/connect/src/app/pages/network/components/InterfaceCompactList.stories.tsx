@@ -12,7 +12,6 @@
  * still render correctly.
  */
 
-
 import { type NetworkInterface } from '@nasnet/core/types';
 
 import { InterfaceCompactList } from './InterfaceCompactList';
@@ -53,7 +52,7 @@ const makeInterface = (
   name: string,
   type: NetworkInterface['type'],
   status: NetworkInterface['status'],
-  linkStatus: NetworkInterface['linkStatus'],
+  linkStatus: NetworkInterface['linkStatus']
 ): NetworkInterface => ({
   id,
   name,
@@ -155,7 +154,8 @@ export const EmptyState: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'When interfaces is empty the component renders a "No interfaces found" placeholder.',
+        story:
+          'When interfaces is empty the component renders a "No interfaces found" placeholder.',
       },
     },
   },

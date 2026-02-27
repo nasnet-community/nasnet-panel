@@ -9,13 +9,13 @@ export declare const MAX_ACTIONS = 50;
  * Functions cannot be serialized, so we store action metadata only
  */
 interface SerializedAction {
-    id: string;
-    type: UndoableAction['type'];
-    description: string;
-    timestamp: string;
-    scope: UndoableAction['scope'];
-    resourceId?: string;
-    resourceType?: string;
+  id: string;
+  type: UndoableAction['type'];
+  description: string;
+  timestamp: string;
+  scope: UndoableAction['scope'];
+  resourceId?: string;
+  resourceType?: string;
 }
 /**
  * Zustand store for undo/redo history management
@@ -56,27 +56,57 @@ interface SerializedAction {
  * Note: Functions (execute/undo) cannot be persisted. Persisted actions
  * are for display purposes only. Full functionality requires re-registration.
  */
-export declare const useHistoryStore: import("zustand").UseBoundStore<Omit<Omit<import("zustand").StoreApi<HistoryState & HistoryActions>, "setState"> & {
-    setState<A extends string | {
-        type: string;
-    }>(partial: (HistoryState & HistoryActions) | Partial<HistoryState & HistoryActions> | ((state: HistoryState & HistoryActions) => (HistoryState & HistoryActions) | Partial<HistoryState & HistoryActions>), replace?: boolean | undefined, action?: A | undefined): void;
-}, "persist"> & {
+export declare const useHistoryStore: import('zustand').UseBoundStore<
+  Omit<
+    Omit<import('zustand').StoreApi<HistoryState & HistoryActions>, 'setState'> & {
+      setState<
+        A extends
+          | string
+          | {
+              type: string;
+            },
+      >(
+        partial:
+          | (HistoryState & HistoryActions)
+          | Partial<HistoryState & HistoryActions>
+          | ((
+              state: HistoryState & HistoryActions
+            ) => (HistoryState & HistoryActions) | Partial<HistoryState & HistoryActions>),
+        replace?: boolean | undefined,
+        action?: A | undefined
+      ): void;
+    },
+    'persist'
+  > & {
     persist: {
-        setOptions: (options: Partial<import("zustand/middleware").PersistOptions<HistoryState & HistoryActions, {
+      setOptions: (
+        options: Partial<
+          import('zustand/middleware').PersistOptions<
+            HistoryState & HistoryActions,
+            {
+              past: SerializedAction[];
+              future: SerializedAction[];
+            }
+          >
+        >
+      ) => void;
+      clearStorage: () => void;
+      rehydrate: () => Promise<void> | void;
+      hasHydrated: () => boolean;
+      onHydrate: (fn: (state: HistoryState & HistoryActions) => void) => () => void;
+      onFinishHydration: (fn: (state: HistoryState & HistoryActions) => void) => () => void;
+      getOptions: () => Partial<
+        import('zustand/middleware').PersistOptions<
+          HistoryState & HistoryActions,
+          {
             past: SerializedAction[];
             future: SerializedAction[];
-        }>>) => void;
-        clearStorage: () => void;
-        rehydrate: () => Promise<void> | void;
-        hasHydrated: () => boolean;
-        onHydrate: (fn: (state: HistoryState & HistoryActions) => void) => () => void;
-        onFinishHydration: (fn: (state: HistoryState & HistoryActions) => void) => () => void;
-        getOptions: () => Partial<import("zustand/middleware").PersistOptions<HistoryState & HistoryActions, {
-            past: SerializedAction[];
-            future: SerializedAction[];
-        }>>;
+          }
+        >
+      >;
     };
-}>;
+  }
+>;
 /**
  * Select whether undo is available
  */
@@ -117,7 +147,9 @@ export declare const getHistoryState: () => HistoryState & HistoryActions;
 /**
  * Subscribe to history store changes outside of React
  */
-export declare const subscribeHistoryState: (listener: (state: HistoryState & HistoryActions, prevState: HistoryState & HistoryActions) => void) => () => void;
+export declare const subscribeHistoryState: (
+  listener: (state: HistoryState & HistoryActions, prevState: HistoryState & HistoryActions) => void
+) => () => void;
 /**
  * Undo the last action
  * Convenience function for use outside React components

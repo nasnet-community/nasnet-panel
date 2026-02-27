@@ -83,20 +83,20 @@ export const ExportMenu = memo(function ExportMenu({
           aria-label="Export statistics data in CSV, JSON, or PNG format"
           className={cn('category-networking', className)}
         >
-          <Download className="h-4 w-4 mr-component-sm" aria-hidden="true" />
+          <Download
+            className="mr-component-sm h-4 w-4"
+            aria-hidden="true"
+          />
           Export
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="bg-card border-border">
-        <DropdownMenuItem onClick={handleExportCsv}>
-          Export as CSV
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={handleExportJson}>
-          Export as JSON
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={handleExportPng}>
-          Export Chart as PNG
-        </DropdownMenuItem>
+      <DropdownMenuContent
+        align="end"
+        className="bg-card border-border"
+      >
+        <DropdownMenuItem onClick={handleExportCsv}>Export as CSV</DropdownMenuItem>
+        <DropdownMenuItem onClick={handleExportJson}>Export as JSON</DropdownMenuItem>
+        <DropdownMenuItem onClick={handleExportPng}>Export Chart as PNG</DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );

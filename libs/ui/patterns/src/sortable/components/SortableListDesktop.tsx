@@ -9,16 +9,10 @@
 
 import * as React from 'react';
 
-import {
-  MoveUp,
-  MoveDown,
-  ArrowUpToLine,
-  ArrowDownToLine,
-  Trash2,
-  Copy,
-} from 'lucide-react';
+import { MoveUp, MoveDown, ArrowUpToLine, ArrowDownToLine, Trash2, Copy } from 'lucide-react';
 
-import { cn ,
+import {
+  cn,
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
@@ -28,11 +22,7 @@ import { cn ,
 
 import { SortableList } from './SortableList';
 
-import type {
-  SortableListProps,
-  SortableItemData,
-  SortableItemRenderOptions,
-} from '../types';
+import type { SortableListProps, SortableItemData, SortableItemRenderOptions } from '../types';
 
 // ============================================================================
 // Context Menu Actions
@@ -80,7 +70,10 @@ function DesktopItemWrapper<T extends SortableItemData>({
   }
 
   return (
-    <DropdownMenu open={contextMenuOpen} onOpenChange={setContextMenuOpen}>
+    <DropdownMenu
+      open={contextMenuOpen}
+      onOpenChange={setContextMenuOpen}
+    >
       <DropdownMenuTrigger asChild>
         <div
           className="w-full"
@@ -93,7 +86,10 @@ function DesktopItemWrapper<T extends SortableItemData>({
         </div>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent align="end" className="w-48">
+      <DropdownMenuContent
+        align="end"
+        className="w-48"
+      >
         {/* Move options */}
         <DropdownMenuItem
           onClick={() => actions.onMoveToTop?.(item)}
@@ -202,7 +198,7 @@ export function SortableListDesktop<T extends SortableItemData>({
   const renderItem = React.useCallback(
     (item: T, options: SortableItemRenderOptions) => {
       const content = (
-        <div className="flex items-center gap-component-md w-full">
+        <div className="gap-component-md flex w-full items-center">
           {/* Row number */}
           {showRowNumbers && (
             <span
@@ -210,7 +206,7 @@ export function SortableListDesktop<T extends SortableItemData>({
                 'flex-shrink-0',
                 'w-6 text-center',
                 'text-xs font-medium',
-                'text-muted-foreground',
+                'text-muted-foreground'
               )}
               aria-hidden="true"
             >
@@ -219,9 +215,7 @@ export function SortableListDesktop<T extends SortableItemData>({
           )}
 
           {/* Item content */}
-          <div className="flex-1 min-w-0">
-            {externalRenderItem(item, options)}
-          </div>
+          <div className="min-w-0 flex-1">{externalRenderItem(item, options)}</div>
         </div>
       );
 
@@ -253,9 +247,9 @@ export function SortableListDesktop<T extends SortableItemData>({
       showPositionNumbers={false} // Shown inline
       gap={1}
       itemClassName={cn(
-        'bg-card border border-border rounded-[var(--semantic-radius-card)]',
+        'bg-card border-border rounded-[var(--semantic-radius-card)] border',
         'hover:bg-muted/50 transition-colors duration-150',
-        'p-component-md flex items-center gap-component-md',
+        'p-component-md gap-component-md flex items-center'
       )}
     />
   );

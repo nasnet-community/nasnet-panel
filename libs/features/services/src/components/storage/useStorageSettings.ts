@@ -7,11 +7,7 @@ import {
   useStorageMutations,
   useStorageUsage,
 } from '@nasnet/api-client/queries';
-import type {
-  StorageConfig,
-  StorageInfo,
-  StorageUsage,
-} from '@nasnet/api-client/queries';
+import type { StorageConfig, StorageInfo, StorageUsage } from '@nasnet/api-client/queries';
 
 /**
  * Headless hook for storage settings business logic.
@@ -48,10 +44,20 @@ export function useStorageSettings() {
   // Data Fetching
   // =============================================================================
 
-  const { storageInfo: allStorageInfo, loading: loadingInfo, error: errorInfo, refetch: refetchInfo } = useStorageInfo();
+  const {
+    storageInfo: allStorageInfo,
+    loading: loadingInfo,
+    error: errorInfo,
+    refetch: refetchInfo,
+  } = useStorageInfo();
   const { usage, loading: loadingUsage, refetch: refetchUsage } = useStorageUsage();
   const { config, loading: loadingConfig, refetch: refetchConfig } = useStorageConfig();
-  const { configureStorage, resetStorage, scanStorage, loading: mutationLoading } = useStorageMutations();
+  const {
+    configureStorage,
+    resetStorage,
+    scanStorage,
+    loading: mutationLoading,
+  } = useStorageMutations();
 
   // =============================================================================
   // Progressive Disclosure State
@@ -68,14 +74,14 @@ export function useStorageSettings() {
    * External storage mounts only (excludes flash)
    */
   const externalMounts = useMemo(() => {
-    return allStorageInfo.filter(info => info.locationType === 'EXTERNAL');
+    return allStorageInfo.filter((info) => info.locationType === 'EXTERNAL');
   }, [allStorageInfo]);
 
   /**
    * Flash storage info
    */
   const flashStorage = useMemo(() => {
-    return allStorageInfo.find(info => info.locationType === 'FLASH');
+    return allStorageInfo.find((info) => info.locationType === 'FLASH');
   }, [allStorageInfo]);
 
   /**
@@ -93,7 +99,7 @@ export function useStorageSettings() {
    */
   const isStorageConnected = useMemo(() => {
     if (!isStorageConfigured || !config?.path) return false;
-    return externalMounts.some(mount => mount.path === config.path && mount.mounted);
+    return externalMounts.some((mount) => mount.path === config.path && mount.mounted);
   }, [isStorageConfigured, config?.path, externalMounts]);
 
   /**
@@ -192,7 +198,9 @@ export function useStorageSettings() {
         }
 
         if (result?.featuresMigrated && result.featuresMigrated > 0) {
-          toast.success(`External storage disabled. ${result.featuresMigrated} features migrated to flash.`);
+          toast.success(
+            `External storage disabled. ${result.featuresMigrated} features migrated to flash.`
+          );
         } else {
           toast.info('External storage disabled');
         }

@@ -287,7 +287,8 @@ export const HeavyBlockedTraffic: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Scenario with heavy blocked traffic from multiple attackers. Top Blocked IPs shows the most aggressive sources.',
+        story:
+          'Scenario with heavy blocked traffic from multiple attackers. Top Blocked IPs shows the most aggressive sources.',
       },
     },
   },
@@ -304,7 +305,8 @@ export const PortScanPattern: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Port scan attack pattern where single IP scans ports 1-100. Notice the attacker IP dominates Top Blocked IPs.',
+        story:
+          'Port scan attack pattern where single IP scans ports 1-100. Notice the attacker IP dominates Top Blocked IPs.',
       },
     },
   },
@@ -321,7 +323,8 @@ export const WithoutBlocklistAction: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Read-only mode without "Add to Blocklist" buttons. Useful for reporting dashboards.',
+        story:
+          'Read-only mode without "Add to Blocklist" buttons. Useful for reporting dashboards.',
       },
     },
   },
@@ -382,7 +385,8 @@ export const LargeDataset: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Performance test with 1000+ log entries. Component uses memoization for efficient re-renders.',
+        story:
+          'Performance test with 1000+ log entries. Component uses memoization for efficient re-renders.',
       },
     },
   },
@@ -426,7 +430,8 @@ export const SingleAttacker: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Single attacker IP dominates the blocked list with 150+ attempts on various services.',
+        story:
+          'Single attacker IP dominates the blocked list with 150+ attempts on various services.',
       },
     },
   },
@@ -496,7 +501,8 @@ export const DatabaseServerTraffic: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Database server traffic pattern showing MySQL, PostgreSQL, MongoDB, and Redis connections with service name lookup.',
+        story:
+          'Database server traffic pattern showing MySQL, PostgreSQL, MongoDB, and Redis connections with service name lookup.',
       },
     },
   },

@@ -5,8 +5,5 @@
     "types": ["node", "vite/client"],
     "composite": true
   },
-  "include": [
-    "src/**/*.stories.ts",
-    "src/**/*.stories.tsx"
-  ]
+  "include": ["src/**/*.stories.ts", "src/**/*.stories.tsx"]
 }

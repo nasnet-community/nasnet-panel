@@ -23,7 +23,9 @@
  * const settings = data.device.dnsSettings;
  * ```
  */
-export declare function useDNSSettings(deviceId: string): import("@apollo/client").InteropQueryResult<any, import("@apollo/client").OperationVariables>;
+export declare function useDNSSettings(
+  deviceId: string
+): import('@apollo/client').InteropQueryResult<any, import('@apollo/client').OperationVariables>;
 /**
  * Hook to fetch DNS static entries from router
  *
@@ -40,5 +42,7 @@ export declare function useDNSSettings(deviceId: string): import("@apollo/client
  * const entries = data?.device.dnsStaticEntries || [];
  * ```
  */
-export declare function useDNSStaticEntries(deviceId: string): import("@apollo/client").InteropQueryResult<any, import("@apollo/client").OperationVariables>;
+export declare function useDNSStaticEntries(
+  deviceId: string
+): import('@apollo/client').InteropQueryResult<any, import('@apollo/client').OperationVariables>;
 //# sourceMappingURL=useDNS.d.ts.map

@@ -26,10 +26,7 @@ describe('resolver generator', () => {
       module: 'network',
     });
 
-    const resolverContent = tree.read(
-      'apps/backend/network/dhcp-lease_resolvers.go',
-      'utf-8'
-    );
+    const resolverContent = tree.read('apps/backend/network/dhcp-lease_resolvers.go', 'utf-8');
 
     expect(resolverContent).toContain('package network');
   });
@@ -39,10 +36,7 @@ describe('resolver generator', () => {
       name: 'FirewallRule',
     });
 
-    const content = tree.read(
-      'apps/backend/graph/firewall-rule_resolvers.go',
-      'utf-8'
-    );
+    const content = tree.read('apps/backend/graph/firewall-rule_resolvers.go', 'utf-8');
 
     expect(content).toContain('type FirewallRule struct');
     expect(content).toContain('type FirewallRuleResolver struct');
@@ -83,10 +77,7 @@ describe('resolver generator', () => {
       name: 'Bridge',
     });
 
-    const testContent = tree.read(
-      'apps/backend/graph/bridge_resolvers_test.go',
-      'utf-8'
-    );
+    const testContent = tree.read('apps/backend/graph/bridge_resolvers_test.go', 'utf-8');
 
     expect(testContent).toContain('github.com/stretchr/testify/assert');
     expect(testContent).toContain('github.com/stretchr/testify/require');
@@ -118,9 +109,7 @@ describe('resolver generator', () => {
       module: 'services/firewall',
     });
 
-    expect(
-      tree.exists('apps/backend/services/firewall/custom_resolvers.go')
-    ).toBe(true);
+    expect(tree.exists('apps/backend/services/firewall/custom_resolvers.go')).toBe(true);
   });
 
   it('should handle PascalCase names correctly', async () => {
@@ -130,10 +119,7 @@ describe('resolver generator', () => {
 
     expect(tree.exists('apps/backend/graph/dhcp-server_resolvers.go')).toBe(true);
 
-    const content = tree.read(
-      'apps/backend/graph/dhcp-server_resolvers.go',
-      'utf-8'
-    );
+    const content = tree.read('apps/backend/graph/dhcp-server_resolvers.go', 'utf-8');
     expect(content).toContain('type DHCPServer struct');
     expect(content).toContain('type DHCPServerResolver struct');
   });

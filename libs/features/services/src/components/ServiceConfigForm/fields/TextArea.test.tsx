@@ -33,14 +33,24 @@ describe('TextArea', () => {
   });
 
   it('disables textarea when disabled prop is true', () => {
-    render(<TextArea placeholder="Disabled field" disabled={true} />);
+    render(
+      <TextArea
+        placeholder="Disabled field"
+        disabled={true}
+      />
+    );
     const textarea = screen.getByPlaceholderText('Disabled field') as HTMLTextAreaElement;
 
     expect(textarea.disabled).toBe(true);
   });
 
   it('sets aria-invalid when provided', () => {
-    render(<TextArea placeholder="Field" aria-invalid={true} />);
+    render(
+      <TextArea
+        placeholder="Field"
+        aria-invalid={true}
+      />
+    );
     const textarea = screen.getByPlaceholderText('Field');
 
     expect(textarea).toHaveAttribute('aria-invalid', 'true');
@@ -49,16 +59,17 @@ describe('TextArea', () => {
   it('forwards ref correctly', () => {
     const ref = { current: null };
     render(
-      <TextArea ref={ref} placeholder="Test" />
+      <TextArea
+        ref={ref}
+        placeholder="Test"
+      />
     );
 
     expect(ref.current).toBeInstanceOf(HTMLTextAreaElement);
   });
 
   it('applies custom className', () => {
-    const { container } = render(
-      <TextArea className="custom-class" />
-    );
+    const { container } = render(<TextArea className="custom-class" />);
     const textarea = container.querySelector('textarea');
 
     expect(textarea?.className).toContain('custom-class');
@@ -73,9 +84,7 @@ describe('TextArea', () => {
   });
 
   it('combines resize-vertical with custom className', () => {
-    const { container } = render(
-      <TextArea className="custom-style" />
-    );
+    const { container } = render(<TextArea className="custom-style" />);
     const textarea = container.querySelector('textarea');
     const classes = textarea?.className || '';
 

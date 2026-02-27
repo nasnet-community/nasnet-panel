@@ -37,7 +37,10 @@ function HookTester(props: Parameters<typeof useVerificationBadge>[0]) {
       <span data-testid="fullHash">{state.fullHash || 'null'}</span>
       <span data-testid="ariaLabel">{state.ariaLabel}</span>
       <span data-testid="isReverifying">{String(state.isReverifying)}</span>
-      <button data-testid="reverify" onClick={() => state.handleReverify()}>
+      <button
+        data-testid="reverify"
+        onClick={() => state.handleReverify()}
+      >
         Re-verify
       </button>
     </div>
@@ -79,7 +82,12 @@ describe('useVerificationBadge Hook', () => {
 
   describe('Status Calculation', () => {
     it('should return verified status when verification data is valid', () => {
-      render(<HookTester verification={mockVerifiedData} instanceId="test-instance" />);
+      render(
+        <HookTester
+          verification={mockVerifiedData}
+          instanceId="test-instance"
+        />
+      );
       expect(screen.getByTestId('status')).toHaveTextContent('verified');
     });
 
@@ -88,12 +96,22 @@ describe('useVerificationBadge Hook', () => {
         ...mockVerifiedData,
         status: GraphQLStatus.Invalid,
       };
-      render(<HookTester verification={failedData} instanceId="test-instance" />);
+      render(
+        <HookTester
+          verification={failedData}
+          instanceId="test-instance"
+        />
+      );
       expect(screen.getByTestId('status')).toHaveTextContent('failed');
     });
 
     it('should return unknown status when verification data is null', () => {
-      render(<HookTester verification={null} instanceId="test-instance" />);
+      render(
+        <HookTester
+          verification={null}
+          instanceId="test-instance"
+        />
+      );
       expect(screen.getByTestId('status')).toHaveTextContent('unknown');
     });
 
@@ -102,19 +120,34 @@ describe('useVerificationBadge Hook', () => {
         ...mockVerifiedData,
         status: GraphQLStatus.Pending,
       };
-      render(<HookTester verification={pendingData} instanceId="test-instance" />);
+      render(
+        <HookTester
+          verification={pendingData}
+          instanceId="test-instance"
+        />
+      );
       expect(screen.getByTestId('status')).toHaveTextContent('pending');
     });
 
     it('should handle missing verification field gracefully', () => {
-      render(<HookTester verification={undefined} instanceId="test-instance" />);
+      render(
+        <HookTester
+          verification={undefined}
+          instanceId="test-instance"
+        />
+      );
       expect(screen.getByTestId('status')).toHaveTextContent('unknown');
     });
   });
 
   describe('Color Mapping', () => {
     it('should return success color for verified status', () => {
-      render(<HookTester verification={mockVerifiedData} instanceId="test-instance" />);
+      render(
+        <HookTester
+          verification={mockVerifiedData}
+          instanceId="test-instance"
+        />
+      );
       expect(screen.getByTestId('color')).toHaveTextContent('success');
     });
 
@@ -123,12 +156,22 @@ describe('useVerificationBadge Hook', () => {
         ...mockVerifiedData,
         status: GraphQLStatus.Invalid,
       };
-      render(<HookTester verification={failedData} instanceId="test-instance" />);
+      render(
+        <HookTester
+          verification={failedData}
+          instanceId="test-instance"
+        />
+      );
       expect(screen.getByTestId('color')).toHaveTextContent('destructive');
     });
 
     it('should return muted color for unknown status', () => {
-      render(<HookTester verification={null} instanceId="test-instance" />);
+      render(
+        <HookTester
+          verification={null}
+          instanceId="test-instance"
+        />
+      );
       expect(screen.getByTestId('color')).toHaveTextContent('muted');
     });
 
@@ -137,7 +180,12 @@ describe('useVerificationBadge Hook', () => {
         ...mockVerifiedData,
         status: GraphQLStatus.Pending,
       };
-      render(<HookTester verification={pendingData} instanceId="test-instance" />);
+      render(
+        <HookTester
+          verification={pendingData}
+          instanceId="test-instance"
+        />
+      );
       expect(screen.getByTestId('color')).toHaveTextContent('warning');
     });
   });

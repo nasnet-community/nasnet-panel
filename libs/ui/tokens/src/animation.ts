@@ -263,9 +263,6 @@ export function msToSeconds(ms: number): number {
  * // Otherwise: duration = 300
  * ```
  */
-export function getReducedMotionDuration(
-  ms: number,
-  reducedMotion: boolean
-): number {
+export function getReducedMotionDuration(ms: number, reducedMotion: boolean): number {
   return reducedMotion ? 0 : ms;
 }

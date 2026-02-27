@@ -13,18 +13,18 @@ import { Client } from 'graphql-ws';
  * WebSocket client configuration options
  */
 export interface WsClientOptions {
-    /**
-     * WebSocket URL (default: auto-detected from current location)
-     */
-    url?: string;
-    /**
-     * Maximum retry attempts (default: 10)
-     */
-    maxRetries?: number;
-    /**
-     * Whether to show notifications for status changes (default: true)
-     */
-    showNotifications?: boolean;
+  /**
+   * WebSocket URL (default: auto-detected from current location)
+   */
+  url?: string;
+  /**
+   * Maximum retry attempts (default: 10)
+   */
+  maxRetries?: number;
+  /**
+   * Whether to show notifications for status changes (default: true)
+   */
+  showNotifications?: boolean;
 }
 /**
  * Create a WebSocket client for GraphQL subscriptions.

@@ -57,8 +57,11 @@ function QuietHoursConfigDesktopComponent({
   return (
     <Card className={cn('w-full', className)}>
       <CardHeader>
-        <CardTitle className="flex items-center gap-component-sm">
-          <Moon className="h-5 w-5" aria-hidden="true" />
+        <CardTitle className="gap-component-sm flex items-center">
+          <Moon
+            className="h-5 w-5"
+            aria-hidden="true"
+          />
           {t('quietHours.title')}
         </CardTitle>
         <CardDescription>{t('quietHours.description')}</CardDescription>
@@ -66,7 +69,7 @@ function QuietHoursConfigDesktopComponent({
 
       <CardContent className="space-y-component-lg">
         {/* Time Range and Timezone (2-column grid) */}
-        <div className="grid grid-cols-2 gap-component-lg">
+        <div className="gap-component-lg grid grid-cols-2">
           <div className="space-y-component-md">
             <TimeRangeInput
               startTime={startTime}
@@ -76,8 +79,11 @@ function QuietHoursConfigDesktopComponent({
             />
 
             {/* Duration display */}
-            <div className="flex items-center gap-component-sm text-sm text-muted-foreground">
-              <Clock className="h-4 w-4" aria-hidden="true" />
+            <div className="gap-component-sm text-muted-foreground flex items-center text-sm">
+              <Clock
+                className="h-4 w-4"
+                aria-hidden="true"
+              />
               <span>
                 {t('quietHours.duration')}: <strong className="text-foreground">{duration}</strong>
               </span>
@@ -95,19 +101,18 @@ function QuietHoursConfigDesktopComponent({
 
         {/* Days of Week */}
         <div className="space-y-component-sm">
-          <Label className="text-base font-medium">
-            {t('quietHours.activeDays')}
-          </Label>
-          <p className="text-sm text-muted-foreground">
-            {t('quietHours.activeDaysDescription')}
-          </p>
+          <Label className="text-base font-medium">{t('quietHours.activeDays')}</Label>
+          <p className="text-muted-foreground text-sm">{t('quietHours.activeDaysDescription')}</p>
           <DayOfWeekSelector
             value={daysOfWeek}
             onChange={handleDaysChange}
             disabled={disabled}
           />
           {errors.daysOfWeek && (
-            <p className="text-sm text-error" role="alert">
+            <p
+              className="text-error text-sm"
+              role="alert"
+            >
               {errors.daysOfWeek}
             </p>
           )}
@@ -119,12 +124,15 @@ function QuietHoursConfigDesktopComponent({
             <div className="space-y-component-xs">
               <Label
                 htmlFor="bypass-critical"
-                className="text-base font-medium flex items-center gap-component-sm cursor-pointer"
+                className="gap-component-sm flex cursor-pointer items-center text-base font-medium"
               >
-                <Shield className="h-4 w-4" aria-hidden="true" />
+                <Shield
+                  className="h-4 w-4"
+                  aria-hidden="true"
+                />
                 {t('quietHours.bypassCritical')}
               </Label>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-muted-foreground text-sm">
                 {t('quietHours.bypassCriticalDescription')}
               </p>
             </div>
@@ -140,9 +148,12 @@ function QuietHoursConfigDesktopComponent({
 
         {/* Validation errors */}
         {!isValid && Object.keys(errors).length > 0 && (
-          <Alert variant="destructive" role="alert">
+          <Alert
+            variant="destructive"
+            role="alert"
+          >
             <AlertDescription>
-              <ul className="list-disc list-inside space-y-1">
+              <ul className="list-inside list-disc space-y-1">
                 {Object.entries(errors).map(([field, message]) => (
                   <li key={field}>{message}</li>
                 ))}

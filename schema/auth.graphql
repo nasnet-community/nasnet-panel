@@ -89,12 +89,7 @@ extend type Query {
 
 extend type Mutation {
   "Authenticate and receive a JWT token"
-  login(
-    "Username"
-    username: String!
-    "Password"
-    password: String! @sensitive
-  ): AuthPayload!
+  login("Username" username: String!, "Password" password: String! @sensitive): AuthPayload!
 
   "Invalidate current session and clear tokens"
   logout: Boolean! @auth
@@ -108,16 +103,10 @@ extend type Mutation {
   ): Boolean! @auth
 
   "Revoke all sessions for a user (admin only)"
-  revokeAllSessions(
-    "User ID to revoke sessions for"
-    userId: ID!
-  ): Boolean! @auth(requires: "admin")
+  revokeAllSessions("User ID to revoke sessions for" userId: ID!): Boolean! @auth(requires: "admin")
 
   "Revoke a specific session"
-  revokeSession(
-    "Session ID to revoke"
-    sessionId: ID!
-  ): Boolean! @auth
+  revokeSession("Session ID to revoke" sessionId: ID!): Boolean! @auth
 }
 
 # -----------------------------------------------------------------------------

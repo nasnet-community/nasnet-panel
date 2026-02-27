@@ -10,7 +10,13 @@
 import * as React from 'react';
 import { Trophy, PlayCircle, AlertCircle } from 'lucide-react';
 import { Button } from '@nasnet/ui/primitives/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@nasnet/ui/primitives/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@nasnet/ui/primitives/card';
 import {
   Table,
   TableBody,
@@ -54,30 +60,33 @@ function DnsBenchmarkDesktopComponent({
     }
   }, [autoRun, runBenchmark]);
 
-  const getStatusBadge = React.useCallback(
-    (status: string, isFastest: boolean) => {
-      if (isFastest) {
-        return (
-          <Badge variant="success" className="gap-1">
-            <Trophy className="h-3 w-3" aria-hidden />
-            Fastest
-          </Badge>
-        );
-      }
+  const getStatusBadge = React.useCallback((status: string, isFastest: boolean) => {
+    if (isFastest) {
+      return (
+        <Badge
+          variant="success"
+          className="gap-1"
+        >
+          <Trophy
+            className="h-3 w-3"
+            aria-hidden
+          />
+          Fastest
+        </Badge>
+      );
+    }
 
-      switch (status) {
-        case 'GOOD':
-          return <Badge variant="info">Good</Badge>;
-        case 'SLOW':
-          return <Badge variant="warning">Slow</Badge>;
-        case 'UNREACHABLE':
-          return <Badge variant="error">Unreachable</Badge>;
-        default:
-          return <Badge variant="secondary">{status}</Badge>;
-      }
-    },
-    []
-  );
+    switch (status) {
+      case 'GOOD':
+        return <Badge variant="info">Good</Badge>;
+      case 'SLOW':
+        return <Badge variant="warning">Slow</Badge>;
+      case 'UNREACHABLE':
+        return <Badge variant="error">Unreachable</Badge>;
+      default:
+        return <Badge variant="secondary">{status}</Badge>;
+    }
+  }, []);
 
   const formatTime = React.useCallback((ms: number) => {
     if (ms < 0) return 'N/A';
@@ -99,14 +108,17 @@ function DnsBenchmarkDesktopComponent({
         <CardDescription>Test response times of all configured DNS servers</CardDescription>
       </CardHeader>
       <CardContent className="space-y-component-md">
-        <div className="flex items-center gap-component-sm">
+        <div className="gap-component-sm flex items-center">
           <Button
             onClick={handleRunBenchmark}
             disabled={isLoading}
             className="gap-component-sm"
             aria-label="Run DNS server benchmark"
           >
-            <PlayCircle className="h-4 w-4" aria-hidden />
+            <PlayCircle
+              className="h-4 w-4"
+              aria-hidden
+            />
             {isLoading ? 'Running...' : 'Run Benchmark'}
           </Button>
           {result && !isLoading && (
@@ -121,28 +133,34 @@ function DnsBenchmarkDesktopComponent({
         </div>
 
         {isLoading && (
-          <div className="space-y-component-sm" role="status" aria-live="polite">
+          <div
+            className="space-y-component-sm"
+            role="status"
+            aria-live="polite"
+          >
             <Progress
               value={progress}
               className="w-full"
               aria-label={`Benchmark progress: ${progress}%`}
             />
-            <p className="text-sm text-muted-foreground">Testing DNS servers...</p>
+            <p className="text-muted-foreground text-sm">Testing DNS servers...</p>
           </div>
         )}
 
         {isError && (
           <Alert variant="destructive">
-            <AlertCircle className="h-4 w-4" aria-hidden />
+            <AlertCircle
+              className="h-4 w-4"
+              aria-hidden
+            />
             <AlertDescription>{error || 'Failed to run benchmark'}</AlertDescription>
           </Alert>
         )}
 
         {isSuccess && result && (
           <div className="space-y-component-md">
-            <div className="text-sm text-muted-foreground">
-              Tested with:{' '}
-              <span className="font-mono font-medium">{result.testHostname}</span> •
+            <div className="text-muted-foreground text-sm">
+              Tested with: <span className="font-mono font-medium">{result.testHostname}</span> •
               Total time: <span className="font-mono">{result.totalTimeMs}ms</span>
             </div>
 
@@ -173,9 +191,7 @@ function DnsBenchmarkDesktopComponent({
                       {getStatusBadge(server.status, index === 0 && server.success)}
                     </TableCell>
                     <TableCell>
-                      {server.error && (
-                        <span className="text-sm text-error">{server.error}</span>
-                      )}
+                      {server.error && <span className="text-error text-sm">{server.error}</span>}
                     </TableCell>
                   </TableRow>
                 ))}

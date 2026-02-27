@@ -32,10 +32,7 @@ async function selectTemplate(page: Page, templateName: string) {
 /**
  * Fill in template variables form
  */
-async function fillTemplateVariables(
-  page: Page,
-  variables: Record<string, string | number>
-) {
+async function fillTemplateVariables(page: Page, variables: Record<string, string | number>) {
   for (const [name, value] of Object.entries(variables)) {
     const input = page.getByLabel(new RegExp(name, 'i'));
     await input.clear();

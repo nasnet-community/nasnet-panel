@@ -1,7 +1,7 @@
 {
   "id": "provisioning-engine",
   "title": "Provisioning Engine",
-  "description": "Translates a wizard-configured StarState into live RouterOS configuration via an 8-phase ordered pipeline with per-step rollback.",
+  "description": "Translates a wizard-configured StarState into live RouterOS configuration via an 8-phase ordered",
   "source": "@site/../backend/docs/provisioning-engine.md",
   "sourceDirName": ".",
   "slug": "/provisioning-engine",

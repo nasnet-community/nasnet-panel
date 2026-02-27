@@ -13,11 +13,7 @@
 
 import { useMemo } from 'react';
 
-import {
-  useBreakpoint,
-  type Breakpoint,
-  BREAKPOINTS,
-} from './useBreakpoint';
+import { useBreakpoint, type Breakpoint, BREAKPOINTS } from './useBreakpoint';
 
 /**
  * Platform type for responsive layouts

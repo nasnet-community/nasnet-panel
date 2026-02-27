@@ -1,0 +1,17 @@
+{
+  "recommendations": [
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "golang.go",
+    "graphql.vscode-graphql",
+    "graphql.vscode-graphql-syntax",
+    "eamodio.gitlens",
+    "ms-azuretools.vscode-docker",
+    "nrwl.angular-console",
+    "bradlc.vscode-tailwindcss",
+    "ZixuanChen.vitest-explorer",
+    "formulahendry.auto-rename-tag",
+    "christian-kohler.path-intellisense",
+    "ms-playwright.playwright"
+  ]
+}

@@ -17,13 +17,13 @@ import { LazyDnsTab } from '@/app/routes/router-panel/tabs/lazy';
 function DnsTabSkeleton() {
   return (
     <div
-      className="space-y-6 p-4 md:p-6 animate-fade-in-up"
+      className="animate-fade-in-up space-y-6 p-4 md:p-6"
       aria-busy="true"
       aria-label="Loading DNS configuration"
     >
       {/* Header with category accent */}
-      <div className="flex items-center gap-3 pb-2 border-b border-border">
-        <div className="h-8 w-1 rounded bg-networking" />
+      <div className="border-border flex items-center gap-3 border-b pb-2">
+        <div className="bg-networking h-8 w-1 rounded" />
         <Skeleton className="h-6 w-40" />
       </div>
 

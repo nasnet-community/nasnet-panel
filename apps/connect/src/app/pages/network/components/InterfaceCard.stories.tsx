@@ -7,7 +7,6 @@
  *   - useConnectionStore   → @nasnet/state/stores
  */
 
-
 import { type NetworkInterface, type TrafficStatistics } from '@nasnet/core/types';
 
 import { InterfaceCard } from './InterfaceCard';
@@ -229,8 +228,7 @@ export const WithComment: Story = {
   parameters: {
     docs: {
       description: {
-        story:
-          'When a comment is set it appears in the expanded section below the traffic stats.',
+        story: 'When a comment is set it appears in the expanded section below the traffic stats.',
       },
     },
   },

@@ -78,53 +78,57 @@ export const DnsPage = memo(function DnsPage() {
   /**
    * Handle DNS server reordering
    */
-  const handleReorderServers = useCallback(async (reorderedServers: any[]) => {
-    if (!settings) return;
+  const handleReorderServers = useCallback(
+    async (reorderedServers: any[]) => {
+      if (!settings) return;
 
-    // Extract only static servers (exclude dynamic)
-    const staticServers = reorderedServers
-      .filter((s) => !s.isDynamic)
-      .map((s) => s.address);
+      // Extract only static servers (exclude dynamic)
+      const staticServers = reorderedServers.filter((s) => !s.isDynamic).map((s) => s.address);
 
-    try {
-      await updateSettings({
-        variables: {
-          deviceId,
-          input: {
-            servers: staticServers,
-            allowRemoteRequests: settings.allowRemoteRequests,
-            cacheSize: settings.cacheSize,
+      try {
+        await updateSettings({
+          variables: {
+            deviceId,
+            input: {
+              servers: staticServers,
+              allowRemoteRequests: settings.allowRemoteRequests,
+              cacheSize: settings.cacheSize,
+            },
           },
-        },
-      });
-    } catch (err) {
-      console.error('Failed to reorder DNS servers:', err);
-    }
-  }, [settings, deviceId, updateSettings]);
+        });
+      } catch (err) {
+        console.error('Failed to reorder DNS servers:', err);
+      }
+    },
+    [settings, deviceId, updateSettings]
+  );
 
   /**
    * Handle removing a static DNS server
    */
-  const handleRemoveServer = useCallback(async (serverId: string) => {
-    if (!settings) return;
+  const handleRemoveServer = useCallback(
+    async (serverId: string) => {
+      if (!settings) return;
 
-    const updatedServers = settings.staticServers.filter((s) => s !== serverId);
+      const updatedServers = settings.staticServers.filter((s) => s !== serverId);
 
-    try {
-      await updateSettings({
-        variables: {
-          deviceId,
-          input: {
-            servers: updatedServers,
-            allowRemoteRequests: settings.allowRemoteRequests,
-            cacheSize: settings.cacheSize,
+      try {
+        await updateSettings({
+          variables: {
+            deviceId,
+            input: {
+              servers: updatedServers,
+              allowRemoteRequests: settings.allowRemoteRequests,
+              cacheSize: settings.cacheSize,
+            },
           },
-        },
-      });
-    } catch (err) {
-      console.error('Failed to remove DNS server:', err);
-    }
-  }, [settings, deviceId, updateSettings]);
+        });
+      } catch (err) {
+        console.error('Failed to remove DNS server:', err);
+      }
+    },
+    [settings, deviceId, updateSettings]
+  );
 
   /**
    * Handle adding a new static DNS server
@@ -136,22 +140,25 @@ export const DnsPage = memo(function DnsPage() {
   /**
    * Handle DNS settings form submission
    */
-  const handleSettingsSubmit = useCallback(async (values: DNSSettingsFormValues) => {
-    try {
-      await updateSettings({
-        variables: {
-          deviceId,
-          input: {
-            servers: values.servers,
-            allowRemoteRequests: values.allowRemoteRequests,
-            cacheSize: values.cacheSize,
+  const handleSettingsSubmit = useCallback(
+    async (values: DNSSettingsFormValues) => {
+      try {
+        await updateSettings({
+          variables: {
+            deviceId,
+            input: {
+              servers: values.servers,
+              allowRemoteRequests: values.allowRemoteRequests,
+              cacheSize: values.cacheSize,
+            },
           },
-        },
-      });
-    } catch (err) {
-      console.error('Failed to update DNS settings:', err);
-    }
-  }, [deviceId, updateSettings]);
+        });
+      } catch (err) {
+        console.error('Failed to update DNS settings:', err);
+      }
+    },
+    [deviceId, updateSettings]
+  );
 
   /**
    * Handle adding a new static DNS entry
@@ -172,49 +179,55 @@ export const DnsPage = memo(function DnsPage() {
   /**
    * Handle static DNS entry form submission
    */
-  const handleEntrySubmit = useCallback(async (values: DNSStaticEntryFormValues) => {
-    try {
-      if (editingEntry) {
-        // Update existing entry
-        await updateEntry({
-          variables: {
-            deviceId,
-            entryId: editingEntry['.id'],
-            input: values,
-          },
-        });
-      } else {
-        // Create new entry
-        await createEntry({
-          variables: {
-            deviceId,
-            input: values,
-          },
-        });
-      }
+  const handleEntrySubmit = useCallback(
+    async (values: DNSStaticEntryFormValues) => {
+      try {
+        if (editingEntry) {
+          // Update existing entry
+          await updateEntry({
+            variables: {
+              deviceId,
+              entryId: editingEntry['.id'],
+              input: values,
+            },
+          });
+        } else {
+          // Create new entry
+          await createEntry({
+            variables: {
+              deviceId,
+              input: values,
+            },
+          });
+        }
 
-      setShowEntryDialog(false);
-      setEditingEntry(null);
-    } catch (err) {
-      console.error('Failed to save DNS entry:', err);
-    }
-  }, [editingEntry, deviceId, updateEntry, createEntry]);
+        setShowEntryDialog(false);
+        setEditingEntry(null);
+      } catch (err) {
+        console.error('Failed to save DNS entry:', err);
+      }
+    },
+    [editingEntry, deviceId, updateEntry, createEntry]
+  );
 
   /**
    * Handle deleting a static DNS entry
    */
-  const handleDeleteEntry = useCallback(async (entryId: string) => {
-    try {
-      await deleteEntry({
-        variables: {
-          deviceId,
-          entryId,
-        },
-      });
-    } catch (err) {
-      console.error('Failed to delete DNS entry:', err);
-    }
-  }, [deviceId, deleteEntry]);
+  const handleDeleteEntry = useCallback(
+    async (entryId: string) => {
+      try {
+        await deleteEntry({
+          variables: {
+            deviceId,
+            entryId,
+          },
+        });
+      } catch (err) {
+        console.error('Failed to delete DNS entry:', err);
+      }
+    },
+    [deviceId, deleteEntry]
+  );
 
   // Loading state
   if (isLoading) {
@@ -232,13 +245,18 @@ export const DnsPage = memo(function DnsPage() {
     return (
       <div className="p-page-mobile md:p-page-tablet lg:p-page-desktop category-networking">
         <Alert variant="destructive">
-          <Icon icon={AlertTriangle} className="h-4 w-4" />
+          <Icon
+            icon={AlertTriangle}
+            className="h-4 w-4"
+          />
           <AlertTitle>Failed to load DNS configuration</AlertTitle>
-          <AlertDescription>
-            {error?.message || 'Unable to fetch DNS settings'}
-          </AlertDescription>
+          <AlertDescription>{error?.message || 'Unable to fetch DNS settings'}</AlertDescription>
         </Alert>
-        <Button onClick={refetch} className="mt-component-md min-h-[44px]" aria-label="Retry loading DNS configuration">
+        <Button
+          onClick={refetch}
+          className="mt-component-md min-h-[44px]"
+          aria-label="Retry loading DNS configuration"
+        >
           Retry
         </Button>
       </div>
@@ -275,7 +293,7 @@ export const DnsPage = memo(function DnsPage() {
           />
 
           {/* DNS Settings Form */}
-          <div className="pt-component-lg border-t border-border">
+          <div className="pt-component-lg border-border border-t">
             <DnsSettingsForm
               initialValues={{
                 servers: settings.staticServers,
@@ -306,19 +324,22 @@ export const DnsPage = memo(function DnsPage() {
       </Card>
 
       {/* Static Entry Dialog */}
-      <Dialog open={showEntryDialog} onOpenChange={setShowEntryDialog}>
+      <Dialog
+        open={showEntryDialog}
+        onOpenChange={setShowEntryDialog}
+      >
         <DialogContent className="max-w-lg">
           <DnsStaticEntryForm
             mode={editingEntry ? 'edit' : 'create'}
             initialValues={
-              editingEntry
-                ? {
-                    name: editingEntry.name,
-                    address: editingEntry.address,
-                    ttl: parseInt(editingEntry.ttl),
-                    comment: editingEntry.comment,
-                  }
-                : undefined
+              editingEntry ?
+                {
+                  name: editingEntry.name,
+                  address: editingEntry.address,
+                  ttl: parseInt(editingEntry.ttl),
+                  comment: editingEntry.comment,
+                }
+              : undefined
             }
             existingEntries={entries}
             currentEntryId={editingEntry?.['.id']}

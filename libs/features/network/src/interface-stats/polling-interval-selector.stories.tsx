@@ -6,7 +6,6 @@
  * stories work without a real localStorage environment.
  */
 
-
 import { PollingIntervalSelector } from './polling-interval-selector';
 
 import type { Meta, StoryObj } from '@storybook/react';
@@ -122,9 +121,13 @@ export const WithCustomClass: Story = {
  */
 export const InsideToolbar: Story = {
   render: (args) => (
-    <div className="flex items-center gap-component-xs rounded-md border bg-card px-component-sm py-component-xs shadow-sm">
-      <span className="text-sm font-medium text-muted-foreground">Refresh:</span>
-      <PollingIntervalSelector {...args} inline className="w-[130px]" />
+    <div className="gap-component-xs bg-card px-component-sm py-component-xs flex items-center rounded-md border shadow-sm">
+      <span className="text-muted-foreground text-sm font-medium">Refresh:</span>
+      <PollingIntervalSelector
+        {...args}
+        inline
+        className="w-[130px]"
+      />
     </div>
   ),
   args: {},

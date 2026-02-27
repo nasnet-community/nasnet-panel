@@ -1,7 +1,7 @@
 {
   "id": "security",
   "title": "Security",
-  "description": "Multi-layer security model: JWT RS256 authentication, bcrypt+NIST password policy, AES-256-GCM credential encryption, GraphQL directive-based authorization, and sensitive field redaction throughout.",
+  "description": "Multi-layer security model: JWT RS256 authentication, bcrypt+NIST password policy, AES-256-GCM",
   "source": "@site/../backend/docs/security.md",
   "sourceDirName": ".",
   "slug": "/security",

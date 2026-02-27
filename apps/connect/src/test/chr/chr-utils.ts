@@ -47,10 +47,7 @@ export const defaultCHRConfig: CHRConfig = {
  */
 export async function startCHR(): Promise<void> {
   try {
-    await execAsync(
-      'docker-compose -f docker-compose.test.yml up -d',
-      { cwd: process.cwd() }
-    );
+    await execAsync('docker-compose -f docker-compose.test.yml up -d', { cwd: process.cwd() });
     // Wait for container to be healthy
     await waitForCHR();
   } catch (error) {
@@ -64,10 +61,7 @@ export async function startCHR(): Promise<void> {
  */
 export async function stopCHR(): Promise<void> {
   try {
-    await execAsync(
-      'docker-compose -f docker-compose.test.yml down',
-      { cwd: process.cwd() }
-    );
+    await execAsync('docker-compose -f docker-compose.test.yml down', { cwd: process.cwd() });
   } catch (error) {
     console.error('Failed to stop CHR container:', error);
     throw error;
@@ -107,9 +101,7 @@ export async function waitForCHR(
  */
 export async function isCHRReady(): Promise<boolean> {
   try {
-    const { stdout } = await execAsync(
-      'docker-compose -f docker-compose.test.yml ps -q chr-test'
-    );
+    const { stdout } = await execAsync('docker-compose -f docker-compose.test.yml ps -q chr-test');
     if (!stdout.trim()) {
       return false;
     }
@@ -129,9 +121,7 @@ export async function isCHRReady(): Promise<boolean> {
  */
 export async function getCHRLogs(): Promise<string> {
   try {
-    const { stdout } = await execAsync(
-      'docker-compose -f docker-compose.test.yml logs chr-test'
-    );
+    const { stdout } = await execAsync('docker-compose -f docker-compose.test.yml logs chr-test');
     return stdout;
   } catch (error) {
     console.error('Failed to get CHR logs:', error);
@@ -157,7 +147,7 @@ export async function getCHRIP(): Promise<string> {
  * Helper function to sleep for a given duration
  */
 function sleep(ms: number): Promise<void> {
-  return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 /**

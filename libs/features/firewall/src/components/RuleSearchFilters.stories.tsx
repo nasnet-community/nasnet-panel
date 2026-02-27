@@ -15,7 +15,6 @@ import type { FirewallFilters } from '@nasnet/core/types';
 
 import { RuleSearchFilters } from './RuleSearchFilters';
 
-
 import type { Meta, StoryObj } from '@storybook/react';
 
 /**
@@ -217,8 +216,7 @@ export const ActionFilterActive: Story = {
   parameters: {
     docs: {
       description: {
-        story:
-          'Action filter set to "drop". Useful for quickly finding all blocking rules.',
+        story: 'Action filter set to "drop". Useful for quickly finding all blocking rules.',
       },
     },
   },
@@ -241,8 +239,7 @@ export const ProtocolFilterActive: Story = {
   parameters: {
     docs: {
       description: {
-        story:
-          'Protocol filter set to "tcp". Narrows the rule table to TCP-specific rules only.',
+        story: 'Protocol filter set to "tcp". Narrows the rule table to TCP-specific rules only.',
       },
     },
   },
@@ -374,7 +371,7 @@ export const Interactive: Story = {
           onClearAll={handleClearAll}
           activeFilterCount={activeFilterCount}
         />
-        <pre className="mt-4 p-3 bg-slate-100 dark:bg-slate-800 rounded-lg text-xs text-slate-700 dark:text-slate-300 overflow-auto">
+        <pre className="mt-4 overflow-auto rounded-lg bg-slate-100 p-3 text-xs text-slate-700 dark:bg-slate-800 dark:text-slate-300">
           {JSON.stringify({ filters, activeFilterCount }, null, 2)}
         </pre>
       </div>

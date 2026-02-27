@@ -191,13 +191,10 @@ export const useRouterStore = create<RouterStore>()(
           return {
             routers: remaining,
             // Clear selection if removing selected router
-            selectedRouterId:
-              state.selectedRouterId === id ? null : state.selectedRouterId,
+            selectedRouterId: state.selectedRouterId === id ? null : state.selectedRouterId,
             // Clear last connected if removing that router
             lastConnectedRouterId:
-              state.lastConnectedRouterId === id
-                ? null
-                : state.lastConnectedRouterId,
+              state.lastConnectedRouterId === id ? null : state.lastConnectedRouterId,
           };
         }),
 
@@ -253,8 +250,7 @@ export const useRouterStore = create<RouterStore>()(
 
       // ===== Configuration Check Tracking =====
 
-      isConfigurationChecked: (routerId) =>
-        get().configurationCheckedRouters.includes(routerId),
+      isConfigurationChecked: (routerId) => get().configurationCheckedRouters.includes(routerId),
 
       markConfigurationChecked: (routerId) =>
         set((state) => {
@@ -263,10 +259,7 @@ export const useRouterStore = create<RouterStore>()(
             return state;
           }
           return {
-            configurationCheckedRouters: [
-              ...state.configurationCheckedRouters,
-              routerId,
-            ],
+            configurationCheckedRouters: [...state.configurationCheckedRouters, routerId],
           };
         }),
 

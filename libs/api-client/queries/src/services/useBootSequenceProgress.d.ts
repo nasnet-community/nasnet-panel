@@ -2,29 +2,36 @@
  * Boot sequence progress state
  */
 export interface BootSequenceProgress {
-    inProgress: boolean;
-    currentLayer?: number;
-    totalLayers?: number;
-    startedInstances: string[];
-    failedInstances: string[];
-    remainingInstances: string[];
+  inProgress: boolean;
+  currentLayer?: number;
+  totalLayers?: number;
+  startedInstances: string[];
+  failedInstances: string[];
+  remainingInstances: string[];
 }
 /**
  * Boot sequence event types
  */
-export type BootSequenceEventType = 'BOOT_SEQUENCE_STARTED' | 'LAYER_STARTED' | 'INSTANCE_STARTED' | 'INSTANCE_FAILED' | 'LAYER_COMPLETED' | 'BOOT_SEQUENCE_COMPLETED' | 'BOOT_SEQUENCE_FAILED';
+export type BootSequenceEventType =
+  | 'BOOT_SEQUENCE_STARTED'
+  | 'LAYER_STARTED'
+  | 'INSTANCE_STARTED'
+  | 'INSTANCE_FAILED'
+  | 'LAYER_COMPLETED'
+  | 'BOOT_SEQUENCE_COMPLETED'
+  | 'BOOT_SEQUENCE_FAILED';
 /**
  * Boot sequence event from subscription
  */
 export interface BootSequenceEvent {
-    id: string;
-    type: BootSequenceEventType;
-    timestamp: string;
-    layer?: number;
-    instanceIds: string[];
-    successCount?: number;
-    failureCount?: number;
-    errorMessage?: string;
+  id: string;
+  type: BootSequenceEventType;
+  timestamp: string;
+  layer?: number;
+  instanceIds: string[];
+  successCount?: number;
+  failureCount?: number;
+  errorMessage?: string;
 }
 /**
  * Hook to track boot sequence progress
@@ -55,10 +62,12 @@ export interface BootSequenceEvent {
  * ```
  */
 export declare function useBootSequenceProgress(): {
-    progress: BootSequenceProgress | undefined;
-    latestEvent: BootSequenceEvent | null;
-    loading: boolean;
-    error: import("@apollo/client").ApolloError | undefined;
-    refetch: (variables?: Partial<import("@apollo/client").OperationVariables> | undefined) => Promise<import("@apollo/client").ApolloQueryResult<any>>;
+  progress: BootSequenceProgress | undefined;
+  latestEvent: BootSequenceEvent | null;
+  loading: boolean;
+  error: import('@apollo/client').ApolloError | undefined;
+  refetch: (
+    variables?: Partial<import('@apollo/client').OperationVariables> | undefined
+  ) => Promise<import('@apollo/client').ApolloQueryResult<any>>;
 };
 //# sourceMappingURL=useBootSequenceProgress.d.ts.map

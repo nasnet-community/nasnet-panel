@@ -27,7 +27,14 @@ import * as React from 'react';
 
 import { Copy, Check } from 'lucide-react';
 
-import { Button, Tooltip, TooltipTrigger, TooltipContent, TooltipProvider, cn } from '@nasnet/ui/primitives';
+import {
+  Button,
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+  TooltipProvider,
+  cn,
+} from '@nasnet/ui/primitives';
 
 import { useClipboard } from '../hooks';
 import { useToast } from '../hooks/useToast';
@@ -182,15 +189,12 @@ const CopyButtonComponent = React.forwardRef<HTMLButtonElement, CopyButtonProps>
     );
 
     // Determine effective aria-label
-    const effectiveAriaLabel = copied
-      ? 'Copied'
-      : ariaLabel ?? (variant === 'inline' ? 'Copy to clipboard' : undefined);
+    const effectiveAriaLabel =
+      copied ? 'Copied' : (ariaLabel ?? (variant === 'inline' ? 'Copy to clipboard' : undefined));
 
     // Icon component
     const IconComponent = copied ? Check : Copy;
-    const iconClassName = copied
-      ? 'h-4 w-4 text-success'
-      : 'h-4 w-4 text-muted-foreground';
+    const iconClassName = copied ? 'h-4 w-4 text-success' : 'h-4 w-4 text-muted-foreground';
 
     // Render inline variant (icon only)
     if (variant === 'inline') {
@@ -199,7 +203,7 @@ const CopyButtonComponent = React.forwardRef<HTMLButtonElement, CopyButtonProps>
           ref={ref}
           variant="ghost"
           size="icon"
-          className={cn('h-8 w-8 rounded-button hover:bg-muted transition-colors', className)}
+          className={cn('rounded-button hover:bg-muted h-8 w-8 transition-colors', className)}
           onClick={handleClick}
           onKeyDown={handleKeyDown}
           aria-label={effectiveAriaLabel}
@@ -214,7 +218,10 @@ const CopyButtonComponent = React.forwardRef<HTMLButtonElement, CopyButtonProps>
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>{button}</TooltipTrigger>
-              <TooltipContent side="top" className="text-xs">
+              <TooltipContent
+                side="top"
+                className="text-xs"
+              >
                 {copied ? copiedTooltipText : tooltipText}
               </TooltipContent>
             </Tooltip>
@@ -247,7 +254,10 @@ const CopyButtonComponent = React.forwardRef<HTMLButtonElement, CopyButtonProps>
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>{button}</TooltipTrigger>
-            <TooltipContent side="top" className="text-xs">
+            <TooltipContent
+              side="top"
+              className="text-xs"
+            >
               {tooltipText}
             </TooltipContent>
           </Tooltip>

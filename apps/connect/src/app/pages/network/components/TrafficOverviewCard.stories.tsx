@@ -6,7 +6,6 @@
  * Prop-driven — no stores or routing required.
  */
 
-
 import type { NetworkInterface } from '@nasnet/core/types';
 
 import { TrafficOverviewCard } from './TrafficOverviewCard';
@@ -18,16 +17,65 @@ import type { Meta, StoryObj } from '@storybook/react';
 // ---------------------------------------------------------------------------
 
 const activeInterfaces: NetworkInterface[] = [
-  { id: '1', name: 'ether1', type: 'ether', status: 'running', macAddress: 'AA:BB:CC:DD:EE:01', linkStatus: 'up' },
-  { id: '2', name: 'ether2', type: 'ether', status: 'running', macAddress: 'AA:BB:CC:DD:EE:02', linkStatus: 'up' },
-  { id: '3', name: 'bridge1', type: 'bridge', status: 'running', macAddress: 'AA:BB:CC:DD:EE:03', linkStatus: 'up' },
+  {
+    id: '1',
+    name: 'ether1',
+    type: 'ether',
+    status: 'running',
+    macAddress: 'AA:BB:CC:DD:EE:01',
+    linkStatus: 'up',
+  },
+  {
+    id: '2',
+    name: 'ether2',
+    type: 'ether',
+    status: 'running',
+    macAddress: 'AA:BB:CC:DD:EE:02',
+    linkStatus: 'up',
+  },
+  {
+    id: '3',
+    name: 'bridge1',
+    type: 'bridge',
+    status: 'running',
+    macAddress: 'AA:BB:CC:DD:EE:03',
+    linkStatus: 'up',
+  },
 ];
 
 const mixedInterfaces: NetworkInterface[] = [
-  { id: '1', name: 'ether1', type: 'ether', status: 'running', macAddress: 'AA:BB:CC:DD:EE:01', linkStatus: 'up' },
-  { id: '2', name: 'ether2', type: 'ether', status: 'disabled', macAddress: 'AA:BB:CC:DD:EE:02', linkStatus: 'down' },
-  { id: '3', name: 'wlan1', type: 'wireless', status: 'running', macAddress: 'AA:BB:CC:DD:EE:03', linkStatus: 'up' },
-  { id: '4', name: 'vpn0', type: 'vpn', status: 'disabled', macAddress: 'AA:BB:CC:DD:EE:04', linkStatus: 'down' },
+  {
+    id: '1',
+    name: 'ether1',
+    type: 'ether',
+    status: 'running',
+    macAddress: 'AA:BB:CC:DD:EE:01',
+    linkStatus: 'up',
+  },
+  {
+    id: '2',
+    name: 'ether2',
+    type: 'ether',
+    status: 'disabled',
+    macAddress: 'AA:BB:CC:DD:EE:02',
+    linkStatus: 'down',
+  },
+  {
+    id: '3',
+    name: 'wlan1',
+    type: 'wireless',
+    status: 'running',
+    macAddress: 'AA:BB:CC:DD:EE:03',
+    linkStatus: 'up',
+  },
+  {
+    id: '4',
+    name: 'vpn0',
+    type: 'vpn',
+    status: 'disabled',
+    macAddress: 'AA:BB:CC:DD:EE:04',
+    linkStatus: 'down',
+  },
 ];
 
 const noInterfaces: NetworkInterface[] = [];
@@ -70,7 +118,8 @@ export const AllActive: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Three fully active interfaces (running + link up). The download cell reads "3 active interfaces".',
+        story:
+          'Three fully active interfaces (running + link up). The download cell reads "3 active interfaces".',
       },
     },
   },
@@ -84,7 +133,8 @@ export const MixedLinkStatus: Story = {
   parameters: {
     docs: {
       description: {
-        story: '4 total interfaces but only 2 with both running status and link up. Shows "2 active interfaces".',
+        story:
+          '4 total interfaces but only 2 with both running status and link up. Shows "2 active interfaces".',
       },
     },
   },
@@ -93,14 +143,22 @@ export const MixedLinkStatus: Story = {
 export const SingleActiveInterface: Story = {
   args: {
     interfaces: [
-      { id: '1', name: 'ether1', type: 'ether', status: 'running', macAddress: 'AA:BB:CC:DD:EE:01', linkStatus: 'up' },
+      {
+        id: '1',
+        name: 'ether1',
+        type: 'ether',
+        status: 'running',
+        macAddress: 'AA:BB:CC:DD:EE:01',
+        linkStatus: 'up',
+      },
     ],
     isLoading: false,
   },
   parameters: {
     docs: {
       description: {
-        story: 'Only one active interface — useful for verifying singular vs plural phrasing and minimal state.',
+        story:
+          'Only one active interface — useful for verifying singular vs plural phrasing and minimal state.',
       },
     },
   },
@@ -114,7 +172,8 @@ export const NoActiveInterfaces: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Empty interface list. The bar chart still renders; active count shows "0 active interfaces".',
+        story:
+          'Empty interface list. The bar chart still renders; active count shows "0 active interfaces".',
       },
     },
   },

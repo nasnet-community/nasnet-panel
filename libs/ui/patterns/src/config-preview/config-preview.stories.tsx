@@ -13,7 +13,6 @@
 
 import * as React from 'react';
 
-
 import { ConfigPreview } from './config-preview';
 import { ConfigPreviewDesktop } from './config-preview-desktop';
 import { ConfigPreviewMobile } from './config-preview-mobile';
@@ -237,8 +236,8 @@ export const MobileVariant: Story = {
   globals: {
     viewport: {
       value: 'mobile1',
-      isRotated: false
-    }
+      isRotated: false,
+    },
   },
 };
 
@@ -291,15 +290,15 @@ export const DarkTheme: Story = {
   },
   decorators: [
     (Story) => (
-      <div className="dark bg-background p-4 rounded-lg">
+      <div className="bg-background dark rounded-lg p-4">
         <Story />
       </div>
     ),
   ],
   globals: {
     backgrounds: {
-      value: "dark"
-    }
+      value: 'dark',
+    },
   },
 };
 
@@ -369,7 +368,7 @@ export const DesktopPresenter: StoryObj<typeof ConfigPreviewDesktop> = {
  */
 export const MobilePresenter: StoryObj<typeof ConfigPreviewMobile> = {
   render: () => (
-    <div className="max-w-sm mx-auto">
+    <div className="mx-auto max-w-sm">
       <ConfigPreviewMobile
         script={FULL_SCRIPT}
         title="Mobile Presenter"

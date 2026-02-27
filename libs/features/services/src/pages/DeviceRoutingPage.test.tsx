@@ -40,19 +40,17 @@ vi.mock('@nasnet/ui/patterns', () => ({
   )),
   RoutingChainViz: vi.fn(({ chain, onHopClick }) => (
     <div data-testid={`routing-chain-${chain.id}`}>
-      <button onClick={() => onHopClick(chain.hops[0])}>
-        {chain.deviceName}
-      </button>
+      <button onClick={() => onHopClick(chain.hops[0])}>{chain.deviceName}</button>
     </div>
   )),
   KillSwitchToggle: vi.fn(() => <div data-testid="kill-switch-toggle" />),
   ScheduleEditor: vi.fn(({ open, onClose, onSave }) =>
-    open ? (
+    open ?
       <div data-testid="schedule-editor">
         <button onClick={onClose}>Close</button>
         <button onClick={() => onSave({})}>Save</button>
       </div>
-    ) : null
+    : null
   ),
 }));
 
@@ -302,10 +300,7 @@ describe('DeviceRoutingPage', () => {
         hidden: false,
       });
       expect(progressDiv).toHaveAttribute('aria-live', 'polite');
-      expect(progressDiv).toHaveAttribute(
-        'aria-label',
-        expect.stringContaining('50%')
-      );
+      expect(progressDiv).toHaveAttribute('aria-label', expect.stringContaining('50%'));
     });
   });
 
@@ -437,7 +432,10 @@ describe('DeviceRoutingPage', () => {
 
     it('should accept className prop', () => {
       const { container } = render(
-        <DeviceRoutingPage routerId="router-001" className="custom-class" />
+        <DeviceRoutingPage
+          routerId="router-001"
+          className="custom-class"
+        />
       );
 
       const containerDiv = container.querySelector('.custom-class');

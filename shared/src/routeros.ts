@@ -65,8 +65,24 @@ export interface RouterInterface {
 export interface WirelessInterface extends RouterInterface {
   readonly ssid?: string;
   readonly frequency?: number;
-  readonly mode: 'station' | 'ap-bridge' | 'bridge' | 'station-wds' | 'station-bridge' | 'alignment-only' | 'nstreme-dual-slave' | 'wds-slave';
-  readonly band?: '2ghz-b' | '2ghz-g' | '2ghz-n' | '2ghz-ax' | '5ghz-a' | '5ghz-n' | '5ghz-ac' | '5ghz-ax';
+  readonly mode:
+    | 'station'
+    | 'ap-bridge'
+    | 'bridge'
+    | 'station-wds'
+    | 'station-bridge'
+    | 'alignment-only'
+    | 'nstreme-dual-slave'
+    | 'wds-slave';
+  readonly band?:
+    | '2ghz-b'
+    | '2ghz-g'
+    | '2ghz-n'
+    | '2ghz-ax'
+    | '5ghz-a'
+    | '5ghz-n'
+    | '5ghz-ac'
+    | '5ghz-ax';
   readonly channelWidth?: '20mhz' | '40mhz' | '80mhz' | '160mhz';
   readonly security?: string;
   readonly signal?: number;
@@ -199,8 +215,31 @@ export interface WireGuardPeer {
 export interface IPSecProfile {
   readonly name: string;
   readonly hashAlgorithm: 'md5' | 'sha1' | 'sha256' | 'sha512';
-  readonly encryptionAlgorithm: 'null' | 'des' | '3des' | 'aes-128-cbc' | 'aes-192-cbc' | 'aes-256-cbc' | 'aes-128-ctr' | 'aes-192-ctr' | 'aes-256-ctr' | 'aes-128-gcm' | 'aes-192-gcm' | 'aes-256-gcm';
-  readonly dhGroup: 'modp768' | 'modp1024' | 'modp1536' | 'modp2048' | 'modp3072' | 'modp4096' | 'modp6144' | 'modp8192' | 'ecp256' | 'ecp384' | 'ecp521';
+  readonly encryptionAlgorithm:
+    | 'null'
+    | 'des'
+    | '3des'
+    | 'aes-128-cbc'
+    | 'aes-192-cbc'
+    | 'aes-256-cbc'
+    | 'aes-128-ctr'
+    | 'aes-192-ctr'
+    | 'aes-256-ctr'
+    | 'aes-128-gcm'
+    | 'aes-192-gcm'
+    | 'aes-256-gcm';
+  readonly dhGroup:
+    | 'modp768'
+    | 'modp1024'
+    | 'modp1536'
+    | 'modp2048'
+    | 'modp3072'
+    | 'modp4096'
+    | 'modp6144'
+    | 'modp8192'
+    | 'ecp256'
+    | 'ecp384'
+    | 'ecp521';
   readonly lifetime?: string;
   readonly lifetimeBytes?: number;
   readonly pfsGroup?: string;
@@ -371,5 +410,3 @@ export interface ScanProgress {
   startTime: number;
   errors: string[];
 }
-
-

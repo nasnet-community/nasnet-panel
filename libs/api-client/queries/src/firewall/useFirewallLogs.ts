@@ -209,7 +209,7 @@ function matchesIPPattern(ip: string | undefined, pattern: string): boolean {
 
   const regexPattern = pattern
     .split('.')
-    .map(part => (part === '*' ? '\\d{1,3}' : part))
+    .map((part) => (part === '*' ? '\\d{1,3}' : part))
     .join('\\.');
 
   const regex = new RegExp(`^${regexPattern}$`);
@@ -224,7 +224,7 @@ function matchesPortRange(port: number | undefined, range: string): boolean {
   if (!port) return false;
 
   if (range.includes('-')) {
-    const [min, max] = range.split('-').map(p => parseInt(p.trim(), 10));
+    const [min, max] = range.split('-').map((p) => parseInt(p.trim(), 10));
     return port >= min && port <= max;
   }
 
@@ -242,42 +242,42 @@ function applyFilters(
 
   // Filter by chain
   if (filters.chain) {
-    filtered = filtered.filter(entry => entry.parsed?.chain === filters.chain);
+    filtered = filtered.filter((entry) => entry.parsed?.chain === filters.chain);
   }
 
   // Filter by action
   if (filters.action) {
-    filtered = filtered.filter(entry => entry.parsed?.action === filters.action);
+    filtered = filtered.filter((entry) => entry.parsed?.action === filters.action);
   }
 
   // Filter by source IP (with wildcard support)
   if (filters.srcIp) {
-    filtered = filtered.filter(entry =>
-      entry.parsed && matchesIPPattern(entry.parsed.srcIp, filters.srcIp!)
+    filtered = filtered.filter(
+      (entry) => entry.parsed && matchesIPPattern(entry.parsed.srcIp, filters.srcIp!)
     );
   }
 
   // Filter by destination IP (with wildcard support)
   if (filters.dstIp) {
-    filtered = filtered.filter(entry =>
-      entry.parsed && matchesIPPattern(entry.parsed.dstIp, filters.dstIp!)
+    filtered = filtered.filter(
+      (entry) => entry.parsed && matchesIPPattern(entry.parsed.dstIp, filters.dstIp!)
     );
   }
 
   // Filter by port (supports ranges)
   if (filters.port) {
-    filtered = filtered.filter(entry =>
-      entry.parsed && (
-        matchesPortRange(entry.parsed.srcPort, filters.port!) ||
-        matchesPortRange(entry.parsed.dstPort, filters.port!)
-      )
+    filtered = filtered.filter(
+      (entry) =>
+        entry.parsed &&
+        (matchesPortRange(entry.parsed.srcPort, filters.port!) ||
+          matchesPortRange(entry.parsed.dstPort, filters.port!))
     );
   }
 
   // Filter by prefix
   if (filters.prefix) {
     const prefixLower = filters.prefix.toLowerCase();
-    filtered = filtered.filter(entry =>
+    filtered = filtered.filter((entry) =>
       entry.parsed?.prefix?.toLowerCase().includes(prefixLower)
     );
   }

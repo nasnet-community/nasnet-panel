@@ -175,7 +175,7 @@ function VariablesStepComponent({
         <h2 className="text-lg font-semibold">
           {t('wizard.configureVariables', 'Configure Template Variables')}
         </h2>
-        <p className="text-sm text-muted-foreground mt-component-sm">
+        <p className="text-muted-foreground mt-component-sm text-sm">
           {t('wizard.configureVariablesDesc', 'Fill in the configuration values for your template')}
         </p>
       </div>
@@ -192,45 +192,56 @@ function VariablesStepComponent({
                   <FormLabel>
                     {variable.label}
                     {variable.required && (
-                      <span className="text-error ml-1" aria-label="required">*</span>
+                      <span
+                        className="text-error ml-1"
+                        aria-label="required"
+                      >
+                        *
+                      </span>
                     )}
                   </FormLabel>
                   <FormControl>
-                    {variable.type === 'BOOLEAN' ? (
-                      <div className="flex items-center space-x-component-sm">
+                    {variable.type === 'BOOLEAN' ?
+                      <div className="space-x-component-sm flex items-center">
                         <Switch
                           checked={field.value as boolean}
                           onCheckedChange={field.onChange}
                         />
-                        <span className="text-sm">
-                          {field.value ? 'Enabled' : 'Disabled'}
-                        </span>
+                        <span className="text-sm">{field.value ? 'Enabled' : 'Disabled'}</span>
                       </div>
-                    ) : variable.type === 'ENUM' && variable.enumValues ? (
+                    : variable.type === 'ENUM' && variable.enumValues ?
                       <Select
                         value={field.value as string}
                         onValueChange={field.onChange}
                       >
                         <SelectTrigger>
-                          <SelectValue placeholder={t('common.selectPlaceholder', `Select ${variable.label}`)} />
+                          <SelectValue
+                            placeholder={t('common.selectPlaceholder', `Select ${variable.label}`)}
+                          />
                         </SelectTrigger>
                         <SelectContent>
                           {variable.enumValues.map((value) => (
-                            <SelectItem key={String(value)} value={String(value)}>
+                            <SelectItem
+                              key={String(value)}
+                              value={String(value)}
+                            >
                               {String(value)}
                             </SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
-                    ) : (
-                      <Input
-                        type={variable.type === 'NUMBER' || variable.type === 'PORT' ? 'number' : 'text'}
+                    : <Input
+                        type={
+                          variable.type === 'NUMBER' || variable.type === 'PORT' ? 'number' : 'text'
+                        }
                         placeholder={variable.default ? String(variable.default) : ''}
                         {...field}
                         value={field.value as string | number}
-                        className={variable.type === 'PORT' || variable.type === 'NUMBER' ? 'font-mono' : ''}
+                        className={
+                          variable.type === 'PORT' || variable.type === 'NUMBER' ? 'font-mono' : ''
+                        }
                       />
-                    )}
+                    }
                   </FormControl>
                   {variable.description && (
                     <FormDescription>{variable.description}</FormDescription>
@@ -242,9 +253,11 @@ function VariablesStepComponent({
           ))}
 
           {template.configVariables.length === 0 && (
-            <div className="text-center py-component-lg text-muted-foreground">
+            <div className="py-component-lg text-muted-foreground text-center">
               <p>{t('wizard.noVariables', 'This template has no configurable variables')}</p>
-              <p className="text-sm mt-component-sm">{t('wizard.clickNext', 'Click Next to continue')}</p>
+              <p className="mt-component-sm text-sm">
+                {t('wizard.clickNext', 'Click Next to continue')}
+              </p>
             </div>
           )}
         </form>

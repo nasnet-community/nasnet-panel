@@ -132,19 +132,15 @@ export function createVPNConnectionMachine(services: VPNConnectionServices) {
       events: VPNConnectionEvent;
     },
     actors: {
-      establishConnection: fromPromise<ConnectResult, ConnectInput>(
-        async ({ input }) => {
-          return services.establishConnection(input);
-        }
-      ),
-      attemptReconnect: fromPromise<ConnectResult, ConnectInput>(
-        async ({ input }) => {
-          // Exponential backoff delay
-          const delay = BACKOFF_BASE_MS * Math.pow(2, input.attempt || 0);
-          await new Promise((resolve) => setTimeout(resolve, Math.min(delay, 8000)));
-          return services.attemptReconnect(input);
-        }
-      ),
+      establishConnection: fromPromise<ConnectResult, ConnectInput>(async ({ input }) => {
+        return services.establishConnection(input);
+      }),
+      attemptReconnect: fromPromise<ConnectResult, ConnectInput>(async ({ input }) => {
+        // Exponential backoff delay
+        const delay = BACKOFF_BASE_MS * Math.pow(2, input.attempt || 0);
+        await new Promise((resolve) => setTimeout(resolve, Math.min(delay, 8000)));
+        return services.attemptReconnect(input);
+      }),
       closeConnection: fromPromise<void, string>(async ({ input }) => {
         return services.closeConnection(input);
       }),
@@ -473,10 +469,9 @@ export function useVPNConnection(services: VPNConnectionServices): UseVPNConnect
   const [state, send] = useMachine(machine);
 
   const currentState = (
-    typeof state.value === 'string'
-      ? state.value
-      : Object.keys(state.value)[0]
-  ) as UseVPNConnectionReturn['state'];
+    typeof state.value === 'string' ?
+      state.value
+    : Object.keys(state.value)[0]) as UseVPNConnectionReturn['state'];
 
   const connect = useCallback(
     (serverAddress: string, provider: string) => {

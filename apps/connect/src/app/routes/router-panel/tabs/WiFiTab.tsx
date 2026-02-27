@@ -50,7 +50,7 @@ export const WiFiTab = React.memo(function WiFiTab() {
 
   if (isLoading) {
     return (
-      <div className="px-page-mobile md:px-page-tablet lg:px-page-desktop py-4 md:py-6 max-w-7xl mx-auto">
+      <div className="px-page-mobile md:px-page-tablet lg:px-page-desktop mx-auto max-w-7xl py-4 md:py-6">
         <LoadingSkeleton />
       </div>
     );
@@ -58,17 +58,13 @@ export const WiFiTab = React.memo(function WiFiTab() {
 
   if (interfacesError) {
     return (
-      <div className="px-page-mobile md:px-page-tablet lg:px-page-desktop py-4 md:py-6 max-w-7xl mx-auto">
-        <div className="bg-error/10 border border-error/30 rounded-card-sm p-6 text-center">
-          <h3 className="text-lg font-semibold text-error mb-2">
-            {t('errors.loadFailed')}
-          </h3>
-          <p className="text-sm text-error/80 mb-4">
-            {interfacesError.message}
-          </p>
+      <div className="px-page-mobile md:px-page-tablet lg:px-page-desktop mx-auto max-w-7xl py-4 md:py-6">
+        <div className="bg-error/10 border-error/30 rounded-card-sm border p-6 text-center">
+          <h3 className="text-error mb-2 text-lg font-semibold">{t('errors.loadFailed')}</h3>
+          <p className="text-error/80 mb-4 text-sm">{interfacesError.message}</p>
           <button
             onClick={handleRefresh}
-            className="px-4 py-2 bg-error/10 text-error rounded-md text-sm font-medium hover:bg-error/20 transition-colors"
+            className="bg-error/10 text-error hover:bg-error/20 rounded-md px-4 py-2 text-sm font-medium transition-colors"
           >
             {t('buttons.tryAgain')}
           </button>
@@ -78,18 +74,17 @@ export const WiFiTab = React.memo(function WiFiTab() {
   }
 
   return (
-    <div className="px-page-mobile md:px-page-tablet lg:px-page-desktop py-4 md:py-6 space-y-6 max-w-7xl mx-auto animate-fade-in-up">
+    <div className="px-page-mobile md:px-page-tablet lg:px-page-desktop animate-fade-in-up mx-auto max-w-7xl space-y-6 py-4 md:py-6">
       {/* Page Header with Quick Actions */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-foreground font-display">
-            {t('title')}
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            {t('description')}
-          </p>
+          <h1 className="text-foreground font-display text-2xl font-semibold">{t('title')}</h1>
+          <p className="text-muted-foreground text-sm">{t('description')}</p>
         </div>
-        <WifiQuickActions onRefresh={handleRefresh} isRefreshing={isRefreshing} />
+        <WifiQuickActions
+          onRefresh={handleRefresh}
+          isRefreshing={isRefreshing}
+        />
       </div>
 
       {/* WiFi Status Hero - Stats Grid */}

@@ -101,11 +101,14 @@ export function SafetyConfirmationMobile({
   };
 
   return (
-    <Sheet open={open} onOpenChange={handleOpenChange}>
+    <Sheet
+      open={open}
+      onOpenChange={handleOpenChange}
+    >
       <SheetContent
         side="bottom"
         className={cn(
-          'rounded-t-[var(--semantic-radius-card)] border-t border-border',
+          'border-border rounded-t-[var(--semantic-radius-card)] border-t',
           'bg-card',
           'max-h-[85vh] overflow-y-auto',
           'pb-safe' // Safe area for notched devices
@@ -126,19 +129,22 @@ export function SafetyConfirmationMobile({
         aria-describedby="safety-sheet-description"
       >
         {/* Pull indicator for swipe gesture hint */}
-        <div className="mx-auto mb-4 h-1.5 w-12 rounded-full bg-muted" />
+        <div className="bg-muted mx-auto mb-4 h-1.5 w-12 rounded-full" />
 
         <SheetHeader className="space-y-3">
           {/* Custom header with warning styling */}
           <SafetyConfirmationHeader title={title} />
 
-          <SheetTitle id="safety-sheet-title" className="sr-only">
+          <SheetTitle
+            id="safety-sheet-title"
+            className="sr-only"
+          >
             {title}
           </SheetTitle>
 
           <SheetDescription
             id="safety-sheet-description"
-            className="text-base text-muted-foreground"
+            className="text-muted-foreground text-base"
           >
             {description}
           </SheetDescription>
@@ -178,10 +184,10 @@ export function SafetyConfirmationMobile({
             variant="destructive"
             onClick={handleConfirm}
             disabled={!canConfirm || isProcessing}
-            className="h-12 w-full text-base bg-error hover:bg-error/90"
+            className="bg-error hover:bg-error/90 h-12 w-full text-base"
             aria-label={isProcessing ? 'Processing confirmation' : `Confirm ${title}`}
           >
-            {isProcessing ? (
+            {isProcessing ?
               <>
                 <Loader2
                   className="mr-2 h-5 w-5 animate-spin"
@@ -190,9 +196,7 @@ export function SafetyConfirmationMobile({
                 />
                 Processing...
               </>
-            ) : (
-              'Confirm'
-            )}
+            : 'Confirm'}
           </Button>
 
           {/* Cancel button */}

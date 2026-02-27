@@ -8,14 +8,14 @@
 import { UseQueryResult } from '@tanstack/react-query';
 import type { ConnectionTrackingSettings } from '@nasnet/core/types';
 export interface UseConnectionTrackingSettingsOptions {
-    /**
-     * Target router IP address
-     */
-    routerIp: string;
-    /**
-     * Skip query execution if true
-     */
-    enabled?: boolean;
+  /**
+   * Target router IP address
+   */
+  routerIp: string;
+  /**
+   * Skip query execution if true
+   */
+  enabled?: boolean;
 }
 /**
  * React Query hook for connection tracking settings
@@ -53,5 +53,8 @@ export interface UseConnectionTrackingSettingsOptions {
  * }
  * ```
  */
-export declare function useConnectionTrackingSettings({ routerIp, enabled, }: UseConnectionTrackingSettingsOptions): UseQueryResult<ConnectionTrackingSettings, Error>;
+export declare function useConnectionTrackingSettings({
+  routerIp,
+  enabled,
+}: UseConnectionTrackingSettingsOptions): UseQueryResult<ConnectionTrackingSettings, Error>;
 //# sourceMappingURL=useConnectionTrackingSettings.d.ts.map

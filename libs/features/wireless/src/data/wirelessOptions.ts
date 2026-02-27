@@ -161,9 +161,7 @@ export const CHANNEL_WIDTH_OPTIONS: ChannelWidthOption[] = [
  * Get channel width options available for a specific band
  */
 export function getChannelWidthsByBand(band: FrequencyBand): ChannelWidthOption[] {
-  return CHANNEL_WIDTH_OPTIONS.filter((option) =>
-    option.supportedBands.includes(band)
-  );
+  return CHANNEL_WIDTH_OPTIONS.filter((option) => option.supportedBands.includes(band));
 }
 
 /**
@@ -266,26 +264,3 @@ export function getCountryName(code: string): string {
   const country = COUNTRY_OPTIONS.find((c) => c.code === code);
   return country?.name || code;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

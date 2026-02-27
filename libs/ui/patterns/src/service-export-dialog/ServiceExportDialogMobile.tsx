@@ -48,19 +48,31 @@ export function ServiceExportDialogMobile(props: ServiceExportDialogProps) {
   };
 
   return (
-    <Sheet open={open} onOpenChange={handleOpenChange}>
+    <Sheet
+      open={open}
+      onOpenChange={handleOpenChange}
+    >
       <SheetTrigger asChild>
         {trigger || (
-          <Button variant="outline" size="lg" className="w-full min-h-[44px]">
-            <Share2 className="w-5 h-5 mr-2" />
+          <Button
+            variant="outline"
+            size="lg"
+            className="min-h-[44px] w-full"
+          >
+            <Share2 className="mr-2 h-5 w-5" />
             Export
           </Button>
         )}
       </SheetTrigger>
-      <SheetContent side="bottom" className="h-[90vh] bg-card border-t border-border">
+      <SheetContent
+        side="bottom"
+        className="bg-card border-border h-[90vh] border-t"
+      >
         <SheetHeader>
-          <SheetTitle className="font-display text-lg font-semibold text-foreground">Export Service</SheetTitle>
-          <SheetDescription className="text-sm text-muted-foreground">
+          <SheetTitle className="font-display text-foreground text-lg font-semibold">
+            Export Service
+          </SheetTitle>
+          <SheetDescription className="text-muted-foreground text-sm">
             {instance.instanceName} ({instance.featureID})
           </SheetDescription>
         </SheetHeader>
@@ -71,25 +83,35 @@ export function ServiceExportDialogMobile(props: ServiceExportDialogProps) {
               {/* Format Selection */}
               <div className="space-y-3">
                 <Label className="text-base">Export Format</Label>
-                <RadioGroup value={state.options.format} onValueChange={setFormat}>
+                <RadioGroup
+                  value={state.options.format}
+                  onValueChange={setFormat}
+                >
                   <div className="space-y-component-md">
                     {/* JSON Format */}
                     <div
-                      className={`flex items-start space-x-3 rounded-[var(--semantic-radius-input)] border p-component-md min-h-[44px] cursor-pointer transition-colors ${
-                        state.options.format === 'json'
-                          ? 'border-primary bg-primary/5'
-                          : 'hover:bg-muted'
+                      className={`p-component-md flex min-h-[44px] cursor-pointer items-start space-x-3 rounded-[var(--semantic-radius-input)] border transition-colors ${
+                        state.options.format === 'json' ?
+                          'border-primary bg-primary/5'
+                        : 'hover:bg-muted'
                       }`}
                       onClick={() => setFormat('json')}
                     >
-                      <RadioGroupItem value="json" id="format-json-mobile" className="mt-1" />
+                      <RadioGroupItem
+                        value="json"
+                        id="format-json-mobile"
+                        className="mt-1"
+                      />
                       <div className="flex-1">
-                        <label htmlFor="format-json-mobile" className="cursor-pointer">
+                        <label
+                          htmlFor="format-json-mobile"
+                          className="cursor-pointer"
+                        >
                           <div className="flex items-center gap-2">
                             <span className="font-medium">JSON File</span>
                             <Badge variant="secondary">.json</Badge>
                           </div>
-                          <p className="text-sm text-muted-foreground mt-1">
+                          <p className="text-muted-foreground mt-1 text-sm">
                             Downloadable file for manual import
                           </p>
                         </label>
@@ -98,21 +120,28 @@ export function ServiceExportDialogMobile(props: ServiceExportDialogProps) {
 
                     {/* QR Code Format */}
                     <div
-                      className={`flex items-start space-x-3 rounded-[var(--semantic-radius-input)] border p-component-md min-h-[44px] cursor-pointer transition-colors ${
-                        state.options.format === 'qr'
-                          ? 'border-primary bg-primary/5'
-                          : 'hover:bg-muted'
+                      className={`p-component-md flex min-h-[44px] cursor-pointer items-start space-x-3 rounded-[var(--semantic-radius-input)] border transition-colors ${
+                        state.options.format === 'qr' ?
+                          'border-primary bg-primary/5'
+                        : 'hover:bg-muted'
                       }`}
                       onClick={() => setFormat('qr')}
                     >
-                      <RadioGroupItem value="qr" id="format-qr-mobile" className="mt-1" />
+                      <RadioGroupItem
+                        value="qr"
+                        id="format-qr-mobile"
+                        className="mt-1"
+                      />
                       <div className="flex-1">
-                        <label htmlFor="format-qr-mobile" className="cursor-pointer">
+                        <label
+                          htmlFor="format-qr-mobile"
+                          className="cursor-pointer"
+                        >
                           <div className="flex items-center gap-2">
                             <span className="font-medium">QR Code</span>
                             <Badge variant="secondary">.png</Badge>
                           </div>
-                          <p className="text-sm text-muted-foreground mt-1">
+                          <p className="text-muted-foreground mt-1 text-sm">
                             Scannable QR code (2KB limit)
                           </p>
                         </label>
@@ -123,15 +152,16 @@ export function ServiceExportDialogMobile(props: ServiceExportDialogProps) {
               </div>
 
               {/* Export Options */}
-              <div className="space-y-4 rounded-[var(--semantic-radius-input)] border border-border p-component-md bg-muted/30">
-                <div className="flex items-center justify-between min-h-[44px]">
-                  <div className="space-y-0.5 flex-1">
-                    <Label htmlFor="redact-secrets-mobile" className="text-base">
+              <div className="border-border p-component-md bg-muted/30 space-y-4 rounded-[var(--semantic-radius-input)] border">
+                <div className="flex min-h-[44px] items-center justify-between">
+                  <div className="flex-1 space-y-0.5">
+                    <Label
+                      htmlFor="redact-secrets-mobile"
+                      className="text-base"
+                    >
                       Redact Secrets
                     </Label>
-                    <p className="text-sm text-muted-foreground">
-                      Hide passwords and API keys
-                    </p>
+                    <p className="text-muted-foreground text-sm">Hide passwords and API keys</p>
                   </div>
                   <Switch
                     id="redact-secrets-mobile"
@@ -140,19 +170,22 @@ export function ServiceExportDialogMobile(props: ServiceExportDialogProps) {
                   />
                 </div>
 
-                <div className="flex items-center justify-between min-h-[44px]">
-                  <div className="space-y-0.5 flex-1">
-                    <Label htmlFor="include-routing-mobile" className="text-base">
+                <div className="flex min-h-[44px] items-center justify-between">
+                  <div className="flex-1 space-y-0.5">
+                    <Label
+                      htmlFor="include-routing-mobile"
+                      className="text-base"
+                    >
                       Include Routing
                     </Label>
-                    <p className="text-sm text-muted-foreground">
-                      Export routing assignments
-                    </p>
+                    <p className="text-muted-foreground text-sm">Export routing assignments</p>
                   </div>
                   <Switch
                     id="include-routing-mobile"
                     checked={state.options.includeRoutingRules}
-                    onCheckedChange={(checked: boolean) => setOptions({ includeRoutingRules: checked })}
+                    onCheckedChange={(checked: boolean) =>
+                      setOptions({ includeRoutingRules: checked })
+                    }
                   />
                 </div>
               </div>
@@ -171,7 +204,7 @@ export function ServiceExportDialogMobile(props: ServiceExportDialogProps) {
                   onClick={handleExport}
                   disabled={loading}
                   size="lg"
-                  className="w-full min-h-[44px]"
+                  className="min-h-[44px] w-full"
                 >
                   {loading ? 'Exporting...' : `Export as ${state.options.format.toUpperCase()}`}
                 </Button>
@@ -179,7 +212,7 @@ export function ServiceExportDialogMobile(props: ServiceExportDialogProps) {
                   variant="outline"
                   onClick={() => handleOpenChange(false)}
                   size="lg"
-                  className="w-full min-h-[44px]"
+                  className="min-h-[44px] w-full"
                 >
                   Cancel
                 </Button>
@@ -189,11 +222,11 @@ export function ServiceExportDialogMobile(props: ServiceExportDialogProps) {
 
           {state.step === 'exporting' && (
             <div className="py-12 text-center">
-              <div className="w-20 h-20 mx-auto rounded-full bg-primary/10 flex items-center justify-center mb-4">
-                <Share2 className="w-10 h-10 text-primary animate-pulse" />
+              <div className="bg-primary/10 mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full">
+                <Share2 className="text-primary h-10 w-10 animate-pulse" />
               </div>
-              <h3 className="text-lg font-medium mb-2">Preparing export...</h3>
-              <p className="text-sm text-muted-foreground">
+              <h3 className="mb-2 text-lg font-medium">Preparing export...</h3>
+              <p className="text-muted-foreground text-sm">
                 Generating {state.options.format.toUpperCase()} package
               </p>
             </div>
@@ -202,24 +235,22 @@ export function ServiceExportDialogMobile(props: ServiceExportDialogProps) {
           {state.step === 'complete' && (
             <>
               {/* Success Message */}
-              <div className="text-center py-4">
-                <div className="w-20 h-20 mx-auto rounded-full bg-success/10 flex items-center justify-center mb-4">
-                  <CheckCircle2 className="w-10 h-10 text-success" />
+              <div className="py-4 text-center">
+                <div className="bg-success/10 mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full">
+                  <CheckCircle2 className="text-success h-10 w-10" />
                 </div>
-                <h3 className="text-lg font-medium mb-2">Export Complete!</h3>
-                <p className="text-sm text-muted-foreground">
-                  {instance.instanceName} exported
-                </p>
+                <h3 className="mb-2 text-lg font-medium">Export Complete!</h3>
+                <p className="text-muted-foreground text-sm">{instance.instanceName} exported</p>
               </div>
 
               {/* QR Code Preview */}
               {state.options.format === 'qr' && state.qrImageData && (
                 <div className="flex justify-center">
-                  <div className="rounded-[var(--semantic-radius-input)] border border-border p-component-md bg-card">
+                  <div className="border-border p-component-md bg-card rounded-[var(--semantic-radius-input)] border">
                     <img
                       src={`data:image/png;base64,${state.qrImageData}`}
                       alt="Service Configuration QR Code"
-                      className="w-64 h-64"
+                      className="h-64 w-64"
                     />
                   </div>
                 </div>
@@ -230,8 +261,7 @@ export function ServiceExportDialogMobile(props: ServiceExportDialogProps) {
                 <Alert>
                   <AlertDescription>
                     JSON file ready for download
-                    {state.options.redactSecrets &&
-                      '. Secrets have been redacted.'}
+                    {state.options.redactSecrets && '. Secrets have been redacted.'}
                   </AlertDescription>
                 </Alert>
               )}
@@ -241,9 +271,9 @@ export function ServiceExportDialogMobile(props: ServiceExportDialogProps) {
                 <Button
                   onClick={handleDownload}
                   size="lg"
-                  className="w-full min-h-[44px]"
+                  className="min-h-[44px] w-full"
                 >
-                  <Download className="w-5 h-5 mr-2" />
+                  <Download className="mr-2 h-5 w-5" />
                   Download
                 </Button>
                 <Button
@@ -251,25 +281,24 @@ export function ServiceExportDialogMobile(props: ServiceExportDialogProps) {
                   onClick={handleCopy}
                   disabled={state.copySuccess}
                   size="lg"
-                  className="w-full min-h-[44px]"
+                  className="min-h-[44px] w-full"
                 >
-                  {state.copySuccess ? (
+                  {state.copySuccess ?
                     <>
-                      <CheckCircle2 className="w-5 h-5 mr-2 text-success" />
+                      <CheckCircle2 className="text-success mr-2 h-5 w-5" />
                       Copied!
                     </>
-                  ) : (
-                    <>
-                      <Copy className="w-5 h-5 mr-2" />
+                  : <>
+                      <Copy className="mr-2 h-5 w-5" />
                       Copy
                     </>
-                  )}
+                  }
                 </Button>
                 <Button
                   variant="outline"
                   onClick={reset}
                   size="lg"
-                  className="w-full min-h-[44px]"
+                  className="min-h-[44px] w-full"
                 >
                   Export Another
                 </Button>

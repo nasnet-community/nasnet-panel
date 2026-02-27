@@ -57,13 +57,14 @@ function QuietHoursConfigMobileComponent({
   return (
     <Card className={cn('w-full border-0 shadow-none', className)}>
       <CardHeader className="pb-component-md">
-        <CardTitle className="flex items-center gap-component-sm text-xl">
-          <Moon className="h-6 w-6" aria-hidden="true" />
+        <CardTitle className="gap-component-sm flex items-center text-xl">
+          <Moon
+            className="h-6 w-6"
+            aria-hidden="true"
+          />
           {t('quietHours.title')}
         </CardTitle>
-        <CardDescription className="text-base">
-          {t('quietHours.description')}
-        </CardDescription>
+        <CardDescription className="text-base">{t('quietHours.description')}</CardDescription>
       </CardHeader>
 
       <CardContent className="space-y-component-lg p-component-md">
@@ -77,8 +78,11 @@ function QuietHoursConfigMobileComponent({
           />
 
           {/* Duration display */}
-          <div className="flex items-center gap-component-sm text-sm text-muted-foreground bg-muted/50 p-component-sm rounded-[var(--semantic-radius-button)]">
-            <Clock className="h-5 w-5" aria-hidden="true" />
+          <div className="gap-component-sm text-muted-foreground bg-muted/50 p-component-sm flex items-center rounded-[var(--semantic-radius-button)] text-sm">
+            <Clock
+              className="h-5 w-5"
+              aria-hidden="true"
+            />
             <span>
               {t('quietHours.duration')}: <strong className="text-foreground">{duration}</strong>
             </span>
@@ -96,36 +100,39 @@ function QuietHoursConfigMobileComponent({
 
         {/* Days of Week */}
         <div className="space-y-component-sm">
-          <Label className="text-base font-medium">
-            {t('quietHours.activeDays')}
-          </Label>
-          <p className="text-sm text-muted-foreground">
-            {t('quietHours.activeDaysDescription')}
-          </p>
+          <Label className="text-base font-medium">{t('quietHours.activeDays')}</Label>
+          <p className="text-muted-foreground text-sm">{t('quietHours.activeDaysDescription')}</p>
           <DayOfWeekSelector
             value={daysOfWeek}
             onChange={handleDaysChange}
             disabled={disabled}
           />
           {errors.daysOfWeek && (
-            <Alert variant="destructive" className="mt-2" role="alert">
+            <Alert
+              variant="destructive"
+              className="mt-2"
+              role="alert"
+            >
               <AlertDescription>{errors.daysOfWeek}</AlertDescription>
             </Alert>
           )}
         </div>
 
         {/* Bypass Critical Alerts */}
-        <div className="space-y-component-sm pb-component-md border-b border-border">
-          <div className="flex items-start justify-between gap-component-lg">
+        <div className="space-y-component-sm pb-component-md border-border border-b">
+          <div className="gap-component-lg flex items-start justify-between">
             <div className="space-y-component-xs flex-1">
               <Label
                 htmlFor="bypass-critical-mobile"
-                className="text-base font-medium flex items-center gap-component-sm"
+                className="gap-component-sm flex items-center text-base font-medium"
               >
-                <Shield className="h-5 w-5" aria-hidden="true" />
+                <Shield
+                  className="h-5 w-5"
+                  aria-hidden="true"
+                />
                 {t('quietHours.bypassCritical')}
               </Label>
-              <p className="text-sm text-muted-foreground leading-relaxed">
+              <p className="text-muted-foreground text-sm leading-relaxed">
                 {t('quietHours.bypassCriticalDescription')}
               </p>
             </div>
@@ -142,9 +149,12 @@ function QuietHoursConfigMobileComponent({
 
         {/* Validation errors */}
         {!isValid && Object.keys(errors).length > 0 && (
-          <Alert variant="destructive" role="alert">
+          <Alert
+            variant="destructive"
+            role="alert"
+          >
             <AlertDescription>
-              <ul className="list-disc list-inside space-y-component-xs text-sm">
+              <ul className="space-y-component-xs list-inside list-disc text-sm">
                 {Object.entries(errors).map(([field, message]) => (
                   <li key={field}>{message}</li>
                 ))}

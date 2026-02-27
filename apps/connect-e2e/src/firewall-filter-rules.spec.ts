@@ -157,9 +157,7 @@ test.describe('Firewall Filter Rules - Desktop', () => {
     await expect(page.getByText(/rule deleted/i)).toBeVisible();
 
     // Verify row count decreased
-    await expect(page.locator('[data-testid="filter-rule-row"]')).toHaveCount(
-      initialCount - 1
-    );
+    await expect(page.locator('[data-testid="filter-rule-row"]')).toHaveCount(initialCount - 1);
 
     // Verify deleted rule is gone
     await expect(page.getByText(ruleComment!)).not.toBeVisible();
@@ -181,9 +179,7 @@ test.describe('Firewall Filter Rules - Desktop', () => {
     await page.getByRole('button', { name: /cancel/i }).click();
 
     // Verify row count unchanged
-    await expect(page.locator('[data-testid="filter-rule-row"]')).toHaveCount(
-      initialCount
-    );
+    await expect(page.locator('[data-testid="filter-rule-row"]')).toHaveCount(initialCount);
   });
 
   test('toggles rule enable/disable state', async ({ page }) => {
@@ -200,10 +196,7 @@ test.describe('Firewall Filter Rules - Desktop', () => {
     await toggleSwitch.click();
 
     // Verify state changed
-    await expect(toggleSwitch).toHaveAttribute(
-      'aria-checked',
-      (!isInitiallyChecked).toString()
-    );
+    await expect(toggleSwitch).toHaveAttribute('aria-checked', (!isInitiallyChecked).toString());
 
     // Verify visual feedback (disabled rules should have opacity)
     if (isInitiallyChecked) {
@@ -231,12 +224,8 @@ test.describe('Firewall Filter Rules - Desktop', () => {
     await page.waitForTimeout(500); // Wait for animation
 
     const updatedRows = page.locator('[data-testid="filter-rule-row"]');
-    await expect(updatedRows.nth(0).getByTestId('rule-comment')).toHaveText(
-      secondRuleComment!
-    );
-    await expect(updatedRows.nth(1).getByTestId('rule-comment')).toHaveText(
-      firstRuleComment!
-    );
+    await expect(updatedRows.nth(0).getByTestId('rule-comment')).toHaveText(secondRuleComment!);
+    await expect(updatedRows.nth(1).getByTestId('rule-comment')).toHaveText(firstRuleComment!);
   });
 
   test('filters rules by chain', async ({ page }) => {
@@ -390,10 +379,7 @@ test.describe('Firewall Filter Rules - Mobile', () => {
     const isInitiallyChecked = await toggleSwitch.isChecked();
     await toggleSwitch.tap();
 
-    await expect(toggleSwitch).toHaveAttribute(
-      'aria-checked',
-      (!isInitiallyChecked).toString()
-    );
+    await expect(toggleSwitch).toHaveAttribute('aria-checked', (!isInitiallyChecked).toString());
   });
 });
 
@@ -438,9 +424,7 @@ test.describe('Firewall Filter Rules - Accessibility', () => {
     await expect(actionBadge).toBeVisible();
 
     // Semantic colors should provide 7:1 contrast
-    const bgColor = await actionBadge.evaluate((el) =>
-      window.getComputedStyle(el).backgroundColor
-    );
+    const bgColor = await actionBadge.evaluate((el) => window.getComputedStyle(el).backgroundColor);
     expect(bgColor).toBeDefined();
   });
 });

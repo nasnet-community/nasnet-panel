@@ -15,7 +15,6 @@ import { LeaseFilters } from './LeaseFilters';
 
 import type { Meta, StoryObj } from '@storybook/react';
 
-
 const meta: Meta<typeof LeaseFilters> = {
   title: 'Features/Network/DHCP/LeaseFilters',
   component: LeaseFilters,
@@ -97,8 +96,8 @@ export const WideLayout: Story = {
   },
   decorators: [
     (Story: React.ComponentType) => (
-      <div className="p-component-lg w-full max-w-4xl border rounded-lg bg-card">
-        <h3 className="text-sm font-semibold mb-component-md text-foreground">
+      <div className="p-component-lg bg-card w-full max-w-4xl rounded-lg border">
+        <h3 className="mb-component-md text-foreground text-sm font-semibold">
           DHCP Lease Filters
         </h3>
         <Story />
@@ -118,7 +117,7 @@ export const CompactCard: Story = {
   },
   decorators: [
     (Story: React.ComponentType) => (
-      <div className="p-component-sm w-80 border rounded-lg bg-card shadow-sm">
+      <div className="p-component-sm bg-card w-80 rounded-lg border shadow-sm">
         <Story />
       </div>
     ),

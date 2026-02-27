@@ -83,10 +83,7 @@ export function createMockSubscription<T>(
  * );
  * ```
  */
-export function createMockSubscriptionError(
-  error: Error,
-  delay = 0
-): Observable<never> {
+export function createMockSubscriptionError(error: Error, delay = 0): Observable<never> {
   return new Observable((observer) => {
     const timeoutId = setTimeout(() => {
       observer.error?.(error);

@@ -37,12 +37,5 @@ export {
 export type { OfflineDetectorConfig } from './offline-detector';
 
 // Offline mutation queue
-export {
-  OfflineMutationQueue,
-  offlineQueue,
-  setupAutoReplay,
-} from './offline-queue';
-export type {
-  QueuedMutation,
-  OfflineQueueConfig,
-} from './offline-queue';
+export { OfflineMutationQueue, offlineQueue, setupAutoReplay } from './offline-queue';
+export type { QueuedMutation, OfflineQueueConfig } from './offline-queue';

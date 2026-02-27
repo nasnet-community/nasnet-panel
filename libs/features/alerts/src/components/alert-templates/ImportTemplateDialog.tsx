@@ -56,8 +56,9 @@ export interface ImportTemplateDialogProps {
  * @param props - Component props
  * @returns React component
  */
-export const ImportTemplateDialog = React.memo(
-  function ImportTemplateDialog(props: ImportTemplateDialogProps) {
+export const ImportTemplateDialog = React.memo(function ImportTemplateDialog(
+  props: ImportTemplateDialogProps
+) {
   const { open, onOpenChange, onTemplateImported } = props;
 
   const { toast } = useToast();
@@ -87,31 +88,28 @@ export const ImportTemplateDialog = React.memo(
   });
 
   // Handle file upload
-  const handleFileUpload = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      const file = event.target.files?.[0];
-      if (!file) return;
+  const handleFileUpload = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
 
-      // Check file type
-      if (!file.name.endsWith('.json')) {
-        setValidationError('Please upload a .json file');
-        return;
-      }
+    // Check file type
+    if (!file.name.endsWith('.json')) {
+      setValidationError('Please upload a .json file');
+      return;
+    }
 
-      // Read file content
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const content = e.target?.result as string;
-        setJsonInput(content);
-        setValidationError(null);
-      };
-      reader.onerror = () => {
-        setValidationError('Failed to read file');
-      };
-      reader.readAsText(file);
-    },
-    []
-  );
+    // Read file content
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const content = e.target?.result as string;
+      setJsonInput(content);
+      setValidationError(null);
+    };
+    reader.onerror = () => {
+      setValidationError('Failed to read file');
+    };
+    reader.readAsText(file);
+  }, []);
 
   // Handle JSON textarea change
   const handleJsonChange = useCallback((value: string) => {
@@ -153,7 +151,10 @@ export const ImportTemplateDialog = React.memo(
   }, [onOpenChange]);
 
   return (
-    <Dialog open={open} onOpenChange={handleClose}>
+    <Dialog
+      open={open}
+      onOpenChange={handleClose}
+    >
       <DialogContent className="sm:max-w-[700px]">
         <DialogHeader>
           <DialogTitle>Import Template</DialogTitle>
@@ -171,13 +172,7 @@ export const ImportTemplateDialog = React.memo(
               type="file"
               accept=".json"
               onChange={handleFileUpload}
-              className="block w-full text-sm text-muted-foreground
-                file:mr-4 file:py-2 file:px-4
-                file:rounded-md file:border-0
-                file:text-sm file:font-medium
-                file:bg-primary file:text-foreground
-                hover:file:bg-primary/90
-                cursor-pointer"
+              className="text-muted-foreground file:bg-primary file:text-foreground hover:file:bg-primary/90 block w-full cursor-pointer text-sm file:mr-4 file:rounded-md file:border-0 file:px-4 file:py-2 file:text-sm file:font-medium"
             />
           </div>
 
@@ -187,7 +182,9 @@ export const ImportTemplateDialog = React.memo(
               <span className="w-full border-t" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background px-component-sm text-muted-foreground">Or paste JSON</span>
+              <span className="bg-background px-component-sm text-muted-foreground">
+                Or paste JSON
+              </span>
             </div>
           </div>
 
@@ -213,7 +210,10 @@ export const ImportTemplateDialog = React.memo(
               aria-label="JSON template input"
               aria-describedby="json-input-description"
             />
-            <p id="json-input-description" className="text-xs text-muted-foreground">
+            <p
+              id="json-input-description"
+              className="text-muted-foreground text-xs"
+            >
               Paste the JSON content of your alert template
             </p>
           </div>
@@ -227,17 +227,24 @@ export const ImportTemplateDialog = React.memo(
         </div>
 
         <DialogFooter className="gap-component-sm">
-          <Button type="button" variant="outline" onClick={handleClose} disabled={isImporting}>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleClose}
+            disabled={isImporting}
+          >
             Cancel
           </Button>
-          <Button onClick={handleImport} disabled={isImporting || !jsonInput.trim()}>
+          <Button
+            onClick={handleImport}
+            disabled={isImporting || !jsonInput.trim()}
+          >
             {isImporting ? 'Importing...' : 'Import Template'}
           </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
   );
-  }
-);
+});
 
 ImportTemplateDialog.displayName = 'ImportTemplateDialog';

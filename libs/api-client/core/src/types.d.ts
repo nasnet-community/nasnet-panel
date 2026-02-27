@@ -7,54 +7,54 @@
  * @template T The type of data being returned
  */
 export interface ApiResponse<T> {
-    success: true;
-    data: T;
-    meta?: {
-        page?: number;
-        total?: number;
-        [key: string]: unknown;
-    };
+  success: true;
+  data: T;
+  meta?: {
+    page?: number;
+    total?: number;
+    [key: string]: unknown;
+  };
 }
 /**
  * Error response format
  */
 export interface ApiErrorResponse {
-    success: false;
-    error: {
-        code: string;
-        message: string;
-        details?: Record<string, unknown>;
-    };
+  success: false;
+  error: {
+    code: string;
+    message: string;
+    details?: Record<string, unknown>;
+  };
 }
 /**
  * API Error class for type-safe error handling
  */
 export declare class ApiError extends Error {
-    originalError?: unknown;
-    statusCode?: number;
-    code?: string;
-    constructor(message: string, originalError?: unknown, statusCode?: number, code?: string);
+  originalError?: unknown;
+  statusCode?: number;
+  code?: string;
+  constructor(message: string, originalError?: unknown, statusCode?: number, code?: string);
 }
 /**
  * Credentials interface for storage
  */
 export interface StoredCredentials {
-    username: string;
-    password: string;
+  username: string;
+  password: string;
 }
 /**
  * API Client configuration
  */
 export interface ApiClientConfig {
-    baseURL?: string;
-    timeout?: number;
-    headers?: Record<string, string>;
+  baseURL?: string;
+  timeout?: number;
+  headers?: Record<string, string>;
 }
 /**
  * Extended Axios config for retry tracking
  */
 export interface RetryConfig {
-    retryCount?: number;
-    [key: string]: unknown;
+  retryCount?: number;
+  [key: string]: unknown;
 }
 //# sourceMappingURL=types.d.ts.map

@@ -95,10 +95,7 @@ export {
 
 // Bogon Ranges
 export * from './bogon-ranges';
-export type {
-  BogonRanges,
-  BogonCategory,
-} from './bogon-ranges';
+export type { BogonRanges, BogonCategory } from './bogon-ranges';
 
 export {
   BOGON_RANGES,

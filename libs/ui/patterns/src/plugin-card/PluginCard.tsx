@@ -6,21 +6,10 @@
 
 import { memo, useCallback, useState } from 'react';
 
-import {
-  Download,
-  Trash2,
-  Settings,
-  ChevronDown,
-  ChevronUp,
-} from 'lucide-react';
+import { Download, Trash2, Settings, ChevronDown, ChevronUp } from 'lucide-react';
 
 import { formatBytes } from '@nasnet/core/utils';
-import {
-  Card,
-  CardContent,
-  Button,
-  cn,
-} from '@nasnet/ui/primitives';
+import { Card, CardContent, Button, cn } from '@nasnet/ui/primitives';
 
 export type PluginStatus = 'available' | 'installed' | 'running' | 'error';
 
@@ -61,12 +50,7 @@ export interface PluginCardProps {
  * Displays plugin information with status, stats, logs, and action buttons
  * Follows Direction 2 "Card-Heavy Dashboard" and Direction 3 "Dashboard Pro" patterns
  */
-function PluginCardComponent({
-  plugin,
-  onInstall,
-  onUninstall,
-  onConfigure,
-}: PluginCardProps) {
+function PluginCardComponent({ plugin, onInstall, onUninstall, onConfigure }: PluginCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const Icon = plugin.icon;
 
@@ -98,7 +82,7 @@ function PluginCardComponent({
   }, [onUninstall, plugin.id]);
 
   const handleToggleExpand = useCallback(() => {
-    setIsExpanded(prev => !prev);
+    setIsExpanded((prev) => !prev);
   }, []);
 
   // Log type colors - using semantic tokens from design system
@@ -112,9 +96,9 @@ function PluginCardComponent({
   return (
     <Card
       className={cn(
-        'bg-card border border-border rounded-[var(--semantic-radius-card)]',
+        'bg-card border-border rounded-[var(--semantic-radius-card)] border',
         'shadow-[var(--semantic-shadow-card)]',
-        'hover:shadow-lg cursor-pointer',
+        'cursor-pointer hover:shadow-lg',
         'transition-shadow duration-200',
         // Running state uses success semantic color
         isRunning && 'border-success/50'
@@ -122,16 +106,20 @@ function PluginCardComponent({
     >
       <CardContent className="p-4 md:p-6">
         {/* Header: Icon + Name + Status */}
-        <div className="flex items-start gap-4 mb-4">
+        <div className="mb-4 flex items-start gap-4">
           {/* Plugin Icon Container */}
-          <div className={cn('flex-shrink-0 h-10 w-10 rounded-lg bg-muted flex items-center justify-center')}>
-            <Icon className="h-5 w-5 text-muted-foreground" />
+          <div
+            className={cn(
+              'bg-muted flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg'
+            )}
+          >
+            <Icon className="text-muted-foreground h-5 w-5" />
           </div>
 
           {/* Title and Status */}
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center justify-between gap-2 mb-1">
-              <h3 className={cn('text-base font-semibold text-foreground truncate')}>
+          <div className="min-w-0 flex-1">
+            <div className="mb-1 flex items-center justify-between gap-2">
+              <h3 className={cn('text-foreground truncate text-base font-semibold')}>
                 {plugin.name}
               </h3>
               {/* Status Indicator */}
@@ -143,7 +131,7 @@ function PluginCardComponent({
               >
                 <span
                   className={cn(
-                    'w-2 h-2 rounded-full',
+                    'h-2 w-2 rounded-full',
                     plugin.status === 'running' && 'bg-success animate-pulse',
                     plugin.status === 'installed' && 'bg-info',
                     plugin.status === 'available' && 'bg-muted-foreground',
@@ -167,39 +155,35 @@ function PluginCardComponent({
                 </span>
               </div>
             </div>
-            <p className="text-sm text-muted-foreground line-clamp-2">
-              {plugin.description}
-            </p>
-            <p className="text-xs text-muted-foreground mt-1 font-mono">
-              v{plugin.version}
-            </p>
+            <p className="text-muted-foreground line-clamp-2 text-sm">{plugin.description}</p>
+            <p className="text-muted-foreground mt-1 font-mono text-xs">v{plugin.version}</p>
           </div>
         </div>
 
         {/* Stats Grid - Only shown when running */}
         {showStats && (
-          <div className="grid grid-cols-2 gap-component-md mb-4">
-            <div className="bg-muted rounded-[var(--semantic-radius-card)] p-component-md">
+          <div className="gap-component-md mb-4 grid grid-cols-2">
+            <div className="bg-muted p-component-md rounded-[var(--semantic-radius-card)]">
               <p className="text-muted-foreground text-xs uppercase tracking-wide">Connections</p>
-              <p className="text-lg font-semibold text-foreground mt-1">
+              <p className="text-foreground mt-1 text-lg font-semibold">
                 {plugin.stats!.connections}
               </p>
             </div>
-            <div className="bg-muted rounded-[var(--semantic-radius-card)] p-component-md">
+            <div className="bg-muted p-component-md rounded-[var(--semantic-radius-card)]">
               <p className="text-muted-foreground text-xs uppercase tracking-wide">Peers</p>
-              <p className="text-lg font-semibold text-foreground mt-1">
+              <p className="text-foreground mt-1 text-lg font-semibold">
                 {plugin.stats!.peersConnected}
               </p>
             </div>
-            <div className="bg-muted rounded-[var(--semantic-radius-card)] p-component-md">
+            <div className="bg-muted p-component-md rounded-[var(--semantic-radius-card)]">
               <p className="text-muted-foreground text-xs uppercase tracking-wide">↓ Down</p>
-              <p className="text-sm font-semibold text-foreground font-mono mt-1">
+              <p className="text-foreground mt-1 font-mono text-sm font-semibold">
                 {formatBytes(plugin.stats!.bytesIn)}
               </p>
             </div>
-            <div className="bg-muted rounded-[var(--semantic-radius-card)] p-component-md">
+            <div className="bg-muted p-component-md rounded-[var(--semantic-radius-card)]">
               <p className="text-muted-foreground text-xs uppercase tracking-wide">↑ Up</p>
-              <p className="text-sm font-semibold text-foreground font-mono mt-1">
+              <p className="text-foreground mt-1 font-mono text-sm font-semibold">
                 {formatBytes(plugin.stats!.bytesOut)}
               </p>
             </div>
@@ -207,15 +191,20 @@ function PluginCardComponent({
         )}
 
         {/* Action Buttons */}
-        <div className={cn('flex gap-component-sm mb-4')}>
+        <div className={cn('gap-component-sm mb-4 flex')}>
           {plugin.status === 'available' && (
             <Button
               onClick={handleInstall}
-              className={cn('flex-1 gap-2 bg-primary text-primary-foreground hover:bg-primary-hover rounded-[var(--semantic-radius-button)]')}
+              className={cn(
+                'bg-primary text-primary-foreground hover:bg-primary-hover flex-1 gap-2 rounded-[var(--semantic-radius-button)]'
+              )}
               size="sm"
               aria-label={`Install ${plugin.name}`}
             >
-              <Download className="h-4 w-4" aria-hidden="true" />
+              <Download
+                className="h-4 w-4"
+                aria-hidden="true"
+              />
               Install
             </Button>
           )}
@@ -228,49 +217,79 @@ function PluginCardComponent({
                 size="sm"
                 aria-label={`Configure ${plugin.name}`}
               >
-                <Settings className="h-4 w-4" aria-hidden="true" />
+                <Settings
+                  className="h-4 w-4"
+                  aria-hidden="true"
+                />
                 Configure
               </Button>
               <Button
                 onClick={handleUninstall}
                 variant="ghost"
-                className={cn('gap-2 text-error hover:text-error hover:bg-error/10 rounded-[var(--semantic-radius-button)] px-3')}
+                className={cn(
+                  'text-error hover:text-error hover:bg-error/10 gap-2 rounded-[var(--semantic-radius-button)] px-3'
+                )}
                 size="sm"
                 aria-label={`Uninstall ${plugin.name}`}
               >
-                <Trash2 className="h-4 w-4" aria-hidden="true" />
+                <Trash2
+                  className="h-4 w-4"
+                  aria-hidden="true"
+                />
               </Button>
             </>
           )}
         </div>
 
         {/* Expandable Details Section */}
-        <div className={cn('border-t border-border pt-component-md')}>
+        <div className={cn('border-border pt-component-md border-t')}>
           <button
             onClick={handleToggleExpand}
-            className={cn('w-full flex items-center justify-between text-sm font-medium text-muted-foreground hover:text-foreground transition-colors')}
+            className={cn(
+              'text-muted-foreground hover:text-foreground flex w-full items-center justify-between text-sm font-medium transition-colors'
+            )}
             aria-expanded={isExpanded}
             aria-controls={`plugin-details-${plugin.id}`}
           >
-            <span className="uppercase tracking-wide text-xs">Details</span>
-            {isExpanded ? (
-              <ChevronUp className="h-4 w-4" aria-hidden="true" />
-            ) : (
-              <ChevronDown className="h-4 w-4" aria-hidden="true" />
-            )}
+            <span className="text-xs uppercase tracking-wide">Details</span>
+            {isExpanded ?
+              <ChevronUp
+                className="h-4 w-4"
+                aria-hidden="true"
+              />
+            : <ChevronDown
+                className="h-4 w-4"
+                aria-hidden="true"
+              />
+            }
           </button>
 
           {isExpanded && (
-            <div id={`plugin-details-${plugin.id}`} className={cn('mt-component-md space-y-4')}>
+            <div
+              id={`plugin-details-${plugin.id}`}
+              className={cn('mt-component-md space-y-4')}
+            >
               {/* Features List */}
               <div>
-                <p className={cn('text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2')}>
+                <p
+                  className={cn(
+                    'text-muted-foreground mb-2 text-xs font-medium uppercase tracking-wide'
+                  )}
+                >
                   Features
                 </p>
                 <ul className="space-y-1.5">
                   {plugin.features.map((feature, index) => (
-                    <li key={index} className={cn('text-sm text-foreground flex items-start gap-2')}>
-                      <span className={cn('text-success mt-0.5')} aria-hidden="true">✓</span>
+                    <li
+                      key={index}
+                      className={cn('text-foreground flex items-start gap-2 text-sm')}
+                    >
+                      <span
+                        className={cn('text-success mt-0.5')}
+                        aria-hidden="true"
+                      >
+                        ✓
+                      </span>
                       <span>{feature}</span>
                     </li>
                   ))}
@@ -280,18 +299,29 @@ function PluginCardComponent({
               {/* Connection Logs - Only shown when installed/running */}
               {showLogs && (
                 <div>
-                  <p className={cn('text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2')}>
+                  <p
+                    className={cn(
+                      'text-muted-foreground mb-2 text-xs font-medium uppercase tracking-wide'
+                    )}
+                  >
                     Recent Activity
                   </p>
-                  <div className={cn('space-y-2 bg-muted rounded-[var(--semantic-radius-card)] p-component-md')} role="region" aria-label="Recent Activity">
+                  <div
+                    className={cn(
+                      'bg-muted p-component-md space-y-2 rounded-[var(--semantic-radius-card)]'
+                    )}
+                    role="region"
+                    aria-label="Recent Activity"
+                  >
                     {plugin.logs!.slice(0, 3).map((log, index) => (
-                      <div key={index} className={cn('text-xs flex items-start gap-2')}>
-                        <span className={cn('text-muted-foreground font-mono flex-shrink-0')}>
+                      <div
+                        key={index}
+                        className={cn('flex items-start gap-2 text-xs')}
+                      >
+                        <span className={cn('text-muted-foreground flex-shrink-0 font-mono')}>
                           {formatTimestamp(log.timestamp)}
                         </span>
-                        <span className={cn('flex-1', logTypeColors[log.type])}>
-                          {log.message}
-                        </span>
+                        <span className={cn('flex-1', logTypeColors[log.type])}>{log.message}</span>
                       </div>
                     ))}
                   </div>

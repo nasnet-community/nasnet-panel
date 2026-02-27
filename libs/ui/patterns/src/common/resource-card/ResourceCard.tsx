@@ -70,9 +70,7 @@ const ResourceCardTablet = lazy(() =>
  *
  * @typeParam T - Resource type extending BaseResource
  */
-function ResourceCardComponent<T extends BaseResource>(
-  props: ResourceCardProps<T>
-) {
+function ResourceCardComponent<T extends BaseResource>(props: ResourceCardProps<T>) {
   const platform = usePlatform();
 
   // Memoize presenter selection to prevent unnecessary re-renders
@@ -102,9 +100,7 @@ function ResourceCardComponent<T extends BaseResource>(
 
 // Wrap with memo for performance optimization
 // Use type assertion to preserve generic type parameter
-const ResourceCard = memo(
-  ResourceCardComponent
-) as typeof ResourceCardComponent;
+const ResourceCard = memo(ResourceCardComponent) as typeof ResourceCardComponent;
 
 // Set display name for React DevTools
 (ResourceCard as React.FC<any>).displayName = 'ResourceCard';

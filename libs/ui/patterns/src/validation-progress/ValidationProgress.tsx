@@ -6,7 +6,6 @@
  * @module @nasnet/ui/patterns/validation-progress
  */
 
-
 import * as React from 'react';
 
 import { motion } from 'framer-motion';
@@ -16,11 +15,7 @@ import { cn } from '@nasnet/ui/primitives';
 
 import { ValidationStage } from './ValidationStage';
 
-import type {
-  ValidationStageName,
-  ValidationStageResult,
-  ValidationStageStatus,
-} from './types';
+import type { ValidationStageName, ValidationStageResult, ValidationStageStatus } from './types';
 
 /**
  * Default order of validation stages.
@@ -110,9 +105,7 @@ export const ValidationProgress = React.memo(function ValidationProgress({
   // Auto-expand failed stages
   React.useEffect(() => {
     if (autoExpandFailed) {
-      const failedStages = stages
-        .filter((s) => s.status === 'failed')
-        .map((s) => s.stage);
+      const failedStages = stages.filter((s) => s.status === 'failed').map((s) => s.stage);
       if (failedStages.length > 0) {
         setExpandedStages((prev) => {
           const newSet = new Set(prev);
@@ -151,77 +144,73 @@ export const ValidationProgress = React.memo(function ValidationProgress({
   return (
     <div className={cn('space-y-1', className)}>
       {/* Screen reader announcements */}
-      <div role="status" aria-live="polite" aria-atomic="true" className="sr-only">
-        {isComplete && isValid && `Validation passed. ${summary.passed} of ${stages.length} stages passed.`}
-        {isComplete && !isValid && `Validation failed. ${summary.failed} error${summary.failed !== 1 ? 's' : ''} found.`}
-        {!isComplete && summary.running > 0 && `Validating stage ${summary.passed + summary.running} of ${stages.length}.`}
+      <div
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+        className="sr-only"
+      >
+        {isComplete &&
+          isValid &&
+          `Validation passed. ${summary.passed} of ${stages.length} stages passed.`}
+        {isComplete &&
+          !isValid &&
+          `Validation failed. ${summary.failed} error${summary.failed !== 1 ? 's' : ''} found.`}
+        {!isComplete &&
+          summary.running > 0 &&
+          `Validating stage ${summary.passed + summary.running} of ${stages.length}.`}
       </div>
 
       {/* Header */}
       <div
-        className={cn(
-          'flex items-center justify-between',
-          compact ? 'px-3 py-1.5' : 'px-3 py-2'
-        )}
+        className={cn('flex items-center justify-between', compact ? 'px-3 py-1.5' : 'px-3 py-2')}
         aria-live="polite"
       >
         <div className="flex items-center gap-3">
-          {isComplete ? (
-            isValid ? (
+          {isComplete ?
+            isValid ?
               <>
-                <CheckCircle2 className="h-5 w-5 text-success flex-shrink-0" />
-                <span className="font-medium text-sm text-foreground">
-                  Validation Passed
-                </span>
+                <CheckCircle2 className="text-success h-5 w-5 flex-shrink-0" />
+                <span className="text-foreground text-sm font-medium">Validation Passed</span>
               </>
-            ) : (
-              <>
-                <XCircle className="h-5 w-5 text-error flex-shrink-0" />
-                <span className="font-medium text-sm text-foreground">
-                  Validation Failed
-                </span>
+            : <>
+                <XCircle className="text-error h-5 w-5 flex-shrink-0" />
+                <span className="text-foreground text-sm font-medium">Validation Failed</span>
               </>
-            )
-          ) : summary.running > 0 ? (
+
+          : summary.running > 0 ?
             <>
-              <Loader2 className="h-5 w-5 text-primary animate-spin flex-shrink-0" />
-              <span className="font-medium text-sm text-foreground">
-                Validating...
-              </span>
+              <Loader2 className="text-primary h-5 w-5 flex-shrink-0 animate-spin" />
+              <span className="text-foreground text-sm font-medium">Validating...</span>
             </>
-          ) : (
-            <>
-              <Clock className="h-5 w-5 text-muted-foreground flex-shrink-0" />
-              <span className="font-medium text-sm text-foreground">
-                Ready to validate
-              </span>
+          : <>
+              <Clock className="text-muted-foreground h-5 w-5 flex-shrink-0" />
+              <span className="text-foreground text-sm font-medium">Ready to validate</span>
             </>
-          )}
+          }
         </div>
 
         {/* Progress indicator */}
-        <div className="flex items-center gap-3 text-xs text-muted-foreground">
+        <div className="text-muted-foreground flex items-center gap-3 text-xs">
           {summary.passed > 0 && (
             <span className="flex items-center gap-1">
-              <CheckCircle2 className="h-3.5 w-3.5 text-success" />
+              <CheckCircle2 className="text-success h-3.5 w-3.5" />
               {summary.passed}
             </span>
           )}
           {summary.failed > 0 && (
             <span className="flex items-center gap-1">
-              <XCircle className="h-3.5 w-3.5 text-error" />
+              <XCircle className="text-error h-3.5 w-3.5" />
               {summary.failed}
             </span>
           )}
-          {totalDurationMs !== undefined && isComplete && (
-            <span>{totalDurationMs}ms</span>
-          )}
+          {totalDurationMs !== undefined && isComplete && <span>{totalDurationMs}ms</span>}
         </div>
       </div>
 
       {/* Progress bar */}
       <div
-        className="h-1 bg-muted rounded-full overflow-hidden mx-3 mt-2"
+        className="bg-muted mx-3 mt-2 h-1 overflow-hidden rounded-full"
         role="progressbar"
         aria-label="Validation progress"
         aria-valuemin={0}
@@ -231,9 +220,9 @@ export const ValidationProgress = React.memo(function ValidationProgress({
         <motion.div
           className={cn(
             'h-full rounded-full transition-colors',
-            summary.failed > 0 ? 'bg-error' :
-            isComplete ? 'bg-success' :
-            'bg-primary'
+            summary.failed > 0 ? 'bg-error'
+            : isComplete ? 'bg-success'
+            : 'bg-primary'
           )}
           initial={{ width: 0 }}
           animate={{
@@ -263,14 +252,18 @@ export const ValidationProgress = React.memo(function ValidationProgress({
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           className={cn(
-            'rounded-[var(--semantic-radius-card)] border p-3 mt-3 mx-3',
-            summary.totalErrors > 0 ? 'bg-error-light border-error/20' : 'bg-warning-light border-warning/20'
+            'mx-3 mt-3 rounded-[var(--semantic-radius-card)] border p-3',
+            summary.totalErrors > 0 ?
+              'bg-error-light border-error/20'
+            : 'bg-warning-light border-warning/20'
           )}
         >
-          <p className={cn(
-            'text-sm font-medium',
-            summary.totalErrors > 0 ? 'text-error-dark' : 'text-warning-dark'
-          )}>
+          <p
+            className={cn(
+              'text-sm font-medium',
+              summary.totalErrors > 0 ? 'text-error-dark' : 'text-warning-dark'
+            )}
+          >
             {summary.totalErrors > 0 && (
               <span>
                 {summary.totalErrors} error{summary.totalErrors !== 1 ? 's' : ''}
@@ -281,10 +274,10 @@ export const ValidationProgress = React.memo(function ValidationProgress({
               <span>
                 {summary.totalWarnings} warning{summary.totalWarnings !== 1 ? 's' : ''}
               </span>
-            )}
-            {' '}found
+            )}{' '}
+            found
           </p>
-          <p className="text-xs text-muted-foreground mt-1">
+          <p className="text-muted-foreground mt-1 text-xs">
             Click on failed stages to see details and suggestions.
           </p>
         </motion.div>
@@ -317,9 +310,7 @@ export function useValidationProgress() {
     setStages((prev) => {
       const existing = prev.find((s) => s.stage === stage);
       if (existing) {
-        return prev.map((s) =>
-          s.stage === stage ? { ...s, status: 'running' as const } : s
-        );
+        return prev.map((s) => (s.stage === stage ? { ...s, status: 'running' as const } : s));
       }
       return [...prev, { stage, status: 'running' as const, errors: [], warnings: [] }];
     });
@@ -327,9 +318,7 @@ export function useValidationProgress() {
   }, []);
 
   const completeStage = React.useCallback((result: ValidationStageResult) => {
-    setStages((prev) =>
-      prev.map((s) => (s.stage === result.stage ? result : s))
-    );
+    setStages((prev) => prev.map((s) => (s.stage === result.stage ? result : s)));
   }, []);
 
   const finish = React.useCallback((valid: boolean, durationMs?: number) => {

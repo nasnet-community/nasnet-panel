@@ -1,7 +1,7 @@
 {
   "id": "network-services",
   "title": "Network Services",
-  "description": "Stateless service layer for firewall rules, DNS lookups, network scanning, bridge management, and internet troubleshooting — all operating through the RouterPort abstraction.",
+  "description": "Stateless service layer for firewall rules, DNS lookups, network scanning, bridge management, and",
   "source": "@site/../backend/docs/network-services.md",
   "sourceDirName": ".",
   "slug": "/network-services",

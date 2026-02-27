@@ -22,7 +22,12 @@ const UNDO_TOAST_DURATION = 10000; // 10 seconds
  * @returns Bridge port state, interface data, and drag-and-drop handlers
  */
 export function useBridgePortDiagram(bridgeId: string, routerId: string) {
-  const { ports, loading: portsLoading, error: portsError, refetch: refetchPorts } = useBridgePorts(bridgeId);
+  const {
+    ports,
+    loading: portsLoading,
+    error: portsError,
+    refetch: refetchPorts,
+  } = useBridgePorts(bridgeId);
   const {
     interfaces: availableInterfaces,
     loading: interfacesLoading,
@@ -63,8 +68,9 @@ export function useBridgePortDiagram(bridgeId: string, routerId: string) {
 
             toast.success(`Added ${active.data.current?.name || interfaceId} to bridge`, {
               duration: UNDO_TOAST_DURATION,
-              action: operationId
-                ? {
+              action:
+                operationId ?
+                  {
                     label: 'Undo',
                     onClick: async () => {
                       toast.info('Undo functionality coming soon');
@@ -102,8 +108,9 @@ export function useBridgePortDiagram(bridgeId: string, routerId: string) {
 
           toast.success('Port removed from bridge', {
             duration: UNDO_TOAST_DURATION,
-            action: operationId
-              ? {
+            action:
+              operationId ?
+                {
                   label: 'Undo',
                   onClick: async () => {
                     toast.info('Undo functionality coming soon');

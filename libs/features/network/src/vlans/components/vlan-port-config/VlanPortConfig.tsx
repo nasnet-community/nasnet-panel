@@ -53,10 +53,7 @@ import {
 import { X, Info, Loader2 } from 'lucide-react';
 import { cn } from '@nasnet/ui/utils';
 import { ConfigPreview } from '@nasnet/ui/patterns';
-import {
-  vlanPortConfigSchema,
-  type VlanPortConfigFormValues,
-} from '../../schemas';
+import { vlanPortConfigSchema, type VlanPortConfigFormValues } from '../../schemas';
 import { useConfigureVlanPort } from '@nasnet/api-client/queries';
 import { toast } from 'sonner';
 
@@ -227,28 +224,38 @@ function VlanPortConfigComponent({
               value={mode}
               onValueChange={handleModeChange}
             >
-              <div className="flex items-start gap-component-sm rounded-card-sm border border-border p-component-sm">
-                <RadioGroupItem value="access" id="access-mode" />
+              <div className="gap-component-sm rounded-card-sm border-border p-component-sm flex items-start border">
+                <RadioGroupItem
+                  value="access"
+                  id="access-mode"
+                />
                 <div className="flex-1">
-                  <Label htmlFor="access-mode" className="font-medium">
+                  <Label
+                    htmlFor="access-mode"
+                    className="font-medium"
+                  >
                     Access Mode
                   </Label>
-                  <p className="text-sm text-muted-foreground">
-                    Single untagged VLAN. Typical for end devices (PCs, phones,
-                    printers).
+                  <p className="text-muted-foreground text-sm">
+                    Single untagged VLAN. Typical for end devices (PCs, phones, printers).
                   </p>
                 </div>
               </div>
 
-              <div className="flex items-start gap-component-sm rounded-card-sm border border-border p-component-sm">
-                <RadioGroupItem value="trunk" id="trunk-mode" />
+              <div className="gap-component-sm rounded-card-sm border-border p-component-sm flex items-start border">
+                <RadioGroupItem
+                  value="trunk"
+                  id="trunk-mode"
+                />
                 <div className="flex-1">
-                  <Label htmlFor="trunk-mode" className="font-medium">
+                  <Label
+                    htmlFor="trunk-mode"
+                    className="font-medium"
+                  >
                     Trunk Mode
                   </Label>
-                  <p className="text-sm text-muted-foreground">
-                    Multiple tagged VLANs. Typical for inter-switch links or
-                    uplinks.
+                  <p className="text-muted-foreground text-sm">
+                    Multiple tagged VLANs. Typical for inter-switch links or uplinks.
                   </p>
                 </div>
               </div>
@@ -273,14 +280,17 @@ function VlanPortConfigComponent({
               aria-describedby={errors.pvid ? 'pvid-error' : undefined}
             />
             {errors.pvid && (
-              <p id="pvid-error" className="text-sm text-error">
+              <p
+                id="pvid-error"
+                className="text-error text-sm"
+              >
                 {errors.pvid.message}
               </p>
             )}
-            <p className="text-sm text-muted-foreground">
-              {mode === 'access'
-                ? 'VLAN ID for this access port (1-4094)'
-                : 'Optional: VLAN for untagged traffic (1-4094)'}
+            <p className="text-muted-foreground text-sm">
+              {mode === 'access' ?
+                'VLAN ID for this access port (1-4094)'
+              : 'Optional: VLAN for untagged traffic (1-4094)'}
             </p>
           </div>
 
@@ -291,29 +301,35 @@ function VlanPortConfigComponent({
 
               {/* VLAN List */}
               {taggedVlanIds.length > 0 && (
-                <div className="flex flex-wrap gap-component-xs">
-                  {taggedVlanIds.sort((a, b) => a - b).map((vlanId) => (
-                    <Badge key={vlanId} variant="outline" className="font-mono">
-                      {vlanId}
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveVlan(vlanId)}
-                        className="ml-2 hover:text-error"
-                        aria-label={`Remove VLAN ${vlanId}`}
+                <div className="gap-component-xs flex flex-wrap">
+                  {taggedVlanIds
+                    .sort((a, b) => a - b)
+                    .map((vlanId) => (
+                      <Badge
+                        key={vlanId}
+                        variant="outline"
+                        className="font-mono"
                       >
-                        <Icon
-                          icon={X}
-                          className="h-3 w-3"
-                          aria-hidden="true"
-                        />
-                      </button>
-                    </Badge>
-                  ))}
+                        {vlanId}
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveVlan(vlanId)}
+                          className="hover:text-error ml-2"
+                          aria-label={`Remove VLAN ${vlanId}`}
+                        >
+                          <Icon
+                            icon={X}
+                            className="h-3 w-3"
+                            aria-hidden="true"
+                          />
+                        </button>
+                      </Badge>
+                    ))}
                 </div>
               )}
 
               {/* Add VLAN Input */}
-              <div className="flex gap-component-sm">
+              <div className="gap-component-sm flex">
                 <Input
                   type="number"
                   min={1}
@@ -329,18 +345,20 @@ function VlanPortConfigComponent({
                     }
                   }}
                 />
-                <Button type="button" onClick={handleAddVlan} variant="outline">
+                <Button
+                  type="button"
+                  onClick={handleAddVlan}
+                  variant="outline"
+                >
                   Add
                 </Button>
               </div>
 
               {errors.taggedVlanIds && (
-                <p className="text-sm text-error">
-                  {errors.taggedVlanIds.message}
-                </p>
+                <p className="text-error text-sm">{errors.taggedVlanIds.message}</p>
               )}
 
-              <p className="text-sm text-muted-foreground">
+              <p className="text-muted-foreground text-sm">
                 List of VLAN IDs allowed tagged on this trunk port
               </p>
             </div>
@@ -354,9 +372,10 @@ function VlanPortConfigComponent({
               aria-hidden="true"
             />
             <AlertDescription>
-              {mode === 'access'
-                ? 'Access mode admits only untagged traffic and assigns it to the specified VLAN.'
-                : 'Trunk mode admits tagged traffic for the specified VLANs. Optionally set a native VLAN for untagged traffic.'}
+              {mode === 'access' ?
+                'Access mode admits only untagged traffic and assigns it to the specified VLAN.'
+              : 'Trunk mode admits tagged traffic for the specified VLANs. Optionally set a native VLAN for untagged traffic.'
+              }
             </AlertDescription>
           </Alert>
 
@@ -373,10 +392,14 @@ function VlanPortConfigComponent({
           )}
         </CardContent>
 
-        <CardFooter className="flex justify-between gap-component-md">
-          <div className="flex gap-component-sm">
+        <CardFooter className="gap-component-md flex justify-between">
+          <div className="gap-component-sm flex">
             {onCancel && (
-              <Button type="button" variant="outline" onClick={onCancel}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={onCancel}
+              >
                 Cancel
               </Button>
             )}
@@ -389,7 +412,10 @@ function VlanPortConfigComponent({
             </Button>
           </div>
 
-          <Button type="submit" disabled={loading}>
+          <Button
+            type="submit"
+            disabled={loading}
+          >
             {loading && (
               <Icon
                 icon={Loader2}

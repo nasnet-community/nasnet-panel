@@ -42,16 +42,20 @@ export interface MangleRulesTableProps {
  */
 export const MangleRulesTable = memo(function MangleRulesTable({
   className,
-  chain
+  chain,
 }: MangleRulesTableProps) {
   // Platform detection: <640px = Mobile, >=640px = Desktop
   const isMobile = useMediaQuery('(max-width: 640px)');
 
-  return isMobile ? (
-    <MangleRulesTableMobile className={cn(className)} chain={chain} />
-  ) : (
-    <MangleRulesTableDesktop className={cn(className)} chain={chain} />
-  );
+  return isMobile ?
+      <MangleRulesTableMobile
+        className={cn(className)}
+        chain={chain}
+      />
+    : <MangleRulesTableDesktop
+        className={cn(className)}
+        chain={chain}
+      />;
 });
 
 MangleRulesTable.displayName = 'MangleRulesTable';

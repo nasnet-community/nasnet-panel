@@ -99,10 +99,7 @@ function matchesWildcardIP(ip: string, pattern: string): boolean {
 /**
  * Filter blocked IPs based on criteria
  */
-function filterBlockedIPs(
-  blockedIPs: BlockedIP[],
-  filter: BlockedIPFilter
-): BlockedIP[] {
+function filterBlockedIPs(blockedIPs: BlockedIP[], filter: BlockedIPFilter): BlockedIP[] {
   return blockedIPs.filter((entry) => {
     // IP filter (wildcard support)
     if (filter.ipAddress && filter.ipAddress.trim() !== '') {
@@ -126,10 +123,7 @@ function filterBlockedIPs(
 /**
  * Sort blocked IPs by field and direction
  */
-function sortBlockedIPs(
-  blockedIPs: BlockedIP[],
-  sort: BlockedIPSort
-): BlockedIP[] {
+function sortBlockedIPs(blockedIPs: BlockedIP[], sort: BlockedIPSort): BlockedIP[] {
   const { field, direction } = sort;
   const multiplier = direction === 'asc' ? 1 : -1;
 
@@ -207,15 +201,8 @@ function sortBlockedIPs(
  * );
  * ```
  */
-export function useBlockedIPsTable(
-  options: UseBlockedIPsTableOptions
-): UseBlockedIPsTableReturn {
-  const {
-    blockedIPs,
-    initialFilter = {},
-    initialSort = DEFAULT_SORT,
-    onRefresh,
-  } = options;
+export function useBlockedIPsTable(options: UseBlockedIPsTableOptions): UseBlockedIPsTableReturn {
+  const { blockedIPs, initialFilter = {}, initialSort = DEFAULT_SORT, onRefresh } = options;
 
   // Filter state
   const [filter, setFilterState] = useState<BlockedIPFilter>({
@@ -254,22 +241,19 @@ export function useBlockedIPsTable(
   }, []);
 
   // Set sort field (toggles direction if same field)
-  const setSort = useCallback(
-    (field: BlockedIPSortField) => {
-      setSortState((prev) => {
-        if (prev.field === field) {
-          // Toggle direction
-          return {
-            field,
-            direction: prev.direction === 'asc' ? 'desc' : 'asc',
-          };
-        }
-        // New field, default to descending
-        return { field, direction: 'desc' };
-      });
-    },
-    []
-  );
+  const setSort = useCallback((field: BlockedIPSortField) => {
+    setSortState((prev) => {
+      if (prev.field === field) {
+        // Toggle direction
+        return {
+          field,
+          direction: prev.direction === 'asc' ? 'desc' : 'asc',
+        };
+      }
+      // New field, default to descending
+      return { field, direction: 'desc' };
+    });
+  }, []);
 
   // Toggle sort direction
   const toggleSortDirection = useCallback(() => {
@@ -300,10 +284,7 @@ export function useBlockedIPsTable(
   }, []);
 
   // Check if IP is selected
-  const isSelected = useCallback(
-    (address: string) => selectedIPs.includes(address),
-    [selectedIPs]
-  );
+  const isSelected = useCallback((address: string) => selectedIPs.includes(address), [selectedIPs]);
 
   // Check if any IPs are selected
   const hasSelection = selectedIPs.length > 0;

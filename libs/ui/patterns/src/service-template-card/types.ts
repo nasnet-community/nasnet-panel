@@ -15,13 +15,7 @@ export type TemplateScope = 'built-in' | 'custom' | 'shared';
 /**
  * Template category types (aligned with service categories)
  */
-export type TemplateCategory =
-  | 'privacy'
-  | 'proxy'
-  | 'dns'
-  | 'security'
-  | 'monitoring'
-  | 'general';
+export type TemplateCategory = 'privacy' | 'proxy' | 'dns' | 'security' | 'monitoring' | 'general';
 
 /**
  * Template metadata interface
@@ -111,10 +105,7 @@ export interface ServiceTemplateCardProps {
  * Scope color mapping for badges
  * Uses semantic color tokens from design system
  */
-export const SCOPE_COLORS: Record<
-  TemplateScope,
-  { bg: string; text: string; label: string }
-> = {
+export const SCOPE_COLORS: Record<TemplateScope, { bg: string; text: string; label: string }> = {
   'built-in': {
     bg: 'bg-secondary/10 dark:bg-secondary/20',
     text: 'text-secondary dark:text-secondary',

@@ -74,51 +74,63 @@ const HealthCheckFormComponent = ({
   /**
    * Apply health check target preset
    */
-  const handleApplyTargetPreset = useCallback((target: string) => {
-    // If GATEWAY preset, use actual gateway IP
-    if (target === 'gateway' && gateway) {
-      form.setValue('target', gateway, { shouldDirty: true });
-    } else {
-      form.setValue('target', target, { shouldDirty: true });
-    }
-  }, [gateway, form]);
+  const handleApplyTargetPreset = useCallback(
+    (target: string) => {
+      // If GATEWAY preset, use actual gateway IP
+      if (target === 'gateway' && gateway) {
+        form.setValue('target', gateway, { shouldDirty: true });
+      } else {
+        form.setValue('target', target, { shouldDirty: true });
+      }
+    },
+    [gateway, form]
+  );
 
   /**
    * Apply interval preset
    */
-  const handleApplyIntervalPreset = useCallback((interval: number) => {
-    form.setValue('intervalSeconds', interval, { shouldDirty: true });
-  }, [form]);
+  const handleApplyIntervalPreset = useCallback(
+    (interval: number) => {
+      form.setValue('intervalSeconds', interval, { shouldDirty: true });
+    },
+    [form]
+  );
 
   /**
    * Handle form submission
    */
-  const handleSubmit = useCallback((async (data: HealthCheckFormValues) => {
-    try {
-      // TODO: Call GraphQL mutation to configure health check
-      console.log('Configure health check:', { routerID, wanID, ...data });
+  const handleSubmit = useCallback(
+    (async (data: HealthCheckFormValues) => {
+      try {
+        // TODO: Call GraphQL mutation to configure health check
+        console.log('Configure health check:', { routerID, wanID, ...data });
 
-      if (onSuccess) {
-        onSuccess();
+        if (onSuccess) {
+          onSuccess();
+        }
+      } catch (error) {
+        console.error('Health check configuration failed:', error);
       }
-    } catch (error) {
-      console.error('Health check configuration failed:', error);
-    }
-  }) as any, [routerID, wanID, onSuccess]);
+    }) as any,
+    [routerID, wanID, onSuccess]
+  );
 
   return (
-    <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-component-lg">
+    <form
+      onSubmit={form.handleSubmit(handleSubmit)}
+      className="space-y-component-lg"
+    >
       {/* Enable/Disable Toggle */}
       <FormSection
         title="Health Monitoring"
         description="Monitor WAN connectivity by pinging a target host"
       >
-        <div className="flex items-center justify-between gap-component-md">
-          <div className="flex items-center gap-component-sm">
-            <Activity className="h-5 w-5 text-primary" />
+        <div className="gap-component-md flex items-center justify-between">
+          <div className="gap-component-sm flex items-center">
+            <Activity className="text-primary h-5 w-5" />
             <div>
               <Label htmlFor="enabled">Enable Health Monitoring</Label>
-              <p className="text-xs text-muted-foreground mt-2">
+              <p className="text-muted-foreground mt-2 text-xs">
                 Monitor connectivity and detect link failures
               </p>
             </div>
@@ -134,14 +146,17 @@ const HealthCheckFormComponent = ({
         </div>
 
         {!isEnabled && (
-          <div className="mt-component-md rounded-card-sm border border-warning/20 bg-warning/5 p-component-md">
-            <div className="flex gap-component-md">
-              <AlertCircle className="h-5 w-5 text-warning flex-shrink-0 mt-0.5" aria-hidden="true" />
+          <div className="mt-component-md rounded-card-sm border-warning/20 bg-warning/5 p-component-md border">
+            <div className="gap-component-md flex">
+              <AlertCircle
+                className="text-warning mt-0.5 h-5 w-5 flex-shrink-0"
+                aria-hidden="true"
+              />
               <div>
                 <p className="text-sm font-medium">Health Monitoring Disabled</p>
-                <p className="text-xs text-muted-foreground mt-component-md">
-                  WAN link failures will not be detected automatically. Enable
-                  monitoring to receive alerts when connectivity is lost.
+                <p className="text-muted-foreground mt-component-md text-xs">
+                  WAN link failures will not be detected automatically. Enable monitoring to receive
+                  alerts when connectivity is lost.
                 </p>
               </div>
             </div>
@@ -159,17 +174,16 @@ const HealthCheckFormComponent = ({
             <div className="space-y-component-md">
               {/* Target Presets */}
               <div>
-                <Label className="mb-2 flex items-center gap-component-sm">
+                <Label className="gap-component-sm mb-2 flex items-center">
                   <Target className="h-4 w-4" />
                   Quick Targets
                 </Label>
-                <div className="grid grid-cols-2 gap-component-sm">
+                <div className="gap-component-sm grid grid-cols-2">
                   {Object.entries(HEALTH_CHECK_TARGETS).map(([key, preset]) => {
                     // Skip GATEWAY if no gateway provided
                     if (key === 'GATEWAY' && !gateway) return null;
 
-                    const targetVal =
-                      key === 'GATEWAY' && gateway ? gateway : preset.value;
+                    const targetVal = key === 'GATEWAY' && gateway ? gateway : preset.value;
 
                     return (
                       <Button
@@ -178,15 +192,11 @@ const HealthCheckFormComponent = ({
                         variant="outline"
                         size="sm"
                         onClick={() => handleApplyTargetPreset(targetVal)}
-                        className={cn(
-                          targetValue === targetVal && 'border-primary bg-primary/10'
-                        )}
+                        className={cn(targetValue === targetVal && 'border-primary bg-primary/10')}
                       >
                         <div className="text-left">
-                          <div className="font-medium text-xs">
-                            {preset.label}
-                          </div>
-                          <div className="text-[10px] text-muted-foreground">
+                          <div className="text-xs font-medium">{preset.label}</div>
+                          <div className="text-muted-foreground text-[10px]">
                             {key === 'GATEWAY' && gateway ? gateway : preset.value}
                           </div>
                         </div>
@@ -198,7 +208,7 @@ const HealthCheckFormComponent = ({
 
               {/* Target Input */}
               <div>
-                <div className="flex items-center gap-component-sm mb-2">
+                <div className="gap-component-sm mb-2 flex items-center">
                   <Label htmlFor="target">Target Host/IP</Label>
                   <FieldHelp field="target" />
                 </div>
@@ -212,15 +222,17 @@ const HealthCheckFormComponent = ({
                 {form.formState.errors.target && (
                   <p
                     id="target-error"
-                    className="text-sm text-error mt-2"
+                    className="text-error mt-2 text-sm"
                     role="alert"
                   >
                     {form.formState.errors.target.message}
                   </p>
                 )}
-                <p id="target-help" className="text-xs text-muted-foreground mt-2">
-                  Recommended: Use a public DNS server (1.1.1.1, 8.8.8.8) or your
-                  WAN gateway
+                <p
+                  id="target-help"
+                  className="text-muted-foreground mt-2 text-xs"
+                >
+                  Recommended: Use a public DNS server (1.1.1.1, 8.8.8.8) or your WAN gateway
                 </p>
               </div>
             </div>
@@ -234,11 +246,11 @@ const HealthCheckFormComponent = ({
             <div className="space-y-component-md">
               {/* Interval Presets */}
               <div>
-                <Label className="mb-2 flex items-center gap-component-sm">
+                <Label className="gap-component-sm mb-2 flex items-center">
                   <Zap className="h-4 w-4" />
                   Quick Intervals
                 </Label>
-                <div className="grid grid-cols-2 gap-component-sm">
+                <div className="gap-component-sm grid grid-cols-2">
                   {Object.entries(INTERVAL_PRESETS).map(([key, preset]) => (
                     <Button
                       key={key}
@@ -251,8 +263,8 @@ const HealthCheckFormComponent = ({
                       )}
                     >
                       <div className="text-left">
-                        <div className="font-medium text-xs">{preset.label}</div>
-                        <div className="text-[10px] text-muted-foreground">
+                        <div className="text-xs font-medium">{preset.label}</div>
+                        <div className="text-muted-foreground text-[10px]">
                           {preset.description}
                         </div>
                       </div>
@@ -263,7 +275,7 @@ const HealthCheckFormComponent = ({
 
               {/* Interval Input */}
               <div>
-                <div className="flex items-center gap-component-sm mb-2">
+                <div className="gap-component-sm mb-2 flex items-center">
                   <Label htmlFor="interval">Interval (seconds)</Label>
                   <FieldHelp field="intervalSeconds" />
                 </div>
@@ -279,7 +291,7 @@ const HealthCheckFormComponent = ({
                 {form.formState.errors.intervalSeconds && (
                   <p
                     id="interval-error"
-                    className="text-sm text-error mt-2"
+                    className="text-error mt-2 text-sm"
                     role="alert"
                   >
                     {form.formState.errors.intervalSeconds.message}
@@ -287,7 +299,7 @@ const HealthCheckFormComponent = ({
                 )}
                 <p
                   id="interval-help"
-                  className="text-xs text-muted-foreground mt-2"
+                  className="text-muted-foreground mt-2 text-xs"
                 >
                   Valid range: 5-300 seconds (recommended: 10s)
                 </p>
@@ -295,7 +307,7 @@ const HealthCheckFormComponent = ({
 
               {/* Timeout Input */}
               <div>
-                <div className="flex items-center gap-component-sm mb-2">
+                <div className="gap-component-sm mb-2 flex items-center">
                   <Label htmlFor="timeout">Timeout (seconds)</Label>
                   <FieldHelp field="timeoutSeconds" />
                 </div>
@@ -311,7 +323,7 @@ const HealthCheckFormComponent = ({
                 {form.formState.errors.timeoutSeconds && (
                   <p
                     id="timeout-error"
-                    className="text-sm text-error mt-2"
+                    className="text-error mt-2 text-sm"
                     role="alert"
                   >
                     {form.formState.errors.timeoutSeconds.message}
@@ -319,7 +331,7 @@ const HealthCheckFormComponent = ({
                 )}
                 <p
                   id="timeout-help"
-                  className="text-xs text-muted-foreground mt-2"
+                  className="text-muted-foreground mt-2 text-xs"
                 >
                   Valid range: 1-30 seconds (recommended: 2s)
                 </p>
@@ -327,7 +339,7 @@ const HealthCheckFormComponent = ({
 
               {/* Failure Threshold Input */}
               <div>
-                <div className="flex items-center gap-component-sm mb-2">
+                <div className="gap-component-sm mb-2 flex items-center">
                   <Label htmlFor="failureThreshold">Failure Threshold</Label>
                   <FieldHelp field="failureThreshold" />
                 </div>
@@ -345,7 +357,7 @@ const HealthCheckFormComponent = ({
                 {form.formState.errors.failureThreshold && (
                   <p
                     id="failureThreshold-error"
-                    className="text-sm text-error mt-2"
+                    className="text-error mt-2 text-sm"
                     role="alert"
                   >
                     {form.formState.errors.failureThreshold.message}
@@ -353,7 +365,7 @@ const HealthCheckFormComponent = ({
                 )}
                 <p
                   id="failureThreshold-help"
-                  className="text-xs text-muted-foreground mt-2"
+                  className="text-muted-foreground mt-2 text-xs"
                 >
                   Valid range: 1-10 (recommended: 3)
                 </p>
@@ -367,7 +379,7 @@ const HealthCheckFormComponent = ({
             description="Optional comment for this health check"
           >
             <div className="space-y-component-sm">
-              <div className="flex items-center gap-component-sm">
+              <div className="gap-component-sm flex items-center">
                 <Label htmlFor="comment">Comment</Label>
                 <FieldHelp field="comment" />
               </div>
@@ -382,13 +394,16 @@ const HealthCheckFormComponent = ({
               {form.formState.errors.comment && (
                 <p
                   id="comment-error"
-                  className="text-sm text-error mt-2"
+                  className="text-error mt-2 text-sm"
                   role="alert"
                 >
                   {form.formState.errors.comment.message}
                 </p>
               )}
-              <p id="comment-help" className="text-xs text-muted-foreground mt-2">
+              <p
+                id="comment-help"
+                className="text-muted-foreground mt-2 text-xs"
+              >
                 {form.watch('comment')?.length || 0}/255 characters
               </p>
             </div>
@@ -397,13 +412,20 @@ const HealthCheckFormComponent = ({
       )}
 
       {/* Action Buttons */}
-      <div className="flex justify-end gap-component-md pt-component-lg border-t">
+      <div className="gap-component-md pt-component-lg flex justify-end border-t">
         {onCancel && (
-          <Button type="button" variant="outline" onClick={onCancel}>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onCancel}
+          >
             Cancel
           </Button>
         )}
-        <Button type="submit" disabled={!form.formState.isValid}>
+        <Button
+          type="submit"
+          disabled={!form.formState.isValid}
+        >
           {isEnabled ? 'Apply Health Check' : 'Disable Health Check'}
         </Button>
       </div>

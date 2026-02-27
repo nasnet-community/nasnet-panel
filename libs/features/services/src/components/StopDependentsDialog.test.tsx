@@ -83,7 +83,12 @@ describe('StopDependentsDialog', () => {
     });
 
     it('should not render dialog when open is false', () => {
-      render(<StopDependentsDialog {...defaultProps} open={false} />);
+      render(
+        <StopDependentsDialog
+          {...defaultProps}
+          open={false}
+        />
+      );
 
       expect(screen.queryByText('Stop Tor Gateway?')).not.toBeInTheDocument();
     });
@@ -99,7 +104,12 @@ describe('StopDependentsDialog', () => {
 
     it('should show correct dependent count in singular form', () => {
       const singleDependent = [mockDependents[0]];
-      render(<StopDependentsDialog {...defaultProps} dependents={singleDependent} />);
+      render(
+        <StopDependentsDialog
+          {...defaultProps}
+          dependents={singleDependent}
+        />
+      );
 
       expect(screen.getByText('1 service depends on this instance')).toBeInTheDocument();
     });
@@ -163,7 +173,12 @@ describe('StopDependentsDialog', () => {
       const user = userEvent.setup();
       const onConfirm = vi.fn();
 
-      render(<StopDependentsDialog {...defaultProps} onConfirm={onConfirm} />);
+      render(
+        <StopDependentsDialog
+          {...defaultProps}
+          onConfirm={onConfirm}
+        />
+      );
 
       const stopButton = screen.getByRole('button', { name: /Stop Service/i });
       await user.click(stopButton);
@@ -176,7 +191,12 @@ describe('StopDependentsDialog', () => {
       const user = userEvent.setup();
       const onConfirm = vi.fn();
 
-      render(<StopDependentsDialog {...defaultProps} onConfirm={onConfirm} />);
+      render(
+        <StopDependentsDialog
+          {...defaultProps}
+          onConfirm={onConfirm}
+        />
+      );
 
       // Select force-stop mode
       const forceStopOption = screen.getByLabelText(/Force stop/i);
@@ -193,7 +213,12 @@ describe('StopDependentsDialog', () => {
       const user = userEvent.setup();
       const onOpenChange = vi.fn();
 
-      render(<StopDependentsDialog {...defaultProps} onOpenChange={onOpenChange} />);
+      render(
+        <StopDependentsDialog
+          {...defaultProps}
+          onOpenChange={onOpenChange}
+        />
+      );
 
       const cancelButton = screen.getByRole('button', { name: /Cancel/i });
       await user.click(cancelButton);
@@ -211,10 +236,20 @@ describe('StopDependentsDialog', () => {
       expect(forceStopOption).toBeChecked();
 
       // Close dialog
-      rerender(<StopDependentsDialog {...defaultProps} open={false} />);
+      rerender(
+        <StopDependentsDialog
+          {...defaultProps}
+          open={false}
+        />
+      );
 
       // Reopen dialog
-      rerender(<StopDependentsDialog {...defaultProps} open={true} />);
+      rerender(
+        <StopDependentsDialog
+          {...defaultProps}
+          open={true}
+        />
+      );
 
       // Should reset to default
       await waitFor(() => {
@@ -226,7 +261,12 @@ describe('StopDependentsDialog', () => {
 
   describe('Loading State', () => {
     it('should disable buttons when isLoading is true', () => {
-      render(<StopDependentsDialog {...defaultProps} isLoading={true} />);
+      render(
+        <StopDependentsDialog
+          {...defaultProps}
+          isLoading={true}
+        />
+      );
 
       const cancelButton = screen.getByRole('button', { name: /Cancel/i });
       const stopButton = screen.getByRole('button', { name: /Stopping.../i });
@@ -236,13 +276,23 @@ describe('StopDependentsDialog', () => {
     });
 
     it('should show "Stopping..." text when loading', () => {
-      render(<StopDependentsDialog {...defaultProps} isLoading={true} />);
+      render(
+        <StopDependentsDialog
+          {...defaultProps}
+          isLoading={true}
+        />
+      );
 
       expect(screen.getByText('Stopping...')).toBeInTheDocument();
     });
 
     it('should enable buttons when isLoading is false', () => {
-      render(<StopDependentsDialog {...defaultProps} isLoading={false} />);
+      render(
+        <StopDependentsDialog
+          {...defaultProps}
+          isLoading={false}
+        />
+      );
 
       const cancelButton = screen.getByRole('button', { name: /Cancel/i });
       const stopButton = screen.getByRole('button', { name: /Stop Service/i });
@@ -336,7 +386,12 @@ describe('StopDependentsDialog', () => {
 
   describe('Edge Cases', () => {
     it('should handle empty dependents array', () => {
-      render(<StopDependentsDialog {...defaultProps} dependents={[]} />);
+      render(
+        <StopDependentsDialog
+          {...defaultProps}
+          dependents={[]}
+        />
+      );
 
       expect(screen.getByText('0 services depend on this instance')).toBeInTheDocument();
     });
@@ -347,13 +402,17 @@ describe('StopDependentsDialog', () => {
           ...mockDependents[0],
           fromInstance: {
             ...mockDependents[0].fromInstance,
-            instanceName:
-              'Very Long Service Instance Name That Should Be Truncated With Ellipsis',
+            instanceName: 'Very Long Service Instance Name That Should Be Truncated With Ellipsis',
           },
         },
       ];
 
-      render(<StopDependentsDialog {...defaultProps} dependents={longNameDependents} />);
+      render(
+        <StopDependentsDialog
+          {...defaultProps}
+          dependents={longNameDependents}
+        />
+      );
 
       // Component should render without crashing
       expect(screen.getByText('Stop Tor Gateway?')).toBeInTheDocument();
@@ -376,7 +435,12 @@ describe('StopDependentsDialog', () => {
         updatedAt: '2024-01-15T10:00:00Z',
       }));
 
-      render(<StopDependentsDialog {...defaultProps} dependents={manyDependents} />);
+      render(
+        <StopDependentsDialog
+          {...defaultProps}
+          dependents={manyDependents}
+        />
+      );
 
       expect(screen.getByText('10 services depend on this instance')).toBeInTheDocument();
       expect(screen.getByText('Service 0')).toBeInTheDocument();

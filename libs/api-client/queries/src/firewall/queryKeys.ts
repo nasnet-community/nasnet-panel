@@ -14,8 +14,7 @@ export const firewallConnectionKeys = {
   byId: (routerId: string, connectionId: string) =>
     [...firewallConnectionKeys.all(routerId), connectionId] as const,
 
-  tracking: (routerId: string) =>
-    ['firewall', 'tracking', routerId] as const,
+  tracking: (routerId: string) => ['firewall', 'tracking', routerId] as const,
 };
 
 /**
@@ -31,8 +30,7 @@ export const firewallTemplateKeys = {
 
   details: () => [...firewallTemplateKeys.all, 'detail'] as const,
 
-  detail: (templateId: string) =>
-    [...firewallTemplateKeys.details(), templateId] as const,
+  detail: (templateId: string) => [...firewallTemplateKeys.details(), templateId] as const,
 
   preview: (routerId: string, templateId: string, variables: Record<string, string>) =>
     [...firewallTemplateKeys.all, 'preview', routerId, templateId, variables] as const,

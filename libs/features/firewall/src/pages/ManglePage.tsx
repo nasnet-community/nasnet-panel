@@ -17,7 +17,28 @@
 import { memo, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { usePlatform } from '@nasnet/ui/patterns';
-import { Button, Tabs, TabsContent, TabsList, TabsTrigger, Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Card, CardContent, CardDescription, CardHeader, CardTitle } from '@nasnet/ui/primitives';
+import {
+  Button,
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@nasnet/ui/primitives';
 import { useMangleUIStore, useConnectionStore } from '@nasnet/state/stores';
 import { useMangleRules } from '@nasnet/api-client/queries/firewall';
 import { MangleRulesTable } from '../components/MangleRulesTable';
@@ -46,22 +67,32 @@ const EmptyState = memo(function EmptyState({ chain, onAddRule }: EmptyStateProp
     <Card className="border-dashed">
       <CardHeader className="text-center">
         <CardTitle>
-          {chain
-            ? t('mangle.emptyStates.noRulesInChain.title', { chain })
-            : t('mangle.emptyStates.noRules.title')}
+          {chain ?
+            t('mangle.emptyStates.noRulesInChain.title', { chain })
+          : t('mangle.emptyStates.noRules.title')}
         </CardTitle>
         <CardDescription>
-          {chain
-            ? t('mangle.emptyStates.noRulesInChain.description')
-            : t('mangle.emptyStates.noRules.description')}
+          {chain ?
+            t('mangle.emptyStates.noRulesInChain.description')
+          : t('mangle.emptyStates.noRules.description')}
         </CardDescription>
       </CardHeader>
       <CardContent className="flex justify-center">
-        <Button onClick={onAddRule} aria-label={chain ? t('mangle.emptyStates.noRulesInChain.action', { chain }) : t('mangle.emptyStates.noRules.actions.create')}>
-          <Plus className="h-4 w-4 mr-component-sm" aria-hidden="true" />
-          {chain
-            ? t('mangle.emptyStates.noRulesInChain.action', { chain })
-            : t('mangle.emptyStates.noRules.actions.create')}
+        <Button
+          onClick={onAddRule}
+          aria-label={
+            chain ?
+              t('mangle.emptyStates.noRulesInChain.action', { chain })
+            : t('mangle.emptyStates.noRules.actions.create')
+          }
+        >
+          <Plus
+            className="mr-component-sm h-4 w-4"
+            aria-hidden="true"
+          />
+          {chain ?
+            t('mangle.emptyStates.noRulesInChain.action', { chain })
+          : t('mangle.emptyStates.noRules.actions.create')}
         </Button>
       </CardContent>
     </Card>
@@ -109,26 +140,42 @@ export const ManglePage = memo(function ManglePage() {
     setShowFlowDiagram(true);
   }, []);
 
-  const handleTabChange = useCallback((value: string) => {
-    setSelectedChain(value as MangleChain | 'all');
-  }, [setSelectedChain]);
+  const handleTabChange = useCallback(
+    (value: string) => {
+      setSelectedChain(value as MangleChain | 'all');
+    },
+    [setSelectedChain]
+  );
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="flex h-full flex-col">
       {/* Page Header */}
-      <div className="border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="flex items-center justify-between p-component-md">
+      <div className="border-border bg-background/95 supports-[backdrop-filter]:bg-background/60 border-b backdrop-blur">
+        <div className="p-component-md flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight font-display">{t('mangle.title')}</h1>
-            <p className="text-sm text-muted-foreground">{t('mangle.subtitle')}</p>
+            <h1 className="font-display text-2xl font-bold tracking-tight">{t('mangle.title')}</h1>
+            <p className="text-muted-foreground text-sm">{t('mangle.subtitle')}</p>
           </div>
-          <div className="flex gap-component-sm">
-            <Button variant="outline" onClick={handleViewFlow} aria-label={t('mangle.buttons.viewFlow')}>
-              <Workflow className="h-4 w-4 mr-component-sm" aria-hidden="true" />
+          <div className="gap-component-sm flex">
+            <Button
+              variant="outline"
+              onClick={handleViewFlow}
+              aria-label={t('mangle.buttons.viewFlow')}
+            >
+              <Workflow
+                className="mr-component-sm h-4 w-4"
+                aria-hidden="true"
+              />
               {t('mangle.buttons.viewFlow')}
             </Button>
-            <Button onClick={handleAddRule} aria-label={t('mangle.buttons.addRule')}>
-              <Plus className="h-4 w-4 mr-component-sm" aria-hidden="true" />
+            <Button
+              onClick={handleAddRule}
+              aria-label={t('mangle.buttons.addRule')}
+            >
+              <Plus
+                className="mr-component-sm h-4 w-4"
+                aria-hidden="true"
+              />
               {t('mangle.buttons.addRule')}
             </Button>
           </div>
@@ -140,15 +187,18 @@ export const ManglePage = memo(function ManglePage() {
         <Tabs
           value={selectedChain}
           onValueChange={handleTabChange}
-          className="h-full flex flex-col"
+          className="flex h-full flex-col"
         >
-          <div className="border-b border-border px-component-md">
+          <div className="border-border px-component-md border-b">
             <TabsList className={isMobile ? 'w-full justify-start overflow-x-auto' : ''}>
               <TabsTrigger value="all">
                 {t('common:button.selectAll', { defaultValue: 'All' })}
               </TabsTrigger>
               {chains.map((chain) => (
-                <TabsTrigger key={chain} value={chain}>
+                <TabsTrigger
+                  key={chain}
+                  value={chain}
+                >
                   {t(`mangle.chains.${chain}`)}
                 </TabsTrigger>
               ))}
@@ -157,41 +207,55 @@ export const ManglePage = memo(function ManglePage() {
 
           <div className="flex-1 overflow-y-auto">
             {/* All Chains Tab */}
-            <TabsContent value="all" className="p-component-md m-0">
-              {isLoading ? (
-                <div className="space-y-component-md" role="status" aria-label={t('common:loading', { defaultValue: 'Loading' })}>
-                  <div className="animate-pulse space-y-component-md">
-                    <div className="h-16 bg-muted rounded" />
-                    <div className="h-16 bg-muted rounded" />
-                    <div className="h-16 bg-muted rounded" />
+            <TabsContent
+              value="all"
+              className="p-component-md m-0"
+            >
+              {isLoading ?
+                <div
+                  className="space-y-component-md"
+                  role="status"
+                  aria-label={t('common:loading', { defaultValue: 'Loading' })}
+                >
+                  <div className="space-y-component-md animate-pulse">
+                    <div className="bg-muted h-16 rounded" />
+                    <div className="bg-muted h-16 rounded" />
+                    <div className="bg-muted h-16 rounded" />
                   </div>
                 </div>
-              ) : !rules || rules.length === 0 ? (
+              : !rules || rules.length === 0 ?
                 <EmptyState onAddRule={handleAddRule} />
-              ) : isMobile ? (
+              : isMobile ?
                 <MangleRulesTableMobile />
-              ) : (
-                <MangleRulesTable />
-              )}
+              : <MangleRulesTable />}
             </TabsContent>
 
             {/* Individual Chain Tabs */}
             {chains.map((chain) => (
-              <TabsContent key={chain} value={chain} className="p-component-md m-0">
-                {isLoading ? (
-                  <div className="space-y-component-md" role="status" aria-label={t('common:loading', { defaultValue: 'Loading' })}>
-                    <div className="animate-pulse space-y-component-md">
-                      <div className="h-16 bg-muted rounded" />
-                      <div className="h-16 bg-muted rounded" />
+              <TabsContent
+                key={chain}
+                value={chain}
+                className="p-component-md m-0"
+              >
+                {isLoading ?
+                  <div
+                    className="space-y-component-md"
+                    role="status"
+                    aria-label={t('common:loading', { defaultValue: 'Loading' })}
+                  >
+                    <div className="space-y-component-md animate-pulse">
+                      <div className="bg-muted h-16 rounded" />
+                      <div className="bg-muted h-16 rounded" />
                     </div>
                   </div>
-                ) : !rules || rules.length === 0 ? (
-                  <EmptyState chain={chain} onAddRule={handleAddRule} />
-                ) : isMobile ? (
+                : !rules || rules.length === 0 ?
+                  <EmptyState
+                    chain={chain}
+                    onAddRule={handleAddRule}
+                  />
+                : isMobile ?
                   <MangleRulesTableMobile chain={chain} />
-                ) : (
-                  <MangleRulesTable chain={chain} />
-                )}
+                : <MangleRulesTable chain={chain} />}
               </TabsContent>
             ))}
           </div>
@@ -199,16 +263,17 @@ export const ManglePage = memo(function ManglePage() {
       </div>
 
       {/* Add Rule Sheet */}
-      <Sheet open={showAddRule} onOpenChange={setShowAddRule}>
+      <Sheet
+        open={showAddRule}
+        onOpenChange={setShowAddRule}
+      >
         <SheetContent
           side={isMobile ? 'bottom' : 'right'}
           className={isMobile ? 'h-[90vh]' : 'w-full sm:max-w-2xl'}
         >
           <SheetHeader>
             <SheetTitle>{t('mangle.dialogs.addRule.title')}</SheetTitle>
-            <SheetDescription>
-              {t('mangle.dialogs.addRule.description')}
-            </SheetDescription>
+            <SheetDescription>{t('mangle.dialogs.addRule.description')}</SheetDescription>
           </SheetHeader>
           <div className="mt-component-lg">
             <MangleRuleEditor
@@ -216,20 +281,23 @@ export const ManglePage = memo(function ManglePage() {
               initialRule={{ chain: selectedChain === 'all' ? 'prerouting' : selectedChain }}
               open={showAddRule}
               onClose={() => setShowAddRule(false)}
-              onSave={async () => { setShowAddRule(false); }}
+              onSave={async () => {
+                setShowAddRule(false);
+              }}
             />
           </div>
         </SheetContent>
       </Sheet>
 
       {/* Flow Diagram Dialog */}
-      <Dialog open={showFlowDiagram} onOpenChange={setShowFlowDiagram}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      <Dialog
+        open={showFlowDiagram}
+        onOpenChange={setShowFlowDiagram}
+      >
+        <DialogContent className="max-h-[90vh] max-w-4xl overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{t('mangle.dialogs.flowDiagram.title')}</DialogTitle>
-            <DialogDescription>
-              {t('mangle.dialogs.flowDiagram.description')}
-            </DialogDescription>
+            <DialogDescription>{t('mangle.dialogs.flowDiagram.description')}</DialogDescription>
           </DialogHeader>
           <div className="mt-component-md">
             <MangleFlowDiagram />

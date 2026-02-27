@@ -25,7 +25,10 @@ vi.mock('@nasnet/ui/layouts', () => ({
 // Mock TanStack Router Link
 vi.mock('@tanstack/react-router', () => ({
   Link: ({ children, to, search }: any) => (
-    <a href={to} data-search={JSON.stringify(search)}>
+    <a
+      href={to}
+      data-search={JSON.stringify(search)}
+    >
       {children}
     </a>
   ),
@@ -96,9 +99,9 @@ describe('RecentLogs', () => {
 
       expect(screen.getByText('Recent Logs')).toBeInTheDocument();
       // Should show skeleton rows
-      const skeletons = screen.getAllByRole('generic').filter((el) =>
-        el.className.includes('h-5 w-5')
-      );
+      const skeletons = screen
+        .getAllByRole('generic')
+        .filter((el) => el.className.includes('h-5 w-5'));
       expect(skeletons.length).toBeGreaterThan(0);
     });
   });
@@ -145,12 +148,8 @@ describe('RecentLogs', () => {
       });
 
       expect(screen.getByText('System started successfully')).toBeInTheDocument();
-      expect(
-        screen.getByText('Connection rejected from 192.168.1.100')
-      ).toBeInTheDocument();
-      expect(
-        screen.getByText('Client connected: AA:BB:CC:DD:EE:FF')
-      ).toBeInTheDocument();
+      expect(screen.getByText('Connection rejected from 192.168.1.100')).toBeInTheDocument();
+      expect(screen.getByText('Client connected: AA:BB:CC:DD:EE:FF')).toBeInTheDocument();
     });
 
     it('should render with ARIA log role and live region', () => {
@@ -189,12 +188,8 @@ describe('RecentLogs', () => {
         wrapper: createWrapper(),
       });
 
-      expect(
-        screen.getByText('No logs found for selected topics')
-      ).toBeInTheDocument();
-      expect(
-        screen.getByText(/Try selecting different topics/i)
-      ).toBeInTheDocument();
+      expect(screen.getByText('No logs found for selected topics')).toBeInTheDocument();
+      expect(screen.getByText(/Try selecting different topics/i)).toBeInTheDocument();
     });
 
     it('should show clear filters button in empty state when filters are active', async () => {
@@ -268,9 +263,7 @@ describe('RecentLogs', () => {
 
       const viewAllLink = screen.getByRole('link', { name: /view all/i });
       expect(viewAllLink).toHaveAttribute('href', '/logs');
-      const searchData = JSON.parse(
-        viewAllLink.getAttribute('data-search') || '{}'
-      );
+      const searchData = JSON.parse(viewAllLink.getAttribute('data-search') || '{}');
       expect(searchData.topics).toBe('firewall,dhcp');
     });
   });

@@ -86,14 +86,14 @@ export const useDHCPUIStore = create<DHCPUIState>()(
         set({ leaseStatusFilter: filter }),
 
       // Lease server filter
-      setLeaseServerFilter: (server: string) =>
-        set({ leaseServerFilter: server }),
+      setLeaseServerFilter: (server: string) => set({ leaseServerFilter: server }),
 
       // Lease selection
       toggleLeaseSelection: (leaseId: string) =>
         set((state) => ({
-          selectedLeases: state.selectedLeases.includes(leaseId)
-            ? state.selectedLeases.filter((id) => id !== leaseId)
+          selectedLeases:
+            state.selectedLeases.includes(leaseId) ?
+              state.selectedLeases.filter((id) => id !== leaseId)
             : [...state.selectedLeases, leaseId],
         })),
 
@@ -102,14 +102,12 @@ export const useDHCPUIStore = create<DHCPUIState>()(
       selectAllLeases: (leaseIds: string[]) => set({ selectedLeases: leaseIds }),
 
       // Wizard draft
-      saveWizardDraft: (draft: DHCPWizardDraft) =>
-        set({ wizardDraft: draft }),
+      saveWizardDraft: (draft: DHCPWizardDraft) => set({ wizardDraft: draft }),
 
       clearWizardDraft: () => set({ wizardDraft: null }),
 
       // UI preferences
-      setShowPoolVisualization: (show: boolean) =>
-        set({ showPoolVisualization: show }),
+      setShowPoolVisualization: (show: boolean) => set({ showPoolVisualization: show }),
 
       // Reset all state
       reset: () => set(initialState),
@@ -134,4 +132,5 @@ export const useLeaseStatusFilter = () => useDHCPUIStore((state) => state.leaseS
 export const useLeaseServerFilter = () => useDHCPUIStore((state) => state.leaseServerFilter);
 export const useSelectedLeases = () => useDHCPUIStore((state) => state.selectedLeases);
 export const useDHCPWizardDraft = () => useDHCPUIStore((state) => state.wizardDraft);
-export const useShowPoolVisualization = () => useDHCPUIStore((state) => state.showPoolVisualization);
+export const useShowPoolVisualization = () =>
+  useDHCPUIStore((state) => state.showPoolVisualization);

@@ -65,7 +65,7 @@ export const SEVERITY_COLORS = {
  */
 export const LAYER_ICONS: Record<string, string> = {
   'IP Binding': 'Network',
-  'Directory': 'FolderLock',
+  Directory: 'FolderLock',
   'Port Registry': 'Webhook',
   'Process Binding': 'Activity',
 };
@@ -75,7 +75,7 @@ export const LAYER_ICONS: Record<string, string> = {
  */
 export const LAYER_LABELS: Record<string, string> = {
   'IP Binding': 'IP Binding',
-  'Directory': 'Directory',
+  Directory: 'Directory',
   'Port Registry': 'Port Registry',
   'Process Binding': 'Process',
 };
@@ -157,9 +157,7 @@ function enrichViolation(violation: ViolationDisplay['violation']): ViolationDis
  * // state.ariaLabel === 'Isolated, no violations detected'
  * ```
  */
-export function useIsolationStatus(
-  config: UseIsolationStatusConfig
-): UseIsolationStatusReturn {
+export function useIsolationStatus(config: UseIsolationStatusConfig): UseIsolationStatusReturn {
   const {
     isolation,
     instanceId,
@@ -182,8 +180,12 @@ export function useIsolationStatus(
   );
 
   const violationCount = violations.length;
-  const criticalCount = violations.filter((v: ViolationDisplay) => v.violation.severity === IsolationSeverity.Error).length;
-  const warningCount = violations.filter((v: ViolationDisplay) => v.violation.severity === IsolationSeverity.Warning).length;
+  const criticalCount = violations.filter(
+    (v: ViolationDisplay) => v.violation.severity === IsolationSeverity.Error
+  ).length;
+  const warningCount = violations.filter(
+    (v: ViolationDisplay) => v.violation.severity === IsolationSeverity.Warning
+  ).length;
 
   // Calculate overall health
   const health: IsolationHealth = useMemo(
@@ -210,34 +212,37 @@ export function useIsolationStatus(
   const resourceLimits = isolation?.resourceLimits ?? null;
 
   // Handler for saving resource limits
-  const handleSaveLimits = useCallback(async (limits: { memoryMB: number; cpuWeight?: number }) => {
-    try {
-      const result = await setLimitsMutation({
-        variables: {
-          input: {
-            routerID: routerId,
-            instanceID: instanceId,
-            memoryMB: limits.memoryMB,
-            cpuWeight: limits.cpuWeight,
+  const handleSaveLimits = useCallback(
+    async (limits: { memoryMB: number; cpuWeight?: number }) => {
+      try {
+        const result = await setLimitsMutation({
+          variables: {
+            input: {
+              routerID: routerId,
+              instanceID: instanceId,
+              memoryMB: limits.memoryMB,
+              cpuWeight: limits.cpuWeight,
+            },
           },
-        },
-      });
+        });
 
-      if (result.data?.setResourceLimits.success) {
-        // Success - mutation will refetch automatically
-        onHealthChange?.(health);
-      } else {
-        console.error('Failed to save resource limits:', result.data?.setResourceLimits.errors);
+        if (result.data?.setResourceLimits.success) {
+          // Success - mutation will refetch automatically
+          onHealthChange?.(health);
+        } else {
+          console.error('Failed to save resource limits:', result.data?.setResourceLimits.errors);
+        }
+      } catch (error) {
+        console.error('Failed to save resource limits:', error);
       }
-    } catch (error) {
-      console.error('Failed to save resource limits:', error);
-    }
-  }, [routerId, instanceId, setLimitsMutation, health, onHealthChange]);
+    },
+    [routerId, instanceId, setLimitsMutation, health, onHealthChange]
+  );
 
   // Handler for refreshing isolation status
   const handleRefresh = useCallback(async () => {
     // Trigger timestamp recalculation
-    setRefetchTrigger(prev => prev + 1);
+    setRefetchTrigger((prev) => prev + 1);
   }, []);
 
   // Build accessible ARIA label

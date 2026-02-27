@@ -9,7 +9,6 @@ import { ErrorPage } from './ErrorPage';
 
 import type { Meta, StoryObj } from '@storybook/react';
 
-
 // ---------------------------------------------------------------------------
 // Meta
 // ---------------------------------------------------------------------------
@@ -122,9 +121,10 @@ export const CustomMessage: Story = {
   args: {
     variant: 'error',
     title: 'Router backup failed',
-    description: 'The configuration backup could not be written to disk. The storage volume may be full or read-only.',
+    description:
+      'The configuration backup could not be written to disk. The storage volume may be full or read-only.',
     errorCode: 'B201',
-    technicalMessage: 'ENOSPC: no space left on device, write \'/var/backups/router-config.json\'',
+    technicalMessage: "ENOSPC: no space left on device, write '/var/backups/router-config.json'",
     retryLabel: 'Retry Backup',
     onRetry: () => console.log('Retry backup clicked'),
     onReport: () => console.log('Report clicked'),
@@ -146,12 +146,33 @@ export const WithChildren: Story = {
   },
   render: (args) => (
     <ErrorPage {...args}>
-      <div className="text-left max-w-xs mx-auto">
-        <p className="text-sm font-medium text-muted-foreground mb-2">You might be looking for:</p>
-        <ul className="space-y-1 text-sm text-primary underline-offset-4">
-          <li><a href="/dashboard" className="hover:underline">Dashboard</a></li>
-          <li><a href="/firewall" className="hover:underline">Firewall Rules</a></li>
-          <li><a href="/network" className="hover:underline">Network Interfaces</a></li>
+      <div className="mx-auto max-w-xs text-left">
+        <p className="text-muted-foreground mb-2 text-sm font-medium">You might be looking for:</p>
+        <ul className="text-primary space-y-1 text-sm underline-offset-4">
+          <li>
+            <a
+              href="/dashboard"
+              className="hover:underline"
+            >
+              Dashboard
+            </a>
+          </li>
+          <li>
+            <a
+              href="/firewall"
+              className="hover:underline"
+            >
+              Firewall Rules
+            </a>
+          </li>
+          <li>
+            <a
+              href="/network"
+              className="hover:underline"
+            >
+              Network Interfaces
+            </a>
+          </li>
         </ul>
       </div>
     </ErrorPage>

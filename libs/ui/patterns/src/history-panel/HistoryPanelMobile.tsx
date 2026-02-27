@@ -15,25 +15,11 @@
 
 import React from 'react';
 
-import {
-  Undo2,
-  Redo2,
-  Trash2,
-  Pencil,
-  Plus,
-  ArrowUpDown,
-  Layers,
-  Circle,
-  X,
-} from 'lucide-react';
+import { Undo2, Redo2, Trash2, Pencil, Plus, ArrowUpDown, Layers, Circle, X } from 'lucide-react';
 
-import { cn , Button } from '@nasnet/ui/primitives';
+import { cn, Button } from '@nasnet/ui/primitives';
 
-
-import {
-  useHistoryPanel,
-  formatHistoryTimestamp,
-} from './useHistoryPanel';
+import { useHistoryPanel, formatHistoryTimestamp } from './useHistoryPanel';
 
 import type { HistoryPanelProps } from './types';
 import type { HistoryPanelItem } from './useHistoryPanel';
@@ -63,20 +49,14 @@ function ActionIcon({ type, className }: { type: string; className?: string }) {
 /**
  * Mobile history item with large touch target
  */
-function HistoryItemMobile({
-  item,
-  onSelect,
-}: {
-  item: HistoryPanelItem;
-  onSelect: () => void;
-}) {
+function HistoryItemMobile({ item, onSelect }: { item: HistoryPanelItem; onSelect: () => void }) {
   const { action, isInPast, isCurrent } = item;
 
   return (
     <button
       onClick={onSelect}
       className={cn(
-        'w-full flex items-center gap-3 px-4 py-3 min-h-[56px]', // 44px+ touch target
+        'flex min-h-[56px] w-full items-center gap-3 px-4 py-3', // 44px+ touch target
         'active:bg-muted transition-colors',
         isCurrent && 'bg-primary/10',
         !isInPast && 'opacity-50'
@@ -85,7 +65,7 @@ function HistoryItemMobile({
       {/* Action type icon */}
       <div
         className={cn(
-          'flex-shrink-0 p-2 rounded-full',
+          'flex-shrink-0 rounded-full p-2',
           isCurrent ? 'bg-primary/20 text-primary' : 'bg-muted text-muted-foreground'
         )}
       >
@@ -93,25 +73,21 @@ function HistoryItemMobile({
       </div>
 
       {/* Description */}
-      <div className="flex-1 min-w-0 text-left">
+      <div className="min-w-0 flex-1 text-left">
         <p
           className={cn(
-            'text-base truncate',
+            'truncate text-base',
             isCurrent ? 'font-medium' : 'text-foreground',
             !isInPast && 'text-muted-foreground'
           )}
         >
           {action.description}
         </p>
-        <p className="text-sm text-muted-foreground">
-          {formatHistoryTimestamp(action.timestamp)}
-        </p>
+        <p className="text-muted-foreground text-sm">{formatHistoryTimestamp(action.timestamp)}</p>
       </div>
 
       {/* Current indicator */}
-      {isCurrent && (
-        <div className="flex-shrink-0 h-2 w-2 rounded-full bg-primary" />
-      )}
+      {isCurrent && <div className="bg-primary h-2 w-2 flex-shrink-0 rounded-full" />}
     </button>
   );
 }
@@ -129,19 +105,10 @@ export const HistoryPanelMobile = React.memo(function HistoryPanelMobile({
   onClose,
   maxHeight = 300,
 }: HistoryPanelProps) {
-  const {
-    items,
-    currentIndex,
-    canUndo,
-    canRedo,
-    isEmpty,
-    undo,
-    redo,
-    jumpTo,
-    clearAll,
-  } = useHistoryPanel({
-    onClose,
-  });
+  const { items, currentIndex, canUndo, canRedo, isEmpty, undo, redo, jumpTo, clearAll } =
+    useHistoryPanel({
+      onClose,
+    });
 
   // Show only the most recent 5 actions on mobile
   const visibleItems = items.slice(-5);
@@ -149,7 +116,7 @@ export const HistoryPanelMobile = React.memo(function HistoryPanelMobile({
   return (
     <div
       className={cn(
-        'bg-card border-t border-border rounded-t-xl shadow-lg overflow-hidden',
+        'bg-card border-border overflow-hidden rounded-t-xl border-t shadow-lg',
         className
       )}
       role="dialog"
@@ -157,12 +124,12 @@ export const HistoryPanelMobile = React.memo(function HistoryPanelMobile({
     >
       {/* Drag handle */}
       <div className="flex justify-center py-2">
-        <div className="w-10 h-1 rounded-full bg-muted-foreground/30" />
+        <div className="bg-muted-foreground/30 h-1 w-10 rounded-full" />
       </div>
 
       {/* Header */}
-      <div className="px-4 pb-3 flex items-center justify-between">
-        <h3 className="font-semibold text-lg">History</h3>
+      <div className="flex items-center justify-between px-4 pb-3">
+        <h3 className="text-lg font-semibold">History</h3>
         <Button
           variant="ghost"
           size="icon"
@@ -175,15 +142,15 @@ export const HistoryPanelMobile = React.memo(function HistoryPanelMobile({
       </div>
 
       {/* Large undo/redo buttons */}
-      <div className="px-4 pb-4 flex gap-3">
+      <div className="flex gap-3 px-4 pb-4">
         <Button
           variant="outline"
           size="lg"
           onClick={() => undo()}
           disabled={!canUndo}
-          className="flex-1 h-14"
+          className="h-14 flex-1"
         >
-          <Undo2 className="h-5 w-5 mr-2" />
+          <Undo2 className="mr-2 h-5 w-5" />
           Undo
         </Button>
         <Button
@@ -191,22 +158,21 @@ export const HistoryPanelMobile = React.memo(function HistoryPanelMobile({
           size="lg"
           onClick={() => redo()}
           disabled={!canRedo}
-          className="flex-1 h-14"
+          className="h-14 flex-1"
         >
-          <Redo2 className="h-5 w-5 mr-2" />
+          <Redo2 className="mr-2 h-5 w-5" />
           Redo
         </Button>
       </div>
 
       {/* History list */}
-      {isEmpty ? (
-        <div className="px-4 py-6 text-center text-muted-foreground">
-          <Circle className="h-10 w-10 mx-auto mb-2 opacity-30" />
+      {isEmpty ?
+        <div className="text-muted-foreground px-4 py-6 text-center">
+          <Circle className="mx-auto mb-2 h-10 w-10 opacity-30" />
           <p className="text-base">No history yet</p>
         </div>
-      ) : (
-        <div
-          className="overflow-y-auto border-t border-border"
+      : <div
+          className="border-border overflow-y-auto border-t"
           style={{ maxHeight }}
         >
           {visibleItems.map((item) => (
@@ -217,17 +183,17 @@ export const HistoryPanelMobile = React.memo(function HistoryPanelMobile({
             />
           ))}
         </div>
-      )}
+      }
 
       {/* Footer with clear button */}
       {!isEmpty && (
-        <div className="px-4 py-3 border-t border-border">
+        <div className="border-border border-t px-4 py-3">
           <Button
             variant="ghost"
             onClick={clearAll}
-            className="w-full text-muted-foreground active:text-destructive"
+            className="text-muted-foreground active:text-destructive w-full"
           >
-            <Trash2 className="h-5 w-5 mr-2" />
+            <Trash2 className="mr-2 h-5 w-5" />
             Clear History
           </Button>
         </div>

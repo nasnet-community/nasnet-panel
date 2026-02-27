@@ -33,7 +33,7 @@ interface IPsecPolicyRaw {
  * Transform raw API response to typed interface
  */
 function transformIPsecPolicy(raw: IPsecPolicyRaw): IPsecPolicy {
-  const ipsecProtocols = raw['ipsec-protocols']?.split(',').map(p => p.trim()) || ['esp'];
+  const ipsecProtocols = raw['ipsec-protocols']?.split(',').map((p) => p.trim()) || ['esp'];
 
   return {
     id: raw['.id'],
@@ -58,10 +58,7 @@ function transformIPsecPolicy(raw: IPsecPolicyRaw): IPsecPolicy {
  * Fetch IPsec policies from RouterOS
  */
 async function fetchIPsecPolicies(routerIp: string): Promise<IPsecPolicy[]> {
-  const result = await makeRouterOSRequest<IPsecPolicyRaw[]>(
-    routerIp,
-    'ip/ipsec/policy'
-  );
+  const result = await makeRouterOSRequest<IPsecPolicyRaw[]>(routerIp, 'ip/ipsec/policy');
 
   if (!result.success || !result.data) {
     throw new Error(result.error || 'Failed to fetch IPsec policies');
@@ -88,4 +85,3 @@ export function useIPsecPolicies(routerIp: string): UseQueryResult<IPsecPolicy[]
     enabled: !!routerIp,
   });
 }
-

@@ -25,8 +25,8 @@ import type { Meta, StoryObj } from '@storybook/react';
  */
 function makeStats(overrides: Partial<InterfaceStats> = {}): InterfaceStats {
   return {
-    txBytes: '5368709120',    // 5 GB
-    rxBytes: '10737418240',   // 10 GB
+    txBytes: '5368709120', // 5 GB
+    rxBytes: '10737418240', // 10 GB
     txPackets: '3145728',
     rxPackets: '6291456',
     txErrors: 0,
@@ -56,20 +56,19 @@ function DebugWrapper({
   const hasErrors = totalErrors > 0;
 
   const announcement =
-    stats == null
-      ? '(no stats – component renders null)'
-      : hasErrors
-        ? `${interfaceName} statistics updated. Transmitted ... bytes, received ... bytes. Warning: ${totalErrors} error${totalErrors === 1 ? '' : 's'} detected.`
-        : `${interfaceName} statistics updated. Transmitted ... bytes, received ... bytes.`;
+    stats == null ? '(no stats – component renders null)'
+    : hasErrors ?
+      `${interfaceName} statistics updated. Transmitted ... bytes, received ... bytes. Warning: ${totalErrors} error${totalErrors === 1 ? '' : 's'} detected.`
+    : `${interfaceName} statistics updated. Transmitted ... bytes, received ... bytes.`;
 
   return (
-    <div className="flex flex-col gap-component-md p-component-sm">
+    <div className="gap-component-md p-component-sm flex flex-col">
       {/* Simulated live-region content for visual inspection */}
-      <div className="rounded-md border border-dashed border-muted-foreground/40 bg-muted/20 p-component-sm">
-        <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+      <div className="border-muted-foreground/40 bg-muted/20 p-component-sm rounded-md border border-dashed">
+        <p className="text-muted-foreground mb-1 text-xs font-semibold uppercase tracking-wide">
           ARIA Live Region announcement (normally sr-only)
         </p>
-        <p className="font-mono text-sm text-foreground/80">{announcement}</p>
+        <p className="text-foreground/80 font-mono text-sm">{announcement}</p>
       </div>
       {/* The actual component – rendered sr-only, invisible to sighted users */}
       {children}

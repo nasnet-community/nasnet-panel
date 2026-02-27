@@ -45,12 +45,16 @@ vi.mock('react-i18next', () => ({
         'servicePorts.placeholders.serviceName': 'e.g., my-app',
         'servicePorts.placeholders.port': 'e.g., 8080',
         'servicePorts.placeholders.description': 'Optional description',
-        'servicePorts.validation.nameInvalid': 'Name must be alphanumeric with optional hyphens/underscores',
+        'servicePorts.validation.nameInvalid':
+          'Name must be alphanumeric with optional hyphens/underscores',
         'servicePorts.validation.portInvalid': 'Invalid port number (1-65535)',
-        'servicePorts.validation.descriptionTooLong': 'Description must be less than 500 characters',
+        'servicePorts.validation.descriptionTooLong':
+          'Description must be less than 500 characters',
         'servicePorts.validation.nameExists': 'Service name already exists',
-        'servicePorts.emptyStates.noServicesDescription': 'Add custom services to use in firewall rules',
-        'servicePorts.confirmations.deleteServiceDescription': 'This action cannot be undone. The service will be removed from your custom list.',
+        'servicePorts.emptyStates.noServicesDescription':
+          'Add custom services to use in firewall rules',
+        'servicePorts.confirmations.deleteServiceDescription':
+          'This action cannot be undone. The service will be removed from your custom list.',
       };
       return translations[key] || key;
     },
@@ -114,7 +118,12 @@ describe('AddServiceDialog - Rendering', () => {
   });
 
   it('renders in edit mode with pre-filled values', () => {
-    render(<AddServiceDialog {...defaultProps} editService={sampleService} />);
+    render(
+      <AddServiceDialog
+        {...defaultProps}
+        editService={sampleService}
+      />
+    );
 
     expect(screen.getByRole('heading', { name: 'Edit Service' })).toBeInTheDocument();
     expect(screen.getByLabelText(/Service Name/i)).toHaveValue('my-app');
@@ -200,7 +209,9 @@ describe('AddServiceDialog - Form Validation', () => {
     await user.click(screen.getByRole('button', { name: /Save/i }));
 
     await waitFor(() => {
-      expect(screen.getByText(/Service name must be alphanumeric with optional hyphens\/underscores/i)).toBeInTheDocument();
+      expect(
+        screen.getByText(/Service name must be alphanumeric with optional hyphens\/underscores/i)
+      ).toBeInTheDocument();
     });
 
     expect(mockAddService).not.toHaveBeenCalled();
@@ -223,7 +234,9 @@ describe('AddServiceDialog - Form Validation', () => {
 describe('AddServiceDialog - Conflict Detection', () => {
   it('shows error when service name conflicts with built-in service', async () => {
     const user = userEvent.setup();
-    const conflictError = new Error('Service name "HTTP" conflicts with a built-in service. Please choose a different name.');
+    const conflictError = new Error(
+      'Service name "HTTP" conflicts with a built-in service. Please choose a different name.'
+    );
     mockAddService.mockRejectedValueOnce(conflictError);
 
     render(<AddServiceDialog {...defaultProps} />);
@@ -239,7 +252,9 @@ describe('AddServiceDialog - Conflict Detection', () => {
 
   it('shows error when service name conflicts with custom service', async () => {
     const user = userEvent.setup();
-    const conflictError = new Error('Service name "my-app" already exists. Please choose a different name.');
+    const conflictError = new Error(
+      'Service name "my-app" already exists. Please choose a different name.'
+    );
     mockAddService.mockRejectedValueOnce(conflictError);
 
     render(<AddServiceDialog {...defaultProps} />);
@@ -294,7 +309,12 @@ describe('AddServiceDialog - Form Submission', () => {
     const user = userEvent.setup();
     mockUpdateService.mockResolvedValueOnce(undefined);
 
-    render(<AddServiceDialog {...defaultProps} editService={sampleService} />);
+    render(
+      <AddServiceDialog
+        {...defaultProps}
+        editService={sampleService}
+      />
+    );
 
     await user.clear(screen.getByLabelText(/Port/i));
     await user.type(screen.getByLabelText(/Port/i), '7777');
@@ -338,10 +358,20 @@ describe('AddServiceDialog - Dialog Behavior', () => {
     await user.type(screen.getByLabelText(/Service Name/i), 'test-service');
 
     // Close dialog
-    rerender(<AddServiceDialog {...defaultProps} open={false} />);
+    rerender(
+      <AddServiceDialog
+        {...defaultProps}
+        open={false}
+      />
+    );
 
     // Reopen dialog
-    rerender(<AddServiceDialog {...defaultProps} open={true} />);
+    rerender(
+      <AddServiceDialog
+        {...defaultProps}
+        open={true}
+      />
+    );
 
     // Form should be reset to defaults
     expect(screen.getByLabelText(/Service Name/i)).toHaveValue('');

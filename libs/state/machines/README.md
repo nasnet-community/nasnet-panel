@@ -247,14 +247,15 @@ function VPNStatus() {
       )}
 
       {vpn.isError && (
-        <ErrorMessage error={vpn.error} onRetry={vpn.retry} />
+        <ErrorMessage
+          error={vpn.error}
+          onRetry={vpn.retry}
+        />
       )}
 
       <Button
         onClick={() =>
-          vpn.isConnected
-            ? vpn.disconnect()
-            : vpn.connect('vpn.example.com', 'wireguard')
+          vpn.isConnected ? vpn.disconnect() : vpn.connect('vpn.example.com', 'wireguard')
         }
         loading={vpn.isConnecting}
       >
@@ -312,6 +313,7 @@ The Stately Dev Tools are available in development mode for visual debugging.
 3. The inspector opens automatically in a new tab/window
 
 Features:
+
 - Visual state machine diagram
 - Transition history timeline
 - Send test events for debugging
@@ -334,37 +336,37 @@ npx nx test @nasnet/state/machines --coverage
 
 ### Wizard Machine
 
-| Export | Description |
-|--------|-------------|
+| Export                         | Description                   |
+| ------------------------------ | ----------------------------- |
 | `createWizardMachine<TData>()` | Create wizard machine factory |
-| `useWizard<TData>()` | React hook for wizard |
-| `useWizardSession()` | Check for saved session |
+| `useWizard<TData>()`           | React hook for wizard         |
+| `useWizardSession()`           | Check for saved session       |
 
 ### Config Pipeline Machine
 
-| Export | Description |
-|--------|-------------|
+| Export                                   | Description             |
+| ---------------------------------------- | ----------------------- |
 | `createConfigPipelineMachine<TConfig>()` | Create pipeline machine |
-| `useConfigPipeline<TConfig>()` | React hook for pipeline |
-| `useQuickConfigPipeline<TConfig>()` | Auto-advance version |
+| `useConfigPipeline<TConfig>()`           | React hook for pipeline |
+| `useQuickConfigPipeline<TConfig>()`      | Auto-advance version    |
 
 ### VPN Connection Machine
 
-| Export | Description |
-|--------|-------------|
+| Export                         | Description        |
+| ------------------------------ | ------------------ |
 | `createVPNConnectionMachine()` | Create VPN machine |
-| `useVPNConnection()` | React hook for VPN |
+| `useVPNConnection()`           | React hook for VPN |
 
 ### Persistence
 
-| Export | Description |
-|--------|-------------|
-| `persistMachineState()` | Save state to localStorage |
-| `restoreMachineState()` | Restore from localStorage |
-| `clearMachineState()` | Clear saved state |
-| `hasSavedSession()` | Check for saved session |
-| `getSessionAge()` | Get session age in ms |
-| `cleanupStaleSessions()` | Remove old sessions |
+| Export                   | Description                |
+| ------------------------ | -------------------------- |
+| `persistMachineState()`  | Save state to localStorage |
+| `restoreMachineState()`  | Restore from localStorage  |
+| `clearMachineState()`    | Clear saved state          |
+| `hasSavedSession()`      | Check for saved session    |
+| `getSessionAge()`        | Get session age in ms      |
+| `cleanupStaleSessions()` | Remove old sessions        |
 
 ## Architecture Compliance
 

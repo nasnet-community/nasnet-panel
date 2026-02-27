@@ -30,7 +30,8 @@ import type {
 export const portKnockKeys = {
   all: (routerId: string) => ['portKnocking', routerId] as const,
   sequences: (routerId: string) => [...portKnockKeys.all(routerId), 'sequences'] as const,
-  sequence: (routerId: string, id: string) => [...portKnockKeys.all(routerId), 'sequence', id] as const,
+  sequence: (routerId: string, id: string) =>
+    [...portKnockKeys.all(routerId), 'sequence', id] as const,
   log: (routerId: string, filters?: Record<string, unknown>) =>
     [...portKnockKeys.all(routerId), 'log', filters] as const,
 };
@@ -94,12 +95,7 @@ const GET_PORT_KNOCK_LOG = gql`
     $first: Int
     $after: String
   ) {
-    portKnockLog(
-      routerId: $routerId
-      filters: $filters
-      first: $first
-      after: $after
-    ) {
+    portKnockLog(routerId: $routerId, filters: $filters, first: $first, after: $after) {
       edges {
         cursor
         node {
@@ -210,29 +206,23 @@ const TEST_PORT_KNOCK_SEQUENCE = gql`
  * Get all port knock sequences for a router
  */
 export function usePortKnockSequences(routerId: string) {
-  return useApolloQuery<{ portKnockSequences: PortKnockSequence[] }>(
-    GET_PORT_KNOCK_SEQUENCES,
-    {
-      variables: { routerId },
-      skip: !routerId,
-      fetchPolicy: 'cache-and-network',
-      nextFetchPolicy: 'cache-first',
-    }
-  );
+  return useApolloQuery<{ portKnockSequences: PortKnockSequence[] }>(GET_PORT_KNOCK_SEQUENCES, {
+    variables: { routerId },
+    skip: !routerId,
+    fetchPolicy: 'cache-and-network',
+    nextFetchPolicy: 'cache-first',
+  });
 }
 
 /**
  * Get single port knock sequence by ID
  */
 export function usePortKnockSequence(routerId: string, id: string) {
-  return useApolloQuery<{ portKnockSequence: PortKnockSequence | null }>(
-    GET_PORT_KNOCK_SEQUENCE,
-    {
-      variables: { routerId, id },
-      skip: !routerId || !id,
-      fetchPolicy: 'cache-and-network',
-    }
-  );
+  return useApolloQuery<{ portKnockSequence: PortKnockSequence | null }>(GET_PORT_KNOCK_SEQUENCE, {
+    variables: { routerId, id },
+    skip: !routerId || !id,
+    fetchPolicy: 'cache-and-network',
+  });
 }
 
 /**
@@ -303,13 +293,13 @@ export function useUpdatePortKnockSequence() {
  * Delete port knock sequence
  */
 export function useDeletePortKnockSequence() {
-  return useApolloMutation<
-    { deletePortKnockSequence: boolean },
-    { routerId: string; id: string }
-  >(DELETE_PORT_KNOCK_SEQUENCE, {
-    refetchQueries: ['GetPortKnockSequences'],
-    awaitRefetchQueries: true,
-  });
+  return useApolloMutation<{ deletePortKnockSequence: boolean }, { routerId: string; id: string }>(
+    DELETE_PORT_KNOCK_SEQUENCE,
+    {
+      refetchQueries: ['GetPortKnockSequences'],
+      awaitRefetchQueries: true,
+    }
+  );
 }
 
 /**

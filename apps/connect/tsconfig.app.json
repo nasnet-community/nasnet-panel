@@ -4,9 +4,7 @@
     "outDir": "dist",
     "tsBuildInfoFile": "dist/tsconfig.app.tsbuildinfo",
     "jsx": "react-jsx",
-    "lib": [
-      "dom"
-    ],
+    "lib": ["dom"],
     "types": [
       "node",
       "@nx/react/typings/cssmodule.d.ts",
@@ -19,65 +17,25 @@
     "emitDeclarationOnly": false,
     "baseUrl": ".",
     "paths": {
-      "@/*": [
-        "./src/*"
-      ],
-      "@nasnet/core/*": [
-        "../../libs/core/*/src"
-      ],
-      "@nasnet/core/types/*": [
-        "../../libs/core/types/src/*"
-      ],
-      "@nasnet/ui/*": [
-        "../../libs/ui/*/src"
-      ],
-      "@nasnet/ui/primitives/*": [
-        "../../libs/ui/primitives/src/*"
-      ],
-      "@nasnet/ui/patterns/*": [
-        "../../libs/ui/patterns/src/*"
-      ],
-      "@nasnet/ui/patterns/motion": [
-        "../../libs/ui/patterns/src/motion/index.ts"
-      ],
-      "@nasnet/ui/layouts/*": [
-        "../../libs/ui/layouts/src/*"
-      ],
-      "@nasnet/ui/tokens": [
-        "../../libs/ui/tokens/src/index.ts"
-      ],
-      "@nasnet/features/*": [
-        "../../libs/features/*/src"
-      ],
-      "@nasnet/features/*/schemas": [
-        "../../libs/features/*/src/schemas"
-      ],
-      "@nasnet/api-client/*": [
-        "../../libs/api-client/*/src"
-      ],
-      "@nasnet/api-client/generated": [
-        "../../libs/api-client/generated/index.ts"
-      ],
-      "@nasnet/api-client/generated/*": [
-        "../../libs/api-client/generated/*"
-      ],
-      "@nasnet/api-client/queries/*": [
-        "../../libs/api-client/queries/src/*"
-      ],
-      "@nasnet/state/*": [
-        "../../libs/state/*/src"
-      ]
+      "@/*": ["./src/*"],
+      "@nasnet/core/*": ["../../libs/core/*/src"],
+      "@nasnet/core/types/*": ["../../libs/core/types/src/*"],
+      "@nasnet/ui/*": ["../../libs/ui/*/src"],
+      "@nasnet/ui/primitives/*": ["../../libs/ui/primitives/src/*"],
+      "@nasnet/ui/patterns/*": ["../../libs/ui/patterns/src/*"],
+      "@nasnet/ui/patterns/motion": ["../../libs/ui/patterns/src/motion/index.ts"],
+      "@nasnet/ui/layouts/*": ["../../libs/ui/layouts/src/*"],
+      "@nasnet/ui/tokens": ["../../libs/ui/tokens/src/index.ts"],
+      "@nasnet/features/*": ["../../libs/features/*/src"],
+      "@nasnet/features/*/schemas": ["../../libs/features/*/src/schemas"],
+      "@nasnet/api-client/*": ["../../libs/api-client/*/src"],
+      "@nasnet/api-client/generated": ["../../libs/api-client/generated/index.ts"],
+      "@nasnet/api-client/generated/*": ["../../libs/api-client/generated/*"],
+      "@nasnet/api-client/queries/*": ["../../libs/api-client/queries/src/*"],
+      "@nasnet/state/*": ["../../libs/state/*/src"]
     }
   },
-  "exclude": [
-    "out-tsc",
-    "dist",
-  ],
-  "include": [
-    "src/**/*.js",
-    "src/**/*.jsx",
-    "src/**/*.ts",
-    "src/**/*.tsx"
-  ],
+  "exclude": ["out-tsc", "dist"],
+  "include": ["src/**/*.js", "src/**/*.jsx", "src/**/*.ts", "src/**/*.tsx"],
   "references": []
 }

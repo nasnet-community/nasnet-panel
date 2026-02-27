@@ -1,7 +1,7 @@
 {
   "id": "sub-libraries/i18n",
   "title": "Internationalization (i18n) Library Reference",
-  "description": "Comprehensive guide to @nasnet/core/i18n — the i18next-powered internationalization system for NasNetConnect",
+  "description": "Comprehensive guide to @nasnet/core/i18n — the i18next-powered internationalization system for",
   "source": "@site/../../libs/core/docs/sub-libraries/i18n.md",
   "sourceDirName": "sub-libraries",
   "slug": "/sub-libraries/i18n",

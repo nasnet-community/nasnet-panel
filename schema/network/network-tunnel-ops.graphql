@@ -6,30 +6,18 @@ extend type Query {
   """
   Get all tunnels on a router with optional filtering by type
   """
-  tunnels(
-    "Router ID to query"
-    routerId: ID!
-    "Optional: filter by tunnel type"
-    type: TunnelType
-  ): [Tunnel!]! @capability(requires: ["interface"])
+  tunnels("Router ID to query" routerId: ID!, "Optional: filter by tunnel type" type: TunnelType): [Tunnel!]!
+    @capability(requires: ["interface"])
 
   """
   Get a specific tunnel by ID
   """
-  tunnel(
-    "Router ID"
-    routerId: ID!
-    "Tunnel ID"
-    id: ID!
-  ): Tunnel @capability(requires: ["interface"])
+  tunnel("Router ID" routerId: ID!, "Tunnel ID" id: ID!): Tunnel @capability(requires: ["interface"])
 
   """
   Get available IPsec profiles for GRE tunnel encryption
   """
-  ipsecProfiles(
-    "Router ID to query"
-    routerId: ID!
-  ): [IpsecProfile!]! @capability(requires: ["interface"])
+  ipsecProfiles("Router ID to query" routerId: ID!): [IpsecProfile!]! @capability(requires: ["interface"])
 }
 
 # -----------------------------------------------------------------------------
@@ -40,12 +28,8 @@ extend type Mutation {
   """
   Create a new tunnel interface
   """
-  createTunnel(
-    "Router ID"
-    routerId: ID!
-    "Tunnel configuration"
-    input: TunnelInput!
-  ): TunnelMutationResult! @capability(requires: ["interface"])
+  createTunnel("Router ID" routerId: ID!, "Tunnel configuration" input: TunnelInput!): TunnelMutationResult!
+    @capability(requires: ["interface"])
 
   """
   Update an existing tunnel interface
@@ -62,22 +46,14 @@ extend type Mutation {
   """
   Delete a tunnel interface
   """
-  deleteTunnel(
-    "Router ID"
-    routerId: ID!
-    "Tunnel ID to delete"
-    id: ID!
-  ): TunnelMutationResult! @capability(requires: ["interface"])
+  deleteTunnel("Router ID" routerId: ID!, "Tunnel ID to delete" id: ID!): TunnelMutationResult!
+    @capability(requires: ["interface"])
 
   """
   Test tunnel connectivity and path MTU
   """
-  testTunnel(
-    "Router ID"
-    routerId: ID!
-    "Tunnel ID to test"
-    id: ID!
-  ): TunnelTestResult! @capability(requires: ["interface"])
+  testTunnel("Router ID" routerId: ID!, "Tunnel ID to test" id: ID!): TunnelTestResult!
+    @capability(requires: ["interface"])
 }
 
 # -----------------------------------------------------------------------------
@@ -88,8 +64,5 @@ extend type Subscription {
   """
   Subscribe to tunnel status changes (create, update, delete)
   """
-  tunnelChanged(
-    "Router ID to monitor"
-    routerId: ID!
-  ): Tunnel! @capability(requires: ["interface"])
+  tunnelChanged("Router ID to monitor" routerId: ID!): Tunnel! @capability(requires: ["interface"])
 }

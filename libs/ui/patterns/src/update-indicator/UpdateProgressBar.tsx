@@ -59,13 +59,16 @@ export const UpdateProgressBar = React.memo<UpdateProgressBarProps>(
     const progressPercent = Math.min(100, Math.max(0, progress));
 
     return (
-      <div className={cn('w-full space-y-2', className)} role="status">
+      <div
+        className={cn('w-full space-y-2', className)}
+        role="status"
+      >
         <div className="flex items-center justify-between text-sm">
-          <span className="font-medium text-foreground">{message}</span>
+          <span className="text-foreground font-medium">{message}</span>
           <span className="text-muted-foreground">{Math.round(progressPercent)}%</span>
         </div>
         <div
-          className="h-2 w-full overflow-hidden rounded-full bg-muted"
+          className="bg-muted h-2 w-full overflow-hidden rounded-full"
           role="progressbar"
           aria-valuenow={progressPercent}
           aria-valuemin={0}
@@ -73,10 +76,7 @@ export const UpdateProgressBar = React.memo<UpdateProgressBarProps>(
           aria-valuetext={`${message} - ${Math.round(progressPercent)}%`}
         >
           <div
-            className={cn(
-              'h-full transition-all duration-300 ease-out',
-              colorClass
-            )}
+            className={cn('h-full transition-all duration-300 ease-out', colorClass)}
             style={{ width: `${progressPercent}%` }}
           />
         </div>

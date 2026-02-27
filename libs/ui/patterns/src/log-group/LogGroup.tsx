@@ -15,7 +15,6 @@ import { cn, Button } from '@nasnet/ui/primitives';
 import { LogEntry as LogEntryComponent } from '../log-entry';
 import { SeverityBadge } from '../severity-badge';
 
-
 export interface LogGroupData {
   id: string;
   startTime: Date;
@@ -70,9 +69,12 @@ function LogGroupComponent({
     setIsExpanded((prev) => !prev);
   }, []);
 
-  const handleEntryClick = React.useCallback((entry: LogEntry) => {
-    onEntryClick?.(entry);
-  }, [onEntryClick]);
+  const handleEntryClick = React.useCallback(
+    (entry: LogEntry) => {
+      onEntryClick?.(entry);
+    },
+    [onEntryClick]
+  );
 
   // Single entry - render directly
   if (isSingleEntry) {
@@ -85,29 +87,27 @@ function LogGroupComponent({
   }
 
   return (
-    <div className={cn('border rounded-card-sm overflow-hidden', className)}>
+    <div className={cn('rounded-card-sm overflow-hidden border', className)}>
       {/* Group header */}
       <button
         onClick={handleExpand}
         className={cn(
-          'w-full flex items-center gap-3 p-3 text-left',
-          'bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800',
+          'flex w-full items-center gap-3 p-3 text-left',
+          'bg-slate-50 hover:bg-slate-100 dark:bg-slate-800/50 dark:hover:bg-slate-800',
           'transition-colors'
         )}
         aria-expanded={isExpanded}
       >
         {/* Expand icon */}
-        {isExpanded ? (
-          <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0" />
-        ) : (
-          <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
-        )}
+        {isExpanded ?
+          <ChevronDown className="text-muted-foreground h-4 w-4 shrink-0" />
+        : <ChevronRight className="text-muted-foreground h-4 w-4 shrink-0" />}
 
         {/* Group icon */}
-        <Layers className="h-4 w-4 text-muted-foreground shrink-0" />
+        <Layers className="text-muted-foreground h-4 w-4 shrink-0" />
 
         {/* Time range */}
-        <span className="text-xs text-muted-foreground font-mono shrink-0">
+        <span className="text-muted-foreground shrink-0 font-mono text-xs">
           {formatTimestamp(group.startTime)}
           {group.startTime.getTime() !== group.endTime.getTime() && (
             <> - {formatTimestamp(group.endTime)}</>
@@ -118,25 +118,23 @@ function LogGroupComponent({
         <SeverityBadge severity={group.severityLevel} />
 
         {/* Topic */}
-        <span className="text-sm text-muted-foreground capitalize">
-          {group.primaryTopic}
-        </span>
+        <span className="text-muted-foreground text-sm capitalize">{group.primaryTopic}</span>
 
         {/* Entry count */}
-        <span className="ml-auto text-xs font-medium bg-slate-200 dark:bg-slate-700 px-2 py-0.5 rounded-full">
+        <span className="ml-auto rounded-full bg-slate-200 px-2 py-0.5 text-xs font-medium dark:bg-slate-700">
           {group.entries.length} entries
         </span>
       </button>
 
       {/* Expanded entries */}
       {isExpanded && (
-        <div className="divide-y divide-border">
+        <div className="divide-border divide-y">
           {group.entries.map((entry) => (
             <LogEntryComponent
               key={entry.id}
               entry={entry}
               onClick={() => handleEntryClick(entry)}
-              className="hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer"
+              className="cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50"
             />
           ))}
         </div>
@@ -208,28 +206,3 @@ function LogGroupListComponent({
 
 export const LogGroupList = React.memo(LogGroupListComponent);
 LogGroupList.displayName = 'LogGroupList';
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

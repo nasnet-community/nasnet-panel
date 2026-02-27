@@ -14,35 +14,43 @@ import { z } from 'zod';
  * @example
  * const monday = DAYS_OF_WEEK[1]; // { value: 1, label: 'Monday', short: 'Mon' }
  */
-export declare const DAYS_OF_WEEK: readonly [{
+export declare const DAYS_OF_WEEK: readonly [
+  {
     readonly value: 0;
-    readonly label: "Sunday";
-    readonly short: "Sun";
-}, {
+    readonly label: 'Sunday';
+    readonly short: 'Sun';
+  },
+  {
     readonly value: 1;
-    readonly label: "Monday";
-    readonly short: "Mon";
-}, {
+    readonly label: 'Monday';
+    readonly short: 'Mon';
+  },
+  {
     readonly value: 2;
-    readonly label: "Tuesday";
-    readonly short: "Tue";
-}, {
+    readonly label: 'Tuesday';
+    readonly short: 'Tue';
+  },
+  {
     readonly value: 3;
-    readonly label: "Wednesday";
-    readonly short: "Wed";
-}, {
+    readonly label: 'Wednesday';
+    readonly short: 'Wed';
+  },
+  {
     readonly value: 4;
-    readonly label: "Thursday";
-    readonly short: "Thu";
-}, {
+    readonly label: 'Thursday';
+    readonly short: 'Thu';
+  },
+  {
     readonly value: 5;
-    readonly label: "Friday";
-    readonly short: "Fri";
-}, {
+    readonly label: 'Friday';
+    readonly short: 'Fri';
+  },
+  {
     readonly value: 6;
-    readonly label: "Saturday";
-    readonly short: "Sat";
-}];
+    readonly label: 'Saturday';
+    readonly short: 'Sat';
+  },
+];
 /**
  * Preset day selections for common scheduling patterns.
  *
@@ -50,18 +58,18 @@ export declare const DAYS_OF_WEEK: readonly [{
  * const weekdaySchedule = DAY_PRESETS.WEEKDAYS; // [1, 2, 3, 4, 5]
  */
 export declare const DAY_PRESETS: {
-    readonly WEEKDAYS: {
-        readonly label: "Weekdays";
-        readonly days: readonly [1, 2, 3, 4, 5];
-    };
-    readonly WEEKENDS: {
-        readonly label: "Weekends";
-        readonly days: readonly [0, 6];
-    };
-    readonly EVERY_DAY: {
-        readonly label: "Every Day";
-        readonly days: readonly [0, 1, 2, 3, 4, 5, 6];
-    };
+  readonly WEEKDAYS: {
+    readonly label: 'Weekdays';
+    readonly days: readonly [1, 2, 3, 4, 5];
+  };
+  readonly WEEKENDS: {
+    readonly label: 'Weekends';
+    readonly days: readonly [0, 6];
+  };
+  readonly EVERY_DAY: {
+    readonly label: 'Every Day';
+    readonly days: readonly [0, 1, 2, 3, 4, 5, 6];
+  };
 };
 /**
  * Validate HH:MM time format (24-hour).
@@ -125,7 +133,7 @@ export declare const DayOfWeekSchema: z.ZodNumber;
  * Days array Zod schema (must have at least one day).
  * Validates arrays of day-of-week values.
  */
-export declare const DaysArraySchema: z.ZodArray<z.ZodNumber, "many">;
+export declare const DaysArraySchema: z.ZodArray<z.ZodNumber, 'many'>;
 /**
  * Timezone Zod schema (IANA timezone identifier).
  * Validates IANA timezone identifiers like "America/New_York" or "UTC".
@@ -135,77 +143,97 @@ export declare const TimezoneSchema: z.ZodString;
  * Schedule input Zod schema with cross-field validation.
  * Validates complete schedule configuration including time range validation.
  */
-export declare const ScheduleInputSchema: z.ZodEffects<z.ZodObject<{
-    routingID: z.ZodString;
-    days: z.ZodArray<z.ZodNumber, "many">;
-    startTime: z.ZodString;
-    endTime: z.ZodString;
-    timezone: z.ZodString;
-    enabled: z.ZodDefault<z.ZodBoolean>;
-}, "strip", z.ZodTypeAny, {
+export declare const ScheduleInputSchema: z.ZodEffects<
+  z.ZodObject<
+    {
+      routingID: z.ZodString;
+      days: z.ZodArray<z.ZodNumber, 'many'>;
+      startTime: z.ZodString;
+      endTime: z.ZodString;
+      timezone: z.ZodString;
+      enabled: z.ZodDefault<z.ZodBoolean>;
+    },
+    'strip',
+    z.ZodTypeAny,
+    {
+      enabled: boolean;
+      routingID: string;
+      days: number[];
+      startTime: string;
+      endTime: string;
+      timezone: string;
+    },
+    {
+      routingID: string;
+      days: number[];
+      startTime: string;
+      endTime: string;
+      timezone: string;
+      enabled?: boolean | undefined;
+    }
+  >,
+  {
     enabled: boolean;
     routingID: string;
     days: number[];
     startTime: string;
     endTime: string;
     timezone: string;
-}, {
+  },
+  {
     routingID: string;
     days: number[];
     startTime: string;
     endTime: string;
     timezone: string;
     enabled?: boolean | undefined;
-}>, {
-    enabled: boolean;
-    routingID: string;
-    days: number[];
-    startTime: string;
-    endTime: string;
-    timezone: string;
-}, {
-    routingID: string;
-    days: number[];
-    startTime: string;
-    endTime: string;
-    timezone: string;
-    enabled?: boolean | undefined;
-}>;
+  }
+>;
 /**
  * Schedule update input Zod schema (all fields optional).
  * Allows partial updates with conditional time range validation.
  */
-export declare const ScheduleUpdateInputSchema: z.ZodEffects<z.ZodObject<{
-    days: z.ZodOptional<z.ZodArray<z.ZodNumber, "many">>;
-    startTime: z.ZodOptional<z.ZodString>;
-    endTime: z.ZodOptional<z.ZodString>;
-    timezone: z.ZodOptional<z.ZodString>;
-    enabled: z.ZodOptional<z.ZodBoolean>;
-}, "strip", z.ZodTypeAny, {
+export declare const ScheduleUpdateInputSchema: z.ZodEffects<
+  z.ZodObject<
+    {
+      days: z.ZodOptional<z.ZodArray<z.ZodNumber, 'many'>>;
+      startTime: z.ZodOptional<z.ZodString>;
+      endTime: z.ZodOptional<z.ZodString>;
+      timezone: z.ZodOptional<z.ZodString>;
+      enabled: z.ZodOptional<z.ZodBoolean>;
+    },
+    'strip',
+    z.ZodTypeAny,
+    {
+      enabled?: boolean | undefined;
+      days?: number[] | undefined;
+      startTime?: string | undefined;
+      endTime?: string | undefined;
+      timezone?: string | undefined;
+    },
+    {
+      enabled?: boolean | undefined;
+      days?: number[] | undefined;
+      startTime?: string | undefined;
+      endTime?: string | undefined;
+      timezone?: string | undefined;
+    }
+  >,
+  {
     enabled?: boolean | undefined;
     days?: number[] | undefined;
     startTime?: string | undefined;
     endTime?: string | undefined;
     timezone?: string | undefined;
-}, {
+  },
+  {
     enabled?: boolean | undefined;
     days?: number[] | undefined;
     startTime?: string | undefined;
     endTime?: string | undefined;
     timezone?: string | undefined;
-}>, {
-    enabled?: boolean | undefined;
-    days?: number[] | undefined;
-    startTime?: string | undefined;
-    endTime?: string | undefined;
-    timezone?: string | undefined;
-}, {
-    enabled?: boolean | undefined;
-    days?: number[] | undefined;
-    startTime?: string | undefined;
-    endTime?: string | undefined;
-    timezone?: string | undefined;
-}>;
+  }
+>;
 /**
  * Schedule input type.
  * Inferred from ScheduleInputSchema.
@@ -249,7 +277,10 @@ export type DayPresetKey = keyof typeof DAY_PRESETS;
  * const next = getNextActivation(schedule);
  * if (next) console.log(`Activates at: ${next}`);
  */
-export declare function getNextActivation(schedule: Pick<ScheduleInput, 'days' | 'startTime' | 'enabled'>, now?: Date): Date | null;
+export declare function getNextActivation(
+  schedule: Pick<ScheduleInput, 'days' | 'startTime' | 'enabled'>,
+  now?: Date
+): Date | null;
 /**
  * Format time range for display.
  *

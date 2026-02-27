@@ -71,9 +71,7 @@ export function useVlanTopology(routerId: string) {
     });
 
     // Return as array sorted by interface name
-    return Array.from(interfaceMap.values()).sort((a, b) =>
-      a.name.localeCompare(b.name)
-    );
+    return Array.from(interfaceMap.values()).sort((a, b) => a.name.localeCompare(b.name));
   }, [vlans]);
 
   // Calculate statistics

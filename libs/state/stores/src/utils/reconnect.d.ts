@@ -34,47 +34,47 @@ export declare function sleep(ms: number): Promise<void>;
  * Reconnection manager configuration
  */
 export interface ReconnectionManagerConfig {
-    /**
-     * Maximum reconnection attempts (default: 10)
-     */
-    maxAttempts?: number;
-    /**
-     * Callback to perform the actual connection
-     */
-    connect: () => Promise<void>;
-    /**
-     * Callback when status changes
-     */
-    onStatusChange?: (status: WebSocketStatus) => void;
-    /**
-     * Whether to show notifications (default: true)
-     */
-    showNotifications?: boolean;
+  /**
+   * Maximum reconnection attempts (default: 10)
+   */
+  maxAttempts?: number;
+  /**
+   * Callback to perform the actual connection
+   */
+  connect: () => Promise<void>;
+  /**
+   * Callback when status changes
+   */
+  onStatusChange?: (status: WebSocketStatus) => void;
+  /**
+   * Whether to show notifications (default: true)
+   */
+  showNotifications?: boolean;
 }
 /**
  * Reconnection manager state
  */
 export interface ReconnectionManager {
-    /**
-     * Start reconnection attempts
-     */
-    start: () => void;
-    /**
-     * Stop reconnection attempts
-     */
-    stop: () => void;
-    /**
-     * Reset attempt counter
-     */
-    reset: () => void;
-    /**
-     * Get current attempt count
-     */
-    getAttempts: () => number;
-    /**
-     * Check if reconnection is active
-     */
-    isActive: () => boolean;
+  /**
+   * Start reconnection attempts
+   */
+  start: () => void;
+  /**
+   * Stop reconnection attempts
+   */
+  stop: () => void;
+  /**
+   * Reset attempt counter
+   */
+  reset: () => void;
+  /**
+   * Get current attempt count
+   */
+  getAttempts: () => number;
+  /**
+   * Check if reconnection is active
+   */
+  isActive: () => boolean;
 }
 /**
  * Create a reconnection manager with exponential backoff.
@@ -107,7 +107,9 @@ export interface ReconnectionManager {
  * @param config - Reconnection configuration
  * @returns Reconnection manager instance
  */
-export declare function createReconnectionManager(config: ReconnectionManagerConfig): ReconnectionManager;
+export declare function createReconnectionManager(
+  config: ReconnectionManagerConfig
+): ReconnectionManager;
 /**
  * Create a debounced latency updater.
  *
@@ -117,5 +119,7 @@ export declare function createReconnectionManager(config: ReconnectionManagerCon
  * @param intervalMs - Minimum interval between updates (default: 100ms)
  * @returns Debounced update function
  */
-export declare function createLatencyUpdater(intervalMs?: number): (routerId: string, latencyMs: number) => void;
+export declare function createLatencyUpdater(
+  intervalMs?: number
+): (routerId: string, latencyMs: number) => void;
 //# sourceMappingURL=reconnect.d.ts.map

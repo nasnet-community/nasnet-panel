@@ -38,8 +38,20 @@ const ipCollisionConflict: ResourceConflict = {
   description: 'Two interfaces have the same IP address assigned',
   conflictValue: '192.168.1.1',
   resources: [
-    { type: 'interface', id: 'ether1', name: 'ether1', path: '/interface/ether1', value: '192.168.1.1/24' },
-    { type: 'interface', id: 'bridge1', name: 'bridge1', path: '/interface/bridge1', value: '192.168.1.1/24' },
+    {
+      type: 'interface',
+      id: 'ether1',
+      name: 'ether1',
+      path: '/interface/ether1',
+      value: '192.168.1.1/24',
+    },
+    {
+      type: 'interface',
+      id: 'bridge1',
+      name: 'bridge1',
+      path: '/interface/bridge1',
+      value: '192.168.1.1/24',
+    },
   ],
   resolutions: [
     {
@@ -186,7 +198,12 @@ export const MultipleConflicts: StoryObj<typeof ConflictList> = {
  * Empty state - no conflicts
  */
 export const NoConflicts: StoryObj<typeof ConflictList> = {
-  render: () => <ConflictList conflicts={[]} showSummary />,
+  render: () => (
+    <ConflictList
+      conflicts={[]}
+      showSummary
+    />
+  ),
 };
 
 /**

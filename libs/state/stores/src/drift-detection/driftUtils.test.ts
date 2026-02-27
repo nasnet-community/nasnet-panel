@@ -90,7 +90,10 @@ describe('normalizeForComparison', () => {
   });
 
   it('should handle arrays recursively', () => {
-    const input = [{ b: 1, a: 2 }, { d: 3, c: 4 }];
+    const input = [
+      { b: 1, a: 2 },
+      { d: 3, c: 4 },
+    ];
     const normalized = normalizeForComparison(input) as Record<string, number>[];
 
     expect(Object.keys(normalized[0])).toEqual(['a', 'b']);

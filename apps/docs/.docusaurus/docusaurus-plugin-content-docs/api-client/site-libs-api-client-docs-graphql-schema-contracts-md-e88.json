@@ -1,7 +1,7 @@
 {
   "id": "graphql-schema-contracts",
   "title": "GraphQL Schema Contracts — Scalars and Directives",
-  "description": "This document covers the custom scalars and GraphQL directives that define the schema contract between the NasNet backend and frontend. Understanding these types and directives is essential for writing type-safe queries and leveraging the code generation pipeline.",
+  "description": "This document covers the custom scalars and GraphQL directives that define the schema contract",
   "source": "@site/../../libs/api-client/docs/graphql-schema-contracts.md",
   "sourceDirName": ".",
   "slug": "/graphql-schema-contracts",

@@ -112,8 +112,7 @@ export const SlightlyOver: Story = {
   parameters: {
     docs: {
       description: {
-        story:
-          'Deficit: 56 MB. Tor (64 MB) is auto-selected and sufficient to cover the deficit.',
+        story: 'Deficit: 56 MB. Tor (64 MB) is auto-selected and sufficient to cover the deficit.',
       },
     },
   },
@@ -156,8 +155,7 @@ export const WayOver: Story = {
   parameters: {
     docs: {
       description: {
-        story:
-          'Deficit: 412 MB. Multiple services are auto-selected to cover the large deficit.',
+        story: 'Deficit: 412 MB. Multiple services are auto-selected to cover the large deficit.',
       },
     },
   },
@@ -230,7 +228,12 @@ export const WithOverride: Story = {
  * Forces mobile presentation (bottom sheet)
  */
 export const MobileVariant: Story = {
-  render: () => <DialogWrapper variant="mobile" allowOverride={true} />,
+  render: () => (
+    <DialogWrapper
+      variant="mobile"
+      allowOverride={true}
+    />
+  ),
   parameters: {
     viewport: {
       defaultViewport: 'mobile1',
@@ -249,7 +252,12 @@ export const MobileVariant: Story = {
  * Forces desktop presentation (center modal)
  */
 export const DesktopVariant: Story = {
-  render: () => <DialogWrapper variant="desktop" allowOverride={true} />,
+  render: () => (
+    <DialogWrapper
+      variant="desktop"
+      allowOverride={true}
+    />
+  ),
   parameters: {
     docs: {
       description: {
@@ -285,13 +293,16 @@ export const Controlled: Story = {
         <div className="space-y-4">
           <div className="flex gap-2">
             <Button onClick={() => setOpen(true)}>Open Dialog</Button>
-            <Button onClick={() => setResult('')} variant="outline">
+            <Button
+              onClick={() => setResult('')}
+              variant="outline"
+            >
               Clear Result
             </Button>
           </div>
 
           {result && (
-            <div className="p-4 bg-gray-100 dark:bg-gray-800 rounded-md">
+            <div className="rounded-md bg-gray-100 p-4 dark:bg-gray-800">
               <pre className="text-sm">{result}</pre>
             </div>
           )}

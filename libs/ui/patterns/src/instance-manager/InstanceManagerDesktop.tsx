@@ -151,7 +151,11 @@ function InstanceManagerDesktopComponent(props: InstanceManagerProps) {
               variant="ghost"
               size="sm"
               onClick={handleClearFilters}
-              disabled={!activeFilters.search && activeFilters.category === 'all' && activeFilters.status === 'all'}
+              disabled={
+                !activeFilters.search &&
+                activeFilters.category === 'all' &&
+                activeFilters.status === 'all'
+              }
             >
               Clear
             </Button>
@@ -159,7 +163,7 @@ function InstanceManagerDesktopComponent(props: InstanceManagerProps) {
             <div className="flex-1" />
 
             {/* Results count */}
-            <span className="text-sm text-muted-foreground">
+            <span className="text-muted-foreground text-sm">
               {filteredCount} {filteredCount === 1 ? 'instance' : 'instances'}
               {selectedCount > 0 && ` • ${selectedCount} selected`}
             </span>
@@ -190,7 +194,10 @@ function InstanceManagerDesktopComponent(props: InstanceManagerProps) {
           <CardContent className="p-6">
             <div className="space-y-3">
               {[...Array(5)].map((_, i) => (
-                <Skeleton key={i} className="h-12 w-full" />
+                <Skeleton
+                  key={i}
+                  className="h-12 w-full"
+                />
               ))}
             </div>
           </CardContent>
@@ -201,7 +208,7 @@ function InstanceManagerDesktopComponent(props: InstanceManagerProps) {
       {error && (
         <Card>
           <CardContent className="p-6">
-            <div className="text-center text-sm text-destructive">{error}</div>
+            <div className="text-destructive text-center text-sm">{error}</div>
           </CardContent>
         </Card>
       )}
@@ -211,9 +218,7 @@ function InstanceManagerDesktopComponent(props: InstanceManagerProps) {
         <Card>
           <CardContent className="p-12">
             {emptyState || (
-              <div className="text-center text-sm text-muted-foreground">
-                No instances found
-              </div>
+              <div className="text-muted-foreground text-center text-sm">No instances found</div>
             )}
           </CardContent>
         </Card>
@@ -233,48 +238,42 @@ function InstanceManagerDesktopComponent(props: InstanceManagerProps) {
                   />
                 </TableHead>
                 <TableHead
-                  className="cursor-pointer hover:bg-muted/50"
+                  className="hover:bg-muted/50 cursor-pointer"
                   onClick={() => handleSortChange('name')}
                 >
                   <div className="flex items-center gap-1">
                     Name
                     {activeSort.field === 'name' && (
-                      <span className="text-xs">
-                        {activeSort.direction === 'asc' ? '↑' : '↓'}
-                      </span>
+                      <span className="text-xs">{activeSort.direction === 'asc' ? '↑' : '↓'}</span>
                     )}
                   </div>
                 </TableHead>
                 <TableHead
-                  className="cursor-pointer hover:bg-muted/50"
+                  className="hover:bg-muted/50 cursor-pointer"
                   onClick={() => handleSortChange('category')}
                 >
                   <div className="flex items-center gap-1">
                     Category
                     {activeSort.field === 'category' && (
-                      <span className="text-xs">
-                        {activeSort.direction === 'asc' ? '↑' : '↓'}
-                      </span>
+                      <span className="text-xs">{activeSort.direction === 'asc' ? '↑' : '↓'}</span>
                     )}
                   </div>
                 </TableHead>
                 <TableHead
-                  className="cursor-pointer hover:bg-muted/50"
+                  className="hover:bg-muted/50 cursor-pointer"
                   onClick={() => handleSortChange('status')}
                 >
                   <div className="flex items-center gap-1">
                     Status
                     {activeSort.field === 'status' && (
-                      <span className="text-xs">
-                        {activeSort.direction === 'asc' ? '↑' : '↓'}
-                      </span>
+                      <span className="text-xs">{activeSort.direction === 'asc' ? '↑' : '↓'}</span>
                     )}
                   </div>
                 </TableHead>
                 {showMetrics && (
                   <>
                     <TableHead
-                      className="cursor-pointer hover:bg-muted/50"
+                      className="hover:bg-muted/50 cursor-pointer"
                       onClick={() => handleSortChange('cpu')}
                     >
                       <div className="flex items-center gap-1">
@@ -287,7 +286,7 @@ function InstanceManagerDesktopComponent(props: InstanceManagerProps) {
                       </div>
                     </TableHead>
                     <TableHead
-                      className="cursor-pointer hover:bg-muted/50"
+                      className="hover:bg-muted/50 cursor-pointer"
                       onClick={() => handleSortChange('memory')}
                     >
                       <div className="flex items-center gap-1">
@@ -308,7 +307,7 @@ function InstanceManagerDesktopComponent(props: InstanceManagerProps) {
               {filteredInstances.map((instance) => (
                 <TableRow
                   key={instance.id}
-                  className="cursor-pointer hover:bg-muted/50"
+                  className="hover:bg-muted/50 cursor-pointer"
                   onClick={() => handleInstanceClick(instance)}
                 >
                   <TableCell onClick={(e) => e.stopPropagation()}>
@@ -319,29 +318,25 @@ function InstanceManagerDesktopComponent(props: InstanceManagerProps) {
                     />
                   </TableCell>
                   <TableCell className="font-medium">{instance.name}</TableCell>
-                  <TableCell className="capitalize">
-                    {instance.category}
-                  </TableCell>
+                  <TableCell className="capitalize">{instance.category}</TableCell>
                   <TableCell>
-                    <Badge variant={getStatusVariant(instance.status)}>
-                      {instance.status}
-                    </Badge>
+                    <Badge variant={getStatusVariant(instance.status)}>{instance.status}</Badge>
                   </TableCell>
                   {showMetrics && (
                     <>
                       <TableCell>
-                        {instance.metrics?.cpu !== undefined
-                          ? `${instance.metrics.cpu.toFixed(1)}%`
-                          : '-'}
+                        {instance.metrics?.cpu !== undefined ?
+                          `${instance.metrics.cpu.toFixed(1)}%`
+                        : '-'}
                       </TableCell>
                       <TableCell>
-                        {instance.metrics?.memory !== undefined
-                          ? `${instance.metrics.memory} MB`
-                          : '-'}
+                        {instance.metrics?.memory !== undefined ?
+                          `${instance.metrics.memory} MB`
+                        : '-'}
                       </TableCell>
                     </>
                   )}
-                  <TableCell className="text-sm text-muted-foreground">
+                  <TableCell className="text-muted-foreground text-sm">
                     {instance.version || '-'}
                   </TableCell>
                 </TableRow>

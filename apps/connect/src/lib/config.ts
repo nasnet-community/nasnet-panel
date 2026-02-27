@@ -1,16 +1,16 @@
 /**
  * Application Configuration Module
  * Provides typed configuration from environment variables
- * 
+ *
  * Environment Variables (all prefixed with VITE_ for client-side access):
  * - VITE_API_URL: Base URL for API requests (empty = same-origin)
  * - VITE_WS_URL: WebSocket URL (empty = same-origin)
  * - VITE_APP_VERSION: Application version (optional)
- * 
+ *
  * @example
  * ```typescript
  * import { config, getApiUrl, getWsUrl } from '@/lib/config';
- * 
+ *
  * console.log(config.apiBaseUrl); // '' (same-origin) or 'http://localhost:8080'
  * console.log(config.isDevelopment); // true if DEV mode
  * ```
@@ -37,10 +37,10 @@ export const config: AppConfig = {
   // API URLs - empty string means same-origin (default for Docker deployment)
   apiBaseUrl: import.meta.env.VITE_API_URL || '',
   wsBaseUrl: import.meta.env.VITE_WS_URL || '',
-  
+
   // Application metadata
   version: import.meta.env.VITE_APP_VERSION || '0.1.0',
-  
+
   // Environment detection
   isDevelopment: import.meta.env.DEV,
   isProduction: import.meta.env.PROD,
@@ -73,9 +73,7 @@ export function buildApiEndpoint(endpoint: string): string {
     return endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
   }
   // Custom base URL: combine with endpoint
-  const base = config.apiBaseUrl.endsWith('/') 
-    ? config.apiBaseUrl.slice(0, -1) 
-    : config.apiBaseUrl;
+  const base = config.apiBaseUrl.endsWith('/') ? config.apiBaseUrl.slice(0, -1) : config.apiBaseUrl;
   const path = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
   return `${base}${path}`;
 }
@@ -93,12 +91,9 @@ export function buildWsEndpoint(path: string): string {
     return `${protocol}//${window.location.host}${wsPath}`;
   }
   // Custom base URL: combine with path
-  const base = config.wsBaseUrl.endsWith('/') 
-    ? config.wsBaseUrl.slice(0, -1) 
-    : config.wsBaseUrl;
+  const base = config.wsBaseUrl.endsWith('/') ? config.wsBaseUrl.slice(0, -1) : config.wsBaseUrl;
   const wsPath = path.startsWith('/') ? path : `/${path}`;
   return `${base}${wsPath}`;
 }
 
 export default config;
-

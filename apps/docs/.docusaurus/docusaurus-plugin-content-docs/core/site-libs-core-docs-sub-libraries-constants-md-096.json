@@ -1,7 +1,7 @@
 {
   "id": "sub-libraries/constants",
   "title": "Constants Reference",
-  "description": "The @nasnet/core/constants library provides static application constants organized by domain. These are used throughout the frontend for type-safe navigation, API calls, and real-time communication.",
+  "description": "The @nasnet/core/constants library provides static application constants organized by domain.",
   "source": "@site/../../libs/core/docs/sub-libraries/constants.md",
   "sourceDirName": "sub-libraries",
   "slug": "/sub-libraries/constants",

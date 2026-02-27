@@ -23,7 +23,12 @@
  * const operationId = data?.createBridge?.operationId;
  * ```
  */
-export declare function useCreateBridge(): import("@apollo/client").MutationTuple<any, import("@apollo/client").OperationVariables, import("@apollo/client").DefaultContext, import("@apollo/client").ApolloCache<any>>;
+export declare function useCreateBridge(): import('@apollo/client').MutationTuple<
+  any,
+  import('@apollo/client').OperationVariables,
+  import('@apollo/client').DefaultContext,
+  import('@apollo/client').ApolloCache<any>
+>;
 /**
  * Hook for updating an existing bridge
  * Returns operation ID for 10-second undo window
@@ -46,7 +51,12 @@ export declare function useCreateBridge(): import("@apollo/client").MutationTupl
  * });
  * ```
  */
-export declare function useUpdateBridge(): import("@apollo/client").MutationTuple<any, import("@apollo/client").OperationVariables, import("@apollo/client").DefaultContext, import("@apollo/client").ApolloCache<any>>;
+export declare function useUpdateBridge(): import('@apollo/client').MutationTuple<
+  any,
+  import('@apollo/client').OperationVariables,
+  import('@apollo/client').DefaultContext,
+  import('@apollo/client').ApolloCache<any>
+>;
 /**
  * Hook for deleting a bridge
  * Returns operation ID for 10-second undo window
@@ -64,7 +74,12 @@ export declare function useUpdateBridge(): import("@apollo/client").MutationTupl
  * });
  * ```
  */
-export declare function useDeleteBridge(): import("@apollo/client").MutationTuple<any, import("@apollo/client").OperationVariables, import("@apollo/client").DefaultContext, import("@apollo/client").ApolloCache<any>>;
+export declare function useDeleteBridge(): import('@apollo/client').MutationTuple<
+  any,
+  import('@apollo/client').OperationVariables,
+  import('@apollo/client').DefaultContext,
+  import('@apollo/client').ApolloCache<any>
+>;
 /**
  * Hook for undoing a bridge operation within 10-second window
  * Restores bridge to previous state
@@ -81,7 +96,12 @@ export declare function useDeleteBridge(): import("@apollo/client").MutationTupl
  * });
  * ```
  */
-export declare function useUndoBridgeOperation(): import("@apollo/client").MutationTuple<any, import("@apollo/client").OperationVariables, import("@apollo/client").DefaultContext, import("@apollo/client").ApolloCache<any>>;
+export declare function useUndoBridgeOperation(): import('@apollo/client').MutationTuple<
+  any,
+  import('@apollo/client').OperationVariables,
+  import('@apollo/client').DefaultContext,
+  import('@apollo/client').ApolloCache<any>
+>;
 /**
  * Hook for adding a port to a bridge
  * Returns operation ID for 10-second undo window
@@ -106,7 +126,12 @@ export declare function useUndoBridgeOperation(): import("@apollo/client").Mutat
  * });
  * ```
  */
-export declare function useAddBridgePort(): import("@apollo/client").MutationTuple<any, import("@apollo/client").OperationVariables, import("@apollo/client").DefaultContext, import("@apollo/client").ApolloCache<any>>;
+export declare function useAddBridgePort(): import('@apollo/client').MutationTuple<
+  any,
+  import('@apollo/client').OperationVariables,
+  import('@apollo/client').DefaultContext,
+  import('@apollo/client').ApolloCache<any>
+>;
 /**
  * Hook for updating bridge port settings
  * Returns operation ID for 10-second undo window
@@ -129,7 +154,12 @@ export declare function useAddBridgePort(): import("@apollo/client").MutationTup
  * });
  * ```
  */
-export declare function useUpdateBridgePort(): import("@apollo/client").MutationTuple<any, import("@apollo/client").OperationVariables, import("@apollo/client").DefaultContext, import("@apollo/client").ApolloCache<any>>;
+export declare function useUpdateBridgePort(): import('@apollo/client').MutationTuple<
+  any,
+  import('@apollo/client').OperationVariables,
+  import('@apollo/client').DefaultContext,
+  import('@apollo/client').ApolloCache<any>
+>;
 /**
  * Hook for removing a port from a bridge
  * Returns operation ID for 10-second undo window
@@ -145,7 +175,12 @@ export declare function useUpdateBridgePort(): import("@apollo/client").Mutation
  * });
  * ```
  */
-export declare function useRemoveBridgePort(): import("@apollo/client").MutationTuple<any, import("@apollo/client").OperationVariables, import("@apollo/client").DefaultContext, import("@apollo/client").ApolloCache<any>>;
+export declare function useRemoveBridgePort(): import('@apollo/client').MutationTuple<
+  any,
+  import('@apollo/client').OperationVariables,
+  import('@apollo/client').DefaultContext,
+  import('@apollo/client').ApolloCache<any>
+>;
 /**
  * Hook for creating a bridge VLAN entry
  * Configures VLAN ID with tagged and untagged ports
@@ -168,7 +203,12 @@ export declare function useRemoveBridgePort(): import("@apollo/client").Mutation
  * });
  * ```
  */
-export declare function useCreateBridgeVlan(): import("@apollo/client").MutationTuple<any, import("@apollo/client").OperationVariables, import("@apollo/client").DefaultContext, import("@apollo/client").ApolloCache<any>>;
+export declare function useCreateBridgeVlan(): import('@apollo/client').MutationTuple<
+  any,
+  import('@apollo/client').OperationVariables,
+  import('@apollo/client').DefaultContext,
+  import('@apollo/client').ApolloCache<any>
+>;
 /**
  * Hook for deleting a bridge VLAN entry
  *
@@ -183,5 +223,10 @@ export declare function useCreateBridgeVlan(): import("@apollo/client").Mutation
  * });
  * ```
  */
-export declare function useDeleteBridgeVlan(): import("@apollo/client").MutationTuple<any, import("@apollo/client").OperationVariables, import("@apollo/client").DefaultContext, import("@apollo/client").ApolloCache<any>>;
+export declare function useDeleteBridgeVlan(): import('@apollo/client').MutationTuple<
+  any,
+  import('@apollo/client').OperationVariables,
+  import('@apollo/client').DefaultContext,
+  import('@apollo/client').ApolloCache<any>
+>;
 //# sourceMappingURL=useBridgeMutations.d.ts.map

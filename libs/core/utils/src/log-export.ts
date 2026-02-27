@@ -99,11 +99,7 @@ export function logsToJSON(logs: LogEntry[]): string {
  * downloadFile('a,b,c\n1,2,3', 'data.csv', 'text/csv');
  * ```
  */
-export function downloadFile(
-  content: string,
-  filename: string,
-  mimeType: string
-): void {
+export function downloadFile(content: string, filename: string, mimeType: string): void {
   const blob = new Blob([content], { type: mimeType });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -131,10 +127,7 @@ export function downloadFile(
  * // Downloads: logs-192.168.1.1-2024-01-01.csv
  * ```
  */
-export function exportLogsToCSV(
-  logs: LogEntry[],
-  routerIp: string = 'router'
-): void {
+export function exportLogsToCSV(logs: LogEntry[], routerIp: string = 'router'): void {
   const dateStr = new Date().toISOString().split('T')[0];
   const csv = logsToCSV(logs);
   downloadFile(csv, `logs-${routerIp}-${dateStr}.csv`, 'text/csv');
@@ -156,26 +149,8 @@ export function exportLogsToCSV(
  * // Downloads: logs-192.168.1.1-2024-01-01.json
  * ```
  */
-export function exportLogsToJSON(
-  logs: LogEntry[],
-  routerIp: string = 'router'
-): void {
+export function exportLogsToJSON(logs: LogEntry[], routerIp: string = 'router'): void {
   const dateStr = new Date().toISOString().split('T')[0];
   const json = logsToJSON(logs);
   downloadFile(json, `logs-${routerIp}-${dateStr}.json`, 'application/json');
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

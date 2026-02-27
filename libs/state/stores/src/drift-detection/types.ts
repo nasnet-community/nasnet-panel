@@ -86,8 +86,7 @@ export const ResourcePriority = {
   LOW: 60 * 60 * 1000,
 } as const;
 
-export type ResourcePriority =
-  (typeof ResourcePriority)[keyof typeof ResourcePriority];
+export type ResourcePriority = (typeof ResourcePriority)[keyof typeof ResourcePriority];
 
 /**
  * Map of resource categories to their priority

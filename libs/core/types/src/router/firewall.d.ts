@@ -47,50 +47,50 @@ export type FirewallProtocol = 'tcp' | 'udp' | 'icmp' | 'ipv6-icmp' | 'all';
  * Rules are evaluated in order and the first matching rule determines the action.
  */
 export interface FirewallRule {
-    /** Unique identifier for the rule */
-    readonly id: string;
-    /** Whether the rule is disabled */
-    disabled: boolean;
-    /** Firewall chain this rule applies to */
-    chain: FirewallChain;
-    /** Action to take when packet matches */
-    action: FirewallAction;
-    /** Optional comment/description */
-    comment?: string;
-    /** Protocol to match (tcp, udp, icmp, etc.) */
-    protocol?: FirewallProtocol;
-    /** Source IP address or CIDR range */
-    srcAddress?: string;
-    /** Destination IP address or CIDR range */
-    dstAddress?: string;
-    /** Source port or port range */
-    srcPort?: string;
-    /** Destination port or port range */
-    dstPort?: string;
-    /** Input interface name */
-    inInterface?: string;
-    /** Output interface name */
-    outInterface?: string;
-    /** Source address list name */
-    srcAddressList?: string;
-    /** Destination address list name */
-    dstAddressList?: string;
-    /** Connection states to match */
-    connectionState?: readonly string[];
-    /** Whether to log matching packets */
-    log?: boolean;
-    /** Prefix for logged packets */
-    logPrefix?: string;
-    /** Number of packets matched by this rule (read-only) */
-    readonly packets?: number;
-    /** Number of bytes matched by this rule (read-only) */
-    readonly bytes?: number;
-    /** Input interface list name */
-    inInterfaceList?: string;
-    /** Output interface list name */
-    outInterfaceList?: string;
-    /** Rule priority order */
-    order: number;
+  /** Unique identifier for the rule */
+  readonly id: string;
+  /** Whether the rule is disabled */
+  disabled: boolean;
+  /** Firewall chain this rule applies to */
+  chain: FirewallChain;
+  /** Action to take when packet matches */
+  action: FirewallAction;
+  /** Optional comment/description */
+  comment?: string;
+  /** Protocol to match (tcp, udp, icmp, etc.) */
+  protocol?: FirewallProtocol;
+  /** Source IP address or CIDR range */
+  srcAddress?: string;
+  /** Destination IP address or CIDR range */
+  dstAddress?: string;
+  /** Source port or port range */
+  srcPort?: string;
+  /** Destination port or port range */
+  dstPort?: string;
+  /** Input interface name */
+  inInterface?: string;
+  /** Output interface name */
+  outInterface?: string;
+  /** Source address list name */
+  srcAddressList?: string;
+  /** Destination address list name */
+  dstAddressList?: string;
+  /** Connection states to match */
+  connectionState?: readonly string[];
+  /** Whether to log matching packets */
+  log?: boolean;
+  /** Prefix for logged packets */
+  logPrefix?: string;
+  /** Number of packets matched by this rule (read-only) */
+  readonly packets?: number;
+  /** Number of bytes matched by this rule (read-only) */
+  readonly bytes?: number;
+  /** Input interface list name */
+  inInterfaceList?: string;
+  /** Output interface list name */
+  outInterfaceList?: string;
+  /** Rule priority order */
+  order: number;
 }
 /**
  * Network Address Translation (NAT) rule configuration
@@ -100,36 +100,36 @@ export interface FirewallRule {
  * NAT rules modify source or destination addresses/ports in packet flows.
  */
 export interface NATRule {
-    /** Unique identifier for the rule */
-    readonly id: string;
-    /** Whether the rule is disabled */
-    disabled: boolean;
-    /** NAT chain (prerouting for DNAT, postrouting for SNAT) */
-    chain: Exclude<FirewallChain, 'input' | 'forward' | 'output'>;
-    /** NAT action type */
-    action: 'src-nat' | 'dst-nat' | 'masquerade' | 'redirect';
-    /** Optional comment/description */
-    comment?: string;
-    /** Protocol to match */
-    protocol?: FirewallProtocol;
-    /** Source IP address or CIDR range */
-    srcAddress?: string;
-    /** Destination IP address or CIDR range */
-    dstAddress?: string;
-    /** Source port or port range */
-    srcPort?: string;
-    /** Destination port or port range */
-    dstPort?: string;
-    /** Input interface name */
-    inInterface?: string;
-    /** Output interface name */
-    outInterface?: string;
-    /** Addresses to translate to (for SNAT/DNAT) */
-    toAddresses?: string;
-    /** Ports to translate to */
-    toPorts?: string;
-    /** Rule priority order */
-    order: number;
+  /** Unique identifier for the rule */
+  readonly id: string;
+  /** Whether the rule is disabled */
+  disabled: boolean;
+  /** NAT chain (prerouting for DNAT, postrouting for SNAT) */
+  chain: Exclude<FirewallChain, 'input' | 'forward' | 'output'>;
+  /** NAT action type */
+  action: 'src-nat' | 'dst-nat' | 'masquerade' | 'redirect';
+  /** Optional comment/description */
+  comment?: string;
+  /** Protocol to match */
+  protocol?: FirewallProtocol;
+  /** Source IP address or CIDR range */
+  srcAddress?: string;
+  /** Destination IP address or CIDR range */
+  dstAddress?: string;
+  /** Source port or port range */
+  srcPort?: string;
+  /** Destination port or port range */
+  dstPort?: string;
+  /** Input interface name */
+  inInterface?: string;
+  /** Output interface name */
+  outInterface?: string;
+  /** Addresses to translate to (for SNAT/DNAT) */
+  toAddresses?: string;
+  /** Ports to translate to */
+  toPorts?: string;
+  /** Rule priority order */
+  order: number;
 }
 /**
  * Mangle rule configuration for packet marking
@@ -139,34 +139,34 @@ export interface NATRule {
  * Mangle rules mark packets/connections for QoS and policy routing.
  */
 export interface MangleRule {
-    /** Unique identifier for the rule */
-    readonly id: string;
-    /** Whether the rule is disabled */
-    disabled: boolean;
-    /** Firewall chain this rule applies to */
-    chain: FirewallChain;
-    /** Mangle action type */
-    action: 'mark-connection' | 'mark-packet' | 'set-priority' | 'set-dscp';
-    /** Optional comment/description */
-    comment?: string;
-    /** Protocol to match */
-    protocol?: FirewallProtocol;
-    /** Source IP address or CIDR range */
-    srcAddress?: string;
-    /** Destination IP address or CIDR range */
-    dstAddress?: string;
-    /** Source port or port range */
-    srcPort?: string;
-    /** Destination port or port range */
-    dstPort?: string;
-    /** Mark to apply to connection */
-    newMark?: string;
-    /** Priority level (0-7) */
-    newPriority?: string;
-    /** DSCP value for QoS */
-    newDscp?: string;
-    /** Rule priority order */
-    order: number;
+  /** Unique identifier for the rule */
+  readonly id: string;
+  /** Whether the rule is disabled */
+  disabled: boolean;
+  /** Firewall chain this rule applies to */
+  chain: FirewallChain;
+  /** Mangle action type */
+  action: 'mark-connection' | 'mark-packet' | 'set-priority' | 'set-dscp';
+  /** Optional comment/description */
+  comment?: string;
+  /** Protocol to match */
+  protocol?: FirewallProtocol;
+  /** Source IP address or CIDR range */
+  srcAddress?: string;
+  /** Destination IP address or CIDR range */
+  dstAddress?: string;
+  /** Source port or port range */
+  srcPort?: string;
+  /** Destination port or port range */
+  dstPort?: string;
+  /** Mark to apply to connection */
+  newMark?: string;
+  /** Priority level (0-7) */
+  newPriority?: string;
+  /** DSCP value for QoS */
+  newDscp?: string;
+  /** Rule priority order */
+  order: number;
 }
 /**
  * Routing table entry
@@ -176,24 +176,24 @@ export interface MangleRule {
  * Routes determine how packets are forwarded to their destinations.
  */
 export interface RouteEntry {
-    /** Unique identifier for the route */
-    readonly id: string;
-    /** Whether the route is disabled */
-    disabled: boolean;
-    /** Destination network in CIDR format (e.g., "192.168.1.0/24") */
-    destination: string;
-    /** Gateway IP address for this route */
-    gateway?: string;
-    /** Interface to use for this route */
-    interface?: string;
-    /** Route priority (lower distance = higher priority) */
-    distance: number;
-    /** Type of route (unicast, blackhole, unreachable, prohibit) */
-    routeType: 'unicast' | 'blackhole' | 'unreachable' | 'prohibit';
-    /** Whether this is a dynamically learned route */
-    dynamic: boolean;
-    /** Whether this route is currently active */
-    active: boolean;
+  /** Unique identifier for the route */
+  readonly id: string;
+  /** Whether the route is disabled */
+  disabled: boolean;
+  /** Destination network in CIDR format (e.g., "192.168.1.0/24") */
+  destination: string;
+  /** Gateway IP address for this route */
+  gateway?: string;
+  /** Interface to use for this route */
+  interface?: string;
+  /** Route priority (lower distance = higher priority) */
+  distance: number;
+  /** Type of route (unicast, blackhole, unreachable, prohibit) */
+  routeType: 'unicast' | 'blackhole' | 'unreachable' | 'prohibit';
+  /** Whether this is a dynamically learned route */
+  dynamic: boolean;
+  /** Whether this route is currently active */
+  active: boolean;
 }
 /**
  * Routing table
@@ -202,8 +202,8 @@ export interface RouteEntry {
  * Container for all active routes in the RouterOS routing table.
  */
 export interface RoutingTable {
-    /** Array of route entries */
-    readonly routes: readonly RouteEntry[];
+  /** Array of route entries */
+  readonly routes: readonly RouteEntry[];
 }
 /**
  * Firewall address list entry
@@ -213,16 +213,16 @@ export interface RoutingTable {
  * Address lists group multiple IPs/networks for convenient rule management.
  */
 export interface AddressList {
-    /** Unique identifier for the entry */
-    readonly id: string;
-    /** Address list name this entry belongs to */
-    name: string;
-    /** IP address or network in CIDR format (e.g., "192.168.1.100/32") */
-    address: string;
-    /** Optional comment/description */
-    comment?: string;
-    /** Whether this entry is disabled */
-    disabled: boolean;
+  /** Unique identifier for the entry */
+  readonly id: string;
+  /** Address list name this entry belongs to */
+  name: string;
+  /** IP address or network in CIDR format (e.g., "192.168.1.100/32") */
+  address: string;
+  /** Optional comment/description */
+  comment?: string;
+  /** Whether this entry is disabled */
+  disabled: boolean;
 }
 /**
  * Router service configuration (API, SSH, Winbox, WWW, etc.)
@@ -232,18 +232,18 @@ export interface AddressList {
  * Endpoint: GET /rest/ip/service
  */
 export interface RouterService {
-    /** Unique identifier for the service */
-    readonly id: string;
-    /** Service name (api, api-ssl, ftp, ssh, telnet, winbox, www, www-ssl) */
-    name: string;
-    /** TCP/UDP port the service listens on */
-    port: number;
-    /** Whether the service is disabled */
-    disabled: boolean;
-    /** IP address restriction (if set, only requests from this address are allowed) */
-    address?: string;
-    /** SSL certificate name (for SSL-enabled services) */
-    certificate?: string;
+  /** Unique identifier for the service */
+  readonly id: string;
+  /** Service name (api, api-ssl, ftp, ssh, telnet, winbox, www, www-ssl) */
+  name: string;
+  /** TCP/UDP port the service listens on */
+  port: number;
+  /** Whether the service is disabled */
+  disabled: boolean;
+  /** IP address restriction (if set, only requests from this address are allowed) */
+  address?: string;
+  /** SSL certificate name (for SSL-enabled services) */
+  certificate?: string;
 }
 /**
  * Filter options for firewall rule search
@@ -252,16 +252,16 @@ export interface RouterService {
  * Used for filtering firewall rules in list/search views.
  */
 export interface FirewallFilters {
-    /** Text search across rule comments and fields */
-    search?: string;
-    /** Filter by firewall chain */
-    chain?: FirewallChain | 'all';
-    /** Filter by rule action */
-    action?: FirewallAction | 'all';
-    /** Filter by protocol */
-    protocol?: FirewallProtocol | 'all';
-    /** Filter by rule enabled/disabled status */
-    status?: 'enabled' | 'disabled' | 'all';
+  /** Text search across rule comments and fields */
+  search?: string;
+  /** Filter by firewall chain */
+  chain?: FirewallChain | 'all';
+  /** Filter by rule action */
+  action?: FirewallAction | 'all';
+  /** Filter by protocol */
+  protocol?: FirewallProtocol | 'all';
+  /** Filter by rule enabled/disabled status */
+  status?: 'enabled' | 'disabled' | 'all';
 }
 /**
  * Chain summary statistics
@@ -270,20 +270,20 @@ export interface FirewallFilters {
  * Aggregated statistics for rules in a specific firewall chain.
  */
 export interface ChainSummary {
-    /** The firewall chain */
-    chain: FirewallChain;
-    /** Total number of rules in the chain */
-    totalRules: number;
-    /** Number of accept rules */
-    acceptCount: number;
-    /** Number of drop rules */
-    dropCount: number;
-    /** Number of reject rules */
-    rejectCount: number;
-    /** Number of rules with logging enabled */
-    logCount: number;
-    /** Number of disabled rules */
-    disabledCount: number;
+  /** The firewall chain */
+  chain: FirewallChain;
+  /** Total number of rules in the chain */
+  totalRules: number;
+  /** Number of accept rules */
+  acceptCount: number;
+  /** Number of drop rules */
+  dropCount: number;
+  /** Number of reject rules */
+  rejectCount: number;
+  /** Number of rules with logging enabled */
+  logCount: number;
+  /** Number of disabled rules */
+  disabledCount: number;
 }
 /**
  * Connection tracking state for active connections
@@ -293,7 +293,18 @@ export interface ChainSummary {
  * Includes TCP-specific states for the connection tracking table.
  * These represent detailed states of established connections.
  */
-export type ConnectionTrackingState = 'established' | 'new' | 'related' | 'invalid' | 'time-wait' | 'syn-sent' | 'syn-received' | 'fin-wait' | 'close-wait' | 'last-ack' | 'close';
+export type ConnectionTrackingState =
+  | 'established'
+  | 'new'
+  | 'related'
+  | 'invalid'
+  | 'time-wait'
+  | 'syn-sent'
+  | 'syn-received'
+  | 'fin-wait'
+  | 'close-wait'
+  | 'last-ack'
+  | 'close';
 /**
  * Active connection entry from connection tracking table
  *
@@ -302,34 +313,34 @@ export type ConnectionTrackingState = 'established' | 'new' | 'related' | 'inval
  * Endpoint: GET /rest/ip/firewall/connection
  */
 export interface Connection {
-    /** Unique identifier for the connection entry */
-    readonly id: string;
-    /** Protocol type (tcp, udp, icmp, gre, etc.) */
-    protocol: 'tcp' | 'udp' | 'icmp' | 'gre' | string;
-    /** Source IP address */
-    srcAddress: string;
-    /** Source port (if applicable) */
-    srcPort?: number;
-    /** Destination IP address */
-    dstAddress: string;
-    /** Destination port (if applicable) */
-    dstPort?: number;
-    /** Reply destination address (for NAT connections) */
-    replyDstAddress?: string;
-    /** Reply destination port (for NAT connections) */
-    replyDstPort?: number;
-    /** Current connection tracking state */
-    state: ConnectionTrackingState;
-    /** Time until connection entry expires (e.g., "23h59m59s") */
-    timeout: string;
-    /** Number of packets in this connection */
-    packets: number;
-    /** Number of bytes transferred in this connection */
-    bytes: number;
-    /** Whether connection is assured (NAT helper confirmed) */
-    assured?: boolean;
-    /** Whether connection has been confirmed by both directions */
-    confirmed?: boolean;
+  /** Unique identifier for the connection entry */
+  readonly id: string;
+  /** Protocol type (tcp, udp, icmp, gre, etc.) */
+  protocol: 'tcp' | 'udp' | 'icmp' | 'gre' | string;
+  /** Source IP address */
+  srcAddress: string;
+  /** Source port (if applicable) */
+  srcPort?: number;
+  /** Destination IP address */
+  dstAddress: string;
+  /** Destination port (if applicable) */
+  dstPort?: number;
+  /** Reply destination address (for NAT connections) */
+  replyDstAddress?: string;
+  /** Reply destination port (for NAT connections) */
+  replyDstPort?: number;
+  /** Current connection tracking state */
+  state: ConnectionTrackingState;
+  /** Time until connection entry expires (e.g., "23h59m59s") */
+  timeout: string;
+  /** Number of packets in this connection */
+  packets: number;
+  /** Number of bytes transferred in this connection */
+  bytes: number;
+  /** Whether connection is assured (NAT helper confirmed) */
+  assured?: boolean;
+  /** Whether connection has been confirmed by both directions */
+  confirmed?: boolean;
 }
 /**
  * Connection tracking settings
@@ -339,36 +350,36 @@ export interface Connection {
  * Endpoint: GET /rest/ip/firewall/connection/tracking
  */
 export interface ConnectionTrackingSettings {
-    /** Whether connection tracking is enabled */
-    enabled: boolean;
-    /** Maximum number of connection entries allowed */
-    maxEntries: number;
-    /** Generic timeout for connections (seconds) */
-    genericTimeout: number;
-    /** Timeout for established TCP connections (seconds) */
-    tcpEstablishedTimeout: number;
-    /** Timeout for TCP TIME_WAIT state (seconds) */
-    tcpTimeWaitTimeout: number;
-    /** Timeout for TCP CLOSE state (seconds) */
-    tcpCloseTimeout: number;
-    /** Timeout for TCP SYN_SENT state (seconds) */
-    tcpSynSentTimeout: number;
-    /** Timeout for TCP SYN_RECEIVED state (seconds) */
-    tcpSynReceivedTimeout: number;
-    /** Timeout for TCP FIN_WAIT state (seconds) */
-    tcpFinWaitTimeout: number;
-    /** Timeout for TCP CLOSE_WAIT state (seconds) */
-    tcpCloseWaitTimeout: number;
-    /** Timeout for TCP LAST_ACK state (seconds) */
-    tcpLastAckTimeout: number;
-    /** Timeout for UDP connections (seconds) */
-    udpTimeout: number;
-    /** Timeout for UDP streams (seconds) */
-    udpStreamTimeout: number;
-    /** Timeout for ICMP (seconds) */
-    icmpTimeout: number;
-    /** Whether loose tracking is enabled */
-    looseTracking: boolean;
+  /** Whether connection tracking is enabled */
+  enabled: boolean;
+  /** Maximum number of connection entries allowed */
+  maxEntries: number;
+  /** Generic timeout for connections (seconds) */
+  genericTimeout: number;
+  /** Timeout for established TCP connections (seconds) */
+  tcpEstablishedTimeout: number;
+  /** Timeout for TCP TIME_WAIT state (seconds) */
+  tcpTimeWaitTimeout: number;
+  /** Timeout for TCP CLOSE state (seconds) */
+  tcpCloseTimeout: number;
+  /** Timeout for TCP SYN_SENT state (seconds) */
+  tcpSynSentTimeout: number;
+  /** Timeout for TCP SYN_RECEIVED state (seconds) */
+  tcpSynReceivedTimeout: number;
+  /** Timeout for TCP FIN_WAIT state (seconds) */
+  tcpFinWaitTimeout: number;
+  /** Timeout for TCP CLOSE_WAIT state (seconds) */
+  tcpCloseWaitTimeout: number;
+  /** Timeout for TCP LAST_ACK state (seconds) */
+  tcpLastAckTimeout: number;
+  /** Timeout for UDP connections (seconds) */
+  udpTimeout: number;
+  /** Timeout for UDP streams (seconds) */
+  udpStreamTimeout: number;
+  /** Timeout for ICMP (seconds) */
+  icmpTimeout: number;
+  /** Whether loose tracking is enabled */
+  looseTracking: boolean;
 }
 /**
  * Filter options for connection search
@@ -377,13 +388,13 @@ export interface ConnectionTrackingSettings {
  * Used for filtering active connections in the connection tracking table.
  */
 export interface ConnectionFilters {
-    /** IP address to search (supports wildcards like 192.168.1.*) */
-    ipAddress?: string;
-    /** Port number to filter by */
-    port?: number;
-    /** Protocol to filter by (tcp, udp, icmp, etc.) */
-    protocol?: string;
-    /** Connection state to filter by */
-    state?: ConnectionTrackingState;
+  /** IP address to search (supports wildcards like 192.168.1.*) */
+  ipAddress?: string;
+  /** Port number to filter by */
+  port?: number;
+  /** Protocol to filter by (tcp, udp, icmp, etc.) */
+  protocol?: string;
+  /** Connection state to filter by */
+  state?: ConnectionTrackingState;
 }
 //# sourceMappingURL=firewall.d.ts.map

@@ -179,13 +179,13 @@ function SaveTemplateDialogComponent(props: SaveTemplateDialogProps) {
   );
 
   // Memoize available categories
-  const categories = useMemo(
-    () => Object.values(ALERT_TEMPLATE_CATEGORIES),
-    []
-  );
+  const categories = useMemo(() => Object.values(ALERT_TEMPLATE_CATEGORIES), []);
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog
+      open={open}
+      onOpenChange={onOpenChange}
+    >
       <DialogContent className={cn('sm:max-w-[600px]', className)}>
         <DialogHeader>
           <DialogTitle>Save as Template</DialogTitle>
@@ -196,7 +196,10 @@ function SaveTemplateDialogComponent(props: SaveTemplateDialogProps) {
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-component-lg">
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="space-y-component-lg"
+          >
             {/* Template Name */}
             <FormField
               control={form.control}
@@ -205,11 +208,12 @@ function SaveTemplateDialogComponent(props: SaveTemplateDialogProps) {
                 <FormItem>
                   <FormLabel>Template Name</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="e.g., High CPU Alert" />
+                    <Input
+                      {...field}
+                      placeholder="e.g., High CPU Alert"
+                    />
                   </FormControl>
-                  <FormDescription>
-                    A descriptive name for this template
-                  </FormDescription>
+                  <FormDescription>A descriptive name for this template</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -244,7 +248,10 @@ function SaveTemplateDialogComponent(props: SaveTemplateDialogProps) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Category</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Select a category" />
@@ -252,17 +259,18 @@ function SaveTemplateDialogComponent(props: SaveTemplateDialogProps) {
                     </FormControl>
                     <SelectContent>
                       {categories.map((category) => (
-                        <SelectItem key={category.id} value={category.id}>
-                          <div className="flex items-center gap-component-sm">
+                        <SelectItem
+                          key={category.id}
+                          value={category.id}
+                        >
+                          <div className="gap-component-sm flex items-center">
                             <span className={category.color}>{category.label}</span>
                           </div>
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
-                  <FormDescription>
-                    Categorize this template for easier discovery
-                  </FormDescription>
+                  <FormDescription>Categorize this template for easier discovery</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -277,7 +285,10 @@ function SaveTemplateDialogComponent(props: SaveTemplateDialogProps) {
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={loading}>
+              <Button
+                type="submit"
+                disabled={loading}
+              >
                 {loading ? 'Saving...' : 'Save Template'}
               </Button>
             </DialogFooter>

@@ -69,10 +69,7 @@ export const vlanSchema = z.object({
     })
     .min(1, 'VLAN name is required')
     .max(VLAN_NAME_MAX_LENGTH, `Name too long (max ${VLAN_NAME_MAX_LENGTH} characters)`)
-    .regex(
-      VLAN_NAME_PATTERN,
-      'Name must contain only letters, digits, hyphens, and underscores'
-    ),
+    .regex(VLAN_NAME_PATTERN, 'Name must contain only letters, digits, hyphens, and underscores'),
 
   /**
    * VLAN ID (IEEE 802.1Q tag)
@@ -174,9 +171,7 @@ export function getVlanWarnings(values: VlanFormValues): string[] {
 
   // VLAN 4095 is reserved
   if (values.vlanId === 4095) {
-    warnings.push(
-      'VLAN 4095 is reserved by IEEE 802.1Q. Use with caution.'
-    );
+    warnings.push('VLAN 4095 is reserved by IEEE 802.1Q. Use with caution.');
   }
 
   // MTU larger than jumbo frames may not work on all hardware

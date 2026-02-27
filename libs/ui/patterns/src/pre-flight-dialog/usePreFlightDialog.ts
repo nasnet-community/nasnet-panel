@@ -122,9 +122,7 @@ function formatMemory(mb: number): string {
  * Calculate total memory freed from selected services
  */
 function calculateTotalFreed(suggestions: ServiceSuggestion[]): number {
-  return suggestions
-    .filter((s) => s.selected)
-    .reduce((sum, s) => sum + s.memoryUsage, 0);
+  return suggestions.filter((s) => s.selected).reduce((sum, s) => sum + s.memoryUsage, 0);
 }
 
 // ===== Hook Implementation =====
@@ -157,15 +155,8 @@ function calculateTotalFreed(suggestions: ServiceSuggestion[]): number {
  * }
  * ```
  */
-export function usePreFlightDialog(
-  props: PreFlightDialogProps
-): UsePreFlightDialogReturn {
-  const {
-    error,
-    onConfirmWithStops,
-    onOverrideAndStart,
-    onOpenChange,
-  } = props;
+export function usePreFlightDialog(props: PreFlightDialogProps): UsePreFlightDialogReturn {
+  const { error, onConfirmWithStops, onOverrideAndStart, onOpenChange } = props;
 
   // Initialize selection state from suggestions
   const [selectedIds, setSelectedIds] = useState<Set<string>>(() => {
@@ -220,10 +211,7 @@ export function usePreFlightDialog(
   const totalFreed = useMemo(() => calculateTotalFreed(suggestions), [suggestions]);
 
   // Calculate deficit with 10% buffer
-  const deficitWithBuffer = useMemo(
-    () => error.deficit * (1 + BUFFER_PERCENTAGE),
-    [error.deficit]
-  );
+  const deficitWithBuffer = useMemo(() => error.deficit * (1 + BUFFER_PERCENTAGE), [error.deficit]);
 
   // Check if selection is sufficient
   const isSufficient = useMemo(
@@ -256,12 +244,12 @@ export function usePreFlightDialog(
 
   const handleOverride = useMemo(
     () =>
-      onOverrideAndStart
-        ? () => {
-            onOverrideAndStart();
-            onOpenChange(false);
-          }
-        : undefined,
+      onOverrideAndStart ?
+        () => {
+          onOverrideAndStart();
+          onOpenChange(false);
+        }
+      : undefined,
     [onOverrideAndStart, onOpenChange]
   );
 

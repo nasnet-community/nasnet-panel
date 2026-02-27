@@ -45,10 +45,7 @@ export const lteModemSchema = z.object({
   pin: z
     .string()
     .optional()
-    .refine(
-      (val) => !val || PIN_VALIDATION_REGEX.test(val),
-      'PIN must be 4-8 digits'
-    ),
+    .refine((val) => !val || PIN_VALIDATION_REGEX.test(val), 'PIN must be 4-8 digits'),
 
   /**
    * Username for APN authentication (optional)

@@ -109,7 +109,12 @@ const StatusIndicatorBase = React.forwardRef<HTMLDivElement, StatusIndicatorProp
         className={containerClassName}
         {...props}
       >
-        {showDot && <span className={dotClassName} aria-hidden="true" />}
+        {showDot && (
+          <span
+            className={dotClassName}
+            aria-hidden="true"
+          />
+        )}
         {label && <span>{label}</span>}
       </div>
     );

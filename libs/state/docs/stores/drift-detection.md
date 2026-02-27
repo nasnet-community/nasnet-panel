@@ -1,8 +1,10 @@
 # Drift Detection Store & Utilities
 
-This document covers configuration drift detection between desired state (configuration layer) and actual state (deployment layer) in the Universal State v2 8-layer resource model.
+This document covers configuration drift detection between desired state (configuration layer) and
+actual state (deployment layer) in the Universal State v2 8-layer resource model.
 
 **Source:**
+
 - `libs/state/stores/src/drift-detection/types.ts`
 - `libs/state/stores/src/drift-detection/driftUtils.ts`
 - `libs/state/stores/src/drift-detection/useDriftDetection.ts`
@@ -26,11 +28,11 @@ Drift detection provides:
 
 ```typescript
 export const DriftStatus = {
-  SYNCED: 'SYNCED',         // Green: Config matches deployment
-  DRIFTED: 'DRIFTED',       // Amber: Config differs from deployment
-  ERROR: 'ERROR',           // Red: Unable to determine drift
-  CHECKING: 'CHECKING',     // In progress
-  PENDING: 'PENDING',       // Deployment layer not available (not yet applied)
+  SYNCED: 'SYNCED', // Green: Config matches deployment
+  DRIFTED: 'DRIFTED', // Amber: Config differs from deployment
+  ERROR: 'ERROR', // Red: Unable to determine drift
+  CHECKING: 'CHECKING', // In progress
+  PENDING: 'PENDING', // Deployment layer not available (not yet applied)
 };
 ```
 
@@ -92,9 +94,9 @@ Reconciliation polling frequency based on resource importance:
 
 ```typescript
 export const ResourcePriority = {
-  HIGH: 5 * 60 * 1000,      // 5 minutes - Critical
-  NORMAL: 15 * 60 * 1000,   // 15 minutes - Important
-  LOW: 60 * 60 * 1000,      // 60 minutes - Background
+  HIGH: 5 * 60 * 1000, // 5 minutes - Critical
+  NORMAL: 15 * 60 * 1000, // 15 minutes - Important
+  LOW: 60 * 60 * 1000, // 60 minutes - Background
 };
 
 // Priority assignment
@@ -133,19 +135,20 @@ Fast, deterministic 32-bit hash for configuration comparison:
 
 ```typescript
 function fnv1a32(str: string): number {
-  let hash = 2166136261;  // FNV offset basis
+  let hash = 2166136261; // FNV offset basis
   for (let i = 0; i < str.length; i++) {
     hash ^= str.charCodeAt(i);
-    hash = Math.imul(hash, 16777619);  // FNV prime
+    hash = Math.imul(hash, 16777619); // FNV prime
   }
-  return hash >>> 0;  // Unsigned 32-bit
+  return hash >>> 0; // Unsigned 32-bit
 }
 
 // Usage
-const hash = computeConfigHash(config);  // Returns hex string: "a1b2c3d4"
+const hash = computeConfigHash(config); // Returns hex string: "a1b2c3d4"
 ```
 
-**Why FNV-1a?** Fast, deterministic, non-cryptographic, suitable for cache keys and quick comparison.
+**Why FNV-1a?** Fast, deterministic, non-cryptographic, suitable for cache keys and quick
+comparison.
 
 ### Normalization
 
@@ -189,19 +192,36 @@ Fields that change frequently without user action and should be excluded from dr
 ```typescript
 export const RUNTIME_ONLY_FIELDS = [
   // Traffic counters
-  'bytesIn', 'bytesOut', 'packetsIn', 'packetsOut', 'txRate', 'rxRate',
+  'bytesIn',
+  'bytesOut',
+  'packetsIn',
+  'packetsOut',
+  'txRate',
+  'rxRate',
 
   // Connection state
-  'lastHandshake', 'lastSeen', 'connectedSince', 'lastConnected',
+  'lastHandshake',
+  'lastSeen',
+  'connectedSince',
+  'lastConnected',
 
   // Metrics
-  'uptime', 'currentPeers', 'activeConnections', 'cpuLoad', 'memoryUsage',
+  'uptime',
+  'currentPeers',
+  'activeConnections',
+  'cpuLoad',
+  'memoryUsage',
 
   // Auto-updated timestamps
-  'lastUpdated', 'lastModified', 'lastAccessed',
+  'lastUpdated',
+  'lastModified',
+  'lastAccessed',
 
   // Fluctuating status
-  'health', 'status', 'isRunning', 'errorCount',
+  'health',
+  'status',
+  'isRunning',
+  'errorCount',
 ];
 
 // These are automatically excluded from comparison
@@ -237,17 +257,17 @@ function findDriftedFields(
     deployValue: false,
     category: 'security',
   },
-]
+];
 ```
 
 ### Quick vs Deep Comparison
 
 ```typescript
 // Quick check (hash-based, O(n) serialization)
-hasQuickDrift(config, deploy);  // boolean, fast
+hasQuickDrift(config, deploy); // boolean, fast
 
 // Deep check (field-level, O(n²) with nested)
-findDriftedFields(config, deploy);  // DriftedField[], slower
+findDriftedFields(config, deploy); // DriftedField[], slower
 ```
 
 Use quick checks in list views; deep checks for detail panels.
@@ -256,17 +276,17 @@ Use quick checks in list views; deep checks for detail panels.
 
 ```typescript
 export interface UseDriftDetectionResult {
-  result: DriftResult;        // Full detection result
-  hasDrift: boolean;          // Convenience boolean
-  status: DriftStatus;        // Current status
-  driftCount: number;         // Number of drifted fields
-  recompute: () => DriftResult;  // Manual recomputation
+  result: DriftResult; // Full detection result
+  hasDrift: boolean; // Convenience boolean
+  status: DriftStatus; // Current status
+  driftCount: number; // Number of drifted fields
+  recompute: () => DriftResult; // Manual recomputation
 }
 
 function useDriftDetection(
   input: DriftDetectionInput,
   options?: DriftDetectionOptions
-): UseDriftDetectionResult
+): UseDriftDetectionResult;
 ```
 
 ### Usage Example
@@ -307,10 +327,7 @@ function ResourceDetailPanel({ resource }) {
 **useQuickDriftCheck()**: Hash-based only (no field-level diff)
 
 ```typescript
-const { hasDrift, status } = useQuickDriftCheck(
-  resource.configuration,
-  resource.deployment
-);
+const { hasDrift, status } = useQuickDriftCheck(resource.configuration, resource.deployment);
 // Fast, suitable for list views
 ```
 
@@ -351,8 +368,8 @@ const scheduler = new ReconciliationScheduler({
     return result.data.resources;
   },
   isOnline: () => connectionStore.getState().wsStatus === 'connected',
-  batchSize: 10,             // Check 10 at a time
-  minBatchInterval: 1000,    // Wait at least 1s between batches
+  batchSize: 10, // Check 10 at a time
+  minBatchInterval: 1000, // Wait at least 1s between batches
 });
 
 // Start polling
@@ -431,7 +448,7 @@ Hook that integrates drift detection with the Apply-Confirm-Merge pattern:
 ```typescript
 function useApplyConfirmDrift<T>(
   options: UseApplyConfirmDriftOptions<T>
-): UseApplyConfirmDriftReturn<T>
+): UseApplyConfirmDriftReturn<T>;
 ```
 
 ### Example: Applying Configuration
@@ -468,7 +485,7 @@ function ResourceEditor({ resource }) {
   const handleSave = async (newConfig) => {
     const updatedResource = {
       ...resource,
-      configuration: newConfig
+      configuration: newConfig,
     };
     const result = await applyWithConfirm(updatedResource);
 
@@ -479,10 +496,11 @@ function ResourceEditor({ resource }) {
 
   return (
     <form onSubmit={handleSave}>
-      <ResourceForm resource={resource} onChange={handleSave} />
-      <Button disabled={isApplying}>
-        {isApplying ? 'Applying...' : 'Apply Configuration'}
-      </Button>
+      <ResourceForm
+        resource={resource}
+        onChange={handleSave}
+      />
+      <Button disabled={isApplying}>{isApplying ? 'Applying...' : 'Apply Configuration'}</Button>
     </form>
   );
 }
@@ -491,9 +509,7 @@ function ResourceEditor({ resource }) {
 ### Drift Resolution Hook
 
 ```typescript
-function useDriftResolution<T>(
-  options: UseDriftResolutionOptions<T>
-): UseDriftResolutionReturn<T>
+function useDriftResolution<T>(options: UseDriftResolutionOptions<T>): UseDriftResolutionReturn<T>;
 ```
 
 Two strategies for resolving drift:
@@ -515,13 +531,15 @@ function DriftResolutionPanel({ resource, driftResult }) {
         mutation: UPDATE_CONFIGURATION,
         variables: {
           uuid,
-          configuration: deployment.generatedFields
+          configuration: deployment.generatedFields,
         },
       });
     },
 
     onResolved: (uuid, action) => {
-      toast.success(`Drift resolved: ${action === 'REAPPLY' ? 'Re-applied configuration' : 'Accepted router state'}`);
+      toast.success(
+        `Drift resolved: ${action === 'REAPPLY' ? 'Re-applied configuration' : 'Accepted router state'}`
+      );
     },
   });
 
@@ -610,7 +628,8 @@ Resource is applied to router
 
 ## Best Practices
 
-1. **Use Scheduling for Many Resources**: Don't call useDriftDetection in lists; use scheduler + batch queries
+1. **Use Scheduling for Many Resources**: Don't call useDriftDetection in lists; use scheduler +
+   batch queries
 2. **Respect Offline Status**: Check `isOnline()` before scheduling checks
 3. **Exclude Runtime Fields**: Use runtime-only field list to avoid false positives
 4. **Batch Fetches**: Scheduler batches 10 at a time; adjust based on API capacity
@@ -622,7 +641,8 @@ Resource is applied to router
 
 ## Related Documentation
 
-- **Apply-Confirm-Merge Pattern**: `../../architecture/data-architecture.md#state-flow-apply--confirm--merge`
+- **Apply-Confirm-Merge Pattern**:
+  `../../architecture/data-architecture.md#state-flow-apply--confirm--merge`
 - **8-Layer Resource Model**: `../../architecture/data-architecture.md#8-layer-resource-model`
 - **Change Set Integration**: `change-set.md`
 - **History & Undo/Redo**: `history-undo-redo.md`

@@ -6,10 +6,14 @@
 NAT chain types (srcnat for source NAT, dstnat for destination NAT).
 """
 enum NatChain {
-  """Source NAT (outgoing traffic)"""
+  """
+  Source NAT (outgoing traffic)
+  """
   SRCNAT
 
-  """Destination NAT (incoming traffic)"""
+  """
+  Destination NAT (incoming traffic)
+  """
   DSTNAT
 }
 
@@ -17,40 +21,64 @@ enum NatChain {
 NAT action types for firewall NAT rules.
 """
 enum NatAction {
-  """Masquerade (dynamic source NAT)"""
+  """
+  Masquerade (dynamic source NAT)
+  """
   MASQUERADE
 
-  """Destination NAT (port forwarding)"""
+  """
+  Destination NAT (port forwarding)
+  """
   DST_NAT
 
-  """Source NAT (static mapping)"""
+  """
+  Source NAT (static mapping)
+  """
   SRC_NAT
 
-  """Redirect to different port"""
+  """
+  Redirect to different port
+  """
   REDIRECT
 
-  """Network mapping"""
+  """
+  Network mapping
+  """
   NETMAP
 
-  """Use same IP"""
+  """
+  Use same IP
+  """
   SAME
 
-  """Accept packet"""
+  """
+  Accept packet
+  """
   ACCEPT
 
-  """Drop packet"""
+  """
+  Drop packet
+  """
   DROP
 
-  """Jump to different chain"""
+  """
+  Jump to different chain
+  """
   JUMP
 
-  """Return to parent chain"""
+  """
+  Return to parent chain
+  """
   RETURN
 
-  """Log packet"""
+  """
+  Log packet
+  """
   LOG
 
-  """Pass through without action"""
+  """
+  Pass through without action
+  """
   PASSTHROUGH
 }
 
@@ -59,55 +87,89 @@ NAT rule configuration for network address translation.
 Handles both source NAT (masquerade) and destination NAT (port forwarding).
 """
 type NatRule implements Node {
-  """MikroTik internal ID"""
+  """
+  MikroTik internal ID
+  """
   id: ID! @mikrotik(path: "/ip/firewall/nat", field: ".id")
 
-  """NAT chain (srcnat or dstnat)"""
+  """
+  NAT chain (srcnat or dstnat)
+  """
   chain: NatChain! @mikrotik(path: "/ip/firewall/nat", field: "chain")
 
-  """NAT action"""
+  """
+  NAT action
+  """
   action: NatAction! @mikrotik(path: "/ip/firewall/nat", field: "action")
 
-  """Source address or CIDR"""
+  """
+  Source address or CIDR
+  """
   srcAddress: String @mikrotik(path: "/ip/firewall/nat", field: "src-address")
 
-  """Destination address or CIDR"""
+  """
+  Destination address or CIDR
+  """
   dstAddress: String @mikrotik(path: "/ip/firewall/nat", field: "dst-address")
 
-  """Source port or port range"""
+  """
+  Source port or port range
+  """
   srcPort: String @mikrotik(path: "/ip/firewall/nat", field: "src-port")
 
-  """Destination port or port range"""
+  """
+  Destination port or port range
+  """
   dstPort: String @mikrotik(path: "/ip/firewall/nat", field: "dst-port")
 
-  """Protocol (TCP, UDP)"""
+  """
+  Protocol (TCP, UDP)
+  """
   protocol: TransportProtocol @mikrotik(path: "/ip/firewall/nat", field: "protocol")
 
-  """Target address for NAT"""
+  """
+  Target address for NAT
+  """
   toAddresses: String @mikrotik(path: "/ip/firewall/nat", field: "to-addresses")
 
-  """Target port(s) for NAT"""
+  """
+  Target port(s) for NAT
+  """
   toPorts: String @mikrotik(path: "/ip/firewall/nat", field: "to-ports")
 
-  """Incoming interface"""
+  """
+  Incoming interface
+  """
   inInterface: String @mikrotik(path: "/ip/firewall/nat", field: "in-interface")
 
-  """Outgoing interface"""
+  """
+  Outgoing interface
+  """
   outInterface: String @mikrotik(path: "/ip/firewall/nat", field: "out-interface")
 
-  """Optional comment"""
+  """
+  Optional comment
+  """
   comment: String @mikrotik(path: "/ip/firewall/nat", field: "comment")
 
-  """Whether rule is disabled"""
+  """
+  Whether rule is disabled
+  """
   disabled: Boolean! @mikrotik(path: "/ip/firewall/nat", field: "disabled")
 
-  """Bytes processed by this rule"""
+  """
+  Bytes processed by this rule
+  """
   bytes: Int! @mikrotik(path: "/ip/firewall/nat", field: "bytes")
 
-  """Packets processed by this rule"""
+  """
+  Packets processed by this rule
+  """
   packets: Int! @mikrotik(path: "/ip/firewall/nat", field: "packets")
 
-  """Rule position in chain"""
+  """
+  Rule position in chain
+  """
   position: Int!
 }
 
@@ -115,42 +177,68 @@ type NatRule implements Node {
 Input for creating a NAT rule.
 """
 input CreateNatRuleInput {
-  """NAT chain (srcnat or dstnat)"""
+  """
+  NAT chain (srcnat or dstnat)
+  """
   chain: NatChain!
 
-  """NAT action"""
+  """
+  NAT action
+  """
   action: NatAction!
 
-  """Source address or CIDR"""
+  """
+  Source address or CIDR
+  """
   srcAddress: String
 
-  """Destination address or CIDR"""
+  """
+  Destination address or CIDR
+  """
   dstAddress: String
 
-  """Source port or port range"""
+  """
+  Source port or port range
+  """
   srcPort: String
 
-  """Destination port (1-65535)"""
+  """
+  Destination port (1-65535)
+  """
   dstPort: String
 
-  """Protocol (TCP, UDP)"""
+  """
+  Protocol (TCP, UDP)
+  """
   protocol: TransportProtocol
 
-  """Target address for NAT"""
+  """
+  Target address for NAT
+  """
   toAddresses: String
 
-  """Target port(s) for NAT"""
+  """
+  Target port(s) for NAT
+  """
   toPorts: String
 
-  """Incoming interface"""
+  """
+  Incoming interface
+  """
   inInterface: String
 
-  """Outgoing interface"""
+  """
+  Outgoing interface
+  """
   outInterface: String
 
-  """Optional comment"""
+  """
+  Optional comment
+  """
   comment: String @validate(maxLength: 255)
 
-  """Whether rule is disabled"""
+  """
+  Whether rule is disabled
+  """
   disabled: Boolean
 }

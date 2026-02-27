@@ -1,11 +1,11 @@
-"use client"
+'use client';
 
-import * as React from "react"
+import * as React from 'react';
 
-import * as CheckboxPrimitive from "@radix-ui/react-checkbox"
-import { Check } from "lucide-react"
+import * as CheckboxPrimitive from '@radix-ui/react-checkbox';
+import { Check } from 'lucide-react';
 
-import { cn } from "../lib/utils"
+import { cn } from '../lib/utils';
 
 /**
  * Props for the Checkbox component.
@@ -55,27 +55,30 @@ export interface CheckboxProps
  * - Focus indicator: 2px ring with 2px offset
  * - Touch target: 20x20px minimum (use with gap-2 for 44px total with label)
  */
-const Checkbox = React.forwardRef<
-  React.ElementRef<typeof CheckboxPrimitive.Root>,
-  CheckboxProps
->(({ className, ...props }, ref) => (
-  <div className="inline-flex min-h-[44px] min-w-[44px] items-center">
-    <CheckboxPrimitive.Root
-      ref={ref}
-      className={cn(
-        "peer h-5 w-5 shrink-0 rounded-[var(--semantic-radius-input)] border-2 border-border bg-card ring-offset-background transition-colors duration-150 hover:border-primary/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:border-primary data-[state=checked]:text-primary-foreground",
-        className
-      )}
-      {...props}
-    >
-      <CheckboxPrimitive.Indicator
-        className={cn("flex items-center justify-center text-current")}
+const Checkbox = React.forwardRef<React.ElementRef<typeof CheckboxPrimitive.Root>, CheckboxProps>(
+  ({ className, ...props }, ref) => (
+    <div className="inline-flex min-h-[44px] min-w-[44px] items-center">
+      <CheckboxPrimitive.Root
+        ref={ref}
+        className={cn(
+          'border-border bg-card ring-offset-background hover:border-primary/60 focus-visible:ring-ring data-[state=checked]:bg-primary data-[state=checked]:border-primary data-[state=checked]:text-primary-foreground peer h-5 w-5 shrink-0 rounded-[var(--semantic-radius-input)] border-2 transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
+          className
+        )}
+        {...props}
       >
-        <Check className="h-4 w-4 stroke-[3]" aria-hidden="true" role="presentation" />
-      </CheckboxPrimitive.Indicator>
-    </CheckboxPrimitive.Root>
-  </div>
-))
-Checkbox.displayName = CheckboxPrimitive.Root.displayName
+        <CheckboxPrimitive.Indicator
+          className={cn('flex items-center justify-center text-current')}
+        >
+          <Check
+            className="h-4 w-4 stroke-[3]"
+            aria-hidden="true"
+            role="presentation"
+          />
+        </CheckboxPrimitive.Indicator>
+      </CheckboxPrimitive.Root>
+    </div>
+  )
+);
+Checkbox.displayName = CheckboxPrimitive.Root.displayName;
 
-export { Checkbox }
+export { Checkbox };

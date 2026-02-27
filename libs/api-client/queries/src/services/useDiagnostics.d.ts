@@ -6,78 +6,78 @@ export type DiagnosticStatus = 'PASS' | 'FAIL' | 'WARNING' | 'SKIPPED';
  * Result of a single diagnostic test
  */
 export interface DiagnosticResult {
-    id: string;
-    instanceID: string;
-    testName: string;
-    status: DiagnosticStatus;
-    message: string;
-    details?: string;
-    durationMs: number;
-    runGroupID?: string;
-    metadata?: Record<string, unknown>;
-    errorMessage?: string;
-    createdAt: string;
+  id: string;
+  instanceID: string;
+  testName: string;
+  status: DiagnosticStatus;
+  message: string;
+  details?: string;
+  durationMs: number;
+  runGroupID?: string;
+  metadata?: Record<string, unknown>;
+  errorMessage?: string;
+  createdAt: string;
 }
 /**
  * Startup diagnostics collected during instance boot
  */
 export interface StartupDiagnostics {
-    instanceID: string;
-    runGroupID: string;
-    results: DiagnosticResult[];
-    overallStatus: DiagnosticStatus;
-    passedCount: number;
-    failedCount: number;
-    warningCount: number;
-    totalTests: number;
-    timestamp: string;
+  instanceID: string;
+  runGroupID: string;
+  results: DiagnosticResult[];
+  overallStatus: DiagnosticStatus;
+  passedCount: number;
+  failedCount: number;
+  warningCount: number;
+  totalTests: number;
+  timestamp: string;
 }
 /**
  * A single diagnostic test definition
  */
 export interface DiagnosticTest {
-    name: string;
-    description: string;
-    category: string;
+  name: string;
+  description: string;
+  category: string;
 }
 /**
  * Complete diagnostic suite for a service type
  */
 export interface DiagnosticSuite {
-    serviceName: string;
-    tests: DiagnosticTest[];
+  serviceName: string;
+  tests: DiagnosticTest[];
 }
 /**
  * Diagnostic progress event for subscriptions
  */
 export interface DiagnosticsProgress {
-    instanceID: string;
-    runGroupID: string;
-    result: DiagnosticResult;
-    progress: number;
-    completedTests: number;
-    totalTests: number;
-    timestamp: string;
+  instanceID: string;
+  runGroupID: string;
+  result: DiagnosticResult;
+  progress: number;
+  completedTests: number;
+  totalTests: number;
+  timestamp: string;
 }
 /**
  * Input for running diagnostics
  */
 export interface RunDiagnosticsInput {
-    routerID: string;
-    instanceID: string;
-    testNames?: string[];
+  routerID: string;
+  instanceID: string;
+  testNames?: string[];
 }
 /**
  * Payload for run diagnostics mutation
  */
 export interface RunDiagnosticsPayload {
-    success: boolean;
-    results?: DiagnosticResult[];
-    runGroupID?: string;
-    errors?: Array<{
-        field: string;
-        message: string;
-    }>;
+  success: boolean;
+  results?: DiagnosticResult[];
+  runGroupID?: string;
+  errors?: Array<{
+    field: string;
+    message: string;
+  }>;
 }
 /**
  * Hook to fetch diagnostic history for a service instance
@@ -102,11 +102,18 @@ export interface RunDiagnosticsPayload {
  * }
  * ```
  */
-export declare function useDiagnosticHistory(routerId: string, instanceId: string, limit?: number, enabled?: boolean): {
-    history: StartupDiagnostics[] | undefined;
-    loading: boolean;
-    error: import("@apollo/client").ApolloError | undefined;
-    refetch: (variables?: Partial<import("@apollo/client").OperationVariables> | undefined) => Promise<import("@apollo/client").ApolloQueryResult<any>>;
+export declare function useDiagnosticHistory(
+  routerId: string,
+  instanceId: string,
+  limit?: number,
+  enabled?: boolean
+): {
+  history: StartupDiagnostics[] | undefined;
+  loading: boolean;
+  error: import('@apollo/client').ApolloError | undefined;
+  refetch: (
+    variables?: Partial<import('@apollo/client').OperationVariables> | undefined
+  ) => Promise<import('@apollo/client').ApolloQueryResult<any>>;
 };
 /**
  * Hook to get available diagnostic tests for a service type
@@ -129,10 +136,13 @@ export declare function useDiagnosticHistory(routerId: string, instanceId: strin
  * }
  * ```
  */
-export declare function useAvailableDiagnostics(serviceName: string, enabled?: boolean): {
-    suite: DiagnosticSuite | undefined;
-    loading: boolean;
-    error: import("@apollo/client").ApolloError | undefined;
+export declare function useAvailableDiagnostics(
+  serviceName: string,
+  enabled?: boolean
+): {
+  suite: DiagnosticSuite | undefined;
+  loading: boolean;
+  error: import('@apollo/client').ApolloError | undefined;
 };
 /**
  * Hook to manually run diagnostics on a service instance
@@ -163,11 +173,23 @@ export declare function useAvailableDiagnostics(serviceName: string, enabled?: b
  * };
  * ```
  */
-export declare function useRunDiagnostics(): readonly [(options?: import("@apollo/client").MutationFunctionOptions<any, import("@apollo/client").OperationVariables, import("@apollo/client").DefaultContext, import("@apollo/client").ApolloCache<any>> | undefined) => Promise<import("@apollo/client").FetchResult<any>>, {
+export declare function useRunDiagnostics(): readonly [
+  (
+    options?:
+      | import('@apollo/client').MutationFunctionOptions<
+          any,
+          import('@apollo/client').OperationVariables,
+          import('@apollo/client').DefaultContext,
+          import('@apollo/client').ApolloCache<any>
+        >
+      | undefined
+  ) => Promise<import('@apollo/client').FetchResult<any>>,
+  {
     readonly data: RunDiagnosticsPayload | undefined;
     readonly loading: boolean;
-    readonly error: import("@apollo/client").ApolloError | undefined;
-}];
+    readonly error: import('@apollo/client').ApolloError | undefined;
+  },
+];
 /**
  * Hook to subscribe to diagnostic progress updates
  *
@@ -195,10 +217,14 @@ export declare function useRunDiagnostics(): readonly [(options?: import("@apoll
  * }, [progress]);
  * ```
  */
-export declare function useDiagnosticsProgressSubscription(routerId: string, instanceId: string, enabled?: boolean): {
-    progress: DiagnosticsProgress | undefined;
-    loading: boolean;
-    error: import("@apollo/client").ApolloError | undefined;
+export declare function useDiagnosticsProgressSubscription(
+  routerId: string,
+  instanceId: string,
+  enabled?: boolean
+): {
+  progress: DiagnosticsProgress | undefined;
+  loading: boolean;
+  error: import('@apollo/client').ApolloError | undefined;
 };
 /**
  * Get the most recent startup diagnostics for an instance
@@ -219,7 +245,9 @@ export declare function useDiagnosticsProgressSubscription(routerId: string, ins
  * }
  * ```
  */
-export declare function getStartupDiagnostics(history?: StartupDiagnostics[]): StartupDiagnostics | undefined;
+export declare function getStartupDiagnostics(
+  history?: StartupDiagnostics[]
+): StartupDiagnostics | undefined;
 /**
  * Check if a diagnostic run has any failures
  *

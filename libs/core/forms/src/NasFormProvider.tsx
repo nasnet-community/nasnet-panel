@@ -10,17 +10,13 @@
 import * as React from 'react';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import {
-  FormProvider as RHFProvider,
-  useForm,
-} from 'react-hook-form';
+import { FormProvider as RHFProvider, useForm } from 'react-hook-form';
 
 import { mapBackendErrorsToForm } from './mapBackendErrors';
 import { useValidationPipeline } from './useValidationPipeline';
 
 import type { NasFormProviderProps, ValidationResult } from './types';
 import type { ZodSchema, z } from 'zod';
-
 
 /**
  * Context for accessing form-level state.
@@ -48,8 +44,7 @@ export function useNasFormContext(): NasFormContextValue {
 /**
  * Props for NasFormProvider component.
  */
-interface NasFormProviderComponentProps<T extends ZodSchema>
-  extends NasFormProviderProps<T> {}
+interface NasFormProviderComponentProps<T extends ZodSchema> extends NasFormProviderProps<T> {}
 
 /**
  * Form provider component that integrates React Hook Form with Zod
@@ -99,8 +94,7 @@ function NasFormProviderComponent<T extends ZodSchema>({
   children,
 }: NasFormProviderComponentProps<T>): React.ReactElement {
   const [isSubmitting, setIsSubmitting] = React.useState(false);
-  const [validationResult, setValidationResult] =
-    React.useState<ValidationResult | null>(null);
+  const [validationResult, setValidationResult] = React.useState<ValidationResult | null>(null);
 
   // Initialize React Hook Form with Zod resolver
   const methods = useForm<z.infer<T>>({
@@ -162,9 +156,7 @@ function NasFormProviderComponent<T extends ZodSchema>({
         methods.setError('root', {
           type: 'submit',
           message:
-            error instanceof Error
-              ? error.message
-              : 'An error occurred while submitting the form',
+            error instanceof Error ? error.message : 'An error occurred while submitting the form',
         });
       } finally {
         setIsSubmitting(false);
@@ -196,4 +188,6 @@ function NasFormProviderComponent<T extends ZodSchema>({
 /**
  * Memoized form provider to prevent unnecessary re-renders.
  */
-export const NasFormProvider = React.memo(NasFormProviderComponent) as typeof NasFormProviderComponent;
+export const NasFormProvider = React.memo(
+  NasFormProviderComponent
+) as typeof NasFormProviderComponent;

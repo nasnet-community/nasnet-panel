@@ -2,7 +2,6 @@ import { HardwareCard } from './HardwareCard';
 
 import type { Meta, StoryObj } from '@storybook/react';
 
-
 const meta: Meta<typeof HardwareCard> = {
   title: 'Patterns/HardwareCard',
   component: HardwareCard,
@@ -100,7 +99,8 @@ export const NoData: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Null data without an explicit error also triggers the fallback state (e.g. device type not supported).',
+        story:
+          'Null data without an explicit error also triggers the fallback state (e.g. device type not supported).',
       },
     },
   },

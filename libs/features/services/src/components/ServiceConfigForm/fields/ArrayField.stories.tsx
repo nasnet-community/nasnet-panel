@@ -139,9 +139,8 @@ export const Interactive: Story = {
             onChange={setItems}
             placeholder="Enter hostname..."
           />
-          <div className="text-xs text-muted-foreground">
-            Current values ({items.length}):{' '}
-            {items.length > 0 ? items.join(', ') : 'none'}
+          <div className="text-muted-foreground text-xs">
+            Current values ({items.length}): {items.length > 0 ? items.join(', ') : 'none'}
           </div>
         </div>
       );
@@ -180,8 +179,7 @@ export const ManyItems: Story = {
   parameters: {
     docs: {
       description: {
-        story:
-          'Many items added to demonstrate how badges wrap across multiple lines.',
+        story: 'Many items added to demonstrate how badges wrap across multiple lines.',
       },
     },
   },

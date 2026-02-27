@@ -5,10 +5,7 @@
 
 import { useState, useCallback } from 'react';
 
-import {
-  useExportService,
-  useGenerateConfigQR,
-} from '@nasnet/api-client/queries';
+import { useExportService, useGenerateConfigQR } from '@nasnet/api-client/queries';
 
 import type { ServiceExportDialogProps, ExportOptions, ExportState, ExportFormat } from './types';
 
@@ -40,9 +37,12 @@ export function useServiceExportDialog(props: ServiceExportDialogProps) {
   }, []);
 
   // Set export format
-  const setFormat = useCallback((format: ExportFormat) => {
-    setOptions({ format });
-  }, [setOptions]);
+  const setFormat = useCallback(
+    (format: ExportFormat) => {
+      setOptions({ format });
+    },
+    [setOptions]
+  );
 
   // Reset state
   const reset = useCallback(() => {
@@ -147,9 +147,7 @@ export function useServiceExportDialog(props: ServiceExportDialogProps) {
         const blob = await fetch(`data:image/png;base64,${state.qrImageData}`).then((r) =>
           r.blob()
         );
-        await navigator.clipboard.write([
-          new ClipboardItem({ 'image/png': blob }),
-        ]);
+        await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
       }
 
       setState((prev) => ({ ...prev, copySuccess: true }));

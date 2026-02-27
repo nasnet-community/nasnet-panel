@@ -12,10 +12,6 @@ export {
   usePreFlightDialog,
 } from './PreFlightDialog';
 
-export type {
-  PreFlightDialogProps,
-  ServiceSuggestion,
-  InsufficientResourcesError,
-} from './types';
+export type { PreFlightDialogProps, ServiceSuggestion, InsufficientResourcesError } from './types';
 
 export type { UsePreFlightDialogReturn } from './usePreFlightDialog';

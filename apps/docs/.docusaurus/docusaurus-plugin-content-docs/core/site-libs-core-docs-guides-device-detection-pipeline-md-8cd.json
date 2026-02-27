@@ -1,7 +1,7 @@
 {
   "id": "guides/device-detection-pipeline",
   "title": "Device Detection Pipeline Guide",
-  "description": "Cross-cutting guide for detecting connected device types from MAC addresses, hostnames, and vendor information.",
+  "description": "Cross-cutting guide for detecting connected device types from MAC addresses, hostnames, and vendor",
   "source": "@site/../../libs/core/docs/guides/device-detection-pipeline.md",
   "sourceDirName": "guides",
   "slug": "/guides/device-detection-pipeline",

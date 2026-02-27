@@ -16,7 +16,6 @@ import { Textarea } from './textarea';
 
 import type { Meta, StoryObj } from '@storybook/react';
 
-
 const meta: Meta<typeof Textarea> = {
   title: 'Primitives/Textarea',
   component: Textarea,
@@ -33,23 +32,28 @@ const meta: Meta<typeof Textarea> = {
   argTypes: {
     placeholder: {
       control: 'text',
-      description: 'Placeholder text displayed when the textarea is empty. Visible only when field is empty and not focused.',
+      description:
+        'Placeholder text displayed when the textarea is empty. Visible only when field is empty and not focused.',
     },
     disabled: {
       control: 'boolean',
-      description: 'Disables the textarea, preventing user input. Also grays out the field and updates cursor. Announced to screen readers.',
+      description:
+        'Disables the textarea, preventing user input. Also grays out the field and updates cursor. Announced to screen readers.',
     },
     rows: {
       control: { type: 'number', min: 2, max: 20 },
-      description: 'Number of visible text rows. Controls the minimum height of the textarea. Content scrolls vertically if it exceeds this height.',
+      description:
+        'Number of visible text rows. Controls the minimum height of the textarea. Content scrolls vertically if it exceeds this height.',
     },
     readOnly: {
       control: 'boolean',
-      description: 'Makes the textarea read-only. Allows viewing and selecting content but prevents editing. Announced to screen readers.',
+      description:
+        'Makes the textarea read-only. Allows viewing and selecting content but prevents editing. Announced to screen readers.',
     },
     maxLength: {
       control: { type: 'number', min: 10 },
-      description: 'Maximum number of characters allowed in the textarea. Enforced by browser and announced to screen readers.',
+      description:
+        'Maximum number of characters allowed in the textarea. Enforced by browser and announced to screen readers.',
     },
     required: {
       control: 'boolean',
@@ -57,7 +61,8 @@ const meta: Meta<typeof Textarea> = {
     },
     className: {
       control: 'text',
-      description: 'Additional CSS classes to merge with component styles. Use for custom styling overrides.',
+      description:
+        'Additional CSS classes to merge with component styles. Use for custom styling overrides.',
     },
   },
 };
@@ -111,8 +116,7 @@ export const Disabled: Story = {
 export const ReadOnly: Story = {
   args: {
     readOnly: true,
-    defaultValue:
-      'RouterOS 7.12\nBoard: RB750Gr3\nSerial: HEX123456\nArchitecture: mipsbe',
+    defaultValue: 'RouterOS 7.12\nBoard: RB750Gr3\nSerial: HEX123456\nArchitecture: mipsbe',
     rows: 4,
   },
   decorators: [
@@ -126,10 +130,10 @@ export const ReadOnly: Story = {
 
 export const WithLabel: Story = {
   render: () => (
-    <div className="flex flex-col gap-2 w-96">
+    <div className="flex w-96 flex-col gap-2">
       <label
         htmlFor="script-editor"
-        className="text-sm font-medium leading-none text-foreground"
+        className="text-foreground text-sm font-medium leading-none"
       >
         RouterOS Script
       </label>
@@ -138,7 +142,7 @@ export const WithLabel: Story = {
         placeholder={`/system script\nadd name=backup source=":put [/system backup save]"`}
         rows={6}
       />
-      <p className="text-xs text-muted-foreground">
+      <p className="text-muted-foreground text-xs">
         Paste or write your RouterOS script. It will be validated before execution.
       </p>
     </div>
@@ -147,10 +151,10 @@ export const WithLabel: Story = {
 
 export const WithError: Story = {
   render: () => (
-    <div className="flex flex-col gap-2 w-96">
+    <div className="flex w-96 flex-col gap-2">
       <label
         htmlFor="config-input"
-        className="text-sm font-medium leading-none text-foreground"
+        className="text-foreground text-sm font-medium leading-none"
       >
         Configuration Block
       </label>
@@ -161,7 +165,10 @@ export const WithError: Story = {
         rows={3}
         aria-describedby="config-error"
       />
-      <p id="config-error" className="text-xs text-error">
+      <p
+        id="config-error"
+        className="text-error text-xs"
+      >
         Invalid IP address detected on line 1.
       </p>
     </div>
@@ -181,7 +188,8 @@ export const Mobile: Story = {
     },
     docs: {
       description: {
-        story: 'Mobile viewport (375px). Touch target is 44px minimum. Minimal decorations, single-column layout. Optimized for thumb-friendly interaction.',
+        story:
+          'Mobile viewport (375px). Touch target is 44px minimum. Minimal decorations, single-column layout. Optimized for thumb-friendly interaction.',
       },
     },
   },
@@ -191,7 +199,7 @@ export const Mobile: Story = {
         <div className="flex flex-col gap-2">
           <label
             htmlFor="mobile-textarea"
-            className="text-sm font-medium leading-none text-foreground"
+            className="text-foreground text-sm font-medium leading-none"
           >
             Notes
           </label>
@@ -213,7 +221,8 @@ export const Tablet: Story = {
     },
     docs: {
       description: {
-        story: 'Tablet viewport (768px). Balanced information density with touch-friendly interaction. Supports both portrait and landscape.',
+        story:
+          'Tablet viewport (768px). Balanced information density with touch-friendly interaction. Supports both portrait and landscape.',
       },
     },
   },
@@ -223,7 +232,7 @@ export const Tablet: Story = {
         <div className="flex flex-col gap-3">
           <label
             htmlFor="tablet-textarea"
-            className="text-sm font-medium leading-none text-foreground"
+            className="text-foreground text-sm font-medium leading-none"
           >
             Configuration Notes
           </label>
@@ -245,7 +254,8 @@ export const Desktop: Story = {
     },
     docs: {
       description: {
-        story: 'Desktop viewport (1280px+). Larger display with more generous spacing. Supports keyboard shortcuts and dense layouts.',
+        story:
+          'Desktop viewport (1280px+). Larger display with more generous spacing. Supports keyboard shortcuts and dense layouts.',
       },
     },
   },
@@ -255,7 +265,7 @@ export const Desktop: Story = {
         <div className="flex flex-col gap-4">
           <label
             htmlFor="desktop-textarea"
-            className="text-lg font-semibold text-foreground"
+            className="text-foreground text-lg font-semibold"
           >
             Configuration Editor
           </label>
@@ -291,10 +301,10 @@ export const Empty: Story = {
 
 export const Loading: Story = {
   render: () => (
-    <div className="flex flex-col gap-2 w-96">
+    <div className="flex w-96 flex-col gap-2">
       <label
         htmlFor="loading-textarea"
-        className="text-sm font-medium leading-none text-foreground"
+        className="text-foreground text-sm font-medium leading-none"
       >
         Loading Content...
       </label>
@@ -302,18 +312,17 @@ export const Loading: Story = {
         id="loading-textarea"
         placeholder="Content is loading..."
         disabled
-        className="opacity-60 animate-pulse"
+        className="animate-pulse opacity-60"
         rows={5}
       />
-      <p className="text-xs text-muted-foreground">
-        Fetching configuration from router...
-      </p>
+      <p className="text-muted-foreground text-xs">Fetching configuration from router...</p>
     </div>
   ),
   parameters: {
     docs: {
       description: {
-        story: 'Loading state with disabled field and pulse animation. Users understand content is being fetched.',
+        story:
+          'Loading state with disabled field and pulse animation. Users understand content is being fetched.',
       },
     },
   },
@@ -323,10 +332,10 @@ export const Loading: Story = {
 
 export const WithKeyboardSupport: Story = {
   render: () => (
-    <div className="flex flex-col gap-3 w-96">
+    <div className="flex w-96 flex-col gap-3">
       <label
         htmlFor="keyboard-textarea"
-        className="text-sm font-medium leading-none text-foreground"
+        className="text-foreground text-sm font-medium leading-none"
       >
         RouterOS Script
       </label>
@@ -336,15 +345,17 @@ export const WithKeyboardSupport: Story = {
         rows={6}
         defaultValue='/system script add name=test source=":put hello"'
       />
-      <p className="text-xs text-muted-foreground">
-        Keyboard Support: Tab (next field), Shift+Tab (previous), Enter (newline in field), Escape (cancel)
+      <p className="text-muted-foreground text-xs">
+        Keyboard Support: Tab (next field), Shift+Tab (previous), Enter (newline in field), Escape
+        (cancel)
       </p>
     </div>
   ),
   parameters: {
     docs: {
       description: {
-        story: 'Demonstrates full keyboard navigation support. Field is fully accessible via Tab key and supports all standard textarea keyboard shortcuts.',
+        story:
+          'Demonstrates full keyboard navigation support. Field is fully accessible via Tab key and supports all standard textarea keyboard shortcuts.',
       },
     },
   },

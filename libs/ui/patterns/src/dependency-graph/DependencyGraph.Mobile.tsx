@@ -67,10 +67,15 @@ const DependencyGraphMobileInner = ({
   // Loading state
   if (loading) {
     return (
-      <Card className={cn('w-full bg-card border border-border rounded-[var(--semantic-radius-card)] p-4 sm:p-6 shadow-[var(--semantic-shadow-card)]', className)}>
+      <Card
+        className={cn(
+          'bg-card border-border w-full rounded-[var(--semantic-radius-card)] border p-4 shadow-[var(--semantic-shadow-card)] sm:p-6',
+          className
+        )}
+      >
         <CardHeader>
           <Skeleton className="h-6 w-48" />
-          <Skeleton className="h-4 w-32 mt-2" />
+          <Skeleton className="mt-2 h-4 w-32" />
         </CardHeader>
         <CardContent className="space-y-3">
           <Skeleton className="h-16 w-full" />
@@ -84,9 +89,14 @@ const DependencyGraphMobileInner = ({
   // Error state
   if (error) {
     return (
-      <Card className={cn('w-full bg-card border border-error rounded-[var(--semantic-radius-card)] p-4 sm:p-6 shadow-[var(--semantic-shadow-card)]', className)}>
+      <Card
+        className={cn(
+          'bg-card border-error w-full rounded-[var(--semantic-radius-card)] border p-4 shadow-[var(--semantic-shadow-card)] sm:p-6',
+          className
+        )}
+      >
         <CardContent className="pt-6">
-          <div className="flex items-center gap-3 text-error">
+          <div className="text-error flex items-center gap-3">
             <AlertCircle className="h-5 w-5 flex-shrink-0" />
             <p className="text-sm font-medium">{error}</p>
           </div>
@@ -98,11 +108,16 @@ const DependencyGraphMobileInner = ({
   // Empty state
   if (state.isEmpty) {
     return (
-      <Card className={cn('w-full bg-card border border-border rounded-[var(--semantic-radius-card)] p-4 sm:p-6 shadow-[var(--semantic-shadow-card)]', className)}>
+      <Card
+        className={cn(
+          'bg-card border-border w-full rounded-[var(--semantic-radius-card)] border p-4 shadow-[var(--semantic-shadow-card)] sm:p-6',
+          className
+        )}
+      >
         <CardContent className="pt-6">
           <div className="flex flex-col items-center justify-center py-8 text-center">
-            <GitBranch className="h-12 w-12 text-muted-foreground mb-3" />
-            <p className="text-sm text-muted-foreground">{emptyMessage}</p>
+            <GitBranch className="text-muted-foreground mb-3 h-12 w-12" />
+            <p className="text-muted-foreground text-sm">{emptyMessage}</p>
           </div>
         </CardContent>
       </Card>
@@ -110,12 +125,17 @@ const DependencyGraphMobileInner = ({
   }
 
   return (
-    <Card className={cn('w-full bg-card border border-border rounded-[var(--semantic-radius-card)] p-4 sm:p-6 shadow-[var(--semantic-shadow-card)]', className)}>
+    <Card
+      className={cn(
+        'bg-card border-border w-full rounded-[var(--semantic-radius-card)] border p-4 shadow-[var(--semantic-shadow-card)] sm:p-6',
+        className
+      )}
+    >
       <CardHeader>
         <CardTitle className="text-lg font-semibold">Dependencies</CardTitle>
         <CardDescription>
-          {state.nodeCount} {state.nodeCount === 1 ? 'service' : 'services'},{' '}
-          {state.edgeCount} {state.edgeCount === 1 ? 'dependency' : 'dependencies'}
+          {state.nodeCount} {state.nodeCount === 1 ? 'service' : 'services'}, {state.edgeCount}{' '}
+          {state.edgeCount === 1 ? 'dependency' : 'dependencies'}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-1">
@@ -123,31 +143,30 @@ const DependencyGraphMobileInner = ({
           const isExpanded = expandedLayers.has(layer.layerNumber);
 
           return (
-            <div key={layer.layerNumber} className="space-y-1">
+            <div
+              key={layer.layerNumber}
+              className="space-y-1"
+            >
               {/* Layer header - collapsible */}
               <button
                 type="button"
                 onClick={() => toggleLayer(layer.layerNumber)}
                 className={cn(
-                  'w-full flex items-center justify-between',
-                  'min-h-[44px] px-3 py-2 rounded-lg',
+                  'flex w-full items-center justify-between',
+                  'min-h-[44px] rounded-lg px-3 py-2',
                   'bg-muted hover:bg-muted/80 transition-colors',
-                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2'
+                  'focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2'
                 )}
                 aria-expanded={isExpanded}
                 aria-controls={`layer-${layer.layerNumber}-content`}
               >
                 <div className="flex items-center gap-2">
-                  {isExpanded ? (
-                    <ChevronDown className="h-4 w-4 text-muted-foreground" />
-                  ) : (
-                    <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                  )}
-                  <span className="text-sm font-medium">
-                    Layer {layer.layerNumber}
-                  </span>
+                  {isExpanded ?
+                    <ChevronDown className="text-muted-foreground h-4 w-4" />
+                  : <ChevronRight className="text-muted-foreground h-4 w-4" />}
+                  <span className="text-sm font-medium">Layer {layer.layerNumber}</span>
                 </div>
-                <span className="text-xs text-muted-foreground">
+                <span className="text-muted-foreground text-xs">
                   {layer.count} {layer.count === 1 ? 'service' : 'services'}
                 </span>
               </button>
@@ -156,7 +175,7 @@ const DependencyGraphMobileInner = ({
               {isExpanded && (
                 <div
                   id={`layer-${layer.layerNumber}-content`}
-                  className="space-y-2 pl-4 pt-1 pb-2"
+                  className="space-y-2 pb-2 pl-4 pt-1"
                   role="region"
                   aria-label={`Layer ${layer.layerNumber} services`}
                 >
@@ -200,28 +219,29 @@ const NodeCardInner = ({ node, isSelected, onSelect }: NodeCardProps) => (
     type="button"
     onClick={() => onSelect(node.instanceId)}
     className={cn(
-      'w-full min-h-[44px] p-3 rounded-lg',
+      'min-h-[44px] w-full rounded-lg p-3',
       'flex items-center justify-between gap-3',
       'transition-colors',
-      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
-      isSelected
-        ? 'bg-primary/20 border border-primary text-primary'
-        : 'bg-card border border-border hover:bg-muted/50'
+      'focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
+      isSelected ?
+        'bg-primary/20 border-primary text-primary border'
+      : 'bg-card border-border hover:bg-muted/50 border'
     )}
     aria-pressed={isSelected}
   >
-    <div className="flex items-center gap-3 flex-1 min-w-0">
-      <StatusIndicator status={node.status as 'online' | 'offline' | 'pending'} size="sm" />
-      <div className="flex flex-col items-start min-w-0">
-        <span className="text-sm font-medium truncate w-full text-left">
-          {node.instanceName}
-        </span>
-        <span className="text-xs text-muted-foreground truncate w-full text-left">
+    <div className="flex min-w-0 flex-1 items-center gap-3">
+      <StatusIndicator
+        status={node.status as 'online' | 'offline' | 'pending'}
+        size="sm"
+      />
+      <div className="flex min-w-0 flex-col items-start">
+        <span className="w-full truncate text-left text-sm font-medium">{node.instanceName}</span>
+        <span className="text-muted-foreground w-full truncate text-left text-xs">
           {node.featureId}
         </span>
       </div>
     </div>
-    <div className="flex flex-col items-end text-xs text-muted-foreground flex-shrink-0">
+    <div className="text-muted-foreground flex flex-shrink-0 flex-col items-end text-xs">
       <span>↑ {node.dependenciesCount}</span>
       <span>↓ {node.dependentsCount}</span>
     </div>

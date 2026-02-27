@@ -1,7 +1,7 @@
 {
   "id": "architecture/routing",
   "title": "Routing — TanStack Router",
-  "description": "NasNetConnect uses TanStack Router v1 with file-based routing. Route files live in apps/connect/src/routes/ and the router tree is auto-generated into apps/connect/src/routeTree.gen.ts by the Vite plugin at build time.",
+  "description": "NasNetConnect uses TanStack Router v1 with file-based routing. Route files live in",
   "source": "@site/../connect/docs/architecture/routing.md",
   "sourceDirName": "architecture",
   "slug": "/architecture/routing",

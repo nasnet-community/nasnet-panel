@@ -90,8 +90,7 @@ export function KillConnectionButton({
       // Error toast
       toast({
         title: 'Failed to kill connection',
-        description:
-          error instanceof Error ? error.message : 'An unknown error occurred',
+        description: error instanceof Error ? error.message : 'An unknown error occurred',
         variant: 'destructive',
       });
     } finally {

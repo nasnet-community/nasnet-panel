@@ -6,7 +6,6 @@
 
 import React, { useState } from 'react';
 
-
 import { useAlertNotificationStore } from '@nasnet/state/stores';
 import type { AlertSeverity } from '@nasnet/state/stores';
 import { Button } from '@nasnet/ui/primitives';
@@ -87,21 +86,30 @@ function NotificationCenterWrapper({ notificationCount }: { notificationCount: n
 
   return (
     <div className="p-8">
-      <div className="flex gap-4 mb-4">
+      <div className="mb-4 flex gap-4">
         <Button onClick={() => setIsOpen(true)}>Open Notification Center</Button>
-        <Button onClick={handlePopulate} variant="outline">
+        <Button
+          onClick={handlePopulate}
+          variant="outline"
+        >
           Populate {notificationCount} Notifications
         </Button>
-        <Button onClick={handleClear} variant="outline">
+        <Button
+          onClick={handleClear}
+          variant="outline"
+        >
           Clear All
         </Button>
       </div>
 
-      <NotificationCenter open={isOpen} onClose={() => setIsOpen(false)} />
+      <NotificationCenter
+        open={isOpen}
+        onClose={() => setIsOpen(false)}
+      />
 
-      <div className="mt-8 p-4 bg-surface-subtle rounded-lg">
-        <h3 className="text-sm font-medium mb-2">Instructions:</h3>
-        <ol className="text-sm text-content-secondary space-y-1 list-decimal list-inside">
+      <div className="bg-surface-subtle mt-8 rounded-lg p-4">
+        <h3 className="mb-2 text-sm font-medium">Instructions:</h3>
+        <ol className="text-content-secondary list-inside list-decimal space-y-1 text-sm">
           <li>Click "Populate N Notifications" to add mock notifications</li>
           <li>Click "Open Notification Center" to view the panel</li>
           <li>Test severity filtering by clicking filter chips</li>
@@ -169,7 +177,10 @@ export const Empty: Story = {
     return (
       <div className="p-8">
         <Button onClick={() => setIsOpen(true)}>Open Notification Center</Button>
-        <NotificationCenter open={isOpen} onClose={() => setIsOpen(false)} />
+        <NotificationCenter
+          open={isOpen}
+          onClose={() => setIsOpen(false)}
+        />
       </div>
     );
   },
@@ -215,17 +226,26 @@ export const OnlyCritical: Story = {
 
     return (
       <div className="p-8">
-        <div className="flex gap-4 mb-4">
+        <div className="mb-4 flex gap-4">
           <Button onClick={() => setIsOpen(true)}>Open Notification Center</Button>
-          <Button onClick={handlePopulate} variant="outline">
+          <Button
+            onClick={handlePopulate}
+            variant="outline"
+          >
             Populate Critical Notifications
           </Button>
-          <Button onClick={clearAll} variant="outline">
+          <Button
+            onClick={clearAll}
+            variant="outline"
+          >
             Clear All
           </Button>
         </div>
 
-        <NotificationCenter open={isOpen} onClose={() => setIsOpen(false)} />
+        <NotificationCenter
+          open={isOpen}
+          onClose={() => setIsOpen(false)}
+        />
       </div>
     );
   },
@@ -265,17 +285,26 @@ export const MixedReadState: Story = {
 
     return (
       <div className="p-8">
-        <div className="flex gap-4 mb-4">
+        <div className="mb-4 flex gap-4">
           <Button onClick={() => setIsOpen(true)}>Open Notification Center</Button>
-          <Button onClick={handlePopulate} variant="outline">
+          <Button
+            onClick={handlePopulate}
+            variant="outline"
+          >
             Populate Mixed State
           </Button>
-          <Button onClick={clearAll} variant="outline">
+          <Button
+            onClick={clearAll}
+            variant="outline"
+          >
             Clear All
           </Button>
         </div>
 
-        <NotificationCenter open={isOpen} onClose={() => setIsOpen(false)} />
+        <NotificationCenter
+          open={isOpen}
+          onClose={() => setIsOpen(false)}
+        />
       </div>
     );
   },

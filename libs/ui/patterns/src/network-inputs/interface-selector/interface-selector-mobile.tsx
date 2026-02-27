@@ -130,47 +130,46 @@ export const InterfaceSelectorMobile = memo(function InterfaceSelectorMobile(
         disabled={disabled}
         onClick={() => setIsOpen(true)}
         className={cn(
-          'w-full min-h-[44px] justify-between font-normal font-mono',
+          'min-h-[44px] w-full justify-between font-mono font-normal',
           !displayValue && 'text-muted-foreground',
           displayError && 'border-error'
         )}
       >
-        <span className="truncate">
-          {displayValue || placeholder}
-        </span>
+        <span className="truncate">{displayValue || placeholder}</span>
         <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
       </Button>
 
       {/* Bottom sheet */}
-      <Sheet open={isOpen} onOpenChange={setIsOpen}>
+      <Sheet
+        open={isOpen}
+        onOpenChange={setIsOpen}
+      >
         <SheetContent
           side="bottom"
-          className="h-[85vh] flex flex-col p-0"
+          className="flex h-[85vh] flex-col p-0"
         >
-          <SheetHeader className="px-4 pt-4 pb-3 border-b shrink-0">
-            <SheetTitle>
-              {label || 'Select Interface'}
-            </SheetTitle>
+          <SheetHeader className="shrink-0 border-b px-4 pb-3 pt-4">
+            <SheetTitle>{label || 'Select Interface'}</SheetTitle>
           </SheetHeader>
 
           {/* Search and filter */}
-          <div className="px-4 py-3 space-y-3 border-b shrink-0">
+          <div className="shrink-0 space-y-3 border-b px-4 py-3">
             {/* Search input - 44px minimum touch target */}
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Search className="text-muted-foreground absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2" />
               <Input
                 ref={searchInputRef}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search interfaces..."
-                className="pl-9 h-11 font-mono"
+                className="h-11 pl-9 font-mono"
                 aria-label="Search interfaces"
               />
               {searchQuery && (
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="absolute right-1 top-1/2 -translate-y-1/2 h-9 w-9 p-0"
+                  className="absolute right-1 top-1/2 h-9 w-9 -translate-y-1/2 p-0"
                   onClick={() => setSearchQuery('')}
                   aria-label="Clear search"
                 >
@@ -184,7 +183,7 @@ export const InterfaceSelectorMobile = memo(function InterfaceSelectorMobile(
               <InterfaceTypeFilter
                 value={typeFilter}
                 onChange={setTypeFilter}
-                className="w-full h-11"
+                className="h-11 w-full"
               />
             )}
           </div>
@@ -195,15 +194,18 @@ export const InterfaceSelectorMobile = memo(function InterfaceSelectorMobile(
               role="listbox"
               aria-label="Interface list"
               aria-multiselectable={multiple}
-              className="p-4 space-y-1"
+              className="space-y-1 p-4"
             >
               {/* Loading state */}
               {isLoading && (
                 <div className="space-y-2">
                   {[...Array(5)].map((_, i) => (
-                    <div key={i} className="flex items-center gap-3 p-3 min-h-[44px]">
+                    <div
+                      key={i}
+                      className="flex min-h-[44px] items-center gap-3 p-3"
+                    >
                       <Skeleton className="h-5 w-5 rounded-full" />
-                      <div className="space-y-1.5 flex-1">
+                      <div className="flex-1 space-y-1.5">
                         <Skeleton className="h-4 w-28" />
                         <Skeleton className="h-3 w-36" />
                       </div>
@@ -216,14 +218,12 @@ export const InterfaceSelectorMobile = memo(function InterfaceSelectorMobile(
               {/* Error state */}
               {!isLoading && subscriptionError && (
                 <div className="flex flex-col items-center justify-center py-12 text-center">
-                  <AlertCircle className="h-10 w-10 text-destructive mb-3" />
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Failed to load interfaces
-                  </p>
+                  <AlertCircle className="text-destructive mb-3 h-10 w-10" />
+                  <p className="text-muted-foreground mb-4 text-sm">Failed to load interfaces</p>
                   <Button
                     variant="outline"
                     onClick={retry}
-                    className="gap-2 h-11"
+                    className="h-11 gap-2"
                   >
                     <RefreshCw className="h-4 w-4" />
                     Retry
@@ -233,33 +233,33 @@ export const InterfaceSelectorMobile = memo(function InterfaceSelectorMobile(
 
               {/* Empty state */}
               {!isLoading && !subscriptionError && filteredInterfaces.length === 0 && (
-                <div className="py-12 text-center text-sm text-muted-foreground">
+                <div className="text-muted-foreground py-12 text-center text-sm">
                   {searchQuery ? 'No interfaces match your search' : 'No interfaces available'}
                 </div>
               )}
 
               {/* Interface items - using mobile variant with 44px touch targets */}
-              {!isLoading && !subscriptionError && filteredInterfaces.map((iface) => (
-                <InterfaceItemMobile
-                  key={iface.id}
-                  interface={iface}
-                  selected={selectedValues.includes(iface.id)}
-                  onSelect={() => toggleSelection(iface.id)}
-                  showCheckbox={multiple}
-                  showStatus={showStatus}
-                  showIP={showIP}
-                />
-              ))}
+              {!isLoading &&
+                !subscriptionError &&
+                filteredInterfaces.map((iface) => (
+                  <InterfaceItemMobile
+                    key={iface.id}
+                    interface={iface}
+                    selected={selectedValues.includes(iface.id)}
+                    onSelect={() => toggleSelection(iface.id)}
+                    showCheckbox={multiple}
+                    showStatus={showStatus}
+                    showIP={showIP}
+                  />
+                ))}
             </div>
           </ScrollArea>
 
           {/* Footer with result count and done button */}
-          <div className="px-4 py-3 border-t shrink-0 flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">
+          <div className="flex shrink-0 items-center justify-between border-t px-4 py-3">
+            <span className="text-muted-foreground text-sm">
               {filteredInterfaces.length} interface{filteredInterfaces.length !== 1 ? 's' : ''}
-              {selectedValues.length > 0 && (
-                <span> · {selectedValues.length} selected</span>
-              )}
+              {selectedValues.length > 0 && <span> · {selectedValues.length} selected</span>}
             </span>
             {multiple && (
               <Button
@@ -284,9 +284,12 @@ export const InterfaceSelectorMobile = memo(function InterfaceSelectorMobile(
               <Badge
                 key={id}
                 variant="secondary"
-                className="gap-1.5 pl-2 pr-1 py-1 h-8"
+                className="h-8 gap-1.5 py-1 pl-2 pr-1"
               >
-                <InterfaceTypeIcon type={iface.type} size={3} />
+                <InterfaceTypeIcon
+                  type={iface.type}
+                  size={3}
+                />
                 <span className="text-sm">{iface.name}</span>
                 <button
                   type="button"
@@ -294,7 +297,7 @@ export const InterfaceSelectorMobile = memo(function InterfaceSelectorMobile(
                     e.stopPropagation();
                     toggleSelection(id);
                   }}
-                  className="ml-1 rounded-full p-1 hover:bg-muted min-w-[28px] min-h-[28px] flex items-center justify-center"
+                  className="hover:bg-muted ml-1 flex min-h-[28px] min-w-[28px] items-center justify-center rounded-full p-1"
                   aria-label={`Remove ${iface.name}`}
                 >
                   <X className="h-3.5 w-3.5" />
@@ -307,7 +310,10 @@ export const InterfaceSelectorMobile = memo(function InterfaceSelectorMobile(
 
       {/* Error message */}
       {displayError && (
-        <p className="text-sm text-destructive" role="alert">
+        <p
+          className="text-destructive text-sm"
+          role="alert"
+        >
           {displayError}
         </p>
       )}

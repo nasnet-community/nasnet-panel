@@ -14,7 +14,7 @@ function PluginStoreTabSkeleton() {
   return (
     <div className="space-y-4 p-4">
       <Skeleton className="h-8 w-48" />
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
         <Skeleton className="h-48 w-full" />
         <Skeleton className="h-48 w-full" />
         <Skeleton className="h-48 w-full" />
@@ -76,8 +76,7 @@ export const MobileGrid: Story = {
   parameters: {
     docs: {
       description: {
-        story:
-          'Plugin grid skeleton at mobile width showing single-column card layout.',
+        story: 'Plugin grid skeleton at mobile width showing single-column card layout.',
       },
     },
   },
@@ -87,7 +86,7 @@ export const ExpandedGrid: Story = {
   render: () => (
     <div className="space-y-4 p-4">
       <Skeleton className="h-8 w-48" />
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
         <Skeleton className="h-48 w-full" />
         <Skeleton className="h-48 w-full" />
         <Skeleton className="h-48 w-full" />

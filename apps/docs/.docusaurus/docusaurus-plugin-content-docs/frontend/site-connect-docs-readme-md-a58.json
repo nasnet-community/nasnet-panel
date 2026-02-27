@@ -1,7 +1,7 @@
 {
   "id": "README",
   "title": "Documentation Index",
-  "description": "This is the master index for all developer documentation for the apps/connect frontend application.",
+  "description": "This is the master index for all developer documentation for the apps/connect frontend",
   "source": "@site/../connect/docs/README.md",
   "sourceDirName": ".",
   "slug": "/",

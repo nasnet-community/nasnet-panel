@@ -6,19 +6,19 @@
 Health status enumeration for service instances
 """
 enum InstanceHealthState {
-  HEALTHY    # All probes passing
-  UNHEALTHY  # Consecutive failures exceeded threshold
-  UNKNOWN    # Not yet checked or no probe configured
-  CHECKING   # Probe in progress
+  HEALTHY # All probes passing
+  UNHEALTHY # Consecutive failures exceeded threshold
+  UNKNOWN # Not yet checked or no probe configured
+  CHECKING # Probe in progress
 }
 
 """
 Connection status from health probe checks
 """
 enum HealthConnectionState {
-  CONNECTED  # TCP/HTTP probe succeeded
+  CONNECTED # TCP/HTTP probe succeeded
   CONNECTING # Probe in progress
-  FAILED     # Probe failed
+  FAILED # Probe failed
 }
 
 """
@@ -26,25 +26,39 @@ Comprehensive health status for a service instance
 Combines process liveness, connection status, and latency metrics
 """
 type ServiceInstanceHealth {
-  """Current health state of the instance"""
+  """
+  Current health state of the instance
+  """
   status: InstanceHealthState!
 
-  """Whether the service process is alive (PID check)"""
+  """
+  Whether the service process is alive (PID check)
+  """
   processAlive: Boolean!
 
-  """Connection status from TCP/HTTP health probe"""
+  """
+  Connection status from TCP/HTTP health probe
+  """
   connectionStatus: HealthConnectionState!
 
-  """Health probe round-trip latency in milliseconds (null if probe hasn't run)"""
+  """
+  Health probe round-trip latency in milliseconds (null if probe hasn't run)
+  """
   latencyMs: Int
 
-  """Timestamp of when the instance was last healthy (null if never healthy)"""
+  """
+  Timestamp of when the instance was last healthy (null if never healthy)
+  """
   lastHealthy: DateTime
 
-  """Number of consecutive health check failures"""
+  """
+  Number of consecutive health check failures
+  """
   consecutiveFails: Int!
 
-  """Instance uptime in seconds (null if not running)"""
+  """
+  Instance uptime in seconds (null if not running)
+  """
   uptimeSeconds: Int
 }
 
@@ -52,13 +66,19 @@ type ServiceInstanceHealth {
 Health check configuration for a service instance
 """
 type ServiceInstanceHealthConfig {
-  """Health check interval in seconds (10-300, default: 30)"""
+  """
+  Health check interval in seconds (10-300, default: 30)
+  """
   intervalSeconds: Int!
 
-  """Consecutive failures before marking unhealthy (1-10, default: 3)"""
+  """
+  Consecutive failures before marking unhealthy (1-10, default: 3)
+  """
   failureThreshold: Int!
 
-  """Whether to auto-restart on health check failure (default: true)"""
+  """
+  Whether to auto-restart on health check failure (default: true)
+  """
   autoRestart: Boolean!
 }
 
@@ -66,16 +86,24 @@ type ServiceInstanceHealthConfig {
 Input for configuring health check settings
 """
 input ConfigureHealthCheckInput {
-  """Instance ID to configure"""
+  """
+  Instance ID to configure
+  """
   instanceID: ID!
 
-  """Health check interval in seconds (10-300)"""
+  """
+  Health check interval in seconds (10-300)
+  """
   intervalSeconds: Int
 
-  """Consecutive failures before marking unhealthy (1-10)"""
+  """
+  Consecutive failures before marking unhealthy (1-10)
+  """
   failureThreshold: Int
 
-  """Whether to enable auto-restart on failure"""
+  """
+  Whether to enable auto-restart on failure
+  """
   autoRestart: Boolean
 }
 
@@ -85,9 +113,13 @@ extend type Query {
   Returns null if instance not found or health monitoring not enabled
   """
   instanceHealth(
-    """Router ID"""
+    """
+    Router ID
+    """
     routerID: ID!
-    """Service instance ID"""
+    """
+    Service instance ID
+    """
     instanceID: ID!
   ): ServiceInstanceHealth
 }
@@ -106,9 +138,13 @@ extend type Subscription {
   Streams updates when health state transitions (HEALTHY ↔ UNHEALTHY)
   """
   instanceHealthChanged(
-    """Router ID to filter events"""
+    """
+    Router ID to filter events
+    """
     routerID: ID!
-    """Optional instance ID to filter specific instance (null = all instances on router)"""
+    """
+    Optional instance ID to filter specific instance (null = all instances on router)
+    """
     instanceID: ID
   ): ServiceInstanceHealth!
 }

@@ -106,28 +106,32 @@ function SheetDemo({
     <div className="flex flex-col items-center gap-4">
       <button
         onClick={open}
-        className="rounded-lg bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        className="bg-primary text-primary-foreground hover:bg-primary/90 focus-visible:ring-ring rounded-lg px-5 py-2.5 text-sm font-medium focus-visible:outline-none focus-visible:ring-2"
       >
         {label}
       </button>
 
-      <BottomSheet isOpen={isOpen} onClose={close} {...sheetProps}>
+      <BottomSheet
+        isOpen={isOpen}
+        onClose={close}
+        {...sheetProps}
+      >
         {children ?? (
           <>
             <BottomSheetHeader>Sheet Title</BottomSheetHeader>
             <BottomSheetContent>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-muted-foreground text-sm">
                 This is the sheet content. Swipe down or press Escape to close.
               </p>
             </BottomSheetContent>
             <BottomSheetFooter>
               <button
                 onClick={close}
-                className="rounded-md border px-4 py-2 text-sm hover:bg-muted"
+                className="hover:bg-muted rounded-md border px-4 py-2 text-sm"
               >
                 Cancel
               </button>
-              <button className="rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground hover:bg-primary/90">
+              <button className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-md px-4 py-2 text-sm">
                 Confirm
               </button>
             </BottomSheetFooter>
@@ -135,7 +139,7 @@ function SheetDemo({
         )}
       </BottomSheet>
 
-      <p className="text-xs text-muted-foreground">
+      <p className="text-muted-foreground text-xs">
         State: <span className="font-mono">{isOpen ? 'open' : 'closed'}</span>
       </p>
     </div>
@@ -205,28 +209,43 @@ export const NetworkSettingsSheet: Story = {
           <BottomSheetContent>
             <div className="space-y-4">
               <div className="space-y-1.5">
-                <label htmlFor="bs-ip-address" className="text-sm font-medium">IP Address</label>
+                <label
+                  htmlFor="bs-ip-address"
+                  className="text-sm font-medium"
+                >
+                  IP Address
+                </label>
                 <input
                   id="bs-ip-address"
-                  className="w-full rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                  className="focus:ring-ring w-full rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2"
                   placeholder="192.168.1.1"
                   defaultValue="192.168.88.1"
                 />
               </div>
               <div className="space-y-1.5">
-                <label htmlFor="bs-subnet-mask" className="text-sm font-medium">Subnet Mask</label>
+                <label
+                  htmlFor="bs-subnet-mask"
+                  className="text-sm font-medium"
+                >
+                  Subnet Mask
+                </label>
                 <input
                   id="bs-subnet-mask"
-                  className="w-full rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                  className="focus:ring-ring w-full rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2"
                   placeholder="255.255.255.0"
                   defaultValue="255.255.255.0"
                 />
               </div>
               <div className="space-y-1.5">
-                <label htmlFor="bs-gateway" className="text-sm font-medium">Gateway</label>
+                <label
+                  htmlFor="bs-gateway"
+                  className="text-sm font-medium"
+                >
+                  Gateway
+                </label>
                 <input
                   id="bs-gateway"
-                  className="w-full rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                  className="focus:ring-ring w-full rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2"
                   placeholder="192.168.1.254"
                   defaultValue="192.168.88.254"
                 />
@@ -236,11 +255,11 @@ export const NetworkSettingsSheet: Story = {
           <BottomSheetFooter>
             <button
               onClick={onClose}
-              className="rounded-md border px-4 py-2 text-sm hover:bg-muted"
+              className="hover:bg-muted rounded-md border px-4 py-2 text-sm"
             >
               Cancel
             </button>
-            <button className="rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground hover:bg-primary/90">
+            <button className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-md px-4 py-2 text-sm">
               Save Changes
             </button>
           </BottomSheetFooter>
@@ -254,11 +273,15 @@ export const NetworkSettingsSheet: Story = {
         <div className="flex flex-col items-center gap-4">
           <button
             onClick={open}
-            className="rounded-lg bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="bg-primary text-primary-foreground hover:bg-primary/90 focus-visible:ring-ring rounded-lg px-5 py-2.5 text-sm font-medium focus-visible:outline-none focus-visible:ring-2"
           >
             Edit Network Settings
           </button>
-          <BottomSheet isOpen={isOpen} onClose={close} aria-label="Network Settings">
+          <BottomSheet
+            isOpen={isOpen}
+            onClose={close}
+            aria-label="Network Settings"
+          >
             <Content onClose={close} />
           </BottomSheet>
         </div>
@@ -280,7 +303,7 @@ export const ConfirmationSheet: Story = {
         <div className="flex flex-col items-center gap-4">
           <button
             onClick={open}
-            className="rounded-lg bg-destructive px-5 py-2.5 text-sm font-medium text-destructive-foreground hover:bg-destructive/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90 focus-visible:ring-ring rounded-lg px-5 py-2.5 text-sm font-medium focus-visible:outline-none focus-visible:ring-2"
           >
             Delete Interface
           </button>
@@ -292,19 +315,19 @@ export const ConfirmationSheet: Story = {
           >
             <BottomSheetHeader>Delete Interface?</BottomSheetHeader>
             <BottomSheetContent>
-              <p className="text-sm text-muted-foreground">
-                This will permanently remove <strong>eth0</strong> and all
-                associated rules. This action cannot be undone.
+              <p className="text-muted-foreground text-sm">
+                This will permanently remove <strong>eth0</strong> and all associated rules. This
+                action cannot be undone.
               </p>
             </BottomSheetContent>
             <BottomSheetFooter>
               <button
                 onClick={close}
-                className="rounded-md border px-4 py-2 text-sm hover:bg-muted"
+                className="hover:bg-muted rounded-md border px-4 py-2 text-sm"
               >
                 Cancel
               </button>
-              <button className="rounded-md bg-destructive px-4 py-2 text-sm text-destructive-foreground hover:bg-destructive/90">
+              <button className="bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-md px-4 py-2 text-sm">
                 Delete
               </button>
             </BottomSheetFooter>

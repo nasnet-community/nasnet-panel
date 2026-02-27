@@ -40,8 +40,9 @@ export const CounterCellDesktop = memo(function CounterCellDesktop({
   const formattedBytes = useMemo(() => formatBytes(bytes), [bytes]);
 
   // Animation variants for counters
-  const counterVariants = prefersReducedMotion
-    ? {}
+  const counterVariants =
+    prefersReducedMotion ?
+      {}
     : {
         initial: { opacity: 0, y: -10 },
         animate: { opacity: 1, y: 0 },
@@ -52,17 +53,14 @@ export const CounterCellDesktop = memo(function CounterCellDesktop({
     <div className={cn('flex items-center gap-4', className)}>
       {/* Packets Count */}
       <motion.div
-        className="flex items-center gap-2 min-w-[120px]"
+        className="flex min-w-[120px] items-center gap-2"
         {...counterVariants}
       >
-        <Activity className="h-4 w-4 text-muted-foreground" />
+        <Activity className="text-muted-foreground h-4 w-4" />
         <div className="flex flex-col">
-          <span className="text-xs text-muted-foreground">Packets</span>
+          <span className="text-muted-foreground text-xs">Packets</span>
           <span
-            className={cn(
-              'text-sm font-mono tabular-nums',
-              isUnused && 'text-muted-foreground'
-            )}
+            className={cn('font-mono text-sm tabular-nums', isUnused && 'text-muted-foreground')}
           >
             {formattedPackets}
           </span>
@@ -71,16 +69,11 @@ export const CounterCellDesktop = memo(function CounterCellDesktop({
 
       {/* Bytes Count */}
       <motion.div
-        className="flex flex-col min-w-[100px]"
+        className="flex min-w-[100px] flex-col"
         {...counterVariants}
       >
-        <span className="text-xs text-muted-foreground">Bytes</span>
-        <span
-          className={cn(
-            'text-sm font-mono tabular-nums',
-            isUnused && 'text-muted-foreground'
-          )}
-        >
+        <span className="text-muted-foreground text-xs">Bytes</span>
+        <span className={cn('font-mono text-sm tabular-nums', isUnused && 'text-muted-foreground')}>
           {formattedBytes}
         </span>
       </motion.div>
@@ -88,13 +81,13 @@ export const CounterCellDesktop = memo(function CounterCellDesktop({
       {/* Rate Display (if enabled) */}
       {showRate && (
         <motion.div
-          className="flex items-center gap-2 min-w-[80px]"
+          className="flex min-w-[80px] items-center gap-2"
           {...counterVariants}
         >
           <TrendingUp className="h-4 w-4 text-blue-500" />
           <div className="flex flex-col">
-            <span className="text-xs text-muted-foreground">Rate</span>
-            <span className="text-sm font-mono tabular-nums text-blue-600 dark:text-blue-400">
+            <span className="text-muted-foreground text-xs">Rate</span>
+            <span className="font-mono text-sm tabular-nums text-blue-600 dark:text-blue-400">
               Live
             </span>
           </div>
@@ -103,13 +96,14 @@ export const CounterCellDesktop = memo(function CounterCellDesktop({
 
       {/* Progress Bar (if enabled) */}
       {showBar && (
-        <div className="flex-1 min-w-[120px] max-w-[200px]">
-          <div className="flex items-center justify-between mb-1">
-            <span className="text-xs text-muted-foreground">
-              {percentOfMax.toFixed(1)}%
-            </span>
+        <div className="min-w-[120px] max-w-[200px] flex-1">
+          <div className="mb-1 flex items-center justify-between">
+            <span className="text-muted-foreground text-xs">{percentOfMax.toFixed(1)}%</span>
             {isUnused && (
-              <Badge variant="outline" className="text-xs">
+              <Badge
+                variant="outline"
+                className="text-xs"
+              >
                 Unused
               </Badge>
             )}

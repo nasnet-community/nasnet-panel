@@ -37,9 +37,7 @@ import type { BaseResource, ResourceCardProps } from './types';
  * - Secondary actions in dropdown (like desktop) or expandable (mobile-style)
  * - Support for both portrait and landscape orientations
  */
-function ResourceCardTabletComponent<T extends BaseResource>(
-  props: ResourceCardProps<T>
-) {
+function ResourceCardTabletComponent<T extends BaseResource>(props: ResourceCardProps<T>) {
   const { resource, className, children, showLivePulse = true } = props;
   const {
     status,
@@ -56,27 +54,30 @@ function ResourceCardTabletComponent<T extends BaseResource>(
   return (
     <Card
       className={cn(
-        'p-5 transition-shadow duration-200 touch-manipulation',
-        'hover:shadow-lg cursor-pointer',
+        'touch-manipulation p-5 transition-shadow duration-200',
+        'cursor-pointer hover:shadow-lg',
         className
       )}
       onClick={handleClick}
       role="article"
       aria-label={`${resource.name} - ${statusLabel}`}
     >
-      <CardContent className="p-0 space-y-3">
+      <CardContent className="space-y-3 p-0">
         {/* Header: Status and info */}
         <div className="flex items-center justify-between gap-4">
           {/* Left: Status indicator */}
-          <div className="flex items-center gap-3 flex-1 min-w-0">
+          <div className="flex min-w-0 flex-1 items-center gap-3">
             {/* Status indicator with optional pulse */}
             <div className="relative flex-shrink-0">
-              <Badge variant={statusColor} className="min-h-[40px]">
+              <Badge
+                variant={statusColor}
+                className="min-h-[40px]"
+              >
                 {statusLabel}
               </Badge>
               {isOnline && showLivePulse && (
                 <span
-                  className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-success rounded-full animate-pulse"
+                  className="bg-success absolute -right-0.5 -top-0.5 h-2 w-2 animate-pulse rounded-full"
                   aria-hidden="true"
                 />
               )}
@@ -84,11 +85,9 @@ function ResourceCardTabletComponent<T extends BaseResource>(
 
             {/* Resource info */}
             <div className="min-w-0 flex-1">
-              <h3 className="text-lg font-semibold text-foreground truncate">{resource.name}</h3>
+              <h3 className="text-foreground truncate text-lg font-semibold">{resource.name}</h3>
               {resource.description && (
-                <p className="text-sm text-muted-foreground truncate">
-                  {resource.description}
-                </p>
+                <p className="text-muted-foreground truncate text-sm">{resource.description}</p>
               )}
             </div>
           </div>
@@ -100,7 +99,7 @@ function ResourceCardTabletComponent<T extends BaseResource>(
               onClick={(e) => e.stopPropagation()}
             >
               {/* Single action button or dropdown */}
-              {secondaryActions.length === 0 && primaryAction ? (
+              {secondaryActions.length === 0 && primaryAction ?
                 <Button
                   variant={primaryAction.variant || 'default'}
                   size="sm"
@@ -110,14 +109,16 @@ function ResourceCardTabletComponent<T extends BaseResource>(
                   aria-label={primaryAction.label}
                 >
                   {primaryAction.icon && (
-                    <span className="mr-1.5" aria-hidden="true">
+                    <span
+                      className="mr-1.5"
+                      aria-hidden="true"
+                    >
                       {primaryAction.icon}
                     </span>
                   )}
                   {primaryAction.label}
                 </Button>
-              ) : (
-                <DropdownMenu>
+              : <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button
                       variant="ghost"
@@ -136,7 +137,10 @@ function ResourceCardTabletComponent<T extends BaseResource>(
                         className="min-h-[40px]"
                       >
                         {primaryAction.icon && (
-                          <span className="mr-2" aria-hidden="true">
+                          <span
+                            className="mr-2"
+                            aria-hidden="true"
+                          >
                             {primaryAction.icon}
                           </span>
                         )}
@@ -150,13 +154,14 @@ function ResourceCardTabletComponent<T extends BaseResource>(
                         disabled={action.disabled}
                         className={cn(
                           'min-h-[40px]',
-                          action.variant === 'destructive'
-                            ? 'text-destructive'
-                            : ''
+                          action.variant === 'destructive' ? 'text-destructive' : ''
                         )}
                       >
                         {action.icon && (
-                          <span className="mr-2" aria-hidden="true">
+                          <span
+                            className="mr-2"
+                            aria-hidden="true"
+                          >
                             {action.icon}
                           </span>
                         )}
@@ -165,7 +170,7 @@ function ResourceCardTabletComponent<T extends BaseResource>(
                     ))}
                   </DropdownMenuContent>
                 </DropdownMenu>
-              )}
+              }
             </div>
           )}
         </div>

@@ -23,7 +23,6 @@ import {
   InterfaceStatsPanelMobile,
 } from './interface-stats-panel';
 
-
 import type { Meta, StoryObj } from '@storybook/react';
 
 // ---------------------------------------------------------------------------
@@ -31,8 +30,8 @@ import type { Meta, StoryObj } from '@storybook/react';
 // ---------------------------------------------------------------------------
 
 const mockStats = {
-  txBytes: '15728640000',   // ~15 GB
-  rxBytes: '52428800000',   // ~52 GB
+  txBytes: '15728640000', // ~15 GB
+  rxBytes: '52428800000', // ~52 GB
   txPackets: '12500000',
   rxPackets: '41000000',
   txErrors: 2,
@@ -54,10 +53,7 @@ const mockHighErrorStats = {
   __typename: 'InterfaceStats',
 };
 
-function buildStatsMock(
-  interfaceId: string,
-  stats: typeof mockStats = mockStats
-) {
+function buildStatsMock(interfaceId: string, stats: typeof mockStats = mockStats) {
   return [
     {
       request: {
@@ -179,7 +175,8 @@ export const LanBridgeInterface: Story = {
     apolloMocks: buildStatsMock('bridge-lan'),
     docs: {
       description: {
-        story: 'Bridge interface variant showing the same stats layout with a different interface name.',
+        story:
+          'Bridge interface variant showing the same stats layout with a different interface name.',
       },
     },
   },

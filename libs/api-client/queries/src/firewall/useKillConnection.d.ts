@@ -10,28 +10,28 @@ import { UseMutationResult } from '@tanstack/react-query';
  * Variables for kill connection mutation
  */
 export interface KillConnectionVariables {
-    /**
-     * Target router IP address
-     */
-    routerIp: string;
-    /**
-     * Connection ID to terminate (from connection.id)
-     */
-    connectionId: string;
+  /**
+   * Target router IP address
+   */
+  routerIp: string;
+  /**
+   * Connection ID to terminate (from connection.id)
+   */
+  connectionId: string;
 }
 export interface UseKillConnectionOptions {
-    /**
-     * Target router IP address
-     */
-    routerIp: string;
-    /**
-     * Callback fired on successful termination
-     */
-    onSuccess?: () => void;
-    /**
-     * Callback fired on error
-     */
-    onError?: (error: Error) => void;
+  /**
+   * Target router IP address
+   */
+  routerIp: string;
+  /**
+   * Callback fired on successful termination
+   */
+  onSuccess?: () => void;
+  /**
+   * Callback fired on error
+   */
+  onError?: (error: Error) => void;
 }
 /**
  * React Query mutation hook for terminating an active connection
@@ -72,5 +72,14 @@ export interface UseKillConnectionOptions {
  * }
  * ```
  */
-export declare function useKillConnection({ routerIp, onSuccess, onError, }: UseKillConnectionOptions): UseMutationResult<void, Error, Pick<KillConnectionVariables, 'connectionId'>, unknown>;
+export declare function useKillConnection({
+  routerIp,
+  onSuccess,
+  onError,
+}: UseKillConnectionOptions): UseMutationResult<
+  void,
+  Error,
+  Pick<KillConnectionVariables, 'connectionId'>,
+  unknown
+>;
 //# sourceMappingURL=useKillConnection.d.ts.map

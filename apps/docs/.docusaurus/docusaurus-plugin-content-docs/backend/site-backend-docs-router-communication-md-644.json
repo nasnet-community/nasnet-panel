@@ -1,7 +1,7 @@
 {
   "id": "router-communication",
   "title": "Router Communication",
-  "description": "Multi-protocol adapter system with automatic fallback, circuit breaking, and batch execution for MikroTik RouterOS devices.",
+  "description": "Multi-protocol adapter system with automatic fallback, circuit breaking, and batch execution for",
   "source": "@site/../backend/docs/router-communication.md",
   "sourceDirName": ".",
   "slug": "/router-communication",

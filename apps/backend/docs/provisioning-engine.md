@@ -1,10 +1,14 @@
 # Provisioning Engine
 
-> Translates a wizard-configured `StarState` into live RouterOS configuration via an 8-phase ordered pipeline with per-step rollback.
+> Translates a wizard-configured `StarState` into live RouterOS configuration via an 8-phase ordered
+> pipeline with per-step rollback.
 
-**Packages:** `internal/provisioning/orchestrator/`, `internal/provisioning/types/`, `internal/provisioning/network/`, `internal/provisioning/vpnclient/`, `internal/provisioning/vpnserver/`, `internal/provisioning/wan/`, `internal/services/provisioning/`
+**Packages:** `internal/provisioning/orchestrator/`, `internal/provisioning/types/`,
+`internal/provisioning/network/`, `internal/provisioning/vpnclient/`,
+`internal/provisioning/vpnserver/`, `internal/provisioning/wan/`, `internal/services/provisioning/`
 
-**Key Files:** `orchestrator/phases.go`, `orchestrator/rollback.go`, `services/provisioning/service.go`, `services/provisioning/apply.go`
+**Key Files:** `orchestrator/phases.go`, `orchestrator/rollback.go`,
+`services/provisioning/service.go`, `services/provisioning/apply.go`
 
 **Prerequisites:** [See: 04-router-communication.md], [See: 05-event-system.md]
 
@@ -12,14 +16,19 @@
 
 ## Overview
 
-The provisioning engine transforms an abstract wizard configuration (`StarState`) into concrete MikroTik RouterOS commands. It is the core mechanism used by the setup wizard to configure a router from scratch.
+The provisioning engine transforms an abstract wizard configuration (`StarState`) into concrete
+MikroTik RouterOS commands. It is the core mechanism used by the setup wizard to configure a router
+from scratch.
 
 Key design principles:
 
-- **Phase ordering** — resources are created in dependency order (interfaces before addresses, addresses before DHCP)
-- **Comment tagging** — every created resource is tagged `nnc-provisioned-<sessionID>` for idempotent cleanup
+- **Phase ordering** — resources are created in dependency order (interfaces before addresses,
+  addresses before DHCP)
+- **Comment tagging** — every created resource is tagged `nnc-provisioned-<sessionID>` for
+  idempotent cleanup
 - **Rollback on failure** — phases 8→1 are rolled back in reverse order if any phase fails
-- **Protocol dispatch** — VPN protocols are handled by dedicated sub-services; generic RouterOS paths use the flat orchestrator
+- **Protocol dispatch** — VPN protocols are handled by dedicated sub-services; generic RouterOS
+  paths use the flat orchestrator
 
 ---
 
@@ -60,16 +69,16 @@ graph TD
 
 Eight phases are executed in strict dependency order (defined in `phases.go`):
 
-| # | Constant | RouterOS Paths |
-|---|----------|----------------|
-| 1 | `PhaseInterfaceSetup` | `/interface/bridge`, `/interface/wireguard`, `/interface/pppoe-client`, `/interface/l2tp-client`, `/interface/sstp-client`, `/interface/pptp-client`, `/interface/ovpn-client`, `/interface/wifi/*`, `/interface/ipip`, `/interface/eoip`, `/interface/gre`, `/interface/vxlan`, `/interface/vlan`, `/interface/macvlan`, `/interface/lte`, `/interface/list` |
-| 2 | `PhaseTunnelPeers` | `/interface/wireguard/peers`, `/ip/ipsec/profile`, `/ip/ipsec/peer`, `/ip/ipsec/proposal`, `/ip/ipsec/mode-config` |
-| 3 | `PhaseIPAddressPools` | `/ip/pool`, `/ip/address` |
-| 4 | `PhasePPPVPNServers` | `/ppp/profile`, `/ppp/secret`, `/interface/pptp-server`, `/interface/l2tp-server`, `/interface/sstp-server`, `/interface/ovpn-server`, `/ip/ipsec/identity`, `/ip/ipsec/policy` |
-| 5 | `PhaseDHCPNetworking` | `/interface/wifi/provisioning`, `/ip/dhcp-server/network`, `/ip/dhcp-server`, `/ip/dhcp-client`, `/interface/bridge/port`, `/interface/list/member` |
-| 6 | `PhaseRouting` | `/routing/table`, `/ip/route`, `/routing/rule` |
-| 7 | `PhaseFirewall` | `/ip/firewall/address-list`, `/ip/firewall/mangle`, `/ip/firewall/nat`, `/ip/firewall/filter`, `/ip/firewall/raw`, `/ip/upnp/interfaces`, `/ip/nat-pmp/interfaces`, `/ip/upnp`, `/ip/nat-pmp` |
-| 8 | `PhaseSystemDNS` | `/ip/dns`, `/system/identity`, `/system/ntp/client`, `/system/scheduler`, `/system/script`, `/system/logging`, `/ip/service`, `/ip/cloud`, `/certificate`, and more |
+| #   | Constant              | RouterOS Paths                                                                                                                                                                                                                                                                                                                                                |
+| --- | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | `PhaseInterfaceSetup` | `/interface/bridge`, `/interface/wireguard`, `/interface/pppoe-client`, `/interface/l2tp-client`, `/interface/sstp-client`, `/interface/pptp-client`, `/interface/ovpn-client`, `/interface/wifi/*`, `/interface/ipip`, `/interface/eoip`, `/interface/gre`, `/interface/vxlan`, `/interface/vlan`, `/interface/macvlan`, `/interface/lte`, `/interface/list` |
+| 2   | `PhaseTunnelPeers`    | `/interface/wireguard/peers`, `/ip/ipsec/profile`, `/ip/ipsec/peer`, `/ip/ipsec/proposal`, `/ip/ipsec/mode-config`                                                                                                                                                                                                                                            |
+| 3   | `PhaseIPAddressPools` | `/ip/pool`, `/ip/address`                                                                                                                                                                                                                                                                                                                                     |
+| 4   | `PhasePPPVPNServers`  | `/ppp/profile`, `/ppp/secret`, `/interface/pptp-server`, `/interface/l2tp-server`, `/interface/sstp-server`, `/interface/ovpn-server`, `/ip/ipsec/identity`, `/ip/ipsec/policy`                                                                                                                                                                               |
+| 5   | `PhaseDHCPNetworking` | `/interface/wifi/provisioning`, `/ip/dhcp-server/network`, `/ip/dhcp-server`, `/ip/dhcp-client`, `/interface/bridge/port`, `/interface/list/member`                                                                                                                                                                                                           |
+| 6   | `PhaseRouting`        | `/routing/table`, `/ip/route`, `/routing/rule`                                                                                                                                                                                                                                                                                                                |
+| 7   | `PhaseFirewall`       | `/ip/firewall/address-list`, `/ip/firewall/mangle`, `/ip/firewall/nat`, `/ip/firewall/filter`, `/ip/firewall/raw`, `/ip/upnp/interfaces`, `/ip/nat-pmp/interfaces`, `/ip/upnp`, `/ip/nat-pmp`                                                                                                                                                                 |
+| 8   | `PhaseSystemDNS`      | `/ip/dns`, `/system/identity`, `/system/ntp/client`, `/system/scheduler`, `/system/script`, `/system/logging`, `/ip/service`, `/ip/cloud`, `/certificate`, and more                                                                                                                                                                                           |
 
 #### Key Types
 
@@ -151,32 +160,32 @@ Connection types: `IsDHCP`, `PPPoE` (`PPPoEConfig`), `Static` (`StaticIPConfig`)
 
 All VPN client configs embed `BaseVPNClientConfig` (name, priority, weight, WAN interface):
 
-| Type | Protocol |
-|------|----------|
+| Type                    | Protocol                                                                  |
+| ----------------------- | ------------------------------------------------------------------------- |
 | `WireguardClientConfig` | WireGuard (interface private key, peer public key, endpoint, allowed IPs) |
-| `OpenVpnClientConfig` | OpenVPN (server, mode, protocol, auth, cipher, certificates) |
-| `PptpClientConfig` | PPTP (server, credentials, auth method) |
-| `L2tpClientConfig` | L2TP (server, IPsec, auth, fast-path) |
-| `SstpClientConfig` | SSTP (server, TLS, proxy, SNI, PFS) |
-| `Ike2ClientConfig` | IKEv2/IPsec (profile, proposal, mode-config, policy, certificates) |
+| `OpenVpnClientConfig`   | OpenVPN (server, mode, protocol, auth, cipher, certificates)              |
+| `PptpClientConfig`      | PPTP (server, credentials, auth method)                                   |
+| `L2tpClientConfig`      | L2TP (server, IPsec, auth, fast-path)                                     |
+| `SstpClientConfig`      | SSTP (server, TLS, proxy, SNI, PFS)                                       |
+| `Ike2ClientConfig`      | IKEv2/IPsec (profile, proposal, mode-config, policy, certificates)        |
 
 #### VPN Server Types (`vpnserver.go`)
 
 All VPN server configs embed `BaseVPNServerConfig` (enabled, profile, network):
 
-| Type | Protocol |
-|------|----------|
-| `PptpServerConfig` | PPTP server |
-| `L2tpServerConfig` | L2TP server (IPsec, L2TPv3 support) |
-| `SstpServerConfig` | SSTP server (certificate, TLS) |
-| `OpenVpnServerConfig` | OpenVPN server (protocol, cipher, certificates) |
-| `Ike2ServerConfig` | IKEv2 server (IPsec profile/proposal/identity/policy-group) |
-| `WireguardServerConfig` | WireGuard server (interface + peers list) |
-| `Socks5ServerConfig` | SOCKS5 proxy |
-| `SSHServerConfig` | SSH server |
-| `HTTPProxyServerConfig` | HTTP proxy |
-| `BackToHomeServerConfig` | Back-to-home routing |
-| `ZeroTierServerConfig` | ZeroTier overlay |
+| Type                     | Protocol                                                    |
+| ------------------------ | ----------------------------------------------------------- |
+| `PptpServerConfig`       | PPTP server                                                 |
+| `L2tpServerConfig`       | L2TP server (IPsec, L2TPv3 support)                         |
+| `SstpServerConfig`       | SSTP server (certificate, TLS)                              |
+| `OpenVpnServerConfig`    | OpenVPN server (protocol, cipher, certificates)             |
+| `Ike2ServerConfig`       | IKEv2 server (IPsec profile/proposal/identity/policy-group) |
+| `WireguardServerConfig`  | WireGuard server (interface + peers list)                   |
+| `Socks5ServerConfig`     | SOCKS5 proxy                                                |
+| `SSHServerConfig`        | SSH server                                                  |
+| `HTTPProxyServerConfig`  | HTTP proxy                                                  |
+| `BackToHomeServerConfig` | Back-to-home routing                                        |
+| `ZeroTierServerConfig`   | ZeroTier overlay                                            |
 
 #### LAN Types (`lan.go`)
 
@@ -216,7 +225,8 @@ type ExtraConfigState struct {
 
 **Key Files:** `addresslist.go`, `mangle.go`
 
-The `network.Service` implements LAN-side provisioning (bridge, DHCP, address lists, mangle rules) for the four-network architecture (Domestic / Foreign / VPN / Split).
+The `network.Service` implements LAN-side provisioning (bridge, DHCP, address lists, mangle rules)
+for the four-network architecture (Domestic / Foreign / VPN / Split).
 
 ```go
 // createAddressListEntries creates a firewall address list entry for a network.
@@ -227,7 +237,8 @@ func (s *Service) createAddressListEntries(ctx, networkName, address, comment st
 func (s *Service) createMangleRules(ctx, srcAddress, networkName, comment string) ([]string, error)
 ```
 
-**`MangleRuleConfig`** fields: `Chain`, `SrcAddress`, `DstAddress`, `InInterface`, `OutInterface`, `Action` (`mark-routing`, `mark-connection`, `mark-packet`), `NewRoutingMark`, `Passthrough`.
+**`MangleRuleConfig`** fields: `Chain`, `SrcAddress`, `DstAddress`, `InInterface`, `OutInterface`,
+`Action` (`mark-routing`, `mark-connection`, `mark-packet`), `NewRoutingMark`, `Passthrough`.
 
 Cleanup uses comment-based removal (`removeByComment`) for idempotency.
 
@@ -235,7 +246,8 @@ Cleanup uses comment-based removal (`removeByComment`) for idempotency.
 
 ### `vpnclient` — VPN Client Provisioning
 
-**Key Files:** `service.go`, `wireguard.go`, `ikev2.go`, `openvpn.go`, `l2tp.go`, `pptp.go`, `sstp.go`
+**Key Files:** `service.go`, `wireguard.go`, `ikev2.go`, `openvpn.go`, `l2tp.go`, `pptp.go`,
+`sstp.go`
 
 ```go
 // Service handles VPN client provisioning.
@@ -269,7 +281,8 @@ Step 6: /ip/firewall/address-list     ← Add endpoint to "VPNE" list (prevents 
 Confirm: /interface/wireguard print   ← Read back router-generated public key
 ```
 
-On any step failure, `rollbackWireGuard` calls `RemoveVPNClient` which removes resources in reverse path order.
+On any step failure, `rollbackWireGuard` calls `RemoveVPNClient` which removes resources in reverse
+path order.
 
 **`RemoveVPNClient`** removal order (reverse of creation):
 
@@ -312,12 +325,14 @@ func (s *Service) ProvisionWANLink(ctx, routerID, sessionID string, link types.W
 ```
 
 Connection dispatch:
+
 - `IsDHCP == true` → `provisionDHCP` (creates `/ip/dhcp-client`)
 - `PPPoE != nil` → `provisionPPPoE` (creates `/interface/pppoe-client`)
 - `Static != nil` → `provisionStatic` (creates `/ip/address` + `/ip/route`)
 - `LTESettings != nil` → `provisionLTE` (creates LTE APN profile + activates interface)
 
-**`RemoveWANLink`** uses comment-based removal across: `/ip/dhcp-client`, `/interface/pppoe-client`, `/ip/address`, `/ip/route`, `/interface/lte/apn`.
+**`RemoveWANLink`** uses comment-based removal across: `/ip/dhcp-client`, `/interface/pppoe-client`,
+`/ip/address`, `/ip/route`, `/interface/lte/apn`.
 
 ---
 
@@ -377,35 +392,35 @@ func (s *Service) ApplySession(ctx, sessionID string) error
 
 `ApplySession` iterates resources and dispatches by `ResourceType` prefix:
 
-| Resource Type Pattern | Dispatched To |
-|----------------------|---------------|
-| `wan.link.*` | `dispatchWANLink` → `wan.Service.ProvisionWANLink` |
-| `vpn.*.client` | `dispatchVPNClient` → `vpnclient.Service.Provision*` |
-| `vpn.*.server` | `dispatchVPNServer` → `vpnserver.Service.Provision*` |
-| `wan.multilink.*` | `dispatchMultiWAN` → `multiwan.Service.ProvisionMultiWAN` |
-| `system.baseconfig` | `dispatchBaseConfig` → `baseconfig.Service.Provision` |
-| `system.security` | `dispatchSecurity` → `security.Service.Provision` |
-| `system.certificate` | `dispatchCertificate` → `certificate.Service.Provision*` |
-| `system.domesticips` | `dispatchDomesticIPs` → `domesticips.Service.Provision` |
-| `system.wireless.*` | `dispatchWifi` → `wifi.Service.ProvisionMasterAP` |
-| `lan.network.*` | `dispatchNetwork` → `network.Service.ProvisionNetwork` |
-| _all others_ | Flat orchestrator via `sessionResourcesToProvisioningResources` |
+| Resource Type Pattern | Dispatched To                                                   |
+| --------------------- | --------------------------------------------------------------- |
+| `wan.link.*`          | `dispatchWANLink` → `wan.Service.ProvisionWANLink`              |
+| `vpn.*.client`        | `dispatchVPNClient` → `vpnclient.Service.Provision*`            |
+| `vpn.*.server`        | `dispatchVPNServer` → `vpnserver.Service.Provision*`            |
+| `wan.multilink.*`     | `dispatchMultiWAN` → `multiwan.Service.ProvisionMultiWAN`       |
+| `system.baseconfig`   | `dispatchBaseConfig` → `baseconfig.Service.Provision`           |
+| `system.security`     | `dispatchSecurity` → `security.Service.Provision`               |
+| `system.certificate`  | `dispatchCertificate` → `certificate.Service.Provision*`        |
+| `system.domesticips`  | `dispatchDomesticIPs` → `domesticips.Service.Provision`         |
+| `system.wireless.*`   | `dispatchWifi` → `wifi.Service.ProvisionMasterAP`               |
+| `lan.network.*`       | `dispatchNetwork` → `network.Service.ProvisionNetwork`          |
+| _all others_          | Flat orchestrator via `sessionResourcesToProvisioningResources` |
 
 VPN server protocol dispatch in `dispatchVPNServer`:
 
-| Protocol | Provisioner |
-|----------|-------------|
-| `wireguard` | `ProvisionWireGuardServer` |
-| `pptp` | `ProvisionPPTPServer` |
-| `l2tp` | `ProvisionL2TPServer` |
-| `sstp` | `ProvisionSSTServer` |
-| `openvpn` | `ProvisionOpenVPNServer` |
-| `ikev2` | `ProvisionIKEv2Server` |
-| `socks5` | `ProvisionSocks5Server` |
-| `ssh` | `ProvisionSSHServer` |
-| `httpproxy` | `ProvisionHTTPProxyServer` |
+| Protocol     | Provisioner                 |
+| ------------ | --------------------------- |
+| `wireguard`  | `ProvisionWireGuardServer`  |
+| `pptp`       | `ProvisionPPTPServer`       |
+| `l2tp`       | `ProvisionL2TPServer`       |
+| `sstp`       | `ProvisionSSTServer`        |
+| `openvpn`    | `ProvisionOpenVPNServer`    |
+| `ikev2`      | `ProvisionIKEv2Server`      |
+| `socks5`     | `ProvisionSocks5Server`     |
+| `ssh`        | `ProvisionSSHServer`        |
+| `httpproxy`  | `ProvisionHTTPProxyServer`  |
 | `backtohome` | `ProvisionBackToHomeServer` |
-| `zerotier` | `ProvisionZeroTierServer` |
+| `zerotier`   | `ProvisionZeroTierServer`   |
 
 ---
 
@@ -441,29 +456,33 @@ All provisioned resources are tagged with comment `nnc-provisioned-<sessionID>`.
 
 ## Error Handling
 
-| Scenario | Behavior |
-|----------|----------|
-| Step failure in WireGuard | Rollback all steps created so far in `rollbackWireGuard` |
-| Phase failure in flat orchestrator | `Rollback(results)` removes phases 8→1 in reverse |
-| Sub-service dispatch failure | Session transitions to `Failed`, event published |
-| Non-critical failure (interface list) | Logged as warning, provisioning continues |
-| Context cancellation | Propagated through all RouterOS commands |
-| Comment-based removal failure | Logged as warning, best-effort cleanup continues |
+| Scenario                              | Behavior                                                 |
+| ------------------------------------- | -------------------------------------------------------- |
+| Step failure in WireGuard             | Rollback all steps created so far in `rollbackWireGuard` |
+| Phase failure in flat orchestrator    | `Rollback(results)` removes phases 8→1 in reverse        |
+| Sub-service dispatch failure          | Session transitions to `Failed`, event published         |
+| Non-critical failure (interface list) | Logged as warning, provisioning continues                |
+| Context cancellation                  | Propagated through all RouterOS commands                 |
+| Comment-based removal failure         | Logged as warning, best-effort cleanup continues         |
 
 ---
 
 ## Testing
 
-- Integration tests exist in `internal/config/integration_test.go` (uses CHR Docker for router simulation)
+- Integration tests exist in `internal/config/integration_test.go` (uses CHR Docker for router
+  simulation)
 - WAN provisioning: test `provisionDHCP`, `provisionPPPoE`, `provisionStatic` with mock `RouterPort`
 - Orchestrator: verify phase classification via `ClassifyResourcePath`; test rollback ordering
-- VPN client: mock `RouterPort.ExecuteCommand` to return resource IDs; verify 6-step WireGuard sequence
+- VPN client: mock `RouterPort.ExecuteCommand` to return resource IDs; verify 6-step WireGuard
+  sequence
 
 ---
 
 ## Cross-References
 
-- [See: 04-router-communication.md §RouterPort] — `router.RouterPort` interface used by all provisioners
-- [See: 05-event-system.md §Events] — `ProvisioningSessionAppliedEvent`, `ProvisioningSessionFailedEvent`
+- [See: 04-router-communication.md §RouterPort] — `router.RouterPort` interface used by all
+  provisioners
+- [See: 05-event-system.md §Events] — `ProvisioningSessionAppliedEvent`,
+  `ProvisioningSessionFailedEvent`
 - [See: 06-service-orchestrator.md] — Orchestrator lifecycle that calls provisioning during service install
 - [See: flows/04-config-provisioning-flow.md] — End-to-end provisioning flow diagram

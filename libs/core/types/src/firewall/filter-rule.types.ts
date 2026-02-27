@@ -23,9 +23,9 @@ import { ConnectionStateSchema, type ConnectionState } from './mangle-rule.types
  * Filter Chain - 3 chain points for packet filtering
  */
 export const FilterChainSchema = z.enum([
-  'input',   // Packets destined for the router
+  'input', // Packets destined for the router
   'forward', // Packets passing through the router
-  'output',  // Packets originating from the router
+  'output', // Packets originating from the router
 ]);
 
 export type FilterChain = z.infer<typeof FilterChainSchema>;
@@ -34,12 +34,12 @@ export type FilterChain = z.infer<typeof FilterChainSchema>;
  * Filter Action - What to do with matched packets
  */
 export const FilterActionSchema = z.enum([
-  'accept',      // Allow packet through
-  'drop',        // Silently discard packet
-  'reject',      // Discard and send ICMP error
-  'log',         // Log packet and continue
-  'jump',        // Jump to custom chain
-  'tarpit',      // Capture and hold connection
+  'accept', // Allow packet through
+  'drop', // Silently discard packet
+  'reject', // Discard and send ICMP error
+  'log', // Log packet and continue
+  'jump', // Jump to custom chain
+  'tarpit', // Capture and hold connection
   'passthrough', // Continue to next rule
 ]);
 
@@ -48,13 +48,7 @@ export type FilterAction = z.infer<typeof FilterActionSchema>;
 /**
  * Protocol types for filtering
  */
-export const FilterProtocolSchema = z.enum([
-  'tcp',
-  'udp',
-  'icmp',
-  'ipv6-icmp',
-  'all',
-]);
+export const FilterProtocolSchema = z.enum(['tcp', 'udp', 'icmp', 'ipv6-icmp', 'all']);
 
 export type FilterProtocol = z.infer<typeof FilterProtocolSchema>;
 
@@ -81,10 +75,13 @@ const isValidIPv4 = (value: string): boolean => {
   const octets = ip.split('.');
 
   // Validate octets (0-255)
-  if (!octets.every(octet => {
-    const num = parseInt(octet, 10);
-    return num >= 0 && num <= 255;
-  })) return false;
+  if (
+    !octets.every((octet) => {
+      const num = parseInt(octet, 10);
+      return num >= 0 && num <= 255;
+    })
+  )
+    return false;
 
   // Validate CIDR (0-32)
   if (cidr) {
@@ -111,10 +108,10 @@ const isValidPort = (value: string): boolean => {
   if (!portRegex.test(value)) return false;
 
   const parts = value.split('-');
-  const ports = parts.map(p => parseInt(p, 10));
+  const ports = parts.map((p) => parseInt(p, 10));
 
   // Validate port range (1-65535)
-  if (!ports.every(port => port >= 1 && port <= 65535)) return false;
+  if (!ports.every((port) => port >= 1 && port <= 65535)) return false;
 
   // Validate range order (start < end)
   if (ports.length === 2 && ports[0] >= ports[1]) return false;
@@ -167,129 +164,133 @@ const AddressListNameSchema = z
  *
  * Complete schema for filter rule configuration with all matchers and actions.
  */
-export const FilterRuleSchema = z.object({
-  // ========================================
-  // Identity
-  // ========================================
-  id: z.string().optional(),
+export const FilterRuleSchema = z
+  .object({
+    // ========================================
+    // Identity
+    // ========================================
+    id: z.string().optional(),
 
-  // ========================================
-  // Chain and Action (REQUIRED)
-  // ========================================
-  chain: FilterChainSchema,
-  action: FilterActionSchema,
+    // ========================================
+    // Chain and Action (REQUIRED)
+    // ========================================
+    chain: FilterChainSchema,
+    action: FilterActionSchema,
 
-  // Position for ordering (read-only from API)
-  order: z.number().int().optional(),
+    // Position for ordering (read-only from API)
+    order: z.number().int().optional(),
 
-  // ========================================
-  // Matchers - Basic
-  // ========================================
-  protocol: FilterProtocolSchema.optional(),
-  srcAddress: IPAddressSchema,
-  dstAddress: IPAddressSchema,
-  srcPort: PortSchema,
-  dstPort: PortSchema,
+    // ========================================
+    // Matchers - Basic
+    // ========================================
+    protocol: FilterProtocolSchema.optional(),
+    srcAddress: IPAddressSchema,
+    dstAddress: IPAddressSchema,
+    srcPort: PortSchema,
+    dstPort: PortSchema,
 
-  // ========================================
-  // Matchers - Address Lists
-  // ========================================
-  srcAddressList: AddressListNameSchema,
-  dstAddressList: AddressListNameSchema,
+    // ========================================
+    // Matchers - Address Lists
+    // ========================================
+    srcAddressList: AddressListNameSchema,
+    dstAddressList: AddressListNameSchema,
 
-  // ========================================
-  // Matchers - Interfaces
-  // ========================================
-  inInterface: InterfaceNameSchema,
-  outInterface: InterfaceNameSchema,
-  inInterfaceList: InterfaceNameSchema,
-  outInterfaceList: InterfaceNameSchema,
+    // ========================================
+    // Matchers - Interfaces
+    // ========================================
+    inInterface: InterfaceNameSchema,
+    outInterface: InterfaceNameSchema,
+    inInterfaceList: InterfaceNameSchema,
+    outInterfaceList: InterfaceNameSchema,
 
-  // ========================================
-  // Matchers - Connection State
-  // ========================================
-  connectionState: z.array(ConnectionStateSchema).optional(),
+    // ========================================
+    // Matchers - Connection State
+    // ========================================
+    connectionState: z.array(ConnectionStateSchema).optional(),
 
-  // ========================================
-  // Meta
-  // ========================================
-  comment: z.string().max(255).optional(),
-  disabled: z.boolean().default(false),
+    // ========================================
+    // Meta
+    // ========================================
+    comment: z.string().max(255).optional(),
+    disabled: z.boolean().default(false),
 
-  // ========================================
-  // Logging
-  // ========================================
-  log: z.boolean().default(false),
-  logPrefix: z.string()
-    .max(50, 'Log prefix must be 50 characters or less')
-    .regex(/^[a-zA-Z0-9-]+$/, 'Log prefix must contain only alphanumeric characters and hyphens')
-    .optional(),
+    // ========================================
+    // Logging
+    // ========================================
+    log: z.boolean().default(false),
+    logPrefix: z
+      .string()
+      .max(50, 'Log prefix must be 50 characters or less')
+      .regex(/^[a-zA-Z0-9-]+$/, 'Log prefix must contain only alphanumeric characters and hyphens')
+      .optional(),
 
-  // ========================================
-  // Jump Action
-  // ========================================
-  jumpTarget: z.string()
-    .max(63, 'Jump target (chain name) must be 63 characters or less')
-    .optional(),
+    // ========================================
+    // Jump Action
+    // ========================================
+    jumpTarget: z
+      .string()
+      .max(63, 'Jump target (chain name) must be 63 characters or less')
+      .optional(),
 
-  // ========================================
-  // Counters (read-only from API)
-  // ========================================
-  packets: z.number().int().optional(),
-  bytes: z.number().int().optional(),
-})
-.refine(
-  (data) => {
-    // Chain-specific validation: outInterface not allowed on input chain
-    if (data.chain === 'input' && (data.outInterface || data.outInterfaceList)) {
-      return false;
+    // ========================================
+    // Counters (read-only from API)
+    // ========================================
+    packets: z.number().int().optional(),
+    bytes: z.number().int().optional(),
+  })
+  .refine(
+    (data) => {
+      // Chain-specific validation: outInterface not allowed on input chain
+      if (data.chain === 'input' && (data.outInterface || data.outInterfaceList)) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message: 'Output interface cannot be specified for input chain (no routing decision yet)',
+      path: ['outInterface'],
     }
-    return true;
-  },
-  {
-    message: 'Output interface cannot be specified for input chain (no routing decision yet)',
-    path: ['outInterface'],
-  }
-)
-.refine(
-  (data) => {
-    // Chain-specific validation: inInterface not allowed on output chain
-    if (data.chain === 'output' && (data.inInterface || data.inInterfaceList)) {
-      return false;
+  )
+  .refine(
+    (data) => {
+      // Chain-specific validation: inInterface not allowed on output chain
+      if (data.chain === 'output' && (data.inInterface || data.inInterfaceList)) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message:
+        'Input interface cannot be specified for output chain (packets originate from router)',
+      path: ['inInterface'],
     }
-    return true;
-  },
-  {
-    message: 'Input interface cannot be specified for output chain (packets originate from router)',
-    path: ['inInterface'],
-  }
-)
-.refine(
-  (data) => {
-    // Require logPrefix if log is enabled
-    if (data.log && !data.logPrefix) {
-      return false;
+  )
+  .refine(
+    (data) => {
+      // Require logPrefix if log is enabled
+      if (data.log && !data.logPrefix) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message: 'Log prefix is required when logging is enabled',
+      path: ['logPrefix'],
     }
-    return true;
-  },
-  {
-    message: 'Log prefix is required when logging is enabled',
-    path: ['logPrefix'],
-  }
-)
-.refine(
-  (data) => {
-    // Require jumpTarget if action is jump
-    if (data.action === 'jump' && !data.jumpTarget) {
-      return false;
+  )
+  .refine(
+    (data) => {
+      // Require jumpTarget if action is jump
+      if (data.action === 'jump' && !data.jumpTarget) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message: 'Jump target (destination chain) is required for jump action',
+      path: ['jumpTarget'],
     }
-    return true;
-  },
-  {
-    message: 'Jump target (destination chain) is required for jump action',
-    path: ['jumpTarget'],
-  }
-);
+  );
 
 export type FilterRule = z.infer<typeof FilterRuleSchema>;
 export type FilterRuleInput = z.input<typeof FilterRuleSchema>;

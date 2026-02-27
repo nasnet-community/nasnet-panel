@@ -63,21 +63,15 @@ function isValidIPv4(value: string): boolean {
  * ```
  */
 export const routeLookupFormSchema = z.object({
-  destination: z
-    .string()
-    .min(1, 'Destination IP address is required')
-    .refine(isValidIPv4, {
-      message: 'Must be a valid IPv4 address (e.g., 192.168.1.1)',
-    }),
+  destination: z.string().min(1, 'Destination IP address is required').refine(isValidIPv4, {
+    message: 'Must be a valid IPv4 address (e.g., 192.168.1.1)',
+  }),
   source: z
     .string()
     .optional()
-    .refine(
-      (val) => !val || isValidIPv4(val),
-      {
-        message: 'Must be a valid IPv4 address (e.g., 10.0.0.1)',
-      }
-    ),
+    .refine((val) => !val || isValidIPv4(val), {
+      message: 'Must be a valid IPv4 address (e.g., 10.0.0.1)',
+    }),
 });
 
 /**

@@ -1,7 +1,7 @@
 {
   "id": "sub-libraries/forms",
   "title": "Forms & Validation Library Reference",
-  "description": "Comprehensive guide to @nasnet/core/forms — the schema-driven forms library with 7-stage validation pipeline",
+  "description": "Comprehensive guide to @nasnet/core/forms — the schema-driven forms library with 7-stage",
   "source": "@site/../../libs/core/docs/sub-libraries/forms.md",
   "sourceDirName": "sub-libraries",
   "slug": "/sub-libraries/forms",

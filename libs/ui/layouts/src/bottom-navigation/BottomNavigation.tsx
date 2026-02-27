@@ -110,7 +110,7 @@ const BottomNavigationImpl = React.forwardRef<HTMLElement, BottomNavigationProps
             {/* Badge - Error color for notification count */}
             {item.badge !== undefined && item.badge > 0 && (
               <span
-                className="absolute -top-1 -right-1 min-w-[1.25rem] h-5 px-1 flex items-center justify-center rounded-full bg-error text-white text-xs font-medium"
+                className="bg-error absolute -right-1 -top-1 flex h-5 min-w-[1.25rem] items-center justify-center rounded-full px-1 text-xs font-medium text-white"
                 aria-label={`${item.label}: ${item.badge} notifications`}
               >
                 {item.badge > 99 ? '99+' : item.badge}
@@ -121,7 +121,7 @@ const BottomNavigationImpl = React.forwardRef<HTMLElement, BottomNavigationProps
             <Icon
               icon={item.icon as any}
               className={cn(
-                'w-6 h-6 transition-colors duration-200',
+                'h-6 w-6 transition-colors duration-200',
                 isActive ? 'text-primary' : 'text-muted'
               )}
               aria-hidden="true"
@@ -141,7 +141,7 @@ const BottomNavigationImpl = React.forwardRef<HTMLElement, BottomNavigationProps
             {isActive && (
               <div
                 className={cn(
-                  'absolute bottom-0 left-1/2 -translate-x-1/2 w-12 h-1 bg-primary rounded-t-full',
+                  'bg-primary absolute bottom-0 left-1/2 h-1 w-12 -translate-x-1/2 rounded-t-full',
                   !prefersReducedMotion && 'animate-in fade-in duration-200'
                 )}
                 aria-hidden="true"
@@ -152,10 +152,10 @@ const BottomNavigationImpl = React.forwardRef<HTMLElement, BottomNavigationProps
 
         const commonClasses = cn(
           'relative flex flex-col items-center justify-center gap-1',
-          'flex-1 h-full min-h-[44px] min-w-[44px]', // 44px WCAG AAA touch target
+          'h-full min-h-[44px] min-w-[44px] flex-1', // 44px WCAG AAA touch target
           'transition-all duration-200',
           !prefersReducedMotion && 'active:scale-95',
-          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2',
+          'focus-visible:ring-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
           !isActive && 'hover:text-foreground'
         );
 
@@ -199,8 +199,8 @@ const BottomNavigationImpl = React.forwardRef<HTMLElement, BottomNavigationProps
         ref={ref}
         className={cn(
           'fixed bottom-0 left-0 right-0 z-40',
-          'backdrop-blur-md bg-card/80',
-          'border-t border-border',
+          'bg-card/80 backdrop-blur-md',
+          'border-border border-t',
           'hidden sm:flex md:hidden', // Hide on larger screens
           className
         )}
@@ -210,9 +210,7 @@ const BottomNavigationImpl = React.forwardRef<HTMLElement, BottomNavigationProps
         }}
         aria-label="Main navigation"
       >
-        <div className="flex items-center justify-around flex-1">
-          {renderedItems}
-        </div>
+        <div className="flex flex-1 items-center justify-around">{renderedItems}</div>
       </nav>
     );
   }
@@ -224,4 +222,3 @@ BottomNavigationImpl.displayName = 'BottomNavigation';
  * BottomNavigation component - Mobile-first bottom navigation bar
  */
 export const BottomNavigation = React.memo(BottomNavigationImpl);
-

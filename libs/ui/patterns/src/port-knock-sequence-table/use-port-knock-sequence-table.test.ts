@@ -18,9 +18,7 @@ import { describe, it, expect } from 'vitest';
 // import { usePortKnockSequenceTable } from './use-port-knock-sequence-table';
 
 // Import test fixtures
-import {
-  MOCK_SEQUENCES,
-} from '@nasnet/core/types/firewall/__test-fixtures__/port-knock-fixtures';
+import { MOCK_SEQUENCES } from '@nasnet/core/types/firewall/__test-fixtures__/port-knock-fixtures';
 
 // =============================================================================
 // Test Suite Setup

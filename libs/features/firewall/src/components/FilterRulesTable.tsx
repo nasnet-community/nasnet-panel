@@ -42,16 +42,20 @@ export interface FilterRulesTableProps {
  */
 export const FilterRulesTable = memo(function FilterRulesTable({
   className,
-  chain
+  chain,
 }: FilterRulesTableProps) {
   // Platform detection: <640px = Mobile, >=640px = Desktop
   const isMobile = useMediaQuery('(max-width: 640px)');
 
-  return isMobile ? (
-    <FilterRulesTableMobile className={cn(className)} chain={chain as 'input' | 'output' | 'forward' | undefined} />
-  ) : (
-    <FilterRulesTableDesktop className={cn(className)} chain={chain as 'input' | 'output' | 'forward' | undefined} />
-  );
+  return isMobile ?
+      <FilterRulesTableMobile
+        className={cn(className)}
+        chain={chain as 'input' | 'output' | 'forward' | undefined}
+      />
+    : <FilterRulesTableDesktop
+        className={cn(className)}
+        chain={chain as 'input' | 'output' | 'forward' | undefined}
+      />;
 });
 
 FilterRulesTable.displayName = 'FilterRulesTable';

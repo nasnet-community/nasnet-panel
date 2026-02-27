@@ -8,7 +8,11 @@
 import { TrendingUp, TrendingDown, Download, RefreshCw } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 
-import { Card, CardContent, CardHeader, CardTitle ,
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
   Button,
   Select,
   SelectContent,
@@ -18,7 +22,8 @@ import { Card, CardContent, CardHeader, CardTitle ,
   Skeleton,
   Alert,
   AlertDescription,
- cn } from '@nasnet/ui/primitives';
+  cn,
+} from '@nasnet/ui/primitives';
 
 import { POLLING_INTERVAL_CONFIGS } from './types';
 import { useRateLimitStatsOverview } from './use-rate-limit-stats-overview';
@@ -30,10 +35,12 @@ import type { RateLimitStatsOverviewProps } from './types';
  */
 function formatChartTime(timestamp: number): string {
   const date = new Date(timestamp);
-  return date.toLocaleTimeString('en-US', {
-    hour: '2-digit',
-    hour12: false,
-  }) + 'h';
+  return (
+    date.toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      hour12: false,
+    }) + 'h'
+  );
 }
 
 /**
@@ -44,7 +51,7 @@ function ChartTooltip({ active, payload }: any) {
 
   const data = payload[0].payload;
   return (
-    <div className="rounded-md border bg-popover p-2 shadow-md">
+    <div className="bg-popover rounded-md border p-2 shadow-md">
       <p className="text-xs font-medium">{new Date(data.timestamp).toLocaleTimeString()}</p>
       <p className="text-sm font-semibold">{data.count.toLocaleString()} blocked</p>
     </div>
@@ -88,7 +95,10 @@ export function RateLimitStatsOverviewMobile(props: RateLimitStatsOverviewProps)
   // Error state
   if (state.error) {
     return (
-      <Alert variant="destructive" className={className}>
+      <Alert
+        variant="destructive"
+        className={className}
+      >
         <AlertDescription>{state.error}</AlertDescription>
       </Alert>
     );
@@ -132,7 +142,7 @@ export function RateLimitStatsOverviewMobile(props: RateLimitStatsOverviewProps)
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
-            <div className="text-3xl font-mono font-bold tabular-nums">
+            <div className="font-mono text-3xl font-bold tabular-nums">
               {stats.totalBlocked.toLocaleString()}
             </div>
             {trend !== 0 && (
@@ -142,11 +152,9 @@ export function RateLimitStatsOverviewMobile(props: RateLimitStatsOverviewProps)
                   trend > 0 ? 'text-red-600' : 'text-green-600'
                 )}
               >
-                {trend > 0 ? (
+                {trend > 0 ?
                   <TrendingUp className="h-4 w-4" />
-                ) : (
-                  <TrendingDown className="h-4 w-4" />
-                )}
+                : <TrendingDown className="h-4 w-4" />}
                 <span className="font-medium">
                   {Math.abs(trend).toLocaleString()} from last hour
                 </span>
@@ -162,14 +170,23 @@ export function RateLimitStatsOverviewMobile(props: RateLimitStatsOverviewProps)
           <CardTitle className="text-sm font-medium">12-Hour Activity</CardTitle>
         </CardHeader>
         <CardContent>
-          {mobileChartData.length === 0 ? (
-            <div className="flex h-[180px] items-center justify-center text-sm text-muted-foreground">
+          {mobileChartData.length === 0 ?
+            <div className="text-muted-foreground flex h-[180px] items-center justify-center text-sm">
               No activity data
             </div>
-          ) : (
-            <div className="h-[180px] w-full" role="img" aria-label="12-hour blocked connections timeline">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={mobileChartData} margin={{ top: 5, right: 0, bottom: 5, left: 0 }}>
+          : <div
+              className="h-[180px] w-full"
+              role="img"
+              aria-label="12-hour blocked connections timeline"
+            >
+              <ResponsiveContainer
+                width="100%"
+                height="100%"
+              >
+                <BarChart
+                  data={mobileChartData}
+                  margin={{ top: 5, right: 0, bottom: 5, left: 0 }}
+                >
                   <XAxis
                     dataKey="timestamp"
                     type="number"
@@ -189,7 +206,7 @@ export function RateLimitStatsOverviewMobile(props: RateLimitStatsOverviewProps)
                 </BarChart>
               </ResponsiveContainer>
             </div>
-          )}
+          }
         </CardContent>
       </Card>
 
@@ -199,34 +216,31 @@ export function RateLimitStatsOverviewMobile(props: RateLimitStatsOverviewProps)
           <CardTitle className="text-sm font-medium">Top Blocked IPs</CardTitle>
         </CardHeader>
         <CardContent>
-          {topBlockedIPs.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No blocked IPs yet</p>
-          ) : (
-            <div className="space-y-2">
+          {topBlockedIPs.length === 0 ?
+            <p className="text-muted-foreground text-sm">No blocked IPs yet</p>
+          : <div className="space-y-2">
               {topBlockedIPs.map((ip, index) => (
                 <div
                   key={ip.address}
                   className="flex items-center justify-between rounded-md border p-3"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="flex h-7 w-7 items-center justify-center rounded-full bg-muted text-xs font-semibold">
+                    <div className="bg-muted flex h-7 w-7 items-center justify-center rounded-full text-xs font-semibold">
                       {index + 1}
                     </div>
                     <div>
                       <div className="font-mono text-sm font-medium">{ip.address}</div>
-                      <div className="text-xs text-muted-foreground">{ip.list}</div>
+                      <div className="text-muted-foreground text-xs">{ip.list}</div>
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="text-sm font-semibold">
-                      {ip.blockCount.toLocaleString()}
-                    </div>
-                    <div className="text-xs text-muted-foreground">blocks</div>
+                    <div className="text-sm font-semibold">{ip.blockCount.toLocaleString()}</div>
+                    <div className="text-muted-foreground text-xs">blocks</div>
                   </div>
                 </div>
               ))}
             </div>
-          )}
+          }
         </CardContent>
       </Card>
 
@@ -234,10 +248,16 @@ export function RateLimitStatsOverviewMobile(props: RateLimitStatsOverviewProps)
       <div className="flex flex-col gap-3">
         {/* Polling interval selector */}
         <div>
-          <label htmlFor="polling-interval-mobile" className="mb-2 block text-sm font-medium">
+          <label
+            htmlFor="polling-interval-mobile"
+            className="mb-2 block text-sm font-medium"
+          >
             Update Interval
           </label>
-          <Select value={pollingInterval} onValueChange={actions.setPollingInterval}>
+          <Select
+            value={pollingInterval}
+            onValueChange={actions.setPollingInterval}
+          >
             <SelectTrigger
               id="polling-interval-mobile"
               className="h-11 w-full"
@@ -246,19 +266,24 @@ export function RateLimitStatsOverviewMobile(props: RateLimitStatsOverviewProps)
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {(Object.keys(POLLING_INTERVAL_CONFIGS) as Array<keyof typeof POLLING_INTERVAL_CONFIGS>).map(
-                (interval) => {
-                  const config = POLLING_INTERVAL_CONFIGS[interval];
-                  return (
-                    <SelectItem key={interval} value={interval}>
-                      <div className="flex flex-col">
-                        <span className="font-medium">{config.label}</span>
-                        <span className="text-xs text-muted-foreground">{config.description}</span>
-                      </div>
-                    </SelectItem>
-                  );
-                }
-              )}
+              {(
+                Object.keys(POLLING_INTERVAL_CONFIGS) as Array<
+                  keyof typeof POLLING_INTERVAL_CONFIGS
+                >
+              ).map((interval) => {
+                const config = POLLING_INTERVAL_CONFIGS[interval];
+                return (
+                  <SelectItem
+                    key={interval}
+                    value={interval}
+                  >
+                    <div className="flex flex-col">
+                      <span className="font-medium">{config.label}</span>
+                      <span className="text-muted-foreground text-xs">{config.description}</span>
+                    </div>
+                  </SelectItem>
+                );
+              })}
             </SelectContent>
           </Select>
         </div>
@@ -271,13 +296,18 @@ export function RateLimitStatsOverviewMobile(props: RateLimitStatsOverviewProps)
           className="h-11 w-full"
           aria-label="Export statistics to CSV"
         >
-          <Download className="h-5 w-5 mr-2" />
+          <Download className="mr-2 h-5 w-5" />
           Export CSV
         </Button>
       </div>
 
       {/* Live region for accessibility */}
-      <div role="status" aria-live="polite" aria-atomic="true" className="sr-only">
+      <div
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+        className="sr-only"
+      >
         Rate limiting statistics updated. Total blocked: {stats.totalBlocked.toLocaleString()}.
         {trend !== 0 && ` Trend: ${trend > 0 ? 'increasing' : 'decreasing'} by ${Math.abs(trend)}.`}
       </div>

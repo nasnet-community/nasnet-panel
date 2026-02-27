@@ -12,7 +12,6 @@ import type { RateLimitRule } from '@nasnet/core/types';
 
 import { useRateLimitingUIStore } from './rate-limiting-ui.store';
 
-
 describe('useRateLimitingUIStore', () => {
   // Clear localStorage before each test
   beforeEach(() => {

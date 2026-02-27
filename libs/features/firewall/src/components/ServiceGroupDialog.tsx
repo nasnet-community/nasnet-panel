@@ -160,39 +160,44 @@ export const ServiceGroupDialog = memo(function ServiceGroupDialog({
   }, [selectedPorts]);
 
   // Handle service selection toggle
-  const handleToggleService = useCallback((port: number) => {
-    const currentPorts = form.getValues('ports');
-    const newPorts = currentPorts.includes(port)
-      ? currentPorts.filter((p) => p !== port)
-      : [...currentPorts, port];
+  const handleToggleService = useCallback(
+    (port: number) => {
+      const currentPorts = form.getValues('ports');
+      const newPorts =
+        currentPorts.includes(port) ?
+          currentPorts.filter((p) => p !== port)
+        : [...currentPorts, port];
 
-    form.setValue('ports', newPorts, { shouldValidate: true });
-  }, [form]);
+      form.setValue('ports', newPorts, { shouldValidate: true });
+    },
+    [form]
+  );
 
   // Handle form submission
-  const handleSubmit = useCallback(async (data: ServiceGroupInput) => {
-    try {
-      if (editGroup) {
-        await updateGroup(editGroup.id, data);
-      } else {
-        await createGroup(data);
-      }
+  const handleSubmit = useCallback(
+    async (data: ServiceGroupInput) => {
+      try {
+        if (editGroup) {
+          await updateGroup(editGroup.id, data);
+        } else {
+          await createGroup(data);
+        }
 
-      // Close dialog and reset form
-      onOpenChange(false);
-      form.reset();
-      setSearchQuery('');
-    } catch (error) {
-      // Set error on name field (most likely conflict)
-      form.setError('name', {
-        type: 'manual',
-        message:
-          error instanceof Error
-            ? error.message
-            : t('servicePorts.validation.groupNameExists'),
-      });
-    }
-  }, [editGroup, updateGroup, createGroup, onOpenChange, form, t]);
+        // Close dialog and reset form
+        onOpenChange(false);
+        form.reset();
+        setSearchQuery('');
+      } catch (error) {
+        // Set error on name field (most likely conflict)
+        form.setError('name', {
+          type: 'manual',
+          message:
+            error instanceof Error ? error.message : t('servicePorts.validation.groupNameExists'),
+        });
+      }
+    },
+    [editGroup, updateGroup, createGroup, onOpenChange, form, t]
+  );
 
   // Form errors
   const nameError = form.formState.errors.name?.message;
@@ -200,31 +205,33 @@ export const ServiceGroupDialog = memo(function ServiceGroupDialog({
   const isSubmitting = form.formState.isSubmitting;
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col">
+    <Dialog
+      open={open}
+      onOpenChange={onOpenChange}
+    >
+      <DialogContent className="flex max-h-[90vh] max-w-2xl flex-col">
         <DialogHeader>
           <DialogTitle>
-            {editGroup
-              ? t('servicePorts.editGroup')
-              : t('servicePorts.createGroup')}
+            {editGroup ? t('servicePorts.editGroup') : t('servicePorts.createGroup')}
           </DialogTitle>
           <DialogDescription>
-            {editGroup
-              ? t('servicePorts.editGroupDescription', {
-                  defaultValue: 'Modify the service group configuration',
-                })
-              : t('servicePorts.createGroupDescription', {
-                  defaultValue:
-                    'Group multiple services together for quick selection in firewall rules',
-                })}
+            {editGroup ?
+              t('servicePorts.editGroupDescription', {
+                defaultValue: 'Modify the service group configuration',
+              })
+            : t('servicePorts.createGroupDescription', {
+                defaultValue:
+                  'Group multiple services together for quick selection in firewall rules',
+              })
+            }
           </DialogDescription>
         </DialogHeader>
 
         <form
           onSubmit={form.handleSubmit(handleSubmit)}
-          className="flex-1 flex flex-col overflow-hidden"
+          className="flex flex-1 flex-col overflow-hidden"
         >
-          <ScrollArea className="flex-1 pr-component-md">
+          <ScrollArea className="pr-component-md flex-1">
             <div className="space-y-component-lg py-component-xs">
               {/* Group Name */}
               <div className="space-y-component-sm">
@@ -242,7 +249,7 @@ export const ServiceGroupDialog = memo(function ServiceGroupDialog({
                 {nameError && (
                   <p
                     id="group-name-error"
-                    className="text-sm text-error"
+                    className="text-error text-sm"
                     role="alert"
                   >
                     {nameError}
@@ -259,26 +266,42 @@ export const ServiceGroupDialog = memo(function ServiceGroupDialog({
                   render={({ field }) => (
                     <RadioGroup
                       value={field.value}
-                      onValueChange={(value) =>
-                        field.onChange(value as ServicePortProtocol)
-                      }
-                      className="flex gap-component-md"
+                      onValueChange={(value) => field.onChange(value as ServicePortProtocol)}
+                      className="gap-component-md flex"
                     >
-                      <div className="flex items-center space-x-component-sm">
-                        <RadioGroupItem value="tcp" id="protocol-tcp" />
-                        <Label htmlFor="protocol-tcp" className="font-normal">
+                      <div className="space-x-component-sm flex items-center">
+                        <RadioGroupItem
+                          value="tcp"
+                          id="protocol-tcp"
+                        />
+                        <Label
+                          htmlFor="protocol-tcp"
+                          className="font-normal"
+                        >
                           {t('servicePorts.protocols.tcp')}
                         </Label>
                       </div>
-                      <div className="flex items-center space-x-component-sm">
-                        <RadioGroupItem value="udp" id="protocol-udp" />
-                        <Label htmlFor="protocol-udp" className="font-normal">
+                      <div className="space-x-component-sm flex items-center">
+                        <RadioGroupItem
+                          value="udp"
+                          id="protocol-udp"
+                        />
+                        <Label
+                          htmlFor="protocol-udp"
+                          className="font-normal"
+                        >
                           {t('servicePorts.protocols.udp')}
                         </Label>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="both" id="protocol-both" />
-                        <Label htmlFor="protocol-both" className="font-normal">
+                        <RadioGroupItem
+                          value="both"
+                          id="protocol-both"
+                        />
+                        <Label
+                          htmlFor="protocol-both"
+                          className="font-normal"
+                        >
                           {t('servicePorts.protocols.both')}
                         </Label>
                       </div>
@@ -293,7 +316,10 @@ export const ServiceGroupDialog = memo(function ServiceGroupDialog({
                   {t('servicePorts.fields.services')}
                   <span className="text-error ml-0.5">*</span>
                 </Label>
-                <Popover open={isPickerOpen} onOpenChange={setIsPickerOpen}>
+                <Popover
+                  open={isPickerOpen}
+                  onOpenChange={setIsPickerOpen}
+                >
                   <PopoverTrigger asChild>
                     <Button
                       id="services-picker"
@@ -309,11 +335,15 @@ export const ServiceGroupDialog = memo(function ServiceGroupDialog({
                       )}
                     >
                       <span className="truncate">
-                        {selectedPorts.length === 0
-                          ? t('servicePorts.placeholders.selectServices')
-                          : `${selectedPorts.length} service${selectedPorts.length !== 1 ? 's' : ''} selected`}
+                        {selectedPorts.length === 0 ?
+                          t('servicePorts.placeholders.selectServices')
+                        : `${selectedPorts.length} service${selectedPorts.length !== 1 ? 's' : ''} selected`
+                        }
                       </span>
-                      <Search className="ml-2 h-4 w-4 shrink-0 opacity-50" aria-hidden="true" />
+                      <Search
+                        className="ml-2 h-4 w-4 shrink-0 opacity-50"
+                        aria-hidden="true"
+                      />
                     </Button>
                   </PopoverTrigger>
 
@@ -324,12 +354,15 @@ export const ServiceGroupDialog = memo(function ServiceGroupDialog({
                     {/* Search Header */}
                     <div className="p-component-sm border-b">
                       <div className="relative">
-                        <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                        <Search
+                          className="text-muted-foreground absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2"
+                          aria-hidden="true"
+                        />
                         <Input
                           value={searchQuery}
                           onChange={(e) => setSearchQuery(e.target.value)}
                           placeholder={t('servicePorts.placeholders.searchServices')}
-                          className="pl-9 h-9"
+                          className="h-9 pl-9"
                           aria-label={t('servicePorts.labels.searchServices', {
                             defaultValue: 'Search services',
                           })}
@@ -338,13 +371,16 @@ export const ServiceGroupDialog = memo(function ServiceGroupDialog({
                           <Button
                             variant="ghost"
                             size="sm"
-                            className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7 p-0"
+                            className="absolute right-1 top-1/2 h-7 w-7 -translate-y-1/2 p-0"
                             onClick={() => setSearchQuery('')}
                             aria-label={t('servicePorts.labels.clearSearch', {
                               defaultValue: 'Clear search',
                             })}
                           >
-                            <X className="h-3.5 w-3.5" aria-hidden="true" />
+                            <X
+                              className="h-3.5 w-3.5"
+                              aria-hidden="true"
+                            />
                           </Button>
                         )}
                       </div>
@@ -352,12 +388,16 @@ export const ServiceGroupDialog = memo(function ServiceGroupDialog({
 
                     {/* Service List */}
                     <ScrollArea className="max-h-[300px]">
-                      <div role="listbox" aria-label="Service list" className="p-component-sm">
+                      <div
+                        role="listbox"
+                        aria-label="Service list"
+                        className="p-component-sm"
+                      >
                         {filteredServices.length === 0 && (
-                          <div className="py-8 text-center text-sm text-muted-foreground">
-                            {searchQuery
-                              ? 'No services match your search'
-                              : 'No services available for this protocol'}
+                          <div className="text-muted-foreground py-8 text-center text-sm">
+                            {searchQuery ?
+                              'No services match your search'
+                            : 'No services available for this protocol'}
                           </div>
                         )}
 
@@ -368,7 +408,7 @@ export const ServiceGroupDialog = memo(function ServiceGroupDialog({
                             <div
                               key={service.port}
                               className={cn(
-                                'flex items-center gap-component-sm p-component-sm rounded-md cursor-pointer hover:bg-accent',
+                                'gap-component-sm p-component-sm hover:bg-accent flex cursor-pointer items-center rounded-md',
                                 isSelected && 'bg-accent/50'
                               )}
                               onClick={() => handleToggleService(service.port)}
@@ -383,22 +423,28 @@ export const ServiceGroupDialog = memo(function ServiceGroupDialog({
                                   service: service.service,
                                 })}
                               />
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-component-sm">
-                                  <span className="font-medium text-sm truncate">
+                              <div className="min-w-0 flex-1">
+                                <div className="gap-component-sm flex items-center">
+                                  <span className="truncate text-sm font-medium">
                                     {service.service}
                                   </span>
-                                  <Badge variant="outline" className="text-xs font-mono">
+                                  <Badge
+                                    variant="outline"
+                                    className="font-mono text-xs"
+                                  >
                                     {service.port}
                                   </Badge>
                                   {service.isBuiltIn && (
-                                    <Badge variant="secondary" className="text-xs">
+                                    <Badge
+                                      variant="secondary"
+                                      className="text-xs"
+                                    >
                                       Built-in
                                     </Badge>
                                   )}
                                 </div>
                                 {service.description && (
-                                  <p className="text-xs text-muted-foreground truncate mt-0.5">
+                                  <p className="text-muted-foreground mt-0.5 truncate text-xs">
                                     {service.description}
                                   </p>
                                 )}
@@ -411,16 +457,20 @@ export const ServiceGroupDialog = memo(function ServiceGroupDialog({
 
                     {/* Footer */}
                     {filteredServices.length > 0 && (
-                      <div className="px-component-sm py-component-sm border-t text-xs text-muted-foreground">
+                      <div className="px-component-sm py-component-sm text-muted-foreground border-t text-xs">
                         {t('servicePorts.labels.servicesAvailable', {
                           defaultValue: '{{count}} service available',
                           count: filteredServices.length,
                         })}
                         {selectedPorts.length > 0 && (
-                          <span> · {t('servicePorts.labels.servicesSelected', {
-                            defaultValue: '{{count}} selected',
-                            count: selectedPorts.length,
-                          })}</span>
+                          <span>
+                            {' '}
+                            ·{' '}
+                            {t('servicePorts.labels.servicesSelected', {
+                              defaultValue: '{{count}} selected',
+                              count: selectedPorts.length,
+                            })}
+                          </span>
                         )}
                       </div>
                     )}
@@ -428,7 +478,10 @@ export const ServiceGroupDialog = memo(function ServiceGroupDialog({
                 </Popover>
 
                 {portsError && (
-                  <p className="text-sm text-error" role="alert">
+                  <p
+                    className="text-error text-sm"
+                    role="alert"
+                  >
                     {portsError}
                   </p>
                 )}
@@ -437,17 +490,17 @@ export const ServiceGroupDialog = memo(function ServiceGroupDialog({
               {/* Selected Services Chips */}
               {selectedServices.length > 0 && (
                 <div className="space-y-component-sm">
-                  <Label className="text-sm text-muted-foreground">
+                  <Label className="text-muted-foreground text-sm">
                     Selected Services ({selectedServices.length})
                   </Label>
-                  <div className="flex flex-wrap gap-component-sm">
+                  <div className="gap-component-sm flex flex-wrap">
                     {selectedServices.map((service) => (
                       <Badge
                         key={service.port}
                         variant="secondary"
                         className="gap-component-sm pl-component-sm pr-1"
                       >
-                        <span className="text-xs font-mono">
+                        <span className="font-mono text-xs">
                           {service.service} ({service.port})
                         </span>
                         <button
@@ -456,13 +509,16 @@ export const ServiceGroupDialog = memo(function ServiceGroupDialog({
                             e.stopPropagation();
                             handleToggleService(service.port);
                           }}
-                          className="rounded-full p-component-xs hover:bg-muted"
+                          className="p-component-xs hover:bg-muted rounded-full"
                           aria-label={t('servicePorts.labels.removeService', {
                             defaultValue: 'Remove {{service}}',
                             service: service.service,
                           })}
                         >
-                          <X className="h-3 w-3" aria-hidden="true" />
+                          <X
+                            className="h-3 w-3"
+                            aria-hidden="true"
+                          />
                         </button>
                       </Badge>
                     ))}
@@ -473,7 +529,10 @@ export const ServiceGroupDialog = memo(function ServiceGroupDialog({
               {/* Preview Section */}
               {selectedPorts.length > 0 && (
                 <Alert>
-                  <Info className="h-4 w-4" aria-hidden="true" />
+                  <Info
+                    className="h-4 w-4"
+                    aria-hidden="true"
+                  />
                   <AlertDescription className="space-y-2">
                     <div className="flex items-center justify-between">
                       <span className="font-medium">
@@ -484,10 +543,10 @@ export const ServiceGroupDialog = memo(function ServiceGroupDialog({
                         {selectedPorts.length !== 1 ? 's' : ''}
                       </Badge>
                     </div>
-                    <div className="text-sm text-muted-foreground break-all font-mono">
+                    <div className="text-muted-foreground break-all font-mono text-sm">
                       {previewPortList}
                     </div>
-                    <div className="text-xs text-muted-foreground">
+                    <div className="text-muted-foreground text-xs">
                       {t('servicePorts.labels.protocol', {
                         defaultValue: 'Protocol:',
                       })}{' '}
@@ -501,7 +560,7 @@ export const ServiceGroupDialog = memo(function ServiceGroupDialog({
               <div className="space-y-component-sm">
                 <Label htmlFor="group-description">
                   {t('servicePorts.fields.description')}
-                  <span className="text-muted-foreground text-xs ml-1">(optional)</span>
+                  <span className="text-muted-foreground ml-1 text-xs">(optional)</span>
                 </Label>
                 <Textarea
                   id="group-description"
@@ -527,12 +586,15 @@ export const ServiceGroupDialog = memo(function ServiceGroupDialog({
             >
               {t('servicePorts.buttons.cancel', { defaultValue: 'Cancel' })}
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting
-                ? 'Saving...'
-                : editGroup
-                  ? t('servicePorts.buttons.save', { defaultValue: 'Save' })
-                  : t('servicePorts.buttons.create', { defaultValue: 'Create Group' })}
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ?
+                'Saving...'
+              : editGroup ?
+                t('servicePorts.buttons.save', { defaultValue: 'Save' })
+              : t('servicePorts.buttons.create', { defaultValue: 'Create Group' })}
             </Button>
           </DialogFooter>
         </form>

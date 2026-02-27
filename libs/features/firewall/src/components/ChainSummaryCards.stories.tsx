@@ -55,18 +55,20 @@ const queryClient = new QueryClient({
 });
 
 function QueryWrapper({ children }: { children: React.ReactNode }) {
-  return (
-    <QueryClientProvider client={queryClient}>
-      {children}
-    </QueryClientProvider>
-  );
+  return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
 }
 
 const meta = {
   title: 'Features/Firewall/ChainSummaryCards',
   component: ChainSummaryCards,
   tags: ['autodocs'],
-  decorators: [(Story) => <QueryWrapper><Story /></QueryWrapper>],
+  decorators: [
+    (Story) => (
+      <QueryWrapper>
+        <Story />
+      </QueryWrapper>
+    ),
+  ],
   parameters: {
     layout: 'padded',
     docs: {
@@ -133,24 +135,48 @@ export const Default: Story = {
             data: [
               // --- input chain: 7 accept, 3 drop, 2 disabled ---
               ...Array.from({ length: 7 }, (_, i) => ({
-                id: `*in-a-${i}`, chain: 'input', action: 'accept', disabled: false, order: i,
+                id: `*in-a-${i}`,
+                chain: 'input',
+                action: 'accept',
+                disabled: false,
+                order: i,
               })),
               ...Array.from({ length: 3 }, (_, i) => ({
-                id: `*in-d-${i}`, chain: 'input', action: 'drop', disabled: false, order: 7 + i,
+                id: `*in-d-${i}`,
+                chain: 'input',
+                action: 'drop',
+                disabled: false,
+                order: 7 + i,
               })),
               ...Array.from({ length: 2 }, (_, i) => ({
-                id: `*in-x-${i}`, chain: 'input', action: 'accept', disabled: true, order: 10 + i,
+                id: `*in-x-${i}`,
+                chain: 'input',
+                action: 'accept',
+                disabled: true,
+                order: 10 + i,
               })),
               // --- forward chain: 5 accept, 3 drop ---
               ...Array.from({ length: 5 }, (_, i) => ({
-                id: `*fwd-a-${i}`, chain: 'forward', action: 'accept', disabled: false, order: 12 + i,
+                id: `*fwd-a-${i}`,
+                chain: 'forward',
+                action: 'accept',
+                disabled: false,
+                order: 12 + i,
               })),
               ...Array.from({ length: 3 }, (_, i) => ({
-                id: `*fwd-d-${i}`, chain: 'forward', action: 'drop', disabled: false, order: 17 + i,
+                id: `*fwd-d-${i}`,
+                chain: 'forward',
+                action: 'drop',
+                disabled: false,
+                order: 17 + i,
               })),
               // --- output chain: 3 accept, 1 reject ---
               ...Array.from({ length: 3 }, (_, i) => ({
-                id: `*out-a-${i}`, chain: 'output', action: 'accept', disabled: false, order: 20 + i,
+                id: `*out-a-${i}`,
+                chain: 'output',
+                action: 'accept',
+                disabled: false,
+                order: 20 + i,
               })),
               { id: '*out-r-0', chain: 'output', action: 'reject', disabled: false, order: 23 },
             ],
@@ -187,7 +213,11 @@ export const InputChainSelected: Story = {
           response: {
             data: [
               ...Array.from({ length: 6 }, (_, i) => ({
-                id: `*in-a-${i}`, chain: 'input', action: 'accept', disabled: false, order: i,
+                id: `*in-a-${i}`,
+                chain: 'input',
+                action: 'accept',
+                disabled: false,
+                order: i,
               })),
               { id: '*in-d-0', chain: 'input', action: 'drop', disabled: false, order: 6 },
               { id: '*fwd-a-0', chain: 'forward', action: 'accept', disabled: false, order: 7 },
@@ -228,7 +258,11 @@ export const ForwardChainSelected: Story = {
             data: [
               { id: '*in-a-0', chain: 'input', action: 'accept', disabled: false, order: 0 },
               ...Array.from({ length: 10 }, (_, i) => ({
-                id: `*fwd-a-${i}`, chain: 'forward', action: i < 6 ? 'accept' : 'drop', disabled: false, order: 1 + i,
+                id: `*fwd-a-${i}`,
+                chain: 'forward',
+                action: i < 6 ? 'accept' : 'drop',
+                disabled: false,
+                order: 1 + i,
               })),
               { id: '*out-a-0', chain: 'output', action: 'accept', disabled: false, order: 11 },
             ],
@@ -265,25 +299,53 @@ export const HighRuleCount: Story = {
           response: {
             data: [
               ...Array.from({ length: 20 }, (_, i) => ({
-                id: `*in-a-${i}`, chain: 'input', action: 'accept', disabled: false, order: i,
+                id: `*in-a-${i}`,
+                chain: 'input',
+                action: 'accept',
+                disabled: false,
+                order: i,
               })),
               ...Array.from({ length: 8 }, (_, i) => ({
-                id: `*in-d-${i}`, chain: 'input', action: 'drop', disabled: false, order: 20 + i,
+                id: `*in-d-${i}`,
+                chain: 'input',
+                action: 'drop',
+                disabled: false,
+                order: 20 + i,
               })),
               ...Array.from({ length: 4 }, (_, i) => ({
-                id: `*in-x-${i}`, chain: 'input', action: 'accept', disabled: true, order: 28 + i,
+                id: `*in-x-${i}`,
+                chain: 'input',
+                action: 'accept',
+                disabled: true,
+                order: 28 + i,
               })),
               ...Array.from({ length: 16 }, (_, i) => ({
-                id: `*fwd-a-${i}`, chain: 'forward', action: 'accept', disabled: false, order: 32 + i,
+                id: `*fwd-a-${i}`,
+                chain: 'forward',
+                action: 'accept',
+                disabled: false,
+                order: 32 + i,
               })),
               ...Array.from({ length: 6 }, (_, i) => ({
-                id: `*fwd-d-${i}`, chain: 'forward', action: 'drop', disabled: false, order: 48 + i,
+                id: `*fwd-d-${i}`,
+                chain: 'forward',
+                action: 'drop',
+                disabled: false,
+                order: 48 + i,
               })),
               ...Array.from({ length: 2 }, (_, i) => ({
-                id: `*fwd-r-${i}`, chain: 'forward', action: 'reject', disabled: false, order: 54 + i,
+                id: `*fwd-r-${i}`,
+                chain: 'forward',
+                action: 'reject',
+                disabled: false,
+                order: 54 + i,
               })),
               ...Array.from({ length: 6 }, (_, i) => ({
-                id: `*out-a-${i}`, chain: 'output', action: 'accept', disabled: false, order: 56 + i,
+                id: `*out-a-${i}`,
+                chain: 'output',
+                action: 'accept',
+                disabled: false,
+                order: 56 + i,
               })),
               { id: '*out-d-0', chain: 'output', action: 'drop', disabled: false, order: 62 },
               { id: '*out-d-1', chain: 'output', action: 'drop', disabled: false, order: 63 },

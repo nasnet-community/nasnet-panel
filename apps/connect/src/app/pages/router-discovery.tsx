@@ -23,8 +23,7 @@ import {
   loadCredentials,
   type CredentialValidationResult,
 } from '@nasnet/features/router-discovery';
-import { useRouterStore , useConnectionStore } from '@nasnet/state/stores';
-
+import { useRouterStore, useConnectionStore } from '@nasnet/state/stores';
 
 type ViewMode = 'scan' | 'manual' | 'list';
 
@@ -45,22 +44,14 @@ export const RouterDiscoveryPage = React.memo(function RouterDiscoveryPage() {
   const navigate = useNavigate();
 
   // Stores
-  const {
-    addRouter,
-    updateRouter,
-    removeRouter,
-    selectRouter,
-    selectedRouterId,
-    getAllRouters,
-  } = useRouterStore();
+  const { addRouter, updateRouter, removeRouter, selectRouter, selectedRouterId, getAllRouters } =
+    useRouterStore();
   const { setCurrentRouter } = useConnectionStore();
 
   // Local state
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [credentialDialogOpen, setCredentialDialogOpen] = useState(false);
-  const [selectedRouterForAuth, setSelectedRouterForAuth] = useState<Router | null>(
-    null
-  );
+  const [selectedRouterForAuth, setSelectedRouterForAuth] = useState<Router | null>(null);
 
   // Hooks
   const testConnection = useTestConnection();
@@ -155,10 +146,7 @@ export const RouterDiscoveryPage = React.memo(function RouterDiscoveryPage() {
                 lastConnected: new Date(),
                 model: result.routerInfo?.model,
                 routerOsVersion: result.routerInfo?.version,
-                name:
-                  router.name ||
-                  result.routerInfo?.identity ||
-                  router.ipAddress,
+                name: router.name || result.routerInfo?.identity || router.ipAddress,
               };
 
               updateRouter(router.id, updatedRouter);
@@ -197,10 +185,7 @@ export const RouterDiscoveryPage = React.memo(function RouterDiscoveryPage() {
   /**
    * Handles credential submission and validation
    */
-  const handleCredentialSubmit = (
-    credentials: RouterCredentials,
-    saveCredentials: boolean
-  ) => {
+  const handleCredentialSubmit = (credentials: RouterCredentials, saveCredentials: boolean) => {
     if (!selectedRouterForAuth) return;
 
     // Update router status to connecting
@@ -241,10 +226,7 @@ export const RouterDiscoveryPage = React.memo(function RouterDiscoveryPage() {
             });
 
             // Update connection store
-            setCurrentRouter(
-              selectedRouterForAuth.id,
-              selectedRouterForAuth.ipAddress
-            );
+            setCurrentRouter(selectedRouterForAuth.id, selectedRouterForAuth.ipAddress);
 
             // Close dialog and navigate to main app
             setCredentialDialogOpen(false);
@@ -275,52 +257,50 @@ export const RouterDiscoveryPage = React.memo(function RouterDiscoveryPage() {
   const allRouters = getAllRouters();
 
   return (
-    <div className="min-h-screen bg-background animate-fade-in-up">
-      <div className="max-w-7xl mx-auto px-page-mobile md:px-page-tablet lg:px-page-desktop py-12">
+    <div className="bg-background animate-fade-in-up min-h-screen">
+      <div className="px-page-mobile md:px-page-tablet lg:px-page-desktop mx-auto max-w-7xl py-12">
         {/* Header */}
-        <div className="text-center mb-12 brand-gradient-subtle rounded-card-lg py-12 px-6 border border-border/30">
+        <div className="brand-gradient-subtle rounded-card-lg border-border/30 mb-12 border px-6 py-12 text-center">
           <img
             src="/favicon.png"
             alt="NasNet"
-            className="w-20 h-20 mx-auto mb-6 rounded-2xl shadow-lg ring-4 ring-primary/20"
+            className="ring-primary/20 mx-auto mb-6 h-20 w-20 rounded-2xl shadow-lg ring-4"
           />
-          <h1 className="text-4xl font-bold font-display text-foreground mb-4">
+          <h1 className="font-display text-foreground mb-4 text-4xl font-bold">
             {t('discovery.title')}
           </h1>
-          <p className="text-lg text-muted-foreground">
-            {t('discovery.subtitle')}
-          </p>
+          <p className="text-muted-foreground text-lg">{t('discovery.subtitle')}</p>
         </div>
 
         {/* View Mode Tabs */}
-        <div className="flex justify-center mb-8">
-          <div className="inline-flex rounded-card-sm border border-border bg-card p-1 shadow-sm">
+        <div className="mb-8 flex justify-center">
+          <div className="rounded-card-sm border-border bg-card inline-flex border p-1 shadow-sm">
             <button
               onClick={() => setViewMode('scan')}
-              className={`px-component-md py-component-sm rounded-lg font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-h-[44px] ${
-                viewMode === 'scan'
-                  ? 'bg-primary text-primary-foreground'
-                  : 'text-muted-foreground hover:text-foreground'
+              className={`px-component-md py-component-sm focus-visible:ring-ring min-h-[44px] rounded-lg font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${
+                viewMode === 'scan' ?
+                  'bg-primary text-primary-foreground'
+                : 'text-muted-foreground hover:text-foreground'
               }`}
             >
               {t('discovery.autoScan')}
             </button>
             <button
               onClick={() => setViewMode('manual')}
-              className={`px-component-md py-component-sm rounded-lg font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-h-[44px] ${
-                viewMode === 'manual'
-                  ? 'bg-primary text-primary-foreground'
-                  : 'text-muted-foreground hover:text-foreground'
+              className={`px-component-md py-component-sm focus-visible:ring-ring min-h-[44px] rounded-lg font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${
+                viewMode === 'manual' ?
+                  'bg-primary text-primary-foreground'
+                : 'text-muted-foreground hover:text-foreground'
               }`}
             >
               {t('discovery.manualEntry')}
             </button>
             <button
               onClick={() => setViewMode('list')}
-              className={`px-component-md py-component-sm rounded-lg font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-h-[44px] ${
-                viewMode === 'list'
-                  ? 'bg-primary text-primary-foreground'
-                  : 'text-muted-foreground hover:text-foreground'
+              className={`px-component-md py-component-sm focus-visible:ring-ring min-h-[44px] rounded-lg font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${
+                viewMode === 'list' ?
+                  'bg-primary text-primary-foreground'
+                : 'text-muted-foreground hover:text-foreground'
               }`}
             >
               {t('discovery.myRouters', { count: allRouters.length })}
@@ -329,7 +309,7 @@ export const RouterDiscoveryPage = React.memo(function RouterDiscoveryPage() {
         </div>
 
         {/* Content Area */}
-        <div className="max-w-4xl mx-auto">
+        <div className="mx-auto max-w-4xl">
           <motion.div
             key={viewMode}
             initial={{ opacity: 0, y: 20 }}
@@ -337,7 +317,7 @@ export const RouterDiscoveryPage = React.memo(function RouterDiscoveryPage() {
             exit={{ opacity: 0, y: -20 }}
           >
             {viewMode === 'scan' && (
-              <div className="bg-card rounded-card-lg shadow-md border border-border p-6">
+              <div className="bg-card rounded-card-lg border-border border p-6 shadow-md">
                 <NetworkScanner
                   onScanComplete={handleScanComplete}
                   onRouterSelect={handleRouterSelectFromScan}
@@ -353,7 +333,7 @@ export const RouterDiscoveryPage = React.memo(function RouterDiscoveryPage() {
             )}
 
             {viewMode === 'list' && (
-              <div className="bg-card rounded-card-lg shadow-md border border-border p-6">
+              <div className="bg-card rounded-card-lg border-border border p-6 shadow-md">
                 <RouterList
                   routers={allRouters}
                   selectedRouterId={selectedRouterId}
@@ -368,22 +348,22 @@ export const RouterDiscoveryPage = React.memo(function RouterDiscoveryPage() {
                         alt="NasNet"
                         className="mx-auto h-16 w-16 rounded-xl shadow-md"
                       />
-                      <h3 className="mt-2 text-sm font-medium text-foreground">
+                      <h3 className="text-foreground mt-2 text-sm font-medium">
                         {t('discovery.noRoutersYet')}
                       </h3>
-                      <p className="mt-1 text-sm text-muted-foreground">
+                      <p className="text-muted-foreground mt-1 text-sm">
                         {t('discovery.getStarted')}
                       </p>
-                      <div className="mt-6 flex gap-component-md justify-center">
+                      <div className="gap-component-md mt-6 flex justify-center">
                         <button
                           onClick={() => setViewMode('scan')}
-                          className="px-component-md py-component-sm bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-h-[44px]"
+                          className="px-component-md py-component-sm bg-primary text-primary-foreground hover:bg-primary/90 focus-visible:ring-ring min-h-[44px] rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
                         >
                           {t('discovery.scanNetwork')}
                         </button>
                         <button
                           onClick={() => setViewMode('manual')}
-                          className="px-component-md py-component-sm bg-muted text-muted-foreground rounded-lg hover:bg-muted/80 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-h-[44px]"
+                          className="px-component-md py-component-sm bg-muted text-muted-foreground hover:bg-muted/80 focus-visible:ring-ring min-h-[44px] rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
                         >
                           {t('discovery.addManually')}
                         </button>
@@ -404,11 +384,10 @@ export const RouterDiscoveryPage = React.memo(function RouterDiscoveryPage() {
         routerName={selectedRouterForAuth?.name}
         isValidating={testConnection.isPending}
         validationError={
-          testConnection.isError
-            ? testConnection.error?.message
-            : testConnection.data && !testConnection.data.isValid
-            ? testConnection.data.error
-            : undefined
+          testConnection.isError ? testConnection.error?.message
+          : testConnection.data && !testConnection.data.isValid ?
+            testConnection.data.error
+          : undefined
         }
         onSubmit={handleCredentialSubmit}
         onCancel={handleCredentialCancel}

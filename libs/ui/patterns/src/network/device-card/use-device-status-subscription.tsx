@@ -106,13 +106,7 @@ export interface UseDeviceStatusSubscriptionReturn {
 export function useDeviceStatusSubscription(
   config: UseDeviceStatusSubscriptionConfig
 ): UseDeviceStatusSubscriptionReturn {
-  const {
-    deviceId,
-    initialDevice,
-    debounceMs = 300,
-    onStatusChange,
-    enabled = true,
-  } = config;
+  const { deviceId, initialDevice, debounceMs = 300, onStatusChange, enabled = true } = config;
 
   // Current device state
   const [device, setDevice] = useState<DiscoveredDevice>(initialDevice);
@@ -131,8 +125,7 @@ export function useDeviceStatusSubscription(
 
   // Check for reduced motion preference
   const prefersReducedMotion =
-    typeof window !== 'undefined' &&
-    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   // Handle incoming status update with debouncing
   const handleStatusUpdate = useCallback(
@@ -260,7 +253,7 @@ export function useDeviceStatusSubscription(
  * ```
  */
 export function withDeviceStatusSubscription<
-  P extends { device: DiscoveredDevice; className?: string }
+  P extends { device: DiscoveredDevice; className?: string },
 >(Component: React.ComponentType<P>) {
   return function WrappedComponent(
     props: P & {
@@ -282,9 +275,7 @@ export function withDeviceStatusSubscription<
       <Component
         {...deviceProps}
         device={device}
-        className={`${deviceProps.className || ''} ${
-          statusChanged ? 'animate-pulse' : ''
-        }`.trim()}
+        className={`${deviceProps.className || ''} ${statusChanged ? 'animate-pulse' : ''}`.trim()}
       />
     );
   };

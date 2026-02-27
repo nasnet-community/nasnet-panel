@@ -22,10 +22,7 @@ export interface StorageInfo {
  * @param options - Apollo query options
  * @returns Storage info data, loading state, error
  */
-export function useStorageInfo(options?: {
-  pollInterval?: number;
-  skip?: boolean;
-}) {
+export function useStorageInfo(options?: { pollInterval?: number; skip?: boolean }) {
   const { data, loading, error, refetch } = useQuery(GET_STORAGE_INFO, {
     fetchPolicy: 'cache-first',
     pollInterval: options?.pollInterval || 0,

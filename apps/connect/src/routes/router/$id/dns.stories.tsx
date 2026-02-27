@@ -48,8 +48,7 @@ export const Loading: Story = {
   parameters: {
     docs: {
       description: {
-        story:
-          'Skeleton loading state shown while the DNS tab chunk is being fetched and loaded.',
+        story: 'Skeleton loading state shown while the DNS tab chunk is being fetched and loaded.',
       },
     },
   },
@@ -61,8 +60,7 @@ export const LoadingMobile: Story = {
     viewport: { defaultViewport: 'mobile1' },
     docs: {
       description: {
-        story:
-          'Skeleton loading state on a mobile viewport. Content stacks vertically.',
+        story: 'Skeleton loading state on a mobile viewport. Content stacks vertically.',
       },
     },
   },
@@ -74,8 +72,7 @@ export const LoadingDesktop: Story = {
     viewport: { defaultViewport: 'tablet' },
     docs: {
       description: {
-        story:
-          'Skeleton loading state on a wider viewport showing the full-width content blocks.',
+        story: 'Skeleton loading state on a wider viewport showing the full-width content blocks.',
       },
     },
   },

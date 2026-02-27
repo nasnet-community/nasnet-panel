@@ -81,7 +81,5 @@ export function errorInterceptor(error: AxiosError): Promise<never> {
   });
 
   // Create and reject with ApiError for type-safe handling
-  return Promise.reject(
-    new ApiError(message, error, statusCode, `HTTP_${statusCode}`)
-  );
+  return Promise.reject(new ApiError(message, error, statusCode, `HTTP_${statusCode}`));
 }

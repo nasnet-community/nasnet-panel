@@ -12,7 +12,10 @@
  * decorators in a full Storybook environment.
  */
 
-import type { WirelessInterfaceDetail as WirelessInterfaceDetailType, SecurityProfile } from '@nasnet/core/types';
+import type {
+  WirelessInterfaceDetail as WirelessInterfaceDetailType,
+  SecurityProfile,
+} from '@nasnet/core/types';
 
 import { WirelessInterfaceDetail } from './WirelessInterfaceDetail';
 

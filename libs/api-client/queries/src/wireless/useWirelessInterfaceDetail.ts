@@ -51,17 +51,14 @@ async function fetchWirelessInterfaceDetail(
   interfaceName: string
 ): Promise<WirelessInterfaceDetail> {
   // GET all WiFi interfaces (will use cache if available from useWirelessInterfaces)
-  const result = await makeRouterOSRequest<RouterOSWifiInterface[]>(
-    routerIp,
-    'interface/wifi'
-  );
+  const result = await makeRouterOSRequest<RouterOSWifiInterface[]>(routerIp, 'interface/wifi');
 
   if (!result.success || !result.data) {
     throw new Error(result.error || `Failed to fetch interfaces`);
   }
 
   // Filter client-side by name (RouterOS REST API doesn't support query params)
-  const iface = result.data.find(i => i.name === interfaceName);
+  const iface = result.data.find((i) => i.name === interfaceName);
 
   if (!iface) {
     throw new Error(`Interface "${interfaceName}" not found`);
@@ -84,9 +81,8 @@ async function fetchWirelessInterfaceDetail(
     connectedClients: parseInt(String(iface['registered-clients'] || '0')),
     countryCode: iface.country || undefined,
     channelWidth: parseChannelWidth(iface['channel-width']),
-    signalStrength: iface['signal-strength']
-      ? parseInt(String(iface['signal-strength']))
-      : undefined,
+    signalStrength:
+      iface['signal-strength'] ? parseInt(String(iface['signal-strength'])) : undefined,
     connectedTo: iface['connected-to'] || undefined,
     hideSsid: iface['hide-ssid'] === 'true' || iface['hide-ssid'] === true,
   };

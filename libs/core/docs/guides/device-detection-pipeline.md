@@ -1,6 +1,7 @@
 # Device Detection Pipeline Guide
 
-Cross-cutting guide for detecting connected device types from MAC addresses, hostnames, and vendor information.
+Cross-cutting guide for detecting connected device types from MAC addresses, hostnames, and vendor
+information.
 
 ## Table of Contents
 
@@ -59,7 +60,8 @@ The device detection pipeline identifies device types through a 3-tier algorithm
         └──────────────────────────────────┘
 ```
 
-**Key Principle:** Hostname patterns are most reliable (explicit user input), vendor hints are fallback.
+**Key Principle:** Hostname patterns are most reliable (explicit user input), vendor hints are
+fallback.
 
 ---
 
@@ -71,32 +73,32 @@ Located in `types/router/connected-device.ts`:
 
 ```typescript
 export enum DeviceType {
-  SMARTPHONE = 'smartphone',      // Mobile phones
-  TABLET = 'tablet',              // iPads, Android tablets
-  LAPTOP = 'laptop',              // Laptops and ultrabooks
-  DESKTOP = 'desktop',            // Desktops and workstations
-  PRINTER = 'printer',            // Printers and scanners
-  TV = 'tv',                      // Smart TVs and streaming devices
+  SMARTPHONE = 'smartphone', // Mobile phones
+  TABLET = 'tablet', // iPads, Android tablets
+  LAPTOP = 'laptop', // Laptops and ultrabooks
+  DESKTOP = 'desktop', // Desktops and workstations
+  PRINTER = 'printer', // Printers and scanners
+  TV = 'tv', // Smart TVs and streaming devices
   GAMING_CONSOLE = 'gaming_console', // PS5, Xbox, Nintendo Switch
-  IOT = 'iot',                    // IoT devices and sensors
-  ROUTER = 'router',              // Network equipment
-  UNKNOWN = 'unknown',            // Unidentified devices
+  IOT = 'iot', // IoT devices and sensors
+  ROUTER = 'router', // Network equipment
+  UNKNOWN = 'unknown', // Unidentified devices
 }
 ```
 
 ### Device Type Characteristics
 
-| Type | Count | Examples | Icon | Use Cases |
-|------|-------|----------|------|-----------|
-| **Smartphone** | 100-200+ | iPhone, Galaxy, Pixel | 📱 | User devices, mobile access |
-| **Tablet** | 5-20 | iPad, Tab S, Pixel Pad | 📱 | Media consumption, sketching |
-| **Laptop** | 5-50 | MacBook, ThinkPad, XPS | 💻 | Work, development, remote access |
-| **Desktop** | 2-10 | iMac, Mac Mini, Optiplex | 🖥️ | Stationary workstations |
-| **Printer** | 1-5 | HP LaserJet, Canon | 🖨️ | Document handling |
-| **TV** | 1-3 | Roku, Fire TV, Smart TV | 📺 | Streaming and media |
-| **Gaming Console** | 1-5 | PS5, Xbox, Switch | 🎮 | Gaming and streaming |
-| **IoT** | 10-100+ | Shelly, Sonoff, Hue | 🔌 | Home automation |
-| **Router** | 1-10 | MikroTik, UniFi, Netgear | 🌐 | Network infrastructure |
+| Type               | Count    | Examples                 | Icon | Use Cases                        |
+| ------------------ | -------- | ------------------------ | ---- | -------------------------------- |
+| **Smartphone**     | 100-200+ | iPhone, Galaxy, Pixel    | 📱   | User devices, mobile access      |
+| **Tablet**         | 5-20     | iPad, Tab S, Pixel Pad   | 📱   | Media consumption, sketching     |
+| **Laptop**         | 5-50     | MacBook, ThinkPad, XPS   | 💻   | Work, development, remote access |
+| **Desktop**        | 2-10     | iMac, Mac Mini, Optiplex | 🖥️   | Stationary workstations          |
+| **Printer**        | 1-5      | HP LaserJet, Canon       | 🖨️   | Document handling                |
+| **TV**             | 1-3      | Roku, Fire TV, Smart TV  | 📺   | Streaming and media              |
+| **Gaming Console** | 1-5      | PS5, Xbox, Switch        | 🎮   | Gaming and streaming             |
+| **IoT**            | 10-100+  | Shelly, Sonoff, Hue      | 🔌   | Home automation                  |
+| **Router**         | 1-10     | MikroTik, UniFi, Netgear | 🌐   | Network infrastructure           |
 
 ---
 
@@ -119,6 +121,7 @@ export const OUI_DATABASE = {
 ```
 
 **Database Structure:**
+
 - Keys: OUI in `XX:XX:XX` format (first 3 octets of MAC)
 - Values: Vendor names
 - Coverage: ~350 entries covering most common devices
@@ -130,17 +133,17 @@ export const OUI_DATABASE = {
 import { lookupVendor, isValidMac, formatMac } from '@nasnet/core/utils/mac-vendor';
 
 // All these formats work:
-lookupVendor('00:0F:E2:12:34:56');      // Colon-separated (standard)
-lookupVendor('00-0F-E2-12-34-56');      // Dash-separated
-lookupVendor('000FE2123456');           // No separator
+lookupVendor('00:0F:E2:12:34:56'); // Colon-separated (standard)
+lookupVendor('00-0F-E2-12-34-56'); // Dash-separated
+lookupVendor('000FE2123456'); // No separator
 
 // Validation
-isValidMac('00:0F:E2:12:34:56');        // true
-isValidMac('invalid');                  // false
+isValidMac('00:0F:E2:12:34:56'); // true
+isValidMac('invalid'); // false
 
 // Formatting to standard
-formatMac('aabbccddeeff');              // => 'AA:BB:CC:DD:EE:FF'
-formatMac('aa-bb-cc-dd-ee-ff');         // => 'AA:BB:CC:DD:EE:FF'
+formatMac('aabbccddeeff'); // => 'AA:BB:CC:DD:EE:FF'
+formatMac('aa-bb-cc-dd-ee-ff'); // => 'AA:BB:CC:DD:EE:FF'
 ```
 
 ### Vendor Hint Mapping
@@ -150,25 +153,26 @@ Located in `utils/device/deviceTypeDetection.ts`:
 ```typescript
 const VENDOR_HINTS = {
   // Smartphones (most common)
-  'Apple': DeviceType.SMARTPHONE,
+  Apple: DeviceType.SMARTPHONE,
   'Samsung Electronics': DeviceType.SMARTPHONE,
-  'Google': DeviceType.SMARTPHONE,
-  'Xiaomi': DeviceType.SMARTPHONE,
-  'OnePlus': DeviceType.SMARTPHONE,
+  Google: DeviceType.SMARTPHONE,
+  Xiaomi: DeviceType.SMARTPHONE,
+  OnePlus: DeviceType.SMARTPHONE,
 
   // Computers
-  'Microsoft': DeviceType.DESKTOP,
-  'Dell': DeviceType.LAPTOP,
-  'Lenovo': DeviceType.LAPTOP,
+  Microsoft: DeviceType.DESKTOP,
+  Dell: DeviceType.LAPTOP,
+  Lenovo: DeviceType.LAPTOP,
 
   // Network Equipment
-  'MikroTik': DeviceType.ROUTER,
-  'Ubiquiti': DeviceType.ROUTER,
+  MikroTik: DeviceType.ROUTER,
+  Ubiquiti: DeviceType.ROUTER,
   'TP-Link': DeviceType.ROUTER,
 };
 ```
 
 **Vendor Matching:** Case-insensitive substring match
+
 ```typescript
 // "Samsung Electronics Co., Ltd." includes "Samsung" → SMARTPHONE
 if (vendor.includes(vendorName)) {
@@ -187,8 +191,8 @@ Located in `types/router/connected-device.ts`:
 ```typescript
 export interface ConnectedDevice {
   // ... other fields
-  dhcpFingerprint?: string;   // DHCP fingerprint from client
-  hostname?: string;          // DHCP hostname
+  dhcpFingerprint?: string; // DHCP fingerprint from client
+  hostname?: string; // DHCP hostname
 }
 
 // DHCP fingerprints help identify OS
@@ -198,6 +202,7 @@ export interface ConnectedDevice {
 ```
 
 **Fingerprint Format:** Comma-separated DHCP option codes
+
 - Unique per OS family (Windows, macOS, iOS, Android, Linux)
 - Allows distinguishing device OS even without hostname
 - Used as secondary detection method
@@ -249,6 +254,7 @@ const HOSTNAME_PATTERNS: Array<[RegExp, DeviceType]> = [
 ```
 
 **Pattern Characteristics:**
+
 - Case-insensitive (`/i` flag)
 - Ordered by specificity (most specific patterns first)
 - Loose matching with wildcards (`|` for alternatives)
@@ -356,7 +362,10 @@ export function ConnectedDeviceCard({ hostname, macAddress, vendor }) {
 
   return (
     <div className="flex items-center gap-2">
-      <LucideIcon name={icon} className="w-5 h-5" />
+      <LucideIcon
+        name={icon}
+        className="h-5 w-5"
+      />
       <div>
         <p className="font-semibold">{hostname || macAddress}</p>
         <p className="text-sm text-gray-500">{label}</p>
@@ -382,7 +391,7 @@ const lease = {
   vendorClass: 'iPhone OS',
 };
 
-const vendor = lookupVendor(lease.macAddress);  // "Apple Inc."
+const vendor = lookupVendor(lease.macAddress); // "Apple Inc."
 const deviceType = detectDeviceType(lease.hostname, vendor);
 // => DeviceType.SMARTPHONE
 ```
@@ -395,11 +404,11 @@ import { detectDeviceType } from '@nasnet/core/utils/device';
 const dhcpLeases = [
   { hostname: 'desktop-01', mac: 'AA:BB:CC:DD:EE:01' },
   { hostname: 'printer-hp', mac: 'AA:BB:CC:DD:EE:02' },
-  { hostname: null, mac: 'AA:BB:CC:DD:EE:03' },  // Unknown
+  { hostname: null, mac: 'AA:BB:CC:DD:EE:03' }, // Unknown
   { hostname: 'Samsung-Galaxy', mac: 'F4:5E:AB:12:34:56' },
 ];
 
-const detectedDevices = dhcpLeases.map(lease => {
+const detectedDevices = dhcpLeases.map((lease) => {
   const vendor = lookupVendor(lease.mac);
   const type = detectDeviceType(lease.hostname, vendor);
   return {
@@ -528,11 +537,13 @@ const sortedDevices = connectedDevices.sort((a, b) => {
 ### Device Shows as UNKNOWN
 
 **Causes (in order):**
+
 1. Hostname doesn't match any pattern
 2. MAC vendor not in database
 3. MAC address is locally-administered (bit 1 of first octet set)
 
 **Solutions:**
+
 - Update hostname to include device model/brand
 - Add custom vendor to OUI_DATABASE
 - Check if MAC is valid (usually `XX:XX:XX:XX:XX:XX` where XX is hex)
@@ -542,6 +553,7 @@ const sortedDevices = connectedDevices.sort((a, b) => {
 **Example:** iPhone detected as generic smartphone instead of "iPhone"
 
 **Solutions:**
+
 1. Check hostname contains "iPhone" or "iphone"
 2. Verify MAC starts with `AC:DE:48` (Apple OUI)
 3. Add more specific pattern if needed
@@ -552,7 +564,7 @@ For large device lists (100+ devices):
 
 ```typescript
 // ❌ Don't: Re-detect for every render
-devices.map(d => detectDeviceType(d.hostname, d.vendor));
+devices.map((d) => detectDeviceType(d.hostname, d.vendor));
 
 // ✅ Do: Memoize or cache results
 const detectionCache = new Map();

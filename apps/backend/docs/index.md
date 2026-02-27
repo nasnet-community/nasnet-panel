@@ -131,6 +131,7 @@ flowchart TD
 ```
 
 **Key rules:**
+
 - `internal/*` never imports `cmd/*`
 - `graph/resolver` imports `internal/*` only (not `cmd/*`)
 - `internal/bootstrap` is the only package allowed to import everything
@@ -143,8 +144,8 @@ flowchart TD
 
 ### Getting Started & Architecture
 
-| Document                                                     | Description                                  |
-| ------------------------------------------------------------ | -------------------------------------------- |
+| Document                                               | Description                                  |
+| ------------------------------------------------------ | -------------------------------------------- |
 | [getting-started.md](./getting-started.md)             | Dev environment, build tags, common commands |
 | [application-bootstrap.md](./application-bootstrap.md) | Boot sequence, service wiring, shutdown      |
 | [graphql-api.md](./graphql-api.md)                     | Schema-first GraphQL, resolvers, directives  |
@@ -153,8 +154,8 @@ flowchart TD
 
 ### Core Systems
 
-| Document                                                             | Description                                         |
-| -------------------------------------------------------------------- | --------------------------------------------------- |
+| Document                                                       | Description                                         |
+| -------------------------------------------------------------- | --------------------------------------------------- |
 | [service-orchestrator.md](./service-orchestrator.md)           | Feature lifecycle, ProcessSupervisor, boot sequence |
 | [virtual-interface-factory.md](./virtual-interface-factory.md) | VIF, VLAN allocator, kill switch, ingress           |
 | [provisioning-engine.md](./provisioning-engine.md)             | 8-phase provisioning with rollback                  |
@@ -163,16 +164,16 @@ flowchart TD
 
 ### Infrastructure
 
-| Document                                           | Description                               |
-| -------------------------------------------------- | ----------------------------------------- |
+| Document                                     | Description                               |
+| -------------------------------------------- | ----------------------------------------- |
 | [data-layer.md](./data-layer.md)             | SQLite, ent ORM, repositories, migrations |
 | [security.md](./security.md)                 | Auth, JWT, encryption, middleware         |
 | [network-services.md](./network-services.md) | Firewall, DNS, scanner, diagnostics       |
 
 ### Internal Systems (Phase 2)
 
-| Document                                                     | Description                                                                       |
-| ------------------------------------------------------------ | --------------------------------------------------------------------------------- |
+| Document                                               | Description                                                                       |
+| ------------------------------------------------------ | --------------------------------------------------------------------------------- |
 | [error-handling.md](./error-handling.md)               | Error types, presenter, redactor, structured logging (zap)                        |
 | [connection-management.md](./connection-management.md) | Connection pool, circuit breaker, reconnection, capability detection              |
 | [translator-layer.md](./translator-layer.md)           | Field mapping, type parsers, SSH response translation, formatters                 |
@@ -183,14 +184,14 @@ flowchart TD
 
 ### Operational
 
-| Document                                           | Description                                                        |
-| -------------------------------------------------- | ------------------------------------------------------------------ |
+| Document                                     | Description                                                        |
+| -------------------------------------------- | ------------------------------------------------------------------ |
 | [build-and-deploy.md](./build-and-deploy.md) | 5-stage Dockerfile, multi-arch, UPX, `<10MB` image, runtime tuning |
 
 ### Flow Diagrams
 
-| Document                                                                         | Description                                                        |
-| -------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| Document                                                                   | Description                                                        |
+| -------------------------------------------------------------------------- | ------------------------------------------------------------------ |
 | [flows/service-installation-flow.md](./flows/service-installation-flow.md) | End-to-end feature installation                                    |
 | [flows/router-connection-flow.md](./flows/router-connection-flow.md)       | Router connect/disconnect lifecycle                                |
 | [flows/alert-lifecycle-flow.md](./flows/alert-lifecycle-flow.md)           | Alert creation through delivery                                    |
@@ -247,8 +248,8 @@ flowchart TD
 4. [error-handling.md](./error-handling.md) — Error types, logging, and error presentation
 5. [data-layer.md](./data-layer.md) — Understand ent ORM patterns
 6. [event-system.md](./event-system.md) — Learn event-driven patterns
-7. [flows/graphql-request-lifecycle.md](./flows/graphql-request-lifecycle.md) — Trace a full
-   request end-to-end
+7. [flows/graphql-request-lifecycle.md](./flows/graphql-request-lifecycle.md) — Trace a full request
+   end-to-end
 
 ### Frontend Developer (GraphQL consumer)
 
@@ -270,18 +271,15 @@ flowchart TD
 
 1. [feature-marketplace.md](./feature-marketplace.md) — Manifest format
 2. [config-generation.md](./config-generation.md) — Config generators per service
-3. [validation-pipeline.md](./validation-pipeline.md) — Validation rules for configs and
-   manifests
+3. [validation-pipeline.md](./validation-pipeline.md) — Validation rules for configs and manifests
 4. [service-orchestrator.md](./service-orchestrator.md) — Lifecycle hooks
 5. [virtual-interface-factory.md](./virtual-interface-factory.md) — VIF and isolation
-6. [flows/service-installation-flow.md](./flows/service-installation-flow.md) — Install
-   sequence
+6. [flows/service-installation-flow.md](./flows/service-installation-flow.md) — Install sequence
 
 ### Router Integration Developer
 
 1. [router-communication.md](./router-communication.md) — Protocol adapters
-2. [connection-management.md](./connection-management.md) — Pool, circuit breaker,
-   reconnection
+2. [connection-management.md](./connection-management.md) — Pool, circuit breaker, reconnection
 3. [translator-layer.md](./translator-layer.md) — Field mapping and response parsing
 4. [router-services.md](./router-services.md) — Service layer above RouterPort
 

@@ -10,7 +10,6 @@ import type { DayPresetKey } from '@nasnet/core/types/services/schedule.types';
 
 import { useScheduleEditor } from './use-schedule-editor';
 
-
 describe('useScheduleEditor', () => {
   describe('initialization', () => {
     it('should initialize with default values', () => {

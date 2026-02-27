@@ -7,65 +7,44 @@ extend type Mutation {
   Create a new address list entry.
   If the list doesn't exist, it will be created automatically.
   """
-  createAddressListEntry(
-    routerId: ID!
-    input: CreateAddressListEntryInput!
-  ): AddressListEntry!
+  createAddressListEntry(routerId: ID!, input: CreateAddressListEntryInput!): AddressListEntry!
 
   """
   Delete an address list entry by ID.
   Returns true if successful, false otherwise.
   """
-  deleteAddressListEntry(
-    routerId: ID!
-    id: ID!
-  ): Boolean!
+  deleteAddressListEntry(routerId: ID!, id: ID!): Boolean!
 
   """
   Bulk create address list entries.
   Processes entries in batches and returns success/failure counts.
   Continues on error - does not stop at first failure.
   """
-  bulkCreateAddressListEntries(
-    routerId: ID!
-    listName: String!
-    entries: [BulkAddressInput!]!
-  ): BulkCreateResult!
+  bulkCreateAddressListEntries(routerId: ID!, listName: String!, entries: [BulkAddressInput!]!): BulkCreateResult!
 
   """
   Apply a firewall template to the router.
   Creates all rules defined in the template with variable substitution.
   Returns a rollback ID for undo within 5 minutes.
   """
-  applyFirewallTemplate(
-    routerId: ID!
-    templateId: ID!
-    variables: JSON!
-  ): FirewallTemplateResult!
+  applyFirewallTemplate(routerId: ID!, templateId: ID!, variables: JSON!): FirewallTemplateResult!
 
   """
   Rollback a previously applied template.
   Removes all template rules and restores previous state.
   Only works within 5 minutes of application.
   """
-  rollbackFirewallTemplate(
-    routerId: ID!
-    rollbackId: ID!
-  ): Boolean!
+  rollbackFirewallTemplate(routerId: ID!, rollbackId: ID!): Boolean!
 
   """
   Save a custom firewall template.
   Template is stored locally in IndexedDB (frontend operation).
   """
-  saveFirewallTemplate(
-    input: SaveTemplateInput!
-  ): FirewallTemplate!
+  saveFirewallTemplate(input: SaveTemplateInput!): FirewallTemplate!
 
   """
   Delete a custom firewall template.
   Only custom templates can be deleted (not built-in).
   """
-  deleteFirewallTemplate(
-    id: ID!
-  ): Boolean!
+  deleteFirewallTemplate(id: ID!): Boolean!
 }

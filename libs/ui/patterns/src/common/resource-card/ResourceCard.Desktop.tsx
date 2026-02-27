@@ -37,9 +37,7 @@ import type { BaseResource, ResourceCardProps } from './types';
  * - Dropdown menu for secondary actions
  * - Inline primary action button
  */
-function ResourceCardDesktopComponent<T extends BaseResource>(
-  props: ResourceCardProps<T>
-) {
+function ResourceCardDesktopComponent<T extends BaseResource>(props: ResourceCardProps<T>) {
   const { resource, className, children, showLivePulse = true } = props;
   const {
     status,
@@ -56,7 +54,7 @@ function ResourceCardDesktopComponent<T extends BaseResource>(
   return (
     <Card
       className={cn(
-        'p-component-lg transition-shadow duration-200 hover:shadow-lg cursor-pointer',
+        'p-component-lg cursor-pointer transition-shadow duration-200 hover:shadow-lg',
         className
       )}
       onClick={handleClick}
@@ -66,15 +64,13 @@ function ResourceCardDesktopComponent<T extends BaseResource>(
       <CardContent className="p-0">
         <div className="flex items-center justify-between gap-4">
           {/* Left: Status and info */}
-          <div className="flex items-center gap-4 flex-1 min-w-0">
+          <div className="flex min-w-0 flex-1 items-center gap-4">
             {/* Status indicator with optional pulse */}
             <div className="relative flex-shrink-0">
-              <Badge variant={statusColor}>
-                {statusLabel}
-              </Badge>
+              <Badge variant={statusColor}>{statusLabel}</Badge>
               {isOnline && showLivePulse && (
                 <span
-                  className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-success rounded-full animate-pulse"
+                  className="bg-success absolute -right-0.5 -top-0.5 h-2 w-2 animate-pulse rounded-full"
                   aria-hidden="true"
                 />
               )}
@@ -82,11 +78,9 @@ function ResourceCardDesktopComponent<T extends BaseResource>(
 
             {/* Resource info */}
             <div className="min-w-0 flex-1">
-              <h3 className="text-lg font-semibold text-foreground truncate">{resource.name}</h3>
+              <h3 className="text-foreground truncate text-lg font-semibold">{resource.name}</h3>
               {resource.description && (
-                <p className="text-sm text-muted-foreground truncate">
-                  {resource.description}
-                </p>
+                <p className="text-muted-foreground truncate text-sm">{resource.description}</p>
               )}
             </div>
           </div>
@@ -94,7 +88,7 @@ function ResourceCardDesktopComponent<T extends BaseResource>(
           {/* Right: Actions */}
           {hasActions && (
             <div
-              className="flex items-center gap-2 flex-shrink-0"
+              className="flex flex-shrink-0 items-center gap-2"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Primary action */}
@@ -107,7 +101,10 @@ function ResourceCardDesktopComponent<T extends BaseResource>(
                   aria-label={primaryAction.label}
                 >
                   {primaryAction.icon && (
-                    <span className="mr-1.5" aria-hidden="true">
+                    <span
+                      className="mr-1.5"
+                      aria-hidden="true"
+                    >
                       {primaryAction.icon}
                     </span>
                   )}
@@ -137,14 +134,13 @@ function ResourceCardDesktopComponent<T extends BaseResource>(
                         key={action.id}
                         onClick={action.onClick}
                         disabled={action.disabled}
-                        className={
-                          action.variant === 'destructive'
-                            ? 'text-destructive'
-                            : ''
-                        }
+                        className={action.variant === 'destructive' ? 'text-destructive' : ''}
                       >
                         {action.icon && (
-                          <span className="mr-2" aria-hidden="true">
+                          <span
+                            className="mr-2"
+                            aria-hidden="true"
+                          >
                             {action.icon}
                           </span>
                         )}

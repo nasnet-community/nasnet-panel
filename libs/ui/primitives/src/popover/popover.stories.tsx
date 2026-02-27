@@ -39,7 +39,7 @@ export const Default: Story = {
         <Button variant="outline">Open popover</Button>
       </PopoverTrigger>
       <PopoverContent>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-muted-foreground text-sm">
           This is the popover content. It floats above the page anchored to the trigger.
         </p>
       </PopoverContent>
@@ -51,26 +51,35 @@ export const RouterQuickSettings: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Popover with form controls for router settings. Demonstrates content with multiple input fields and labels.',
+        story:
+          'Popover with form controls for router settings. Demonstrates content with multiple input fields and labels.',
       },
     },
   },
   render: () => (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="outline" size="sm">Quick Settings</Button>
+        <Button
+          variant="outline"
+          size="sm"
+        >
+          Quick Settings
+        </Button>
       </PopoverTrigger>
       <PopoverContent className="w-80">
         <div className="grid gap-4">
           <div className="space-y-1">
             <h4 className="font-semibold leading-none">Router Settings</h4>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-muted-foreground text-sm">
               Adjust connection and identity settings.
             </p>
           </div>
           <div className="grid gap-3">
             <div className="grid grid-cols-3 items-center gap-4">
-              <Label htmlFor="router-name" className="text-right text-sm">
+              <Label
+                htmlFor="router-name"
+                className="text-right text-sm"
+              >
                 Name
               </Label>
               <Input
@@ -80,7 +89,10 @@ export const RouterQuickSettings: Story = {
               />
             </div>
             <div className="grid grid-cols-3 items-center gap-4">
-              <Label htmlFor="router-ip" className="text-right text-sm">
+              <Label
+                htmlFor="router-ip"
+                className="text-right text-sm"
+              >
                 IP
               </Label>
               <Input
@@ -90,7 +102,10 @@ export const RouterQuickSettings: Story = {
               />
             </div>
             <div className="grid grid-cols-3 items-center gap-4">
-              <Label htmlFor="router-port" className="text-right text-sm">
+              <Label
+                htmlFor="router-port"
+                className="text-right text-sm"
+              >
                 Port
               </Label>
               <Input
@@ -100,7 +115,12 @@ export const RouterQuickSettings: Story = {
               />
             </div>
           </div>
-          <Button size="sm" className="w-full">Apply</Button>
+          <Button
+            size="sm"
+            className="w-full"
+          >
+            Apply
+          </Button>
         </div>
       </PopoverContent>
     </Popover>
@@ -111,7 +131,8 @@ export const AlignmentVariants: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Demonstrates different alignment options for popover content relative to trigger: start, center, and end.',
+        story:
+          'Demonstrates different alignment options for popover content relative to trigger: start, center, and end.',
       },
     },
   },
@@ -119,7 +140,12 @@ export const AlignmentVariants: Story = {
     <div className="flex gap-4">
       <Popover>
         <PopoverTrigger asChild>
-          <Button variant="outline" size="sm">Align Start</Button>
+          <Button
+            variant="outline"
+            size="sm"
+          >
+            Align Start
+          </Button>
         </PopoverTrigger>
         <PopoverContent align="start">
           <p className="text-sm">Aligned to the start of the trigger.</p>
@@ -128,7 +154,12 @@ export const AlignmentVariants: Story = {
 
       <Popover>
         <PopoverTrigger asChild>
-          <Button variant="outline" size="sm">Align Center</Button>
+          <Button
+            variant="outline"
+            size="sm"
+          >
+            Align Center
+          </Button>
         </PopoverTrigger>
         <PopoverContent align="center">
           <p className="text-sm">Aligned to the center of the trigger.</p>
@@ -137,7 +168,12 @@ export const AlignmentVariants: Story = {
 
       <Popover>
         <PopoverTrigger asChild>
-          <Button variant="outline" size="sm">Align End</Button>
+          <Button
+            variant="outline"
+            size="sm"
+          >
+            Align End
+          </Button>
         </PopoverTrigger>
         <PopoverContent align="end">
           <p className="text-sm">Aligned to the end of the trigger.</p>
@@ -151,7 +187,8 @@ export const FilterPopover: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Interactive filter popover with checkboxes. Demonstrates stateful content with selection badge on trigger.',
+        story:
+          'Interactive filter popover with checkboxes. Demonstrates stateful content with selection badge on trigger.',
       },
     },
   },
@@ -167,10 +204,13 @@ export const FilterPopover: Story = {
     return (
       <Popover>
         <PopoverTrigger asChild>
-          <Button variant="outline" size="sm">
+          <Button
+            variant="outline"
+            size="sm"
+          >
             Filter Interfaces
             {selected.length > 0 && (
-              <span className="ml-2 rounded-full bg-primary px-1.5 py-0.5 text-xs text-primary-foreground">
+              <span className="bg-primary text-primary-foreground ml-2 rounded-full px-1.5 py-0.5 text-xs">
                 {selected.length}
               </span>
             )}
@@ -180,21 +220,24 @@ export const FilterPopover: Story = {
           <div className="grid gap-2">
             <p className="text-sm font-medium">Select interfaces</p>
             {interfaces.map((iface) => (
-              <label key={iface} className="flex items-center gap-2 cursor-pointer">
+              <label
+                key={iface}
+                className="flex cursor-pointer items-center gap-2"
+              >
                 <input
                   type="checkbox"
                   checked={selected.includes(iface)}
                   onChange={() => toggle(iface)}
-                  className="h-4 w-4 rounded border-border"
+                  className="border-border h-4 w-4 rounded"
                 />
-                <span className="text-sm font-mono">{iface}</span>
+                <span className="font-mono text-sm">{iface}</span>
               </label>
             ))}
             {selected.length > 0 && (
               <Button
                 variant="ghost"
                 size="sm"
-                className="mt-1 text-muted-foreground"
+                className="text-muted-foreground mt-1"
                 onClick={() => setSelected([])}
               >
                 Clear all
@@ -211,7 +254,8 @@ export const SidePlacements: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Demonstrates side placement options for popover: top, bottom, left, and right positioning relative to trigger.',
+        story:
+          'Demonstrates side placement options for popover: top, bottom, left, and right positioning relative to trigger.',
       },
     },
   },
@@ -219,36 +263,68 @@ export const SidePlacements: Story = {
     <div className="grid grid-cols-2 gap-8 p-16">
       <Popover>
         <PopoverTrigger asChild>
-          <Button variant="outline" size="sm">Top</Button>
+          <Button
+            variant="outline"
+            size="sm"
+          >
+            Top
+          </Button>
         </PopoverTrigger>
-        <PopoverContent side="top" className="w-48">
+        <PopoverContent
+          side="top"
+          className="w-48"
+        >
           <p className="text-sm">Opens above the trigger.</p>
         </PopoverContent>
       </Popover>
 
       <Popover>
         <PopoverTrigger asChild>
-          <Button variant="outline" size="sm">Bottom</Button>
+          <Button
+            variant="outline"
+            size="sm"
+          >
+            Bottom
+          </Button>
         </PopoverTrigger>
-        <PopoverContent side="bottom" className="w-48">
+        <PopoverContent
+          side="bottom"
+          className="w-48"
+        >
           <p className="text-sm">Opens below the trigger.</p>
         </PopoverContent>
       </Popover>
 
       <Popover>
         <PopoverTrigger asChild>
-          <Button variant="outline" size="sm">Left</Button>
+          <Button
+            variant="outline"
+            size="sm"
+          >
+            Left
+          </Button>
         </PopoverTrigger>
-        <PopoverContent side="left" className="w-48">
+        <PopoverContent
+          side="left"
+          className="w-48"
+        >
           <p className="text-sm">Opens to the left.</p>
         </PopoverContent>
       </Popover>
 
       <Popover>
         <PopoverTrigger asChild>
-          <Button variant="outline" size="sm">Right</Button>
+          <Button
+            variant="outline"
+            size="sm"
+          >
+            Right
+          </Button>
         </PopoverTrigger>
-        <PopoverContent side="right" className="w-48">
+        <PopoverContent
+          side="right"
+          className="w-48"
+        >
           <p className="text-sm">Opens to the right.</p>
         </PopoverContent>
       </Popover>
@@ -263,7 +339,8 @@ export const Mobile: Story = {
     },
     docs: {
       description: {
-        story: 'Popover on mobile viewport (375px). Content adapts with touch-friendly spacing and sizing.',
+        story:
+          'Popover on mobile viewport (375px). Content adapts with touch-friendly spacing and sizing.',
       },
     },
   },
@@ -271,14 +348,17 @@ export const Mobile: Story = {
     <div className="p-4">
       <Popover>
         <PopoverTrigger asChild>
-          <Button variant="outline" className="w-full">
+          <Button
+            variant="outline"
+            className="w-full"
+          >
             Open Settings
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-full max-w-xs">
           <div className="space-y-2">
             <h4 className="font-semibold">Quick Settings</h4>
-            <p className="text-sm text-muted-foreground">Adjust your preferences here.</p>
+            <p className="text-muted-foreground text-sm">Adjust your preferences here.</p>
           </div>
         </PopoverContent>
       </Popover>
@@ -293,7 +373,8 @@ export const Tablet: Story = {
     },
     docs: {
       description: {
-        story: 'Popover on tablet viewport (768px). Demonstrates balanced information density for tablet devices.',
+        story:
+          'Popover on tablet viewport (768px). Demonstrates balanced information density for tablet devices.',
       },
     },
   },
@@ -306,8 +387,15 @@ export const Tablet: Story = {
         <PopoverContent className="w-72">
           <div className="space-y-3">
             <h4 className="font-semibold">Advanced Options</h4>
-            <p className="text-sm text-muted-foreground">Configure advanced settings for your device.</p>
-            <Button size="sm" className="w-full">Apply</Button>
+            <p className="text-muted-foreground text-sm">
+              Configure advanced settings for your device.
+            </p>
+            <Button
+              size="sm"
+              className="w-full"
+            >
+              Apply
+            </Button>
           </div>
         </PopoverContent>
       </Popover>
@@ -322,7 +410,8 @@ export const Desktop: Story = {
     },
     docs: {
       description: {
-        story: 'Popover on desktop viewport (1280px). Shows full dense content layout with multiple controls.',
+        story:
+          'Popover on desktop viewport (1280px). Shows full dense content layout with multiple controls.',
       },
     },
   },
@@ -335,14 +424,36 @@ export const Desktop: Story = {
         <PopoverContent className="w-96">
           <div className="grid gap-4">
             <div>
-              <h4 className="font-semibold leading-none mb-2">Configuration</h4>
-              <p className="text-sm text-muted-foreground">Manage your router configuration settings.</p>
+              <h4 className="mb-2 font-semibold leading-none">Configuration</h4>
+              <p className="text-muted-foreground text-sm">
+                Manage your router configuration settings.
+              </p>
             </div>
             <div className="grid grid-cols-2 gap-2">
-              <Button variant="outline" size="sm">Save</Button>
-              <Button variant="outline" size="sm">Export</Button>
-              <Button variant="outline" size="sm">Reset</Button>
-              <Button variant="outline" size="sm">Help</Button>
+              <Button
+                variant="outline"
+                size="sm"
+              >
+                Save
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+              >
+                Export
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+              >
+                Reset
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+              >
+                Help
+              </Button>
             </div>
           </div>
         </PopoverContent>

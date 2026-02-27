@@ -11,7 +11,6 @@ import type { RawRule } from '@nasnet/core/types';
 
 import { useRawRuleTable } from './use-raw-rule-table';
 
-
 describe('useRawRuleTable', () => {
   let mockRules: RawRule[];
 
@@ -60,9 +59,7 @@ describe('useRawRuleTable', () => {
 
   describe('Initialization', () => {
     it('initializes with provided data', () => {
-      const { result } = renderHook(() =>
-        useRawRuleTable({ data: mockRules })
-      );
+      const { result } = renderHook(() => useRawRuleTable({ data: mockRules }));
 
       expect(result.current.data).toHaveLength(3);
       expect(result.current.totalCount).toBe(3);
@@ -70,9 +67,7 @@ describe('useRawRuleTable', () => {
     });
 
     it('initializes with default sort', () => {
-      const { result } = renderHook(() =>
-        useRawRuleTable({ data: mockRules })
-      );
+      const { result } = renderHook(() => useRawRuleTable({ data: mockRules }));
 
       expect(result.current.sortBy).toBe('order');
       expect(result.current.sortDirection).toBe('asc');
@@ -92,9 +87,7 @@ describe('useRawRuleTable', () => {
     });
 
     it('initializes with default filters', () => {
-      const { result } = renderHook(() =>
-        useRawRuleTable({ data: mockRules })
-      );
+      const { result } = renderHook(() => useRawRuleTable({ data: mockRules }));
 
       expect(result.current.filters.action).toBe('all');
       expect(result.current.filters.protocol).toBe('all');
@@ -105,9 +98,7 @@ describe('useRawRuleTable', () => {
 
   describe('Sorting', () => {
     it('sorts by order ascending by default', () => {
-      const { result } = renderHook(() =>
-        useRawRuleTable({ data: mockRules })
-      );
+      const { result } = renderHook(() => useRawRuleTable({ data: mockRules }));
 
       expect(result.current.data[0].id).toBe('1'); // order: 0
       expect(result.current.data[1].id).toBe('2'); // order: 1
@@ -129,9 +120,7 @@ describe('useRawRuleTable', () => {
     });
 
     it('toggles sort direction', () => {
-      const { result } = renderHook(() =>
-        useRawRuleTable({ data: mockRules })
-      );
+      const { result } = renderHook(() => useRawRuleTable({ data: mockRules }));
 
       act(() => {
         result.current.toggleSort('order');
@@ -153,15 +142,13 @@ describe('useRawRuleTable', () => {
 
       expect(result.current.data[0].packets).toBe(500); // id: 2
       expect(result.current.data[1].packets).toBe(100); // id: 1
-      expect(result.current.data[2].packets).toBe(0);   // id: 3
+      expect(result.current.data[2].packets).toBe(0); // id: 3
     });
   });
 
   describe('Filtering', () => {
     it('filters by action', () => {
-      const { result } = renderHook(() =>
-        useRawRuleTable({ data: mockRules })
-      );
+      const { result } = renderHook(() => useRawRuleTable({ data: mockRules }));
 
       act(() => {
         result.current.setFilters({ action: 'drop' });
@@ -173,35 +160,29 @@ describe('useRawRuleTable', () => {
     });
 
     it('filters by protocol', () => {
-      const { result } = renderHook(() =>
-        useRawRuleTable({ data: mockRules })
-      );
+      const { result } = renderHook(() => useRawRuleTable({ data: mockRules }));
 
       act(() => {
         result.current.setFilters({ protocol: 'tcp' });
       });
 
       expect(result.current.data).toHaveLength(2);
-      expect(result.current.data.every(r => r.protocol === 'tcp')).toBe(true);
+      expect(result.current.data.every((r) => r.protocol === 'tcp')).toBe(true);
     });
 
     it('filters by status (enabled)', () => {
-      const { result } = renderHook(() =>
-        useRawRuleTable({ data: mockRules })
-      );
+      const { result } = renderHook(() => useRawRuleTable({ data: mockRules }));
 
       act(() => {
         result.current.setFilters({ status: 'enabled' });
       });
 
       expect(result.current.data).toHaveLength(2);
-      expect(result.current.data.every(r => r.disabled === false)).toBe(true);
+      expect(result.current.data.every((r) => r.disabled === false)).toBe(true);
     });
 
     it('filters by status (disabled)', () => {
-      const { result } = renderHook(() =>
-        useRawRuleTable({ data: mockRules })
-      );
+      const { result } = renderHook(() => useRawRuleTable({ data: mockRules }));
 
       act(() => {
         result.current.setFilters({ status: 'disabled' });
@@ -212,9 +193,7 @@ describe('useRawRuleTable', () => {
     });
 
     it('filters by chain', () => {
-      const { result } = renderHook(() =>
-        useRawRuleTable({ data: mockRules })
-      );
+      const { result } = renderHook(() => useRawRuleTable({ data: mockRules }));
 
       act(() => {
         result.current.setFilters({ chain: 'output' });
@@ -225,9 +204,7 @@ describe('useRawRuleTable', () => {
     });
 
     it('filters by search term (comment)', () => {
-      const { result } = renderHook(() =>
-        useRawRuleTable({ data: mockRules })
-      );
+      const { result } = renderHook(() => useRawRuleTable({ data: mockRules }));
 
       act(() => {
         result.current.setFilters({ searchTerm: 'DNS' });
@@ -237,9 +214,7 @@ describe('useRawRuleTable', () => {
     });
 
     it('filters by search term (address)', () => {
-      const { result } = renderHook(() =>
-        useRawRuleTable({ data: mockRules })
-      );
+      const { result } = renderHook(() => useRawRuleTable({ data: mockRules }));
 
       act(() => {
         result.current.setFilters({ searchTerm: '192.168' });
@@ -250,9 +225,7 @@ describe('useRawRuleTable', () => {
     });
 
     it('combines multiple filters', () => {
-      const { result } = renderHook(() =>
-        useRawRuleTable({ data: mockRules })
-      );
+      const { result } = renderHook(() => useRawRuleTable({ data: mockRules }));
 
       act(() => {
         result.current.setFilters({
@@ -266,9 +239,7 @@ describe('useRawRuleTable', () => {
     });
 
     it('clears all filters', () => {
-      const { result } = renderHook(() =>
-        useRawRuleTable({ data: mockRules })
-      );
+      const { result } = renderHook(() => useRawRuleTable({ data: mockRules }));
 
       act(() => {
         result.current.setFilters({ action: 'drop', protocol: 'tcp' });
@@ -364,18 +335,14 @@ describe('useRawRuleTable', () => {
 
   describe('Drag and Drop', () => {
     it('initializes drag state as false', () => {
-      const { result } = renderHook(() =>
-        useRawRuleTable({ data: mockRules })
-      );
+      const { result } = renderHook(() => useRawRuleTable({ data: mockRules }));
 
       expect(result.current.isDragging).toBe(false);
       expect(result.current.draggedItemId).toBe(null);
     });
 
     it('sets dragging state', () => {
-      const { result } = renderHook(() =>
-        useRawRuleTable({ data: mockRules })
-      );
+      const { result } = renderHook(() => useRawRuleTable({ data: mockRules }));
 
       act(() => {
         result.current.setIsDragging(true);
@@ -385,9 +352,7 @@ describe('useRawRuleTable', () => {
     });
 
     it('sets dragged item ID', () => {
-      const { result } = renderHook(() =>
-        useRawRuleTable({ data: mockRules })
-      );
+      const { result } = renderHook(() => useRawRuleTable({ data: mockRules }));
 
       act(() => {
         result.current.setDraggedItemId('1');
@@ -399,17 +364,13 @@ describe('useRawRuleTable', () => {
 
   describe('Counts', () => {
     it('provides correct total count', () => {
-      const { result } = renderHook(() =>
-        useRawRuleTable({ data: mockRules })
-      );
+      const { result } = renderHook(() => useRawRuleTable({ data: mockRules }));
 
       expect(result.current.totalCount).toBe(3);
     });
 
     it('provides correct filtered count', () => {
-      const { result } = renderHook(() =>
-        useRawRuleTable({ data: mockRules })
-      );
+      const { result } = renderHook(() => useRawRuleTable({ data: mockRules }));
 
       act(() => {
         result.current.setFilters({ action: 'drop' });

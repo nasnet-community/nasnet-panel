@@ -127,9 +127,10 @@ export const useLogFilterPreferencesStore = create<LogFilterPreferencesState>()(
         const current = get().selectedTopics;
         const exists = current.includes(topic);
         set({
-          selectedTopics: exists
-            ? current.filter((t) => t !== topic)  // Remove topic
-            : [...current, topic],  // Add topic (preserves order)
+          selectedTopics:
+            exists ?
+              current.filter((t) => t !== topic) // Remove topic
+            : [...current, topic], // Add topic (preserves order)
         });
       },
 
@@ -139,7 +140,7 @@ export const useLogFilterPreferencesStore = create<LogFilterPreferencesState>()(
       clearFilters: () => set({ selectedTopics: [] }),
     }),
     {
-      name: 'log-filter-preferences',  // localStorage key
+      name: 'log-filter-preferences', // localStorage key
     }
   )
 );

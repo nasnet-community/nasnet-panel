@@ -28,7 +28,12 @@ import {
   Icon,
 } from '@nasnet/ui/primitives';
 import { cn } from '@nasnet/ui/utils';
-import type { FirewallFilters, FirewallChain, FirewallAction, FirewallProtocol } from '@nasnet/core/types';
+import type {
+  FirewallFilters,
+  FirewallChain,
+  FirewallAction,
+  FirewallProtocol,
+} from '@nasnet/core/types';
 
 /**
  * Filter dropdown options
@@ -79,8 +84,8 @@ const FilterBadge = memo(function FilterBadge({
     <Badge
       variant="secondary"
       className={cn(
-        'gap-component-sm pr-component-sm cursor-pointer hover:bg-secondary',
-        'transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2'
+        'gap-component-sm pr-component-sm hover:bg-secondary cursor-pointer',
+        'focus-visible:ring-ring transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2'
       )}
       onClick={onRemove}
       role="button"
@@ -97,7 +102,7 @@ const FilterBadge = memo(function FilterBadge({
       <Icon
         icon={X}
         className={cn(
-          'ml-component-xs w-3 h-3 text-muted-foreground',
+          'ml-component-xs text-muted-foreground h-3 w-3',
           'group-hover:text-foreground'
         )}
         aria-hidden="true"
@@ -244,24 +249,23 @@ export const RuleSearchFilters = memo(function RuleSearchFilters({
       {/* Section header */}
       <div className="px-component-sm mb-component-md flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-display font-semibold">Filter Rules</h2>
-          <p className="text-sm text-muted-foreground">
-            Search and filter firewall rules
-          </p>
+          <h2 className="font-display text-lg font-semibold">Filter Rules</h2>
+          <p className="text-muted-foreground text-sm">Search and filter firewall rules</p>
         </div>
         {activeFilterCount > 0 && (
-          <Badge variant="outline" className="text-xs">
+          <Badge
+            variant="outline"
+            className="text-xs"
+          >
             {activeFilterCount} active
           </Badge>
         )}
       </div>
 
       {/* Filter controls */}
-      <div className={cn(
-        'bg-card rounded-md border border-border p-component-md'
-      )}>
+      <div className={cn('bg-card border-border p-component-md rounded-md border')}>
         {/* Search row */}
-        <div className="flex flex-col md:flex-row gap-component-sm">
+        <div className="gap-component-sm flex flex-col md:flex-row">
           {/* Search input */}
           <div className="flex-1">
             <Input
@@ -284,7 +288,10 @@ export const RuleSearchFilters = memo(function RuleSearchFilters({
           >
             {isExpanded ? 'Hide Filters' : 'Show Filters'}
             {activeFilterCount > 0 && (
-              <Badge variant="secondary" className="ml-component-sm">
+              <Badge
+                variant="secondary"
+                className="ml-component-sm"
+              >
                 {activeFilterCount}
               </Badge>
             )}
@@ -294,18 +301,24 @@ export const RuleSearchFilters = memo(function RuleSearchFilters({
         {/* Filter dropdowns */}
         <div
           className={cn(
-            'mt-component-sm grid grid-cols-2 md:grid-cols-4 gap-component-sm',
+            'mt-component-sm gap-component-sm grid grid-cols-2 md:grid-cols-4',
             isExpanded ? 'block' : 'hidden md:grid'
           )}
         >
           {/* Chain filter */}
-          <Select value={filters.chain || 'all'} onValueChange={handleChainChange}>
+          <Select
+            value={filters.chain || 'all'}
+            onValueChange={handleChainChange}
+          >
             <SelectTrigger aria-label="Filter by chain">
               <SelectValue placeholder="Chain" />
             </SelectTrigger>
             <SelectContent>
               {CHAIN_OPTIONS.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
+                <SelectItem
+                  key={option.value}
+                  value={option.value}
+                >
                   {option.label}
                 </SelectItem>
               ))}
@@ -313,13 +326,19 @@ export const RuleSearchFilters = memo(function RuleSearchFilters({
           </Select>
 
           {/* Action filter */}
-          <Select value={filters.action || 'all'} onValueChange={handleActionChange}>
+          <Select
+            value={filters.action || 'all'}
+            onValueChange={handleActionChange}
+          >
             <SelectTrigger aria-label="Filter by action">
               <SelectValue placeholder="Action" />
             </SelectTrigger>
             <SelectContent>
               {ACTION_OPTIONS.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
+                <SelectItem
+                  key={option.value}
+                  value={option.value}
+                >
                   {option.label}
                 </SelectItem>
               ))}
@@ -336,7 +355,10 @@ export const RuleSearchFilters = memo(function RuleSearchFilters({
             </SelectTrigger>
             <SelectContent>
               {PROTOCOL_OPTIONS.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
+                <SelectItem
+                  key={option.value}
+                  value={option.value}
+                >
                   {option.label}
                 </SelectItem>
               ))}
@@ -344,13 +366,19 @@ export const RuleSearchFilters = memo(function RuleSearchFilters({
           </Select>
 
           {/* Status filter */}
-          <Select value={filters.status || 'all'} onValueChange={handleStatusChange}>
+          <Select
+            value={filters.status || 'all'}
+            onValueChange={handleStatusChange}
+          >
             <SelectTrigger aria-label="Filter by status">
               <SelectValue placeholder="Status" />
             </SelectTrigger>
             <SelectContent>
               {STATUS_OPTIONS.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
+                <SelectItem
+                  key={option.value}
+                  value={option.value}
+                >
                   {option.label}
                 </SelectItem>
               ))}
@@ -360,11 +388,9 @@ export const RuleSearchFilters = memo(function RuleSearchFilters({
 
         {/* Active filters */}
         {activeFilters.length > 0 && (
-          <div className="mt-component-sm pt-component-sm border-t border-border">
-            <div className="flex flex-wrap items-center gap-component-sm">
-              <span className="text-xs text-muted-foreground">
-                Active:
-              </span>
+          <div className="mt-component-sm pt-component-sm border-border border-t">
+            <div className="gap-component-sm flex flex-wrap items-center">
+              <span className="text-muted-foreground text-xs">Active:</span>
               {activeFilters.map((filter) => (
                 <FilterBadge
                   key={filter.key}
@@ -375,7 +401,7 @@ export const RuleSearchFilters = memo(function RuleSearchFilters({
               <Button
                 variant="ghost"
                 size="sm"
-                className="min-h-[44px] h-6 px-component-sm text-xs text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                className="px-component-sm text-muted-foreground hover:text-foreground focus-visible:ring-ring h-6 min-h-[44px] text-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
                 onClick={onClearAll}
                 aria-label="Clear all filters"
               >
@@ -389,30 +415,3 @@ export const RuleSearchFilters = memo(function RuleSearchFilters({
   );
 });
 RuleSearchFilters.displayName = 'RuleSearchFilters';
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

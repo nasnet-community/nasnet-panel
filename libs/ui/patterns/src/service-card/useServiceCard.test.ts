@@ -10,7 +10,7 @@ import { describe, it, expect, vi } from 'vitest';
 
 import { useServiceCard } from './useServiceCard';
 
-import type { ServiceCardProps , Service } from './types';
+import type { ServiceCardProps, Service } from './types';
 
 describe('useServiceCard', () => {
   const mockService: Service = {
@@ -42,9 +42,7 @@ describe('useServiceCard', () => {
     });
 
     it('should determine isRunning correctly', () => {
-      const { result: runningResult } = renderHook(() =>
-        useServiceCard(defaultProps)
-      );
+      const { result: runningResult } = renderHook(() => useServiceCard(defaultProps));
       expect(runningResult.current.isRunning).toBe(true);
 
       const { result: stoppedResult } = renderHook(() =>
@@ -194,9 +192,7 @@ describe('useServiceCard', () => {
         },
       ];
 
-      const { result } = renderHook(() =>
-        useServiceCard({ ...defaultProps, actions })
-      );
+      const { result } = renderHook(() => useServiceCard({ ...defaultProps, actions }));
 
       expect(result.current.primaryAction).toBe(actions[0]);
     });
@@ -220,9 +216,7 @@ describe('useServiceCard', () => {
         },
       ];
 
-      const { result } = renderHook(() =>
-        useServiceCard({ ...defaultProps, actions })
-      );
+      const { result } = renderHook(() => useServiceCard({ ...defaultProps, actions }));
 
       expect(result.current.secondaryActions).toEqual([actions[1], actions[2]]);
     });
@@ -236,26 +230,20 @@ describe('useServiceCard', () => {
       );
       expect(withActions.current.hasActions).toBe(true);
 
-      const { result: withoutActions } = renderHook(() =>
-        useServiceCard(defaultProps)
-      );
+      const { result: withoutActions } = renderHook(() => useServiceCard(defaultProps));
       expect(withoutActions.current.hasActions).toBe(false);
     });
   });
 
   describe('metrics', () => {
     it('should determine hasMetrics correctly when showMetrics is true and metrics exist', () => {
-      const { result } = renderHook(() =>
-        useServiceCard({ ...defaultProps, showMetrics: true })
-      );
+      const { result } = renderHook(() => useServiceCard({ ...defaultProps, showMetrics: true }));
 
       expect(result.current.hasMetrics).toBe(true);
     });
 
     it('should determine hasMetrics as false when showMetrics is false', () => {
-      const { result } = renderHook(() =>
-        useServiceCard({ ...defaultProps, showMetrics: false })
-      );
+      const { result } = renderHook(() => useServiceCard({ ...defaultProps, showMetrics: false }));
 
       expect(result.current.hasMetrics).toBe(false);
     });
@@ -299,9 +287,7 @@ describe('useServiceCard', () => {
   describe('event handlers', () => {
     it('should call onClick when handleClick is invoked', () => {
       const onClick = vi.fn();
-      const { result } = renderHook(() =>
-        useServiceCard({ ...defaultProps, onClick })
-      );
+      const { result } = renderHook(() => useServiceCard({ ...defaultProps, onClick }));
 
       act(() => {
         result.current.handleClick();
@@ -324,9 +310,7 @@ describe('useServiceCard', () => {
       const onClick = vi.fn();
       const actions = [{ id: 'start', label: 'Start', onClick }];
 
-      const { result } = renderHook(() =>
-        useServiceCard({ ...defaultProps, actions })
-      );
+      const { result } = renderHook(() => useServiceCard({ ...defaultProps, actions }));
 
       act(() => {
         result.current.handlePrimaryAction();
@@ -337,13 +321,9 @@ describe('useServiceCard', () => {
 
     it('should not call onClick when action is disabled', () => {
       const onClick = vi.fn();
-      const actions = [
-        { id: 'start', label: 'Start', onClick, disabled: true },
-      ];
+      const actions = [{ id: 'start', label: 'Start', onClick, disabled: true }];
 
-      const { result } = renderHook(() =>
-        useServiceCard({ ...defaultProps, actions })
-      );
+      const { result } = renderHook(() => useServiceCard({ ...defaultProps, actions }));
 
       act(() => {
         result.current.handlePrimaryAction();
@@ -354,13 +334,9 @@ describe('useServiceCard', () => {
 
     it('should not call onClick when action is loading', () => {
       const onClick = vi.fn();
-      const actions = [
-        { id: 'start', label: 'Start', onClick, loading: true },
-      ];
+      const actions = [{ id: 'start', label: 'Start', onClick, loading: true }];
 
-      const { result } = renderHook(() =>
-        useServiceCard({ ...defaultProps, actions })
-      );
+      const { result } = renderHook(() => useServiceCard({ ...defaultProps, actions }));
 
       act(() => {
         result.current.handlePrimaryAction();
@@ -371,9 +347,7 @@ describe('useServiceCard', () => {
 
     it('should maintain stable references for event handlers', () => {
       const onClick = vi.fn();
-      const { result, rerender } = renderHook(() =>
-        useServiceCard({ ...defaultProps, onClick })
-      );
+      const { result, rerender } = renderHook(() => useServiceCard({ ...defaultProps, onClick }));
 
       const firstHandleClick = result.current.handleClick;
 

@@ -15,7 +15,10 @@ vi.mock('../services/scanService', () => ({
   validateSubnet: vi.fn(),
   getDefaultSubnet: vi.fn(() => '192.168.88.0/24'),
   ScanError: class ScanError extends Error {
-    constructor(message: string, public code: string) {
+    constructor(
+      message: string,
+      public code: string
+    ) {
       super(message);
       this.name = 'ScanError';
     }
@@ -40,9 +43,7 @@ describe('NetworkScanner', () => {
   it('should allow user to change subnet input', () => {
     render(<NetworkScanner />);
 
-    const input = screen.getByPlaceholderText(
-      '192.168.88.0/24'
-    ) as HTMLInputElement;
+    const input = screen.getByPlaceholderText('192.168.88.0/24') as HTMLInputElement;
 
     fireEvent.change(input, { target: { value: '10.0.0.0/24' } });
 
@@ -61,9 +62,7 @@ describe('NetworkScanner', () => {
     fireEvent.click(scanButton);
 
     await waitFor(() => {
-      expect(
-        screen.getByText(/invalid subnet format/i)
-      ).toBeInTheDocument();
+      expect(screen.getByText(/invalid subnet format/i)).toBeInTheDocument();
     });
 
     expect(scanService.startNetworkScan).not.toHaveBeenCalled();
@@ -106,15 +105,13 @@ describe('NetworkScanner', () => {
     };
 
     vi.mocked(scanService.validateSubnet).mockReturnValue(true);
-    vi.mocked(scanService.startNetworkScan).mockImplementation(
-      async (subnet, onProgress) => {
-        // Simulate progress callback
-        if (onProgress) {
-          onProgress(mockProgress);
-        }
-        return [];
+    vi.mocked(scanService.startNetworkScan).mockImplementation(async (subnet, onProgress) => {
+      // Simulate progress callback
+      if (onProgress) {
+        onProgress(mockProgress);
       }
-    );
+      return [];
+    });
 
     render(<NetworkScanner />);
 
@@ -216,10 +213,7 @@ describe('NetworkScanner', () => {
   });
 
   it('should display error message on scan failure', async () => {
-    const mockError = new scanService.ScanError(
-      'Backend service unavailable',
-      'SCAN_START_FAILED'
-    );
+    const mockError = new scanService.ScanError('Backend service unavailable', 'SCAN_START_FAILED');
 
     vi.mocked(scanService.validateSubnet).mockReturnValue(true);
     vi.mocked(scanService.startNetworkScan).mockRejectedValue(mockError);
@@ -231,9 +225,7 @@ describe('NetworkScanner', () => {
 
     await waitFor(() => {
       expect(screen.getByText(/scan failed/i)).toBeInTheDocument();
-      expect(
-        screen.getByText(/failed to start network scan/i)
-      ).toBeInTheDocument();
+      expect(screen.getByText(/failed to start network scan/i)).toBeInTheDocument();
     });
   });
 
@@ -247,9 +239,7 @@ describe('NetworkScanner', () => {
     fireEvent.click(scanButton);
 
     await waitFor(() => {
-      expect(
-        screen.getByText(/no routers found on the network/i)
-      ).toBeInTheDocument();
+      expect(screen.getByText(/no routers found on the network/i)).toBeInTheDocument();
     });
   });
 
@@ -290,9 +280,7 @@ describe('NetworkScanner', () => {
 
     render(<NetworkScanner />);
 
-    const input = screen.getByPlaceholderText(
-      '192.168.88.0/24'
-    ) as HTMLInputElement;
+    const input = screen.getByPlaceholderText('192.168.88.0/24') as HTMLInputElement;
     const scanButton = screen.getByRole('button', { name: /scan network/i });
 
     fireEvent.click(scanButton);
@@ -305,12 +293,8 @@ describe('NetworkScanner', () => {
   });
 
   it('should clear previous results when starting new scan', async () => {
-    const mockResults1: ScanResult[] = [
-      { ipAddress: '192.168.88.1', isReachable: true },
-    ];
-    const mockResults2: ScanResult[] = [
-      { ipAddress: '10.0.0.1', isReachable: true },
-    ];
+    const mockResults1: ScanResult[] = [{ ipAddress: '192.168.88.1', isReachable: true }];
+    const mockResults2: ScanResult[] = [{ ipAddress: '10.0.0.1', isReachable: true }];
 
     vi.mocked(scanService.validateSubnet).mockReturnValue(true);
     vi.mocked(scanService.startNetworkScan)

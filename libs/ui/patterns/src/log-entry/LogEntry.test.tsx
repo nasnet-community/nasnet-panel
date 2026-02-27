@@ -11,7 +11,6 @@ import type { LogEntry as LogEntryType } from '@nasnet/core/types/router';
 
 import { LogEntry } from './LogEntry';
 
-
 describe('LogEntry', () => {
   const mockLogEntry: LogEntryType = {
     id: 'log-1',
@@ -45,7 +44,12 @@ describe('LogEntry', () => {
     });
 
     it('should include date when showDate is true', () => {
-      render(<LogEntry entry={mockLogEntry} showDate={true} />);
+      render(
+        <LogEntry
+          entry={mockLogEntry}
+          showDate={true}
+        />
+      );
 
       // Timestamp should be visible (format includes date)
       const timeElement = screen.getByRole('time');
@@ -254,7 +258,10 @@ describe('LogEntry', () => {
   describe('Custom Class Names', () => {
     it('should apply custom className', () => {
       const { container } = render(
-        <LogEntry entry={mockLogEntry} className="custom-class" />
+        <LogEntry
+          entry={mockLogEntry}
+          className="custom-class"
+        />
       );
 
       const logElement = container.firstChild as HTMLElement;
@@ -263,7 +270,10 @@ describe('LogEntry', () => {
 
     it('should preserve default classes when custom className is added', () => {
       const { container } = render(
-        <LogEntry entry={mockLogEntry} className="custom-class" />
+        <LogEntry
+          entry={mockLogEntry}
+          className="custom-class"
+        />
       );
 
       const logElement = container.firstChild as HTMLElement;

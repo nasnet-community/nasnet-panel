@@ -47,11 +47,11 @@ export const BridgeListMobile = memo(function BridgeListMobile({
   };
 
   return (
-    <div className="flex h-full flex-col gap-component-md p-component-md">
+    <div className="gap-component-md p-component-md flex h-full flex-col">
       {/* Header */}
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold">Bridges</h2>
-        <div className="flex items-center gap-component-sm">
+        <div className="gap-component-sm flex items-center">
           <Button
             variant="ghost"
             size="icon"
@@ -60,8 +60,11 @@ export const BridgeListMobile = memo(function BridgeListMobile({
           >
             <RefreshCw className="h-4 w-4" />
           </Button>
-          <Button onClick={() => setSelectedBridgeId('new')} size="sm">
-            <Plus className="h-4 w-4 mr-2" />
+          <Button
+            onClick={() => setSelectedBridgeId('new')}
+            size="sm"
+          >
+            <Plus className="mr-2 h-4 w-4" />
             Add
           </Button>
         </div>
@@ -69,7 +72,7 @@ export const BridgeListMobile = memo(function BridgeListMobile({
 
       {/* Search */}
       <div className="relative">
-        <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+        <Search className="text-muted-foreground absolute left-2 top-2.5 h-4 w-4" />
         <Input
           placeholder="Search bridges..."
           value={searchQuery}
@@ -81,8 +84,8 @@ export const BridgeListMobile = memo(function BridgeListMobile({
 
       {/* Loading State */}
       {isLoading && (
-        <div className="flex items-center justify-center py-component-xl">
-          <RefreshCw className="h-6 w-6 animate-spin text-muted-foreground" />
+        <div className="py-component-xl flex items-center justify-center">
+          <RefreshCw className="text-muted-foreground h-6 w-6 animate-spin" />
         </div>
       )}
 
@@ -90,20 +93,16 @@ export const BridgeListMobile = memo(function BridgeListMobile({
       {hasError && (
         <Card className="border-error">
           <CardContent className="pt-component-lg">
-            <p className="text-sm text-error">
-              Failed to load bridges: {hasError.message}
-            </p>
+            <p className="text-error text-sm">Failed to load bridges: {hasError.message}</p>
           </CardContent>
         </Card>
       )}
 
       {/* Empty State */}
       {!isLoading && !hasError && bridges.length === 0 && (
-        <div className="flex flex-col items-center justify-center py-component-xl text-center">
-          <p className="text-lg font-medium text-muted-foreground">
-            No bridges configured
-          </p>
-          <p className="text-sm text-muted-foreground mt-component-xs">
+        <div className="py-component-xl flex flex-col items-center justify-center text-center">
+          <p className="text-muted-foreground text-lg font-medium">No bridges configured</p>
+          <p className="text-muted-foreground mt-component-xs text-sm">
             Create a bridge to connect multiple interfaces
           </p>
           <Button
@@ -111,43 +110,50 @@ export const BridgeListMobile = memo(function BridgeListMobile({
             className="mt-component-lg"
             size="sm"
           >
-            <Plus className="h-4 w-4 mr-component-sm" />
+            <Plus className="mr-component-sm h-4 w-4" />
             Add Bridge
           </Button>
         </div>
       )}
 
       {/* Bridge Cards */}
-      <div className="flex flex-col gap-component-md" role="list" aria-label="Bridge list">
+      <div
+        className="gap-component-md flex flex-col"
+        role="list"
+        aria-label="Bridge list"
+      >
         {bridges.map((bridge: Bridge) => (
           <Card
             key={bridge.id}
-            className="cursor-pointer transition-colors hover:bg-accent"
+            className="hover:bg-accent cursor-pointer transition-colors"
             onClick={() => setSelectedBridgeId(bridge.id)}
             style={{ minHeight: '44px' }} // 44px minimum touch target
             role="listitem"
             aria-label={`Bridge ${bridge.name}`}
           >
             <CardContent className="p-component-md">
-              <div className="flex items-start justify-between gap-component-sm">
-                <div className="flex-1 min-w-0">
+              <div className="gap-component-sm flex items-start justify-between">
+                <div className="min-w-0 flex-1">
                   {/* Name and Comment */}
-                  <div className="flex items-center gap-component-sm mb-component-sm">
-                    <h3 className="font-medium truncate">{bridge.name}</h3>
+                  <div className="gap-component-sm mb-component-sm flex items-center">
+                    <h3 className="truncate font-medium">{bridge.name}</h3>
                     {bridge.disabled && (
-                      <Badge variant="secondary" className="text-xs">
+                      <Badge
+                        variant="secondary"
+                        className="text-xs"
+                      >
                         Disabled
                       </Badge>
                     )}
                   </div>
                   {bridge.comment && (
-                    <p className="text-sm text-muted-foreground mb-component-sm line-clamp-2">
+                    <p className="text-muted-foreground mb-component-sm line-clamp-2 text-sm">
                       {bridge.comment}
                     </p>
                   )}
 
                   {/* Status Row */}
-                  <div className="flex flex-wrap items-center gap-component-sm text-xs">
+                  <div className="gap-component-sm flex flex-wrap items-center text-xs">
                     {/* Running Status */}
                     <Badge
                       variant={bridge.running ? 'success' : 'warning'}
@@ -159,11 +165,10 @@ export const BridgeListMobile = memo(function BridgeListMobile({
                     {/* STP Protocol */}
                     <Badge
                       variant={
-                        bridge.protocol === 'NONE'
-                          ? 'secondary'
-                          : bridge.protocol === 'RSTP'
-                          ? 'success'
-                          : 'info'
+                        bridge.protocol === 'NONE' ? 'secondary'
+                        : bridge.protocol === 'RSTP' ?
+                          'success'
+                        : 'info'
                       }
                       className="text-xs"
                     >
@@ -172,20 +177,21 @@ export const BridgeListMobile = memo(function BridgeListMobile({
 
                     {/* VLAN Filtering */}
                     {bridge.vlanFiltering && (
-                      <Badge variant="info" className="text-xs">
+                      <Badge
+                        variant="info"
+                        className="text-xs"
+                      >
                         VLAN Filtering
                       </Badge>
                     )}
 
                     {/* Port Count */}
-                    <span className="text-muted-foreground">
-                      {bridge.ports?.length || 0} ports
-                    </span>
+                    <span className="text-muted-foreground">{bridge.ports?.length || 0} ports</span>
                   </div>
 
                   {/* MAC Address */}
                   <div className="mt-component-sm">
-                    <code className="text-xs font-mono text-muted-foreground">
+                    <code className="text-muted-foreground font-mono text-xs">
                       {bridge.macAddress}
                     </code>
                   </div>
@@ -245,12 +251,14 @@ export const BridgeListMobile = memo(function BridgeListMobile({
           onOpenChange={setDeleteConfirmOpen}
           title={`Delete Bridge "${bridgeToDelete.name}"?`}
           description="Deleting this bridge will disconnect all ports and may disrupt network connectivity."
-          consequences={[
-            `${bridgeToDelete.ports?.length || 0} ports will be released`,
-            bridgeToDelete.ipAddresses?.length
-              ? `${bridgeToDelete.ipAddresses.length} IP addresses will be removed`
+          consequences={
+            [
+              `${bridgeToDelete.ports?.length || 0} ports will be released`,
+              bridgeToDelete.ipAddresses?.length ?
+                `${bridgeToDelete.ipAddresses.length} IP addresses will be removed`
               : undefined,
-          ].filter(Boolean) as string[]}
+            ].filter(Boolean) as string[]
+          }
           confirmText="DELETE"
           onConfirm={confirmDelete}
           onCancel={() => {

@@ -13,11 +13,7 @@ export { useStepper } from './use-stepper';
 export { useStepperKeyboard } from './use-stepper-keyboard';
 
 // ARIA helpers
-export {
-  getStepperAriaProps,
-  getStepAriaProps,
-  getStepPanelAriaProps,
-} from './use-stepper-aria';
+export { getStepperAriaProps, getStepAriaProps, getStepPanelAriaProps } from './use-stepper-aria';
 
 // Types
 export type {

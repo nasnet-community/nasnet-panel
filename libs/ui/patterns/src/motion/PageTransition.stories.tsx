@@ -104,19 +104,11 @@ type Story = StoryObj<typeof PageTransitionWrapper>;
 // Mock page content
 // ============================================================================
 
-function MockPage({
-  title,
-  color = 'bg-card',
-}: {
-  title: string;
-  color?: string;
-}) {
+function MockPage({ title, color = 'bg-card' }: { title: string; color?: string }) {
   return (
-    <div
-      className={`w-72 rounded-xl border border-border ${color} p-6 shadow-sm`}
-    >
+    <div className={`border-border w-72 rounded-xl border ${color} p-6 shadow-sm`}>
       <h2 className="text-base font-semibold">{title}</h2>
-      <p className="mt-2 text-sm text-muted-foreground">
+      <p className="text-muted-foreground mt-2 text-sm">
         This simulates page content that animates in on route change.
       </p>
       <ul className="mt-4 space-y-2 text-sm">
@@ -125,8 +117,7 @@ function MockPage({
           Router online — 99.9% uptime
         </li>
         <li className="flex items-center gap-2">
-          <span className="h-2 w-2 rounded-full bg-amber-400" />3 firewall rules
-          pending
+          <span className="h-2 w-2 rounded-full bg-amber-400" />3 firewall rules pending
         </li>
         <li className="flex items-center gap-2">
           <span className="h-2 w-2 rounded-full bg-blue-500" />
@@ -214,9 +205,9 @@ export const InteractivePageSwitch: Story = {
               key={v}
               onClick={() => setVariant(v)}
               className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
-                variant === v
-                  ? 'bg-primary text-primary-foreground'
-                  : 'border border-border hover:bg-muted'
+                variant === v ?
+                  'bg-primary text-primary-foreground'
+                : 'border-border hover:bg-muted border'
               }`}
             >
               {v}
@@ -231,9 +222,9 @@ export const InteractivePageSwitch: Story = {
               key={p.key}
               onClick={() => setCurrentPage(p.key)}
               className={`rounded-md border px-3 py-1.5 text-sm transition-colors ${
-                currentPage === p.key
-                  ? 'border-primary bg-primary/10 font-medium text-primary'
-                  : 'hover:bg-muted'
+                currentPage === p.key ?
+                  'border-primary bg-primary/10 text-primary font-medium'
+                : 'hover:bg-muted'
               }`}
             >
               {p.label}
@@ -247,7 +238,10 @@ export const InteractivePageSwitch: Story = {
           pageKey={currentPage}
           variant={variant}
         >
-          <MockPage title={page.label} color={page.color} />
+          <MockPage
+            title={page.label}
+            color={page.color}
+          />
         </PageTransitionWrapper>
       </div>
     );
@@ -288,11 +282,17 @@ export const CustomVariants: Story = {
 export const MultipleWrappers: Story = {
   render: () => (
     <div className="flex gap-4">
-      <PageTransitionWrapper pageKey="left-panel" variant="fade">
+      <PageTransitionWrapper
+        pageKey="left-panel"
+        variant="fade"
+      >
         <MockPage title="Left Panel" />
       </PageTransitionWrapper>
 
-      <PageTransitionWrapper pageKey="right-panel" variant="slideUp">
+      <PageTransitionWrapper
+        pageKey="right-panel"
+        variant="slideUp"
+      >
         <MockPage title="Right Panel" />
       </PageTransitionWrapper>
     </div>

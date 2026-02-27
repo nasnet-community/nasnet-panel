@@ -17,7 +17,8 @@
 
 ## Problem Statement
 
-Managing router configuration is complex because multiple systems need to track different aspects of the same resource:
+Managing router configuration is complex because multiple systems need to track different aspects of
+the same resource:
 
 - **Backend** has the authoritative source (what's on the router)
 - **Caches** need to optimize queries (TanStack Query)
@@ -29,6 +30,7 @@ Managing router configuration is complex because multiple systems need to track 
 - **Metadata** tracks who changed what
 
 Without a unified model, these concerns scatter across the codebase, causing:
+
 - Stale data conflicts
 - Lost user edits
 - Cache invalidation bugs
@@ -110,7 +112,8 @@ Each resource passes through 8 distinct layers, each with a specific responsibil
 
 #### Layer 1: Source (Backend / Router State)
 
-The authoritative data from the router. This is the "source of truth" that everything else syncs against.
+The authoritative data from the router. This is the "source of truth" that everything else syncs
+against.
 
 ```typescript
 import type { Resource } from '@nasnet/core/types';
@@ -133,11 +136,13 @@ const wgServer: Resource = {
 ```
 
 **When it updates:**
+
 - After a successful apply-confirm operation
 - When re-fetching from the backend
 - Via cache updates (TanStack Query mutations)
 
 **Accessed by:**
+
 - Optimistic UI to establish baseline
 - Forms to pre-fill with current values
 - Validation to detect conflicts
@@ -146,7 +151,8 @@ const wgServer: Resource = {
 
 #### Layer 2: Validation Result
 
-Output from the 7-stage validation pipeline (schema, semantic, dependency, conflict, platform, quota, dry-run).
+Output from the 7-stage validation pipeline (schema, semantic, dependency, conflict, platform,
+quota, dry-run).
 
 ```typescript
 import type { ValidationResult, ValidationStage } from '@nasnet/core/types';
@@ -215,6 +221,7 @@ const validationResult: ValidationResult = {
 7. **SIMULATION** - Pre-flight dry-run
 
 **Severity levels:**
+
 - `ERROR` - Blocks apply (must fix)
 - `WARNING` - Non-blocking (informational)
 - `INFO` - Help text
@@ -255,7 +262,7 @@ const deployment: DeploymentState = {
       {
         path: 'configuration.enabled',
         expected: true,
-        actual: false,  // User disabled on router
+        actual: false, // User disabled on router
       },
     ],
     suggestedAction: 'REAPPLY', // or ACCEPT or REVIEW
@@ -267,6 +274,7 @@ const deployment: DeploymentState = {
 ```
 
 **Drift scenarios:**
+
 - User manually changes on router → `actual` differs from `expected`
 - Suggest: `REAPPLY` (push config), `ACCEPT` (accept router), or `REVIEW` (manual)
 
@@ -297,7 +305,7 @@ const runtime: RuntimeState = {
     packetsOut: 5000,
     errors: 0,
     drops: 0,
-    throughputIn: 12500,  // bytes/sec
+    throughputIn: 12500, // bytes/sec
     throughputOut: 6250,
   },
 
@@ -305,8 +313,8 @@ const runtime: RuntimeState = {
   lastSuccessfulOperation: '2024-02-27T09:50:00Z',
 
   // WireGuard specific
-  activeConnections: 3,  // connected peers
-  uptime: 'PT4H15M',  // ISO 8601 duration
+  activeConnections: 3, // connected peers
+  uptime: 'PT4H15M', // ISO 8601 duration
 };
 ```
 
@@ -510,6 +518,7 @@ const relationships: ResourceRelationships = {
 ```
 
 **Used for:**
+
 - Dependency graph construction
 - Impact analysis (deleting parent deletes children?)
 - Change set ordering
@@ -570,6 +579,7 @@ const platform: PlatformInfo = {
 ```
 
 **Accessed by:**
+
 - Validation (check capabilities before apply)
 - Forms (hide unsupported fields)
 - Dashboard (show capability warnings)
@@ -584,15 +594,15 @@ Resources progress through lifecycle states as they are created, validated, depl
 import type { ResourceLifecycleState } from '@nasnet/core/types';
 
 type LifecycleState =
-  | 'DRAFT'        // User is editing, not yet validated
-  | 'VALID'        // Validation passed, ready to apply
-  | 'APPLYING'     // Apply operation in progress
-  | 'ACTIVE'       // Successfully deployed on router
-  | 'UPDATING'     // Update operation in progress
-  | 'DELETING'     // Delete operation in progress
-  | 'DELETED'      // Soft-deleted (for audit trail)
-  | 'ERROR'        // Failed to apply, waiting for retry
-  | 'DEPRECATED';  // Superseded by newer version
+  | 'DRAFT' // User is editing, not yet validated
+  | 'VALID' // Validation passed, ready to apply
+  | 'APPLYING' // Apply operation in progress
+  | 'ACTIVE' // Successfully deployed on router
+  | 'UPDATING' // Update operation in progress
+  | 'DELETING' // Delete operation in progress
+  | 'DELETED' // Soft-deleted (for audit trail)
+  | 'ERROR' // Failed to apply, waiting for retry
+  | 'DEPRECATED'; // Superseded by newer version
 ```
 
 **State diagram:**
@@ -635,15 +645,17 @@ type LifecycleState =
 
 ## Composite Resources
 
-Composite resources aggregate multiple sub-resources (e.g., WireGuard Server + Clients, LAN Network + DHCP + Leases).
+Composite resources aggregate multiple sub-resources (e.g., WireGuard Server + Clients, LAN
+Network + DHCP + Leases).
 
 ```typescript
 import type { CompositeResource, CompositeResourceStatus } from '@nasnet/core/types';
 
 // Root resource + sub-resources
 const composite: CompositeResource = {
-  root: wgServer,  // WireGuard server
-  children: [      // WireGuard clients
+  root: wgServer, // WireGuard server
+  children: [
+    // WireGuard clients
     wgClient1,
     wgClient2,
     wgClient3,
@@ -682,11 +694,7 @@ Runtime type guards for checking resource states and capabilities.
 
 ```typescript
 import type { Resource } from '@nasnet/core/types';
-import {
-  isResourceActive,
-  isResourcePending,
-  canResourceApply,
-} from '@nasnet/core/types';
+import { isResourceActive, isResourcePending, canResourceApply } from '@nasnet/core/types';
 
 function handleResource(resource: Resource) {
   // Is the resource currently deployed and running?
@@ -802,7 +810,7 @@ import { topologicalSort, getParallelApplicableNodes } from '@nasnet/core/utils'
 
 // Items with dependencies
 const changeSet = [
-  { id: 'bridge', dependencies: [] },       // No dependencies - apply first
+  { id: 'bridge', dependencies: [] }, // No dependencies - apply first
   { id: 'dhcp', dependencies: ['bridge'] }, // Depends on bridge
   { id: 'firewall', dependencies: ['bridge'] }, // Also depends on bridge
 ];
@@ -905,9 +913,7 @@ function updateWireGuardServer(server: Resource, updates: Partial<Resource>) {
 
     console.error('Configuration drift detected:');
     drift.driftedFields.forEach((field) => {
-      console.error(
-        `  ${field.path}: expected ${field.expected}, actual ${field.actual}`
-      );
+      console.error(`  ${field.path}: expected ${field.expected}, actual ${field.actual}`);
     });
 
     // Suggest resolution
@@ -926,9 +932,7 @@ function updateWireGuardServer(server: Resource, updates: Partial<Resource>) {
 
   // Check dependencies
   server.relationships?.dependents?.forEach((dependent) => {
-    console.log(
-      `Warning: ${dependent.id} depends on this resource`
-    );
+    console.log(`Warning: ${dependent.id} depends on this resource`);
   });
 
   // Perform update with full validation
@@ -954,10 +958,7 @@ import { useApolloClient } from '@apollo/client';
 function useOptimisticResourceUpdate() {
   const client = useApolloClient();
 
-  async function updateResource(
-    resourceId: string,
-    updates: Partial<Resource>
-  ) {
+  async function updateResource(resourceId: string, updates: Partial<Resource>) {
     // Read current state (Layer 1: Source)
     const current = client.cache.readQuery({
       query: GET_RESOURCE,
@@ -1019,4 +1020,3 @@ function useOptimisticResourceUpdate() {
 - **validation-pipeline.md** - 7-stage validation pipeline details
 - **change-set-operations.md** - Atomic multi-resource operations
 - **forms.md** - React Hook Form integration patterns
-

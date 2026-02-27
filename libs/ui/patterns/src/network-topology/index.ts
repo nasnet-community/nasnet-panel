@@ -37,10 +37,7 @@ export type { NetworkTopologyMobileProps } from './NetworkTopology.Mobile';
 
 // Headless hook
 export { useNetworkTopology } from './useNetworkTopology';
-export type {
-  UseNetworkTopologyResult,
-  UseNetworkTopologyOptions,
-} from './useNetworkTopology';
+export type { UseNetworkTopologyResult, UseNetworkTopologyOptions } from './useNetworkTopology';
 
 // Sub-components
 export { ConnectionPath, ConnectionPathStatic } from './ConnectionPath';
@@ -50,12 +47,7 @@ export { TopologyTooltip, TopologyTooltipContent } from './TopologyTooltip';
 export type { TopologyTooltipProps } from './TopologyTooltip';
 
 // Icons
-export {
-  RouterIcon,
-  WanIcon,
-  LanIcon,
-  DeviceIcon,
-} from './icons';
+export { RouterIcon, WanIcon, LanIcon, DeviceIcon } from './icons';
 export type {
   RouterIconProps,
   WanIconProps,

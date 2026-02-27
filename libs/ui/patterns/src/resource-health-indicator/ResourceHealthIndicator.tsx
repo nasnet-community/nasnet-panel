@@ -26,63 +26,54 @@ import { cn } from '@nasnet/ui/primitives';
 // Dot Variants
 // ============================================================================
 
-const healthDotVariants = cva(
-  'inline-block rounded-full',
-  {
-    variants: {
-      health: {
-        HEALTHY: 'bg-success',
-        WARNING: 'bg-warning',
-        DEGRADED: 'bg-warning',
-        CRITICAL: 'bg-error',
-        FAILED: 'bg-error',
-        UNKNOWN: 'bg-muted-foreground',
-      },
-      size: {
-        sm: 'h-2 w-2',
-        md: 'h-2.5 w-2.5',
-        lg: 'h-3 w-3',
-      },
-      pulse: {
-        true: 'animate-pulse',
-        false: '',
-      },
+const healthDotVariants = cva('inline-block rounded-full', {
+  variants: {
+    health: {
+      HEALTHY: 'bg-success',
+      WARNING: 'bg-warning',
+      DEGRADED: 'bg-warning',
+      CRITICAL: 'bg-error',
+      FAILED: 'bg-error',
+      UNKNOWN: 'bg-muted-foreground',
     },
-    defaultVariants: {
-      health: 'UNKNOWN',
-      size: 'md',
-      pulse: false,
+    size: {
+      sm: 'h-2 w-2',
+      md: 'h-2.5 w-2.5',
+      lg: 'h-3 w-3',
     },
-  }
-);
+    pulse: {
+      true: 'animate-pulse',
+      false: '',
+    },
+  },
+  defaultVariants: {
+    health: 'UNKNOWN',
+    size: 'md',
+    pulse: false,
+  },
+});
 
-const healthLabelVariants = cva(
-  'text-xs font-medium',
-  {
-    variants: {
-      health: {
-        HEALTHY: 'text-success',
-        WARNING: 'text-warning',
-        DEGRADED: 'text-warning',
-        CRITICAL: 'text-error',
-        FAILED: 'text-error',
-        UNKNOWN: 'text-muted-foreground',
-      },
+const healthLabelVariants = cva('text-xs font-medium', {
+  variants: {
+    health: {
+      HEALTHY: 'text-success',
+      WARNING: 'text-warning',
+      DEGRADED: 'text-warning',
+      CRITICAL: 'text-error',
+      FAILED: 'text-error',
+      UNKNOWN: 'text-muted-foreground',
     },
-    defaultVariants: {
-      health: 'UNKNOWN',
-    },
-  }
-);
+  },
+  defaultVariants: {
+    health: 'UNKNOWN',
+  },
+});
 
 // ============================================================================
 // Health Display Info
 // ============================================================================
 
-const HEALTH_INFO: Record<
-  RuntimeState['health'],
-  { label: string; description: string }
-> = {
+const HEALTH_INFO: Record<RuntimeState['health'], { label: string; description: string }> = {
   HEALTHY: {
     label: 'Healthy',
     description: 'Resource is running normally',
@@ -172,9 +163,7 @@ export const ResourceHealthIndicator = React.forwardRef<
           aria-hidden="true"
         />
         {showLabel && (
-          <span className={healthLabelVariants({ health: resolvedHealth })}>
-            {displayLabel}
-          </span>
+          <span className={healthLabelVariants({ health: resolvedHealth })}>{displayLabel}</span>
         )}
       </div>
     );
@@ -192,7 +181,11 @@ ResourceHealthIndicator.displayName = 'ResourceHealthIndicator';
  */
 export const ResourceHealthBadge = React.memo(
   (props: Omit<ResourceHealthIndicatorProps, 'showLabel' | 'direction'>) => (
-    <ResourceHealthIndicator {...props} showLabel direction="row" />
+    <ResourceHealthIndicator
+      {...props}
+      showLabel
+      direction="row"
+    />
   )
 );
 
@@ -203,7 +196,11 @@ ResourceHealthBadge.displayName = 'ResourceHealthBadge';
  */
 export const ResourceHealthDot = React.memo(
   (props: Omit<ResourceHealthIndicatorProps, 'showLabel' | 'direction'>) => (
-    <ResourceHealthIndicator {...props} showLabel={false} direction="row" />
+    <ResourceHealthIndicator
+      {...props}
+      showLabel={false}
+      direction="row"
+    />
   )
 );
 

@@ -25,7 +25,14 @@ const _MOCK_INTERFACES: RouterInterface[] = [
   { id: 'eth3', name: 'ether3', type: 'ethernet', status: 'down', usedBy: [] },
   { id: 'eth4', name: 'ether4', type: 'ethernet', status: 'disabled', usedBy: [] },
   { id: 'eth5', name: 'ether5', type: 'ethernet', status: 'up', usedBy: ['bridge-lan'] },
-  { id: 'br1', name: 'bridge-lan', type: 'bridge', status: 'up', ip: '10.0.0.1', usedBy: ['DHCP Server'] },
+  {
+    id: 'br1',
+    name: 'bridge-lan',
+    type: 'bridge',
+    status: 'up',
+    ip: '10.0.0.1',
+    usedBy: ['DHCP Server'],
+  },
   { id: 'wlan1', name: 'wlan1', type: 'wireless', status: 'up', ip: '192.168.88.1', usedBy: [] },
   { id: 'wlan2', name: 'wlan2', type: 'wireless', status: 'down', usedBy: [] },
   { id: 'vlan10', name: 'vlan10', type: 'vlan', status: 'up', ip: '10.10.0.1', usedBy: [] },
@@ -137,7 +144,7 @@ function ControlledInterfaceSelector(props: InterfaceSelectorProps) {
         value={value}
         onChange={setValue}
       />
-      <div className="mt-4 p-3 rounded-md bg-muted text-xs font-mono">
+      <div className="bg-muted mt-4 rounded-md p-3 font-mono text-xs">
         Value: {JSON.stringify(value)}
       </div>
     </div>
@@ -273,8 +280,8 @@ export const MobilePresenter: Story = {
   globals: {
     viewport: {
       value: 'mobile1',
-      isRotated: false
-    }
+      isRotated: false,
+    },
   },
 };
 
@@ -415,10 +422,10 @@ export const WithError: Story = {
 export const Accessibility: Story = {
   render: (args) => (
     <div className="w-[320px] space-y-4">
-      <p className="text-sm text-muted-foreground">
+      <p className="text-muted-foreground text-sm">
         This story demonstrates accessibility features:
       </p>
-      <ul className="text-sm text-muted-foreground list-disc list-inside space-y-1">
+      <ul className="text-muted-foreground list-inside list-disc space-y-1 text-sm">
         <li>role="combobox" on trigger button</li>
         <li>aria-expanded for dropdown state</li>
         <li>role="listbox" and role="option" for list</li>

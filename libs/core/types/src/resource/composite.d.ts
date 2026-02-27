@@ -27,24 +27,24 @@ import type { RuntimeState } from './layers';
  * }
  */
 export interface CompositeResourceStatus {
-    /** Total number of sub-resources */
-    readonly totalCount: number;
-    /** Number of active sub-resources */
-    readonly activeCount: number;
-    /** Number of sub-resources with errors */
-    readonly errorCount: number;
-    /** Number of degraded sub-resources */
-    readonly degradedCount: number;
-    /** Number of pending sub-resources */
-    readonly pendingCount: number;
-    /** Overall health based on sub-resources */
-    readonly overallHealth: 'HEALTHY' | 'DEGRADED' | 'CRITICAL' | 'UNKNOWN';
-    /** Whether all sub-resources are running */
-    readonly allRunning: boolean;
-    /** Whether any sub-resource has drift */
-    readonly hasDrift: boolean;
-    /** Whether the composite is fully synced */
-    readonly isFullySynced: boolean;
+  /** Total number of sub-resources */
+  readonly totalCount: number;
+  /** Number of active sub-resources */
+  readonly activeCount: number;
+  /** Number of sub-resources with errors */
+  readonly errorCount: number;
+  /** Number of degraded sub-resources */
+  readonly degradedCount: number;
+  /** Number of pending sub-resources */
+  readonly pendingCount: number;
+  /** Overall health based on sub-resources */
+  readonly overallHealth: 'HEALTHY' | 'DEGRADED' | 'CRITICAL' | 'UNKNOWN';
+  /** Whether all sub-resources are running */
+  readonly allRunning: boolean;
+  /** Whether any sub-resource has drift */
+  readonly hasDrift: boolean;
+  /** Whether the composite is fully synced */
+  readonly isFullySynced: boolean;
 }
 /**
  * Composite resource tree node for visualization.
@@ -57,22 +57,22 @@ export interface CompositeResourceStatus {
  * const flattened = flattenResourceTree(tree);
  */
 export interface CompositeResourceNode {
-    /** Resource UUID */
-    readonly uuid: string;
-    /** Resource ID */
-    readonly id: string;
-    /** Resource type */
-    readonly type: string;
-    /** Lifecycle state */
-    readonly state: ResourceLifecycleState;
-    /** Runtime status */
-    readonly isRunning: boolean;
-    /** Health status */
-    readonly health: RuntimeState['health'];
-    /** Child nodes */
-    readonly children: readonly CompositeResourceNode[];
-    /** Depth in tree */
-    readonly depth: number;
+  /** Resource UUID */
+  readonly uuid: string;
+  /** Resource ID */
+  readonly id: string;
+  /** Resource type */
+  readonly type: string;
+  /** Lifecycle state */
+  readonly state: ResourceLifecycleState;
+  /** Runtime status */
+  readonly isRunning: boolean;
+  /** Health status */
+  readonly health: RuntimeState['health'];
+  /** Child nodes */
+  readonly children: readonly CompositeResourceNode[];
+  /** Depth in tree */
+  readonly depth: number;
 }
 /**
  * Dependency resolution order for applying resources.
@@ -85,12 +85,12 @@ export interface CompositeResourceNode {
  * // Apply in order: roots -> ordered (skip circular)
  */
 export interface DependencyOrder {
-    /** Resources that should be applied first (no dependencies) */
-    readonly roots: readonly string[];
-    /** Resources in dependency order (parents before children) */
-    readonly ordered: readonly string[];
-    /** Resources with circular dependencies (cannot be ordered) */
-    readonly circular: readonly string[];
+  /** Resources that should be applied first (no dependencies) */
+  readonly roots: readonly string[];
+  /** Resources in dependency order (parents before children) */
+  readonly ordered: readonly string[];
+  /** Resources with circular dependencies (cannot be ordered) */
+  readonly circular: readonly string[];
 }
 /**
  * Build a composite resource from a root and sub-resources.
@@ -107,7 +107,10 @@ export interface DependencyOrder {
  * const clients = await getWireGuardClients(server.uuid);
  * const composite = buildCompositeResource(server, clients);
  */
-export declare function buildCompositeResource<TRoot extends Resource>(root: TRoot, subResources: Resource[]): CompositeResource<TRoot>;
+export declare function buildCompositeResource<TRoot extends Resource>(
+  root: TRoot,
+  subResources: Resource[]
+): CompositeResource<TRoot>;
 /**
  * Extract reference from a resource.
  *
@@ -164,7 +167,10 @@ export declare function calculateHealthPercentage(status: CompositeResourceStatu
  * const tree = buildResourceTree(composite);
  * renderTree(tree);
  */
-export declare function buildResourceTree(composite: CompositeResource, maxDepth?: number): CompositeResourceNode;
+export declare function buildResourceTree(
+  composite: CompositeResource,
+  maxDepth?: number
+): CompositeResourceNode;
 /**
  * Flatten a resource tree to an array.
  *
@@ -193,7 +199,10 @@ export declare function flattenResourceTree(tree: CompositeResourceNode): Compos
  * const node = findNodeInTree(tree, targetUuid);
  * if (node) renderDetails(node);
  */
-export declare function findNodeInTree(tree: CompositeResourceNode, uuid: string): CompositeResourceNode | undefined;
+export declare function findNodeInTree(
+  tree: CompositeResourceNode,
+  uuid: string
+): CompositeResourceNode | undefined;
 /**
  * Resolve dependency order for applying resources.
  *
@@ -226,9 +235,12 @@ export declare function resolveDependencyOrder(resources: Resource[]): Dependenc
  *   console.log('Blocked by:', safety.blockedBy);
  * }
  */
-export declare function canSafelyDelete(resource: Resource, allResources: Resource[]): {
-    readonly canDelete: boolean;
-    readonly blockedBy: readonly ResourceReference[];
+export declare function canSafelyDelete(
+  resource: Resource,
+  allResources: Resource[]
+): {
+  readonly canDelete: boolean;
+  readonly blockedBy: readonly ResourceReference[];
 };
 /**
  * Group resources by type.
@@ -257,7 +269,9 @@ export declare function groupResourcesByType(resources: Resource[]): Map<string,
  * const groups = groupResourcesByCategory(resources);
  * const vpnResources = groups.get('VPN') || [];
  */
-export declare function groupResourcesByCategory(resources: Resource[]): Map<ResourceCategory, Resource[]>;
+export declare function groupResourcesByCategory(
+  resources: Resource[]
+): Map<ResourceCategory, Resource[]>;
 /**
  * Filter resources by lifecycle state.
  *
@@ -270,7 +284,10 @@ export declare function groupResourcesByCategory(resources: Resource[]): Map<Res
  * @example
  * const active = filterResourcesByState(resources, ['ACTIVE', 'DEGRADED']);
  */
-export declare function filterResourcesByState(resources: Resource[], states: ResourceLifecycleState[]): Resource[];
+export declare function filterResourcesByState(
+  resources: Resource[],
+  states: ResourceLifecycleState[]
+): Resource[];
 /**
  * Filter resources by health status.
  *
@@ -283,7 +300,10 @@ export declare function filterResourcesByState(resources: Resource[], states: Re
  * @example
  * const unhealthy = filterResourcesByHealth(resources, ['DEGRADED', 'CRITICAL']);
  */
-export declare function filterResourcesByHealth(resources: Resource[], health: RuntimeState['health'][]): Resource[];
+export declare function filterResourcesByHealth(
+  resources: Resource[],
+  health: RuntimeState['health'][]
+): Resource[];
 /**
  * Find all resources that depend on a given resource.
  *

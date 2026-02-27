@@ -74,7 +74,8 @@ const meta = {
     layout: 'centered',
     docs: {
       description: {
-        component: 'Filter rule creation and editing dialog with action-specific fields and live preview.',
+        component:
+          'Filter rule creation and editing dialog with action-specific fields and live preview.',
       },
     },
     a11y: {
@@ -157,7 +158,8 @@ export const CreateAcceptRule: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Create an accept rule to allow trusted traffic. Commonly used for allowing specific services.',
+        story:
+          'Create an accept rule to allow trusted traffic. Commonly used for allowing specific services.',
       },
     },
   },
@@ -182,7 +184,8 @@ export const CreateDropRule: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Create a drop rule to silently discard traffic. No ICMP error is sent back to the sender.',
+        story:
+          'Create a drop rule to silently discard traffic. No ICMP error is sent back to the sender.',
       },
     },
   },
@@ -208,7 +211,8 @@ export const CreateRejectRule: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Create a reject rule that discards traffic and sends an ICMP error response to the sender.',
+        story:
+          'Create a reject rule that discards traffic and sends an ICMP error response to the sender.',
       },
     },
   },
@@ -235,7 +239,8 @@ export const CreateLogRule: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Create a log rule to record packet details in system logs. Prefix helps identify log entries.',
+        story:
+          'Create a log rule to record packet details in system logs. Prefix helps identify log entries.',
       },
     },
   },
@@ -261,7 +266,8 @@ export const CreateJumpRule: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Create a jump rule to transfer processing to a custom chain. Useful for modular firewall organization.',
+        story:
+          'Create a jump rule to transfer processing to a custom chain. Useful for modular firewall organization.',
       },
     },
   },
@@ -288,7 +294,8 @@ export const CreateTarpitRule: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Create a tarpit rule to capture and hold connections, slowing down attackers and wasting their resources.',
+        story:
+          'Create a tarpit rule to capture and hold connections, slowing down attackers and wasting their resources.',
       },
     },
   },
@@ -321,7 +328,8 @@ export const EditExisting: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Edit an existing rule. Form is pre-populated with current values. Delete button is available.',
+        story:
+          'Edit an existing rule. Form is pre-populated with current values. Delete button is available.',
       },
     },
   },
@@ -347,7 +355,8 @@ export const WithErrors: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Form with validation errors. Missing log prefix shows inline error message. Save button is disabled.',
+        story:
+          'Form with validation errors. Missing log prefix shows inline error message. Save button is disabled.',
       },
     },
   },
@@ -375,7 +384,8 @@ export const MobileVariant: Story = {
     },
     docs: {
       description: {
-        story: 'Mobile presenter with Sheet UI. Optimized for touch: 44px targets, card sections, bottom buttons.',
+        story:
+          'Mobile presenter with Sheet UI. Optimized for touch: 44px targets, card sections, bottom buttons.',
       },
     },
   },
@@ -420,7 +430,8 @@ export const DesktopVariant: Story = {
     },
     docs: {
       description: {
-        story: 'Desktop presenter with Dialog UI. Optimized for keyboard: inline layout, live preview, dense form.',
+        story:
+          'Desktop presenter with Dialog UI. Optimized for keyboard: inline layout, live preview, dense form.',
       },
     },
   },
@@ -509,7 +520,8 @@ export const ComplexRule: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Complex rule with many matchers. Preview shows human-readable description of all conditions.',
+        story:
+          'Complex rule with many matchers. Preview shows human-readable description of all conditions.',
       },
     },
   },
@@ -536,7 +548,8 @@ export const InputChainConstraint: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Input chain rules can only use inInterface (not outInterface) because routing decision hasn\'t been made yet.',
+        story:
+          "Input chain rules can only use inInterface (not outInterface) because routing decision hasn't been made yet.",
       },
     },
   },
@@ -563,7 +576,8 @@ export const OutputChainConstraint: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Output chain rules can only use outInterface (not inInterface) because packets originate from the router.',
+        story:
+          'Output chain rules can only use outInterface (not inInterface) because packets originate from the router.',
       },
     },
   },

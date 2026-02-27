@@ -53,16 +53,12 @@ async function deleteVPNInterface({
 }: DeleteVPNInterfaceRequest): Promise<void> {
   const endpoint = getEndpointForProtocol(protocol, type);
 
-  const result = await makeRouterOSRequest<void>(
-    routerIp,
-    endpoint,
-    {
-      method: 'POST',
-      body: {
-        '.id': id,
-      },
-    }
-  );
+  const result = await makeRouterOSRequest<void>(routerIp, endpoint, {
+    method: 'POST',
+    body: {
+      '.id': id,
+    },
+  });
 
   if (!result.success) {
     throw new Error(result.error || 'Failed to delete VPN interface');
@@ -74,7 +70,7 @@ async function deleteVPNInterface({
  */
 function getQueryKeysForProtocol(protocol: VPNProtocol, routerIp: string) {
   const keys: (readonly string[])[] = [vpnKeys.stats(routerIp)];
-  
+
   switch (protocol) {
     case 'wireguard':
       keys.push(vpnKeys.wireguardInterfaces(routerIp));
@@ -95,7 +91,7 @@ function getQueryKeysForProtocol(protocol: VPNProtocol, routerIp: string) {
       keys.push(vpnKeys.ipsecPeers(routerIp));
       break;
   }
-  
+
   return keys;
 }
 
@@ -113,7 +109,7 @@ export function useDeleteVPNInterface() {
 
       // Invalidate relevant queries
       const keys = getQueryKeysForProtocol(protocol, routerIp);
-      keys.forEach(key => {
+      keys.forEach((key) => {
         queryClient.invalidateQueries({ queryKey: key });
       });
 
@@ -130,11 +126,8 @@ export function useDeleteVPNInterface() {
         variant: 'destructive',
         title: `Failed to delete ${name}`,
         description:
-          error instanceof Error
-            ? error.message
-            : 'An error occurred. Please try again.',
+          error instanceof Error ? error.message : 'An error occurred. Please try again.',
       });
     },
   });
 }
-

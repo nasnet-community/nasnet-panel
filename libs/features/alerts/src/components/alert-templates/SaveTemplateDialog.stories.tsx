@@ -80,7 +80,7 @@ Dialog for saving an existing alert rule as a reusable template.
   },
   decorators: [
     (Story) => (
-      <div className="min-h-screen flex items-center justify-center p-8">
+      <div className="flex min-h-screen items-center justify-center p-8">
         <Story />
       </div>
     ),
@@ -235,7 +235,10 @@ export const Default: Story = {
   },
   decorators: [
     (Story) => (
-      <MockedProvider mocks={successMocks} addTypename={false}>
+      <MockedProvider
+        mocks={successMocks}
+        addTypename={false}
+      >
         <Story />
       </MockedProvider>
     ),
@@ -254,7 +257,10 @@ export const WithHighCPURule: Story = {
   },
   decorators: [
     (Story) => (
-      <MockedProvider mocks={successMocks} addTypename={false}>
+      <MockedProvider
+        mocks={successMocks}
+        addTypename={false}
+      >
         <Story />
       </MockedProvider>
     ),
@@ -273,7 +279,10 @@ export const Loading: Story = {
   },
   decorators: [
     (Story) => (
-      <MockedProvider mocks={[]} addTypename={false}>
+      <MockedProvider
+        mocks={[]}
+        addTypename={false}
+      >
         <Story />
       </MockedProvider>
     ),

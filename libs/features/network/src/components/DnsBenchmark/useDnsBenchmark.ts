@@ -85,8 +85,7 @@ export function useDnsBenchmark({
       }
     } catch (err) {
       setProgress(0);
-      const errorMessage =
-        err instanceof Error ? err.message : 'Failed to run benchmark';
+      const errorMessage = err instanceof Error ? err.message : 'Failed to run benchmark';
       onError?.(errorMessage);
     }
   }, [deviceId, runBenchmarkQuery, onSuccess, onError]);

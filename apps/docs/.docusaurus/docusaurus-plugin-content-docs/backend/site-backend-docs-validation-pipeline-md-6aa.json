@@ -1,7 +1,7 @@
 {
   "id": "validation-pipeline",
   "title": "Validation Pipeline",
-  "description": "Multi-domain input validation across router connection parameters, service configuration, network scanning targets, manifest metadata, and ARP subnet constraints.",
+  "description": "Multi-domain input validation across router connection parameters, service configuration, network",
   "source": "@site/../backend/docs/validation-pipeline.md",
   "sourceDirName": ".",
   "slug": "/validation-pipeline",

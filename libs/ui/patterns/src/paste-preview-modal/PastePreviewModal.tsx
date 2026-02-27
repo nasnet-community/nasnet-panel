@@ -156,23 +156,27 @@ export function PastePreviewModal({
   };
 
   return (
-    <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onCancel()}>
+    <Dialog
+      open={open}
+      onOpenChange={(isOpen) => !isOpen && onCancel()}
+    >
       <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             {getTypeIcon(parseResult.type)}
             {title}
           </DialogTitle>
-          <DialogDescription>
-            Review the imported data before applying changes.
-          </DialogDescription>
+          <DialogDescription>Review the imported data before applying changes.</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
           {/* Summary */}
-          <div className="flex items-center justify-between bg-slate-50 dark:bg-slate-800 rounded-lg p-3">
+          <div className="flex items-center justify-between rounded-lg bg-slate-50 p-3 dark:bg-slate-800">
             <div className="flex items-center gap-3">
-              <Badge variant="secondary" className="rounded-full">
+              <Badge
+                variant="secondary"
+                className="rounded-full"
+              >
                 {getTypeLabel(parseResult.type)}
               </Badge>
               <span className="text-sm text-slate-600 dark:text-slate-400">
@@ -181,12 +185,12 @@ export function PastePreviewModal({
             </div>
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-1.5 text-sm">
-                <Check className="h-4 w-4 text-success" />
+                <Check className="text-success h-4 w-4" />
                 <span className="text-success font-medium">{parseResult.items.length} valid</span>
               </div>
               {hasErrors && (
                 <div className="flex items-center gap-1.5 text-sm">
-                  <X className="h-4 w-4 text-error" />
+                  <X className="text-error h-4 w-4" />
                   <span className="text-error font-medium">{parseResult.errors.length} errors</span>
                 </div>
               )}
@@ -196,28 +200,30 @@ export function PastePreviewModal({
           {/* Errors section */}
           {hasErrors && (
             <div className="space-y-2">
-              <div className="flex items-center gap-2 text-sm font-medium text-error">
+              <div className="text-error flex items-center gap-2 text-sm font-medium">
                 <AlertTriangle className="h-4 w-4" />
                 Validation Errors
               </div>
               <div
-                className="bg-error/5 border border-error/20 rounded-lg overflow-auto"
+                className="bg-error/5 border-error/20 overflow-auto rounded-lg border"
                 style={{ maxHeight: Math.min(150, maxPreviewHeight / 3) }}
               >
                 <table className="w-full text-sm">
                   <thead className="bg-error/10">
                     <tr>
-                      <th className="text-left px-3 py-2 font-medium text-error w-16">Line</th>
-                      <th className="text-left px-3 py-2 font-medium text-error">Error</th>
-                      <th className="text-left px-3 py-2 font-medium text-error">Content</th>
+                      <th className="text-error w-16 px-3 py-2 text-left font-medium">Line</th>
+                      <th className="text-error px-3 py-2 text-left font-medium">Error</th>
+                      <th className="text-error px-3 py-2 text-left font-medium">Content</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-error/10">
+                  <tbody className="divide-error/10 divide-y">
                     {parseResult.errors.map((error, idx) => (
                       <tr key={idx}>
-                        <td className="px-3 py-2 font-mono text-error">{error.line}</td>
-                        <td className="px-3 py-2 text-slate-700 dark:text-slate-300">{error.message}</td>
-                        <td className="px-3 py-2 font-mono text-xs text-slate-500 dark:text-slate-400 truncate max-w-[200px]">
+                        <td className="text-error px-3 py-2 font-mono">{error.line}</td>
+                        <td className="px-3 py-2 text-slate-700 dark:text-slate-300">
+                          {error.message}
+                        </td>
+                        <td className="max-w-[200px] truncate px-3 py-2 font-mono text-xs text-slate-500 dark:text-slate-400">
                           {error.content}
                         </td>
                       </tr>
@@ -232,73 +238,94 @@ export function PastePreviewModal({
           {parseResult.items.length > 0 && (
             <div className="space-y-2">
               <div className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300">
-                <Check className="h-4 w-4 text-success" />
+                <Check className="text-success h-4 w-4" />
                 Valid Items ({parseResult.items.length})
               </div>
               <div
-                className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg overflow-auto"
+                className="overflow-auto rounded-lg border border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-800"
                 style={{ maxHeight: maxPreviewHeight - (hasErrors ? 200 : 50) }}
               >
-                {parseResult.type === 'csv' && typeof parseResult.items[0]?.value === 'object' ? (
-                  // CSV table view
-                  <table className="w-full text-sm">
-                    <thead className="bg-slate-100 dark:bg-slate-700/50 sticky top-0">
-                      <tr>
-                        <th className="text-left px-3 py-2 font-medium text-slate-600 dark:text-slate-400 w-12">#</th>
-                        {Object.keys(parseResult.items[0].value as Record<string, string>).map((key) => (
-                          <th key={key} className="text-left px-3 py-2 font-medium text-slate-600 dark:text-slate-400">
-                            {key}
+                {
+                  parseResult.type === 'csv' && typeof parseResult.items[0]?.value === 'object' ?
+                    // CSV table view
+                    <table className="w-full text-sm">
+                      <thead className="sticky top-0 bg-slate-100 dark:bg-slate-700/50">
+                        <tr>
+                          <th className="w-12 px-3 py-2 text-left font-medium text-slate-600 dark:text-slate-400">
+                            #
                           </th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
-                      {parseResult.items.map((item, idx) => (
-                        <tr key={idx} className="hover:bg-slate-100 dark:hover:bg-slate-700/30">
-                          <td className="px-3 py-2 font-mono text-slate-400">{item.line}</td>
-                          {Object.values(item.value as Record<string, string>).map((val, vidx) => (
-                            <td key={vidx} className="px-3 py-2 font-mono text-slate-900 dark:text-slate-50">
-                              {val}
-                            </td>
-                          ))}
+                          {Object.keys(parseResult.items[0].value as Record<string, string>).map(
+                            (key) => (
+                              <th
+                                key={key}
+                                className="px-3 py-2 text-left font-medium text-slate-600 dark:text-slate-400"
+                              >
+                                {key}
+                              </th>
+                            )
+                          )}
                         </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
+                        {parseResult.items.map((item, idx) => (
+                          <tr
+                            key={idx}
+                            className="hover:bg-slate-100 dark:hover:bg-slate-700/30"
+                          >
+                            <td className="px-3 py-2 font-mono text-slate-400">{item.line}</td>
+                            {Object.values(item.value as Record<string, string>).map(
+                              (val, vidx) => (
+                                <td
+                                  key={vidx}
+                                  className="px-3 py-2 font-mono text-slate-900 dark:text-slate-50"
+                                >
+                                  {val}
+                                </td>
+                              )
+                            )}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                    // List view for IP list and RouterOS
+                  : <div className="font-mono text-sm">
+                      {parseResult.items.map((item, idx) => (
+                        <div
+                          key={idx}
+                          className={cn(
+                            'flex items-center gap-3 px-3 py-2',
+                            'border-b border-slate-200 last:border-b-0 dark:border-slate-700',
+                            'hover:bg-slate-100 dark:hover:bg-slate-700/30'
+                          )}
+                        >
+                          <span className="w-8 text-right text-slate-400">{item.line}</span>
+                          <span className="text-slate-900 dark:text-slate-50">
+                            {typeof item.value === 'string' ?
+                              item.value
+                            : JSON.stringify(item.value)}
+                          </span>
+                        </div>
                       ))}
-                    </tbody>
-                  </table>
-                ) : (
-                  // List view for IP list and RouterOS
-                  <div className="font-mono text-sm">
-                    {parseResult.items.map((item, idx) => (
-                      <div
-                        key={idx}
-                        className={cn(
-                          'flex items-center gap-3 px-3 py-2',
-                          'border-b border-slate-200 dark:border-slate-700 last:border-b-0',
-                          'hover:bg-slate-100 dark:hover:bg-slate-700/30'
-                        )}
-                      >
-                        <span className="text-slate-400 w-8 text-right">{item.line}</span>
-                        <span className="text-slate-900 dark:text-slate-50">
-                          {typeof item.value === 'string' ? item.value : JSON.stringify(item.value)}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                )}
+                    </div>
+
+                }
               </div>
             </div>
           )}
 
           {/* Empty state */}
           {parseResult.items.length === 0 && !hasErrors && (
-            <div className="text-center py-8 text-slate-500 dark:text-slate-400">
+            <div className="py-8 text-center text-slate-500 dark:text-slate-400">
               No items found in the pasted content.
             </div>
           )}
         </div>
 
         <DialogFooter className="gap-2 sm:gap-0">
-          <Button variant="outline" onClick={onCancel}>
+          <Button
+            variant="outline"
+            onClick={onCancel}
+          >
             {cancelText}
           </Button>
           <Button

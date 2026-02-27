@@ -37,9 +37,7 @@ export interface TemplateCardProps {
 /**
  * Get complexity badge variant
  */
-function getComplexityVariant(
-  complexity: TemplateComplexity
-): 'default' | 'secondary' | 'error' {
+function getComplexityVariant(complexity: TemplateComplexity): 'default' | 'secondary' | 'error' {
   switch (complexity) {
     case 'SIMPLE':
       return 'secondary';
@@ -115,22 +113,22 @@ export function TemplateCard({
   return (
     <Card
       className={cn(
-        'bg-card border border-border rounded-[var(--semantic-radius-card)]',
+        'bg-card border-border rounded-[var(--semantic-radius-card)] border',
         'shadow-[var(--semantic-shadow-card)]',
-        'transition-shadow duration-200 cursor-pointer hover:shadow-lg',
-        isSelected && 'ring-2 ring-primary',
+        'cursor-pointer transition-shadow duration-200 hover:shadow-lg',
+        isSelected && 'ring-primary ring-2',
         isCompact ? 'p-component-sm' : 'p-component-md',
         className
       )}
       onClick={onClick}
     >
       {/* Header */}
-      <div className="flex items-start justify-between gap-component-sm mb-component-sm">
-        <div className="flex-1 min-w-0">
+      <div className="gap-component-sm mb-component-sm flex items-start justify-between">
+        <div className="min-w-0 flex-1">
           <h3
             className={cn(
-              'font-semibold text-foreground truncate',
-              isCompact ? 'text-sm' : 'text-lg font-display'
+              'text-foreground truncate font-semibold',
+              isCompact ? 'text-sm' : 'font-display text-lg'
             )}
           >
             {template.name}
@@ -143,7 +141,7 @@ export function TemplateCard({
             variant="outline"
             className={cn(
               'rounded-[var(--semantic-radius-badge)]',
-              isCompact && 'text-xs px-component-sm'
+              isCompact && 'px-component-sm text-xs'
             )}
           >
             Built-in
@@ -155,21 +153,18 @@ export function TemplateCard({
       <p
         className={cn(
           'text-muted-foreground mb-component-md',
-          isCompact ? 'text-xs line-clamp-2' : 'text-sm line-clamp-2'
+          isCompact ? 'line-clamp-2 text-xs' : 'line-clamp-2 text-sm'
         )}
       >
         {template.description}
       </p>
 
       {/* Metadata badges */}
-      <div className="flex flex-wrap gap-component-sm mb-component-md">
+      <div className="gap-component-sm mb-component-md flex flex-wrap">
         {/* Category */}
         <Badge
           variant="secondary"
-          className={cn(
-            'rounded-[var(--semantic-radius-badge)]',
-            isCompact && 'text-xs'
-          )}
+          className={cn('rounded-[var(--semantic-radius-badge)]', isCompact && 'text-xs')}
         >
           {getCategoryLabel(template.category)}
         </Badge>
@@ -177,10 +172,7 @@ export function TemplateCard({
         {/* Complexity */}
         <Badge
           variant={getComplexityVariant(template.complexity)}
-          className={cn(
-            'rounded-[var(--semantic-radius-badge)]',
-            isCompact && 'text-xs'
-          )}
+          className={cn('rounded-[var(--semantic-radius-badge)]', isCompact && 'text-xs')}
         >
           {getComplexityLabel(template.complexity)}
         </Badge>
@@ -188,10 +180,7 @@ export function TemplateCard({
         {/* Rule count */}
         <Badge
           variant="outline"
-          className={cn(
-            'rounded-[var(--semantic-radius-badge)]',
-            isCompact && 'text-xs'
-          )}
+          className={cn('rounded-[var(--semantic-radius-badge)]', isCompact && 'text-xs')}
         >
           {template.ruleCount} {template.ruleCount === 1 ? 'rule' : 'rules'}
         </Badge>
@@ -199,7 +188,7 @@ export function TemplateCard({
 
       {/* Variables count */}
       {template.variables.length > 0 && (
-        <div className={cn('text-xs text-muted-foreground mb-component-md')}>
+        <div className={cn('text-muted-foreground mb-component-md text-xs')}>
           Requires {template.variables.length}{' '}
           {template.variables.length === 1 ? 'variable' : 'variables'}
         </div>
@@ -209,7 +198,7 @@ export function TemplateCard({
       {onAction && (
         <Button
           size={isCompact ? 'sm' : 'default'}
-          className="w-full min-h-[44px]"
+          className="min-h-[44px] w-full"
           onClick={(e) => {
             e.stopPropagation();
             onAction();
@@ -221,7 +210,7 @@ export function TemplateCard({
 
       {/* Updated timestamp (custom templates only) */}
       {!template.isBuiltIn && template.updatedAt && (
-        <div className="text-xs text-muted-foreground mt-component-sm">
+        <div className="text-muted-foreground mt-component-sm text-xs">
           Updated {new Date(template.updatedAt).toLocaleDateString()}
         </div>
       )}

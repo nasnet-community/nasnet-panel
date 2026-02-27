@@ -319,7 +319,10 @@ export const Default: Story = {
   args: {},
   decorators: [
     (Story) => (
-      <MockedProvider mocks={buildMocks(mockAlerts)} addTypename={false}>
+      <MockedProvider
+        mocks={buildMocks(mockAlerts)}
+        addTypename={false}
+      >
         <div className="max-w-2xl">
           <Story />
         </div>
@@ -342,7 +345,10 @@ export const WithQueuedAlerts: Story = {
   args: {},
   decorators: [
     (Story) => (
-      <MockedProvider mocks={buildMocks(queuedAlerts)} addTypename={false}>
+      <MockedProvider
+        mocks={buildMocks(queuedAlerts)}
+        addTypename={false}
+      >
         <div className="max-w-2xl">
           <Story />
         </div>
@@ -423,7 +429,10 @@ export const Empty: Story = {
   args: {},
   decorators: [
     (Story) => (
-      <MockedProvider mocks={buildMocks([])} addTypename={false}>
+      <MockedProvider
+        mocks={buildMocks([])}
+        addTypename={false}
+      >
         <div className="max-w-2xl">
           <Story />
         </div>
@@ -433,8 +442,7 @@ export const Empty: Story = {
   parameters: {
     docs: {
       description: {
-        story:
-          'Empty state shown when no alerts are active — "All caught up" messaging.',
+        story: 'Empty state shown when no alerts are active — "All caught up" messaging.',
       },
     },
   },
@@ -447,7 +455,10 @@ export const Loading: Story = {
   args: {},
   decorators: [
     (Story) => (
-      <MockedProvider mocks={buildMocks(mockAlerts, { delay: 10_000 })} addTypename={false}>
+      <MockedProvider
+        mocks={buildMocks(mockAlerts, { delay: 10_000 })}
+        addTypename={false}
+      >
         <div className="max-w-2xl">
           <Story />
         </div>

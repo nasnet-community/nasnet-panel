@@ -4,9 +4,7 @@ import type { Interface } from '@nasnet/api-client/generated';
 
 import { AvailableInterfaces } from './AvailableInterfaces';
 
-import type { Meta, StoryObj , Decorator } from '@storybook/react';
-
-
+import type { Meta, StoryObj, Decorator } from '@storybook/react';
 
 // ---------------------------------------------------------------------------
 // DnD context decorator
@@ -25,7 +23,7 @@ const withDndContext: Decorator = (Story) => (
 // ---------------------------------------------------------------------------
 
 const makeInterface = (
-  overrides: Partial<Interface> & { name: string; type: Interface['type'] },
+  overrides: Partial<Interface> & { name: string; type: Interface['type'] }
 ): Interface =>
   ({
     id: `iface-${overrides.name}`,
@@ -47,10 +45,10 @@ const ethernetInterfaces: Interface[] = [
 ];
 
 const mixedInterfaces: Interface[] = [
-  makeInterface({ name: 'ether4',  type: 'ETHERNET',  macAddress: 'D4:CA:6D:A1:B2:C6' }),
-  makeInterface({ name: 'wlan1',   type: 'WIRELESS',  macAddress: '00:11:22:33:44:55' }),
-  makeInterface({ name: 'wlan2',   type: 'WIRELESS',  macAddress: '00:11:22:33:44:66' }),
-  makeInterface({ name: 'vlan10',  type: 'VLAN' }),
+  makeInterface({ name: 'ether4', type: 'ETHERNET', macAddress: 'D4:CA:6D:A1:B2:C6' }),
+  makeInterface({ name: 'wlan1', type: 'WIRELESS', macAddress: '00:11:22:33:44:55' }),
+  makeInterface({ name: 'wlan2', type: 'WIRELESS', macAddress: '00:11:22:33:44:66' }),
+  makeInterface({ name: 'vlan10', type: 'VLAN' }),
   makeInterface({ name: 'tunnel1', type: 'TUNNEL' }),
 ];
 

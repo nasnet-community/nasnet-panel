@@ -8,16 +8,21 @@
  */
 
 import { memo, useCallback, useMemo } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, Button, Badge } from '@nasnet/ui/primitives';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  Button,
+  Badge,
+} from '@nasnet/ui/primitives';
 import { useToast, Icon } from '@nasnet/ui/patterns';
 import { lookupVendor } from '@nasnet/core/utils';
 import { cn } from '@nasnet/ui/utils';
 import { Pencil, Copy } from 'lucide-react';
 
-import type {
-  DHCPLeaseWithOptions,
-  DeviceIdentification,
-} from '@nasnet/core/types';
+import type { DHCPLeaseWithOptions, DeviceIdentification } from '@nasnet/core/types';
 
 import { DeviceTypeIcon, formatDeviceType } from '../device-type-icon';
 
@@ -98,10 +103,7 @@ function FingerprintDetailPanelComponent({
   }, [identification, lease, toast, onCopy]);
 
   // Lookup MAC vendor
-  const vendor = useMemo(
-    () => lookupVendor(lease.macAddress),
-    [lease.macAddress]
-  );
+  const vendor = useMemo(() => lookupVendor(lease.macAddress), [lease.macAddress]);
 
   // Format Option 55 for display
   const option55Display = useMemo(() => {
@@ -123,7 +125,7 @@ function FingerprintDetailPanelComponent({
     <Card className={cn('w-full max-w-md', className)}>
       <CardHeader>
         <div className="flex items-start justify-between">
-          <div className="flex items-center gap-component-md">
+          <div className="gap-component-md flex items-center">
             <DeviceTypeIcon
               deviceType={identification.deviceType}
               deviceCategory={identification.deviceCategory}
@@ -134,7 +136,7 @@ function FingerprintDetailPanelComponent({
               <CardTitle className="text-base">
                 {formatDeviceType(identification.deviceType)}
               </CardTitle>
-              <CardDescription className="text-sm font-mono">
+              <CardDescription className="font-mono text-sm">
                 {lease.hostname || lease.macAddress}
               </CardDescription>
             </div>
@@ -200,7 +202,7 @@ function FingerprintDetailPanelComponent({
         {/* Field 8: Source badge - already shown in header */}
 
         {/* Action Buttons */}
-        <div className="flex gap-component-sm pt-component-sm">
+        <div className="gap-component-sm pt-component-sm flex">
           {onEdit && (
             <Button
               variant="outline"
@@ -209,7 +211,10 @@ function FingerprintDetailPanelComponent({
               className="flex-1 gap-2"
               aria-label="Edit device fingerprint"
             >
-              <Icon icon={Pencil} size="sm" />
+              <Icon
+                icon={Pencil}
+                size="sm"
+              />
               Edit
             </Button>
           )}
@@ -220,7 +225,10 @@ function FingerprintDetailPanelComponent({
             className="flex-1 gap-2"
             aria-label="Copy fingerprint data to clipboard"
           >
-            <Icon icon={Copy} size="sm" />
+            <Icon
+              icon={Copy}
+              size="sm"
+            />
             Copy JSON
           </Button>
         </div>
@@ -247,11 +255,9 @@ interface DetailFieldProps {
 
 const DetailField = memo(function DetailField({ label, value, mono = false }: DetailFieldProps) {
   return (
-    <div className="flex flex-col gap-component-xs">
-      <dt className="text-xs font-medium text-muted-foreground">{label}</dt>
-      <dd className={cn('text-sm', mono && 'font-mono')}>
-        {value}
-      </dd>
+    <div className="gap-component-xs flex flex-col">
+      <dt className="text-muted-foreground text-xs font-medium">{label}</dt>
+      <dd className={cn('text-sm', mono && 'font-mono')}>{value}</dd>
     </div>
   );
 });

@@ -1,7 +1,6 @@
 # Testing Guide - Diagnostics Feature
 
-**Feature**: NAS-5.11 No Internet Troubleshooting Wizard
-**Test Count**: 120 component tests
+**Feature**: NAS-5.11 No Internet Troubleshooting Wizard **Test Count**: 120 component tests
 **Status**: Tests written, vitest configuration in progress
 
 ## Test Structure
@@ -9,6 +8,7 @@
 ### Component Tests (120 total)
 
 **TroubleshootWizard.test.tsx** (28 tests)
+
 - State rendering (idle, initializing, running, completed)
 - User interactions (start, apply fix, skip, restart)
 - Auto-start behavior
@@ -17,6 +17,7 @@
 - Error handling
 
 **DiagnosticStep.test.tsx** (42 tests)
+
 - Status rendering (pending, running, passed, failed)
 - Result display with execution time
 - Active state highlighting
@@ -26,6 +27,7 @@
 - Edge cases
 
 **FixSuggestion.test.tsx** (50 tests)
+
 - Basic rendering (title, description, confidence badge)
 - Automated vs manual fixes
 - Manual steps rendering
@@ -69,12 +71,14 @@ npx nx test diagnostics
 ### Current Setup
 
 **vitest.config.ts** includes:
+
 - JSDOM environment
-- Path aliases for all @nasnet/* imports
+- Path aliases for all @nasnet/\* imports
 - 90% coverage thresholds
 - Test file patterns
 
 **vitest.setup.ts** includes:
+
 - @testing-library/jest-dom matchers
 - window.matchMedia mock
 - IntersectionObserver mock
@@ -83,8 +87,8 @@ npx nx test diagnostics
 
 ### Known Configuration Challenges
 
-**Complex Monorepo Dependencies**
-The diagnostics feature has deep dependency chains:
+**Complex Monorepo Dependencies** The diagnostics feature has deep dependency chains:
+
 ```
 TroubleshootWizard
   → useTroubleshootWizard (hook)
@@ -99,6 +103,7 @@ TroubleshootWizard
 ```
 
 **Resolution Issues**:
+
 1. `@nasnet/ui/tokens` imports from `dist/` (build artifact)
 2. Some patterns import from features (potential circular dependency)
 3. Apollo Client initialization warnings
@@ -138,6 +143,7 @@ These have minimal dependencies and should pass with current configuration.
 **Option 3: Integration Tests Instead**
 
 Test the full wizard via E2E (Playwright) instead of unit tests:
+
 - Faster to set up
 - Tests real behavior
 - Avoids mock complexity
@@ -227,6 +233,7 @@ it('should have no accessibility violations', async () => {
 **Cause**: Missing alias in vitest.config.ts
 
 **Fix**: Add to `resolve.alias`:
+
 ```typescript
 '@nasnet/your-package': path.resolve(__dirname, '../../path/to/package/src')
 ```
@@ -242,6 +249,7 @@ it('should have no accessibility violations', async () => {
 **Cause**: Duplicate exports in index.ts files
 
 **Fix**: Search for duplicate exports:
+
 ```bash
 grep -n "export.*ComponentName" libs/ui/patterns/src/index.ts
 ```
@@ -253,6 +261,7 @@ Remove duplicates.
 **Cause**: Async operations not properly awaited
 
 **Fix**: Use `waitFor` for async assertions:
+
 ```typescript
 await waitFor(() => {
   expect(screen.getByText('Expected')).toBeInTheDocument();
@@ -264,11 +273,13 @@ await waitFor(() => {
 ## Future Improvements
 
 ### Short Term
+
 1. **Resolve Token Import**: Build tokens before running tests or mock them
 2. **Add MSW**: Mock API calls at network level instead of mocking hooks
 3. **Component Test Coverage**: Aim for 80%+ coverage on all components
 
 ### Long Term
+
 1. **Visual Regression**: Add Chromatic or Percy for visual testing
 2. **Performance Testing**: Add performance benchmarks for wizard flow
 3. **Mutation Testing**: Use Stryker to verify test quality
@@ -314,14 +325,14 @@ jobs:
 
 ### Current Status
 
-| Metric | Target | Actual | Status |
-|--------|--------|--------|--------|
-| Tests Written | 100+ | 120 | ✅ |
-| Test Files | 3+ | 3 | ✅ |
-| Coverage Target | 80% | TBD* | ⏳ |
-| Passing Tests | 100% | Config in progress | ⏳ |
+| Metric          | Target | Actual             | Status |
+| --------------- | ------ | ------------------ | ------ |
+| Tests Written   | 100+   | 120                | ✅     |
+| Test Files      | 3+     | 3                  | ✅     |
+| Coverage Target | 80%    | TBD\*              | ⏳     |
+| Passing Tests   | 100%   | Config in progress | ⏳     |
 
-*Coverage will be measured once vitest configuration is complete
+\*Coverage will be measured once vitest configuration is complete
 
 ### Coverage Goals
 
@@ -331,6 +342,7 @@ jobs:
 - **Lines**: 80%
 
 Excluded from coverage:
+
 - `*.test.tsx` files
 - `*.stories.tsx` files
 - `index.ts` barrel files
@@ -342,6 +354,7 @@ Excluded from coverage:
 Until automated tests are fully running, use this manual testing checklist:
 
 ### Happy Path
+
 - [ ] Wizard renders in idle state
 - [ ] Click "Start Diagnostic" starts wizard
 - [ ] Network detection succeeds
@@ -354,6 +367,7 @@ Until automated tests are fully running, use this manual testing checklist:
 - [ ] Summary shows at completion
 
 ### Error Scenarios
+
 - [ ] Network detection failure shows error
 - [ ] Failed step shows fix suggestion
 - [ ] Manual fix shows steps instead of apply button
@@ -362,6 +376,7 @@ Until automated tests are fully running, use this manual testing checklist:
 - [ ] Screen reader announces step progress
 
 ### Accessibility
+
 - [ ] All buttons have accessible labels
 - [ ] ARIA live regions announce changes
 - [ ] Focus visible on keyboard navigation
@@ -382,6 +397,7 @@ Until automated tests are fully running, use this manual testing checklist:
 ## Support
 
 For issues with tests:
+
 1. Check this guide for common errors
 2. Review test file examples in `router-discovery/` feature
 3. Ask in #testing Slack channel
@@ -389,5 +405,4 @@ For issues with tests:
 
 ---
 
-**Last Updated**: 2025-02-05
-**Maintainer**: NasNetConnect Team
+**Last Updated**: 2025-02-05 **Maintainer**: NasNetConnect Team

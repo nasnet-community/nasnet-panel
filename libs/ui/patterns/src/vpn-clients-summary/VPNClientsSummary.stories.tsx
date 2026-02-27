@@ -1,15 +1,7 @@
 import * as React from 'react';
 import { useState } from 'react';
 
-import {
-  Shield,
-  ChevronRight,
-  ChevronDown,
-  Loader2,
-  Wifi,
-  Lock,
-  Key,
-} from 'lucide-react';
+import { Shield, ChevronRight, ChevronDown, Loader2, Wifi, Lock, Key } from 'lucide-react';
 
 import { Card, CardContent, CardHeader, CardTitle, Button } from '@nasnet/ui/primitives';
 
@@ -39,12 +31,10 @@ function MockProtocolIcon({ protocol }: { protocol: VPNProtocol }) {
   };
 
   return (
-    <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${colors[protocol]}`}>
-      {protocol === 'wireguard' ? (
-        <Lock className="w-4 h-4" />
-      ) : (
-        <Key className="w-4 h-4" />
-      )}
+    <div className={`flex h-8 w-8 items-center justify-center rounded-lg ${colors[protocol]}`}>
+      {protocol === 'wireguard' ?
+        <Lock className="h-4 w-4" />
+      : <Key className="h-4 w-4" />}
     </div>
   );
 }
@@ -74,53 +64,50 @@ function MockVPNClientsSummary({
 
   const status = connectedCount > 0 ? 'connected' : 'disconnected';
   const statusColor = status === 'connected' ? 'text-success' : 'text-muted-foreground';
-  const bgColor =
-    status === 'connected' ? 'bg-success/10 dark:bg-success/20' : 'bg-muted';
+  const bgColor = status === 'connected' ? 'bg-success/10 dark:bg-success/20' : 'bg-muted';
 
   return (
     <Card className={className}>
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div
-              className={`w-10 h-10 rounded-xl ${bgColor} flex items-center justify-center`}
-            >
-              <Shield className={`w-5 h-5 ${statusColor}`} />
+            <div className={`h-10 w-10 rounded-xl ${bgColor} flex items-center justify-center`}>
+              <Shield className={`h-5 w-5 ${statusColor}`} />
             </div>
             <div>
               <CardTitle className="text-base font-semibold">VPN Clients</CardTitle>
-              <p className={`text-sm ${statusColor} font-medium`}>
-                {connectedCount} Connected
-              </p>
+              <p className={`text-sm ${statusColor} font-medium`}>{connectedCount} Connected</p>
             </div>
           </div>
           {linkTo && (
-            <Button variant="ghost" size="sm" className="gap-1">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="gap-1"
+            >
               See All
-              <ChevronRight className="w-4 h-4" />
+              <ChevronRight className="h-4 w-4" />
             </Button>
           )}
         </div>
       </CardHeader>
 
       <CardContent className="pt-0">
-        {isLoading ? (
+        {isLoading ?
           <div className="flex items-center justify-center py-6">
-            <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+            <Loader2 className="text-muted-foreground h-6 w-6 animate-spin" />
           </div>
-        ) : hasClients ? (
-          <div className="space-y-2 mt-3">
+        : hasClients ?
+          <div className="mt-3 space-y-2">
             {visibleClients.map((client) => (
               <div
                 key={client.id}
-                className="flex items-center gap-3 p-2 rounded-lg bg-muted/50 dark:bg-muted/20"
+                className="bg-muted/50 dark:bg-muted/20 flex items-center gap-3 rounded-lg p-2"
               >
                 <MockProtocolIcon protocol={client.protocol} />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-foreground truncate">
-                    {client.name}
-                  </p>
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <div className="min-w-0 flex-1">
+                  <p className="text-foreground truncate text-sm font-medium">{client.name}</p>
+                  <div className="text-muted-foreground flex items-center gap-2 text-xs">
                     {client.localAddress && (
                       <span className="font-mono">{client.localAddress}</span>
                     )}
@@ -133,7 +120,7 @@ function MockVPNClientsSummary({
                   </div>
                 </div>
                 <div className="flex items-center gap-1">
-                  <span className="w-2 h-2 rounded-full bg-success animate-pulse" />
+                  <span className="bg-success h-2 w-2 animate-pulse rounded-full" />
                 </div>
               </div>
             ))}
@@ -141,21 +128,20 @@ function MockVPNClientsSummary({
             {hasMore && (
               <button
                 onClick={() => setIsExpanded(!isExpanded)}
-                className="w-full flex items-center justify-center gap-1 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                className="text-muted-foreground hover:text-foreground flex w-full items-center justify-center gap-1 py-2 text-sm transition-colors"
               >
                 <ChevronDown
-                  className={`w-4 h-4 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
+                  className={`h-4 w-4 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
                 />
                 {isExpanded ? 'Show Less' : `Show ${clients.length - maxVisible} More`}
               </button>
             )}
           </div>
-        ) : (
-          <div className="flex flex-col items-center justify-center py-6 text-center">
-            <Wifi className="w-8 h-8 text-muted-foreground/50 mb-2" />
-            <p className="text-sm text-muted-foreground">No clients connected</p>
+        : <div className="flex flex-col items-center justify-center py-6 text-center">
+            <Wifi className="text-muted-foreground/50 mb-2 h-8 w-8" />
+            <p className="text-muted-foreground text-sm">No clients connected</p>
           </div>
-        )}
+        }
       </CardContent>
     </Card>
   );
@@ -294,8 +280,20 @@ export const MixedProtocols: Story = {
   args: {
     connectedCount: 5,
     clients: [
-      { id: '1', name: 'WireGuard-User', protocol: 'wireguard', localAddress: '10.0.0.2', uptime: '2h' },
-      { id: '2', name: 'OpenVPN-Client', protocol: 'openvpn', localAddress: '10.0.0.3', uptime: '1h' },
+      {
+        id: '1',
+        name: 'WireGuard-User',
+        protocol: 'wireguard',
+        localAddress: '10.0.0.2',
+        uptime: '2h',
+      },
+      {
+        id: '2',
+        name: 'OpenVPN-Client',
+        protocol: 'openvpn',
+        localAddress: '10.0.0.3',
+        uptime: '1h',
+      },
       { id: '3', name: 'L2TP-Device', protocol: 'l2tp', localAddress: '10.0.0.4', uptime: '30m' },
       { id: '4', name: 'IKEv2-Phone', protocol: 'ikev2', localAddress: '10.0.0.5', uptime: '4h' },
       { id: '5', name: 'SSTP-Laptop', protocol: 'sstp', localAddress: '10.0.0.6', uptime: '15m' },
@@ -320,7 +318,7 @@ export const InDashboard: Story = {
         clients={sampleClients.slice(0, 3)}
         maxVisible={3}
       />
-      <div className="p-4 rounded-lg border bg-card text-sm text-muted-foreground">
+      <div className="bg-card text-muted-foreground rounded-lg border p-4 text-sm">
         Other dashboard cards would go here...
       </div>
     </div>

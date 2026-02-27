@@ -242,6 +242,7 @@ export const LongTextContent: Story = {
     connectTo: 'very-long-domain-name-that-could-be-truncated.example.com',
     port: 51820,
     user: 'user@example.com',
-    comment: 'This is a very long comment that might also need to be truncated depending on the layout and available space',
+    comment:
+      'This is a very long comment that might also need to be truncated depending on the layout and available space',
   },
 };

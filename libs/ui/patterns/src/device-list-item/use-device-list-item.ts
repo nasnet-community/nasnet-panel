@@ -15,10 +15,7 @@ import * as Icons from 'lucide-react';
 
 import { DEVICE_TYPE_ICONS, DEVICE_TYPE_LABELS } from '@nasnet/core/utils';
 
-import type {
-  UseDeviceListItemConfig,
-  UseDeviceListItemReturn,
-} from './device-list-item.types';
+import type { UseDeviceListItemConfig, UseDeviceListItemReturn } from './device-list-item.types';
 import type { LucideIcon } from 'lucide-react';
 
 /**
@@ -30,9 +27,7 @@ import type { LucideIcon } from 'lucide-react';
  * @param config - Hook configuration
  * @returns Computed state and handlers
  */
-export function useDeviceListItem(
-  config: UseDeviceListItemConfig
-): UseDeviceListItemReturn {
+export function useDeviceListItem(config: UseDeviceListItemConfig): UseDeviceListItemReturn {
   const { device, showHostname = true } = config;
 
   // Expanded state for detail panel
@@ -66,12 +61,7 @@ export function useDeviceListItem(
 
   // Construct accessible ARIA label
   const ariaLabel = useMemo(() => {
-    const parts = [
-      displayName,
-      device.ipAddress,
-      deviceTypeLabel,
-      device.statusLabel,
-    ];
+    const parts = [displayName, device.ipAddress, deviceTypeLabel, device.statusLabel];
     if (device.isNew) {
       parts.push('New device');
     }

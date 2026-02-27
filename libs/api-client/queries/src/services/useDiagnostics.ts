@@ -156,10 +156,7 @@ export function useDiagnosticHistory(
  * }
  * ```
  */
-export function useAvailableDiagnostics(
-  serviceName: string,
-  enabled: boolean = true
-) {
+export function useAvailableDiagnostics(serviceName: string, enabled: boolean = true) {
   const { data, loading, error } = useQuery(GET_AVAILABLE_DIAGNOSTICS, {
     variables: { serviceName },
     skip: !enabled || !serviceName,
@@ -203,14 +200,11 @@ export function useAvailableDiagnostics(
  * ```
  */
 export function useRunDiagnostics() {
-  const [runDiagnostics, { data, loading, error }] = useMutation(
-    RUN_SERVICE_DIAGNOSTICS,
-    {
-      // Refetch diagnostic history after running tests
-      refetchQueries: ['GetDiagnosticHistory'],
-      awaitRefetchQueries: true,
-    }
-  );
+  const [runDiagnostics, { data, loading, error }] = useMutation(RUN_SERVICE_DIAGNOSTICS, {
+    // Refetch diagnostic history after running tests
+    refetchQueries: ['GetDiagnosticHistory'],
+    awaitRefetchQueries: true,
+  });
 
   return [
     runDiagnostics,
@@ -254,23 +248,20 @@ export function useDiagnosticsProgressSubscription(
   instanceId: string,
   enabled: boolean = true
 ) {
-  const { data, loading, error } = useSubscription(
-    SUBSCRIBE_DIAGNOSTICS_PROGRESS,
-    {
-      variables: { routerID: routerId, instanceID: instanceId },
-      skip: !enabled || !routerId || !instanceId,
-      onData: ({ data }) => {
-        if (data.data?.diagnosticsProgress) {
-          const progress = data.data.diagnosticsProgress;
-          // Apollo Client automatically updates the cache
-          // Additional side effects can be added here (e.g., progress notifications)
-          console.log(
-            `Diagnostic progress: ${progress.completedTests}/${progress.totalTests} - ${progress.result.testName}: ${progress.result.status}`
-          );
-        }
-      },
-    }
-  );
+  const { data, loading, error } = useSubscription(SUBSCRIBE_DIAGNOSTICS_PROGRESS, {
+    variables: { routerID: routerId, instanceID: instanceId },
+    skip: !enabled || !routerId || !instanceId,
+    onData: ({ data }) => {
+      if (data.data?.diagnosticsProgress) {
+        const progress = data.data.diagnosticsProgress;
+        // Apollo Client automatically updates the cache
+        // Additional side effects can be added here (e.g., progress notifications)
+        console.log(
+          `Diagnostic progress: ${progress.completedTests}/${progress.totalTests} - ${progress.result.testName}: ${progress.result.status}`
+        );
+      }
+    },
+  });
 
   return {
     progress: data?.diagnosticsProgress as DiagnosticsProgress | undefined,

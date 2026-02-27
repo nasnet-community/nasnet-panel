@@ -12,11 +12,7 @@
 
 import { useState, useCallback, useMemo, useEffect } from 'react';
 
-import type {
-  UseMACInputConfig,
-  UseMACInputReturn,
-  MACFormat,
-} from './mac-input.types';
+import type { UseMACInputConfig, UseMACInputReturn, MACFormat } from './mac-input.types';
 
 // ============================================================================
 // OUI Vendor Database (Top ~100 Common Vendors)
@@ -354,7 +350,10 @@ export function isValidMAC(mac: string): boolean {
  */
 export function normalizeMAC(input: string, format: MACFormat): string {
   // Extract only hex characters, uppercase, limit to 12
-  const hex = input.toUpperCase().replace(/[^0-9A-F]/g, '').slice(0, 12);
+  const hex = input
+    .toUpperCase()
+    .replace(/[^0-9A-F]/g, '')
+    .slice(0, 12);
 
   if (hex.length === 0) return '';
 
@@ -419,12 +418,7 @@ export function lookupVendor(mac: string): string | null {
  * ```
  */
 export function useMACInput(config: UseMACInputConfig = {}): UseMACInputReturn {
-  const {
-    value: controlledValue,
-    onChange,
-    format = 'colon',
-    showVendor = false,
-  } = config;
+  const { value: controlledValue, onChange, format = 'colon', showVendor = false } = config;
 
   // Internal state for uncontrolled mode
   const [internalValue, setInternalValue] = useState<string>(() =>
@@ -432,9 +426,8 @@ export function useMACInput(config: UseMACInputConfig = {}): UseMACInputReturn {
   );
 
   // Determine active value (controlled vs uncontrolled)
-  const value = controlledValue !== undefined
-    ? normalizeMAC(controlledValue, format)
-    : internalValue;
+  const value =
+    controlledValue !== undefined ? normalizeMAC(controlledValue, format) : internalValue;
 
   // Sync with controlled value changes
   useEffect(() => {

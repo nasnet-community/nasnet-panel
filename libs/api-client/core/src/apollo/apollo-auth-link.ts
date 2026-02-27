@@ -29,10 +29,7 @@ function getStoredCredentials(
     if (!stored) return null;
 
     const parsed = JSON.parse(stored);
-    if (
-      typeof parsed.username === 'string' &&
-      typeof parsed.password === 'string'
-    ) {
+    if (typeof parsed.username === 'string' && typeof parsed.password === 'string') {
       return parsed;
     }
     return null;

@@ -64,10 +64,7 @@ export {
 } from './persistence';
 
 // ===== Wizard Machine =====
-export {
-  createWizardMachine,
-  createWizardMachineV2,
-} from './wizardMachine';
+export { createWizardMachine, createWizardMachineV2 } from './wizardMachine';
 
 // ===== Config Pipeline Machine =====
 export {
@@ -78,39 +75,18 @@ export {
   isPipelineProcessing,
   getPipelineStateDescription,
 } from './configPipelineMachine';
-export type {
-  ConfigPipelineConfig,
-  ConfigPipelineState,
-} from './configPipelineMachine';
+export type { ConfigPipelineConfig, ConfigPipelineState } from './configPipelineMachine';
 
 // ===== VPN Connection Machine =====
-export {
-  createVPNConnectionMachine,
-  useVPNConnection,
-} from './vpnConnectionMachine';
-export type {
-  VPNConnectionServices,
-  UseVPNConnectionReturn,
-} from './vpnConnectionMachine';
+export { createVPNConnectionMachine, useVPNConnection } from './vpnConnectionMachine';
+export type { VPNConnectionServices, UseVPNConnectionReturn } from './vpnConnectionMachine';
 
 // ===== React Hooks =====
-export {
-  useWizard,
-  useWizardSession,
-} from './hooks/useWizard';
-export type {
-  UseWizardReturn,
-  UseWizardOptions,
-} from './hooks/useWizard';
+export { useWizard, useWizardSession } from './hooks/useWizard';
+export type { UseWizardReturn, UseWizardOptions } from './hooks/useWizard';
 
-export {
-  useConfigPipeline,
-  useQuickConfigPipeline,
-} from './hooks/useConfigPipeline';
-export type {
-  UseConfigPipelineReturn,
-  UseConfigPipelineOptions,
-} from './hooks/useConfigPipeline';
+export { useConfigPipeline, useQuickConfigPipeline } from './hooks/useConfigPipeline';
+export type { UseConfigPipelineReturn, UseConfigPipelineOptions } from './hooks/useConfigPipeline';
 
 // ===== Resource Lifecycle Machine =====
 export {
@@ -129,10 +105,7 @@ export type {
   ResourceLifecycleStateValue,
 } from './resourceLifecycleMachine';
 
-export {
-  useResourceLifecycle,
-  useResourceLifecycleWithApollo,
-} from './hooks/useResourceLifecycle';
+export { useResourceLifecycle, useResourceLifecycleWithApollo } from './hooks/useResourceLifecycle';
 export type {
   UseResourceLifecycleOptions,
   UseResourceLifecycleResult,

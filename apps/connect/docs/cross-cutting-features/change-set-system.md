@@ -1,13 +1,17 @@
 # Change Set System
 
-The change set system provides atomic multi-resource operations for router configuration. Instead of applying one resource at a time, you batch multiple changes together, validate them, apply in dependency order, and automatically roll back if anything fails.
+The change set system provides atomic multi-resource operations for router configuration. Instead of
+applying one resource at a time, you batch multiple changes together, validate them, apply in
+dependency order, and automatically roll back if anything fails.
 
 **Key files:**
+
 - `libs/state/machines/src/changeSetMachine.ts` — XState machine (orchestration)
 - `libs/state/stores/src/change-set/change-set.store.ts` — Zustand store (data management)
 - `libs/api-client/queries/src/change-set/` — GraphQL hooks
 
 **Cross-references:**
+
 - See `../state-management/xstate-machines.md` for XState patterns
 - See `../data-fetching/graphql-hooks.md` for query patterns
 
@@ -15,15 +19,20 @@ The change set system provides atomic multi-resource operations for router confi
 
 ## Overview
 
-A **change set** is a named collection of resource operations (CREATE, UPDATE, DELETE) that apply together atomically. If step 4 of 6 fails, steps 1-3 are rolled back in reverse order. The UI shows real-time progress during apply.
+A **change set** is a named collection of resource operations (CREATE, UPDATE, DELETE) that apply
+together atomically. If step 4 of 6 fails, steps 1-3 are rolled back in reverse order. The UI shows
+real-time progress during apply.
 
-This is used whenever configuration involves multiple interdependent resources — e.g., creating a LAN bridge requires a bridge interface, a VLAN, address assignments, and firewall rules in a specific order.
+This is used whenever configuration involves multiple interdependent resources — e.g., creating a
+LAN bridge requires a bridge interface, a VLAN, address assignments, and firewall rules in a
+specific order.
 
 ---
 
 ## State Machine (XState)
 
-The `createChangeSetMachine` factory (from `changeSetMachine.ts`) returns an XState v5 machine with 10 states:
+The `createChangeSetMachine` factory (from `changeSetMachine.ts`) returns an XState v5 machine with
+10 states:
 
 ```
 idle
@@ -67,9 +76,9 @@ interface ChangeSetMachineContext {
   routerId: string | null;
   validationResult: ChangeSetValidationResult | null;
   currentItemIndex: number;
-  sortedItems: ChangeSetItem[];      // Topologically sorted
-  appliedItems: ChangeSetItem[];     // Successfully applied so far
-  rollbackPlan: RollbackStep[];      // Grows during apply (prepended, so reverse order)
+  sortedItems: ChangeSetItem[]; // Topologically sorted
+  appliedItems: ChangeSetItem[]; // Successfully applied so far
+  rollbackPlan: RollbackStep[]; // Grows during apply (prepended, so reverse order)
   error: ChangeSetError | null;
   cancelRequested: boolean;
   applyStartedAt: number | null;
@@ -78,15 +87,15 @@ interface ChangeSetMachineContext {
 
 ### Machine Events
 
-| Event | From States | Description |
-|-------|-------------|-------------|
-| `LOAD` | idle | Load a change set and router ID |
-| `START_VALIDATION` | idle | Begin validation |
-| `APPLY` | ready | Begin applying (requires `canApply` guard) |
-| `CANCEL` | validating, ready, applying | Cancel (stops at next safe point) |
-| `RETRY` | failed | Re-run validation |
-| `FORCE_ROLLBACK` | failed, cancelled | Force rollback of already-applied items |
-| `RESET` | ready, failed, cancelled | Clear state and return to idle |
+| Event              | From States                 | Description                                |
+| ------------------ | --------------------------- | ------------------------------------------ |
+| `LOAD`             | idle                        | Load a change set and router ID            |
+| `START_VALIDATION` | idle                        | Begin validation                           |
+| `APPLY`            | ready                       | Begin applying (requires `canApply` guard) |
+| `CANCEL`           | validating, ready, applying | Cancel (stops at next safe point)          |
+| `RETRY`            | failed                      | Re-run validation                          |
+| `FORCE_ROLLBACK`   | failed, cancelled           | Force rollback of already-applied items    |
+| `RESET`            | ready, failed, cancelled    | Clear state and return to idle             |
 
 ### Usage
 
@@ -127,22 +136,25 @@ send({ type: 'APPLY' });
 
 ## Zustand Store
 
-The `useChangeSetStore` (from `change-set.store.ts`) manages data: creating, updating, and querying change sets. The machine handles orchestration; the store handles persistence.
+The `useChangeSetStore` (from `change-set.store.ts`) manages data: creating, updating, and querying
+change sets. The machine handles orchestration; the store handles persistence.
 
 ### Store Structure
 
 ```typescript
 interface ChangeSetState {
-  changeSets: Record<string, ChangeSet>;    // All active change sets by ID
-  activeChangeSetId: string | null;          // Currently focused change set
-  applyingChangeSetIds: string[];            // Optimistic UI tracking
+  changeSets: Record<string, ChangeSet>; // All active change sets by ID
+  activeChangeSetId: string | null; // Currently focused change set
+  applyingChangeSetIds: string[]; // Optimistic UI tracking
   lastError: string | null;
 }
 ```
 
 ### Persistence
 
-Only `DRAFT` and `READY` change sets survive page refresh (persisted to `localStorage` under key `nasnet-change-sets`). Completed, failed, rolled-back, and cancelled change sets are excluded from persistence.
+Only `DRAFT` and `READY` change sets survive page refresh (persisted to `localStorage` under key
+`nasnet-change-sets`). Completed, failed, rolled-back, and cancelled change sets are excluded from
+persistence.
 
 ### Key Actions
 
@@ -169,8 +181,8 @@ store.addItem(id, {
 store.recalculateApplyOrder(id);
 
 // Lifecycle transitions
-store.markApplying(id);   // DRAFT → APPLYING
-store.markCompleted(id);  // APPLYING → COMPLETED
+store.markApplying(id); // DRAFT → APPLYING
+store.markCompleted(id); // APPLYING → COMPLETED
 store.markFailed(id, 'timeout', 'item-xyz'); // APPLYING → FAILED
 store.markRolledBack(id); // FAILED → ROLLED_BACK
 ```
@@ -195,9 +207,11 @@ const isApplying = useChangeSetStore(selectIsAnyApplying);
 
 ## Dependency Ordering (Topological Sort)
 
-Items in a change set may depend on each other. For example, a firewall rule can't be created before the address list it references.
+Items in a change set may depend on each other. For example, a firewall rule can't be created before
+the address list it references.
 
-The `sortItemsByDependency` function inside `changeSetMachine.ts` uses `buildDependencyGraph` and `topologicalSort` from `@nasnet/core/utils`:
+The `sortItemsByDependency` function inside `changeSetMachine.ts` uses `buildDependencyGraph` and
+`topologicalSort` from `@nasnet/core/utils`:
 
 ```typescript
 function sortItemsByDependency(items: ChangeSetItem[]): ChangeSetItem[] {
@@ -214,23 +228,26 @@ function sortItemsByDependency(items: ChangeSetItem[]): ChangeSetItem[] {
 }
 ```
 
-If a cycle is detected during validation, `validationResult.errors` will contain a cycle error and `canApply` will be false.
+If a cycle is detected during validation, `validationResult.errors` will contain a cycle error and
+`canApply` will be false.
 
 ---
 
 ## Rollback Plan
 
-The rollback plan is built as items are applied. Each newly applied item is **prepended** to the rollback plan (index 0), so the plan is always in reverse apply order:
+The rollback plan is built as items are applied. Each newly applied item is **prepended** to the
+rollback plan (index 0), so the plan is always in reverse apply order:
 
-| Apply Order | Item | Rollback Operation |
-|-------------|------|-------------------|
-| 1 | Create bridge | DELETE bridge |
-| 2 | Create VLAN | DELETE VLAN |
-| 3 (failed) | Create firewall rule | (never applied) |
+| Apply Order | Item                 | Rollback Operation |
+| ----------- | -------------------- | ------------------ |
+| 1           | Create bridge        | DELETE bridge      |
+| 2           | Create VLAN          | DELETE VLAN        |
+| 3 (failed)  | Create firewall rule | (never applied)    |
 
 Rollback executes in stored order: DELETE VLAN first, then DELETE bridge.
 
 Rollback operations by original operation:
+
 - `CREATE` → `DELETE`
 - `UPDATE` → `REVERT` (restore `previousState`)
 - `DELETE` → `RESTORE` (restore `previousState`)
@@ -241,11 +258,11 @@ Rollback operations by original operation:
 
 ```typescript
 const ChangeSetStatus = {
-  DRAFT: 'DRAFT',            // Editable, not yet validated
-  READY: 'READY',            // Validated, awaiting user confirmation
-  APPLYING: 'APPLYING',      // Apply in progress (read-only)
-  COMPLETED: 'COMPLETED',    // All items applied successfully
-  FAILED: 'FAILED',          // Apply failed (may have partially applied)
+  DRAFT: 'DRAFT', // Editable, not yet validated
+  READY: 'READY', // Validated, awaiting user confirmation
+  APPLYING: 'APPLYING', // Apply in progress (read-only)
+  COMPLETED: 'COMPLETED', // All items applied successfully
+  FAILED: 'FAILED', // Apply failed (may have partially applied)
   ROLLING_BACK: 'ROLLING_BACK',
   ROLLED_BACK: 'ROLLED_BACK',
   CANCELLED: 'CANCELLED',
@@ -282,16 +299,16 @@ From `changeSetMachine.ts`:
 
 ```typescript
 // Check if in an active processing state
-isChangeSetProcessing(state) // true during validating, rollingBack, or applying
+isChangeSetProcessing(state); // true during validating, rollingBack, or applying
 
 // Check if in a terminal state
-isChangeSetFinal(state) // true for completed, rolledBack, failed, partialFailure, cancelled
+isChangeSetFinal(state); // true for completed, rolledBack, failed, partialFailure, cancelled
 
 // Check if cancellation is available
-isChangeSetCancellable(state) // true for validating, ready, applying
+isChangeSetCancellable(state); // true for validating, ready, applying
 
 // Human-readable description
-getChangeSetMachineStateDescription(state) // e.g., 'Applying changes...'
+getChangeSetMachineStateDescription(state); // e.g., 'Applying changes...'
 ```
 
 ---
@@ -304,10 +321,12 @@ When an item fails:
 interface ChangeSetError {
   message: string;
   failedItemId: string;
-  partiallyAppliedItemIds: string[];  // Items that were applied before failure
-  failedRollbackItemIds: string[];    // Items that failed to roll back
+  partiallyAppliedItemIds: string[]; // Items that were applied before failure
+  failedRollbackItemIds: string[]; // Items that failed to roll back
   requiresManualIntervention: boolean; // true if rollback also failed
 }
 ```
 
-If `requiresManualIntervention` is true, the machine reaches `partialFailure` (a final state). The UI must show the user exactly which resources need manual cleanup, with the `failedRollbackItemIds` list.
+If `requiresManualIntervention` is true, the machine reaches `partialFailure` (a final state). The
+UI must show the user exactly which resources need manual cleanup, with the `failedRollbackItemIds`
+list.

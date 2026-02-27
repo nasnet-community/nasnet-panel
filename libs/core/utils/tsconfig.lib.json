@@ -26,7 +26,5 @@
     "src/**/*.stories.ts",
     "src/**/*.stories.tsx"
   ],
-  "references": [
-    { "path": "../types/tsconfig.lib.json" }
-  ]
+  "references": [{ "path": "../types/tsconfig.lib.json" }]
 }

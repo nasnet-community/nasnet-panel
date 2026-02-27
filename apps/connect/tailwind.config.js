@@ -8,10 +8,7 @@ const tokenConfig = require('../../libs/ui/tokens/dist/tailwind.config.js');
 module.exports = {
   darkMode: 'class',
   content: [
-    join(
-      __dirname,
-      '{src,pages,components,app}/**/*!(*.stories|*.spec).{ts,tsx,html}',
-    ),
+    join(__dirname, '{src,pages,components,app}/**/*!(*.stories|*.spec).{ts,tsx,html}'),
     // Library components
     join(__dirname, '../../libs/**/*.{ts,tsx,html}'),
     ...createGlobPatternsForDependencies(__dirname),
@@ -187,15 +184,22 @@ module.exports = {
         ...tokenConfig.boxShadow,
         // Semantic shadows (glows for focus states)
         'primary-glow': '0 0 0 4px var(--component-button-primary-focusRing)',
-        'success-glow': '0 0 0 4px color-mix(in srgb, var(--semantic-color-success-DEFAULT) 20%, transparent)',
-        'warning-glow': '0 0 0 4px color-mix(in srgb, var(--semantic-color-warning-DEFAULT) 20%, transparent)',
-        'error-glow': '0 0 0 4px color-mix(in srgb, var(--semantic-color-error-DEFAULT) 20%, transparent)',
-        'info-glow': '0 0 0 4px color-mix(in srgb, var(--semantic-color-info-DEFAULT) 20%, transparent)',
+        'success-glow':
+          '0 0 0 4px color-mix(in srgb, var(--semantic-color-success-DEFAULT) 20%, transparent)',
+        'warning-glow':
+          '0 0 0 4px color-mix(in srgb, var(--semantic-color-warning-DEFAULT) 20%, transparent)',
+        'error-glow':
+          '0 0 0 4px color-mix(in srgb, var(--semantic-color-error-DEFAULT) 20%, transparent)',
+        'info-glow':
+          '0 0 0 4px color-mix(in srgb, var(--semantic-color-info-DEFAULT) 20%, transparent)',
       },
       // Custom animations
       keyframes: {
         'pulse-glow': {
-          '0%, 100%': { boxShadow: '0 0 0 0 color-mix(in srgb, var(--semantic-color-success-DEFAULT) 40%, transparent)' },
+          '0%, 100%': {
+            boxShadow:
+              '0 0 0 0 color-mix(in srgb, var(--semantic-color-success-DEFAULT) 40%, transparent)',
+          },
           '50%': { boxShadow: '0 0 0 8px transparent' },
         },
         'fade-in': {

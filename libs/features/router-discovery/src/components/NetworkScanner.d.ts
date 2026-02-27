@@ -4,22 +4,22 @@
  */
 import type { ScanResult } from '@nasnet/core/types';
 export interface NetworkScannerProps {
-    /**
-     * Callback when scan completes successfully
-     */
-    onScanComplete?: (results: ScanResult[]) => void;
-    /**
-     * Callback when user selects a discovered router
-     */
-    onRouterSelect?: (result: ScanResult) => void;
-    /**
-     * Default subnet to scan
-     */
-    defaultSubnet?: string;
-    /**
-     * Optional CSS class name
-     */
-    className?: string;
+  /**
+   * Callback when scan completes successfully
+   */
+  onScanComplete?: (results: ScanResult[]) => void;
+  /**
+   * Callback when user selects a discovered router
+   */
+  onRouterSelect?: (result: ScanResult) => void;
+  /**
+   * Default subnet to scan
+   */
+  defaultSubnet?: string;
+  /**
+   * Optional CSS class name
+   */
+  className?: string;
 }
 /**
  * NetworkScanner Component
@@ -41,5 +41,5 @@ export interface NetworkScannerProps {
  * />
  * ```
  */
-export declare const NetworkScanner: import("react").NamedExoticComponent<NetworkScannerProps>;
+export declare const NetworkScanner: import('react').NamedExoticComponent<NetworkScannerProps>;
 //# sourceMappingURL=NetworkScanner.d.ts.map

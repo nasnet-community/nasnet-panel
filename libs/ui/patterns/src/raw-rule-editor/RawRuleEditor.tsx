@@ -35,9 +35,7 @@ import type { RawRuleEditorProps } from './raw-rule-editor.types';
  * - Mobile (<640px): Sheet with card-based form sections, 44px touch targets
  * - Tablet/Desktop (>=640px): Dialog with inline form and live preview panel
  */
-export const RawRuleEditor = memo(function RawRuleEditor(
-  props: RawRuleEditorProps
-) {
+export const RawRuleEditor = memo(function RawRuleEditor(props: RawRuleEditorProps) {
   const platform = usePlatform();
 
   switch (platform) {

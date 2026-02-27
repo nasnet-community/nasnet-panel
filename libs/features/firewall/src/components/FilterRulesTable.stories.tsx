@@ -28,11 +28,7 @@ const queryClient = new QueryClient({
 });
 
 function QueryWrapper({ children }: { children: React.ReactNode }) {
-  return (
-    <QueryClientProvider client={queryClient}>
-      {children}
-    </QueryClientProvider>
-  );
+  return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
 }
 
 /**
@@ -80,7 +76,13 @@ function QueryWrapper({ children }: { children: React.ReactNode }) {
 const meta = {
   title: 'Features/Firewall/FilterRulesTable',
   component: FilterRulesTable,
-  decorators: [(Story) => <QueryWrapper><Story /></QueryWrapper>],
+  decorators: [
+    (Story) => (
+      <QueryWrapper>
+        <Story />
+      </QueryWrapper>
+    ),
+  ],
   tags: ['autodocs'],
   parameters: {
     layout: 'fullscreen',

@@ -444,10 +444,7 @@ export const formatLastHandshake = (lastHandshake?: Date | null): string => {
  * formatTimestamp(new Date(), true) // "12/04/2025, 12:34:56 PM"
  * formatTimestamp("2025-12-04T12:34:56Z") // "12:34:56 PM"
  */
-export const formatTimestamp = (
-  timestamp: Date | string,
-  showDate = false
-): string => {
+export const formatTimestamp = (timestamp: Date | string, showDate = false): string => {
   const date = typeof timestamp === 'string' ? new Date(timestamp) : timestamp;
 
   if (isNaN(date.getTime())) {

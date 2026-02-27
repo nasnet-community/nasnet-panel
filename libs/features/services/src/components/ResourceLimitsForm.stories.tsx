@@ -107,8 +107,11 @@ const meta: Meta<typeof ResourceLimitsForm> = {
   tags: ['autodocs'],
   decorators: [
     (Story) => (
-      <MockedProvider mocks={[successMock]} addTypename={true}>
-        <div className="p-6 bg-background max-w-md">
+      <MockedProvider
+        mocks={[successMock]}
+        addTypename={true}
+      >
+        <div className="bg-background max-w-md p-6">
           <Story />
         </div>
       </MockedProvider>
@@ -243,17 +246,18 @@ export const ServerError: Story = {
   },
   decorators: [
     (Story) => (
-      <MockedProvider mocks={[errorMock]} addTypename={true}>
-        <div className="p-6 bg-background max-w-md">
+      <MockedProvider
+        mocks={[errorMock]}
+        addTypename={true}
+      >
+        <div className="bg-background max-w-md p-6">
           <Story />
         </div>
       </MockedProvider>
     ),
   ],
   play: async ({ canvasElement }) => {
-    const memoryInput = canvasElement.querySelector(
-      'input#memoryMB'
-    ) as HTMLInputElement | null;
+    const memoryInput = canvasElement.querySelector('input#memoryMB') as HTMLInputElement | null;
     if (memoryInput) {
       memoryInput.value = '65';
       memoryInput.dispatchEvent(new Event('input', { bubbles: true }));
@@ -287,8 +291,11 @@ export const DarkMode: Story = {
   },
   decorators: [
     (Story) => (
-      <MockedProvider mocks={[successMock]} addTypename={true}>
-        <div className="p-6 bg-background max-w-md dark">
+      <MockedProvider
+        mocks={[successMock]}
+        addTypename={true}
+      >
+        <div className="bg-background dark max-w-md p-6">
           <Story />
         </div>
       </MockedProvider>

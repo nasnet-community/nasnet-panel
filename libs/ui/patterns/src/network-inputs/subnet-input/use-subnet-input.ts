@@ -17,12 +17,7 @@
 
 import { useState, useCallback, useMemo } from 'react';
 
-import {
-  isValidIPv4,
-  isValidSubnet,
-  getSubnetInfo,
-  getPrefixMask,
-} from '@nasnet/core/utils';
+import { isValidIPv4, isValidSubnet, getSubnetInfo, getPrefixMask } from '@nasnet/core/utils';
 
 import type {
   SubnetInputProps,

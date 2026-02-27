@@ -4,12 +4,15 @@ import { useNavigate } from '@tanstack/react-router';
 import { MoreVertical } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
-import { useConnectionStore, useAlertNotificationStore, useUnreadCount, useNotifications } from '@nasnet/state/stores';
+import {
+  useConnectionStore,
+  useAlertNotificationStore,
+  useUnreadCount,
+  useNotifications,
+} from '@nasnet/state/stores';
 import type { InAppNotification } from '@nasnet/state/stores';
 import { ThemeToggle, NotificationBell } from '@nasnet/ui/patterns';
 import { Button } from '@nasnet/ui/primitives';
-
-
 
 /**
  * AppHeader Component
@@ -83,29 +86,25 @@ export const AppHeader = React.memo(function AppHeader() {
   const statusConfig = getStatusConfig();
 
   // Display router IP when connected, otherwise show app name
-  const displayName = currentRouterIp && state === 'connected'
-    ? currentRouterIp
-    : t('app.name');
+  const displayName = currentRouterIp && state === 'connected' ? currentRouterIp : t('app.name');
 
   return (
-    <div className="brand-gradient-subtle brand-accent-line flex h-full items-center justify-between px-component-md py-3">
+    <div className="brand-gradient-subtle brand-accent-line px-component-md flex h-full items-center justify-between py-3">
       {/* Left: Brand + Status */}
       <div className="flex items-center gap-3">
         {/* Logo */}
         <img
           src="/favicon.png"
           alt="NasNet"
-          className="ring-2 ring-primary/30 w-8 h-8 rounded-lg shadow-sm"
+          className="ring-primary/30 h-8 w-8 rounded-lg shadow-sm ring-2"
         />
 
         {/* App/Router Info */}
         <div>
-          <p className="font-display text-sm font-medium text-foreground">
-            {displayName}
-          </p>
-          <p className={`text-xs flex items-center gap-1.5 ${statusConfig.textClass}`}>
+          <p className="font-display text-foreground text-sm font-medium">{displayName}</p>
+          <p className={`flex items-center gap-1.5 text-xs ${statusConfig.textClass}`}>
             <span
-              className={`w-2 h-2 rounded-full ${statusConfig.dotClass}`}
+              className={`h-2 w-2 rounded-full ${statusConfig.dotClass}`}
               aria-hidden="true"
             />
             {statusConfig.text}
@@ -126,10 +125,13 @@ export const AppHeader = React.memo(function AppHeader() {
         <Button
           variant="ghost"
           size="icon"
-          className="rounded-full min-h-[44px] min-w-[44px]"
+          className="min-h-[44px] min-w-[44px] rounded-full"
           aria-label={t('button.moreOptions')}
         >
-          <MoreVertical className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
+          <MoreVertical
+            className="text-muted-foreground h-5 w-5"
+            aria-hidden="true"
+          />
         </Button>
       </div>
     </div>

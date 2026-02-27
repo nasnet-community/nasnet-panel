@@ -2,7 +2,6 @@ import { ResourceLifecycleBadge } from './ResourceLifecycleBadge';
 
 import type { Meta, StoryObj } from '@storybook/react';
 
-
 /**
  * All valid lifecycle states from Universal State v2 (ADR-012).
  */
@@ -80,7 +79,8 @@ export const Validating: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'The VALIDATING state shows an animated spinner while the backend checks the configuration.',
+        story:
+          'The VALIDATING state shows an animated spinner while the backend checks the configuration.',
       },
     },
   },
@@ -95,7 +95,8 @@ export const Applying: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'The APPLYING state shows an animated spinner while the change is being written to the router.',
+        story:
+          'The APPLYING state shows an animated spinner while the change is being written to the router.',
       },
     },
   },
@@ -126,15 +127,28 @@ export const Archived: Story = {
 export const Sizes: Story = {
   render: () => (
     <div className="flex items-center gap-3">
-      <ResourceLifecycleBadge state="ACTIVE" size="sm" showIcon />
-      <ResourceLifecycleBadge state="ACTIVE" size="md" showIcon />
-      <ResourceLifecycleBadge state="ACTIVE" size="lg" showIcon />
+      <ResourceLifecycleBadge
+        state="ACTIVE"
+        size="sm"
+        showIcon
+      />
+      <ResourceLifecycleBadge
+        state="ACTIVE"
+        size="md"
+        showIcon
+      />
+      <ResourceLifecycleBadge
+        state="ACTIVE"
+        size="lg"
+        showIcon
+      />
     </div>
   ),
   parameters: {
     docs: {
       description: {
-        story: 'Three badge sizes — sm (10px), md (12px), and lg (14px) — for use in different density contexts.',
+        story:
+          'Three badge sizes — sm (10px), md (12px), and lg (14px) — for use in different density contexts.',
       },
     },
   },
@@ -144,7 +158,7 @@ export const Sizes: Story = {
 
 export const AllStates: Story = {
   render: () => (
-    <div className="flex flex-col gap-2.5 items-start">
+    <div className="flex flex-col items-start gap-2.5">
       {ALL_STATES.map((state) => (
         <ResourceLifecycleBadge
           key={state}
@@ -159,7 +173,8 @@ export const AllStates: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'All 9 lifecycle states. Hover each badge to see the native tooltip description. VALIDATING and APPLYING show spinners.',
+        story:
+          'All 9 lifecycle states. Hover each badge to see the native tooltip description. VALIDATING and APPLYING show spinners.',
       },
     },
   },
@@ -171,14 +186,20 @@ export const NoIcon: Story = {
   render: () => (
     <div className="flex flex-wrap gap-2">
       {ALL_STATES.map((state) => (
-        <ResourceLifecycleBadge key={state} state={state} size="md" showIcon={false} />
+        <ResourceLifecycleBadge
+          key={state}
+          state={state}
+          size="md"
+          showIcon={false}
+        />
       ))}
     </div>
   ),
   parameters: {
     docs: {
       description: {
-        story: 'Label-only variant — useful in dense table columns where icon space is unavailable.',
+        story:
+          'Label-only variant — useful in dense table columns where icon space is unavailable.',
       },
     },
   },
@@ -196,7 +217,8 @@ export const CustomLabel: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'The `label` prop overrides the default state label for domain-specific terminology (e.g. "Running" instead of "Active").',
+        story:
+          'The `label` prop overrides the default state label for domain-specific terminology (e.g. "Running" instead of "Active").',
       },
     },
   },
@@ -206,28 +228,34 @@ export const CustomLabel: Story = {
 
 export const InContext: Story = {
   render: () => (
-    <div className="w-[480px] rounded-xl border border-border bg-card overflow-hidden">
+    <div className="border-border bg-card w-[480px] overflow-hidden rounded-xl border">
       <table className="w-full text-sm">
-        <thead className="border-b border-border bg-muted/40">
+        <thead className="border-border bg-muted/40 border-b">
           <tr>
-            <th className="px-4 py-2 text-left text-xs font-medium text-muted-foreground">Interface</th>
-            <th className="px-4 py-2 text-left text-xs font-medium text-muted-foreground">State</th>
+            <th className="text-muted-foreground px-4 py-2 text-left text-xs font-medium">
+              Interface
+            </th>
+            <th className="text-muted-foreground px-4 py-2 text-left text-xs font-medium">State</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-border">
+        <tbody className="divide-border divide-y">
           {(
             [
               { name: 'ether1', state: 'ACTIVE' },
-              { name: 'wg0',    state: 'VALIDATING' },
+              { name: 'wg0', state: 'VALIDATING' },
               { name: 'ether2', state: 'DEGRADED' },
-              { name: 'ovpn1',  state: 'ERROR' },
+              { name: 'ovpn1', state: 'ERROR' },
               { name: 'ether3', state: 'DRAFT' },
             ] as const
           ).map(({ name, state }) => (
             <tr key={name}>
-              <td className="px-4 py-2 font-mono text-sm text-foreground">{name}</td>
+              <td className="text-foreground px-4 py-2 font-mono text-sm">{name}</td>
               <td className="px-4 py-2">
-                <ResourceLifecycleBadge state={state} size="sm" showIcon />
+                <ResourceLifecycleBadge
+                  state={state}
+                  size="sm"
+                  showIcon
+                />
               </td>
             </tr>
           ))}

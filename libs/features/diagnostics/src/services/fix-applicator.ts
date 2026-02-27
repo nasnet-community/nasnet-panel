@@ -46,7 +46,9 @@ export async function applyFixCommand(
     });
 
     if (!data?.applyTroubleshootFix) {
-      throw new Error('Fix application failed: no response received from the backend. Please verify the router connection and try again.');
+      throw new Error(
+        'Fix application failed: no response received from the backend. Please verify the router connection and try again.'
+      );
     }
 
     const result = data.applyTroubleshootFix;
@@ -58,7 +60,10 @@ export async function applyFixCommand(
       rollbackId: result.success ? `rollback_${fix.issueCode}` : undefined,
     };
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'Failed to apply the fix. Verify your router is connected and accessible, then retry.';
+    const errorMessage =
+      error instanceof Error ?
+        error.message
+      : 'Failed to apply the fix. Verify your router is connected and accessible, then retry.';
     return {
       success: false,
       message: errorMessage,

@@ -44,13 +44,12 @@ function WirelessInterfaceCardComponent(
 ) {
   // Determine band badge color using semantic tokens
   const bandColor = React.useMemo(() => {
-    return iface.band === '2.4GHz'
-      ? 'bg-info/10 text-info'
-      : iface.band === '5GHz'
-        ? 'bg-secondary/10 text-secondary'
-        : iface.band === '6GHz'
-          ? 'bg-primary/10 text-primary'
-          : 'bg-muted text-muted-foreground';
+    return (
+      iface.band === '2.4GHz' ? 'bg-info/10 text-info'
+      : iface.band === '5GHz' ? 'bg-secondary/10 text-secondary'
+      : iface.band === '6GHz' ? 'bg-primary/10 text-primary'
+      : 'bg-muted text-muted-foreground'
+    );
   }, [iface.band]);
 
   // Memoize click handler
@@ -81,7 +80,7 @@ function WirelessInterfaceCardComponent(
       tabIndex={0}
       aria-label={`Wireless interface ${iface.name}${iface.ssid ? `, SSID ${iface.ssid}` : ''}`}
       className={cn(
-        'rounded-card-lg cursor-pointer hover:shadow-lg transition-shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+        'rounded-card-lg focus-visible:ring-ring cursor-pointer transition-shadow hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
         className
       )}
       onClick={handleClick}
@@ -90,15 +89,17 @@ function WirelessInterfaceCardComponent(
       <CardHeader className="pb-component-sm">
         <div className="flex items-start justify-between">
           {/* Interface name and icon */}
-          <div className="flex items-center gap-component-sm">
-            <div className="p-component-sm rounded-lg bg-muted">
-              <Icon icon={Wifi} className="text-muted-foreground" aria-hidden="true" />
+          <div className="gap-component-sm flex items-center">
+            <div className="p-component-sm bg-muted rounded-lg">
+              <Icon
+                icon={Wifi}
+                className="text-muted-foreground"
+                aria-hidden="true"
+              />
             </div>
             <div>
-              <h3 className="text-lg font-semibold font-display text-foreground">
-                {iface.name}
-              </h3>
-              <p className="text-sm text-muted-foreground font-mono">
+              <h3 className="font-display text-foreground text-lg font-semibold">{iface.name}</h3>
+              <p className="text-muted-foreground font-mono text-sm">
                 {iface.ssid || 'Not configured'}
               </p>
             </div>
@@ -114,26 +115,41 @@ function WirelessInterfaceCardComponent(
 
       <CardContent className="space-y-component-md">
         {/* Frequency band and client count */}
-        <div className="flex items-center gap-component-md">
+        <div className="gap-component-md flex items-center">
           {/* Band badge */}
-          <div className="flex items-center gap-component-xs">
-            <Icon icon={Radio} size="sm" className="text-muted-foreground" aria-hidden="true" />
-            <span className={cn('px-component-sm py-component-xs rounded-md text-xs font-medium', bandColor)}>
+          <div className="gap-component-xs flex items-center">
+            <Icon
+              icon={Radio}
+              size="sm"
+              className="text-muted-foreground"
+              aria-hidden="true"
+            />
+            <span
+              className={cn(
+                'px-component-sm py-component-xs rounded-md text-xs font-medium',
+                bandColor
+              )}
+            >
               {iface.band}
             </span>
           </div>
 
           {/* Client count */}
-          <div className="flex items-center gap-component-xs">
-            <Icon icon={Signal} size="sm" className="text-muted-foreground" aria-hidden="true" />
-            <span className="text-sm text-muted-foreground">
+          <div className="gap-component-xs flex items-center">
+            <Icon
+              icon={Signal}
+              size="sm"
+              className="text-muted-foreground"
+              aria-hidden="true"
+            />
+            <span className="text-muted-foreground text-sm">
               {iface.connectedClients} {iface.connectedClients === 1 ? 'client' : 'clients'}
             </span>
           </div>
         </div>
 
         {/* Additional info (channel, mode) - optional, hidden on mobile */}
-        <div className="hidden md:flex items-center gap-component-md text-xs text-muted-foreground font-mono">
+        <div className="gap-component-md text-muted-foreground hidden items-center font-mono text-xs md:flex">
           <span>Channel: {iface.channel || 'Auto'}</span>
           <span>•</span>
           <span>Mode: {iface.mode}</span>
@@ -143,7 +159,5 @@ function WirelessInterfaceCardComponent(
   );
 }
 
-export const WirelessInterfaceCard = React.memo(
-  React.forwardRef(WirelessInterfaceCardComponent)
-);
+export const WirelessInterfaceCard = React.memo(React.forwardRef(WirelessInterfaceCardComponent));
 WirelessInterfaceCard.displayName = 'WirelessInterfaceCard';

@@ -14,7 +14,7 @@
 
 import * as React from 'react';
 
-import { cn , Progress } from '@nasnet/ui/primitives';
+import { cn, Progress } from '@nasnet/ui/primitives';
 
 // ============================================================================
 // Types
@@ -118,17 +118,13 @@ export const ProgressBar = React.memo(function ProgressBar({
   const normalizedValue = Math.min(100, Math.max(0, value ?? 0));
 
   return (
-    <div className={cn('w-full flex flex-col', config.spacing, className)}>
+    <div className={cn('flex w-full flex-col', config.spacing, className)}>
       {/* Header row with label and percentage */}
       {(label || showPercentage) && (
-        <div className="flex items-center justify-between mb-2">
-          {label && (
-            <span className={cn('text-muted-foreground', config.text)}>
-              {label}
-            </span>
-          )}
+        <div className="mb-2 flex items-center justify-between">
+          {label && <span className={cn('text-muted-foreground', config.text)}>{label}</span>}
           {showPercentage && !isIndeterminate && (
-            <span className={cn('font-medium text-foreground', config.text)}>
+            <span className={cn('text-foreground font-medium', config.text)}>
               {Math.round(normalizedValue)}%
             </span>
           )}
@@ -142,10 +138,7 @@ export const ProgressBar = React.memo(function ProgressBar({
         aria-valuemin={0}
         aria-valuemax={100}
         aria-label={label || 'Progress'}
-        className={cn(
-          'w-full rounded-full bg-muted overflow-hidden',
-          config.bar
-        )}
+        className={cn('bg-muted w-full overflow-hidden rounded-full', config.bar)}
       >
         <div
           className={cn(
@@ -161,9 +154,7 @@ export const ProgressBar = React.memo(function ProgressBar({
       {(description || onCancel) && (
         <div className="flex items-center justify-between">
           {description && (
-            <span className={cn('text-muted-foreground', sizeConfig.sm.text)}>
-              {description}
-            </span>
+            <span className={cn('text-muted-foreground', sizeConfig.sm.text)}>{description}</span>
           )}
           {onCancel && (
             <button
@@ -172,7 +163,7 @@ export const ProgressBar = React.memo(function ProgressBar({
               className={cn(
                 'text-muted-foreground hover:text-foreground',
                 'underline underline-offset-2',
-                'focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
+                'focus:ring-ring focus:outline-none focus:ring-2 focus:ring-offset-2',
                 sizeConfig.sm.text
               )}
             >

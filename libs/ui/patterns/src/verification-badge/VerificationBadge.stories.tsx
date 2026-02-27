@@ -6,7 +6,6 @@
  * @module @nasnet/ui/patterns/verification-badge
  */
 
-
 import { fn } from 'storybook/test';
 
 import { VerificationStatus as GraphQLStatus } from '@nasnet/api-client/generated';

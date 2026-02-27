@@ -8,10 +8,7 @@ import type { ComponentPropsWithoutRef } from 'react';
  *
  * Extends standard HTML input attributes (excluding 'type' which is fixed to 'password').
  */
-export type PasswordFieldProps = Omit<
-  ComponentPropsWithoutRef<typeof Input>,
-  'type'
->;
+export type PasswordFieldProps = Omit<ComponentPropsWithoutRef<typeof Input>, 'type'>;
 
 /**
  * PasswordField component for secure password input
@@ -32,14 +29,7 @@ export type PasswordFieldProps = Omit<
  * @see DynamicField for integration with form schema validation
  */
 export const PasswordField = forwardRef<HTMLInputElement, PasswordFieldProps>(
-  function PasswordField(
-    {
-      disabled,
-      'aria-invalid': ariaInvalid,
-      ...props
-    },
-    ref
-  ) {
+  function PasswordField({ disabled, 'aria-invalid': ariaInvalid, ...props }, ref) {
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
     // Handle toggle with useCallback for stability
@@ -66,9 +56,7 @@ export const PasswordField = forwardRef<HTMLInputElement, PasswordFieldProps>(
           onClick={handleToggleVisibility}
           tabIndex={-1}
           className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
-          aria-label={
-            isPasswordVisible ? 'Hide password' : 'Show password'
-          }
+          aria-label={isPasswordVisible ? 'Hide password' : 'Show password'}
         >
           <Icon
             icon={isPasswordVisible ? EyeOff : Eye}

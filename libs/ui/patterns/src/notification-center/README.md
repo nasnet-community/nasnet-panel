@@ -1,20 +1,24 @@
 # NotificationCenter Pattern Component
 
-Notification center panel for displaying and managing alert notifications with platform-specific presenters.
+Notification center panel for displaying and managing alert notifications with platform-specific
+presenters.
 
 ## Features
 
 - **Platform-specific UI**
+
   - Mobile (<640px): Full-screen Sheet with 44px touch targets and bottom action bar
   - Desktop (≥640px): 400px side panel with scrollable list and keyboard navigation
 
 - **Filtering & Actions**
+
   - Severity filter chips (Critical, Warning, Info, All)
   - Mark individual notifications as read
   - Mark all notifications as read
   - Clear all notifications
 
 - **Keyboard Navigation (Desktop)**
+
   - `Escape` - Close notification center
   - `ArrowUp/Down` - Navigate through notifications
   - `Enter` - Activate selected notification
@@ -35,9 +39,7 @@ function MyComponent() {
 
   return (
     <>
-      <Button onClick={() => setIsOpen(true)}>
-        Open Notifications
-      </Button>
+      <Button onClick={() => setIsOpen(true)}>Open Notifications</Button>
 
       <NotificationCenter
         open={isOpen}
@@ -53,15 +55,18 @@ function MyComponent() {
 Follows the **Headless + Platform Presenters** pattern from ADR-018:
 
 1. **Headless Hook** (`use-notification-center.ts`)
+
    - Business logic for filtering and actions
    - Store integration
    - No UI code
 
 2. **Platform Router** (`NotificationCenter.tsx`)
+
    - Detects platform via `usePlatform()`
    - Routes to appropriate presenter
 
 3. **Platform Presenters**
+
    - `NotificationCenterDesktop.tsx` - 400px side panel
    - `NotificationCenterMobile.tsx` - Full-screen Sheet
 
@@ -75,6 +80,7 @@ Follows the **Headless + Platform Presenters** pattern from ADR-018:
 Main component that auto-detects platform and renders the appropriate presenter.
 
 **Props:**
+
 - `open: boolean` - Whether the notification center is open
 - `onClose: () => void` - Callback when closing
 - `className?: string` - Optional className
@@ -84,6 +90,7 @@ Main component that auto-detects platform and renders the appropriate presenter.
 Displays a single notification with severity icon, title, message, and timestamp.
 
 **Props:**
+
 - `notification: InAppNotification` - The notification to display
 - `onClick?: (notification: InAppNotification) => void` - Click handler
 - `className?: string` - Optional className
@@ -93,6 +100,7 @@ Displays a single notification with severity icon, title, message, and timestamp
 Headless hook for notification center logic.
 
 **Returns:**
+
 ```typescript
 {
   allNotifications: InAppNotification[];
@@ -127,6 +135,7 @@ npx nx run ui-patterns:storybook
 ```
 
 Navigate to **Patterns > NotificationCenter** to see:
+
 - Default state (10 notifications)
 - Empty state
 - Large list (150 notifications)
@@ -153,6 +162,7 @@ notification-center/
 Uses semantic tokens from the design system:
 
 - **Colors:**
+
   - `semantic-error` (Critical)
   - `semantic-warning` (Warning)
   - `semantic-info` (Info)

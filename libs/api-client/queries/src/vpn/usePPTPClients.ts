@@ -65,10 +65,7 @@ function transformPPTPClient(raw: PPTPClientRaw): PPTPClient {
  * Fetch PPTP clients from RouterOS
  */
 async function fetchPPTPClients(routerIp: string): Promise<PPTPClient[]> {
-  const result = await makeRouterOSRequest<PPTPClientRaw[]>(
-    routerIp,
-    'interface/pptp-client'
-  );
+  const result = await makeRouterOSRequest<PPTPClientRaw[]>(routerIp, 'interface/pptp-client');
 
   if (!result.success || !result.data) {
     throw new Error(result.error || 'Failed to fetch PPTP clients');
@@ -95,4 +92,3 @@ export function usePPTPClients(routerIp: string): UseQueryResult<PPTPClient[], E
     enabled: !!routerIp,
   });
 }
-

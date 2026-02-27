@@ -5,7 +5,8 @@ title: Introduction
 
 # Frontend (Connect)
 
-The **Connect** app is the main React frontend for NasNet. It provides an adaptive, responsive UI for managing MikroTik routers across mobile, tablet, and desktop platforms.
+The **Connect** app is the main React frontend for NasNet. It provides an adaptive, responsive UI
+for managing MikroTik routers across mobile, tablet, and desktop platforms.
 
 ## Tech Stack
 

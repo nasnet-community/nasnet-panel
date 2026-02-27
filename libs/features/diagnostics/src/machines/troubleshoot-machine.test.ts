@@ -52,7 +52,13 @@ describe('TroubleshootMachine', () => {
       const actor = createActor(
         machine.provide({
           actors: {
-            detectNetworkConfig: vi.fn(async () => mockNetworkConfig) as unknown as ActorLogic<any, any, any, any, any>,
+            detectNetworkConfig: vi.fn(async () => mockNetworkConfig) as unknown as ActorLogic<
+              any,
+              any,
+              any,
+              any,
+              any
+            >,
             executeDiagnosticStep: vi.fn(async () => ({
               success: true,
               message: 'Check passed',
@@ -150,7 +156,13 @@ describe('TroubleshootMachine', () => {
               wanInterface: 'ether1',
               gateway: '192.168.1.1',
             })) as unknown as ActorLogic<any, any, any, any, any>,
-            executeDiagnosticStep: vi.fn(async () => executionPromise) as unknown as ActorLogic<any, any, any, any, any>,
+            executeDiagnosticStep: vi.fn(async () => executionPromise) as unknown as ActorLogic<
+              any,
+              any,
+              any,
+              any,
+              any
+            >,
             applyFix: vi.fn() as unknown as ActorLogic<any, any, any, any, any>,
           },
         })
@@ -190,7 +202,13 @@ describe('TroubleshootMachine', () => {
               }
               return { success: true, message: 'Passed', executionTimeMs: 100 };
             }) as unknown as ActorLogic<any, any, any, any, any>,
-            applyFix: vi.fn(async () => ({ success: true })) as unknown as ActorLogic<any, any, any, any, any>,
+            applyFix: vi.fn(async () => ({ success: true })) as unknown as ActorLogic<
+              any,
+              any,
+              any,
+              any,
+              any
+            >,
           },
         })
       );
@@ -199,9 +217,7 @@ describe('TroubleshootMachine', () => {
       actor.send({ type: 'START' });
 
       // Wait for machine to reach awaitingFixDecision state
-      await waitFor(actor, (state) =>
-        state.matches({ runningDiagnostic: 'awaitingFixDecision' })
-      );
+      await waitFor(actor, (state) => state.matches({ runningDiagnostic: 'awaitingFixDecision' }));
 
       expect(actor.getSnapshot().context.steps[0].status).toBe('failed');
       expect(actor.getSnapshot().context.steps[0].fix).toBeTruthy();
@@ -237,9 +253,7 @@ describe('TroubleshootMachine', () => {
       actor.send({ type: 'START' });
 
       // Wait for awaitingFixDecision
-      await waitFor(actor, (state) =>
-        state.matches({ runningDiagnostic: 'awaitingFixDecision' })
-      );
+      await waitFor(actor, (state) => state.matches({ runningDiagnostic: 'awaitingFixDecision' }));
 
       // Apply the fix
       actor.send({ type: 'APPLY_FIX' });
@@ -278,9 +292,7 @@ describe('TroubleshootMachine', () => {
       actor.send({ type: 'START' });
 
       // Wait for awaitingFixDecision
-      await waitFor(actor, (state) =>
-        state.matches({ runningDiagnostic: 'awaitingFixDecision' })
-      );
+      await waitFor(actor, (state) => state.matches({ runningDiagnostic: 'awaitingFixDecision' }));
 
       const stepIndexBefore = actor.getSnapshot().context.currentStepIndex;
 

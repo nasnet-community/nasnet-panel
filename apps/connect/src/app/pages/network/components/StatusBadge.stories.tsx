@@ -7,7 +7,6 @@ import { StatusBadge } from './StatusBadge';
 
 import type { Meta, StoryObj } from '@storybook/react';
 
-
 const meta: Meta<typeof StatusBadge> = {
   title: 'App/Network/StatusBadge',
   component: StatusBadge,
@@ -110,16 +109,40 @@ export const AllVariants: Story = {
   render: () => (
     <div className="flex flex-col gap-4">
       <div className="flex items-center gap-4">
-        <StatusBadge status="running" size="md" showLabel />
-        <StatusBadge status="disabled" size="md" showLabel />
+        <StatusBadge
+          status="running"
+          size="md"
+          showLabel
+        />
+        <StatusBadge
+          status="disabled"
+          size="md"
+          showLabel
+        />
       </div>
       <div className="flex items-center gap-4">
-        <StatusBadge status="running" size="sm" showLabel />
-        <StatusBadge status="disabled" size="sm" showLabel />
+        <StatusBadge
+          status="running"
+          size="sm"
+          showLabel
+        />
+        <StatusBadge
+          status="disabled"
+          size="sm"
+          showLabel
+        />
       </div>
       <div className="flex items-center gap-4">
-        <StatusBadge status="running" size="md" showLabel={false} />
-        <StatusBadge status="disabled" size="md" showLabel={false} />
+        <StatusBadge
+          status="running"
+          size="md"
+          showLabel={false}
+        />
+        <StatusBadge
+          status="disabled"
+          size="md"
+          showLabel={false}
+        />
       </div>
     </div>
   ),
@@ -135,18 +158,30 @@ export const AllVariants: Story = {
 
 export const InContext: Story = {
   render: () => (
-    <div className="space-y-2 w-64 rounded-xl border border-border bg-card p-4">
+    <div className="border-border bg-card w-64 space-y-2 rounded-xl border p-4">
       <div className="flex items-center justify-between">
-        <span className="text-sm font-medium text-foreground">ether1</span>
-        <StatusBadge status="running" size="sm" showLabel />
+        <span className="text-foreground text-sm font-medium">ether1</span>
+        <StatusBadge
+          status="running"
+          size="sm"
+          showLabel
+        />
       </div>
       <div className="flex items-center justify-between">
-        <span className="text-sm font-medium text-foreground">ether2</span>
-        <StatusBadge status="disabled" size="sm" showLabel />
+        <span className="text-foreground text-sm font-medium">ether2</span>
+        <StatusBadge
+          status="disabled"
+          size="sm"
+          showLabel
+        />
       </div>
       <div className="flex items-center justify-between">
-        <span className="text-sm font-medium text-foreground">bridge1</span>
-        <StatusBadge status="running" size="sm" showLabel />
+        <span className="text-foreground text-sm font-medium">bridge1</span>
+        <StatusBadge
+          status="running"
+          size="sm"
+          showLabel
+        />
       </div>
     </div>
   ),

@@ -218,12 +218,9 @@ describe('usePing', () => {
         },
       ];
 
-      const { result } = renderHook(
-        () => usePing({ ...defaultOptions, onError }),
-        {
-          wrapper: createWrapper(mocks),
-        }
-      );
+      const { result } = renderHook(() => usePing({ ...defaultOptions, onError }), {
+        wrapper: createWrapper(mocks),
+      });
 
       act(() => {
         result.current.startPing(validFormValues);
@@ -422,12 +419,9 @@ describe('usePing', () => {
         },
       ];
 
-      const { result } = renderHook(
-        () => usePing({ ...defaultOptions, onComplete }),
-        {
-          wrapper: createWrapper(mocks),
-        }
-      );
+      const { result } = renderHook(() => usePing({ ...defaultOptions, onComplete }), {
+        wrapper: createWrapper(mocks),
+      });
 
       act(() => {
         result.current.startPing({ ...validFormValues, count: 1 });

@@ -113,11 +113,7 @@ export const GET_SERVICE_TEMPLATES = gql`
     $category: ServiceTemplateCategory
     $scope: TemplateScope
   ) {
-    serviceTemplates(
-      routerID: $routerID
-      category: $category
-      scope: $scope
-    ) {
+    serviceTemplates(routerID: $routerID, category: $category, scope: $scope) {
       ...ServiceTemplateFields
     }
   }

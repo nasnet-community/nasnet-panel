@@ -17,14 +17,7 @@ import React, { memo, useState, useCallback } from 'react';
 import { Shield, ChevronDown, Loader2, Wifi } from 'lucide-react';
 
 import { Link } from '@tanstack/react-router';
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  Button,
-  Icon,
-} from '@nasnet/ui/primitives';
+import { Card, CardContent, CardHeader, CardTitle, Button, Icon } from '@nasnet/ui/primitives';
 
 import { ProtocolIconBadge } from '../protocol-icon';
 
@@ -86,9 +79,7 @@ function VPNClientsSummaryComponent({
 
   const status = connectedCount > 0 ? 'connected' : 'disconnected';
   const statusColor = status === 'connected' ? 'text-success' : 'text-muted-foreground';
-  const bgColor = status === 'connected'
-    ? 'bg-success-light dark:bg-success/20'
-    : 'bg-muted';
+  const bgColor = status === 'connected' ? 'bg-success-light dark:bg-success/20' : 'bg-muted';
 
   const handleToggleExpanded = useCallback(() => {
     setIsExpanded((prev) => !prev);
@@ -99,21 +90,29 @@ function VPNClientsSummaryComponent({
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className={`w-10 h-10 rounded-xl ${bgColor} flex items-center justify-center`}>
-              <Icon icon={Shield} className={`w-5 h-5 ${statusColor}`} />
+            <div className={`h-10 w-10 rounded-xl ${bgColor} flex items-center justify-center`}>
+              <Icon
+                icon={Shield}
+                className={`h-5 w-5 ${statusColor}`}
+              />
             </div>
             <div>
               <CardTitle className="text-base font-semibold">VPN Clients</CardTitle>
-              <p className={`text-sm ${statusColor} font-medium`}>
-                {connectedCount} Connected
-              </p>
+              <p className={`text-sm ${statusColor} font-medium`}>{connectedCount} Connected</p>
             </div>
           </div>
           {linkTo && (
             <Link to={linkTo as '/'}>
-              <Button variant="ghost" size="sm" className="gap-1">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="gap-1"
+              >
                 See All
-                <Icon icon={ChevronDown} className="w-4 h-4" />
+                <Icon
+                  icon={ChevronDown}
+                  className="h-4 w-4"
+                />
               </Button>
             </Link>
           )}
@@ -121,23 +120,27 @@ function VPNClientsSummaryComponent({
       </CardHeader>
 
       <CardContent className="pt-0">
-        {isLoading ? (
+        {isLoading ?
           <div className="flex items-center justify-center py-6">
-            <Icon icon={Loader2} className="w-6 h-6 animate-spin text-muted-foreground" />
+            <Icon
+              icon={Loader2}
+              className="text-muted-foreground h-6 w-6 animate-spin"
+            />
           </div>
-        ) : hasClients ? (
-          <div className="space-y-2 mt-3">
+        : hasClients ?
+          <div className="mt-3 space-y-2">
             {visibleClients.map((client) => (
               <div
                 key={client.id}
-                className="flex items-center gap-3 p-2 rounded-[var(--semantic-radius-input)] bg-muted/50 dark:bg-muted/20"
+                className="bg-muted/50 dark:bg-muted/20 flex items-center gap-3 rounded-[var(--semantic-radius-input)] p-2"
               >
-                <ProtocolIconBadge protocol={client.protocol} variant="sm" />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-foreground truncate">
-                    {client.name}
-                  </p>
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <ProtocolIconBadge
+                  protocol={client.protocol}
+                  variant="sm"
+                />
+                <div className="min-w-0 flex-1">
+                  <p className="text-foreground truncate text-sm font-medium">{client.name}</p>
+                  <div className="text-muted-foreground flex items-center gap-2 text-xs">
                     {client.localAddress && (
                       <span className="font-mono">{client.localAddress}</span>
                     )}
@@ -150,7 +153,7 @@ function VPNClientsSummaryComponent({
                   </div>
                 </div>
                 <div className="flex items-center gap-1">
-                  <span className="w-2 h-2 rounded-full bg-success animate-pulse" />
+                  <span className="bg-success h-2 w-2 animate-pulse rounded-full" />
                 </div>
               </div>
             ))}
@@ -159,28 +162,35 @@ function VPNClientsSummaryComponent({
             {hasMore && (
               <button
                 onClick={handleToggleExpanded}
-                className="w-full flex items-center justify-center gap-1 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                className="text-muted-foreground hover:text-foreground flex w-full items-center justify-center gap-1 py-2 text-sm transition-colors"
               >
-                {isExpanded ? (
+                {isExpanded ?
                   <>
-                    <Icon icon={ChevronDown} className="w-4 h-4" />
+                    <Icon
+                      icon={ChevronDown}
+                      className="h-4 w-4"
+                    />
                     Show Less
                   </>
-                ) : (
-                  <>
-                    <Icon icon={ChevronDown} className="w-4 h-4" />
+                : <>
+                    <Icon
+                      icon={ChevronDown}
+                      className="h-4 w-4"
+                    />
                     Show {clients.length - maxVisible} More
                   </>
-                )}
+                }
               </button>
             )}
           </div>
-        ) : (
-          <div className="flex flex-col items-center justify-center py-6 text-center">
-            <Icon icon={Wifi} className="w-8 h-8 text-muted-foreground/50 mb-2" />
-            <p className="text-sm text-muted-foreground">No clients connected</p>
+        : <div className="flex flex-col items-center justify-center py-6 text-center">
+            <Icon
+              icon={Wifi}
+              className="text-muted-foreground/50 mb-2 h-8 w-8"
+            />
+            <p className="text-muted-foreground text-sm">No clients connected</p>
           </div>
-        )}
+        }
       </CardContent>
     </Card>
   );
@@ -188,4 +198,3 @@ function VPNClientsSummaryComponent({
 
 export const VPNClientsSummary = memo(VPNClientsSummaryComponent);
 VPNClientsSummary.displayName = 'VPNClientsSummary';
-

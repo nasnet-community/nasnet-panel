@@ -139,9 +139,7 @@ export function getCollisionDetection(strategy: CollisionStrategy): CollisionDet
  * Get sorting strategy based on direction
  */
 export function getSortingStrategy(direction: SortableDirection): SortingStrategy {
-  return direction === 'horizontal'
-    ? horizontalListSortingStrategy
-    : verticalListSortingStrategy;
+  return direction === 'horizontal' ? horizontalListSortingStrategy : verticalListSortingStrategy;
 }
 
 // ============================================================================

@@ -35,9 +35,7 @@ describe('useStableCallback', () => {
   });
 
   it('should pass arguments correctly', () => {
-    const { result } = renderHook(() =>
-      useStableCallback((a: number, b: number) => a + b)
-    );
+    const { result } = renderHook(() => useStableCallback((a: number, b: number) => a + b));
 
     expect(result.current(2, 3)).toBe(5);
   });

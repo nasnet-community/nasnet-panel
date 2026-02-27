@@ -63,14 +63,18 @@ const LATENCY_QUALITY_CLASSES = {
  * Mobile presenter for connection indicator.
  * Compact design optimized for small screens and touch interaction.
  */
-const ConnectionIndicatorMobile = memo(function ConnectionIndicatorMobile({ state }: { state: ConnectionIndicatorState }) {
+const ConnectionIndicatorMobile = memo(function ConnectionIndicatorMobile({
+  state,
+}: {
+  state: ConnectionIndicatorState;
+}) {
   const colors = STATUS_COLOR_CLASSES[state.statusColor];
 
   return (
     <button
       type="button"
       className={cn(
-        'flex items-center gap-component-sm px-component-sm py-component-sm rounded-[var(--semantic-radius-badge)]',
+        'gap-component-sm px-component-sm py-component-sm flex items-center rounded-[var(--semantic-radius-badge)]',
         'min-h-[44px]', // Touch target
         'transition-colors duration-150',
         colors.bg,
@@ -80,17 +84,13 @@ const ConnectionIndicatorMobile = memo(function ConnectionIndicatorMobile({ stat
       disabled={!state.showManualRetry}
       aria-label={`Connection status: ${state.statusLabel}${state.showManualRetry ? '. Tap to retry.' : ''}`}
     >
-      {state.isReconnecting ? (
+      {state.isReconnecting ?
         <Loader2 className={cn('h-4 w-4 animate-spin', colors.text)} />
-      ) : state.wsStatus === 'disconnected' ? (
+      : state.wsStatus === 'disconnected' ?
         <WifiOff className={cn('h-4 w-4', colors.text)} />
-      ) : (
-        <Wifi className={cn('h-4 w-4', colors.text)} />
-      )}
+      : <Wifi className={cn('h-4 w-4', colors.text)} />}
 
-      {state.showManualRetry && (
-        <RefreshCw className={cn('h-3 w-3', colors.text)} />
-      )}
+      {state.showManualRetry && <RefreshCw className={cn('h-3 w-3', colors.text)} />}
     </button>
   );
 });
@@ -103,7 +103,11 @@ ConnectionIndicatorMobile.displayName = 'ConnectionIndicatorMobile';
  * Desktop presenter for connection indicator.
  * Information-dense design with latency and protocol details.
  */
-const ConnectionIndicatorDesktop = memo(function ConnectionIndicatorDesktop({ state }: { state: ConnectionIndicatorState }) {
+const ConnectionIndicatorDesktop = memo(function ConnectionIndicatorDesktop({
+  state,
+}: {
+  state: ConnectionIndicatorState;
+}) {
   const colors = STATUS_COLOR_CLASSES[state.statusColor];
 
   // Build tooltip content
@@ -138,9 +142,9 @@ const ConnectionIndicatorDesktop = memo(function ConnectionIndicatorDesktop({ st
   return (
     <div
       className={cn(
-        'flex items-center gap-component-sm px-component-sm py-component-sm rounded-[var(--semantic-radius-input)]',
+        'gap-component-sm px-component-sm py-component-sm flex items-center rounded-[var(--semantic-radius-input)]',
         'transition-colors duration-150',
-        state.showManualRetry && 'cursor-pointer hover:bg-muted'
+        state.showManualRetry && 'hover:bg-muted cursor-pointer'
       )}
       role="button"
       tabIndex={state.showManualRetry ? 0 : -1}
@@ -155,11 +159,10 @@ const ConnectionIndicatorDesktop = memo(function ConnectionIndicatorDesktop({ st
       aria-label={`Connection status: ${state.statusLabel}`}
     >
       {/* Status Indicator */}
-      <div className="flex items-center gap-component-sm">
-        {state.isReconnecting ? (
+      <div className="gap-component-sm flex items-center">
+        {state.isReconnecting ?
           <Loader2 className={cn('h-4 w-4 animate-spin', colors.text)} />
-        ) : (
-          <Circle
+        : <Circle
             className={cn(
               'h-2.5 w-2.5 transition-colors',
               colors.dot,
@@ -168,18 +171,16 @@ const ConnectionIndicatorDesktop = memo(function ConnectionIndicatorDesktop({ st
             fill="currentColor"
             aria-hidden="true"
           />
-        )}
+        }
 
-        <span className={cn('text-sm font-medium', colors.text)}>
-          {state.statusLabel}
-        </span>
+        <span className={cn('text-sm font-medium', colors.text)}>{state.statusLabel}</span>
       </div>
 
       {/* Latency Display (when connected) */}
       {state.wsStatus === 'connected' && state.latencyMs !== null && (
         <span
           className={cn(
-            'text-sm font-mono',
+            'font-mono text-sm',
             state.latencyQuality && LATENCY_QUALITY_CLASSES[state.latencyQuality]
           )}
         >
@@ -189,15 +190,13 @@ const ConnectionIndicatorDesktop = memo(function ConnectionIndicatorDesktop({ st
 
       {/* Reconnect Attempts (when reconnecting) */}
       {state.isReconnecting && (
-        <span className="text-sm text-muted-foreground">
+        <span className="text-muted-foreground text-sm">
           {state.reconnectAttempts}/{state.maxReconnectAttempts}
         </span>
       )}
 
       {/* Retry Button (when max attempts reached) */}
-      {state.showManualRetry && (
-        <RefreshCw className={cn('h-4 w-4', colors.text)} />
-      )}
+      {state.showManualRetry && <RefreshCw className={cn('h-4 w-4', colors.text)} />}
     </div>
   );
 });
@@ -243,27 +242,27 @@ export interface ConnectionIndicatorProps {
  * <ConnectionIndicator variant="desktop" />
  * ```
  */
-export const ConnectionIndicator = memo(function ConnectionIndicator({ variant, className }: ConnectionIndicatorProps) {
+export const ConnectionIndicator = memo(function ConnectionIndicator({
+  variant,
+  className,
+}: ConnectionIndicatorProps) {
   const state = useConnectionIndicator();
 
   // Determine which presenter to use
   // Using CSS media query approach for SSR compatibility
-  const content = variant === 'mobile' ? (
-    <ConnectionIndicatorMobile state={state} />
-  ) : variant === 'desktop' ? (
-    <ConnectionIndicatorDesktop state={state} />
-  ) : (
-    <>
-      {/* Mobile: shown on small screens */}
-      <div className="sm:hidden">
-        <ConnectionIndicatorMobile state={state} />
-      </div>
-      {/* Desktop: shown on larger screens */}
-      <div className="hidden sm:block">
-        <ConnectionIndicatorDesktop state={state} />
-      </div>
-    </>
-  );
+  const content =
+    variant === 'mobile' ? <ConnectionIndicatorMobile state={state} />
+    : variant === 'desktop' ? <ConnectionIndicatorDesktop state={state} />
+    : <>
+        {/* Mobile: shown on small screens */}
+        <div className="sm:hidden">
+          <ConnectionIndicatorMobile state={state} />
+        </div>
+        {/* Desktop: shown on larger screens */}
+        <div className="hidden sm:block">
+          <ConnectionIndicatorDesktop state={state} />
+        </div>
+      </>;
 
   return (
     <div
@@ -277,7 +276,8 @@ export const ConnectionIndicator = memo(function ConnectionIndicator({ variant, 
       {/* Screen reader announcement */}
       <span className="sr-only">
         {state.statusLabel}
-        {state.isReconnecting && `, attempt ${state.reconnectAttempts} of ${state.maxReconnectAttempts}`}
+        {state.isReconnecting &&
+          `, attempt ${state.reconnectAttempts} of ${state.maxReconnectAttempts}`}
         {state.showManualRetry && ', manual retry available'}
       </span>
     </div>

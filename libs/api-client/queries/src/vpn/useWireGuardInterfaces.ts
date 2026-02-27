@@ -17,10 +17,7 @@ import { vpnKeys } from './queryKeys';
  * @returns Array of WireGuard interface configurations
  */
 async function fetchWireGuardInterfaces(routerIp: string): Promise<WireGuardInterface[]> {
-  const result = await makeRouterOSRequest<WireGuardInterface[]>(
-    routerIp,
-    'interface/wireguard'
-  );
+  const result = await makeRouterOSRequest<WireGuardInterface[]>(routerIp, 'interface/wireguard');
 
   if (!result.success || !result.data) {
     throw new Error(result.error || 'Failed to fetch WireGuard interfaces');
@@ -54,7 +51,9 @@ async function fetchWireGuardInterfaces(routerIp: string): Promise<WireGuardInte
  * const { data, isLoading, error } = useWireGuardInterfaces(routerIp || '');
  * ```
  */
-export function useWireGuardInterfaces(routerIp: string): UseQueryResult<WireGuardInterface[], Error> {
+export function useWireGuardInterfaces(
+  routerIp: string
+): UseQueryResult<WireGuardInterface[], Error> {
   return useQuery({
     queryKey: vpnKeys.wireguardInterfaces(routerIp),
     queryFn: () => fetchWireGuardInterfaces(routerIp),

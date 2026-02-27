@@ -1,6 +1,7 @@
 # Firewall System Guide
 
-Cross-cutting guide for firewall rule types, configuration, log parsing, and port reference integration.
+Cross-cutting guide for firewall rule types, configuration, log parsing, and port reference
+integration.
 
 ## Table of Contents
 
@@ -97,11 +98,11 @@ export interface FilterRule {
 
   // Matchers
   protocol?: FilterProtocol;
-  srcAddress?: string;       // IP or CIDR
+  srcAddress?: string; // IP or CIDR
   dstAddress?: string;
-  srcPort?: string;          // Port or range
+  srcPort?: string; // Port or range
   dstPort?: string;
-  srcAddressList?: string;   // Address list reference
+  srcAddressList?: string; // Address list reference
   dstAddressList?: string;
   inInterface?: string;
   outInterface?: string;
@@ -109,10 +110,10 @@ export interface FilterRule {
 
   // Logging
   log?: boolean;
-  logPrefix?: string;        // Required if log=true
+  logPrefix?: string; // Required if log=true
 
   // Jump action
-  jumpTarget?: string;       // Chain to jump to
+  jumpTarget?: string; // Chain to jump to
 
   // Meta
   comment?: string;
@@ -124,29 +125,29 @@ export interface FilterRule {
 }
 
 // Helper functions
-export function getActionColor(action: FilterAction): string;      // 'success', 'error', 'warning'
+export function getActionColor(action: FilterAction): string; // 'success', 'error', 'warning'
 export function getActionDescription(action: FilterAction): string; // Tooltip text
 export function generateRulePreview(rule: Partial<FilterRule>): string;
 ```
 
 **Chain Behavior:**
 
-| Chain | Packets | Examples |
-|-------|---------|----------|
-| **input** | Destined for router | SSH login, DNS queries to router DNS |
-| **forward** | Passing through router | LAN to WAN traffic, guest network access |
-| **output** | Originating from router | Router itself making requests |
+| Chain       | Packets                 | Examples                                 |
+| ----------- | ----------------------- | ---------------------------------------- |
+| **input**   | Destined for router     | SSH login, DNS queries to router DNS     |
+| **forward** | Passing through router  | LAN to WAN traffic, guest network access |
+| **output**  | Originating from router | Router itself making requests            |
 
 **Action Behavior:**
 
-| Action | Effect | Use Case |
-|--------|--------|----------|
-| **accept** | Allow packet through | Web traffic, email |
-| **drop** | Silently discard | Block without feedback |
-| **reject** | Discard + send ICMP error | "Connection refused" response |
-| **log** | Log and continue | Audit suspicious traffic |
-| **jump** | Jump to custom chain | Reusable rule groups |
-| **tarpit** | Hold connection open | Anti-DDoS (slow down attackers) |
+| Action     | Effect                    | Use Case                        |
+| ---------- | ------------------------- | ------------------------------- |
+| **accept** | Allow packet through      | Web traffic, email              |
+| **drop**   | Silently discard          | Block without feedback          |
+| **reject** | Discard + send ICMP error | "Connection refused" response   |
+| **log**    | Log and continue          | Audit suspicious traffic        |
+| **jump**   | Jump to custom chain      | Reusable rule groups            |
+| **tarpit** | Hold connection open      | Anti-DDoS (slow down attackers) |
 
 ### 2. NAT Rules - `nat-rule.types.ts`
 
@@ -155,14 +156,18 @@ Address and port translation.
 ```typescript
 export type NatChain = 'srcnat' | 'dstnat';
 export type NatAction =
-  | 'masquerade'   // Hide behind router IP
-  | 'dst-nat'      // Port forward incoming
-  | 'src-nat'      // Translate source
-  | 'redirect'     // Redirect to router itself
-  | 'netmap'       // 1:1 address mapping
-  | 'same'         // Use same address as source
-  | 'accept'       // No translation
-  | 'drop' | 'jump' | 'return' | 'log' | 'passthrough';
+  | 'masquerade' // Hide behind router IP
+  | 'dst-nat' // Port forward incoming
+  | 'src-nat' // Translate source
+  | 'redirect' // Redirect to router itself
+  | 'netmap' // 1:1 address mapping
+  | 'same' // Use same address as source
+  | 'accept' // No translation
+  | 'drop'
+  | 'jump'
+  | 'return'
+  | 'log'
+  | 'passthrough';
 
 export interface NATRuleInput {
   // Identity
@@ -173,7 +178,7 @@ export interface NATRuleInput {
 
   // Matchers
   protocol?: Protocol;
-  srcAddress?: string;       // CIDR
+  srcAddress?: string; // CIDR
   dstAddress?: string;
   srcPort?: string;
   dstPort?: string;
@@ -181,8 +186,8 @@ export interface NATRuleInput {
   outInterface?: string;
 
   // Action parameters
-  toAddresses?: string;      // Target IP
-  toPorts?: string;          // Target port(s)
+  toAddresses?: string; // Target IP
+  toPorts?: string; // Target port(s)
 
   // Meta
   comment?: string;
@@ -198,9 +203,9 @@ export interface NATRuleInput {
 // Port Forward Wizard (simplified)
 export interface PortForward {
   protocol: Protocol;
-  externalPort: number;      // WAN port
-  internalIP: string;        // LAN IP
-  internalPort?: number;     // LAN port (defaults to external)
+  externalPort: number; // WAN port
+  internalIP: string; // LAN IP
+  internalPort?: number; // LAN port (defaults to external)
   name?: string;
   wanInterface?: string;
   comment?: string;
@@ -221,7 +226,10 @@ export interface PortForwardResult {
 export function getVisibleFieldsForNATAction(action: NatAction): string[];
 export function generateNATRulePreview(rule: Partial<NATRuleInput>): string;
 export function generatePortForwardSummary(portForward: PortForward): string;
-export function hasPortForwardConflict(newForward: PortForward, existing: PortForwardResult[]): boolean;
+export function hasPortForwardConflict(
+  newForward: PortForward,
+  existing: PortForwardResult[]
+): boolean;
 ```
 
 **Common NAT Patterns:**
@@ -232,7 +240,7 @@ export function hasPortForwardConflict(newForward: PortForward, existing: PortFo
 const masquerade: NATRuleInput = {
   chain: 'srcnat',
   action: 'masquerade',
-  outInterface: 'ether1',     // WAN interface
+  outInterface: 'ether1', // WAN interface
   srcAddress: '192.168.1.0/24',
 };
 
@@ -262,13 +270,14 @@ Packet marking and header modification.
 ```typescript
 export type MangleChain = 'input' | 'forward' | 'output' | 'prerouting' | 'postrouting';
 export type MangleAction =
-  | 'mark-packet'    // Mark for policy routing
+  | 'mark-packet' // Mark for policy routing
   | 'mark-connection'
-  | 'change-tos'     // Modify ToS (DiffServ)
-  | 'change-ttl'     // Modify TTL
+  | 'change-tos' // Modify ToS (DiffServ)
+  | 'change-ttl' // Modify TTL
   | 'add-dst-to-address-list'
   | 'add-src-to-address-list'
-  | 'log' | 'passthrough';
+  | 'log'
+  | 'passthrough';
 
 export interface MangleRule {
   // Identity
@@ -291,7 +300,7 @@ export interface MangleRule {
   newPacketMark?: string;
   newConnectionMark?: string;
   passthrough?: boolean;
-  newTos?: number;            // ToS value (0-255)
+  newTos?: number; // ToS value (0-255)
   newTtl?: 'increment' | 'decrement' | number;
 
   // Meta
@@ -335,11 +344,11 @@ Sequence-based port access.
 export interface PortKnockSequence {
   id: string;
   name: string;
-  sequence: number[];        // Port sequence: [1234, 5678, 9012]
+  sequence: number[]; // Port sequence: [1234, 5678, 9012]
   protocol: 'tcp' | 'udp' | 'both';
-  timeout: number;           // Milliseconds to remember ports
+  timeout: number; // Milliseconds to remember ports
   action: 'add-src-to-address-list' | 'drop';
-  addressList?: string;      // List to add to on success
+  addressList?: string; // List to add to on success
   comment?: string;
   disabled?: boolean;
 }
@@ -350,11 +359,12 @@ export interface PortKnockLog {
   timestamp: Date;
   srcIP: string;
   ports: number[];
-  recognized: boolean;       // Matched known sequence?
+  recognized: boolean; // Matched known sequence?
 }
 ```
 
 **Use Case:** Port knocking allows hidden SSH access
+
 ```
 Client knock sequence: port 1234 → 5678 → 9012
 Router: If sequence matches, add client IP to "ssh-access" whitelist
@@ -381,7 +391,7 @@ export interface RateLimitRule {
   // Rate limiting
   limitBitsPerSecond?: number;
   limitPacketsPerSecond?: number;
-  burstLimit?: number;       // Allow short bursts
+  burstLimit?: number; // Allow short bursts
 
   // Priority (lower = higher priority)
   priority?: number;
@@ -392,10 +402,10 @@ export interface RateLimitRule {
 
 // Presets for common scenarios
 export const RATE_LIMIT_PRESETS = {
-  slow: 512000,              // 512 Kbps
-  moderate: 2000000,         // 2 Mbps
-  fast: 10000000,            // 10 Mbps
-  gigabit: 1000000000,       // 1 Gbps
+  slow: 512000, // 512 Kbps
+  moderate: 2000000, // 2 Mbps
+  fast: 10000000, // 10 Mbps
+  gigabit: 1000000000, // 1 Gbps
 };
 ```
 
@@ -408,7 +418,7 @@ export interface ServicePort {
   id: string;
   name: string;
   protocol: Protocol;
-  ports: number[];           // Multiple ports allowed
+  ports: number[]; // Multiple ports allowed
   comment?: string;
 }
 
@@ -468,14 +478,23 @@ Parsed log entries.
 
 ```typescript
 export type FirewallLogChain = 'input' | 'forward' | 'output';
-export type FirewallLogProtocol = 'TCP' | 'UDP' | 'ICMP' | 'IPv6-ICMP' | 'GRE' | 'ESP' | 'AH' | 'IGMP' | 'unknown';
+export type FirewallLogProtocol =
+  | 'TCP'
+  | 'UDP'
+  | 'ICMP'
+  | 'IPv6-ICMP'
+  | 'GRE'
+  | 'ESP'
+  | 'AH'
+  | 'IGMP'
+  | 'unknown';
 export type InferredAction = 'drop' | 'reject' | 'accept' | 'unknown';
 
 export interface ParsedFirewallLog {
   // Identity
   chain: FirewallLogChain;
-  action: InferredAction;       // Inferred from prefix
-  prefix?: string;              // Log prefix from rule
+  action: InferredAction; // Inferred from prefix
+  prefix?: string; // Log prefix from rule
   protocol: FirewallLogProtocol;
 
   // Interfaces
@@ -489,7 +508,7 @@ export interface ParsedFirewallLog {
   dstPort?: number;
 
   // Packet info
-  length?: number;              // Packet size in bytes
+  length?: number; // Packet size in bytes
 }
 ```
 
@@ -531,7 +550,7 @@ import {
 
 // Main parsing function
 const parsed = parseFirewallLogMessage(
-  "DROPPED-WAN forward: in:ether1 out:bridge1, proto TCP, 192.168.1.100:54321->10.0.0.1:443, len 52"
+  'DROPPED-WAN forward: in:ether1 out:bridge1, proto TCP, 192.168.1.100:54321->10.0.0.1:443, len 52'
 );
 // Result:
 // {
@@ -549,13 +568,13 @@ const parsed = parseFirewallLogMessage(
 // }
 
 // Infer action from log prefix
-inferActionFromPrefix('DROPPED-WAN')    // 'drop'
-inferActionFromPrefix('ACCEPTED')       // 'accept'
-inferActionFromPrefix('REJECTED')       // 'reject'
-inferActionFromPrefix('custom-log')     // 'unknown'
+inferActionFromPrefix('DROPPED-WAN'); // 'drop'
+inferActionFromPrefix('ACCEPTED'); // 'accept'
+inferActionFromPrefix('REJECTED'); // 'reject'
+inferActionFromPrefix('custom-log'); // 'unknown'
 
 // Validate parsed result
-isValidParsedLog(parsed)  // true
+isValidParsedLog(parsed); // true
 ```
 
 ### Action Inference Patterns
@@ -603,7 +622,7 @@ Firewall rules can log with custom prefixes to identify rule actions:
 const rule = {
   action: 'drop',
   log: true,
-  logPrefix: 'DROPPED-WAN',    // Custom prefix
+  logPrefix: 'DROPPED-WAN', // Custom prefix
 };
 
 // When triggered, logs appear as:
@@ -625,6 +644,7 @@ export const SUGGESTED_LOG_PREFIXES = [
 ```
 
 **Benefits of Prefixes:**
+
 - Quickly identify which rule blocked traffic
 - Distinguish intentional drops from rejects
 - Audit logging and compliance tracking
@@ -663,7 +683,7 @@ const webServices = getPortsByCategory('web');
 interface FirewallRuleDisplay {
   srcPort?: {
     raw: string;
-    label?: string;           // Service name
+    label?: string; // Service name
   };
   dstPort?: {
     raw: string;
@@ -674,14 +694,20 @@ interface FirewallRuleDisplay {
 // Create displayable rule
 function enhanceRuleDisplay(rule: FilterRule): FirewallRuleDisplay {
   return {
-    srcPort: rule.srcPort ? {
-      raw: rule.srcPort,
-      label: getServiceByPort(parseInt(rule.srcPort), rule.protocol),
-    } : undefined,
-    dstPort: rule.dstPort ? {
-      raw: rule.dstPort,
-      label: getServiceByPort(parseInt(rule.dstPort), rule.protocol),
-    } : undefined,
+    srcPort:
+      rule.srcPort ?
+        {
+          raw: rule.srcPort,
+          label: getServiceByPort(parseInt(rule.srcPort), rule.protocol),
+        }
+      : undefined,
+    dstPort:
+      rule.dstPort ?
+        {
+          raw: rule.dstPort,
+          label: getServiceByPort(parseInt(rule.dstPort), rule.protocol),
+        }
+      : undefined,
   };
 }
 
@@ -717,7 +743,7 @@ const blockAdultTemplate: FirewallTemplate = {
   ],
 
   parameters: {
-    addressList: 'adult-sites',  // User can customize list name
+    addressList: 'adult-sites', // User can customize list name
   },
 
   tags: ['content-filtering', 'parental-control'],
@@ -733,14 +759,14 @@ const videoQoSTemplate: FirewallTemplate = {
     {
       chain: 'forward',
       action: 'mark-packet',
-      dstPort: '443',           // HTTPS
+      dstPort: '443', // HTTPS
       protocol: 'tcp',
       newPacketMark: 'video-stream',
     },
   ],
 
   parameters: {
-    rateLimit: 5000000,         // 5 Mbps
+    rateLimit: 5000000, // 5 Mbps
     priority: 1,
   },
 };
@@ -752,19 +778,19 @@ const videoQoSTemplate: FirewallTemplate = {
 function applyTemplate(template: FirewallTemplate, router: RouterConnection) {
   // Apply each rule category
   if (template.filterRules) {
-    template.filterRules.forEach(rule => {
+    template.filterRules.forEach((rule) => {
       router.addFilterRule(rule);
     });
   }
 
   if (template.natRules) {
-    template.natRules.forEach(rule => {
+    template.natRules.forEach((rule) => {
       router.addNATRule(rule);
     });
   }
 
   if (template.mangleRules) {
-    template.mangleRules.forEach(rule => {
+    template.mangleRules.forEach((rule) => {
       router.addMangleRule(rule);
     });
   }
@@ -825,7 +851,7 @@ const blockP2P: FilterRule = {
   chain: 'forward',
   action: 'drop',
   protocol: 'tcp',
-  dstPort: '6881-6889',    // BitTorrent port range
+  dstPort: '6881-6889', // BitTorrent port range
   log: true,
   logPrefix: 'BLOCKED-P2P',
   comment: 'Block BitTorrent',
@@ -872,8 +898,8 @@ const limitDNS: RateLimitRule = {
   name: 'Limit DNS Queries',
   protocol: 'udp',
   dstPort: '53',
-  limitPacketsPerSecond: 100,   // Max 100 DNS queries/sec per IP
-  burstLimit: 150,              // Allow short bursts
+  limitPacketsPerSecond: 100, // Max 100 DNS queries/sec per IP
+  burstLimit: 150, // Allow short bursts
   priority: 1,
 };
 
@@ -881,7 +907,7 @@ const limitUDP: RateLimitRule = {
   id: 'rl-udp',
   name: 'General UDP Limit',
   protocol: 'udp',
-  limitBitsPerSecond: 1000000,  // Max 1 Mbps UDP
+  limitBitsPerSecond: 1000000, // Max 1 Mbps UDP
   priority: 2,
 };
 ```

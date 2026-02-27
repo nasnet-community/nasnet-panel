@@ -61,11 +61,9 @@ function NtfyChannelFormComponent(props: NtfyChannelFormProps) {
   // Render appropriate presenter
   return (
     <div className={className}>
-      {platform === 'mobile' ? (
+      {platform === 'mobile' ?
         <NtfyChannelFormMobile ntfyForm={ntfyForm} />
-      ) : (
-        <NtfyChannelFormDesktop ntfyForm={ntfyForm} />
-      )}
+      : <NtfyChannelFormDesktop ntfyForm={ntfyForm} />}
     </div>
   );
 }

@@ -1,8 +1,11 @@
-import type { ServiceInstanceHealth, ConfigureHealthCheckInput } from '@nasnet/api-client/generated/types';
+import type {
+  ServiceInstanceHealth,
+  ConfigureHealthCheckInput,
+} from '@nasnet/api-client/generated/types';
 /**
  * GraphQL mutation for configuring health check settings
  */
-export declare const CONFIGURE_HEALTH_CHECK_MUTATION: import("graphql").DocumentNode;
+export declare const CONFIGURE_HEALTH_CHECK_MUTATION: import('graphql').DocumentNode;
 /**
  * Hook to configure health check settings for a service instance
  *
@@ -31,13 +34,20 @@ export declare const CONFIGURE_HEALTH_CHECK_MUTATION: import("graphql").Document
  * };
  * ```
  */
-export declare function useConfigureHealthCheck(): import("@apollo/client").MutationTuple<{
+export declare function useConfigureHealthCheck(): import('@apollo/client').MutationTuple<
+  {
     configureHealthCheck: ServiceInstanceHealth;
-}, {
+  },
+  {
     input: ConfigureHealthCheckInput;
-}, import("@apollo/client").DefaultContext, import("@apollo/client").ApolloCache<any>>;
+  },
+  import('@apollo/client').DefaultContext,
+  import('@apollo/client').ApolloCache<any>
+>;
 /**
  * Validation helper for health check configuration
  */
-export declare function validateHealthCheckConfig(config: Partial<ConfigureHealthCheckInput>): string[];
+export declare function validateHealthCheckConfig(
+  config: Partial<ConfigureHealthCheckInput>
+): string[];
 //# sourceMappingURL=useConfigureHealthCheck.d.ts.map

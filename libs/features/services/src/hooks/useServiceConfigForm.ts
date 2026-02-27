@@ -272,8 +272,7 @@ export function useServiceConfigForm({
         onError?.((result as any).message ?? 'Configuration failed to apply');
       }
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : 'Unknown error occurred';
+      const message = error instanceof Error ? error.message : 'Unknown error occurred';
       onError?.(message);
     } finally {
       setIsSubmitting(false);

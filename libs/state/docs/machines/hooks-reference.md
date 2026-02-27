@@ -9,7 +9,8 @@ Complete API reference for XState machine hooks in NasNet.
 
 **Source:** `libs/state/machines/src/hooks/`
 
-All hooks provide TypeScript-first React integration with XState machines, handling persistence, async operations, and lifecycle management automatically.
+All hooks provide TypeScript-first React integration with XState machines, handling persistence,
+async operations, and lifecycle management automatically.
 
 ## useWizard
 
@@ -23,57 +24,57 @@ Multi-step form wizard for sequential workflows (setup, pairing, configuration).
 function useWizard<TData extends Record<string, unknown>>(
   config: WizardConfig<TData>,
   options?: UseWizardOptions
-): UseWizardReturn<TData>
+): UseWizardReturn<TData>;
 ```
 
 ### Parameters
 
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `config` | `WizardConfig<TData>` | Required | Wizard configuration (see below) |
-| `config.id` | `string` | Required | Unique machine ID for persistence |
-| `config.totalSteps` | `number` | Required | Total number of steps (1-indexed) |
-| `config.validateStep` | `(step, data) => Promise<{valid, errors?}>` | Required | Validation function for each step |
-| `config.onSubmit` | `(data: TData) => Promise<void>` | Required | Handler when wizard completes |
-| `config.initialData` | `Partial<TData>` | `{}` | Initial form data |
-| `options.autoPersist` | `boolean` | `true` | Auto-save state to localStorage |
-| `options.autoRestore` | `boolean` | `false` | Auto-restore on mount (vs. showing prompt) |
-| `options.onRestore` | `() => void` | — | Callback when session restored |
-| `options.onComplete` | `() => void` | — | Callback when wizard completes |
-| `options.onCancel` | `() => void` | — | Callback when wizard cancelled |
+| Parameter             | Type                                        | Default  | Description                                |
+| --------------------- | ------------------------------------------- | -------- | ------------------------------------------ |
+| `config`              | `WizardConfig<TData>`                       | Required | Wizard configuration (see below)           |
+| `config.id`           | `string`                                    | Required | Unique machine ID for persistence          |
+| `config.totalSteps`   | `number`                                    | Required | Total number of steps (1-indexed)          |
+| `config.validateStep` | `(step, data) => Promise<{valid, errors?}>` | Required | Validation function for each step          |
+| `config.onSubmit`     | `(data: TData) => Promise<void>`            | Required | Handler when wizard completes              |
+| `config.initialData`  | `Partial<TData>`                            | `{}`     | Initial form data                          |
+| `options.autoPersist` | `boolean`                                   | `true`   | Auto-save state to localStorage            |
+| `options.autoRestore` | `boolean`                                   | `false`  | Auto-restore on mount (vs. showing prompt) |
+| `options.onRestore`   | `() => void`                                | —        | Callback when session restored             |
+| `options.onComplete`  | `() => void`                                | —        | Callback when wizard completes             |
+| `options.onCancel`    | `() => void`                                | —        | Callback when wizard cancelled             |
 
 ### Return Values
 
 ```typescript
 interface UseWizardReturn<TData> {
   // State
-  currentStep: number;                    // 1-indexed current step
-  totalSteps: number;                     // Total steps
-  data: Partial<TData>;                   // Collected form data
-  errors: Record<string, string>;         // Validation errors by field
-  sessionId: string;                      // Session ID for tracking
-  progress: number;                       // 0-100 progress percentage
+  currentStep: number; // 1-indexed current step
+  totalSteps: number; // Total steps
+  data: Partial<TData>; // Collected form data
+  errors: Record<string, string>; // Validation errors by field
+  sessionId: string; // Session ID for tracking
+  progress: number; // 0-100 progress percentage
 
   // Status Flags
-  isValidating: boolean;                  // Currently validating step
-  isSubmitting: boolean;                  // Currently submitting form
-  isCompleted: boolean;                   // Wizard completed successfully
-  isCancelled: boolean;                   // Wizard was cancelled
-  isFirstStep: boolean;                   // On first step
-  isLastStep: boolean;                    // On last step
-  canRestore: boolean;                    // Session can be resumed
-  savedSessionAge: string | null;         // "2 hours ago" or null
+  isValidating: boolean; // Currently validating step
+  isSubmitting: boolean; // Currently submitting form
+  isCompleted: boolean; // Wizard completed successfully
+  isCancelled: boolean; // Wizard was cancelled
+  isFirstStep: boolean; // On first step
+  isLastStep: boolean; // On last step
+  canRestore: boolean; // Session can be resumed
+  savedSessionAge: string | null; // "2 hours ago" or null
 
   // Actions
-  next: (data?: Partial<TData>) => void;        // Advance to next step
-  back: () => void;                             // Go to previous step
-  goToStep: (step: number) => void;             // Jump to specific step
-  setData: (data: Partial<TData>) => void;      // Update without advancing
-  clearErrors: () => void;                      // Clear validation errors
-  cancel: () => void;                           // Cancel wizard
-  restore: () => void;                          // Resume saved session
-  discardSession: () => void;                   // Discard saved session
-  canAccessStep: (step: number) => boolean;     // Check if step accessible
+  next: (data?: Partial<TData>) => void; // Advance to next step
+  back: () => void; // Go to previous step
+  goToStep: (step: number) => void; // Jump to specific step
+  setData: (data: Partial<TData>) => void; // Update without advancing
+  clearErrors: () => void; // Clear validation errors
+  cancel: () => void; // Cancel wizard
+  restore: () => void; // Resume saved session
+  discardSession: () => void; // Discard saved session
+  canAccessStep: (step: number) => boolean; // Check if step accessible
 }
 ```
 
@@ -141,7 +142,7 @@ function useWizardSession(machineId: string): {
   hasSavedSession: boolean;
   sessionAge: string | null;
   discardSession: () => void;
-}
+};
 ```
 
 Use in navigation to show "Resume Setup" button:
@@ -166,7 +167,8 @@ function AppNavigation() {
 
 ## useConfigPipeline
 
-Configuration change pipeline with validation, preview, and rollback (edit → validate → preview → confirm → apply → verify).
+Configuration change pipeline with validation, preview, and rollback (edit → validate → preview →
+confirm → apply → verify).
 
 **Source:** `libs/state/machines/src/hooks/useConfigPipeline.ts`
 
@@ -176,61 +178,61 @@ Configuration change pipeline with validation, preview, and rollback (edit → v
 function useConfigPipeline<TConfig = unknown>(
   pipelineConfig: ConfigPipelineConfig<TConfig>,
   options: UseConfigPipelineOptions
-): UseConfigPipelineReturn<TConfig>
+): UseConfigPipelineReturn<TConfig>;
 ```
 
 ### Parameters
 
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `pipelineConfig.runValidationPipeline` | `(config) => Promise<{errors, diff}>` | Required | Validation function |
-| `pipelineConfig.applyConfig` | `({resourceId, config}) => Promise<{rollbackData}>` | Required | Apply changes to router |
-| `pipelineConfig.verifyApplied` | `(resourceId) => Promise<void>` | Required | Verify changes took effect |
-| `pipelineConfig.executeRollback` | `(rollbackData) => Promise<void>` | Required | Rollback on error |
-| `options.resourceId` | `string` | Required | Resource being configured |
-| `options.originalConfig` | `unknown` | — | Original config (for diff) |
-| `options.onSuccess` | `() => void` | — | Callback on successful apply |
-| `options.onRollback` | `() => void` | — | Callback after rollback |
-| `options.onError` | `(error) => void` | — | Callback on error |
-| `options.onValidationError` | `(errors) => void` | — | Callback on validation failure |
-| `options.onPreview` | `(diff) => void` | — | Callback when entering preview |
+| Parameter                              | Type                                                | Default  | Description                    |
+| -------------------------------------- | --------------------------------------------------- | -------- | ------------------------------ |
+| `pipelineConfig.runValidationPipeline` | `(config) => Promise<{errors, diff}>`               | Required | Validation function            |
+| `pipelineConfig.applyConfig`           | `({resourceId, config}) => Promise<{rollbackData}>` | Required | Apply changes to router        |
+| `pipelineConfig.verifyApplied`         | `(resourceId) => Promise<void>`                     | Required | Verify changes took effect     |
+| `pipelineConfig.executeRollback`       | `(rollbackData) => Promise<void>`                   | Required | Rollback on error              |
+| `options.resourceId`                   | `string`                                            | Required | Resource being configured      |
+| `options.originalConfig`               | `unknown`                                           | —        | Original config (for diff)     |
+| `options.onSuccess`                    | `() => void`                                        | —        | Callback on successful apply   |
+| `options.onRollback`                   | `() => void`                                        | —        | Callback after rollback        |
+| `options.onError`                      | `(error) => void`                                   | —        | Callback on error              |
+| `options.onValidationError`            | `(errors) => void`                                  | —        | Callback on validation failure |
+| `options.onPreview`                    | `(diff) => void`                                    | —        | Callback when entering preview |
 
 ### Return Values
 
 ```typescript
 interface UseConfigPipelineReturn<TConfig> {
   // State
-  state: ConfigPipelineState;                    // Current pipeline state
-  stateDescription: string;                      // Human-readable description
-  resourceId: string | null;                     // Resource being configured
-  pendingConfig: TConfig | null;                 // Changes pending
-  validationErrors: ValidationError[];           // Validation failures
-  diff: ConfigDiff | null;                       // Change preview diff
-  errorMessage: string | null;                   // Error details
+  state: ConfigPipelineState; // Current pipeline state
+  stateDescription: string; // Human-readable description
+  resourceId: string | null; // Resource being configured
+  pendingConfig: TConfig | null; // Changes pending
+  validationErrors: ValidationError[]; // Validation failures
+  diff: ConfigDiff | null; // Change preview diff
+  errorMessage: string | null; // Error details
 
   // Status Flags
-  isFinal: boolean;                              // Pipeline completed (any end state)
-  isCancellable: boolean;                        // Can cancel current operation
-  isProcessing: boolean;                         // Async operation in progress
-  isValidating: boolean;                         // Validating changes
-  isApplying: boolean;                           // Applying to router
-  isVerifying: boolean;                          // Verifying changes took effect
-  isRollingBack: boolean;                        // Rolling back changes
-  isError: boolean;                              // In error state
-  isHighRisk: boolean;                           // Requires manual acknowledgment
-  isSuccess: boolean;                            // Changes applied successfully
-  isRolledBack: boolean;                         // Changes were rolled back
+  isFinal: boolean; // Pipeline completed (any end state)
+  isCancellable: boolean; // Can cancel current operation
+  isProcessing: boolean; // Async operation in progress
+  isValidating: boolean; // Validating changes
+  isApplying: boolean; // Applying to router
+  isVerifying: boolean; // Verifying changes took effect
+  isRollingBack: boolean; // Rolling back changes
+  isError: boolean; // In error state
+  isHighRisk: boolean; // Requires manual acknowledgment
+  isSuccess: boolean; // Changes applied successfully
+  isRolledBack: boolean; // Changes were rolled back
 
   // Actions
-  edit: (config: TConfig) => void;              // Start editing config
-  validate: () => void;                          // Trigger validation
-  confirm: () => void;                           // Confirm after preview
-  acknowledge: () => void;                       // Acknowledge high-risk operation
-  cancel: () => void;                            // Cancel pipeline
-  retry: () => void;                             // Retry from error
-  forceRollback: () => void;                     // Force rollback
-  reset: () => void;                             // Reset to idle
-  editAndValidate: (config: TConfig) => void;   // Edit + validate in one call
+  edit: (config: TConfig) => void; // Start editing config
+  validate: () => void; // Trigger validation
+  confirm: () => void; // Confirm after preview
+  acknowledge: () => void; // Acknowledge high-risk operation
+  cancel: () => void; // Cancel pipeline
+  retry: () => void; // Retry from error
+  forceRollback: () => void; // Force rollback
+  reset: () => void; // Reset to idle
+  editAndValidate: (config: TConfig) => void; // Edit + validate in one call
 }
 ```
 
@@ -314,7 +316,7 @@ function useQuickConfigPipeline<TConfig = unknown>(
   options: UseConfigPipelineOptions
 ): UseConfigPipelineReturn<TConfig> & {
   quickApply: (config: TConfig) => void;
-}
+};
 ```
 
 **Difference:** Automatically transitions from preview → applying for non-high-risk changes.
@@ -339,40 +341,40 @@ Resource lifecycle management (draft → validating → applying → active/fail
 ```typescript
 function useResourceLifecycle<TConfig = unknown>(
   options: UseResourceLifecycleOptions<TConfig>
-): UseResourceLifecycleResult<TConfig>
+): UseResourceLifecycleResult<TConfig>;
 ```
 
 ### Parameters
 
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `options.id` | `string` | `'resourceLifecycle'` | Machine ID |
-| `options.initialResource` | `Resource<TConfig>` | Required | Starting resource state |
-| `options.validateResource` | `(uuid) => Promise<ValidationResult>` | Required | Validation function |
-| `options.applyResource` | `(uuid, force?) => Promise<void>` | Required | Apply to router |
-| `options.syncResource` | `(uuid) => Promise<RuntimeState>` | Required | Sync from router |
+| Parameter                  | Type                                  | Default               | Description             |
+| -------------------------- | ------------------------------------- | --------------------- | ----------------------- |
+| `options.id`               | `string`                              | `'resourceLifecycle'` | Machine ID              |
+| `options.initialResource`  | `Resource<TConfig>`                   | Required              | Starting resource state |
+| `options.validateResource` | `(uuid) => Promise<ValidationResult>` | Required              | Validation function     |
+| `options.applyResource`    | `(uuid, force?) => Promise<void>`     | Required              | Apply to router         |
+| `options.syncResource`     | `(uuid) => Promise<RuntimeState>`     | Required              | Sync from router        |
 
 ### Return Values
 
 ```typescript
 interface UseResourceLifecycleResult<TConfig> {
   // State
-  state: ResourceLifecycleStateValue;                      // Current state
-  context: ResourceLifecycleContext<TConfig>;              // Full context
+  state: ResourceLifecycleStateValue; // Current state
+  context: ResourceLifecycleContext<TConfig>; // Full context
   displayInfo: ReturnType<typeof getResourceStateDisplayInfo>;
 
   // Predicates
-  isPending: boolean;                     // Async operation in progress
-  isActive: boolean;                      // Running on router
-  isEditable: boolean;                    // Can be edited
-  isAppliable: boolean;                   // Can be applied
-  hasError: boolean;                      // In error state
-  isDegraded: boolean;                    // Degraded (running but issues)
+  isPending: boolean; // Async operation in progress
+  isActive: boolean; // Running on router
+  isEditable: boolean; // Can be edited
+  isAppliable: boolean; // Can be applied
+  hasError: boolean; // In error state
+  isDegraded: boolean; // Degraded (running but issues)
 
   // Validation
-  validationErrors: ValidationError[];    // Errors from validation
-  validationWarnings: ValidationError[];  // Warnings from validation
-  isValid: boolean;                       // Can be applied
+  validationErrors: ValidationError[]; // Errors from validation
+  validationWarnings: ValidationError[]; // Warnings from validation
+  isValid: boolean; // Can be applied
 
   // Actions
   edit: (configuration: TConfig) => void;
@@ -457,10 +459,11 @@ function useResourceLifecycleWithApollo<TConfig = unknown>(
     onStateChange?: (state: string, context) => void;
     onError?: (error: string, code?: string) => void;
   }
-): UseResourceLifecycleResult<TConfig>
+): UseResourceLifecycleResult<TConfig>;
 ```
 
 **Note:** Currently a placeholder. In full implementation, would use:
+
 - `useValidateResource` mutation
 - `useApplyResource` mutation
 - `useSyncResource` mutation
@@ -472,39 +475,39 @@ function useResourceLifecycleWithApollo<TConfig = unknown>(
 
 ### Wizard vs. Config Pipeline
 
-| Feature | useWizard | useConfigPipeline |
-|---------|-----------|-------------------|
-| **Purpose** | Multi-step form workflows | Single-resource config changes |
-| **Flow** | Step → Validate → Next Step | Edit → Validate → Preview → Apply → Verify |
-| **Data Collection** | Across all steps | Single configuration |
-| **User Interaction** | Forward/backward navigation | Preview before apply |
-| **Rollback** | Start over from step 1 | Auto-rollback on apply failure |
-| **Persistence** | Session save/restore | No persistence (state-only) |
-| **High-Risk Ops** | Validation errors block | Manual acknowledgment required |
-| **Example** | VPN setup, device pairing | WireGuard config, DHCP settings |
+| Feature              | useWizard                   | useConfigPipeline                          |
+| -------------------- | --------------------------- | ------------------------------------------ |
+| **Purpose**          | Multi-step form workflows   | Single-resource config changes             |
+| **Flow**             | Step → Validate → Next Step | Edit → Validate → Preview → Apply → Verify |
+| **Data Collection**  | Across all steps            | Single configuration                       |
+| **User Interaction** | Forward/backward navigation | Preview before apply                       |
+| **Rollback**         | Start over from step 1      | Auto-rollback on apply failure             |
+| **Persistence**      | Session save/restore        | No persistence (state-only)                |
+| **High-Risk Ops**    | Validation errors block     | Manual acknowledgment required             |
+| **Example**          | VPN setup, device pairing   | WireGuard config, DHCP settings            |
 
 ### Config Pipeline vs. Resource Lifecycle
 
-| Feature | useConfigPipeline | useResourceLifecycle |
-|---------|-------------------|----------------------|
-| **Purpose** | Atomic config change | Resource state management |
-| **Scope** | Single resource at a time | Multiple resources, tracking |
-| **Lifecycle States** | Edit/Validate/Preview/Apply | Draft/Active/Degraded/Archived |
-| **Validation** | Per-change validation | Continuous validation |
-| **Sync** | N/A | Sync from router |
-| **Persistence** | No | Yes (resource state) |
-| **Degrade/Recover** | No | Yes |
-| **Best For** | Forms, config editors | Dashboard monitoring, status tracking |
+| Feature              | useConfigPipeline           | useResourceLifecycle                  |
+| -------------------- | --------------------------- | ------------------------------------- |
+| **Purpose**          | Atomic config change        | Resource state management             |
+| **Scope**            | Single resource at a time   | Multiple resources, tracking          |
+| **Lifecycle States** | Edit/Validate/Preview/Apply | Draft/Active/Degraded/Archived        |
+| **Validation**       | Per-change validation       | Continuous validation                 |
+| **Sync**             | N/A                         | Sync from router                      |
+| **Persistence**      | No                          | Yes (resource state)                  |
+| **Degrade/Recover**  | No                          | Yes                                   |
+| **Best For**         | Forms, config editors       | Dashboard monitoring, status tracking |
 
 ### Wizard Persistence Features
 
-| Feature | Basic Wizard | With autoRestore |
-|---------|--------------|------------------|
-| **Save** | Automatic to localStorage | Automatic to localStorage |
-| **Restore Prompt** | Yes (user chooses) | No (auto-restore) |
-| **Session Age Display** | Yes | Yes |
-| **Discard Session** | Yes | Yes |
-| **Use Case** | Interruptible workflows | Critical wizards (setup, migration) |
+| Feature                 | Basic Wizard              | With autoRestore                    |
+| ----------------------- | ------------------------- | ----------------------------------- |
+| **Save**                | Automatic to localStorage | Automatic to localStorage           |
+| **Restore Prompt**      | Yes (user chooses)        | No (auto-restore)                   |
+| **Session Age Display** | Yes                       | Yes                                 |
+| **Discard Session**     | Yes                       | Yes                                 |
+| **Use Case**            | Interruptible workflows   | Critical wizards (setup, migration) |
 
 ---
 

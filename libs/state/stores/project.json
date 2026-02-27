@@ -40,10 +40,7 @@
     "check": {
       "executor": "nx:run-commands",
       "options": {
-        "commands": [
-          "nx run @nasnet/state/stores:typecheck",
-          "nx run @nasnet/state/stores:lint"
-        ],
+        "commands": ["nx run @nasnet/state/stores:typecheck", "nx run @nasnet/state/stores:lint"],
         "parallel": true
       }
     }

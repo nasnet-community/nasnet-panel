@@ -29,7 +29,10 @@ import {
   useImportAlertRuleTemplate,
   useExportAlertRuleTemplate,
 } from './useAlertRuleTemplates';
-import { deviceOfflineTemplate, highCPUTemplate } from '../__test-utils__/alert-rule-template-fixtures';
+import {
+  deviceOfflineTemplate,
+  highCPUTemplate,
+} from '../__test-utils__/alert-rule-template-fixtures';
 
 // =============================================================================
 // Test Helpers
@@ -41,11 +44,7 @@ interface WrapperProps {
 
 function createWrapper(mocks: MockedResponse[]) {
   return function Wrapper({ children }: WrapperProps): React.ReactElement {
-    return React.createElement(
-      MockedProvider,
-      { mocks, addTypename: false },
-      children
-    );
+    return React.createElement(MockedProvider, { mocks, addTypename: false }, children);
   };
 }
 
@@ -233,10 +232,9 @@ describe('usePreviewAlertRuleTemplate', () => {
     ];
 
     const wrapper = createWrapper(mocks);
-    const { result } = renderHook(
-      () => usePreviewAlertRuleTemplate('device-offline', variables),
-      { wrapper }
-    );
+    const { result } = renderHook(() => usePreviewAlertRuleTemplate('device-offline', variables), {
+      wrapper,
+    });
 
     await waitFor(() => {
       expect(result.current.loading).toBe(false);
@@ -281,10 +279,9 @@ describe('usePreviewAlertRuleTemplate', () => {
     ];
 
     const wrapper = createWrapper(mocks);
-    const { result } = renderHook(
-      () => usePreviewAlertRuleTemplate('device-offline', variables),
-      { wrapper }
-    );
+    const { result } = renderHook(() => usePreviewAlertRuleTemplate('device-offline', variables), {
+      wrapper,
+    });
 
     await waitFor(() => {
       expect(result.current.loading).toBe(false);
@@ -404,7 +401,9 @@ describe('useApplyAlertRuleTemplate', () => {
 
     expect(applyResult.data?.applyAlertRuleTemplate.alertRule).toBeNull();
     expect(applyResult.data?.applyAlertRuleTemplate.errors).toHaveLength(1);
-    expect(applyResult.data?.applyAlertRuleTemplate.errors?.[0]?.message).toBe('Missing required variables: OFFLINE_DURATION');
+    expect(applyResult.data?.applyAlertRuleTemplate.errors?.[0]?.message).toBe(
+      'Missing required variables: OFFLINE_DURATION'
+    );
   });
 });
 

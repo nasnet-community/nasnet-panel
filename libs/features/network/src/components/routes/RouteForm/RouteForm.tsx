@@ -45,14 +45,8 @@ function RouteFormComponent(props: RouteFormProps) {
   const platform = usePlatform();
 
   // Use headless hook for business logic
-  const {
-    form,
-    reachabilityInfo,
-    tableOptions,
-    loading,
-    handleSubmit,
-    handleCancel,
-  } = useRouteForm(props);
+  const { form, reachabilityInfo, tableOptions, loading, handleSubmit, handleCancel } =
+    useRouteForm(props);
 
   // Memoize callbacks for stable references
   const memoizedHandleSubmit = useCallback(handleSubmit, [handleSubmit]);

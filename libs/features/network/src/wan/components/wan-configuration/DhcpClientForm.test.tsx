@@ -67,15 +67,9 @@ describe('DhcpClientForm', () => {
     it('should render all DHCP settings switches', () => {
       render(<DhcpClientForm {...mockProps} />);
 
-      expect(
-        screen.getByRole('switch', { name: /add default route/i })
-      ).toBeInTheDocument();
-      expect(
-        screen.getByRole('switch', { name: /use peer dns/i })
-      ).toBeInTheDocument();
-      expect(
-        screen.getByRole('switch', { name: /use peer ntp/i })
-      ).toBeInTheDocument();
+      expect(screen.getByRole('switch', { name: /add default route/i })).toBeInTheDocument();
+      expect(screen.getByRole('switch', { name: /use peer dns/i })).toBeInTheDocument();
+      expect(screen.getByRole('switch', { name: /use peer ntp/i })).toBeInTheDocument();
     });
 
     it('should render comment input field', () => {
@@ -85,20 +79,21 @@ describe('DhcpClientForm', () => {
     });
 
     it('should render submit and cancel buttons', () => {
-      render(<DhcpClientForm {...mockProps} onCancel={vi.fn()} />);
+      render(
+        <DhcpClientForm
+          {...mockProps}
+          onCancel={vi.fn()}
+        />
+      );
 
-      expect(
-        screen.getByRole('button', { name: /configure dhcp/i })
-      ).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /configure dhcp/i })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: /cancel/i })).toBeInTheDocument();
     });
 
     it('should not render cancel button when onCancel is not provided', () => {
       render(<DhcpClientForm {...mockProps} />);
 
-      expect(
-        screen.queryByRole('button', { name: /cancel/i })
-      ).not.toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: /cancel/i })).not.toBeInTheDocument();
     });
   });
 
@@ -106,13 +101,9 @@ describe('DhcpClientForm', () => {
     it('should use default values when no initial values provided', () => {
       render(<DhcpClientForm {...mockProps} />);
 
-      expect(
-        screen.getByRole('switch', { name: /add default route/i })
-      ).toBeChecked();
+      expect(screen.getByRole('switch', { name: /add default route/i })).toBeChecked();
       expect(screen.getByRole('switch', { name: /use peer dns/i })).toBeChecked();
-      expect(
-        screen.getByRole('switch', { name: /use peer ntp/i })
-      ).not.toBeChecked();
+      expect(screen.getByRole('switch', { name: /use peer ntp/i })).not.toBeChecked();
       expect(screen.getByLabelText(/comment/i)).toHaveValue('');
     });
 
@@ -125,14 +116,15 @@ describe('DhcpClientForm', () => {
         comment: 'Primary WAN',
       };
 
-      render(<DhcpClientForm {...mockProps} initialValues={initialValues} />);
+      render(
+        <DhcpClientForm
+          {...mockProps}
+          initialValues={initialValues}
+        />
+      );
 
-      expect(
-        screen.getByRole('switch', { name: /add default route/i })
-      ).not.toBeChecked();
-      expect(
-        screen.getByRole('switch', { name: /use peer dns/i })
-      ).not.toBeChecked();
+      expect(screen.getByRole('switch', { name: /add default route/i })).not.toBeChecked();
+      expect(screen.getByRole('switch', { name: /use peer dns/i })).not.toBeChecked();
       expect(screen.getByRole('switch', { name: /use peer ntp/i })).toBeChecked();
       expect(screen.getByLabelText(/comment/i)).toHaveValue('Primary WAN');
     });
@@ -271,9 +263,7 @@ describe('DhcpClientForm', () => {
       await user.type(commentInput, longComment);
 
       await waitFor(() => {
-        expect(
-          screen.getByText(/comment cannot exceed 255 characters/i)
-        ).toBeInTheDocument();
+        expect(screen.getByText(/comment cannot exceed 255 characters/i)).toBeInTheDocument();
       });
     });
   });
@@ -299,12 +289,8 @@ describe('DhcpClientForm', () => {
 
       // Warning dialog should appear
       await waitFor(() => {
-        expect(
-          screen.getByText(/default route warning/i)
-        ).toBeInTheDocument();
-        expect(
-          screen.getByText(/you are about to add a default route/i)
-        ).toBeInTheDocument();
+        expect(screen.getByText(/default route warning/i)).toBeInTheDocument();
+        expect(screen.getByText(/you are about to add a default route/i)).toBeInTheDocument();
       });
     });
 
@@ -333,9 +319,7 @@ describe('DhcpClientForm', () => {
       await user.click(submitButton);
 
       // Warning dialog should NOT appear
-      expect(
-        screen.queryByText(/default route warning/i)
-      ).not.toBeInTheDocument();
+      expect(screen.queryByText(/default route warning/i)).not.toBeInTheDocument();
 
       // onSubmit should be called directly
       await waitFor(() => {
@@ -346,7 +330,12 @@ describe('DhcpClientForm', () => {
     it('should call onSubmit when user confirms warning', async () => {
       const user = userEvent.setup();
       const onSubmit = vi.fn();
-      render(<DhcpClientForm {...mockProps} onSubmit={onSubmit} />);
+      render(
+        <DhcpClientForm
+          {...mockProps}
+          onSubmit={onSubmit}
+        />
+      );
 
       // Select interface and submit
       await user.click(screen.getByText(/select ether1/i));
@@ -380,15 +369,18 @@ describe('DhcpClientForm', () => {
       });
 
       // Dialog should close
-      expect(
-        screen.queryByText(/default route warning/i)
-      ).not.toBeInTheDocument();
+      expect(screen.queryByText(/default route warning/i)).not.toBeInTheDocument();
     });
 
     it('should not call onSubmit when user cancels warning', async () => {
       const user = userEvent.setup();
       const onSubmit = vi.fn();
-      render(<DhcpClientForm {...mockProps} onSubmit={onSubmit} />);
+      render(
+        <DhcpClientForm
+          {...mockProps}
+          onSubmit={onSubmit}
+        />
+      );
 
       // Select interface and submit
       await user.click(screen.getByText(/select ether1/i));
@@ -413,9 +405,7 @@ describe('DhcpClientForm', () => {
 
       // Dialog should close
       await waitFor(() => {
-        expect(
-          screen.queryByText(/default route warning/i)
-        ).not.toBeInTheDocument();
+        expect(screen.queryByText(/default route warning/i)).not.toBeInTheDocument();
       });
     });
   });
@@ -455,7 +445,12 @@ describe('DhcpClientForm', () => {
 
   describe('loading state', () => {
     it('should disable all inputs during loading', () => {
-      render(<DhcpClientForm {...mockProps} loading={true} />);
+      render(
+        <DhcpClientForm
+          {...mockProps}
+          loading={true}
+        />
+      );
 
       // Interface selector should be disabled
       const selectButtons = screen.getAllByRole('button');
@@ -466,28 +461,32 @@ describe('DhcpClientForm', () => {
       });
 
       // Switches should be disabled
-      expect(
-        screen.getByRole('switch', { name: /add default route/i })
-      ).toBeDisabled();
-      expect(
-        screen.getByRole('switch', { name: /use peer dns/i })
-      ).toBeDisabled();
-      expect(
-        screen.getByRole('switch', { name: /use peer ntp/i })
-      ).toBeDisabled();
+      expect(screen.getByRole('switch', { name: /add default route/i })).toBeDisabled();
+      expect(screen.getByRole('switch', { name: /use peer dns/i })).toBeDisabled();
+      expect(screen.getByRole('switch', { name: /use peer ntp/i })).toBeDisabled();
 
       // Comment input should be disabled
       expect(screen.getByLabelText(/comment/i)).toBeDisabled();
     });
 
     it('should show loading text on submit button', () => {
-      render(<DhcpClientForm {...mockProps} loading={true} />);
+      render(
+        <DhcpClientForm
+          {...mockProps}
+          loading={true}
+        />
+      );
 
       expect(screen.getByText(/configuring.../i)).toBeInTheDocument();
     });
 
     it('should disable submit button during loading', () => {
-      render(<DhcpClientForm {...mockProps} loading={true} />);
+      render(
+        <DhcpClientForm
+          {...mockProps}
+          loading={true}
+        />
+      );
 
       const submitButton = screen.getByRole('button', {
         name: /configuring.../i,
@@ -501,7 +500,12 @@ describe('DhcpClientForm', () => {
       const user = userEvent.setup();
       const onCancel = vi.fn();
 
-      render(<DhcpClientForm {...mockProps} onCancel={onCancel} />);
+      render(
+        <DhcpClientForm
+          {...mockProps}
+          onCancel={onCancel}
+        />
+      );
 
       const cancelButton = screen.getByRole('button', { name: /cancel/i });
       await user.click(cancelButton);
@@ -514,15 +518,9 @@ describe('DhcpClientForm', () => {
     it('should have accessible labels for all form fields', () => {
       render(<DhcpClientForm {...mockProps} />);
 
-      expect(
-        screen.getByRole('switch', { name: /add default route/i })
-      ).toHaveAccessibleName();
-      expect(
-        screen.getByRole('switch', { name: /use peer dns/i })
-      ).toHaveAccessibleName();
-      expect(
-        screen.getByRole('switch', { name: /use peer ntp/i })
-      ).toHaveAccessibleName();
+      expect(screen.getByRole('switch', { name: /add default route/i })).toHaveAccessibleName();
+      expect(screen.getByRole('switch', { name: /use peer dns/i })).toHaveAccessibleName();
+      expect(screen.getByRole('switch', { name: /use peer ntp/i })).toHaveAccessibleName();
       expect(screen.getByLabelText(/comment/i)).toHaveAccessibleName();
     });
 
@@ -537,9 +535,7 @@ describe('DhcpClientForm', () => {
       await user.type(commentInput, longComment);
 
       await waitFor(() => {
-        const errorMessage = screen.getByText(
-          /comment cannot exceed 255 characters/i
-        );
+        const errorMessage = screen.getByText(/comment cannot exceed 255 characters/i);
         expect(errorMessage).toBeInTheDocument();
         expect(errorMessage).toHaveAttribute('role', 'alert');
       });

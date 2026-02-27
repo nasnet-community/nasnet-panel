@@ -58,9 +58,7 @@ describe('useSortableList', () => {
   it('moves item to specific position', () => {
     const items = createTestItems(5);
     const onReorder = vi.fn();
-    const { result } = renderHook(() =>
-      useSortableList(items, { onReorder })
-    );
+    const { result } = renderHook(() => useSortableList(items, { onReorder }));
 
     act(() => {
       result.current.moveItem('item-1', 3);
@@ -123,9 +121,7 @@ describe('useSortableList', () => {
 
   it('supports undo/redo', () => {
     const items = createTestItems(3);
-    const { result } = renderHook(() =>
-      useSortableList(items, { undoEnabled: true })
-    );
+    const { result } = renderHook(() => useSortableList(items, { undoEnabled: true }));
 
     // Initial state
     expect(result.current.canUndo).toBe(false);
@@ -164,9 +160,7 @@ describe('useSortableList', () => {
     const validateDrop = vi.fn().mockReturnValue(false);
     const onReorder = vi.fn();
 
-    const { result } = renderHook(() =>
-      useSortableList(items, { validateDrop, onReorder })
-    );
+    const { result } = renderHook(() => useSortableList(items, { validateDrop, onReorder }));
 
     act(() => {
       result.current.moveItem('item-1', 2);
@@ -284,9 +278,7 @@ describe('useMultiSelect', () => {
 
   it('respects max selection limit', () => {
     const items = createTestItems(5);
-    const { result } = renderHook(() =>
-      useMultiSelect({ items, maxSelection: 2 })
-    );
+    const { result } = renderHook(() => useMultiSelect({ items, maxSelection: 2 }));
 
     act(() => {
       result.current.selectAll();

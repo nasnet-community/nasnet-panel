@@ -7,11 +7,11 @@ import type { Meta, StoryObj } from '@storybook/react';
  */
 function SettingsLayoutPlaceholder() {
   return (
-    <div className="min-h-screen bg-muted p-4 md:p-6">
-      <div className="max-w-7xl mx-auto">
+    <div className="bg-muted min-h-screen p-4 md:p-6">
+      <div className="mx-auto max-w-7xl">
         <div className="mb-6 px-2">
-          <h1 className="text-2xl md:text-3xl font-semibold">Settings</h1>
-          <p className="text-sm text-muted-foreground mt-1">
+          <h1 className="text-2xl font-semibold md:text-3xl">Settings</h1>
+          <p className="text-muted-foreground mt-1 text-sm">
             Parent layout route for all settings pages
           </p>
         </div>
@@ -24,12 +24,10 @@ function SettingsLayoutPlaceholder() {
             color: '#9ca3af',
           }}
         >
-          <p style={{ fontSize: 14, fontWeight: 500, marginBottom: 8 }}>
-            Child Route Outlet
-          </p>
+          <p style={{ fontSize: 14, fontWeight: 500, marginBottom: 8 }}>Child Route Outlet</p>
           <p style={{ fontSize: 12 }}>
-            Settings sub-pages (notifications, webhooks, etc.) render here via
-            TanStack Router Outlet.
+            Settings sub-pages (notifications, webhooks, etc.) render here via TanStack Router
+            Outlet.
           </p>
         </div>
       </div>

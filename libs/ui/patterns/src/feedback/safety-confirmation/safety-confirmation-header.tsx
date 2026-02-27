@@ -27,24 +27,16 @@ import type { SafetyConfirmationHeaderProps } from './safety-confirmation.types'
  * <SafetyConfirmationHeader title="Factory Reset" />
  * ```
  */
-export function SafetyConfirmationHeader({
-  title,
-  className,
-}: SafetyConfirmationHeaderProps) {
+export function SafetyConfirmationHeader({ title, className }: SafetyConfirmationHeaderProps) {
   return (
-    <div
-      className={cn(
-        'flex items-center gap-3',
-        className
-      )}
-    >
-      <div className="flex-shrink-0 h-12 w-12 rounded-full bg-warning/10 flex items-center justify-center">
+    <div className={cn('flex items-center gap-3', className)}>
+      <div className="bg-warning/10 flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full">
         <AlertTriangle
-          className="h-6 w-6 text-warning"
+          className="text-warning h-6 w-6"
           aria-hidden="true"
         />
       </div>
-      <span className="text-lg font-semibold font-display text-foreground">{title}</span>
+      <span className="font-display text-foreground text-lg font-semibold">{title}</span>
     </div>
   );
 }

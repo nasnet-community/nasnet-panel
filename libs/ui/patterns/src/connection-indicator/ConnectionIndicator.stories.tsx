@@ -54,7 +54,7 @@ function MockMobileIndicator({ state }: { state: MockConnectionState }) {
     <button
       type="button"
       className={cn(
-        'flex items-center gap-1.5 px-2 py-1.5 rounded-full',
+        'flex items-center gap-1.5 rounded-full px-2 py-1.5',
         'min-h-[44px] min-w-[44px]',
         'transition-colors duration-200',
         colors.bg,
@@ -62,17 +62,13 @@ function MockMobileIndicator({ state }: { state: MockConnectionState }) {
       )}
       aria-label={`Connection status: ${state.statusLabel}`}
     >
-      {state.isReconnecting ? (
+      {state.isReconnecting ?
         <Loader2 className={cn('h-4 w-4 animate-spin', colors.text)} />
-      ) : state.wsStatus === 'disconnected' ? (
+      : state.wsStatus === 'disconnected' ?
         <WifiOff className={cn('h-4 w-4', colors.text)} />
-      ) : (
-        <Wifi className={cn('h-4 w-4', colors.text)} />
-      )}
+      : <Wifi className={cn('h-4 w-4', colors.text)} />}
 
-      {state.showManualRetry && (
-        <RefreshCw className={cn('h-3 w-3', colors.text)} />
-      )}
+      {state.showManualRetry && <RefreshCw className={cn('h-3 w-3', colors.text)} />}
     </button>
   );
 }
@@ -90,19 +86,18 @@ function MockDesktopIndicator({ state }: { state: MockConnectionState }) {
   return (
     <div
       className={cn(
-        'flex items-center gap-2 px-3 py-1.5 rounded-md',
+        'flex items-center gap-2 rounded-md px-3 py-1.5',
         'transition-colors duration-200',
-        state.showManualRetry && 'cursor-pointer hover:bg-muted'
+        state.showManualRetry && 'hover:bg-muted cursor-pointer'
       )}
       role="button"
       tabIndex={state.showManualRetry ? 0 : -1}
       aria-label={`Connection status: ${state.statusLabel}`}
     >
       <div className="flex items-center gap-1.5">
-        {state.isReconnecting ? (
+        {state.isReconnecting ?
           <Loader2 className={cn('h-3.5 w-3.5 animate-spin', colors.text)} />
-        ) : (
-          <Circle
+        : <Circle
             className={cn(
               'h-2.5 w-2.5 transition-colors',
               colors.dot,
@@ -111,17 +106,15 @@ function MockDesktopIndicator({ state }: { state: MockConnectionState }) {
             fill="currentColor"
             aria-hidden="true"
           />
-        )}
+        }
 
-        <span className={cn('text-xs font-medium', colors.text)}>
-          {state.statusLabel}
-        </span>
+        <span className={cn('text-xs font-medium', colors.text)}>{state.statusLabel}</span>
       </div>
 
       {state.wsStatus === 'connected' && state.latencyMs !== null && (
         <span
           className={cn(
-            'text-xs font-mono',
+            'font-mono text-xs',
             state.latencyQuality && LATENCY_QUALITY_CLASSES[state.latencyQuality]
           )}
         >
@@ -130,14 +123,12 @@ function MockDesktopIndicator({ state }: { state: MockConnectionState }) {
       )}
 
       {state.isReconnecting && (
-        <span className="text-xs text-muted-foreground">
+        <span className="text-muted-foreground text-xs">
           {state.reconnectAttempts}/{state.maxReconnectAttempts}
         </span>
       )}
 
-      {state.showManualRetry && (
-        <RefreshCw className={cn('h-3.5 w-3.5', colors.text)} />
-      )}
+      {state.showManualRetry && <RefreshCw className={cn('h-3.5 w-3.5', colors.text)} />}
     </div>
   );
 }
@@ -148,12 +139,14 @@ function ConnectionIndicatorDemo({
   ...state
 }: MockConnectionState & { variant?: 'mobile' | 'desktop' }) {
   return (
-    <div role="status" aria-live="polite" aria-atomic="true">
-      {variant === 'mobile' ? (
+    <div
+      role="status"
+      aria-live="polite"
+      aria-atomic="true"
+    >
+      {variant === 'mobile' ?
         <MockMobileIndicator state={state} />
-      ) : (
-        <MockDesktopIndicator state={state} />
-      )}
+      : <MockDesktopIndicator state={state} />}
     </div>
   );
 }
@@ -266,7 +259,7 @@ export const LatencyQualities: Story = {
   render: () => (
     <div className="flex flex-col gap-4">
       <div>
-        <span className="text-xs text-muted-foreground mb-1 block">Good latency (&lt;50ms)</span>
+        <span className="text-muted-foreground mb-1 block text-xs">Good latency (&lt;50ms)</span>
         <ConnectionIndicatorDemo
           variant="desktop"
           statusLabel="Connected"
@@ -281,7 +274,9 @@ export const LatencyQualities: Story = {
         />
       </div>
       <div>
-        <span className="text-xs text-muted-foreground mb-1 block">Moderate latency (50-150ms)</span>
+        <span className="text-muted-foreground mb-1 block text-xs">
+          Moderate latency (50-150ms)
+        </span>
         <ConnectionIndicatorDemo
           variant="desktop"
           statusLabel="Connected"
@@ -296,7 +291,7 @@ export const LatencyQualities: Story = {
         />
       </div>
       <div>
-        <span className="text-xs text-muted-foreground mb-1 block">Poor latency (&gt;150ms)</span>
+        <span className="text-muted-foreground mb-1 block text-xs">Poor latency (&gt;150ms)</span>
         <ConnectionIndicatorDemo
           variant="desktop"
           statusLabel="Connected"
@@ -325,7 +320,7 @@ export const AllStates: Story = {
   render: () => (
     <div className="space-y-6">
       <div>
-        <h3 className="text-sm font-medium mb-3 text-muted-foreground">Desktop Variant</h3>
+        <h3 className="text-muted-foreground mb-3 text-sm font-medium">Desktop Variant</h3>
         <div className="flex flex-col gap-2">
           <ConnectionIndicatorDemo
             variant="desktop"
@@ -375,7 +370,7 @@ export const AllStates: Story = {
         </div>
       </div>
       <div>
-        <h3 className="text-sm font-medium mb-3 text-muted-foreground">Mobile Variant</h3>
+        <h3 className="text-muted-foreground mb-3 text-sm font-medium">Mobile Variant</h3>
         <div className="flex gap-2">
           <ConnectionIndicatorDemo
             variant="mobile"

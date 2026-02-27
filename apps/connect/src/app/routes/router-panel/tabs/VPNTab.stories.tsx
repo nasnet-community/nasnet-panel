@@ -33,7 +33,8 @@ export const Loading: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'VPNTab in loading state while fetching WireGuard, L2TP, PPTP, and SSTP interfaces from the router.',
+        story:
+          'VPNTab in loading state while fetching WireGuard, L2TP, PPTP, and SSTP interfaces from the router.',
       },
     },
   },
@@ -47,7 +48,8 @@ export const ErrorState: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'VPNTab displaying error message when WireGuard interface query fails. Shows retry option.',
+        story:
+          'VPNTab displaying error message when WireGuard interface query fails. Shows retry option.',
       },
     },
   },

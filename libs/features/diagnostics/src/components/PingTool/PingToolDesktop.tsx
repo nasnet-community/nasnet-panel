@@ -78,19 +78,25 @@ export const PingToolDesktop = memo(function PingToolDesktop({
   });
 
   // Stable form submission handler with useCallback
-  const onSubmit = useCallback((values: PingFormValues) => {
-    ping.startPing(values);
-  }, [ping]);
+  const onSubmit = useCallback(
+    (values: PingFormValues) => {
+      ping.startPing(values);
+    },
+    [ping]
+  );
 
   return (
-    <div className="grid grid-cols-2 gap-component-lg">
+    <div className="gap-component-lg grid grid-cols-2">
       {/* Left column: Form */}
       <Card>
         <CardHeader>
           <CardTitle>Ping Diagnostic</CardTitle>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-component-lg">
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="space-y-component-lg"
+          >
             {/* Target input with semantic tokens and monospace for IPs */}
             <div className="space-y-component-sm">
               <Label htmlFor="ping-target">
@@ -106,12 +112,15 @@ export const PingToolDesktop = memo(function PingToolDesktop({
               />
               <p
                 id="ping-target-description"
-                className="text-xs text-muted-foreground"
+                className="text-muted-foreground text-xs"
               >
                 IPv4, IPv6, or hostname
               </p>
               {errors.target && (
-                <p className="text-xs text-error" role="alert">
+                <p
+                  className="text-error text-xs"
+                  role="alert"
+                >
                   {errors.target.message}
                 </p>
               )}
@@ -123,7 +132,7 @@ export const PingToolDesktop = memo(function PingToolDesktop({
             <div className="space-y-component-lg">
               <h4 className="text-sm font-semibold">Advanced Options</h4>
 
-              <div className="grid grid-cols-2 gap-component-lg">
+              <div className="gap-component-lg grid grid-cols-2">
                 {/* Count */}
                 <div className="space-y-component-sm">
                   <Label htmlFor="ping-count">Count</Label>
@@ -136,7 +145,10 @@ export const PingToolDesktop = memo(function PingToolDesktop({
                     {...register('count')}
                   />
                   {errors.count && (
-                    <p className="text-xs text-error" role="alert">
+                    <p
+                      className="text-error text-xs"
+                      role="alert"
+                    >
                       {errors.count.message}
                     </p>
                   )}
@@ -154,7 +166,10 @@ export const PingToolDesktop = memo(function PingToolDesktop({
                     {...register('size')}
                   />
                   {errors.size && (
-                    <p className="text-xs text-error" role="alert">
+                    <p
+                      className="text-error text-xs"
+                      role="alert"
+                    >
                       {errors.size.message}
                     </p>
                   )}
@@ -172,7 +187,10 @@ export const PingToolDesktop = memo(function PingToolDesktop({
                     {...register('timeout')}
                   />
                   {errors.timeout && (
-                    <p className="text-xs text-error" role="alert">
+                    <p
+                      className="text-error text-xs"
+                      role="alert"
+                    >
                       {errors.timeout.message}
                     </p>
                   )}
@@ -192,28 +210,32 @@ export const PingToolDesktop = memo(function PingToolDesktop({
             </div>
 
             {/* Action buttons */}
-            <div className="flex gap-component-md">
-              {!ping.isRunning ? (
+            <div className="gap-component-md flex">
+              {!ping.isRunning ?
                 <Button
                   type="submit"
                   disabled={!isValid || ping.isStarting}
                   className="flex-1"
                   aria-label="Start ping"
                 >
-                  {ping.isStarting ? (
+                  {ping.isStarting ?
                     <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" aria-hidden="true" />
+                      <Loader2
+                        className="mr-2 h-4 w-4 animate-spin"
+                        aria-hidden="true"
+                      />
                       Starting...
                     </>
-                  ) : (
-                    <>
-                      <Play className="w-4 h-4 mr-2" aria-hidden="true" />
+                  : <>
+                      <Play
+                        className="mr-2 h-4 w-4"
+                        aria-hidden="true"
+                      />
                       Start Ping
                     </>
-                  )}
+                  }
                 </Button>
-              ) : (
-                <Button
+              : <Button
                   type="button"
                   variant="destructive"
                   onClick={ping.stop}
@@ -221,25 +243,30 @@ export const PingToolDesktop = memo(function PingToolDesktop({
                   className="flex-1"
                   aria-label="Stop ping"
                 >
-                  {ping.isStopping ? (
+                  {ping.isStopping ?
                     <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" aria-hidden="true" />
+                      <Loader2
+                        className="mr-2 h-4 w-4 animate-spin"
+                        aria-hidden="true"
+                      />
                       Stopping...
                     </>
-                  ) : (
-                    <>
-                      <Square className="w-4 h-4 mr-2" aria-hidden="true" />
+                  : <>
+                      <Square
+                        className="mr-2 h-4 w-4"
+                        aria-hidden="true"
+                      />
                       Stop Ping
                     </>
-                  )}
+                  }
                 </Button>
-              )}
+              }
             </div>
 
             {/* Error display */}
             {ping.error && (
               <div
-                className="p-component-md border border-error bg-error/10 rounded-card-sm text-xs text-error"
+                className="p-component-md border-error bg-error/10 rounded-card-sm text-error border text-xs"
                 role="alert"
               >
                 {ping.error}
@@ -258,7 +285,10 @@ export const PingToolDesktop = memo(function PingToolDesktop({
               Results {ping.results.length > 0 && `(${ping.results.length}/${ping.count})`}
             </CardTitle>
           </CardHeader>
-          <CardContent role="log" aria-label="Ping results">
+          <CardContent
+            role="log"
+            aria-label="Ping results"
+          >
             <PingResults results={ping.results} />
           </CardContent>
         </Card>

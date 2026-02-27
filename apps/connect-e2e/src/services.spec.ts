@@ -20,9 +20,7 @@ test.describe('Service Instance Management', () => {
     test('should load services page', async ({ page }) => {
       // Verify page header
       await expect(page.getByText('Service Instances')).toBeVisible();
-      await expect(
-        page.getByText(/Manage downloadable network services/)
-      ).toBeVisible();
+      await expect(page.getByText(/Manage downloadable network services/)).toBeVisible();
     });
 
     test('should show install button', async ({ page }) => {
@@ -37,9 +35,7 @@ test.describe('Service Instance Management', () => {
       const instanceManager = page.locator('[data-testid="instance-manager"]');
       const emptyState = page.getByText(/No services installed yet/i);
 
-      await expect(
-        page.locator('body').locator(':has-text("Service Instances")')
-      ).toBeVisible();
+      await expect(page.locator('body').locator(':has-text("Service Instances")')).toBeVisible();
     });
   });
 
@@ -106,9 +102,7 @@ test.describe('Service Instance Management', () => {
   });
 
   test.describe('Install Service Flow', () => {
-    test('should open install dialog when install button is clicked', async ({
-      page,
-    }) => {
+    test('should open install dialog when install button is clicked', async ({ page }) => {
       // Click install button
       await page.getByRole('button', { name: /install service/i }).click();
 
@@ -197,9 +191,7 @@ test.describe('Service Instance Management', () => {
       });
     });
 
-    test('should show validation error for empty instance name', async ({
-      page,
-    }) => {
+    test('should show validation error for empty instance name', async ({ page }) => {
       // Open dialog
       await page.getByRole('button', { name: /install service/i }).click();
 
@@ -218,9 +210,9 @@ test.describe('Service Instance Management', () => {
         await page.getByRole('button', { name: /next/i }).click();
 
         // Verify error message
-        await expect(
-          page.getByText(/please enter an instance name/i)
-        ).toBeVisible({ timeout: 3000 });
+        await expect(page.getByText(/please enter an instance name/i)).toBeVisible({
+          timeout: 3000,
+        });
       }
     });
   });

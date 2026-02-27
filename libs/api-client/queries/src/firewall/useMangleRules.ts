@@ -16,10 +16,7 @@
 
 import { useQuery, useMutation, useQueryClient, UseQueryResult } from '@tanstack/react-query';
 import { makeRouterOSRequest } from '@nasnet/api-client/core';
-import type {
-  MangleRule,
-  MangleChain,
-} from '@nasnet/core/types';
+import type { MangleRule, MangleChain } from '@nasnet/core/types';
 
 // ============================================================================
 // Query Keys
@@ -31,7 +28,8 @@ import type {
  */
 export const mangleRulesKeys = {
   all: (routerId: string) => ['mangle', routerId] as const,
-  byChain: (routerId: string, chain: MangleChain) => [...mangleRulesKeys.all(routerId), chain] as const,
+  byChain: (routerId: string, chain: MangleChain) =>
+    [...mangleRulesKeys.all(routerId), chain] as const,
 };
 
 // ============================================================================
@@ -61,8 +59,8 @@ interface RawMangleRule {
   'out-interface-list'?: string;
 
   // Connection matchers
-  'connection-state'?: string;  // comma-separated
-  'connection-nat-state'?: string;  // comma-separated
+  'connection-state'?: string; // comma-separated
+  'connection-nat-state'?: string; // comma-separated
   'connection-mark'?: string;
   'packet-mark'?: string;
   'routing-mark'?: string;
@@ -77,7 +75,7 @@ interface RawMangleRule {
   'new-connection-mark'?: string;
   'new-packet-mark'?: string;
   'new-routing-mark'?: string;
-  passthrough?: string;  // "yes" or "no"
+  passthrough?: string; // "yes" or "no"
 
   // DSCP/TTL actions
   'new-dscp'?: string;
@@ -89,8 +87,8 @@ interface RawMangleRule {
 
   // Meta
   comment?: string;
-  disabled?: string;  // "true" or "false"
-  log?: string;  // "yes" or "no"
+  disabled?: string; // "true" or "false"
+  log?: string; // "yes" or "no"
   'log-prefix'?: string;
 
   // Counters
@@ -107,7 +105,10 @@ interface RawMangleRule {
  */
 function parseCommaSeparated(value?: string): string[] | undefined {
   if (!value) return undefined;
-  return value.split(',').map(s => s.trim()).filter(Boolean);
+  return value
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
 }
 
 /**
@@ -119,7 +120,7 @@ function transformMangleRule(raw: RawMangleRule, index: number): MangleRule {
     id: raw['.id'],
     chain: raw.chain as MangleChain,
     action: raw.action as MangleRule['action'],
-    position: index,  // Use array index as position for ordering
+    position: index, // Use array index as position for ordering
 
     // Basic matchers
     protocol: raw.protocol,
@@ -136,7 +137,9 @@ function transformMangleRule(raw: RawMangleRule, index: number): MangleRule {
 
     // Connection matchers
     connectionState: parseCommaSeparated(raw['connection-state']) as MangleRule['connectionState'],
-    connectionNatState: parseCommaSeparated(raw['connection-nat-state']) as MangleRule['connectionNatState'],
+    connectionNatState: parseCommaSeparated(
+      raw['connection-nat-state']
+    ) as MangleRule['connectionNatState'],
     connectionMark: raw['connection-mark'],
     packetMark: raw['packet-mark'],
     routingMark: raw['routing-mark'],
@@ -151,7 +154,7 @@ function transformMangleRule(raw: RawMangleRule, index: number): MangleRule {
     newConnectionMark: raw['new-connection-mark'],
     newPacketMark: raw['new-packet-mark'],
     newRoutingMark: raw['new-routing-mark'],
-    passthrough: raw.passthrough === 'yes' || raw.passthrough === undefined,  // Default true
+    passthrough: raw.passthrough === 'yes' || raw.passthrough === undefined, // Default true
 
     // DSCP/TTL actions
     newDscp: raw['new-dscp'] ? parseInt(raw['new-dscp'], 10) : undefined,
@@ -286,8 +289,9 @@ export function useMangleRules(
   options?: UseMangleRulesOptions
 ): UseQueryResult<MangleRule[], Error> {
   return useQuery({
-    queryKey: options?.chain
-      ? mangleRulesKeys.byChain(routerId, options.chain)
+    queryKey:
+      options?.chain ?
+        mangleRulesKeys.byChain(routerId, options.chain)
       : mangleRulesKeys.all(routerId),
     queryFn: () => fetchMangleRules(routerId, options?.chain),
     staleTime: 5 * 60 * 1000, // 5 minutes

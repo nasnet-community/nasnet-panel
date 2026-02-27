@@ -10,20 +10,9 @@ import { renderHook, waitFor } from '@testing-library/react';
 import { MockedProvider } from '@apollo/client/testing';
 import React from 'react';
 
-import {
-  useDependencies,
-  useDependents,
-  useDependencyGraph,
-} from './useDependencies';
-import {
-  GET_DEPENDENCIES,
-  GET_DEPENDENTS,
-  GET_DEPENDENCY_GRAPH,
-} from './services.graphql';
-import type {
-  ServiceDependency,
-  DependencyGraph,
-} from './useDependencies';
+import { useDependencies, useDependents, useDependencyGraph } from './useDependencies';
+import { GET_DEPENDENCIES, GET_DEPENDENTS, GET_DEPENDENCY_GRAPH } from './services.graphql';
+import type { ServiceDependency, DependencyGraph } from './useDependencies';
 
 describe('useDependencies Hook', () => {
   const mockInstanceId = 'inst_xray_123';
@@ -71,7 +60,10 @@ describe('useDependencies Hook', () => {
     ];
 
     const wrapper = ({ children }: { children: React.ReactNode }) => (
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider
+        mocks={mocks}
+        addTypename={false}
+      >
         {children}
       </MockedProvider>
     );
@@ -109,7 +101,10 @@ describe('useDependencies Hook', () => {
     ];
 
     const wrapper = ({ children }: { children: React.ReactNode }) => (
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider
+        mocks={mocks}
+        addTypename={false}
+      >
         {children}
       </MockedProvider>
     );
@@ -138,7 +133,10 @@ describe('useDependencies Hook', () => {
     ];
 
     const wrapper = ({ children }: { children: React.ReactNode }) => (
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider
+        mocks={mocks}
+        addTypename={false}
+      >
         {children}
       </MockedProvider>
     );
@@ -157,7 +155,10 @@ describe('useDependencies Hook', () => {
     const mocks: any[] = [];
 
     const wrapper = ({ children }: { children: React.ReactNode }) => (
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider
+        mocks={mocks}
+        addTypename={false}
+      >
         {children}
       </MockedProvider>
     );
@@ -196,7 +197,10 @@ describe('useDependencies Hook', () => {
     ];
 
     const wrapper = ({ children }: { children: React.ReactNode }) => (
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider
+        mocks={mocks}
+        addTypename={false}
+      >
         {children}
       </MockedProvider>
     );
@@ -278,7 +282,10 @@ describe('useDependents Hook', () => {
     ];
 
     const wrapper = ({ children }: { children: React.ReactNode }) => (
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider
+        mocks={mocks}
+        addTypename={false}
+      >
         {children}
       </MockedProvider>
     );
@@ -310,7 +317,10 @@ describe('useDependents Hook', () => {
     ];
 
     const wrapper = ({ children }: { children: React.ReactNode }) => (
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider
+        mocks={mocks}
+        addTypename={false}
+      >
         {children}
       </MockedProvider>
     );
@@ -338,7 +348,10 @@ describe('useDependents Hook', () => {
     ];
 
     const wrapper = ({ children }: { children: React.ReactNode }) => (
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider
+        mocks={mocks}
+        addTypename={false}
+      >
         {children}
       </MockedProvider>
     );
@@ -357,7 +370,10 @@ describe('useDependents Hook', () => {
     const mocks: any[] = [];
 
     const wrapper = ({ children }: { children: React.ReactNode }) => (
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider
+        mocks={mocks}
+        addTypename={false}
+      >
         {children}
       </MockedProvider>
     );
@@ -427,7 +443,10 @@ describe('useDependencyGraph Hook', () => {
     ];
 
     const wrapper = ({ children }: { children: React.ReactNode }) => (
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider
+        mocks={mocks}
+        addTypename={false}
+      >
         {children}
       </MockedProvider>
     );
@@ -464,7 +483,10 @@ describe('useDependencyGraph Hook', () => {
     ];
 
     const wrapper = ({ children }: { children: React.ReactNode }) => (
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider
+        mocks={mocks}
+        addTypename={false}
+      >
         {children}
       </MockedProvider>
     );
@@ -493,7 +515,10 @@ describe('useDependencyGraph Hook', () => {
     ];
 
     const wrapper = ({ children }: { children: React.ReactNode }) => (
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider
+        mocks={mocks}
+        addTypename={false}
+      >
         {children}
       </MockedProvider>
     );
@@ -512,7 +537,10 @@ describe('useDependencyGraph Hook', () => {
     const mocks: any[] = [];
 
     const wrapper = ({ children }: { children: React.ReactNode }) => (
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider
+        mocks={mocks}
+        addTypename={false}
+      >
         {children}
       </MockedProvider>
     );
@@ -539,7 +567,10 @@ describe('useDependencyGraph Hook', () => {
     ];
 
     const wrapper = ({ children }: { children: React.ReactNode }) => (
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider
+        mocks={mocks}
+        addTypename={false}
+      >
         {children}
       </MockedProvider>
     );

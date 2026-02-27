@@ -249,10 +249,7 @@ export const mockPreviewResultWithConflicts: TemplatePreviewResult = {
     newRulesCount: 4,
     affectedChains: ['forward', 'srcnat', 'mangle'],
     estimatedApplyTime: 800,
-    warnings: [
-      'Conflict detected: duplicate rule exists',
-      'Review conflicts before applying',
-    ],
+    warnings: ['Conflict detected: duplicate rule exists', 'Review conflicts before applying'],
   },
 };
 

@@ -57,7 +57,7 @@ export const WifiPage = React.memo(function WifiPage() {
 
   if (isLoading) {
     return (
-      <div className="px-page-mobile md:px-page-tablet lg:px-page-desktop py-page-mobile md:py-page-tablet lg:py-page-desktop max-w-7xl mx-auto">
+      <div className="px-page-mobile md:px-page-tablet lg:px-page-desktop py-page-mobile md:py-page-tablet lg:py-page-desktop mx-auto max-w-7xl">
         <LoadingSkeleton />
       </div>
     );
@@ -65,14 +65,13 @@ export const WifiPage = React.memo(function WifiPage() {
 
   if (interfacesError) {
     return (
-      <div className="px-page-mobile md:px-page-tablet lg:px-page-desktop py-page-mobile md:py-page-tablet lg:py-page-desktop max-w-7xl mx-auto">
-        <div className="bg-error/10 border border-error/30 rounded-[var(--semantic-radius-card)] p-component-lg text-center" role="alert">
-          <h3 className="text-lg font-semibold text-error mb-2">
-            {t('status.failedToLoad')}
-          </h3>
-          <p className="text-sm text-error/80 mb-4">
-            {interfacesError.message}
-          </p>
+      <div className="px-page-mobile md:px-page-tablet lg:px-page-desktop py-page-mobile md:py-page-tablet lg:py-page-desktop mx-auto max-w-7xl">
+        <div
+          className="bg-error/10 border-error/30 p-component-lg rounded-[var(--semantic-radius-card)] border text-center"
+          role="alert"
+        >
+          <h3 className="text-error mb-2 text-lg font-semibold">{t('status.failedToLoad')}</h3>
+          <p className="text-error/80 mb-4 text-sm">{interfacesError.message}</p>
           <Button
             variant="outline"
             size="sm"
@@ -87,18 +86,19 @@ export const WifiPage = React.memo(function WifiPage() {
   }
 
   return (
-    <div className="px-page-mobile md:px-page-tablet lg:px-page-desktop py-page-mobile md:py-page-tablet lg:py-page-desktop space-y-component-lg max-w-7xl mx-auto animate-fade-in-up">
+    <div className="px-page-mobile md:px-page-tablet lg:px-page-desktop py-page-mobile md:py-page-tablet lg:py-page-desktop space-y-component-lg animate-fade-in-up mx-auto max-w-7xl">
       {/* Page Header with Quick Actions */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-component-md">
+      <div className="gap-component-md flex flex-col sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-display font-semibold text-foreground category-header category-header-wifi">
+          <h1 className="font-display text-foreground category-header category-header-wifi text-2xl font-semibold">
             {t('title')}
           </h1>
-          <p className="text-sm text-muted-foreground">
-            {t('overview')}
-          </p>
+          <p className="text-muted-foreground text-sm">{t('overview')}</p>
         </div>
-        <WifiQuickActions onRefresh={handleRefresh} isRefreshing={isRefreshing} />
+        <WifiQuickActions
+          onRefresh={handleRefresh}
+          isRefreshing={isRefreshing}
+        />
       </div>
 
       {/* WiFi Status Hero - Stats Grid */}

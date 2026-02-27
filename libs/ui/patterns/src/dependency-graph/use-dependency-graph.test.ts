@@ -166,10 +166,34 @@ describe('useDependencyGraph Hook', () => {
       ];
 
       const edges: DependencyGraphEdge[] = [
-        { fromInstanceId: 'B', toInstanceId: 'A', dependencyType: 'REQUIRES', autoStart: true, healthTimeoutSeconds: 30 },
-        { fromInstanceId: 'C', toInstanceId: 'A', dependencyType: 'REQUIRES', autoStart: true, healthTimeoutSeconds: 30 },
-        { fromInstanceId: 'D', toInstanceId: 'B', dependencyType: 'REQUIRES', autoStart: true, healthTimeoutSeconds: 30 },
-        { fromInstanceId: 'D', toInstanceId: 'C', dependencyType: 'REQUIRES', autoStart: true, healthTimeoutSeconds: 30 },
+        {
+          fromInstanceId: 'B',
+          toInstanceId: 'A',
+          dependencyType: 'REQUIRES',
+          autoStart: true,
+          healthTimeoutSeconds: 30,
+        },
+        {
+          fromInstanceId: 'C',
+          toInstanceId: 'A',
+          dependencyType: 'REQUIRES',
+          autoStart: true,
+          healthTimeoutSeconds: 30,
+        },
+        {
+          fromInstanceId: 'D',
+          toInstanceId: 'B',
+          dependencyType: 'REQUIRES',
+          autoStart: true,
+          healthTimeoutSeconds: 30,
+        },
+        {
+          fromInstanceId: 'D',
+          toInstanceId: 'C',
+          dependencyType: 'REQUIRES',
+          autoStart: true,
+          healthTimeoutSeconds: 30,
+        },
       ];
 
       const config: UseDependencyGraphConfig = {
@@ -210,8 +234,20 @@ describe('useDependencyGraph Hook', () => {
       ];
 
       const edges: DependencyGraphEdge[] = [
-        { fromInstanceId: 'B', toInstanceId: 'A', dependencyType: 'REQUIRES', autoStart: true, healthTimeoutSeconds: 30 },
-        { fromInstanceId: 'D', toInstanceId: 'C', dependencyType: 'REQUIRES', autoStart: true, healthTimeoutSeconds: 30 },
+        {
+          fromInstanceId: 'B',
+          toInstanceId: 'A',
+          dependencyType: 'REQUIRES',
+          autoStart: true,
+          healthTimeoutSeconds: 30,
+        },
+        {
+          fromInstanceId: 'D',
+          toInstanceId: 'C',
+          dependencyType: 'REQUIRES',
+          autoStart: true,
+          healthTimeoutSeconds: 30,
+        },
       ];
 
       const config: UseDependencyGraphConfig = {
@@ -250,8 +286,20 @@ describe('useDependencyGraph Hook', () => {
       ];
 
       const edges: DependencyGraphEdge[] = [
-        { fromInstanceId: 'A', toInstanceId: 'B', dependencyType: 'REQUIRES', autoStart: true, healthTimeoutSeconds: 30 },
-        { fromInstanceId: 'B', toInstanceId: 'A', dependencyType: 'REQUIRES', autoStart: true, healthTimeoutSeconds: 30 },
+        {
+          fromInstanceId: 'A',
+          toInstanceId: 'B',
+          dependencyType: 'REQUIRES',
+          autoStart: true,
+          healthTimeoutSeconds: 30,
+        },
+        {
+          fromInstanceId: 'B',
+          toInstanceId: 'A',
+          dependencyType: 'REQUIRES',
+          autoStart: true,
+          healthTimeoutSeconds: 30,
+        },
       ];
 
       const config: UseDependencyGraphConfig = {
@@ -279,9 +327,27 @@ describe('useDependencyGraph Hook', () => {
       ];
 
       const edges: DependencyGraphEdge[] = [
-        { fromInstanceId: 'A', toInstanceId: 'B', dependencyType: 'REQUIRES', autoStart: true, healthTimeoutSeconds: 30 },
-        { fromInstanceId: 'B', toInstanceId: 'C', dependencyType: 'REQUIRES', autoStart: true, healthTimeoutSeconds: 30 },
-        { fromInstanceId: 'C', toInstanceId: 'A', dependencyType: 'REQUIRES', autoStart: true, healthTimeoutSeconds: 30 },
+        {
+          fromInstanceId: 'A',
+          toInstanceId: 'B',
+          dependencyType: 'REQUIRES',
+          autoStart: true,
+          healthTimeoutSeconds: 30,
+        },
+        {
+          fromInstanceId: 'B',
+          toInstanceId: 'C',
+          dependencyType: 'REQUIRES',
+          autoStart: true,
+          healthTimeoutSeconds: 30,
+        },
+        {
+          fromInstanceId: 'C',
+          toInstanceId: 'A',
+          dependencyType: 'REQUIRES',
+          autoStart: true,
+          healthTimeoutSeconds: 30,
+        },
       ];
 
       const config: UseDependencyGraphConfig = {
@@ -299,8 +365,18 @@ describe('useDependencyGraph Hook', () => {
   describe('Node Selection', () => {
     it('should track selected node correctly', () => {
       const nodes: DependencyGraphNode[] = [
-        { instanceId: 'inst_tor_1', instanceName: 'Tor Gateway', featureId: 'tor', status: 'RUNNING' },
-        { instanceId: 'inst_xray_1', instanceName: 'Xray Proxy', featureId: 'xray', status: 'RUNNING' },
+        {
+          instanceId: 'inst_tor_1',
+          instanceName: 'Tor Gateway',
+          featureId: 'tor',
+          status: 'RUNNING',
+        },
+        {
+          instanceId: 'inst_xray_1',
+          instanceName: 'Xray Proxy',
+          featureId: 'xray',
+          status: 'RUNNING',
+        },
       ];
 
       const config: UseDependencyGraphConfig = {
@@ -317,7 +393,12 @@ describe('useDependencyGraph Hook', () => {
 
     it('should return null when selected node not found', () => {
       const nodes: DependencyGraphNode[] = [
-        { instanceId: 'inst_tor_1', instanceName: 'Tor Gateway', featureId: 'tor', status: 'RUNNING' },
+        {
+          instanceId: 'inst_tor_1',
+          instanceName: 'Tor Gateway',
+          featureId: 'tor',
+          status: 'RUNNING',
+        },
       ];
 
       const config: UseDependencyGraphConfig = {
@@ -334,7 +415,12 @@ describe('useDependencyGraph Hook', () => {
       const onNodeSelect = vi.fn();
 
       const nodes: DependencyGraphNode[] = [
-        { instanceId: 'inst_tor_1', instanceName: 'Tor Gateway', featureId: 'tor', status: 'RUNNING' },
+        {
+          instanceId: 'inst_tor_1',
+          instanceName: 'Tor Gateway',
+          featureId: 'tor',
+          status: 'RUNNING',
+        },
       ];
 
       const config: UseDependencyGraphConfig = {
@@ -353,7 +439,12 @@ describe('useDependencyGraph Hook', () => {
 
     it('should not crash if onNodeSelect is not provided', () => {
       const nodes: DependencyGraphNode[] = [
-        { instanceId: 'inst_tor_1', instanceName: 'Tor Gateway', featureId: 'tor', status: 'RUNNING' },
+        {
+          instanceId: 'inst_tor_1',
+          instanceName: 'Tor Gateway',
+          featureId: 'tor',
+          status: 'RUNNING',
+        },
       ];
 
       const config: UseDependencyGraphConfig = {
@@ -377,7 +468,13 @@ describe('useDependencyGraph Hook', () => {
       ];
 
       const edges: DependencyGraphEdge[] = [
-        { fromInstanceId: 'B', toInstanceId: 'A', dependencyType: 'REQUIRES', autoStart: true, healthTimeoutSeconds: 30 },
+        {
+          fromInstanceId: 'B',
+          toInstanceId: 'A',
+          dependencyType: 'REQUIRES',
+          autoStart: true,
+          healthTimeoutSeconds: 30,
+        },
       ];
 
       const config: UseDependencyGraphConfig = {
@@ -434,9 +531,27 @@ describe('useDependencyGraph Hook', () => {
       ];
 
       const edges: DependencyGraphEdge[] = [
-        { fromInstanceId: 'B', toInstanceId: 'A', dependencyType: 'REQUIRES', autoStart: true, healthTimeoutSeconds: 30 },
-        { fromInstanceId: 'C', toInstanceId: 'A', dependencyType: 'REQUIRES', autoStart: true, healthTimeoutSeconds: 30 },
-        { fromInstanceId: 'D', toInstanceId: 'B', dependencyType: 'REQUIRES', autoStart: true, healthTimeoutSeconds: 30 },
+        {
+          fromInstanceId: 'B',
+          toInstanceId: 'A',
+          dependencyType: 'REQUIRES',
+          autoStart: true,
+          healthTimeoutSeconds: 30,
+        },
+        {
+          fromInstanceId: 'C',
+          toInstanceId: 'A',
+          dependencyType: 'REQUIRES',
+          autoStart: true,
+          healthTimeoutSeconds: 30,
+        },
+        {
+          fromInstanceId: 'D',
+          toInstanceId: 'B',
+          dependencyType: 'REQUIRES',
+          autoStart: true,
+          healthTimeoutSeconds: 30,
+        },
       ];
 
       const config: UseDependencyGraphConfig = {
@@ -474,8 +589,20 @@ describe('useDependencyGraph Hook', () => {
       ];
 
       const edges: DependencyGraphEdge[] = [
-        { fromInstanceId: 'B', toInstanceId: 'A', dependencyType: 'REQUIRES', autoStart: true, healthTimeoutSeconds: 30 },
-        { fromInstanceId: 'C', toInstanceId: 'B', dependencyType: 'REQUIRES', autoStart: true, healthTimeoutSeconds: 30 },
+        {
+          fromInstanceId: 'B',
+          toInstanceId: 'A',
+          dependencyType: 'REQUIRES',
+          autoStart: true,
+          healthTimeoutSeconds: 30,
+        },
+        {
+          fromInstanceId: 'C',
+          toInstanceId: 'B',
+          dependencyType: 'REQUIRES',
+          autoStart: true,
+          healthTimeoutSeconds: 30,
+        },
       ];
 
       const config: UseDependencyGraphConfig = {

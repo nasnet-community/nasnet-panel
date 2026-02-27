@@ -24,9 +24,7 @@ describe('DiagnosticStep', () => {
     isActive: false,
   };
 
-  const createStep = (
-    overrides?: Partial<DiagnosticStepType>
-  ): DiagnosticStepType => ({
+  const createStep = (overrides?: Partial<DiagnosticStepType>): DiagnosticStepType => ({
     id: 'wan',
     name: 'WAN Interface Check',
     description: 'Checking WAN interface status',
@@ -44,7 +42,12 @@ describe('DiagnosticStep', () => {
     it('should render pending step with clock icon', () => {
       const step = createStep();
 
-      render(<DiagnosticStep {...defaultProps} step={step} />);
+      render(
+        <DiagnosticStep
+          {...defaultProps}
+          step={step}
+        />
+      );
 
       expect(screen.getByRole('status')).toBeInTheDocument();
       expect(screen.getByText('WAN Interface Check')).toBeInTheDocument();
@@ -57,7 +60,12 @@ describe('DiagnosticStep', () => {
     it('should have reduced opacity for pending steps', () => {
       const step = createStep();
 
-      render(<DiagnosticStep {...defaultProps} step={step} />);
+      render(
+        <DiagnosticStep
+          {...defaultProps}
+          step={step}
+        />
+      );
 
       const container = screen.getByRole('status');
       expect(container.className).toContain('opacity-60');
@@ -73,7 +81,12 @@ describe('DiagnosticStep', () => {
         },
       });
 
-      render(<DiagnosticStep {...defaultProps} step={step} />);
+      render(
+        <DiagnosticStep
+          {...defaultProps}
+          step={step}
+        />
+      );
 
       expect(screen.queryByText('This should not be visible')).not.toBeInTheDocument();
     });
@@ -83,7 +96,12 @@ describe('DiagnosticStep', () => {
     it('should render running step with spinner icon', () => {
       const step = createStep({ status: 'running' });
 
-      render(<DiagnosticStep {...defaultProps} step={step} />);
+      render(
+        <DiagnosticStep
+          {...defaultProps}
+          step={step}
+        />
+      );
 
       const container = screen.getByRole('status');
       const spinner = container.querySelector('.lucide-loader-2');
@@ -95,7 +113,12 @@ describe('DiagnosticStep', () => {
     it('should show primary border and background for running step', () => {
       const step = createStep({ status: 'running' });
 
-      render(<DiagnosticStep {...defaultProps} step={step} />);
+      render(
+        <DiagnosticStep
+          {...defaultProps}
+          step={step}
+        />
+      );
 
       const container = screen.getByRole('status');
       expect(container.className).toContain('border-primary');
@@ -113,7 +136,12 @@ describe('DiagnosticStep', () => {
         },
       });
 
-      render(<DiagnosticStep {...defaultProps} step={step} />);
+      render(
+        <DiagnosticStep
+          {...defaultProps}
+          step={step}
+        />
+      );
 
       expect(screen.getByText('Checking interface status...')).toBeInTheDocument();
     });
@@ -129,7 +157,12 @@ describe('DiagnosticStep', () => {
         },
       });
 
-      render(<DiagnosticStep {...defaultProps} step={step} />);
+      render(
+        <DiagnosticStep
+          {...defaultProps}
+          step={step}
+        />
+      );
 
       expect(screen.queryByText(/0\.5s/)).not.toBeInTheDocument();
     });
@@ -147,7 +180,12 @@ describe('DiagnosticStep', () => {
         },
       });
 
-      render(<DiagnosticStep {...defaultProps} step={step} />);
+      render(
+        <DiagnosticStep
+          {...defaultProps}
+          step={step}
+        />
+      );
 
       const container = screen.getByRole('status');
       expect(container.querySelector('.lucide-check-circle-2')).toBeInTheDocument();
@@ -164,7 +202,12 @@ describe('DiagnosticStep', () => {
         },
       });
 
-      render(<DiagnosticStep {...defaultProps} step={step} />);
+      render(
+        <DiagnosticStep
+          {...defaultProps}
+          step={step}
+        />
+      );
 
       const container = screen.getByRole('status');
       expect(container.className).toContain('border-success');
@@ -182,7 +225,12 @@ describe('DiagnosticStep', () => {
         },
       });
 
-      render(<DiagnosticStep {...defaultProps} step={step} />);
+      render(
+        <DiagnosticStep
+          {...defaultProps}
+          step={step}
+        />
+      );
 
       const message = screen.getByText('WAN interface is enabled');
       expect(message.className).toContain('text-success');
@@ -199,7 +247,12 @@ describe('DiagnosticStep', () => {
         },
       });
 
-      render(<DiagnosticStep {...defaultProps} step={step} />);
+      render(
+        <DiagnosticStep
+          {...defaultProps}
+          step={step}
+        />
+      );
 
       expect(screen.getByText('1.5s')).toBeInTheDocument();
     });
@@ -217,7 +270,12 @@ describe('DiagnosticStep', () => {
         },
       });
 
-      render(<DiagnosticStep {...defaultProps} step={step} />);
+      render(
+        <DiagnosticStep
+          {...defaultProps}
+          step={step}
+        />
+      );
 
       const container = screen.getByRole('status');
       expect(container.querySelector('.lucide-x-circle')).toBeInTheDocument();
@@ -234,7 +292,12 @@ describe('DiagnosticStep', () => {
         },
       });
 
-      render(<DiagnosticStep {...defaultProps} step={step} />);
+      render(
+        <DiagnosticStep
+          {...defaultProps}
+          step={step}
+        />
+      );
 
       const container = screen.getByRole('status');
       expect(container.className).toContain('border-error');
@@ -252,7 +315,12 @@ describe('DiagnosticStep', () => {
         },
       });
 
-      render(<DiagnosticStep {...defaultProps} step={step} />);
+      render(
+        <DiagnosticStep
+          {...defaultProps}
+          step={step}
+        />
+      );
 
       const message = screen.getByText('Gateway unreachable');
       expect(message.className).toContain('text-error');
@@ -269,7 +337,12 @@ describe('DiagnosticStep', () => {
         },
       });
 
-      render(<DiagnosticStep {...defaultProps} step={step} />);
+      render(
+        <DiagnosticStep
+          {...defaultProps}
+          step={step}
+        />
+      );
 
       expect(screen.getByText('5.0s')).toBeInTheDocument();
     });
@@ -279,7 +352,13 @@ describe('DiagnosticStep', () => {
     it('should show ring indicator when active', () => {
       const step = createStep({ status: 'running' });
 
-      render(<DiagnosticStep {...defaultProps} step={step} isActive={true} />);
+      render(
+        <DiagnosticStep
+          {...defaultProps}
+          step={step}
+          isActive={true}
+        />
+      );
 
       const container = screen.getByRole('status');
       expect(container.className).toContain('ring-2');
@@ -289,7 +368,13 @@ describe('DiagnosticStep', () => {
     it('should not show ring when not active', () => {
       const step = createStep({ status: 'passed' });
 
-      render(<DiagnosticStep {...defaultProps} step={step} isActive={false} />);
+      render(
+        <DiagnosticStep
+          {...defaultProps}
+          step={step}
+          isActive={false}
+        />
+      );
 
       const container = screen.getByRole('status');
       expect(container.className).not.toContain('ring-2');
@@ -300,7 +385,14 @@ describe('DiagnosticStep', () => {
     it('should display step number', () => {
       const step = createStep();
 
-      render(<DiagnosticStep {...defaultProps} step={step} stepNumber={3} totalSteps={5} />);
+      render(
+        <DiagnosticStep
+          {...defaultProps}
+          step={step}
+          stepNumber={3}
+          totalSteps={5}
+        />
+      );
 
       // Check for step number in aria-label
       expect(screen.getByRole('status')).toHaveAttribute(
@@ -316,7 +408,10 @@ describe('DiagnosticStep', () => {
       });
 
       const { rerender, container } = render(
-        <DiagnosticStep {...defaultProps} step={stepPassed} />
+        <DiagnosticStep
+          {...defaultProps}
+          step={stepPassed}
+        />
       );
 
       let badge = container.querySelector('[aria-hidden="true"]:last-child');
@@ -328,7 +423,12 @@ describe('DiagnosticStep', () => {
         result: { success: false, message: '', issueCode: 'ERROR', executionTimeMs: 100 },
       });
 
-      rerender(<DiagnosticStep {...defaultProps} step={stepFailed} />);
+      rerender(
+        <DiagnosticStep
+          {...defaultProps}
+          step={stepFailed}
+        />
+      );
 
       badge = container.querySelector('[aria-hidden="true"]:last-child');
       expect(badge?.className).toContain('bg-error');
@@ -344,7 +444,13 @@ describe('DiagnosticStep', () => {
         result: { success: true, message: 'Passed', issueCode: undefined, executionTimeMs: 100 },
       });
 
-      render(<DiagnosticStep {...defaultProps} step={step} onClick={onClick} />);
+      render(
+        <DiagnosticStep
+          {...defaultProps}
+          step={step}
+          onClick={onClick}
+        />
+      );
 
       const container = screen.getByRole('status');
       await user.click(container);
@@ -360,7 +466,13 @@ describe('DiagnosticStep', () => {
         result: { success: true, message: 'Passed', issueCode: undefined, executionTimeMs: 100 },
       });
 
-      render(<DiagnosticStep {...defaultProps} step={step} onClick={onClick} />);
+      render(
+        <DiagnosticStep
+          {...defaultProps}
+          step={step}
+          onClick={onClick}
+        />
+      );
 
       const container = screen.getByRole('status');
       container.focus();
@@ -377,7 +489,13 @@ describe('DiagnosticStep', () => {
         result: { success: true, message: 'Passed', issueCode: undefined, executionTimeMs: 100 },
       });
 
-      render(<DiagnosticStep {...defaultProps} step={step} onClick={onClick} />);
+      render(
+        <DiagnosticStep
+          {...defaultProps}
+          step={step}
+          onClick={onClick}
+        />
+      );
 
       const container = screen.getByRole('status');
       container.focus();
@@ -393,7 +511,13 @@ describe('DiagnosticStep', () => {
         result: { success: true, message: 'Passed', issueCode: undefined, executionTimeMs: 100 },
       });
 
-      render(<DiagnosticStep {...defaultProps} step={step} onClick={onClick} />);
+      render(
+        <DiagnosticStep
+          {...defaultProps}
+          step={step}
+          onClick={onClick}
+        />
+      );
 
       const container = screen.getByRole('status');
       expect(container.className).toContain('cursor-pointer');
@@ -403,7 +527,13 @@ describe('DiagnosticStep', () => {
       const onClick = vi.fn();
       const step = createStep();
 
-      render(<DiagnosticStep {...defaultProps} step={step} onClick={onClick} />);
+      render(
+        <DiagnosticStep
+          {...defaultProps}
+          step={step}
+          onClick={onClick}
+        />
+      );
 
       const container = screen.getByRole('status');
       expect(container).toHaveAttribute('tabIndex', '0');
@@ -412,7 +542,12 @@ describe('DiagnosticStep', () => {
     it('should not be focusable when not clickable', () => {
       const step = createStep();
 
-      render(<DiagnosticStep {...defaultProps} step={step} />);
+      render(
+        <DiagnosticStep
+          {...defaultProps}
+          step={step}
+        />
+      );
 
       const container = screen.getByRole('status');
       expect(container).not.toHaveAttribute('tabIndex');
@@ -423,7 +558,14 @@ describe('DiagnosticStep', () => {
     it('should have proper ARIA label for pending step', () => {
       const step = createStep();
 
-      render(<DiagnosticStep {...defaultProps} step={step} stepNumber={2} totalSteps={5} />);
+      render(
+        <DiagnosticStep
+          {...defaultProps}
+          step={step}
+          stepNumber={2}
+          totalSteps={5}
+        />
+      );
 
       expect(screen.getByRole('status')).toHaveAttribute(
         'aria-label',
@@ -434,7 +576,12 @@ describe('DiagnosticStep', () => {
     it('should have proper ARIA label for running step', () => {
       const step = createStep({ status: 'running' });
 
-      render(<DiagnosticStep {...defaultProps} step={step} />);
+      render(
+        <DiagnosticStep
+          {...defaultProps}
+          step={step}
+        />
+      );
 
       expect(screen.getByRole('status')).toHaveAttribute(
         'aria-label',
@@ -448,7 +595,12 @@ describe('DiagnosticStep', () => {
         result: { success: true, message: '', issueCode: undefined, executionTimeMs: 100 },
       });
 
-      render(<DiagnosticStep {...defaultProps} step={step} />);
+      render(
+        <DiagnosticStep
+          {...defaultProps}
+          step={step}
+        />
+      );
 
       expect(screen.getByRole('status')).toHaveAttribute(
         'aria-label',
@@ -462,7 +614,12 @@ describe('DiagnosticStep', () => {
         result: { success: false, message: '', issueCode: 'ERROR', executionTimeMs: 100 },
       });
 
-      render(<DiagnosticStep {...defaultProps} step={step} />);
+      render(
+        <DiagnosticStep
+          {...defaultProps}
+          step={step}
+        />
+      );
 
       expect(screen.getByRole('status')).toHaveAttribute(
         'aria-label',
@@ -473,7 +630,12 @@ describe('DiagnosticStep', () => {
     it('should hide decorative icons from screen readers', () => {
       const step = createStep({ status: 'passed' });
 
-      const { container } = render(<DiagnosticStep {...defaultProps} step={step} />);
+      const { container } = render(
+        <DiagnosticStep
+          {...defaultProps}
+          step={step}
+        />
+      );
 
       const icons = container.querySelectorAll('[aria-hidden="true"]');
       expect(icons.length).toBeGreaterThan(0);
@@ -482,7 +644,12 @@ describe('DiagnosticStep', () => {
     it('should use semantic role=status', () => {
       const step = createStep();
 
-      render(<DiagnosticStep {...defaultProps} step={step} />);
+      render(
+        <DiagnosticStep
+          {...defaultProps}
+          step={step}
+        />
+      );
 
       expect(screen.getByRole('status')).toBeInTheDocument();
     });
@@ -492,7 +659,12 @@ describe('DiagnosticStep', () => {
     it('should handle missing result gracefully', () => {
       const step = createStep({ status: 'passed', result: undefined });
 
-      render(<DiagnosticStep {...defaultProps} step={step} />);
+      render(
+        <DiagnosticStep
+          {...defaultProps}
+          step={step}
+        />
+      );
 
       expect(screen.getByText('WAN Interface Check')).toBeInTheDocument();
     });
@@ -503,7 +675,12 @@ describe('DiagnosticStep', () => {
         result: { success: true, message: '', issueCode: undefined, executionTimeMs: 0 },
       });
 
-      render(<DiagnosticStep {...defaultProps} step={step} />);
+      render(
+        <DiagnosticStep
+          {...defaultProps}
+          step={step}
+        />
+      );
 
       expect(screen.getByText('0.0s')).toBeInTheDocument();
     });
@@ -513,7 +690,12 @@ describe('DiagnosticStep', () => {
         name: 'This is a very long step name that should be truncated to prevent layout issues',
       });
 
-      const { container } = render(<DiagnosticStep {...defaultProps} step={step} />);
+      const { container } = render(
+        <DiagnosticStep
+          {...defaultProps}
+          step={step}
+        />
+      );
 
       const stepName = container.querySelector('h3');
       expect(stepName?.className).toContain('truncate');
@@ -525,7 +707,12 @@ describe('DiagnosticStep', () => {
         result: { success: true, message: '', issueCode: undefined, executionTimeMs: 12345 },
       });
 
-      render(<DiagnosticStep {...defaultProps} step={step} />);
+      render(
+        <DiagnosticStep
+          {...defaultProps}
+          step={step}
+        />
+      );
 
       // 12345ms = 12.3s (rounded to 1 decimal)
       expect(screen.getByText('12.3s')).toBeInTheDocument();

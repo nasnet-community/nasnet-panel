@@ -1,9 +1,5 @@
 import { useQuery } from '@apollo/client';
-import {
-  GET_DEPENDENCIES,
-  GET_DEPENDENTS,
-  GET_DEPENDENCY_GRAPH,
-} from './services.graphql';
+import { GET_DEPENDENCIES, GET_DEPENDENTS, GET_DEPENDENCY_GRAPH } from './services.graphql';
 
 /**
  * Dependency type - strength of the dependency relationship

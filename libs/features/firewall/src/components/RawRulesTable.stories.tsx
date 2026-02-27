@@ -59,7 +59,8 @@ const meta = {
     layout: 'fullscreen',
     docs: {
       description: {
-        component: 'RAW firewall rules table with drag-drop reordering and platform-specific layouts.',
+        component:
+          'RAW firewall rules table with drag-drop reordering and platform-specific layouts.',
       },
     },
     a11y: {

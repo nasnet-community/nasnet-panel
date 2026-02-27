@@ -52,9 +52,7 @@ function formatUnreadCount(count: number): string {
  * }
  * ```
  */
-export function useNotificationBell(
-  props: NotificationBellProps
-): NotificationBellState {
+export function useNotificationBell(props: NotificationBellProps): NotificationBellState {
   const {
     unreadCount,
     notifications,
@@ -68,10 +66,7 @@ export function useNotificationBell(
   const [isOpen, setIsOpen] = useState(false);
 
   // Computed values (memoized)
-  const formattedCount = useMemo(
-    () => formatUnreadCount(unreadCount),
-    [unreadCount]
-  );
+  const formattedCount = useMemo(() => formatUnreadCount(unreadCount), [unreadCount]);
 
   const showBadge = useMemo(() => unreadCount > 0, [unreadCount]);
 

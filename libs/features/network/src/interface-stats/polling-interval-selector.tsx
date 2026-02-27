@@ -59,24 +59,36 @@ const PollingIntervalSelector = React.memo(function PollingIntervalSelector({
 }: PollingIntervalSelectorProps) {
   const { pollingInterval, setPollingInterval } = useInterfaceStatsStore();
 
-  const handleChange = useCallback((value: string) => {
-    setPollingInterval(value as PollingInterval);
-  }, [setPollingInterval]);
+  const handleChange = useCallback(
+    (value: string) => {
+      setPollingInterval(value as PollingInterval);
+    },
+    [setPollingInterval]
+  );
 
   if (inline) {
     return (
-      <Select value={pollingInterval} onValueChange={handleChange}>
-        <SelectTrigger className={cn('category-networking', className)} aria-label="Update interval">
+      <Select
+        value={pollingInterval}
+        onValueChange={handleChange}
+      >
+        <SelectTrigger
+          className={cn('category-networking', className)}
+          aria-label="Update interval"
+        >
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
           {(Object.keys(POLLING_INTERVAL_LABELS) as PollingInterval[]).map((interval) => {
             const { label, description } = POLLING_INTERVAL_LABELS[interval];
             return (
-              <SelectItem key={interval} value={interval}>
+              <SelectItem
+                key={interval}
+                value={interval}
+              >
                 <div className="flex flex-col">
                   <span className="font-medium">{label}</span>
-                  <span className="text-xs text-muted-foreground">{description}</span>
+                  <span className="text-muted-foreground text-xs">{description}</span>
                 </div>
               </SelectItem>
             );
@@ -88,28 +100,40 @@ const PollingIntervalSelector = React.memo(function PollingIntervalSelector({
 
   return (
     <div className={cn('category-networking', className)}>
-      <label htmlFor="polling-interval" className="mb-component-sm block text-sm font-medium">
+      <label
+        htmlFor="polling-interval"
+        className="mb-component-sm block text-sm font-medium"
+      >
         Update Interval
       </label>
-      <Select value={pollingInterval} onValueChange={handleChange}>
-        <SelectTrigger id="polling-interval" className="w-[200px]">
+      <Select
+        value={pollingInterval}
+        onValueChange={handleChange}
+      >
+        <SelectTrigger
+          id="polling-interval"
+          className="w-[200px]"
+        >
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
           {(Object.keys(POLLING_INTERVAL_LABELS) as PollingInterval[]).map((interval) => {
             const { label, description } = POLLING_INTERVAL_LABELS[interval];
             return (
-              <SelectItem key={interval} value={interval}>
+              <SelectItem
+                key={interval}
+                value={interval}
+              >
                 <div className="flex flex-col">
                   <span className="font-medium">{label}</span>
-                  <span className="text-xs text-muted-foreground">{description}</span>
+                  <span className="text-muted-foreground text-xs">{description}</span>
                 </div>
               </SelectItem>
             );
           })}
         </SelectContent>
       </Select>
-      <p className="mt-component-sm text-xs text-muted-foreground">
+      <p className="mt-component-sm text-muted-foreground text-xs">
         Changes apply immediately to active statistics subscriptions
       </p>
     </div>

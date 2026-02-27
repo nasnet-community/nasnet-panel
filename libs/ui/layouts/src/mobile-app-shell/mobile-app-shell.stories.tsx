@@ -71,32 +71,32 @@ const defaultNavigation = {
 };
 
 const MockContent = (
-  <div className="p-4 flex flex-col gap-4">
-    <div className="h-28 rounded-xl bg-muted flex items-center justify-center text-sm text-muted-foreground">
+  <div className="flex flex-col gap-4 p-4">
+    <div className="bg-muted text-muted-foreground flex h-28 items-center justify-center rounded-xl text-sm">
       Router health summary card
     </div>
     <div className="grid grid-cols-2 gap-3">
       {['CPU 12%', 'RAM 34MB', 'Uptime 3d', 'Clients 8'].map((label) => (
         <div
           key={label}
-          className="rounded-xl border border-border bg-card p-4 text-sm font-medium text-center"
+          className="border-border bg-card rounded-xl border p-4 text-center text-sm font-medium"
         >
           {label}
         </div>
       ))}
     </div>
-    <div className="h-36 rounded-xl bg-muted/50 border border-border flex items-center justify-center text-xs text-muted-foreground">
+    <div className="bg-muted/50 border-border text-muted-foreground flex h-36 items-center justify-center rounded-xl border text-xs">
       Traffic graph placeholder
     </div>
   </div>
 );
 
 const MockSidebarContent = (
-  <div className="p-4 flex flex-col gap-2 h-full">
+  <div className="flex h-full flex-col gap-2 p-4">
     {['Dashboard', 'Network', 'VPN', 'Firewall', 'Services', 'Settings'].map((item) => (
       <div
         key={item}
-        className="px-3 py-2 rounded-md text-sm text-foreground hover:bg-accent cursor-pointer"
+        className="text-foreground hover:bg-accent cursor-pointer rounded-md px-3 py-2 text-sm"
       >
         {item}
       </div>
@@ -135,9 +135,7 @@ export const WithStatusBanner: Story = {
       visible: true,
       children: null,
       content: (
-        <span className="text-sm font-medium">
-          Connection degraded &mdash; tap for details
-        </span>
+        <span className="text-sm font-medium">Connection degraded &mdash; tap for details</span>
       ),
     },
     children: MockContent,
@@ -153,9 +151,7 @@ export const WithErrorBanner: Story = {
       visible: true,
       children: null,
       content: (
-        <span className="text-sm font-medium">
-          Router offline &mdash; reconnecting&hellip;
-        </span>
+        <span className="text-sm font-medium">Router offline &mdash; reconnecting&hellip;</span>
       ),
     },
     children: MockContent,
@@ -189,8 +185,8 @@ export const NoNavigation: Story = {
   args: {
     header: { title: 'Setup Wizard' },
     children: (
-      <div className="p-4 flex flex-col gap-4 items-center">
-        <div className="h-40 w-full rounded-xl bg-muted flex items-center justify-center text-muted-foreground text-sm">
+      <div className="flex flex-col items-center gap-4 p-4">
+        <div className="bg-muted text-muted-foreground flex h-40 w-full items-center justify-center rounded-xl text-sm">
           Wizard step content
         </div>
       </div>
@@ -286,14 +282,17 @@ export const WithLoadingState: Story = {
     header: { title: 'Dashboard' },
     navigation: defaultNavigation,
     children: (
-      <div className="p-4 flex flex-col gap-4">
-        <div className="h-28 rounded-xl bg-muted animate-pulse" />
+      <div className="flex flex-col gap-4 p-4">
+        <div className="bg-muted h-28 animate-pulse rounded-xl" />
         <div className="grid grid-cols-2 gap-3">
           {['', '', '', ''].map((_, i) => (
-            <div key={i} className="h-20 rounded-xl bg-muted animate-pulse" />
+            <div
+              key={i}
+              className="bg-muted h-20 animate-pulse rounded-xl"
+            />
           ))}
         </div>
-        <div className="h-36 rounded-xl bg-muted animate-pulse" />
+        <div className="bg-muted h-36 animate-pulse rounded-xl" />
       </div>
     ),
   },
@@ -309,19 +308,19 @@ export const WithErrorState: Story = {
       visible: true,
       children: null,
       content: (
-        <div className="flex items-center justify-between w-full">
+        <div className="flex w-full items-center justify-between">
           <span className="text-sm font-medium">Router offline — tap to reconnect</span>
-          <button className="px-3 py-1 text-xs bg-destructive text-destructive-foreground rounded-md">
+          <button className="bg-destructive text-destructive-foreground rounded-md px-3 py-1 text-xs">
             Retry
           </button>
         </div>
       ),
     },
     children: (
-      <div className="p-4 flex flex-col gap-4 items-center justify-center h-96">
+      <div className="flex h-96 flex-col items-center justify-center gap-4 p-4">
         <div className="text-center">
           <p className="text-muted-foreground text-sm">No data available</p>
-          <p className="text-muted-foreground text-xs mt-2">Reconnect to view router status</p>
+          <p className="text-muted-foreground mt-2 text-xs">Reconnect to view router status</p>
         </div>
       </div>
     ),
@@ -334,11 +333,13 @@ export const WithEmptyState: Story = {
     header: { title: 'Services' },
     navigation: { ...defaultNavigation, activeId: 'settings' },
     children: (
-      <div className="p-4 flex flex-col gap-4 items-center justify-center h-96">
+      <div className="flex h-96 flex-col items-center justify-center gap-4 p-4">
         <div className="text-center">
           <p className="text-lg font-semibold">No services installed</p>
-          <p className="text-muted-foreground text-sm mt-2">Browse the marketplace to add features</p>
-          <button className="mt-4 px-4 py-2 bg-primary text-primary-foreground rounded-md text-sm font-medium">
+          <p className="text-muted-foreground mt-2 text-sm">
+            Browse the marketplace to add features
+          </p>
+          <button className="bg-primary text-primary-foreground mt-4 rounded-md px-4 py-2 text-sm font-medium">
             Explore Services
           </button>
         </div>

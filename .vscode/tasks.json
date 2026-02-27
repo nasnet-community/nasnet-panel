@@ -1,0 +1,116 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Dev: All (Frontend + Backend)",
+      "type": "shell",
+      "command": "npm run dev:all",
+      "isBackground": true,
+      "group": { "kind": "build", "isDefault": true },
+      "problemMatcher": []
+    },
+    {
+      "label": "Dev: Frontend (Vite)",
+      "type": "shell",
+      "command": "npm run dev:frontend",
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "Dev: Backend (Go + Air)",
+      "type": "shell",
+      "command": "npm run dev:backend",
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "Build: Frontend",
+      "type": "shell",
+      "command": "npm run build:frontend",
+      "group": "build",
+      "problemMatcher": []
+    },
+    {
+      "label": "Build: All",
+      "type": "shell",
+      "command": "npm run build:all",
+      "group": "build",
+      "problemMatcher": []
+    },
+    {
+      "label": "Test: All",
+      "type": "shell",
+      "command": "npm test",
+      "group": { "kind": "test", "isDefault": true },
+      "problemMatcher": []
+    },
+    {
+      "label": "Test: Go",
+      "type": "shell",
+      "command": "npm run test:go",
+      "group": "test",
+      "problemMatcher": []
+    },
+    {
+      "label": "Test: E2E (Playwright)",
+      "type": "shell",
+      "command": "npm run e2e",
+      "group": "test",
+      "problemMatcher": []
+    },
+    {
+      "label": "Lint: All",
+      "type": "shell",
+      "command": "npm run lint",
+      "problemMatcher": []
+    },
+    {
+      "label": "Lint: Fix All",
+      "type": "shell",
+      "command": "npm run lint:fix",
+      "problemMatcher": []
+    },
+    {
+      "label": "Typecheck: All",
+      "type": "shell",
+      "command": "npm run typecheck",
+      "problemMatcher": []
+    },
+    {
+      "label": "Codegen: All (GraphQL + Ent + Wire)",
+      "type": "shell",
+      "command": "npm run codegen",
+      "problemMatcher": []
+    },
+    {
+      "label": "CI: Full Check",
+      "type": "shell",
+      "command": "npm run ci",
+      "problemMatcher": []
+    },
+    {
+      "label": "Docker: Build Local",
+      "type": "shell",
+      "command": "npm run docker:local",
+      "problemMatcher": []
+    },
+    {
+      "label": "Docker: Check Size",
+      "type": "shell",
+      "command": "npm run docker:check-size",
+      "problemMatcher": []
+    },
+    {
+      "label": "CHR: Start Test Router",
+      "type": "shell",
+      "command": "docker compose -f docker-compose.test.yml up -d",
+      "problemMatcher": []
+    },
+    {
+      "label": "CHR: Stop Test Router",
+      "type": "shell",
+      "command": "docker compose -f docker-compose.test.yml down",
+      "problemMatcher": []
+    }
+  ]
+}

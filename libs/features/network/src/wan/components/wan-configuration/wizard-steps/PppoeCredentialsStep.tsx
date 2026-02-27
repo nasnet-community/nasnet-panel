@@ -62,9 +62,12 @@ export const PppoeCredentialsStep = memo(function PppoeCredentialsStep({
         <div className="space-y-component-md">
           {/* Username */}
           <div>
-            <div className="flex items-center gap-component-sm mb-component-md">
+            <div className="gap-component-sm mb-component-md flex items-center">
               <Label htmlFor="username">
-                <User className="inline h-4 w-4 mr-component-xs" aria-hidden="true" />
+                <User
+                  className="mr-component-xs inline h-4 w-4"
+                  aria-hidden="true"
+                />
                 Username
               </Label>
               <FieldHelp field="username" />
@@ -76,12 +79,12 @@ export const PppoeCredentialsStep = memo(function PppoeCredentialsStep({
               autoComplete="username"
               {...form.register('username')}
               aria-describedby="username-error"
-              className="font-mono text-sm category-networking"
+              className="category-networking font-mono text-sm"
             />
             {form.formState.errors.username && (
               <p
                 id="username-error"
-                className="text-sm text-error mt-1"
+                className="text-error mt-1 text-sm"
                 role="alert"
               >
                 {form.formState.errors.username.message}
@@ -91,9 +94,12 @@ export const PppoeCredentialsStep = memo(function PppoeCredentialsStep({
 
           {/* Password */}
           <div>
-            <div className="flex items-center gap-component-sm mb-component-md">
+            <div className="gap-component-sm mb-component-md flex items-center">
               <Label htmlFor="password">
-                <Lock className="inline h-4 w-4 mr-component-xs" aria-hidden="true" />
+                <Lock
+                  className="mr-component-xs inline h-4 w-4"
+                  aria-hidden="true"
+                />
                 Password
               </Label>
               <FieldHelp field="password" />
@@ -106,7 +112,7 @@ export const PppoeCredentialsStep = memo(function PppoeCredentialsStep({
                 autoComplete="current-password"
                 {...form.register('password')}
                 aria-describedby="password-error password-help"
-                className="pr-10 font-mono text-sm category-networking"
+                className="category-networking pr-10 font-mono text-sm"
               />
               <Button
                 type="button"
@@ -117,32 +123,43 @@ export const PppoeCredentialsStep = memo(function PppoeCredentialsStep({
                 aria-label={showPassword ? 'Hide password' : 'Show password'}
                 aria-pressed={showPassword}
               >
-                {showPassword ? (
-                  <EyeOff className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
-                ) : (
-                  <Eye className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
-                )}
+                {showPassword ?
+                  <EyeOff
+                    className="text-muted-foreground h-4 w-4"
+                    aria-hidden="true"
+                  />
+                : <Eye
+                    className="text-muted-foreground h-4 w-4"
+                    aria-hidden="true"
+                  />
+                }
               </Button>
             </div>
             {form.formState.errors.password && (
               <p
                 id="password-error"
-                className="text-sm text-error mt-component-xs"
+                className="text-error mt-component-xs text-sm"
                 role="alert"
               >
                 {form.formState.errors.password.message}
               </p>
             )}
-            <p id="password-help" className="text-xs text-muted-foreground mt-component-xs">
+            <p
+              id="password-help"
+              className="text-muted-foreground mt-component-xs text-xs"
+            >
               Your password is encrypted in transit and stored securely
             </p>
           </div>
 
           {/* Service Name (Optional) */}
           <div>
-            <div className="flex items-center gap-component-sm mb-component-md">
+            <div className="gap-component-sm mb-component-md flex items-center">
               <Label htmlFor="service-name">
-                <ServerCog className="inline h-4 w-4 mr-component-xs" aria-hidden="true" />
+                <ServerCog
+                  className="mr-component-xs inline h-4 w-4"
+                  aria-hidden="true"
+                />
                 Service Name (Optional)
               </Label>
               <FieldHelp field="serviceName" />
@@ -153,12 +170,12 @@ export const PppoeCredentialsStep = memo(function PppoeCredentialsStep({
               placeholder="Leave empty if not required"
               {...form.register('serviceName')}
               aria-describedby="service-name-error service-name-help"
-              className="font-mono text-sm category-networking"
+              className="category-networking font-mono text-sm"
             />
             {form.formState.errors.serviceName && (
               <p
                 id="service-name-error"
-                className="text-sm text-error mt-component-xs"
+                className="text-error mt-component-xs text-sm"
                 role="alert"
               >
                 {form.formState.errors.serviceName.message}
@@ -166,7 +183,7 @@ export const PppoeCredentialsStep = memo(function PppoeCredentialsStep({
             )}
             <p
               id="service-name-help"
-              className="text-xs text-muted-foreground mt-component-xs"
+              className="text-muted-foreground mt-component-xs text-xs"
             >
               Most ISPs do not require a service name
             </p>
@@ -175,15 +192,20 @@ export const PppoeCredentialsStep = memo(function PppoeCredentialsStep({
       </FormSection>
 
       {/* Security Notice */}
-      <div className="rounded-lg border border-border bg-card/50 p-component-md" role="note">
-        <div className="flex gap-component-md">
-          <Lock className="h-5 w-5 text-muted-foreground flex-shrink-0 mt-0.5" aria-hidden="true" />
+      <div
+        className="border-border bg-card/50 p-component-md rounded-lg border"
+        role="note"
+      >
+        <div className="gap-component-md flex">
+          <Lock
+            className="text-muted-foreground mt-0.5 h-5 w-5 flex-shrink-0"
+            aria-hidden="true"
+          />
           <div className="space-y-1">
             <p className="text-sm font-medium">Security Notice</p>
-            <p className="text-xs text-muted-foreground">
-              Your credentials are transmitted securely over HTTPS and stored
-              encrypted on the router. The password is never logged or displayed
-              in plain text.
+            <p className="text-muted-foreground text-xs">
+              Your credentials are transmitted securely over HTTPS and stored encrypted on the
+              router. The password is never logged or displayed in plain text.
             </p>
           </div>
         </div>

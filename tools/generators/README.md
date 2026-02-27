@@ -6,7 +6,8 @@ Custom Nx generators for scaffolding code following NasNet project conventions.
 
 ### Component Generator
 
-Generate React components following NasNet conventions with TypeScript, shadcn/ui patterns, tests, and barrel exports.
+Generate React components following NasNet conventions with TypeScript, shadcn/ui patterns, tests,
+and barrel exports.
 
 ```bash
 # Basic usage
@@ -22,17 +23,14 @@ nx g @nasnet/tools:component Button --project=ui-primitives --withVariants
 nx g @nasnet/tools:component MyComponent --project=connect --dry-run
 ```
 
-**Options:**
-| Option | Description | Default |
-|--------|-------------|---------|
-| `name` | Component name (PascalCase) | Required |
-| `project` | Target project | Required |
-| `directory` | Directory within src | `components` |
-| `withVariants` | Include CVA variants setup | `false` |
-| `withForwardRef` | Use forwardRef pattern | `true` |
-| `dryRun` | Preview without writing | `false` |
+**Options:** | Option | Description | Default | |--------|-------------|---------| | `name` |
+Component name (PascalCase) | Required | | `project` | Target project | Required | | `directory` |
+Directory within src | `components` | | `withVariants` | Include CVA variants setup | `false` | |
+`withForwardRef` | Use forwardRef pattern | `true` | | `dryRun` | Preview without writing | `false`
+|
 
 **Generated files:**
+
 ```
 src/{directory}/{component-name}/
 ├── {ComponentName}.tsx       # Component with TypeScript + shadcn patterns
@@ -58,16 +56,13 @@ nx g @nasnet/tools:library buttons --directory=libs/ui
 nx g @nasnet/tools:library my-lib --directory=libs/features --dry-run
 ```
 
-**Options:**
-| Option | Description | Default |
-|--------|-------------|---------|
-| `name` | Library name (kebab-case) | Required |
-| `directory` | Directory (libs/core, libs/ui, libs/features, etc.) | Required |
-| `scope` | Scope tag override | Auto from directory |
-| `description` | Library description | Generated |
-| `dryRun` | Preview without writing | `false` |
+**Options:** | Option | Description | Default | |--------|-------------|---------| | `name` |
+Library name (kebab-case) | Required | | `directory` | Directory (libs/core, libs/ui, libs/features,
+etc.) | Required | | `scope` | Scope tag override | Auto from directory | | `description` | Library
+description | Generated | | `dryRun` | Preview without writing | `false` |
 
 **Generated files:**
+
 ```
 {directory}/{name}/
 ├── project.json       # Nx project configuration
@@ -80,6 +75,7 @@ nx g @nasnet/tools:library my-lib --directory=libs/features --dry-run
 ```
 
 **Scope Tags (ADR-003):**
+
 - `libs/core/*` → `scope:core`
 - `libs/ui/*` → `scope:ui`
 - `libs/features/*` → `scope:features`
@@ -107,16 +103,13 @@ nx g @nasnet/tools:resolver Backup --withQuery=false --withMutation
 nx g @nasnet/tools:resolver Custom --dry-run
 ```
 
-**Options:**
-| Option | Description | Default |
-|--------|-------------|---------|
-| `name` | Resolver name (PascalCase) | Required |
-| `module` | Module/domain for the resolver | `graph` |
-| `withQuery` | Include list/get operations | `true` |
-| `withMutation` | Include CRUD operations | `true` |
-| `dryRun` | Preview without writing | `false` |
+**Options:** | Option | Description | Default | |--------|-------------|---------| | `name` |
+Resolver name (PascalCase) | Required | | `module` | Module/domain for the resolver | `graph` | |
+`withQuery` | Include list/get operations | `true` | | `withMutation` | Include CRUD operations |
+`true` | | `dryRun` | Preview without writing | `false` |
 
 **Generated files:**
+
 ```
 apps/backend/{module}/
 ├── {name}_resolvers.go       # Resolver implementation
@@ -157,6 +150,7 @@ npx vitest run tools/generators/component/generator.spec.ts
 ## Architecture
 
 Generators use `@nx/devkit` for:
+
 - Tree manipulation (virtual filesystem)
 - File generation from templates
 - Project configuration reading/writing

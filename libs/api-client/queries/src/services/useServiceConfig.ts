@@ -88,9 +88,7 @@ export function useInstanceConfig(routerID: string, instanceID: string) {
  * ```
  */
 export function useValidateServiceConfig() {
-  const [validateMutation, { loading, error }] = useMutation(
-    VALIDATE_SERVICE_CONFIG
-  );
+  const [validateMutation, { loading, error }] = useMutation(VALIDATE_SERVICE_CONFIG);
 
   const validateConfig = async (
     input: ValidateServiceConfigInput
@@ -139,9 +137,7 @@ export function useApplyServiceConfig() {
     },
   });
 
-  const applyConfig = async (
-    input: ApplyServiceConfigInput
-  ): Promise<ApplyConfigPayload> => {
+  const applyConfig = async (input: ApplyServiceConfigInput): Promise<ApplyConfigPayload> => {
     const result = await applyMutation({ variables: { input } });
     return result.data?.applyServiceConfig as ApplyConfigPayload;
   };

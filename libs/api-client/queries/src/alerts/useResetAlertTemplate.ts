@@ -9,7 +9,7 @@ export function useResetAlertTemplate() {
 
   const resetTemplate = async (eventType: string, channel: NotificationChannel) => {
     const result = await mutate({
-      variables: { eventType, channel }
+      variables: { eventType, channel },
     });
 
     if (result.data?.resetAlertTemplate.errors?.length > 0) {

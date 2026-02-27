@@ -1,12 +1,16 @@
 # ROSProxy
 
-A high-performance Go service that acts as a gateway between web frontends and MikroTik RouterOS devices. It provides a unified REST API for device discovery, configuration management, and bulk command execution.
+A high-performance Go service that acts as a gateway between web frontends and MikroTik RouterOS
+devices. It provides a unified REST API for device discovery, configuration management, and bulk
+command execution.
 
 ## Features
 
-- **Router Proxy** — HTTP/HTTPS proxy to RouterOS REST API with automatic protocol fallback and self-signed certificate support
+- **Router Proxy** — HTTP/HTTPS proxy to RouterOS REST API with automatic protocol fallback and
+  self-signed certificate support
 - **Network Scanner** — Discover MikroTik devices via port scanning with RouterOS API validation
-- **Batch Executor** — Execute bulk commands with progress tracking, dry-run mode, and automatic rollback
+- **Batch Executor** — Execute bulk commands with progress tracking, dry-run mode, and automatic
+  rollback
 - **Multi-Protocol Support** — Connect via RouterOS API (8728/8729), SSH (22), or Telnet (23)
 - **CLI Parser** — Translate RouterOS CLI syntax to API commands with `[find]` query support
 - **Embedded Frontend** — Production builds embed the frontend for single-binary deployment
@@ -16,12 +20,13 @@ A high-performance Go service that acts as a gateway between web frontends and M
 
 ROSProxy has two build modes controlled by Go build tags:
 
-| Mode | Build Tag | Port | Frontend | Use Case |
-|------|-----------|------|----------|----------|
-| Development | `dev` | 8080 | Served separately (Vite) | Hot-reload, CORS enabled |
-| Production | (default) | 80 | Embedded via `go:embed` | Container deployment |
+| Mode        | Build Tag | Port | Frontend                 | Use Case                 |
+| ----------- | --------- | ---- | ------------------------ | ------------------------ |
+| Development | `dev`     | 8080 | Served separately (Vite) | Hot-reload, CORS enabled |
+| Production  | (default) | 80   | Embedded via `go:embed`  | Container deployment     |
 
 **Memory Profile (Production)**:
+
 - Memory limit: 32MB
 - GC: Aggressive (10%)
 - Worker pool: 2 scanners
@@ -38,6 +43,7 @@ GET /health
 Returns server health status, memory usage, uptime, and version.
 
 **Response:**
+
 ```json
 {
   "status": "healthy",
@@ -59,6 +65,7 @@ POST /api/router/proxy
 Proxies requests to RouterOS REST API. Automatically tries HTTP first, then falls back to HTTPS.
 
 **Request:**
+
 ```json
 {
   "router_ip": "192.168.88.1",
@@ -72,6 +79,7 @@ Proxies requests to RouterOS REST API. Automatically tries HTTP first, then fall
 ```
 
 **Response:**
+
 ```json
 {
   "status": 200,
@@ -98,9 +106,11 @@ Proxies requests to RouterOS REST API. Automatically tries HTTP first, then fall
 POST /api/scan
 ```
 
-Scans a subnet for MikroTik devices by checking common ports (80, 443, 8728, 8729, 8291) and validating RouterOS API responses.
+Scans a subnet for MikroTik devices by checking common ports (80, 443, 8728, 8729, 8291) and
+validating RouterOS API responses.
 
 **Request:**
+
 ```json
 {
   "subnet": "192.168.88.0/24"
@@ -108,6 +118,7 @@ Scans a subnet for MikroTik devices by checking common ports (80, 443, 8728, 872
 ```
 
 **Response:**
+
 ```json
 {
   "task_id": "scan_1701878400000000000",
@@ -122,7 +133,8 @@ Scans a subnet for MikroTik devices by checking common ports (80, 443, 8728, 872
 POST /api/scan/auto
 ```
 
-Automatically scans all common gateway addresses (192.168.0.1 through 192.168.255.1) for MikroTik devices.
+Automatically scans all common gateway addresses (192.168.0.1 through 192.168.255.1) for MikroTik
+devices.
 
 #### Get Scan Status
 
@@ -131,6 +143,7 @@ GET /api/scan/status?task_id=scan_1701878400000000000
 ```
 
 **Response:**
+
 ```json
 {
   "task_id": "scan_1701878400000000000",
@@ -158,6 +171,7 @@ POST /api/scan/stop
 ```
 
 **Request:**
+
 ```json
 {
   "task_id": "scan_1701878400000000000"
@@ -168,7 +182,8 @@ POST /api/scan/stop
 
 ### Batch Jobs
 
-Execute multiple RouterOS commands with progress tracking, dry-run support, and automatic rollback on failure.
+Execute multiple RouterOS commands with progress tracking, dry-run support, and automatic rollback
+on failure.
 
 #### Create Batch Job
 
@@ -177,6 +192,7 @@ POST /api/batch/jobs
 ```
 
 **Request (Commands Array):**
+
 ```json
 {
   "router_ip": "192.168.88.1",
@@ -194,6 +210,7 @@ POST /api/batch/jobs
 ```
 
 **Request (Script):**
+
 ```json
 {
   "router_ip": "192.168.88.1",
@@ -205,14 +222,12 @@ POST /api/batch/jobs
 }
 ```
 
-**Protocol Options:**
-| Protocol | Port | Description |
-|----------|------|-------------|
-| `api` | 8728 (8729 TLS) | RouterOS API protocol (default) |
-| `ssh` | 22 | SSH with raw CLI commands |
-| `telnet` | 23 | Telnet with raw CLI commands |
+**Protocol Options:** | Protocol | Port | Description | |----------|------|-------------| | `api` |
+8728 (8729 TLS) | RouterOS API protocol (default) | | `ssh` | 22 | SSH with raw CLI commands | |
+`telnet` | 23 | Telnet with raw CLI commands |
 
 **Response:**
+
 ```json
 {
   "job_id": "batch_1701878400000000000",
@@ -228,6 +243,7 @@ GET /api/batch/jobs/{job_id}
 ```
 
 **Response:**
+
 ```json
 {
   "id": "batch_1701878400000000000",
@@ -260,6 +276,7 @@ GET /api/batch/jobs/{job_id}
 ```
 
 **Job Statuses:**
+
 - `pending` — Job created, waiting to start
 - `running` — Currently executing commands
 - `completed` — All commands executed successfully
@@ -277,7 +294,8 @@ DELETE /api/batch/jobs/{job_id}
 
 ## CLI Parser
 
-ROSProxy includes a CLI parser that translates RouterOS CLI syntax to API commands. This enables batch jobs to accept familiar CLI scripts.
+ROSProxy includes a CLI parser that translates RouterOS CLI syntax to API commands. This enables
+batch jobs to accept familiar CLI scripts.
 
 **Supported Syntax:**
 
@@ -303,7 +321,8 @@ add chain=input action=drop
 :log info "Configuration complete"
 ```
 
-**Actions:** `add`, `set`, `remove`, `print`, `enable`, `disable`, `move`, `comment`, `export`, `import`, `reset`, `find`
+**Actions:** `add`, `set`, `remove`, `print`, `enable`, `disable`, `move`, `comment`, `export`,
+`import`, `reset`, `find`
 
 ---
 
@@ -312,8 +331,10 @@ add chain=input action=drop
 ### Requirements
 
 - Go 1.24+
-- [Air](https://github.com/air-verse/air) for hot-reload: `go install github.com/air-verse/air@latest`
-- [golangci-lint](https://golangci-lint.run/): `go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest`
+- [Air](https://github.com/air-verse/air) for hot-reload:
+  `go install github.com/air-verse/air@latest`
+- [golangci-lint](https://golangci-lint.run/):
+  `go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest`
 
 **Windows:** Ensure `%USERPROFILE%\go\bin` is in your PATH.
 
@@ -338,11 +359,11 @@ nx typecheck backend
 
 ### Configuration Files
 
-| File | Purpose |
-|------|---------|
-| `.air.toml` | Air hot-reload configuration |
+| File            | Purpose                                |
+| --------------- | -------------------------------------- |
+| `.air.toml`     | Air hot-reload configuration           |
 | `.golangci.yml` | Linter configuration (moderate preset) |
-| `go.mod` | Go module dependencies |
+| `go.mod`        | Go module dependencies                 |
 
 ### Dependencies
 
@@ -384,11 +405,11 @@ nx run backend:docker:build-export
 
 ### Environment Variables
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `PORT` | `80` | HTTP server port |
-| `GOMAXPROCS` | `1` | Max OS threads |
-| `GO_ENV` | `production` | Environment mode |
+| Variable     | Default      | Description      |
+| ------------ | ------------ | ---------------- |
+| `PORT`       | `80`         | HTTP server port |
+| `GOMAXPROCS` | `1`          | Max OS threads   |
+| `GO_ENV`     | `production` | Environment mode |
 
 ### Container Networking
 
@@ -398,7 +419,8 @@ For the container to communicate with RouterOS devices on the local network, use
 docker run --network=host ghcr.io/your-repo/backend:latest
 ```
 
-Alternatively, if using bridge networking, ensure the container can route to the router's IP address.
+Alternatively, if using bridge networking, ensure the container can route to the router's IP
+address.
 
 ### Health Check
 
@@ -410,6 +432,7 @@ docker exec <container> /app -healthcheck
 ```
 
 Health check configuration:
+
 - Interval: 30s
 - Timeout: 5s
 - Start period: 5s
@@ -432,7 +455,7 @@ PORT=8080 ./dist/apps/backend/backend
 ### Docker Compose
 
 ```yaml
-version: "3.8"
+version: '3.8'
 services:
   backend:
     image: ghcr.io/your-repo/backend:latest
@@ -460,14 +483,19 @@ location /api/ {
 
 ## Security Considerations
 
-- **Authentication**: ROSProxy implements JWT-based authentication with RS256 signing and session management.
-- **TLS Verification**: Self-signed certificates on RouterOS devices are accepted by default (`InsecureSkipVerify: true`).
-- **Credentials**: All router credentials are encrypted at rest using AES-256-GCM. Passwords are never logged or returned in API responses.
-- **Container Self-Connection**: The proxy detects and prevents the container from connecting to its own IP address.
+- **Authentication**: ROSProxy implements JWT-based authentication with RS256 signing and session
+  management.
+- **TLS Verification**: Self-signed certificates on RouterOS devices are accepted by default
+  (`InsecureSkipVerify: true`).
+- **Credentials**: All router credentials are encrypted at rest using AES-256-GCM. Passwords are
+  never logged or returned in API responses.
+- **Container Self-Connection**: The proxy detects and prevents the container from connecting to its
+  own IP address.
 
 ### Credential Encryption
 
-Router credentials are stored in a separate `router_secrets` table with AES-256-GCM encryption at rest.
+Router credentials are stored in a separate `router_secrets` table with AES-256-GCM encryption at
+rest.
 
 **Required Environment Variable:**
 
@@ -480,6 +508,7 @@ export DB_ENCRYPTION_KEY="your-base64-encoded-32-byte-key"
 ```
 
 **Security Notes:**
+
 - The encryption key MUST be exactly 32 bytes (256 bits) when decoded
 - Keep the key secure and backed up - losing it means losing access to all stored credentials
 - Key rotation requires re-encrypting all credentials (use the `RotateKey` API)

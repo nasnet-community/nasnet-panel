@@ -11,7 +11,6 @@ import type { NATRuleInput } from '@nasnet/core/types/firewall';
 
 import { useNATRuleBuilder } from './use-nat-rule-builder';
 
-
 describe('useNATRuleBuilder', () => {
   describe('Initialization', () => {
     it('should initialize with default masquerade values', () => {
@@ -32,9 +31,7 @@ describe('useNATRuleBuilder', () => {
         toAddresses: '192.168.1.100',
       };
 
-      const { result } = renderHook(() =>
-        useNATRuleBuilder({ initialRule })
-      );
+      const { result } = renderHook(() => useNATRuleBuilder({ initialRule }));
 
       expect(result.current.rule.chain).toBe('dstnat');
       expect(result.current.rule.action).toBe('dst-nat');
@@ -49,9 +46,7 @@ describe('useNATRuleBuilder', () => {
         toAddresses: '10.0.0.1',
       };
 
-      const { result } = renderHook(() =>
-        useNATRuleBuilder({ initialRule })
-      );
+      const { result } = renderHook(() => useNATRuleBuilder({ initialRule }));
 
       expect(result.current.rule.chain).toBe('srcnat'); // Default
       expect(result.current.rule.action).toBe('src-nat'); // Custom
@@ -432,9 +427,7 @@ describe('useNATRuleBuilder', () => {
         toAddresses: '192.168.1.100',
       };
 
-      const { result } = renderHook(() =>
-        useNATRuleBuilder({ initialRule })
-      );
+      const { result } = renderHook(() => useNATRuleBuilder({ initialRule }));
 
       // Change values
       act(() => {

@@ -1,6 +1,6 @@
-version: "2"
+version: '2'
 run:
-  go: "1.26"
+  go: '1.26'
   modules-download-mode: readonly
   tests: false
 output:
@@ -126,7 +126,7 @@ linters:
       excludes:
         - G101
       config:
-        G306: "0644"
+        G306: '0644'
     govet:
       enable:
         - shadow
@@ -202,7 +202,7 @@ linters:
         type: module
         description: Static analysis tool to detect potential nil panics in Go code.
         settings:
-          include-pkgs: "backend"
+          include-pkgs: 'backend'
     wrapcheck:
       ignore-sigs:
         - .Errorf(
@@ -248,7 +248,7 @@ linters:
         text: (var-naming|receiver-naming)
       - linters:
           - nilaway
-        text: "INTERNAL ERROR"
+        text: 'INTERNAL ERROR'
       - linters:
           - asciicheck
           - contextcheck
@@ -374,7 +374,7 @@ linters:
       - third_party$
       - builtin$
       - examples$
-      - "generated/ent/"
+      - 'generated/ent/'
       - "\\$GOROOT"
 issues:
   max-issues-per-linter: 0

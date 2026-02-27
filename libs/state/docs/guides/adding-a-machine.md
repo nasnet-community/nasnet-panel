@@ -7,12 +7,14 @@ Step-by-step guide for creating XState v5 machines following NasNet conventions.
 ## When to Create a Machine
 
 Create a machine for:
+
 - ✅ Multi-step workflows (wizards, config pipelines)
 - ✅ Complex state transitions with guards
 - ✅ Async operations with loading/error states
 - ✅ Orchestrating multiple actions across steps
 
 Do NOT create a machine for:
+
 - ❌ Simple UI toggles (use Zustand stores)
 - ❌ Server data (use Apollo Client + GraphQL)
 - ❌ Form validation (use React Hook Form)
@@ -37,6 +39,7 @@ libs/state/machines/src/
 ```
 
 **Naming conventions:**
+
 - `[workflow]Machine.ts` - The machine definition
 - `use[Workflow].ts` - React hook wrapper
 
@@ -298,8 +301,7 @@ export function useMyWorkflow(config: MyWorkflowConfig) {
   const next = () => send({ type: 'NEXT' });
   const back = () => send({ type: 'BACK' });
   const skip = () => send({ type: 'SKIP' });
-  const submit = (data: Record<string, unknown>) =>
-    send({ type: 'SUBMIT', data });
+  const submit = (data: Record<string, unknown>) => send({ type: 'SUBMIT', data });
   const cancel = () => send({ type: 'CANCEL' });
   const retry = () => send({ type: 'RETRY' });
 
@@ -464,10 +466,7 @@ export {
   type MyWorkflowConfig,
 } from './myWorkflowMachine';
 
-export {
-  useMyWorkflow,
-  type UseMyWorkflowReturn,
-} from './hooks/useMyWorkflow';
+export { useMyWorkflow, type UseMyWorkflowReturn } from './hooks/useMyWorkflow';
 ```
 
 ### 7. Create Component Usage Example
@@ -583,10 +582,7 @@ export function MyWorkflowComponent() {
 To save/restore machine state:
 
 ```typescript
-import {
-  persistMachineState,
-  restoreMachineState,
-} from '@nasnet/state/machines';
+import { persistMachineState, restoreMachineState } from '@nasnet/state/machines';
 
 // Save
 const state = actor.getSnapshot();

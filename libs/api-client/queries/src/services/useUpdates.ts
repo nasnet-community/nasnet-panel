@@ -444,27 +444,24 @@ export function useRollbackInstance() {
  * }, [progressEvent]);
  * ```
  */
-export function useUpdateProgress(
-  variables: UpdateProgressVariables,
-  enabled: boolean = true
-) {
-  const { data, loading, error } = useSubscription<
-    UpdateProgressResult,
-    UpdateProgressVariables
-  >(UPDATE_PROGRESS, {
-    variables,
-    skip: !enabled || !variables.routerId || !variables.instanceId,
-    onData: ({ client, data }) => {
-      if (data.data?.updateProgress) {
-        const event = data.data.updateProgress;
-        // Cache is updated automatically via normalized cache
-        // Log event for debugging
-        console.log(
-          `Update progress: ${event.instanceId} - ${event.stage} (${event.progress}%): ${event.message}`
-        );
-      }
-    },
-  });
+export function useUpdateProgress(variables: UpdateProgressVariables, enabled: boolean = true) {
+  const { data, loading, error } = useSubscription<UpdateProgressResult, UpdateProgressVariables>(
+    UPDATE_PROGRESS,
+    {
+      variables,
+      skip: !enabled || !variables.routerId || !variables.instanceId,
+      onData: ({ client, data }) => {
+        if (data.data?.updateProgress) {
+          const event = data.data.updateProgress;
+          // Cache is updated automatically via normalized cache
+          // Log event for debugging
+          console.log(
+            `Update progress: ${event.instanceId} - ${event.stage} (${event.progress}%): ${event.message}`
+          );
+        }
+      },
+    }
+  );
 
   return {
     progressEvent: data?.updateProgress,

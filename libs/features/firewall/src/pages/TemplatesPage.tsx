@@ -55,7 +55,11 @@ export interface TemplatesPageProps {
  * TemplatesPage Component
  * @description Main page for managing firewall templates with browsing, applying, and custom template creation
  */
-export const TemplatesPage = memo(function TemplatesPage({ routerId, currentRules = [], className }: TemplatesPageProps) {
+export const TemplatesPage = memo(function TemplatesPage({
+  routerId,
+  currentRules = [],
+  className,
+}: TemplatesPageProps) {
   const { t } = useTranslation('firewall');
   const [selectedTemplate, setSelectedTemplate] = useState<FirewallTemplate | null>(null);
   const [activeTab, setActiveTab] = useState<'browse' | 'apply'>('browse');
@@ -236,21 +240,26 @@ export const TemplatesPage = memo(function TemplatesPage({ routerId, currentRule
   const existingTemplateNames = allTemplates.map((t) => t.name);
 
   return (
-    <div className="container mx-auto px-page-mobile md:px-page-tablet lg:px-page-desktop py-component-lg space-y-component-lg">
+    <div className="px-page-mobile md:px-page-tablet lg:px-page-desktop py-component-lg space-y-component-lg container mx-auto">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-display font-bold">{t('templates.title')}</h1>
-          <p className="text-muted-foreground">
-            {t('templates.subtitle')}
-          </p>
+          <h1 className="font-display text-3xl font-bold">{t('templates.title')}</h1>
+          <p className="text-muted-foreground">{t('templates.subtitle')}</p>
         </div>
 
-        <div className="flex gap-component-sm">
+        <div className="gap-component-sm flex">
           {/* Export All Custom Templates */}
           {customTemplates.length > 0 && (
-            <Button variant="outline" onClick={handleExportAllCustom} aria-label={t('templates.buttons.exportCustom')}>
-              <Download className="mr-component-sm h-4 w-4" aria-hidden="true" />
+            <Button
+              variant="outline"
+              onClick={handleExportAllCustom}
+              aria-label={t('templates.buttons.exportCustom')}
+            >
+              <Download
+                className="mr-component-sm h-4 w-4"
+                aria-hidden="true"
+              />
               {t('templates.buttons.exportCustom')} ({customTemplates.length})
             </Button>
           )}
@@ -260,8 +269,14 @@ export const TemplatesPage = memo(function TemplatesPage({ routerId, currentRule
             existingNames={existingTemplateNames}
             onImport={handleImportTemplate}
             trigger={
-              <Button variant="outline" aria-label={t('templates.buttons.import')}>
-                <Upload className="mr-component-sm h-4 w-4" aria-hidden="true" />
+              <Button
+                variant="outline"
+                aria-label={t('templates.buttons.import')}
+              >
+                <Upload
+                  className="mr-component-sm h-4 w-4"
+                  aria-hidden="true"
+                />
                 {t('templates.buttons.import')}
               </Button>
             }
@@ -275,7 +290,10 @@ export const TemplatesPage = memo(function TemplatesPage({ routerId, currentRule
               onSave={handleSaveCustomTemplate}
               trigger={
                 <Button aria-label={t('templates.buttons.create')}>
-                  <Plus className="mr-component-sm h-4 w-4" aria-hidden="true" />
+                  <Plus
+                    className="mr-component-sm h-4 w-4"
+                    aria-hidden="true"
+                  />
                   {t('templates.buttons.create')}
                 </Button>
               }
@@ -285,16 +303,25 @@ export const TemplatesPage = memo(function TemplatesPage({ routerId, currentRule
       </div>
 
       {/* Main Content */}
-      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'browse' | 'apply')}>
+      <Tabs
+        value={activeTab}
+        onValueChange={(v) => setActiveTab(v as 'browse' | 'apply')}
+      >
         <TabsList className="grid w-full max-w-md grid-cols-2">
           <TabsTrigger value="browse">{t('templates.tabs.browse')}</TabsTrigger>
-          <TabsTrigger value="apply" disabled={!selectedTemplate}>
+          <TabsTrigger
+            value="apply"
+            disabled={!selectedTemplate}
+          >
             {t('templates.tabs.apply')}
           </TabsTrigger>
         </TabsList>
 
         {/* Browse Tab */}
-        <TabsContent value="browse" className="mt-6">
+        <TabsContent
+          value="browse"
+          className="mt-6"
+        >
           <TemplateGallery
             gallery={gallery}
             onApplyTemplate={handleApplyTemplate}
@@ -303,23 +330,26 @@ export const TemplatesPage = memo(function TemplatesPage({ routerId, currentRule
 
           {/* Error State */}
           {builtInError && (
-            <div className="rounded-[var(--semantic-radius-card)] border border-error bg-error/10 p-component-md">
-              <p className="text-sm text-error">
-                {t('templates.errors.loadFailed')}
-              </p>
+            <div className="border-error bg-error/10 p-component-md rounded-[var(--semantic-radius-card)] border">
+              <p className="text-error text-sm">{t('templates.errors.loadFailed')}</p>
             </div>
           )}
 
           {/* Empty State */}
           {!isLoading && allTemplates.length === 0 && (
-            <div className="flex flex-col items-center justify-center gap-component-md rounded-[var(--semantic-radius-card)] border-2 border-dashed border-border p-component-xl text-center">
-              <Settings className="h-12 w-12 text-muted-foreground" aria-hidden="true" />
+            <div className="gap-component-md border-border p-component-xl flex flex-col items-center justify-center rounded-[var(--semantic-radius-card)] border-2 border-dashed text-center">
+              <Settings
+                className="text-muted-foreground h-12 w-12"
+                aria-hidden="true"
+              />
               <div>
-                <h3 className="text-lg font-display font-semibold">{t('templates.emptyStates.noTemplates.title')}</h3>
-                <p className="mt-component-sm text-sm text-muted-foreground">
-                  {currentRules.length > 0
-                    ? t('templates.emptyStates.noTemplates.descriptionWithRules')
-                    : t('templates.emptyStates.noTemplates.description')}
+                <h3 className="font-display text-lg font-semibold">
+                  {t('templates.emptyStates.noTemplates.title')}
+                </h3>
+                <p className="mt-component-sm text-muted-foreground text-sm">
+                  {currentRules.length > 0 ?
+                    t('templates.emptyStates.noTemplates.descriptionWithRules')
+                  : t('templates.emptyStates.noTemplates.description')}
                 </p>
               </div>
               {currentRules.length > 0 && (
@@ -329,7 +359,10 @@ export const TemplatesPage = memo(function TemplatesPage({ routerId, currentRule
                   onSave={handleSaveCustomTemplate}
                   trigger={
                     <Button aria-label={t('templates.buttons.createFirst')}>
-                      <Plus className="mr-component-sm h-4 w-4" aria-hidden="true" />
+                      <Plus
+                        className="mr-component-sm h-4 w-4"
+                        aria-hidden="true"
+                      />
                       {t('templates.buttons.createFirst')}
                     </Button>
                   }
@@ -340,7 +373,10 @@ export const TemplatesPage = memo(function TemplatesPage({ routerId, currentRule
         </TabsContent>
 
         {/* Apply Tab */}
-        <TabsContent value="apply" className="mt-6">
+        <TabsContent
+          value="apply"
+          className="mt-6"
+        >
           {selectedTemplate && (
             <TemplateApplyFlow
               routerId={routerId}

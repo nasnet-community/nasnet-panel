@@ -3,21 +3,18 @@
  * Allows users to manually add routers by IP address (Story 0-1-2)
  */
 export interface ManualRouterEntryProps {
-    /**
-     * Callback when user submits router information
-     */
-    onSubmit?: (data: {
-        ipAddress: string;
-        name?: string;
-    }) => void;
-    /**
-     * Callback when user cancels entry
-     */
-    onCancel?: () => void;
-    /**
-     * Optional CSS class name
-     */
-    className?: string;
+  /**
+   * Callback when user submits router information
+   */
+  onSubmit?: (data: { ipAddress: string; name?: string }) => void;
+  /**
+   * Callback when user cancels entry
+   */
+  onCancel?: () => void;
+  /**
+   * Optional CSS class name
+   */
+  className?: string;
 }
 /**
  * ManualRouterEntry Component
@@ -39,5 +36,5 @@ export interface ManualRouterEntryProps {
  * />
  * ```
  */
-export declare const ManualRouterEntry: import("react").NamedExoticComponent<ManualRouterEntryProps>;
+export declare const ManualRouterEntry: import('react').NamedExoticComponent<ManualRouterEntryProps>;
 //# sourceMappingURL=ManualRouterEntry.d.ts.map

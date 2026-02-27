@@ -140,7 +140,7 @@ export const ControlledState: Story = {
       <div className="space-y-4">
         <button
           onClick={() => setOpen(true)}
-          className="px-4 py-2 bg-primary text-primary-foreground rounded-md"
+          className="bg-primary text-primary-foreground rounded-md px-4 py-2"
         >
           Open Export Dialog
         </button>
@@ -181,10 +181,7 @@ export const ComplexService: Story = {
           { type: 'socks', listen: '0.0.0.0', port: 1080 },
           { type: 'vmess', listen: '0.0.0.0', port: 8443 },
         ],
-        outbounds: [
-          { type: 'direct' },
-          { type: 'block' },
-        ],
+        outbounds: [{ type: 'direct' }, { type: 'block' }],
         route: {
           rules: [
             { geoip: 'cn', outbound: 'direct' },
@@ -244,7 +241,7 @@ export const CustomTrigger: Story = {
     routerID: 'router-1',
     instance: mockInstance,
     trigger: (
-      <button className="px-6 py-3 bg-gradient-to-r from-primary to-secondary text-white rounded-lg font-medium">
+      <button className="from-primary to-secondary rounded-lg bg-gradient-to-r px-6 py-3 font-medium text-white">
         🚀 Share Service Configuration
       </button>
     ),
@@ -290,9 +287,7 @@ export const ExportFlowInteraction: Story = {
     await user.click(exportButton);
 
     // Verify download link or success message appears
-    await expect(
-      canvas.findByText(/download|success/i)
-    ).resolves.toBeInTheDocument();
+    await expect(canvas.findByText(/download|success/i)).resolves.toBeInTheDocument();
   },
 };
 
@@ -329,8 +324,6 @@ export const QRCodeGenerationInteraction: Story = {
 
     // Verify QR code preview or download link appears
     // (Implementation-dependent - adjust based on actual component)
-    await expect(
-      canvas.findByText(/qr|download|success/i)
-    ).resolves.toBeInTheDocument();
+    await expect(canvas.findByText(/qr|download|success/i)).resolves.toBeInTheDocument();
   },
 };

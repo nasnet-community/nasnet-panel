@@ -258,9 +258,7 @@ export function isValidTemplate(template: unknown): template is FirewallTemplate
  * @returns Array of required variable names
  */
 export function getRequiredVariables(template: FirewallTemplate): string[] {
-  return template.variables
-    .filter((v) => v.isRequired)
-    .map((v) => v.name);
+  return template.variables.filter((v) => v.isRequired).map((v) => v.name);
 }
 
 /**
@@ -354,10 +352,7 @@ export function validateImportFormat(content: string): {
   }
 
   // Check if it looks like YAML (basic heuristic)
-  if (
-    content.includes('---') ||
-    (YAML_FORMAT_INDICATORS[1] as RegExp).test(content)
-  ) {
+  if (content.includes('---') || (YAML_FORMAT_INDICATORS[1] as RegExp).test(content)) {
     return { valid: true, format: 'yaml' };
   }
 

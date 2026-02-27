@@ -1,7 +1,15 @@
 // libs/features/diagnostics/src/components/TroubleshootWizard/TroubleshootWizardMobile.tsx
 import { memo, useState, useCallback } from 'react';
 import { ChevronLeft } from 'lucide-react';
-import { Button, Card, Progress, Sheet, SheetContent, SheetHeader, SheetTitle } from '@nasnet/ui/primitives';
+import {
+  Button,
+  Card,
+  Progress,
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from '@nasnet/ui/primitives';
 import { VStepper } from '@nasnet/ui/patterns';
 import { useTroubleshootWizard } from '../../hooks/useTroubleshootWizard';
 import { DiagnosticStep } from './DiagnosticStep';
@@ -84,7 +92,6 @@ export const TroubleshootWizardMobile = memo(function TroubleshootWizardMobile({
 
   // Show summary when completed
   if (wizard.isCompleted) {
-
     return (
       <div className="p-component-md">
         <WizardSummary
@@ -96,11 +103,9 @@ export const TroubleshootWizardMobile = memo(function TroubleshootWizardMobile({
             appliedFixes: wizard.appliedFixes,
             durationMs: 0,
             finalStatus:
-              wizard.steps.filter((s) => s.status === 'failed').length === 0
-                ? 'all_passed'
-                : wizard.appliedFixes.length > 0
-                  ? 'issues_resolved'
-                  : 'issues_remaining',
+              wizard.steps.filter((s) => s.status === 'failed').length === 0 ? 'all_passed'
+              : wizard.appliedFixes.length > 0 ? 'issues_resolved'
+              : 'issues_remaining',
           }}
           steps={wizard.steps}
           onRestart={wizard.restart}
@@ -119,9 +124,9 @@ export const TroubleshootWizardMobile = memo(function TroubleshootWizardMobile({
   }
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex h-full flex-col">
       {/* Header */}
-      <div className="flex items-center gap-component-md p-component-md border-b bg-background sticky top-0 z-10">
+      <div className="gap-component-md p-component-md bg-background sticky top-0 z-10 flex items-center border-b">
         {onClose && (
           <Button
             variant="ghost"
@@ -130,45 +135,69 @@ export const TroubleshootWizardMobile = memo(function TroubleshootWizardMobile({
             aria-label="Go back"
             className="min-h-[44px] min-w-[44px]"
           >
-            <ChevronLeft className="h-5 w-5" aria-hidden="true" />
+            <ChevronLeft
+              className="h-5 w-5"
+              aria-hidden="true"
+            />
           </Button>
         )}
-        <h1 className="text-lg font-semibold text-category-networking">No Internet Help</h1>
+        <h1 className="text-category-networking text-lg font-semibold">No Internet Help</h1>
       </div>
 
       {/* Progress Bar */}
       {!wizard.isIdle && (
-        <div className="p-component-md border-b bg-background" role="progressbar" aria-valuenow={Math.round(wizard.progress.percentage)} aria-valuemin={0} aria-valuemax={100} aria-label={`Diagnostic progress: step ${wizard.progress.current} of ${wizard.progress.total}`}>
-          <div className="flex justify-between items-center mb-component-sm text-sm">
+        <div
+          className="p-component-md bg-background border-b"
+          role="progressbar"
+          aria-valuenow={Math.round(wizard.progress.percentage)}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-label={`Diagnostic progress: step ${wizard.progress.current} of ${wizard.progress.total}`}
+        >
+          <div className="mb-component-sm flex items-center justify-between text-sm">
             <span className="text-muted-foreground">
               Step {wizard.progress.current} of {wizard.progress.total}
             </span>
-            <span className="font-medium text-foreground">{Math.round(wizard.progress.percentage)}%</span>
+            <span className="text-foreground font-medium">
+              {Math.round(wizard.progress.percentage)}%
+            </span>
           </div>
-          <Progress value={wizard.progress.percentage} className="h-2" />
+          <Progress
+            value={wizard.progress.percentage}
+            className="h-2"
+          />
         </div>
       )}
 
       {/* Main Content */}
-      <div className="flex-1 overflow-y-auto p-component-md space-y-component-md">
+      <div className="p-component-md space-y-component-md flex-1 overflow-y-auto">
         {wizard.isIdle && (
           <Card className="p-component-lg text-center">
-            <h2 className="text-lg font-semibold text-foreground mb-3">
-              Ready to troubleshoot?
-            </h2>
-            <p className="text-sm text-muted-foreground mb-component-lg">
+            <h2 className="text-foreground mb-3 text-lg font-semibold">Ready to troubleshoot?</h2>
+            <p className="text-muted-foreground mb-component-lg text-sm">
               We'll run automated tests to find and fix internet issues.
             </p>
-            <Button onClick={wizard.start} className="w-full min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" aria-label="Start diagnostic troubleshooting">
+            <Button
+              onClick={wizard.start}
+              className="focus-visible:ring-ring min-h-[44px] w-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+              aria-label="Start diagnostic troubleshooting"
+            >
               Start Diagnostic
             </Button>
           </Card>
         )}
 
-        {(wizard.isRunning || wizard.isAwaitingFixDecision || wizard.isApplyingFix || wizard.isVerifying) && (
+        {(wizard.isRunning ||
+          wizard.isAwaitingFixDecision ||
+          wizard.isApplyingFix ||
+          wizard.isVerifying) && (
           <>
             {/* Vertical Stepper with all steps */}
-            <div className="space-y-3" role="list" aria-label="Diagnostic steps">
+            <div
+              className="space-y-3"
+              role="list"
+              aria-label="Diagnostic steps"
+            >
               {wizard.steps.map((step, index) => (
                 <DiagnosticStep
                   key={step.id}
@@ -183,16 +212,14 @@ export const TroubleshootWizardMobile = memo(function TroubleshootWizardMobile({
             {/* Current Step Details */}
             {wizard.currentStep.status === 'running' && (
               <Card className="p-component-md">
-                <p className="text-sm text-muted-foreground">{wizard.messages.runningMessage}</p>
+                <p className="text-muted-foreground text-sm">{wizard.messages.runningMessage}</p>
               </Card>
             )}
 
             {/* Verifying Message */}
             {wizard.isVerifying && (
               <Card className="p-component-md bg-primary/10">
-                <p className="text-sm text-foreground text-center">
-                  Verifying fix... Please wait.
-                </p>
+                <p className="text-foreground text-center text-sm">Verifying fix... Please wait.</p>
               </Card>
             )}
           </>
@@ -201,41 +228,46 @@ export const TroubleshootWizardMobile = memo(function TroubleshootWizardMobile({
 
       {/* Fix Action Buttons (Fixed Bottom) */}
       {wizard.isAwaitingFixDecision && wizard.currentStep.fix && !showFixSheet && (
-        <div className="p-component-md border-t bg-background sticky bottom-0 z-20">
-          <div className="flex gap-component-sm">
+        <div className="p-component-md bg-background sticky bottom-0 z-20 border-t">
+          <div className="gap-component-sm flex">
             <Button
               variant="outline"
               onClick={wizard.skipFix}
-              className="flex-1 min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              className="focus-visible:ring-ring min-h-[44px] flex-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
               aria-label="Skip this fix"
             >
               Skip
             </Button>
-            {wizard.currentStep.fix.isManualFix ? (
+            {wizard.currentStep.fix.isManualFix ?
               <Button
                 onClick={handleOpenFixSheet}
                 variant="secondary"
-                className="flex-1 min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                className="focus-visible:ring-ring min-h-[44px] flex-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
                 aria-label="View manual fix steps"
               >
                 View Steps
               </Button>
-            ) : (
-              <Button
+            : <Button
                 onClick={handleOpenFixSheet}
-                className="flex-1 min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                className="focus-visible:ring-ring min-h-[44px] flex-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
                 aria-label="View automatic fix details"
               >
                 View Fix
               </Button>
-            )}
+            }
           </div>
         </div>
       )}
 
       {/* Fix Details Sheet */}
-      <Sheet open={showFixSheet} onOpenChange={handleCloseFixSheet}>
-        <SheetContent side="bottom" className="max-h-[85vh] overflow-y-auto">
+      <Sheet
+        open={showFixSheet}
+        onOpenChange={handleCloseFixSheet}
+      >
+        <SheetContent
+          side="bottom"
+          className="max-h-[85vh] overflow-y-auto"
+        >
           <SheetHeader>
             <SheetTitle>{wizard.currentStep.fix?.title}</SheetTitle>
           </SheetHeader>

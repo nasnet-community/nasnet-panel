@@ -16,25 +16,25 @@ export type PollingInterval = '1s' | '5s' | '10s' | '30s';
  * Interface statistics state interface
  */
 export interface InterfaceStatsState {
-    /**
-     * Polling interval for real-time statistics updates
-     * @default '5s'
-     */
-    pollingInterval: PollingInterval;
+  /**
+   * Polling interval for real-time statistics updates
+   * @default '5s'
+   */
+  pollingInterval: PollingInterval;
 }
 /**
  * Interface statistics actions interface
  */
 export interface InterfaceStatsActions {
-    /**
-     * Set the polling interval for statistics updates
-     * Changes apply immediately to active subscriptions
-     */
-    setPollingInterval: (interval: PollingInterval) => void;
-    /**
-     * Reset preferences to default values
-     */
-    resetPreferences: () => void;
+  /**
+   * Set the polling interval for statistics updates
+   * Changes apply immediately to active subscriptions
+   */
+  setPollingInterval: (interval: PollingInterval) => void;
+  /**
+   * Reset preferences to default values
+   */
+  resetPreferences: () => void;
 }
 /**
  * Zustand store for interface statistics preferences
@@ -58,17 +58,33 @@ export interface InterfaceStatsActions {
  * - Saves preferences to localStorage under key: 'nasnet-interface-stats-preferences'
  * - Survives page reloads and browser restarts
  */
-export declare const useInterfaceStatsStore: import("zustand").UseBoundStore<Omit<import("zustand").StoreApi<InterfaceStatsState & InterfaceStatsActions>, "persist"> & {
+export declare const useInterfaceStatsStore: import('zustand').UseBoundStore<
+  Omit<import('zustand').StoreApi<InterfaceStatsState & InterfaceStatsActions>, 'persist'> & {
     persist: {
-        setOptions: (options: Partial<import("zustand/middleware").PersistOptions<InterfaceStatsState & InterfaceStatsActions, unknown>>) => void;
-        clearStorage: () => void;
-        rehydrate: () => Promise<void> | void;
-        hasHydrated: () => boolean;
-        onHydrate: (fn: (state: InterfaceStatsState & InterfaceStatsActions) => void) => () => void;
-        onFinishHydration: (fn: (state: InterfaceStatsState & InterfaceStatsActions) => void) => () => void;
-        getOptions: () => Partial<import("zustand/middleware").PersistOptions<InterfaceStatsState & InterfaceStatsActions, unknown>>;
+      setOptions: (
+        options: Partial<
+          import('zustand/middleware').PersistOptions<
+            InterfaceStatsState & InterfaceStatsActions,
+            unknown
+          >
+        >
+      ) => void;
+      clearStorage: () => void;
+      rehydrate: () => Promise<void> | void;
+      hasHydrated: () => boolean;
+      onHydrate: (fn: (state: InterfaceStatsState & InterfaceStatsActions) => void) => () => void;
+      onFinishHydration: (
+        fn: (state: InterfaceStatsState & InterfaceStatsActions) => void
+      ) => () => void;
+      getOptions: () => Partial<
+        import('zustand/middleware').PersistOptions<
+          InterfaceStatsState & InterfaceStatsActions,
+          unknown
+        >
+      >;
     };
-}>;
+  }
+>;
 /**
  * Select polling interval
  */
@@ -81,12 +97,20 @@ export declare const getInterfaceStatsState: () => InterfaceStatsState & Interfa
 /**
  * Subscribe to interface stats store changes outside of React
  */
-export declare const subscribeInterfaceStatsState: (listener: (state: InterfaceStatsState & InterfaceStatsActions, prevState: InterfaceStatsState & InterfaceStatsActions) => void) => () => void;
+export declare const subscribeInterfaceStatsState: (
+  listener: (
+    state: InterfaceStatsState & InterfaceStatsActions,
+    prevState: InterfaceStatsState & InterfaceStatsActions
+  ) => void
+) => () => void;
 /**
  * Polling interval display labels with descriptions
  */
-export declare const POLLING_INTERVAL_LABELS: Record<PollingInterval, {
+export declare const POLLING_INTERVAL_LABELS: Record<
+  PollingInterval,
+  {
     label: string;
     description: string;
-}>;
+  }
+>;
 //# sourceMappingURL=interface-stats-store.d.ts.map

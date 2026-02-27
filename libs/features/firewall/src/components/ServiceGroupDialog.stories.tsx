@@ -18,13 +18,10 @@ import { vi } from 'vitest';
 
 import type { ServiceGroup, ServicePortDefinition } from '@nasnet/core/types';
 
-
 import { ServiceGroupDialog } from './ServiceGroupDialog';
 import * as useCustomServicesModule from '../hooks/useCustomServices';
 
 import type { Meta, StoryObj } from '@storybook/react';
-
-
 
 // ============================================================================
 // Mock Data
@@ -221,27 +218,32 @@ const mockUseCustomServices = {
 };
 
 // Setup mock
-vi.spyOn(useCustomServicesModule, 'useCustomServices').mockReturnValue(
-  mockUseCustomServices
-);
+vi.spyOn(useCustomServicesModule, 'useCustomServices').mockReturnValue(mockUseCustomServices);
 
 // ============================================================================
 // Story Wrapper
 // ============================================================================
 
-function ServiceGroupDialogWrapper(props: Partial<typeof ServiceGroupDialog & { editGroup?: ServiceGroup }>) {
+function ServiceGroupDialogWrapper(
+  props: Partial<typeof ServiceGroupDialog & { editGroup?: ServiceGroup }>
+) {
   const [open, setOpen] = useState(true);
   const { editGroup, ...restProps } = props as any;
 
   return (
-    <div className="min-h-screen p-8 bg-background">
+    <div className="bg-background min-h-screen p-8">
       <button
         onClick={() => setOpen(true)}
-        className="px-4 py-2 bg-primary text-primary-foreground rounded-md"
+        className="bg-primary text-primary-foreground rounded-md px-4 py-2"
       >
         Open Dialog
       </button>
-      <ServiceGroupDialog open={open} onOpenChange={setOpen} editGroup={editGroup} {...restProps} />
+      <ServiceGroupDialog
+        open={open}
+        onOpenChange={setOpen}
+        editGroup={editGroup}
+        {...restProps}
+      />
     </div>
   );
 }
@@ -316,7 +318,7 @@ export const EditModeSmallGroup: Story = {
     docs: {
       description: {
         story:
-          'Edit an existing service group. The form is pre-populated with the group\'s current configuration.',
+          "Edit an existing service group. The form is pre-populated with the group's current configuration.",
       },
     },
   },
@@ -351,8 +353,7 @@ export const LargeGroup: Story = {
   parameters: {
     docs: {
       description: {
-        story:
-          'Edit a large service group with 13 services. Tests UI scalability with many chips.',
+        story: 'Edit a large service group with 13 services. Tests UI scalability with many chips.',
       },
     },
   },
@@ -381,8 +382,7 @@ export const WithUDPProtocol: Story = {
   parameters: {
     docs: {
       description: {
-        story:
-          'Group with UDP protocol. Only UDP and "both" services are available for selection.',
+        story: 'Group with UDP protocol. Only UDP and "both" services are available for selection.',
       },
     },
   },
@@ -456,9 +456,7 @@ export const ConflictError: Story = {
   render: () => {
     // Mock createGroup to throw conflict error
     mockCreateGroup.mockRejectedValueOnce(
-      new Error(
-        'Service group "web-services" already exists. Please choose a different name.'
-      )
+      new Error('Service group "web-services" already exists. Please choose a different name.')
     );
 
     return <ServiceGroupDialogWrapper />;
@@ -482,9 +480,7 @@ export const ConflictError: Story = {
 export const LoadingState: Story = {
   render: () => {
     // Mock createGroup with delayed promise
-    mockCreateGroup.mockReturnValueOnce(
-      new Promise((resolve) => setTimeout(resolve, 3000))
-    );
+    mockCreateGroup.mockReturnValueOnce(new Promise((resolve) => setTimeout(resolve, 3000)));
 
     return <ServiceGroupDialogWrapper />;
   },
@@ -514,4 +510,3 @@ export const Playground: Story = {
     },
   },
 };
-

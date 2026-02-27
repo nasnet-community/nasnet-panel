@@ -133,11 +133,7 @@ const MAX_AGE_MS = 24 * 60 * 60 * 1000;
 /**
  * Check if a notification is a duplicate (same alertId within 2s window)
  */
-function isDuplicate(
-  notifications: InAppNotification[],
-  alertId: string,
-  now: number
-): boolean {
+function isDuplicate(notifications: InAppNotification[], alertId: string, now: number): boolean {
   return notifications.some((n) => {
     const age = now - new Date(n.receivedAt).getTime();
     return n.alertId === alertId && age < DEDUP_WINDOW_MS;
@@ -315,29 +311,22 @@ export const useAlertNotificationStore = create<AlertNotificationState>()(
  */
 
 /** Get all notifications */
-export const useNotifications = () =>
-  useAlertNotificationStore((state) => state.notifications);
+export const useNotifications = () => useAlertNotificationStore((state) => state.notifications);
 
 /** Get unread count */
-export const useUnreadCount = () =>
-  useAlertNotificationStore((state) => state.unreadCount);
+export const useUnreadCount = () => useAlertNotificationStore((state) => state.unreadCount);
 
 /** Get unread notifications only */
 export const useUnreadNotifications = () =>
   useAlertNotificationStore((state) => state.notifications.filter((n) => !n.read));
 
 /** Get notification settings */
-export const useNotificationSettings = () =>
-  useAlertNotificationStore((state) => state.settings);
+export const useNotificationSettings = () => useAlertNotificationStore((state) => state.settings);
 
 /** Get notifications filtered by severity */
 export const useNotificationsBySeverity = (severity: AlertSeverity) =>
-  useAlertNotificationStore((state) =>
-    state.notifications.filter((n) => n.severity === severity)
-  );
+  useAlertNotificationStore((state) => state.notifications.filter((n) => n.severity === severity));
 
 /** Get notifications for a specific device */
 export const useNotificationsByDevice = (deviceId: string) =>
-  useAlertNotificationStore((state) =>
-    state.notifications.filter((n) => n.deviceId === deviceId)
-  );
+  useAlertNotificationStore((state) => state.notifications.filter((n) => n.deviceId === deviceId));

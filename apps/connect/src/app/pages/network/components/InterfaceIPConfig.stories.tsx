@@ -6,7 +6,6 @@
  * Network/Netmask/Broadcast details are computed client-side via parseCIDR.
  */
 
-
 import { type IPAddress } from '@nasnet/core/types';
 
 import { InterfaceIPConfig } from './InterfaceIPConfig';
@@ -47,7 +46,7 @@ const makeIP = (
   address: string,
   iface: string,
   isDynamic = false,
-  isDisabled = false,
+  isDisabled = false
 ): IPAddress => ({
   id: String(_idCounter++),
   address,
@@ -166,10 +165,7 @@ export const ManyAddressesPerInterface: Story = {
 export const StartCollapsed: Story = {
   name: 'Starts Collapsed',
   args: {
-    ipAddresses: [
-      makeIP('192.168.88.1/24', 'bridge1'),
-      makeIP('10.0.0.1/30', 'ether1', true),
-    ],
+    ipAddresses: [makeIP('192.168.88.1/24', 'bridge1'), makeIP('10.0.0.1/30', 'ether1', true)],
     defaultCollapsed: true,
   },
   parameters: {

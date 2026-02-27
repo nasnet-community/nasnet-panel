@@ -14,7 +14,8 @@
  * isValidIPv4('not an ip') // => false
  */
 export const isValidIPv4 = (ip: string): boolean => {
-  const ipv4Regex = /^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$/;
+  const ipv4Regex =
+    /^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$/;
   return ipv4Regex.test(ip);
 };
 
@@ -29,7 +30,8 @@ export const isValidIPv4 = (ip: string): boolean => {
  * isValidSubnet('192.168.1.0') // => false
  */
 export const isValidSubnet = (cidr: string): boolean => {
-  const cidrRegex = /^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$/;
+  const cidrRegex =
+    /^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$/;
   return cidrRegex.test(cidr);
 };
 
@@ -63,12 +65,7 @@ export const ipToNumber = (ip: string): number => {
  * numberToIP(4294967295) // => '255.255.255.255'
  */
 export const numberToIP = (num: number): string => {
-  return [
-    (num >>> 24) & 0xff,
-    (num >>> 16) & 0xff,
-    (num >>> 8) & 0xff,
-    num & 0xff
-  ].join('.');
+  return [(num >>> 24) & 0xff, (num >>> 16) & 0xff, (num >>> 8) & 0xff, num & 0xff].join('.');
 };
 
 /**
@@ -80,7 +77,9 @@ export const numberToIP = (num: number): string => {
  * parseCIDR('192.168.1.0/24') // => { network: '192.168.1.0', netmask: '255.255.255.0', broadcast: '192.168.1.255', prefix: 24 }
  * parseCIDR('10.0.0.0/8') // => { network: '10.0.0.0', netmask: '255.0.0.0', broadcast: '10.255.255.255', prefix: 8 }
  */
-export const parseCIDR = (cidr: string): {
+export const parseCIDR = (
+  cidr: string
+): {
   network: string;
   netmask: string;
   broadcast: string;
@@ -102,7 +101,7 @@ export const parseCIDR = (cidr: string): {
     network: numberToIP(network),
     netmask: numberToIP(mask),
     broadcast: numberToIP(broadcast),
-    prefix
+    prefix,
   };
 };
 
@@ -332,7 +331,9 @@ export const formatMACAddress = (mac: string): string => {
  * //   totalAddresses: 256
  * // }
  */
-export const getSubnetInfo = (cidr: string): {
+export const getSubnetInfo = (
+  cidr: string
+): {
   network: string;
   broadcast: string;
   firstHost: string;
@@ -356,4 +357,3 @@ export const getSubnetInfo = (cidr: string): {
     totalAddresses: Math.pow(2, 32 - parsed.prefix),
   };
 };
-

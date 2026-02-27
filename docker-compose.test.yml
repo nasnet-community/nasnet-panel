@@ -26,15 +26,15 @@ services:
       - NET_ADMIN
     ports:
       # RouterOS API (plain)
-      - "8728:8728"
+      - '8728:8728'
       # RouterOS API (SSL)
-      - "8729:8729"
+      - '8729:8729'
       # SSH access
-      - "2222:22"
-      # Web interface
-      - "8080:80"
+      - '2222:22'
+      # Web interface (8880 to avoid conflict with Go backend on 8080)
+      - '8880:80'
       # Winbox
-      - "8291:8291"
+      - '8291:8291'
     environment:
       # CHR configuration environment variables
       - CHR_LICENSE=free
@@ -43,7 +43,7 @@ services:
       - ./fixtures/chr-init.rsc:/chr-init.rsc:ro
     healthcheck:
       # Check if RouterOS API is responding
-      test: ["CMD", "nc", "-z", "localhost", "8728"]
+      test: ['CMD', 'nc', '-z', 'localhost', '8728']
       interval: 10s
       timeout: 5s
       retries: 5

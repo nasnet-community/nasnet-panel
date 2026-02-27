@@ -140,11 +140,27 @@ export const ZeroErrors: Story = {
  */
 export const StatsGrid: Story = {
   render: () => (
-    <div className="grid grid-cols-2 gap-component-lg rounded-md border bg-card p-component-lg shadow-sm">
-      <StatsCounter value="5368709120" label="TX Bytes" unit="bytes" />
-      <StatsCounter value="10737418240" label="RX Bytes" unit="bytes" />
-      <StatsCounter value="3145728" label="TX Packets" unit="packets" />
-      <StatsCounter value="6291456" label="RX Packets" unit="packets" />
+    <div className="gap-component-lg bg-card p-component-lg grid grid-cols-2 rounded-md border shadow-sm">
+      <StatsCounter
+        value="5368709120"
+        label="TX Bytes"
+        unit="bytes"
+      />
+      <StatsCounter
+        value="10737418240"
+        label="RX Bytes"
+        unit="bytes"
+      />
+      <StatsCounter
+        value="3145728"
+        label="TX Packets"
+        unit="packets"
+      />
+      <StatsCounter
+        value="6291456"
+        label="RX Packets"
+        unit="packets"
+      />
     </div>
   ),
   args: {},

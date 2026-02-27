@@ -26,10 +26,7 @@ import {
   CardFooter,
 } from '@nasnet/ui/primitives';
 import { IPInput } from '@nasnet/ui/patterns';
-import {
-  dnsStaticEntrySchema,
-  type DNSStaticEntryFormValues,
-} from '../../schemas';
+import { dnsStaticEntrySchema, type DNSStaticEntryFormValues } from '../../schemas';
 import { isDuplicateHostname } from '../../utils';
 import type { DNSStaticEntry } from '@nasnet/core/types';
 
@@ -101,11 +98,7 @@ export function DnsStaticEntryForm({
   useEffect(() => {
     const subscription = form.watch((value, { name: fieldName }) => {
       if (fieldName === 'name' && value.name) {
-        const isDuplicate = isDuplicateHostname(
-          value.name,
-          existingEntries,
-          currentEntryId
-        );
+        const isDuplicate = isDuplicateHostname(value.name, existingEntries, currentEntryId);
 
         if (isDuplicate) {
           form.setError('name', {
@@ -152,7 +145,10 @@ export function DnsStaticEntryForm({
         <CardContent className="space-y-component-md">
           {/* Hostname Field */}
           <div className="space-y-component-sm">
-            <Label htmlFor="name" className="required font-display">
+            <Label
+              htmlFor="name"
+              className="required font-display"
+            >
               Hostname
             </Label>
             <Input
@@ -165,18 +161,28 @@ export function DnsStaticEntryForm({
               aria-invalid={!!form.formState.errors.name}
             />
             {form.formState.errors.name && (
-              <p id="name-error" className="text-sm text-error" role="alert">
+              <p
+                id="name-error"
+                className="text-error text-sm"
+                role="alert"
+              >
                 {form.formState.errors.name.message}
               </p>
             )}
-            <p id="name-help" className="text-xs text-muted-foreground">
+            <p
+              id="name-help"
+              className="text-muted-foreground text-xs"
+            >
               RFC 1123 format: letters, digits, hyphens, dots (max 253 chars)
             </p>
           </div>
 
           {/* IP Address Field */}
           <div className="space-y-component-sm">
-            <Label htmlFor="address" className="required font-display">
+            <Label
+              htmlFor="address"
+              className="required font-display"
+            >
               IP Address
             </Label>
             <IPInput
@@ -191,7 +197,7 @@ export function DnsStaticEntryForm({
             {form.formState.errors.address && (
               <p
                 id="address-error"
-                className="text-sm text-error"
+                className="text-error text-sm"
                 role="alert"
               >
                 {form.formState.errors.address.message}
@@ -201,7 +207,12 @@ export function DnsStaticEntryForm({
 
           {/* TTL Field */}
           <div className="space-y-component-sm">
-            <Label htmlFor="ttl" className="font-display">Time to Live (TTL)</Label>
+            <Label
+              htmlFor="ttl"
+              className="font-display"
+            >
+              Time to Live (TTL)
+            </Label>
             <Input
               id="ttl"
               type="number"
@@ -215,19 +226,31 @@ export function DnsStaticEntryForm({
               aria-invalid={!!form.formState.errors.ttl}
             />
             {form.formState.errors.ttl && (
-              <p id="ttl-error" className="text-sm text-error" role="alert">
+              <p
+                id="ttl-error"
+                className="text-error text-sm"
+                role="alert"
+              >
                 {form.formState.errors.ttl.message}
               </p>
             )}
-            <p id="ttl-help" className="text-xs text-muted-foreground">
-              Seconds (0–604800). Default: 86400 (1 day). Common: 3600 (1 hour),
-              86400 (1 day), 604800 (7 days)
+            <p
+              id="ttl-help"
+              className="text-muted-foreground text-xs"
+            >
+              Seconds (0–604800). Default: 86400 (1 day). Common: 3600 (1 hour), 86400 (1 day),
+              604800 (7 days)
             </p>
           </div>
 
           {/* Comment Field */}
           <div className="space-y-component-sm">
-            <Label htmlFor="comment" className="font-display">Comment (Optional)</Label>
+            <Label
+              htmlFor="comment"
+              className="font-display"
+            >
+              Comment (Optional)
+            </Label>
             <Textarea
               id="comment"
               placeholder="Network storage"
@@ -241,19 +264,22 @@ export function DnsStaticEntryForm({
             {form.formState.errors.comment && (
               <p
                 id="comment-error"
-                className="text-sm text-error"
+                className="text-error text-sm"
                 role="alert"
               >
                 {form.formState.errors.comment.message}
               </p>
             )}
-            <p id="comment-help" className="text-xs text-muted-foreground">
+            <p
+              id="comment-help"
+              className="text-muted-foreground text-xs"
+            >
               Optional description (max 255 characters)
             </p>
           </div>
         </CardContent>
 
-        <CardFooter className="flex gap-component-md justify-end">
+        <CardFooter className="gap-component-md flex justify-end">
           <Button
             type="button"
             variant="outline"
@@ -266,11 +292,11 @@ export function DnsStaticEntryForm({
             type="submit"
             disabled={isLoading || !form.formState.isValid}
           >
-            {isLoading
-              ? 'Saving...'
-              : mode === 'create'
-                ? 'Create Entry'
-                : 'Save Changes'}
+            {isLoading ?
+              'Saving...'
+            : mode === 'create' ?
+              'Create Entry'
+            : 'Save Changes'}
           </Button>
         </CardFooter>
       </form>

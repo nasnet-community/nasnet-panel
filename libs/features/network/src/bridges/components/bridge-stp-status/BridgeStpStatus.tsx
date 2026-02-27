@@ -41,10 +41,16 @@ function BridgeStpStatusComponent({ bridgeId, className }: BridgeStpStatusProps)
   const { stpStatus: liveStpStatus } = useBridgeStpStatus(bridgeId);
 
   // Use live status if available, otherwise use bridge data
-  const stpStatus = useMemo(() => liveStpStatus || bridge?.stpStatus, [liveStpStatus, bridge?.stpStatus]);
+  const stpStatus = useMemo(
+    () => liveStpStatus || bridge?.stpStatus,
+    [liveStpStatus, bridge?.stpStatus]
+  );
 
   // Check if STP is enabled
-  const stpEnabled = useMemo(() => bridge?.protocol && bridge.protocol !== 'none', [bridge?.protocol]);
+  const stpEnabled = useMemo(
+    () => bridge?.protocol && bridge.protocol !== 'none',
+    [bridge?.protocol]
+  );
 
   if (loading) {
     return (
@@ -58,10 +64,12 @@ function BridgeStpStatusComponent({ bridgeId, className }: BridgeStpStatusProps)
   if (error) {
     return (
       <Alert variant="destructive">
-        <Icon icon={AlertCircle} className="h-4 w-4" aria-hidden="true" />
-        <AlertDescription>
-          Failed to load STP status: {error.message}
-        </AlertDescription>
+        <Icon
+          icon={AlertCircle}
+          className="h-4 w-4"
+          aria-hidden="true"
+        />
+        <AlertDescription>Failed to load STP status: {error.message}</AlertDescription>
       </Alert>
     );
   }
@@ -69,7 +77,11 @@ function BridgeStpStatusComponent({ bridgeId, className }: BridgeStpStatusProps)
   if (!bridge) {
     return (
       <Alert>
-        <Icon icon={AlertCircle} className="h-4 w-4" aria-hidden="true" />
+        <Icon
+          icon={AlertCircle}
+          className="h-4 w-4"
+          aria-hidden="true"
+        />
         <AlertDescription>Bridge not found</AlertDescription>
       </Alert>
     );
@@ -79,14 +91,22 @@ function BridgeStpStatusComponent({ bridgeId, className }: BridgeStpStatusProps)
     return (
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-component-sm">
-            <Icon icon={Shield} className="h-5 w-5 text-category-networking" aria-hidden="true" />
+          <CardTitle className="gap-component-sm flex items-center">
+            <Icon
+              icon={Shield}
+              className="text-category-networking h-5 w-5"
+              aria-hidden="true"
+            />
             Spanning Tree Protocol
           </CardTitle>
         </CardHeader>
         <CardContent>
           <Alert>
-            <Icon icon={AlertCircle} className="h-4 w-4 text-info" aria-hidden="true" />
+            <Icon
+              icon={AlertCircle}
+              className="text-info h-4 w-4"
+              aria-hidden="true"
+            />
             <AlertDescription>
               STP is disabled for this bridge. Set the protocol to STP, RSTP, or MSTP to enable
               spanning tree.
@@ -102,44 +122,55 @@ function BridgeStpStatusComponent({ bridgeId, className }: BridgeStpStatusProps)
       {/* Bridge-Level STP Info */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-component-sm">
-            <Icon icon={Shield} className="h-5 w-5 text-category-networking" aria-hidden="true" />
+          <CardTitle className="gap-component-sm flex items-center">
+            <Icon
+              icon={Shield}
+              className="text-category-networking h-5 w-5"
+              aria-hidden="true"
+            />
             Spanning Tree Status
-            <Badge variant="info" className="ml-auto font-mono text-xs font-medium">
+            <Badge
+              variant="info"
+              className="ml-auto font-mono text-xs font-medium"
+            >
               {bridge.protocol.toUpperCase()}
             </Badge>
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-component-lg">
           {/* Root Bridge Status */}
-          <div className="flex items-center justify-between p-component-md rounded-card-sm border">
-            <div className="flex items-center gap-component-md">
+          <div className="p-component-md rounded-card-sm flex items-center justify-between border">
+            <div className="gap-component-md flex items-center">
               <div
-                className={`flex h-10 w-10 items-center justify-center rounded-pill ${
-                  stpStatus?.rootBridge ? 'bg-success/10 text-success' : 'bg-muted text-muted-foreground'
+                className={`rounded-pill flex h-10 w-10 items-center justify-center ${
+                  stpStatus?.rootBridge ?
+                    'bg-success/10 text-success'
+                  : 'bg-muted text-muted-foreground'
                 }`}
               >
-                <Icon icon={Network} className="h-5 w-5" aria-hidden="true" />
+                <Icon
+                  icon={Network}
+                  className="h-5 w-5"
+                  aria-hidden="true"
+                />
               </div>
               <div>
                 <p className="text-sm font-medium">Root Bridge</p>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-muted-foreground text-xs">
                   {stpStatus?.rootBridge ? 'This bridge is the root' : 'Not the root bridge'}
                 </p>
               </div>
             </div>
-            {stpStatus?.rootBridge ? (
+            {stpStatus?.rootBridge ?
               <Badge variant="success">Root</Badge>
-            ) : (
-              <Badge variant="secondary">Non-Root</Badge>
-            )}
+            : <Badge variant="secondary">Non-Root</Badge>}
           </div>
 
           {/* Root Bridge ID */}
           {stpStatus?.rootBridgeId && (
             <div className="space-y-component-xs">
               <p className="text-sm font-medium">Root Bridge ID</p>
-              <div className="font-mono text-xs bg-muted px-component-sm py-component-xs rounded-md break-all font-medium">
+              <div className="bg-muted px-component-sm py-component-xs break-all rounded-md font-mono text-xs font-medium">
                 {stpStatus.rootBridgeId}
               </div>
             </div>
@@ -149,7 +180,12 @@ function BridgeStpStatusComponent({ bridgeId, className }: BridgeStpStatusProps)
           {!stpStatus?.rootBridge && stpStatus?.rootPort && (
             <div className="space-y-component-xs">
               <p className="text-sm font-medium">Root Port</p>
-              <Badge variant="info" className="font-mono font-medium">{stpStatus.rootPort}</Badge>
+              <Badge
+                variant="info"
+                className="font-mono font-medium"
+              >
+                {stpStatus.rootPort}
+              </Badge>
             </div>
           )}
 
@@ -157,30 +193,35 @@ function BridgeStpStatusComponent({ bridgeId, className }: BridgeStpStatusProps)
           {!stpStatus?.rootBridge && stpStatus?.rootPathCost !== undefined && (
             <div className="space-y-component-xs">
               <p className="text-sm font-medium">Root Path Cost</p>
-              <div className="font-mono text-xs bg-muted px-component-sm py-component-xs rounded-md font-medium">
+              <div className="bg-muted px-component-sm py-component-xs rounded-md font-mono text-xs font-medium">
                 {stpStatus.rootPathCost}
               </div>
             </div>
           )}
 
           {/* Topology Changes */}
-          <div className="flex items-center justify-between p-component-md rounded-card-sm border">
-            <div className="flex items-center gap-component-md">
-              <div className="flex h-10 w-10 items-center justify-center rounded-pill bg-primary/10 text-primary">
-                <Icon icon={Activity} className="h-5 w-5" aria-hidden="true" />
+          <div className="p-component-md rounded-card-sm flex items-center justify-between border">
+            <div className="gap-component-md flex items-center">
+              <div className="rounded-pill bg-primary/10 text-primary flex h-10 w-10 items-center justify-center">
+                <Icon
+                  icon={Activity}
+                  className="h-5 w-5"
+                  aria-hidden="true"
+                />
               </div>
               <div>
                 <p className="text-sm font-medium">Topology Changes</p>
-                {stpStatus?.lastTopologyChange ? (
-                  <p className="text-xs text-muted-foreground">
+                {stpStatus?.lastTopologyChange ?
+                  <p className="text-muted-foreground text-xs">
                     Last change: {format(new Date(stpStatus.lastTopologyChange), 'PPp')}
                   </p>
-                ) : (
-                  <p className="text-xs text-muted-foreground">No recent changes</p>
-                )}
+                : <p className="text-muted-foreground text-xs">No recent changes</p>}
               </div>
             </div>
-            <Badge variant="secondary" className="font-mono text-xs font-medium">
+            <Badge
+              variant="secondary"
+              className="font-mono text-xs font-medium"
+            >
               {stpStatus?.topologyChangeCount || 0}
             </Badge>
           </div>

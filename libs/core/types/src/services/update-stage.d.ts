@@ -21,5 +21,15 @@
  * - FAILED: Update failed during process
  * - ROLLED_BACK: Update rolled back after failure
  */
-export type UpdateStage = 'PENDING' | 'DOWNLOADING' | 'VERIFYING' | 'STOPPING' | 'INSTALLING' | 'STARTING' | 'HEALTH_CHECK' | 'COMPLETE' | 'FAILED' | 'ROLLED_BACK';
+export type UpdateStage =
+  | 'PENDING'
+  | 'DOWNLOADING'
+  | 'VERIFYING'
+  | 'STOPPING'
+  | 'INSTALLING'
+  | 'STARTING'
+  | 'HEALTH_CHECK'
+  | 'COMPLETE'
+  | 'FAILED'
+  | 'ROLLED_BACK';
 //# sourceMappingURL=update-stage.d.ts.map

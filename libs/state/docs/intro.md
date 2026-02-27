@@ -5,24 +5,27 @@ title: Introduction
 
 # State Management Library
 
-The **`@nasnet/state`** library provides Zustand stores and XState machines for managing application state beyond what Apollo Client handles.
+The **`@nasnet/state`** library provides Zustand stores and XState machines for managing application
+state beyond what Apollo Client handles.
 
 **Import paths:**
+
 - `@nasnet/state/stores` - Zustand stores for UI state and domain state
 - `@nasnet/state/machines` - XState machines for complex multi-step workflows
 
 ## Four-Layer State Architecture
 
-| Layer | Tool | Purpose | When to Use |
-|-------|------|---------|------------|
-| **Server State** | Apollo Client | Router config, VPN lists, logs, caching, real-time subscriptions | Data from backend/router API |
-| **UI State** | Zustand | Theme, sidebar, modals, notifications, connection status, domain UI state | Global UI preferences and transient state |
-| **Complex Flows** | XState | Multi-step wizards, config pipelines, VPN connection lifecycle, resource management | Multi-step workflows with side effects |
-| **Form State** | React Hook Form + Zod | Form validation, field-level errors, dirty tracking | Form-specific validation and submission |
+| Layer             | Tool                  | Purpose                                                                             | When to Use                               |
+| ----------------- | --------------------- | ----------------------------------------------------------------------------------- | ----------------------------------------- |
+| **Server State**  | Apollo Client         | Router config, VPN lists, logs, caching, real-time subscriptions                    | Data from backend/router API              |
+| **UI State**      | Zustand               | Theme, sidebar, modals, notifications, connection status, domain UI state           | Global UI preferences and transient state |
+| **Complex Flows** | XState                | Multi-step wizards, config pipelines, VPN connection lifecycle, resource management | Multi-step workflows with side effects    |
+| **Form State**    | React Hook Form + Zod | Form validation, field-level errors, dirty tracking                                 | Form-specific validation and submission   |
 
 ## Store Inventory
 
 ### UI Stores (Theme, Sidebar, Notifications)
+
 - `useThemeStore` - Theme management (light/dark/system) with localStorage persistence
 - `useSidebarStore` - Sidebar collapse state for responsive layouts
 - `useUIStore` - Global UI preferences (command palette, compact mode, animations)
@@ -31,11 +34,13 @@ The **`@nasnet/state`** library provides Zustand stores and XState machines for 
 - `useHelpModeStore` - Help mode toggle (Simple/Technical)
 
 ### Connection & Auth Stores
+
 - `useConnectionStore` - Router connection state with WebSocket tracking
 - `useNetworkStore` - Network connectivity (online/offline detection)
 - `useAuthStore` - JWT tokens, user sessions, token refresh with custom Date serialization
 
 ### Router & Domain Stores
+
 - `useRouterStore` - Router discovery and management
 - `useDHCPUIStore` - DHCP UI state (filters, search, selection, wizard draft)
 - `useServiceUIStore` - Service instance UI state (filters, search, selection, install wizard)
@@ -50,25 +55,32 @@ The **`@nasnet/state`** library provides Zustand stores and XState machines for 
 - `useInterfaceStatsStore` - Interface statistics monitoring preferences
 
 ### Command & Navigation Stores
+
 - `useCommandRegistry` - Command palette registry with search, ranking, usage tracking
 - `useShortcutRegistry` - Keyboard shortcuts with registration/execution
 
 ### Advanced Stores
+
 - `useHistoryStore` - Undo/redo history with command pattern (page vs global scope)
 - `useDriftDetection` - Drift detection between configuration and deployment layers
 - `useChangeSetStore` - Atomic multi-resource operations with rollback support
-- `useA11yProvider` - Accessibility context (reduced motion, keyboard user, high contrast, announcements)
+- `useA11yProvider` - Accessibility context (reduced motion, keyboard user, high contrast,
+  announcements)
 
 ## Machine Inventory
 
 ### Core Machines
+
 - `createWizardMachine` - Multi-step wizard flows with validation and optional session recovery
-- `createConfigPipelineMachine` - Safety-first configuration changes: Draft → Validate → Preview → Apply → Verify
+- `createConfigPipelineMachine` - Safety-first configuration changes: Draft → Validate → Preview →
+  Apply → Verify
 - `createVPNConnectionMachine` - VPN lifecycle management with reconnection logic
 - `createChangeSetMachine` - Atomic multi-resource operations with rollback support
-- `createResourceLifecycleMachine` - Resource state machine (pending, active, editable, terminal states)
+- `createResourceLifecycleMachine` - Resource state machine (pending, active, editable, terminal
+  states)
 
 ### Persistence Utilities
+
 - `persistMachineState` - Save machine context to localStorage
 - `restoreMachineState` - Restore machine context from localStorage (with expiry)
 - `clearMachineState` - Clear saved session
@@ -76,6 +88,7 @@ The **`@nasnet/state`** library provides Zustand stores and XState machines for 
 - `hasSavedSession` - Check if valid session exists
 
 ### React Hooks
+
 - `useWizard` - React hook for wizard machines with optional session recovery
 - `useConfigPipeline` - React hook for config pipeline with safety gates
 - `useResourceLifecycle` - React hook for resource lifecycle (with Apollo Client integration)
@@ -87,12 +100,12 @@ All stores use **selectors** for optimized re-renders:
 
 ```typescript
 // ✅ GOOD: Only re-renders when isAuthenticated changes
-const isAuthenticated = useAuthStore(state => state.isAuthenticated);
+const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
 // ✅ GOOD: Use shallow comparison for multiple fields
 import { shallow } from 'zustand/shallow';
 const { user, token } = useAuthStore(
-  state => ({ user: state.user, token: state.token }),
+  (state) => ({ user: state.user, token: state.token }),
   shallow
 );
 
@@ -101,6 +114,7 @@ const { user, token, isRefreshing } = useAuthStore();
 ```
 
 **Selector utilities available:**
+
 - `createMemoizedSelector` - Cache computed results based on dependency changes
 - `createParameterizedSelector` - Parameterized selector factory with per-param caching
 - `createCombinedSelector` - Combine multiple selectors with shallow comparison
@@ -129,37 +143,42 @@ Global UI state (theme, sidebar, modal)?
 
 ## Documentation Structure
 
-| Document | Purpose |
-|----------|---------|
-| **[Architecture](./architecture.md)** | Four-layer model, Zustand patterns, XState v5 patterns, integration patterns |
-| **[Persistence](./persistence.md)** | localStorage keys, custom storage handlers, Map serialization, hydration lifecycle |
-| **[Performance](./performance.md)** | Selector patterns, memoization, re-render prevention, best practices |
-| **[Authentication Store](./stores/auth.md)** | JWT tokens, user sessions, token refresh, security |
-| **[Router Store](./stores/router.md)** | Router discovery, management, selection, config tracking |
-| **[Hooks & Utilities](./stores/hooks-utilities.md)** | Route guards, token refresh, reconnection, error recovery |
-| **[Core Stores](./stores/overview.md)** | Deep dive: UI, connection stores and their APIs |
-| **[Advanced Stores](./stores/overview.md)** | Command registry, history, drift detection, change sets |
-| **[Testing Strategy](./guides/testing.md)** | Unit tests, integration tests, testing patterns |
-| **[Machine Hooks Reference](./machines/hooks-reference.md)** | useWizard, useConfigPipeline, useVPNConnection, useResourceLifecycle |
-| **[Advanced Selector API](./stores/selectors-reference.md)** | Memoized selectors, parameterized selectors, combined selectors |
-| **[XState Machines](./machines/overview.md)** | Wizard, config pipeline, VPN connection, resource lifecycle |
-| **[Integration Patterns](./integrations/apollo-integration.md)** | Apollo Client + Zustand, XState + React, form integration |
-| **[Guides](./guides/quickstart.md)** | Common patterns, troubleshooting, performance optimization |
+| Document                                                         | Purpose                                                                            |
+| ---------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| **[Architecture](./architecture.md)**                            | Four-layer model, Zustand patterns, XState v5 patterns, integration patterns       |
+| **[Persistence](./persistence.md)**                              | localStorage keys, custom storage handlers, Map serialization, hydration lifecycle |
+| **[Performance](./performance.md)**                              | Selector patterns, memoization, re-render prevention, best practices               |
+| **[Authentication Store](./stores/auth.md)**                     | JWT tokens, user sessions, token refresh, security                                 |
+| **[Router Store](./stores/router.md)**                           | Router discovery, management, selection, config tracking                           |
+| **[Hooks & Utilities](./stores/hooks-utilities.md)**             | Route guards, token refresh, reconnection, error recovery                          |
+| **[Core Stores](./stores/overview.md)**                          | Deep dive: UI, connection stores and their APIs                                    |
+| **[Advanced Stores](./stores/overview.md)**                      | Command registry, history, drift detection, change sets                            |
+| **[Testing Strategy](./guides/testing.md)**                      | Unit tests, integration tests, testing patterns                                    |
+| **[Machine Hooks Reference](./machines/hooks-reference.md)**     | useWizard, useConfigPipeline, useVPNConnection, useResourceLifecycle               |
+| **[Advanced Selector API](./stores/selectors-reference.md)**     | Memoized selectors, parameterized selectors, combined selectors                    |
+| **[XState Machines](./machines/overview.md)**                    | Wizard, config pipeline, VPN connection, resource lifecycle                        |
+| **[Integration Patterns](./integrations/apollo-integration.md)** | Apollo Client + Zustand, XState + React, form integration                          |
+| **[Guides](./guides/quickstart.md)**                             | Common patterns, troubleshooting, performance optimization                         |
 
 ## Architecture Highlights
 
 ### Zustand Pattern: Persist Middleware
+
 Stores with localStorage persistence use the `persist` middleware with custom config:
 
 ```typescript
 export const useThemeStore = create<ThemeState & ThemeActions>()(
   devtools(
     persist(
-      (set, get) => ({ /* reducer logic */ }),
+      (set, get) => ({
+        /* reducer logic */
+      }),
       {
-        name: 'nasnet-theme',              // localStorage key
+        name: 'nasnet-theme', // localStorage key
         storage: createJSONStorage(() => localStorage),
-        partialize: (state) => ({ /* subset to persist */ }),
+        partialize: (state) => ({
+          /* subset to persist */
+        }),
       }
     ),
     { name: 'theme-store' }
@@ -168,15 +187,20 @@ export const useThemeStore = create<ThemeState & ThemeActions>()(
 ```
 
 ### Custom Storage Handlers
+
 Some stores (auth, history, command-registry) use custom serialization:
 
 - **Auth store**: Rehydrates `Date` objects for `tokenExpiry` and `lastActivity`
 - **History store**: Converts functions to no-ops on rehydration (functions can't persist)
-- **Command Registry**: Converts `Map<string, number>` ↔ `Record<string, number>` for JSON serialization
+- **Command Registry**: Converts `Map<string, number>` ↔ `Record<string, number>` for JSON
+  serialization
 
-**Source:** `libs/state/stores/src/auth/auth.store.ts`, `libs/state/stores/src/history/history.store.ts`, `libs/state/stores/src/command/command-registry.store.ts`
+**Source:** `libs/state/stores/src/auth/auth.store.ts`,
+`libs/state/stores/src/history/history.store.ts`,
+`libs/state/stores/src/command/command-registry.store.ts`
 
 ### XState v5 Pattern: Actor Model
+
 Machines use XState v5 with the actor model for cleaner async handling:
 
 ```typescript
@@ -211,7 +235,7 @@ const unsubscribe = useAuthStore.subscribe(
 
 // Convenience functions
 import { getAuthToken, isAuthenticated } from '@nasnet/state/stores';
-const token = getAuthToken();  // Returns null if expired
+const token = getAuthToken(); // Returns null if expired
 ```
 
 ## Redux DevTools Integration
@@ -227,6 +251,7 @@ All stores integrate with Redux DevTools (development mode only):
 ---
 
 **Next Steps:**
+
 - Read [Architecture](./architecture.md) to understand state flow and integration patterns
 - Read [Persistence](./persistence.md) to see what's stored in localStorage
 - Read [Performance](./performance.md) for selector patterns and re-render optimization

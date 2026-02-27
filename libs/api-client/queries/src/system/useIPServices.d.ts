@@ -8,34 +8,34 @@ import { UseQueryResult } from '@tanstack/react-query';
  * IP Service entry from RouterOS
  */
 export interface IPService {
-    /**
-     * Unique identifier
-     */
-    id: string;
-    /**
-     * Service name (api, api-ssl, ssh, telnet, ftp, www, www-ssl, winbox)
-     */
-    name: string;
-    /**
-     * Port number the service runs on
-     */
-    port: number;
-    /**
-     * Whether the service is disabled
-     */
-    disabled: boolean;
-    /**
-     * Allowed addresses (can be empty for all)
-     */
-    address?: string;
-    /**
-     * Certificate name (for SSL services)
-     */
-    certificate?: string;
-    /**
-     * VRF name
-     */
-    vrf?: string;
+  /**
+   * Unique identifier
+   */
+  id: string;
+  /**
+   * Service name (api, api-ssl, ssh, telnet, ftp, www, www-ssl, winbox)
+   */
+  name: string;
+  /**
+   * Port number the service runs on
+   */
+  port: number;
+  /**
+   * Whether the service is disabled
+   */
+  disabled: boolean;
+  /**
+   * Allowed addresses (can be empty for all)
+   */
+  address?: string;
+  /**
+   * Certificate name (for SSL services)
+   */
+  certificate?: string;
+  /**
+   * VRF name
+   */
+  vrf?: string;
 }
 /**
  * Supported protocols for batch job execution
@@ -73,10 +73,10 @@ export declare function useIPServices(routerIp: string): UseQueryResult<IPServic
  * ```
  */
 export declare function useEnabledProtocols(routerIp: string): {
-    api: boolean;
-    ssh: boolean;
-    telnet: boolean;
-    isLoading: boolean;
-    error: Error | null;
+  api: boolean;
+  ssh: boolean;
+  telnet: boolean;
+  isLoading: boolean;
+  error: Error | null;
 };
 //# sourceMappingURL=useIPServices.d.ts.map

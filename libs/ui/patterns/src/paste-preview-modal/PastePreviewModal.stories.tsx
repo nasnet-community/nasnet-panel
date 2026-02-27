@@ -5,7 +5,6 @@
 
 import { useState } from 'react';
 
-
 import { Button } from '@nasnet/ui/primitives';
 
 import { PastePreviewModal } from './PastePreviewModal';
@@ -47,25 +46,47 @@ const csvResult: ParseResult = {
   success: true,
   type: 'csv',
   items: [
-    { line: 2, original: 'Laptop,192.168.1.100,00:1A:2B:3C:4D:5E', value: { name: 'Laptop', ip: '192.168.1.100', mac: '00:1A:2B:3C:4D:5E' } },
-    { line: 3, original: 'Phone,192.168.1.101,AA:BB:CC:DD:EE:FF', value: { name: 'Phone', ip: '192.168.1.101', mac: 'AA:BB:CC:DD:EE:FF' } },
-    { line: 4, original: 'Tablet,192.168.1.102,11:22:33:44:55:66', value: { name: 'Tablet', ip: '192.168.1.102', mac: '11:22:33:44:55:66' } },
+    {
+      line: 2,
+      original: 'Laptop,192.168.1.100,00:1A:2B:3C:4D:5E',
+      value: { name: 'Laptop', ip: '192.168.1.100', mac: '00:1A:2B:3C:4D:5E' },
+    },
+    {
+      line: 3,
+      original: 'Phone,192.168.1.101,AA:BB:CC:DD:EE:FF',
+      value: { name: 'Phone', ip: '192.168.1.101', mac: 'AA:BB:CC:DD:EE:FF' },
+    },
+    {
+      line: 4,
+      original: 'Tablet,192.168.1.102,11:22:33:44:55:66',
+      value: { name: 'Tablet', ip: '192.168.1.102', mac: '11:22:33:44:55:66' },
+    },
   ],
   errors: [],
   totalLines: 4,
-  rawContent: 'name,ip,mac\nLaptop,192.168.1.100,00:1A:2B:3C:4D:5E\nPhone,192.168.1.101,AA:BB:CC:DD:EE:FF\nTablet,192.168.1.102,11:22:33:44:55:66',
+  rawContent:
+    'name,ip,mac\nLaptop,192.168.1.100,00:1A:2B:3C:4D:5E\nPhone,192.168.1.101,AA:BB:CC:DD:EE:FF\nTablet,192.168.1.102,11:22:33:44:55:66',
 };
 
 const routerosResult: ParseResult = {
   success: true,
   type: 'routeros',
   items: [
-    { line: 1, original: '/ip firewall filter add chain=forward action=accept', value: '/ip firewall filter add chain=forward action=accept' },
-    { line: 2, original: '/ip firewall filter add chain=input action=drop', value: '/ip firewall filter add chain=input action=drop' },
+    {
+      line: 1,
+      original: '/ip firewall filter add chain=forward action=accept',
+      value: '/ip firewall filter add chain=forward action=accept',
+    },
+    {
+      line: 2,
+      original: '/ip firewall filter add chain=input action=drop',
+      value: '/ip firewall filter add chain=input action=drop',
+    },
   ],
   errors: [],
   totalLines: 2,
-  rawContent: '/ip firewall filter add chain=forward action=accept\n/ip firewall filter add chain=input action=drop',
+  rawContent:
+    '/ip firewall filter add chain=forward action=accept\n/ip firewall filter add chain=input action=drop',
 };
 
 const meta: Meta<typeof PastePreviewModal> = {

@@ -6,31 +6,49 @@
 Input for assigning device routing.
 """
 input AssignDeviceRoutingInput {
-  """Router ID"""
+  """
+  Router ID
+  """
   routerID: ID!
 
-  """Device ID to route"""
+  """
+  Device ID to route
+  """
   deviceID: String! @validate(minLength: 1, maxLength: 100)
 
-  """Device MAC address"""
+  """
+  Device MAC address
+  """
   macAddress: String! @validate(pattern: "^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$")
 
-  """Device IP address (optional)"""
+  """
+  Device IP address (optional)
+  """
   deviceIP: String
 
-  """Device hostname (optional)"""
+  """
+  Device hostname (optional)
+  """
   deviceName: String @validate(maxLength: 255)
 
-  """Service instance ID to route through"""
+  """
+  Service instance ID to route through
+  """
   instanceID: ID!
 
-  """Virtual interface ID to route through"""
+  """
+  Virtual interface ID to route through
+  """
   interfaceID: ID!
 
-  """Routing mark"""
+  """
+  Routing mark
+  """
   routingMark: String! @validate(minLength: 1, maxLength: 255)
 
-  """Routing mode"""
+  """
+  Routing mode
+  """
   routingMode: RoutingMode!
 }
 
@@ -38,10 +56,14 @@ input AssignDeviceRoutingInput {
 Input for bulk device routing assignment.
 """
 input BulkAssignRoutingInput {
-  """Router ID"""
+  """
+  Router ID
+  """
   routerID: ID!
 
-  """List of device routing assignments"""
+  """
+  List of device routing assignments
+  """
   assignments: [SingleDeviceRoutingInput!]!
 }
 
@@ -49,28 +71,44 @@ input BulkAssignRoutingInput {
 Single device routing assignment for bulk operations.
 """
 input SingleDeviceRoutingInput {
-  """Device ID"""
+  """
+  Device ID
+  """
   deviceID: String!
 
-  """Device MAC address"""
+  """
+  Device MAC address
+  """
   macAddress: String!
 
-  """Device IP (optional)"""
+  """
+  Device IP (optional)
+  """
   deviceIP: String
 
-  """Device name (optional)"""
+  """
+  Device name (optional)
+  """
   deviceName: String
 
-  """Instance ID"""
+  """
+  Instance ID
+  """
   instanceID: ID!
 
-  """Interface ID"""
+  """
+  Interface ID
+  """
   interfaceID: ID!
 
-  """Routing mark"""
+  """
+  Routing mark
+  """
   routingMark: String!
 
-  """Routing mode"""
+  """
+  Routing mode
+  """
   routingMode: RoutingMode!
 }
 
@@ -78,16 +116,24 @@ input SingleDeviceRoutingInput {
 Result of bulk routing assignment operation.
 """
 type BulkRoutingResult {
-  """Number of successful assignments"""
+  """
+  Number of successful assignments
+  """
   successCount: Int!
 
-  """Number of failed assignments"""
+  """
+  Number of failed assignments
+  """
   failureCount: Int!
 
-  """Successfully assigned routings"""
+  """
+  Successfully assigned routings
+  """
   successes: [DeviceRouting!]!
 
-  """Failed assignments with error messages"""
+  """
+  Failed assignments with error messages
+  """
   failures: [BulkRoutingFailure!]!
 }
 
@@ -95,13 +141,19 @@ type BulkRoutingResult {
 Failed routing assignment in bulk operation.
 """
 type BulkRoutingFailure {
-  """Device ID that failed"""
+  """
+  Device ID that failed
+  """
   deviceID: String!
 
-  """Device MAC address"""
+  """
+  Device MAC address
+  """
   macAddress: String!
 
-  """Error message"""
+  """
+  Error message
+  """
   errorMessage: String!
 }
 
@@ -109,19 +161,29 @@ type BulkRoutingFailure {
 Input for setting kill switch on a device routing.
 """
 input SetKillSwitchInput {
-  """Router ID"""
+  """
+  Router ID
+  """
   routerID: ID!
 
-  """Device ID whose routing should have kill switch"""
+  """
+  Device ID whose routing should have kill switch
+  """
   deviceID: String! @validate(minLength: 1, maxLength: 100)
 
-  """Whether to enable kill switch"""
+  """
+  Whether to enable kill switch
+  """
   enabled: Boolean!
 
-  """Kill switch behavior mode"""
+  """
+  Kill switch behavior mode
+  """
   mode: KillSwitchMode!
 
-  """Fallback interface ID (required if mode=FALLBACK_SERVICE)"""
+  """
+  Fallback interface ID (required if mode=FALLBACK_SERVICE)
+  """
   fallbackInterfaceID: String
 }
 
@@ -129,18 +191,28 @@ input SetKillSwitchInput {
 Device routing change event for subscriptions.
 """
 type DeviceRoutingEvent {
-  """Event ID"""
+  """
+  Event ID
+  """
   id: ID!
 
-  """Event type (assigned, removed, updated, kill_switch_activated, kill_switch_deactivated)"""
+  """
+  Event type (assigned, removed, updated, kill_switch_activated, kill_switch_deactivated)
+  """
   eventType: String!
 
-  """Router ID"""
+  """
+  Router ID
+  """
   routerID: ID!
 
-  """Device routing (null if removed)"""
+  """
+  Device routing (null if removed)
+  """
   routing: DeviceRouting
 
-  """Timestamp"""
+  """
+  Timestamp
+  """
   timestamp: DateTime!
 }

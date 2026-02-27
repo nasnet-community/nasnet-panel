@@ -21,12 +21,7 @@ export type ValidationStageName =
 /**
  * Status of a validation stage.
  */
-export type ValidationStageStatus =
-  | 'pending'
-  | 'running'
-  | 'passed'
-  | 'failed'
-  | 'skipped';
+export type ValidationStageStatus = 'pending' | 'running' | 'passed' | 'failed' | 'skipped';
 
 /**
  * Validation error from a stage.

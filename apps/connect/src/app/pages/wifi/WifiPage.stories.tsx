@@ -20,7 +20,6 @@ import { WifiPage } from './WifiPage';
 
 import type { Meta, StoryObj } from '@storybook/react';
 
-
 const meta: Meta<typeof WifiPage> = {
   title: 'App/Pages/WifiPage',
   component: WifiPage,
@@ -180,13 +179,11 @@ interface StatusHeroProps {
 function StatusHero({ interfaces, clients }: StatusHeroProps) {
   const activeInterfaces = interfaces.filter((i) => !i.disabled && i.running);
   const activePercent =
-    interfaces.length > 0
-      ? Math.round((activeInterfaces.length / interfaces.length) * 100)
-      : 0;
+    interfaces.length > 0 ? Math.round((activeInterfaces.length / interfaces.length) * 100) : 0;
   const avgSignal =
-    clients.length > 0
-      ? Math.round(clients.reduce((sum, c) => sum + c.signalStrength, 0) / clients.length)
-      : -100;
+    clients.length > 0 ?
+      Math.round(clients.reduce((sum, c) => sum + c.signalStrength, 0) / clients.length)
+    : -100;
   const { label: sigLabel, color: sigColor } = getSignalLabel(avgSignal);
   const bands = {
     '2.4GHz': interfaces.filter((i) => i.band === '2.4GHz').length,
@@ -195,69 +192,67 @@ function StatusHero({ interfaces, clients }: StatusHeroProps) {
   };
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3">
+    <div className="grid grid-cols-2 gap-2 md:grid-cols-4 md:gap-3">
       {/* Clients */}
-      <div className="bg-card rounded-xl p-3 md:p-4 border border-border">
-        <p className="text-muted-foreground text-xs uppercase tracking-wide mb-1">Clients</p>
-        <p className="text-xl md:text-2xl font-bold text-foreground">{clients.length}</p>
-        <p className="text-xs text-muted-foreground mt-1">Connected devices</p>
+      <div className="bg-card border-border rounded-xl border p-3 md:p-4">
+        <p className="text-muted-foreground mb-1 text-xs uppercase tracking-wide">Clients</p>
+        <p className="text-foreground text-xl font-bold md:text-2xl">{clients.length}</p>
+        <p className="text-muted-foreground mt-1 text-xs">Connected devices</p>
       </div>
 
       {/* Active Interfaces */}
-      <div className="bg-card rounded-xl p-3 md:p-4 border border-border">
-        <p className="text-muted-foreground text-xs uppercase tracking-wide mb-1">Active</p>
-        <p className="text-xl md:text-2xl font-bold text-foreground">
+      <div className="bg-card border-border rounded-xl border p-3 md:p-4">
+        <p className="text-muted-foreground mb-1 text-xs uppercase tracking-wide">Active</p>
+        <p className="text-foreground text-xl font-bold md:text-2xl">
           {activeInterfaces.length}
-          <span className="text-muted-foreground text-sm font-normal ml-1">
+          <span className="text-muted-foreground ml-1 text-sm font-normal">
             /{interfaces.length}
           </span>
         </p>
         <div
-          className="w-full bg-muted rounded-full h-1.5 mt-2"
+          className="bg-muted mt-2 h-1.5 w-full rounded-full"
           role="progressbar"
           aria-valuenow={activePercent}
           aria-valuemin={0}
           aria-valuemax={100}
         >
           <div
-            className="bg-emerald-500 h-1.5 rounded-full"
+            className="h-1.5 rounded-full bg-emerald-500"
             style={{ width: `${activePercent}%` }}
           />
         </div>
       </div>
 
       {/* Signal */}
-      <div className="bg-card rounded-xl p-3 md:p-4 border border-border">
-        <p className="text-muted-foreground text-xs uppercase tracking-wide mb-1">Signal</p>
-        <p className={`text-xl md:text-2xl font-bold ${sigColor}`}>
+      <div className="bg-card border-border rounded-xl border p-3 md:p-4">
+        <p className="text-muted-foreground mb-1 text-xs uppercase tracking-wide">Signal</p>
+        <p className={`text-xl font-bold md:text-2xl ${sigColor}`}>
           {clients.length > 0 ? `${avgSignal} dBm` : '—'}
         </p>
-        {clients.length > 0 && (
-          <p className={`text-xs mt-1 ${sigColor}`}>{sigLabel}</p>
-        )}
+        {clients.length > 0 && <p className={`mt-1 text-xs ${sigColor}`}>{sigLabel}</p>}
       </div>
 
       {/* Bands */}
-      <div className="bg-card rounded-xl p-3 md:p-4 border border-border">
-        <p className="text-muted-foreground text-xs uppercase tracking-wide mb-1">Bands</p>
-        <div className="flex flex-wrap gap-1 mt-1">
+      <div className="bg-card border-border rounded-xl border p-3 md:p-4">
+        <p className="text-muted-foreground mb-1 text-xs uppercase tracking-wide">Bands</p>
+        <div className="mt-1 flex flex-wrap gap-1">
           {bands['2.4GHz'] > 0 && (
-            <span className="px-1.5 py-0.5 text-xs font-medium rounded bg-info/10 text-info">
+            <span className="bg-info/10 text-info rounded px-1.5 py-0.5 text-xs font-medium">
               2.4G
             </span>
           )}
           {bands['5GHz'] > 0 && (
-            <span className="px-1.5 py-0.5 text-xs font-medium rounded bg-primary/10 text-primary">
+            <span className="bg-primary/10 text-primary rounded px-1.5 py-0.5 text-xs font-medium">
               5G
             </span>
           )}
           {bands['6GHz'] > 0 && (
-            <span className="px-1.5 py-0.5 text-xs font-medium rounded bg-error/10 text-error">
+            <span className="bg-error/10 text-error rounded px-1.5 py-0.5 text-xs font-medium">
               6G
             </span>
           )}
         </div>
-        <p className="text-xs text-muted-foreground mt-1">
+        <p className="text-muted-foreground mt-1 text-xs">
           {interfaces.length} interface{interfaces.length !== 1 ? 's' : ''}
         </p>
       </div>
@@ -267,34 +262,30 @@ function StatusHero({ interfaces, clients }: StatusHeroProps) {
 
 function InterfaceCard({ iface }: { iface: (typeof MOCK_INTERFACES)[0] }) {
   return (
-    <div className="bg-card border border-border rounded-xl p-4 space-y-3">
+    <div className="bg-card border-border space-y-3 rounded-xl border p-4">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2 flex-wrap">
-          <span className="font-semibold text-foreground">{iface.name}</span>
-          {iface.ssid && (
-            <span className="text-sm text-muted-foreground">{iface.ssid}</span>
-          )}
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-foreground font-semibold">{iface.name}</span>
+          {iface.ssid && <span className="text-muted-foreground text-sm">{iface.ssid}</span>}
           <span
-            className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-              iface.running
-                ? 'bg-success/10 text-success'
-                : 'bg-muted text-muted-foreground'
+            className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+              iface.running ? 'bg-success/10 text-success' : 'bg-muted text-muted-foreground'
             }`}
           >
             {iface.running ? 'Running' : 'Stopped'}
           </span>
-          <span className="text-xs px-2 py-0.5 rounded-full bg-accent text-accent-foreground">
+          <span className="bg-accent text-accent-foreground rounded-full px-2 py-0.5 text-xs">
             {iface.band}
           </span>
         </div>
         <button
-          className={`w-10 h-6 rounded-full transition-colors flex-shrink-0 ${
+          className={`h-6 w-10 flex-shrink-0 rounded-full transition-colors ${
             !iface.disabled ? 'bg-success' : 'bg-muted'
           }`}
           aria-label={`Toggle ${iface.name}`}
         />
       </div>
-      <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
+      <div className="text-muted-foreground flex flex-wrap gap-3 text-xs">
         <span>Ch {iface.channel}</span>
         <span>{iface.frequency} MHz</span>
         <span>TX {iface.txPower} dBm</span>
@@ -307,34 +298,47 @@ function InterfaceCard({ iface }: { iface: (typeof MOCK_INTERFACES)[0] }) {
 
 function ClientsTable({ clients }: { clients: typeof MOCK_CLIENTS }) {
   return (
-    <div className="bg-card border border-border rounded-xl overflow-hidden">
-      <div className="p-4 border-b border-border">
-        <h2 className="font-semibold text-foreground">Connected Clients</h2>
-        <p className="text-xs text-muted-foreground">{clients.length} devices connected</p>
+    <div className="bg-card border-border overflow-hidden rounded-xl border">
+      <div className="border-border border-b p-4">
+        <h2 className="text-foreground font-semibold">Connected Clients</h2>
+        <p className="text-muted-foreground text-xs">{clients.length} devices connected</p>
       </div>
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-border bg-muted/30">
-              <th className="text-left p-3 text-xs font-medium text-muted-foreground uppercase">MAC</th>
-              <th className="text-left p-3 text-xs font-medium text-muted-foreground uppercase">Interface</th>
-              <th className="text-left p-3 text-xs font-medium text-muted-foreground uppercase">Signal</th>
-              <th className="text-left p-3 text-xs font-medium text-muted-foreground uppercase">Uptime</th>
-              <th className="text-right p-3 text-xs font-medium text-muted-foreground uppercase">RX / TX</th>
+            <tr className="border-border bg-muted/30 border-b">
+              <th className="text-muted-foreground p-3 text-left text-xs font-medium uppercase">
+                MAC
+              </th>
+              <th className="text-muted-foreground p-3 text-left text-xs font-medium uppercase">
+                Interface
+              </th>
+              <th className="text-muted-foreground p-3 text-left text-xs font-medium uppercase">
+                Signal
+              </th>
+              <th className="text-muted-foreground p-3 text-left text-xs font-medium uppercase">
+                Uptime
+              </th>
+              <th className="text-muted-foreground p-3 text-right text-xs font-medium uppercase">
+                RX / TX
+              </th>
             </tr>
           </thead>
           <tbody>
             {clients.map((client) => {
               const { label, color } = getSignalLabel(client.signalStrength);
               return (
-                <tr key={client.id} className="border-b border-border last:border-0 hover:bg-muted/20">
-                  <td className="p-3 font-mono text-xs text-foreground">{client.macAddress}</td>
-                  <td className="p-3 text-muted-foreground">{client.interface}</td>
+                <tr
+                  key={client.id}
+                  className="border-border hover:bg-muted/20 border-b last:border-0"
+                >
+                  <td className="text-foreground p-3 font-mono text-xs">{client.macAddress}</td>
+                  <td className="text-muted-foreground p-3">{client.interface}</td>
                   <td className={`p-3 ${color}`}>
                     {client.signalStrength} dBm
                     <span className="ml-1 text-xs opacity-70">({label})</span>
                   </td>
-                  <td className="p-3 text-muted-foreground">{client.uptime}</td>
+                  <td className="text-muted-foreground p-3">{client.uptime}</td>
                   <td className="p-3 text-right text-xs">
                     <span className="text-success">↓ {formatBytes(client.rxBytes)}</span>
                     {' / '}
@@ -352,23 +356,26 @@ function ClientsTable({ clients }: { clients: typeof MOCK_CLIENTS }) {
 
 function SecuritySummary({ interfaces }: { interfaces: typeof MOCK_INTERFACES }) {
   return (
-    <div className="bg-card border border-border rounded-xl overflow-hidden">
-      <div className="p-4 border-b border-border">
-        <h2 className="font-semibold text-foreground">Security Summary</h2>
-        <p className="text-xs text-muted-foreground">Security profile status per interface</p>
+    <div className="bg-card border-border overflow-hidden rounded-xl border">
+      <div className="border-border border-b p-4">
+        <h2 className="text-foreground font-semibold">Security Summary</h2>
+        <p className="text-muted-foreground text-xs">Security profile status per interface</p>
       </div>
-      <div className="p-4 space-y-3">
+      <div className="space-y-3 p-4">
         {interfaces.map((iface) => (
-          <div key={iface.id} className="flex items-center justify-between">
+          <div
+            key={iface.id}
+            className="flex items-center justify-between"
+          >
             <div>
-              <p className="text-sm font-medium text-foreground">{iface.name}</p>
-              <p className="text-xs text-muted-foreground">{iface.securityProfile}</p>
+              <p className="text-foreground text-sm font-medium">{iface.name}</p>
+              <p className="text-muted-foreground text-xs">{iface.securityProfile}</p>
             </div>
             <span
-              className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                iface.securityProfile.includes('guest')
-                  ? 'bg-warning/10 text-warning'
-                  : 'bg-success/10 text-success'
+              className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+                iface.securityProfile.includes('guest') ?
+                  'bg-warning/10 text-warning'
+                : 'bg-success/10 text-success'
               }`}
             >
               {iface.securityProfile.includes('guest') ? 'Moderate' : 'Strong'}
@@ -390,33 +397,39 @@ function SecuritySummary({ interfaces }: { interfaces: typeof MOCK_INTERFACES })
 export const Default: Story = {
   name: 'Loaded – full dashboard',
   render: () => (
-    <div className="min-h-screen bg-background">
-      <div className="px-4 py-4 md:px-6 md:py-6 space-y-6 max-w-7xl mx-auto">
+    <div className="bg-background min-h-screen">
+      <div className="mx-auto max-w-7xl space-y-6 px-4 py-4 md:px-6 md:py-6">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-2xl font-semibold text-foreground">WiFi Management</h1>
-            <p className="text-sm text-muted-foreground">
+            <h1 className="text-foreground text-2xl font-semibold">WiFi Management</h1>
+            <p className="text-muted-foreground text-sm">
               Monitor and manage your wireless networks
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <button className="flex items-center gap-2 min-h-[44px] px-3 border border-border rounded-md text-sm">
+            <button className="border-border flex min-h-[44px] items-center gap-2 rounded-md border px-3 text-sm">
               Refresh
             </button>
-            <button className="flex items-center gap-2 min-h-[44px] px-3 bg-primary text-primary-foreground rounded-md text-sm">
+            <button className="bg-primary text-primary-foreground flex min-h-[44px] items-center gap-2 rounded-md px-3 text-sm">
               Scan Clients
             </button>
           </div>
         </div>
 
-        <StatusHero interfaces={MOCK_INTERFACES} clients={MOCK_CLIENTS} />
+        <StatusHero
+          interfaces={MOCK_INTERFACES}
+          clients={MOCK_CLIENTS}
+        />
 
         {/* Interface list */}
         <div className="space-y-3">
-          <h2 className="text-lg font-semibold text-foreground">Wireless Interfaces</h2>
+          <h2 className="text-foreground text-lg font-semibold">Wireless Interfaces</h2>
           {MOCK_INTERFACES.map((iface) => (
-            <InterfaceCard key={iface.id} iface={iface} />
+            <InterfaceCard
+              key={iface.id}
+              iface={iface}
+            />
           ))}
         </div>
 
@@ -442,32 +455,38 @@ export const Default: Story = {
 export const NoClients: Story = {
   name: 'Loaded – no connected clients',
   render: () => (
-    <div className="min-h-screen bg-background">
-      <div className="px-4 py-4 md:px-6 md:py-6 space-y-6 max-w-7xl mx-auto">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div className="bg-background min-h-screen">
+      <div className="mx-auto max-w-7xl space-y-6 px-4 py-4 md:px-6 md:py-6">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-2xl font-semibold text-foreground">WiFi Management</h1>
-            <p className="text-sm text-muted-foreground">
+            <h1 className="text-foreground text-2xl font-semibold">WiFi Management</h1>
+            <p className="text-muted-foreground text-sm">
               Monitor and manage your wireless networks
             </p>
           </div>
-          <button className="flex items-center gap-2 min-h-[44px] px-3 border border-border rounded-md text-sm">
+          <button className="border-border flex min-h-[44px] items-center gap-2 rounded-md border px-3 text-sm">
             Refresh
           </button>
         </div>
 
-        <StatusHero interfaces={MOCK_INTERFACES} clients={[]} />
+        <StatusHero
+          interfaces={MOCK_INTERFACES}
+          clients={[]}
+        />
 
         <div className="space-y-3">
-          <h2 className="text-lg font-semibold text-foreground">Wireless Interfaces</h2>
+          <h2 className="text-foreground text-lg font-semibold">Wireless Interfaces</h2>
           {MOCK_INTERFACES.map((iface) => (
-            <InterfaceCard key={iface.id} iface={iface} />
+            <InterfaceCard
+              key={iface.id}
+              iface={iface}
+            />
           ))}
         </div>
 
-        <div className="bg-card border border-border rounded-xl p-12 text-center">
-          <p className="text-lg font-semibold text-foreground mb-2">No clients connected</p>
-          <p className="text-sm text-muted-foreground">
+        <div className="bg-card border-border rounded-xl border p-12 text-center">
+          <p className="text-foreground mb-2 text-lg font-semibold">No clients connected</p>
+          <p className="text-muted-foreground text-sm">
             There are currently no devices connected to any wireless interface.
           </p>
         </div>
@@ -493,36 +512,46 @@ export const NoClients: Story = {
 export const Loading: Story = {
   name: 'Loading state',
   render: () => (
-    <div className="min-h-screen bg-background">
-      <div className="px-4 py-4 md:px-6 md:py-6 max-w-7xl mx-auto">
+    <div className="bg-background min-h-screen">
+      <div className="mx-auto max-w-7xl px-4 py-4 md:px-6 md:py-6">
         {/* Loading skeleton */}
-        <div className="animate-pulse space-y-6" role="status" aria-label="Loading WiFi data">
+        <div
+          className="animate-pulse space-y-6"
+          role="status"
+          aria-label="Loading WiFi data"
+        >
           {/* Header skeleton */}
           <div className="flex justify-between">
             <div className="space-y-2">
-              <div className="h-7 w-40 bg-muted rounded" />
-              <div className="h-4 w-60 bg-muted rounded" />
+              <div className="bg-muted h-7 w-40 rounded" />
+              <div className="bg-muted h-4 w-60 rounded" />
             </div>
-            <div className="h-11 w-24 bg-muted rounded-md" />
+            <div className="bg-muted h-11 w-24 rounded-md" />
           </div>
           {/* Stats grid skeleton */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3">
+          <div className="grid grid-cols-2 gap-2 md:grid-cols-4 md:gap-3">
             {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="bg-muted rounded-xl p-3 md:p-4 space-y-2">
-                <div className="h-3 w-12 bg-muted-foreground/20 rounded" />
-                <div className="h-7 w-8 bg-muted-foreground/20 rounded" />
-                <div className="h-1.5 bg-muted-foreground/20 rounded-full" />
+              <div
+                key={i}
+                className="bg-muted space-y-2 rounded-xl p-3 md:p-4"
+              >
+                <div className="bg-muted-foreground/20 h-3 w-12 rounded" />
+                <div className="bg-muted-foreground/20 h-7 w-8 rounded" />
+                <div className="bg-muted-foreground/20 h-1.5 rounded-full" />
               </div>
             ))}
           </div>
           {/* Interface cards skeleton */}
           <div className="space-y-3">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="h-24 bg-muted rounded-xl" />
+              <div
+                key={i}
+                className="bg-muted h-24 rounded-xl"
+              />
             ))}
           </div>
           {/* Table skeleton */}
-          <div className="h-64 bg-muted rounded-xl" />
+          <div className="bg-muted h-64 rounded-xl" />
         </div>
       </div>
     </div>
@@ -544,19 +573,17 @@ export const Loading: Story = {
 export const ErrorState: Story = {
   name: 'Error state',
   render: () => (
-    <div className="min-h-screen bg-background">
-      <div className="px-4 py-4 md:px-6 md:py-6 max-w-7xl mx-auto">
+    <div className="bg-background min-h-screen">
+      <div className="mx-auto max-w-7xl px-4 py-4 md:px-6 md:py-6">
         <div
-          className="bg-destructive/10 border border-destructive/30 rounded-xl p-6 text-center"
+          className="bg-destructive/10 border-destructive/30 rounded-xl border p-6 text-center"
           role="alert"
         >
-          <h3 className="text-lg font-semibold text-destructive mb-2">
-            Failed to load WiFi data
-          </h3>
-          <p className="text-sm text-destructive/80 mb-4">
+          <h3 className="text-destructive mb-2 text-lg font-semibold">Failed to load WiFi data</h3>
+          <p className="text-destructive/80 mb-4 text-sm">
             Connection refused: unable to reach the router at 192.168.88.1
           </p>
-          <button className="px-4 py-2 border border-border rounded-md text-sm min-h-[44px]">
+          <button className="border-border min-h-[44px] rounded-md border px-4 py-2 text-sm">
             Try Again
           </button>
         </div>

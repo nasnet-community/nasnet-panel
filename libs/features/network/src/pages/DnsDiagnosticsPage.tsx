@@ -32,24 +32,32 @@ export const DnsDiagnosticsPage = memo(function DnsDiagnosticsPage({
   deviceId = 'default',
 }: DnsDiagnosticsPageProps) {
   return (
-    <div className="container mx-auto px-page-mobile md:px-page-tablet lg:px-page-desktop py-page-mobile md:py-page-tablet lg:py-page-desktop space-y-component-lg">
+    <div className="px-page-mobile md:px-page-tablet lg:px-page-desktop py-page-mobile md:py-page-tablet lg:py-page-desktop space-y-component-lg container mx-auto">
       {/* Page Header with category accent */}
-      <div className="border-l-4 border-category-networking pl-component-md">
-        <nav className="flex items-center gap-component-sm text-sm text-muted-foreground mb-component-sm" aria-label="breadcrumb">
+      <div className="border-category-networking pl-component-md border-l-4">
+        <nav
+          className="gap-component-sm text-muted-foreground mb-component-sm flex items-center text-sm"
+          aria-label="breadcrumb"
+        >
           <span>Network</span>
           <span>/</span>
           <span>DNS</span>
           <span>/</span>
-          <span className="text-foreground" aria-current="page">Diagnostics</span>
+          <span
+            className="text-foreground"
+            aria-current="page"
+          >
+            Diagnostics
+          </span>
         </nav>
-        <h1 className="text-2xl font-bold text-foreground font-display">DNS Diagnostics</h1>
+        <h1 className="text-foreground font-display text-2xl font-bold">DNS Diagnostics</h1>
         <p className="text-muted-foreground mt-component-sm">
           Test DNS resolution, benchmark server performance, and manage DNS cache
         </p>
       </div>
 
       {/* Diagnostic Tools Grid - 2 columns on desktop, stacked on mobile */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-component-lg">
+      <div className="gap-component-lg grid grid-cols-1 lg:grid-cols-2">
         {/* DNS Lookup Tool */}
         <DnsLookupTool deviceId={deviceId} />
 

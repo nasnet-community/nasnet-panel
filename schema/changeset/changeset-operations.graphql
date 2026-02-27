@@ -60,12 +60,7 @@ extend type Query {
   """
   Get a change set by ID
   """
-  changeSet(
-    "Change set ID"
-    id: ID!
-    "Router the change set belongs to"
-    routerId: ID!
-  ): ChangeSet
+  changeSet("Change set ID" id: ID!, "Router the change set belongs to" routerId: ID!): ChangeSet
 
   """
   List change sets for a router
@@ -93,27 +88,17 @@ extend type Mutation {
   """
   Add an item to a change set
   """
-  addChangeSetItem(
-    changeSetId: ID!
-    input: ChangeSetItemInput!
-  ): AddChangeSetItemPayload!
+  addChangeSetItem(changeSetId: ID!, input: ChangeSetItemInput!): AddChangeSetItemPayload!
 
   """
   Update an item in a change set
   """
-  updateChangeSetItem(
-    changeSetId: ID!
-    itemId: ID!
-    input: UpdateChangeSetItemInput!
-  ): UpdateChangeSetItemPayload!
+  updateChangeSetItem(changeSetId: ID!, itemId: ID!, input: UpdateChangeSetItemInput!): UpdateChangeSetItemPayload!
 
   """
   Remove an item from a change set
   """
-  removeChangeSetItem(
-    changeSetId: ID!
-    itemId: ID!
-  ): RemoveChangeSetItemPayload!
+  removeChangeSetItem(changeSetId: ID!, itemId: ID!): RemoveChangeSetItemPayload!
 
   """
   Validate a change set (all items)

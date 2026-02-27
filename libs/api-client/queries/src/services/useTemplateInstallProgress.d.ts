@@ -8,47 +8,47 @@ import type { TemplateInstallProgress } from '@nasnet/api-client/generated';
  * Options for useTemplateInstallProgress hook
  */
 export interface UseTemplateInstallProgressOptions {
-    /**
-     * Router ID to monitor
-     */
-    routerID: string;
-    /**
-     * Whether to enable subscription (default: true)
-     */
-    enabled?: boolean;
-    /**
-     * Callback invoked when installation completes
-     */
-    onCompleted?: (progress: TemplateInstallProgress) => void;
-    /**
-     * Callback invoked when installation fails
-     */
-    onFailed?: (progress: TemplateInstallProgress) => void;
-    /**
-     * Polling interval in milliseconds if WebSocket fails (default: 10000ms = 10s)
-     */
-    pollingInterval?: number;
+  /**
+   * Router ID to monitor
+   */
+  routerID: string;
+  /**
+   * Whether to enable subscription (default: true)
+   */
+  enabled?: boolean;
+  /**
+   * Callback invoked when installation completes
+   */
+  onCompleted?: (progress: TemplateInstallProgress) => void;
+  /**
+   * Callback invoked when installation fails
+   */
+  onFailed?: (progress: TemplateInstallProgress) => void;
+  /**
+   * Polling interval in milliseconds if WebSocket fails (default: 10000ms = 10s)
+   */
+  pollingInterval?: number;
 }
 /**
  * Return type for useTemplateInstallProgress hook
  */
 export interface UseTemplateInstallProgressReturn {
-    /**
-     * Current installation progress data
-     */
-    progress: TemplateInstallProgress | null;
-    /**
-     * Loading state (initial subscription setup)
-     */
-    loading: boolean;
-    /**
-     * Error object if subscription failed
-     */
-    error: Error | undefined;
-    /**
-     * Whether using polling fallback (WebSocket unavailable)
-     */
-    isPolling: boolean;
+  /**
+   * Current installation progress data
+   */
+  progress: TemplateInstallProgress | null;
+  /**
+   * Loading state (initial subscription setup)
+   */
+  loading: boolean;
+  /**
+   * Error object if subscription failed
+   */
+  error: Error | undefined;
+  /**
+   * Whether using polling fallback (WebSocket unavailable)
+   */
+  isPolling: boolean;
 }
 /**
  * Hook to monitor template installation progress
@@ -77,5 +77,7 @@ export interface UseTemplateInstallProgressReturn {
  * }
  * ```
  */
-export declare function useTemplateInstallProgress(options: UseTemplateInstallProgressOptions): UseTemplateInstallProgressReturn;
+export declare function useTemplateInstallProgress(
+  options: UseTemplateInstallProgressOptions
+): UseTemplateInstallProgressReturn;
 //# sourceMappingURL=useTemplateInstallProgress.d.ts.map

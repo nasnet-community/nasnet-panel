@@ -1,8 +1,10 @@
 # History & Undo/Redo Store
 
-This document covers the undo/redo history system that enables users to reverse actions with keyboard shortcuts.
+This document covers the undo/redo history system that enables users to reverse actions with
+keyboard shortcuts.
 
 **Source:**
+
 - `libs/state/stores/src/history/types.ts`
 - `libs/state/stores/src/history/history.store.ts`
 - `libs/state/stores/src/history/command-utils.ts`
@@ -61,16 +63,16 @@ export interface UndoableAction {
   undo: () => void | Promise<void>;
 
   // Optional resource context
-  resourceId?: string;           // UUID of affected resource
-  resourceType?: string;         // Type for categorization (e.g., 'network.interface')
+  resourceId?: string; // UUID of affected resource
+  resourceType?: string; // Type for categorization (e.g., 'network.interface')
 }
 ```
 
 ### Action Scopes
 
-| Scope | Persistence | Lifecycle | Use Cases |
-|-------|-------------|-----------|-----------|
-| `page` | None | Cleared on navigation | Form edits, UI state changes |
+| Scope    | Persistence  | Lifecycle             | Use Cases                              |
+| -------- | ------------ | --------------------- | -------------------------------------- |
+| `page`   | None         | Cleared on navigation | Form edits, UI state changes           |
 | `global` | localStorage | Survives page refresh | Router config changes, important edits |
 
 ### Non-Undoable Actions
@@ -79,12 +81,12 @@ Certain action categories should NOT be added to history:
 
 ```typescript
 export const NON_UNDOABLE_CATEGORIES = [
-  'applied-configuration',    // Already sent to router
-  'confirmed-delete',         // User explicitly confirmed
-  'security-change',          // Password, certificate changes
-  'authentication',           // Logout, session changes
-  'restart-required',         // Service restart needed
-  'external-integration',     // External system actions
+  'applied-configuration', // Already sent to router
+  'confirmed-delete', // User explicitly confirmed
+  'security-change', // Password, certificate changes
+  'authentication', // Logout, session changes
+  'restart-required', // Service restart needed
+  'external-integration', // External system actions
 ];
 
 // Check before adding to history
@@ -103,14 +105,14 @@ export const useHistoryStore = create<HistoryState & HistoryActions>()...
 
 ### Actions
 
-| Action | Signature | Purpose |
-|--------|-----------|---------|
-| `pushAction` | `(action: UndoableActionInput) => string` | Add to past, clear future, return action ID |
-| `undo` | `() => Promise<boolean>` | Undo last, true if successful |
-| `redo` | `() => Promise<boolean>` | Redo last undone, true if successful |
-| `jumpToIndex` | `(index: number) => Promise<void>` | Jump to specific point in past |
-| `clearHistory` | `() => void` | Clear past and future |
-| `clearPageHistory` | `() => void` | Clear only page-scoped actions |
+| Action             | Signature                                 | Purpose                                     |
+| ------------------ | ----------------------------------------- | ------------------------------------------- |
+| `pushAction`       | `(action: UndoableActionInput) => string` | Add to past, clear future, return action ID |
+| `undo`             | `() => Promise<boolean>`                  | Undo last, true if successful               |
+| `redo`             | `() => Promise<boolean>`                  | Redo last undone, true if successful        |
+| `jumpToIndex`      | `(index: number) => Promise<void>`        | Jump to specific point in past              |
+| `clearHistory`     | `() => void`                              | Clear past and future                       |
+| `clearPageHistory` | `() => void`                              | Clear only page-scoped actions              |
 
 ### Selectors
 
@@ -119,7 +121,7 @@ selectCanUndo: (state) => state.past.length > 0;
 selectCanRedo: (state) => state.future.length > 0;
 selectLastAction: (state) => state.past[length - 1];
 selectHistoryLength: (state) => state.past.length;
-selectPastActions: (state) => state.past;  // For history panel
+selectPastActions: (state) => state.past; // For history panel
 selectFutureActions: (state) => state.future;
 selectCurrentPosition: (state) => state.past.length - 1;
 ```
@@ -132,11 +134,11 @@ await undoLast();
 await redoLast();
 pushHistoryAction(action);
 clearAllHistory();
-clearPageScopedHistory();  // Call on navigation
+clearPageScopedHistory(); // Call on navigation
 
 // State access
-getHistoryState();                    // Get state snapshot
-subscribeHistoryState(callback);      // Subscribe to changes
+getHistoryState(); // Get state snapshot
+subscribeHistoryState(callback); // Subscribe to changes
 ```
 
 ## Command Pattern Utilities
@@ -204,7 +206,7 @@ const action = createDeleteAction({
   onRestore: async (item) => await api.createBridge(item),
   resourceId: 'bridge-1',
   resourceType: 'network.bridge',
-  scope: 'global',  // Global by default
+  scope: 'global', // Global by default
 });
 ```
 
@@ -252,15 +254,15 @@ const action = createCompositeAction({
   actions: [
     {
       execute: () => createBridge(),
-      undo: () => deleteBridge()
+      undo: () => deleteBridge(),
     },
     {
       execute: () => createDHCP(),
-      undo: () => deleteDHCP()
+      undo: () => deleteDHCP(),
     },
     {
       execute: () => createFirewall(),
-      undo: () => deleteFirewall()
+      undo: () => deleteFirewall(),
     },
   ],
   scope: 'global',
@@ -276,7 +278,7 @@ Execute multiple actions as single history entry:
 ```typescript
 await executeBatch({
   description: 'Bulk delete interfaces',
-  actions: interfaces.map(iface => ({
+  actions: interfaces.map((iface) => ({
     execute: () => deleteInterface(iface.id),
     undo: () => restoreInterface(iface),
   })),
@@ -399,7 +401,7 @@ interface SerializedAction {
   id: string;
   type: UndoableAction['type'];
   description: string;
-  timestamp: string;  // ISO string
+  timestamp: string; // ISO string
   scope: UndoableAction['scope'];
   resourceId?: string;
   resourceType?: string;
@@ -421,7 +423,8 @@ undo: () => {
 },
 ```
 
-**Implication**: Full undo/redo requires keeping execute/undo functions in memory. Use global scope only for display purposes or re-register actions on mount.
+**Implication**: Full undo/redo requires keeping execute/undo functions in memory. Use global scope
+only for display purposes or re-register actions on mount.
 
 ## State Flow Diagram
 
@@ -488,12 +491,15 @@ Change Set (NAS-4.14)
 ## Limitations and Edge Cases
 
 1. **Persisted Actions Cannot Undo**: After page refresh, execute/undo are no-ops
+
    - **Solution**: Design persistence around config snapshots, not action replay
 
 2. **Async Errors**: If undo/redo throws, action isn't moved to other stack
+
    - **Solution**: Retry UI, manual intervention, error logging
 
 3. **Memory Overhead**: 50 actions × complex state can exceed memory on slow devices
+
    - **Solution**: Adjust MAX_ACTIONS constant for resource-constrained environments
 
 4. **Change Set Rollbacks**: If change set fails, history still contains successful items
@@ -501,8 +507,10 @@ Change Set (NAS-4.14)
 
 ## Best Practices
 
-1. **Use Scopes Correctly**: Global only for important user changes (config edits), page for temp UI state
-2. **Avoid Circular Dependencies**: Action A undoes to state B, but action B redoes to state A → infinite loop
+1. **Use Scopes Correctly**: Global only for important user changes (config edits), page for temp UI
+   state
+2. **Avoid Circular Dependencies**: Action A undoes to state B, but action B redoes to state A →
+   infinite loop
 3. **Keep Descriptions Clear**: Used in notifications and history panel
 4. **Use Resource IDs**: Help correlate actions to affected resources
 5. **Test with Async**: API calls may fail; test both success and error paths
@@ -515,4 +523,5 @@ Change Set (NAS-4.14)
 - **Change Set Store**: `change-set.md` - Integration with multi-resource operations
 - **Command Palette**: `command-shortcut.md` - Keyboard shortcut binding
 - **Core State Architecture**: `overview.md` - Zustand patterns
-- **Apply-Confirm-Merge Flow**: `../../architecture/data-architecture.md#state-flow-apply--confirm--merge`
+- **Apply-Confirm-Merge Flow**:
+  `../../architecture/data-architecture.md#state-flow-apply--confirm--merge`

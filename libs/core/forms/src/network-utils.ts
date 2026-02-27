@@ -156,12 +156,7 @@ export function longToIp(num: number): string {
   if (num < 0 || num > 4294967295) {
     throw new Error(`Invalid IP number: ${num}`);
   }
-  return [
-    (num >>> 24) & 255,
-    (num >>> 16) & 255,
-    (num >>> 8) & 255,
-    num & 255,
-  ].join('.');
+  return [(num >>> 24) & 255, (num >>> 16) & 255, (num >>> 8) & 255, num & 255].join('.');
 }
 
 /**
@@ -543,13 +538,13 @@ export function isPublicIp(ip: string): boolean {
   const [a, b] = parts;
 
   // Exclude special ranges
-  if (a === 0) return false;                          // 0.0.0.0/8
-  if (a === 10) return false;                         // 10.0.0.0/8
-  if (a === 127) return false;                        // 127.0.0.0/8
-  if (a === 169 && b === 254) return false;           // 169.254.0.0/16
-  if (a === 172 && b >= 16 && b <= 31) return false;  // 172.16.0.0/12
-  if (a === 192 && b === 168) return false;           // 192.168.0.0/16
-  if (a >= 224) return false;                         // 224.0.0.0/4 and above
+  if (a === 0) return false; // 0.0.0.0/8
+  if (a === 10) return false; // 10.0.0.0/8
+  if (a === 127) return false; // 127.0.0.0/8
+  if (a === 169 && b === 254) return false; // 169.254.0.0/16
+  if (a === 172 && b >= 16 && b <= 31) return false; // 172.16.0.0/12
+  if (a === 192 && b === 168) return false; // 192.168.0.0/16
+  if (a >= 224) return false; // 224.0.0.0/4 and above
 
   return true;
 }
@@ -566,7 +561,9 @@ export function isPublicIp(ip: string): boolean {
  * classifyIp('127.0.0.1');    // 'loopback'
  * classifyIp('224.0.0.1');    // 'multicast'
  */
-export function classifyIp(ip: string): 'private' | 'public' | 'loopback' | 'multicast' | 'link-local' | 'reserved' | 'invalid' {
+export function classifyIp(
+  ip: string
+): 'private' | 'public' | 'loopback' | 'multicast' | 'link-local' | 'reserved' | 'invalid' {
   const parts = ip.split('.').map(Number);
   if (parts.length !== 4 || parts.some((p) => isNaN(p) || p < 0 || p > 255)) {
     return 'invalid';
@@ -639,8 +636,8 @@ export function getAvailableBaseNetworks(
 export function getForeignNetworkNames(wanLinks?: WANLinks): string[] {
   if (!wanLinks?.Foreign?.WANConfigs) return [];
 
-  return wanLinks.Foreign.WANConfigs.map((config, index) =>
-    config.name || `Foreign-Link-${index + 1}`
+  return wanLinks.Foreign.WANConfigs.map(
+    (config, index) => config.name || `Foreign-Link-${index + 1}`
   );
 }
 
@@ -662,8 +659,8 @@ export function getDomesticNetworkNames(wanLinks?: WANLinks, wanLinkType?: WANLi
   if (!wanLinkType || !hasDomesticLink(wanLinkType)) return [];
   if (!wanLinks?.Domestic?.WANConfigs) return [];
 
-  return wanLinks.Domestic.WANConfigs.map((config, index) =>
-    config.name || `Domestic-Link-${index + 1}`
+  return wanLinks.Domestic.WANConfigs.map(
+    (config, index) => config.name || `Domestic-Link-${index + 1}`
   );
 }
 
@@ -686,38 +683,38 @@ export function getVPNClientNetworks(vpnClient?: VPNClient): VPNClientNetworks {
   const vpnClientNetworks: VPNClientNetworks = {};
 
   if (vpnClient.Wireguard && vpnClient.Wireguard.length > 0) {
-    vpnClientNetworks.Wireguard = vpnClient.Wireguard.map((config, index) =>
-      config.Name || `Wireguard-${index + 1}`
+    vpnClientNetworks.Wireguard = vpnClient.Wireguard.map(
+      (config, index) => config.Name || `Wireguard-${index + 1}`
     );
   }
 
   if (vpnClient.OpenVPN && vpnClient.OpenVPN.length > 0) {
-    vpnClientNetworks.OpenVPN = vpnClient.OpenVPN.map((config, index) =>
-      config.Name || `OpenVPN-${index + 1}`
+    vpnClientNetworks.OpenVPN = vpnClient.OpenVPN.map(
+      (config, index) => config.Name || `OpenVPN-${index + 1}`
     );
   }
 
   if (vpnClient.PPTP && vpnClient.PPTP.length > 0) {
-    vpnClientNetworks.PPTP = vpnClient.PPTP.map((config, index) =>
-      config.Name || `PPTP-${index + 1}`
+    vpnClientNetworks.PPTP = vpnClient.PPTP.map(
+      (config, index) => config.Name || `PPTP-${index + 1}`
     );
   }
 
   if (vpnClient.L2TP && vpnClient.L2TP.length > 0) {
-    vpnClientNetworks.L2TP = vpnClient.L2TP.map((config, index) =>
-      config.Name || `L2TP-${index + 1}`
+    vpnClientNetworks.L2TP = vpnClient.L2TP.map(
+      (config, index) => config.Name || `L2TP-${index + 1}`
     );
   }
 
   if (vpnClient.SSTP && vpnClient.SSTP.length > 0) {
-    vpnClientNetworks.SSTP = vpnClient.SSTP.map((config, index) =>
-      config.Name || `SSTP-${index + 1}`
+    vpnClientNetworks.SSTP = vpnClient.SSTP.map(
+      (config, index) => config.Name || `SSTP-${index + 1}`
     );
   }
 
   if (vpnClient.IKeV2 && vpnClient.IKeV2.length > 0) {
-    vpnClientNetworks.IKev2 = vpnClient.IKeV2.map((config, index) =>
-      config.Name || `IKev2-${index + 1}`
+    vpnClientNetworks.IKev2 = vpnClient.IKeV2.map(
+      (config, index) => config.Name || `IKev2-${index + 1}`
     );
   }
 
@@ -747,15 +744,18 @@ export function generateNetworks(
 ): Networks {
   // Determine what networks are available
   const hasDomestic = hasDomesticLink(wanLinkType);
-  const hasForeignLinks = !!(wanLinks?.Foreign?.WANConfigs && wanLinks.Foreign.WANConfigs.length > 0);
-  const hasVPNClients = !!(vpnClient && (
-    (vpnClient.Wireguard && vpnClient.Wireguard.length > 0) ||
-    (vpnClient.OpenVPN && vpnClient.OpenVPN.length > 0) ||
-    (vpnClient.PPTP && vpnClient.PPTP.length > 0) ||
-    (vpnClient.L2TP && vpnClient.L2TP.length > 0) ||
-    (vpnClient.SSTP && vpnClient.SSTP.length > 0) ||
-    (vpnClient.IKeV2 && vpnClient.IKeV2.length > 0)
-  ));
+  const hasForeignLinks = !!(
+    wanLinks?.Foreign?.WANConfigs && wanLinks.Foreign.WANConfigs.length > 0
+  );
+  const hasVPNClients = !!(
+    vpnClient &&
+    ((vpnClient.Wireguard && vpnClient.Wireguard.length > 0) ||
+      (vpnClient.OpenVPN && vpnClient.OpenVPN.length > 0) ||
+      (vpnClient.PPTP && vpnClient.PPTP.length > 0) ||
+      (vpnClient.L2TP && vpnClient.L2TP.length > 0) ||
+      (vpnClient.SSTP && vpnClient.SSTP.length > 0) ||
+      (vpnClient.IKeV2 && vpnClient.IKeV2.length > 0))
+  );
 
   // Build BaseNetworks
   const baseNetworks: BaseNetworks = {

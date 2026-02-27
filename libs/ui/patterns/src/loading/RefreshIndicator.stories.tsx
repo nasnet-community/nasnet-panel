@@ -85,15 +85,21 @@ type Story = StoryObj<typeof RefreshIndicator>;
  */
 export const Default: Story = {
   render: () => (
-    <div className="relative w-full h-20 border border-border rounded-xl bg-card flex items-center justify-center overflow-hidden">
-      <RefreshIndicator isRefreshing={true} variant="bar" color="primary" position="top" />
-      <span className="text-sm text-muted-foreground">Card content (refreshing in background)</span>
+    <div className="border-border bg-card relative flex h-20 w-full items-center justify-center overflow-hidden rounded-xl border">
+      <RefreshIndicator
+        isRefreshing={true}
+        variant="bar"
+        color="primary"
+        position="top"
+      />
+      <span className="text-muted-foreground text-sm">Card content (refreshing in background)</span>
     </div>
   ),
   parameters: {
     docs: {
       description: {
-        story: 'Default bar variant — a thin animated line sliding across the top edge of the container.',
+        story:
+          'Default bar variant — a thin animated line sliding across the top edge of the container.',
       },
     },
   },
@@ -104,9 +110,9 @@ export const Default: Story = {
  */
 export const NotRefreshing: Story = {
   render: () => (
-    <div className="relative w-full h-20 border border-border rounded-xl bg-card flex items-center justify-center overflow-hidden">
+    <div className="border-border bg-card relative flex h-20 w-full items-center justify-center overflow-hidden rounded-xl border">
       <RefreshIndicator isRefreshing={false} />
-      <span className="text-sm text-muted-foreground">Content visible — indicator hidden</span>
+      <span className="text-muted-foreground text-sm">Content visible — indicator hidden</span>
     </div>
   ),
   parameters: {
@@ -123,9 +129,14 @@ export const NotRefreshing: Story = {
  */
 export const DotsVariant: Story = {
   render: () => (
-    <div className="relative w-full h-20 border border-border rounded-xl bg-card flex items-center justify-center overflow-hidden">
-      <RefreshIndicator isRefreshing={true} variant="dots" color="primary" position="top" />
-      <span className="text-sm text-muted-foreground">Refreshing with dots indicator</span>
+    <div className="border-border bg-card relative flex h-20 w-full items-center justify-center overflow-hidden rounded-xl border">
+      <RefreshIndicator
+        isRefreshing={true}
+        variant="dots"
+        color="primary"
+        position="top"
+      />
+      <span className="text-muted-foreground text-sm">Refreshing with dots indicator</span>
     </div>
   ),
   parameters: {
@@ -142,9 +153,14 @@ export const DotsVariant: Story = {
  */
 export const BottomDots: Story = {
   render: () => (
-    <div className="relative w-full h-20 border border-border rounded-xl bg-card flex items-center justify-center overflow-hidden">
-      <RefreshIndicator isRefreshing={true} variant="dots" color="secondary" position="bottom" />
-      <span className="text-sm text-muted-foreground">Dots at bottom edge</span>
+    <div className="border-border bg-card relative flex h-20 w-full items-center justify-center overflow-hidden rounded-xl border">
+      <RefreshIndicator
+        isRefreshing={true}
+        variant="dots"
+        color="secondary"
+        position="bottom"
+      />
+      <span className="text-muted-foreground text-sm">Dots at bottom edge</span>
     </div>
   ),
   parameters: {
@@ -165,10 +181,15 @@ export const ColorVariants: Story = {
       {(['primary', 'secondary', 'muted'] as const).map((color) => (
         <div
           key={color}
-          className="relative w-full h-16 border border-border rounded-xl bg-card flex items-center justify-center overflow-hidden"
+          className="border-border bg-card relative flex h-16 w-full items-center justify-center overflow-hidden rounded-xl border"
         >
-          <RefreshIndicator isRefreshing={true} variant="bar" color={color} position="top" />
-          <span className="text-sm text-muted-foreground font-mono">color="{color}"</span>
+          <RefreshIndicator
+            isRefreshing={true}
+            variant="bar"
+            color={color}
+            position="top"
+          />
+          <span className="text-muted-foreground font-mono text-sm">color="{color}"</span>
         </div>
       ))}
     </div>
@@ -188,17 +209,23 @@ export const ColorVariants: Story = {
 export const VariantComparison: Story = {
   render: () => (
     <div className="space-y-4">
-      <div
-        className="relative w-full h-16 border border-border rounded-xl bg-card flex items-center justify-center overflow-hidden"
-      >
-        <RefreshIndicator isRefreshing={true} variant="bar" color="primary" position="top" />
-        <span className="text-sm text-muted-foreground">variant="bar"</span>
+      <div className="border-border bg-card relative flex h-16 w-full items-center justify-center overflow-hidden rounded-xl border">
+        <RefreshIndicator
+          isRefreshing={true}
+          variant="bar"
+          color="primary"
+          position="top"
+        />
+        <span className="text-muted-foreground text-sm">variant="bar"</span>
       </div>
-      <div
-        className="relative w-full h-16 border border-border rounded-xl bg-card flex items-center justify-center overflow-hidden"
-      >
-        <RefreshIndicator isRefreshing={true} variant="dots" color="primary" position="top" />
-        <span className="text-sm text-muted-foreground">variant="dots"</span>
+      <div className="border-border bg-card relative flex h-16 w-full items-center justify-center overflow-hidden rounded-xl border">
+        <RefreshIndicator
+          isRefreshing={true}
+          variant="dots"
+          color="primary"
+          position="top"
+        />
+        <span className="text-muted-foreground text-sm">variant="dots"</span>
       </div>
     </div>
   ),

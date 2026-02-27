@@ -127,9 +127,7 @@ async function pollScanStatus(
 
   while (attempts < SCAN_MAX_POLL_ATTEMPTS) {
     try {
-      const response = await fetch(
-        `${SCAN_BACKEND_URL}/api/scan/${taskId}`
-      );
+      const response = await fetch(`${SCAN_BACKEND_URL}/api/scan/${taskId}`);
 
       if (!response.ok) {
         throw new ScanError(
@@ -179,7 +177,7 @@ async function pollScanStatus(
   }
 
   throw new ScanError(
-    `Network scan timed out after ${SCAN_MAX_POLL_ATTEMPTS * SCAN_POLL_INTERVAL_MS / 1000}s. Scan may still be running on the backend.`,
+    `Network scan timed out after ${(SCAN_MAX_POLL_ATTEMPTS * SCAN_POLL_INTERVAL_MS) / 1000}s. Scan may still be running on the backend.`,
     'TIMEOUT'
   );
 }
@@ -190,9 +188,7 @@ async function pollScanStatus(
  * @description Converts backend snake_case response format to frontend camelCase format.
  * Internal helper function.
  */
-function transformScanResults(
-  backendResults: ScanStatusResponse['results']
-): ScanResult[] {
+function transformScanResults(backendResults: ScanStatusResponse['results']): ScanResult[] {
   if (!backendResults) return [];
 
   return backendResults.map((result) => ({

@@ -65,11 +65,11 @@ function InteractiveWrapper({
   const [isOpen, setIsOpen] = useState(open ?? false);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="bg-background min-h-screen">
       {/* Mobile trigger button */}
-      <div className="md:hidden p-4">
+      <div className="p-4 md:hidden">
         <button
-          className="px-4 py-2 bg-primary text-primary-foreground rounded"
+          className="bg-primary text-primary-foreground rounded px-4 py-2"
           onClick={() => setIsOpen(true)}
         >
           Open Filters
@@ -85,11 +85,9 @@ function InteractiveWrapper({
       />
 
       {/* Debug panel showing current filter state */}
-      <div className="p-4 bg-muted/50 border-t">
-        <h3 className="font-semibold mb-2">Current Filters (Debug)</h3>
-        <pre className="text-xs overflow-auto">
-          {JSON.stringify(filters, null, 2)}
-        </pre>
+      <div className="bg-muted/50 border-t p-4">
+        <h3 className="mb-2 font-semibold">Current Filters (Debug)</h3>
+        <pre className="overflow-auto text-xs">{JSON.stringify(filters, null, 2)}</pre>
       </div>
     </div>
   );
@@ -126,8 +124,8 @@ export const Desktop: Story = {
         }}
         onFiltersChange={(filters) => console.log('Filters changed:', filters)}
       />
-      <div className="flex-1 p-6 bg-background">
-        <h2 className="text-2xl font-bold mb-4">Firewall Logs</h2>
+      <div className="bg-background flex-1 p-6">
+        <h2 className="mb-4 text-2xl font-bold">Firewall Logs</h2>
         <p className="text-muted-foreground">
           Log entries would appear here. Use the sidebar to filter logs.
         </p>
@@ -216,12 +214,7 @@ export const ComplexFilters: Story = {
         dstPort: 22,
         prefix: 'SSH-BLOCK-',
       }}
-      availablePrefixes={[
-        'SSH-BLOCK-',
-        'DROPPED-',
-        'ACCEPTED-',
-        'REJECTED-',
-      ]}
+      availablePrefixes={['SSH-BLOCK-', 'DROPPED-', 'ACCEPTED-', 'REJECTED-']}
     />
   ),
 };

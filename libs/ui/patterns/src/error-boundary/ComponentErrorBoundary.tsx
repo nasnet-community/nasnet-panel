@@ -89,23 +89,29 @@ function InlineErrorCardComponent({
     return (
       <div
         className={cn(
-          'flex items-center gap-2 p-3 bg-error/10 border border-error/20 rounded-lg text-sm',
+          'bg-error/10 border-error/20 flex items-center gap-2 rounded-lg border p-3 text-sm',
           className
         )}
         role="alert"
         aria-live="polite"
       >
-        <AlertTriangle className="w-4 h-4 text-error flex-shrink-0" aria-hidden="true" />
+        <AlertTriangle
+          className="text-error h-4 w-4 flex-shrink-0"
+          aria-hidden="true"
+        />
         <span className="text-error flex-1 truncate">
           {componentName ? `${componentName} failed to load` : 'Failed to load'}
         </span>
         {reset && (
           <button
             onClick={handleReset}
-            className="text-error hover:text-error/80 p-1 rounded"
+            className="text-error hover:text-error/80 rounded p-1"
             aria-label="Retry loading"
           >
-            <RefreshCw className="w-4 h-4" aria-hidden="true" />
+            <RefreshCw
+              className="h-4 w-4"
+              aria-hidden="true"
+            />
           </button>
         )}
       </div>
@@ -121,55 +127,68 @@ function InlineErrorCardComponent({
       <CardContent className="p-4">
         <div className="flex items-start gap-3">
           {/* Error Icon */}
-          <div className="w-10 h-10 bg-error/10 rounded-lg flex items-center justify-center flex-shrink-0">
-            <AlertTriangle className="w-5 h-5 text-error" aria-hidden="true" />
+          <div className="bg-error/10 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg">
+            <AlertTriangle
+              className="text-error h-5 w-5"
+              aria-hidden="true"
+            />
           </div>
 
           {/* Error Content */}
-          <div className="flex-1 min-w-0">
-            <h4 className="font-medium text-foreground">
-              {componentName
-                ? `${componentName} couldn't load`
-                : "This section couldn't load"}
+          <div className="min-w-0 flex-1">
+            <h4 className="text-foreground font-medium">
+              {componentName ? `${componentName} couldn't load` : "This section couldn't load"}
             </h4>
-            <p className="text-sm text-muted-foreground mt-0.5">
+            <p className="text-muted-foreground mt-0.5 text-sm">
               An error occurred while loading this content.
             </p>
 
             {/* Actions */}
-            <div className="flex items-center gap-3 mt-3">
+            <div className="mt-3 flex items-center gap-3">
               {reset && (
-                <Button size="sm" variant="outline" onClick={handleReset}>
-                  <RefreshCw className="w-3.5 h-3.5 mr-1.5" aria-hidden="true" />
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={handleReset}
+                >
+                  <RefreshCw
+                    className="mr-1.5 h-3.5 w-3.5"
+                    aria-hidden="true"
+                  />
                   Retry
                 </Button>
               )}
 
               <button
                 onClick={() => setShowDetails(!showDetails)}
-                className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1 text-sm transition-colors"
                 aria-expanded={showDetails}
               >
-                {showDetails ? (
+                {showDetails ?
                   <>
-                    <ChevronUp className="w-3.5 h-3.5" aria-hidden="true" />
+                    <ChevronUp
+                      className="h-3.5 w-3.5"
+                      aria-hidden="true"
+                    />
                     Hide details
                   </>
-                ) : (
-                  <>
-                    <ChevronDown className="w-3.5 h-3.5" aria-hidden="true" />
+                : <>
+                    <ChevronDown
+                      className="h-3.5 w-3.5"
+                      aria-hidden="true"
+                    />
                     Show details
                   </>
-                )}
+                }
               </button>
             </div>
 
             {/* Expandable Details */}
             {showDetails && (
-              <div className="mt-3 p-2 bg-muted rounded text-xs font-mono text-foreground break-all">
+              <div className="bg-muted text-foreground mt-3 break-all rounded p-2 font-mono text-xs">
                 {error.message}
                 {import.meta.env.DEV && error.stack && (
-                  <pre className="mt-2 text-muted-foreground overflow-auto max-h-24 whitespace-pre-wrap">
+                  <pre className="text-muted-foreground mt-2 max-h-24 overflow-auto whitespace-pre-wrap">
                     {error.stack}
                   </pre>
                 )}
@@ -192,11 +211,13 @@ export const InlineErrorCard = React.memo(InlineErrorCardComponent);
 /**
  * Default fallback for ComponentErrorBoundary
  */
-function ComponentErrorFallback({
-  error,
-  resetErrorBoundary,
-}: ErrorBoundaryFallbackProps) {
-  return <InlineErrorCard error={error} reset={resetErrorBoundary} />;
+function ComponentErrorFallback({ error, resetErrorBoundary }: ErrorBoundaryFallbackProps) {
+  return (
+    <InlineErrorCard
+      error={error}
+      reset={resetErrorBoundary}
+    />
+  );
 }
 
 /**

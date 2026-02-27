@@ -50,10 +50,7 @@
     "check": {
       "executor": "nx:run-commands",
       "options": {
-        "commands": [
-          "nx run ui-primitives:typecheck",
-          "nx run ui-primitives:lint"
-        ],
+        "commands": ["nx run ui-primitives:typecheck", "nx run ui-primitives:lint"],
         "parallel": true
       }
     },

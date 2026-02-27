@@ -24,5 +24,7 @@ import type { WireGuardInterface } from '@nasnet/core/types';
  * const { data, isLoading, error } = useWireGuardInterfaces(routerIp || '');
  * ```
  */
-export declare function useWireGuardInterfaces(routerIp: string): UseQueryResult<WireGuardInterface[], Error>;
+export declare function useWireGuardInterfaces(
+  routerIp: string
+): UseQueryResult<WireGuardInterface[], Error>;
 //# sourceMappingURL=useWireGuardInterfaces.d.ts.map

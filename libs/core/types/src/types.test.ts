@@ -9,7 +9,7 @@ import type {
   RouterStatusResponse,
   AppConfig,
   ApplicationState,
-  RouterConnectionConfig
+  RouterConnectionConfig,
 } from './index.js';
 
 describe('Type Definitions', () => {
@@ -19,7 +19,7 @@ describe('Type Definitions', () => {
         id: 'wan1',
         name: 'WAN Interface',
         type: 'dhcp',
-        isEnabled: true
+        isEnabled: true,
       };
       expect(wanLink.id).toBe('wan1');
       expect(wanLink.type).toBe('dhcp');
@@ -31,7 +31,7 @@ describe('Type Definitions', () => {
         name: 'VPN Connection',
         protocol: 'wireguard',
         status: 'disconnected',
-        isEnabled: true
+        isEnabled: true,
       };
       expect(vpnConn.protocol).toBe('wireguard');
       expect(vpnConn.status).toBe('disconnected');
@@ -42,7 +42,7 @@ describe('Type Definitions', () => {
         id: 'ether1',
         name: 'ether1',
         type: 'ethernet',
-        isEnabled: true
+        isEnabled: true,
       };
       expect(lanInterface.name).toBe('ether1');
     });
@@ -54,7 +54,7 @@ describe('Type Definitions', () => {
         protocol: 'tcp',
         action: 'accept',
         disabled: false,
-        order: 1
+        order: 1,
       };
       expect(rule.chain).toBe('input');
       expect(rule.action).toBe('accept');
@@ -65,7 +65,7 @@ describe('Type Definitions', () => {
     it('should have ApiResponse type', () => {
       const response: ApiResponse<{ message: string }> = {
         success: true,
-        data: { message: 'test' }
+        data: { message: 'test' },
       };
       expect(response.success).toBe(true);
       expect(response.data.message).toBe('test');
@@ -76,8 +76,8 @@ describe('Type Definitions', () => {
         success: false,
         error: {
           code: 'INVALID_REQUEST',
-          message: 'Invalid request'
-        }
+          message: 'Invalid request',
+        },
       };
       expect(error.success).toBe(false);
       expect(error.error.code).toBe('INVALID_REQUEST');
@@ -90,7 +90,7 @@ describe('Type Definitions', () => {
         cpuUsage: 45,
         memoryUsage: 60,
         diskUsage: 70,
-        timestamp: new Date()
+        timestamp: new Date(),
       };
       expect(status.uptime).toBe(86400);
       expect(status.cpuUsage).toBe(45);
@@ -102,23 +102,23 @@ describe('Type Definitions', () => {
       const config: AppConfig = {
         api: {
           baseUrl: 'http://localhost:3000',
-          timeout: 5000
+          timeout: 5000,
         },
         ui: {
           theme: 'light',
-          language: 'en'
+          language: 'en',
         },
         router: {
           defaultPort: 8728,
           retryAttempts: 2,
-          retryDelay: 1000
+          retryDelay: 1000,
         },
         features: {
           isWireGuardVPNEnabled: true,
           isDHCPMonitoringEnabled: true,
           isFirewallViewerEnabled: true,
-          isSafetyPipelineEnabled: true
-        }
+          isSafetyPipelineEnabled: true,
+        },
       };
       expect(config.api.baseUrl).toBe('http://localhost:3000');
       expect(config.ui.theme).toBe('light');
@@ -132,7 +132,7 @@ describe('Type Definitions', () => {
         password: 'password',
         timeout: 5000,
         useTLS: false,
-        verifyCertificate: false
+        verifyCertificate: false,
       };
       expect(connConfig.address).toBe('192.168.1.1');
     });
@@ -146,14 +146,14 @@ describe('Type Definitions', () => {
           password: 'secret',
           useTLS: false,
           verifyCertificate: false,
-          timeout: 10000
+          timeout: 10000,
         },
         savedRouters: [],
         userPreferences: {
           theme: 'dark',
           language: 'fa',
-          autoRefreshInterval: 5000
-        }
+          autoRefreshInterval: 5000,
+        },
       };
       expect(state.currentRouter?.address).toBe('192.168.1.1');
       expect(state.userPreferences.theme).toBe('dark');

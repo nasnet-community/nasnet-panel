@@ -21,5 +21,7 @@ export declare function clearCredentials(): void;
  * @param config Axios request config
  * @returns Modified config with Authorization header
  */
-export declare function authInterceptor(config: InternalAxiosRequestConfig): InternalAxiosRequestConfig;
+export declare function authInterceptor(
+  config: InternalAxiosRequestConfig
+): InternalAxiosRequestConfig;
 //# sourceMappingURL=auth.d.ts.map

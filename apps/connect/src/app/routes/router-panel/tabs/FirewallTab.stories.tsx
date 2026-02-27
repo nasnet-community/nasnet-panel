@@ -33,7 +33,8 @@ export const WithEfficiencyReport: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'FirewallTab with efficiency report modal opened. Shows rule analysis and optimization suggestions.',
+        story:
+          'FirewallTab with efficiency report modal opened. Shows rule analysis and optimization suggestions.',
       },
     },
   },
@@ -50,7 +51,8 @@ export const MobileView: Story = {
     },
     docs: {
       description: {
-        story: 'Responsive layout optimized for mobile devices with stacked layout and bottom padding for navigation.',
+        story:
+          'Responsive layout optimized for mobile devices with stacked layout and bottom padding for navigation.',
       },
     },
   },

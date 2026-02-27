@@ -116,8 +116,7 @@ export const FullCache: Story = {
   parameters: {
     docs: {
       description: {
-        story:
-          'When cache is full (100%), consider increasing cache size or clearing entries.',
+        story: 'When cache is full (100%), consider increasing cache size or clearing entries.',
       },
     },
   },
@@ -212,8 +211,7 @@ export const CacheSizeBelowMinimum: Story = {
   parameters: {
     docs: {
       description: {
-        story:
-          'Cache size must be at least 512 KB. Values below minimum show validation error.',
+        story: 'Cache size must be at least 512 KB. Values below minimum show validation error.',
       },
     },
   },
@@ -331,8 +329,7 @@ export const CacheAlmostFull: Story = {
   parameters: {
     docs: {
       description: {
-        story:
-          'Cache is almost full (95%). User should consider increasing cache size.',
+        story: 'Cache is almost full (95%). User should consider increasing cache size.',
       },
     },
   },
@@ -354,8 +351,7 @@ export const VeryLowCacheUsage: Story = {
   parameters: {
     docs: {
       description: {
-        story:
-          'Very low cache usage (5%). Cache size could potentially be reduced to save memory.',
+        story: 'Very low cache usage (5%). Cache size could potentially be reduced to save memory.',
       },
     },
   },

@@ -19,20 +19,20 @@ export type HelpMode = 'simple' | 'technical';
  * Help mode store state interface
  */
 export interface HelpModeState {
-    /**
-     * Current help mode
-     * Controls terminology level in help content
-     */
-    mode: HelpMode;
-    /**
-     * Toggle between simple and technical modes
-     */
-    toggleMode: () => void;
-    /**
-     * Set the help mode explicitly
-     * @param mode - The mode to set
-     */
-    setMode: (mode: HelpMode) => void;
+  /**
+   * Current help mode
+   * Controls terminology level in help content
+   */
+  mode: HelpMode;
+  /**
+   * Toggle between simple and technical modes
+   */
+  toggleMode: () => void;
+  /**
+   * Set the help mode explicitly
+   * @param mode - The mode to set
+   */
+  setMode: (mode: HelpMode) => void;
 }
 /**
  * Zustand store for help mode management with localStorage persistence
@@ -60,21 +60,41 @@ export interface HelpModeState {
  * - Integrated with Redux DevTools for debugging (development only)
  * - Store name: 'help-mode-store'
  */
-export declare const useHelpModeStore: import("zustand").UseBoundStore<Omit<Omit<import("zustand").StoreApi<HelpModeState>, "setState"> & {
-    setState<A extends string | {
-        type: string;
-    }>(partial: HelpModeState | Partial<HelpModeState> | ((state: HelpModeState) => HelpModeState | Partial<HelpModeState>), replace?: boolean | undefined, action?: A | undefined): void;
-}, "persist"> & {
+export declare const useHelpModeStore: import('zustand').UseBoundStore<
+  Omit<
+    Omit<import('zustand').StoreApi<HelpModeState>, 'setState'> & {
+      setState<
+        A extends
+          | string
+          | {
+              type: string;
+            },
+      >(
+        partial:
+          | HelpModeState
+          | Partial<HelpModeState>
+          | ((state: HelpModeState) => HelpModeState | Partial<HelpModeState>),
+        replace?: boolean | undefined,
+        action?: A | undefined
+      ): void;
+    },
+    'persist'
+  > & {
     persist: {
-        setOptions: (options: Partial<import("zustand/middleware").PersistOptions<HelpModeState, HelpModeState>>) => void;
-        clearStorage: () => void;
-        rehydrate: () => Promise<void> | void;
-        hasHydrated: () => boolean;
-        onHydrate: (fn: (state: HelpModeState) => void) => () => void;
-        onFinishHydration: (fn: (state: HelpModeState) => void) => () => void;
-        getOptions: () => Partial<import("zustand/middleware").PersistOptions<HelpModeState, HelpModeState>>;
+      setOptions: (
+        options: Partial<import('zustand/middleware').PersistOptions<HelpModeState, HelpModeState>>
+      ) => void;
+      clearStorage: () => void;
+      rehydrate: () => Promise<void> | void;
+      hasHydrated: () => boolean;
+      onHydrate: (fn: (state: HelpModeState) => void) => () => void;
+      onFinishHydration: (fn: (state: HelpModeState) => void) => () => void;
+      getOptions: () => Partial<
+        import('zustand/middleware').PersistOptions<HelpModeState, HelpModeState>
+      >;
     };
-}>;
+  }
+>;
 /**
  * Selector for help mode
  */

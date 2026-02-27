@@ -6,53 +6,53 @@ export type NotificationType = 'success' | 'error' | 'warning' | 'info' | 'progr
  * Notification action - button displayed on notification
  */
 export interface NotificationAction {
-    /**
-     * Button label text
-     */
-    label: string;
-    /**
-     * Click handler
-     */
-    onClick: () => void;
+  /**
+   * Button label text
+   */
+  label: string;
+  /**
+   * Click handler
+   */
+  onClick: () => void;
 }
 /**
  * Notification interface
  */
 export interface Notification {
-    /**
-     * Unique notification ID (auto-generated)
-     */
-    id: string;
-    /**
-     * Notification type
-     */
-    type: NotificationType;
-    /**
-     * Notification title (required)
-     */
-    title: string;
-    /**
-     * Optional message body
-     */
-    message?: string;
-    /**
-     * Duration in milliseconds before auto-dismiss
-     * null = no auto-dismiss (manual close only)
-     * Default: 4000 for success/info/warning, null for error
-     */
-    duration?: number | null;
-    /**
-     * Optional action button
-     */
-    action?: NotificationAction;
-    /**
-     * Progress value (0-100) for progress type notifications
-     */
-    progress?: number;
-    /**
-     * Timestamp when notification was created
-     */
-    createdAt: Date;
+  /**
+   * Unique notification ID (auto-generated)
+   */
+  id: string;
+  /**
+   * Notification type
+   */
+  type: NotificationType;
+  /**
+   * Notification title (required)
+   */
+  title: string;
+  /**
+   * Optional message body
+   */
+  message?: string;
+  /**
+   * Duration in milliseconds before auto-dismiss
+   * null = no auto-dismiss (manual close only)
+   * Default: 4000 for success/info/warning, null for error
+   */
+  duration?: number | null;
+  /**
+   * Optional action button
+   */
+  action?: NotificationAction;
+  /**
+   * Progress value (0-100) for progress type notifications
+   */
+  progress?: number;
+  /**
+   * Timestamp when notification was created
+   */
+  createdAt: Date;
 }
 /**
  * Input type for adding notifications (without auto-generated fields)
@@ -62,46 +62,46 @@ export type NotificationInput = Omit<Notification, 'id' | 'createdAt'>;
  * Notification state interface
  */
 export interface NotificationState {
-    /**
-     * Queue of active notifications
-     * Ordered by creation time (oldest first)
-     */
-    notifications: Notification[];
+  /**
+   * Queue of active notifications
+   * Ordered by creation time (oldest first)
+   */
+  notifications: Notification[];
 }
 /**
  * Notification actions interface
  */
 export interface NotificationActions {
-    /**
-     * Add a notification to the queue
-     * Auto-generates ID and timestamp
-     * Returns the notification ID (empty string if deduplicated)
-     *
-     * @param notification - Notification to add (without id/createdAt)
-     * @returns Generated notification ID, or empty string if duplicate
-     */
-    addNotification: (notification: NotificationInput) => string;
-    /**
-     * Remove a notification by ID
-     *
-     * @param id - Notification ID to remove
-     */
-    removeNotification: (id: string) => void;
-    /**
-     * Update a notification (e.g., progress updates)
-     *
-     * @param id - Notification ID to update
-     * @param updates - Partial notification updates
-     */
-    updateNotification: (id: string, updates: Partial<NotificationInput>) => void;
-    /**
-     * Clear all notifications
-     */
-    clearAllNotifications: () => void;
-    /**
-     * Get a notification by ID
-     */
-    getNotification: (id: string) => Notification | undefined;
+  /**
+   * Add a notification to the queue
+   * Auto-generates ID and timestamp
+   * Returns the notification ID (empty string if deduplicated)
+   *
+   * @param notification - Notification to add (without id/createdAt)
+   * @returns Generated notification ID, or empty string if duplicate
+   */
+  addNotification: (notification: NotificationInput) => string;
+  /**
+   * Remove a notification by ID
+   *
+   * @param id - Notification ID to remove
+   */
+  removeNotification: (id: string) => void;
+  /**
+   * Update a notification (e.g., progress updates)
+   *
+   * @param id - Notification ID to update
+   * @param updates - Partial notification updates
+   */
+  updateNotification: (id: string, updates: Partial<NotificationInput>) => void;
+  /**
+   * Clear all notifications
+   */
+  clearAllNotifications: () => void;
+  /**
+   * Get a notification by ID
+   */
+  getNotification: (id: string) => Notification | undefined;
 }
 /**
  * Zustand store for notification management
@@ -155,11 +155,28 @@ export interface NotificationActions {
  * Persistence:
  * - NOT persisted - notifications are session-only
  */
-export declare const useNotificationStore: import("zustand").UseBoundStore<Omit<import("zustand").StoreApi<NotificationState & NotificationActions>, "setState"> & {
-    setState<A extends string | {
-        type: string;
-    }>(partial: (NotificationState & NotificationActions) | Partial<NotificationState & NotificationActions> | ((state: NotificationState & NotificationActions) => (NotificationState & NotificationActions) | Partial<NotificationState & NotificationActions>), replace?: boolean | undefined, action?: A | undefined): void;
-}>;
+export declare const useNotificationStore: import('zustand').UseBoundStore<
+  Omit<import('zustand').StoreApi<NotificationState & NotificationActions>, 'setState'> & {
+    setState<
+      A extends
+        | string
+        | {
+            type: string;
+          },
+    >(
+      partial:
+        | (NotificationState & NotificationActions)
+        | Partial<NotificationState & NotificationActions>
+        | ((
+            state: NotificationState & NotificationActions
+          ) =>
+            | (NotificationState & NotificationActions)
+            | Partial<NotificationState & NotificationActions>),
+      replace?: boolean | undefined,
+      action?: A | undefined
+    ): void;
+  }
+>;
 /**
  * Select all notifications
  */
@@ -179,7 +196,9 @@ export declare const selectErrorNotifications: (state: NotificationState) => Not
 /**
  * Select notifications by type
  */
-export declare const selectNotificationsByType: (type: NotificationType) => (state: NotificationState) => Notification[];
+export declare const selectNotificationsByType: (
+  type: NotificationType
+) => (state: NotificationState) => Notification[];
 /**
  * Get notification store state outside of React
  * Useful for imperative code or testing
@@ -188,7 +207,12 @@ export declare const getNotificationState: () => NotificationState & Notificatio
 /**
  * Subscribe to notification store changes outside of React
  */
-export declare const subscribeNotificationState: (listener: (state: NotificationState & NotificationActions, prevState: NotificationState & NotificationActions) => void) => () => void;
+export declare const subscribeNotificationState: (
+  listener: (
+    state: NotificationState & NotificationActions,
+    prevState: NotificationState & NotificationActions
+  ) => void
+) => () => void;
 /**
  * Show a success notification
  */

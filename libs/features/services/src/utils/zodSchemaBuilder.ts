@@ -113,24 +113,16 @@ function buildTextSchema(field: ConfigSchemaField): z.ZodString {
   if (pattern) {
     schema = schema.regex(
       new RegExp(pattern),
-      field.description
-        ? `${field.description} (invalid format)`
-        : 'Invalid format'
+      field.description ? `${field.description} (invalid format)` : 'Invalid format'
     );
   }
 
   if (field.min !== null && field.min !== undefined) {
-    schema = schema.min(
-      field.min as number,
-      `Minimum length is ${field.min} characters`
-    );
+    schema = schema.min(field.min as number, `Minimum length is ${field.min} characters`);
   }
 
   if (field.max !== null && field.max !== undefined) {
-    schema = schema.max(
-      field.max as number,
-      `Maximum length is ${field.max} characters`
-    );
+    schema = schema.max(field.max as number, `Maximum length is ${field.max} characters`);
   }
 
   return schema;
@@ -147,17 +139,11 @@ function buildPasswordSchema(field: ConfigSchemaField): z.ZodString {
   schema = schema.min(minLength, `Password must be at least ${minLength} characters`);
 
   if (field.max !== null && field.max !== undefined) {
-    schema = schema.max(
-      field.max as number,
-      `Password must be at most ${field.max} characters`
-    );
+    schema = schema.max(field.max as number, `Password must be at most ${field.max} characters`);
   }
 
   if (pattern) {
-    schema = schema.regex(
-      new RegExp(pattern),
-      'Password does not meet complexity requirements'
-    );
+    schema = schema.regex(new RegExp(pattern), 'Password does not meet complexity requirements');
   }
 
   return schema;
@@ -184,17 +170,11 @@ function buildNumberSchema(field: ConfigSchemaField): z.ZodNumber {
   let schema = z.number();
 
   if (field.min !== null && field.min !== undefined) {
-    schema = schema.min(
-      field.min as number,
-      `Minimum value is ${field.min}`
-    );
+    schema = schema.min(field.min as number, `Minimum value is ${field.min}`);
   }
 
   if (field.max !== null && field.max !== undefined) {
-    schema = schema.max(
-      field.max as number,
-      `Maximum value is ${field.max}`
-    );
+    schema = schema.max(field.max as number, `Maximum value is ${field.max}`);
   }
 
   return schema;
@@ -209,9 +189,7 @@ function buildSelectSchema(field: ConfigSchemaField): z.ZodEnum<any> {
   }
 
   // Extract values from options (handles both string[] and {value, label}[] formats)
-  const values = field.options.map((opt: any) =>
-    typeof opt === 'string' ? opt : opt.value
-  );
+  const values = field.options.map((opt: any) => (typeof opt === 'string' ? opt : opt.value));
 
   return z.enum(values as [string, ...string[]]);
 }
@@ -224,9 +202,7 @@ function buildMultiSelectSchema(field: ConfigSchemaField): z.ZodArray<any> {
     throw new Error(`MULTI_SELECT field "${field.name}" must have options`);
   }
 
-  const values = field.options.map((opt: any) =>
-    typeof opt === 'string' ? opt : opt.value
-  );
+  const values = field.options.map((opt: any) => (typeof opt === 'string' ? opt : opt.value));
 
   const enumSchema = z.enum(values as [string, ...string[]]);
   let arraySchema = z.array(enumSchema);
@@ -256,10 +232,7 @@ function buildTextArraySchema(field: ConfigSchemaField): z.ZodArray<any> {
   const pattern = (field as any).pattern as string | undefined;
 
   if (pattern) {
-    itemSchema = itemSchema.regex(
-      new RegExp(pattern),
-      'Invalid format for array item'
-    );
+    itemSchema = itemSchema.regex(new RegExp(pattern), 'Invalid format for array item');
   }
 
   let arraySchema = z.array(itemSchema);

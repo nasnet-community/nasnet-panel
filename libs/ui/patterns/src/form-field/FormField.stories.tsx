@@ -6,7 +6,6 @@ import { FormField } from './form-field';
 
 import type { Meta, StoryObj } from '@storybook/react';
 
-
 const meta: Meta<typeof FormField> = {
   title: 'Patterns/FormField',
   component: FormField,
@@ -71,7 +70,12 @@ export const WithError: Story = {
     label: 'Password',
     required: true,
     error: 'Password must be at least 8 characters',
-    children: <Input type="password" placeholder="Enter password" />,
+    children: (
+      <Input
+        type="password"
+        placeholder="Enter password"
+      />
+    ),
   },
 };
 
@@ -114,7 +118,10 @@ export const FormExample: Story = {
         label="Password"
         required
       >
-        <Input type="password" placeholder="••••••••" />
+        <Input
+          type="password"
+          placeholder="••••••••"
+        />
       </FormField>
 
       <FormField
@@ -122,12 +129,15 @@ export const FormExample: Story = {
         description="Optional notes about this router"
       >
         <textarea
-          className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+          className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex min-h-[80px] w-full rounded-md border px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
           placeholder="Add any notes..."
         />
       </FormField>
 
-      <Button type="submit" className="w-full">
+      <Button
+        type="submit"
+        className="w-full"
+      >
         Add Router
       </Button>
     </form>
@@ -145,7 +155,10 @@ export const ValidationStates: Story = {
   render: () => (
     <div className="w-80 space-y-4">
       <FormField label="Valid Field">
-        <Input defaultValue="192.168.1.1" className="border-green-500 focus-visible:ring-green-500" />
+        <Input
+          defaultValue="192.168.1.1"
+          className="border-green-500 focus-visible:ring-green-500"
+        />
       </FormField>
 
       <FormField
@@ -182,14 +195,21 @@ export const DisabledState: Story = {
         label="Router Name"
         description="Cannot be changed after creation"
       >
-        <Input defaultValue="MikroTik-Home" disabled />
+        <Input
+          defaultValue="MikroTik-Home"
+          disabled
+        />
       </FormField>
 
       <FormField
         label="MAC Address"
         description="Hardware identifier"
       >
-        <Input defaultValue="AA:BB:CC:DD:EE:FF" disabled className="font-mono" />
+        <Input
+          defaultValue="AA:BB:CC:DD:EE:FF"
+          disabled
+          className="font-mono"
+        />
       </FormField>
     </div>
   ),

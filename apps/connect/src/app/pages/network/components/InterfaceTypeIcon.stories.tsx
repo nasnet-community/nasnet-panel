@@ -1,4 +1,3 @@
-
 import { type InterfaceType } from '@nasnet/core/types';
 
 import { InterfaceTypeIcon } from './InterfaceTypeIcon';
@@ -129,9 +128,15 @@ export const Gallery: Story = {
   render: () => (
     <div className="flex flex-wrap gap-6 p-4">
       {ALL_TYPES.map(({ type, label }) => (
-        <div key={type} className="flex flex-col items-center gap-1">
-          <InterfaceTypeIcon type={type} className="w-7 h-7 text-muted-foreground" />
-          <span className="text-xs font-mono text-muted-foreground">{label}</span>
+        <div
+          key={type}
+          className="flex flex-col items-center gap-1"
+        >
+          <InterfaceTypeIcon
+            type={type}
+            className="text-muted-foreground h-7 w-7"
+          />
+          <span className="text-muted-foreground font-mono text-xs">{label}</span>
         </div>
       ))}
     </div>

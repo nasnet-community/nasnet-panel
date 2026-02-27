@@ -21,21 +21,18 @@ import type { DeviceCardBaseProps } from './device-card.types';
 /**
  * Status dot variants using semantic design tokens
  */
-const statusDotVariants = cva(
-  'h-2.5 w-2.5 rounded-full shrink-0',
-  {
-    variants: {
-      status: {
-        success: 'bg-success',
-        muted: 'bg-muted-foreground',
-        warning: 'bg-warning',
-      },
+const statusDotVariants = cva('h-2.5 w-2.5 shrink-0 rounded-full', {
+  variants: {
+    status: {
+      success: 'bg-success',
+      muted: 'bg-muted-foreground',
+      warning: 'bg-warning',
     },
-    defaultVariants: {
-      status: 'muted',
-    },
-  }
-);
+  },
+  defaultVariants: {
+    status: 'muted',
+  },
+});
 
 /**
  * Status badge variants using semantic design tokens
@@ -59,48 +56,42 @@ const statusBadgeVariants = cva(
 /**
  * Connection badge variants using network design tokens
  */
-const connectionBadgeVariants = cva(
-  'inline-flex items-center gap-1 text-xs',
-  {
-    variants: {
-      type: {
-        wired: 'text-primary',
-        wireless: 'text-primary',
-      },
+const connectionBadgeVariants = cva('inline-flex items-center gap-1 text-xs', {
+  variants: {
+    type: {
+      wired: 'text-primary',
+      wireless: 'text-primary',
     },
-    defaultVariants: {
-      type: 'wired',
-    },
-  }
-);
+  },
+  defaultVariants: {
+    type: 'wired',
+  },
+});
 
 /**
  * Card variant styles
  */
-const cardVariants = cva(
-  'group relative transition-all duration-200',
-  {
-    variants: {
-      interactive: {
-        true: 'cursor-pointer hover:shadow-md hover:border-primary/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2',
-        false: '',
-      },
-      selected: {
-        true: 'border-primary shadow-md ring-2 ring-primary/20',
-        false: '',
-      },
-      compact: {
-        true: 'p-2',
-        false: 'p-4',
-      },
+const cardVariants = cva('group relative transition-all duration-200', {
+  variants: {
+    interactive: {
+      true: 'hover:border-primary/30 focus-visible:ring-primary cursor-pointer hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
+      false: '',
     },
-    defaultVariants: {
-      interactive: false,
-      selected: false,
-      compact: false,
+    selected: {
+      true: 'border-primary ring-primary/20 shadow-md ring-2',
+      false: '',
     },
-  }
-);
+    compact: {
+      true: 'p-2',
+      false: 'p-4',
+    },
+  },
+  defaultVariants: {
+    interactive: false,
+    selected: false,
+    compact: false,
+  },
+});
 
 export interface DeviceCardBaseWithStatusProps extends DeviceCardBaseProps {
   /** Whether card is interactive (clickable) */
@@ -171,10 +162,10 @@ export function DeviceCardBase({
       <Card
         className={cn(
           'group relative transition-all duration-200',
-          'bg-card border border-border rounded-[var(--semantic-radius-card)]',
-          !!onClick && 'cursor-pointer hover:bg-muted/50',
+          'bg-card border-border rounded-[var(--semantic-radius-card)] border',
+          !!onClick && 'hover:bg-muted/50 cursor-pointer',
           isSelected && 'bg-primary/10 border-primary/30',
-          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2',
+          'focus-visible:ring-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
           'p-component-sm',
           className
         )}
@@ -186,8 +177,11 @@ export function DeviceCardBase({
       >
         <div className="flex items-center gap-2">
           {/* Device icon */}
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-muted border border-border">
-            <Icon className="h-4 w-4 text-foreground" aria-hidden="true" />
+          <div className="bg-muted border-border flex h-8 w-8 items-center justify-center rounded-lg border">
+            <Icon
+              className="text-foreground h-4 w-4"
+              aria-hidden="true"
+            />
           </div>
 
           {/* Name */}
@@ -208,11 +202,11 @@ export function DeviceCardBase({
     <Card
       className={cn(
         'group relative transition-all duration-200',
-        'bg-card border border-border rounded-[var(--semantic-radius-card)]',
+        'bg-card border-border rounded-[var(--semantic-radius-card)] border',
         'shadow-[var(--semantic-shadow-card)]',
-        !!onClick && 'cursor-pointer hover:shadow-lg transition-shadow duration-200',
-        isSelected && 'border-primary ring-2 ring-primary/20',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2',
+        !!onClick && 'cursor-pointer transition-shadow duration-200 hover:shadow-lg',
+        isSelected && 'border-primary ring-primary/20 ring-2',
+        'focus-visible:ring-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
         'p-component-md',
         className
       )}
@@ -224,17 +218,18 @@ export function DeviceCardBase({
     >
       <div className="flex items-start gap-4">
         {/* Device icon container */}
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-muted border border-border">
-          <Icon className="h-5 w-5 text-foreground" aria-hidden="true" />
+        <div className="bg-muted border-border flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border">
+          <Icon
+            className="text-foreground h-5 w-5"
+            aria-hidden="true"
+          />
         </div>
 
         {/* Content */}
-        <div className="flex-1 min-w-0">
+        <div className="min-w-0 flex-1">
           {/* Header row: Name + Status */}
           <div className="flex items-center justify-between gap-2">
-            <h3 className="truncate text-sm font-semibold text-foreground">
-              {name}
-            </h3>
+            <h3 className="text-foreground truncate text-sm font-semibold">{name}</h3>
             <span
               className={cn(statusBadgeVariants({ status: statusColor }))}
               role="status"
@@ -249,7 +244,7 @@ export function DeviceCardBase({
           </div>
 
           {/* Secondary info row: Vendor + IP */}
-          <div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
+          <div className="text-muted-foreground mt-1 flex items-center gap-2 text-xs">
             {vendor && <span className="truncate">{vendor}</span>}
             {vendor && ip && <span aria-hidden="true">•</span>}
             {ip && <span className="font-mono">{ip}</span>}
@@ -258,9 +253,7 @@ export function DeviceCardBase({
           {/* Tertiary row: MAC + Connection + Confidence */}
           <div className="mt-2 flex flex-wrap items-center gap-2">
             {/* MAC address */}
-            <span className="font-mono text-xs text-muted-foreground">
-              {mac}
-            </span>
+            <span className="text-muted-foreground font-mono text-xs">{mac}</span>
 
             {/* Connection type */}
             <span
@@ -270,7 +263,10 @@ export function DeviceCardBase({
                 })
               )}
             >
-              <ConnectionIcon className="h-3 w-3" aria-hidden="true" />
+              <ConnectionIcon
+                className="h-3 w-3"
+                aria-hidden="true"
+              />
               {connectionText}
             </span>
 
@@ -295,9 +291,4 @@ export function DeviceCardBase({
 /**
  * Export variants for use in tests
  */
-export {
-  statusDotVariants,
-  statusBadgeVariants,
-  connectionBadgeVariants,
-  cardVariants,
-};
+export { statusDotVariants, statusBadgeVariants, connectionBadgeVariants, cardVariants };

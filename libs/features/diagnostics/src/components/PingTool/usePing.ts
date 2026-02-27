@@ -124,11 +124,7 @@ export interface UsePingReturn {
  * }
  * ```
  */
-export function usePing({
-  deviceId,
-  onComplete,
-  onError,
-}: UsePingOptions): UsePingReturn {
+export function usePing({ deviceId, onComplete, onError }: UsePingOptions): UsePingReturn {
   // Use XState machine with React integration
   const [snapshot, send] = useMachine(pingMachine);
 
@@ -162,9 +158,7 @@ export function usePing({
         const parsedResult: PingResult = {
           ...result,
           timestamp:
-            typeof result.timestamp === 'string'
-              ? new Date(result.timestamp)
-              : result.timestamp,
+            typeof result.timestamp === 'string' ? new Date(result.timestamp) : result.timestamp,
         };
         send({ type: 'RESULT_RECEIVED', result: parsedResult });
       }
@@ -177,8 +171,7 @@ export function usePing({
       }
     },
     onError: (subscriptionError) => {
-      const errorMessage =
-        subscriptionError.message || 'Subscription error occurred';
+      const errorMessage = subscriptionError.message || 'Subscription error occurred';
       send({ type: 'ERROR', error: errorMessage });
       onError?.(errorMessage);
     },

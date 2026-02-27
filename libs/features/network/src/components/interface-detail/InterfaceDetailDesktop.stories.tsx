@@ -210,8 +210,7 @@ export const Loading: Story = {
   parameters: {
     docs: {
       description: {
-        story:
-          'Skeleton placeholders are displayed while the interface detail query is in flight.',
+        story: 'Skeleton placeholders are displayed while the interface detail query is in flight.',
       },
     },
   },

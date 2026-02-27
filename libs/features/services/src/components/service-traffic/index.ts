@@ -9,7 +9,11 @@
  * - TypeScript types
  */
 
-export { ServiceTrafficPanel, ServiceTrafficPanelDesktop, ServiceTrafficPanelMobile } from './ServiceTrafficPanel';
+export {
+  ServiceTrafficPanel,
+  ServiceTrafficPanelDesktop,
+  ServiceTrafficPanelMobile,
+} from './ServiceTrafficPanel';
 export { useServiceTrafficPanel } from './use-service-traffic-panel';
 export { QuotaSettingsForm } from './QuotaSettingsForm';
 export type {

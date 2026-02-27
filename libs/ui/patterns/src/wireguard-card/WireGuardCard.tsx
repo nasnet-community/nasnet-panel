@@ -30,7 +30,6 @@ import { useToast } from '../hooks/useToast';
 import { StatusIndicator } from '../status-indicator';
 import { PeerListItem } from './PeerListItem';
 
-
 /**
  * WireGuardCard Props
  */
@@ -75,55 +74,65 @@ function WireGuardCardComponent({
   });
 
   // Fetch peers when expanded (lazy loading)
-  const { data: peers, isLoading: isLoadingPeers, isError: isPeersError } = useWireGuardPeers(
-    routerIp,
-    isExpanded ? wgInterface.name : undefined
-  );
+  const {
+    data: peers,
+    isLoading: isLoadingPeers,
+    isError: isPeersError,
+  } = useWireGuardPeers(routerIp, isExpanded ? wgInterface.name : undefined);
 
   /**
    * Handle copy public key to clipboard
    */
-  const handleCopyPublicKey = useCallback((e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevent card click if card has onClick
-    copy(wgInterface.publicKey);
-  }, [copy, wgInterface.publicKey]);
+  const handleCopyPublicKey = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation(); // Prevent card click if card has onClick
+      copy(wgInterface.publicKey);
+    },
+    [copy, wgInterface.publicKey]
+  );
 
   /**
    * Handle toggle expansion
    */
   const handleToggleExpand = useCallback((e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent card click if card has onClick
-    setIsExpanded(prev => !prev);
+    setIsExpanded((prev) => !prev);
   }, []);
 
   // Determine status for display
-  const status = wgInterface.isDisabled
-    ? 'offline'
-    : wgInterface.isRunning
-    ? 'online'
+  const status =
+    wgInterface.isDisabled ? 'offline'
+    : wgInterface.isRunning ? 'online'
     : 'warning';
 
-  const statusLabel = wgInterface.isDisabled
-    ? 'Disabled'
-    : wgInterface.isRunning
-    ? 'Active'
+  const statusLabel =
+    wgInterface.isDisabled ? 'Disabled'
+    : wgInterface.isRunning ? 'Active'
     : 'Inactive';
 
   return (
-    <Card className={cn('rounded-[var(--semantic-radius-card)] shadow-[var(--semantic-shadow-card)] transition-shadow duration-200 hover:shadow-lg')}>
+    <Card
+      className={cn(
+        'rounded-[var(--semantic-radius-card)] shadow-[var(--semantic-shadow-card)] transition-shadow duration-200 hover:shadow-lg'
+      )}
+    >
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1">
-            <CardTitle className="text-lg font-semibold text-foreground">
+            <CardTitle className="text-foreground text-lg font-semibold">
               {wgInterface.name}
             </CardTitle>
-            <StatusIndicator status={status} label={statusLabel} className="mt-2" />
+            <StatusIndicator
+              status={status}
+              label={statusLabel}
+              className="mt-2"
+            />
           </div>
           <div className="flex items-center gap-2">
             {peerCount > 0 && (
               <Badge
                 variant="secondary"
-                className="rounded-[var(--semantic-radius-badge)] bg-secondary text-secondary-foreground"
+                className="bg-secondary text-secondary-foreground rounded-[var(--semantic-radius-badge)]"
               >
                 {peerCount} {peerCount === 1 ? 'peer' : 'peers'}
               </Badge>
@@ -134,10 +143,10 @@ function WireGuardCardComponent({
                 variant="ghost"
                 size="sm"
                 onClick={handleToggleExpand}
-                className="p-1 h-8 w-8 rounded-[var(--semantic-radius-button)] hover:bg-muted transition-colors duration-150"
+                className="hover:bg-muted h-8 w-8 rounded-[var(--semantic-radius-button)] p-1 transition-colors duration-150"
               >
                 <ChevronDown
-                  className={`h-5 w-5 transition-transform duration-200 text-muted-foreground ${
+                  className={`text-muted-foreground h-5 w-5 transition-transform duration-200 ${
                     isExpanded ? 'rotate-180' : ''
                   }`}
                 />
@@ -147,45 +156,49 @@ function WireGuardCardComponent({
         </div>
       </CardHeader>
       <CardContent className="space-y-component-lg pt-0">
-        <div className="space-y-0 divide-y divide-border">
-          <div className="flex justify-between items-center py-3">
-            <span className="text-sm font-medium text-muted-foreground">Port</span>
-            <span className="text-sm font-mono font-semibold text-foreground">{wgInterface.listenPort}</span>
+        <div className="divide-border space-y-0 divide-y">
+          <div className="flex items-center justify-between py-3">
+            <span className="text-muted-foreground text-sm font-medium">Port</span>
+            <span className="text-foreground font-mono text-sm font-semibold">
+              {wgInterface.listenPort}
+            </span>
           </div>
 
-          <div className="flex justify-between items-center py-3">
-            <span className="text-sm font-medium text-muted-foreground">MTU</span>
-            <span className="text-sm font-semibold text-foreground">{wgInterface.mtu}</span>
+          <div className="flex items-center justify-between py-3">
+            <span className="text-muted-foreground text-sm font-medium">MTU</span>
+            <span className="text-foreground text-sm font-semibold">{wgInterface.mtu}</span>
           </div>
         </div>
 
         {/* Connection Stats */}
-        {(wgInterface.rx !== undefined || wgInterface.tx !== undefined || wgInterface.lastHandshake) && (
+        {(wgInterface.rx !== undefined ||
+          wgInterface.tx !== undefined ||
+          wgInterface.lastHandshake) && (
           <div className="pt-component-lg space-y-component-md">
-            <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+            <div className="text-muted-foreground text-xs font-semibold uppercase tracking-wide">
               Connection Stats
             </div>
-            <div className="space-y-0 divide-y divide-border">
+            <div className="divide-border space-y-0 divide-y">
               {wgInterface.rx !== undefined && (
-                <div className="flex justify-between items-center py-2">
-                  <span className="text-sm font-medium text-muted-foreground">Received</span>
-                  <span className="text-sm font-mono font-semibold text-foreground">
+                <div className="flex items-center justify-between py-2">
+                  <span className="text-muted-foreground text-sm font-medium">Received</span>
+                  <span className="text-foreground font-mono text-sm font-semibold">
                     {formatBytes(wgInterface.rx)}
                   </span>
                 </div>
               )}
               {wgInterface.tx !== undefined && (
-                <div className="flex justify-between items-center py-2">
-                  <span className="text-sm font-medium text-muted-foreground">Transmitted</span>
-                  <span className="text-sm font-mono font-semibold text-foreground">
+                <div className="flex items-center justify-between py-2">
+                  <span className="text-muted-foreground text-sm font-medium">Transmitted</span>
+                  <span className="text-foreground font-mono text-sm font-semibold">
                     {formatBytes(wgInterface.tx)}
                   </span>
                 </div>
               )}
               {wgInterface.lastHandshake && (
-                <div className="flex justify-between items-center py-2">
-                  <span className="text-sm font-medium text-muted-foreground">Last Handshake</span>
-                  <span className="text-sm font-semibold text-foreground">
+                <div className="flex items-center justify-between py-2">
+                  <span className="text-muted-foreground text-sm font-medium">Last Handshake</span>
+                  <span className="text-foreground text-sm font-semibold">
                     {formatLastHandshake(wgInterface.lastHandshake)}
                   </span>
                 </div>
@@ -195,11 +208,13 @@ function WireGuardCardComponent({
         )}
 
         {/* Public Key with Copy Button */}
-        <div className="pt-component-lg border-t border-border">
+        <div className="pt-component-lg border-border border-t">
           <div className="flex items-center justify-between gap-3">
-            <div className="flex-1 min-w-0">
-              <span className="text-xs font-medium text-muted-foreground block mb-2">Public Key</span>
-              <code className="text-xs font-mono bg-muted px-3 py-2 rounded-[var(--semantic-radius-button)] block truncate text-foreground">
+            <div className="min-w-0 flex-1">
+              <span className="text-muted-foreground mb-2 block text-xs font-medium">
+                Public Key
+              </span>
+              <code className="bg-muted text-foreground block truncate rounded-[var(--semantic-radius-button)] px-3 py-2 font-mono text-xs">
                 {formatPublicKey(wgInterface.publicKey)}
               </code>
             </div>
@@ -209,17 +224,16 @@ function WireGuardCardComponent({
               onClick={handleCopyPublicKey}
               className="flex-shrink-0 rounded-[var(--semantic-radius-button)]"
             >
-              {copied ? (
+              {copied ?
                 <>
-                  <Check className="h-4 w-4 mr-1 text-success" />
+                  <Check className="text-success mr-1 h-4 w-4" />
                   Copied
                 </>
-              ) : (
-                <>
-                  <Copy className="h-4 w-4 mr-1" />
+              : <>
+                  <Copy className="mr-1 h-4 w-4" />
                   Copy
                 </>
-              )}
+              }
             </Button>
           </div>
         </div>
@@ -234,10 +248,8 @@ function WireGuardCardComponent({
               transition={{ duration: 0.2 }}
               className="overflow-hidden"
             >
-              <div className="pt-component-lg border-t border-border space-y-component-lg">
-                <h4 className="text-sm font-semibold text-foreground">
-                  Connected Peers
-                </h4>
+              <div className="pt-component-lg border-border space-y-component-lg border-t">
+                <h4 className="text-foreground text-sm font-semibold">Connected Peers</h4>
 
                 {/* Loading state */}
                 {isLoadingPeers && (
@@ -249,7 +261,7 @@ function WireGuardCardComponent({
 
                 {/* Error state */}
                 {isPeersError && (
-                  <div className="text-sm text-error-dark dark:text-error bg-error-light/50 dark:bg-error/10 px-component-lg py-component-md rounded-[var(--semantic-radius-input)] border-l-4 border-l-error">
+                  <div className="text-error-dark dark:text-error bg-error-light/50 dark:bg-error/10 px-component-lg py-component-md border-l-error rounded-[var(--semantic-radius-input)] border-l-4 text-sm">
                     Failed to load peers for this interface
                   </div>
                 )}
@@ -258,14 +270,17 @@ function WireGuardCardComponent({
                 {!isLoadingPeers && !isPeersError && peers && peers.length > 0 && (
                   <div className="space-y-component-md">
                     {peers.map((peer) => (
-                      <PeerListItem key={peer.id} peer={peer} />
+                      <PeerListItem
+                        key={peer.id}
+                        peer={peer}
+                      />
                     ))}
                   </div>
                 )}
 
                 {/* Empty state */}
                 {!isLoadingPeers && !isPeersError && peers && peers.length === 0 && (
-                  <div className="text-sm text-muted-foreground italic text-center py-6 bg-muted rounded-[var(--semantic-radius-card)]">
+                  <div className="text-muted-foreground bg-muted rounded-[var(--semantic-radius-card)] py-6 text-center text-sm italic">
                     No peers configured for this interface
                   </div>
                 )}

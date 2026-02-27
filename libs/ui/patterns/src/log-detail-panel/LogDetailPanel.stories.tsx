@@ -165,7 +165,8 @@ export const CriticalEntry: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Shows related entries that led up to a critical event, providing context for troubleshooting.',
+        story:
+          'Shows related entries that led up to a critical event, providing context for troubleshooting.',
       },
     },
   },

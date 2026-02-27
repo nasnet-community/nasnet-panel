@@ -28,11 +28,7 @@ export interface AppErrorBoundaryProps {
 /**
  * Full-page error display for catastrophic failures
  */
-function AppErrorFallback({
-  error,
-  errorInfo,
-  resetErrorBoundary,
-}: ErrorBoundaryFallbackProps) {
+function AppErrorFallback({ error, errorInfo, resetErrorBoundary }: ErrorBoundaryFallbackProps) {
   const [showDetails, setShowDetails] = React.useState(false);
 
   const handleReload = () => {
@@ -61,41 +57,45 @@ function AppErrorFallback({
 
   return (
     <div
-      className="min-h-screen flex items-center justify-center bg-background p-4"
+      className="bg-background flex min-h-screen items-center justify-center p-4"
       role="alert"
       aria-live="assertive"
     >
-      <div className="max-w-lg w-full bg-card text-card-foreground rounded-xl shadow-lg border border-border p-8">
+      <div className="bg-card text-card-foreground border-border w-full max-w-lg rounded-xl border p-8 shadow-lg">
         {/* Error Icon */}
-        <div className="flex justify-center mb-6">
-          <div className="w-16 h-16 bg-error/10 rounded-full flex items-center justify-center">
-            <AlertTriangle className="w-8 h-8 text-error" aria-hidden="true" />
+        <div className="mb-6 flex justify-center">
+          <div className="bg-error/10 flex h-16 w-16 items-center justify-center rounded-full">
+            <AlertTriangle
+              className="text-error h-8 w-8"
+              aria-hidden="true"
+            />
           </div>
         </div>
 
         {/* Error Title */}
-        <h1 className="text-2xl font-bold text-center text-foreground mb-2">
-          Application Error
-        </h1>
+        <h1 className="text-foreground mb-2 text-center text-2xl font-bold">Application Error</h1>
 
         {/* Error Message */}
-        <p className="text-center text-muted-foreground mb-6">
+        <p className="text-muted-foreground mb-6 text-center">
           {error.message || 'An unexpected error occurred'}
         </p>
 
         {/* Action Buttons */}
-        <div className="flex flex-col sm:flex-row gap-3 justify-center mb-6">
+        <div className="mb-6 flex flex-col justify-center gap-3 sm:flex-row">
           <button
             onClick={handleReload}
-            className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+            className="bg-primary text-primary-foreground hover:bg-primary/90 focus:ring-primary inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2"
           >
-            <RefreshCw className="w-4 h-4" aria-hidden="true" />
+            <RefreshCw
+              className="h-4 w-4"
+              aria-hidden="true"
+            />
             Reload Application
           </button>
 
           <button
             onClick={resetErrorBoundary}
-            className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2"
+            className="bg-secondary text-secondary-foreground hover:bg-secondary/80 focus:ring-secondary inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2"
           >
             Try Again
           </button>
@@ -105,35 +105,41 @@ function AppErrorFallback({
         <div className="flex justify-center gap-4 text-sm">
           <button
             onClick={handleGoHome}
-            className="inline-flex items-center gap-1.5 text-muted-foreground hover:text-foreground transition-colors"
+            className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1.5 transition-colors"
           >
-            <Home className="w-4 h-4" aria-hidden="true" />
+            <Home
+              className="h-4 w-4"
+              aria-hidden="true"
+            />
             Go to Dashboard
           </button>
 
           <button
             onClick={handleReport}
-            className="inline-flex items-center gap-1.5 text-muted-foreground hover:text-foreground transition-colors"
+            className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1.5 transition-colors"
           >
-            <Bug className="w-4 h-4" aria-hidden="true" />
+            <Bug
+              className="h-4 w-4"
+              aria-hidden="true"
+            />
             Report Issue
           </button>
         </div>
 
         {/* Expandable Technical Details (dev mode always shows, prod requires click) */}
         {(import.meta.env.DEV || showDetails) && (
-          <div className="mt-6 pt-6 border-t border-border">
+          <div className="border-border mt-6 border-t pt-6">
             <button
               onClick={() => setShowDetails(!showDetails)}
-              className="text-sm text-muted-foreground hover:text-foreground mb-3 flex items-center gap-1"
+              className="text-muted-foreground hover:text-foreground mb-3 flex items-center gap-1 text-sm"
             >
               {showDetails ? 'Hide' : 'Show'} technical details
             </button>
-            <pre className="p-4 bg-muted rounded-lg text-xs overflow-auto max-h-48 text-foreground">
+            <pre className="bg-muted text-foreground max-h-48 overflow-auto rounded-lg p-4 text-xs">
               <code>{error.stack}</code>
             </pre>
             {errorInfo?.componentStack && (
-              <pre className="mt-2 p-4 bg-muted rounded-lg text-xs overflow-auto max-h-32 text-foreground">
+              <pre className="bg-muted text-foreground mt-2 max-h-32 overflow-auto rounded-lg p-4 text-xs">
                 <code>Component Stack:{errorInfo.componentStack}</code>
               </pre>
             )}
@@ -141,10 +147,10 @@ function AppErrorFallback({
         )}
 
         {!import.meta.env.DEV && !showDetails && (
-          <div className="mt-6 pt-6 border-t border-border text-center">
+          <div className="border-border mt-6 border-t pt-6 text-center">
             <button
               onClick={() => setShowDetails(true)}
-              className="text-sm text-muted-foreground hover:text-foreground"
+              className="text-muted-foreground hover:text-foreground text-sm"
             >
               Show technical details
             </button>
@@ -174,10 +180,7 @@ function AppErrorFallback({
  * </AppErrorBoundary>
  * ```
  */
-export function AppErrorBoundary({
-  children,
-  onError,
-}: AppErrorBoundaryProps) {
+export function AppErrorBoundary({ children, onError }: AppErrorBoundaryProps) {
   const handleError = React.useCallback(
     (error: Error, errorInfo: React.ErrorInfo) => {
       // Log error with structured format
@@ -196,7 +199,10 @@ export function AppErrorBoundary({
   );
 
   return (
-    <ErrorBoundary fallback={AppErrorFallback} onError={handleError}>
+    <ErrorBoundary
+      fallback={AppErrorFallback}
+      onError={handleError}
+    >
       {children}
     </ErrorBoundary>
   );

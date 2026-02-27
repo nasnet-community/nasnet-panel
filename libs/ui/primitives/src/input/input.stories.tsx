@@ -53,7 +53,8 @@ const meta: Meta<typeof Input> = {
     inputSize: {
       control: 'select',
       options: ['sm', 'default', 'lg'],
-      description: 'Size variant: sm (compact 9px), default (44px mobile, 11px), lg (12px touch targets)',
+      description:
+        'Size variant: sm (compact 9px), default (44px mobile, 11px), lg (12px touch targets)',
     },
     placeholder: {
       control: 'text',
@@ -145,7 +146,11 @@ export const WithLabel: Story = {
   render: () => (
     <div className="grid w-full max-w-sm gap-1.5">
       <Label htmlFor="email">Email</Label>
-      <Input type="email" id="email" placeholder="Email" />
+      <Input
+        type="email"
+        id="email"
+        placeholder="Email"
+      />
     </div>
   ),
 };
@@ -179,7 +184,10 @@ export const ErrorState: Story = {
         defaultValue="not-an-email"
         aria-describedby="email-error"
       />
-      <p id="email-error" className="text-sm text-error">
+      <p
+        id="email-error"
+        className="text-error text-sm"
+      >
         Please enter a valid email address
       </p>
     </div>
@@ -239,7 +247,10 @@ export const Loading: Story = {
 export const WithButton: Story = {
   render: () => (
     <div className="flex w-full max-w-sm items-center space-x-2">
-      <Input type="email" placeholder="Email" />
+      <Input
+        type="email"
+        placeholder="Email"
+      />
       <Button type="submit">Subscribe</Button>
     </div>
   ),
@@ -254,7 +265,10 @@ export const File: Story = {
   render: () => (
     <div className="grid w-full max-w-sm items-center gap-1.5">
       <Label htmlFor="picture">Picture</Label>
-      <Input id="picture" type="file" />
+      <Input
+        id="picture"
+        type="file"
+      />
     </div>
   ),
 };
@@ -270,31 +284,59 @@ export const AllTypes: Story = {
     <div className="grid w-full max-w-sm gap-4">
       <div className="grid gap-1.5">
         <Label htmlFor="text">Text</Label>
-        <Input type="text" id="text" placeholder="Text input" />
+        <Input
+          type="text"
+          id="text"
+          placeholder="Text input"
+        />
       </div>
       <div className="grid gap-1.5">
         <Label htmlFor="email">Email</Label>
-        <Input type="email" id="email" placeholder="email@example.com" />
+        <Input
+          type="email"
+          id="email"
+          placeholder="email@example.com"
+        />
       </div>
       <div className="grid gap-1.5">
         <Label htmlFor="password">Password</Label>
-        <Input type="password" id="password" placeholder="Password" />
+        <Input
+          type="password"
+          id="password"
+          placeholder="Password"
+        />
       </div>
       <div className="grid gap-1.5">
         <Label htmlFor="number">Number</Label>
-        <Input type="number" id="number" placeholder="0" />
+        <Input
+          type="number"
+          id="number"
+          placeholder="0"
+        />
       </div>
       <div className="grid gap-1.5">
         <Label htmlFor="search">Search</Label>
-        <Input type="search" id="search" placeholder="Search..." />
+        <Input
+          type="search"
+          id="search"
+          placeholder="Search..."
+        />
       </div>
       <div className="grid gap-1.5">
         <Label htmlFor="tel">Telephone</Label>
-        <Input type="tel" id="tel" placeholder="+1 (555) 000-0000" />
+        <Input
+          type="tel"
+          id="tel"
+          placeholder="+1 (555) 000-0000"
+        />
       </div>
       <div className="grid gap-1.5">
         <Label htmlFor="url">URL</Label>
-        <Input type="url" id="url" placeholder="https://example.com" />
+        <Input
+          type="url"
+          id="url"
+          placeholder="https://example.com"
+        />
       </div>
     </div>
   ),

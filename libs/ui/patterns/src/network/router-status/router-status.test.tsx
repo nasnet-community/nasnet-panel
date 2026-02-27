@@ -31,7 +31,6 @@ import {
 import type { ConnectionStatus, RouterStatusData, UseRouterStatusReturn } from './types';
 import type { MockedResponse } from '@apollo/client/testing';
 
-
 // Note: vitest-axe matchers are extended in setup.ts
 
 // ===== Mock Data Helpers =====
@@ -64,13 +63,10 @@ const createMockState = (
     error: null,
     isOnline: status === 'CONNECTED',
     statusLabel:
-      status === 'CONNECTED'
-        ? 'Connected'
-        : status === 'CONNECTING'
-          ? 'Connecting...'
-          : status === 'DISCONNECTED'
-            ? 'Disconnected'
-            : 'Error',
+      status === 'CONNECTED' ? 'Connected'
+      : status === 'CONNECTING' ? 'Connecting...'
+      : status === 'DISCONNECTED' ? 'Disconnected'
+      : 'Error',
     lastSeenRelative: status !== 'CONNECTED' ? '30 seconds ago' : null,
     refresh: vi.fn().mockResolvedValue(undefined),
     reconnect: vi.fn().mockResolvedValue(undefined),
@@ -114,12 +110,14 @@ const createSubscriptionMock = (
 // Apollo Provider wrapper
 const createApolloWrapper =
   (mocks: MockedResponse[]) =>
-  ({ children }: { children: ReactNode }) =>
-    (
-      <MockedProvider mocks={mocks} addTypename={false}>
-        {children}
-      </MockedProvider>
-    );
+  ({ children }: { children: ReactNode }) => (
+    <MockedProvider
+      mocks={mocks}
+      addTypename={false}
+    >
+      {children}
+    </MockedProvider>
+  );
 
 // ===== StatusIndicator Tests =====
 
@@ -149,31 +147,61 @@ describe('StatusIndicator', () => {
   });
 
   it('applies pulse animation for CONNECTING status', () => {
-    render(<StatusIndicator status="CONNECTING" animated />);
+    render(
+      <StatusIndicator
+        status="CONNECTING"
+        animated
+      />
+    );
     const indicator = screen.getByRole('img');
     expect(indicator).toHaveClass('animate-pulse');
   });
 
   it('does not apply animation when animated=false', () => {
-    render(<StatusIndicator status="CONNECTING" animated={false} />);
+    render(
+      <StatusIndicator
+        status="CONNECTING"
+        animated={false}
+      />
+    );
     const indicator = screen.getByRole('img');
     expect(indicator).not.toHaveClass('animate-pulse');
   });
 
   it('does not apply animation for non-CONNECTING status', () => {
-    render(<StatusIndicator status="CONNECTED" animated />);
+    render(
+      <StatusIndicator
+        status="CONNECTED"
+        animated
+      />
+    );
     const indicator = screen.getByRole('img');
     expect(indicator).not.toHaveClass('animate-pulse');
   });
 
   it('renders correct size classes', () => {
-    const { rerender } = render(<StatusIndicator status="CONNECTED" size="sm" />);
+    const { rerender } = render(
+      <StatusIndicator
+        status="CONNECTED"
+        size="sm"
+      />
+    );
     expect(screen.getByRole('img')).toHaveClass('h-3', 'w-3');
 
-    rerender(<StatusIndicator status="CONNECTED" size="md" />);
+    rerender(
+      <StatusIndicator
+        status="CONNECTED"
+        size="md"
+      />
+    );
     expect(screen.getByRole('img')).toHaveClass('h-4', 'w-4');
 
-    rerender(<StatusIndicator status="CONNECTED" size="lg" />);
+    rerender(
+      <StatusIndicator
+        status="CONNECTED"
+        size="lg"
+      />
+    );
     expect(screen.getByRole('img')).toHaveClass('h-6', 'w-6');
   });
 
@@ -183,7 +211,12 @@ describe('StatusIndicator', () => {
   });
 
   it('accepts custom aria-label', () => {
-    render(<StatusIndicator status="CONNECTED" aria-label="Custom label" />);
+    render(
+      <StatusIndicator
+        status="CONNECTED"
+        aria-label="Custom label"
+      />
+    );
     expect(screen.getByRole('img')).toHaveAttribute('aria-label', 'Custom label');
   });
 
@@ -213,7 +246,9 @@ describe('RouterStatusDesktop', () => {
     const { container } = render(<RouterStatusDesktop state={state} />);
 
     // Should have skeleton elements
-    const skeletons = container.querySelectorAll('[class*="animate-pulse"], [data-slot="skeleton"]');
+    const skeletons = container.querySelectorAll(
+      '[class*="animate-pulse"], [data-slot="skeleton"]'
+    );
     expect(skeletons.length).toBeGreaterThan(0);
   });
 
@@ -457,9 +492,7 @@ describe('useRouterStatusSubscription', () => {
 
 describe('Status Transitions', () => {
   it('transitions from CONNECTED to DISCONNECTED', () => {
-    const { rerender } = render(
-      <RouterStatusDesktop state={createMockState('CONNECTED')} />
-    );
+    const { rerender } = render(<RouterStatusDesktop state={createMockState('CONNECTED')} />);
 
     expect(screen.getByText('Connected')).toBeInTheDocument();
 
@@ -475,9 +508,7 @@ describe('Status Transitions', () => {
   });
 
   it('transitions from DISCONNECTED to CONNECTING', () => {
-    const { rerender } = render(
-      <RouterStatusDesktop state={createMockState('DISCONNECTED')} />
-    );
+    const { rerender } = render(<RouterStatusDesktop state={createMockState('DISCONNECTED')} />);
 
     expect(screen.getByText('Disconnected')).toBeInTheDocument();
 

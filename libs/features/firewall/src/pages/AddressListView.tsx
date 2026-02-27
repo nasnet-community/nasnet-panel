@@ -77,17 +77,28 @@ const EmptyState = memo(function EmptyState({ onAddEntry, onImport }: EmptyState
     <Card className="border-dashed">
       <CardHeader className="text-center">
         <CardTitle>{t('addressLists.emptyStates.noLists.title')}</CardTitle>
-        <CardDescription>
-          {t('addressLists.emptyStates.noLists.description')}
-        </CardDescription>
+        <CardDescription>{t('addressLists.emptyStates.noLists.description')}</CardDescription>
       </CardHeader>
-      <CardContent className="flex justify-center gap-component-sm">
-        <Button onClick={onAddEntry} aria-label={t('addressLists.emptyStates.noLists.actions.create')}>
-          <Plus className="h-4 w-4 mr-component-sm" aria-hidden="true" />
+      <CardContent className="gap-component-sm flex justify-center">
+        <Button
+          onClick={onAddEntry}
+          aria-label={t('addressLists.emptyStates.noLists.actions.create')}
+        >
+          <Plus
+            className="mr-component-sm h-4 w-4"
+            aria-hidden="true"
+          />
           {t('addressLists.emptyStates.noLists.actions.create')}
         </Button>
-        <Button variant="outline" onClick={onImport} aria-label={t('addressLists.emptyStates.noLists.actions.import')}>
-          <Upload className="h-4 w-4 mr-component-sm" aria-hidden="true" />
+        <Button
+          variant="outline"
+          onClick={onImport}
+          aria-label={t('addressLists.emptyStates.noLists.actions.import')}
+        >
+          <Upload
+            className="mr-component-sm h-4 w-4"
+            aria-hidden="true"
+          />
           {t('addressLists.emptyStates.noLists.actions.import')}
         </Button>
       </CardContent>
@@ -106,10 +117,10 @@ const EmptyState = memo(function EmptyState({ onAddEntry, onImport }: EmptyState
 const LoadingSkeleton = memo(function LoadingSkeleton() {
   return (
     <div className="space-y-component-md">
-      <div className="animate-pulse space-y-component-md">
-        <div className="h-16 bg-muted rounded" />
-        <div className="h-16 bg-muted rounded" />
-        <div className="h-16 bg-muted rounded" />
+      <div className="space-y-component-md animate-pulse">
+        <div className="bg-muted h-16 rounded" />
+        <div className="bg-muted h-16 rounded" />
+        <div className="bg-muted h-16 rounded" />
       </div>
     </div>
   );
@@ -162,29 +173,38 @@ export const AddressListView = memo(function AddressListView() {
     setShowExport(true);
   }, []);
 
-  const handleCreateEntry = useCallback(async (data: AddressListEntryFormData) => {
-    await createEntry.mutateAsync({
-      list: data.list,
-      address: data.address,
-      comment: data.comment,
-      timeout: data.timeout,
-    });
-    setShowAddEntry(false);
-  }, [createEntry]);
+  const handleCreateEntry = useCallback(
+    async (data: AddressListEntryFormData) => {
+      await createEntry.mutateAsync({
+        list: data.list,
+        address: data.address,
+        comment: data.comment,
+        timeout: data.timeout,
+      });
+      setShowAddEntry(false);
+    },
+    [createEntry]
+  );
 
-  const handleDeleteEntry = useCallback(async (entryId: string, listName: string) => {
-    await deleteEntry.mutateAsync({ id: entryId, listName });
-  }, [deleteEntry]);
+  const handleDeleteEntry = useCallback(
+    async (entryId: string, listName: string) => {
+      await deleteEntry.mutateAsync({ id: entryId, listName });
+    },
+    [deleteEntry]
+  );
 
-  const handleBulkImport = useCallback(async (listName: string, entries: BulkAddressInput[]) => {
-    const result = await bulkCreate.mutateAsync({
-      listName,
-      entries,
-    });
+  const handleBulkImport = useCallback(
+    async (listName: string, entries: BulkAddressInput[]) => {
+      const result = await bulkCreate.mutateAsync({
+        listName,
+        entries,
+      });
 
-    setShowImport(false);
-    return result;
-  }, [bulkCreate]);
+      setShowImport(false);
+      return result;
+    },
+    [bulkCreate]
+  );
 
   // Extract unique list names for the form
   const existingLists = lists?.map((list) => list.name) || [];
@@ -194,25 +214,36 @@ export const AddressListView = memo(function AddressListView() {
   // ========================================
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="flex h-full flex-col">
       {/* Page Header */}
-      <div className="border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="flex items-center justify-between p-component-md gap-component-md">
+      <div className="border-border bg-background/95 supports-[backdrop-filter]:bg-background/60 border-b backdrop-blur">
+        <div className="p-component-md gap-component-md flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight font-display">
+            <h1 className="font-display text-2xl font-bold tracking-tight">
               {t('addressLists.title')}
             </h1>
-            <p className="text-sm text-muted-foreground">
-              {t('addressLists.subtitle')}
-            </p>
+            <p className="text-muted-foreground text-sm">{t('addressLists.subtitle')}</p>
           </div>
-          <div className="flex gap-component-sm">
-            <Button variant="outline" onClick={handleImport} aria-label={t('addressLists.buttons.import')}>
-              <Upload className="h-4 w-4 mr-component-sm" aria-hidden="true" />
+          <div className="gap-component-sm flex">
+            <Button
+              variant="outline"
+              onClick={handleImport}
+              aria-label={t('addressLists.buttons.import')}
+            >
+              <Upload
+                className="mr-component-sm h-4 w-4"
+                aria-hidden="true"
+              />
               {t('addressLists.buttons.import')}
             </Button>
-            <Button onClick={handleAddEntry} aria-label={t('addressLists.buttons.addEntry')}>
-              <Plus className="h-4 w-4 mr-component-sm" aria-hidden="true" />
+            <Button
+              onClick={handleAddEntry}
+              aria-label={t('addressLists.buttons.addEntry')}
+            >
+              <Plus
+                className="mr-component-sm h-4 w-4"
+                aria-hidden="true"
+              />
               {t('addressLists.buttons.addEntry')}
             </Button>
           </div>
@@ -220,11 +251,21 @@ export const AddressListView = memo(function AddressListView() {
       </div>
 
       {/* Content Area */}
-      <div className="flex-1 overflow-y-auto p-component-md" role="main" aria-label="Address lists content">
+      <div
+        className="p-component-md flex-1 overflow-y-auto"
+        role="main"
+        aria-label="Address lists content"
+      >
         {/* Error State */}
         {error && (
-          <Alert variant="destructive" className="mb-component-md">
-            <AlertCircle className="h-4 w-4" aria-hidden="true" />
+          <Alert
+            variant="destructive"
+            className="mb-component-md"
+          >
+            <AlertCircle
+              className="h-4 w-4"
+              aria-hidden="true"
+            />
             <AlertDescription>
               {t('addressLists.notifications.error.load')}: {error.message}
             </AlertDescription>
@@ -236,7 +277,10 @@ export const AddressListView = memo(function AddressListView() {
 
         {/* Empty State */}
         {!isLoading && !error && (!lists || lists.length === 0) && (
-          <EmptyState onAddEntry={handleAddEntry} onImport={handleImport} />
+          <EmptyState
+            onAddEntry={handleAddEntry}
+            onImport={handleImport}
+          />
         )}
 
         {/* Address List Manager */}
@@ -253,16 +297,19 @@ export const AddressListView = memo(function AddressListView() {
       </div>
 
       {/* Add Entry Sheet */}
-      <Sheet open={showAddEntry} onOpenChange={setShowAddEntry}>
+      <Sheet
+        open={showAddEntry}
+        onOpenChange={setShowAddEntry}
+      >
         <SheetContent
           side={isMobile ? 'bottom' : 'right'}
           className={isMobile ? 'h-[90vh]' : 'w-full sm:max-w-2xl'}
         >
           <SheetHeader>
-            <SheetTitle className="font-display">{t('addressLists.dialogs.addEntry.title')}</SheetTitle>
-            <SheetDescription>
-              {t('addressLists.dialogs.addEntry.description')}
-            </SheetDescription>
+            <SheetTitle className="font-display">
+              {t('addressLists.dialogs.addEntry.title')}
+            </SheetTitle>
+            <SheetDescription>{t('addressLists.dialogs.addEntry.description')}</SheetDescription>
           </SheetHeader>
           <div className="mt-component-lg">
             <AddressListEntryForm
@@ -276,13 +323,16 @@ export const AddressListView = memo(function AddressListView() {
       </Sheet>
 
       {/* Import Dialog */}
-      <Dialog open={showImport} onOpenChange={setShowImport}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <Dialog
+        open={showImport}
+        onOpenChange={setShowImport}
+      >
+        <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="font-display">{t('addressLists.dialogs.import.title')}</DialogTitle>
-            <DialogDescription>
-              {t('addressLists.dialogs.import.description')}
-            </DialogDescription>
+            <DialogTitle className="font-display">
+              {t('addressLists.dialogs.import.title')}
+            </DialogTitle>
+            <DialogDescription>{t('addressLists.dialogs.import.description')}</DialogDescription>
           </DialogHeader>
           <div className="mt-component-md">
             <AddressListImportDialog
@@ -295,13 +345,16 @@ export const AddressListView = memo(function AddressListView() {
       </Dialog>
 
       {/* Export Dialog */}
-      <Dialog open={showExport} onOpenChange={setShowExport}>
+      <Dialog
+        open={showExport}
+        onOpenChange={setShowExport}
+      >
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle className="font-display">{t('addressLists.dialogs.export.title')}</DialogTitle>
-            <DialogDescription>
-              {t('addressLists.dialogs.export.description')}
-            </DialogDescription>
+            <DialogTitle className="font-display">
+              {t('addressLists.dialogs.export.title')}
+            </DialogTitle>
+            <DialogDescription>{t('addressLists.dialogs.export.description')}</DialogDescription>
           </DialogHeader>
           <div className="mt-component-md">
             <AddressListExportDialog

@@ -41,7 +41,11 @@ export declare function shouldExcludeField(path: string, excludeFields?: string[
  * @param prefix - Current path prefix for nested objects
  * @returns Filtered object
  */
-export declare function omitExcludedFields(obj: unknown, excludeFields?: string[], prefix?: string): unknown;
+export declare function omitExcludedFields(
+  obj: unknown,
+  excludeFields?: string[],
+  prefix?: string
+): unknown;
 /**
  * Find fields that differ between two objects
  *
@@ -51,7 +55,12 @@ export declare function omitExcludedFields(obj: unknown, excludeFields?: string[
  * @param prefix - Current path prefix
  * @returns Array of drifted fields
  */
-export declare function findDriftedFields(config: unknown, deploy: unknown, options?: DriftDetectionOptions, prefix?: string): DriftedField[];
+export declare function findDriftedFields(
+  config: unknown,
+  deploy: unknown,
+  options?: DriftDetectionOptions,
+  prefix?: string
+): DriftedField[];
 /**
  * Quick hash-based comparison to determine if drift exists
  * Use this for performance-critical checks before doing full field-level diff
@@ -61,7 +70,11 @@ export declare function findDriftedFields(config: unknown, deploy: unknown, opti
  * @param excludeFields - Fields to exclude
  * @returns True if configurations differ
  */
-export declare function hasQuickDrift(config: unknown, deploy: unknown, excludeFields?: string[]): boolean;
+export declare function hasQuickDrift(
+  config: unknown,
+  deploy: unknown,
+  excludeFields?: string[]
+): boolean;
 /**
  * Check if deployment layer is stale (older than threshold)
  *
@@ -69,7 +82,10 @@ export declare function hasQuickDrift(config: unknown, deploy: unknown, excludeF
  * @param thresholdMs - Staleness threshold in milliseconds
  * @returns True if deployment is stale
  */
-export declare function isDeploymentStale(appliedAt: string | Date | undefined | null, thresholdMs?: number): boolean;
+export declare function isDeploymentStale(
+  appliedAt: string | Date | undefined | null,
+  thresholdMs?: number
+): boolean;
 /**
  * Format a drift field value for display
  *

@@ -102,7 +102,8 @@ export const SingleServer: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'A single DNS server result — no "Fastest" badge is shown because there is nothing to compare.',
+        story:
+          'A single DNS server result — no "Fastest" badge is shown because there is nothing to compare.',
       },
     },
   },
@@ -111,10 +112,7 @@ export const SingleServer: Story = {
 export const TwoServersComparison: Story = {
   name: 'Two Servers — Fastest Badge',
   args: {
-    results: [
-      successResult('8.8.8.8', 24),
-      successResult('1.1.1.1', 11),
-    ],
+    results: [successResult('8.8.8.8', 24), successResult('1.1.1.1', 11)],
   },
   parameters: {
     docs: {

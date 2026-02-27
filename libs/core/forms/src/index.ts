@@ -19,10 +19,7 @@ export { useValidationPipeline } from './useValidationPipeline';
 export { useAsyncValidation } from './useAsyncValidation';
 
 export { useFormPersistence } from './useFormPersistence';
-export type {
-  UseFormPersistenceOptions,
-  UseFormPersistenceResult,
-} from './useFormPersistence';
+export type { UseFormPersistenceOptions, UseFormPersistenceResult } from './useFormPersistence';
 
 export { useFormResourceSync } from './useFormResourceSync';
 export type {
@@ -195,13 +192,7 @@ export type {
 } from './types';
 
 // Re-export commonly used React Hook Form utilities
-export {
-  useFormContext,
-  useWatch,
-  useFieldArray,
-  Controller,
-  FormProvider,
-} from 'react-hook-form';
+export { useFormContext, useWatch, useFieldArray, Controller, FormProvider } from 'react-hook-form';
 export type {
   UseFormReturn,
   FieldPath,

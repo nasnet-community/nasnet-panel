@@ -4,7 +4,11 @@
  */
 
 import { useQuery, useMutation, useSubscription } from '@apollo/client';
-import type { QueryHookOptions, MutationHookOptions, SubscriptionHookOptions } from '@apollo/client';
+import type {
+  QueryHookOptions,
+  MutationHookOptions,
+  SubscriptionHookOptions,
+} from '@apollo/client';
 import {
   GET_TROUBLESHOOT_SESSION,
   DETECT_WAN_INTERFACE,
@@ -59,10 +63,7 @@ export function useDetectWanInterface(
 /**
  * Detect default gateway from DHCP client or static route
  */
-export function useDetectGateway(
-  routerId: string,
-  options?: Omit<QueryHookOptions, 'variables'>
-) {
+export function useDetectGateway(routerId: string, options?: Omit<QueryHookOptions, 'variables'>) {
   return useQuery(DETECT_GATEWAY, {
     variables: { routerId },
     ...options,
@@ -72,10 +73,7 @@ export function useDetectGateway(
 /**
  * Detect ISP information from WAN IP
  */
-export function useDetectISP(
-  routerId: string,
-  options?: Omit<QueryHookOptions, 'variables'>
-) {
+export function useDetectISP(routerId: string, options?: Omit<QueryHookOptions, 'variables'>) {
   return useQuery(DETECT_ISP, {
     variables: { routerId },
     ...options,
@@ -89,45 +87,35 @@ export function useDetectISP(
 /**
  * Start a new troubleshooting session
  */
-export function useStartTroubleshoot(
-  options?: MutationHookOptions
-) {
+export function useStartTroubleshoot(options?: MutationHookOptions) {
   return useMutation(START_TROUBLESHOOT, options);
 }
 
 /**
  * Run a specific diagnostic step
  */
-export function useRunTroubleshootStep(
-  options?: MutationHookOptions
-) {
+export function useRunTroubleshootStep(options?: MutationHookOptions) {
   return useMutation(RUN_TROUBLESHOOT_STEP, options);
 }
 
 /**
  * Apply a suggested fix
  */
-export function useApplyTroubleshootFix(
-  options?: MutationHookOptions
-) {
+export function useApplyTroubleshootFix(options?: MutationHookOptions) {
   return useMutation(APPLY_TROUBLESHOOT_FIX, options);
 }
 
 /**
  * Verify a fix by re-running the diagnostic step
  */
-export function useVerifyTroubleshootFix(
-  options?: MutationHookOptions
-) {
+export function useVerifyTroubleshootFix(options?: MutationHookOptions) {
   return useMutation(VERIFY_TROUBLESHOOT_FIX, options);
 }
 
 /**
  * Cancel a troubleshooting session
  */
-export function useCancelTroubleshoot(
-  options?: MutationHookOptions
-) {
+export function useCancelTroubleshoot(options?: MutationHookOptions) {
   return useMutation(CANCEL_TROUBLESHOOT, options);
 }
 

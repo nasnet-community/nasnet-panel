@@ -49,9 +49,10 @@ import type {
  * );
  * ```
  */
-export function useRateLimitStatsOverview(
-  props: RateLimitStatsOverviewProps
-): { state: StatsOverviewState; actions: StatsOverviewActions } {
+export function useRateLimitStatsOverview(props: RateLimitStatsOverviewProps): {
+  state: StatsOverviewState;
+  actions: StatsOverviewActions;
+} {
   const { routerId } = props;
 
   // Polling interval state

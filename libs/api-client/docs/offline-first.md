@@ -5,7 +5,14 @@ title: Offline-First Architecture
 
 # Offline-First Architecture
 
-NasNetConnect operates in environments where network connectivity to the MikroTik router is inherently unstable — server rooms, mobile devices, and embedded containers. The offline-first system ensures the UI remains functional and consistent across degraded and fully disconnected states. It is composed of three cooperating modules: **cache persistence** (Apollo InMemoryCache → IndexedDB via localforage), **offline detection** (four signal sources converging to a Zustand network store), and an **offline mutation queue** (FIFO, deduplicated, auto-replaying queue backed by IndexedDB). Together they allow the app to serve cached data immediately on load, detect connectivity changes within seconds, and defer mutations until the connection is restored.
+NasNetConnect operates in environments where network connectivity to the MikroTik router is
+inherently unstable — server rooms, mobile devices, and embedded containers. The offline-first
+system ensures the UI remains functional and consistent across degraded and fully disconnected
+states. It is composed of three cooperating modules: **cache persistence** (Apollo InMemoryCache →
+IndexedDB via localforage), **offline detection** (four signal sources converging to a Zustand
+network store), and an **offline mutation queue** (FIFO, deduplicated, auto-replaying queue backed
+by IndexedDB). Together they allow the app to serve cached data immediately on load, detect
+connectivity changes within seconds, and defer mutations until the connection is restored.
 
 ---
 
@@ -63,7 +70,10 @@ User makes mutation while offline:
 
 ### Purpose
 
-Apollo's `InMemoryCache` is volatile — it is cleared on every page reload. Cache persistence writes the serialized cache to IndexedDB on every mutation, making it available to the next page load. On cold start, the app hydrates the cache from IndexedDB before the first React render, so queries return cached data immediately without a loading spinner.
+Apollo's `InMemoryCache` is volatile — it is cleared on every page reload. Cache persistence writes
+the serialized cache to IndexedDB on every mutation, making it available to the next page load. On
+cold start, the app hydrates the cache from IndexedDB before the first React render, so queries
+return cached data immediately without a loading spinner.
 
 ### Storage Backend
 
@@ -80,20 +90,26 @@ function configureStorage(): typeof localforage {
 }
 ```
 
-`localforage` is used as the IndexedDB abstraction layer. The driver priority list `[INDEXEDDB, LOCALSTORAGE]` means IndexedDB is used when available, with `localStorage` as the fallback for environments that restrict IndexedDB (some private browsing modes). All storage keys are prefixed with the configured `key` option (default: `nasnet-apollo-cache`) to avoid collisions with other IndexedDB databases.
+`localforage` is used as the IndexedDB abstraction layer. The driver priority list
+`[INDEXEDDB, LOCALSTORAGE]` means IndexedDB is used when available, with `localStorage` as the
+fallback for environments that restrict IndexedDB (some private browsing modes). All storage keys
+are prefixed with the configured `key` option (default: `nasnet-apollo-cache`) to avoid collisions
+with other IndexedDB databases.
 
 ### `CachePersistConfig`
 
 ```ts
 export interface CachePersistConfig {
-  maxSize?: number;   // Default: 5MB (5 * 1024 * 1024 bytes)
-  debounce?: number;  // Default: 1000ms — write debounce to reduce I/O
-  key?: string;       // Default: 'nasnet-apollo-cache' — storage key prefix
-  debug?: boolean;    // Default: import.meta.env.DEV
+  maxSize?: number; // Default: 5MB (5 * 1024 * 1024 bytes)
+  debounce?: number; // Default: 1000ms — write debounce to reduce I/O
+  key?: string; // Default: 'nasnet-apollo-cache' — storage key prefix
+  debug?: boolean; // Default: import.meta.env.DEV
 }
 ```
 
-The 1-second debounce is critical for performance: without it, every real-time subscription update (e.g. bandwidth telemetry at 5-second intervals) would trigger an IndexedDB write. With the debounce, bursts of updates coalesce into a single write.
+The 1-second debounce is critical for performance: without it, every real-time subscription update
+(e.g. bandwidth telemetry at 5-second intervals) would trigger an IndexedDB write. With the
+debounce, bursts of updates coalesce into a single write.
 
 ### `initializeCachePersistence(cache, config?)`
 
@@ -101,10 +117,12 @@ The 1-second debounce is critical for performance: without it, every real-time s
 export async function initializeCachePersistence(
   cache: InMemoryCache,
   config?: CachePersistConfig
-): Promise<void>
+): Promise<void>;
 ```
 
-Restores the persisted cache into the provided `InMemoryCache` instance using `apollo3-cache-persist`. Must be awaited before `ReactDOM.render()` to guarantee data is available on the first render cycle.
+Restores the persisted cache into the provided `InMemoryCache` instance using
+`apollo3-cache-persist`. Must be awaited before `ReactDOM.render()` to guarantee data is available
+on the first render cycle.
 
 ```tsx
 // Usage pattern (apps/connect/src/main.tsx or equivalent)
@@ -118,17 +136,21 @@ async function boot() {
 boot();
 ```
 
-If persistence fails (e.g., corrupted data), the function catches the error, calls `clearPersistedCache()` to remove the corrupt entry, and continues without throwing — the app starts with an empty cache rather than crashing.
+If persistence fails (e.g., corrupted data), the function catches the error, calls
+`clearPersistedCache()` to remove the corrupt entry, and continues without throwing — the app starts
+with an empty cache rather than crashing.
 
-SSR is detected via `typeof window === 'undefined'` and the function returns early, making it safe to import in universal rendering setups.
+SSR is detected via `typeof window === 'undefined'` and the function returns early, making it safe
+to import in universal rendering setups.
 
 ### `clearPersistedCache(key?)`
 
 ```ts
-export async function clearPersistedCache(key?: string): Promise<void>
+export async function clearPersistedCache(key?: string): Promise<void>;
 ```
 
-Enumerates all localforage keys matching the prefix pattern `<key>-*` and removes them. Should be called on logout alongside `apolloClient.clearStore()`:
+Enumerates all localforage keys matching the prefix pattern `<key>-*` and removes them. Should be
+called on logout alongside `apolloClient.clearStore()`:
 
 ```ts
 await clearPersistedCache();
@@ -138,10 +160,11 @@ apolloClient.clearStore();
 ### `getPersistedCacheSize(key?)`
 
 ```ts
-export async function getPersistedCacheSize(key?: string): Promise<number>
+export async function getPersistedCacheSize(key?: string): Promise<number>;
 ```
 
-Returns the total size in bytes of all cache entries. Useful for diagnostics; note that UTF-16 encoding means each stored character counts as 2 bytes.
+Returns the total size in bytes of all cache entries. Useful for diagnostics; note that UTF-16
+encoding means each stored character counts as 2 bytes.
 
 ---
 
@@ -151,38 +174,38 @@ Returns the total size in bytes of all cache entries. Useful for diagnostics; no
 
 ### Four Signal Sources
 
-The offline detector aggregates signals from four independent sources. This redundancy is necessary because no single source is reliable across all failure modes:
+The offline detector aggregates signals from four independent sources. This redundancy is necessary
+because no single source is reliable across all failure modes:
 
-| Signal | Source | Limitations |
-|---|---|---|
-| `navigator.online/offline` | Browser events | Unreliable — can be `online` while the actual router is unreachable |
-| `network:error` | Custom DOM event from `apollo-error-link.ts` | Only fires when a GraphQL request fails |
-| `ws:connected/closed/error` | Custom DOM events from `apollo-ws-client.ts` | Only reflects WebSocket state, not HTTP |
-| `/api/health` polling | `fetch()` every 30 seconds | Active check; catches all cases but has latency |
+| Signal                      | Source                                       | Limitations                                                         |
+| --------------------------- | -------------------------------------------- | ------------------------------------------------------------------- |
+| `navigator.online/offline`  | Browser events                               | Unreliable — can be `online` while the actual router is unreachable |
+| `network:error`             | Custom DOM event from `apollo-error-link.ts` | Only fires when a GraphQL request fails                             |
+| `ws:connected/closed/error` | Custom DOM events from `apollo-ws-client.ts` | Only reflects WebSocket state, not HTTP                             |
+| `/api/health` polling       | `fetch()` every 30 seconds                   | Active check; catches all cases but has latency                     |
 
 Together they distinguish three connectivity states reflected in `useNetworkStore`:
 
-| State | `isOnline` | `isRouterReachable` | `isRouterConnected` |
-|---|---|---|---|
-| Fully connected | true | true | true |
-| Degraded (browser online, server unreachable) | true | false | false/true |
-| Offline | false | false | false |
+| State                                         | `isOnline` | `isRouterReachable` | `isRouterConnected` |
+| --------------------------------------------- | ---------- | ------------------- | ------------------- |
+| Fully connected                               | true       | true                | true                |
+| Degraded (browser online, server unreachable) | true       | false               | false/true          |
+| Offline                                       | false      | false               | false               |
 
 ### `setupOfflineDetector(config?)`
 
 ```ts
-export function setupOfflineDetector(
-  config?: OfflineDetectorConfig
-): CleanupFunction
+export function setupOfflineDetector(config?: OfflineDetectorConfig): CleanupFunction;
 ```
 
-Registers all four signal listeners and starts the health check interval. Returns a cleanup function that removes all listeners and clears the interval.
+Registers all four signal listeners and starts the health check interval. Returns a cleanup function
+that removes all listeners and clears the interval.
 
 ```ts
 export interface OfflineDetectorConfig {
-  healthEndpoint?: string;         // Default: '/api/health'
-  healthCheckInterval?: number;    // Default: 30000ms (30 seconds)
-  healthCheckTimeout?: number;     // Default: 5000ms (5 seconds)
+  healthEndpoint?: string; // Default: '/api/health'
+  healthCheckInterval?: number; // Default: 30000ms (30 seconds)
+  healthCheckTimeout?: number; // Default: 5000ms (5 seconds)
 }
 ```
 
@@ -199,45 +222,48 @@ const response = await fetch(healthEndpoint, {
 });
 ```
 
-`redirect: 'error'` prevents a router redirect to a captive portal from being counted as a successful health check.
+`redirect: 'error'` prevents a router redirect to a captive portal from being counted as a
+successful health check.
 
 ### Signal-to-Store Mapping
 
 ```ts
 // Browser events → isOnline
-window.addEventListener('online',  () => store.setOnline(true) + performHealthCheck())
-window.addEventListener('offline', () => store.setOnline(false) + store.setRouterReachable(false))
+window.addEventListener('online', () => store.setOnline(true) + performHealthCheck());
+window.addEventListener('offline', () => store.setOnline(false) + store.setRouterReachable(false));
 
 // Apollo error link event → isRouterReachable
 window.addEventListener('network:error', () => {
   store.setRouterReachable(false);
   store.incrementReconnectAttempts();
-})
+});
 
 // WebSocket events → isRouterConnected
 window.addEventListener('ws:connected', () => {
   store.setRouterConnected(true);
   store.setRouterReachable(true);
   store.resetReconnectAttempts();
-})
-window.addEventListener('ws:closed', () => store.setRouterConnected(false) + incrementAttempts)
-window.addEventListener('ws:error',  () => store.setRouterConnected(false) + incrementAttempts)
+});
+window.addEventListener('ws:closed', () => store.setRouterConnected(false) + incrementAttempts);
+window.addEventListener('ws:error', () => store.setRouterConnected(false) + incrementAttempts);
 ```
 
-When the browser comes back online, an immediate health check fires (before the next scheduled interval) to confirm actual backend reachability.
+When the browser comes back online, an immediate health check fires (before the next scheduled
+interval) to confirm actual backend reachability.
 
 ### `useOfflineDetector(config?)`
 
 ```ts
-export function useOfflineDetector(config?: OfflineDetectorConfig): void
+export function useOfflineDetector(config?: OfflineDetectorConfig): void;
 ```
 
-React hook that wraps `setupOfflineDetector` in a `useEffect` with proper cleanup on unmount. The `config` dependency is serialized via `JSON.stringify` to produce a stable reference.
+React hook that wraps `setupOfflineDetector` in a `useEffect` with proper cleanup on unmount. The
+`config` dependency is serialized via `JSON.stringify` to produce a stable reference.
 
 ```tsx
 // Mount once at the app root
 function App() {
-  useOfflineDetector();  // starts all listeners + health polling
+  useOfflineDetector(); // starts all listeners + health polling
   return <Router />;
 }
 ```
@@ -245,14 +271,15 @@ function App() {
 ### `isOffline()` and `isDegraded()`
 
 ```ts
-export function isOffline(): boolean
+export function isOffline(): boolean;
 // true if: !state.isOnline || !state.isRouterReachable
 
-export function isDegraded(): boolean
+export function isDegraded(): boolean;
 // true if: state.isOnline && (!state.isRouterReachable || !state.isRouterConnected)
 ```
 
-These functions read directly from `useNetworkStore.getState()` and can be used outside React components (e.g., in the offline queue's `setupAutoReplay`).
+These functions read directly from `useNetworkStore.getState()` and can be used outside React
+components (e.g., in the offline queue's `setupAutoReplay`).
 
 ---
 
@@ -262,19 +289,22 @@ These functions read directly from `useNetworkStore.getState()` and can be used 
 
 ### Purpose
 
-When a user performs a mutation while offline (or while the router is temporarily unreachable), discarding it would be hostile UX. The queue captures the mutation with its variables and persists it to IndexedDB. When connectivity is restored, the queue replays all pending mutations in the order they were submitted.
+When a user performs a mutation while offline (or while the router is temporarily unreachable),
+discarding it would be hostile UX. The queue captures the mutation with its variables and persists
+it to IndexedDB. When connectivity is restored, the queue replays all pending mutations in the order
+they were submitted.
 
 ### `QueuedMutation`
 
 ```ts
 export interface QueuedMutation {
-  id: string;                        // generateId() — timestamp + random
+  id: string; // generateId() — timestamp + random
   mutation: DocumentNode;
   variables: Record<string, unknown>;
-  timestamp: Date;                   // Enqueue time — used for FIFO sort
+  timestamp: Date; // Enqueue time — used for FIFO sort
   retryCount: number;
   operationName: string;
-  optimisticResponse?: unknown;      // Passed to apolloClient.mutate()
+  optimisticResponse?: unknown; // Passed to apolloClient.mutate()
 }
 ```
 
@@ -282,10 +312,10 @@ export interface QueuedMutation {
 
 ```ts
 export interface OfflineQueueConfig {
-  maxQueueSize?: number;  // Default: 50 — throws when full
-  maxRetries?: number;    // Default: 3 — discard after 3 failures
-  retryDelay?: number;    // Default: 1000ms — wait between retries
-  storageKey?: string;    // Default: 'nasnet-offline-queue'
+  maxQueueSize?: number; // Default: 50 — throws when full
+  maxRetries?: number; // Default: 3 — discard after 3 failures
+  retryDelay?: number; // Default: 1000ms — wait between retries
+  storageKey?: string; // Default: 'nasnet-offline-queue'
 }
 ```
 
@@ -301,7 +331,9 @@ async enqueue(
 ): Promise<string>  // returns the assigned id
 ```
 
-Checks for a duplicate entry (same `operationName` + same `JSON.stringify(variables)`) and removes it before adding the new entry. This implements **last-write-wins** conflict resolution: if the user edits the same resource twice while offline, only the latest intent is queued.
+Checks for a duplicate entry (same `operationName` + same `JSON.stringify(variables)`) and removes
+it before adding the new entry. This implements **last-write-wins** conflict resolution: if the user
+edits the same resource twice while offline, only the latest intent is queued.
 
 Throws if the queue is at `maxQueueSize`. Persists to IndexedDB after every enqueue.
 
@@ -322,9 +354,11 @@ async replayAll(
 
 Replays mutations in chronological order (sorted by `timestamp`, oldest first):
 
-1. Calls `apolloClient.mutate()` with the stored `mutation`, `variables`, and optional `optimisticResponse`.
+1. Calls `apolloClient.mutate()` with the stored `mutation`, `variables`, and optional
+   `optimisticResponse`.
 2. On success: removes the entry from queue and IndexedDB.
-3. On failure: increments `retryCount`. If `retryCount >= maxRetries`, discards the entry. Otherwise keeps it for the next replay attempt.
+3. On failure: increments `retryCount`. If `retryCount >= maxRetries`, discards the entry. Otherwise
+   keeps it for the next replay attempt.
 4. Waits `retryDelay` ms between attempts.
 5. Guards against concurrent replays with `isReplaying` flag.
 
@@ -345,43 +379,48 @@ getQueue(): ReadonlyArray<QueuedMutation>
 export const offlineQueue = new OfflineMutationQueue();
 ```
 
-The singleton is the standard entry point. Multiple `OfflineMutationQueue` instances would write to different IndexedDB stores (different `storageKey`) and operate independently.
+The singleton is the standard entry point. Multiple `OfflineMutationQueue` instances would write to
+different IndexedDB stores (different `storageKey`) and operate independently.
 
 ```ts
-export function setupAutoReplay(
-  client: ApolloClient<NormalizedCacheObject>
-): () => void  // returns unsubscribe function
+export function setupAutoReplay(client: ApolloClient<NormalizedCacheObject>): () => void; // returns unsubscribe function
 ```
 
-`setupAutoReplay` subscribes to the Zustand `useNetworkStore` via `subscribe()`. When `isRouterReachable` transitions from `false` to `true`, it calls `offlineQueue.replayAll(client)` automatically:
+`setupAutoReplay` subscribes to the Zustand `useNetworkStore` via `subscribe()`. When
+`isRouterReachable` transitions from `false` to `true`, it calls `offlineQueue.replayAll(client)`
+automatically:
 
 ```ts
 // core/src/apollo/offline-queue.ts:398
-const unsubscribe = useNetworkStore.subscribe(
-  (state, prevState) => {
-    if (!prevState.isRouterReachable && state.isRouterReachable) {
-      handleOnline();
-    }
+const unsubscribe = useNetworkStore.subscribe((state, prevState) => {
+  if (!prevState.isRouterReachable && state.isRouterReachable) {
+    handleOnline();
   }
-);
+});
 ```
 
-This creates a clean integration: the offline detector manages `isRouterReachable`, and the auto-replay mechanism reacts to its changes without polling.
+This creates a clean integration: the offline detector manages `isRouterReachable`, and the
+auto-replay mechanism reacts to its changes without polling.
 
 ### IndexedDB Storage Limitation
 
-`DocumentNode` (the parsed GraphQL AST) cannot be JSON-serialized to IndexedDB. The queue stores the serialized form as a placeholder:
+`DocumentNode` (the parsed GraphQL AST) cannot be JSON-serialized to IndexedDB. The queue stores the
+serialized form as a placeholder:
 
 ```ts
 // core/src/apollo/offline-queue.ts:192
 const serialized: SerializedMutation[] = this.queue.map((item) => ({
-  mutationString: '',  // DocumentNode cannot be serialized
+  mutationString: '', // DocumentNode cannot be serialized
   variables: item.variables,
   // ...
 }));
 ```
 
-This means the in-memory `mutation` reference (the `DocumentNode`) is the live reference that `replayAll` uses — it is not reconstructed from IndexedDB. On page reload, `loadFromStorage` restores the metadata (variables, timestamps, retry counts) but sets `mutation` to `null`. The mutation AST must be re-registered by the caller after reload. In practice, the queue is typically used within a single session — reload events are rare in embedded container deployments.
+This means the in-memory `mutation` reference (the `DocumentNode`) is the live reference that
+`replayAll` uses — it is not reconstructed from IndexedDB. On page reload, `loadFromStorage`
+restores the metadata (variables, timestamps, retry counts) but sets `mutation` to `null`. The
+mutation AST must be re-registered by the caller after reload. In practice, the queue is typically
+used within a single session — reload events are rare in embedded container deployments.
 
 ---
 
@@ -434,7 +473,14 @@ function RenameRouter({ routerId }: { routerId: string }) {
     }
   };
 
-  return <Button onClick={() => handleSave('NewName')} isLoading={isLoading}>Save</Button>;
+  return (
+    <Button
+      onClick={() => handleSave('NewName')}
+      isLoading={isLoading}
+    >
+      Save
+    </Button>
+  );
 }
 ```
 
@@ -442,7 +488,8 @@ function RenameRouter({ routerId }: { routerId: string }) {
 
 ## Custom Events
 
-The offline-first system coordinates via custom DOM events. Four event types flow through the system:
+The offline-first system coordinates via custom DOM events. Four event types flow through the
+system:
 
 ### `network:error` Event
 
@@ -458,9 +505,11 @@ window.addEventListener('network:error', () => {
 });
 
 // Manually dispatch (rarely needed outside the error link):
-window.dispatchEvent(new CustomEvent('network:error', {
-  detail: { error: new Error('Connection failed') }
-}));
+window.dispatchEvent(
+  new CustomEvent('network:error', {
+    detail: { error: new Error('Connection failed') },
+  })
+);
 ```
 
 **Payload:** `{ detail: { error: Error } }`
@@ -511,16 +560,19 @@ window.addEventListener('ws:error', () => {
 
 ## Imperative Connectivity API
 
-While hooks are the preferred way to use offline detection in React components, the imperative API allows checking connectivity outside the component tree (e.g., in data layer code, event handlers, or utility functions).
+While hooks are the preferred way to use offline detection in React components, the imperative API
+allows checking connectivity outside the component tree (e.g., in data layer code, event handlers,
+or utility functions).
 
 ### `isOffline()`
 
 ```ts
-export function isOffline(): boolean
+export function isOffline(): boolean;
 // true if: !state.isOnline || !state.isRouterReachable
 ```
 
-Returns `true` when the browser is offline (navigator.onLine = false) **or** the router is unreachable. Used to decide whether to queue mutations or reject operations.
+Returns `true` when the browser is offline (navigator.onLine = false) **or** the router is
+unreachable. Used to decide whether to queue mutations or reject operations.
 
 **Usage outside React:**
 
@@ -542,15 +594,17 @@ async function submitForm(data) {
 ### `isDegraded()`
 
 ```ts
-export function isDegraded(): boolean
+export function isDegraded(): boolean;
 // true if: state.isOnline && (!state.isRouterReachable || !state.isRouterConnected)
 ```
 
 Returns `true` when the browser is online but either:
+
 - The backend router is unreachable, **or**
 - The WebSocket connection is down (but HTTP may still work)
 
-Used to show a "reconnecting" or "degraded" indicator in the UI while allowing some operations to continue.
+Used to show a "reconnecting" or "degraded" indicator in the UI while allowing some operations to
+continue.
 
 **Usage example:**
 
@@ -579,6 +633,7 @@ function StatusBar() {
 **When to use:** Component tree initialization, automatic cleanup on unmount.
 
 **Characteristics:**
+
 - Auto-cleanup on component unmount
 - Config dependency tracking via `JSON.stringify`
 - Integrates with React lifecycle
@@ -587,7 +642,7 @@ function StatusBar() {
 // Mount once at app root
 function App() {
   useOfflineDetector({
-    healthCheckInterval: 15000,  // Custom interval
+    healthCheckInterval: 15000, // Custom interval
   });
 
   return <Router />;
@@ -600,6 +655,7 @@ function App() {
 **When to use:** Bootstrap code, non-React applications, custom cleanup.
 
 **Characteristics:**
+
 - Manual cleanup via returned function
 - Can be called outside React
 - Useful in initialization scripts
@@ -619,34 +675,36 @@ cleanup();
 
 **Comparison table:**
 
-| Aspect | `useOfflineDetector()` | `setupOfflineDetector()` |
-|--------|---|---|
-| Where to call | Inside React component | Bootstrap code, top-level functions |
-| Cleanup | Automatic on unmount | Manual via returned function |
-| Dependencies | `config` serialized | None (imperative) |
-| Best for | React apps (99% of cases) | Non-React code, custom lifecycle |
+| Aspect        | `useOfflineDetector()`    | `setupOfflineDetector()`            |
+| ------------- | ------------------------- | ----------------------------------- |
+| Where to call | Inside React component    | Bootstrap code, top-level functions |
+| Cleanup       | Automatic on unmount      | Manual via returned function        |
+| Dependencies  | `config` serialized       | None (imperative)                   |
+| Best for      | React apps (99% of cases) | Non-React code, custom lifecycle    |
 
 ---
 
 ## Health Check Configuration
 
-The offline detector polls the backend health endpoint at regular intervals to actively detect reachability. This is necessary because browser events (`online`, `offline`) and passive error tracking are insufficient — a host can appear online but be unreachable.
+The offline detector polls the backend health endpoint at regular intervals to actively detect
+reachability. This is necessary because browser events (`online`, `offline`) and passive error
+tracking are insufficient — a host can appear online but be unreachable.
 
 ### Configuration Options
 
 ```ts
 export interface OfflineDetectorConfig {
-  healthEndpoint?: string;         // Default: '/api/health'
-  healthCheckInterval?: number;    // Default: 30000 (30 seconds)
-  healthCheckTimeout?: number;     // Default: 5000 (5 seconds)
+  healthEndpoint?: string; // Default: '/api/health'
+  healthCheckInterval?: number; // Default: 30000 (30 seconds)
+  healthCheckTimeout?: number; // Default: 5000 (5 seconds)
 }
 ```
 
-| Setting | Default | Purpose |
-|---------|---------|---------|
-| `healthEndpoint` | `/api/health` | Backend endpoint to ping |
-| `healthCheckInterval` | 30000 ms | How often to poll (30s = reasonable overhead) |
-| `healthCheckTimeout` | 5000 ms | Max time to wait for health check response |
+| Setting               | Default       | Purpose                                       |
+| --------------------- | ------------- | --------------------------------------------- |
+| `healthEndpoint`      | `/api/health` | Backend endpoint to ping                      |
+| `healthCheckInterval` | 30000 ms      | How often to poll (30s = reasonable overhead) |
+| `healthCheckTimeout`  | 5000 ms       | Max time to wait for health check response    |
 
 ### Health Check Behavior
 
@@ -666,7 +724,7 @@ async function performHealthCheck(): Promise<void> {
     const response = await fetch(healthEndpoint, {
       method: 'GET',
       signal: controller.signal,
-      redirect: 'error',  // Reject redirect (captive portals)
+      redirect: 'error', // Reject redirect (captive portals)
     });
 
     if (response.ok) {
@@ -687,19 +745,23 @@ async function performHealthCheck(): Promise<void> {
 ```
 
 **Key details:**
+
 - `redirect: 'error'` prevents captive portal redirects from being counted as success.
-- `AbortController` enforces the timeout; `setTimeout(...).abort()` is more reliable than Promise-based timeouts.
-- Both response errors (non-ok status) and network errors (throw/timeout) mark the router as unreachable.
-- Immediate health check fires when the browser comes back online before the next scheduled interval.
+- `AbortController` enforces the timeout; `setTimeout(...).abort()` is more reliable than
+  Promise-based timeouts.
+- Both response errors (non-ok status) and network errors (throw/timeout) mark the router as
+  unreachable.
+- Immediate health check fires when the browser comes back online before the next scheduled
+  interval.
 
 ### Tuning for Your Environment
 
-| Scenario | Config | Rationale |
-|----------|--------|-----------|
-| **Stable LAN** | `{ healthCheckInterval: 45000 }` | Less frequent polling, lower overhead |
-| **Mobile / Unreliable** | `{ healthCheckInterval: 10000, healthCheckTimeout: 3000 }` | Fast detection of drops, quick timeout |
-| **Slow backend** | `{ healthCheckTimeout: 10000 }` | Higher timeout for slow health check endpoint |
-| **Custom endpoint** | `{ healthEndpoint: '/custom/health' }` | Route to your own health check |
+| Scenario                | Config                                                     | Rationale                                     |
+| ----------------------- | ---------------------------------------------------------- | --------------------------------------------- |
+| **Stable LAN**          | `{ healthCheckInterval: 45000 }`                           | Less frequent polling, lower overhead         |
+| **Mobile / Unreliable** | `{ healthCheckInterval: 10000, healthCheckTimeout: 3000 }` | Fast detection of drops, quick timeout        |
+| **Slow backend**        | `{ healthCheckTimeout: 10000 }`                            | Higher timeout for slow health check endpoint |
+| **Custom endpoint**     | `{ healthEndpoint: '/custom/health' }`                     | Route to your own health check                |
 
 ---
 

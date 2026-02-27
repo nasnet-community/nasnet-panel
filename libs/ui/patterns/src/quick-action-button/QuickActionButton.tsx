@@ -25,7 +25,15 @@ export interface QuickActionButtonProps {
   /** Optional badge text or count */
   badge?: string | number;
   /** Badge variant */
-  badgeVariant?: 'default' | 'secondary' | 'outline' | 'connected' | 'warning' | 'error' | 'info' | 'offline';
+  badgeVariant?:
+    | 'default'
+    | 'secondary'
+    | 'outline'
+    | 'connected'
+    | 'warning'
+    | 'error'
+    | 'info'
+    | 'offline';
   /** Custom className */
   className?: string;
   /** Disabled state */
@@ -62,20 +70,9 @@ export interface QuickActionButtonProps {
  * />
  * ```
  */
-const QuickActionButtonComponent = React.forwardRef<
-  HTMLButtonElement,
-  QuickActionButtonProps
->(
+const QuickActionButtonComponent = React.forwardRef<HTMLButtonElement, QuickActionButtonProps>(
   (
-    {
-      icon: Icon,
-      label,
-      onClick,
-      badge,
-      badgeVariant = 'secondary',
-      className,
-      disabled = false,
-    },
+    { icon: Icon, label, onClick, badge, badgeVariant = 'secondary', className, disabled = false },
     ref
   ) => {
     const handleClick = React.useCallback(() => {
@@ -94,18 +91,18 @@ const QuickActionButtonComponent = React.forwardRef<
           'relative',
           // Base styles
           'rounded-lg p-4',
-          'bg-card border border-border',
+          'bg-card border-border border',
           'text-center',
           // Transitions
           'transition-all duration-200',
-          'hover:shadow-sm hover:-translate-y-0.5',
+          'hover:-translate-y-0.5 hover:shadow-sm',
           'active:scale-95',
           // Focus
-          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+          'focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
           // Min touch target 44x44
           'min-h-[44px] min-w-[44px]',
           // Disabled state
-          disabled && 'opacity-50 cursor-not-allowed',
+          disabled && 'cursor-not-allowed opacity-50',
           !disabled && 'cursor-pointer',
           className
         )}
@@ -116,7 +113,7 @@ const QuickActionButtonComponent = React.forwardRef<
         {badge !== undefined && (
           <Badge
             variant={badgeVariant}
-            className="absolute -top-2 -right-2 min-w-[1.5rem] h-6 flex items-center justify-center"
+            className="absolute -right-2 -top-2 flex h-6 min-w-[1.5rem] items-center justify-center"
             aria-label={`${label} badge: ${badge}`}
           >
             {badge}
@@ -124,12 +121,15 @@ const QuickActionButtonComponent = React.forwardRef<
         )}
 
         {/* Icon in colored circle background */}
-        <div className="w-12 h-12 mx-auto mb-2 bg-primary/10 rounded-lg flex items-center justify-center">
-          <Icon className="w-6 h-6 text-primary" aria-hidden="true" />
+        <div className="bg-primary/10 mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-lg">
+          <Icon
+            className="text-primary h-6 w-6"
+            aria-hidden="true"
+          />
         </div>
 
         {/* Label */}
-        <p className="text-xs font-medium text-foreground/70">{label}</p>
+        <p className="text-foreground/70 text-xs font-medium">{label}</p>
       </button>
     );
   }
@@ -138,4 +138,3 @@ const QuickActionButtonComponent = React.forwardRef<
 QuickActionButtonComponent.displayName = 'QuickActionButton';
 
 export const QuickActionButton = React.memo(QuickActionButtonComponent);
-

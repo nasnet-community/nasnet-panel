@@ -6,7 +6,6 @@
 
 import { useState } from 'react';
 
-
 import { TemplatePreview } from './TemplatePreview';
 import { useTemplatePreview } from './use-template-preview';
 import {
@@ -261,7 +260,7 @@ export const MobileView: Story = {
     });
 
     return (
-      <div className="h-screen max-w-[375px] mx-auto border-x">
+      <div className="mx-auto h-screen max-w-[375px] border-x">
         <TemplatePreview
           preview={preview}
           onApply={() => console.log('Apply template')}

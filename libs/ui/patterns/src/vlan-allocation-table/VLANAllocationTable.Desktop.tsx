@@ -18,7 +18,8 @@ import {
   TableHead,
   TableRow,
   TableCell,
- cn } from '@nasnet/ui/primitives';
+  cn,
+} from '@nasnet/ui/primitives';
 
 import type {
   VLANAllocationTableProps,
@@ -43,20 +44,15 @@ export function VLANAllocationTableDesktop({
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
 
   // Extract unique service types
-  const serviceTypes = Array.from(
-    new Set(allocations.map((a) => a.serviceType))
-  );
+  const serviceTypes = Array.from(new Set(allocations.map((a) => a.serviceType)));
 
   // Filter and sort
   const filtered = allocations
     .filter((alloc) => {
       const matchesSearch =
-        search === '' ||
-        alloc.instanceName.toLowerCase().includes(search.toLowerCase());
-      const matchesService =
-        serviceTypeFilter === 'all' || alloc.serviceType === serviceTypeFilter;
-      const matchesStatus =
-        statusFilter === 'all' || alloc.status === statusFilter;
+        search === '' || alloc.instanceName.toLowerCase().includes(search.toLowerCase());
+      const matchesService = serviceTypeFilter === 'all' || alloc.serviceType === serviceTypeFilter;
+      const matchesStatus = statusFilter === 'all' || alloc.status === statusFilter;
       return matchesSearch && matchesService && matchesStatus;
     })
     .sort((a, b) => {
@@ -66,9 +62,7 @@ export function VLANAllocationTableDesktop({
           comparison = a.vlanID - b.vlanID;
           break;
         case 'allocatedAt':
-          comparison =
-            new Date(a.allocatedAt).getTime() -
-            new Date(b.allocatedAt).getTime();
+          comparison = new Date(a.allocatedAt).getTime() - new Date(b.allocatedAt).getTime();
           break;
         case 'serviceType':
           comparison = a.serviceType.localeCompare(b.serviceType);
@@ -101,15 +95,16 @@ export function VLANAllocationTableDesktop({
 
   const SortIcon = ({ column }: { column: VLANAllocationSort }) => {
     if (sortBy !== column) return null;
-    return (
-      <span className="ml-1">
-        {sortDirection === 'asc' ? '↑' : '↓'}
-      </span>
-    );
+    return <span className="ml-1">{sortDirection === 'asc' ? '↑' : '↓'}</span>;
   };
 
   return (
-    <Card className={cn('bg-card border border-border rounded-[var(--semantic-radius-card)]', className)}>
+    <Card
+      className={cn(
+        'bg-card border-border rounded-[var(--semantic-radius-card)] border',
+        className
+      )}
+    >
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle>VLAN Allocations</CardTitle>
@@ -126,7 +121,7 @@ export function VLANAllocationTableDesktop({
         </div>
 
         {/* Filters */}
-        <div className="flex gap-component-md mt-4">
+        <div className="gap-component-md mt-4 flex">
           <Input
             placeholder="Search by instance name..."
             value={search}
@@ -134,21 +129,30 @@ export function VLANAllocationTableDesktop({
             className="max-w-xs"
           />
 
-          <Select value={serviceTypeFilter} onValueChange={setServiceTypeFilter}>
+          <Select
+            value={serviceTypeFilter}
+            onValueChange={setServiceTypeFilter}
+          >
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="All Services" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Services</SelectItem>
               {serviceTypes.map((type) => (
-                <SelectItem key={type} value={type}>
+                <SelectItem
+                  key={type}
+                  value={type}
+                >
                   {type}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
 
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <Select
+            value={statusFilter}
+            onValueChange={setStatusFilter}
+          >
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="All Statuses" />
             </SelectTrigger>
@@ -160,37 +164,45 @@ export function VLANAllocationTableDesktop({
             </SelectContent>
           </Select>
 
-          <div className="ml-auto text-sm text-muted-foreground flex items-center">
+          <div className="text-muted-foreground ml-auto flex items-center text-sm">
             {filtered.length} allocation{filtered.length !== 1 ? 's' : ''}
           </div>
         </div>
       </CardHeader>
 
       <CardContent>
-        <div className="border border-border rounded-[var(--semantic-radius-card)] overflow-hidden">
+        <div className="border-border overflow-hidden rounded-[var(--semantic-radius-card)] border">
           <Table>
             <TableHeader>
               <TableRow className="bg-muted">
                 <TableHead
-                  className="cursor-pointer hover:bg-muted/50 text-xs font-semibold uppercase tracking-wider text-muted-foreground"
+                  className="hover:bg-muted/50 text-muted-foreground cursor-pointer text-xs font-semibold uppercase tracking-wider"
                   onClick={() => handleSort('vlanID')}
                 >
                   VLAN ID
                   <SortIcon column="vlanID" />
                 </TableHead>
                 <TableHead
-                  className="cursor-pointer hover:bg-muted/50 text-xs font-semibold uppercase tracking-wider text-muted-foreground"
+                  className="hover:bg-muted/50 text-muted-foreground cursor-pointer text-xs font-semibold uppercase tracking-wider"
                   onClick={() => handleSort('serviceType')}
                 >
                   Service Type
                   <SortIcon column="serviceType" />
                 </TableHead>
-                <TableHead className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Instance Name</TableHead>
-                <TableHead className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Bind IP</TableHead>
-                <TableHead className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Interface</TableHead>
-                <TableHead className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Status</TableHead>
+                <TableHead className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">
+                  Instance Name
+                </TableHead>
+                <TableHead className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">
+                  Bind IP
+                </TableHead>
+                <TableHead className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">
+                  Interface
+                </TableHead>
+                <TableHead className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">
+                  Status
+                </TableHead>
                 <TableHead
-                  className="cursor-pointer hover:bg-muted/50 text-xs font-semibold uppercase tracking-wider text-muted-foreground"
+                  className="hover:bg-muted/50 text-muted-foreground cursor-pointer text-xs font-semibold uppercase tracking-wider"
                   onClick={() => handleSort('allocatedAt')}
                 >
                   Allocated At
@@ -199,48 +211,50 @@ export function VLANAllocationTableDesktop({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {loading && filtered.length === 0 ? (
+              {loading && filtered.length === 0 ?
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center text-muted-foreground">
+                  <TableCell
+                    colSpan={7}
+                    className="text-muted-foreground text-center"
+                  >
                     Loading...
                   </TableCell>
                 </TableRow>
-              ) : filtered.length === 0 ? (
+              : filtered.length === 0 ?
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center text-muted-foreground">
+                  <TableCell
+                    colSpan={7}
+                    className="text-muted-foreground text-center"
+                  >
                     No allocations found
                   </TableCell>
                 </TableRow>
-              ) : (
-                filtered.map((alloc) => (
-                  <TableRow key={alloc.id} className="h-10 border-b border-border hover:bg-muted/50 transition-colors">
+              : filtered.map((alloc) => (
+                  <TableRow
+                    key={alloc.id}
+                    className="border-border hover:bg-muted/50 h-10 border-b transition-colors"
+                  >
                     <TableCell className="font-mono text-sm">{alloc.vlanID}</TableCell>
                     <TableCell className="text-sm">{alloc.serviceType}</TableCell>
-                    <TableCell className="font-medium text-sm">
-                      {alloc.instanceName}
-                    </TableCell>
+                    <TableCell className="text-sm font-medium">{alloc.instanceName}</TableCell>
                     <TableCell className="text-sm">
-                      {alloc.bindIP ? (
-                        <code className="text-xs bg-muted px-2 py-1 rounded-[var(--semantic-radius-input)] font-mono">
+                      {alloc.bindIP ?
+                        <code className="bg-muted rounded-[var(--semantic-radius-input)] px-2 py-1 font-mono text-xs">
                           {alloc.bindIP}
                         </code>
-                      ) : (
-                        <span className="text-muted-foreground">—</span>
-                      )}
+                      : <span className="text-muted-foreground">—</span>}
                     </TableCell>
                     <TableCell className="text-sm">
-                      {alloc.interfaceName ? (
-                        <code className="text-xs bg-muted px-2 py-1 rounded-[var(--semantic-radius-input)] font-mono">
+                      {alloc.interfaceName ?
+                        <code className="bg-muted rounded-[var(--semantic-radius-input)] px-2 py-1 font-mono text-xs">
                           {alloc.interfaceName}
                         </code>
-                      ) : (
-                        <span className="text-muted-foreground">—</span>
-                      )}
+                      : <span className="text-muted-foreground">—</span>}
                     </TableCell>
                     <TableCell className="text-sm">
                       <span
                         className={cn(
-                          'inline-flex items-center px-2 py-1 rounded-[var(--semantic-radius-badge)] text-xs font-medium border',
+                          'inline-flex items-center rounded-[var(--semantic-radius-badge)] border px-2 py-1 text-xs font-medium',
                           getStatusColor(alloc.status)
                         )}
                       >
@@ -252,7 +266,7 @@ export function VLANAllocationTableDesktop({
                     </TableCell>
                   </TableRow>
                 ))
-              )}
+              }
             </TableBody>
           </Table>
         </div>

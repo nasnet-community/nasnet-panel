@@ -73,17 +73,7 @@ const statusClasses = {
  * Provides automatic role and aria-live announcements for accessibility.
  */
 const StatusLayoutImpl = React.forwardRef<HTMLElement, StatusLayoutProps>(
-  (
-    {
-      children,
-      status = 'info',
-      visible = true,
-      sticky = true,
-      className,
-      onDismiss,
-    },
-    ref
-  ) => {
+  ({ children, status = 'info', visible = true, sticky = true, className, onDismiss }, ref) => {
     // Memoize dismiss handler for stable reference
     const handleDismiss = useCallback(() => {
       onDismiss?.();
@@ -112,13 +102,16 @@ const StatusLayoutImpl = React.forwardRef<HTMLElement, StatusLayoutProps>(
                 onClick={handleDismiss}
                 className={cn(
                   'flex-shrink-0 rounded-md p-1',
-                  'hover:bg-white/20 transition-colors',
+                  'transition-colors hover:bg-white/20',
                   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2'
                 )}
                 aria-label="Dismiss status message"
                 type="button"
               >
-                <X className="h-4 w-4" aria-hidden="true" />
+                <X
+                  className="h-4 w-4"
+                  aria-hidden="true"
+                />
               </button>
             )}
           </div>
@@ -136,31 +129,3 @@ StatusLayoutImpl.displayName = 'StatusLayout';
 const StatusLayout = React.memo(StatusLayoutImpl);
 
 export { StatusLayout };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

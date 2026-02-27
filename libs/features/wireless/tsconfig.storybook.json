@@ -6,8 +6,5 @@
     "composite": false,
     "declaration": true
   },
-  "include": [
-    "src/**/*.stories.ts",
-    "src/**/*.stories.tsx"
-  ]
+  "include": ["src/**/*.stories.ts", "src/**/*.stories.tsx"]
 }

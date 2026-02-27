@@ -79,7 +79,8 @@ const allTimeoutResults: PingResult[] = Array.from({ length: 8 }, (_, i) =>
 
 const largeResults: PingResult[] = Array.from({ length: 100 }, (_, i) => {
   const seq = i + 1;
-  if (seq % 10 === 0) return makeResult({ seq, time: null, error: 'timeout', bytes: null, ttl: null });
+  if (seq % 10 === 0)
+    return makeResult({ seq, time: null, error: 'timeout', bytes: null, ttl: null });
   if (seq % 7 === 0) return makeResult({ seq, time: 150 + Math.random() * 80 }); // slow
   return makeResult({ seq, time: 8 + Math.random() * 25 });
 });
@@ -141,8 +142,7 @@ export const AllTimeouts: Story = {
   parameters: {
     docs: {
       description: {
-        story:
-          'Simulates a completely unreachable host. Every row shows "timeout" in red.',
+        story: 'Simulates a completely unreachable host. Every row shows "timeout" in red.',
       },
     },
   },

@@ -262,7 +262,9 @@ describe('CustomTemplatesStore', () => {
     });
 
     it('should handle non-array JSON', async () => {
-      await expect(customTemplatesStore.import(JSON.stringify({ invalid: true }))).rejects.toThrow();
+      await expect(
+        customTemplatesStore.import(JSON.stringify({ invalid: true }))
+      ).rejects.toThrow();
     });
   });
 });

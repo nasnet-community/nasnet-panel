@@ -48,13 +48,13 @@
  * ```
  */
 
-"use client"
+'use client';
 
-import * as React from "react"
+import * as React from 'react';
 
-import * as AvatarPrimitive from "@radix-ui/react-avatar"
+import * as AvatarPrimitive from '@radix-ui/react-avatar';
 
-import { cn } from "../lib/utils"
+import { cn } from '../lib/utils';
 
 /**
  * Props for the Avatar component
@@ -62,28 +62,23 @@ import { cn } from "../lib/utils"
  * @property className - Optional custom CSS classes (e.g., 'h-14 w-14' for custom sizes)
  * @property children - Avatar subcomponents (AvatarImage, AvatarFallback)
  */
-export interface AvatarProps
-  extends React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Root> {}
+export interface AvatarProps extends React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Root> {}
 
 /**
  * Avatar component - Container for profile images with automatic fallback
  */
 const Avatar = React.memo(
-  React.forwardRef<
-    React.ElementRef<typeof AvatarPrimitive.Root>,
-    AvatarProps
-  >(({ className, ...props }, ref) => (
-    <AvatarPrimitive.Root
-      ref={ref}
-      className={cn(
-        "relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full",
-        className
-      )}
-      {...props}
-    />
-  ))
-)
-Avatar.displayName = "Avatar"
+  React.forwardRef<React.ElementRef<typeof AvatarPrimitive.Root>, AvatarProps>(
+    ({ className, ...props }, ref) => (
+      <AvatarPrimitive.Root
+        ref={ref}
+        className={cn('relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full', className)}
+        {...props}
+      />
+    )
+  )
+);
+Avatar.displayName = 'Avatar';
 
 /**
  * Props for the AvatarImage component
@@ -99,18 +94,17 @@ export interface AvatarImageProps
  * AvatarImage component - Image element with lazy loading
  */
 const AvatarImage = React.memo(
-  React.forwardRef<
-    React.ElementRef<typeof AvatarPrimitive.Image>,
-    AvatarImageProps
-  >(({ className, ...props }, ref) => (
-    <AvatarPrimitive.Image
-      ref={ref}
-      className={cn("aspect-square h-full w-full", className)}
-      {...props}
-    />
-  ))
-)
-AvatarImage.displayName = "AvatarImage"
+  React.forwardRef<React.ElementRef<typeof AvatarPrimitive.Image>, AvatarImageProps>(
+    ({ className, ...props }, ref) => (
+      <AvatarPrimitive.Image
+        ref={ref}
+        className={cn('aspect-square h-full w-full', className)}
+        {...props}
+      />
+    )
+  )
+);
+AvatarImage.displayName = 'AvatarImage';
 
 /**
  * Props for the AvatarFallback component
@@ -129,20 +123,19 @@ export interface AvatarFallbackProps
  * categorized avatars (e.g., 'bg-primary/20 text-primary').
  */
 const AvatarFallback = React.memo(
-  React.forwardRef<
-    React.ElementRef<typeof AvatarPrimitive.Fallback>,
-    AvatarFallbackProps
-  >(({ className, ...props }, ref) => (
-    <AvatarPrimitive.Fallback
-      ref={ref}
-      className={cn(
-        "flex h-full w-full items-center justify-center rounded-full bg-muted text-muted-foreground",
-        className
-      )}
-      {...props}
-    />
-  ))
-)
-AvatarFallback.displayName = "AvatarFallback"
+  React.forwardRef<React.ElementRef<typeof AvatarPrimitive.Fallback>, AvatarFallbackProps>(
+    ({ className, ...props }, ref) => (
+      <AvatarPrimitive.Fallback
+        ref={ref}
+        className={cn(
+          'bg-muted text-muted-foreground flex h-full w-full items-center justify-center rounded-full',
+          className
+        )}
+        {...props}
+      />
+    )
+  )
+);
+AvatarFallback.displayName = 'AvatarFallback';
 
-export { Avatar, AvatarImage, AvatarFallback }
+export { Avatar, AvatarImage, AvatarFallback };

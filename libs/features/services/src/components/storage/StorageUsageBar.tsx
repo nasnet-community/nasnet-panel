@@ -122,18 +122,16 @@ function StorageUsageBarComponent({
   return (
     <div className={cn('space-y-component-sm', className)}>
       {/* Usage Summary: Used amount and percentage (technical data in monospace) */}
-      <div className="flex justify-between items-center text-sm">
-        <span className="text-muted-foreground">
-          {formattedUsed} used
-        </span>
-        <span className={cn('font-medium font-mono', textColorClass)}>
+      <div className="flex items-center justify-between text-sm">
+        <span className="text-muted-foreground">{formattedUsed} used</span>
+        <span className={cn('font-mono font-medium', textColorClass)}>
           {clampedPercent.toFixed(1)}%
         </span>
       </div>
 
       {/* Progress Bar: Smooth visual indicator of usage level */}
       <div
-        className="h-2 w-full rounded-full bg-muted overflow-hidden"
+        className="bg-muted h-2 w-full overflow-hidden rounded-full"
         role="progressbar"
         aria-valuenow={clampedPercent}
         aria-valuemin={0}
@@ -141,16 +139,13 @@ function StorageUsageBarComponent({
         aria-label={`Storage usage: ${clampedPercent.toFixed(1)}%`}
       >
         <div
-          className={cn(
-            'h-full transition-all duration-300 ease-in-out',
-            colorClass
-          )}
+          className={cn('h-full transition-all duration-300 ease-in-out', colorClass)}
           style={{ width: `${clampedPercent}%` }}
         />
       </div>
 
       {/* Capacity Details: Free and total capacity (technical data in monospace) */}
-      <div className="flex justify-between items-center text-xs text-muted-foreground font-mono">
+      <div className="text-muted-foreground flex items-center justify-between font-mono text-xs">
         <span>{formattedFree} free</span>
         <span>{formattedTotal} total</span>
       </div>

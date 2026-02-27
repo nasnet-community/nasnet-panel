@@ -45,11 +45,15 @@ const InterfaceStatsPanel = React.memo(function InterfaceStatsPanel(
 ) {
   const platform = usePlatform();
 
-  return platform === 'mobile' ? (
-    <InterfaceStatsPanelMobile {...props} className={cn('category-networking', props.className)} />
-  ) : (
-    <InterfaceStatsPanelDesktop {...props} className={cn('category-networking', props.className)} />
-  );
+  return platform === 'mobile' ?
+      <InterfaceStatsPanelMobile
+        {...props}
+        className={cn('category-networking', props.className)}
+      />
+    : <InterfaceStatsPanelDesktop
+        {...props}
+        className={cn('category-networking', props.className)}
+      />;
 });
 
 InterfaceStatsPanel.displayName = 'InterfaceStatsPanel';

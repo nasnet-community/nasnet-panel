@@ -20,12 +20,7 @@ import { Button, Dialog, DialogContent, Progress } from '@nasnet/ui/primitives';
 import { cn } from '@nasnet/ui/utils';
 
 import { useTemplateInstallWizard } from './useTemplateInstallWizard';
-import {
-  VariablesStep,
-  ReviewStep,
-  InstallingStep,
-  RoutingStep,
-} from './wizard-steps';
+import { VariablesStep, ReviewStep, InstallingStep, RoutingStep } from './wizard-steps';
 import type { TemplateInstallWizardProps } from './TemplateInstallWizard';
 
 /**
@@ -38,20 +33,13 @@ function TemplateInstallWizardMobileComponent({
   onClose,
   onComplete,
 }: TemplateInstallWizardProps) {
-  const {
-    currentStep,
-    context,
-    send,
-    canGoNext,
-    canGoPrev,
-    isInstalling,
-    isCompleted,
-  } = useTemplateInstallWizard({
-    routerId,
-    template,
-    onComplete,
-    onCancel: onClose,
-  });
+  const { currentStep, context, send, canGoNext, canGoPrev, isInstalling, isCompleted } =
+    useTemplateInstallWizard({
+      routerId,
+      template,
+      onComplete,
+      onCancel: onClose,
+    });
 
   const handleNext = useCallback(() => {
     if (currentStep === 2) {
@@ -67,7 +55,14 @@ function TemplateInstallWizardMobileComponent({
     } else {
       send({ type: 'NEXT' });
     }
-  }, [currentStep, context.selectedRoutingRules.length, context.installResult?.instanceIDs, send, onComplete, onClose]);
+  }, [
+    currentStep,
+    context.selectedRoutingRules.length,
+    context.installResult?.instanceIDs,
+    send,
+    onComplete,
+    onClose,
+  ]);
 
   const handleCancel = useCallback(() => {
     if (!isInstalling) {
@@ -79,19 +74,20 @@ function TemplateInstallWizardMobileComponent({
   const progressPercent = (currentStep / 4) * 100;
 
   return (
-    <Dialog open={open} onOpenChange={isInstalling ? undefined : onClose}>
+    <Dialog
+      open={open}
+      onOpenChange={isInstalling ? undefined : onClose}
+    >
       <DialogContent
-        className="fixed inset-0 z-50 bg-background p-0 flex flex-col"
-        {...{ hideClose: true } as any}
+        className="bg-background fixed inset-0 z-50 flex flex-col p-0"
+        {...({ hideClose: true } as any)}
       >
         {/* Header with step indicator */}
-        <div className="border-border border-b bg-card">
-          <div className="flex items-center justify-between p-component-md">
+        <div className="border-border bg-card border-b">
+          <div className="p-component-md flex items-center justify-between">
             <div className="flex-1">
               <h2 className="font-semibold">Install Template</h2>
-              <p className="text-sm text-muted-foreground">
-                Step {currentStep} of 4
-              </p>
+              <p className="text-muted-foreground text-sm">Step {currentStep} of 4</p>
             </div>
             {!isInstalling && (
               <Button
@@ -105,22 +101,26 @@ function TemplateInstallWizardMobileComponent({
               </Button>
             )}
           </div>
-          <Progress value={progressPercent} className="h-1 rounded-none" />
+          <Progress
+            value={progressPercent}
+            className="h-1 rounded-none"
+          />
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto p-component-md">
+        <div className="p-component-md flex-1 overflow-y-auto">
           {currentStep === 1 && (
             <VariablesStep
               template={template}
               variables={context.variables}
-              onVariablesChange={(vars) =>
-                send({ type: 'SET_VARIABLES', variables: vars })
-              }
+              onVariablesChange={(vars) => send({ type: 'SET_VARIABLES', variables: vars })}
             />
           )}
           {currentStep === 2 && (
-            <ReviewStep template={template} variables={context.variables} />
+            <ReviewStep
+              template={template}
+              variables={context.variables}
+            />
           )}
           {currentStep === 3 && (
             <InstallingStep
@@ -132,21 +132,19 @@ function TemplateInstallWizardMobileComponent({
             <RoutingStep
               template={template}
               selectedRuleIds={context.selectedRoutingRules}
-              onToggleRule={(ruleId) =>
-                send({ type: 'TOGGLE_ROUTING_RULE', ruleId })
-              }
+              onToggleRule={(ruleId) => send({ type: 'TOGGLE_ROUTING_RULE', ruleId })}
             />
           )}
         </div>
 
         {/* Bottom navigation */}
-        <div className="border-border border-t bg-card p-component-md">
-          <div className="flex gap-component-md">
+        <div className="border-border bg-card p-component-md border-t">
+          <div className="gap-component-md flex">
             {canGoPrev && (
               <Button
                 variant="outline"
                 onClick={() => send({ type: 'PREV' })}
-                className="flex-1 min-h-[44px]"
+                className="min-h-[44px] flex-1"
                 disabled={isInstalling}
               >
                 Previous
@@ -162,17 +160,18 @@ function TemplateInstallWizardMobileComponent({
               </Button>
             )}
             {currentStep === 4 && !isInstalling && (
-              <Button onClick={handleNext} className="flex-1 min-h-[44px]">
-                {context.selectedRoutingRules.length > 0
-                  ? 'Apply & Finish'
-                  : 'Skip & Finish'}
+              <Button
+                onClick={handleNext}
+                className="min-h-[44px] flex-1"
+              >
+                {context.selectedRoutingRules.length > 0 ? 'Apply & Finish' : 'Skip & Finish'}
               </Button>
             )}
             {!canGoPrev && !isInstalling && currentStep < 4 && (
               <Button
                 variant="ghost"
                 onClick={handleCancel}
-                className="flex-1 min-h-[44px]"
+                className="min-h-[44px] flex-1"
               >
                 Cancel
               </Button>

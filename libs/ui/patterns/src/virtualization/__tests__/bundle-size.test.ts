@@ -136,9 +136,7 @@ describe('Bundle Size Budgets', () => {
     it('should keep total JS bundle under 500KB gzipped', () => {
       if (!buildExists || chunks.length === 0) return;
 
-      const totalJs = chunks
-        .filter((c) => c.type === 'js')
-        .reduce((sum, c) => sum + c.gzipSize, 0);
+      const totalJs = chunks.filter((c) => c.type === 'js').reduce((sum, c) => sum + c.gzipSize, 0);
 
       console.log(`Total JS (gzipped): ${formatBytes(totalJs)}`);
 
@@ -188,7 +186,9 @@ describe('Bundle Size Budgets', () => {
         return;
       }
 
-      console.log(`${chunkName}: ${formatBytes(chunk.gzipSize)} (limit: ${formatBytes(budget.limit)})`);
+      console.log(
+        `${chunkName}: ${formatBytes(chunk.gzipSize)} (limit: ${formatBytes(budget.limit)})`
+      );
 
       expect(chunk.gzipSize).toBeLessThan(budget.limit);
 
@@ -283,11 +283,9 @@ describe('Bundle Size Budgets', () => {
 
       for (const chunk of sorted) {
         const status =
-          chunk.gzipSize > 100_000
-            ? '🔴'
-            : chunk.gzipSize > 50_000
-              ? '🟡'
-              : '🟢';
+          chunk.gzipSize > 100_000 ? '🔴'
+          : chunk.gzipSize > 50_000 ? '🟡'
+          : '🟢';
 
         console.log(
           `${status} ${chunk.type.toUpperCase().padEnd(4)} ${chunk.name.padEnd(30)} ` +

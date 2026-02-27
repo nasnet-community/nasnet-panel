@@ -50,8 +50,7 @@ export const ChangeSetStatus = {
 } as const;
 
 /** Inferred type for change set status */
-export type ChangeSetStatus =
-  (typeof ChangeSetStatus)[keyof typeof ChangeSetStatus];
+export type ChangeSetStatus = (typeof ChangeSetStatus)[keyof typeof ChangeSetStatus];
 
 // =============================================================================
 // Change Operation
@@ -74,8 +73,7 @@ export const ChangeOperation = {
 } as const;
 
 /** Inferred type for change operations */
-export type ChangeOperation =
-  (typeof ChangeOperation)[keyof typeof ChangeOperation];
+export type ChangeOperation = (typeof ChangeOperation)[keyof typeof ChangeOperation];
 
 // =============================================================================
 // Change Set Item Status
@@ -108,8 +106,7 @@ export const ChangeSetItemStatus = {
 } as const;
 
 /** Inferred type for change set item status */
-export type ChangeSetItemStatus =
-  (typeof ChangeSetItemStatus)[keyof typeof ChangeSetItemStatus];
+export type ChangeSetItemStatus = (typeof ChangeSetItemStatus)[keyof typeof ChangeSetItemStatus];
 
 // =============================================================================
 // Change Set Item Interface
@@ -229,8 +226,7 @@ export const RollbackOperation = {
 } as const;
 
 /** Inferred type for rollback operations */
-export type RollbackOperation =
-  (typeof RollbackOperation)[keyof typeof RollbackOperation];
+export type RollbackOperation = (typeof RollbackOperation)[keyof typeof RollbackOperation];
 
 /**
  * Individual step in a rollback sequence.
@@ -678,15 +674,13 @@ export interface ChangeSetSummary {
  * @see ChangeSetStatus for status values
  */
 export function isChangeSetPending(status: ChangeSetStatus): boolean {
-  return (
-    [
-      ChangeSetStatus.DRAFT,
-      ChangeSetStatus.VALIDATING,
-      ChangeSetStatus.READY,
-      // Note: includes() check requires full type assertion due to TS limitation with const objects
-      // The status parameter is guaranteed to be a valid ChangeSetStatus type at runtime
-    ].includes(status as never)
-  );
+  return [
+    ChangeSetStatus.DRAFT,
+    ChangeSetStatus.VALIDATING,
+    ChangeSetStatus.READY,
+    // Note: includes() check requires full type assertion due to TS limitation with const objects
+    // The status parameter is guaranteed to be a valid ChangeSetStatus type at runtime
+  ].includes(status as never);
 }
 
 /**
@@ -705,15 +699,13 @@ export function isChangeSetPending(status: ChangeSetStatus): boolean {
  * @see ChangeSetStatus for status values
  */
 export function isChangeSetProcessing(status: ChangeSetStatus): boolean {
-  return (
-    [
-      ChangeSetStatus.VALIDATING,
-      ChangeSetStatus.APPLYING,
-      ChangeSetStatus.ROLLING_BACK,
-      // Note: includes() check requires full type assertion due to TS limitation with const objects
-      // The status parameter is guaranteed to be a valid ChangeSetStatus type at runtime
-    ].includes(status as never)
-  );
+  return [
+    ChangeSetStatus.VALIDATING,
+    ChangeSetStatus.APPLYING,
+    ChangeSetStatus.ROLLING_BACK,
+    // Note: includes() check requires full type assertion due to TS limitation with const objects
+    // The status parameter is guaranteed to be a valid ChangeSetStatus type at runtime
+  ].includes(status as never);
 }
 
 /**
@@ -732,17 +724,15 @@ export function isChangeSetProcessing(status: ChangeSetStatus): boolean {
  * @see ChangeSetStatus for status values
  */
 export function isChangeSetFinal(status: ChangeSetStatus): boolean {
-  return (
-    [
-      ChangeSetStatus.COMPLETED,
-      ChangeSetStatus.FAILED,
-      ChangeSetStatus.ROLLED_BACK,
-      ChangeSetStatus.PARTIAL_FAILURE,
-      ChangeSetStatus.CANCELLED,
-      // Note: includes() check requires full type assertion due to TS limitation with const objects
-      // The status parameter is guaranteed to be a valid ChangeSetStatus type at runtime
-    ].includes(status as never)
-  );
+  return [
+    ChangeSetStatus.COMPLETED,
+    ChangeSetStatus.FAILED,
+    ChangeSetStatus.ROLLED_BACK,
+    ChangeSetStatus.PARTIAL_FAILURE,
+    ChangeSetStatus.CANCELLED,
+    // Note: includes() check requires full type assertion due to TS limitation with const objects
+    // The status parameter is guaranteed to be a valid ChangeSetStatus type at runtime
+  ].includes(status as never);
 }
 
 /**
@@ -761,16 +751,14 @@ export function isChangeSetFinal(status: ChangeSetStatus): boolean {
  * @see ChangeSetStatus for status values
  */
 export function isChangeSetCancellable(status: ChangeSetStatus): boolean {
-  return (
-    [
-      ChangeSetStatus.DRAFT,
-      ChangeSetStatus.VALIDATING,
-      ChangeSetStatus.READY,
-      ChangeSetStatus.APPLYING, // Will stop after current item
-      // Note: includes() check requires full type assertion due to TS limitation with const objects
-      // The status parameter is guaranteed to be a valid ChangeSetStatus type at runtime
-    ].includes(status as never)
-  );
+  return [
+    ChangeSetStatus.DRAFT,
+    ChangeSetStatus.VALIDATING,
+    ChangeSetStatus.READY,
+    ChangeSetStatus.APPLYING, // Will stop after current item
+    // Note: includes() check requires full type assertion due to TS limitation with const objects
+    // The status parameter is guaranteed to be a valid ChangeSetStatus type at runtime
+  ].includes(status as never);
 }
 
 /**
@@ -824,9 +812,7 @@ export interface ChangeSetStatusDisplayInfo {
  *
  * @see ChangeSetStatusDisplayInfo for the returned interface
  */
-export function getChangeSetStatusDisplayInfo(
-  status: ChangeSetStatus
-): ChangeSetStatusDisplayInfo {
+export function getChangeSetStatusDisplayInfo(status: ChangeSetStatus): ChangeSetStatusDisplayInfo {
   switch (status) {
     case ChangeSetStatus.DRAFT:
       return {
@@ -935,9 +921,7 @@ export function getChangeSetStatusDisplayInfo(
  *
  * @see ChangeOperation for operation types
  */
-export function getOperationColor(
-  operation: ChangeOperation
-): 'green' | 'amber' | 'red' {
+export function getOperationColor(operation: ChangeOperation): 'green' | 'amber' | 'red' {
   switch (operation) {
     case ChangeOperation.CREATE:
       return 'green';

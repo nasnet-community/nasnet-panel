@@ -80,7 +80,8 @@ const meta = {
     layout: 'padded',
     docs: {
       description: {
-        component: 'Visual diagram showing packet flow through mangle chains with interactive chain selection.',
+        component:
+          'Visual diagram showing packet flow through mangle chains with interactive chain selection.',
       },
     },
     // Enable accessibility testing
@@ -142,7 +143,8 @@ export const Empty: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Empty diagram with no rules. Useful for learning packet flow structure before adding rules.',
+        story:
+          'Empty diagram with no rules. Useful for learning packet flow structure before adding rules.',
       },
     },
   },
@@ -168,7 +170,8 @@ export const WithRules: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Diagram with rule counts. Badges show how many rules exist in each chain. Most traffic uses prerouting/forward/postrouting.',
+        story:
+          'Diagram with rule counts. Badges show how many rules exist in each chain. Most traffic uses prerouting/forward/postrouting.',
       },
     },
   },
@@ -194,7 +197,8 @@ export const ChainSelected: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Forward chain selected. Chain button is highlighted and "Clear Filter" button appears. Click chain again to deselect.',
+        story:
+          'Forward chain selected. Chain button is highlighted and "Clear Filter" button appears. Click chain again to deselect.',
       },
     },
   },
@@ -224,7 +228,8 @@ export const TraceModeForwarded: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Packet trace for forwarded traffic. Shows path: PACKET IN → prerouting → [routing] → forward → postrouting → PACKET OUT. This is the most common path for router traffic.',
+        story:
+          'Packet trace for forwarded traffic. Shows path: PACKET IN → prerouting → [routing] → forward → postrouting → PACKET OUT. This is the most common path for router traffic.',
       },
     },
   },
@@ -254,7 +259,8 @@ export const TraceModeLocalInput: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Packet trace for local input (to router). Shows path: PACKET IN → prerouting → [routing] → input. Used for router services (SSH, WebFig, DNS).',
+        story:
+          'Packet trace for local input (to router). Shows path: PACKET IN → prerouting → [routing] → input. Used for router services (SSH, WebFig, DNS).',
       },
     },
   },
@@ -284,7 +290,8 @@ export const TraceModeLocalOutput: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Packet trace for local output (from router). Shows path: output → postrouting → PACKET OUT. Used for router-generated traffic (NTP, DNS resolver, updates).',
+        story:
+          'Packet trace for local output (from router). Shows path: output → postrouting → PACKET OUT. Used for router-generated traffic (NTP, DNS resolver, updates).',
       },
     },
   },
@@ -313,7 +320,8 @@ export const MobileLayout: Story = {
     },
     docs: {
       description: {
-        story: 'Mobile vertical layout. Chains stack top-to-bottom with downward arrows. Optimized for narrow screens.',
+        story:
+          'Mobile vertical layout. Chains stack top-to-bottom with downward arrows. Optimized for narrow screens.',
       },
     },
   },
@@ -358,7 +366,8 @@ export const DesktopLayout: Story = {
     },
     docs: {
       description: {
-        story: 'Desktop horizontal layout. Chains flow left-to-right with legend showing incoming/routing/outgoing colors.',
+        story:
+          'Desktop horizontal layout. Chains flow left-to-right with legend showing incoming/routing/outgoing colors.',
       },
     },
   },
@@ -374,9 +383,9 @@ export const HeavyTraffic: Story = {
   args: {
     ruleCounts: {
       prerouting: 25, // Heavy marking for QoS
-      input: 5,       // Few rules for local services
-      forward: 42,    // Most traffic forwarding rules
-      output: 3,      // Minimal local output rules
+      input: 5, // Few rules for local services
+      forward: 42, // Most traffic forwarding rules
+      output: 3, // Minimal local output rules
       postrouting: 18, // NAT and post-routing marks
     },
     selectedChain: null as any,
@@ -384,7 +393,8 @@ export const HeavyTraffic: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Realistic production scenario. Most rules in prerouting (QoS marking) and forward (traffic routing). Input/output have fewer rules.',
+        story:
+          'Realistic production scenario. Most rules in prerouting (QoS marking) and forward (traffic routing). Input/output have fewer rules.',
       },
     },
   },
@@ -411,7 +421,8 @@ export const CompactMode: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Compact mode with smaller size and minimal labels. Suitable for dashboard widgets or embedded views.',
+        story:
+          'Compact mode with smaller size and minimal labels. Suitable for dashboard widgets or embedded views.',
       },
     },
   },

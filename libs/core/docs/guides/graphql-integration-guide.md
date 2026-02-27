@@ -5,9 +5,12 @@ title: GraphQL Integration Guide
 
 # GraphQL Integration Guide
 
-**Reference:** `schema/`, `libs/api-client/`, `libs/core/types/` | Universal State v2 Layer 1-3 (API, Cache, Types)
+**Reference:** `schema/`, `libs/api-client/`, `libs/core/types/` | Universal State v2 Layer 1-3
+(API, Cache, Types)
 
-This guide documents how NasNetConnect uses GraphQL to connect frontend components with backend services. It covers the complete flow from schema definition through code generation to actual component usage.
+This guide documents how NasNetConnect uses GraphQL to connect frontend components with backend
+services. It covers the complete flow from schema definition through code generation to actual
+component usage.
 
 ## Table of Contents
 
@@ -26,7 +29,8 @@ This guide documents how NasNetConnect uses GraphQL to connect frontend componen
 
 ## Type Flow Diagram
 
-NasNetConnect uses a multi-layered type system where types flow from backend to frontend through GraphQL:
+NasNetConnect uses a multi-layered type system where types flow from backend to frontend through
+GraphQL:
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -99,7 +103,8 @@ NasNetConnect uses a multi-layered type system where types flow from backend to 
 
 ## Code Generation Flow
 
-Code generation in NasNetConnect is a multi-step process with separate generators for different outputs.
+Code generation in NasNetConnect is a multi-step process with separate generators for different
+outputs.
 
 ### Main Codegen Command
 
@@ -123,11 +128,13 @@ npm run codegen:ts
 **Outputs:**
 
 - **TypeScript Types** → `libs/api-client/generated/schemas/index.d.ts`
+
   - All GraphQL types as TypeScript interfaces
   - Query/mutation/subscription variables and responses
   - Type-safe for all operations
 
 - **Apollo Client Hooks** → `libs/api-client/generated/hooks/`
+
   - `useQuery()`, `useMutation()`, `useSubscription()` hooks
   - Pre-typed with operation variables and responses
   - One hook per query/mutation/subscription
@@ -142,10 +149,7 @@ npm run codegen:ts
 ```typescript
 // Generated in libs/api-client/generated/hooks/
 export const useGetDHCPLeases = (
-  baseOptions?: Apollo.QueryHookOptions<
-    GetDhcpLeasesQuery,
-    GetDhcpLeasesQueryVariables
-  >
+  baseOptions?: Apollo.QueryHookOptions<GetDhcpLeasesQuery, GetDhcpLeasesQueryVariables>
 ) => {
   const options = { ...defaultOptions, ...baseOptions };
   return Apollo.useQuery<GetDhcpLeasesQuery, GetDhcpLeasesQueryVariables>(
@@ -219,6 +223,7 @@ type QueryResolver interface {
 ### When to Run Codegen
 
 **Always run after:**
+
 1. Modifying any `.graphql` schema file in `schema/`
 2. Changing ent entity definitions in `libs/data/ent/schema/`
 3. Adding new queries, mutations, or subscriptions
@@ -245,7 +250,8 @@ git commit -m "chore: codegen after VPN schema update"
 
 ## Core Types vs Generated Types
 
-NasNetConnect maintains two separate type hierarchies: **generated types** (implementation details) and **core types** (stable API).
+NasNetConnect maintains two separate type hierarchies: **generated types** (implementation details)
+and **core types** (stable API).
 
 ### Generated Types
 
@@ -254,6 +260,7 @@ NasNetConnect maintains two separate type hierarchies: **generated types** (impl
 **Purpose:** Implementation details from GraphQL codegen. Not meant for direct use in components.
 
 **Why separate:**
+
 - Regenerated on every schema change
 - Include verbose query/mutation variable types
 - Not optimized for component props
@@ -291,6 +298,7 @@ export interface GetVpnServicesQueryVariables {
 **Purpose:** Manually maintained stable API surface for feature code.
 
 **Why separate:**
+
 - Don't change when schema changes
 - Optimized for component props
 - Use domain-specific naming
@@ -327,16 +335,16 @@ import type { VPNService } from '@nasnet/core/types';
 
 export function useVpnServices(routerId: string) {
   const { data, loading, error } = useQuery(GET_VPN_SERVICES, {
-    variables: { routerId }
+    variables: { routerId },
   });
 
   // Map generated type to core type
-  const services: VPNService[] | undefined = data?.getVpnServices?.map(raw => ({
+  const services: VPNService[] | undefined = data?.getVpnServices?.map((raw) => ({
     id: raw.id,
     name: raw.name,
     protocol: raw.protocol as VPNService['protocol'],
     enabled: raw.enabled,
-    status: raw.enabled ? 'running' : 'stopped'
+    status: raw.enabled ? 'running' : 'stopped',
   }));
 
   return { services, loading, error };
@@ -363,7 +371,8 @@ import { useVpnServices } from '@nasnet/api-client/queries';
 
 ## Apollo Client Integration
 
-NasNetConnect uses Apollo Client for GraphQL operations with a custom link chain for authentication, error handling, and offline support.
+NasNetConnect uses Apollo Client for GraphQL operations with a custom link chain for authentication,
+error handling, and offline support.
 
 ### Apollo Client Setup
 
@@ -378,14 +387,8 @@ import { retryLink } from './apollo-retry-link';
 import { wsClient } from './apollo-ws-client';
 
 export const apolloClient = new ApolloClient({
-  link: ApolloLink.from([
-    errorLink,
-    retryLink,
-    authLink,
-    httpLink,
-    wsLink
-  ]),
-  cache: new InMemoryCache()
+  link: ApolloLink.from([errorLink, retryLink, authLink, httpLink, wsLink]),
+  cache: new InMemoryCache(),
 });
 ```
 
@@ -404,8 +407,8 @@ export const authLink = setContext((_operation, { headers }) => {
   return {
     headers: {
       ...headers,
-      authorization: token ? `Bearer ${token}` : ''
-    }
+      authorization: token ? `Bearer ${token}` : '',
+    },
   };
 });
 ```
@@ -421,7 +424,7 @@ import { mapBackendErrorsToForm } from '@nasnet/core/forms';
 
 export const errorLink = onError(({ graphQLErrors, networkError, operation, forward }) => {
   if (graphQLErrors) {
-    graphQLErrors.forEach(error => {
+    graphQLErrors.forEach((error) => {
       // Map backend errors to form errors
       if (error.extensions?.code === 'VALIDATION_ERROR') {
         const errors = error.extensions.errors as ValidationError[];
@@ -453,7 +456,7 @@ export const retryLink = new RetryLink({
   delay: {
     initial: 300,
     max: 3000,
-    jitter: true
+    jitter: true,
   },
   attempts: {
     max: 5,
@@ -463,8 +466,8 @@ export const retryLink = new RetryLink({
         return false;
       }
       return !!error;
-    }
-  }
+    },
+  },
 });
 ```
 
@@ -478,8 +481,8 @@ import { createClient } from 'graphql-ws';
 const wsClient = createClient({
   url: `${WS_URL}/graphql`,
   connectionParams: () => ({
-    authorization: `Bearer ${getAuthToken()}`
-  })
+    authorization: `Bearer ${getAuthToken()}`,
+  }),
 });
 
 export const wsLink = new GraphQLWsLink(wsClient);
@@ -536,11 +539,7 @@ Add the query or mutation to the appropriate schema file:
 # schema/vpn/vpn-queries.graphql
 extend type Query {
   "List all VPN services"
-  listVpnServices(
-    routerId: String!
-    limit: Int = 20
-    offset: Int = 0
-  ): [VpnService!]!
+  listVpnServices(routerId: String!, limit: Int = 20, offset: Int = 0): [VpnService!]!
 
   "Get single VPN service details"
   getVpnService(id: String!): VpnService
@@ -578,6 +577,7 @@ npm run codegen
 ```
 
 This generates:
+
 - TypeScript types for the new operations
 - Apollo hooks
 - Go resolver signatures
@@ -592,7 +592,7 @@ import type {
   ListVpnServicesQuery,
   ListVpnServicesQueryVariables,
   CreateVpnServiceMutation,
-  CreateVpnServiceMutationVariables
+  CreateVpnServiceMutationVariables,
 } from '@nasnet/api-client/generated';
 import type { VPNService } from '@nasnet/core/types';
 
@@ -622,20 +622,20 @@ const CREATE_VPN_SERVICE = gql`
 
 // Create wrapper hooks that return core types
 export function useVpnServices(routerId: string, limit = 20) {
-  const { data, loading, error } = useQuery<
-    ListVpnServicesQuery,
-    ListVpnServicesQueryVariables
-  >(LIST_VPN_SERVICES, {
-    variables: { routerId, limit },
-    context: { headers: { 'X-Router-Id': routerId } }
-  });
+  const { data, loading, error } = useQuery<ListVpnServicesQuery, ListVpnServicesQueryVariables>(
+    LIST_VPN_SERVICES,
+    {
+      variables: { routerId, limit },
+      context: { headers: { 'X-Router-Id': routerId } },
+    }
+  );
 
   // Map generated type to core type
-  const services: VPNService[] | undefined = data?.listVpnServices?.map(raw => ({
+  const services: VPNService[] | undefined = data?.listVpnServices?.map((raw) => ({
     id: raw.id,
     name: raw.name,
     protocol: raw.protocol as VPNService['protocol'],
-    enabled: raw.enabled
+    enabled: raw.enabled,
   }));
 
   return { services, loading, error };
@@ -650,7 +650,7 @@ export function useCreateVpnService() {
   return async (input: VPNServiceCreateInput) => {
     const result = await create({
       variables: { input },
-      refetchQueries: ['ListVpnServices']
+      refetchQueries: ['ListVpnServices'],
     });
 
     if (result.data?.createVpnService) {
@@ -658,7 +658,7 @@ export function useCreateVpnService() {
         id: result.data.createVpnService.id,
         name: result.data.createVpnService.name,
         protocol: result.data.createVpnService.protocol as VPNService['protocol'],
-        enabled: result.data.createVpnService.enabled
+        enabled: result.data.createVpnService.enabled,
       } as VPNService;
     }
 
@@ -734,7 +734,7 @@ import { gql } from '@apollo/client';
 import { useSubscription } from '@apollo/client';
 import type {
   VpnServiceUpdatedSubscription,
-  VpnServiceUpdatedSubscriptionVariables
+  VpnServiceUpdatedSubscriptionVariables,
 } from '@nasnet/api-client/generated';
 
 const VPN_SERVICE_UPDATED = gql`
@@ -757,13 +757,13 @@ export function useVpnServiceUpdates(serviceId: string) {
     VpnServiceUpdatedSubscription,
     VpnServiceUpdatedSubscriptionVariables
   >(VPN_SERVICE_UPDATED, {
-    variables: { serviceId }
+    variables: { serviceId },
   });
 
   return {
     event: data?.vpnServiceUpdated,
     loading,
-    error
+    error,
   };
 }
 ```
@@ -1015,7 +1015,7 @@ const [create] = useMutation(CREATE_VPN_SERVICE, {
         mapBackendErrorsToForm(backendErrors, form.setError);
       }
     }
-  }
+  },
 });
 ```
 
@@ -1030,7 +1030,7 @@ const [create] = useMutation(CREATE_VPN_SERVICE, {
         // Show offline message
       }
     }
-  }
+  },
 });
 ```
 
@@ -1040,7 +1040,7 @@ const [create] = useMutation(CREATE_VPN_SERVICE, {
 // libs/api-client/core/src/apollo/apollo-error-link.ts
 export const errorLink = onError(({ graphQLErrors, networkError, operation }) => {
   if (graphQLErrors) {
-    graphQLErrors.forEach(error => {
+    graphQLErrors.forEach((error) => {
       switch (error.extensions?.code) {
         case 'UNAUTHENTICATED':
           // Redirect to login

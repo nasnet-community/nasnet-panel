@@ -39,16 +39,12 @@ import type { FirewallLogFiltersProps } from './firewall-log-filters.types';
  * );
  * ```
  */
-export const FirewallLogFilters = memo(function FirewallLogFilters(
-  props: FirewallLogFiltersProps
-) {
+export const FirewallLogFilters = memo(function FirewallLogFilters(props: FirewallLogFiltersProps) {
   const platform = usePlatform();
 
-  return platform === 'mobile' ? (
-    <FirewallLogFiltersMobile {...props} />
-  ) : (
-    <FirewallLogFiltersDesktop {...props} />
-  );
+  return platform === 'mobile' ?
+      <FirewallLogFiltersMobile {...props} />
+    : <FirewallLogFiltersDesktop {...props} />;
 });
 
 FirewallLogFilters.displayName = 'FirewallLogFilters';

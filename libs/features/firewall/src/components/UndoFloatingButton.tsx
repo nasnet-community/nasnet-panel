@@ -151,34 +151,28 @@ export const UndoFloatingButton = memo(function UndoFloatingButton({
     <>
       {/* Floating Button */}
       <div className="fixed bottom-6 right-6 z-50">
-        <div className="flex flex-col items-end gap-component-sm">
+        <div className="gap-component-sm flex flex-col items-end">
           {/* Countdown Display */}
           <div
             role="status"
             aria-live="polite"
             aria-label={`Rollback countdown: ${formatTime(secondsRemaining)} remaining`}
-            className={`rounded-[var(--semantic-radius-card)] px-component-md py-component-sm shadow-lg transition-colors ${
-              urgencyLevel === 'critical'
-                ? 'bg-error text-error-foreground'
-                : urgencyLevel === 'warning'
-                  ? 'bg-warning text-warning-foreground'
-                  : 'bg-card border border-border'
+            className={`px-component-md py-component-sm rounded-[var(--semantic-radius-card)] shadow-lg transition-colors ${
+              urgencyLevel === 'critical' ? 'bg-error text-error-foreground'
+              : urgencyLevel === 'warning' ? 'bg-warning text-warning-foreground'
+              : 'bg-card border-border border'
             }`}
           >
-            <div className="flex items-center gap-component-sm">
+            <div className="gap-component-sm flex items-center">
               <span className="text-sm font-medium">Rollback available</span>
-              <span className="font-mono text-lg font-bold">
-                {formatTime(secondsRemaining)}
-              </span>
+              <span className="font-mono text-lg font-bold">{formatTime(secondsRemaining)}</span>
             </div>
             <Progress
               value={progressValue}
               className={`mt-component-xs h-1 ${
-                urgencyLevel === 'critical'
-                  ? 'bg-error-foreground/20'
-                  : urgencyLevel === 'warning'
-                    ? 'bg-warning-foreground/20'
-                    : 'bg-muted'
+                urgencyLevel === 'critical' ? 'bg-error-foreground/20'
+                : urgencyLevel === 'warning' ? 'bg-warning-foreground/20'
+                : 'bg-muted'
               }`}
             />
           </div>
@@ -187,23 +181,34 @@ export const UndoFloatingButton = memo(function UndoFloatingButton({
           <Button
             size="lg"
             variant={urgencyLevel === 'critical' ? 'destructive' : 'default'}
-            className="min-h-[44px] h-14 shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            className="focus-visible:ring-ring h-14 min-h-[44px] shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
             onClick={handleOpenConfirmDialog}
             disabled={isRollingBack}
-            aria-label={isRollingBack ? 'Rolling back changes in progress' : 'Undo recent template changes'}
+            aria-label={
+              isRollingBack ? 'Rolling back changes in progress' : 'Undo recent template changes'
+            }
           >
-            <Undo2 className="mr-component-sm h-5 w-5" aria-hidden="true" />
+            <Undo2
+              className="mr-component-sm h-5 w-5"
+              aria-hidden="true"
+            />
             {isRollingBack ? 'Rolling back...' : 'Undo Changes'}
           </Button>
         </div>
       </div>
 
       {/* Confirmation Dialog */}
-      <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
+      <Dialog
+        open={showConfirmDialog}
+        onOpenChange={setShowConfirmDialog}
+      >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-component-sm">
-              <AlertCircle className="h-5 w-5 text-warning" aria-hidden="true" />
+            <DialogTitle className="gap-component-sm flex items-center">
+              <AlertCircle
+                className="text-warning h-5 w-5"
+                aria-hidden="true"
+              />
               Confirm Rollback
             </DialogTitle>
             <DialogDescription>
@@ -213,20 +218,23 @@ export const UndoFloatingButton = memo(function UndoFloatingButton({
 
           <div className="space-y-component-md">
             {/* Template Info */}
-            <div className="rounded-[var(--semantic-radius-card)] border border-border p-component-md">
+            <div className="border-border p-component-md rounded-[var(--semantic-radius-card)] border">
               <h4 className="mb-component-sm text-sm font-medium">Template Applied</h4>
-              <p className="text-sm text-muted-foreground">{templateName}</p>
-              <p className="mt-component-xs text-sm text-muted-foreground">
+              <p className="text-muted-foreground text-sm">{templateName}</p>
+              <p className="mt-component-xs text-muted-foreground text-sm">
                 {rulesApplied} firewall rule{rulesApplied !== 1 ? 's' : ''} created
               </p>
             </div>
 
             {/* Warning Alert */}
             <Alert variant="default">
-              <AlertCircle className="h-4 w-4" aria-hidden="true" />
+              <AlertCircle
+                className="h-4 w-4"
+                aria-hidden="true"
+              />
               <AlertDescription>
                 <p className="font-medium">What will happen:</p>
-                <ul className="mt-component-sm list-inside list-disc space-y-component-xs text-sm">
+                <ul className="mt-component-sm space-y-component-xs list-inside list-disc text-sm">
                   <li>All {rulesApplied} firewall rules will be removed</li>
                   <li>Router configuration will be restored to previous state</li>
                   <li>Changes cannot be undone after rollback</li>
@@ -235,11 +243,9 @@ export const UndoFloatingButton = memo(function UndoFloatingButton({
             </Alert>
 
             {/* Time Remaining */}
-            <div className="flex items-center justify-between rounded-[var(--semantic-radius-card)] bg-muted p-component-sm">
+            <div className="bg-muted p-component-sm flex items-center justify-between rounded-[var(--semantic-radius-card)]">
               <span className="text-sm font-medium">Time remaining</span>
-              <span className="font-mono text-lg font-bold">
-                {formatTime(secondsRemaining)}
-              </span>
+              <span className="font-mono text-lg font-bold">{formatTime(secondsRemaining)}</span>
             </div>
           </div>
 
@@ -249,7 +255,7 @@ export const UndoFloatingButton = memo(function UndoFloatingButton({
               onClick={handleCloseConfirmDialog}
               disabled={isRollingBack}
               aria-label="Keep changes and dismiss rollback confirmation"
-              className="min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              className="focus-visible:ring-ring min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
             >
               Keep Changes
             </Button>
@@ -258,19 +264,18 @@ export const UndoFloatingButton = memo(function UndoFloatingButton({
               onClick={handleRollback}
               disabled={isRollingBack}
               aria-label="Confirm rollback of all template changes"
-              className="min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              className="focus-visible:ring-ring min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
             >
-              {isRollingBack ? (
+              {isRollingBack ?
                 <>
                   <div className="mr-component-sm h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
                   Rolling Back...
                 </>
-              ) : (
-                <>
+              : <>
                   <Undo2 className="mr-component-sm h-4 w-4" />
                   Confirm Rollback
                 </>
-              )}
+              }
             </Button>
           </DialogFooter>
         </DialogContent>

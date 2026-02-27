@@ -23,55 +23,41 @@ import {
   AlertTriangle,
 } from 'lucide-react';
 
-import type {
-  ChangeSetItem,
-  ChangeOperation,
-  ChangeSetItemStatus,
-} from '@nasnet/core/types';
-import {
-  getOperationColor,
-  getOperationLabel,
-} from '@nasnet/core/types';
+import type { ChangeSetItem, ChangeOperation, ChangeSetItemStatus } from '@nasnet/core/types';
+import { getOperationColor, getOperationLabel } from '@nasnet/core/types';
 import { cn, Button } from '@nasnet/ui/primitives';
 import { usePlatform } from '@nasnet/ui/layouts';
-
 
 // =============================================================================
 // Variants
 // =============================================================================
 
-const cardVariants = cva(
-  'rounded-lg border transition-all',
-  {
-    variants: {
-      status: {
-        PENDING: 'border-border bg-card',
-        APPLYING: 'border-warning bg-warning/5',
-        APPLIED: 'border-success bg-success/5',
-        FAILED: 'border-error bg-error/5',
-        ROLLED_BACK: 'border-muted bg-muted/50',
-        ROLLBACK_FAILED: 'border-error bg-error/10',
-        SKIPPED: 'border-muted bg-muted/30',
-      },
+const cardVariants = cva('rounded-lg border transition-all', {
+  variants: {
+    status: {
+      PENDING: 'border-border bg-card',
+      APPLYING: 'border-warning bg-warning/5',
+      APPLIED: 'border-success bg-success/5',
+      FAILED: 'border-error bg-error/5',
+      ROLLED_BACK: 'border-muted bg-muted/50',
+      ROLLBACK_FAILED: 'border-error bg-error/10',
+      SKIPPED: 'border-muted bg-muted/30',
     },
-    defaultVariants: {
-      status: 'PENDING',
-    },
-  }
-);
+  },
+  defaultVariants: {
+    status: 'PENDING',
+  },
+});
 
-const operationIndicatorVariants = cva(
-  'flex items-center justify-center w-8 h-8 rounded-full',
-  {
-    variants: {
-      operation: {
-        CREATE: 'bg-success/10 text-success',
-        UPDATE: 'bg-warning/10 text-warning',
-        DELETE: 'bg-error/10 text-error',
-      },
+const operationIndicatorVariants = cva('flex h-8 w-8 items-center justify-center rounded-full', {
+  variants: {
+    operation: {
+      CREATE: 'bg-success/10 text-success',
+      UPDATE: 'bg-warning/10 text-warning',
+      DELETE: 'bg-error/10 text-error',
     },
-  }
-);
+  },
+});
 
 // =============================================================================
 // Types
@@ -210,10 +196,7 @@ export function useChangeSetItemCard(
     }
   }, [onToggleExpand]);
 
-  const statusLabel = React.useMemo(
-    () => getStatusLabel(item.status),
-    [item.status]
-  );
+  const statusLabel = React.useMemo(() => getStatusLabel(item.status), [item.status]);
 
   return {
     canRemove,
@@ -230,10 +213,7 @@ export function useChangeSetItemCard(
 /**
  * Desktop presenter for ChangeSetItemCard
  */
-const ChangeSetItemCardDesktop = React.forwardRef<
-  HTMLDivElement,
-  ChangeSetItemCardProps
->(
+const ChangeSetItemCardDesktop = React.forwardRef<HTMLDivElement, ChangeSetItemCardProps>(
   (
     {
       className,
@@ -274,26 +254,30 @@ const ChangeSetItemCardDesktop = React.forwardRef<
           <div className="flex items-center gap-3">
             {/* Operation indicator */}
             <div className={operationIndicatorVariants({ operation })}>
-              <OperationIcon operation={operation} className="h-4 w-4" />
+              <OperationIcon
+                operation={operation}
+                className="h-4 w-4"
+              />
             </div>
 
             {/* Name and type */}
-            <div className="flex-1 min-w-0">
+            <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2">
-                <h4 className="font-medium text-foreground truncate">{name}</h4>
-                <span className="text-xs px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
+                <h4 className="text-foreground truncate font-medium">{name}</h4>
+                <span className="bg-muted text-muted-foreground rounded px-1.5 py-0.5 text-xs">
                   {getOperationLabel(operation)}
                 </span>
               </div>
-              <p className="text-xs text-muted-foreground truncate">
-                {resourceType}
-              </p>
+              <p className="text-muted-foreground truncate text-xs">{resourceType}</p>
             </div>
 
             {/* Status indicator */}
             <div className="flex items-center gap-2">
-              <StatusIcon status={status} className="h-4 w-4" />
-              <span className="text-xs text-muted-foreground hidden sm:inline">
+              <StatusIcon
+                status={status}
+                className="h-4 w-4"
+              />
+              <span className="text-muted-foreground hidden text-xs sm:inline">
                 {getStatusLabel(status)}
               </span>
             </div>
@@ -323,48 +307,38 @@ const ChangeSetItemCardDesktop = React.forwardRef<
                   aria-expanded={expanded}
                   aria-label={expanded ? 'Collapse details' : 'Expand details'}
                 >
-                  {expanded ? (
+                  {expanded ?
                     <ChevronUp className="h-4 w-4" />
-                  ) : (
-                    <ChevronDown className="h-4 w-4" />
-                  )}
+                  : <ChevronDown className="h-4 w-4" />}
                 </Button>
               )}
             </div>
           </div>
 
           {/* Error message */}
-          {error && (
-            <div className="mt-2 p-2 rounded bg-error/10 text-error text-sm">
-              {error}
-            </div>
-          )}
+          {error && <div className="bg-error/10 text-error mt-2 rounded p-2 text-sm">{error}</div>}
         </div>
 
         {/* Expanded content */}
         {expanded && (
-          <div className="border-t border-border px-4 py-3 space-y-3">
+          <div className="border-border space-y-3 border-t px-4 py-3">
             {/* Description */}
             {description && (
               <div>
-                <h5 className="text-xs font-medium text-muted-foreground mb-1">
-                  Description
-                </h5>
-                <p className="text-sm text-foreground">{description}</p>
+                <h5 className="text-muted-foreground mb-1 text-xs font-medium">Description</h5>
+                <p className="text-foreground text-sm">{description}</p>
               </div>
             )}
 
             {/* Dependencies */}
             {showDependencies && dependencies.length > 0 && (
               <div>
-                <h5 className="text-xs font-medium text-muted-foreground mb-1">
-                  Depends On
-                </h5>
+                <h5 className="text-muted-foreground mb-1 text-xs font-medium">Depends On</h5>
                 <div className="flex flex-wrap gap-1">
                   {dependencies.map((depId) => (
                     <span
                       key={depId}
-                      className="text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground"
+                      className="bg-muted text-muted-foreground rounded-full px-2 py-0.5 text-xs"
                     >
                       {dependencyNames[depId] || depId}
                     </span>
@@ -375,10 +349,8 @@ const ChangeSetItemCardDesktop = React.forwardRef<
 
             {/* Configuration preview */}
             <div>
-              <h5 className="text-xs font-medium text-muted-foreground mb-1">
-                Configuration
-              </h5>
-              <pre className="text-xs bg-muted/50 p-2 rounded overflow-x-auto max-h-40">
+              <h5 className="text-muted-foreground mb-1 text-xs font-medium">Configuration</h5>
+              <pre className="bg-muted/50 max-h-40 overflow-x-auto rounded p-2 text-xs">
                 {JSON.stringify(configuration, null, 2)}
               </pre>
             </div>
@@ -386,10 +358,8 @@ const ChangeSetItemCardDesktop = React.forwardRef<
             {/* Previous state for updates */}
             {previousState && operation === 'UPDATE' && (
               <div>
-                <h5 className="text-xs font-medium text-muted-foreground mb-1">
-                  Previous State
-                </h5>
-                <pre className="text-xs bg-muted/50 p-2 rounded overflow-x-auto max-h-40">
+                <h5 className="text-muted-foreground mb-1 text-xs font-medium">Previous State</h5>
+                <pre className="bg-muted/50 max-h-40 overflow-x-auto rounded p-2 text-xs">
                   {JSON.stringify(previousState, null, 2)}
                 </pre>
               </div>
@@ -408,7 +378,10 @@ ChangeSetItemCardDesktop.displayName = 'ChangeSetItemCardDesktop';
  */
 const ChangeSetItemCardMobile = React.forwardRef<HTMLDivElement, ChangeSetItemCardProps>(
   (props, ref) => (
-    <ChangeSetItemCardDesktop ref={ref} {...props} />
+    <ChangeSetItemCardDesktop
+      ref={ref}
+      {...props}
+    />
   )
 );
 
@@ -419,7 +392,10 @@ ChangeSetItemCardMobile.displayName = 'ChangeSetItemCardMobile';
  */
 const ChangeSetItemCardTablet = React.forwardRef<HTMLDivElement, ChangeSetItemCardProps>(
   (props, ref) => (
-    <ChangeSetItemCardDesktop ref={ref} {...props} />
+    <ChangeSetItemCardDesktop
+      ref={ref}
+      {...props}
+    />
   )
 );
 
@@ -457,8 +433,11 @@ const ChangeSetItemCardRoot = React.forwardRef<HTMLDivElement, ChangeSetItemCard
     }, [selectedPresenter]);
 
     return (
-      <React.Suspense fallback={<div className="animate-pulse h-20 bg-muted rounded-lg" />}>
-        <PresenterComponent ref={ref} {...props} />
+      <React.Suspense fallback={<div className="bg-muted h-20 animate-pulse rounded-lg" />}>
+        <PresenterComponent
+          ref={ref}
+          {...props}
+        />
       </React.Suspense>
     );
   }

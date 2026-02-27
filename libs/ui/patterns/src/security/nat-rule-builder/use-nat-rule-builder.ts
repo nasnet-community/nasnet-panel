@@ -87,9 +87,7 @@ export interface UseNATRuleBuilderReturn {
  * );
  * ```
  */
-export function useNATRuleBuilder(
-  options: UseNATRuleBuilderOptions = {}
-): UseNATRuleBuilderReturn {
+export function useNATRuleBuilder(options: UseNATRuleBuilderOptions = {}): UseNATRuleBuilderReturn {
   const { initialRule, onSubmit: onSubmitCallback, onCancel } = options;
 
   // Initialize React Hook Form with Zod validation
@@ -219,10 +217,7 @@ function generateNATRuleDescription(rule: Partial<NATRuleInput>): string {
 /**
  * Get action description based on action type
  */
-function getActionDescription(
-  action: NatAction | undefined,
-  rule: Partial<NATRuleInput>
-): string {
+function getActionDescription(action: NatAction | undefined, rule: Partial<NATRuleInput>): string {
   if (!action) return '';
 
   switch (action) {
@@ -238,8 +233,8 @@ function getActionDescription(
       return 'Forward traffic';
 
     case 'src-nat':
-      return rule.toAddresses
-        ? `Translate source to ${rule.toAddresses}`
+      return rule.toAddresses ?
+          `Translate source to ${rule.toAddresses}`
         : 'Translate source address';
 
     case 'redirect':

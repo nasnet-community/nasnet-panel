@@ -55,7 +55,10 @@ const meta: Meta<typeof InterfaceEditForm> = {
   component: InterfaceEditForm,
   decorators: [
     (Story) => (
-      <MockedProvider mocks={successMocks} addTypename={true}>
+      <MockedProvider
+        mocks={successMocks}
+        addTypename={true}
+      >
         <div className="p-component-xl bg-background max-w-xl">
           <Story />
         </div>
@@ -148,7 +151,10 @@ export const Loading: Story = {
       ];
 
       return (
-        <MockedProvider mocks={loadingMocks} addTypename={true}>
+        <MockedProvider
+          mocks={loadingMocks}
+          addTypename={true}
+        >
           <div className="p-component-xl bg-background max-w-xl">
             <Story />
           </div>
@@ -241,7 +247,10 @@ export const ServerError: Story = {
       ];
 
       return (
-        <MockedProvider mocks={errorMocks} addTypename={true}>
+        <MockedProvider
+          mocks={errorMocks}
+          addTypename={true}
+        >
           <div className="p-component-xl bg-background max-w-xl">
             <Story />
           </div>
@@ -274,8 +283,11 @@ export const DarkMode: Story = {
   },
   decorators: [
     (Story) => (
-      <MockedProvider mocks={successMocks} addTypename={true}>
-        <div className="p-component-xl bg-background max-w-xl dark">
+      <MockedProvider
+        mocks={successMocks}
+        addTypename={true}
+      >
+        <div className="p-component-xl bg-background dark max-w-xl">
           <Story />
         </div>
       </MockedProvider>
@@ -307,7 +319,8 @@ export const LongComment: Story = {
     routerId: 'router-1',
     interface: {
       ...mockInterface,
-      comment: 'This is a very long comment that demonstrates how the form handles text wrapping and display of lengthy interface descriptions. Maximum length is 255 characters.',
+      comment:
+        'This is a very long comment that demonstrates how the form handles text wrapping and display of lengthy interface descriptions. Maximum length is 255 characters.',
     },
     onSuccess: () => console.log('Success!'),
     onCancel: () => console.log('Cancelled'),

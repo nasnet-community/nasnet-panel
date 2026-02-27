@@ -61,9 +61,7 @@ export interface AlertTemplateVariableInputFormProps {
 /**
  * Generate Zod schema for template variables
  */
-function generateVariableSchema(
-  variables: AlertRuleTemplateVariable[]
-): z.ZodObject<any> {
+function generateVariableSchema(variables: AlertRuleTemplateVariable[]): z.ZodObject<any> {
   const shape: Record<string, z.ZodTypeAny> = {};
 
   for (const variable of variables) {
@@ -135,9 +133,7 @@ function generateVariableSchema(
 /**
  * Generate default values from template variables
  */
-function generateDefaultValues(
-  variables: AlertRuleTemplateVariable[]
-): VariableValues {
+function generateDefaultValues(variables: AlertRuleTemplateVariable[]): VariableValues {
   const defaults: VariableValues = {};
 
   for (const variable of variables) {
@@ -234,7 +230,7 @@ const VariableInput = React.memo(function VariableInput({
         aria-describedby={error ? `${variable.name}-error` : undefined}
       />
       {suffix && (
-        <div className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground pointer-events-none">
+        <div className="text-muted-foreground pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm">
           {suffix}
         </div>
       )}
@@ -257,13 +253,12 @@ VariableInput.displayName = 'VariableInput';
  * @param props - Component props
  * @returns React component
  */
-export const AlertTemplateVariableInputForm = React.memo(
-  function AlertTemplateVariableInputForm({
-    template,
-    onSubmit,
-    onCancel,
-    isSubmitting = false,
-  }: AlertTemplateVariableInputFormProps) {
+export const AlertTemplateVariableInputForm = React.memo(function AlertTemplateVariableInputForm({
+  template,
+  onSubmit,
+  onCancel,
+  isSubmitting = false,
+}: AlertTemplateVariableInputFormProps) {
   // Generate schema and defaults
   const schema = React.useMemo(
     () => generateVariableSchema(template.variables),
@@ -291,10 +286,10 @@ export const AlertTemplateVariableInputForm = React.memo(
     return (
       <Card>
         <CardContent className="p-component-lg">
-          <p className="text-sm text-muted-foreground text-center">
+          <p className="text-muted-foreground text-center text-sm">
             This template has no configurable variables.
           </p>
-          <div className="flex gap-component-sm mt-component-md">
+          <div className="gap-component-sm mt-component-md flex">
             <Button
               type="button"
               variant="default"
@@ -322,7 +317,10 @@ export const AlertTemplateVariableInputForm = React.memo(
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-component-lg">
+    <form
+      onSubmit={handleSubmit}
+      className="space-y-component-lg"
+    >
       <Card>
         <CardHeader>
           <CardTitle className="text-base">Configure Variables</CardTitle>
@@ -335,20 +333,29 @@ export const AlertTemplateVariableInputForm = React.memo(
               name={variable.name}
               render={({ field, fieldState }) => (
                 <div className="space-y-component-sm">
-                  <Label htmlFor={variable.name} className="flex items-center gap-component-sm">
+                  <Label
+                    htmlFor={variable.name}
+                    className="gap-component-sm flex items-center"
+                  >
                     {variable.label}
                     {variable.required && (
-                      <Badge variant="error" className="text-xs h-5">
+                      <Badge
+                        variant="error"
+                        className="h-5 text-xs"
+                      >
                         Required
                       </Badge>
                     )}
-                    <Badge variant="outline" className="text-xs h-5">
+                    <Badge
+                      variant="outline"
+                      className="h-5 text-xs"
+                    >
                       {variable.type}
                     </Badge>
                   </Label>
 
                   {variable.description && (
-                    <p className="text-sm text-muted-foreground">{variable.description}</p>
+                    <p className="text-muted-foreground text-sm">{variable.description}</p>
                   )}
 
                   <VariableInput
@@ -360,17 +367,22 @@ export const AlertTemplateVariableInputForm = React.memo(
                   />
 
                   {fieldState.error && (
-                    <p id={`${variable.name}-error`} className="text-sm font-medium text-error">
+                    <p
+                      id={`${variable.name}-error`}
+                      className="text-error text-sm font-medium"
+                    >
                       {fieldState.error.message}
                     </p>
                   )}
 
-                  {!fieldState.error && variable.min !== undefined && variable.max !== undefined && (
-                    <p className="text-xs text-muted-foreground">
-                      Range: {variable.min} - {variable.max}
-                      {variable.unit && ` ${variable.unit}`}
-                    </p>
-                  )}
+                  {!fieldState.error &&
+                    variable.min !== undefined &&
+                    variable.max !== undefined && (
+                      <p className="text-muted-foreground text-xs">
+                        Range: {variable.min} - {variable.max}
+                        {variable.unit && ` ${variable.unit}`}
+                      </p>
+                    )}
                 </div>
               )}
             />
@@ -378,12 +390,12 @@ export const AlertTemplateVariableInputForm = React.memo(
         </CardContent>
       </Card>
 
-      <div className="flex gap-component-sm">
+      <div className="gap-component-sm flex">
         <Button
           type="submit"
           variant="default"
           disabled={isSubmitting}
-          className="flex-1 min-h-[44px]"
+          className="min-h-[44px] flex-1"
         >
           {isSubmitting ? 'Applying Template...' : 'Apply Template'}
         </Button>
@@ -393,7 +405,7 @@ export const AlertTemplateVariableInputForm = React.memo(
             variant="outline"
             onClick={onCancel}
             disabled={isSubmitting}
-            className="flex-1 min-h-[44px]"
+            className="min-h-[44px] flex-1"
           >
             Cancel
           </Button>
@@ -401,7 +413,6 @@ export const AlertTemplateVariableInputForm = React.memo(
       </div>
     </form>
   );
-  }
-);
+});
 
 AlertTemplateVariableInputForm.displayName = 'AlertTemplateVariableInputForm';

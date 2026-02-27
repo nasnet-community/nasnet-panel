@@ -8,7 +8,13 @@
 
 import * as React from 'react';
 import { Button } from '@nasnet/ui/primitives/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@nasnet/ui/primitives/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@nasnet/ui/primitives/card';
 import { Progress } from '@nasnet/ui/primitives/progress';
 import { Badge } from '@nasnet/ui/primitives/badge';
 import {
@@ -63,7 +69,10 @@ const DnsCachePanelMobileComponent = React.memo(function DnsCachePanelMobile({
       <Card className={cn('', className)}>
         <CardContent className="pt-component-lg">
           <Alert variant="destructive">
-            <Icon icon={AlertCircle} className="h-4 w-4" />
+            <Icon
+              icon={AlertCircle}
+              className="h-4 w-4"
+            />
             <AlertDescription className="text-sm">
               {error || 'Failed to load DNS cache statistics. Please try again.'}
             </AlertDescription>
@@ -87,11 +96,14 @@ const DnsCachePanelMobileComponent = React.memo(function DnsCachePanelMobile({
             <Card className="bg-muted/50">
               <CardContent className="p-component-md">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-component-sm">
-                    <Icon icon={Database} className="h-5 w-5 text-muted-foreground" />
-                    <span className="text-sm text-muted-foreground">Total Entries</span>
+                  <div className="gap-component-sm flex items-center">
+                    <Icon
+                      icon={Database}
+                      className="text-muted-foreground h-5 w-5"
+                    />
+                    <span className="text-muted-foreground text-sm">Total Entries</span>
                   </div>
-                  <div className="text-xl font-bold font-mono">
+                  <div className="font-mono text-xl font-bold">
                     {isLoading ? '…' : cacheStats?.totalEntries?.toLocaleString() || '0'}
                   </div>
                 </div>
@@ -102,13 +114,19 @@ const DnsCachePanelMobileComponent = React.memo(function DnsCachePanelMobile({
             <Card className="bg-muted/50">
               <CardContent className="p-component-md space-y-component-sm">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">Cache Usage</span>
-                  <Badge variant="secondary" className="text-xs font-mono">
+                  <span className="text-muted-foreground text-sm">Cache Usage</span>
+                  <Badge
+                    variant="secondary"
+                    className="font-mono text-xs"
+                  >
                     {isLoading ? '…' : `${cacheStats?.cacheUsagePercent?.toFixed(1) || 0}%`}
                   </Badge>
                 </div>
-                <Progress value={cacheStats?.cacheUsagePercent || 0} className="h-2" />
-                <div className="flex justify-between text-xs text-muted-foreground font-mono">
+                <Progress
+                  value={cacheStats?.cacheUsagePercent || 0}
+                  className="h-2"
+                />
+                <div className="text-muted-foreground flex justify-between font-mono text-xs">
                   <span>{cacheUsedFormatted}</span>
                   <span>{cacheMaxFormatted}</span>
                 </div>
@@ -119,11 +137,14 @@ const DnsCachePanelMobileComponent = React.memo(function DnsCachePanelMobile({
             <Card className="bg-muted/50">
               <CardContent className="p-component-md">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-component-sm">
-                    <Icon icon={TrendingUp} className="h-5 w-5 text-success" />
-                    <span className="text-sm text-muted-foreground">Hit Rate</span>
+                  <div className="gap-component-sm flex items-center">
+                    <Icon
+                      icon={TrendingUp}
+                      className="text-success h-5 w-5"
+                    />
+                    <span className="text-muted-foreground text-sm">Hit Rate</span>
                   </div>
-                  <div className="text-xl font-bold text-success font-mono">{hitRateFormatted}</div>
+                  <div className="text-success font-mono text-xl font-bold">{hitRateFormatted}</div>
                 </div>
               </CardContent>
             </Card>
@@ -137,15 +158,20 @@ const DnsCachePanelMobileComponent = React.memo(function DnsCachePanelMobile({
                 {cacheStats.topDomains.slice(0, 10).map((domain, index) => (
                   <div
                     key={domain.domain}
-                    className="flex items-start justify-between p-component-md bg-muted rounded-[var(--semantic-radius-button)] gap-component-sm"
+                    className="p-component-md bg-muted gap-component-sm flex items-start justify-between rounded-[var(--semantic-radius-button)]"
                   >
-                    <div className="flex items-start gap-component-sm min-w-0">
-                      <Badge variant="outline" className="font-mono text-xs flex-shrink-0">
+                    <div className="gap-component-sm flex min-w-0 items-start">
+                      <Badge
+                        variant="outline"
+                        className="flex-shrink-0 font-mono text-xs"
+                      >
                         #{index + 1}
                       </Badge>
-                      <span className="text-sm font-medium font-mono break-all">{domain.domain}</span>
+                      <span className="break-all font-mono text-sm font-medium">
+                        {domain.domain}
+                      </span>
                     </div>
-                    <div className="text-xs text-muted-foreground whitespace-nowrap font-mono">
+                    <div className="text-muted-foreground whitespace-nowrap font-mono text-xs">
                       {domain.queryCount}
                     </div>
                   </div>
@@ -159,17 +185,23 @@ const DnsCachePanelMobileComponent = React.memo(function DnsCachePanelMobile({
             variant="destructive"
             onClick={openFlushDialog}
             disabled={isLoading || !cacheStats || cacheStats.totalEntries === 0}
-            className="w-full gap-component-sm h-11"
+            className="gap-component-sm h-11 w-full"
             size="lg"
           >
-            <Icon icon={Trash2} className="h-5 w-5" />
+            <Icon
+              icon={Trash2}
+              className="h-5 w-5"
+            />
             Flush Cache
           </Button>
         </CardContent>
       </Card>
 
       {/* Flush Confirmation Dialog */}
-      <Dialog open={isFlushDialogOpen} onOpenChange={closeFlushDialog}>
+      <Dialog
+        open={isFlushDialogOpen}
+        onOpenChange={closeFlushDialog}
+      >
         <DialogContent className="max-w-[90vw]">
           <DialogHeader>
             <DialogTitle className="text-lg">Flush DNS Cache?</DialogTitle>
@@ -182,7 +214,7 @@ const DnsCachePanelMobileComponent = React.memo(function DnsCachePanelMobile({
           {cacheStats && !flushResult && (
             <div className="space-y-component-sm p-component-md bg-muted rounded-[var(--semantic-radius-button)]">
               <div className="text-sm font-medium">Current Cache:</div>
-              <div className="space-y-component-xs text-sm font-mono">
+              <div className="space-y-component-xs font-mono text-sm">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Entries:</span>
                   <span>{cacheStats.totalEntries}</span>
@@ -201,15 +233,21 @@ const DnsCachePanelMobileComponent = React.memo(function DnsCachePanelMobile({
 
           {/* Success Message */}
           {flushResult && (
-            <Alert variant="default" className="border-success">
-              <Icon icon={CheckCircle2} className="h-4 w-4 text-success" />
+            <Alert
+              variant="default"
+              className="border-success"
+            >
+              <Icon
+                icon={CheckCircle2}
+                className="text-success h-4 w-4"
+              />
               <AlertDescription className="text-sm">
                 Flushed {flushResult.entriesRemoved} entries successfully
               </AlertDescription>
             </Alert>
           )}
 
-          <DialogFooter className="flex-col gap-component-sm sm:flex-row">
+          <DialogFooter className="gap-component-sm flex-col sm:flex-row">
             <Button
               variant="outline"
               disabled={isFlushing}

@@ -5,4 +5,3 @@
 
 export { useConfigurationCheck } from './useConfigurationCheck';
 export type { UseConfigurationCheckResult } from './useConfigurationCheck';
-

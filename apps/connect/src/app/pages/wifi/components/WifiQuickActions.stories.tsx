@@ -10,7 +10,6 @@ import { WifiQuickActions } from './WifiQuickActions';
 
 import type { Meta, StoryObj } from '@storybook/react';
 
-
 // ---------------------------------------------------------------------------
 // Meta
 // ---------------------------------------------------------------------------
@@ -88,9 +87,7 @@ export const WithRestartDialogOpen: Story = {
   },
   play: async ({ canvasElement }) => {
     // Simulate clicking "Restart WiFi" to open the dialog
-    const restartBtn = canvasElement.querySelector<HTMLButtonElement>(
-      'button:last-of-type',
-    );
+    const restartBtn = canvasElement.querySelector<HTMLButtonElement>('button:last-of-type');
     restartBtn?.click();
   },
   parameters: {

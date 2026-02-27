@@ -15,11 +15,7 @@
 
 import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 
-import {
-  useCommandRegistry,
-  useUIStore,
-  type Command,
-} from '@nasnet/state/stores';
+import { useCommandRegistry, useUIStore, type Command } from '@nasnet/state/stores';
 
 /**
  * Debounce delay for search input
@@ -107,8 +103,7 @@ export interface UseCommandPaletteReturn {
  */
 export function useCommandPalette(): UseCommandPaletteReturn {
   // State from stores
-  const { commandPaletteOpen, setCommandPaletteOpen, toggleCommandPalette } =
-    useUIStore();
+  const { commandPaletteOpen, setCommandPaletteOpen, toggleCommandPalette } = useUIStore();
   const { search, trackUsage } = useCommandRegistry();
 
   // Local state

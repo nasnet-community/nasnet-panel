@@ -46,22 +46,21 @@ export interface DataTableToolbarProps {
  * </DataTableToolbar>
  * ```
  */
-const DataTableToolbarInner = React.forwardRef<
-  HTMLDivElement,
-  DataTableToolbarProps
->(({ children, className }, ref) => (
-  <div
-    ref={ref}
-    role="toolbar"
-    aria-label="Table controls"
-    className={cn(
-      'flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4',
-      className
-    )}
-  >
-    {children}
-  </div>
-));
+const DataTableToolbarInner = React.forwardRef<HTMLDivElement, DataTableToolbarProps>(
+  ({ children, className }, ref) => (
+    <div
+      ref={ref}
+      role="toolbar"
+      aria-label="Table controls"
+      className={cn(
+        'mb-4 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center',
+        className
+      )}
+    >
+      {children}
+    </div>
+  )
+);
 
 DataTableToolbarInner.displayName = 'DataTableToolbar';
 

@@ -7,10 +7,7 @@
  * @module @/components/skeletons/DetailPanelSkeleton
  */
 
-import {
-  Skeleton,
-  SkeletonAvatar,
- cn } from '@nasnet/ui/primitives';
+import { Skeleton, SkeletonAvatar, cn } from '@nasnet/ui/primitives';
 
 export interface DetailPanelSkeletonProps {
   /** Show header with avatar/icon */
@@ -64,13 +61,13 @@ export function DetailPanelSkeleton({
     >
       {/* Header */}
       {showHeader && (
-        <div className="flex items-start gap-4 pb-4 border-b border-border">
+        <div className="border-border flex items-start gap-4 border-b pb-4">
           <SkeletonAvatar size="lg" />
           <div className="flex-1 space-y-2">
             <Skeleton className="h-6 w-48" />
             <Skeleton className="h-4 w-32" />
             {/* Status badge */}
-            <Skeleton className="h-6 w-20 rounded-pill" />
+            <Skeleton className="rounded-pill h-6 w-20" />
           </div>
         </div>
       )}
@@ -80,14 +77,12 @@ export function DetailPanelSkeleton({
         {Array.from({ length: rows }).map((_, i) => (
           <div
             key={i}
-            className="flex items-center justify-between py-2 border-b border-border/50"
+            className="border-border/50 flex items-center justify-between border-b py-2"
           >
             {/* Label */}
             <Skeleton className="h-4 w-24" />
             {/* Value - varying widths */}
-            <Skeleton
-              className="h-4 w-48"
-            />
+            <Skeleton className="h-4 w-48" />
           </div>
         ))}
       </div>
@@ -103,13 +98,13 @@ export function DetailPanelSkeleton({
 
       {/* Related Items */}
       {showRelated && (
-        <div className="space-y-3 pt-4 border-t border-border">
+        <div className="border-border space-y-3 border-t pt-4">
           <Skeleton className="h-5 w-32" />
           <div className="space-y-2">
             {Array.from({ length: 3 }).map((_, i) => (
               <div
                 key={i}
-                className="flex items-center gap-3 p-2 rounded-md bg-muted/30 shadow-sm"
+                className="bg-muted/30 flex items-center gap-3 rounded-md p-2 shadow-sm"
               >
                 <Skeleton className="h-8 w-8 rounded" />
                 <div className="flex-1 space-y-1">

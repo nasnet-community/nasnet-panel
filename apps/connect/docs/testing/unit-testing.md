@@ -1,6 +1,8 @@
 # Unit Testing
 
-Unit tests cover pure functions, custom hooks, and utilities in isolation. They are the fastest tier — each test runs in milliseconds — and form the base of the testing pyramid. The test runner is **Vitest**, chosen for its native ESM support and Vite-native speed.
+Unit tests cover pure functions, custom hooks, and utilities in isolation. They are the fastest tier
+— each test runs in milliseconds — and form the base of the testing pyramid. The test runner is
+**Vitest**, chosen for its native ESM support and Vite-native speed.
 
 ---
 
@@ -12,11 +14,11 @@ Unit tests cover pure functions, custom hooks, and utilities in isolation. They 
 export default defineConfig({
   plugins: [react()],
   test: {
-    globals: true,           // describe/it/expect available without import
-    environment: 'jsdom',    // Browser-like DOM in Node.js
+    globals: true, // describe/it/expect available without import
+    environment: 'jsdom', // Browser-like DOM in Node.js
     setupFiles: [
-      '@testing-library/jest-dom/vitest',  // DOM matchers
-      './src/test/setup.ts',               // MSW + browser API mocks
+      '@testing-library/jest-dom/vitest', // DOM matchers
+      './src/test/setup.ts', // MSW + browser API mocks
     ],
     include: ['src/**/*.{test,spec}.{ts,tsx}'],
     exclude: ['node_modules/', 'dist/', 'e2e/'],
@@ -50,10 +52,13 @@ export default defineConfig({
 
 ### Key settings
 
-- **`globals: true`** — `describe`, `it`, `expect`, `vi`, `beforeEach`, etc. are available without importing from `vitest`
+- **`globals: true`** — `describe`, `it`, `expect`, `vi`, `beforeEach`, etc. are available without
+  importing from `vitest`
 - **`environment: 'jsdom'`** — DOM APIs available, but no real browser rendering
-- **`setupFiles`** — MSW server is started before each test file; `matchMedia`, `ResizeObserver`, `IntersectionObserver` are mocked
-- **`pool: 'forks'`** with `singleFork: true` — runs all tests in one worker process, avoids test isolation overhead for this codebase size
+- **`setupFiles`** — MSW server is started before each test file; `matchMedia`, `ResizeObserver`,
+  `IntersectionObserver` are mocked
+- **`pool: 'forks'`** with `singleFork: true` — runs all tests in one worker process, avoids test
+  isolation overhead for this codebase size
 
 ---
 
@@ -67,28 +72,36 @@ import { server } from '../mocks/server';
 // MSW lifecycle
 beforeAll(() => server.listen({ onUnhandledRequest: 'warn' }));
 afterEach(() => {
-  cleanup();           // Unmount React components
-  vi.clearAllMocks();  // Reset all vi.fn() and vi.spyOn() calls
+  cleanup(); // Unmount React components
+  vi.clearAllMocks(); // Reset all vi.fn() and vi.spyOn() calls
   server.resetHandlers(); // Remove test-specific handler overrides
 });
 afterAll(() => server.close());
 
 // Browser API stubs (jsdom doesn't implement these)
 Object.defineProperty(window, 'matchMedia', {
-  value: vi.fn().mockImplementation(query => ({
-    matches: false, media: query, onchange: null,
-    addListener: vi.fn(), removeListener: vi.fn(),
-    addEventListener: vi.fn(), removeEventListener: vi.fn(),
+  value: vi.fn().mockImplementation((query) => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addListener: vi.fn(),
+    removeListener: vi.fn(),
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
     dispatchEvent: vi.fn(),
   })),
 });
 
 global.ResizeObserver = vi.fn().mockImplementation(() => ({
-  observe: vi.fn(), unobserve: vi.fn(), disconnect: vi.fn(),
+  observe: vi.fn(),
+  unobserve: vi.fn(),
+  disconnect: vi.fn(),
 }));
 
 global.IntersectionObserver = vi.fn().mockImplementation(() => ({
-  observe: vi.fn(), unobserve: vi.fn(), disconnect: vi.fn(),
+  observe: vi.fn(),
+  unobserve: vi.fn(),
+  disconnect: vi.fn(),
 }));
 ```
 
@@ -132,7 +145,8 @@ describe('getLanguageDirection', () => {
 
 ## Testing Custom Hooks
 
-Use `renderHook` from React Testing Library to test hooks in isolation. Wrap with providers when the hook depends on context.
+Use `renderHook` from React Testing Library to test hooks in isolation. Wrap with providers when the
+hook depends on context.
 
 ```typescript
 import { renderHook } from '@testing-library/react';
@@ -147,7 +161,7 @@ describe('useReducedMotion', () => {
 
   it('should return true when user prefers reduced motion', () => {
     // Override the mock to simulate reduced motion preference
-    vi.mocked(window.matchMedia).mockImplementation(query => ({
+    vi.mocked(window.matchMedia).mockImplementation((query) => ({
       matches: query === '(prefers-reduced-motion: reduce)',
       media: query,
       onchange: null,
@@ -170,7 +184,8 @@ describe('useReducedMotion', () => {
 
 ### Simple Component Tests
 
-Components without external dependencies can be tested directly with `render` from `@testing-library/react`. No custom wrapper needed.
+Components without external dependencies can be tested directly with `render` from
+`@testing-library/react`. No custom wrapper needed.
 
 ```tsx
 // apps/connect/src/app/pages/network/components/StatusBadge.test.tsx
@@ -197,7 +212,8 @@ describe('StatusBadge', () => {
 
 ### Components with External Hook Dependencies
 
-When a component calls hooks from `@nasnet/api-client/queries` or other external packages, mock those hooks with `vi.mock`:
+When a component calls hooks from `@nasnet/api-client/queries` or other external packages, mock
+those hooks with `vi.mock`:
 
 ```tsx
 // apps/connect/src/app/pages/network/components/InterfaceCard.test.tsx
@@ -364,7 +380,8 @@ const wirelessInterface = makeInterface({ type: 'wireless', name: 'wlan1' });
 
 ## Import Aliases in Tests
 
-The vitest config mirrors the Vite aliases from `vite.config.ts`. Use the same import paths in test files:
+The vitest config mirrors the Vite aliases from `vite.config.ts`. Use the same import paths in test
+files:
 
 ```typescript
 import { type NetworkInterface } from '@nasnet/core/types';

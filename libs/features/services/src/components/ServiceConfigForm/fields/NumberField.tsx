@@ -8,8 +8,7 @@ import type { ComponentPropsWithoutRef } from 'react';
  *
  * Extends standard HTML input attributes with numeric constraints.
  */
-export interface NumberFieldProps
-  extends Omit<ComponentPropsWithoutRef<typeof Input>, 'type'> {
+export interface NumberFieldProps extends Omit<ComponentPropsWithoutRef<typeof Input>, 'type'> {
   /** Minimum allowed numeric value */
   min?: number;
   /** Maximum allowed numeric value */
@@ -36,35 +35,23 @@ export interface NumberFieldProps
  *
  * @see DynamicField for integration with form schema validation
  */
-export const NumberField = forwardRef<HTMLInputElement, NumberFieldProps>(
-  function NumberField(
-    {
-      min,
-      max,
-      className,
-      disabled,
-      'aria-invalid': ariaInvalid,
-      ...props
-    },
-    ref
-  ) {
-    return (
-      <Input
-        ref={ref}
-        type="number"
-        disabled={disabled}
-        min={min}
-        max={max}
-        step="1"
-        className={cn(
-          'font-mono text-xs',
-          className
-        )}
-        aria-invalid={ariaInvalid}
-        {...props}
-      />
-    );
-  }
-);
+export const NumberField = forwardRef<HTMLInputElement, NumberFieldProps>(function NumberField(
+  { min, max, className, disabled, 'aria-invalid': ariaInvalid, ...props },
+  ref
+) {
+  return (
+    <Input
+      ref={ref}
+      type="number"
+      disabled={disabled}
+      min={min}
+      max={max}
+      step="1"
+      className={cn('font-mono text-xs', className)}
+      aria-invalid={ariaInvalid}
+      {...props}
+    />
+  );
+});
 
 NumberField.displayName = 'NumberField';

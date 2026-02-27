@@ -23,7 +23,14 @@ import React, { useCallback, useState } from 'react';
 
 import { Copy, Check, Eye, EyeOff } from 'lucide-react';
 
-import { cn, Button, Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@nasnet/ui/primitives';
+import {
+  cn,
+  Button,
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+  TooltipProvider,
+} from '@nasnet/ui/primitives';
 
 import { useClipboard } from '../hooks';
 import { useToast } from '../hooks/useToast';
@@ -32,13 +39,13 @@ import { useToast } from '../hooks/useToast';
  * Supported value types
  */
 export type CopyableValueType =
-  | 'ip'       // IP address (e.g., 192.168.1.1 or 192.168.1.0/24)
-  | 'mac'      // MAC address (e.g., 00:1A:2B:3C:4D:5E)
+  | 'ip' // IP address (e.g., 192.168.1.1 or 192.168.1.0/24)
+  | 'mac' // MAC address (e.g., 00:1A:2B:3C:4D:5E)
   | 'hostname' // Hostname (e.g., router.local)
-  | 'text'     // Generic text
-  | 'api-key'  // API key (maskable)
+  | 'text' // Generic text
+  | 'api-key' // API key (maskable)
   | 'password' // Password (maskable)
-  | 'token';   // Token (maskable)
+  | 'token'; // Token (maskable)
 
 /**
  * Props for CopyableValue component
@@ -200,7 +207,12 @@ export const CopyableValue = React.memo(function CopyableValue({
   };
 
   // Technical values use monospace font
-  const useMono = type === 'ip' || type === 'mac' || type === 'hostname' || type === 'api-key' || type === 'token';
+  const useMono =
+    type === 'ip' ||
+    type === 'mac' ||
+    type === 'hostname' ||
+    type === 'api-key' ||
+    type === 'token';
 
   const handleCopy = useCallback(
     async (e: React.MouseEvent) => {
@@ -210,22 +222,17 @@ export const CopyableValue = React.memo(function CopyableValue({
     [copy, value]
   );
 
-  const toggleReveal = useCallback(
-    (e: React.MouseEvent) => {
-      e.stopPropagation();
-      setRevealed((prev) => !prev);
-    },
-    []
-  );
+  const toggleReveal = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    setRevealed((prev) => !prev);
+  }, []);
 
-  const effectiveAriaLabel = ariaLabel ?? `${getTypeLabel(type)}: ${shouldMask && !revealed ? 'hidden' : value}`;
+  const effectiveAriaLabel =
+    ariaLabel ?? `${getTypeLabel(type)}: ${shouldMask && !revealed ? 'hidden' : value}`;
 
   return (
     <span
-      className={cn(
-        'inline-flex items-center gap-1.5 group',
-        className
-      )}
+      className={cn('group inline-flex items-center gap-1.5', className)}
       aria-label={effectiveAriaLabel}
     >
       <span
@@ -248,21 +255,22 @@ export const CopyableValue = React.memo(function CopyableValue({
                 variant="ghost"
                 size="icon"
                 className={cn(
-                  'h-6 w-6 rounded-button',
-                  'hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors',
-                  showIconOnHover && 'opacity-0 group-hover:opacity-100 focus:opacity-100'
+                  'rounded-button h-6 w-6',
+                  'transition-colors hover:bg-slate-100 dark:hover:bg-slate-800',
+                  showIconOnHover && 'opacity-0 focus:opacity-100 group-hover:opacity-100'
                 )}
                 onClick={toggleReveal}
                 aria-label={revealed ? 'Hide value' : 'Reveal value'}
               >
-                {revealed ? (
+                {revealed ?
                   <EyeOff className="h-3.5 w-3.5 text-slate-500 dark:text-slate-400" />
-                ) : (
-                  <Eye className="h-3.5 w-3.5 text-slate-500 dark:text-slate-400" />
-                )}
+                : <Eye className="h-3.5 w-3.5 text-slate-500 dark:text-slate-400" />}
               </Button>
             </TooltipTrigger>
-            <TooltipContent side="top" className="text-xs">
+            <TooltipContent
+              side="top"
+              className="text-xs"
+            >
               {revealed ? 'Hide' : 'Reveal'}
             </TooltipContent>
           </Tooltip>
@@ -277,21 +285,22 @@ export const CopyableValue = React.memo(function CopyableValue({
               variant="ghost"
               size="icon"
               className={cn(
-                'h-6 w-6 rounded-button',
-                'hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors',
-                showIconOnHover && 'opacity-0 group-hover:opacity-100 focus:opacity-100'
+                'rounded-button h-6 w-6',
+                'transition-colors hover:bg-slate-100 dark:hover:bg-slate-800',
+                showIconOnHover && 'opacity-0 focus:opacity-100 group-hover:opacity-100'
               )}
               onClick={handleCopy}
               aria-label={copied ? 'Copied' : `Copy ${getTypeLabel(type)}`}
             >
-              {copied ? (
-                <Check className="h-3.5 w-3.5 text-success" />
-              ) : (
-                <Copy className="h-3.5 w-3.5 text-slate-500 dark:text-slate-400" />
-              )}
+              {copied ?
+                <Check className="text-success h-3.5 w-3.5" />
+              : <Copy className="h-3.5 w-3.5 text-slate-500 dark:text-slate-400" />}
             </Button>
           </TooltipTrigger>
-          <TooltipContent side="top" className="text-xs">
+          <TooltipContent
+            side="top"
+            className="text-xs"
+          >
             {copied ? 'Copied!' : 'Copy'}
           </TooltipContent>
         </Tooltip>

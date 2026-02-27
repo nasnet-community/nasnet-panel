@@ -76,8 +76,7 @@ export const NarrowViewport: Story = {
   parameters: {
     docs: {
       description: {
-        story:
-          'Skeleton at a narrow mobile viewport width, showing how filter bar skeletons wrap.',
+        story: 'Skeleton at a narrow mobile viewport width, showing how filter bar skeletons wrap.',
       },
     },
   },

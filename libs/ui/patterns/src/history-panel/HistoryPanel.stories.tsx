@@ -180,8 +180,8 @@ export const Mobile: Story = {
   globals: {
     viewport: {
       value: 'mobile1',
-      isRotated: false
-    }
+      isRotated: false,
+    },
   },
 };
 
@@ -198,13 +198,14 @@ export const ManyActions: Story = {
         // Add many actions
         for (let i = 1; i <= 15; i++) {
           pushAction({
-            type: i % 3 === 0 ? 'create' : i % 3 === 1 ? 'edit' : 'delete',
+            type:
+              i % 3 === 0 ? 'create'
+              : i % 3 === 1 ? 'edit'
+              : 'delete',
             description: `Action ${i}: ${
-              i % 3 === 0
-                ? 'Create resource'
-                : i % 3 === 1
-                ? 'Edit configuration'
-                : 'Delete item'
+              i % 3 === 0 ? 'Create resource'
+              : i % 3 === 1 ? 'Edit configuration'
+              : 'Delete item'
             }`,
             scope: i % 4 === 0 ? 'global' : 'page',
             execute: () => {},

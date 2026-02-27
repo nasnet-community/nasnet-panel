@@ -56,14 +56,24 @@ export const FixSuggestion = memo(function FixSuggestion({
     return (
       <span
         className={cn(
-          'inline-flex items-center gap-component-sm px-component-sm py-1 rounded-[var(--semantic-radius-badge)] text-xs font-medium border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+          'gap-component-sm px-component-sm focus-visible:ring-ring inline-flex items-center rounded-[var(--semantic-radius-badge)] border py-1 text-xs font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
           colors[fix.confidence]
         )}
         role="status"
         aria-label={`Confidence level: ${fix.confidence}`}
       >
-        {fix.confidence === 'high' && <CheckCircle2 className="h-3 w-3" aria-hidden="true" />}
-        {fix.confidence === 'medium' && <AlertCircle className="h-3 w-3" aria-hidden="true" />}
+        {fix.confidence === 'high' && (
+          <CheckCircle2
+            className="h-3 w-3"
+            aria-hidden="true"
+          />
+        )}
+        {fix.confidence === 'medium' && (
+          <AlertCircle
+            className="h-3 w-3"
+            aria-hidden="true"
+          />
+        )}
         {fix.confidence} confidence
       </span>
     );
@@ -71,28 +81,33 @@ export const FixSuggestion = memo(function FixSuggestion({
 
   const manualStepsContent = useMemo(
     () =>
-      fix.isManualFix && fix.manualSteps ? (
+      fix.isManualFix && fix.manualSteps ?
         <div className="mb-component-md p-component-sm bg-muted/50 rounded-[var(--semantic-radius-card)]">
-          <p className="text-xs font-medium text-foreground mb-component-sm">Follow these steps:</p>
-          <ol className="list-decimal list-inside space-y-component-xs text-xs text-muted-foreground">
+          <p className="text-foreground mb-component-sm text-xs font-medium">Follow these steps:</p>
+          <ol className="space-y-component-xs text-muted-foreground list-inside list-decimal text-xs">
             {fix.manualSteps.map((step, index) => (
-              <li key={index} className="font-mono">{step}</li>
+              <li
+                key={index}
+                className="font-mono"
+              >
+                {step}
+              </li>
             ))}
           </ol>
         </div>
-      ) : null,
+      : null,
     [fix.isManualFix, fix.manualSteps]
   );
 
   const ispInfoContent = useMemo(
     () =>
-      fix.isManualFix && fix.issueCode.includes('INTERNET') && ispInfo?.detected ? (
+      fix.isManualFix && fix.issueCode.includes('INTERNET') && ispInfo?.detected ?
         <div
-          className="mb-component-md p-component-sm bg-info/10 border border-info/20 rounded-[var(--semantic-radius-card)]"
+          className="mb-component-md p-component-sm bg-info/10 border-info/20 rounded-[var(--semantic-radius-card)] border"
           role="complementary"
           aria-label="ISP contact information"
         >
-          <p className="text-xs font-medium text-info mb-component-sm">ISP Information</p>
+          <p className="text-info mb-component-sm text-xs font-medium">ISP Information</p>
           <div className="space-y-component-xs text-xs">
             {ispInfo.name && <p className="text-foreground font-mono">{ispInfo.name}</p>}
             {ispInfo.supportPhone && (
@@ -100,7 +115,7 @@ export const FixSuggestion = memo(function FixSuggestion({
                 Phone:{' '}
                 <a
                   href={`tel:${ispInfo.supportPhone}`}
-                  className="font-mono text-info hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded px-component-xs min-h-[44px] inline-flex items-center"
+                  className="text-info focus-visible:ring-ring px-component-xs inline-flex min-h-[44px] items-center rounded font-mono hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
                 >
                   {ispInfo.supportPhone}
                 </a>
@@ -113,7 +128,7 @@ export const FixSuggestion = memo(function FixSuggestion({
                   href={ispInfo.supportUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="font-mono text-info hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded px-component-xs min-h-[44px] inline-flex items-center"
+                  className="text-info focus-visible:ring-ring px-component-xs inline-flex min-h-[44px] items-center rounded font-mono hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
                 >
                   {ispInfo.supportUrl.replace(/^https?:\/\/(www\.)?/, '')}
                 </a>
@@ -121,18 +136,25 @@ export const FixSuggestion = memo(function FixSuggestion({
             )}
           </div>
         </div>
-      ) : null,
-    [fix.isManualFix, fix.issueCode, ispInfo?.detected, ispInfo?.name, ispInfo?.supportPhone, ispInfo?.supportUrl]
+      : null,
+    [
+      fix.isManualFix,
+      fix.issueCode,
+      ispInfo?.detected,
+      ispInfo?.name,
+      ispInfo?.supportPhone,
+      ispInfo?.supportUrl,
+    ]
   );
 
   const commandPreviewContent = useMemo(
     () =>
-      showCommandPreview && fix.command ? (
+      showCommandPreview && fix.command ?
         <div className="mb-component-md p-component-sm bg-muted/50 rounded-[var(--semantic-radius-card)] font-mono text-xs">
           <p className="text-muted-foreground mb-component-xs">RouterOS Command:</p>
           <code className="text-foreground break-all font-mono">{fix.command}</code>
         </div>
-      ) : null,
+      : null,
     [showCommandPreview, fix.command]
   );
 
@@ -146,21 +168,27 @@ export const FixSuggestion = memo(function FixSuggestion({
 
   return (
     <Card
-      className="p-component-md border-2 border-warning/50 bg-warning/5"
+      className="p-component-md border-warning/50 bg-warning/5 border-2"
       role="region"
       aria-label={`Fix suggestion: ${fix.title}`}
     >
       {/* Header */}
-      <div className="flex items-start justify-between gap-component-md mb-component-md">
-        <div className="flex items-center gap-component-sm">
-          <AlertCircle className="h-5 w-5 text-warning flex-shrink-0" aria-hidden="true" />
-          <h3 className="font-semibold text-foreground">{fix.title}</h3>
+      <div className="gap-component-md mb-component-md flex items-start justify-between">
+        <div className="gap-component-sm flex items-center">
+          <AlertCircle
+            className="text-warning h-5 w-5 flex-shrink-0"
+            aria-hidden="true"
+          />
+          <h3 className="text-foreground font-semibold">{fix.title}</h3>
         </div>
         {getConfidenceBadge()}
       </div>
 
       {/* Description */}
-      <p className="text-sm text-muted-foreground mb-component-md" id={`fix-description-${fix.issueCode}`}>
+      <p
+        className="text-muted-foreground mb-component-md text-sm"
+        id={`fix-description-${fix.issueCode}`}
+      >
         {fix.description}
       </p>
 
@@ -174,12 +202,12 @@ export const FixSuggestion = memo(function FixSuggestion({
       {commandPreviewContent}
 
       {/* Action Buttons */}
-      <div className="flex gap-component-sm">
+      <div className="gap-component-sm flex">
         <Button
           variant="outline"
           onClick={handleSkipClick}
           disabled={status === 'applying'}
-          className="min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          className="focus-visible:ring-ring min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
           aria-label={fix.isManualFix ? 'Continue to next step' : 'Skip this fix'}
         >
           {fix.isManualFix ? 'Continue' : 'Skip'}
@@ -189,19 +217,25 @@ export const FixSuggestion = memo(function FixSuggestion({
           <Button
             onClick={handleApplyClick}
             disabled={status === 'applying' || status === 'applied'}
-            className="flex-1 min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            className="focus-visible:ring-ring min-h-[44px] flex-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
             aria-describedby={`fix-description-${fix.issueCode}`}
             aria-busy={status === 'applying'}
           >
             {status === 'applying' && (
               <>
-                <Loader2 className="mr-component-sm h-4 w-4 animate-spin" aria-hidden="true" />
+                <Loader2
+                  className="mr-component-sm h-4 w-4 animate-spin"
+                  aria-hidden="true"
+                />
                 <span>Applying Fix...</span>
               </>
             )}
             {status === 'applied' && (
               <>
-                <CheckCircle2 className="mr-component-sm h-4 w-4" aria-hidden="true" />
+                <CheckCircle2
+                  className="mr-component-sm h-4 w-4"
+                  aria-hidden="true"
+                />
                 <span>Applied</span>
               </>
             )}

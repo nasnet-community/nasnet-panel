@@ -19,7 +19,10 @@ import '@testing-library/jest-dom/vitest';
 // Mock the shell components to avoid deep dependency chains
 vi.mock('../../app-shell', () => ({
   AppShell: vi.fn(({ children, className }) => (
-    <div data-testid="app-shell" className={className}>
+    <div
+      data-testid="app-shell"
+      className={className}
+    >
       {children}
     </div>
   )),
@@ -27,7 +30,10 @@ vi.mock('../../app-shell', () => ({
 
 vi.mock('../../mobile-app-shell', () => ({
   MobileAppShell: vi.fn(({ children, className }) => (
-    <div data-testid="mobile-app-shell" className={className}>
+    <div
+      data-testid="mobile-app-shell"
+      className={className}
+    >
       {children}
     </div>
   )),
@@ -172,7 +178,10 @@ describe('ResponsiveShell', () => {
 
       render(
         <PlatformProvider>
-          <ResponsiveShell sidebar={<div>Sidebar</div>} onSidebarToggle={mockToggle}>
+          <ResponsiveShell
+            sidebar={<div>Sidebar</div>}
+            onSidebarToggle={mockToggle}
+          >
             <div>Content</div>
           </ResponsiveShell>
         </PlatformProvider>
@@ -189,7 +198,10 @@ describe('ResponsiveShell', () => {
 
       render(
         <PlatformProvider>
-          <ResponsiveShell sidebar={<div>Sidebar</div>} onSidebarToggle={mockToggle}>
+          <ResponsiveShell
+            sidebar={<div>Sidebar</div>}
+            onSidebarToggle={mockToggle}
+          >
             <div>Content</div>
           </ResponsiveShell>
         </PlatformProvider>

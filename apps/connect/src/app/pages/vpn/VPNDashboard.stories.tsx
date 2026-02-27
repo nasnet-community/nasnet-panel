@@ -13,7 +13,6 @@ import { VPNDashboard } from './VPNDashboard';
 
 import type { Meta, StoryObj } from '@storybook/react';
 
-
 const meta: Meta<typeof VPNDashboard> = {
   title: 'App/Pages/VPNDashboard',
   component: VPNDashboard,
@@ -81,36 +80,30 @@ function DashboardShell({
   isError = false,
 }: DashboardShellProps) {
   const heroBg =
-    healthStatus === 'healthy'
-      ? 'bg-success text-success-foreground'
-      : healthStatus === 'warning'
-        ? 'bg-warning text-warning-foreground'
-        : 'bg-destructive text-destructive-foreground';
+    healthStatus === 'healthy' ? 'bg-success text-success-foreground'
+    : healthStatus === 'warning' ? 'bg-warning text-warning-foreground'
+    : 'bg-destructive text-destructive-foreground';
 
   const heroTitle =
-    healthStatus === 'healthy'
-      ? 'All Systems Protected'
-      : healthStatus === 'warning'
-        ? 'Attention Required'
-        : 'Issues Detected';
+    healthStatus === 'healthy' ? 'All Systems Protected'
+    : healthStatus === 'warning' ? 'Attention Required'
+    : 'Issues Detected';
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="px-4 sm:px-6 py-6">
-        <div className="max-w-6xl mx-auto space-y-6">
+    <div className="bg-background min-h-screen">
+      <div className="px-4 py-6 sm:px-6">
+        <div className="mx-auto max-w-6xl space-y-6">
           {/* Header */}
           <div className="flex items-start justify-between">
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-1">
-                VPN Dashboard
-              </h1>
-              <p className="text-sm text-muted-foreground">
+              <h1 className="text-foreground mb-1 text-2xl font-bold sm:text-3xl">VPN Dashboard</h1>
+              <p className="text-muted-foreground text-sm">
                 Monitor and manage your VPN infrastructure
               </p>
             </div>
             <button
               disabled={isLoading}
-              className="flex items-center gap-2 min-h-[44px] min-w-[44px] px-3 border border-border rounded-md text-sm disabled:opacity-50"
+              className="border-border flex min-h-[44px] min-w-[44px] items-center gap-2 rounded-md border px-3 text-sm disabled:opacity-50"
               aria-label="Refresh VPN dashboard"
             >
               Refresh
@@ -119,15 +112,22 @@ function DashboardShell({
 
           {/* Loading */}
           {isLoading && (
-            <div className="space-y-6" role="status" aria-label="Loading VPN dashboard">
-              <div className="h-48 w-full rounded-2xl bg-muted animate-pulse" />
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="h-36 rounded-xl bg-muted animate-pulse" />
-                <div className="h-36 rounded-xl bg-muted animate-pulse" />
+            <div
+              className="space-y-6"
+              role="status"
+              aria-label="Loading VPN dashboard"
+            >
+              <div className="bg-muted h-48 w-full animate-pulse rounded-2xl" />
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div className="bg-muted h-36 animate-pulse rounded-xl" />
+                <div className="bg-muted h-36 animate-pulse rounded-xl" />
               </div>
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+              <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
                 {[...Array(6)].map((_, i) => (
-                  <div key={i} className="h-32 rounded-xl bg-muted animate-pulse" />
+                  <div
+                    key={i}
+                    className="bg-muted h-32 animate-pulse rounded-xl"
+                  />
                 ))}
               </div>
             </div>
@@ -136,16 +136,16 @@ function DashboardShell({
           {/* Error */}
           {isError && (
             <div
-              className="bg-error/10 dark:bg-error/20 border-2 border-error rounded-2xl p-6"
+              className="bg-error/10 dark:bg-error/20 border-error rounded-2xl border-2 p-6"
               role="alert"
             >
-              <h3 className="text-lg font-semibold text-foreground mb-2">
+              <h3 className="text-foreground mb-2 text-lg font-semibold">
                 Failed to load VPN statistics
               </h3>
-              <p className="text-sm text-muted-foreground mb-4">
+              <p className="text-muted-foreground mb-4 text-sm">
                 Unable to retrieve VPN data from the router. Please check your connection.
               </p>
-              <button className="px-3 py-2 border border-border rounded-md text-sm min-h-[44px]">
+              <button className="border-border min-h-[44px] rounded-md border px-3 py-2 text-sm">
                 Try Again
               </button>
             </div>
@@ -155,10 +155,10 @@ function DashboardShell({
           {!isLoading && !isError && (
             <>
               {/* Status Hero */}
-              <div className={`rounded-2xl overflow-hidden ${heroBg}`}>
+              <div className={`overflow-hidden rounded-2xl ${heroBg}`}>
                 <div className="p-6 pb-8 text-center">
-                  <h2 className="text-2xl font-bold mb-1">{heroTitle}</h2>
-                  <p className="opacity-70 text-sm">Your VPN infrastructure status</p>
+                  <h2 className="mb-1 text-2xl font-bold">{heroTitle}</h2>
+                  <p className="text-sm opacity-70">Your VPN infrastructure status</p>
                   {issueCount > 0 && healthStatus !== 'healthy' && (
                     <p className="mt-2 text-sm font-medium">
                       {issueCount} {issueCount === 1 ? 'issue' : 'issues'} found
@@ -173,7 +173,10 @@ function DashboardShell({
                       { label: 'Active', value: activeConnections },
                       { label: 'Traffic', value: formatBytes(totalRx + totalTx) },
                     ].map((stat) => (
-                      <div key={stat.label} className="flex flex-col items-center">
+                      <div
+                        key={stat.label}
+                        className="flex flex-col items-center"
+                      >
                         <p className="text-xl font-bold">{stat.value}</p>
                         <p className="text-xs opacity-70">{stat.label}</p>
                       </div>
@@ -183,24 +186,25 @@ function DashboardShell({
               </div>
 
               {/* Navigation Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 {[
                   { type: 'Servers', count: totalServers, active: 4, icon: '🖥️' },
                   { type: 'Clients', count: totalClients, active: 3, icon: '💻' },
                 ].map((card) => (
                   <div
                     key={card.type}
-                    className="bg-card border border-border rounded-xl p-5 flex items-center justify-between cursor-pointer hover:bg-accent/50 transition-colors"
+                    className="bg-card border-border hover:bg-accent/50 flex cursor-pointer items-center justify-between rounded-xl border p-5 transition-colors"
                   >
                     <div>
-                      <p className="text-lg font-semibold text-foreground">
-                        {card.type}
-                      </p>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-foreground text-lg font-semibold">{card.type}</p>
+                      <p className="text-muted-foreground text-sm">
                         {card.active} active / {card.count} total
                       </p>
                     </div>
-                    <span className="text-2xl" aria-hidden="true">
+                    <span
+                      className="text-2xl"
+                      aria-hidden="true"
+                    >
                       {card.icon}
                     </span>
                   </div>
@@ -209,15 +213,15 @@ function DashboardShell({
 
               {/* Protocol Stats Grid */}
               <div>
-                <h2 className="text-lg font-semibold text-foreground mb-4">Protocols</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <h2 className="text-foreground mb-4 text-lg font-semibold">Protocols</h2>
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                   {PROTOCOL_STATS.map((p) => (
                     <div
                       key={p.protocol}
-                      className="bg-card border border-border rounded-xl p-4 space-y-2 cursor-pointer hover:bg-accent/50 transition-colors"
+                      className="bg-card border-border hover:bg-accent/50 cursor-pointer space-y-2 rounded-xl border p-4 transition-colors"
                     >
-                      <p className="font-semibold text-foreground">{p.protocol}</p>
-                      <div className="flex gap-3 text-xs text-muted-foreground">
+                      <p className="text-foreground font-semibold">{p.protocol}</p>
+                      <div className="text-muted-foreground flex gap-3 text-xs">
                         <span>{p.servers} servers</span>
                         <span>{p.clients} clients</span>
                         <span>{p.active} active</span>
@@ -234,7 +238,9 @@ function DashboardShell({
               {/* Issues Section */}
               {showIssues && (
                 <div>
-                  <h2 className="text-lg font-semibold text-foreground mb-4">Issues &amp; Alerts</h2>
+                  <h2 className="text-foreground mb-4 text-lg font-semibold">
+                    Issues &amp; Alerts
+                  </h2>
                   <div className="space-y-3">
                     {[
                       {
@@ -254,26 +260,26 @@ function DashboardShell({
                     ].map((issue) => (
                       <div
                         key={issue.id}
-                        className={`border rounded-xl p-4 flex items-start gap-3 ${
-                          issue.severity === 'error'
-                            ? 'border-error/30 bg-error/5'
-                            : 'border-warning/30 bg-warning/5'
+                        className={`flex items-start gap-3 rounded-xl border p-4 ${
+                          issue.severity === 'error' ?
+                            'border-error/30 bg-error/5'
+                          : 'border-warning/30 bg-warning/5'
                         }`}
                       >
                         <span
-                          className={`text-xs font-bold uppercase px-2 py-0.5 rounded-full ${
-                            issue.severity === 'error'
-                              ? 'bg-error/20 text-error'
-                              : 'bg-warning/20 text-warning'
+                          className={`rounded-full px-2 py-0.5 text-xs font-bold uppercase ${
+                            issue.severity === 'error' ?
+                              'bg-error/20 text-error'
+                            : 'bg-warning/20 text-warning'
                           }`}
                         >
                           {issue.severity}
                         </span>
                         <div>
-                          <p className="text-sm font-medium text-foreground">
+                          <p className="text-foreground text-sm font-medium">
                             {issue.protocol} – {issue.name}
                           </p>
-                          <p className="text-xs text-muted-foreground">{issue.message}</p>
+                          <p className="text-muted-foreground text-xs">{issue.message}</p>
                         </div>
                       </div>
                     ))}
@@ -282,11 +288,11 @@ function DashboardShell({
               )}
 
               {/* Quick Actions */}
-              <div className="flex flex-wrap gap-3 pt-4 border-t border-border">
-                <button className="flex items-center gap-2 min-h-[44px] px-4 border border-border rounded-md text-sm">
+              <div className="border-border flex flex-wrap gap-3 border-t pt-4">
+                <button className="border-border flex min-h-[44px] items-center gap-2 rounded-md border px-4 text-sm">
                   Configure Servers
                 </button>
-                <button className="flex items-center gap-2 min-h-[44px] px-4 border border-border rounded-md text-sm">
+                <button className="border-border flex min-h-[44px] items-center gap-2 rounded-md border px-4 text-sm">
                   Configure Clients
                 </button>
               </div>
@@ -402,8 +408,7 @@ export const ErrorState: Story = {
   parameters: {
     docs: {
       description: {
-        story:
-          'Error banner with a "Try Again" button shown when the VPN stats query fails.',
+        story: 'Error banner with a "Try Again" button shown when the VPN stats query fails.',
       },
     },
   },

@@ -54,11 +54,7 @@ export interface SearchFABProps {
  * }
  * ```
  */
-export function SearchFAB({
-  bottom = 80,
-  right = 16,
-  className,
-}: SearchFABProps) {
+export function SearchFAB({ bottom = 80, right = 16, className }: SearchFABProps) {
   const platform = usePlatform();
   const { openCommandPalette } = useUIStore();
 
@@ -77,15 +73,18 @@ export function SearchFAB({
       onClick={openCommandPalette}
       style={{ bottom: `${bottom}px`, right: `${right}px` }}
       className={cn(
-        'fixed z-40 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg',
-        'focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
+        'bg-primary text-primary-foreground fixed z-40 flex h-14 w-14 items-center justify-center rounded-full shadow-lg',
+        'focus:ring-ring focus:outline-none focus:ring-2 focus:ring-offset-2',
         'active:bg-primary/90',
         'disabled:cursor-not-allowed disabled:opacity-50',
         className
       )}
       aria-label="Open command search"
     >
-      <Search className="h-6 w-6" aria-hidden="true" />
+      <Search
+        className="h-6 w-6"
+        aria-hidden="true"
+      />
     </motion.button>
   );
 }

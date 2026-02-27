@@ -91,7 +91,10 @@ export interface ExportResult {
  * console.log(json);
  * ```
  */
-export function exportTemplateToJSON(template: FirewallTemplate, options: ExportOptions = {}): string {
+export function exportTemplateToJSON(
+  template: FirewallTemplate,
+  options: ExportOptions = {}
+): string {
   const { prettify = true, indent = 2, sanitize = true } = options;
 
   const data = sanitize ? sanitizeTemplateForExport(template) : template;
@@ -116,7 +119,10 @@ export function exportTemplateToJSON(template: FirewallTemplate, options: Export
  * console.log(yamlContent);
  * ```
  */
-export function exportTemplateToYAML(template: FirewallTemplate, options: ExportOptions = {}): string {
+export function exportTemplateToYAML(
+  template: FirewallTemplate,
+  options: ExportOptions = {}
+): string {
   const { sanitize = true, indent = 2 } = options;
 
   const data = sanitize ? sanitizeTemplateForExport(template) : template;

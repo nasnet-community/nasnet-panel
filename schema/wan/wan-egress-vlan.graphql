@@ -7,83 +7,135 @@ Egress VLAN connecting the NNC container to a WAN interface.
 Each egress VLAN provides outbound internet connectivity through a specific WAN.
 """
 type EgressVLAN implements Node {
-    """Unique identifier"""
-    id: ID!
+  """
+  Unique identifier
+  """
+  id: ID!
 
-    """VLAN ID (150-199 range)"""
-    vlanId: Int!
+  """
+  VLAN ID (150-199 range)
+  """
+  vlanId: Int!
 
-    """Human-readable WAN name"""
-    wanName: String!
+  """
+  Human-readable WAN name
+  """
+  wanName: String!
 
-    """Traffic classification of this WAN"""
-    classification: WANClassification!
+  """
+  Traffic classification of this WAN
+  """
+  classification: WANClassification!
 
-    """Priority within classification (lower = higher priority)"""
-    priority: Int!
+  """
+  Priority within classification (lower = higher priority)
+  """
+  priority: Int!
 
-    """Router-side VLAN interface name"""
-    routerInterface: String!
+  """
+  Router-side VLAN interface name
+  """
+  routerInterface: String!
 
-    """Container-side VLAN sub-interface name"""
-    containerInterface: String!
+  """
+  Container-side VLAN sub-interface name
+  """
+  containerInterface: String!
 
-    """IP address obtained via DHCP from router"""
-    ipAddress: String
+  """
+  IP address obtained via DHCP from router
+  """
+  ipAddress: String
 
-    """Gateway IP (router's address on this VLAN)"""
-    gateway: String
+  """
+  Gateway IP (router's address on this VLAN)
+  """
+  gateway: String
 
-    """Lifecycle status"""
-    status: EgressVLANStatus!
+  """
+  Lifecycle status
+  """
+  status: EgressVLANStatus!
 
-    """Creation timestamp"""
-    createdAt: DateTime!
+  """
+  Creation timestamp
+  """
+  createdAt: DateTime!
 }
 
-"""WAN traffic classification."""
+"""
+WAN traffic classification.
+"""
 enum WANClassification {
-    """Local/domestic ISP connection"""
-    DOMESTIC
-    """International/foreign connection (Starlink, VPS, etc.)"""
-    FOREIGN
-    """VPN tunnel (WireGuard, OpenVPN, etc.)"""
-    VPN
+  """
+  Local/domestic ISP connection
+  """
+  DOMESTIC
+  """
+  International/foreign connection (Starlink, VPS, etc.)
+  """
+  FOREIGN
+  """
+  VPN tunnel (WireGuard, OpenVPN, etc.)
+  """
+  VPN
 }
 
-"""Egress VLAN lifecycle status."""
+"""
+Egress VLAN lifecycle status.
+"""
 enum EgressVLANStatus {
-    """VLAN is being created"""
-    CREATING
-    """VLAN is active and ready"""
-    ACTIVE
-    """VLAN creation/operation failed"""
-    FAILED
-    """VLAN is being removed"""
-    REMOVING
+  """
+  VLAN is being created
+  """
+  CREATING
+  """
+  VLAN is active and ready
+  """
+  ACTIVE
+  """
+  VLAN creation/operation failed
+  """
+  FAILED
+  """
+  VLAN is being removed
+  """
+  REMOVING
 }
 
 """
 A WAN interface discovered on the router via DHCP client, PPPoE, or VPN tunnel.
 """
 type DiscoveredWAN {
-    """Human-readable name (e.g. 'ISP-Fiber-1')"""
-    name: String!
+  """
+  Human-readable name (e.g. 'ISP-Fiber-1')
+  """
+  name: String!
 
-    """MikroTik interface name (e.g. 'ether1')"""
-    routerInterface: String!
+  """
+  MikroTik interface name (e.g. 'ether1')
+  """
+  routerInterface: String!
 
-    """Connection type: dhcp-client, pppoe-client, vpn-tunnel, static"""
-    type: String!
+  """
+  Connection type: dhcp-client, pppoe-client, vpn-tunnel, static
+  """
+  type: String!
 
-    """User-assigned traffic classification (null if unclassified)"""
-    classification: WANClassification
+  """
+  User-assigned traffic classification (null if unclassified)
+  """
+  classification: WANClassification
 
-    """Whether this WAN has a default route (0.0.0.0/0)"""
-    hasDefaultRoute: Boolean!
+  """
+  Whether this WAN has a default route (0.0.0.0/0)
+  """
+  hasDefaultRoute: Boolean!
 
-    """Current IP address on this WAN interface"""
-    ipAddress: String
+  """
+  Current IP address on this WAN interface
+  """
+  ipAddress: String
 }
 
 # ============================================
@@ -91,39 +143,59 @@ type DiscoveredWAN {
 # ============================================
 
 extend type Query {
-    """List all egress VLANs for a router."""
-    egressVLANs(routerId: ID!): [EgressVLAN!]!
+  """
+  List all egress VLANs for a router.
+  """
+  egressVLANs(routerId: ID!): [EgressVLAN!]!
 
-    """Discover WAN interfaces on a router."""
-    discoveredWANs(routerId: ID!): [DiscoveredWAN!]!
+  """
+  Discover WAN interfaces on a router.
+  """
+  discoveredWANs(routerId: ID!): [DiscoveredWAN!]!
 }
 
 # ============================================
 # MUTATIONS
 # ============================================
 
-"""Input for creating an egress VLAN."""
+"""
+Input for creating an egress VLAN.
+"""
 input CreateEgressVLANInput {
-    """Target router ID"""
-    routerId: ID!
+  """
+  Target router ID
+  """
+  routerId: ID!
 
-    """WAN name to create egress VLAN for"""
-    wanName: String!
+  """
+  WAN name to create egress VLAN for
+  """
+  wanName: String!
 
-    """Traffic classification"""
-    classification: WANClassification!
+  """
+  Traffic classification
+  """
+  classification: WANClassification!
 
-    """Priority within classification (lower = higher priority, default 0)"""
-    priority: Int
+  """
+  Priority within classification (lower = higher priority, default 0)
+  """
+  priority: Int
 }
 
 extend type Mutation {
-    """Create an egress VLAN for a discovered WAN interface."""
-    createEgressVLAN(input: CreateEgressVLANInput!): EgressVLAN!
+  """
+  Create an egress VLAN for a discovered WAN interface.
+  """
+  createEgressVLAN(input: CreateEgressVLANInput!): EgressVLAN!
 
-    """Remove an egress VLAN and clean up all associated resources."""
-    removeEgressVLAN(id: ID!): Boolean!
+  """
+  Remove an egress VLAN and clean up all associated resources.
+  """
+  removeEgressVLAN(id: ID!): Boolean!
 
-    """Classify a WAN interface for traffic routing."""
-    classifyWAN(routerId: ID!, wanName: String!, classification: WANClassification!): DiscoveredWAN!
+  """
+  Classify a WAN interface for traffic routing.
+  """
+  classifyWAN(routerId: ID!, wanName: String!, classification: WANClassification!): DiscoveredWAN!
 }

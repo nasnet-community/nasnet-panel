@@ -46,16 +46,21 @@ export function TroubleshootPage() {
   // Show error if no router is selected
   if (!routerId) {
     return (
-      <div className="flex items-center justify-center min-h-screen p-4">
-        <div className="max-w-md w-full bg-error/10 border border-error/20 rounded-lg p-6 text-center" role="alert">
-          <h2 className="text-lg font-semibold text-error mb-2">{t("troubleshoot.noRouterSelected")}</h2>
-          <p className="text-sm text-muted-foreground mb-4">
+      <div className="flex min-h-screen items-center justify-center p-4">
+        <div
+          className="bg-error/10 border-error/20 w-full max-w-md rounded-lg border p-6 text-center"
+          role="alert"
+        >
+          <h2 className="text-error mb-2 text-lg font-semibold">
+            {t('troubleshoot.noRouterSelected')}
+          </h2>
+          <p className="text-muted-foreground mb-4 text-sm">
             {t('troubleshoot.selectRouterMessage')}
           </p>
           <button
             onClick={handleClose}
             aria-label={t('troubleshoot.returnToDashboard')}
-            className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
+            className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-md px-4 py-2"
           >
             {t('troubleshoot.returnToDashboard')}
           </button>
@@ -65,8 +70,8 @@ export function TroubleshootPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto py-6 px-4">
+    <div className="bg-background min-h-screen">
+      <div className="container mx-auto px-4 py-6">
         <TroubleshootWizard
           routerId={routerId}
           autoStart={search.autoStart}

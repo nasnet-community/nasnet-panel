@@ -387,9 +387,7 @@ export const mockStatsRecent: RateLimitStats = {
 /**
  * Create a mock rule with custom values
  */
-export function createMockRule(
-  overrides: Partial<RateLimitRule> = {}
-): RateLimitRule {
+export function createMockRule(overrides: Partial<RateLimitRule> = {}): RateLimitRule {
   return {
     id: `*${Math.floor(Math.random() * 1000)}`,
     connectionLimit: 100,
@@ -405,9 +403,7 @@ export function createMockRule(
 /**
  * Create a mock blocked IP with custom values
  */
-export function createMockBlockedIP(
-  overrides: Partial<BlockedIP> = {}
-): BlockedIP {
+export function createMockBlockedIP(overrides: Partial<BlockedIP> = {}): BlockedIP {
   return {
     address: `192.168.1.${Math.floor(Math.random() * 255)}`,
     list: 'rate-limited',
@@ -420,9 +416,7 @@ export function createMockBlockedIP(
 /**
  * Create a mock SYN flood config with custom values
  */
-export function createMockSynFloodConfig(
-  overrides: Partial<SynFloodConfig> = {}
-): SynFloodConfig {
+export function createMockSynFloodConfig(overrides: Partial<SynFloodConfig> = {}): SynFloodConfig {
   return {
     isEnabled: true,
     synLimit: 100,

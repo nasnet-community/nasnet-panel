@@ -69,10 +69,7 @@ function transformOpenVPNClient(raw: OpenVPNClientRaw): OpenVPNClient {
  * Fetch OpenVPN clients from RouterOS
  */
 async function fetchOpenVPNClients(routerIp: string): Promise<OpenVPNClient[]> {
-  const result = await makeRouterOSRequest<OpenVPNClientRaw[]>(
-    routerIp,
-    'interface/ovpn-client'
-  );
+  const result = await makeRouterOSRequest<OpenVPNClientRaw[]>(routerIp, 'interface/ovpn-client');
 
   if (!result.success || !result.data) {
     throw new Error(result.error || 'Failed to fetch OpenVPN clients');
@@ -99,4 +96,3 @@ export function useOpenVPNClients(routerIp: string): UseQueryResult<OpenVPNClien
     enabled: !!routerIp,
   });
 }
-

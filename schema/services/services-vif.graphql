@@ -7,52 +7,84 @@ Virtual network interface for service instance isolation.
 Each service instance gets its own VLAN interface with routing mark.
 """
 type VirtualInterface {
-  """Interface ID (ULID)"""
+  """
+  Interface ID (ULID)
+  """
   id: ID!
 
-  """Service instance ID this interface belongs to"""
+  """
+  Service instance ID this interface belongs to
+  """
   instanceId: ID!
 
-  """Interface name (e.g., vlan100)"""
+  """
+  Interface name (e.g., vlan100)
+  """
   name: String!
 
-  """VLAN ID for network isolation"""
+  """
+  VLAN ID for network isolation
+  """
   vlanId: Int!
 
-  """IP address assigned to this interface"""
+  """
+  IP address assigned to this interface
+  """
   ipAddress: String!
 
-  """Gateway type (tunnel, direct, etc.)"""
+  """
+  Gateway type (tunnel, direct, etc.)
+  """
   gatewayType: GatewayType!
 
-  """Gateway runtime status"""
+  """
+  Gateway runtime status
+  """
   gatewayStatus: GatewayStatus!
 
-  """Tunnel interface name (for HEV tunnel)"""
+  """
+  Tunnel interface name (for HEV tunnel)
+  """
   tunName: String
 
-  """Routing mark for policy routing"""
+  """
+  Routing mark for policy routing
+  """
   routingMark: String!
 
-  """Interface lifecycle status"""
+  """
+  Interface lifecycle status
+  """
   status: VirtualInterfaceStatus!
 
-  """When the interface was created"""
+  """
+  When the interface was created
+  """
   createdAt: DateTime!
 
-  """Last update timestamp"""
+  """
+  Last update timestamp
+  """
   updatedAt: DateTime!
 
-  """Ingress VLAN ID (for DHCP bridge mode, 100-149)"""
+  """
+  Ingress VLAN ID (for DHCP bridge mode, 100-149)
+  """
   ingressVlanId: Int
 
-  """Egress VLAN IDs for outbound traffic (150-199)"""
+  """
+  Egress VLAN IDs for outbound traffic (150-199)
+  """
   egressVlanIds: [Int!]
 
-  """Routing mode (bridge or advanced)"""
+  """
+  Routing mode (bridge or advanced)
+  """
   routingMode: RoutingMode
 
-  """Container IP address for DHCP bridge mode"""
+  """
+  Container IP address for DHCP bridge mode
+  """
   containerIp: String
 }
 
@@ -60,13 +92,19 @@ type VirtualInterface {
 Gateway type for virtual interface routing.
 """
 enum GatewayType {
-  """No gateway, direct routing"""
+  """
+  No gateway, direct routing
+  """
   NONE
 
-  """HEV SOCKS5 tunnel gateway"""
+  """
+  HEV SOCKS5 tunnel gateway
+  """
   HEV_SOCKS5_TUNNEL
 
-  """DHCP bridge mode - uses ingress/egress VLANs with udhcpd/udhcpc"""
+  """
+  DHCP bridge mode - uses ingress/egress VLANs with udhcpd/udhcpc
+  """
   DHCP_BRIDGE
 }
 
@@ -74,16 +112,24 @@ enum GatewayType {
 Gateway runtime status.
 """
 enum GatewayStatus {
-  """Gateway process is stopped"""
+  """
+  Gateway process is stopped
+  """
   STOPPED
 
-  """Gateway process is starting"""
+  """
+  Gateway process is starting
+  """
   STARTING
 
-  """Gateway process is running"""
+  """
+  Gateway process is running
+  """
   RUNNING
 
-  """Gateway process failed to start"""
+  """
+  Gateway process failed to start
+  """
   FAILED
 }
 
@@ -91,16 +137,24 @@ enum GatewayStatus {
 Virtual interface lifecycle status.
 """
 enum VirtualInterfaceStatus {
-  """Interface is being created"""
+  """
+  Interface is being created
+  """
   CREATING
 
-  """Interface is active and ready"""
+  """
+  Interface is active and ready
+  """
   ACTIVE
 
-  """Interface creation/operation failed"""
+  """
+  Interface creation/operation failed
+  """
   ERROR
 
-  """Interface is being removed"""
+  """
+  Interface is being removed
+  """
   REMOVING
 }
 
@@ -109,15 +163,23 @@ Bridge status for service instance network setup.
 Combines interface and gateway status for health monitoring.
 """
 type BridgeStatus {
-  """The virtual interface"""
+  """
+  The virtual interface
+  """
   interface: VirtualInterface
 
-  """Whether the interface is ready for traffic"""
+  """
+  Whether the interface is ready for traffic
+  """
   isReady: Boolean!
 
-  """Whether the gateway (if any) is running"""
+  """
+  Whether the gateway (if any) is running
+  """
   gatewayRunning: Boolean!
 
-  """Any errors encountered"""
+  """
+  Any errors encountered
+  """
   errors: [String!]
 }

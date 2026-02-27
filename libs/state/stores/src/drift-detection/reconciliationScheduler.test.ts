@@ -306,9 +306,7 @@ describe('ReconciliationScheduler', () => {
       // Second fetch: synced
       const syncedResource = createMockResource('uuid-1', 'vpn', config);
 
-      mockFetcher
-        .mockResolvedValueOnce([driftedResource])
-        .mockResolvedValueOnce([syncedResource]);
+      mockFetcher.mockResolvedValueOnce([driftedResource]).mockResolvedValueOnce([syncedResource]);
 
       scheduler.register(driftedResource);
       scheduler.scheduleImmediateCheck('uuid-1');
@@ -350,10 +348,7 @@ describe('ReconciliationScheduler', () => {
 
       await vi.advanceTimersByTimeAsync(1000);
 
-      expect(mockOnError).toHaveBeenCalledWith(
-        'uuid-1',
-        expect.any(Error)
-      );
+      expect(mockOnError).toHaveBeenCalledWith('uuid-1', expect.any(Error));
     });
   });
 

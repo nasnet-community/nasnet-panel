@@ -35,7 +35,7 @@ export const Default: Story = {
 
     return (
       <RouterPanel routerId="demo-router-001">
-        <div className="p-6 text-center text-muted-foreground">
+        <div className="text-muted-foreground p-6 text-center">
           Tab content renders here via Outlet
         </div>
       </RouterPanel>
@@ -49,12 +49,11 @@ export const WithContent: Story = {
 
     return (
       <RouterPanel routerId="demo-router-002">
-        <div className="p-6 space-y-4">
+        <div className="space-y-4 p-6">
           <h2 className="text-lg font-semibold">Overview Tab Content</h2>
           <p className="text-muted-foreground">
-            This simulates a child tab rendered inside the RouterPanel layout.
-            In production, the TanStack Router Outlet renders the active tab
-            component here.
+            This simulates a child tab rendered inside the RouterPanel layout. In production, the
+            TanStack Router Outlet renders the active tab component here.
           </p>
         </div>
       </RouterPanel>
@@ -63,8 +62,7 @@ export const WithContent: Story = {
   parameters: {
     docs: {
       description: {
-        story:
-          'RouterPanel layout with simulated child content representing an active tab view.',
+        story: 'RouterPanel layout with simulated child content representing an active tab view.',
       },
     },
   },
@@ -77,9 +75,7 @@ export const MobileLayout: Story = {
     return (
       <div style={{ maxWidth: '400px' }}>
         <RouterPanel routerId="mobile-router-001">
-          <div className="p-4 text-center text-muted-foreground">
-            Mobile tab content area
-          </div>
+          <div className="text-muted-foreground p-4 text-center">Mobile tab content area</div>
         </RouterPanel>
       </div>
     );
@@ -87,8 +83,7 @@ export const MobileLayout: Story = {
   parameters: {
     docs: {
       description: {
-        story:
-          'RouterPanel at mobile viewport width showing bottom navigation and compact header.',
+        story: 'RouterPanel at mobile viewport width showing bottom navigation and compact header.',
       },
     },
   },
@@ -100,7 +95,7 @@ export const Mobile: Story = {
 
     return (
       <RouterPanel routerId="demo-router-001">
-        <div className="p-4 text-center text-muted-foreground">
+        <div className="text-muted-foreground p-4 text-center">
           Tab content renders here via Outlet
         </div>
       </RouterPanel>
@@ -117,7 +112,7 @@ export const Desktop: Story = {
 
     return (
       <RouterPanel routerId="demo-router-001">
-        <div className="p-6 text-center text-muted-foreground">
+        <div className="text-muted-foreground p-6 text-center">
           Tab content renders here via Outlet
         </div>
       </RouterPanel>

@@ -4,7 +4,6 @@ import { TroubleshootPage } from './dashboard.troubleshoot';
 
 import type { Meta, StoryObj } from '@storybook/react';
 
-
 const meta: Meta<typeof TroubleshootPage> = {
   title: 'App/Dashboard/TroubleshootPage',
   component: TroubleshootPage,

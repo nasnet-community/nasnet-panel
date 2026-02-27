@@ -117,10 +117,10 @@ export const InPageContext: Story = {
     (Story) => {
       localStorage.removeItem('nasnet:firewall:notice-dismissed');
       return (
-        <div className="space-y-4 p-6 bg-slate-50 dark:bg-slate-900 rounded-xl">
+        <div className="space-y-4 rounded-xl bg-slate-50 p-6 dark:bg-slate-900">
           <h1 className="text-xl font-semibold">Firewall Configuration</h1>
           <Story />
-          <p className="text-sm text-muted-foreground">
+          <p className="text-muted-foreground text-sm">
             The rest of the firewall rules would appear below this notice.
           </p>
         </div>

@@ -24,7 +24,10 @@ import type { Meta, StoryObj } from '@storybook/react';
 /** A lightweight page-level skeleton shown while lazy components load. */
 function PageSkeleton() {
   return (
-    <div className="space-y-4 p-6 w-full max-w-md" aria-label="Loading page">
+    <div
+      className="w-full max-w-md space-y-4 p-6"
+      aria-label="Loading page"
+    >
       <Skeleton className="h-8 w-48" />
       <Skeleton className="h-4 w-full" />
       <Skeleton className="h-4 w-3/4" />
@@ -43,19 +46,19 @@ const FakeDashboardPage = React.lazy(
         resolve({
           default: function DashboardPage() {
             return (
-              <div className="p-6 space-y-3 w-full max-w-md">
-                <h2 className="text-lg font-semibold text-foreground">Dashboard</h2>
-                <p className="text-sm text-muted-foreground">
+              <div className="w-full max-w-md space-y-3 p-6">
+                <h2 className="text-foreground text-lg font-semibold">Dashboard</h2>
+                <p className="text-muted-foreground text-sm">
                   This page was lazily loaded via createLazyRoute.
                 </p>
                 <div className="grid grid-cols-2 gap-3">
                   {['CPU', 'RAM', 'Uptime', 'Temp'].map((label) => (
                     <div
                       key={label}
-                      className="p-3 rounded-lg bg-muted text-center"
+                      className="bg-muted rounded-lg p-3 text-center"
                     >
-                      <div className="text-xs text-muted-foreground">{label}</div>
-                      <div className="text-base font-semibold text-foreground">--</div>
+                      <div className="text-muted-foreground text-xs">{label}</div>
+                      <div className="text-foreground text-base font-semibold">--</div>
                     </div>
                   ))}
                 </div>
@@ -99,16 +102,19 @@ function LazyLoadingDemo() {
  */
 function LazyLoadedDemo() {
   return (
-    <div className="p-6 space-y-3 w-full max-w-md">
-      <h2 className="text-lg font-semibold text-foreground">Dashboard</h2>
-      <p className="text-sm text-muted-foreground">
+    <div className="w-full max-w-md space-y-3 p-6">
+      <h2 className="text-foreground text-lg font-semibold">Dashboard</h2>
+      <p className="text-muted-foreground text-sm">
         This page was lazily loaded via createLazyRoute.
       </p>
       <div className="grid grid-cols-2 gap-3">
         {['CPU', 'RAM', 'Uptime', 'Temp'].map((label) => (
-          <div key={label} className="p-3 rounded-lg bg-muted text-center">
-            <div className="text-xs text-muted-foreground">{label}</div>
-            <div className="text-base font-semibold text-foreground">--</div>
+          <div
+            key={label}
+            className="bg-muted rounded-lg p-3 text-center"
+          >
+            <div className="text-muted-foreground text-xs">{label}</div>
+            <div className="text-foreground text-base font-semibold">--</div>
           </div>
         ))}
       </div>
@@ -126,13 +132,13 @@ function LazyErrorFallbackDemo() {
     importFn: failingImport,
     skeleton: <PageSkeleton />,
     errorComponent: (error: Error) => (
-      <div className="p-6 text-center space-y-3 w-full max-w-md">
+      <div className="w-full max-w-md space-y-3 p-6 text-center">
         <p className="text-destructive font-medium">Failed to load page</p>
-        <p className="text-sm text-muted-foreground">{error.message}</p>
+        <p className="text-muted-foreground text-sm">{error.message}</p>
         <button
           type="button"
           onClick={() => setTriggered(false)}
-          className="text-sm text-primary hover:underline focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded px-2 py-1"
+          className="text-primary focus:ring-ring rounded px-2 py-1 text-sm hover:underline focus:outline-none focus:ring-2 focus:ring-offset-2"
         >
           Try again
         </button>
@@ -142,14 +148,14 @@ function LazyErrorFallbackDemo() {
 
   if (!triggered) {
     return (
-      <div className="p-6 text-center space-y-3 w-full max-w-md">
-        <p className="text-sm text-muted-foreground">
+      <div className="w-full max-w-md space-y-3 p-6 text-center">
+        <p className="text-muted-foreground text-sm">
           Click the button to simulate a failed lazy import.
         </p>
         <button
           type="button"
           onClick={() => setTriggered(true)}
-          className="px-4 py-2 bg-destructive text-destructive-foreground text-sm rounded-md hover:bg-destructive/90"
+          className="bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-md px-4 py-2 text-sm"
         >
           Trigger Import Failure
         </button>
@@ -161,9 +167,7 @@ function LazyErrorFallbackDemo() {
 
   return (
     <React.Suspense fallback={route.pendingComponent()}>
-      {ErrorComponent ? (
-        ErrorComponent(new Error('Failed to load module'))
-      ) : null}
+      {ErrorComponent ? ErrorComponent(new Error('Failed to load module')) : null}
     </React.Suspense>
   );
 }
@@ -188,22 +192,24 @@ function PreloadHandlersDemo() {
   );
 
   return (
-    <div className="p-6 space-y-4 w-full max-w-md">
-      <p className="text-sm text-muted-foreground">
-        Hover over the link below to trigger preloading. The import fires once
-        on first hover/focus and is then cached.
+    <div className="w-full max-w-md space-y-4 p-6">
+      <p className="text-muted-foreground text-sm">
+        Hover over the link below to trigger preloading. The import fires once on first hover/focus
+        and is then cached.
       </p>
       <a
         href="#settings"
         onClick={(e) => e.preventDefault()}
         {...handlers}
-        className="inline-block px-4 py-2 rounded-md bg-primary text-primary-foreground text-sm font-medium focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+        className="bg-primary text-primary-foreground focus:ring-ring inline-block rounded-md px-4 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2"
       >
         Settings (hover to preload)
       </a>
       <div
-        className={`text-xs font-mono px-3 py-2 rounded-md transition-colors ${
-          preloaded ? 'bg-semantic-success/10 text-semantic-success' : 'bg-muted text-muted-foreground'
+        className={`rounded-md px-3 py-2 font-mono text-xs transition-colors ${
+          preloaded ?
+            'bg-semantic-success/10 text-semantic-success'
+          : 'bg-muted text-muted-foreground'
         }`}
       >
         {preloaded ? 'Module preloaded!' : 'Waiting for hover…'}
@@ -217,7 +223,7 @@ function PreloadHandlersDemo() {
  */
 function CustomSkeletonDemo() {
   const CustomSkeleton = () => (
-    <div className="p-6 space-y-4 w-full max-w-md">
+    <div className="w-full max-w-md space-y-4 p-6">
       <div className="flex items-center gap-3">
         <Skeleton className="h-10 w-10 rounded-full" />
         <div className="space-y-1.5">
@@ -227,7 +233,10 @@ function CustomSkeletonDemo() {
       </div>
       <Skeleton className="h-px w-full" />
       {[...Array(4)].map((_, i) => (
-        <div key={i} className="flex items-center gap-3">
+        <div
+          key={i}
+          className="flex items-center gap-3"
+        >
           <Skeleton className="h-4 w-4 rounded" />
           <Skeleton className="h-4 flex-1" />
         </div>
@@ -246,7 +255,7 @@ function CustomSkeletonDemo() {
   return (
     <div>
       <div className="mb-3 px-2">
-        <span className="text-xs text-muted-foreground font-medium uppercase tracking-wide">
+        <span className="text-muted-foreground text-xs font-medium uppercase tracking-wide">
           Custom skeleton (3s delay)
         </span>
       </div>
@@ -348,7 +357,7 @@ export const PendingSkeleton: Story = {
       description: {
         story:
           'The `pendingComponent` returned by `createLazyRoute` renders this skeleton ' +
-          'while the lazy component\'s Promise is pending.',
+          "while the lazy component's Promise is pending.",
       },
     },
   },

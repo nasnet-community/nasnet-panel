@@ -21,30 +21,3 @@ export * from './alerts';
 
 // Settings
 export * from './settings';
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

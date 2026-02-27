@@ -23,7 +23,10 @@ import type { ScanResult, ScanProgress, Router } from '@nasnet/core/types';
  * );
  * ```
  */
-export declare function startNetworkScan(subnet: string, onProgress?: (progress: ScanProgress) => void): Promise<ScanResult[]>;
+export declare function startNetworkScan(
+  subnet: string,
+  onProgress?: (progress: ScanProgress) => void
+): Promise<ScanResult[]>;
 /**
  * Converts ScanResult to Router object for storage
  *
@@ -33,7 +36,9 @@ export declare function startNetworkScan(subnet: string, onProgress?: (progress:
  * @param scanResult - Scan result from network scan
  * @returns Router object ready for storage
  */
-export declare function scanResultToRouter(scanResult: ScanResult): Omit<Router, 'id' | 'createdAt'>;
+export declare function scanResultToRouter(
+  scanResult: ScanResult
+): Omit<Router, 'id' | 'createdAt'>;
 /**
  * Validates subnet format (simple IPv4 CIDR validation)
  *
@@ -67,7 +72,24 @@ export declare function getDefaultSubnet(): string;
  * for error handling and differentiation between failure types (start, network, polling, timeout).
  */
 export declare class ScanError extends Error {
-    code: 'SCAN_START_FAILED' | 'INVALID_RESPONSE' | 'NETWORK_ERROR' | 'POLL_FAILED' | 'SCAN_FAILED' | 'POLL_ERROR' | 'TIMEOUT';
-    constructor(message: string, code: 'SCAN_START_FAILED' | 'INVALID_RESPONSE' | 'NETWORK_ERROR' | 'POLL_FAILED' | 'SCAN_FAILED' | 'POLL_ERROR' | 'TIMEOUT');
+  code:
+    | 'SCAN_START_FAILED'
+    | 'INVALID_RESPONSE'
+    | 'NETWORK_ERROR'
+    | 'POLL_FAILED'
+    | 'SCAN_FAILED'
+    | 'POLL_ERROR'
+    | 'TIMEOUT';
+  constructor(
+    message: string,
+    code:
+      | 'SCAN_START_FAILED'
+      | 'INVALID_RESPONSE'
+      | 'NETWORK_ERROR'
+      | 'POLL_FAILED'
+      | 'SCAN_FAILED'
+      | 'POLL_ERROR'
+      | 'TIMEOUT'
+  );
 }
 //# sourceMappingURL=scanService.d.ts.map

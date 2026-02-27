@@ -11,11 +11,7 @@ import { useMemo, useCallback } from 'react';
 
 import { useBridgeStatus } from '@nasnet/api-client/queries';
 
-import type {
-  VirtualInterfaceBridgeProps,
-  BridgeStatus,
-  GatewayType,
-} from './types';
+import type { VirtualInterfaceBridgeProps, BridgeStatus, GatewayType } from './types';
 
 /**
  * Badge variant type matching primitives Badge component
@@ -36,9 +32,8 @@ export type BadgeVariant =
  */
 export interface UseVirtualInterfaceBridgeReturn {
   // Bridge status data
-  interface: VirtualInterfaceBridgeProps['children'] extends never
-    ? undefined
-    : ReturnType<typeof useBridgeStatus>['status'];
+  interface: VirtualInterfaceBridgeProps['children'] extends never ? undefined
+  : ReturnType<typeof useBridgeStatus>['status'];
   isReady: boolean;
   gatewayRunning: boolean;
   errors: string[];
@@ -62,11 +57,7 @@ export interface UseVirtualInterfaceBridgeReturn {
 /**
  * Get badge variant for bridge status
  */
-function getStatusColor(
-  isReady: boolean,
-  hasInterface: boolean,
-  hasErrors: boolean
-): BadgeVariant {
+function getStatusColor(isReady: boolean, hasInterface: boolean, hasErrors: boolean): BadgeVariant {
   if (hasErrors) return 'error';
   if (!hasInterface) return 'warning';
   if (isReady) return 'success';
@@ -76,11 +67,7 @@ function getStatusColor(
 /**
  * Get label for bridge status
  */
-function getStatusLabel(
-  isReady: boolean,
-  hasInterface: boolean,
-  hasErrors: boolean
-): string {
+function getStatusLabel(isReady: boolean, hasInterface: boolean, hasErrors: boolean): string {
   if (hasErrors) return 'Error';
   if (!hasInterface) return 'Pending';
   if (isReady) return 'Ready';
@@ -99,7 +86,9 @@ function getGatewayBadgeText(
   }
 
   const typeLabel =
-    gatewayType === 'tor' ? 'Tor' : gatewayType === 'sing-box' ? 'sing-box' : gatewayType;
+    gatewayType === 'tor' ? 'Tor'
+    : gatewayType === 'sing-box' ? 'sing-box'
+    : gatewayType;
 
   return gatewayRunning ? `${typeLabel}: Running` : `${typeLabel}: Stopped`;
 }
@@ -151,10 +140,7 @@ export function useVirtualInterfaceBridge(
   const { routerId, instanceId, onRefresh } = props;
 
   // Fetch bridge status from API
-  const { status, loading, error, refetch } = useBridgeStatus(
-    routerId,
-    instanceId
-  );
+  const { status, loading, error, refetch } = useBridgeStatus(routerId, instanceId);
 
   // Extract data with safe defaults
   const bridgeInterface = status?.interface;

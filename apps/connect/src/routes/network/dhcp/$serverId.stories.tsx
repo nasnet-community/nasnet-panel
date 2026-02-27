@@ -49,8 +49,7 @@ export const MobileView: Story = {
     viewport: { defaultViewport: 'mobile1' },
     docs: {
       description: {
-        story:
-          'Mobile viewport rendering of the server detail page with adapted tab layout.',
+        story: 'Mobile viewport rendering of the server detail page with adapted tab layout.',
       },
     },
   },

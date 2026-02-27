@@ -95,17 +95,23 @@ function FilterSheet({ gallery }: FilterSheetProps) {
         <Button
           variant="outline"
           size="default"
-          className="w-full min-h-[44px]"
+          className="min-h-[44px] w-full"
         >
           <span>Filters</span>
           {hasActiveFilter && (
-            <Badge variant="secondary" className="ml-2 rounded-[var(--semantic-radius-badge)]">
+            <Badge
+              variant="secondary"
+              className="ml-2 rounded-[var(--semantic-radius-badge)]"
+            >
               Active
             </Badge>
           )}
         </Button>
       </SheetTrigger>
-      <SheetContent side="bottom" className="max-h-[80vh] overflow-y-auto">
+      <SheetContent
+        side="bottom"
+        className="max-h-[80vh] overflow-y-auto"
+      >
         <SheetHeader>
           <SheetTitle>Filter Templates</SheetTitle>
         </SheetHeader>
@@ -113,7 +119,11 @@ function FilterSheet({ gallery }: FilterSheetProps) {
         <div className="space-y-component-lg mt-component-lg">
           {/* Clear filters button */}
           {hasActiveFilter && (
-            <Button variant="outline" onClick={clearFilter} className="w-full min-h-[44px]">
+            <Button
+              variant="outline"
+              onClick={clearFilter}
+              className="min-h-[44px] w-full"
+            >
               Clear All Filters
             </Button>
           )}
@@ -134,7 +144,7 @@ function FilterSheet({ gallery }: FilterSheetProps) {
           {/* Category filter */}
           <div className="space-y-component-sm">
             <Label>Category</Label>
-            <div className="grid grid-cols-2 gap-component-sm">
+            <div className="gap-component-sm grid grid-cols-2">
               {categories.map((cat) => {
                 const count = cat === 'all' ? gallery.totalCount : categoryCount[cat] || 0;
                 const isActive = filter.category === cat;
@@ -144,17 +154,17 @@ function FilterSheet({ gallery }: FilterSheetProps) {
                     key={cat}
                     onClick={() => setFilter({ category: cat })}
                     className={cn(
-                      'min-h-[44px] px-component-md py-component-sm rounded-[var(--semantic-radius-button)]',
-                      'text-sm transition-colors border border-border',
+                      'px-component-md py-component-sm min-h-[44px] rounded-[var(--semantic-radius-button)]',
+                      'border-border border text-sm transition-colors',
                       'hover:bg-muted',
                       isActive && 'bg-primary text-primary-foreground hover:bg-primary/90'
                     )}
                   >
-                    <div className="flex flex-col items-start gap-component-sm">
+                    <div className="gap-component-sm flex flex-col items-start">
                       <span className="text-xs font-medium">{categoryLabels[cat]}</span>
                       <Badge
                         variant="outline"
-                        className="text-xs rounded-[var(--semantic-radius-badge)]"
+                        className="rounded-[var(--semantic-radius-badge)] text-xs"
                       >
                         {count}
                       </Badge>
@@ -168,7 +178,7 @@ function FilterSheet({ gallery }: FilterSheetProps) {
           {/* Complexity filter */}
           <div className="space-y-component-sm">
             <Label>Complexity</Label>
-            <div className="grid grid-cols-2 gap-component-sm">
+            <div className="gap-component-sm grid grid-cols-2">
               {complexities.map((comp) => {
                 const count = comp === 'all' ? gallery.totalCount : complexityCount[comp] || 0;
                 const isActive = filter.complexity === comp;
@@ -178,17 +188,17 @@ function FilterSheet({ gallery }: FilterSheetProps) {
                     key={comp}
                     onClick={() => setFilter({ complexity: comp })}
                     className={cn(
-                      'min-h-[44px] px-component-md py-component-sm rounded-[var(--semantic-radius-button)]',
-                      'text-sm transition-colors border border-border',
+                      'px-component-md py-component-sm min-h-[44px] rounded-[var(--semantic-radius-button)]',
+                      'border-border border text-sm transition-colors',
                       'hover:bg-muted',
                       isActive && 'bg-primary text-primary-foreground hover:bg-primary/90'
                     )}
                   >
-                    <div className="flex flex-col items-start gap-component-sm">
+                    <div className="gap-component-sm flex flex-col items-start">
                       <span className="text-xs font-medium">{complexityLabels[comp]}</span>
                       <Badge
                         variant="outline"
-                        className="text-xs rounded-[var(--semantic-radius-badge)]"
+                        className="rounded-[var(--semantic-radius-badge)] text-xs"
                       >
                         {count}
                       </Badge>
@@ -202,7 +212,7 @@ function FilterSheet({ gallery }: FilterSheetProps) {
           {/* Built-in / Custom toggle */}
           <div className="space-y-component-sm">
             <Label>Template Type</Label>
-            <div className="grid grid-cols-2 gap-component-sm">
+            <div className="gap-component-sm grid grid-cols-2">
               <button
                 onClick={() =>
                   setFilter({
@@ -211,8 +221,8 @@ function FilterSheet({ gallery }: FilterSheetProps) {
                   })
                 }
                 className={cn(
-                  'min-h-[44px] px-component-md py-component-sm rounded-[var(--semantic-radius-button)]',
-                  'text-sm transition-colors border border-border',
+                  'px-component-md py-component-sm min-h-[44px] rounded-[var(--semantic-radius-button)]',
+                  'border-border border text-sm transition-colors',
                   'hover:bg-muted',
                   filter.builtInOnly && 'bg-primary text-primary-foreground hover:bg-primary/90'
                 )}
@@ -227,8 +237,8 @@ function FilterSheet({ gallery }: FilterSheetProps) {
                   })
                 }
                 className={cn(
-                  'min-h-[44px] px-component-md py-component-sm rounded-[var(--semantic-radius-button)]',
-                  'text-sm transition-colors border border-border',
+                  'px-component-md py-component-sm min-h-[44px] rounded-[var(--semantic-radius-button)]',
+                  'border-border border text-sm transition-colors',
                   'hover:bg-muted',
                   filter.customOnly && 'bg-primary text-primary-foreground hover:bg-primary/90'
                 )}
@@ -263,12 +273,12 @@ function TemplateGalleryMobileComponent({
   const { filteredTemplates, filteredCount, sort, setSort, selection, selectTemplate } = gallery;
 
   return (
-    <div className={cn('flex flex-col h-full', className)}>
+    <div className={cn('flex h-full flex-col', className)}>
       {/* Header */}
-      <div className="border-b border-border p-component-md space-y-component-md bg-background">
+      <div className="border-border p-component-md space-y-component-md bg-background border-b">
         <div>
-          <h2 className="text-lg font-semibold font-display text-foreground">Template Gallery</h2>
-          <p className="text-sm text-muted-foreground">
+          <h2 className="font-display text-foreground text-lg font-semibold">Template Gallery</h2>
+          <p className="text-muted-foreground text-sm">
             {filteredCount} {filteredCount === 1 ? 'template' : 'templates'}
           </p>
         </div>
@@ -282,17 +292,29 @@ function TemplateGalleryMobileComponent({
           onValueChange={(value) => setSort(value as typeof sort.field)}
           className="w-full"
         >
-          <TabsList className="w-full grid grid-cols-4 min-h-[44px]">
-            <TabsTrigger value="name" className="text-xs">
+          <TabsList className="grid min-h-[44px] w-full grid-cols-4">
+            <TabsTrigger
+              value="name"
+              className="text-xs"
+            >
               Name
             </TabsTrigger>
-            <TabsTrigger value="complexity" className="text-xs">
+            <TabsTrigger
+              value="complexity"
+              className="text-xs"
+            >
               Level
             </TabsTrigger>
-            <TabsTrigger value="ruleCount" className="text-xs">
+            <TabsTrigger
+              value="ruleCount"
+              className="text-xs"
+            >
               Rules
             </TabsTrigger>
-            <TabsTrigger value="category" className="text-xs">
+            <TabsTrigger
+              value="category"
+              className="text-xs"
+            >
               Type
             </TabsTrigger>
           </TabsList>
@@ -300,19 +322,18 @@ function TemplateGalleryMobileComponent({
       </div>
 
       {/* Template list */}
-      <div className="flex-1 overflow-y-auto p-component-md">
-        {loading ? (
-          <div className="flex items-center justify-center h-full">
+      <div className="p-component-md flex-1 overflow-y-auto">
+        {loading ?
+          <div className="flex h-full items-center justify-center">
             <div className="text-muted-foreground">Loading templates...</div>
           </div>
-        ) : filteredTemplates.length === 0 ? (
+        : filteredTemplates.length === 0 ?
           <EmptyState
             icon={FileText}
             title="No templates found"
             description="Try adjusting your filters or search criteria."
           />
-        ) : (
-          <div className="space-y-component-md">
+        : <div className="space-y-component-md">
             {filteredTemplates.map((template) => (
               <TemplateCard
                 key={template.id}
@@ -325,7 +346,7 @@ function TemplateGalleryMobileComponent({
               />
             ))}
           </div>
-        )}
+        }
       </div>
     </div>
   );

@@ -154,9 +154,7 @@ describe('validateTemplate', () => {
   it('should warn about unused variables', () => {
     const templateWithUnusedVar = {
       ...validTemplate,
-      variables: [
-        { name: 'UNUSED_VAR', label: 'Unused', type: 'STRING', isRequired: false },
-      ],
+      variables: [{ name: 'UNUSED_VAR', label: 'Unused', type: 'STRING', isRequired: false }],
       rules: [
         {
           table: 'FILTER' as const,

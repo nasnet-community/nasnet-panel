@@ -76,7 +76,10 @@ describe('ServiceImportDialog', () => {
   describe('Desktop Presenter Rendering', () => {
     it('should render desktop presenter with file upload', () => {
       render(
-        <ServiceImportDialogDesktop routerID="router-1" open={true} />
+        <ServiceImportDialogDesktop
+          routerID="router-1"
+          open={true}
+        />
       );
 
       // Verify file upload visible
@@ -86,7 +89,10 @@ describe('ServiceImportDialog', () => {
 
     it('should show multi-step wizard layout on desktop', () => {
       render(
-        <ServiceImportDialogDesktop routerID="router-1" open={true} />
+        <ServiceImportDialogDesktop
+          routerID="router-1"
+          open={true}
+        />
       );
 
       // Wizard steps should be visible
@@ -97,7 +103,10 @@ describe('ServiceImportDialog', () => {
   describe('Mobile Presenter Rendering', () => {
     it('should render mobile presenter with full-screen sheet', () => {
       render(
-        <ServiceImportDialogMobile routerID="router-1" open={true} />
+        <ServiceImportDialogMobile
+          routerID="router-1"
+          open={true}
+        />
       );
 
       // Verify mobile layout
@@ -106,7 +115,10 @@ describe('ServiceImportDialog', () => {
 
     it('should have 44px minimum touch targets on mobile', () => {
       const { container } = render(
-        <ServiceImportDialogMobile routerID="router-1" open={true} />
+        <ServiceImportDialogMobile
+          routerID="router-1"
+          open={true}
+        />
       );
 
       // Check for touch-friendly button sizing
@@ -123,7 +135,10 @@ describe('ServiceImportDialog', () => {
     it('should accept valid JSON file and show preview', async () => {
       const user = userEvent.setup();
       render(
-        <ServiceImportDialogDesktop routerID="router-1" open={true} />
+        <ServiceImportDialogDesktop
+          routerID="router-1"
+          open={true}
+        />
       );
 
       // Create mock file
@@ -143,7 +158,10 @@ describe('ServiceImportDialog', () => {
     it('should enable Apply button when validation passes', async () => {
       const user = userEvent.setup();
       render(
-        <ServiceImportDialogDesktop routerID="router-1" open={true} />
+        <ServiceImportDialogDesktop
+          routerID="router-1"
+          open={true}
+        />
       );
 
       const file = new File([validExportJSON], 'export.json', {
@@ -190,7 +208,10 @@ describe('ServiceImportDialog', () => {
       });
 
       render(
-        <ServiceImportDialogDesktop routerID="router-1" open={true} />
+        <ServiceImportDialogDesktop
+          routerID="router-1"
+          open={true}
+        />
       );
 
       const file = new File([redactedExportJSON], 'export.json', {
@@ -228,7 +249,10 @@ describe('ServiceImportDialog', () => {
       });
 
       render(
-        <ServiceImportDialogDesktop routerID="router-1" open={true} />
+        <ServiceImportDialogDesktop
+          routerID="router-1"
+          open={true}
+        />
       );
 
       const file = new File([redactedExportJSON], 'export.json', {
@@ -252,7 +276,10 @@ describe('ServiceImportDialog', () => {
     it('should show error message for invalid JSON', async () => {
       const user = userEvent.setup();
       render(
-        <ServiceImportDialogDesktop routerID="router-1" open={true} />
+        <ServiceImportDialogDesktop
+          routerID="router-1"
+          open={true}
+        />
       );
 
       const file = new File([invalidJSON], 'invalid.json', {
@@ -272,7 +299,10 @@ describe('ServiceImportDialog', () => {
     it('should disable Apply button for invalid imports', async () => {
       const user = userEvent.setup();
       render(
-        <ServiceImportDialogDesktop routerID="router-1" open={true} />
+        <ServiceImportDialogDesktop
+          routerID="router-1"
+          open={true}
+        />
       );
 
       const file = new File([invalidJSON], 'invalid.json', {
@@ -325,7 +355,10 @@ describe('ServiceImportDialog', () => {
       });
 
       render(
-        <ServiceImportDialogDesktop routerID="router-1" open={true} />
+        <ServiceImportDialogDesktop
+          routerID="router-1"
+          open={true}
+        />
       );
 
       const file = new File([validExportJSON], 'export.json', {
@@ -364,7 +397,10 @@ describe('ServiceImportDialog', () => {
       });
 
       render(
-        <ServiceImportDialogDesktop routerID="router-1" open={true} />
+        <ServiceImportDialogDesktop
+          routerID="router-1"
+          open={true}
+        />
       );
 
       const file = new File([validExportJSON], 'export.json', {
@@ -385,7 +421,10 @@ describe('ServiceImportDialog', () => {
     it('should support Tab navigation through wizard steps', async () => {
       const user = userEvent.setup();
       render(
-        <ServiceImportDialogDesktop routerID="router-1" open={true} />
+        <ServiceImportDialogDesktop
+          routerID="router-1"
+          open={true}
+        />
       );
 
       // Tab through interactive elements
@@ -416,7 +455,10 @@ describe('ServiceImportDialog', () => {
   describe('Accessibility - ARIA Labels', () => {
     it('should have proper ARIA labels on all interactive elements', () => {
       render(
-        <ServiceImportDialogDesktop routerID="router-1" open={true} />
+        <ServiceImportDialogDesktop
+          routerID="router-1"
+          open={true}
+        />
       );
 
       // Dialog should have accessible name
@@ -430,7 +472,10 @@ describe('ServiceImportDialog', () => {
 
     it('should announce validation errors to screen readers', async () => {
       const { container } = render(
-        <ServiceImportDialogDesktop routerID="router-1" open={true} />
+        <ServiceImportDialogDesktop
+          routerID="router-1"
+          open={true}
+        />
       );
 
       // Check for live region for error announcements

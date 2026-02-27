@@ -23,7 +23,7 @@ const meta: Meta<typeof DiagnosticStep> = {
   },
   decorators: [
     (Story) => (
-      <div className="w-full max-w-2xl p-6 bg-background">
+      <div className="bg-background w-full max-w-2xl p-6">
         <Story />
       </div>
     ),
@@ -273,8 +273,18 @@ export const NATCheckPassed: Story = {
 export const AllStates: Story = {
   render: () => (
     <div className="space-y-4">
-      <DiagnosticStep step={{ ...baseStep, status: 'pending' }} isActive={false} stepNumber={1} totalSteps={5} />
-      <DiagnosticStep step={{ ...baseStep, status: 'running' }} isActive={true} stepNumber={2} totalSteps={5} />
+      <DiagnosticStep
+        step={{ ...baseStep, status: 'pending' }}
+        isActive={false}
+        stepNumber={1}
+        totalSteps={5}
+      />
+      <DiagnosticStep
+        step={{ ...baseStep, status: 'running' }}
+        isActive={true}
+        stepNumber={2}
+        totalSteps={5}
+      />
       <DiagnosticStep
         step={{
           ...baseStep,
@@ -289,7 +299,12 @@ export const AllStates: Story = {
         step={{
           ...baseStep,
           status: 'failed',
-          result: { success: false, message: 'Check failed', issueCode: 'ERROR', executionTimeMs: 320 },
+          result: {
+            success: false,
+            message: 'Check failed',
+            issueCode: 'ERROR',
+            executionTimeMs: 320,
+          },
         }}
         isActive={false}
         stepNumber={4}

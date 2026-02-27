@@ -98,8 +98,7 @@ export const MinorUpdate: Story = {
     instanceName: 'AdGuard Home',
     currentVersion: '0.107.52',
     newVersion: '0.107.55',
-    changelogUrl:
-      'https://github.com/AdguardTeam/AdGuardHome/releases/tag/v0.107.55',
+    changelogUrl: 'https://github.com/AdguardTeam/AdGuardHome/releases/tag/v0.107.55',
     severity: 'MINOR',
     securityFixes: false,
     breakingChanges: false,

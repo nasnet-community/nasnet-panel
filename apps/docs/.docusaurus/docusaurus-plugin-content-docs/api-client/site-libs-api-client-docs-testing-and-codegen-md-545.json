@@ -1,7 +1,7 @@
 {
   "id": "testing-and-codegen",
   "title": "Testing and Code Generation",
-  "description": "This document covers how to test Apollo Client hooks in NasNetConnect, how the graphql-codegen pipeline transforms GraphQL schema and operations into TypeScript types and React hooks, how possibleTypes enables polymorphic type resolution, how Zod schemas integrate with react-hook-form, and the step-by-step process for adding a brand-new domain.",
+  "description": "This document covers how to test Apollo Client hooks in NasNetConnect, how the graphql-codegen",
   "source": "@site/../../libs/api-client/docs/testing-and-codegen.md",
   "sourceDirName": ".",
   "slug": "/testing-and-codegen",

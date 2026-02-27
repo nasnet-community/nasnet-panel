@@ -61,21 +61,21 @@ async function updateVPNInterface({
   updates,
 }: UpdateVPNInterfaceRequest): Promise<void> {
   const endpoint = getEndpointForProtocol(protocol, type);
-  
+
   // Convert updates to RouterOS format
   const body: Record<string, string> = {};
-  
+
   // Add ID for non-server endpoints
   if (!endpoint.includes('server/set')) {
     body['.id'] = id;
   }
-  
+
   // Convert each update field
   for (const [key, value] of Object.entries(updates)) {
     if (value === undefined) continue;
-    
+
     const rosKey = toKebabCase(key);
-    
+
     if (typeof value === 'boolean') {
       body[rosKey] = value ? 'yes' : 'no';
     } else if (Array.isArray(value)) {
@@ -85,14 +85,10 @@ async function updateVPNInterface({
     }
   }
 
-  const result = await makeRouterOSRequest<void>(
-    routerIp,
-    endpoint,
-    {
-      method: 'POST',
-      body,
-    }
-  );
+  const result = await makeRouterOSRequest<void>(routerIp, endpoint, {
+    method: 'POST',
+    body,
+  });
 
   if (!result.success) {
     throw new Error(result.error || 'Failed to update VPN interface');
@@ -104,7 +100,7 @@ async function updateVPNInterface({
  */
 function getQueryKeysForProtocol(protocol: VPNProtocol, routerIp: string) {
   const keys: (readonly string[])[] = [vpnKeys.stats(routerIp)];
-  
+
   switch (protocol) {
     case 'wireguard':
       keys.push(vpnKeys.wireguardInterfaces(routerIp));
@@ -125,7 +121,7 @@ function getQueryKeysForProtocol(protocol: VPNProtocol, routerIp: string) {
       keys.push(vpnKeys.ipsecPeers(routerIp));
       break;
   }
-  
+
   return keys;
 }
 
@@ -143,7 +139,7 @@ export function useUpdateVPNInterface() {
 
       // Invalidate relevant queries
       const keys = getQueryKeysForProtocol(protocol, routerIp);
-      keys.forEach(key => {
+      keys.forEach((key) => {
         queryClient.invalidateQueries({ queryKey: key });
       });
 
@@ -160,11 +156,8 @@ export function useUpdateVPNInterface() {
         variant: 'destructive',
         title: `Failed to update ${name}`,
         description:
-          error instanceof Error
-            ? error.message
-            : 'An error occurred. Please try again.',
+          error instanceof Error ? error.message : 'An error occurred. Please try again.',
       });
     },
   });
 }
-

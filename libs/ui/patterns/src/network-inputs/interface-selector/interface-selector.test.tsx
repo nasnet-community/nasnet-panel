@@ -11,7 +11,15 @@
  * @module @nasnet/ui/patterns/network-inputs/interface-selector
  */
 
-import { render, screen, fireEvent, waitFor, within , renderHook, act } from '@testing-library/react';
+import {
+  render,
+  screen,
+  fireEvent,
+  waitFor,
+  within,
+  renderHook,
+  act,
+} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
@@ -33,7 +41,14 @@ vi.mock('@nasnet/ui/layouts', () => ({
 const mockInterfaces: RouterInterface[] = [
   { id: 'eth1', name: 'ether1', type: 'ethernet', status: 'up', ip: '192.168.1.1', usedBy: [] },
   { id: 'eth2', name: 'ether2', type: 'ethernet', status: 'down', usedBy: [] },
-  { id: 'br1', name: 'bridge-lan', type: 'bridge', status: 'up', ip: '10.0.0.1', usedBy: ['DHCP Server'] },
+  {
+    id: 'br1',
+    name: 'bridge-lan',
+    type: 'bridge',
+    status: 'up',
+    ip: '10.0.0.1',
+    usedBy: ['DHCP Server'],
+  },
   { id: 'wlan1', name: 'wlan1', type: 'wireless', status: 'up', usedBy: [] },
   { id: 'vpn1', name: 'ovpn-out1', type: 'vpn', status: 'down', usedBy: [] },
 ];
@@ -41,9 +56,7 @@ const mockInterfaces: RouterInterface[] = [
 describe('InterfaceSelector', () => {
   describe('useInterfaceSelector Hook', () => {
     it('should return interfaces from mock data', () => {
-      const { result } = renderHook(() =>
-        useInterfaceSelector({ routerId: 'test-router' })
-      );
+      const { result } = renderHook(() => useInterfaceSelector({ routerId: 'test-router' }));
 
       expect(result.current.interfaces.length).toBeGreaterThan(0);
       expect(result.current.isLoading).toBe(false);
@@ -51,15 +64,13 @@ describe('InterfaceSelector', () => {
     });
 
     it('should filter by single type when typeFilter is set', () => {
-      const { result } = renderHook(() =>
-        useInterfaceSelector({ routerId: 'test-router' })
-      );
+      const { result } = renderHook(() => useInterfaceSelector({ routerId: 'test-router' }));
 
       act(() => {
         result.current.setTypeFilter('ethernet');
       });
 
-      expect(result.current.filteredInterfaces.every(i => i.type === 'ethernet')).toBe(true);
+      expect(result.current.filteredInterfaces.every((i) => i.type === 'ethernet')).toBe(true);
     });
 
     it('should filter by multiple types when types prop is provided', () => {
@@ -71,71 +82,66 @@ describe('InterfaceSelector', () => {
       );
 
       expect(
-        result.current.filteredInterfaces.every(
-          i => i.type === 'ethernet' || i.type === 'bridge'
-        )
+        result.current.filteredInterfaces.every((i) => i.type === 'ethernet' || i.type === 'bridge')
       ).toBe(true);
     });
 
     it('should show all types when typeFilter is "all"', () => {
-      const { result } = renderHook(() =>
-        useInterfaceSelector({ routerId: 'test-router' })
-      );
+      const { result } = renderHook(() => useInterfaceSelector({ routerId: 'test-router' }));
 
       expect(result.current.typeFilter).toBe('all');
       expect(result.current.filteredInterfaces.length).toBe(result.current.interfaces.length);
     });
 
     it('should filter by search query (case-insensitive)', async () => {
-      const { result } = renderHook(() =>
-        useInterfaceSelector({ routerId: 'test-router' })
-      );
+      const { result } = renderHook(() => useInterfaceSelector({ routerId: 'test-router' }));
 
       act(() => {
         result.current.setSearchQuery('ether');
       });
 
       // Wait for debounce
-      await waitFor(() => {
-        expect(
-          result.current.filteredInterfaces.every(i =>
-            i.name.toLowerCase().includes('ether')
-          )
-        ).toBe(true);
-      }, { timeout: 300 });
+      await waitFor(
+        () => {
+          expect(
+            result.current.filteredInterfaces.every((i) => i.name.toLowerCase().includes('ether'))
+          ).toBe(true);
+        },
+        { timeout: 300 }
+      );
     });
 
     it('should filter by IP address', async () => {
-      const { result } = renderHook(() =>
-        useInterfaceSelector({ routerId: 'test-router' })
-      );
+      const { result } = renderHook(() => useInterfaceSelector({ routerId: 'test-router' }));
 
       act(() => {
         result.current.setSearchQuery('192.168');
       });
 
-      await waitFor(() => {
-        expect(result.current.filteredInterfaces.length).toBeGreaterThan(0);
-        expect(
-          result.current.filteredInterfaces.every(i =>
-            i.ip?.includes('192.168')
-          )
-        ).toBe(true);
-      }, { timeout: 300 });
+      await waitFor(
+        () => {
+          expect(result.current.filteredInterfaces.length).toBeGreaterThan(0);
+          expect(result.current.filteredInterfaces.every((i) => i.ip?.includes('192.168'))).toBe(
+            true
+          );
+        },
+        { timeout: 300 }
+      );
     });
 
     it('should return empty array when no matches', async () => {
-      const { result } = renderHook(() =>
-        useInterfaceSelector({ routerId: 'test-router' })
-      );
+      const { result } = renderHook(() => useInterfaceSelector({ routerId: 'test-router' }));
 
       act(() => {
         result.current.setSearchQuery('nonexistent-interface');
       });
 
-      await waitFor(() => {
-        expect(result.current.filteredInterfaces.length).toBe(0);
-      }, { timeout: 300 });
+      await waitFor(
+        () => {
+          expect(result.current.filteredInterfaces.length).toBe(0);
+        },
+        { timeout: 300 }
+      );
     });
 
     it('should handle single selection', () => {
@@ -241,9 +247,7 @@ describe('InterfaceSelector', () => {
       );
 
       expect(
-        result.current.filteredInterfaces.every(
-          i => !i.usedBy || i.usedBy.length === 0
-        )
+        result.current.filteredInterfaces.every((i) => !i.usedBy || i.usedBy.length === 0)
       ).toBe(true);
     });
 
@@ -266,9 +270,7 @@ describe('InterfaceSelector', () => {
     });
 
     it('should get interface by ID', () => {
-      const { result } = renderHook(() =>
-        useInterfaceSelector({ routerId: 'test-router' })
-      );
+      const { result } = renderHook(() => useInterfaceSelector({ routerId: 'test-router' }));
 
       const iface = result.current.getInterfaceById('eth1');
       expect(iface).toBeDefined();
@@ -325,9 +327,7 @@ describe('InterfaceSelector', () => {
     it('should open popover on click', async () => {
       const user = userEvent.setup();
 
-      render(
-        <InterfaceSelectorDesktop routerId="test-router" />
-      );
+      render(<InterfaceSelectorDesktop routerId="test-router" />);
 
       await user.click(screen.getByRole('combobox'));
 
@@ -337,9 +337,7 @@ describe('InterfaceSelector', () => {
     it('should display interface list with names', async () => {
       const user = userEvent.setup();
 
-      render(
-        <InterfaceSelectorDesktop routerId="test-router" />
-      );
+      render(<InterfaceSelectorDesktop routerId="test-router" />);
 
       await user.click(screen.getByRole('combobox'));
 
@@ -351,7 +349,10 @@ describe('InterfaceSelector', () => {
       const user = userEvent.setup();
 
       render(
-        <InterfaceSelectorDesktop routerId="test-router" showIP />
+        <InterfaceSelectorDesktop
+          routerId="test-router"
+          showIP
+        />
       );
 
       await user.click(screen.getByRole('combobox'));
@@ -362,9 +363,7 @@ describe('InterfaceSelector', () => {
     it('should show usage warnings with tooltip', async () => {
       const user = userEvent.setup();
 
-      render(
-        <InterfaceSelectorDesktop routerId="test-router" />
-      );
+      render(<InterfaceSelectorDesktop routerId="test-router" />);
 
       await user.click(screen.getByRole('combobox'));
 
@@ -376,9 +375,7 @@ describe('InterfaceSelector', () => {
     it('should show search input in popover', async () => {
       const user = userEvent.setup();
 
-      render(
-        <InterfaceSelectorDesktop routerId="test-router" />
-      );
+      render(<InterfaceSelectorDesktop routerId="test-router" />);
 
       await user.click(screen.getByRole('combobox'));
 
@@ -388,9 +385,7 @@ describe('InterfaceSelector', () => {
     it('should show type filter dropdown when types not restricted', async () => {
       const user = userEvent.setup();
 
-      render(
-        <InterfaceSelectorDesktop routerId="test-router" />
-      );
+      render(<InterfaceSelectorDesktop routerId="test-router" />);
 
       await user.click(screen.getByRole('combobox'));
 
@@ -569,7 +564,10 @@ describe('InterfaceSelector', () => {
       const user = userEvent.setup();
 
       render(
-        <InterfaceSelectorDesktop routerId="test-router" multiple />
+        <InterfaceSelectorDesktop
+          routerId="test-router"
+          multiple
+        />
       );
 
       await user.click(screen.getByRole('combobox'));
@@ -619,9 +617,7 @@ describe('InterfaceSelector', () => {
     });
 
     it('should have proper ARIA attributes on trigger', () => {
-      render(
-        <InterfaceSelectorDesktop routerId="test-router" />
-      );
+      render(<InterfaceSelectorDesktop routerId="test-router" />);
 
       const trigger = screen.getByRole('combobox');
       expect(trigger).toHaveAttribute('aria-expanded', 'false');
@@ -631,9 +627,7 @@ describe('InterfaceSelector', () => {
     it('should update aria-expanded when open', async () => {
       const user = userEvent.setup();
 
-      render(
-        <InterfaceSelectorDesktop routerId="test-router" />
-      );
+      render(<InterfaceSelectorDesktop routerId="test-router" />);
 
       const trigger = screen.getByRole('combobox');
       await user.click(trigger);
@@ -644,9 +638,7 @@ describe('InterfaceSelector', () => {
     it('should have role="listbox" on list', async () => {
       const user = userEvent.setup();
 
-      render(
-        <InterfaceSelectorDesktop routerId="test-router" />
-      );
+      render(<InterfaceSelectorDesktop routerId="test-router" />);
 
       await user.click(screen.getByRole('combobox'));
 
@@ -656,9 +648,7 @@ describe('InterfaceSelector', () => {
     it('should have role="option" on items', async () => {
       const user = userEvent.setup();
 
-      render(
-        <InterfaceSelectorDesktop routerId="test-router" />
-      );
+      render(<InterfaceSelectorDesktop routerId="test-router" />);
 
       await user.click(screen.getByRole('combobox'));
 
@@ -670,22 +660,23 @@ describe('InterfaceSelector', () => {
       const user = userEvent.setup();
 
       render(
-        <InterfaceSelectorDesktop routerId="test-router" value="eth1" />
+        <InterfaceSelectorDesktop
+          routerId="test-router"
+          value="eth1"
+        />
       );
 
       await user.click(screen.getByRole('combobox'));
 
       const options = screen.getAllByRole('option');
-      const selectedOption = options.find(opt => opt.getAttribute('aria-selected') === 'true');
+      const selectedOption = options.find((opt) => opt.getAttribute('aria-selected') === 'true');
       expect(selectedOption).toBeDefined();
     });
 
     it('should close on Escape key', async () => {
       const user = userEvent.setup();
 
-      render(
-        <InterfaceSelectorDesktop routerId="test-router" />
-      );
+      render(<InterfaceSelectorDesktop routerId="test-router" />);
 
       await user.click(screen.getByRole('combobox'));
       expect(screen.getByRole('listbox')).toBeInTheDocument();
@@ -711,7 +702,15 @@ describe('InterfaceSelector', () => {
   });
 
   describe('InterfaceTypeIcon', () => {
-    const types: InterfaceType[] = ['ethernet', 'bridge', 'vlan', 'wireless', 'vpn', 'tunnel', 'loopback'];
+    const types: InterfaceType[] = [
+      'ethernet',
+      'bridge',
+      'vlan',
+      'wireless',
+      'vpn',
+      'tunnel',
+      'loopback',
+    ];
 
     it.each(types)('should render icon for type: %s', (type) => {
       const { container } = render(<InterfaceTypeIcon type={type} />);
@@ -720,7 +719,10 @@ describe('InterfaceSelector', () => {
 
     it('should apply custom className', () => {
       const { container } = render(
-        <InterfaceTypeIcon type="ethernet" className="custom-class" />
+        <InterfaceTypeIcon
+          type="ethernet"
+          className="custom-class"
+        />
       );
       expect(container.querySelector('svg')).toHaveClass('custom-class');
     });
@@ -885,17 +887,13 @@ describe('InterfaceSelector', () => {
 
   describe('Platform Presenters', () => {
     it('should render desktop presenter', () => {
-      render(
-        <InterfaceSelectorDesktop routerId="test-router" />
-      );
+      render(<InterfaceSelectorDesktop routerId="test-router" />);
 
       expect(screen.getByRole('combobox')).toBeInTheDocument();
     });
 
     it('should render mobile presenter', () => {
-      render(
-        <InterfaceSelectorMobile routerId="test-router" />
-      );
+      render(<InterfaceSelectorMobile routerId="test-router" />);
 
       expect(screen.getByRole('combobox')).toBeInTheDocument();
     });
@@ -906,9 +904,7 @@ describe('InterfaceSelector', () => {
       const { usePlatform } = require('@nasnet/ui/layouts');
       usePlatform.mockReturnValue('mobile');
 
-      render(
-        <InterfaceSelector routerId="test-router" />
-      );
+      render(<InterfaceSelector routerId="test-router" />);
 
       expect(screen.getByRole('combobox')).toBeInTheDocument();
 

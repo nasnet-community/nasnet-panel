@@ -64,16 +64,19 @@ function IPAddressFormMobileComponent(props: IPAddressFormProps) {
   return (
     <div className="space-y-component-md pb-component-md">
       <div>
-        <h2 className="text-xl font-display font-semibold">
+        <h2 className="font-display text-xl font-semibold">
           {mode === 'create' ? 'Add IP Address' : 'Edit IP Address'}
         </h2>
-        <p className="text-sm text-muted-foreground mt-1">
+        <p className="text-muted-foreground mt-1 text-sm">
           Configure an IP address on a network interface
         </p>
       </div>
 
       <Form {...form}>
-        <form onSubmit={handleSubmit} className="space-y-component-lg">
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-component-lg"
+        >
           {/* IP Address Input with CIDR */}
           <FormField
             control={form.control as any}
@@ -92,14 +95,12 @@ function IPAddressFormMobileComponent(props: IPAddressFormProps) {
                     />
                     {conflictLoading && (
                       <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                        <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                        <Loader2 className="text-muted-foreground h-4 w-4 animate-spin" />
                       </div>
                     )}
                   </div>
                 </FormControl>
-                <FormDescription>
-                  Format: 192.168.1.1/24
-                </FormDescription>
+                <FormDescription>Format: 192.168.1.1/24</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -125,33 +126,40 @@ function IPAddressFormMobileComponent(props: IPAddressFormProps) {
           {subnetCalculations && !hasConflict && (
             <Card className="bg-background border-border">
               <CardHeader className="pb-component-sm">
-                <CardTitle className="text-sm flex items-center gap-component-sm">
-                  <CheckCircle className="h-4 w-4 text-success" />
+                <CardTitle className="gap-component-sm flex items-center text-sm">
+                  <CheckCircle className="text-success h-4 w-4" />
                   Subnet Info
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-component-sm text-sm">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Network:</span>
-                  <code className="text-xs font-mono text-foreground">{subnetCalculations.networkAddress}</code>
+                  <code className="text-foreground font-mono text-xs">
+                    {subnetCalculations.networkAddress}
+                  </code>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Broadcast:</span>
-                  <code className="text-xs font-mono text-foreground">{subnetCalculations.broadcastAddress}</code>
+                  <code className="text-foreground font-mono text-xs">
+                    {subnetCalculations.broadcastAddress}
+                  </code>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Mask:</span>
-                  <code className="text-xs font-mono text-foreground">{subnetCalculations.subnetMask}</code>
+                  <code className="text-foreground font-mono text-xs">
+                    {subnetCalculations.subnetMask}
+                  </code>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Hosts:</span>
-                  <span className="font-mono text-foreground">{subnetCalculations.usableHostCount}</span>
+                  <span className="text-foreground font-mono">
+                    {subnetCalculations.usableHostCount}
+                  </span>
                 </div>
                 <div className="pt-component-sm">
                   <div className="text-muted-foreground mb-1">Range:</div>
-                  <code className="text-xs font-mono text-foreground block">
-                    {subnetCalculations.firstUsableHost} -{' '}
-                    {subnetCalculations.lastUsableHost}
+                  <code className="text-foreground block font-mono text-xs">
+                    {subnetCalculations.firstUsableHost} - {subnetCalculations.lastUsableHost}
                   </code>
                 </div>
               </CardContent>
@@ -185,7 +193,10 @@ function IPAddressFormMobileComponent(props: IPAddressFormProps) {
                       >
                         <span className="font-mono">{iface.name}</span>
                         {iface.type && (
-                          <Badge variant="secondary" className="ml-2 text-xs">
+                          <Badge
+                            variant="secondary"
+                            className="ml-2 text-xs"
+                          >
                             {iface.type}
                           </Badge>
                         )}
@@ -193,9 +204,7 @@ function IPAddressFormMobileComponent(props: IPAddressFormProps) {
                     ))}
                   </SelectContent>
                 </Select>
-                <FormDescription>
-                  Interface to assign this IP
-                </FormDescription>
+                <FormDescription>Interface to assign this IP</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -226,12 +235,10 @@ function IPAddressFormMobileComponent(props: IPAddressFormProps) {
             control={form.control as any}
             name="disabled"
             render={({ field }) => (
-              <FormItem className="flex flex-row items-center justify-between rounded-[var(--semantic-radius-card)] border border-border bg-card p-component-sm">
+              <FormItem className="border-border bg-card p-component-sm flex flex-row items-center justify-between rounded-[var(--semantic-radius-card)] border">
                 <div className="space-y-0.5">
                   <FormLabel>Disabled</FormLabel>
-                  <FormDescription>
-                    Configure but don't activate
-                  </FormDescription>
+                  <FormDescription>Configure but don't activate</FormDescription>
                 </div>
                 <FormControl>
                   <Switch
@@ -248,7 +255,7 @@ function IPAddressFormMobileComponent(props: IPAddressFormProps) {
           <div className="space-y-component-md pt-component-sm">
             <Button
               type="submit"
-              className="w-full min-h-[44px]"
+              className="min-h-[44px] w-full"
               disabled={loading || hasConflict}
             >
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
@@ -257,7 +264,7 @@ function IPAddressFormMobileComponent(props: IPAddressFormProps) {
             <Button
               type="button"
               variant="outline"
-              className="w-full min-h-[44px]"
+              className="min-h-[44px] w-full"
               onClick={onCancel}
               disabled={loading}
             >

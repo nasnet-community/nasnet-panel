@@ -45,45 +45,48 @@ export const BatchActionsToolbar = memo(function BatchActionsToolbar({
     setConfirmDialog(action);
   }, []);
 
-  const handleBatchAction = useCallback(async (action: BatchInterfaceAction) => {
-    try {
-      const result = await batchOperation({
-        variables: {
-          routerId,
-          input: {
-            interfaceIds: Array.from(selectedIds),
-            action,
+  const handleBatchAction = useCallback(
+    async (action: BatchInterfaceAction) => {
+      try {
+        const result = await batchOperation({
+          variables: {
+            routerId,
+            input: {
+              interfaceIds: Array.from(selectedIds),
+              action,
+            },
           },
-        },
-      });
+        });
 
-      const data = result.data?.batchInterfaceOperation;
-      if (data) {
-        const { succeeded, failed } = data;
+        const data = result.data?.batchInterfaceOperation;
+        if (data) {
+          const { succeeded, failed } = data;
 
-        if (failed.length === 0) {
-          toast({
-            title: 'Batch operation complete',
-            description: `${succeeded.length} interface${succeeded.length !== 1 ? 's' : ''} updated successfully`,
-          });
-        } else {
-          toast({
-            title: 'Batch operation partial',
-            description: `${succeeded.length} succeeded, ${failed.length} failed`,
-            variant: 'warning',
-          });
+          if (failed.length === 0) {
+            toast({
+              title: 'Batch operation complete',
+              description: `${succeeded.length} interface${succeeded.length !== 1 ? 's' : ''} updated successfully`,
+            });
+          } else {
+            toast({
+              title: 'Batch operation partial',
+              description: `${succeeded.length} succeeded, ${failed.length} failed`,
+              variant: 'warning',
+            });
+          }
+
+          onClearSelection();
         }
-
-        onClearSelection();
+      } catch (error) {
+        toast({
+          title: 'Batch operation failed',
+          description: error instanceof Error ? error.message : 'Unknown error',
+          variant: 'error',
+        });
       }
-    } catch (error) {
-      toast({
-        title: 'Batch operation failed',
-        description: error instanceof Error ? error.message : 'Unknown error',
-        variant: 'error',
-      });
-    }
-  }, [batchOperation, routerId, selectedIds, onClearSelection, toast]);
+    },
+    [batchOperation, routerId, selectedIds, onClearSelection, toast]
+  );
 
   const handleConfirm = useCallback(async () => {
     if (!confirmDialog) return;
@@ -95,32 +98,33 @@ export const BatchActionsToolbar = memo(function BatchActionsToolbar({
   }, [confirmDialog, handleBatchAction]);
 
   return (
-    <div className="flex items-center gap-component-sm category-networking">
-      <span className="text-sm text-muted-foreground">
-        {selectedIds.size} selected
-      </span>
+    <div className="gap-component-sm category-networking flex items-center">
+      <span className="text-muted-foreground text-sm">{selectedIds.size} selected</span>
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline" disabled={loading}>
+          <Button
+            variant="outline"
+            disabled={loading}
+          >
             {loading ? 'Processing...' : 'Batch Actions'}
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent>
-          <DropdownMenuItem
-            onClick={() => handleMenuClick(BatchInterfaceAction.Enable)}
-          >
+          <DropdownMenuItem onClick={() => handleMenuClick(BatchInterfaceAction.Enable)}>
             Enable Selected
           </DropdownMenuItem>
-          <DropdownMenuItem
-            onClick={() => handleMenuClick(BatchInterfaceAction.Disable)}
-          >
+          <DropdownMenuItem onClick={() => handleMenuClick(BatchInterfaceAction.Disable)}>
             Disable Selected
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <Button variant="ghost" size="sm" onClick={onClearSelection}>
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={onClearSelection}
+      >
         Clear Selection
       </Button>
 

@@ -18,48 +18,56 @@
  * @see RFC 3927 - Link-Local Addresses
  */
 export interface BogonRanges {
-    private: string[];
-    loopback: string[];
-    reserved: string[];
-    linkLocal: string[];
-    multicast: string[];
-    futureUse: string[];
+  private: string[];
+  loopback: string[];
+  reserved: string[];
+  linkLocal: string[];
+  multicast: string[];
+  futureUse: string[];
 }
 export type BogonCategory = keyof BogonRanges;
 /**
  * Comprehensive list of Bogon (non-routable) IP ranges
  */
 export declare const BOGON_RANGES: {
-    /**
-     * RFC 1918 - Private Address Space
-     * Should never appear as source on public internet
-     */
-    readonly private: readonly ["10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16"];
-    /**
-     * RFC 5735 - Loopback
-     * Local machine addresses
-     */
-    readonly loopback: readonly ["127.0.0.0/8"];
-    /**
-     * RFC 5735 - Reserved/Special-Use
-     * Documentation, benchmarking, protocol assignments
-     */
-    readonly reserved: readonly ["0.0.0.0/8", "192.0.0.0/24", "192.0.2.0/24", "198.18.0.0/15", "198.51.100.0/24", "203.0.113.0/24", "100.64.0.0/10"];
-    /**
-     * RFC 3927 - Link-Local Addresses
-     * Autoconfiguration when DHCP fails
-     */
-    readonly linkLocal: readonly ["169.254.0.0/16"];
-    /**
-     * RFC 1112 - Multicast
-     * One-to-many communication
-     */
-    readonly multicast: readonly ["224.0.0.0/4"];
-    /**
-     * Reserved for Future Use
-     * Class E space
-     */
-    readonly futureUse: readonly ["240.0.0.0/4"];
+  /**
+   * RFC 1918 - Private Address Space
+   * Should never appear as source on public internet
+   */
+  readonly private: readonly ['10.0.0.0/8', '172.16.0.0/12', '192.168.0.0/16'];
+  /**
+   * RFC 5735 - Loopback
+   * Local machine addresses
+   */
+  readonly loopback: readonly ['127.0.0.0/8'];
+  /**
+   * RFC 5735 - Reserved/Special-Use
+   * Documentation, benchmarking, protocol assignments
+   */
+  readonly reserved: readonly [
+    '0.0.0.0/8',
+    '192.0.0.0/24',
+    '192.0.2.0/24',
+    '198.18.0.0/15',
+    '198.51.100.0/24',
+    '203.0.113.0/24',
+    '100.64.0.0/10',
+  ];
+  /**
+   * RFC 3927 - Link-Local Addresses
+   * Autoconfiguration when DHCP fails
+   */
+  readonly linkLocal: readonly ['169.254.0.0/16'];
+  /**
+   * RFC 1112 - Multicast
+   * One-to-many communication
+   */
+  readonly multicast: readonly ['224.0.0.0/4'];
+  /**
+   * Reserved for Future Use
+   * Class E space
+   */
+  readonly futureUse: readonly ['240.0.0.0/4'];
 };
 /**
  * Get all bogon ranges as a flat array

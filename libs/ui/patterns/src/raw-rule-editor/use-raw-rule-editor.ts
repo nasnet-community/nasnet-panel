@@ -93,9 +93,7 @@ export interface UseRawRuleEditorReturn {
  * );
  * ```
  */
-export function useRawRuleEditor(
-  options: UseRawRuleEditorOptions = {}
-): UseRawRuleEditorReturn {
+export function useRawRuleEditor(options: UseRawRuleEditorOptions = {}): UseRawRuleEditorReturn {
   const { initialRule, onSubmit: onSubmitCallback, onCancel } = options;
 
   // Initialize React Hook Form with Zod validation

@@ -3,11 +3,7 @@ import { useCallback, useState, useMemo } from 'react';
 import { Globe } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
-import {
-  supportedLanguages,
-  languageNames,
-  type SupportedLanguage,
-} from '@nasnet/core/i18n';
+import { supportedLanguages, languageNames, type SupportedLanguage } from '@nasnet/core/i18n';
 import {
   Button,
   DropdownMenu,
@@ -103,42 +99,51 @@ export function LanguageSwitcher({
   );
 
   return (
-    <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
+    <DropdownMenu
+      open={isOpen}
+      onOpenChange={setIsOpen}
+    >
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
           size={showLabel ? 'default' : 'icon'}
           className={cn(
-            'rounded-full hover:bg-accent transition-all duration-200',
+            'hover:bg-accent rounded-full transition-all duration-200',
             showLabel && 'gap-2 px-3',
             className
           )}
           aria-label={ariaLabel}
           title={ariaLabel}
         >
-          <Globe className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
+          <Globe
+            className="text-muted-foreground h-5 w-5"
+            aria-hidden="true"
+          />
           {showLabel && (
-            <span className="text-sm text-muted-foreground">
-              {currentLanguageName}
-            </span>
+            <span className="text-muted-foreground text-sm">{currentLanguageName}</span>
           )}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="min-w-[160px]">
+      <DropdownMenuContent
+        align="end"
+        className="min-w-[160px]"
+      >
         {supportedLanguages.map((lang) => (
           <DropdownMenuItem
             key={lang}
             onClick={() => handleLanguageChange(lang)}
-            className={cn(
-              'cursor-pointer',
-              lang === currentLanguage && 'bg-accent font-medium'
-            )}
+            className={cn('cursor-pointer', lang === currentLanguage && 'bg-accent font-medium')}
             role="option"
             aria-selected={lang === currentLanguage}
           >
             <span className="flex-1">{languageNames[lang]}</span>
             {lang === currentLanguage && (
-              <span className="text-xs text-muted-foreground" aria-hidden="true">✓</span>
+              <span
+                className="text-muted-foreground text-xs"
+                aria-hidden="true"
+              >
+                ✓
+              </span>
             )}
           </DropdownMenuItem>
         ))}

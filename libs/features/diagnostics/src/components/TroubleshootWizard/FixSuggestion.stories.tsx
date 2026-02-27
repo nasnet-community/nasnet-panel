@@ -22,7 +22,7 @@ const meta: Meta<typeof FixSuggestion> = {
   },
   decorators: [
     (Story) => (
-      <div className="w-full max-w-2xl p-6 bg-background">
+      <div className="bg-background w-full max-w-2xl p-6">
         <Story />
       </div>
     ),
@@ -290,7 +290,7 @@ export const AllStates: Story = {
   render: () => (
     <div className="space-y-6">
       <div>
-        <h3 className="text-sm font-medium mb-2">Idle (High Confidence)</h3>
+        <h3 className="mb-2 text-sm font-medium">Idle (High Confidence)</h3>
         <FixSuggestion
           fix={{
             issueCode: 'WAN_DISABLED',
@@ -307,7 +307,7 @@ export const AllStates: Story = {
         />
       </div>
       <div>
-        <h3 className="text-sm font-medium mb-2">Applying</h3>
+        <h3 className="mb-2 text-sm font-medium">Applying</h3>
         <FixSuggestion
           fix={{
             issueCode: 'NAT_DISABLED',
@@ -324,7 +324,7 @@ export const AllStates: Story = {
         />
       </div>
       <div>
-        <h3 className="text-sm font-medium mb-2">Applied</h3>
+        <h3 className="mb-2 text-sm font-medium">Applied</h3>
         <FixSuggestion
           fix={{
             issueCode: 'DNS_FAILED',
@@ -341,7 +341,7 @@ export const AllStates: Story = {
         />
       </div>
       <div>
-        <h3 className="text-sm font-medium mb-2">Failed</h3>
+        <h3 className="mb-2 text-sm font-medium">Failed</h3>
         <FixSuggestion
           fix={{
             issueCode: 'GATEWAY_UNREACHABLE',

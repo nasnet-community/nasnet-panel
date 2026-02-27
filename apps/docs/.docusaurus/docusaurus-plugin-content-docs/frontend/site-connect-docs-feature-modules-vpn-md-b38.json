@@ -1,7 +1,7 @@
 {
   "id": "feature-modules/vpn",
   "title": "VPN Feature",
-  "description": "The VPN feature manages all MikroTik VPN tunnels — both outgoing client connections",
+  "description": "The VPN feature manages all MikroTik VPN tunnels — both outgoing client connections and incoming",
   "source": "@site/../connect/docs/feature-modules/vpn.md",
   "sourceDirName": "feature-modules",
   "slug": "/feature-modules/vpn",

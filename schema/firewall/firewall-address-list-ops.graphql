@@ -7,16 +7,24 @@ Input for creating a new address list entry.
 List will be created if it doesn't exist.
 """
 input CreateAddressListEntryInput {
-  """Target list name (will create if doesn't exist)"""
+  """
+  Target list name (will create if doesn't exist)
+  """
   list: String! @validate(minLength: 1, maxLength: 64, pattern: "^[a-zA-Z0-9_-]+$")
 
-  """IP address, CIDR notation (e.g., 192.168.1.0/24), or IP range (e.g., 192.168.1.1-192.168.1.100)"""
+  """
+  IP address, CIDR notation (e.g., 192.168.1.0/24), or IP range (e.g., 192.168.1.1-192.168.1.100)
+  """
   address: String! @validate(minLength: 7, maxLength: 100)
 
-  """Optional description"""
+  """
+  Optional description
+  """
   comment: String @validate(maxLength: 200)
 
-  """Optional timeout (e.g., "1d", "12h", "30m")"""
+  """
+  Optional timeout (e.g., "1d", "12h", "30m")
+  """
   timeout: String @validate(pattern: "^\\d+[smhdw]$")
 }
 
@@ -25,13 +33,19 @@ Input for bulk address import.
 Used with bulkCreateAddressListEntries mutation.
 """
 input BulkAddressInput {
-  """IP address, CIDR notation, or IP range"""
+  """
+  IP address, CIDR notation, or IP range
+  """
   address: String!
 
-  """Optional description"""
+  """
+  Optional description
+  """
   comment: String @validate(maxLength: 200)
 
-  """Optional timeout"""
+  """
+  Optional timeout
+  """
   timeout: String @validate(pattern: "^\\d+[smhdw]$")
 }
 
@@ -44,13 +58,19 @@ Result of bulk address list entry creation.
 Includes success count, failure count, and error details.
 """
 type BulkCreateResult {
-  """Number of entries successfully created"""
+  """
+  Number of entries successfully created
+  """
   successCount: Int!
 
-  """Number of entries that failed"""
+  """
+  Number of entries that failed
+  """
   failedCount: Int!
 
-  """Details of failed entries"""
+  """
+  Details of failed entries
+  """
   errors: [BulkCreateError!]!
 }
 
@@ -58,13 +78,19 @@ type BulkCreateResult {
 Details of a single failed entry in bulk import.
 """
 type BulkCreateError {
-  """Index in the input array"""
+  """
+  Index in the input array
+  """
   index: Int!
 
-  """The address that failed"""
+  """
+  The address that failed
+  """
   address: String!
 
-  """Error message"""
+  """
+  Error message
+  """
   message: String!
 }
 
@@ -83,19 +109,11 @@ extend type Query {
   Get entries for a specific address list with cursor-based pagination.
   Supports infinite scrolling for large lists (10,000+ entries).
   """
-  addressListEntries(
-    routerId: ID!
-    listName: String!
-    first: Int
-    after: String
-  ): AddressListEntryConnection!
+  addressListEntries(routerId: ID!, listName: String!, first: Int, after: String): AddressListEntryConnection!
 
   """
   Get firewall rules that reference a specific address list.
   Includes filter, NAT, and mangle rules.
   """
-  rulesReferencingAddressList(
-    routerId: ID!
-    listName: String!
-  ): [FirewallRule!]!
+  rulesReferencingAddressList(routerId: ID!, listName: String!): [FirewallRule!]!
 }

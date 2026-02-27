@@ -52,8 +52,7 @@ describe('useFirewallLogFilters', () => {
 
       const { computedTimeRange } = result.current;
       const hourDiff =
-        (computedTimeRange.end.getTime() - computedTimeRange.start.getTime()) /
-        (1000 * 60 * 60);
+        (computedTimeRange.end.getTime() - computedTimeRange.start.getTime()) / (1000 * 60 * 60);
 
       expect(hourDiff).toBeCloseTo(1, 0);
     });

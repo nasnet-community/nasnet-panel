@@ -248,23 +248,14 @@ export function useWizard<TData extends Record<string, unknown>>(
   config: WizardConfig<TData>,
   options: UseWizardOptions = {}
 ): UseWizardReturn<TData> {
-  const {
-    autoPersist = true,
-    autoRestore = false,
-    onRestore,
-    onComplete,
-    onCancel,
-  } = options;
+  const { autoPersist = true, autoRestore = false, onRestore, onComplete, onCancel } = options;
 
   // Track if we should show restore prompt
   const [showRestorePrompt, setShowRestorePrompt] = useState(false);
   const [savedSessionAgeMs, setSavedSessionAgeMs] = useState<number | null>(null);
 
   // Create the machine
-  const machine = useMemo(
-    () => createWizardMachine<TData>(config),
-    [config.id, config.totalSteps]
-  );
+  const machine = useMemo(() => createWizardMachine<TData>(config), [config.id, config.totalSteps]);
 
   // Use the machine
   const [state, send] = useMachine(machine);
@@ -293,8 +284,7 @@ export function useWizard<TData extends Record<string, unknown>>(
   useEffect(() => {
     if (!autoPersist) return;
 
-    const stateValue =
-      typeof state.value === 'string' ? state.value : JSON.stringify(state.value);
+    const stateValue = typeof state.value === 'string' ? state.value : JSON.stringify(state.value);
 
     // Don't persist final states
     if (state.matches('completed') || state.matches('cancelled')) {

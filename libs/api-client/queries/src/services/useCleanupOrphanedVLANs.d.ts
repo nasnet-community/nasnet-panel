@@ -26,9 +26,9 @@
  * ```
  */
 export declare function useCleanupOrphanedVLANs(): {
-    cleanupOrphanedVLANs: (routerID: string) => Promise<number>;
-    loading: boolean;
-    error: import("@apollo/client").ApolloError | undefined;
-    cleanupCount: number | undefined;
+  cleanupOrphanedVLANs: (routerID: string) => Promise<number>;
+  loading: boolean;
+  error: import('@apollo/client').ApolloError | undefined;
+  cleanupCount: number | undefined;
 };
 //# sourceMappingURL=useCleanupOrphanedVLANs.d.ts.map

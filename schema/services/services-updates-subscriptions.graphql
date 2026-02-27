@@ -8,7 +8,9 @@ extend type Subscription {
   Emits progress updates during atomic update process.
   """
   updateProgress(
-    """Router ID to subscribe to"""
+    """
+    Router ID to subscribe to
+    """
     routerID: ID!
   ): UpdateProgress!
 }

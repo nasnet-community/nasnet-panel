@@ -34,7 +34,10 @@ function generateMockData(count: number): TestItem[] {
   return Array.from({ length: count }, (_, i) => ({
     id: i + 1,
     name: `Item ${String(i + 1).padStart(4, '0')}`,
-    status: i % 3 === 0 ? 'active' : i % 3 === 1 ? 'pending' : 'inactive',
+    status:
+      i % 3 === 0 ? 'active'
+      : i % 3 === 1 ? 'pending'
+      : 'inactive',
     value: Math.random() * 1000,
   }));
 }

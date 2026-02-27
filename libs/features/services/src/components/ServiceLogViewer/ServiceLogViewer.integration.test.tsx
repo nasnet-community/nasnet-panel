@@ -95,7 +95,10 @@ describe('ServiceLogViewer Integration', () => {
 
     render(
       <ApolloProvider client={apolloClient}>
-        <ServiceLogViewer routerId="router-1" instanceId="instance-1" />
+        <ServiceLogViewer
+          routerId="router-1"
+          instanceId="instance-1"
+        />
       </ApolloProvider>
     );
 
@@ -119,7 +122,10 @@ describe('ServiceLogViewer Integration', () => {
 
     render(
       <ApolloProvider client={apolloClient}>
-        <ServiceLogViewer routerId="router-1" instanceId="instance-1" />
+        <ServiceLogViewer
+          routerId="router-1"
+          instanceId="instance-1"
+        />
       </ApolloProvider>
     );
 
@@ -153,7 +159,10 @@ describe('ServiceLogViewer Integration', () => {
 
     render(
       <ApolloProvider client={apolloClient}>
-        <ServiceLogViewer routerId="router-1" instanceId="instance-1" />
+        <ServiceLogViewer
+          routerId="router-1"
+          instanceId="instance-1"
+        />
       </ApolloProvider>
     );
 
@@ -189,7 +198,10 @@ describe('ServiceLogViewer Integration', () => {
 
     render(
       <ApolloProvider client={apolloClient}>
-        <ServiceLogViewer routerId="router-1" instanceId="instance-1" />
+        <ServiceLogViewer
+          routerId="router-1"
+          instanceId="instance-1"
+        />
       </ApolloProvider>
     );
 
@@ -209,7 +221,10 @@ describe('ServiceLogViewer Integration', () => {
 
     render(
       <ApolloProvider client={apolloClient}>
-        <ServiceLogViewer routerId="router-1" instanceId="instance-1" />
+        <ServiceLogViewer
+          routerId="router-1"
+          instanceId="instance-1"
+        />
       </ApolloProvider>
     );
 
@@ -237,7 +252,10 @@ describe('ServiceLogViewer Integration', () => {
 
     render(
       <ApolloProvider client={apolloClient}>
-        <ServiceLogViewer routerId="router-1" instanceId="instance-1" />
+        <ServiceLogViewer
+          routerId="router-1"
+          instanceId="instance-1"
+        />
       </ApolloProvider>
     );
 
@@ -270,7 +288,10 @@ describe('ServiceLogViewer Integration', () => {
 
     render(
       <ApolloProvider client={apolloClient}>
-        <ServiceLogViewer routerId="router-1" instanceId="instance-1" />
+        <ServiceLogViewer
+          routerId="router-1"
+          instanceId="instance-1"
+        />
       </ApolloProvider>
     );
 
@@ -300,7 +321,10 @@ describe('ServiceLogViewer Integration', () => {
 
     const { container } = render(
       <ApolloProvider client={apolloClient}>
-        <ServiceLogViewer routerId="router-1" instanceId="instance-1" />
+        <ServiceLogViewer
+          routerId="router-1"
+          instanceId="instance-1"
+        />
       </ApolloProvider>
     );
 

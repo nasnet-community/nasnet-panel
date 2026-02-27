@@ -49,28 +49,28 @@ function makeEntry(
 }
 
 const mixedLogs: MockLogEntry[] = [
-  makeEntry('INFO',  'tor-main',    'Tor daemon started successfully',                       60),
-  makeEntry('DEBUG', 'circuit-mgr', 'Building new circuit through entry guard relay-a',      55),
-  makeEntry('INFO',  'tor-main',    'Bootstrapped 100%: Done',                               50),
-  makeEntry('DEBUG', 'circuit-mgr', 'Circuit 3 built in 1.2 s',                             45),
-  makeEntry('WARN',  'dns-proxy',   'DNS resolution slow: 3400 ms for example.com',          40),
-  makeEntry('INFO',  'tor-main',    'New SOCKS listener on 127.0.0.1:9050',                  35),
-  makeEntry('ERROR', 'exit-node',   'Failed to connect to 93.184.216.34:443: timeout',       30),
-  makeEntry('INFO',  'tor-main',    'Received NEWNYM signal; creating new identity',          25),
-  makeEntry('DEBUG', 'circuit-mgr', 'Extending circuit 7 to relay-b',                       20),
-  makeEntry('WARN',  'bandwidth',   'Bandwidth cap 80% reached (40 MB / 50 MB)',             15),
-  makeEntry('ERROR', 'dns-proxy',   'DNS upstream unreachable: 8.8.8.8:53',                  10),
-  makeEntry('INFO',  'tor-main',    'Heartbeat: Tor has been running 1 hour',                 5),
+  makeEntry('INFO', 'tor-main', 'Tor daemon started successfully', 60),
+  makeEntry('DEBUG', 'circuit-mgr', 'Building new circuit through entry guard relay-a', 55),
+  makeEntry('INFO', 'tor-main', 'Bootstrapped 100%: Done', 50),
+  makeEntry('DEBUG', 'circuit-mgr', 'Circuit 3 built in 1.2 s', 45),
+  makeEntry('WARN', 'dns-proxy', 'DNS resolution slow: 3400 ms for example.com', 40),
+  makeEntry('INFO', 'tor-main', 'New SOCKS listener on 127.0.0.1:9050', 35),
+  makeEntry('ERROR', 'exit-node', 'Failed to connect to 93.184.216.34:443: timeout', 30),
+  makeEntry('INFO', 'tor-main', 'Received NEWNYM signal; creating new identity', 25),
+  makeEntry('DEBUG', 'circuit-mgr', 'Extending circuit 7 to relay-b', 20),
+  makeEntry('WARN', 'bandwidth', 'Bandwidth cap 80% reached (40 MB / 50 MB)', 15),
+  makeEntry('ERROR', 'dns-proxy', 'DNS upstream unreachable: 8.8.8.8:53', 10),
+  makeEntry('INFO', 'tor-main', 'Heartbeat: Tor has been running 1 hour', 5),
   makeEntry('DEBUG', 'circuit-mgr', 'Circuit 12 extended successfully to guard node relay-c', 2),
-  makeEntry('INFO',  'tor-main',    'New connection from 10.0.0.5 on port 9050',              1),
+  makeEntry('INFO', 'tor-main', 'New connection from 10.0.0.5 on port 9050', 1),
 ];
 
 const errorOnlyLogs: MockLogEntry[] = [
-  makeEntry('ERROR', 'dns-proxy',   'Upstream DNS 8.8.8.8 unreachable',           120),
-  makeEntry('ERROR', 'exit-node',   'ECONNREFUSED connecting to 1.1.1.1:80',       90),
-  makeEntry('ERROR', 'tor-main',    'Failed to open log file: permission denied',   60),
-  makeEntry('ERROR', 'exit-node',   'Circuit 9 destroyed: timeout',                30),
-  makeEntry('ERROR', 'dns-proxy',   'Max retries exceeded resolving api.ipify.org',  5),
+  makeEntry('ERROR', 'dns-proxy', 'Upstream DNS 8.8.8.8 unreachable', 120),
+  makeEntry('ERROR', 'exit-node', 'ECONNREFUSED connecting to 1.1.1.1:80', 90),
+  makeEntry('ERROR', 'tor-main', 'Failed to open log file: permission denied', 60),
+  makeEntry('ERROR', 'exit-node', 'Circuit 9 destroyed: timeout', 30),
+  makeEntry('ERROR', 'dns-proxy', 'Max retries exceeded resolving api.ipify.org', 5),
 ];
 
 function generateBulkLogs(count: number): MockLogEntry[] {

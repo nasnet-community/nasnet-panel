@@ -23,5 +23,7 @@ import type { RouterboardInfo } from '@nasnet/core/types';
  * }
  * ```
  */
-export declare function useRouterboard(routerIp: string): UseQueryResult<RouterboardInfo | null, Error>;
+export declare function useRouterboard(
+  routerIp: string
+): UseQueryResult<RouterboardInfo | null, Error>;
 //# sourceMappingURL=useRouterboard.d.ts.map

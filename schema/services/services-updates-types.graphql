@@ -6,16 +6,24 @@
 Update severity classification for available updates.
 """
 enum UpdateSeverity {
-  """Critical security fix - auto-apply recommended"""
+  """
+  Critical security fix - auto-apply recommended
+  """
   CRITICAL
 
-  """Major version with breaking changes"""
+  """
+  Major version with breaking changes
+  """
   MAJOR
 
-  """Minor version with new features"""
+  """
+  Minor version with new features
+  """
   MINOR
 
-  """Patch version with bug fixes"""
+  """
+  Patch version with bug fixes
+  """
   PATCH
 }
 
@@ -23,37 +31,59 @@ enum UpdateSeverity {
 Available update information for a service instance.
 """
 type UpdateInfo {
-  """Instance ID"""
+  """
+  Instance ID
+  """
   instanceID: ID!
 
-  """Feature ID"""
+  """
+  Feature ID
+  """
   featureID: String!
 
-  """Current installed version"""
+  """
+  Current installed version
+  """
   currentVersion: String!
 
-  """Available update version"""
+  """
+  Available update version
+  """
   availableVersion: String!
 
-  """Update severity"""
+  """
+  Update severity
+  """
   severity: UpdateSeverity!
 
-  """Release notes/changelog"""
+  """
+  Release notes/changelog
+  """
   releaseNotes: String!
 
-  """When the update was published"""
+  """
+  When the update was published
+  """
   publishedAt: DateTime!
 
-  """Download URL for the new binary"""
+  """
+  Download URL for the new binary
+  """
   downloadURL: String!
 
-  """Checksum URL for verification"""
+  """
+  Checksum URL for verification
+  """
   checksumURL: String
 
-  """Binary size in bytes"""
+  """
+  Binary size in bytes
+  """
   sizeBytes: Int!
 
-  """Target architecture"""
+  """
+  Target architecture
+  """
   architecture: String!
 }
 
@@ -61,25 +91,39 @@ type UpdateInfo {
 Update stage during atomic update process.
 """
 enum UpdateStage {
-  """Downloading and verifying new binary"""
+  """
+  Downloading and verifying new binary
+  """
   STAGING
 
-  """Backing up current binary"""
+  """
+  Backing up current binary
+  """
   BACKUP
 
-  """Swapping binaries"""
+  """
+  Swapping binaries
+  """
   SWAP
 
-  """Running config migrations"""
+  """
+  Running config migrations
+  """
   MIGRATION
 
-  """Validating new version"""
+  """
+  Validating new version
+  """
   VALIDATION
 
-  """Finalizing update"""
+  """
+  Finalizing update
+  """
   COMMIT
 
-  """Restoring from backup"""
+  """
+  Restoring from backup
+  """
   ROLLBACK
 }
 
@@ -87,28 +131,44 @@ enum UpdateStage {
 Update progress during atomic update process.
 """
 type UpdateProgress {
-  """Instance ID"""
+  """
+  Instance ID
+  """
   instanceID: ID!
 
-  """Feature ID"""
+  """
+  Feature ID
+  """
   featureID: String!
 
-  """Current version"""
+  """
+  Current version
+  """
   fromVersion: String!
 
-  """Target version"""
+  """
+  Target version
+  """
   toVersion: String!
 
-  """Current stage"""
+  """
+  Current stage
+  """
   stage: UpdateStage!
 
-  """Progress percentage (0-100)"""
+  """
+  Progress percentage (0-100)
+  """
   progress: Int!
 
-  """Current stage message"""
+  """
+  Current stage message
+  """
   message: String!
 
-  """Timestamp"""
+  """
+  Timestamp
+  """
   timestamp: DateTime!
 }
 
@@ -116,16 +176,24 @@ type UpdateProgress {
 Input for configuring update check schedule for an instance.
 """
 input UpdateCheckScheduleInput {
-  """Router ID"""
+  """
+  Router ID
+  """
   routerID: ID!
 
-  """Instance ID"""
+  """
+  Instance ID
+  """
   instanceID: ID!
 
-  """Update check schedule (e.g., '6h', '12h', '24h', 'manual')"""
+  """
+  Update check schedule (e.g., '6h', '12h', '24h', 'manual')
+  """
   checkSchedule: String!
 
-  """Minimum severity to auto-apply (CRITICAL, MAJOR, MINOR, PATCH, MANUAL)"""
+  """
+  Minimum severity to auto-apply (CRITICAL, MAJOR, MINOR, PATCH, MANUAL)
+  """
   autoApplyThreshold: String!
 }
 
@@ -133,30 +201,48 @@ input UpdateCheckScheduleInput {
 Update result after completion or failure.
 """
 type UpdateResult {
-  """Whether the update succeeded"""
+  """
+  Whether the update succeeded
+  """
   success: Boolean!
 
-  """Instance ID"""
+  """
+  Instance ID
+  """
   instanceID: ID!
 
-  """Version updated to (if successful)"""
+  """
+  Version updated to (if successful)
+  """
   version: String
 
-  """Error message (if failed)"""
+  """
+  Error message (if failed)
+  """
   errorMessage: String
 
-  """Whether rollback occurred"""
+  """
+  Whether rollback occurred
+  """
   rolledBack: Boolean!
 
-  """Total duration in milliseconds"""
+  """
+  Total duration in milliseconds
+  """
   durationMs: Int!
 
-  """Update stages completed"""
+  """
+  Update stages completed
+  """
   completedStages: [UpdateStage!]!
 
-  """Stage where failure occurred (if failed)"""
+  """
+  Stage where failure occurred (if failed)
+  """
   failedStage: UpdateStage
 
-  """Timestamp"""
+  """
+  Timestamp
+  """
   timestamp: DateTime!
 }

@@ -54,10 +54,16 @@ interface ProtocolBadgeProps {
 }
 
 function ProtocolBadge({ protocol, compact }: ProtocolBadgeProps) {
-  const variant = protocol === 'tcp' ? 'default' : protocol === 'udp' ? 'secondary' : 'outline';
+  const variant =
+    protocol === 'tcp' ? 'default'
+    : protocol === 'udp' ? 'secondary'
+    : 'outline';
 
   return (
-    <Badge variant={variant} className={cn('uppercase font-mono', compact && 'text-xs px-1.5 py-0.5')}>
+    <Badge
+      variant={variant}
+      className={cn('font-mono uppercase', compact && 'px-1.5 py-0.5 text-xs')}
+    >
       {protocol}
     </Badge>
   );
@@ -78,17 +84,22 @@ function StageNode({ stageNumber, port, protocol, compact }: StageNodeProps) {
   return (
     <div
       className={cn(
-        'flex flex-col items-center gap-2 p-4 border-2 border-red-500 rounded-lg bg-red-50 dark:bg-red-950/20',
-        compact && 'p-3 gap-1'
+        'flex flex-col items-center gap-2 rounded-lg border-2 border-red-500 bg-red-50 p-4 dark:bg-red-950/20',
+        compact && 'gap-1 p-3'
       )}
     >
       <div className={cn('text-xs font-medium text-red-700 dark:text-red-400')}>
         Stage {stageNumber}
       </div>
-      <div className={cn('text-2xl font-bold text-red-900 dark:text-red-100', compact && 'text-xl')}>
+      <div
+        className={cn('text-2xl font-bold text-red-900 dark:text-red-100', compact && 'text-xl')}
+      >
         {port}
       </div>
-      <ProtocolBadge protocol={protocol} compact={compact} />
+      <ProtocolBadge
+        protocol={protocol}
+        compact={compact}
+      />
     </div>
   );
 }
@@ -113,14 +124,10 @@ function ArrowSeparator({ timeout, vertical, compact }: ArrowSeparatorProps) {
       )}
     >
       <ArrowRightIcon
-        className={cn(
-          'text-red-500',
-          vertical && 'rotate-90',
-          compact ? 'h-4 w-4' : 'h-6 w-6'
-        )}
+        className={cn('text-red-500', vertical && 'rotate-90', compact ? 'h-4 w-4' : 'h-6 w-6')}
       />
       {timeout && (
-        <div className="flex items-center gap-1 text-xs text-muted-foreground">
+        <div className="text-muted-foreground flex items-center gap-1 text-xs">
           <ClockIcon className="h-3 w-3" />
           <span>{timeout}</span>
         </div>
@@ -144,20 +151,27 @@ function FinalStage({ port, protocol, accessTimeout, compact }: FinalStageProps)
   return (
     <div
       className={cn(
-        'flex flex-col items-center gap-2 p-4 border-2 border-green-500 rounded-lg bg-green-50 dark:bg-green-950/20',
-        compact && 'p-3 gap-1'
+        'flex flex-col items-center gap-2 rounded-lg border-2 border-green-500 bg-green-50 p-4 dark:bg-green-950/20',
+        compact && 'gap-1 p-3'
       )}
     >
-      <CheckCircle2Icon className={cn('text-green-600 dark:text-green-400', compact ? 'h-6 w-6' : 'h-8 w-8')} />
+      <CheckCircle2Icon
+        className={cn('text-green-600 dark:text-green-400', compact ? 'h-6 w-6' : 'h-8 w-8')}
+      />
       <div className={cn('text-sm font-medium text-green-700 dark:text-green-400')}>
         Access Granted
       </div>
-      <div className={cn('flex items-center gap-2 text-lg font-bold text-green-900 dark:text-green-100', compact && 'text-base')}>
+      <div
+        className={cn(
+          'flex items-center gap-2 text-lg font-bold text-green-900 dark:text-green-100',
+          compact && 'text-base'
+        )}
+      >
         <LockIcon className={cn(compact ? 'h-4 w-4' : 'h-5 w-5')} />
         {protocol.toUpperCase()}:{port}
       </div>
       {accessTimeout && (
-        <div className="flex items-center gap-1 text-xs text-muted-foreground">
+        <div className="text-muted-foreground flex items-center gap-1 text-xs">
           <ClockIcon className="h-3 w-3" />
           <span>Timeout: {accessTimeout}</span>
         </div>
@@ -201,8 +215,8 @@ function PortKnockVisualizerComponent({
   return (
     <div
       className={cn(
-        'flex gap-4 p-4 bg-background border border-border rounded-lg',
-        isVertical ? 'flex-col items-center' : 'flex-row items-center flex-wrap justify-center',
+        'bg-background border-border flex gap-4 rounded-lg border p-4',
+        isVertical ? 'flex-col items-center' : 'flex-row flex-wrap items-center justify-center',
         compact && 'gap-2 p-3',
         className
       )}
@@ -218,11 +232,17 @@ function PortKnockVisualizerComponent({
             compact={compact}
           />
 
-          {index < knockPorts.length - 1 ? (
-            <ArrowSeparator timeout={knockTimeout} vertical={isVertical} compact={compact} />
-          ) : (
-            <ArrowSeparator vertical={isVertical} compact={compact} />
-          )}
+          {index < knockPorts.length - 1 ?
+            <ArrowSeparator
+              timeout={knockTimeout}
+              vertical={isVertical}
+              compact={compact}
+            />
+          : <ArrowSeparator
+              vertical={isVertical}
+              compact={compact}
+            />
+          }
         </React.Fragment>
       ))}
 

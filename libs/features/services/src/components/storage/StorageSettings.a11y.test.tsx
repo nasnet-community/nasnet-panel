@@ -115,19 +115,13 @@ function createMockStorageConfig(enabled = false, path: string | null = null) {
 // Test Utilities
 // =============================================================================
 
-function renderWithProviders(
-  ui: React.ReactElement,
-  mocks: MockedResponse[] = []
-) {
+function renderWithProviders(ui: React.ReactElement, mocks: MockedResponse[] = []) {
   const defaultMocks: MockedResponse[] = [
     {
       request: { query: GET_STORAGE_INFO },
       result: {
         data: {
-          storageInfo: [
-            createMockFlashStorage(),
-            createMockStorageInfo('/usb1', 50),
-          ],
+          storageInfo: [createMockFlashStorage(), createMockStorageInfo('/usb1', 50)],
         },
       },
     },
@@ -142,7 +136,10 @@ function renderWithProviders(
   ];
 
   return render(
-    <MockedProvider mocks={[...defaultMocks, ...mocks]} addTypename={false}>
+    <MockedProvider
+      mocks={[...defaultMocks, ...mocks]}
+      addTypename={false}
+    >
       <Toaster />
       {ui}
     </MockedProvider>
@@ -153,10 +150,7 @@ function renderWithProviders(
  * Calculate contrast ratio between two RGB colors
  * Implements WCAG contrast ratio formula
  */
-function calculateContrastRatio(
-  foreground: string,
-  background: string
-): number {
+function calculateContrastRatio(foreground: string, background: string): number {
   const parseRGB = (rgb: string): { r: number; g: number; b: number } => {
     const match = rgb.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
     if (!match) return { r: 0, g: 0, b: 0 };
@@ -238,10 +232,7 @@ describe('StorageSettings - WCAG AAA Contrast Compliance', () => {
           request: { query: GET_STORAGE_INFO },
           result: {
             data: {
-              storageInfo: [
-                createMockFlashStorage(),
-                createMockStorageInfo('/usb1', usage),
-              ],
+              storageInfo: [createMockFlashStorage(), createMockStorageInfo('/usb1', usage)],
             },
           },
         },
@@ -293,9 +284,7 @@ describe('StorageSettings - WCAG AAA Contrast Compliance', () => {
     renderWithProviders(<StorageSettingsDesktop />, mocks);
 
     // Find warning message
-    const warningMessage = await screen.findByText(
-      /No external storage detected/i
-    );
+    const warningMessage = await screen.findByText(/No external storage detected/i);
     expect(warningMessage).toBeInTheDocument();
 
     // Verify warning has appropriate styling
@@ -322,8 +311,7 @@ describe('StorageSettings - Screen Reader Support', () => {
     // Buttons have accessible names
     const buttons = screen.getAllByRole('button');
     buttons.forEach((button) => {
-      const accessibleName =
-        button.textContent || button.getAttribute('aria-label');
+      const accessibleName = button.textContent || button.getAttribute('aria-label');
       expect(accessibleName).toBeTruthy();
       expect(accessibleName!.trim().length).toBeGreaterThan(0);
     });

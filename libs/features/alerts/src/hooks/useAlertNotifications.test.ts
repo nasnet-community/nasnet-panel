@@ -8,10 +8,7 @@ import { renderHook, waitFor } from '@testing-library/react';
 import { MockedProvider, type MockedResponse } from '@apollo/client/testing';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { useAlertNotifications, playAlertSound } from './useAlertNotifications';
-import {
-  useAlertNotificationStore,
-  type AlertSeverity,
-} from '@nasnet/state/stores';
+import { useAlertNotificationStore, type AlertSeverity } from '@nasnet/state/stores';
 import { useConnectionStore } from '@nasnet/state/stores';
 
 // ===== Mocks =====
@@ -77,9 +74,7 @@ interface AlertEventPayload {
   action: 'CREATED' | 'UPDATED' | 'DELETED';
 }
 
-function createAlertEvent(
-  overrides: Partial<AlertEventPayload['alert']> = {}
-): AlertEventPayload {
+function createAlertEvent(overrides: Partial<AlertEventPayload['alert']> = {}): AlertEventPayload {
   return {
     alert: {
       id: 'alert-1',
@@ -191,10 +186,7 @@ describe('useAlertNotifications', () => {
     });
 
     it('should skip subscription when enabled=false', async () => {
-      const addNotification = vi.spyOn(
-        useAlertNotificationStore.getState(),
-        'addNotification'
-      );
+      const addNotification = vi.spyOn(useAlertNotificationStore.getState(), 'addNotification');
 
       renderHook(() => useAlertNotifications({ enabled: false }), {
         wrapper: createWrapper([]),
@@ -215,10 +207,7 @@ describe('useAlertNotifications', () => {
         },
       });
 
-      const addNotification = vi.spyOn(
-        useAlertNotificationStore.getState(),
-        'addNotification'
-      );
+      const addNotification = vi.spyOn(useAlertNotificationStore.getState(), 'addNotification');
 
       renderHook(() => useAlertNotifications(), {
         wrapper: createWrapper([]),
@@ -232,10 +221,7 @@ describe('useAlertNotifications', () => {
     it('should skip subscription when no deviceId available', async () => {
       useConnectionStore.setState({ activeRouterId: null });
 
-      const addNotification = vi.spyOn(
-        useAlertNotificationStore.getState(),
-        'addNotification'
-      );
+      const addNotification = vi.spyOn(useAlertNotificationStore.getState(), 'addNotification');
 
       renderHook(() => useAlertNotifications(), {
         wrapper: createWrapper([]),
@@ -264,8 +250,7 @@ describe('useAlertNotifications', () => {
 
       await waitFor(
         () => {
-          const notifications =
-            useAlertNotificationStore.getState().notifications;
+          const notifications = useAlertNotificationStore.getState().notifications;
           expect(notifications).toHaveLength(1);
           expect(notifications[0]).toMatchObject({
             alertId: 'alert-123',
@@ -302,10 +287,7 @@ describe('useAlertNotifications', () => {
         createSubscriptionMock('router-1', alertEvent), // Duplicate
       ];
 
-      const addNotification = vi.spyOn(
-        useAlertNotificationStore.getState(),
-        'addNotification'
-      );
+      const addNotification = vi.spyOn(useAlertNotificationStore.getState(), 'addNotification');
 
       renderHook(() => useAlertNotifications(), {
         wrapper: createWrapper(mocks),
@@ -364,8 +346,7 @@ describe('useAlertNotifications', () => {
 
       await waitFor(
         () => {
-          const notifications =
-            useAlertNotificationStore.getState().notifications;
+          const notifications = useAlertNotificationStore.getState().notifications;
           expect(notifications).toHaveLength(1);
         },
         { timeout: 3000 }
@@ -391,8 +372,7 @@ describe('useAlertNotifications', () => {
 
       await waitFor(
         () => {
-          const notifications =
-            useAlertNotificationStore.getState().notifications;
+          const notifications = useAlertNotificationStore.getState().notifications;
           expect(notifications).toHaveLength(1);
         },
         { timeout: 3000 }
@@ -556,9 +536,7 @@ describe('useAlertNotifications', () => {
 
       await waitFor(
         () => {
-          expect(mockAudioConstructor).toHaveBeenCalledWith(
-            '/sounds/alert-critical.mp3'
-          );
+          expect(mockAudioConstructor).toHaveBeenCalledWith('/sounds/alert-critical.mp3');
           expect(mockAudioPlay).toHaveBeenCalled();
         },
         { timeout: 3000 }
@@ -575,9 +553,7 @@ describe('useAlertNotifications', () => {
 
       await waitFor(
         () => {
-          expect(mockAudioConstructor).toHaveBeenCalledWith(
-            '/sounds/alert-warning.mp3'
-          );
+          expect(mockAudioConstructor).toHaveBeenCalledWith('/sounds/alert-warning.mp3');
           expect(mockAudioPlay).toHaveBeenCalled();
         },
         { timeout: 3000 }
@@ -594,9 +570,7 @@ describe('useAlertNotifications', () => {
 
       await waitFor(
         () => {
-          expect(mockAudioConstructor).toHaveBeenCalledWith(
-            '/sounds/alert-info.mp3'
-          );
+          expect(mockAudioConstructor).toHaveBeenCalledWith('/sounds/alert-info.mp3');
           expect(mockAudioPlay).toHaveBeenCalled();
         },
         { timeout: 3000 }
@@ -622,8 +596,7 @@ describe('useAlertNotifications', () => {
 
       await waitFor(
         () => {
-          const notifications =
-            useAlertNotificationStore.getState().notifications;
+          const notifications = useAlertNotificationStore.getState().notifications;
           expect(notifications).toHaveLength(1);
         },
         { timeout: 3000 }
@@ -645,8 +618,7 @@ describe('useAlertNotifications', () => {
 
       await waitFor(
         () => {
-          const notifications =
-            useAlertNotificationStore.getState().notifications;
+          const notifications = useAlertNotificationStore.getState().notifications;
           expect(notifications).toHaveLength(1); // Still adds notification
         },
         { timeout: 3000 }
@@ -658,9 +630,7 @@ describe('useAlertNotifications', () => {
     it('should play sound when enabled', () => {
       playAlertSound('CRITICAL', true);
 
-      expect(mockAudioConstructor).toHaveBeenCalledWith(
-        '/sounds/alert-critical.mp3'
-      );
+      expect(mockAudioConstructor).toHaveBeenCalledWith('/sounds/alert-critical.mp3');
       expect(mockAudioPlay).toHaveBeenCalled();
     });
 

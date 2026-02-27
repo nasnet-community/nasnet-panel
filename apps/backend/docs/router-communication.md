@@ -1,16 +1,25 @@
 # Router Communication
 
-> Multi-protocol adapter system with automatic fallback, circuit breaking, and batch execution for MikroTik RouterOS devices.
+> Multi-protocol adapter system with automatic fallback, circuit breaking, and batch execution for
+> MikroTik RouterOS devices.
 
-**Packages:** `internal/router/`, `internal/router/adapters/`, `internal/router/batch/`, `internal/router/compatibility/`, `internal/router/scanner/`, `internal/router/ssh/parser/`
-**Key Files:** `port.go`, `fallback_chain.go`, `connection_tester.go`, `validation.go`, `adapters/rest_adapter.go`, `adapters/api_adapter.go`, `adapters/ssh_adapter.go`, `adapters/telnet_adapter.go`, `batch/executor.go`
-**Prerequisites:** [See: getting-started.md], [See: application-bootstrap.md §Router Services]
+**Packages:** `internal/router/`, `internal/router/adapters/`, `internal/router/batch/`,
+`internal/router/compatibility/`, `internal/router/scanner/`, `internal/router/ssh/parser/` **Key
+Files:** `port.go`, `fallback_chain.go`, `connection_tester.go`, `validation.go`,
+`adapters/rest_adapter.go`, `adapters/api_adapter.go`, `adapters/ssh_adapter.go`,
+`adapters/telnet_adapter.go`, `batch/executor.go` **Prerequisites:** [See: getting-started.md], [See:
+application-bootstrap.md
+§Router Services]
 
 ## Overview
 
-The router communication layer implements a **hexagonal architecture port** (`RouterPort`) that abstracts over four distinct RouterOS protocols. The system automatically falls back through protocols from fastest (REST API) to last-resort (Telnet), protecting each attempt with a per-protocol circuit breaker.
+The router communication layer implements a **hexagonal architecture port** (`RouterPort`) that
+abstracts over four distinct RouterOS protocols. The system automatically falls back through
+protocols from fastest (REST API) to last-resort (Telnet), protecting each attempt with a
+per-protocol circuit breaker.
 
 Key capabilities:
+
 - Protocol auto-negotiation with circuit-breaker protection
 - Batch command execution with transactional rollback
 - SSH/Telnet response parsing into structured data
@@ -96,6 +105,7 @@ var DefaultFallbackOrder = []Protocol{
 ```
 
 **Key Files:**
+
 - `port.go` — `RouterPort` interface, `AdapterConfig`, `BatchRequest`, `BatchStatus`
 - `fallback_chain.go` — `FallbackChain` with circuit breakers
 - `connection_tester.go` — `ConnectionTester`, `TestConnectionService`
@@ -119,7 +129,8 @@ type RESTAdapter struct {
 }
 ```
 
-- **Connect:** GETs `/system/resource` to verify connectivity and detect RouterOS version. Refuses connection if version < 7.1.
+- **Connect:** GETs `/system/resource` to verify connectivity and detect RouterOS version. Refuses
+  connection if version < 7.1.
 - **ExecuteCommand:** Maps actions to HTTP methods:
   - `print`/`get` → `GET /{path}/{id?}`
   - `add` → `PUT /{path}`
@@ -145,7 +156,8 @@ type APIAdapter struct {
 - **ExecuteCommand:** Translates `Command` to RouterOS API words:
   - Path: `/interface/bridge/print`
   - Args: `=name=br0`, `?disabled=false` (query filter), `=.id=*1`
-- **Error translation:** Maps API-level errors (session expired, no such command, timeout) to typed `AdapterError`
+- **Error translation:** Maps API-level errors (session expired, no such command, timeout) to typed
+  `AdapterError`
 
 #### `ssh_adapter.go` — SSHAdapter
 
@@ -160,7 +172,8 @@ type SSHAdapter struct {
 ```
 
 - **Connect:** SSH dial with password auth and keyboard-interactive fallback (needed for RouterOS)
-- **ExecuteCommand:** Opens a new `ssh.Session` per command. Runs CLI command with SIGKILL on context cancel.
+- **ExecuteCommand:** Opens a new `ssh.Session` per command. Runs CLI command with SIGKILL on
+  context cancel.
 - **Output Parsing:** `parseSSHOutput()` auto-detects format (table vs key-value)
 - **CLI command format:** `/interface/bridge print` or `/ip/address add address=10.0.0.1/24`
 
@@ -176,8 +189,10 @@ type TelnetAdapter struct {
 }
 ```
 
-- **Connect:** TCP → Telnet IAC negotiation → login sequence (reads until `Login:`, sends username, reads until `Password:`, sends password, reads until prompt `>`)
-- **RFC 854 Negotiation:** `handleTelnetCommand()` responds WONT to all DO requests, DONT to all WILL requests
+- **Connect:** TCP → Telnet IAC negotiation → login sequence (reads until `Login:`, sends username,
+  reads until `Password:`, sends password, reads until prompt `>`)
+- **RFC 854 Negotiation:** `handleTelnetCommand()` responds WONT to all DO requests, DONT to all
+  WILL requests
 - **Output reading:** Reads until RouterOS prompt `]>` or `>`, strips echoed command
 - Shares `parseSSHOutput()` with SSH adapter (same CLI format)
 
@@ -205,13 +220,16 @@ type FallbackChain struct {
 ```
 
 **Behavior:**
+
 1. `Connect()` iterates `fallbackOrder`, skipping any protocol with an open circuit breaker
 2. Each attempt runs through `cb.Execute()` — failure increments the breaker counter
 3. On success, `currentPort` and `currentProto` are updated
 4. `ExecuteCommand()` / `QueryState()` execute through the current protocol's circuit breaker
 5. If the breaker opens mid-operation, `attemptReconnect()` is triggered in a background goroutine
-6. `StartHealthCheck()` pings `/system/identity` every 30 seconds; triggers reconnect if disconnected
-7. Status changes (`RouterStatusReconnecting`, `RouterStatusConnected`, etc.) are published via `EventPublisher` within 100ms
+6. `StartHealthCheck()` pings `/system/identity` every 30 seconds; triggers reconnect if
+   disconnected
+7. Status changes (`RouterStatusReconnecting`, `RouterStatusConnected`, etc.) are published via
+   `EventPublisher` within 100ms
 
 ---
 
@@ -249,10 +267,12 @@ func (job *Job) executeCommands(ctx context.Context) {
 ```
 
 **API execution path (`executeViaAPI`):**
+
 1. Opens `mikrotik.ROSClient` connection
 2. For each command: checks for `FindQuery` (resolve target ID via `/path/print ?field=value`)
 3. Executes the API command via `client.RunWithContext()`
-4. If `RollbackEnabled`: fetches `originalValues` before set/remove, generates `RollbackCommand`, pushes to `rollbackStack`
+4. If `RollbackEnabled`: fetches `originalValues` before set/remove, generates `RollbackCommand`,
+   pushes to `rollbackStack`
 5. On any failure: calls `performRollback()` if rollback is enabled, then stops
 
 **DryRun mode:** Logs commands without connecting, marks all as succeeded.
@@ -269,7 +289,9 @@ func (job *Job) performRollback(client *mikrotik.ROSClient) {
 }
 ```
 
-Rollback commands are generated by `parser.GenerateRollback()` which derives the inverse operation (e.g., `add` → generates `remove *id`; `set` → generates `set` with original values; `remove` → generates `add` with original values).
+Rollback commands are generated by `parser.GenerateRollback()` which derives the inverse operation
+(e.g., `add` → generates `remove *id`; `set` → generates `set` with original values; `remove` →
+generates `add` with original values).
 
 ---
 
@@ -314,6 +336,7 @@ func DefaultConfig() Config {
 ```
 
 **Detection heuristic:**
+
 1. Open ports 8728/8729/8291 → immediately identified as MikroTik
 2. Open port 80/443 → calls `CheckRouterOSAPI()` (HTTP probe for RouterOS JSON response)
 3. No MikroTik indicators → returns `nil`
@@ -342,26 +365,30 @@ type ParserStrategy interface {
 
 Four strategies (selected by priority and `CanParse` probe):
 
-| Strategy | Priority | Detection |
-|----------|---------|-----------|
-| `terseParser` | 1 | Lines match `.id=*N name=val ...` pattern |
-| `tableParser` | 2 | `Flags:` line or column header with `#` |
-| `keyvalueParser` | 3 | Lines with `key: value` separated by `: ` |
-| `detailParser` | 4 | Block-structured output, items separated by blank lines |
+| Strategy         | Priority | Detection                                               |
+| ---------------- | -------- | ------------------------------------------------------- |
+| `terseParser`    | 1        | Lines match `.id=*N name=val ...` pattern               |
+| `tableParser`    | 2        | `Flags:` line or column header with `#`                 |
+| `keyvalueParser` | 3        | Lines with `key: value` separated by `: `               |
+| `detailParser`   | 4        | Block-structured output, items separated by blank lines |
 
 **Table parser internals (`table_parser.go`):**
+
 - Locates header line (line starting with `#` or two+ UPPERCASE words)
 - Extracts `ColumnInfo{Name, Start, End}` from fixed-width positions
-- For each data row: extracts row number, flag characters (X=disabled, R=running, D=dynamic, etc.), then slices column values by position
+- For each data row: extracts row number, flag characters (X=disabled, R=running, D=dynamic, etc.),
+  then slices column values by position
 - Falls back to whitespace splitting if fixed-width extraction yields < 2 fields
 
-**Normalizer:** Applies field name normalization (e.g., `LISTEN-PORT` → `listen-port`) and type coercion across all strategies.
+**Normalizer:** Applies field name normalization (e.g., `LISTEN-PORT` → `listen-port`) and type
+coercion across all strategies.
 
 ---
 
 ### `internal/router/connection_tester.go`
 
-`TestConnectionService` provides a high-level connection test without creating persistent connections.
+`TestConnectionService` provides a high-level connection test without creating persistent
+connections.
 
 ```go
 func (s *TestConnectionService) Test(ctx context.Context, opts ConnectionOptions) *ConnectionTestResult {
@@ -423,15 +450,15 @@ POST /api/batch → Handler.Submit()
 
 ## Configuration
 
-| Parameter | Default | Description |
-|-----------|---------|-------------|
-| `DefaultTimeout` | 10s | Connection and command timeout |
-| `DefaultIdleTimeout` | 5m | Health check interval |
-| Circuit breaker `MaxFailures` | 3 | Consecutive failures before open |
-| Circuit breaker `Timeout` | 5m | Open state duration |
-| Scanner `MaxWorkers` | 20 | Concurrent scan goroutines |
-| Scanner `Timeout` | 2s | Per-port TCP timeout |
-| Batch job max command truncation | 200 chars | For display/logging |
+| Parameter                        | Default   | Description                      |
+| -------------------------------- | --------- | -------------------------------- |
+| `DefaultTimeout`                 | 10s       | Connection and command timeout   |
+| `DefaultIdleTimeout`             | 5m        | Health check interval            |
+| Circuit breaker `MaxFailures`    | 3         | Consecutive failures before open |
+| Circuit breaker `Timeout`        | 5m        | Open state duration              |
+| Scanner `MaxWorkers`             | 20        | Concurrent scan goroutines       |
+| Scanner `Timeout`                | 2s        | Per-port TCP timeout             |
+| Batch job max command truncation | 200 chars | For display/logging              |
 
 ## Error Handling
 
@@ -453,7 +480,8 @@ type ConnectionError struct {
 // ErrCodeAuthFailed prevents further protocol attempts in TestConnection
 ```
 
-Validation errors use `ValidationError{Field, Code, Message, Suggestion, ProvidedValue}` returned as `ValidationErrors` slice, enabling field-level GraphQL error presentation.
+Validation errors use `ValidationError{Field, Code, Message, Suggestion, ProvidedValue}` returned as
+`ValidationErrors` slice, enabling field-level GraphQL error presentation.
 
 ## Testing
 
@@ -470,4 +498,5 @@ Validation errors use `ValidationError{Field, Code, Message, Suggestion, Provide
 - [See: application-bootstrap.md §Router Services] — how adapters are wired at startup
 - [See: event-system.md] — `RouterStatusChangedEvent` published by `FallbackChain`
 - [See: data-layer.md] — `RouterRepository` manages router records in `system.db`
-- `internal/connection/` — higher-level connection pool and reconnect manager built on top of this layer
+- `internal/connection/` — higher-level connection pool and reconnect manager built on top of this
+  layer

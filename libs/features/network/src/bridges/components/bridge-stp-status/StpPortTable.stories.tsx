@@ -18,9 +18,7 @@ const mockInterface = (name: string) =>
     type: 'ETHERNET',
   }) as BridgePort['interface'];
 
-const makePort = (
-  overrides: Partial<BridgePort> & { interfaceName: string },
-): BridgePort => {
+const makePort = (overrides: Partial<BridgePort> & { interfaceName: string }): BridgePort => {
   const { interfaceName, ...rest } = overrides;
   return {
     id: `port-${interfaceName}`,
@@ -44,28 +42,70 @@ const makePort = (
 // ---------------------------------------------------------------------------
 
 const mixedPorts: BridgePort[] = [
-  makePort({ interfaceName: 'ether1', role: 'ROOT',       state: 'FORWARDING',  pathCost: 10,  edge: false }),
-  makePort({ interfaceName: 'ether2', role: 'DESIGNATED', state: 'FORWARDING',  pathCost: 10,  edge: true }),
-  makePort({ interfaceName: 'ether3', role: 'ALTERNATE',  state: 'BLOCKING',    pathCost: 20,  edge: false }),
-  makePort({ interfaceName: 'ether4', role: 'BACKUP',     state: 'BLOCKING',    pathCost: 20,  edge: false }),
-  makePort({ interfaceName: 'wlan1',  role: 'DESIGNATED', state: 'LEARNING',    pathCost: 100, edge: true }),
+  makePort({
+    interfaceName: 'ether1',
+    role: 'ROOT',
+    state: 'FORWARDING',
+    pathCost: 10,
+    edge: false,
+  }),
+  makePort({
+    interfaceName: 'ether2',
+    role: 'DESIGNATED',
+    state: 'FORWARDING',
+    pathCost: 10,
+    edge: true,
+  }),
+  makePort({
+    interfaceName: 'ether3',
+    role: 'ALTERNATE',
+    state: 'BLOCKING',
+    pathCost: 20,
+    edge: false,
+  }),
+  makePort({
+    interfaceName: 'ether4',
+    role: 'BACKUP',
+    state: 'BLOCKING',
+    pathCost: 20,
+    edge: false,
+  }),
+  makePort({
+    interfaceName: 'wlan1',
+    role: 'DESIGNATED',
+    state: 'LEARNING',
+    pathCost: 100,
+    edge: true,
+  }),
 ];
 
 const allForwardingPorts: BridgePort[] = [
-  makePort({ interfaceName: 'ether1', role: 'ROOT',       state: 'FORWARDING', pathCost: 10 }),
+  makePort({ interfaceName: 'ether1', role: 'ROOT', state: 'FORWARDING', pathCost: 10 }),
   makePort({ interfaceName: 'ether2', role: 'DESIGNATED', state: 'FORWARDING', pathCost: 10 }),
-  makePort({ interfaceName: 'ether3', role: 'DESIGNATED', state: 'FORWARDING', pathCost: 10, edge: true }),
+  makePort({
+    interfaceName: 'ether3',
+    role: 'DESIGNATED',
+    state: 'FORWARDING',
+    pathCost: 10,
+    edge: true,
+  }),
 ];
 
 const blockingPorts: BridgePort[] = [
-  makePort({ interfaceName: 'ether1', role: 'ROOT',      state: 'FORWARDING', pathCost: 10 }),
-  makePort({ interfaceName: 'ether2', role: 'ALTERNATE', state: 'BLOCKING',   pathCost: 20 }),
-  makePort({ interfaceName: 'ether3', role: 'ALTERNATE', state: 'LISTENING',  pathCost: 30 }),
-  makePort({ interfaceName: 'ether4', role: 'DISABLED',  state: 'DISABLED',   pathCost: 0  }),
+  makePort({ interfaceName: 'ether1', role: 'ROOT', state: 'FORWARDING', pathCost: 10 }),
+  makePort({ interfaceName: 'ether2', role: 'ALTERNATE', state: 'BLOCKING', pathCost: 20 }),
+  makePort({ interfaceName: 'ether3', role: 'ALTERNATE', state: 'LISTENING', pathCost: 30 }),
+  makePort({ interfaceName: 'ether4', role: 'DISABLED', state: 'DISABLED', pathCost: 0 }),
 ];
 
 const singlePort: BridgePort[] = [
-  makePort({ interfaceName: 'ether1', role: 'ROOT', state: 'FORWARDING', pathCost: 10, edge: true }),
+  makePort({
+    interfaceName: 'ether1',
+    role: 'ROOT',
+    state: 'FORWARDING',
+    pathCost: 10,
+    edge: true,
+  }),
 ];
 
 // ---------------------------------------------------------------------------
@@ -105,8 +145,7 @@ export const Default: Story = {
   parameters: {
     docs: {
       description: {
-        story:
-          'A realistic bridge with five ports spanning all major STP roles and states.',
+        story: 'A realistic bridge with five ports spanning all major STP roles and states.',
       },
     },
   },
@@ -166,8 +205,7 @@ export const Empty: Story = {
   parameters: {
     docs: {
       description: {
-        story:
-          'Empty state shown when the bridge has no ports configured yet.',
+        story: 'Empty state shown when the bridge has no ports configured yet.',
       },
     },
   },

@@ -51,8 +51,7 @@ export const ResourceCategory = {
 } as const;
 
 /** Inferred type for resource categories */
-export type ResourceCategory =
-  (typeof ResourceCategory)[keyof typeof ResourceCategory];
+export type ResourceCategory = (typeof ResourceCategory)[keyof typeof ResourceCategory];
 
 // =============================================================================
 // Resource Layers
@@ -188,10 +187,7 @@ export interface ResourceListItem {
   /** Resource category */
   category: ResourceCategory;
   /** Essential metadata */
-  readonly metadata: Pick<
-    ResourceMetadata,
-    'state' | 'tags' | 'updatedAt' | 'isFavorite'
-  >;
+  readonly metadata: Pick<ResourceMetadata, 'state' | 'tags' | 'updatedAt' | 'isFavorite'>;
   /** Optional runtime state for status display */
   readonly runtime?: Pick<RuntimeState, 'isRunning' | 'health' | 'lastUpdated'> | null;
 }

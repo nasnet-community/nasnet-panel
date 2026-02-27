@@ -9,7 +9,6 @@
 
 import { useState } from 'react';
 
-
 import { IPInput } from './ip-input';
 import { IPInputDesktop } from './ip-input-desktop';
 import { IPInputMobile } from './ip-input-mobile';
@@ -98,8 +97,12 @@ function ControlledIPInput(props: React.ComponentProps<typeof IPInput>) {
   const [value, setValue] = useState(props.value ?? '');
   return (
     <div className="space-y-4">
-      <IPInput {...props} value={value} onChange={setValue} />
-      <div className="text-sm text-muted-foreground">
+      <IPInput
+        {...props}
+        value={value}
+        onChange={setValue}
+      />
+      <div className="text-muted-foreground text-sm">
         Current value: <code className="font-mono">{value || '(empty)'}</code>
       </div>
     </div>
@@ -283,8 +286,12 @@ function ControlledDesktopIPInput(props: React.ComponentProps<typeof IPInputDesk
   const [value, setValue] = useState(props.value ?? '');
   return (
     <div className="space-y-4">
-      <IPInputDesktop {...props} value={value} onChange={setValue} />
-      <div className="text-sm text-muted-foreground">
+      <IPInputDesktop
+        {...props}
+        value={value}
+        onChange={setValue}
+      />
+      <div className="text-muted-foreground text-sm">
         Current value: <code className="font-mono">{value || '(empty)'}</code>
       </div>
     </div>
@@ -294,9 +301,13 @@ function ControlledDesktopIPInput(props: React.ComponentProps<typeof IPInputDesk
 function ControlledMobileIPInput(props: React.ComponentProps<typeof IPInputMobile>) {
   const [value, setValue] = useState(props.value ?? '');
   return (
-    <div className="space-y-4 w-80">
-      <IPInputMobile {...props} value={value} onChange={setValue} />
-      <div className="text-sm text-muted-foreground">
+    <div className="w-80 space-y-4">
+      <IPInputMobile
+        {...props}
+        value={value}
+        onChange={setValue}
+      />
+      <div className="text-muted-foreground text-sm">
         Current value: <code className="font-mono">{value || '(empty)'}</code>
       </div>
     </div>
@@ -340,15 +351,15 @@ export const MobilePresenter: Story = {
       description: {
         story: 'Mobile presenter with single input, smart parsing, and 44px touch targets.',
       },
-    }
+    },
   },
 
   globals: {
     viewport: {
       value: 'mobile1',
-      isRotated: false
-    }
-  }
+      isRotated: false,
+    },
+  },
 };
 
 // ============================================================================
@@ -362,11 +373,11 @@ export const Accessibility: Story = {
   render: (args) => (
     <div className="space-y-8">
       <div>
-        <h3 className="text-lg font-semibold mb-2">Desktop (4-segment)</h3>
+        <h3 className="mb-2 text-lg font-semibold">Desktop (4-segment)</h3>
         <IPInputDesktop {...args} />
       </div>
       <div className="w-80">
-        <h3 className="text-lg font-semibold mb-2">Mobile (single input)</h3>
+        <h3 className="mb-2 text-lg font-semibold">Mobile (single input)</h3>
         <IPInputMobile {...args} />
       </div>
     </div>
@@ -415,27 +426,45 @@ export const AllIPTypes: Story = {
     <div className="space-y-4">
       <div className="flex items-center gap-4">
         <span className="w-24 text-sm">Private:</span>
-        <IPInputDesktop value="192.168.1.1" showType />
+        <IPInputDesktop
+          value="192.168.1.1"
+          showType
+        />
       </div>
       <div className="flex items-center gap-4">
         <span className="w-24 text-sm">Public:</span>
-        <IPInputDesktop value="8.8.8.8" showType />
+        <IPInputDesktop
+          value="8.8.8.8"
+          showType
+        />
       </div>
       <div className="flex items-center gap-4">
         <span className="w-24 text-sm">Loopback:</span>
-        <IPInputDesktop value="127.0.0.1" showType />
+        <IPInputDesktop
+          value="127.0.0.1"
+          showType
+        />
       </div>
       <div className="flex items-center gap-4">
         <span className="w-24 text-sm">Link-local:</span>
-        <IPInputDesktop value="169.254.1.1" showType />
+        <IPInputDesktop
+          value="169.254.1.1"
+          showType
+        />
       </div>
       <div className="flex items-center gap-4">
         <span className="w-24 text-sm">Multicast:</span>
-        <IPInputDesktop value="224.0.0.1" showType />
+        <IPInputDesktop
+          value="224.0.0.1"
+          showType
+        />
       </div>
       <div className="flex items-center gap-4">
         <span className="w-24 text-sm">Broadcast:</span>
-        <IPInputDesktop value="255.255.255.255" showType />
+        <IPInputDesktop
+          value="255.255.255.255"
+          showType
+        />
       </div>
     </div>
   ),

@@ -62,9 +62,7 @@ import type { BogonFilterDialogProps } from './bogon-filter-dialog.types';
  * @param props - Component props (routerId, open, onClose, onSuccess, availableInterfaces)
  * @returns The appropriate platform presenter component
  */
-export const BogonFilterDialog = memo(function BogonFilterDialog(
-  props: BogonFilterDialogProps
-) {
+export const BogonFilterDialog = memo(function BogonFilterDialog(props: BogonFilterDialogProps) {
   const platform = usePlatform();
 
   switch (platform) {

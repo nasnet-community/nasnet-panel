@@ -12,42 +12,42 @@ import type { ChangeSet, ChangeSetStatus } from '@nasnet/core/types';
  * Summary of a change set for list displays.
  */
 export interface ChangeSetSummary {
-    id: string;
-    name: string;
-    status: ChangeSetStatus;
-    operationCounts: {
-        create: number;
-        update: number;
-        delete: number;
-    };
-    totalItems: number;
-    createdAt: string;
-    hasErrors: boolean;
-    hasWarnings: boolean;
+  id: string;
+  name: string;
+  status: ChangeSetStatus;
+  operationCounts: {
+    create: number;
+    update: number;
+    delete: number;
+  };
+  totalItems: number;
+  createdAt: string;
+  hasErrors: boolean;
+  hasWarnings: boolean;
 }
 /**
  * Options for listing change sets.
  */
 export interface ListChangeSetsOptions {
-    /** Filter by status */
-    status?: ChangeSetStatus;
-    /** Include completed/failed change sets (default: false) */
-    includeCompleted?: boolean;
-    /** Skip the query */
-    skip?: boolean;
-    /** Poll interval in milliseconds */
-    pollInterval?: number;
+  /** Filter by status */
+  status?: ChangeSetStatus;
+  /** Include completed/failed change sets (default: false) */
+  includeCompleted?: boolean;
+  /** Skip the query */
+  skip?: boolean;
+  /** Poll interval in milliseconds */
+  pollInterval?: number;
 }
 /**
  * Options for fetching a single change set.
  */
 export interface GetChangeSetOptions {
-    /** Skip the query */
-    skip?: boolean;
-    /** Poll interval in milliseconds */
-    pollInterval?: number;
-    /** Fetch policy */
-    fetchPolicy?: 'cache-first' | 'network-only' | 'cache-and-network';
+  /** Skip the query */
+  skip?: boolean;
+  /** Poll interval in milliseconds */
+  pollInterval?: number;
+  /** Fetch policy */
+  fetchPolicy?: 'cache-first' | 'network-only' | 'cache-and-network';
 }
 /**
  * Fetch a single change set by ID.
@@ -65,11 +65,15 @@ export interface GetChangeSetOptions {
  * return <ChangeSetDetail changeSet={changeSet} />;
  * ```
  */
-export declare function useChangeSet(routerId: string | undefined, changeSetId: string | undefined, options?: GetChangeSetOptions): {
-    changeSet: ChangeSet | undefined;
-    loading: boolean;
-    error: ApolloError | undefined;
-    refetch: () => Promise<void>;
+export declare function useChangeSet(
+  routerId: string | undefined,
+  changeSetId: string | undefined,
+  options?: GetChangeSetOptions
+): {
+  changeSet: ChangeSet | undefined;
+  loading: boolean;
+  error: ApolloError | undefined;
+  refetch: () => Promise<void>;
 };
 /**
  * Lazy version of useChangeSet for on-demand fetching.
@@ -85,10 +89,10 @@ export declare function useChangeSet(routerId: string | undefined, changeSetId: 
  * ```
  */
 export declare function useLazyChangeSet(): {
-    fetch: (routerId: string, changeSetId: string) => Promise<ChangeSet | undefined>;
-    changeSet: ChangeSet | undefined;
-    loading: boolean;
-    error: ApolloError | undefined;
+  fetch: (routerId: string, changeSetId: string) => Promise<ChangeSet | undefined>;
+  changeSet: ChangeSet | undefined;
+  loading: boolean;
+  error: ApolloError | undefined;
 };
 /**
  * List change sets for a router.
@@ -109,11 +113,14 @@ export declare function useLazyChangeSet(): {
  * );
  * ```
  */
-export declare function useChangeSets(routerId: string | undefined, options?: ListChangeSetsOptions): {
-    changeSets: ChangeSetSummary[];
-    loading: boolean;
-    error: ApolloError | undefined;
-    refetch: () => Promise<void>;
+export declare function useChangeSets(
+  routerId: string | undefined,
+  options?: ListChangeSetsOptions
+): {
+  changeSets: ChangeSetSummary[];
+  loading: boolean;
+  error: ApolloError | undefined;
+  refetch: () => Promise<void>;
 };
 /**
  * List active (non-completed) change sets for a router.
@@ -128,14 +135,17 @@ export declare function useChangeSets(routerId: string | undefined, options?: Li
  * }
  * ```
  */
-export declare function useActiveChangeSets(routerId: string | undefined, options?: {
+export declare function useActiveChangeSets(
+  routerId: string | undefined,
+  options?: {
     skip?: boolean;
     pollInterval?: number;
-}): {
-    changeSets: ChangeSetSummary[];
-    hasActive: boolean;
-    loading: boolean;
-    error: ApolloError | undefined;
+  }
+): {
+  changeSets: ChangeSetSummary[];
+  hasActive: boolean;
+  loading: boolean;
+  error: ApolloError | undefined;
 };
 /**
  * Get count of pending changes for a router.
@@ -153,15 +163,15 @@ export declare function useActiveChangeSets(routerId: string | undefined, option
  * ```
  */
 export declare function usePendingChangeSetsCount(routerId: string | undefined): {
-    count: number;
-    isLoading: boolean;
+  count: number;
+  isLoading: boolean;
 };
 declare const _default: {
-    useChangeSet: typeof useChangeSet;
-    useLazyChangeSet: typeof useLazyChangeSet;
-    useChangeSets: typeof useChangeSets;
-    useActiveChangeSets: typeof useActiveChangeSets;
-    usePendingChangeSetsCount: typeof usePendingChangeSetsCount;
+  useChangeSet: typeof useChangeSet;
+  useLazyChangeSet: typeof useLazyChangeSet;
+  useChangeSets: typeof useChangeSets;
+  useActiveChangeSets: typeof useActiveChangeSets;
+  usePendingChangeSetsCount: typeof usePendingChangeSetsCount;
 };
 export default _default;
 //# sourceMappingURL=useChangeSetQueries.d.ts.map

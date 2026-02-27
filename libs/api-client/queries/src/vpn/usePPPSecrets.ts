@@ -52,10 +52,7 @@ function transformPPPSecret(raw: PPPSecretRaw): PPPSecret {
  * Fetch PPP secrets from RouterOS
  */
 async function fetchPPPSecrets(routerIp: string): Promise<PPPSecret[]> {
-  const result = await makeRouterOSRequest<PPPSecretRaw[]>(
-    routerIp,
-    'ppp/secret'
-  );
+  const result = await makeRouterOSRequest<PPPSecretRaw[]>(routerIp, 'ppp/secret');
 
   if (!result.success || !result.data) {
     throw new Error(result.error || 'Failed to fetch PPP secrets');
@@ -82,4 +79,3 @@ export function usePPPSecrets(routerIp: string): UseQueryResult<PPPSecret[], Err
     enabled: !!routerIp,
   });
 }
-

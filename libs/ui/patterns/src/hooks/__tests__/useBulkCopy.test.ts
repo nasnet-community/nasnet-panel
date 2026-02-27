@@ -90,10 +90,7 @@ describe('useBulkCopy', () => {
       });
 
       const expected =
-        'name,ip\n' +
-        'Laptop,192.168.1.100\n' +
-        'Phone,192.168.1.101\n' +
-        'Tablet,192.168.1.102';
+        'name,ip\n' + 'Laptop,192.168.1.100\n' + 'Phone,192.168.1.101\n' + 'Tablet,192.168.1.102';
 
       expect(mockWriteText).toHaveBeenCalledWith(expected);
     });
@@ -106,9 +103,7 @@ describe('useBulkCopy', () => {
         await result.current.copyItems(dataWithCommas);
       });
 
-      expect(mockWriteText).toHaveBeenCalledWith(
-        'name,ip\n"Device, Type A",192.168.1.1'
-      );
+      expect(mockWriteText).toHaveBeenCalledWith('name,ip\n"Device, Type A",192.168.1.1');
     });
 
     it('handles values with quotes', async () => {
@@ -119,9 +114,7 @@ describe('useBulkCopy', () => {
         await result.current.copyItems(dataWithQuotes);
       });
 
-      expect(mockWriteText).toHaveBeenCalledWith(
-        'name,ip\n"Device ""Pro""",192.168.1.1'
-      );
+      expect(mockWriteText).toHaveBeenCalledWith('name,ip\n"Device ""Pro""",192.168.1.1');
     });
 
     it('supports custom delimiter', async () => {
@@ -132,10 +125,7 @@ describe('useBulkCopy', () => {
       });
 
       const expected =
-        'name;ip\n' +
-        'Laptop;192.168.1.100\n' +
-        'Phone;192.168.1.101\n' +
-        'Tablet;192.168.1.102';
+        'name;ip\n' + 'Laptop;192.168.1.100\n' + 'Phone;192.168.1.101\n' + 'Tablet;192.168.1.102';
 
       expect(mockWriteText).toHaveBeenCalledWith(expected);
     });
@@ -147,10 +137,7 @@ describe('useBulkCopy', () => {
         await result.current.copyItems(sampleData, ['name', 'ip']);
       });
 
-      const expected =
-        'Laptop,192.168.1.100\n' +
-        'Phone,192.168.1.101\n' +
-        'Tablet,192.168.1.102';
+      const expected = 'Laptop,192.168.1.100\n' + 'Phone,192.168.1.101\n' + 'Tablet,192.168.1.102';
 
       expect(mockWriteText).toHaveBeenCalledWith(expected);
     });
@@ -188,9 +175,7 @@ describe('useBulkCopy', () => {
     });
 
     it('respects custom indent', async () => {
-      const { result } = renderHook(() =>
-        useBulkCopy({ defaultFormat: 'json', jsonIndent: 4 })
-      );
+      const { result } = renderHook(() => useBulkCopy({ defaultFormat: 'json', jsonIndent: 4 }));
 
       const simpleData = [{ name: 'Test' }];
 
@@ -212,9 +197,7 @@ describe('useBulkCopy', () => {
       });
 
       const expected =
-        'Laptop\t192.168.1.100\n' +
-        'Phone\t192.168.1.101\n' +
-        'Tablet\t192.168.1.102';
+        'Laptop\t192.168.1.100\n' + 'Phone\t192.168.1.101\n' + 'Tablet\t192.168.1.102';
 
       expect(mockWriteText).toHaveBeenCalledWith(expected);
     });

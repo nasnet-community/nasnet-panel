@@ -220,13 +220,13 @@ export function usePortKnockSequenceForm(
 
       rules.push({
         stage,
-        description: isLastStage
-          ? `Hit port ${knockPort.port} (${knockPort.protocol.toUpperCase()}) → Grant access`
+        description:
+          isLastStage ?
+            `Hit port ${knockPort.port} (${knockPort.protocol.toUpperCase()}) → Grant access`
           : `Hit port ${knockPort.port} (${knockPort.protocol.toUpperCase()}) → Advance to stage ${stage + 1}`,
         ruleType: 'knock',
-        addressList: isLastStage
-          ? `${sequenceName}_allowed`
-          : `knock_stage${stage}_${sequenceName}`,
+        addressList:
+          isLastStage ? `${sequenceName}_allowed` : `knock_stage${stage}_${sequenceName}`,
         port: knockPort.port,
         protocol: knockPort.protocol,
       });

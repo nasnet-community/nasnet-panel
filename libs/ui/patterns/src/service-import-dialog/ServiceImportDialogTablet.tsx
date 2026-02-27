@@ -52,16 +52,23 @@ export function ServiceImportDialogTablet(props: ServiceImportDialogProps) {
   };
 
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
+    <Dialog
+      open={open}
+      onOpenChange={handleOpenChange}
+    >
       <DialogTrigger asChild>
         {trigger || (
-          <Button variant="outline" size="default" className="min-h-[44px]">
-            <Upload className="w-4 h-4 mr-2" />
+          <Button
+            variant="outline"
+            size="default"
+            className="min-h-[44px]"
+          >
+            <Upload className="mr-2 h-4 w-4" />
             Import
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="max-w-xl max-h-[85vh] overflow-y-auto">
+      <DialogContent className="max-h-[85vh] max-w-xl overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Import Service Configuration</DialogTitle>
           <DialogDescription>
@@ -91,15 +98,18 @@ export function ServiceImportDialogTablet(props: ServiceImportDialogProps) {
               }}
             />
             <label htmlFor="file-upload-tablet">
-              <div className="border-2 border-dashed rounded-lg p-6 text-center cursor-pointer hover:bg-accent transition-colors">
-                <Upload className="w-10 h-10 mx-auto mb-3 text-muted-foreground" />
+              <div className="hover:bg-accent cursor-pointer rounded-lg border-2 border-dashed p-6 text-center transition-colors">
+                <Upload className="text-muted-foreground mx-auto mb-3 h-10 w-10" />
                 <p className="text-sm font-medium">Upload JSON File</p>
               </div>
             </label>
 
             {/* Text Area */}
             <div className="space-y-2">
-              <Label htmlFor="paste-content-tablet" className="text-base">
+              <Label
+                htmlFor="paste-content-tablet"
+                className="text-base"
+              >
                 Or paste JSON configuration
               </Label>
               <Textarea
@@ -129,7 +139,7 @@ export function ServiceImportDialogTablet(props: ServiceImportDialogProps) {
                 onClick={handleValidate}
                 disabled={!state.content.trim() || loading}
                 size="default"
-                className="w-full min-h-[44px]"
+                className="min-h-[44px] w-full"
               >
                 Validate & Continue
               </Button>
@@ -137,7 +147,7 @@ export function ServiceImportDialogTablet(props: ServiceImportDialogProps) {
                 variant="outline"
                 onClick={() => handleOpenChange(false)}
                 size="default"
-                className="w-full min-h-[44px]"
+                className="min-h-[44px] w-full"
               >
                 Cancel
               </Button>
@@ -148,11 +158,11 @@ export function ServiceImportDialogTablet(props: ServiceImportDialogProps) {
         {/* Step 2: Validate */}
         {state.step === 'validate' && (
           <div className="py-12 text-center">
-            <div className="w-20 h-20 mx-auto rounded-full bg-primary/10 flex items-center justify-center mb-4">
-              <Upload className="w-8 h-8 text-primary animate-pulse" />
+            <div className="bg-primary/10 mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full">
+              <Upload className="text-primary h-8 w-8 animate-pulse" />
             </div>
-            <h3 className="text-lg font-medium mb-2">Validating...</h3>
-            <p className="text-sm text-muted-foreground">Running validation</p>
+            <h3 className="mb-2 text-lg font-medium">Validating...</h3>
+            <p className="text-muted-foreground text-sm">Running validation</p>
           </div>
         )}
 
@@ -166,8 +176,14 @@ export function ServiceImportDialogTablet(props: ServiceImportDialogProps) {
                 <ScrollArea className="h-40 rounded-lg border p-3">
                   <div className="space-y-2">
                     {state.validationResult.errors.map((error, index) => (
-                      <div key={index} className="text-sm">
-                        <Badge variant="error" className="mr-2">
+                      <div
+                        key={index}
+                        className="text-sm"
+                      >
+                        <Badge
+                          variant="error"
+                          className="mr-2"
+                        >
                           {error.code}
                         </Badge>
                         {error.message}
@@ -184,14 +200,19 @@ export function ServiceImportDialogTablet(props: ServiceImportDialogProps) {
                 <div className="space-y-3">
                   <Label className="text-base">Provide Missing Values</Label>
                   {state.validationResult.redactedFields.map((field: string) => (
-                    <div key={field} className="space-y-1">
+                    <div
+                      key={field}
+                      className="space-y-1"
+                    >
                       <Label htmlFor={`redacted-${field}-tablet`}>{field}</Label>
                       <Input
                         id={`redacted-${field}-tablet`}
                         type={field.toLowerCase().includes('password') ? 'password' : 'text'}
                         placeholder={`Enter ${field}`}
                         value={state.redactedFieldValues[field] || ''}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setRedactedFieldValue(field, e.target.value)}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                          setRedactedFieldValue(field, e.target.value)
+                        }
                         className="min-h-[44px]"
                       />
                     </div>
@@ -216,33 +237,51 @@ export function ServiceImportDialogTablet(props: ServiceImportDialogProps) {
                   >
                     <div className="space-y-3">
                       <div
-                        className="flex items-start space-x-3 rounded-lg border p-4 min-h-[44px]"
+                        className="flex min-h-[44px] items-start space-x-3 rounded-lg border p-4"
                         onClick={() => setConflictResolution('skip')}
                       >
-                        <RadioGroupItem value="skip" id="skip-tablet" />
-                        <Label htmlFor="skip-tablet" className="flex-1 cursor-pointer">
+                        <RadioGroupItem
+                          value="skip"
+                          id="skip-tablet"
+                        />
+                        <Label
+                          htmlFor="skip-tablet"
+                          className="flex-1 cursor-pointer"
+                        >
                           <span className="font-medium">Skip</span>
-                          <p className="text-sm text-muted-foreground">Don't import</p>
+                          <p className="text-muted-foreground text-sm">Don't import</p>
                         </Label>
                       </div>
                       <div
-                        className="flex items-start space-x-3 rounded-lg border p-4 min-h-[44px]"
+                        className="flex min-h-[44px] items-start space-x-3 rounded-lg border p-4"
                         onClick={() => setConflictResolution('rename')}
                       >
-                        <RadioGroupItem value="rename" id="rename-tablet" />
-                        <Label htmlFor="rename-tablet" className="flex-1 cursor-pointer">
+                        <RadioGroupItem
+                          value="rename"
+                          id="rename-tablet"
+                        />
+                        <Label
+                          htmlFor="rename-tablet"
+                          className="flex-1 cursor-pointer"
+                        >
                           <span className="font-medium">Rename</span>
-                          <p className="text-sm text-muted-foreground">Auto-rename</p>
+                          <p className="text-muted-foreground text-sm">Auto-rename</p>
                         </Label>
                       </div>
                       <div
-                        className="flex items-start space-x-3 rounded-lg border p-4 min-h-[44px]"
+                        className="flex min-h-[44px] items-start space-x-3 rounded-lg border p-4"
                         onClick={() => setConflictResolution('replace')}
                       >
-                        <RadioGroupItem value="replace" id="replace-tablet" />
-                        <Label htmlFor="replace-tablet" className="flex-1 cursor-pointer">
+                        <RadioGroupItem
+                          value="replace"
+                          id="replace-tablet"
+                        />
+                        <Label
+                          htmlFor="replace-tablet"
+                          className="flex-1 cursor-pointer"
+                        >
                           <span className="font-medium">Replace</span>
-                          <p className="text-sm text-muted-foreground">Replace existing</p>
+                          <p className="text-muted-foreground text-sm">Replace existing</p>
                         </Label>
                       </div>
                     </div>
@@ -264,7 +303,7 @@ export function ServiceImportDialogTablet(props: ServiceImportDialogProps) {
                   loading
                 }
                 size="default"
-                className="w-full min-h-[44px]"
+                className="min-h-[44px] w-full"
               >
                 Import Service
               </Button>
@@ -272,9 +311,9 @@ export function ServiceImportDialogTablet(props: ServiceImportDialogProps) {
                 variant="outline"
                 onClick={reset}
                 size="default"
-                className="w-full min-h-[44px]"
+                className="min-h-[44px] w-full"
               >
-                <ChevronLeft className="w-4 h-4 mr-2" />
+                <ChevronLeft className="mr-2 h-4 w-4" />
                 Back
               </Button>
             </div>
@@ -284,38 +323,45 @@ export function ServiceImportDialogTablet(props: ServiceImportDialogProps) {
         {/* Step 4: Importing */}
         {state.step === 'importing' && (
           <div className="py-12">
-            <div className="text-center mb-6">
-              <div className="w-20 h-20 mx-auto rounded-full bg-primary/10 flex items-center justify-center mb-4">
-                <Download className="w-8 h-8 text-primary animate-pulse" />
+            <div className="mb-6 text-center">
+              <div className="bg-primary/10 mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full">
+                <Download className="text-primary h-8 w-8 animate-pulse" />
               </div>
-              <h3 className="text-lg font-medium mb-2">Importing...</h3>
+              <h3 className="mb-2 text-lg font-medium">Importing...</h3>
             </div>
-            <Progress value={state.progress} className="w-full" />
-            <p className="text-sm text-muted-foreground text-center mt-2">{state.progress}%</p>
+            <Progress
+              value={state.progress}
+              className="w-full"
+            />
+            <p className="text-muted-foreground mt-2 text-center text-sm">{state.progress}%</p>
           </div>
         )}
 
         {/* Step 5: Complete */}
         {state.step === 'complete' && (
           <>
-            <div className="text-center py-8">
-              <div className="w-20 h-20 mx-auto rounded-full bg-success/10 flex items-center justify-center mb-4">
-                <CheckCircle2 className="w-8 h-8 text-success" />
+            <div className="py-8 text-center">
+              <div className="bg-success/10 mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full">
+                <CheckCircle2 className="text-success h-8 w-8" />
               </div>
-              <h3 className="text-lg font-medium mb-2">Import Complete!</h3>
-              <p className="text-sm text-muted-foreground">
+              <h3 className="mb-2 text-lg font-medium">Import Complete!</h3>
+              <p className="text-muted-foreground text-sm">
                 {state.packageData?.service.instanceName} imported
               </p>
             </div>
             <div className="flex flex-col gap-3">
-              <Button onClick={reset} size="default" className="w-full min-h-[44px]">
+              <Button
+                onClick={reset}
+                size="default"
+                className="min-h-[44px] w-full"
+              >
                 Import Another
               </Button>
               <Button
                 variant="outline"
                 onClick={() => handleOpenChange(false)}
                 size="default"
-                className="w-full min-h-[44px]"
+                className="min-h-[44px] w-full"
               >
                 Close
               </Button>

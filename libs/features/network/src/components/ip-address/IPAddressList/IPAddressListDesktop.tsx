@@ -104,19 +104,28 @@ function IPAddressListDesktopComponent({
         header: 'Address',
         cell: (ip) => (
           <div className="flex items-center gap-2">
-            <code className="text-sm font-mono font-semibold">{ip.address}</code>
+            <code className="font-mono text-sm font-semibold">{ip.address}</code>
             {ip.dynamic && (
-              <Badge variant="secondary" className="text-xs">
+              <Badge
+                variant="secondary"
+                className="text-xs"
+              >
                 Dynamic
               </Badge>
             )}
             {ip.invalid && (
-              <Badge variant="error" className="text-xs">
+              <Badge
+                variant="error"
+                className="text-xs"
+              >
                 Invalid
               </Badge>
             )}
             {ip.disabled && (
-              <Badge variant="secondary" className="text-xs">
+              <Badge
+                variant="secondary"
+                className="text-xs"
+              >
                 Disabled
               </Badge>
             )}
@@ -126,36 +135,26 @@ function IPAddressListDesktopComponent({
       {
         key: 'interface',
         header: 'Interface',
-        cell: (ip) => (
-          <span className="text-sm font-medium">{ip.interface.name}</span>
-        ),
+        cell: (ip) => <span className="text-sm font-medium">{ip.interface.name}</span>,
       },
       {
         key: 'network',
         header: 'Network',
         cell: (ip) => (
-          <code className="text-sm font-mono text-foreground">
-            {ip.network || '-'}
-          </code>
+          <code className="text-foreground font-mono text-sm">{ip.network || '-'}</code>
         ),
       },
       {
         key: 'broadcast',
         header: 'Broadcast',
         cell: (ip) => (
-          <code className="text-sm font-mono text-foreground">
-            {ip.broadcast || '-'}
-          </code>
+          <code className="text-foreground font-mono text-sm">{ip.broadcast || '-'}</code>
         ),
       },
       {
         key: 'comment',
         header: 'Comment',
-        cell: (ip) => (
-          <span className="text-sm text-muted-foreground">
-            {ip.comment || '-'}
-          </span>
-        ),
+        cell: (ip) => <span className="text-muted-foreground text-sm">{ip.comment || '-'}</span>,
       },
       {
         key: 'actions',
@@ -169,7 +168,10 @@ function IPAddressListDesktopComponent({
                 disabled={ip.dynamic}
                 aria-label={`Actions for IP address ${ip.address}`}
               >
-                <MoreVertical className="h-4 w-4" aria-hidden="true" />
+                <MoreVertical
+                  className="h-4 w-4"
+                  aria-hidden="true"
+                />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
@@ -223,20 +225,18 @@ function IPAddressListDesktopComponent({
       </CardHeader>
       <CardContent>
         {/* Filters */}
-        <div className="mb-component-md flex gap-component-md">
+        <div className="mb-component-md gap-component-md flex">
           <Input
             placeholder="Search address or comment..."
             value={filters.searchText || ''}
-            onChange={(e) =>
-              onFiltersChange({ ...filters, searchText: e.target.value })
-            }
+            onChange={(e) => onFiltersChange({ ...filters, searchText: e.target.value })}
             className="max-w-sm"
           />
         </div>
 
         {/* Error message */}
         {error && (
-          <div className="mb-component-md flex items-center gap-component-sm rounded-md border border-error bg-error/10 p-component-sm text-sm text-error">
+          <div className="mb-component-md gap-component-sm border-error bg-error/10 p-component-sm text-error flex items-center rounded-md border text-sm">
             <AlertCircle className="h-4 w-4" />
             <p>{error}</p>
           </div>
@@ -252,9 +252,9 @@ function IPAddressListDesktopComponent({
         />
 
         {/* Footer info */}
-        <div className="mt-component-md text-sm text-muted-foreground">
-          Showing {filteredIpAddresses.length} of {ipAddresses.length} IP
-          address{ipAddresses.length !== 1 ? 'es' : ''}
+        <div className="mt-component-md text-muted-foreground text-sm">
+          Showing {filteredIpAddresses.length} of {ipAddresses.length} IP address
+          {ipAddresses.length !== 1 ? 'es' : ''}
         </div>
       </CardContent>
     </Card>

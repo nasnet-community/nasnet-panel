@@ -7,7 +7,10 @@
  * @module @nasnet/ui/patterns/verification-badge
  */
 
-import type { BinaryVerification, VerificationStatus as GraphQLVerificationStatus } from '@nasnet/api-client/generated';
+import type {
+  BinaryVerification,
+  VerificationStatus as GraphQLVerificationStatus,
+} from '@nasnet/api-client/generated';
 
 /**
  * Verification status classification (UI-friendly version)

@@ -18,7 +18,7 @@ import React, { useCallback } from 'react';
 
 import { Plus } from 'lucide-react';
 
-import { ServiceTemplateCard , EmptyState } from '@nasnet/ui/patterns';
+import { ServiceTemplateCard, EmptyState } from '@nasnet/ui/patterns';
 import { Button, Card, CardContent, Skeleton } from '@nasnet/ui/primitives';
 import { cn } from '@nasnet/ui/utils';
 
@@ -57,10 +57,10 @@ function TemplatesBrowserDesktopComponent({
     <div className={cn('flex h-full', className)}>
       {/* Left Sidebar - Filters */}
       <aside
-        className="w-80 border-r border-border bg-muted p-component-lg overflow-y-auto"
+        className="border-border bg-muted p-component-lg w-80 overflow-y-auto border-r"
         aria-label="Template filter controls"
       >
-        <h2 className="text-lg font-semibold mb-component-lg">Filters</h2>
+        <h2 className="mb-component-lg text-lg font-semibold">Filters</h2>
         <TemplateFilters
           filters={filters}
           onFiltersChange={updateFilters}
@@ -70,16 +70,19 @@ function TemplatesBrowserDesktopComponent({
       </aside>
 
       {/* Main Content - Templates Grid */}
-      <main className="flex-1 overflow-y-auto" aria-label="Service templates list">
+      <main
+        className="flex-1 overflow-y-auto"
+        aria-label="Service templates list"
+      >
         {/* Header */}
-        <div className="border-b border-border bg-background p-component-lg sticky top-0 z-10">
+        <div className="border-border bg-background p-component-lg sticky top-0 z-10 border-b">
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold">Service Templates</h1>
-              <p className="text-sm text-muted-foreground mt-1">
-                {loading
-                  ? 'Loading templates...'
-                  : `${templates.length} template${templates.length !== 1 ? 's' : ''} available`}
+              <p className="text-muted-foreground mt-1 text-sm">
+                {loading ?
+                  'Loading templates...'
+                : `${templates.length} template${templates.length !== 1 ? 's' : ''} available`}
               </p>
             </div>
           </div>
@@ -88,14 +91,15 @@ function TemplatesBrowserDesktopComponent({
         {/* Error State */}
         {error && (
           <div className="p-component-lg">
-            <Card className="border-error" role="alert">
+            <Card
+              className="border-error"
+              role="alert"
+            >
               <CardContent className="p-component-lg">
-                <h3 className="font-semibold text-error mb-component-sm">
+                <h3 className="text-error mb-component-sm font-semibold">
                   Failed to load templates
                 </h3>
-                <p className="text-sm text-muted-foreground mb-component-md">
-                  {error.message}
-                </p>
+                <p className="text-muted-foreground mb-component-md text-sm">{error.message}</p>
                 <Button
                   variant="outline"
                   size="sm"
@@ -111,9 +115,16 @@ function TemplatesBrowserDesktopComponent({
 
         {/* Loading State */}
         {loading && !error && (
-          <div className="p-component-lg grid grid-cols-2 gap-component-lg" role="status" aria-label="Loading templates">
+          <div
+            className="p-component-lg gap-component-lg grid grid-cols-2"
+            role="status"
+            aria-label="Loading templates"
+          >
             {[1, 2, 3, 4].map((i) => (
-              <Skeleton key={i} className="h-64 w-full rounded-[var(--semantic-radius-card)]" />
+              <Skeleton
+                key={i}
+                className="h-64 w-full rounded-[var(--semantic-radius-card)]"
+              />
             ))}
           </div>
         )}
@@ -125,16 +136,18 @@ function TemplatesBrowserDesktopComponent({
               icon={Plus}
               title="No templates found"
               description={
-                hasActiveFilters
-                  ? 'Try adjusting your filters to see more results'
-                  : 'No service templates available'
+                hasActiveFilters ?
+                  'Try adjusting your filters to see more results'
+                : 'No service templates available'
               }
               action={
-                hasActiveFilters ? {
-                  label: 'Reset Filters',
-                  onClick: handleResetFilters,
-                  variant: 'outline' as const,
-                } : undefined
+                hasActiveFilters ?
+                  {
+                    label: 'Reset Filters',
+                    onClick: handleResetFilters,
+                    variant: 'outline' as const,
+                  }
+                : undefined
               }
             />
           </div>
@@ -142,7 +155,11 @@ function TemplatesBrowserDesktopComponent({
 
         {/* Templates Grid */}
         {!loading && !error && templates.length > 0 && (
-          <div className="p-component-lg grid grid-cols-2 gap-component-lg" role="list" aria-label="Service templates list">
+          <div
+            className="p-component-lg gap-component-lg grid grid-cols-2"
+            role="list"
+            aria-label="Service templates list"
+          >
             {templates.map((template) => (
               <ServiceTemplateCard
                 key={template.id}

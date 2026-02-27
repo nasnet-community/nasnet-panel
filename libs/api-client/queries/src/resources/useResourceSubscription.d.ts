@@ -12,68 +12,68 @@ import type { RuntimeState, ResourceLifecycleState } from '@nasnet/core/types';
  * Runtime update event from subscription.
  */
 export interface RuntimeUpdateEvent {
-    uuid: string;
-    runtime: RuntimeState;
-    timestamp: string;
+  uuid: string;
+  runtime: RuntimeState;
+  timestamp: string;
 }
 /**
  * State change event from subscription.
  */
 export interface StateChangeEvent {
-    uuid: string;
-    previousState: ResourceLifecycleState;
-    newState: ResourceLifecycleState;
-    triggeredBy: string;
-    timestamp: string;
-    message?: string;
+  uuid: string;
+  previousState: ResourceLifecycleState;
+  newState: ResourceLifecycleState;
+  triggeredBy: string;
+  timestamp: string;
+  message?: string;
 }
 /**
  * Validation event from subscription.
  */
 export interface ValidationEvent {
-    uuid: string;
-    stage: 'SYNTAX' | 'SEMANTIC' | 'DEPENDENCY' | 'PLATFORM' | 'CONFLICT' | 'SECURITY' | 'FINAL';
-    isComplete: boolean;
-    hasErrors: boolean;
-    hasWarnings: boolean;
-    timestamp: string;
+  uuid: string;
+  stage: 'SYNTAX' | 'SEMANTIC' | 'DEPENDENCY' | 'PLATFORM' | 'CONFLICT' | 'SECURITY' | 'FINAL';
+  isComplete: boolean;
+  hasErrors: boolean;
+  hasWarnings: boolean;
+  timestamp: string;
 }
 /**
  * Options for runtime subscription.
  */
 export interface UseResourceRuntimeSubscriptionOptions {
-    /** Skip subscription */
-    skip?: boolean;
-    /** Callback when runtime updates */
-    onUpdate?: (event: RuntimeUpdateEvent) => void;
-    /** Callback on subscription error */
-    onError?: (error: ApolloError) => void;
-    /** Throttle updates in milliseconds */
-    throttleMs?: number;
+  /** Skip subscription */
+  skip?: boolean;
+  /** Callback when runtime updates */
+  onUpdate?: (event: RuntimeUpdateEvent) => void;
+  /** Callback on subscription error */
+  onError?: (error: ApolloError) => void;
+  /** Throttle updates in milliseconds */
+  throttleMs?: number;
 }
 /**
  * Options for state change subscription.
  */
 export interface UseResourceStateSubscriptionOptions {
-    /** Skip subscription */
-    skip?: boolean;
-    /** Callback when state changes */
-    onStateChange?: (event: StateChangeEvent) => void;
-    /** Callback on subscription error */
-    onError?: (error: ApolloError) => void;
+  /** Skip subscription */
+  skip?: boolean;
+  /** Callback when state changes */
+  onStateChange?: (event: StateChangeEvent) => void;
+  /** Callback on subscription error */
+  onError?: (error: ApolloError) => void;
 }
 /**
  * Return type for subscription hooks.
  */
 export interface SubscriptionResult<T> {
-    /** Latest event data */
-    data: T | undefined;
-    /** Loading state (true until first event) */
-    loading: boolean;
-    /** Subscription error */
-    error: ApolloError | undefined;
-    /** Whether subscription is active */
-    isConnected: boolean;
+  /** Latest event data */
+  data: T | undefined;
+  /** Loading state (true until first event) */
+  loading: boolean;
+  /** Subscription error */
+  error: ApolloError | undefined;
+  /** Whether subscription is active */
+  isConnected: boolean;
 }
 /**
  * Subscribe to runtime updates for a single resource.
@@ -90,7 +90,10 @@ export interface SubscriptionResult<T> {
  * }
  * ```
  */
-export declare function useResourceRuntimeSubscription(uuid: string | undefined, options?: UseResourceRuntimeSubscriptionOptions): SubscriptionResult<RuntimeUpdateEvent>;
+export declare function useResourceRuntimeSubscription(
+  uuid: string | undefined,
+  options?: UseResourceRuntimeSubscriptionOptions
+): SubscriptionResult<RuntimeUpdateEvent>;
 /**
  * Subscribe to state changes for a resource.
  *
@@ -103,7 +106,10 @@ export declare function useResourceRuntimeSubscription(uuid: string | undefined,
  * });
  * ```
  */
-export declare function useResourceStateSubscription(uuid: string | undefined, options?: UseResourceStateSubscriptionOptions): SubscriptionResult<StateChangeEvent>;
+export declare function useResourceStateSubscription(
+  uuid: string | undefined,
+  options?: UseResourceStateSubscriptionOptions
+): SubscriptionResult<StateChangeEvent>;
 /**
  * Subscribe to validation progress for a resource.
  *
@@ -118,10 +124,13 @@ export declare function useResourceStateSubscription(uuid: string | undefined, o
  * }
  * ```
  */
-export declare function useResourceValidationSubscription(uuid: string | undefined, options?: {
+export declare function useResourceValidationSubscription(
+  uuid: string | undefined,
+  options?: {
     skip?: boolean;
     onProgress?: (event: ValidationEvent) => void;
-}): SubscriptionResult<ValidationEvent>;
+  }
+): SubscriptionResult<ValidationEvent>;
 /**
  * Subscribe to runtime updates for multiple resources.
  * Useful for list views that need real-time status.
@@ -135,31 +144,34 @@ export declare function useResourceValidationSubscription(uuid: string | undefin
  * const runtimeForResource = data?.[resourceUuid];
  * ```
  */
-export declare function useResourcesRuntimeSubscription(uuids: string[], options?: {
+export declare function useResourcesRuntimeSubscription(
+  uuids: string[],
+  options?: {
     skip?: boolean;
     onUpdate?: (uuid: string, runtime: RuntimeState) => void;
-}): {
-    data: Map<string, RuntimeState>;
-    loading: boolean;
-    error: ApolloError | undefined;
-    isConnected: boolean;
+  }
+): {
+  data: Map<string, RuntimeState>;
+  loading: boolean;
+  error: ApolloError | undefined;
+  isConnected: boolean;
 };
 /**
  * Options for combined resource subscription.
  */
 export interface UseResourceSubscriptionsOptions {
-    /** Subscribe to runtime updates */
-    runtime?: boolean;
-    /** Subscribe to state changes */
-    stateChanges?: boolean;
-    /** Subscribe to validation progress */
-    validation?: boolean;
-    /** Skip all subscriptions */
-    skip?: boolean;
-    /** Callbacks */
-    onRuntimeUpdate?: (event: RuntimeUpdateEvent) => void;
-    onStateChange?: (event: StateChangeEvent) => void;
-    onValidationProgress?: (event: ValidationEvent) => void;
+  /** Subscribe to runtime updates */
+  runtime?: boolean;
+  /** Subscribe to state changes */
+  stateChanges?: boolean;
+  /** Subscribe to validation progress */
+  validation?: boolean;
+  /** Skip all subscriptions */
+  skip?: boolean;
+  /** Callbacks */
+  onRuntimeUpdate?: (event: RuntimeUpdateEvent) => void;
+  onStateChange?: (event: StateChangeEvent) => void;
+  onValidationProgress?: (event: ValidationEvent) => void;
 }
 /**
  * Combined subscription hook for all resource events.
@@ -174,11 +186,14 @@ export interface UseResourceSubscriptionsOptions {
  * });
  * ```
  */
-export declare function useResourceSubscriptions(uuid: string | undefined, options?: UseResourceSubscriptionsOptions): {
-    runtime: SubscriptionResult<RuntimeUpdateEvent>;
-    stateChange: SubscriptionResult<StateChangeEvent>;
-    validation: SubscriptionResult<ValidationEvent>;
-    isConnected: boolean;
+export declare function useResourceSubscriptions(
+  uuid: string | undefined,
+  options?: UseResourceSubscriptionsOptions
+): {
+  runtime: SubscriptionResult<RuntimeUpdateEvent>;
+  stateChange: SubscriptionResult<StateChangeEvent>;
+  validation: SubscriptionResult<ValidationEvent>;
+  isConnected: boolean;
 };
 export default useResourceRuntimeSubscription;
 //# sourceMappingURL=useResourceSubscription.d.ts.map

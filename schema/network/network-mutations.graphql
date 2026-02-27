@@ -6,12 +6,8 @@ extend type Mutation {
   """
   Assign a new IP address to an interface
   """
-  createIpAddress(
-    "Router ID"
-    routerId: ID!
-    "IP address input"
-    input: IpAddressInput!
-  ): IpAddressMutationResult! @capability(requires: ["interface"])
+  createIpAddress("Router ID" routerId: ID!, "IP address input" input: IpAddressInput!): IpAddressMutationResult!
+    @capability(requires: ["interface"])
 
   """
   Update an existing IP address
@@ -28,40 +24,25 @@ extend type Mutation {
   """
   Remove an IP address from an interface
   """
-  deleteIpAddress(
-    "Router ID"
-    routerId: ID!
-    "IP address ID to delete"
-    id: ID!
-  ): IpAddressDeleteResult! @capability(requires: ["interface"])
+  deleteIpAddress("Router ID" routerId: ID!, "IP address ID to delete" id: ID!): IpAddressDeleteResult!
+    @capability(requires: ["interface"])
 
   """
   Create a new VLAN interface
   """
-  createVlan(
-    "Router ID"
-    routerId: ID!
-    "VLAN input data"
-    input: VlanInput!
-  ): VlanMutationResult! @capability(requires: ["interface"])
+  createVlan("Router ID" routerId: ID!, "VLAN input data" input: VlanInput!): VlanMutationResult!
+    @capability(requires: ["interface"])
 
   """
   Update an existing VLAN interface
   """
-  updateVlan(
-    "VLAN ID"
-    id: ID!
-    "Updated VLAN data"
-    input: VlanInput!
-  ): VlanMutationResult! @capability(requires: ["interface"])
+  updateVlan("VLAN ID" id: ID!, "Updated VLAN data" input: VlanInput!): VlanMutationResult!
+    @capability(requires: ["interface"])
 
   """
   Delete a VLAN interface
   """
-  deleteVlan(
-    "VLAN ID to delete"
-    id: ID!
-  ): DeleteResult! @capability(requires: ["interface"])
+  deleteVlan("VLAN ID to delete" id: ID!): DeleteResult! @capability(requires: ["interface"])
 
   """
   Configure VLAN settings on a bridge port (trunk/access)
@@ -78,12 +59,8 @@ extend type Mutation {
   """
   Create a new static route
   """
-  createRoute(
-    "Router ID"
-    routerId: ID!
-    "Route input data"
-    input: RouteInput!
-  ): RouteMutationResult! @capability(requires: ["routing"])
+  createRoute("Router ID" routerId: ID!, "Route input data" input: RouteInput!): RouteMutationResult!
+    @capability(requires: ["routing"])
 
   """
   Update an existing route
@@ -100,12 +77,8 @@ extend type Mutation {
   """
   Delete a route with impact analysis
   """
-  deleteRoute(
-    "Router ID"
-    routerId: ID!
-    "Route ID to delete"
-    id: ID!
-  ): RouteDeleteResult! @capability(requires: ["routing"])
+  deleteRoute("Router ID" routerId: ID!, "Route ID to delete" id: ID!): RouteDeleteResult!
+    @capability(requires: ["routing"])
 }
 
 # -----------------------------------------------------------------------------
@@ -116,18 +89,12 @@ extend type Subscription {
   """
   Subscribe to IP address changes (create, update, delete)
   """
-  ipAddressChanged(
-    "Router ID to monitor"
-    routerId: ID!
-  ): IpAddressChangeEvent! @capability(requires: ["interface"])
+  ipAddressChanged("Router ID to monitor" routerId: ID!): IpAddressChangeEvent! @capability(requires: ["interface"])
 
   """
   Subscribe to VLAN interface changes (create, update, delete)
   """
-  vlanChanged(
-    "Router ID to monitor"
-    routerId: ID!
-  ): Vlan! @capability(requires: ["interface"])
+  vlanChanged("Router ID to monitor" routerId: ID!): Vlan! @capability(requires: ["interface"])
 
   """
   Subscribe to real-time interface statistics updates

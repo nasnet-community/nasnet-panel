@@ -6,8 +6,6 @@ import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 import dts from 'vite-plugin-dts';
 
-
-
 export default defineConfig(() => ({
   root: __dirname,
   cacheDir: '../../../node_modules/.vite/libs/ui/patterns',
@@ -34,17 +32,17 @@ export default defineConfig(() => ({
     },
     rollupOptions: {
       external: [
-            'react',
-            'react-dom',
-            'react/jsx-runtime',
-            /^@nasnet\//,
-            /^@tanstack\//,
-            /^@radix-ui\//,
-            'lucide-react',
-            'framer-motion',
-            'zustand',
-            'zod',
-          ],
+        'react',
+        'react-dom',
+        'react/jsx-runtime',
+        /^@nasnet\//,
+        /^@tanstack\//,
+        /^@radix-ui\//,
+        'lucide-react',
+        'framer-motion',
+        'zustand',
+        'zod',
+      ],
     },
   },
   test: {

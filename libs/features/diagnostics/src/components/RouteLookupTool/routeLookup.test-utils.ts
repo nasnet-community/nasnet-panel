@@ -7,7 +7,15 @@
  * @see Story NAS-6.10 - Implement Route Lookup Diagnostic - Task 9
  */
 
-import type { Route, RouteType, RouteScope, RouteLookupResult, RouteLookupCandidate, VpnTunnelInfo, TunnelStatus } from '@nasnet/api-client/generated';
+import type {
+  Route,
+  RouteType,
+  RouteScope,
+  RouteLookupResult,
+  RouteLookupCandidate,
+  VpnTunnelInfo,
+  TunnelStatus,
+} from '@nasnet/api-client/generated';
 import { ROUTE_LOOKUP_QUERY } from '@nasnet/api-client/queries';
 
 // =============================================================================
@@ -180,7 +188,12 @@ export const mockCandidates = {
       selectionReason: 'Lower administrative distance (5 vs 10)',
     },
     {
-      route: { ...mockRoute.specificNetwork, id: 'route-2b', gateway: '192.168.88.200', distance: 10 },
+      route: {
+        ...mockRoute.specificNetwork,
+        id: 'route-2b',
+        gateway: '192.168.88.200',
+        distance: 10,
+      },
       prefixLength: 24,
       distance: 10,
       selected: false,
@@ -439,7 +452,9 @@ export function createMockVPNTunnel(overrides: Partial<VpnTunnelInfo>): VpnTunne
  * @param overrides - Partial RouteLookupCandidate object to override default mock values
  * @returns Complete mock RouteLookupCandidate object with overrides applied
  */
-export function createMockCandidate(overrides: Partial<RouteLookupCandidate>): RouteLookupCandidate {
+export function createMockCandidate(
+  overrides: Partial<RouteLookupCandidate>
+): RouteLookupCandidate {
   return {
     route: mockRoute.specificNetwork,
     prefixLength: 24,

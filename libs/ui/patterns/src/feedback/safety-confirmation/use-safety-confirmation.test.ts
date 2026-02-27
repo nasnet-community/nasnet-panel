@@ -363,9 +363,7 @@ describe('useSafetyConfirmation', () => {
     describe('cancel', () => {
       it('should reset state and call onCancel', () => {
         const onCancel = vi.fn();
-        const { result } = renderHook(() =>
-          useSafetyConfirmation({ ...defaultConfig, onCancel })
-        );
+        const { result } = renderHook(() => useSafetyConfirmation({ ...defaultConfig, onCancel }));
 
         act(() => {
           result.current.setTypedText('RESET');
@@ -427,9 +425,7 @@ describe('useSafetyConfirmation', () => {
     describe('confirm', () => {
       it('should not execute if canConfirm is false', async () => {
         const onConfirm = vi.fn();
-        const { result } = renderHook(() =>
-          useSafetyConfirmation({ ...defaultConfig, onConfirm })
-        );
+        const { result } = renderHook(() => useSafetyConfirmation({ ...defaultConfig, onConfirm }));
 
         await act(async () => {
           await result.current.confirm();
@@ -440,9 +436,7 @@ describe('useSafetyConfirmation', () => {
 
       it('should execute onConfirm when canConfirm is true', async () => {
         const onConfirm = vi.fn().mockResolvedValue(undefined);
-        const { result } = renderHook(() =>
-          useSafetyConfirmation({ ...defaultConfig, onConfirm })
-        );
+        const { result } = renderHook(() => useSafetyConfirmation({ ...defaultConfig, onConfirm }));
 
         act(() => {
           result.current.setTypedText('RESET');
@@ -470,9 +464,7 @@ describe('useSafetyConfirmation', () => {
             })
         );
 
-        const { result } = renderHook(() =>
-          useSafetyConfirmation({ ...defaultConfig, onConfirm })
-        );
+        const { result } = renderHook(() => useSafetyConfirmation({ ...defaultConfig, onConfirm }));
 
         act(() => {
           result.current.setTypedText('RESET');

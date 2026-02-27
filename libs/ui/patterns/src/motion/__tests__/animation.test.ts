@@ -18,13 +18,7 @@ import {
   msToSeconds,
 } from '@nasnet/ui/tokens';
 
-import {
-  fadeIn,
-  slideUp,
-  scaleIn,
-  reducedMotionFade,
-  getVariant,
-} from '../presets';
+import { fadeIn, slideUp, scaleIn, reducedMotionFade, getVariant } from '../presets';
 
 // ============================================================================
 // Animation Tokens Tests

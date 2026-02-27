@@ -32,9 +32,7 @@ export function DnsStaticEntriesListDesktop({
   onAdd,
   isLoading = false,
 }: DnsStaticEntriesListProps) {
-  const [entryToDelete, setEntryToDelete] = useState<DNSStaticEntry | null>(
-    null
-  );
+  const [entryToDelete, setEntryToDelete] = useState<DNSStaticEntry | null>(null);
 
   // Sort entries alphabetically by hostname
   const sortedEntries = useMemo(() => {
@@ -68,7 +66,7 @@ export function DnsStaticEntriesListDesktop({
         sortable: true,
         width: '20%',
         render: (entry: DNSStaticEntry) => (
-          <span className="font-mono text-sm category-networking">{entry.address}</span>
+          <span className="category-networking font-mono text-sm">{entry.address}</span>
         ),
       },
       {
@@ -86,9 +84,7 @@ export function DnsStaticEntriesListDesktop({
         sortable: false,
         width: '30%',
         render: (entry: DNSStaticEntry) => (
-          <span className="text-sm text-muted-foreground truncate">
-            {entry.comment || '—'}
-          </span>
+          <span className="text-muted-foreground truncate text-sm">{entry.comment || '—'}</span>
         ),
       },
       {
@@ -107,7 +103,10 @@ export function DnsStaticEntriesListDesktop({
               aria-label={`Edit ${entry.name}`}
               title="Edit entry"
             >
-              <Icon icon={Edit2} className="h-4 w-4" />
+              <Icon
+                icon={Edit2}
+                className="h-4 w-4"
+              />
             </Button>
             <Button
               size="icon"
@@ -117,7 +116,10 @@ export function DnsStaticEntriesListDesktop({
               aria-label={`Delete ${entry.name}`}
               title="Delete entry"
             >
-              <Icon icon={Trash2} className="h-4 w-4" />
+              <Icon
+                icon={Trash2}
+                className="h-4 w-4"
+              />
             </Button>
           </div>
         ),
@@ -166,8 +168,16 @@ export function DnsStaticEntriesListDesktop({
         />
 
         {/* Add Entry Button */}
-        <Button onClick={onAdd} variant="outline" className="w-full">
-          <Icon icon={Plus} className="h-4 w-4 mr-2" aria-hidden="true" />
+        <Button
+          onClick={onAdd}
+          variant="outline"
+          className="w-full"
+        >
+          <Icon
+            icon={Plus}
+            className="mr-2 h-4 w-4"
+            aria-hidden="true"
+          />
           Add Static Entry
         </Button>
       </div>
@@ -178,9 +188,9 @@ export function DnsStaticEntriesListDesktop({
         onOpenChange={(open) => !open && handleCancelDelete()}
         title="Delete Static DNS Entry"
         description={
-          entryToDelete
-            ? `Are you sure you want to delete the static entry "${entryToDelete.name}"? This hostname will no longer resolve locally.`
-            : ''
+          entryToDelete ?
+            `Are you sure you want to delete the static entry "${entryToDelete.name}"? This hostname will no longer resolve locally.`
+          : ''
         }
         confirmLabel="Delete Entry"
         cancelLabel="Cancel"

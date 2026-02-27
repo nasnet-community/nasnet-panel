@@ -1,6 +1,8 @@
 # Testing Overview
 
-NasNetConnect uses a **Testing Trophy** approach — the majority of tests are integration tests that verify real user workflows through the component tree, with a smaller base of unit tests for pure logic and a thin layer of E2E tests for critical user journeys.
+NasNetConnect uses a **Testing Trophy** approach — the majority of tests are integration tests that
+verify real user workflows through the component tree, with a smaller base of unit tests for pure
+logic and a thin layer of E2E tests for critical user journeys.
 
 **Reference:** ADR-015 (cited in `apps/connect/src/test/setup.ts`)
 
@@ -25,12 +27,12 @@ flowchart TD
     style E2E fill:#ffebee
 ```
 
-| Layer | Percentage | Tools | Focus |
-|-------|-----------|-------|-------|
-| Static | 5% | TypeScript | Type errors before runtime |
-| Unit | 20% | Vitest | Pure functions, utilities, hooks in isolation |
-| Integration | 60% | React Testing Library + MSW | Components with real logic and mocked network |
-| E2E | 15% | Playwright | Critical happy-path and edge-case user flows |
+| Layer       | Percentage | Tools                       | Focus                                         |
+| ----------- | ---------- | --------------------------- | --------------------------------------------- |
+| Static      | 5%         | TypeScript                  | Type errors before runtime                    |
+| Unit        | 20%        | Vitest                      | Pure functions, utilities, hooks in isolation |
+| Integration | 60%        | React Testing Library + MSW | Components with real logic and mocked network |
+| E2E         | 15%        | Playwright                  | Critical happy-path and edge-case user flows  |
 
 ---
 
@@ -38,7 +40,8 @@ flowchart TD
 
 ### Test behavior, not implementation
 
-Tests should describe what a user does and what they observe — not internal implementation details. This means testing what appears on screen rather than component state or method calls.
+Tests should describe what a user does and what they observe — not internal implementation details.
+This means testing what appears on screen rather than component state or method calls.
 
 ```tsx
 // Good — tests the user's perspective
@@ -76,7 +79,9 @@ screen.getByTestId('submit-button');
 
 ### No test isolation by mocking implementation
 
-Don't mock modules just to isolate units — prefer testing with real implementations through integration tests. Only mock:
+Don't mock modules just to isolate units — prefer testing with real implementations through
+integration tests. Only mock:
+
 - Network requests (via MSW)
 - Third-party hooks that call real external APIs
 - Browser APIs not available in jsdom (`matchMedia`, `ResizeObserver`)
@@ -119,13 +124,15 @@ src/
 
 NasNetConnect has a unique three-tier strategy for testing router interactions:
 
-| Tier | Environment | Speed | Fidelity | Usage |
-|------|-------------|-------|----------|-------|
-| 1 — Mock | MSW handlers | Fastest | Low | Unit + integration tests |
-| 2 — CHR Docker | RouterOS CHR container | Moderate | High | Integration + E2E tests in CI |
-| 3 — Physical | Real MikroTik hardware | Slowest | Highest | Manual QA only |
+| Tier           | Environment            | Speed    | Fidelity | Usage                         |
+| -------------- | ---------------------- | -------- | -------- | ----------------------------- |
+| 1 — Mock       | MSW handlers           | Fastest  | Low      | Unit + integration tests      |
+| 2 — CHR Docker | RouterOS CHR container | Moderate | High     | Integration + E2E tests in CI |
+| 3 — Physical   | Real MikroTik hardware | Slowest  | Highest  | Manual QA only                |
 
-CHR (Cloud Hosted Router) is the official MikroTik RouterOS virtual machine image. It runs in Docker during CI and provides real RouterOS behavior without physical hardware. See `apps/connect/src/test/chr/chr-utils.ts` and `apps/connect-e2e/src/chr-integration.spec.ts`.
+CHR (Cloud Hosted Router) is the official MikroTik RouterOS virtual machine image. It runs in Docker
+during CI and provides real RouterOS behavior without physical hardware. See
+`apps/connect/src/test/chr/chr-utils.ts` and `apps/connect-e2e/src/chr-integration.spec.ts`.
 
 ---
 
@@ -133,14 +140,15 @@ CHR (Cloud Hosted Router) is the official MikroTik RouterOS virtual machine imag
 
 Coverage thresholds are enforced in CI (configured in `apps/connect/vitest.config.ts`):
 
-| Metric | Threshold |
-|--------|-----------|
-| Lines | 80% |
-| Branches | 75% |
-| Functions | 75% |
-| Statements | 80% |
+| Metric     | Threshold |
+| ---------- | --------- |
+| Lines      | 80%       |
+| Branches   | 75%       |
+| Functions  | 75%       |
+| Statements | 80%       |
 
-Coverage is measured with V8 (native) provider and reports are generated in `apps/connect/coverage/`.
+Coverage is measured with V8 (native) provider and reports are generated in
+`apps/connect/coverage/`.
 
 ---
 
@@ -173,16 +181,16 @@ npx playwright test --project=chr-integration
 
 ## Tools Reference
 
-| Tool | Version | Purpose |
-|------|---------|---------|
-| Vitest | Latest | Test runner (4× faster than Jest, native ESM) |
-| React Testing Library | Latest | Component rendering and user-event simulation |
-| `@testing-library/user-event` | Latest | Realistic browser event simulation |
-| `@testing-library/jest-dom` | Latest | DOM-specific matchers (`toBeInTheDocument`, `toHaveClass`) |
-| MSW (Mock Service Worker) | Latest | Network request interception |
-| Playwright | Latest | E2E cross-browser testing |
-| axe-core | Latest | Automated accessibility scanning |
-| Pa11y | Latest | CI accessibility gate |
+| Tool                          | Version | Purpose                                                    |
+| ----------------------------- | ------- | ---------------------------------------------------------- |
+| Vitest                        | Latest  | Test runner (4× faster than Jest, native ESM)              |
+| React Testing Library         | Latest  | Component rendering and user-event simulation              |
+| `@testing-library/user-event` | Latest  | Realistic browser event simulation                         |
+| `@testing-library/jest-dom`   | Latest  | DOM-specific matchers (`toBeInTheDocument`, `toHaveClass`) |
+| MSW (Mock Service Worker)     | Latest  | Network request interception                               |
+| Playwright                    | Latest  | E2E cross-browser testing                                  |
+| axe-core                      | Latest  | Automated accessibility scanning                           |
+| Pa11y                         | Latest  | CI accessibility gate                                      |
 
 ---
 

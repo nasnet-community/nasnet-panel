@@ -331,7 +331,9 @@ test.describe('Address List Entries Expansion', () => {
     await expect(page.getByText('192.168.1.0')).toBeVisible();
 
     // Scroll to bottom to trigger load more
-    const scrollContainer = page.locator('[data-testid="entries-list"]').or(page.locator('.entries-container'));
+    const scrollContainer = page
+      .locator('[data-testid="entries-list"]')
+      .or(page.locator('.entries-container'));
     if (await scrollContainer.isVisible()) {
       await scrollContainer.evaluate((el) => {
         el.scrollTop = el.scrollHeight;
@@ -418,7 +420,9 @@ test.describe('Create Address List Entry', () => {
     await page.getByRole('button', { name: /create|add/i }).click();
 
     // Verify success toast
-    await expect(page.getByText(/entry created|added successfully/i)).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText(/entry created|added successfully/i)).toBeVisible({
+      timeout: 5000,
+    });
 
     // Verify dialog closes
     await expect(page.getByRole('dialog')).not.toBeVisible({ timeout: 3000 });
@@ -436,7 +440,9 @@ test.describe('Create Address List Entry', () => {
     await page.getByRole('button', { name: /create|add/i }).click();
 
     // Verify success
-    await expect(page.getByText(/entry created|added successfully/i)).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText(/entry created|added successfully/i)).toBeVisible({
+      timeout: 5000,
+    });
   });
 
   test('should create entry with IP range', async ({ page }) => {
@@ -451,7 +457,9 @@ test.describe('Create Address List Entry', () => {
     await page.getByRole('button', { name: /create|add/i }).click();
 
     // Verify success
-    await expect(page.getByText(/entry created|added successfully/i)).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText(/entry created|added successfully/i)).toBeVisible({
+      timeout: 5000,
+    });
   });
 
   test('should create entry with timeout', async ({ page }) => {
@@ -467,7 +475,9 @@ test.describe('Create Address List Entry', () => {
     await page.getByRole('button', { name: /create|add/i }).click();
 
     // Verify success
-    await expect(page.getByText(/entry created|added successfully/i)).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText(/entry created|added successfully/i)).toBeVisible({
+      timeout: 5000,
+    });
   });
 
   test('should validate invalid IP address', async ({ page }) => {
@@ -585,7 +595,12 @@ test.describe('Context Menu Quick-Add', () => {
         json: {
           data: {
             dhcpLeases: [
-              { id: '1', ipAddress: '192.168.1.50', macAddress: '00:11:22:33:44:55', hostname: 'device1' },
+              {
+                id: '1',
+                ipAddress: '192.168.1.50',
+                macAddress: '00:11:22:33:44:55',
+                hostname: 'device1',
+              },
             ],
           },
         },
@@ -614,7 +629,12 @@ test.describe('Context Menu Quick-Add', () => {
           json: {
             data: {
               dhcpLeases: [
-                { id: '1', ipAddress: '192.168.1.50', macAddress: '00:11:22:33:44:55', hostname: 'device1' },
+                {
+                  id: '1',
+                  ipAddress: '192.168.1.50',
+                  macAddress: '00:11:22:33:44:55',
+                  hostname: 'device1',
+                },
               ],
             },
           },
@@ -638,7 +658,9 @@ test.describe('Context Menu Quick-Add', () => {
     await page.getByRole('menuitem', { name: /trusted_devices/i }).click();
 
     // Verify toast notification
-    await expect(page.getByText(/added.*192\.168\.1\.50.*to.*trusted_devices/i)).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText(/added.*192\.168\.1\.50.*to.*trusted_devices/i)).toBeVisible({
+      timeout: 5000,
+    });
   });
 
   test('should create new list inline from context menu', async ({ page }) => {
@@ -649,7 +671,12 @@ test.describe('Context Menu Quick-Add', () => {
         json: {
           data: {
             dhcpLeases: [
-              { id: '1', ipAddress: '192.168.1.50', macAddress: '00:11:22:33:44:55', hostname: 'device1' },
+              {
+                id: '1',
+                ipAddress: '192.168.1.50',
+                macAddress: '00:11:22:33:44:55',
+                hostname: 'device1',
+              },
             ],
           },
         },
@@ -685,7 +712,12 @@ test.describe('Context Menu Quick-Add', () => {
         json: {
           data: {
             dhcpLeases: [
-              { id: '1', ipAddress: '192.168.1.50', macAddress: '00:11:22:33:44:55', hostname: 'device1' },
+              {
+                id: '1',
+                ipAddress: '192.168.1.50',
+                macAddress: '00:11:22:33:44:55',
+                hostname: 'device1',
+              },
             ],
           },
         },
@@ -720,8 +752,20 @@ test.describe('Show Referencing Rules', () => {
           json: {
             data: {
               rulesReferencingAddressList: [
-                { id: 'rule1', chain: 'input', action: 'drop', srcAddressList: 'blocklist', comment: 'Block bad IPs' },
-                { id: 'rule2', chain: 'forward', action: 'drop', dstAddressList: 'blocklist', comment: 'Block outbound' },
+                {
+                  id: 'rule1',
+                  chain: 'input',
+                  action: 'drop',
+                  srcAddressList: 'blocklist',
+                  comment: 'Block bad IPs',
+                },
+                {
+                  id: 'rule2',
+                  chain: 'forward',
+                  action: 'drop',
+                  dstAddressList: 'blocklist',
+                  comment: 'Block outbound',
+                },
               ],
             },
           },
@@ -757,7 +801,13 @@ test.describe('Show Referencing Rules', () => {
           json: {
             data: {
               rulesReferencingAddressList: [
-                { id: 'rule1', chain: 'input', action: 'drop', srcAddressList: 'blocklist', comment: 'Block bad IPs' },
+                {
+                  id: 'rule1',
+                  chain: 'input',
+                  action: 'drop',
+                  srcAddressList: 'blocklist',
+                  comment: 'Block bad IPs',
+                },
               ],
             },
           },
@@ -772,7 +822,10 @@ test.describe('Show Referencing Rules', () => {
     await page.reload();
 
     // Open rules modal
-    await page.getByRole('button', { name: /show rules/i }).first().click();
+    await page
+      .getByRole('button', { name: /show rules/i })
+      .first()
+      .click();
 
     // Click on rule link
     const ruleLink = page.getByRole('link', { name: /block bad ips|rule1/i });
@@ -816,7 +869,8 @@ test.describe('Bulk Import Addresses', () => {
     const fileInput = page.locator('input[type="file"]');
 
     // Create a mock CSV file
-    const csvContent = '192.168.1.100,Imported entry 1\n10.0.0.50,Imported entry 2\n172.16.0.0/24,Imported subnet';
+    const csvContent =
+      '192.168.1.100,Imported entry 1\n10.0.0.50,Imported entry 2\n172.16.0.0/24,Imported subnet';
     const buffer = Buffer.from(csvContent);
 
     await fileInput.setInputFiles({
@@ -836,7 +890,9 @@ test.describe('Bulk Import Addresses', () => {
     await expect(page.locator('[role="progressbar"]')).toBeVisible();
 
     // Verify success message
-    await expect(page.getByText(/import complete|successfully imported/i)).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText(/import complete|successfully imported/i)).toBeVisible({
+      timeout: 10000,
+    });
   });
 
   test('should import text file (one IP per line)', async ({ page }) => {
@@ -900,7 +956,8 @@ test.describe('Bulk Import Addresses', () => {
     await page.getByLabel(/target list/i).fill('blocklist');
 
     // Upload CSV with invalid entries
-    const csvContent = '192.168.1.100,Valid entry\n999.999.999.999,Invalid IP\n10.0.0.50,Another valid entry';
+    const csvContent =
+      '192.168.1.100,Valid entry\n999.999.999.999,Invalid IP\n10.0.0.50,Another valid entry';
     const buffer = Buffer.from(csvContent);
 
     const fileInput = page.locator('input[type="file"]');
@@ -1189,7 +1246,7 @@ test.describe('Mobile Responsive Behavior', () => {
 
     // Cards should be visible
     const cards = page.locator('[data-testid="address-list-card"]');
-    if (await cards.count() > 0) {
+    if ((await cards.count()) > 0) {
       await expect(cards.first()).toBeVisible();
     }
   });
@@ -1233,7 +1290,9 @@ test.describe('Accessibility Compliance', () => {
     await page.reload();
 
     // Inject axe-core
-    await page.addScriptTag({ url: 'https://cdnjs.cloudflare.com/ajax/libs/axe-core/4.7.2/axe.min.js' });
+    await page.addScriptTag({
+      url: 'https://cdnjs.cloudflare.com/ajax/libs/axe-core/4.7.2/axe.min.js',
+    });
 
     // Run accessibility scan
     const accessibilityScanResults = await page.evaluate(() => {
@@ -1305,11 +1364,15 @@ test.describe('Accessibility Compliance', () => {
     await page.reload();
 
     // Check contrast ratio programmatically (requires axe-core)
-    await page.addScriptTag({ url: 'https://cdnjs.cloudflare.com/ajax/libs/axe-core/4.7.2/axe.min.js' });
+    await page.addScriptTag({
+      url: 'https://cdnjs.cloudflare.com/ajax/libs/axe-core/4.7.2/axe.min.js',
+    });
 
     const contrastResults = await page.evaluate(() => {
       // @ts-ignore
-      return window.axe ? window.axe.run({ rules: { 'color-contrast-enhanced': { enabled: true } } }) : null;
+      return window.axe ?
+          window.axe.run({ rules: { 'color-contrast-enhanced': { enabled: true } } })
+        : null;
     });
 
     if (contrastResults) {

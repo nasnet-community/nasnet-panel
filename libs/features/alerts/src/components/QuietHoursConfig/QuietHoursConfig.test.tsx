@@ -83,7 +83,9 @@ describe('QuietHoursConfig', () => {
       render(<QuietHoursConfig onChange={onChange} />);
 
       expect(screen.getByText('Quiet Hours')).toBeInTheDocument();
-      expect(screen.getByText('Suppress non-critical alerts during specified hours')).toBeInTheDocument();
+      expect(
+        screen.getByText('Suppress non-critical alerts during specified hours')
+      ).toBeInTheDocument();
       expect(screen.getByText('Active Days')).toBeInTheDocument();
       expect(screen.getByText('Bypass Critical Alerts')).toBeInTheDocument();
     });
@@ -98,7 +100,12 @@ describe('QuietHoursConfig', () => {
         daysOfWeek: [1, 2, 3, 4, 5],
       };
 
-      render(<QuietHoursConfig value={initialValue} onChange={onChange} />);
+      render(
+        <QuietHoursConfig
+          value={initialValue}
+          onChange={onChange}
+        />
+      );
 
       // Verify initial state is rendered (hook manages the values)
       expect(screen.getByText('Quiet Hours')).toBeInTheDocument();
@@ -117,7 +124,12 @@ describe('QuietHoursConfig', () => {
 
     it('disables all inputs when disabled prop is true', () => {
       const onChange = vi.fn();
-      render(<QuietHoursConfig onChange={onChange} disabled={true} />);
+      render(
+        <QuietHoursConfig
+          onChange={onChange}
+          disabled={true}
+        />
+      );
 
       // Find the bypass critical switch by its ID
       const switchElement = screen.getByRole('switch', { name: /bypass critical/i });
@@ -126,7 +138,12 @@ describe('QuietHoursConfig', () => {
 
     it('applies custom className', () => {
       const onChange = vi.fn();
-      const { container } = render(<QuietHoursConfig onChange={onChange} className="custom-class" />);
+      const { container } = render(
+        <QuietHoursConfig
+          onChange={onChange}
+          className="custom-class"
+        />
+      );
 
       // Card should have custom class
       const card = container.querySelector('.custom-class');
@@ -215,14 +232,21 @@ describe('QuietHoursConfig', () => {
       render(<QuietHoursConfig onChange={onChange} />);
 
       expect(screen.getByText('Quiet Hours')).toBeInTheDocument();
-      expect(screen.getByText('Suppress non-critical alerts during specified hours')).toBeInTheDocument();
+      expect(
+        screen.getByText('Suppress non-critical alerts during specified hours')
+      ).toBeInTheDocument();
       expect(screen.getByText('Active Days')).toBeInTheDocument();
       expect(screen.getByText('Bypass Critical Alerts')).toBeInTheDocument();
     });
 
     it('disables inputs when disabled prop is true', () => {
       const onChange = vi.fn();
-      render(<QuietHoursConfig onChange={onChange} disabled={true} />);
+      render(
+        <QuietHoursConfig
+          onChange={onChange}
+          disabled={true}
+        />
+      );
 
       const switchElement = screen.getByRole('switch', { name: /bypass critical/i });
       expect(switchElement).toBeDisabled();
@@ -291,7 +315,12 @@ describe('QuietHoursConfig', () => {
 
     it('disabled state is properly announced', () => {
       const onChange = vi.fn();
-      render(<QuietHoursConfig onChange={onChange} disabled={true} />);
+      render(
+        <QuietHoursConfig
+          onChange={onChange}
+          disabled={true}
+        />
+      );
 
       const switchElement = screen.getByRole('switch', { name: /bypass critical/i });
       expect(switchElement).toHaveAttribute('disabled');
@@ -340,19 +369,34 @@ describe('QuietHoursConfig', () => {
         // Missing other fields
       };
 
-      render(<QuietHoursConfig value={partialValue} onChange={onChange} />);
+      render(
+        <QuietHoursConfig
+          value={partialValue}
+          onChange={onChange}
+        />
+      );
       expect(screen.getByText('Quiet Hours')).toBeInTheDocument();
     });
 
     it('handles undefined initial value', () => {
       const onChange = vi.fn();
-      render(<QuietHoursConfig value={undefined} onChange={onChange} />);
+      render(
+        <QuietHoursConfig
+          value={undefined}
+          onChange={onChange}
+        />
+      );
       expect(screen.getByText('Quiet Hours')).toBeInTheDocument();
     });
 
     it('handles null className', () => {
       const onChange = vi.fn();
-      const { container } = render(<QuietHoursConfig onChange={onChange} className={undefined} />);
+      const { container } = render(
+        <QuietHoursConfig
+          onChange={onChange}
+          className={undefined}
+        />
+      );
       expect(container.firstChild).toBeInTheDocument();
     });
   });

@@ -11,8 +11,8 @@ import { ReactNode } from 'react';
  * Props for ApolloProvider component.
  */
 interface ApolloProviderProps {
-    /** Child components to render within Apollo context */
-    children: ReactNode;
+  /** Child components to render within Apollo context */
+  children: ReactNode;
 }
 /**
  * Apollo Provider with integrated DevTools and cache persistence.
@@ -39,6 +39,8 @@ interface ApolloProviderProps {
  * Provider tree position (from CLAUDE.md):
  * ErrorBoundary → ApolloProvider → QueryClientProvider → I18nextProvider → ThemeProvider → ToastProvider
  */
-export declare function ApolloProvider({ children }: ApolloProviderProps): import("react/jsx-runtime").JSX.Element | null;
+export declare function ApolloProvider({
+  children,
+}: ApolloProviderProps): import('react/jsx-runtime').JSX.Element | null;
 export {};
 //# sourceMappingURL=apollo-provider.d.ts.map

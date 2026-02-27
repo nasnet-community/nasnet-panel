@@ -1,7 +1,7 @@
 {
   "id": "connection-management",
   "title": "Connection Management",
-  "description": "Per-router connection pool with circuit breaker protection, exponential-backoff reconnection, periodic health monitoring, and hardware/software capability detection with 24-hour caching.",
+  "description": "Per-router connection pool with circuit breaker protection, exponential-backoff reconnection,",
   "source": "@site/../backend/docs/connection-management.md",
   "sourceDirName": ".",
   "slug": "/connection-management",

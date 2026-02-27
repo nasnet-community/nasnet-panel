@@ -1,6 +1,7 @@
 # Alert Notification Templates
 
-This directory contains embedded Go templates for rendering alert notifications across different channels.
+This directory contains embedded Go templates for rendering alert notifications across different
+channels.
 
 ## Directory Structure
 
@@ -29,20 +30,20 @@ templates/alerts/
 
 All templates have access to the following data:
 
-| Variable | Type | Description | Example |
-|----------|------|-------------|---------|
-| `.EventType` | string | Event identifier | `"router.offline"` |
-| `.Severity` | string | Alert severity level | `"CRITICAL"`, `"WARNING"`, `"INFO"` |
-| `.Title` | string | Alert title | `"Router Offline"` |
-| `.Message` | string | Alert message | `"Router has not responded..."` |
-| `.RuleName` | string | Name of the alert rule | `"Router Connectivity Monitor"` |
-| `.RuleID` | string | Rule identifier | `"rule-123"` |
-| `.DeviceName` | string | Device hostname (optional) | `"Office-Router-01"` |
-| `.DeviceIP` | string | Device IP address (optional) | `"192.168.1.1"` |
-| `.TriggeredAt` | time.Time | Timestamp when alert fired | `time.Now()` |
-| `.FormattedTime` | string | Pre-formatted timestamp | `"2024-01-15 14:30:00"` |
-| `.EventData` | map | Event-specific nested data | `{"cpu_usage": 95}` |
-| `.SuggestedActions` | []string | Troubleshooting steps | `["Check network", "Verify power"]` |
+| Variable            | Type      | Description                  | Example                             |
+| ------------------- | --------- | ---------------------------- | ----------------------------------- |
+| `.EventType`        | string    | Event identifier             | `"router.offline"`                  |
+| `.Severity`         | string    | Alert severity level         | `"CRITICAL"`, `"WARNING"`, `"INFO"` |
+| `.Title`            | string    | Alert title                  | `"Router Offline"`                  |
+| `.Message`          | string    | Alert message                | `"Router has not responded..."`     |
+| `.RuleName`         | string    | Name of the alert rule       | `"Router Connectivity Monitor"`     |
+| `.RuleID`           | string    | Rule identifier              | `"rule-123"`                        |
+| `.DeviceName`       | string    | Device hostname (optional)   | `"Office-Router-01"`                |
+| `.DeviceIP`         | string    | Device IP address (optional) | `"192.168.1.1"`                     |
+| `.TriggeredAt`      | time.Time | Timestamp when alert fired   | `time.Now()`                        |
+| `.FormattedTime`    | string    | Pre-formatted timestamp      | `"2024-01-15 14:30:00"`             |
+| `.EventData`        | map       | Event-specific nested data   | `{"cpu_usage": 95}`                 |
+| `.SuggestedActions` | []string  | Troubleshooting steps        | `["Check network", "Verify power"]` |
 
 ## Template Functions
 
@@ -50,29 +51,29 @@ The following functions are available in all templates:
 
 ### String Manipulation
 
-| Function | Description | Example |
-|----------|-------------|---------|
-| `upper` | Convert to uppercase | `{{.Text \| upper}}` → `"HELLO"` |
-| `lower` | Convert to lowercase | `{{.Text \| lower}}` → `"hello"` |
-| `title` | Title case | `{{.Text \| title}}` → `"Hello World"` |
-| `trim` | Trim whitespace | `{{.Text \| trim}}` |
+| Function   | Description            | Example                                                               |
+| ---------- | ---------------------- | --------------------------------------------------------------------- |
+| `upper`    | Convert to uppercase   | `{{.Text \| upper}}` → `"HELLO"`                                      |
+| `lower`    | Convert to lowercase   | `{{.Text \| lower}}` → `"hello"`                                      |
+| `title`    | Title case             | `{{.Text \| title}}` → `"Hello World"`                                |
+| `trim`     | Trim whitespace        | `{{.Text \| trim}}`                                                   |
 | `truncate` | Truncate with ellipsis | `{{.Text \| truncate 50}}` → `"This is a long text that gets tru..."` |
 
 ### Time Formatting
 
-| Function | Description | Example |
-|----------|-------------|---------|
+| Function     | Description      | Example                                                        |
+| ------------ | ---------------- | -------------------------------------------------------------- |
 | `formatTime` | Format time.Time | `{{.TriggeredAt \| formatTime "2006-01-02"}}` → `"2024-01-15"` |
 
 ### Utilities
 
-| Function | Description | Example |
-|----------|-------------|---------|
-| `default` | Fallback value if empty | `{{.DeviceName \| default "Unknown"}}` → `"Unknown"` |
-| `join` | Join string slice | `{{.Actions \| join ", "}}` → `"a, b, c"` |
-| `add` | Add integers | `{{add $i 1}}` → `2` (if `$i` is 1) |
-| `escape` | Escape Telegram MarkdownV2 | `{{.Text \| escape}}` |
-| `json` | JSON encode (placeholder) | `{{.EventData \| json}}` |
+| Function  | Description                | Example                                              |
+| --------- | -------------------------- | ---------------------------------------------------- |
+| `default` | Fallback value if empty    | `{{.DeviceName \| default "Unknown"}}` → `"Unknown"` |
+| `join`    | Join string slice          | `{{.Actions \| join ", "}}` → `"a, b, c"`            |
+| `add`     | Add integers               | `{{add $i 1}}` → `2` (if `$i` is 1)                  |
+| `escape`  | Escape Telegram MarkdownV2 | `{{.Text \| escape}}`                                |
+| `json`    | JSON encode (placeholder)  | `{{.EventData \| json}}`                             |
 
 ## Usage
 
@@ -171,7 +172,8 @@ if err := alerts.ValidateTemplate(customTemplate); err != nil {
 ### Email
 
 - **HTML template** (`default-body.html.tmpl`): Uses inline CSS for email client compatibility
-- **Text template** (`default-body.txt.tmpl`): Plain text fallback for clients that don't support HTML
+- **Text template** (`default-body.txt.tmpl`): Plain text fallback for clients that don't support
+  HTML
 - **Subject template** (`default-subject.tmpl`): Keep short (< 50 chars recommended)
 
 ### Telegram
@@ -206,7 +208,7 @@ if err := alerts.ValidateTemplate(customTemplate); err != nil {
 ```html
 <!-- Email HTML -->
 <div class="alert-details {{.Severity}}">
-    <!-- Auto-applies appropriate color based on CRITICAL/WARNING/INFO -->
+  <!-- Auto-applies appropriate color based on CRITICAL/WARNING/INFO -->
 </div>
 ```
 
@@ -288,6 +290,7 @@ go test -cover ./templates/alerts/
 ```
 
 Tests cover:
+
 - ✅ Template existence for all channels
 - ✅ Template parsing and validation
 - ✅ Rendering with real data

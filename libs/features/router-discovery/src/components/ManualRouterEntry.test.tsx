@@ -21,9 +21,7 @@ describe('ManualRouterEntry', () => {
     expect(screen.getByText(/add router manually/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/ip address/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/router name/i)).toBeInTheDocument();
-    expect(
-      screen.getByRole('button', { name: /add router/i })
-    ).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /add router/i })).toBeInTheDocument();
   });
 
   it('should display IP address input with placeholder', () => {
@@ -45,9 +43,7 @@ describe('ManualRouterEntry', () => {
   it('should allow user to enter IP address', () => {
     render(<ManualRouterEntry />);
 
-    const ipInput = screen.getByPlaceholderText(
-      '192.168.88.1'
-    ) as HTMLInputElement;
+    const ipInput = screen.getByPlaceholderText('192.168.88.1') as HTMLInputElement;
 
     fireEvent.change(ipInput, { target: { value: '192.168.1.1' } });
 
@@ -57,9 +53,7 @@ describe('ManualRouterEntry', () => {
   it('should allow user to enter router name', () => {
     render(<ManualRouterEntry />);
 
-    const nameInput = screen.getByPlaceholderText(
-      'My Router'
-    ) as HTMLInputElement;
+    const nameInput = screen.getByPlaceholderText('My Router') as HTMLInputElement;
 
     fireEvent.change(nameInput, { target: { value: 'Office Router' } });
 
@@ -129,13 +123,7 @@ describe('ManualRouterEntry', () => {
     const ipInput = screen.getByPlaceholderText('192.168.88.1');
     const submitButton = screen.getByRole('button', { name: /add router/i });
 
-    const validIPs = [
-      '192.168.88.1',
-      '10.0.0.1',
-      '172.16.0.1',
-      '0.0.0.0',
-      '255.255.255.255',
-    ];
+    const validIPs = ['192.168.88.1', '10.0.0.1', '172.16.0.1', '0.0.0.0', '255.255.255.255'];
 
     for (const validIP of validIPs) {
       fireEvent.change(ipInput, { target: { value: validIP } });
@@ -193,12 +181,8 @@ describe('ManualRouterEntry', () => {
   it('should reset form after successful submission', async () => {
     render(<ManualRouterEntry onSubmit={mockOnSubmit} />);
 
-    const ipInput = screen.getByPlaceholderText(
-      '192.168.88.1'
-    ) as HTMLInputElement;
-    const nameInput = screen.getByPlaceholderText(
-      'My Router'
-    ) as HTMLInputElement;
+    const ipInput = screen.getByPlaceholderText('192.168.88.1') as HTMLInputElement;
+    const nameInput = screen.getByPlaceholderText('My Router') as HTMLInputElement;
     const submitButton = screen.getByRole('button', { name: /add router/i });
 
     fireEvent.change(ipInput, { target: { value: '192.168.88.1' } });
@@ -260,12 +244,8 @@ describe('ManualRouterEntry', () => {
   it('should reset form when cancel is clicked', () => {
     render(<ManualRouterEntry onCancel={mockOnCancel} />);
 
-    const ipInput = screen.getByPlaceholderText(
-      '192.168.88.1'
-    ) as HTMLInputElement;
-    const nameInput = screen.getByPlaceholderText(
-      'My Router'
-    ) as HTMLInputElement;
+    const ipInput = screen.getByPlaceholderText('192.168.88.1') as HTMLInputElement;
+    const nameInput = screen.getByPlaceholderText('My Router') as HTMLInputElement;
 
     // Fill in form
     fireEvent.change(ipInput, { target: { value: '192.168.1.1' } });
@@ -294,9 +274,7 @@ describe('ManualRouterEntry', () => {
   it('should populate IP field when preset button clicked', () => {
     render(<ManualRouterEntry />);
 
-    const ipInput = screen.getByPlaceholderText(
-      '192.168.88.1'
-    ) as HTMLInputElement;
+    const ipInput = screen.getByPlaceholderText('192.168.88.1') as HTMLInputElement;
     const presetButton = screen.getByRole('button', { name: '10.0.0.1' });
 
     fireEvent.click(presetButton);
@@ -329,9 +307,7 @@ describe('ManualRouterEntry', () => {
   it('should show helpful hint text for name input', () => {
     render(<ManualRouterEntry />);
 
-    expect(
-      screen.getByText(/give your router a friendly name/i)
-    ).toBeInTheDocument();
+    expect(screen.getByText(/give your router a friendly name/i)).toBeInTheDocument();
   });
 
   it('should have proper ARIA labels for accessibility', () => {

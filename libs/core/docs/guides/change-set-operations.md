@@ -1,6 +1,7 @@
 # Change Set Operations: Atomic Multi-Resource Transactions
 
-**Reference:** ADR-012, FR-STM-013 | `libs/core/types/src/resource/change-set.ts` | `libs/core/utils/src/graph/dependency-graph.ts`
+**Reference:** ADR-012, FR-STM-013 | `libs/core/types/src/resource/change-set.ts` |
+`libs/core/utils/src/graph/dependency-graph.ts`
 
 ## Table of Contents
 
@@ -26,9 +27,11 @@ Creating a LAN network requires multiple coordinated operations:
 4. Create firewall rules for the bridge
 5. Set up routing policies
 
-If step 2 fails, we're left with a bridge that doesn't work. If step 4 fails after step 3, we have a DHCP server without firewall protection.
+If step 2 fails, we're left with a bridge that doesn't work. If step 4 fails after step 3, we have a
+DHCP server without firewall protection.
 
 **Problem:** These operations depend on each other. We need:
+
 - **All or nothing** - Either all succeed or all rollback
 - **Correct order** - Dependencies run first
 - **Parallel where possible** - Steps 2, 3, 4 can run in parallel (all depend on 1)
@@ -145,13 +148,13 @@ import type {
 // Complete change set structure
 const changeSet: ChangeSet = {
   // Identity
-  id: 'cs-2024-02-27-001',              // ULID
+  id: 'cs-2024-02-27-001', // ULID
   name: 'Create LAN Network',
   description: 'Setup LAN with DHCP and firewall',
   routerId: 'router-01',
   createdBy: 'admin@example.com',
-  source: 'lan-setup-wizard',            // Where it came from
-  version: 1,                             // For optimistic locking
+  source: 'lan-setup-wizard', // Where it came from
+  version: 1, // For optimistic locking
 
   // Status and progress
   status: 'READY' as ChangeSetStatus,
@@ -163,7 +166,7 @@ const changeSet: ChangeSet = {
   items: [
     {
       id: 'bridge-1',
-      resourceUuid: null,                 // CREATE operation - no UUID yet
+      resourceUuid: null, // CREATE operation - no UUID yet
       resourceType: 'network.bridge',
       resourceCategory: 'NETWORK',
       name: 'Create LAN Bridge',
@@ -174,14 +177,14 @@ const changeSet: ChangeSet = {
         mtu: 1500,
         enabled: true,
       },
-      previousState: null,                // CREATE - no previous state
-      dependencies: [],                   // Root node - no dependencies
+      previousState: null, // CREATE - no previous state
+      dependencies: [], // Root node - no dependencies
       status: 'PENDING' as ChangeSetItemStatus,
       error: null,
       applyStartedAt: null,
       applyCompletedAt: null,
       confirmedState: null,
-      applyOrder: 0,                      // Applied first
+      applyOrder: 0, // Applied first
     },
     {
       id: 'dhcp-1',
@@ -197,13 +200,13 @@ const changeSet: ChangeSet = {
         dns1: '8.8.8.8',
       },
       previousState: null,
-      dependencies: ['bridge-1'],         // Depends on bridge
+      dependencies: ['bridge-1'], // Depends on bridge
       status: 'PENDING' as ChangeSetItemStatus,
       error: null,
       applyStartedAt: null,
       applyCompletedAt: null,
       confirmedState: null,
-      applyOrder: 1,                      // Applied second
+      applyOrder: 1, // Applied second
     },
   ],
 
@@ -221,7 +224,7 @@ const changeSet: ChangeSet = {
   rollbackPlan: [
     {
       itemId: 'dhcp-1',
-      operation: 'DELETE',                // Undo: delete created DHCP
+      operation: 'DELETE', // Undo: delete created DHCP
       restoreState: null,
       resourceUuid: '.id=*1A',
       success: false,
@@ -235,7 +238,7 @@ const changeSet: ChangeSet = {
       resourceUuid: '.id=*19',
       success: false,
       error: null,
-      rollbackOrder: 1,                   // Rollback in reverse order
+      rollbackOrder: 1, // Rollback in reverse order
     },
   ],
 
@@ -300,8 +303,8 @@ import type { DependencyNode } from '@nasnet/core/utils';
 
 // Define nodes with dependencies
 const nodes: DependencyNode[] = [
-  { id: 'bridge', dependencies: [] },          // No deps - root
-  { id: 'dhcp', dependencies: ['bridge'] },    // Depends on bridge
+  { id: 'bridge', dependencies: [] }, // No deps - root
+  { id: 'dhcp', dependencies: ['bridge'] }, // Depends on bridge
   { id: 'firewall', dependencies: ['bridge'] }, // Also depends on bridge
 ];
 
@@ -317,10 +320,10 @@ if (result.success) {
 
 // Analyze graph structure
 const analysis = analyzeDependencies(nodes);
-console.log('Root nodes:', analysis.roots);           // ['bridge']
-console.log('Leaf nodes:', analysis.leaves);         // ['dhcp', 'firewall']
-console.log('Max depth:', analysis.maxDepth);        // 1 level
-console.log('Levels:', analysis.levels);             // [['bridge'], ['dhcp', 'firewall']]
+console.log('Root nodes:', analysis.roots); // ['bridge']
+console.log('Leaf nodes:', analysis.leaves); // ['dhcp', 'firewall']
+console.log('Max depth:', analysis.maxDepth); // 1 level
+console.log('Levels:', analysis.levels); // [['bridge'], ['dhcp', 'firewall']]
 
 // Check for problems
 const cycleCheck = detectCycles(nodes);
@@ -335,10 +338,10 @@ if (cycleCheck.hasCycle) {
 import type { DependencyAnalysis } from '@nasnet/core/utils';
 
 interface DependencyAnalysis {
-  roots: string[];         // No dependencies - apply first
-  leaves: string[];        // No dependents - apply last
-  maxDepth: number;        // Longest dependency chain
-  levels: string[][];      // Nodes grouped by application level
+  roots: string[]; // No dependencies - apply first
+  leaves: string[]; // No dependents - apply last
+  maxDepth: number; // Longest dependency chain
+  levels: string[][]; // Nodes grouped by application level
   missingDependencies: Array<{
     nodeId: string;
     missingDepId: string;
@@ -358,10 +361,10 @@ const complex = analyzeDependencies([
   { id: 'nat', dependencies: ['firewall'] },
 ]);
 
-console.log(complex.roots);     // ['bridge']
-console.log(complex.leaves);    // ['dhcp', 'nat']
-console.log(complex.maxDepth);  // 2
-console.log(complex.levels);    // [['bridge'], ['dhcp', 'firewall'], ['nat']]
+console.log(complex.roots); // ['bridge']
+console.log(complex.leaves); // ['dhcp', 'nat']
+console.log(complex.maxDepth); // 2
+console.log(complex.levels); // [['bridge'], ['dhcp', 'firewall'], ['nat']]
 ```
 
 ---
@@ -385,26 +388,26 @@ let applied = new Set<string>();
 
 // Iteration 1: What can we apply first?
 let applicableNow = getParallelApplicableNodes(changeSet, applied);
-console.log('Wave 1:', applicableNow);  // ['bridge']
+console.log('Wave 1:', applicableNow); // ['bridge']
 // Execute these in parallel
 
 // Iteration 2: After bridge is applied
 applied.add('bridge');
 applicableNow = getParallelApplicableNodes(changeSet, applied);
-console.log('Wave 2:', applicableNow);  // ['dhcp', 'firewall'] - both ready!
+console.log('Wave 2:', applicableNow); // ['dhcp', 'firewall'] - both ready!
 // Execute dhcp and firewall in parallel
 
 // Iteration 3: After dhcp and firewall applied
 applied.add('dhcp');
 applied.add('firewall');
 applicableNow = getParallelApplicableNodes(changeSet, applied);
-console.log('Wave 3:', applicableNow);  // ['nat']
+console.log('Wave 3:', applicableNow); // ['nat']
 // Execute nat
 
 // Iteration 4: All done
 applied.add('nat');
 applicableNow = getParallelApplicableNodes(changeSet, applied);
-console.log('Wave 4:', applicableNow);  // [] - nothing left
+console.log('Wave 4:', applicableNow); // [] - nothing left
 ```
 
 **Parallel executor pattern:**
@@ -424,9 +427,7 @@ async function applyChangeSetParallel(changeSet: ChangeSet) {
     }
 
     // Apply all in parallel
-    const promises = wave.map((itemId) =>
-      applyItem(changeSet.items.find((i) => i.id === itemId)!)
-    );
+    const promises = wave.map((itemId) => applyItem(changeSet.items.find((i) => i.id === itemId)!));
 
     const results = await Promise.allSettled(promises);
 
@@ -463,12 +464,12 @@ import type { RollbackStep, RollbackOperation } from '@nasnet/core/types';
 const rollbackPlan: RollbackStep[] = [
   {
     itemId: 'nat-rule-1',
-    operation: 'DELETE' as RollbackOperation,  // Delete created resource
+    operation: 'DELETE' as RollbackOperation, // Delete created resource
     resourceUuid: '.id=*1C',
     restoreState: null,
     success: false,
     error: null,
-    rollbackOrder: 0,  // First to rollback (reverse of apply order)
+    rollbackOrder: 0, // First to rollback (reverse of apply order)
   },
   {
     itemId: 'firewall-rule-1',
@@ -495,7 +496,7 @@ const rollbackPlan: RollbackStep[] = [
     restoreState: null,
     success: false,
     error: null,
-    rollbackOrder: 3,  // Last to rollback
+    rollbackOrder: 3, // Last to rollback
   },
 ];
 
@@ -536,7 +537,7 @@ async function executeRollback(rollbackPlan: RollbackStep[]) {
   // Check if any rollbacks failed
   const allSucceeded = rollbackPlan.every((s) => s.success);
   if (!allSucceeded) {
-    return 'PARTIAL_FAILURE';  // Requires manual intervention
+    return 'PARTIAL_FAILURE'; // Requires manual intervention
   }
 
   return 'ROLLED_BACK';
@@ -556,27 +557,23 @@ import { detectCycles, validateDependencyGraph } from '@nasnet/core/utils';
 const circular = [
   { id: 'a', dependencies: ['b'] },
   { id: 'b', dependencies: ['c'] },
-  { id: 'c', dependencies: ['a'] },  // c→a creates cycle: a→b→c→a
+  { id: 'c', dependencies: ['a'] }, // c→a creates cycle: a→b→c→a
 ];
 
 const result = detectCycles(circular);
-console.log(result.hasCycle);  // true
-console.log(result.cycles);    // [['a', 'b', 'c']]
+console.log(result.hasCycle); // true
+console.log(result.cycles); // [['a', 'b', 'c']]
 
 // Full validation
 const validation = validateDependencyGraph(circular);
-console.log(validation.valid);    // false
-console.log(validation.errors);   // ['Circular dependency: a → b → c → a']
+console.log(validation.valid); // false
+console.log(validation.errors); // ['Circular dependency: a → b → c → a']
 
 // Handle in UI
 function handleChangeSetValidation(changeSet: ChangeSet) {
   if (changeSet.validation?.circularDependencies?.length) {
     const cycles = changeSet.validation.circularDependencies;
-    showError(
-      `Circular dependencies detected: ${cycles
-        .map((c) => c.join('→'))
-        .join(', ')}`
-    );
+    showError(`Circular dependencies detected: ${cycles.map((c) => c.join('→')).join(', ')}`);
   }
 
   if (changeSet.validation?.missingDependencies?.length) {
@@ -603,14 +600,14 @@ const conflicts: ChangeSetConflict[] = [
   {
     itemId1: 'dhcp-server-1',
     itemId2OrResourceUuid: 'existing-dhcp-001',
-    isExternalConflict: true,              // Conflict with existing resource
+    isExternalConflict: true, // Conflict with existing resource
     description: 'Another DHCP server already exists on br-lan',
     resolution: 'Delete the existing DHCP server first',
   },
   {
     itemId1: 'port-forward-1',
     itemId2OrResourceUuid: 'port-forward-2',
-    isExternalConflict: false,             // Conflict within change set
+    isExternalConflict: false, // Conflict within change set
     description: 'Both rules use the same port 8080',
     resolution: 'Change one of the port numbers',
   },
@@ -619,22 +616,16 @@ const conflicts: ChangeSetConflict[] = [
 // Handle in UI
 function showConflictDialog(conflict: ChangeSetConflict) {
   if (conflict.isExternalConflict) {
-    showModal(
-      `Conflict with existing resource: ${conflict.description}`,
-      [
-        { label: 'View Existing', action: () => viewResource(conflict.itemId2OrResourceUuid) },
-        { label: 'Delete Existing', action: () => deleteAndContinue() },
-        { label: 'Cancel', action: () => cancelChangeSet() },
-      ]
-    );
+    showModal(`Conflict with existing resource: ${conflict.description}`, [
+      { label: 'View Existing', action: () => viewResource(conflict.itemId2OrResourceUuid) },
+      { label: 'Delete Existing', action: () => deleteAndContinue() },
+      { label: 'Cancel', action: () => cancelChangeSet() },
+    ]);
   } else {
-    showModal(
-      `Conflict between items: ${conflict.description}`,
-      [
-        { label: 'Edit Items', action: () => editConflictingItems() },
-        { label: 'Cancel', action: () => cancelChangeSet() },
-      ]
-    );
+    showModal(`Conflict between items: ${conflict.description}`, [
+      { label: 'Edit Items', action: () => editConflictingItems() },
+      { label: 'Cancel', action: () => cancelChangeSet() },
+    ]);
   }
 }
 ```
@@ -692,7 +683,7 @@ function createLANSetupChangeSet(): ChangeSet {
         operation: 'CREATE' as ChangeOperation,
         configuration: { interface: 'ether1', bridge: 'br-lan' },
         previousState: null,
-        dependencies: ['item-1'],  // Depends on bridge existing
+        dependencies: ['item-1'], // Depends on bridge existing
         status: 'PENDING',
         error: null,
         applyStartedAt: null,
@@ -715,13 +706,13 @@ function createLANSetupChangeSet(): ChangeSet {
           gateway: '192.168.1.1',
         },
         previousState: null,
-        dependencies: ['item-1'],  // Depends on bridge
+        dependencies: ['item-1'], // Depends on bridge
         status: 'PENDING',
         error: null,
         applyStartedAt: null,
         applyCompletedAt: null,
         confirmedState: null,
-        applyOrder: 1,  // Can run parallel with item-2
+        applyOrder: 1, // Can run parallel with item-2
       },
 
       // Step 4: Firewall rule
@@ -743,7 +734,7 @@ function createLANSetupChangeSet(): ChangeSet {
         applyStartedAt: null,
         applyCompletedAt: null,
         confirmedState: null,
-        applyOrder: 1,  // Can run parallel
+        applyOrder: 1, // Can run parallel
       },
     ],
 
@@ -772,9 +763,7 @@ async function handleChangeSetValidation(changeSet: ChangeSet) {
 
   const sortResult = topologicalSort(graph);
   if (!sortResult.success) {
-    showError(
-      `Circular dependency: ${sortResult.cycle?.join(' → ')}`
-    );
+    showError(`Circular dependency: ${sortResult.cycle?.join(' → ')}`);
     return;
   }
 
@@ -874,4 +863,3 @@ function ChangeSetProgressMonitor({ changeSetId }: { changeSetId: string }) {
 - **universal-state-v2.md** - Resource model that change sets operate on
 - **validation-pipeline.md** - Validation before change set apply
 - **forms.md** - Using change sets in forms
-

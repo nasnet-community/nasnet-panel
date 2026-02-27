@@ -9,11 +9,7 @@ export { UpdateIndicatorDesktop } from './UpdateIndicatorDesktop';
 export { UpdateProgressBar } from './UpdateProgressBar';
 export { useUpdateIndicator } from './useUpdateIndicator';
 
-export type {
-  UpdateIndicatorProps,
-  SeverityConfig,
-  StageConfig,
-} from './types';
+export type { UpdateIndicatorProps, SeverityConfig, StageConfig } from './types';
 
 export type { UseUpdateIndicatorReturn } from './useUpdateIndicator';
 export type { UpdateProgressBarProps } from './UpdateProgressBar';

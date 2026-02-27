@@ -30,8 +30,8 @@ interface SSTPServerRaw {
  * Transform raw API response to typed interface
  */
 function transformSSTPServer(raw: SSTPServerRaw): SSTPServer {
-  const authMethods = raw.authentication?.split(',').map(a => a.trim()) || ['mschap2'];
-  
+  const authMethods = raw.authentication?.split(',').map((a) => a.trim()) || ['mschap2'];
+
   return {
     id: 'sstp-server',
     name: 'SSTP Server',
@@ -57,10 +57,7 @@ function transformSSTPServer(raw: SSTPServerRaw): SSTPServer {
  * Fetch SSTP server configuration from RouterOS
  */
 async function fetchSSTPServer(routerIp: string): Promise<SSTPServer> {
-  const result = await makeRouterOSRequest<SSTPServerRaw>(
-    routerIp,
-    'interface/sstp-server'
-  );
+  const result = await makeRouterOSRequest<SSTPServerRaw>(routerIp, 'interface/sstp-server');
 
   if (!result.success || !result.data) {
     throw new Error(result.error || 'Failed to fetch SSTP server');
@@ -83,4 +80,3 @@ export function useSSTPServer(routerIp: string): UseQueryResult<SSTPServer, Erro
     enabled: !!routerIp,
   });
 }
-

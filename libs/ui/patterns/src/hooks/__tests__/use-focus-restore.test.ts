@@ -120,9 +120,7 @@ describe('useFocusRestore', () => {
       fallbackButton.id = 'fallback';
       document.body.appendChild(fallbackButton);
 
-      const { result } = renderHook(() =>
-        useFocusRestore({ fallback: '#fallback' })
-      );
+      const { result } = renderHook(() => useFocusRestore({ fallback: '#fallback' }));
 
       button.focus();
       act(() => {
@@ -143,9 +141,7 @@ describe('useFocusRestore', () => {
     it('should support delayed focus restore', async () => {
       vi.useFakeTimers();
 
-      const { result } = renderHook(() =>
-        useFocusRestore({ restoreDelay: 100 })
-      );
+      const { result } = renderHook(() => useFocusRestore({ restoreDelay: 100 }));
 
       button.focus();
       act(() => {
@@ -230,9 +226,7 @@ describe('useFocusManagement', () => {
   it('should handle open state changes', () => {
     const onClose = vi.fn();
 
-    const { result } = renderHook(() =>
-      useFocusManagement({ isOpen: true, onClose })
-    );
+    const { result } = renderHook(() => useFocusManagement({ isOpen: true, onClose }));
 
     act(() => {
       result.current.onOpenChange(false);

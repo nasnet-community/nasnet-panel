@@ -36,7 +36,7 @@ function MockConnectionBanner({ state = 'disconnected' }: MockConnectionBannerPr
   // connected so the canvas is not blank.
   if (state === 'connected') {
     return (
-      <div className="px-6 py-2 text-xs text-muted-foreground italic border-b border-border bg-background">
+      <div className="text-muted-foreground border-border bg-background border-b px-6 py-2 text-xs italic">
         (banner is hidden — connection state is &quot;connected&quot;)
       </div>
     );
@@ -47,23 +47,28 @@ function MockConnectionBanner({ state = 'disconnected' }: MockConnectionBannerPr
   return (
     <div
       className={cn(
-        'flex items-center gap-3 px-6 py-4 border-b transition-colors',
+        'flex items-center gap-3 border-b px-6 py-4 transition-colors',
         'bg-warning/10 border-warning/30 backdrop-blur-sm',
-        'shadow-sm',
+        'shadow-sm'
       )}
       role="alert"
       aria-live="assertive"
       aria-atomic="true"
     >
-      {isReconnecting ? (
-        <Wifi className="h-5 w-5 text-warning animate-pulse" aria-hidden="true" />
-      ) : (
-        <AlertTriangle className="h-5 w-5 text-warning" aria-hidden="true" />
-      )}
-      <p className="text-sm font-semibold text-warning">
-        {isReconnecting
-          ? 'Reconnecting to router...'
-          : 'Connection lost. Attempting to reconnect...'}
+      {isReconnecting ?
+        <Wifi
+          className="text-warning h-5 w-5 animate-pulse"
+          aria-hidden="true"
+        />
+      : <AlertTriangle
+          className="text-warning h-5 w-5"
+          aria-hidden="true"
+        />
+      }
+      <p className="text-warning text-sm font-semibold">
+        {isReconnecting ?
+          'Reconnecting to router...'
+        : 'Connection lost. Attempting to reconnect...'}
       </p>
     </div>
   );
@@ -75,11 +80,11 @@ function MockConnectionBanner({ state = 'disconnected' }: MockConnectionBannerPr
 
 function AppShellWrapper({ children }: { children: React.ReactNode }) {
   return (
-    <div className="w-full border border-border rounded-xl overflow-hidden bg-background">
+    <div className="border-border bg-background w-full overflow-hidden rounded-xl border">
       {/* Simulated app header */}
-      <div className="flex items-center justify-between px-6 py-3 border-b border-border bg-card">
-        <span className="font-semibold text-sm text-foreground">NasNetConnect</span>
-        <span className="text-xs text-muted-foreground">192.168.88.1</span>
+      <div className="border-border bg-card flex items-center justify-between border-b px-6 py-3">
+        <span className="text-foreground text-sm font-semibold">NasNetConnect</span>
+        <span className="text-muted-foreground text-xs">192.168.88.1</span>
       </div>
 
       {/* Banner renders here */}
@@ -87,8 +92,8 @@ function AppShellWrapper({ children }: { children: React.ReactNode }) {
 
       {/* Simulated page content */}
       <div className="p-6">
-        <div className="h-24 rounded-lg bg-muted/30 flex items-center justify-center">
-          <span className="text-sm text-muted-foreground">Page content area</span>
+        <div className="bg-muted/30 flex h-24 items-center justify-center rounded-lg">
+          <span className="text-muted-foreground text-sm">Page content area</span>
         </div>
       </div>
     </div>
@@ -190,13 +195,13 @@ export const AllStates: Story = {
     },
   },
   render: () => (
-    <div className="space-y-4 w-full max-w-2xl">
+    <div className="w-full max-w-2xl space-y-4">
       {(['disconnected', 'reconnecting', 'connected'] as ConnectionState[]).map((state) => (
         <div key={state}>
-          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1 px-1">
+          <p className="text-muted-foreground mb-1 px-1 text-xs font-medium uppercase tracking-wide">
             state: &quot;{state}&quot;
           </p>
-          <div className="border border-border rounded-lg overflow-hidden">
+          <div className="border-border overflow-hidden rounded-lg border">
             <MockConnectionBanner state={state} />
           </div>
         </div>

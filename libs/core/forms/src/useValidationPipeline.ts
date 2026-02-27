@@ -24,9 +24,7 @@ import type { ZodSchema } from 'zod';
 /**
  * Initialize stages for a given strategy.
  */
-function initializeStages(
-  strategy: 'low' | 'medium' | 'high'
-): ValidationStageResult[] {
+function initializeStages(strategy: 'low' | 'medium' | 'high'): ValidationStageResult[] {
   return getOrderedStages(strategy).map((stage) => ({
     stage,
     status: 'pending',
@@ -73,9 +71,7 @@ export function useValidationPipeline<T extends ZodSchema>({
 }: UseValidationPipelineOptions<T>): ValidationPipelineResult {
   const config = getValidationConfig(strategy);
 
-  const [stages, setStages] = useState<ValidationStageResult[]>(() =>
-    initializeStages(strategy)
-  );
+  const [stages, setStages] = useState<ValidationStageResult[]>(() => initializeStages(strategy));
   const [currentStage, setCurrentStage] = useState(0);
   const [errors, setErrors] = useState<ValidationError[]>([]);
   const [conflicts, setConflicts] = useState<ResourceConflict[]>([]);
@@ -87,13 +83,8 @@ export function useValidationPipeline<T extends ZodSchema>({
    * Update a specific stage's status.
    */
   const updateStage = useCallback(
-    (
-      stage: ValidationStage,
-      update: Partial<ValidationStageResult>
-    ) => {
-      setStages((prev) =>
-        prev.map((s) => (s.stage === stage ? { ...s, ...update } : s))
-      );
+    (stage: ValidationStage, update: Partial<ValidationStageResult>) => {
+      setStages((prev) => prev.map((s) => (s.stage === stage ? { ...s, ...update } : s)));
     },
     []
   );
@@ -102,9 +93,7 @@ export function useValidationPipeline<T extends ZodSchema>({
    * Run the validation pipeline.
    */
   const validate = useCallback(
-    async (
-      data: unknown
-    ): Promise<{ isValid: boolean; errors: ValidationError[] }> => {
+    async (data: unknown): Promise<{ isValid: boolean; errors: ValidationError[] }> => {
       if (!enabled) {
         return { isValid: true, errors: [] };
       }
@@ -132,13 +121,11 @@ export function useValidationPipeline<T extends ZodSchema>({
         const zodResult = schema.safeParse(data);
 
         if (!zodResult.success) {
-          const zodErrors: ValidationError[] = zodResult.error.errors.map(
-            (err) => ({
-              code: 'VALIDATION_ERROR',
-              message: err.message,
-              fieldPath: err.path.join('.'),
-            })
-          );
+          const zodErrors: ValidationError[] = zodResult.error.errors.map((err) => ({
+            code: 'VALIDATION_ERROR',
+            message: err.message,
+            fieldPath: err.path.join('.'),
+          }));
 
           updateStage('schema', {
             status: 'failed',
@@ -187,9 +174,7 @@ export function useValidationPipeline<T extends ZodSchema>({
           'network',
           'platform',
           'dry-run',
-        ].filter((s) =>
-          config.stages.includes(s as ValidationStage)
-        ) as ValidationStage[];
+        ].filter((s) => config.stages.includes(s as ValidationStage)) as ValidationStage[];
 
         for (const stage of backendStages) {
           if (abortControllerRef.current?.signal.aborted) {
@@ -223,10 +208,7 @@ export function useValidationPipeline<T extends ZodSchema>({
         const errorResult: ValidationError[] = [
           {
             code: 'VALIDATION_ERROR',
-            message:
-              error instanceof Error
-                ? error.message
-                : 'Validation failed',
+            message: error instanceof Error ? error.message : 'Validation failed',
           },
         ];
         setErrors(errorResult);

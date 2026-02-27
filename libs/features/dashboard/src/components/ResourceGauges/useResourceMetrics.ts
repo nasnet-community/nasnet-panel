@@ -178,27 +178,21 @@ export function useResourceMetrics(deviceId: string) {
   }, []);
 
   // Try subscription first (real-time)
-  const { data: subscriptionData } = useSubscription(
-    RESOURCE_METRICS_SUBSCRIPTION,
-    {
-      variables: { deviceId },
-      // Silently fail if subscriptions not available - polling fallback handles it
-      onError: handleSubscriptionError,
-    }
-  );
+  const { data: subscriptionData } = useSubscription(RESOURCE_METRICS_SUBSCRIPTION, {
+    variables: { deviceId },
+    // Silently fail if subscriptions not available - polling fallback handles it
+    onError: handleSubscriptionError,
+  });
 
   // Polling fallback (2-second intervals)
   // AC 5.2.2: 2-second polling when subscription unavailable
-  const { data: queryData, loading } = useQuery(
-    GET_RESOURCE_METRICS,
-    {
-      variables: { deviceId },
-      // Only poll if subscription not receiving data
-      pollInterval: subscriptionData ? 0 : 2000,
-      // Skip polling if subscription is working (optimization)
-      skip: !!subscriptionData,
-    }
-  );
+  const { data: queryData, loading } = useQuery(GET_RESOURCE_METRICS, {
+    variables: { deviceId },
+    // Only poll if subscription not receiving data
+    pollInterval: subscriptionData ? 0 : 2000,
+    // Skip polling if subscription is working (optimization)
+    skip: !!subscriptionData,
+  });
 
   // Subscription data takes priority over polled data (lower latency)
   const metrics = subscriptionData?.resourceMetrics || queryData?.device?.resourceMetrics;

@@ -55,8 +55,7 @@ export const BandwidthChartDesktop = memo<BandwidthChartPresenterProps>(
     const prefersReducedMotion = useReducedMotion();
 
     // Get chart preferences from Zustand store with memoized callbacks
-    const { timeRange, interfaceId, setTimeRange, setInterfaceId } =
-      useChartPreferencesStore();
+    const { timeRange, interfaceId, setTimeRange, setInterfaceId } = useChartPreferencesStore();
 
     // Memoize callback handlers to maintain referential equality
     const handleTimeRangeChange = useCallback(
@@ -64,10 +63,7 @@ export const BandwidthChartDesktop = memo<BandwidthChartPresenterProps>(
       [setTimeRange]
     );
 
-    const handleInterfaceChange = useCallback(
-      (id: string) => setInterfaceId(id),
-      [setInterfaceId]
-    );
+    const handleInterfaceChange = useCallback((id: string) => setInterfaceId(id), [setInterfaceId]);
 
     // Fetch bandwidth data (or use hook override for testing)
     const hookData = useBandwidthHistory({
@@ -79,7 +75,12 @@ export const BandwidthChartDesktop = memo<BandwidthChartPresenterProps>(
 
     // Loading state
     if (loading && !data) {
-      return <BandwidthChartSkeleton height={CHART_HEIGHT} className={className} />;
+      return (
+        <BandwidthChartSkeleton
+          height={CHART_HEIGHT}
+          className={className}
+        />
+      );
     }
 
     // Error state
@@ -106,7 +107,7 @@ export const BandwidthChartDesktop = memo<BandwidthChartPresenterProps>(
           {/* Title and controls */}
           <div className="flex items-center justify-between">
             <CardTitle>Bandwidth Usage</CardTitle>
-            <div className="flex items-center gap-component-sm">
+            <div className="gap-component-sm flex items-center">
               <TimeRangeSelector
                 value={timeRange}
                 onChange={handleTimeRangeChange}
@@ -121,30 +122,26 @@ export const BandwidthChartDesktop = memo<BandwidthChartPresenterProps>(
 
           {/* Current rates display with live region for announcements */}
           <div
-            className="mt-component-sm flex items-center gap-component-lg text-sm"
+            className="mt-component-sm gap-component-lg flex items-center text-sm"
             role="region"
             aria-live="polite"
             aria-label="Current bandwidth rates"
           >
-            <div className="flex items-center gap-component-sm">
+            <div className="gap-component-sm flex items-center">
               <div
-                className="h-3 w-3 rounded-full bg-primary"
+                className="bg-primary h-3 w-3 rounded-full"
                 aria-hidden="true"
               />
               <span className="text-muted-foreground">TX:</span>
-              <span className="font-medium font-mono">
-                {formatBitrate(currentRates.tx)}
-              </span>
+              <span className="font-mono font-medium">{formatBitrate(currentRates.tx)}</span>
             </div>
-            <div className="flex items-center gap-component-sm">
+            <div className="gap-component-sm flex items-center">
               <div
-                className="h-3 w-3 rounded-full bg-success"
+                className="bg-success h-3 w-3 rounded-full"
                 aria-hidden="true"
               />
               <span className="text-muted-foreground">RX:</span>
-              <span className="font-medium font-mono">
-                {formatBitrate(currentRates.rx)}
-              </span>
+              <span className="font-mono font-medium">{formatBitrate(currentRates.rx)}</span>
             </div>
           </div>
         </CardHeader>
@@ -156,13 +153,18 @@ export const BandwidthChartDesktop = memo<BandwidthChartPresenterProps>(
             aria-label="Bandwidth usage graph showing upload and download traffic over time"
             aria-describedby="bandwidth-chart-description"
           >
-            <p id="bandwidth-chart-description" className="sr-only">
-              Line chart displaying TX (upload) in blue and RX (download) in green.
-              Current TX: {formatBitrate(currentRates.tx)}. Current RX:{' '}
-              {formatBitrate(currentRates.rx)}.
+            <p
+              id="bandwidth-chart-description"
+              className="sr-only"
+            >
+              Line chart displaying TX (upload) in blue and RX (download) in green. Current TX:{' '}
+              {formatBitrate(currentRates.tx)}. Current RX: {formatBitrate(currentRates.rx)}.
             </p>
 
-            <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
+            <ResponsiveContainer
+              width="100%"
+              height={CHART_HEIGHT}
+            >
               <LineChart
                 data={dataPoints}
                 margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
@@ -175,12 +177,12 @@ export const BandwidthChartDesktop = memo<BandwidthChartPresenterProps>(
                 <XAxis
                   dataKey="timestamp"
                   tickFormatter={(ts) => formatXAxis(ts, timeRange)}
-                  className="text-xs text-muted-foreground"
+                  className="text-muted-foreground text-xs"
                   tick={{ fontSize: 12 }}
                 />
                 <YAxis
                   tickFormatter={formatYAxis}
-                  className="text-xs text-muted-foreground"
+                  className="text-muted-foreground text-xs"
                   tick={{ fontSize: 12 }}
                 />
                 <Tooltip content={<CustomTooltip />} />

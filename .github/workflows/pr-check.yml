@@ -581,7 +581,20 @@ jobs:
     name: PR Status
     runs-on: ubuntu-latest
     timeout-minutes: 5
-    needs: [changes, lint, typecheck, codegen-check, test-frontend, test-backend, lint-backend, govulncheck, build, storybook, docker-build]
+    needs:
+      [
+        changes,
+        lint,
+        typecheck,
+        codegen-check,
+        test-frontend,
+        test-backend,
+        lint-backend,
+        govulncheck,
+        build,
+        storybook,
+        docker-build,
+      ]
     if: always()
     steps:
       - name: Check all jobs

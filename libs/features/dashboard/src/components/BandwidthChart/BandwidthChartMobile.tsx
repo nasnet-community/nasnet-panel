@@ -54,8 +54,7 @@ export const BandwidthChartMobile = memo<BandwidthChartPresenterProps>(
     const prefersReducedMotion = useReducedMotion();
 
     // Get chart preferences from Zustand store with memoized callbacks
-    const { timeRange, interfaceId, setTimeRange, setInterfaceId } =
-      useChartPreferencesStore();
+    const { timeRange, interfaceId, setTimeRange, setInterfaceId } = useChartPreferencesStore();
 
     // Memoize callback handlers to maintain referential equality
     const handleTimeRangeChange = useCallback(
@@ -63,10 +62,7 @@ export const BandwidthChartMobile = memo<BandwidthChartPresenterProps>(
       [setTimeRange]
     );
 
-    const handleInterfaceChange = useCallback(
-      (id: string) => setInterfaceId(id),
-      [setInterfaceId]
-    );
+    const handleInterfaceChange = useCallback((id: string) => setInterfaceId(id), [setInterfaceId]);
 
     // Fetch bandwidth data (or use hook override for testing)
     const hookData = useBandwidthHistory({
@@ -78,7 +74,12 @@ export const BandwidthChartMobile = memo<BandwidthChartPresenterProps>(
 
     // Loading state
     if (loading && !data) {
-      return <BandwidthChartSkeleton height={CHART_HEIGHT} className={className} />;
+      return (
+        <BandwidthChartSkeleton
+          height={CHART_HEIGHT}
+          className={className}
+        />
+      );
     }
 
     // Error state
@@ -107,35 +108,31 @@ export const BandwidthChartMobile = memo<BandwidthChartPresenterProps>(
 
           {/* Current rates display with live region for announcements */}
           <div
-            className="mt-component-sm flex items-center gap-component-md text-xs"
+            className="mt-component-sm gap-component-md flex items-center text-xs"
             role="region"
             aria-live="polite"
             aria-label="Current bandwidth rates"
           >
-            <div className="flex items-center gap-component-xs">
+            <div className="gap-component-xs flex items-center">
               <div
-                className="h-2.5 w-2.5 rounded-full bg-primary"
+                className="bg-primary h-2.5 w-2.5 rounded-full"
                 aria-hidden="true"
               />
               <span className="text-muted-foreground">TX:</span>
-              <span className="font-medium font-mono">
-                {formatBitrate(currentRates.tx)}
-              </span>
+              <span className="font-mono font-medium">{formatBitrate(currentRates.tx)}</span>
             </div>
-            <div className="flex items-center gap-component-xs">
+            <div className="gap-component-xs flex items-center">
               <div
-                className="h-2.5 w-2.5 rounded-full bg-success"
+                className="bg-success h-2.5 w-2.5 rounded-full"
                 aria-hidden="true"
               />
               <span className="text-muted-foreground">RX:</span>
-              <span className="font-medium font-mono">
-                {formatBitrate(currentRates.rx)}
-              </span>
+              <span className="font-mono font-medium">{formatBitrate(currentRates.rx)}</span>
             </div>
           </div>
 
           {/* Controls (stacked for mobile) */}
-          <div className="mt-component-md flex flex-col gap-component-sm">
+          <div className="mt-component-md gap-component-sm flex flex-col">
             <TimeRangeSelector
               value={timeRange}
               onChange={handleTimeRangeChange}
@@ -157,13 +154,19 @@ export const BandwidthChartMobile = memo<BandwidthChartPresenterProps>(
             aria-label="Bandwidth usage graph showing upload and download traffic over time"
             aria-describedby="bandwidth-chart-description-mobile"
           >
-            <p id="bandwidth-chart-description-mobile" className="sr-only">
-              Line chart displaying TX (upload) in blue and RX (download) in green.
-              Current TX: {formatBitrate(currentRates.tx)}. Current RX:{' '}
-              {formatBitrate(currentRates.rx)}. Tap on chart for details.
+            <p
+              id="bandwidth-chart-description-mobile"
+              className="sr-only"
+            >
+              Line chart displaying TX (upload) in blue and RX (download) in green. Current TX:{' '}
+              {formatBitrate(currentRates.tx)}. Current RX: {formatBitrate(currentRates.rx)}. Tap on
+              chart for details.
             </p>
 
-            <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
+            <ResponsiveContainer
+              width="100%"
+              height={CHART_HEIGHT}
+            >
               <LineChart
                 data={dataPoints}
                 margin={{ top: 5, right: 5, left: 0, bottom: 5 }}
@@ -176,7 +179,7 @@ export const BandwidthChartMobile = memo<BandwidthChartPresenterProps>(
                 <XAxis
                   dataKey="timestamp"
                   tickFormatter={(ts) => formatXAxis(ts, timeRange)}
-                  className="text-xs text-muted-foreground"
+                  className="text-muted-foreground text-xs"
                   tick={{ fontSize: 10 }}
                   // Fewer ticks for mobile
                   interval="preserveStartEnd"
@@ -184,7 +187,7 @@ export const BandwidthChartMobile = memo<BandwidthChartPresenterProps>(
                 />
                 <YAxis
                   tickFormatter={formatYAxis}
-                  className="text-xs text-muted-foreground"
+                  className="text-muted-foreground text-xs"
                   tick={{ fontSize: 10 }}
                   width={40}
                   // Fewer ticks for mobile

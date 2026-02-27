@@ -156,12 +156,7 @@ function formatSize(mb: number): string {
 export function useServiceTemplateCard(
   props: ServiceTemplateCardProps
 ): UseServiceTemplateCardReturn {
-  const {
-    template,
-    actions = [],
-    onClick,
-    showMetadata = true,
-  } = props;
+  const { template, actions = [], onClick, showMetadata = true } = props;
 
   // Extract template data
   const templateId = template.id;
@@ -196,18 +191,16 @@ export function useServiceTemplateCard(
   const rating = template.metadata.rating;
   const updatedAt = useMemo(
     () =>
-      template.metadata.updatedAt
-        ? formatRelativeTime(template.metadata.updatedAt)
-        : undefined,
+      template.metadata.updatedAt ? formatRelativeTime(template.metadata.updatedAt) : undefined,
     [template.metadata.updatedAt]
   );
 
   const version = template.metadata.version;
   const sizeEstimate = useMemo(
     () =>
-      template.metadata.sizeEstimate !== undefined
-        ? formatSize(template.metadata.sizeEstimate)
-        : undefined,
+      template.metadata.sizeEstimate !== undefined ?
+        formatSize(template.metadata.sizeEstimate)
+      : undefined,
     [template.metadata.sizeEstimate]
   );
 
@@ -218,9 +211,7 @@ export function useServiceTemplateCard(
 
   // Flags
   const hasMetadata = useMemo(
-    () =>
-      showMetadata &&
-      (!!author || downloads !== undefined || rating !== undefined),
+    () => showMetadata && (!!author || downloads !== undefined || rating !== undefined),
     [showMetadata, author, downloads, rating]
   );
 

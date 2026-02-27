@@ -54,7 +54,10 @@ testing mutation flows end-to-end.
   },
   decorators: [
     (Story) => (
-      <MockedProvider mocks={[]} addTypename={false}>
+      <MockedProvider
+        mocks={[]}
+        addTypename={false}
+      >
         <Story />
       </MockedProvider>
     ),
@@ -166,7 +169,8 @@ export const EditModeBearerAuth: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Edit mode for a PagerDuty webhook using Bearer token authentication with custom headers.',
+        story:
+          'Edit mode for a PagerDuty webhook using Bearer token authentication with custom headers.',
       },
     },
   },
@@ -222,7 +226,8 @@ export const Desktop: Story = {
     viewport: { defaultViewport: 'desktop' },
     docs: {
       description: {
-        story: 'Desktop presenter (≥640px) with two-column grid, inline test result panel, and code editor for custom templates.',
+        story:
+          'Desktop presenter (≥640px) with two-column grid, inline test result panel, and code editor for custom templates.',
       },
     },
   },

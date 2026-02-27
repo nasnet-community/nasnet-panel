@@ -1,7 +1,7 @@
 {
   "id": "getting-started",
   "title": "Getting Started",
-  "description": "Everything you need to set up a local development environment, understand the project layout, and run the NasNet backend.",
+  "description": "Everything you need to set up a local development environment, understand the project layout, and",
   "source": "@site/../backend/docs/getting-started.md",
   "sourceDirName": ".",
   "slug": "/getting-started",

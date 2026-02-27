@@ -8,11 +8,7 @@
  */
 
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import {
-  useServiceLogs,
-  type LogLevel,
-  type LogEntry,
-} from '@nasnet/api-client/queries';
+import { useServiceLogs, type LogLevel, type LogEntry } from '@nasnet/api-client/queries';
 
 const MAX_BUFFER_SIZE = 1000;
 
@@ -91,9 +87,7 @@ export interface UseServiceLogViewerReturn {
  *
  * @description Manages log buffer, filtering, search, and level counts with memoized computations
  */
-export function useServiceLogViewer(
-  props: ServiceLogViewerProps
-): UseServiceLogViewerReturn {
+export function useServiceLogViewer(props: ServiceLogViewerProps): UseServiceLogViewerReturn {
   const {
     routerId,
     instanceId,

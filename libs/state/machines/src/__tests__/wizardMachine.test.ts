@@ -17,10 +17,15 @@ interface TestWizardData extends Record<string, unknown> {
 }
 
 // Test configuration factory
-function createTestMachine(overrides: Partial<{
-  validateStep: (step: number, data: Partial<TestWizardData>) => Promise<{ valid: boolean; errors?: Record<string, string> }>;
-  onSubmit: (data: TestWizardData) => Promise<void>;
-}> = {}) {
+function createTestMachine(
+  overrides: Partial<{
+    validateStep: (
+      step: number,
+      data: Partial<TestWizardData>
+    ) => Promise<{ valid: boolean; errors?: Record<string, string> }>;
+    onSubmit: (data: TestWizardData) => Promise<void>;
+  }> = {}
+) {
   return createWizardMachine<TestWizardData>({
     id: 'test-wizard',
     totalSteps: 3,

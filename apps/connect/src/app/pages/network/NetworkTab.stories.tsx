@@ -28,7 +28,6 @@ import { NetworkTab } from './NetworkTab';
 
 import type { Meta, StoryObj } from '@storybook/react';
 
-
 const meta: Meta<typeof NetworkTab> = {
   title: 'App/Pages/NetworkTab',
   component: NetworkTab,
@@ -250,7 +249,8 @@ export const Mobile: Story = {
     viewport: { defaultViewport: 'mobile1' },
     docs: {
       description: {
-        story: 'NetworkTab rendered on a mobile viewport (375px). DHCP, interface, device, and IP sections stack vertically with mobile-optimized spacing.',
+        story:
+          'NetworkTab rendered on a mobile viewport (375px). DHCP, interface, device, and IP sections stack vertically with mobile-optimized spacing.',
       },
     },
   },
@@ -265,7 +265,8 @@ export const Desktop: Story = {
     viewport: { defaultViewport: 'desktop' },
     docs: {
       description: {
-        story: 'NetworkTab rendered on a desktop viewport (1280px+). Multi-column layout with dense data tables and full-width visualizations.',
+        story:
+          'NetworkTab rendered on a desktop viewport (1280px+). Multi-column layout with dense data tables and full-width visualizations.',
       },
     },
   },

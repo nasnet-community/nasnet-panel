@@ -432,12 +432,13 @@ The scheduler singleton is started once at app startup and runs for the session 
 The two-phase design trades memory (storing hashes alongside full state) for CPU savings (skipping
 the field walk when unchanged):
 
-| Phase | Complexity | Condition |
-|-------|-----------|-----------|
-| Phase 1 | O(n) string hash comparison | Always |
-| Phase 2 | O(n²) object traversal | Only on hash mismatch |
+| Phase   | Complexity                  | Condition             |
+| ------- | --------------------------- | --------------------- |
+| Phase 1 | O(n) string hash comparison | Always                |
+| Phase 2 | O(n²) object traversal      | Only on hash mismatch |
 
 **Typical ratio:**
+
 - ~95% of checks end at Phase 1 (SYNCED)
 - ~5% proceed to Phase 2 (network noise, actual drift)
 

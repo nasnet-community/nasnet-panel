@@ -91,9 +91,7 @@ function getDefaultValues(
 /**
  * Headless hook for template preview logic
  */
-export function useTemplatePreview(
-  options: UseTemplatePreviewOptions
-): UseTemplatePreviewReturn {
+export function useTemplatePreview(options: UseTemplatePreviewOptions): UseTemplatePreviewReturn {
   const {
     template,
     onGeneratePreview,
@@ -153,8 +151,7 @@ export function useTemplatePreview(
         setActiveMode('rules');
       }
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : 'Failed to generate preview';
+      const errorMessage = error instanceof Error ? error.message : 'Failed to generate preview';
       setPreviewError(errorMessage);
       setPreviewResult(null);
     } finally {
@@ -196,10 +193,7 @@ export function useTemplatePreview(
   );
 
   // Computed values
-  const hasConflicts = useMemo(
-    () => (previewResult?.conflicts?.length || 0) > 0,
-    [previewResult]
-  );
+  const hasConflicts = useMemo(() => (previewResult?.conflicts?.length || 0) > 0, [previewResult]);
 
   const hasWarnings = useMemo(
     () => (previewResult?.impactAnalysis?.warnings?.length || 0) > 0,

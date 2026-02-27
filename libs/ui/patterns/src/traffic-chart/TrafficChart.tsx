@@ -150,25 +150,21 @@ const generateAreaPath = (
  * />
  * ```
  */
-const TrafficChartInner = React.forwardRef<
-  HTMLDivElement,
-  TrafficChartProps
->(
-  ({
-    data,
-    title = 'Network Traffic',
-    isLoading: _isLoading = false,
-    showPlaceholder = true,
-    height = 120,
-    className,
-  }, ref) => {
+const TrafficChartInner = React.forwardRef<HTMLDivElement, TrafficChartProps>(
+  (
+    {
+      data,
+      title = 'Network Traffic',
+      isLoading: _isLoading = false,
+      showPlaceholder = true,
+      height = 120,
+      className,
+    },
+    ref
+  ) => {
     const chartData = data || (showPlaceholder ? defaultPlaceholderData : []);
     const maxValue = React.useMemo(
-      () =>
-        Math.max(
-          ...chartData.flatMap((d) => [d.download, d.upload]),
-          100
-        ) * 1.1, // Add 10% padding
+      () => Math.max(...chartData.flatMap((d) => [d.download, d.upload]), 100) * 1.1, // Add 10% padding
       [chartData]
     );
 
@@ -186,18 +182,21 @@ const TrafficChartInner = React.forwardRef<
     const chartWidth = 280;
 
     return (
-      <Card ref={ref} className={cn('h-full', className)}>
+      <Card
+        ref={ref}
+        className={cn('h-full', className)}
+      >
         <CardHeader className="pb-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                <Activity className="w-4 h-4 text-primary" />
+              <div className="bg-primary/10 flex h-8 w-8 items-center justify-center rounded-lg">
+                <Activity className="text-primary h-4 w-4" />
               </div>
               <CardTitle className="text-base font-semibold">{title}</CardTitle>
             </div>
             {showPlaceholder && !data && (
-              <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                <Info className="w-3 h-3" />
+              <div className="text-muted-foreground flex items-center gap-1 text-xs">
+                <Info className="h-3 w-3" />
                 <span>Sample data</span>
               </div>
             )}
@@ -205,19 +204,23 @@ const TrafficChartInner = React.forwardRef<
         </CardHeader>
         <CardContent className="pt-0">
           {/* Current Stats */}
-          <div className="flex justify-between mb-3">
+          <div className="mb-3 flex justify-between">
             <div className="flex items-center gap-2">
-              <ArrowDown className="w-4 h-4 text-statusConnected" />
+              <ArrowDown className="text-statusConnected h-4 w-4" />
               <div>
-                <p className="text-lg font-bold text-foreground">{formatBandwidth(currentDownload)}</p>
-                <p className="text-xs text-muted-foreground">Download</p>
+                <p className="text-foreground text-lg font-bold">
+                  {formatBandwidth(currentDownload)}
+                </p>
+                <p className="text-muted-foreground text-xs">Download</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <ArrowUp className="w-4 h-4 text-warning" />
+              <ArrowUp className="text-warning h-4 w-4" />
               <div className="text-right">
-                <p className="text-lg font-bold text-foreground">{formatBandwidth(currentUpload)}</p>
-                <p className="text-xs text-muted-foreground">Upload</p>
+                <p className="text-foreground text-lg font-bold">
+                  {formatBandwidth(currentUpload)}
+                </p>
+                <p className="text-muted-foreground text-xs">Upload</p>
               </div>
             </div>
           </div>
@@ -232,13 +235,41 @@ const TrafficChartInner = React.forwardRef<
             >
               {/* Gradient definitions */}
               <defs>
-                <linearGradient id="downloadGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                  <stop offset="0%" stopColor="hsl(var(--success))" stopOpacity="0.3" />
-                  <stop offset="100%" stopColor="hsl(var(--success))" stopOpacity="0.05" />
+                <linearGradient
+                  id="downloadGradient"
+                  x1="0%"
+                  y1="0%"
+                  x2="0%"
+                  y2="100%"
+                >
+                  <stop
+                    offset="0%"
+                    stopColor="hsl(var(--success))"
+                    stopOpacity="0.3"
+                  />
+                  <stop
+                    offset="100%"
+                    stopColor="hsl(var(--success))"
+                    stopOpacity="0.05"
+                  />
                 </linearGradient>
-                <linearGradient id="uploadGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                  <stop offset="0%" stopColor="hsl(var(--warning))" stopOpacity="0.3" />
-                  <stop offset="100%" stopColor="hsl(var(--warning))" stopOpacity="0.05" />
+                <linearGradient
+                  id="uploadGradient"
+                  x1="0%"
+                  y1="0%"
+                  x2="0%"
+                  y2="100%"
+                >
+                  <stop
+                    offset="0%"
+                    stopColor="hsl(var(--warning))"
+                    stopOpacity="0.3"
+                  />
+                  <stop
+                    offset="100%"
+                    stopColor="hsl(var(--warning))"
+                    stopOpacity="0.05"
+                  />
                 </linearGradient>
               </defs>
 
@@ -326,20 +357,20 @@ const TrafficChartInner = React.forwardRef<
             </svg>
 
             {/* Time labels */}
-            <div className="flex justify-between mt-1 text-xs text-muted-foreground">
+            <div className="text-muted-foreground mt-1 flex justify-between text-xs">
               <span>{chartData.length > 0 ? chartData[0].time : ''}</span>
               <span>{chartData.length > 0 ? chartData[chartData.length - 1].time : ''}</span>
             </div>
           </div>
 
           {/* Legend */}
-          <div className="flex justify-center gap-4 mt-3 text-xs text-muted-foreground">
+          <div className="text-muted-foreground mt-3 flex justify-center gap-4 text-xs">
             <div className="flex items-center gap-1">
-              <div className="w-2 h-2 rounded-full bg-success" />
+              <div className="bg-success h-2 w-2 rounded-full" />
               <span>Download</span>
             </div>
             <div className="flex items-center gap-1">
-              <div className="w-2 h-2 rounded-full bg-warning" />
+              <div className="bg-warning h-2 w-2 rounded-full" />
               <span>Upload</span>
             </div>
           </div>
@@ -358,4 +389,3 @@ const TrafficChart = React.memo(TrafficChartInner);
 TrafficChart.displayName = 'TrafficChart';
 
 export { TrafficChart };
-

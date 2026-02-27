@@ -5,11 +5,7 @@
 
 import { describe, it, expect } from 'vitest';
 import { DeviceType } from '@nasnet/core/types';
-import {
-  detectDeviceType,
-  DEVICE_TYPE_ICONS,
-  DEVICE_TYPE_LABELS,
-} from './deviceTypeDetection';
+import { detectDeviceType, DEVICE_TYPE_ICONS, DEVICE_TYPE_LABELS } from './deviceTypeDetection';
 
 describe('detectDeviceType', () => {
   describe('Smartphone detection', () => {

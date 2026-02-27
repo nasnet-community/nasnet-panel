@@ -7,7 +7,6 @@ import { CodeBlockCopy } from './CodeBlockCopy';
 
 import type { Meta, StoryObj } from '@storybook/react';
 
-
 const routerosFirewallRule = `/ip firewall filter
 add chain=forward action=accept protocol=tcp dst-port=80,443 comment="Allow HTTP/HTTPS"
 add chain=forward action=drop in-interface=ether1 comment="Drop everything else from WAN"`;
@@ -222,11 +221,11 @@ export const WithoutToast: Story = {
  */
 export const InCardContext: Story = {
   render: () => (
-    <div className="p-4 bg-white dark:bg-slate-900 rounded-lg shadow-md max-w-2xl">
-      <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-50 mb-4">
+    <div className="max-w-2xl rounded-lg bg-white p-4 shadow-md dark:bg-slate-900">
+      <h3 className="mb-4 text-lg font-semibold text-slate-900 dark:text-slate-50">
         Export Configuration
       </h3>
-      <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+      <p className="mb-4 text-sm text-slate-600 dark:text-slate-400">
         Copy this configuration to import it on another router:
       </p>
       <CodeBlockCopy
@@ -250,7 +249,7 @@ export const InCardContext: Story = {
  */
 export const MultipleBlocks: Story = {
   render: () => (
-    <div className="space-y-4 max-w-2xl">
+    <div className="max-w-2xl space-y-4">
       <CodeBlockCopy
         code={`/ip address add address=192.168.88.1/24 interface=bridge1`}
         language="routeros"
@@ -347,10 +346,10 @@ export const DesktopViewport: Story = {
  */
 export const LoadingState: Story = {
   render: () => (
-    <div className="space-y-3 p-4 border border-border rounded-lg bg-card">
-      <div className="animate-pulse h-6 bg-muted rounded w-1/3" />
-      <div className="animate-pulse h-40 bg-muted rounded" />
-      <div className="animate-pulse h-8 bg-muted rounded w-20" />
+    <div className="border-border bg-card space-y-3 rounded-lg border p-4">
+      <div className="bg-muted h-6 w-1/3 animate-pulse rounded" />
+      <div className="bg-muted h-40 animate-pulse rounded" />
+      <div className="bg-muted h-8 w-20 animate-pulse rounded" />
     </div>
   ),
   parameters: {
@@ -385,17 +384,17 @@ export const EmptyState: Story = {
  */
 export const ErrorState: Story = {
   render: () => (
-    <div className="p-4 border border-error/50 rounded-lg bg-error/5">
-      <div className="text-error text-sm font-medium mb-2">Failed to load code</div>
-      <p className="text-error/80 text-xs mb-3">Unable to parse configuration: Invalid JSON format</p>
+    <div className="border-error/50 bg-error/5 rounded-lg border p-4">
+      <div className="text-error mb-2 text-sm font-medium">Failed to load code</div>
+      <p className="text-error/80 mb-3 text-xs">
+        Unable to parse configuration: Invalid JSON format
+      </p>
       <CodeBlockCopy
         code={`{ invalid json content `}
         language="json"
         title="Configuration (Invalid)"
       />
-      <button className="mt-3 text-xs text-error underline hover:no-underline">
-        Retry
-      </button>
+      <button className="text-error mt-3 text-xs underline hover:no-underline">Retry</button>
     </div>
   ),
   parameters: {

@@ -23,12 +23,7 @@ import { devtools } from 'zustand/middleware';
 /**
  * Notification type variants
  */
-export type NotificationType =
-  | 'success'
-  | 'error'
-  | 'warning'
-  | 'info'
-  | 'progress';
+export type NotificationType = 'success' | 'error' | 'warning' | 'info' | 'progress';
 
 /**
  * Notification action - button displayed on notification
@@ -187,10 +182,7 @@ function generateNotificationId(): string {
 /**
  * Check if a notification is a duplicate of existing notifications
  */
-function isDuplicate(
-  notifications: Notification[],
-  newNotification: NotificationInput
-): boolean {
+function isDuplicate(notifications: Notification[], newNotification: NotificationInput): boolean {
   const now = Date.now();
 
   return notifications.some(
@@ -253,9 +245,7 @@ function isDuplicate(
  * Persistence:
  * - NOT persisted - notifications are session-only
  */
-export const useNotificationStore = create<
-  NotificationState & NotificationActions
->()(
+export const useNotificationStore = create<NotificationState & NotificationActions>()(
   devtools(
     (set, get) => ({
       // Initial state
@@ -275,9 +265,9 @@ export const useNotificationStore = create<
 
         // Determine duration based on type if not explicitly set
         const duration =
-          notification.duration !== undefined
-            ? notification.duration
-            : DEFAULT_DURATION[notification.type];
+          notification.duration !== undefined ?
+            notification.duration
+          : DEFAULT_DURATION[notification.type];
 
         const newNotification: Notification = {
           ...notification,
@@ -316,22 +306,21 @@ export const useNotificationStore = create<
       updateNotification: (id, updates) =>
         set(
           (state) => ({
-            notifications: state.notifications.map((n) =>
-              n.id === id ? { ...n, ...updates } : n
-            ),
+            notifications: state.notifications.map((n) => (n.id === id ? { ...n, ...updates } : n)),
           }),
           false,
           `updateNotification/${id}`
         ),
 
-      clearAllNotifications: () =>
-        set({ notifications: [] }, false, 'clearAllNotifications'),
+      clearAllNotifications: () => set({ notifications: [] }, false, 'clearAllNotifications'),
 
       getNotification: (id) => get().notifications.find((n) => n.id === id),
     }),
     {
       name: 'notification-store',
-      enabled: typeof window !== 'undefined' && (typeof import.meta !== 'undefined' ? import.meta.env?.DEV !== false : true),
+      enabled:
+        typeof window !== 'undefined' &&
+        (typeof import.meta !== 'undefined' ? import.meta.env?.DEV !== false : true),
     }
   )
 );
@@ -341,20 +330,17 @@ export const useNotificationStore = create<
 /**
  * Select all notifications
  */
-export const selectNotifications = (state: NotificationState) =>
-  state.notifications;
+export const selectNotifications = (state: NotificationState) => state.notifications;
 
 /**
  * Select whether there are any notifications
  */
-export const selectHasNotifications = (state: NotificationState) =>
-  state.notifications.length > 0;
+export const selectHasNotifications = (state: NotificationState) => state.notifications.length > 0;
 
 /**
  * Select notification count
  */
-export const selectNotificationCount = (state: NotificationState) =>
-  state.notifications.length;
+export const selectNotificationCount = (state: NotificationState) => state.notifications.length;
 
 /**
  * Select error notifications only
@@ -365,9 +351,8 @@ export const selectErrorNotifications = (state: NotificationState) =>
 /**
  * Select notifications by type
  */
-export const selectNotificationsByType =
-  (type: NotificationType) => (state: NotificationState) =>
-    state.notifications.filter((n) => n.type === type);
+export const selectNotificationsByType = (type: NotificationType) => (state: NotificationState) =>
+  state.notifications.filter((n) => n.type === type);
 
 // ===== Helper functions (exported) =====
 

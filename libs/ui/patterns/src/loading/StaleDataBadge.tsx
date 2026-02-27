@@ -79,9 +79,9 @@ export const StaleDataBadge = React.memo(function StaleDataBadge({
   showRelativeTime = true,
   className,
 }: StaleDataBadgeProps) {
-  const timeText = lastUpdated
-    ? showRelativeTime
-      ? formatRelativeTime(lastUpdated)
+  const timeText =
+    lastUpdated ?
+      showRelativeTime ? formatRelativeTime(lastUpdated)
       : lastUpdated.toLocaleTimeString()
     : 'Unknown';
 
@@ -89,11 +89,9 @@ export const StaleDataBadge = React.memo(function StaleDataBadge({
 
   const content = (
     <>
-      {isRefreshing ? (
+      {isRefreshing ?
         <RefreshCw className={cn(size === 'sm' ? 'h-3 w-3' : 'h-4 w-4', 'animate-spin')} />
-      ) : (
-        <Clock className={cn(size === 'sm' ? 'h-3 w-3' : 'h-4 w-4')} />
-      )}
+      : <Clock className={cn(size === 'sm' ? 'h-3 w-3' : 'h-4 w-4')} />}
       <span>{isRefreshing ? 'Refreshing...' : timeText}</span>
     </>
   );
@@ -108,14 +106,16 @@ export const StaleDataBadge = React.memo(function StaleDataBadge({
           'inline-flex items-center gap-1 rounded-full',
           'bg-warning/10',
           'text-warning',
-          'border border-warning/30',
+          'border-warning/30 border',
           'hover:bg-warning/20',
-          'focus:outline-none focus:ring-2 focus:ring-warning focus:ring-offset-1',
+          'focus:ring-warning focus:outline-none focus:ring-2 focus:ring-offset-1',
           'transition-colors',
           size === 'sm' ? 'px-2 py-0.5 text-xs' : 'px-2.5 py-1 text-sm',
           className
         )}
-        aria-label={isRefreshing ? 'Refreshing data' : `Last updated ${timeText}. Click to refresh.`}
+        aria-label={
+          isRefreshing ? 'Refreshing data' : `Last updated ${timeText}. Click to refresh.`
+        }
       >
         {content}
       </button>
@@ -129,7 +129,7 @@ export const StaleDataBadge = React.memo(function StaleDataBadge({
         'bg-warning/10',
         'text-warning',
         'border-warning/30',
-        size === 'sm' ? 'text-xs px-2 py-0.5' : 'text-sm px-2.5 py-1',
+        size === 'sm' ? 'px-2 py-0.5 text-xs' : 'px-2.5 py-1 text-sm',
         className
       )}
     >

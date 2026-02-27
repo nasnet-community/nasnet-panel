@@ -5,17 +5,20 @@ title: State Machines Guide
 
 # State Machines Guide
 
-This guide documents the XState machines used in NasNetConnect for managing complex, multi-step workflows.
+This guide documents the XState machines used in NasNetConnect for managing complex, multi-step
+workflows.
 
 ## XState Overview
 
 NasNetConnect uses **XState** for modeling stateful, asynchronous workflows that:
 
-- **Cannot be easily expressed as simple React state** — Complex flows with guards, timeouts, and side effects
+- **Cannot be easily expressed as simple React state** — Complex flows with guards, timeouts, and
+  side effects
 - **Require guaranteed state transitions** — Formal state machine semantics prevent invalid states
 - **Need explicit state modeling** — Business logic is self-documenting through machine definition
 
 **Key Benefits:**
+
 - Prevent impossible states (invalid state transitions are rejected)
 - Automatic timeout/cleanup management
 - Built-in support for parallel states and hierarchical machines
@@ -32,13 +35,15 @@ All machines in NasNetConnect follow a consistent factory pattern:
 
 ```typescript
 // Factory function accepts dependency-injected services
-export function createMachine<TContext, TEvent>(
-  config: MachineConfig<TContext, TEvent>
-) {
+export function createMachine<TContext, TEvent>(config: MachineConfig<TContext, TEvent>) {
   return setup({
     types: { context: {} as TContext, events: {} as TEvent },
-    actors: { /* async actors for side effects */ },
-    guards: { /* state transition guards */ },
+    actors: {
+      /* async actors for side effects */
+    },
+    guards: {
+      /* state transition guards */
+    },
   }).createMachine({
     // State machine definition
   });
@@ -46,6 +51,7 @@ export function createMachine<TContext, TEvent>(
 ```
 
 **Why this pattern?**
+
 1. **Dependency injection** — Services (API calls, validators) passed at creation time
 2. **Testability** — Mock services easily, test state transitions without network calls
 3. **Reusability** — Same machine logic used across multiple components with different services
@@ -121,13 +127,13 @@ applying → failed → (optional: rollback)
 
 ```typescript
 interface ChangeSetMachineContext {
-  changeSet: ChangeSet | null;           // Multi-resource operation
-  routerId: string | null;               // Target router
+  changeSet: ChangeSet | null; // Multi-resource operation
+  routerId: string | null; // Target router
   validationResult: ValidationResult | null;
-  currentItemIndex: number;              // Progress tracking
-  sortedItems: ChangeSetItem[];          // Topologically sorted
-  appliedItems: ChangeSetItem[];         // Already applied
-  rollbackPlan: RollbackStep[];          // Items to roll back
+  currentItemIndex: number; // Progress tracking
+  sortedItems: ChangeSetItem[]; // Topologically sorted
+  appliedItems: ChangeSetItem[]; // Already applied
+  rollbackPlan: RollbackStep[]; // Items to roll back
   error: ChangeSetError | null;
   errorMessage: string | null;
   cancelRequested: boolean;
@@ -279,7 +285,7 @@ type ConfigPipelineEvent<TConfig> =
   | { type: 'EDIT'; config: TConfig }
   | { type: 'VALIDATE' }
   | { type: 'CONFIRM' }
-  | { type: 'ACKNOWLEDGED' }  // High-risk ops require explicit ack
+  | { type: 'ACKNOWLEDGED' } // High-risk ops require explicit ack
   | { type: 'CANCEL' }
   | { type: 'RETRY' }
   | { type: 'RESET' }
@@ -304,17 +310,17 @@ interface ConfigPipelineConfig<TConfig> {
 // High-risk operations require explicit acknowledgment
 guard: ({ context, event }) => {
   return context.diff?.isHighRisk === false;
-}
+};
 
 // Can only confirm after validation passes
 guard: ({ context }) => {
   return context.validationErrors.length === 0;
-}
+};
 
 // Can only apply after confirmed
 guard: ({ context }) => {
   return context.rollbackData !== null;
-}
+};
 ```
 
 ### Safety Flow
@@ -475,10 +481,10 @@ interface ResourceLifecycleContext<TResource> {
 onHealthCheck: async (resourceId: string) => {
   const health = await getResourceHealth(resourceId);
   return {
-    status: health.status,  // 'healthy' | 'degraded' | 'error'
+    status: health.status, // 'healthy' | 'degraded' | 'error'
     metrics: health.metrics,
   };
-}
+};
 ```
 
 ### Degradation Detection
@@ -546,12 +552,12 @@ disconnected
 ```typescript
 interface VPNConnectionContext {
   connectionId: string | null;
-  provider: string | null;           // 'wireguard' | 'openvpn' | etc.
+  provider: string | null; // 'wireguard' | 'openvpn' | etc.
   serverAddress: string | null;
   metrics: ConnectionMetrics | null;
   error: string | null;
   reconnectAttempts: number;
-  maxReconnectAttempts: number;      // Default: 5
+  maxReconnectAttempts: number; // Default: 5
 }
 ```
 
@@ -559,8 +565,8 @@ interface VPNConnectionContext {
 
 ```typescript
 interface ConnectionMetrics {
-  uploadSpeed: number;               // bytes/sec
-  downloadSpeed: number;             // bytes/sec
+  uploadSpeed: number; // bytes/sec
+  downloadSpeed: number; // bytes/sec
   bytesUploaded: number;
   bytesDownloaded: number;
   latencyMs: number;
@@ -574,11 +580,11 @@ interface ConnectionMetrics {
 ```typescript
 // Reconnection attempts with exponential backoff
 const BACKOFF_MS = [
-  1000,   // Attempt 1: 1 second
-  2000,   // Attempt 2: 2 seconds
-  4000,   // Attempt 3: 4 seconds
-  8000,   // Attempt 4: 8 seconds
-  16000,  // Attempt 5: 16 seconds
+  1000, // Attempt 1: 1 second
+  2000, // Attempt 2: 2 seconds
+  4000, // Attempt 3: 4 seconds
+  8000, // Attempt 4: 8 seconds
+  16000, // Attempt 5: 16 seconds
 ];
 
 // After max attempts, enter error state
@@ -679,12 +685,12 @@ OR at any time:
 
 ```typescript
 interface WizardContext<TData> {
-  currentStep: number;                // 1-indexed
+  currentStep: number; // 1-indexed
   totalSteps: number;
-  data: Partial<TData>;              // Collected across steps
-  errors: Record<string, string>;    // Field errors
-  sessionId: string;                 // For persistence
-  canSkip?: boolean;                 // Skip to any step?
+  data: Partial<TData>; // Collected across steps
+  errors: Record<string, string>; // Field errors
+  sessionId: string; // For persistence
+  canSkip?: boolean; // Skip to any step?
 }
 ```
 
@@ -715,7 +721,7 @@ interface WizardConfig<TData> {
   ) => Promise<{ valid: boolean; errors?: Record<string, string> }>;
   onSubmit: (data: TData) => Promise<void>;
   initialData?: Partial<TData>;
-  persist?: boolean;  // Default: true
+  persist?: boolean; // Default: true
 }
 ```
 
@@ -957,11 +963,7 @@ The persistence module provides utilities for saving and restoring machine state
 
 ```typescript
 // libs/state/machines/src/persistence.ts
-import {
-  saveMachineState,
-  restoreMachineState,
-  clearMachineState,
-} from '@nasnet/state/machines';
+import { saveMachineState, restoreMachineState, clearMachineState } from '@nasnet/state/machines';
 
 // Save on state change
 const subscription = actor.subscribe((state) => {
@@ -977,7 +979,7 @@ const subscription = actor.subscribe((state) => {
 
 // Restore on mount
 const saved = restoreMachineState('wizard-vpn', {
-  maxAge: 86400000,  // 24 hours
+  maxAge: 86400000, // 24 hours
   promptBeforeRestore: true,
 });
 
@@ -1102,7 +1104,7 @@ describe('configPipelineMachine', () => {
     const state = machine.initialState;
     expect(state.matches('idle')).toBe(true);
 
-    const nextState = state.transitions.find(t => t.event.type === 'EDIT');
+    const nextState = state.transitions.find((t) => t.event.type === 'EDIT');
     expect(nextState?.target.matches('draft')).toBe(true);
   });
 
@@ -1128,13 +1130,13 @@ describe('configPipelineMachine', () => {
 
 ## Summary Table
 
-| Machine | Purpose | States | Main Events |
-|---------|---------|--------|-------------|
-| **changeSetMachine** | Atomic multi-resource ops | idle, validating, ready, applying, completed, failed | LOAD, START_VALIDATION, APPLY, CANCEL, RETRY |
-| **configPipelineMachine** | Safety-first config | draft, validating, previewing, confirming, applying, active, error | EDIT, VALIDATE, CONFIRM, ACKNOWLEDGED, APPLY |
-| **resourceLifecycleMachine** | Resource lifecycle | draft, validating, applying, active, degraded, error, archived | APPLY, HEALTH_UPDATE, UPGRADE |
-| **vpnConnectionMachine** | VPN connections | disconnected, connecting, connected, reconnecting, error | CONNECT, DISCONNECT, CONNECTION_LOST, METRICS_UPDATE |
-| **wizardMachine** | Multi-step wizards | step, validating, submitting, completed, cancelled | NEXT, BACK, GOTO, SUBMIT, VALIDATE, CANCEL |
+| Machine                      | Purpose                   | States                                                             | Main Events                                          |
+| ---------------------------- | ------------------------- | ------------------------------------------------------------------ | ---------------------------------------------------- |
+| **changeSetMachine**         | Atomic multi-resource ops | idle, validating, ready, applying, completed, failed               | LOAD, START_VALIDATION, APPLY, CANCEL, RETRY         |
+| **configPipelineMachine**    | Safety-first config       | draft, validating, previewing, confirming, applying, active, error | EDIT, VALIDATE, CONFIRM, ACKNOWLEDGED, APPLY         |
+| **resourceLifecycleMachine** | Resource lifecycle        | draft, validating, applying, active, degraded, error, archived     | APPLY, HEALTH_UPDATE, UPGRADE                        |
+| **vpnConnectionMachine**     | VPN connections           | disconnected, connecting, connected, reconnecting, error           | CONNECT, DISCONNECT, CONNECTION_LOST, METRICS_UPDATE |
+| **wizardMachine**            | Multi-step wizards        | step, validating, submitting, completed, cancelled                 | NEXT, BACK, GOTO, SUBMIT, VALIDATE, CANCEL           |
 
 ---
 

@@ -148,26 +148,33 @@ function RouteDeleteConfirmationComponent({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog
+      open={open}
+      onOpenChange={onOpenChange}
+    >
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <div className="flex items-center gap-component-md">
+          <div className="gap-component-md flex items-center">
             <div
               className={cn(
-                'flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center',
-                impact.severity === 'CRITICAL'
-                  ? 'bg-error/10 text-error'
-                  : 'bg-warning/10 text-warning'
+                'flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg',
+                impact.severity === 'CRITICAL' ?
+                  'bg-error/10 text-error'
+                : 'bg-warning/10 text-warning'
               )}
             >
-              <Icon icon={AlertTriangle} className="w-5 h-5" aria-hidden="true" />
+              <Icon
+                icon={AlertTriangle}
+                className="h-5 w-5"
+                aria-hidden="true"
+              />
             </div>
             <div>
-              <DialogTitle className="text-left font-display">
+              <DialogTitle className="font-display text-left">
                 {impact.isDefaultRoute ? 'Delete Default Route' : 'Delete Route'}
               </DialogTitle>
               {impact.severity === 'CRITICAL' && (
-                <div className="mt-1 text-xs font-semibold text-error uppercase tracking-wide">
+                <div className="text-error mt-1 text-xs font-semibold uppercase tracking-wide">
                   Critical Operation
                 </div>
               )}
@@ -176,23 +183,24 @@ function RouteDeleteConfirmationComponent({
         </DialogHeader>
 
         <div className="space-y-component-md">
-          <DialogDescription className="text-left">
-            {impact.message}
-          </DialogDescription>
+          <DialogDescription className="text-left">{impact.message}</DialogDescription>
 
           {/* Consequences */}
           <div
             className={cn(
-              'rounded-card-sm border-2 p-component-md',
-              impact.severity === 'CRITICAL'
-                ? 'bg-error/5 border-error/20'
-                : 'bg-warning/5 border-warning/20'
+              'rounded-card-sm p-component-md border-2',
+              impact.severity === 'CRITICAL' ?
+                'bg-error/5 border-error/20'
+              : 'bg-warning/5 border-warning/20'
             )}
           >
-            <h4 className="text-sm font-semibold mb-component-sm">Consequences:</h4>
+            <h4 className="mb-component-sm text-sm font-semibold">Consequences:</h4>
             <ul className="space-y-component-sm">
               {impact.consequences.map((consequence, index) => (
-                <li key={index} className="text-sm text-muted-foreground flex gap-component-sm">
+                <li
+                  key={index}
+                  className="text-muted-foreground gap-component-sm flex text-sm"
+                >
                   <span className="text-error">•</span>
                   <span>{consequence}</span>
                 </li>
@@ -211,21 +219,23 @@ function RouteDeleteConfirmationComponent({
               onChange={(e) => setConfirmText(e.target.value)}
               placeholder={impact.confirmText}
               disabled={isSubmitting || loading}
-              className="font-mono text-foreground"
+              className="text-foreground font-mono"
               autoComplete="off"
               aria-label="Confirmation text input"
             />
             {confirmText && !isConfirmTextValid && (
-              <p className="text-sm text-error">
-                Text must match exactly (case-sensitive)
-              </p>
+              <p className="text-error text-sm">Text must match exactly (case-sensitive)</p>
             )}
           </div>
 
           {/* Countdown */}
           {countdown !== null && countdown > 0 && (
-            <div className="text-center" aria-live="polite" aria-atomic="true">
-              <div className="inline-flex items-center gap-component-sm px-component-sm py-component-sm rounded-lg bg-muted">
+            <div
+              className="text-center"
+              aria-live="polite"
+              aria-atomic="true"
+            >
+              <div className="gap-component-sm px-component-sm py-component-sm bg-muted inline-flex items-center rounded-lg">
                 <Icon
                   icon={Loader2}
                   className="h-4 w-4 animate-spin"
@@ -256,13 +266,16 @@ function RouteDeleteConfirmationComponent({
             disabled={!canConfirm}
             className="min-h-[44px]"
             aria-label={
-              canConfirm
-                ? 'Confirm route deletion'
-                : `Confirm deletion (waiting ${countdown || 0}s)`
+              canConfirm ? 'Confirm route deletion' : (
+                `Confirm deletion (waiting ${countdown || 0}s)`
+              )
             }
           >
             {(isSubmitting || loading) && (
-              <Icon icon={Loader2} className="mr-2 h-4 w-4 animate-spin" />
+              <Icon
+                icon={Loader2}
+                className="mr-2 h-4 w-4 animate-spin"
+              />
             )}
             Delete Route
           </Button>

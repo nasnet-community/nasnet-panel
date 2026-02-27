@@ -7,7 +7,6 @@
  * (Apollo + Zustand) configured in .storybook/preview.tsx.
  */
 
-
 import { type NetworkInterface } from '@nasnet/core/types';
 
 import { InterfaceList } from './InterfaceList';
@@ -50,7 +49,7 @@ const makeInterface = (
   linkStatus: NetworkInterface['linkStatus'],
   macAddress: string,
   mtu = 1500,
-  comment?: string,
+  comment?: string
 ): NetworkInterface => ({
   id,
   name,
@@ -65,13 +64,31 @@ const makeInterface = (
 const allRunningInterfaces: NetworkInterface[] = [
   makeInterface('ether1', 'ether1', 'ether', 'running', 'up', 'D4:CA:6D:AA:11:22'),
   makeInterface('ether2', 'ether2', 'ether', 'running', 'up', 'D4:CA:6D:AA:11:23'),
-  makeInterface('bridge1', 'bridge1', 'bridge', 'running', 'up', 'AA:BB:CC:00:11:22', 1500, 'LAN bridge'),
+  makeInterface(
+    'bridge1',
+    'bridge1',
+    'bridge',
+    'running',
+    'up',
+    'AA:BB:CC:00:11:22',
+    1500,
+    'LAN bridge'
+  ),
 ];
 
 const mixedInterfaces: NetworkInterface[] = [
   makeInterface('ether1', 'ether1', 'ether', 'running', 'up', 'D4:CA:6D:AA:11:22'),
   makeInterface('ether2', 'ether2', 'ether', 'disabled', 'down', 'D4:CA:6D:AA:11:23'),
-  makeInterface('wlan1', 'wlan1', 'wireless', 'running', 'up', 'B8:27:EB:11:22:33', 1500, '2.4 GHz AP'),
+  makeInterface(
+    'wlan1',
+    'wlan1',
+    'wireless',
+    'running',
+    'up',
+    'B8:27:EB:11:22:33',
+    1500,
+    '2.4 GHz AP'
+  ),
   makeInterface('bridge1', 'bridge1', 'bridge', 'running', 'up', 'AA:BB:CC:00:11:22'),
   makeInterface('pppoe-out1', 'pppoe-out1', 'pppoe', 'running', 'up', '', 1480, 'WAN PPPoE'),
   makeInterface('vlan10', 'vlan10', 'vlan', 'disabled', 'down', 'D4:CA:6D:AA:11:24'),

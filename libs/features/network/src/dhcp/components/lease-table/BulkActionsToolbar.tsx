@@ -100,21 +100,21 @@ function BulkActionsToolbarComponent({
     <>
       <div
         className={cn(
-          'flex items-center justify-between rounded-[var(--semantic-radius-card)] border border-category-networking/50 bg-category-networking/5 p-component-sm',
+          'border-category-networking/50 bg-category-networking/5 p-component-sm flex items-center justify-between rounded-[var(--semantic-radius-card)] border',
           className
         )}
         role="toolbar"
         aria-label="Bulk actions toolbar"
       >
         {/* Selection count */}
-        <div className="flex items-center gap-component-sm">
-          <span className="text-sm font-medium text-foreground">
+        <div className="gap-component-sm flex items-center">
+          <span className="text-foreground text-sm font-medium">
             {selectedCount} {selectedCount === 1 ? 'lease' : 'leases'} selected
           </span>
         </div>
 
         {/* Action buttons */}
-        <div className="flex items-center gap-component-sm">
+        <div className="gap-component-sm flex items-center">
           <Button
             variant="outline"
             size="sm"
@@ -123,7 +123,11 @@ function BulkActionsToolbarComponent({
             className="gap-component-sm"
             aria-label="Make selected leases static"
           >
-            <Icon icon={Lock} className="h-4 w-4" aria-hidden="true" />
+            <Icon
+              icon={Lock}
+              className="h-4 w-4"
+              aria-hidden="true"
+            />
             Make All Static
           </Button>
 
@@ -135,7 +139,11 @@ function BulkActionsToolbarComponent({
             className="gap-component-sm"
             aria-label="Delete selected leases"
           >
-            <Icon icon={Trash2} className="h-4 w-4" aria-hidden="true" />
+            <Icon
+              icon={Trash2}
+              className="h-4 w-4"
+              aria-hidden="true"
+            />
             Delete Selected
           </Button>
 
@@ -146,7 +154,11 @@ function BulkActionsToolbarComponent({
             disabled={isLoading}
             aria-label="Clear selection"
           >
-            <Icon icon={X} className="h-4 w-4" aria-hidden="true" />
+            <Icon
+              icon={X}
+              className="h-4 w-4"
+              aria-hidden="true"
+            />
             Clear
           </Button>
         </div>
@@ -159,9 +171,7 @@ function BulkActionsToolbarComponent({
         title="Make Leases Static?"
         description={`This will convert ${selectedCount} ${
           selectedCount === 1 ? 'lease' : 'leases'
-        } to static DHCP ${
-          selectedCount === 1 ? 'assignment' : 'assignments'
-        }. The ${
+        } to static DHCP ${selectedCount === 1 ? 'assignment' : 'assignments'}. The ${
           selectedCount === 1 ? 'device' : 'devices'
         } will always receive the same IP address.`}
         confirmLabel="Make Static"

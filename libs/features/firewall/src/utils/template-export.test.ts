@@ -376,8 +376,12 @@ describe('copyTemplateToClipboard', () => {
     });
 
     const execCommandSpy = vi.spyOn(document, 'execCommand').mockReturnValue(true);
-    const appendChildSpy = vi.spyOn(document.body, 'appendChild').mockImplementation(() => null as any);
-    const removeChildSpy = vi.spyOn(document.body, 'removeChild').mockImplementation(() => null as any);
+    const appendChildSpy = vi
+      .spyOn(document.body, 'appendChild')
+      .mockImplementation(() => null as any);
+    const removeChildSpy = vi
+      .spyOn(document.body, 'removeChild')
+      .mockImplementation(() => null as any);
 
     await copyTemplateToClipboard(mockTemplate, 'json');
 

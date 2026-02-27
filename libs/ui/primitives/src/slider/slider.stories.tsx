@@ -4,7 +4,6 @@ import { Slider } from './slider';
 
 import type { Meta, StoryObj } from '@storybook/react';
 
-
 const meta: Meta<typeof Slider> = {
   title: 'Primitives/Slider',
   component: Slider,
@@ -66,12 +65,15 @@ export const WithLabel: Story = {
   render: function SliderWithLabel() {
     const [value, setValue] = React.useState([75]);
     return (
-      <div className="flex flex-col gap-3 w-72">
-        <div className="flex justify-between items-center">
-          <label htmlFor="slider-max-tx-rate" className="text-sm font-medium text-foreground">
+      <div className="flex w-72 flex-col gap-3">
+        <div className="flex items-center justify-between">
+          <label
+            htmlFor="slider-max-tx-rate"
+            className="text-foreground text-sm font-medium"
+          >
             Max TX Rate
           </label>
-          <span className="text-sm font-mono text-primary">{value[0]} Mbps</span>
+          <span className="text-primary font-mono text-sm">{value[0]} Mbps</span>
         </div>
         <Slider
           id="slider-max-tx-rate"
@@ -81,7 +83,7 @@ export const WithLabel: Story = {
           max={1000}
           step={1}
         />
-        <div className="flex justify-between text-xs text-muted-foreground">
+        <div className="text-muted-foreground flex justify-between text-xs">
           <span>1 Mbps</span>
           <span>1000 Mbps</span>
         </div>
@@ -95,12 +97,15 @@ export const SteppedValues: Story = {
     const [value, setValue] = React.useState([5]);
     const steps = [1, 2, 5, 10, 30, 60];
     return (
-      <div className="flex flex-col gap-3 w-72">
-        <div className="flex justify-between items-center">
-          <label htmlFor="slider-keepalive" className="text-sm font-medium text-foreground">
+      <div className="flex w-72 flex-col gap-3">
+        <div className="flex items-center justify-between">
+          <label
+            htmlFor="slider-keepalive"
+            className="text-foreground text-sm font-medium"
+          >
             Keepalive Interval
           </label>
-          <span className="text-sm font-mono text-primary">{value[0]}s</span>
+          <span className="text-primary font-mono text-sm">{value[0]}s</span>
         </div>
         <Slider
           id="slider-keepalive"
@@ -110,7 +115,7 @@ export const SteppedValues: Story = {
           max={60}
           step={1}
         />
-        <div className="flex justify-between text-xs text-muted-foreground">
+        <div className="text-muted-foreground flex justify-between text-xs">
           {steps.map((s) => (
             <span key={s}>{s}s</span>
           ))}
@@ -124,12 +129,15 @@ export const RangeSlider: Story = {
   render: function RangeSliderExample() {
     const [range, setRange] = React.useState([1024, 49151]);
     return (
-      <div className="flex flex-col gap-3 w-80">
-        <div className="flex justify-between items-center">
-          <label htmlFor="slider-port-range" className="text-sm font-medium text-foreground">
+      <div className="flex w-80 flex-col gap-3">
+        <div className="flex items-center justify-between">
+          <label
+            htmlFor="slider-port-range"
+            className="text-foreground text-sm font-medium"
+          >
             Allowed Port Range
           </label>
-          <span className="text-sm font-mono text-primary">
+          <span className="text-primary font-mono text-sm">
             {range[0]}–{range[1]}
           </span>
         </div>
@@ -141,7 +149,7 @@ export const RangeSlider: Story = {
           max={65535}
           step={1}
         />
-        <div className="flex justify-between text-xs text-muted-foreground">
+        <div className="text-muted-foreground flex justify-between text-xs">
           <span>Port 1</span>
           <span>Port 65535</span>
         </div>
@@ -160,12 +168,12 @@ export const Disabled: Story = {
   },
   decorators: [
     (Story) => (
-      <div className="flex flex-col gap-3 w-72">
-        <div className="flex justify-between items-center">
-          <span className="text-sm font-medium text-foreground opacity-50">
+      <div className="flex w-72 flex-col gap-3">
+        <div className="flex items-center justify-between">
+          <span className="text-foreground text-sm font-medium opacity-50">
             CPU Limit (managed by policy)
           </span>
-          <span className="text-sm font-mono text-muted-foreground">40%</span>
+          <span className="text-muted-foreground font-mono text-sm">40%</span>
         </div>
         <Story />
       </div>
@@ -180,39 +188,62 @@ export const AllScenarios: Story = {
     const [pingInterval, setPingInterval] = React.useState([10]);
 
     return (
-      <div className="flex flex-col gap-6 w-80">
+      <div className="flex w-80 flex-col gap-6">
         <div className="flex flex-col gap-2">
-          <div className="flex justify-between items-center">
-            <span className="text-sm font-medium text-foreground">Upload Limit</span>
-            <span className="text-sm font-mono text-primary">{txRate[0]} Mbps</span>
+          <div className="flex items-center justify-between">
+            <span className="text-foreground text-sm font-medium">Upload Limit</span>
+            <span className="text-primary font-mono text-sm">{txRate[0]} Mbps</span>
           </div>
-          <Slider value={txRate} onValueChange={setTxRate} min={1} max={1000} step={1} />
+          <Slider
+            value={txRate}
+            onValueChange={setTxRate}
+            min={1}
+            max={1000}
+            step={1}
+          />
         </div>
 
         <div className="flex flex-col gap-2">
-          <div className="flex justify-between items-center">
-            <span className="text-sm font-medium text-foreground">Download Limit</span>
-            <span className="text-sm font-mono text-primary">{rxRate[0]} Mbps</span>
+          <div className="flex items-center justify-between">
+            <span className="text-foreground text-sm font-medium">Download Limit</span>
+            <span className="text-primary font-mono text-sm">{rxRate[0]} Mbps</span>
           </div>
-          <Slider value={rxRate} onValueChange={setRxRate} min={1} max={1000} step={1} />
+          <Slider
+            value={rxRate}
+            onValueChange={setRxRate}
+            min={1}
+            max={1000}
+            step={1}
+          />
         </div>
 
         <div className="flex flex-col gap-2">
-          <div className="flex justify-between items-center">
-            <span className="text-sm font-medium text-foreground">Ping Interval</span>
-            <span className="text-sm font-mono text-primary">{pingInterval[0]}s</span>
+          <div className="flex items-center justify-between">
+            <span className="text-foreground text-sm font-medium">Ping Interval</span>
+            <span className="text-primary font-mono text-sm">{pingInterval[0]}s</span>
           </div>
-          <Slider value={pingInterval} onValueChange={setPingInterval} min={1} max={60} step={1} />
+          <Slider
+            value={pingInterval}
+            onValueChange={setPingInterval}
+            min={1}
+            max={60}
+            step={1}
+          />
         </div>
 
         <div className="flex flex-col gap-2">
-          <div className="flex justify-between items-center">
-            <span className="text-sm font-medium text-foreground opacity-50">
+          <div className="flex items-center justify-between">
+            <span className="text-foreground text-sm font-medium opacity-50">
               Max Connections (system-managed)
             </span>
-            <span className="text-sm font-mono text-muted-foreground">100</span>
+            <span className="text-muted-foreground font-mono text-sm">100</span>
           </div>
-          <Slider defaultValue={[100]} min={0} max={200} disabled />
+          <Slider
+            defaultValue={[100]}
+            min={0}
+            max={200}
+            disabled
+          />
         </div>
       </div>
     );

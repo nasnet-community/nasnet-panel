@@ -185,15 +185,8 @@ export interface UseServiceAlertsTabReturn {
  * }
  * ```
  */
-export function useServiceAlertsTab(
-  props: UseServiceAlertsTabProps
-): UseServiceAlertsTabReturn {
-  const {
-    routerId,
-    instanceId,
-    initialPageSize = 25,
-    enableSubscription = true,
-  } = props;
+export function useServiceAlertsTab(props: UseServiceAlertsTabProps): UseServiceAlertsTabReturn {
+  const { routerId, instanceId, initialPageSize = 25, enableSubscription = true } = props;
 
   // ===== State =====
 
@@ -205,16 +198,19 @@ export function useServiceAlertsTab(
 
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(initialPageSize);
-  const [selectedAlertIds, setSelectedAlertIds] = useState<Set<string>>(
-    new Set()
-  );
+  const [selectedAlertIds, setSelectedAlertIds] = useState<Set<string>>(new Set());
 
   // ===== GraphQL Hooks =====
 
   // Fetch alerts with current filters and pagination
   const offset = (currentPage - 1) * pageSize;
 
-  const { alerts: alertsData, loading, error, refetch } = useServiceAlerts({
+  const {
+    alerts: alertsData,
+    loading,
+    error,
+    refetch,
+  } = useServiceAlerts({
     instanceId,
     severity: filters.severity,
     acknowledged: filters.acknowledged,
@@ -223,16 +219,11 @@ export function useServiceAlertsTab(
   });
 
   // Real-time subscription for alert updates
-  const { alertEvent } = useServiceAlertSubscription(
-    { deviceId: routerId },
-    enableSubscription
-  );
+  const { alertEvent } = useServiceAlertSubscription({ deviceId: routerId }, enableSubscription);
 
   // Acknowledge mutations
-  const [acknowledgeAlertMutation, { loading: acknowledgingOne }] =
-    useAcknowledgeAlert();
-  const [acknowledgeAlertsMutation, { loading: acknowledgingBulk }] =
-    useAcknowledgeAlerts();
+  const [acknowledgeAlertMutation, { loading: acknowledgingOne }] = useAcknowledgeAlert();
+  const [acknowledgeAlertsMutation, { loading: acknowledgingBulk }] = useAcknowledgeAlerts();
 
   const acknowledging = acknowledgingOne || acknowledgingBulk;
 

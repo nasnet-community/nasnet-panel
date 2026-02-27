@@ -10,12 +10,12 @@
  * Configuration for the offline detector
  */
 export interface OfflineDetectorConfig {
-    /** Health check endpoint (default: /api/health) */
-    healthEndpoint?: string;
-    /** Health check interval in milliseconds (default: 30000 = 30s) */
-    healthCheckInterval?: number;
-    /** Timeout for health check requests in milliseconds (default: 5000 = 5s) */
-    healthCheckTimeout?: number;
+  /** Health check endpoint (default: /api/health) */
+  healthEndpoint?: string;
+  /** Health check interval in milliseconds (default: 30000 = 30s) */
+  healthCheckInterval?: number;
+  /** Timeout for health check requests in milliseconds (default: 5000 = 5s) */
+  healthCheckTimeout?: number;
 }
 /**
  * Cleanup function returned by setupOfflineDetector

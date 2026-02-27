@@ -17,7 +17,10 @@ import { DashboardPage } from './DashboardPage';
 // Mock child components to avoid complex dependencies
 vi.mock('../components/dashboard-layout', () => ({
   DashboardLayout: ({ children, onRefresh, showRefresh }: any) => (
-    <div data-testid="dashboard-layout" onClick={onRefresh}>
+    <div
+      data-testid="dashboard-layout"
+      onClick={onRefresh}
+    >
       {showRefresh && <button data-testid="refresh-btn">Refresh</button>}
       <main>{children}</main>
     </div>

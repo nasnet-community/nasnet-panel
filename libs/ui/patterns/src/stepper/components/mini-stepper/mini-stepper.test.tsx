@@ -66,9 +66,7 @@ function TestWrapper({
   return (
     <MiniStepper
       stepper={stepper}
-      stepContent={
-        <div data-testid="step-content">Content for {stepper.currentStep.title}</div>
-      }
+      stepContent={<div data-testid="step-content">Content for {stepper.currentStep.title}</div>}
       onStepChange={onStepChange}
       disableSwipe={disableSwipe}
     />
@@ -101,36 +99,26 @@ describe('MiniStepper', () => {
       render(<TestWrapper />);
 
       expect(screen.getByTestId('step-content')).toBeInTheDocument();
-      expect(
-        screen.getByText('Content for Choose Setup')
-      ).toBeInTheDocument();
+      expect(screen.getByText('Content for Choose Setup')).toBeInTheDocument();
     });
 
     it('should render navigation buttons', () => {
       render(<TestWrapper />);
 
-      expect(
-        screen.getByRole('button', { name: /go to previous step/i })
-      ).toBeInTheDocument();
-      expect(
-        screen.getByRole('button', { name: /go to next step/i })
-      ).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /go to previous step/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /go to next step/i })).toBeInTheDocument();
     });
 
     it('should render swipe hint when swipe is enabled', () => {
       render(<TestWrapper />);
 
-      expect(
-        screen.getByText('Swipe left/right to navigate')
-      ).toBeInTheDocument();
+      expect(screen.getByText('Swipe left/right to navigate')).toBeInTheDocument();
     });
 
     it('should not render swipe hint when swipe is disabled', () => {
       render(<TestWrapper disableSwipe />);
 
-      expect(
-        screen.queryByText('Swipe left/right to navigate')
-      ).not.toBeInTheDocument();
+      expect(screen.queryByText('Swipe left/right to navigate')).not.toBeInTheDocument();
     });
   });
 
@@ -201,15 +189,18 @@ describe('MiniStepper', () => {
     it('should show "Finish" button on last step', () => {
       render(<TestWrapper initialStep={2} />);
 
-      expect(
-        screen.getByRole('button', { name: /finish wizard/i })
-      ).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /finish wizard/i })).toBeInTheDocument();
       expect(screen.getByText('Finish')).toBeInTheDocument();
     });
 
     it('should call onComplete when finish is clicked on last step', async () => {
       const onComplete = vi.fn();
-      render(<TestWrapper initialStep={2} onComplete={onComplete} />);
+      render(
+        <TestWrapper
+          initialStep={2}
+          onComplete={onComplete}
+        />
+      );
 
       const finishButton = screen.getByRole('button', {
         name: /finish wizard/i,
@@ -242,7 +233,12 @@ describe('MiniStepper', () => {
 
     it('should call onStepChange when navigating backward', async () => {
       const onStepChange = vi.fn();
-      render(<TestWrapper initialStep={1} onStepChange={onStepChange} />);
+      render(
+        <TestWrapper
+          initialStep={1}
+          onStepChange={onStepChange}
+        />
+      );
 
       const backButton = screen.getByRole('button', {
         name: /go to previous step/i,
@@ -261,7 +257,12 @@ describe('MiniStepper', () => {
   describe('Validation', () => {
     it('should prevent navigation when validation fails', async () => {
       // Start at step 2 which has validation that will fail on step 3
-      render(<TestWrapper steps={mockStepsWithValidation} initialStep={1} />);
+      render(
+        <TestWrapper
+          steps={mockStepsWithValidation}
+          initialStep={1}
+        />
+      );
 
       // Navigate to step 3 (should succeed)
       const nextButton = screen.getByRole('button', {
@@ -293,20 +294,14 @@ describe('MiniStepper', () => {
     it('should have descriptive aria-labels on navigation buttons', () => {
       render(<TestWrapper />);
 
-      expect(
-        screen.getByRole('button', { name: /go to previous step/i })
-      ).toBeInTheDocument();
-      expect(
-        screen.getByRole('button', { name: /go to next step/i })
-      ).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /go to previous step/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /go to next step/i })).toBeInTheDocument();
     });
 
     it('should update aria-label to "Finish wizard" on last step', () => {
       render(<TestWrapper initialStep={2} />);
 
-      expect(
-        screen.getByRole('button', { name: /finish wizard/i })
-      ).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /finish wizard/i })).toBeInTheDocument();
     });
 
     it('should have aria-label on progress bar', () => {

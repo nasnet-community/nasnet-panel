@@ -39,11 +39,7 @@ export interface StepperConfig {
 /**
  * Creates a basic step configuration.
  */
-export function createStep(
-  id: string,
-  title: string,
-  options?: Partial<StepConfig>
-): StepConfig {
+export function createStep(id: string, title: string, options?: Partial<StepConfig>): StepConfig {
   return {
     id,
     title,
@@ -107,9 +103,7 @@ export const twoSteps: StepConfig[] = [
   createStep('step2', 'Second Step'),
 ];
 
-export const singleStep: StepConfig[] = [
-  createStep('only', 'Only Step'),
-];
+export const singleStep: StepConfig[] = [createStep('only', 'Only Step')];
 
 export const manySteps: StepConfig[] = Array.from({ length: 10 }, (_, i) =>
   createStep(`step${i + 1}`, `Step ${i + 1}`, { description: `Description for step ${i + 1}` })
@@ -256,9 +250,7 @@ export function createOnComplete() {
 /**
  * Creates a full stepper config with all callbacks mocked.
  */
-export function createFullConfig(
-  steps: StepConfig[] = basicSteps
-): StepperConfig & {
+export function createFullConfig(steps: StepConfig[] = basicSteps): StepperConfig & {
   onStepChange: ReturnType<typeof createOnStepChange>;
   onComplete: ReturnType<typeof createOnComplete>;
 } {

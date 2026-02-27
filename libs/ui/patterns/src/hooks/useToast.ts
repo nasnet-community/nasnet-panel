@@ -139,10 +139,7 @@ export interface UseToastReturn {
    * Show a toast that tracks a promise
    * Shows loading → success/error based on promise result
    */
-  promise: <T>(
-    promise: Promise<T>,
-    messages: PromiseToastMessages<T>
-  ) => Promise<T>;
+  promise: <T>(promise: Promise<T>, messages: PromiseToastMessages<T>) => Promise<T>;
 }
 
 /**
@@ -308,10 +305,7 @@ export function useToast(): UseToastReturn {
   );
 
   const promiseToast = useCallback(
-    async <T,>(
-      promise: Promise<T>,
-      messages: PromiseToastMessages<T>
-    ): Promise<T> => {
+    async <T>(promise: Promise<T>, messages: PromiseToastMessages<T>): Promise<T> => {
       const loadingId = addNotification({
         type: 'progress',
         title: messages.loading,
@@ -326,9 +320,7 @@ export function useToast(): UseToastReturn {
 
         // Show success
         const successMessage =
-          typeof messages.success === 'function'
-            ? messages.success(result)
-            : messages.success;
+          typeof messages.success === 'function' ? messages.success(result) : messages.success;
 
         addNotification({
           type: 'success',
@@ -369,7 +361,18 @@ export function useToast(): UseToastReturn {
       dismissAll,
       promise: promiseToast,
     }),
-    [genericToast, success, error, warning, info, progressToast, update, dismiss, dismissAll, promiseToast]
+    [
+      genericToast,
+      success,
+      error,
+      warning,
+      info,
+      progressToast,
+      update,
+      dismiss,
+      dismissAll,
+      promiseToast,
+    ]
   );
 }
 

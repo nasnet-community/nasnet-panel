@@ -48,7 +48,11 @@ export type KnockStatus = z.infer<typeof KnockStatusSchema>;
  * const port = KnockPortSchema.parse({ port: 2222, protocol: 'tcp', order: 1 });
  */
 export const KnockPortSchema = z.object({
-  port: z.number().int().min(1, 'Port must be between 1 and 65535').max(65535, 'Port must be between 1 and 65535'),
+  port: z
+    .number()
+    .int()
+    .min(1, 'Port must be between 1 and 65535')
+    .max(65535, 'Port must be between 1 and 65535'),
   protocol: KnockProtocolSchema,
   order: z.number().int().min(1, 'Order must be at least 1'), // Position in sequence (1-based)
 });
@@ -76,11 +80,13 @@ export type KnockPort = z.infer<typeof KnockPortSchema>;
  */
 export const PortKnockSequenceSchema = z.object({
   id: z.string().optional(),
-  name: z.string()
+  name: z
+    .string()
     .min(1, 'Name is required')
     .max(32, 'Name must be 32 characters or less')
     .regex(/^[a-zA-Z0-9_-]+$/, 'Name can only contain letters, numbers, underscores, and hyphens'),
-  knockPorts: z.array(KnockPortSchema)
+  knockPorts: z
+    .array(KnockPortSchema)
     .min(2, 'At least 2 knock ports are required')
     .max(8, 'Maximum 8 knock ports allowed')
     .refine(
@@ -90,11 +96,17 @@ export const PortKnockSequenceSchema = z.object({
       },
       { message: 'Knock ports must be unique' }
     ),
-  protectedPort: z.number().int().min(1, 'Port must be between 1 and 65535').max(65535, 'Port must be between 1 and 65535'),
+  protectedPort: z
+    .number()
+    .int()
+    .min(1, 'Port must be between 1 and 65535')
+    .max(65535, 'Port must be between 1 and 65535'),
   protectedProtocol: z.enum(['tcp', 'udp']),
-  accessTimeout: z.string()
+  accessTimeout: z
+    .string()
     .regex(/^\d+[smhd]$/, 'Access timeout must be a valid duration (e.g., "5m", "1h", "1d")'),
-  knockTimeout: z.string()
+  knockTimeout: z
+    .string()
     .regex(/^\d+[smhd]$/, 'Knock timeout must be a valid duration (e.g., "15s", "30s")'),
   isEnabled: z.boolean().default(true),
   routerId: z.string().optional(),

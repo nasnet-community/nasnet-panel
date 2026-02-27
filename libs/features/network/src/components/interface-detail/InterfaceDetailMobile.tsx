@@ -54,35 +54,42 @@ export const InterfaceDetailMobile = memo(function InterfaceDetailMobile({
     return `${(bytes / Math.pow(BYTE_UNIT, unitIndex)).toFixed(2)} ${BYTE_UNITS[unitIndex]}`;
   }, []);
 
-  const formatRate = useCallback((bytesPerSec: number) => {
-    return `${formatBytes(bytesPerSec)}/s`;
-  }, [formatBytes]);
+  const formatRate = useCallback(
+    (bytesPerSec: number) => {
+      return `${formatBytes(bytesPerSec)}/s`;
+    },
+    [formatBytes]
+  );
 
   return (
-    <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
-      <DialogContent className="h-full max-w-full p-0 flex flex-col category-networking">
+    <Dialog
+      open={open}
+      onOpenChange={(isOpen) => !isOpen && onClose()}
+    >
+      <DialogContent className="category-networking flex h-full max-w-full flex-col p-0">
         {/* Header with back button */}
-        <DialogHeader className="p-component-sm border-b flex-shrink-0">
-          <div className="flex items-center gap-component-sm">
+        <DialogHeader className="p-component-sm flex-shrink-0 border-b">
+          <div className="gap-component-sm flex items-center">
             <Button
               variant="ghost"
               size="sm"
               onClick={onClose}
-              className="p-0 min-h-[44px] min-w-[44px] flex items-center justify-center"
+              className="flex min-h-[44px] min-w-[44px] items-center justify-center p-0"
               aria-label="Go back to interface list"
             >
-              <ChevronLeft className="h-5 w-5" aria-hidden="true" />
+              <ChevronLeft
+                className="h-5 w-5"
+                aria-hidden="true"
+              />
             </Button>
-            {loading ? (
+            {loading ?
               <Skeleton className="h-6 w-32" />
-            ) : (
-              <DialogTitle className="font-mono">{iface?.name || 'Interface'}</DialogTitle>
-            )}
+            : <DialogTitle className="font-mono">{iface?.name || 'Interface'}</DialogTitle>}
           </div>
         </DialogHeader>
 
         {/* Content */}
-        <div className="overflow-y-auto flex-1 p-component-sm">
+        <div className="p-component-sm flex-1 overflow-y-auto">
           {loading && (
             <div className="space-y-component-md">
               <Skeleton className="h-20 w-full" />
@@ -92,9 +99,12 @@ export const InterfaceDetailMobile = memo(function InterfaceDetailMobile({
           )}
 
           {error && (
-            <div className="p-component-xl text-center" role="alert">
+            <div
+              className="p-component-xl text-center"
+              role="alert"
+            >
               <p className="text-error font-medium">Failed to load interface</p>
-              <p className="text-sm text-muted-foreground mt-2">
+              <p className="text-muted-foreground mt-2 text-sm">
                 {error.message || 'Unknown error'}
               </p>
             </div>
@@ -103,17 +113,16 @@ export const InterfaceDetailMobile = memo(function InterfaceDetailMobile({
           {!loading && !error && iface && !editMode && (
             <div className="space-y-6">
               {/* Status badges */}
-              <div className="flex gap-component-sm">
+              <div className="gap-component-sm flex">
                 <Badge variant={iface.enabled ? 'default' : 'outline'}>
                   {iface.enabled ? 'Enabled' : 'Disabled'}
                 </Badge>
                 <Badge
                   variant={
-                    iface.status === 'UP'
-                      ? 'success'
-                      : iface.status === 'DOWN'
-                      ? 'error'
-                      : 'secondary'
+                    iface.status === 'UP' ? 'success'
+                    : iface.status === 'DOWN' ?
+                      'error'
+                    : 'secondary'
                   }
                 >
                   {iface.status}
@@ -121,23 +130,34 @@ export const InterfaceDetailMobile = memo(function InterfaceDetailMobile({
                 <Badge variant="outline">{iface.type}</Badge>
               </div>
 
-              {iface.comment && (
-                <p className="text-sm text-muted-foreground">{iface.comment}</p>
-              )}
+              {iface.comment && <p className="text-muted-foreground text-sm">{iface.comment}</p>}
 
               {/* Status section */}
               <div>
-                <h3 className="font-semibold mb-component-sm">Status</h3>
+                <h3 className="mb-component-sm font-semibold">Status</h3>
                 <div className="space-y-component-sm">
-                  <MobileInfoRow label="Running" value={iface.running ? 'Yes' : 'No'} />
+                  <MobileInfoRow
+                    label="Running"
+                    value={iface.running ? 'Yes' : 'No'}
+                  />
                   {iface.macAddress && (
-                    <MobileInfoRow label="MAC Address" value={iface.macAddress} mono />
+                    <MobileInfoRow
+                      label="MAC Address"
+                      value={iface.macAddress}
+                      mono
+                    />
                   )}
                   {iface.linkSpeed && (
-                    <MobileInfoRow label="Link Speed" value={iface.linkSpeed} />
+                    <MobileInfoRow
+                      label="Link Speed"
+                      value={iface.linkSpeed}
+                    />
                   )}
                   {iface.linkPartner && (
-                    <MobileInfoRow label="Link Partner" value={iface.linkPartner} />
+                    <MobileInfoRow
+                      label="Link Partner"
+                      value={iface.linkPartner}
+                    />
                   )}
                 </div>
               </div>
@@ -146,19 +166,19 @@ export const InterfaceDetailMobile = memo(function InterfaceDetailMobile({
 
               {/* Traffic section */}
               <div>
-                <h3 className="font-semibold mb-component-sm">Traffic</h3>
-                <div className="grid grid-cols-2 gap-component-md">
-                  <div className="border border-border rounded-[var(--semantic-radius-card)] p-component-md">
-                    <h4 className="text-xs text-muted-foreground mb-1">TX Rate</h4>
-                    <p className="text-xl font-bold font-mono">{formatRate(iface.txRate || 0)}</p>
-                    <p className="text-xs text-muted-foreground mt-1 font-mono">
+                <h3 className="mb-component-sm font-semibold">Traffic</h3>
+                <div className="gap-component-md grid grid-cols-2">
+                  <div className="border-border p-component-md rounded-[var(--semantic-radius-card)] border">
+                    <h4 className="text-muted-foreground mb-1 text-xs">TX Rate</h4>
+                    <p className="font-mono text-xl font-bold">{formatRate(iface.txRate || 0)}</p>
+                    <p className="text-muted-foreground mt-1 font-mono text-xs">
                       Total: {formatBytes(iface.txBytes || 0)}
                     </p>
                   </div>
-                  <div className="border border-border rounded-[var(--semantic-radius-card)] p-component-md">
-                    <h4 className="text-xs text-muted-foreground mb-1">RX Rate</h4>
-                    <p className="text-xl font-bold font-mono">{formatRate(iface.rxRate || 0)}</p>
-                    <p className="text-xs text-muted-foreground mt-1 font-mono">
+                  <div className="border-border p-component-md rounded-[var(--semantic-radius-card)] border">
+                    <h4 className="text-muted-foreground mb-1 text-xs">RX Rate</h4>
+                    <p className="font-mono text-xl font-bold">{formatRate(iface.rxRate || 0)}</p>
+                    <p className="text-muted-foreground mt-1 font-mono text-xs">
                       Total: {formatBytes(iface.rxBytes || 0)}
                     </p>
                   </div>
@@ -169,15 +189,23 @@ export const InterfaceDetailMobile = memo(function InterfaceDetailMobile({
 
               {/* Configuration section */}
               <div>
-                <h3 className="font-semibold mb-component-sm">Configuration</h3>
+                <h3 className="mb-component-sm font-semibold">Configuration</h3>
                 <div className="space-y-component-sm">
-                  <MobileInfoRow label="MTU" value={iface.mtu || 'Default'} />
+                  <MobileInfoRow
+                    label="MTU"
+                    value={iface.mtu || 'Default'}
+                  />
                   {iface.ip && iface.ip.length > 0 && (
                     <div className="flex justify-between py-2">
-                      <span className="text-sm text-muted-foreground">IP Addresses</span>
-                      <div className="text-sm text-right font-mono space-y-component-xs">
+                      <span className="text-muted-foreground text-sm">IP Addresses</span>
+                      <div className="space-y-component-xs text-right font-mono text-sm">
                         {iface.ip.map((addr: string) => (
-                          <div key={addr} className="break-all">{addr}</div>
+                          <div
+                            key={addr}
+                            className="break-all"
+                          >
+                            {addr}
+                          </div>
                         ))}
                       </div>
                     </div>
@@ -189,10 +217,13 @@ export const InterfaceDetailMobile = memo(function InterfaceDetailMobile({
                 <>
                   <Separator />
                   <div>
-                    <h3 className="font-semibold mb-component-sm">Used By</h3>
-                    <div className="flex flex-wrap gap-component-sm">
+                    <h3 className="mb-component-sm font-semibold">Used By</h3>
+                    <div className="gap-component-sm flex flex-wrap">
                       {iface.usedBy.map((usage: string) => (
-                        <Badge key={usage} variant="outline">
+                        <Badge
+                          key={usage}
+                          variant="outline"
+                        >
                           {usage}
                         </Badge>
                       ))}
@@ -219,9 +250,9 @@ export const InterfaceDetailMobile = memo(function InterfaceDetailMobile({
 
         {/* Footer with action button */}
         {!loading && !error && iface && !editMode && (
-          <div className="border-t p-component-md flex-shrink-0">
+          <div className="p-component-md flex-shrink-0 border-t">
             <Button
-              className="w-full min-h-[44px]"
+              className="min-h-[44px] w-full"
               onClick={() => setEditMode(true)}
               aria-label="Edit interface settings"
             >
@@ -251,11 +282,12 @@ const MobileInfoRow = memo(function MobileInfoRow({
   value: string | number;
   mono?: boolean;
 }) {
-  const isTechnicalData = label === 'MAC Address' || label === 'Link Partner' || label === 'Link Speed' || mono;
+  const isTechnicalData =
+    label === 'MAC Address' || label === 'Link Partner' || label === 'Link Speed' || mono;
   return (
     <div className="flex justify-between py-2">
-      <span className="text-sm text-muted-foreground">{label}</span>
-      <span className={cn('text-sm break-all', isTechnicalData && 'font-mono')}>{value}</span>
+      <span className="text-muted-foreground text-sm">{label}</span>
+      <span className={cn('break-all text-sm', isTechnicalData && 'font-mono')}>{value}</span>
     </div>
   );
 });

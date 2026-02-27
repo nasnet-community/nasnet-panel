@@ -61,7 +61,7 @@ const ListCard = memo(function ListCard({ list, onTap, onShowRules, onDelete }: 
 
   return (
     <Card
-      className="p-4 border-l-4 border-l-category-firewall cursor-pointer active:bg-muted"
+      className="border-l-category-firewall active:bg-muted cursor-pointer border-l-4 p-4"
       onClick={handleTap}
       role="button"
       tabIndex={0}
@@ -77,28 +77,32 @@ const ListCard = memo(function ListCard({ list, onTap, onShowRules, onDelete }: 
       <div className="space-y-3">
         {/* Header */}
         <div className="flex items-start justify-between">
-          <div className="flex-1 min-w-0">
-            <h3 className="font-mono font-medium text-base truncate">
-              {list.name}
-            </h3>
+          <div className="min-w-0 flex-1">
+            <h3 className="truncate font-mono text-base font-medium">{list.name}</h3>
           </div>
-          <ChevronRight className="h-5 w-5 text-muted-foreground flex-shrink-0 ml-2" />
+          <ChevronRight className="text-muted-foreground ml-2 h-5 w-5 flex-shrink-0" />
         </div>
 
         {/* Stats */}
         <div className="flex flex-wrap gap-2">
-          <Badge variant="outline" className="text-xs">
+          <Badge
+            variant="outline"
+            className="text-xs"
+          >
             {list.entryCount} entries
           </Badge>
           {list.dynamicCount > 0 && (
-            <Badge variant="secondary" className="text-xs">
+            <Badge
+              variant="secondary"
+              className="text-xs"
+            >
               {list.dynamicCount} dynamic
             </Badge>
           )}
           {list.referencingRulesCount > 0 && (
             <Badge
               variant="outline"
-              className="text-xs bg-category-firewall/10"
+              className="bg-category-firewall/10 text-xs"
               onClick={handleShowRules}
               role="button"
               tabIndex={0}
@@ -110,7 +114,10 @@ const ListCard = memo(function ListCard({ list, onTap, onShowRules, onDelete }: 
               }}
               aria-label={`Show rules for ${list.name}`}
             >
-              <Shield className="h-3 w-3 mr-1" aria-hidden="true" />
+              <Shield
+                className="mr-1 h-3 w-3"
+                aria-hidden="true"
+              />
               {list.referencingRulesCount} rules
             </Badge>
           )}
@@ -118,25 +125,31 @@ const ListCard = memo(function ListCard({ list, onTap, onShowRules, onDelete }: 
 
         {/* Actions */}
         {onDelete && (
-          <div className="flex gap-2 pt-2 border-t">
+          <div className="flex gap-2 border-t pt-2">
             <Button
               variant="ghost"
               size="sm"
               onClick={handleShowRules}
-              className="flex-1 h-11"
+              className="h-11 flex-1"
               aria-label={`Show rules for ${list.name}`}
             >
-              <Shield className="h-4 w-4 mr-2" aria-hidden="true" />
+              <Shield
+                className="mr-2 h-4 w-4"
+                aria-hidden="true"
+              />
               Show Rules
             </Button>
             <Button
               variant="ghost"
               size="sm"
               onClick={handleDelete}
-              className="h-11 text-destructive"
+              className="text-destructive h-11"
               aria-label={`Delete address list ${list.name}`}
             >
-              <Trash2 className="h-4 w-4" aria-hidden="true" />
+              <Trash2
+                className="h-4 w-4"
+                aria-hidden="true"
+              />
             </Button>
           </div>
         )}
@@ -158,23 +171,27 @@ const EntryCard = memo(function EntryCard({ entry }: EntryCardProps) {
       <div className="space-y-2">
         {/* Address */}
         <div className="flex items-center justify-between">
-          <span className="font-mono text-sm font-medium" title={entry.address}>
+          <span
+            className="font-mono text-sm font-medium"
+            title={entry.address}
+          >
             {entry.address}
           </span>
           {entry.dynamic && (
-            <Badge variant="secondary" className="text-xs">
+            <Badge
+              variant="secondary"
+              className="text-xs"
+            >
               Dynamic
             </Badge>
           )}
         </div>
 
         {/* Comment */}
-        {entry.comment && (
-          <p className="text-sm text-muted-foreground">{entry.comment}</p>
-        )}
+        {entry.comment && <p className="text-muted-foreground text-sm">{entry.comment}</p>}
 
         {/* Metadata */}
-        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+        <div className="text-muted-foreground flex items-center gap-2 text-xs">
           {entry.timeout && (
             <div className="flex items-center gap-1">
               <Clock className="h-3 w-3" />
@@ -182,16 +199,16 @@ const EntryCard = memo(function EntryCard({ entry }: EntryCardProps) {
             </div>
           )}
           {entry.creationTime && (
-            <span>
-              Created{' '}
-              {new Date(entry.creationTime).toLocaleDateString()}
-            </span>
+            <span>Created {new Date(entry.creationTime).toLocaleDateString()}</span>
           )}
         </div>
 
         {/* Disabled badge */}
         {entry.disabled && (
-          <Badge variant="outline" className="text-xs">
+          <Badge
+            variant="outline"
+            className="text-xs"
+          >
             Disabled
           </Badge>
         )}
@@ -232,7 +249,11 @@ export const AddressListManagerMobile = memo(function AddressListManagerMobile(
   if (isLoading) {
     return (
       <div className={cn('p-4', className)}>
-        <Card className="p-6" role="status" aria-live="polite">
+        <Card
+          className="p-6"
+          role="status"
+          aria-live="polite"
+        >
           <div className="flex items-center justify-center">
             <div className="text-muted-foreground">Loading address lists...</div>
           </div>
@@ -246,11 +267,11 @@ export const AddressListManagerMobile = memo(function AddressListManagerMobile(
     return (
       <div className={cn('p-4', className)}>
         <Card
-          className="p-6 border-error"
+          className="border-error p-6"
           role="alert"
           aria-live="assertive"
         >
-          <div className="flex items-center justify-center text-error text-center">
+          <div className="text-error flex items-center justify-center text-center">
             Error: {error.message}
           </div>
         </Card>
@@ -265,7 +286,7 @@ export const AddressListManagerMobile = memo(function AddressListManagerMobile(
         <Card className="p-8">
           <div className="flex flex-col items-center justify-center space-y-4">
             <Shield
-              className="h-12 w-12 text-muted-foreground"
+              className="text-muted-foreground h-12 w-12"
               aria-hidden="true"
             />
             <p className="text-muted-foreground text-center">{emptyMessage}</p>
@@ -297,26 +318,30 @@ export const AddressListManagerMobile = memo(function AddressListManagerMobile(
           open={isExpanded(selectedList.name)}
           onOpenChange={(open) => !open && toggleExpanded(selectedList.name)}
         >
-          <SheetContent side="bottom" className="h-[80vh]">
+          <SheetContent
+            side="bottom"
+            className="h-[80vh]"
+          >
             <SheetHeader>
               <SheetTitle className="font-mono">{selectedList.name}</SheetTitle>
               <SheetDescription>
                 {selectedList.entryCount} entries
-                {selectedList.dynamicCount > 0 &&
-                  ` (${selectedList.dynamicCount} dynamic)`}
+                {selectedList.dynamicCount > 0 && ` (${selectedList.dynamicCount} dynamic)`}
               </SheetDescription>
             </SheetHeader>
-            <ScrollArea className="h-[calc(80vh-8rem)] mt-4">
+            <ScrollArea className="mt-4 h-[calc(80vh-8rem)]">
               <div className="space-y-2">
-                {selectedList.entries && selectedList.entries.length > 0 ? (
+                {selectedList.entries && selectedList.entries.length > 0 ?
                   selectedList.entries.map((entry) => (
-                    <EntryCard key={entry.id} entry={entry} />
+                    <EntryCard
+                      key={entry.id}
+                      entry={entry}
+                    />
                   ))
-                ) : (
-                  <div className="text-center py-8 text-muted-foreground">
+                : <div className="text-muted-foreground py-8 text-center">
                     No entries in this list
                   </div>
-                )}
+                }
               </div>
             </ScrollArea>
           </SheetContent>

@@ -76,9 +76,9 @@ describe('LogViewer', () => {
       render(<LogViewer />, { wrapper: createWrapper() });
 
       // Should show multiple skeleton rows (10 by default)
-      const skeletons = screen.getAllByRole('generic').filter((el) =>
-        el.className.includes('animate-pulse')
-      );
+      const skeletons = screen
+        .getAllByRole('generic')
+        .filter((el) => el.className.includes('animate-pulse'));
       expect(skeletons.length).toBeGreaterThan(0);
     });
 
@@ -197,9 +197,9 @@ describe('LogViewer', () => {
       render(<LogViewer />, { wrapper: createWrapper() });
 
       // Should not show skeleton
-      const skeletons = screen.queryAllByRole('generic').filter((el) =>
-        el.className.includes('animate-pulse')
-      );
+      const skeletons = screen
+        .queryAllByRole('generic')
+        .filter((el) => el.className.includes('animate-pulse'));
       expect(skeletons.length).toBe(0);
 
       // Should not show error
@@ -295,7 +295,9 @@ describe('LogViewer', () => {
     it('should handle large number of log entries', () => {
       const manyLogs = Array.from({ length: 100 }, (_, i) => ({
         id: `log-${i}`,
-        timestamp: new Date(`2025-12-04T${String(10 + Math.floor(i / 60)).padStart(2, '0')}:${String(i % 60).padStart(2, '0')}:00Z`),
+        timestamp: new Date(
+          `2025-12-04T${String(10 + Math.floor(i / 60)).padStart(2, '0')}:${String(i % 60).padStart(2, '0')}:00Z`
+        ),
         topic: 'system' as const,
         severity: 'info' as const,
         message: `Log entry ${i}`,

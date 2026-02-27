@@ -27,28 +27,20 @@ test.describe('DNS Diagnostics - Page Navigation', () => {
     await expect(page.getByText(/diagnostics/i)).toBeVisible();
 
     // Verify page description
-    await expect(
-      page.getByText(/test dns resolution.*benchmark.*cache/i)
-    ).toBeVisible();
+    await expect(page.getByText(/test dns resolution.*benchmark.*cache/i)).toBeVisible();
   });
 
   test('should display all three diagnostic components', async ({ page }) => {
     await page.goto(`${BASE_URL}/network/dns/diagnostics`);
 
     // Verify DNS Lookup Tool is present
-    await expect(
-      page.getByRole('heading', { name: /dns lookup/i })
-    ).toBeVisible();
+    await expect(page.getByRole('heading', { name: /dns lookup/i })).toBeVisible();
 
     // Verify DNS Benchmark is present
-    await expect(
-      page.getByRole('heading', { name: /dns benchmark/i })
-    ).toBeVisible();
+    await expect(page.getByRole('heading', { name: /dns benchmark/i })).toBeVisible();
 
     // Verify DNS Cache Panel is present
-    await expect(
-      page.getByRole('heading', { name: /dns cache/i })
-    ).toBeVisible();
+    await expect(page.getByRole('heading', { name: /dns cache/i })).toBeVisible();
   });
 });
 
@@ -71,14 +63,12 @@ test.describe('DNS Lookup Tool - Happy Path', () => {
     await lookupButton.click();
 
     // Wait for results to appear
-    await expect(
-      page.locator('[data-testid="dns-lookup-results"]')
-    ).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('[data-testid="dns-lookup-results"]')).toBeVisible({
+      timeout: 10000,
+    });
 
     // Verify IP address is displayed (IPv4 pattern)
-    await expect(
-      page.getByText(/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/)
-    ).toBeVisible();
+    await expect(page.getByText(/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/)).toBeVisible();
 
     // Verify response time is displayed
     await expect(page.getByText(/\d+\s*ms/i)).toBeVisible();
@@ -128,14 +118,12 @@ test.describe('DNS Lookup Tool - Error Handling', () => {
     await lookupButton.click();
 
     // Wait for error message
-    await expect(
-      page.locator('[role="alert"], [data-testid="dns-error"]')
-    ).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('[role="alert"], [data-testid="dns-error"]')).toBeVisible({
+      timeout: 5000,
+    });
 
     // Verify error message contains helpful information
-    await expect(
-      page.getByText(/invalid|error|failed/i)
-    ).toBeVisible();
+    await expect(page.getByText(/invalid|error|failed/i)).toBeVisible();
   });
 
   test('should show NXDOMAIN error for non-existent domain', async ({ page }) => {
@@ -155,9 +143,7 @@ test.describe('DNS Lookup Tool - Error Handling', () => {
     await expect(errorText).toBeVisible({ timeout: 10000 });
 
     // Should show troubleshooting suggestion
-    await expect(
-      page.getByText(/check.*spelling|verify.*hostname/i)
-    ).toBeVisible();
+    await expect(page.getByText(/check.*spelling|verify.*hostname/i)).toBeVisible();
   });
 
   test('should handle DNS timeout gracefully', async ({ page }) => {
@@ -178,9 +164,7 @@ test.describe('DNS Lookup Tool - Error Handling', () => {
 
     if (isTimeoutVisible) {
       // Verify timeout message includes suggestion
-      await expect(
-        page.getByText(/try.*different.*server|check.*connectivity/i)
-      ).toBeVisible();
+      await expect(page.getByText(/try.*different.*server|check.*connectivity/i)).toBeVisible();
     }
   });
 });
@@ -198,14 +182,10 @@ test.describe('DNS Benchmark - Execution Flow', () => {
     await benchmarkButton.click();
 
     // Verify loading state is shown
-    await expect(
-      page.getByText(/running|testing|benchmarking/i)
-    ).toBeVisible({ timeout: 2000 });
+    await expect(page.getByText(/running|testing|benchmarking/i)).toBeVisible({ timeout: 2000 });
 
     // Wait for results to appear
-    await expect(
-      page.locator('[data-testid="benchmark-results"]')
-    ).toBeVisible({ timeout: 15000 });
+    await expect(page.locator('[data-testid="benchmark-results"]')).toBeVisible({ timeout: 15000 });
 
     // Verify status labels are displayed
     const statusLabels = ['fastest', 'good', 'slow', 'unreachable'];
@@ -233,9 +213,7 @@ test.describe('DNS Benchmark - Execution Flow', () => {
     await page.waitForTimeout(5000);
 
     // Look for "Fastest" badge or indicator
-    await expect(
-      page.getByText(/fastest/i).first()
-    ).toBeVisible({ timeout: 15000 });
+    await expect(page.getByText(/fastest/i).first()).toBeVisible({ timeout: 15000 });
   });
 
   test('should sort servers by response time', async ({ page }) => {
@@ -246,9 +224,7 @@ test.describe('DNS Benchmark - Execution Flow', () => {
     await page.waitForTimeout(8000);
 
     // Get all response time elements
-    const responseTimes = await page
-      .locator('text=/\\d+\\s*ms/')
-      .allTextContents();
+    const responseTimes = await page.locator('text=/\\d+\\s*ms/').allTextContents();
 
     if (responseTimes.length > 1) {
       // Extract numeric values and verify sorting
@@ -295,19 +271,15 @@ test.describe('DNS Cache Management', () => {
 
   test('should display DNS cache statistics', async ({ page }) => {
     // Verify cache statistics are visible
-    await expect(
-      page.getByText(/cache.*stat|total.*entries|cache.*size/i)
-    ).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText(/cache.*stat|total.*entries|cache.*size/i)).toBeVisible({
+      timeout: 5000,
+    });
 
     // Verify hit rate is displayed
-    await expect(
-      page.getByText(/hit rate|\d+%/i)
-    ).toBeVisible();
+    await expect(page.getByText(/hit rate|\d+%/i)).toBeVisible();
 
     // Verify most queried domains section exists
-    await expect(
-      page.getByText(/most queried|top domains|popular/i)
-    ).toBeVisible();
+    await expect(page.getByText(/most queried|top domains|popular/i)).toBeVisible();
   });
 
   test('should flush DNS cache with confirmation dialog', async ({ page }) => {
@@ -319,19 +291,15 @@ test.describe('DNS Cache Management', () => {
     await flushButton.click();
 
     // Verify confirmation dialog appears
-    await expect(
-      page.locator('[role="dialog"], [role="alertdialog"]')
-    ).toBeVisible({ timeout: 3000 });
+    await expect(page.locator('[role="dialog"], [role="alertdialog"]')).toBeVisible({
+      timeout: 3000,
+    });
 
     // Verify dialog contains warning or confirmation message
-    await expect(
-      page.getByText(/are you sure|confirm|warning|flush.*cache/i)
-    ).toBeVisible();
+    await expect(page.getByText(/are you sure|confirm|warning|flush.*cache/i)).toBeVisible();
 
     // Verify before/after stats preview is shown
-    await expect(
-      page.getByText(/entries|cache.*size/i)
-    ).toBeVisible();
+    await expect(page.getByText(/entries|cache.*size/i)).toBeVisible();
 
     // Find and click confirm button
     const confirmButton = page
@@ -340,19 +308,17 @@ test.describe('DNS Cache Management', () => {
     await confirmButton.click();
 
     // Wait for success notification
-    await expect(
-      page.locator('[role="status"], [data-testid="toast"]')
-    ).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('[role="status"], [data-testid="toast"]')).toBeVisible({
+      timeout: 5000,
+    });
 
     // Verify success message
-    await expect(
-      page.getByText(/cache.*flushed|success|cleared/i)
-    ).toBeVisible();
+    await expect(page.getByText(/cache.*flushed|success|cleared/i)).toBeVisible();
 
     // Dialog should close
-    await expect(
-      page.locator('[role="dialog"], [role="alertdialog"]')
-    ).not.toBeVisible({ timeout: 3000 });
+    await expect(page.locator('[role="dialog"], [role="alertdialog"]')).not.toBeVisible({
+      timeout: 3000,
+    });
   });
 
   test('should cancel cache flush on dialog dismiss', async ({ page }) => {
@@ -360,9 +326,7 @@ test.describe('DNS Cache Management', () => {
     await flushButton.click();
 
     // Wait for dialog
-    await expect(
-      page.locator('[role="dialog"], [role="alertdialog"]')
-    ).toBeVisible();
+    await expect(page.locator('[role="dialog"], [role="alertdialog"]')).toBeVisible();
 
     // Find and click cancel button
     const cancelButton = page
@@ -373,14 +337,12 @@ test.describe('DNS Cache Management', () => {
       await cancelButton.click();
 
       // Dialog should close
-      await expect(
-        page.locator('[role="dialog"], [role="alertdialog"]')
-      ).not.toBeVisible({ timeout: 2000 });
+      await expect(page.locator('[role="dialog"], [role="alertdialog"]')).not.toBeVisible({
+        timeout: 2000,
+      });
 
       // No flush should have occurred (no success toast)
-      await expect(
-        page.getByText(/cache.*flushed/i)
-      ).not.toBeVisible();
+      await expect(page.getByText(/cache.*flushed/i)).not.toBeVisible();
     }
   });
 
@@ -476,8 +438,8 @@ test.describe('DNS Diagnostics - Accessibility (WCAG AAA)', () => {
     const buttons = await page.getByRole('button').all();
 
     for (const button of buttons) {
-      const accessibleName = await button.getAttribute('aria-label') ||
-        await button.textContent();
+      const accessibleName =
+        (await button.getAttribute('aria-label')) || (await button.textContent());
       expect(accessibleName).toBeTruthy();
     }
   });

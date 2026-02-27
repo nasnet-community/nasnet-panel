@@ -1,10 +1,6 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 
-import {
-  calculateBackoff,
-  createReconnectionManager,
-  createLatencyUpdater,
-} from './reconnect';
+import { calculateBackoff, createReconnectionManager, createLatencyUpdater } from './reconnect';
 
 describe('Reconnection Utilities', () => {
   beforeEach(() => {
@@ -80,7 +76,6 @@ describe('Reconnection Utilities', () => {
       expect(unique.size).toBeGreaterThan(1);
     });
   });
-
 
   describe('createReconnectionManager', () => {
     it('should create manager with default config', () => {

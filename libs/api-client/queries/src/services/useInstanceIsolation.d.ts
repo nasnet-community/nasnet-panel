@@ -12,43 +12,43 @@ import type { IsolationStatus, ResourceLimits } from '@nasnet/api-client/generat
  * GraphQL query for instance isolation status
  * Fetches complete isolation verification results including violations and resource limits
  */
-export declare const GET_INSTANCE_ISOLATION: import("graphql").DocumentNode;
+export declare const GET_INSTANCE_ISOLATION: import('graphql').DocumentNode;
 /**
  * GraphQL mutation for setting resource limits
  * Updates resource constraints for a service instance
  */
-export declare const SET_RESOURCE_LIMITS: import("graphql").DocumentNode;
+export declare const SET_RESOURCE_LIMITS: import('graphql').DocumentNode;
 /**
  * Variables for GET_INSTANCE_ISOLATION query
  */
 export interface GetInstanceIsolationVariables {
-    routerID: string;
-    instanceID: string;
+  routerID: string;
+  instanceID: string;
 }
 /**
  * Result type for GET_INSTANCE_ISOLATION query
  */
 export interface GetInstanceIsolationResult {
-    instanceIsolation: IsolationStatus;
+  instanceIsolation: IsolationStatus;
 }
 /**
  * Variables for SET_RESOURCE_LIMITS mutation
  */
 export interface SetResourceLimitsVariables {
-    routerID: string;
-    instanceID: string;
-    memoryMB: number;
-    cpuWeight?: number;
+  routerID: string;
+  instanceID: string;
+  memoryMB: number;
+  cpuWeight?: number;
 }
 /**
  * Result type for SET_RESOURCE_LIMITS mutation
  */
 export interface SetResourceLimitsResult {
-    setResourceLimits: {
-        success: boolean;
-        message: string;
-        resourceLimits: ResourceLimits | null;
-    };
+  setResourceLimits: {
+    success: boolean;
+    message: string;
+    resourceLimits: ResourceLimits | null;
+  };
 }
 /**
  * Hook for querying instance isolation status.
@@ -82,7 +82,14 @@ export interface SetResourceLimitsResult {
  * }
  * ```
  */
-export declare function useInstanceIsolation(routerID: string, instanceID: string, options?: QueryHookOptions<GetInstanceIsolationResult, GetInstanceIsolationVariables>): import("@apollo/client").InteropQueryResult<GetInstanceIsolationResult, GetInstanceIsolationVariables>;
+export declare function useInstanceIsolation(
+  routerID: string,
+  instanceID: string,
+  options?: QueryHookOptions<GetInstanceIsolationResult, GetInstanceIsolationVariables>
+): import('@apollo/client').InteropQueryResult<
+  GetInstanceIsolationResult,
+  GetInstanceIsolationVariables
+>;
 /**
  * Hook for setting resource limits on a service instance.
  *
@@ -121,5 +128,12 @@ export declare function useInstanceIsolation(routerID: string, instanceID: strin
  * }
  * ```
  */
-export declare function useSetResourceLimits(options?: MutationHookOptions<SetResourceLimitsResult, SetResourceLimitsVariables>): import("@apollo/client").MutationTuple<SetResourceLimitsResult, SetResourceLimitsVariables, import("@apollo/client").DefaultContext, import("@apollo/client").ApolloCache<any>>;
+export declare function useSetResourceLimits(
+  options?: MutationHookOptions<SetResourceLimitsResult, SetResourceLimitsVariables>
+): import('@apollo/client').MutationTuple<
+  SetResourceLimitsResult,
+  SetResourceLimitsVariables,
+  import('@apollo/client').DefaultContext,
+  import('@apollo/client').ApolloCache<any>
+>;
 //# sourceMappingURL=useInstanceIsolation.d.ts.map

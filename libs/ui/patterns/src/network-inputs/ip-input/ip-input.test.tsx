@@ -10,7 +10,7 @@
  * @module @nasnet/ui/patterns/network-inputs/ip-input
  */
 
-import { render, screen, fireEvent, waitFor , renderHook, act } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, renderHook, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi } from 'vitest';
 import { axe } from 'vitest-axe';
@@ -18,12 +18,7 @@ import { axe } from 'vitest-axe';
 import { IPInput } from './ip-input';
 import { IPInputDesktop } from './ip-input-desktop';
 import { IPInputMobile } from './ip-input-mobile';
-import {
-  useIPInput,
-  classifyIP,
-  isValidOctet,
-  isValidIPv4,
-} from './use-ip-input';
+import { useIPInput, classifyIP, isValidOctet, isValidIPv4 } from './use-ip-input';
 
 // Note: vitest-axe matchers are extended in setup.ts
 
@@ -155,18 +150,14 @@ describe('useIPInput hook', () => {
     });
 
     it('should parse initial value into segments', () => {
-      const { result } = renderHook(() =>
-        useIPInput({ value: '192.168.1.1' })
-      );
+      const { result } = renderHook(() => useIPInput({ value: '192.168.1.1' }));
 
       expect(result.current.segments).toEqual(['192', '168', '1', '1']);
       expect(result.current.isValid).toBe(true);
     });
 
     it('should handle partial initial value', () => {
-      const { result } = renderHook(() =>
-        useIPInput({ value: '192.168' })
-      );
+      const { result } = renderHook(() => useIPInput({ value: '192.168' }));
 
       expect(result.current.segments).toEqual(['192', '168', '', '']);
       expect(result.current.isValid).toBe(false);
@@ -175,27 +166,21 @@ describe('useIPInput hook', () => {
 
   describe('validation', () => {
     it('should validate complete valid IPv4', () => {
-      const { result } = renderHook(() =>
-        useIPInput({ value: '192.168.1.1' })
-      );
+      const { result } = renderHook(() => useIPInput({ value: '192.168.1.1' }));
 
       expect(result.current.isValid).toBe(true);
       expect(result.current.error).toBe(null);
     });
 
     it('should reject invalid octets (>255)', () => {
-      const { result } = renderHook(() =>
-        useIPInput({ value: '256.1.1.1' })
-      );
+      const { result } = renderHook(() => useIPInput({ value: '256.1.1.1' }));
 
       expect(result.current.isValid).toBe(false);
       expect(result.current.error).toContain('Octet 1');
     });
 
     it('should reject incomplete IPs', () => {
-      const { result } = renderHook(() =>
-        useIPInput({ value: '192.168.1' })
-      );
+      const { result } = renderHook(() => useIPInput({ value: '192.168.1' }));
 
       expect(result.current.isValid).toBe(false);
     });
@@ -203,26 +188,18 @@ describe('useIPInput hook', () => {
 
   describe('IP type classification', () => {
     it('should classify valid IP types', () => {
-      const { result: private1 } = renderHook(() =>
-        useIPInput({ value: '10.0.0.1' })
-      );
+      const { result: private1 } = renderHook(() => useIPInput({ value: '10.0.0.1' }));
       expect(private1.current.ipType).toBe('private');
 
-      const { result: public1 } = renderHook(() =>
-        useIPInput({ value: '8.8.8.8' })
-      );
+      const { result: public1 } = renderHook(() => useIPInput({ value: '8.8.8.8' }));
       expect(public1.current.ipType).toBe('public');
 
-      const { result: loopback } = renderHook(() =>
-        useIPInput({ value: '127.0.0.1' })
-      );
+      const { result: loopback } = renderHook(() => useIPInput({ value: '127.0.0.1' }));
       expect(loopback.current.ipType).toBe('loopback');
     });
 
     it('should return null for invalid IPs', () => {
-      const { result } = renderHook(() =>
-        useIPInput({ value: '256.1.1.1' })
-      );
+      const { result } = renderHook(() => useIPInput({ value: '256.1.1.1' }));
       expect(result.current.ipType).toBe(null);
     });
   });
@@ -230,9 +207,7 @@ describe('useIPInput hook', () => {
   describe('setSegment', () => {
     it('should update a specific segment', () => {
       const onChange = vi.fn();
-      const { result } = renderHook(() =>
-        useIPInput({ value: '192.168.1.1', onChange })
-      );
+      const { result } = renderHook(() => useIPInput({ value: '192.168.1.1', onChange }));
 
       act(() => {
         result.current.setSegment(2, '100');
@@ -246,9 +221,7 @@ describe('useIPInput hook', () => {
   describe('setValue', () => {
     it('should parse and set full IP', () => {
       const onChange = vi.fn();
-      const { result } = renderHook(() =>
-        useIPInput({ onChange })
-      );
+      const { result } = renderHook(() => useIPInput({ onChange }));
 
       act(() => {
         result.current.setValue('10.0.0.1');
@@ -261,9 +234,7 @@ describe('useIPInput hook', () => {
 
   describe('CIDR handling', () => {
     it('should parse CIDR prefix from value', () => {
-      const { result } = renderHook(() =>
-        useIPInput({ value: '192.168.1.0/24', allowCIDR: true })
-      );
+      const { result } = renderHook(() => useIPInput({ value: '192.168.1.0/24', allowCIDR: true }));
 
       expect(result.current.cidrPrefix).toBe('24');
       expect(result.current.value).toBe('192.168.1.0/24');
@@ -315,7 +286,12 @@ describe('IPInputDesktop', () => {
   });
 
   it('should show IP type badge when showType is enabled', () => {
-    render(<IPInputDesktop value="192.168.1.1" showType />);
+    render(
+      <IPInputDesktop
+        value="192.168.1.1"
+        showType
+      />
+    );
 
     expect(screen.getByText('Private')).toBeInTheDocument();
   });
@@ -381,7 +357,12 @@ describe('IPInputMobile', () => {
   });
 
   it('should show IP type badge when showType is enabled', () => {
-    render(<IPInputMobile value="192.168.1.1" showType />);
+    render(
+      <IPInputMobile
+        value="192.168.1.1"
+        showType
+      />
+    );
 
     expect(screen.getByText('Private')).toBeInTheDocument();
   });
@@ -439,7 +420,10 @@ describe('IPInput interactions', () => {
 describe('IPInput accessibility', () => {
   it('should have no axe violations for desktop presenter', async () => {
     const { container } = render(
-      <IPInputDesktop value="192.168.1.1" showType />
+      <IPInputDesktop
+        value="192.168.1.1"
+        showType
+      />
     );
 
     const results = await axe(container);
@@ -448,7 +432,10 @@ describe('IPInput accessibility', () => {
 
   it('should have no axe violations for mobile presenter', async () => {
     const { container } = render(
-      <IPInputMobile value="192.168.1.1" showType />
+      <IPInputMobile
+        value="192.168.1.1"
+        showType
+      />
     );
 
     const results = await axe(container);

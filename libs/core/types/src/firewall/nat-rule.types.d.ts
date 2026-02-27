@@ -14,17 +14,34 @@ import { z } from 'zod';
 /**
  * NAT Chain - srcnat or dstnat
  */
-export declare const NatChainSchema: z.ZodEnum<["srcnat", "dstnat"]>;
+export declare const NatChainSchema: z.ZodEnum<['srcnat', 'dstnat']>;
 export type NatChain = z.infer<typeof NatChainSchema>;
 /**
  * NAT Action - What transformation to apply
  */
-export declare const NatActionSchema: z.ZodEnum<["masquerade", "dst-nat", "src-nat", "redirect", "netmap", "same", "accept", "drop", "jump", "return", "log", "passthrough"]>;
+export declare const NatActionSchema: z.ZodEnum<
+  [
+    'masquerade',
+    'dst-nat',
+    'src-nat',
+    'redirect',
+    'netmap',
+    'same',
+    'accept',
+    'drop',
+    'jump',
+    'return',
+    'log',
+    'passthrough',
+  ]
+>;
 export type NatAction = z.infer<typeof NatActionSchema>;
 /**
  * Protocol type for NAT rules
  */
-export declare const ProtocolSchema: z.ZodEnum<["tcp", "udp", "icmp", "gre", "esp", "ah", "ipip", "sctp", "all"]>;
+export declare const ProtocolSchema: z.ZodEnum<
+  ['tcp', 'udp', 'icmp', 'gre', 'esp', 'ah', 'ipip', 'sctp', 'all']
+>;
 export type Protocol = z.infer<typeof ProtocolSchema>;
 /**
  * NAT Rule Input Schema
@@ -32,37 +49,254 @@ export type Protocol = z.infer<typeof ProtocolSchema>;
  * Complete schema for NAT rule configuration.
  * Includes all matchers and action parameters.
  */
-export declare const NATRuleInputSchema: z.ZodEffects<z.ZodEffects<z.ZodObject<{
-    id: z.ZodOptional<z.ZodString>;
-    chain: z.ZodEnum<["srcnat", "dstnat"]>;
-    action: z.ZodEnum<["masquerade", "dst-nat", "src-nat", "redirect", "netmap", "same", "accept", "drop", "jump", "return", "log", "passthrough"]>;
-    position: z.ZodOptional<z.ZodNumber>;
-    protocol: z.ZodOptional<z.ZodEnum<["tcp", "udp", "icmp", "gre", "esp", "ah", "ipip", "sctp", "all"]>>;
-    srcAddress: z.ZodOptional<z.ZodString>;
-    dstAddress: z.ZodOptional<z.ZodString>;
-    srcPort: z.ZodOptional<z.ZodString>;
-    dstPort: z.ZodOptional<z.ZodString>;
-    inInterface: z.ZodOptional<z.ZodString>;
-    outInterface: z.ZodOptional<z.ZodString>;
-    inInterfaceList: z.ZodOptional<z.ZodString>;
-    outInterfaceList: z.ZodOptional<z.ZodString>;
-    toAddresses: z.ZodOptional<z.ZodString>;
-    toPorts: z.ZodOptional<z.ZodString>;
-    comment: z.ZodOptional<z.ZodString>;
-    disabled: z.ZodDefault<z.ZodBoolean>;
-    log: z.ZodDefault<z.ZodBoolean>;
-    logPrefix: z.ZodOptional<z.ZodString>;
-    packets: z.ZodOptional<z.ZodNumber>;
-    bytes: z.ZodOptional<z.ZodNumber>;
-}, "strip", z.ZodTypeAny, {
+export declare const NATRuleInputSchema: z.ZodEffects<
+  z.ZodEffects<
+    z.ZodObject<
+      {
+        id: z.ZodOptional<z.ZodString>;
+        chain: z.ZodEnum<['srcnat', 'dstnat']>;
+        action: z.ZodEnum<
+          [
+            'masquerade',
+            'dst-nat',
+            'src-nat',
+            'redirect',
+            'netmap',
+            'same',
+            'accept',
+            'drop',
+            'jump',
+            'return',
+            'log',
+            'passthrough',
+          ]
+        >;
+        position: z.ZodOptional<z.ZodNumber>;
+        protocol: z.ZodOptional<
+          z.ZodEnum<['tcp', 'udp', 'icmp', 'gre', 'esp', 'ah', 'ipip', 'sctp', 'all']>
+        >;
+        srcAddress: z.ZodOptional<z.ZodString>;
+        dstAddress: z.ZodOptional<z.ZodString>;
+        srcPort: z.ZodOptional<z.ZodString>;
+        dstPort: z.ZodOptional<z.ZodString>;
+        inInterface: z.ZodOptional<z.ZodString>;
+        outInterface: z.ZodOptional<z.ZodString>;
+        inInterfaceList: z.ZodOptional<z.ZodString>;
+        outInterfaceList: z.ZodOptional<z.ZodString>;
+        toAddresses: z.ZodOptional<z.ZodString>;
+        toPorts: z.ZodOptional<z.ZodString>;
+        comment: z.ZodOptional<z.ZodString>;
+        disabled: z.ZodDefault<z.ZodBoolean>;
+        log: z.ZodDefault<z.ZodBoolean>;
+        logPrefix: z.ZodOptional<z.ZodString>;
+        packets: z.ZodOptional<z.ZodNumber>;
+        bytes: z.ZodOptional<z.ZodNumber>;
+      },
+      'strip',
+      z.ZodTypeAny,
+      {
+        log: boolean;
+        action:
+          | 'log'
+          | 'accept'
+          | 'passthrough'
+          | 'drop'
+          | 'jump'
+          | 'masquerade'
+          | 'dst-nat'
+          | 'src-nat'
+          | 'redirect'
+          | 'netmap'
+          | 'same'
+          | 'return';
+        disabled: boolean;
+        chain: 'srcnat' | 'dstnat';
+        id?: string | undefined;
+        position?: number | undefined;
+        bytes?: number | undefined;
+        protocol?:
+          | 'all'
+          | 'tcp'
+          | 'udp'
+          | 'icmp'
+          | 'gre'
+          | 'esp'
+          | 'ah'
+          | 'ipip'
+          | 'sctp'
+          | undefined;
+        srcAddress?: string | undefined;
+        dstAddress?: string | undefined;
+        srcPort?: string | undefined;
+        dstPort?: string | undefined;
+        inInterface?: string | undefined;
+        outInterface?: string | undefined;
+        inInterfaceList?: string | undefined;
+        outInterfaceList?: string | undefined;
+        comment?: string | undefined;
+        logPrefix?: string | undefined;
+        packets?: number | undefined;
+        toAddresses?: string | undefined;
+        toPorts?: string | undefined;
+      },
+      {
+        action:
+          | 'log'
+          | 'accept'
+          | 'passthrough'
+          | 'drop'
+          | 'jump'
+          | 'masquerade'
+          | 'dst-nat'
+          | 'src-nat'
+          | 'redirect'
+          | 'netmap'
+          | 'same'
+          | 'return';
+        chain: 'srcnat' | 'dstnat';
+        id?: string | undefined;
+        log?: boolean | undefined;
+        disabled?: boolean | undefined;
+        position?: number | undefined;
+        bytes?: number | undefined;
+        protocol?:
+          | 'all'
+          | 'tcp'
+          | 'udp'
+          | 'icmp'
+          | 'gre'
+          | 'esp'
+          | 'ah'
+          | 'ipip'
+          | 'sctp'
+          | undefined;
+        srcAddress?: string | undefined;
+        dstAddress?: string | undefined;
+        srcPort?: string | undefined;
+        dstPort?: string | undefined;
+        inInterface?: string | undefined;
+        outInterface?: string | undefined;
+        inInterfaceList?: string | undefined;
+        outInterfaceList?: string | undefined;
+        comment?: string | undefined;
+        logPrefix?: string | undefined;
+        packets?: number | undefined;
+        toAddresses?: string | undefined;
+        toPorts?: string | undefined;
+      }
+    >,
+    {
+      log: boolean;
+      action:
+        | 'log'
+        | 'accept'
+        | 'passthrough'
+        | 'drop'
+        | 'jump'
+        | 'masquerade'
+        | 'dst-nat'
+        | 'src-nat'
+        | 'redirect'
+        | 'netmap'
+        | 'same'
+        | 'return';
+      disabled: boolean;
+      chain: 'srcnat' | 'dstnat';
+      id?: string | undefined;
+      position?: number | undefined;
+      bytes?: number | undefined;
+      protocol?:
+        | 'all'
+        | 'tcp'
+        | 'udp'
+        | 'icmp'
+        | 'gre'
+        | 'esp'
+        | 'ah'
+        | 'ipip'
+        | 'sctp'
+        | undefined;
+      srcAddress?: string | undefined;
+      dstAddress?: string | undefined;
+      srcPort?: string | undefined;
+      dstPort?: string | undefined;
+      inInterface?: string | undefined;
+      outInterface?: string | undefined;
+      inInterfaceList?: string | undefined;
+      outInterfaceList?: string | undefined;
+      comment?: string | undefined;
+      logPrefix?: string | undefined;
+      packets?: number | undefined;
+      toAddresses?: string | undefined;
+      toPorts?: string | undefined;
+    },
+    {
+      action:
+        | 'log'
+        | 'accept'
+        | 'passthrough'
+        | 'drop'
+        | 'jump'
+        | 'masquerade'
+        | 'dst-nat'
+        | 'src-nat'
+        | 'redirect'
+        | 'netmap'
+        | 'same'
+        | 'return';
+      chain: 'srcnat' | 'dstnat';
+      id?: string | undefined;
+      log?: boolean | undefined;
+      disabled?: boolean | undefined;
+      position?: number | undefined;
+      bytes?: number | undefined;
+      protocol?:
+        | 'all'
+        | 'tcp'
+        | 'udp'
+        | 'icmp'
+        | 'gre'
+        | 'esp'
+        | 'ah'
+        | 'ipip'
+        | 'sctp'
+        | undefined;
+      srcAddress?: string | undefined;
+      dstAddress?: string | undefined;
+      srcPort?: string | undefined;
+      dstPort?: string | undefined;
+      inInterface?: string | undefined;
+      outInterface?: string | undefined;
+      inInterfaceList?: string | undefined;
+      outInterfaceList?: string | undefined;
+      comment?: string | undefined;
+      logPrefix?: string | undefined;
+      packets?: number | undefined;
+      toAddresses?: string | undefined;
+      toPorts?: string | undefined;
+    }
+  >,
+  {
     log: boolean;
-    action: "log" | "accept" | "passthrough" | "drop" | "jump" | "masquerade" | "dst-nat" | "src-nat" | "redirect" | "netmap" | "same" | "return";
+    action:
+      | 'log'
+      | 'accept'
+      | 'passthrough'
+      | 'drop'
+      | 'jump'
+      | 'masquerade'
+      | 'dst-nat'
+      | 'src-nat'
+      | 'redirect'
+      | 'netmap'
+      | 'same'
+      | 'return';
     disabled: boolean;
-    chain: "srcnat" | "dstnat";
+    chain: 'srcnat' | 'dstnat';
     id?: string | undefined;
     position?: number | undefined;
     bytes?: number | undefined;
-    protocol?: "all" | "tcp" | "udp" | "icmp" | "gre" | "esp" | "ah" | "ipip" | "sctp" | undefined;
+    protocol?: 'all' | 'tcp' | 'udp' | 'icmp' | 'gre' | 'esp' | 'ah' | 'ipip' | 'sctp' | undefined;
     srcAddress?: string | undefined;
     dstAddress?: string | undefined;
     srcPort?: string | undefined;
@@ -76,15 +310,28 @@ export declare const NATRuleInputSchema: z.ZodEffects<z.ZodEffects<z.ZodObject<{
     packets?: number | undefined;
     toAddresses?: string | undefined;
     toPorts?: string | undefined;
-}, {
-    action: "log" | "accept" | "passthrough" | "drop" | "jump" | "masquerade" | "dst-nat" | "src-nat" | "redirect" | "netmap" | "same" | "return";
-    chain: "srcnat" | "dstnat";
+  },
+  {
+    action:
+      | 'log'
+      | 'accept'
+      | 'passthrough'
+      | 'drop'
+      | 'jump'
+      | 'masquerade'
+      | 'dst-nat'
+      | 'src-nat'
+      | 'redirect'
+      | 'netmap'
+      | 'same'
+      | 'return';
+    chain: 'srcnat' | 'dstnat';
     id?: string | undefined;
     log?: boolean | undefined;
     disabled?: boolean | undefined;
     position?: number | undefined;
     bytes?: number | undefined;
-    protocol?: "all" | "tcp" | "udp" | "icmp" | "gre" | "esp" | "ah" | "ipip" | "sctp" | undefined;
+    protocol?: 'all' | 'tcp' | 'udp' | 'icmp' | 'gre' | 'esp' | 'ah' | 'ipip' | 'sctp' | undefined;
     srcAddress?: string | undefined;
     dstAddress?: string | undefined;
     srcPort?: string | undefined;
@@ -98,95 +345,8 @@ export declare const NATRuleInputSchema: z.ZodEffects<z.ZodEffects<z.ZodObject<{
     packets?: number | undefined;
     toAddresses?: string | undefined;
     toPorts?: string | undefined;
-}>, {
-    log: boolean;
-    action: "log" | "accept" | "passthrough" | "drop" | "jump" | "masquerade" | "dst-nat" | "src-nat" | "redirect" | "netmap" | "same" | "return";
-    disabled: boolean;
-    chain: "srcnat" | "dstnat";
-    id?: string | undefined;
-    position?: number | undefined;
-    bytes?: number | undefined;
-    protocol?: "all" | "tcp" | "udp" | "icmp" | "gre" | "esp" | "ah" | "ipip" | "sctp" | undefined;
-    srcAddress?: string | undefined;
-    dstAddress?: string | undefined;
-    srcPort?: string | undefined;
-    dstPort?: string | undefined;
-    inInterface?: string | undefined;
-    outInterface?: string | undefined;
-    inInterfaceList?: string | undefined;
-    outInterfaceList?: string | undefined;
-    comment?: string | undefined;
-    logPrefix?: string | undefined;
-    packets?: number | undefined;
-    toAddresses?: string | undefined;
-    toPorts?: string | undefined;
-}, {
-    action: "log" | "accept" | "passthrough" | "drop" | "jump" | "masquerade" | "dst-nat" | "src-nat" | "redirect" | "netmap" | "same" | "return";
-    chain: "srcnat" | "dstnat";
-    id?: string | undefined;
-    log?: boolean | undefined;
-    disabled?: boolean | undefined;
-    position?: number | undefined;
-    bytes?: number | undefined;
-    protocol?: "all" | "tcp" | "udp" | "icmp" | "gre" | "esp" | "ah" | "ipip" | "sctp" | undefined;
-    srcAddress?: string | undefined;
-    dstAddress?: string | undefined;
-    srcPort?: string | undefined;
-    dstPort?: string | undefined;
-    inInterface?: string | undefined;
-    outInterface?: string | undefined;
-    inInterfaceList?: string | undefined;
-    outInterfaceList?: string | undefined;
-    comment?: string | undefined;
-    logPrefix?: string | undefined;
-    packets?: number | undefined;
-    toAddresses?: string | undefined;
-    toPorts?: string | undefined;
-}>, {
-    log: boolean;
-    action: "log" | "accept" | "passthrough" | "drop" | "jump" | "masquerade" | "dst-nat" | "src-nat" | "redirect" | "netmap" | "same" | "return";
-    disabled: boolean;
-    chain: "srcnat" | "dstnat";
-    id?: string | undefined;
-    position?: number | undefined;
-    bytes?: number | undefined;
-    protocol?: "all" | "tcp" | "udp" | "icmp" | "gre" | "esp" | "ah" | "ipip" | "sctp" | undefined;
-    srcAddress?: string | undefined;
-    dstAddress?: string | undefined;
-    srcPort?: string | undefined;
-    dstPort?: string | undefined;
-    inInterface?: string | undefined;
-    outInterface?: string | undefined;
-    inInterfaceList?: string | undefined;
-    outInterfaceList?: string | undefined;
-    comment?: string | undefined;
-    logPrefix?: string | undefined;
-    packets?: number | undefined;
-    toAddresses?: string | undefined;
-    toPorts?: string | undefined;
-}, {
-    action: "log" | "accept" | "passthrough" | "drop" | "jump" | "masquerade" | "dst-nat" | "src-nat" | "redirect" | "netmap" | "same" | "return";
-    chain: "srcnat" | "dstnat";
-    id?: string | undefined;
-    log?: boolean | undefined;
-    disabled?: boolean | undefined;
-    position?: number | undefined;
-    bytes?: number | undefined;
-    protocol?: "all" | "tcp" | "udp" | "icmp" | "gre" | "esp" | "ah" | "ipip" | "sctp" | undefined;
-    srcAddress?: string | undefined;
-    dstAddress?: string | undefined;
-    srcPort?: string | undefined;
-    dstPort?: string | undefined;
-    inInterface?: string | undefined;
-    outInterface?: string | undefined;
-    inInterfaceList?: string | undefined;
-    outInterfaceList?: string | undefined;
-    comment?: string | undefined;
-    logPrefix?: string | undefined;
-    packets?: number | undefined;
-    toAddresses?: string | undefined;
-    toPorts?: string | undefined;
-}>;
+  }
+>;
 export type NATRuleInput = z.infer<typeof NATRuleInputSchema>;
 /**
  * Port Forward Input Schema
@@ -194,31 +354,39 @@ export type NATRuleInput = z.infer<typeof NATRuleInputSchema>;
  * Simplified schema for the Port Forward Wizard.
  * Creates both a dst-nat rule and a filter accept rule.
  */
-export declare const PortForwardSchema: z.ZodObject<{
-    protocol: z.ZodDefault<z.ZodEnum<["tcp", "udp", "icmp", "gre", "esp", "ah", "ipip", "sctp", "all"]>>;
+export declare const PortForwardSchema: z.ZodObject<
+  {
+    protocol: z.ZodDefault<
+      z.ZodEnum<['tcp', 'udp', 'icmp', 'gre', 'esp', 'ah', 'ipip', 'sctp', 'all']>
+    >;
     externalPort: z.ZodNumber;
     internalIP: z.ZodString;
     internalPort: z.ZodOptional<z.ZodNumber>;
     name: z.ZodOptional<z.ZodString>;
     wanInterface: z.ZodOptional<z.ZodString>;
     comment: z.ZodOptional<z.ZodString>;
-}, "strip", z.ZodTypeAny, {
-    protocol: "all" | "tcp" | "udp" | "icmp" | "gre" | "esp" | "ah" | "ipip" | "sctp";
+  },
+  'strip',
+  z.ZodTypeAny,
+  {
+    protocol: 'all' | 'tcp' | 'udp' | 'icmp' | 'gre' | 'esp' | 'ah' | 'ipip' | 'sctp';
     externalPort: number;
     internalIP: string;
     name?: string | undefined;
     comment?: string | undefined;
     internalPort?: number | undefined;
     wanInterface?: string | undefined;
-}, {
+  },
+  {
     externalPort: number;
     internalIP: string;
     name?: string | undefined;
-    protocol?: "all" | "tcp" | "udp" | "icmp" | "gre" | "esp" | "ah" | "ipip" | "sctp" | undefined;
+    protocol?: 'all' | 'tcp' | 'udp' | 'icmp' | 'gre' | 'esp' | 'ah' | 'ipip' | 'sctp' | undefined;
     comment?: string | undefined;
     internalPort?: number | undefined;
     wanInterface?: string | undefined;
-}>;
+  }
+>;
 export type PortForward = z.infer<typeof PortForwardSchema>;
 /**
  * Port Forward Result - Represents created port forward configuration
@@ -243,26 +411,26 @@ export type PortForward = z.infer<typeof PortForwardSchema>;
  * ```
  */
 export interface PortForwardResult {
-    /** Unique identifier for the port forward */
-    readonly id: string;
-    /** Optional friendly name for the port forward */
-    readonly name?: string;
-    /** Protocol type (tcp, udp, etc.) */
-    readonly protocol: Protocol;
-    /** External port number (1-65535) */
-    readonly externalPort: number;
-    /** Internal IP address to forward to */
-    readonly internalIP: string;
-    /** Internal port number (1-65535), defaults to externalPort */
-    readonly internalPort: number;
-    /** Status of the port forward (active, disabled, or error) */
-    readonly status: 'active' | 'disabled' | 'error';
-    /** ID of the dst-nat rule that performs the translation */
-    readonly natRuleId: string;
-    /** ID of the filter accept rule (optional) */
-    readonly filterRuleId?: string;
-    /** Creation timestamp */
-    readonly createdAt?: Date;
+  /** Unique identifier for the port forward */
+  readonly id: string;
+  /** Optional friendly name for the port forward */
+  readonly name?: string;
+  /** Protocol type (tcp, udp, etc.) */
+  readonly protocol: Protocol;
+  /** External port number (1-65535) */
+  readonly externalPort: number;
+  /** Internal IP address to forward to */
+  readonly internalIP: string;
+  /** Internal port number (1-65535), defaults to externalPort */
+  readonly internalPort: number;
+  /** Status of the port forward (active, disabled, or error) */
+  readonly status: 'active' | 'disabled' | 'error';
+  /** ID of the dst-nat rule that performs the translation */
+  readonly natRuleId: string;
+  /** ID of the filter accept rule (optional) */
+  readonly filterRuleId?: string;
+  /** Creation timestamp */
+  readonly createdAt?: Date;
 }
 /**
  * Get visible fields for a specific NAT action
@@ -332,7 +500,10 @@ export declare function generatePortForwardSummary(portForward: PortForward): st
  * @param existingForwards - List of existing port forwards
  * @returns true if conflict exists, false otherwise
  */
-export declare function hasPortForwardConflict(newForward: PortForward, existingForwards: PortForwardResult[]): boolean;
+export declare function hasPortForwardConflict(
+  newForward: PortForward,
+  existingForwards: PortForwardResult[]
+): boolean;
 /**
  * Default NAT rule for masquerade (most common use case)
  */
@@ -345,16 +516,16 @@ export declare const DEFAULT_PORT_FORWARD: Partial<PortForward>;
  * Common service ports for port forwarding
  */
 export declare const COMMON_SERVICE_PORTS: {
-    readonly HTTP: 80;
-    readonly HTTPS: 443;
-    readonly SSH: 22;
-    readonly FTP: 21;
-    readonly SMTP: 25;
-    readonly DNS: 53;
-    readonly RDP: 3389;
-    readonly 'Minecraft (Java)': 25565;
-    readonly 'Minecraft (Bedrock)': 19132;
-    readonly 'Plex Media Server': 32400;
-    readonly 'Game Server (Various)': 27015;
+  readonly HTTP: 80;
+  readonly HTTPS: 443;
+  readonly SSH: 22;
+  readonly FTP: 21;
+  readonly SMTP: 25;
+  readonly DNS: 53;
+  readonly RDP: 3389;
+  readonly 'Minecraft (Java)': 25565;
+  readonly 'Minecraft (Bedrock)': 19132;
+  readonly 'Plex Media Server': 32400;
+  readonly 'Game Server (Various)': 27015;
 };
 //# sourceMappingURL=nat-rule.types.d.ts.map

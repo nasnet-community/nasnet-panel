@@ -81,8 +81,7 @@ export const WithNetworkError: Story = {
   name: 'Network Error (unreachable)',
   args: {
     routerIp: '192.168.200.1',
-    validationError:
-      'Cannot connect to router proxy. Check network connection.',
+    validationError: 'Cannot connect to router proxy. Check network connection.',
   },
 };
 

@@ -24,12 +24,15 @@ export function ApiTest() {
   };
 
   return (
-    <div className="p-4 border border-border rounded">
-      <h3 className="text-sm font-semibold mb-2">{t('apiTest.title')}</h3>
-      <Button onClick={testConnection} disabled={testing}>
+    <div className="border-border rounded border p-4">
+      <h3 className="mb-2 text-sm font-semibold">{t('apiTest.title')}</h3>
+      <Button
+        onClick={testConnection}
+        disabled={testing}
+      >
         {testing ? t('apiTest.testing') : t('apiTest.testButton')}
       </Button>
-      {result && <p className="text-xs mt-2 font-mono">{result}</p>}
+      {result && <p className="mt-2 font-mono text-xs">{result}</p>}
     </div>
   );
 }

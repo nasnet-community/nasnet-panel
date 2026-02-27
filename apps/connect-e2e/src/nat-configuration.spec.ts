@@ -46,14 +46,10 @@ test.describe('NAT Configuration - Port Forward Wizard', () => {
 
     // Verify wizard dialog is visible
     await expect(page.getByRole('dialog')).toBeVisible();
-    await expect(
-      page.getByRole('heading', { name: /port forward wizard/i })
-    ).toBeVisible();
+    await expect(page.getByRole('heading', { name: /port forward wizard/i })).toBeVisible();
 
     // Verify Step 1: External Settings is shown
-    await expect(
-      page.getByText(/external settings/i, { exact: false })
-    ).toBeVisible();
+    await expect(page.getByText(/external settings/i, { exact: false })).toBeVisible();
   });
 
   test('should complete full port forward wizard flow', async ({ page }) => {
@@ -62,9 +58,7 @@ test.describe('NAT Configuration - Port Forward Wizard', () => {
     // ============================================
     // Step 1: External Settings
     // ============================================
-    await expect(
-      page.getByText(/external settings/i, { exact: false })
-    ).toBeVisible();
+    await expect(page.getByText(/external settings/i, { exact: false })).toBeVisible();
 
     // Select protocol
     const protocolSelect = page.getByLabel(/protocol/i);
@@ -86,9 +80,7 @@ test.describe('NAT Configuration - Port Forward Wizard', () => {
     // ============================================
     // Step 2: Internal Settings
     // ============================================
-    await expect(
-      page.getByText(/internal settings/i, { exact: false })
-    ).toBeVisible();
+    await expect(page.getByText(/internal settings/i, { exact: false })).toBeVisible();
 
     // Enter internal IP
     const internalIPInput = page.getByLabel(/internal ip/i);
@@ -112,9 +104,7 @@ test.describe('NAT Configuration - Port Forward Wizard', () => {
     await expect(page.getByText(/web server/i)).toBeVisible();
 
     // Verify NAT rule preview is shown
-    await expect(
-      page.getByText(/\/ip\/firewall\/nat\/add/i)
-    ).toBeVisible();
+    await expect(page.getByText(/\/ip\/firewall\/nat\/add/i)).toBeVisible();
     await expect(page.getByText(/chain=dstnat/i)).toBeVisible();
     await expect(page.getByText(/action=dst-nat/i)).toBeVisible();
 
@@ -124,14 +114,10 @@ test.describe('NAT Configuration - Port Forward Wizard', () => {
     // ============================================
     // Step 4: Safety Confirmation
     // ============================================
-    await expect(
-      page.getByText(/safety confirmation/i, { exact: false })
-    ).toBeVisible();
+    await expect(page.getByText(/safety confirmation/i, { exact: false })).toBeVisible();
 
     // Verify warning message
-    await expect(
-      page.getByText(/network configuration/i)
-    ).toBeVisible();
+    await expect(page.getByText(/network configuration/i)).toBeVisible();
 
     // Check acknowledgment checkbox
     const acknowledgmentCheckbox = page.getByRole('checkbox', {
@@ -171,9 +157,7 @@ test.describe('NAT Configuration - Port Forward Wizard', () => {
     await nextButton.click();
 
     // Should show validation error
-    await expect(
-      page.getByText(/external port is required/i)
-    ).toBeVisible();
+    await expect(page.getByText(/external port is required/i)).toBeVisible();
 
     // Fill external port
     const externalPortInput = page.getByLabel(/external port/i);
@@ -197,23 +181,17 @@ test.describe('NAT Configuration - Port Forward Wizard', () => {
     // Invalid port: 0
     await externalPortInput.fill('0');
     await externalPortInput.blur();
-    await expect(
-      page.getByText(/port must be between 1 and 65535/i)
-    ).toBeVisible();
+    await expect(page.getByText(/port must be between 1 and 65535/i)).toBeVisible();
 
     // Invalid port: 70000
     await externalPortInput.fill('70000');
     await externalPortInput.blur();
-    await expect(
-      page.getByText(/port must be between 1 and 65535/i)
-    ).toBeVisible();
+    await expect(page.getByText(/port must be between 1 and 65535/i)).toBeVisible();
 
     // Valid port: 80
     await externalPortInput.fill('80');
     await externalPortInput.blur();
-    await expect(
-      page.getByText(/port must be between 1 and 65535/i)
-    ).not.toBeVisible();
+    await expect(page.getByText(/port must be between 1 and 65535/i)).not.toBeVisible();
   });
 
   test('should validate IP address format', async ({ page }) => {
@@ -230,17 +208,13 @@ test.describe('NAT Configuration - Port Forward Wizard', () => {
     await internalIPInput.fill('999.999.999.999');
     await internalIPInput.blur();
 
-    await expect(
-      page.getByText(/must be a valid ip address/i)
-    ).toBeVisible();
+    await expect(page.getByText(/must be a valid ip address/i)).toBeVisible();
 
     // Enter valid IP
     await internalIPInput.fill('192.168.1.100');
     await internalIPInput.blur();
 
-    await expect(
-      page.getByText(/must be a valid ip address/i)
-    ).not.toBeVisible();
+    await expect(page.getByText(/must be a valid ip address/i)).not.toBeVisible();
   });
 
   test('should allow canceling wizard at any step', async ({ page }) => {
@@ -265,18 +239,14 @@ test.describe('NAT Configuration - Port Forward Wizard', () => {
     await nextButton.click();
 
     // Now on Step 2
-    await expect(
-      page.getByText(/internal settings/i, { exact: false })
-    ).toBeVisible();
+    await expect(page.getByText(/internal settings/i, { exact: false })).toBeVisible();
 
     // Click Back
     const backButton = page.getByRole('button', { name: /back/i });
     await backButton.click();
 
     // Should be back on Step 1
-    await expect(
-      page.getByText(/external settings/i, { exact: false })
-    ).toBeVisible();
+    await expect(page.getByText(/external settings/i, { exact: false })).toBeVisible();
 
     // Previous values should be preserved
     await expect(externalPortInput).toHaveValue('80');
@@ -299,15 +269,11 @@ test.describe('NAT Configuration - Port Forward Wizard', () => {
     await nextButton.click();
 
     // Should show conflict warning in review step
-    await expect(
-      page.getByText(/port 22 is already forwarded/i)
-    ).toBeVisible();
+    await expect(page.getByText(/port 22 is already forwarded/i)).toBeVisible();
 
     // Confirm button should be disabled or show warning
     await nextButton.click();
-    await expect(
-      page.getByText(/resolve the conflict/i)
-    ).toBeVisible();
+    await expect(page.getByText(/resolve the conflict/i)).toBeVisible();
   });
 
   test('should use common service port templates', async ({ page }) => {
@@ -354,12 +320,8 @@ test.describe('NAT Configuration - Port Forward Management', () => {
     await deleteButton.click();
 
     // Verify confirmation dialog
-    await expect(
-      page.getByText(/delete port forward/i)
-    ).toBeVisible();
-    await expect(
-      page.getByText(/this will remove both nat and filter rules/i)
-    ).toBeVisible();
+    await expect(page.getByText(/delete port forward/i)).toBeVisible();
+    await expect(page.getByText(/this will remove both nat and filter rules/i)).toBeVisible();
 
     // Confirm deletion
     const confirmDeleteButton = page.getByRole('button', {
@@ -381,9 +343,7 @@ test.describe('NAT Configuration - Port Forward Management', () => {
     await cancelButton.click();
 
     // Dialog should close without deleting
-    await expect(
-      page.getByText(/delete port forward/i)
-    ).not.toBeVisible();
+    await expect(page.getByText(/delete port forward/i)).not.toBeVisible();
   });
 
   test('should toggle port forward enable/disable', async ({ page }) => {
@@ -456,12 +416,8 @@ test.describe('NAT Configuration - NAT Rules Management', () => {
     await natRulesTab.click();
 
     // Verify NAT rules table is displayed
-    await expect(
-      page.getByRole('columnheader', { name: /chain/i })
-    ).toBeVisible();
-    await expect(
-      page.getByRole('columnheader', { name: /action/i })
-    ).toBeVisible();
+    await expect(page.getByRole('columnheader', { name: /chain/i })).toBeVisible();
+    await expect(page.getByRole('columnheader', { name: /action/i })).toBeVisible();
   });
 
   test('should create masquerade rule', async ({ page }) => {
@@ -514,9 +470,7 @@ test.describe('NAT Configuration - NAT Rules Management', () => {
 test.describe('NAT Configuration - Mobile View', () => {
   test.use({ viewport: { width: 375, height: 667 } });
 
-  test('should display mobile-optimized port forward wizard', async ({
-    page,
-  }) => {
+  test('should display mobile-optimized port forward wizard', async ({ page }) => {
     await navigateToNATPage(page);
     await openPortForwardWizard(page);
 
@@ -530,9 +484,7 @@ test.describe('NAT Configuration - Mobile View', () => {
     expect(boundingBox?.width).toBeGreaterThan(300); // Full width on mobile
   });
 
-  test('should display mobile-optimized port forward cards', async ({
-    page,
-  }) => {
+  test('should display mobile-optimized port forward cards', async ({ page }) => {
     await navigateToNATPage(page);
 
     // Mobile should show cards instead of table
@@ -556,9 +508,7 @@ test.describe('NAT Configuration - Accessibility', () => {
     await openPortForwardWizard(page);
 
     // Verify ARIA labels
-    await expect(page.getByRole('dialog')).toHaveAttribute(
-      'aria-labelledby'
-    );
+    await expect(page.getByRole('dialog')).toHaveAttribute('aria-labelledby');
     await expect(page.getByLabel(/protocol/i)).toBeVisible();
     await expect(page.getByLabel(/external port/i)).toBeVisible();
   });
@@ -576,9 +526,7 @@ test.describe('NAT Configuration - Accessibility', () => {
     await expect(externalPortInput).toBeFocused();
   });
 
-  test('should announce validation errors to screen readers', async ({
-    page,
-  }) => {
+  test('should announce validation errors to screen readers', async ({ page }) => {
     await navigateToNATPage(page);
     await openPortForwardWizard(page);
 

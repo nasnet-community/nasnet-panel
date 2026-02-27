@@ -38,8 +38,13 @@ export default defineConfig({
   retries: process.env.CI ? 3 : 1,
 
   // Reporter configuration
-  reporter: process.env.CI
-    ? [['github'], ['html', { open: 'never' }], ['json', { outputFile: 'test-results/results.json' }]]
+  reporter:
+    process.env.CI ?
+      [
+        ['github'],
+        ['html', { open: 'never' }],
+        ['json', { outputFile: 'test-results/results.json' }],
+      ]
     : [['list'], ['html', { open: 'on-failure' }]],
 
   // Output directory for test artifacts

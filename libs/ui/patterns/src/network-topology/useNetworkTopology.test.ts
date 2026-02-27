@@ -22,18 +22,55 @@ const mockRouter = {
 
 const mockWanInterfaces = [
   { id: 'wan-1', name: 'WAN1', ip: '203.0.113.1', status: 'connected' as const, provider: 'ISP A' },
-  { id: 'wan-2', name: 'WAN2', ip: '203.0.113.2', status: 'disconnected' as const, provider: 'ISP B' },
+  {
+    id: 'wan-2',
+    name: 'WAN2',
+    ip: '203.0.113.2',
+    status: 'disconnected' as const,
+    provider: 'ISP B',
+  },
 ];
 
 const mockLanNetworks = [
-  { id: 'lan-1', name: 'Main LAN', cidr: '192.168.1.0/24', gateway: '192.168.1.1', deviceCount: 10 },
-  { id: 'lan-2', name: 'Guest LAN', cidr: '192.168.2.0/24', gateway: '192.168.2.1', deviceCount: 5 },
+  {
+    id: 'lan-1',
+    name: 'Main LAN',
+    cidr: '192.168.1.0/24',
+    gateway: '192.168.1.1',
+    deviceCount: 10,
+  },
+  {
+    id: 'lan-2',
+    name: 'Guest LAN',
+    cidr: '192.168.2.0/24',
+    gateway: '192.168.2.1',
+    deviceCount: 5,
+  },
 ];
 
 const mockDevices = [
-  { id: 'dev-1', name: 'Desktop PC', ip: '192.168.1.10', mac: '00:11:22:33:44:55', type: 'computer' as const, status: 'online' as const },
-  { id: 'dev-2', name: 'iPhone', ip: '192.168.1.11', type: 'phone' as const, status: 'online' as const },
-  { id: 'dev-3', name: 'Smart TV', ip: '192.168.1.12', type: 'iot' as const, status: 'offline' as const },
+  {
+    id: 'dev-1',
+    name: 'Desktop PC',
+    ip: '192.168.1.10',
+    mac: '00:11:22:33:44:55',
+    type: 'computer' as const,
+    status: 'online' as const,
+  },
+  {
+    id: 'dev-2',
+    name: 'iPhone',
+    ip: '192.168.1.11',
+    type: 'phone' as const,
+    status: 'online' as const,
+  },
+  {
+    id: 'dev-3',
+    name: 'Smart TV',
+    ip: '192.168.1.12',
+    type: 'iot' as const,
+    status: 'offline' as const,
+  },
 ];
 
 const createDefaultProps = (overrides?: Partial<NetworkTopologyProps>): NetworkTopologyProps => ({
@@ -81,9 +118,7 @@ describe('useNetworkTopology', () => {
 
     it('creates device nodes when devices are provided', () => {
       const props = createDefaultProps({ devices: mockDevices });
-      const { result } = renderHook(() =>
-        useNetworkTopology(props, { showDevices: true })
-      );
+      const { result } = renderHook(() => useNetworkTopology(props, { showDevices: true }));
 
       expect(result.current.deviceNodes).toHaveLength(3);
       expect(result.current.deviceNodes[0].id).toBe('dev-1');
@@ -93,18 +128,14 @@ describe('useNetworkTopology', () => {
 
     it('hides device nodes when showDevices is false', () => {
       const props = createDefaultProps({ devices: mockDevices });
-      const { result } = renderHook(() =>
-        useNetworkTopology(props, { showDevices: false })
-      );
+      const { result } = renderHook(() => useNetworkTopology(props, { showDevices: false }));
 
       expect(result.current.deviceNodes).toHaveLength(0);
     });
 
     it('combines all nodes in the nodes array', () => {
       const props = createDefaultProps({ devices: mockDevices });
-      const { result } = renderHook(() =>
-        useNetworkTopology(props, { showDevices: true })
-      );
+      const { result } = renderHook(() => useNetworkTopology(props, { showDevices: true }));
 
       // 1 router + 2 WAN + 2 LAN + 3 devices = 8 nodes
       expect(result.current.nodes).toHaveLength(8);
@@ -134,9 +165,7 @@ describe('useNetworkTopology', () => {
 
     it('positions device nodes to the right of LAN nodes', () => {
       const props = createDefaultProps({ devices: mockDevices });
-      const { result } = renderHook(() =>
-        useNetworkTopology(props, { showDevices: true })
-      );
+      const { result } = renderHook(() => useNetworkTopology(props, { showDevices: true }));
 
       const lanX = result.current.lanNodes[0]?.position.x ?? 0;
       result.current.deviceNodes.forEach((device) => {
@@ -147,9 +176,7 @@ describe('useNetworkTopology', () => {
     it('centers router vertically in the container', () => {
       const containerHeight = 400;
       const props = createDefaultProps();
-      const { result } = renderHook(() =>
-        useNetworkTopology(props, { containerHeight })
-      );
+      const { result } = renderHook(() => useNetworkTopology(props, { containerHeight }));
 
       expect(result.current.routerNode.position.y).toBe(containerHeight / 2);
     });
@@ -159,9 +186,7 @@ describe('useNetworkTopology', () => {
       const { result } = renderHook(() => useNetworkTopology(props));
 
       if (result.current.wanNodes.length > 1) {
-        const gap =
-          result.current.wanNodes[1].position.y -
-          result.current.wanNodes[0].position.y;
+        const gap = result.current.wanNodes[1].position.y - result.current.wanNodes[0].position.y;
         expect(gap).toBe(result.current.layout.nodeGap);
       }
     });
@@ -183,9 +208,7 @@ describe('useNetworkTopology', () => {
       const props = createDefaultProps();
       const { result } = renderHook(() => useNetworkTopology(props));
 
-      const wanConnections = result.current.connections.filter((c) =>
-        c.id.includes('wan')
-      );
+      const wanConnections = result.current.connections.filter((c) => c.id.includes('wan'));
       expect(wanConnections).toHaveLength(2);
     });
 
@@ -203,12 +226,8 @@ describe('useNetworkTopology', () => {
       const props = createDefaultProps();
       const { result } = renderHook(() => useNetworkTopology(props));
 
-      const wan1Connection = result.current.connections.find((c) =>
-        c.id.includes('wan-1')
-      );
-      const wan2Connection = result.current.connections.find((c) =>
-        c.id.includes('wan-2')
-      );
+      const wan1Connection = result.current.connections.find((c) => c.id.includes('wan-1'));
+      const wan2Connection = result.current.connections.find((c) => c.id.includes('wan-2'));
 
       expect(wan1Connection?.status).toBe('connected');
       expect(wan2Connection?.status).toBe('disconnected');
@@ -280,9 +299,7 @@ describe('useNetworkTopology', () => {
 
     it('returns tooltip content for device node', () => {
       const props = createDefaultProps({ devices: mockDevices });
-      const { result } = renderHook(() =>
-        useNetworkTopology(props, { showDevices: true })
-      );
+      const { result } = renderHook(() => useNetworkTopology(props, { showDevices: true }));
 
       const content = result.current.getTooltipContent('dev-1');
       expect(content?.title).toBe('Desktop PC');
@@ -303,9 +320,7 @@ describe('useNetworkTopology', () => {
   describe('keyboard navigation', () => {
     it('provides focusable nodes in correct order', () => {
       const props = createDefaultProps({ devices: mockDevices });
-      const { result } = renderHook(() =>
-        useNetworkTopology(props, { showDevices: true })
-      );
+      const { result } = renderHook(() => useNetworkTopology(props, { showDevices: true }));
 
       const focusOrder = result.current.focusableNodes;
 
@@ -320,9 +335,7 @@ describe('useNetworkTopology', () => {
 
     it('returns correct number of focusable nodes', () => {
       const props = createDefaultProps({ devices: mockDevices });
-      const { result } = renderHook(() =>
-        useNetworkTopology(props, { showDevices: true })
-      );
+      const { result } = renderHook(() => useNetworkTopology(props, { showDevices: true }));
 
       // 2 WAN + 1 Router + 2 LAN + 3 Devices = 8
       expect(result.current.focusableNodes).toHaveLength(8);
@@ -352,9 +365,7 @@ describe('useNetworkTopology', () => {
       const { result } = renderHook(() => useNetworkTopology(props));
 
       expect(result.current.wanNodes).toHaveLength(1);
-      expect(result.current.wanNodes[0].position.y).toBe(
-        result.current.routerNode.position.y
-      );
+      expect(result.current.wanNodes[0].position.y).toBe(result.current.routerNode.position.y);
     });
   });
 
@@ -370,11 +381,8 @@ describe('useNetworkTopology', () => {
 
       // Wider container should have nodes more spread out
       const narrowGap =
-        narrow.current.lanNodes[0].position.x -
-        narrow.current.routerNode.position.x;
-      const wideGap =
-        wide.current.lanNodes[0].position.x -
-        wide.current.routerNode.position.x;
+        narrow.current.lanNodes[0].position.x - narrow.current.routerNode.position.x;
+      const wideGap = wide.current.lanNodes[0].position.x - wide.current.routerNode.position.x;
 
       expect(wideGap).toBeGreaterThan(narrowGap);
     });

@@ -88,7 +88,8 @@ export function useServiceTrafficPanel({
 
       // Calculate deltas
       const uploadDiff = BigInt(stats.totalUploadBytes) - BigInt(previousStats.totalUploadBytes);
-      const downloadDiff = BigInt(stats.totalDownloadBytes) - BigInt(previousStats.totalDownloadBytes);
+      const downloadDiff =
+        BigInt(stats.totalDownloadBytes) - BigInt(previousStats.totalDownloadBytes);
 
       // Detect counter resets (negative deltas)
       // This can happen if service restarts or counters overflow

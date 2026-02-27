@@ -18,12 +18,7 @@ import * as React from 'react';
 import { useCallback } from 'react';
 import { AlertTriangle, X } from 'lucide-react';
 
-import {
-  Alert,
-  AlertTitle,
-  AlertDescription,
-  Button,
-} from '@nasnet/ui/primitives';
+import { Alert, AlertTitle, AlertDescription, Button } from '@nasnet/ui/primitives';
 import { cn } from '@nasnet/ui/utils';
 
 import { useStorageSettings } from './useStorageSettings';
@@ -45,10 +40,7 @@ export interface StorageDisconnectBannerProps {
  * @param {StorageDisconnectBannerProps} props - Component props
  * @returns {React.ReactNode | null} Rendered alert or null if dismissed/connected
  */
-function StorageDisconnectBannerComponent({
-  className,
-  onDismiss,
-}: StorageDisconnectBannerProps) {
+function StorageDisconnectBannerComponent({ className, onDismiss }: StorageDisconnectBannerProps) {
   const { config, usage } = useStorageSettings();
 
   const [dismissed, setDismissed] = React.useState(false);
@@ -92,16 +84,19 @@ function StorageDisconnectBannerComponent({
       aria-atomic="true"
       className={cn('relative', className)}
     >
-      <AlertTriangle className="h-5 w-5" aria-hidden="true" />
+      <AlertTriangle
+        className="h-5 w-5"
+        aria-hidden="true"
+      />
 
-      <AlertTitle className="text-lg font-semibold pr-8 font-display">
+      <AlertTitle className="font-display pr-8 text-lg font-semibold">
         External Storage Disconnected
       </AlertTitle>
 
       <AlertDescription className="space-y-component-sm">
         <p>
           Storage at{' '}
-          <code className="relative rounded-[var(--semantic-radius-button)] bg-muted px-component-xs py-component-xs font-mono text-sm">
+          <code className="bg-muted px-component-xs py-component-xs relative rounded-[var(--semantic-radius-button)] font-mono text-sm">
             {config.path}
           </code>{' '}
           is no longer available.
@@ -109,25 +104,26 @@ function StorageDisconnectBannerComponent({
 
         {affectedServices.length > 0 && (
           <div>
-            <p className="font-medium mb-component-sm">
+            <p className="mb-component-sm font-medium">
               Affected services ({affectedServices.length}):
             </p>
-            <ul className="list-disc list-inside space-y-component-sm pl-2">
+            <ul className="space-y-component-sm list-inside list-disc pl-2">
               {displayServices.map((service) => (
-                <li key={service} className="text-sm">
+                <li
+                  key={service}
+                  className="text-sm"
+                >
                   {service}
                 </li>
               ))}
               {remainingCount > 0 && (
-                <li className="font-medium text-sm">
-                  and {remainingCount} more...
-                </li>
+                <li className="text-sm font-medium">and {remainingCount} more...</li>
               )}
             </ul>
           </div>
         )}
 
-        <p className="text-sm font-medium border-t border-error/30 pt-component-sm mt-component-sm">
+        <p className="border-error/30 pt-component-sm mt-component-sm border-t text-sm font-medium">
           Reconnect the storage device to restore service functionality.
         </p>
       </AlertDescription>
@@ -137,10 +133,13 @@ function StorageDisconnectBannerComponent({
         variant="ghost"
         size="sm"
         onClick={handleDismiss}
-        className="absolute top-4 right-4 min-h-[44px] min-w-[44px] p-0"
+        className="absolute right-4 top-4 min-h-[44px] min-w-[44px] p-0"
         aria-label="Dismiss alert (warning persists until storage reconnects)"
       >
-        <X className="h-4 w-4" aria-hidden="true" />
+        <X
+          className="h-4 w-4"
+          aria-hidden="true"
+        />
       </Button>
     </Alert>
   );

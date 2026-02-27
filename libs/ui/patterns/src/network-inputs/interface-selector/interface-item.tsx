@@ -51,14 +51,14 @@ function StatusIndicator({ status }: { status: InterfaceStatus }) {
       <Tooltip>
         <TooltipTrigger asChild>
           <span
-            className={cn(
-              'inline-block h-2 w-2 rounded-full shrink-0',
-              statusColors[status]
-            )}
+            className={cn('inline-block h-2 w-2 shrink-0 rounded-full', statusColors[status])}
             aria-label={statusLabels[status]}
           />
         </TooltipTrigger>
-        <TooltipContent side="top" className="text-xs">
+        <TooltipContent
+          side="top"
+          className="text-xs"
+        >
           {statusLabels[status]}
         </TooltipContent>
       </Tooltip>
@@ -99,9 +99,9 @@ export const InterfaceItem = memo(function InterfaceItem({
       }}
       tabIndex={0}
       className={cn(
-        'flex items-center gap-3 px-3 py-2 cursor-pointer rounded-md',
+        'flex cursor-pointer items-center gap-3 rounded-md px-3 py-2',
         'hover:bg-accent focus:bg-accent focus:outline-none',
-        'focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+        'focus-visible:ring-ring focus-visible:ring-2 focus-visible:ring-offset-2',
         selected && 'bg-primary/10',
         className
       )}
@@ -117,15 +117,16 @@ export const InterfaceItem = memo(function InterfaceItem({
       )}
 
       {/* Type icon */}
-      <InterfaceTypeIcon type={iface.type} className="h-5 w-5 shrink-0" />
+      <InterfaceTypeIcon
+        type={iface.type}
+        className="h-5 w-5 shrink-0"
+      />
 
       {/* Name and IP (monospace for network data) */}
-      <div className="flex-1 min-w-0">
-        <p className="font-medium truncate text-sm font-mono">{iface.name}</p>
+      <div className="min-w-0 flex-1">
+        <p className="truncate font-mono text-sm font-medium">{iface.name}</p>
         {showIP && iface.ip && (
-          <p className="text-xs text-muted-foreground font-mono truncate">
-            {iface.ip}
-          </p>
+          <p className="text-muted-foreground truncate font-mono text-xs">{iface.ip}</p>
         )}
       </div>
 
@@ -139,7 +140,7 @@ export const InterfaceItem = memo(function InterfaceItem({
             <TooltipTrigger asChild>
               <Badge
                 variant="secondary"
-                className="text-xs bg-warning/10 text-warning shrink-0"
+                className="bg-warning/10 text-warning shrink-0 text-xs"
               >
                 In Use
               </Badge>
@@ -149,9 +150,7 @@ export const InterfaceItem = memo(function InterfaceItem({
               side="top"
               className="max-w-[200px]"
             >
-              <p className="text-xs">
-                Used by: {iface.usedBy?.join(', ')}
-              </p>
+              <p className="text-xs">Used by: {iface.usedBy?.join(', ')}</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
@@ -159,7 +158,10 @@ export const InterfaceItem = memo(function InterfaceItem({
 
       {/* Check mark for single-select */}
       {!showCheckbox && selected && (
-        <Check className="h-4 w-4 text-primary shrink-0" aria-hidden="true" />
+        <Check
+          className="text-primary h-4 w-4 shrink-0"
+          aria-hidden="true"
+        />
       )}
     </div>
   );
@@ -169,9 +171,7 @@ export const InterfaceItem = memo(function InterfaceItem({
  * Mobile variant of InterfaceItem with larger touch targets.
  * Uses 44px minimum height for WCAG compliance.
  */
-export const InterfaceItemMobile = memo(function InterfaceItemMobile(
-  props: InterfaceItemProps
-) {
+export const InterfaceItemMobile = memo(function InterfaceItemMobile(props: InterfaceItemProps) {
   return (
     <InterfaceItem
       {...props}

@@ -132,9 +132,7 @@ export function useServiceTemplates(
     filteredTemplates = filteredTemplates.filter((template) => {
       const nameMatch = template.name.toLowerCase().includes(query);
       const descMatch = template.description.toLowerCase().includes(query);
-      const tagsMatch = template.tags?.some((tag) =>
-        tag.toLowerCase().includes(query)
-      );
+      const tagsMatch = template.tags?.some((tag) => tag.toLowerCase().includes(query));
       return nameMatch || descMatch || tagsMatch;
     });
   }

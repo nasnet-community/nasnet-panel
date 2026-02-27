@@ -1,1 +1,18 @@
-{"categoryGeneratedIndex":{"title":"Queries overview","slug":"/category/queries","permalink":"/category/queries","sidebar":"defaultSidebar","navigation":{"previous":{"title":"verifyTroubleshootFix","permalink":"/api/operations/mutations/verify-troubleshoot-fix"},"next":{"title":"addressListEntries","permalink":"/api/operations/queries/address-list-entries"}}}}
+{
+  "categoryGeneratedIndex": {
+    "title": "Queries overview",
+    "slug": "/category/queries",
+    "permalink": "/category/queries",
+    "sidebar": "defaultSidebar",
+    "navigation": {
+      "previous": {
+        "title": "verifyTroubleshootFix",
+        "permalink": "/api/operations/mutations/verify-troubleshoot-fix"
+      },
+      "next": {
+        "title": "addressListEntries",
+        "permalink": "/api/operations/queries/address-list-entries"
+      }
+    }
+  }
+}

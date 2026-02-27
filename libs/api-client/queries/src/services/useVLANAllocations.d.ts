@@ -6,34 +6,34 @@ export type VLANAllocationStatus = 'ALLOCATED' | 'RELEASING' | 'RELEASED';
  * Service instance minimal data (related entity)
  */
 export interface ServiceInstanceRef {
-    id: string;
-    featureID: string;
-    instanceName: string;
-    status: string;
+  id: string;
+  featureID: string;
+  instanceName: string;
+  status: string;
 }
 /**
  * Router minimal data (related entity)
  */
 export interface RouterRef {
-    id: string;
-    address: string;
-    name?: string;
+  id: string;
+  address: string;
+  name?: string;
 }
 /**
  * VLAN allocation for a service instance
  */
 export interface VLANAllocation {
-    id: string;
-    routerID: string;
-    vlanID: number;
-    instanceID: string;
-    serviceType: string;
-    subnet?: string;
-    status: VLANAllocationStatus;
-    allocatedAt: string;
-    releasedAt?: string;
-    router: RouterRef;
-    serviceInstance: ServiceInstanceRef;
+  id: string;
+  routerID: string;
+  vlanID: number;
+  instanceID: string;
+  serviceType: string;
+  subnet?: string;
+  status: VLANAllocationStatus;
+  allocatedAt: string;
+  releasedAt?: string;
+  router: RouterRef;
+  serviceInstance: ServiceInstanceRef;
 }
 /**
  * Hook to fetch VLAN allocations with optional filtering
@@ -57,10 +57,15 @@ export interface VLANAllocation {
  * const { allocations } = useVLANAllocations();
  * ```
  */
-export declare function useVLANAllocations(routerID?: string, status?: VLANAllocationStatus): {
-    allocations: VLANAllocation[];
-    loading: boolean;
-    error: import("@apollo/client").ApolloError | undefined;
-    refetch: (variables?: Partial<import("@apollo/client").OperationVariables> | undefined) => Promise<import("@apollo/client").ApolloQueryResult<any>>;
+export declare function useVLANAllocations(
+  routerID?: string,
+  status?: VLANAllocationStatus
+): {
+  allocations: VLANAllocation[];
+  loading: boolean;
+  error: import('@apollo/client').ApolloError | undefined;
+  refetch: (
+    variables?: Partial<import('@apollo/client').OperationVariables> | undefined
+  ) => Promise<import('@apollo/client').ApolloQueryResult<any>>;
 };
 //# sourceMappingURL=useVLANAllocations.d.ts.map

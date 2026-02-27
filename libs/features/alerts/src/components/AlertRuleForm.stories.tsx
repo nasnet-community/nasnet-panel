@@ -57,7 +57,10 @@ Validation uses Zod. The submit button is disabled until the form is dirty.
   },
   decorators: [
     (Story) => (
-      <MockedProvider mocks={[]} addTypename={false}>
+      <MockedProvider
+        mocks={[]}
+        addTypename={false}
+      >
         <div className="max-w-2xl">
           <Story />
         </div>
@@ -78,9 +81,7 @@ const cpuAlertData: Partial<AlertRuleFormData> = {
   description: 'Triggers when router CPU usage exceeds 90% for 5+ minutes.',
   eventType: 'device.cpu.high',
   severity: 'CRITICAL',
-  conditions: [
-    { field: 'cpu_percent', operator: 'GREATER_THAN', value: '90' },
-  ],
+  conditions: [{ field: 'cpu_percent', operator: 'GREATER_THAN', value: '90' }],
   channels: ['inapp', 'email'],
   enabled: true,
 };
@@ -103,9 +104,7 @@ const multiChannelAlertData: Partial<AlertRuleFormData> = {
   description: 'Sends notifications to multiple channels on firewall events.',
   eventType: 'firewall.attack.detected',
   severity: 'CRITICAL',
-  conditions: [
-    { field: 'attack_type', operator: 'CONTAINS', value: 'port_scan' },
-  ],
+  conditions: [{ field: 'attack_type', operator: 'CONTAINS', value: 'port_scan' }],
   channels: ['inapp', 'email', 'webhook'],
   enabled: true,
 };
@@ -219,9 +218,7 @@ export const InfoSeverity: Story = {
       description: 'Informational alert for DHCP lease events.',
       eventType: 'dhcp.lease.renewed',
       severity: 'INFO',
-      conditions: [
-        { field: 'lease_count', operator: 'GREATER_THAN', value: '50' },
-      ],
+      conditions: [{ field: 'lease_count', operator: 'GREATER_THAN', value: '50' }],
       channels: ['inapp'],
       enabled: true,
     },

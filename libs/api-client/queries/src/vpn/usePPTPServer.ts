@@ -25,8 +25,8 @@ interface PPTPServerRaw {
  * Transform raw API response to typed interface
  */
 function transformPPTPServer(raw: PPTPServerRaw): PPTPServer {
-  const authMethods = raw.authentication?.split(',').map(a => a.trim()) || ['mschap2'];
-  
+  const authMethods = raw.authentication?.split(',').map((a) => a.trim()) || ['mschap2'];
+
   return {
     id: 'pptp-server',
     name: 'PPTP Server',
@@ -47,10 +47,7 @@ function transformPPTPServer(raw: PPTPServerRaw): PPTPServer {
  * Fetch PPTP server configuration from RouterOS
  */
 async function fetchPPTPServer(routerIp: string): Promise<PPTPServer> {
-  const result = await makeRouterOSRequest<PPTPServerRaw>(
-    routerIp,
-    'interface/pptp-server'
-  );
+  const result = await makeRouterOSRequest<PPTPServerRaw>(routerIp, 'interface/pptp-server');
 
   if (!result.success || !result.data) {
     throw new Error(result.error || 'Failed to fetch PPTP server');
@@ -73,4 +70,3 @@ export function usePPTPServer(routerIp: string): UseQueryResult<PPTPServer, Erro
     enabled: !!routerIp,
   });
 }
-

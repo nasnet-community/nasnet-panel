@@ -82,14 +82,19 @@ export const DnsLookupToolMobile = memo(function DnsLookupToolMobile({
   };
 
   return (
-    <div className={cn('flex flex-col gap-component-md', className)}>
+    <div className={cn('gap-component-md flex flex-col', className)}>
       {/* Form Card */}
       <Card>
         <CardHeader>
-          <h2 className="text-lg font-semibold font-display text-category-networking">DNS Lookup</h2>
+          <h2 className="font-display text-category-networking text-lg font-semibold">
+            DNS Lookup
+          </h2>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-component-md">
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="space-y-component-md"
+          >
             {/* Hostname Input */}
             <div className="space-y-component-sm">
               <Label htmlFor="dns-hostname-mobile">Hostname</Label>
@@ -101,7 +106,10 @@ export const DnsLookupToolMobile = memo(function DnsLookupToolMobile({
                 className="min-h-[44px]"
               />
               {errors.hostname && (
-                <p className="text-sm text-error" role="alert">
+                <p
+                  className="text-error text-sm"
+                  role="alert"
+                >
                   {errors.hostname.message}
                 </p>
               )}
@@ -123,7 +131,11 @@ export const DnsLookupToolMobile = memo(function DnsLookupToolMobile({
                 </SelectTrigger>
                 <SelectContent>
                   {DNS_RECORD_TYPES.map((type) => (
-                    <SelectItem key={type} value={type} className="min-h-[44px]">
+                    <SelectItem
+                      key={type}
+                      value={type}
+                      className="min-h-[44px]"
+                    >
                       {type} - {getRecordTypeDescription(type)}
                     </SelectItem>
                   ))}
@@ -148,17 +160,27 @@ export const DnsLookupToolMobile = memo(function DnsLookupToolMobile({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="default" className="min-h-[44px]">
+                  <SelectItem
+                    value="default"
+                    className="min-h-[44px]"
+                  >
                     Default Server
                   </SelectItem>
                   {dnsServers.map((srv) => (
-                    <SelectItem key={srv.address} value={srv.address} className="min-h-[44px]">
+                    <SelectItem
+                      key={srv.address}
+                      value={srv.address}
+                      className="min-h-[44px]"
+                    >
                       {srv.address}
                       {srv.isPrimary && ' (Primary)'}
                     </SelectItem>
                   ))}
                   {dnsServers.length > 1 && (
-                    <SelectItem value="all" className="min-h-[44px]">
+                    <SelectItem
+                      value="all"
+                      className="min-h-[44px]"
+                    >
                       All Servers
                     </SelectItem>
                   )}
@@ -167,11 +189,11 @@ export const DnsLookupToolMobile = memo(function DnsLookupToolMobile({
             </div>
 
             {/* Action Buttons */}
-            <div className="flex gap-component-sm">
+            <div className="gap-component-sm flex">
               <Button
                 type="submit"
                 disabled={!isValid || isLoading}
-                className="flex-1 min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                className="focus-visible:ring-ring min-h-[44px] flex-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
                 aria-label="Run DNS lookup"
               >
                 {isLoading ? 'Looking up...' : 'Lookup'}
@@ -181,7 +203,7 @@ export const DnsLookupToolMobile = memo(function DnsLookupToolMobile({
                   type="button"
                   variant="outline"
                   onClick={handleReset}
-                  className="min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  className="focus-visible:ring-ring min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
                   aria-label="Clear results"
                 >
                   Clear
@@ -196,12 +218,19 @@ export const DnsLookupToolMobile = memo(function DnsLookupToolMobile({
       {(result || isLoading) && (
         <Card>
           <CardHeader>
-            <h2 className="text-lg font-semibold font-display text-category-networking">Results</h2>
+            <h2 className="font-display text-category-networking text-lg font-semibold">Results</h2>
           </CardHeader>
           <CardContent>
             {isLoading && (
-              <div className="flex items-center justify-center py-12" role="status" aria-label="Loading DNS results">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" aria-hidden="true" />
+              <div
+                className="flex items-center justify-center py-12"
+                role="status"
+                aria-label="Loading DNS results"
+              >
+                <div
+                  className="border-primary h-8 w-8 animate-spin rounded-full border-b-2"
+                  aria-hidden="true"
+                />
               </div>
             )}
 
@@ -211,9 +240,7 @@ export const DnsLookupToolMobile = memo(function DnsLookupToolMobile({
               <DnsServerComparison results={comparisonResults} />
             )}
 
-            {isSuccess && comparisonResults.length <= 1 && result && (
-              <DnsResults result={result} />
-            )}
+            {isSuccess && comparisonResults.length <= 1 && result && <DnsResults result={result} />}
           </CardContent>
         </Card>
       )}

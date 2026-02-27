@@ -1,15 +1,16 @@
 # GraphQL Code Generation
 
-The project uses `@graphql-codegen/cli` to generate TypeScript types, Apollo React hooks, and a fragment matcher from the GraphQL schema. Generated files are never edited by hand.
+The project uses `@graphql-codegen/cli` to generate TypeScript types, Apollo React hooks, and a
+fragment matcher from the GraphQL schema. Generated files are never edited by hand.
 
 ## What Gets Generated
 
-| Output file | Plugin(s) | Content |
-|-------------|-----------|---------|
-| `libs/api-client/generated/types.ts` | `typescript` | All schema types as TypeScript `type` aliases |
-| `libs/api-client/generated/operations.ts` | `typescript-operations`, `typescript-react-apollo` | Typed hooks for every query/mutation/subscription |
-| `libs/api-client/generated/schema.graphql` | `schema-ast` | Full schema AST (used by IDEs and tooling) |
-| `libs/api-client/generated/fragment-matcher.ts` | `fragment-matcher` | `possibleTypes` result for Apollo cache union resolution |
+| Output file                                     | Plugin(s)                                          | Content                                                  |
+| ----------------------------------------------- | -------------------------------------------------- | -------------------------------------------------------- |
+| `libs/api-client/generated/types.ts`            | `typescript`                                       | All schema types as TypeScript `type` aliases            |
+| `libs/api-client/generated/operations.ts`       | `typescript-operations`, `typescript-react-apollo` | Typed hooks for every query/mutation/subscription        |
+| `libs/api-client/generated/schema.graphql`      | `schema-ast`                                       | Full schema AST (used by IDEs and tooling)               |
+| `libs/api-client/generated/fragment-matcher.ts` | `fragment-matcher`                                 | `possibleTypes` result for Apollo cache union resolution |
 
 ## Configuration
 
@@ -18,7 +19,7 @@ File: `codegen.ts` (root of the monorepo)
 ### Schema source
 
 ```typescript
-schema: './schema/**/*.graphql'
+schema: './schema/**/*.graphql';
 ```
 
 The schema is split across many files in `schema/`. Codegen reads all of them.
@@ -31,11 +32,11 @@ documents: [
   'apps/connect/src/**/*.tsx',
   'libs/**/*.graphql',
   'libs/**/*.tsx',
-  '!libs/api-client/generated/**/*',  // Exclude generated output
+  '!libs/api-client/generated/**/*', // Exclude generated output
   '!libs/core-ui-qwik/**/*',
   '!libs/star-setup/**/*',
   '!libs/**/*.stories.tsx',
-]
+];
 ```
 
 Codegen scans both `.graphql` files and `.tsx` files for `gql` tagged template literals.
@@ -99,17 +100,20 @@ Prettier is run automatically after generation via the `hooks.afterAllFileWrite`
 
 Codegen derives hook names from the GraphQL operation name:
 
-| Operation | Generated hook |
-|-----------|---------------|
-| `query GetRouters` | `useGetRoutersQuery` |
-| `mutation CreateResource` | `useCreateResourceMutation` |
+| Operation                      | Generated hook                   |
+| ------------------------------ | -------------------------------- |
+| `query GetRouters`             | `useGetRoutersQuery`             |
+| `mutation CreateResource`      | `useCreateResourceMutation`      |
 | `subscription OnServiceStatus` | `useOnServiceStatusSubscription` |
 
-The custom hooks in `libs/api-client/queries/src/` often wrap these generated hooks to add type safety, default variables, or convenience patterns.
+The custom hooks in `libs/api-client/queries/src/` often wrap these generated hooks to add type
+safety, default variables, or convenience patterns.
 
 ## Fragment Matcher
 
-The `fragment-matcher.ts` output provides `possibleTypes` for the Apollo cache. This lets Apollo correctly normalise union and interface types (e.g., the `Resource` interface implemented by `WireGuardClient`, `LANNetwork`, `WANLink`, etc.).
+The `fragment-matcher.ts` output provides `possibleTypes` for the Apollo cache. This lets Apollo
+correctly normalise union and interface types (e.g., the `Resource` interface implemented by
+`WireGuardClient`, `LANNetwork`, `WANLink`, etc.).
 
 It is imported in `apollo-client.ts`:
 
@@ -122,7 +126,8 @@ const cache = new InMemoryCache({
 });
 ```
 
-**Important**: After any schema change that adds or modifies union/interface types, regenerate this file or Apollo will silently fail to normalise cache entries correctly.
+**Important**: After any schema change that adds or modifies union/interface types, regenerate this
+file or Apollo will silently fail to normalise cache entries correctly.
 
 ## After Schema Changes
 

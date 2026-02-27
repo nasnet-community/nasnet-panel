@@ -11,13 +11,7 @@
  * The WizardStepReview component is separately showcased for design review.
  */
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@nasnet/ui/primitives';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@nasnet/ui/primitives';
 
 import type { Meta, StoryObj } from '@storybook/react';
 
@@ -37,13 +31,8 @@ interface LivePreviewPanelProps {
   };
 }
 
-function LivePreviewPanel({
-  interfaceData,
-  poolData,
-  networkData,
-}: LivePreviewPanelProps) {
-  const hasAnyData =
-    interfaceData?.interface || poolData?.poolStart || networkData?.gateway;
+function LivePreviewPanel({ interfaceData, poolData, networkData }: LivePreviewPanelProps) {
+  const hasAnyData = interfaceData?.interface || poolData?.poolStart || networkData?.gateway;
 
   return (
     <Card className="h-full w-[360px]">
@@ -54,7 +43,7 @@ function LivePreviewPanel({
       <CardContent className="space-y-4">
         {interfaceData?.interface && (
           <div>
-            <h4 className="text-sm font-medium mb-2">Interface</h4>
+            <h4 className="mb-2 text-sm font-medium">Interface</h4>
             <div className="space-y-1 text-sm">
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Name:</span>
@@ -72,7 +61,7 @@ function LivePreviewPanel({
 
         {poolData?.poolStart && poolData?.poolEnd && (
           <div>
-            <h4 className="text-sm font-medium mb-2">Address Pool</h4>
+            <h4 className="mb-2 text-sm font-medium">Address Pool</h4>
             <div className="space-y-1 text-sm">
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Start:</span>
@@ -88,7 +77,7 @@ function LivePreviewPanel({
 
         {networkData?.gateway && (
           <div>
-            <h4 className="text-sm font-medium mb-2">Network Settings</h4>
+            <h4 className="mb-2 text-sm font-medium">Network Settings</h4>
             <div className="space-y-1 text-sm">
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Gateway:</span>
@@ -97,9 +86,7 @@ function LivePreviewPanel({
               {networkData.dnsServers && networkData.dnsServers.length > 0 && (
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">DNS:</span>
-                  <span className="font-mono">
-                    {networkData.dnsServers.join(', ')}
-                  </span>
+                  <span className="font-mono">{networkData.dnsServers.join(', ')}</span>
                 </div>
               )}
               {networkData.leaseTime && (
@@ -125,9 +112,8 @@ function LivePreviewPanel({
         )}
 
         {!hasAnyData && (
-          <div className="text-center text-muted-foreground text-sm py-component-xl">
-            Complete the wizard steps to see a live preview of your DHCP server
-            configuration.
+          <div className="text-muted-foreground py-component-xl text-center text-sm">
+            Complete the wizard steps to see a live preview of your DHCP server configuration.
           </div>
         )}
       </CardContent>
@@ -177,8 +163,7 @@ export const Empty: Story = {
   parameters: {
     docs: {
       description: {
-        story:
-          'Before any wizard step is completed the preview panel shows a placeholder message.',
+        story: 'Before any wizard step is completed the preview panel shows a placeholder message.',
       },
     },
   },
@@ -221,8 +206,7 @@ export const AfterPoolStep: Story = {
   parameters: {
     docs: {
       description: {
-        story:
-          'The preview panel after the user configures the IP address pool range.',
+        story: 'The preview panel after the user configures the IP address pool range.',
       },
     },
   },
@@ -281,8 +265,7 @@ export const MinimalNetworkSettings: Story = {
   parameters: {
     docs: {
       description: {
-        story:
-          'A realistic configuration without the optional domain or NTP server fields.',
+        story: 'A realistic configuration without the optional domain or NTP server fields.',
       },
     },
   },

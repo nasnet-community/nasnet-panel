@@ -97,7 +97,7 @@ export const IPv6Address: Story = {
  */
 export const MultipleAddresses: Story = {
   render: () => (
-    <div className="flex items-center gap-4 p-4 border rounded-lg">
+    <div className="flex items-center gap-4 rounded-lg border p-4">
       <IPAddressDisplay
         ipAddress="192.168.1.10"
         label="Src"

@@ -51,10 +51,7 @@ export const dhcpClientSchema = z.object({
   /**
    * Optional comment for identification (max 255 characters)
    */
-  comment: z
-    .string()
-    .max(255, 'Comment cannot exceed 255 characters')
-    .optional(),
+  comment: z.string().max(255, 'Comment cannot exceed 255 characters').optional(),
 });
 
 /**

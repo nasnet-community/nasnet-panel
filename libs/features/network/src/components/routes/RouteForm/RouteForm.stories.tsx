@@ -254,8 +254,11 @@ export const CreateMode: Story = {
   },
   decorators: [
     (Story) => (
-      <MockedProvider mocks={mockMultipleGateways} addTypename={false}>
-        <div className="min-h-screen flex items-center justify-center p-component-lg bg-background">
+      <MockedProvider
+        mocks={mockMultipleGateways}
+        addTypename={false}
+      >
+        <div className="p-component-lg bg-background flex min-h-screen items-center justify-center">
           <div className="w-full max-w-2xl">
             <Story />
           </div>
@@ -282,8 +285,11 @@ export const EditMode: Story = {
   },
   decorators: [
     (Story) => (
-      <MockedProvider mocks={mockGatewayReachable} addTypename={false}>
-        <div className="min-h-screen flex items-center justify-center p-component-lg bg-background">
+      <MockedProvider
+        mocks={mockGatewayReachable}
+        addTypename={false}
+      >
+        <div className="p-component-lg bg-background flex min-h-screen items-center justify-center">
           <div className="w-full max-w-2xl">
             <Story />
           </div>
@@ -310,8 +316,11 @@ export const CreateModeSubmitting: Story = {
   },
   decorators: [
     (Story) => (
-      <MockedProvider mocks={mockGatewayReachable} addTypename={false}>
-        <div className="min-h-screen flex items-center justify-center p-component-lg bg-background">
+      <MockedProvider
+        mocks={mockGatewayReachable}
+        addTypename={false}
+      >
+        <div className="p-component-lg bg-background flex min-h-screen items-center justify-center">
           <div className="w-full max-w-2xl">
             <Story />
           </div>
@@ -322,7 +331,8 @@ export const CreateModeSubmitting: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Form submission in progress. Submit button shows loading spinner, all fields disabled.',
+        story:
+          'Form submission in progress. Submit button shows loading spinner, all fields disabled.',
       },
     },
   },
@@ -344,8 +354,11 @@ export const EditModeSubmitting: Story = {
   },
   decorators: [
     (Story) => (
-      <MockedProvider mocks={mockGatewayReachable} addTypename={false}>
-        <div className="min-h-screen flex items-center justify-center p-component-lg bg-background">
+      <MockedProvider
+        mocks={mockGatewayReachable}
+        addTypename={false}
+      >
+        <div className="p-component-lg bg-background flex min-h-screen items-center justify-center">
           <div className="w-full max-w-2xl">
             <Story />
           </div>
@@ -387,8 +400,11 @@ export const ValidationErrors: Story = {
   },
   decorators: [
     (Story) => (
-      <MockedProvider mocks={[]} addTypename={false}>
-        <div className="min-h-screen flex items-center justify-center p-component-lg bg-background">
+      <MockedProvider
+        mocks={[]}
+        addTypename={false}
+      >
+        <div className="p-component-lg bg-background flex min-h-screen items-center justify-center">
           <div className="w-full max-w-2xl">
             <Story />
           </div>
@@ -434,8 +450,11 @@ export const GatewayReachable: Story = {
   },
   decorators: [
     (Story) => (
-      <MockedProvider mocks={mockGatewayReachable} addTypename={false}>
-        <div className="min-h-screen flex items-center justify-center p-component-lg bg-background">
+      <MockedProvider
+        mocks={mockGatewayReachable}
+        addTypename={false}
+      >
+        <div className="p-component-lg bg-background flex min-h-screen items-center justify-center">
           <div className="w-full max-w-2xl">
             <Story />
           </div>
@@ -478,8 +497,11 @@ export const GatewayUnreachable: Story = {
   },
   decorators: [
     (Story) => (
-      <MockedProvider mocks={mockGatewayUnreachable} addTypename={false}>
-        <div className="min-h-screen flex items-center justify-center p-component-lg bg-background">
+      <MockedProvider
+        mocks={mockGatewayUnreachable}
+        addTypename={false}
+      >
+        <div className="p-component-lg bg-background flex min-h-screen items-center justify-center">
           <div className="w-full max-w-2xl">
             <Story />
           </div>
@@ -515,8 +537,11 @@ export const MobilePresenter: Story = {
   },
   decorators: [
     (Story) => (
-      <MockedProvider mocks={mockMultipleGateways} addTypename={false}>
-        <div className="min-h-screen p-component-sm bg-background">
+      <MockedProvider
+        mocks={mockMultipleGateways}
+        addTypename={false}
+      >
+        <div className="p-component-sm bg-background min-h-screen">
           <Story />
         </div>
       </MockedProvider>
@@ -551,8 +576,11 @@ export const VpnRoute: Story = {
   },
   decorators: [
     (Story) => (
-      <MockedProvider mocks={[]} addTypename={false}>
-        <div className="min-h-screen flex items-center justify-center p-component-lg bg-background">
+      <MockedProvider
+        mocks={[]}
+        addTypename={false}
+      >
+        <div className="p-component-lg bg-background flex min-h-screen items-center justify-center">
           <div className="w-full max-w-2xl">
             <Story />
           </div>
@@ -594,8 +622,11 @@ export const InterfaceOnlyRoute: Story = {
   },
   decorators: [
     (Story) => (
-      <MockedProvider mocks={[]} addTypename={false}>
-        <div className="min-h-screen flex items-center justify-center p-component-lg bg-background">
+      <MockedProvider
+        mocks={[]}
+        addTypename={false}
+      >
+        <div className="p-component-lg bg-background flex min-h-screen items-center justify-center">
           <div className="w-full max-w-2xl">
             <Story />
           </div>
@@ -606,7 +637,8 @@ export const InterfaceOnlyRoute: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Route with only interface specified (no gateway). Valid for directly connected networks.',
+        story:
+          'Route with only interface specified (no gateway). Valid for directly connected networks.',
       },
     },
   },

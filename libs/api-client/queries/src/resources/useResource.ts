@@ -287,13 +287,7 @@ export function useResource<TConfig = unknown>(
   const query = useMemo(() => buildResourceQuery(layerSelection), [layerSelection]);
 
   // Execute query
-  const {
-    data,
-    loading,
-    error,
-    networkStatus,
-    refetch,
-  } = useQuery(query, {
+  const { data, loading, error, networkStatus, refetch } = useQuery(query, {
     variables: { uuid },
     skip: skip || !uuid,
     pollInterval,
@@ -326,15 +320,19 @@ export function useResource<TConfig = unknown>(
   }, [data?.resource, subscriptionData?.resourceRuntime]);
 
   // Extract individual layers for convenience
-  const layers = useMemo((): UseResourceResult<TConfig>['layers'] => ({
-    validation: resource?.validation ?? undefined,
-    deployment: resource?.deployment ?? undefined,
-    runtime: resource?.runtime ?? undefined,
-    telemetry: resource?.telemetry ?? undefined,
-    metadata: resource?.metadata,
-    relationships: resource?.relationships ?? undefined,
-    platform: resource?.platform ?? undefined,
-  } as UseResourceResult<TConfig>['layers']), [resource]);
+  const layers = useMemo(
+    (): UseResourceResult<TConfig>['layers'] =>
+      ({
+        validation: resource?.validation ?? undefined,
+        deployment: resource?.deployment ?? undefined,
+        runtime: resource?.runtime ?? undefined,
+        telemetry: resource?.telemetry ?? undefined,
+        metadata: resource?.metadata,
+        relationships: resource?.relationships ?? undefined,
+        platform: resource?.platform ?? undefined,
+      }) as UseResourceResult<TConfig>['layers'],
+    [resource]
+  );
 
   return {
     resource,

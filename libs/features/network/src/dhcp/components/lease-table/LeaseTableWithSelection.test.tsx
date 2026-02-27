@@ -34,20 +34,35 @@ describe('LeaseTableWithSelection', () => {
     });
 
     it('should render loading skeleton when isLoading is true', () => {
-      render(<LeaseTableWithSelection {...defaultProps} isLoading={true} />);
+      render(
+        <LeaseTableWithSelection
+          {...defaultProps}
+          isLoading={true}
+        />
+      );
 
       expect(screen.getByTestId('table-skeleton')).toBeInTheDocument();
     });
 
     it('should render empty state when no leases', () => {
-      render(<LeaseTableWithSelection {...defaultProps} leases={[]} />);
+      render(
+        <LeaseTableWithSelection
+          {...defaultProps}
+          leases={[]}
+        />
+      );
 
       expect(screen.getByText(/no DHCP leases found/i)).toBeInTheDocument();
     });
 
     it('should render "New" badge for new leases', () => {
       const newLeaseIds = new Set(['lease-1']);
-      render(<LeaseTableWithSelection {...defaultProps} newLeaseIds={newLeaseIds} />);
+      render(
+        <LeaseTableWithSelection
+          {...defaultProps}
+          newLeaseIds={newLeaseIds}
+        />
+      );
 
       expect(screen.getByText('New')).toBeInTheDocument();
       expect(screen.getByText('New').closest('span')).toHaveClass('animate-pulse');
@@ -77,7 +92,12 @@ describe('LeaseTableWithSelection', () => {
 
     it('should show checked state for selected leases', () => {
       const selectedIds = new Set(['lease-1', 'lease-2']);
-      render(<LeaseTableWithSelection {...defaultProps} selectedIds={selectedIds} />);
+      render(
+        <LeaseTableWithSelection
+          {...defaultProps}
+          selectedIds={selectedIds}
+        />
+      );
 
       const checkboxes = screen.getAllByRole('checkbox');
       expect(checkboxes[1]).toBeChecked(); // lease-1
@@ -87,7 +107,12 @@ describe('LeaseTableWithSelection', () => {
 
     it('should show indeterminate state when some leases selected', () => {
       const selectedIds = new Set(['lease-1']);
-      render(<LeaseTableWithSelection {...defaultProps} selectedIds={selectedIds} />);
+      render(
+        <LeaseTableWithSelection
+          {...defaultProps}
+          selectedIds={selectedIds}
+        />
+      );
 
       const headerCheckbox = screen.getAllByRole('checkbox')[0];
       expect(headerCheckbox).toHaveProperty('indeterminate', true);
@@ -95,7 +120,12 @@ describe('LeaseTableWithSelection', () => {
 
     it('should show checked header when all leases selected', () => {
       const selectedIds = new Set(mockLeases.map((l) => l.id));
-      render(<LeaseTableWithSelection {...defaultProps} selectedIds={selectedIds} />);
+      render(
+        <LeaseTableWithSelection
+          {...defaultProps}
+          selectedIds={selectedIds}
+        />
+      );
 
       const headerCheckbox = screen.getAllByRole('checkbox')[0];
       expect(headerCheckbox).toBeChecked();
@@ -216,27 +246,38 @@ describe('LeaseTableWithSelection', () => {
   describe('Search filtering', () => {
     it('should filter leases by IP address', () => {
       const filteredLeases = mockLeases.filter((l) => l.address.includes('192.168.1.100'));
-      render(<LeaseTableWithSelection {...defaultProps} leases={filteredLeases} />);
+      render(
+        <LeaseTableWithSelection
+          {...defaultProps}
+          leases={filteredLeases}
+        />
+      );
 
       expect(screen.getByText('192.168.1.100')).toBeInTheDocument();
       expect(screen.queryByText('192.168.2.100')).not.toBeInTheDocument();
     });
 
     it('should filter leases by MAC address', () => {
-      const filteredLeases = mockLeases.filter((l) =>
-        l.macAddress.includes('00:11:22:33:44:55')
+      const filteredLeases = mockLeases.filter((l) => l.macAddress.includes('00:11:22:33:44:55'));
+      render(
+        <LeaseTableWithSelection
+          {...defaultProps}
+          leases={filteredLeases}
+        />
       );
-      render(<LeaseTableWithSelection {...defaultProps} leases={filteredLeases} />);
 
       expect(screen.getByText('00:11:22:33:44:55')).toBeInTheDocument();
       expect(screen.queryByText('00:11:22:33:44:56')).not.toBeInTheDocument();
     });
 
     it('should filter leases by hostname', () => {
-      const filteredLeases = mockLeases.filter((l) =>
-        l.hostname?.toLowerCase().includes('laptop')
+      const filteredLeases = mockLeases.filter((l) => l.hostname?.toLowerCase().includes('laptop'));
+      render(
+        <LeaseTableWithSelection
+          {...defaultProps}
+          leases={filteredLeases}
+        />
       );
-      render(<LeaseTableWithSelection {...defaultProps} leases={filteredLeases} />);
 
       expect(screen.getByText('laptop-work')).toBeInTheDocument();
       expect(screen.queryByText('phone-android')).not.toBeInTheDocument();

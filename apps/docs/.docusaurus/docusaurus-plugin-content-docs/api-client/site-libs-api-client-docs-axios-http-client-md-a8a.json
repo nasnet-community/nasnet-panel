@@ -1,7 +1,7 @@
 {
   "id": "axios-http-client",
   "title": "Axios HTTP Client",
-  "description": "This document covers the Axios-based HTTP client infrastructure in libs/api-client/core/src/. The Axios layer serves two purposes: a general-purpose REST API client for the NasNet backend (/api/v1), and a router proxy client that tunnels RouterOS REST API calls through the Go backend to avoid browser CORS restrictions.",
+  "description": "This document covers the Axios-based HTTP client infrastructure in libs/api-client/core/src/. The",
   "source": "@site/../../libs/api-client/docs/axios-http-client.md",
   "sourceDirName": ".",
   "slug": "/axios-http-client",

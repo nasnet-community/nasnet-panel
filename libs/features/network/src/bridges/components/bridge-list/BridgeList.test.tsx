@@ -76,10 +76,7 @@ describe('BridgeList', () => {
       refetch: mockRefetch,
     });
 
-    (queries.useDeleteBridge as any).mockReturnValue([
-      mockDeleteBridge,
-      { loading: false },
-    ]);
+    (queries.useDeleteBridge as any).mockReturnValue([mockDeleteBridge, { loading: false }]);
 
     (queries.useUndoBridgeOperation as any).mockReturnValue([
       mockUndoBridgeOperation,

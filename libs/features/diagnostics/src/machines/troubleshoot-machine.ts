@@ -104,9 +104,7 @@ export function createTroubleshootMachine(routerId: string) {
             entry: assign({
               steps: ({ context }) =>
                 context.steps.map((step, i) =>
-                  i === context.currentStepIndex
-                    ? { ...step, status: 'running' as const }
-                    : step
+                  i === context.currentStepIndex ? { ...step, status: 'running' as const } : step
                 ),
             }),
             invoke: {
@@ -122,14 +120,14 @@ export function createTroubleshootMachine(routerId: string) {
                 actions: assign({
                   steps: ({ context, event }) =>
                     context.steps.map((step, i) =>
-                      i === context.currentStepIndex
-                        ? {
-                            ...step,
-                            status: event.output.success ? 'passed' : 'failed',
-                            result: event.output,
-                            fix: event.output.success ? undefined : getFix(step.id, event.output),
-                          }
-                        : step
+                      i === context.currentStepIndex ?
+                        {
+                          ...step,
+                          status: event.output.success ? 'passed' : 'failed',
+                          result: event.output,
+                          fix: event.output.success ? undefined : getFix(step.id, event.output),
+                        }
+                      : step
                     ),
                 }),
               },
@@ -138,17 +136,17 @@ export function createTroubleshootMachine(routerId: string) {
                 actions: assign({
                   steps: ({ context }) =>
                     context.steps.map((step, i) =>
-                      i === context.currentStepIndex
-                        ? {
-                            ...step,
-                            status: 'failed' as const,
-                            result: {
-                              success: false,
-                              message: 'Diagnostic failed unexpectedly',
-                              executionTimeMs: 0,
-                            },
-                          }
-                        : step
+                      i === context.currentStepIndex ?
+                        {
+                          ...step,
+                          status: 'failed' as const,
+                          result: {
+                            success: false,
+                            message: 'Diagnostic failed unexpectedly',
+                            executionTimeMs: 0,
+                          },
+                        }
+                      : step
                     ),
                 }),
               },
@@ -192,12 +190,12 @@ export function createTroubleshootMachine(routerId: string) {
                 target: 'verifyingFix',
                 actions: assign({
                   appliedFixes: ({ context, event }) =>
-                    event.output.success
-                      ? [
-                          ...context.appliedFixes,
-                          context.steps[context.currentStepIndex].fix!.issueCode,
-                        ]
-                      : context.appliedFixes,
+                    event.output.success ?
+                      [
+                        ...context.appliedFixes,
+                        context.steps[context.currentStepIndex].fix!.issueCode,
+                      ]
+                    : context.appliedFixes,
                 }),
               },
               onError: { target: 'awaitingFixDecision' },
@@ -222,9 +220,9 @@ export function createTroubleshootMachine(routerId: string) {
                   actions: assign({
                     steps: ({ context, event }) =>
                       context.steps.map((step, i) =>
-                        i === context.currentStepIndex
-                          ? { ...step, status: 'passed' as const, result: event.output }
-                          : step
+                        i === context.currentStepIndex ?
+                          { ...step, status: 'passed' as const, result: event.output }
+                        : step
                       ),
                   }),
                 },
@@ -234,15 +232,15 @@ export function createTroubleshootMachine(routerId: string) {
                   actions: assign({
                     steps: ({ context, event }) =>
                       context.steps.map((step, i) =>
-                        i === context.currentStepIndex
-                          ? {
-                              ...step,
-                              result: {
-                                ...event.output,
-                                message: 'Fix applied, but issue persists',
-                              },
-                            }
-                          : step
+                        i === context.currentStepIndex ?
+                          {
+                            ...step,
+                            result: {
+                              ...event.output,
+                              message: 'Fix applied, but issue persists',
+                            },
+                          }
+                        : step
                       ),
                   }),
                 },

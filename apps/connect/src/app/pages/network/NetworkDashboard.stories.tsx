@@ -20,7 +20,6 @@ import { NetworkDashboard } from './NetworkDashboard';
 
 import type { Meta, StoryObj } from '@storybook/react';
 
-
 const meta: Meta<typeof NetworkDashboard> = {
   title: 'App/Pages/NetworkDashboard',
   component: NetworkDashboard,
@@ -217,7 +216,8 @@ export const Mobile: Story = {
     viewport: { defaultViewport: 'mobile1' },
     docs: {
       description: {
-        story: 'NetworkDashboard rendered on a mobile viewport (375px). Sections stack vertically with mobile-optimized spacing and touch-friendly controls.',
+        story:
+          'NetworkDashboard rendered on a mobile viewport (375px). Sections stack vertically with mobile-optimized spacing and touch-friendly controls.',
       },
     },
   },
@@ -232,7 +232,8 @@ export const Desktop: Story = {
     viewport: { defaultViewport: 'desktop' },
     docs: {
       description: {
-        story: 'NetworkDashboard rendered on a desktop viewport (1280px+). Multi-column layout with dense data presentation and full visualizations.',
+        story:
+          'NetworkDashboard rendered on a desktop viewport (1280px+). Multi-column layout with dense data presentation and full visualizations.',
       },
     },
   },

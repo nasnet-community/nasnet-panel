@@ -37,12 +37,7 @@ export class ApiError extends Error {
   public statusCode?: number;
   public code?: string;
 
-  constructor(
-    message: string,
-    originalError?: unknown,
-    statusCode?: number,
-    code?: string
-  ) {
+  constructor(message: string, originalError?: unknown, statusCode?: number, code?: string) {
     super(message);
     this.name = 'ApiError';
     this.originalError = originalError;

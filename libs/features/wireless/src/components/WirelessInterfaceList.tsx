@@ -18,20 +18,24 @@ import { Icon } from '@nasnet/ui/primitives';
  */
 const WirelessInterfaceSkeleton = React.memo(function WirelessInterfaceSkeletonComponent() {
   return (
-    <div className="rounded-card-lg border border-border p-component-md space-y-component-md animate-pulse" role="status" aria-label="Loading wireless interface">
+    <div
+      className="rounded-card-lg border-border p-component-md space-y-component-md animate-pulse border"
+      role="status"
+      aria-label="Loading wireless interface"
+    >
       <div className="flex items-start justify-between">
-        <div className="flex items-center gap-component-sm">
-          <div className="h-9 w-9 rounded-lg bg-muted" />
+        <div className="gap-component-sm flex items-center">
+          <div className="bg-muted h-9 w-9 rounded-lg" />
           <div className="space-y-component-sm">
-            <div className="h-5 w-24 bg-muted rounded" />
-            <div className="h-4 w-32 bg-muted rounded" />
+            <div className="bg-muted h-5 w-24 rounded" />
+            <div className="bg-muted h-4 w-32 rounded" />
           </div>
         </div>
-        <div className="h-6 w-16 bg-muted rounded-pill" />
+        <div className="bg-muted rounded-pill h-6 w-16" />
       </div>
-      <div className="flex items-center gap-component-md">
-        <div className="h-5 w-16 bg-muted rounded-md" />
-        <div className="h-5 w-20 bg-muted rounded-md" />
+      <div className="gap-component-md flex items-center">
+        <div className="bg-muted h-5 w-16 rounded-md" />
+        <div className="bg-muted h-5 w-20 rounded-md" />
       </div>
     </div>
   );
@@ -43,16 +47,24 @@ const WirelessInterfaceSkeleton = React.memo(function WirelessInterfaceSkeletonC
  */
 const WirelessInterfacesEmpty = React.memo(function WirelessInterfacesEmptyComponent() {
   return (
-    <div className="flex flex-col items-center justify-center py-16 px-component-md text-center" role="status">
-      <div className="p-component-lg rounded-full bg-muted mb-component-md">
-        <Icon icon={Wifi} size="lg" className="text-muted-foreground" aria-hidden="true" />
+    <div
+      className="px-component-md flex flex-col items-center justify-center py-16 text-center"
+      role="status"
+    >
+      <div className="p-component-lg bg-muted mb-component-md rounded-full">
+        <Icon
+          icon={Wifi}
+          size="lg"
+          className="text-muted-foreground"
+          aria-hidden="true"
+        />
       </div>
-      <h3 className="text-lg font-semibold font-display text-foreground mb-component-sm">
+      <h3 className="font-display text-foreground mb-component-sm text-lg font-semibold">
         No wireless interfaces found
       </h3>
-      <p className="text-sm text-muted-foreground max-w-md">
-        Your router doesn't appear to have any wireless interfaces configured.
-        This is normal for routers without WiFi capabilities.
+      <p className="text-muted-foreground max-w-md text-sm">
+        Your router doesn't appear to have any wireless interfaces configured. This is normal for
+        routers without WiFi capabilities.
       </p>
     </div>
   );
@@ -61,26 +73,38 @@ const WirelessInterfacesEmpty = React.memo(function WirelessInterfacesEmptyCompo
 /**
  * Error state component when API request fails
  */
-const WirelessInterfacesError = React.memo(function WirelessInterfacesErrorComponent({ error }: { error: Error }) {
+const WirelessInterfacesError = React.memo(function WirelessInterfacesErrorComponent({
+  error,
+}: {
+  error: Error;
+}) {
   const handleRetry = React.useCallback(() => {
     window.location.reload();
   }, []);
 
   return (
-    <div className="flex flex-col items-center justify-center py-16 px-component-md text-center" role="alert">
-      <div className="p-component-lg rounded-full bg-error/10 mb-component-md">
-        <Icon icon={Wifi} size="lg" className="text-error" aria-hidden="true" />
+    <div
+      className="px-component-md flex flex-col items-center justify-center py-16 text-center"
+      role="alert"
+    >
+      <div className="p-component-lg bg-error/10 mb-component-md rounded-full">
+        <Icon
+          icon={Wifi}
+          size="lg"
+          className="text-error"
+          aria-hidden="true"
+        />
       </div>
-      <h3 className="text-lg font-semibold font-display text-foreground mb-component-sm">
+      <h3 className="font-display text-foreground mb-component-sm text-lg font-semibold">
         Failed to load wireless interfaces
       </h3>
-      <p className="text-sm text-muted-foreground max-w-md mb-component-md">
+      <p className="text-muted-foreground mb-component-md max-w-md text-sm">
         {error.message || 'An error occurred while loading wireless interfaces'}
       </p>
       <button
         onClick={handleRetry}
         type="button"
-        className="min-h-[44px] px-component-md py-component-sm bg-primary text-primary-foreground rounded-[var(--semantic-radius-button)] text-sm font-medium hover:bg-primary/90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+        className="px-component-md py-component-sm bg-primary text-primary-foreground hover:bg-primary/90 focus-visible:ring-ring min-h-[44px] rounded-[var(--semantic-radius-button)] text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
       >
         Retry
       </button>
@@ -124,7 +148,7 @@ function WirelessInterfaceListComponent({ routerId }: WirelessInterfaceListProps
   // Loading state: show skeleton cards
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-component-md">
+      <div className="gap-component-md grid grid-cols-1 md:grid-cols-2">
         <WirelessInterfaceSkeleton />
         <WirelessInterfaceSkeleton />
         <WirelessInterfaceSkeleton />
@@ -144,7 +168,7 @@ function WirelessInterfaceListComponent({ routerId }: WirelessInterfaceListProps
 
   // Success state: display interface cards in responsive grid
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-component-md">
+    <div className="gap-component-md grid grid-cols-1 md:grid-cols-2">
       {interfaces.map((iface) => (
         <WirelessInterfaceCard
           key={iface.id}

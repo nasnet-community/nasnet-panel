@@ -21,9 +21,7 @@ import type { RoutingChainVizProps } from './types';
  * />
  * ```
  */
-const RoutingChainViz = memo(function RoutingChainVizComponent(
-  props: RoutingChainVizProps
-) {
+const RoutingChainViz = memo(function RoutingChainVizComponent(props: RoutingChainVizProps) {
   const {
     chain,
     loading,

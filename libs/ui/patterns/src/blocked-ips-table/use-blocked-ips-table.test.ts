@@ -225,9 +225,7 @@ describe('useBlockedIPsTable', () => {
 
       const filtered = result.current.filteredBlockedIPs;
       expect(
-        filtered.every(
-          (ip) => ip.address.startsWith('192.168.') && ip.list === 'rate-limited'
-        )
+        filtered.every((ip) => ip.address.startsWith('192.168.') && ip.list === 'rate-limited')
       ).toBe(true);
     });
 
@@ -294,9 +292,9 @@ describe('useBlockedIPsTable', () => {
       const sorted = result.current.filteredBlockedIPs;
       for (let i = 1; i < sorted.length; i++) {
         if (sorted[i].lastBlocked && sorted[i - 1].lastBlocked) {
-          expect(
-            sorted[i].lastBlocked!.getTime() <= sorted[i - 1].lastBlocked!.getTime()
-          ).toBe(true);
+          expect(sorted[i].lastBlocked!.getTime() <= sorted[i - 1].lastBlocked!.getTime()).toBe(
+            true
+          );
         }
       }
     });

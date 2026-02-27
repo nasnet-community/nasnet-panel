@@ -109,12 +109,18 @@ const ConfidenceIndicator = React.memo(function ConfidenceIndicator({
     >
       {/* Mobile: shown on small screens (<640px) */}
       <div className="sm:hidden">
-        <ConfidenceIndicatorMobile {...presenterProps} className="" />
+        <ConfidenceIndicatorMobile
+          {...presenterProps}
+          className=""
+        />
       </div>
 
       {/* Desktop: shown on larger screens (>=640px) */}
       <div className="hidden sm:block">
-        <ConfidenceIndicatorDesktop {...presenterProps} className="" />
+        <ConfidenceIndicatorDesktop
+          {...presenterProps}
+          className=""
+        />
       </div>
 
       {/* Screen reader announcement */}

@@ -59,9 +59,7 @@ export function useSortableList<T extends SortableItemData>(
   // ============================================================================
 
   // History state for undo/redo
-  const [history, setHistory] = useState<HistoryState<T>>(() =>
-    createHistoryState(initialItems)
-  );
+  const [history, setHistory] = useState<HistoryState<T>>(() => createHistoryState(initialItems));
 
   // Drag state
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
@@ -82,12 +80,12 @@ export function useSortableList<T extends SortableItemData>(
   const isDragging = activeId !== null;
 
   const activeItem = useMemo(
-    () => (activeId ? items.find((item) => item.id === activeId) ?? null : null),
+    () => (activeId ? (items.find((item) => item.id === activeId) ?? null) : null),
     [activeId, items]
   );
 
   const overItem = useMemo(
-    () => (overId ? items.find((item) => item.id === overId) ?? null : null),
+    () => (overId ? (items.find((item) => item.id === overId) ?? null) : null),
     [overId, items]
   );
 
@@ -148,10 +146,7 @@ export function useSortableList<T extends SortableItemData>(
   // Selection Management
   // ============================================================================
 
-  const isSelected = useCallback(
-    (id: UniqueIdentifier) => selectedIds.has(id),
-    [selectedIds]
-  );
+  const isSelected = useCallback((id: UniqueIdentifier) => selectedIds.has(id), [selectedIds]);
 
   const select = useCallback(
     (id: UniqueIdentifier) => {
@@ -400,15 +395,12 @@ export function useSortableList<T extends SortableItemData>(
   // Set Items Directly
   // ============================================================================
 
-  const setItems = useCallback(
-    (newItems: T[]) => {
-      setHistory((h) => ({
-        ...h,
-        present: newItems,
-      }));
-    },
-    []
-  );
+  const setItems = useCallback((newItems: T[]) => {
+    setHistory((h) => ({
+      ...h,
+      present: newItems,
+    }));
+  }, []);
 
   // ============================================================================
   // Return Value

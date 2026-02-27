@@ -70,12 +70,7 @@ export type ValidationStage =
  *
  * @see ValidationStageResult
  */
-export type ValidationStageStatus =
-  | 'pending'
-  | 'running'
-  | 'passed'
-  | 'failed'
-  | 'skipped';
+export type ValidationStageStatus = 'pending' | 'running' | 'passed' | 'failed' | 'skipped';
 
 /**
  * Result of a single validation stage.

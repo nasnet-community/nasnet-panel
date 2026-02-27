@@ -99,10 +99,7 @@ describe('useInstanceManager', () => {
       );
 
       expect(result.current.filteredInstances).toHaveLength(2);
-      expect(result.current.filteredInstances.map((i) => i.category)).toEqual([
-        'proxy',
-        'proxy',
-      ]);
+      expect(result.current.filteredInstances.map((i) => i.category)).toEqual(['proxy', 'proxy']);
     });
 
     it('should filter by status', () => {
@@ -114,10 +111,7 @@ describe('useInstanceManager', () => {
       );
 
       expect(result.current.filteredInstances).toHaveLength(2);
-      expect(result.current.filteredInstances.map((i) => i.status)).toEqual([
-        'running',
-        'running',
-      ]);
+      expect(result.current.filteredInstances.map((i) => i.status)).toEqual(['running', 'running']);
     });
 
     it('should apply multiple filters simultaneously', () => {
@@ -133,9 +127,7 @@ describe('useInstanceManager', () => {
     });
 
     it('should update hasActiveFilters correctly', () => {
-      const { result: noFilters } = renderHook(() =>
-        useInstanceManager(defaultProps)
-      );
+      const { result: noFilters } = renderHook(() => useInstanceManager(defaultProps));
       expect(noFilters.current.hasActiveFilters).toBe(false);
 
       const { result: withSearch } = renderHook(() =>
@@ -208,9 +200,7 @@ describe('useInstanceManager', () => {
         })
       );
 
-      const cpuValues = result.current.filteredInstances.map(
-        (i) => i.metrics?.cpu || 0
-      );
+      const cpuValues = result.current.filteredInstances.map((i) => i.metrics?.cpu || 0);
       expect(cpuValues).toEqual([5.2, 3.5, 0, 0]);
     });
 
@@ -222,9 +212,7 @@ describe('useInstanceManager', () => {
         })
       );
 
-      const memoryValues = result.current.filteredInstances.map(
-        (i) => i.metrics?.memory || 0
-      );
+      const memoryValues = result.current.filteredInstances.map((i) => i.metrics?.memory || 0);
       expect(memoryValues).toEqual([0, 64, 96, 128]);
     });
   });
@@ -364,9 +352,7 @@ describe('useInstanceManager', () => {
         })
       );
 
-      const startAction = result.current.availableBulkActions.find(
-        (a) => a.operation === 'start'
-      );
+      const startAction = result.current.availableBulkActions.find((a) => a.operation === 'start');
       expect(startAction).toBeDefined();
       expect(startAction?.label).toBe('Start (1)');
     });
@@ -379,9 +365,7 @@ describe('useInstanceManager', () => {
         })
       );
 
-      const stopAction = result.current.availableBulkActions.find(
-        (a) => a.operation === 'stop'
-      );
+      const stopAction = result.current.availableBulkActions.find((a) => a.operation === 'stop');
       expect(stopAction).toBeDefined();
       expect(stopAction?.label).toBe('Stop (2)');
     });
@@ -560,9 +544,7 @@ describe('useInstanceManager', () => {
     });
 
     it('should maintain stable references for event handlers', () => {
-      const { result, rerender } = renderHook(() =>
-        useInstanceManager(defaultProps)
-      );
+      const { result, rerender } = renderHook(() => useInstanceManager(defaultProps));
 
       const firstHandleClick = result.current.handleInstanceClick;
 

@@ -33,8 +33,7 @@ export const retryLink = new RetryLink({
 
       // Don't retry 4xx errors (client errors are not transient)
       const statusCode = error?.statusCode;
-      const isClientError =
-        typeof statusCode === 'number' && statusCode >= 400 && statusCode < 500;
+      const isClientError = typeof statusCode === 'number' && statusCode >= 400 && statusCode < 500;
 
       return isNetworkError && !isClientError;
     },

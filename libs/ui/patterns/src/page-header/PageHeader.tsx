@@ -54,11 +54,11 @@ export const PageHeader = React.memo(function PageHeader({
 }: PageHeaderProps) {
   return (
     <div className={cn('mb-6 sm:mb-8', className)}>
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex-1">
-          <h1 className="text-2xl sm:text-3xl font-bold font-display text-foreground">{title}</h1>
+          <h1 className="font-display text-foreground text-2xl font-bold sm:text-3xl">{title}</h1>
           {description && (
-            <p className="mt-1 text-sm sm:text-base text-muted-foreground">{description}</p>
+            <p className="text-muted-foreground mt-1 text-sm sm:text-base">{description}</p>
           )}
         </div>
         {actions && <div className="flex items-center gap-2">{actions}</div>}

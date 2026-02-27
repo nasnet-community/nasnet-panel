@@ -10,7 +10,8 @@ import {
   SelectValue,
   SelectContent,
   SelectItem,
- cn } from '@nasnet/ui/primitives';
+  cn,
+} from '@nasnet/ui/primitives';
 
 import type {
   VLANAllocationTableProps,
@@ -34,20 +35,15 @@ export function VLANAllocationTableMobile({
   const [sortBy, setSortBy] = useState<VLANAllocationSort>('vlanID');
 
   // Extract unique service types
-  const serviceTypes = Array.from(
-    new Set(allocations.map((a) => a.serviceType))
-  );
+  const serviceTypes = Array.from(new Set(allocations.map((a) => a.serviceType)));
 
   // Filter and sort
   const filtered = allocations
     .filter((alloc) => {
       const matchesSearch =
-        search === '' ||
-        alloc.instanceName.toLowerCase().includes(search.toLowerCase());
-      const matchesService =
-        serviceTypeFilter === 'all' || alloc.serviceType === serviceTypeFilter;
-      const matchesStatus =
-        statusFilter === 'all' || alloc.status === statusFilter;
+        search === '' || alloc.instanceName.toLowerCase().includes(search.toLowerCase());
+      const matchesService = serviceTypeFilter === 'all' || alloc.serviceType === serviceTypeFilter;
+      const matchesStatus = statusFilter === 'all' || alloc.status === statusFilter;
       return matchesSearch && matchesService && matchesStatus;
     })
     .sort((a, b) => {
@@ -55,10 +51,7 @@ export function VLANAllocationTableMobile({
         case 'vlanID':
           return a.vlanID - b.vlanID;
         case 'allocatedAt':
-          return (
-            new Date(b.allocatedAt).getTime() -
-            new Date(a.allocatedAt).getTime()
-          );
+          return new Date(b.allocatedAt).getTime() - new Date(a.allocatedAt).getTime();
         case 'serviceType':
           return a.serviceType.localeCompare(b.serviceType);
         default:
@@ -82,7 +75,7 @@ export function VLANAllocationTableMobile({
   return (
     <div className={cn('space-y-component-sm', className)}>
       {/* Filters */}
-      <Card className="bg-card border border-border rounded-[var(--semantic-radius-card)] p-component-md">
+      <Card className="bg-card border-border p-component-md rounded-[var(--semantic-radius-card)] border">
         <div className="space-y-component-md">
           {/* Search */}
           <Input
@@ -93,14 +86,20 @@ export function VLANAllocationTableMobile({
           />
 
           {/* Service Type Filter */}
-          <Select value={serviceTypeFilter} onValueChange={setServiceTypeFilter}>
-            <SelectTrigger className="w-full min-h-[44px]">
+          <Select
+            value={serviceTypeFilter}
+            onValueChange={setServiceTypeFilter}
+          >
+            <SelectTrigger className="min-h-[44px] w-full">
               <SelectValue placeholder="All Services" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Services</SelectItem>
               {serviceTypes.map((type) => (
-                <SelectItem key={type} value={type}>
+                <SelectItem
+                  key={type}
+                  value={type}
+                >
                   {type}
                 </SelectItem>
               ))}
@@ -108,8 +107,11 @@ export function VLANAllocationTableMobile({
           </Select>
 
           {/* Status Filter */}
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-full min-h-[44px]">
+          <Select
+            value={statusFilter}
+            onValueChange={setStatusFilter}
+          >
+            <SelectTrigger className="min-h-[44px] w-full">
               <SelectValue placeholder="All Statuses" />
             </SelectTrigger>
             <SelectContent>
@@ -121,8 +123,11 @@ export function VLANAllocationTableMobile({
           </Select>
 
           {/* Sort */}
-          <Select value={sortBy} onValueChange={(v) => setSortBy(v as VLANAllocationSort)}>
-            <SelectTrigger className="w-full min-h-[44px]">
+          <Select
+            value={sortBy}
+            onValueChange={(v) => setSortBy(v as VLANAllocationSort)}
+          >
+            <SelectTrigger className="min-h-[44px] w-full">
               <SelectValue placeholder="Sort by..." />
             </SelectTrigger>
             <SelectContent>
@@ -138,7 +143,7 @@ export function VLANAllocationTableMobile({
               variant="outline"
               onClick={onRefresh}
               disabled={loading}
-              className="w-full min-h-[44px]"
+              className="min-h-[44px] w-full"
             >
               {loading ? 'Refreshing...' : 'Refresh'}
             </Button>
@@ -147,39 +152,35 @@ export function VLANAllocationTableMobile({
       </Card>
 
       {/* Results count */}
-      <div className="px-page-mobile text-sm text-muted-foreground">
+      <div className="px-page-mobile text-muted-foreground text-sm">
         {filtered.length} allocation{filtered.length !== 1 ? 's' : ''}
       </div>
 
       {/* Allocation cards */}
-      {loading && filtered.length === 0 ? (
-        <Card className="bg-card border border-border rounded-[var(--semantic-radius-card)] p-component-md">
-          <p className="text-sm text-muted-foreground text-center">Loading...</p>
+      {loading && filtered.length === 0 ?
+        <Card className="bg-card border-border p-component-md rounded-[var(--semantic-radius-card)] border">
+          <p className="text-muted-foreground text-center text-sm">Loading...</p>
         </Card>
-      ) : filtered.length === 0 ? (
-        <Card className="bg-card border border-border rounded-[var(--semantic-radius-card)] p-component-md">
-          <p className="text-sm text-muted-foreground text-center">
-            No allocations found
-          </p>
+      : filtered.length === 0 ?
+        <Card className="bg-card border-border p-component-md rounded-[var(--semantic-radius-card)] border">
+          <p className="text-muted-foreground text-center text-sm">No allocations found</p>
         </Card>
-      ) : (
-        <div className="space-y-component-sm">
+      : <div className="space-y-component-sm">
           {filtered.map((alloc) => (
-            <Card key={alloc.id} className="bg-card border border-border rounded-[var(--semantic-radius-card)] p-component-md">
-              <CardContent className="p-0 space-y-component-sm">
+            <Card
+              key={alloc.id}
+              className="bg-card border-border p-component-md rounded-[var(--semantic-radius-card)] border"
+            >
+              <CardContent className="space-y-component-sm p-0">
                 {/* Header */}
-                <div className="flex items-start justify-between gap-component-sm">
+                <div className="gap-component-sm flex items-start justify-between">
                   <div>
-                    <div className="font-semibold text-base">
-                      VLAN {alloc.vlanID}
-                    </div>
-                    <div className="text-sm text-muted-foreground">
-                      {alloc.instanceName}
-                    </div>
+                    <div className="text-base font-semibold">VLAN {alloc.vlanID}</div>
+                    <div className="text-muted-foreground text-sm">{alloc.instanceName}</div>
                   </div>
                   <div
                     className={cn(
-                      'text-xs px-2 py-1 rounded-[var(--semantic-radius-badge)] border font-medium',
+                      'rounded-[var(--semantic-radius-badge)] border px-2 py-1 text-xs font-medium',
                       getStatusColor(alloc.status)
                     )}
                   >
@@ -196,7 +197,7 @@ export function VLANAllocationTableMobile({
                   {alloc.bindIP && (
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Bind IP:</span>
-                      <code className="text-xs bg-muted px-2 py-1 rounded-[var(--semantic-radius-input)] font-mono">
+                      <code className="bg-muted rounded-[var(--semantic-radius-input)] px-2 py-1 font-mono text-xs">
                         {alloc.bindIP}
                       </code>
                     </div>
@@ -204,23 +205,21 @@ export function VLANAllocationTableMobile({
                   {alloc.interfaceName && (
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Interface:</span>
-                      <code className="text-xs bg-muted px-2 py-1 rounded-[var(--semantic-radius-input)] font-mono">
+                      <code className="bg-muted rounded-[var(--semantic-radius-input)] px-2 py-1 font-mono text-xs">
                         {alloc.interfaceName}
                       </code>
                     </div>
                   )}
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Allocated:</span>
-                    <span className="text-xs">
-                      {new Date(alloc.allocatedAt).toLocaleString()}
-                    </span>
+                    <span className="text-xs">{new Date(alloc.allocatedAt).toLocaleString()}</span>
                   </div>
                 </div>
               </CardContent>
             </Card>
           ))}
         </div>
-      )}
+      }
     </div>
   );
 }

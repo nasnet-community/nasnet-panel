@@ -56,21 +56,19 @@ function CalculationRow({ label, value, copyable = false, className }: Calculati
 
   return (
     <div className={cn('flex items-center justify-between gap-2 py-1', className)}>
-      <span className="text-sm text-muted-foreground">{label}</span>
+      <span className="text-muted-foreground text-sm">{label}</span>
       <div className="flex items-center gap-1">
-        <span className="font-mono text-sm text-foreground">{displayValue}</span>
+        <span className="text-foreground font-mono text-sm">{displayValue}</span>
         {copyable && value !== null && (
           <button
             type="button"
             onClick={handleCopy}
-            className="p-1 rounded hover:bg-muted transition-colors"
+            className="hover:bg-muted rounded p-1 transition-colors"
             aria-label={`Copy ${label}`}
           >
-            {copied ? (
-              <Check className="h-3 w-3 text-success" />
-            ) : (
-              <Copy className="h-3 w-3 text-muted-foreground" />
-            )}
+            {copied ?
+              <Check className="text-success h-3 w-3" />
+            : <Copy className="text-muted-foreground h-3 w-3" />}
           </button>
         )}
       </div>
@@ -95,45 +93,58 @@ export function SubnetCalculations({
 
   // Format usable range
   const usableRange =
-    info.firstHost && info.lastHost
-      ? `${info.firstHost} - ${info.lastHost}`
-      : 'N/A';
+    info.firstHost && info.lastHost ? `${info.firstHost} - ${info.lastHost}` : 'N/A';
 
   const content = (
     <div className="space-y-0.5">
-      <CalculationRow label="Network" value={info.network} copyable />
-      <CalculationRow label="Broadcast" value={info.broadcast} copyable />
-      <CalculationRow label="Usable Range" value={usableRange} copyable />
-      <CalculationRow label="Host Count" value={formattedHosts} />
-      <CalculationRow label="Subnet Mask" value={info.mask} copyable />
+      <CalculationRow
+        label="Network"
+        value={info.network}
+        copyable
+      />
+      <CalculationRow
+        label="Broadcast"
+        value={info.broadcast}
+        copyable
+      />
+      <CalculationRow
+        label="Usable Range"
+        value={usableRange}
+        copyable
+      />
+      <CalculationRow
+        label="Host Count"
+        value={formattedHosts}
+      />
+      <CalculationRow
+        label="Subnet Mask"
+        value={info.mask}
+        copyable
+      />
     </div>
   );
 
   // Collapsible version (for mobile)
   if (onToggleCollapse !== undefined) {
     return (
-      <div
-        className={cn(
-          'rounded-lg border border-border bg-muted/30 overflow-hidden',
-          className
-        )}
-      >
+      <div className={cn('border-border bg-muted/30 overflow-hidden rounded-lg border', className)}>
         <button
           type="button"
           onClick={onToggleCollapse}
-          className="flex w-full items-center justify-between px-3 py-2 text-sm font-medium hover:bg-muted/50 transition-colors"
+          className="hover:bg-muted/50 flex w-full items-center justify-between px-3 py-2 text-sm font-medium transition-colors"
           aria-expanded={!collapsed}
           aria-controls="subnet-calculations-content"
         >
           <span>Subnet Calculations</span>
-          {collapsed ? (
-            <ChevronDown className="h-4 w-4 text-muted-foreground" />
-          ) : (
-            <ChevronUp className="h-4 w-4 text-muted-foreground" />
-          )}
+          {collapsed ?
+            <ChevronDown className="text-muted-foreground h-4 w-4" />
+          : <ChevronUp className="text-muted-foreground h-4 w-4" />}
         </button>
         {!collapsed && (
-          <div id="subnet-calculations-content" className="px-3 pb-3">
+          <div
+            id="subnet-calculations-content"
+            className="px-3 pb-3"
+          >
             {content}
           </div>
         )}
@@ -143,15 +154,8 @@ export function SubnetCalculations({
 
   // Static version (for desktop)
   return (
-    <div
-      className={cn(
-        'rounded-lg border border-border bg-muted/30 p-3',
-        className
-      )}
-    >
-      <div className="mb-2 text-sm font-medium text-foreground">
-        Subnet Calculations
-      </div>
+    <div className={cn('border-border bg-muted/30 rounded-lg border p-3', className)}>
+      <div className="text-foreground mb-2 text-sm font-medium">Subnet Calculations</div>
       {content}
     </div>
   );

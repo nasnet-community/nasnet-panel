@@ -48,12 +48,19 @@ import type { HelpSheetProps } from './help.types';
  * />
  * ```
  */
-export const HelpSheet = React.memo(function HelpSheet({ content, open, onOpenChange }: HelpSheetProps) {
+export const HelpSheet = React.memo(function HelpSheet({
+  content,
+  open,
+  onOpenChange,
+}: HelpSheetProps) {
   const hasExamples = content.examples && content.examples.length > 0;
   const hasLink = content.link && content.link.trim() !== '';
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
+    <Sheet
+      open={open}
+      onOpenChange={onOpenChange}
+    >
       <SheetContent
         side="bottom"
         aria-label={content.title || 'Help information'}
@@ -68,20 +75,20 @@ export const HelpSheet = React.memo(function HelpSheet({ content, open, onOpenCh
       >
         {/* Drag Handle Indicator */}
         <div className="absolute left-1/2 top-3 -translate-x-1/2">
-          <div className="h-1.5 w-12 rounded-full bg-muted-foreground/30" />
+          <div className="bg-muted-foreground/30 h-1.5 w-12 rounded-full" />
         </div>
 
-        <SheetHeader className="text-left pb-4">
+        <SheetHeader className="pb-4 text-left">
           {/* Title - larger for mobile per spec */}
           {content.title && (
-            <SheetTitle className="text-base font-semibold text-foreground">
+            <SheetTitle className="text-foreground text-base font-semibold">
               {content.title}
             </SheetTitle>
           )}
 
           {/* Description - readable size for mobile per spec */}
           {content.description && (
-            <SheetDescription className="text-sm text-muted-foreground leading-relaxed">
+            <SheetDescription className="text-muted-foreground text-sm leading-relaxed">
               {content.description}
             </SheetDescription>
           )}
@@ -91,7 +98,7 @@ export const HelpSheet = React.memo(function HelpSheet({ content, open, onOpenCh
           {/* Examples - full width, larger touch targets */}
           {hasExamples && (
             <div className="space-y-2">
-              <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+              <span className="text-muted-foreground text-sm font-semibold uppercase tracking-wide">
                 Examples
               </span>
               <ul className="space-y-2">
@@ -100,12 +107,12 @@ export const HelpSheet = React.memo(function HelpSheet({ content, open, onOpenCh
                     key={index}
                     className={cn(
                       'flex items-center gap-2',
-                      'p-3 rounded-[var(--semantic-radius-input)] bg-muted',
+                      'bg-muted rounded-[var(--semantic-radius-input)] p-3',
                       // Touch-friendly height per spec (44px minimum)
                       'min-h-[44px]'
                     )}
                   >
-                    <code className="font-mono text-sm text-muted-foreground break-all flex-1">
+                    <code className="text-muted-foreground flex-1 break-all font-mono text-sm">
                       {example}
                     </code>
                   </li>
@@ -122,19 +129,22 @@ export const HelpSheet = React.memo(function HelpSheet({ content, open, onOpenCh
               rel="noopener noreferrer"
               className={cn(
                 'flex items-center justify-center gap-2',
-                'w-full py-3 px-4',
+                'w-full px-4 py-3',
                 'rounded-[var(--semantic-radius-button)]',
                 'bg-primary text-primary-foreground',
                 'text-sm font-medium',
                 'transition-colors duration-150',
                 'hover:bg-primary-hover',
-                'focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+                'focus-visible:ring-ring focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
                 // Minimum touch target per WCAG AAA spec
                 'min-h-[44px]'
               )}
             >
               <span>Learn more</span>
-              <ExternalLink className="h-4 w-4" aria-hidden="true" />
+              <ExternalLink
+                className="h-4 w-4"
+                aria-hidden="true"
+              />
             </a>
           )}
         </div>

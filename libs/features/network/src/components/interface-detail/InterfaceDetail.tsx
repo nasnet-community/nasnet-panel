@@ -25,19 +25,15 @@ export interface InterfaceDetailProps {
   onClose: () => void;
 }
 
-export function InterfaceDetail({
-  routerId,
-  interfaceId,
-  open,
-  onClose,
-}: InterfaceDetailProps) {
+export function InterfaceDetail({ routerId, interfaceId, open, onClose }: InterfaceDetailProps) {
   const platform = usePlatform();
 
   // Fetch interface details
-  const { interface: interfaceData, loading, error } = useInterfaceDetail(
-    routerId,
-    interfaceId || ''
-  );
+  const {
+    interface: interfaceData,
+    loading,
+    error,
+  } = useInterfaceDetail(routerId, interfaceId || '');
 
   // Memoize shared props to prevent unnecessary re-renders
   const sharedProps = useMemo(
@@ -52,11 +48,9 @@ export function InterfaceDetail({
     [interfaceData, loading, error, open, onClose, routerId]
   );
 
-  return platform === 'mobile' ? (
-    <InterfaceDetailMobile {...sharedProps} />
-  ) : (
-    <InterfaceDetailDesktop {...sharedProps} />
-  );
+  return platform === 'mobile' ?
+      <InterfaceDetailMobile {...sharedProps} />
+    : <InterfaceDetailDesktop {...sharedProps} />;
 }
 
 InterfaceDetail.displayName = 'InterfaceDetail';

@@ -23,7 +23,15 @@ import type { MangleRule, MangleAction } from '@nasnet/core/types';
 /**
  * Sortable columns in the mangle rules table
  */
-export type SortableColumn = 'position' | 'chain' | 'action' | 'newConnectionMark' | 'newPacketMark' | 'newRoutingMark' | 'packets' | 'bytes';
+export type SortableColumn =
+  | 'position'
+  | 'chain'
+  | 'action'
+  | 'newConnectionMark'
+  | 'newPacketMark'
+  | 'newRoutingMark'
+  | 'packets'
+  | 'bytes';
 
 /**
  * Sort direction
@@ -37,7 +45,7 @@ export interface MangleRuleFilters {
   action?: MangleAction | 'all';
   protocol?: string | 'all';
   status?: 'enabled' | 'disabled' | 'all';
-  markName?: string;  // Search by mark name
+  markName?: string; // Search by mark name
   chain?: string | 'all';
 }
 
@@ -252,11 +260,9 @@ export function useMangleRuleTable(options: UseMangleRuleTableOptions): UseMangl
     if (filters.markName && filters.markName.trim() !== '') {
       const searchTerm = filters.markName.toLowerCase();
       result = result.filter((rule) => {
-        const marks = [
-          rule.newConnectionMark,
-          rule.newPacketMark,
-          rule.newRoutingMark,
-        ].filter(Boolean);
+        const marks = [rule.newConnectionMark, rule.newPacketMark, rule.newRoutingMark].filter(
+          Boolean
+        );
         return marks.some((mark) => mark?.toLowerCase().includes(searchTerm));
       });
     }
@@ -316,8 +322,8 @@ export function useMangleRuleTable(options: UseMangleRuleTableOptions): UseMangl
 
       // Handle string comparison
       if (typeof aValue === 'string' && typeof bValue === 'string') {
-        return sortDirection === 'asc'
-          ? aValue.localeCompare(bValue)
+        return sortDirection === 'asc' ?
+            aValue.localeCompare(bValue)
           : bValue.localeCompare(aValue);
       }
 
@@ -347,9 +353,12 @@ export function useMangleRuleTable(options: UseMangleRuleTableOptions): UseMangl
     });
   }, []);
 
-  const toggleSort = useCallback((column: SortableColumn) => {
-    setSortBy(column);
-  }, [setSortBy]);
+  const toggleSort = useCallback(
+    (column: SortableColumn) => {
+      setSortBy(column);
+    },
+    [setSortBy]
+  );
 
   const setFilters = useCallback((newFilters: Partial<MangleRuleFilters>) => {
     setFiltersState((prev) => ({ ...prev, ...newFilters }));
@@ -359,14 +368,11 @@ export function useMangleRuleTable(options: UseMangleRuleTableOptions): UseMangl
     setFiltersState(DEFAULT_FILTERS);
   }, []);
 
-  const reorder = useCallback(
-    (fromIndex: number, toIndex: number) => {
-      // This is just state management - the actual reordering API call
-      // should be handled by the component using useMoveMangleRule mutation
-      console.log(`Reorder requested: ${fromIndex} -> ${toIndex}`);
-    },
-    []
-  );
+  const reorder = useCallback((fromIndex: number, toIndex: number) => {
+    // This is just state management - the actual reordering API call
+    // should be handled by the component using useMoveMangleRule mutation
+    console.log(`Reorder requested: ${fromIndex} -> ${toIndex}`);
+  }, []);
 
   return {
     // Data

@@ -28,10 +28,7 @@ export const pppoeInterfaceStepSchema = z.object({
     })
     .min(1, 'Please provide a name for the PPPoE interface')
     .max(64, 'Interface name exceeds maximum length of 64 characters')
-    .regex(
-      /^[a-zA-Z0-9_-]+$/,
-      'Name can only contain letters, numbers, hyphens, and underscores'
-    ),
+    .regex(/^[a-zA-Z0-9_-]+$/, 'Name can only contain letters, numbers, hyphens, and underscores'),
 
   /**
    * Physical interface to bind PPPoE to (e.g. ether1, ether2, sfp1)
@@ -45,9 +42,7 @@ export const pppoeInterfaceStepSchema = z.object({
     .max(64, 'Interface name exceeds maximum length of 64 characters'),
 });
 
-export type PppoeInterfaceStepFormValues = z.infer<
-  typeof pppoeInterfaceStepSchema
->;
+export type PppoeInterfaceStepFormValues = z.infer<typeof pppoeInterfaceStepSchema>;
 
 // =============================================================================
 // Step 2: Credentials
@@ -85,12 +80,13 @@ export const pppoeCredentialsStepSchema = z.object({
   /**
    * Optional service name specific to your ISP
    */
-  serviceName: z.string().max(255, 'Service name exceeds maximum length of 255 characters').optional(),
+  serviceName: z
+    .string()
+    .max(255, 'Service name exceeds maximum length of 255 characters')
+    .optional(),
 });
 
-export type PppoeCredentialsStepFormValues = z.infer<
-  typeof pppoeCredentialsStepSchema
->;
+export type PppoeCredentialsStepFormValues = z.infer<typeof pppoeCredentialsStepSchema>;
 
 // =============================================================================
 // Step 3: Advanced Options
@@ -140,15 +136,10 @@ export const pppoeOptionsStepSchema = z.object({
   /**
    * Optional comment for identification (max 255 characters)
    */
-  comment: z
-    .string()
-    .max(255, 'Comment cannot exceed 255 characters')
-    .optional(),
+  comment: z.string().max(255, 'Comment cannot exceed 255 characters').optional(),
 });
 
-export type PppoeOptionsStepFormValues = z.infer<
-  typeof pppoeOptionsStepSchema
->;
+export type PppoeOptionsStepFormValues = z.infer<typeof pppoeOptionsStepSchema>;
 
 // =============================================================================
 // Complete PPPoE Configuration

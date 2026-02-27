@@ -314,14 +314,10 @@ describe('DiagnosticsPanel Integration', () => {
     );
 
     await waitFor(() => {
-      expect(
-        screen.getByText(/no diagnostic history available/i)
-      ).toBeInTheDocument();
+      expect(screen.getByText(/no diagnostic history available/i)).toBeInTheDocument();
     });
 
-    expect(
-      screen.getByText(/click "run diagnostics" to start/i)
-    ).toBeInTheDocument();
+    expect(screen.getByText(/click "run diagnostics" to start/i)).toBeInTheDocument();
   });
 
   it('should handle error state', async () => {

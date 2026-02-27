@@ -12,14 +12,7 @@
  * @see WCAG 2.1 AAA Guidelines
  */
 
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useState,
-  useCallback,
-  type ReactNode,
-} from 'react';
+import { createContext, useContext, useEffect, useState, useCallback, type ReactNode } from 'react';
 
 /**
  * Accessibility context value interface
@@ -223,18 +216,15 @@ export function A11yProvider({ children }: A11yProviderProps) {
   }, [reducedMotion]);
 
   // Announce function for screen readers
-  const announce = useCallback(
-    (message: string, priority: 'polite' | 'assertive' = 'polite') => {
-      // Clear the announcement first to ensure re-announcement of same message
-      setAnnouncement(null);
+  const announce = useCallback((message: string, priority: 'polite' | 'assertive' = 'polite') => {
+    // Clear the announcement first to ensure re-announcement of same message
+    setAnnouncement(null);
 
-      // Use requestAnimationFrame to ensure DOM update
-      requestAnimationFrame(() => {
-        setAnnouncement({ message, priority });
-      });
-    },
-    []
-  );
+    // Use requestAnimationFrame to ensure DOM update
+    requestAnimationFrame(() => {
+      setAnnouncement({ message, priority });
+    });
+  }, []);
 
   // Clear announcement after it's been read
   useEffect(() => {

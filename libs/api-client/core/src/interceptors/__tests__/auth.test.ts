@@ -1,10 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { AxiosRequestConfig, InternalAxiosRequestConfig, AxiosHeaders } from 'axios';
-import {
-  authInterceptor,
-  storeCredentials,
-  clearCredentials,
-} from '../auth';
+import { authInterceptor, storeCredentials, clearCredentials } from '../auth';
 
 describe('Auth Interceptor', () => {
   beforeEach(() => {
@@ -114,10 +110,7 @@ describe('Auth Interceptor', () => {
 
     it('should return config unchanged if credentials incomplete', () => {
       // Store invalid credentials
-      localStorage.setItem(
-        'nasnet:api:credentials',
-        JSON.stringify({ username: 'user' })
-      );
+      localStorage.setItem('nasnet:api:credentials', JSON.stringify({ username: 'user' }));
 
       const config: InternalAxiosRequestConfig = {
         url: 'http://localhost:8080/api/v1/status',

@@ -51,12 +51,10 @@ export const BridgeListDesktop = memo(function BridgeListDesktop({
         key: 'name',
         header: 'Name',
         cell: (bridge) => (
-          <div className="flex flex-col gap-component-xs">
+          <div className="gap-component-xs flex flex-col">
             <span className="font-medium">{bridge.name}</span>
             {bridge.comment && (
-              <span className="text-sm text-muted-foreground">
-                {bridge.comment}
-              </span>
+              <span className="text-muted-foreground text-sm">{bridge.comment}</span>
             )}
           </div>
         ),
@@ -66,14 +64,17 @@ export const BridgeListDesktop = memo(function BridgeListDesktop({
         header: 'Ports',
         cell: (bridge) => {
           const portCount = bridge.ports?.length || 0;
-          const portNames = bridge.ports?.slice(0, 3).map((p) => p.interface.name).join(', ');
+          const portNames = bridge.ports
+            ?.slice(0, 3)
+            .map((p) => p.interface.name)
+            .join(', ');
           const remaining = portCount - 3;
 
           return (
-            <div className="flex flex-col gap-component-xs">
+            <div className="gap-component-xs flex flex-col">
               <span className="text-sm font-medium">{portCount} ports</span>
               {portNames && (
-                <span className="text-xs text-muted-foreground">
+                <span className="text-muted-foreground text-xs">
                   {portNames}
                   {remaining > 0 && ` +${remaining} more`}
                 </span>
@@ -88,17 +89,11 @@ export const BridgeListDesktop = memo(function BridgeListDesktop({
         cell: (bridge) => {
           const protocol = bridge.protocol;
           const variant =
-            protocol === 'NONE'
-              ? 'secondary'
-              : protocol === 'RSTP'
-              ? 'success'
-              : 'info';
+            protocol === 'NONE' ? 'secondary'
+            : protocol === 'RSTP' ? 'success'
+            : 'info';
 
-          return (
-            <Badge variant={variant}>
-              {protocol}
-            </Badge>
-          );
+          return <Badge variant={variant}>{protocol}</Badge>;
         },
       },
       {
@@ -114,7 +109,7 @@ export const BridgeListDesktop = memo(function BridgeListDesktop({
         key: 'mac-address',
         header: 'MAC Address',
         cell: (bridge) => (
-          <code className="text-xs font-mono font-medium">{bridge.macAddress}</code>
+          <code className="font-mono text-xs font-medium">{bridge.macAddress}</code>
         ),
       },
       {
@@ -124,11 +119,9 @@ export const BridgeListDesktop = memo(function BridgeListDesktop({
           if (bridge.disabled) {
             return <Badge variant="secondary">Disabled</Badge>;
           }
-          return bridge.running ? (
-            <Badge variant="success">Running</Badge>
-          ) : (
-            <Badge variant="warning">Stopped</Badge>
-          );
+          return bridge.running ?
+              <Badge variant="success">Running</Badge>
+            : <Badge variant="warning">Stopped</Badge>;
         },
       },
     ],
@@ -150,13 +143,13 @@ export const BridgeListDesktop = memo(function BridgeListDesktop({
   };
 
   return (
-    <div className="flex h-full flex-col gap-component-md">
+    <div className="gap-component-md flex h-full flex-col">
       {/* Toolbar */}
       <DataTableToolbar>
-        <div className="flex flex-1 items-center gap-component-sm">
+        <div className="gap-component-sm flex flex-1 items-center">
           {/* Search */}
           <div className="relative w-64">
-            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Search className="text-muted-foreground absolute left-2 top-2.5 h-4 w-4" />
             <Input
               placeholder="Search bridges..."
               value={searchQuery}
@@ -169,12 +162,13 @@ export const BridgeListDesktop = memo(function BridgeListDesktop({
           {/* Protocol Filter */}
           <Select
             value={protocolFilter || 'all'}
-            onValueChange={(value) =>
-              setProtocolFilter(value === 'all' ? null : value)
-            }
+            onValueChange={(value) => setProtocolFilter(value === 'all' ? null : value)}
           >
-            <SelectTrigger className="w-40" aria-label="Filter by STP protocol">
-              <Filter className="h-4 w-4 mr-2" />
+            <SelectTrigger
+              className="w-40"
+              aria-label="Filter by STP protocol"
+            >
+              <Filter className="mr-2 h-4 w-4" />
               <SelectValue placeholder="Protocol" />
             </SelectTrigger>
             <SelectContent>
@@ -189,20 +183,20 @@ export const BridgeListDesktop = memo(function BridgeListDesktop({
           {/* VLAN Filtering Filter */}
           <Select
             value={
-              vlanFilteringFilter === null
-                ? 'all'
-                : vlanFilteringFilter
-                ? 'enabled'
-                : 'disabled'
+              vlanFilteringFilter === null ? 'all'
+              : vlanFilteringFilter ?
+                'enabled'
+              : 'disabled'
             }
             onValueChange={(value) =>
-              setVlanFilteringFilter(
-                value === 'all' ? null : value === 'enabled'
-              )
+              setVlanFilteringFilter(value === 'all' ? null : value === 'enabled')
             }
           >
-            <SelectTrigger className="w-48" aria-label="Filter by VLAN filtering status">
-              <Filter className="h-4 w-4 mr-2" />
+            <SelectTrigger
+              className="w-48"
+              aria-label="Filter by VLAN filtering status"
+            >
+              <Filter className="mr-2 h-4 w-4" />
               <SelectValue placeholder="VLAN Filtering" />
             </SelectTrigger>
             <SelectContent>
@@ -214,9 +208,13 @@ export const BridgeListDesktop = memo(function BridgeListDesktop({
         </div>
 
         {/* Actions */}
-        <div className="flex items-center gap-component-sm">
-          <Button onClick={() => setSelectedBridgeId('new')} size="sm" aria-label="Add new bridge">
-            <Plus className="h-4 w-4 mr-component-sm" />
+        <div className="gap-component-sm flex items-center">
+          <Button
+            onClick={() => setSelectedBridgeId('new')}
+            size="sm"
+            aria-label="Add new bridge"
+          >
+            <Plus className="mr-component-sm h-4 w-4" />
             Add Bridge
           </Button>
         </div>
@@ -238,12 +236,14 @@ export const BridgeListDesktop = memo(function BridgeListDesktop({
           onOpenChange={setDeleteConfirmOpen}
           title={`Delete Bridge "${bridgeToDelete.name}"?`}
           description="Deleting this bridge will disconnect all ports and may disrupt network connectivity."
-          consequences={[
-            `${bridgeToDelete.ports?.length || 0} ports will be released`,
-            bridgeToDelete.ipAddresses?.length
-              ? `${bridgeToDelete.ipAddresses.length} IP addresses will be removed`
+          consequences={
+            [
+              `${bridgeToDelete.ports?.length || 0} ports will be released`,
+              bridgeToDelete.ipAddresses?.length ?
+                `${bridgeToDelete.ipAddresses.length} IP addresses will be removed`
               : undefined,
-          ].filter(Boolean) as string[]}
+            ].filter(Boolean) as string[]
+          }
           confirmText="DELETE"
           onConfirm={confirmDelete}
           onCancel={() => {

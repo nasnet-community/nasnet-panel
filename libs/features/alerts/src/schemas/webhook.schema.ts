@@ -12,104 +12,103 @@ import { z } from 'zod';
  *
  * Field names match backend exactly from CreateWebhookInput
  */
-export const webhookConfigSchema = z.object({
-  // Basic Configuration
-  name: z
-    .string()
-    .min(1, 'Webhook name is required (must be provided)')
-    .max(100, 'Webhook name must not exceed 100 characters'),
+export const webhookConfigSchema = z
+  .object({
+    // Basic Configuration
+    name: z
+      .string()
+      .min(1, 'Webhook name is required (must be provided)')
+      .max(100, 'Webhook name must not exceed 100 characters'),
 
-  description: z
-    .string()
-    .max(500, 'Description must not exceed 500 characters')
-    .optional(),
+    description: z.string().max(500, 'Description must not exceed 500 characters').optional(),
 
-  url: z
-    .string()
-    .min(1, 'Webhook URL is required (must be provided)')
-    .url('Invalid URL format - must be a valid web address')
-    .refine((url) => url.startsWith('https://'), {
-      message: 'Only HTTPS URLs are allowed (no HTTP) for security',
-    }),
+    url: z
+      .string()
+      .min(1, 'Webhook URL is required (must be provided)')
+      .url('Invalid URL format - must be a valid web address')
+      .refine((url) => url.startsWith('https://'), {
+        message: 'Only HTTPS URLs are allowed (no HTTP) for security',
+      }),
 
-  // Authentication
-  authType: z.enum(['NONE', 'BASIC', 'BEARER']).default('NONE'),
+    // Authentication
+    authType: z.enum(['NONE', 'BASIC', 'BEARER']).default('NONE'),
 
-  username: z.string().optional(),
-  password: z.string().optional(),
-  bearerToken: z.string().optional(),
+    username: z.string().optional(),
+    password: z.string().optional(),
+    bearerToken: z.string().optional(),
 
-  // Template Configuration
-  template: z
-    .enum(['GENERIC', 'SLACK', 'DISCORD', 'TEAMS', 'CUSTOM'])
-    .default('GENERIC'),
+    // Template Configuration
+    template: z.enum(['GENERIC', 'SLACK', 'DISCORD', 'TEAMS', 'CUSTOM']).default('GENERIC'),
 
-  customTemplate: z.string().optional(),
+    customTemplate: z.string().optional(),
 
-  // Custom Headers
-  headers: z.record(z.string(), z.string()).optional(),
+    // Custom Headers
+    headers: z.record(z.string(), z.string()).optional(),
 
-  // Advanced Options
-  method: z.enum(['POST', 'PUT']).default('POST').optional(),
+    // Advanced Options
+    method: z.enum(['POST', 'PUT']).default('POST').optional(),
 
-  signingSecret: z.string().optional(),
+    signingSecret: z.string().optional(),
 
-  timeoutSeconds: z
-    .number()
-    .int()
-    .min(1, 'Timeout must be at least 1 second')
-    .max(60, 'Timeout must not exceed 60 seconds')
-    .default(10)
-    .optional(),
+    timeoutSeconds: z
+      .number()
+      .int()
+      .min(1, 'Timeout must be at least 1 second')
+      .max(60, 'Timeout must not exceed 60 seconds')
+      .default(10)
+      .optional(),
 
-  retryEnabled: z.boolean().default(true).optional(),
+    retryEnabled: z.boolean().default(true).optional(),
 
-  maxRetries: z
-    .number()
-    .int()
-    .min(0, 'Maximum retries must be at least 0')
-    .max(5, 'Maximum retries must not exceed 5')
-    .default(3)
-    .optional(),
+    maxRetries: z
+      .number()
+      .int()
+      .min(0, 'Maximum retries must be at least 0')
+      .max(5, 'Maximum retries must not exceed 5')
+      .default(3)
+      .optional(),
 
-  enabled: z.boolean().default(true),
-}).refine(
-  (data) => {
-    // If BASIC auth is selected, username and password are required
-    if (data.authType === 'BASIC') {
-      return !!data.username && !!data.password;
+    enabled: z.boolean().default(true),
+  })
+  .refine(
+    (data) => {
+      // If BASIC auth is selected, username and password are required
+      if (data.authType === 'BASIC') {
+        return !!data.username && !!data.password;
+      }
+      return true;
+    },
+    {
+      message: 'Username and password are both required when using Basic authentication',
+      path: ['authType'],
     }
-    return true;
-  },
-  {
-    message: 'Username and password are both required when using Basic authentication',
-    path: ['authType'],
-  }
-).refine(
-  (data) => {
-    // If BEARER auth is selected, bearerToken is required
-    if (data.authType === 'BEARER') {
-      return !!data.bearerToken;
+  )
+  .refine(
+    (data) => {
+      // If BEARER auth is selected, bearerToken is required
+      if (data.authType === 'BEARER') {
+        return !!data.bearerToken;
+      }
+      return true;
+    },
+    {
+      message: 'Bearer token must be provided when using Bearer token authentication',
+      path: ['authType'],
     }
-    return true;
-  },
-  {
-    message: 'Bearer token must be provided when using Bearer token authentication',
-    path: ['authType'],
-  }
-).refine(
-  (data) => {
-    // If CUSTOM template is selected, customTemplate is required
-    if (data.template === 'CUSTOM') {
-      return !!data.customTemplate;
+  )
+  .refine(
+    (data) => {
+      // If CUSTOM template is selected, customTemplate is required
+      if (data.template === 'CUSTOM') {
+        return !!data.customTemplate;
+      }
+      return true;
+    },
+    {
+      message: 'Custom JSON template is required when using Custom template type',
+      path: ['template'],
     }
-    return true;
-  },
-  {
-    message: 'Custom JSON template is required when using Custom template type',
-    path: ['template'],
-  }
-);
+  );
 
 /**
  * Type inference from schema

@@ -38,7 +38,7 @@ const ActionDistribution = React.memo(function ActionDistribution({
   return (
     <div className="mt-component-md">
       <div
-        className="flex h-1.5 w-full overflow-hidden rounded-full bg-muted"
+        className="bg-muted flex h-1.5 w-full overflow-hidden rounded-full"
         role="img"
         aria-label={`Action distribution: ${summary.acceptCount} accept, ${summary.dropCount} drop, ${summary.rejectCount} reject`}
       >
@@ -110,47 +110,37 @@ const ChainCard = React.memo(function ChainCard({
       onClick={handleClick}
       aria-pressed={isSelected}
       className={cn(
-        'w-full text-left rounded-xl border-l-4 p-component-md transition-all',
+        'p-component-md w-full rounded-xl border-l-4 text-left transition-all',
         borderColors[colorName] || 'border-l-muted-foreground',
-        isSelected
-          ? `${selectedBg[colorName] || 'bg-muted/50'} ring-2 ring-primary/50`
-          : 'bg-card hover:bg-muted/50',
-        'border border-border'
+        isSelected ?
+          `${selectedBg[colorName] || 'bg-muted/50'} ring-primary/50 ring-2`
+        : 'bg-card hover:bg-muted/50',
+        'border-border border'
       )}
     >
       {/* Chain name and count */}
       <div className="flex items-start justify-between">
         <div>
-          <h3 className="font-semibold text-foreground uppercase text-sm tracking-wide">
+          <h3 className="text-foreground text-sm font-semibold uppercase tracking-wide">
             {summary.chain}
           </h3>
-          <p className="text-xs text-muted-foreground mt-component-xs">
-            {description}
-          </p>
+          <p className="text-muted-foreground mt-component-xs text-xs">{description}</p>
         </div>
-        <span className="text-2xl font-bold text-foreground">
-          {summary.totalRules}
-        </span>
+        <span className="text-foreground text-2xl font-bold">{summary.totalRules}</span>
       </div>
 
       {/* Stats grid */}
-      <div className="mt-component-md grid grid-cols-3 gap-component-sm text-xs">
+      <div className="mt-component-md gap-component-sm grid grid-cols-3 text-xs">
         <div className="text-center">
-          <span className="block font-semibold text-success">
-            {summary.acceptCount}
-          </span>
+          <span className="text-success block font-semibold">{summary.acceptCount}</span>
           <span className="text-muted-foreground">accept</span>
         </div>
         <div className="text-center">
-          <span className="block font-semibold text-error">
-            {summary.dropCount}
-          </span>
+          <span className="text-error block font-semibold">{summary.dropCount}</span>
           <span className="text-muted-foreground">drop</span>
         </div>
         <div className="text-center">
-          <span className="block font-semibold text-muted-foreground">
-            {summary.disabledCount}
-          </span>
+          <span className="text-muted-foreground block font-semibold">{summary.disabledCount}</span>
           <span className="text-muted-foreground">disabled</span>
         </div>
       </div>
@@ -197,8 +187,7 @@ const ChainSummaryCards = React.memo(function ChainSummaryCards({
   );
 
   const mainChains = useMemo(
-    () =>
-      summaries.filter((s) => ['input', 'forward', 'output'].includes(s.chain)),
+    () => summaries.filter((s) => ['input', 'forward', 'output'].includes(s.chain)),
     [summaries]
   );
 
@@ -213,15 +202,13 @@ const ChainSummaryCards = React.memo(function ChainSummaryCards({
       <div className={className}>
         <div className="px-component-sm mb-component-lg">
           <h2 className="text-lg font-semibold">Chain Summary</h2>
-          <p className="text-sm text-muted-foreground">
-            Loading firewall chain statistics
-          </p>
+          <p className="text-muted-foreground text-sm">Loading firewall chain statistics</p>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-component-lg">
+        <div className="gap-component-lg grid grid-cols-1 md:grid-cols-3">
           {[...Array(3)].map((_, i) => (
             <div
               key={i}
-              className="h-32 animate-pulse bg-muted rounded-xl"
+              className="bg-muted h-32 animate-pulse rounded-xl"
             />
           ))}
         </div>
@@ -233,11 +220,13 @@ const ChainSummaryCards = React.memo(function ChainSummaryCards({
   if (error) {
     return (
       <div
-        className={cn('p-component-md text-error rounded-lg bg-error/10', className)}
+        className={cn('p-component-md text-error bg-error/10 rounded-lg', className)}
         role="alert"
       >
         <p className="font-medium">Error Loading Chain Summary</p>
-        <p className="text-sm mt-component-xs">{error instanceof Error ? error.message : 'Failed to load firewall statistics'}</p>
+        <p className="mt-component-xs text-sm">
+          {error instanceof Error ? error.message : 'Failed to load firewall statistics'}
+        </p>
       </div>
     );
   }
@@ -248,22 +237,19 @@ const ChainSummaryCards = React.memo(function ChainSummaryCards({
       <div className="px-component-sm mb-component-lg flex items-center justify-between">
         <div>
           <h2 className="text-lg font-semibold">Chain Summary</h2>
-          <p className="text-sm text-muted-foreground">
-            {selectedChain
-              ? `Filtering by ${selectedChain} chain`
-              : 'Click a chain to filter rules'}
+          <p className="text-muted-foreground text-sm">
+            {selectedChain ?
+              `Filtering by ${selectedChain} chain`
+            : 'Click a chain to filter rules'}
           </p>
         </div>
-        <div className="text-sm text-muted-foreground">
-          <span className="font-medium text-foreground">
-            {totalRules}
-          </span>{' '}
-          total rules
+        <div className="text-muted-foreground text-sm">
+          <span className="text-foreground font-medium">{totalRules}</span> total rules
         </div>
       </div>
 
       {/* Summary cards grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-component-lg">
+      <div className="gap-component-lg grid grid-cols-1 md:grid-cols-3">
         {mainChains.map((summary) => (
           <ChainCard
             key={summary.chain}
@@ -275,17 +261,26 @@ const ChainSummaryCards = React.memo(function ChainSummaryCards({
       </div>
 
       {/* Legend */}
-      <div className="mt-component-md px-component-sm flex items-center gap-component-lg text-xs text-muted-foreground">
-        <span className="flex items-center gap-component-xs">
-          <span className="inline-block w-2 h-2 rounded-full bg-success" aria-hidden="true" />
+      <div className="mt-component-md px-component-sm gap-component-lg text-muted-foreground flex items-center text-xs">
+        <span className="gap-component-xs flex items-center">
+          <span
+            className="bg-success inline-block h-2 w-2 rounded-full"
+            aria-hidden="true"
+          />
           Accept
         </span>
-        <span className="flex items-center gap-component-xs">
-          <span className="inline-block w-2 h-2 rounded-full bg-error" aria-hidden="true" />
+        <span className="gap-component-xs flex items-center">
+          <span
+            className="bg-error inline-block h-2 w-2 rounded-full"
+            aria-hidden="true"
+          />
           Drop
         </span>
-        <span className="flex items-center gap-component-xs">
-          <span className="inline-block w-2 h-2 rounded-full bg-warning" aria-hidden="true" />
+        <span className="gap-component-xs flex items-center">
+          <span
+            className="bg-warning inline-block h-2 w-2 rounded-full"
+            aria-hidden="true"
+          />
           Reject
         </span>
       </div>
@@ -295,30 +290,3 @@ const ChainSummaryCards = React.memo(function ChainSummaryCards({
 
 ChainSummaryCards.displayName = 'ChainSummaryCards';
 export { ChainSummaryCards };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

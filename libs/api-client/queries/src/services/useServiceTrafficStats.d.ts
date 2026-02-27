@@ -8,61 +8,85 @@
  * - Traffic quota management (set/reset)
  * - Real-time traffic updates via subscriptions
  */
-import { type QueryHookOptions, type MutationHookOptions, type SubscriptionHookOptions } from '@apollo/client';
-import type { ServiceTrafficStats, DeviceTrafficBreakdown, TrafficQuotaPayload, QueryServiceTrafficStatsArgs, MutationSetTrafficQuotaArgs, MutationResetTrafficQuotaArgs, SubscriptionServiceTrafficUpdatedArgs } from '@nasnet/api-client/generated';
+import {
+  type QueryHookOptions,
+  type MutationHookOptions,
+  type SubscriptionHookOptions,
+} from '@apollo/client';
+import type {
+  ServiceTrafficStats,
+  DeviceTrafficBreakdown,
+  TrafficQuotaPayload,
+  QueryServiceTrafficStatsArgs,
+  MutationSetTrafficQuotaArgs,
+  MutationResetTrafficQuotaArgs,
+  SubscriptionServiceTrafficUpdatedArgs,
+} from '@nasnet/api-client/generated';
 /**
  * Options for useServiceTrafficStats hook
  */
 export interface UseServiceTrafficStatsOptions {
-    /** Router ID */
-    routerID: string;
-    /** Service instance ID */
-    instanceID: string;
-    /** Number of hours of historical data to fetch (default: 24) */
-    historyHours?: number;
-    /** Skip query execution if true */
-    skip?: boolean;
-    /** Additional Apollo query options */
-    options?: Omit<QueryHookOptions, 'variables' | 'skip'>;
+  /** Router ID */
+  routerID: string;
+  /** Service instance ID */
+  instanceID: string;
+  /** Number of hours of historical data to fetch (default: 24) */
+  historyHours?: number;
+  /** Skip query execution if true */
+  skip?: boolean;
+  /** Additional Apollo query options */
+  options?: Omit<QueryHookOptions, 'variables' | 'skip'>;
 }
 /**
  * Options for useServiceDeviceBreakdown hook
  */
 export interface UseServiceDeviceBreakdownOptions {
-    /** Router ID */
-    routerID: string;
-    /** Service instance ID */
-    instanceID: string;
-    /** Skip query execution if true */
-    skip?: boolean;
-    /** Additional Apollo query options */
-    options?: Omit<QueryHookOptions, 'variables' | 'skip'>;
+  /** Router ID */
+  routerID: string;
+  /** Service instance ID */
+  instanceID: string;
+  /** Skip query execution if true */
+  skip?: boolean;
+  /** Additional Apollo query options */
+  options?: Omit<QueryHookOptions, 'variables' | 'skip'>;
 }
 /**
  * Options for useServiceTrafficSubscription hook
  */
 export interface UseServiceTrafficSubscriptionOptions {
-    /** Router ID */
-    routerID: string;
-    /** Service instance ID */
-    instanceID: string;
-    /** Skip subscription if true */
-    skip?: boolean;
-    /** Additional Apollo subscription options */
-    options?: Omit<SubscriptionHookOptions, 'variables' | 'skip'>;
+  /** Router ID */
+  routerID: string;
+  /** Service instance ID */
+  instanceID: string;
+  /** Skip subscription if true */
+  skip?: boolean;
+  /** Additional Apollo subscription options */
+  options?: Omit<SubscriptionHookOptions, 'variables' | 'skip'>;
 }
 /**
  * Options for useSetTrafficQuota mutation hook
  */
-export type UseSetTrafficQuotaOptions = Omit<MutationHookOptions<{
-    setTrafficQuota: TrafficQuotaPayload;
-}, MutationSetTrafficQuotaArgs>, 'mutation'>;
+export type UseSetTrafficQuotaOptions = Omit<
+  MutationHookOptions<
+    {
+      setTrafficQuota: TrafficQuotaPayload;
+    },
+    MutationSetTrafficQuotaArgs
+  >,
+  'mutation'
+>;
 /**
  * Options for useResetTrafficQuota mutation hook
  */
-export type UseResetTrafficQuotaOptions = Omit<MutationHookOptions<{
-    resetTrafficQuota: TrafficQuotaPayload;
-}, MutationResetTrafficQuotaArgs>, 'mutation'>;
+export type UseResetTrafficQuotaOptions = Omit<
+  MutationHookOptions<
+    {
+      resetTrafficQuota: TrafficQuotaPayload;
+    },
+    MutationResetTrafficQuotaArgs
+  >,
+  'mutation'
+>;
 /**
  * Query service traffic statistics with historical data
  *
@@ -90,9 +114,18 @@ export type UseResetTrafficQuotaOptions = Omit<MutationHookOptions<{
  * }
  * ```
  */
-export declare function useServiceTrafficStats({ routerID, instanceID, historyHours, skip, options, }: UseServiceTrafficStatsOptions): import("@apollo/client").InteropQueryResult<{
+export declare function useServiceTrafficStats({
+  routerID,
+  instanceID,
+  historyHours,
+  skip,
+  options,
+}: UseServiceTrafficStatsOptions): import('@apollo/client').InteropQueryResult<
+  {
     serviceTrafficStats: ServiceTrafficStats;
-}, QueryServiceTrafficStatsArgs>;
+  },
+  QueryServiceTrafficStatsArgs
+>;
 /**
  * Query per-device traffic breakdown for a service instance
  *
@@ -115,12 +148,20 @@ export declare function useServiceTrafficStats({ routerID, instanceID, historyHo
  * }
  * ```
  */
-export declare function useServiceDeviceBreakdown({ routerID, instanceID, skip, options, }: UseServiceDeviceBreakdownOptions): import("@apollo/client").InteropQueryResult<{
+export declare function useServiceDeviceBreakdown({
+  routerID,
+  instanceID,
+  skip,
+  options,
+}: UseServiceDeviceBreakdownOptions): import('@apollo/client').InteropQueryResult<
+  {
     serviceDeviceBreakdown: ReadonlyArray<DeviceTrafficBreakdown>;
-}, {
+  },
+  {
     routerID: string;
     instanceID: string;
-}>;
+  }
+>;
 /**
  * Set traffic quota for a service instance
  *
@@ -151,9 +192,16 @@ export declare function useServiceDeviceBreakdown({ routerID, instanceID, skip, 
  * };
  * ```
  */
-export declare function useSetTrafficQuota(options?: UseSetTrafficQuotaOptions): import("@apollo/client").MutationTuple<{
+export declare function useSetTrafficQuota(
+  options?: UseSetTrafficQuotaOptions
+): import('@apollo/client').MutationTuple<
+  {
     setTrafficQuota: TrafficQuotaPayload;
-}, MutationSetTrafficQuotaArgs, import("@apollo/client").DefaultContext, import("@apollo/client").ApolloCache<any>>;
+  },
+  MutationSetTrafficQuotaArgs,
+  import('@apollo/client').DefaultContext,
+  import('@apollo/client').ApolloCache<any>
+>;
 /**
  * Reset/remove traffic quota for a service instance
  *
@@ -177,9 +225,16 @@ export declare function useSetTrafficQuota(options?: UseSetTrafficQuotaOptions):
  * };
  * ```
  */
-export declare function useResetTrafficQuota(options?: UseResetTrafficQuotaOptions): import("@apollo/client").MutationTuple<{
+export declare function useResetTrafficQuota(
+  options?: UseResetTrafficQuotaOptions
+): import('@apollo/client').MutationTuple<
+  {
     resetTrafficQuota: TrafficQuotaPayload;
-}, MutationResetTrafficQuotaArgs, import("@apollo/client").DefaultContext, import("@apollo/client").ApolloCache<any>>;
+  },
+  MutationResetTrafficQuotaArgs,
+  import('@apollo/client').DefaultContext,
+  import('@apollo/client').ApolloCache<any>
+>;
 /**
  * Subscribe to real-time service traffic statistics updates
  *
@@ -210,14 +265,21 @@ export declare function useResetTrafficQuota(options?: UseResetTrafficQuotaOptio
  * }, [data]);
  * ```
  */
-export declare function useServiceTrafficSubscription({ routerID, instanceID, skip, options, }: UseServiceTrafficSubscriptionOptions): {
-    restart: () => void;
-    loading: boolean;
-    data?: {
+export declare function useServiceTrafficSubscription({
+  routerID,
+  instanceID,
+  skip,
+  options,
+}: UseServiceTrafficSubscriptionOptions): {
+  restart: () => void;
+  loading: boolean;
+  data?:
+    | {
         serviceTrafficUpdated: ServiceTrafficStats;
-    } | undefined;
-    error?: import("@apollo/client").ApolloError;
-    variables?: SubscriptionServiceTrafficUpdatedArgs | undefined;
+      }
+    | undefined;
+  error?: import('@apollo/client').ApolloError;
+  variables?: SubscriptionServiceTrafficUpdatedArgs | undefined;
 };
 /**
  * Combined hook for comprehensive traffic monitoring
@@ -249,11 +311,13 @@ export declare function useServiceTrafficSubscription({ routerID, instanceID, sk
  * ```
  */
 export declare function useTrafficMonitoring(options: UseServiceTrafficStatsOptions): {
-    stats: ServiceTrafficStats | undefined;
-    loading: boolean;
-    error: import("@apollo/client").ApolloError | undefined;
-    refetch: (variables?: Partial<QueryServiceTrafficStatsArgs> | undefined) => Promise<import("@apollo/client").ApolloQueryResult<{
-        serviceTrafficStats: ServiceTrafficStats;
-    }>>;
+  stats: ServiceTrafficStats | undefined;
+  loading: boolean;
+  error: import('@apollo/client').ApolloError | undefined;
+  refetch: (variables?: Partial<QueryServiceTrafficStatsArgs> | undefined) => Promise<
+    import('@apollo/client').ApolloQueryResult<{
+      serviceTrafficStats: ServiceTrafficStats;
+    }>
+  >;
 };
 //# sourceMappingURL=useServiceTrafficStats.d.ts.map

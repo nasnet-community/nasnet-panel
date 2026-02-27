@@ -70,7 +70,7 @@ function IPAddressFormDesktopComponent(props: IPAddressFormProps) {
   );
 
   return (
-    <Card className="max-w-2xl mx-auto">
+    <Card className="mx-auto max-w-2xl">
       <CardHeader>
         <CardTitle className="font-display text-2xl">
           {mode === 'create' ? 'Add IP Address' : 'Edit IP Address'}
@@ -81,7 +81,10 @@ function IPAddressFormDesktopComponent(props: IPAddressFormProps) {
       </CardHeader>
       <CardContent>
         <Form {...form}>
-          <form onSubmit={handleSubmit} className="space-y-component-lg">
+          <form
+            onSubmit={handleSubmit}
+            className="space-y-component-lg"
+          >
             {/* IP Address Input with CIDR */}
             <FormField
               control={form.control as any}
@@ -100,7 +103,7 @@ function IPAddressFormDesktopComponent(props: IPAddressFormProps) {
                       />
                       {conflictLoading && (
                         <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                          <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                          <Loader2 className="text-muted-foreground h-4 w-4 animate-spin" />
                         </div>
                       )}
                     </div>
@@ -115,14 +118,26 @@ function IPAddressFormDesktopComponent(props: IPAddressFormProps) {
 
             {/* Conflict Warning */}
             {hasConflict && conflictInfo && (
-              <Alert variant="destructive" role="alert">
-                <AlertCircle className="h-4 w-4" aria-hidden="true" />
+              <Alert
+                variant="destructive"
+                role="alert"
+              >
+                <AlertCircle
+                  className="h-4 w-4"
+                  aria-hidden="true"
+                />
                 <AlertDescription>
                   {conflictInfo.message}
                   {conflictInfo.conflictingAddress && (
                     <div className="mt-2 text-sm">
-                      Conflicting IP: <code className="font-mono text-xs">{conflictInfo.conflictingAddress.address}</code> on{' '}
-                      <strong className="font-mono">{conflictInfo.conflictingAddress.interfaceName}</strong>
+                      Conflicting IP:{' '}
+                      <code className="font-mono text-xs">
+                        {conflictInfo.conflictingAddress.address}
+                      </code>{' '}
+                      on{' '}
+                      <strong className="font-mono">
+                        {conflictInfo.conflictingAddress.interfaceName}
+                      </strong>
                     </div>
                   )}
                 </AlertDescription>
@@ -131,33 +146,48 @@ function IPAddressFormDesktopComponent(props: IPAddressFormProps) {
 
             {/* Subnet Calculations */}
             {subnetCalculations && !hasConflict && (
-              <Card className="bg-background border-border" role="complementary" aria-label="Subnet information">
+              <Card
+                className="bg-background border-border"
+                role="complementary"
+                aria-label="Subnet information"
+              >
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-sm flex items-center gap-component-sm">
-                    <CheckCircle className="h-4 w-4 text-success flex-shrink-0" aria-hidden="true" />
+                  <CardTitle className="gap-component-sm flex items-center text-sm">
+                    <CheckCircle
+                      className="text-success h-4 w-4 flex-shrink-0"
+                      aria-hidden="true"
+                    />
                     Subnet Information
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="grid grid-cols-2 gap-component-sm text-sm">
+                <CardContent className="gap-component-sm grid grid-cols-2 text-sm">
                   <div>
                     <div className="text-muted-foreground text-xs">Network:</div>
-                    <code className="text-sm font-mono text-foreground">{subnetCalculations.networkAddress}</code>
+                    <code className="text-foreground font-mono text-sm">
+                      {subnetCalculations.networkAddress}
+                    </code>
                   </div>
                   <div>
                     <div className="text-muted-foreground text-xs">Broadcast:</div>
-                    <code className="text-sm font-mono text-foreground">{subnetCalculations.broadcastAddress}</code>
+                    <code className="text-foreground font-mono text-sm">
+                      {subnetCalculations.broadcastAddress}
+                    </code>
                   </div>
                   <div>
                     <div className="text-muted-foreground text-xs">Subnet Mask:</div>
-                    <code className="text-sm font-mono text-foreground">{subnetCalculations.subnetMask}</code>
+                    <code className="text-foreground font-mono text-sm">
+                      {subnetCalculations.subnetMask}
+                    </code>
                   </div>
                   <div>
                     <div className="text-muted-foreground text-xs">Usable Hosts:</div>
-                    <span className="font-mono text-foreground">{subnetCalculations.usableHostCount}</span>
+                    <span className="text-foreground font-mono">
+                      {subnetCalculations.usableHostCount}
+                    </span>
                   </div>
                   <div className="col-span-2">
                     <div className="text-muted-foreground text-xs">Usable Range:</div>
-                    <code className="text-sm font-mono text-foreground">
+                    <code className="text-foreground font-mono text-sm">
                       {subnetCalculations.firstUsableHost} - {subnetCalculations.lastUsableHost}
                     </code>
                   </div>
@@ -191,7 +221,10 @@ function IPAddressFormDesktopComponent(props: IPAddressFormProps) {
                         >
                           <span className="font-mono">{iface.name}</span>
                           {iface.type && (
-                            <Badge variant="secondary" className="ml-2 text-xs">
+                            <Badge
+                              variant="secondary"
+                              className="ml-2 text-xs"
+                            >
                               {iface.type}
                             </Badge>
                           )}
@@ -199,9 +232,7 @@ function IPAddressFormDesktopComponent(props: IPAddressFormProps) {
                       ))}
                     </SelectContent>
                   </Select>
-                  <FormDescription>
-                    Physical interface to assign this IP address
-                  </FormDescription>
+                  <FormDescription>Physical interface to assign this IP address</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -234,12 +265,10 @@ function IPAddressFormDesktopComponent(props: IPAddressFormProps) {
               control={form.control as any}
               name="disabled"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-[var(--semantic-radius-card)] border border-border bg-card p-component-sm">
+                <FormItem className="border-border bg-card p-component-sm flex flex-row items-center justify-between rounded-[var(--semantic-radius-card)] border">
                   <div className="space-y-0.5">
                     <FormLabel>Disabled</FormLabel>
-                    <FormDescription>
-                      IP address will be configured but not active
-                    </FormDescription>
+                    <FormDescription>IP address will be configured but not active</FormDescription>
                   </div>
                   <FormControl>
                     <Switch
@@ -253,7 +282,7 @@ function IPAddressFormDesktopComponent(props: IPAddressFormProps) {
             />
 
             {/* Form Actions */}
-            <div className="flex gap-component-xs justify-end">
+            <div className="gap-component-xs flex justify-end">
               <Button
                 type="button"
                 variant="outline"
@@ -267,14 +296,18 @@ function IPAddressFormDesktopComponent(props: IPAddressFormProps) {
                 type="submit"
                 disabled={loading || hasConflict}
                 aria-label={
-                  hasConflict
-                    ? 'Submit button disabled - IP address conflict detected'
-                    : mode === 'create'
-                    ? 'Add IP address to interface'
-                    : 'Save IP address changes'
+                  hasConflict ? 'Submit button disabled - IP address conflict detected'
+                  : mode === 'create' ?
+                    'Add IP address to interface'
+                  : 'Save IP address changes'
                 }
               >
-                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />}
+                {loading && (
+                  <Loader2
+                    className="mr-2 h-4 w-4 animate-spin"
+                    aria-hidden="true"
+                  />
+                )}
                 {mode === 'create' ? 'Add IP Address' : 'Save Changes'}
               </Button>
             </div>

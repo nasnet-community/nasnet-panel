@@ -16,7 +16,12 @@ import {
   usePPTPInterfaces,
   useSSTPInterfaces,
 } from '@nasnet/api-client/queries';
-import type { WireGuardInterface, L2TPInterface, PPTPInterface, SSSTPInterface } from '@nasnet/core/types';
+import type {
+  WireGuardInterface,
+  L2TPInterface,
+  PPTPInterface,
+  SSSTPInterface,
+} from '@nasnet/core/types';
 import { useConnectionStore } from '@nasnet/state/stores';
 import { WireGuardCard, VPNTypeSection, GenericVPNCard } from '@nasnet/ui/patterns';
 import { Skeleton, Button } from '@nasnet/ui/primitives';
@@ -37,7 +42,13 @@ export const VPNPage = React.memo(function VPNPage() {
   const routerIp = useConnectionStore((state) => state.currentRouterIp) || '';
 
   // Parallel queries for all VPN types
-  const { data: wireguardInterfaces, isLoading: isLoadingWG, isError: isErrorWG, refetch: refetchWG, isFetching: isFetchingWG } = useWireGuardInterfaces(routerIp);
+  const {
+    data: wireguardInterfaces,
+    isLoading: isLoadingWG,
+    isError: isErrorWG,
+    refetch: refetchWG,
+    isFetching: isFetchingWG,
+  } = useWireGuardInterfaces(routerIp);
   const { data: l2tpInterfaces, isLoading: isLoadingL2TP } = useL2TPInterfaces(routerIp);
   const { data: pptpInterfaces, isLoading: isLoadingPPTP } = usePPTPInterfaces(routerIp);
   const { data: sstpInterfaces, isLoading: isLoadingSSTP } = useSSTPInterfaces(routerIp);
@@ -50,16 +61,15 @@ export const VPNPage = React.memo(function VPNPage() {
 
   return (
     <div className="px-page-mobile md:px-page-tablet lg:px-page-desktop py-component-lg animate-fade-in-up">
-      <div className="max-w-6xl mx-auto space-y-component-lg">
+      <div className="space-y-component-lg mx-auto max-w-6xl">
         {/* Page header */}
         <div className="flex items-start justify-between">
           <div>
-            <h1 className="text-2xl font-display font-semibold text-foreground mb-1">
+            <h1 className="font-display text-foreground mb-1 text-2xl font-semibold">
               {t('title')}
             </h1>
-            <p className="text-sm text-muted-foreground">
-              {t('overview')}{' '}
-              <span className="text-xs opacity-70">{t('status.autoRefresh')}</span>
+            <p className="text-muted-foreground text-sm">
+              {t('overview')} <span className="text-xs opacity-70">{t('status.autoRefresh')}</span>
             </p>
           </div>
           {/* Manual Refresh Button */}
@@ -68,30 +78,40 @@ export const VPNPage = React.memo(function VPNPage() {
             size="sm"
             onClick={() => refetch()}
             disabled={isLoading || isFetching}
-            className="flex items-center gap-component-sm min-h-[44px] min-w-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            className="gap-component-sm focus-visible:ring-ring flex min-h-[44px] min-w-[44px] items-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
             aria-label={t('button.refresh', { ns: 'common' })}
           >
-            <RefreshCw className={`h-4 w-4 ${isFetching ? 'animate-spin' : ''}`} aria-hidden="true" />
+            <RefreshCw
+              className={`h-4 w-4 ${isFetching ? 'animate-spin' : ''}`}
+              aria-hidden="true"
+            />
             {t('button.refresh', { ns: 'common' })}
           </Button>
         </div>
 
         {/* Loading state */}
         {isLoading && (
-          <div className="space-y-component-md" role="status" aria-label="Loading VPN interfaces">
-            <Skeleton className="h-48 w-full rounded-card-sm" />
-            <Skeleton className="h-48 w-full rounded-card-sm" />
-            <Skeleton className="h-48 w-full rounded-card-sm" />
+          <div
+            className="space-y-component-md"
+            role="status"
+            aria-label="Loading VPN interfaces"
+          >
+            <Skeleton className="rounded-card-sm h-48 w-full" />
+            <Skeleton className="rounded-card-sm h-48 w-full" />
+            <Skeleton className="rounded-card-sm h-48 w-full" />
           </div>
         )}
 
         {/* Error state */}
         {isError && (
-          <div className="bg-error/10 border-2 border-error rounded-card-sm p-component-lg shadow-sm" role="alert">
+          <div
+            className="bg-error/10 border-error rounded-card-sm p-component-lg border-2 shadow-sm"
+            role="alert"
+          >
             <div className="flex items-start gap-4">
               <div className="flex-shrink-0">
                 <svg
-                  className="w-6 h-6 text-error"
+                  className="text-error h-6 w-6"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -106,12 +126,10 @@ export const VPNPage = React.memo(function VPNPage() {
                 </svg>
               </div>
               <div className="flex-1">
-                <h3 className="text-lg font-semibold text-foreground mb-2">
+                <h3 className="text-foreground mb-2 text-lg font-semibold">
                   {t('status.failedToLoad')}
                 </h3>
-                <p className="text-sm text-muted-foreground">
-                  {t('status.failedMessage')}
-                </p>
+                <p className="text-muted-foreground text-sm">{t('status.failedMessage')}</p>
               </div>
             </div>
           </div>
@@ -119,10 +137,10 @@ export const VPNPage = React.memo(function VPNPage() {
 
         {/* Empty state */}
         {!isLoading && !isError && wireguardInterfaces && wireguardInterfaces.length === 0 && (
-          <div className="bg-card border border-border rounded-card-sm p-component-lg text-center">
-            <div className="w-16 h-16 mx-auto mb-4 bg-muted rounded-2xl flex items-center justify-center">
+          <div className="bg-card border-border rounded-card-sm p-component-lg border text-center">
+            <div className="bg-muted mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl">
               <svg
-                className="w-8 h-8 text-muted-foreground"
+                className="text-muted-foreground h-8 w-8"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -136,12 +154,10 @@ export const VPNPage = React.memo(function VPNPage() {
                 />
               </svg>
             </div>
-            <h3 className="text-xl font-semibold text-foreground mb-2">
+            <h3 className="text-foreground mb-2 text-xl font-semibold">
               {t('status.noWireGuardConfigured')}
             </h3>
-            <p className="text-sm text-muted-foreground">
-              {t('status.noWireGuardMessage')}
-            </p>
+            <p className="text-muted-foreground text-sm">{t('status.noWireGuardMessage')}</p>
           </div>
         )}
 
@@ -160,12 +176,10 @@ export const VPNPage = React.memo(function VPNPage() {
         {/* Other VPN Types Section (Story 0-4-4) */}
         {!isLoading && !isError && (
           <div className="space-y-component-md">
-            <h2 className="text-xl font-display font-semibold text-foreground">
+            <h2 className="font-display text-foreground text-xl font-semibold">
               {t('servers.otherVPNTypes')}
             </h2>
-            <p className="text-sm text-muted-foreground">
-              {t('servers.otherVPNTypesDescription')}
-            </p>
+            <p className="text-muted-foreground text-sm">{t('servers.otherVPNTypesDescription')}</p>
 
             {/* L2TP Section */}
             <VPNTypeSection
@@ -173,17 +187,19 @@ export const VPNPage = React.memo(function VPNPage() {
               count={l2tpInterfaces?.length || 0}
               defaultExpanded={false}
             >
-              {l2tpInterfaces && l2tpInterfaces.length > 0 ? (
+              {l2tpInterfaces && l2tpInterfaces.length > 0 ?
                 <div className="space-y-component-sm">
                   {l2tpInterfaces.map((iface: L2TPInterface) => (
-                    <GenericVPNCard key={iface.id} vpnInterface={iface} />
+                    <GenericVPNCard
+                      key={iface.id}
+                      vpnInterface={iface}
+                    />
                   ))}
                 </div>
-              ) : (
-                <p className="text-sm text-muted-foreground text-center py-4">
+              : <p className="text-muted-foreground py-4 text-center text-sm">
                   {t('status.noL2TPConfigured')}
                 </p>
-              )}
+              }
             </VPNTypeSection>
 
             {/* PPTP Section */}
@@ -192,17 +208,19 @@ export const VPNPage = React.memo(function VPNPage() {
               count={pptpInterfaces?.length || 0}
               defaultExpanded={false}
             >
-              {pptpInterfaces && pptpInterfaces.length > 0 ? (
+              {pptpInterfaces && pptpInterfaces.length > 0 ?
                 <div className="space-y-component-sm">
                   {pptpInterfaces.map((iface: PPTPInterface) => (
-                    <GenericVPNCard key={iface.id} vpnInterface={iface} />
+                    <GenericVPNCard
+                      key={iface.id}
+                      vpnInterface={iface}
+                    />
                   ))}
                 </div>
-              ) : (
-                <p className="text-sm text-muted-foreground text-center py-4">
+              : <p className="text-muted-foreground py-4 text-center text-sm">
                   {t('status.noPPTPConfigured')}
                 </p>
-              )}
+              }
             </VPNTypeSection>
 
             {/* SSTP Section */}
@@ -211,17 +229,19 @@ export const VPNPage = React.memo(function VPNPage() {
               count={sstpInterfaces?.length || 0}
               defaultExpanded={false}
             >
-              {sstpInterfaces && sstpInterfaces.length > 0 ? (
+              {sstpInterfaces && sstpInterfaces.length > 0 ?
                 <div className="space-y-component-sm">
                   {sstpInterfaces.map((iface: SSSTPInterface) => (
-                    <GenericVPNCard key={iface.id} vpnInterface={iface} />
+                    <GenericVPNCard
+                      key={iface.id}
+                      vpnInterface={iface}
+                    />
                   ))}
                 </div>
-              ) : (
-                <p className="text-sm text-muted-foreground text-center py-4">
+              : <p className="text-muted-foreground py-4 text-center text-sm">
                   {t('status.noSSTPConfigured')}
                 </p>
-              )}
+              }
             </VPNTypeSection>
           </div>
         )}

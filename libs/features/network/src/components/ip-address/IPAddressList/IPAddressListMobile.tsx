@@ -10,14 +10,7 @@
  */
 
 import { memo, useMemo } from 'react';
-import {
-  Badge,
-  Button,
-  Card,
-  CardContent,
-  CardHeader,
-  Input,
-} from '@nasnet/ui/primitives';
+import { Badge, Button, Card, CardContent, CardHeader, Input } from '@nasnet/ui/primitives';
 import { AlertCircle, Edit, RefreshCw, Trash } from 'lucide-react';
 
 import type { IPAddressData, IPAddressListProps } from './types';
@@ -73,7 +66,7 @@ function IPAddressListMobileComponent({
     <div className="space-y-component-md">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-display font-semibold">IP Addresses</h2>
+        <h2 className="font-display text-xl font-semibold">IP Addresses</h2>
         {onRefresh && (
           <Button
             variant="outline"
@@ -92,15 +85,13 @@ function IPAddressListMobileComponent({
       <Input
         placeholder="Search address or comment..."
         value={filters.searchText || ''}
-        onChange={(e) =>
-          onFiltersChange({ ...filters, searchText: e.target.value })
-        }
+        onChange={(e) => onFiltersChange({ ...filters, searchText: e.target.value })}
         className="min-h-[44px]"
       />
 
       {/* Error message */}
       {error && (
-        <div className="flex items-center gap-component-sm rounded-md border border-error bg-error/10 p-component-sm text-sm text-error">
+        <div className="gap-component-sm border-error bg-error/10 p-component-sm text-error flex items-center rounded-md border text-sm">
           <AlertCircle className="h-4 w-4" />
           <p>{error}</p>
         </div>
@@ -108,7 +99,7 @@ function IPAddressListMobileComponent({
 
       {/* Loading state */}
       {loading && (
-        <div className="text-center py-component-lg text-muted-foreground">
+        <div className="py-component-lg text-muted-foreground text-center">
           Loading IP addresses...
         </div>
       )}
@@ -116,7 +107,7 @@ function IPAddressListMobileComponent({
       {/* Empty state */}
       {!loading && filteredIpAddresses.length === 0 && (
         <Card>
-          <CardContent className="py-component-lg text-center text-muted-foreground">
+          <CardContent className="py-component-lg text-muted-foreground text-center">
             No IP addresses found. Add an IP address to get started.
           </CardContent>
         </Card>
@@ -139,9 +130,9 @@ function IPAddressListMobileComponent({
 
       {/* Footer info */}
       {!loading && filteredIpAddresses.length > 0 && (
-        <div className="text-sm text-muted-foreground text-center pb-component-sm">
-          Showing {filteredIpAddresses.length} of {ipAddresses.length} IP
-          address{ipAddresses.length !== 1 ? 'es' : ''}
+        <div className="text-muted-foreground pb-component-sm text-center text-sm">
+          Showing {filteredIpAddresses.length} of {ipAddresses.length} IP address
+          {ipAddresses.length !== 1 ? 'es' : ''}
         </div>
       )}
     </div>
@@ -170,24 +161,31 @@ function IPAddressCardComponent({
   return (
     <Card>
       <CardHeader className="pb-component-sm">
-        <div className="flex items-start justify-between gap-component-sm">
+        <div className="gap-component-sm flex items-start justify-between">
           <div className="flex-1">
-            <code className="text-base font-mono font-semibold block">
-              {ipAddress.address}
-            </code>
-            <div className="mt-1 flex flex-wrap gap-component-sm">
+            <code className="block font-mono text-base font-semibold">{ipAddress.address}</code>
+            <div className="gap-component-sm mt-1 flex flex-wrap">
               {isDynamic && (
-                <Badge variant="secondary" className="text-xs">
+                <Badge
+                  variant="secondary"
+                  className="text-xs"
+                >
                   Dynamic
                 </Badge>
               )}
               {ipAddress.invalid && (
-                <Badge variant="error" className="text-xs">
+                <Badge
+                  variant="error"
+                  className="text-xs"
+                >
                   Invalid
                 </Badge>
               )}
               {ipAddress.disabled && (
-                <Badge variant="outline" className="text-xs">
+                <Badge
+                  variant="outline"
+                  className="text-xs"
+                >
                   Disabled
                 </Badge>
               )}
@@ -206,7 +204,7 @@ function IPAddressCardComponent({
         {ipAddress.network && (
           <div className="flex justify-between text-sm">
             <span className="text-muted-foreground">Network:</span>
-            <code className="text-sm font-mono text-foreground">{ipAddress.network}</code>
+            <code className="text-foreground font-mono text-sm">{ipAddress.network}</code>
           </div>
         )}
 
@@ -214,7 +212,7 @@ function IPAddressCardComponent({
         {ipAddress.broadcast && (
           <div className="flex justify-between text-sm">
             <span className="text-muted-foreground">Broadcast:</span>
-            <code className="text-sm font-mono text-foreground">{ipAddress.broadcast}</code>
+            <code className="text-foreground font-mono text-sm">{ipAddress.broadcast}</code>
           </div>
         )}
 
@@ -230,17 +228,17 @@ function IPAddressCardComponent({
         <div className="pt-component-sm space-y-component-sm">
           <Button
             variant="outline"
-            className="w-full min-h-[44px]"
+            className="min-h-[44px] w-full"
             onClick={() => onEdit?.(ipAddress)}
             disabled={isDynamic}
           >
             <Edit className="mr-2 h-4 w-4" />
             Edit
           </Button>
-          <div className="flex gap-component-sm">
+          <div className="gap-component-sm flex">
             <Button
               variant="outline"
-              className="flex-1 min-h-[44px]"
+              className="min-h-[44px] flex-1"
               onClick={() => onToggleDisabled?.(ipAddress)}
               disabled={isDynamic}
             >
@@ -248,7 +246,7 @@ function IPAddressCardComponent({
             </Button>
             <Button
               variant="destructive"
-              className="flex-1 min-h-[44px]"
+              className="min-h-[44px] flex-1"
               onClick={() => onDelete?.(ipAddress)}
               disabled={isDynamic}
             >

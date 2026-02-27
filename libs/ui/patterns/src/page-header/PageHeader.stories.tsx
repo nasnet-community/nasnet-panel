@@ -80,7 +80,10 @@ export const WithActions: Story = {
     description: 'View and manage firewall filter rules',
     actions: (
       <div className="flex gap-2">
-        <Button variant="outline" size="sm">
+        <Button
+          variant="outline"
+          size="sm"
+        >
           Import
         </Button>
         <Button size="sm">Add Rule</Button>
@@ -98,10 +101,16 @@ export const WithMultipleActions: Story = {
     description: 'Manage VPN tunnels and connections',
     actions: (
       <div className="flex gap-2">
-        <Button variant="outline" size="sm">
+        <Button
+          variant="outline"
+          size="sm"
+        >
           Docs
         </Button>
-        <Button variant="outline" size="sm">
+        <Button
+          variant="outline"
+          size="sm"
+        >
           Settings
         </Button>
         <Button size="sm">Add VPN</Button>

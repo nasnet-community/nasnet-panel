@@ -14,7 +14,12 @@ import { useResourceUsageBar } from './useResourceUsageBar';
 describe('ResourceUsageBar', () => {
   describe('Component Rendering', () => {
     it('should render with default props', () => {
-      render(<ResourceUsageBar used={50} total={100} />);
+      render(
+        <ResourceUsageBar
+          used={50}
+          total={100}
+        />
+      );
 
       // Check for progressbar role
       const progressbar = screen.getByRole('progressbar');
@@ -25,32 +30,64 @@ describe('ResourceUsageBar', () => {
     });
 
     it('should render with custom label', () => {
-      render(<ResourceUsageBar used={256} total={512} label="Custom Resource" />);
+      render(
+        <ResourceUsageBar
+          used={256}
+          total={512}
+          label="Custom Resource"
+        />
+      );
 
       expect(screen.getByText('Custom Resource')).toBeInTheDocument();
     });
 
     it('should render with resource type label', () => {
-      render(<ResourceUsageBar used={75} total={100} resourceType="cpu" />);
+      render(
+        <ResourceUsageBar
+          used={75}
+          total={100}
+          resourceType="cpu"
+        />
+      );
 
       expect(screen.getByText('CPU')).toBeInTheDocument();
     });
 
     it('should show percentage when showPercentage is true', () => {
-      render(<ResourceUsageBar used={25} total={100} showPercentage={true} />);
+      render(
+        <ResourceUsageBar
+          used={25}
+          total={100}
+          showPercentage={true}
+        />
+      );
 
       expect(screen.getByText('25%')).toBeInTheDocument();
     });
 
     it('should show values when showValues is true', () => {
-      render(<ResourceUsageBar used={512} total={1024} unit="MB" showValues={true} />);
+      render(
+        <ResourceUsageBar
+          used={512}
+          total={1024}
+          unit="MB"
+          showValues={true}
+        />
+      );
 
       expect(screen.getByText(/512 MB/i)).toBeInTheDocument();
       expect(screen.getByText(/1024 MB/i)).toBeInTheDocument();
     });
 
     it('should hide values when showValues is false', () => {
-      render(<ResourceUsageBar used={512} total={1024} unit="MB" showValues={false} />);
+      render(
+        <ResourceUsageBar
+          used={512}
+          total={1024}
+          unit="MB"
+          showValues={false}
+        />
+      );
 
       // Values should not be in the visible document (might be in aria-label)
       const visibleUsed = screen.queryByText(/Used:/i);
@@ -59,7 +96,11 @@ describe('ResourceUsageBar', () => {
 
     it('should render mobile variant when specified', () => {
       const { container } = render(
-        <ResourceUsageBar used={50} total={100} variant="mobile" />
+        <ResourceUsageBar
+          used={50}
+          total={100}
+          variant="mobile"
+        />
       );
 
       // Mobile variant has specific classes
@@ -68,7 +109,11 @@ describe('ResourceUsageBar', () => {
 
     it('should render desktop variant when specified', () => {
       const { container } = render(
-        <ResourceUsageBar used={50} total={100} variant="desktop" />
+        <ResourceUsageBar
+          used={50}
+          total={100}
+          variant="desktop"
+        />
       );
 
       // Desktop variant has specific inline layout
@@ -140,28 +185,49 @@ describe('ResourceUsageBar', () => {
 
   describe('Percentage Calculation', () => {
     it('should calculate correct percentage', () => {
-      render(<ResourceUsageBar used={50} total={100} />);
+      render(
+        <ResourceUsageBar
+          used={50}
+          total={100}
+        />
+      );
 
       const progressbar = screen.getByRole('progressbar');
       expect(progressbar).toHaveAttribute('aria-valuenow', '50');
     });
 
     it('should clamp percentage to 0-100 range', () => {
-      render(<ResourceUsageBar used={150} total={100} />);
+      render(
+        <ResourceUsageBar
+          used={150}
+          total={100}
+        />
+      );
 
       const progressbar = screen.getByRole('progressbar');
       expect(progressbar).toHaveAttribute('aria-valuenow', '100');
     });
 
     it('should handle zero total gracefully', () => {
-      render(<ResourceUsageBar used={50} total={0} />);
+      render(
+        <ResourceUsageBar
+          used={50}
+          total={0}
+        />
+      );
 
       const progressbar = screen.getByRole('progressbar');
       expect(progressbar).toHaveAttribute('aria-valuenow', '0');
     });
 
     it('should round percentage to nearest integer', () => {
-      render(<ResourceUsageBar used={33} total={100} showPercentage={true} />);
+      render(
+        <ResourceUsageBar
+          used={33}
+          total={100}
+          showPercentage={true}
+        />
+      );
 
       expect(screen.getByText('33%')).toBeInTheDocument();
     });
@@ -169,21 +235,42 @@ describe('ResourceUsageBar', () => {
 
   describe('Value Formatting', () => {
     it('should format values with correct unit', () => {
-      render(<ResourceUsageBar used={512} total={1024} unit="MB" showValues={true} />);
+      render(
+        <ResourceUsageBar
+          used={512}
+          total={1024}
+          unit="MB"
+          showValues={true}
+        />
+      );
 
       expect(screen.getByText(/512 MB/i)).toBeInTheDocument();
       expect(screen.getByText(/1024 MB/i)).toBeInTheDocument();
     });
 
     it('should handle decimal values', () => {
-      render(<ResourceUsageBar used={512.5} total={1024.75} unit="GB" showValues={true} />);
+      render(
+        <ResourceUsageBar
+          used={512.5}
+          total={1024.75}
+          unit="GB"
+          showValues={true}
+        />
+      );
 
       expect(screen.getByText(/512.5 GB/i)).toBeInTheDocument();
       expect(screen.getByText(/1024.75 GB/i)).toBeInTheDocument();
     });
 
     it('should use custom unit', () => {
-      render(<ResourceUsageBar used={75} total={100} unit="%" showValues={true} />);
+      render(
+        <ResourceUsageBar
+          used={75}
+          total={100}
+          unit="%"
+          showValues={true}
+        />
+      );
 
       expect(screen.getByText(/75 %/i)).toBeInTheDocument();
     });
@@ -191,14 +278,25 @@ describe('ResourceUsageBar', () => {
 
   describe('Accessibility', () => {
     it('should have proper progressbar role', () => {
-      render(<ResourceUsageBar used={50} total={100} />);
+      render(
+        <ResourceUsageBar
+          used={50}
+          total={100}
+        />
+      );
 
       const progressbar = screen.getByRole('progressbar');
       expect(progressbar).toBeInTheDocument();
     });
 
     it('should have correct ARIA attributes', () => {
-      render(<ResourceUsageBar used={75} total={100} resourceType="memory" />);
+      render(
+        <ResourceUsageBar
+          used={75}
+          total={100}
+          resourceType="memory"
+        />
+      );
 
       const progressbar = screen.getByRole('progressbar');
       expect(progressbar).toHaveAttribute('aria-valuenow', '75');
@@ -208,7 +306,14 @@ describe('ResourceUsageBar', () => {
     });
 
     it('should have descriptive aria-label', () => {
-      render(<ResourceUsageBar used={512} total={1024} resourceType="memory" unit="MB" />);
+      render(
+        <ResourceUsageBar
+          used={512}
+          total={1024}
+          resourceType="memory"
+          unit="MB"
+        />
+      );
 
       const progressbar = screen.getByRole('progressbar');
       const ariaLabel = progressbar.getAttribute('aria-label');
@@ -219,7 +324,13 @@ describe('ResourceUsageBar', () => {
     });
 
     it('should have screen reader status announcement', () => {
-      render(<ResourceUsageBar used={80} total={100} resourceType="cpu" />);
+      render(
+        <ResourceUsageBar
+          used={80}
+          total={100}
+          resourceType="cpu"
+        />
+      );
 
       // Check for sr-only span with status
       const srOnly = screen.getByText(/CPU status/i);
@@ -227,7 +338,13 @@ describe('ResourceUsageBar', () => {
     });
 
     it('should indicate status with icon (not color alone)', () => {
-      const { container } = render(<ResourceUsageBar used={95} total={100} variant="mobile" />);
+      const { container } = render(
+        <ResourceUsageBar
+          used={95}
+          total={100}
+          variant="mobile"
+        />
+      );
 
       // Check for icon element (SVG)
       const icon = container.querySelector('svg');

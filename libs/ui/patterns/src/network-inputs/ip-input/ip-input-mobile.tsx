@@ -72,7 +72,8 @@ export const IPInputMobile = memo(function IPInputMobile({
   const error = externalError ?? validationError;
   const hasError = Boolean(error);
   const displayValue = value ?? localValue;
-  const showValidIndicator = isValid && displayValue.length > 0 && isValidIPv4(displayValue.split('/')[0]);
+  const showValidIndicator =
+    isValid && displayValue.length > 0 && isValidIPv4(displayValue.split('/')[0]);
 
   // Handle input change with smart parsing
   const handleChange = useCallback(
@@ -102,12 +103,8 @@ export const IPInputMobile = memo(function IPInputMobile({
   );
 
   // Build aria-describedby
-  const inputAriaDescribedBy = [
-    ariaDescribedBy,
-    hasError ? errorId : undefined,
-  ]
-    .filter(Boolean)
-    .join(' ') || undefined;
+  const inputAriaDescribedBy =
+    [ariaDescribedBy, hasError ? errorId : undefined].filter(Boolean).join(' ') || undefined;
 
   return (
     <div className={cn('flex flex-col gap-2', className)}>
@@ -130,9 +127,9 @@ export const IPInputMobile = memo(function IPInputMobile({
           aria-describedby={inputAriaDescribedBy}
           className={cn(
             // 44px minimum height for touch targets (WCAG 2.5.5)
-            'h-11 min-h-[44px] text-base font-mono pr-10 w-full',
-            'bg-card border border-border text-foreground placeholder:text-muted-foreground',
-            'focus:border-primary focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0',
+            'h-11 min-h-[44px] w-full pr-10 font-mono text-base',
+            'bg-card border-border text-foreground placeholder:text-muted-foreground border',
+            'focus:border-primary focus-visible:ring-ring focus-visible:ring-2 focus-visible:ring-offset-0',
             'transition-colors duration-150',
             hasError && 'border-error focus:border-error focus-visible:ring-error'
           )}
@@ -142,13 +139,13 @@ export const IPInputMobile = memo(function IPInputMobile({
         <div className="absolute right-3 top-1/2 -translate-y-1/2">
           {showValidIndicator && (
             <CheckCircle2
-              className="w-5 h-5 text-success"
+              className="text-success h-5 w-5"
               aria-hidden="true"
             />
           )}
           {hasError && displayValue && (
             <XCircle
-              className="w-5 h-5 text-destructive"
+              className="text-destructive h-5 w-5"
               aria-hidden="true"
             />
           )}
@@ -156,7 +153,7 @@ export const IPInputMobile = memo(function IPInputMobile({
       </div>
 
       {/* IP Type badge and error in a row */}
-      <div className="flex items-center justify-between gap-2 min-h-[20px]">
+      <div className="flex min-h-[20px] items-center justify-between gap-2">
         {/* IP Type badge */}
         {showType && ipType && (
           <Badge
@@ -172,7 +169,7 @@ export const IPInputMobile = memo(function IPInputMobile({
           <p
             id={errorId}
             role="alert"
-            className="text-xs text-error"
+            className="text-error text-xs"
           >
             {error}
           </p>

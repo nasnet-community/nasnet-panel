@@ -10,13 +10,14 @@ export const vpnKeys = {
 
   // Dashboard stats
   stats: (routerIp: string) => [...vpnKeys.all, 'stats', routerIp] as const,
-  trafficHistory: (routerIp: string, protocol?: string) => 
+  trafficHistory: (routerIp: string, protocol?: string) =>
     [...vpnKeys.all, 'traffic', routerIp, protocol || 'all'] as const,
 
   // WireGuard keys
   wireguard: (routerIp: string) => [...vpnKeys.all, 'wireguard', routerIp] as const,
-  wireguardInterfaces: (routerIp: string) => [...vpnKeys.wireguard(routerIp), 'interfaces'] as const,
-  wireguardPeers: (routerIp: string, interfaceName?: string) => 
+  wireguardInterfaces: (routerIp: string) =>
+    [...vpnKeys.wireguard(routerIp), 'interfaces'] as const,
+  wireguardPeers: (routerIp: string, interfaceName?: string) =>
     [...vpnKeys.wireguard(routerIp), 'peers', interfaceName || 'all'] as const,
 
   // OpenVPN keys

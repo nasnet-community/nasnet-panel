@@ -41,13 +41,10 @@ function MetricDisplayDesktopComponent(props: MetricDisplayProps) {
 
   // Render trend icon
   const TrendIcon =
-    trendIconName === 'arrow-up'
-      ? ArrowUp
-      : trendIconName === 'arrow-down'
-        ? ArrowDown
-        : trendIconName === 'minus'
-          ? Minus
-          : null;
+    trendIconName === 'arrow-up' ? ArrowUp
+    : trendIconName === 'arrow-down' ? ArrowDown
+    : trendIconName === 'minus' ? Minus
+    : null;
 
   // Memoize keyboard handler for stable reference
   const handleKeyDown = useCallback(
@@ -65,7 +62,7 @@ function MetricDisplayDesktopComponent(props: MetricDisplayProps) {
     return (
       <div
         className={cn(
-          'bg-card border border-border rounded-[var(--semantic-radius-card)]',
+          'bg-card border-border rounded-[var(--semantic-radius-card)] border',
           'shadow-[var(--semantic-shadow-card)] dark:shadow-none',
           sizeClasses.container,
           className
@@ -73,10 +70,10 @@ function MetricDisplayDesktopComponent(props: MetricDisplayProps) {
       >
         <div className="flex items-center gap-4">
           <div className="flex-1">
-            <Skeleton className="h-4 w-16 mb-2" />
+            <Skeleton className="mb-2 h-4 w-16" />
             <Skeleton className="h-7 w-24" />
           </div>
-          <Skeleton className="h-10 w-10 rounded-lg flex-shrink-0" />
+          <Skeleton className="h-10 w-10 flex-shrink-0 rounded-lg" />
         </div>
       </div>
     );
@@ -90,13 +87,13 @@ function MetricDisplayDesktopComponent(props: MetricDisplayProps) {
       onClick={onClick}
       onKeyDown={handleKeyDown}
       className={cn(
-        'text-left bg-card border border-border rounded-[var(--semantic-radius-card)]',
+        'bg-card border-border rounded-[var(--semantic-radius-card)] border text-left',
         'shadow-[var(--semantic-shadow-card)] dark:shadow-none',
         'transition-all duration-150',
         isInteractive && [
           'cursor-pointer',
-          'hover:shadow-[var(--semantic-shadow-card)] hover:border-primary/20',
-          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+          'hover:border-primary/20 hover:shadow-[var(--semantic-shadow-card)]',
+          'focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
         ],
         sizeClasses.container,
         className
@@ -107,7 +104,7 @@ function MetricDisplayDesktopComponent(props: MetricDisplayProps) {
         {Icon && (
           <div
             className={cn(
-              'h-10 w-10 rounded-lg bg-muted flex items-center justify-center flex-shrink-0',
+              'bg-muted flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg',
               'text-muted-foreground'
             )}
           >
@@ -116,32 +113,31 @@ function MetricDisplayDesktopComponent(props: MetricDisplayProps) {
         )}
 
         {/* Content */}
-        <div className="flex-1 min-w-0">
+        <div className="min-w-0 flex-1">
           {/* Value */}
-          <span className={cn('text-2xl font-bold font-display block', valueClasses)}>
+          <span className={cn('font-display block text-2xl font-bold', valueClasses)}>
             {formattedValue}
           </span>
 
           {/* Label */}
-          <span className="text-sm text-muted-foreground block">
-            {label}
-          </span>
+          <span className="text-muted-foreground block text-sm">{label}</span>
 
           {/* Trend indicator */}
           {TrendIcon && props.trendValue && (
             <span
-              className={cn('inline-flex items-center gap-0.5 text-xs font-medium mt-1', trendClasses)}
+              className={cn(
+                'mt-1 inline-flex items-center gap-0.5 text-xs font-medium',
+                trendClasses
+              )}
             >
-              <TrendIcon className="w-3 h-3" />
+              <TrendIcon className="h-3 w-3" />
               <span>{props.trendValue}</span>
             </span>
           )}
 
           {/* Description */}
           {description && (
-            <p className="mt-1 text-xs text-muted-foreground truncate">
-              {description}
-            </p>
+            <p className="text-muted-foreground mt-1 truncate text-xs">{description}</p>
           )}
         </div>
       </div>

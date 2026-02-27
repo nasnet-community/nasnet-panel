@@ -98,21 +98,17 @@ export const MACInputMobile = memo(function MACInputMobile({
   );
 
   // Build aria-describedby for input
-  const inputAriaDescribedBy = [
-    ariaDescribedBy,
-    hasError ? errorId : undefined,
-  ]
-    .filter(Boolean)
-    .join(' ') || undefined;
+  const inputAriaDescribedBy =
+    [ariaDescribedBy, hasError ? errorId : undefined].filter(Boolean).join(' ') || undefined;
 
   return (
-    <div className={cn('flex flex-col gap-2 w-full', className)}>
+    <div className={cn('flex w-full flex-col gap-2', className)}>
       {/* Label */}
       {label && (
         <label
           id={labelId}
           htmlFor={id}
-          className="text-sm font-medium text-foreground"
+          className="text-foreground text-sm font-medium"
         >
           {label}
           {required && <span className="text-destructive ml-1">*</span>}
@@ -123,7 +119,11 @@ export const MACInputMobile = memo(function MACInputMobile({
       <div className="relative w-full">
         {/* Hidden input for form submission */}
         {name && (
-          <input type="hidden" name={name} value={computedValue} />
+          <input
+            type="hidden"
+            name={name}
+            value={computedValue}
+          />
         )}
 
         {/* Main input */}
@@ -150,9 +150,9 @@ export const MACInputMobile = memo(function MACInputMobile({
           aria-labelledby={labelId}
           className={cn(
             // 44px minimum height for touch targets (WCAG 2.5.5)
-            'h-11 min-h-[44px] text-base font-mono uppercase tracking-wider pr-10 w-full',
-            'bg-card border border-border text-foreground placeholder:text-muted-foreground',
-            'focus:border-primary focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0',
+            'h-11 min-h-[44px] w-full pr-10 font-mono text-base uppercase tracking-wider',
+            'bg-card border-border text-foreground placeholder:text-muted-foreground border',
+            'focus:border-primary focus-visible:ring-ring focus-visible:ring-2 focus-visible:ring-offset-0',
             'transition-colors duration-150',
             hasError && 'border-error focus:border-error focus-visible:ring-error'
           )}
@@ -162,13 +162,13 @@ export const MACInputMobile = memo(function MACInputMobile({
         <div className="absolute right-3 top-1/2 -translate-y-1/2">
           {showValidIndicator && (
             <CheckCircle2
-              className="w-5 h-5 text-success"
+              className="text-success h-5 w-5"
               aria-hidden="true"
             />
           )}
           {hasError && computedValue && (
             <XCircle
-              className="w-5 h-5 text-destructive"
+              className="text-destructive h-5 w-5"
               aria-hidden="true"
             />
           )}
@@ -176,7 +176,7 @@ export const MACInputMobile = memo(function MACInputMobile({
       </div>
 
       {/* Vendor badge and error in a row (mobile: below input) */}
-      <div className="flex items-center justify-between gap-2 min-h-[20px]">
+      <div className="flex min-h-[20px] items-center justify-between gap-2">
         {/* Vendor badge */}
         {showVendor && vendor && (
           <Badge
@@ -196,7 +196,7 @@ export const MACInputMobile = memo(function MACInputMobile({
             id={errorId}
             role="alert"
             aria-live="polite"
-            className="text-xs text-error"
+            className="text-error text-xs"
           >
             {error}
           </p>

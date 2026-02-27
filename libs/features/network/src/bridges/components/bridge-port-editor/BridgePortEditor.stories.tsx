@@ -60,11 +60,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 const schema = z
   .object({
     pvid: z.number().int().min(1).max(4094),
-    frameTypes: z.enum([
-      'ADMIT_ALL',
-      'ADMIT_ONLY_UNTAGGED_AND_PRIORITY',
-      'ADMIT_ONLY_VLAN_TAGGED',
-    ]),
+    frameTypes: z.enum(['ADMIT_ALL', 'ADMIT_ONLY_UNTAGGED_AND_PRIORITY', 'ADMIT_ONLY_VLAN_TAGGED']),
     ingressFiltering: z.boolean(),
     taggedVlans: z.array(z.number().int().min(1).max(4094)),
     untaggedVlans: z.array(z.number().int().min(1).max(4094)),
@@ -132,8 +128,7 @@ function BridgePortEditorPreview({
 
   const pvid = form.watch('pvid');
   const untaggedVlans = form.watch('untaggedVlans');
-  const pvidNotInUntagged =
-    pvid && untaggedVlans.length > 0 && !untaggedVlans.includes(pvid);
+  const pvidNotInUntagged = pvid && untaggedVlans.length > 0 && !untaggedVlans.includes(pvid);
 
   if (!port) return null;
 
@@ -143,7 +138,10 @@ function BridgePortEditorPreview({
   };
 
   return (
-    <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
+    <Dialog
+      open={open}
+      onOpenChange={(isOpen) => !isOpen && onClose()}
+    >
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>Configure Port: {port.interface.name}</DialogTitle>
@@ -162,8 +160,8 @@ function BridgePortEditorPreview({
               <Alert variant="warning">
                 <AlertTriangle className="h-4 w-4" />
                 <AlertDescription>
-                  PVID {pvid} is not in the untagged VLANs list. This is a common
-                  misconfiguration. Consider adding it to untagged VLANs.
+                  PVID {pvid} is not in the untagged VLANs list. This is a common misconfiguration.
+                  Consider adding it to untagged VLANs.
                 </AlertDescription>
               </Alert>
             )}
@@ -185,9 +183,7 @@ function BridgePortEditorPreview({
                       onChange={(e) => field.onChange(parseInt(e.target.value))}
                     />
                   </FormControl>
-                  <FormDescription>
-                    Default VLAN ID for untagged traffic (1-4094)
-                  </FormDescription>
+                  <FormDescription>Default VLAN ID for untagged traffic (1-4094)</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -215,14 +211,10 @@ function BridgePortEditorPreview({
                       <SelectItem value="ADMIT_ONLY_UNTAGGED_AND_PRIORITY">
                         Admit Only Untagged and Priority
                       </SelectItem>
-                      <SelectItem value="ADMIT_ONLY_VLAN_TAGGED">
-                        Admit Only VLAN Tagged
-                      </SelectItem>
+                      <SelectItem value="ADMIT_ONLY_VLAN_TAGGED">Admit Only VLAN Tagged</SelectItem>
                     </SelectContent>
                   </Select>
-                  <FormDescription>
-                    Which frame types are allowed on this port
-                  </FormDescription>
+                  <FormDescription>Which frame types are allowed on this port</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -233,7 +225,7 @@ function BridgePortEditorPreview({
               control={form.control}
               name="ingressFiltering"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-component-md">
+                <FormItem className="p-component-md flex flex-row items-center justify-between rounded-lg border">
                   <div className="space-y-0.5">
                     <FormLabel className="text-base">Ingress Filtering</FormLabel>
                     <FormDescription>
@@ -259,8 +251,8 @@ function BridgePortEditorPreview({
                 <FormItem>
                   <FormLabel>Tagged VLANs</FormLabel>
                   <FormDescription>
-                    Comma-separated VLAN IDs (e.g. 10,20,30). VLANs that will be
-                    tagged on this port.
+                    Comma-separated VLAN IDs (e.g. 10,20,30). VLANs that will be tagged on this
+                    port.
                   </FormDescription>
                   <FormControl>
                     <Input
@@ -290,8 +282,8 @@ function BridgePortEditorPreview({
                 <FormItem>
                   <FormLabel>Untagged VLANs</FormLabel>
                   <FormDescription>
-                    Comma-separated VLAN IDs. VLANs that will be untagged on this
-                    port (should include PVID).
+                    Comma-separated VLAN IDs. VLANs that will be untagged on this port (should
+                    include PVID).
                   </FormDescription>
                   <FormControl>
                     <Input
@@ -314,15 +306,15 @@ function BridgePortEditorPreview({
             />
 
             {/* STP Section */}
-            <div className="border-t pt-component-lg">
-              <h4 className="text-sm font-medium mb-component-md">Spanning Tree Settings</h4>
+            <div className="pt-component-lg border-t">
+              <h4 className="mb-component-md text-sm font-medium">Spanning Tree Settings</h4>
 
               {/* Edge Port */}
               <FormField
                 control={form.control}
                 name="edge"
                 render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-component-md mb-component-md">
+                  <FormItem className="p-component-md mb-component-md flex flex-row items-center justify-between rounded-lg border">
                     <div className="space-y-0.5">
                       <FormLabel className="text-base">Edge Port</FormLabel>
                       <FormDescription>
@@ -355,16 +347,12 @@ function BridgePortEditorPreview({
                         max={65535}
                         disabled={saving}
                         onChange={(e) =>
-                          field.onChange(
-                            e.target.value ? parseInt(e.target.value) : undefined
-                          )
+                          field.onChange(e.target.value ? parseInt(e.target.value) : undefined)
                         }
                         value={field.value ?? ''}
                       />
                     </FormControl>
-                    <FormDescription>
-                      STP path cost (1-65535, lower is preferred)
-                    </FormDescription>
+                    <FormDescription>STP path cost (1-65535, lower is preferred)</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -372,7 +360,7 @@ function BridgePortEditorPreview({
             </div>
 
             {/* Actions */}
-            <div className="flex justify-end gap-component-sm pt-component-md border-t">
+            <div className="gap-component-sm pt-component-md flex justify-end border-t">
               <Button
                 type="button"
                 variant="outline"
@@ -381,7 +369,10 @@ function BridgePortEditorPreview({
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={saving}>
+              <Button
+                type="submit"
+                disabled={saving}
+              >
                 {saving ? 'Saving...' : 'Save Changes'}
               </Button>
             </div>
@@ -400,9 +391,7 @@ function StoryWrapper(props: BridgePortEditorPreviewProps) {
   const [open, setOpen] = useState(props.open);
   return (
     <div>
-      {!open && (
-        <Button onClick={() => setOpen(true)}>Open Port Editor</Button>
-      )}
+      {!open && <Button onClick={() => setOpen(true)}>Open Port Editor</Button>}
       <BridgePortEditorPreview
         {...props}
         open={open}

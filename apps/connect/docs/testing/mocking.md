@@ -1,6 +1,10 @@
 # Mocking Strategy
 
-NasNetConnect uses **MSW (Mock Service Worker)** as the single mocking layer for all network requests — GraphQL and REST alike. MSW intercepts requests at the network level (using a service worker in the browser, and a Node.js interceptor in Vitest). This means tests exercise real Apollo Client logic, real fetch calls, and real response parsing — only the network boundary is replaced with controlled fixtures.
+NasNetConnect uses **MSW (Mock Service Worker)** as the single mocking layer for all network
+requests — GraphQL and REST alike. MSW intercepts requests at the network level (using a service
+worker in the browser, and a Node.js interceptor in Vitest). This means tests exercise real Apollo
+Client logic, real fetch calls, and real response parsing — only the network boundary is replaced
+with controlled fixtures.
 
 **Source:** `apps/connect/src/mocks/`
 
@@ -21,10 +25,10 @@ apps/connect/src/mocks/
 
 ### Two Environments
 
-| File | Used in | MSW mode |
-|------|---------|---------|
-| `server.ts` | Vitest unit/component tests | Node.js request interceptor |
-| `browser.ts` | Storybook, local development | Service worker in browser |
+| File         | Used in                      | MSW mode                    |
+| ------------ | ---------------------------- | --------------------------- |
+| `server.ts`  | Vitest unit/component tests  | Node.js request interceptor |
+| `browser.ts` | Storybook, local development | Service worker in browser   |
 
 ---
 
@@ -51,13 +55,14 @@ beforeAll(() => server.listen({ onUnhandledRequest: 'warn' }));
 
 afterEach(() => {
   cleanup();
-  server.resetHandlers();  // Remove test-specific overrides
+  server.resetHandlers(); // Remove test-specific overrides
 });
 
 afterAll(() => server.close());
 ```
 
-`onUnhandledRequest: 'warn'` prints a console warning when a test makes a network request that no handler covers, helping catch missing mock setup.
+`onUnhandledRequest: 'warn'` prints a console warning when a test makes a network request that no
+handler covers, helping catch missing mock setup.
 
 ---
 
@@ -127,52 +132,46 @@ const graphqlEndpoint = graphql.link('http://localhost:8080/graphql');
 ### Query Handler
 
 ```typescript
-export const getSystemInfoHandler = graphqlEndpoint.query(
-  'GetSystemInfo',
-  () => {
-    return HttpResponse.json({
-      data: {
-        systemInfo: {
-          identity: 'MikroTik-Router',
-          routerBoard: 'hAP ac3',
-          version: '7.12',
-          uptime: '5d 12h 30m',
-          cpuLoad: 15,
-          memoryUsed: 45,
-          memoryFree: 55,
-          lastUpdate: new Date().toISOString(),
-        },
+export const getSystemInfoHandler = graphqlEndpoint.query('GetSystemInfo', () => {
+  return HttpResponse.json({
+    data: {
+      systemInfo: {
+        identity: 'MikroTik-Router',
+        routerBoard: 'hAP ac3',
+        version: '7.12',
+        uptime: '5d 12h 30m',
+        cpuLoad: 15,
+        memoryUsed: 45,
+        memoryFree: 55,
+        lastUpdate: new Date().toISOString(),
       },
-    });
-  }
-);
+    },
+  });
+});
 ```
 
 ### Mutation Handler
 
 ```typescript
-export const connectRouterHandler = graphqlEndpoint.mutation(
-  'ConnectRouter',
-  ({ variables }) => {
-    const { id } = variables as { id: string };
-    return HttpResponse.json({
-      data: {
-        connectRouter: {
-          success: true,
-          router: {
-            id,
-            name: 'Main Router',
-            host: '192.168.88.1',
-            status: 'CONNECTED',
-            identity: 'MikroTik',
-            lastConnectedAt: new Date().toISOString(),
-          },
-          errors: null,
+export const connectRouterHandler = graphqlEndpoint.mutation('ConnectRouter', ({ variables }) => {
+  const { id } = variables as { id: string };
+  return HttpResponse.json({
+    data: {
+      connectRouter: {
+        success: true,
+        router: {
+          id,
+          name: 'Main Router',
+          host: '192.168.88.1',
+          status: 'CONNECTED',
+          identity: 'MikroTik',
+          lastConnectedAt: new Date().toISOString(),
         },
+        errors: null,
       },
-    });
-  }
-);
+    },
+  });
+});
 ```
 
 ### Variables in Handlers
@@ -180,17 +179,14 @@ export const connectRouterHandler = graphqlEndpoint.mutation(
 Access query/mutation variables via the `{ variables }` parameter:
 
 ```typescript
-export const getRouterHandler = graphqlEndpoint.query(
-  'GetRouter',
-  ({ variables }) => {
-    const { id } = variables as { id: string };
-    return HttpResponse.json({
-      data: {
-        router: { id, name: 'Main Router', host: '192.168.88.1', status: 'CONNECTED' },
-      },
-    });
-  }
-);
+export const getRouterHandler = graphqlEndpoint.query('GetRouter', ({ variables }) => {
+  const { id } = variables as { id: string };
+  return HttpResponse.json({
+    data: {
+      router: { id, name: 'Main Router', host: '192.168.88.1', status: 'CONNECTED' },
+    },
+  });
+});
 ```
 
 ### Error Handler
@@ -242,16 +238,13 @@ const API_BASE_URL = 'http://localhost:8080';
 ### GET Handler
 
 ```typescript
-export const healthCheckHandler = http.get(
-  `${API_BASE_URL}/api/health`,
-  () => {
-    return HttpResponse.json({
-      status: 'healthy',
-      version: '1.0.0',
-      timestamp: new Date().toISOString(),
-    });
-  }
-);
+export const healthCheckHandler = http.get(`${API_BASE_URL}/api/health`, () => {
+  return HttpResponse.json({
+    status: 'healthy',
+    version: '1.0.0',
+    timestamp: new Date().toISOString(),
+  });
+});
 ```
 
 ### POST Handler with Request Body
@@ -260,7 +253,7 @@ export const healthCheckHandler = http.get(
 export const routerConnectHandler = http.post(
   `${API_BASE_URL}/api/routers/connect`,
   async ({ request }) => {
-    const body = await request.json() as { address?: string; username?: string };
+    const body = (await request.json()) as { address?: string; username?: string };
     const address = body?.address || 'unknown';
 
     return HttpResponse.json({
@@ -280,7 +273,8 @@ export const routerConnectHandler = http.post(
 
 ## Overriding Handlers in Tests
 
-The default handlers provide a "happy path" response. Override in specific tests to simulate edge cases.
+The default handlers provide a "happy path" response. Override in specific tests to simulate edge
+cases.
 
 ### Single-test override
 
@@ -338,7 +332,8 @@ it('should show skeleton while loading', async () => {
 
 ### 1. Add to the domain file
 
-Add handlers to `graphql.ts` or `rest.ts` organized by domain. Keep each handler focused on a single operation:
+Add handlers to `graphql.ts` or `rest.ts` organized by domain. Keep each handler focused on a single
+operation:
 
 ```typescript
 // In graphql.ts
@@ -378,13 +373,11 @@ export const graphqlHandlers = [
 ### 3. Consider pairing with an error handler
 
 ```typescript
-export const getFirewallRulesErrorHandler = graphqlEndpoint.query(
-  'GetFirewallRules',
-  () =>
-    HttpResponse.json(
-      { errors: [{ message: 'Unauthorized', extensions: { code: 'FORBIDDEN' } }] },
-      { status: 403 }
-    )
+export const getFirewallRulesErrorHandler = graphqlEndpoint.query('GetFirewallRules', () =>
+  HttpResponse.json(
+    { errors: [{ message: 'Unauthorized', extensions: { code: 'FORBIDDEN' } }] },
+    { status: 403 }
+  )
 );
 ```
 
@@ -392,7 +385,8 @@ export const getFirewallRulesErrorHandler = graphqlEndpoint.query(
 
 ## Storybook MSW Integration
 
-Stories can use MSW handlers to render components in specific data states without a running backend. The `browser.ts` worker intercepts network requests made from Storybook.
+Stories can use MSW handlers to render components in specific data states without a running backend.
+The `browser.ts` worker intercepts network requests made from Storybook.
 
 ```typescript
 // In a story file
@@ -404,11 +398,7 @@ const meta: Meta<typeof RouterDashboard> = {
   component: RouterDashboard,
   parameters: {
     msw: {
-      handlers: [
-        http.get('*/api/health', () =>
-          HttpResponse.json({ status: 'degraded' })
-        ),
-      ],
+      handlers: [http.get('*/api/health', () => HttpResponse.json({ status: 'degraded' }))],
     },
   },
 };
@@ -418,9 +408,7 @@ export const DegradedState: StoryObj = {
     msw: {
       handlers: [
         // Story-specific override — degraded health response
-        http.get('*/api/health', () =>
-          HttpResponse.json({ status: 'degraded' })
-        ),
+        http.get('*/api/health', () => HttpResponse.json({ status: 'degraded' })),
       ],
     },
   },
@@ -460,21 +448,17 @@ export const getRouterHandler = graphqlEndpoint.query('GetRouter', ({ variables 
 ### Dynamic responses based on variables
 
 ```typescript
-export const getDHCPLeasesHandler = graphqlEndpoint.query(
-  'GetDHCPLeases',
-  ({ variables }) => {
-    const { serverId } = variables as { serverId?: string };
+export const getDHCPLeasesHandler = graphqlEndpoint.query('GetDHCPLeases', ({ variables }) => {
+  const { serverId } = variables as { serverId?: string };
 
-    // Return different data based on which server was queried
-    const leases = serverId === 'dhcp-lan'
-      ? lanLeases
-      : serverId === 'dhcp-guest'
-      ? guestLeases
-      : [];
+  // Return different data based on which server was queried
+  const leases =
+    serverId === 'dhcp-lan' ? lanLeases
+    : serverId === 'dhcp-guest' ? guestLeases
+    : [];
 
-    return HttpResponse.json({ data: { dhcpLeases: leases } });
-  }
-);
+  return HttpResponse.json({ data: { dhcpLeases: leases } });
+});
 ```
 
 ---

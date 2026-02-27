@@ -127,19 +127,20 @@ export function VlanForm({
         form.clearErrors('vlanId');
       }
     }
-  }, [checkDuplicateEnabled, checkingDuplicate, isAvailable, watchedVlanId, watchedInterface, form]);
+  }, [
+    checkDuplicateEnabled,
+    checkingDuplicate,
+    isAvailable,
+    watchedVlanId,
+    watchedInterface,
+    form,
+  ]);
 
   // Get validation warnings (non-blocking)
-  const warnings = useMemo(
-    () => (form.watch() ? getVlanWarnings(form.getValues()) : []),
-    [form]
-  );
+  const warnings = useMemo(() => (form.watch() ? getVlanWarnings(form.getValues()) : []), [form]);
 
   // Memoized submit handler
-  const handleSubmit = useCallback(
-    form.handleSubmit(onSubmit),
-    [form, onSubmit]
-  );
+  const handleSubmit = useCallback(form.handleSubmit(onSubmit), [form, onSubmit]);
 
   // Shared props for both presenters
   const sharedProps = useMemo(
@@ -154,14 +155,23 @@ export function VlanForm({
       checkingDuplicate,
       isDuplicateVlanId: !isAvailable && checkDuplicateEnabled,
     }),
-    [form, routerId, handleSubmit, onCancel, isLoading, mode, warnings, checkingDuplicate, isAvailable, checkDuplicateEnabled]
+    [
+      form,
+      routerId,
+      handleSubmit,
+      onCancel,
+      isLoading,
+      mode,
+      warnings,
+      checkingDuplicate,
+      isAvailable,
+      checkDuplicateEnabled,
+    ]
   );
 
-  return platform === 'mobile' ? (
-    <VlanFormMobile {...sharedProps} />
-  ) : (
-    <VlanFormDesktop {...sharedProps} />
-  );
+  return platform === 'mobile' ?
+      <VlanFormMobile {...sharedProps} />
+    : <VlanFormDesktop {...sharedProps} />;
 }
 
 /** Debounce delay for duplicate VLAN ID checking (ms) */

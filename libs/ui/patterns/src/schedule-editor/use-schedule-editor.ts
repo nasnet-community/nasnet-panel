@@ -96,9 +96,7 @@ export interface UseScheduleEditorReturn {
  * );
  * ```
  */
-export function useScheduleEditor(
-  options: UseScheduleEditorOptions
-): UseScheduleEditorReturn {
+export function useScheduleEditor(options: UseScheduleEditorOptions): UseScheduleEditorReturn {
   const {
     routingID,
     initialSchedule,
@@ -131,7 +129,12 @@ export function useScheduleEditor(
     const errorMap: Record<string, string> = {};
 
     Object.entries(formErrors).forEach(([key, error]) => {
-      if (error && typeof error === 'object' && 'message' in error && typeof error.message === 'string') {
+      if (
+        error &&
+        typeof error === 'object' &&
+        'message' in error &&
+        typeof error.message === 'string'
+      ) {
         errorMap[key] = error.message;
       }
     });
@@ -175,8 +178,9 @@ export function useScheduleEditor(
   const toggleDay = useCallback(
     (day: number) => {
       const currentDays = schedule.days || [];
-      const newDays = currentDays.includes(day)
-        ? currentDays.filter((d: number) => d !== day)
+      const newDays =
+        currentDays.includes(day) ?
+          currentDays.filter((d: number) => d !== day)
         : [...currentDays, day].sort((a, b) => a - b);
 
       form.setValue('days', newDays, { shouldValidate: true });
@@ -306,11 +310,7 @@ function formatNextActivation(date: Date): string {
   const tomorrow = new Date(today);
   tomorrow.setDate(tomorrow.getDate() + 1);
 
-  const activationDate = new Date(
-    date.getFullYear(),
-    date.getMonth(),
-    date.getDate()
-  );
+  const activationDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
 
   const timeStr = date.toLocaleTimeString('en-US', {
     hour: '2-digit',

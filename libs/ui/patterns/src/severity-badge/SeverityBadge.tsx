@@ -23,7 +23,7 @@ import { cn } from '@nasnet/ui/primitives';
  * Colors meet WCAG AA contrast requirements
  */
 const severityBadgeVariants = cva(
-  'inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium transition-colors',
+  'inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium transition-colors',
   {
     variants: {
       severity: {
@@ -31,7 +31,7 @@ const severityBadgeVariants = cva(
         info: 'text-info bg-info/10',
         warning: 'text-warning bg-warning/10',
         error: 'text-error bg-error/10',
-        critical: 'text-error bg-error/20 font-bold ring-1 ring-inset ring-error/30',
+        critical: 'text-error bg-error/20 ring-error/30 font-bold ring-1 ring-inset',
       },
     },
     defaultVariants: {
@@ -73,12 +73,7 @@ export interface SeverityBadgeProps
  * />
  * ```
  */
-function SeverityBadgeBase({
-  severity,
-  onRemove,
-  className,
-  ...props
-}: SeverityBadgeProps) {
+function SeverityBadgeBase({ severity, onRemove, className, ...props }: SeverityBadgeProps) {
   // Capitalize severity for display
   const displayText = severity.charAt(0).toUpperCase() + severity.slice(1);
 
@@ -90,14 +85,17 @@ function SeverityBadgeBase({
         onClick={onRemove}
         className={cn(
           severityBadgeVariants({ severity }),
-          'hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 transition-all',
+          'focus-visible:ring-ring transition-all hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
           className
         )}
         aria-label={`Remove ${displayText} filter`}
         {...props}
       >
         <span>{displayText}</span>
-        <X className="h-3.5 w-3.5" aria-hidden="true" />
+        <X
+          className="h-3.5 w-3.5"
+          aria-hidden="true"
+        />
       </button>
     );
   }

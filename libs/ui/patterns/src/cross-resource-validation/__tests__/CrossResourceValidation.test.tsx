@@ -68,9 +68,7 @@ describe('ConflictCard', () => {
 
     // Title appears in h3 and badge, so use heading role
     expect(screen.getByRole('heading', { name: 'IP Address Collision' })).toBeInTheDocument();
-    expect(
-      screen.getByText('Two interfaces have the same IP address')
-    ).toBeInTheDocument();
+    expect(screen.getByText('Two interfaces have the same IP address')).toBeInTheDocument();
   });
 
   it('renders conflict value', () => {
@@ -87,7 +85,12 @@ describe('ConflictCard', () => {
   });
 
   it('shows affected resources when expanded', () => {
-    render(<ConflictCard conflict={mockConflict} isExpanded />);
+    render(
+      <ConflictCard
+        conflict={mockConflict}
+        isExpanded
+      />
+    );
 
     expect(screen.getByText('Affected Resources')).toBeInTheDocument();
     expect(screen.getByText('ether1')).toBeInTheDocument();
@@ -95,7 +98,12 @@ describe('ConflictCard', () => {
   });
 
   it('shows resolution options when expanded', () => {
-    render(<ConflictCard conflict={mockConflict} isExpanded />);
+    render(
+      <ConflictCard
+        conflict={mockConflict}
+        isExpanded
+      />
+    );
 
     expect(screen.getByText('Resolution Options')).toBeInTheDocument();
     expect(screen.getByText('Change Bridge IP')).toBeInTheDocument();
@@ -103,20 +111,35 @@ describe('ConflictCard', () => {
   });
 
   it('shows recommended badge on resolution', () => {
-    render(<ConflictCard conflict={mockConflict} isExpanded />);
+    render(
+      <ConflictCard
+        conflict={mockConflict}
+        isExpanded
+      />
+    );
 
     expect(screen.getByText('Recommended')).toBeInTheDocument();
   });
 
   it('shows destructive badge on resolution', () => {
-    render(<ConflictCard conflict={mockConflict} isExpanded />);
+    render(
+      <ConflictCard
+        conflict={mockConflict}
+        isExpanded
+      />
+    );
 
     expect(screen.getByText('Destructive')).toBeInTheDocument();
   });
 
   it('calls onToggle when expand button is clicked', () => {
     const onToggle = vi.fn();
-    render(<ConflictCard conflict={mockConflict} onToggle={onToggle} />);
+    render(
+      <ConflictCard
+        conflict={mockConflict}
+        onToggle={onToggle}
+      />
+    );
 
     fireEvent.click(screen.getByRole('button', { name: /expand|collapse/i }));
     expect(onToggle).toHaveBeenCalled();
@@ -150,7 +173,12 @@ describe('ConflictList', () => {
   });
 
   it('shows conflict counts in summary', () => {
-    render(<ConflictList conflicts={conflicts} showSummary />);
+    render(
+      <ConflictList
+        conflicts={conflicts}
+        showSummary
+      />
+    );
 
     expect(screen.getByText(/1 error/)).toBeInTheDocument();
     expect(screen.getByText(/1 warning/)).toBeInTheDocument();
@@ -164,7 +192,12 @@ describe('ConflictList', () => {
   });
 
   it('can filter by severity', () => {
-    render(<ConflictList conflicts={conflicts} showSummary />);
+    render(
+      <ConflictList
+        conflicts={conflicts}
+        showSummary
+      />
+    );
 
     // Click "Errors" filter button
     fireEvent.click(screen.getByRole('button', { name: 'Errors' }));
@@ -175,7 +208,12 @@ describe('ConflictList', () => {
   });
 
   it('can expand all conflicts', () => {
-    render(<ConflictList conflicts={[mockConflict]} showSummary />);
+    render(
+      <ConflictList
+        conflicts={[mockConflict]}
+        showSummary
+      />
+    );
 
     fireEvent.click(screen.getByRole('button', { name: 'Expand All' }));
 
@@ -184,7 +222,12 @@ describe('ConflictList', () => {
   });
 
   it('can collapse all conflicts', () => {
-    render(<ConflictList conflicts={[mockConflict]} showSummary />);
+    render(
+      <ConflictList
+        conflicts={[mockConflict]}
+        showSummary
+      />
+    );
 
     // First expand
     fireEvent.click(screen.getByRole('button', { name: 'Expand All' }));
@@ -210,7 +253,11 @@ describe('ConflictList', () => {
   it('passes resolution handler to cards', () => {
     const onSelectResolution = vi.fn();
     render(
-      <ConflictList conflicts={[mockConflict]} onSelectResolution={onSelectResolution} showSummary />
+      <ConflictList
+        conflicts={[mockConflict]}
+        onSelectResolution={onSelectResolution}
+        showSummary
+      />
     );
 
     // Expand the card first - use "Expand All" button

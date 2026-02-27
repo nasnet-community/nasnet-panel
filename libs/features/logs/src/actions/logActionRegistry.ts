@@ -225,39 +225,9 @@ export function getActionsForTopic(topic: LogTopic): LogAction[] {
  * const ip = extractDataFromMessage('Blocked from 192.168.1.5', action);
  * // Returns: '192.168.1.5'
  */
-export function extractDataFromMessage(
-  message: string,
-  action: LogAction
-): string | null {
+export function extractDataFromMessage(message: string, action: LogAction): string | null {
   if (!action.extractPattern) return null;
 
   const match = message.match(action.extractPattern);
   return match ? match[1] : null;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

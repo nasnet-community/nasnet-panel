@@ -1,25 +1,33 @@
 /**
  * Service instance lifecycle status
  */
-export type ServiceStatus = 'INSTALLING' | 'INSTALLED' | 'STARTING' | 'RUNNING' | 'STOPPING' | 'STOPPED' | 'FAILED' | 'DELETING';
+export type ServiceStatus =
+  | 'INSTALLING'
+  | 'INSTALLED'
+  | 'STARTING'
+  | 'RUNNING'
+  | 'STOPPING'
+  | 'STOPPED'
+  | 'FAILED'
+  | 'DELETING';
 /**
  * Service instance running on a router
  */
 export interface ServiceInstance {
-    id: string;
-    featureID: string;
-    instanceName: string;
-    routerID: string;
-    status: ServiceStatus;
-    vlanID?: number;
-    bindIP?: string;
-    ports: number[];
-    config?: unknown;
-    binaryPath?: string;
-    binaryVersion?: string;
-    binaryChecksum?: string;
-    createdAt: string;
-    updatedAt: string;
+  id: string;
+  featureID: string;
+  instanceName: string;
+  routerID: string;
+  status: ServiceStatus;
+  vlanID?: number;
+  bindIP?: string;
+  ports: number[];
+  config?: unknown;
+  binaryPath?: string;
+  binaryVersion?: string;
+  binaryChecksum?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 /**
  * Hook to fetch and subscribe to service instances for a router
@@ -44,11 +52,17 @@ export interface ServiceInstance {
  * const { instances } = useServiceInstances('router-1', undefined, 'tor');
  * ```
  */
-export declare function useServiceInstances(routerId: string, status?: ServiceStatus, featureID?: string): {
-    instances: ServiceInstance[];
-    loading: boolean;
-    error: import("@apollo/client").ApolloError | undefined;
-    refetch: (variables?: Partial<import("@apollo/client").OperationVariables> | undefined) => Promise<import("@apollo/client").ApolloQueryResult<any>>;
+export declare function useServiceInstances(
+  routerId: string,
+  status?: ServiceStatus,
+  featureID?: string
+): {
+  instances: ServiceInstance[];
+  loading: boolean;
+  error: import('@apollo/client').ApolloError | undefined;
+  refetch: (
+    variables?: Partial<import('@apollo/client').OperationVariables> | undefined
+  ) => Promise<import('@apollo/client').ApolloQueryResult<any>>;
 };
 /**
  * Hook to fetch a specific service instance by ID
@@ -69,10 +83,15 @@ export declare function useServiceInstances(routerId: string, status?: ServiceSt
  * }
  * ```
  */
-export declare function useServiceInstance(routerId: string, instanceId: string): {
-    instance: ServiceInstance | undefined;
-    loading: boolean;
-    error: import("@apollo/client").ApolloError | undefined;
-    refetch: (variables?: Partial<import("@apollo/client").OperationVariables> | undefined) => Promise<import("@apollo/client").ApolloQueryResult<any>>;
+export declare function useServiceInstance(
+  routerId: string,
+  instanceId: string
+): {
+  instance: ServiceInstance | undefined;
+  loading: boolean;
+  error: import('@apollo/client').ApolloError | undefined;
+  refetch: (
+    variables?: Partial<import('@apollo/client').OperationVariables> | undefined
+  ) => Promise<import('@apollo/client').ApolloQueryResult<any>>;
 };
 //# sourceMappingURL=useServiceInstances.d.ts.map

@@ -16,10 +16,7 @@ import type {
   CompositeResource,
   ResourceReference,
 } from '@nasnet/core/types';
-import {
-  RESOURCE_CARD_FRAGMENT,
-  RESOURCE_DETAIL_FRAGMENT,
-} from './fragments';
+import { RESOURCE_CARD_FRAGMENT, RESOURCE_DETAIL_FRAGMENT } from './fragments';
 
 // ============================================================================
 // Types
@@ -126,9 +123,7 @@ const GET_COMPOSITE_RESOURCE_FULL = gql`
 /**
  * Calculate aggregated status from sub-resources.
  */
-function calculateCompositeStatus(
-  subResources: Resource[] | undefined
-): CompositeStatus {
+function calculateCompositeStatus(subResources: Resource[] | undefined): CompositeStatus {
   if (!subResources || subResources.length === 0) {
     return {
       activeCount: 0,
@@ -248,9 +243,7 @@ export function useCompositeResource(
     fetchPolicy = 'cache-and-network',
   } = options;
 
-  const query = includeRuntime
-    ? GET_COMPOSITE_RESOURCE_FULL
-    : GET_COMPOSITE_RESOURCE;
+  const query = includeRuntime ? GET_COMPOSITE_RESOURCE_FULL : GET_COMPOSITE_RESOURCE;
 
   const { data, loading, error, refetch } = useQuery(query, {
     variables: { uuid, depth },
@@ -261,7 +254,8 @@ export function useCompositeResource(
   const resource = data?.compositeResource as CompositeResource<any> | undefined;
 
   // Access children (GraphQL may return as subResources or children)
-  const subResources: Resource[] | undefined = (resource as any)?.subResources ?? resource?.children;
+  const subResources: Resource[] | undefined =
+    (resource as any)?.subResources ?? resource?.children;
 
   // Build sub-resource map for quick lookup
   const subResourceMap = useMemo(() => {
@@ -383,7 +377,8 @@ export function useFeatureWithResources(
 
   return {
     ...result,
-    resourceCount: ((result.resource as any)?.subResources ?? result.resource?.children)?.length ?? 0,
+    resourceCount:
+      ((result.resource as any)?.subResources ?? result.resource?.children)?.length ?? 0,
   };
 }
 

@@ -10,13 +10,7 @@
 import { memo } from 'react';
 import * as React from 'react';
 
-import {
-  Badge,
-  Button,
-  Card,
-  CardContent,
-  CardHeader,
-} from '@nasnet/ui/primitives';
+import { Badge, Button, Card, CardContent, CardHeader } from '@nasnet/ui/primitives';
 
 import { useServiceTemplateCard } from './useServiceTemplateCard';
 
@@ -58,37 +52,31 @@ function ServiceTemplateCardMobileComponent(props: ServiceTemplateCardProps) {
 
   return (
     <Card
-      className={`
-        bg-card border border-border rounded-[var(--semantic-radius-card)]
-        shadow-[var(--semantic-shadow-card)]
-        hover:shadow-lg cursor-pointer
-        transition-shadow duration-200
-        min-h-[44px]
-        ${className || ''}
-      `.trim()}
+      className={`bg-card border-border min-h-[44px] cursor-pointer rounded-[var(--semantic-radius-card)] border shadow-[var(--semantic-shadow-card)] transition-shadow duration-200 hover:shadow-lg ${className || ''} `.trim()}
       onClick={handleClick}
       role="article"
       aria-label={`${name} template - ${scopeColors.label}`}
     >
-      <CardHeader className="pb-3 p-4">
+      <CardHeader className="p-4 pb-3">
         <div className="flex items-start gap-3">
           {/* Template icon */}
           {icon && (
-            <div className="shrink-0 w-12 h-12 flex items-center justify-center text-2xl">
-              {typeof icon === 'string' ? (
-                <span role="img" aria-hidden="true">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center text-2xl">
+              {typeof icon === 'string' ?
+                <span
+                  role="img"
+                  aria-hidden="true"
+                >
                   {icon}
                 </span>
-              ) : (
-                icon
-              )}
+              : icon}
             </div>
           )}
 
           {/* Title and scope badge */}
-          <div className="flex-1 min-w-0 space-y-2">
+          <div className="min-w-0 flex-1 space-y-2">
             <div className="flex items-start justify-between gap-2">
-              <h3 className="font-semibold text-base leading-tight">
+              <h3 className="text-base font-semibold leading-tight">
                 {name}
                 {verified && (
                   <span
@@ -102,26 +90,23 @@ function ServiceTemplateCardMobileComponent(props: ServiceTemplateCardProps) {
               </h3>
             </div>
 
-            <div className="flex items-center gap-2 flex-wrap">
+            <div className="flex flex-wrap items-center gap-2">
               {/* Scope badge */}
               <Badge
                 variant="outline"
-                className={`${scopeColors.bg} ${scopeColors.text} border-0 rounded-[var(--semantic-radius-badge)]`}
+                className={`${scopeColors.bg} ${scopeColors.text} rounded-[var(--semantic-radius-badge)] border-0`}
               >
                 {scopeColors.label}
               </Badge>
 
               {/* Version */}
               {version && (
-                <span className="text-xs font-mono text-muted-foreground">
-                  v{version}
-                </span>
+                <span className="text-muted-foreground font-mono text-xs">v{version}</span>
               )}
 
               {/* Category */}
               <span className={`text-xs font-medium ${categoryColor}`}>
-                {props.template.category.charAt(0).toUpperCase() +
-                  props.template.category.slice(1)}
+                {props.template.category.charAt(0).toUpperCase() + props.template.category.slice(1)}
               </span>
             </div>
           </div>
@@ -130,46 +115,42 @@ function ServiceTemplateCardMobileComponent(props: ServiceTemplateCardProps) {
 
       <CardContent className="space-y-4 p-4">
         {/* Description */}
-        {description && (
-          <p className="text-sm text-muted-foreground line-clamp-2">
-            {description}
-          </p>
-        )}
+        {description && <p className="text-muted-foreground line-clamp-2 text-sm">{description}</p>}
 
         {/* Metadata grid */}
         <div className="grid grid-cols-2 gap-3 text-sm">
           {/* Service count */}
           <div className="flex flex-col gap-1">
-            <span className="text-xs text-muted-foreground">Services</span>
+            <span className="text-muted-foreground text-xs">Services</span>
             <span className="font-medium">{serviceCount}</span>
           </div>
 
           {/* Variables */}
           <div className="flex flex-col gap-1">
-            <span className="text-xs text-muted-foreground">Config</span>
-            <span className="font-medium text-xs">{formattedVariableCount}</span>
+            <span className="text-muted-foreground text-xs">Config</span>
+            <span className="text-xs font-medium">{formattedVariableCount}</span>
           </div>
 
           {/* Size estimate */}
           {sizeEstimate && (
             <div className="flex flex-col gap-1">
-              <span className="text-xs text-muted-foreground">Size</span>
-              <span className="font-medium text-xs">{sizeEstimate}</span>
+              <span className="text-muted-foreground text-xs">Size</span>
+              <span className="text-xs font-medium">{sizeEstimate}</span>
             </div>
           )}
 
           {/* Updated */}
           {updatedAt && (
             <div className="flex flex-col gap-1">
-              <span className="text-xs text-muted-foreground">Updated</span>
-              <span className="font-medium text-xs">{updatedAt}</span>
+              <span className="text-muted-foreground text-xs">Updated</span>
+              <span className="text-xs font-medium">{updatedAt}</span>
             </div>
           )}
         </div>
 
         {/* Shared template metadata */}
         {hasMetadata && (
-          <div className="flex items-center gap-4 text-xs pt-2 border-t">
+          <div className="flex items-center gap-4 border-t pt-2 text-xs">
             {author && (
               <div className="flex items-center gap-1">
                 <span className="text-muted-foreground">By</span>
@@ -184,7 +165,10 @@ function ServiceTemplateCardMobileComponent(props: ServiceTemplateCardProps) {
             )}
             {rating !== undefined && (
               <div className="flex items-center gap-1">
-                <span className="text-amber-500" aria-hidden="true">
+                <span
+                  className="text-amber-500"
+                  aria-hidden="true"
+                >
                   ★
                 </span>
                 <span className="font-medium">{rating.toFixed(1)}</span>
@@ -204,7 +188,7 @@ function ServiceTemplateCardMobileComponent(props: ServiceTemplateCardProps) {
               <Button
                 variant={primaryAction.variant || 'default'}
                 size="lg"
-                className="w-full h-11"
+                className="h-11 w-full"
                 onClick={(e) => {
                   e.stopPropagation();
                   handlePrimaryAction();
@@ -212,21 +196,23 @@ function ServiceTemplateCardMobileComponent(props: ServiceTemplateCardProps) {
                 disabled={primaryAction.disabled || primaryAction.loading}
                 aria-label={primaryAction.label}
               >
-                {primaryAction.loading ? (
+                {primaryAction.loading ?
                   <span className="flex items-center justify-center gap-2">
-                    <span className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
                     {primaryAction.label}
                   </span>
-                ) : (
-                  <>
+                : <>
                     {primaryAction.icon && (
-                      <span className="mr-2" aria-hidden="true">
+                      <span
+                        className="mr-2"
+                        aria-hidden="true"
+                      >
                         {primaryAction.icon}
                       </span>
                     )}
                     {primaryAction.label}
                   </>
-                )}
+                }
               </Button>
             )}
 
@@ -238,7 +224,7 @@ function ServiceTemplateCardMobileComponent(props: ServiceTemplateCardProps) {
                     key={action.id}
                     variant={action.variant || 'outline'}
                     size="lg"
-                    className="flex-1 h-11"
+                    className="h-11 flex-1"
                     onClick={(e) => {
                       e.stopPropagation();
                       action.onClick();
@@ -246,18 +232,20 @@ function ServiceTemplateCardMobileComponent(props: ServiceTemplateCardProps) {
                     disabled={action.disabled || action.loading}
                     aria-label={action.label}
                   >
-                    {action.loading ? (
-                      <span className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                    ) : (
-                      <>
+                    {action.loading ?
+                      <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                    : <>
                         {action.icon && (
-                          <span className="mr-2" aria-hidden="true">
+                          <span
+                            className="mr-2"
+                            aria-hidden="true"
+                          >
                             {action.icon}
                           </span>
                         )}
                         <span className="truncate">{action.label}</span>
                       </>
-                    )}
+                    }
                   </Button>
                 ))}
               </div>

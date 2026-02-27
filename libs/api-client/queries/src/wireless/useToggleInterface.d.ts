@@ -8,14 +8,14 @@ import type { WirelessInterface } from '@nasnet/core/types';
  * Request payload for toggling interface state
  */
 interface ToggleInterfaceRequest {
-    /** Router IP address */
-    routerIp: string;
-    /** Interface ID (e.g., "*1") */
-    id: string;
-    /** Interface name (e.g., "wlan1") for display purposes */
-    name: string;
-    /** New disabled state */
-    disabled: boolean;
+  /** Router IP address */
+  routerIp: string;
+  /** Interface ID (e.g., "*1") */
+  id: string;
+  /** Interface name (e.g., "wlan1") for display purposes */
+  name: string;
+  /** New disabled state */
+  disabled: boolean;
 }
 /**
  * React Query mutation hook for toggling wireless interface state
@@ -53,8 +53,13 @@ interface ToggleInterfaceRequest {
  * }
  * ```
  */
-export declare function useToggleInterface(): import("@tanstack/react-query").UseMutationResult<void, Error, ToggleInterfaceRequest, {
+export declare function useToggleInterface(): import('@tanstack/react-query').UseMutationResult<
+  void,
+  Error,
+  ToggleInterfaceRequest,
+  {
     previousInterfaces: WirelessInterface[] | undefined;
-}>;
+  }
+>;
 export {};
 //# sourceMappingURL=useToggleInterface.d.ts.map

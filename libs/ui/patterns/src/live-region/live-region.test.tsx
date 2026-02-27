@@ -4,7 +4,7 @@
  * @see NAS-4.17: Implement Accessibility (a11y) Foundation
  */
 
-import { render, screen, act, waitFor , renderHook } from '@testing-library/react';
+import { render, screen, act, waitFor, renderHook } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { axe } from 'vitest-axe';
 
@@ -41,7 +41,10 @@ describe('LiveRegion', () => {
 
     it('should support different roles', () => {
       render(
-        <LiveRegion role="alert" mode="assertive">
+        <LiveRegion
+          role="alert"
+          mode="assertive"
+        >
           Alert message
         </LiveRegion>
       );
@@ -82,7 +85,10 @@ describe('LiveRegion', () => {
 
     it('should have no violations with alert role', async () => {
       const { container } = render(
-        <LiveRegion role="alert" mode="assertive">
+        <LiveRegion
+          role="alert"
+          mode="assertive"
+        >
           Alert!
         </LiveRegion>
       );
@@ -232,9 +238,7 @@ describe('useAnnouncer', () => {
   it('should announce messages globally', async () => {
     function TestComponent() {
       const { announce } = useAnnouncer();
-      return (
-        <button onClick={() => announce('Global announcement')}>Announce</button>
-      );
+      return <button onClick={() => announce('Global announcement')}>Announce</button>;
     }
 
     render(

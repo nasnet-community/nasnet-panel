@@ -55,11 +55,9 @@ export const ServicePortsTable: React.FC<ServicePortsTableProps> = ({
   const platform = presenter || detectedPlatform;
 
   const memoizedComponent = useMemo(() => {
-    return platform === 'mobile' ? (
-      <ServicePortsTableMobile className={className} />
-    ) : (
-      <ServicePortsTableDesktop className={className} />
-    );
+    return platform === 'mobile' ?
+        <ServicePortsTableMobile className={className} />
+      : <ServicePortsTableDesktop className={className} />;
   }, [platform, className]);
 
   return memoizedComponent;

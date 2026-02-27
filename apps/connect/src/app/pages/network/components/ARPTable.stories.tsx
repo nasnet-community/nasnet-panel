@@ -3,7 +3,6 @@
  * Covers: empty state, collapsible behavior, all ARP status variants, mixed entries, large dataset
  */
 
-
 import { type ARPEntry } from '@nasnet/core/types';
 
 import { ARPTable } from './ARPTable';

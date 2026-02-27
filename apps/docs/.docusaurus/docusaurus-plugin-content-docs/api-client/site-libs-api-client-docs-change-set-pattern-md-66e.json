@@ -1,7 +1,7 @@
 {
   "id": "change-set-pattern",
   "title": "Change Set Pattern",
-  "description": "A Change Set is an ordered, atomic batch of resource operations (creates, updates, and deletes) that must all succeed or all roll back together. Rather than applying individual mutations one at a time and hoping the router ends up in a consistent state, a Change Set lets UI flows compose several operations — create a bridge, add a DHCP server, write three firewall rules — and commit them in a single transactional unit. The libs/api-client/queries/src/change-set/ module provides GraphQL fragments, query hooks, mutation hooks, and real-time subscription hooks that implement every stage of this lifecycle.",
+  "description": "A Change Set is an ordered, atomic batch of resource operations (creates, updates, and deletes) that",
   "source": "@site/../../libs/api-client/docs/change-set-pattern.md",
   "sourceDirName": ".",
   "slug": "/change-set-pattern",

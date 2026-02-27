@@ -67,13 +67,18 @@ const EmptyState = memo(function EmptyState({ tab, onAddRule }: EmptyStateProps)
       <Card className="border-dashed">
         <CardHeader className="text-center">
           <CardTitle>{t('rateLimiting.emptyStates.noRules')}</CardTitle>
-          <CardDescription>
-            {t('rateLimiting.emptyStates.noRulesDescription')}
-          </CardDescription>
+          <CardDescription>{t('rateLimiting.emptyStates.noRulesDescription')}</CardDescription>
         </CardHeader>
         <CardContent className="flex justify-center">
-          <Button onClick={onAddRule} aria-label="Add rate limit rule" className="min-h-[44px]">
-            <Plus className="h-4 w-4 mr-component-sm" aria-hidden="true" />
+          <Button
+            onClick={onAddRule}
+            aria-label="Add rate limit rule"
+            className="min-h-[44px]"
+          >
+            <Plus
+              className="mr-component-sm h-4 w-4"
+              aria-hidden="true"
+            />
             {t('rateLimiting.buttons.addRateLimit')}
           </Button>
         </CardContent>
@@ -86,9 +91,7 @@ const EmptyState = memo(function EmptyState({ tab, onAddRule }: EmptyStateProps)
       <Card className="border-dashed">
         <CardHeader className="text-center">
           <CardTitle>{t('rateLimiting.emptyStates.noBlockedIPs')}</CardTitle>
-          <CardDescription>
-            {t('rateLimiting.emptyStates.noBlockedIPsDescription')}
-          </CardDescription>
+          <CardDescription>{t('rateLimiting.emptyStates.noBlockedIPsDescription')}</CardDescription>
         </CardHeader>
       </Card>
     );
@@ -157,24 +160,29 @@ export const RateLimitingPage = memo(function RateLimitingPage() {
   };
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="flex h-full flex-col">
       {/* Page Header */}
-      <div className="border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="flex items-center justify-between p-component-md">
+      <div className="border-border bg-background/95 supports-[backdrop-filter]:bg-background/60 border-b backdrop-blur">
+        <div className="p-component-md flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight font-display">
+            <h1 className="font-display text-2xl font-bold tracking-tight">
               {t('rateLimiting.title')}
             </h1>
-            <p className="text-sm text-muted-foreground">
-              {t('rateLimiting.subtitle')}
-            </p>
+            <p className="text-muted-foreground text-sm">{t('rateLimiting.subtitle')}</p>
           </div>
 
           {/* Header Actions - Dynamic based on selected tab */}
-          <div className="flex gap-component-sm">
+          <div className="gap-component-sm flex">
             {selectedTab === 'rate-limits' && (
-              <Button onClick={handleAddRule} aria-label="Add new rate limit rule" className="min-h-[44px]">
-                <Plus className="h-4 w-4 mr-component-sm" aria-hidden="true" />
+              <Button
+                onClick={handleAddRule}
+                aria-label="Add new rate limit rule"
+                className="min-h-[44px]"
+              >
+                <Plus
+                  className="mr-component-sm h-4 w-4"
+                  aria-hidden="true"
+                />
                 {t('rateLimiting.buttons.addRateLimit')}
               </Button>
             )}
@@ -189,17 +197,30 @@ export const RateLimitingPage = memo(function RateLimitingPage() {
                   className="min-h-[44px]"
                 >
                   <RefreshCw
-                    className={cn('h-4 w-4 mr-component-sm', isRefreshing && 'animate-spin')}
+                    className={cn('mr-component-sm h-4 w-4', isRefreshing && 'animate-spin')}
                     aria-hidden="true"
                   />
                   {t('rateLimiting.statistics.refresh')}
                 </Button>
-                <Button variant="outline" onClick={handleExportCSV} aria-label="Export statistics as CSV" className="min-h-[44px]">
-                  <Download className="h-4 w-4 mr-component-sm" aria-hidden="true" />
+                <Button
+                  variant="outline"
+                  onClick={handleExportCSV}
+                  aria-label="Export statistics as CSV"
+                  className="min-h-[44px]"
+                >
+                  <Download
+                    className="mr-component-sm h-4 w-4"
+                    aria-hidden="true"
+                  />
                   {t('rateLimiting.statistics.exportCSV')}
                 </Button>
                 {hasBlockedIPs && (
-                  <Button variant="destructive" onClick={handleClearBlockedIPs} aria-label="Clear all blocked IPs" className="min-h-[44px]">
+                  <Button
+                    variant="destructive"
+                    onClick={handleClearBlockedIPs}
+                    aria-label="Clear all blocked IPs"
+                    className="min-h-[44px]"
+                  >
                     {t('rateLimiting.buttons.clear')}
                   </Button>
                 )}
@@ -214,48 +235,51 @@ export const RateLimitingPage = memo(function RateLimitingPage() {
         <Tabs
           value={selectedTab}
           onValueChange={handleTabChange}
-          className="h-full flex flex-col"
+          className="flex h-full flex-col"
         >
-          <div className="border-b border-border px-component-md">
+          <div className="border-border px-component-md border-b">
             <TabsList className={isMobile ? 'w-full justify-start overflow-x-auto' : ''}>
-              <TabsTrigger value="rate-limits">
-                {t('rateLimiting.tabs.rateLimits')}
-              </TabsTrigger>
-              <TabsTrigger value="syn-flood">
-                {t('rateLimiting.tabs.synFlood')}
-              </TabsTrigger>
-              <TabsTrigger value="statistics">
-                {t('rateLimiting.tabs.statistics')}
-              </TabsTrigger>
+              <TabsTrigger value="rate-limits">{t('rateLimiting.tabs.rateLimits')}</TabsTrigger>
+              <TabsTrigger value="syn-flood">{t('rateLimiting.tabs.synFlood')}</TabsTrigger>
+              <TabsTrigger value="statistics">{t('rateLimiting.tabs.statistics')}</TabsTrigger>
             </TabsList>
           </div>
 
           <div className="flex-1 overflow-y-auto">
             {/* Rate Limits Tab */}
-            <TabsContent value="rate-limits" className="p-component-md m-0">
-              {!hasRules ? (
-                <EmptyState tab="rate-limits" onAddRule={handleAddRule} />
-              ) : (
-                <RateLimitRulesTable />
-              )}
+            <TabsContent
+              value="rate-limits"
+              className="p-component-md m-0"
+            >
+              {!hasRules ?
+                <EmptyState
+                  tab="rate-limits"
+                  onAddRule={handleAddRule}
+                />
+              : <RateLimitRulesTable />}
             </TabsContent>
 
             {/* SYN Flood Protection Tab */}
-            <TabsContent value="syn-flood" className="p-component-md m-0 space-y-component-md">
+            <TabsContent
+              value="syn-flood"
+              className="p-component-md space-y-component-md m-0"
+            >
               {/* Info Alert */}
               <Alert>
-                <Info className="h-4 w-4" aria-hidden="true" />
-                <AlertDescription>
-                  {t('rateLimiting.synFlood.description')}
-                </AlertDescription>
+                <Info
+                  className="h-4 w-4"
+                  aria-hidden="true"
+                />
+                <AlertDescription>{t('rateLimiting.synFlood.description')}</AlertDescription>
               </Alert>
 
               {/* Warning Alert */}
               <Alert variant="destructive">
-                <AlertTriangle className="h-4 w-4" aria-hidden="true" />
-                <AlertDescription>
-                  {t('rateLimiting.synFlood.warning')}
-                </AlertDescription>
+                <AlertTriangle
+                  className="h-4 w-4"
+                  aria-hidden="true"
+                />
+                <AlertDescription>{t('rateLimiting.synFlood.warning')}</AlertDescription>
               </Alert>
 
               {/* SYN Flood Config Panel */}
@@ -263,47 +287,55 @@ export const RateLimitingPage = memo(function RateLimitingPage() {
             </TabsContent>
 
             {/* Statistics Tab */}
-            <TabsContent value="statistics" className="p-component-md m-0 space-y-component-lg">
+            <TabsContent
+              value="statistics"
+              className="p-component-md space-y-component-lg m-0"
+            >
               {/* Stats Overview */}
               <RateLimitStatsOverview routerId={routerIp} />
 
               {/* Blocked IPs Table */}
-              {!hasBlockedIPs ? (
-                <EmptyState tab="statistics" onAddRule={handleAddRule} />
-              ) : (
-                <div>
+              {!hasBlockedIPs ?
+                <EmptyState
+                  tab="statistics"
+                  onAddRule={handleAddRule}
+                />
+              : <div>
                   <div className="mb-component-md">
-                    <h2 className="text-lg font-semibold font-display">
+                    <h2 className="font-display text-lg font-semibold">
                       {t('rateLimiting.statistics.blockedIPsTable')}
                     </h2>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-muted-foreground text-sm">
                       {t('rateLimiting.fieldHelp.whitelistInfo')}
                     </p>
                   </div>
                   <BlockedIPsTable blockedIPsTable={{} as any} />
                 </div>
-              )}
+              }
             </TabsContent>
           </div>
         </Tabs>
       </div>
 
       {/* Add/Edit Rule Sheet */}
-      <Sheet open={showRuleEditor} onOpenChange={closeRuleEditor}>
+      <Sheet
+        open={showRuleEditor}
+        onOpenChange={closeRuleEditor}
+      >
         <SheetContent
           side={isMobile ? 'bottom' : 'right'}
           className={isMobile ? 'h-[90vh]' : 'w-full sm:max-w-2xl'}
         >
           <SheetHeader>
             <SheetTitle>
-              {editingRule
-                ? t('rateLimiting.dialogs.editRule.title')
-                : t('rateLimiting.dialogs.addRule.title')}
+              {editingRule ?
+                t('rateLimiting.dialogs.editRule.title')
+              : t('rateLimiting.dialogs.addRule.title')}
             </SheetTitle>
             <SheetDescription>
-              {editingRule
-                ? t('rateLimiting.dialogs.editRule.description')
-                : t('rateLimiting.dialogs.addRule.description')}
+              {editingRule ?
+                t('rateLimiting.dialogs.editRule.description')
+              : t('rateLimiting.dialogs.addRule.description')}
             </SheetDescription>
           </SheetHeader>
           <div className="mt-component-lg">
@@ -312,7 +344,9 @@ export const RateLimitingPage = memo(function RateLimitingPage() {
               initialRule={editingRule || undefined}
               open={showRuleEditor}
               onClose={closeRuleEditor}
-              onSave={async () => { closeRuleEditor(); }}
+              onSave={async () => {
+                closeRuleEditor();
+              }}
             />
           </div>
         </SheetContent>

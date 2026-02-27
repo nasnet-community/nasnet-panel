@@ -7,43 +7,69 @@ Port knocking sequence configuration.
 Implements stage-based address list progression for hiding services.
 """
 type PortKnockSequence implements Node {
-  """Unique sequence identifier"""
+  """
+  Unique sequence identifier
+  """
   id: ID!
 
-  """Sequence name (alphanumeric, underscores, hyphens)"""
+  """
+  Sequence name (alphanumeric, underscores, hyphens)
+  """
   name: String!
 
-  """Ordered list of knock ports (2-8 ports)"""
+  """
+  Ordered list of knock ports (2-8 ports)
+  """
   knockPorts: [KnockPort!]!
 
-  """Protected service port"""
+  """
+  Protected service port
+  """
   protectedPort: Int!
 
-  """Protected service protocol"""
+  """
+  Protected service protocol
+  """
   protectedProtocol: TransportProtocol!
 
-  """Access timeout after successful knock"""
+  """
+  Access timeout after successful knock
+  """
   accessTimeout: String!
 
-  """Max time between knocks"""
+  """
+  Max time between knocks
+  """
   knockTimeout: String!
 
-  """Whether sequence is enabled"""
+  """
+  Whether sequence is enabled
+  """
   enabled: Boolean!
 
-  """Router ID"""
+  """
+  Router ID
+  """
   routerId: ID!
 
-  """When sequence was created"""
+  """
+  When sequence was created
+  """
   createdAt: DateTime!
 
-  """When sequence was last updated"""
+  """
+  When sequence was last updated
+  """
   updatedAt: DateTime!
 
-  """Successful knocks in last 24h"""
+  """
+  Successful knocks in last 24h
+  """
   recentAccessCount: Int!
 
-  """Generated firewall rule IDs"""
+  """
+  Generated firewall rule IDs
+  """
   generatedRuleIds: [ID!]!
 }
 
@@ -51,13 +77,19 @@ type PortKnockSequence implements Node {
 Single knock port in sequence.
 """
 type KnockPort {
-  """Port number (1-65535)"""
+  """
+  Port number (1-65535)
+  """
   port: Int!
 
-  """Protocol for this knock port"""
+  """
+  Protocol for this knock port
+  """
   protocol: KnockProtocol!
 
-  """Position in sequence (1-based)"""
+  """
+  Position in sequence (1-based)
+  """
   order: Int!
 }
 
@@ -65,31 +97,49 @@ type KnockPort {
 Port knock attempt log entry.
 """
 type PortKnockAttempt implements Node {
-  """Attempt ID"""
+  """
+  Attempt ID
+  """
   id: ID!
 
-  """Sequence ID"""
+  """
+  Sequence ID
+  """
   sequenceId: ID!
 
-  """Sequence name"""
+  """
+  Sequence name
+  """
   sequenceName: String!
 
-  """Source IP address"""
+  """
+  Source IP address
+  """
   sourceIP: String!
 
-  """Attempt timestamp"""
+  """
+  Attempt timestamp
+  """
   timestamp: DateTime!
 
-  """Attempt status"""
+  """
+  Attempt status
+  """
   status: KnockStatus!
 
-  """Ports hit in order"""
+  """
+  Ports hit in order
+  """
   portsHit: [Int!]!
 
-  """Protected service port"""
+  """
+  Protected service port
+  """
   protectedPort: Int!
 
-  """Progress indicator (e.g., "2/4")"""
+  """
+  Progress indicator (e.g., "2/4")
+  """
   progress: String!
 }
 

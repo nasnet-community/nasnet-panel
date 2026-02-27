@@ -242,7 +242,7 @@ export const MultipleActions: Story = {
  */
 export const AllTypes: Story = {
   render: () => (
-    <div className="flex flex-col gap-6 max-w-lg">
+    <div className="flex max-w-lg flex-col gap-6">
       <SafetyFeedback
         type="success"
         message="Configuration applied successfully"

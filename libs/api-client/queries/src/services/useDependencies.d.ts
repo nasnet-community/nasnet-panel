@@ -6,49 +6,49 @@ export type DependencyType = 'REQUIRES' | 'OPTIONAL';
  * Service instance reference in dependency relationships
  */
 export interface ServiceInstanceRef {
-    id: string;
-    featureID: string;
-    instanceName: string;
-    status: string;
+  id: string;
+  featureID: string;
+  instanceName: string;
+  status: string;
 }
 /**
  * Service dependency relationship
  */
 export interface ServiceDependency {
-    id: string;
-    fromInstance: ServiceInstanceRef;
-    toInstance: ServiceInstanceRef;
-    dependencyType: DependencyType;
-    autoStart: boolean;
-    healthTimeoutSeconds: number;
-    createdAt: string;
-    updatedAt: string;
+  id: string;
+  fromInstance: ServiceInstanceRef;
+  toInstance: ServiceInstanceRef;
+  dependencyType: DependencyType;
+  autoStart: boolean;
+  healthTimeoutSeconds: number;
+  createdAt: string;
+  updatedAt: string;
 }
 /**
  * Dependency graph node
  */
 export interface DependencyGraphNode {
-    instanceId: string;
-    instanceName: string;
-    featureId: string;
-    status: string;
+  instanceId: string;
+  instanceName: string;
+  featureId: string;
+  status: string;
 }
 /**
  * Dependency graph edge
  */
 export interface DependencyGraphEdge {
-    fromInstanceId: string;
-    toInstanceId: string;
-    dependencyType: DependencyType;
-    autoStart: boolean;
-    healthTimeoutSeconds: number;
+  fromInstanceId: string;
+  toInstanceId: string;
+  dependencyType: DependencyType;
+  autoStart: boolean;
+  healthTimeoutSeconds: number;
 }
 /**
  * Dependency graph structure
  */
 export interface DependencyGraph {
-    nodes: DependencyGraphNode[];
-    edges: DependencyGraphEdge[];
+  nodes: DependencyGraphNode[];
+  edges: DependencyGraphEdge[];
 }
 /**
  * Hook to fetch dependencies of a service instance (services it depends on)
@@ -70,10 +70,12 @@ export interface DependencyGraph {
  * ```
  */
 export declare function useDependencies(instanceId: string): {
-    dependencies: ServiceDependency[];
-    loading: boolean;
-    error: import("@apollo/client").ApolloError | undefined;
-    refetch: (variables?: Partial<import("@apollo/client").OperationVariables> | undefined) => Promise<import("@apollo/client").ApolloQueryResult<any>>;
+  dependencies: ServiceDependency[];
+  loading: boolean;
+  error: import('@apollo/client').ApolloError | undefined;
+  refetch: (
+    variables?: Partial<import('@apollo/client').OperationVariables> | undefined
+  ) => Promise<import('@apollo/client').ApolloQueryResult<any>>;
 };
 /**
  * Hook to fetch dependents of a service instance (services that depend on it)
@@ -95,10 +97,12 @@ export declare function useDependencies(instanceId: string): {
  * ```
  */
 export declare function useDependents(instanceId: string): {
-    dependents: ServiceDependency[];
-    loading: boolean;
-    error: import("@apollo/client").ApolloError | undefined;
-    refetch: (variables?: Partial<import("@apollo/client").OperationVariables> | undefined) => Promise<import("@apollo/client").ApolloQueryResult<any>>;
+  dependents: ServiceDependency[];
+  loading: boolean;
+  error: import('@apollo/client').ApolloError | undefined;
+  refetch: (
+    variables?: Partial<import('@apollo/client').OperationVariables> | undefined
+  ) => Promise<import('@apollo/client').ApolloQueryResult<any>>;
 };
 /**
  * Hook to fetch the full dependency graph for a router
@@ -122,9 +126,11 @@ export declare function useDependents(instanceId: string): {
  * ```
  */
 export declare function useDependencyGraph(routerId: string): {
-    graph: DependencyGraph | undefined;
-    loading: boolean;
-    error: import("@apollo/client").ApolloError | undefined;
-    refetch: (variables?: Partial<import("@apollo/client").OperationVariables> | undefined) => Promise<import("@apollo/client").ApolloQueryResult<any>>;
+  graph: DependencyGraph | undefined;
+  loading: boolean;
+  error: import('@apollo/client').ApolloError | undefined;
+  refetch: (
+    variables?: Partial<import('@apollo/client').OperationVariables> | undefined
+  ) => Promise<import('@apollo/client').ApolloQueryResult<any>>;
 };
 //# sourceMappingURL=useDependencies.d.ts.map

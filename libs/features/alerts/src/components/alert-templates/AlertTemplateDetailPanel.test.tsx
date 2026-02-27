@@ -430,7 +430,10 @@ describe('AlertTemplateDetailPanel', () => {
       const onClose = vi.fn();
 
       const { container } = render(
-        <AlertTemplateDetailPanel template={null} onClose={onClose} />
+        <AlertTemplateDetailPanel
+          template={null}
+          onClose={onClose}
+        />
       );
 
       expect(container.firstChild).toBeNull();

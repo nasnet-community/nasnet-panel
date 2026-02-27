@@ -64,36 +64,37 @@ export function ConfigSection({
   const effectiveStartLine = startLineNumber ?? section.startLine;
 
   return (
-    <Collapsible.Root open={section.isExpanded} onOpenChange={onToggle}>
+    <Collapsible.Root
+      open={section.isExpanded}
+      onOpenChange={onToggle}
+    >
       <Collapsible.Trigger asChild>
         <Button
           variant="ghost"
           className={cn(
-            'w-full justify-start px-4 py-2 h-auto',
+            'h-auto w-full justify-start px-4 py-2',
             'hover:bg-muted/50 rounded-none',
-            'font-mono text-sm text-left',
-            !section.isExpanded && 'border-b border-border'
+            'text-left font-mono text-sm',
+            !section.isExpanded && 'border-border border-b'
           )}
           aria-expanded={section.isExpanded}
           aria-label={`${section.isExpanded ? 'Collapse' : 'Expand'} ${displayHeader} section`}
         >
-          {section.isExpanded ? (
-            <ChevronDown className="h-4 w-4 mr-2 shrink-0 text-muted-foreground" />
-          ) : (
-            <ChevronRight className="h-4 w-4 mr-2 shrink-0 text-muted-foreground" />
-          )}
+          {section.isExpanded ?
+            <ChevronDown className="text-muted-foreground mr-2 h-4 w-4 shrink-0" />
+          : <ChevronRight className="text-muted-foreground mr-2 h-4 w-4 shrink-0" />}
 
-          <span className="text-primary font-medium truncate">{displayHeader}</span>
+          <span className="text-primary truncate font-medium">{displayHeader}</span>
 
           {!section.isExpanded && (
-            <span className="ml-auto text-muted-foreground text-xs">
+            <span className="text-muted-foreground ml-auto text-xs">
               {lineCount} {lineCount === 1 ? 'line' : 'lines'}
             </span>
           )}
         </Button>
       </Collapsible.Trigger>
 
-      <Collapsible.Content className="border-b border-border">
+      <Collapsible.Content className="border-border border-b">
         <div className="overflow-auto">
           <SyntaxHighlight
             code={section.lines.join('\n')}

@@ -35,40 +35,24 @@ export interface TextFieldProps extends ComponentPropsWithoutRef<typeof Input> {
  *
  * @see DynamicField for integration with form schema validation
  */
-export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
-  function TextField(
-    {
-      type = 'text',
-      sensitive = false,
-      className,
-      disabled,
-      'aria-invalid': ariaInvalid,
-      ...props
-    },
-    ref
-  ) {
-    // Apply monospace font for technical data types
-    const isTechnicalType =
-      type === 'email' ||
-      type === 'url' ||
-      type === 'password' ||
-      sensitive;
+export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(function TextField(
+  { type = 'text', sensitive = false, className, disabled, 'aria-invalid': ariaInvalid, ...props },
+  ref
+) {
+  // Apply monospace font for technical data types
+  const isTechnicalType = type === 'email' || type === 'url' || type === 'password' || sensitive;
 
-    return (
-      <Input
-        ref={ref}
-        type={type}
-        disabled={disabled}
-        autoComplete={sensitive ? 'off' : undefined}
-        className={cn(
-          isTechnicalType && 'font-mono text-xs',
-          className
-        )}
-        aria-invalid={ariaInvalid}
-        {...props}
-      />
-    );
-  }
-);
+  return (
+    <Input
+      ref={ref}
+      type={type}
+      disabled={disabled}
+      autoComplete={sensitive ? 'off' : undefined}
+      className={cn(isTechnicalType && 'font-mono text-xs', className)}
+      aria-invalid={ariaInvalid}
+      {...props}
+    />
+  );
+});
 
 TextField.displayName = 'TextField';

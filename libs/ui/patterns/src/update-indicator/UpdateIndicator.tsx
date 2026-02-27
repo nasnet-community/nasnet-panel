@@ -94,11 +94,9 @@ import type { UpdateIndicatorProps } from './types';
 export const UpdateIndicator = React.memo<UpdateIndicatorProps>((props) => {
   const platform = usePlatform();
 
-  return platform === 'mobile' ? (
-    <UpdateIndicatorMobile {...props} />
-  ) : (
-    <UpdateIndicatorDesktop {...props} />
-  );
+  return platform === 'mobile' ?
+      <UpdateIndicatorMobile {...props} />
+    : <UpdateIndicatorDesktop {...props} />;
 });
 
 UpdateIndicator.displayName = 'UpdateIndicator';

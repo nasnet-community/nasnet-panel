@@ -1,6 +1,8 @@
 # UI System Overview
 
-The NasNetConnect UI system is built around a strict three-layer component architecture. Each layer has a clear responsibility and defined dependency direction. Components flow downward — domain components compose patterns, patterns compose primitives — never the other way around.
+The NasNetConnect UI system is built around a strict three-layer component architecture. Each layer
+has a clear responsibility and defined dependency direction. Components flow downward — domain
+components compose patterns, patterns compose primitives — never the other way around.
 
 See `../architecture/overview.md` for where the UI system fits in the overall frontend architecture.
 
@@ -22,7 +24,8 @@ flowchart TD
 
 **Dependency rule:** Layer 3 → Layer 2 → Layer 1 (no upward dependencies)
 
-This is enforced by Nx boundary lint rules. A pattern component cannot import from `libs/features/`, and a primitive cannot import from `libs/ui/patterns/`.
+This is enforced by Nx boundary lint rules. A pattern component cannot import from `libs/features/`,
+and a primitive cannot import from `libs/ui/patterns/`.
 
 ## Layer 1: Primitives
 
@@ -38,16 +41,18 @@ Primitives are shadcn/ui components extended with NasNetConnect design tokens. T
 - Support dark mode via CSS custom properties
 - Meet the 44px minimum touch target size on mobile
 
-There are approximately 40 primitives organized by function: form controls, display, navigation, overlays, and feedback. See `primitives-catalog.md` for the full inventory.
+There are approximately 40 primitives organized by function: form controls, display, navigation,
+overlays, and feedback. See `primitives-catalog.md` for the full inventory.
 
 **Example:**
+
 ```tsx
 import { Button, Card, Input } from '@nasnet/ui/primitives';
 
 <Card>
   <Input placeholder="Router hostname" />
   <Button>Connect</Button>
-</Card>
+</Card>;
 ```
 
 ## Layer 2: Patterns
@@ -56,17 +61,24 @@ import { Button, Card, Input } from '@nasnet/ui/primitives';
 
 **Import alias:** `@nasnet/ui/patterns`
 
-Patterns are composite reusable components that compose primitives and add domain-aware behavior. Key characteristics:
+Patterns are composite reusable components that compose primitives and add domain-aware behavior.
+Key characteristics:
 
-- **Headless + Platform Presenters**: Business logic lives in a headless hook; rendering is split into Mobile, Tablet, and Desktop presenters
-- **Platform-adaptive**: Components auto-detect the current viewport platform and render the appropriate presenter
-- **Category-aware**: Many components accept category context (vpn, firewall, networking, etc.) for consistent color accents
+- **Headless + Platform Presenters**: Business logic lives in a headless hook; rendering is split
+  into Mobile, Tablet, and Desktop presenters
+- **Platform-adaptive**: Components auto-detect the current viewport platform and render the
+  appropriate presenter
+- **Category-aware**: Many components accept category context (vpn, firewall, networking, etc.) for
+  consistent color accents
 
-The patterns library contains 130+ exports covering common UI patterns (tables, cards, status indicators, dialogs) and domain-specific patterns (VPN cards, DHCP lease tables, firewall log viewers, resource budget panels).
+The patterns library contains 130+ exports covering common UI patterns (tables, cards, status
+indicators, dialogs) and domain-specific patterns (VPN cards, DHCP lease tables, firewall log
+viewers, resource budget panels).
 
 See `patterns-catalog.md` for the full inventory.
 
 **Example:**
+
 ```tsx
 import { DataTable, StatusBadge, ConnectionIndicator } from '@nasnet/ui/patterns';
 
@@ -89,6 +101,7 @@ Domain components are feature-specific and are never shared across features. The
 - Are forbidden from importing between different feature libraries
 
 **Example:**
+
 ```tsx
 // libs/features/firewall/src/components/FirewallRulesPage.tsx
 import { DataTable, PageHeader } from '@nasnet/ui/patterns';
@@ -99,7 +112,10 @@ export function FirewallRulesPage() {
   return (
     <>
       <PageHeader title="Firewall Rules" />
-      <DataTable columns={columns} data={data?.rules ?? []} />
+      <DataTable
+        columns={columns}
+        data={data?.rules ?? []}
+      />
     </>
   );
 }
@@ -109,15 +125,16 @@ export function FirewallRulesPage() {
 
 Beyond the three component layers, the UI system includes:
 
-| Package | Location | Purpose |
-|---------|----------|---------|
-| Design Tokens | `libs/ui/tokens/src/` | Three-tier token pipeline (Primitive → Semantic → Component) |
-| Layouts | `libs/ui/layouts/src/` | ResponsiveShell, AppShell, MobileAppShell, CollapsibleSidebar |
-| Utils | `libs/ui/utils/src/` | `cn()` utility and shared helpers |
+| Package       | Location               | Purpose                                                       |
+| ------------- | ---------------------- | ------------------------------------------------------------- |
+| Design Tokens | `libs/ui/tokens/src/`  | Three-tier token pipeline (Primitive → Semantic → Component)  |
+| Layouts       | `libs/ui/layouts/src/` | ResponsiveShell, AppShell, MobileAppShell, CollapsibleSidebar |
+| Utils         | `libs/ui/utils/src/`   | `cn()` utility and shared helpers                             |
 
 ## Design Token Integration
 
-Components use Tailwind CSS 4.x with CSS custom properties. The token pipeline generates variables like:
+Components use Tailwind CSS 4.x with CSS custom properties. The token pipeline generates variables
+like:
 
 - `--primary` (Golden Amber `#EFC729`)
 - `--secondary` (Trust Blue `#4972BA`)
@@ -139,7 +156,9 @@ See `design-tokens.md` for the complete token reference.
 
 ## Platform-Adaptive Rendering
 
-Every pattern component must implement the Headless + Platform Presenters pattern. The `ResponsiveShell` layout automatically selects the appropriate shell, and individual pattern components use `usePlatform()` to render the right presenter.
+Every pattern component must implement the Headless + Platform Presenters pattern. The
+`ResponsiveShell` layout automatically selects the appropriate shell, and individual pattern
+components use `usePlatform()` to render the right presenter.
 
 See `platform-presenters.md` for the full implementation guide.
 

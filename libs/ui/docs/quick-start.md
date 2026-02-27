@@ -13,13 +13,13 @@ composed component, running Storybook, and a glossary of key terms.
 
 ## Package Map
 
-| Package | Import alias | Storybook port | What it gives you |
-|---------|-------------|---------------|-------------------|
-| `libs/ui/primitives` | `@nasnet/ui/primitives` | **4400** | Atomic building blocks: Button, Card, Input, Select, Dialog, Table, Skeleton, Toast, Badge, Form, Icon, and more (~40 exports) |
-| `libs/ui/patterns` | `@nasnet/ui/patterns` | **4401** | Composed, platform-aware components: StatusBadge, DataTable, StatusIndicator, ConnectionIndicator, ServiceCard, ResourceUsageBar, ValidationProgress, and 50+ more |
-| `libs/ui/layouts` | `@nasnet/ui/layouts` | (via ui-patterns port) | Application shell and page structure: AppShell, PageContainer, ResponsiveShell, SidebarLayout, BottomNavigation, MobileAppShell, CardLayout |
-| `libs/ui/tokens` | `@nasnet/ui/tokens` | — | Design token TypeScript exports (animation, transitions). CSS variables via `@nasnet/ui/tokens/variables.css` |
-| `libs/ui/utils` | `@nasnet/ui/utils` | — | `cn()` — the class-name merger used throughout all components |
+| Package              | Import alias            | Storybook port         | What it gives you                                                                                                                                                  |
+| -------------------- | ----------------------- | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `libs/ui/primitives` | `@nasnet/ui/primitives` | **4400**               | Atomic building blocks: Button, Card, Input, Select, Dialog, Table, Skeleton, Toast, Badge, Form, Icon, and more (~40 exports)                                     |
+| `libs/ui/patterns`   | `@nasnet/ui/patterns`   | **4401**               | Composed, platform-aware components: StatusBadge, DataTable, StatusIndicator, ConnectionIndicator, ServiceCard, ResourceUsageBar, ValidationProgress, and 50+ more |
+| `libs/ui/layouts`    | `@nasnet/ui/layouts`    | (via ui-patterns port) | Application shell and page structure: AppShell, PageContainer, ResponsiveShell, SidebarLayout, BottomNavigation, MobileAppShell, CardLayout                        |
+| `libs/ui/tokens`     | `@nasnet/ui/tokens`     | —                      | Design token TypeScript exports (animation, transitions). CSS variables via `@nasnet/ui/tokens/variables.css`                                                      |
+| `libs/ui/utils`      | `@nasnet/ui/utils`      | —                      | `cn()` — the class-name merger used throughout all components                                                                                                      |
 
 ---
 
@@ -32,20 +32,20 @@ the ESLint rule `@nx/enforce-module-boundaries`.
 
 ```tsx
 // Layer 1 (primitives) → tokens only
-import '@nasnet/ui/tokens/variables.css';             // OK: primitives consumes token CSS vars
+import '@nasnet/ui/tokens/variables.css'; // OK: primitives consumes token CSS vars
 
 // Layer 2 (patterns) → primitives and tokens
 import { Button, Card } from '@nasnet/ui/primitives'; // OK: patterns build on primitives
-import { transitions } from '@nasnet/ui/tokens';      // OK: patterns consume animation tokens
-import { cn } from '@nasnet/ui/utils';                // OK: utility available everywhere
+import { transitions } from '@nasnet/ui/tokens'; // OK: patterns consume animation tokens
+import { cn } from '@nasnet/ui/utils'; // OK: utility available everywhere
 
 // Layer 3 (features) → any layer below
-import { Button } from '@nasnet/ui/primitives';        // OK: features use primitives
-import { StatusBadge } from '@nasnet/ui/patterns';     // OK: features use patterns
-import { PageContainer } from '@nasnet/ui/layouts';    // OK: features use layouts
+import { Button } from '@nasnet/ui/primitives'; // OK: features use primitives
+import { StatusBadge } from '@nasnet/ui/patterns'; // OK: features use patterns
+import { PageContainer } from '@nasnet/ui/layouts'; // OK: features use layouts
 
 // apps/ → any layer
-import { ResponsiveShell } from '@nasnet/ui/layouts';  // OK: app entry points use layouts
+import { ResponsiveShell } from '@nasnet/ui/layouts'; // OK: app entry points use layouts
 ```
 
 ### Forbidden Imports
@@ -70,15 +70,15 @@ import { useAlerts } from '@nasnet/features/alerts';
 
 ### Quick Rule of Thumb
 
-> Dependencies only flow **downward**: `features → patterns → primitives → tokens`.
-> Nothing in `libs/ui/` may import from `libs/features/` or `apps/`.
+> Dependencies only flow **downward**: `features → patterns → primitives → tokens`. Nothing in
+> `libs/ui/` may import from `libs/features/` or `apps/`.
 
 ---
 
 ## Your First Component
 
-The example below builds a router status card that is realistic but self-contained. It shows how
-to compose primitives, a pattern component, a layout wrapper, and the `cn()` utility.
+The example below builds a router status card that is realistic but self-contained. It shows how to
+compose primitives, a pattern component, a layout wrapper, and the `cn()` utility.
 
 ### Step 1 — Set up the layout shell
 
@@ -88,20 +88,13 @@ import { PageContainer, ResponsiveShell } from '@nasnet/ui/layouts';
 ```
 
 `PageContainer` accepts `title`, `description`, and an optional `actions` slot. `ResponsiveShell`
-auto-switches between `MobileAppShell` (with bottom navigation) and `AppShell` (with fixed
-sidebar) based on the current platform.
+auto-switches between `MobileAppShell` (with bottom navigation) and `AppShell` (with fixed sidebar)
+based on the current platform.
 
 ### Step 2 — Import primitives
 
 ```tsx
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-  Button,
-  Badge,
-} from '@nasnet/ui/primitives';
+import { Card, CardHeader, CardTitle, CardContent, Button, Badge } from '@nasnet/ui/primitives';
 import { cn } from '@nasnet/ui/primitives'; // cn is also available via @nasnet/ui/utils
 ```
 
@@ -120,14 +113,7 @@ import type { StatusBadgeProps } from '@nasnet/ui/patterns';
 ```tsx
 // apps/connect/src/app/pages/example/RouterStatusCard.tsx
 
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-  Button,
-  cn,
-} from '@nasnet/ui/primitives';
+import { Card, CardHeader, CardTitle, CardContent, Button, cn } from '@nasnet/ui/primitives';
 import { StatusBadge } from '@nasnet/ui/patterns';
 import { PageContainer } from '@nasnet/ui/layouts';
 
@@ -153,7 +139,7 @@ export function RouterStatusCard({
       </CardHeader>
 
       <CardContent className="space-y-3">
-        <p className="font-mono text-xs text-muted-foreground">{ipAddress}</p>
+        <p className="text-muted-foreground font-mono text-xs">{ipAddress}</p>
         <Button
           variant="outline"
           size="sm"
@@ -199,11 +185,11 @@ export function RouterStatusPage() {
 
 ### What happens at each breakpoint
 
-| Breakpoint | `ResponsiveShell` renders | `StatusBadge` renders |
-|------------|--------------------------|----------------------|
-| Mobile `<640px` | `MobileAppShell` with `BottomNavigation` | Compact colored dot |
-| Tablet `640–1024px` | `AppShell` with collapsible sidebar | Labeled badge (medium) |
-| Desktop `>1024px` | `AppShell` with fixed full sidebar | Labeled badge (full density) |
+| Breakpoint          | `ResponsiveShell` renders                | `StatusBadge` renders        |
+| ------------------- | ---------------------------------------- | ---------------------------- |
+| Mobile `<640px`     | `MobileAppShell` with `BottomNavigation` | Compact colored dot          |
+| Tablet `640–1024px` | `AppShell` with collapsible sidebar      | Labeled badge (medium)       |
+| Desktop `>1024px`   | `AppShell` with fixed full sidebar       | Labeled badge (full density) |
 
 ---
 
@@ -240,7 +226,7 @@ import { motion } from 'framer-motion';
   initial={{ opacity: 0, y: 8 }}
   animate={{ opacity: 1, y: 0 }}
   transition={transitions.enter}
-/>
+/>;
 ```
 
 ---
@@ -309,34 +295,33 @@ npx storybook doctor
 
 ### Platform Presenter
 
-A React component that renders the same data in a platform-optimized way. Every pattern component
-in `@nasnet/ui/patterns` has up to three presenters:
+A React component that renders the same data in a platform-optimized way. Every pattern component in
+`@nasnet/ui/patterns` has up to three presenters:
 
 - `ComponentName.Mobile.tsx` — touch-first, large tap targets (44 px), bottom-sheet interactions
 - `ComponentName.Tablet.tsx` — hybrid layout, collapsible panels
 - `ComponentName.Desktop.tsx` — dense tables, hover states, keyboard shortcuts
 
-The root `ComponentName.tsx` file calls `usePlatform()` and delegates to the right presenter.
-You never need to choose a presenter manually; just render `<ComponentName />`.
+The root `ComponentName.tsx` file calls `usePlatform()` and delegates to the right presenter. You
+never need to choose a presenter manually; just render `<ComponentName />`.
 
 Example from `@nasnet/ui/patterns`:
 
 ```tsx
 // connection-indicator/index.ts exports all three:
 export {
-  ConnectionIndicator,          // auto-selects presenter
-  ConnectionIndicatorMobile,    // use when you need to force mobile layout
-  ConnectionIndicatorDesktop,   // use when you need to force desktop layout
-  useConnectionIndicator,       // headless hook — logic without rendering
+  ConnectionIndicator, // auto-selects presenter
+  ConnectionIndicatorMobile, // use when you need to force mobile layout
+  ConnectionIndicatorDesktop, // use when you need to force desktop layout
+  useConnectionIndicator, // headless hook — logic without rendering
 } from './connection-indicator';
 ```
 
 ### Headless Hook
 
-A custom React hook (`useComponentName`) that owns all business logic, state, and event handlers
-for a pattern component, with no JSX. The three platform presenters each call this hook and
-destructure what they need. This means the logic is tested once and the rendering is tested per
-platform.
+A custom React hook (`useComponentName`) that owns all business logic, state, and event handlers for
+a pattern component, with no JSX. The three platform presenters each call this hook and destructure
+what they need. This means the logic is tested once and the rendering is tested per platform.
 
 ```tsx
 // Pattern: logic in hook, presentation in presenter
@@ -349,60 +334,56 @@ const { status, latencyMs, handleReconnect } = useConnectionIndicator(props);
 
 The design token system has three layers:
 
-| Tier | Count | Example | When to use |
-|------|-------|---------|-------------|
-| **Primitive** (Tier 1) | ~80 | `var(--color-amber-500)` | Never in component code — internal to token system |
-| **Semantic** (Tier 2) | ~70 | `var(--color-primary)`, `bg-destructive` | Always — the correct tier for component styling |
-| **Component** (Tier 3) | ~50 | `var(--button-primary-bg)` | Use when a pre-built component token exists |
+| Tier                   | Count | Example                                  | When to use                                        |
+| ---------------------- | ----- | ---------------------------------------- | -------------------------------------------------- |
+| **Primitive** (Tier 1) | ~80   | `var(--color-amber-500)`                 | Never in component code — internal to token system |
+| **Semantic** (Tier 2)  | ~70   | `var(--color-primary)`, `bg-destructive` | Always — the correct tier for component styling    |
+| **Component** (Tier 3) | ~50   | `var(--button-primary-bg)`               | Use when a pre-built component token exists        |
 
-Tier 2 and Tier 3 tokens are available as Tailwind utility classes via the Tailwind config.
-Tier 1 raw values should never appear directly in component code.
+Tier 2 and Tier 3 tokens are available as Tailwind utility classes via the Tailwind config. Tier 1
+raw values should never appear directly in component code.
 
 ### Category Accent
 
-One of 14 named color accents that visually identify a feature category throughout the UI.
-Managed by `CategoryAccentProvider` and `useCategoryAccent` from `@nasnet/ui/primitives`.
+One of 14 named color accents that visually identify a feature category throughout the UI. Managed
+by `CategoryAccentProvider` and `useCategoryAccent` from `@nasnet/ui/primitives`.
 
 ```tsx
-import {
-  CategoryAccentProvider,
-  useCategoryAccent,
-  CATEGORIES,
-} from '@nasnet/ui/primitives';
+import { CategoryAccentProvider, useCategoryAccent, CATEGORIES } from '@nasnet/ui/primitives';
 import type { Category } from '@nasnet/ui/primitives';
 
 // Wrap a feature section
 <CategoryAccentProvider category="security">
   <FeatureContent />
-</CategoryAccentProvider>
+</CategoryAccentProvider>;
 
 // Consume the accent inside
 const { color, icon, label } = useCategoryAccent();
 ```
 
-The 14 categories are: Security, Monitoring, Networking, VPN, WiFi, Firewall, System, DHCP,
-Routing, Tunnels, QoS, Hotspot, Logging, Backup.
+The 14 categories are: Security, Monitoring, Networking, VPN, WiFi, Firewall, System, DHCP, Routing,
+Tunnels, QoS, Hotspot, Logging, Backup.
 
 ### ChangeSet
 
-The unit of work flowing through the Apply-Confirm-Merge pipeline. A ChangeSet is a batch of
-router configuration commands that has been validated, conflict-checked, impact-analyzed, and
-previewed before application. It travels through these states:
+The unit of work flowing through the Apply-Confirm-Merge pipeline. A ChangeSet is a batch of router
+configuration commands that has been validated, conflict-checked, impact-analyzed, and previewed
+before application. It travels through these states:
 
 ```
 Draft → Validated → Previewed → Applied → Confirmed
                                          ↘ Rolled back (within 10-second undo window)
 ```
 
-UI components for ChangeSet management are in `@nasnet/ui/patterns`:
-`ValidationProgress`, `ConflictCard`, `ConflictList`.
+UI components for ChangeSet management are in `@nasnet/ui/patterns`: `ValidationProgress`,
+`ConflictCard`, `ConflictList`.
 
 ### VIF (Virtual Interface Factory)
 
-The mechanism by which network service instances (Tor, sing-box, Xray, MTProxy, Psiphon,
-AdGuard Home) appear as native MikroTik interfaces on the router (e.g., `nnc-tor-usa`). Once a
-service is installed, devices can be routed through it using standard interface routing without any
-manual VLAN or firewall configuration.
+The mechanism by which network service instances (Tor, sing-box, Xray, MTProxy, Psiphon, AdGuard
+Home) appear as native MikroTik interfaces on the router (e.g., `nnc-tor-usa`). Once a service is
+installed, devices can be routed through it using standard interface routing without any manual VLAN
+or firewall configuration.
 
 Pattern components that expose VIF concepts: `ServiceCard`, `ServiceHealthBadge`,
 `DeviceRoutingMatrix`, `KillSwitchToggle` (all from `@nasnet/ui/patterns`).
@@ -422,17 +403,17 @@ governed by XState in the frontend and the ChangeSet service in the backend.
 
 ## Next Steps
 
-| Goal | Document |
-|------|---------|
-| Browse all 40 primitive components | `02-primitives.md` _(coming)_ |
-| Understand all 56 pattern components | `03-patterns.md` _(coming)_ |
-| Build a full page with shell layouts | `04-layouts.md` _(coming)_ |
-| Use animation and design tokens in depth | `05-tokens.md` _(coming)_ |
-| Implement a new pattern from scratch | `06-platform-presenters.md` _(coming)_ |
-| Build forms with RHFFormField + Zod | `07-forms.md` _(coming)_ |
-| Ensure WCAG AAA compliance | `08-accessibility.md` _(coming)_ |
-| Add a component to the library | `09-contributing.md` _(coming)_ |
-| Authoritative design system reference | See `Docs/design/README.md` |
-| Complete token reference | See `Docs/design/DESIGN_TOKENS.md` |
-| Platform presenter deep-dive | See `Docs/design/PLATFORM_PRESENTER_GUIDE.md` |
-| 56 pattern component catalog | See `Docs/design/ux-design/6-component-library.md` |
+| Goal                                     | Document                                           |
+| ---------------------------------------- | -------------------------------------------------- |
+| Browse all 40 primitive components       | `02-primitives.md` _(coming)_                      |
+| Understand all 56 pattern components     | `03-patterns.md` _(coming)_                        |
+| Build a full page with shell layouts     | `04-layouts.md` _(coming)_                         |
+| Use animation and design tokens in depth | `05-tokens.md` _(coming)_                          |
+| Implement a new pattern from scratch     | `06-platform-presenters.md` _(coming)_             |
+| Build forms with RHFFormField + Zod      | `07-forms.md` _(coming)_                           |
+| Ensure WCAG AAA compliance               | `08-accessibility.md` _(coming)_                   |
+| Add a component to the library           | `09-contributing.md` _(coming)_                    |
+| Authoritative design system reference    | See `Docs/design/README.md`                        |
+| Complete token reference                 | See `Docs/design/DESIGN_TOKENS.md`                 |
+| Platform presenter deep-dive             | See `Docs/design/PLATFORM_PRESENTER_GUIDE.md`      |
+| 56 pattern component catalog             | See `Docs/design/ux-design/6-component-library.md` |

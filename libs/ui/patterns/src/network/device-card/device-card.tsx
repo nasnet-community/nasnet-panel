@@ -121,7 +121,12 @@ function DeviceCardComponent({
 
   // Compact mode - use compact presenter regardless of platform
   if (compact) {
-    return <DeviceCardCompact {...presenterProps} className={className} />;
+    return (
+      <DeviceCardCompact
+        {...presenterProps}
+        className={className}
+      />
+    );
   }
 
   // Auto-detect platform using CSS media queries for SSR compatibility

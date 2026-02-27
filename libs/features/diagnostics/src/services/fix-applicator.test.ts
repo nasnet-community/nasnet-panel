@@ -60,11 +60,7 @@ describe('applyFixCommand', () => {
       confidence: null,
       requiresConfirmation: false,
       isManualFix: true,
-      manualSteps: [
-        'Check cable connection',
-        'Try a different cable',
-        'Restart modem',
-      ],
+      manualSteps: ['Check cable connection', 'Try a different cable', 'Restart modem'],
     };
 
     const result = await applyFixCommand('session-123', fix);

@@ -54,32 +54,22 @@ export function InterfaceList({ routerId, className }: InterfaceListProps) {
       .filter((iface: any) => !filters.status || iface.status === filters.status)
       .filter(
         (iface: any) =>
-          !filters.search ||
-          iface.name.toLowerCase().includes(filters.search.toLowerCase())
+          !filters.search || iface.name.toLowerCase().includes(filters.search.toLowerCase())
       );
   }, [interfaces, filters]);
 
   // Memoized callbacks for stability
-  const handleSelectChange = useCallback(
-    (ids: Set<string>) => {
-      setSelectedIds(ids);
-    },
-    []
-  );
+  const handleSelectChange = useCallback((ids: Set<string>) => {
+    setSelectedIds(ids);
+  }, []);
 
-  const handleFilterChange = useCallback(
-    (newFilters: InterfaceFilters) => {
-      setFilters(newFilters);
-    },
-    []
-  );
+  const handleFilterChange = useCallback((newFilters: InterfaceFilters) => {
+    setFilters(newFilters);
+  }, []);
 
-  const handleOpenDetail = useCallback(
-    (id: string | null) => {
-      setSelectedInterfaceId(id);
-    },
-    []
-  );
+  const handleOpenDetail = useCallback((id: string | null) => {
+    setSelectedInterfaceId(id);
+  }, []);
 
   // Shared props for both presenters
   const sharedProps = {
@@ -99,11 +89,9 @@ export function InterfaceList({ routerId, className }: InterfaceListProps) {
 
   return (
     <div className="category-networking">
-      {platform === 'mobile' ? (
+      {platform === 'mobile' ?
         <InterfaceListMobile {...sharedProps} />
-      ) : (
-        <InterfaceListDesktop {...sharedProps} />
-      )}
+      : <InterfaceListDesktop {...sharedProps} />}
 
       {/* Detail panel - shown when an interface is selected */}
       <InterfaceDetail

@@ -27,11 +27,7 @@ const queryClient = new QueryClient({
 });
 
 function QueryWrapper({ children }: { children: React.ReactNode }) {
-  return (
-    <QueryClientProvider client={queryClient}>
-      {children}
-    </QueryClientProvider>
-  );
+  return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
 }
 
 /**
@@ -82,12 +78,19 @@ function QueryWrapper({ children }: { children: React.ReactNode }) {
 const meta = {
   title: 'Features/Firewall/MangleRulesTable',
   component: MangleRulesTable,
-  decorators: [(Story) => <QueryWrapper><Story /></QueryWrapper>],
+  decorators: [
+    (Story) => (
+      <QueryWrapper>
+        <Story />
+      </QueryWrapper>
+    ),
+  ],
   parameters: {
     layout: 'fullscreen',
     docs: {
       description: {
-        component: 'Mangle rules table with drag-drop reordering, inline toggles, and action buttons.',
+        component:
+          'Mangle rules table with drag-drop reordering, inline toggles, and action buttons.',
       },
     },
     // Enable accessibility testing
@@ -285,7 +288,8 @@ export const Empty: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Empty state with no mangle rules configured. Shows helpful message with call-to-action.',
+        story:
+          'Empty state with no mangle rules configured. Shows helpful message with call-to-action.',
       },
     },
     msw: {
@@ -311,7 +315,8 @@ export const WithRules: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Table with 10 mangle rules showing various action types, chains, and matchers. Includes VoIP QoS, gaming traffic, policy routing, and security rules.',
+        story:
+          'Table with 10 mangle rules showing various action types, chains, and matchers. Includes VoIP QoS, gaming traffic, policy routing, and security rules.',
       },
     },
     msw: {
@@ -365,7 +370,8 @@ export const DragReorder: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Drag-drop reordering in action. Grab the grip handle (⋮⋮) on the left to reorder rules. Position changes are persisted to RouterOS via API.',
+        story:
+          'Drag-drop reordering in action. Grab the grip handle (⋮⋮) on the left to reorder rules. Position changes are persisted to RouterOS via API.',
       },
     },
     msw: {
@@ -398,7 +404,8 @@ export const MobileView: Story = {
     },
     docs: {
       description: {
-        story: 'Mobile card-based layout. Each rule is a card with touch-optimized 44px action buttons. Swipeable for quick actions.',
+        story:
+          'Mobile card-based layout. Each rule is a card with touch-optimized 44px action buttons. Swipeable for quick actions.',
       },
     },
     msw: {
@@ -436,7 +443,8 @@ export const WithDisabledRules: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Table with disabled rules. Disabled rules (#6) shown with opacity-50 and toggle switch off. Can be quickly enabled with inline toggle.',
+        story:
+          'Table with disabled rules. Disabled rules (#6) shown with opacity-50 and toggle switch off. Can be quickly enabled with inline toggle.',
       },
     },
     msw: {
@@ -461,7 +469,8 @@ export const WithUnusedRules: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Table highlighting unused rules (0 hits). Rule #9 shows "Unused" badge to help identify rules that never match traffic.',
+        story:
+          'Table highlighting unused rules (0 hits). Rule #9 shows "Unused" badge to help identify rules that never match traffic.',
       },
     },
     msw: {
@@ -486,7 +495,8 @@ export const EditRuleFlow: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Edit rule dialog opened. Click Edit button on any rule to open editor with pre-filled data. Changes are saved back to RouterOS.',
+        story:
+          'Edit rule dialog opened. Click Edit button on any rule to open editor with pre-filled data. Changes are saved back to RouterOS.',
       },
     },
     msw: {
@@ -516,7 +526,8 @@ export const DeleteConfirmation: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Delete confirmation dialog (Safety Pipeline pattern). Dangerous actions require explicit confirmation with countdown timer.',
+        story:
+          'Delete confirmation dialog (Safety Pipeline pattern). Dangerous actions require explicit confirmation with countdown timer.',
       },
     },
     msw: {
@@ -546,7 +557,8 @@ export const ComplexQoSSetup: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Real-world VoIP QoS configuration. Rules work together: mark-connection (identify), mark-packet (tag), change-dscp (prioritize). This is a common pattern for traffic shaping.',
+        story:
+          'Real-world VoIP QoS configuration. Rules work together: mark-connection (identify), mark-packet (tag), change-dscp (prioritize). This is a common pattern for traffic shaping.',
       },
     },
     msw: {
@@ -555,11 +567,11 @@ export const ComplexQoSSetup: Story = {
           url: '/api/routers/:routerId/mangle/rules',
           method: 'get',
           response: {
-            data: mockRules.filter(r =>
-              r.comment && (
-                r.comment.toLowerCase().includes('voip') ||
-                r.comment.toLowerCase().includes('gaming')
-              )
+            data: mockRules.filter(
+              (r) =>
+                r.comment &&
+                (r.comment.toLowerCase().includes('voip') ||
+                  r.comment.toLowerCase().includes('gaming'))
             ),
           },
         },
@@ -578,7 +590,8 @@ export const MultiWANPolicyRouting: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Policy-based routing for multi-WAN setup. mark-routing action assigns routing marks to steer traffic through specific WAN interfaces based on source subnet.',
+        story:
+          'Policy-based routing for multi-WAN setup. mark-routing action assigns routing marks to steer traffic through specific WAN interfaces based on source subnet.',
       },
     },
     msw: {
@@ -587,7 +600,7 @@ export const MultiWANPolicyRouting: Story = {
           url: '/api/routers/:routerId/mangle/rules',
           method: 'get',
           response: {
-            data: mockRules.filter(r => r.action === 'mark-routing'),
+            data: mockRules.filter((r) => r.action === 'mark-routing'),
           },
         },
       ],

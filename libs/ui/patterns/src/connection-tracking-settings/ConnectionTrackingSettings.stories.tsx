@@ -45,11 +45,13 @@ function ConnectionTrackingSettingsWrapper({
 }) {
   const settingsHook = useConnectionTrackingSettings({
     initialSettings,
-    onSubmit: onSubmit || (async (settings) => {
-      console.log('Submit settings:', settings);
-      // Simulate async save
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-    }),
+    onSubmit:
+      onSubmit ||
+      (async (settings) => {
+        console.log('Submit settings:', settings);
+        // Simulate async save
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+      }),
     onReset: () => console.log('Reset to defaults'),
   });
 
@@ -103,7 +105,9 @@ export const Default: Story = {
     loading: false,
     onSubmit: async (settings: SettingsType) => {
       console.log('Save settings:', settings);
-      alert(`Settings saved:\n- Max Entries: ${settings.maxEntries}\n- TCP Established: ${settings.tcpEstablishedTimeout}s`);
+      alert(
+        `Settings saved:\n- Max Entries: ${settings.maxEntries}\n- TCP Established: ${settings.tcpEstablishedTimeout}s`
+      );
     },
   },
   parameters: {

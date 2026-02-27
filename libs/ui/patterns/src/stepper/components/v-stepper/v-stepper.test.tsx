@@ -53,7 +53,12 @@ function VStepperTestWrapper({
   stepperProps?: Partial<React.ComponentProps<typeof VStepper>>;
 }) {
   const stepper = useStepper(config);
-  return <VStepper stepper={stepper} {...stepperProps} />;
+  return (
+    <VStepper
+      stepper={stepper}
+      {...stepperProps}
+    />
+  );
 }
 
 // ===== Test Data =====
@@ -158,9 +163,7 @@ describe('VStepper step states', () => {
 
   it('should show checkmark for completed steps', async () => {
     const user = userEvent.setup();
-    const { container } = render(
-      <VStepperTestWrapper config={createConfig(basicSteps)} />
-    );
+    const { container } = render(<VStepperTestWrapper config={createConfig(basicSteps)} />);
 
     // Advance to step 2
     const nextButton = screen.getAllByRole('button')[0]; // First step
@@ -192,7 +195,10 @@ describe('VStepper navigation', () => {
       return (
         <div>
           <VStepper stepper={stepper} />
-          <button onClick={() => stepper.next()} data-testid="next">
+          <button
+            onClick={() => stepper.next()}
+            data-testid="next"
+          >
             Next
           </button>
           <span data-testid="current">{stepper.currentIndex}</span>
@@ -262,8 +268,14 @@ describe('VStepper error states', () => {
 
       return (
         <div>
-          <VStepper stepper={stepper} showErrorCount />
-          <button onClick={() => stepper.next()} data-testid="next">
+          <VStepper
+            stepper={stepper}
+            showErrorCount
+          />
+          <button
+            onClick={() => stepper.next()}
+            data-testid="next"
+          >
             Next
           </button>
         </div>
@@ -287,9 +299,7 @@ describe('VStepper error states', () => {
 
 describe('VStepper accessibility', () => {
   it('should have no accessibility violations', async () => {
-    const { container } = render(
-      <VStepperTestWrapper config={createConfig(basicSteps)} />
-    );
+    const { container } = render(<VStepperTestWrapper config={createConfig(basicSteps)} />);
 
     const results = await axe(container);
     expect(results).toHaveNoViolations();
@@ -424,9 +434,7 @@ describe('VStepper keyboard navigation', () => {
 
 describe('VStepper connectors', () => {
   it('should render connectors between steps', () => {
-    const { container } = render(
-      <VStepperTestWrapper config={createConfig(basicSteps)} />
-    );
+    const { container } = render(<VStepperTestWrapper config={createConfig(basicSteps)} />);
 
     // Should have connectors between steps (n-1 connectors for n steps)
     // Connectors are aria-hidden divs
@@ -453,14 +461,15 @@ describe('VStepper integration', () => {
     ];
 
     function TestComponent() {
-      const stepper = useStepper(
-        createConfig(stepsWithValidation, { onComplete })
-      );
+      const stepper = useStepper(createConfig(stepsWithValidation, { onComplete }));
 
       return (
         <div>
           <VStepper stepper={stepper} />
-          <button onClick={() => stepper.next()} data-testid="next">
+          <button
+            onClick={() => stepper.next()}
+            data-testid="next"
+          >
             {stepper.isLast ? 'Complete' : 'Next'}
           </button>
           <span data-testid="current">{stepper.currentIndex}</span>
@@ -508,8 +517,14 @@ describe('VStepper integration', () => {
 
       return (
         <div>
-          <VStepper stepper={stepper} showErrorCount />
-          <button onClick={() => stepper.next()} data-testid="next">
+          <VStepper
+            stepper={stepper}
+            showErrorCount
+          />
+          <button
+            onClick={() => stepper.next()}
+            data-testid="next"
+          >
             Next
           </button>
           <span data-testid="current">{stepper.currentIndex}</span>

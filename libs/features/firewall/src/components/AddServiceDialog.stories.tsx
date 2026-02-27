@@ -62,19 +62,22 @@ type Story = StoryObj<typeof AddServiceDialog>;
 // Interactive Wrapper (for controlled open state)
 // ============================================================================
 
-function AddServiceDialogInteractive({
-  editService,
-}: {
-  editService?: CustomServicePortInput;
-}) {
+function AddServiceDialogInteractive({ editService }: { editService?: CustomServicePortInput }) {
   const [open, setOpen] = useState(true);
 
   return (
     <div>
-      <button onClick={() => setOpen(true)} className="px-4 py-2 bg-primary text-white rounded">
+      <button
+        onClick={() => setOpen(true)}
+        className="bg-primary rounded px-4 py-2 text-white"
+      >
         Open Dialog
       </button>
-      <AddServiceDialog open={open} onOpenChange={setOpen} editService={editService} />
+      <AddServiceDialog
+        open={open}
+        onOpenChange={setOpen}
+        editService={editService}
+      />
     </div>
   );
 }
@@ -95,7 +98,8 @@ export const AddMode: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Add mode shows an empty form for creating a new custom service. Default port is 8080, default protocol is TCP.',
+        story:
+          'Add mode shows an empty form for creating a new custom service. Default port is 8080, default protocol is TCP.',
       },
     },
   },
@@ -128,7 +132,8 @@ export const EditMode: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Edit mode pre-fills the form with existing service values. Title changes to "Edit Service" and submit button shows "Update Service".',
+        story:
+          'Edit mode pre-fills the form with existing service values. Title changes to "Edit Service" and submit button shows "Update Service".',
       },
     },
   },
@@ -166,7 +171,8 @@ export const WithValidationErrors: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'This story demonstrates form validation errors. Submit the form without filling required fields or with invalid port values to see error messages.',
+        story:
+          'This story demonstrates form validation errors. Submit the form without filling required fields or with invalid port values to see error messages.',
       },
     },
   },
@@ -199,7 +205,8 @@ export const WithConflictError: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Demonstrates conflict detection when service name matches a built-in service (e.g., "HTTP") or existing custom service.',
+        story:
+          'Demonstrates conflict detection when service name matches a built-in service (e.g., "HTTP") or existing custom service.',
       },
     },
   },
@@ -232,7 +239,8 @@ export const UDPProtocol: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Shows UDP protocol selected. UDP is commonly used for DNS, DHCP, and streaming protocols.',
+        story:
+          'Shows UDP protocol selected. UDP is commonly used for DNS, DHCP, and streaming protocols.',
       },
     },
   },
@@ -265,7 +273,8 @@ export const BothProtocols: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Shows "TCP & UDP" protocol option. Useful for services that use both protocols on the same port (e.g., IPsec, some VPN protocols).',
+        story:
+          'Shows "TCP & UDP" protocol option. Useful for services that use both protocols on the same port (e.g., IPsec, some VPN protocols).',
       },
     },
   },
@@ -300,7 +309,8 @@ export const LongDescription: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Demonstrates the description field with maximum length (500 characters). The textarea expands to accommodate longer text.',
+        story:
+          'Demonstrates the description field with maximum length (500 characters). The textarea expands to accommodate longer text.',
       },
     },
   },
@@ -339,7 +349,8 @@ export const Mobile: Story = {
     },
     docs: {
       description: {
-        story: 'Dialog on mobile viewport. Form fields stack vertically and buttons adjust for smaller screens.',
+        story:
+          'Dialog on mobile viewport. Form fields stack vertically and buttons adjust for smaller screens.',
       },
     },
   },
@@ -414,7 +425,8 @@ export const KeyboardNavigation: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Tests keyboard navigation through form fields. All fields are accessible via Tab key, and form can be submitted with Enter.',
+        story:
+          'Tests keyboard navigation through form fields. All fields are accessible via Tab key, and form can be submitted with Enter.',
       },
     },
   },

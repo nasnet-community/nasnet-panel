@@ -4,7 +4,6 @@ import { DHCPServerCard } from './DHCPServerCard';
 
 import type { Meta, StoryObj } from '@storybook/react';
 
-
 // ---------------------------------------------------------------------------
 // Mock data
 // ---------------------------------------------------------------------------
@@ -105,7 +104,8 @@ export const AuthoritativeServer: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Default authoritative DHCP server with a single pool range and a 10-minute lease time.',
+        story:
+          'Default authoritative DHCP server with a single pool range and a 10-minute lease time.',
       },
     },
   },
@@ -119,7 +119,8 @@ export const NonAuthoritativeServer: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Non-authoritative server on an office interface with a 1-day lease — the "Authoritative" badge is absent.',
+        story:
+          'Non-authoritative server on an office interface with a 1-day lease — the "Authoritative" badge is absent.',
       },
     },
   },
@@ -137,7 +138,8 @@ export const DisabledServer: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Server with `disabled: true` — the "Server Disabled" pill is shown at the bottom of the card.',
+        story:
+          'Server with `disabled: true` — the "Server Disabled" pill is shown at the bottom of the card.',
       },
     },
   },
@@ -151,7 +153,8 @@ export const MultiRangePool: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Pool with two IP ranges — both ranges are joined by a comma and displayed in the Pool Range row.',
+        story:
+          'Pool with two IP ranges — both ranges are joined by a comma and displayed in the Pool Range row.',
       },
     },
   },
@@ -165,7 +168,8 @@ export const PoolNotConfigured: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'When no pool is resolved (e.g. pool deleted externally), the Pool Range row shows "Not configured".',
+        story:
+          'When no pool is resolved (e.g. pool deleted externally), the Pool Range row shows "Not configured".',
       },
     },
   },
@@ -173,9 +177,15 @@ export const PoolNotConfigured: Story = {
 
 export const MultipleCards: Story = {
   render: () => (
-    <div className="grid grid-cols-1 gap-4 w-[360px]">
-      <DHCPServerCard server={defaultServer} pool={defaultPool} />
-      <DHCPServerCard server={longLeaseServer} pool={officePool} />
+    <div className="grid w-[360px] grid-cols-1 gap-4">
+      <DHCPServerCard
+        server={defaultServer}
+        pool={defaultPool}
+      />
+      <DHCPServerCard
+        server={longLeaseServer}
+        pool={officePool}
+      />
       <DHCPServerCard server={disabledServer} />
     </div>
   ),

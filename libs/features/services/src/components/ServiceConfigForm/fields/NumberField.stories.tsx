@@ -77,8 +77,11 @@ export const PortNumber: Story = {
   render: (args) => (
     <div className="space-y-2">
       <Label htmlFor="port-field">Listen Port</Label>
-      <NumberField {...args} id="port-field" />
-      <p className="text-xs text-muted-foreground">Valid range: 1–65535</p>
+      <NumberField
+        {...args}
+        id="port-field"
+      />
+      <p className="text-muted-foreground text-xs">Valid range: 1–65535</p>
     </div>
   ),
   parameters: {
@@ -104,17 +107,17 @@ export const ConnectionLimit: Story = {
   render: (args) => (
     <div className="space-y-2">
       <Label htmlFor="conn-limit">Max Connections</Label>
-      <NumberField {...args} id="conn-limit" />
-      <p className="text-xs text-muted-foreground">
-        Maximum concurrent connections (1–1000)
-      </p>
+      <NumberField
+        {...args}
+        id="conn-limit"
+      />
+      <p className="text-muted-foreground text-xs">Maximum concurrent connections (1–1000)</p>
     </div>
   ),
   parameters: {
     docs: {
       description: {
-        story:
-          'Bounded number field with a practical range for connection limits.',
+        story: 'Bounded number field with a practical range for connection limits.',
       },
     },
   },
@@ -132,8 +135,11 @@ export const TimeoutSeconds: Story = {
   render: (args) => (
     <div className="space-y-2">
       <Label htmlFor="timeout-field">Connection Timeout (seconds)</Label>
-      <NumberField {...args} id="timeout-field" />
-      <p className="text-xs text-muted-foreground">Set 0 to disable timeout</p>
+      <NumberField
+        {...args}
+        id="timeout-field"
+      />
+      <p className="text-muted-foreground text-xs">Set 0 to disable timeout</p>
     </div>
   ),
   parameters: {
@@ -159,10 +165,11 @@ export const Disabled: Story = {
   render: (args) => (
     <div className="space-y-2">
       <Label htmlFor="locked-port">Management Port (locked)</Label>
-      <NumberField {...args} id="locked-port" />
-      <p className="text-xs text-muted-foreground">
-        Port is fixed while the service is running.
-      </p>
+      <NumberField
+        {...args}
+        id="locked-port"
+      />
+      <p className="text-muted-foreground text-xs">Port is fixed while the service is running.</p>
     </div>
   ),
   parameters: {
@@ -188,8 +195,11 @@ export const MTUField: Story = {
   render: (args) => (
     <div className="space-y-2">
       <Label htmlFor="mtu-field">MTU Size (bytes)</Label>
-      <NumberField {...args} id="mtu-field" />
-      <p className="text-xs text-muted-foreground">
+      <NumberField
+        {...args}
+        id="mtu-field"
+      />
+      <p className="text-muted-foreground text-xs">
         Standard Ethernet: 1500 · Jumbo frames: up to 9000
       </p>
     </div>

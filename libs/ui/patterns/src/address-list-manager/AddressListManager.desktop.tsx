@@ -112,15 +112,18 @@ export const AddressListManagerDesktop = memo(function AddressListManagerDesktop
   const handleSort = useCallback((field: SortConfig['field']) => {
     setSortConfig((prev) => ({
       field,
-      direction:
-        prev.field === field && prev.direction === 'asc' ? 'desc' : 'asc',
+      direction: prev.field === field && prev.direction === 'asc' ? 'desc' : 'asc',
     }));
   }, []);
 
   // Loading state
   if (isLoading) {
     return (
-      <Card className={cn('p-6', className)} role="status" aria-live="polite">
+      <Card
+        className={cn('p-6', className)}
+        role="status"
+        aria-live="polite"
+      >
         <div className="flex items-center justify-center">
           <div className="text-muted-foreground">Loading address lists...</div>
         </div>
@@ -132,11 +135,11 @@ export const AddressListManagerDesktop = memo(function AddressListManagerDesktop
   if (error) {
     return (
       <Card
-        className={cn('p-6 border-error', className)}
+        className={cn('border-error p-6', className)}
         role="alert"
         aria-live="assertive"
       >
-        <div className="flex items-center justify-center text-error">
+        <div className="text-error flex items-center justify-center">
           Error loading address lists: {error.message}
         </div>
       </Card>
@@ -149,7 +152,7 @@ export const AddressListManagerDesktop = memo(function AddressListManagerDesktop
       <Card className={cn('p-12', className)}>
         <div className="flex flex-col items-center justify-center space-y-4">
           <Shield
-            className="h-12 w-12 text-muted-foreground"
+            className="text-muted-foreground h-12 w-12"
             aria-hidden="true"
           />
           <p className="text-muted-foreground text-center">{emptyMessage}</p>
@@ -164,7 +167,7 @@ export const AddressListManagerDesktop = memo(function AddressListManagerDesktop
 
   return (
     <Card
-      className={cn('overflow-hidden border-l-4 border-l-category-firewall', className)}
+      className={cn('border-l-category-firewall overflow-hidden border-l-4', className)}
       role="region"
       aria-label="Address lists manager"
     >
@@ -173,11 +176,11 @@ export const AddressListManagerDesktop = memo(function AddressListManagerDesktop
         className={cn('overflow-auto', useVirtualization && 'h-[600px]')}
       >
         <Table role="presentation">
-          <TableHeader className="sticky top-0 z-10 bg-background">
+          <TableHeader className="bg-background sticky top-0 z-10">
             <TableRow role="row">
               <TableHead className="w-[40px]"></TableHead>
               <TableHead
-                className="cursor-pointer hover:bg-muted/50"
+                className="hover:bg-muted/50 cursor-pointer"
                 onClick={() => handleSort('name')}
               >
                 <div className="flex items-center gap-1">
@@ -193,7 +196,7 @@ export const AddressListManagerDesktop = memo(function AddressListManagerDesktop
                 </div>
               </TableHead>
               <TableHead
-                className="cursor-pointer hover:bg-muted/50"
+                className="hover:bg-muted/50 cursor-pointer"
                 onClick={() => handleSort('entryCount')}
               >
                 <div className="flex items-center gap-1">
@@ -209,7 +212,7 @@ export const AddressListManagerDesktop = memo(function AddressListManagerDesktop
                 </div>
               </TableHead>
               <TableHead
-                className="cursor-pointer hover:bg-muted/50"
+                className="hover:bg-muted/50 cursor-pointer"
                 onClick={() => handleSort('dynamicCount')}
               >
                 <div className="flex items-center gap-1">
@@ -225,7 +228,7 @@ export const AddressListManagerDesktop = memo(function AddressListManagerDesktop
                 </div>
               </TableHead>
               <TableHead
-                className="cursor-pointer hover:bg-muted/50"
+                className="hover:bg-muted/50 cursor-pointer"
                 onClick={() => handleSort('referencingRulesCount')}
               >
                 <div className="flex items-center gap-1">
@@ -244,55 +247,50 @@ export const AddressListManagerDesktop = memo(function AddressListManagerDesktop
             </TableRow>
           </TableHeader>
           <TableBody>
-            {useVirtualization ? (
-              // Virtualized rows
-              <div
-                style={{
-                  height: `${rowVirtualizer.getTotalSize()}px`,
-                  width: '100%',
-                  position: 'relative',
-                }}
-              >
-                {rowVirtualizer.getVirtualItems().map((virtualRow) => {
-                  const list = sortedLists[virtualRow.index];
-                  return (
-                    <ListRow
-                      key={list.name}
-                      list={list}
-                      expanded={isExpanded(list.name)}
-                      onToggle={() => toggleExpanded(list.name)}
-                      onShowRules={() => showRulesForList(list.name)}
-                      onDelete={
-                        onDeleteList
-                          ? () => onDeleteList(list.name)
-                          : undefined
-                      }
-                      style={{
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        width: '100%',
-                        transform: `translateY(${virtualRow.start}px)`,
-                      }}
-                    />
-                  );
-                })}
-              </div>
-            ) : (
-              // Standard rows
-              sortedLists.map((list) => (
-                <ListRow
-                  key={list.name}
-                  list={list}
-                  expanded={isExpanded(list.name)}
-                  onToggle={() => toggleExpanded(list.name)}
-                  onShowRules={() => showRulesForList(list.name)}
-                  onDelete={
-                    onDeleteList ? () => onDeleteList(list.name) : undefined
-                  }
-                />
-              ))
-            )}
+            {
+              useVirtualization ?
+                // Virtualized rows
+                <div
+                  style={{
+                    height: `${rowVirtualizer.getTotalSize()}px`,
+                    width: '100%',
+                    position: 'relative',
+                  }}
+                >
+                  {rowVirtualizer.getVirtualItems().map((virtualRow) => {
+                    const list = sortedLists[virtualRow.index];
+                    return (
+                      <ListRow
+                        key={list.name}
+                        list={list}
+                        expanded={isExpanded(list.name)}
+                        onToggle={() => toggleExpanded(list.name)}
+                        onShowRules={() => showRulesForList(list.name)}
+                        onDelete={onDeleteList ? () => onDeleteList(list.name) : undefined}
+                        style={{
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
+                          width: '100%',
+                          transform: `translateY(${virtualRow.start}px)`,
+                        }}
+                      />
+                    );
+                  })}
+                </div>
+                // Standard rows
+              : sortedLists.map((list) => (
+                  <ListRow
+                    key={list.name}
+                    list={list}
+                    expanded={isExpanded(list.name)}
+                    onToggle={() => toggleExpanded(list.name)}
+                    onShowRules={() => showRulesForList(list.name)}
+                    onDelete={onDeleteList ? () => onDeleteList(list.name) : undefined}
+                  />
+                ))
+
+            }
           </TableBody>
         </Table>
       </div>
@@ -312,36 +310,25 @@ interface ListRowProps {
   style?: React.CSSProperties;
 }
 
-function ListRow({
-  list,
-  expanded,
-  onToggle,
-  onShowRules,
-  onDelete,
-  style,
-}: ListRowProps) {
+function ListRow({ list, expanded, onToggle, onShowRules, onDelete, style }: ListRowProps) {
   return (
     <>
       <TableRow
-        className="cursor-pointer hover:bg-muted/50"
+        className="hover:bg-muted/50 cursor-pointer"
         onClick={onToggle}
         style={style}
       >
         <TableCell>
-          {expanded ? (
+          {expanded ?
             <ChevronDown className="h-4 w-4" />
-          ) : (
-            <ChevronRight className="h-4 w-4" />
-          )}
+          : <ChevronRight className="h-4 w-4" />}
         </TableCell>
         <TableCell className="font-mono font-medium">{list.name}</TableCell>
         <TableCell>
           <Badge variant="outline">{list.entryCount}</Badge>
         </TableCell>
         <TableCell>
-          {list.dynamicCount > 0 && (
-            <Badge variant="secondary">{list.dynamicCount} dynamic</Badge>
-          )}
+          {list.dynamicCount > 0 && <Badge variant="secondary">{list.dynamicCount} dynamic</Badge>}
         </TableCell>
         <TableCell>
           {list.referencingRulesCount > 0 && (
@@ -354,16 +341,25 @@ function ListRow({
               }}
               className="h-auto p-1"
             >
-              <Badge variant="outline" className="bg-category-firewall/10">
+              <Badge
+                variant="outline"
+                className="bg-category-firewall/10"
+              >
                 {list.referencingRulesCount} rules
               </Badge>
             </Button>
           )}
         </TableCell>
-        <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
+        <TableCell
+          className="text-right"
+          onClick={(e) => e.stopPropagation()}
+        >
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm">
+              <Button
+                variant="ghost"
+                size="sm"
+              >
                 Actions
               </Button>
             </DropdownMenuTrigger>
@@ -387,44 +383,45 @@ function ListRow({
       </TableRow>
       {expanded && (
         <TableRow>
-          <TableCell colSpan={6} className="bg-muted/30 p-4">
+          <TableCell
+            colSpan={6}
+            className="bg-muted/30 p-4"
+          >
             <div className="space-y-2">
-              <h4 className="font-medium text-sm">Entries in {list.name}</h4>
-              {list.entries && list.entries.length > 0 ? (
+              <h4 className="text-sm font-medium">Entries in {list.name}</h4>
+              {list.entries && list.entries.length > 0 ?
                 <div className="space-y-1">
                   {list.entries.map((entry) => (
                     <div
                       key={entry.id}
-                      className="flex items-center justify-between p-2 bg-background rounded border"
+                      className="bg-background flex items-center justify-between rounded border p-2"
                     >
                       <div className="flex items-center gap-2">
-                        <span className="font-mono text-sm">
-                          {entry.address}
-                        </span>
+                        <span className="font-mono text-sm">{entry.address}</span>
                         {entry.dynamic && (
-                          <Badge variant="secondary" className="text-xs">
+                          <Badge
+                            variant="secondary"
+                            className="text-xs"
+                          >
                             Dynamic
                           </Badge>
                         )}
                         {entry.comment && (
-                          <span className="text-muted-foreground text-sm">
-                            {entry.comment}
-                          </span>
+                          <span className="text-muted-foreground text-sm">{entry.comment}</span>
                         )}
                       </div>
                       {entry.timeout && (
-                        <Badge variant="outline" className="text-xs">
+                        <Badge
+                          variant="outline"
+                          className="text-xs"
+                        >
                           {entry.timeout}
                         </Badge>
                       )}
                     </div>
                   ))}
                 </div>
-              ) : (
-                <p className="text-sm text-muted-foreground">
-                  No entries in this list
-                </p>
-              )}
+              : <p className="text-muted-foreground text-sm">No entries in this list</p>}
             </div>
           </TableCell>
         </TableRow>

@@ -55,11 +55,7 @@ export interface ServiceAlertsTabProps {
  * @param props - Component props
  * @returns Rendered alert tab with platform-specific presenter
  */
-function ServiceAlertsTabComponent({
-  routerId,
-  instanceId,
-  className,
-}: ServiceAlertsTabProps) {
+function ServiceAlertsTabComponent({ routerId, instanceId, className }: ServiceAlertsTabProps) {
   const platform = usePlatform();
 
   // Select presenter based on platform

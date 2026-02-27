@@ -72,21 +72,21 @@ export function LoadingSpinner({
       aria-busy="true"
       className={cn(
         'inline-flex',
-        orientation === 'vertical'
-          ? 'flex-col items-center gap-component-sm'
-          : 'flex-row items-center gap-component-sm',
+        orientation === 'vertical' ?
+          'gap-component-sm flex-col items-center'
+        : 'gap-component-sm flex-row items-center',
         centered && 'w-full justify-center',
         padded && 'p-component-md',
         containerClassName
       )}
     >
-      <Spinner size={size} className={className} {...props} />
+      <Spinner
+        size={size}
+        className={className}
+        {...props}
+      />
 
-      {showLabel && (
-        <span className="text-sm text-muted-foreground">
-          {label}
-        </span>
-      )}
+      {showLabel && <span className="text-muted-foreground text-sm">{label}</span>}
 
       {/* Screen reader only label when not showing visual label */}
       {!showLabel && <span className="sr-only">{label}</span>}

@@ -68,10 +68,10 @@ export interface DHCPPool {
  * - `offered` - DHCP offer has been sent to the client
  */
 export type LeaseStatus =
-  | 'bound'      // Active lease in use
-  | 'waiting'    // Waiting for confirmation
-  | 'busy'       // IP address in use by another device
-  | 'offered';   // DHCP offer sent to client
+  | 'bound' // Active lease in use
+  | 'waiting' // Waiting for confirmation
+  | 'busy' // IP address in use by another device
+  | 'offered'; // DHCP offer sent to client
 
 /**
  * DHCP Lease information
@@ -154,10 +154,10 @@ export interface LeaseDisplayRow {
  * - `stopped` - DHCP client is stopped or disabled
  */
 export type DHCPClientStatus =
-  | 'bound'       // Successfully obtained lease
-  | 'searching'   // Searching for DHCP server
-  | 'requesting'  // Requesting lease from server
-  | 'stopped';    // DHCP client stopped/disabled
+  | 'bound' // Successfully obtained lease
+  | 'searching' // Searching for DHCP server
+  | 'requesting' // Requesting lease from server
+  | 'stopped'; // DHCP client stopped/disabled
 
 /**
  * DHCP Client configuration and status

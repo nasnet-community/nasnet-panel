@@ -7,7 +7,12 @@
  */
 
 import { gql } from '@apollo/client';
-import { useQuery, useMutation, type QueryHookOptions, type MutationHookOptions } from '@apollo/client';
+import {
+  useQuery,
+  useMutation,
+  type QueryHookOptions,
+  type MutationHookOptions,
+} from '@apollo/client';
 
 // =============================================================================
 // Fragments
@@ -113,12 +118,7 @@ export const GET_NOTIFICATION_LOGS = gql`
     $status: NotificationStatus
     $limit: Int
   ) {
-    notificationLogs(
-      channel: $channel
-      webhookId: $webhookId
-      status: $status
-      limit: $limit
-    ) {
+    notificationLogs(channel: $channel, webhookId: $webhookId, status: $status, limit: $limit) {
       ...NotificationLogFields
     }
   }
@@ -354,13 +354,10 @@ export function useNotificationLogs(
   variables?: NotificationLogVariables,
   options?: Omit<QueryHookOptions, 'variables'>
 ) {
-  return useQuery(
-    GET_NOTIFICATION_LOGS,
-    {
-      ...options,
-      variables,
-    } as any
-  );
+  return useQuery(GET_NOTIFICATION_LOGS, {
+    ...options,
+    variables,
+  } as any);
 }
 
 // =============================================================================

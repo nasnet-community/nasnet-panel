@@ -945,22 +945,22 @@ table tbody td {
   /* Container is very light Trust Blue tint */
   --mermaid-bg: #f5f8fc;
   --mermaid-border: #dbe4f0;
-  
+
   /* Nodes use solid white with Trust Blue borders and text */
   --mermaid-node-bg: #ffffff;
   --mermaid-node-border: var(--ifm-color-primary); /* #4972ba */
   --mermaid-node-text: var(--ifm-color-primary-darkest); /* #2e4d85 */
-  
+
   /* Clusters / Subgraphs use a faint Trust Blue background */
   --mermaid-cluster-bg: rgba(73, 114, 186, 0.05); /* 5% Trust Blue */
   --mermaid-cluster-border: #a3bced; /* Light Trust Blue border */
   --mermaid-cluster-text: var(--ifm-color-primary-darker);
-  
+
   /* Lines and text on lines (Trust Blue) */
   --mermaid-line: var(--ifm-color-primary);
   --mermaid-label-bg: #ffffff;
   --mermaid-label-text: var(--ifm-color-primary-darkest);
-  
+
   /* Notes (Golden Amber Accent) */
   --mermaid-note-bg: rgba(239, 199, 41, 0.15);
   --mermaid-note-border: var(--nasnet-accent); /* #efc729 */
@@ -970,22 +970,22 @@ table tbody td {
   /* Container is very deep Trust Blue instead of slate */
   --mermaid-bg: #0f1524;
   --mermaid-border: #1e2c4a;
-  
+
   /* Nodes: Solid deep Trust Blue with light text */
   --mermaid-node-bg: var(--ifm-color-primary-darkest); /* #3d66ad */
   --mermaid-node-border: var(--ifm-color-primary-lighter); /* #a7bde3 */
   --mermaid-node-text: #ffffff;
-  
+
   /* Clusters: Faint Trust Blue */
   --mermaid-cluster-bg: rgba(127, 158, 212, 0.08);
   --mermaid-cluster-border: var(--ifm-color-primary-dark); /* #6489c9 */
   --mermaid-cluster-text: var(--ifm-color-primary-lightest); /* #c9d7ef */
-  
+
   /* Lines: Vibrant Trust Blue */
   --mermaid-line: var(--ifm-color-primary-lighter);
   --mermaid-label-bg: #0f1524; /* Match container */
   --mermaid-label-text: #ffffff;
-  
+
   /* Notes (Golden Amber Accent) */
   --mermaid-note-bg: rgba(239, 199, 41, 0.15);
   --mermaid-note-border: var(--nasnet-accent);
@@ -1075,7 +1075,6 @@ table tbody td {
   ry: 8px !important;
 }
 
-
 /* Subgraph titles */
 .docusaurus-mermaid-container .cluster-label .nodeLabel,
 .docusaurus-mermaid-container .cluster-label text {
@@ -1111,13 +1110,7 @@ table tbody td {
   right: 0;
   bottom: 0;
   width: 1px;
-  background: linear-gradient(
-    to bottom,
-    transparent,
-    #e2e8f0 10%,
-    #e2e8f0 90%,
-    transparent
-  );
+  background: linear-gradient(to bottom, transparent, #e2e8f0 10%, #e2e8f0 90%, transparent);
 }
 
 [data-theme='dark'] .theme-doc-sidebar-container {
@@ -1125,13 +1118,7 @@ table tbody td {
 }
 
 [data-theme='dark'] .theme-doc-sidebar-container::after {
-  background: linear-gradient(
-    to bottom,
-    transparent,
-    #1e293b 10%,
-    #1e293b 90%,
-    transparent
-  );
+  background: linear-gradient(to bottom, transparent, #1e293b 10%, #1e293b 90%, transparent);
 }
 
 /* Sidebar menu spacing */
@@ -1146,7 +1133,10 @@ table tbody td {
   color: #475569;
   border-radius: 6px;
   padding: 0.4rem 0.75rem;
-  transition: color 0.15s ease, background 0.15s ease, transform 0.1s ease;
+  transition:
+    color 0.15s ease,
+    background 0.15s ease,
+    transform 0.1s ease;
   border-left: 2px solid transparent;
   margin: 1px 0;
   line-height: 1.4;
@@ -1220,7 +1210,10 @@ table tbody td {
   color: #475569;
 }
 
-[data-theme='dark'] .theme-doc-sidebar-menu .menu__list-item-collapsible .menu__link--sublist::before {
+[data-theme='dark']
+  .theme-doc-sidebar-menu
+  .menu__list-item-collapsible
+  .menu__link--sublist::before {
   background: #334155;
 }
 
@@ -1229,7 +1222,10 @@ table tbody td {
   color: #64748b;
 }
 
-[data-theme='dark'] .theme-doc-sidebar-menu .menu__list-item-collapsible .menu__link--sublist:hover {
+[data-theme='dark']
+  .theme-doc-sidebar-menu
+  .menu__list-item-collapsible
+  .menu__link--sublist:hover {
   background: rgba(148, 163, 184, 0.05);
   color: #94a3b8;
 }
@@ -1242,11 +1238,16 @@ table tbody td {
   font-weight: 700;
 }
 
-[data-theme='dark'] .theme-doc-sidebar-menu .menu__list-item-collapsible .menu__link--sublist.menu__link--active {
+[data-theme='dark']
+  .theme-doc-sidebar-menu
+  .menu__list-item-collapsible
+  .menu__link--sublist.menu__link--active {
   color: var(--ifm-color-primary-light);
 }
 
-.theme-doc-sidebar-menu .menu__list-item-collapsible .menu__link--sublist.menu__link--active::before {
+.theme-doc-sidebar-menu
+  .menu__list-item-collapsible
+  .menu__link--sublist.menu__link--active::before {
   background: var(--ifm-color-primary);
 }
 

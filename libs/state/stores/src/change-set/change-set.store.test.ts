@@ -365,7 +365,8 @@ describe('useChangeSetStore', () => {
       it('should remove dependencies referencing the removed item', () => {
         const { addItem, removeItem, getChangeSet } = useChangeSetStore.getState();
 
-        let item1Id = '', item2Id = '';
+        let item1Id = '',
+          item2Id = '';
         act(() => {
           item1Id = addItem(changeSetId, {
             name: 'Item 1',
@@ -717,7 +718,9 @@ describe('useChangeSetStore', () => {
       const { createChangeSet, addItem, getChangeSet } = useChangeSetStore.getState();
 
       let id = '';
-      let bridgeId = '', dhcpId = '', firewallId = '';
+      let bridgeId = '',
+        dhcpId = '',
+        firewallId = '';
 
       act(() => {
         id = createChangeSet({ name: 'LAN Setup', routerId: 'router-1' });

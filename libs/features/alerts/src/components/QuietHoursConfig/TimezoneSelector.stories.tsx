@@ -130,7 +130,8 @@ export const Disabled: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Disabled state used when the quiet hours feature is toggled off or the form is read-only.',
+        story:
+          'Disabled state used when the quiet hours feature is toggled off or the form is read-only.',
       },
     },
   },
@@ -148,7 +149,8 @@ export const NoSelection: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'When no timezone is selected the trigger displays the placeholder text prompting the user to select one.',
+        story:
+          'When no timezone is selected the trigger displays the placeholder text prompting the user to select one.',
       },
     },
   },

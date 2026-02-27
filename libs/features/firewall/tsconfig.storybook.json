@@ -6,14 +6,6 @@
     "composite": false,
     "declaration": true
   },
-  "include": [
-    "src/**/*.stories.ts",
-    "src/**/*.stories.tsx"
-  ],
-  "exclude": [
-    "src/**/*.test.ts",
-    "src/**/*.test.tsx",
-    "src/**/*.spec.ts",
-    "src/**/*.spec.tsx"
-  ]
+  "include": ["src/**/*.stories.ts", "src/**/*.stories.tsx"],
+  "exclude": ["src/**/*.test.ts", "src/**/*.test.tsx", "src/**/*.spec.ts", "src/**/*.spec.tsx"]
 }

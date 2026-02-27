@@ -70,7 +70,9 @@ const meta: Meta<typeof CollapsibleSidebar> = {
   decorators: [
     (Story) => (
       // Provide a full-height container so the sidebar fills vertically
-      <div style={{ display: 'flex', height: '100vh', background: 'var(--color-background, #fff)' }}>
+      <div
+        style={{ display: 'flex', height: '100vh', background: 'var(--color-background, #fff)' }}
+      >
         <Story />
         {/* Fake main area */}
         <main style={{ flex: 1, padding: '1.5rem', background: 'var(--color-background, #fff)' }}>
@@ -205,7 +207,9 @@ export const RightPosition: Story = {
   name: 'Right-Side Sidebar',
   decorators: [
     (Story) => (
-      <div style={{ display: 'flex', height: '100vh', background: 'var(--color-background, #fff)' }}>
+      <div
+        style={{ display: 'flex', height: '100vh', background: 'var(--color-background, #fff)' }}
+      >
         {/* Fake main area on the left */}
         <main style={{ flex: 1, padding: '1.5rem' }}>
           <div
@@ -252,8 +256,13 @@ export const Interactive: Story = {
     const toggle = () => setIsCollapsed((c) => !c);
 
     return (
-      <div style={{ display: 'flex', height: '100vh', background: 'var(--color-background, #fff)' }}>
-        <CollapsibleSidebarProvider isCollapsed={isCollapsed} toggle={toggle}>
+      <div
+        style={{ display: 'flex', height: '100vh', background: 'var(--color-background, #fff)' }}
+      >
+        <CollapsibleSidebarProvider
+          isCollapsed={isCollapsed}
+          toggle={toggle}
+        >
           <CollapsibleSidebar
             isCollapsed={isCollapsed}
             onToggle={toggle}
@@ -265,9 +274,15 @@ export const Interactive: Story = {
         </CollapsibleSidebarProvider>
 
         <main style={{ flex: 1, padding: '1.5rem' }}>
-          <p style={{ fontSize: 14, color: 'var(--color-muted-foreground, #6b7280)', marginBottom: '1rem' }}>
-            Sidebar is <strong>{isCollapsed ? 'collapsed' : 'expanded'}</strong>.
-            Click the edge toggle or press Ctrl+B / Cmd+B to toggle.
+          <p
+            style={{
+              fontSize: 14,
+              color: 'var(--color-muted-foreground, #6b7280)',
+              marginBottom: '1rem',
+            }}
+          >
+            Sidebar is <strong>{isCollapsed ? 'collapsed' : 'expanded'}</strong>. Click the edge
+            toggle or press Ctrl+B / Cmd+B to toggle.
           </p>
           <div
             style={{

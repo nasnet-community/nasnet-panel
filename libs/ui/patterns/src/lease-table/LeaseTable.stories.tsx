@@ -4,7 +4,6 @@ import { LeaseTable } from './LeaseTable';
 
 import type { Meta, StoryObj } from '@storybook/react';
 
-
 // ---------------------------------------------------------------------------
 // Mock data
 // ---------------------------------------------------------------------------
@@ -137,7 +136,8 @@ export const Default: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Full lease list with mixed statuses, static leases, and a blocked device. Try clicking column headers to sort, or type in the search box.',
+        story:
+          'Full lease list with mixed statuses, static leases, and a blocked device. Try clicking column headers to sort, or type in the search box.',
       },
     },
   },
@@ -151,7 +151,8 @@ export const Loading: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Loading skeleton shown while lease data is being fetched — five rows of Skeleton cells replace the real table body.',
+        story:
+          'Loading skeleton shown while lease data is being fetched — five rows of Skeleton cells replace the real table body.',
       },
     },
   },
@@ -165,7 +166,8 @@ export const Empty: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Empty state when no leases exist on the DHCP server. Displays a centred "No DHCP leases found" message.',
+        story:
+          'Empty state when no leases exist on the DHCP server. Displays a centred "No DHCP leases found" message.',
       },
     },
   },
@@ -193,7 +195,8 @@ export const BlockedLeases: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Mix of a normal lease and a blocked lease — the blocked row gets a muted background and strikethrough on IP, MAC, and hostname.',
+        story:
+          'Mix of a normal lease and a blocked lease — the blocked row gets a muted background and strikethrough on IP, MAC, and hostname.',
       },
     },
   },
@@ -207,7 +210,8 @@ export const StaticLeases: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Only static leases — they display a "Static" badge in addition to the status badge, and the Expires column shows no expiry value.',
+        story:
+          'Only static leases — they display a "Static" badge in addition to the status badge, and the Expires column shows no expiry value.',
       },
     },
   },

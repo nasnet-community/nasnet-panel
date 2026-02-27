@@ -39,40 +39,69 @@ export interface FormFieldProps {
  * ```
  */
 const FormFieldBase = React.forwardRef<HTMLDivElement, FormFieldProps>(
-  function FormFieldBaseComponent({ label, description, error, required, children, className, id }, ref) {
+  function FormFieldBaseComponent(
+    { label, description, error, required, children, className, id },
+    ref
+  ) {
     const generatedId = React.useId();
     const fieldId = id || generatedId;
     const descriptionId = `${fieldId}-description`;
     const errorId = `${fieldId}-error`;
 
     return (
-      <div ref={ref} className={cn('space-y-2', className)}>
+      <div
+        ref={ref}
+        className={cn('space-y-2', className)}
+      >
         <label
           htmlFor={fieldId}
           className={cn(
-            'text-sm font-medium text-foreground peer-disabled:cursor-not-allowed peer-disabled:opacity-50',
+            'text-foreground text-sm font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-50',
             error ? 'text-error' : 'text-foreground'
           )}
         >
           {label}
-          {required && <span className="text-error ml-1" aria-label="required">*</span>}
+          {required && (
+            <span
+              className="text-error ml-1"
+              aria-label="required"
+            >
+              *
+            </span>
+          )}
         </label>
         <div>
-          {React.isValidElement(children)
-            ? React.cloneElement(children as React.ReactElement<{ id?: string; 'aria-describedby'?: string; 'aria-invalid'?: boolean }>, {
+          {React.isValidElement(children) ?
+            React.cloneElement(
+              children as React.ReactElement<{
+                id?: string;
+                'aria-describedby'?: string;
+                'aria-invalid'?: boolean;
+              }>,
+              {
                 id: fieldId,
-                'aria-describedby': error ? errorId : description ? descriptionId : undefined,
+                'aria-describedby':
+                  error ? errorId
+                  : description ? descriptionId
+                  : undefined,
                 'aria-invalid': !!error,
-              })
-            : children}
+              }
+            )
+          : children}
         </div>
         {description && (
-          <p id={descriptionId} className="text-xs text-muted-foreground mt-1">
+          <p
+            id={descriptionId}
+            className="text-muted-foreground mt-1 text-xs"
+          >
             {description}
           </p>
         )}
         {error && (
-          <p id={errorId} className="text-xs font-medium text-error mt-1">
+          <p
+            id={errorId}
+            className="text-error mt-1 text-xs font-medium"
+          >
             {error}
           </p>
         )}

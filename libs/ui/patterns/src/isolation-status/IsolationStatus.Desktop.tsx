@@ -31,7 +31,6 @@ import {
 
 import { cn } from '@nasnet/ui/utils';
 
-
 import type { IsolationStatusPresenterProps } from './types';
 
 /**
@@ -78,7 +77,7 @@ const IsolationStatusDesktopComponent = memo(function IsolationStatusDesktop({
       aria-label={state.ariaLabel}
     >
       {/* Header Section */}
-      <div className="flex items-center justify-between mb-5">
+      <div className="mb-5 flex items-center justify-between">
         <div className="flex items-center gap-4">
           <div
             className={cn(
@@ -91,7 +90,7 @@ const IsolationStatusDesktopComponent = memo(function IsolationStatusDesktop({
           >
             <Icon
               className={cn(
-                'w-6 h-6',
+                'h-6 w-6',
                 state.color === 'success' && 'text-success-dark',
                 state.color === 'warning' && 'text-warning-dark',
                 state.color === 'destructive' && 'text-error-dark',
@@ -102,16 +101,13 @@ const IsolationStatusDesktopComponent = memo(function IsolationStatusDesktop({
           </div>
           <div>
             <div className="flex items-center gap-3">
-              <h3 className="text-lg font-semibold text-foreground">
-                Isolation Status
-              </h3>
+              <h3 className="text-foreground text-lg font-semibold">Isolation Status</h3>
               <Badge
                 variant={
-                  state.color === 'success'
-                    ? 'success'
-                    : state.color === 'destructive'
-                    ? 'error'
-                    : 'warning'
+                  state.color === 'success' ? 'success'
+                  : state.color === 'destructive' ?
+                    'error'
+                  : 'warning'
                 }
               >
                 {state.healthLabel}
@@ -120,11 +116,13 @@ const IsolationStatusDesktopComponent = memo(function IsolationStatusDesktop({
                 <Badge variant="error">{state.criticalCount} Critical</Badge>
               )}
               {state.warningCount > 0 && (
-                <Badge variant="secondary">{state.warningCount} Warning{state.warningCount !== 1 ? 's' : ''}</Badge>
+                <Badge variant="secondary">
+                  {state.warningCount} Warning{state.warningCount !== 1 ? 's' : ''}
+                </Badge>
               )}
             </div>
             {state.timestamp && (
-              <p className="text-sm text-muted-foreground mt-1">{state.timestamp}</p>
+              <p className="text-muted-foreground mt-1 text-sm">{state.timestamp}</p>
             )}
           </div>
         </div>
@@ -134,7 +132,7 @@ const IsolationStatusDesktopComponent = memo(function IsolationStatusDesktop({
           onClick={state.handleRefresh}
           aria-label="Refresh isolation status"
         >
-          <Icons.RefreshCw className="w-4 h-4 mr-2" />
+          <Icons.RefreshCw className="mr-2 h-4 w-4" />
           Refresh
         </Button>
       </div>
@@ -144,8 +142,8 @@ const IsolationStatusDesktopComponent = memo(function IsolationStatusDesktop({
         <>
           <Separator className="my-5" />
           <div>
-            <h4 className="text-sm font-semibold mb-3">Violations</h4>
-            <div className="border rounded-lg overflow-hidden">
+            <h4 className="mb-3 text-sm font-semibold">Violations</h4>
+            <div className="overflow-hidden rounded-lg border">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -165,11 +163,10 @@ const IsolationStatusDesktopComponent = memo(function IsolationStatusDesktop({
                         <TableCell>
                           <Badge
                             variant={
-                              violation.color === 'destructive'
-                                ? 'error'
-                                : violation.color === 'warning'
-                                ? 'warning'
-                                : 'info'
+                              violation.color === 'destructive' ? 'error'
+                              : violation.color === 'warning' ?
+                                'warning'
+                              : 'info'
                             }
                             className="inline-flex items-center gap-1"
                           >
@@ -178,16 +175,14 @@ const IsolationStatusDesktopComponent = memo(function IsolationStatusDesktop({
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center gap-2">
-                            <ViolationIcon className="w-4 h-4 text-muted-foreground" />
-                            <span className="font-medium text-sm">
-                              {violation.layerLabel}
-                            </span>
+                            <ViolationIcon className="text-muted-foreground h-4 w-4" />
+                            <span className="text-sm font-medium">{violation.layerLabel}</span>
                           </div>
                         </TableCell>
                         <TableCell className="font-mono text-sm">
                           {violation.violation.message}
                         </TableCell>
-                        <TableCell className="font-mono text-xs text-muted-foreground">
+                        <TableCell className="text-muted-foreground font-mono text-xs">
                           {violation.violation.layer || '-'}
                         </TableCell>
                       </TableRow>
@@ -205,7 +200,7 @@ const IsolationStatusDesktopComponent = memo(function IsolationStatusDesktop({
         <>
           <Separator className="my-5" />
           <div>
-            <div className="flex items-center justify-between mb-3">
+            <div className="mb-3 flex items-center justify-between">
               <h4 className="text-sm font-semibold">Resource Limits</h4>
               {!editMode && state.allowEdit && (
                 <Button
@@ -213,50 +208,45 @@ const IsolationStatusDesktopComponent = memo(function IsolationStatusDesktop({
                   size="sm"
                   onClick={() => setEditMode(true)}
                 >
-                  <Icons.Edit className="w-4 h-4 mr-2" />
+                  <Icons.Edit className="mr-2 h-4 w-4" />
                   Edit Limits
                 </Button>
               )}
             </div>
 
-            {!editMode ? (
+            {!editMode ?
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-muted/50 rounded-lg p-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Icons.MemoryStick className="w-4 h-4 text-muted-foreground" />
-                    <span className="text-xs font-medium text-muted-foreground">
-                      Memory Limit
-                    </span>
+                  <div className="mb-2 flex items-center gap-2">
+                    <Icons.MemoryStick className="text-muted-foreground h-4 w-4" />
+                    <span className="text-muted-foreground text-xs font-medium">Memory Limit</span>
                   </div>
-                  <div className="text-2xl font-bold">
-                    {state.resourceLimits.memoryMB} MB
-                  </div>
-                  <div className="text-xs text-muted-foreground mt-1">
+                  <div className="text-2xl font-bold">{state.resourceLimits.memoryMB} MB</div>
+                  <div className="text-muted-foreground mt-1 text-xs">
                     {state.resourceLimits.applied ? 'Applied' : 'Not applied'}
                   </div>
                 </div>
-                {state.resourceLimits.cpuPercent !== null && state.resourceLimits.cpuPercent !== undefined && (
-                  <div className="bg-muted/50 rounded-lg p-4">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Icons.Cpu className="w-4 h-4 text-muted-foreground" />
-                      <span className="text-xs font-medium text-muted-foreground">
-                        CPU Weight
-                      </span>
+                {state.resourceLimits.cpuPercent !== null &&
+                  state.resourceLimits.cpuPercent !== undefined && (
+                    <div className="bg-muted/50 rounded-lg p-4">
+                      <div className="mb-2 flex items-center gap-2">
+                        <Icons.Cpu className="text-muted-foreground h-4 w-4" />
+                        <span className="text-muted-foreground text-xs font-medium">
+                          CPU Weight
+                        </span>
+                      </div>
+                      <div className="text-2xl font-bold">{state.resourceLimits.cpuPercent}%</div>
+                      <div className="text-muted-foreground mt-1 text-xs">Scheduling priority</div>
                     </div>
-                    <div className="text-2xl font-bold">
-                      {state.resourceLimits.cpuPercent}%
-                    </div>
-                    <div className="text-xs text-muted-foreground mt-1">
-                      Scheduling priority
-                    </div>
-                  </div>
-                )}
+                  )}
               </div>
-            ) : (
-              <div className="space-y-4">
+            : <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="memory" className="text-sm">
+                    <Label
+                      htmlFor="memory"
+                      className="text-sm"
+                    >
                       Memory Limit (MB)
                     </Label>
                     <Input
@@ -264,15 +254,16 @@ const IsolationStatusDesktopComponent = memo(function IsolationStatusDesktop({
                       type="number"
                       min="16"
                       value={limits.memoryMB}
-                      onChange={(e) =>
-                        setLimits({ ...limits, memoryMB: Number(e.target.value) })
-                      }
+                      onChange={(e) => setLimits({ ...limits, memoryMB: Number(e.target.value) })}
                       className="mt-1"
                     />
-                    <p className="text-xs text-muted-foreground mt-1">Minimum: 16 MB</p>
+                    <p className="text-muted-foreground mt-1 text-xs">Minimum: 16 MB</p>
                   </div>
                   <div>
-                    <Label htmlFor="cpuWeight" className="text-sm">
+                    <Label
+                      htmlFor="cpuWeight"
+                      className="text-sm"
+                    >
                       CPU Weight (0-100)
                     </Label>
                     <Input
@@ -281,16 +272,14 @@ const IsolationStatusDesktopComponent = memo(function IsolationStatusDesktop({
                       min="0"
                       max="100"
                       value={limits.cpuWeight ?? 50}
-                      onChange={(e) =>
-                        setLimits({ ...limits, cpuWeight: Number(e.target.value) })
-                      }
+                      onChange={(e) => setLimits({ ...limits, cpuWeight: Number(e.target.value) })}
                       className="mt-1"
                     />
-                    <p className="text-xs text-muted-foreground mt-1">CPU scheduling priority</p>
+                    <p className="text-muted-foreground mt-1 text-xs">CPU scheduling priority</p>
                   </div>
                 </div>
 
-                <div className="flex gap-2 justify-end">
+                <div className="flex justify-end gap-2">
                   <Button
                     variant="outline"
                     onClick={() => {
@@ -309,21 +298,20 @@ const IsolationStatusDesktopComponent = memo(function IsolationStatusDesktop({
                     onClick={handleSave}
                     disabled={state.isSaving}
                   >
-                    {state.isSaving ? (
+                    {state.isSaving ?
                       <>
-                        <Icons.Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        <Icons.Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         Saving...
                       </>
-                    ) : (
-                      <>
-                        <Icons.Save className="w-4 h-4 mr-2" />
+                    : <>
+                        <Icons.Save className="mr-2 h-4 w-4" />
                         Save Changes
                       </>
-                    )}
+                    }
                   </Button>
                 </div>
               </div>
-            )}
+            }
           </div>
         </>
       )}

@@ -11,10 +11,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { ServicesPage } from './ServicesPage';
 
 // Import dependencies (not mocked)
-import {
-  useServiceInstances,
-  useInstanceMutations,
-} from '@nasnet/api-client/queries';
+import { useServiceInstances, useInstanceMutations } from '@nasnet/api-client/queries';
 
 // Mock dependencies
 vi.mock('@nasnet/api-client/queries', () => ({
@@ -43,7 +40,10 @@ vi.mock('@nasnet/ui/patterns', () => ({
       {!loading && !error && (
         <div>
           {instances.map((instance: any) => (
-            <div key={instance.id} data-testid={`instance-${instance.id}`}>
+            <div
+              key={instance.id}
+              data-testid={`instance-${instance.id}`}
+            >
               {instance.name}
             </div>
           ))}
@@ -54,9 +54,7 @@ vi.mock('@nasnet/ui/patterns', () => ({
 }));
 
 vi.mock('@nasnet/ui/primitives', () => ({
-  Button: vi.fn(({ children, onClick }) => (
-    <button onClick={onClick}>{children}</button>
-  )),
+  Button: vi.fn(({ children, onClick }) => <button onClick={onClick}>{children}</button>),
   Card: vi.fn(({ children }) => <div>{children}</div>),
   CardContent: vi.fn(({ children }) => <div>{children}</div>),
   CardHeader: vi.fn(({ children }) => <div>{children}</div>),
@@ -64,11 +62,11 @@ vi.mock('@nasnet/ui/primitives', () => ({
 
 vi.mock('../components/InstallDialog', () => ({
   InstallDialog: vi.fn(({ open, onClose }) =>
-    open ? (
+    open ?
       <div data-testid="install-dialog">
         <button onClick={onClose}>Close</button>
       </div>
-    ) : null
+    : null
   ),
 }));
 
@@ -121,9 +119,7 @@ describe('ServicesPage', () => {
       render(<ServicesPage routerId="router-1" />);
 
       expect(screen.getByText('Service Instances')).toBeInTheDocument();
-      expect(
-        screen.getByText(/Manage downloadable network services/)
-      ).toBeInTheDocument();
+      expect(screen.getByText(/Manage downloadable network services/)).toBeInTheDocument();
     });
 
     it('should render install button in header', () => {
@@ -174,9 +170,7 @@ describe('ServicesPage', () => {
 
       render(<ServicesPage routerId="router-1" />);
 
-      expect(
-        screen.getByText('Error: Failed to fetch instances')
-      ).toBeInTheDocument();
+      expect(screen.getByText('Error: Failed to fetch instances')).toBeInTheDocument();
     });
   });
 

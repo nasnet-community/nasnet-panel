@@ -6,14 +6,7 @@
 
 import * as React from 'react';
 
-import {
-  Pause,
-  Play,
-  Download,
-  FileJson,
-  FileSpreadsheet,
-  Clock,
-} from 'lucide-react';
+import { Pause, Play, Download, FileJson, FileSpreadsheet, Clock } from 'lucide-react';
 
 import type { LogEntry } from '@nasnet/core/types';
 import { formatTimestamp } from '@nasnet/core/utils';
@@ -132,21 +125,20 @@ function LogControlsComponent({
         className="gap-2"
         aria-label={isPaused ? 'Resume live updates' : 'Pause live updates'}
       >
-        {isPaused ? (
+        {isPaused ?
           <>
             <Play className="h-4 w-4" />
             <span className="hidden sm:inline">Resume</span>
           </>
-        ) : (
-          <>
+        : <>
             <Pause className="h-4 w-4" />
             <span className="hidden sm:inline">Pause</span>
           </>
-        )}
+        }
       </Button>
 
       {isPaused && lastUpdated && (
-        <div className="flex items-center gap-1.5 text-xs text-muted-foreground bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-full">
+        <div className="text-muted-foreground flex items-center gap-1.5 rounded-full bg-slate-100 px-2 py-1 text-xs dark:bg-slate-800">
           <Clock className="h-3 w-3" />
           <span>Paused at {formatTimestamp(lastUpdated)}</span>
         </div>
@@ -165,11 +157,17 @@ function LogControlsComponent({
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuItem onClick={handleExportCSV} className="gap-2">
+          <DropdownMenuItem
+            onClick={handleExportCSV}
+            className="gap-2"
+          >
             <FileSpreadsheet className="h-4 w-4" />
             Export as CSV
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={handleExportJSON} className="gap-2">
+          <DropdownMenuItem
+            onClick={handleExportJSON}
+            className="gap-2"
+          >
             <FileJson className="h-4 w-4" />
             Export as JSON
           </DropdownMenuItem>
@@ -187,28 +185,3 @@ export const logExport = {
   toJSON: logsToJSON,
   download: downloadFile,
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

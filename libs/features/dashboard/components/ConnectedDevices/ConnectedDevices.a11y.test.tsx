@@ -34,7 +34,10 @@ vi.mock('@nasnet/ui/patterns', async () => {
   return {
     ...actual,
     DeviceListItem: ({ device }: { device: ConnectedDeviceEnriched }) => (
-      <div data-testid={`device-${device.id}`} role="listitem">
+      <div
+        data-testid={`device-${device.id}`}
+        role="listitem"
+      >
         {device.hostname}
       </div>
     ),
@@ -463,9 +466,7 @@ describe('ConnectedDevices Accessibility', () => {
       buttons.forEach((button) => {
         const classes = button.className;
         expect(
-          classes.includes('focus') ||
-          classes.includes('ring') ||
-          classes.includes('outline')
+          classes.includes('focus') || classes.includes('ring') || classes.includes('outline')
         ).toBe(true);
       });
     });

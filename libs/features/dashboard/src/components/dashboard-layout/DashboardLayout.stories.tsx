@@ -74,9 +74,9 @@ type Story = StoryObj<typeof meta>;
  * Mock dashboard card component for stories
  */
 const MockCard = ({ title, height = 'h-64' }: { title: string; height?: string }) => (
-  <Card className={`${height} p-6 flex flex-col`}>
-    <h3 className="text-lg font-semibold text-foreground mb-component-sm">{title}</h3>
-    <div className="flex-1 flex items-center justify-center text-muted-foreground">
+  <Card className={`${height} flex flex-col p-6`}>
+    <h3 className="text-foreground mb-component-sm text-lg font-semibold">{title}</h3>
+    <div className="text-muted-foreground flex flex-1 items-center justify-center">
       Card content area
     </div>
   </Card>
@@ -90,12 +90,30 @@ export const Default: Story = {
   args: {
     children: (
       <>
-        <MockCard title="Router Health Summary" height="h-80" />
-        <MockCard title="Network Status" height="h-64" />
-        <MockCard title="Recent Alerts" height="h-64" />
-        <MockCard title="Traffic Statistics" height="h-80" />
-        <MockCard title="Active Connections" height="h-64" />
-        <MockCard title="System Resources" height="h-64" />
+        <MockCard
+          title="Router Health Summary"
+          height="h-80"
+        />
+        <MockCard
+          title="Network Status"
+          height="h-64"
+        />
+        <MockCard
+          title="Recent Alerts"
+          height="h-64"
+        />
+        <MockCard
+          title="Traffic Statistics"
+          height="h-80"
+        />
+        <MockCard
+          title="Active Connections"
+          height="h-64"
+        />
+        <MockCard
+          title="System Resources"
+          height="h-64"
+        />
       </>
     ),
   },
@@ -119,10 +137,22 @@ export const MobileViewport: Story = {
   args: {
     children: (
       <>
-        <MockCard title="Router Health Summary" height="h-64" />
-        <MockCard title="Network Status" height="h-48" />
-        <MockCard title="Recent Alerts" height="h-56" />
-        <MockCard title="Traffic Statistics" height="h-64" />
+        <MockCard
+          title="Router Health Summary"
+          height="h-64"
+        />
+        <MockCard
+          title="Network Status"
+          height="h-48"
+        />
+        <MockCard
+          title="Recent Alerts"
+          height="h-56"
+        />
+        <MockCard
+          title="Traffic Statistics"
+          height="h-64"
+        />
       </>
     ),
   },
@@ -155,12 +185,30 @@ export const TabletViewport: Story = {
   args: {
     children: (
       <>
-        <MockCard title="Router Health Summary" height="h-72" />
-        <MockCard title="Network Status" height="h-64" />
-        <MockCard title="Recent Alerts" height="h-64" />
-        <MockCard title="Traffic Statistics" height="h-72" />
-        <MockCard title="Active Connections" height="h-64" />
-        <MockCard title="System Resources" height="h-64" />
+        <MockCard
+          title="Router Health Summary"
+          height="h-72"
+        />
+        <MockCard
+          title="Network Status"
+          height="h-64"
+        />
+        <MockCard
+          title="Recent Alerts"
+          height="h-64"
+        />
+        <MockCard
+          title="Traffic Statistics"
+          height="h-72"
+        />
+        <MockCard
+          title="Active Connections"
+          height="h-64"
+        />
+        <MockCard
+          title="System Resources"
+          height="h-64"
+        />
       </>
     ),
   },
@@ -192,15 +240,42 @@ export const DesktopViewport: Story = {
   args: {
     children: (
       <>
-        <MockCard title="Router Health Summary" height="h-80" />
-        <MockCard title="Network Status" height="h-64" />
-        <MockCard title="Recent Alerts" height="h-64" />
-        <MockCard title="Traffic Statistics" height="h-80" />
-        <MockCard title="Active Connections" height="h-64" />
-        <MockCard title="System Resources" height="h-64" />
-        <MockCard title="Firewall Rules" height="h-72" />
-        <MockCard title="VPN Status" height="h-72" />
-        <MockCard title="Wireless Clients" height="h-72" />
+        <MockCard
+          title="Router Health Summary"
+          height="h-80"
+        />
+        <MockCard
+          title="Network Status"
+          height="h-64"
+        />
+        <MockCard
+          title="Recent Alerts"
+          height="h-64"
+        />
+        <MockCard
+          title="Traffic Statistics"
+          height="h-80"
+        />
+        <MockCard
+          title="Active Connections"
+          height="h-64"
+        />
+        <MockCard
+          title="System Resources"
+          height="h-64"
+        />
+        <MockCard
+          title="Firewall Rules"
+          height="h-72"
+        />
+        <MockCard
+          title="VPN Status"
+          height="h-72"
+        />
+        <MockCard
+          title="Wireless Clients"
+          height="h-72"
+        />
       </>
     ),
   },
@@ -234,9 +309,18 @@ export const NoRefreshButton: Story = {
     showRefresh: false,
     children: (
       <>
-        <MockCard title="Router Health Summary" height="h-80" />
-        <MockCard title="Network Status" height="h-64" />
-        <MockCard title="Recent Alerts" height="h-64" />
+        <MockCard
+          title="Router Health Summary"
+          height="h-80"
+        />
+        <MockCard
+          title="Network Status"
+          height="h-64"
+        />
+        <MockCard
+          title="Recent Alerts"
+          height="h-64"
+        />
       </>
     ),
   },
@@ -255,7 +339,12 @@ export const NoRefreshButton: Story = {
 
 export const SingleCard: Story = {
   args: {
-    children: <MockCard title="Router Health Summary" height="h-96" />,
+    children: (
+      <MockCard
+        title="Router Health Summary"
+        height="h-96"
+      />
+    ),
   },
   parameters: {
     docs: {
@@ -299,14 +388,17 @@ export const LoadingSkeleton: Story = {
     children: (
       <>
         {Array.from({ length: 6 }).map((_, i) => (
-          <Card key={i} className="h-64 p-6 animate-pulse">
+          <Card
+            key={i}
+            className="h-64 animate-pulse p-6"
+          >
             <div className="space-y-4">
-              <div className="h-6 bg-muted rounded w-3/4" />
-              <div className="h-4 bg-muted rounded w-1/2" />
-              <div className="space-y-2 pt-component-md">
-                <div className="h-4 bg-muted rounded" />
-                <div className="h-4 bg-muted rounded w-5/6" />
-                <div className="h-4 bg-muted rounded w-4/6" />
+              <div className="bg-muted h-6 w-3/4 rounded" />
+              <div className="bg-muted h-4 w-1/2 rounded" />
+              <div className="pt-component-md space-y-2">
+                <div className="bg-muted h-4 rounded" />
+                <div className="bg-muted h-4 w-5/6 rounded" />
+                <div className="bg-muted h-4 w-4/6 rounded" />
               </div>
             </div>
           </Card>

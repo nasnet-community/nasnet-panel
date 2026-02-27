@@ -32,10 +32,12 @@ Most stores already have DevTools integrated - it's automatic!
 ### Using Redux DevTools Extension
 
 1. **Install browser extension**
+
    - Chrome: [Redux DevTools](https://chrome.google.com/webstore)
    - Firefox: [Redux DevTools](https://addons.mozilla.org/firefox)
 
 2. **Open DevTools in browser**
+
    - Right-click → Inspect → DevTools → Redux tab
 
 3. **Watch state changes**
@@ -45,14 +47,14 @@ Most stores already have DevTools integrated - it's automatic!
 
 ### Features
 
-| Feature | Purpose |
-|---------|---------|
+| Feature            | Purpose                                 |
+| ------------------ | --------------------------------------- |
 | **Action History** | See every state mutation with timestamp |
-| **Time Travel** | Jump to any previous state |
-| **Diff View** | See what changed between states |
-| **Export/Import** | Save and restore state snapshots |
-| **Dispatch Test** | Send actions to test state changes |
-| **Persist** | Save state between sessions |
+| **Time Travel**    | Jump to any previous state              |
+| **Diff View**      | See what changed between states         |
+| **Export/Import**  | Save and restore state snapshots        |
+| **Dispatch Test**  | Send actions to test state changes      |
+| **Persist**        | Save state between sessions             |
 
 ### Console Debugging
 
@@ -71,9 +73,7 @@ useMyStore.subscribe((state, previousState) => {
   console.log('State changed:', {
     previous: previousState,
     current: state,
-    changed: Object.entries(state).filter(
-      ([key, value]) => value !== previousState[key]
-    ),
+    changed: Object.entries(state).filter(([key, value]) => value !== previousState[key]),
   });
 });
 ```
@@ -116,6 +116,7 @@ console.log(machine.toJSON());
 ```
 
 Copy the JSON output and paste into Stately Visualizer to see:
+
 - State diagram
 - Transitions
 - Guards
@@ -161,23 +162,23 @@ Object.keys(localStorage).forEach((key) => {
 
 ### Full localStorage Reference
 
-| Store | localStorage Key | Persisted Fields |
-|-------|-----------------|------------------|
-| **Auth** | `nasnet-auth-store` | token, user, roles |
-| **Connection** | `nasnet-connection-store` | currentRouterId, preferences |
-| **Theme** | `nasnet-theme-store` | isDark, colorMode |
-| **Sidebar** | `nasnet-sidebar-store` | isCollapsed |
-| **DHCP** | `dhcp-ui-store` | wizardDraft, showPoolVisualization |
-| **Service** | `service-ui-store` | wizardDraft, viewMode, showResourceMetrics |
-| **Firewall Log** | `firewall-log-ui-store` | filters, autoRefresh, refreshInterval, sortBy, sortOrder |
-| **Mangle** | `mangle-ui-storage` | selectedChain, compactMode |
-| **NAT** | `nat-ui-storage` | selectedChain, compactMode |
-| **RAW** | `raw-ui-storage` | selectedChain, performanceSectionExpanded, compactMode |
-| **Port Knock** | `port-knock-ui-storage` | activeTab, compactMode, autoRefreshLog |
-| **Rate Limiting** | `nasnet-rate-limiting-ui` | selectedTab, showDisabledRules, actionFilter, statsPollingInterval |
-| **Alerts** | `alert-notification-store` | settings only (notifications are memory-only) |
-| **Alert Templates** | `alert-rule-template-ui-storage` | viewMode only |
-| **Interface Stats** | `nasnet-interface-stats-preferences` | pollingInterval |
+| Store               | localStorage Key                     | Persisted Fields                                                   |
+| ------------------- | ------------------------------------ | ------------------------------------------------------------------ |
+| **Auth**            | `nasnet-auth-store`                  | token, user, roles                                                 |
+| **Connection**      | `nasnet-connection-store`            | currentRouterId, preferences                                       |
+| **Theme**           | `nasnet-theme-store`                 | isDark, colorMode                                                  |
+| **Sidebar**         | `nasnet-sidebar-store`               | isCollapsed                                                        |
+| **DHCP**            | `dhcp-ui-store`                      | wizardDraft, showPoolVisualization                                 |
+| **Service**         | `service-ui-store`                   | wizardDraft, viewMode, showResourceMetrics                         |
+| **Firewall Log**    | `firewall-log-ui-store`              | filters, autoRefresh, refreshInterval, sortBy, sortOrder           |
+| **Mangle**          | `mangle-ui-storage`                  | selectedChain, compactMode                                         |
+| **NAT**             | `nat-ui-storage`                     | selectedChain, compactMode                                         |
+| **RAW**             | `raw-ui-storage`                     | selectedChain, performanceSectionExpanded, compactMode             |
+| **Port Knock**      | `port-knock-ui-storage`              | activeTab, compactMode, autoRefreshLog                             |
+| **Rate Limiting**   | `nasnet-rate-limiting-ui`            | selectedTab, showDisabledRules, actionFilter, statsPollingInterval |
+| **Alerts**          | `alert-notification-store`           | settings only (notifications are memory-only)                      |
+| **Alert Templates** | `alert-rule-template-ui-storage`     | viewMode only                                                      |
+| **Interface Stats** | `nasnet-interface-stats-preferences` | pollingInterval                                                    |
 
 ### Clear Specific Store
 
@@ -282,15 +283,19 @@ useMyStore.subscribe(() => {
 
 ```typescript
 // ❌ Missing partialize - nothing is persisted
-const store = create((set) => ({ /* ... */ }));
+const store = create((set) => ({
+  /* ... */
+}));
 
 // ✅ Correct - specifies what to persist
 const store = create(
-  (set) => ({ /* ... */ }),
+  (set) => ({
+    /* ... */
+  }),
   {
     name: 'my-store',
     partialize: (state) => ({
-      viewMode: state.viewMode,  // Persist only this
+      viewMode: state.viewMode, // Persist only this
     }),
   }
 );
@@ -337,10 +342,9 @@ useAuthStore.subscribe(
 );
 
 // Check if 401 errors clear auth
-fetch('/api/protected')
-  .catch((error) => {
-    console.log('Auth cleared?', useAuthStore.getState().isAuthenticated);
-  });
+fetch('/api/protected').catch((error) => {
+  console.log('Auth cleared?', useAuthStore.getState().isAuthenticated);
+});
 ```
 
 ### Memory Leaks

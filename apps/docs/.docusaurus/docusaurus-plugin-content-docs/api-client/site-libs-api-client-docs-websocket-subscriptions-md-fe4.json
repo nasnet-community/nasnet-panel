@@ -1,7 +1,7 @@
 {
   "id": "websocket-subscriptions",
   "title": "WebSocket Subscriptions",
-  "description": "This document covers the real-time subscription layer of @nasnet/api-client: how the WebSocket client is created and configured, how split-link routing directs subscription operations to the WebSocket transport while keeping queries and mutations on HTTP, how authentication is provided per-connection, how the retry/reconnect strategy works, and how connection lifecycle events flow into the Zustand stores and the offline detector.",
+  "description": "This document covers the real-time subscription layer of @nasnet/api-client: how the WebSocket",
   "source": "@site/../../libs/api-client/docs/websocket-subscriptions.md",
   "sourceDirName": ".",
   "slug": "/websocket-subscriptions",

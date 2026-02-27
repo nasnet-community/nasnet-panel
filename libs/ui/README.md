@@ -1,6 +1,8 @@
 # UI Libraries - Three-Layer Component Architecture
 
-This directory contains the UI component libraries for NasNetConnect, implementing the **Three-Layer Component Architecture** as defined in [ADR-017](../../Docs/architecture/adrs/017-three-layer-component-architecture.md).
+This directory contains the UI component libraries for NasNetConnect, implementing the **Three-Layer
+Component Architecture** as defined in
+[ADR-017](../../Docs/architecture/adrs/017-three-layer-component-architecture.md).
 
 ## Architecture Overview
 
@@ -85,14 +87,15 @@ libs/ui/
 
 ESLint `@nx/enforce-module-boundaries` enforces:
 
-| Source | Can Depend On |
-|--------|---------------|
-| `scope:features` | `scope:ui-patterns`, `scope:ui-primitives`, `scope:ui-layouts`, `scope:core` |
-| `scope:ui-patterns` | `scope:ui-primitives`, `scope:ui-layouts`, `scope:core` |
-| `scope:ui-layouts` | `scope:ui-primitives`, `scope:core` |
-| `scope:ui-primitives` | `scope:core` only |
+| Source                | Can Depend On                                                                |
+| --------------------- | ---------------------------------------------------------------------------- |
+| `scope:features`      | `scope:ui-patterns`, `scope:ui-primitives`, `scope:ui-layouts`, `scope:core` |
+| `scope:ui-patterns`   | `scope:ui-primitives`, `scope:ui-layouts`, `scope:core`                      |
+| `scope:ui-layouts`    | `scope:ui-primitives`, `scope:core`                                          |
+| `scope:ui-primitives` | `scope:core` only                                                            |
 
 **Key Rules:**
+
 - Primitives cannot import from patterns or features
 - Patterns can import from primitives only
 - Features can import from patterns and primitives
@@ -128,6 +131,7 @@ export function ResourceCard<T>(props: Props<T>) {
 ```
 
 **Breakpoints:**
+
 - Mobile: `<640px`
 - Tablet: `640-1024px`
 - Desktop: `>1024px`
@@ -149,11 +153,13 @@ libs/ui/patterns/src/common/resource-card/
 
 ## Creating New Patterns
 
-See [PATTERNS.md](./patterns/PATTERNS.md) for detailed guidelines on creating new pattern components.
+See [PATTERNS.md](./patterns/PATTERNS.md) for detailed guidelines on creating new pattern
+components.
 
 ## Accessibility
 
 All components must meet WCAG AAA standards:
+
 - 7:1 contrast ratio for normal text
 - 44px minimum touch targets on mobile
 - Full keyboard navigation

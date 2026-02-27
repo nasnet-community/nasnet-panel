@@ -34,11 +34,9 @@ export function VlanList({ routerId, className }: VlanListProps) {
 
   return (
     <div className={className}>
-      {platform === 'mobile' ? (
+      {platform === 'mobile' ?
         <VlanListMobile {...sharedProps} />
-      ) : (
-        <VlanListDesktop {...sharedProps} />
-      )}
+      : <VlanListDesktop {...sharedProps} />}
     </div>
   );
 }

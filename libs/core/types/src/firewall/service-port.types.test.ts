@@ -343,7 +343,13 @@ describe('hasBuiltInConflict', () => {
 describe('hasCustomConflict', () => {
   const customServices: ServicePortDefinition[] = [
     { port: 8080, service: 'my-app', protocol: 'tcp', category: 'custom', isBuiltIn: false },
-    { port: 9000, service: 'custom-service', protocol: 'udp', category: 'custom', isBuiltIn: false },
+    {
+      port: 9000,
+      service: 'custom-service',
+      protocol: 'udp',
+      category: 'custom',
+      isBuiltIn: false,
+    },
   ];
 
   it('should detect case-insensitive conflicts with custom services', () => {
@@ -496,9 +502,13 @@ describe('hasGroupNameConflict', () => {
 
   it('should exclude current group when editing', () => {
     // When editing group with id 123e..., don't conflict with itself
-    expect(hasGroupNameConflict('web', existingGroups, '123e4567-e89b-12d3-a456-426614174000')).toBe(false);
+    expect(
+      hasGroupNameConflict('web', existingGroups, '123e4567-e89b-12d3-a456-426614174000')
+    ).toBe(false);
     // But still conflict with different group
-    expect(hasGroupNameConflict('web', existingGroups, '999e4567-e89b-12d3-a456-426614174000')).toBe(true);
+    expect(
+      hasGroupNameConflict('web', existingGroups, '999e4567-e89b-12d3-a456-426614174000')
+    ).toBe(true);
   });
 });
 

@@ -7,40 +7,64 @@ Firewall template with pre-configured rule sets.
 Templates allow quick application of common firewall configurations.
 """
 type FirewallTemplate {
-  """Unique template identifier"""
+  """
+  Unique template identifier
+  """
   id: ID!
 
-  """Human-readable template name"""
+  """
+  Human-readable template name
+  """
   name: String!
 
-  """Detailed description of what this template does"""
+  """
+  Detailed description of what this template does
+  """
   description: String!
 
-  """Category for organization"""
+  """
+  Category for organization
+  """
   category: TemplateCategory!
 
-  """Complexity level indicator"""
+  """
+  Complexity level indicator
+  """
   complexity: TemplateComplexity!
 
-  """Total number of rules in this template"""
+  """
+  Total number of rules in this template
+  """
   ruleCount: Int!
 
-  """Variables that can be customized before applying"""
+  """
+  Variables that can be customized before applying
+  """
   variables: [FirewallTemplateVariable!]!
 
-  """Rules that will be created"""
+  """
+  Rules that will be created
+  """
   rules: [TemplateRule!]!
 
-  """Whether this is a built-in template"""
+  """
+  Whether this is a built-in template
+  """
   isBuiltIn: Boolean!
 
-  """Template version for compatibility tracking"""
+  """
+  Template version for compatibility tracking
+  """
   version: String!
 
-  """When this template was created (null for built-in)"""
+  """
+  When this template was created (null for built-in)
+  """
   createdAt: DateTime
 
-  """When this template was last modified (null for built-in)"""
+  """
+  When this template was last modified (null for built-in)
+  """
   updatedAt: DateTime
 }
 
@@ -49,25 +73,39 @@ Variable definition for template customization.
 Variables allow parameterization of templates for different network configurations.
 """
 type FirewallTemplateVariable {
-  """Variable name (used in rule properties)"""
+  """
+  Variable name (used in rule properties)
+  """
   name: String!
 
-  """Human-readable label for UI"""
+  """
+  Human-readable label for UI
+  """
   label: String!
 
-  """Variable type for validation"""
+  """
+  Variable type for validation
+  """
   type: VariableType!
 
-  """Default value if not specified"""
+  """
+  Default value if not specified
+  """
   defaultValue: String
 
-  """Whether this variable is required"""
+  """
+  Whether this variable is required
+  """
   required: Boolean!
 
-  """Description to help users understand the variable"""
+  """
+  Description to help users understand the variable
+  """
   description: String
 
-  """Available options (populated from router for INTERFACE type)"""
+  """
+  Available options (populated from router for INTERFACE type)
+  """
   options: [String!]
 }
 
@@ -76,22 +114,34 @@ Template rule definition.
 Represents a firewall rule that will be created when template is applied.
 """
 type TemplateRule {
-  """Firewall table (filter, nat, mangle, raw)"""
+  """
+  Firewall table (filter, nat, mangle, raw)
+  """
   table: FirewallTable!
 
-  """Chain name"""
+  """
+  Chain name
+  """
   chain: String!
 
-  """Action to perform"""
+  """
+  Action to perform
+  """
   action: String!
 
-  """Optional comment (can include template metadata)"""
+  """
+  Optional comment (can include template metadata)
+  """
   comment: String
 
-  """Position in the chain (null = append to end)"""
+  """
+  Position in the chain (null = append to end)
+  """
   position: Int
 
-  """Rule properties as JSON (can include variable references like {{LAN_INTERFACE}})"""
+  """
+  Rule properties as JSON (can include variable references like {{LAN_INTERFACE}})
+  """
   properties: JSON!
 }
 
@@ -100,16 +150,24 @@ Result of template preview operation.
 Shows what will happen when template is applied.
 """
 type TemplatePreviewResult {
-  """The template being previewed"""
+  """
+  The template being previewed
+  """
   template: FirewallTemplate!
 
-  """Rules with variables resolved"""
+  """
+  Rules with variables resolved
+  """
   resolvedRules: [TemplateRule!]!
 
-  """Detected conflicts with existing rules"""
+  """
+  Detected conflicts with existing rules
+  """
   conflicts: [TemplateConflict!]!
 
-  """Impact analysis"""
+  """
+  Impact analysis
+  """
   impactAnalysis: ImpactAnalysis!
 }
 
@@ -117,16 +175,24 @@ type TemplatePreviewResult {
 Detected conflict between template and existing configuration.
 """
 type TemplateConflict {
-  """Type of conflict"""
+  """
+  Type of conflict
+  """
   type: TemplateConflictType!
 
-  """Human-readable conflict description"""
+  """
+  Human-readable conflict description
+  """
   message: String!
 
-  """Existing rule ID that conflicts (if applicable)"""
+  """
+  Existing rule ID that conflicts (if applicable)
+  """
   existingRuleId: ID
 
-  """Proposed template rule that conflicts"""
+  """
+  Proposed template rule that conflicts
+  """
   proposedRule: TemplateRule!
 }
 
@@ -135,16 +201,24 @@ Analysis of template application impact.
 Provides estimates and warnings before applying.
 """
 type ImpactAnalysis {
-  """Number of new rules that will be created"""
+  """
+  Number of new rules that will be created
+  """
   newRulesCount: Int!
 
-  """Chains that will be affected"""
+  """
+  Chains that will be affected
+  """
   affectedChains: [String!]!
 
-  """Estimated time to apply (seconds)"""
+  """
+  Estimated time to apply (seconds)
+  """
   estimatedApplyTime: Int!
 
-  """Warnings about potential issues"""
+  """
+  Warnings about potential issues
+  """
   warnings: [String!]!
 }
 
@@ -152,15 +226,23 @@ type ImpactAnalysis {
 Result of template application.
 """
 type FirewallTemplateResult {
-  """Whether application succeeded"""
+  """
+  Whether application succeeded
+  """
   success: Boolean!
 
-  """Number of rules successfully applied"""
+  """
+  Number of rules successfully applied
+  """
   appliedRulesCount: Int!
 
-  """Rollback ID for undo (valid for 5 minutes)"""
+  """
+  Rollback ID for undo (valid for 5 minutes)
+  """
   rollbackId: ID!
 
-  """Errors encountered during application"""
+  """
+  Errors encountered during application
+  """
   errors: [String!]
 }

@@ -17,22 +17,34 @@ Aggregated view of an address list with entry statistics.
 Address lists group IP addresses for use in firewall rules.
 """
 type AddressList {
-  """List name (unique identifier)"""
+  """
+  List name (unique identifier)
+  """
   name: String!
 
-  """Total number of entries in this list"""
+  """
+  Total number of entries in this list
+  """
   entryCount: Int!
 
-  """Number of dynamic entries (added by firewall actions)"""
+  """
+  Number of dynamic entries (added by firewall actions)
+  """
   dynamicCount: Int!
 
-  """Number of firewall rules referencing this list"""
+  """
+  Number of firewall rules referencing this list
+  """
   referencingRulesCount: Int!
 
-  """Paginated entries in this list"""
+  """
+  Paginated entries in this list
+  """
   entries(first: Int, after: String): AddressListEntryConnection!
 
-  """Firewall rules that reference this list"""
+  """
+  Firewall rules that reference this list
+  """
   referencingRules: [FirewallRule!]!
 }
 
@@ -41,28 +53,44 @@ Single entry in an address list.
 Represents an IP address, CIDR subnet, or IP range that belongs to a named list.
 """
 type AddressListEntry implements Node {
-  """MikroTik internal ID"""
+  """
+  MikroTik internal ID
+  """
   id: ID! @mikrotik(path: "/ip/firewall/address-list", field: ".id")
 
-  """Name of the address list this entry belongs to"""
+  """
+  Name of the address list this entry belongs to
+  """
   list: String! @mikrotik(path: "/ip/firewall/address-list", field: "list")
 
-  """IP address, CIDR subnet, or IP range"""
+  """
+  IP address, CIDR subnet, or IP range
+  """
   address: String! @mikrotik(path: "/ip/firewall/address-list", field: "address")
 
-  """Optional description"""
+  """
+  Optional description
+  """
   comment: String @validate(maxLength: 200) @mikrotik(path: "/ip/firewall/address-list", field: "comment")
 
-  """Optional timeout after which entry is removed"""
+  """
+  Optional timeout after which entry is removed
+  """
   timeout: String @mikrotik(path: "/ip/firewall/address-list", field: "timeout")
 
-  """When this entry was created"""
+  """
+  When this entry was created
+  """
   creationTime: DateTime @mikrotik(path: "/ip/firewall/address-list", field: "creation-time")
 
-  """Whether this entry was added dynamically by a firewall action"""
+  """
+  Whether this entry was added dynamically by a firewall action
+  """
   dynamic: Boolean! @mikrotik(path: "/ip/firewall/address-list", field: "dynamic")
 
-  """Whether this entry is disabled"""
+  """
+  Whether this entry is disabled
+  """
   disabled: Boolean! @mikrotik(path: "/ip/firewall/address-list", field: "disabled")
 }
 
@@ -93,27 +121,43 @@ Firewall rule placeholder type.
 TODO: Expand with full filter/NAT/mangle rule types in future stories.
 """
 type FirewallRule implements Node {
-  """Rule ID"""
+  """
+  Rule ID
+  """
   id: ID!
 
-  """Rule type (filter, nat, mangle)"""
+  """
+  Rule type (filter, nat, mangle)
+  """
   type: String!
 
-  """Rule chain (input, forward, output, prerouting, postrouting, etc.)"""
+  """
+  Rule chain (input, forward, output, prerouting, postrouting, etc.)
+  """
   chain: String!
 
-  """Rule action (accept, drop, reject, etc.)"""
+  """
+  Rule action (accept, drop, reject, etc.)
+  """
   action: String!
 
-  """Source address list reference"""
+  """
+  Source address list reference
+  """
   srcAddressList: String
 
-  """Destination address list reference"""
+  """
+  Destination address list reference
+  """
   dstAddressList: String
 
-  """Optional comment"""
+  """
+  Optional comment
+  """
   comment: String
 
-  """Whether rule is disabled"""
+  """
+  Whether rule is disabled
+  """
   disabled: Boolean!
 }

@@ -18,14 +18,7 @@
 import * as React from 'react';
 import { useCallback } from 'react';
 import * as Collapsible from '@radix-ui/react-collapsible';
-import {
-  ChevronDown,
-  ChevronUp,
-  HardDrive,
-  AlertTriangle,
-  RefreshCw,
-  Info,
-} from 'lucide-react';
+import { ChevronDown, ChevronUp, HardDrive, AlertTriangle, RefreshCw, Info } from 'lucide-react';
 
 import {
   Card,
@@ -90,7 +83,9 @@ function formatBytes(bytes: string): string {
  * @param {StorageSettingsDesktopProps} props - Component props
  * @returns {React.ReactNode} Rendered desktop storage settings UI
  */
-export const StorageSettingsDesktop = React.memo(function StorageSettingsDesktop({ className }: StorageSettingsDesktopProps) {
+export const StorageSettingsDesktop = React.memo(function StorageSettingsDesktop({
+  className,
+}: StorageSettingsDesktopProps) {
   const {
     externalMounts,
     flashStorage,
@@ -126,13 +121,16 @@ export const StorageSettingsDesktop = React.memo(function StorageSettingsDesktop
     }
   }, [externalMounts, selectedMount]);
 
-  const handleStorageToggle = useCallback((enabled: boolean) => {
-    if (enabled && selectedMount) {
-      handleEnableStorage(selectedMount);
-    } else {
-      handleDisableStorage(false);
-    }
-  }, [selectedMount, handleEnableStorage, handleDisableStorage]);
+  const handleStorageToggle = useCallback(
+    (enabled: boolean) => {
+      if (enabled && selectedMount) {
+        handleEnableStorage(selectedMount);
+      } else {
+        handleDisableStorage(false);
+      }
+    },
+    [selectedMount, handleEnableStorage, handleDisableStorage]
+  );
 
   const handleMountSelect = useCallback((value: string) => setSelectedMount(value), []);
 
@@ -140,37 +138,42 @@ export const StorageSettingsDesktop = React.memo(function StorageSettingsDesktop
 
   const handleCommonToggle = useCallback((open: boolean) => setShowCommon(open), [setShowCommon]);
 
-  const handleAdvancedToggle = useCallback((open: boolean) => setShowAdvanced(open), [setShowAdvanced]);
+  const handleAdvancedToggle = useCallback(
+    (open: boolean) => setShowAdvanced(open),
+    [setShowAdvanced]
+  );
 
   return (
-    <div className={cn('flex flex-col gap-component-lg p-component-lg', className)}>
+    <div className={cn('gap-component-lg p-component-lg flex flex-col', className)}>
       {/* Disconnect Warning Banner */}
       {isStorageDisconnected && <StorageDisconnectBanner />}
 
       {/* Two-Column Layout: Configuration (left) + Usage (right) */}
-      <div className="grid grid-cols-2 gap-component-lg">
+      <div className="gap-component-lg grid grid-cols-2">
         {/* Left Column: Configuration */}
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <HardDrive className="h-5 w-5" aria-hidden="true" />
+                <HardDrive
+                  className="h-5 w-5"
+                  aria-hidden="true"
+                />
                 <CardTitle>Storage Configuration</CardTitle>
               </div>
               <Badge
                 variant={
-                  isStorageDisconnected
-                    ? 'error'
-                    : isStorageConfigured
-                    ? 'default'
-                    : 'secondary'
+                  isStorageDisconnected ? 'error'
+                  : isStorageConfigured ?
+                    'default'
+                  : 'secondary'
                 }
               >
-                {isStorageDisconnected
-                  ? 'Disconnected'
-                  : isStorageConfigured
-                  ? 'Configured'
-                  : 'Not Configured'}
+                {isStorageDisconnected ?
+                  'Disconnected'
+                : isStorageConfigured ?
+                  'Configured'
+                : 'Not Configured'}
               </Badge>
             </div>
             <CardDescription>
@@ -180,9 +183,12 @@ export const StorageSettingsDesktop = React.memo(function StorageSettingsDesktop
           <CardContent className="space-y-component-md">
             {/* Detection Warning: Alert when no external storage devices found */}
             {!isStorageDetected && (
-              <div className="flex items-center gap-component-sm p-component-sm bg-muted rounded-[var(--semantic-radius-button)]">
-                <AlertTriangle className="h-5 w-5 text-category-firewall" aria-hidden="true" />
-                <p className="text-sm text-muted-foreground">
+              <div className="gap-component-sm p-component-sm bg-muted flex items-center rounded-[var(--semantic-radius-button)]">
+                <AlertTriangle
+                  className="text-category-firewall h-5 w-5"
+                  aria-hidden="true"
+                />
+                <p className="text-muted-foreground text-sm">
                   No external storage detected. Connect a USB drive or disk.
                 </p>
               </div>
@@ -190,13 +196,17 @@ export const StorageSettingsDesktop = React.memo(function StorageSettingsDesktop
 
             {/* Enable Toggle: Switch to enable/disable external storage */}
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-component-sm">
-                <Label htmlFor="storage-enabled-desktop">
-                  Enable External Storage
-                </Label>
+              <div className="gap-component-sm flex items-center">
+                <Label htmlFor="storage-enabled-desktop">Enable External Storage</Label>
                 <Tooltip>
-                  <Info className="h-4 w-4 text-muted-foreground cursor-help" aria-hidden="true" />
-                  <span slot="content" className="text-sm">
+                  <Info
+                    className="text-muted-foreground h-4 w-4 cursor-help"
+                    aria-hidden="true"
+                  />
+                  <span
+                    slot="content"
+                    className="text-sm"
+                  >
                     Store service binaries on external storage instead of flash
                   </span>
                 </Tooltip>
@@ -224,9 +234,12 @@ export const StorageSettingsDesktop = React.memo(function StorageSettingsDesktop
                   </SelectTrigger>
                   <SelectContent>
                     {externalMounts.map((mount) => (
-                      <SelectItem key={mount.path} value={mount.path}>
-                        <span className="font-mono">{mount.path}</span> - {formatBytes(mount.availableBytes)} free (
-                        {mount.filesystem})
+                      <SelectItem
+                        key={mount.path}
+                        value={mount.path}
+                      >
+                        <span className="font-mono">{mount.path}</span> -{' '}
+                        {formatBytes(mount.availableBytes)} free ({mount.filesystem})
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -255,9 +268,7 @@ export const StorageSettingsDesktop = React.memo(function StorageSettingsDesktop
         <Card>
           <CardHeader>
             <CardTitle>Storage Usage</CardTitle>
-            <CardDescription>
-              Current storage consumption across flash and external
-            </CardDescription>
+            <CardDescription>Current storage consumption across flash and external</CardDescription>
           </CardHeader>
           <CardContent className="space-y-component-md">
             {/* External Storage Usage */}
@@ -288,18 +299,16 @@ export const StorageSettingsDesktop = React.memo(function StorageSettingsDesktop
 
             {/* Total Summary: Aggregate capacity across all storage */}
             {usage && (
-              <div className="pt-component-sm border-t border-border space-y-component-sm">
+              <div className="pt-component-sm border-border space-y-component-sm border-t">
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Total Capacity:</span>
-                  <span className="font-medium font-mono">
+                  <span className="font-mono font-medium">
                     {formatBytes(usage.totalCapacityBytes)}
                   </span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Total Used:</span>
-                  <span className="font-medium font-mono">
-                    {formatBytes(usage.totalUsedBytes)}
-                  </span>
+                  <span className="font-mono font-medium">{formatBytes(usage.totalUsedBytes)}</span>
                 </div>
               </div>
             )}
@@ -308,7 +317,10 @@ export const StorageSettingsDesktop = React.memo(function StorageSettingsDesktop
       </div>
 
       {/* Common Section: Service Breakdown Table (collapsed by default) */}
-      <Collapsible.Root open={showCommon} onOpenChange={handleCommonToggle}>
+      <Collapsible.Root
+        open={showCommon}
+        onOpenChange={handleCommonToggle}
+      >
         <Collapsible.Trigger asChild>
           <Button
             variant="outline"
@@ -318,17 +330,22 @@ export const StorageSettingsDesktop = React.memo(function StorageSettingsDesktop
             aria-expanded={showCommon}
           >
             <span>Service Storage Breakdown</span>
-            {showCommon ? (
-              <ChevronUp className="h-4 w-4" aria-hidden="true" />
-            ) : (
-              <ChevronDown className="h-4 w-4" aria-hidden="true" />
-            )}
+            {showCommon ?
+              <ChevronUp
+                className="h-4 w-4"
+                aria-hidden="true"
+              />
+            : <ChevronDown
+                className="h-4 w-4"
+                aria-hidden="true"
+              />
+            }
           </Button>
         </Collapsible.Trigger>
         <Collapsible.Content className="mt-component-md">
           <Card>
             <CardContent className="pt-component-lg">
-              {usage?.features && usage.features.length > 0 ? (
+              {usage?.features && usage.features.length > 0 ?
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -345,12 +362,8 @@ export const StorageSettingsDesktop = React.memo(function StorageSettingsDesktop
                   <TableBody>
                     {usage.features.map((feature) => (
                       <TableRow key={feature.featureId}>
-                        <TableCell className="font-medium">
-                          {feature.featureName}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          {feature.instanceCount}
-                        </TableCell>
+                        <TableCell className="font-medium">{feature.featureName}</TableCell>
+                        <TableCell className="text-right">{feature.instanceCount}</TableCell>
                         <TableCell className="text-right font-mono">
                           {formatBytes(feature.binarySize)}
                         </TableCell>
@@ -363,7 +376,7 @@ export const StorageSettingsDesktop = React.memo(function StorageSettingsDesktop
                         <TableCell className="text-right font-mono">
                           {formatBytes(feature.logsSize)}
                         </TableCell>
-                        <TableCell className="text-right font-medium font-mono">
+                        <TableCell className="text-right font-mono font-medium">
                           {formatBytes(feature.totalSize)}
                         </TableCell>
                         <TableCell>
@@ -373,18 +386,20 @@ export const StorageSettingsDesktop = React.memo(function StorageSettingsDesktop
                     ))}
                   </TableBody>
                 </Table>
-              ) : (
-                <p className="text-sm text-muted-foreground text-center py-8">
+              : <p className="text-muted-foreground py-8 text-center text-sm">
                   No services installed yet
                 </p>
-              )}
+              }
             </CardContent>
           </Card>
         </Collapsible.Content>
       </Collapsible.Root>
 
       {/* Advanced Section: Mount Point Details Table (collapsed by default) */}
-      <Collapsible.Root open={showAdvanced} onOpenChange={handleAdvancedToggle}>
+      <Collapsible.Root
+        open={showAdvanced}
+        onOpenChange={handleAdvancedToggle}
+      >
         <Collapsible.Trigger asChild>
           <Button
             variant="outline"
@@ -394,11 +409,16 @@ export const StorageSettingsDesktop = React.memo(function StorageSettingsDesktop
             aria-expanded={showAdvanced}
           >
             <span>Advanced Storage Details</span>
-            {showAdvanced ? (
-              <ChevronUp className="h-4 w-4" aria-hidden="true" />
-            ) : (
-              <ChevronDown className="h-4 w-4" aria-hidden="true" />
-            )}
+            {showAdvanced ?
+              <ChevronUp
+                className="h-4 w-4"
+                aria-hidden="true"
+              />
+            : <ChevronDown
+                className="h-4 w-4"
+                aria-hidden="true"
+              />
+            }
           </Button>
         </Collapsible.Trigger>
         <Collapsible.Content className="mt-component-md">
@@ -437,15 +457,11 @@ export const StorageSettingsDesktop = React.memo(function StorageSettingsDesktop
                         {mount.usagePercent.toFixed(1)}%
                       </TableCell>
                       <TableCell>
-                        <Badge
-                          variant={mount.mounted ? 'default' : 'secondary'}
-                        >
+                        <Badge variant={mount.mounted ? 'default' : 'secondary'}>
                           {mount.mounted ? 'Mounted' : 'Unmounted'}
                         </Badge>
                       </TableCell>
-                      <TableCell className="font-mono text-sm">
-                        {mount.filesystem}
-                      </TableCell>
+                      <TableCell className="font-mono text-sm">{mount.filesystem}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>

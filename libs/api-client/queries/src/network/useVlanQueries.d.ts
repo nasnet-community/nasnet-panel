@@ -6,18 +6,23 @@
  * @param filter - Optional filter (parent interface, VLAN ID range, name search)
  * @returns VLAN list data, loading state, error, and refetch function
  */
-export declare function useVlans(routerId: string, filter?: {
+export declare function useVlans(
+  routerId: string,
+  filter?: {
     parentInterface?: string;
     vlanIdRange?: {
-        min?: number;
-        max?: number;
+      min?: number;
+      max?: number;
     };
     nameContains?: string;
-}): {
-    vlans: any;
-    loading: boolean;
-    error: import("@apollo/client").ApolloError | undefined;
-    refetch: (variables?: Partial<import("@apollo/client").OperationVariables> | undefined) => Promise<import("@apollo/client").ApolloQueryResult<any>>;
+  }
+): {
+  vlans: any;
+  loading: boolean;
+  error: import('@apollo/client').ApolloError | undefined;
+  refetch: (
+    variables?: Partial<import('@apollo/client').OperationVariables> | undefined
+  ) => Promise<import('@apollo/client').ApolloQueryResult<any>>;
 };
 /**
  * Hook to fetch a single VLAN by ID
@@ -27,11 +32,16 @@ export declare function useVlans(routerId: string, filter?: {
  * @param vlanId - VLAN ID to fetch
  * @returns VLAN data, loading state, error, and refetch function
  */
-export declare function useVlan(routerId: string, vlanId: string): {
-    vlan: any;
-    loading: boolean;
-    error: import("@apollo/client").ApolloError | undefined;
-    refetch: (variables?: Partial<import("@apollo/client").OperationVariables> | undefined) => Promise<import("@apollo/client").ApolloQueryResult<any>>;
+export declare function useVlan(
+  routerId: string,
+  vlanId: string
+): {
+  vlan: any;
+  loading: boolean;
+  error: import('@apollo/client').ApolloError | undefined;
+  refetch: (
+    variables?: Partial<import('@apollo/client').OperationVariables> | undefined
+  ) => Promise<import('@apollo/client').ApolloQueryResult<any>>;
 };
 /**
  * Hook to check if a VLAN ID is available on a specific parent interface
@@ -44,10 +54,18 @@ export declare function useVlan(routerId: string, vlanId: string): {
  * @param enabled - Whether to run the query (default: false, lazy-loaded)
  * @returns Availability result, loading state, error
  */
-export declare function useCheckVlanIdAvailable(routerId: string, vlanId: number, parentInterfaceId: string, excludeId?: string, enabled?: boolean): {
-    isAvailable: any;
-    loading: boolean;
-    error: import("@apollo/client").ApolloError | undefined;
-    refetch: (variables?: Partial<import("@apollo/client").OperationVariables> | undefined) => Promise<import("@apollo/client").ApolloQueryResult<any>>;
+export declare function useCheckVlanIdAvailable(
+  routerId: string,
+  vlanId: number,
+  parentInterfaceId: string,
+  excludeId?: string,
+  enabled?: boolean
+): {
+  isAvailable: any;
+  loading: boolean;
+  error: import('@apollo/client').ApolloError | undefined;
+  refetch: (
+    variables?: Partial<import('@apollo/client').OperationVariables> | undefined
+  ) => Promise<import('@apollo/client').ApolloQueryResult<any>>;
 };
 //# sourceMappingURL=useVlanQueries.d.ts.map

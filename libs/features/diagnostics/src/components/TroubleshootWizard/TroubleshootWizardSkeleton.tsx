@@ -15,15 +15,18 @@ const TroubleshootWizardSkeletonDesktopComponent = memo(
     return (
       <div className="space-y-component-lg animate-pulse">
         {/* Header skeleton */}
-        <div className="flex justify-between items-center">
+        <div className="flex items-center justify-between">
           <Skeleton className="h-8 w-64" />
           <Skeleton className="h-10 w-10 rounded-full" />
         </div>
 
         {/* Horizontal stepper skeleton */}
-        <div className="flex justify-between items-center px-component-xl">
+        <div className="px-component-xl flex items-center justify-between">
           {[1, 2, 3, 4, 5].map((i) => (
-            <div key={i} className="flex flex-col items-center gap-component-sm">
+            <div
+              key={i}
+              className="gap-component-sm flex flex-col items-center"
+            >
               <Skeleton className="h-12 w-12 rounded-full" />
               <Skeleton className="h-4 w-16" />
             </div>
@@ -37,11 +40,11 @@ const TroubleshootWizardSkeletonDesktopComponent = memo(
             <Skeleton className="h-4 w-full" />
             <Skeleton className="h-4 w-3/4" />
             {/* Fix suggestion skeleton */}
-            <div className="mt-component-lg p-component-md border rounded-[var(--semantic-radius-button)] space-y-component-sm">
+            <div className="mt-component-lg p-component-md space-y-component-sm rounded-[var(--semantic-radius-button)] border">
               <Skeleton className="h-5 w-32" />
               <Skeleton className="h-4 w-full" />
               <Skeleton className="h-4 w-2/3" />
-              <div className="flex gap-component-sm mt-component-md">
+              <div className="gap-component-sm mt-component-md flex">
                 <Skeleton className="h-10 w-24" />
                 <Skeleton className="h-10 w-32" />
               </div>
@@ -53,11 +56,9 @@ const TroubleshootWizardSkeletonDesktopComponent = memo(
   }
 );
 
-TroubleshootWizardSkeletonDesktopComponent.displayName =
-  'TroubleshootWizardSkeletonDesktop';
+TroubleshootWizardSkeletonDesktopComponent.displayName = 'TroubleshootWizardSkeletonDesktop';
 
-export const TroubleshootWizardSkeletonDesktop =
-  TroubleshootWizardSkeletonDesktopComponent;
+export const TroubleshootWizardSkeletonDesktop = TroubleshootWizardSkeletonDesktopComponent;
 
 /**
  * Mobile skeleton (<640px)
@@ -67,43 +68,42 @@ export const TroubleshootWizardSkeletonDesktop =
  *
  * @see TroubleshootWizardMobile for full component
  */
-const TroubleshootWizardSkeletonMobileComponent = memo(
-  function TroubleshootWizardSkeletonMobile() {
-    return (
-      <div className="space-y-component-md animate-pulse p-component-md">
-        {/* Progress bar skeleton */}
-        <Skeleton className="h-2 w-full rounded-full" />
-        <Skeleton className="h-4 w-20" />
-        {/* Step cards skeleton */}
-        {[1, 2, 3].map((i) => (
-          <Card key={i} className="p-component-md">
-            <div className="flex items-center gap-component-md">
-              <Skeleton className="h-8 w-8 rounded-full" />
-              <div className="flex-1 space-y-component-sm">
-                <Skeleton className="h-5 w-32" />
-                <Skeleton className="h-3 w-24" />
-              </div>
+const TroubleshootWizardSkeletonMobileComponent = memo(function TroubleshootWizardSkeletonMobile() {
+  return (
+    <div className="space-y-component-md p-component-md animate-pulse">
+      {/* Progress bar skeleton */}
+      <Skeleton className="h-2 w-full rounded-full" />
+      <Skeleton className="h-4 w-20" />
+      {/* Step cards skeleton */}
+      {[1, 2, 3].map((i) => (
+        <Card
+          key={i}
+          className="p-component-md"
+        >
+          <div className="gap-component-md flex items-center">
+            <Skeleton className="h-8 w-8 rounded-full" />
+            <div className="space-y-component-sm flex-1">
+              <Skeleton className="h-5 w-32" />
+              <Skeleton className="h-3 w-24" />
             </div>
-          </Card>
-        ))}
-
-        {/* Action buttons skeleton */}
-        <div className="fixed bottom-0 left-0 right-0 p-component-md bg-background border-t">
-          <div className="flex gap-component-sm">
-            <Skeleton className="h-12 flex-1" />
-            <Skeleton className="h-12 flex-1" />
           </div>
+        </Card>
+      ))}
+
+      {/* Action buttons skeleton */}
+      <div className="p-component-md bg-background fixed bottom-0 left-0 right-0 border-t">
+        <div className="gap-component-sm flex">
+          <Skeleton className="h-12 flex-1" />
+          <Skeleton className="h-12 flex-1" />
         </div>
       </div>
-    );
-  }
-);
+    </div>
+  );
+});
 
-TroubleshootWizardSkeletonMobileComponent.displayName =
-  'TroubleshootWizardSkeletonMobile';
+TroubleshootWizardSkeletonMobileComponent.displayName = 'TroubleshootWizardSkeletonMobile';
 
-export const TroubleshootWizardSkeletonMobile =
-  TroubleshootWizardSkeletonMobileComponent;
+export const TroubleshootWizardSkeletonMobile = TroubleshootWizardSkeletonMobileComponent;
 
 /**
  * Auto-selecting skeleton based on viewport
@@ -111,20 +111,18 @@ export const TroubleshootWizardSkeletonMobile =
  * Renders either desktop or mobile skeleton depending on breakpoint.
  * Uses `hidden` + `lg:block` pattern for responsive display.
  */
-const TroubleshootWizardSkeletonComponent = memo(
-  function TroubleshootWizardSkeleton() {
-    return (
-      <>
-        <div className="hidden lg:block">
-          <TroubleshootWizardSkeletonDesktop />
-        </div>
-        <div className="lg:hidden">
-          <TroubleshootWizardSkeletonMobile />
-        </div>
-      </>
-    );
-  }
-);
+const TroubleshootWizardSkeletonComponent = memo(function TroubleshootWizardSkeleton() {
+  return (
+    <>
+      <div className="hidden lg:block">
+        <TroubleshootWizardSkeletonDesktop />
+      </div>
+      <div className="lg:hidden">
+        <TroubleshootWizardSkeletonMobile />
+      </div>
+    </>
+  );
+});
 
 TroubleshootWizardSkeletonComponent.displayName = 'TroubleshootWizardSkeleton';
 

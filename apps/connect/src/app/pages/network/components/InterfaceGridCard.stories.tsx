@@ -12,7 +12,6 @@
  * app Storybook for fully hydrated stories.
  */
 
-
 import { type NetworkInterface } from '@nasnet/core/types';
 
 import { InterfaceGridCard } from './InterfaceGridCard';

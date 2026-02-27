@@ -33,15 +33,15 @@ import {
   TooltipTrigger,
 } from '@nasnet/ui/primitives';
 
-import type {
-  FingerprintDeviceType,
-  FingerprintDeviceCategory,
-} from '@nasnet/core/types';
+import type { FingerprintDeviceType, FingerprintDeviceCategory } from '@nasnet/core/types';
 
 /**
  * Icon component mapping for all 22 FingerprintDeviceType values
  */
-const DEVICE_TYPE_ICONS: Record<FingerprintDeviceType, React.ComponentType<React.SVGProps<SVGSVGElement>>> = {
+const DEVICE_TYPE_ICONS: Record<
+  FingerprintDeviceType,
+  React.ComponentType<React.SVGProps<SVGSVGElement>>
+> = {
   // Phone/Tablet (3)
   ios: Smartphone,
   android: Smartphone,
@@ -82,10 +82,10 @@ const DEVICE_TYPE_ICONS: Record<FingerprintDeviceType, React.ComponentType<React
  * Uses semantic color tokens for category accents
  */
 const CATEGORY_COLORS: Record<FingerprintDeviceCategory, string> = {
-  mobile: 'text-info',         // Blue
-  computer: 'text-success',    // Green
-  iot: 'text-warning',         // Amber
-  network: 'text-category-networking',     // Golden Amber
+  mobile: 'text-info', // Blue
+  computer: 'text-success', // Green
+  iot: 'text-warning', // Amber
+  network: 'text-category-networking', // Golden Amber
   entertainment: 'text-accent', // Cyan
   other: 'text-muted-foreground', // Gray
 };
@@ -140,43 +140,44 @@ export const DeviceTypeIcon = React.memo(function DeviceTypeIcon({
   const IconComponent = DEVICE_TYPE_ICONS[deviceType] || HelpCircle;
   const colorClass = CATEGORY_COLORS[deviceCategory] || 'text-muted-foreground';
 
-  const iconElement = onClick ? (
-    <button
-      type="button"
-      onClick={onClick}
-      className={cn(
-        'inline-flex items-center justify-center min-h-[44px] min-w-[44px] rounded',
-        'cursor-pointer hover:opacity-75 transition-opacity',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
-      )}
-      aria-label={`View ${formatDeviceType(deviceType)} details`}
-    >
-      <IconComponent
+  const iconElement =
+    onClick ?
+      <button
+        type="button"
+        onClick={onClick}
+        className={cn(
+          'inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded',
+          'cursor-pointer transition-opacity hover:opacity-75',
+          'focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2'
+        )}
+        aria-label={`View ${formatDeviceType(deviceType)} details`}
+      >
+        <IconComponent
+          className={cn('h-5 w-5', colorClass, className)}
+          aria-hidden="true"
+        />
+      </button>
+    : <IconComponent
         className={cn('h-5 w-5', colorClass, className)}
-        aria-hidden="true"
-      />
-    </button>
-  ) : (
-    <IconComponent
-      className={cn('h-5 w-5', colorClass, className)}
-      aria-hidden={showTooltip ? 'true' : undefined}
-    />
-  );
+        aria-hidden={showTooltip ? 'true' : undefined}
+      />;
 
   if (!showTooltip) {
     return iconElement;
   }
 
   const label = formatDeviceType(deviceType);
-  const tooltipContent = confidence !== undefined
-    ? `${label} (${confidence}% confidence)`
-    : label;
+  const tooltipContent = confidence !== undefined ? `${label} (${confidence}% confidence)` : label;
 
   return (
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger asChild>
-          <div className="inline-flex items-center justify-center" role="img" aria-label={tooltipContent}>
+          <div
+            className="inline-flex items-center justify-center"
+            role="img"
+            aria-label={tooltipContent}
+          >
             {iconElement}
           </div>
         </TooltipTrigger>

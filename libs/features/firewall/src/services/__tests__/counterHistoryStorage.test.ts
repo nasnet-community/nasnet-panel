@@ -7,10 +7,7 @@
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import 'fake-indexeddb/auto';
-import {
-  CounterHistoryStorage,
-  type CounterHistoryEntry,
-} from '../counterHistoryStorage';
+import { CounterHistoryStorage, type CounterHistoryEntry } from '../counterHistoryStorage';
 
 describe('CounterHistoryStorage', () => {
   let storage: CounterHistoryStorage;
@@ -45,9 +42,9 @@ describe('CounterHistoryStorage', () => {
 
     it('should throw error when accessing database before init', async () => {
       const uninitializedStorage = new CounterHistoryStorage();
-      await expect(
-        uninitializedStorage.saveCounterSnapshot([])
-      ).rejects.toThrow('Database not initialized');
+      await expect(uninitializedStorage.saveCounterSnapshot([])).rejects.toThrow(
+        'Database not initialized'
+      );
       uninitializedStorage.close();
     });
   });
@@ -210,11 +207,7 @@ describe('CounterHistoryStorage', () => {
 
     it('should filter by custom start time', async () => {
       const twoDaysAgo = Date.now() - 2 * 24 * 60 * 60 * 1000;
-      const history = await storage.getCounterHistory(
-        'router1',
-        'rule1',
-        twoDaysAgo
-      );
+      const history = await storage.getCounterHistory('router1', 'rule1', twoDaysAgo);
 
       // Should only include entries from last 2 days
       expect(history).toHaveLength(1);
@@ -514,9 +507,7 @@ describe('CounterHistoryStorage', () => {
       storage.close();
 
       // Attempting to use closed storage should fail
-      await expect(storage.getStats()).rejects.toThrow(
-        'Database not initialized'
-      );
+      await expect(storage.getStats()).rejects.toThrow('Database not initialized');
 
       // Re-init for afterEach cleanup
       await storage.init();
@@ -536,17 +527,14 @@ describe('CounterHistoryStorage', () => {
 
   describe('edge cases and large datasets', () => {
     it('should handle large batch inserts efficiently', async () => {
-      const largeDataset: CounterHistoryEntry[] = Array.from(
-        { length: 1000 },
-        (_, i) => ({
-          id: `router1-rule1-${i}`,
-          routerId: 'router1',
-          ruleId: 'rule1',
-          timestamp: Date.now() - i * 60000, // 1 minute intervals
-          packets: i * 10,
-          bytes: i * 500,
-        })
-      );
+      const largeDataset: CounterHistoryEntry[] = Array.from({ length: 1000 }, (_, i) => ({
+        id: `router1-rule1-${i}`,
+        routerId: 'router1',
+        ruleId: 'rule1',
+        timestamp: Date.now() - i * 60000, // 1 minute intervals
+        packets: i * 10,
+        bytes: i * 500,
+      }));
 
       await storage.saveCounterSnapshot(largeDataset);
 
@@ -572,11 +560,7 @@ describe('CounterHistoryStorage', () => {
       await storage.saveCounterSnapshot([entry]);
 
       // Use startTime = 0 to get all entries
-      const history = await storage.getCounterHistory(
-        'router-1_test',
-        'rule-1_test',
-        0
-      );
+      const history = await storage.getCounterHistory('router-1_test', 'rule-1_test', 0);
       expect(history).toHaveLength(1);
       expect(history[0].id).toBe('router-1_test-rule-1_test-1000000');
     });

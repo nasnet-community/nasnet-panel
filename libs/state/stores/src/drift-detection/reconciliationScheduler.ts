@@ -10,12 +10,7 @@
 
 import type { Resource } from '@nasnet/core/types';
 
-import {
-  type ResourcePriority,
-  getResourcePriority,
-  DriftStatus,
-  type DriftResult,
-} from './types';
+import { type ResourcePriority, getResourcePriority, DriftStatus, type DriftResult } from './types';
 import { detectResourceDrift } from './useDriftDetection';
 
 // =============================================================================
@@ -25,17 +20,12 @@ import { detectResourceDrift } from './useDriftDetection';
 /**
  * Callback when drift is detected
  */
-export type DriftCallback = (
-  resourceUuid: string,
-  result: DriftResult
-) => void;
+export type DriftCallback = (resourceUuid: string, result: DriftResult) => void;
 
 /**
  * Callback to fetch fresh resource data
  */
-export type ResourceFetcher = (
-  resourceUuids: string[]
-) => Promise<Resource[]>;
+export type ResourceFetcher = (resourceUuids: string[]) => Promise<Resource[]>;
 
 /**
  * Connection status provider
@@ -329,10 +319,7 @@ export class ReconciliationScheduler {
           entry.lastResult = result;
           entry.nextCheck = Date.now() + entry.priority;
         } catch (error) {
-          this.onError?.(
-            entry.uuid,
-            error instanceof Error ? error : new Error(String(error))
-          );
+          this.onError?.(entry.uuid, error instanceof Error ? error : new Error(String(error)));
           // Retry after normal interval on error
           entry.nextCheck = Date.now() + entry.priority;
         }
@@ -424,9 +411,7 @@ export function getDefaultScheduler(
   }
 
   if (!defaultScheduler) {
-    throw new Error(
-      'ReconciliationScheduler not initialized. Call with options first.'
-    );
+    throw new Error('ReconciliationScheduler not initialized. Call with options first.');
   }
 
   return defaultScheduler;

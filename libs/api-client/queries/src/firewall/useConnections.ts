@@ -58,8 +58,9 @@ function parseAddress(address: string): { ip: string; port?: number } {
 function transformConnection(raw: RawConnection): Connection {
   const srcParsed = parseAddress(raw['src-address']);
   const dstParsed = parseAddress(raw['dst-address']);
-  const replyDstParsed = raw['reply-dst-address']
-    ? parseAddress(raw['reply-dst-address'])
+  const replyDstParsed =
+    raw['reply-dst-address'] ?
+      parseAddress(raw['reply-dst-address'])
     : { ip: undefined, port: undefined };
 
   return {
@@ -70,7 +71,9 @@ function transformConnection(raw: RawConnection): Connection {
     dstAddress: dstParsed.ip,
     dstPort: dstParsed.port || (raw['dst-port'] ? parseInt(raw['dst-port'], 10) : undefined),
     replyDstAddress: replyDstParsed.ip,
-    replyDstPort: replyDstParsed.port || (raw['reply-dst-port'] ? parseInt(raw['reply-dst-port'], 10) : undefined),
+    replyDstPort:
+      replyDstParsed.port ||
+      (raw['reply-dst-port'] ? parseInt(raw['reply-dst-port'], 10) : undefined),
     state: (raw['connection-state'] as ConnectionTrackingState) || 'established',
     timeout: raw.timeout,
     packets: raw.packets ? parseInt(raw.packets, 10) : 0,
@@ -142,10 +145,7 @@ async function fetchConnections(
   routerIp: string,
   filters?: ConnectionFilters
 ): Promise<Connection[]> {
-  const result = await makeRouterOSRequest<RawConnection[]>(
-    routerIp,
-    'ip/firewall/connection'
-  );
+  const result = await makeRouterOSRequest<RawConnection[]>(routerIp, 'ip/firewall/connection');
 
   if (!result.success || !result.data) {
     throw new Error(result.error || 'Failed to fetch connections');

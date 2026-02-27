@@ -146,7 +146,7 @@ export const HiddenWhenNoneSelected: Story = {
   decorators: [
     (Story) => (
       <div className="space-y-2">
-        <p className="text-sm text-muted-foreground italic">
+        <p className="text-muted-foreground text-sm italic">
           (Toolbar is hidden — select at least one lease to reveal it)
         </p>
         <Story />

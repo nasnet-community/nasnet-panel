@@ -67,9 +67,7 @@ function getRetryDelay(retryCount: number): number {
  * @param error Axios error
  * @returns Response promise or rejected error
  */
-export async function retryInterceptor(
-  error: AxiosError
-): Promise<never | unknown> {
+export async function retryInterceptor(error: AxiosError): Promise<never | unknown> {
   const config = error.config as RetryableConfig | undefined;
 
   // Cannot retry if no config is available

@@ -67,23 +67,39 @@ export function HStepperItem({
   // Render indicator content (checkmark, error icon, or step number)
   const renderIndicatorContent = () => {
     if (hasError) {
-      return <XCircle className="h-4 w-4" aria-hidden="true" />;
+      return (
+        <XCircle
+          className="h-4 w-4"
+          aria-hidden="true"
+        />
+      );
     }
     if (isCompleted) {
-      return <Check className="h-4 w-4" aria-hidden="true" />;
+      return (
+        <Check
+          className="h-4 w-4"
+          aria-hidden="true"
+        />
+      );
     }
     // Show icon if step has one and useIcon is true, otherwise show number
     if (useIcon && step.icon) {
       // Icon would be rendered here if we had an icon mapping
       // For now, fallback to number
       return (
-        <span className="text-sm font-medium" aria-hidden="true">
+        <span
+          className="text-sm font-medium"
+          aria-hidden="true"
+        >
           {index + 1}
         </span>
       );
     }
     return (
-      <span className="text-sm font-medium" aria-hidden="true">
+      <span
+        className="text-sm font-medium"
+        aria-hidden="true"
+      >
         {index + 1}
       </span>
     );
@@ -120,15 +136,10 @@ export function HStepperItem({
           // === State-based styling ===
 
           // Completed state - bg-success text-white
-          isCompleted &&
-            !hasError &&
-            !isActive &&
-            'bg-success text-white',
+          isCompleted && !hasError && !isActive && 'bg-success text-white',
 
           // Active/Current state - bg-primary text-primary-foreground
-          isActive &&
-            !hasError &&
-            'bg-primary text-primary-foreground',
+          isActive && !hasError && 'bg-primary text-primary-foreground',
 
           // Error state - bg-error text-white
           hasError && 'bg-error text-white',
@@ -141,7 +152,7 @@ export function HStepperItem({
           !isClickable && !isActive && 'cursor-not-allowed',
 
           // Focus styles
-          'focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2'
+          'focus-visible:ring-ring focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2'
         )}
         aria-current={isActive ? 'step' : undefined}
         aria-disabled={!isClickable}
@@ -156,7 +167,7 @@ export function HStepperItem({
         <span
           className={cn(
             // Base styles
-            'mt-2 text-xs text-center max-w-[80px] truncate',
+            'mt-2 max-w-[80px] truncate text-center text-xs',
             // Responsive: hidden on mobile, visible on md+
             'hidden md:block',
             // CSS transitions
@@ -166,16 +177,16 @@ export function HStepperItem({
             // === State-based styling ===
 
             // Active state - larger, bold
-            isActive && 'scale-105 font-bold text-foreground',
+            isActive && 'text-foreground scale-105 font-bold',
 
             // Completed state
-            isCompleted && !isActive && 'font-bold text-foreground',
+            isCompleted && !isActive && 'text-foreground font-bold',
 
             // Error state
-            hasError && 'font-bold text-destructive',
+            hasError && 'text-destructive font-bold',
 
             // Future state
-            isFuture && 'font-medium text-muted-foreground'
+            isFuture && 'text-muted-foreground font-medium'
           )}
         >
           {step.title}

@@ -39,13 +39,7 @@ export { MACInputDesktop } from './mac-input-desktop';
 export { MACInputMobile } from './mac-input-mobile';
 
 // Headless hook and utilities
-export {
-  useMACInput,
-  isValidMAC,
-  normalizeMAC,
-  extractOUI,
-  lookupVendor,
-} from './use-mac-input';
+export { useMACInput, isValidMAC, normalizeMAC, extractOUI, lookupVendor } from './use-mac-input';
 
 // Types
 export type {

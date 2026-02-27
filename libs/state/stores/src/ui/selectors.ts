@@ -142,10 +142,8 @@ export const shallowEqual = shallow;
  */
 export function createCombinedSelector<
   State,
-  Selectors extends Record<string, (state: State) => unknown>
->(
-  selectors: Selectors
-): (state: State) => { [K in keyof Selectors]: ReturnType<Selectors[K]> } {
+  Selectors extends Record<string, (state: State) => unknown>,
+>(selectors: Selectors): (state: State) => { [K in keyof Selectors]: ReturnType<Selectors[K]> } {
   const keys = Object.keys(selectors) as (keyof Selectors)[];
 
   return (state: State) => {
@@ -178,11 +176,7 @@ export {
 export type { UIState } from './ui.store';
 
 // Modal selectors
-export {
-  selectActiveModal,
-  selectModalData,
-  createSelectIsModalOpen,
-} from './modal.store';
+export { selectActiveModal, selectModalData, createSelectIsModalOpen } from './modal.store';
 export type { ModalState, ModalId, ModalData } from './modal.store';
 
 // Notification selectors
@@ -206,8 +200,7 @@ import type { UIState } from './ui.store';
  * Select whether any UI overlay is open (modal, command palette)
  * Useful for disabling background interactions
  */
-export const selectHasOverlayOpen = (uiState: UIState) =>
-  uiState.commandPaletteOpen;
+export const selectHasOverlayOpen = (uiState: UIState) => uiState.commandPaletteOpen;
 
 /**
  * Select UI preferences subset (for settings display)
@@ -228,14 +221,12 @@ export const selectSidebarDisplayState = (state: SidebarState) =>
 /**
  * Select whether theme is in dark mode
  */
-export const selectIsDarkMode = (state: ThemeState) =>
-  state.resolvedTheme === 'dark';
+export const selectIsDarkMode = (state: ThemeState) => state.resolvedTheme === 'dark';
 
 /**
  * Select whether theme follows system preference
  */
-export const selectIsSystemTheme = (state: ThemeState) =>
-  state.theme === 'system';
+export const selectIsSystemTheme = (state: ThemeState) => state.theme === 'system';
 
 /**
  * Select urgent notifications (errors)
@@ -254,16 +245,14 @@ export const selectProgressNotifications = (state: NotificationState) =>
 /**
  * Create a selector for checking if a specific tab is active
  */
-export const createSelectIsTabActive =
-  (tabId: string) => (state: UIState) =>
-    state.activeTab === tabId;
+export const createSelectIsTabActive = (tabId: string) => (state: UIState) =>
+  state.activeTab === tabId;
 
 /**
  * Create a selector for notifications with a specific action
  */
-export const createSelectNotificationsWithAction =
-  () => (state: NotificationState) =>
-    state.notifications.filter((n) => n.action !== undefined);
+export const createSelectNotificationsWithAction = () => (state: NotificationState) =>
+  state.notifications.filter((n) => n.action !== undefined);
 
 // ===== Memoized Derived Selectors =====
 
@@ -272,11 +261,8 @@ export const createSelectNotificationsWithAction =
  * Only recomputes when underlying values change
  */
 export const selectUIPreferencesMemoized = createMemoizedSelector(
-  (state: UIState) => [
-    state.compactMode,
-    state.animationsEnabled,
-    state.defaultNotificationDuration,
-  ] as const,
+  (state: UIState) =>
+    [state.compactMode, state.animationsEnabled, state.defaultNotificationDuration] as const,
   ([compactMode, animationsEnabled, defaultNotificationDuration]) => ({
     compactMode,
     animationsEnabled,
@@ -297,14 +283,12 @@ export const selectErrorCountMemoized = createMemoizedSelector(
  * Parameterized selector for notification by ID
  */
 export const selectNotificationById = createParameterizedSelector(
-  (state: NotificationState, id: string) =>
-    state.notifications.find((n) => n.id === id) ?? null
+  (state: NotificationState, id: string) => state.notifications.find((n) => n.id === id) ?? null
 );
 
 /**
  * Parameterized selector for checking if a specific modal is open
  */
 export const selectIsModalOpenById = createParameterizedSelector(
-  (state: { activeModal: string | null }, modalId: string) =>
-    state.activeModal === modalId
+  (state: { activeModal: string | null }, modalId: string) => state.activeModal === modalId
 );

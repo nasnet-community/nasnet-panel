@@ -1,7 +1,7 @@
 {
   "id": "intro",
   "title": "Introduction",
-  "description": "The @nasnet/state library provides Zustand stores and XState machines for managing application state beyond what Apollo Client handles.",
+  "description": "The @nasnet/state library provides Zustand stores and XState machines for managing application",
   "source": "@site/../../libs/state/docs/intro.md",
   "sourceDirName": ".",
   "slug": "/intro",

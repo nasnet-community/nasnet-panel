@@ -7,27 +7,15 @@
 
 import * as React from 'react';
 
-import {
-  Clock,
-  Loader2,
-  CheckCircle,
-  XCircle,
-  RotateCcw,
-  AlertTriangle,
-  X,
-} from 'lucide-react';
+import { Clock, Loader2, CheckCircle, XCircle, RotateCcw, AlertTriangle, X } from 'lucide-react';
 import type {
   ChangeSet,
   ChangeSetItem,
   ChangeSetStatus,
   ChangeSetItemStatus,
 } from '@nasnet/core/types';
-import {
-  getChangeSetStatusDisplayInfo,
-  isChangeSetProcessing,
-} from '@nasnet/core/types';
+import { getChangeSetStatusDisplayInfo, isChangeSetProcessing } from '@nasnet/core/types';
 import { cn, Progress, Button, Icon } from '@nasnet/ui/primitives';
-
 
 // =============================================================================
 // Types
@@ -75,21 +63,61 @@ const ItemStatusIcon = React.memo(function ItemStatusIcon({
 }) {
   switch (status) {
     case 'PENDING':
-      return <Icon icon={Clock} className={cn('text-muted-foreground', className)} />;
+      return (
+        <Icon
+          icon={Clock}
+          className={cn('text-muted-foreground', className)}
+        />
+      );
     case 'APPLYING':
-      return <Icon icon={Loader2} className={cn('text-warning animate-spin', className)} />;
+      return (
+        <Icon
+          icon={Loader2}
+          className={cn('text-warning animate-spin', className)}
+        />
+      );
     case 'APPLIED':
-      return <Icon icon={CheckCircle} className={cn('text-success', className)} />;
+      return (
+        <Icon
+          icon={CheckCircle}
+          className={cn('text-success', className)}
+        />
+      );
     case 'FAILED':
-      return <Icon icon={XCircle} className={cn('text-error', className)} />;
+      return (
+        <Icon
+          icon={XCircle}
+          className={cn('text-error', className)}
+        />
+      );
     case 'ROLLED_BACK':
-      return <Icon icon={RotateCcw} className={cn('text-muted-foreground', className)} />;
+      return (
+        <Icon
+          icon={RotateCcw}
+          className={cn('text-muted-foreground', className)}
+        />
+      );
     case 'ROLLBACK_FAILED':
-      return <Icon icon={AlertTriangle} className={cn('text-error', className)} />;
+      return (
+        <Icon
+          icon={AlertTriangle}
+          className={cn('text-error', className)}
+        />
+      );
     case 'SKIPPED':
-      return <Icon icon={Clock} className={cn('text-muted-foreground opacity-50', className)} />;
+      return (
+        <Icon
+          icon={Clock}
+          className={cn('text-muted-foreground opacity-50', className)}
+        />
+      );
     default:
-      return <Icon icon={Clock} className={cn('text-muted-foreground', className)} />;
+      return (
+        <Icon
+          icon={Clock}
+          className={cn('text-muted-foreground', className)}
+        />
+      );
   }
 });
 
@@ -165,7 +193,7 @@ const ApplyProgressBase = React.forwardRef<HTMLDivElement, ApplyProgressProps>(
     return (
       <div
         ref={ref}
-        className={cn('rounded-lg border bg-card p-6', className)}
+        className={cn('bg-card rounded-lg border p-6', className)}
         {...props}
       >
         {/* Screen reader announcements */}
@@ -180,12 +208,8 @@ const ApplyProgressBase = React.forwardRef<HTMLDivElement, ApplyProgressProps>(
               Applying change {appliedCount + 1} of {totalCount}: {currentItem.name}
             </>
           )}
-          {status === 'COMPLETED' && (
-            <>All {totalCount} changes applied successfully</>
-          )}
-          {status === 'ROLLING_BACK' && (
-            <>Rolling back {appliedCount} applied changes</>
-          )}
+          {status === 'COMPLETED' && <>All {totalCount} changes applied successfully</>}
+          {status === 'ROLLING_BACK' && <>Rolling back {appliedCount} applied changes</>}
         </div>
 
         {/* Error announcement */}
@@ -196,22 +220,43 @@ const ApplyProgressBase = React.forwardRef<HTMLDivElement, ApplyProgressProps>(
             aria-atomic="true"
             className="sr-only"
           >
-            Error: {error.message}. {error.requiresManualIntervention && 'Manual intervention required.'}
+            Error: {error.message}.{' '}
+            {error.requiresManualIntervention && 'Manual intervention required.'}
           </div>
         )}
 
         {/* Header with status */}
-        <div className="flex items-center justify-between mb-4">
+        <div className="mb-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            {isProcessing && <Icon icon={Loader2} className="h-5 w-5 animate-spin text-primary" role="status" aria-label="Applying changes" />}
-            {status === 'COMPLETED' && <Icon icon={CheckCircle} className="h-5 w-5 text-success" />}
-            {(status === 'FAILED' || status === 'PARTIAL_FAILURE') && (
-              <Icon icon={XCircle} className="h-5 w-5 text-error" />
+            {isProcessing && (
+              <Icon
+                icon={Loader2}
+                className="text-primary h-5 w-5 animate-spin"
+                role="status"
+                aria-label="Applying changes"
+              />
             )}
-            {status === 'ROLLED_BACK' && <Icon icon={RotateCcw} className="h-5 w-5 text-muted-foreground" />}
-            <h3 className="font-semibold text-foreground">{displayInfo.label}</h3>
+            {status === 'COMPLETED' && (
+              <Icon
+                icon={CheckCircle}
+                className="text-success h-5 w-5"
+              />
+            )}
+            {(status === 'FAILED' || status === 'PARTIAL_FAILURE') && (
+              <Icon
+                icon={XCircle}
+                className="text-error h-5 w-5"
+              />
+            )}
+            {status === 'ROLLED_BACK' && (
+              <Icon
+                icon={RotateCcw}
+                className="text-muted-foreground h-5 w-5"
+              />
+            )}
+            <h3 className="text-foreground font-semibold">{displayInfo.label}</h3>
           </div>
-          <span className="text-sm text-muted-foreground">
+          <span className="text-muted-foreground text-sm">
             {appliedCount} / {totalCount}
           </span>
         </div>
@@ -226,7 +271,7 @@ const ApplyProgressBase = React.forwardRef<HTMLDivElement, ApplyProgressProps>(
             aria-valuemax={100}
             aria-valuenow={Math.round(progressPercent)}
           />
-          <div className="flex justify-between mt-1 text-xs text-muted-foreground">
+          <div className="text-muted-foreground mt-1 flex justify-between text-xs">
             <span>{Math.round(progressPercent)}% complete</span>
             {estimatedRemainingMs != null && isProcessing && (
               <span>ETA: {formatTimeRemaining(estimatedRemainingMs)}</span>
@@ -236,14 +281,15 @@ const ApplyProgressBase = React.forwardRef<HTMLDivElement, ApplyProgressProps>(
 
         {/* Current item */}
         {currentItem && isProcessing && (
-          <div className="mb-4 p-3 rounded bg-muted/50">
+          <div className="bg-muted/50 mb-4 rounded p-3">
             <div className="flex items-center gap-2">
-              <Icon icon={Loader2} className="h-4 w-4 animate-spin text-warning" />
+              <Icon
+                icon={Loader2}
+                className="text-warning h-4 w-4 animate-spin"
+              />
               <span className="text-sm font-medium">{currentItem.name}</span>
             </div>
-            <p className="text-xs text-muted-foreground mt-1">
-              {currentItem.resourceType}
-            </p>
+            <p className="text-muted-foreground mt-1 text-xs">{currentItem.resourceType}</p>
           </div>
         )}
 
@@ -252,21 +298,22 @@ const ApplyProgressBase = React.forwardRef<HTMLDivElement, ApplyProgressProps>(
           <div
             ref={errorRef}
             tabIndex={-1}
-            className="mb-4 p-3 rounded bg-error/10 border border-error/20"
+            className="bg-error/10 border-error/20 mb-4 rounded border p-3"
           >
             <div className="flex items-start gap-2">
-              <Icon icon={XCircle} className="h-5 w-5 text-error flex-shrink-0 mt-0.5" />
+              <Icon
+                icon={XCircle}
+                className="text-error mt-0.5 h-5 w-5 flex-shrink-0"
+              />
               <div>
-                <p className="text-sm font-medium text-error">
-                  {error.message}
-                </p>
+                <p className="text-error text-sm font-medium">{error.message}</p>
                 {error.requiresManualIntervention && (
-                  <p className="text-xs text-error/80 mt-1">
+                  <p className="text-error/80 mt-1 text-xs">
                     Manual intervention required. Some changes could not be rolled back.
                   </p>
                 )}
                 {error.partiallyAppliedItemIds.length > 0 && !error.requiresManualIntervention && (
-                  <p className="text-xs text-muted-foreground mt-1">
+                  <p className="text-muted-foreground mt-1 text-xs">
                     {error.partiallyAppliedItemIds.length} items were applied before failure.
                   </p>
                 )}
@@ -280,11 +327,14 @@ const ApplyProgressBase = React.forwardRef<HTMLDivElement, ApplyProgressProps>(
           <div
             ref={successRef}
             tabIndex={-1}
-            className="mb-4 p-3 rounded bg-success/10 border border-success/20"
+            className="bg-success/10 border-success/20 mb-4 rounded border p-3"
           >
             <div className="flex items-center gap-2">
-              <Icon icon={CheckCircle} className="h-5 w-5 text-success" />
-              <p className="text-sm font-medium text-success">
+              <Icon
+                icon={CheckCircle}
+                className="text-success h-5 w-5"
+              />
+              <p className="text-success text-sm font-medium">
                 All {totalCount} changes applied successfully
               </p>
             </div>
@@ -293,10 +343,13 @@ const ApplyProgressBase = React.forwardRef<HTMLDivElement, ApplyProgressProps>(
 
         {/* Rolled back message */}
         {status === 'ROLLED_BACK' && (
-          <div className="mb-4 p-3 rounded bg-muted border">
+          <div className="bg-muted mb-4 rounded border p-3">
             <div className="flex items-center gap-2">
-              <Icon icon={RotateCcw} className="h-5 w-5 text-muted-foreground" />
-              <p className="text-sm font-medium text-muted-foreground">
+              <Icon
+                icon={RotateCcw}
+                className="text-muted-foreground h-5 w-5"
+              />
+              <p className="text-muted-foreground text-sm font-medium">
                 All applied changes have been rolled back
               </p>
             </div>
@@ -306,10 +359,8 @@ const ApplyProgressBase = React.forwardRef<HTMLDivElement, ApplyProgressProps>(
         {/* Item status list */}
         {showItemStatus && items.length > 0 && (
           <div className="mt-4">
-            <h4 className="text-xs font-medium text-muted-foreground mb-2">
-              Items
-            </h4>
-            <div className="space-y-2 max-h-48 overflow-y-auto">
+            <h4 className="text-muted-foreground mb-2 text-xs font-medium">Items</h4>
+            <div className="max-h-48 space-y-2 overflow-y-auto">
               {[...items]
                 .sort((a: ChangeSetItem, b: ChangeSetItem) => a.applyOrder - b.applyOrder)
                 .map((item) => (
@@ -317,7 +368,10 @@ const ApplyProgressBase = React.forwardRef<HTMLDivElement, ApplyProgressProps>(
                     key={item.id}
                     className="flex items-center gap-2 text-sm"
                   >
-                    <ItemStatusIcon status={item.status} className="h-4 w-4 flex-shrink-0" />
+                    <ItemStatusIcon
+                      status={item.status}
+                      className="h-4 w-4 flex-shrink-0"
+                    />
                     <span
                       className={cn(
                         'truncate',
@@ -335,27 +389,51 @@ const ApplyProgressBase = React.forwardRef<HTMLDivElement, ApplyProgressProps>(
         )}
 
         {/* Action buttons */}
-        <div className="flex justify-end gap-2 mt-4 pt-4 border-t">
+        <div className="mt-4 flex justify-end gap-2 border-t pt-4">
           {/* Cancel button during processing */}
           {isProcessing && onCancel && (
-            <Button variant="outline" size="sm" onClick={onCancel} aria-label="Cancel applying changes">
-              <Icon icon={X} className="h-4 w-4 mr-1" />
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onCancel}
+              aria-label="Cancel applying changes"
+            >
+              <Icon
+                icon={X}
+                className="mr-1 h-4 w-4"
+              />
               Cancel
             </Button>
           )}
 
           {/* Retry button after failure */}
           {status === 'FAILED' && onRetry && (
-            <Button variant="default" size="sm" onClick={onRetry} aria-label="Retry applying changes">
-              <Icon icon={RotateCcw} className="h-4 w-4 mr-1" />
+            <Button
+              variant="default"
+              size="sm"
+              onClick={onRetry}
+              aria-label="Retry applying changes"
+            >
+              <Icon
+                icon={RotateCcw}
+                className="mr-1 h-4 w-4"
+              />
               Retry
             </Button>
           )}
 
           {/* Force rollback button */}
           {status === 'FAILED' && onForceRollback && (
-            <Button variant="outline" size="sm" onClick={onForceRollback} aria-label="Force rollback of all changes">
-              <Icon icon={RotateCcw} className="h-4 w-4 mr-1" />
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onForceRollback}
+              aria-label="Force rollback of all changes"
+            >
+              <Icon
+                icon={RotateCcw}
+                className="mr-1 h-4 w-4"
+              />
               Force Rollback
             </Button>
           )}

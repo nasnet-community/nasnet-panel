@@ -13,7 +13,7 @@ import {
   formatBoolean,
   parseRouterOSUptime,
   formatPublicKey,
-  formatLastHandshake
+  formatLastHandshake,
 } from './index';
 
 describe('Formatter Utilities', () => {

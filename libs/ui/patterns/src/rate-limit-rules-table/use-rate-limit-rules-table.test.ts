@@ -72,9 +72,7 @@ describe('useRateLimitRulesTable', () => {
 
   describe('Data Loading', () => {
     it('should load rules successfully', () => {
-      const { result } = renderHook(() =>
-        useRateLimitRulesTable({ statusFilter: 'all' })
-      );
+      const { result } = renderHook(() => useRateLimitRulesTable({ statusFilter: 'all' }));
 
       expect(result.current.rules).toHaveLength(mockRateLimitRules.length);
       expect(result.current.isLoading).toBe(false);
@@ -88,9 +86,7 @@ describe('useRateLimitRulesTable', () => {
         error: null,
       } as any as UseQueryResult<typeof mockRateLimitRules>);
 
-      const { result } = renderHook(() =>
-        useRateLimitRulesTable({ statusFilter: 'all' })
-      );
+      const { result } = renderHook(() => useRateLimitRulesTable({ statusFilter: 'all' }));
 
       expect(result.current.isLoading).toBe(true);
       expect(result.current.rules).toEqual([]);
@@ -104,9 +100,7 @@ describe('useRateLimitRulesTable', () => {
         error: mockError,
       } as any as UseQueryResult<typeof mockRateLimitRules>);
 
-      const { result } = renderHook(() =>
-        useRateLimitRulesTable({ statusFilter: 'all' })
-      );
+      const { result } = renderHook(() => useRateLimitRulesTable({ statusFilter: 'all' }));
 
       expect(result.current.error).toBe(mockError);
       expect(result.current.rules).toEqual([]);
@@ -155,17 +149,13 @@ describe('useRateLimitRulesTable', () => {
 
   describe('Filtering by Status', () => {
     it('should show all rules when statusFilter is "all"', () => {
-      const { result } = renderHook(() =>
-        useRateLimitRulesTable({ statusFilter: 'all' })
-      );
+      const { result } = renderHook(() => useRateLimitRulesTable({ statusFilter: 'all' }));
 
       expect(result.current.rules).toHaveLength(mockRateLimitRules.length);
     });
 
     it('should filter enabled rules', () => {
-      const { result } = renderHook(() =>
-        useRateLimitRulesTable({ statusFilter: 'enabled' })
-      );
+      const { result } = renderHook(() => useRateLimitRulesTable({ statusFilter: 'enabled' }));
 
       const enabledRules = mockRateLimitRules.filter((r) => !r.isDisabled);
       expect(result.current.rules).toHaveLength(enabledRules.length);
@@ -173,9 +163,7 @@ describe('useRateLimitRulesTable', () => {
     });
 
     it('should filter disabled rules', () => {
-      const { result } = renderHook(() =>
-        useRateLimitRulesTable({ statusFilter: 'disabled' })
-      );
+      const { result } = renderHook(() => useRateLimitRulesTable({ statusFilter: 'disabled' }));
 
       const disabledRules = mockRateLimitRules.filter((r) => r.isDisabled);
       expect(result.current.rules).toHaveLength(disabledRules.length);
@@ -189,18 +177,14 @@ describe('useRateLimitRulesTable', () => {
         useRateLimitRulesTable({ actionFilter: 'drop', statusFilter: 'enabled' })
       );
 
-      const filtered = mockRateLimitRules.filter(
-        (r) => r.action === 'drop' && !r.isDisabled
-      );
+      const filtered = mockRateLimitRules.filter((r) => r.action === 'drop' && !r.isDisabled);
       expect(result.current.rules).toHaveLength(filtered.length);
     });
   });
 
   describe('Max Bytes Calculation', () => {
     it('should calculate max bytes from filtered rules', () => {
-      const { result } = renderHook(() =>
-        useRateLimitRulesTable({ statusFilter: 'all' })
-      );
+      const { result } = renderHook(() => useRateLimitRulesTable({ statusFilter: 'all' }));
 
       const expectedMax = Math.max(...mockRateLimitRules.map((r) => r.bytes ?? 0));
       expect(result.current.maxBytes).toBe(expectedMax);
@@ -213,9 +197,7 @@ describe('useRateLimitRulesTable', () => {
         error: null,
       } as any as UseQueryResult<typeof mockRateLimitRules>);
 
-      const { result } = renderHook(() =>
-        useRateLimitRulesTable({ statusFilter: 'all' })
-      );
+      const { result } = renderHook(() => useRateLimitRulesTable({ statusFilter: 'all' }));
 
       expect(result.current.maxBytes).toBe(0);
     });
@@ -223,9 +205,7 @@ describe('useRateLimitRulesTable', () => {
 
   describe('Rule Actions', () => {
     it('should open edit dialog for a rule', () => {
-      const { result } = renderHook(() =>
-        useRateLimitRulesTable({ statusFilter: 'all' })
-      );
+      const { result } = renderHook(() => useRateLimitRulesTable({ statusFilter: 'all' }));
 
       act(() => {
         result.current.handleEdit(mockDropRule);
@@ -235,9 +215,7 @@ describe('useRateLimitRulesTable', () => {
     });
 
     it('should close edit dialog', () => {
-      const { result } = renderHook(() =>
-        useRateLimitRulesTable({ statusFilter: 'all' })
-      );
+      const { result } = renderHook(() => useRateLimitRulesTable({ statusFilter: 'all' }));
 
       act(() => {
         result.current.handleEdit(mockDropRule);
@@ -253,9 +231,7 @@ describe('useRateLimitRulesTable', () => {
     });
 
     it('should duplicate a rule without ID', () => {
-      const { result } = renderHook(() =>
-        useRateLimitRulesTable({ statusFilter: 'all' })
-      );
+      const { result } = renderHook(() => useRateLimitRulesTable({ statusFilter: 'all' }));
 
       act(() => {
         result.current.handleDuplicate(mockDropRule);
@@ -272,9 +248,7 @@ describe('useRateLimitRulesTable', () => {
 
     it('should duplicate a rule without comment', () => {
       const ruleWithoutComment = { ...mockDropRule, comment: undefined };
-      const { result } = renderHook(() =>
-        useRateLimitRulesTable({ statusFilter: 'all' })
-      );
+      const { result } = renderHook(() => useRateLimitRulesTable({ statusFilter: 'all' }));
 
       act(() => {
         result.current.handleDuplicate(ruleWithoutComment);
@@ -284,9 +258,7 @@ describe('useRateLimitRulesTable', () => {
     });
 
     it('should open delete confirmation dialog', () => {
-      const { result } = renderHook(() =>
-        useRateLimitRulesTable({ statusFilter: 'all' })
-      );
+      const { result } = renderHook(() => useRateLimitRulesTable({ statusFilter: 'all' }));
 
       act(() => {
         result.current.handleDelete(mockDropRule);
@@ -296,9 +268,7 @@ describe('useRateLimitRulesTable', () => {
     });
 
     it('should close delete confirmation dialog', () => {
-      const { result } = renderHook(() =>
-        useRateLimitRulesTable({ statusFilter: 'all' })
-      );
+      const { result } = renderHook(() => useRateLimitRulesTable({ statusFilter: 'all' }));
 
       act(() => {
         result.current.handleDelete(mockDropRule);
@@ -322,9 +292,7 @@ describe('useRateLimitRulesTable', () => {
         isPending: false,
       } as any);
 
-      const { result } = renderHook(() =>
-        useRateLimitRulesTable({ statusFilter: 'all' })
-      );
+      const { result } = renderHook(() => useRateLimitRulesTable({ statusFilter: 'all' }));
 
       act(() => {
         result.current.handleDelete(mockDropRule);
@@ -348,9 +316,7 @@ describe('useRateLimitRulesTable', () => {
       } as any);
 
       const ruleWithoutId = { ...mockDropRule, id: undefined };
-      const { result } = renderHook(() =>
-        useRateLimitRulesTable({ statusFilter: 'all' })
-      );
+      const { result } = renderHook(() => useRateLimitRulesTable({ statusFilter: 'all' }));
 
       act(() => {
         result.current.handleDelete(ruleWithoutId);
@@ -372,9 +338,7 @@ describe('useRateLimitRulesTable', () => {
         isPending: false,
       } as any);
 
-      const { result } = renderHook(() =>
-        useRateLimitRulesTable({ statusFilter: 'all' })
-      );
+      const { result } = renderHook(() => useRateLimitRulesTable({ statusFilter: 'all' }));
 
       act(() => {
         result.current.handleToggle(mockDropRule);
@@ -396,9 +360,7 @@ describe('useRateLimitRulesTable', () => {
       } as any);
 
       const ruleWithoutId = { ...mockDropRule, id: undefined };
-      const { result } = renderHook(() =>
-        useRateLimitRulesTable({ statusFilter: 'all' })
-      );
+      const { result } = renderHook(() => useRateLimitRulesTable({ statusFilter: 'all' }));
 
       act(() => {
         result.current.handleToggle(ruleWithoutId);
@@ -408,9 +370,7 @@ describe('useRateLimitRulesTable', () => {
     });
 
     it('should open stats dialog for a rule', () => {
-      const { result } = renderHook(() =>
-        useRateLimitRulesTable({ statusFilter: 'all' })
-      );
+      const { result } = renderHook(() => useRateLimitRulesTable({ statusFilter: 'all' }));
 
       act(() => {
         result.current.handleShowStats(mockDropRule);
@@ -420,9 +380,7 @@ describe('useRateLimitRulesTable', () => {
     });
 
     it('should close stats dialog', () => {
-      const { result } = renderHook(() =>
-        useRateLimitRulesTable({ statusFilter: 'all' })
-      );
+      const { result } = renderHook(() => useRateLimitRulesTable({ statusFilter: 'all' }));
 
       act(() => {
         result.current.handleShowStats(mockDropRule);
@@ -446,9 +404,7 @@ describe('useRateLimitRulesTable', () => {
         error: null,
       } as any as UseQueryResult<typeof mockRateLimitRules>);
 
-      const { result } = renderHook(() =>
-        useRateLimitRulesTable({ statusFilter: 'all' })
-      );
+      const { result } = renderHook(() => useRateLimitRulesTable({ statusFilter: 'all' }));
 
       expect(result.current.rules).toEqual([]);
       expect(result.current.maxBytes).toBe(0);
@@ -461,9 +417,7 @@ describe('useRateLimitRulesTable', () => {
         error: null,
       } as any as UseQueryResult<typeof mockRateLimitRules>);
 
-      const { result } = renderHook(() =>
-        useRateLimitRulesTable({ statusFilter: 'all' })
-      );
+      const { result } = renderHook(() => useRateLimitRulesTable({ statusFilter: 'all' }));
 
       expect(result.current.rules).toEqual([]);
     });
@@ -477,9 +431,7 @@ describe('useRateLimitRulesTable', () => {
         error: null,
       });
 
-      const { result } = renderHook(() =>
-        useRateLimitRulesTable({ statusFilter: 'all' })
-      );
+      const { result } = renderHook(() => useRateLimitRulesTable({ statusFilter: 'all' }));
 
       expect(result.current.maxBytes).toBe(0);
     });

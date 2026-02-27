@@ -32,7 +32,16 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@nasnet/ui/primitives';
-import { Play, Square, Loader2, Download, Copy, CheckCircle2, AlertCircle, Settings } from 'lucide-react';
+import {
+  Play,
+  Square,
+  Loader2,
+  Download,
+  Copy,
+  CheckCircle2,
+  AlertCircle,
+  Settings,
+} from 'lucide-react';
 import { tracerouteFormSchema, type TracerouteFormValues } from './traceroute.schema';
 import { useTraceroute } from '../../hooks/useTraceroute';
 import { TracerouteHopsList } from './TracerouteHopsList';
@@ -82,15 +91,18 @@ export const TracerouteToolMobile = memo(function TracerouteToolMobile({
 
   const protocol = watch('protocol');
 
-  const onSubmit = useCallback(async (values: TracerouteFormValues) => {
-    await traceroute.run({
-      target: values.target,
-      maxHops: values.maxHops || 30,
-      timeout: values.timeout || 3000,
-      probeCount: values.probeCount || 3,
-      protocol: values.protocol || 'ICMP',
-    });
-  }, [traceroute]);
+  const onSubmit = useCallback(
+    async (values: TracerouteFormValues) => {
+      await traceroute.run({
+        target: values.target,
+        maxHops: values.maxHops || 30,
+        timeout: values.timeout || 3000,
+        probeCount: values.probeCount || 3,
+        protocol: values.protocol || 'ICMP',
+      });
+    },
+    [traceroute]
+  );
 
   const handleStop = useCallback(async () => {
     await traceroute.cancel();
@@ -112,7 +124,9 @@ export const TracerouteToolMobile = memo(function TracerouteToolMobile({
       const hostname = hop.hostname && hop.hostname !== hop.address ? `(${hop.hostname})` : '';
 
       const probeLatencies = hop.probes
-        .map((probe) => (probe.success && probe.latencyMs != null ? `${probe.latencyMs.toFixed(1)} ms` : '*'))
+        .map((probe) =>
+          probe.success && probe.latencyMs != null ? `${probe.latencyMs.toFixed(1)} ms` : '*'
+        )
         .join('  ');
 
       lines.push(`${hopNum}  ${address} ${hostname}  ${probeLatencies}`);
@@ -121,7 +135,9 @@ export const TracerouteToolMobile = memo(function TracerouteToolMobile({
     if (traceroute.result) {
       lines.push('');
       lines.push(`--- ${target} traceroute statistics ---`);
-      lines.push(`${traceroute.hops.length} hops, ${traceroute.result.totalTimeMs.toFixed(0)}ms total`);
+      lines.push(
+        `${traceroute.hops.length} hops, ${traceroute.result.totalTimeMs.toFixed(0)}ms total`
+      );
       lines.push(`Destination ${traceroute.result.reachedDestination ? 'reached' : 'not reached'}`);
     }
 
@@ -179,7 +195,10 @@ export const TracerouteToolMobile = memo(function TracerouteToolMobile({
           <CardTitle>Traceroute Tool</CardTitle>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-component-lg">
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="space-y-component-lg"
+          >
             {/* Target input */}
             <div className="space-y-component-sm">
               <Label htmlFor="traceroute-target-mobile">
@@ -194,27 +213,39 @@ export const TracerouteToolMobile = memo(function TracerouteToolMobile({
                 {...register('target')}
               />
               {errors.target && (
-                <p className="text-xs text-error" role="alert">
+                <p
+                  className="text-error text-xs"
+                  role="alert"
+                >
                   {errors.target.message}
                 </p>
               )}
             </div>
 
             {/* Advanced options sheet */}
-            <Sheet open={showAdvanced} onOpenChange={setShowAdvanced}>
+            <Sheet
+              open={showAdvanced}
+              onOpenChange={setShowAdvanced}
+            >
               <SheetTrigger asChild>
                 <Button
                   type="button"
                   variant="outline"
                   size="sm"
-                  className="w-full min-h-[44px]"
+                  className="min-h-[44px] w-full"
                   disabled={traceroute.isRunning}
                 >
-                  <Settings className="h-4 w-4 mr-2" aria-hidden="true" />
+                  <Settings
+                    className="mr-2 h-4 w-4"
+                    aria-hidden="true"
+                  />
                   Advanced Options
                 </Button>
               </SheetTrigger>
-              <SheetContent side="bottom" className="h-[85vh]">
+              <SheetContent
+                side="bottom"
+                className="h-[85vh]"
+              >
                 <SheetHeader>
                   <SheetTitle>Advanced Options</SheetTitle>
                 </SheetHeader>
@@ -231,7 +262,10 @@ export const TracerouteToolMobile = memo(function TracerouteToolMobile({
                       {...register('maxHops', { valueAsNumber: true })}
                     />
                     {errors.maxHops && (
-                      <p className="text-xs text-error" role="alert">
+                      <p
+                        className="text-error text-xs"
+                        role="alert"
+                      >
                         {errors.maxHops.message}
                       </p>
                     )}
@@ -250,7 +284,10 @@ export const TracerouteToolMobile = memo(function TracerouteToolMobile({
                       {...register('timeout', { valueAsNumber: true })}
                     />
                     {errors.timeout && (
-                      <p className="text-xs text-error" role="alert">
+                      <p
+                        className="text-error text-xs"
+                        role="alert"
+                      >
                         {errors.timeout.message}
                       </p>
                     )}
@@ -268,7 +305,10 @@ export const TracerouteToolMobile = memo(function TracerouteToolMobile({
                       {...register('probeCount', { valueAsNumber: true })}
                     />
                     {errors.probeCount && (
-                      <p className="text-xs text-error" role="alert">
+                      <p
+                        className="text-error text-xs"
+                        role="alert"
+                      >
                         {errors.probeCount.message}
                       </p>
                     )}
@@ -279,9 +319,14 @@ export const TracerouteToolMobile = memo(function TracerouteToolMobile({
                     <Label htmlFor="traceroute-protocol-mobile">Protocol</Label>
                     <Select
                       value={protocol}
-                      onValueChange={(value) => register('protocol').onChange({ target: { value } })}
+                      onValueChange={(value) =>
+                        register('protocol').onChange({ target: { value } })
+                      }
                     >
-                      <SelectTrigger id="traceroute-protocol-mobile" className="min-h-[44px]">
+                      <SelectTrigger
+                        id="traceroute-protocol-mobile"
+                        className="min-h-[44px]"
+                      >
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -296,7 +341,7 @@ export const TracerouteToolMobile = memo(function TracerouteToolMobile({
                     type="button"
                     variant="secondary"
                     onClick={() => setShowAdvanced(false)}
-                    className="w-full min-h-[44px]"
+                    className="min-h-[44px] w-full"
                   >
                     Done
                   </Button>
@@ -305,28 +350,33 @@ export const TracerouteToolMobile = memo(function TracerouteToolMobile({
             </Sheet>
 
             {/* Action button */}
-            {!traceroute.isRunning ? (
+            {!traceroute.isRunning ?
               <Button
                 type="submit"
                 disabled={!isValid}
-                className="w-full min-h-[44px]"
+                className="min-h-[44px] w-full"
                 aria-label="Start traceroute"
               >
-                <Play className="h-4 w-4 mr-2" aria-hidden="true" />
+                <Play
+                  className="mr-2 h-4 w-4"
+                  aria-hidden="true"
+                />
                 Start Traceroute
               </Button>
-            ) : (
-              <Button
+            : <Button
                 type="button"
                 onClick={handleStop}
                 variant="destructive"
-                className="w-full min-h-[44px]"
+                className="min-h-[44px] w-full"
                 aria-label="Stop traceroute"
               >
-                <Square className="h-4 w-4 mr-2" aria-hidden="true" />
+                <Square
+                  className="mr-2 h-4 w-4"
+                  aria-hidden="true"
+                />
                 Stop
               </Button>
-            )}
+            }
           </form>
         </CardContent>
       </Card>
@@ -334,13 +384,21 @@ export const TracerouteToolMobile = memo(function TracerouteToolMobile({
       {/* Status and progress */}
       {statusMessage && (
         <Alert variant={traceroute.error ? 'destructive' : 'default'}>
-          {traceroute.error ? (
-            <AlertCircle className="h-4 w-4" aria-hidden="true" />
-          ) : traceroute.result?.reachedDestination ? (
-            <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
-          ) : (
-            <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
-          )}
+          {traceroute.error ?
+            <AlertCircle
+              className="h-4 w-4"
+              aria-hidden="true"
+            />
+          : traceroute.result?.reachedDestination ?
+            <CheckCircle2
+              className="h-4 w-4"
+              aria-hidden="true"
+            />
+          : <Loader2
+              className="h-4 w-4 animate-spin"
+              aria-hidden="true"
+            />
+          }
           <AlertTitle>{traceroute.error ? 'Error' : 'Status'}</AlertTitle>
           <AlertDescription className="text-xs">{statusMessage}</AlertDescription>
         </Alert>
@@ -348,7 +406,10 @@ export const TracerouteToolMobile = memo(function TracerouteToolMobile({
 
       {traceroute.isRunning && (
         <div className="space-y-component-md">
-          <Progress value={traceroute.progress} aria-label="Traceroute progress" />
+          <Progress
+            value={traceroute.progress}
+            aria-label="Traceroute progress"
+          />
         </div>
       )}
 
@@ -358,7 +419,7 @@ export const TracerouteToolMobile = memo(function TracerouteToolMobile({
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle>Hops ({traceroute.hops.length})</CardTitle>
-              <div className="flex gap-component-md">
+              <div className="gap-component-md flex">
                 <Button
                   variant="ghost"
                   size="sm"
@@ -366,7 +427,16 @@ export const TracerouteToolMobile = memo(function TracerouteToolMobile({
                   className="min-h-[44px] min-w-[44px]"
                   aria-label="Copy results"
                 >
-                  {copied ? <CheckCircle2 className="h-4 w-4" aria-hidden="true" /> : <Copy className="h-4 w-4" aria-hidden="true" />}
+                  {copied ?
+                    <CheckCircle2
+                      className="h-4 w-4"
+                      aria-hidden="true"
+                    />
+                  : <Copy
+                      className="h-4 w-4"
+                      aria-hidden="true"
+                    />
+                  }
                 </Button>
                 {traceroute.result && (
                   <Button
@@ -376,14 +446,20 @@ export const TracerouteToolMobile = memo(function TracerouteToolMobile({
                     className="min-h-[44px] min-w-[44px]"
                     aria-label="Download JSON"
                   >
-                    <Download className="h-4 w-4" aria-hidden="true" />
+                    <Download
+                      className="h-4 w-4"
+                      aria-hidden="true"
+                    />
                   </Button>
                 )}
               </div>
             </div>
           </CardHeader>
           <CardContent>
-            <TracerouteHopsList hops={traceroute.hops} isRunning={traceroute.isRunning} />
+            <TracerouteHopsList
+              hops={traceroute.hops}
+              isRunning={traceroute.isRunning}
+            />
           </CardContent>
         </Card>
       )}
@@ -391,9 +467,9 @@ export const TracerouteToolMobile = memo(function TracerouteToolMobile({
       {/* Empty state */}
       {!traceroute.isRunning && traceroute.hops.length === 0 && !traceroute.error && (
         <Card>
-          <CardContent className="flex flex-col items-center justify-center p-component-xl text-center">
+          <CardContent className="p-component-xl flex flex-col items-center justify-center text-center">
             <div className="text-muted-foreground">
-              <p className="text-base font-medium mb-component-md">No results yet</p>
+              <p className="mb-component-md text-base font-medium">No results yet</p>
               <p className="text-xs">Enter a target to begin</p>
             </div>
           </CardContent>

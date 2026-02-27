@@ -6,22 +6,13 @@ extend type Query {
   """
   Get all IP addresses on a router with optional filtering
   """
-  ipAddresses(
-    "Router ID to query"
-    routerId: ID!
-    "Optional: filter by interface ID"
-    interfaceId: ID
-  ): [IpAddress!]! @capability(requires: ["interface"])
+  ipAddresses("Router ID to query" routerId: ID!, "Optional: filter by interface ID" interfaceId: ID): [IpAddress!]!
+    @capability(requires: ["interface"])
 
   """
   Get a specific IP address by ID
   """
-  ipAddress(
-    "Router ID"
-    routerId: ID!
-    "IP address ID"
-    id: ID!
-  ): IpAddress @capability(requires: ["interface"])
+  ipAddress("Router ID" routerId: ID!, "IP address ID" id: ID!): IpAddress @capability(requires: ["interface"])
 
   """
   Check if an IP address conflicts with existing assignments
@@ -40,30 +31,19 @@ extend type Query {
   """
   Get dependencies for an IP address (DHCP servers, routes, etc.)
   """
-  ipAddressDependencies(
-    "Router ID"
-    routerId: ID!
-    "IP address ID"
-    id: ID!
-  ): IpAddressDependencies! @capability(requires: ["interface"])
+  ipAddressDependencies("Router ID" routerId: ID!, "IP address ID" id: ID!): IpAddressDependencies!
+    @capability(requires: ["interface"])
 
   """
   Get all VLANs on a router with optional filtering
   """
-  vlans(
-    "Router ID to query"
-    routerId: ID!
-    "Optional filters"
-    filter: VlanFilter
-  ): [Vlan!]! @capability(requires: ["interface"])
+  vlans("Router ID to query" routerId: ID!, "Optional filters" filter: VlanFilter): [Vlan!]!
+    @capability(requires: ["interface"])
 
   """
   Get a specific VLAN by ID
   """
-  vlan(
-    "VLAN ID"
-    id: ID!
-  ): Vlan @capability(requires: ["interface"])
+  vlan("VLAN ID" id: ID!): Vlan @capability(requires: ["interface"])
 
   """
   Check if a VLAN ID is available on a parent interface
@@ -80,20 +60,12 @@ extend type Query {
   """
   Get dependencies for a VLAN (IP addresses, DHCP, routes, etc.)
   """
-  vlanDependencies(
-    "VLAN ID"
-    id: ID!
-  ): VlanDependencies @capability(requires: ["interface"])
+  vlanDependencies("VLAN ID" id: ID!): VlanDependencies @capability(requires: ["interface"])
 
   """
   Get VLAN topology for a bridge
   """
-  vlanTopology(
-    "Router ID"
-    routerId: ID!
-    "Bridge ID"
-    bridgeId: ID!
-  ): VlanTopology @capability(requires: ["interface"])
+  vlanTopology("Router ID" routerId: ID!, "Bridge ID" bridgeId: ID!): VlanTopology @capability(requires: ["interface"])
 
   """
   Get all routes on a router with optional filtering
@@ -110,12 +82,7 @@ extend type Query {
   """
   Get a specific route by ID
   """
-  route(
-    "Router ID"
-    routerId: ID!
-    "Route ID"
-    id: ID!
-  ): Route @capability(requires: ["routing"])
+  route("Router ID" routerId: ID!, "Route ID" id: ID!): Route @capability(requires: ["routing"])
 
   """
   Check if a gateway address is reachable from the router

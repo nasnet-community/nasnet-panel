@@ -68,11 +68,7 @@ describe('LogCache', () => {
 
     it('should store multiple log entries', async () => {
       await cache.init();
-      const logs = [
-        mockLogEntry('1'),
-        mockLogEntry('2'),
-        mockLogEntry('3'),
-      ];
+      const logs = [mockLogEntry('1'), mockLogEntry('2'), mockLogEntry('3')];
       await cache.storeLogs('192.168.1.1', logs);
 
       const retrieved = await cache.getLogs('192.168.1.1', 10);
@@ -201,11 +197,7 @@ describe('LogCache', () => {
       const expiredCache = new LogCache({ ttlDays: 0 });
       await expiredCache.init();
 
-      const logs = [
-        mockLogEntry('1'),
-        mockLogEntry('2'),
-        mockLogEntry('3'),
-      ];
+      const logs = [mockLogEntry('1'), mockLogEntry('2'), mockLogEntry('3')];
       await expiredCache.storeLogs('192.168.1.1', logs);
 
       // Wait for expiry

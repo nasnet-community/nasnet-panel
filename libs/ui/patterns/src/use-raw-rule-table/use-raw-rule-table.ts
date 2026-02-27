@@ -39,7 +39,7 @@ export interface RawRuleFilters {
   protocol?: string | 'all';
   status?: 'enabled' | 'disabled' | 'all';
   chain?: RawChain | 'all';
-  searchTerm?: string;  // Search by comment, address, port
+  searchTerm?: string; // Search by comment, address, port
 }
 
 /**
@@ -212,9 +212,7 @@ const DEFAULT_COLUMNS: ColumnDef<RawRule>[] = [
  * );
  * ```
  */
-export function useRawRuleTable(
-  options: UseRawRuleTableOptions
-): UseRawRuleTableReturn {
+export function useRawRuleTable(options: UseRawRuleTableOptions): UseRawRuleTableReturn {
   const {
     data: rawData,
     initialSortBy = 'order',
@@ -326,8 +324,8 @@ export function useRawRuleTable(
 
       // Handle string vs number comparison
       if (typeof aValue === 'string' && typeof bValue === 'string') {
-        return sortDirection === 'asc'
-          ? aValue.localeCompare(bValue)
+        return sortDirection === 'asc' ?
+            aValue.localeCompare(bValue)
           : bValue.localeCompare(aValue);
       }
 

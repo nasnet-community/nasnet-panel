@@ -200,9 +200,7 @@ test.describe('SYN Flood Protection', () => {
     await expect(
       page.getByText(/syn flood protection helps prevent syn flood attacks/i)
     ).toBeVisible();
-    await expect(
-      page.getByText(/warning.*changing syn flood settings may affect/i)
-    ).toBeVisible();
+    await expect(page.getByText(/warning.*changing syn flood settings may affect/i)).toBeVisible();
   });
 
   test('should enable SYN flood protection', async ({ page }) => {
@@ -667,9 +665,7 @@ test.describe('Empty States', () => {
   test('should display empty state when no rules exist', async ({ page }) => {
     // Rate Limits tab should show empty state
     await expect(page.getByText(/no rate limit rules/i)).toBeVisible();
-    await expect(
-      page.getByText(/create your first rate limit rule to protect/i)
-    ).toBeVisible();
+    await expect(page.getByText(/create your first rate limit rule to protect/i)).toBeVisible();
   });
 
   test('should display empty state when no blocked IPs', async ({ page }) => {

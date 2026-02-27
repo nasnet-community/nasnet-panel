@@ -15,7 +15,13 @@
  * @see https://wiki.mikrotik.com/wiki/Manual:IP/Firewall/Filter#RAW
  */
 
-import { useQuery, useMutation, useQueryClient, UseQueryResult, UseMutationResult } from '@tanstack/react-query';
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+  UseQueryResult,
+  UseMutationResult,
+} from '@tanstack/react-query';
 import { makeRouterOSRequest } from '@nasnet/api-client/core';
 import type { RawRule, RawChain } from '@nasnet/core/types';
 
@@ -243,9 +249,8 @@ export function useRawRules(
   options?: UseRawRulesOptions
 ): UseQueryResult<RawRule[], Error> {
   return useQuery({
-    queryKey: options?.chain
-      ? rawRulesKeys.byChain(routerId, options.chain)
-      : rawRulesKeys.all(routerId),
+    queryKey:
+      options?.chain ? rawRulesKeys.byChain(routerId, options.chain) : rawRulesKeys.all(routerId),
     queryFn: () => fetchRawRules(routerId, options?.chain),
     staleTime: 5 * 60 * 1000, // 5 minutes
     enabled: !!routerId && (options?.enabled ?? true),
@@ -559,7 +564,10 @@ export function useBatchUpdateRawRules(routerId: string) {
   return useMutation<
     { success: number; failed: number; errors: Error[] },
     Error,
-    { updates: Array<{ ruleId: string; updates: Partial<RawRule> }>; onProgress?: (progress: BatchProgress) => void }
+    {
+      updates: Array<{ ruleId: string; updates: Partial<RawRule> }>;
+      onProgress?: (progress: BatchProgress) => void;
+    }
   >({
     mutationFn: async ({ updates, onProgress }) => {
       const results = {

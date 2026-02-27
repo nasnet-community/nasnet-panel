@@ -16,12 +16,7 @@ import * as React from 'react';
 
 import { ExternalLink } from 'lucide-react';
 
-import {
-  Popover,
-  PopoverTrigger,
-  PopoverContent,
-  cn,
-} from '@nasnet/ui/primitives';
+import { Popover, PopoverTrigger, PopoverContent, cn } from '@nasnet/ui/primitives';
 
 import type { HelpPopoverProps } from './help.types';
 
@@ -77,7 +72,10 @@ export const HelpPopover = React.memo(function HelpPopover({
   const hasLink = content.link && content.link.trim() !== '';
 
   return (
-    <Popover open={open} onOpenChange={onOpenChange}>
+    <Popover
+      open={open}
+      onOpenChange={onOpenChange}
+    >
       <PopoverTrigger asChild>{children}</PopoverTrigger>
       <PopoverContent
         side={side}
@@ -85,7 +83,7 @@ export const HelpPopover = React.memo(function HelpPopover({
         sideOffset={8}
         className={cn(
           // Container styling per spec
-          'bg-popover border border-border rounded-[var(--semantic-radius-card)]',
+          'bg-popover border-border rounded-[var(--semantic-radius-card)] border',
           'shadow-[var(--semantic-shadow-dropdown)]',
           'max-w-xs',
           'p-3',
@@ -100,27 +98,26 @@ export const HelpPopover = React.memo(function HelpPopover({
         <div className="space-y-3">
           {/* Title */}
           {content.title && (
-            <h4 className="text-sm font-semibold text-foreground">
-              {content.title}
-            </h4>
+            <h4 className="text-foreground text-sm font-semibold">{content.title}</h4>
           )}
 
           {/* Description */}
           {content.description && (
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              {content.description}
-            </p>
+            <p className="text-muted-foreground text-xs leading-relaxed">{content.description}</p>
           )}
 
           {/* Examples */}
           {hasExamples && (
             <div className="space-y-2">
-              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+              <span className="text-muted-foreground text-xs font-semibold uppercase tracking-wide">
                 Examples
               </span>
-              <div className="bg-muted rounded-[var(--semantic-radius-input)] p-2 space-y-1">
+              <div className="bg-muted space-y-1 rounded-[var(--semantic-radius-input)] p-2">
                 {content.examples!.map((example, index) => (
-                  <div key={index} className="font-mono text-xs text-muted-foreground break-all">
+                  <div
+                    key={index}
+                    className="text-muted-foreground break-all font-mono text-xs"
+                  >
                     {example}
                   </div>
                 ))}
@@ -136,13 +133,16 @@ export const HelpPopover = React.memo(function HelpPopover({
               rel="noopener noreferrer"
               className={cn(
                 'inline-flex items-center gap-1',
-                'text-sm text-primary hover:text-primary',
+                'text-primary hover:text-primary text-sm',
                 'transition-colors duration-150',
-                'focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded'
+                'focus-visible:ring-ring rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2'
               )}
             >
               <span>Learn more</span>
-              <ExternalLink className="h-3 w-3" aria-hidden="true" />
+              <ExternalLink
+                className="h-3 w-3"
+                aria-hidden="true"
+              />
             </a>
           )}
         </div>

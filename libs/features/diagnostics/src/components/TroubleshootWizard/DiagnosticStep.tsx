@@ -55,14 +55,34 @@ export const DiagnosticStep = memo(function DiagnosticStep({
   const statusIcon = useMemo(() => {
     switch (step.status) {
       case 'passed':
-        return <CheckCircle2 className="h-5 w-5 text-success" aria-hidden="true" />;
+        return (
+          <CheckCircle2
+            className="text-success h-5 w-5"
+            aria-hidden="true"
+          />
+        );
       case 'failed':
-        return <XCircle className="h-5 w-5 text-error" aria-hidden="true" />;
+        return (
+          <XCircle
+            className="text-error h-5 w-5"
+            aria-hidden="true"
+          />
+        );
       case 'running':
-        return <Loader2 className="h-5 w-5 text-primary animate-spin" aria-hidden="true" />;
+        return (
+          <Loader2
+            className="text-primary h-5 w-5 animate-spin"
+            aria-hidden="true"
+          />
+        );
       case 'pending':
       default:
-        return <Clock className="h-5 w-5 text-muted-foreground" aria-hidden="true" />;
+        return (
+          <Clock
+            className="text-muted-foreground h-5 w-5"
+            aria-hidden="true"
+          />
+        );
     }
   }, [step.status]);
 
@@ -110,10 +130,11 @@ export const DiagnosticStep = memo(function DiagnosticStep({
   return (
     <div
       className={cn(
-        'flex items-center gap-component-md p-component-sm rounded-[var(--semantic-radius-card)] border-2 transition-all min-h-[44px]',
+        'gap-component-md p-component-sm flex min-h-[44px] items-center rounded-[var(--semantic-radius-card)] border-2 transition-all',
         statusColor,
-        isActive && 'ring-2 ring-primary ring-offset-2',
-        onClick && 'cursor-pointer hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+        isActive && 'ring-primary ring-2 ring-offset-2',
+        onClick &&
+          'focus-visible:ring-ring cursor-pointer hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
         step.status === 'pending' && 'opacity-60'
       )}
       onClick={handleClick}
@@ -126,11 +147,11 @@ export const DiagnosticStep = memo(function DiagnosticStep({
       <div className="flex-shrink-0">{statusIcon}</div>
 
       {/* Step Content */}
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-component-sm">
-          <h3 className="font-medium text-sm truncate text-foreground">{step.name}</h3>
+      <div className="min-w-0 flex-1">
+        <div className="gap-component-sm flex items-center">
+          <h3 className="text-foreground truncate text-sm font-medium">{step.name}</h3>
           {step.result?.executionTimeMs && step.status !== 'running' && (
-            <span className="font-mono text-xs text-muted-foreground whitespace-nowrap">
+            <span className="text-muted-foreground whitespace-nowrap font-mono text-xs">
               {(step.result.executionTimeMs / 1000).toFixed(1)}s
             </span>
           )}
@@ -138,7 +159,7 @@ export const DiagnosticStep = memo(function DiagnosticStep({
         {step.result?.message && step.status !== 'pending' && (
           <p
             className={cn(
-              'text-xs mt-component-xs',
+              'mt-component-xs text-xs',
               step.status === 'passed' && 'text-success',
               step.status === 'failed' && 'text-error',
               step.status === 'running' && 'text-muted-foreground'
@@ -152,7 +173,7 @@ export const DiagnosticStep = memo(function DiagnosticStep({
       {/* Step Number Badge */}
       <div
         className={cn(
-          'flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium',
+          'flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full text-xs font-medium',
           step.status === 'passed' && 'bg-success text-success-foreground',
           step.status === 'failed' && 'bg-error text-error-foreground',
           step.status === 'running' && 'bg-primary text-primary-foreground',

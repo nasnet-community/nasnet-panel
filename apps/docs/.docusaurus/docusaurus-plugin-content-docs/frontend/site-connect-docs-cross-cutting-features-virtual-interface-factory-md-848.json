@@ -1,7 +1,7 @@
 {
   "id": "cross-cutting-features/virtual-interface-factory",
   "title": "Virtual Interface Factory (VIF)",
-  "description": "A Virtual Interface (VIF) is a dedicated network interface created on the MikroTik router for each service instance. It provides complete network isolation: each service gets its own VLAN, IP address, and routing mark, so service traffic is kept separate from LAN, WAN, and other services.",
+  "description": "A Virtual Interface (VIF) is a dedicated network interface created on the MikroTik router for each",
   "source": "@site/../connect/docs/cross-cutting-features/virtual-interface-factory.md",
   "sourceDirName": "cross-cutting-features",
   "slug": "/cross-cutting-features/virtual-interface-factory",

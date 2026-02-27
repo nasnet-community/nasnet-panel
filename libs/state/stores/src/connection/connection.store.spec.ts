@@ -87,7 +87,7 @@ describe('useConnectionStore Legacy API', () => {
       const firstTimestamp = useConnectionStore.getState().lastConnectedAt;
 
       // Wait a tiny bit
-      const waitPromise = new Promise(resolve => setTimeout(resolve, 5));
+      const waitPromise = new Promise((resolve) => setTimeout(resolve, 5));
 
       waitPromise.then(() => {
         // Disconnect
@@ -98,9 +98,7 @@ describe('useConnectionStore Legacy API', () => {
         const secondTimestamp = useConnectionStore.getState().lastConnectedAt;
 
         // Second timestamp should be newer
-        expect(secondTimestamp!.getTime()).toBeGreaterThanOrEqual(
-          firstTimestamp!.getTime()
-        );
+        expect(secondTimestamp!.getTime()).toBeGreaterThanOrEqual(firstTimestamp!.getTime());
       });
     });
   });
@@ -140,9 +138,7 @@ describe('useConnectionStore Legacy API', () => {
       const { state, lastConnectedAt } = useConnectionStore.getState();
       expect(state).toBe('connected');
       expect(lastConnectedAt).toBeInstanceOf(Date);
-      expect(lastConnectedAt!.getTime()).toBeGreaterThanOrEqual(
-        originalTimestamp!.getTime()
-      );
+      expect(lastConnectedAt!.getTime()).toBeGreaterThanOrEqual(originalTimestamp!.getTime());
     });
 
     it('should handle multiple disconnection attempts', () => {
@@ -172,11 +168,7 @@ describe('useConnectionStore Legacy API', () => {
       const { state } = useConnectionStore.getState();
 
       // TypeScript ensures state can only be one of these values
-      const validStates: Array<typeof state> = [
-        'connected',
-        'disconnected',
-        'reconnecting',
-      ];
+      const validStates: Array<typeof state> = ['connected', 'disconnected', 'reconnecting'];
 
       expect(validStates).toContain(state);
     });

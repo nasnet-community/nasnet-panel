@@ -1,7 +1,7 @@
 {
   "id": "cross-cutting-flows",
   "title": "Cross-Cutting Flows",
-  "description": "This document traces six end-to-end flows that span multiple packages. Each flow shows how data moves from user interaction through frontend state, API client, GraphQL schema, and into the backend.",
+  "description": "This document traces six end-to-end flows that span multiple packages. Each flow shows how data",
   "source": "@site/../../libs/features/docs/cross-cutting-flows.md",
   "sourceDirName": ".",
   "slug": "/cross-cutting-flows",

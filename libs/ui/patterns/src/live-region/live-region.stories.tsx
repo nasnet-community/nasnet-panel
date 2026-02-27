@@ -105,7 +105,8 @@ export const AssertiveAlert: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Assertive mode announcement. Interrupts immediately for critical alerts. Can be shown visually.',
+        story:
+          'Assertive mode announcement. Interrupts immediately for critical alerts. Can be shown visually.',
       },
     },
   },
@@ -183,22 +184,33 @@ export const InteractiveAnnounce: Story = {
       return (
         <div className="space-y-4">
           <div className="flex gap-2">
-            <Button onClick={handleSave} disabled={status !== 'idle'}>
+            <Button
+              onClick={handleSave}
+              disabled={status !== 'idle'}
+            >
               {status === 'idle' && 'Save Configuration'}
               {status === 'loading' && 'Saving...'}
               {status === 'success' && 'Saved!'}
               {status === 'error' && 'Error'}
             </Button>
-            <Button onClick={handleError} variant="destructive" disabled={status !== 'idle'}>
+            <Button
+              onClick={handleError}
+              variant="destructive"
+              disabled={status !== 'idle'}
+            >
               Simulate Error
             </Button>
           </div>
 
           <LiveRegion mode={priority}>{message}</LiveRegion>
 
-          <div className="text-sm text-muted-foreground">
-            <p>Current status: <span className="font-mono">{status}</span></p>
-            <p className="mt-1">Screen reader announcement (in sr-only region): {message || '(empty)'}</p>
+          <div className="text-muted-foreground text-sm">
+            <p>
+              Current status: <span className="font-mono">{status}</span>
+            </p>
+            <p className="mt-1">
+              Screen reader announcement (in sr-only region): {message || '(empty)'}
+            </p>
           </div>
         </div>
       );
@@ -246,20 +258,21 @@ export const GlobalAnnouncer: Story = {
 
       return (
         <div className="space-y-4">
-          <div className="p-4 bg-card border border-border rounded">
+          <div className="bg-card border-border rounded border p-4">
             <p className="text-2xl font-bold">{count}</p>
           </div>
 
           <div className="flex gap-2">
-            <Button onClick={handleIncrement}>
-              Increment
-            </Button>
-            <Button onClick={handleWarning} variant="outline">
+            <Button onClick={handleIncrement}>Increment</Button>
+            <Button
+              onClick={handleWarning}
+              variant="outline"
+            >
               Warn (Assertive)
             </Button>
           </div>
 
-          <p className="text-sm text-muted-foreground">
+          <p className="text-muted-foreground text-sm">
             Screen reader will announce changes using the global AnnouncerProvider.
           </p>
         </div>
@@ -289,8 +302,9 @@ export const VisibleErrorBanner: Story = {
     role: 'alert',
     visible: true,
     children: (
-      <div className="bg-semantic-error/10 border border-semantic-error text-semantic-error p-4 rounded">
-        <strong>Connection lost:</strong> Unable to reach the router. Please check your network connection.
+      <div className="bg-semantic-error/10 border-semantic-error text-semantic-error rounded border p-4">
+        <strong>Connection lost:</strong> Unable to reach the router. Please check your network
+        connection.
       </div>
     ),
   },
@@ -319,7 +333,7 @@ export const NonAtomic: Story = {
 
       return (
         <div className="space-y-4">
-          <div className="flex gap-2 flex-wrap">
+          <div className="flex flex-wrap gap-2">
             <Button
               size="sm"
               onClick={() => addMessage('Step 1 complete')}
@@ -347,15 +361,20 @@ export const NonAtomic: Story = {
             </Button>
           </div>
 
-          <LiveRegion mode="polite" atomic={false} role="log" visible={false}>
+          <LiveRegion
+            mode="polite"
+            atomic={false}
+            role="log"
+            visible={false}
+          >
             {messages.map((msg, i) => (
               <div key={i}>{msg}</div>
             ))}
           </LiveRegion>
 
-          <p className="text-sm text-muted-foreground">
-            With `atomic={false}`, only newly added steps are announced, not the entire log.
-            Current messages: {messages.length > 0 ? messages.join(', ') : '(empty)'}
+          <p className="text-muted-foreground text-sm">
+            With `atomic={false}`, only newly added steps are announced, not the entire log. Current
+            messages: {messages.length > 0 ? messages.join(', ') : '(empty)'}
           </p>
         </div>
       );
@@ -368,7 +387,7 @@ export const NonAtomic: Story = {
       description: {
         story:
           'Non-atomic (partial) announcements: only changed content is announced. Useful for logs where you ' +
-          'don\'t want to repeat all previous entries.',
+          "don't want to repeat all previous entries.",
       },
     },
   },

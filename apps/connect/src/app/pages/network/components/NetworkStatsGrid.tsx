@@ -18,26 +18,31 @@ interface NetworkStatsGridProps {
   isLoading?: boolean;
 }
 
-export const NetworkStatsGrid = React.memo(function NetworkStatsGrid({ resourceData, isLoading }: NetworkStatsGridProps) {
+export const NetworkStatsGrid = React.memo(function NetworkStatsGrid({
+  resourceData,
+  isLoading,
+}: NetworkStatsGridProps) {
   const { t } = useTranslation('network');
-  const memoryUsed = resourceData
-    ? resourceData.totalMemory - resourceData.freeMemory
-    : 0;
-  const memoryPercentage = resourceData
-    ? Math.round((memoryUsed / resourceData.totalMemory) * 100)
-    : 0;
+  const memoryUsed = resourceData ? resourceData.totalMemory - resourceData.freeMemory : 0;
+  const memoryPercentage =
+    resourceData ? Math.round((memoryUsed / resourceData.totalMemory) * 100) : 0;
 
-  const uptimeFormatted = resourceData?.uptime
-    ? parseRouterOSUptime(resourceData.uptime)
-    : '--';
+  const uptimeFormatted = resourceData?.uptime ? parseRouterOSUptime(resourceData.uptime) : '--';
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-3 gap-component-sm p-component-md animate-pulse" role="status" aria-label="Loading network stats">
+      <div
+        className="gap-component-sm p-component-md grid animate-pulse grid-cols-3"
+        role="status"
+        aria-label="Loading network stats"
+      >
         {[1, 2, 3].map((i) => (
-          <div key={i} className="bg-card rounded-card-lg p-component-sm text-center">
-            <div className="h-5 bg-muted rounded w-12 mx-auto mb-1" />
-            <div className="h-3 bg-muted rounded w-8 mx-auto" />
+          <div
+            key={i}
+            className="bg-card rounded-card-lg p-component-sm text-center"
+          >
+            <div className="bg-muted mx-auto mb-1 h-5 w-12 rounded" />
+            <div className="bg-muted mx-auto h-3 w-8 rounded" />
           </div>
         ))}
         <span className="sr-only">Loading network statistics...</span>
@@ -46,48 +51,67 @@ export const NetworkStatsGrid = React.memo(function NetworkStatsGrid({ resourceD
   }
 
   return (
-    <div className="grid grid-cols-3 gap-component-sm p-component-md" role="group" aria-label="Network statistics">
+    <div
+      className="gap-component-sm p-component-md grid grid-cols-3"
+      role="group"
+      aria-label="Network statistics"
+    >
       {/* CPU */}
       <div className="bg-card rounded-card-lg p-component-sm text-center shadow-sm">
-        <div className="flex items-center justify-center gap-1.5 mb-1">
-          <Cpu className="w-3.5 h-3.5 text-info" aria-hidden="true" />
+        <div className="mb-1 flex items-center justify-center gap-1.5">
+          <Cpu
+            className="text-info h-3.5 w-3.5"
+            aria-hidden="true"
+          />
         </div>
-        <p className={cn(
-          'text-lg font-bold font-mono',
-          resourceData?.cpuLoad !== undefined
-            ? calculateStatus(resourceData.cpuLoad) === 'healthy' ? 'text-info' :
-              calculateStatus(resourceData.cpuLoad) === 'warning' ? 'text-warning' : 'text-error'
+        <p
+          className={cn(
+            'font-mono text-lg font-bold',
+            resourceData?.cpuLoad !== undefined ?
+              calculateStatus(resourceData.cpuLoad) === 'healthy' ? 'text-info'
+              : calculateStatus(resourceData.cpuLoad) === 'warning' ? 'text-warning'
+              : 'text-error'
             : 'text-foreground'
-        )}>
+          )}
+        >
           {resourceData?.cpuLoad ?? '--'}%
         </p>
-        <p className="text-muted-foreground text-xs font-display">{t('quickStats.cpu')}</p>
+        <p className="text-muted-foreground font-display text-xs">{t('quickStats.cpu')}</p>
       </div>
 
       {/* Memory */}
       <div className="bg-card rounded-card-lg p-component-sm text-center shadow-sm">
-        <div className="flex items-center justify-center gap-1.5 mb-1">
-          <HardDrive className="w-3.5 h-3.5 text-warning" aria-hidden="true" />
+        <div className="mb-1 flex items-center justify-center gap-1.5">
+          <HardDrive
+            className="text-warning h-3.5 w-3.5"
+            aria-hidden="true"
+          />
         </div>
-        <p className={cn(
-          'text-lg font-bold font-mono',
-          resourceData
-            ? calculateStatus(memoryPercentage) === 'healthy' ? 'text-warning' :
-              calculateStatus(memoryPercentage) === 'warning' ? 'text-warning' : 'text-error'
+        <p
+          className={cn(
+            'font-mono text-lg font-bold',
+            resourceData ?
+              calculateStatus(memoryPercentage) === 'healthy' ? 'text-warning'
+              : calculateStatus(memoryPercentage) === 'warning' ? 'text-warning'
+              : 'text-error'
             : 'text-foreground'
-        )}>
+          )}
+        >
           {memoryPercentage}%
         </p>
-        <p className="text-muted-foreground text-xs font-display">{t('quickStats.memory')}</p>
+        <p className="text-muted-foreground font-display text-xs">{t('quickStats.memory')}</p>
       </div>
 
       {/* Uptime */}
       <div className="bg-card rounded-card-lg p-component-sm text-center shadow-sm">
-        <div className="flex items-center justify-center gap-1.5 mb-1">
-          <Clock className="w-3.5 h-3.5 text-success" aria-hidden="true" />
+        <div className="mb-1 flex items-center justify-center gap-1.5">
+          <Clock
+            className="text-success h-3.5 w-3.5"
+            aria-hidden="true"
+          />
         </div>
-        <p className="text-lg font-bold font-mono text-success">{uptimeFormatted}</p>
-        <p className="text-muted-foreground text-xs font-display">{t('quickStats.uptime')}</p>
+        <p className="text-success font-mono text-lg font-bold">{uptimeFormatted}</p>
+        <p className="text-muted-foreground font-display text-xs">{t('quickStats.uptime')}</p>
       </div>
     </div>
   );

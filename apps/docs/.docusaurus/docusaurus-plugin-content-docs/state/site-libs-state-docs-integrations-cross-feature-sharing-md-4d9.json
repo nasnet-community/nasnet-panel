@@ -1,7 +1,7 @@
 {
   "id": "integrations/cross-feature-sharing",
   "title": "Cross-Feature Communication via Stores",
-  "description": "Zustand stores enable cross-feature communication without violating dependency rules. Features can read from any store but should not import directly from other features. Instead, they communicate through shared stores.",
+  "description": "Zustand stores enable cross-feature communication without violating dependency rules. Features can",
   "source": "@site/../../libs/state/docs/integrations/cross-feature-sharing.md",
   "sourceDirName": "integrations",
   "slug": "/integrations/cross-feature-sharing",

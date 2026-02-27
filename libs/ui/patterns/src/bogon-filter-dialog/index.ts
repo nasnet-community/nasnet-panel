@@ -10,10 +10,7 @@ export { BogonFilterDialog } from './BogonFilterDialog';
 export { BogonFilterDialogDesktop } from './BogonFilterDialogDesktop';
 export { BogonFilterDialogMobile } from './BogonFilterDialogMobile';
 export { useBogonFilterDialog } from './use-bogon-filter-dialog';
-export type {
-  BogonFilterDialogProps,
-  BogonSelection,
-} from './bogon-filter-dialog.types';
+export type { BogonFilterDialogProps, BogonSelection } from './bogon-filter-dialog.types';
 export type {
   UseBogonFilterDialogOptions,
   UseBogonFilterDialogReturn,

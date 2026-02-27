@@ -1,8 +1,8 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 @config "../tailwind.config.js";
 
 /* Import generated design tokens from token pipeline */
-@import "@nasnet/ui/tokens/variables.css";
+@import '@nasnet/ui/tokens/variables.css';
 
 /* ========================================
  * FONT FACE DECLARATIONS
@@ -10,8 +10,8 @@
  * Supports offline/air-gapped environments
  * ======================================== */
 
-@import "@fontsource-variable/inter";
-@import "@fontsource-variable/jetbrains-mono";
+@import '@fontsource-variable/inter';
+@import '@fontsource-variable/jetbrains-mono';
 
 @font-face {
   font-family: 'Satoshi';
@@ -19,7 +19,7 @@
   font-weight: 300 900;
   font-display: swap;
   src: local('Satoshi Variable'), local('Satoshi'), local('SatoshiVariable'),
-       local('Satoshi-Variable'), local('SatoshiVar');
+    local('Satoshi-Variable'), local('SatoshiVar');
 }
 
 /* CSS Variables for shadcn/ui theming */
@@ -31,11 +31,11 @@
     /* ========================================
      * LIGHT THEME - Primary colors
      * ======================================== */
-    
+
     /* Main surface colors */
     --background: 210 40% 96.1%; /* slate-100 #F1F5F9 */
     --foreground: 222.2 47.4% 11.2%; /* slate-900 #0F172A */
-    
+
     /* Surface hierarchy */
     --surface: 0 0% 100%; /* white #FFFFFF */
     --surface-secondary: 210 40% 98%; /* slate-50 #F8FAFC */
@@ -88,11 +88,11 @@
     /* ========================================
      * DARK THEME - All colors optimized
      * ======================================== */
-    
+
     /* Main surface colors */
     --background: 222.2 47.4% 11.2%; /* slate-900 #0F172A */
     --foreground: 210 40% 98%; /* slate-50 #F8FAFC */
-    
+
     /* Surface hierarchy */
     --surface: 217.2 32.6% 17.5%; /* slate-800 #1E293B */
     --surface-secondary: 215 25% 27%; /* slate-700 #334155 */
@@ -146,21 +146,27 @@
   * {
     border-color: hsl(var(--border));
   }
-  
+
   body {
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
-    font-feature-settings: "rlig" 1, "calt" 1;
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-feature-settings:
+      'rlig' 1,
+      'calt' 1;
+    font-family:
+      'Inter',
+      system-ui,
+      -apple-system,
+      sans-serif;
   }
-  
+
   /* Smooth theme transitions - 200ms as per design spec */
   * {
     transition-property: background-color, border-color, color, fill, stroke;
     transition-timing-function: ease-in-out;
     transition-duration: 200ms;
   }
-  
+
   /* Disable transitions for animations and transforms */
   *,
   *::before,
@@ -202,7 +208,7 @@
 
   /* Card variants - use semantic tokens */
   .card-elevated {
-    @apply bg-card shadow-lg border border-border;
+    @apply bg-card border-border border shadow-lg;
     border-radius: 1rem;
   }
 
@@ -213,8 +219,8 @@
   }
 
   .card-interactive {
-    @apply bg-card shadow-sm border border-border;
-    @apply hover:shadow-md hover:border-accent transition-all duration-200;
+    @apply bg-card border-border border shadow-sm;
+    @apply hover:border-accent transition-all duration-200 hover:shadow-md;
     border-radius: 1rem;
   }
 
@@ -225,7 +231,7 @@
   }
 
   .card-flat {
-    @apply bg-background border border-border;
+    @apply bg-background border-border border;
     border-radius: 1rem;
   }
 
@@ -237,9 +243,9 @@
 
   /* Button variants - use semantic tokens */
   .btn-action {
-    @apply text-primary-foreground font-semibold py-3 px-6;
+    @apply text-primary-foreground px-6 py-3 font-semibold;
     @apply transition-colors;
-    @apply focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background;
+    @apply focus:ring-ring focus:ring-offset-background focus:outline-none focus:ring-2 focus:ring-offset-2;
     background-color: hsl(var(--primary));
     border-radius: var(--radius);
   }
@@ -253,9 +259,9 @@
   }
 
   .btn-secondary {
-    @apply text-secondary-foreground font-semibold py-3 px-6;
+    @apply text-secondary-foreground px-6 py-3 font-semibold;
     @apply transition-colors;
-    @apply focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background;
+    @apply focus:ring-ring focus:ring-offset-background focus:outline-none focus:ring-2 focus:ring-offset-2;
     background-color: hsl(var(--secondary));
     border-radius: var(--radius);
   }
@@ -269,14 +275,14 @@
   }
 
   .btn-ghost {
-    @apply bg-transparent text-foreground font-medium py-2 px-4;
+    @apply text-foreground bg-transparent px-4 py-2 font-medium;
     @apply hover:bg-accent active:bg-muted transition-colors;
     border-radius: var(--radius);
   }
 
   .btn-destructive {
-    @apply font-semibold py-3 px-6 text-destructive-foreground transition-colors;
-    @apply focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background;
+    @apply text-destructive-foreground px-6 py-3 font-semibold transition-colors;
+    @apply focus:ring-ring focus:ring-offset-background focus:outline-none focus:ring-2 focus:ring-offset-2;
     background-color: hsl(var(--destructive));
     border-radius: var(--radius);
   }
@@ -330,44 +336,100 @@
 
   /* Category-specific header accent — left border pattern */
   .category-header {
-    @apply border-l-[3px] pl-3 font-display font-semibold;
+    @apply font-display border-l-[3px] pl-3 font-semibold;
   }
 
-  .category-header-networking { border-left-color: var(--semantic-color-category-networking, #2563EB); }
-  .category-header-vpn { border-left-color: var(--semantic-color-category-vpn, #16A34A); }
-  .category-header-firewall { border-left-color: var(--semantic-color-category-firewall, #F97316); }
-  .category-header-wifi { border-left-color: var(--semantic-color-category-wifi, #06B6D4); }
-  .category-header-dhcp { border-left-color: var(--semantic-color-category-dhcp, #EC4899); }
-  .category-header-security { border-left-color: var(--semantic-color-category-security, #DC2626); }
-  .category-header-monitoring { border-left-color: var(--semantic-color-category-monitoring, #7C3AED); }
-  .category-header-system { border-left-color: var(--semantic-color-category-system, #6B7280); }
-  .category-header-routing { border-left-color: var(--semantic-color-category-routing, #4F46E5); }
-  .category-header-tunnels { border-left-color: var(--semantic-color-category-tunnels, #14B8A6); }
-  .category-header-logging { border-left-color: var(--semantic-color-category-logging, #9CA3AF); }
-  .category-header-backup { border-left-color: var(--semantic-color-category-backup, #3B82F6); }
+  .category-header-networking {
+    border-left-color: var(--semantic-color-category-networking, #2563eb);
+  }
+  .category-header-vpn {
+    border-left-color: var(--semantic-color-category-vpn, #16a34a);
+  }
+  .category-header-firewall {
+    border-left-color: var(--semantic-color-category-firewall, #f97316);
+  }
+  .category-header-wifi {
+    border-left-color: var(--semantic-color-category-wifi, #06b6d4);
+  }
+  .category-header-dhcp {
+    border-left-color: var(--semantic-color-category-dhcp, #ec4899);
+  }
+  .category-header-security {
+    border-left-color: var(--semantic-color-category-security, #dc2626);
+  }
+  .category-header-monitoring {
+    border-left-color: var(--semantic-color-category-monitoring, #7c3aed);
+  }
+  .category-header-system {
+    border-left-color: var(--semantic-color-category-system, #6b7280);
+  }
+  .category-header-routing {
+    border-left-color: var(--semantic-color-category-routing, #4f46e5);
+  }
+  .category-header-tunnels {
+    border-left-color: var(--semantic-color-category-tunnels, #14b8a6);
+  }
+  .category-header-logging {
+    border-left-color: var(--semantic-color-category-logging, #9ca3af);
+  }
+  .category-header-backup {
+    border-left-color: var(--semantic-color-category-backup, #3b82f6);
+  }
 
   /* Category hero background tint */
-  .category-hero-networking { background-color: rgba(37, 99, 235, 0.06); }
-  .category-hero-vpn { background-color: rgba(22, 163, 74, 0.06); }
-  .category-hero-firewall { background-color: rgba(249, 115, 22, 0.06); }
-  .category-hero-wifi { background-color: rgba(6, 182, 212, 0.06); }
-  .category-hero-dhcp { background-color: rgba(236, 72, 153, 0.06); }
-  .category-hero-security { background-color: rgba(220, 38, 38, 0.06); }
-  .category-hero-monitoring { background-color: rgba(124, 58, 237, 0.06); }
-  .category-hero-logging { background-color: rgba(156, 163, 175, 0.06); }
+  .category-hero-networking {
+    background-color: rgba(37, 99, 235, 0.06);
+  }
+  .category-hero-vpn {
+    background-color: rgba(22, 163, 74, 0.06);
+  }
+  .category-hero-firewall {
+    background-color: rgba(249, 115, 22, 0.06);
+  }
+  .category-hero-wifi {
+    background-color: rgba(6, 182, 212, 0.06);
+  }
+  .category-hero-dhcp {
+    background-color: rgba(236, 72, 153, 0.06);
+  }
+  .category-hero-security {
+    background-color: rgba(220, 38, 38, 0.06);
+  }
+  .category-hero-monitoring {
+    background-color: rgba(124, 58, 237, 0.06);
+  }
+  .category-hero-logging {
+    background-color: rgba(156, 163, 175, 0.06);
+  }
 
-  .dark .category-hero-networking { background-color: rgba(37, 99, 235, 0.10); }
-  .dark .category-hero-vpn { background-color: rgba(22, 163, 74, 0.10); }
-  .dark .category-hero-firewall { background-color: rgba(249, 115, 22, 0.10); }
-  .dark .category-hero-wifi { background-color: rgba(6, 182, 212, 0.10); }
-  .dark .category-hero-dhcp { background-color: rgba(236, 72, 153, 0.10); }
-  .dark .category-hero-security { background-color: rgba(220, 38, 38, 0.10); }
-  .dark .category-hero-monitoring { background-color: rgba(124, 58, 237, 0.10); }
-  .dark .category-hero-logging { background-color: rgba(156, 163, 175, 0.10); }
+  .dark .category-hero-networking {
+    background-color: rgba(37, 99, 235, 0.1);
+  }
+  .dark .category-hero-vpn {
+    background-color: rgba(22, 163, 74, 0.1);
+  }
+  .dark .category-hero-firewall {
+    background-color: rgba(249, 115, 22, 0.1);
+  }
+  .dark .category-hero-wifi {
+    background-color: rgba(6, 182, 212, 0.1);
+  }
+  .dark .category-hero-dhcp {
+    background-color: rgba(236, 72, 153, 0.1);
+  }
+  .dark .category-hero-security {
+    background-color: rgba(220, 38, 38, 0.1);
+  }
+  .dark .category-hero-monitoring {
+    background-color: rgba(124, 58, 237, 0.1);
+  }
+  .dark .category-hero-logging {
+    background-color: rgba(156, 163, 175, 0.1);
+  }
 
   /* Page hero section — elevated card with brand tint */
   .page-hero {
-    @apply bg-card border border-border rounded-card-lg p-6 shadow-md;
+    @apply bg-card border-border rounded-card-lg border p-6 shadow-md;
     background: linear-gradient(135deg, hsl(47 84% 55% / 0.08) 0%, hsl(217 44% 51% / 0.05) 100%);
   }
 
@@ -377,17 +439,18 @@
 
   /* Section divider with category accent */
   .section-divider {
-    @apply border-t border-border my-6;
+    @apply border-border my-6 border-t;
   }
 
   /* VPN/Connection status indicators - use semantic tokens */
   .status-indicator-connected {
-    @apply w-2 h-2 rounded-full bg-success;
+    @apply bg-success h-2 w-2 rounded-full;
     animation: pulse-glow 2s infinite;
   }
 
   @keyframes pulse-glow {
-    0%, 100% {
+    0%,
+    100% {
       box-shadow: 0 0 0 0 var(--semantic-color-success-DEFAULT, rgba(34, 197, 94, 0.4));
     }
     50% {
@@ -396,15 +459,15 @@
   }
 
   .status-indicator-connecting {
-    @apply w-2 h-2 rounded-full bg-warning animate-pulse;
+    @apply bg-warning h-2 w-2 animate-pulse rounded-full;
   }
 
   .status-indicator-disconnected {
-    @apply w-2 h-2 rounded-full bg-muted;
+    @apply bg-muted h-2 w-2 rounded-full;
   }
 
   .status-indicator-error {
-    @apply w-2 h-2 rounded-full bg-error;
+    @apply bg-error h-2 w-2 rounded-full;
   }
 
   /* Surface utilities - use semantic tokens */
@@ -432,11 +495,11 @@
 
   /* Focus states - WCAG compliant, use semantic tokens */
   .focus-ring {
-    @apply focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background;
+    @apply focus:ring-ring focus:ring-offset-background focus:outline-none focus:ring-2 focus:ring-offset-2;
   }
 
   .focus-ring-error {
-    @apply focus:outline-none focus:ring-2 focus:ring-destructive focus:ring-offset-2 focus:ring-offset-background;
+    @apply focus:ring-destructive focus:ring-offset-background focus:outline-none focus:ring-2 focus:ring-offset-2;
   }
 }
 
@@ -450,34 +513,42 @@
   .dark .shadow-sm {
     box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.25);
   }
-  
+
   .dark .shadow {
-    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3);
+    box-shadow:
+      0 1px 3px 0 rgb(0 0 0 / 0.3),
+      0 1px 2px -1px rgb(0 0 0 / 0.3);
   }
-  
+
   .dark .shadow-md {
-    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3);
+    box-shadow:
+      0 4px 6px -1px rgb(0 0 0 / 0.3),
+      0 2px 4px -2px rgb(0 0 0 / 0.3);
   }
-  
+
   .dark .shadow-lg {
-    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.3), 0 4px 6px -4px rgb(0 0 0 / 0.3);
+    box-shadow:
+      0 10px 15px -3px rgb(0 0 0 / 0.3),
+      0 4px 6px -4px rgb(0 0 0 / 0.3);
   }
-  
+
   .dark .shadow-xl {
-    box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.3), 0 8px 10px -6px rgb(0 0 0 / 0.3);
+    box-shadow:
+      0 20px 25px -5px rgb(0 0 0 / 0.3),
+      0 8px 10px -6px rgb(0 0 0 / 0.3);
   }
-  
+
   /* Responsive card padding */
   .card-padding {
     padding: var(--card-padding);
   }
-  
+
   @media (min-width: 768px) {
     .card-padding {
       padding: 1.5rem;
     }
   }
-  
+
   /* Safe area support for mobile */
   .safe-top {
     padding-top: env(safe-area-inset-top);
@@ -597,13 +668,13 @@
   textarea:focus-visible,
   select:focus-visible,
   button:focus-visible,
-  [role="button"]:focus-visible,
+  [role='button']:focus-visible,
   a:focus-visible {
     box-shadow: none;
   }
 
   /* Keyboard-only focus styles via data attribute */
-  [data-keyboard-user="true"] :focus {
+  [data-keyboard-user='true'] :focus {
     outline: 2px solid hsl(var(--ring));
     outline-offset: 2px;
   }
@@ -697,12 +768,12 @@
   }
 
   /* RTL-aware layout helpers */
-  [dir="rtl"] .flip-rtl {
+  [dir='rtl'] .flip-rtl {
     transform: scaleX(-1);
   }
 
   /* Mirror padding/margin for RTL */
-  [dir="rtl"] .rtl-flip-horizontal {
+  [dir='rtl'] .rtl-flip-horizontal {
     transform: scaleX(-1);
   }
 
@@ -772,12 +843,24 @@
     animation: fade-in-up 300ms ease-out forwards;
     opacity: 0;
   }
-  .stagger-children > *:nth-child(1) { animation-delay: 0ms; }
-  .stagger-children > *:nth-child(2) { animation-delay: 50ms; }
-  .stagger-children > *:nth-child(3) { animation-delay: 100ms; }
-  .stagger-children > *:nth-child(4) { animation-delay: 150ms; }
-  .stagger-children > *:nth-child(5) { animation-delay: 200ms; }
-  .stagger-children > *:nth-child(6) { animation-delay: 250ms; }
+  .stagger-children > *:nth-child(1) {
+    animation-delay: 0ms;
+  }
+  .stagger-children > *:nth-child(2) {
+    animation-delay: 50ms;
+  }
+  .stagger-children > *:nth-child(3) {
+    animation-delay: 100ms;
+  }
+  .stagger-children > *:nth-child(4) {
+    animation-delay: 150ms;
+  }
+  .stagger-children > *:nth-child(5) {
+    animation-delay: 200ms;
+  }
+  .stagger-children > *:nth-child(6) {
+    animation-delay: 250ms;
+  }
 
   @media (prefers-reduced-motion: reduce) {
     .animate-fade-in-up,

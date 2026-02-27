@@ -301,4 +301,3 @@ describe('RateLimitRuleSchema', () => {
     ).not.toThrow();
   });
 });
-

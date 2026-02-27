@@ -26,21 +26,14 @@ interface NormalizedOptions extends ComponentGeneratorSchema {
   propertyName: string;
 }
 
-function normalizeOptions(
-  tree: Tree,
-  options: ComponentGeneratorSchema
-): NormalizedOptions {
+function normalizeOptions(tree: Tree, options: ComponentGeneratorSchema): NormalizedOptions {
   const projectConfig = readProjectConfiguration(tree, options.project);
   const projectRoot = projectConfig.sourceRoot || `${projectConfig.root}/src`;
 
   const componentNames = names(options.name);
   const directory = options.directory || 'components';
 
-  const componentDirectory = joinPathFragments(
-    projectRoot,
-    directory,
-    componentNames.fileName
-  );
+  const componentDirectory = joinPathFragments(projectRoot, directory, componentNames.fileName);
 
   return {
     ...options,
@@ -61,17 +54,12 @@ export default async function componentGenerator(
   const normalizedOptions = normalizeOptions(tree, options);
 
   // Generate files from templates
-  generateFiles(
-    tree,
-    path.join(__dirname, 'files'),
-    normalizedOptions.componentDirectory,
-    {
-      ...normalizedOptions,
-      name: normalizedOptions.className,
-      fileName: normalizedOptions.fileName,
-      tmpl: '', // Used to strip .template extension
-    }
-  );
+  generateFiles(tree, path.join(__dirname, 'files'), normalizedOptions.componentDirectory, {
+    ...normalizedOptions,
+    name: normalizedOptions.className,
+    fileName: normalizedOptions.fileName,
+    tmpl: '', // Used to strip .template extension
+  });
 
   if (!options.dryRun) {
     await formatFiles(tree);

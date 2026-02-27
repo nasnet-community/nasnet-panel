@@ -5,7 +5,8 @@ title: Architecture
 
 # State Architecture
 
-The `@nasnet/state` library implements a **four-layer state model** that separates concerns by data origin, update frequency, and complexity.
+The `@nasnet/state` library implements a **four-layer state model** that separates concerns by data
+origin, update frequency, and complexity.
 
 ## Four-Layer State Model
 
@@ -131,6 +132,7 @@ const unsubscribe = useThemeStore.subscribe(
 ```
 
 **Middleware order matters:**
+
 1. **devtools (outermost)** - Intercepts all mutations for debugging
 2. **persist (middle)** - Saves to localStorage on mutations
 3. **Reducer (innermost)** - Core state logic
@@ -171,10 +173,12 @@ const authStorage: StateStorage = {
 
 export const useAuthStore = create<AuthState & AuthActions>()(
   persist(
-    (set, get) => ({ /* ... */ }),
+    (set, get) => ({
+      /* ... */
+    }),
     {
       name: 'auth-storage',
-      storage: createJSONStorage(() => authStorage),  // Use custom handler
+      storage: createJSONStorage(() => authStorage), // Use custom handler
     }
   )
 );
@@ -184,7 +188,7 @@ export const useAuthStore = create<AuthState & AuthActions>()(
 
 ```typescript
 const { tokenExpiry } = useAuthStore.getState();
-const isExpired = tokenExpiry.getTime() <= Date.now();  // Works correctly
+const isExpired = tokenExpiry.getTime() <= Date.now(); // Works correctly
 ```
 
 **Source:** `libs/state/stores/src/auth/auth.store.ts:191-230`
@@ -219,7 +223,8 @@ storage: {
 }
 ```
 
-**Why:** Only action metadata is persisted (for display in history UI), not the actual execute/undo logic.
+**Why:** Only action metadata is persisted (for display in history UI), not the actual execute/undo
+logic.
 
 **Source:** `libs/state/stores/src/history/history.store.ts:293-335`
 
@@ -233,7 +238,9 @@ storage: {
 // In command-registry.store.ts
 export const useCommandRegistry = create<CommandRegistryState & CommandRegistryActions>()(
   persist(
-    (set, get) => ({ /* ... */ }),
+    (set, get) => ({
+      /* ... */
+    }),
     {
       name: 'nasnet-command-registry',
       partialize: (state) => ({
@@ -254,20 +261,24 @@ export const useCommandRegistry = create<CommandRegistryState & CommandRegistryA
 ```
 
 **Data flow:**
-1. **Persist:** `usageCount: Map<string, number>` → `Object.fromEntries()` → `{ "cmd-1": 3, "cmd-2": 5 }`
-2. **Rehydrate:** `{ "cmd-1": 3, "cmd-2": 5 }` → `new Map(Object.entries(...))` → `Map<string, number>`
+
+1. **Persist:** `usageCount: Map<string, number>` → `Object.fromEntries()` →
+   `{ "cmd-1": 3, "cmd-2": 5 }`
+2. **Rehydrate:** `{ "cmd-1": 3, "cmd-2": 5 }` → `new Map(Object.entries(...))` →
+   `Map<string, number>`
 
 **Source:** `libs/state/stores/src/command/command-registry.store.ts:280-300`
 
 ## Selector Patterns: Optimized Re-renders
 
-Selectors are **critical** for performance. Without them, components re-render on ANY store mutation.
+Selectors are **critical** for performance. Without them, components re-render on ANY store
+mutation.
 
 ### Basic Selector: Primitive Value
 
 ```typescript
 // ✅ BEST: Only re-renders when isAuthenticated changes
-const isAuthenticated = useAuthStore(state => state.isAuthenticated);
+const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 ```
 
 ### Shallow Comparison: Multiple Fields
@@ -277,8 +288,8 @@ import { shallow } from 'zustand/shallow';
 
 // ✅ GOOD: Re-renders only when user OR token changes
 const { user, token } = useAuthStore(
-  state => ({ user: state.user, token: state.token }),
-  shallow  // Prevents re-render if same object reference
+  (state) => ({ user: state.user, token: state.token }),
+  shallow // Prevents re-render if same object reference
 );
 ```
 
@@ -287,11 +298,8 @@ const { user, token } = useAuthStore(
 ```typescript
 // Cache computed results based on dependency changes
 const selectUIPreferencesMemoized = createMemoizedSelector(
-  (state: UIState) => [
-    state.compactMode,
-    state.animationsEnabled,
-    state.defaultNotificationDuration,
-  ] as const,
+  (state: UIState) =>
+    [state.compactMode, state.animationsEnabled, state.defaultNotificationDuration] as const,
   ([compactMode, animationsEnabled, duration]) => ({
     compactMode,
     animationsEnabled,
@@ -308,8 +316,7 @@ const prefs = useUIStore(selectUIPreferencesMemoized);
 ```typescript
 // Create selector factory for searching by parameter
 const selectNotificationById = createParameterizedSelector(
-  (state: NotificationState, id: string) =>
-    state.notifications.find(n => n.id === id) ?? null
+  (state: NotificationState, id: string) => state.notifications.find((n) => n.id === id) ?? null
 );
 
 // Each ID gets its own cached selector
@@ -381,6 +388,7 @@ export const wizardMachine = setup({
 ```
 
 **Key differences from XState v4:**
+
 - `setup()` wraps machine definition for better type inference
 - Actions have direct access to `event` and `context`
 - No need for `assign()` function at top level (inside actions only)
@@ -410,6 +418,7 @@ function App() {
 ```
 
 **Persistence API:**
+
 - `persistMachineState(id, stateValue, context)` - Save to localStorage
 - `restoreMachineState(id, maxAge?)` - Restore from localStorage (24hr timeout by default)
 - `hasSavedSession(id)` - Check if session exists
@@ -484,16 +493,17 @@ Machine orchestrates:
 
 ## Summary
 
-| Aspect | Zustand | XState | Apollo | RHF |
-|--------|---------|--------|--------|-----|
-| **Data Origin** | Client | Client | Server | Form |
-| **Update Frequency** | On user action | On state transition | On mutation/query | On field change |
-| **Side Effects** | Imperative | Declarative (actions/guards) | Async mutations | On form submit |
-| **Persistence** | localStorage (optional) | localStorage (opt-in) | Apollo cache (memory) | None |
-| **Debugging** | Redux DevTools | XState visualizer | Apollo DevTools | React DevTools |
+| Aspect               | Zustand                 | XState                       | Apollo                | RHF             |
+| -------------------- | ----------------------- | ---------------------------- | --------------------- | --------------- |
+| **Data Origin**      | Client                  | Client                       | Server                | Form            |
+| **Update Frequency** | On user action          | On state transition          | On mutation/query     | On field change |
+| **Side Effects**     | Imperative              | Declarative (actions/guards) | Async mutations       | On form submit  |
+| **Persistence**      | localStorage (optional) | localStorage (opt-in)        | Apollo cache (memory) | None            |
+| **Debugging**        | Redux DevTools          | XState visualizer            | Apollo DevTools       | React DevTools  |
 
 ---
 
 **Next Steps:**
+
 - Read [Persistence](./persistence.md) for localStorage key reference and custom handlers
 - Read [Performance](./performance.md) for selector patterns and re-render optimization

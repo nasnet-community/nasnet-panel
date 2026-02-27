@@ -44,7 +44,7 @@ export const GatewayStatusCardDesktop = memo(function GatewayStatusCardDesktop({
   return (
     <div
       className={cn(
-        'flex items-center gap-component-md rounded-md border border-border bg-card px-component-md py-component-sm',
+        'gap-component-md border-border bg-card px-component-md py-component-sm flex items-center rounded-md border',
         className
       )}
       role="status"
@@ -52,15 +52,18 @@ export const GatewayStatusCardDesktop = memo(function GatewayStatusCardDesktop({
       aria-live="polite"
     >
       {/* State badge */}
-      <Badge className={stateColorMap[gateway.state]} aria-label="Gateway state">
+      <Badge
+        className={stateColorMap[gateway.state]}
+        aria-label="Gateway state"
+      >
         {stateLabel[gateway.state]}
       </Badge>
 
       {/* TUN interface name */}
       {gateway.tunName && (
-        <div className="flex items-center gap-component-sm text-sm">
+        <div className="gap-component-sm flex items-center text-sm">
           <span className="text-muted-foreground">Interface:</span>
-          <code className="rounded bg-muted px-component-sm py-0.5 font-mono text-xs text-foreground">
+          <code className="bg-muted px-component-sm text-foreground rounded py-0.5 font-mono text-xs">
             {gateway.tunName}
           </code>
         </div>
@@ -68,9 +71,12 @@ export const GatewayStatusCardDesktop = memo(function GatewayStatusCardDesktop({
 
       {/* Process ID */}
       {gateway.pid != null && gateway.pid > 0 && (
-        <div className="flex items-center gap-component-sm text-sm">
+        <div className="gap-component-sm flex items-center text-sm">
           <span className="text-muted-foreground">PID:</span>
-          <code className="font-mono text-xs text-foreground" aria-label={`Process ID ${gateway.pid}`}>
+          <code
+            className="text-foreground font-mono text-xs"
+            aria-label={`Process ID ${gateway.pid}`}
+          >
             {gateway.pid}
           </code>
         </div>
@@ -78,22 +84,24 @@ export const GatewayStatusCardDesktop = memo(function GatewayStatusCardDesktop({
 
       {/* Uptime */}
       {gateway.uptime != null && gateway.uptime > 0 && (
-        <div className="flex items-center gap-component-sm text-sm">
+        <div className="gap-component-sm flex items-center text-sm">
           <span className="text-muted-foreground">Uptime:</span>
-          <span className="font-mono text-xs text-foreground">
-            {formatUptime(gateway.uptime)}
-          </span>
+          <span className="text-foreground font-mono text-xs">{formatUptime(gateway.uptime)}</span>
         </div>
       )}
 
       {/* Error message */}
       {gateway.state === GatewayState.ERROR && gateway.errorMessage && (
         <div
-          className="ml-auto flex items-center gap-component-sm text-sm text-error"
+          className="gap-component-sm text-error ml-auto flex items-center text-sm"
           role="alert"
           aria-label={`Error: ${gateway.errorMessage}`}
         >
-          <Icon icon={AlertCircle} className="h-4 w-4 shrink-0" aria-hidden="true" />
+          <Icon
+            icon={AlertCircle}
+            className="h-4 w-4 shrink-0"
+            aria-hidden="true"
+          />
           <span className="text-xs">{gateway.errorMessage}</span>
         </div>
       )}
@@ -101,19 +109,19 @@ export const GatewayStatusCardDesktop = memo(function GatewayStatusCardDesktop({
       {/* Health check indicator */}
       {gateway.lastHealthCheck && gateway.state === GatewayState.RUNNING && (
         <div
-          className="ml-auto flex items-center gap-component-xs"
+          className="gap-component-xs ml-auto flex items-center"
           role="status"
           aria-label={`Healthy, last checked ${new Date(gateway.lastHealthCheck).toLocaleString()}`}
           title={`Last checked: ${new Date(gateway.lastHealthCheck).toLocaleString()}`}
         >
           <div
             className={cn(
-              'h-2 w-2 rounded-full bg-success',
+              'bg-success h-2 w-2 rounded-full',
               !prefersReducedMotion && 'animate-pulse'
             )}
             aria-hidden="true"
           />
-          <span className="text-xs text-muted-foreground">Healthy</span>
+          <span className="text-muted-foreground text-xs">Healthy</span>
         </div>
       )}
     </div>

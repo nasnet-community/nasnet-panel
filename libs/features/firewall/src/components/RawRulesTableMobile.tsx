@@ -28,10 +28,7 @@ import {
   useUpdateRawRule,
 } from '@nasnet/api-client/queries/firewall';
 import type { RawRule, RawRuleInput, RawChain } from '@nasnet/core/types';
-import {
-  RawRuleEditor,
-  CounterCell,
-} from '@nasnet/ui/patterns';
+import { RawRuleEditor, CounterCell } from '@nasnet/ui/patterns';
 import { useCounterSettingsStore } from '@nasnet/features/firewall';
 import {
   Card,
@@ -71,7 +68,10 @@ const ActionBadge = ({ action }: { action: string }) => {
   const variant = VARIANT_MAP[action] || 'default';
 
   return (
-    <Badge variant={variant} className="text-xs">
+    <Badge
+      variant={variant}
+      className="text-xs"
+    >
       {action}
     </Badge>
   );
@@ -106,7 +106,16 @@ interface RuleCardProps {
  * Renders a card for a single RAW rule on mobile
  * @description Displays rule details with actions in a touch-friendly layout
  */
-const RuleCard = ({ rule, maxBytes, onEdit, onDuplicate, onDelete, onToggle, isHighlighted, highlightRef }: RuleCardProps) => {
+const RuleCard = ({
+  rule,
+  maxBytes,
+  onEdit,
+  onDuplicate,
+  onDelete,
+  onToggle,
+  isHighlighted,
+  highlightRef,
+}: RuleCardProps) => {
   const { t } = useTranslation('firewall');
   const isUnused = (rule.packets ?? 0) === 0;
   const showRelativeBar = useCounterSettingsStore((state) => state.showRelativeBar);
@@ -124,7 +133,7 @@ const RuleCard = ({ rule, maxBytes, onEdit, onDuplicate, onDelete, onToggle, isH
 
   return (
     <Card
-      ref={isHighlighted ? highlightRef as React.RefObject<HTMLDivElement> : undefined}
+      ref={isHighlighted ? (highlightRef as React.RefObject<HTMLDivElement>) : undefined}
       className={cn(
         rule.disabled && 'opacity-50',
         isUnused && 'bg-muted/40 opacity-60',
@@ -134,9 +143,12 @@ const RuleCard = ({ rule, maxBytes, onEdit, onDuplicate, onDelete, onToggle, isH
       <CardHeader className="pb-component-sm">
         <div className="flex items-start justify-between">
           <div className="flex-1">
-            <div className="flex items-center gap-component-sm mb-component-sm">
-              <span className="font-mono text-xs text-muted-foreground">#{rule.order}</span>
-              <Badge variant="secondary" className="text-xs font-mono">
+            <div className="gap-component-sm mb-component-sm flex items-center">
+              <span className="text-muted-foreground font-mono text-xs">#{rule.order}</span>
+              <Badge
+                variant="secondary"
+                className="font-mono text-xs"
+              >
                 {rule.chain}
               </Badge>
               <ActionBadge action={rule.action} />
@@ -153,7 +165,7 @@ const RuleCard = ({ rule, maxBytes, onEdit, onDuplicate, onDelete, onToggle, isH
       <CardContent className="pt-0">
         {/* Matchers */}
         {matchers.length > 0 && (
-          <div className="text-sm text-muted-foreground mb-component-md font-mono">
+          <div className="text-muted-foreground mb-component-md font-mono text-sm">
             {matchers.join(' ')}
           </div>
         )}
@@ -172,20 +184,18 @@ const RuleCard = ({ rule, maxBytes, onEdit, onDuplicate, onDelete, onToggle, isH
 
         {/* Comment */}
         {rule.comment && (
-          <div className="text-sm text-muted-foreground italic mb-component-md">
-            {rule.comment}
-          </div>
+          <div className="text-muted-foreground mb-component-md text-sm italic">{rule.comment}</div>
         )}
 
         {/* Actions */}
-        <div className="flex gap-component-sm">
+        <div className="gap-component-sm flex">
           <Button
             variant="outline"
             size="sm"
             onClick={() => onEdit(rule)}
             className="flex-1"
           >
-            <Pencil className="h-4 w-4 mr-component-sm" />
+            <Pencil className="mr-component-sm h-4 w-4" />
             {t('raw.buttons.edit', 'Edit')}
           </Button>
           <Button
@@ -201,7 +211,10 @@ const RuleCard = ({ rule, maxBytes, onEdit, onDuplicate, onDelete, onToggle, isH
             onClick={() => onDelete(rule)}
             className="text-error hover:bg-error/10"
           >
-            <Trash2 className="h-4 w-4" aria-hidden="true" />
+            <Trash2
+              className="h-4 w-4"
+              aria-hidden="true"
+            />
           </Button>
         </div>
       </CardContent>
@@ -249,9 +262,13 @@ export const RawRulesTableMobile = ({ className, chain }: RawRulesTableMobilePro
   const highlightRuleId = searchParams.highlight;
   const highlightRef = useRef<HTMLDivElement | null>(null);
 
-  const { data: rules, isLoading, error } = useRawRules(routerIp, {
+  const {
+    data: rules,
+    isLoading,
+    error,
+  } = useRawRules(routerIp, {
     chain: chain as RawChain | undefined,
-    refetchInterval: pollingInterval || false
+    refetchInterval: pollingInterval || false,
   });
   const deleteRawRule = useDeleteRawRule(routerIp);
   const toggleRawRule = useToggleRawRule(routerIp);
@@ -268,7 +285,7 @@ export const RawRulesTableMobile = ({ className, chain }: RawRulesTableMobilePro
   // Calculate max bytes for relative bar
   const maxBytes = useMemo(() => {
     if (!sortedRules || sortedRules.length === 0) return 0;
-    return Math.max(...sortedRules.map(r => r.bytes ?? 0));
+    return Math.max(...sortedRules.map((r) => r.bytes ?? 0));
   }, [sortedRules]);
 
   // ========================================================================
@@ -286,18 +303,21 @@ export const RawRulesTableMobile = ({ className, chain }: RawRulesTableMobilePro
     setIsEditorOpen(true);
   }, []);
 
-  const handleSaveRule = useCallback(async (ruleInput: RawRuleInput) => {
-    if (editingRule?.id) {
-      await updateRawRule.mutateAsync({
-        ruleId: editingRule.id,
-        updates: ruleInput,
-      });
-    } else {
-      await createRawRule.mutateAsync(ruleInput);
-    }
-    setIsEditorOpen(false);
-    setEditingRule(null);
-  }, [editingRule, updateRawRule, createRawRule]);
+  const handleSaveRule = useCallback(
+    async (ruleInput: RawRuleInput) => {
+      if (editingRule?.id) {
+        await updateRawRule.mutateAsync({
+          ruleId: editingRule.id,
+          updates: ruleInput,
+        });
+      } else {
+        await createRawRule.mutateAsync(ruleInput);
+      }
+      setIsEditorOpen(false);
+      setEditingRule(null);
+    },
+    [editingRule, updateRawRule, createRawRule]
+  );
 
   const handleCloseEditor = useCallback(() => {
     setIsEditorOpen(false);
@@ -308,12 +328,15 @@ export const RawRulesTableMobile = ({ className, chain }: RawRulesTableMobilePro
     setDeleteConfirmRule(rule);
   }, []);
 
-  const handleToggle = useCallback((rule: RawRule) => {
-    toggleRawRule.mutate({
-      ruleId: rule.id!,
-      disabled: !rule.disabled,
-    });
-  }, [toggleRawRule]);
+  const handleToggle = useCallback(
+    (rule: RawRule) => {
+      toggleRawRule.mutate({
+        ruleId: rule.id!,
+        disabled: !rule.disabled,
+      });
+    },
+    [toggleRawRule]
+  );
 
   const confirmDelete = useCallback(() => {
     if (deleteConfirmRule) {
@@ -347,34 +370,40 @@ export const RawRulesTableMobile = ({ className, chain }: RawRulesTableMobilePro
   if (isLoading) {
     return (
       <div className={cn('p-component-md space-y-component-md animate-pulse', className)}>
-        <div className="h-32 bg-muted rounded-lg" />
-        <div className="h-32 bg-muted rounded-lg" />
-        <div className="h-32 bg-muted rounded-lg" />
+        <div className="bg-muted h-32 rounded-lg" />
+        <div className="bg-muted h-32 rounded-lg" />
+        <div className="bg-muted h-32 rounded-lg" />
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className={cn('p-component-md text-error rounded-lg bg-error/10', className)}>
-        <p className="font-medium">{t('raw.notifications.error.loadRules', 'Error loading RAW rules')}</p>
-        <p className="text-sm mt-component-xs">{error.message}</p>
+      <div className={cn('p-component-md text-error bg-error/10 rounded-lg', className)}>
+        <p className="font-medium">
+          {t('raw.notifications.error.loadRules', 'Error loading RAW rules')}
+        </p>
+        <p className="mt-component-xs text-sm">{error.message}</p>
       </div>
     );
   }
 
   if (!rules || rules.length === 0) {
     return (
-      <div className={cn('p-component-xl text-center space-y-component-sm', className)}>
-        <p className="font-semibold text-foreground">
-          {chain
-            ? t('raw.emptyStates.noRulesInChain.title', 'No rules in {{chain}}', { chain })
-            : t('raw.emptyStates.noRules.title', 'No RAW rules found')}
+      <div className={cn('p-component-xl space-y-component-sm text-center', className)}>
+        <p className="text-foreground font-semibold">
+          {chain ?
+            t('raw.emptyStates.noRulesInChain.title', 'No rules in {{chain}}', { chain })
+          : t('raw.emptyStates.noRules.title', 'No RAW rules found')}
         </p>
-        <p className="text-sm text-muted-foreground">
-          {chain
-            ? t('raw.emptyStates.noRulesInChain.description', 'This chain has no rules configured.')
-            : t('raw.emptyStates.noRules.description', 'RAW rules process packets before connection tracking.')}
+        <p className="text-muted-foreground text-sm">
+          {chain ?
+            t('raw.emptyStates.noRulesInChain.description', 'This chain has no rules configured.')
+          : t(
+              'raw.emptyStates.noRules.description',
+              'RAW rules process packets before connection tracking.'
+            )
+          }
         </p>
       </div>
     );
@@ -412,27 +441,41 @@ export const RawRulesTableMobile = ({ className, chain }: RawRulesTableMobilePro
       />
 
       {/* Delete Confirmation Dialog */}
-      <Dialog open={!!deleteConfirmRule} onOpenChange={(open) => !open && setDeleteConfirmRule(null)}>
+      <Dialog
+        open={!!deleteConfirmRule}
+        onOpenChange={(open) => !open && setDeleteConfirmRule(null)}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>{t('raw.dialogs.deleteRule.title', 'Delete RAW Rule?')}</DialogTitle>
             <DialogDescription>
-              {t('raw.dialogs.deleteRule.warning', 'This action cannot be undone. The rule will be permanently removed.')}
+              {t(
+                'raw.dialogs.deleteRule.warning',
+                'This action cannot be undone. The rule will be permanently removed.'
+              )}
             </DialogDescription>
           </DialogHeader>
           <div className="py-component-md">
-            <p className="text-sm font-semibold mb-component-sm">{t('raw.dialogs.deleteRule.message', 'This will:')}</p>
-            <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
+            <p className="mb-component-sm text-sm font-semibold">
+              {t('raw.dialogs.deleteRule.message', 'This will:')}
+            </p>
+            <ul className="text-muted-foreground list-inside list-disc space-y-1 text-sm">
               <li>Remove the rule from the {deleteConfirmRule?.chain} chain</li>
               <li>Reorder subsequent rules automatically</li>
               <li>Take effect immediately on the router</li>
             </ul>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDeleteConfirmRule(null)}>
+            <Button
+              variant="outline"
+              onClick={() => setDeleteConfirmRule(null)}
+            >
               {t('raw.buttons.cancel', 'Cancel')}
             </Button>
-            <Button onClick={confirmDelete} variant="destructive">
+            <Button
+              onClick={confirmDelete}
+              variant="destructive"
+            >
               {t('raw.buttons.delete', 'Delete Rule')}
             </Button>
           </DialogFooter>

@@ -52,10 +52,7 @@ directive @vyos(
 # -----------------------------------------------------------------------------
 # Gates field access based on router capabilities.
 # -----------------------------------------------------------------------------
-directive @capability(
-  "List of required capability identifiers"
-  requires: [String!]!
-) on FIELD_DEFINITION | OBJECT
+directive @capability("List of required capability identifiers" requires: [String!]!) on FIELD_DEFINITION | OBJECT
 
 # -----------------------------------------------------------------------------
 # Subscription Directive

@@ -63,9 +63,7 @@ const NEW_LEASE_AUTO_FADE_MS = 5000;
  * }
  * ```
  */
-export function useNewLeaseDetection(
-  leases: DHCPLease[]
-): UseNewLeaseDetectionReturn {
+export function useNewLeaseDetection(leases: DHCPLease[]): UseNewLeaseDetectionReturn {
   // Track previous lease IDs without triggering re-renders
   const prevLeaseIdsRef = useRef<Set<string>>(new Set());
 

@@ -131,8 +131,7 @@ export function ResourceLimitsForm({
           onSuccess?.();
         } else {
           const errors = result.data?.setResourceLimits.errors ?? [];
-          const errorMessage =
-            errors[0]?.message ?? 'Failed to update resource limits';
+          const errorMessage = errors[0]?.message ?? 'Failed to update resource limits';
           throw new Error(errorMessage);
         }
       } catch (err) {
@@ -165,12 +164,14 @@ export function ResourceLimitsForm({
       <CardHeader>
         <CardTitle>Resource Limits</CardTitle>
         <CardDescription>
-          Configure memory and CPU resource constraints for this service
-          instance
+          Configure memory and CPU resource constraints for this service instance
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-component-md">
+        <form
+          onSubmit={form.handleSubmit(handleSubmit)}
+          className="space-y-component-md"
+        >
           {/* Memory Limit */}
           <div className="space-y-component-sm">
             <Label htmlFor="memoryMB">
@@ -184,22 +185,18 @@ export function ResourceLimitsForm({
               step={1}
               {...form.register('memoryMB', { valueAsNumber: true })}
               aria-invalid={!!form.formState.errors.memoryMB}
-              aria-describedby={
-                form.formState.errors.memoryMB ? 'memoryMB-error' : undefined
-              }
+              aria-describedby={form.formState.errors.memoryMB ? 'memoryMB-error' : undefined}
             />
             {form.formState.errors.memoryMB && (
               <p
                 id="memoryMB-error"
-                className="text-sm text-error"
+                className="text-error text-sm"
                 role="alert"
               >
                 {form.formState.errors.memoryMB.message}
               </p>
             )}
-            <p className="text-xs text-muted-foreground">
-              Minimum: 16 MB, Maximum: 512 MB
-            </p>
+            <p className="text-muted-foreground text-xs">Minimum: 16 MB, Maximum: 512 MB</p>
           </div>
 
           {/* CPU Weight */}
@@ -217,20 +214,18 @@ export function ResourceLimitsForm({
                 setValueAs: (v) => (v === '' ? null : Number(v)),
               })}
               aria-invalid={!!form.formState.errors.cpuWeight}
-              aria-describedby={
-                form.formState.errors.cpuWeight ? 'cpuWeight-error' : undefined
-              }
+              aria-describedby={form.formState.errors.cpuWeight ? 'cpuWeight-error' : undefined}
             />
             {form.formState.errors.cpuWeight && (
               <p
                 id="cpuWeight-error"
-                className="text-sm text-error"
+                className="text-error text-sm"
                 role="alert"
               >
                 {form.formState.errors.cpuWeight.message}
               </p>
             )}
-            <p className="text-xs text-muted-foreground">
+            <p className="text-muted-foreground text-xs">
               CPU scheduling priority (1-10000). Higher values get more CPU time.
             </p>
           </div>
@@ -238,45 +233,40 @@ export function ResourceLimitsForm({
           {/* Form-level error */}
           {form.formState.errors.root && (
             <div
-              className="p-component-sm rounded-md bg-error/10 border border-error/20"
+              className="p-component-sm bg-error/10 border-error/20 rounded-md border"
               role="alert"
             >
-              <p className="text-sm text-error">
-                {form.formState.errors.root.message}
-              </p>
+              <p className="text-error text-sm">{form.formState.errors.root.message}</p>
             </div>
           )}
 
           {/* Success message */}
           {successMessage && (
             <div
-              className="p-component-sm rounded-md bg-success/10 border border-success/20"
+              className="p-component-sm bg-success/10 border-success/20 rounded-md border"
               role="status"
             >
-              <p className="text-sm text-success font-medium">
-                {successMessage}
-              </p>
+              <p className="text-success text-sm font-medium">{successMessage}</p>
             </div>
           )}
 
           {/* Action buttons */}
-          <div className="flex items-center gap-component-sm pt-component-sm">
+          <div className="gap-component-sm pt-component-sm flex items-center">
             <Button
               type="submit"
               disabled={loading || !form.formState.isDirty}
               className="min-w-[120px]"
             >
-              {loading ? (
+              {loading ?
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Saving...
                 </>
-              ) : (
-                <>
+              : <>
                   <Save className="mr-2 h-4 w-4" />
                   Save Limits
                 </>
-              )}
+              }
             </Button>
             <Button
               type="button"
@@ -291,31 +281,25 @@ export function ResourceLimitsForm({
           {/* Applied status */}
           {currentLimits && (
             <div className="pt-component-sm border-t">
-              <p className="text-xs text-muted-foreground">
+              <p className="text-muted-foreground text-xs">
                 Current limits:{' '}
-                <span className="font-medium font-mono">
-                  {currentLimits.memoryMB} MB RAM
-                </span>
+                <span className="font-mono font-medium">{currentLimits.memoryMB} MB RAM</span>
                 {currentLimits.cpuPercent && (
                   <>
                     {' '}
                     &bullet;{' '}
-                    <span className="font-medium font-mono">
+                    <span className="font-mono font-medium">
                       CPU weight {currentLimits.cpuPercent}
                     </span>
                   </>
                 )}
-                {currentLimits.applied ? (
-                  <span className="text-success font-medium">
-                    {' '}
-                    &bullet; Applied
-                  </span>
-                ) : (
-                  <span className="text-warning font-medium">
+                {currentLimits.applied ?
+                  <span className="text-success font-medium"> &bullet; Applied</span>
+                : <span className="text-warning font-medium">
                     {' '}
                     &bullet; Not applied (cgroups unavailable)
                   </span>
-                )}
+                }
               </p>
             </div>
           )}

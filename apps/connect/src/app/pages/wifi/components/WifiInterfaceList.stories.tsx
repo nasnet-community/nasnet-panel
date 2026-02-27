@@ -11,7 +11,6 @@ import { WifiInterfaceList } from './WifiInterfaceList';
 
 import type { Meta, StoryObj } from '@storybook/react';
 
-
 const meta: Meta<typeof WifiInterfaceList> = {
   title: 'App/WiFi/WifiInterfaceList',
   component: WifiInterfaceList,
@@ -69,7 +68,7 @@ export const InsideCard: Story = {
   },
   decorators: [
     (Story) => (
-      <div className="max-w-2xl rounded-xl border border-border bg-card p-6 shadow-sm">
+      <div className="border-border bg-card max-w-2xl rounded-xl border p-6 shadow-sm">
         <Story />
       </div>
     ),

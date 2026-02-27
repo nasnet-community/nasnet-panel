@@ -31,12 +31,7 @@ import { Button, cn, Card, CardContent, CardHeader, Badge } from '@nasnet/ui/pri
 
 import { CONFLICT_TYPE_LABELS } from './types';
 
-import type {
-  ResourceConflict,
-  ConflictType,
-  ConflictSeverity,
-  ConflictResolution,
-} from './types';
+import type { ResourceConflict, ConflictType, ConflictSeverity, ConflictResolution } from './types';
 
 /**
  * Icon mapping for conflict types
@@ -135,7 +130,7 @@ export function ConflictCard({
       <CardHeader className="pb-2">
         <div className="flex items-start gap-3">
           {/* Conflict type icon */}
-          <div className={cn('p-2 rounded-lg', severityConfig.bgColor)}>
+          <div className={cn('rounded-lg p-2', severityConfig.bgColor)}>
             <ConflictIcon
               className={cn('h-5 w-5', severityConfig.color)}
               aria-hidden="true"
@@ -143,28 +138,25 @@ export function ConflictCard({
           </div>
 
           {/* Title and description */}
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 flex-wrap">
-              <h3 className="font-semibold text-foreground">{conflict.title}</h3>
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-2">
+              <h3 className="text-foreground font-semibold">{conflict.title}</h3>
               <Badge
                 variant={
-                  conflict.severity === 'error'
-                    ? 'error'
-                    : conflict.severity === 'warning'
-                    ? 'default'
-                    : 'secondary'
+                  conflict.severity === 'error' ? 'error'
+                  : conflict.severity === 'warning' ?
+                    'default'
+                  : 'secondary'
                 }
                 className="text-xs"
               >
                 {CONFLICT_TYPE_LABELS[conflict.type]}
               </Badge>
             </div>
-            <p className="text-sm text-muted-foreground mt-1">
-              {conflict.description}
-            </p>
+            <p className="text-muted-foreground mt-1 text-sm">{conflict.description}</p>
             {conflict.conflictValue && (
               <div className="mt-2">
-                <code className="text-xs bg-muted px-2 py-1 rounded font-mono">
+                <code className="bg-muted rounded px-2 py-1 font-mono text-xs">
                   {conflict.conflictValue}
                 </code>
               </div>
@@ -172,7 +164,7 @@ export function ConflictCard({
           </div>
 
           {/* Severity indicator and expand button */}
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex shrink-0 items-center gap-2">
             <SeverityIcon
               className={cn('h-5 w-5', severityConfig.color)}
               aria-label={conflict.severity}
@@ -185,11 +177,16 @@ export function ConflictCard({
                 aria-expanded={isExpanded}
                 aria-controls={`conflict-${conflict.id}-details`}
               >
-                {isExpanded ? (
-                  <ChevronUp className="h-4 w-4" aria-hidden="true" />
-                ) : (
-                  <ChevronDown className="h-4 w-4" aria-hidden="true" />
-                )}
+                {isExpanded ?
+                  <ChevronUp
+                    className="h-4 w-4"
+                    aria-hidden="true"
+                  />
+                : <ChevronDown
+                    className="h-4 w-4"
+                    aria-hidden="true"
+                  />
+                }
                 <span className="sr-only">
                   {isExpanded ? 'Collapse details' : 'Expand details'}
                 </span>
@@ -203,32 +200,32 @@ export function ConflictCard({
       {isExpanded && (
         <CardContent
           id={`conflict-${conflict.id}-details`}
-          className="pt-0 space-y-4"
+          className="space-y-4 pt-0"
         >
           {/* Affected resources */}
           {conflict.resources.length > 0 && (
             <div>
-              <h4 className="text-sm font-medium mb-2">Affected Resources</h4>
-              <div className="space-y-2" role="list" aria-label="Affected resources">
+              <h4 className="mb-2 text-sm font-medium">Affected Resources</h4>
+              <div
+                className="space-y-2"
+                role="list"
+                aria-label="Affected resources"
+              >
                 {conflict.resources.map((resource) => (
                   <div
                     key={resource.id}
                     role="listitem"
-                    className="flex items-center justify-between p-2 bg-muted/50 rounded-md text-sm"
+                    className="bg-muted/50 flex items-center justify-between rounded-md p-2 text-sm"
                   >
                     <div>
                       <span className="font-medium">{resource.name}</span>
-                      <span className="text-muted-foreground ml-2">
-                        ({resource.type})
-                      </span>
+                      <span className="text-muted-foreground ml-2">({resource.type})</span>
                       {resource.path && (
-                        <span className="text-xs text-muted-foreground block">
-                          {resource.path}
-                        </span>
+                        <span className="text-muted-foreground block text-xs">{resource.path}</span>
                       )}
                     </div>
                     {resource.value && (
-                      <code className="text-xs bg-background px-2 py-0.5 rounded font-mono">
+                      <code className="bg-background rounded px-2 py-0.5 font-mono text-xs">
                         {resource.value}
                       </code>
                     )}
@@ -241,17 +238,19 @@ export function ConflictCard({
           {/* Resolution options */}
           {hasResolutions && (
             <div>
-              <h4 className="text-sm font-medium mb-2">
+              <h4 className="mb-2 text-sm font-medium">
                 {hasMultipleResolutions ? 'Resolution Options' : 'Resolution'}
               </h4>
-              <div className="space-y-2" role="group" aria-label="Resolution options">
+              <div
+                className="space-y-2"
+                role="group"
+                aria-label="Resolution options"
+              >
                 {conflict.resolutions.map((resolution) => (
                   <ResolutionOption
                     key={resolution.id}
                     resolution={resolution}
-                    onSelect={() =>
-                      onSelectResolution?.(conflict.id, resolution.id)
-                    }
+                    onSelect={() => onSelectResolution?.(conflict.id, resolution.id)}
                   />
                 ))}
               </div>
@@ -264,10 +263,13 @@ export function ConflictCard({
               href={conflict.helpUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
+              className="text-primary inline-flex items-center gap-1 text-sm hover:underline"
             >
               Learn more about this conflict
-              <ExternalLink className="h-3 w-3" aria-hidden="true" />
+              <ExternalLink
+                className="h-3 w-3"
+                aria-hidden="true"
+              />
             </a>
           )}
         </CardContent>
@@ -289,27 +291,31 @@ function ResolutionOption({
   return (
     <div
       className={cn(
-        'flex items-center justify-between p-3 border rounded-lg',
+        'flex items-center justify-between rounded-lg border p-3',
         resolution.recommended && 'border-primary bg-primary/5'
       )}
     >
       <div>
         <div className="flex items-center gap-2">
-          <span className="font-medium text-sm">{resolution.label}</span>
+          <span className="text-sm font-medium">{resolution.label}</span>
           {resolution.recommended && (
-            <Badge variant="default" className="text-xs">
+            <Badge
+              variant="default"
+              className="text-xs"
+            >
               Recommended
             </Badge>
           )}
           {resolution.destructive && (
-            <Badge variant="error" className="text-xs">
+            <Badge
+              variant="error"
+              className="text-xs"
+            >
               Destructive
             </Badge>
           )}
         </div>
-        <p className="text-xs text-muted-foreground mt-0.5">
-          {resolution.description}
-        </p>
+        <p className="text-muted-foreground mt-0.5 text-xs">{resolution.description}</p>
       </div>
       <Button
         variant={resolution.destructive ? 'destructive' : 'outline'}

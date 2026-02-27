@@ -93,28 +93,18 @@ const PageContainerImpl = React.forwardRef<HTMLElement, PageContainerProps>(
       <main
         ref={ref}
         className={cn(
-          'mx-auto w-full px-page-mobile md:px-page-tablet lg:px-page-desktop py-component-lg',
+          'px-page-mobile md:px-page-tablet lg:px-page-desktop py-component-lg mx-auto w-full',
           maxWidthClasses[maxWidth],
           variantClasses[variant],
           className
         )}
       >
-        {breadcrumbs && (
-          <nav className="mb-6 text-sm text-muted-foreground">{breadcrumbs}</nav>
-        )}
+        {breadcrumbs && <nav className="text-muted-foreground mb-6 text-sm">{breadcrumbs}</nav>}
         {(title || actions) && (
-          <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              {title && (
-                <h1 className="text-2xl font-semibold text-foreground">
-                  {title}
-                </h1>
-              )}
-              {description && (
-                <p className="mt-1 text-sm text-muted-foreground">
-                  {description}
-                </p>
-              )}
+              {title && <h1 className="text-foreground text-2xl font-semibold">{title}</h1>}
+              {description && <p className="text-muted-foreground mt-1 text-sm">{description}</p>}
             </div>
             {actions && <div className="flex items-center gap-3">{actions}</div>}
           </div>

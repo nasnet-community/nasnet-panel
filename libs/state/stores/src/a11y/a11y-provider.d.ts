@@ -16,37 +16,37 @@ import { type ReactNode } from 'react';
  * Accessibility context value interface
  */
 export interface A11yContextValue {
-    /**
-     * Whether the user prefers reduced motion
-     * Based on `prefers-reduced-motion: reduce` media query
-     */
-    reducedMotion: boolean;
-    /**
-     * Whether the user prefers high contrast mode
-     * Based on `prefers-contrast: more` media query
-     */
-    highContrast: boolean;
-    /**
-     * Whether the user is navigating with keyboard only
-     * Set to true when Tab key is pressed, false when mouse is used
-     * Useful for showing focus rings only for keyboard users
-     */
-    keyboardUser: boolean;
-    /**
-     * Announce a message to screen readers via aria-live region
-     * @param message - The message to announce
-     * @param priority - 'polite' (default) or 'assertive'
-     */
-    announce: (message: string, priority?: 'polite' | 'assertive') => void;
+  /**
+   * Whether the user prefers reduced motion
+   * Based on `prefers-reduced-motion: reduce` media query
+   */
+  reducedMotion: boolean;
+  /**
+   * Whether the user prefers high contrast mode
+   * Based on `prefers-contrast: more` media query
+   */
+  highContrast: boolean;
+  /**
+   * Whether the user is navigating with keyboard only
+   * Set to true when Tab key is pressed, false when mouse is used
+   * Useful for showing focus rings only for keyboard users
+   */
+  keyboardUser: boolean;
+  /**
+   * Announce a message to screen readers via aria-live region
+   * @param message - The message to announce
+   * @param priority - 'polite' (default) or 'assertive'
+   */
+  announce: (message: string, priority?: 'polite' | 'assertive') => void;
 }
 /**
  * Props for A11yProvider component
  */
 export interface A11yProviderProps {
-    /**
-     * Child components that will have access to accessibility context
-     */
-    children: ReactNode;
+  /**
+   * Child components that will have access to accessibility context
+   */
+  children: ReactNode;
 }
 /**
  * A11yProvider Component
@@ -82,7 +82,9 @@ export interface A11yProviderProps {
  * }
  * ```
  */
-export declare function A11yProvider({ children }: A11yProviderProps): import("react/jsx-runtime").JSX.Element;
+export declare function A11yProvider({
+  children,
+}: A11yProviderProps): import('react/jsx-runtime').JSX.Element;
 /**
  * Hook to access accessibility context
  *

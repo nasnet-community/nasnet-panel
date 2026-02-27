@@ -19,60 +19,63 @@ import { type DriftResult } from './types';
  * Apply operation result
  */
 export interface ApplyResult<T = unknown> {
-    /** Whether the operation succeeded */
-    success: boolean;
-    /** Error message if failed */
-    error?: string;
-    /** Updated resource data from server */
-    resource?: Resource<T>;
-    /** Drift result after confirmation */
-    driftResult?: DriftResult;
-    /** Operation timestamp */
-    timestamp: Date;
+  /** Whether the operation succeeded */
+  success: boolean;
+  /** Error message if failed */
+  error?: string;
+  /** Updated resource data from server */
+  resource?: Resource<T>;
+  /** Drift result after confirmation */
+  driftResult?: DriftResult;
+  /** Operation timestamp */
+  timestamp: Date;
 }
 /**
  * Apply function signature
  */
-export type ApplyFunction<TConfig = unknown> = (resourceUuid: string, configuration: TConfig) => Promise<{
-    success: boolean;
-    error?: string;
-    deployment?: DeploymentState;
-    resource?: Resource<TConfig>;
+export type ApplyFunction<TConfig = unknown> = (
+  resourceUuid: string,
+  configuration: TConfig
+) => Promise<{
+  success: boolean;
+  error?: string;
+  deployment?: DeploymentState;
+  resource?: Resource<TConfig>;
 }>;
 /**
  * Confirm function signature (queries router for actual state)
  */
 export type ConfirmFunction = (resourceUuid: string) => Promise<{
-    deployment: DeploymentState;
-    generatedFields: unknown;
+  deployment: DeploymentState;
+  generatedFields: unknown;
 }>;
 /**
  * Options for useApplyConfirmDrift hook
  */
 export interface UseApplyConfirmDriftOptions<TConfig = unknown> {
-    /** Function to apply configuration to router */
-    applyFn: ApplyFunction<TConfig>;
-    /** Function to confirm state from router (optional, some backends do this internally) */
-    confirmFn?: ConfirmFunction;
-    /** Callback when drift status changes */
-    onDriftChange?: (resourceUuid: string, result: DriftResult) => void;
-    /** Callback when apply succeeds */
-    onApplySuccess?: (resourceUuid: string, result: ApplyResult<TConfig>) => void;
-    /** Callback when apply fails */
-    onApplyError?: (resourceUuid: string, error: string) => void;
+  /** Function to apply configuration to router */
+  applyFn: ApplyFunction<TConfig>;
+  /** Function to confirm state from router (optional, some backends do this internally) */
+  confirmFn?: ConfirmFunction;
+  /** Callback when drift status changes */
+  onDriftChange?: (resourceUuid: string, result: DriftResult) => void;
+  /** Callback when apply succeeds */
+  onApplySuccess?: (resourceUuid: string, result: ApplyResult<TConfig>) => void;
+  /** Callback when apply fails */
+  onApplyError?: (resourceUuid: string, error: string) => void;
 }
 /**
  * Return type for useApplyConfirmDrift hook
  */
 export interface UseApplyConfirmDriftReturn<TConfig = unknown> {
-    /** Apply configuration following Apply-Confirm-Merge pattern */
-    applyWithConfirm: (resource: Resource<TConfig>) => Promise<ApplyResult<TConfig>>;
-    /** Whether an apply operation is in progress */
-    isApplying: boolean;
-    /** Last apply result */
-    lastResult: ApplyResult<TConfig> | null;
-    /** Reset the hook state */
-    reset: () => void;
+  /** Apply configuration following Apply-Confirm-Merge pattern */
+  applyWithConfirm: (resource: Resource<TConfig>) => Promise<ApplyResult<TConfig>>;
+  /** Whether an apply operation is in progress */
+  isApplying: boolean;
+  /** Last apply result */
+  lastResult: ApplyResult<TConfig> | null;
+  /** Reset the hook state */
+  reset: () => void;
 }
 /**
  * Hook for applying configuration changes with drift detection integration.
@@ -123,32 +126,34 @@ export interface UseApplyConfirmDriftReturn<TConfig = unknown> {
  * }
  * ```
  */
-export declare function useApplyConfirmDrift<TConfig = unknown>(options: UseApplyConfirmDriftOptions<TConfig>): UseApplyConfirmDriftReturn<TConfig>;
+export declare function useApplyConfirmDrift<TConfig = unknown>(
+  options: UseApplyConfirmDriftOptions<TConfig>
+): UseApplyConfirmDriftReturn<TConfig>;
 /**
  * Options for useDriftResolution hook
  */
 export interface UseDriftResolutionOptions<TConfig = unknown> {
-    /** Function to re-apply configuration to router */
-    reapplyFn: (resourceUuid: string, configuration: TConfig) => Promise<void>;
-    /** Function to accept router state (update configuration layer) */
-    acceptFn: (resourceUuid: string, deployment: DeploymentState) => Promise<void>;
-    /** Callback when resolution completes */
-    onResolved?: (resourceUuid: string, action: 'REAPPLY' | 'ACCEPT') => void;
-    /** Callback when resolution fails */
-    onError?: (resourceUuid: string, error: string) => void;
+  /** Function to re-apply configuration to router */
+  reapplyFn: (resourceUuid: string, configuration: TConfig) => Promise<void>;
+  /** Function to accept router state (update configuration layer) */
+  acceptFn: (resourceUuid: string, deployment: DeploymentState) => Promise<void>;
+  /** Callback when resolution completes */
+  onResolved?: (resourceUuid: string, action: 'REAPPLY' | 'ACCEPT') => void;
+  /** Callback when resolution fails */
+  onError?: (resourceUuid: string, error: string) => void;
 }
 /**
  * Return type for useDriftResolution hook
  */
 export interface UseDriftResolutionReturn<TConfig = unknown> {
-    /** Re-apply configuration to router */
-    reapply: (resource: Resource<TConfig>) => Promise<boolean>;
-    /** Accept router's state as new configuration */
-    accept: (resource: Resource<TConfig>) => Promise<boolean>;
-    /** Whether a resolution action is in progress */
-    isResolving: boolean;
-    /** Error message from last resolution attempt */
-    error: string | null;
+  /** Re-apply configuration to router */
+  reapply: (resource: Resource<TConfig>) => Promise<boolean>;
+  /** Accept router's state as new configuration */
+  accept: (resource: Resource<TConfig>) => Promise<boolean>;
+  /** Whether a resolution action is in progress */
+  isResolving: boolean;
+  /** Error message from last resolution attempt */
+  error: string | null;
 }
 /**
  * Hook for resolving configuration drift.
@@ -188,5 +193,7 @@ export interface UseDriftResolutionReturn<TConfig = unknown> {
  * }
  * ```
  */
-export declare function useDriftResolution<TConfig = unknown>(options: UseDriftResolutionOptions<TConfig>): UseDriftResolutionReturn<TConfig>;
+export declare function useDriftResolution<TConfig = unknown>(
+  options: UseDriftResolutionOptions<TConfig>
+): UseDriftResolutionReturn<TConfig>;
 //# sourceMappingURL=useApplyConfirmDrift.d.ts.map

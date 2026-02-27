@@ -105,7 +105,7 @@ const SignalStrengthIndicator = memo(function SignalStrengthIndicator({
 }) {
   if (rssi === undefined) {
     return (
-      <div className="flex items-center gap-component-sm text-muted-foreground">
+      <div className="gap-component-sm text-muted-foreground flex items-center">
         <SignalZero className="h-5 w-5" />
         <span className="text-sm">No signal data</span>
       </div>
@@ -114,29 +114,31 @@ const SignalStrengthIndicator = memo(function SignalStrengthIndicator({
 
   const strength = getSignalStrength(rssi);
   const SignalIcon =
-    strength.label === 'Excellent'
-      ? SignalHigh
-      : strength.label === 'Good'
-      ? Signal
-      : strength.label === 'Fair'
-      ? SignalMedium
-      : strength.label === 'Poor'
-      ? SignalLow
-      : SignalZero;
+    strength.label === 'Excellent' ? SignalHigh
+    : strength.label === 'Good' ? Signal
+    : strength.label === 'Fair' ? SignalMedium
+    : strength.label === 'Poor' ? SignalLow
+    : SignalZero;
 
   return (
-    <div className="flex items-center justify-between p-component-md rounded-card-sm border bg-muted/50 category-networking">
-      <div className="flex items-center gap-component-lg">
-        <SignalIcon className="h-5 w-5" style={{ color: `var(--semantic-${strength.color})` }} />
+    <div className="p-component-md rounded-card-sm bg-muted/50 category-networking flex items-center justify-between border">
+      <div className="gap-component-lg flex items-center">
+        <SignalIcon
+          className="h-5 w-5"
+          style={{ color: `var(--semantic-${strength.color})` }}
+        />
         <div>
-          <div className="flex items-center gap-component-sm">
+          <div className="gap-component-sm flex items-center">
             <span className="font-medium">{strength.label}</span>
-            <Badge variant="outline" style={{ color: `var(--semantic-${strength.color})` }}>
+            <Badge
+              variant="outline"
+              style={{ color: `var(--semantic-${strength.color})` }}
+            >
               {rssi} dBm
             </Badge>
           </div>
           {quality !== undefined && (
-            <p className="text-xs text-muted-foreground mt-component-md">
+            <p className="text-muted-foreground mt-component-md text-xs">
               Signal Quality: {quality}%
             </p>
           )}
@@ -144,7 +146,10 @@ const SignalStrengthIndicator = memo(function SignalStrengthIndicator({
       </div>
 
       {/* Visual signal bars */}
-      <div className="flex items-end gap-component-xs h-8" aria-hidden="true">
+      <div
+        className="gap-component-xs flex h-8 items-end"
+        aria-hidden="true"
+      >
         {[1, 2, 3, 4, 5].map((bar) => {
           const SIGNAL_THRESHOLD_BASE = -120;
           const SIGNAL_THRESHOLD_STEP = 10;
@@ -156,7 +161,7 @@ const SignalStrengthIndicator = memo(function SignalStrengthIndicator({
               className={cn('w-2 rounded-md transition-colors', isActive ? 'bg-muted' : 'bg-muted')}
               style={{
                 height: `${bar * 20}%`,
-                backgroundColor: isActive ? `var(--semantic-${strength.color})` : undefined
+                backgroundColor: isActive ? `var(--semantic-${strength.color})` : undefined,
               }}
             />
           );
@@ -202,54 +207,60 @@ export const LteModemForm = memo(function LteModemForm({
   /**
    * Handle APN preset selection
    */
-  const handlePresetChange = useCallback((presetName: string) => {
-    setSelectedPreset(presetName);
-    if (presetName !== 'Custom') {
-      const preset = APN_PRESETS[presetName as keyof typeof APN_PRESETS];
-      form.setValue('apn', preset.apn);
-      form.setValue('authProtocol', preset.authProtocol);
-    }
-  }, [form]);
+  const handlePresetChange = useCallback(
+    (presetName: string) => {
+      setSelectedPreset(presetName);
+      if (presetName !== 'Custom') {
+        const preset = APN_PRESETS[presetName as keyof typeof APN_PRESETS];
+        form.setValue('apn', preset.apn);
+        form.setValue('authProtocol', preset.authProtocol);
+      }
+    },
+    [form]
+  );
 
   /**
    * Handle form submission
    */
-  const onSubmit = useCallback((async (data: LteModemFormValues) => {
-    setIsSubmitting(true);
-    setError(null);
-    setSuccess(false);
+  const onSubmit = useCallback(
+    (async (data: LteModemFormValues) => {
+      setIsSubmitting(true);
+      setError(null);
+      setSuccess(false);
 
-    try {
-      // TODO: Call GraphQL mutation
-      console.log('Configuring LTE modem:', { routerId, ...data });
+      try {
+        // TODO: Call GraphQL mutation
+        console.log('Configuring LTE modem:', { routerId, ...data });
 
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+        // Simulate API call
+        await new Promise((resolve) => setTimeout(resolve, 1500));
 
-      setSuccess(true);
+        setSuccess(true);
 
-      // Call success callback after short delay
-      setTimeout(() => {
-        onSuccess?.();
-      }, 1000);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to configure LTE modem');
-    } finally {
-      setIsSubmitting(false);
-    }
-  }) as any, [onSuccess]);
+        // Call success callback after short delay
+        setTimeout(() => {
+          onSuccess?.();
+        }, 1000);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to configure LTE modem');
+      } finally {
+        setIsSubmitting(false);
+      }
+    }) as any,
+    [onSuccess]
+  );
 
   /**
    * Success state
    */
   if (success) {
     return (
-      <div className="flex flex-col items-center justify-center py-12 gap-component-md">
-        <CheckCircle2 className="h-16 w-16 text-success" />
+      <div className="gap-component-md flex flex-col items-center justify-center py-12">
+        <CheckCircle2 className="text-success h-16 w-16" />
         <h3 className="text-lg font-semibold">LTE Modem Configured</h3>
-        <p className="text-sm text-muted-foreground text-center max-w-md">
-          Your LTE modem has been configured successfully. The interface is now
-          connecting to the cellular network.
+        <p className="text-muted-foreground max-w-md text-center text-sm">
+          Your LTE modem has been configured successfully. The interface is now connecting to the
+          cellular network.
         </p>
       </div>
     );
@@ -257,14 +268,20 @@ export const LteModemForm = memo(function LteModemForm({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className={cn('space-y-component-lg', className)}>
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className={cn('space-y-component-lg', className)}
+      >
         {/* Signal Strength Display */}
         {signalStrength !== undefined && (
           <FormSection
             title="Signal Status"
             description="Current cellular signal strength"
           >
-            <SignalStrengthIndicator rssi={signalStrength} quality={signalQuality} />
+            <SignalStrengthIndicator
+              rssi={signalStrength}
+              quality={signalQuality}
+            />
           </FormSection>
         )}
 
@@ -286,9 +303,7 @@ export const LteModemForm = memo(function LteModemForm({
                     disabled={isSubmitting}
                   />
                 </FormControl>
-                <FormDescription>
-                  LTE interface name (e.g., lte1, lte2)
-                </FormDescription>
+                <FormDescription>LTE interface name (e.g., lte1, lte2)</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -303,24 +318,31 @@ export const LteModemForm = memo(function LteModemForm({
           {/* Preset Selector */}
           <div className="space-y-component-md">
             <div>
-              <label htmlFor="carrier-preset" className="text-sm font-medium mb-2 block">
+              <label
+                htmlFor="carrier-preset"
+                className="mb-2 block text-sm font-medium"
+              >
                 Carrier Preset
               </label>
-              <Select value={selectedPreset} onValueChange={handlePresetChange}>
+              <Select
+                value={selectedPreset}
+                onValueChange={handlePresetChange}
+              >
                 <SelectTrigger id="carrier-preset">
                   <SelectValue placeholder="Select carrier preset" />
                 </SelectTrigger>
                 <SelectContent>
                   {Object.keys(APN_PRESETS).map((preset) => (
-                    <SelectItem key={preset} value={preset}>
+                    <SelectItem
+                      key={preset}
+                      value={preset}
+                    >
                       {preset}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-              <p className="text-xs text-muted-foreground mt-1">
-                Quick setup for popular carriers
-              </p>
+              <p className="text-muted-foreground mt-1 text-xs">Quick setup for popular carriers</p>
             </div>
 
             {/* APN Input */}
@@ -337,9 +359,7 @@ export const LteModemForm = memo(function LteModemForm({
                       disabled={isSubmitting}
                     />
                   </FormControl>
-                  <FormDescription>
-                    Access Point Name provided by your carrier
-                  </FormDescription>
+                  <FormDescription>Access Point Name provided by your carrier</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -362,9 +382,7 @@ export const LteModemForm = memo(function LteModemForm({
                       disabled={isSubmitting}
                     />
                   </FormControl>
-                  <FormDescription>
-                    APN profile number (1-10, usually 1)
-                  </FormDescription>
+                  <FormDescription>APN profile number (1-10, usually 1)</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -451,11 +469,9 @@ export const LteModemForm = memo(function LteModemForm({
                             className="absolute right-0 top-0"
                             onClick={() => setShowPassword(!showPassword)}
                           >
-                            {showPassword ? (
+                            {showPassword ?
                               <EyeOff className="h-4 w-4" />
-                            ) : (
-                              <Eye className="h-4 w-4" />
-                            )}
+                            : <Eye className="h-4 w-4" />}
                           </Button>
                         </div>
                       </FormControl>
@@ -498,17 +514,13 @@ export const LteModemForm = memo(function LteModemForm({
                       className="absolute right-0 top-0"
                       onClick={() => setShowPin(!showPin)}
                     >
-                      {showPin ? (
+                      {showPin ?
                         <EyeOff className="h-4 w-4" />
-                      ) : (
-                        <Eye className="h-4 w-4" />
-                      )}
+                      : <Eye className="h-4 w-4" />}
                     </Button>
                   </div>
                 </FormControl>
-                <FormDescription>
-                  Leave empty if SIM has no PIN
-                </FormDescription>
+                <FormDescription>Leave empty if SIM has no PIN</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -547,9 +559,7 @@ export const LteModemForm = memo(function LteModemForm({
                       disabled={isSubmitting}
                     />
                   </FormControl>
-                  <FormDescription>
-                    Default: 1500 bytes (576-1500)
-                  </FormDescription>
+                  <FormDescription>Default: 1500 bytes (576-1500)</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -560,7 +570,7 @@ export const LteModemForm = memo(function LteModemForm({
               control={form.control as any}
               name="isDefaultRoute"
               render={({ field }) => (
-                <FormItem className="flex items-center justify-between rounded-card-sm border p-component-md category-networking">
+                <FormItem className="rounded-card-sm p-component-md category-networking flex items-center justify-between border">
                   <div className="space-y-0.5">
                     <FormLabel className="text-base">Default Route</FormLabel>
                     <FormDescription>
@@ -583,7 +593,7 @@ export const LteModemForm = memo(function LteModemForm({
               control={form.control as any}
               name="enabled"
               render={({ field }) => (
-                <FormItem className="flex items-center justify-between rounded-card-sm border p-component-md category-networking">
+                <FormItem className="rounded-card-sm p-component-md category-networking flex items-center justify-between border">
                   <div className="space-y-0.5">
                     <FormLabel className="text-base">Enable Interface</FormLabel>
                     <FormDescription>
@@ -605,14 +615,18 @@ export const LteModemForm = memo(function LteModemForm({
 
         {/* Error Display */}
         {error && (
-          <Alert variant="destructive" role="alert" aria-live="assertive">
+          <Alert
+            variant="destructive"
+            role="alert"
+            aria-live="assertive"
+          >
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}
 
         {/* Actions */}
-        <div className="flex justify-end gap-component-md pt-component-lg border-t category-networking">
+        <div className="gap-component-md pt-component-lg category-networking flex justify-end border-t">
           {onCancel && (
             <Button
               type="button"
@@ -629,7 +643,12 @@ export const LteModemForm = memo(function LteModemForm({
             disabled={isSubmitting}
             aria-busy={isSubmitting}
           >
-            {isSubmitting && <Loader2 className="h-4 w-4 mr-component-sm animate-spin" aria-hidden="true" />}
+            {isSubmitting && (
+              <Loader2
+                className="mr-component-sm h-4 w-4 animate-spin"
+                aria-hidden="true"
+              />
+            )}
             Configure LTE Modem
           </Button>
         </div>

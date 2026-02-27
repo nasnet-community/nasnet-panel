@@ -1,8 +1,15 @@
 # Service Lifecycle
 
-This document covers the complete lifecycle of a Feature Marketplace service instance — from discovery and installation through boot, health monitoring, configuration, networking/isolation, dependency management, traffic control, logging, updates, rollback, sharing/templates, device routing, scheduling, and system resource budgeting. All hooks live under `libs/api-client/queries/src/services/`.
+This document covers the complete lifecycle of a Feature Marketplace service instance — from
+discovery and installation through boot, health monitoring, configuration, networking/isolation,
+dependency management, traffic control, logging, updates, rollback, sharing/templates, device
+routing, scheduling, and system resource budgeting. All hooks live under
+`libs/api-client/queries/src/services/`.
 
-Related docs: [./domain-query-hooks.md](./domain-query-hooks.md) (domain inventory), [./universal-state-resource-model.md](./universal-state-resource-model.md) (resource layers), [./change-set-pattern.md](./change-set-pattern.md) (apply/confirm), [./websocket-subscriptions.md](./websocket-subscriptions.md) (subscription transport).
+Related docs: [./domain-query-hooks.md](./domain-query-hooks.md) (domain inventory),
+[./universal-state-resource-model.md](./universal-state-resource-model.md) (resource layers),
+[./change-set-pattern.md](./change-set-pattern.md) (apply/confirm),
+[./websocket-subscriptions.md](./websocket-subscriptions.md) (subscription transport).
 
 ---
 
@@ -98,7 +105,7 @@ Returns the list of features available in the marketplace. Each entry includes:
 
 ```ts
 interface AvailableService {
-  featureID: string;    // e.g. 'tor', 'singbox', 'xray', 'mtproxy', 'psiphon', 'adguard'
+  featureID: string; // e.g. 'tor', 'singbox', 'xray', 'mtproxy', 'psiphon', 'adguard'
   name: string;
   description: string;
   version: string;
@@ -124,8 +131,13 @@ const { data: instance } = useServiceInstance({ routerId, instanceId });
 
 ```ts
 type ServiceStatus =
-  | 'INSTALLING' | 'INSTALLED' | 'RUNNING'
-  | 'STOPPED' | 'FAILED' | 'UPDATING' | 'UNINSTALLING';
+  | 'INSTALLING'
+  | 'INSTALLED'
+  | 'RUNNING'
+  | 'STOPPED'
+  | 'FAILED'
+  | 'UPDATING'
+  | 'UNINSTALLING';
 
 interface ServiceInstance {
   id: string;
@@ -163,13 +175,15 @@ await installService({
       instanceName: 'Tor Exit Node',
       config: { exitPolicy: 'accept *:80' },
       vlanID: 100,
-      bindIP: '10.0.0.1',      // optional IP binding for isolation
+      bindIP: '10.0.0.1', // optional IP binding for isolation
     },
   },
 });
 ```
 
-The mutation provides an **optimistic response** that immediately adds a `INSTALLING` instance to the cache (`status: 'INSTALLING'`, temporary `id: 'temp-${Date.now()}'`). On success, the cache is updated with the real instance and `GET_SERVICE_INSTANCES` is refetched.
+The mutation provides an **optimistic response** that immediately adds a `INSTALLING` instance to
+the cache (`status: 'INSTALLING'`, temporary `id: 'temp-${Date.now()}'`). On success, the cache is
+updated with the real instance and `GET_SERVICE_INSTANCES` is refetched.
 
 ```ts
 export interface InstallServiceInput {
@@ -194,7 +208,7 @@ interface InstallProgress {
   routerID: string;
   featureID: string;
   instanceID: string;
-  status: string;        // 'downloading' | 'verifying' | 'installing' | 'completed' | 'failed'
+  status: string; // 'downloading' | 'verifying' | 'installing' | 'completed' | 'failed'
   percent: number;
   bytesDownloaded: number;
   totalBytes: number;
@@ -202,7 +216,9 @@ interface InstallProgress {
 }
 ```
 
-The subscription fires events for each phase: download progress, GPG verification, binary extraction, and container setup. When `status === 'completed'`, a log entry is emitted. When `status === 'failed'`, `errorMessage` contains the reason.
+The subscription fires events for each phase: download progress, GPG verification, binary
+extraction, and container setup. When `status === 'completed'`, a log entry is emitted. When
+`status === 'failed'`, `errorMessage` contains the reason.
 
 ### useInstanceStatusChanged (subscription)
 
@@ -282,7 +298,8 @@ interface BootSequenceEvent {
 }
 ```
 
-The boot sequence is the ordered startup of all service instances honoring dependency chains (see Stage 7). `SUBSCRIBE_BOOT_SEQUENCE_EVENTS` carries each step's result in real time.
+The boot sequence is the ordered startup of all service instances honoring dependency chains (see
+Stage 7). `SUBSCRIBE_BOOT_SEQUENCE_EVENTS` carries each step's result in real time.
 
 ---
 
@@ -328,7 +345,8 @@ await configure({
 });
 ```
 
-Also exports `validateHealthCheckConfig(config)` — a pure function that validates the config before sending.
+Also exports `validateHealthCheckConfig(config)` — a pure function that validates the config before
+sending.
 
 ---
 
@@ -371,19 +389,17 @@ await apply({ variables: { instanceID, config: validatedConfig } });
 ### useServiceConfigOperations (compound)
 
 ```ts
-const {
-  schema,
-  config,
-  validate,
-  apply,
-  isValidating,
-  isApplying,
-} = useServiceConfigOperations({ routerId, instanceId, featureID });
+const { schema, config, validate, apply, isValidating, isApplying } = useServiceConfigOperations({
+  routerId,
+  instanceId,
+  featureID,
+});
 ```
 
 Bundles all four operations with shared loading state for use in configuration forms.
 
-GraphQL documents: `service-config.graphql.ts` exports `GET_SERVICE_CONFIG_SCHEMA`, `GET_INSTANCE_CONFIG`, `VALIDATE_SERVICE_CONFIG`, `APPLY_SERVICE_CONFIG`.
+GraphQL documents: `service-config.graphql.ts` exports `GET_SERVICE_CONFIG_SCHEMA`,
+`GET_INSTANCE_CONFIG`, `VALIDATE_SERVICE_CONFIG`, `APPLY_SERVICE_CONFIG`.
 
 ---
 
@@ -440,7 +456,8 @@ Source: `libs/api-client/queries/src/services/useInstanceIsolation.ts`
 const { data: isolation } = useInstanceIsolation({ routerId, instanceId });
 ```
 
-Returns the IP-binding isolation state for the instance (ADR-007). See `Docs/architecture/adrs/007-ip-binding-isolation.md`.
+Returns the IP-binding isolation state for the instance (ADR-007). See
+`Docs/architecture/adrs/007-ip-binding-isolation.md`.
 
 ```ts
 interface GetInstanceIsolationResult {
@@ -466,17 +483,16 @@ formatUptime(seconds: number): string  // e.g. "2d 4h 30m"
 
 ```ts
 const GatewayState = {
-  UP:         'UP',
-  DOWN:       'DOWN',
-  DEGRADED:   'DEGRADED',
-  UNKNOWN:    'UNKNOWN',
+  UP: 'UP',
+  DOWN: 'DOWN',
+  DEGRADED: 'DEGRADED',
+  UNKNOWN: 'UNKNOWN',
 } as const;
 ```
 
 ### useKillSwitchStatus / useSetKillSwitch / useKillSwitchSubscription
 
-Source: `libs/api-client/queries/src/services/useKillSwitch.ts`
-GraphQL: `kill-switch.graphql.ts`
+Source: `libs/api-client/queries/src/services/useKillSwitch.ts` GraphQL: `kill-switch.graphql.ts`
 
 ```ts
 // Query current kill-switch state
@@ -509,7 +525,8 @@ const { data: available } = useCheckPortAvailability({ port: 8388, protocol: 'TC
 const { data: orphaned } = useOrphanedPorts({ routerId });
 ```
 
-GraphQL: `GET_PORT_ALLOCATIONS`, `CHECK_PORT_AVAILABILITY`, `DETECT_ORPHANED_PORTS`, `CLEANUP_ORPHANED_PORTS`.
+GraphQL: `GET_PORT_ALLOCATIONS`, `CHECK_PORT_AVAILABILITY`, `DETECT_ORPHANED_PORTS`,
+`CLEANUP_ORPHANED_PORTS`.
 
 ### VLAN Management
 
@@ -545,7 +562,8 @@ interface VLANPoolStatus {
 }
 ```
 
-GraphQL: `vlan.graphql.ts` — `GET_VLAN_ALLOCATIONS`, `GET_VLAN_POOL_STATUS`, `DETECT_ORPHANED_VLANS`, `CLEANUP_ORPHANED_VLANS`, `UPDATE_VLAN_POOL_CONFIG`.
+GraphQL: `vlan.graphql.ts` — `GET_VLAN_ALLOCATIONS`, `GET_VLAN_POOL_STATUS`,
+`DETECT_ORPHANED_VLANS`, `CLEANUP_ORPHANED_VLANS`, `UPDATE_VLAN_POOL_CONFIG`.
 
 ---
 
@@ -642,7 +660,8 @@ const { stats, deviceBreakdown, trafficEvent, loading } = useTrafficMonitoring({
 });
 ```
 
-GraphQL: `traffic-stats.graphql.ts` — `GET_SERVICE_TRAFFIC_STATS`, `GET_SERVICE_DEVICE_BREAKDOWN`, `SET_TRAFFIC_QUOTA`, `RESET_TRAFFIC_QUOTA`, `SUBSCRIBE_SERVICE_TRAFFIC_UPDATED`.
+GraphQL: `traffic-stats.graphql.ts` — `GET_SERVICE_TRAFFIC_STATS`, `GET_SERVICE_DEVICE_BREAKDOWN`,
+`SET_TRAFFIC_QUOTA`, `RESET_TRAFFIC_QUOTA`, `SUBSCRIBE_SERVICE_TRAFFIC_UPDATED`.
 
 ---
 
@@ -711,8 +730,8 @@ const { data: history } = useDiagnosticHistory({ routerId, instanceId });
 const { data: progress } = useDiagnosticsProgressSubscription({ routerId, instanceId });
 
 // Utility functions
-const startup = getStartupDiagnostics(history);   // filter for boot-time results
-const failed = hasFailures(history);              // boolean check
+const startup = getStartupDiagnostics(history); // filter for boot-time results
+const failed = hasFailures(history); // boolean check
 ```
 
 ```ts
@@ -728,7 +747,9 @@ interface DiagnosticResult {
 }
 ```
 
-GraphQL: `logs-diagnostics.graphql.ts` — `GET_SERVICE_LOG_FILE`, `GET_DIAGNOSTIC_HISTORY`, `GET_AVAILABLE_DIAGNOSTICS`, `RUN_SERVICE_DIAGNOSTICS`, `SUBSCRIBE_SERVICE_LOGS`, `SUBSCRIBE_DIAGNOSTICS_PROGRESS`.
+GraphQL: `logs-diagnostics.graphql.ts` — `GET_SERVICE_LOG_FILE`, `GET_DIAGNOSTIC_HISTORY`,
+`GET_AVAILABLE_DIAGNOSTICS`, `RUN_SERVICE_DIAGNOSTICS`, `SUBSCRIBE_SERVICE_LOGS`,
+`SUBSCRIBE_DIAGNOSTICS_PROGRESS`.
 
 ---
 
@@ -746,7 +767,7 @@ interface AvailableUpdate {
   featureID: string;
   currentVersion: string;
   newVersion: string;
-  severity: UpdateSeverity;        // 'SECURITY' | 'BUGFIX' | 'FEATURE' | 'MAJOR'
+  severity: UpdateSeverity; // 'SECURITY' | 'BUGFIX' | 'FEATURE' | 'MAJOR'
   changelog: string;
   releaseDate: string;
   isCompatible: boolean;
@@ -778,7 +799,7 @@ const { data: event } = useUpdateProgress({ routerId, instanceId });
 
 interface UpdateProgressEvent {
   instanceId: string;
-  stage: UpdateStage;     // 'DOWNLOADING' | 'VERIFYING' | 'BACKING_UP' | 'APPLYING' | 'STARTING' | 'DONE'
+  stage: UpdateStage; // 'DOWNLOADING' | 'VERIFYING' | 'BACKING_UP' | 'APPLYING' | 'STARTING' | 'DONE'
   percent: number;
   message: string;
   isComplete: boolean;
@@ -795,7 +816,8 @@ await rollback({ variables: { instanceId, targetVersion: '0.4.8' } });
 // Restores the backed-up binary and configuration snapshot
 ```
 
-GraphQL: `updates.graphql.ts` — `GET_AVAILABLE_UPDATES`, `CHECK_FOR_UPDATES`, `UPDATE_INSTANCE`, `UPDATE_ALL_INSTANCES`, `ROLLBACK_INSTANCE`, `UPDATE_PROGRESS`.
+GraphQL: `updates.graphql.ts` — `GET_AVAILABLE_UPDATES`, `CHECK_FOR_UPDATES`, `UPDATE_INSTANCE`,
+`UPDATE_ALL_INSTANCES`, `ROLLBACK_INSTANCE`, `UPDATE_PROGRESS`.
 
 ---
 
@@ -822,7 +844,8 @@ await importService({ variables: { routerId, configUrl: 'https://share.example/a
 const { exportService, generateQR, importService, loading } = useServiceSharing();
 ```
 
-GraphQL: `service-sharing.graphql.ts` — `EXPORT_SERVICE_CONFIG`, `GENERATE_CONFIG_QR`, `IMPORT_SERVICE_CONFIG`.
+GraphQL: `service-sharing.graphql.ts` — `EXPORT_SERVICE_CONFIG`, `GENERATE_CONFIG_QR`,
+`IMPORT_SERVICE_CONFIG`.
 
 ### Service Templates
 
@@ -838,7 +861,9 @@ await installTemplate({ variables: { routerId, templateId: 'tmpl-123' } });
 
 // Save current instance as template
 const [exportAsTemplate] = useExportAsTemplate();
-await exportAsTemplate({ variables: { instanceId, name: 'My Singbox Config', description: '...' } });
+await exportAsTemplate({
+  variables: { instanceId, name: 'My Singbox Config', description: '...' },
+});
 
 // Import a template from file/URL
 const [importTemplate] = useImportTemplate();
@@ -852,16 +877,19 @@ await deleteTemplate({ variables: { templateId: 'tmpl-123' } });
 const { data: progress } = useTemplateInstallProgress({ routerId });
 ```
 
-GraphQL: `templates.graphql.ts` — `GET_SERVICE_TEMPLATES`, `GET_SERVICE_TEMPLATE`, `INSTALL_SERVICE_TEMPLATE`, `EXPORT_AS_TEMPLATE`, `IMPORT_SERVICE_TEMPLATE`, `DELETE_SERVICE_TEMPLATE`, `TEMPLATE_INSTALL_PROGRESS`.
+GraphQL: `templates.graphql.ts` — `GET_SERVICE_TEMPLATES`, `GET_SERVICE_TEMPLATE`,
+`INSTALL_SERVICE_TEMPLATE`, `EXPORT_AS_TEMPLATE`, `IMPORT_SERVICE_TEMPLATE`,
+`DELETE_SERVICE_TEMPLATE`, `TEMPLATE_INSTALL_PROGRESS`.
 
 ---
 
 ## 13. Stage 12 — Device Routing
 
-Source: `libs/api-client/queries/src/services/useDeviceRouting.ts`
-GraphQL: `device-routing.graphql.ts`
+Source: `libs/api-client/queries/src/services/useDeviceRouting.ts` GraphQL:
+`device-routing.graphql.ts`
 
-Device routing controls which network devices (by IP) are routed through which service instance (ADR-007).
+Device routing controls which network devices (by IP) are routed through which service instance
+(ADR-007).
 
 ```ts
 // Full routing matrix (router-wide view)
@@ -919,7 +947,9 @@ interface DeviceRoutingEvent {
 }
 ```
 
-GraphQL: `GET_DEVICE_ROUTING_MATRIX`, `GET_DEVICE_ROUTINGS`, `GET_DEVICE_ROUTING`, `ASSIGN_DEVICE_ROUTING`, `REMOVE_DEVICE_ROUTING`, `BULK_ASSIGN_ROUTING`, `SUBSCRIBE_DEVICE_ROUTING_CHANGES`.
+GraphQL: `GET_DEVICE_ROUTING_MATRIX`, `GET_DEVICE_ROUTINGS`, `GET_DEVICE_ROUTING`,
+`ASSIGN_DEVICE_ROUTING`, `REMOVE_DEVICE_ROUTING`, `BULK_ASSIGN_ROUTING`,
+`SUBSCRIBE_DEVICE_ROUTING_CHANGES`.
 
 ---
 
@@ -927,7 +957,8 @@ GraphQL: `GET_DEVICE_ROUTING_MATRIX`, `GET_DEVICE_ROUTINGS`, `GET_DEVICE_ROUTING
 
 Source: `libs/api-client/queries/src/services/useSchedules.ts`
 
-Time-based service scheduling allows service instances to be automatically started/stopped on a recurring schedule.
+Time-based service scheduling allows service instances to be automatically started/stopped on a
+recurring schedule.
 
 ```ts
 // List schedules for a router
@@ -942,7 +973,7 @@ await create({
   variables: {
     routerId,
     instanceId: 'instance-123',
-    cronExpression: '0 22 * * *',    // Stop at 10pm
+    cronExpression: '0 22 * * *', // Stop at 10pm
     action: 'STOP',
     timezone: 'America/New_York',
   },
@@ -961,8 +992,8 @@ await deleteSchedule({ variables: { scheduleId: 'sched-123' } });
 
 ## 15. Stage 14 — System Resources
 
-Source: `libs/api-client/queries/src/services/useSystemResources.ts`
-GraphQL: `GET_SYSTEM_RESOURCES`, `SET_RESOURCE_LIMITS`, `SUBSCRIBE_RESOURCE_USAGE`
+Source: `libs/api-client/queries/src/services/useSystemResources.ts` GraphQL:
+`GET_SYSTEM_RESOURCES`, `SET_RESOURCE_LIMITS`, `SUBSCRIBE_RESOURCE_USAGE`
 
 ```ts
 // Current resource budget
@@ -983,7 +1014,7 @@ interface InstanceResourceUsage {
   memoryMB: number;
   limits: ResourceLimits;
   requirements: ResourceRequirements;
-  status: ResourceStatus;    // 'OK' | 'WARNING' | 'CRITICAL' | 'EXCEEDED'
+  status: ResourceStatus; // 'OK' | 'WARNING' | 'CRITICAL' | 'EXCEEDED'
 }
 
 interface ResourceLimits {
@@ -1061,21 +1092,21 @@ GraphQL: `GET_SERVICE_ALERTS`, `SERVICE_ALERT_EVENTS`, `ACKNOWLEDGE_ALERT`, `ACK
 
 ## 17. Lifecycle Mutations Summary
 
-| Mutation | Hook | Description |
-|---|---|---|
-| Install | `useInstallService()` | Download + install binary |
-| Start | `useInstanceMutations().startInstance()` | Start process |
-| Stop | `useInstanceMutations().stopInstance()` | Graceful stop |
-| Restart | `useInstanceMutations().restartInstance()` | Stop + start |
-| Delete | `useInstanceMutations().deleteInstance()` | Remove + clean up |
-| Configure | `useApplyServiceConfig()` | Apply new config |
-| Verify | `useReverifyFeature()` | Re-check GPG signature |
-| Update | `useUpdateInstance()` | Upgrade binary |
-| Rollback | `useRollbackInstance()` | Restore previous binary |
-| Kill switch on/off | `useSetKillSwitch()` | Toggle network kill switch |
-| Assign routing | `useAssignDeviceRouting()` | Route device through service |
-| Set quota | `useSetTrafficQuota()` | Set bandwidth quota |
-| Set resource limits | `useSetResourceLimits()` | Apply cgroup limits |
+| Mutation            | Hook                                       | Description                  |
+| ------------------- | ------------------------------------------ | ---------------------------- |
+| Install             | `useInstallService()`                      | Download + install binary    |
+| Start               | `useInstanceMutations().startInstance()`   | Start process                |
+| Stop                | `useInstanceMutations().stopInstance()`    | Graceful stop                |
+| Restart             | `useInstanceMutations().restartInstance()` | Stop + start                 |
+| Delete              | `useInstanceMutations().deleteInstance()`  | Remove + clean up            |
+| Configure           | `useApplyServiceConfig()`                  | Apply new config             |
+| Verify              | `useReverifyFeature()`                     | Re-check GPG signature       |
+| Update              | `useUpdateInstance()`                      | Upgrade binary               |
+| Rollback            | `useRollbackInstance()`                    | Restore previous binary      |
+| Kill switch on/off  | `useSetKillSwitch()`                       | Toggle network kill switch   |
+| Assign routing      | `useAssignDeviceRouting()`                 | Route device through service |
+| Set quota           | `useSetTrafficQuota()`                     | Set bandwidth quota          |
+| Set resource limits | `useSetResourceLimits()`                   | Apply cgroup limits          |
 
 ---
 
@@ -1085,22 +1116,27 @@ Source: `libs/api-client/queries/src/services/queryKeys.ts`
 
 ```ts
 export const serviceQueryKeys = {
-  all:              ['services'] as const,
+  all: ['services'] as const,
 
   // Catalog
-  catalog:          () => [...serviceQueryKeys.all, 'catalog'] as const,
-  catalogByCategory:(cat) => [...serviceQueryKeys.catalog(), cat] as const,
-  catalogFiltered:  (cat?, arch?) => [...serviceQueryKeys.catalog(), { category: cat, architecture: arch }] as const,
+  catalog: () => [...serviceQueryKeys.all, 'catalog'] as const,
+  catalogByCategory: (cat) => [...serviceQueryKeys.catalog(), cat] as const,
+  catalogFiltered: (cat?, arch?) =>
+    [...serviceQueryKeys.catalog(), { category: cat, architecture: arch }] as const,
 
   // Instances
-  instances:        (routerId) => [...serviceQueryKeys.all, 'instances', routerId] as const,
-  instancesByStatus:(routerId, status?) => [...serviceQueryKeys.instances(routerId), 'status', status] as const,
-  instancesByFeature:(routerId, fid?) => [...serviceQueryKeys.instances(routerId), 'feature', fid] as const,
-  instance:         (routerId, instanceId) => [...serviceQueryKeys.instances(routerId), instanceId] as const,
+  instances: (routerId) => [...serviceQueryKeys.all, 'instances', routerId] as const,
+  instancesByStatus: (routerId, status?) =>
+    [...serviceQueryKeys.instances(routerId), 'status', status] as const,
+  instancesByFeature: (routerId, fid?) =>
+    [...serviceQueryKeys.instances(routerId), 'feature', fid] as const,
+  instance: (routerId, instanceId) =>
+    [...serviceQueryKeys.instances(routerId), instanceId] as const,
 
   // Install progress
-  installProgress:          (routerId) => [...serviceQueryKeys.all, 'install-progress', routerId] as const,
-  installProgressByInstance:(routerId, instanceId) => [...serviceQueryKeys.installProgress(routerId), instanceId] as const,
+  installProgress: (routerId) => [...serviceQueryKeys.all, 'install-progress', routerId] as const,
+  installProgressByInstance: (routerId, instanceId) =>
+    [...serviceQueryKeys.installProgress(routerId), instanceId] as const,
 };
 
 // Also exported as:

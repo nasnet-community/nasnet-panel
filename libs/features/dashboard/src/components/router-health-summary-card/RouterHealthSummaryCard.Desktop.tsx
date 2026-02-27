@@ -54,17 +54,17 @@ export const RouterHealthSummaryCardDesktop = React.memo(function RouterHealthSu
 
   return (
     <Card
-      className={cn('h-80 flex flex-col', className)}
+      className={cn('flex h-80 flex-col', className)}
       role="region"
       aria-label={`Router health summary for ${router.name}`}
     >
       <CardHeader className="pb-component-md">
         <div className="flex items-start justify-between">
-          <div className="flex-1 min-w-0">
-            <h3 className="text-lg font-semibold text-foreground truncate mb-component-xs">
+          <div className="min-w-0 flex-1">
+            <h3 className="text-foreground mb-component-xs truncate text-lg font-semibold">
               {router.name}
             </h3>
-            <p className="text-sm text-muted-foreground truncate">{router.model}</p>
+            <p className="text-muted-foreground truncate text-sm">{router.model}</p>
           </div>
 
           {/* Refresh Button */}
@@ -74,15 +74,18 @@ export const RouterHealthSummaryCardDesktop = React.memo(function RouterHealthSu
               size="icon"
               onClick={handleRefresh}
               aria-label="Refresh router data"
-              className="h-12 w-12 -mt-1 -mr-2"
+              className="-mr-2 -mt-1 h-12 w-12"
             >
-              <RefreshCw className="h-5 w-5" aria-hidden="true" />
+              <RefreshCw
+                className="h-5 w-5"
+                aria-hidden="true"
+              />
             </Button>
           )}
         </div>
 
         {/* Status Badge */}
-        <div className="flex items-center gap-component-sm mt-component-sm">
+        <div className="gap-component-sm mt-component-sm flex items-center">
           <Badge
             variant={isOnline ? 'connected' : 'offline'}
             pulse={isOnline}
@@ -93,43 +96,51 @@ export const RouterHealthSummaryCardDesktop = React.memo(function RouterHealthSu
           </Badge>
 
           {isStale && (
-            <span className="text-xs text-muted-foreground">
-              Data {cacheAgeMinutes}m old
-            </span>
+            <span className="text-muted-foreground text-xs">Data {cacheAgeMinutes}m old</span>
           )}
         </div>
       </CardHeader>
 
-      <CardContent className="flex-1 space-y-component-md">
+      <CardContent className="space-y-component-md flex-1">
         {/* Version and Uptime */}
         <div className="space-y-component-sm">
           <div className="flex items-center justify-between text-sm">
             <span className="text-muted-foreground">Version</span>
-            <span className="font-mono font-medium text-foreground">{router.version}</span>
+            <span className="text-foreground font-mono font-medium">{router.version}</span>
           </div>
           <div className="flex items-center justify-between text-sm">
             <span className="text-muted-foreground">Uptime</span>
-            <span className="font-mono font-medium text-foreground">{formatUptime(router.uptime)}</span>
+            <span className="text-foreground font-mono font-medium">
+              {formatUptime(router.uptime)}
+            </span>
           </div>
         </div>
 
         {/* Health Indicator */}
         <div className="space-y-component-sm">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">Health Status</span>
+            <span className="text-muted-foreground text-sm">Health Status</span>
             <div
               className={cn(
-                'flex items-center gap-component-xs px-component-md py-component-xs rounded-full text-sm font-medium',
+                'gap-component-xs px-component-md py-component-xs flex items-center rounded-full text-sm font-medium',
                 getHealthBgClass(healthStatus),
                 healthStatus === 'warning' ? 'text-warning-foreground' : 'text-primary-foreground'
               )}
               role="meter"
-              aria-valuenow={healthStatus === 'healthy' ? 100 : healthStatus === 'warning' ? 50 : 0}
+              aria-valuenow={
+                healthStatus === 'healthy' ? 100
+                : healthStatus === 'warning' ?
+                  50
+                : 0
+              }
               aria-valuemin={0}
               aria-valuemax={100}
               aria-label={`Health status: ${healthStatus}`}
             >
-              <Activity className="h-4 w-4" aria-hidden="true" />
+              <Activity
+                className="h-4 w-4"
+                aria-hidden="true"
+              />
               <span className="capitalize">{healthStatus}</span>
             </div>
           </div>
@@ -140,15 +151,18 @@ export const RouterHealthSummaryCardDesktop = React.memo(function RouterHealthSu
           {/* CPU Usage */}
           <div className="space-y-component-xs">
             <div className="flex items-center justify-between text-sm">
-              <div className="flex items-center gap-component-xs text-muted-foreground">
-                <Cpu className="h-3.5 w-3.5" aria-hidden="true" />
+              <div className="gap-component-xs text-muted-foreground flex items-center">
+                <Cpu
+                  className="h-3.5 w-3.5"
+                  aria-hidden="true"
+                />
                 <span>CPU</span>
               </div>
               <span className={cn('font-mono font-medium', getCpuTextClass(router.cpuUsage))}>
                 {router.cpuUsage}%
               </span>
             </div>
-            <div className="h-2 bg-muted rounded-full overflow-hidden">
+            <div className="bg-muted h-2 overflow-hidden rounded-full">
               <div
                 className={cn('h-full transition-all', getCpuBgClass(router.cpuUsage))}
                 style={{ width: `${router.cpuUsage}%` }}
@@ -164,15 +178,18 @@ export const RouterHealthSummaryCardDesktop = React.memo(function RouterHealthSu
           {/* Memory Usage */}
           <div className="space-y-component-xs">
             <div className="flex items-center justify-between text-sm">
-              <div className="flex items-center gap-component-xs text-muted-foreground">
-                <MemoryStick className="h-3.5 w-3.5" aria-hidden="true" />
+              <div className="gap-component-xs text-muted-foreground flex items-center">
+                <MemoryStick
+                  className="h-3.5 w-3.5"
+                  aria-hidden="true"
+                />
                 <span>Memory</span>
               </div>
               <span className={cn('font-mono font-medium', getMemoryTextClass(router.memoryUsage))}>
                 {router.memoryUsage}%
               </span>
             </div>
-            <div className="h-2 bg-muted rounded-full overflow-hidden">
+            <div className="bg-muted h-2 overflow-hidden rounded-full">
               <div
                 className={cn('h-full transition-all', getMemoryBgClass(router.memoryUsage))}
                 style={{ width: `${router.memoryUsage}%` }}
@@ -189,8 +206,11 @@ export const RouterHealthSummaryCardDesktop = React.memo(function RouterHealthSu
           {router.temperature !== undefined && (
             <div className="space-y-component-xs">
               <div className="flex items-center justify-between text-sm">
-                <div className="flex items-center gap-component-xs text-muted-foreground">
-                  <Thermometer className="h-3.5 w-3.5" aria-hidden="true" />
+                <div className="gap-component-xs text-muted-foreground flex items-center">
+                  <Thermometer
+                    className="h-3.5 w-3.5"
+                    aria-hidden="true"
+                  />
                   <span>Temperature</span>
                 </div>
                 <span className={cn('font-mono font-medium', getTempTextClass(router.temperature))}>
@@ -202,8 +222,8 @@ export const RouterHealthSummaryCardDesktop = React.memo(function RouterHealthSu
         </div>
       </CardContent>
 
-      <CardFooter className="pt-component-md border-t border-border">
-        <div className="flex items-center justify-between w-full text-xs text-muted-foreground">
+      <CardFooter className="pt-component-md border-border border-t">
+        <div className="text-muted-foreground flex w-full items-center justify-between text-xs">
           <span>Last updated</span>
           <span className="font-mono">{formatLastUpdate(router.lastUpdate)}</span>
         </div>
@@ -219,47 +239,52 @@ RouterHealthSummaryCardDesktop.displayName = 'RouterHealthSummaryCardDesktop';
  *
  * @description Displays a skeleton placeholder while router health data is loading.
  */
-export const RouterHealthSummaryCardDesktopSkeleton = React.memo(function RouterHealthSummaryCardDesktopSkeleton({ className }: { className?: string }) {
-  return (
-    <Card className={cn('h-80 flex flex-col animate-pulse', className)}>
-      <CardHeader className="pb-component-md">
-        <div className="flex items-start justify-between">
-          <div className="flex-1 space-y-component-sm">
-            <div className="h-5 bg-muted rounded w-40" />
-            <div className="h-4 bg-muted rounded w-32" />
-          </div>
-          <div className="h-12 w-12 bg-muted rounded-md" />
-        </div>
-        <div className="h-6 bg-muted rounded-full w-24 mt-component-sm" />
-      </CardHeader>
-
-      <CardContent className="flex-1 space-y-component-md">
-        <div className="space-y-component-sm">
-          <div className="h-4 bg-muted rounded w-full" />
-          <div className="h-4 bg-muted rounded w-full" />
-        </div>
-
-        <div className="h-8 bg-muted rounded-full w-32 ml-auto" />
-
-        <div className="space-y-component-md">
-          {Array.from({ length: 2 }).map((_, i) => (
-            <div key={i} className="space-y-component-xs">
-              <div className="flex justify-between">
-                <div className="h-4 bg-muted rounded w-16" />
-                <div className="h-4 bg-muted rounded w-12" />
-              </div>
-              <div className="h-2 bg-muted rounded-full w-full" />
+export const RouterHealthSummaryCardDesktopSkeleton = React.memo(
+  function RouterHealthSummaryCardDesktopSkeleton({ className }: { className?: string }) {
+    return (
+      <Card className={cn('flex h-80 animate-pulse flex-col', className)}>
+        <CardHeader className="pb-component-md">
+          <div className="flex items-start justify-between">
+            <div className="space-y-component-sm flex-1">
+              <div className="bg-muted h-5 w-40 rounded" />
+              <div className="bg-muted h-4 w-32 rounded" />
             </div>
-          ))}
-        </div>
-      </CardContent>
+            <div className="bg-muted h-12 w-12 rounded-md" />
+          </div>
+          <div className="bg-muted mt-component-sm h-6 w-24 rounded-full" />
+        </CardHeader>
 
-      <CardFooter className="pt-component-md border-t border-border">
-        <div className="h-3 bg-muted rounded w-full" />
-      </CardFooter>
-    </Card>
-  );
-});
+        <CardContent className="space-y-component-md flex-1">
+          <div className="space-y-component-sm">
+            <div className="bg-muted h-4 w-full rounded" />
+            <div className="bg-muted h-4 w-full rounded" />
+          </div>
+
+          <div className="bg-muted ml-auto h-8 w-32 rounded-full" />
+
+          <div className="space-y-component-md">
+            {Array.from({ length: 2 }).map((_, i) => (
+              <div
+                key={i}
+                className="space-y-component-xs"
+              >
+                <div className="flex justify-between">
+                  <div className="bg-muted h-4 w-16 rounded" />
+                  <div className="bg-muted h-4 w-12 rounded" />
+                </div>
+                <div className="bg-muted h-2 w-full rounded-full" />
+              </div>
+            ))}
+          </div>
+        </CardContent>
+
+        <CardFooter className="pt-component-md border-border border-t">
+          <div className="bg-muted h-3 w-full rounded" />
+        </CardFooter>
+      </Card>
+    );
+  }
+);
 
 RouterHealthSummaryCardDesktopSkeleton.displayName = 'RouterHealthSummaryCardDesktopSkeleton';
 

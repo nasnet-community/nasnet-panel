@@ -1,7 +1,7 @@
 {
   "id": "virtual-interface-factory",
   "title": "Virtual Interface Factory (VIF)",
-  "description": "Transforms service instances into routable VLAN-isolated network interfaces on MikroTik routers, enabling per-device traffic steering through services like Tor, sing-box, and Xray.",
+  "description": "Transforms service instances into routable VLAN-isolated network interfaces on MikroTik routers,",
   "source": "@site/../backend/docs/virtual-interface-factory.md",
   "sourceDirName": ".",
   "slug": "/virtual-interface-factory",

@@ -1,9 +1,14 @@
 # Security
-> Multi-layer security model: JWT RS256 authentication, bcrypt+NIST password policy, AES-256-GCM credential encryption, GraphQL directive-based authorization, and sensitive field redaction throughout.
 
-**Packages:** `internal/auth/`, `internal/credentials/`, `internal/middleware/`, `internal/graphql/directives/`
-**Key Files:** `auth/jwt.go`, `auth/password.go`, `auth/service.go`, `credentials/service.go`, `credentials/hooks.go`, `middleware/auth.go`, `internal/graphql/directives/directives.go`
-**Prerequisites:** [See: 02-application-bootstrap.md §Auth Bootstrap], [See: 03-graphql-api.md §Directives]
+> Multi-layer security model: JWT RS256 authentication, bcrypt+NIST password policy, AES-256-GCM
+> credential encryption, GraphQL directive-based authorization, and sensitive field redaction
+> throughout.
+
+**Packages:** `internal/auth/`, `internal/credentials/`, `internal/middleware/`,
+`internal/graphql/directives/` **Key Files:** `auth/jwt.go`, `auth/password.go`, `auth/service.go`,
+`credentials/service.go`, `credentials/hooks.go`, `middleware/auth.go`,
+`internal/graphql/directives/directives.go` **Prerequisites:** [See:
+02-application-bootstrap.md §Auth Bootstrap], [See: 03-graphql-api.md §Directives]
 
 ---
 
@@ -64,7 +69,8 @@ Client → Echo HTTP Server
 
 #### jwt.go - JWT Token Management
 
-**Algorithm:** RS256 (RSA + SHA256) - asymmetric key signing. Private key signs tokens; public key validates them. The private key is never exposed to clients.
+**Algorithm:** RS256 (RSA + SHA256) - asymmetric key signing. Private key signs tokens; public key
+validates them. The private key is never exposed to clients.
 
 **Key Types:**
 
@@ -82,6 +88,7 @@ func (r Role) IsValid() bool
 ```
 
 **Claims:**
+
 ```go
 type Claims struct {
     jwt.RegisteredClaims              // id, iss, sub, iat, exp, nbf
@@ -93,6 +100,7 @@ type Claims struct {
 ```
 
 **JWTConfig:**
+
 ```go
 type JWTConfig struct {
     PrivateKey       *rsa.PrivateKey
@@ -105,6 +113,7 @@ type JWTConfig struct {
 ```
 
 **JWTService:**
+
 ```go
 type JWTService struct { config JWTConfig }
 
@@ -117,9 +126,12 @@ func (s *JWTService) ShouldRefresh(claims *Claims) bool
 func (s *JWTService) RefreshToken(claims *Claims, sessionCreatedAt time.Time) (string, time.Time, error)
 ```
 
-**Sliding Sessions:** If fewer than `SlideThreshold` remain until token expiry, the middleware automatically issues a new token. If the new token would exceed `SessionDuration`, it is capped at the session maximum. After `SessionDuration` total, the user must log in again.
+**Sliding Sessions:** If fewer than `SlideThreshold` remain until token expiry, the middleware
+automatically issues a new token. If the new token would exceed `SessionDuration`, it is capped at
+the session maximum. After `SessionDuration` total, the user must log in again.
 
 **Key Loading from Environment:**
+
 ```
 JWT_PRIVATE_KEY      or  JWT_PRIVATE_KEY_PATH
 JWT_PUBLIC_KEY       or  JWT_PUBLIC_KEY_PATH
@@ -128,14 +140,17 @@ JWT_SESSION_DURATION (optional, e.g., "168h")
 JWT_SLIDE_THRESHOLD  (optional, e.g., "30m")
 ```
 
-Both PKCS#8 and PKCS#1 formats are accepted. Escaped newlines (`\n`) in env var values are handled automatically.
+Both PKCS#8 and PKCS#1 formats are accepted. Escaped newlines (`\n`) in env var values are handled
+automatically.
 
 For development only:
+
 ```go
 func GenerateKeyPair() (*rsa.PrivateKey, *rsa.PublicKey, error) // 2048-bit RSA
 ```
 
 **Error Codes:**
+
 ```go
 ErrCodeInvalidCredentials = "AUTH.INVALID_CREDENTIALS"
 ErrCodeSessionExpired     = "AUTH.SESSION_EXPIRED"
@@ -150,6 +165,7 @@ ErrCodeRateLimited        = "AUTH.RATE_LIMITED"
 #### password.go - Password Hashing and Policy
 
 Implements [NIST SP 800-63B](https://pages.nist.gov/800-63-3/sp800-63b.html) password guidelines:
+
 - Minimum 8 characters, maximum 128 characters
 - No mandatory complexity rules (no forced uppercase/symbols)
 - Check against common/breached password list
@@ -176,11 +192,15 @@ func (ps *PasswordService) VerifyPassword(hash, password string) bool
 func (ps *PasswordService) ChangePassword(currentHash, currentPassword, newPassword string) (string, error)
 ```
 
-**bcrypt:** Cost factor 10, equivalent to ~100ms per hash. Includes automatic salt. `VerifyPassword` uses `bcrypt.CompareHashAndPassword` which is timing-safe by design.
+**bcrypt:** Cost factor 10, equivalent to ~100ms per hash. Includes automatic salt. `VerifyPassword`
+uses `bcrypt.CompareHashAndPassword` which is timing-safe by design.
 
-**Common password list:** Loaded from embedded `common_passwords.txt`. Falls back to a built-in list of ~40 passwords including domain-specific entries (`nasnet`, `mikrotik`, `router`). Comparison is case-insensitive.
+**Common password list:** Loaded from embedded `common_passwords.txt`. Falls back to a built-in list
+of ~40 passwords including domain-specific entries (`nasnet`, `mikrotik`, `router`). Comparison is
+case-insensitive.
 
 **Password error codes:**
+
 ```go
 ErrCodePasswordTooShort = "AUTH.PASSWORD_TOO_SHORT"
 ErrCodePasswordTooLong  = "AUTH.PASSWORD_TOO_LONG"
@@ -208,6 +228,7 @@ func NewService(config Config) (*Service, error)
 ```
 
 **UserRepository interface:**
+
 ```go
 type UserRepository interface {
     GetByID(ctx context.Context, id string) (*User, error)
@@ -220,6 +241,7 @@ type UserRepository interface {
 ```
 
 **SessionRepository interface:**
+
 ```go
 type SessionRepository interface {
     GetByID(ctx context.Context, id string) (*Session, error)
@@ -235,6 +257,7 @@ type SessionRepository interface {
 ```
 
 **AuditLogger interface:**
+
 ```go
 type AuditLogger interface {
     Log(ctx context.Context, event AuditEvent) error
@@ -264,20 +287,26 @@ func (s *Service) GetUserSessions(ctx context.Context, userID string) ([]*Sessio
 ```
 
 **Login Security Properties:**
+
 - User existence is never revealed (same error for "user not found" and "wrong password")
 - Inactive accounts are rejected with the same generic error
 - Audit events are logged for all attempts (success and failure) with specific reason codes
 - Failed audit: `reason: "user_not_found" | "user_inactive" | "invalid_password"`
 
-**Password Change:** When a user changes their password, all other active sessions are revoked automatically (`RevokeAllForUserExcept`). This prevents session hijacking after credential compromise.
+**Password Change:** When a user changes their password, all other active sessions are revoked
+automatically (`RevokeAllForUserExcept`). This prevents session hijacking after credential
+compromise.
 
-**Sensitive field redaction:** The `logAuditEvent` method always calls `redactSensitiveFields()` before logging. Keys like `password`, `token`, `secret`, `api_key`, `bearer`, `key` are replaced with `"[REDACTED]"`.
+**Sensitive field redaction:** The `logAuditEvent` method always calls `redactSensitiveFields()`
+before logging. Keys like `password`, `token`, `secret`, `api_key`, `bearer`, `key` are replaced
+with `"[REDACTED]"`.
 
 ---
 
 #### repository.go - Auth Repository
 
-Provides `EntUserRepository` and `EntSessionRepository` backed by the ent ORM. See [See: 11-data-layer.md §Auth Tables].
+Provides `EntUserRepository` and `EntSessionRepository` backed by the ent ORM. See [See:
+11-data-layer.md §Auth Tables].
 
 ---
 
@@ -285,7 +314,8 @@ Provides `EntUserRepository` and `EntSessionRepository` backed by the ent ORM. S
 
 **Package:** `internal/credentials/`
 
-Router credentials (username + password for MikroTik API access) are stored AES-256-GCM encrypted. The plaintext password is never stored and never logged.
+Router credentials (username + password for MikroTik API access) are stored AES-256-GCM encrypted.
+The plaintext password is never stored and never logged.
 
 #### service.go - Credential Management
 
@@ -318,6 +348,7 @@ func NewServiceFromEnv() (*Service, error)  // reads DB_ENCRYPTION_KEY env var
 ```
 
 **Key Methods:**
+
 ```go
 // Create encrypts and stores new credentials for a router
 func (s *Service) Create(ctx context.Context, client *ent.Client, routerID string, input UpdateInput) (*ent.RouterSecret, error)
@@ -339,6 +370,7 @@ func (s *Service) Exists(ctx context.Context, client *ent.Client, routerID strin
 ```
 
 **Safe Handling Helpers:**
+
 ```go
 // Returns map with password replaced by "[REDACTED]" - for logging
 func SanitizeForLog(creds *Credentials) map[string]interface{}
@@ -348,6 +380,7 @@ func ZeroCredentials(creds *Credentials)
 ```
 
 **Usage pattern:**
+
 ```go
 creds, err := credSvc.Get(ctx, db, routerID)
 if err != nil { return err }
@@ -368,6 +401,7 @@ func RegisterHooks(client *ent.Client, encService *encryption.Service) error
 ```
 
 Called once during bootstrap. The hook:
+
 1. Intercepts `EncryptedUsername` and `EncryptedPassword` fields on `RouterSecretMutation`
 2. Checks `isEncrypted()` (heuristic: base64 check, length ≥ 40) to prevent double-encryption
 3. Calls `encService.Encrypt()` and sets the encrypted value back on the mutation
@@ -375,6 +409,7 @@ Called once during bootstrap. The hook:
 5. Calls `next.Mutate()` to continue the chain
 
 **Environment:**
+
 ```
 DB_ENCRYPTION_KEY  - AES-256-GCM encryption key (32 bytes, base64 encoded)
 ```
@@ -410,6 +445,7 @@ type AuthMiddlewareConfig struct {
 **Skipped routes** (no auth required): `/health`, `/ready`, `/playground`
 
 **Context keys** set after successful authentication:
+
 ```go
 const (
     UserContextKey       contextKey = "auth_user"    // *AuthUser
@@ -420,6 +456,7 @@ const (
 ```
 
 **Context extraction helpers:**
+
 ```go
 func UserFromContext(ctx context.Context) *AuthUser
 func ClaimsFromContext(ctx context.Context) *auth.Claims
@@ -430,18 +467,22 @@ func HasRole(ctx context.Context, required auth.Role) bool
 ```
 
 **Role enforcement middleware:**
+
 ```go
 func AuthRequiredMiddleware() echo.MiddlewareFunc
 func RoleRequiredMiddleware(requiredRole auth.Role) echo.MiddlewareFunc
 ```
 
 **Cookie security:** All auth cookies are set with:
+
 - `HttpOnly: true` - prevents JavaScript access (XSS protection)
 - `Secure: true` (production) - HTTPS only
 - `SameSite: Strict` - CSRF protection
 - Cookie names: `access_token`, `refresh_token`
 
-**Sliding session refresh:** After successful JWT validation, if `JWTService.ShouldRefresh()` returns true, a new token is issued and set as the cookie automatically. The `OnTokenRefresh` callback is invoked if configured.
+**Sliding session refresh:** After successful JWT validation, if `JWTService.ShouldRefresh()`
+returns true, a new token is issued and set as the cookie automatically. The `OnTokenRefresh`
+callback is invoked if configured.
 
 ---
 
@@ -457,17 +498,21 @@ func WithRequestID(ctx context.Context, requestID string) context.Context
 ```
 
 The middleware:
+
 1. Checks for an existing `X-Request-ID` header (from upstream proxies/clients)
 2. Generates a new ULID-based ID if not present
 3. Sets `X-Request-ID` in the response header
 4. Adds the ID to the request context
 
 Request IDs appear in:
+
 - All GraphQL error `extensions.requestId`
 - All audit log entries
 - All structured log output
 
-**ProductionModeMiddleware:** Sets a production mode flag in context, used by error presenters to suppress verbose error details:
+**ProductionModeMiddleware:** Sets a production mode flag in context, used by error presenters to
+suppress verbose error details:
+
 ```go
 func ProductionModeMiddleware(production bool) func(http.Handler) http.Handler
 ```
@@ -476,24 +521,25 @@ func ProductionModeMiddleware(production bool) func(http.Handler) http.Handler
 
 ### internal/graphql/directives
 
-Directive-based security at the GraphQL field level. See [See: 03-graphql-api.md §Directives] for full details.
+Directive-based security at the GraphQL field level. See [See: 03-graphql-api.md §Directives] for
+full details.
 
 **Security-relevant directives:**
 
-| Directive | Security function |
-|-----------|------------------|
-| `@auth(requires: "role")` | Blocks unauthenticated requests; enforces RBAC |
-| `@sensitive` | Marks fields for log redaction; errors redact values |
-| `@capability` | Blocks operations the router hardware cannot support |
-| `@validate` | Prevents injection via invalid format inputs |
+| Directive                 | Security function                                    |
+| ------------------------- | ---------------------------------------------------- |
+| `@auth(requires: "role")` | Blocks unauthenticated requests; enforces RBAC       |
+| `@sensitive`              | Marks fields for log redaction; errors redact values |
+| `@capability`             | Blocks operations the router hardware cannot support |
+| `@validate`               | Prevents injection via invalid format inputs         |
 
 **Error codes returned by directives:**
 
-| Code | Directive | Meaning |
-|------|-----------|---------|
-| `V400` | `@validate` | Field value failed validation |
-| `A401` | `@auth` | Not authenticated or insufficient role |
-| `C403` | `@capability` | Router lacks required capability |
+| Code   | Directive     | Meaning                                |
+| ------ | ------------- | -------------------------------------- |
+| `V400` | `@validate`   | Field value failed validation          |
+| `A401` | `@auth`       | Not authenticated or insufficient role |
+| `C403` | `@capability` | Router lacks required capability       |
 
 All errors include `requestId` from context for correlation with server logs.
 
@@ -598,14 +644,14 @@ Stored in DB: only encrypted bytes, never plaintext
 
 ## Configuration
 
-| Environment Variable | Purpose | Required |
-|---------------------|---------|----------|
-| `JWT_PRIVATE_KEY` or `JWT_PRIVATE_KEY_PATH` | RSA private key for token signing | Yes |
-| `JWT_PUBLIC_KEY` or `JWT_PUBLIC_KEY_PATH` | RSA public key for token validation | Yes |
-| `JWT_TOKEN_DURATION` | Token lifetime (default: `1h`) | No |
-| `JWT_SESSION_DURATION` | Max session age (default: `168h`) | No |
-| `JWT_SLIDE_THRESHOLD` | Refresh window (default: `30m`) | No |
-| `DB_ENCRYPTION_KEY` | AES-256-GCM key for credential encryption (32 bytes, base64) | Yes |
+| Environment Variable                        | Purpose                                                      | Required |
+| ------------------------------------------- | ------------------------------------------------------------ | -------- |
+| `JWT_PRIVATE_KEY` or `JWT_PRIVATE_KEY_PATH` | RSA private key for token signing                            | Yes      |
+| `JWT_PUBLIC_KEY` or `JWT_PUBLIC_KEY_PATH`   | RSA public key for token validation                          | Yes      |
+| `JWT_TOKEN_DURATION`                        | Token lifetime (default: `1h`)                               | No       |
+| `JWT_SESSION_DURATION`                      | Max session age (default: `168h`)                            | No       |
+| `JWT_SLIDE_THRESHOLD`                       | Refresh window (default: `30m`)                              | No       |
+| `DB_ENCRYPTION_KEY`                         | AES-256-GCM key for credential encryption (32 bytes, base64) | Yes      |
 
 ---
 
@@ -613,29 +659,34 @@ Stored in DB: only encrypted bytes, never plaintext
 
 All auth errors use structured error codes to allow client-side handling without message parsing:
 
-| Error var | Code | HTTP Status |
-|-----------|------|-------------|
-| `ErrInvalidCredentials` | `AUTH.INVALID_CREDENTIALS` | 401 |
-| `ErrSessionExpired` | `AUTH.SESSION_EXPIRED` | 401 |
-| `ErrTokenInvalid` | `AUTH.TOKEN_INVALID` | 401 |
-| `ErrTokenExpired` | `AUTH.TOKEN_EXPIRED` | 401 |
-| `ErrInsufficientRole` | `AUTH.INSUFFICIENT_ROLE` | 403 |
+| Error var               | Code                       | HTTP Status |
+| ----------------------- | -------------------------- | ----------- |
+| `ErrInvalidCredentials` | `AUTH.INVALID_CREDENTIALS` | 401         |
+| `ErrSessionExpired`     | `AUTH.SESSION_EXPIRED`     | 401         |
+| `ErrTokenInvalid`       | `AUTH.TOKEN_INVALID`       | 401         |
+| `ErrTokenExpired`       | `AUTH.TOKEN_EXPIRED`       | 401         |
+| `ErrInsufficientRole`   | `AUTH.INSUFFICIENT_ROLE`   | 403         |
 
 GraphQL directive errors include a `docsUrl` field pointing to the API error documentation.
 
-In production mode (set by `ProductionModeMiddleware`), error details are suppressed and long string values in validation errors are truncated to 50 characters.
+In production mode (set by `ProductionModeMiddleware`), error details are suppressed and long string
+values in validation errors are truncated to 50 characters.
 
 ---
 
 ## Testing
 
-**Auth service tests:** `internal/auth/` - test login, logout, session validation, password change, role hierarchy.
+**Auth service tests:** `internal/auth/` - test login, logout, session validation, password change,
+role hierarchy.
 
-**Directive tests:** `internal/graphql/directives/directives_test.go` - validate each directive with enabled and disabled config.
+**Directive tests:** `internal/graphql/directives/directives_test.go` - validate each directive with
+enabled and disabled config.
 
-**Middleware tests:** `internal/middleware/request_id_test.go` - ULID generation, header propagation.
+**Middleware tests:** `internal/middleware/request_id_test.go` - ULID generation, header
+propagation.
 
 **Pattern for auth testing:**
+
 ```go
 func TestLoginSuccess(t *testing.T) {
     jwtSvc, _ := auth.NewJWTService(auth.JWTConfig{
@@ -681,7 +732,8 @@ These invariants must never be violated:
 
 ## Cross-References
 
-- Event publishing for auth actions: [See: 05-event-system.md §Publisher] (`PublishAuthLogin`, `PublishAuthPasswordChanged`, `PublishCredentialChanged`)
+- Event publishing for auth actions: [See: 05-event-system.md §Publisher] (`PublishAuthLogin`,
+  `PublishAuthPasswordChanged`, `PublishCredentialChanged`)
 - How auth service is wired at startup: [See: 02-application-bootstrap.md §Auth Bootstrap]
 - GraphQL @auth directive details: [See: 03-graphql-api.md §Directives]
 - ent schema for users/sessions: [See: 11-data-layer.md §Auth Entities]

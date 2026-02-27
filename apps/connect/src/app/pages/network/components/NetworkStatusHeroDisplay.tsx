@@ -28,10 +28,7 @@ interface NetworkStatusHeroDisplayProps {
 }
 
 // Note: STATUS_CONFIG labels are localized dynamically in the component
-const STATUS_CONFIG: Record<
-  NetworkDisplayStatus,
-  { dotClass: string; badgeClass: string }
-> = {
+const STATUS_CONFIG: Record<NetworkDisplayStatus, { dotClass: string; badgeClass: string }> = {
   online: {
     dotClass: 'bg-success animate-pulse',
     badgeClass: 'bg-success/10 text-success border-success/20',
@@ -68,17 +65,21 @@ export const NetworkStatusHeroDisplay = React.memo(function NetworkStatusHeroDis
   const cfg = STATUS_CONFIG[status];
 
   return (
-    <div className="flex flex-col gap-3 p-4 bg-card rounded-2xl border border-border shadow-md category-hero-networking">
+    <div className="bg-card border-border category-hero-networking flex flex-col gap-3 rounded-2xl border p-4 shadow-md">
       {/* Identity row */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-background font-bold text-sm select-none">
+          <div className="bg-primary text-background flex h-10 w-10 select-none items-center justify-center rounded-xl text-sm font-bold">
             N
           </div>
           <div>
-            <p className="text-foreground font-semibold text-sm leading-tight font-display">{routerName}</p>
+            <p className="text-foreground font-display text-sm font-semibold leading-tight">
+              {routerName}
+            </p>
             {version && (
-              <p className="text-muted-foreground text-xs">{t('status.routerOS')} {version}</p>
+              <p className="text-muted-foreground text-xs">
+                {t('status.routerOS')} {version}
+              </p>
             )}
           </div>
         </div>
@@ -86,27 +87,31 @@ export const NetworkStatusHeroDisplay = React.memo(function NetworkStatusHeroDis
         {/* Status badge */}
         <span
           className={cn(
-            'inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium border',
-            cfg.badgeClass,
+            'inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium',
+            cfg.badgeClass
           )}
         >
-          <span className={cn('w-1.5 h-1.5 rounded-full', cfg.dotClass)} />
+          <span className={cn('h-1.5 w-1.5 rounded-full', cfg.dotClass)} />
           {statusLabelMap[status]}
         </span>
       </div>
 
       {/* Stats row */}
-      <div className="flex items-center gap-4 pt-1 border-t border-border">
+      <div className="border-border flex items-center gap-4 border-t pt-1">
         {uptime && (
           <div>
-            <p className="text-muted-foreground text-xs uppercase tracking-wide">{t('quickStats.uptime')}</p>
-            <p className="text-foreground text-sm font-mono font-medium">{uptime}</p>
+            <p className="text-muted-foreground text-xs uppercase tracking-wide">
+              {t('quickStats.uptime')}
+            </p>
+            <p className="text-foreground font-mono text-sm font-medium">{uptime}</p>
           </div>
         )}
         {activeInterfaces !== undefined && totalInterfaces !== undefined && (
           <div>
-            <p className="text-muted-foreground text-xs uppercase tracking-wide">{t('quickStats.interfaces')}</p>
-            <p className="text-foreground text-sm font-medium font-mono">
+            <p className="text-muted-foreground text-xs uppercase tracking-wide">
+              {t('quickStats.interfaces')}
+            </p>
+            <p className="text-foreground font-mono text-sm font-medium">
               {activeInterfaces}
               <span className="text-muted-foreground">/{totalInterfaces}</span>
             </p>

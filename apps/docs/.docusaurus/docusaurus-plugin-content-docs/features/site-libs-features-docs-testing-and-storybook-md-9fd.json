@@ -1,7 +1,7 @@
 {
   "id": "testing-and-storybook",
   "title": "Testing and Storybook",
-  "description": "This document covers the testing strategy and Storybook documentation practices across the libs/features/ modules.",
+  "description": "This document covers the testing strategy and Storybook documentation practices across the",
   "source": "@site/../../libs/features/docs/testing-and-storybook.md",
   "sourceDirName": ".",
   "slug": "/testing-and-storybook",

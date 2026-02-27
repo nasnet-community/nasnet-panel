@@ -47,11 +47,14 @@ export const ReadOnlyNotice = memo(function ReadOnlyNotice({ className }: ReadOn
   }, []);
 
   // Memoize the benefits list for stability
-  const benefitsList = useMemo(() => [
-    'Pre-apply validation to catch errors',
-    'Configuration preview before applying',
-    'Automatic rollback if connectivity is lost',
-  ], []);
+  const benefitsList = useMemo(
+    () => [
+      'Pre-apply validation to catch errors',
+      'Configuration preview before applying',
+      'Automatic rollback if connectivity is lost',
+    ],
+    []
+  );
 
   if (isDismissed) {
     return null;
@@ -60,7 +63,7 @@ export const ReadOnlyNotice = memo(function ReadOnlyNotice({ className }: ReadOn
   return (
     <div
       className={cn(
-        'relative rounded-md border border-info/30 bg-info/5 p-component-md',
+        'border-info/30 bg-info/5 p-component-md relative rounded-md border',
         className
       )}
       role="alert"
@@ -71,15 +74,13 @@ export const ReadOnlyNotice = memo(function ReadOnlyNotice({ className }: ReadOn
         <Icon
           icon={Info}
           size={20}
-          className="text-info flex-shrink-0 mt-0.5"
+          className="text-info mt-0.5 flex-shrink-0"
         />
 
         {/* Content */}
         <div className="flex-1">
-          <h3 className="text-sm font-semibold text-foreground">
-            Viewing Mode Only
-          </h3>
-          <div className="mt-component-sm text-sm text-muted-foreground">
+          <h3 className="text-foreground text-sm font-semibold">Viewing Mode Only</h3>
+          <div className="mt-component-sm text-muted-foreground text-sm">
             <p>
               Firewall configuration editing is not available in Phase 0 to ensure network safety.
             </p>

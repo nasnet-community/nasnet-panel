@@ -26,10 +26,14 @@ const LazyPortKnockingPage = lazy(() =>
  */
 function PortKnockingPageSkeleton() {
   return (
-    <div className="space-y-6 p-4 animate-fade-in-up" aria-busy="true" aria-label="Loading port knocking configuration">
+    <div
+      className="animate-fade-in-up space-y-6 p-4"
+      aria-busy="true"
+      aria-label="Loading port knocking configuration"
+    >
       <div className="flex items-center justify-between">
         <div className="space-y-2">
-          <Skeleton className="h-10 w-56 font-display" />
+          <Skeleton className="font-display h-10 w-56" />
           <Skeleton className="h-4 w-96" />
         </div>
         <Skeleton className="h-10 w-40" />

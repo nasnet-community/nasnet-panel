@@ -85,7 +85,7 @@ export const HelpModeToggle = React.memo(function HelpModeToggle({
       <Label
         htmlFor={switchId}
         className={cn(
-          'text-sm cursor-pointer transition-colors',
+          'cursor-pointer text-sm transition-colors',
           !isTechnical ? 'text-foreground font-medium' : 'text-muted-foreground'
         )}
       >
@@ -100,7 +100,7 @@ export const HelpModeToggle = React.memo(function HelpModeToggle({
       <Label
         htmlFor={switchId}
         className={cn(
-          'text-sm cursor-pointer transition-colors',
+          'cursor-pointer text-sm transition-colors',
           isTechnical ? 'text-foreground font-medium' : 'text-muted-foreground'
         )}
       >

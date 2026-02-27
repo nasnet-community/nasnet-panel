@@ -10,15 +10,8 @@
 import { useQuery, type ApolloError } from '@apollo/client';
 import { gql } from '@apollo/client';
 import { useMemo, useCallback } from 'react';
-import type {
-  Resource,
-  ResourceCategory,
-  ResourceLifecycleState,
-} from '@nasnet/core/types';
-import {
-  RESOURCE_LIST_ITEM_FRAGMENT,
-  RESOURCE_CARD_FRAGMENT,
-} from './fragments';
+import type { Resource, ResourceCategory, ResourceLifecycleState } from '@nasnet/core/types';
+import { RESOURCE_LIST_ITEM_FRAGMENT, RESOURCE_CARD_FRAGMENT } from './fragments';
 
 // ============================================================================
 // Types
@@ -268,26 +261,29 @@ export function useResourceList<TConfig = unknown>(
   const paginationKey = JSON.stringify(pagination);
 
   // Build variables
-  const variables = useMemo(() => ({
-    routerId: filter.routerId || '',
-    category: filter.category,
-    type: filter.type,
-    state: filter.state,
-    first: pagination.first,
-    after: pagination.after,
-    last: pagination.last,
-    before: pagination.before,
-    filter: {
-      tags: filter.tags,
-      health: filter.health,
-      isRunning: filter.isRunning,
-      isFavorite: filter.isFavorite,
-      isPinned: filter.isPinned,
-      search: filter.search,
-    },
-    sort: sort ? { field: sort.field, direction: sort.direction } : undefined,
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }), [filterKey, sortKey, paginationKey]);
+  const variables = useMemo(
+    () => ({
+      routerId: filter.routerId || '',
+      category: filter.category,
+      type: filter.type,
+      state: filter.state,
+      first: pagination.first,
+      after: pagination.after,
+      last: pagination.last,
+      before: pagination.before,
+      filter: {
+        tags: filter.tags,
+        health: filter.health,
+        isRunning: filter.isRunning,
+        isFavorite: filter.isFavorite,
+        isPinned: filter.isPinned,
+        search: filter.search,
+      },
+      sort: sort ? { field: sort.field, direction: sort.direction } : undefined,
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }),
+    [filterKey, sortKey, paginationKey]
+  );
 
   // Execute query
   const {
@@ -307,16 +303,16 @@ export function useResourceList<TConfig = unknown>(
   // Extract data from connection
   const resources = useMemo((): Resource<TConfig>[] => {
     if (!data?.resources?.edges) return [];
-    return data.resources.edges.map(
-      (edge: { node: Resource<TConfig> }) => edge.node
-    );
+    return data.resources.edges.map((edge: { node: Resource<TConfig> }) => edge.node);
   }, [data?.resources?.edges]);
 
   const pageInfo = useMemo((): PageInfo => {
-    return data?.resources?.pageInfo ?? {
-      hasNextPage: false,
-      hasPreviousPage: false,
-    };
+    return (
+      data?.resources?.pageInfo ?? {
+        hasNextPage: false,
+        hasPreviousPage: false,
+      }
+    );
   }, [data?.resources?.pageInfo]);
 
   const totalCount = data?.resources?.totalCount ?? 0;
@@ -335,10 +331,7 @@ export function useResourceList<TConfig = unknown>(
         return {
           resources: {
             ...fetchMoreResult.resources,
-            edges: [
-              ...(prev.resources?.edges ?? []),
-              ...fetchMoreResult.resources.edges,
-            ],
+            edges: [...(prev.resources?.edges ?? []), ...fetchMoreResult.resources.edges],
           },
         };
       },

@@ -102,13 +102,14 @@ jobs:
           # Build single-arch for testing
           docker build -t test-devcontainer -f .devcontainer/Dockerfile .
 
-          # Test that essential tools are available
-          docker run --rm test-devcontainer node --version
-          docker run --rm test-devcontainer go version
-          docker run --rm test-devcontainer air -v || true
-          docker run --rm test-devcontainer golangci-lint --version
+          # Test that system dependencies are available (Go/Node come from features, not the image)
+          docker run --rm test-devcontainer bash -c "curl --version > /dev/null && echo 'curl: OK'"
+          docker run --rm test-devcontainer bash -c "jq --version && echo 'jq: OK'"
+          docker run --rm test-devcontainer bash -c "upx --version > /dev/null 2>&1 && echo 'upx: OK'"
+          docker run --rm test-devcontainer bash -c "gcc --version > /dev/null && echo 'gcc: OK'"
+          docker run --rm test-devcontainer bash -c "git --version && echo 'git: OK'"
 
-          echo "✓ DevContainer image tests passed"
+          echo "✓ DevContainer base image tests passed (Go/Node installed via features at creation time)"
 
       - name: Image size report
         if: github.event_name != 'pull_request'
@@ -150,20 +151,14 @@ jobs:
           # Pull the published image
           docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_LOWER }}:latest
 
-          # Verify tools are available
-          echo "Testing Node.js..."
-          docker run --rm ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_LOWER }}:latest node --version
+          # Verify system deps are available (Go/Node come from features, not the image)
+          echo "Testing system deps..."
+          docker run --rm ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_LOWER }}:latest bash -c "curl --version > /dev/null && echo 'curl: OK'"
+          docker run --rm ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_LOWER }}:latest bash -c "jq --version && echo 'jq: OK'"
+          docker run --rm ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_LOWER }}:latest bash -c "gcc --version > /dev/null && echo 'gcc: OK'"
+          docker run --rm ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_LOWER }}:latest bash -c "git --version && echo 'git: OK'"
 
-          echo "Testing Go..."
-          docker run --rm ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_LOWER }}:latest go version
-
-          echo "Testing npm..."
-          docker run --rm ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_LOWER }}:latest npm --version
-
-          echo "Testing air (Go hot-reload)..."
-          docker run --rm ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_LOWER }}:latest air -v || echo "air installed"
-
-          echo "✓ All tool verifications passed"
+          echo "✓ Base image verifications passed (Go/Node installed via features at creation time)"
 
       - name: Startup time test
         run: |

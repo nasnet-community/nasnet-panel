@@ -18,54 +18,54 @@ import { type ErrorSeverity } from '../utils/error-messages';
  * Processed error information for UI display
  */
 export interface ProcessedError {
-    /** User-friendly error message */
-    message: string;
-    /** Error severity level */
-    severity: ErrorSeverity;
-    /** Error code if available */
-    code?: string;
-    /** Technical error message (for details view) */
-    technicalMessage?: string;
-    /** Whether the error is recoverable */
-    recoverable: boolean;
-    /** Suggested action for user */
-    action?: string;
-    /** Whether this is an auth error (session expired) */
-    isAuthError: boolean;
-    /** Whether this is a network error */
-    isNetworkError: boolean;
-    /** Whether this is a validation error */
-    isValidationError: boolean;
-    /** Original error object */
-    originalError?: ApolloError | Error;
+  /** User-friendly error message */
+  message: string;
+  /** Error severity level */
+  severity: ErrorSeverity;
+  /** Error code if available */
+  code?: string;
+  /** Technical error message (for details view) */
+  technicalMessage?: string;
+  /** Whether the error is recoverable */
+  recoverable: boolean;
+  /** Suggested action for user */
+  action?: string;
+  /** Whether this is an auth error (session expired) */
+  isAuthError: boolean;
+  /** Whether this is a network error */
+  isNetworkError: boolean;
+  /** Whether this is a validation error */
+  isValidationError: boolean;
+  /** Original error object */
+  originalError?: ApolloError | Error;
 }
 /**
  * Return type for useGraphQLError hook
  */
 export interface UseGraphQLErrorReturn {
-    /** Processed error for UI display (null if no error) */
-    error: ProcessedError | null;
-    /** Whether there is an error */
-    hasError: boolean;
-    /** Clear the error state */
-    clearError: () => void;
-    /** Show error as toast notification */
-    showErrorToast: () => void;
-    /** Create a retry handler that clears error on success */
-    createRetryHandler: <T>(fn: () => Promise<T>) => () => Promise<T | undefined>;
+  /** Processed error for UI display (null if no error) */
+  error: ProcessedError | null;
+  /** Whether there is an error */
+  hasError: boolean;
+  /** Clear the error state */
+  clearError: () => void;
+  /** Show error as toast notification */
+  showErrorToast: () => void;
+  /** Create a retry handler that clears error on success */
+  createRetryHandler: <T>(fn: () => Promise<T>) => () => Promise<T | undefined>;
 }
 /**
  * Options for useGraphQLError hook
  */
 export interface UseGraphQLErrorOptions {
-    /** Auto-show toast on error */
-    showToast?: boolean;
-    /** Log errors to console/observability */
-    logErrors?: boolean;
-    /** Operation name for logging */
-    operationName?: string;
-    /** Skip validation errors (handled by forms) */
-    skipValidationErrors?: boolean;
+  /** Auto-show toast on error */
+  showToast?: boolean;
+  /** Log errors to console/observability */
+  logErrors?: boolean;
+  /** Operation name for logging */
+  operationName?: string;
+  /** Skip validation errors (handled by forms) */
+  skipValidationErrors?: boolean;
 }
 /**
  * Hook for component-level GraphQL error handling
@@ -124,7 +124,10 @@ export interface UseGraphQLErrorOptions {
  * // Validation errors will be handled by React Hook Form
  * ```
  */
-export declare function useGraphQLError(apolloError: ApolloError | Error | undefined, options?: UseGraphQLErrorOptions): UseGraphQLErrorReturn;
+export declare function useGraphQLError(
+  apolloError: ApolloError | Error | undefined,
+  options?: UseGraphQLErrorOptions
+): UseGraphQLErrorReturn;
 /**
  * Type guard to check if error is an ApolloError
  */

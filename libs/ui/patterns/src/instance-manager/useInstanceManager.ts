@@ -75,10 +75,7 @@ const DEFAULT_SORT: InstanceSort = {
 /**
  * Filter instances based on criteria
  */
-function filterInstances(
-  instances: Service[],
-  filters: InstanceFilters
-): Service[] {
+function filterInstances(instances: Service[], filters: InstanceFilters): Service[] {
   let filtered = instances;
 
   // Search filter
@@ -93,9 +90,7 @@ function filterInstances(
 
   // Category filter
   if (filters.category !== 'all') {
-    filtered = filtered.filter(
-      (instance) => instance.category === filters.category
-    );
+    filtered = filtered.filter((instance) => instance.category === filters.category);
   }
 
   // Status filter
@@ -109,10 +104,7 @@ function filterInstances(
 /**
  * Sort instances
  */
-function sortInstances(
-  instances: Service[],
-  sort: InstanceSort
-): Service[] {
+function sortInstances(instances: Service[], sort: InstanceSort): Service[] {
   return [...instances].sort((a, b) => {
     let comparison = 0;
 
@@ -141,17 +133,14 @@ function sortInstances(
 /**
  * Get available bulk actions based on selection
  */
-function getAvailableBulkActions(
-  instances: Service[],
-  selectedIds: string[]
-): BulkAction[] {
+function getAvailableBulkActions(instances: Service[], selectedIds: string[]): BulkAction[] {
   if (selectedIds.length === 0) return [];
 
-  const selectedInstances = instances.filter((i) =>
-    selectedIds.includes(i.id)
-  );
+  const selectedInstances = instances.filter((i) => selectedIds.includes(i.id));
   const allRunning = selectedInstances.every((i) => i.status === 'running');
-  const allStopped = selectedInstances.every((i) => i.status === 'stopped' || i.status === 'installed');
+  const allStopped = selectedInstances.every(
+    (i) => i.status === 'stopped' || i.status === 'installed'
+  );
   const anyRunning = selectedInstances.some((i) => i.status === 'running');
 
   const actions: BulkAction[] = [];
@@ -196,9 +185,7 @@ function getAvailableBulkActions(
  * Contains all business logic, state management, and computed values.
  * Event handlers are memoized for stable references.
  */
-export function useInstanceManager(
-  props: InstanceManagerProps
-): UseInstanceManagerReturn {
+export function useInstanceManager(props: InstanceManagerProps): UseInstanceManagerReturn {
   const {
     instances,
     selectedIds = [],
@@ -212,10 +199,7 @@ export function useInstanceManager(
   } = props;
 
   // Active filters and sort
-  const activeFilters = useMemo(
-    () => ({ ...DEFAULT_FILTERS, ...filters }),
-    [filters]
-  );
+  const activeFilters = useMemo(() => ({ ...DEFAULT_FILTERS, ...filters }), [filters]);
   const activeSort = useMemo(() => ({ ...DEFAULT_SORT, ...sort }), [sort]);
 
   // Filter and sort instances
@@ -272,9 +256,8 @@ export function useInstanceManager(
 
   const handleToggleSelection = useCallback(
     (id: string) => {
-      const newSelection = selectedIds.includes(id)
-        ? selectedIds.filter((i) => i !== id)
-        : [...selectedIds, id];
+      const newSelection =
+        selectedIds.includes(id) ? selectedIds.filter((i) => i !== id) : [...selectedIds, id];
       onSelectionChange?.(newSelection);
     },
     [selectedIds, onSelectionChange]
@@ -304,9 +287,7 @@ export function useInstanceManager(
   const handleSortChange = useCallback(
     (field: InstanceSort['field']) => {
       const newDirection =
-        activeSort.field === field && activeSort.direction === 'asc'
-          ? 'desc'
-          : 'asc';
+        activeSort.field === field && activeSort.direction === 'asc' ? 'desc' : 'asc';
       onSortChange?.({ field, direction: newDirection });
     },
     [activeSort, onSortChange]

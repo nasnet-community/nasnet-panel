@@ -1,7 +1,7 @@
 {
   "id": "stores/drift-detection",
   "title": "Drift Detection Store & Utilities",
-  "description": "This document covers configuration drift detection between desired state (configuration layer) and actual state (deployment layer) in the Universal State v2 8-layer resource model.",
+  "description": "This document covers configuration drift detection between desired state (configuration layer) and",
   "source": "@site/../../libs/state/docs/stores/drift-detection.md",
   "sourceDirName": "stores",
   "slug": "/stores/drift-detection",

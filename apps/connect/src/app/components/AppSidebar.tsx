@@ -70,21 +70,22 @@ export function AppSidebar() {
   return (
     <nav
       aria-label={t('sidebar.navigation', { defaultValue: 'Main navigation' })}
-      className="flex flex-col gap-component-sm px-component-sm py-4 pb-8 h-full overflow-y-auto"
+      className="gap-component-sm px-component-sm flex h-full flex-col overflow-y-auto py-4 pb-8"
     >
       {NAV_SECTIONS.map((section) => (
-        <div key={section.titleKey} className="mb-4">
+        <div
+          key={section.titleKey}
+          className="mb-4"
+        >
           {!isCollapsed && (
-            <p className="font-display px-3 mb-1 text-xs font-semibold uppercase tracking-wider text-secondary">
+            <p className="font-display text-secondary mb-1 px-3 text-xs font-semibold uppercase tracking-wider">
               {t(section.titleKey, { defaultValue: section.titleKey })}
             </p>
           )}
           <ul className="flex flex-col gap-0.5">
             {section.items.map((item) => {
               const isActive =
-                item.href === '/'
-                  ? currentPath === '/'
-                  : currentPath.startsWith(item.href);
+                item.href === '/' ? currentPath === '/' : currentPath.startsWith(item.href);
               const Icon = item.icon;
               return (
                 <li key={item.key}>
@@ -95,18 +96,19 @@ export function AppSidebar() {
                       'flex items-center gap-3 rounded-md px-3 text-sm font-medium transition-all duration-150',
                       'min-h-[44px]',
                       'hover:bg-accent hover:text-accent-foreground',
-                      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
-                      isActive
-                        ? 'bg-primary/15 text-primary border-l-[3px] border-primary -ml-[3px]'
-                        : 'text-foreground',
-                      isCollapsed ? 'justify-center px-2' : '',
+                      'focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-2',
+                      isActive ?
+                        'bg-primary/15 text-primary border-primary -ml-[3px] border-l-[3px]'
+                      : 'text-foreground',
+                      isCollapsed ? 'justify-center px-2' : ''
                     )}
                     title={isCollapsed ? t(item.key) : undefined}
                   >
-                    <Icon className="h-5 w-5 shrink-0" aria-hidden="true" />
-                    {!isCollapsed && (
-                      <span>{t(item.key, { defaultValue: item.key })}</span>
-                    )}
+                    <Icon
+                      className="h-5 w-5 shrink-0"
+                      aria-hidden="true"
+                    />
+                    {!isCollapsed && <span>{t(item.key, { defaultValue: item.key })}</span>}
                   </Link>
                 </li>
               );

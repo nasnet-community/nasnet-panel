@@ -2,25 +2,25 @@
  * Installation progress event from subscription
  */
 export interface InstallProgress {
-    routerID: string;
-    featureID: string;
-    instanceID: string;
-    status: string;
-    percent: number;
-    bytesDownloaded: number;
-    totalBytes: number;
-    errorMessage?: string | null;
+  routerID: string;
+  featureID: string;
+  instanceID: string;
+  status: string;
+  percent: number;
+  bytesDownloaded: number;
+  totalBytes: number;
+  errorMessage?: string | null;
 }
 /**
  * Instance status change event from subscription
  */
 export interface InstanceStatusChanged {
-    routerID: string;
-    instanceID: string;
-    oldStatus: string;
-    newStatus: string;
-    timestamp: string;
-    message?: string;
+  routerID: string;
+  instanceID: string;
+  oldStatus: string;
+  newStatus: string;
+  timestamp: string;
+  message?: string;
 }
 /**
  * Hook to subscribe to real-time installation progress updates
@@ -44,10 +44,13 @@ export interface InstanceStatusChanged {
  * }
  * ```
  */
-export declare function useInstallProgress(routerId: string, enabled?: boolean): {
-    progress: InstallProgress | undefined;
-    loading: boolean;
-    error: import("@apollo/client").ApolloError | undefined;
+export declare function useInstallProgress(
+  routerId: string,
+  enabled?: boolean
+): {
+  progress: InstallProgress | undefined;
+  loading: boolean;
+  error: import('@apollo/client').ApolloError | undefined;
 };
 /**
  * Hook to subscribe to real-time instance status changes
@@ -71,10 +74,13 @@ export declare function useInstallProgress(routerId: string, enabled?: boolean):
  * }, [data]);
  * ```
  */
-export declare function useInstanceStatusChanged(routerId: string, enabled?: boolean): {
-    statusChange: InstanceStatusChanged | undefined;
-    loading: boolean;
-    error: import("@apollo/client").ApolloError | undefined;
+export declare function useInstanceStatusChanged(
+  routerId: string,
+  enabled?: boolean
+): {
+  statusChange: InstanceStatusChanged | undefined;
+  loading: boolean;
+  error: import('@apollo/client').ApolloError | undefined;
 };
 /**
  * Combined hook for monitoring both installation progress and status changes
@@ -106,10 +112,13 @@ export declare function useInstanceStatusChanged(routerId: string, enabled?: boo
  * }
  * ```
  */
-export declare function useInstanceMonitoring(routerId: string, enabled?: boolean): {
-    installProgress: InstallProgress | undefined;
-    statusChange: InstanceStatusChanged | undefined;
-    loading: boolean;
-    error: import("@apollo/client").ApolloError | undefined;
+export declare function useInstanceMonitoring(
+  routerId: string,
+  enabled?: boolean
+): {
+  installProgress: InstallProgress | undefined;
+  statusChange: InstanceStatusChanged | undefined;
+  loading: boolean;
+  error: import('@apollo/client').ApolloError | undefined;
 };
 //# sourceMappingURL=useInstanceSubscriptions.d.ts.map

@@ -7,14 +7,7 @@
 import { memo, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@nasnet/ui/primitives';
-import {
-  CheckCircle,
-  XCircle,
-  Circle,
-  Loader2,
-  AlertTriangle,
-  RotateCcw,
-} from 'lucide-react';
+import { CheckCircle, XCircle, Circle, Loader2, AlertTriangle, RotateCcw } from 'lucide-react';
 import type { BatchJob, BatchJobStatus } from '@nasnet/api-client/queries';
 
 export interface ExecutionProgressProps {
@@ -134,11 +127,11 @@ export const ExecutionProgress = memo(function ExecutionProgress({
 }: ExecutionProgressProps) {
   // Memoize status checks (MUST be before early returns)
   const isTerminal = useMemo(
-    () => job ? ['completed', 'failed', 'cancelled', 'rolled_back'].includes(job.status) : false,
+    () => (job ? ['completed', 'failed', 'cancelled', 'rolled_back'].includes(job.status) : false),
     [job]
   );
   const isRunning = useMemo(
-    () => job ? (job.status === 'running' || job.status === 'pending') : false,
+    () => (job ? job.status === 'running' || job.status === 'pending' : false),
     [job]
   );
 
@@ -149,8 +142,15 @@ export const ExecutionProgress = memo(function ExecutionProgress({
   // If still loading initial data
   if (isLoading && !job) {
     return (
-      <div className="flex flex-col items-center justify-center py-12" role="status" aria-label="Starting job">
-        <Loader2 className="w-8 h-8 text-primary animate-spin mb-4" aria-hidden="true" />
+      <div
+        className="flex flex-col items-center justify-center py-12"
+        role="status"
+        aria-label="Starting job"
+      >
+        <Loader2
+          className="text-primary mb-4 h-8 w-8 animate-spin"
+          aria-hidden="true"
+        />
         <p className="text-muted-foreground">Starting job...</p>
       </div>
     );
@@ -159,21 +159,23 @@ export const ExecutionProgress = memo(function ExecutionProgress({
   // If there's an error fetching job
   if (error && !job) {
     return (
-      <div className="flex flex-col items-center justify-center py-component-xl" role="alert">
-        <div className="w-12 h-12 rounded-full bg-error/10 flex items-center justify-center mb-4">
-          <XCircle className="w-6 h-6 text-error" aria-hidden="true" />
+      <div
+        className="py-component-xl flex flex-col items-center justify-center"
+        role="alert"
+      >
+        <div className="bg-error/10 mb-4 flex h-12 w-12 items-center justify-center rounded-full">
+          <XCircle
+            className="text-error h-6 w-6"
+            aria-hidden="true"
+          />
         </div>
-        <p className="text-foreground font-medium mb-1">
-          Failed to track job
-        </p>
-        <p className="text-sm text-muted-foreground text-center mb-4">
-          {error.message}
-        </p>
+        <p className="text-foreground mb-1 font-medium">Failed to track job</p>
+        <p className="text-muted-foreground mb-4 text-center text-sm">{error.message}</p>
         {onRetry && (
           <button
             onClick={handleRetry}
             aria-label="Retry tracking the batch job"
-            className="min-h-[44px] btn-action px-component-md py-2 rounded-lg text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            className="btn-action px-component-md focus-visible:ring-ring min-h-[44px] rounded-lg py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
           >
             Try Again
           </button>
@@ -197,18 +199,16 @@ export const ExecutionProgress = memo(function ExecutionProgress({
         animate={{ opacity: 1, y: 0 }}
         className={`p-component-md rounded-xl ${statusConfig.bgColor}`}
       >
-        <div className="flex items-center gap-component-md">
+        <div className="gap-component-md flex items-center">
           <StatusIcon
-            className={`w-6 h-6 ${statusConfig.color} ${
+            className={`h-6 w-6 ${statusConfig.color} ${
               job.status === 'running' ? 'animate-spin' : ''
             }`}
           />
           <div className="flex-1">
-            <p className={`font-medium ${statusConfig.color}`}>
-              {statusConfig.label}
-            </p>
+            <p className={`font-medium ${statusConfig.color}`}>{statusConfig.label}</p>
             {job.currentCommand && isRunning && (
-              <p className="text-xs text-muted-foreground font-mono mt-component-sm truncate">
+              <p className="text-muted-foreground mt-component-sm truncate font-mono text-xs">
                 {job.currentCommand}
               </p>
             )}
@@ -217,33 +217,39 @@ export const ExecutionProgress = memo(function ExecutionProgress({
       </motion.div>
 
       {/* Progress Bar */}
-      <div className="space-y-component-sm" role="status" aria-label={`Progress: ${Math.round(job.progress.percent)}% complete`}>
+      <div
+        className="space-y-component-sm"
+        role="status"
+        aria-label={`Progress: ${Math.round(job.progress.percent)}% complete`}
+      >
         <div className="flex justify-between text-sm">
           <span className="text-muted-foreground">Progress</span>
-          <span className="font-medium text-foreground">
+          <span className="text-foreground font-medium">
             {job.progress.current} / {job.progress.total} commands
           </span>
         </div>
-        <div className="h-3 bg-muted rounded-full overflow-hidden" role="progressbar" aria-valuenow={Math.round(job.progress.percent)} aria-valuemin={0} aria-valuemax={100}>
+        <div
+          className="bg-muted h-3 overflow-hidden rounded-full"
+          role="progressbar"
+          aria-valuenow={Math.round(job.progress.percent)}
+          aria-valuemin={0}
+          aria-valuemax={100}
+        >
           <motion.div
             initial={{ width: 0 }}
             animate={{ width: `${job.progress.percent}%` }}
             transition={{ duration: 0.3, ease: 'easeOut' }}
             className={`h-full rounded-full ${
-              job.status === 'failed' || job.status === 'rolled_back'
-                ? 'bg-error'
-                : job.status === 'completed'
-                ? 'bg-success'
-                : 'bg-primary'
+              job.status === 'failed' || job.status === 'rolled_back' ? 'bg-error'
+              : job.status === 'completed' ? 'bg-success'
+              : 'bg-primary'
             }`}
           />
         </div>
-        <div className="flex justify-between text-xs text-muted-foreground">
+        <div className="text-muted-foreground flex justify-between text-xs">
           <span>{Math.round(job.progress.percent)}% complete</span>
-          <div className="flex gap-component-md">
-            <span className="text-success">
-              {job.progress.succeeded} succeeded
-            </span>
+          <div className="gap-component-md flex">
+            <span className="text-success">{job.progress.succeeded} succeeded</span>
             {job.progress.failed > 0 && (
               <span className="text-error">{job.progress.failed} failed</span>
             )}
@@ -264,23 +270,23 @@ export const ExecutionProgress = memo(function ExecutionProgress({
             className="space-y-component-sm"
             role="alert"
           >
-            <div className="flex items-center gap-component-sm">
-              <AlertTriangle className="w-4 h-4 text-error" aria-hidden="true" />
-              <h4 className="text-sm font-medium text-error">
+            <div className="gap-component-sm flex items-center">
+              <AlertTriangle
+                className="text-error h-4 w-4"
+                aria-hidden="true"
+              />
+              <h4 className="text-error text-sm font-medium">
                 {job.errors.length} error{job.errors.length > 1 ? 's' : ''}
               </h4>
             </div>
-            <div className="max-h-32 overflow-y-auto space-y-component-sm p-component-md bg-error/10 rounded-lg border border-error/20">
+            <div className="space-y-component-sm p-component-md bg-error/10 border-error/20 max-h-32 overflow-y-auto rounded-lg border">
               {job.errors.map((err, index) => (
                 <div
                   key={index}
-                  className="text-xs font-mono text-error"
+                  className="text-error font-mono text-xs"
                 >
-                  <span className="text-muted-foreground">Line {err.lineNumber}:</span>{' '}
-                  {err.error}
-                  <p className="text-muted-foreground truncate">
-                    {err.command}
-                  </p>
+                  <span className="text-muted-foreground">Line {err.lineNumber}:</span> {err.error}
+                  <p className="text-muted-foreground truncate">{err.command}</p>
                 </div>
               ))}
             </div>
@@ -290,37 +296,42 @@ export const ExecutionProgress = memo(function ExecutionProgress({
 
       {/* Rollback info */}
       {job.status === 'rolled_back' && job.rollbackCount !== undefined && (
-        <div className="flex items-start gap-component-md p-component-md bg-warning/10 border border-warning/30 rounded-lg" role="alert">
-          <RotateCcw className="w-5 h-5 text-warning flex-shrink-0 mt-0.5" aria-hidden="true" />
+        <div
+          className="gap-component-md p-component-md bg-warning/10 border-warning/30 flex items-start rounded-lg border"
+          role="alert"
+        >
+          <RotateCcw
+            className="text-warning mt-0.5 h-5 w-5 flex-shrink-0"
+            aria-hidden="true"
+          />
           <div>
-            <p className="text-sm font-medium text-warning">
-              Configuration rolled back
-            </p>
-            <p className="text-xs text-muted-foreground mt-component-sm">
-              {job.rollbackCount} change{job.rollbackCount > 1 ? 's' : ''} were
-              reverted to restore previous state.
+            <p className="text-warning text-sm font-medium">Configuration rolled back</p>
+            <p className="text-muted-foreground mt-component-sm text-xs">
+              {job.rollbackCount} change{job.rollbackCount > 1 ? 's' : ''} were reverted to restore
+              previous state.
             </p>
           </div>
         </div>
       )}
 
       {/* Action Buttons */}
-      <div className="flex justify-end gap-component-md">
+      <div className="gap-component-md flex justify-end">
         {isRunning && onCancel && (
           <button
             onClick={handleCancel}
             disabled={isCancelling}
             aria-label={isCancelling ? 'Cancelling job' : 'Cancel running job'}
-            className="min-h-[44px] btn-destructive px-component-md py-component-sm rounded-lg text-sm flex items-center gap-component-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            className="btn-destructive px-component-md py-component-sm gap-component-sm focus-visible:ring-ring flex min-h-[44px] items-center rounded-lg text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
           >
-            {isCancelling ? (
+            {isCancelling ?
               <>
-                <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />
+                <Loader2
+                  className="h-4 w-4 animate-spin"
+                  aria-hidden="true"
+                />
                 Cancelling...
               </>
-            ) : (
-              'Cancel'
-            )}
+            : 'Cancel'}
           </button>
         )}
 
@@ -328,9 +339,12 @@ export const ExecutionProgress = memo(function ExecutionProgress({
           <button
             onClick={handleRetry}
             aria-label="Retry applying configuration"
-            className="min-h-[44px] btn-secondary px-component-md py-component-sm rounded-lg text-sm flex items-center gap-component-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            className="btn-secondary px-component-md py-component-sm gap-component-sm focus-visible:ring-ring flex min-h-[44px] items-center rounded-lg text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
           >
-            <RotateCcw className="w-4 h-4" aria-hidden="true" />
+            <RotateCcw
+              className="h-4 w-4"
+              aria-hidden="true"
+            />
             Try Again
           </button>
         )}
@@ -340,4 +354,3 @@ export const ExecutionProgress = memo(function ExecutionProgress({
 });
 
 ExecutionProgress.displayName = 'ExecutionProgress';
-

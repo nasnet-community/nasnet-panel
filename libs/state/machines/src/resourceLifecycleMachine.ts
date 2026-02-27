@@ -184,14 +184,12 @@ export function createResourceLifecycleMachine<TConfig = unknown>(
     guards: {
       hasValidationErrors: ({ context }) => {
         return (
-          context.validationResult !== null &&
-          (context.validationResult.errors?.length ?? 0) > 0
+          context.validationResult !== null && (context.validationResult.errors?.length ?? 0) > 0
         );
       },
       noValidationErrors: ({ context }) => {
         return (
-          context.validationResult === null ||
-          (context.validationResult.errors?.length ?? 0) === 0
+          context.validationResult === null || (context.validationResult.errors?.length ?? 0) === 0
         );
       },
       canApply: ({ context }) => {
@@ -210,10 +208,7 @@ export function createResourceLifecycleMachine<TConfig = unknown>(
         return context.runtime?.health === 'HEALTHY';
       },
       isDegraded: ({ context }) => {
-        return (
-          context.runtime?.health === 'DEGRADED' ||
-          context.runtime?.health === 'CRITICAL'
-        );
+        return context.runtime?.health === 'DEGRADED' || context.runtime?.health === 'CRITICAL';
       },
       hasUuid: ({ context }) => {
         return context.uuid !== null;
@@ -230,10 +225,7 @@ export function createResourceLifecycleMachine<TConfig = unknown>(
       }),
       setValidationResult: assign({
         validationResult: ({ event }) => {
-          if (
-            event.type === 'VALIDATION_SUCCESS' ||
-            event.type === 'VALIDATION_FAILURE'
-          ) {
+          if (event.type === 'VALIDATION_SUCCESS' || event.type === 'VALIDATION_FAILURE') {
             return event.result;
           }
           return null;
@@ -318,9 +310,8 @@ export function createResourceLifecycleMachine<TConfig = unknown>(
             event.output !== null &&
             'generatedFields' in event.output
           ) {
-            const generated = (
-              event.output as { generatedFields?: Record<string, unknown> }
-            ).generatedFields;
+            const generated = (event.output as { generatedFields?: Record<string, unknown> })
+              .generatedFields;
             if (generated && context.pendingConfiguration) {
               return { ...context.pendingConfiguration, ...generated } as TConfig;
             }
@@ -334,11 +325,7 @@ export function createResourceLifecycleMachine<TConfig = unknown>(
           if (event.type === 'SYNC_COMPLETE') {
             return event.configuration;
           }
-          if (
-            typeof event === 'object' &&
-            event !== null &&
-            'output' in event
-          ) {
+          if (typeof event === 'object' && event !== null && 'output' in event) {
             return event.output as TConfig;
           }
           return null;
@@ -481,8 +468,7 @@ export function createResourceLifecycleMachine<TConfig = unknown>(
             {
               target: 'degraded',
               guard: ({ event }) =>
-                event.runtime.health === 'DEGRADED' ||
-                event.runtime.health === 'CRITICAL',
+                event.runtime.health === 'DEGRADED' || event.runtime.health === 'CRITICAL',
               actions: ['updateRuntime', 'setDegradation'],
             },
             {
@@ -653,7 +639,12 @@ export function getResourceStateDisplayInfo(state: ResourceLifecycleStateValue):
 } {
   const stateInfo: Record<
     ResourceLifecycleStateValue,
-    { label: string; description: string; color: 'gray' | 'blue' | 'green' | 'amber' | 'red'; showSpinner: boolean }
+    {
+      label: string;
+      description: string;
+      color: 'gray' | 'blue' | 'green' | 'amber' | 'red';
+      showSpinner: boolean;
+    }
   > = {
     draft: {
       label: 'Draft',

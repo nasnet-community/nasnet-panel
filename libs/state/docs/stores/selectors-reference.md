@@ -5,13 +5,16 @@ title: Selectors Reference
 
 # Selectors Reference
 
-Complete API documentation for all selector utilities and pre-built selectors in the Zustand store ecosystem.
+Complete API documentation for all selector utilities and pre-built selectors in the Zustand store
+ecosystem.
 
 ## Overview
 
-Selectors are the primary way to subscribe to specific parts of Zustand stores. They prevent unnecessary re-renders by allowing components to subscribe to only the state they care about.
+Selectors are the primary way to subscribe to specific parts of Zustand stores. They prevent
+unnecessary re-renders by allowing components to subscribe to only the state they care about.
 
 **Key Benefits:**
+
 - **Precision subscriptions**: Only re-render when selected values change
 - **Memoization options**: Cache computed results to avoid redundant calculations
 - **Parameterized lookups**: Efficiently find items by ID or parameter
@@ -30,28 +33,32 @@ import { shallow } from '@nasnet/state/stores';
 
 // Use shallow comparison for object selectors
 const { user, token } = useAuthStore(
-  state => ({ user: state.user, token: state.token }),
-  shallow  // Only re-renders if user OR token changed (not the object reference)
+  (state) => ({ user: state.user, token: state.token }),
+  shallow // Only re-renders if user OR token changed (not the object reference)
 );
 ```
 
 **When to use:**
+
 - Selecting 2-3 fields together
 - Need to avoid object reference changes
 - Return value from selector is an object literal `{ ... }`
 
 **API:**
+
 ```typescript
-const shallowEqual: <T extends Record<string, any>>(a: T, b: T) => boolean
+const shallowEqual: <T extends Record<string, any>>(a: T, b: T) => boolean;
 ```
 
 **How it works:**
+
 - Compares each property: `prev.user === next.user && prev.token === next.token`
 - Returns `true` if all properties match (shallow equality)
 - Returns `false` if any property differs
 - More efficient than deep equality checks
 
 **Example:**
+
 ```typescript
 // ✅ GOOD: Only re-renders if user OR token changes
 function AuthPanel() {
@@ -76,34 +83,40 @@ function AuthPanelBad() {
 
 ### createMemoizedSelector
 
-Creates a memoized selector that caches computed results and only recomputes when dependencies change.
+Creates a memoized selector that caches computed results and only recomputes when dependencies
+change.
 
 **Signature:**
+
 ```typescript
 export function createMemoizedSelector<State, Deps extends unknown[], Result>(
   getDeps: (state: State) => Deps,
   compute: (deps: Deps) => Result
-): (state: State) => Result
+): (state: State) => Result;
 ```
 
 **Parameters:**
+
 - `getDeps`: Function that extracts dependencies from state (returns array of values)
 - `compute`: Function that computes the result from dependencies
 
 **Returns:** A selector function that takes state and returns the memoized result
 
 **How it works:**
+
 1. On first call: Extract dependencies from state, compute result, cache both
 2. On subsequent calls: Check if dependencies changed (using Object.is)
 3. If dependencies haven't changed: Return cached result (no recomputation)
 4. If dependencies have changed: Recompute and update cache
 
 **When to use:**
+
 - Selector is used in **multiple components** (caches computation across renders)
 - Computation is expensive (filtering, sorting, aggregation, string formatting)
 - Dependencies change infrequently
 
 **Benefits:**
+
 - Prevents redundant computations across multiple component renders
 - Only recomputes when dependencies actually change
 - Zero overhead for first-render components
@@ -137,7 +150,9 @@ function NotificationBadge() {
 ```
 
 **Performance impact:**
-- **Without memoization**: Both components compute filter 2x per notification change = 2 computations
+
+- **Without memoization**: Both components compute filter 2x per notification change = 2
+  computations
 - **With memoization**: Both components share cache = 1 computation total
 - **Improvement**: 50% reduction in computations
 
@@ -150,29 +165,34 @@ function NotificationBadge() {
 Creates a selector factory that caches selectors per parameter, useful for ID-based lookups.
 
 **Signature:**
+
 ```typescript
 export function createParameterizedSelector<State, Param, Result>(
   selector: (state: State, param: Param) => Result
-): (param: Param) => (state: State) => Result
+): (param: Param) => (state: State) => Result;
 ```
 
 **Parameters:**
+
 - `selector`: Function that takes state and a parameter, returns result
 
 **Returns:** A function that takes a parameter and returns a selector function
 
 **How it works:**
+
 1. Call with parameter: `selectById('user-123')` → returns cached selector for that parameter
 2. Each unique parameter gets its own cached selector
 3. Prevents recreating selector functions on every render
 4. Prevents recreating selector for every item in a list
 
 **Cache behavior:**
+
 - Each unique `param` value gets one cached selector function
 - Selector functions are never recreated for the same parameter
 - Perfect for list items that select by ID
 
 **When to use:**
+
 - Selecting by dynamic parameter (ID, index, key)
 - Rendering lists where each item selects by its own ID
 - Avoiding redundant lookups in large datasets
@@ -218,11 +238,14 @@ function NotificationItem({ notificationId }: { notificationId: string }) {
 ```
 
 **Performance benefits:**
+
 - **Without parameterized selector**: Each render creates new selector function
 - **With parameterized selector**: Selector function cached per parameter
-- **Especially important**: In lists with 100+ items (would be 100+ selector recreations without caching)
+- **Especially important**: In lists with 100+ items (would be 100+ selector recreations without
+  caching)
 
 **Cache considerations:**
+
 - Cache persists for lifetime of selector factory
 - No automatic eviction (parameters are keys)
 - Fine for finite sets of IDs (users, routers)
@@ -237,27 +260,29 @@ function NotificationItem({ notificationId }: { notificationId: string }) {
 Combines multiple selectors into a single selector that returns an object with all selected values.
 
 **Signature:**
+
 ```typescript
 export function createCombinedSelector<
   State,
-  Selectors extends Record<string, (state: State) => unknown>
->(
-  selectors: Selectors
-): (state: State) => { [K in keyof Selectors]: ReturnType<Selectors[K]> }
+  Selectors extends Record<string, (state: State) => unknown>,
+>(selectors: Selectors): (state: State) => { [K in keyof Selectors]: ReturnType<Selectors[K]> };
 ```
 
 **Parameters:**
+
 - `selectors`: Object where keys are field names and values are selector functions
 
 **Returns:** A selector function that returns an object with all selected values
 
 **How it works:**
+
 1. Takes an object of selectors: `{ theme: selectTheme, sidebar: selectSidebar, ... }`
 2. Returns a single selector that calls all selectors and combines results into object
 3. Object reference changes only if **any** selected value changes
 4. Use with `shallow` equality to prevent re-renders when reference changes but values don't
 
 **When to use:**
+
 - Combining 4+ pre-built selectors
 - Each selector is used together frequently
 - Cleaner API than manually combining selectors
@@ -300,6 +325,7 @@ function App() {
 ```
 
 **Why shallow comparison is needed:**
+
 ```typescript
 // Without shallow:
 const ui = useUIStore(selectUISnapshot);
@@ -324,10 +350,7 @@ function App() {
 
 // ✅ GOOD: Single hook with combined selector
 function App() {
-  const { theme, sidebar, commandPalette, compact } = useUIStore(
-    selectUISnapshot,
-    shallow
-  );
+  const { theme, sidebar, commandPalette, compact } = useUIStore(selectUISnapshot, shallow);
 }
 ```
 
@@ -345,14 +368,14 @@ Located in `libs/state/stores/src/auth/auth.store.ts`
 
 ```typescript
 import {
-  selectIsAuthenticated,      // boolean
-  selectUser,                 // User | null
-  selectToken,                // string | null
-  selectIsRefreshing,         // boolean
-  selectRefreshAttempts,      // number
-  selectMaxRefreshExceeded,   // boolean
-  selectPermissions,          // string[]
-  selectHasPermission,        // (permission: string) => boolean
+  selectIsAuthenticated, // boolean
+  selectUser, // User | null
+  selectToken, // string | null
+  selectIsRefreshing, // boolean
+  selectRefreshAttempts, // number
+  selectMaxRefreshExceeded, // boolean
+  selectPermissions, // string[]
+  selectHasPermission, // (permission: string) => boolean
 } from '@nasnet/state/stores';
 
 // Usage examples
@@ -363,6 +386,7 @@ const permissions = useAuthStore(selectPermissions);
 ```
 
 **Common patterns:**
+
 ```typescript
 // Check if user is authenticated
 if (useAuthStore(selectIsAuthenticated)) {
@@ -382,21 +406,23 @@ Located in `libs/state/stores/src/ui/theme.store.ts`
 
 ```typescript
 import {
-  selectResolvedTheme,   // 'light' | 'dark'
-  selectThemeMode,       // 'light' | 'dark' | 'system'
-  selectIsDarkMode,      // boolean (derived)
-  selectIsSystemTheme,   // boolean (derived)
+  selectResolvedTheme, // 'light' | 'dark'
+  selectThemeMode, // 'light' | 'dark' | 'system'
+  selectIsDarkMode, // boolean (derived)
+  selectIsSystemTheme, // boolean (derived)
 } from '@nasnet/state/stores';
 
 // Usage
-const theme = useThemeStore(selectResolvedTheme);  // Always resolved to light/dark
-const isDark = useThemeStore(selectIsDarkMode);     // Convenience boolean
-const mode = useThemeStore(selectThemeMode);        // User's selected mode
+const theme = useThemeStore(selectResolvedTheme); // Always resolved to light/dark
+const isDark = useThemeStore(selectIsDarkMode); // Convenience boolean
+const mode = useThemeStore(selectThemeMode); // User's selected mode
 ```
 
 **Difference between selectors:**
+
 - `selectThemeMode`: What the user selected ('light', 'dark', or 'system')
-- `selectResolvedTheme`: The actual resolved theme ('light' or 'dark'), following system preference if mode is 'system'
+- `selectResolvedTheme`: The actual resolved theme ('light' or 'dark'), following system preference
+  if mode is 'system'
 - `selectIsDarkMode`: Convenience boolean `selectResolvedTheme === 'dark'`
 
 ### Sidebar Store Selectors
@@ -405,18 +431,18 @@ Located in `libs/state/stores/src/ui/sidebar.store.ts`
 
 ```typescript
 import {
-  selectSidebarCollapsed,      // boolean
-  selectSidebarDisplayState,   // 'collapsed' | 'expanded'
-  selectSidebarToggle,         // (action) => void
+  selectSidebarCollapsed, // boolean
+  selectSidebarDisplayState, // 'collapsed' | 'expanded'
+  selectSidebarToggle, // (action) => void
 } from '@nasnet/state/stores';
 
 // Usage
 const collapsed = useSidebarStore(selectSidebarCollapsed);
-const state = useSidebarStore(selectSidebarDisplayState);  // More readable
+const state = useSidebarStore(selectSidebarDisplayState); // More readable
 
 // Toggle sidebar
 const toggle = useSidebarStore(selectSidebarToggle);
-toggle();  // or dispatch action
+toggle(); // or dispatch action
 ```
 
 ### UI Store Selectors
@@ -425,14 +451,14 @@ Located in `libs/state/stores/src/ui/ui.store.ts`
 
 ```typescript
 import {
-  selectActiveTab,                       // string | null
-  selectCommandPaletteOpen,              // boolean
-  selectCompactMode,                     // boolean
-  selectAnimationsEnabled,               // boolean
-  selectDefaultNotificationDuration,    // number (ms)
-  selectUIPreferences,                  // { compactMode, animationsEnabled, duration }
-  selectUIPreferencesMemoized,           // memoized version
-  selectHasOverlayOpen,                  // boolean
+  selectActiveTab, // string | null
+  selectCommandPaletteOpen, // boolean
+  selectCompactMode, // boolean
+  selectAnimationsEnabled, // boolean
+  selectDefaultNotificationDuration, // number (ms)
+  selectUIPreferences, // { compactMode, animationsEnabled, duration }
+  selectUIPreferencesMemoized, // memoized version
+  selectHasOverlayOpen, // boolean
 } from '@nasnet/state/stores';
 
 // Usage
@@ -452,19 +478,17 @@ Located in `libs/state/stores/src/ui/modal.store.ts`
 
 ```typescript
 import {
-  selectActiveModal,                  // string | null
-  selectModalData,                    // Record<string, any>
-  createSelectIsModalOpen,             // (modalId: string) => boolean
-  selectIsModalOpenById,               // Parameterized selector
+  selectActiveModal, // string | null
+  selectModalData, // Record<string, any>
+  createSelectIsModalOpen, // (modalId: string) => boolean
+  selectIsModalOpenById, // Parameterized selector
 } from '@nasnet/state/stores';
 
 // Usage: Check which modal is open
-const activeModal = useModalStore(selectActiveModal);  // 'auth-dialog' or null
+const activeModal = useModalStore(selectActiveModal); // 'auth-dialog' or null
 
 // Usage: Check if specific modal is open
-const isAuthDialogOpen = useModalStore(
-  createSelectIsModalOpen('auth-dialog')
-);
+const isAuthDialogOpen = useModalStore(createSelectIsModalOpen('auth-dialog'));
 
 // Usage: With parameterized selector
 const isOpen = useModalStore(selectIsModalOpenById('auth-dialog'));
@@ -479,16 +503,16 @@ Located in `libs/state/stores/src/ui/notification.store.ts`
 
 ```typescript
 import {
-  selectNotifications,                  // Notification[]
-  selectHasNotifications,               // boolean
-  selectNotificationCount,              // number
-  selectErrorNotifications,             // Notification[]
-  selectNotificationsByType,            // (type: NotificationType) => Notification[]
-  selectUrgentNotificationCount,        // number (errors only)
-  selectProgressNotifications,          // Notification[]
-  selectErrorCountMemoized,             // memoized error count
-  selectNotificationById,               // Parameterized selector
-  selectIsModalOpenById,                // Parameterized selector (shared from modal)
+  selectNotifications, // Notification[]
+  selectHasNotifications, // boolean
+  selectNotificationCount, // number
+  selectErrorNotifications, // Notification[]
+  selectNotificationsByType, // (type: NotificationType) => Notification[]
+  selectUrgentNotificationCount, // number (errors only)
+  selectProgressNotifications, // Notification[]
+  selectErrorCountMemoized, // memoized error count
+  selectNotificationById, // Parameterized selector
+  selectIsModalOpenById, // Parameterized selector (shared from modal)
 } from '@nasnet/state/stores';
 
 // Usage: Get all notifications
@@ -504,9 +528,7 @@ const errorCountMemo = useNotificationStore(selectErrorCountMemoized);
 
 // Usage: Get notifications by type
 const errors = useNotificationStore(selectErrorNotifications);
-const warnings = useNotificationStore(
-  selectNotificationsByType('warning')
-);
+const warnings = useNotificationStore(selectNotificationsByType('warning'));
 
 // Usage: Get specific notification by ID
 const notif = useNotificationStore(selectNotificationById('alert-123'));
@@ -520,13 +542,13 @@ These selectors derive values from state and are exported from `selectors.ts`:
 
 ```typescript
 import {
-  selectHasOverlayOpen,              // UIState: boolean
-  selectUIPreferences,               // UIState: { compactMode, animationsEnabled, duration }
-  selectSidebarDisplayState,         // SidebarState: 'collapsed' | 'expanded'
-  selectIsDarkMode,                 // ThemeState: boolean
-  selectIsSystemTheme,              // ThemeState: boolean
-  selectUrgentNotificationCount,     // NotificationState: number
-  selectProgressNotifications,       // NotificationState: Notification[]
+  selectHasOverlayOpen, // UIState: boolean
+  selectUIPreferences, // UIState: { compactMode, animationsEnabled, duration }
+  selectSidebarDisplayState, // SidebarState: 'collapsed' | 'expanded'
+  selectIsDarkMode, // ThemeState: boolean
+  selectIsSystemTheme, // ThemeState: boolean
+  selectUrgentNotificationCount, // NotificationState: number
+  selectProgressNotifications, // NotificationState: Notification[]
 } from '@nasnet/state/stores';
 ```
 
@@ -538,10 +560,10 @@ These functions create new selectors based on parameters:
 
 ```typescript
 import {
-  createSelectIsTabActive,               // (tabId: string) => (state: UIState) => boolean
-  createSelectNotificationsWithAction,   // () => (state: NotificationState) => Notification[]
-  selectIsModalOpenById,                 // Parameterized selector
-  selectNotificationById,                // Parameterized selector
+  createSelectIsTabActive, // (tabId: string) => (state: UIState) => boolean
+  createSelectNotificationsWithAction, // () => (state: NotificationState) => Notification[]
+  selectIsModalOpenById, // Parameterized selector
+  selectNotificationById, // Parameterized selector
 } from '@nasnet/state/stores';
 
 // Usage: Create selector for specific tab
@@ -564,6 +586,7 @@ const notif = useNotificationStore(selectNotificationById('alert-123'));
 ### When Memoized Selectors Help
 
 **HELPS (worthwhile):**
+
 ```typescript
 // ✅ Multiple components using same selector
 const selectFiltered = createMemoizedSelector(...);
@@ -588,6 +611,7 @@ const selectFilteredByStatus = createMemoizedSelector(
 ```
 
 **HURTS (not worthwhile):**
+
 ```typescript
 // ❌ Single component using memoized selector
 const selectTemp = createMemoizedSelector(...);
@@ -613,7 +637,7 @@ Parameterized selectors cache per-parameter:
 ```typescript
 // Creates one selector per notification ID
 const selectById = createParameterizedSelector((state, id: string) => {
-  return state.notifications.find(n => n.id === id);
+  return state.notifications.find((n) => n.id === id);
 });
 
 // If rendering 10,000 notification IDs:
@@ -629,6 +653,7 @@ const selectById = createParameterizedSelector((state, id: string) => {
 ### Common Mistakes
 
 **Mistake 1: Creating selector in component render**
+
 ```typescript
 // ❌ BAD: New selector created every render
 function Notif() {
@@ -644,27 +669,29 @@ function Notif() {
 ```
 
 **Mistake 2: Forgetting shallow comparison**
+
 ```typescript
 // ❌ BAD: Re-renders even if values didn't change
 const { user, token } = useAuthStore(
-  state => ({ user: state.user, token: state.token })
+  (state) => ({ user: state.user, token: state.token })
   // No shallow comparison = new object reference = re-render
 );
 
 // ✅ CORRECT: Use shallow comparison
 import { shallow } from '@nasnet/state/stores';
 const { user, token } = useAuthStore(
-  state => ({ user: state.user, token: state.token }),
-  shallow  // Compares properties, not reference
+  (state) => ({ user: state.user, token: state.token }),
+  shallow // Compares properties, not reference
 );
 ```
 
 **Mistake 3: Over-memoizing simple values**
+
 ```typescript
 // ❌ OVERKILL: Memoizing a simple getter
 const selectCount = createMemoizedSelector(
   (state) => [state.items],
-  ([items]) => items.length  // Simple array length operation
+  ([items]) => items.length // Simple array length operation
 );
 
 // ✅ BETTER: Just use a primitive selector
@@ -672,15 +699,16 @@ const selectCount = (state) => state.items.length;
 ```
 
 **Mistake 4: Expensive computation without memoization**
+
 ```typescript
 // ❌ BAD: Expensive filter in every selector call
 const selectFiltered = (state: NotificationState) =>
-  state.notifications.filter(n => expensiveCheck(n));  // O(n) every render!
+  state.notifications.filter((n) => expensiveCheck(n)); // O(n) every render!
 
 // ✅ GOOD: Memoize expensive computation
 const selectFiltered = createMemoizedSelector(
   (state) => [state.notifications],
-  ([notifications]) => notifications.filter(n => expensiveCheck(n))  // O(n) only when notifications change
+  ([notifications]) => notifications.filter((n) => expensiveCheck(n)) // O(n) only when notifications change
 );
 ```
 
@@ -688,13 +716,13 @@ const selectFiltered = createMemoizedSelector(
 
 ## Quick Reference Table
 
-| Selector Type | Best For | Overhead | When to Use |
-|---|---|---|---|
-| Primitive | Single field | None | Most common case |
-| Shallow | 2-3 fields | Low | Object selectors |
-| Memoized | Expensive computation | Low | Multiple components or expensive ops |
-| Parameterized | ID-based lookups | Low | List rendering, dynamic IDs |
-| Combined | 4+ fields | Low | Many selectors together |
+| Selector Type | Best For              | Overhead | When to Use                          |
+| ------------- | --------------------- | -------- | ------------------------------------ |
+| Primitive     | Single field          | None     | Most common case                     |
+| Shallow       | 2-3 fields            | Low      | Object selectors                     |
+| Memoized      | Expensive computation | Low      | Multiple components or expensive ops |
+| Parameterized | ID-based lookups      | Low      | List rendering, dynamic IDs          |
+| Combined      | 4+ fields             | Low      | Many selectors together              |
 
 ---
 
@@ -709,5 +737,6 @@ const selectFiltered = createMemoizedSelector(
 - **Always measure** before optimizing—not all selectors need memoization
 
 **For complete patterns and examples, see:**
+
 - `libs/state/docs/performance.md` - Detailed performance optimization guide
 - `libs/state/stores/src/ui/selectors.ts` - Full implementation source code

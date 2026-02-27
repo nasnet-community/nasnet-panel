@@ -123,7 +123,7 @@ export function PrefixSelector({
     <div className={cn('flex items-center gap-1', className)}>
       {/* Prefix indicator and direct input */}
       <div className="relative flex items-center">
-        <span className="absolute left-2 text-muted-foreground">/</span>
+        <span className="text-muted-foreground absolute left-2">/</span>
         <Input
           ref={inputRef}
           type="text"
@@ -151,16 +151,14 @@ export function PrefixSelector({
           aria-label="Select common prefix"
         >
           <SelectValue placeholder="Select prefix">
-            {currentOption ? (
+            {currentOption ?
               <span className="text-sm">
                 {currentOption.mask}
-                <span className="ml-1 text-muted-foreground">
+                <span className="text-muted-foreground ml-1">
                   ({formatHosts(currentOption.hosts)} hosts)
                 </span>
               </span>
-            ) : (
-              <span className="text-sm text-muted-foreground">Custom: /{value}</span>
-            )}
+            : <span className="text-muted-foreground text-sm">Custom: /{value}</span>}
           </SelectValue>
         </SelectTrigger>
         <SelectContent>
@@ -174,7 +172,7 @@ export function PrefixSelector({
                 <span className="font-mono">/{option.prefix}</span>
                 <span className="text-muted-foreground">{option.mask}</span>
               </div>
-              <div className="text-xs text-muted-foreground">
+              <div className="text-muted-foreground text-xs">
                 {formatHosts(option.hosts)} hosts - {option.description}
               </div>
             </SelectItem>

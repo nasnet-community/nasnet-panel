@@ -20,12 +20,7 @@ import type { PortKnockSequence } from '@nasnet/core/types';
 /**
  * Sort column options
  */
-export type SortColumn =
-  | 'name'
-  | 'protectedPort'
-  | 'knockCount'
-  | 'status'
-  | 'recentAccess';
+export type SortColumn = 'name' | 'protectedPort' | 'knockCount' | 'status' | 'recentAccess';
 
 /**
  * Sort direction
@@ -165,9 +160,7 @@ export function usePortKnockSequenceTable(
     // Filter by search term (name)
     if (filters.search) {
       const searchLower = filters.search.toLowerCase();
-      result = result.filter((seq) =>
-        seq.name.toLowerCase().includes(searchLower)
-      );
+      result = result.filter((seq) => seq.name.toLowerCase().includes(searchLower));
     }
 
     return result;
@@ -211,8 +204,8 @@ export function usePortKnockSequenceTable(
 
       // Compare values
       if (typeof aValue === 'string' && typeof bValue === 'string') {
-        return sortDirection === 'asc'
-          ? aValue.localeCompare(bValue)
+        return sortDirection === 'asc' ?
+            aValue.localeCompare(bValue)
           : bValue.localeCompare(aValue);
       }
 

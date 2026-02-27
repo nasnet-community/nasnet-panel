@@ -2,12 +2,12 @@
  * Input for installing a new service instance
  */
 export interface InstallServiceInput {
-    routerID: string;
-    featureID: string;
-    instanceName: string;
-    config?: unknown;
-    vlanID?: number;
-    bindIP?: string;
+  routerID: string;
+  featureID: string;
+  instanceName: string;
+  config?: unknown;
+  vlanID?: number;
+  bindIP?: string;
 }
 /**
  * Hook for installing a new service instance on a router
@@ -47,11 +47,16 @@ export interface InstallServiceInput {
  * };
  * ```
  */
-export declare function useInstallService(): import("@apollo/client").MutationTuple<any, import("@apollo/client").OperationVariables, import("@apollo/client").DefaultContext, import("@apollo/client").ApolloCache<any>>;
+export declare function useInstallService(): import('@apollo/client').MutationTuple<
+  any,
+  import('@apollo/client').OperationVariables,
+  import('@apollo/client').DefaultContext,
+  import('@apollo/client').ApolloCache<any>
+>;
 /**
  * Type-safe wrapper for the install mutation variables
  */
 export type InstallServiceVariables = {
-    input: InstallServiceInput;
+  input: InstallServiceInput;
 };
 //# sourceMappingURL=useInstallService.d.ts.map

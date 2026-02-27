@@ -153,26 +153,24 @@ function ChooseStepContent() {
   return (
     <div className="space-y-4">
       <h2 className="text-2xl font-bold">Choose Setup Type</h2>
-      <p className="text-muted-foreground">
-        Select how you want to configure your router.
-      </p>
+      <p className="text-muted-foreground">Select how you want to configure your router.</p>
       <div className="grid grid-cols-2 gap-4">
-        <Card className="cursor-pointer hover:border-primary">
+        <Card className="hover:border-primary cursor-pointer">
           <CardHeader>
             <CardTitle className="text-lg">Quick Setup</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-muted-foreground text-sm">
               Simple wizard for basic home/office setup
             </p>
           </CardContent>
         </Card>
-        <Card className="cursor-pointer hover:border-primary">
+        <Card className="hover:border-primary cursor-pointer">
           <CardHeader>
             <CardTitle className="text-lg">Advanced Setup</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-muted-foreground text-sm">
               Full control over all configuration options
             </p>
           </CardContent>
@@ -186,21 +184,28 @@ function WANStepContent() {
   return (
     <div className="space-y-4">
       <h2 className="text-2xl font-bold">WAN Configuration</h2>
-      <p className="text-muted-foreground">
-        Configure your internet connection settings.
-      </p>
+      <p className="text-muted-foreground">Configure your internet connection settings.</p>
       <div className="space-y-4">
         <div className="space-y-2">
           <Label htmlFor="wan-ip">WAN IP Address</Label>
-          <Input id="wan-ip" placeholder="192.168.1.1" />
+          <Input
+            id="wan-ip"
+            placeholder="192.168.1.1"
+          />
         </div>
         <div className="space-y-2">
           <Label htmlFor="gateway">Gateway</Label>
-          <Input id="gateway" placeholder="192.168.1.254" />
+          <Input
+            id="gateway"
+            placeholder="192.168.1.254"
+          />
         </div>
         <div className="space-y-2">
           <Label htmlFor="dns">DNS Server</Label>
-          <Input id="dns" placeholder="8.8.8.8" />
+          <Input
+            id="dns"
+            placeholder="8.8.8.8"
+          />
         </div>
       </div>
     </div>
@@ -211,21 +216,31 @@ function LANStepContent() {
   return (
     <div className="space-y-4">
       <h2 className="text-2xl font-bold">LAN Configuration</h2>
-      <p className="text-muted-foreground">
-        Configure your internal network settings.
-      </p>
+      <p className="text-muted-foreground">Configure your internal network settings.</p>
       <div className="space-y-4">
         <div className="space-y-2">
           <Label htmlFor="lan-ip">LAN IP Address</Label>
-          <Input id="lan-ip" placeholder="10.0.0.1" defaultValue="10.0.0.1" />
+          <Input
+            id="lan-ip"
+            placeholder="10.0.0.1"
+            defaultValue="10.0.0.1"
+          />
         </div>
         <div className="space-y-2">
           <Label htmlFor="subnet">Subnet Mask</Label>
-          <Input id="subnet" placeholder="255.255.255.0" defaultValue="255.255.255.0" />
+          <Input
+            id="subnet"
+            placeholder="255.255.255.0"
+            defaultValue="255.255.255.0"
+          />
         </div>
         <div className="space-y-2">
           <Label htmlFor="dhcp-range">DHCP Range</Label>
-          <Input id="dhcp-range" placeholder="10.0.0.100-10.0.0.200" defaultValue="10.0.0.100-10.0.0.200" />
+          <Input
+            id="dhcp-range"
+            placeholder="10.0.0.100-10.0.0.200"
+            defaultValue="10.0.0.100-10.0.0.200"
+          />
         </div>
       </div>
     </div>
@@ -236,16 +251,14 @@ function ExtraStepContent() {
   return (
     <div className="space-y-4">
       <h2 className="text-2xl font-bold">Additional Settings</h2>
-      <p className="text-muted-foreground">
-        Configure optional features for your network.
-      </p>
+      <p className="text-muted-foreground">Configure optional features for your network.</p>
       <div className="grid grid-cols-2 gap-4">
         <Card>
           <CardHeader>
             <CardTitle className="text-lg">VPN</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-muted-foreground">Enable WireGuard VPN</p>
+            <p className="text-muted-foreground text-sm">Enable WireGuard VPN</p>
           </CardContent>
         </Card>
         <Card>
@@ -253,7 +266,7 @@ function ExtraStepContent() {
             <CardTitle className="text-lg">Firewall</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-muted-foreground">Configure firewall rules</p>
+            <p className="text-muted-foreground text-sm">Configure firewall rules</p>
           </CardContent>
         </Card>
       </div>
@@ -265,9 +278,7 @@ function ReviewStepContent() {
   return (
     <div className="space-y-4">
       <h2 className="text-2xl font-bold">Review & Apply</h2>
-      <p className="text-muted-foreground">
-        Review your configuration before applying.
-      </p>
+      <p className="text-muted-foreground">Review your configuration before applying.</p>
       <Card>
         <CardHeader>
           <CardTitle className="text-lg">Configuration Summary</CardTitle>
@@ -333,23 +344,83 @@ add chain=srcnat out-interface=ether1 action=masquerade`;
   return (
     <div className="space-y-4">
       <div>
-        <h4 className="text-sm font-semibold mb-2">RouterOS Script</h4>
-        <pre className="bg-muted p-3 rounded-md text-xs font-mono overflow-x-auto whitespace-pre-wrap">
+        <h4 className="mb-2 text-sm font-semibold">RouterOS Script</h4>
+        <pre className="bg-muted overflow-x-auto whitespace-pre-wrap rounded-md p-3 font-mono text-xs">
           {routerOSScript}
         </pre>
       </div>
       <div>
-        <h4 className="text-sm font-semibold mb-2">Network Topology</h4>
-        <div className="bg-muted p-4 rounded-md text-center text-muted-foreground">
-          <svg className="w-full h-32" viewBox="0 0 200 100">
-            <rect x="70" y="30" width="60" height="40" rx="4" fill="currentColor" opacity="0.2" />
-            <text x="100" y="55" textAnchor="middle" className="text-xs fill-current">Router</text>
-            <circle cx="30" cy="50" r="15" fill="currentColor" opacity="0.1" />
-            <text x="30" y="55" textAnchor="middle" className="text-[8px] fill-current">WAN</text>
-            <circle cx="170" cy="50" r="15" fill="currentColor" opacity="0.1" />
-            <text x="170" y="55" textAnchor="middle" className="text-[8px] fill-current">LAN</text>
-            <line x1="45" y1="50" x2="70" y2="50" stroke="currentColor" strokeWidth="2" opacity="0.5" />
-            <line x1="130" y1="50" x2="155" y2="50" stroke="currentColor" strokeWidth="2" opacity="0.5" />
+        <h4 className="mb-2 text-sm font-semibold">Network Topology</h4>
+        <div className="bg-muted text-muted-foreground rounded-md p-4 text-center">
+          <svg
+            className="h-32 w-full"
+            viewBox="0 0 200 100"
+          >
+            <rect
+              x="70"
+              y="30"
+              width="60"
+              height="40"
+              rx="4"
+              fill="currentColor"
+              opacity="0.2"
+            />
+            <text
+              x="100"
+              y="55"
+              textAnchor="middle"
+              className="fill-current text-xs"
+            >
+              Router
+            </text>
+            <circle
+              cx="30"
+              cy="50"
+              r="15"
+              fill="currentColor"
+              opacity="0.1"
+            />
+            <text
+              x="30"
+              y="55"
+              textAnchor="middle"
+              className="fill-current text-[8px]"
+            >
+              WAN
+            </text>
+            <circle
+              cx="170"
+              cy="50"
+              r="15"
+              fill="currentColor"
+              opacity="0.1"
+            />
+            <text
+              x="170"
+              y="55"
+              textAnchor="middle"
+              className="fill-current text-[8px]"
+            >
+              LAN
+            </text>
+            <line
+              x1="45"
+              y1="50"
+              x2="70"
+              y2="50"
+              stroke="currentColor"
+              strokeWidth="2"
+              opacity="0.5"
+            />
+            <line
+              x1="130"
+              y1="50"
+              x2="155"
+              y2="50"
+              stroke="currentColor"
+              strokeWidth="2"
+              opacity="0.5"
+            />
           </svg>
         </div>
       </div>
@@ -540,9 +611,9 @@ export const WithErrors: Story = {
               <div className="space-y-4">
                 <h2 className="text-2xl font-bold">WAN Configuration</h2>
                 {Object.keys(stepper.errors).length > 0 && (
-                  <div className="p-4 bg-error/10 border border-error/20 rounded-md">
-                    <h3 className="text-sm font-semibold text-error mb-2">Validation Errors</h3>
-                    <ul className="space-y-1 text-sm text-error">
+                  <div className="bg-error/10 border-error/20 rounded-md border p-4">
+                    <h3 className="text-error mb-2 text-sm font-semibold">Validation Errors</h3>
+                    <ul className="text-error space-y-1 text-sm">
                       {Object.entries(stepper.errors).map(([field, error]) => (
                         <li key={field}>• {error}</li>
                       ))}
@@ -581,7 +652,7 @@ export const DarkTheme: Story = {
     <div className="dark">
       <StepperWrapper steps={wizardSteps}>
         {(stepper) => (
-          <div className="h-screen bg-background">
+          <div className="bg-background h-screen">
             <CStepper
               {...args}
               stepper={stepper}
@@ -604,14 +675,14 @@ export const DarkTheme: Story = {
       description: {
         story: 'CStepper in dark theme using semantic color tokens.',
       },
-    }
+    },
   },
 
   globals: {
     backgrounds: {
-      value: "dark"
-    }
-  }
+      value: 'dark',
+    },
+  },
 };
 
 /**
@@ -664,12 +735,19 @@ export const Interactive: Story = {
             stepContent={
               <div className="space-y-4">
                 <StepContent stepId={stepper.currentStep.id} />
-                <div className="p-4 bg-muted rounded-md">
-                  <h4 className="text-sm font-semibold mb-2">Keyboard Shortcuts</h4>
-                  <ul className="text-sm text-muted-foreground space-y-1">
-                    <li><kbd className="px-2 py-1 bg-background rounded">Alt+P</kbd> Toggle preview panel</li>
-                    <li><kbd className="px-2 py-1 bg-background rounded">Alt+N</kbd> Next step</li>
-                    <li><kbd className="px-2 py-1 bg-background rounded">Alt+B</kbd> Previous step</li>
+                <div className="bg-muted rounded-md p-4">
+                  <h4 className="mb-2 text-sm font-semibold">Keyboard Shortcuts</h4>
+                  <ul className="text-muted-foreground space-y-1 text-sm">
+                    <li>
+                      <kbd className="bg-background rounded px-2 py-1">Alt+P</kbd> Toggle preview
+                      panel
+                    </li>
+                    <li>
+                      <kbd className="bg-background rounded px-2 py-1">Alt+N</kbd> Next step
+                    </li>
+                    <li>
+                      <kbd className="bg-background rounded px-2 py-1">Alt+B</kbd> Previous step
+                    </li>
                   </ul>
                 </div>
               </div>
@@ -740,9 +818,9 @@ export const ResponsiveBehavior: Story = {
             stepContent={
               <div className="space-y-4">
                 <StepContent stepId={stepper.currentStep.id} />
-                <div className="p-4 bg-muted rounded-md">
-                  <h4 className="text-sm font-semibold mb-2">Responsive Behavior</h4>
-                  <p className="text-sm text-muted-foreground">
+                <div className="bg-muted rounded-md p-4">
+                  <h4 className="mb-2 text-sm font-semibold">Responsive Behavior</h4>
+                  <p className="text-muted-foreground text-sm">
                     Resize the viewport below 1280px to see the preview panel auto-collapse.
                   </p>
                 </div>
@@ -765,13 +843,13 @@ export const ResponsiveBehavior: Story = {
       description: {
         story: 'Preview panel auto-collapses when viewport width is below 1280px.',
       },
-    }
+    },
   },
 
   globals: {
     viewport: {
       value: 'desktop',
-      isRotated: false
-    }
-  }
+      isRotated: false,
+    },
+  },
 };

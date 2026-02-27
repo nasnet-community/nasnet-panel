@@ -87,10 +87,7 @@ export interface UseServiceTrafficSubscriptionOptions {
  * Options for useSetTrafficQuota mutation hook
  */
 export type UseSetTrafficQuotaOptions = Omit<
-  MutationHookOptions<
-    { setTrafficQuota: TrafficQuotaPayload },
-    MutationSetTrafficQuotaArgs
-  >,
+  MutationHookOptions<{ setTrafficQuota: TrafficQuotaPayload }, MutationSetTrafficQuotaArgs>,
   'mutation'
 >;
 
@@ -98,10 +95,7 @@ export type UseSetTrafficQuotaOptions = Omit<
  * Options for useResetTrafficQuota mutation hook
  */
 export type UseResetTrafficQuotaOptions = Omit<
-  MutationHookOptions<
-    { resetTrafficQuota: TrafficQuotaPayload },
-    MutationResetTrafficQuotaArgs
-  >,
+  MutationHookOptions<{ resetTrafficQuota: TrafficQuotaPayload }, MutationResetTrafficQuotaArgs>,
   'mutation'
 >;
 
@@ -143,17 +137,17 @@ export function useServiceTrafficStats({
   skip = false,
   options,
 }: UseServiceTrafficStatsOptions) {
-  return useQuery<
-    { serviceTrafficStats: ServiceTrafficStats },
-    QueryServiceTrafficStatsArgs
-  >(GET_SERVICE_TRAFFIC_STATS, {
-    variables: { routerID, instanceID, historyHours },
-    skip,
-    // Cache for 5 seconds to avoid excessive polling
-    fetchPolicy: 'cache-and-network',
-    nextFetchPolicy: 'cache-first',
-    ...(options as any),
-  });
+  return useQuery<{ serviceTrafficStats: ServiceTrafficStats }, QueryServiceTrafficStatsArgs>(
+    GET_SERVICE_TRAFFIC_STATS,
+    {
+      variables: { routerID, instanceID, historyHours },
+      skip,
+      // Cache for 5 seconds to avoid excessive polling
+      fetchPolicy: 'cache-and-network',
+      nextFetchPolicy: 'cache-first',
+      ...(options as any),
+    }
+  );
 }
 
 /**
@@ -226,15 +220,15 @@ export function useServiceDeviceBreakdown({
  * ```
  */
 export function useSetTrafficQuota(options?: UseSetTrafficQuotaOptions) {
-  return useMutation<
-    { setTrafficQuota: TrafficQuotaPayload },
-    MutationSetTrafficQuotaArgs
-  >(SET_TRAFFIC_QUOTA, {
-    // Refetch traffic stats after setting quota
-    refetchQueries: ['GetServiceTrafficStats'],
-    awaitRefetchQueries: true,
-    ...options,
-  });
+  return useMutation<{ setTrafficQuota: TrafficQuotaPayload }, MutationSetTrafficQuotaArgs>(
+    SET_TRAFFIC_QUOTA,
+    {
+      // Refetch traffic stats after setting quota
+      refetchQueries: ['GetServiceTrafficStats'],
+      awaitRefetchQueries: true,
+      ...options,
+    }
+  );
 }
 
 /**
@@ -261,15 +255,15 @@ export function useSetTrafficQuota(options?: UseSetTrafficQuotaOptions) {
  * ```
  */
 export function useResetTrafficQuota(options?: UseResetTrafficQuotaOptions) {
-  return useMutation<
-    { resetTrafficQuota: TrafficQuotaPayload },
-    MutationResetTrafficQuotaArgs
-  >(RESET_TRAFFIC_QUOTA, {
-    // Refetch traffic stats after resetting quota
-    refetchQueries: ['GetServiceTrafficStats'],
-    awaitRefetchQueries: true,
-    ...options,
-  });
+  return useMutation<{ resetTrafficQuota: TrafficQuotaPayload }, MutationResetTrafficQuotaArgs>(
+    RESET_TRAFFIC_QUOTA,
+    {
+      // Refetch traffic stats after resetting quota
+      refetchQueries: ['GetServiceTrafficStats'],
+      awaitRefetchQueries: true,
+      ...options,
+    }
+  );
 }
 
 /**
@@ -388,8 +382,7 @@ export function useTrafficMonitoring(options: UseServiceTrafficStatsOptions) {
   });
 
   // Prefer subscription data if available (most recent), fallback to query data
-  const stats =
-    subscriptionData?.serviceTrafficUpdated || queryData?.serviceTrafficStats;
+  const stats = subscriptionData?.serviceTrafficUpdated || queryData?.serviceTrafficStats;
 
   return {
     stats,

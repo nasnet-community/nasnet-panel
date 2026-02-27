@@ -233,8 +233,12 @@ describe('useUIStore', () => {
 
   describe('Reset Preferences', () => {
     it('resetPreferences should restore defaults for persisted preferences', () => {
-      const { setCompactMode, setAnimationsEnabled, setDefaultNotificationDuration, resetPreferences } =
-        useUIStore.getState();
+      const {
+        setCompactMode,
+        setAnimationsEnabled,
+        setDefaultNotificationDuration,
+        resetPreferences,
+      } = useUIStore.getState();
 
       // Change all preferences
       act(() => {

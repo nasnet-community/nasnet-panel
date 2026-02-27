@@ -103,25 +103,28 @@ export function IPAddressDeleteDialog({
   }, [onConfirm]);
 
   return (
-    <Dialog open={open} onOpenChange={handleCancel}>
+    <Dialog
+      open={open}
+      onOpenChange={handleCancel}
+    >
       <DialogContent className={cn('sm:max-w-md', className)}>
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-component-sm">
+          <DialogTitle className="gap-component-sm flex items-center">
             <Trash
-              className="h-5 w-5 text-error flex-shrink-0"
+              className="text-error h-5 w-5 flex-shrink-0"
               aria-hidden="true"
             />
             Delete IP Address
           </DialogTitle>
-          <DialogDescription>
-            Are you sure you want to delete this IP address?
-          </DialogDescription>
+          <DialogDescription>Are you sure you want to delete this IP address?</DialogDescription>
         </DialogHeader>
 
         {/* IP Address Info */}
-        <div className="rounded-card-sm border border-border p-component-sm bg-card">
-          <div className="text-sm font-medium mb-1 font-mono text-foreground">{ipAddress.address}</div>
-          <div className="text-sm text-muted-foreground">
+        <div className="rounded-card-sm border-border p-component-sm bg-card border">
+          <div className="text-foreground mb-1 font-mono text-sm font-medium">
+            {ipAddress.address}
+          </div>
+          <div className="text-muted-foreground text-sm">
             Interface: <span className="font-mono">{ipAddress.interfaceName}</span>
           </div>
         </div>
@@ -129,11 +132,14 @@ export function IPAddressDeleteDialog({
         {/* Loading Dependencies */}
         {dependenciesLoading && (
           <div
-            className="flex items-center gap-component-sm text-sm text-muted-foreground py-component-md"
+            className="gap-component-sm text-muted-foreground py-component-md flex items-center text-sm"
             role="status"
             aria-live="polite"
           >
-            <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+            <Loader2
+              className="h-4 w-4 animate-spin"
+              aria-hidden="true"
+            />
             Checking for dependencies...
           </div>
         )}
@@ -141,7 +147,10 @@ export function IPAddressDeleteDialog({
         {/* No Dependencies - Safe to Delete */}
         {!dependenciesLoading && canDelete && !hasDependencies && (
           <Alert className="bg-success/10 border-success">
-            <AlertCircle className="h-4 w-4 text-success" aria-hidden="true" />
+            <AlertCircle
+              className="text-success h-4 w-4"
+              aria-hidden="true"
+            />
             <AlertTitle className="text-success">No Dependencies</AlertTitle>
             <AlertDescription className="text-success/90">
               This IP address is not used by any services and can be safely deleted.
@@ -152,22 +161,32 @@ export function IPAddressDeleteDialog({
         {/* Has Dependencies - Show Warnings */}
         {!dependenciesLoading && hasDependencies && (
           <Alert variant="destructive">
-            <AlertTriangle className="h-4 w-4" aria-hidden="true" />
+            <AlertTriangle
+              className="h-4 w-4"
+              aria-hidden="true"
+            />
             <AlertTitle>Warning: Dependencies Found</AlertTitle>
             <AlertDescription>
-              {dependencies?.warningMessage || 'This IP address is used by the following resources:'}
+              {dependencies?.warningMessage ||
+                'This IP address is used by the following resources:'}
 
               {/* DHCP Servers */}
               {dependencies?.dhcpServers && dependencies.dhcpServers.length > 0 && (
                 <div className="mt-3">
-                  <div className="font-medium text-sm mb-1">DHCP Servers:</div>
+                  <div className="mb-1 text-sm font-medium">DHCP Servers:</div>
                   <div className="space-y-1">
                     {dependencies.dhcpServers.map((server: any) => (
-                      <div key={server.id} className="text-sm flex items-center gap-component-sm">
-                        <Badge variant="secondary" className="text-xs">
+                      <div
+                        key={server.id}
+                        className="gap-component-sm flex items-center text-sm"
+                      >
+                        <Badge
+                          variant="secondary"
+                          className="text-xs"
+                        >
                           {server.name}
                         </Badge>
-                        <code className="text-xs font-mono">{server.network}</code>
+                        <code className="font-mono text-xs">{server.network}</code>
                       </div>
                     ))}
                   </div>
@@ -177,12 +196,15 @@ export function IPAddressDeleteDialog({
               {/* Routes */}
               {dependencies?.routes && dependencies.routes.length > 0 && (
                 <div className="mt-3">
-                  <div className="font-medium text-sm mb-1">Routes:</div>
+                  <div className="mb-1 text-sm font-medium">Routes:</div>
                   <div className="space-y-1">
                     {dependencies.routes.map((route: any) => (
-                      <div key={route.id} className="text-sm">
-                        <code className="text-xs font-mono">{route.destination}</code> via{' '}
-                        <code className="text-xs font-mono">{route.gateway}</code>
+                      <div
+                        key={route.id}
+                        className="text-sm"
+                      >
+                        <code className="font-mono text-xs">{route.destination}</code> via{' '}
+                        <code className="font-mono text-xs">{route.gateway}</code>
                       </div>
                     ))}
                   </div>
@@ -192,13 +214,14 @@ export function IPAddressDeleteDialog({
               {/* NAT Rules */}
               {dependencies?.natRules && dependencies.natRules.length > 0 && (
                 <div className="mt-3">
-                  <div className="font-medium text-sm mb-1">
+                  <div className="mb-1 text-sm font-medium">
                     NAT Rules ({dependencies.natRules.length}):
                   </div>
-                  <div className="text-xs text-muted-foreground">
+                  <div className="text-muted-foreground text-xs">
                     Chain: <code className="font-mono">{dependencies.natRules[0]?.chain}</code>,
                     Action: <code className="font-mono">{dependencies.natRules[0]?.action}</code>
-                    {dependencies.natRules.length > 1 && ` +${dependencies.natRules.length - 1} more`}
+                    {dependencies.natRules.length > 1 &&
+                      ` +${dependencies.natRules.length - 1} more`}
                   </div>
                 </div>
               )}
@@ -206,13 +229,15 @@ export function IPAddressDeleteDialog({
               {/* Firewall Rules */}
               {dependencies?.firewallRules && dependencies.firewallRules.length > 0 && (
                 <div className="mt-3">
-                  <div className="font-medium text-sm mb-1">
+                  <div className="mb-1 text-sm font-medium">
                     Firewall Rules ({dependencies.firewallRules.length}):
                   </div>
-                  <div className="text-xs text-muted-foreground">
-                    Chain: <code className="font-mono">{dependencies.firewallRules[0]?.chain}</code>,
-                    Action: <code className="font-mono">{dependencies.firewallRules[0]?.action}</code>
-                    {dependencies.firewallRules.length > 1 && ` +${dependencies.firewallRules.length - 1} more`}
+                  <div className="text-muted-foreground text-xs">
+                    Chain: <code className="font-mono">{dependencies.firewallRules[0]?.chain}</code>
+                    , Action:{' '}
+                    <code className="font-mono">{dependencies.firewallRules[0]?.action}</code>
+                    {dependencies.firewallRules.length > 1 &&
+                      ` +${dependencies.firewallRules.length - 1} more`}
                   </div>
                 </div>
               )}
@@ -223,7 +248,10 @@ export function IPAddressDeleteDialog({
         {/* Cannot Delete */}
         {!dependenciesLoading && !canDelete && (
           <Alert variant="destructive">
-            <AlertTriangle className="h-4 w-4" aria-hidden="true" />
+            <AlertTriangle
+              className="h-4 w-4"
+              aria-hidden="true"
+            />
             <AlertTitle>Cannot Delete</AlertTitle>
             <AlertDescription>
               This IP address cannot be deleted because it is actively used by other resources.
@@ -249,12 +277,17 @@ export function IPAddressDeleteDialog({
             onClick={handleConfirm}
             disabled={isLoading || dependenciesLoading || !canDelete}
             aria-label={
-              !canDelete
-                ? 'Delete button disabled - dependencies found'
-                : 'Confirm deletion of IP address'
+              !canDelete ?
+                'Delete button disabled - dependencies found'
+              : 'Confirm deletion of IP address'
             }
           >
-            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />}
+            {isLoading && (
+              <Loader2
+                className="mr-2 h-4 w-4 animate-spin"
+                aria-hidden="true"
+              />
+            )}
             Delete IP Address
           </Button>
         </DialogFooter>

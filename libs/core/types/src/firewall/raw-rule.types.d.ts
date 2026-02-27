@@ -23,74 +23,300 @@ import { z } from 'zod';
 /**
  * RAW Chain - 2 chain points (pre-conntrack)
  */
-export declare const RawChainSchema: z.ZodEnum<["prerouting", "output"]>;
+export declare const RawChainSchema: z.ZodEnum<['prerouting', 'output']>;
 export type RawChain = z.infer<typeof RawChainSchema>;
 /**
  * RAW Action - What to do with matched packets
  */
-export declare const RawActionSchema: z.ZodEnum<["drop", "accept", "notrack", "jump", "log"]>;
+export declare const RawActionSchema: z.ZodEnum<['drop', 'accept', 'notrack', 'jump', 'log']>;
 export type RawAction = z.infer<typeof RawActionSchema>;
 /**
  * Protocol types for RAW filtering
  */
-export declare const RawProtocolSchema: z.ZodEnum<["tcp", "udp", "icmp", "ipv6-icmp", "all"]>;
+export declare const RawProtocolSchema: z.ZodEnum<['tcp', 'udp', 'icmp', 'ipv6-icmp', 'all']>;
 export type RawProtocol = z.infer<typeof RawProtocolSchema>;
 /**
  * Rate Limit configuration for RAW rules
  * Used for DDoS protection and connection rate limiting
  */
-export declare const RateLimitSchema: z.ZodObject<{
+export declare const RateLimitSchema: z.ZodObject<
+  {
     rate: z.ZodString;
     burst: z.ZodOptional<z.ZodNumber>;
-}, "strip", z.ZodTypeAny, {
+  },
+  'strip',
+  z.ZodTypeAny,
+  {
     rate: string;
     burst?: number | undefined;
-}, {
+  },
+  {
     rate: string;
     burst?: number | undefined;
-}>;
+  }
+>;
 export type RateLimit = z.infer<typeof RateLimitSchema>;
 /**
  * RAW Rule Schema
  *
  * Complete schema for RAW rule configuration with all matchers and actions.
  */
-export declare const RawRuleSchema: z.ZodEffects<z.ZodEffects<z.ZodEffects<z.ZodEffects<z.ZodObject<{
-    id: z.ZodOptional<z.ZodString>;
-    chain: z.ZodEnum<["prerouting", "output"]>;
-    action: z.ZodEnum<["drop", "accept", "notrack", "jump", "log"]>;
-    order: z.ZodOptional<z.ZodNumber>;
-    protocol: z.ZodOptional<z.ZodEnum<["tcp", "udp", "icmp", "ipv6-icmp", "all"]>>;
-    srcAddress: z.ZodOptional<z.ZodEffects<z.ZodString, string, string>>;
-    dstAddress: z.ZodOptional<z.ZodEffects<z.ZodString, string, string>>;
-    srcPort: z.ZodOptional<z.ZodEffects<z.ZodString, string, string>>;
-    dstPort: z.ZodOptional<z.ZodEffects<z.ZodString, string, string>>;
-    inInterface: z.ZodOptional<z.ZodString>;
-    outInterface: z.ZodOptional<z.ZodString>;
-    limit: z.ZodOptional<z.ZodObject<{
-        rate: z.ZodString;
-        burst: z.ZodOptional<z.ZodNumber>;
-    }, "strip", z.ZodTypeAny, {
-        rate: string;
-        burst?: number | undefined;
-    }, {
-        rate: string;
-        burst?: number | undefined;
-    }>>;
-    jumpTarget: z.ZodOptional<z.ZodString>;
-    logPrefix: z.ZodOptional<z.ZodString>;
-    comment: z.ZodOptional<z.ZodString>;
-    disabled: z.ZodDefault<z.ZodBoolean>;
-    packets: z.ZodOptional<z.ZodNumber>;
-    bytes: z.ZodOptional<z.ZodNumber>;
-}, "strip", z.ZodTypeAny, {
-    action: "log" | "accept" | "drop" | "jump" | "notrack";
+export declare const RawRuleSchema: z.ZodEffects<
+  z.ZodEffects<
+    z.ZodEffects<
+      z.ZodEffects<
+        z.ZodObject<
+          {
+            id: z.ZodOptional<z.ZodString>;
+            chain: z.ZodEnum<['prerouting', 'output']>;
+            action: z.ZodEnum<['drop', 'accept', 'notrack', 'jump', 'log']>;
+            order: z.ZodOptional<z.ZodNumber>;
+            protocol: z.ZodOptional<z.ZodEnum<['tcp', 'udp', 'icmp', 'ipv6-icmp', 'all']>>;
+            srcAddress: z.ZodOptional<z.ZodEffects<z.ZodString, string, string>>;
+            dstAddress: z.ZodOptional<z.ZodEffects<z.ZodString, string, string>>;
+            srcPort: z.ZodOptional<z.ZodEffects<z.ZodString, string, string>>;
+            dstPort: z.ZodOptional<z.ZodEffects<z.ZodString, string, string>>;
+            inInterface: z.ZodOptional<z.ZodString>;
+            outInterface: z.ZodOptional<z.ZodString>;
+            limit: z.ZodOptional<
+              z.ZodObject<
+                {
+                  rate: z.ZodString;
+                  burst: z.ZodOptional<z.ZodNumber>;
+                },
+                'strip',
+                z.ZodTypeAny,
+                {
+                  rate: string;
+                  burst?: number | undefined;
+                },
+                {
+                  rate: string;
+                  burst?: number | undefined;
+                }
+              >
+            >;
+            jumpTarget: z.ZodOptional<z.ZodString>;
+            logPrefix: z.ZodOptional<z.ZodString>;
+            comment: z.ZodOptional<z.ZodString>;
+            disabled: z.ZodDefault<z.ZodBoolean>;
+            packets: z.ZodOptional<z.ZodNumber>;
+            bytes: z.ZodOptional<z.ZodNumber>;
+          },
+          'strip',
+          z.ZodTypeAny,
+          {
+            action: 'log' | 'accept' | 'drop' | 'jump' | 'notrack';
+            disabled: boolean;
+            chain: 'output' | 'prerouting';
+            id?: string | undefined;
+            order?: number | undefined;
+            bytes?: number | undefined;
+            protocol?: 'all' | 'tcp' | 'udp' | 'icmp' | 'ipv6-icmp' | undefined;
+            srcAddress?: string | undefined;
+            dstAddress?: string | undefined;
+            srcPort?: string | undefined;
+            dstPort?: string | undefined;
+            inInterface?: string | undefined;
+            outInterface?: string | undefined;
+            jumpTarget?: string | undefined;
+            comment?: string | undefined;
+            logPrefix?: string | undefined;
+            packets?: number | undefined;
+            limit?:
+              | {
+                  rate: string;
+                  burst?: number | undefined;
+                }
+              | undefined;
+          },
+          {
+            action: 'log' | 'accept' | 'drop' | 'jump' | 'notrack';
+            chain: 'output' | 'prerouting';
+            id?: string | undefined;
+            order?: number | undefined;
+            disabled?: boolean | undefined;
+            bytes?: number | undefined;
+            protocol?: 'all' | 'tcp' | 'udp' | 'icmp' | 'ipv6-icmp' | undefined;
+            srcAddress?: string | undefined;
+            dstAddress?: string | undefined;
+            srcPort?: string | undefined;
+            dstPort?: string | undefined;
+            inInterface?: string | undefined;
+            outInterface?: string | undefined;
+            jumpTarget?: string | undefined;
+            comment?: string | undefined;
+            logPrefix?: string | undefined;
+            packets?: number | undefined;
+            limit?:
+              | {
+                  rate: string;
+                  burst?: number | undefined;
+                }
+              | undefined;
+          }
+        >,
+        {
+          action: 'log' | 'accept' | 'drop' | 'jump' | 'notrack';
+          disabled: boolean;
+          chain: 'output' | 'prerouting';
+          id?: string | undefined;
+          order?: number | undefined;
+          bytes?: number | undefined;
+          protocol?: 'all' | 'tcp' | 'udp' | 'icmp' | 'ipv6-icmp' | undefined;
+          srcAddress?: string | undefined;
+          dstAddress?: string | undefined;
+          srcPort?: string | undefined;
+          dstPort?: string | undefined;
+          inInterface?: string | undefined;
+          outInterface?: string | undefined;
+          jumpTarget?: string | undefined;
+          comment?: string | undefined;
+          logPrefix?: string | undefined;
+          packets?: number | undefined;
+          limit?:
+            | {
+                rate: string;
+                burst?: number | undefined;
+              }
+            | undefined;
+        },
+        {
+          action: 'log' | 'accept' | 'drop' | 'jump' | 'notrack';
+          chain: 'output' | 'prerouting';
+          id?: string | undefined;
+          order?: number | undefined;
+          disabled?: boolean | undefined;
+          bytes?: number | undefined;
+          protocol?: 'all' | 'tcp' | 'udp' | 'icmp' | 'ipv6-icmp' | undefined;
+          srcAddress?: string | undefined;
+          dstAddress?: string | undefined;
+          srcPort?: string | undefined;
+          dstPort?: string | undefined;
+          inInterface?: string | undefined;
+          outInterface?: string | undefined;
+          jumpTarget?: string | undefined;
+          comment?: string | undefined;
+          logPrefix?: string | undefined;
+          packets?: number | undefined;
+          limit?:
+            | {
+                rate: string;
+                burst?: number | undefined;
+              }
+            | undefined;
+        }
+      >,
+      {
+        action: 'log' | 'accept' | 'drop' | 'jump' | 'notrack';
+        disabled: boolean;
+        chain: 'output' | 'prerouting';
+        id?: string | undefined;
+        order?: number | undefined;
+        bytes?: number | undefined;
+        protocol?: 'all' | 'tcp' | 'udp' | 'icmp' | 'ipv6-icmp' | undefined;
+        srcAddress?: string | undefined;
+        dstAddress?: string | undefined;
+        srcPort?: string | undefined;
+        dstPort?: string | undefined;
+        inInterface?: string | undefined;
+        outInterface?: string | undefined;
+        jumpTarget?: string | undefined;
+        comment?: string | undefined;
+        logPrefix?: string | undefined;
+        packets?: number | undefined;
+        limit?:
+          | {
+              rate: string;
+              burst?: number | undefined;
+            }
+          | undefined;
+      },
+      {
+        action: 'log' | 'accept' | 'drop' | 'jump' | 'notrack';
+        chain: 'output' | 'prerouting';
+        id?: string | undefined;
+        order?: number | undefined;
+        disabled?: boolean | undefined;
+        bytes?: number | undefined;
+        protocol?: 'all' | 'tcp' | 'udp' | 'icmp' | 'ipv6-icmp' | undefined;
+        srcAddress?: string | undefined;
+        dstAddress?: string | undefined;
+        srcPort?: string | undefined;
+        dstPort?: string | undefined;
+        inInterface?: string | undefined;
+        outInterface?: string | undefined;
+        jumpTarget?: string | undefined;
+        comment?: string | undefined;
+        logPrefix?: string | undefined;
+        packets?: number | undefined;
+        limit?:
+          | {
+              rate: string;
+              burst?: number | undefined;
+            }
+          | undefined;
+      }
+    >,
+    {
+      action: 'log' | 'accept' | 'drop' | 'jump' | 'notrack';
+      disabled: boolean;
+      chain: 'output' | 'prerouting';
+      id?: string | undefined;
+      order?: number | undefined;
+      bytes?: number | undefined;
+      protocol?: 'all' | 'tcp' | 'udp' | 'icmp' | 'ipv6-icmp' | undefined;
+      srcAddress?: string | undefined;
+      dstAddress?: string | undefined;
+      srcPort?: string | undefined;
+      dstPort?: string | undefined;
+      inInterface?: string | undefined;
+      outInterface?: string | undefined;
+      jumpTarget?: string | undefined;
+      comment?: string | undefined;
+      logPrefix?: string | undefined;
+      packets?: number | undefined;
+      limit?:
+        | {
+            rate: string;
+            burst?: number | undefined;
+          }
+        | undefined;
+    },
+    {
+      action: 'log' | 'accept' | 'drop' | 'jump' | 'notrack';
+      chain: 'output' | 'prerouting';
+      id?: string | undefined;
+      order?: number | undefined;
+      disabled?: boolean | undefined;
+      bytes?: number | undefined;
+      protocol?: 'all' | 'tcp' | 'udp' | 'icmp' | 'ipv6-icmp' | undefined;
+      srcAddress?: string | undefined;
+      dstAddress?: string | undefined;
+      srcPort?: string | undefined;
+      dstPort?: string | undefined;
+      inInterface?: string | undefined;
+      outInterface?: string | undefined;
+      jumpTarget?: string | undefined;
+      comment?: string | undefined;
+      logPrefix?: string | undefined;
+      packets?: number | undefined;
+      limit?:
+        | {
+            rate: string;
+            burst?: number | undefined;
+          }
+        | undefined;
+    }
+  >,
+  {
+    action: 'log' | 'accept' | 'drop' | 'jump' | 'notrack';
     disabled: boolean;
-    chain: "output" | "prerouting";
+    chain: 'output' | 'prerouting';
     id?: string | undefined;
     order?: number | undefined;
     bytes?: number | undefined;
-    protocol?: "all" | "tcp" | "udp" | "icmp" | "ipv6-icmp" | undefined;
+    protocol?: 'all' | 'tcp' | 'udp' | 'icmp' | 'ipv6-icmp' | undefined;
     srcAddress?: string | undefined;
     dstAddress?: string | undefined;
     srcPort?: string | undefined;
@@ -101,18 +327,21 @@ export declare const RawRuleSchema: z.ZodEffects<z.ZodEffects<z.ZodEffects<z.Zod
     comment?: string | undefined;
     logPrefix?: string | undefined;
     packets?: number | undefined;
-    limit?: {
-        rate: string;
-        burst?: number | undefined;
-    } | undefined;
-}, {
-    action: "log" | "accept" | "drop" | "jump" | "notrack";
-    chain: "output" | "prerouting";
+    limit?:
+      | {
+          rate: string;
+          burst?: number | undefined;
+        }
+      | undefined;
+  },
+  {
+    action: 'log' | 'accept' | 'drop' | 'jump' | 'notrack';
+    chain: 'output' | 'prerouting';
     id?: string | undefined;
     order?: number | undefined;
     disabled?: boolean | undefined;
     bytes?: number | undefined;
-    protocol?: "all" | "tcp" | "udp" | "icmp" | "ipv6-icmp" | undefined;
+    protocol?: 'all' | 'tcp' | 'udp' | 'icmp' | 'ipv6-icmp' | undefined;
     srcAddress?: string | undefined;
     dstAddress?: string | undefined;
     srcPort?: string | undefined;
@@ -123,187 +352,14 @@ export declare const RawRuleSchema: z.ZodEffects<z.ZodEffects<z.ZodEffects<z.Zod
     comment?: string | undefined;
     logPrefix?: string | undefined;
     packets?: number | undefined;
-    limit?: {
-        rate: string;
-        burst?: number | undefined;
-    } | undefined;
-}>, {
-    action: "log" | "accept" | "drop" | "jump" | "notrack";
-    disabled: boolean;
-    chain: "output" | "prerouting";
-    id?: string | undefined;
-    order?: number | undefined;
-    bytes?: number | undefined;
-    protocol?: "all" | "tcp" | "udp" | "icmp" | "ipv6-icmp" | undefined;
-    srcAddress?: string | undefined;
-    dstAddress?: string | undefined;
-    srcPort?: string | undefined;
-    dstPort?: string | undefined;
-    inInterface?: string | undefined;
-    outInterface?: string | undefined;
-    jumpTarget?: string | undefined;
-    comment?: string | undefined;
-    logPrefix?: string | undefined;
-    packets?: number | undefined;
-    limit?: {
-        rate: string;
-        burst?: number | undefined;
-    } | undefined;
-}, {
-    action: "log" | "accept" | "drop" | "jump" | "notrack";
-    chain: "output" | "prerouting";
-    id?: string | undefined;
-    order?: number | undefined;
-    disabled?: boolean | undefined;
-    bytes?: number | undefined;
-    protocol?: "all" | "tcp" | "udp" | "icmp" | "ipv6-icmp" | undefined;
-    srcAddress?: string | undefined;
-    dstAddress?: string | undefined;
-    srcPort?: string | undefined;
-    dstPort?: string | undefined;
-    inInterface?: string | undefined;
-    outInterface?: string | undefined;
-    jumpTarget?: string | undefined;
-    comment?: string | undefined;
-    logPrefix?: string | undefined;
-    packets?: number | undefined;
-    limit?: {
-        rate: string;
-        burst?: number | undefined;
-    } | undefined;
-}>, {
-    action: "log" | "accept" | "drop" | "jump" | "notrack";
-    disabled: boolean;
-    chain: "output" | "prerouting";
-    id?: string | undefined;
-    order?: number | undefined;
-    bytes?: number | undefined;
-    protocol?: "all" | "tcp" | "udp" | "icmp" | "ipv6-icmp" | undefined;
-    srcAddress?: string | undefined;
-    dstAddress?: string | undefined;
-    srcPort?: string | undefined;
-    dstPort?: string | undefined;
-    inInterface?: string | undefined;
-    outInterface?: string | undefined;
-    jumpTarget?: string | undefined;
-    comment?: string | undefined;
-    logPrefix?: string | undefined;
-    packets?: number | undefined;
-    limit?: {
-        rate: string;
-        burst?: number | undefined;
-    } | undefined;
-}, {
-    action: "log" | "accept" | "drop" | "jump" | "notrack";
-    chain: "output" | "prerouting";
-    id?: string | undefined;
-    order?: number | undefined;
-    disabled?: boolean | undefined;
-    bytes?: number | undefined;
-    protocol?: "all" | "tcp" | "udp" | "icmp" | "ipv6-icmp" | undefined;
-    srcAddress?: string | undefined;
-    dstAddress?: string | undefined;
-    srcPort?: string | undefined;
-    dstPort?: string | undefined;
-    inInterface?: string | undefined;
-    outInterface?: string | undefined;
-    jumpTarget?: string | undefined;
-    comment?: string | undefined;
-    logPrefix?: string | undefined;
-    packets?: number | undefined;
-    limit?: {
-        rate: string;
-        burst?: number | undefined;
-    } | undefined;
-}>, {
-    action: "log" | "accept" | "drop" | "jump" | "notrack";
-    disabled: boolean;
-    chain: "output" | "prerouting";
-    id?: string | undefined;
-    order?: number | undefined;
-    bytes?: number | undefined;
-    protocol?: "all" | "tcp" | "udp" | "icmp" | "ipv6-icmp" | undefined;
-    srcAddress?: string | undefined;
-    dstAddress?: string | undefined;
-    srcPort?: string | undefined;
-    dstPort?: string | undefined;
-    inInterface?: string | undefined;
-    outInterface?: string | undefined;
-    jumpTarget?: string | undefined;
-    comment?: string | undefined;
-    logPrefix?: string | undefined;
-    packets?: number | undefined;
-    limit?: {
-        rate: string;
-        burst?: number | undefined;
-    } | undefined;
-}, {
-    action: "log" | "accept" | "drop" | "jump" | "notrack";
-    chain: "output" | "prerouting";
-    id?: string | undefined;
-    order?: number | undefined;
-    disabled?: boolean | undefined;
-    bytes?: number | undefined;
-    protocol?: "all" | "tcp" | "udp" | "icmp" | "ipv6-icmp" | undefined;
-    srcAddress?: string | undefined;
-    dstAddress?: string | undefined;
-    srcPort?: string | undefined;
-    dstPort?: string | undefined;
-    inInterface?: string | undefined;
-    outInterface?: string | undefined;
-    jumpTarget?: string | undefined;
-    comment?: string | undefined;
-    logPrefix?: string | undefined;
-    packets?: number | undefined;
-    limit?: {
-        rate: string;
-        burst?: number | undefined;
-    } | undefined;
-}>, {
-    action: "log" | "accept" | "drop" | "jump" | "notrack";
-    disabled: boolean;
-    chain: "output" | "prerouting";
-    id?: string | undefined;
-    order?: number | undefined;
-    bytes?: number | undefined;
-    protocol?: "all" | "tcp" | "udp" | "icmp" | "ipv6-icmp" | undefined;
-    srcAddress?: string | undefined;
-    dstAddress?: string | undefined;
-    srcPort?: string | undefined;
-    dstPort?: string | undefined;
-    inInterface?: string | undefined;
-    outInterface?: string | undefined;
-    jumpTarget?: string | undefined;
-    comment?: string | undefined;
-    logPrefix?: string | undefined;
-    packets?: number | undefined;
-    limit?: {
-        rate: string;
-        burst?: number | undefined;
-    } | undefined;
-}, {
-    action: "log" | "accept" | "drop" | "jump" | "notrack";
-    chain: "output" | "prerouting";
-    id?: string | undefined;
-    order?: number | undefined;
-    disabled?: boolean | undefined;
-    bytes?: number | undefined;
-    protocol?: "all" | "tcp" | "udp" | "icmp" | "ipv6-icmp" | undefined;
-    srcAddress?: string | undefined;
-    dstAddress?: string | undefined;
-    srcPort?: string | undefined;
-    dstPort?: string | undefined;
-    inInterface?: string | undefined;
-    outInterface?: string | undefined;
-    jumpTarget?: string | undefined;
-    comment?: string | undefined;
-    logPrefix?: string | undefined;
-    packets?: number | undefined;
-    limit?: {
-        rate: string;
-        burst?: number | undefined;
-    } | undefined;
-}>;
+    limit?:
+      | {
+          rate: string;
+          burst?: number | undefined;
+        }
+      | undefined;
+  }
+>;
 export type RawRule = z.infer<typeof RawRuleSchema>;
 export type RawRuleInput = z.input<typeof RawRuleSchema>;
 /**
@@ -313,19 +369,24 @@ export declare const DEFAULT_RAW_RULE: Partial<RawRule>;
 /**
  * Suggested log prefix patterns for RAW rules
  */
-export declare const SUGGESTED_LOG_PREFIXES: readonly [{
-    readonly value: "RAW-DROP-";
-    readonly label: "RAW-DROP- (packets dropped before conntrack)";
-}, {
-    readonly value: "RAW-BOGON-";
-    readonly label: "RAW-BOGON- (bogon address filtered)";
-}, {
-    readonly value: "RAW-DDOS-";
-    readonly label: "RAW-DDOS- (DDoS protection triggered)";
-}, {
-    readonly value: "RAW-";
-    readonly label: "RAW- (general RAW rule log)";
-}];
+export declare const SUGGESTED_LOG_PREFIXES: readonly [
+  {
+    readonly value: 'RAW-DROP-';
+    readonly label: 'RAW-DROP- (packets dropped before conntrack)';
+  },
+  {
+    readonly value: 'RAW-BOGON-';
+    readonly label: 'RAW-BOGON- (bogon address filtered)';
+  },
+  {
+    readonly value: 'RAW-DDOS-';
+    readonly label: 'RAW-DDOS- (DDoS protection triggered)';
+  },
+  {
+    readonly value: 'RAW-';
+    readonly label: 'RAW- (general RAW rule log)';
+  },
+];
 /**
  * Validate IP address or CIDR
  */

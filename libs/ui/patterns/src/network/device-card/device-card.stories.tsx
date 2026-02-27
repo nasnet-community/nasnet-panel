@@ -7,7 +7,6 @@
  * @see NAS-4A.20: Build Device Discovery Card Component
  */
 
-
 import { DeviceCard } from './device-card';
 import { DeviceCardCompact } from './device-card-compact';
 import { DeviceCardDesktop } from './device-card-desktop';
@@ -416,15 +415,15 @@ export const DesktopPresenter: Story = {
       description: {
         story: 'Desktop presenter with hover-reveal actions and dropdown menu.',
       },
-    }
+    },
   },
 
   globals: {
     viewport: {
       value: 'desktop',
-      isRotated: false
-    }
-  }
+      isRotated: false,
+    },
+  },
 };
 
 /**
@@ -461,15 +460,15 @@ export const MobilePresenter: Story = {
       description: {
         story: 'Mobile presenter with tap-to-open bottom sheet for details and actions.',
       },
-    }
+    },
   },
 
   globals: {
     viewport: {
       value: 'mobile1',
-      isRotated: false
-    }
-  }
+      isRotated: false,
+    },
+  },
 };
 
 /**
@@ -519,14 +518,14 @@ export const DarkTheme: Story = {
   },
 
   parameters: {
-    themes: { default: 'dark' }
+    themes: { default: 'dark' },
   },
 
   globals: {
     backgrounds: {
-      value: "dark"
-    }
-  }
+      value: 'dark',
+    },
+  },
 };
 
 // ============================================================================
@@ -607,10 +606,8 @@ export const CompactList: Story = {
     ];
 
     return (
-      <div className="w-64 space-y-2 p-4 bg-muted/30 rounded-lg">
-        <h3 className="text-sm font-medium text-muted-foreground mb-3">
-          Active Devices
-        </h3>
+      <div className="bg-muted/30 w-64 space-y-2 rounded-lg p-4">
+        <h3 className="text-muted-foreground mb-3 text-sm font-medium">Active Devices</h3>
         {devices.map((device) => (
           <DeviceCard
             key={device.id}

@@ -3,11 +3,7 @@ import * as React from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 
 import { cn } from '../lib/utils';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '../tooltip';
+import { Tooltip, TooltipContent, TooltipTrigger } from '../tooltip';
 
 /**
  * Drift Badge Component
@@ -37,7 +33,7 @@ const driftBadgeVariants = cva(
   [
     'inline-flex items-center justify-center rounded-full',
     'text-xs font-medium transition-all duration-200',
-    'focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+    'focus-visible:ring-ring focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
   ].join(' '),
   {
     variants: {
@@ -47,7 +43,7 @@ const driftBadgeVariants = cva(
          * WCAG: 7.5:1 contrast with green-50 background
          */
         synced: [
-          'bg-success/10 text-success-dark border border-success/20',
+          'bg-success/10 text-success-dark border-success/20 border',
           'dark:bg-success/15 dark:text-success-light dark:border-success/30',
         ].join(' '),
         /**
@@ -55,7 +51,7 @@ const driftBadgeVariants = cva(
          * WCAG: 8.1:1 contrast with amber-50 background
          */
         drifted: [
-          'bg-warning/10 text-warning-dark border border-warning/20',
+          'bg-warning/10 text-warning-dark border-warning/20 border',
           'dark:bg-warning/15 dark:text-warning-light dark:border-warning/30',
         ].join(' '),
         /**
@@ -63,20 +59,18 @@ const driftBadgeVariants = cva(
          * WCAG: 7.2:1 contrast with red-50 background
          */
         error: [
-          'bg-error/10 text-error-dark border border-error/20',
+          'bg-error/10 text-error-dark border-error/20 border',
           'dark:bg-error/15 dark:text-error-light dark:border-error/30',
         ].join(' '),
         /**
          * Pending: Deployment layer not yet available
          */
-        pending: [
-          'bg-muted text-muted-foreground border border-border',
-        ].join(' '),
+        pending: ['bg-muted text-muted-foreground border-border border'].join(' '),
         /**
          * Checking: Drift check in progress
          */
         checking: [
-          'bg-info/10 text-info-dark border border-info/20',
+          'bg-info/10 text-info-dark border-info/20 border',
           'dark:bg-info/15 dark:text-info-light dark:border-info/30',
           'animate-pulse',
         ].join(' '),
@@ -101,12 +95,7 @@ const driftBadgeVariants = cva(
 /**
  * Drift status values matching DriftStatus enum from drift-detection module
  */
-export type DriftBadgeStatus =
-  | 'synced'
-  | 'drifted'
-  | 'error'
-  | 'pending'
-  | 'checking';
+export type DriftBadgeStatus = 'synced' | 'drifted' | 'error' | 'pending' | 'checking';
 
 export interface DriftBadgeProps
   extends Omit<React.HTMLAttributes<HTMLSpanElement>, 'children'>,
@@ -234,8 +223,19 @@ const STATUS_CONFIG: Record<
         xmlns="http://www.w3.org/2000/svg"
         aria-hidden="true"
       >
-        <circle cx="6" cy="6" r="4.5" stroke="currentColor" strokeWidth="1.5" />
-        <circle cx="6" cy="6" r="1.5" fill="currentColor" />
+        <circle
+          cx="6"
+          cy="6"
+          r="4.5"
+          stroke="currentColor"
+          strokeWidth="1.5"
+        />
+        <circle
+          cx="6"
+          cy="6"
+          r="1.5"
+          fill="currentColor"
+        />
       </svg>
     ),
   },
@@ -268,8 +268,7 @@ const STATUS_CONFIG: Record<
 function formatLastChecked(lastChecked: Date | string | undefined): string {
   if (!lastChecked) return 'Never checked';
 
-  const date =
-    typeof lastChecked === 'string' ? new Date(lastChecked) : lastChecked;
+  const date = typeof lastChecked === 'string' ? new Date(lastChecked) : lastChecked;
   const now = new Date();
   const diffMs = now.getTime() - date.getTime();
   const diffMins = Math.floor(diffMs / 60000);
@@ -353,8 +352,9 @@ export const DriftBadge = React.memo(
       const displayCount = status === 'drifted' && count !== undefined && count > 0;
 
       // Build aria label
-      const ariaLabel = displayCount
-        ? `${config.ariaLabel}: ${count} field${count === 1 ? '' : 's'}`
+      const ariaLabel =
+        displayCount ?
+          `${config.ariaLabel}: ${count} field${count === 1 ? '' : 's'}`
         : config.ariaLabel;
 
       // Build badge content
@@ -366,14 +366,14 @@ export const DriftBadge = React.memo(
           aria-label={ariaLabel}
           onClick={interactive ? onClick : undefined}
           onKeyDown={
-            interactive
-              ? (e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    onClick?.(e as unknown as React.MouseEvent<HTMLSpanElement>);
-                  }
+            interactive ?
+              (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  onClick?.(e as unknown as React.MouseEvent<HTMLSpanElement>);
                 }
-              : undefined
+              }
+            : undefined
           }
           className={cn(
             driftBadgeVariants({ status, size }),
@@ -396,7 +396,10 @@ export const DriftBadge = React.memo(
         return (
           <Tooltip>
             <TooltipTrigger asChild>{badgeContent}</TooltipTrigger>
-            <TooltipContent side="top" className="max-w-xs whitespace-pre-line">
+            <TooltipContent
+              side="top"
+              className="max-w-xs whitespace-pre-line"
+            >
               {tooltipText}
             </TooltipContent>
           </Tooltip>

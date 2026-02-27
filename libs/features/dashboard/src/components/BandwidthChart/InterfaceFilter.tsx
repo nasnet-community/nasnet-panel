@@ -34,13 +34,28 @@ import { useInterfaces } from '../InterfaceGrid/useInterfaces';
 function getInterfaceIcon(type: string) {
   switch (type) {
     case 'ethernet':
-      return <Cable className="h-4 w-4" aria-hidden="true" />;
+      return (
+        <Cable
+          className="h-4 w-4"
+          aria-hidden="true"
+        />
+      );
     case 'wireless':
-      return <Wifi className="h-4 w-4" aria-hidden="true" />;
+      return (
+        <Wifi
+          className="h-4 w-4"
+          aria-hidden="true"
+        />
+      );
     case 'bridge':
     case 'vlan':
     default:
-      return <Network className="h-4 w-4" aria-hidden="true" />;
+      return (
+        <Network
+          className="h-4 w-4"
+          aria-hidden="true"
+        />
+      );
   }
 }
 
@@ -88,7 +103,7 @@ export const InterfaceFilter = memo<InterfaceFilterProps>(
       >
         <SelectTrigger
           className={cn(
-            'w-[180px] min-h-[44px]', // 44px minimum for touch targets (WCAG AAA)
+            'min-h-[44px] w-[180px]', // 44px minimum for touch targets (WCAG AAA)
             className
           )}
           aria-label="Filter bandwidth by interface"
@@ -98,41 +113,50 @@ export const InterfaceFilter = memo<InterfaceFilterProps>(
         <SelectContent>
           {/* All interfaces option */}
           <SelectItem value="all">
-            <div className="flex items-center gap-component-sm">
-              <Network className="h-4 w-4" aria-hidden="true" />
+            <div className="gap-component-sm flex items-center">
+              <Network
+                className="h-4 w-4"
+                aria-hidden="true"
+              />
               <span>All interfaces</span>
             </div>
           </SelectItem>
 
           {/* Loading state */}
           {isLoading && (
-            <SelectItem value="loading" disabled>
+            <SelectItem
+              value="loading"
+              disabled
+            >
               <span className="text-muted-foreground">Loading interfaces...</span>
             </SelectItem>
           )}
 
           {/* Interface list */}
-          {interfaces && interfaces.length > 0 ? (
+          {interfaces && interfaces.length > 0 ?
             interfaces.map((iface) => (
-              <SelectItem key={iface.id} value={iface.id}>
-                <div className="flex items-center gap-component-sm">
+              <SelectItem
+                key={iface.id}
+                value={iface.id}
+              >
+                <div className="gap-component-sm flex items-center">
                   {getInterfaceIcon(iface.type)}
                   <span>{iface.name}</span>
                   {iface.type && (
-                    <span className="text-xs text-muted-foreground">
-                      ({iface.type})
-                    </span>
+                    <span className="text-muted-foreground text-xs">({iface.type})</span>
                   )}
                 </div>
               </SelectItem>
             ))
-          ) : (
-            !isLoading && (
-              <SelectItem value="empty" disabled>
+          : !isLoading && (
+              <SelectItem
+                value="empty"
+                disabled
+              >
                 <span className="text-muted-foreground">No interfaces found</span>
               </SelectItem>
             )
-          )}
+          }
         </SelectContent>
       </Select>
     );

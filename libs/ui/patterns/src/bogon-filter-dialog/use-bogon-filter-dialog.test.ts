@@ -14,17 +14,13 @@ describe('useBogonFilterDialog', () => {
 
   describe('Initialization', () => {
     it('initializes with first interface', () => {
-      const { result } = renderHook(() =>
-        useBogonFilterDialog({ availableInterfaces })
-      );
+      const { result } = renderHook(() => useBogonFilterDialog({ availableInterfaces }));
 
       expect(result.current.selectedInterface).toBe('ether1-wan');
     });
 
     it('initializes with default categories (excluding private)', () => {
-      const { result } = renderHook(() =>
-        useBogonFilterDialog({ availableInterfaces })
-      );
+      const { result } = renderHook(() => useBogonFilterDialog({ availableInterfaces }));
 
       expect(result.current.selectedCategories.has('loopback')).toBe(true);
       expect(result.current.selectedCategories.has('reserved')).toBe(true);
@@ -35,9 +31,7 @@ describe('useBogonFilterDialog', () => {
     });
 
     it('shows private warning when private category is selected', () => {
-      const { result } = renderHook(() =>
-        useBogonFilterDialog({ availableInterfaces })
-      );
+      const { result } = renderHook(() => useBogonFilterDialog({ availableInterfaces }));
 
       expect(result.current.showPrivateWarning).toBe(false);
 
@@ -51,9 +45,7 @@ describe('useBogonFilterDialog', () => {
 
   describe('Interface Selection', () => {
     it('sets selected interface', () => {
-      const { result } = renderHook(() =>
-        useBogonFilterDialog({ availableInterfaces })
-      );
+      const { result } = renderHook(() => useBogonFilterDialog({ availableInterfaces }));
 
       act(() => {
         result.current.setSelectedInterface('ether2-wan');
@@ -65,9 +57,7 @@ describe('useBogonFilterDialog', () => {
 
   describe('Category Selection', () => {
     it('toggles category selection', () => {
-      const { result } = renderHook(() =>
-        useBogonFilterDialog({ availableInterfaces })
-      );
+      const { result } = renderHook(() => useBogonFilterDialog({ availableInterfaces }));
 
       const initialSize = result.current.selectedCategories.size;
 
@@ -87,9 +77,7 @@ describe('useBogonFilterDialog', () => {
     });
 
     it('selects all categories', () => {
-      const { result } = renderHook(() =>
-        useBogonFilterDialog({ availableInterfaces })
-      );
+      const { result } = renderHook(() => useBogonFilterDialog({ availableInterfaces }));
 
       act(() => {
         result.current.selectAllCategories();
@@ -101,9 +89,7 @@ describe('useBogonFilterDialog', () => {
     });
 
     it('clears all categories', () => {
-      const { result } = renderHook(() =>
-        useBogonFilterDialog({ availableInterfaces })
-      );
+      const { result } = renderHook(() => useBogonFilterDialog({ availableInterfaces }));
 
       act(() => {
         result.current.clearCategories();
@@ -113,9 +99,7 @@ describe('useBogonFilterDialog', () => {
     });
 
     it('checks if category is selected', () => {
-      const { result } = renderHook(() =>
-        useBogonFilterDialog({ availableInterfaces })
-      );
+      const { result } = renderHook(() => useBogonFilterDialog({ availableInterfaces }));
 
       expect(result.current.isCategorySelected('loopback')).toBe(true);
       expect(result.current.isCategorySelected('private')).toBe(false);
@@ -124,23 +108,19 @@ describe('useBogonFilterDialog', () => {
 
   describe('Rule Generation', () => {
     it('generates rules for selected categories', () => {
-      const { result } = renderHook(() =>
-        useBogonFilterDialog({ availableInterfaces })
-      );
+      const { result } = renderHook(() => useBogonFilterDialog({ availableInterfaces }));
 
       // Start with default selection (5 categories)
       const rules = result.current.generateRules();
 
       expect(rules.length).toBeGreaterThan(0);
-      expect(rules.every(r => r.chain === 'prerouting')).toBe(true);
-      expect(rules.every(r => r.action === 'drop')).toBe(true);
-      expect(rules.every(r => r.inInterface === 'ether1-wan')).toBe(true);
+      expect(rules.every((r) => r.chain === 'prerouting')).toBe(true);
+      expect(rules.every((r) => r.action === 'drop')).toBe(true);
+      expect(rules.every((r) => r.inInterface === 'ether1-wan')).toBe(true);
     });
 
     it('rule count matches generated rules', () => {
-      const { result } = renderHook(() =>
-        useBogonFilterDialog({ availableInterfaces })
-      );
+      const { result } = renderHook(() => useBogonFilterDialog({ availableInterfaces }));
 
       const ruleCount = result.current.ruleCount;
       const rules = result.current.generateRules();
@@ -149,9 +129,7 @@ describe('useBogonFilterDialog', () => {
     });
 
     it('generates rules with correct interface', () => {
-      const { result } = renderHook(() =>
-        useBogonFilterDialog({ availableInterfaces })
-      );
+      const { result } = renderHook(() => useBogonFilterDialog({ availableInterfaces }));
 
       act(() => {
         result.current.setSelectedInterface('ether2-wan');
@@ -159,13 +137,11 @@ describe('useBogonFilterDialog', () => {
 
       const rules = result.current.generateRules();
 
-      expect(rules.every(r => r.inInterface === 'ether2-wan')).toBe(true);
+      expect(rules.every((r) => r.inInterface === 'ether2-wan')).toBe(true);
     });
 
     it('includes private addresses when selected', () => {
-      const { result } = renderHook(() =>
-        useBogonFilterDialog({ availableInterfaces })
-      );
+      const { result } = renderHook(() => useBogonFilterDialog({ availableInterfaces }));
 
       // Clear all first
       act(() => {
@@ -177,9 +153,9 @@ describe('useBogonFilterDialog', () => {
 
       // Private has 3 ranges: 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16
       expect(rules.length).toBe(3);
-      expect(rules.some(r => r.srcAddress === '10.0.0.0/8')).toBe(true);
-      expect(rules.some(r => r.srcAddress === '172.16.0.0/12')).toBe(true);
-      expect(rules.some(r => r.srcAddress === '192.168.0.0/16')).toBe(true);
+      expect(rules.some((r) => r.srcAddress === '10.0.0.0/8')).toBe(true);
+      expect(rules.some((r) => r.srcAddress === '172.16.0.0/12')).toBe(true);
+      expect(rules.some((r) => r.srcAddress === '192.168.0.0/16')).toBe(true);
     });
 
     it('calls onGenerateStart callback', () => {
@@ -200,17 +176,13 @@ describe('useBogonFilterDialog', () => {
 
   describe('Validation', () => {
     it('is valid when interface and categories are selected', () => {
-      const { result } = renderHook(() =>
-        useBogonFilterDialog({ availableInterfaces })
-      );
+      const { result } = renderHook(() => useBogonFilterDialog({ availableInterfaces }));
 
       expect(result.current.isValid).toBe(true);
     });
 
     it('is invalid when no categories selected', () => {
-      const { result } = renderHook(() =>
-        useBogonFilterDialog({ availableInterfaces })
-      );
+      const { result } = renderHook(() => useBogonFilterDialog({ availableInterfaces }));
 
       act(() => {
         result.current.clearCategories();
@@ -220,9 +192,7 @@ describe('useBogonFilterDialog', () => {
     });
 
     it('is invalid when no interface selected', () => {
-      const { result } = renderHook(() =>
-        useBogonFilterDialog({ availableInterfaces: [] })
-      );
+      const { result } = renderHook(() => useBogonFilterDialog({ availableInterfaces: [] }));
 
       act(() => {
         result.current.setSelectedInterface('');
@@ -234,18 +204,14 @@ describe('useBogonFilterDialog', () => {
 
   describe('Category Descriptions', () => {
     it('provides category descriptions', () => {
-      const { result } = renderHook(() =>
-        useBogonFilterDialog({ availableInterfaces })
-      );
+      const { result } = renderHook(() => useBogonFilterDialog({ availableInterfaces }));
 
       const description = result.current.getCategoryDescription('private');
       expect(description).toContain('RFC 1918');
     });
 
     it('provides security recommendations', () => {
-      const { result } = renderHook(() =>
-        useBogonFilterDialog({ availableInterfaces })
-      );
+      const { result } = renderHook(() => useBogonFilterDialog({ availableInterfaces }));
 
       const recommendation = result.current.getSecurityRecommendation('private');
       expect(recommendation).toContain('spoofing');

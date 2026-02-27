@@ -51,7 +51,10 @@ function isPortSuperset(broader: string | undefined, narrower: string | undefine
 /**
  * Check if two rules match the same traffic with one being more general
  */
-function isRuleSupersededBy(rule: FirewallRule, other: FirewallRule): { superseded: boolean; reason: string } {
+function isRuleSupersededBy(
+  rule: FirewallRule,
+  other: FirewallRule
+): { superseded: boolean; reason: string } {
   // Must be in same chain
   if (rule.chain !== other.chain) {
     return { superseded: false, reason: '' };
@@ -68,17 +71,28 @@ function isRuleSupersededBy(rule: FirewallRule, other: FirewallRule): { supersed
   }
 
   // Check if 'other' matches same or broader traffic
-  const protocolMatch = !other.protocol || !rule.protocol || other.protocol === rule.protocol || other.protocol === 'all';
+  const protocolMatch =
+    !other.protocol ||
+    !rule.protocol ||
+    other.protocol === rule.protocol ||
+    other.protocol === 'all';
   const srcAddrMatch = isAddressSuperset(other.srcAddress, rule.srcAddress);
   const dstAddrMatch = isAddressSuperset(other.dstAddress, rule.dstAddress);
   const srcPortMatch = isPortSuperset(other.srcPort, rule.srcPort);
   const dstPortMatch = isPortSuperset(other.dstPort, rule.dstPort);
-  const inInterfaceMatch = !other.inInterface || !rule.inInterface || other.inInterface === rule.inInterface;
-  const outInterfaceMatch = !other.outInterface || !rule.outInterface || other.outInterface === rule.outInterface;
+  const inInterfaceMatch =
+    !other.inInterface || !rule.inInterface || other.inInterface === rule.inInterface;
+  const outInterfaceMatch =
+    !other.outInterface || !rule.outInterface || other.outInterface === rule.outInterface;
 
-  const isSuperseded = protocolMatch && srcAddrMatch && dstAddrMatch &&
-                       srcPortMatch && dstPortMatch &&
-                       inInterfaceMatch && outInterfaceMatch;
+  const isSuperseded =
+    protocolMatch &&
+    srcAddrMatch &&
+    dstAddrMatch &&
+    srcPortMatch &&
+    dstPortMatch &&
+    inInterfaceMatch &&
+    outInterfaceMatch;
 
   if (!isSuperseded) {
     return { superseded: false, reason: '' };
@@ -92,9 +106,8 @@ function isRuleSupersededBy(rule: FirewallRule, other: FirewallRule): { supersed
   if (!other.srcPort) reasons.push('any source port');
   if (!other.dstPort) reasons.push('any destination port');
 
-  const reason = reasons.length > 0
-    ? `Matches ${reasons.join(', ')}`
-    : 'Exact duplicate of earlier rule';
+  const reason =
+    reasons.length > 0 ? `Matches ${reasons.join(', ')}` : 'Exact duplicate of earlier rule';
 
   return { superseded: true, reason };
 }
@@ -129,14 +142,17 @@ export function detectRedundantRules(rules: FirewallRule[]): Suggestion[] {
   const suggestions: Suggestion[] = [];
 
   // Group rules by chain
-  const rulesByChain = rules.reduce((acc, rule) => {
-    const chain = rule.chain;
-    if (!acc[chain]) {
-      acc[chain] = [];
-    }
-    acc[chain].push(rule);
-    return acc;
-  }, {} as Record<string, FirewallRule[]>);
+  const rulesByChain = rules.reduce(
+    (acc, rule) => {
+      const chain = rule.chain;
+      if (!acc[chain]) {
+        acc[chain] = [];
+      }
+      acc[chain].push(rule);
+      return acc;
+    },
+    {} as Record<string, FirewallRule[]>
+  );
 
   // Process each chain separately
   Object.entries(rulesByChain).forEach(([chain, chainRules]) => {

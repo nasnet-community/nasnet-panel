@@ -62,8 +62,14 @@ function EmptyState({ type, onAction }: EmptyStateProps) {
         <CardDescription>{t('servicePorts.emptyStates.noGroupsDescription')}</CardDescription>
       </CardHeader>
       <CardContent className="flex justify-center">
-        <Button onClick={onAction} className="min-h-[44px]">
-          <Plus className="h-4 w-4 mr-component-sm" aria-hidden="true" />
+        <Button
+          onClick={onAction}
+          className="min-h-[44px]"
+        >
+          <Plus
+            className="mr-component-sm h-4 w-4"
+            aria-hidden="true"
+          />
           {t('servicePorts.createGroup')}
         </Button>
       </CardContent>
@@ -117,55 +123,80 @@ export function ServicePortsPage() {
   // ============================================================================
 
   return (
-    <div className="h-full flex flex-col px-page-mobile md:px-page-tablet lg:px-page-desktop py-component-md space-y-component-md">
+    <div className="px-page-mobile md:px-page-tablet lg:px-page-desktop py-component-md space-y-component-md flex h-full flex-col">
       {/* Page Header */}
       <div className="space-y-component-sm">
-        <h1 className="text-3xl font-bold tracking-tight font-display">{t('servicePorts.title')}</h1>
-        <p className="text-sm text-muted-foreground">{t('servicePorts.description')}</p>
+        <h1 className="font-display text-3xl font-bold tracking-tight">
+          {t('servicePorts.title')}
+        </h1>
+        <p className="text-muted-foreground text-sm">{t('servicePorts.description')}</p>
       </div>
 
       {/* Tabs */}
-      <Tabs value={activeTab} onValueChange={handleTabChange} className="flex-1 overflow-hidden flex flex-col">
+      <Tabs
+        value={activeTab}
+        onValueChange={handleTabChange}
+        className="flex flex-1 flex-col overflow-hidden"
+      >
         {/* Tab Header with Action Button */}
-        <div className="flex items-center justify-between gap-component-sm border-b border-border pb-component-md">
+        <div className="gap-component-sm border-border pb-component-md flex items-center justify-between border-b">
           <TabsList>
             <TabsTrigger value="services">{t('servicePorts.tabs.services')}</TabsTrigger>
             <TabsTrigger value="groups">{t('servicePorts.tabs.groups')}</TabsTrigger>
           </TabsList>
 
           {/* Action Button - changes based on active tab */}
-          {activeTab === 'services' ? (
-            <Button onClick={handleAddService} className="min-h-[44px]">
-              <Plus className="h-4 w-4 mr-component-sm" aria-hidden="true" />
+          {activeTab === 'services' ?
+            <Button
+              onClick={handleAddService}
+              className="min-h-[44px]"
+            >
+              <Plus
+                className="mr-component-sm h-4 w-4"
+                aria-hidden="true"
+              />
               {t('servicePorts.addService')}
             </Button>
-          ) : (
-            <Button onClick={handleCreateGroup} className="min-h-[44px]">
-              <Plus className="h-4 w-4 mr-component-sm" aria-hidden="true" />
+          : <Button
+              onClick={handleCreateGroup}
+              className="min-h-[44px]"
+            >
+              <Plus
+                className="mr-component-sm h-4 w-4"
+                aria-hidden="true"
+              />
               {t('servicePorts.createGroup')}
             </Button>
-          )}
+          }
         </div>
 
         {/* Services Tab */}
-        <TabsContent value="services" className="flex-1 overflow-y-auto p-component-md m-0">
+        <TabsContent
+          value="services"
+          className="p-component-md m-0 flex-1 overflow-y-auto"
+        >
           <ServicePortsTable />
         </TabsContent>
 
         {/* Groups Tab */}
-        <TabsContent value="groups" className="flex-1 overflow-y-auto p-component-md m-0">
-          {serviceGroups.length === 0 ? (
-            <EmptyState type="groups" onAction={handleCreateGroup} />
-          ) : (
-            <Card>
+        <TabsContent
+          value="groups"
+          className="p-component-md m-0 flex-1 overflow-y-auto"
+        >
+          {serviceGroups.length === 0 ?
+            <EmptyState
+              type="groups"
+              onAction={handleCreateGroup}
+            />
+          : <Card>
               <CardContent className="py-component-lg">
-                <div className="text-center space-y-component-sm">
-                  <p className="text-sm text-muted-foreground">
+                <div className="space-y-component-sm text-center">
+                  <p className="text-muted-foreground text-sm">
                     {t('servicePorts.groupsTableComingSoon', {
                       defaultValue: 'Service Groups table coming soon (not in current scope)',
                     })}
                   </p>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-muted-foreground text-xs">
                     {t('servicePorts.groupsCount', {
                       defaultValue: '{{count}} group defined',
                       count: serviceGroups.length,
@@ -174,13 +205,19 @@ export function ServicePortsPage() {
                 </div>
               </CardContent>
             </Card>
-          )}
+          }
         </TabsContent>
       </Tabs>
 
       {/* Dialogs */}
-      <AddServiceDialog open={addServiceOpen} onOpenChange={setAddServiceOpen} />
-      <ServiceGroupDialog open={addGroupOpen} onOpenChange={setAddGroupOpen} />
+      <AddServiceDialog
+        open={addServiceOpen}
+        onOpenChange={setAddServiceOpen}
+      />
+      <ServiceGroupDialog
+        open={addGroupOpen}
+        onOpenChange={setAddGroupOpen}
+      />
     </div>
   );
 }

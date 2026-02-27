@@ -39,7 +39,12 @@ describe('DnsServerList', () => {
 
   describe('rendering', () => {
     it('should render all DNS servers', () => {
-      render(<DnsServerList servers={mockServers} {...mockHandlers} />);
+      render(
+        <DnsServerList
+          servers={mockServers}
+          {...mockHandlers}
+        />
+      );
 
       expect(screen.getByText('1.1.1.1')).toBeInTheDocument();
       expect(screen.getByText('8.8.8.8')).toBeInTheDocument();
@@ -47,14 +52,24 @@ describe('DnsServerList', () => {
     });
 
     it('should display "Dynamic" badge for dynamic servers', () => {
-      render(<DnsServerList servers={mockServers} {...mockHandlers} />);
+      render(
+        <DnsServerList
+          servers={mockServers}
+          {...mockHandlers}
+        />
+      );
 
       const dynamicBadges = screen.getAllByText('Dynamic');
       expect(dynamicBadges).toHaveLength(1);
     });
 
     it('should show remove button for static servers only', () => {
-      render(<DnsServerList servers={mockServers} {...mockHandlers} />);
+      render(
+        <DnsServerList
+          servers={mockServers}
+          {...mockHandlers}
+        />
+      );
 
       // Static servers should have remove buttons
       const removeButtons = screen.getAllByRole('button', {
@@ -66,14 +81,24 @@ describe('DnsServerList', () => {
     });
 
     it('should render "Add DNS Server" button', () => {
-      render(<DnsServerList servers={mockServers} {...mockHandlers} />);
+      render(
+        <DnsServerList
+          servers={mockServers}
+          {...mockHandlers}
+        />
+      );
 
       const addButton = screen.getByRole('button', { name: /add dns server/i });
       expect(addButton).toBeInTheDocument();
     });
 
     it('should render empty state when no servers', () => {
-      render(<DnsServerList servers={[]} {...mockHandlers} />);
+      render(
+        <DnsServerList
+          servers={[]}
+          {...mockHandlers}
+        />
+      );
 
       const addButton = screen.getByRole('button', { name: /add dns server/i });
       expect(addButton).toBeInTheDocument();
@@ -83,7 +108,12 @@ describe('DnsServerList', () => {
   describe('interactions', () => {
     it('should call onAdd when add button is clicked', async () => {
       const user = userEvent.setup();
-      render(<DnsServerList servers={mockServers} {...mockHandlers} />);
+      render(
+        <DnsServerList
+          servers={mockServers}
+          {...mockHandlers}
+        />
+      );
 
       const addButton = screen.getByRole('button', { name: /add dns server/i });
       await user.click(addButton);
@@ -93,7 +123,12 @@ describe('DnsServerList', () => {
 
     it('should call onRemove with correct server id when remove button is clicked', async () => {
       const user = userEvent.setup();
-      render(<DnsServerList servers={mockServers} {...mockHandlers} />);
+      render(
+        <DnsServerList
+          servers={mockServers}
+          {...mockHandlers}
+        />
+      );
 
       // Find remove button for first static server (1.1.1.1)
       const removeButtons = screen.getAllByRole('button', {
@@ -106,7 +141,12 @@ describe('DnsServerList', () => {
     });
 
     it('should not show remove button for dynamic servers', () => {
-      render(<DnsServerList servers={mockServers} {...mockHandlers} />);
+      render(
+        <DnsServerList
+          servers={mockServers}
+          {...mockHandlers}
+        />
+      );
 
       // Get the dynamic server row
       const dynamicServerRow = screen.getByText('192.168.1.1').closest('div');
@@ -120,7 +160,12 @@ describe('DnsServerList', () => {
     });
 
     it('should disable dragging for dynamic servers', () => {
-      render(<DnsServerList servers={mockServers} {...mockHandlers} />);
+      render(
+        <DnsServerList
+          servers={mockServers}
+          {...mockHandlers}
+        />
+      );
 
       // Dynamic servers should not have drag handles enabled
       // (This is a behavioral test - actual drag interaction testing
@@ -133,7 +178,11 @@ describe('DnsServerList', () => {
   describe('loading state', () => {
     it('should disable interactions when loading', () => {
       render(
-        <DnsServerList servers={mockServers} {...mockHandlers} loading={true} />
+        <DnsServerList
+          servers={mockServers}
+          {...mockHandlers}
+          loading={true}
+        />
       );
 
       const addButton = screen.getByRole('button', { name: /add dns server/i });
@@ -142,7 +191,11 @@ describe('DnsServerList', () => {
 
     it('should disable remove buttons when loading', () => {
       render(
-        <DnsServerList servers={mockServers} {...mockHandlers} loading={true} />
+        <DnsServerList
+          servers={mockServers}
+          {...mockHandlers}
+          loading={true}
+        />
       );
 
       const removeButtons = screen.getAllByRole('button', {
@@ -159,7 +212,12 @@ describe('DnsServerList', () => {
     it('should render desktop presenter on desktop platform', () => {
       vi.mocked(platformUtils.usePlatform).mockReturnValue('desktop');
 
-      render(<DnsServerList servers={mockServers} {...mockHandlers} />);
+      render(
+        <DnsServerList
+          servers={mockServers}
+          {...mockHandlers}
+        />
+      );
 
       // Desktop version should use table/list layout
       // (Check for specific desktop UI elements)
@@ -169,7 +227,12 @@ describe('DnsServerList', () => {
     it('should render mobile presenter on mobile platform', () => {
       vi.mocked(platformUtils.usePlatform).mockReturnValue('mobile');
 
-      render(<DnsServerList servers={mockServers} {...mockHandlers} />);
+      render(
+        <DnsServerList
+          servers={mockServers}
+          {...mockHandlers}
+        />
+      );
 
       // Mobile version should render (specific mobile UI can be tested)
       expect(screen.getByText('1.1.1.1')).toBeInTheDocument();
@@ -178,19 +241,25 @@ describe('DnsServerList', () => {
 
   describe('accessibility', () => {
     it('should have accessible labels for remove buttons', () => {
-      render(<DnsServerList servers={mockServers} {...mockHandlers} />);
+      render(
+        <DnsServerList
+          servers={mockServers}
+          {...mockHandlers}
+        />
+      );
 
       // Each remove button should have an aria-label with the server address
-      expect(
-        screen.getByRole('button', { name: /remove 1\.1\.1\.1/i })
-      ).toBeInTheDocument();
-      expect(
-        screen.getByRole('button', { name: /remove 8\.8\.8\.8/i })
-      ).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /remove 1\.1\.1\.1/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /remove 8\.8\.8\.8/i })).toBeInTheDocument();
     });
 
     it('should have accessible add button', () => {
-      render(<DnsServerList servers={mockServers} {...mockHandlers} />);
+      render(
+        <DnsServerList
+          servers={mockServers}
+          {...mockHandlers}
+        />
+      );
 
       const addButton = screen.getByRole('button', { name: /add dns server/i });
       expect(addButton).toHaveAccessibleName();
@@ -198,7 +267,12 @@ describe('DnsServerList', () => {
 
     it('should support keyboard navigation', async () => {
       const user = userEvent.setup();
-      render(<DnsServerList servers={mockServers} {...mockHandlers} />);
+      render(
+        <DnsServerList
+          servers={mockServers}
+          {...mockHandlers}
+        />
+      );
 
       const addButton = screen.getByRole('button', { name: /add dns server/i });
 
@@ -214,11 +288,14 @@ describe('DnsServerList', () => {
 
   describe('edge cases', () => {
     it('should handle single server', () => {
-      const singleServer: DnsServer[] = [
-        { id: '1', address: '1.1.1.1', isDynamic: false },
-      ];
+      const singleServer: DnsServer[] = [{ id: '1', address: '1.1.1.1', isDynamic: false }];
 
-      render(<DnsServerList servers={singleServer} {...mockHandlers} />);
+      render(
+        <DnsServerList
+          servers={singleServer}
+          {...mockHandlers}
+        />
+      );
 
       expect(screen.getByText('1.1.1.1')).toBeInTheDocument();
     });
@@ -229,7 +306,12 @@ describe('DnsServerList', () => {
         { id: '2', address: '192.168.1.2', isDynamic: true },
       ];
 
-      render(<DnsServerList servers={allDynamic} {...mockHandlers} />);
+      render(
+        <DnsServerList
+          servers={allDynamic}
+          {...mockHandlers}
+        />
+      );
 
       // Should show dynamic badges
       const dynamicBadges = screen.getAllByText('Dynamic');
@@ -248,7 +330,12 @@ describe('DnsServerList', () => {
         { id: '2', address: '8.8.8.8', isDynamic: false },
       ];
 
-      render(<DnsServerList servers={allStatic} {...mockHandlers} />);
+      render(
+        <DnsServerList
+          servers={allStatic}
+          {...mockHandlers}
+        />
+      );
 
       // Should have remove buttons for all
       const removeButtons = screen.getAllByRole('button', {

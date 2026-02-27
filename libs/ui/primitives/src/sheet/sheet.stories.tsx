@@ -1,6 +1,5 @@
 import * as React from 'react';
 
-
 import { Button } from '../button';
 import { Input } from '../input';
 import { Label } from '../label';
@@ -59,9 +58,7 @@ export const Default: Story = {
           </SheetDescription>
         </SheetHeader>
         <div className="py-4">
-          <p className="text-sm text-muted-foreground">
-            Sheet body content goes here.
-          </p>
+          <p className="text-muted-foreground text-sm">Sheet body content goes here.</p>
         </div>
         <SheetFooter>
           <SheetClose asChild>
@@ -89,19 +86,36 @@ export const RouterEditForm: Story = {
         </SheetHeader>
         <div className="grid gap-4 py-4">
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="iface-name" className="text-right text-sm">
+            <Label
+              htmlFor="iface-name"
+              className="text-right text-sm"
+            >
               Name
             </Label>
-            <Input id="iface-name" defaultValue="ether1" className="col-span-3" />
+            <Input
+              id="iface-name"
+              defaultValue="ether1"
+              className="col-span-3"
+            />
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="iface-comment" className="text-right text-sm">
+            <Label
+              htmlFor="iface-comment"
+              className="text-right text-sm"
+            >
               Comment
             </Label>
-            <Input id="iface-comment" defaultValue="WAN Uplink" className="col-span-3" />
+            <Input
+              id="iface-comment"
+              defaultValue="WAN Uplink"
+              className="col-span-3"
+            />
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="iface-mtu" className="text-right text-sm">
+            <Label
+              htmlFor="iface-mtu"
+              className="text-right text-sm"
+            >
               MTU
             </Label>
             <Input
@@ -136,15 +150,16 @@ export const FromLeft: Story = {
           <SheetDescription>App navigation panel sliding from the left.</SheetDescription>
         </SheetHeader>
         <nav className="mt-4 flex flex-col gap-2">
-          {['Dashboard', 'Interfaces', 'Firewall', 'VPN', 'Services', 'Logs'].map(
-            (item) => (
-              <SheetClose asChild key={item}>
-                <button className="rounded-md px-3 py-2 text-left text-sm hover:bg-muted transition-colors">
-                  {item}
-                </button>
-              </SheetClose>
-            )
-          )}
+          {['Dashboard', 'Interfaces', 'Firewall', 'VPN', 'Services', 'Logs'].map((item) => (
+            <SheetClose
+              asChild
+              key={item}
+            >
+              <button className="hover:bg-muted rounded-md px-3 py-2 text-left text-sm transition-colors">
+                {item}
+              </button>
+            </SheetClose>
+          ))}
         </nav>
       </SheetContent>
     </Sheet>
@@ -160,19 +175,42 @@ export const FromBottom: Story = {
       <SheetContent side="bottom">
         <SheetHeader>
           <SheetTitle>Router Actions</SheetTitle>
-          <SheetDescription>
-            Choose an action to perform on the selected router.
-          </SheetDescription>
+          <SheetDescription>Choose an action to perform on the selected router.</SheetDescription>
         </SheetHeader>
         <div className="grid gap-2 py-4">
-          <Button variant="outline" className="justify-start">Ping host</Button>
-          <Button variant="outline" className="justify-start">Traceroute</Button>
-          <Button variant="outline" className="justify-start">Export config</Button>
-          <Button variant="destructive" className="justify-start">Reboot router</Button>
+          <Button
+            variant="outline"
+            className="justify-start"
+          >
+            Ping host
+          </Button>
+          <Button
+            variant="outline"
+            className="justify-start"
+          >
+            Traceroute
+          </Button>
+          <Button
+            variant="outline"
+            className="justify-start"
+          >
+            Export config
+          </Button>
+          <Button
+            variant="destructive"
+            className="justify-start"
+          >
+            Reboot router
+          </Button>
         </div>
         <SheetFooter>
           <SheetClose asChild>
-            <Button variant="ghost" className="w-full">Cancel</Button>
+            <Button
+              variant="ghost"
+              className="w-full"
+            >
+              Cancel
+            </Button>
           </SheetClose>
         </SheetFooter>
       </SheetContent>
@@ -189,13 +227,11 @@ export const FromTop: Story = {
       <SheetContent side="top">
         <SheetHeader>
           <SheetTitle>System Announcement</SheetTitle>
-          <SheetDescription>
-            Important notice from the NasNetConnect platform.
-          </SheetDescription>
+          <SheetDescription>Important notice from the NasNetConnect platform.</SheetDescription>
         </SheetHeader>
-        <p className="py-3 text-sm text-muted-foreground">
-          Scheduled maintenance window: Saturday 02:00–04:00 UTC. Some routers may
-          become temporarily unreachable during this period.
+        <p className="text-muted-foreground py-3 text-sm">
+          Scheduled maintenance window: Saturday 02:00–04:00 UTC. Some routers may become
+          temporarily unreachable during this period.
         </p>
         <SheetFooter>
           <SheetClose asChild>
@@ -213,7 +249,11 @@ export const AllSides: Story = {
       {(['right', 'left', 'top', 'bottom'] as const).map((side) => (
         <Sheet key={side}>
           <SheetTrigger asChild>
-            <Button variant="outline" size="sm" className="capitalize">
+            <Button
+              variant="outline"
+              size="sm"
+              className="capitalize"
+            >
               {side}
             </Button>
           </SheetTrigger>
@@ -252,7 +292,12 @@ export const Mobile: Story = {
         </div>
         <SheetFooter>
           <SheetClose asChild>
-            <Button className="w-full" variant="ghost">Cancel</Button>
+            <Button
+              className="w-full"
+              variant="ghost"
+            >
+              Cancel
+            </Button>
           </SheetClose>
         </SheetFooter>
       </SheetContent>
@@ -277,7 +322,7 @@ export const Tablet: Story = {
           <SheetDescription>Balanced layout for tablet devices.</SheetDescription>
         </SheetHeader>
         <div className="py-4">
-          <p className="text-sm text-muted-foreground">Content optimized for tablet viewport.</p>
+          <p className="text-muted-foreground text-sm">Content optimized for tablet viewport.</p>
         </div>
         <SheetFooter>
           <SheetClose asChild>
@@ -306,13 +351,16 @@ export const Desktop: Story = {
           <SheetTitle>Desktop Settings Panel</SheetTitle>
           <SheetDescription>Detailed configuration for desktop users.</SheetDescription>
         </SheetHeader>
-        <div className="py-4 space-y-4">
-          <p className="text-sm text-muted-foreground">
+        <div className="space-y-4 py-4">
+          <p className="text-muted-foreground text-sm">
             This sheet optimizes the desktop experience with all details visible.
           </p>
           <div className="space-y-2">
             <Label htmlFor="setting">Configuration Option</Label>
-            <Input id="setting" placeholder="Enter value" />
+            <Input
+              id="setting"
+              placeholder="Enter value"
+            />
           </div>
         </div>
         <SheetFooter>

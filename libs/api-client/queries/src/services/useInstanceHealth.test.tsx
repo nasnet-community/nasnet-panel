@@ -7,7 +7,14 @@ import { useInstanceHealth, INSTANCE_HEALTH_QUERY } from './useInstanceHealth';
 // Wrapper component for Apollo MockedProvider
 function createWrapper(mocks: any[]) {
   return function Wrapper({ children }: { children: ReactNode }) {
-    return <MockedProvider mocks={mocks} addTypename={false}>{children}</MockedProvider>;
+    return (
+      <MockedProvider
+        mocks={mocks}
+        addTypename={false}
+      >
+        {children}
+      </MockedProvider>
+    );
   };
 }
 
@@ -121,12 +128,9 @@ describe('useInstanceHealth', () => {
   });
 
   it('should skip query when skip option is true', async () => {
-    const { result } = renderHook(
-      () => useInstanceHealth(routerID, instanceID, { skip: true }),
-      {
-        wrapper: createWrapper([]),
-      }
-    );
+    const { result } = renderHook(() => useInstanceHealth(routerID, instanceID, { skip: true }), {
+      wrapper: createWrapper([]),
+    });
 
     // Should not be loading when skipped
     expect(result.current.loading).toBe(false);

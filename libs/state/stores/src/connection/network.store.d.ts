@@ -6,57 +6,57 @@ export type NetworkQuality = 'excellent' | 'good' | 'poor' | 'offline';
  * Network connectivity state
  */
 export interface NetworkState {
-    /** Browser reports online via navigator.onLine */
-    isOnline: boolean;
-    /** Backend health endpoint is reachable */
-    isRouterReachable: boolean;
-    /** WebSocket subscription connection is active */
-    isRouterConnected: boolean;
-    /** Timestamp of last successful API request */
-    lastSuccessfulRequest: Date | null;
-    /** Number of reconnection attempts since last successful connection */
-    reconnectAttempts: number;
-    /** Whether the app was recently offline (for showing "back online" message) */
-    wasOffline: boolean;
-    /** Network quality assessment */
-    quality: NetworkQuality;
-    /** Last known latency to backend (ms) */
-    latencyMs: number | null;
-    /** Last network error message */
-    lastError: string | null;
-    /** Timestamp of last network error */
-    lastErrorTime: Date | null;
-    /** Whether network listeners are initialized */
-    listenersInitialized: boolean;
+  /** Browser reports online via navigator.onLine */
+  isOnline: boolean;
+  /** Backend health endpoint is reachable */
+  isRouterReachable: boolean;
+  /** WebSocket subscription connection is active */
+  isRouterConnected: boolean;
+  /** Timestamp of last successful API request */
+  lastSuccessfulRequest: Date | null;
+  /** Number of reconnection attempts since last successful connection */
+  reconnectAttempts: number;
+  /** Whether the app was recently offline (for showing "back online" message) */
+  wasOffline: boolean;
+  /** Network quality assessment */
+  quality: NetworkQuality;
+  /** Last known latency to backend (ms) */
+  latencyMs: number | null;
+  /** Last network error message */
+  lastError: string | null;
+  /** Timestamp of last network error */
+  lastErrorTime: Date | null;
+  /** Whether network listeners are initialized */
+  listenersInitialized: boolean;
 }
 /**
  * Network state actions
  */
 export interface NetworkActions {
-    /** Update browser online status */
-    setOnline: (online: boolean) => void;
-    /** Update backend reachability status */
-    setRouterReachable: (reachable: boolean) => void;
-    /** Update WebSocket connection status */
-    setRouterConnected: (connected: boolean) => void;
-    /** Record a successful request (resets reconnect attempts) */
-    recordSuccessfulRequest: () => void;
-    /** Increment reconnect attempt counter */
-    incrementReconnectAttempts: () => void;
-    /** Reset reconnect attempts (on successful connection) */
-    resetReconnectAttempts: () => void;
-    /** Set network quality */
-    setQuality: (quality: NetworkQuality) => void;
-    /** Update latency measurement */
-    updateLatency: (latencyMs: number) => void;
-    /** Record a network error */
-    recordNetworkError: (error: string) => void;
-    /** Clear the "was offline" flag */
-    clearWasOffline: () => void;
-    /** Initialize network event listeners */
-    initializeListeners: () => void;
-    /** Clean up network event listeners */
-    cleanupListeners: () => void;
+  /** Update browser online status */
+  setOnline: (online: boolean) => void;
+  /** Update backend reachability status */
+  setRouterReachable: (reachable: boolean) => void;
+  /** Update WebSocket connection status */
+  setRouterConnected: (connected: boolean) => void;
+  /** Record a successful request (resets reconnect attempts) */
+  recordSuccessfulRequest: () => void;
+  /** Increment reconnect attempt counter */
+  incrementReconnectAttempts: () => void;
+  /** Reset reconnect attempts (on successful connection) */
+  resetReconnectAttempts: () => void;
+  /** Set network quality */
+  setQuality: (quality: NetworkQuality) => void;
+  /** Update latency measurement */
+  updateLatency: (latencyMs: number) => void;
+  /** Record a network error */
+  recordNetworkError: (error: string) => void;
+  /** Clear the "was offline" flag */
+  clearWasOffline: () => void;
+  /** Initialize network event listeners */
+  initializeListeners: () => void;
+  /** Clean up network event listeners */
+  cleanupListeners: () => void;
 }
 /**
  * Combined network store type
@@ -104,11 +104,24 @@ export type NetworkStore = NetworkState & NetworkActions;
  * });
  * ```
  */
-export declare const useNetworkStore: import("zustand").UseBoundStore<Omit<import("zustand").StoreApi<NetworkStore>, "setState"> & {
-    setState<A extends string | {
-        type: string;
-    }>(partial: NetworkStore | Partial<NetworkStore> | ((state: NetworkStore) => NetworkStore | Partial<NetworkStore>), replace?: boolean | undefined, action?: A | undefined): void;
-}>;
+export declare const useNetworkStore: import('zustand').UseBoundStore<
+  Omit<import('zustand').StoreApi<NetworkStore>, 'setState'> & {
+    setState<
+      A extends
+        | string
+        | {
+            type: string;
+          },
+    >(
+      partial:
+        | NetworkStore
+        | Partial<NetworkStore>
+        | ((state: NetworkStore) => NetworkStore | Partial<NetworkStore>),
+      replace?: boolean | undefined,
+      action?: A | undefined
+    ): void;
+  }
+>;
 /**
  * Selector for checking if the app is fully connected
  * (online + reachable + WebSocket connected)
@@ -146,5 +159,7 @@ export declare const getNetworkState: () => NetworkStore;
 /**
  * Subscribe to network store changes outside of React
  */
-export declare const subscribeNetworkState: (listener: (state: NetworkStore, prevState: NetworkStore) => void) => () => void;
+export declare const subscribeNetworkState: (
+  listener: (state: NetworkStore, prevState: NetworkStore) => void
+) => () => void;
 //# sourceMappingURL=network.store.d.ts.map

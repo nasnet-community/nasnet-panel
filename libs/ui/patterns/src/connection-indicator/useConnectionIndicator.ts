@@ -95,7 +95,7 @@ export interface ConnectionIndicatorState {
  * Latency thresholds in milliseconds
  */
 const LATENCY_THRESHOLDS = {
-  GOOD: 100,    // < 100ms = good (green)
+  GOOD: 100, // < 100ms = good (green)
   MODERATE: 300, // < 300ms = moderate (amber)
   // > 300ms = poor (red)
 };
@@ -222,4 +222,3 @@ export function useConnectionIndicator(): ConnectionIndicatorState {
 }
 
 // ===== Type Exports =====
-

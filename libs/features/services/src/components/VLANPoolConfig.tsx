@@ -37,16 +37,8 @@ import { useUpdateVLANPoolConfig } from '@nasnet/api-client/queries';
 // Validation schema
 const vlanPoolConfigSchema = z
   .object({
-    poolStart: z
-      .number()
-      .int()
-      .min(1, 'Minimum VLAN ID is 1')
-      .max(4094, 'Maximum VLAN ID is 4094'),
-    poolEnd: z
-      .number()
-      .int()
-      .min(1, 'Minimum VLAN ID is 1')
-      .max(4094, 'Maximum VLAN ID is 4094'),
+    poolStart: z.number().int().min(1, 'Minimum VLAN ID is 1').max(4094, 'Maximum VLAN ID is 4094'),
+    poolEnd: z.number().int().min(1, 'Minimum VLAN ID is 1').max(4094, 'Maximum VLAN ID is 4094'),
   })
   .refine((data) => data.poolStart <= data.poolEnd, {
     message: 'Pool start must be less than or equal to pool end',
@@ -96,40 +88,40 @@ export function VLANPoolConfig({
 
   // Calculate new pool size
   const currentSize = poolEnd - poolStart + 1;
-  const newSize =
-    watchedEnd && watchedStart ? watchedEnd - watchedStart + 1 : currentSize;
+  const newSize = watchedEnd && watchedStart ? watchedEnd - watchedStart + 1 : currentSize;
   const isShrinking = newSize < currentSize;
-  const wouldExcludeCurrent =
-    watchedStart > poolStart || watchedEnd < poolEnd;
+  const wouldExcludeCurrent = watchedStart > poolStart || watchedEnd < poolEnd;
 
-  const handleSubmit = useCallback(async (values: VLANPoolConfigFormValues) => {
-    try {
-      // Warn if shrinking pool
-      if (isShrinking) {
-        const confirmed = window.confirm(
-          `Warning: You are reducing the pool size from ${currentSize} to ${newSize} VLANs. ` +
-            `${allocatedCount} VLANs are currently allocated. ` +
-            `This may cause issues if allocations fall outside the new range. Continue?`
-        );
-        if (!confirmed) return;
+  const handleSubmit = useCallback(
+    async (values: VLANPoolConfigFormValues) => {
+      try {
+        // Warn if shrinking pool
+        if (isShrinking) {
+          const confirmed = window.confirm(
+            `Warning: You are reducing the pool size from ${currentSize} to ${newSize} VLANs. ` +
+              `${allocatedCount} VLANs are currently allocated. ` +
+              `This may cause issues if allocations fall outside the new range. Continue?`
+          );
+          if (!confirmed) return;
+        }
+
+        await updatePoolConfig(values);
+        toast({
+          title: 'VLAN pool configuration updated successfully',
+          variant: 'default',
+        });
+        onSuccess?.();
+      } catch (error) {
+        toast({
+          title: 'Error',
+          description:
+            error instanceof Error ? error.message : 'Failed to update VLAN pool configuration',
+          variant: 'destructive',
+        });
       }
-
-      await updatePoolConfig(values);
-      toast({
-        title: 'VLAN pool configuration updated successfully',
-        variant: 'default',
-      });
-      onSuccess?.();
-    } catch (error) {
-      toast({
-        title: 'Error',
-        description: error instanceof Error
-          ? error.message
-          : 'Failed to update VLAN pool configuration',
-        variant: 'destructive',
-      });
-    }
-  }, [isShrinking, currentSize, newSize, allocatedCount, updatePoolConfig, onSuccess]);
+    },
+    [isShrinking, currentSize, newSize, allocatedCount, updatePoolConfig, onSuccess]
+  );
 
   const handleReset = useCallback(() => {
     form.reset();
@@ -140,12 +132,15 @@ export function VLANPoolConfig({
       <CardHeader>
         <CardTitle>VLAN Pool Configuration</CardTitle>
         <CardDescription>
-          Configure the allocatable VLAN range (1-4094). Currently {allocatedCount}{' '}
-          VLAN{allocatedCount !== 1 ? 's' : ''} allocated.
+          Configure the allocatable VLAN range (1-4094). Currently {allocatedCount} VLAN
+          {allocatedCount !== 1 ? 's' : ''} allocated.
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-component-md">
+        <form
+          onSubmit={form.handleSubmit(handleSubmit)}
+          className="space-y-component-md"
+        >
           {/* Pool Start */}
           <RHFFormField
             control={form.control as any}
@@ -186,14 +181,18 @@ export function VLANPoolConfig({
 
           {/* Pool Size Preview */}
           <div className="p-component-md bg-muted rounded-card-sm">
-            <div className="text-sm font-display font-medium mb-component-xs">Pool Size Preview</div>
-            <div className="text-xs text-muted-foreground">
-              Current: {currentSize} VLANs (
-              {/* VLAN IDs are technical data - use monospace */}
-              <code className="font-mono bg-background px-component-xs rounded">{poolStart} - {poolEnd}</code>)
+            <div className="font-display mb-component-xs text-sm font-medium">
+              Pool Size Preview
+            </div>
+            <div className="text-muted-foreground text-xs">
+              Current: {currentSize} VLANs ({/* VLAN IDs are technical data - use monospace */}
+              <code className="bg-background px-component-xs rounded font-mono">
+                {poolStart} - {poolEnd}
+              </code>
+              )
               <br />
               New: {newSize} VLANs (
-              <code className="font-mono bg-background px-component-xs rounded">
+              <code className="bg-background px-component-xs rounded font-mono">
                 {watchedStart || poolStart} - {watchedEnd || poolEnd}
               </code>
               )
@@ -202,53 +201,64 @@ export function VLANPoolConfig({
 
           {/* Subnet Template Preview */}
           <div className="p-component-md bg-muted rounded-card-sm">
-            <div className="text-sm font-display font-medium mb-component-xs">Subnet Template</div>
-            <div className="text-xs text-muted-foreground">
+            <div className="font-display mb-component-xs text-sm font-medium">Subnet Template</div>
+            <div className="text-muted-foreground text-xs">
               Each VLAN will be assigned a subnet:
               <br />
               <code className="bg-background px-component-xs py-component-xs rounded font-mono">
                 10.{'{VLAN_ID}'}.0.0/24
               </code>
             </div>
-            <div className="text-xs text-muted-foreground mt-component-sm">
+            <div className="text-muted-foreground mt-component-sm text-xs">
               Example: VLAN 100 →{' '}
-              <code className="bg-background px-component-xs py-component-xs rounded font-mono">10.100.0.0/24</code>
+              <code className="bg-background px-component-xs py-component-xs rounded font-mono">
+                10.100.0.0/24
+              </code>
             </div>
           </div>
 
           {/* Warnings */}
           {isShrinking && (
-            <div className="p-component-sm bg-warning/10 border border-warning rounded-md" role="alert" aria-live="polite">
-              <div className="text-sm font-medium text-warning mb-component-xs">
+            <div
+              className="p-component-sm bg-warning/10 border-warning rounded-md border"
+              role="alert"
+              aria-live="polite"
+            >
+              <div className="text-warning mb-component-xs text-sm font-medium">
                 Warning: Pool Size Reduction
               </div>
-              <div className="text-xs text-warning">
+              <div className="text-warning text-xs">
                 You are reducing the pool from {currentSize} to {newSize} VLANs.
-                {allocatedCount > 0 &&
-                  ` ${allocatedCount} VLANs are currently allocated.`}
+                {allocatedCount > 0 && ` ${allocatedCount} VLANs are currently allocated.`}
               </div>
             </div>
           )}
 
           {wouldExcludeCurrent && allocatedCount > 0 && (
-            <div className="p-component-sm bg-error/10 border border-error rounded-md" role="alert" aria-live="polite">
-              <div className="text-sm font-medium text-error mb-component-xs">
+            <div
+              className="p-component-sm bg-error/10 border-error rounded-md border"
+              role="alert"
+              aria-live="polite"
+            >
+              <div className="text-error mb-component-xs text-sm font-medium">
                 Warning: Range Change
               </div>
-              <div className="text-xs text-error">
-                Changing the pool range may affect existing allocations. Ensure
-                all allocated VLANs fall within the new range.
+              <div className="text-error text-xs">
+                Changing the pool range may affect existing allocations. Ensure all allocated VLANs
+                fall within the new range.
               </div>
             </div>
           )}
 
           {/* Actions */}
-          <div className="flex gap-component-sm">
+          <div className="gap-component-sm flex">
             <Button
               type="submit"
               disabled={loading || !form.formState.isDirty}
               className="min-h-[44px] min-w-[120px]"
-              aria-label={loading ? 'Saving VLAN pool configuration' : 'Save VLAN pool configuration'}
+              aria-label={
+                loading ? 'Saving VLAN pool configuration' : 'Save VLAN pool configuration'
+              }
             >
               {loading ? 'Saving...' : 'Save Configuration'}
             </Button>

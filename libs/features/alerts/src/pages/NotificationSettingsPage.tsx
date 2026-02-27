@@ -45,8 +45,8 @@ function TelegramChannelForm({ onTest, testing, testResult }: Omit<ChannelFormPr
     // Transform textarea to array for GraphQL
     const chatIDsArray = chatIdsText
       .split('\n')
-      .map(id => id.trim())
-      .filter(id => id !== '');
+      .map((id) => id.trim())
+      .filter((id) => id !== '');
 
     onTest({
       botToken,
@@ -55,10 +55,13 @@ function TelegramChannelForm({ onTest, testing, testResult }: Omit<ChannelFormPr
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-component-md">
-      <div className="p-component-md bg-muted rounded-md text-sm space-y-component-sm">
+    <form
+      onSubmit={handleSubmit}
+      className="space-y-component-md"
+    >
+      <div className="p-component-md bg-muted space-y-component-sm rounded-md text-sm">
         <p className="font-medium">Setup Instructions:</p>
-        <ol className="list-decimal list-inside space-y-1 text-muted-foreground">
+        <ol className="text-muted-foreground list-inside list-decimal space-y-1">
           <li>Message @BotFather on Telegram and create a new bot with /newbot</li>
           <li>Copy the Bot Token provided by BotFather</li>
           <li>Start a chat with your bot and send any message</li>
@@ -69,13 +72,18 @@ function TelegramChannelForm({ onTest, testing, testResult }: Omit<ChannelFormPr
       </div>
 
       <div className="space-y-component-sm">
-        <label htmlFor="telegram-bot-token" className="block text-sm font-medium">Bot Token *</label>
+        <label
+          htmlFor="telegram-bot-token"
+          className="block text-sm font-medium"
+        >
+          Bot Token *
+        </label>
         <input
           id="telegram-bot-token"
           type="text"
           value={botToken}
           onChange={(e) => setBotToken(e.target.value)}
-          className="w-full px-3 py-2 border border-border rounded-md font-mono text-sm focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none min-h-11"
+          className="border-border focus-visible:ring-ring min-h-11 w-full rounded-md border px-3 py-2 font-mono text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
           placeholder="123456789:ABCdefGHIjklMNOpqrsTUVwxyz"
           aria-label="Telegram bot token"
           required
@@ -83,25 +91,32 @@ function TelegramChannelForm({ onTest, testing, testResult }: Omit<ChannelFormPr
       </div>
 
       <div className="space-y-component-sm">
-        <label htmlFor="telegram-chat-ids" className="block text-sm font-medium">
+        <label
+          htmlFor="telegram-chat-ids"
+          className="block text-sm font-medium"
+        >
           Chat IDs * (one per line)
         </label>
         <textarea
           id="telegram-chat-ids"
           value={chatIdsText}
           onChange={(e) => setChatIdsText(e.target.value)}
-          className="w-full px-3 py-2 border border-border rounded-md font-mono text-sm focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none min-h-[110px]"
+          className="border-border focus-visible:ring-ring min-h-[110px] w-full rounded-md border px-3 py-2 font-mono text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
           placeholder="123456789&#10;-987654321&#10;@mychannel"
           rows={4}
           aria-label="Telegram chat IDs, one per line"
           required
         />
-        <p className="text-xs text-muted-foreground">
-          Enter one Chat ID per line. Supports user IDs (numeric), group IDs (negative), or channel usernames (@channel).
+        <p className="text-muted-foreground text-xs">
+          Enter one Chat ID per line. Supports user IDs (numeric), group IDs (negative), or channel
+          usernames (@channel).
         </p>
       </div>
 
-      <TestButton testing={testing} testResult={testResult} />
+      <TestButton
+        testing={testing}
+        testResult={testResult}
+      />
     </form>
   );
 }
@@ -172,10 +187,13 @@ function PushoverChannelForm({ onTest, testing, testResult }: Omit<ChannelFormPr
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-component-md">
-      <div className="p-component-md bg-muted rounded-md text-sm space-y-component-sm">
+    <form
+      onSubmit={handleSubmit}
+      className="space-y-component-md"
+    >
+      <div className="p-component-md bg-muted space-y-component-sm rounded-md text-sm">
         <p className="font-medium">Setup Instructions:</p>
-        <ol className="list-decimal list-inside space-y-1 text-muted-foreground">
+        <ol className="text-muted-foreground list-inside list-decimal space-y-1">
           <li>Sign up at pushover.net and install the mobile app</li>
           <li>Copy your User Key from the dashboard</li>
           <li>Create an API Token for NasNetConnect</li>
@@ -183,7 +201,10 @@ function PushoverChannelForm({ onTest, testing, testResult }: Omit<ChannelFormPr
       </div>
 
       <div className="space-y-component-sm">
-        <label htmlFor="pushover-user-key" className="block text-sm font-medium">
+        <label
+          htmlFor="pushover-user-key"
+          className="block text-sm font-medium"
+        >
           {t('notifications.pushover.user_key')} *
         </label>
         <input
@@ -191,7 +212,7 @@ function PushoverChannelForm({ onTest, testing, testResult }: Omit<ChannelFormPr
           type="text"
           value={config.userKey}
           onChange={(e) => handleChange('userKey', e.target.value)}
-          className={`w-full px-3 py-2 border border-border rounded-md font-mono text-sm focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none min-h-11 ${
+          className={`border-border focus-visible:ring-ring min-h-11 w-full rounded-md border px-3 py-2 font-mono text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${
             errors.userKey ? 'border-error' : ''
           }`}
           placeholder={t('notifications.pushover.user_key_placeholder')}
@@ -202,15 +223,22 @@ function PushoverChannelForm({ onTest, testing, testResult }: Omit<ChannelFormPr
           maxLength={30}
         />
         {errors.userKey && (
-          <p id="pushover-user-key-error" className="text-error text-sm" role="alert">{errors.userKey}</p>
+          <p
+            id="pushover-user-key-error"
+            className="text-error text-sm"
+            role="alert"
+          >
+            {errors.userKey}
+          </p>
         )}
-        <p className="text-muted-foreground text-xs">
-          {t('notifications.pushover.user_key_help')}
-        </p>
+        <p className="text-muted-foreground text-xs">{t('notifications.pushover.user_key_help')}</p>
       </div>
 
       <div className="space-y-component-sm">
-        <label htmlFor="pushover-api-token" className="block text-sm font-medium">
+        <label
+          htmlFor="pushover-api-token"
+          className="block text-sm font-medium"
+        >
           {t('notifications.pushover.api_token')} *
         </label>
         <input
@@ -218,7 +246,7 @@ function PushoverChannelForm({ onTest, testing, testResult }: Omit<ChannelFormPr
           type="text"
           value={config.apiToken}
           onChange={(e) => handleChange('apiToken', e.target.value)}
-          className={`w-full px-3 py-2 border border-border rounded-md font-mono text-sm focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none min-h-11 ${
+          className={`border-border focus-visible:ring-ring min-h-11 w-full rounded-md border px-3 py-2 font-mono text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${
             errors.apiToken ? 'border-error' : ''
           }`}
           placeholder={t('notifications.pushover.api_token_placeholder')}
@@ -229,7 +257,13 @@ function PushoverChannelForm({ onTest, testing, testResult }: Omit<ChannelFormPr
           maxLength={30}
         />
         {errors.apiToken && (
-          <p id="pushover-api-token-error" className="text-error text-sm" role="alert">{errors.apiToken}</p>
+          <p
+            id="pushover-api-token-error"
+            className="text-error text-sm"
+            role="alert"
+          >
+            {errors.apiToken}
+          </p>
         )}
         <p className="text-muted-foreground text-xs">
           {t('notifications.pushover.api_token_help')}
@@ -237,7 +271,10 @@ function PushoverChannelForm({ onTest, testing, testResult }: Omit<ChannelFormPr
       </div>
 
       <div className="space-y-component-sm">
-        <label htmlFor="pushover-device" className="block text-sm font-medium">
+        <label
+          htmlFor="pushover-device"
+          className="block text-sm font-medium"
+        >
           {t('notifications.pushover.device')}
         </label>
         <input
@@ -245,7 +282,7 @@ function PushoverChannelForm({ onTest, testing, testResult }: Omit<ChannelFormPr
           type="text"
           value={config.device || ''}
           onChange={(e) => handleChange('device', e.target.value)}
-          className={`w-full px-3 py-2 border border-border rounded-md focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none min-h-11 ${
+          className={`border-border focus-visible:ring-ring min-h-11 w-full rounded-md border px-3 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${
             errors.device ? 'border-error' : ''
           }`}
           placeholder={t('notifications.pushover.device_placeholder')}
@@ -255,27 +292,29 @@ function PushoverChannelForm({ onTest, testing, testResult }: Omit<ChannelFormPr
           maxLength={25}
         />
         {errors.device && (
-          <p id="pushover-device-error" className="text-error text-sm" role="alert">{errors.device}</p>
+          <p
+            id="pushover-device-error"
+            className="text-error text-sm"
+            role="alert"
+          >
+            {errors.device}
+          </p>
         )}
-        <p className="text-muted-foreground text-xs">
-          {t('notifications.pushover.device_help')}
-        </p>
+        <p className="text-muted-foreground text-xs">{t('notifications.pushover.device_help')}</p>
       </div>
 
       {/* Usage Display Section */}
       {usage && !usageLoading && (
-        <div className="space-y-component-sm rounded-md border p-component-md bg-card">
+        <div className="space-y-component-sm p-component-md bg-card rounded-md border">
           <h4 className="text-sm font-medium">{t('notifications.pushover.usage_title')}</h4>
 
           {/* Progress Bar */}
-          <div className="relative w-full h-2 bg-muted rounded-full overflow-hidden">
+          <div className="bg-muted relative h-2 w-full overflow-hidden rounded-full">
             <div
               className={`h-full transition-all duration-300 ${
-                isExceeded
-                  ? 'bg-error'
-                  : isNearLimit
-                  ? 'bg-warning'
-                  : 'bg-success'
+                isExceeded ? 'bg-error'
+                : isNearLimit ? 'bg-warning'
+                : 'bg-success'
               }`}
               style={{ width: `${percentUsed}%` }}
               role="progressbar"
@@ -297,7 +336,7 @@ function PushoverChannelForm({ onTest, testing, testResult }: Omit<ChannelFormPr
             <p className="font-medium">{percentUsed}%</p>
           </div>
 
-          <p className="text-xs text-muted-foreground">
+          <p className="text-muted-foreground text-xs">
             {t('notifications.pushover.usage_resets', {
               date: format(new Date(usage.resetAt), 'PPP'),
             })}
@@ -305,8 +344,13 @@ function PushoverChannelForm({ onTest, testing, testResult }: Omit<ChannelFormPr
 
           {/* Warning Alerts */}
           {isExceeded && (
-            <div className="p-3 rounded-md bg-error/10 text-error border border-error/20 text-sm" role="alert">
-              <p className="font-medium"><span aria-hidden="true">⚠️</span> Limit Exceeded</p>
+            <div
+              className="bg-error/10 text-error border-error/20 rounded-md border p-3 text-sm"
+              role="alert"
+            >
+              <p className="font-medium">
+                <span aria-hidden="true">⚠️</span> Limit Exceeded
+              </p>
               <p className="mt-1">
                 {t('notifications.pushover.usage_exceeded', {
                   date: format(new Date(usage.resetAt), 'PPP'),
@@ -316,20 +360,29 @@ function PushoverChannelForm({ onTest, testing, testResult }: Omit<ChannelFormPr
           )}
 
           {isNearLimit && !isExceeded && (
-            <div className="p-3 rounded-md bg-warning/10 text-warning border border-warning/20 text-sm" role="alert">
-              <p className="font-medium"><span aria-hidden="true">⚠️</span> {t('notifications.pushover.usage_warning', { percent: percentUsed })}</p>
+            <div
+              className="bg-warning/10 text-warning border-warning/20 rounded-md border p-3 text-sm"
+              role="alert"
+            >
+              <p className="font-medium">
+                <span aria-hidden="true">⚠️</span>{' '}
+                {t('notifications.pushover.usage_warning', { percent: percentUsed })}
+              </p>
             </div>
           )}
         </div>
       )}
 
       {usageLoading && (
-        <div className="p-component-md text-center text-sm text-muted-foreground">
+        <div className="p-component-md text-muted-foreground text-center text-sm">
           {t('notifications.pushover.usage_loading')}
         </div>
       )}
 
-      <TestButton testing={testing} testResult={testResult} />
+      <TestButton
+        testing={testing}
+        testResult={testResult}
+      />
     </form>
   );
 }
@@ -342,12 +395,14 @@ function PushoverChannelForm({ onTest, testing, testResult }: Omit<ChannelFormPr
 function WebhookChannelCard() {
   return (
     <div className="space-y-component-md">
-      <div className="p-component-md bg-muted rounded-md text-sm space-y-component-sm">
-        <p className="font-medium"><span aria-hidden="true">✨</span> Enhanced Webhook Configuration</p>
+      <div className="p-component-md bg-muted space-y-component-sm rounded-md text-sm">
+        <p className="font-medium">
+          <span aria-hidden="true">✨</span> Enhanced Webhook Configuration
+        </p>
         <p className="text-muted-foreground">
           Webhook notifications have been upgraded with advanced features:
         </p>
-        <ul className="list-disc list-inside space-y-1 text-muted-foreground ml-2">
+        <ul className="text-muted-foreground ml-2 list-inside list-disc space-y-1">
           <li>HTTPS-only security enforcement</li>
           <li>Template presets for Slack, Discord, Microsoft Teams</li>
           <li>Custom JSON templates with variable substitution</li>
@@ -359,13 +414,13 @@ function WebhookChannelCard() {
 
       <a
         href="/settings/notifications/webhooks"
-        className="block w-full px-4 py-3 bg-primary text-primary-foreground text-center rounded-md hover:bg-primary/90 transition-colors font-medium focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none min-h-11 flex items-center justify-center"
+        className="bg-primary text-primary-foreground hover:bg-primary/90 focus-visible:ring-ring block flex min-h-11 w-full items-center justify-center rounded-md px-4 py-3 text-center font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
         aria-label="Configure webhook notification channel"
       >
         Configure Webhook →
       </a>
 
-      <p className="text-xs text-muted-foreground text-center">
+      <p className="text-muted-foreground text-center text-xs">
         Click above to access the full webhook configuration interface
       </p>
     </div>
@@ -392,7 +447,7 @@ const TestButton = React.memo(function TestButton({
         type="submit"
         disabled={testing}
         aria-label={testing ? 'Testing notification' : 'Test notification'}
-        className="w-full px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 disabled:opacity-50 transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none min-h-11"
+        className="bg-primary text-primary-foreground hover:bg-primary/90 focus-visible:ring-ring min-h-11 w-full rounded-md px-4 py-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-50"
         aria-busy={testing}
       >
         {testing ? 'Testing...' : 'Test Notification'}
@@ -402,10 +457,10 @@ const TestButton = React.memo(function TestButton({
         <div
           role="alert"
           aria-live="polite"
-          className={`p-3 rounded-md text-sm ${
-            testResult.success
-              ? 'bg-success/10 text-success border border-success/20'
-              : 'bg-error/10 text-error border border-error/20'
+          className={`rounded-md p-3 text-sm ${
+            testResult.success ?
+              'bg-success/10 text-success border-success/20 border'
+            : 'bg-error/10 text-error border-error/20 border'
           }`}
         >
           <p className="font-medium">{testResult.success ? '✓ Success' : '✗ Failed'}</p>
@@ -464,7 +519,7 @@ function NotificationSettingsPageComponent() {
   );
 
   return (
-    <div className="max-w-4xl mx-auto p-component-lg space-y-component-xl">
+    <div className="p-component-lg space-y-component-xl mx-auto max-w-4xl">
       <div className="space-y-component-sm">
         <h1 className="text-3xl font-bold">Notification Settings</h1>
         <p className="text-muted-foreground">
@@ -474,19 +529,24 @@ function NotificationSettingsPageComponent() {
 
       {/* Quiet Hours Section */}
       <section>
-        <QuietHoursConfig value={quietHours} onChange={handleQuietHoursChange} />
+        <QuietHoursConfig
+          value={quietHours}
+          onChange={handleQuietHoursChange}
+        />
       </section>
 
       {/* Channel Configuration Section */}
       <div className="space-y-component-md">
         <h2 className="text-2xl font-semibold">Notification Channels</h2>
-        <p className="text-muted-foreground">
-          Configure how you want to receive alerts
-        </p>
+        <p className="text-muted-foreground">Configure how you want to receive alerts</p>
       </div>
 
       {/* Channel Tabs */}
-      <div className="flex gap-component-sm border-b border-border" role="tablist" aria-label="Notification channels">
+      <div
+        className="gap-component-sm border-border flex border-b"
+        role="tablist"
+        aria-label="Notification channels"
+      >
         {channels.map((channel) => (
           <button
             key={channel.type}
@@ -494,20 +554,29 @@ function NotificationSettingsPageComponent() {
             aria-selected={activeChannel === channel.type}
             aria-controls={`panel-${channel.type}`}
             onClick={() => setActiveChannel(channel.type)}
-            className={`px-component-md py-3 font-medium transition-colors border-b-2 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none ${
-              activeChannel === channel.type
-                ? 'border-primary text-primary'
-                : 'border-transparent text-muted-foreground hover:text-foreground'
+            className={`px-component-md focus-visible:ring-ring border-b-2 py-3 font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${
+              activeChannel === channel.type ?
+                'border-primary text-primary'
+              : 'text-muted-foreground hover:text-foreground border-transparent'
             }`}
           >
-            <span className="mr-2" aria-hidden="true">{channel.icon}</span>
+            <span
+              className="mr-2"
+              aria-hidden="true"
+            >
+              {channel.icon}
+            </span>
             {channel.label}
           </button>
         ))}
       </div>
 
       {/* Channel Forms */}
-      <div className="bg-card border border-border rounded-lg p-component-lg" role="tabpanel" id={`panel-${activeChannel}`}>
+      <div
+        className="bg-card border-border p-component-lg rounded-lg border"
+        role="tabpanel"
+        id={`panel-${activeChannel}`}
+      >
         {activeChannel === 'email' && (
           <EmailChannelForm
             onSubmit={async (config: EmailConfig) => {
@@ -545,8 +614,10 @@ function NotificationSettingsPageComponent() {
         {activeChannel === 'webhook' && <WebhookChannelCard />}
       </div>
 
-      <div className="p-component-md bg-muted rounded-md text-sm space-y-component-sm">
-        <p className="font-medium"><span aria-hidden="true">💡</span> Pro Tip:</p>
+      <div className="p-component-md bg-muted space-y-component-sm rounded-md text-sm">
+        <p className="font-medium">
+          <span aria-hidden="true">💡</span> Pro Tip:
+        </p>
         <p className="text-muted-foreground">
           In-app notifications are always enabled and don't require configuration. Additional
           channels can be configured here and selected when creating alert rules.

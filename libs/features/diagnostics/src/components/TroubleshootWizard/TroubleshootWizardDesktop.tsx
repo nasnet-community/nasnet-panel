@@ -34,50 +34,48 @@ interface TroubleshootWizardDesktopProps {
  *
  * @see TroubleshootWizard for responsive wrapper
  */
-const TroubleshootWizardDesktopComponent = memo(
-  function TroubleshootWizardDesktop({
+const TroubleshootWizardDesktopComponent = memo(function TroubleshootWizardDesktop({
+  routerId,
+  autoStart = false,
+  onClose,
+  ispInfo,
+}: TroubleshootWizardDesktopProps) {
+  const wizard = useTroubleshootWizard({
     routerId,
-    autoStart = false,
-    onClose,
-    ispInfo,
-  }: TroubleshootWizardDesktopProps) {
-    const wizard = useTroubleshootWizard({
-      routerId,
-      autoStart,
-      onComplete: (summary) => {
-        console.log('Wizard completed:', summary);
-      },
-      onFixApplied: (fix) => {
-        console.log('Fix applied:', fix);
-      },
-    });
+    autoStart,
+    onComplete: (summary) => {
+      console.log('Wizard completed:', summary);
+    },
+    onFixApplied: (fix) => {
+      console.log('Fix applied:', fix);
+    },
+  });
 
-    // Memoize close handler
-    const handleClose = useCallback(() => {
-      onClose?.();
-    }, [onClose]);
+  // Memoize close handler
+  const handleClose = useCallback(() => {
+    onClose?.();
+  }, [onClose]);
 
-    // Memoize fix apply handler
-    const handleApplyFix = useCallback(() => {
-      wizard.applyFix();
-    }, [wizard]);
+  // Memoize fix apply handler
+  const handleApplyFix = useCallback(() => {
+    wizard.applyFix();
+  }, [wizard]);
 
-    // Memoize completion close handler
-    const handleCompletionClose = useCallback(() => {
-      wizard.restart();
-      onClose?.();
-    }, [wizard, onClose]);
+  // Memoize completion close handler
+  const handleCompletionClose = useCallback(() => {
+    wizard.restart();
+    onClose?.();
+  }, [wizard, onClose]);
 
-    // Show loading skeleton while initializing
-    if (wizard.isInitializing) {
-      return <TroubleshootWizardSkeletonDesktop />;
-    }
+  // Show loading skeleton while initializing
+  if (wizard.isInitializing) {
+    return <TroubleshootWizardSkeletonDesktop />;
+  }
 
-    // Show summary when completed
-    if (wizard.isCompleted) {
-
+  // Show summary when completed
+  if (wizard.isCompleted) {
     return (
-      <div className="max-w-4xl mx-auto">
+      <div className="mx-auto max-w-4xl">
         <WizardSummary
           summary={{
             totalSteps: wizard.steps.length,
@@ -87,11 +85,9 @@ const TroubleshootWizardDesktopComponent = memo(
             appliedFixes: wizard.appliedFixes,
             durationMs: 0,
             finalStatus:
-              wizard.steps.filter((s) => s.status === 'failed').length === 0
-                ? 'all_passed'
-                : wizard.appliedFixes.length > 0
-                  ? 'issues_resolved'
-                  : 'issues_remaining',
+              wizard.steps.filter((s) => s.status === 'failed').length === 0 ? 'all_passed'
+              : wizard.appliedFixes.length > 0 ? 'issues_resolved'
+              : 'issues_remaining',
           }}
           steps={wizard.steps}
           onRestart={wizard.restart}
@@ -107,25 +103,28 @@ const TroubleshootWizardDesktopComponent = memo(
         />
       </div>
     );
-    }
+  }
 
-    return (
-      <div className="max-w-5xl mx-auto space-y-component-lg">
-        {/* Header */}
-        <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-category-networking">No Internet Troubleshooting</h1>
-          {onClose && (
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleClose}
-              aria-label="Close troubleshooting wizard"
-              className="h-10 w-10"
-            >
-              <X className="h-5 w-5" aria-hidden="true" />
-            </Button>
-          )}
-        </div>
+  return (
+    <div className="space-y-component-lg mx-auto max-w-5xl">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <h1 className="text-category-networking text-2xl font-bold">No Internet Troubleshooting</h1>
+        {onClose && (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleClose}
+            aria-label="Close troubleshooting wizard"
+            className="h-10 w-10"
+          >
+            <X
+              className="h-5 w-5"
+              aria-hidden="true"
+            />
+          </Button>
+        )}
+      </div>
 
       {/* Note: HStepper requires a useStepper hook object, not individual props.
           This component needs refactoring to use useStepper hook for proper step management.
@@ -134,25 +133,32 @@ const TroubleshootWizardDesktopComponent = memo(
       {/* Main Content */}
       <Card className="p-component-lg">
         {wizard.isIdle && (
-          <div className="text-center py-component-xl">
-            <h2 className="text-xl font-semibold text-foreground mb-3">
+          <div className="py-component-xl text-center">
+            <h2 className="text-foreground mb-3 text-xl font-semibold">
               Ready to troubleshoot your internet connection?
             </h2>
             <p className="text-muted-foreground mb-component-lg">
               We'll run a series of automated tests to identify and fix common internet connectivity
               issues.
             </p>
-            <Button onClick={wizard.start} size="lg" className="min-h-[44px]">
+            <Button
+              onClick={wizard.start}
+              size="lg"
+              className="min-h-[44px]"
+            >
               Start Diagnostic
             </Button>
           </div>
         )}
 
-        {(wizard.isRunning || wizard.isAwaitingFixDecision || wizard.isApplyingFix || wizard.isVerifying) && (
+        {(wizard.isRunning ||
+          wizard.isAwaitingFixDecision ||
+          wizard.isApplyingFix ||
+          wizard.isVerifying) && (
           <div className="space-y-component-lg">
             {/* Current Step Display */}
             <div>
-              <h2 className="text-xl font-semibold text-foreground mb-component-sm">
+              <h2 className="text-foreground mb-component-sm text-xl font-semibold">
                 {wizard.messages.name}
               </h2>
               <p className="text-muted-foreground mb-component-md">{wizard.messages.description}</p>
@@ -179,15 +185,15 @@ const TroubleshootWizardDesktopComponent = memo(
 
             {/* Verifying Message */}
             {wizard.isVerifying && (
-              <div className="p-component-md bg-primary/10 border border-primary/20 rounded-[var(--semantic-radius-button)] text-center">
-                <p className="text-sm text-foreground">
+              <div className="p-component-md bg-primary/10 border-primary/20 rounded-[var(--semantic-radius-button)] border text-center">
+                <p className="text-foreground text-sm">
                   Verifying fix effectiveness... Please wait.
                 </p>
               </div>
             )}
 
             {/* Progress Indicator */}
-            <div className="flex justify-between items-center text-sm text-muted-foreground">
+            <div className="text-muted-foreground flex items-center justify-between text-sm">
               <span>
                 Step {wizard.progress.current} of {wizard.progress.total}
               </span>
@@ -208,8 +214,7 @@ const TroubleshootWizardDesktopComponent = memo(
       />
     </div>
   );
-  }
-);
+});
 
 TroubleshootWizardDesktopComponent.displayName = 'TroubleshootWizardDesktop';
 

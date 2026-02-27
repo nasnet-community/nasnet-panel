@@ -15,7 +15,6 @@ import { NetworkErrorDisplay } from './NetworkErrorDisplay';
 
 import type { Meta, StoryObj } from '@storybook/react';
 
-
 // ---------------------------------------------------------------------------
 // Meta
 // ---------------------------------------------------------------------------
@@ -40,7 +39,14 @@ const meta: Meta<typeof NetworkErrorDisplay> = {
   argTypes: {
     type: {
       control: 'select',
-      options: ['offline', 'timeout', 'connection-refused', 'dns-failed', 'server-error', 'unknown'],
+      options: [
+        'offline',
+        'timeout',
+        'connection-refused',
+        'dns-failed',
+        'server-error',
+        'unknown',
+      ],
     },
     variant: {
       control: 'select',

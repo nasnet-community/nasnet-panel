@@ -113,18 +113,21 @@ export function useAutoScroll({
   /**
    * Scrolls the container to the bottom
    */
-  const scrollToBottom = useCallback((behavior: ScrollBehavior = 'smooth') => {
-    if (!scrollRef.current) return;
+  const scrollToBottom = useCallback(
+    (behavior: ScrollBehavior = 'smooth') => {
+      if (!scrollRef.current) return;
 
-    scrollRef.current.scrollTo({
-      top: scrollRef.current.scrollHeight,
-      behavior,
-    });
+      scrollRef.current.scrollTo({
+        top: scrollRef.current.scrollHeight,
+        behavior,
+      });
 
-    // Reset new entries count when scrolling to bottom
-    setNewEntriesCount(0);
-    setIsAtBottom(true);
-  }, [scrollRef]);
+      // Reset new entries count when scrolling to bottom
+      setNewEntriesCount(0);
+      setIsAtBottom(true);
+    },
+    [scrollRef]
+  );
 
   /**
    * Handle scroll events to detect user scrolling

@@ -49,10 +49,7 @@ function ReviewStepComponent({ template, variables, className }: ReviewStepProps
 
   // Memoize service info to prevent unnecessary recalculations
   const serviceCount = useMemo(() => template.services.length, [template.services]);
-  const variableCount = useMemo(
-    () => Object.keys(variables).length,
-    [variables]
-  );
+  const variableCount = useMemo(() => Object.keys(variables).length, [variables]);
 
   return (
     <div className={cn('space-y-component-lg', className)}>
@@ -60,7 +57,7 @@ function ReviewStepComponent({ template, variables, className }: ReviewStepProps
         <h2 className="text-lg font-semibold">
           {t('wizard.reviewConfiguration', 'Review Configuration')}
         </h2>
-        <p className="text-sm text-muted-foreground mt-component-sm">
+        <p className="text-muted-foreground mt-component-sm text-sm">
           {t('wizard.reviewConfigurationDesc', 'Review your configuration before installation')}
         </p>
       </div>
@@ -68,27 +65,35 @@ function ReviewStepComponent({ template, variables, className }: ReviewStepProps
       {/* Services to Install */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base flex items-center gap-component-sm">
-            <Icon icon={Server} className="h-4 w-4" aria-hidden="true" />
+          <CardTitle className="gap-component-sm flex items-center text-base">
+            <Icon
+              icon={Server}
+              className="h-4 w-4"
+              aria-hidden="true"
+            />
             {t('wizard.services', 'Services')} ({serviceCount})
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-component-md">
           {template.services.map((service, index) => (
-            <div key={index} className="flex items-start gap-component-md">
+            <div
+              key={index}
+              className="gap-component-md flex items-start"
+            >
               <div className="flex-1">
                 <p className="font-medium">{service.name}</p>
-                <p className="text-sm text-muted-foreground">
-                  Type: {service.serviceType}
-                </p>
+                <p className="text-muted-foreground text-sm">Type: {service.serviceType}</p>
                 {service.dependsOn && service.dependsOn.length > 0 && (
-                  <p className="text-xs text-muted-foreground mt-component-sm">
+                  <p className="text-muted-foreground mt-component-sm text-xs">
                     Depends on: {service.dependsOn.join(', ')}
                   </p>
                 )}
               </div>
               {service.memoryLimitMB && (
-                <Badge variant="secondary" className="text-xs">
+                <Badge
+                  variant="secondary"
+                  className="text-xs"
+                >
                   {service.memoryLimitMB} MB
                 </Badge>
               )}
@@ -101,7 +106,9 @@ function ReviewStepComponent({ template, variables, className }: ReviewStepProps
       {variableCount > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">{t('common.configuration', 'Configuration')}</CardTitle>
+            <CardTitle className="text-base">
+              {t('common.configuration', 'Configuration')}
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-component-sm">
@@ -110,17 +117,15 @@ function ReviewStepComponent({ template, variables, className }: ReviewStepProps
                 return (
                   <div
                     key={key}
-                    className="flex items-center justify-between py-component-sm border-b border-border last:border-0"
+                    className="py-component-sm border-border flex items-center justify-between border-b last:border-0"
                   >
-                    <span className="text-sm font-medium">
-                      {variable?.label || key}
-                    </span>
-                    <span className="text-sm text-muted-foreground font-mono">
-                      {typeof value === 'boolean'
-                        ? value
-                          ? 'Enabled'
-                          : 'Disabled'
-                        : String(value)}
+                    <span className="text-sm font-medium">{variable?.label || key}</span>
+                    <span className="text-muted-foreground font-mono text-sm">
+                      {typeof value === 'boolean' ?
+                        value ?
+                          'Enabled'
+                        : 'Disabled'
+                      : String(value)}
                     </span>
                   </div>
                 );
@@ -134,36 +139,40 @@ function ReviewStepComponent({ template, variables, className }: ReviewStepProps
       {template.estimatedResources && (
         <Card>
           <CardHeader>
-            <CardTitle className="text-base flex items-center gap-component-sm">
-              <Icon icon={Cpu} className="h-4 w-4" aria-hidden="true" />
+            <CardTitle className="gap-component-sm flex items-center text-base">
+              <Icon
+                icon={Cpu}
+                className="h-4 w-4"
+                aria-hidden="true"
+              />
               {t('wizard.estimatedResources', 'Estimated Resources')}
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-2 gap-component-md">
+            <div className="gap-component-md grid grid-cols-2">
               <div className="space-y-component-sm">
-                <p className="text-sm text-muted-foreground">{t('common.memory', 'Memory')}</p>
-                <p className="font-medium font-mono">
+                <p className="text-muted-foreground text-sm">{t('common.memory', 'Memory')}</p>
+                <p className="font-mono font-medium">
                   {template.estimatedResources.totalMemoryMB} MB
                 </p>
               </div>
               <div className="space-y-component-sm">
-                <p className="text-sm text-muted-foreground">{t('common.diskSpace', 'Disk Space')}</p>
-                <p className="font-medium font-mono">
+                <p className="text-muted-foreground text-sm">
+                  {t('common.diskSpace', 'Disk Space')}
+                </p>
+                <p className="font-mono font-medium">
                   {template.estimatedResources.diskSpaceMB} MB
                 </p>
               </div>
               <div className="space-y-component-sm">
-                <p className="text-sm text-muted-foreground">{t('common.networkPorts', 'Network Ports')}</p>
-                <p className="font-medium font-mono">
-                  {template.estimatedResources.networkPorts}
+                <p className="text-muted-foreground text-sm">
+                  {t('common.networkPorts', 'Network Ports')}
                 </p>
+                <p className="font-mono font-medium">{template.estimatedResources.networkPorts}</p>
               </div>
               <div className="space-y-component-sm">
-                <p className="text-sm text-muted-foreground">{t('common.vlans', 'VLANs')}</p>
-                <p className="font-medium font-mono">
-                  {template.estimatedResources.vlansRequired}
-                </p>
+                <p className="text-muted-foreground text-sm">{t('common.vlans', 'VLANs')}</p>
+                <p className="font-mono font-medium">{template.estimatedResources.vlansRequired}</p>
               </div>
             </div>
           </CardContent>
@@ -172,15 +181,23 @@ function ReviewStepComponent({ template, variables, className }: ReviewStepProps
 
       {/* Prerequisites Warning */}
       {template.prerequisites && template.prerequisites.length > 0 && (
-        <Card className="border-warning border-2" role="alert" aria-label="Prerequisites">
+        <Card
+          className="border-warning border-2"
+          role="alert"
+          aria-label="Prerequisites"
+        >
           <CardHeader>
-            <CardTitle className="text-base flex items-center gap-component-md text-warning">
-              <Icon icon={Info} className="h-4 w-4" aria-hidden="true" />
+            <CardTitle className="gap-component-md text-warning flex items-center text-base">
+              <Icon
+                icon={Info}
+                className="h-4 w-4"
+                aria-hidden="true"
+              />
               {t('common.prerequisites', 'Prerequisites')}
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <ul className="list-disc list-inside space-y-component-sm text-sm">
+            <ul className="space-y-component-sm list-inside list-disc text-sm">
               {template.prerequisites.map((prereq, index) => (
                 <li key={index}>{prereq}</li>
               ))}

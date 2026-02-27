@@ -325,11 +325,7 @@ export function useDefaultCommands() {
     registerCommands(resourceCommands);
 
     // Register shortcuts
-    const shortcuts = createDefaultShortcuts(
-      navigate,
-      toggleCommandPalette,
-      toggleOverlay
-    );
+    const shortcuts = createDefaultShortcuts(navigate, toggleCommandPalette, toggleOverlay);
     registerShortcuts(shortcuts);
   }, [navigate, registerCommands, registerShortcuts, toggleCommandPalette, toggleOverlay]);
 }

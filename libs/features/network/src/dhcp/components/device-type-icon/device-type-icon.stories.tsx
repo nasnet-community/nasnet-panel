@@ -10,10 +10,7 @@ import * as React from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from 'storybook/test';
 
-import type {
-  FingerprintDeviceType,
-  FingerprintDeviceCategory,
-} from '@nasnet/core/types';
+import type { FingerprintDeviceType, FingerprintDeviceCategory } from '@nasnet/core/types';
 
 import { DeviceTypeIcon } from './device-type-icon';
 
@@ -187,7 +184,7 @@ export const NoTooltip: Story = {
  */
 export const AllCategories: Story = {
   render: () => (
-    <div className="flex items-center gap-component-lg p-component-sm">
+    <div className="gap-component-lg p-component-sm flex items-center">
       {(
         [
           { deviceType: 'ios', deviceCategory: 'mobile', label: 'Mobile' },
@@ -202,14 +199,17 @@ export const AllCategories: Story = {
           label: string;
         }>
       ).map(({ deviceType, deviceCategory, label }) => (
-        <div key={deviceType} className="flex flex-col items-center gap-2">
+        <div
+          key={deviceType}
+          className="flex flex-col items-center gap-2"
+        >
           <DeviceTypeIcon
             deviceType={deviceType}
             deviceCategory={deviceCategory}
             confidence={85}
             showTooltip
           />
-          <span className="text-xs text-muted-foreground">{label}</span>
+          <span className="text-muted-foreground text-xs">{label}</span>
         </div>
       ))}
     </div>

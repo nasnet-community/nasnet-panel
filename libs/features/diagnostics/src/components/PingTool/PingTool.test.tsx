@@ -18,9 +18,7 @@ vi.mock('@nasnet/ui/layouts', () => ({
   usePlatform: vi.fn(() => 'desktop'),
 }));
 
-const mockUsePlatform = vi.mocked(
-  await import('@nasnet/ui/layouts').then((m) => m.usePlatform)
-);
+const mockUsePlatform = vi.mocked(await import('@nasnet/ui/layouts').then((m) => m.usePlatform));
 
 describe('PingTool Platform Detection', () => {
   const defaultProps = {
@@ -144,9 +142,7 @@ describe('PingToolDesktop Rendering', () => {
       </MockedProvider>
     );
 
-    expect(
-      screen.getByText(/no results yet.*start a ping test/i)
-    ).toBeInTheDocument();
+    expect(screen.getByText(/no results yet.*start a ping test/i)).toBeInTheDocument();
   });
 });
 

@@ -1,8 +1,11 @@
 # Primitives Reference (Layer 1)
 
-Layer 1 is the foundation of the NasNetConnect component architecture. These are the lowest-level building blocks: thin wrappers over shadcn/ui and Radix UI primitives that enforce design system constraints but contain zero business logic. Every component is:
+Layer 1 is the foundation of the NasNetConnect component architecture. These are the lowest-level
+building blocks: thin wrappers over shadcn/ui and Radix UI primitives that enforce design system
+constraints but contain zero business logic. Every component is:
 
-- WCAG AAA accessible (7:1 contrast ratio, 44px minimum touch targets, keyboard navigation, screen reader support)
+- WCAG AAA accessible (7:1 contrast ratio, 44px minimum touch targets, keyboard navigation, screen
+  reader support)
 - Dark mode compatible via CSS variables
 - Built with semantic design tokens (Tier 2/3), never primitive Tailwind colors
 - Platform-responsive where applicable
@@ -13,10 +16,12 @@ All imports come from `@nasnet/ui/primitives`.
 
 ## The `cn()` Utility
 
-**Defined in:** `libs/ui/primitives/src/lib/utils.ts`
-**Re-exported from:** `libs/ui/utils/src/index.ts`
+**Defined in:** `libs/ui/primitives/src/lib/utils.ts` **Re-exported from:**
+`libs/ui/utils/src/index.ts`
 
-`cn()` is the standard utility for merging and deduplicating Tailwind CSS classes. It combines `clsx` (for conditional composition) with `tailwind-merge` (for resolving conflicting utilities). Later values take precedence over earlier ones.
+`cn()` is the standard utility for merging and deduplicating Tailwind CSS classes. It combines
+`clsx` (for conditional composition) with `tailwind-merge` (for resolving conflicting utilities).
+Later values take precedence over earlier ones.
 
 ```tsx
 import { cn } from '@nasnet/ui/primitives';
@@ -32,13 +37,14 @@ cn('bg-primary text-white', className);
 // Multiple conditions
 cn(
   'base-styles',
-  isDisabled && 'opacity-50 cursor-not-allowed',
-  isActive && 'ring-2 ring-primary',
+  isDisabled && 'cursor-not-allowed opacity-50',
+  isActive && 'ring-primary ring-2',
   dynamicClasses
 );
 ```
 
-Use `cn()` whenever you conditionally apply classes or need to accept a `className` prop from the outside.
+Use `cn()` whenever you conditionally apply classes or need to accept a `className` prop from the
+outside.
 
 ---
 
@@ -48,7 +54,8 @@ Use `cn()` whenever you conditionally apply classes or need to accept a `classNa
 
 **Defined in:** `libs/ui/primitives/src/button/button.tsx`
 
-Primary interactive element for triggering actions. Supports 7 variants, 4 sizes, a built-in loading state, and `asChild` for polymorphic rendering via Radix Slot.
+Primary interactive element for triggering actions. Supports 7 variants, 4 sizes, a built-in loading
+state, and `asChild` for polymorphic rendering via Radix Slot.
 
 ```tsx
 import { Button, buttonVariants } from '@nasnet/ui/primitives';
@@ -57,13 +64,13 @@ import type { ButtonProps } from '@nasnet/ui/primitives';
 
 **Key props:**
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `variant` | `'default' \| 'action' \| 'secondary' \| 'destructive' \| 'outline' \| 'ghost' \| 'link'` | `'default'` | Visual style of the button |
-| `size` | `'default' \| 'sm' \| 'lg' \| 'icon'` | `'default'` | Size of the button (default=h-10, sm=h-8, lg=h-12, icon=44x44px) |
-| `isLoading` | `boolean` | `false` | Shows a Spinner and disables the button; sets `aria-busy="true"` |
-| `loadingText` | `string` | — | Text to show during loading state (falls back to children) |
-| `asChild` | `boolean` | `false` | Render as a different element using Radix Slot (e.g., an anchor) |
+| Prop          | Type                                                                                      | Default     | Description                                                      |
+| ------------- | ----------------------------------------------------------------------------------------- | ----------- | ---------------------------------------------------------------- |
+| `variant`     | `'default' \| 'action' \| 'secondary' \| 'destructive' \| 'outline' \| 'ghost' \| 'link'` | `'default'` | Visual style of the button                                       |
+| `size`        | `'default' \| 'sm' \| 'lg' \| 'icon'`                                                     | `'default'` | Size of the button (default=h-10, sm=h-8, lg=h-12, icon=44x44px) |
+| `isLoading`   | `boolean`                                                                                 | `false`     | Shows a Spinner and disables the button; sets `aria-busy="true"` |
+| `loadingText` | `string`                                                                                  | —           | Text to show during loading state (falls back to children)       |
+| `asChild`     | `boolean`                                                                                 | `false`     | Render as a different element using Radix Slot (e.g., an anchor) |
 
 ```tsx
 // Standard usage
@@ -86,7 +93,8 @@ import type { ButtonProps } from '@nasnet/ui/primitives';
 </Button>
 ```
 
-`buttonVariants` is a CVA helper exported separately; use it to apply button styling to non-button elements without rendering the Button component.
+`buttonVariants` is a CVA helper exported separately; use it to apply button styling to non-button
+elements without rendering the Button component.
 
 ---
 
@@ -94,7 +102,8 @@ import type { ButtonProps } from '@nasnet/ui/primitives';
 
 **Defined in:** `libs/ui/primitives/src/input/input.tsx`
 
-A single-line text input with size variants and an error state. Extends all native `<input>` attributes.
+A single-line text input with size variants and an error state. Extends all native `<input>`
+attributes.
 
 ```tsx
 import { Input } from '@nasnet/ui/primitives';
@@ -103,11 +112,11 @@ import type { InputProps } from '@nasnet/ui/primitives';
 
 **Key props:**
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `variant` | `'default' \| 'error'` | `'default'` | Border color variant |
-| `inputSize` | `'default' \| 'sm' \| 'lg'` | `'default'` | Height variant (default=h-10, sm=h-9, lg=h-12) |
-| `error` | `boolean` | `false` | Applies error border and ring; sets `aria-invalid` |
+| Prop        | Type                        | Default     | Description                                        |
+| ----------- | --------------------------- | ----------- | -------------------------------------------------- |
+| `variant`   | `'default' \| 'error'`      | `'default'` | Border color variant                               |
+| `inputSize` | `'default' \| 'sm' \| 'lg'` | `'default'` | Height variant (default=h-10, sm=h-9, lg=h-12)     |
+| `error`     | `boolean`                   | `false`     | Applies error border and ring; sets `aria-invalid` |
 
 ```tsx
 <Input type="text" placeholder="Router name" />
@@ -141,7 +150,8 @@ import type { TextareaProps } from '@nasnet/ui/primitives';
 
 **Defined in:** `libs/ui/primitives/src/select/select.tsx`
 
-A custom-styled select dropdown built on Radix UI Select. Use the sub-components to compose the full select widget.
+A custom-styled select dropdown built on Radix UI Select. Use the sub-components to compose the full
+select widget.
 
 ```tsx
 import {
@@ -181,13 +191,15 @@ import {
 
 **Defined in:** `libs/ui/primitives/src/checkbox/checkbox.tsx`
 
-A checkable input control. Built on Radix UI Checkbox. Wraps the 20x20px visual indicator inside a 44x44px touch target container automatically.
+A checkable input control. Built on Radix UI Checkbox. Wraps the 20x20px visual indicator inside a
+44x44px touch target container automatically.
 
 ```tsx
 import { Checkbox } from '@nasnet/ui/primitives';
 ```
 
-Extends `React.ComponentPropsWithoutRef<typeof CheckboxPrimitive.Root>` — includes `checked`, `onCheckedChange`, `defaultChecked`, `disabled`.
+Extends `React.ComponentPropsWithoutRef<typeof CheckboxPrimitive.Root>` — includes `checked`,
+`onCheckedChange`, `defaultChecked`, `disabled`.
 
 ```tsx
 // Always pair with a Label for accessibility
@@ -210,23 +222,33 @@ Extends `React.ComponentPropsWithoutRef<typeof CheckboxPrimitive.Root>` — incl
 
 **Defined in:** `libs/ui/primitives/src/radio-group/radio-group.tsx`
 
-A set of mutually exclusive radio buttons. Built on Radix UI RadioGroup. Keyboard navigation: Tab to enter the group, arrow keys to move between items.
+A set of mutually exclusive radio buttons. Built on Radix UI RadioGroup. Keyboard navigation: Tab to
+enter the group, arrow keys to move between items.
 
 ```tsx
 import { RadioGroup, RadioGroupItem } from '@nasnet/ui/primitives';
 ```
 
-`RadioGroup` props: `value`, `defaultValue`, `onValueChange`, `disabled`, `orientation` (`'vertical' | 'horizontal'`).
-`RadioGroupItem` props: `value` (required), `disabled`.
+`RadioGroup` props: `value`, `defaultValue`, `onValueChange`, `disabled`, `orientation`
+(`'vertical' | 'horizontal'`). `RadioGroupItem` props: `value` (required), `disabled`.
 
 ```tsx
-<RadioGroup defaultValue="wireguard" onValueChange={setProtocol}>
+<RadioGroup
+  defaultValue="wireguard"
+  onValueChange={setProtocol}
+>
   <div className="flex items-center gap-2">
-    <RadioGroupItem value="wireguard" id="wg" />
+    <RadioGroupItem
+      value="wireguard"
+      id="wg"
+    />
     <Label htmlFor="wg">WireGuard</Label>
   </div>
   <div className="flex items-center gap-2">
-    <RadioGroupItem value="openvpn" id="ovpn" />
+    <RadioGroupItem
+      value="openvpn"
+      id="ovpn"
+    />
     <Label htmlFor="ovpn">OpenVPN</Label>
   </div>
 </RadioGroup>
@@ -244,10 +266,16 @@ A range input built on Radix UI Slider.
 import { Slider } from '@nasnet/ui/primitives';
 ```
 
-Extends `React.ComponentPropsWithoutRef<typeof SliderPrimitive.Root>` — includes `min`, `max`, `step`, `value`, `defaultValue`, `onValueChange`, `disabled`.
+Extends `React.ComponentPropsWithoutRef<typeof SliderPrimitive.Root>` — includes `min`, `max`,
+`step`, `value`, `defaultValue`, `onValueChange`, `disabled`.
 
 ```tsx
-<Slider min={0} max={100} step={5} defaultValue={[50]} />
+<Slider
+  min={0}
+  max={100}
+  step={5}
+  defaultValue={[50]}
+/>
 ```
 
 ---
@@ -256,14 +284,16 @@ Extends `React.ComponentPropsWithoutRef<typeof SliderPrimitive.Root>` — includ
 
 **Defined in:** `libs/ui/primitives/src/switch/switch.tsx`
 
-A toggle switch for boolean input. Uses primary color when checked, muted when unchecked. Wraps in a 44px-tall container automatically for touch targets.
+A toggle switch for boolean input. Uses primary color when checked, muted when unchecked. Wraps in a
+44px-tall container automatically for touch targets.
 
 ```tsx
 import { Switch } from '@nasnet/ui/primitives';
 import type { SwitchProps } from '@nasnet/ui/primitives';
 ```
 
-Extends `React.ComponentPropsWithoutRef<typeof SwitchPrimitives.Root>` — includes `checked`, `defaultChecked`, `onCheckedChange`, `disabled`.
+Extends `React.ComponentPropsWithoutRef<typeof SwitchPrimitives.Root>` — includes `checked`,
+`defaultChecked`, `onCheckedChange`, `disabled`.
 
 ```tsx
 <Switch />
@@ -278,7 +308,8 @@ Extends `React.ComponentPropsWithoutRef<typeof SwitchPrimitives.Root>` — inclu
 
 **Defined in:** `libs/ui/primitives/src/form/index.tsx`
 
-A set of composable form building blocks that integrate React Hook Form with Radix UI Label and automated ARIA attribute wiring.
+A set of composable form building blocks that integrate React Hook Form with Radix UI Label and
+automated ARIA attribute wiring.
 
 ```tsx
 import {
@@ -295,16 +326,16 @@ import {
 
 **Component roles:**
 
-| Component | Role |
-|-----------|------|
-| `Form` | Root wrapper — re-exports `FormProvider` from `react-hook-form` |
-| `FormField` | Controller wrapper for one field; wraps `react-hook-form` `Controller` |
-| `FormItem` | Vertical container (label + control + description + error); generates unique ARIA IDs |
-| `FormLabel` | Semantic `<label>` linked to control; turns `text-error` when field has a validation error |
-| `FormControl` | Radix Slot wrapper; injects `id`, `aria-describedby`, and `aria-invalid` onto the child input |
-| `FormDescription` | Helper text; announced via `aria-describedby` when input is focused |
-| `FormMessage` | Error text; auto-populated from field error state; renders nothing when no error |
-| `useFormField()` | Hook returning `{ id, name, formItemId, formDescriptionId, formMessageId, ...fieldState }` |
+| Component         | Role                                                                                          |
+| ----------------- | --------------------------------------------------------------------------------------------- |
+| `Form`            | Root wrapper — re-exports `FormProvider` from `react-hook-form`                               |
+| `FormField`       | Controller wrapper for one field; wraps `react-hook-form` `Controller`                        |
+| `FormItem`        | Vertical container (label + control + description + error); generates unique ARIA IDs         |
+| `FormLabel`       | Semantic `<label>` linked to control; turns `text-error` when field has a validation error    |
+| `FormControl`     | Radix Slot wrapper; injects `id`, `aria-describedby`, and `aria-invalid` onto the child input |
+| `FormDescription` | Helper text; announced via `aria-describedby` when input is focused                           |
+| `FormMessage`     | Error text; auto-populated from field error state; renders nothing when no error              |
+| `useFormField()`  | Hook returning `{ id, name, formItemId, formDescriptionId, formMessageId, ...fieldState }`    |
 
 ```tsx
 import { useForm } from 'react-hook-form';
@@ -326,7 +357,10 @@ function RouterForm() {
             <FormItem>
               <FormLabel>Hostname</FormLabel>
               <FormControl>
-                <Input placeholder="router.local" {...field} />
+                <Input
+                  placeholder="router.local"
+                  {...field}
+                />
               </FormControl>
               <FormDescription>Must be a valid DNS hostname.</FormDescription>
               <FormMessage />
@@ -346,7 +380,8 @@ function RouterForm() {
 
 **Defined in:** `libs/ui/primitives/src/label/label.tsx`
 
-An accessible label built on Radix UI Label. Associates with form controls via `htmlFor`. Applies `opacity-70` and `cursor-not-allowed` automatically when its peer input is disabled.
+An accessible label built on Radix UI Label. Associates with form controls via `htmlFor`. Applies
+`opacity-70` and `cursor-not-allowed` automatically when its peer input is disabled.
 
 ```tsx
 import { Label } from '@nasnet/ui/primitives';
@@ -378,17 +413,18 @@ import {
 } from '@nasnet/ui/primitives';
 ```
 
-**Card variants:** `'default'` (standard shadow), `'elevated'` (hover shadow), `'interactive'` (hover shadow + pointer cursor), `'flat'` (no shadow).
+**Card variants:** `'default'` (standard shadow), `'elevated'` (hover shadow), `'interactive'`
+(hover shadow + pointer cursor), `'flat'` (no shadow).
 
 **Sub-component layout:**
 
-| Sub-component | Element | Notes |
-|---------------|---------|-------|
-| `CardHeader` | `<div>` | Flex column; responsive padding (`p-component-md` mobile, `p-component-lg` desktop) |
-| `CardTitle` | `<div>` | `text-lg font-semibold`; render as `h2`/`h3` semantically via `asChild` or custom wrapping |
-| `CardDescription` | `<div>` | `text-sm text-muted-foreground` |
-| `CardContent` | `<div>` | Responsive padding with `pt-0` |
-| `CardFooter` | `<div>` | Flex row; responsive padding with `pt-0` |
+| Sub-component     | Element | Notes                                                                                      |
+| ----------------- | ------- | ------------------------------------------------------------------------------------------ |
+| `CardHeader`      | `<div>` | Flex column; responsive padding (`p-component-md` mobile, `p-component-lg` desktop)        |
+| `CardTitle`       | `<div>` | `text-lg font-semibold`; render as `h2`/`h3` semantically via `asChild` or custom wrapping |
+| `CardDescription` | `<div>` | `text-sm text-muted-foreground`                                                            |
+| `CardContent`     | `<div>` | Responsive padding with `pt-0`                                                             |
+| `CardFooter`      | `<div>` | Flex row; responsive padding with `pt-0`                                                   |
 
 ```tsx
 <Card variant="elevated">
@@ -400,7 +436,12 @@ import {
     <p>Status: Online</p>
   </CardContent>
   <CardFooter>
-    <Button variant="outline" size="sm">Edit</Button>
+    <Button
+      variant="outline"
+      size="sm"
+    >
+      Edit
+    </Button>
   </CardFooter>
 </Card>
 ```
@@ -411,7 +452,8 @@ import {
 
 **Defined in:** `libs/ui/primitives/src/badge/badge.tsx`
 
-A small inline label for status indicators, tags, and categorization. Color is never the sole status indicator — always pair with text (and optionally an icon).
+A small inline label for status indicators, tags, and categorization. Color is never the sole status
+indicator — always pair with text (and optionally an icon).
 
 ```tsx
 import { Badge, badgeVariants } from '@nasnet/ui/primitives';
@@ -420,22 +462,22 @@ import type { BadgeProps } from '@nasnet/ui/primitives';
 
 **Variants:**
 
-| Variant | Color | Semantic use |
-|---------|-------|-------------|
-| `default` | Golden Amber (primary) | Brand emphasis |
-| `secondary` | Trust Blue (secondary) | Informational |
-| `success` | Green | Online, healthy, valid |
-| `connected` | Green | Device/service connected (alias of `success`) |
-| `warning` | Amber | Pending, degraded |
-| `error` | Red | Offline, failed, invalid |
-| `info` | Blue | Help, tips |
-| `offline` | Gray (`bg-muted`) | Disabled, inactive |
-| `outline` | Transparent + border | Lightweight label |
+| Variant     | Color                  | Semantic use                                  |
+| ----------- | ---------------------- | --------------------------------------------- |
+| `default`   | Golden Amber (primary) | Brand emphasis                                |
+| `secondary` | Trust Blue (secondary) | Informational                                 |
+| `success`   | Green                  | Online, healthy, valid                        |
+| `connected` | Green                  | Device/service connected (alias of `success`) |
+| `warning`   | Amber                  | Pending, degraded                             |
+| `error`     | Red                    | Offline, failed, invalid                      |
+| `info`      | Blue                   | Help, tips                                    |
+| `offline`   | Gray (`bg-muted`)      | Disabled, inactive                            |
+| `outline`   | Transparent + border   | Lightweight label                             |
 
 **Additional props:**
 
-| Prop | Type | Description |
-|------|------|-------------|
+| Prop    | Type      | Description                                                                                                   |
+| ------- | --------- | ------------------------------------------------------------------------------------------------------------- |
 | `pulse` | `boolean` | Enables `animate-pulse-glow` for live indicators; automatically disabled when `prefers-reduced-motion` is set |
 
 ```tsx
@@ -455,7 +497,8 @@ import type { BadgeProps } from '@nasnet/ui/primitives';
 
 **Defined in:** `libs/ui/primitives/src/alert/alert.tsx`
 
-A container for alert messages with `role="alert"` and automatic live region support. Accepts an SVG icon as a direct child; it is positioned to the left of the text content automatically.
+A container for alert messages with `role="alert"` and automatic live region support. Accepts an SVG
+icon as a direct child; it is positioned to the left of the text content automatically.
 
 ```tsx
 import { Alert, AlertTitle, AlertDescription, alertVariants } from '@nasnet/ui/primitives';
@@ -465,10 +508,10 @@ import { Alert, AlertTitle, AlertDescription, alertVariants } from '@nasnet/ui/p
 
 **Additional props on Alert:**
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `live` | `boolean` | `false` | If `true`, adds `aria-live="polite"` for dynamic announcements |
-| `role` | `string` | `"alert"` | ARIA role override |
+| Prop   | Type      | Default   | Description                                                    |
+| ------ | --------- | --------- | -------------------------------------------------------------- |
+| `live` | `boolean` | `false`   | If `true`, adds `aria-live="polite"` for dynamic announcements |
+| `role` | `string`  | `"alert"` | ARIA role override                                             |
 
 ```tsx
 import { CheckCircle2, AlertTriangle } from 'lucide-react';
@@ -492,14 +535,16 @@ import { CheckCircle2, AlertTriangle } from 'lucide-react';
 
 **Defined in:** `libs/ui/primitives/src/separator/separator.tsx`
 
-A visual 1px divider built on Radix UI Separator. Decorative by default (hidden from screen readers).
+A visual 1px divider built on Radix UI Separator. Decorative by default (hidden from screen
+readers).
 
 ```tsx
 import { Separator } from '@nasnet/ui/primitives';
 import type { SeparatorProps } from '@nasnet/ui/primitives';
 ```
 
-**Props:** `orientation` (`'horizontal' | 'vertical'`, default `'horizontal'`), `decorative` (boolean, default `true`).
+**Props:** `orientation` (`'horizontal' | 'vertical'`, default `'horizontal'`), `decorative`
+(boolean, default `true`).
 
 ```tsx
 <Separator className="my-4" />
@@ -545,7 +590,8 @@ import { Avatar, AvatarImage, AvatarFallback } from '@nasnet/ui/primitives';
 
 **Defined in:** `libs/ui/primitives/src/progress/progress.tsx`
 
-A progress bar built on Radix UI Progress. Supports three height sizes and an indeterminate animation mode.
+A progress bar built on Radix UI Progress. Supports three height sizes and an indeterminate
+animation mode.
 
 ```tsx
 import { Progress } from '@nasnet/ui/primitives';
@@ -553,12 +599,12 @@ import { Progress } from '@nasnet/ui/primitives';
 
 **Props:**
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `value` | `number` | `0` | Progress percentage (0–100, or up to `max`) |
-| `max` | `number` | `100` | Maximum value |
-| `size` | `'sm' \| 'md' \| 'lg'` | `'md'` | Bar height: sm=4px, md=8px, lg=12px |
-| `indeterminate` | `boolean` | `false` | Shows animated loading bar without a fixed percentage |
+| Prop            | Type                   | Default | Description                                           |
+| --------------- | ---------------------- | ------- | ----------------------------------------------------- |
+| `value`         | `number`               | `0`     | Progress percentage (0–100, or up to `max`)           |
+| `max`           | `number`               | `100`   | Maximum value                                         |
+| `size`          | `'sm' \| 'md' \| 'lg'` | `'md'`  | Bar height: sm=4px, md=8px, lg=12px                   |
+| `indeterminate` | `boolean`              | `false` | Shows animated loading bar without a fixed percentage |
 
 ```tsx
 <Progress value={65} />
@@ -572,7 +618,8 @@ import { Progress } from '@nasnet/ui/primitives';
 
 **Defined in:** `libs/ui/primitives/src/accordion.tsx`
 
-Vertically stacked expandable/collapsible content sections. Built on Radix UI Collapsible. Supports `single` (one open at a time) or `multiple` mode. Respects `prefers-reduced-motion`.
+Vertically stacked expandable/collapsible content sections. Built on Radix UI Collapsible. Supports
+`single` (one open at a time) or `multiple` mode. Respects `prefers-reduced-motion`.
 
 ```tsx
 import {
@@ -589,8 +636,8 @@ import type {
 } from '@nasnet/ui/primitives';
 ```
 
-**AccordionProps:** `type` (`'single' | 'multiple'`, default `'single'`), `value`, `defaultValue`, `onValueChange`.
-**AccordionItemProps:** `value` (required string).
+**AccordionProps:** `type` (`'single' | 'multiple'`, default `'single'`), `value`, `defaultValue`,
+`onValueChange`. **AccordionItemProps:** `value` (required string).
 
 ```tsx
 // Single open item (default)
@@ -623,7 +670,9 @@ import type {
 
 **Defined in:** `libs/ui/primitives/src/dialog/dialog.tsx`
 
-A modal dialog built on Radix UI Dialog. Manages focus trapping, body scroll lock, and keyboard interactions automatically. `DialogContent` renders in a portal with a backdrop overlay and includes an automatic close button.
+A modal dialog built on Radix UI Dialog. Manages focus trapping, body scroll lock, and keyboard
+interactions automatically. `DialogContent` renders in a portal with a backdrop overlay and includes
+an automatic close button.
 
 ```tsx
 import {
@@ -642,18 +691,18 @@ import {
 
 **Sub-components:**
 
-| Component | Role |
-|-----------|------|
-| `Dialog` | Root; manages open state |
-| `DialogTrigger` | Interactive element that opens the dialog |
-| `DialogPortal` | Renders content at document root |
-| `DialogOverlay` | Backdrop (`bg-black/50 backdrop-blur-sm`) |
-| `DialogContent` | Main panel (max-w-lg, centered, auto close button at top-right) |
-| `DialogHeader` | Title + description container (centered on mobile, left on desktop) |
-| `DialogTitle` | Semantic title (announced to screen readers) |
-| `DialogDescription` | Subtitle in `text-muted-foreground` |
-| `DialogFooter` | Action buttons (stacked on mobile, row on desktop) |
-| `DialogClose` | Programmatic close button |
+| Component           | Role                                                                |
+| ------------------- | ------------------------------------------------------------------- |
+| `Dialog`            | Root; manages open state                                            |
+| `DialogTrigger`     | Interactive element that opens the dialog                           |
+| `DialogPortal`      | Renders content at document root                                    |
+| `DialogOverlay`     | Backdrop (`bg-black/50 backdrop-blur-sm`)                           |
+| `DialogContent`     | Main panel (max-w-lg, centered, auto close button at top-right)     |
+| `DialogHeader`      | Title + description container (centered on mobile, left on desktop) |
+| `DialogTitle`       | Semantic title (announced to screen readers)                        |
+| `DialogDescription` | Subtitle in `text-muted-foreground`                                 |
+| `DialogFooter`      | Action buttons (stacked on mobile, row on desktop)                  |
+| `DialogClose`       | Programmatic close button                                           |
 
 ```tsx
 <Dialog>
@@ -684,7 +733,8 @@ import {
 
 **Defined in:** `libs/ui/primitives/src/sheet/sheet.tsx`
 
-A slide-in panel built on Radix UI Dialog. Slides in from `top`, `bottom`, `left`, or `right`. Commonly used for mobile navigation, detail panels, and filter drawers. Defaults to `right`.
+A slide-in panel built on Radix UI Dialog. Slides in from `top`, `bottom`, `left`, or `right`.
+Commonly used for mobile navigation, detail panels, and filter drawers. Defaults to `right`.
 
 ```tsx
 import {
@@ -733,18 +783,15 @@ Left/right sheets are 80% viewport width on mobile, capped at 400px on larger sc
 
 **Defined in:** `libs/ui/primitives/src/popover/popover.tsx`
 
-A floating panel anchored to a trigger element. Renders in a portal. Auto-adjusts position to stay within the viewport. Default width 288px (`w-72`), max height 80vh.
+A floating panel anchored to a trigger element. Renders in a portal. Auto-adjusts position to stay
+within the viewport. Default width 288px (`w-72`), max height 80vh.
 
 ```tsx
-import {
-  Popover,
-  PopoverTrigger,
-  PopoverContent,
-  PopoverAnchor,
-} from '@nasnet/ui/primitives';
+import { Popover, PopoverTrigger, PopoverContent, PopoverAnchor } from '@nasnet/ui/primitives';
 ```
 
-**PopoverContent props:** `align` (`'start' | 'center' | 'end'`, default `'center'`), `sideOffset` (px gap, default `4`).
+**PopoverContent props:** `align` (`'start' | 'center' | 'end'`, default `'center'`), `sideOffset`
+(px gap, default `4`).
 
 ```tsx
 <Popover>
@@ -767,15 +814,11 @@ import {
 
 **Defined in:** `libs/ui/primitives/src/tooltip/tooltip.tsx`
 
-A short contextual hint shown on hover or keyboard focus. Requires `TooltipProvider` at the application root.
+A short contextual hint shown on hover or keyboard focus. Requires `TooltipProvider` at the
+application root.
 
 ```tsx
-import {
-  Tooltip,
-  TooltipTrigger,
-  TooltipContent,
-  TooltipProvider,
-} from '@nasnet/ui/primitives';
+import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@nasnet/ui/primitives';
 ```
 
 `TooltipContent` props: `side` (`'top' | 'bottom' | 'left' | 'right'`), `sideOffset` (default `4`).
@@ -805,7 +848,8 @@ import {
 
 **Defined in:** `libs/ui/primitives/src/dropdown-menu/dropdown-menu.tsx`
 
-A floating context menu with full keyboard navigation. Supports nested submenus, checkbox items, and radio group items. All items have 44px minimum touch targets.
+A floating context menu with full keyboard navigation. Supports nested submenus, checkbox items, and
+radio group items. All items have 44px minimum touch targets.
 
 ```tsx
 import {
@@ -829,28 +873,32 @@ import {
 
 **Sub-component reference:**
 
-| Component | Role |
-|-----------|------|
-| `DropdownMenu` | Root; manages open state |
-| `DropdownMenuTrigger` | Element that opens the menu |
-| `DropdownMenuContent` | Floating panel containing items |
-| `DropdownMenuItem` | Clickable menu item; `inset` prop adds left padding for icon alignment |
-| `DropdownMenuCheckboxItem` | Item with checkbox; `checked` / `onCheckedChange` props |
-| `DropdownMenuRadioItem` | Item with radio indicator; must be inside `DropdownMenuRadioGroup` |
-| `DropdownMenuRadioGroup` | Wraps radio items; `value` / `onValueChange` props |
-| `DropdownMenuLabel` | Non-interactive section heading; `inset` for icon alignment |
-| `DropdownMenuSeparator` | Visual 1px divider |
-| `DropdownMenuShortcut` | Right-aligned keyboard shortcut hint (display only) |
-| `DropdownMenuGroup` | Semantic grouping container |
-| `DropdownMenuPortal` | Wraps submenu content at document root |
-| `DropdownMenuSub` | Submenu root |
-| `DropdownMenuSubTrigger` | Trigger item for a nested submenu |
-| `DropdownMenuSubContent` | Content panel for a nested submenu |
+| Component                  | Role                                                                   |
+| -------------------------- | ---------------------------------------------------------------------- |
+| `DropdownMenu`             | Root; manages open state                                               |
+| `DropdownMenuTrigger`      | Element that opens the menu                                            |
+| `DropdownMenuContent`      | Floating panel containing items                                        |
+| `DropdownMenuItem`         | Clickable menu item; `inset` prop adds left padding for icon alignment |
+| `DropdownMenuCheckboxItem` | Item with checkbox; `checked` / `onCheckedChange` props                |
+| `DropdownMenuRadioItem`    | Item with radio indicator; must be inside `DropdownMenuRadioGroup`     |
+| `DropdownMenuRadioGroup`   | Wraps radio items; `value` / `onValueChange` props                     |
+| `DropdownMenuLabel`        | Non-interactive section heading; `inset` for icon alignment            |
+| `DropdownMenuSeparator`    | Visual 1px divider                                                     |
+| `DropdownMenuShortcut`     | Right-aligned keyboard shortcut hint (display only)                    |
+| `DropdownMenuGroup`        | Semantic grouping container                                            |
+| `DropdownMenuPortal`       | Wraps submenu content at document root                                 |
+| `DropdownMenuSub`          | Submenu root                                                           |
+| `DropdownMenuSubTrigger`   | Trigger item for a nested submenu                                      |
+| `DropdownMenuSubContent`   | Content panel for a nested submenu                                     |
 
 ```tsx
 <DropdownMenu>
   <DropdownMenuTrigger asChild>
-    <Button variant="ghost" size="icon" aria-label="More actions">
+    <Button
+      variant="ghost"
+      size="icon"
+      aria-label="More actions"
+    >
       <MoreVertical className="h-4 w-4" />
     </Button>
   </DropdownMenuTrigger>
@@ -881,7 +929,8 @@ import {
 
 **Defined in:** `libs/ui/primitives/src/scroll-area/scroll-area.tsx`
 
-A custom-styled scroll container built on Radix UI ScrollArea. Scrollbars auto-hide when not in use. Supports both vertical (default) and horizontal scrolling.
+A custom-styled scroll container built on Radix UI ScrollArea. Scrollbars auto-hide when not in use.
+Supports both vertical (default) and horizontal scrolling.
 
 ```tsx
 import { ScrollArea, ScrollBar } from '@nasnet/ui/primitives';
@@ -915,15 +964,15 @@ import { ScrollArea, ScrollBar } from '@nasnet/ui/primitives';
 
 **Defined in:** `libs/ui/primitives/src/tabs/tabs.tsx`
 
-Tab panels for switching between related content sections. Built on Radix UI Tabs. Keyboard: Tab to focus the list, arrow keys to move between triggers, Enter/Space to activate.
+Tab panels for switching between related content sections. Built on Radix UI Tabs. Keyboard: Tab to
+focus the list, arrow keys to move between triggers, Enter/Space to activate.
 
 ```tsx
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@nasnet/ui/primitives';
 ```
 
-`Tabs` props: `defaultValue`, `value`, `onValueChange`.
-`TabsTrigger` props: `value` (required), `disabled`.
-`TabsContent` props: `value` (required, must match a `TabsTrigger`).
+`Tabs` props: `defaultValue`, `value`, `onValueChange`. `TabsTrigger` props: `value` (required),
+`disabled`. `TabsContent` props: `value` (required, must match a `TabsTrigger`).
 
 `TabsContent` is removed from the DOM when inactive (not just hidden).
 
@@ -952,7 +1001,8 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@nasnet/ui/primitives'
 
 **Defined in:** `libs/ui/primitives/src/table/table.tsx`
 
-A semantic HTML table with styling and overflow handling. Preferred for desktop views with dense data. On mobile, use the `ResourceCard` pattern instead.
+A semantic HTML table with styling and overflow handling. Preferred for desktop views with dense
+data. On mobile, use the `ResourceCard` pattern instead.
 
 ```tsx
 import {
@@ -977,16 +1027,16 @@ import type {
 
 **Structure mapping:**
 
-| Component | HTML element | Notes |
-|-----------|-------------|-------|
-| `Table` | `<table>` wrapped in `<div>` | Adds horizontal scroll and border |
-| `TableHeader` | `<thead>` | Auto bottom border on child rows |
-| `TableBody` | `<tbody>` | Removes border from last row |
-| `TableFooter` | `<tfoot>` | `bg-muted/50` background for totals |
-| `TableRow` | `<tr>` | Hover state, selection state (`data-[state=selected]`) |
-| `TableHead` | `<th>` | `bg-muted`, uppercase, tracking-wider |
-| `TableCell` | `<td>` | Standard padding and `text-sm` |
-| `TableCaption` | `<caption>` | Required for accessibility; describes table content |
+| Component      | HTML element                 | Notes                                                  |
+| -------------- | ---------------------------- | ------------------------------------------------------ |
+| `Table`        | `<table>` wrapped in `<div>` | Adds horizontal scroll and border                      |
+| `TableHeader`  | `<thead>`                    | Auto bottom border on child rows                       |
+| `TableBody`    | `<tbody>`                    | Removes border from last row                           |
+| `TableFooter`  | `<tfoot>`                    | `bg-muted/50` background for totals                    |
+| `TableRow`     | `<tr>`                       | Hover state, selection state (`data-[state=selected]`) |
+| `TableHead`    | `<th>`                       | `bg-muted`, uppercase, tracking-wider                  |
+| `TableCell`    | `<td>`                       | Standard padding and `text-sm`                         |
+| `TableCaption` | `<caption>`                  | Required for accessibility; describes table content    |
 
 ```tsx
 <Table>
@@ -1020,7 +1070,8 @@ import type {
 
 **Defined in:** `libs/ui/primitives/src/collapsible.tsx`
 
-A single expand/collapse panel built on Radix UI Collapsible. For multiple mutually exclusive panels use `Accordion` instead. Content is removed from the DOM when collapsed.
+A single expand/collapse panel built on Radix UI Collapsible. For multiple mutually exclusive panels
+use `Accordion` instead. Content is removed from the DOM when collapsed.
 
 ```tsx
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '@nasnet/ui/primitives';
@@ -1032,7 +1083,10 @@ import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '@nasnet/ui/
 // Uncontrolled
 <Collapsible>
   <CollapsibleTrigger asChild>
-    <Button variant="outline" className="w-full justify-between">
+    <Button
+      variant="outline"
+      className="w-full justify-between"
+    >
       Advanced Options
       <ChevronDown className="h-4 w-4" />
     </Button>
@@ -1040,13 +1094,16 @@ import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '@nasnet/ui/
   <CollapsibleContent className="space-y-3 px-1 py-2">
     <p>Advanced settings here</p>
   </CollapsibleContent>
-</Collapsible>
+</Collapsible>;
 
 // Controlled
 const [open, setOpen] = React.useState(false);
-<Collapsible open={open} onOpenChange={setOpen}>
+<Collapsible
+  open={open}
+  onOpenChange={setOpen}
+>
   ...
-</Collapsible>
+</Collapsible>;
 ```
 
 ---
@@ -1056,6 +1113,7 @@ const [open, setOpen] = React.useState(false);
 ### Toast System
 
 **Defined in:**
+
 - `libs/ui/primitives/src/toast/toast.tsx` — primitive components
 - `libs/ui/primitives/src/toast/toaster.tsx` — `Toaster` convenience renderer
 - `libs/ui/primitives/src/toast/use-toast.ts` — `useToast` hook and `toast` function
@@ -1082,7 +1140,8 @@ import { useToast, toast } from '@nasnet/ui/primitives';
 <Toaster />
 ```
 
-`Toaster` handles `ToastProvider` and `ToastViewport` internally. There is no need to render them separately when using `Toaster`.
+`Toaster` handles `ToastProvider` and `ToastViewport` internally. There is no need to render them
+separately when using `Toaster`.
 
 **Usage — trigger from any component:**
 
@@ -1106,13 +1165,14 @@ toast({
 
 // Programmatic dismiss
 const { id } = toast({ title: 'Processing...' });
-dismiss(id);     // dismiss specific toast
-dismiss();       // dismiss all
+dismiss(id); // dismiss specific toast
+dismiss(); // dismiss all
 ```
 
 **Toast variants:** `'default'`, `'success'`, `'warning'`, `'error'`, `'info'`, `'destructive'`.
 
-Maximum 3 toasts visible simultaneously (WCAG compliance). Toasts support swipe-to-dismiss on touch devices and Escape key to close.
+Maximum 3 toasts visible simultaneously (WCAG compliance). Toasts support swipe-to-dismiss on touch
+devices and Escape key to close.
 
 ---
 
@@ -1120,7 +1180,8 @@ Maximum 3 toasts visible simultaneously (WCAG compliance). Toasts support swipe-
 
 **Defined in:** `libs/ui/primitives/src/skeleton/skeleton.tsx`
 
-Loading placeholder components with animated shimmer. All variants use `aria-hidden="true"` and respect `prefers-reduced-motion`. Wrap loading sections in `aria-busy="true"` containers.
+Loading placeholder components with animated shimmer. All variants use `aria-hidden="true"` and
+respect `prefers-reduced-motion`. Wrap loading sections in `aria-busy="true"` containers.
 
 ```tsx
 import {
@@ -1147,45 +1208,45 @@ import type {
 
 `SkeletonText` — multiple text lines:
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `lines` | `number` | `3` | Number of text lines |
-| `lastLineWidth` | `string` | `'60%'` | Width of the final line |
-| `lineHeight` | `number` | `16` | Height of each line in px |
-| `gap` | `number` | `8` | Vertical gap between lines in px |
+| Prop            | Type     | Default | Description                      |
+| --------------- | -------- | ------- | -------------------------------- |
+| `lines`         | `number` | `3`     | Number of text lines             |
+| `lastLineWidth` | `string` | `'60%'` | Width of the final line          |
+| `lineHeight`    | `number` | `16`    | Height of each line in px        |
+| `gap`           | `number` | `8`     | Vertical gap between lines in px |
 
 `SkeletonCard` — card-shaped placeholder:
 
-| Prop | Type | Default |
-|------|------|---------|
-| `showTitle` | `boolean` | `true` |
+| Prop              | Type      | Default |
+| ----------------- | --------- | ------- |
+| `showTitle`       | `boolean` | `true`  |
 | `showDescription` | `boolean` | `false` |
-| `showFooter` | `boolean` | `false` |
-| `contentHeight` | `number` | `120` |
+| `showFooter`      | `boolean` | `false` |
+| `contentHeight`   | `number`  | `120`   |
 
 `SkeletonTable` — table-shaped placeholder:
 
-| Prop | Type | Default |
-|------|------|---------|
-| `rows` | `number` | `5` |
-| `columns` | `number` | `4` |
-| `showHeader` | `boolean` | `true` |
+| Prop         | Type      | Default |
+| ------------ | --------- | ------- |
+| `rows`       | `number`  | `5`     |
+| `columns`    | `number`  | `4`     |
+| `showHeader` | `boolean` | `true`  |
 
 `SkeletonChart` — chart placeholder:
 
-| Prop | Type | Default |
-|------|------|---------|
-| `showTitle` | `boolean` | `false` |
-| `showLegend` | `boolean` | `false` |
-| `height` | `number` | `200` |
-| `type` | `'bar' \| 'line' \| 'pie' \| 'area'` | `'bar'` |
+| Prop         | Type                                 | Default |
+| ------------ | ------------------------------------ | ------- |
+| `showTitle`  | `boolean`                            | `false` |
+| `showLegend` | `boolean`                            | `false` |
+| `height`     | `number`                             | `200`   |
+| `type`       | `'bar' \| 'line' \| 'pie' \| 'area'` | `'bar'` |
 
 `SkeletonAvatar` — avatar placeholder:
 
-| Prop | Type | Default |
-|------|------|---------|
-| `size` | `'sm' \| 'md' \| 'lg' \| 'xl'` | `'md'` | (32/40/48/64px) |
-| `shape` | `'circle' \| 'square'` | `'circle'` |
+| Prop    | Type                           | Default    |
+| ------- | ------------------------------ | ---------- | --------------- |
+| `size`  | `'sm' \| 'md' \| 'lg' \| 'xl'` | `'md'`     | (32/40/48/64px) |
+| `shape` | `'circle' \| 'square'`         | `'circle'` |
 
 ```tsx
 // Basic skeleton block
@@ -1220,7 +1281,9 @@ import type {
 
 **Defined in:** `libs/ui/primitives/src/spinner/Spinner.tsx`
 
-An animated loading indicator using the `Loader2` icon from Lucide. Uses `role="status"` with a visually hidden label. Automatically disables the spin animation when `prefers-reduced-motion` is set.
+An animated loading indicator using the `Loader2` icon from Lucide. Uses `role="status"` with a
+visually hidden label. Automatically disables the spin animation when `prefers-reduced-motion` is
+set.
 
 ```tsx
 import { Spinner } from '@nasnet/ui/primitives';
@@ -1229,10 +1292,10 @@ import type { SpinnerProps } from '@nasnet/ui/primitives';
 
 **Props:**
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `size` | `'sm' \| 'md' \| 'lg' \| 'xl'` | `'md'` | 16/24/32/48px |
-| `label` | `string` | `'Loading...'` | Screen reader text (visually hidden) |
+| Prop    | Type                           | Default        | Description                          |
+| ------- | ------------------------------ | -------------- | ------------------------------------ |
+| `size`  | `'sm' \| 'md' \| 'lg' \| 'xl'` | `'md'`         | 16/24/32/48px                        |
+| `label` | `string`                       | `'Loading...'` | Screen reader text (visually hidden) |
 
 ```tsx
 <Spinner />
@@ -1251,7 +1314,8 @@ import type { SpinnerProps } from '@nasnet/ui/primitives';
 
 **Defined in:** `libs/ui/primitives/src/category-accent/category-accent-provider.tsx`
 
-Provides contextual color theming for NasNetConnect's 14 feature categories. Each category has a distinct accent color used to visually identify feature sections throughout the UI.
+Provides contextual color theming for NasNetConnect's 14 feature categories. Each category has a
+distinct accent color used to visually identify feature sections throughout the UI.
 
 ```tsx
 import {
@@ -1267,22 +1331,22 @@ import type { Category, CategoryMeta, CategoryAccentProviderProps } from '@nasne
 
 **The 14 categories:**
 
-| Category | Label | Color token |
-|----------|-------|-------------|
-| `security` | Security | `--semantic-color-category-security` (Red) |
+| Category     | Label      | Color token                                     |
+| ------------ | ---------- | ----------------------------------------------- |
+| `security`   | Security   | `--semantic-color-category-security` (Red)      |
 | `monitoring` | Monitoring | `--semantic-color-category-monitoring` (Purple) |
-| `networking` | Networking | `--semantic-color-category-networking` (Blue) |
-| `vpn` | VPN | `--semantic-color-category-vpn` (Green) |
-| `wifi` | WiFi | `--semantic-color-category-wifi` (Cyan) |
-| `firewall` | Firewall | `--semantic-color-category-firewall` (Orange) |
-| `system` | System | `--semantic-color-category-system` (Gray) |
-| `dhcp` | DHCP | `--semantic-color-category-dhcp` (Pink) |
-| `routing` | Routing | `--semantic-color-category-routing` (Indigo) |
-| `tunnels` | Tunnels | `--semantic-color-category-tunnels` (Teal) |
-| `qos` | QoS | `--semantic-color-category-qos` (Pink) |
-| `hotspot` | Hotspot | `--semantic-color-category-hotspot` (Orange) |
-| `logging` | Logging | `--semantic-color-category-logging` (Gray) |
-| `backup` | Backup | `--semantic-color-category-backup` (Blue) |
+| `networking` | Networking | `--semantic-color-category-networking` (Blue)   |
+| `vpn`        | VPN        | `--semantic-color-category-vpn` (Green)         |
+| `wifi`       | WiFi       | `--semantic-color-category-wifi` (Cyan)         |
+| `firewall`   | Firewall   | `--semantic-color-category-firewall` (Orange)   |
+| `system`     | System     | `--semantic-color-category-system` (Gray)       |
+| `dhcp`       | DHCP       | `--semantic-color-category-dhcp` (Pink)         |
+| `routing`    | Routing    | `--semantic-color-category-routing` (Indigo)    |
+| `tunnels`    | Tunnels    | `--semantic-color-category-tunnels` (Teal)      |
+| `qos`        | QoS        | `--semantic-color-category-qos` (Pink)          |
+| `hotspot`    | Hotspot    | `--semantic-color-category-hotspot` (Orange)    |
+| `logging`    | Logging    | `--semantic-color-category-logging` (Gray)      |
+| `backup`     | Backup     | `--semantic-color-category-backup` (Blue)       |
 
 **CategoryMeta shape:**
 
@@ -1291,8 +1355,8 @@ interface CategoryMeta {
   id: Category;
   label: string;
   description: string;
-  cssVar: string;    // CSS variable name (e.g., '--semantic-color-category-vpn')
-  bgClass: string;   // Tailwind bg class (e.g., 'bg-category-vpn')
+  cssVar: string; // CSS variable name (e.g., '--semantic-color-category-vpn')
+  bgClass: string; // Tailwind bg class (e.g., 'bg-category-vpn')
   textClass: string; // Tailwind text class (e.g., 'text-category-vpn')
   borderClass: string; // Tailwind border class (e.g., 'border-category-vpn')
 }
@@ -1300,7 +1364,8 @@ interface CategoryMeta {
 
 **CategoryAccentProviderProps:** `children`, `defaultCategory?: Category`.
 
-**useCategoryAccent()** returns: `{ category, meta, setCategory, getCategoryMeta, categories }`. Throws if used outside a `CategoryAccentProvider`.
+**useCategoryAccent()** returns: `{ category, meta, setCategory, getCategoryMeta, categories }`.
+Throws if used outside a `CategoryAccentProvider`.
 
 **getCategoryMeta(category)** — standalone function for use outside a provider.
 
@@ -1310,7 +1375,7 @@ interface CategoryMeta {
 // Wrap a feature section
 <CategoryAccentProvider defaultCategory="vpn">
   <VPNDashboard />
-</CategoryAccentProvider>
+</CategoryAccentProvider>;
 
 // Read the accent in a child component
 function VPNDashboard() {
@@ -1341,7 +1406,8 @@ if (isCategory(routeParam)) {
 
 **Defined in:** `libs/ui/primitives/src/drift-badge/DriftBadge.tsx`
 
-A visual indicator for configuration drift — the difference between the desired configuration state and the actual deployed state. Wraps in a `Tooltip` by default to show drift details.
+A visual indicator for configuration drift — the difference between the desired configuration state
+and the actual deployed state. Wraps in a `Tooltip` by default to show drift details.
 
 ```tsx
 import { DriftBadge, driftBadgeVariants } from '@nasnet/ui/primitives';
@@ -1350,25 +1416,25 @@ import type { DriftBadgeProps, DriftBadgeStatus } from '@nasnet/ui/primitives';
 
 **DriftBadgeStatus values:**
 
-| Status | Color | Meaning |
-|--------|-------|---------|
-| `synced` | Green | Configuration matches deployed state |
-| `drifted` | Amber | Configuration differs from deployed state |
-| `error` | Red | Unable to determine drift status |
-| `pending` | Gray | Deployment layer not yet available |
-| `checking` | Blue (pulsing) | Drift check in progress |
+| Status     | Color          | Meaning                                   |
+| ---------- | -------------- | ----------------------------------------- |
+| `synced`   | Green          | Configuration matches deployed state      |
+| `drifted`  | Amber          | Configuration differs from deployed state |
+| `error`    | Red            | Unable to determine drift status          |
+| `pending`  | Gray           | Deployment layer not yet available        |
+| `checking` | Blue (pulsing) | Drift check in progress                   |
 
 **Key props:**
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `status` | `DriftBadgeStatus` | — | Required. Current drift status |
-| `count` | `number` | — | Number of drifted fields (shown when `status='drifted'`) |
-| `lastChecked` | `Date \| string` | — | Timestamp for tooltip display |
-| `showTooltip` | `boolean` | `true` | Whether to wrap with a tooltip |
-| `tooltipContent` | `React.ReactNode` | — | Custom tooltip content |
-| `interactive` | `boolean` | `false` | Makes badge clickable (`role="button"`) |
-| `size` | `'sm' \| 'md' \| 'lg'` | `'md'` | Badge size |
+| Prop             | Type                   | Default | Description                                              |
+| ---------------- | ---------------------- | ------- | -------------------------------------------------------- |
+| `status`         | `DriftBadgeStatus`     | —       | Required. Current drift status                           |
+| `count`          | `number`               | —       | Number of drifted fields (shown when `status='drifted'`) |
+| `lastChecked`    | `Date \| string`       | —       | Timestamp for tooltip display                            |
+| `showTooltip`    | `boolean`              | `true`  | Whether to wrap with a tooltip                           |
+| `tooltipContent` | `React.ReactNode`      | —       | Custom tooltip content                                   |
+| `interactive`    | `boolean`              | `false` | Makes badge clickable (`role="button"`)                  |
+| `size`           | `'sm' \| 'md' \| 'lg'` | `'md'`  | Badge size                                               |
 
 ```tsx
 // Basic status indicator
@@ -1401,7 +1467,8 @@ import type { DriftBadgeProps, DriftBadgeStatus } from '@nasnet/ui/primitives';
 
 **Defined in:** `libs/ui/primitives/src/icon/Icon.tsx`
 
-A unified wrapper over any Lucide icon that enforces consistent sizing, accessibility, and semantic color usage across the application.
+A unified wrapper over any Lucide icon that enforces consistent sizing, accessibility, and semantic
+color usage across the application.
 
 ```tsx
 import { Icon } from '@nasnet/ui/primitives';
@@ -1410,21 +1477,21 @@ import type { IconProps } from '@nasnet/ui/primitives';
 
 **Props:**
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `icon` | `LucideIcon` | — | Required. The Lucide icon component to render |
-| `size` | `'sm' \| 'md' \| 'lg' \| 'xl' \| number` | `'md'` | Preset (16/20/24/32px) or exact pixel size |
-| `label` | `string` | — | If provided: sets `aria-label` and `role="img"`. If omitted: sets `aria-hidden="true"` (decorative) |
-| `className` | `string` | — | Additional CSS classes; use semantic color tokens |
+| Prop        | Type                                     | Default | Description                                                                                         |
+| ----------- | ---------------------------------------- | ------- | --------------------------------------------------------------------------------------------------- |
+| `icon`      | `LucideIcon`                             | —       | Required. The Lucide icon component to render                                                       |
+| `size`      | `'sm' \| 'md' \| 'lg' \| 'xl' \| number` | `'md'`  | Preset (16/20/24/32px) or exact pixel size                                                          |
+| `label`     | `string`                                 | —       | If provided: sets `aria-label` and `role="img"`. If omitted: sets `aria-hidden="true"` (decorative) |
+| `className` | `string`                                 | —       | Additional CSS classes; use semantic color tokens                                                   |
 
 **Size presets:**
 
 | Size | Pixels | Tailwind equivalent |
-|------|--------|---------------------|
-| `sm` | 16px | `h-4 w-4` |
-| `md` | 20px | `h-5 w-5` |
-| `lg` | 24px | `h-6 w-6` |
-| `xl` | 32px | `h-8 w-8` |
+| ---- | ------ | ------------------- |
+| `sm` | 16px   | `h-4 w-4`           |
+| `md` | 20px   | `h-5 w-5`           |
+| `lg` | 24px   | `h-6 w-6`           |
+| `xl` | 32px   | `h-8 w-8`           |
 
 Always use semantic color tokens for `className`:
 
@@ -1455,7 +1522,9 @@ Use `size="lg"` (24px) for mobile touch contexts; `size="md"` (20px) for desktop
 
 **Defined in:** `libs/ui/primitives/src/hooks/useReducedMotion.ts`
 
-Detects the user's `prefers-reduced-motion` OS accessibility setting. Returns `true` if the user has requested reduced motion. SSR-safe (defaults to `false` during server rendering). Updates reactively when the user changes the setting while the app is running.
+Detects the user's `prefers-reduced-motion` OS accessibility setting. Returns `true` if the user has
+requested reduced motion. SSR-safe (defaults to `false` during server rendering). Updates reactively
+when the user changes the setting while the app is running.
 
 ```tsx
 import { useReducedMotion } from '@nasnet/ui/primitives';
@@ -1464,17 +1533,15 @@ function AnimatedCard() {
   const prefersReducedMotion = useReducedMotion();
 
   return (
-    <div className={cn(
-      'transition-transform',
-      !prefersReducedMotion && 'hover:scale-105'
-    )}>
+    <div className={cn('transition-transform', !prefersReducedMotion && 'hover:scale-105')}>
       Content
     </div>
   );
 }
 ```
 
-All primitive components that include animations (`Badge` with `pulse`, `Spinner`, `Skeleton` variants, `Accordion`, `AccordionContent`) use this hook internally.
+All primitive components that include animations (`Badge` with `pulse`, `Spinner`, `Skeleton`
+variants, `Accordion`, `AccordionContent`) use this hook internally.
 
 ---
 
@@ -1482,7 +1549,8 @@ All primitive components that include animations (`Badge` with `pulse`, `Spinner
 
 **Defined in:** `libs/ui/primitives/src/hooks/useMediaQuery.ts`
 
-A generic React hook for testing any CSS media query. Returns a boolean that updates reactively. SSR-safe (defaults to `false`).
+A generic React hook for testing any CSS media query. Returns a boolean that updates reactively.
+SSR-safe (defaults to `false`).
 
 ```tsx
 import { useMediaQuery } from '@nasnet/ui/primitives';
@@ -1503,7 +1571,9 @@ function NetworkDashboard() {
 }
 ```
 
-For platform-aware rendering in pattern components, prefer the `usePlatform()` hook from `@nasnet/ui/patterns` (which wraps `useMediaQuery` with the project-standard breakpoints). See `layouts-and-platform.md` for the full platform presenter pattern.
+For platform-aware rendering in pattern components, prefer the `usePlatform()` hook from
+`@nasnet/ui/patterns` (which wraps `useMediaQuery` with the project-standard breakpoints). See
+`layouts-and-platform.md` for the full platform presenter pattern.
 
 ---
 
@@ -1512,4 +1582,5 @@ For platform-aware rendering in pattern components, prefer the `usePlatform()` h
 - **Platform-specific rendering** (Mobile/Tablet/Desktop presenters): See `layouts-and-platform.md`
 - **Design tokens and semantic color reference**: See `tokens-and-animation.md`
 - **Pattern components (Layer 2)** that compose these primitives: See `patterns-status-and-data.md`
-- **Library dependency rules**: `apps/` and `libs/features/` may import from `@nasnet/ui/primitives`; primitives must not import from patterns or features
+- **Library dependency rules**: `apps/` and `libs/features/` may import from
+  `@nasnet/ui/primitives`; primitives must not import from patterns or features

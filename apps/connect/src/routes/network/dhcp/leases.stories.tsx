@@ -40,8 +40,7 @@ export const EmptyRouterId: Story = {
   parameters: {
     docs: {
       description: {
-        story:
-          'Lease management with an empty router ID, simulating no router connected.',
+        story: 'Lease management with an empty router ID, simulating no router connected.',
       },
     },
   },
@@ -70,8 +69,7 @@ export const DesktopView: Story = {
     viewport: { defaultViewport: 'responsive' },
     docs: {
       description: {
-        story:
-          'Desktop viewport rendering with table-based layout and bulk selection checkboxes.',
+        story: 'Desktop viewport rendering with table-based layout and bulk selection checkboxes.',
       },
     },
   },

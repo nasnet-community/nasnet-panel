@@ -6,25 +6,25 @@ export type LogLevel = 'DEBUG' | 'INFO' | 'WARN' | 'ERROR' | 'UNKNOWN';
  * Single log entry from a service instance
  */
 export interface LogEntry {
-    timestamp: string;
-    level: LogLevel;
-    message: string;
-    source: string;
-    rawLine: string;
-    metadata?: Record<string, unknown>;
+  timestamp: string;
+  level: LogLevel;
+  message: string;
+  source: string;
+  rawLine: string;
+  metadata?: Record<string, unknown>;
 }
 /**
  * Service log file with metadata
  */
 export interface ServiceLogFile {
-    instanceID: string;
-    serviceName: string;
-    filePath: string;
-    sizeBytes: number;
-    lineCount: number;
-    entries: LogEntry[];
-    createdAt: string;
-    lastUpdated: string;
+  instanceID: string;
+  serviceName: string;
+  filePath: string;
+  sizeBytes: number;
+  lineCount: number;
+  entries: LogEntry[];
+  createdAt: string;
+  lastUpdated: string;
 }
 /**
  * Hook to fetch service log file with recent entries
@@ -49,11 +49,18 @@ export interface ServiceLogFile {
  * }
  * ```
  */
-export declare function useServiceLogFile(routerId: string, instanceId: string, maxLines?: number, enabled?: boolean): {
-    logFile: ServiceLogFile | undefined;
-    loading: boolean;
-    error: import("@apollo/client").ApolloError | undefined;
-    refetch: (variables?: Partial<import("@apollo/client").OperationVariables> | undefined) => Promise<import("@apollo/client").ApolloQueryResult<any>>;
+export declare function useServiceLogFile(
+  routerId: string,
+  instanceId: string,
+  maxLines?: number,
+  enabled?: boolean
+): {
+  logFile: ServiceLogFile | undefined;
+  loading: boolean;
+  error: import('@apollo/client').ApolloError | undefined;
+  refetch: (
+    variables?: Partial<import('@apollo/client').OperationVariables> | undefined
+  ) => Promise<import('@apollo/client').ApolloQueryResult<any>>;
 };
 /**
  * Hook to subscribe to real-time log stream for a service instance
@@ -84,10 +91,15 @@ export declare function useServiceLogFile(routerId: string, instanceId: string, 
  * }, [logEntry]);
  * ```
  */
-export declare function useServiceLogsSubscription(routerId: string, instanceId: string, levelFilter?: LogLevel, enabled?: boolean): {
-    logEntry: LogEntry | undefined;
-    loading: boolean;
-    error: import("@apollo/client").ApolloError | undefined;
+export declare function useServiceLogsSubscription(
+  routerId: string,
+  instanceId: string,
+  levelFilter?: LogLevel,
+  enabled?: boolean
+): {
+  logEntry: LogEntry | undefined;
+  loading: boolean;
+  error: import('@apollo/client').ApolloError | undefined;
 };
 /**
  * Combined hook for comprehensive log monitoring
@@ -116,11 +128,19 @@ export declare function useServiceLogsSubscription(routerId: string, instanceId:
  * // Append new entries from newLogEntry in real-time
  * ```
  */
-export declare function useServiceLogs(routerId: string, instanceId: string, maxLines?: number, levelFilter?: LogLevel, enabled?: boolean): {
-    logFile: ServiceLogFile | undefined;
-    newLogEntry: LogEntry | undefined;
-    loading: boolean;
-    error: import("@apollo/client").ApolloError | undefined;
-    refetch: (variables?: Partial<import("@apollo/client").OperationVariables> | undefined) => Promise<import("@apollo/client").ApolloQueryResult<any>>;
+export declare function useServiceLogs(
+  routerId: string,
+  instanceId: string,
+  maxLines?: number,
+  levelFilter?: LogLevel,
+  enabled?: boolean
+): {
+  logFile: ServiceLogFile | undefined;
+  newLogEntry: LogEntry | undefined;
+  loading: boolean;
+  error: import('@apollo/client').ApolloError | undefined;
+  refetch: (
+    variables?: Partial<import('@apollo/client').OperationVariables> | undefined
+  ) => Promise<import('@apollo/client').ApolloQueryResult<any>>;
 };
 //# sourceMappingURL=useServiceLogs.d.ts.map

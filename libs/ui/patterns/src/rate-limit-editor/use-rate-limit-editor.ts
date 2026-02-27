@@ -280,14 +280,11 @@ function getSourceDescription(rule: Partial<RateLimitRule>): string {
   }
 
   if (rule.srcAddressList) {
-    const listName = rule.srcAddressList.startsWith('!')
-      ? rule.srcAddressList.substring(1)
-      : rule.srcAddressList;
+    const listName =
+      rule.srcAddressList.startsWith('!') ? rule.srcAddressList.substring(1) : rule.srcAddressList;
     const isNegated = rule.srcAddressList.startsWith('!');
 
-    return isNegated
-      ? `from IPs not in '${listName}' list`
-      : `from '${listName}' address list`;
+    return isNegated ? `from IPs not in '${listName}' list` : `from '${listName}' address list`;
   }
 
   return 'from any IP';
@@ -306,7 +303,8 @@ function getRateDescription(rule: Partial<RateLimitRule>): string {
     'per-minute': 'per minute',
     'per-hour': 'per hour',
   };
-  const timeWindowText = (rule.timeWindow ? timeWindowMap[rule.timeWindow] : undefined) || rule.timeWindow;
+  const timeWindowText =
+    (rule.timeWindow ? timeWindowMap[rule.timeWindow] : undefined) || rule.timeWindow;
 
   return `when exceeding ${rule.connectionLimit} connections ${timeWindowText}`;
 }

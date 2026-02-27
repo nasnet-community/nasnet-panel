@@ -1,8 +1,10 @@
 # ent Schema Definitions
 
-This directory contains **SOURCE schema definitions** for the ent ORM (Object-Relational Mapping) used in NasNetConnect.
+This directory contains **SOURCE schema definitions** for the ent ORM (Object-Relational Mapping)
+used in NasNetConnect.
 
-ent generates type-safe Go code for database operations with compile-time query validation and graph-based relationships.
+ent generates type-safe Go code for database operations with compile-time query validation and
+graph-based relationships.
 
 ## Directory Structure
 
@@ -22,25 +24,25 @@ apps/backend/internal/ent-schema/
 
 ### Key Files
 
-| File | Type | Purpose |
-|------|------|---------|
-| `schema/*.go` | **SOURCE** | Entity definitions - EDIT THESE to change database schema |
-| `entc.go` | **SOURCE** | Generator configuration (build tag: `ignore`) |
+| File          | Type       | Purpose                                                         |
+| ------------- | ---------- | --------------------------------------------------------------- |
+| `schema/*.go` | **SOURCE** | Entity definitions - EDIT THESE to change database schema       |
+| `entc.go`     | **SOURCE** | Generator configuration (build tag: `ignore`)                   |
 | `generate.go` | **SOURCE** | go:generate directive (`//go:generate go run -mod=mod entc.go`) |
 
 ## Schema Organization
 
 NasNetConnect uses **34 ent entities** organized across **7 domains**:
 
-| Domain | Entity Count | Description |
-|--------|--------------|-------------|
-| **Core System** | 7 | Routers, users, sessions, configuration |
-| **Alerts & Notifications** | 9 | Alert rules, escalation, digests, notifications |
-| **Network Services** | 6 | Service instances, templates, dependencies |
-| **Networking** | 4 | Virtual interfaces, VLANs, routing chains |
-| **Resources & Events** | 3 | Universal State v2 resource model |
-| **Security** | 3 | API keys, router secrets, port knocking |
-| **Traffic & Diagnostics** | 2 | Traffic stats, diagnostic results |
+| Domain                     | Entity Count | Description                                     |
+| -------------------------- | ------------ | ----------------------------------------------- |
+| **Core System**            | 7            | Routers, users, sessions, configuration         |
+| **Alerts & Notifications** | 9            | Alert rules, escalation, digests, notifications |
+| **Network Services**       | 6            | Service instances, templates, dependencies      |
+| **Networking**             | 4            | Virtual interfaces, VLANs, routing chains       |
+| **Resources & Events**     | 3            | Universal State v2 resource model               |
+| **Security**               | 3            | API keys, router secrets, port knocking         |
+| **Traffic & Diagnostics**  | 2            | Traffic stats, diagnostic results               |
 
 **Detailed Domain Mapping:** See `schema/SCHEMA_ORGANIZATION.md`
 
@@ -49,7 +51,9 @@ NasNetConnect uses **34 ent entities** organized across **7 domains**:
 ent schemas support NasNetConnect's hybrid database model:
 
 ### System Database (`system.db`)
+
 Shared across all routers. Contains:
+
 - Router registry and metadata
 - User accounts and sessions
 - API keys and authentication
@@ -57,10 +61,13 @@ Shared across all routers. Contains:
 - Alert rules and notification configs
 - Service templates
 
-**Entities:** Router, User, Session, APIKey, GlobalSettings, AlertRule, AlertTemplate, NotificationChannelConfig, ServiceTemplate, etc.
+**Entities:** Router, User, Session, APIKey, GlobalSettings, AlertRule, AlertTemplate,
+NotificationChannelConfig, ServiceTemplate, etc.
 
 ### Router Databases (`router-{id}.db`)
+
 One per managed router. Contains:
+
 - Router-specific resources
 - Configuration snapshots
 - Resource events (audit log)
@@ -68,23 +75,27 @@ One per managed router. Contains:
 - VLAN allocations
 - Traffic statistics
 
-**Entities:** Resource, ResourceEvent, ConfigSnapshot, ServiceInstance, VLANAllocation, ServiceTrafficHourly, etc.
+**Entities:** Resource, ResourceEvent, ConfigSnapshot, ServiceInstance, VLANAllocation,
+ServiceTrafficHourly, etc.
 
 ## Code Generation
 
 ### Generate ent Code
 
 From repository root:
+
 ```bash
 npm run codegen:ent
 ```
 
 From this directory:
+
 ```bash
 go generate ./...
 ```
 
 Equivalent to:
+
 ```bash
 go run -mod=mod entc.go
 ```
@@ -100,23 +111,28 @@ This is the **ONLY** output directory for generated code. Do NOT modify files th
 For each entity schema (e.g., `schema/router.go`), ent generates:
 
 1. **Entity Type** (`router.go`)
+
    - Struct definition with fields
    - Edge navigation methods
 
 2. **Query Builder** (`router_query.go`)
+
    - Type-safe query methods
    - Filtering, ordering, pagination
    - Graph traversal
 
 3. **Create Builder** (`router_create.go`)
+
    - Fluent API for creating entities
    - Field setters and edge connections
 
 4. **Update Builder** (`router_update.go`)
+
    - Bulk and single-entity updates
    - Conditional updates with predicates
 
 5. **Delete Builder** (`router_delete.go`)
+
    - Bulk and single-entity deletion
 
 6. **Predicates** (`router/where.go`)
@@ -128,6 +144,7 @@ For each entity schema (e.g., `schema/router.go`), ent generates:
 **File:** `entc.go`
 
 Key settings:
+
 - **Package:** `backend/generated/ent`
 - **Target:** `../../generated/ent/` (relative to this directory)
 - **Features Enabled:**
@@ -139,6 +156,7 @@ Key settings:
 ## Usage Examples
 
 ### Create Client
+
 ```go
 import "backend/generated/ent"
 
@@ -158,6 +176,7 @@ defer routerClient.Close()
 ```
 
 ### Query Entities
+
 ```go
 // Find all routers
 routers, err := client.Router.
@@ -175,6 +194,7 @@ r, err := client.Router.
 ```
 
 ### Create Entity
+
 ```go
 newRouter, err := client.Router.
     Create().
@@ -188,6 +208,7 @@ newRouter, err := client.Router.
 ```
 
 ### Update Entity
+
 ```go
 err := client.Router.
     UpdateOneID(routerID).
@@ -197,6 +218,7 @@ err := client.Router.
 ```
 
 ### Transactions
+
 ```go
 tx, err := client.Tx(ctx)
 if err != nil {
@@ -229,6 +251,7 @@ return tx.Commit()
 ### Adding a New Entity
 
 1. **Create schema file** in `schema/` directory:
+
    ```go
    // schema/new_entity.go
    package schema
@@ -251,6 +274,7 @@ return tx.Commit()
    ```
 
 2. **Regenerate code:**
+
    ```bash
    npm run codegen:ent
    ```
@@ -280,12 +304,15 @@ return tx.Commit()
 ## Schema Best Practices
 
 ### Field Naming
+
 - Use snake_case for field names (e.g., `router_id`, `created_at`)
 - Prefix foreign keys with entity name (e.g., `router_id`, not just `id`)
 - Use descriptive names (e.g., `last_seen_at`, not `last_seen`)
 
 ### ULID Primary Keys
+
 All entities use **ULID** (Universally Unique Lexicographically Sortable Identifier):
+
 ```go
 field.String("id").
     MaxLen(26).
@@ -296,13 +323,16 @@ field.String("id").
 ```
 
 Benefits:
+
 - URL-safe (base32 encoded)
 - Sortable by creation time
 - 128-bit entropy (no collisions)
 - 26 characters (vs 36 for UUID)
 
 ### Timestamps
+
 Use `time.Time` for all timestamps:
+
 ```go
 field.Time("created_at").
     Default(time.Now).
@@ -316,7 +346,9 @@ field.Time("updated_at").
 ```
 
 ### Enums
+
 Define enums for fixed-value fields:
+
 ```go
 field.Enum("status").
     Values("pending", "running", "stopped", "failed").
@@ -325,7 +357,9 @@ field.Enum("status").
 ```
 
 ### JSON Fields
+
 Use JSON for flexible structures:
+
 ```go
 field.JSON("config", map[string]interface{}{}).
     Optional().
@@ -333,7 +367,9 @@ field.JSON("config", map[string]interface{}{}).
 ```
 
 ### Comments
+
 Add comments to all fields for documentation:
+
 ```go
 field.String("host").
     NotEmpty().
@@ -342,7 +378,9 @@ field.String("host").
 ```
 
 ### Edges (Relationships)
+
 Define edges for entity relationships:
+
 ```go
 func (Router) Edges() []ent.Edge {
     return []ent.Edge{
@@ -356,7 +394,9 @@ func (Router) Edges() []ent.Edge {
 ```
 
 ### Indexes
+
 Add indexes for frequently queried fields:
+
 ```go
 func (ServiceInstance) Indexes() []ent.Index {
     return []ent.Index{
@@ -369,7 +409,9 @@ func (ServiceInstance) Indexes() []ent.Index {
 ## Testing
 
 ### Unit Tests
+
 Test schema logic separately from generated code:
+
 ```go
 func TestRouterSchema(t *testing.T) {
     client := enttest.Open(t, "sqlite3", "file:ent?mode=memory&_fk=1")
@@ -385,7 +427,9 @@ func TestRouterSchema(t *testing.T) {
 ```
 
 ### Integration Tests
+
 Test generated code with real database:
+
 ```go
 func TestRouterQueries(t *testing.T) {
     // Use test database
@@ -420,22 +464,28 @@ if err := client.Schema.WriteTo(ctx, os.Stdout); err != nil {
 ## Troubleshooting
 
 ### "Ambiguous field" Error
+
 If you get ambiguous field errors, check for:
+
 - Duplicate field names across edges
 - Conflicting edge names
 
 ### "Circular dependency" Error
+
 ent detects circular imports in schemas. To fix:
+
 1. Review edge definitions
 2. Use `Ref()` for bidirectional edges
 3. Break circular dependencies with intermediate entities
 
 ### Generated Code Doesn't Match Schema
+
 1. Delete generated code: `rm -rf apps/backend/generated/ent`
 2. Regenerate: `npm run codegen:ent`
 3. Check for syntax errors in schema files
 
 ### Migration Fails
+
 1. Check database state
 2. Review migration SQL
 3. Use transactions for safety

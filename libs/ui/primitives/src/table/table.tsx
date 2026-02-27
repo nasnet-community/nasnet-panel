@@ -116,11 +116,8 @@ export interface TableCaptionProps extends React.HTMLAttributes<HTMLTableCaption
  * @param props - Standard HTML table attributes
  */
 const Table = React.memo(
-  React.forwardRef<
-    HTMLTableElement,
-    TableProps
-  >(({ className, ...props }, ref) => (
-    <div className="relative w-full overflow-x-auto rounded-[var(--semantic-radius-card)] border border-border">
+  React.forwardRef<HTMLTableElement, TableProps>(({ className, ...props }, ref) => (
+    <div className="border-border relative w-full overflow-x-auto rounded-[var(--semantic-radius-card)] border">
       <table
         ref={ref}
         className={cn('w-full caption-bottom text-sm', className)}
@@ -146,11 +143,12 @@ Table.displayName = 'Table';
  * @param props - Standard HTML thead attributes
  */
 const TableHeader = React.memo(
-  React.forwardRef<
-    HTMLTableSectionElement,
-    TableSectionProps
-  >(({ className, ...props }, ref) => (
-    <thead ref={ref} className={cn('[&_tr]:border-b', className)} {...props} />
+  React.forwardRef<HTMLTableSectionElement, TableSectionProps>(({ className, ...props }, ref) => (
+    <thead
+      ref={ref}
+      className={cn('[&_tr]:border-b', className)}
+      {...props}
+    />
   ))
 );
 TableHeader.displayName = 'TableHeader';
@@ -170,10 +168,7 @@ TableHeader.displayName = 'TableHeader';
  * @param props - Standard HTML tbody attributes
  */
 const TableBody = React.memo(
-  React.forwardRef<
-    HTMLTableSectionElement,
-    TableSectionProps
-  >(({ className, ...props }, ref) => (
+  React.forwardRef<HTMLTableSectionElement, TableSectionProps>(({ className, ...props }, ref) => (
     <tbody
       ref={ref}
       className={cn('[&_tr:last-child]:border-0', className)}
@@ -198,16 +193,10 @@ TableBody.displayName = 'TableBody';
  * @param props - Standard HTML tfoot attributes
  */
 const TableFooter = React.memo(
-  React.forwardRef<
-    HTMLTableSectionElement,
-    TableSectionProps
-  >(({ className, ...props }, ref) => (
+  React.forwardRef<HTMLTableSectionElement, TableSectionProps>(({ className, ...props }, ref) => (
     <tfoot
       ref={ref}
-      className={cn(
-        'border-t bg-muted/50 font-medium [&>tr]:last:border-b-0',
-        className
-      )}
+      className={cn('bg-muted/50 border-t font-medium [&>tr]:last:border-b-0', className)}
       {...props}
     />
   ))
@@ -229,14 +218,11 @@ TableFooter.displayName = 'TableFooter';
  * @param props - Standard HTML tr attributes
  */
 const TableRow = React.memo(
-  React.forwardRef<
-    HTMLTableRowElement,
-    TableRowProps
-  >(({ className, ...props }, ref) => (
+  React.forwardRef<HTMLTableRowElement, TableRowProps>(({ className, ...props }, ref) => (
     <tr
       ref={ref}
       className={cn(
-        'h-10 border-b border-border transition-colors duration-150 hover:bg-muted/50 data-[state=selected]:bg-primary/5',
+        'border-border hover:bg-muted/50 data-[state=selected]:bg-primary/5 h-10 border-b transition-colors duration-150',
         className
       )}
       {...props}
@@ -260,14 +246,11 @@ TableRow.displayName = 'TableRow';
  * @param props - Standard HTML th attributes
  */
 const TableHead = React.memo(
-  React.forwardRef<
-    HTMLTableCellElement,
-    TableHeadProps
-  >(({ className, ...props }, ref) => (
+  React.forwardRef<HTMLTableCellElement, TableHeadProps>(({ className, ...props }, ref) => (
     <th
       ref={ref}
       className={cn(
-        'h-10 px-4 py-2 bg-muted text-muted-foreground text-xs font-semibold uppercase tracking-wider text-left align-middle [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]',
+        'bg-muted text-muted-foreground h-10 px-4 py-2 text-left align-middle text-xs font-semibold uppercase tracking-wider [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]',
         className
       )}
       {...props}
@@ -291,14 +274,11 @@ TableHead.displayName = 'TableHead';
  * @param props - Standard HTML td attributes
  */
 const TableCell = React.memo(
-  React.forwardRef<
-    HTMLTableCellElement,
-    TableCellProps
-  >(({ className, ...props }, ref) => (
+  React.forwardRef<HTMLTableCellElement, TableCellProps>(({ className, ...props }, ref) => (
     <td
       ref={ref}
       className={cn(
-        'px-4 py-2 text-sm text-foreground align-middle [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]',
+        'text-foreground px-4 py-2 align-middle text-sm [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]',
         className
       )}
       {...props}
@@ -322,26 +302,14 @@ TableCell.displayName = 'TableCell';
  * @param props - Standard HTML caption attributes
  */
 const TableCaption = React.memo(
-  React.forwardRef<
-    HTMLTableCaptionElement,
-    TableCaptionProps
-  >(({ className, ...props }, ref) => (
+  React.forwardRef<HTMLTableCaptionElement, TableCaptionProps>(({ className, ...props }, ref) => (
     <caption
       ref={ref}
-      className={cn('mt-4 text-sm text-muted-foreground', className)}
+      className={cn('text-muted-foreground mt-4 text-sm', className)}
       {...props}
     />
   ))
 );
 TableCaption.displayName = 'TableCaption';
 
-export {
-  Table,
-  TableHeader,
-  TableBody,
-  TableFooter,
-  TableHead,
-  TableRow,
-  TableCell,
-  TableCaption,
-};
+export { Table, TableHeader, TableBody, TableFooter, TableHead, TableRow, TableCell, TableCaption };

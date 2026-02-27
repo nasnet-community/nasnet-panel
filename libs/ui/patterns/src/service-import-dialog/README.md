@@ -31,38 +31,43 @@ function ServiceManagementPage() {
 
 ## Props
 
-| Prop | Type | Required | Description |
-|------|------|----------|-------------|
-| `routerID` | `string` | ✓ | Router ID to import into |
-| `open` | `boolean` | | Controlled open state |
-| `onOpenChange` | `(open: boolean) => void` | | Callback when open state changes |
-| `onImportComplete` | `(instanceID: string) => void` | | Callback when import succeeds |
-| `trigger` | `React.ReactNode` | | Custom trigger button |
+| Prop               | Type                           | Required | Description                      |
+| ------------------ | ------------------------------ | -------- | -------------------------------- |
+| `routerID`         | `string`                       | ✓        | Router ID to import into         |
+| `open`             | `boolean`                      |          | Controlled open state            |
+| `onOpenChange`     | `(open: boolean) => void`      |          | Callback when open state changes |
+| `onImportComplete` | `(instanceID: string) => void` |          | Callback when import succeeds    |
+| `trigger`          | `React.ReactNode`              |          | Custom trigger button            |
 
 ## Import Flow
 
 ### Step 1: Select
+
 - Upload JSON file (drag-and-drop or file picker)
 - Paste JSON content into textarea
 - Client-side validation with Zod
 
 ### Step 2: Validate
+
 - Backend validation (dry-run mode)
 - 7-stage validation pipeline
 - Returns errors, warnings, conflicts, and redacted fields
 
 ### Step 3: Resolve
+
 - Display validation errors
 - Prompt for redacted field values (passwords, API keys)
 - Conflict resolution strategy selection
 - Device filter selection (optional)
 
 ### Step 4: Importing
+
 - Execute actual import (dry-run=false)
 - Progress indicator (0-100%)
 - Create service instance on router
 
 ### Step 5: Complete
+
 - Success confirmation
 - Display created instance name
 - Option to import another
@@ -80,20 +85,24 @@ function ServiceManagementPage() {
 ## Conflict Resolution Strategies
 
 ### Skip
+
 - Don't import if conflicts exist
 - Safest option (no changes)
 
 ### Rename
+
 - Automatically rename conflicting service
 - Appends suffix (e.g., "Tor Exit Node (2)")
 
 ### Replace
+
 - Delete existing service and import new one
 - **Destructive** - requires confirmation
 
 ## Secret Redaction
 
 Exported configurations can redact sensitive fields:
+
 - Passwords
 - API keys
 - Private keys
@@ -104,6 +113,7 @@ During import, users are prompted to provide values for redacted fields.
 ## Platform Presenters
 
 ### Mobile (<640px)
+
 - Full-screen Sheet primitive
 - 44px minimum touch targets
 - Stacked vertical layout
@@ -111,12 +121,14 @@ During import, users are prompted to provide values for redacted fields.
 - Simplified validation error display
 
 ### Tablet (640-1024px)
+
 - Dialog primitive with touch-friendly spacing
 - 44px minimum touch targets
 - Vertical button stacking
 - Hybrid mobile/desktop approach
 
 ### Desktop (>1024px)
+
 - Standard Dialog primitive
 - Dense horizontal layouts
 - Keyboard shortcuts (Enter/Escape)
@@ -161,7 +173,7 @@ ServiceImportDialog.tsx     (Entry point - platform detection)
   routerID="router-1"
   trigger={
     <Button variant="ghost">
-      <Upload className="w-4 h-4 mr-2" />
+      <Upload className="mr-2 h-4 w-4" />
       Import Service
     </Button>
   }
@@ -181,7 +193,7 @@ const [open, setOpen] = useState(false);
     toast.success(`Imported ${instanceID}`);
     setOpen(false);
   }}
-/>
+/>;
 ```
 
 ## Related Components

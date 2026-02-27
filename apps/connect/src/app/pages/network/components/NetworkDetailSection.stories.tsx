@@ -7,7 +7,6 @@ import { NetworkDetailSection, type NetworkDetailItem } from './NetworkDetailSec
 
 import type { Meta, StoryObj } from '@storybook/react';
 
-
 // ---------------------------------------------------------------------------
 // Mock data helpers
 // ---------------------------------------------------------------------------

@@ -1,7 +1,7 @@
 {
   "id": "architecture",
   "title": "Architecture",
-  "description": "The @nasnet/state library implements a four-layer state model that separates concerns by data origin, update frequency, and complexity.",
+  "description": "The @nasnet/state library implements a four-layer state model that separates concerns by data",
   "source": "@site/../../libs/state/docs/architecture.md",
   "sourceDirName": ".",
   "slug": "/architecture",

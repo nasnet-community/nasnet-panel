@@ -34,7 +34,10 @@ export interface AlertTemplateCategoryMeta {
  * Alert template category metadata
  * @description Maps each category to its visual representation and description
  */
-export const ALERT_TEMPLATE_CATEGORIES: Record<AlertRuleTemplateCategory, AlertTemplateCategoryMeta> = {
+export const ALERT_TEMPLATE_CATEGORIES: Record<
+  AlertRuleTemplateCategory,
+  AlertTemplateCategoryMeta
+> = {
   NETWORK: {
     id: 'NETWORK',
     label: 'Network',

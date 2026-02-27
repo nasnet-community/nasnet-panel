@@ -10,11 +10,7 @@
  * - unknown: Never connected or untested
  * - connecting: Authentication in progress
  */
-export type RouterConnectionStatus =
-  | 'online'
-  | 'offline'
-  | 'unknown'
-  | 'connecting';
+export type RouterConnectionStatus = 'online' | 'offline' | 'unknown' | 'connecting';
 
 /**
  * How the router was discovered

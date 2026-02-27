@@ -7,13 +7,7 @@
 import { memo, useCallback } from 'react';
 import { Filter, Check } from 'lucide-react';
 
-import {
-  Button,
-  Popover,
-  PopoverTrigger,
-  PopoverContent,
-  cn,
-} from '@nasnet/ui/primitives';
+import { Button, Popover, PopoverTrigger, PopoverContent, cn } from '@nasnet/ui/primitives';
 
 import { TOPIC_LABELS, ALL_FILTER_TOPICS } from './constants';
 
@@ -44,9 +38,13 @@ import type { TopicFilterProps } from './types';
  * @param onSelectionChange - Callback when topic selection changes
  * @param className - Optional CSS class for styling
  */
-export const TopicFilter = memo(function TopicFilter({ selectedTopics, onSelectionChange, className }: TopicFilterProps) {
+export const TopicFilter = memo(function TopicFilter({
+  selectedTopics,
+  onSelectionChange,
+  className,
+}: TopicFilterProps) {
   const toggleTopic = useCallback(
-    (topic: typeof selectedTopics[number]) => {
+    (topic: (typeof selectedTopics)[number]) => {
       if (selectedTopics.includes(topic)) {
         onSelectionChange(selectedTopics.filter((t) => t !== topic));
       } else {
@@ -69,7 +67,10 @@ export const TopicFilter = memo(function TopicFilter({ selectedTopics, onSelecti
           aria-label="Filter logs by topic"
           className={cn('min-h-[44px] min-w-[44px]', className)}
         >
-          <Filter className="h-4 w-4" aria-hidden="true" />
+          <Filter
+            className="h-4 w-4"
+            aria-hidden="true"
+          />
           {selectedCount > 0 && (
             <span className="ml-component-xs bg-primary text-primary-foreground rounded-full px-1.5 text-xs">
               {selectedCount}
@@ -91,7 +92,7 @@ export const TopicFilter = memo(function TopicFilter({ selectedTopics, onSelecti
               aria-selected={selectedTopics.includes(topic)}
               onClick={() => toggleTopic(topic)}
               className={cn(
-                'flex items-center gap-component-sm w-full px-component-sm py-component-sm rounded-md text-sm',
+                'gap-component-sm px-component-sm py-component-sm flex w-full items-center rounded-md text-sm',
                 'hover:bg-muted focus:bg-muted focus:outline-none',
                 'min-h-[44px]',
                 selectedTopics.includes(topic) && 'bg-muted'
@@ -99,14 +100,12 @@ export const TopicFilter = memo(function TopicFilter({ selectedTopics, onSelecti
             >
               <div
                 className={cn(
-                  'h-4 w-4 border rounded flex items-center justify-center',
-                  selectedTopics.includes(topic)
-                    ? 'bg-primary border-primary'
-                    : 'border-input'
+                  'flex h-4 w-4 items-center justify-center rounded border',
+                  selectedTopics.includes(topic) ? 'bg-primary border-primary' : 'border-input'
                 )}
               >
                 {selectedTopics.includes(topic) && (
-                  <Check className="h-3 w-3 text-primary-foreground" />
+                  <Check className="text-primary-foreground h-3 w-3" />
                 )}
               </div>
               {TOPIC_LABELS[topic] || topic}
@@ -117,7 +116,7 @@ export const TopicFilter = memo(function TopicFilter({ selectedTopics, onSelecti
           <Button
             variant="ghost"
             size="sm"
-            className="w-full mt-component-sm"
+            className="mt-component-sm w-full"
             onClick={handleClearFilters}
           >
             Clear filters

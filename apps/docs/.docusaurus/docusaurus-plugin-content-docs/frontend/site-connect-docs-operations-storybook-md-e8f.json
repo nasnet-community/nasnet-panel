@@ -1,7 +1,7 @@
 {
   "id": "operations/storybook",
   "title": "Storybook Guide",
-  "description": "NasNetConnect runs three independent Storybook instances, one per library tier. All use Storybook 10.2.7 (ESM-only) with the @storybook/react-vite framework.",
+  "description": "NasNetConnect runs three independent Storybook instances, one per library tier. All use Storybook",
   "source": "@site/../connect/docs/operations/storybook.md",
   "sourceDirName": "operations",
   "slug": "/operations/storybook",

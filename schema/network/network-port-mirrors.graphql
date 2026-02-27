@@ -111,20 +111,12 @@ extend type Query {
   """
   Get all port mirror configurations on a router
   """
-  portMirrors(
-    "Router ID to query"
-    routerId: ID!
-  ): [PortMirror!]! @capability(requires: ["interface"])
+  portMirrors("Router ID to query" routerId: ID!): [PortMirror!]! @capability(requires: ["interface"])
 
   """
   Get a specific port mirror by ID
   """
-  portMirror(
-    "Router ID"
-    routerId: ID!
-    "Port mirror ID"
-    id: ID!
-  ): PortMirror @capability(requires: ["interface"])
+  portMirror("Router ID" routerId: ID!, "Port mirror ID" id: ID!): PortMirror @capability(requires: ["interface"])
 }
 
 # -----------------------------------------------------------------------------
@@ -157,32 +149,20 @@ extend type Mutation {
   """
   Delete a port mirror configuration
   """
-  deletePortMirror(
-    "Router ID"
-    routerId: ID!
-    "Port mirror ID to delete"
-    id: ID!
-  ): DeleteResult! @capability(requires: ["interface"])
+  deletePortMirror("Router ID" routerId: ID!, "Port mirror ID to delete" id: ID!): DeleteResult!
+    @capability(requires: ["interface"])
 
   """
   Enable a port mirror configuration
   """
-  enablePortMirror(
-    "Router ID"
-    routerId: ID!
-    "Port mirror ID"
-    id: ID!
-  ): PortMirrorMutationResult! @capability(requires: ["interface"])
+  enablePortMirror("Router ID" routerId: ID!, "Port mirror ID" id: ID!): PortMirrorMutationResult!
+    @capability(requires: ["interface"])
 
   """
   Disable a port mirror configuration
   """
-  disablePortMirror(
-    "Router ID"
-    routerId: ID!
-    "Port mirror ID"
-    id: ID!
-  ): PortMirrorMutationResult! @capability(requires: ["interface"])
+  disablePortMirror("Router ID" routerId: ID!, "Port mirror ID" id: ID!): PortMirrorMutationResult!
+    @capability(requires: ["interface"])
 }
 
 # -----------------------------------------------------------------------------
@@ -193,8 +173,5 @@ extend type Subscription {
   """
   Subscribe to port mirror status changes
   """
-  portMirrorChanged(
-    "Router ID to monitor"
-    routerId: ID!
-  ): PortMirror! @capability(requires: ["interface"])
+  portMirrorChanged("Router ID to monitor" routerId: ID!): PortMirror! @capability(requires: ["interface"])
 }

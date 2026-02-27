@@ -126,7 +126,7 @@ function LogSearchComponent({
   return (
     <div className={cn('relative flex items-center gap-2', className)}>
       <div className="relative flex-1">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+        <Search className="text-muted-foreground pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2" />
         <Input
           ref={inputRef}
           type="search"
@@ -140,24 +140,24 @@ function LogSearchComponent({
           <button
             type="button"
             onClick={handleClear}
-            className="absolute right-3 top-1/2 -translate-y-1/2 p-0.5 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+            className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-0.5 transition-colors hover:bg-slate-200 dark:hover:bg-slate-700"
             aria-label="Clear search"
           >
-            <X className="h-4 w-4 text-muted-foreground" />
+            <X className="text-muted-foreground h-4 w-4" />
           </button>
         )}
       </div>
 
       {/* Result count */}
       {showResults && (
-        <span className="text-sm text-muted-foreground whitespace-nowrap">
+        <span className="text-muted-foreground whitespace-nowrap text-sm">
           {matchCount} of {totalCount ?? '?'} entries
         </span>
       )}
 
       {/* Keyboard hint */}
       {!localValue && (
-        <kbd className="hidden md:inline-flex items-center px-2 py-1 text-xs font-mono text-muted-foreground bg-slate-100 dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700">
+        <kbd className="text-muted-foreground hidden items-center rounded border border-slate-200 bg-slate-100 px-2 py-1 font-mono text-xs md:inline-flex dark:border-slate-700 dark:bg-slate-800">
           /
         </kbd>
       )}
@@ -211,13 +211,14 @@ function HighlightedTextComponent({
   return (
     <span className={className}>
       {parts.map((part, index) =>
-        regex.test(part) ? (
-          <mark key={index} className={highlightClassName}>
+        regex.test(part) ?
+          <mark
+            key={index}
+            className={highlightClassName}
+          >
             {part}
           </mark>
-        ) : (
-          <span key={index}>{part}</span>
-        )
+        : <span key={index}>{part}</span>
       )}
     </span>
   );
@@ -225,30 +226,3 @@ function HighlightedTextComponent({
 
 export const HighlightedText = React.memo(HighlightedTextComponent);
 HighlightedText.displayName = 'HighlightedText';
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

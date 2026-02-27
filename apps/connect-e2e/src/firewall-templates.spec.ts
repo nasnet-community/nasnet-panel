@@ -82,7 +82,9 @@ test.describe('Firewall Templates E2E', () => {
       await sortButton.click();
 
       // Get all template names
-      const templateNames = await page.locator('[data-testid="template-card-name"]').allTextContents();
+      const templateNames = await page
+        .locator('[data-testid="template-card-name"]')
+        .allTextContents();
 
       // Verify alphabetical order
       const sorted = [...templateNames].sort();
@@ -95,7 +97,9 @@ test.describe('Firewall Templates E2E', () => {
       await sortButton.click();
 
       // Get all rule counts
-      const ruleCounts = await page.locator('[data-testid="template-rule-count"]').allTextContents();
+      const ruleCounts = await page
+        .locator('[data-testid="template-rule-count"]')
+        .allTextContents();
       const counts = ruleCounts.map((text) => parseInt(text.match(/\d+/)?.[0] || '0'));
 
       // Verify ascending order

@@ -151,9 +151,7 @@ describe('DeviceDiscoveryTable', () => {
       />
     );
 
-    const macAddresses = container.querySelectorAll(
-      '.font-mono:contains("00:11:22")'
-    );
+    const macAddresses = container.querySelectorAll('.font-mono:contains("00:11:22")');
     expect(macAddresses.length).toBeGreaterThanOrEqual(0);
   });
 

@@ -36,9 +36,4 @@ export { useResourceCard } from './useResourceCard';
 export type { UseResourceCardReturn } from './useResourceCard';
 
 // Types
-export type {
-  ResourceCardProps,
-  BaseResource,
-  ResourceAction,
-  ResourceStatus,
-} from './types';
+export type { ResourceCardProps, BaseResource, ResourceAction, ResourceStatus } from './types';

@@ -1,7 +1,7 @@
-"use client"
+'use client';
 
-import * as React from "react"
-import { createContext, useContext, useMemo } from "react"
+import * as React from 'react';
+import { createContext, useContext, useMemo } from 'react';
 
 /**
  * Feature categories for NasNetConnect
@@ -238,10 +238,7 @@ export interface CategoryAccentProviderProps {
  * }
  * ```
  */
-export function CategoryAccentProvider({
-  children,
-  defaultCategory,
-}: CategoryAccentProviderProps) {
+export function CategoryAccentProvider({ children, defaultCategory }: CategoryAccentProviderProps) {
   const [category, setCategory] = React.useState<Category | null>(defaultCategory ?? null);
 
   const meta = useMemo(() => {
@@ -263,11 +260,7 @@ export function CategoryAccentProvider({
     [category, meta, getCategoryMeta]
   );
 
-  return (
-    <CategoryAccentContext.Provider value={value}>
-      {children}
-    </CategoryAccentContext.Provider>
-  );
+  return <CategoryAccentContext.Provider value={value}>{children}</CategoryAccentContext.Provider>;
 }
 
 CategoryAccentProvider.displayName = 'CategoryAccentProvider';
@@ -295,7 +288,7 @@ export function useCategoryAccent(): CategoryAccentContextValue {
   if (context === undefined) {
     throw new Error(
       'useCategoryAccent must be used within a <CategoryAccentProvider>. ' +
-      'Ensure the component is wrapped with <CategoryAccentProvider>.'
+        'Ensure the component is wrapped with <CategoryAccentProvider>.'
     );
   }
 

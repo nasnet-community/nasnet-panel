@@ -236,10 +236,7 @@ export function useLeasePage(routerIp: string): UseLeasePageReturn {
         if (leaseStatusFilter === 'static' && lease.dynamic) {
           return false;
         }
-        if (
-          leaseStatusFilter !== 'static' &&
-          lease.status !== leaseStatusFilter
-        ) {
+        if (leaseStatusFilter !== 'static' && lease.status !== leaseStatusFilter) {
           return false;
         }
       }

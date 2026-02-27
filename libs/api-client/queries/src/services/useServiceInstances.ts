@@ -62,11 +62,7 @@ export interface ServiceInstance {
  * const { instances } = useServiceInstances('router-1', undefined, 'tor');
  * ```
  */
-export function useServiceInstances(
-  routerId: string,
-  status?: ServiceStatus,
-  featureID?: string
-) {
+export function useServiceInstances(routerId: string, status?: ServiceStatus, featureID?: string) {
   // Query for initial data
   const { data, loading, error, refetch } = useQuery(GET_SERVICE_INSTANCES, {
     variables: { routerID: routerId, status, featureID },
@@ -77,13 +73,10 @@ export function useServiceInstances(
 
   // Subscribe to real-time status changes
   // Apollo Client automatically updates cache via normalized cache
-  const { data: subData, error: subError } = useSubscription(
-    SUBSCRIBE_INSTANCE_STATUS_CHANGED,
-    {
-      variables: { routerID: routerId },
-      skip: !routerId,
-    }
-  );
+  const { data: subData, error: subError } = useSubscription(SUBSCRIBE_INSTANCE_STATUS_CHANGED, {
+    variables: { routerID: routerId },
+    skip: !routerId,
+  });
 
   // Fallback polling if subscription fails or not connected
   useEffect(() => {

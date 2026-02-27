@@ -168,7 +168,10 @@ const meta: Meta<typeof PortKnockLogViewer> = {
   tags: ['autodocs'],
   decorators: [
     (Story) => (
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider
+        mocks={mocks}
+        addTypename={false}
+      >
         <StoryWrapper>
           <Story />
         </StoryWrapper>
@@ -194,7 +197,10 @@ export const Empty: Story = {
   args: {},
   decorators: [
     (Story) => (
-      <MockedProvider mocks={emptyMocks} addTypename={false}>
+      <MockedProvider
+        mocks={emptyMocks}
+        addTypename={false}
+      >
         <StoryWrapper>
           <Story />
         </StoryWrapper>
@@ -210,7 +216,10 @@ export const Loading: Story = {
   args: {},
   decorators: [
     (Story) => (
-      <MockedProvider mocks={[]} addTypename={false}>
+      <MockedProvider
+        mocks={[]}
+        addTypename={false}
+      >
         <StoryWrapper>
           <Story />
         </StoryWrapper>
@@ -252,7 +261,10 @@ export const FilteredBySuccess: Story = {
         },
       ];
       return (
-        <MockedProvider mocks={filteredMocks} addTypename={false}>
+        <MockedProvider
+          mocks={filteredMocks}
+          addTypename={false}
+        >
           <StoryWrapper>
             <Story />
           </StoryWrapper>
@@ -295,7 +307,10 @@ export const FilteredByIP: Story = {
         },
       ];
       return (
-        <MockedProvider mocks={filteredMocks} addTypename={false}>
+        <MockedProvider
+          mocks={filteredMocks}
+          addTypename={false}
+        >
           <StoryWrapper>
             <Story />
           </StoryWrapper>

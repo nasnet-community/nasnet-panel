@@ -12,7 +12,15 @@
 // ============================================================================
 
 export type ResourceStatus = 'online' | 'offline' | 'warning' | 'error' | 'pending';
-export type DeviceType = 'computer' | 'phone' | 'tablet' | 'iot' | 'server' | 'router' | 'switch' | 'unknown';
+export type DeviceType =
+  | 'computer'
+  | 'phone'
+  | 'tablet'
+  | 'iot'
+  | 'server'
+  | 'router'
+  | 'switch'
+  | 'unknown';
 export type ConnectionProtocol = 'REST' | 'SSH' | 'Telnet' | 'WinBox' | 'API';
 
 export interface Resource {

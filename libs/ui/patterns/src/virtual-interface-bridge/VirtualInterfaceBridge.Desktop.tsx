@@ -61,32 +61,33 @@ const VirtualInterfaceBridgeDesktopComponent = memo(function VirtualInterfaceBri
 
   return (
     <Card
-      className={`transition-colors hover:bg-muted/50 ${className || ''}`}
+      className={`hover:bg-muted/50 transition-colors ${className || ''}`}
       role="region"
       aria-label="Virtual Interface Bridge Status"
     >
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-base flex items-center gap-2">
-            <Network className="h-4 w-4" aria-hidden="true" />
+          <CardTitle className="flex items-center gap-2 text-base">
+            <Network
+              className="h-4 w-4"
+              aria-hidden="true"
+            />
             Network Bridge
             {serviceName && (
-              <span className="text-sm text-muted-foreground font-normal">
-                ({serviceName})
-              </span>
+              <span className="text-muted-foreground text-sm font-normal">({serviceName})</span>
             )}
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Info
-                    className="h-3.5 w-3.5 text-muted-foreground cursor-help"
+                    className="text-muted-foreground h-3.5 w-3.5 cursor-help"
                     aria-label="Bridge information"
                   />
                 </TooltipTrigger>
                 <TooltipContent>
                   <p className="max-w-xs text-xs">
-                    Virtual interface bridge provides network isolation and
-                    gateway routing for this service instance.
+                    Virtual interface bridge provides network isolation and gateway routing for this
+                    service instance.
                   </p>
                 </TooltipContent>
               </Tooltip>
@@ -100,7 +101,7 @@ const VirtualInterfaceBridgeDesktopComponent = memo(function VirtualInterfaceBri
             title="Refresh bridge status"
           >
             <RefreshCw
-              className={`h-3.5 w-3.5 mr-1.5 ${loading ? 'animate-spin' : ''}`}
+              className={`mr-1.5 h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`}
               aria-hidden="true"
             />
             Refresh
@@ -117,35 +118,22 @@ const VirtualInterfaceBridgeDesktopComponent = memo(function VirtualInterfaceBri
               <TooltipTrigger asChild>
                 <div className="flex items-center gap-2">
                   <span
-                    className={`
-                      relative flex h-3 w-3 shrink-0
-                      ${isReady ? 'opacity-100' : 'opacity-50'}
-                    `}
+                    className={`relative flex h-3 w-3 shrink-0 ${isReady ? 'opacity-100' : 'opacity-50'} `}
                   >
                     <span
-                      className={`
-                        animate-ping absolute inline-flex h-full w-full rounded-full opacity-75
-                        ${
-                          statusColor === 'success'
-                            ? 'bg-green-400'
-                            : statusColor === 'error'
-                              ? 'bg-red-400'
-                              : 'bg-yellow-400'
-                        }
-                      `}
+                      className={`absolute inline-flex h-full w-full animate-ping rounded-full opacity-75 ${
+                        statusColor === 'success' ? 'bg-green-400'
+                        : statusColor === 'error' ? 'bg-red-400'
+                        : 'bg-yellow-400'
+                      } `}
                       aria-hidden="true"
                     />
                     <span
-                      className={`
-                        relative inline-flex rounded-full h-3 w-3
-                        ${
-                          statusColor === 'success'
-                            ? 'bg-green-500'
-                            : statusColor === 'error'
-                              ? 'bg-red-500'
-                              : 'bg-yellow-500'
-                        }
-                      `}
+                      className={`relative inline-flex h-3 w-3 rounded-full ${
+                        statusColor === 'success' ? 'bg-green-500'
+                        : statusColor === 'error' ? 'bg-red-500'
+                        : 'bg-yellow-500'
+                      } `}
                       aria-hidden="true"
                     />
                   </span>
@@ -154,16 +142,17 @@ const VirtualInterfaceBridgeDesktopComponent = memo(function VirtualInterfaceBri
               </TooltipTrigger>
               <TooltipContent>
                 <p className="text-xs">
-                  {isReady
-                    ? 'Bridge is ready for traffic'
-                    : 'Bridge is being initialized'}
+                  {isReady ? 'Bridge is ready for traffic' : 'Bridge is being initialized'}
                 </p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
 
           {/* Gateway badge */}
-          <Badge variant={gatewayBadgeVariant} className="shrink-0">
+          <Badge
+            variant={gatewayBadgeVariant}
+            className="shrink-0"
+          >
             {gatewayBadgeText}
           </Badge>
 
@@ -172,29 +161,27 @@ const VirtualInterfaceBridgeDesktopComponent = memo(function VirtualInterfaceBri
             <>
               <div className="flex items-center gap-1.5 text-sm">
                 <span className="text-muted-foreground">Interface:</span>
-                <code className="font-mono text-xs bg-muted px-1.5 py-0.5 rounded">
+                <code className="bg-muted rounded px-1.5 py-0.5 font-mono text-xs">
                   {interfaceData.name}
                 </code>
               </div>
 
               <div className="flex items-center gap-1.5 text-sm">
                 <span className="text-muted-foreground">IP:</span>
-                <code className="font-mono text-xs bg-muted px-1.5 py-0.5 rounded">
+                <code className="bg-muted rounded px-1.5 py-0.5 font-mono text-xs">
                   {interfaceData.ipAddress}
                 </code>
               </div>
 
               <div className="flex items-center gap-1.5 text-sm">
                 <span className="text-muted-foreground">VLAN:</span>
-                <span className="text-xs font-medium">
-                  {interfaceData.vlanId}
-                </span>
+                <span className="text-xs font-medium">{interfaceData.vlanId}</span>
               </div>
 
               {interfaceData.tunName && (
                 <div className="flex items-center gap-1.5 text-sm">
                   <span className="text-muted-foreground">Tunnel:</span>
-                  <code className="font-mono text-xs bg-muted px-1.5 py-0.5 rounded">
+                  <code className="bg-muted rounded px-1.5 py-0.5 font-mono text-xs">
                     {interfaceData.tunName}
                   </code>
                 </div>
@@ -208,7 +195,7 @@ const VirtualInterfaceBridgeDesktopComponent = memo(function VirtualInterfaceBri
           <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>
-              <ul className="list-disc list-inside space-y-0.5 text-xs">
+              <ul className="list-inside list-disc space-y-0.5 text-xs">
                 {errors.map((err, idx) => (
                   <li key={idx}>{err}</li>
                 ))}
@@ -228,19 +215,22 @@ const VirtualInterfaceBridgeDesktopComponent = memo(function VirtualInterfaceBri
         )}
 
         {/* Custom content */}
-        {children && <div className="pt-2 border-t">{children}</div>}
+        {children && <div className="border-t pt-2">{children}</div>}
 
         {/* Loading state */}
         {loading && !hasInterface && (
-          <div className="flex items-center gap-2 text-xs text-muted-foreground py-2">
-            <RefreshCw className="h-3.5 w-3.5 animate-spin" aria-hidden="true" />
+          <div className="text-muted-foreground flex items-center gap-2 py-2 text-xs">
+            <RefreshCw
+              className="h-3.5 w-3.5 animate-spin"
+              aria-hidden="true"
+            />
             Loading bridge status...
           </div>
         )}
 
         {/* Pending state */}
         {!loading && !hasInterface && !hasErrors && (
-          <div className="text-xs text-muted-foreground py-2">
+          <div className="text-muted-foreground py-2 text-xs">
             Virtual interface is being created...
           </div>
         )}

@@ -9,7 +9,6 @@ import { AnimationProvider, ToastProvider } from '@nasnet/ui/patterns';
 
 import { ThemeProvider } from './ThemeProvider';
 
-
 const queryClient = new QueryClient();
 
 /**
@@ -18,8 +17,8 @@ const queryClient = new QueryClient();
  */
 function I18nLoadingFallback() {
   return (
-    <div className="flex h-screen w-screen items-center justify-center bg-background">
-      <div className="animate-pulse text-muted-foreground">Loading...</div>
+    <div className="bg-background flex h-screen w-screen items-center justify-center">
+      <div className="text-muted-foreground animate-pulse">Loading...</div>
     </div>
   );
 }

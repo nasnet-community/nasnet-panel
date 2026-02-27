@@ -43,7 +43,10 @@ vi.mock('@nasnet/ui/layouts', () => ({
   usePlatform: () => platformMock.current,
   usePlatformWithBreakpoint: () => ({
     platform: platformMock.current,
-    breakpoint: platformMock.current === 'mobile' ? 'sm' : platformMock.current === 'tablet' ? 'md' : 'lg',
+    breakpoint:
+      platformMock.current === 'mobile' ? 'sm'
+      : platformMock.current === 'tablet' ? 'md'
+      : 'lg',
   }),
   useIsMobile: () => platformMock.current === 'mobile',
   useIsTablet: () => platformMock.current === 'tablet',

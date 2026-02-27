@@ -34,9 +34,7 @@ const SERVER_NAME_REGEX = /^[a-zA-Z0-9-_]+$/;
 /**
  * IPv4 address schema
  */
-export const ipv4Schema = z
-  .string()
-  .regex(IPV4_REGEX, 'Invalid IP address format');
+export const ipv4Schema = z.string().regex(IPV4_REGEX, 'Invalid IP address format');
 
 /**
  * Step 1: Interface Selection

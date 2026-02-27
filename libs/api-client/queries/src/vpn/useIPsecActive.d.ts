@@ -7,5 +7,7 @@ import type { IPsecActiveConnection } from '@nasnet/core/types';
 /**
  * Hook to fetch IPsec active connections
  */
-export declare function useIPsecActive(routerIp: string): UseQueryResult<IPsecActiveConnection[], Error>;
+export declare function useIPsecActive(
+  routerIp: string
+): UseQueryResult<IPsecActiveConnection[], Error>;
 //# sourceMappingURL=useIPsecActive.d.ts.map

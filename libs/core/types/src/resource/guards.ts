@@ -117,10 +117,7 @@ export function isPluginResource(resource: Resource): boolean {
  *   // Handle VPN category
  * }
  */
-export function isResourceCategory(
-  resource: Resource,
-  category: ResourceCategory
-): boolean {
+export function isResourceCategory(resource: Resource, category: ResourceCategory): boolean {
   return resource.category === category;
 }
 
@@ -244,10 +241,7 @@ export function isRoute(resource: Resource): boolean {
  * @example
  * const vpnResources = resources.filter(r => hasResourceTypePrefix(r, 'vpn.'));
  */
-export function hasResourceTypePrefix(
-  resource: Resource,
-  prefix: string
-): boolean {
+export function hasResourceTypePrefix(resource: Resource, prefix: string): boolean {
   return resource.type.startsWith(prefix);
 }
 
@@ -309,9 +303,7 @@ export function hasDeployment(
  *   console.log(resource.runtime.isRunning);
  * }
  */
-export function hasRuntime(
-  resource: Resource
-): resource is Resource & { runtime: RuntimeState } {
+export function hasRuntime(resource: Resource): resource is Resource & { runtime: RuntimeState } {
   return resource.runtime != null;
 }
 
@@ -369,9 +361,7 @@ export function hasRelationships(
  *   console.log(resource.platform.current);
  * }
  */
-export function hasPlatform(
-  resource: Resource
-): resource is Resource & { platform: PlatformInfo } {
+export function hasPlatform(resource: Resource): resource is Resource & { platform: PlatformInfo } {
   return resource.platform != null;
 }
 
@@ -393,9 +383,7 @@ export function hasPlatform(
  *   processComposite(data.root, data.children);
  * }
  */
-export function isCompositeResource(
-  value: unknown
-): value is CompositeResource {
+export function isCompositeResource(value: unknown): value is CompositeResource {
   return (
     typeof value === 'object' &&
     value !== null &&
@@ -540,10 +528,7 @@ export function isArchived(resource: Resource): boolean {
  *   console.log('Ready to use');
  * }
  */
-export function isInState(
-  resource: Resource,
-  state: ResourceLifecycleState
-): boolean {
+export function isInState(resource: Resource, state: ResourceLifecycleState): boolean {
   return resource.metadata.state === state;
 }
 

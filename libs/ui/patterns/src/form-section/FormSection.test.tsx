@@ -12,7 +12,7 @@
  * @see NAS-4A.13: Build Form Section Component
  */
 
-import { render, screen, waitFor, act , renderHook } from '@testing-library/react';
+import { render, screen, waitFor, act, renderHook } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { axe } from 'vitest-axe';
@@ -268,9 +268,7 @@ describe('FormSectionErrors component', () => {
   });
 
   it('renders nothing when errors is undefined', () => {
-    const { container } = render(
-      <FormSectionErrors errors={undefined} />
-    );
+    const { container } = render(<FormSectionErrors errors={undefined} />);
     expect(container.firstChild).toBeNull();
   });
 
@@ -326,7 +324,10 @@ describe('FormSection component', () => {
 
     it('renders description when provided', () => {
       render(
-        <FormSection title="Test" description="Test description">
+        <FormSection
+          title="Test"
+          description="Test description"
+        >
           <div>Content</div>
         </FormSection>
       );
@@ -346,7 +347,10 @@ describe('FormSection component', () => {
 
     it('renders as fieldset by default for non-collapsible sections', () => {
       const { container } = render(
-        <FormSection title="Test" collapsible={false}>
+        <FormSection
+          title="Test"
+          collapsible={false}
+        >
           <div>Content</div>
         </FormSection>
       );
@@ -356,7 +360,10 @@ describe('FormSection component', () => {
 
     it('renders as section for collapsible sections', () => {
       const { container } = render(
-        <FormSection title="Test" collapsible>
+        <FormSection
+          title="Test"
+          collapsible
+        >
           <div>Content</div>
         </FormSection>
       );
@@ -366,7 +373,10 @@ describe('FormSection component', () => {
 
     it('renders sr-only legend for fieldset', () => {
       render(
-        <FormSection title="Test Section" collapsible={false}>
+        <FormSection
+          title="Test Section"
+          collapsible={false}
+        >
           <div>Content</div>
         </FormSection>
       );
@@ -380,7 +390,11 @@ describe('FormSection component', () => {
   describe('collapsible behavior', () => {
     it('shows content when expanded', () => {
       render(
-        <FormSection title="Test" collapsible defaultOpen>
+        <FormSection
+          title="Test"
+          collapsible
+          defaultOpen
+        >
           <div data-testid="content">Content</div>
         </FormSection>
       );
@@ -390,7 +404,11 @@ describe('FormSection component', () => {
 
     it('hides content when collapsed', async () => {
       render(
-        <FormSection title="Test" collapsible defaultOpen={false}>
+        <FormSection
+          title="Test"
+          collapsible
+          defaultOpen={false}
+        >
           <div data-testid="content">Content</div>
         </FormSection>
       );
@@ -402,7 +420,11 @@ describe('FormSection component', () => {
       const user = userEvent.setup();
 
       render(
-        <FormSection title="Test" collapsible defaultOpen>
+        <FormSection
+          title="Test"
+          collapsible
+          defaultOpen
+        >
           <div data-testid="content">Content</div>
         </FormSection>
       );
@@ -424,7 +446,11 @@ describe('FormSection component', () => {
       const user = userEvent.setup();
 
       render(
-        <FormSection title="Test" collapsible defaultOpen>
+        <FormSection
+          title="Test"
+          collapsible
+          defaultOpen
+        >
           <div>Content</div>
         </FormSection>
       );
@@ -448,7 +474,10 @@ describe('FormSection component', () => {
   describe('error display', () => {
     it('shows error summary when errors provided', () => {
       render(
-        <FormSection title="Test" errors={['Error 1', 'Error 2']}>
+        <FormSection
+          title="Test"
+          errors={['Error 1', 'Error 2']}
+        >
           <div>Content</div>
         </FormSection>
       );
@@ -458,7 +487,10 @@ describe('FormSection component', () => {
 
     it('shows error count badge in header', () => {
       render(
-        <FormSection title="Test" errors={['Error 1']}>
+        <FormSection
+          title="Test"
+          errors={['Error 1']}
+        >
           <div>Content</div>
         </FormSection>
       );
@@ -468,7 +500,10 @@ describe('FormSection component', () => {
 
     it('does not show error badge when no errors', () => {
       render(
-        <FormSection title="Test" errors={[]}>
+        <FormSection
+          title="Test"
+          errors={[]}
+        >
           <div>Content</div>
         </FormSection>
       );
@@ -480,14 +515,15 @@ describe('FormSection component', () => {
   describe('help integration', () => {
     it('shows help icon when helpId provided', () => {
       render(
-        <FormSection title="Test" helpId="test-help">
+        <FormSection
+          title="Test"
+          helpId="test-help"
+        >
           <div>Content</div>
         </FormSection>
       );
 
-      expect(
-        screen.getByRole('button', { name: /help for test/i })
-      ).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /help for test/i })).toBeInTheDocument();
     });
 
     it('does not show help icon when helpId not provided', () => {
@@ -497,9 +533,7 @@ describe('FormSection component', () => {
         </FormSection>
       );
 
-      expect(
-        screen.queryByRole('button', { name: /help/i })
-      ).not.toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: /help/i })).not.toBeInTheDocument();
     });
   });
 
@@ -508,7 +542,11 @@ describe('FormSection component', () => {
       mockMatchMedia(true); // Enable reduced motion
 
       const { container } = render(
-        <FormSection title="Test" collapsible defaultOpen>
+        <FormSection
+          title="Test"
+          collapsible
+          defaultOpen
+        >
           <div>Content</div>
         </FormSection>
       );
@@ -524,7 +562,11 @@ describe('FormSection component', () => {
   describe('accessibility', () => {
     it('has aria-expanded on collapsible header', () => {
       render(
-        <FormSection title="Test" collapsible defaultOpen>
+        <FormSection
+          title="Test"
+          collapsible
+          defaultOpen
+        >
           <div>Content</div>
         </FormSection>
       );
@@ -537,7 +579,11 @@ describe('FormSection component', () => {
       const user = userEvent.setup();
 
       render(
-        <FormSection title="Test" collapsible defaultOpen>
+        <FormSection
+          title="Test"
+          collapsible
+          defaultOpen
+        >
           <div>Content</div>
         </FormSection>
       );
@@ -552,7 +598,11 @@ describe('FormSection component', () => {
 
     it('has aria-controls pointing to content', () => {
       render(
-        <FormSection title="Test" collapsible defaultOpen>
+        <FormSection
+          title="Test"
+          collapsible
+          defaultOpen
+        >
           <div>Content</div>
         </FormSection>
       );
@@ -566,10 +616,16 @@ describe('FormSection component', () => {
 
     it('passes axe accessibility check for basic section', async () => {
       const { container } = render(
-        <FormSection title="Network Settings" description="Configure network">
+        <FormSection
+          title="Network Settings"
+          description="Configure network"
+        >
           <div>
             <label htmlFor="ip">IP Address</label>
-            <input id="ip" type="text" />
+            <input
+              id="ip"
+              type="text"
+            />
           </div>
         </FormSection>
       );
@@ -587,7 +643,10 @@ describe('FormSection component', () => {
         >
           <div>
             <label htmlFor="mtu">MTU</label>
-            <input id="mtu" type="number" />
+            <input
+              id="mtu"
+              type="number"
+            />
           </div>
         </FormSection>
       );
@@ -604,7 +663,11 @@ describe('FormSection component', () => {
         >
           <div>
             <label htmlFor="ip">IP Address</label>
-            <input id="ip" type="text" aria-invalid="true" />
+            <input
+              id="ip"
+              type="text"
+              aria-invalid="true"
+            />
           </div>
         </FormSection>
       );
@@ -617,7 +680,10 @@ describe('FormSection component', () => {
   describe('custom className', () => {
     it('applies custom className to wrapper', () => {
       const { container } = render(
-        <FormSection title="Test" className="custom-class">
+        <FormSection
+          title="Test"
+          className="custom-class"
+        >
           <div>Content</div>
         </FormSection>
       );
@@ -629,7 +695,11 @@ describe('FormSection component', () => {
   describe('custom storageKey', () => {
     it('uses custom storageKey for localStorage', () => {
       render(
-        <FormSection title="Test" collapsible storageKey="custom-key">
+        <FormSection
+          title="Test"
+          collapsible
+          storageKey="custom-key"
+        >
           <div>Content</div>
         </FormSection>
       );
@@ -648,7 +718,10 @@ describe('FormSection component', () => {
 
     it('generates storageKey from title when not provided', () => {
       render(
-        <FormSection title="Network Settings" collapsible>
+        <FormSection
+          title="Network Settings"
+          collapsible
+        >
           <div>Content</div>
         </FormSection>
       );

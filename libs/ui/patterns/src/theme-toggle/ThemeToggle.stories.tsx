@@ -19,24 +19,25 @@ function MockThemeToggle({ initialTheme = 'light', className }: MockThemeToggleP
 
   const handleToggle = () => {
     const nextTheme: ThemeMode =
-      theme === 'light' ? 'dark' : theme === 'dark' ? 'system' : 'light';
+      theme === 'light' ? 'dark'
+      : theme === 'dark' ? 'system'
+      : 'light';
     setTheme(nextTheme);
   };
 
-  const Icon = theme === 'dark' ? Moon : theme === 'light' ? Sun : Monitor;
+  const Icon =
+    theme === 'dark' ? Moon
+    : theme === 'light' ? Sun
+    : Monitor;
 
   const currentLabel =
-    theme === 'light'
-      ? 'light mode'
-      : theme === 'dark'
-        ? 'dark mode'
-        : 'system mode';
+    theme === 'light' ? 'light mode'
+    : theme === 'dark' ? 'dark mode'
+    : 'system mode';
   const nextLabel =
-    theme === 'light'
-      ? 'dark mode'
-      : theme === 'dark'
-        ? 'system mode'
-        : 'light mode';
+    theme === 'light' ? 'dark mode'
+    : theme === 'dark' ? 'system mode'
+    : 'light mode';
   const ariaLabel = `Switch to ${nextLabel} (current: ${currentLabel})`;
 
   return (
@@ -44,14 +45,11 @@ function MockThemeToggle({ initialTheme = 'light', className }: MockThemeToggleP
       variant="ghost"
       size="icon"
       onClick={handleToggle}
-      className={cn(
-        'rounded-full hover:bg-accent transition-all duration-200',
-        className
-      )}
+      className={cn('hover:bg-accent rounded-full transition-all duration-200', className)}
       aria-label={ariaLabel}
       title={ariaLabel}
     >
-      <Icon className="h-5 w-5 text-muted-foreground transition-transform duration-300 hover:rotate-12" />
+      <Icon className="text-muted-foreground h-5 w-5 transition-transform duration-300 hover:rotate-12" />
     </Button>
   );
 }
@@ -105,11 +103,16 @@ export const Interactive: Story = {
 
     const handleToggle = () => {
       const nextTheme: ThemeMode =
-        theme === 'light' ? 'dark' : theme === 'dark' ? 'system' : 'light';
+        theme === 'light' ? 'dark'
+        : theme === 'dark' ? 'system'
+        : 'light';
       setTheme(nextTheme);
     };
 
-    const Icon = theme === 'dark' ? Moon : theme === 'light' ? Sun : Monitor;
+    const Icon =
+      theme === 'dark' ? Moon
+      : theme === 'light' ? Sun
+      : Monitor;
 
     return (
       <div className="flex flex-col items-center gap-4">
@@ -117,14 +120,14 @@ export const Interactive: Story = {
           variant="ghost"
           size="icon"
           onClick={handleToggle}
-          className="rounded-full hover:bg-accent transition-all duration-200"
+          className="hover:bg-accent rounded-full transition-all duration-200"
         >
-          <Icon className="h-5 w-5 text-muted-foreground transition-transform duration-300 hover:rotate-12" />
+          <Icon className="text-muted-foreground h-5 w-5 transition-transform duration-300 hover:rotate-12" />
         </Button>
-        <p className="text-sm text-muted-foreground">
-          Current mode: <span className="font-medium text-foreground">{theme}</span>
+        <p className="text-muted-foreground text-sm">
+          Current mode: <span className="text-foreground font-medium">{theme}</span>
         </p>
-        <p className="text-xs text-muted-foreground">
+        <p className="text-muted-foreground text-xs">
           Click to cycle: Light → Dark → System → Light
         </p>
       </div>
@@ -141,12 +144,12 @@ export const Interactive: Story = {
 
 export const InHeader: Story = {
   render: () => (
-    <div className="flex items-center justify-between w-80 px-4 py-2 border rounded-lg bg-card">
+    <div className="bg-card flex w-80 items-center justify-between rounded-lg border px-4 py-2">
       <div className="flex items-center gap-2">
-        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-          <span className="text-sm font-bold text-primary">N</span>
+        <div className="bg-primary/10 flex h-8 w-8 items-center justify-center rounded-full">
+          <span className="text-primary text-sm font-bold">N</span>
         </div>
-        <span className="font-semibold text-sm">NasNet Connect</span>
+        <span className="text-sm font-semibold">NasNet Connect</span>
       </div>
       <MockThemeToggle initialTheme="light" />
     </div>
@@ -167,31 +170,31 @@ export const AllStates: Story = {
         <Button
           variant="ghost"
           size="icon"
-          className="rounded-full hover:bg-accent"
+          className="hover:bg-accent rounded-full"
         >
-          <Sun className="h-5 w-5 text-muted-foreground" />
+          <Sun className="text-muted-foreground h-5 w-5" />
         </Button>
-        <span className="text-xs text-muted-foreground">Light</span>
+        <span className="text-muted-foreground text-xs">Light</span>
       </div>
       <div className="flex flex-col items-center gap-2">
         <Button
           variant="ghost"
           size="icon"
-          className="rounded-full hover:bg-accent"
+          className="hover:bg-accent rounded-full"
         >
-          <Moon className="h-5 w-5 text-muted-foreground" />
+          <Moon className="text-muted-foreground h-5 w-5" />
         </Button>
-        <span className="text-xs text-muted-foreground">Dark</span>
+        <span className="text-muted-foreground text-xs">Dark</span>
       </div>
       <div className="flex flex-col items-center gap-2">
         <Button
           variant="ghost"
           size="icon"
-          className="rounded-full hover:bg-accent"
+          className="hover:bg-accent rounded-full"
         >
-          <Monitor className="h-5 w-5 text-muted-foreground" />
+          <Monitor className="text-muted-foreground h-5 w-5" />
         </Button>
-        <span className="text-xs text-muted-foreground">System</span>
+        <span className="text-muted-foreground text-xs">System</span>
       </div>
     </div>
   ),
@@ -210,12 +213,20 @@ export const WithLabel: Story = {
 
     const handleToggle = () => {
       const nextTheme: ThemeMode =
-        theme === 'light' ? 'dark' : theme === 'dark' ? 'system' : 'light';
+        theme === 'light' ? 'dark'
+        : theme === 'dark' ? 'system'
+        : 'light';
       setTheme(nextTheme);
     };
 
-    const Icon = theme === 'dark' ? Moon : theme === 'light' ? Sun : Monitor;
-    const label = theme === 'dark' ? 'Dark' : theme === 'light' ? 'Light' : 'System';
+    const Icon =
+      theme === 'dark' ? Moon
+      : theme === 'light' ? Sun
+      : Monitor;
+    const label =
+      theme === 'dark' ? 'Dark'
+      : theme === 'light' ? 'Light'
+      : 'System';
 
     return (
       <Button

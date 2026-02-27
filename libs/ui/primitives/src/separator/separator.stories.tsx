@@ -4,7 +4,6 @@ import { Separator } from './separator';
 
 import type { Meta, StoryObj } from '@storybook/react';
 
-
 const meta: Meta<typeof Separator> = {
   title: 'Primitives/Separator',
   component: Separator,
@@ -55,7 +54,7 @@ export const Default: Story = {
 
 export const Vertical: Story = {
   render: () => (
-    <div className="flex h-10 items-center gap-4 text-sm text-foreground">
+    <div className="text-foreground flex h-10 items-center gap-4 text-sm">
       <span>Dashboard</span>
       <Separator orientation="vertical" />
       <span>Network</span>
@@ -69,20 +68,20 @@ export const Vertical: Story = {
 
 export const BetweenSections: Story = {
   render: () => (
-    <div className="w-80 flex flex-col gap-4">
+    <div className="flex w-80 flex-col gap-4">
       <div>
-        <h3 className="text-sm font-semibold text-foreground">WAN Interface</h3>
-        <p className="text-sm text-muted-foreground mt-1">ether1 — 203.0.113.45/24</p>
+        <h3 className="text-foreground text-sm font-semibold">WAN Interface</h3>
+        <p className="text-muted-foreground mt-1 text-sm">ether1 — 203.0.113.45/24</p>
       </div>
       <Separator />
       <div>
-        <h3 className="text-sm font-semibold text-foreground">LAN Interface</h3>
-        <p className="text-sm text-muted-foreground mt-1">bridge1 — 192.168.1.1/24</p>
+        <h3 className="text-foreground text-sm font-semibold">LAN Interface</h3>
+        <p className="text-muted-foreground mt-1 text-sm">bridge1 — 192.168.1.1/24</p>
       </div>
       <Separator />
       <div>
-        <h3 className="text-sm font-semibold text-foreground">DNS Servers</h3>
-        <p className="text-sm text-muted-foreground mt-1">1.1.1.1, 8.8.8.8</p>
+        <h3 className="text-foreground text-sm font-semibold">DNS Servers</h3>
+        <p className="text-muted-foreground mt-1 text-sm">1.1.1.1, 8.8.8.8</p>
       </div>
     </div>
   ),
@@ -90,7 +89,7 @@ export const BetweenSections: Story = {
 
 export const InCard: Story = {
   render: () => (
-    <div className="w-72 rounded-xl border-2 border-border bg-card p-4 flex flex-col gap-3">
+    <div className="border-border bg-card flex w-72 flex-col gap-3 rounded-xl border-2 p-4">
       <div className="flex justify-between text-sm">
         <span className="text-muted-foreground">Status</span>
         <span className="text-success font-medium">Online</span>
@@ -116,10 +115,16 @@ export const InCard: Story = {
 
 export const WithLabel: Story = {
   render: () => (
-    <div className="w-80 flex items-center gap-4">
-      <Separator className="flex-1" decorative={false} />
-      <span className="text-xs text-muted-foreground whitespace-nowrap">Advanced Options</span>
-      <Separator className="flex-1" decorative={false} />
+    <div className="flex w-80 items-center gap-4">
+      <Separator
+        className="flex-1"
+        decorative={false}
+      />
+      <span className="text-muted-foreground whitespace-nowrap text-xs">Advanced Options</span>
+      <Separator
+        className="flex-1"
+        decorative={false}
+      />
     </div>
   ),
 };
@@ -138,11 +143,11 @@ export const NonDecorativeSeparator: Story = {
   ],
   render: (args) => (
     <div className="w-80">
-      <h3 className="text-sm font-semibold text-foreground mb-2">Section 1</h3>
-      <p className="text-sm text-muted-foreground mb-4">Content for the first section</p>
+      <h3 className="text-foreground mb-2 text-sm font-semibold">Section 1</h3>
+      <p className="text-muted-foreground mb-4 text-sm">Content for the first section</p>
       <Separator {...args} />
-      <h3 className="text-sm font-semibold text-foreground mt-4 mb-2">Section 2</h3>
-      <p className="text-sm text-muted-foreground">Content for the second section</p>
+      <h3 className="text-foreground mb-2 mt-4 text-sm font-semibold">Section 2</h3>
+      <p className="text-muted-foreground text-sm">Content for the second section</p>
     </div>
   ),
 };

@@ -1,11 +1,4 @@
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-  CardFooter,
-} from './card';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from './card';
 import { Button } from '../button/button';
 
 import type { Meta, StoryObj } from '@storybook/react';
@@ -118,9 +111,7 @@ export const NotificationCard: Story = {
         <div className="flex items-center space-x-4 rounded-md border p-4">
           <div className="flex-1 space-y-1">
             <p className="text-sm font-medium leading-none">Push Notifications</p>
-            <p className="text-sm text-muted-foreground">
-              Send notifications to device.
-            </p>
+            <p className="text-muted-foreground text-sm">Send notifications to device.</p>
           </div>
         </div>
       </CardContent>
@@ -208,9 +199,9 @@ export const LongContent: Story = {
       </CardHeader>
       <CardContent>
         <p className="text-sm">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor
-          incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
-          exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt
+          ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation
+          ullamco laboris nisi ut aliquip ex ea commodo consequat.
         </p>
       </CardContent>
       <CardFooter>

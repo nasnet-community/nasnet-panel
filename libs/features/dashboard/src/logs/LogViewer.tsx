@@ -125,11 +125,7 @@ export const LogViewer = React.memo(function LogViewer({ className, limit = 100 
   const routerIp = useConnectionStore((state) => state.currentRouterIp) || '';
 
   // Bookmarks hook
-  const {
-    bookmarkedLogs,
-    isBookmarked,
-    toggleBookmark,
-  } = useLogBookmarks();
+  const { bookmarkedLogs, isBookmarked, toggleBookmark } = useLogBookmarks();
 
   // Alerts hook
   const { processLogs } = useLogAlerts();
@@ -177,9 +173,7 @@ export const LogViewer = React.memo(function LogViewer({ className, limit = 100 
   const filteredLogs = React.useMemo(() => {
     if (!searchTerm.trim()) return displayLogs;
     const term = searchTerm.toLowerCase();
-    return displayLogs.filter((log) =>
-      log.message.toLowerCase().includes(term)
-    );
+    return displayLogs.filter((log) => log.message.toLowerCase().includes(term));
   }, [displayLogs, searchTerm]);
 
   // Log correlation/grouping
@@ -214,9 +208,8 @@ export const LogViewer = React.memo(function LogViewer({ className, limit = 100 
   }, [viewMode, filteredLogs, bookmarkedLogs]);
 
   // Navigation for detail panel
-  const currentEntryIndex = selectedEntry
-    ? logsToDisplay.findIndex((l) => l.id === selectedEntry.id)
-    : -1;
+  const currentEntryIndex =
+    selectedEntry ? logsToDisplay.findIndex((l) => l.id === selectedEntry.id) : -1;
 
   const handlePrevious = () => {
     if (currentEntryIndex > 0) {
@@ -234,25 +227,26 @@ export const LogViewer = React.memo(function LogViewer({ className, limit = 100 
   const relatedEntries = React.useMemo(() => {
     if (!selectedEntry) return [];
     return logsToDisplay
-      .filter(
-        (log) =>
-          log.id !== selectedEntry.id && log.topic === selectedEntry.topic
-      )
+      .filter((log) => log.id !== selectedEntry.id && log.topic === selectedEntry.topic)
       .slice(0, 5);
   }, [selectedEntry, logsToDisplay]);
 
   return (
-    <div className={cn('flex flex-col h-full gap-component-md', className)}>
+    <div className={cn('gap-component-md flex h-full flex-col', className)}>
       {/* Offline Banner */}
       {isOffline && (
-        <div className="flex items-center gap-component-sm px-component-md py-component-sm bg-warning/10 border border-warning/30 rounded-card-sm text-sm text-warning">
-          <Icon icon={AlertCircle} className="h-4 w-4" aria-hidden="true" />
+        <div className="gap-component-sm px-component-md py-component-sm bg-warning/10 border-warning/30 rounded-card-sm text-warning flex items-center border text-sm">
+          <Icon
+            icon={AlertCircle}
+            className="h-4 w-4"
+            aria-hidden="true"
+          />
           <span>You're offline. Showing cached logs.</span>
         </div>
       )}
 
       {/* Controls Row */}
-      <div className="flex flex-col sm:flex-row gap-component-md">
+      <div className="gap-component-md flex flex-col sm:flex-row">
         {/* Search */}
         <LogSearch
           value={searchTerm}
@@ -263,7 +257,7 @@ export const LogViewer = React.memo(function LogViewer({ className, limit = 100 
         />
 
         {/* Action buttons */}
-        <div className="flex items-center gap-component-sm">
+        <div className="gap-component-sm flex items-center">
           <LogControls
             isPaused={isPaused}
             onPauseToggle={() => setIsPaused(!isPaused)}
@@ -273,7 +267,7 @@ export const LogViewer = React.memo(function LogViewer({ className, limit = 100 
           />
 
           {/* View mode toggle */}
-          <div className="hidden sm:flex items-center border rounded-md">
+          <div className="hidden items-center rounded-md border sm:flex">
             <Button
               variant={viewMode === 'flat' ? 'default' : 'ghost'}
               size="sm"
@@ -281,7 +275,11 @@ export const LogViewer = React.memo(function LogViewer({ className, limit = 100 
               className="rounded-r-none"
               aria-label="Flat view"
             >
-              <Icon icon={List} className="h-4 w-4" aria-hidden="true" />
+              <Icon
+                icon={List}
+                className="h-4 w-4"
+                aria-hidden="true"
+              />
             </Button>
             <Button
               variant={viewMode === 'grouped' ? 'default' : 'ghost'}
@@ -290,7 +288,11 @@ export const LogViewer = React.memo(function LogViewer({ className, limit = 100 
               className="rounded-none border-x"
               aria-label="Grouped view"
             >
-              <Icon icon={Layers} className="h-4 w-4" aria-hidden="true" />
+              <Icon
+                icon={Layers}
+                className="h-4 w-4"
+                aria-hidden="true"
+              />
             </Button>
             <Button
               variant={viewMode === 'bookmarked' ? 'default' : 'ghost'}
@@ -299,9 +301,13 @@ export const LogViewer = React.memo(function LogViewer({ className, limit = 100 
               className="rounded-l-none"
               aria-label="Bookmarked"
             >
-              <Icon icon={Pin} className="h-4 w-4" aria-hidden="true" />
+              <Icon
+                icon={Pin}
+                className="h-4 w-4"
+                aria-hidden="true"
+              />
               {bookmarkedLogs.length > 0 && (
-                <span className="ml-component-xs text-xs font-mono">{bookmarkedLogs.length}</span>
+                <span className="ml-component-xs font-mono text-xs">{bookmarkedLogs.length}</span>
               )}
             </Button>
           </div>
@@ -334,27 +340,36 @@ export const LogViewer = React.memo(function LogViewer({ className, limit = 100 
 
       {/* Error State */}
       {isError && (
-        <LogViewerError error={error} onRetry={() => refetch()} />
+        <LogViewerError
+          error={error}
+          onRetry={() => refetch()}
+        />
       )}
 
       {/* Logs Display */}
       {!isLoading && !isError && (
-        <div className="relative flex-1 min-h-0">
+        <div className="relative min-h-0 flex-1">
           <div
             ref={scrollContainerRef}
-            className="absolute inset-0 overflow-y-auto border rounded-lg bg-card"
+            className="bg-card absolute inset-0 overflow-y-auto rounded-lg border"
           >
-            {logsToDisplay.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-full text-muted-foreground p-component-xl gap-component-sm">
-                {viewMode === 'bookmarked' ? (
+            {logsToDisplay.length === 0 ?
+              <div className="text-muted-foreground p-component-xl gap-component-sm flex h-full flex-col items-center justify-center">
+                {viewMode === 'bookmarked' ?
                   <>
-                    <Icon icon={Pin} className="h-8 w-8 opacity-50" aria-hidden="true" />
+                    <Icon
+                      icon={Pin}
+                      className="h-8 w-8 opacity-50"
+                      aria-hidden="true"
+                    />
                     <p>No bookmarked entries</p>
                     <p className="text-xs">Click the pin icon on any log entry to bookmark it</p>
                   </>
-                ) : searchTerm ? (
+                : searchTerm ?
                   <>
-                    <p>No logs match <span className="font-mono">{`"${searchTerm}"`}</span></p>
+                    <p>
+                      No logs match <span className="font-mono">{`"${searchTerm}"`}</span>
+                    </p>
                     <Button
                       variant="ghost"
                       size="sm"
@@ -363,11 +378,9 @@ export const LogViewer = React.memo(function LogViewer({ className, limit = 100 
                       Clear search
                     </Button>
                   </>
-                ) : (
-                  <p>No log entries found</p>
-                )}
+                : <p>No log entries found</p>}
               </div>
-            ) : viewMode === 'grouped' ? (
+            : viewMode === 'grouped' ?
               <div className="p-component-sm">
                 <LogGroupList
                   groups={groups as LogGroupData[]}
@@ -377,8 +390,7 @@ export const LogViewer = React.memo(function LogViewer({ className, limit = 100 
                   onToggleBookmark={toggleBookmark}
                 />
               </div>
-            ) : (
-              <div className="divide-y divide-border">
+            : <div className="divide-border divide-y">
                 {logsToDisplay.map((log) => (
                   <LogEntry
                     key={log.id}
@@ -392,12 +404,15 @@ export const LogViewer = React.memo(function LogViewer({ className, limit = 100 
                   />
                 ))}
               </div>
-            )}
+            }
           </div>
 
           {/* New Entries Indicator */}
           {!isAtBottom && newEntriesCount > 0 && !isPaused && (
-            <NewEntriesIndicator count={newEntriesCount} onClick={scrollToBottom} />
+            <NewEntriesIndicator
+              count={newEntriesCount}
+              onClick={scrollToBottom}
+            />
           )}
         </div>
       )}
@@ -424,9 +439,12 @@ LogViewer.displayName = 'LogViewer';
  */
 function LogViewerSkeleton() {
   return (
-    <div className="border rounded-lg bg-card p-component-md space-y-component-sm flex-1">
+    <div className="bg-card p-component-md space-y-component-sm flex-1 rounded-lg border">
       {Array.from({ length: 10 }).map((_, i) => (
-        <div key={i} className="flex items-center gap-component-md">
+        <div
+          key={i}
+          className="gap-component-md flex items-center"
+        >
           <Skeleton className="h-4 w-24 shrink-0" />
           <Skeleton className="h-6 w-16 shrink-0" />
           <Skeleton className="h-4 flex-1" />
@@ -448,17 +466,30 @@ const LogViewerError = React.memo(function LogViewerError({ error, onRetry }: Lo
   return (
     <Card className="border-error/30 bg-error/10">
       <CardHeader className="pb-component-sm">
-        <CardTitle className="flex items-center gap-component-sm text-error text-base">
-          <Icon icon={AlertCircle} className="h-4 w-4" aria-hidden="true" />
+        <CardTitle className="gap-component-sm text-error flex items-center text-base">
+          <Icon
+            icon={AlertCircle}
+            className="h-4 w-4"
+            aria-hidden="true"
+          />
           Failed to load logs
         </CardTitle>
       </CardHeader>
-      <CardContent className="flex flex-col gap-component-sm pt-0">
-        <p className="text-sm text-muted-foreground">
+      <CardContent className="gap-component-sm flex flex-col pt-0">
+        <p className="text-muted-foreground text-sm">
           {error?.message || 'An unknown error occurred'}
         </p>
-        <Button variant="outline" size="sm" onClick={onRetry} className="w-fit">
-          <Icon icon={RefreshCw} className="h-4 w-4 mr-2" aria-hidden="true" />
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={onRetry}
+          className="w-fit"
+        >
+          <Icon
+            icon={RefreshCw}
+            className="mr-2 h-4 w-4"
+            aria-hidden="true"
+          />
           Retry
         </Button>
       </CardContent>

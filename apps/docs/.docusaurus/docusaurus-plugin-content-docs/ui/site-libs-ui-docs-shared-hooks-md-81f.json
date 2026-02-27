@@ -1,7 +1,7 @@
 {
   "id": "shared-hooks",
   "title": "Shared Hooks Reference",
-  "description": "This document covers every reusable hook exported from libs/ui/. For each hook you will find the full TypeScript signature, parameter descriptions, return type, and a usage example drawn directly from the source.",
+  "description": "This document covers every reusable hook exported from libs/ui/. For each hook you will find the",
   "source": "@site/../../libs/ui/docs/shared-hooks.md",
   "sourceDirName": ".",
   "slug": "/shared-hooks",

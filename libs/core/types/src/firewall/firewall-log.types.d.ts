@@ -21,7 +21,7 @@ import type { LogEntry } from '../router/logs';
  * const result = FirewallLogChainSchema.parse('forward');
  * // result: 'forward'
  */
-export declare const FirewallLogChainSchema: z.ZodEnum<["input", "forward", "output"]>;
+export declare const FirewallLogChainSchema: z.ZodEnum<['input', 'forward', 'output']>;
 /**
  * Type for firewall log chain
  * @example
@@ -38,7 +38,7 @@ export type FirewallLogChain = z.infer<typeof FirewallLogChainSchema>;
  * const result = InferredActionSchema.parse('drop');
  * // result: 'drop'
  */
-export declare const InferredActionSchema: z.ZodEnum<["accept", "drop", "reject", "unknown"]>;
+export declare const InferredActionSchema: z.ZodEnum<['accept', 'drop', 'reject', 'unknown']>;
 /**
  * Type for inferred firewall action
  * @example
@@ -55,7 +55,9 @@ export type InferredAction = z.infer<typeof InferredActionSchema>;
  * const result = FirewallLogProtocolSchema.parse('TCP');
  * // result: 'TCP'
  */
-export declare const FirewallLogProtocolSchema: z.ZodEnum<["TCP", "UDP", "ICMP", "IPv6-ICMP", "GRE", "ESP", "AH", "IGMP", "unknown"]>;
+export declare const FirewallLogProtocolSchema: z.ZodEnum<
+  ['TCP', 'UDP', 'ICMP', 'IPv6-ICMP', 'GRE', 'ESP', 'AH', 'IGMP', 'unknown']
+>;
 /**
  * Type for firewall log protocol
  * @example
@@ -66,63 +68,63 @@ export type FirewallLogProtocol = z.infer<typeof FirewallLogProtocolSchema>;
  * Parsed firewall log data extracted from RouterOS log message
  */
 export interface ParsedFirewallLog {
-    /**
-     * Chain where packet was logged (input/forward/output)
-     */
-    chain: FirewallLogChain;
-    /**
-     * Inferred action from log prefix or rule
-     */
-    action: InferredAction;
-    /**
-     * Source IP address
-     */
-    srcIp?: string;
-    /**
-     * Source port (for TCP/UDP)
-     */
-    srcPort?: number;
-    /**
-     * Destination IP address
-     */
-    dstIp?: string;
-    /**
-     * Destination port (for TCP/UDP)
-     */
-    dstPort?: number;
-    /**
-     * Network protocol
-     */
-    protocol: FirewallLogProtocol;
-    /**
-     * Input interface name
-     */
-    interfaceIn?: string;
-    /**
-     * Output interface name
-     */
-    interfaceOut?: string;
-    /**
-     * Log prefix from firewall rule
-     */
-    prefix?: string;
-    /**
-     * Packet length in bytes
-     */
-    length?: number;
+  /**
+   * Chain where packet was logged (input/forward/output)
+   */
+  chain: FirewallLogChain;
+  /**
+   * Inferred action from log prefix or rule
+   */
+  action: InferredAction;
+  /**
+   * Source IP address
+   */
+  srcIp?: string;
+  /**
+   * Source port (for TCP/UDP)
+   */
+  srcPort?: number;
+  /**
+   * Destination IP address
+   */
+  dstIp?: string;
+  /**
+   * Destination port (for TCP/UDP)
+   */
+  dstPort?: number;
+  /**
+   * Network protocol
+   */
+  protocol: FirewallLogProtocol;
+  /**
+   * Input interface name
+   */
+  interfaceIn?: string;
+  /**
+   * Output interface name
+   */
+  interfaceOut?: string;
+  /**
+   * Log prefix from firewall rule
+   */
+  prefix?: string;
+  /**
+   * Packet length in bytes
+   */
+  length?: number;
 }
 /**
  * Firewall log entry extending base LogEntry with parsed firewall data
  */
 export interface FirewallLogEntry extends LogEntry {
-    /**
-     * Topic is always 'firewall' for firewall logs
-     */
-    topic: 'firewall';
-    /**
-     * Parsed firewall-specific data from log message
-     */
-    parsed: ParsedFirewallLog;
+  /**
+   * Topic is always 'firewall' for firewall logs
+   */
+  topic: 'firewall';
+  /**
+   * Parsed firewall-specific data from log message
+   */
+  parsed: ParsedFirewallLog;
 }
 /**
  * Zod schema for parsed firewall log data validation
@@ -139,22 +141,26 @@ export interface FirewallLogEntry extends LogEntry {
  * };
  * const result = ParsedFirewallLogSchema.parse(parsed);
  */
-export declare const ParsedFirewallLogSchema: z.ZodObject<{
-    chain: z.ZodEnum<["input", "forward", "output"]>;
-    action: z.ZodEnum<["accept", "drop", "reject", "unknown"]>;
+export declare const ParsedFirewallLogSchema: z.ZodObject<
+  {
+    chain: z.ZodEnum<['input', 'forward', 'output']>;
+    action: z.ZodEnum<['accept', 'drop', 'reject', 'unknown']>;
     srcIp: z.ZodOptional<z.ZodEffects<z.ZodString, string, string>>;
     srcPort: z.ZodOptional<z.ZodEffects<z.ZodNumber, number, number>>;
     dstIp: z.ZodOptional<z.ZodEffects<z.ZodString, string, string>>;
     dstPort: z.ZodOptional<z.ZodEffects<z.ZodNumber, number, number>>;
-    protocol: z.ZodEnum<["TCP", "UDP", "ICMP", "IPv6-ICMP", "GRE", "ESP", "AH", "IGMP", "unknown"]>;
+    protocol: z.ZodEnum<['TCP', 'UDP', 'ICMP', 'IPv6-ICMP', 'GRE', 'ESP', 'AH', 'IGMP', 'unknown']>;
     interfaceIn: z.ZodOptional<z.ZodString>;
     interfaceOut: z.ZodOptional<z.ZodString>;
     prefix: z.ZodOptional<z.ZodString>;
     length: z.ZodOptional<z.ZodNumber>;
-}, "strip", z.ZodTypeAny, {
-    action: "accept" | "unknown" | "drop" | "reject";
-    chain: "input" | "output" | "forward";
-    protocol: "unknown" | "TCP" | "UDP" | "ICMP" | "IPv6-ICMP" | "GRE" | "ESP" | "AH" | "IGMP";
+  },
+  'strip',
+  z.ZodTypeAny,
+  {
+    action: 'accept' | 'unknown' | 'drop' | 'reject';
+    chain: 'input' | 'output' | 'forward';
+    protocol: 'unknown' | 'TCP' | 'UDP' | 'ICMP' | 'IPv6-ICMP' | 'GRE' | 'ESP' | 'AH' | 'IGMP';
     length?: number | undefined;
     prefix?: string | undefined;
     srcPort?: number | undefined;
@@ -163,10 +169,11 @@ export declare const ParsedFirewallLogSchema: z.ZodObject<{
     dstIp?: string | undefined;
     interfaceIn?: string | undefined;
     interfaceOut?: string | undefined;
-}, {
-    action: "accept" | "unknown" | "drop" | "reject";
-    chain: "input" | "output" | "forward";
-    protocol: "unknown" | "TCP" | "UDP" | "ICMP" | "IPv6-ICMP" | "GRE" | "ESP" | "AH" | "IGMP";
+  },
+  {
+    action: 'accept' | 'unknown' | 'drop' | 'reject';
+    chain: 'input' | 'output' | 'forward';
+    protocol: 'unknown' | 'TCP' | 'UDP' | 'ICMP' | 'IPv6-ICMP' | 'GRE' | 'ESP' | 'AH' | 'IGMP';
     length?: number | undefined;
     prefix?: string | undefined;
     srcPort?: number | undefined;
@@ -175,7 +182,8 @@ export declare const ParsedFirewallLogSchema: z.ZodObject<{
     dstIp?: string | undefined;
     interfaceIn?: string | undefined;
     interfaceOut?: string | undefined;
-}>;
+  }
+>;
 /**
  * Zod schema for complete firewall log entry validation
  * Combines base log entry fields with parsed firewall-specific data
@@ -193,28 +201,35 @@ export declare const ParsedFirewallLogSchema: z.ZodObject<{
  * };
  * const result = FirewallLogEntrySchema.parse(entry);
  */
-export declare const FirewallLogEntrySchema: z.ZodObject<{
+export declare const FirewallLogEntrySchema: z.ZodObject<
+  {
     id: z.ZodString;
     timestamp: z.ZodDate;
-    topic: z.ZodLiteral<"firewall">;
-    severity: z.ZodEnum<["debug", "info", "warning", "error", "critical"]>;
+    topic: z.ZodLiteral<'firewall'>;
+    severity: z.ZodEnum<['debug', 'info', 'warning', 'error', 'critical']>;
     message: z.ZodString;
-    parsed: z.ZodObject<{
-        chain: z.ZodEnum<["input", "forward", "output"]>;
-        action: z.ZodEnum<["accept", "drop", "reject", "unknown"]>;
+    parsed: z.ZodObject<
+      {
+        chain: z.ZodEnum<['input', 'forward', 'output']>;
+        action: z.ZodEnum<['accept', 'drop', 'reject', 'unknown']>;
         srcIp: z.ZodOptional<z.ZodEffects<z.ZodString, string, string>>;
         srcPort: z.ZodOptional<z.ZodEffects<z.ZodNumber, number, number>>;
         dstIp: z.ZodOptional<z.ZodEffects<z.ZodString, string, string>>;
         dstPort: z.ZodOptional<z.ZodEffects<z.ZodNumber, number, number>>;
-        protocol: z.ZodEnum<["TCP", "UDP", "ICMP", "IPv6-ICMP", "GRE", "ESP", "AH", "IGMP", "unknown"]>;
+        protocol: z.ZodEnum<
+          ['TCP', 'UDP', 'ICMP', 'IPv6-ICMP', 'GRE', 'ESP', 'AH', 'IGMP', 'unknown']
+        >;
         interfaceIn: z.ZodOptional<z.ZodString>;
         interfaceOut: z.ZodOptional<z.ZodString>;
         prefix: z.ZodOptional<z.ZodString>;
         length: z.ZodOptional<z.ZodNumber>;
-    }, "strip", z.ZodTypeAny, {
-        action: "accept" | "unknown" | "drop" | "reject";
-        chain: "input" | "output" | "forward";
-        protocol: "unknown" | "TCP" | "UDP" | "ICMP" | "IPv6-ICMP" | "GRE" | "ESP" | "AH" | "IGMP";
+      },
+      'strip',
+      z.ZodTypeAny,
+      {
+        action: 'accept' | 'unknown' | 'drop' | 'reject';
+        chain: 'input' | 'output' | 'forward';
+        protocol: 'unknown' | 'TCP' | 'UDP' | 'ICMP' | 'IPv6-ICMP' | 'GRE' | 'ESP' | 'AH' | 'IGMP';
         length?: number | undefined;
         prefix?: string | undefined;
         srcPort?: number | undefined;
@@ -223,10 +238,11 @@ export declare const FirewallLogEntrySchema: z.ZodObject<{
         dstIp?: string | undefined;
         interfaceIn?: string | undefined;
         interfaceOut?: string | undefined;
-    }, {
-        action: "accept" | "unknown" | "drop" | "reject";
-        chain: "input" | "output" | "forward";
-        protocol: "unknown" | "TCP" | "UDP" | "ICMP" | "IPv6-ICMP" | "GRE" | "ESP" | "AH" | "IGMP";
+      },
+      {
+        action: 'accept' | 'unknown' | 'drop' | 'reject';
+        chain: 'input' | 'output' | 'forward';
+        protocol: 'unknown' | 'TCP' | 'UDP' | 'ICMP' | 'IPv6-ICMP' | 'GRE' | 'ESP' | 'AH' | 'IGMP';
         length?: number | undefined;
         prefix?: string | undefined;
         srcPort?: number | undefined;
@@ -235,46 +251,52 @@ export declare const FirewallLogEntrySchema: z.ZodObject<{
         dstIp?: string | undefined;
         interfaceIn?: string | undefined;
         interfaceOut?: string | undefined;
-    }>;
-}, "strip", z.ZodTypeAny, {
+      }
+    >;
+  },
+  'strip',
+  z.ZodTypeAny,
+  {
     id: string;
     message: string;
-    severity: "error" | "warning" | "info" | "critical" | "debug";
+    severity: 'error' | 'warning' | 'info' | 'critical' | 'debug';
     timestamp: Date;
-    topic: "firewall";
+    topic: 'firewall';
     parsed: {
-        action: "accept" | "unknown" | "drop" | "reject";
-        chain: "input" | "output" | "forward";
-        protocol: "unknown" | "TCP" | "UDP" | "ICMP" | "IPv6-ICMP" | "GRE" | "ESP" | "AH" | "IGMP";
-        length?: number | undefined;
-        prefix?: string | undefined;
-        srcPort?: number | undefined;
-        dstPort?: number | undefined;
-        srcIp?: string | undefined;
-        dstIp?: string | undefined;
-        interfaceIn?: string | undefined;
-        interfaceOut?: string | undefined;
+      action: 'accept' | 'unknown' | 'drop' | 'reject';
+      chain: 'input' | 'output' | 'forward';
+      protocol: 'unknown' | 'TCP' | 'UDP' | 'ICMP' | 'IPv6-ICMP' | 'GRE' | 'ESP' | 'AH' | 'IGMP';
+      length?: number | undefined;
+      prefix?: string | undefined;
+      srcPort?: number | undefined;
+      dstPort?: number | undefined;
+      srcIp?: string | undefined;
+      dstIp?: string | undefined;
+      interfaceIn?: string | undefined;
+      interfaceOut?: string | undefined;
     };
-}, {
+  },
+  {
     id: string;
     message: string;
-    severity: "error" | "warning" | "info" | "critical" | "debug";
+    severity: 'error' | 'warning' | 'info' | 'critical' | 'debug';
     timestamp: Date;
-    topic: "firewall";
+    topic: 'firewall';
     parsed: {
-        action: "accept" | "unknown" | "drop" | "reject";
-        chain: "input" | "output" | "forward";
-        protocol: "unknown" | "TCP" | "UDP" | "ICMP" | "IPv6-ICMP" | "GRE" | "ESP" | "AH" | "IGMP";
-        length?: number | undefined;
-        prefix?: string | undefined;
-        srcPort?: number | undefined;
-        dstPort?: number | undefined;
-        srcIp?: string | undefined;
-        dstIp?: string | undefined;
-        interfaceIn?: string | undefined;
-        interfaceOut?: string | undefined;
+      action: 'accept' | 'unknown' | 'drop' | 'reject';
+      chain: 'input' | 'output' | 'forward';
+      protocol: 'unknown' | 'TCP' | 'UDP' | 'ICMP' | 'IPv6-ICMP' | 'GRE' | 'ESP' | 'AH' | 'IGMP';
+      length?: number | undefined;
+      prefix?: string | undefined;
+      srcPort?: number | undefined;
+      dstPort?: number | undefined;
+      srcIp?: string | undefined;
+      dstIp?: string | undefined;
+      interfaceIn?: string | undefined;
+      interfaceOut?: string | undefined;
     };
-}>;
+  }
+>;
 /**
  * Validates an IP address (with optional CIDR) for firewall logs
  *
@@ -363,20 +385,20 @@ export type TimeRangePreset = '1h' | '6h' | '1d' | '1w' | 'custom';
  * Used for custom time range selection in firewall log filters
  */
 export interface TimeRange {
-    /** Start timestamp (inclusive) */
-    readonly start: Date;
-    /** End timestamp (inclusive) */
-    readonly end: Date;
+  /** Start timestamp (inclusive) */
+  readonly start: Date;
+  /** End timestamp (inclusive) */
+  readonly end: Date;
 }
 /**
  * Port range value (min-max inclusive)
  * Used for filtering by port range instead of specific port
  */
 export interface PortRange {
-    /** Minimum port number (inclusive) */
-    readonly min: number;
-    /** Maximum port number (inclusive) */
-    readonly max: number;
+  /** Minimum port number (inclusive) */
+  readonly min: number;
+  /** Maximum port number (inclusive) */
+  readonly max: number;
 }
 /**
  * Complete filter state for firewall logs
@@ -384,38 +406,38 @@ export interface PortRange {
  * All fields are optional for flexible filtering scenarios
  */
 export interface FirewallLogFilterState {
-    /**
-     * Time range preset or custom selection
-     */
-    readonly timeRangePreset: TimeRangePreset;
-    /**
-     * Custom time range (only used when timeRangePreset is 'custom')
-     */
-    readonly timeRange?: TimeRange;
-    /**
-     * Selected actions to filter by (empty array means all actions)
-     */
-    readonly actions: readonly InferredAction[];
-    /**
-     * Source IP filter with wildcard support (e.g., 192.168.1.*)
-     */
-    readonly srcIp?: string;
-    /**
-     * Destination IP filter with wildcard support
-     */
-    readonly dstIp?: string;
-    /**
-     * Source port or port range filter
-     */
-    readonly srcPort?: number | PortRange;
-    /**
-     * Destination port or port range filter
-     */
-    readonly dstPort?: number | PortRange;
-    /**
-     * Log prefix filter (matches against prefix field in log entries)
-     */
-    readonly prefix?: string;
+  /**
+   * Time range preset or custom selection
+   */
+  readonly timeRangePreset: TimeRangePreset;
+  /**
+   * Custom time range (only used when timeRangePreset is 'custom')
+   */
+  readonly timeRange?: TimeRange;
+  /**
+   * Selected actions to filter by (empty array means all actions)
+   */
+  readonly actions: readonly InferredAction[];
+  /**
+   * Source IP filter with wildcard support (e.g., 192.168.1.*)
+   */
+  readonly srcIp?: string;
+  /**
+   * Destination IP filter with wildcard support
+   */
+  readonly dstIp?: string;
+  /**
+   * Source port or port range filter
+   */
+  readonly srcPort?: number | PortRange;
+  /**
+   * Destination port or port range filter
+   */
+  readonly dstPort?: number | PortRange;
+  /**
+   * Log prefix filter (matches against prefix field in log entries)
+   */
+  readonly prefix?: string;
 }
 /**
  * Default filter state for firewall logs

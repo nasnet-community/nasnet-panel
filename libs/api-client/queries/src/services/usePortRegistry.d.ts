@@ -17,54 +17,61 @@
  * const result = await checkPort({ routerID: 'router-1', port: 9050, protocol: 'TCP' });
  * ```
  */
-import type { PortAllocation, PortProtocol, PortAvailability, OrphanedPort, CheckPortAvailabilityInput, OrphanCleanupPayload } from '@nasnet/api-client/generated';
+import type {
+  PortAllocation,
+  PortProtocol,
+  PortAvailability,
+  OrphanedPort,
+  CheckPortAvailabilityInput,
+  OrphanCleanupPayload,
+} from '@nasnet/api-client/generated';
 /**
  * Query to fetch all port allocations with optional filters
  */
-export declare const GET_PORT_ALLOCATIONS: import("graphql").DocumentNode;
+export declare const GET_PORT_ALLOCATIONS: import('graphql').DocumentNode;
 /**
  * Query to check if a specific port is available
  */
-export declare const CHECK_PORT_AVAILABILITY: import("graphql").DocumentNode;
+export declare const CHECK_PORT_AVAILABILITY: import('graphql').DocumentNode;
 /**
  * Query to detect orphaned port allocations
  */
-export declare const DETECT_ORPHANED_PORTS: import("graphql").DocumentNode;
+export declare const DETECT_ORPHANED_PORTS: import('graphql').DocumentNode;
 /**
  * Mutation to clean up orphaned port allocations
  */
-export declare const CLEANUP_ORPHANED_PORTS: import("graphql").DocumentNode;
+export declare const CLEANUP_ORPHANED_PORTS: import('graphql').DocumentNode;
 /**
  * Filters for port allocation queries
  */
 export interface PortAllocationFilters {
-    /** Filter by transport protocol */
-    protocol?: PortProtocol | 'all';
-    /** Filter by service type */
-    serviceType?: string | 'all';
+  /** Filter by transport protocol */
+  protocol?: PortProtocol | 'all';
+  /** Filter by service type */
+  serviceType?: string | 'all';
 }
 /**
  * Sort configuration for port allocations
  */
 export interface PortAllocationSort {
-    field: 'port' | 'serviceType' | 'allocatedAt';
-    direction: 'asc' | 'desc';
+  field: 'port' | 'serviceType' | 'allocatedAt';
+  direction: 'asc' | 'desc';
 }
 /**
  * Return type for usePortAllocations hook
  */
 export interface UsePortAllocationsReturn {
-    allocations: PortAllocation[];
-    groupedByService: Record<string, PortAllocation[]>;
-    filters: PortAllocationFilters;
-    setFilters: (filters: PortAllocationFilters) => void;
-    sort: PortAllocationSort;
-    setSort: (sort: PortAllocationSort) => void;
-    filteredAllocations: PortAllocation[];
-    sortedAllocations: PortAllocation[];
-    loading: boolean;
-    error: Error | undefined;
-    refetch: () => Promise<void>;
+  allocations: PortAllocation[];
+  groupedByService: Record<string, PortAllocation[]>;
+  filters: PortAllocationFilters;
+  setFilters: (filters: PortAllocationFilters) => void;
+  sort: PortAllocationSort;
+  setSort: (sort: PortAllocationSort) => void;
+  filteredAllocations: PortAllocation[];
+  sortedAllocations: PortAllocation[];
+  loading: boolean;
+  error: Error | undefined;
+  refetch: () => Promise<void>;
 }
 /**
  * Hook to fetch and manage port allocations for a router
@@ -88,7 +95,11 @@ export interface UsePortAllocationsReturn {
  * });
  * ```
  */
-export declare function usePortAllocations(routerId: string, initialFilters?: PortAllocationFilters, initialSort?: PortAllocationSort): UsePortAllocationsReturn;
+export declare function usePortAllocations(
+  routerId: string,
+  initialFilters?: PortAllocationFilters,
+  initialSort?: PortAllocationSort
+): UsePortAllocationsReturn;
 /**
  * Hook to check port availability
  *
@@ -112,9 +123,9 @@ export declare function usePortAllocations(routerId: string, initialFilters?: Po
  * ```
  */
 export declare function useCheckPortAvailability(): {
-    checkPort: (input: CheckPortAvailabilityInput) => Promise<PortAvailability>;
-    loading: boolean;
-    error: Error | undefined;
+  checkPort: (input: CheckPortAvailabilityInput) => Promise<PortAvailability>;
+  loading: boolean;
+  error: Error | undefined;
 };
 /**
  * Hook to detect and clean up orphaned port allocations
@@ -135,10 +146,12 @@ export declare function useCheckPortAvailability(): {
  * ```
  */
 export declare function useOrphanedPorts(routerId?: string): {
-    orphanedPorts: OrphanedPort[];
-    cleanupOrphans: () => Promise<OrphanCleanupPayload>;
-    loading: boolean;
-    error: Error | undefined;
-    refetch: (variables?: Partial<import("@apollo/client").OperationVariables> | undefined) => Promise<import("@apollo/client").ApolloQueryResult<any>>;
+  orphanedPorts: OrphanedPort[];
+  cleanupOrphans: () => Promise<OrphanCleanupPayload>;
+  loading: boolean;
+  error: Error | undefined;
+  refetch: (
+    variables?: Partial<import('@apollo/client').OperationVariables> | undefined
+  ) => Promise<import('@apollo/client').ApolloQueryResult<any>>;
 };
 //# sourceMappingURL=usePortRegistry.d.ts.map

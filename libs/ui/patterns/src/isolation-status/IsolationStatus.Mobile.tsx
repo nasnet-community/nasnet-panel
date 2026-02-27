@@ -25,7 +25,6 @@ import {
 
 import { cn } from '@nasnet/ui/utils';
 
-
 import type { IsolationStatusPresenterProps } from './types';
 
 /**
@@ -74,12 +73,12 @@ const IsolationStatusMobileComponent = memo(function IsolationStatusMobile({
       aria-label={state.ariaLabel}
     >
       {/* Header Section */}
-      <div className="flex items-start justify-between gap-3 mb-4">
+      <div className="mb-4 flex items-start justify-between gap-3">
         <div className="flex items-center gap-3">
           <div
             className={cn(
               'flex items-center justify-center rounded-full',
-              'min-w-[44px] min-h-[44px]',
+              'min-h-[44px] min-w-[44px]',
               state.color === 'success' && 'bg-success-light',
               state.color === 'warning' && 'bg-warning-light',
               state.color === 'destructive' && 'bg-error-light',
@@ -88,7 +87,7 @@ const IsolationStatusMobileComponent = memo(function IsolationStatusMobile({
           >
             <Icon
               className={cn(
-                'w-6 h-6',
+                'h-6 w-6',
                 state.color === 'success' && 'text-success-dark',
                 state.color === 'warning' && 'text-warning-dark',
                 state.color === 'destructive' && 'text-error-dark',
@@ -98,9 +97,9 @@ const IsolationStatusMobileComponent = memo(function IsolationStatusMobile({
             />
           </div>
           <div>
-            <h3 className="font-semibold text-foreground">{state.healthLabel}</h3>
+            <h3 className="text-foreground font-semibold">{state.healthLabel}</h3>
             {state.timestamp && (
-              <p className="text-xs text-muted-foreground mt-1">{state.timestamp}</p>
+              <p className="text-muted-foreground mt-1 text-xs">{state.timestamp}</p>
             )}
           </div>
         </div>
@@ -108,21 +107,17 @@ const IsolationStatusMobileComponent = memo(function IsolationStatusMobile({
           variant="ghost"
           size="sm"
           onClick={state.handleRefresh}
-          className="min-w-[44px] min-h-[44px]"
+          className="min-h-[44px] min-w-[44px]"
           aria-label="Refresh isolation status"
         >
-          <Icons.RefreshCw className="w-4 h-4" />
+          <Icons.RefreshCw className="h-4 w-4" />
         </Button>
       </div>
 
       {/* Summary Badges */}
       {state.violationCount > 0 && (
-        <div className="flex gap-2 mb-4 flex-wrap">
-          {state.criticalCount > 0 && (
-            <Badge variant="error">
-              {state.criticalCount} Critical
-            </Badge>
-          )}
+        <div className="mb-4 flex flex-wrap gap-2">
+          {state.criticalCount > 0 && <Badge variant="error">{state.criticalCount} Critical</Badge>}
           {state.warningCount > 0 && (
             <Badge variant="secondary">
               {state.warningCount} Warning{state.warningCount !== 1 ? 's' : ''}
@@ -139,17 +134,12 @@ const IsolationStatusMobileComponent = memo(function IsolationStatusMobile({
             <Button
               variant="ghost"
               onClick={() => setShowViolations(!showViolations)}
-              className="w-full min-h-[44px] justify-between px-0 hover:bg-transparent"
+              className="min-h-[44px] w-full justify-between px-0 hover:bg-transparent"
               aria-expanded={showViolations}
             >
-              <span className="font-medium">
-                Violations ({state.violations.length})
-              </span>
+              <span className="font-medium">Violations ({state.violations.length})</span>
               <Icons.ChevronDown
-                className={cn(
-                  'w-5 h-5 transition-transform',
-                  showViolations && 'rotate-180'
-                )}
+                className={cn('h-5 w-5 transition-transform', showViolations && 'rotate-180')}
               />
             </Button>
 
@@ -171,10 +161,10 @@ const IsolationStatusMobileComponent = memo(function IsolationStatusMobile({
                     >
                       <ViolationIcon className="h-4 w-4" />
                       <AlertDescription>
-                        <div className="font-medium mb-1">{violation.layerLabel}</div>
+                        <div className="mb-1 font-medium">{violation.layerLabel}</div>
                         <div className="text-sm">{violation.violation.message}</div>
                         {violation.violation.layer && (
-                          <div className="text-xs text-muted-foreground mt-2 font-mono">
+                          <div className="text-muted-foreground mt-2 font-mono text-xs">
                             {violation.violation.layer}
                           </div>
                         )}
@@ -196,33 +186,31 @@ const IsolationStatusMobileComponent = memo(function IsolationStatusMobile({
             <Button
               variant="ghost"
               onClick={() => setShowLimits(!showLimits)}
-              className="w-full min-h-[44px] justify-between px-0 hover:bg-transparent"
+              className="min-h-[44px] w-full justify-between px-0 hover:bg-transparent"
               aria-expanded={showLimits}
             >
               <span className="font-medium">Resource Limits</span>
               <Icons.ChevronDown
-                className={cn(
-                  'w-5 h-5 transition-transform',
-                  showLimits && 'rotate-180'
-                )}
+                className={cn('h-5 w-5 transition-transform', showLimits && 'rotate-180')}
               />
             </Button>
 
             {showLimits && (
               <div className="mt-3 space-y-4">
-                {!editMode ? (
+                {!editMode ?
                   <>
                     <div className="grid grid-cols-2 gap-3">
-                      {state.resourceLimits.cpuPercent !== null && state.resourceLimits.cpuPercent !== undefined && (
-                        <div className="bg-muted/50 rounded-lg p-3">
-                          <div className="text-xs text-muted-foreground mb-1">CPU</div>
-                          <div className="text-base font-semibold">
-                            {state.resourceLimits.cpuPercent}%
+                      {state.resourceLimits.cpuPercent !== null &&
+                        state.resourceLimits.cpuPercent !== undefined && (
+                          <div className="bg-muted/50 rounded-lg p-3">
+                            <div className="text-muted-foreground mb-1 text-xs">CPU</div>
+                            <div className="text-base font-semibold">
+                              {state.resourceLimits.cpuPercent}%
+                            </div>
                           </div>
-                        </div>
-                      )}
+                        )}
                       <div className="bg-muted/50 rounded-lg p-3">
-                        <div className="text-xs text-muted-foreground mb-1">Memory</div>
+                        <div className="text-muted-foreground mb-1 text-xs">Memory</div>
                         <div className="text-base font-semibold">
                           {state.resourceLimits.memoryMB} MB
                         </div>
@@ -233,15 +221,14 @@ const IsolationStatusMobileComponent = memo(function IsolationStatusMobile({
                       <Button
                         variant="outline"
                         onClick={() => setEditMode(true)}
-                        className="w-full min-h-[44px]"
+                        className="min-h-[44px] w-full"
                       >
-                        <Icons.Edit className="w-4 h-4 mr-2" />
+                        <Icons.Edit className="mr-2 h-4 w-4" />
                         Edit Limits
                       </Button>
                     )}
                   </>
-                ) : (
-                  <div className="space-y-4">
+                : <div className="space-y-4">
                     <div>
                       <Label htmlFor="memory">Memory (MB)</Label>
                       <Input
@@ -249,12 +236,10 @@ const IsolationStatusMobileComponent = memo(function IsolationStatusMobile({
                         type="number"
                         min="16"
                         value={limits.memoryMB}
-                        onChange={(e) =>
-                          setLimits({ ...limits, memoryMB: Number(e.target.value) })
-                        }
+                        onChange={(e) => setLimits({ ...limits, memoryMB: Number(e.target.value) })}
                         className="mt-1"
                       />
-                      <p className="text-xs text-muted-foreground mt-1">Minimum: 16 MB</p>
+                      <p className="text-muted-foreground mt-1 text-xs">Minimum: 16 MB</p>
                     </div>
                     <div>
                       <Label htmlFor="cpuWeight">CPU Weight (0-100)</Label>
@@ -269,7 +254,7 @@ const IsolationStatusMobileComponent = memo(function IsolationStatusMobile({
                         }
                         className="mt-1"
                       />
-                      <p className="text-xs text-muted-foreground mt-1">CPU scheduling priority</p>
+                      <p className="text-muted-foreground mt-1 text-xs">CPU scheduling priority</p>
                     </div>
 
                     <div className="flex gap-2">
@@ -277,7 +262,7 @@ const IsolationStatusMobileComponent = memo(function IsolationStatusMobile({
                         variant="default"
                         onClick={handleSave}
                         disabled={state.isSaving}
-                        className="flex-1 min-h-[44px]"
+                        className="min-h-[44px] flex-1"
                       >
                         {state.isSaving ? 'Saving...' : 'Save'}
                       </Button>
@@ -291,13 +276,13 @@ const IsolationStatusMobileComponent = memo(function IsolationStatusMobile({
                           });
                         }}
                         disabled={state.isSaving}
-                        className="flex-1 min-h-[44px]"
+                        className="min-h-[44px] flex-1"
                       >
                         Cancel
                       </Button>
                     </div>
                   </div>
-                )}
+                }
               </div>
             )}
           </div>

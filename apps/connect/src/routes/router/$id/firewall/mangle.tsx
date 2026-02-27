@@ -26,10 +26,14 @@ const LazyManglePage = lazy(() =>
  */
 function ManglePageSkeleton() {
   return (
-    <div className="space-y-4 p-4 animate-fade-in-up" aria-busy="true" aria-label="Loading mangle rules">
+    <div
+      className="animate-fade-in-up space-y-4 p-4"
+      aria-busy="true"
+      aria-label="Loading mangle rules"
+    >
       <div className="flex items-center justify-between">
         <div className="space-y-2">
-          <Skeleton className="h-8 w-48 font-display" />
+          <Skeleton className="font-display h-8 w-48" />
           <Skeleton className="h-4 w-96" />
         </div>
         <div className="flex gap-2">

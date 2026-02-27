@@ -19,13 +19,7 @@
 import * as React from 'react';
 import { useCallback } from 'react';
 import * as Collapsible from '@radix-ui/react-collapsible';
-import {
-  ChevronDown,
-  ChevronUp,
-  HardDrive,
-  AlertTriangle,
-  RefreshCw,
-} from 'lucide-react';
+import { ChevronDown, ChevronUp, HardDrive, AlertTriangle, RefreshCw } from 'lucide-react';
 
 import {
   Card,
@@ -83,7 +77,9 @@ function formatBytes(bytes: string): string {
  * @param {StorageSettingsMobileProps} props - Component props
  * @returns {React.ReactNode} Rendered mobile storage settings UI
  */
-export const StorageSettingsMobile = React.memo(function StorageSettingsMobile({ className }: StorageSettingsMobileProps) {
+export const StorageSettingsMobile = React.memo(function StorageSettingsMobile({
+  className,
+}: StorageSettingsMobileProps) {
   const {
     externalMounts,
     flashStorage,
@@ -119,13 +115,16 @@ export const StorageSettingsMobile = React.memo(function StorageSettingsMobile({
     }
   }, [externalMounts, selectedMount]);
 
-  const handleStorageToggle = useCallback((enabled: boolean) => {
-    if (enabled && selectedMount) {
-      handleEnableStorage(selectedMount);
-    } else {
-      handleDisableStorage(false);
-    }
-  }, [selectedMount, handleEnableStorage, handleDisableStorage]);
+  const handleStorageToggle = useCallback(
+    (enabled: boolean) => {
+      if (enabled && selectedMount) {
+        handleEnableStorage(selectedMount);
+      } else {
+        handleDisableStorage(false);
+      }
+    },
+    [selectedMount, handleEnableStorage, handleDisableStorage]
+  );
 
   const handleMountSelect = useCallback((value: string) => setSelectedMount(value), []);
 
@@ -133,10 +132,13 @@ export const StorageSettingsMobile = React.memo(function StorageSettingsMobile({
 
   const handleCommonToggle = useCallback((open: boolean) => setShowCommon(open), [setShowCommon]);
 
-  const handleAdvancedToggle = useCallback((open: boolean) => setShowAdvanced(open), [setShowAdvanced]);
+  const handleAdvancedToggle = useCallback(
+    (open: boolean) => setShowAdvanced(open),
+    [setShowAdvanced]
+  );
 
   return (
-    <div className={cn('flex flex-col gap-component-md p-component-md', className)}>
+    <div className={cn('gap-component-md p-component-md flex flex-col', className)}>
       {/* Disconnect Warning Banner */}
       {isStorageDisconnected && <StorageDisconnectBanner />}
 
@@ -144,7 +146,10 @@ export const StorageSettingsMobile = React.memo(function StorageSettingsMobile({
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <HardDrive className="h-5 w-5" aria-hidden="true" />
+            <HardDrive
+              className="h-5 w-5"
+              aria-hidden="true"
+            />
             <CardTitle>External Storage</CardTitle>
           </div>
           <CardDescription>
@@ -157,34 +162,36 @@ export const StorageSettingsMobile = React.memo(function StorageSettingsMobile({
             <Label>Status</Label>
             <Badge
               variant={
-                isStorageDisconnected
-                  ? 'error'
-                  : isStorageConfigured
-                  ? 'default'
-                  : 'secondary'
+                isStorageDisconnected ? 'error'
+                : isStorageConfigured ?
+                  'default'
+                : 'secondary'
               }
               className="h-11 px-4"
             >
-              {isStorageDisconnected
-                ? 'Disconnected'
-                : isStorageConfigured
-                ? 'Configured'
-                : 'Not Configured'}
+              {isStorageDisconnected ?
+                'Disconnected'
+              : isStorageConfigured ?
+                'Configured'
+              : 'Not Configured'}
             </Badge>
           </div>
 
           {/* Detection Alert: Shown when no external storage found */}
           {!isStorageDetected && (
-            <div className="flex items-center gap-component-sm p-component-sm bg-muted rounded-[var(--semantic-radius-button)]">
-              <AlertTriangle className="h-5 w-5 text-category-firewall" aria-hidden="true" />
-              <p className="text-sm text-muted-foreground">
+            <div className="gap-component-sm p-component-sm bg-muted flex items-center rounded-[var(--semantic-radius-button)]">
+              <AlertTriangle
+                className="text-category-firewall h-5 w-5"
+                aria-hidden="true"
+              />
+              <p className="text-muted-foreground text-sm">
                 No external storage detected. Connect a USB drive or disk.
               </p>
             </div>
           )}
 
           {/* Enable/Disable Toggle: 44px touch target for mobile */}
-          <div className="flex items-center justify-between min-h-[44px]">
+          <div className="flex min-h-[44px] items-center justify-between">
             <Label htmlFor="storage-enabled">Enable External Storage</Label>
             <Switch
               id="storage-enabled"
@@ -204,13 +211,20 @@ export const StorageSettingsMobile = React.memo(function StorageSettingsMobile({
                 onValueChange={handleMountSelect}
                 disabled={!isStorageDetected || configuring}
               >
-                <SelectTrigger id="mount-select" className="min-h-[44px]">
+                <SelectTrigger
+                  id="mount-select"
+                  className="min-h-[44px]"
+                >
                   <SelectValue placeholder="Select mount point" />
                 </SelectTrigger>
                 <SelectContent>
                   {externalMounts.map((mount) => (
-                    <SelectItem key={mount.path} value={mount.path}>
-                      <span className="font-mono">{mount.path}</span> - {formatBytes(mount.availableBytes)} free
+                    <SelectItem
+                      key={mount.path}
+                      value={mount.path}
+                    >
+                      <span className="font-mono">{mount.path}</span> -{' '}
+                      {formatBytes(mount.availableBytes)} free
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -247,40 +261,52 @@ export const StorageSettingsMobile = React.memo(function StorageSettingsMobile({
       </Card>
 
       {/* Common Section: Service Breakdown (collapsed by default) */}
-      <Collapsible.Root open={showCommon} onOpenChange={handleCommonToggle}>
+      <Collapsible.Root
+        open={showCommon}
+        onOpenChange={handleCommonToggle}
+      >
         <Collapsible.Trigger asChild>
           <Button
             variant="outline"
-            className="w-full min-h-[44px] justify-between focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            className="focus-visible:ring-ring min-h-[44px] w-full justify-between focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
             disabled={!usage}
             aria-label="Toggle service storage breakdown"
             aria-expanded={showCommon}
           >
             <span>Service Storage Breakdown</span>
-            {showCommon ? (
-              <ChevronUp className="h-4 w-4" aria-hidden="true" />
-            ) : (
-              <ChevronDown className="h-4 w-4" aria-hidden="true" />
-            )}
+            {showCommon ?
+              <ChevronUp
+                className="h-4 w-4"
+                aria-hidden="true"
+              />
+            : <ChevronDown
+                className="h-4 w-4"
+                aria-hidden="true"
+              />
+            }
           </Button>
         </Collapsible.Trigger>
         <Collapsible.Content className="mt-component-sm">
           <Card>
             <CardContent className="pt-component-lg space-y-component-sm">
-              {usage?.features && usage.features.length > 0 ? (
+              {usage?.features && usage.features.length > 0 ?
                 usage.features.map((feature) => (
-                  <div key={feature.featureId} className="space-y-component-sm">
+                  <div
+                    key={feature.featureId}
+                    className="space-y-component-sm"
+                  >
                     {/* Service Name and Total Size */}
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium">
-                        {feature.featureName}
-                      </span>
-                      <Badge variant="secondary" className="font-mono">
+                      <span className="text-sm font-medium">{feature.featureName}</span>
+                      <Badge
+                        variant="secondary"
+                        className="font-mono"
+                      >
                         {formatBytes(feature.totalSize)}
                       </Badge>
                     </div>
                     {/* Storage Breakdown: Technical data in monospace */}
-                    <div className="grid grid-cols-2 gap-component-sm text-xs text-muted-foreground font-mono">
+                    <div className="gap-component-sm text-muted-foreground grid grid-cols-2 font-mono text-xs">
                       <div>Binary: {formatBytes(feature.binarySize)}</div>
                       <div>Data: {formatBytes(feature.dataSize)}</div>
                       <div>Config: {formatBytes(feature.configSize)}</div>
@@ -289,32 +315,39 @@ export const StorageSettingsMobile = React.memo(function StorageSettingsMobile({
                     <Separator />
                   </div>
                 ))
-              ) : (
-                <p className="text-sm text-muted-foreground text-center py-component-md">
+              : <p className="text-muted-foreground py-component-md text-center text-sm">
                   No services installed yet
                 </p>
-              )}
+              }
             </CardContent>
           </Card>
         </Collapsible.Content>
       </Collapsible.Root>
 
       {/* Advanced Section: Technical Details (collapsed by default) */}
-      <Collapsible.Root open={showAdvanced} onOpenChange={handleAdvancedToggle}>
+      <Collapsible.Root
+        open={showAdvanced}
+        onOpenChange={handleAdvancedToggle}
+      >
         <Collapsible.Trigger asChild>
           <Button
             variant="outline"
-            className="w-full min-h-[44px] justify-between focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            className="focus-visible:ring-ring min-h-[44px] w-full justify-between focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
             disabled={!isStorageDetected}
             aria-label="Toggle advanced storage details"
             aria-expanded={showAdvanced}
           >
             <span>Advanced Details</span>
-            {showAdvanced ? (
-              <ChevronUp className="h-4 w-4" aria-hidden="true" />
-            ) : (
-              <ChevronDown className="h-4 w-4" aria-hidden="true" />
-            )}
+            {showAdvanced ?
+              <ChevronUp
+                className="h-4 w-4"
+                aria-hidden="true"
+              />
+            : <ChevronDown
+                className="h-4 w-4"
+                aria-hidden="true"
+              />
+            }
           </Button>
         </Collapsible.Trigger>
         <Collapsible.Content className="mt-component-sm">
@@ -322,9 +355,12 @@ export const StorageSettingsMobile = React.memo(function StorageSettingsMobile({
             <CardContent className="pt-component-lg space-y-component-md">
               {/* Mount Point Details: Technical data in monospace */}
               {externalMounts.map((mount) => (
-                <div key={mount.path} className="space-y-component-sm">
+                <div
+                  key={mount.path}
+                  className="space-y-component-sm"
+                >
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium font-mono">{mount.path}</span>
+                    <span className="font-mono text-sm font-medium">{mount.path}</span>
                     <Badge
                       variant={mount.mounted ? 'default' : 'secondary'}
                       className="text-xs"
@@ -332,7 +368,7 @@ export const StorageSettingsMobile = React.memo(function StorageSettingsMobile({
                       {mount.mounted ? 'Mounted' : 'Unmounted'}
                     </Badge>
                   </div>
-                  <div className="grid grid-cols-2 gap-component-sm text-xs text-muted-foreground font-mono">
+                  <div className="gap-component-sm text-muted-foreground grid grid-cols-2 font-mono text-xs">
                     <div>Total: {formatBytes(mount.totalBytes)}</div>
                     <div>Free: {formatBytes(mount.availableBytes)}</div>
                     <div>Type: {mount.filesystem}</div>
@@ -345,12 +381,15 @@ export const StorageSettingsMobile = React.memo(function StorageSettingsMobile({
               {/* Manual Scan Button: 44px touch target */}
               <Button
                 variant="outline"
-                className="w-full min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                className="focus-visible:ring-ring min-h-[44px] w-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
                 onClick={handleScan}
                 disabled={scanning}
                 aria-label={scanning ? 'Scanning for storage devices' : 'Scan for storage devices'}
               >
-                <RefreshCw className={cn('mr-2 h-4 w-4', scanning && 'animate-spin')} aria-hidden="true" />
+                <RefreshCw
+                  className={cn('mr-2 h-4 w-4', scanning && 'animate-spin')}
+                  aria-hidden="true"
+                />
                 {scanning ? 'Scanning...' : 'Scan for Storage'}
               </Button>
             </CardContent>

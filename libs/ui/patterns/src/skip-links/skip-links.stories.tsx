@@ -55,30 +55,51 @@ type Story = StoryObj<typeof SkipLinks>;
 
 function MockPage({ children }: { children?: React.ReactNode }) {
   return (
-    <div className="min-h-[400px] font-sans text-foreground bg-background">
+    <div className="text-foreground bg-background min-h-[400px] font-sans">
       {children}
 
       {/* Navigation landmark */}
       <nav
         id="navigation"
-        className="bg-card border-b px-6 py-3 flex items-center gap-4 mt-12"
+        className="bg-card mt-12 flex items-center gap-4 border-b px-6 py-3"
         aria-label="Main navigation"
       >
-        <span className="font-semibold text-sm">NasNet</span>
-        <a href="/dashboard" className="text-sm text-muted-foreground hover:text-foreground">Dashboard</a>
-        <a href="/network" className="text-sm text-muted-foreground hover:text-foreground">Network</a>
-        <a href="/firewall" className="text-sm text-muted-foreground hover:text-foreground">Firewall</a>
+        <span className="text-sm font-semibold">NasNet</span>
+        <a
+          href="/dashboard"
+          className="text-muted-foreground hover:text-foreground text-sm"
+        >
+          Dashboard
+        </a>
+        <a
+          href="/network"
+          className="text-muted-foreground hover:text-foreground text-sm"
+        >
+          Network
+        </a>
+        <a
+          href="/firewall"
+          className="text-muted-foreground hover:text-foreground text-sm"
+        >
+          Firewall
+        </a>
       </nav>
 
       {/* Main content landmark */}
-      <main id="main-content" className="px-6 py-8">
-        <h1 className="text-xl font-semibold mb-2">Main Content Area</h1>
-        <p className="text-sm text-muted-foreground mb-4">
+      <main
+        id="main-content"
+        className="px-6 py-8"
+      >
+        <h1 className="mb-2 text-xl font-semibold">Main Content Area</h1>
+        <p className="text-muted-foreground mb-4 text-sm">
           Press Tab from within this story to bring focus to the skip links above and reveal them.
         </p>
         <div className="grid grid-cols-3 gap-4">
           {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="h-20 rounded-lg bg-muted animate-pulse" />
+            <div
+              key={i}
+              className="bg-muted h-20 animate-pulse rounded-lg"
+            />
           ))}
         </div>
       </main>
@@ -118,8 +139,8 @@ export const CustomLinks: Story = {
   args: {
     links: [
       { href: '#main-content', label: 'Skip to main content' },
-      { href: '#sidebar',      label: 'Skip to sidebar' },
-      { href: '#footer',       label: 'Skip to footer' },
+      { href: '#sidebar', label: 'Skip to sidebar' },
+      { href: '#footer', label: 'Skip to footer' },
     ],
   },
   parameters: {
@@ -143,9 +164,7 @@ export const SingleLink: Story = {
     </MockPage>
   ),
   args: {
-    links: [
-      { href: '#main-content', label: 'Skip to main content' },
-    ],
+    links: [{ href: '#main-content', label: 'Skip to main content' }],
   },
 };
 
@@ -155,20 +174,26 @@ export const SingleLink: Story = {
  */
 export const SingleSkipLink: Story = {
   render: () => (
-    <div className="min-h-[300px] bg-background p-6">
+    <div className="bg-background min-h-[300px] p-6">
       <SkipLink href="#main-content">Skip to main content</SkipLink>
 
-      <nav className="bg-card border rounded p-4 mb-4" aria-label="Navigation">
-        <p className="text-sm text-muted-foreground">
+      <nav
+        className="bg-card mb-4 rounded border p-4"
+        aria-label="Navigation"
+      >
+        <p className="text-muted-foreground text-sm">
           (Focus the SkipLink above by pressing Tab from this frame)
         </p>
       </nav>
 
-      <main id="main-content" className="bg-muted rounded p-4">
-        <h1 className="font-semibold mb-1">Main Content</h1>
-        <p className="text-sm text-muted-foreground">
-          The individual {'<SkipLink>'} component uses <code>sr-only</code> styling
-          by default and becomes visible at the top of the viewport when focused.
+      <main
+        id="main-content"
+        className="bg-muted rounded p-4"
+      >
+        <h1 className="mb-1 font-semibold">Main Content</h1>
+        <p className="text-muted-foreground text-sm">
+          The individual {'<SkipLink>'} component uses <code>sr-only</code> styling by default and
+          becomes visible at the top of the viewport when focused.
         </p>
       </main>
     </div>
@@ -190,25 +215,25 @@ export const SingleSkipLink: Story = {
  */
 export const VisiblePreview: Story = {
   render: () => (
-    <div className="min-h-[200px] bg-background p-6 pt-24 relative">
+    <div className="bg-background relative min-h-[200px] p-6 pt-24">
       <div
-        className="fixed top-0 left-0 z-[9999] flex flex-col gap-2 p-4"
+        className="fixed left-0 top-0 z-[9999] flex flex-col gap-2 p-4"
         aria-label="Skip links (visible preview)"
       >
         {/* Render the links already in their visible state for documentation */}
         {[
           { href: '#main-content', label: 'Skip to main content' },
-          { href: '#navigation',   label: 'Skip to navigation' },
+          { href: '#navigation', label: 'Skip to navigation' },
         ].map((link) => (
           <a
             key={link.href}
             href={link.href}
             className={[
-              'rounded-lg bg-primary px-4 py-3',
-              'text-sm font-semibold text-primary-foreground',
-              'shadow-lg min-h-[44px] min-w-[44px]',
+              'bg-primary rounded-lg px-4 py-3',
+              'text-primary-foreground text-sm font-semibold',
+              'min-h-[44px] min-w-[44px] shadow-lg',
               'flex items-center justify-center',
-              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+              'focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
             ].join(' ')}
           >
             {link.label}
@@ -216,9 +241,9 @@ export const VisiblePreview: Story = {
         ))}
       </div>
 
-      <p className="text-sm text-muted-foreground mt-4">
-        This story renders the skip links in their visible state so you can see how they
-        look without needing keyboard interaction. In production they are hidden until focused.
+      <p className="text-muted-foreground mt-4 text-sm">
+        This story renders the skip links in their visible state so you can see how they look
+        without needing keyboard interaction. In production they are hidden until focused.
       </p>
     </div>
   ),

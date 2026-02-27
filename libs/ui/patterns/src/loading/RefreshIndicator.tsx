@@ -78,13 +78,13 @@ export const RefreshIndicator = React.memo(function RefreshIndicator({
     return null;
   }
 
-  const positionClasses = fixed
-    ? position === 'top'
-      ? 'fixed top-0 left-0 right-0 z-50'
+  const positionClasses =
+    fixed ?
+      position === 'top' ?
+        'fixed top-0 left-0 right-0 z-50'
       : 'fixed bottom-0 left-0 right-0 z-50'
-    : position === 'top'
-      ? 'absolute top-0 left-0 right-0'
-      : 'absolute bottom-0 left-0 right-0';
+    : position === 'top' ? 'absolute top-0 left-0 right-0'
+    : 'absolute bottom-0 left-0 right-0';
 
   if (variant === 'dots') {
     return (
@@ -94,8 +94,8 @@ export const RefreshIndicator = React.memo(function RefreshIndicator({
         aria-label="Refreshing data"
         className={cn(
           positionClasses,
-          'flex items-center justify-center gap-component-sm py-2 px-3',
-          'rounded-full bg-muted/80 backdrop-blur-sm',
+          'gap-component-sm flex items-center justify-center px-3 py-2',
+          'bg-muted/80 rounded-full backdrop-blur-sm',
           className
         )}
       >
@@ -132,10 +132,7 @@ export const RefreshIndicator = React.memo(function RefreshIndicator({
       )}
     >
       <div
-        className={cn(
-          'h-full w-1/3',
-          colorConfig[color]
-        )}
+        className={cn('h-full w-1/3', colorConfig[color])}
         style={{
           animation: 'slideProgress 1s ease-in-out infinite',
         }}

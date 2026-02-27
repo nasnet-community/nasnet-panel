@@ -172,9 +172,7 @@ export async function initializeCachePersistence(
  * apolloClient.clearStore();
  * ```
  */
-export async function clearPersistedCache(
-  key = DEFAULT_CONFIG.key
-): Promise<void> {
+export async function clearPersistedCache(key = DEFAULT_CONFIG.key): Promise<void> {
   if (typeof window === 'undefined') {
     return;
   }
@@ -197,9 +195,7 @@ export async function clearPersistedCache(
  * @param key - Storage key prefix (default: 'nasnet-apollo-cache')
  * @returns Cache size in bytes
  */
-export async function getPersistedCacheSize(
-  key = DEFAULT_CONFIG.key
-): Promise<number> {
+export async function getPersistedCacheSize(key = DEFAULT_CONFIG.key): Promise<number> {
   if (typeof window === 'undefined') {
     return 0;
   }

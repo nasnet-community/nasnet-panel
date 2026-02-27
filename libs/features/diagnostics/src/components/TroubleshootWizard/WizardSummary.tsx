@@ -52,14 +52,34 @@ export const WizardSummary = memo(function WizardSummary({
   const getSummaryIcon = useCallback(() => {
     switch (summary.finalStatus) {
       case 'all_passed':
-        return <CheckCircle2 className="h-12 w-12 text-success" aria-hidden="true" />;
+        return (
+          <CheckCircle2
+            className="text-success h-12 w-12"
+            aria-hidden="true"
+          />
+        );
       case 'issues_resolved':
-        return <CheckCircle2 className="h-12 w-12 text-success" aria-hidden="true" />;
+        return (
+          <CheckCircle2
+            className="text-success h-12 w-12"
+            aria-hidden="true"
+          />
+        );
       case 'contact_isp':
-        return <AlertTriangle className="h-12 w-12 text-warning" aria-hidden="true" />;
+        return (
+          <AlertTriangle
+            className="text-warning h-12 w-12"
+            aria-hidden="true"
+          />
+        );
       case 'issues_remaining':
       default:
-        return <XCircle className="h-12 w-12 text-error" aria-hidden="true" />;
+        return (
+          <XCircle
+            className="text-error h-12 w-12"
+            aria-hidden="true"
+          />
+        );
     }
   }, [summary.finalStatus]);
 
@@ -97,35 +117,54 @@ export const WizardSummary = memo(function WizardSummary({
   }, [onClose]);
 
   return (
-    <div className="space-y-component-lg" role="region" aria-label="Diagnostic results summary">
+    <div
+      className="space-y-component-lg"
+      role="region"
+      aria-label="Diagnostic results summary"
+    >
       {/* Summary Header */}
       <Card className="p-component-lg">
-        <div className="flex flex-col items-center text-center space-y-component-md">
+        <div className="space-y-component-md flex flex-col items-center text-center">
           {getSummaryIcon()}
           <div>
-            <h2 className="text-2xl font-bold text-category-networking mb-component-sm">Troubleshooting Complete</h2>
+            <h2 className="text-category-networking mb-component-sm text-2xl font-bold">
+              Troubleshooting Complete
+            </h2>
             <p className="text-muted-foreground">{summaryMessage}</p>
           </div>
 
           {/* Statistics */}
-          <div className="grid grid-cols-3 gap-component-md w-full max-w-md" role="region" aria-label="Diagnostic statistics">
+          <div
+            className="gap-component-md grid w-full max-w-md grid-cols-3"
+            role="region"
+            aria-label="Diagnostic statistics"
+          >
             <div className="text-center">
-              <div className="text-2xl font-bold text-success" aria-label={`${summary.passedSteps} tests passed`}>
+              <div
+                className="text-success text-2xl font-bold"
+                aria-label={`${summary.passedSteps} tests passed`}
+              >
                 {summary.passedSteps}
               </div>
-              <div className="text-xs text-muted-foreground">Passed</div>
+              <div className="text-muted-foreground text-xs">Passed</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-error" aria-label={`${summary.failedSteps} tests failed`}>
+              <div
+                className="text-error text-2xl font-bold"
+                aria-label={`${summary.failedSteps} tests failed`}
+              >
                 {summary.failedSteps}
               </div>
-              <div className="text-xs text-muted-foreground">Failed</div>
+              <div className="text-muted-foreground text-xs">Failed</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-muted-foreground" aria-label={`Duration: ${durationText}`}>
+              <div
+                className="text-muted-foreground text-2xl font-bold"
+                aria-label={`Duration: ${durationText}`}
+              >
                 {durationText}
               </div>
-              <div className="text-xs text-muted-foreground">Duration</div>
+              <div className="text-muted-foreground text-xs">Duration</div>
             </div>
           </div>
         </div>
@@ -133,36 +172,49 @@ export const WizardSummary = memo(function WizardSummary({
 
       {/* Detailed Results */}
       <Card className="p-component-md">
-        <h3 className="font-semibold text-foreground mb-component-md">Detailed Results</h3>
-        <div className="space-y-component-xs" role="list" aria-label="Diagnostic step results">
+        <h3 className="text-foreground mb-component-md font-semibold">Detailed Results</h3>
+        <div
+          className="space-y-component-xs"
+          role="list"
+          aria-label="Diagnostic step results"
+        >
           {steps.map((step) => (
             <div
               key={step.id}
               role="listitem"
               aria-label={`${step.name}: ${step.status}`}
               className={cn(
-                'flex items-center gap-component-sm p-component-sm rounded-card-sm',
+                'gap-component-sm p-component-sm rounded-card-sm flex items-center',
                 step.status === 'passed' && 'bg-success/10',
                 step.status === 'failed' && 'bg-error/10',
                 step.status === 'skipped' && 'bg-muted/50'
               )}
             >
               {step.status === 'passed' && (
-                <CheckCircle2 className="h-5 w-5 text-success flex-shrink-0" aria-hidden="true" />
+                <CheckCircle2
+                  className="text-success h-5 w-5 flex-shrink-0"
+                  aria-hidden="true"
+                />
               )}
               {step.status === 'failed' && (
-                <XCircle className="h-5 w-5 text-error flex-shrink-0" aria-hidden="true" />
+                <XCircle
+                  className="text-error h-5 w-5 flex-shrink-0"
+                  aria-hidden="true"
+                />
               )}
               {step.status === 'skipped' && (
-                <AlertTriangle className="h-5 w-5 text-muted-foreground flex-shrink-0" aria-hidden="true" />
+                <AlertTriangle
+                  className="text-muted-foreground h-5 w-5 flex-shrink-0"
+                  aria-hidden="true"
+                />
               )}
 
-              <div className="flex-1 min-w-0">
-                <div className="font-medium text-sm text-foreground">{step.name}</div>
+              <div className="min-w-0 flex-1">
+                <div className="text-foreground text-sm font-medium">{step.name}</div>
                 {step.result?.message && (
                   <div
                     className={cn(
-                      'text-xs mt-component-xs font-mono',
+                      'mt-component-xs font-mono text-xs',
                       step.status === 'passed' && 'text-success',
                       step.status === 'failed' && 'text-error',
                       step.status === 'skipped' && 'text-muted-foreground'
@@ -174,7 +226,10 @@ export const WizardSummary = memo(function WizardSummary({
               </div>
 
               {step.result?.executionTimeMs && (
-                <span className="font-mono text-xs text-muted-foreground whitespace-nowrap" aria-label={`Execution time: ${(step.result.executionTimeMs / 1000).toFixed(1)} seconds`}>
+                <span
+                  className="text-muted-foreground whitespace-nowrap font-mono text-xs"
+                  aria-label={`Execution time: ${(step.result.executionTimeMs / 1000).toFixed(1)} seconds`}
+                >
                   {(step.result.executionTimeMs / 1000).toFixed(1)}s
                 </span>
               )}
@@ -186,12 +241,23 @@ export const WizardSummary = memo(function WizardSummary({
       {/* Applied Fixes */}
       {summary.appliedFixes.length > 0 && (
         <Card className="p-component-md">
-          <h3 className="font-semibold text-foreground mb-component-md">Applied Fixes</h3>
-          <ul className="space-y-component-sm" aria-label="List of applied fixes">
+          <h3 className="text-foreground mb-component-md font-semibold">Applied Fixes</h3>
+          <ul
+            className="space-y-component-sm"
+            aria-label="List of applied fixes"
+          >
             {summary.appliedFixes.map((fixCode) => (
-              <li key={fixCode} className="flex items-center gap-component-sm text-sm">
-                <CheckCircle2 className="h-4 w-4 text-success flex-shrink-0" aria-hidden="true" />
-                <span className="text-muted-foreground font-mono">{fixCode.replace(/_/g, ' ')}</span>
+              <li
+                key={fixCode}
+                className="gap-component-sm flex items-center text-sm"
+              >
+                <CheckCircle2
+                  className="text-success h-4 w-4 flex-shrink-0"
+                  aria-hidden="true"
+                />
+                <span className="text-muted-foreground font-mono">
+                  {fixCode.replace(/_/g, ' ')}
+                </span>
               </li>
             ))}
           </ul>
@@ -199,22 +265,28 @@ export const WizardSummary = memo(function WizardSummary({
       )}
 
       {/* Action Buttons */}
-      <div className="flex gap-component-sm">
+      <div className="gap-component-sm flex">
         <Button
           variant="outline"
           onClick={handleRestart}
-          className="flex-1 min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          className="focus-visible:ring-ring min-h-[44px] flex-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
           aria-label="Run diagnostics again"
         >
-          <RefreshCw className="mr-component-sm h-4 w-4" aria-hidden="true" />
+          <RefreshCw
+            className="mr-component-sm h-4 w-4"
+            aria-hidden="true"
+          />
           Run Again
         </Button>
         <Button
           onClick={handleClose}
-          className="flex-1 min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          className="focus-visible:ring-ring min-h-[44px] flex-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
           aria-label="Close troubleshooting wizard"
         >
-          <X className="mr-component-sm h-4 w-4" aria-hidden="true" />
+          <X
+            className="mr-component-sm h-4 w-4"
+            aria-hidden="true"
+          />
           Close
         </Button>
       </div>

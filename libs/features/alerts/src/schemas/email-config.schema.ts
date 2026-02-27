@@ -47,13 +47,9 @@ export const emailConfigSchema = z.object({
     .default(587),
 
   // Authentication
-  username: z
-    .string()
-    .min(1, 'Enter your SMTP username (usually your email address)'),
+  username: z.string().min(1, 'Enter your SMTP username (usually your email address)'),
 
-  password: z
-    .string()
-    .min(1, 'Enter your SMTP password or app password'),
+  password: z.string().min(1, 'Enter your SMTP password or app password'),
 
   // Email Addresses
   fromAddress: z
@@ -61,9 +57,7 @@ export const emailConfigSchema = z.object({
     .min(1, 'Specify the sender email address (e.g., "alerts@example.com")')
     .email('From address must be a valid email (e.g., alerts@example.com)'),
 
-  fromName: z
-    .string()
-    .optional(),
+  fromName: z.string().optional(),
 
   toAddresses: z
     .array(z.string().email('Each recipient must be a valid email address'))
@@ -71,13 +65,9 @@ export const emailConfigSchema = z.object({
     .max(10, 'Maximum 10 recipient email addresses allowed'),
 
   // TLS Settings (Advanced)
-  useTLS: z
-    .boolean()
-    .default(true),
+  useTLS: z.boolean().default(true),
 
-  skipVerify: z
-    .boolean()
-    .default(false),
+  skipVerify: z.boolean().default(false),
 });
 
 /**

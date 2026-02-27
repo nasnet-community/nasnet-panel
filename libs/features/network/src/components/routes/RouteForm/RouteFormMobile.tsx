@@ -57,13 +57,16 @@ function RouteFormMobileComponent({
   const interfaceValue = watch('interface');
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-component-md pb-component-md">
+    <form
+      onSubmit={handleSubmit}
+      className="space-y-component-md pb-component-md"
+    >
       {/* Header */}
       <div>
-        <h2 className="text-xl font-semibold font-display">
+        <h2 className="font-display text-xl font-semibold">
           {mode === 'create' ? 'Add Static Route' : 'Edit Static Route'}
         </h2>
-        <p className="text-sm text-muted-foreground mt-1">
+        <p className="text-muted-foreground mt-1 text-sm">
           Configure a static route to direct traffic to a specific network.
         </p>
       </div>
@@ -76,17 +79,17 @@ function RouteFormMobileComponent({
         <Input
           id="destination-mobile"
           placeholder="192.168.1.0/24 or 0.0.0.0/0"
-          className="min-h-[44px] font-mono text-foreground"
+          className="text-foreground min-h-[44px] font-mono"
           {...register('destination')}
           aria-invalid={errors.destination ? 'true' : 'false'}
         />
         {errors.destination && (
-          <p className="text-sm text-error flex items-center gap-component-sm">
+          <p className="text-error gap-component-sm flex items-center text-sm">
             <AlertCircle className="h-4 w-4" />
             {errors.destination.message}
           </p>
         )}
-        <p className="text-sm text-muted-foreground">
+        <p className="text-muted-foreground text-sm">
           CIDR notation. Use 0.0.0.0/0 for default route.
         </p>
       </div>
@@ -100,12 +103,12 @@ function RouteFormMobileComponent({
         <Input
           id="gateway-mobile"
           placeholder="192.168.1.1"
-          className="min-h-[44px] font-mono text-foreground"
+          className="text-foreground min-h-[44px] font-mono"
           {...register('gateway')}
           aria-invalid={errors.gateway ? 'true' : 'false'}
         />
         {errors.gateway && (
-          <p className="text-sm text-error flex items-center gap-component-sm">
+          <p className="text-error gap-component-sm flex items-center text-sm">
             <AlertCircle className="h-4 w-4" />
             {errors.gateway.message}
           </p>
@@ -115,14 +118,17 @@ function RouteFormMobileComponent({
         {gatewayValue && !errors.gateway && (
           <div className="space-y-component-sm">
             {reachabilityInfo.checking && (
-              <div className="flex items-center gap-component-sm text-sm text-muted-foreground">
+              <div className="gap-component-sm text-muted-foreground flex items-center text-sm">
                 <Loader2 className="h-4 w-4 animate-spin" />
                 <span>Checking reachability...</span>
               </div>
             )}
 
             {!reachabilityInfo.checking && reachabilityInfo.reachable === true && (
-              <Badge variant="default" className="bg-success text-success-foreground">
+              <Badge
+                variant="default"
+                className="bg-success text-success-foreground"
+              >
                 <CheckCircle2 className="mr-1 h-3 w-3" />
                 Gateway reachable
                 {reachabilityInfo.latency && ` (${reachabilityInfo.latency}ms)`}
@@ -131,13 +137,22 @@ function RouteFormMobileComponent({
 
             {!reachabilityInfo.checking && reachabilityInfo.reachable === false && (
               <div>
-                <Badge variant="outline" className="border-warning text-warning">
+                <Badge
+                  variant="outline"
+                  className="border-warning text-warning"
+                >
                   <AlertTriangle className="mr-1 h-3 w-3" />
                   Gateway may not be reachable
                 </Badge>
-                <div role="alert" className="mt-2 rounded-lg border border-warning/50 bg-warning/10 p-component-sm text-sm text-foreground">
-                  <div className="flex gap-component-sm">
-                    <AlertTriangle className="h-4 w-4 text-warning shrink-0 mt-0.5" aria-hidden="true" />
+                <div
+                  role="alert"
+                  className="border-warning/50 bg-warning/10 p-component-sm text-foreground mt-2 rounded-lg border text-sm"
+                >
+                  <div className="gap-component-sm flex">
+                    <AlertTriangle
+                      className="text-warning mt-0.5 h-4 w-4 shrink-0"
+                      aria-hidden="true"
+                    />
                     <div className="space-y-component-sm">
                       <p className="font-medium">Warning</p>
                       <p className="text-muted-foreground">{reachabilityInfo.message}</p>
@@ -149,7 +164,7 @@ function RouteFormMobileComponent({
           </div>
         )}
 
-        <p className="text-sm text-muted-foreground">
+        <p className="text-muted-foreground text-sm">
           IPv4 address of the next hop. Required if interface is not specified.
         </p>
       </div>
@@ -168,13 +183,20 @@ function RouteFormMobileComponent({
             })
           }
         >
-          <SelectTrigger id="interface-mobile" className="min-h-[44px]">
+          <SelectTrigger
+            id="interface-mobile"
+            className="min-h-[44px]"
+          >
             <SelectValue placeholder="Select interface (optional)" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="none">None</SelectItem>
             {interfaces.map((iface) => (
-              <SelectItem key={iface.id} value={iface.name} disabled={iface.disabled}>
+              <SelectItem
+                key={iface.id}
+                value={iface.name}
+                disabled={iface.disabled}
+              >
                 {iface.name}
                 {iface.type && ` (${iface.type})`}
               </SelectItem>
@@ -182,12 +204,12 @@ function RouteFormMobileComponent({
           </SelectContent>
         </Select>
         {errors.interface && (
-          <p className="text-sm text-error flex items-center gap-component-sm">
+          <p className="text-error gap-component-sm flex items-center text-sm">
             <AlertCircle className="h-4 w-4" />
             {errors.interface.message}
           </p>
         )}
-        <p className="text-sm text-muted-foreground">
+        <p className="text-muted-foreground text-sm">
           Outgoing interface. Required if gateway is not specified.
         </p>
       </div>
@@ -205,12 +227,12 @@ function RouteFormMobileComponent({
           aria-invalid={errors.distance ? 'true' : 'false'}
         />
         {errors.distance && (
-          <p className="text-sm text-error flex items-center gap-component-sm">
+          <p className="text-error gap-component-sm flex items-center text-sm">
             <AlertCircle className="h-4 w-4" />
             {errors.distance.message}
           </p>
         )}
-        <p className="text-sm text-muted-foreground">
+        <p className="text-muted-foreground text-sm">
           Lower values have higher priority. Default: 1
         </p>
       </div>
@@ -224,7 +246,7 @@ function RouteFormMobileComponent({
           className="min-h-[44px]"
           {...register('routingMark')}
         />
-        <p className="text-sm text-muted-foreground">
+        <p className="text-muted-foreground text-sm">
           For policy-based routing. Leave empty if not needed.
         </p>
       </div>
@@ -236,20 +258,24 @@ function RouteFormMobileComponent({
           value={watch('routingTable')}
           onValueChange={(value) => setValue('routingTable', value)}
         >
-          <SelectTrigger id="routingTable-mobile" className="min-h-[44px]">
+          <SelectTrigger
+            id="routingTable-mobile"
+            className="min-h-[44px]"
+          >
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
             {tableOptions.map((table) => (
-              <SelectItem key={table} value={table}>
+              <SelectItem
+                key={table}
+                value={table}
+              >
                 {table}
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
-        <p className="text-sm text-muted-foreground">
-          Routing table for this route. Default: main
-        </p>
+        <p className="text-muted-foreground text-sm">Routing table for this route. Default: main</p>
       </div>
 
       {/* Comment */}
@@ -264,21 +290,19 @@ function RouteFormMobileComponent({
           className="min-h-[80px]"
         />
         {errors.comment && (
-          <p className="text-sm text-error flex items-center gap-component-sm">
+          <p className="text-error gap-component-sm flex items-center text-sm">
             <AlertCircle className="h-4 w-4" />
             {errors.comment.message}
           </p>
         )}
-        <p className="text-sm text-muted-foreground">
-          Optional description (max 255 characters)
-        </p>
+        <p className="text-muted-foreground text-sm">Optional description (max 255 characters)</p>
       </div>
 
       {/* Action Buttons - Full width with 44px height */}
       <div className="space-y-component-sm pt-component-sm">
         <Button
           type="submit"
-          className="w-full min-h-[44px]"
+          className="min-h-[44px] w-full"
           disabled={loading}
         >
           {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
@@ -287,7 +311,7 @@ function RouteFormMobileComponent({
         <Button
           type="button"
           variant="outline"
-          className="w-full min-h-[44px]"
+          className="min-h-[44px] w-full"
           onClick={handleCancel}
           disabled={loading}
         >

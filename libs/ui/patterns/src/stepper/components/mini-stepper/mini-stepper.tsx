@@ -118,21 +118,13 @@ function MiniStepperComponent({
   const [isNavigating, setIsNavigating] = useState(false);
 
   // Extract stepper state
-  const {
-    steps,
-    currentIndex,
-    currentStep,
-    prev,
-    next,
-    isFirst,
-    isLast,
-    progress,
-    isValidating,
-  } = stepper;
+  const { steps, currentIndex, currentStep, prev, next, isFirst, isLast, progress, isValidating } =
+    stepper;
 
   // Animation variants based on reduced motion preference
-  const variants = prefersReducedMotion
-    ? {
+  const variants =
+    prefersReducedMotion ?
+      {
         initial: { opacity: 0 },
         animate: { opacity: 1 },
         exit: { opacity: 0 },
@@ -145,10 +137,7 @@ function MiniStepperComponent({
 
   // Handle swipe navigation
   const handleDragEnd = useCallback(
-    async (
-      _event: MouseEvent | TouchEvent | PointerEvent,
-      info: PanInfo
-    ) => {
+    async (_event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
       // Prevent navigation if already navigating or validation in progress
       if (isNavigating || isValidating) return;
 
@@ -172,17 +161,7 @@ function MiniStepperComponent({
         }
       }
     },
-    [
-      isNavigating,
-      isValidating,
-      isFirst,
-      isLast,
-      prev,
-      next,
-      onStepChange,
-      steps,
-      currentIndex,
-    ]
+    [isNavigating, isValidating, isFirst, isLast, prev, next, onStepChange, steps, currentIndex]
   );
 
   // Handle Next button click with async validation
@@ -201,16 +180,7 @@ function MiniStepperComponent({
         onStepChange(steps[currentIndex + 1], currentIndex + 1);
       }
     }
-  }, [
-    isNavigating,
-    isValidating,
-    next,
-    onStepChange,
-    isLast,
-    currentStep,
-    currentIndex,
-    steps,
-  ]);
+  }, [isNavigating, isValidating, next, onStepChange, isLast, currentStep, currentIndex, steps]);
 
   // Handle Back button click
   const handleBack = useCallback(() => {
@@ -231,7 +201,7 @@ function MiniStepperComponent({
 
   return (
     <div
-      className={cn('flex flex-col h-full bg-background', className)}
+      className={cn('bg-background flex h-full flex-col', className)}
       aria-label={ariaLabel}
     >
       {/* Accessibility: Live region for step announcements */}
@@ -242,14 +212,12 @@ function MiniStepperComponent({
       />
 
       {/* Compact header - max 64px height */}
-      <header className="p-4 border-b border-border max-h-16">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-sm text-muted-foreground">
+      <header className="border-border max-h-16 border-b p-4">
+        <div className="mb-2 flex items-center justify-between">
+          <span className="text-muted-foreground text-sm">
             {STRINGS.stepIndicator(currentIndex + 1, steps.length)}
           </span>
-          <span className="text-sm font-medium truncate ml-2">
-            {currentStep.title}
-          </span>
+          <span className="ml-2 truncate text-sm font-medium">{currentStep.title}</span>
         </div>
         <Progress
           value={progress}
@@ -260,7 +228,7 @@ function MiniStepperComponent({
 
       {/* Swipeable content area - fills remaining viewport */}
       <div
-        className="flex-1 overflow-hidden relative"
+        className="relative flex-1 overflow-hidden"
         role="region"
         aria-label="Step content"
       >
@@ -269,7 +237,7 @@ function MiniStepperComponent({
             key={currentStep.id}
             ref={contentRef}
             tabIndex={-1}
-            className="h-full p-4 overflow-y-auto outline-none"
+            className="h-full overflow-y-auto p-4 outline-none"
             // Animation props
             initial={variants.initial}
             animate={variants.animate}
@@ -291,36 +259,40 @@ function MiniStepperComponent({
       </div>
 
       {/* Bottom navigation bar with safe area support */}
-      <footer className="p-4 border-t border-border bg-background safe-bottom">
+      <footer className="border-border bg-background safe-bottom border-t p-4">
         <div className="flex gap-2">
           <Button
             variant="outline"
-            className="flex-1 min-h-[44px]"
+            className="min-h-[44px] flex-1"
             onClick={handleBack}
             disabled={isFirst || isLoading}
             aria-label={STRINGS.previousStep}
           >
-            <ChevronLeft className="mr-2 h-4 w-4" aria-hidden="true" />
+            <ChevronLeft
+              className="mr-2 h-4 w-4"
+              aria-hidden="true"
+            />
             {STRINGS.back}
           </Button>
           <Button
-            className="flex-1 min-h-[44px]"
+            className="min-h-[44px] flex-1"
             onClick={handleNext}
             disabled={isLoading}
             aria-label={isLast ? STRINGS.finishWizard : STRINGS.nextStep}
           >
             {isLast ? STRINGS.finish : STRINGS.next}
             {!isLast && (
-              <ChevronRight className="ml-2 h-4 w-4" aria-hidden="true" />
+              <ChevronRight
+                className="ml-2 h-4 w-4"
+                aria-hidden="true"
+              />
             )}
           </Button>
         </div>
 
         {/* Navigation hint */}
         {!disableSwipe && (
-          <p className="text-xs text-center text-muted-foreground mt-2">
-            {STRINGS.swipeHint}
-          </p>
+          <p className="text-muted-foreground mt-2 text-center text-xs">{STRINGS.swipeHint}</p>
         )}
       </footer>
     </div>

@@ -20,7 +20,7 @@ export function HomePage() {
     data: systemInfo,
     isLoading: infoLoading,
     error: infoError,
-    refetch: refetchInfo
+    refetch: refetchInfo,
   } = useRouterInfo(routerIp);
 
   // Fetch resource data (CPU, memory, disk) with 5-second polling
@@ -51,18 +51,18 @@ export function HomePage() {
   const diskStatus = calculateStatus(diskPercentage);
 
   return (
-    <div className="min-h-screen bg-background p-component-lg animate-fade-in-up">
+    <div className="bg-background p-component-lg animate-fade-in-up min-h-screen">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
       >
-        <div className="max-w-4xl mx-auto space-y-6">
-          <div className="brand-gradient-subtle rounded-card-lg p-6 border border-border/50">
-            <h1 className="text-3xl font-bold font-display tracking-tight mb-2">{t('dashboard.title')}</h1>
-            <p className="text-muted-foreground">
-              {t('dashboard.subtitle')}
-            </p>
+        <div className="mx-auto max-w-4xl space-y-6">
+          <div className="brand-gradient-subtle rounded-card-lg border-border/50 border p-6">
+            <h1 className="font-display mb-2 text-3xl font-bold tracking-tight">
+              {t('dashboard.title')}
+            </h1>
+            <p className="text-muted-foreground">{t('dashboard.subtitle')}</p>
           </div>
 
           {/* System Information Card */}
@@ -74,7 +74,7 @@ export function HomePage() {
           />
 
           {/* System Resources Card */}
-          <Card className="shadow-md border-border">
+          <Card className="border-border shadow-md">
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle className="font-display">{t('dashboard.systemResources')}</CardTitle>
@@ -82,7 +82,7 @@ export function HomePage() {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                 {/* CPU Gauge */}
                 <ResourceGauge
                   label="CPU"
@@ -97,9 +97,9 @@ export function HomePage() {
                   value={memoryPercentage}
                   status={memoryStatus}
                   subtitle={
-                    resourceData
-                      ? `${formatBytes(usedMemory)} / ${formatBytes(resourceData.totalMemory)}`
-                      : undefined
+                    resourceData ?
+                      `${formatBytes(usedMemory)} / ${formatBytes(resourceData.totalMemory)}`
+                    : undefined
                   }
                   isLoading={resourceLoading}
                 />
@@ -110,9 +110,9 @@ export function HomePage() {
                   value={diskPercentage}
                   status={diskStatus}
                   subtitle={
-                    resourceData
-                      ? `${formatBytes(usedDisk)} / ${formatBytes(resourceData.totalHddSpace)}`
-                      : undefined
+                    resourceData ?
+                      `${formatBytes(usedDisk)} / ${formatBytes(resourceData.totalHddSpace)}`
+                    : undefined
                   }
                   isLoading={resourceLoading}
                 />
@@ -120,9 +120,7 @@ export function HomePage() {
 
               {/* Error state for resources */}
               {resourceError && (
-                <div className="mt-4 text-sm text-destructive">
-                  {t('dashboard.failedToLoad')}
-                </div>
+                <div className="text-destructive mt-4 text-sm">{t('dashboard.failedToLoad')}</div>
               )}
             </CardContent>
           </Card>

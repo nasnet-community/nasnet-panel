@@ -142,18 +142,24 @@ export const HookUsage: Story = {
       const { timeRemaining, isExpiring, isExpired } = useSessionExpiring(300);
 
       return (
-        <div className="space-y-4 p-4 border rounded-lg bg-card">
+        <div className="bg-card space-y-4 rounded-lg border p-4">
           <div>
             <p className="text-sm font-medium">Time Remaining:</p>
-            <p className="text-lg font-mono font-bold">
-              {timeRemaining !== null ? `${Math.floor(timeRemaining / 60)}:${(timeRemaining % 60).toString().padStart(2, '0')}` : 'N/A'}
+            <p className="font-mono text-lg font-bold">
+              {timeRemaining !== null ?
+                `${Math.floor(timeRemaining / 60)}:${(timeRemaining % 60).toString().padStart(2, '0')}`
+              : 'N/A'}
             </p>
           </div>
 
           <div>
             <p className="text-sm font-medium">Status:</p>
-            <p className="text-sm text-muted-foreground">
-              {isExpired ? 'Expired' : isExpiring ? 'Expiring' : 'Active'}
+            <p className="text-muted-foreground text-sm">
+              {isExpired ?
+                'Expired'
+              : isExpiring ?
+                'Expiring'
+              : 'Active'}
             </p>
           </div>
         </div>

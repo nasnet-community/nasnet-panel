@@ -9,7 +9,6 @@ import { type IPAddress } from '@nasnet/core/types';
 
 import { InterfaceIPConfig } from './InterfaceIPConfig';
 
-
 describe('InterfaceIPConfig', () => {
   const mockIPAddresses: IPAddress[] = [
     {

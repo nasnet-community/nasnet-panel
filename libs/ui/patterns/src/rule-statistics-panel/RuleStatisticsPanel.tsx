@@ -38,11 +38,9 @@ function RuleStatisticsPanelComponent(props: RuleStatisticsPanelProps) {
   const isMobile = useMediaQuery('(max-width: 639px)');
 
   // Render appropriate platform presenter
-  return isMobile ? (
-    <RuleStatisticsPanelMobile {...props} />
-  ) : (
-    <RuleStatisticsPanelDesktop {...props} />
-  );
+  return isMobile ?
+      <RuleStatisticsPanelMobile {...props} />
+    : <RuleStatisticsPanelDesktop {...props} />;
 }
 
 export const RuleStatisticsPanel = React.memo(RuleStatisticsPanelComponent);

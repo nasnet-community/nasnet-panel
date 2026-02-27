@@ -25,11 +25,18 @@ describe('ChangelogModal', () => {
       render(<ChangelogModal {...defaultProps} />);
 
       expect(screen.getByText('Tor Proxy Update')).toBeInTheDocument();
-      expect(screen.getByText('View changelog and release notes for this update')).toBeInTheDocument();
+      expect(
+        screen.getByText('View changelog and release notes for this update')
+      ).toBeInTheDocument();
     });
 
     it('does not render when closed', () => {
-      render(<ChangelogModal {...defaultProps} open={false} />);
+      render(
+        <ChangelogModal
+          {...defaultProps}
+          open={false}
+        />
+      );
 
       expect(screen.queryByText('Tor Proxy Update')).not.toBeInTheDocument();
     });
@@ -38,7 +45,12 @@ describe('ChangelogModal', () => {
       const user = userEvent.setup();
       const onClose = vi.fn();
 
-      render(<ChangelogModal {...defaultProps} onClose={onClose} />);
+      render(
+        <ChangelogModal
+          {...defaultProps}
+          onClose={onClose}
+        />
+      );
 
       // Press Escape key to close
       await user.keyboard('{Escape}');
@@ -49,28 +61,48 @@ describe('ChangelogModal', () => {
 
   describe('Severity Badge', () => {
     it('displays SECURITY severity correctly', () => {
-      render(<ChangelogModal {...defaultProps} severity="SECURITY" />);
+      render(
+        <ChangelogModal
+          {...defaultProps}
+          severity="SECURITY"
+        />
+      );
 
       const badge = screen.getByText('Security Update');
       expect(badge).toBeInTheDocument();
     });
 
     it('displays MAJOR severity correctly', () => {
-      render(<ChangelogModal {...defaultProps} severity="MAJOR" />);
+      render(
+        <ChangelogModal
+          {...defaultProps}
+          severity="MAJOR"
+        />
+      );
 
       const badge = screen.getByText('Major Update');
       expect(badge).toBeInTheDocument();
     });
 
     it('displays MINOR severity correctly', () => {
-      render(<ChangelogModal {...defaultProps} severity="MINOR" />);
+      render(
+        <ChangelogModal
+          {...defaultProps}
+          severity="MINOR"
+        />
+      );
 
       const badge = screen.getByText('Minor Update');
       expect(badge).toBeInTheDocument();
     });
 
     it('displays PATCH severity correctly', () => {
-      render(<ChangelogModal {...defaultProps} severity="PATCH" />);
+      render(
+        <ChangelogModal
+          {...defaultProps}
+          severity="PATCH"
+        />
+      );
 
       const badge = screen.getByText('Patch Update');
       expect(badge).toBeInTheDocument();
@@ -106,7 +138,12 @@ describe('ChangelogModal', () => {
     });
 
     it('handles missing release date', () => {
-      render(<ChangelogModal {...defaultProps} releaseDate={undefined} />);
+      render(
+        <ChangelogModal
+          {...defaultProps}
+          releaseDate={undefined}
+        />
+      );
 
       expect(screen.queryByText(/Released/)).not.toBeInTheDocument();
     });
@@ -125,7 +162,12 @@ describe('ChangelogModal', () => {
 
   describe('Security Fixes Warning', () => {
     it('displays security fixes warning when present', () => {
-      render(<ChangelogModal {...defaultProps} securityFixes={true} />);
+      render(
+        <ChangelogModal
+          {...defaultProps}
+          securityFixes={true}
+        />
+      );
 
       expect(screen.getByText('Security Fixes Included')).toBeInTheDocument();
       expect(
@@ -134,7 +176,12 @@ describe('ChangelogModal', () => {
     });
 
     it('hides security fixes warning when not present', () => {
-      render(<ChangelogModal {...defaultProps} securityFixes={false} />);
+      render(
+        <ChangelogModal
+          {...defaultProps}
+          securityFixes={false}
+        />
+      );
 
       expect(screen.queryByText('Security Fixes Included')).not.toBeInTheDocument();
     });
@@ -142,16 +189,24 @@ describe('ChangelogModal', () => {
 
   describe('Breaking Changes Warning', () => {
     it('displays breaking changes warning when present', () => {
-      render(<ChangelogModal {...defaultProps} breakingChanges={true} />);
+      render(
+        <ChangelogModal
+          {...defaultProps}
+          breakingChanges={true}
+        />
+      );
 
       expect(screen.getByText('Breaking Changes')).toBeInTheDocument();
-      expect(
-        screen.getByText(/This update contains breaking changes/)
-      ).toBeInTheDocument();
+      expect(screen.getByText(/This update contains breaking changes/)).toBeInTheDocument();
     });
 
     it('hides breaking changes warning when not present', () => {
-      render(<ChangelogModal {...defaultProps} breakingChanges={false} />);
+      render(
+        <ChangelogModal
+          {...defaultProps}
+          breakingChanges={false}
+        />
+      );
 
       expect(screen.queryByText('Breaking Changes')).not.toBeInTheDocument();
     });
@@ -226,11 +281,18 @@ describe('ChangelogModal', () => {
       render(<ChangelogModal {...defaultProps} />);
 
       const dialog = screen.getByRole('dialog');
-      expect(dialog).toHaveAccessibleDescription('View changelog and release notes for this update');
+      expect(dialog).toHaveAccessibleDescription(
+        'View changelog and release notes for this update'
+      );
     });
 
     it('renders with proper heading structure', () => {
-      render(<ChangelogModal {...defaultProps} severity="SECURITY" />);
+      render(
+        <ChangelogModal
+          {...defaultProps}
+          severity="SECURITY"
+        />
+      );
 
       // Dialog should have proper heading (via DialogTitle)
       const heading = screen.getByText(/Tor Proxy Update/);
@@ -240,7 +302,12 @@ describe('ChangelogModal', () => {
 
   describe('Severity-Based Rendering', () => {
     it('renders SECURITY severity with appropriate styling', () => {
-      render(<ChangelogModal {...defaultProps} severity="SECURITY" />);
+      render(
+        <ChangelogModal
+          {...defaultProps}
+          severity="SECURITY"
+        />
+      );
 
       const badge = screen.getByText('Security Update');
       expect(badge).toBeInTheDocument();
@@ -248,7 +315,12 @@ describe('ChangelogModal', () => {
     });
 
     it('renders MAJOR severity with appropriate styling', () => {
-      render(<ChangelogModal {...defaultProps} severity="MAJOR" />);
+      render(
+        <ChangelogModal
+          {...defaultProps}
+          severity="MAJOR"
+        />
+      );
 
       const badge = screen.getByText('Major Update');
       expect(badge).toBeInTheDocument();
@@ -256,7 +328,12 @@ describe('ChangelogModal', () => {
     });
 
     it('renders MINOR severity with appropriate styling', () => {
-      render(<ChangelogModal {...defaultProps} severity="MINOR" />);
+      render(
+        <ChangelogModal
+          {...defaultProps}
+          severity="MINOR"
+        />
+      );
 
       const badge = screen.getByText('Minor Update');
       expect(badge).toBeInTheDocument();
@@ -264,7 +341,12 @@ describe('ChangelogModal', () => {
     });
 
     it('renders PATCH severity with appropriate styling', () => {
-      render(<ChangelogModal {...defaultProps} severity="PATCH" />);
+      render(
+        <ChangelogModal
+          {...defaultProps}
+          severity="PATCH"
+        />
+      );
 
       const badge = screen.getByText('Patch Update');
       expect(badge).toBeInTheDocument();

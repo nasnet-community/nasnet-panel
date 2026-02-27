@@ -199,8 +199,8 @@ export const MobilePresenter: Story = {
   globals: {
     viewport: {
       value: 'mobile1',
-      isRotated: false
-    }
+      isRotated: false,
+    },
   },
 };
 
@@ -224,8 +224,14 @@ export const DesktopPresenter: Story = {
  */
 export const MetricsGrid: Story = {
   render: () => (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-      <MetricDisplay label="CPU" value={45} unit="%" icon={Cpu} variant="default" />
+    <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+      <MetricDisplay
+        label="CPU"
+        value={45}
+        unit="%"
+        icon={Cpu}
+        variant="default"
+      />
       <MetricDisplay
         label="Memory"
         value={2.4}

@@ -69,8 +69,9 @@ export function useBridgeDetail(uuid: string) {
   });
 
   // Merge subscription data with query data
-  const bridge = data?.bridge
-    ? {
+  const bridge =
+    data?.bridge ?
+      {
         ...data.bridge,
         stpStatus: stpData?.bridgeStpStatusChanged || data.bridge.stpStatus,
         ports: portsData?.bridgePortsChanged || data.bridge.ports,

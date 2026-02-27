@@ -8,7 +8,20 @@
  */
 
 import * as React from 'react';
-import { Activity, Shield, Wifi, Network, Terminal, Globe, AlertTriangle, Zap, Settings, Clock, Sparkles, WifiOff } from 'lucide-react';
+import {
+  Activity,
+  Shield,
+  Wifi,
+  Network,
+  Terminal,
+  Globe,
+  AlertTriangle,
+  Zap,
+  Settings,
+  Clock,
+  Sparkles,
+  WifiOff,
+} from 'lucide-react';
 
 import { cn } from '@nasnet/ui/primitives';
 import { Icon } from '@nasnet/ui/patterns';
@@ -46,7 +59,7 @@ interface MockCommand {
 
 function Kbd({ children }: { children: React.ReactNode }) {
   return (
-    <kbd className="inline-flex h-5 min-w-5 items-center justify-center rounded bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground">
+    <kbd className="bg-muted text-muted-foreground inline-flex h-5 min-w-5 items-center justify-center rounded px-1.5 font-mono text-[10px] font-medium">
       {children}
     </kbd>
   );
@@ -74,16 +87,15 @@ function MockCommandItem({
   const Icon = command.icon;
   const isDisabled = !!command.requiresNetwork && !isOnline;
 
-  const shortcutKeys: string[] = command.shortcut
-    ? command.shortcut
-        .split('+')
-        .map((k) => {
-          const lk = k.toLowerCase();
-          if (lk === 'cmd' || lk === 'meta') return '⌘';
-          if (lk === 'shift') return '⇧';
-          if (lk === 'ctrl') return 'Ctrl';
-          return k.toUpperCase();
-        })
+  const shortcutKeys: string[] =
+    command.shortcut ?
+      command.shortcut.split('+').map((k) => {
+        const lk = k.toLowerCase();
+        if (lk === 'cmd' || lk === 'meta') return '⌘';
+        if (lk === 'shift') return '⇧';
+        if (lk === 'ctrl') return 'Ctrl';
+        return k.toUpperCase();
+      })
     : [];
 
   return (
@@ -93,7 +105,9 @@ function MockCommandItem({
       tabIndex={0}
       className={cn(
         'flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 transition-colors',
-        selected ? 'bg-accent text-accent-foreground' : 'hover:bg-accent hover:text-accent-foreground',
+        selected ?
+          'bg-accent text-accent-foreground'
+        : 'hover:bg-accent hover:text-accent-foreground',
         isDisabled && 'cursor-not-allowed opacity-50'
       )}
       onClick={() => !isDisabled && onSelect()}
@@ -103,20 +117,29 @@ function MockCommandItem({
         }
       }}
     >
-      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-muted">
-        <Icon className="h-4 w-4" aria-hidden="true" />
+      <div className="bg-muted flex h-8 w-8 shrink-0 items-center justify-center rounded-md">
+        <Icon
+          className="h-4 w-4"
+          aria-hidden="true"
+        />
       </div>
 
       <div className="flex min-w-0 flex-1 flex-col">
         <span className="truncate text-sm font-medium">{command.label}</span>
         {command.description && (
-          <span className="truncate text-xs text-muted-foreground">{command.description}</span>
+          <span className="text-muted-foreground truncate text-xs">{command.description}</span>
         )}
       </div>
 
       {command.requiresNetwork && !isOnline && (
-        <div className="flex items-center gap-1 rounded bg-destructive/10 px-1.5 py-0.5 text-xs text-destructive" title="This command requires network connectivity">
-          <WifiOff className="h-3 w-3" aria-hidden="true" />
+        <div
+          className="bg-destructive/10 text-destructive flex items-center gap-1 rounded px-1.5 py-0.5 text-xs"
+          title="This command requires network connectivity"
+        >
+          <WifiOff
+            className="h-3 w-3"
+            aria-hidden="true"
+          />
           <span>Offline</span>
         </div>
       )}
@@ -192,16 +215,20 @@ function MockCommandPalette({
   const content = (
     <div
       className={cn(
-        'flex flex-col overflow-hidden border border-border bg-popover text-popover-foreground shadow-2xl',
-        mobile ? 'rounded-t-xl w-full' : 'rounded-xl w-full max-w-lg'
+        'border-border bg-popover text-popover-foreground flex flex-col overflow-hidden border shadow-2xl',
+        mobile ? 'w-full rounded-t-xl' : 'w-full max-w-lg rounded-xl'
       )}
     >
       {/* Search Input */}
-      <div className="flex items-center border-b border-border px-4">
-        <Terminal className="mr-2 h-4 w-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+      <div className="border-border flex items-center border-b px-4">
+        <Terminal
+          className="text-muted-foreground mr-2 h-4 w-4 shrink-0"
+          aria-hidden="true"
+        />
         {/* Autofocus is acceptable here for Storybook demo; in production use useEffect */}
         {/* eslint-disable-next-line jsx-a11y/no-autofocus */}
-        <input autoFocus
+        <input
+          autoFocus
           value={query}
           onChange={(e) => {
             setQuery(e.target.value);
@@ -209,29 +236,33 @@ function MockCommandPalette({
           }}
           onKeyDown={handleKeyDown}
           placeholder="Search commands..."
-          className="flex h-12 w-full bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground"
+          className="placeholder:text-muted-foreground flex h-12 w-full bg-transparent py-3 text-sm outline-none"
           aria-label="Search commands"
         />
       </div>
 
       {/* Results */}
       <div className="max-h-[300px] overflow-y-auto p-2">
-        {!hasResults ? (
-          <p className="py-6 text-center text-sm text-muted-foreground">No commands found.</p>
-        ) : (
-          <>
-            <div className="mb-2 flex items-center gap-2 px-2 text-xs font-medium text-muted-foreground">
-              {isShowingRecent ? (
+        {!hasResults ?
+          <p className="text-muted-foreground py-6 text-center text-sm">No commands found.</p>
+        : <>
+            <div className="text-muted-foreground mb-2 flex items-center gap-2 px-2 text-xs font-medium">
+              {isShowingRecent ?
                 <>
-                  <Clock className="h-3 w-3" aria-hidden="true" />
+                  <Clock
+                    className="h-3 w-3"
+                    aria-hidden="true"
+                  />
                   <span>Recent</span>
                 </>
-              ) : (
-                <>
-                  <Sparkles className="h-3 w-3" aria-hidden="true" />
+              : <>
+                  <Sparkles
+                    className="h-3 w-3"
+                    aria-hidden="true"
+                  />
                   <span>Results</span>
                 </>
-              )}
+              }
             </div>
 
             {filtered.map((cmd, index) => (
@@ -245,11 +276,11 @@ function MockCommandPalette({
               />
             ))}
           </>
-        )}
+        }
       </div>
 
       {/* Footer */}
-      <div className="flex items-center justify-between border-t border-border px-4 py-2 text-xs text-muted-foreground">
+      <div className="border-border text-muted-foreground flex items-center justify-between border-t px-4 py-2 text-xs">
         <div className="flex items-center gap-4">
           <span className="flex items-center gap-1">
             <Kbd>↑↓</Kbd> Navigate
@@ -270,7 +301,7 @@ function MockCommandPalette({
 
       {/* Feedback */}
       {lastExecuted && (
-        <div className="border-t border-border px-4 py-2 text-xs text-success">
+        <div className="border-border text-success border-t px-4 py-2 text-xs">
           Executed: {lastExecuted}
         </div>
       )}
@@ -279,17 +310,13 @@ function MockCommandPalette({
 
   if (mobile) {
     return (
-      <div className="relative w-80 h-[520px] bg-black/40 rounded-xl overflow-hidden flex items-end">
+      <div className="relative flex h-[520px] w-80 items-end overflow-hidden rounded-xl bg-black/40">
         {content}
       </div>
     );
   }
 
-  return (
-    <div className="relative w-full max-w-lg">
-      {content}
-    </div>
-  );
+  return <div className="relative w-full max-w-lg">{content}</div>;
 }
 
 // ---------------------------------------------------------------------------

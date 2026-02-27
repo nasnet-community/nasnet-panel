@@ -11,10 +11,7 @@ export type { TemplateGalleryProps } from './TemplateGallery';
 
 // Headless hook
 export { useTemplateGallery } from './use-template-gallery';
-export type {
-  UseTemplateGalleryOptions,
-  UseTemplateGalleryReturn,
-} from './use-template-gallery';
+export type { UseTemplateGalleryOptions, UseTemplateGalleryReturn } from './use-template-gallery';
 
 // Sub-components (for advanced use cases)
 export { TemplateCard } from './TemplateCard';

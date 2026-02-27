@@ -121,7 +121,10 @@ const meta: Meta<typeof PortKnockSequenceManager> = {
   tags: ['autodocs'],
   decorators: [
     (Story) => (
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider
+        mocks={mocks}
+        addTypename={false}
+      >
         <StoryWrapper>
           <Story />
         </StoryWrapper>
@@ -157,7 +160,10 @@ export const Empty: Story = {
   args: {},
   decorators: [
     (Story) => (
-      <MockedProvider mocks={emptyMocks} addTypename={false}>
+      <MockedProvider
+        mocks={emptyMocks}
+        addTypename={false}
+      >
         <StoryWrapper>
           <Story />
         </StoryWrapper>
@@ -173,7 +179,10 @@ export const Loading: Story = {
   args: {},
   decorators: [
     (Story) => (
-      <MockedProvider mocks={[]} addTypename={false}>
+      <MockedProvider
+        mocks={[]}
+        addTypename={false}
+      >
         <StoryWrapper>
           <Story />
         </StoryWrapper>

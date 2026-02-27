@@ -66,7 +66,8 @@ npm run build:all
 npx nx build backend
 ```
 
-> The Go binary embeds the frontend dist via `go:embed`. You must build the frontend first before building the backend for production.
+> The Go binary embeds the frontend dist via `go:embed`. You must build the frontend first before
+> building the backend for production.
 
 ### Nx-Specific Builds
 
@@ -225,7 +226,9 @@ npm run codegen:wire
 npm run codegen:check
 ```
 
-> **Important:** Always run `npm run codegen` after editing any `.graphql` file. The TypeScript generated types in `libs/api-client/generated/` and the Go resolver stubs in `apps/backend/graph/` must stay in sync with the schema.
+> **Important:** Always run `npm run codegen` after editing any `.graphql` file. The TypeScript
+> generated types in `libs/api-client/generated/` and the Go resolver stubs in `apps/backend/graph/`
+> must stay in sync with the schema.
 
 ---
 
@@ -292,6 +295,7 @@ npm run i18n:sync
 ```
 
 Extracted strings come from:
+
 - `apps/connect/src/**/*.{ts,tsx}`
 - `libs/ui/patterns/src/**/*.{ts,tsx}`
 
@@ -344,19 +348,19 @@ npm run docs:build
 
 ## Quick Reference Table
 
-| Task | Command |
-|------|---------|
-| Start frontend dev | `npm run dev:frontend` |
-| Start everything | `npm run dev:all` |
-| Build frontend | `npm run build:frontend` |
-| Run all tests | `npm run test` |
-| Check before commit | `npm run check` |
-| Full CI check | `npm run ci` |
-| Regenerate GraphQL types | `npm run codegen` |
-| Check bundle size | `npm run build:check` |
-| Build Docker image | `npm run docker:local` |
-| Run E2E tests | `npm run e2e` |
-| View component library | `npx nx run ui-patterns:storybook` |
+| Task                     | Command                            |
+| ------------------------ | ---------------------------------- |
+| Start frontend dev       | `npm run dev:frontend`             |
+| Start everything         | `npm run dev:all`                  |
+| Build frontend           | `npm run build:frontend`           |
+| Run all tests            | `npm run test`                     |
+| Check before commit      | `npm run check`                    |
+| Full CI check            | `npm run ci`                       |
+| Regenerate GraphQL types | `npm run codegen`                  |
+| Check bundle size        | `npm run build:check`              |
+| Build Docker image       | `npm run docker:local`             |
+| Run E2E tests            | `npm run e2e`                      |
+| View component library   | `npx nx run ui-patterns:storybook` |
 
 ---
 

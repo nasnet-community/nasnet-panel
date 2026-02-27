@@ -148,15 +148,8 @@ export interface ReconnectionManager {
  * @param config - Reconnection configuration
  * @returns Reconnection manager instance
  */
-export function createReconnectionManager(
-  config: ReconnectionManagerConfig
-): ReconnectionManager {
-  const {
-    maxAttempts = MAX_ATTEMPTS,
-    connect,
-    onStatusChange,
-    showNotifications = true,
-  } = config;
+export function createReconnectionManager(config: ReconnectionManagerConfig): ReconnectionManager {
+  const { maxAttempts = MAX_ATTEMPTS, connect, onStatusChange, showNotifications = true } = config;
 
   let attempts = 0;
   let timeoutId: ReturnType<typeof setTimeout> | null = null;
@@ -185,11 +178,7 @@ export function createReconnectionManager(
       updateStatus('error');
       useConnectionStore.getState().setWsStatus('error', 'Maximum reconnection attempts exceeded');
 
-      showToast(
-        'error',
-        'Connection failed',
-        'Unable to reconnect. Click "Retry" to try again.'
-      );
+      showToast('error', 'Connection failed', 'Unable to reconnect. Click "Retry" to try again.');
       return;
     }
 
@@ -276,14 +265,17 @@ export function createLatencyUpdater(intervalMs = 100) {
     // Otherwise, schedule an update
     if (timeoutId) return;
 
-    timeoutId = setTimeout(() => {
-      if (pendingLatency !== null) {
-        lastUpdate = Date.now();
-        useConnectionStore.getState().updateLatency(routerId, pendingLatency);
-        pendingLatency = null;
-      }
-      timeoutId = null;
-    }, intervalMs - (now - lastUpdate));
+    timeoutId = setTimeout(
+      () => {
+        if (pendingLatency !== null) {
+          lastUpdate = Date.now();
+          useConnectionStore.getState().updateLatency(routerId, pendingLatency);
+          pendingLatency = null;
+        }
+        timeoutId = null;
+      },
+      intervalMs - (now - lastUpdate)
+    );
   };
 }
 

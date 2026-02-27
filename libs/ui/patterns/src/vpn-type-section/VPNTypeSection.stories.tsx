@@ -34,13 +34,13 @@ export const Collapsed: Story = {
     showReadOnlyNotice: true,
     children: (
       <div className="space-y-3">
-        <div className="p-4 bg-muted/50 rounded border border-border">
+        <div className="bg-muted/50 border-border rounded border p-4">
           <p className="text-sm font-medium">L2TP Interface 1</p>
-          <p className="text-xs text-muted-foreground">192.168.1.1:1701</p>
+          <p className="text-muted-foreground text-xs">192.168.1.1:1701</p>
         </div>
-        <div className="p-4 bg-muted/50 rounded border border-border">
+        <div className="bg-muted/50 border-border rounded border p-4">
           <p className="text-sm font-medium">L2TP Interface 2</p>
-          <p className="text-xs text-muted-foreground">192.168.1.2:1701</p>
+          <p className="text-muted-foreground text-xs">192.168.1.2:1701</p>
         </div>
       </div>
     ),
@@ -48,7 +48,8 @@ export const Collapsed: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Section collapsed by default. Click header to expand and view contained interfaces.',
+        story:
+          'Section collapsed by default. Click header to expand and view contained interfaces.',
       },
     },
   },
@@ -61,9 +62,9 @@ export const Expanded: Story = {
     defaultExpanded: true,
     showReadOnlyNotice: true,
     children: (
-      <div className="p-4 bg-muted/50 rounded border border-border">
+      <div className="bg-muted/50 border-border rounded border p-4">
         <p className="text-sm font-medium">PPTP Interface</p>
-        <p className="text-xs text-muted-foreground">10.0.0.1:1723</p>
+        <p className="text-muted-foreground text-xs">10.0.0.1:1723</p>
       </div>
     ),
   },
@@ -83,9 +84,9 @@ export const SingleInterface: Story = {
     defaultExpanded: false,
     showReadOnlyNotice: true,
     children: (
-      <div className="p-4 bg-muted/50 rounded border border-border">
+      <div className="bg-muted/50 border-border rounded border p-4">
         <p className="text-sm font-medium">SSTP Tunnel</p>
-        <p className="text-xs text-muted-foreground">Status: Connected</p>
+        <p className="text-muted-foreground text-xs">Status: Connected</p>
       </div>
     ),
   },
@@ -107,9 +108,12 @@ export const MultipleInterfaces: Story = {
     children: (
       <div className="space-y-3">
         {[1, 2, 3, 4, 5].map((i) => (
-          <div key={i} className="p-4 bg-muted/50 rounded border border-border">
+          <div
+            key={i}
+            className="bg-muted/50 border-border rounded border p-4"
+          >
             <p className="text-sm font-medium">IKEv2 Interface {i}</p>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-muted-foreground text-xs">
               Connected clients: {Math.floor(Math.random() * 10)}
             </p>
           </div>
@@ -134,17 +138,17 @@ export const NoReadOnlyNotice: Story = {
     showReadOnlyNotice: false,
     children: (
       <div className="space-y-3">
-        <div className="p-4 bg-muted/50 rounded border border-border">
+        <div className="bg-muted/50 border-border rounded border p-4">
           <p className="text-sm font-medium">WireGuard Server 1</p>
-          <p className="text-xs text-muted-foreground">51820 - Active</p>
+          <p className="text-muted-foreground text-xs">51820 - Active</p>
         </div>
-        <div className="p-4 bg-muted/50 rounded border border-border">
+        <div className="bg-muted/50 border-border rounded border p-4">
           <p className="text-sm font-medium">WireGuard Server 2</p>
-          <p className="text-xs text-muted-foreground">51821 - Active</p>
+          <p className="text-muted-foreground text-xs">51821 - Active</p>
         </div>
-        <div className="p-4 bg-muted/50 rounded border border-border">
+        <div className="bg-muted/50 border-border rounded border p-4">
           <p className="text-sm font-medium">WireGuard Server 3</p>
-          <p className="text-xs text-muted-foreground">51822 - Inactive</p>
+          <p className="text-muted-foreground text-xs">51822 - Inactive</p>
         </div>
       </div>
     ),
@@ -167,13 +171,13 @@ export const WithBadgeIcon: Story = {
     icon: <span className="text-lg">🔐</span>,
     children: (
       <div className="space-y-3">
-        <div className="p-4 bg-muted/50 rounded border border-border">
+        <div className="bg-muted/50 border-border rounded border p-4">
           <p className="text-sm font-medium">OpenVPN CA Server</p>
-          <p className="text-xs text-muted-foreground">1194/tcp - 12 clients</p>
+          <p className="text-muted-foreground text-xs">1194/tcp - 12 clients</p>
         </div>
-        <div className="p-4 bg-muted/50 rounded border border-border">
+        <div className="bg-muted/50 border-border rounded border p-4">
           <p className="text-sm font-medium">OpenVPN UDP Server</p>
-          <p className="text-xs text-muted-foreground">1194/udp - 8 clients</p>
+          <p className="text-muted-foreground text-xs">1194/udp - 8 clients</p>
         </div>
       </div>
     ),
@@ -189,31 +193,46 @@ export const WithBadgeIcon: Story = {
 
 export const Grouped: Story = {
   render: () => (
-    <div className="space-y-3 w-full max-w-2xl">
-      <VPNTypeSection type="L2TP" count={2} defaultExpanded={false} showReadOnlyNotice={true}>
+    <div className="w-full max-w-2xl space-y-3">
+      <VPNTypeSection
+        type="L2TP"
+        count={2}
+        defaultExpanded={false}
+        showReadOnlyNotice={true}
+      >
         <div className="space-y-3">
-          <div className="p-4 bg-muted/50 rounded border border-border">
+          <div className="bg-muted/50 border-border rounded border p-4">
             <p className="text-sm font-medium">L2TP 1</p>
           </div>
-          <div className="p-4 bg-muted/50 rounded border border-border">
+          <div className="bg-muted/50 border-border rounded border p-4">
             <p className="text-sm font-medium">L2TP 2</p>
           </div>
         </div>
       </VPNTypeSection>
-      <VPNTypeSection type="PPTP" count={1} defaultExpanded={false} showReadOnlyNotice={true}>
-        <div className="p-4 bg-muted/50 rounded border border-border">
+      <VPNTypeSection
+        type="PPTP"
+        count={1}
+        defaultExpanded={false}
+        showReadOnlyNotice={true}
+      >
+        <div className="bg-muted/50 border-border rounded border p-4">
           <p className="text-sm font-medium">PPTP 1</p>
         </div>
       </VPNTypeSection>
-      <VPNTypeSection type="SSTP" count={3} defaultExpanded={false} showReadOnlyNotice={true}>
+      <VPNTypeSection
+        type="SSTP"
+        count={3}
+        defaultExpanded={false}
+        showReadOnlyNotice={true}
+      >
         <div className="space-y-3">
-          <div className="p-4 bg-muted/50 rounded border border-border">
+          <div className="bg-muted/50 border-border rounded border p-4">
             <p className="text-sm font-medium">SSTP 1</p>
           </div>
-          <div className="p-4 bg-muted/50 rounded border border-border">
+          <div className="bg-muted/50 border-border rounded border p-4">
             <p className="text-sm font-medium">SSTP 2</p>
           </div>
-          <div className="p-4 bg-muted/50 rounded border border-border">
+          <div className="bg-muted/50 border-border rounded border p-4">
             <p className="text-sm font-medium">SSTP 3</p>
           </div>
         </div>
@@ -224,7 +243,8 @@ export const Grouped: Story = {
     layout: 'padded',
     docs: {
       description: {
-        story: 'Multiple sections grouped together showing how they appear in the actual VPN interface list page.',
+        story:
+          'Multiple sections grouped together showing how they appear in the actual VPN interface list page.',
       },
     },
   },

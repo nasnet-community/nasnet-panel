@@ -42,9 +42,9 @@ export const BOGON_RANGES = {
    * Should never appear as source on public internet
    */
   private: [
-    '10.0.0.0/8',       // Class A private
-    '172.16.0.0/12',    // Class B private
-    '192.168.0.0/16',   // Class C private
+    '10.0.0.0/8', // Class A private
+    '172.16.0.0/12', // Class B private
+    '192.168.0.0/16', // Class C private
   ] as const,
 
   /**
@@ -52,7 +52,7 @@ export const BOGON_RANGES = {
    * Local machine addresses
    */
   loopback: [
-    '127.0.0.0/8',      // Loopback
+    '127.0.0.0/8', // Loopback
   ] as const,
 
   /**
@@ -60,13 +60,13 @@ export const BOGON_RANGES = {
    * Documentation, benchmarking, protocol assignments
    */
   reserved: [
-    '0.0.0.0/8',        // Current network (only valid as source)
-    '192.0.0.0/24',     // IETF Protocol Assignments
-    '192.0.2.0/24',     // TEST-NET-1 (documentation)
-    '198.18.0.0/15',    // Benchmarking
-    '198.51.100.0/24',  // TEST-NET-2 (documentation)
-    '203.0.113.0/24',   // TEST-NET-3 (documentation)
-    '100.64.0.0/10',    // Carrier-grade NAT (RFC 6598)
+    '0.0.0.0/8', // Current network (only valid as source)
+    '192.0.0.0/24', // IETF Protocol Assignments
+    '192.0.2.0/24', // TEST-NET-1 (documentation)
+    '198.18.0.0/15', // Benchmarking
+    '198.51.100.0/24', // TEST-NET-2 (documentation)
+    '203.0.113.0/24', // TEST-NET-3 (documentation)
+    '100.64.0.0/10', // Carrier-grade NAT (RFC 6598)
   ] as const,
 
   /**
@@ -74,7 +74,7 @@ export const BOGON_RANGES = {
    * Autoconfiguration when DHCP fails
    */
   linkLocal: [
-    '169.254.0.0/16',   // Link-local (APIPA)
+    '169.254.0.0/16', // Link-local (APIPA)
   ] as const,
 
   /**
@@ -82,7 +82,7 @@ export const BOGON_RANGES = {
    * One-to-many communication
    */
   multicast: [
-    '224.0.0.0/4',      // Multicast (Class D)
+    '224.0.0.0/4', // Multicast (Class D)
   ] as const,
 
   /**
@@ -90,7 +90,7 @@ export const BOGON_RANGES = {
    * Class E space
    */
   futureUse: [
-    '240.0.0.0/4',      // Reserved (Class E)
+    '240.0.0.0/4', // Reserved (Class E)
   ] as const,
 } as const;
 
@@ -143,7 +143,7 @@ export function isBogonAddress(address: string): boolean {
   const ip = address.split('/')[0];
   const octets = ip.split('.').map(Number);
 
-  if (octets.length !== 4 || octets.some(o => isNaN(o) || o < 0 || o > 255)) {
+  if (octets.length !== 4 || octets.some((o) => isNaN(o) || o < 0 || o > 255)) {
     return false;
   }
 

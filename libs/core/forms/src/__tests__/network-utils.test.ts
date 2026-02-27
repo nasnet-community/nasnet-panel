@@ -39,10 +39,7 @@ import {
   generateNetworks,
 } from '../network-utils';
 
-import type {
-  WANLinks,
-  VPNClient,
-} from '../network-utils';
+import type { WANLinks, VPNClient } from '../network-utils';
 
 describe('Network Utilities', () => {
   // ============================================================================
@@ -95,13 +92,7 @@ describe('Network Utilities', () => {
     });
 
     it('should be the inverse of ipToLong', () => {
-      const testIps = [
-        '0.0.0.0',
-        '255.255.255.255',
-        '192.168.1.1',
-        '10.0.0.1',
-        '172.16.254.100',
-      ];
+      const testIps = ['0.0.0.0', '255.255.255.255', '192.168.1.1', '10.0.0.1', '172.16.254.100'];
 
       for (const ip of testIps) {
         expect(longToIp(ipToLong(ip))).toBe(ip);
@@ -134,7 +125,7 @@ describe('Network Utilities', () => {
     });
 
     it('should handle edge cases', () => {
-      expect(isInSubnet('0.0.0.0', '0.0.0.0/0')).toBe(true);       // Everything is in /0
+      expect(isInSubnet('0.0.0.0', '0.0.0.0/0')).toBe(true); // Everything is in /0
       expect(isInSubnet('255.255.255.255', '0.0.0.0/0')).toBe(true);
       expect(isInSubnet('192.168.1.1', '192.168.1.1/32')).toBe(true); // /32 single host
       expect(isInSubnet('192.168.1.2', '192.168.1.1/32')).toBe(false);
@@ -166,7 +157,7 @@ describe('Network Utilities', () => {
 
     it('should handle edge cases', () => {
       expect(getNetworkAddress('192.168.1.1', 32)).toBe('192.168.1.1'); // /32 is the host
-      expect(getNetworkAddress('192.168.1.1', 0)).toBe('0.0.0.0');      // /0 is all zeros
+      expect(getNetworkAddress('192.168.1.1', 0)).toBe('0.0.0.0'); // /0 is all zeros
     });
 
     it('should throw for invalid CIDR', () => {
@@ -190,8 +181,8 @@ describe('Network Utilities', () => {
     });
 
     it('should handle edge cases', () => {
-      expect(getBroadcastAddress('192.168.1.1', 32)).toBe('192.168.1.1');      // /32
-      expect(getBroadcastAddress('0.0.0.0', 0)).toBe('255.255.255.255');       // /0
+      expect(getBroadcastAddress('192.168.1.1', 32)).toBe('192.168.1.1'); // /32
+      expect(getBroadcastAddress('0.0.0.0', 0)).toBe('255.255.255.255'); // /0
     });
   });
 
@@ -261,15 +252,15 @@ describe('Network Utilities', () => {
 
   describe('getUsableHostCount', () => {
     it('should calculate usable hosts for common subnets', () => {
-      expect(getUsableHostCount(24)).toBe(254);     // 2^8 - 2
-      expect(getUsableHostCount(16)).toBe(65534);   // 2^16 - 2
+      expect(getUsableHostCount(24)).toBe(254); // 2^8 - 2
+      expect(getUsableHostCount(16)).toBe(65534); // 2^16 - 2
       expect(getUsableHostCount(8)).toBe(16777214); // 2^24 - 2
-      expect(getUsableHostCount(30)).toBe(2);       // 2^2 - 2
+      expect(getUsableHostCount(30)).toBe(2); // 2^2 - 2
     });
 
     it('should handle special cases', () => {
-      expect(getUsableHostCount(32)).toBe(1);  // Single host
-      expect(getUsableHostCount(31)).toBe(2);  // Point-to-point (RFC 3021)
+      expect(getUsableHostCount(32)).toBe(1); // Single host
+      expect(getUsableHostCount(31)).toBe(2); // Point-to-point (RFC 3021)
     });
 
     it('should throw for invalid CIDR', () => {
@@ -350,7 +341,7 @@ describe('Network Utilities', () => {
   describe('doSubnetsOverlap', () => {
     it('should detect overlapping subnets', () => {
       expect(doSubnetsOverlap('192.168.1.0/24', '192.168.1.0/25')).toBe(true); // Subset
-      expect(doSubnetsOverlap('10.0.0.0/8', '10.1.0.0/16')).toBe(true);        // Superset
+      expect(doSubnetsOverlap('10.0.0.0/8', '10.1.0.0/16')).toBe(true); // Superset
       expect(doSubnetsOverlap('192.168.1.0/24', '192.168.1.128/25')).toBe(true); // Partial
     });
 
@@ -375,9 +366,9 @@ describe('Network Utilities', () => {
 
     it('should reject non-private IPs', () => {
       expect(isPrivateIp('8.8.8.8')).toBe(false);
-      expect(isPrivateIp('172.15.0.1')).toBe(false);  // Below 172.16
-      expect(isPrivateIp('172.32.0.1')).toBe(false);  // Above 172.31
-      expect(isPrivateIp('127.0.0.1')).toBe(false);   // Loopback
+      expect(isPrivateIp('172.15.0.1')).toBe(false); // Below 172.16
+      expect(isPrivateIp('172.32.0.1')).toBe(false); // Above 172.31
+      expect(isPrivateIp('127.0.0.1')).toBe(false); // Loopback
     });
 
     it('should handle invalid IPs', () => {
@@ -524,10 +515,7 @@ describe('Network Utilities', () => {
     it('should extract network names', () => {
       const wanLinks: WANLinks = {
         Foreign: {
-          WANConfigs: [
-            { name: 'WAN1' },
-            { name: 'WAN2' },
-          ],
+          WANConfigs: [{ name: 'WAN1' }, { name: 'WAN2' }],
         },
       };
       expect(getForeignNetworkNames(wanLinks)).toEqual(['WAN1', 'WAN2']);
@@ -536,10 +524,7 @@ describe('Network Utilities', () => {
     it('should generate default names when missing', () => {
       const wanLinks: WANLinks = {
         Foreign: {
-          WANConfigs: [
-            {},
-            { name: 'Custom' },
-          ],
+          WANConfigs: [{}, { name: 'Custom' }],
         },
       };
       expect(getForeignNetworkNames(wanLinks)).toEqual(['Foreign-Link-1', 'Custom']);
@@ -559,10 +544,7 @@ describe('Network Utilities', () => {
     it('should extract names for domestic link type', () => {
       const wanLinks: WANLinks = {
         Domestic: {
-          WANConfigs: [
-            { name: 'Local1' },
-            { name: 'Local2' },
-          ],
+          WANConfigs: [{ name: 'Local1' }, { name: 'Local2' }],
         },
       };
       expect(getDomesticNetworkNames(wanLinks, 'domestic')).toEqual(['Local1', 'Local2']);

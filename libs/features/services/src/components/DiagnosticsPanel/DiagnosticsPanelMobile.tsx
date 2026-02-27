@@ -39,10 +39,7 @@ import {
 } from '@nasnet/ui/primitives';
 import { cn } from '@nasnet/ui/utils';
 
-import {
-  useDiagnosticsPanel,
-  type DiagnosticsPanelProps,
-} from './useDiagnosticsPanel';
+import { useDiagnosticsPanel, type DiagnosticsPanelProps } from './useDiagnosticsPanel';
 import type { DiagnosticResult, StartupDiagnostics } from '@nasnet/api-client/queries';
 
 /**
@@ -78,83 +75,106 @@ function DiagnosticsPanelMobileComponent(props: DiagnosticsPanelProps) {
     formatDuration,
   } = useDiagnosticsPanel(props);
 
-  const renderTestResult = React.useCallback((result: DiagnosticResult, index: number) => {
-    const iconName = getStatusIcon(result.status);
-    const statusIcon = getStatusIconComponent(iconName);
+  const renderTestResult = React.useCallback(
+    (result: DiagnosticResult, index: number) => {
+      const iconName = getStatusIcon(result.status);
+      const statusIcon = getStatusIconComponent(iconName);
 
-    return (
-      <AccordionItem key={result.id} value={`test-${index}`}>
-        <AccordionTrigger className="min-h-[44px] hover:no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-          <div className="flex items-center gap-component-md flex-1 text-left">
-            <Icon icon={statusIcon as LucideIcon} className={cn('h-5 w-5 shrink-0', getStatusColor(result.status))} aria-hidden="true" />
-            <div className="flex-1 min-w-0">
-              <div className="font-medium truncate">{result.testName}</div>
-              <p className="text-sm text-muted-foreground truncate">{result.message}</p>
+      return (
+        <AccordionItem
+          key={result.id}
+          value={`test-${index}`}
+        >
+          <AccordionTrigger className="focus-visible:ring-ring min-h-[44px] hover:no-underline focus-visible:outline-none focus-visible:ring-2">
+            <div className="gap-component-md flex flex-1 items-center text-left">
+              <Icon
+                icon={statusIcon as LucideIcon}
+                className={cn('h-5 w-5 shrink-0', getStatusColor(result.status))}
+                aria-hidden="true"
+              />
+              <div className="min-w-0 flex-1">
+                <div className="truncate font-medium">{result.testName}</div>
+                <p className="text-muted-foreground truncate text-sm">{result.message}</p>
+              </div>
+              <span className="text-muted-foreground shrink-0 font-mono text-xs">
+                {formatDuration(result.durationMs)}
+              </span>
             </div>
-            <span className="text-xs text-muted-foreground shrink-0 font-mono">
-              {formatDuration(result.durationMs)}
-            </span>
-          </div>
-        </AccordionTrigger>
-        <AccordionContent>
-          <div className="space-y-component-md p-component-sm bg-muted/50 rounded-[var(--semantic-radius-button)]">
-            {result.details && (
-              <div className="text-sm">
-                <strong className="text-muted-foreground">Details:</strong>
-                <p className="mt-component-sm whitespace-pre-wrap font-mono text-xs">{result.details}</p>
-              </div>
-            )}
-            {result.errorMessage && (
-              <div className="text-sm">
-                <strong className="text-error">Error:</strong>
-                <p className="mt-component-sm text-error whitespace-pre-wrap font-mono text-xs">
-                  {result.errorMessage}
-                </p>
-              </div>
-            )}
-            {result.metadata && Object.keys(result.metadata).length > 0 && (
-              <div className="text-sm">
-                <strong className="text-muted-foreground">Metadata:</strong>
-                <pre className="mt-component-sm text-xs overflow-x-auto font-mono">
-                  {JSON.stringify(result.metadata, null, 2)}
-                </pre>
-              </div>
-            )}
-          </div>
-        </AccordionContent>
-      </AccordionItem>
-    );
-  }, [getStatusIcon, getStatusColor]);
-
-  const renderDiagnosticRun = React.useCallback((run: StartupDiagnostics, runIndex: number) => {
-    const timestamp = new Date(run.timestamp).toLocaleString();
-
-    return (
-      <AccordionItem key={run.runGroupID} value={`run-${runIndex}`}>
-        <AccordionTrigger className="min-h-[44px] hover:no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-          <div className="flex items-center justify-between flex-1 gap-component-md">
-            <div className="flex-1 min-w-0">
-              <div className="font-medium truncate font-mono text-sm">{timestamp}</div>
-              <div className="text-sm text-muted-foreground">
-                {run.passedCount}✓ {run.failedCount}✗ {run.warningCount}⚠
-              </div>
+          </AccordionTrigger>
+          <AccordionContent>
+            <div className="space-y-component-md p-component-sm bg-muted/50 rounded-[var(--semantic-radius-button)]">
+              {result.details && (
+                <div className="text-sm">
+                  <strong className="text-muted-foreground">Details:</strong>
+                  <p className="mt-component-sm whitespace-pre-wrap font-mono text-xs">
+                    {result.details}
+                  </p>
+                </div>
+              )}
+              {result.errorMessage && (
+                <div className="text-sm">
+                  <strong className="text-error">Error:</strong>
+                  <p className="mt-component-sm text-error whitespace-pre-wrap font-mono text-xs">
+                    {result.errorMessage}
+                  </p>
+                </div>
+              )}
+              {result.metadata && Object.keys(result.metadata).length > 0 && (
+                <div className="text-sm">
+                  <strong className="text-muted-foreground">Metadata:</strong>
+                  <pre className="mt-component-sm overflow-x-auto font-mono text-xs">
+                    {JSON.stringify(result.metadata, null, 2)}
+                  </pre>
+                </div>
+              )}
             </div>
-            <Badge
-              variant={run.overallStatus === 'PASS' ? 'success' : 'error'}
-              className="shrink-0"
+          </AccordionContent>
+        </AccordionItem>
+      );
+    },
+    [getStatusIcon, getStatusColor]
+  );
+
+  const renderDiagnosticRun = React.useCallback(
+    (run: StartupDiagnostics, runIndex: number) => {
+      const timestamp = new Date(run.timestamp).toLocaleString();
+
+      return (
+        <AccordionItem
+          key={run.runGroupID}
+          value={`run-${runIndex}`}
+        >
+          <AccordionTrigger className="focus-visible:ring-ring min-h-[44px] hover:no-underline focus-visible:outline-none focus-visible:ring-2">
+            <div className="gap-component-md flex flex-1 items-center justify-between">
+              <div className="min-w-0 flex-1">
+                <div className="truncate font-mono text-sm font-medium">{timestamp}</div>
+                <div className="text-muted-foreground text-sm">
+                  {run.passedCount}✓ {run.failedCount}✗ {run.warningCount}⚠
+                </div>
+              </div>
+              <Badge
+                variant={run.overallStatus === 'PASS' ? 'success' : 'error'}
+                className="shrink-0"
+              >
+                {run.overallStatus}
+              </Badge>
+            </div>
+          </AccordionTrigger>
+          <AccordionContent>
+            <Accordion
+              type="single"
+              collapsible
+              className="border-border border-t"
+              {...({} as any)}
             >
-              {run.overallStatus}
-            </Badge>
-          </div>
-        </AccordionTrigger>
-        <AccordionContent>
-          <Accordion type="single" collapsible className="border-t border-border" {...{} as any}>
-            {run.results.map((result, index) => renderTestResult(result, index))}
-          </Accordion>
-        </AccordionContent>
-      </AccordionItem>
-    );
-  }, [renderTestResult]);
+              {run.results.map((result, index) => renderTestResult(result, index))}
+            </Accordion>
+          </AccordionContent>
+        </AccordionItem>
+      );
+    },
+    [renderTestResult]
+  );
 
   return (
     <Card className={className}>
@@ -164,23 +184,31 @@ function DiagnosticsPanelMobileComponent(props: DiagnosticsPanelProps) {
         </CardTitle>
 
         {/* Action buttons */}
-        <div className="flex items-center gap-component-sm mt-component-md">
+        <div className="gap-component-sm mt-component-md flex items-center">
           <Button
             variant="outline"
-            className="flex-1 min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="focus-visible:ring-ring min-h-[44px] flex-1 focus-visible:outline-none focus-visible:ring-2"
             onClick={refreshHistory}
             disabled={isLoadingHistory}
           >
-            <Icon icon={RefreshCw} className={cn('mr-component-sm h-5 w-5', isLoadingHistory && 'animate-spin')} aria-hidden="true" />
+            <Icon
+              icon={RefreshCw}
+              className={cn('mr-component-sm h-5 w-5', isLoadingHistory && 'animate-spin')}
+              aria-hidden="true"
+            />
             Refresh
           </Button>
           <Button
             variant="default"
-            className="flex-1 min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="focus-visible:ring-ring min-h-[44px] flex-1 focus-visible:outline-none focus-visible:ring-2"
             onClick={runDiagnostics}
             disabled={isRunning}
           >
-            <Icon icon={Play} className="mr-component-sm h-5 w-5" aria-hidden="true" />
+            <Icon
+              icon={Play}
+              className="mr-component-sm h-5 w-5"
+              aria-hidden="true"
+            />
             {isRunning ? 'Running...' : 'Run Tests'}
           </Button>
         </div>
@@ -190,11 +218,15 @@ function DiagnosticsPanelMobileComponent(props: DiagnosticsPanelProps) {
         {/* Startup failure alert */}
         {latestRun && hasLatestFailures && (
           <Alert variant="destructive">
-            <Icon icon={AlertTriangle} className="h-5 w-5" aria-hidden="true" />
+            <Icon
+              icon={AlertTriangle}
+              className="h-5 w-5"
+              aria-hidden="true"
+            />
             <AlertTitle>Startup Failures</AlertTitle>
             <AlertDescription>
-              {latestRun.failedCount} test(s) failed during startup. Expand the latest
-              run below for details.
+              {latestRun.failedCount} test(s) failed during startup. Expand the latest run below for
+              details.
             </AlertDescription>
           </Alert>
         )}
@@ -202,11 +234,13 @@ function DiagnosticsPanelMobileComponent(props: DiagnosticsPanelProps) {
         {/* Error state */}
         {(runError || historyError) && (
           <Alert variant="destructive">
-            <Icon icon={X} className="h-5 w-5" aria-hidden="true" />
+            <Icon
+              icon={X}
+              className="h-5 w-5"
+              aria-hidden="true"
+            />
             <AlertTitle>Error</AlertTitle>
-            <AlertDescription>
-              {runError?.message || historyError?.message}
-            </AlertDescription>
+            <AlertDescription>{runError?.message || historyError?.message}</AlertDescription>
           </Alert>
         )}
 
@@ -217,24 +251,27 @@ function DiagnosticsPanelMobileComponent(props: DiagnosticsPanelProps) {
               <span className="text-muted-foreground truncate font-mono text-xs">
                 {currentTest || 'Initializing...'}
               </span>
-              <span className="font-medium shrink-0 ml-component-md font-mono text-xs">
+              <span className="ml-component-md shrink-0 font-mono text-xs font-medium">
                 {completedTests}/{totalTests}
               </span>
             </div>
-            <Progress value={progress} className="h-2" />
+            <Progress
+              value={progress}
+              className="h-2"
+            />
           </div>
         )}
 
         {/* Loading state */}
         {isLoadingHistory && !history && (
-          <div className="p-component-md text-sm text-muted-foreground text-center font-mono">
+          <div className="p-component-md text-muted-foreground text-center font-mono text-sm">
             Loading diagnostic history...
           </div>
         )}
 
         {/* Empty state */}
         {!isLoadingHistory && !history?.length && (
-          <div className="p-component-md text-sm text-muted-foreground text-center font-mono">
+          <div className="p-component-md text-muted-foreground text-center font-mono text-sm">
             No history available. Tap "Run Tests" to start.
           </div>
         )}
@@ -242,12 +279,12 @@ function DiagnosticsPanelMobileComponent(props: DiagnosticsPanelProps) {
         {/* Diagnostic history */}
         {history && history.length > 0 && (
           <div className="space-y-component-md">
-            <h3 className="text-sm font-medium text-muted-foreground">History</h3>
+            <h3 className="text-muted-foreground text-sm font-medium">History</h3>
             <Accordion
               type="single"
               collapsible
               defaultValue={latestRun ? 'run-0' : undefined}
-              {...{} as any}
+              {...({} as any)}
             >
               {history.map((run, index) => renderDiagnosticRun(run, index))}
             </Accordion>
@@ -259,7 +296,9 @@ function DiagnosticsPanelMobileComponent(props: DiagnosticsPanelProps) {
 }
 
 // Helper function to map status to icon components
-function getStatusIconComponent(status: 'check' | 'x' | 'alert' | 'minus'): React.ComponentType<any> {
+function getStatusIconComponent(
+  status: 'check' | 'x' | 'alert' | 'minus'
+): React.ComponentType<any> {
   const iconMap: Record<string, React.ComponentType<any>> = {
     check: Check,
     x: X,

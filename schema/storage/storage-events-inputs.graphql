@@ -6,16 +6,24 @@
 Event emitted when storage is mounted or becomes available.
 """
 type StorageMountedEvent {
-  """Storage path that was mounted"""
+  """
+  Storage path that was mounted
+  """
   path: String!
 
-  """Storage information"""
+  """
+  Storage information
+  """
   storageInfo: StorageInfo!
 
-  """Number of features restored (if reconnection)"""
+  """
+  Number of features restored (if reconnection)
+  """
   featuresRestored: Int!
 
-  """Timestamp of the event"""
+  """
+  Timestamp of the event
+  """
   timestamp: DateTime!
 }
 
@@ -23,16 +31,24 @@ type StorageMountedEvent {
 Event emitted when storage is unmounted or becomes unavailable.
 """
 type StorageUnmountedEvent {
-  """Storage path that was unmounted"""
+  """
+  Storage path that was unmounted
+  """
   path: String!
 
-  """Number of features affected (stopped)"""
+  """
+  Number of features affected (stopped)
+  """
   featuresAffected: Int!
 
-  """List of affected feature IDs"""
+  """
+  List of affected feature IDs
+  """
   affectedFeatureIds: [String!]!
 
-  """Timestamp of the event"""
+  """
+  Timestamp of the event
+  """
   timestamp: DateTime!
 }
 
@@ -40,22 +56,34 @@ type StorageUnmountedEvent {
 Event emitted when storage space crosses a threshold.
 """
 type StorageSpaceEvent {
-  """Storage path"""
+  """
+  Storage path
+  """
   path: String!
 
-  """Current threshold status"""
+  """
+  Current threshold status
+  """
   status: StorageThresholdStatus!
 
-  """Previous threshold status"""
+  """
+  Previous threshold status
+  """
   previousStatus: StorageThresholdStatus!
 
-  """Current usage percentage"""
+  """
+  Current usage percentage
+  """
   usagePercent: Float!
 
-  """Available bytes remaining (serialized uint64)"""
+  """
+  Available bytes remaining (serialized uint64)
+  """
   availableBytes: String!
 
-  """Timestamp of the event"""
+  """
+  Timestamp of the event
+  """
   timestamp: DateTime!
 }
 
@@ -67,10 +95,14 @@ type StorageSpaceEvent {
 Input for configuring external storage.
 """
 input ConfigureExternalStorageInput {
-  """Absolute path to external storage mount point"""
+  """
+  Absolute path to external storage mount point
+  """
   path: String! @validate(minLength: 1, maxLength: 255)
 
-  """Whether to enable external storage (default: true)"""
+  """
+  Whether to enable external storage (default: true)
+  """
   enabled: Boolean
 }
 
@@ -78,6 +110,8 @@ input ConfigureExternalStorageInput {
 Input for resetting external storage configuration.
 """
 input ResetExternalStorageInput {
-  """Whether to move existing binaries back to flash (default: false)"""
+  """
+  Whether to move existing binaries back to flash (default: false)
+  """
   migrateToFlash: Boolean
 }

@@ -5,17 +5,14 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '../lib/utils';
 
 const cardVariants = cva(
-  'rounded-[var(--semantic-radius-card)] border border-border bg-card text-card-foreground transition-shadow duration-200',
+  'border-border bg-card text-card-foreground rounded-[var(--semantic-radius-card)] border transition-shadow duration-200',
   {
     variants: {
       variant: {
         default: 'shadow-[var(--semantic-shadow-card)]',
-        elevated:
-          'shadow-[var(--semantic-shadow-card)] hover:shadow-lg',
-        interactive:
-          'shadow-[var(--semantic-shadow-card)] hover:shadow-lg cursor-pointer',
-        flat:
-          'shadow-none',
+        elevated: 'shadow-[var(--semantic-shadow-card)] hover:shadow-lg',
+        interactive: 'cursor-pointer shadow-[var(--semantic-shadow-card)] hover:shadow-lg',
+        flat: 'shadow-none',
       },
     },
     defaultVariants: {
@@ -49,15 +46,13 @@ export interface CardProps
  * ```
  */
 const Card = React.memo(
-  React.forwardRef<HTMLDivElement, CardProps>(
-    ({ className, variant, ...props }, ref) => (
-      <div
-        ref={ref}
-        className={cn(cardVariants({ variant }), className)}
-        {...props}
-      />
-    )
-  )
+  React.forwardRef<HTMLDivElement, CardProps>(({ className, variant, ...props }, ref) => (
+    <div
+      ref={ref}
+      className={cn(cardVariants({ variant }), className)}
+      {...props}
+    />
+  ))
 );
 Card.displayName = 'Card';
 
@@ -67,16 +62,15 @@ Card.displayName = 'Card';
  * Uses semantic spacing tokens: p-component-md on mobile, p-component-lg on desktop.
  */
 const CardHeader = React.memo(
-  React.forwardRef<
-    HTMLDivElement,
-    React.HTMLAttributes<HTMLDivElement>
-  >(({ className, ...props }, ref) => (
-    <div
-      ref={ref}
-      className={cn('flex flex-col gap-component-sm p-component-md md:p-component-lg', className)}
-      {...props}
-    />
-  ))
+  React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+    ({ className, ...props }, ref) => (
+      <div
+        ref={ref}
+        className={cn('gap-component-sm p-component-md md:p-component-lg flex flex-col', className)}
+        {...props}
+      />
+    )
+  )
 );
 CardHeader.displayName = 'CardHeader';
 
@@ -85,16 +79,15 @@ CardHeader.displayName = 'CardHeader';
  * Should be semantically appropriate (h2, h3, etc. based on page context).
  */
 const CardTitle = React.memo(
-  React.forwardRef<
-    HTMLDivElement,
-    React.HTMLAttributes<HTMLDivElement>
-  >(({ className, ...props }, ref) => (
-    <div
-      ref={ref}
-      className={cn('text-lg font-semibold leading-none tracking-tight', className)}
-      {...props}
-    />
-  ))
+  React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+    ({ className, ...props }, ref) => (
+      <div
+        ref={ref}
+        className={cn('text-lg font-semibold leading-none tracking-tight', className)}
+        {...props}
+      />
+    )
+  )
 );
 CardTitle.displayName = 'CardTitle';
 
@@ -103,16 +96,15 @@ CardTitle.displayName = 'CardTitle';
  * Displayed in a muted color for visual distinction.
  */
 const CardDescription = React.memo(
-  React.forwardRef<
-    HTMLDivElement,
-    React.HTMLAttributes<HTMLDivElement>
-  >(({ className, ...props }, ref) => (
-    <div
-      ref={ref}
-      className={cn('text-sm text-muted-foreground', className)}
-      {...props}
-    />
-  ))
+  React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+    ({ className, ...props }, ref) => (
+      <div
+        ref={ref}
+        className={cn('text-muted-foreground text-sm', className)}
+        {...props}
+      />
+    )
+  )
 );
 CardDescription.displayName = 'CardDescription';
 
@@ -122,12 +114,15 @@ CardDescription.displayName = 'CardDescription';
  * Uses semantic spacing tokens: p-component-md on mobile, p-component-lg on desktop.
  */
 const CardContent = React.memo(
-  React.forwardRef<
-    HTMLDivElement,
-    React.HTMLAttributes<HTMLDivElement>
-  >(({ className, ...props }, ref) => (
-    <div ref={ref} className={cn('p-component-md md:p-component-lg pt-0', className)} {...props} />
-  ))
+  React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+    ({ className, ...props }, ref) => (
+      <div
+        ref={ref}
+        className={cn('p-component-md md:p-component-lg pt-0', className)}
+        {...props}
+      />
+    )
+  )
 );
 CardContent.displayName = 'CardContent';
 
@@ -137,16 +132,18 @@ CardContent.displayName = 'CardContent';
  * Uses semantic spacing tokens: p-component-md on mobile, p-component-lg on desktop.
  */
 const CardFooter = React.memo(
-  React.forwardRef<
-    HTMLDivElement,
-    React.HTMLAttributes<HTMLDivElement>
-  >(({ className, ...props }, ref) => (
-    <div
-      ref={ref}
-      className={cn('flex items-center gap-component-sm p-component-md md:p-component-lg pt-0', className)}
-      {...props}
-    />
-  ))
+  React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+    ({ className, ...props }, ref) => (
+      <div
+        ref={ref}
+        className={cn(
+          'gap-component-sm p-component-md md:p-component-lg flex items-center pt-0',
+          className
+        )}
+        {...props}
+      />
+    )
+  )
 );
 CardFooter.displayName = 'CardFooter';
 

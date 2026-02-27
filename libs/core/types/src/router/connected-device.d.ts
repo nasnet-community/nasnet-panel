@@ -22,26 +22,26 @@ import type { LeaseDisplayRow, DHCPLease } from './dhcp';
  * ```
  */
 export declare enum DeviceType {
-    /** Mobile phone (iOS/Android) */
-    SMARTPHONE = "smartphone",
-    /** Tablet device (iPad, Android tablet) */
-    TABLET = "tablet",
-    /** Laptop or notebook computer */
-    LAPTOP = "laptop",
-    /** Desktop computer */
-    DESKTOP = "desktop",
-    /** Network router or gateway device */
-    ROUTER = "router",
-    /** Internet of Things device (smart home, sensors, etc.) */
-    IOT = "iot",
-    /** Network printer or multifunction device */
-    PRINTER = "printer",
-    /** Television or streaming device */
-    TV = "tv",
-    /** Gaming console (PlayStation, Xbox, Nintendo) */
-    GAMING_CONSOLE = "gaming_console",
-    /** Device type could not be determined */
-    UNKNOWN = "unknown"
+  /** Mobile phone (iOS/Android) */
+  SMARTPHONE = 'smartphone',
+  /** Tablet device (iPad, Android tablet) */
+  TABLET = 'tablet',
+  /** Laptop or notebook computer */
+  LAPTOP = 'laptop',
+  /** Desktop computer */
+  DESKTOP = 'desktop',
+  /** Network router or gateway device */
+  ROUTER = 'router',
+  /** Internet of Things device (smart home, sensors, etc.) */
+  IOT = 'iot',
+  /** Network printer or multifunction device */
+  PRINTER = 'printer',
+  /** Television or streaming device */
+  TV = 'tv',
+  /** Gaming console (PlayStation, Xbox, Nintendo) */
+  GAMING_CONSOLE = 'gaming_console',
+  /** Device type could not be determined */
+  UNKNOWN = 'unknown',
 }
 /**
  * Enriched device information extending LeaseDisplayRow
@@ -66,17 +66,17 @@ export declare enum DeviceType {
  * ```
  */
 export interface ConnectedDeviceEnriched extends LeaseDisplayRow {
-    /** Device manufacturer/vendor from OUI (Organizationally Unique Identifier) lookup */
-    vendor: string | null;
-    /** Inferred device type based on hostname pattern matching and vendor analysis */
-    deviceType: DeviceType;
-    /** Whether this device connected within the last 30 seconds (for "New" badge display) */
-    isNew: boolean;
-    /** Human-readable duration since first detection (e.g., "2h 15m", "5s") */
-    connectionDuration: string;
-    /** Timestamp when device was first detected in this monitoring session */
-    firstSeen: Date;
-    /** Original DHCP lease data for detail view and debugging purposes */
-    _lease: DHCPLease;
+  /** Device manufacturer/vendor from OUI (Organizationally Unique Identifier) lookup */
+  vendor: string | null;
+  /** Inferred device type based on hostname pattern matching and vendor analysis */
+  deviceType: DeviceType;
+  /** Whether this device connected within the last 30 seconds (for "New" badge display) */
+  isNew: boolean;
+  /** Human-readable duration since first detection (e.g., "2h 15m", "5s") */
+  connectionDuration: string;
+  /** Timestamp when device was first detected in this monitoring session */
+  firstSeen: Date;
+  /** Original DHCP lease data for detail view and debugging purposes */
+  _lease: DHCPLease;
 }
 //# sourceMappingURL=connected-device.d.ts.map

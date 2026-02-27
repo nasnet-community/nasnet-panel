@@ -18,7 +18,6 @@ import { DynamicField } from './DynamicField';
 
 import type { Meta, StoryObj } from '@storybook/react';
 
-
 // ---------------------------------------------------------------------------
 // FormProvider decorator
 // ---------------------------------------------------------------------------
@@ -28,11 +27,20 @@ import type { Meta, StoryObj } from '@storybook/react';
  * Default values are keyed by field name so every variant pre-populates nicely.
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function FormDecorator({ children, defaultValues = {} }: { children: React.ReactNode; defaultValues?: Record<string, any> }) {
+function FormDecorator({
+  children,
+  defaultValues = {},
+}: {
+  children: React.ReactNode;
+  defaultValues?: Record<string, any>;
+}) {
   const methods = useForm({ defaultValues, mode: 'onBlur' });
   return (
     <FormProvider {...methods}>
-      <form onSubmit={methods.handleSubmit((d) => console.log('submitted', d))} className="space-y-4 max-w-md p-4">
+      <form
+        onSubmit={methods.handleSubmit((d) => console.log('submitted', d))}
+        className="max-w-md space-y-4 p-4"
+      >
         {children}
       </form>
     </FormProvider>
@@ -44,29 +52,38 @@ function FormDecorator({ children, defaultValues = {} }: { children: React.React
 // ---------------------------------------------------------------------------
 
 type FieldType =
-  | 'TEXT' | 'EMAIL' | 'URL' | 'IP' | 'PATH'
-  | 'TEXT_AREA' | 'PASSWORD'
-  | 'NUMBER' | 'PORT'
+  | 'TEXT'
+  | 'EMAIL'
+  | 'URL'
+  | 'IP'
+  | 'PATH'
+  | 'TEXT_AREA'
+  | 'PASSWORD'
+  | 'NUMBER'
+  | 'PORT'
   | 'TOGGLE'
-  | 'SELECT' | 'MULTI_SELECT'
+  | 'SELECT'
+  | 'MULTI_SELECT'
   | 'TEXT_ARRAY';
 
-function makeField(overrides: Partial<{
-  name: string;
-  label: string;
-  type: FieldType;
-  required: boolean;
-  description: string;
-  placeholder: string;
-  sensitive: boolean;
-  group: string;
-  min: number;
-  max: number;
-  options: Array<{ label: string; value: string }>;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  defaultValue: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-}>): any {
+function makeField(
+  overrides: Partial<{
+    name: string;
+    label: string;
+    type: FieldType;
+    required: boolean;
+    description: string;
+    placeholder: string;
+    sensitive: boolean;
+    group: string;
+    min: number;
+    max: number;
+    options: Array<{ label: string; value: string }>;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    defaultValue: any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  }>
+): any {
   return {
     name: 'fieldName',
     label: 'Field Label',

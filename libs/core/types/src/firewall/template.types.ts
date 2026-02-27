@@ -117,7 +117,10 @@ export const TemplateVariableSchema = z.object({
     .string()
     .min(1, 'Variable name is required')
     .max(64, 'Variable name must be 64 characters or less')
-    .regex(/^[A-Z_][A-Z0-9_]*$/, 'Variable name must be uppercase with underscores (e.g., LAN_INTERFACE)'),
+    .regex(
+      /^[A-Z_][A-Z0-9_]*$/,
+      'Variable name must be uppercase with underscores (e.g., LAN_INTERFACE)'
+    ),
   label: z.string().min(1, 'Label is required').max(100, 'Label must be 100 characters or less'),
   type: VariableTypeSchema,
   defaultValue: z.string().optional(),
@@ -212,7 +215,10 @@ export type ImpactAnalysis = z.infer<typeof ImpactAnalysisSchema>;
  */
 export const FirewallTemplateSchema = z.object({
   id: z.string().min(1, 'Template ID is required'),
-  name: z.string().min(1, 'Template name is required').max(100, 'Name must be 100 characters or less'),
+  name: z
+    .string()
+    .min(1, 'Template name is required')
+    .max(100, 'Name must be 100 characters or less'),
   description: z
     .string()
     .min(1, 'Description is required')
@@ -223,7 +229,9 @@ export const FirewallTemplateSchema = z.object({
   variables: z.array(TemplateVariableSchema).readonly(),
   rules: z.array(TemplateRuleSchema).min(1, 'At least one rule is required').readonly(),
   isBuiltIn: z.boolean(),
-  version: z.string().regex(/^\d+\.\d+\.\d+(-[a-zA-Z0-9.-]+)?$/, 'Version must be in semver format (e.g., 1.0.0)'),
+  version: z
+    .string()
+    .regex(/^\d+\.\d+\.\d+(-[a-zA-Z0-9.-]+)?$/, 'Version must be in semver format (e.g., 1.0.0)'),
   createdAt: z.date().nullable().optional(),
   updatedAt: z.date().nullable().optional(),
 });

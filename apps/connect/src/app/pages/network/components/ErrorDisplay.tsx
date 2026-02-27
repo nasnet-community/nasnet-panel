@@ -13,15 +13,18 @@ interface ErrorDisplayProps {
   onRetry?: () => void;
 }
 
-export const ErrorDisplay = React.memo(function ErrorDisplay({ error, onRetry }: ErrorDisplayProps) {
+export const ErrorDisplay = React.memo(function ErrorDisplay({
+  error,
+  onRetry,
+}: ErrorDisplayProps) {
   const { t } = useTranslation('errors');
   return (
-    <div className="container mx-auto px-page-mobile md:px-page-tablet lg:px-page-desktop">
+    <div className="px-page-mobile md:px-page-tablet lg:px-page-desktop container mx-auto">
       <div className="flex flex-col items-center justify-center py-12">
-        <div className="bg-error/10 border border-error/30 rounded-card-sm p-6 max-w-md w-full animate-fade-in-up">
-          <div className="flex flex-col items-center text-center space-y-4">
-            <AlertCircle className="w-12 h-12 text-error" />
-            <h2 className="text-xl font-display font-semibold text-error">
+        <div className="bg-error/10 border-error/30 rounded-card-sm animate-fade-in-up w-full max-w-md border p-6">
+          <div className="flex flex-col items-center space-y-4 text-center">
+            <AlertCircle className="text-error h-12 w-12" />
+            <h2 className="font-display text-error text-xl font-semibold">
               {t('connection.failedLoad')}
             </h2>
             <p className="text-muted-foreground text-sm">
@@ -30,7 +33,7 @@ export const ErrorDisplay = React.memo(function ErrorDisplay({ error, onRetry }:
             {onRetry && (
               <button
                 onClick={onRetry}
-                className="px-4 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors min-h-[44px] w-full font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                className="bg-primary text-primary-foreground hover:bg-primary/90 focus-visible:ring-ring min-h-[44px] w-full rounded-lg px-4 py-3 font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
               >
                 {t('button.tryAgain')}
               </button>

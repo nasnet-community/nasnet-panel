@@ -81,15 +81,18 @@ function ActionBadge({ action }: { action: string }) {
 // Sortable Row Component
 // ============================================================================
 
-function SortableRow({ rule, maxBytes, onEdit, onDuplicate, onDelete, onToggle, onShowStats }: SortableRowProps) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: rule.id! });
+function SortableRow({
+  rule,
+  maxBytes,
+  onEdit,
+  onDuplicate,
+  onDelete,
+  onToggle,
+  onShowStats,
+}: SortableRowProps) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: rule.id!,
+  });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -114,18 +117,20 @@ function SortableRow({ rule, maxBytes, onEdit, onDuplicate, onDelete, onToggle, 
     <TableRow
       ref={setNodeRef}
       style={style}
-      className={`${rule.isDisabled ? 'opacity-50 bg-slate-50 dark:bg-slate-800/50' : ''} ${isUnused ? 'bg-muted/50 opacity-60' : ''}`}
+      className={`${rule.isDisabled ? 'bg-slate-50 opacity-50 dark:bg-slate-800/50' : ''} ${isUnused ? 'bg-muted/50 opacity-60' : ''}`}
     >
       {/* Drag handle */}
-      <TableCell className="w-8 cursor-grab" {...attributes} {...listeners}>
+      <TableCell
+        className="w-8 cursor-grab"
+        {...attributes}
+        {...listeners}
+      >
         <GripVertical className="h-4 w-4 text-slate-400" />
       </TableCell>
 
       {/* Source */}
       <TableCell>
-        <span className="text-sm font-mono">
-          {rule.srcAddress || rule.srcAddressList || 'any'}
-        </span>
+        <span className="font-mono text-sm">{rule.srcAddress || rule.srcAddressList || 'any'}</span>
       </TableCell>
 
       {/* Limit */}
@@ -145,13 +150,14 @@ function SortableRow({ rule, maxBytes, onEdit, onDuplicate, onDelete, onToggle, 
 
       {/* List Name (only for add-to-list action) */}
       <TableCell>
-        {rule.action === 'add-to-list' && rule.addressList ? (
-          <Badge variant="outline" className="font-mono text-xs">
+        {rule.action === 'add-to-list' && rule.addressList ?
+          <Badge
+            variant="outline"
+            className="font-mono text-xs"
+          >
             {rule.addressList}
           </Badge>
-        ) : (
-          <span className="text-slate-400">-</span>
-        )}
+        : <span className="text-slate-400">-</span>}
       </TableCell>
 
       {/* Triggered Count */}
@@ -160,11 +166,11 @@ function SortableRow({ rule, maxBytes, onEdit, onDuplicate, onDelete, onToggle, 
         onClick={() => onShowStats(rule)}
       >
         <div className="flex items-center gap-2">
-          <span className="text-sm font-mono">{rule.packets ?? 0}</span>
+          <span className="font-mono text-sm">{rule.packets ?? 0}</span>
           {percentOfMax > 0 && (
-            <div className="h-1.5 w-16 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+            <div className="h-1.5 w-16 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
               <div
-                className="h-full bg-primary transition-all duration-300"
+                className="bg-primary h-full transition-all duration-300"
                 style={{ width: `${Math.min(percentOfMax, 100)}%` }}
               />
             </div>
@@ -219,7 +225,8 @@ function SortableRow({ rule, maxBytes, onEdit, onDuplicate, onDelete, onToggle, 
 // Main Desktop Presenter Component
 // ============================================================================
 
-export interface RateLimitRulesTableDesktopProps extends Omit<RateLimitRulesTablePresenterProps, 'pollingInterval'> {
+export interface RateLimitRulesTableDesktopProps
+  extends Omit<RateLimitRulesTablePresenterProps, 'pollingInterval'> {
   editingRule: RateLimitRule | null;
   deleteConfirmRule: RateLimitRule | null;
   statsRule: RateLimitRule | null;
@@ -282,9 +289,9 @@ export function RateLimitRulesTableDesktop({
     return (
       <div className={`p-4 ${className || ''}`}>
         <div className="animate-pulse space-y-4">
-          <div className="h-10 bg-slate-200 dark:bg-slate-700 rounded" />
-          <div className="h-16 bg-slate-200 dark:bg-slate-700 rounded" />
-          <div className="h-16 bg-slate-200 dark:bg-slate-700 rounded" />
+          <div className="h-10 rounded bg-slate-200 dark:bg-slate-700" />
+          <div className="h-16 rounded bg-slate-200 dark:bg-slate-700" />
+          <div className="h-16 rounded bg-slate-200 dark:bg-slate-700" />
         </div>
       </div>
     );
@@ -303,7 +310,7 @@ export function RateLimitRulesTableDesktop({
   if (!rules || rules.length === 0) {
     return (
       <div className={`p-8 text-center ${className || ''}`}>
-        <p className="text-slate-500 dark:text-slate-400 mb-4">No rate limit rules found</p>
+        <p className="mb-4 text-slate-500 dark:text-slate-400">No rate limit rules found</p>
         <Button onClick={() => onEdit({} as RateLimitRule)}>Add Rate Limit Rule</Button>
       </div>
     );
@@ -320,7 +327,10 @@ export function RateLimitRulesTableDesktop({
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-8" aria-label="Drag handle" />
+                <TableHead
+                  className="w-8"
+                  aria-label="Drag handle"
+                />
                 <TableHead>Source</TableHead>
                 <TableHead>Limit</TableHead>
                 <TableHead>Time Window</TableHead>
@@ -355,21 +365,26 @@ export function RateLimitRulesTableDesktop({
       </div>
 
       {/* Edit/Create Sheet - Will integrate RateLimitRuleEditor when available */}
-      <Sheet open={!!editingRule} onOpenChange={(open) => !open && closeEdit()}>
-        <SheetContent className="w-full sm:max-w-2xl overflow-y-auto">
+      <Sheet
+        open={!!editingRule}
+        onOpenChange={(open) => !open && closeEdit()}
+      >
+        <SheetContent className="w-full overflow-y-auto sm:max-w-2xl">
           <SheetHeader>
             <SheetTitle>
               {editingRule?.id ? 'Edit Rate Limit Rule' : 'Add Rate Limit Rule'}
             </SheetTitle>
             <SheetDescription>
-              {editingRule?.id ? 'Modify the rate limit rule configuration' : 'Create a new rate limit rule'}
+              {editingRule?.id ?
+                'Modify the rate limit rule configuration'
+              : 'Create a new rate limit rule'}
             </SheetDescription>
           </SheetHeader>
           <div className="py-4">
             <p className="text-sm text-slate-600 dark:text-slate-400">
               RateLimitRuleEditor component will be integrated here (Task #2)
             </p>
-            <pre className="mt-4 p-4 bg-slate-100 dark:bg-slate-800 rounded text-xs overflow-auto">
+            <pre className="mt-4 overflow-auto rounded bg-slate-100 p-4 text-xs dark:bg-slate-800">
               {JSON.stringify(editingRule, null, 2)}
             </pre>
           </div>
@@ -377,27 +392,37 @@ export function RateLimitRulesTableDesktop({
       </Sheet>
 
       {/* Delete Confirmation Dialog */}
-      <Dialog open={!!deleteConfirmRule} onOpenChange={(open) => !open && closeDelete()}>
+      <Dialog
+        open={!!deleteConfirmRule}
+        onOpenChange={(open) => !open && closeDelete()}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Delete Rate Limit Rule?</DialogTitle>
             <DialogDescription>
-              This action cannot be undone. The rule will be permanently removed from the firewall configuration.
+              This action cannot be undone. The rule will be permanently removed from the firewall
+              configuration.
             </DialogDescription>
           </DialogHeader>
           <div className="py-4">
-            <p className="text-sm font-semibold mb-2">This will:</p>
-            <ul className="list-disc list-inside text-sm text-slate-600 dark:text-slate-400 space-y-1">
+            <p className="mb-2 text-sm font-semibold">This will:</p>
+            <ul className="list-inside list-disc space-y-1 text-sm text-slate-600 dark:text-slate-400">
               <li>Remove the rate limiting rule</li>
               <li>Stop blocking connections from this source</li>
               <li>Take effect immediately on the router</li>
             </ul>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={closeDelete}>
+            <Button
+              variant="outline"
+              onClick={closeDelete}
+            >
               Cancel
             </Button>
-            <Button onClick={confirmDelete} className="bg-red-600 hover:bg-red-700">
+            <Button
+              onClick={confirmDelete}
+              className="bg-red-600 hover:bg-red-700"
+            >
               Delete Rule
             </Button>
           </DialogFooter>
@@ -406,7 +431,10 @@ export function RateLimitRulesTableDesktop({
 
       {/* Statistics Panel - Placeholder for RuleStatisticsPanel */}
       {statsRule && (
-        <Sheet open={!!statsRule} onOpenChange={(open) => !open && closeStats()}>
+        <Sheet
+          open={!!statsRule}
+          onOpenChange={(open) => !open && closeStats()}
+        >
           <SheetContent className="w-full sm:max-w-xl">
             <SheetHeader>
               <SheetTitle>Rule Statistics</SheetTitle>
@@ -415,17 +443,17 @@ export function RateLimitRulesTableDesktop({
               </SheetDescription>
             </SheetHeader>
             <div className="py-4">
-              <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+              <p className="mb-4 text-sm text-slate-600 dark:text-slate-400">
                 RuleStatisticsPanel will be integrated here
               </p>
               <div className="space-y-2">
                 <div className="flex justify-between">
                   <span className="text-sm">Packets:</span>
-                  <span className="text-sm font-mono">{statsRule.packets ?? 0}</span>
+                  <span className="font-mono text-sm">{statsRule.packets ?? 0}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-sm">Bytes:</span>
-                  <span className="text-sm font-mono">{statsRule.bytes ?? 0}</span>
+                  <span className="font-mono text-sm">{statsRule.bytes ?? 0}</span>
                 </div>
               </div>
             </div>

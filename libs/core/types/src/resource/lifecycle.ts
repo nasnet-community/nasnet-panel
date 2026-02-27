@@ -201,9 +201,7 @@ export function getNextState(
  *
  * @see LIFECYCLE_TRANSITIONS for the transition table
  */
-export function getValidEvents(
-  state: ResourceLifecycleState
-): ResourceLifecycleEvent[] {
+export function getValidEvents(state: ResourceLifecycleState): ResourceLifecycleEvent[] {
   const transitions = LIFECYCLE_TRANSITIONS[state];
   return Object.keys(transitions) as ResourceLifecycleEvent[];
 }
@@ -274,9 +272,7 @@ export const ERROR_STATES: readonly ResourceLifecycleState[] = [
  * @constant
  * @see isTerminal for usage
  */
-export const TERMINAL_STATES: readonly ResourceLifecycleState[] = [
-  ResourceLifecycleState.ARCHIVED,
-];
+export const TERMINAL_STATES: readonly ResourceLifecycleState[] = [ResourceLifecycleState.ARCHIVED];
 
 /**
  * Check if resource is active and operational on the router.
@@ -412,9 +408,7 @@ export interface StateDisplayInfo {
  *
  * @see StateDisplayInfo for the returned interface
  */
-export function getStateDisplayInfo(
-  state: ResourceLifecycleState
-): StateDisplayInfo {
+export function getStateDisplayInfo(state: ResourceLifecycleState): StateDisplayInfo {
   switch (state) {
     case ResourceLifecycleState.DRAFT:
       return {

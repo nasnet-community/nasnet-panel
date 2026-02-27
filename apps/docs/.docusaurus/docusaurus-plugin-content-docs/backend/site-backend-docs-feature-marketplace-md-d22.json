@@ -1,7 +1,7 @@
 {
   "id": "feature-marketplace",
   "title": "Feature Marketplace",
-  "description": "Downloadable privacy and network services for MikroTik routers: manifest-driven binary distribution, cryptographic verification, atomic updates, config migration, and service import/export.",
+  "description": "Downloadable privacy and network services for MikroTik routers: manifest-driven binary",
   "source": "@site/../backend/docs/feature-marketplace.md",
   "sourceDirName": ".",
   "slug": "/feature-marketplace",

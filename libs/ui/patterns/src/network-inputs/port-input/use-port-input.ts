@@ -51,11 +51,7 @@ let recentPorts: number[] = [];
 /**
  * Check if a port number is valid within the given bounds.
  */
-export function isValidPort(
-  port: number,
-  min = DEFAULT_MIN_PORT,
-  max = DEFAULT_MAX_PORT
-): boolean {
+export function isValidPort(port: number, min = DEFAULT_MIN_PORT, max = DEFAULT_MAX_PORT): boolean {
   return Number.isInteger(port) && port >= min && port <= max;
 }
 
@@ -228,8 +224,8 @@ export function formatPortDisplay(
   }
 
   if (mode === 'multi' && Array.isArray(value)) {
-    return value.length > 0
-      ? `${value.join(', ')} (${value.length} port${value.length !== 1 ? 's' : ''})`
+    return value.length > 0 ?
+        `${value.join(', ')} (${value.length} port${value.length !== 1 ? 's' : ''})`
       : '';
   }
 
@@ -352,8 +348,9 @@ export function usePortInput(config: UsePortInputConfig = {}): UsePortInputRetur
     }
 
     if (mode === 'range') {
-      const rangeValue = rangeStartValue && rangeEndValue
-        ? `${rangeStartValue}-${rangeEndValue}`
+      const rangeValue =
+        rangeStartValue && rangeEndValue ?
+          `${rangeStartValue}-${rangeEndValue}`
         : rangeStartValue || '';
       const parsedRange = parsePortRange(rangeValue, min, max);
 
@@ -656,17 +653,13 @@ export function usePortInput(config: UsePortInputConfig = {}): UsePortInputRetur
       if (showSuggestionsDropdown && suggestions.length > 0) {
         if (e.key === 'ArrowDown') {
           e.preventDefault();
-          setSelectedSuggestionIndex((prev) =>
-            prev < suggestions.length - 1 ? prev + 1 : 0
-          );
+          setSelectedSuggestionIndex((prev) => (prev < suggestions.length - 1 ? prev + 1 : 0));
           return;
         }
 
         if (e.key === 'ArrowUp') {
           e.preventDefault();
-          setSelectedSuggestionIndex((prev) =>
-            prev > 0 ? prev - 1 : suggestions.length - 1
-          );
+          setSelectedSuggestionIndex((prev) => (prev > 0 ? prev - 1 : suggestions.length - 1));
           return;
         }
 
@@ -698,7 +691,12 @@ export function usePortInput(config: UsePortInputConfig = {}): UsePortInputRetur
       }
 
       // Multi mode: Backspace to remove last port when input is empty
-      if (mode === 'multi' && e.key === 'Backspace' && multiInputValue === '' && multiPorts.length > 0) {
+      if (
+        mode === 'multi' &&
+        e.key === 'Backspace' &&
+        multiInputValue === '' &&
+        multiPorts.length > 0
+      ) {
         e.preventDefault();
         const lastPort = multiPorts[multiPorts.length - 1];
         handleRemovePort(lastPort);
@@ -820,8 +818,9 @@ export function usePortInput(config: UsePortInputConfig = {}): UsePortInputRetur
     protocol,
 
     // Event handlers
-    handleChange: mode === 'multi'
-      ? (e: React.ChangeEvent<HTMLInputElement>) => {
+    handleChange:
+      mode === 'multi' ?
+        (e: React.ChangeEvent<HTMLInputElement>) => {
           const value = e.target.value;
           if (value !== '' && !/^\d*,?\d*$/.test(value)) return;
           setMultiInputValue(value);

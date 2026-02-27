@@ -39,23 +39,28 @@ const VLAN_MAX = 4094;
 const PATH_COST_MIN = 1;
 const PATH_COST_MAX = 65535;
 
-const bridgePortEditorSchema = z.object({
-  pvid: z.number().int().min(VLAN_MIN).max(VLAN_MAX),
-  frameTypes: z.enum(['ADMIT_ALL', 'ADMIT_ONLY_UNTAGGED_AND_PRIORITY', 'ADMIT_ONLY_VLAN_TAGGED']),
-  ingressFiltering: z.boolean(),
-  taggedVlans: z.array(z.number().int().min(VLAN_MIN).max(VLAN_MAX)),
-  untaggedVlans: z.array(z.number().int().min(VLAN_MIN).max(VLAN_MAX)),
-  edge: z.boolean(),
-  pathCost: z.number().int().min(PATH_COST_MIN).max(PATH_COST_MAX).optional(),
-}).refine((data) => {
-  // Ensure no overlap between tagged and untagged VLANs
-  const taggedSet = new Set(data.taggedVlans);
-  const overlap = data.untaggedVlans.some((vlan) => taggedSet.has(vlan));
-  return !overlap;
-}, {
-  message: 'Tagged and untagged VLANs must not overlap',
-  path: ['taggedVlans'],
-});
+const bridgePortEditorSchema = z
+  .object({
+    pvid: z.number().int().min(VLAN_MIN).max(VLAN_MAX),
+    frameTypes: z.enum(['ADMIT_ALL', 'ADMIT_ONLY_UNTAGGED_AND_PRIORITY', 'ADMIT_ONLY_VLAN_TAGGED']),
+    ingressFiltering: z.boolean(),
+    taggedVlans: z.array(z.number().int().min(VLAN_MIN).max(VLAN_MAX)),
+    untaggedVlans: z.array(z.number().int().min(VLAN_MIN).max(VLAN_MAX)),
+    edge: z.boolean(),
+    pathCost: z.number().int().min(PATH_COST_MIN).max(PATH_COST_MAX).optional(),
+  })
+  .refine(
+    (data) => {
+      // Ensure no overlap between tagged and untagged VLANs
+      const taggedSet = new Set(data.taggedVlans);
+      const overlap = data.untaggedVlans.some((vlan) => taggedSet.has(vlan));
+      return !overlap;
+    },
+    {
+      message: 'Tagged and untagged VLANs must not overlap',
+      path: ['taggedVlans'],
+    }
+  );
 
 export type BridgePortEditorData = z.infer<typeof bridgePortEditorSchema>;
 
@@ -84,15 +89,18 @@ export interface BridgePortEditorProps {
 function BridgePortEditorComponent({ port, open, onClose, className }: BridgePortEditorProps) {
   const [updateBridgePort, { loading: updating }] = useUpdateBridgePort();
 
-  const defaultValues = useMemo<BridgePortEditorData>(() => ({
-    pvid: port?.pvid || 1,
-    frameTypes: (port?.frameTypes as any) || 'ADMIT_ALL',
-    ingressFiltering: port?.ingressFiltering || false,
-    taggedVlans: [...(port?.taggedVlans || [])] as number[],
-    untaggedVlans: [...(port?.untaggedVlans || [])] as number[],
-    edge: port?.edge || false,
-    pathCost: port?.pathCost,
-  }), [port]);
+  const defaultValues = useMemo<BridgePortEditorData>(
+    () => ({
+      pvid: port?.pvid || 1,
+      frameTypes: (port?.frameTypes as any) || 'ADMIT_ALL',
+      ingressFiltering: port?.ingressFiltering || false,
+      taggedVlans: [...(port?.taggedVlans || [])] as number[],
+      untaggedVlans: [...(port?.untaggedVlans || [])] as number[],
+      edge: port?.edge || false,
+      pathCost: port?.pathCost,
+    }),
+    [port]
+  );
 
   const form = useForm<BridgePortEditorData>({
     resolver: zodResolver(bridgePortEditorSchema) as any,
@@ -106,50 +114,54 @@ function BridgePortEditorComponent({ port, open, onClose, className }: BridgePor
     }
   }, [port, open, defaultValues, form]);
 
-  const handleSubmit = useCallback(async (data: BridgePortEditorData) => {
-    if (!port) return;
+  const handleSubmit = useCallback(
+    async (data: BridgePortEditorData) => {
+      if (!port) return;
 
-    try {
-      const result = await updateBridgePort({
-        variables: {
-          portId: port.id,
-          input: {
-            pvid: data.pvid,
-            frameTypes: data.frameTypes,
-            ingressFiltering: data.ingressFiltering,
-            taggedVlans: data.taggedVlans,
-            untaggedVlans: data.untaggedVlans,
-            edge: data.edge,
-            pathCost: data.pathCost,
+      try {
+        const result = await updateBridgePort({
+          variables: {
+            portId: port.id,
+            input: {
+              pvid: data.pvid,
+              frameTypes: data.frameTypes,
+              ingressFiltering: data.ingressFiltering,
+              taggedVlans: data.taggedVlans,
+              untaggedVlans: data.untaggedVlans,
+              edge: data.edge,
+              pathCost: data.pathCost,
+            },
           },
-        },
-      });
-
-      if (result.data?.updateBridgePort?.success) {
-        const operationId = result.data.updateBridgePort.operationId;
-
-        toast.success('Port settings updated', {
-          duration: 10000,
-          action: operationId
-            ? {
-                label: 'Undo',
-                onClick: async () => {
-                  toast.info('Undo functionality coming soon');
-                },
-              }
-            : undefined,
         });
 
-        onClose();
-      } else {
-        const errors = result.data?.updateBridgePort?.errors || [];
-        errors.forEach((e: { message: string }) => toast.error(e.message));
+        if (result.data?.updateBridgePort?.success) {
+          const operationId = result.data.updateBridgePort.operationId;
+
+          toast.success('Port settings updated', {
+            duration: 10000,
+            action:
+              operationId ?
+                {
+                  label: 'Undo',
+                  onClick: async () => {
+                    toast.info('Undo functionality coming soon');
+                  },
+                }
+              : undefined,
+          });
+
+          onClose();
+        } else {
+          const errors = result.data?.updateBridgePort?.errors || [];
+          errors.forEach((e: { message: string }) => toast.error(e.message));
+        }
+      } catch (err: unknown) {
+        toast.error('Failed to update port settings');
+        console.error(err);
       }
-    } catch (err: unknown) {
-      toast.error('Failed to update port settings');
-      console.error(err);
-    }
-  }, [port, updateBridgePort, onClose]);
+    },
+    [port, updateBridgePort, onClose]
+  );
 
   // Check if PVID is in untagged VLANs
   const pvid = form.watch('pvid');
@@ -159,32 +171,42 @@ function BridgePortEditorComponent({ port, open, onClose, className }: BridgePor
     [pvid, untaggedVlans]
   );
 
-  const handleCloseDialog = useCallback(
-    (isOpen: boolean) => !isOpen && onClose(),
-    [onClose]
-  );
+  const handleCloseDialog = useCallback((isOpen: boolean) => !isOpen && onClose(), [onClose]);
 
   if (!port) return null;
 
   return (
-    <Dialog open={open} onOpenChange={handleCloseDialog}>
+    <Dialog
+      open={open}
+      onOpenChange={handleCloseDialog}
+    >
       <DialogContent className={`max-h-[90vh] overflow-y-auto sm:max-w-2xl ${className || ''}`}>
         <DialogHeader>
-          <DialogTitle className="font-display text-base">Configure Port: {port.interface.name}</DialogTitle>
+          <DialogTitle className="font-display text-base">
+            Configure Port: {port.interface.name}
+          </DialogTitle>
           <DialogDescription>
             Configure VLAN settings and spanning tree parameters for this bridge port
           </DialogDescription>
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-component-lg mt-component-md">
+          <form
+            onSubmit={form.handleSubmit(handleSubmit)}
+            className="space-y-component-lg mt-component-md"
+          >
             {/* PVID Warning */}
             {pvidNotInUntagged && (
               <Alert variant="warning">
-                <Icon icon={AlertTriangle} className="h-4 w-4 text-warning" aria-hidden="true" />
+                <Icon
+                  icon={AlertTriangle}
+                  className="text-warning h-4 w-4"
+                  aria-hidden="true"
+                />
                 <AlertDescription>
-                  PVID <span className="font-mono text-xs">{pvid}</span> is not in the untagged VLANs list. This is a common
-                  misconfiguration. Consider adding it to untagged VLANs.
+                  PVID <span className="font-mono text-xs">{pvid}</span> is not in the untagged
+                  VLANs list. This is a common misconfiguration. Consider adding it to untagged
+                  VLANs.
                 </AlertDescription>
               </Alert>
             )}
@@ -237,14 +259,10 @@ function BridgePortEditorComponent({ port, open, onClose, className }: BridgePor
                       <SelectItem value="ADMIT_ONLY_UNTAGGED_AND_PRIORITY">
                         Admit Only Untagged and Priority
                       </SelectItem>
-                      <SelectItem value="ADMIT_ONLY_VLAN_TAGGED">
-                        Admit Only VLAN Tagged
-                      </SelectItem>
+                      <SelectItem value="ADMIT_ONLY_VLAN_TAGGED">Admit Only VLAN Tagged</SelectItem>
                     </SelectContent>
                   </Select>
-                  <FormDescription>
-                    Which frame types are allowed on this port
-                  </FormDescription>
+                  <FormDescription>Which frame types are allowed on this port</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -255,7 +273,7 @@ function BridgePortEditorComponent({ port, open, onClose, className }: BridgePor
               control={form.control}
               name="ingressFiltering"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-component-md">
+                <FormItem className="p-component-md flex flex-row items-center justify-between rounded-lg border">
                   <div className="space-y-component-xs">
                     <FormLabel className="text-base">Ingress Filtering</FormLabel>
                     <FormDescription>
@@ -311,8 +329,8 @@ function BridgePortEditorComponent({ port, open, onClose, className }: BridgePor
             />
 
             {/* STP Settings Section */}
-            <div className="border-t pt-component-lg">
-              <h4 className="text-sm font-display font-medium mb-component-md flex items-center gap-component-sm">
+            <div className="pt-component-lg border-t">
+              <h4 className="font-display mb-component-md gap-component-sm flex items-center text-sm font-medium">
                 <span>Spanning Tree Settings</span>
               </h4>
 
@@ -321,7 +339,7 @@ function BridgePortEditorComponent({ port, open, onClose, className }: BridgePor
                 control={form.control}
                 name="edge"
                 render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-component-md mb-component-md">
+                  <FormItem className="p-component-md mb-component-md flex flex-row items-center justify-between rounded-lg border">
                     <div className="space-y-component-xs">
                       <FormLabel className="text-base">Edge Port</FormLabel>
                       <FormDescription>
@@ -354,7 +372,9 @@ function BridgePortEditorComponent({ port, open, onClose, className }: BridgePor
                         min={PATH_COST_MIN}
                         max={PATH_COST_MAX}
                         disabled={updating}
-                        onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                        onChange={(e) =>
+                          field.onChange(e.target.value ? parseInt(e.target.value) : undefined)
+                        }
                         value={field.value || ''}
                         className="font-mono"
                       />
@@ -369,7 +389,7 @@ function BridgePortEditorComponent({ port, open, onClose, className }: BridgePor
             </div>
 
             {/* Actions */}
-            <div className="flex justify-end gap-component-sm pt-component-md border-t">
+            <div className="gap-component-sm pt-component-md flex justify-end border-t">
               <Button
                 type="button"
                 variant="outline"
@@ -378,7 +398,11 @@ function BridgePortEditorComponent({ port, open, onClose, className }: BridgePor
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={updating} aria-label="Save bridge port changes">
+              <Button
+                type="submit"
+                disabled={updating}
+                aria-label="Save bridge port changes"
+              >
                 {updating ? 'Saving...' : 'Save Changes'}
               </Button>
             </div>

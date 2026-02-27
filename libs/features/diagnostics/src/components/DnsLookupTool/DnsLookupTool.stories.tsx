@@ -24,7 +24,7 @@ const meta: Meta<typeof DnsLookupTool> = {
   component: DnsLookupTool,
   decorators: [
     (Story) => (
-      <div className="p-4 max-w-6xl">
+      <div className="max-w-6xl p-4">
         <Story />
       </div>
     ),

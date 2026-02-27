@@ -1,8 +1,10 @@
 # Change Set Store
 
-This document covers the change set store that manages atomic multi-resource operations and their execution flow.
+This document covers the change set store that manages atomic multi-resource operations and their
+execution flow.
 
 **Source:**
+
 - `libs/state/stores/src/change-set/change-set.store.ts`
 
 ## Overview
@@ -76,14 +78,14 @@ interface ChangeSet {
 
 ```typescript
 export enum ChangeSetStatus {
-  DRAFT = 'DRAFT',               // Initial state, editable
-  READY = 'READY',               // Validated, ready to apply
-  APPLYING = 'APPLYING',         // Currently applying items
-  COMPLETED = 'COMPLETED',       // All items applied successfully
-  FAILED = 'FAILED',             // Apply failed, partial rollback
+  DRAFT = 'DRAFT', // Initial state, editable
+  READY = 'READY', // Validated, ready to apply
+  APPLYING = 'APPLYING', // Currently applying items
+  COMPLETED = 'COMPLETED', // All items applied successfully
+  FAILED = 'FAILED', // Apply failed, partial rollback
   ROLLING_BACK = 'ROLLING_BACK', // Undoing partial apply
-  ROLLED_BACK = 'ROLLED_BACK',   // All changes undone
-  CANCELLED = 'CANCELLED',       // User cancelled before apply
+  ROLLED_BACK = 'ROLLED_BACK', // All changes undone
+  CANCELLED = 'CANCELLED', // User cancelled before apply
 }
 ```
 
@@ -143,11 +145,11 @@ interface ChangeSetItem {
 
 ```typescript
 export type ChangeSetItemStatus =
-  | 'PENDING'       // Waiting to apply
-  | 'APPLYING'      // Currently applying
-  | 'APPLIED'       // Successfully applied
-  | 'FAILED'        // Apply failed
-  | 'ROLLED_BACK';  // Undone during rollback
+  | 'PENDING' // Waiting to apply
+  | 'APPLYING' // Currently applying
+  | 'APPLIED' // Successfully applied
+  | 'FAILED' // Apply failed
+  | 'ROLLED_BACK'; // Undone during rollback
 ```
 
 ## Store State and Actions
@@ -172,44 +174,44 @@ export interface ChangeSetState {
 
 ### Lifecycle Actions
 
-| Action | Purpose |
-|--------|---------|
+| Action                                                   | Purpose                            |
+| -------------------------------------------------------- | ---------------------------------- |
 | `createChangeSet({name, description, routerId, source})` | Create draft change set, return ID |
-| `getChangeSet(id)` | Get by ID or null |
-| `getChangeSetsForRouter(routerId)` | Get all for a router |
-| `deleteChangeSet(id)` | Delete (fails if applying) |
-| `setActiveChangeSet(id \| null)` | Set UI focus |
+| `getChangeSet(id)`                                       | Get by ID or null                  |
+| `getChangeSetsForRouter(routerId)`                       | Get all for a router               |
+| `deleteChangeSet(id)`                                    | Delete (fails if applying)         |
+| `setActiveChangeSet(id \| null)`                         | Set UI focus                       |
 
 ### Item Management Actions
 
-| Action | Purpose |
-|--------|---------|
-| `addItem(changeSetId, item)` | Add item, recalculate apply order |
-| `updateItem(changeSetId, itemId, updates)` | Update fields, recalculate if deps change |
-| `removeItem(changeSetId, itemId)` | Remove item and its dependent references |
-| `setItemDependencies(changeSetId, itemId, deps)` | Update dependencies, recalculate order |
+| Action                                           | Purpose                                   |
+| ------------------------------------------------ | ----------------------------------------- |
+| `addItem(changeSetId, item)`                     | Add item, recalculate apply order         |
+| `updateItem(changeSetId, itemId, updates)`       | Update fields, recalculate if deps change |
+| `removeItem(changeSetId, itemId)`                | Remove item and its dependent references  |
+| `setItemDependencies(changeSetId, itemId, deps)` | Update dependencies, recalculate order    |
 
 ### Status Update Actions
 
-| Action | Purpose |
-|--------|---------|
-| `updateStatus(id, status)` | Update change set status |
-| `updateItemStatus(id, itemId, status, error?)` | Update item status + timestamps |
-| `markApplying(id)` | Set to APPLYING, record start time |
-| `markCompleted(id)` | Set to COMPLETED, record end time |
-| `markFailed(id, error, failedItemId)` | Mark failed, store error info |
-| `markRolledBack(id)` | Mark as ROLLED_BACK, update applied items |
+| Action                                         | Purpose                                   |
+| ---------------------------------------------- | ----------------------------------------- |
+| `updateStatus(id, status)`                     | Update change set status                  |
+| `updateItemStatus(id, itemId, status, error?)` | Update item status + timestamps           |
+| `markApplying(id)`                             | Set to APPLYING, record start time        |
+| `markCompleted(id)`                            | Set to COMPLETED, record end time         |
+| `markFailed(id, error, failedItemId)`          | Mark failed, store error info             |
+| `markRolledBack(id)`                           | Mark as ROLLED_BACK, update applied items |
 
 ### Utility Actions
 
-| Action | Purpose |
-|--------|---------|
-| `recalculateApplyOrder(id)` | Recompute order from dependencies |
-| `getChangeSetSummary(id)` | Get summary for list views |
-| `getAllSummaries(routerId)` | Get summaries for all change sets |
+| Action                      | Purpose                             |
+| --------------------------- | ----------------------------------- |
+| `recalculateApplyOrder(id)` | Recompute order from dependencies   |
+| `getChangeSetSummary(id)`   | Get summary for list views          |
+| `getAllSummaries(routerId)` | Get summaries for all change sets   |
 | `clearCompleted(routerId?)` | Remove completed/failed/rolled back |
-| `clearError()` | Clear lastError |
-| `reset()` | Clear all state (testing) |
+| `clearError()`              | Clear lastError                     |
+| `reset()`                   | Clear all state (testing)           |
 
 ## Dependency Management
 
@@ -224,22 +226,22 @@ const items = [
     id: 'item-1',
     name: 'Bridge Interface',
     operation: 'CREATE',
-    dependencies: [],           // No dependencies, apply first
+    dependencies: [], // No dependencies, apply first
     applyOrder: 0,
   },
   {
     id: 'item-2',
     name: 'DHCP Configuration',
     operation: 'CREATE',
-    dependencies: ['item-1'],   // Depends on bridge
+    dependencies: ['item-1'], // Depends on bridge
     applyOrder: 1,
   },
   {
     id: 'item-3',
     name: 'Firewall Rules',
     operation: 'CREATE',
-    dependencies: ['item-1'],   // Also depends on bridge
-    applyOrder: 1,              // Can apply in parallel with item-2
+    dependencies: ['item-1'], // Also depends on bridge
+    applyOrder: 1, // Can apply in parallel with item-2
   },
 ];
 ```
@@ -273,6 +275,7 @@ const orderMap = computeApplyOrder(nodes);
 ```
 
 Automatic recalculation on:
+
 - Item added
 - Dependencies updated
 - Item removed
@@ -367,6 +370,7 @@ DRAFT → READY → APPLYING → COMPLETED/FAILED → ROLLED_BACK
 ```
 
 During APPLYING:
+
 1. `markApplying(csId)` sets status and start time
 2. Apply each item in `applyOrder` sequence
 3. `updateItemStatus(csId, itemId, 'APPLIED')` on success
@@ -441,9 +445,11 @@ Example display:
 ## Operation Counts
 
 ```typescript
-function getOperationCounts(
-  items: ChangeSetItem[]
-): { create: number; update: number; delete: number }
+function getOperationCounts(items: ChangeSetItem[]): {
+  create: number;
+  update: number;
+  delete: number;
+};
 ```
 
 Useful for summary displays and validation rules.
@@ -452,13 +458,8 @@ Useful for summary displays and validation rules.
 
 ```tsx
 function ChangeSetEditor({ changeSetId }) {
-  const {
-    getChangeSet,
-    addItem,
-    updateItem,
-    removeItem,
-    recalculateApplyOrder,
-  } = useChangeSetStore();
+  const { getChangeSet, addItem, updateItem, removeItem, recalculateApplyOrder } =
+    useChangeSetStore();
 
   const changeSet = getChangeSet(changeSetId);
   if (!changeSet) return null;
@@ -482,9 +483,7 @@ function ChangeSetEditor({ changeSetId }) {
 
       <DependencyGraph items={changeSet.items} />
 
-      {changeSet.validation?.errors && (
-        <ErrorBanner errors={changeSet.validation.errors} />
-      )}
+      {changeSet.validation?.errors && <ErrorBanner errors={changeSet.validation.errors} />}
     </div>
   );
 }
@@ -492,7 +491,8 @@ function ChangeSetEditor({ changeSetId }) {
 
 ## Integration with XState Machine
 
-The change set store is the **data layer**; `changeSetMachine` (XState) is the **orchestration layer**:
+The change set store is the **data layer**; `changeSetMachine` (XState) is the **orchestration
+layer**:
 
 ```
 ┌──────────────────────┐
@@ -559,7 +559,8 @@ function validateChangeSet(changeSet: ChangeSet) {
 5. **Handle Partial Failures**: Plan rollback for each item
 6. **Use Meaningful Names**: Help users understand what each change set does
 7. **Clear Completed**: Don't accumulate old change sets; archive or delete
-8. **Atomic Operations**: Don't break large operations into multiple change sets if they should be all-or-nothing
+8. **Atomic Operations**: Don't break large operations into multiple change sets if they should be
+   all-or-nothing
 9. **Document Rollback Plan**: Include steps to recover if apply fails
 
 ## Related Documentation
@@ -567,5 +568,6 @@ function validateChangeSet(changeSet: ChangeSet) {
 - **Change Set Machine**: (Agent 4 documentation) - XState orchestration of apply flow
 - **Undo/Redo Integration**: `history-undo-redo.md` - Change sets as history entries
 - **Drift Detection**: `drift-detection.md` - Monitor after apply
-- **Apply-Confirm-Merge**: `../../architecture/data-architecture.md#state-flow-apply--confirm--merge`
+- **Apply-Confirm-Merge**:
+  `../../architecture/data-architecture.md#state-flow-apply--confirm--merge`
 - **Data Architecture**: `../../architecture/data-architecture.md` - 8-layer model context

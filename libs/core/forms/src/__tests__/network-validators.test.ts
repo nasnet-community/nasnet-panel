@@ -246,13 +246,13 @@ describe('Network Validators', () => {
 
   describe('subnetMask', () => {
     it('should validate correct subnet masks', () => {
-      expect(subnetMask.safeParse('255.255.255.0').success).toBe(true);   // /24
-      expect(subnetMask.safeParse('255.255.0.0').success).toBe(true);     // /16
-      expect(subnetMask.safeParse('255.0.0.0').success).toBe(true);       // /8
+      expect(subnetMask.safeParse('255.255.255.0').success).toBe(true); // /24
+      expect(subnetMask.safeParse('255.255.0.0').success).toBe(true); // /16
+      expect(subnetMask.safeParse('255.0.0.0').success).toBe(true); // /8
       expect(subnetMask.safeParse('255.255.255.255').success).toBe(true); // /32
-      expect(subnetMask.safeParse('0.0.0.0').success).toBe(true);         // /0
+      expect(subnetMask.safeParse('0.0.0.0').success).toBe(true); // /0
       expect(subnetMask.safeParse('255.255.255.128').success).toBe(true); // /25
-      expect(subnetMask.safeParse('255.255.128.0').success).toBe(true);   // /17
+      expect(subnetMask.safeParse('255.255.128.0').success).toBe(true); // /17
       expect(subnetMask.safeParse('255.255.255.192').success).toBe(true); // /26
       expect(subnetMask.safeParse('255.255.255.224').success).toBe(true); // /27
       expect(subnetMask.safeParse('255.255.255.240').success).toBe(true); // /28
@@ -287,13 +287,13 @@ describe('Network Validators', () => {
     });
 
     it('should reject invalid IP:port combinations', () => {
-      expect(ipWithPort.safeParse('192.168.1.1').success).toBe(false);        // No port
-      expect(ipWithPort.safeParse('192.168.1.1:').success).toBe(false);       // Empty port
-      expect(ipWithPort.safeParse('192.168.1.1:0').success).toBe(false);      // Port 0
-      expect(ipWithPort.safeParse('192.168.1.1:65536').success).toBe(false);  // Port too large
-      expect(ipWithPort.safeParse('256.1.1.1:8080').success).toBe(false);     // Invalid IP
-      expect(ipWithPort.safeParse(':8080').success).toBe(false);              // Missing IP
-      expect(ipWithPort.safeParse('192.168.01.1:8080').success).toBe(false);  // Leading zeros
+      expect(ipWithPort.safeParse('192.168.1.1').success).toBe(false); // No port
+      expect(ipWithPort.safeParse('192.168.1.1:').success).toBe(false); // Empty port
+      expect(ipWithPort.safeParse('192.168.1.1:0').success).toBe(false); // Port 0
+      expect(ipWithPort.safeParse('192.168.1.1:65536').success).toBe(false); // Port too large
+      expect(ipWithPort.safeParse('256.1.1.1:8080').success).toBe(false); // Invalid IP
+      expect(ipWithPort.safeParse(':8080').success).toBe(false); // Missing IP
+      expect(ipWithPort.safeParse('192.168.01.1:8080').success).toBe(false); // Leading zeros
     });
   });
 
@@ -301,23 +301,23 @@ describe('Network Validators', () => {
     it('should validate correct IP ranges', () => {
       expect(ipRange.safeParse('192.168.1.1-192.168.1.100').success).toBe(true);
       expect(ipRange.safeParse('10.0.0.1-10.0.0.254').success).toBe(true);
-      expect(ipRange.safeParse('192.168.1.1-192.168.1.1').success).toBe(true);     // Same IP (single host)
-      expect(ipRange.safeParse('0.0.0.0-255.255.255.255').success).toBe(true);     // Full range
-      expect(ipRange.safeParse('192.168.1.100-192.168.2.50').success).toBe(true);  // Cross subnet
+      expect(ipRange.safeParse('192.168.1.1-192.168.1.1').success).toBe(true); // Same IP (single host)
+      expect(ipRange.safeParse('0.0.0.0-255.255.255.255').success).toBe(true); // Full range
+      expect(ipRange.safeParse('192.168.1.100-192.168.2.50').success).toBe(true); // Cross subnet
     });
 
     it('should reject invalid IP ranges (inverted)', () => {
-      expect(ipRange.safeParse('192.168.1.100-192.168.1.1').success).toBe(false);   // Start > end
-      expect(ipRange.safeParse('192.168.2.1-192.168.1.100').success).toBe(false);   // Start > end (different subnet)
-      expect(ipRange.safeParse('10.0.0.10-10.0.0.5').success).toBe(false);          // Start > end
+      expect(ipRange.safeParse('192.168.1.100-192.168.1.1').success).toBe(false); // Start > end
+      expect(ipRange.safeParse('192.168.2.1-192.168.1.100').success).toBe(false); // Start > end (different subnet)
+      expect(ipRange.safeParse('10.0.0.10-10.0.0.5').success).toBe(false); // Start > end
     });
 
     it('should reject invalid formats', () => {
-      expect(ipRange.safeParse('192.168.1.1').success).toBe(false);              // Single IP, no range
-      expect(ipRange.safeParse('192.168.1.1-').success).toBe(false);             // Missing end
-      expect(ipRange.safeParse('-192.168.1.100').success).toBe(false);           // Missing start
-      expect(ipRange.safeParse('256.1.1.1-192.168.1.100').success).toBe(false);  // Invalid start IP
-      expect(ipRange.safeParse('192.168.1.1-256.1.1.1').success).toBe(false);    // Invalid end IP
+      expect(ipRange.safeParse('192.168.1.1').success).toBe(false); // Single IP, no range
+      expect(ipRange.safeParse('192.168.1.1-').success).toBe(false); // Missing end
+      expect(ipRange.safeParse('-192.168.1.100').success).toBe(false); // Missing start
+      expect(ipRange.safeParse('256.1.1.1-192.168.1.100').success).toBe(false); // Invalid start IP
+      expect(ipRange.safeParse('192.168.1.1-256.1.1.1').success).toBe(false); // Invalid end IP
     });
   });
 
@@ -347,11 +347,11 @@ describe('Network Validators', () => {
     });
 
     it('should reject other special ranges', () => {
-      expect(privateIp.safeParse('127.0.0.1').success).toBe(false);      // Loopback
-      expect(privateIp.safeParse('169.254.1.1').success).toBe(false);    // Link-local
-      expect(privateIp.safeParse('224.0.0.1').success).toBe(false);      // Multicast
-      expect(privateIp.safeParse('172.15.0.1').success).toBe(false);     // Not in 172.16-31.x
-      expect(privateIp.safeParse('172.32.0.1').success).toBe(false);     // Not in 172.16-31.x
+      expect(privateIp.safeParse('127.0.0.1').success).toBe(false); // Loopback
+      expect(privateIp.safeParse('169.254.1.1').success).toBe(false); // Link-local
+      expect(privateIp.safeParse('224.0.0.1').success).toBe(false); // Multicast
+      expect(privateIp.safeParse('172.15.0.1').success).toBe(false); // Not in 172.16-31.x
+      expect(privateIp.safeParse('172.32.0.1').success).toBe(false); // Not in 172.16-31.x
     });
   });
 
@@ -370,19 +370,19 @@ describe('Network Validators', () => {
     });
 
     it('should reject special ranges', () => {
-      expect(publicIp.safeParse('127.0.0.1').success).toBe(false);       // Loopback
-      expect(publicIp.safeParse('169.254.1.1').success).toBe(false);     // Link-local
-      expect(publicIp.safeParse('224.0.0.1').success).toBe(false);       // Multicast
-      expect(publicIp.safeParse('0.0.0.0').success).toBe(false);         // This host
+      expect(publicIp.safeParse('127.0.0.1').success).toBe(false); // Loopback
+      expect(publicIp.safeParse('169.254.1.1').success).toBe(false); // Link-local
+      expect(publicIp.safeParse('224.0.0.1').success).toBe(false); // Multicast
+      expect(publicIp.safeParse('0.0.0.0').success).toBe(false); // This host
       expect(publicIp.safeParse('255.255.255.255').success).toBe(false); // Broadcast
-      expect(publicIp.safeParse('240.0.0.1').success).toBe(false);       // Reserved
+      expect(publicIp.safeParse('240.0.0.1').success).toBe(false); // Reserved
     });
   });
 
   describe('multicastIp', () => {
     it('should validate multicast IP addresses', () => {
       expect(multicastIp.safeParse('224.0.0.1').success).toBe(true);
-      expect(multicastIp.safeParse('224.0.0.251').success).toBe(true);   // mDNS
+      expect(multicastIp.safeParse('224.0.0.251').success).toBe(true); // mDNS
       expect(multicastIp.safeParse('239.255.255.255').success).toBe(true);
       expect(multicastIp.safeParse('230.100.50.25').success).toBe(true);
     });
@@ -391,7 +391,7 @@ describe('Network Validators', () => {
       expect(multicastIp.safeParse('192.168.1.1').success).toBe(false);
       expect(multicastIp.safeParse('10.0.0.1').success).toBe(false);
       expect(multicastIp.safeParse('223.255.255.255').success).toBe(false); // Just below multicast range
-      expect(multicastIp.safeParse('240.0.0.1').success).toBe(false);       // Above multicast range
+      expect(multicastIp.safeParse('240.0.0.1').success).toBe(false); // Above multicast range
     });
   });
 
@@ -421,18 +421,18 @@ describe('Network Validators', () => {
     it('should validate multiple ports', () => {
       expect(multiPort.safeParse('80,443').success).toBe(true);
       expect(multiPort.safeParse('22,80,443').success).toBe(true);
-      expect(multiPort.safeParse('80, 443, 8080').success).toBe(true);  // With spaces
+      expect(multiPort.safeParse('80, 443, 8080').success).toBe(true); // With spaces
       expect(multiPort.safeParse('1,65535').success).toBe(true);
     });
 
     it('should reject invalid port lists', () => {
-      expect(multiPort.safeParse('0').success).toBe(false);         // Port 0
-      expect(multiPort.safeParse('65536').success).toBe(false);     // Port too large
-      expect(multiPort.safeParse('80,').success).toBe(false);       // Trailing comma
-      expect(multiPort.safeParse(',80').success).toBe(false);       // Leading comma
-      expect(multiPort.safeParse('80,abc').success).toBe(false);    // Invalid port
-      expect(multiPort.safeParse('').success).toBe(false);          // Empty
-      expect(multiPort.safeParse('80,0,443').success).toBe(false);  // Contains port 0
+      expect(multiPort.safeParse('0').success).toBe(false); // Port 0
+      expect(multiPort.safeParse('65536').success).toBe(false); // Port too large
+      expect(multiPort.safeParse('80,').success).toBe(false); // Trailing comma
+      expect(multiPort.safeParse(',80').success).toBe(false); // Leading comma
+      expect(multiPort.safeParse('80,abc').success).toBe(false); // Invalid port
+      expect(multiPort.safeParse('').success).toBe(false); // Empty
+      expect(multiPort.safeParse('80,0,443').success).toBe(false); // Contains port 0
     });
   });
 });

@@ -64,12 +64,13 @@ export const Success: Story = {
     open: true,
   },
   render: () => (
-    <Toast variant="success" open>
+    <Toast
+      variant="success"
+      open
+    >
       <div className="grid gap-1">
         <ToastTitle>Configuration Saved</ToastTitle>
-        <ToastDescription>
-          Your router settings have been updated successfully.
-        </ToastDescription>
+        <ToastDescription>Your router settings have been updated successfully.</ToastDescription>
       </div>
       <ToastClose />
     </Toast>
@@ -82,7 +83,10 @@ export const Warning: Story = {
     open: true,
   },
   render: () => (
-    <Toast variant="warning" open>
+    <Toast
+      variant="warning"
+      open
+    >
       <div className="grid gap-1">
         <ToastTitle>High CPU Usage</ToastTitle>
         <ToastDescription>
@@ -100,7 +104,10 @@ export const Error: Story = {
     open: true,
   },
   render: () => (
-    <Toast variant="error" open>
+    <Toast
+      variant="error"
+      open
+    >
       <div className="grid gap-1">
         <ToastTitle>Connection Failed</ToastTitle>
         <ToastDescription>
@@ -118,7 +125,10 @@ export const Info: Story = {
     open: true,
   },
   render: () => (
-    <Toast variant="info" open>
+    <Toast
+      variant="info"
+      open
+    >
       <div className="grid gap-1">
         <ToastTitle>Firmware Update Available</ToastTitle>
         <ToastDescription>
@@ -159,9 +169,7 @@ export const InteractiveDemo: Story = {
       }>
     >([]);
 
-    const addToast = (
-      variant: 'default' | 'success' | 'warning' | 'error' | 'info'
-    ) => {
+    const addToast = (variant: 'default' | 'success' | 'warning' | 'error' | 'info') => {
       const messages = {
         default: {
           title: 'Notification',
@@ -202,8 +210,11 @@ export const InteractiveDemo: Story = {
 
     return (
       <div className="flex flex-col gap-4">
-        <div className="flex gap-2 flex-wrap">
-          <Button variant="outline" onClick={() => addToast('default')}>
+        <div className="flex flex-wrap gap-2">
+          <Button
+            variant="outline"
+            onClick={() => addToast('default')}
+          >
             Default
           </Button>
           <Button
@@ -235,7 +246,7 @@ export const InteractiveDemo: Story = {
             Info
           </Button>
         </div>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-muted-foreground text-sm">
           Click a button to show a toast. Toasts auto-dismiss after 5 seconds.
         </p>
 
@@ -265,8 +276,11 @@ export const InteractiveDemo: Story = {
 
 export const AllVariants: Story = {
   render: () => (
-    <div className="flex flex-col gap-4 w-[380px]">
-      <Toast variant="default" open>
+    <div className="flex w-[380px] flex-col gap-4">
+      <Toast
+        variant="default"
+        open
+      >
         <div className="grid gap-1">
           <ToastTitle>Default</ToastTitle>
           <ToastDescription>Default toast style.</ToastDescription>
@@ -274,7 +288,10 @@ export const AllVariants: Story = {
         <ToastClose />
       </Toast>
 
-      <Toast variant="success" open>
+      <Toast
+        variant="success"
+        open
+      >
         <div className="grid gap-1">
           <ToastTitle>Success</ToastTitle>
           <ToastDescription>Success toast style.</ToastDescription>
@@ -282,7 +299,10 @@ export const AllVariants: Story = {
         <ToastClose />
       </Toast>
 
-      <Toast variant="warning" open>
+      <Toast
+        variant="warning"
+        open
+      >
         <div className="grid gap-1">
           <ToastTitle>Warning</ToastTitle>
           <ToastDescription>Warning toast style.</ToastDescription>
@@ -290,7 +310,10 @@ export const AllVariants: Story = {
         <ToastClose />
       </Toast>
 
-      <Toast variant="error" open>
+      <Toast
+        variant="error"
+        open
+      >
         <div className="grid gap-1">
           <ToastTitle>Error</ToastTitle>
           <ToastDescription>Error toast style.</ToastDescription>
@@ -298,7 +321,10 @@ export const AllVariants: Story = {
         <ToastClose />
       </Toast>
 
-      <Toast variant="info" open>
+      <Toast
+        variant="info"
+        open
+      >
         <div className="grid gap-1">
           <ToastTitle>Info</ToastTitle>
           <ToastDescription>Info toast style.</ToastDescription>

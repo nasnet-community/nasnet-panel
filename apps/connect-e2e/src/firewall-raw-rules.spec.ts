@@ -29,18 +29,22 @@ async function navigateToRawRules(page: Page) {
 
 // Helper to wait for table to load
 async function waitForTableLoad(page: Page) {
-  await page.waitForSelector('[data-testid="raw-rules-table"]', {
-    state: 'visible',
-    timeout: 5000,
-  }).catch(() => {
-    // Table might not exist if empty - check for empty state instead
-    return page.waitForSelector('[data-testid="raw-empty-state"]', {
+  await page
+    .waitForSelector('[data-testid="raw-rules-table"]', {
       state: 'visible',
-      timeout: 2000,
-    }).catch(() => {
-      // Neither exists - page might still be loading
+      timeout: 5000,
+    })
+    .catch(() => {
+      // Table might not exist if empty - check for empty state instead
+      return page
+        .waitForSelector('[data-testid="raw-empty-state"]', {
+          state: 'visible',
+          timeout: 2000,
+        })
+        .catch(() => {
+          // Neither exists - page might still be loading
+        });
     });
-  });
 }
 
 test.describe('Firewall RAW Rules - Desktop', () => {
@@ -53,7 +57,9 @@ test.describe('Firewall RAW Rules - Desktop', () => {
   test('displays RAW page with notice banner and chain tabs', async ({ page }) => {
     // Verify notice banner explaining RAW table purpose
     await expect(page.getByRole('alert')).toBeVisible();
-    await expect(page.getByText(/RAW rules are processed before connection tracking/i)).toBeVisible();
+    await expect(
+      page.getByText(/RAW rules are processed before connection tracking/i)
+    ).toBeVisible();
 
     // Verify chain tabs exist
     await expect(page.getByRole('tab', { name: /prerouting/i })).toBeVisible();
@@ -293,7 +299,10 @@ test.describe('Firewall RAW Rules - Desktop', () => {
 
     // Find performance section
     const performanceSection = page.locator('[data-testid="performance-section"]').or(
-      page.getByText(/performance.*benefits?|RAW vs Filter/i).locator('..').locator('..')
+      page
+        .getByText(/performance.*benefits?|RAW vs Filter/i)
+        .locator('..')
+        .locator('..')
     );
 
     if (await performanceSection.isVisible()) {
@@ -366,9 +375,9 @@ test.describe('Firewall RAW Rules - Mobile', () => {
     await waitForTableLoad(page);
 
     // Verify card layout instead of table
-    const cardContainer = page.locator('[data-testid="raw-rules-mobile"]').or(
-      page.locator('[data-testid="raw-rules-cards"]')
-    );
+    const cardContainer = page
+      .locator('[data-testid="raw-rules-mobile"]')
+      .or(page.locator('[data-testid="raw-rules-cards"]'));
 
     if (await cardContainer.isVisible()) {
       // Verify cards exist

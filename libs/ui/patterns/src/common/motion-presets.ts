@@ -193,10 +193,7 @@ export function getSlideVariants(
 /**
  * Stagger children animation config
  */
-export function getStaggerConfig(
-  reducedMotion: boolean,
-  staggerTime: number = 0.05
-): Variants {
+export function getStaggerConfig(reducedMotion: boolean, staggerTime: number = 0.05): Variants {
   if (reducedMotion) {
     return {
       hidden: { opacity: 0 },
@@ -224,9 +221,7 @@ export function getStaggerConfig(
  * Hover animation (for interactive elements)
  * Disabled in reduced motion mode
  */
-export function getHoverAnimation(
-  reducedMotion: boolean
-): TargetAndTransition | undefined {
+export function getHoverAnimation(reducedMotion: boolean): TargetAndTransition | undefined {
   if (reducedMotion) {
     return undefined;
   }
@@ -241,9 +236,7 @@ export function getHoverAnimation(
  * Tap animation (for interactive elements)
  * Disabled in reduced motion mode
  */
-export function getTapAnimation(
-  reducedMotion: boolean
-): TargetAndTransition | undefined {
+export function getTapAnimation(reducedMotion: boolean): TargetAndTransition | undefined {
   if (reducedMotion) {
     return undefined;
   }

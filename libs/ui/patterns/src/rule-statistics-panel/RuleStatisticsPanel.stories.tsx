@@ -56,11 +56,7 @@ function generateHistoryData(hours: number, dataPoints: number): CounterHistoryE
 /**
  * Interactive wrapper component
  */
-function RuleStatisticsPanelStory({
-  historyData,
-}: {
-  historyData: CounterHistoryEntry[];
-}) {
+function RuleStatisticsPanelStory({ historyData }: { historyData: CounterHistoryEntry[] }) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (

@@ -7,11 +7,7 @@ import { useQuery, gql } from '@apollo/client';
 
 // GraphQL query for alert escalations
 const ALERT_ESCALATIONS_QUERY = gql`
-  query AlertEscalations(
-    $status: EscalationStatus
-    $limit: Int
-    $offset: Int
-  ) {
+  query AlertEscalations($status: EscalationStatus, $limit: Int, $offset: Int) {
     alertEscalations(status: $status, limit: $limit, offset: $offset) {
       id
       alertId
@@ -81,12 +77,7 @@ export interface UseAlertEscalationsOptions {
  * ```
  */
 export function useAlertEscalations(options: UseAlertEscalationsOptions = {}) {
-  const {
-    status,
-    limit = 50,
-    offset = 0,
-    pollInterval,
-  } = options;
+  const { status, limit = 50, offset = 0, pollInterval } = options;
 
   return useQuery(ALERT_ESCALATIONS_QUERY, {
     variables: {

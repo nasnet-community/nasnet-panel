@@ -85,12 +85,14 @@ function getNetworkErrorConfig(type: NetworkErrorType) {
     case 'timeout':
       return {
         title: 'Connection timed out',
-        description: 'The server took too long to respond. This may be due to slow network or server issues.',
+        description:
+          'The server took too long to respond. This may be due to slow network or server issues.',
       };
     case 'connection-refused':
       return {
         title: 'Connection refused',
-        description: 'Unable to connect to the router. Make sure the router is powered on and accessible.',
+        description:
+          'Unable to connect to the router. Make sure the router is powered on and accessible.',
       };
     case 'dns-failed':
       return {
@@ -180,7 +182,10 @@ function NetworkErrorDisplayComponent({
 
   const config = React.useMemo(() => getNetworkErrorConfig(type), [type]);
   const displayTitle = React.useMemo(() => title || config.title, [title, config.title]);
-  const displayDescription = React.useMemo(() => description || config.description, [description, config.description]);
+  const displayDescription = React.useMemo(
+    () => description || config.description,
+    [description, config.description]
+  );
 
   // If we came back online while showing the error, show success state
   const showOnlineSuccess = type === 'offline' && isOnline;
@@ -199,10 +204,8 @@ function NetworkErrorDisplayComponent({
     return (
       <div
         className={cn(
-          'flex items-center gap-3 p-3 rounded-lg border',
-          showOnlineSuccess
-            ? 'bg-success/5 border-success/30'
-            : 'bg-info/5 border-info/30',
+          'flex items-center gap-3 rounded-lg border p-3',
+          showOnlineSuccess ? 'bg-success/5 border-success/30' : 'bg-info/5 border-info/30',
           className
         )}
         role="alert"
@@ -210,24 +213,27 @@ function NetworkErrorDisplayComponent({
       >
         <div
           className={cn(
-            'w-8 h-8 rounded-lg flex items-center justify-center',
+            'flex h-8 w-8 items-center justify-center rounded-lg',
             showOnlineSuccess ? 'bg-success/10' : 'bg-info/10'
           )}
         >
-          {showOnlineSuccess ? (
-            <Wifi className="w-4 h-4 text-success" aria-hidden="true" />
-          ) : (
-            <WifiOff className="w-4 h-4 text-info" aria-hidden="true" />
-          )}
+          {showOnlineSuccess ?
+            <Wifi
+              className="text-success h-4 w-4"
+              aria-hidden="true"
+            />
+          : <WifiOff
+              className="text-info h-4 w-4"
+              aria-hidden="true"
+            />
+          }
         </div>
-        <div className="flex-1 min-w-0">
-          <p className="font-medium text-foreground text-sm">
+        <div className="min-w-0 flex-1">
+          <p className="text-foreground text-sm font-medium">
             {showOnlineSuccess ? 'Back online' : displayTitle}
           </p>
           {!showOnlineSuccess && isRetrying && nextRetryIn && (
-            <p className="text-xs text-muted-foreground">
-              Retrying in {nextRetryIn}s...
-            </p>
+            <p className="text-muted-foreground text-xs">Retrying in {nextRetryIn}s...</p>
           )}
         </div>
         {!showOnlineSuccess && onRetry && (
@@ -238,11 +244,16 @@ function NetworkErrorDisplayComponent({
             disabled={isRetrying}
             aria-label={isRetrying ? 'Retrying connection' : 'Retry connection'}
           >
-            {isRetrying ? (
-              <RefreshCw className="w-3.5 h-3.5 animate-spin" aria-hidden="true" />
-            ) : (
-              <RefreshCw className="w-3.5 h-3.5" aria-hidden="true" />
-            )}
+            {isRetrying ?
+              <RefreshCw
+                className="h-3.5 w-3.5 animate-spin"
+                aria-hidden="true"
+              />
+            : <RefreshCw
+                className="h-3.5 w-3.5"
+                aria-hidden="true"
+              />
+            }
           </Button>
         )}
       </div>
@@ -253,9 +264,7 @@ function NetworkErrorDisplayComponent({
   return (
     <Card
       className={cn(
-        showOnlineSuccess
-          ? 'border-success/30 bg-success/5'
-          : 'border-info/30 bg-info/5',
+        showOnlineSuccess ? 'border-success/30 bg-success/5' : 'border-info/30 bg-info/5',
         className
       )}
       role="alert"
@@ -266,42 +275,50 @@ function NetworkErrorDisplayComponent({
           {/* Icon */}
           <div
             className={cn(
-              'w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center flex-shrink-0',
+              'flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl sm:h-12 sm:w-12',
               showOnlineSuccess ? 'bg-success/10' : 'bg-info/10'
             )}
           >
-            {showOnlineSuccess ? (
-              <CheckCircle className="w-5 h-5 sm:w-6 sm:h-6 text-success" aria-hidden="true" />
-            ) : (
-              <WifiOff className="w-5 h-5 sm:w-6 sm:h-6 text-info" aria-hidden="true" />
-            )}
+            {showOnlineSuccess ?
+              <CheckCircle
+                className="text-success h-5 w-5 sm:h-6 sm:w-6"
+                aria-hidden="true"
+              />
+            : <WifiOff
+                className="text-info h-5 w-5 sm:h-6 sm:w-6"
+                aria-hidden="true"
+              />
+            }
           </div>
 
           {/* Content */}
-          <div className="flex-1 min-w-0">
+          <div className="min-w-0 flex-1">
             {/* Title with error code */}
-            <div className="flex items-center gap-2 flex-wrap">
-              <h4 className="font-medium text-foreground">
+            <div className="flex flex-wrap items-center gap-2">
+              <h4 className="text-foreground font-medium">
                 {showOnlineSuccess ? 'Connection restored' : displayTitle}
               </h4>
               {!showOnlineSuccess && errorCode && (
-                <span className="text-xs font-mono text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
+                <span className="text-muted-foreground bg-muted rounded px-1.5 py-0.5 font-mono text-xs">
                   {errorCode}
                 </span>
               )}
             </div>
 
             {/* Description */}
-            <p className="text-sm text-muted-foreground mt-1">
-              {showOnlineSuccess
-                ? 'Your network connection has been restored.'
-                : displayDescription}
+            <p className="text-muted-foreground mt-1 text-sm">
+              {showOnlineSuccess ?
+                'Your network connection has been restored.'
+              : displayDescription}
             </p>
 
             {/* Retry Status */}
             {!showOnlineSuccess && isRetrying && (
-              <div className="flex items-center gap-2 mt-2 text-sm text-muted-foreground">
-                <RefreshCw className="w-3.5 h-3.5 animate-spin" aria-hidden="true" />
+              <div className="text-muted-foreground mt-2 flex items-center gap-2 text-sm">
+                <RefreshCw
+                  className="h-3.5 w-3.5 animate-spin"
+                  aria-hidden="true"
+                />
                 <span>
                   Retrying{retryAttempt && maxRetries && ` (${retryAttempt}/${maxRetries})`}
                   {nextRetryIn && `... ${nextRetryIn}s`}
@@ -311,7 +328,7 @@ function NetworkErrorDisplayComponent({
 
             {/* Actions */}
             {!showOnlineSuccess && (
-              <div className="flex flex-wrap items-center gap-2 mt-3">
+              <div className="mt-3 flex flex-wrap items-center gap-2">
                 {onRetry && (
                   <Button
                     size="sm"
@@ -320,23 +337,35 @@ function NetworkErrorDisplayComponent({
                     disabled={isRetrying}
                     aria-label={isRetrying ? 'Retrying connection' : 'Retry connection now'}
                   >
-                    {isRetrying ? (
+                    {isRetrying ?
                       <>
-                        <RefreshCw className="w-3.5 h-3.5 mr-1.5 animate-spin" aria-hidden="true" />
+                        <RefreshCw
+                          className="mr-1.5 h-3.5 w-3.5 animate-spin"
+                          aria-hidden="true"
+                        />
                         Retrying...
                       </>
-                    ) : (
-                      <>
-                        <RefreshCw className="w-3.5 h-3.5 mr-1.5" aria-hidden="true" />
+                    : <>
+                        <RefreshCw
+                          className="mr-1.5 h-3.5 w-3.5"
+                          aria-hidden="true"
+                        />
                         Retry Now
                       </>
-                    )}
+                    }
                   </Button>
                 )}
 
                 {onOpenSettings && (
-                  <Button size="sm" variant="outline" onClick={handleOpenSettings}>
-                    <Settings className="w-3.5 h-3.5 mr-1.5" aria-hidden="true" />
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={handleOpenSettings}
+                  >
+                    <Settings
+                      className="mr-1.5 h-3.5 w-3.5"
+                      aria-hidden="true"
+                    />
                     Network Settings
                   </Button>
                 )}
@@ -344,28 +373,35 @@ function NetworkErrorDisplayComponent({
                 {showTroubleshooting && (
                   <button
                     onClick={() => setShowTips(!showTips)}
-                    className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded"
+                    className="text-muted-foreground hover:text-foreground focus-visible:ring-ring inline-flex items-center gap-1 rounded text-sm transition-colors focus-visible:ring-2 focus-visible:ring-offset-2"
                     aria-expanded={showTips}
-                    aria-label={showTips ? 'Hide troubleshooting tips' : 'Show troubleshooting tips'}
+                    aria-label={
+                      showTips ? 'Hide troubleshooting tips' : 'Show troubleshooting tips'
+                    }
                   >
-                    {showTips ? (
+                    {showTips ?
                       <>
-                        <ChevronUp className="w-3.5 h-3.5" aria-hidden="true" />
+                        <ChevronUp
+                          className="h-3.5 w-3.5"
+                          aria-hidden="true"
+                        />
                         Hide tips
                       </>
-                    ) : (
-                      <>
-                        <ChevronDown className="w-3.5 h-3.5" aria-hidden="true" />
+                    : <>
+                        <ChevronDown
+                          className="h-3.5 w-3.5"
+                          aria-hidden="true"
+                        />
                         Troubleshooting tips
                       </>
-                    )}
+                    }
                   </button>
                 )}
 
                 {technicalMessage && (
                   <button
                     onClick={() => setShowDetails(!showDetails)}
-                    className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors ml-auto focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded"
+                    className="text-muted-foreground hover:text-foreground focus-visible:ring-ring ml-auto inline-flex items-center gap-1 rounded text-sm transition-colors focus-visible:ring-2 focus-visible:ring-offset-2"
                     aria-expanded={showDetails}
                     aria-label={showDetails ? 'Hide technical details' : 'Show technical details'}
                   >
@@ -377,15 +413,13 @@ function NetworkErrorDisplayComponent({
 
             {/* Troubleshooting Tips */}
             {showTips && !showOnlineSuccess && (
-              <div className="mt-3 p-3 bg-muted rounded-lg">
-                <p className="text-xs font-medium text-foreground mb-2">
-                  Things to try:
-                </p>
+              <div className="bg-muted mt-3 rounded-lg p-3">
+                <p className="text-foreground mb-2 text-xs font-medium">Things to try:</p>
                 <ul className="space-y-1">
                   {troubleshootingTips.map((tip, index) => (
                     <li
                       key={index}
-                      className="text-xs text-muted-foreground flex items-start gap-2"
+                      className="text-muted-foreground flex items-start gap-2 text-xs"
                     >
                       <span className="text-info">•</span>
                       {tip}
@@ -397,7 +431,7 @@ function NetworkErrorDisplayComponent({
 
             {/* Technical Details */}
             {showDetails && technicalMessage && !showOnlineSuccess && (
-              <div className="mt-3 p-2 bg-muted rounded text-xs font-mono text-foreground break-all">
+              <div className="bg-muted text-foreground mt-3 break-all rounded p-2 font-mono text-xs">
                 {technicalMessage}
               </div>
             )}

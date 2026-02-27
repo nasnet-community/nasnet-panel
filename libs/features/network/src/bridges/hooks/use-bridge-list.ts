@@ -1,9 +1,5 @@
 import { useState, useMemo, useCallback } from 'react';
-import {
-  useBridges,
-  useDeleteBridge,
-  useUndoBridgeOperation,
-} from '@nasnet/api-client/queries';
+import { useBridges, useDeleteBridge, useUndoBridgeOperation } from '@nasnet/api-client/queries';
 import { toast } from 'sonner';
 import type { Bridge } from '@nasnet/api-client/generated';
 
@@ -32,14 +28,11 @@ export function useBridgeList(routerId: string) {
   // Filtered bridges - memoized for performance
   const filteredBridges = useMemo(() => {
     return bridges
-      .filter((bridge: Bridge) =>
-        bridge.name.toLowerCase().includes(searchQuery.toLowerCase())
-      )
+      .filter((bridge: Bridge) => bridge.name.toLowerCase().includes(searchQuery.toLowerCase()))
       .filter((bridge: Bridge) => !protocolFilter || bridge.protocol === protocolFilter)
       .filter(
         (bridge: Bridge) =>
-          vlanFilteringFilter === null ||
-          bridge.vlanFiltering === vlanFilteringFilter
+          vlanFilteringFilter === null || bridge.vlanFiltering === vlanFilteringFilter
       );
   }, [bridges, searchQuery, protocolFilter, vlanFilteringFilter]);
 
@@ -57,8 +50,9 @@ export function useBridgeList(routerId: string) {
           // Show success toast with undo button
           toast.success('Bridge deleted', {
             duration: UNDO_TOAST_DURATION,
-            action: operationId
-              ? {
+            action:
+              operationId ?
+                {
                   label: 'Undo',
                   onClick: async () => {
                     try {

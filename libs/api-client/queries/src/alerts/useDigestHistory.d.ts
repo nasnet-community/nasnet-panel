@@ -44,9 +44,12 @@
  * }
  * ```
  */
-export declare function useDigestHistory(channelId: string, options?: {
+export declare function useDigestHistory(
+  channelId: string,
+  options?: {
     limit?: number;
     pollInterval?: number;
     skip?: boolean;
-}): import("@apollo/client").InteropQueryResult<any, import("@apollo/client").OperationVariables>;
+  }
+): import('@apollo/client').InteropQueryResult<any, import('@apollo/client').OperationVariables>;
 //# sourceMappingURL=useDigestHistory.d.ts.map

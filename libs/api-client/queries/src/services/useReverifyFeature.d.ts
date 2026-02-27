@@ -11,19 +11,19 @@ import type { ReverifyPayload } from '@nasnet/api-client/generated';
 /**
  * GraphQL mutation for reverifying a service instance binary
  */
-export declare const REVERIFY_INSTANCE: import("graphql").DocumentNode;
+export declare const REVERIFY_INSTANCE: import('graphql').DocumentNode;
 /**
  * Variables for REVERIFY_INSTANCE mutation
  */
 export interface ReverifyInstanceVariables {
-    routerID: string;
-    instanceID: string;
+  routerID: string;
+  instanceID: string;
 }
 /**
  * Result type for REVERIFY_INSTANCE mutation
  */
 export interface ReverifyInstanceResult {
-    reverifyInstance: ReverifyPayload;
+  reverifyInstance: ReverifyPayload;
 }
 /**
  * Hook for triggering binary reverification of a service instance.
@@ -59,5 +59,12 @@ export interface ReverifyInstanceResult {
  * }
  * ```
  */
-export declare function useReverifyFeature(options?: MutationHookOptions<ReverifyInstanceResult, ReverifyInstanceVariables>): import("@apollo/client").MutationTuple<ReverifyInstanceResult, ReverifyInstanceVariables, import("@apollo/client").DefaultContext, import("@apollo/client").ApolloCache<any>>;
+export declare function useReverifyFeature(
+  options?: MutationHookOptions<ReverifyInstanceResult, ReverifyInstanceVariables>
+): import('@apollo/client').MutationTuple<
+  ReverifyInstanceResult,
+  ReverifyInstanceVariables,
+  import('@apollo/client').DefaultContext,
+  import('@apollo/client').ApolloCache<any>
+>;
 //# sourceMappingURL=useReverifyFeature.d.ts.map

@@ -53,16 +53,18 @@ import type { DNSSettings, ParsedDNSSettings } from '@nasnet/core/types';
  */
 export function parseDNSSettings(raw: DNSSettings): ParsedDNSSettings {
   // Parse static servers (user-configured)
-  const staticServers = raw.servers
-    ? raw.servers
+  const staticServers =
+    raw.servers ?
+      raw.servers
         .split(',')
         .map((s) => s.trim())
         .filter(Boolean)
     : [];
 
   // Parse dynamic servers (from DHCP/PPPoE)
-  const dynamicServers = raw['dynamic-servers']
-    ? raw['dynamic-servers']
+  const dynamicServers =
+    raw['dynamic-servers'] ?
+      raw['dynamic-servers']
         .split(',')
         .map((s) => s.trim())
         .filter(Boolean)
@@ -70,9 +72,7 @@ export function parseDNSSettings(raw: DNSSettings): ParsedDNSSettings {
 
   // Calculate cache usage percentage
   const cacheUsedPercent =
-    raw['cache-size'] > 0
-      ? Math.round((raw['cache-used'] / raw['cache-size']) * 100)
-      : 0;
+    raw['cache-size'] > 0 ? Math.round((raw['cache-used'] / raw['cache-size']) * 100) : 0;
 
   return {
     staticServers,
@@ -204,10 +204,7 @@ export function isValidHostname(hostname: string): boolean {
  * isDuplicateServer('  1.1.1.1  ', servers) // true (whitespace trimmed)
  * ```
  */
-export function isDuplicateServer(
-  serverIp: string,
-  existingServers: string[]
-): boolean {
+export function isDuplicateServer(serverIp: string, existingServers: string[]): boolean {
   return existingServers.includes(serverIp.trim());
 }
 

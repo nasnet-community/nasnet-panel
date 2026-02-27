@@ -26,37 +26,59 @@ The system prevents conflicts with existing router VLANs through automatic
 detection via VlanService composition.
 """
 type VLANAllocation implements Node {
-  """Unique allocation ID (ULID)"""
+  """
+  Unique allocation ID (ULID)
+  """
   id: ID!
 
-  """Router ID this VLAN allocation belongs to"""
+  """
+  Router ID this VLAN allocation belongs to
+  """
   routerID: String!
 
-  """VLAN ID (IEEE 802.1Q range: 1-4094)"""
+  """
+  VLAN ID (IEEE 802.1Q range: 1-4094)
+  """
   vlanID: Int!
 
-  """Service instance ID that owns this VLAN"""
+  """
+  Service instance ID that owns this VLAN
+  """
   instanceID: String!
 
-  """Service type (e.g., 'tor', 'xray', 'singbox')"""
+  """
+  Service type (e.g., 'tor', 'xray', 'singbox')
+  """
   serviceType: String!
 
-  """Auto-generated subnet for this VLAN (e.g., '10.99.100.0/24')"""
+  """
+  Auto-generated subnet for this VLAN (e.g., '10.99.100.0/24')
+  """
   subnet: String
 
-  """Allocation lifecycle status"""
+  """
+  Allocation lifecycle status
+  """
   status: VLANAllocationStatus!
 
-  """Timestamp when VLAN was allocated"""
+  """
+  Timestamp when VLAN was allocated
+  """
   allocatedAt: DateTime!
 
-  """Timestamp when VLAN was released (null if still allocated)"""
+  """
+  Timestamp when VLAN was released (null if still allocated)
+  """
   releasedAt: DateTime
 
-  """Router this VLAN belongs to"""
+  """
+  Router this VLAN belongs to
+  """
   router: Router!
 
-  """Service instance that owns this VLAN"""
+  """
+  Service instance that owns this VLAN
+  """
   serviceInstance: ServiceInstance!
 }
 
@@ -64,13 +86,19 @@ type VLANAllocation implements Node {
 VLANAllocationStatus represents the lifecycle state of a VLAN allocation.
 """
 enum VLANAllocationStatus {
-  """VLAN is currently allocated and in use"""
+  """
+  VLAN is currently allocated and in use
+  """
   ALLOCATED
 
-  """VLAN is being released (transitional state)"""
+  """
+  VLAN is being released (transitional state)
+  """
   RELEASING
 
-  """VLAN has been released and is available for reuse"""
+  """
+  VLAN has been released and is available for reuse
+  """
   RELEASED
 }
 
@@ -81,27 +109,43 @@ Provides utilization metrics and warnings when the pool is approaching exhaustio
 Useful for capacity planning and monitoring.
 """
 type VLANPoolStatus {
-  """Router ID this pool status applies to"""
+  """
+  Router ID this pool status applies to
+  """
   routerID: String!
 
-  """Total number of VLANs in the pool (e.g., 100 for range 100-199)"""
+  """
+  Total number of VLANs in the pool (e.g., 100 for range 100-199)
+  """
   totalVLANs: Int!
 
-  """Number of currently allocated VLANs"""
+  """
+  Number of currently allocated VLANs
+  """
   allocatedVLANs: Int!
 
-  """Number of available VLANs remaining"""
+  """
+  Number of available VLANs remaining
+  """
   availableVLANs: Int!
 
-  """Utilization percentage (0.0 - 100.0)"""
+  """
+  Utilization percentage (0.0 - 100.0)
+  """
   utilization: Float!
 
-  """Warning flag if utilization > 80%"""
+  """
+  Warning flag if utilization > 80%
+  """
   shouldWarn: Boolean!
 
-  """Pool configuration (start VLAN ID)"""
+  """
+  Pool configuration (start VLAN ID)
+  """
   poolStart: Int!
 
-  """Pool configuration (end VLAN ID)"""
+  """
+  Pool configuration (end VLAN ID)
+  """
   poolEnd: Int!
 }

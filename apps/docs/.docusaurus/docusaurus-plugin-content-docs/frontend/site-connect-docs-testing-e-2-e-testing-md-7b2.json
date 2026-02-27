@@ -1,7 +1,7 @@
 {
   "id": "testing/e2e-testing",
   "title": "E2E Testing",
-  "description": "End-to-end tests verify complete user journeys in a real browser. They sit at the top of the testing pyramid and are used sparingly — only for the most critical workflows where a failure would be catastrophic (router configuration changes, firewall rule management, VPN provisioning).",
+  "description": "End-to-end tests verify complete user journeys in a real browser. They sit at the top of the testing",
   "source": "@site/../connect/docs/testing/e2e-testing.md",
   "sourceDirName": "testing",
   "slug": "/testing/e2e-testing",

@@ -5,17 +5,22 @@ title: Testing & Accessibility
 
 # Testing & Accessibility
 
-This document covers the testing infrastructure and WCAG AAA accessibility compliance for NasNetConnect's UI libraries. Our testing strategy enables rigorous accessibility verification while supporting rapid iteration through platform-responsive testing utilities.
+This document covers the testing infrastructure and WCAG AAA accessibility compliance for
+NasNetConnect's UI libraries. Our testing strategy enables rigorous accessibility verification while
+supporting rapid iteration through platform-responsive testing utilities.
 
 ## Overview
 
-NasNetConnect uses **Vitest** (4x faster than Jest, native ESM) as the test runner with comprehensive accessibility testing via **axe-core**. All components must pass **WCAG AAA** compliance (7:1 contrast, 44px touch targets) verified through automated testing.
+NasNetConnect uses **Vitest** (4x faster than Jest, native ESM) as the test runner with
+comprehensive accessibility testing via **axe-core**. All components must pass **WCAG AAA**
+compliance (7:1 contrast, 44px touch targets) verified through automated testing.
 
 The testing infrastructure provides three core capabilities:
 
 1. **Accessibility Testing** — Automated WCAG AAA validation via axe-core
 2. **Platform-Responsive Testing** — Test components across Mobile, Tablet, and Desktop breakpoints
-3. **Touch Target & Keyboard Navigation Verification** — Ensure 44px touch targets and keyboard accessibility
+3. **Touch Target & Keyboard Navigation Verification** — Ensure 44px touch targets and keyboard
+   accessibility
 
 ## Test Setup & Configuration
 
@@ -42,12 +47,14 @@ export default defineConfig({
 Two setup files initialize the test environment:
 
 **`libs/ui/primitives/src/test/setup.ts`** — Primitives test setup:
+
 - Extends Vitest with `@testing-library/jest-dom` matchers
 - Extends Vitest with `vitest-axe` accessibility matchers (`.toHaveNoViolations()`)
 - Mocks `window.matchMedia` for media query testing
 - Mocks `ResizeObserver` for responsive component testing
 
 **`libs/ui/patterns/src/test/setup.ts`** — Patterns test setup:
+
 - All of the above, plus:
 - Mocks `IntersectionObserver` for lazy-loading components
 - Mocks `@nasnet/ui/layouts` platform detection hooks
@@ -57,11 +64,11 @@ Two setup files initialize the test environment:
 
 The test environment mocks these browser APIs that aren't available in JSDOM:
 
-| API | Purpose | Mock Implementation |
-|-----|---------|-------------------|
-| `window.matchMedia` | Media queries for responsive design | Returns mock MediaQueryList with event handlers |
-| `ResizeObserver` | Observe element dimension changes | Mock with `observe()`, `unobserve()`, `disconnect()` |
-| `IntersectionObserver` | Lazy-load detection | Mock with full API surface |
+| API                    | Purpose                             | Mock Implementation                                  |
+| ---------------------- | ----------------------------------- | ---------------------------------------------------- |
+| `window.matchMedia`    | Media queries for responsive design | Returns mock MediaQueryList with event handlers      |
+| `ResizeObserver`       | Observe element dimension changes   | Mock with `observe()`, `unobserve()`, `disconnect()` |
+| `IntersectionObserver` | Lazy-load detection                 | Mock with full API surface                           |
 
 ## Test Utilities API
 
@@ -74,28 +81,30 @@ These utilities wrap `@testing-library/react` with platform detection and provid
 Renders a component with all required test providers and platform context.
 
 **Signature:**
+
 ```typescript
 function renderWithProviders(
   ui: React.ReactElement,
   options?: RenderWithProvidersOptions
-): ReturnType<typeof render>
+): ReturnType<typeof render>;
 
 interface RenderWithProvidersOptions extends RenderOptions {
-  platform?: 'mobile' | 'tablet' | 'desktop';  // default: 'desktop'
-  theme?: 'light' | 'dark' | 'system';         // applied to document
+  platform?: 'mobile' | 'tablet' | 'desktop'; // default: 'desktop'
+  theme?: 'light' | 'dark' | 'system'; // applied to document
 }
 ```
 
 **Parameters:**
 
-| Parameter | Type | Purpose |
-|-----------|------|---------|
-| `ui` | `ReactElement` | Component to render |
-| `options.platform` | `'mobile' \| 'tablet' \| 'desktop'` | Initial platform breakpoint |
-| `options.theme` | `'light' \| 'dark' \| 'system'` | Theme for CSS variables |
-| `...renderOptions` | `RenderOptions` | Standard React Testing Library options |
+| Parameter          | Type                                | Purpose                                |
+| ------------------ | ----------------------------------- | -------------------------------------- |
+| `ui`               | `ReactElement`                      | Component to render                    |
+| `options.platform` | `'mobile' \| 'tablet' \| 'desktop'` | Initial platform breakpoint            |
+| `options.theme`    | `'light' \| 'dark' \| 'system'`     | Theme for CSS variables                |
+| `...renderOptions` | `RenderOptions`                     | Standard React Testing Library options |
 
 **Example:**
+
 ```typescript
 import { renderWithProviders, screen } from '@nasnet/ui/patterns/test/test-utils';
 
@@ -115,15 +124,17 @@ it('should render in dark mode', () => {
 Render a component at a specific platform with optional additional React Testing Library options.
 
 **Signature:**
+
 ```typescript
 function renderWithPlatform(
   ui: React.ReactElement,
   platform: 'mobile' | 'tablet' | 'desktop',
   options?: RenderOptions
-): ReturnType<typeof render>
+): ReturnType<typeof render>;
 ```
 
 **Example:**
+
 ```typescript
 // Test mobile-specific presenter
 it('should show bottom tab bar on mobile', () => {
@@ -145,15 +156,17 @@ it('should show left sidebar on desktop', () => {
 Render a component with a specific theme applied via CSS classes.
 
 **Signature:**
+
 ```typescript
 function renderWithTheme(
   ui: React.ReactElement,
   theme: 'light' | 'dark' | 'system',
   options?: RenderOptions
-): ReturnType<typeof render>
+): ReturnType<typeof render>;
 ```
 
 **Example:**
+
 ```typescript
 it('should use dark theme colors', () => {
   renderWithTheme(<Card>Content</Card>, 'dark');
@@ -167,12 +180,14 @@ it('should use dark theme colors', () => {
 Manually control the platform mock for the current test.
 
 **Signature:**
+
 ```typescript
-function mockPlatform(platform: 'mobile' | 'tablet' | 'desktop'): void
-function resetPlatformMock(): void
+function mockPlatform(platform: 'mobile' | 'tablet' | 'desktop'): void;
+function resetPlatformMock(): void;
 ```
 
 **Example:**
+
 ```typescript
 import { mockPlatform, resetPlatformMock } from '@nasnet/ui/patterns/test/test-utils';
 
@@ -196,17 +211,20 @@ it('should adapt to platform changes', () => {
 Simulate viewport dimensions for testing responsive behavior.
 
 **Signature:**
+
 ```typescript
-function setViewport(width: number): void
-function setViewportByPlatform(platform: 'mobile' | 'tablet' | 'desktop'): void
+function setViewport(width: number): void;
+function setViewportByPlatform(platform: 'mobile' | 'tablet' | 'desktop'): void;
 ```
 
 Platform widths:
+
 - `mobile`: 375px
 - `tablet`: 768px
 - `desktop`: 1280px
 
 **Example:**
+
 ```typescript
 import { setViewport, screen } from '@nasnet/ui/patterns/test/test-utils';
 
@@ -226,12 +244,14 @@ it('should respond to resize events', () => {
 Verify that an element meets 44x44px touch target requirements.
 
 **Signature:**
+
 ```typescript
-function hasTouchTargetSize(element: HTMLElement): boolean
-function hasTouchTargetClass(element: HTMLElement): boolean
+function hasTouchTargetSize(element: HTMLElement): boolean;
+function hasTouchTargetClass(element: HTMLElement): boolean;
 ```
 
 **Example:**
+
 ```typescript
 import { hasTouchTargetSize, screen } from '@nasnet/ui/patterns/test/test-utils';
 
@@ -247,16 +267,19 @@ it('should have adequate touch target size', () => {
 Check if an element can be focused via keyboard navigation.
 
 **Signature:**
+
 ```typescript
-function isKeyboardFocusable(element: HTMLElement): boolean
+function isKeyboardFocusable(element: HTMLElement): boolean;
 ```
 
 Returns `true` if element is:
+
 - A native interactive element (button, a, input, select, textarea)
 - Has `tabindex >= 0`
 - Not disabled
 
 **Example:**
+
 ```typescript
 import { isKeyboardFocusable, screen } from '@nasnet/ui/patterns/test/test-utils';
 
@@ -292,20 +315,19 @@ Comprehensive WCAG compliance testing utilities powered by axe-core.
 Test a component for accessibility violations at a specific WCAG level.
 
 **Signature:**
+
 ```typescript
-async function testA11y(
-  ui: ReactElement,
-  options?: TestA11yOptions
-): Promise<void>
+async function testA11y(ui: ReactElement, options?: TestA11yOptions): Promise<void>;
 
 interface TestA11yOptions {
-  axeOptions?: Parameters<typeof axe>[1];        // axe-core config
+  axeOptions?: Parameters<typeof axe>[1]; // axe-core config
   rules?: { [ruleId: string]: { enabled: boolean } };
-  wcagLevel?: 'A' | 'AA' | 'AAA';                // default: 'AAA'
+  wcagLevel?: 'A' | 'AA' | 'AAA'; // default: 'AAA'
 }
 ```
 
 **Example:**
+
 ```typescript
 import { testA11y } from '@nasnet/ui/primitives/test/a11y-utils';
 
@@ -329,14 +351,16 @@ it('should pass WCAG AA with specific rules', async () => {
 Generate a detailed accessibility report without asserting (useful for debugging).
 
 **Signature:**
+
 ```typescript
 async function getA11yReport(
   ui: ReactElement,
   options?: TestA11yOptions
-): Promise<AxeCore.AxeResults>
+): Promise<AxeCore.AxeResults>;
 ```
 
 **Returns:**
+
 ```typescript
 {
   violations: AxeCore.Result[];      // Failed rules
@@ -347,6 +371,7 @@ async function getA11yReport(
 ```
 
 **Example:**
+
 ```typescript
 it('should generate accessibility report', async () => {
   const report = await getA11yReport(<MyComponent />);
@@ -365,13 +390,15 @@ it('should generate accessibility report', async () => {
 Retrieve keyboard navigation order within a container.
 
 **Signature:**
+
 ```typescript
-function getTabOrder(container: HTMLElement): HTMLElement[]
+function getTabOrder(container: HTMLElement): HTMLElement[];
 ```
 
 Returns all focusable elements in tab order (respecting tabindex values).
 
 **Example:**
+
 ```typescript
 import { getTabOrder, render, screen } from '@nasnet/ui/patterns/test/test-utils';
 
@@ -390,15 +417,17 @@ it('should have correct tab order', () => {
 Verify touch target sizes meet 44x44px WCAG AAA requirements.
 
 **Signature:**
+
 ```typescript
-function hasMinimumTouchTarget(element: HTMLElement, minSize: number = 44): boolean
+function hasMinimumTouchTarget(element: HTMLElement, minSize: number = 44): boolean;
 function getElementsWithSmallTouchTargets(
   container: HTMLElement,
   minSize: number = 44
-): HTMLElement[]
+): HTMLElement[];
 ```
 
 **Example:**
+
 ```typescript
 import { getElementsWithSmallTouchTargets } from '@nasnet/ui/primitives/test/a11y-utils';
 
@@ -414,24 +443,27 @@ it('should have adequate touch targets', () => {
 Validate color contrast meets WCAG requirements.
 
 **Signature:**
+
 ```typescript
 function meetsContrastRequirement(
   foreground: string,
   background: string,
-  level?: 'AA' | 'AAA',           // default: 'AAA'
+  level?: 'AA' | 'AAA', // default: 'AAA'
   isLargeText?: boolean
-): boolean
+): boolean;
 
-function getContrastRatio(foreground: string, background: string): number
+function getContrastRatio(foreground: string, background: string): number;
 ```
 
 WCAG Requirements:
+
 - **AAA normal text**: 7:1 ratio
 - **AAA large text** (18px+ or 14px+ bold): 4.5:1 ratio
 - **AA normal text**: 4.5:1 ratio
 - **AA large text**: 3:1 ratio
 
 **Example:**
+
 ```typescript
 import { meetsContrastRequirement, getContrastRatio } from '@nasnet/ui/primitives/test/a11y-utils';
 
@@ -448,14 +480,16 @@ it('should have sufficient contrast', () => {
 Verify ARIA attributes are present and correct.
 
 **Signature:**
+
 ```typescript
 function assertAriaAttributes(
   element: HTMLElement,
   attributes: Record<string, string | RegExp>
-): void
+): void;
 ```
 
 **Example:**
+
 ```typescript
 import { assertAriaAttributes, screen } from '@nasnet/ui/primitives/test/a11y-utils';
 
@@ -579,28 +613,28 @@ describe('AddRouterForm', () => {
 
 When implementing new components, verify these accessibility requirements:
 
-| Component Type | Requirement | How to Test |
-|---|---|---|
-| **Buttons** | 44x44px min touch target | `hasMinimumTouchTarget()` or visual inspection |
-| **Buttons** | Keyboard focusable | `isKeyboardFocusable()` and Tab navigation |
-| **Buttons** | Sufficient contrast (7:1 AAA) | `meetsContrastRequirement()` |
-| **Buttons** | Clear focus indicator | Visual inspection (3px ring) |
-| **Links** | 44x44px min touch target | `hasMinimumTouchTarget()` |
-| **Links** | Underlined or visually distinct | Visual inspection |
-| **Links** | Keyboard accessible | `getTabOrder()` verification |
-| **Form Inputs** | Associated labels | `screen.getByLabelText()` |
-| **Form Inputs** | Error messages linked via aria-describedby | `assertAriaAttributes()` |
-| **Form Inputs** | 44x44px touch target | `hasMinimumTouchTarget()` |
-| **Modals** | aria-modal="true" | `assertAriaAttributes()` |
-| **Modals** | Focus trap | Manual testing with Tab key |
-| **Modals** | Dismiss with Escape | Manual testing |
-| **Tables** | Proper thead/tbody structure | DOM inspection |
-| **Tables** | Column headers scope="col" | `screen.getByRole('columnheader')` |
-| **Tables** | Accessible sort buttons | `testA11y()` |
-| **Status Badges** | Semantic color + text label | Visual + `screen.getByText()` |
-| **Status Badges** | Not color-only indicators | Manual inspection |
-| **Navigation** | Proper nav landmarks | `screen.getByRole('navigation')` |
-| **Navigation** | Active link marked | `assertAriaAttributes(link, { 'aria-current': 'page' })` |
+| Component Type    | Requirement                                | How to Test                                              |
+| ----------------- | ------------------------------------------ | -------------------------------------------------------- |
+| **Buttons**       | 44x44px min touch target                   | `hasMinimumTouchTarget()` or visual inspection           |
+| **Buttons**       | Keyboard focusable                         | `isKeyboardFocusable()` and Tab navigation               |
+| **Buttons**       | Sufficient contrast (7:1 AAA)              | `meetsContrastRequirement()`                             |
+| **Buttons**       | Clear focus indicator                      | Visual inspection (3px ring)                             |
+| **Links**         | 44x44px min touch target                   | `hasMinimumTouchTarget()`                                |
+| **Links**         | Underlined or visually distinct            | Visual inspection                                        |
+| **Links**         | Keyboard accessible                        | `getTabOrder()` verification                             |
+| **Form Inputs**   | Associated labels                          | `screen.getByLabelText()`                                |
+| **Form Inputs**   | Error messages linked via aria-describedby | `assertAriaAttributes()`                                 |
+| **Form Inputs**   | 44x44px touch target                       | `hasMinimumTouchTarget()`                                |
+| **Modals**        | aria-modal="true"                          | `assertAriaAttributes()`                                 |
+| **Modals**        | Focus trap                                 | Manual testing with Tab key                              |
+| **Modals**        | Dismiss with Escape                        | Manual testing                                           |
+| **Tables**        | Proper thead/tbody structure               | DOM inspection                                           |
+| **Tables**        | Column headers scope="col"                 | `screen.getByRole('columnheader')`                       |
+| **Tables**        | Accessible sort buttons                    | `testA11y()`                                             |
+| **Status Badges** | Semantic color + text label                | Visual + `screen.getByText()`                            |
+| **Status Badges** | Not color-only indicators                  | Manual inspection                                        |
+| **Navigation**    | Proper nav landmarks                       | `screen.getByRole('navigation')`                         |
+| **Navigation**    | Active link marked                         | `assertAriaAttributes(link, { 'aria-current': 'page' })` |
 
 ## Running Tests
 
@@ -683,5 +717,7 @@ it('visual debug', () => {
 - **Design System Guidelines:** [Design Tokens & Animation](tokens-and-animation.md)
 - **Form Testing:** [Forms & Inputs Patterns](patterns-forms-and-inputs.md)
 - **Platform Hooks:** [Layouts & Platform Detection](layouts-and-platform.md)
-- **Design Accessibility Requirements:** See `Docs/design/ux-design/8-responsive-design-accessibility.md`
-- **Component Checklist:** See `Docs/design/COMPREHENSIVE_COMPONENT_CHECKLIST.md` for 7-accessibility section
+- **Design Accessibility Requirements:** See
+  `Docs/design/ux-design/8-responsive-design-accessibility.md`
+- **Component Checklist:** See `Docs/design/COMPREHENSIVE_COMPONENT_CHECKLIST.md` for
+  7-accessibility section

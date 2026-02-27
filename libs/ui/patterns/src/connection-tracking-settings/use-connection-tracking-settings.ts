@@ -13,19 +13,10 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, type UseFormReturn } from 'react-hook-form';
 import { z } from 'zod';
 
-
-import {
-  parseDuration,
-  formatDuration,
-  isValidDuration,
-  parseOrDefault,
-} from './timeout-utils';
+import { parseDuration, formatDuration, isValidDuration, parseOrDefault } from './timeout-utils';
 import { DEFAULT_SETTINGS } from './types';
 
-import type {
-  ConnectionTrackingSettings,
-  ConnectionTrackingFormValues,
-} from './types';
+import type { ConnectionTrackingSettings, ConnectionTrackingFormValues } from './types';
 
 /**
  * Zod schema for connection tracking settings form
@@ -44,12 +35,9 @@ const connectionTrackingSchema = z.object({
     ),
 
   // TCP timeouts
-  tcpEstablishedTimeout: z
-    .string()
-    .min(1, 'Required')
-    .refine(isValidDuration, {
-      message: 'Invalid format (use 1d, 12h, 30m, or 45s)',
-    }),
+  tcpEstablishedTimeout: z.string().min(1, 'Required').refine(isValidDuration, {
+    message: 'Invalid format (use 1d, 12h, 30m, or 45s)',
+  }),
   tcpSynSentTimeout: z
     .string()
     .min(1, 'Required')
@@ -80,18 +68,12 @@ const connectionTrackingSchema = z.object({
     .refine(isValidDuration, { message: 'Invalid format' }),
 
   // Other protocols
-  udpTimeout: z
-    .string()
-    .min(1, 'Required')
-    .refine(isValidDuration, { message: 'Invalid format' }),
+  udpTimeout: z.string().min(1, 'Required').refine(isValidDuration, { message: 'Invalid format' }),
   udpStreamTimeout: z
     .string()
     .min(1, 'Required')
     .refine(isValidDuration, { message: 'Invalid format' }),
-  icmpTimeout: z
-    .string()
-    .min(1, 'Required')
-    .refine(isValidDuration, { message: 'Invalid format' }),
+  icmpTimeout: z.string().min(1, 'Required').refine(isValidDuration, { message: 'Invalid format' }),
   genericTimeout: z
     .string()
     .min(1, 'Required')
@@ -140,9 +122,7 @@ export interface UseConnectionTrackingSettingsReturn {
 /**
  * Convert settings to form values
  */
-function settingsToForm(
-  settings: ConnectionTrackingSettings
-): ConnectionTrackingFormValues {
+function settingsToForm(settings: ConnectionTrackingSettings): ConnectionTrackingFormValues {
   return {
     enabled: settings.enabled,
     maxEntries: String(settings.maxEntries),
@@ -165,20 +145,30 @@ function settingsToForm(
 /**
  * Convert form values to settings
  */
-function formToSettings(
-  values: ConnectionTrackingFormValues
-): ConnectionTrackingSettings {
+function formToSettings(values: ConnectionTrackingFormValues): ConnectionTrackingSettings {
   return {
     enabled: values.enabled,
     maxEntries: parseInt(values.maxEntries, 10),
     genericTimeout: parseOrDefault(values.genericTimeout, DEFAULT_SETTINGS.genericTimeout),
-    tcpEstablishedTimeout: parseOrDefault(values.tcpEstablishedTimeout, DEFAULT_SETTINGS.tcpEstablishedTimeout),
-    tcpTimeWaitTimeout: parseOrDefault(values.tcpTimeWaitTimeout, DEFAULT_SETTINGS.tcpTimeWaitTimeout),
+    tcpEstablishedTimeout: parseOrDefault(
+      values.tcpEstablishedTimeout,
+      DEFAULT_SETTINGS.tcpEstablishedTimeout
+    ),
+    tcpTimeWaitTimeout: parseOrDefault(
+      values.tcpTimeWaitTimeout,
+      DEFAULT_SETTINGS.tcpTimeWaitTimeout
+    ),
     tcpCloseTimeout: parseOrDefault(values.tcpCloseTimeout, DEFAULT_SETTINGS.tcpCloseTimeout),
     tcpSynSentTimeout: parseOrDefault(values.tcpSynSentTimeout, DEFAULT_SETTINGS.tcpSynSentTimeout),
-    tcpSynReceivedTimeout: parseOrDefault(values.tcpSynReceivedTimeout, DEFAULT_SETTINGS.tcpSynReceivedTimeout),
+    tcpSynReceivedTimeout: parseOrDefault(
+      values.tcpSynReceivedTimeout,
+      DEFAULT_SETTINGS.tcpSynReceivedTimeout
+    ),
     tcpFinWaitTimeout: parseOrDefault(values.tcpFinWaitTimeout, DEFAULT_SETTINGS.tcpFinWaitTimeout),
-    tcpCloseWaitTimeout: parseOrDefault(values.tcpCloseWaitTimeout, DEFAULT_SETTINGS.tcpCloseWaitTimeout),
+    tcpCloseWaitTimeout: parseOrDefault(
+      values.tcpCloseWaitTimeout,
+      DEFAULT_SETTINGS.tcpCloseWaitTimeout
+    ),
     tcpLastAckTimeout: parseOrDefault(values.tcpLastAckTimeout, DEFAULT_SETTINGS.tcpLastAckTimeout),
     udpTimeout: parseOrDefault(values.udpTimeout, DEFAULT_SETTINGS.udpTimeout),
     udpStreamTimeout: parseOrDefault(values.udpStreamTimeout, DEFAULT_SETTINGS.udpStreamTimeout),
@@ -210,9 +200,8 @@ export function useConnectionTrackingSettings(
   const { initialSettings, onSubmit, onReset } = options;
 
   // Initialize form with default values
-  const defaultValues = initialSettings
-    ? settingsToForm(initialSettings)
-    : settingsToForm(DEFAULT_SETTINGS);
+  const defaultValues =
+    initialSettings ? settingsToForm(initialSettings) : settingsToForm(DEFAULT_SETTINGS);
 
   const form = useForm<ConnectionTrackingFormValues>({
     resolver: zodResolver(connectionTrackingSchema),

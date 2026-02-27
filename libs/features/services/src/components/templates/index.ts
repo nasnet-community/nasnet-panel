@@ -18,12 +18,7 @@ export { TemplateInstallWizardDesktop } from './TemplateInstallWizardDesktop';
 export { useTemplateInstallWizard } from './useTemplateInstallWizard';
 
 // Wizard Steps
-export {
-  VariablesStep,
-  ReviewStep,
-  InstallingStep,
-  RoutingStep,
-} from './wizard-steps';
+export { VariablesStep, ReviewStep, InstallingStep, RoutingStep } from './wizard-steps';
 export type {
   VariablesStepProps,
   ReviewStepProps,

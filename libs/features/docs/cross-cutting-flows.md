@@ -1,6 +1,8 @@
 # Cross-Cutting Flows
 
-This document traces six end-to-end flows that span multiple packages. Each flow shows how data moves from user interaction through frontend state, API client, GraphQL schema, and into the backend.
+This document traces six end-to-end flows that span multiple packages. Each flow shows how data
+moves from user interaction through frontend state, API client, GraphQL schema, and into the
+backend.
 
 ## Table of Contents
 
@@ -15,7 +17,9 @@ This document traces six end-to-end flows that span multiple packages. Each flow
 
 ## 1. Apply-Confirm-Merge Pipeline
 
-The Apply-Confirm-Merge pipeline is the core safety mechanism for all configuration changes. It prevents accidental network lockouts by requiring explicit validation, preview, and (for high-risk operations) acknowledgment before any change reaches the router.
+The Apply-Confirm-Merge pipeline is the core safety mechanism for all configuration changes. It
+prevents accidental network lockouts by requiring explicit validation, preview, and (for high-risk
+operations) acknowledgment before any change reaches the router.
 
 ### Overview
 
@@ -59,7 +63,8 @@ libs/features/*/components
 
 **Step 1: User Edits a Form**
 
-The user changes a field in a configuration form (e.g., WireGuard MTU, DHCP lease time). The form uses React Hook Form + Zod and calls into the feature-level hook:
+The user changes a field in a configuration form (e.g., WireGuard MTU, DHCP lease time). The form
+uses React Hook Form + Zod and calls into the feature-level hook:
 
 ```typescript
 // In a feature component
@@ -80,11 +85,13 @@ addItem(changeSetId, {
 });
 ```
 
-The store is persisted to `localStorage` under the key `nasnet-change-sets` (only DRAFT and READY status change sets survive page refresh).
+The store is persisted to `localStorage` under the key `nasnet-change-sets` (only DRAFT and READY
+status change sets survive page refresh).
 
 **Step 2: Machine Start**
 
-The config pipeline machine is instantiated per resource type via `createConfigPipelineMachine<TConfig>`:
+The config pipeline machine is instantiated per resource type via
+`createConfigPipelineMachine<TConfig>`:
 
 ```typescript
 // libs/state/machines/src/configPipelineMachine.ts
@@ -115,24 +122,26 @@ const machine = createConfigPipelineMachine<WireGuardConfig>({
 
 The machine transitions through states automatically:
 
-| State | Description | Transitions Out |
-|-------|-------------|-----------------|
-| `idle` | Waiting for edit | `EDIT` → `draft` |
-| `draft` | Editing in progress | `VALIDATE` → `validating`, `CANCEL` → `idle` |
-| `validating` | Running 7-stage pipeline | onDone → `invalid` or `previewing` |
-| `invalid` | Validation errors shown | `EDIT` → `draft` |
-| `previewing` | Diff shown to user | `CONFIRM` → `confirming` (high-risk) or `applying` (normal) |
-| `confirming` | User acknowledges risk | `ACKNOWLEDGED` → `applying`, `CANCEL` → `previewing` |
-| `applying` | Mutation sent to backend | onDone → `verifying`, onError → `error` |
-| `verifying` | Backend confirms change | onDone → `active`, onError → `rollback` |
-| `active` | Success (final) | — |
-| `rollback` | Executing rollback | onDone → `rolled_back`, onError → `error` |
-| `rolled_back` | Rollback complete (final) | — |
-| `error` | Unrecoverable | `RETRY` → `validating`, `FORCE_ROLLBACK` → `rollback`, `RESET` → `idle` |
+| State         | Description               | Transitions Out                                                         |
+| ------------- | ------------------------- | ----------------------------------------------------------------------- |
+| `idle`        | Waiting for edit          | `EDIT` → `draft`                                                        |
+| `draft`       | Editing in progress       | `VALIDATE` → `validating`, `CANCEL` → `idle`                            |
+| `validating`  | Running 7-stage pipeline  | onDone → `invalid` or `previewing`                                      |
+| `invalid`     | Validation errors shown   | `EDIT` → `draft`                                                        |
+| `previewing`  | Diff shown to user        | `CONFIRM` → `confirming` (high-risk) or `applying` (normal)             |
+| `confirming`  | User acknowledges risk    | `ACKNOWLEDGED` → `applying`, `CANCEL` → `previewing`                    |
+| `applying`    | Mutation sent to backend  | onDone → `verifying`, onError → `error`                                 |
+| `verifying`   | Backend confirms change   | onDone → `active`, onError → `rollback`                                 |
+| `active`      | Success (final)           | —                                                                       |
+| `rollback`    | Executing rollback        | onDone → `rolled_back`, onError → `error`                               |
+| `rolled_back` | Rollback complete (final) | —                                                                       |
+| `error`       | Unrecoverable             | `RETRY` → `validating`, `FORCE_ROLLBACK` → `rollback`, `RESET` → `idle` |
 
 **Step 4: Drift Detection**
 
-After `verifying`, drift detection runs via `useApplyConfirmDrift` and `useDriftDetection` from `libs/state/stores/src/drift-detection/`. If the confirmed state diverges from the router's actual state, a drift warning appears and the reconciliation scheduler re-queues the operation.
+After `verifying`, drift detection runs via `useApplyConfirmDrift` and `useDriftDetection` from
+`libs/state/stores/src/drift-detection/`. If the confirmed state diverges from the router's actual
+state, a drift warning appears and the reconciliation scheduler re-queues the operation.
 
 **Step 5: GraphQL Mutation**
 
@@ -147,6 +156,7 @@ await applyChangeSet({ changeSetId, routerId });
 **Step 6: Backend Processing**
 
 `apps/backend/graph/resolver/changeset-operations.resolvers.go` orchestrates:
+
 1. Deserializes the change set items
 2. Resolves dependency order (topological sort)
 3. Applies items sequentially
@@ -155,14 +165,21 @@ await applyChangeSet({ changeSetId, routerId });
 
 ### Error Handling and Rollback
 
-If `verifyApplied` throws, the machine automatically transitions to `rollback` and calls `executeRollback` with the saved `rollbackData`. The `rollbackData` is captured in `setRollbackData` action immediately after `applying` succeeds (before `verifying`).
+If `verifyApplied` throws, the machine automatically transitions to `rollback` and calls
+`executeRollback` with the saved `rollbackData`. The `rollbackData` is captured in `setRollbackData`
+action immediately after `applying` succeeds (before `verifying`).
 
-If the user manually triggers `FORCE_ROLLBACK` from `error` state, the guard `hasRollbackData` must pass.
+If the user manually triggers `FORCE_ROLLBACK` from `error` state, the guard `hasRollbackData` must
+pass.
 
 Utility helpers:
 
 ```typescript
-import { isPipelineProcessing, isPipelineCancellable, getPipelineStateDescription } from '@nasnet/state/machines';
+import {
+  isPipelineProcessing,
+  isPipelineCancellable,
+  getPipelineStateDescription,
+} from '@nasnet/state/machines';
 
 if (isPipelineProcessing(state)) showSpinner();
 if (isPipelineCancellable(state)) showCancelButton();
@@ -172,7 +189,8 @@ if (isPipelineCancellable(state)) showCancelButton();
 
 ## 2. Firewall Template Safety Pipeline
 
-Firewall templates are pre-built rule sets that can be applied to a router's firewall in bulk. The safety pipeline ensures the user reviews and can undo the change.
+Firewall templates are pre-built rule sets that can be applied to a router's firewall in bulk. The
+safety pipeline ensures the user reviews and can undo the change.
 
 ### Overview
 
@@ -205,11 +223,13 @@ libs/features/firewall/src/pages/TemplatesPage.tsx
 
 **Step 1: Template Browse**
 
-`TemplatesPage.tsx` renders the templates catalog. Users can filter by category (Security, Monitoring, etc.) and preview template details via `TemplateDetailPanel`.
+`TemplatesPage.tsx` renders the templates catalog. Users can filter by category (Security,
+Monitoring, etc.) and preview template details via `TemplateDetailPanel`.
 
 **Step 2: Apply Initiation**
 
 `TemplateApplyFlow.tsx` is mounted when the user clicks "Apply". It accepts:
+
 - `templateId` - the template to apply
 - `routerId` - target router
 - `onSuccess` / `onCancel` callbacks
@@ -217,6 +237,7 @@ libs/features/firewall/src/pages/TemplatesPage.tsx
 **Step 3: Validation**
 
 The underlying machine runs 7 validation stages before allowing apply:
+
 1. Syntax validation (rule format)
 2. Conflict detection (duplicate rules)
 3. Dependency checks (required interfaces exist)
@@ -235,7 +256,9 @@ const result = await applyTemplate({ templateId, routerId, dryRun: false });
 
 **Step 5: 10-Second Undo Window**
 
-After successful apply, the machine enters a `pendingUndo` state with a 10-second countdown. The `UndoFloatingButton.tsx` component renders a floating action button showing the remaining time. If the user clicks Undo:
+After successful apply, the machine enters a `pendingUndo` state with a 10-second countdown. The
+`UndoFloatingButton.tsx` component renders a floating action button showing the remaining time. If
+the user clicks Undo:
 
 ```
 UNDO event → machine transitions to undoing state
@@ -247,11 +270,13 @@ If no undo is triggered within 10 seconds, the machine moves to `committed` (fin
 
 **Step 6: Rules Refresh**
 
-On `committed`, `refetchQueries` for filter rules, mangle rules, NAT rules, and raw rules is triggered to reflect the new state.
+On `committed`, `refetchQueries` for filter rules, mangle rules, NAT rules, and raw rules is
+triggered to reflect the new state.
 
 ### Error Handling
 
 If the `apply` mutation fails:
+
 - Machine moves to `applyError` state
 - Error message is shown with a "Try Again" option
 - No partial rollback is needed since firewall rule creation is atomic per template
@@ -260,7 +285,8 @@ If the `apply` mutation fails:
 
 ## 3. Service Install Flow
 
-Installing a network service (Tor, sing-box, Xray-core, etc.) from the feature marketplace involves browsing, configuration, installation, and real-time progress tracking.
+Installing a network service (Tor, sing-box, Xray-core, etc.) from the feature marketplace involves
+browsing, configuration, installation, and real-time progress tracking.
 
 ### Overview
 
@@ -309,15 +335,19 @@ libs/features/services/src/pages/ServiceDetailPage.tsx
 const { services, loading } = useAvailableServices({ routerId });
 ```
 
-The query returns services from the feature registry, filtered by router capability (e.g., container support required).
+The query returns services from the feature registry, filtered by router capability (e.g., container
+support required).
 
 **Step 2: Template Filtering and Selection**
 
-`TemplateFilters.tsx` provides category, search, and compatibility filters. The service list is organized by category (VPN, Privacy, Monitoring, etc.).
+`TemplateFilters.tsx` provides category, search, and compatibility filters. The service list is
+organized by category (VPN, Privacy, Monitoring, etc.).
 
 **Step 3: Configuration**
 
-`ServiceDetailPage.tsx` presents a dynamic configuration form driven by the service's JSON schema. The `ServiceConfigForm` component renders the appropriate fields using `DynamicField` components (TextField, NumberField, PasswordField, Select, MultiSelect, ArrayField).
+`ServiceDetailPage.tsx` presents a dynamic configuration form driven by the service's JSON schema.
+The `ServiceConfigForm` component renders the appropriate fields using `DynamicField` components
+(TextField, NumberField, PasswordField, Select, MultiSelect, ArrayField).
 
 **Step 4: Install Mutation**
 
@@ -346,19 +376,23 @@ useResourceStateSubscription(instanceUuid, {
 });
 ```
 
-The backend sends state transitions: `PENDING` → `DOWNLOADING` → `INSTALLING` → `CONFIGURING` → `RUNNING`.
+The backend sends state transitions: `PENDING` → `DOWNLOADING` → `INSTALLING` → `CONFIGURING` →
+`RUNNING`.
 
 **Step 6: Navigation on Success**
 
-On `RUNNING` state, the user is navigated to the service's detail page where they can configure, start/stop/restart, view logs, and monitor resources.
+On `RUNNING` state, the user is navigated to the service's detail page where they can configure,
+start/stop/restart, view logs, and monitor resources.
 
 ### Dependency Resolution
 
-Before install, `useDependencies` checks if required services are running (e.g., sing-box depends on certain kernel modules). If dependencies are missing, `StopDependentsDialog` may be shown.
+Before install, `useDependencies` checks if required services are running (e.g., sing-box depends on
+certain kernel modules). If dependencies are missing, `StopDependentsDialog` may be shown.
 
 ### Error Handling
 
 If install fails, the backend automatically rolls back:
+
 1. Removes downloaded binaries
 2. Removes created virtual interfaces
 3. Removes allocated VLANs
@@ -368,7 +402,8 @@ If install fails, the backend automatically rolls back:
 
 ## 4. Diagnostics Troubleshoot Wizard
 
-The Troubleshoot Wizard guides users through diagnosing "No Internet" connectivity problems. It runs five sequential diagnostic steps, collects results, identifies issues, and suggests fixes.
+The Troubleshoot Wizard guides users through diagnosing "No Internet" connectivity problems. It runs
+five sequential diagnostic steps, collects results, identifies issues, and suggests fixes.
 
 ### Overview
 
@@ -408,6 +443,7 @@ libs/features/diagnostics/src/components/TroubleshootWizard/TroubleshootWizard.t
 **Step 1: Wizard Entry**
 
 `TroubleshootWizard` auto-detects platform and renders the appropriate presenter. It accepts:
+
 - `routerId` - the router to diagnose
 - `autoStart` - skip idle screen and begin immediately
 - `ispInfo` - optional ISP contact details for ISP-related failures
@@ -415,7 +451,8 @@ libs/features/diagnostics/src/components/TroubleshootWizard/TroubleshootWizard.t
 
 **Step 2: Machine Start**
 
-`createTroubleshootMachine` creates an XState machine that orchestrates the five diagnostic steps in sequence:
+`createTroubleshootMachine` creates an XState machine that orchestrates the five diagnostic steps in
+sequence:
 
 1. **WAN** - Is the WAN interface up and getting a DHCP lease?
 2. **Gateway** - Can the router ping the default gateway?
@@ -425,7 +462,8 @@ libs/features/diagnostics/src/components/TroubleshootWizard/TroubleshootWizard.t
 
 **Step 3: Diagnostic Execution**
 
-`diagnostic-executor.ts` translates step IDs to `TroubleshootStepType` enum values and calls the backend:
+`diagnostic-executor.ts` translates step IDs to `TroubleshootStepType` enum values and calls the
+backend:
 
 ```typescript
 // libs/features/diagnostics/src/services/diagnostic-executor.ts
@@ -447,7 +485,8 @@ export async function executeDiagnosticStep(
 
 **Step 4: DiagnosticStep UI**
 
-Each step is displayed via `DiagnosticStep.tsx` with status (pending, running, success, failure) and the result message and timing.
+Each step is displayed via `DiagnosticStep.tsx` with status (pending, running, success, failure) and
+the result message and timing.
 
 **Step 5: Fix Registry and Application**
 
@@ -459,17 +498,20 @@ issueCode: 'DNS_TIMEOUT'      →  fix: 'Use backup DNS servers (8.8.8.8, 1.1.1.
 issueCode: 'NAT_MISSING'      →  fix: 'Add masquerade rule on WAN interface'
 ```
 
-`fix-applicator.ts` applies the fix using GraphQL mutations (DHCP release, DNS config change, firewall rule add), then re-runs the failed step to verify.
+`fix-applicator.ts` applies the fix using GraphQL mutations (DHCP release, DNS config change,
+firewall rule add), then re-runs the failed step to verify.
 
 **Step 6: WizardSummary**
 
 When all steps are complete (or no more fixes are available), `WizardSummary.tsx` shows:
+
 - Overall pass/fail
 - Per-step results
 - Fix suggestions for remaining failures
 - ISP contact info if the failure is external (e.g., ISP outage)
 
-`StepAnnouncer.tsx` provides ARIA live region announcements for each step transition, ensuring screen reader accessibility during the automated diagnostic sequence.
+`StepAnnouncer.tsx` provides ARIA live region announcements for each step transition, ensuring
+screen reader accessibility during the automated diagnostic sequence.
 
 ### Error Handling
 
@@ -496,7 +538,8 @@ catch (error) {
 
 ## 5. Alert Notification Dispatch Chain
 
-The alert notification system delivers real-time and queued notifications from backend alert rule evaluation through multiple delivery channels to the frontend.
+The alert notification system delivers real-time and queued notifications from backend alert rule
+evaluation through multiple delivery channels to the frontend.
 
 ### Overview
 
@@ -551,24 +594,30 @@ apps/backend/internal/alerts/engine.go
 
 **Step 1: Alert Engine Evaluation**
 
-The backend alert engine runs on a configurable schedule. For each active alert rule, it evaluates conditions against current router metrics or events.
+The backend alert engine runs on a configurable schedule. For each active alert rule, it evaluates
+conditions against current router metrics or events.
 
-The engine uses the bridge pattern (`alerts/bridge/bridge.go`) to receive metric updates from the monitoring subsystem without tight coupling.
+The engine uses the bridge pattern (`alerts/bridge/bridge.go`) to receive metric updates from the
+monitoring subsystem without tight coupling.
 
 **Step 2: Throttle and Storm Protection**
 
 `alert_queue.go` implements throttling to prevent alert floods:
+
 - Each rule has a `cooldown` period (minimum interval between firings)
 - `quiet_hours_queue.go` checks the configured quiet hours schedule and timezone before dispatching
-- Alerts outside quiet hours are held and dispatched at the quiet period end, or dropped if `dropOnQuietHours` is set
+- Alerts outside quiet hours are held and dispatched at the quiet period end, or dropped if
+  `dropOnQuietHours` is set
 
 **Step 3: Notification Dispatch**
 
-`dispatcher.go` routes each alert to configured channels. `dispatcher_routing.go` handles channel selection based on rule configuration (severity, channel assignment).
+`dispatcher.go` routes each alert to configured channels. `dispatcher_routing.go` handles channel
+selection based on rule configuration (severity, channel assignment).
 
 **Step 4: In-App Notification**
 
-The in-app channel (`push/inapp.go`) publishes the notification to the GraphQL subscription system. The backend GraphQL resolver broadcasts via WebSocket.
+The in-app channel (`push/inapp.go`) publishes the notification to the GraphQL subscription system.
+The backend GraphQL resolver broadcasts via WebSocket.
 
 **Step 5: Frontend Subscription**
 
@@ -580,7 +629,8 @@ const { count } = useDigestQueueCount({ routerId });
 const { notifications } = useDigestHistory({ routerId, limit: 50 });
 ```
 
-`alert-notification.store.ts` maintains the notification list with unread count, read state, and snooze functionality.
+`alert-notification.store.ts` maintains the notification list with unread count, read state, and
+snooze functionality.
 
 **Step 6: UI Components**
 
@@ -592,19 +642,23 @@ AlertRuleForm   - create/edit alert rules
 ```
 
 The `InAppNotificationPreferences.tsx` component lets users configure:
+
 - Which alert severities trigger in-app notifications
 - Notification sound preferences
 - Auto-dismiss timing
 
 ### Alert Rule Templates
 
-Alert rule templates (`alerts/useAlertRuleTemplates`) provide pre-built rule configurations (high CPU, low disk, VPN tunnel down, etc.) that users can customize and apply.
+Alert rule templates (`alerts/useAlertRuleTemplates`) provide pre-built rule configurations (high
+CPU, low disk, VPN tunnel down, etc.) that users can customize and apply.
 
 ---
 
 ## 6. VIF Pattern for Service Isolation
 
-Virtual Interface (VIF) is the core network isolation mechanism that gives each installed service its own private network namespace within the MikroTik router. This prevents services from interfering with each other or with the router's main routing table.
+Virtual Interface (VIF) is the core network isolation mechanism that gives each installed service
+its own private network namespace within the MikroTik router. This prevents services from
+interfering with each other or with the router's main routing table.
 
 ### Overview
 
@@ -667,11 +721,13 @@ interface_factory.go
   └── Persist VirtualInterface entity to database
 ```
 
-The VLAN allocator maintains a pool of available VLAN IDs (typically 100–4094) and assigns the next available one. VLAN IDs are persisted to the `ent` schema via `ent_vlan_allocation_repo.go`.
+The VLAN allocator maintains a pool of available VLAN IDs (typically 100–4094) and assigns the next
+available one. VLAN IDs are persisted to the `ent` schema via `ent_vlan_allocation_repo.go`.
 
 **Step 2: Gateway Configuration**
 
-`gateway_config.go` and `gateway_manager.go` manage the gateway IP address that the service will use as its default route:
+`gateway_config.go` and `gateway_manager.go` manage the gateway IP address that the service will use
+as its default route:
 
 ```
 Service VIF subnet: 172.16.X.0/30 (per VLAN)
@@ -681,7 +737,8 @@ Service IP:         172.16.X.2 (service-side)
 
 **Step 3: Kill Switch**
 
-The kill switch coordinator (`vif/isolation/kill_switch_coordinator.go`) monitors VPN tunnel state. When the upstream VPN tunnel goes down:
+The kill switch coordinator (`vif/isolation/kill_switch_coordinator.go`) monitors VPN tunnel state.
+When the upstream VPN tunnel goes down:
 
 1. `kill_switch_listener.go` detects the state change
 2. Coordinator blocks all traffic through the service's bridge
@@ -693,6 +750,7 @@ This ensures services with VPN-dependency never leak traffic over unprotected co
 **Step 4: Bridge Port Management**
 
 `services/bridge/service.go` handles port membership in the bridge:
+
 - Adds service container ports to the bridge on start
 - Removes ports on stop
 - Manages VLAN tagging for traffic isolation
@@ -700,7 +758,8 @@ This ensures services with VPN-dependency never leak traffic over unprotected co
 
 **Step 5: Chain Routing**
 
-`vif/routing/chain_router.go` manages multi-hop routing for service chains (e.g., traffic → WireGuard → Tor → internet):
+`vif/routing/chain_router.go` manages multi-hop routing for service chains (e.g., traffic →
+WireGuard → Tor → internet):
 
 ```
 vif/routing/chain_router.go
@@ -723,11 +782,14 @@ const { interfaces, loading } = useVirtualInterfaces({ serviceId });
 // - killSwitchActive (boolean)
 ```
 
-The `GatewayStatusCard.tsx` component displays real-time VIF health including gateway ping latency and kill switch state.
+The `GatewayStatusCard.tsx` component displays real-time VIF health including gateway ping latency
+and kill switch state.
 
 **Step 7: Traffic Statistics**
 
-`vif/traffic/aggregator.go` collects per-interface traffic statistics (bytes in/out, packets, drops). `vif/traffic/quota_enforcer.go` enforces configured data quotas by blocking traffic when the limit is reached.
+`vif/traffic/aggregator.go` collects per-interface traffic statistics (bytes in/out, packets,
+drops). `vif/traffic/quota_enforcer.go` enforces configured data quotas by blocking traffic when the
+limit is reached.
 
 ### VIF Schema
 
@@ -742,7 +804,9 @@ This maps to the GraphQL `VirtualInterface` type in `schema/services/services-is
 
 ### Isolation Verification
 
-`apps/backend/internal/orchestrator/isolation/isolation_verifier.go` periodically verifies that isolation rules are correctly applied. If verification fails (e.g., bridge membership mismatch), it triggers automatic reapplication and emits an alert event.
+`apps/backend/internal/orchestrator/isolation/isolation_verifier.go` periodically verifies that
+isolation rules are correctly applied. If verification fails (e.g., bridge membership mismatch), it
+triggers automatic reapplication and emits an alert event.
 
 ---
 
@@ -754,4 +818,5 @@ This maps to the GraphQL `VirtualInterface` type in `schema/services/services-is
 - Novel patterns (VIF, Safety Pipeline, etc.): `Docs/architecture/novel-pattern-designs.md`
 - Universal State v2 resource model: `Docs/architecture/data-architecture.md`
 - ADR-012 (Universal State v2): `Docs/architecture/adrs/012-universal-state-v2.md`
-- ADR-017 (Three-Layer Component Architecture): `Docs/architecture/adrs/017-three-layer-component-architecture.md`
+- ADR-017 (Three-Layer Component Architecture):
+  `Docs/architecture/adrs/017-three-layer-component-architecture.md`

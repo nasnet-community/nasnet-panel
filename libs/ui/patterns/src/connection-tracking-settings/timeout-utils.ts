@@ -139,10 +139,7 @@ export function isValidDuration(duration: string): boolean {
  * @param defaultSeconds - Default value in seconds
  * @returns Duration string
  */
-export function getDurationOrDefault(
-  value: string | undefined,
-  defaultSeconds: number
-): string {
+export function getDurationOrDefault(value: string | undefined, defaultSeconds: number): string {
   if (!value || value.trim() === '') {
     return formatDuration(defaultSeconds);
   }
@@ -157,10 +154,7 @@ export function getDurationOrDefault(
  * @param defaultSeconds - Default value if parsing fails
  * @returns Seconds
  */
-export function parseOrDefault(
-  value: string | undefined,
-  defaultSeconds: number
-): number {
+export function parseOrDefault(value: string | undefined, defaultSeconds: number): number {
   if (!value || value.trim() === '') {
     return defaultSeconds;
   }

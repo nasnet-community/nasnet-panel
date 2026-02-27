@@ -55,7 +55,7 @@ const manyLists = [
 /** Reusable trigger element — styled IP address span */
 const IpTrigger = ({ ip }: { ip: string }) => (
   <span
-    className="font-mono text-sm cursor-pointer select-none px-2 py-1 rounded border border-dashed border-muted-foreground/40 hover:border-primary hover:bg-primary/5 transition-colors"
+    className="border-muted-foreground/40 hover:border-primary hover:bg-primary/5 cursor-pointer select-none rounded border border-dashed px-2 py-1 font-mono text-sm transition-colors"
     aria-label={`Open address list menu for ${ip}`}
   >
     {ip}

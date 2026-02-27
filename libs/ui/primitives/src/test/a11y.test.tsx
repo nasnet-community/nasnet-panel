@@ -85,7 +85,11 @@ describe('Accessibility Tests (WCAG AAA)', () => {
       const { container } = render(
         <div>
           <Label htmlFor="email">Email</Label>
-          <Input id="email" type="email" placeholder="Enter email" />
+          <Input
+            id="email"
+            type="email"
+            placeholder="Enter email"
+          />
         </div>
       );
       const results = await axe(container);
@@ -111,7 +115,10 @@ describe('Accessibility Tests (WCAG AAA)', () => {
       const { container } = render(
         <div>
           <Label htmlFor="message">Message</Label>
-          <Textarea id="message" placeholder="Enter your message" />
+          <Textarea
+            id="message"
+            placeholder="Enter your message"
+          />
         </div>
       );
       const results = await axe(container);
@@ -122,7 +129,10 @@ describe('Accessibility Tests (WCAG AAA)', () => {
   describe('Progress', () => {
     it('should have no accessibility violations', async () => {
       const { container } = render(
-        <Progress value={50} aria-label="Loading progress" />
+        <Progress
+          value={50}
+          aria-label="Loading progress"
+        />
       );
       const results = await axe(container);
       expect(results).toHaveNoViolations();

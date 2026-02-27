@@ -16,8 +16,8 @@ const preview: Preview = {
     backgrounds: {
       options: {
         light: { name: 'light', value: '#F1F5F9' },
-        dark: { name: 'dark', value: '#0F172A' }
-      }
+        dark: { name: 'dark', value: '#0F172A' },
+      },
     },
     viewport: {
       options: {
@@ -50,8 +50,11 @@ const preview: Preview = {
       const isDark = context.globals.theme === 'dark';
 
       return (
-        <div className={isDark ? 'dark' : ''} data-theme={isDark ? 'dark' : 'light'}>
-          <div className="p-4 min-h-screen bg-background text-foreground">
+        <div
+          className={isDark ? 'dark' : ''}
+          data-theme={isDark ? 'dark' : 'light'}
+        >
+          <div className="bg-background text-foreground min-h-screen p-4">
             <Story />
           </div>
         </div>
@@ -76,9 +79,9 @@ const preview: Preview = {
 
   initialGlobals: {
     backgrounds: {
-      value: 'light'
-    }
-  }
+      value: 'light',
+    },
+  },
 };
 
 export default preview;

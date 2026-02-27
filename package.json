@@ -1,6 +1,7 @@
 {
   "name": "@nas-net/source",
   "version": "0.0.0",
+  "packageManager": "npm@10.8.3",
   "license": "MIT",
   "scripts": {
     "ci": "nx run-many -t lint test build typecheck",

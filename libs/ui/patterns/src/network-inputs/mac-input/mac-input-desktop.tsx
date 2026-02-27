@@ -98,12 +98,8 @@ export const MACInputDesktop = memo(function MACInputDesktop({
   );
 
   // Build aria-describedby for input
-  const inputAriaDescribedBy = [
-    ariaDescribedBy,
-    hasError ? errorId : undefined,
-  ]
-    .filter(Boolean)
-    .join(' ') || undefined;
+  const inputAriaDescribedBy =
+    [ariaDescribedBy, hasError ? errorId : undefined].filter(Boolean).join(' ') || undefined;
 
   return (
     <div className={cn('flex flex-col gap-1', className)}>
@@ -112,7 +108,7 @@ export const MACInputDesktop = memo(function MACInputDesktop({
         <label
           id={labelId}
           htmlFor={id}
-          className="text-sm font-medium text-foreground"
+          className="text-foreground text-sm font-medium"
         >
           {label}
           {required && <span className="text-destructive ml-1">*</span>}
@@ -123,7 +119,11 @@ export const MACInputDesktop = memo(function MACInputDesktop({
       <div className="flex items-center gap-2">
         {/* Hidden input for form submission */}
         {name && (
-          <input type="hidden" name={name} value={computedValue} />
+          <input
+            type="hidden"
+            name={name}
+            value={computedValue}
+          />
         )}
 
         {/* Main input */}
@@ -145,24 +145,24 @@ export const MACInputDesktop = memo(function MACInputDesktop({
           aria-labelledby={labelId}
           className={cn(
             'font-mono text-sm uppercase tracking-wider',
-            'bg-card border border-border text-foreground placeholder:text-muted-foreground',
-            'focus:border-primary focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0',
+            'bg-card border-border text-foreground placeholder:text-muted-foreground border',
+            'focus:border-primary focus-visible:ring-ring focus-visible:ring-2 focus-visible:ring-offset-0',
             'transition-colors duration-150',
             hasError && 'border-error focus:border-error focus-visible:ring-error'
           )}
         />
 
         {/* Validation indicator */}
-        <div className="w-5 h-5 flex items-center justify-center flex-shrink-0">
+        <div className="flex h-5 w-5 flex-shrink-0 items-center justify-center">
           {showValidIndicator && (
             <CheckCircle2
-              className="w-5 h-5 text-success"
+              className="text-success h-5 w-5"
               aria-hidden="true"
             />
           )}
           {hasError && computedValue && (
             <XCircle
-              className="w-5 h-5 text-destructive"
+              className="text-destructive h-5 w-5"
               aria-hidden="true"
             />
           )}
@@ -170,9 +170,7 @@ export const MACInputDesktop = memo(function MACInputDesktop({
 
         {/* Vendor name (desktop: inline to the right) */}
         {showVendor && vendor && (
-          <span className="text-sm text-muted-foreground whitespace-nowrap">
-            {vendor}
-          </span>
+          <span className="text-muted-foreground whitespace-nowrap text-sm">{vendor}</span>
         )}
       </div>
 
@@ -182,7 +180,7 @@ export const MACInputDesktop = memo(function MACInputDesktop({
           id={errorId}
           role="alert"
           aria-live="polite"
-          className="text-xs text-error"
+          className="text-error text-xs"
         >
           {error}
         </p>

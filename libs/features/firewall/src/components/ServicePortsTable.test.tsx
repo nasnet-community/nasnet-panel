@@ -119,9 +119,7 @@ describe('ServicePortsTable', () => {
 
       render(<ServicePortsTable />);
 
-      expect(
-        screen.getByText(/servicePorts.emptyStates.noServices/i)
-      ).toBeInTheDocument();
+      expect(screen.getByText(/servicePorts.emptyStates.noServices/i)).toBeInTheDocument();
     });
   });
 
@@ -175,9 +173,7 @@ describe('ServicePortsTable', () => {
       await user.click(deleteButton!);
 
       await waitFor(() => {
-        expect(
-          screen.getByText(/servicePorts.confirmations.deleteService/i)
-        ).toBeInTheDocument();
+        expect(screen.getByText(/servicePorts.confirmations.deleteService/i)).toBeInTheDocument();
       });
     });
 
@@ -196,9 +192,7 @@ describe('ServicePortsTable', () => {
 
       // Confirm deletion
       await waitFor(() => {
-        expect(
-          screen.getByText(/servicePorts.confirmations.deleteService/i)
-        ).toBeInTheDocument();
+        expect(screen.getByText(/servicePorts.confirmations.deleteService/i)).toBeInTheDocument();
       });
 
       const confirmButton = screen.getByText(/servicePorts.deleteService/i);
@@ -230,9 +224,7 @@ describe('ServicePortsTable', () => {
       const user = userEvent.setup();
       render(<ServicePortsTable />);
 
-      const searchInput = screen.getByPlaceholderText(
-        /servicePorts.placeholders.searchServices/i
-      );
+      const searchInput = screen.getByPlaceholderText(/servicePorts.placeholders.searchServices/i);
       await user.type(searchInput, 'my-app');
 
       await waitFor(() => {
@@ -245,9 +237,7 @@ describe('ServicePortsTable', () => {
       const user = userEvent.setup();
       render(<ServicePortsTable />);
 
-      const searchInput = screen.getByPlaceholderText(
-        /servicePorts.placeholders.searchServices/i
-      );
+      const searchInput = screen.getByPlaceholderText(/servicePorts.placeholders.searchServices/i);
       await user.type(searchInput, '80');
 
       await waitFor(() => {
@@ -319,15 +309,11 @@ describe('ServicePortsTable', () => {
       const user = userEvent.setup();
       render(<ServicePortsTable />);
 
-      const searchInput = screen.getByPlaceholderText(
-        /servicePorts.placeholders.searchServices/i
-      );
+      const searchInput = screen.getByPlaceholderText(/servicePorts.placeholders.searchServices/i);
       await user.type(searchInput, 'nonexistent');
 
       await waitFor(() => {
-        expect(
-          screen.getByText(/servicePorts.emptyStates.noServices/i)
-        ).toBeInTheDocument();
+        expect(screen.getByText(/servicePorts.emptyStates.noServices/i)).toBeInTheDocument();
       });
     });
   });
@@ -391,9 +377,7 @@ describe('ServicePortsTable', () => {
       await user.hover(editButton!.parentElement!);
 
       await waitFor(() => {
-        expect(
-          screen.getByText(/servicePorts.tooltips.builtInReadOnly/i)
-        ).toBeInTheDocument();
+        expect(screen.getByText(/servicePorts.tooltips.builtInReadOnly/i)).toBeInTheDocument();
       });
     });
   });

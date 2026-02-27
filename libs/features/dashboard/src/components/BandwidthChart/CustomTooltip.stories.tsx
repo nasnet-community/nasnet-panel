@@ -6,7 +6,6 @@
  * TX/RX byte totals (AC 5.5.3).
  */
 
-
 import { CustomTooltip } from './CustomTooltip';
 
 import type { CustomTooltipProps } from './types';
@@ -110,10 +109,7 @@ export const ZeroTraffic: Story = {
   args: {
     active: true,
     label: NOW,
-    payload: [
-      makePayload('txRate', 0, 0, 0),
-      makePayload('rxRate', 0, 0, 0),
-    ],
+    payload: [makePayload('txRate', 0, 0, 0), makePayload('rxRate', 0, 0, 0)],
   } satisfies CustomTooltipProps,
 };
 

@@ -1,7 +1,7 @@
 {
   "id": "machines/change-set-machine",
   "title": "Change Set Machine (Atomic Multi-Resource Operations)",
-  "description": "The Change Set Machine orchestrates atomic multi-resource operations with dependency-aware apply ordering and rollback on failure. It ensures that complex configurations involving multiple resources are either fully applied or fully rolled back—no partial states.",
+  "description": "The Change Set Machine orchestrates atomic multi-resource operations with dependency-aware",
   "source": "@site/../../libs/state/docs/machines/change-set-machine.md",
   "sourceDirName": "machines",
   "slug": "/machines/change-set-machine",

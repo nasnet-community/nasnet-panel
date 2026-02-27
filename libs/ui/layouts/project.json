@@ -39,10 +39,7 @@
     "check": {
       "executor": "nx:run-commands",
       "options": {
-        "commands": [
-          "nx run ui-layouts:typecheck",
-          "nx run ui-layouts:lint"
-        ],
+        "commands": ["nx run ui-layouts:typecheck", "nx run ui-layouts:lint"],
         "parallel": true
       }
     }

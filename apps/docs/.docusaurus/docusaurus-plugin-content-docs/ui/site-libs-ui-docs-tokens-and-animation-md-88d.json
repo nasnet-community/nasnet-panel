@@ -1,7 +1,7 @@
 {
   "id": "tokens-and-animation",
   "title": "Design Tokens & Animation System",
-  "description": "Source package: libs/ui/tokens/",
+  "description": "Source package libs/ui/patterns/src/motion/",
   "source": "@site/../../libs/ui/docs/tokens-and-animation.md",
   "sourceDirName": ".",
   "slug": "/tokens-and-animation",

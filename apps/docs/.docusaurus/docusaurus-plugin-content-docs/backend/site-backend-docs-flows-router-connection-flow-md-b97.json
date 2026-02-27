@@ -1,7 +1,7 @@
 {
   "id": "flows/router-connection-flow",
   "title": "Flow: Router Connection Establishment",
-  "description": "Traces how the backend connects to a MikroTik router, automatically selecting the best available protocol with circuit-breaker protection.",
+  "description": "Traces how the backend connects to a MikroTik router, automatically selecting the best available",
   "source": "@site/../backend/docs/flows/router-connection-flow.md",
   "sourceDirName": "flows",
   "slug": "/flows/router-connection-flow",

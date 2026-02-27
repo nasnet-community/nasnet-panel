@@ -112,21 +112,18 @@ export const dnsLookupFormSchema = z.object({
     .string()
     .min(1, 'Hostname is required. Enter a domain name like "example.com" or an IP address.')
     .max(253, `Hostname too long (max ${MAX_HOSTNAME_LENGTH} characters).`)
-    .refine(
-      (val) => {
-        // If it looks like it might be an IPv4 (all parts are digits),
-        // validate it strictly as IPv4 (must be exactly 4 octets)
-        const parts = val.split('.');
-        const allDigits = parts.every((p) => /^\d+$/.test(p));
-        if (allDigits && parts.length >= 3) {
-          // Looks like an IP attempt - must be valid IPv4
-          return isValidIPv4(val);
-        }
-        // Otherwise, allow hostname or IPv6
-        return isValidHostname(val) || isValidIPv6(val);
-      },
-      'Enter a valid domain name (e.g., "example.com") or IP address (e.g., "8.8.8.8" or "2001:4860:4860::8888").'
-    ),
+    .refine((val) => {
+      // If it looks like it might be an IPv4 (all parts are digits),
+      // validate it strictly as IPv4 (must be exactly 4 octets)
+      const parts = val.split('.');
+      const allDigits = parts.every((p) => /^\d+$/.test(p));
+      if (allDigits && parts.length >= 3) {
+        // Looks like an IP attempt - must be valid IPv4
+        return isValidIPv4(val);
+      }
+      // Otherwise, allow hostname or IPv6
+      return isValidHostname(val) || isValidIPv6(val);
+    }, 'Enter a valid domain name (e.g., "example.com") or IP address (e.g., "8.8.8.8" or "2001:4860:4860::8888").'),
   recordType: z.enum(DNS_RECORD_TYPES).default('A'),
   server: z
     .string()
@@ -135,8 +132,7 @@ export const dnsLookupFormSchema = z.object({
       (val) => !val || val === 'all' || isValidIPv4(val) || isValidIPv6(val),
       'DNS server must be a valid IPv4 (e.g., "8.8.8.8") or IPv6 address, or "all" to query all configured servers.'
     ),
-  timeout: z
-    .coerce
+  timeout: z.coerce
     .number()
     .int()
     .min(MIN_DNS_TIMEOUT_MS, `Timeout must be at least ${MIN_DNS_TIMEOUT_MS}ms.`)

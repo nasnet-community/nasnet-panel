@@ -7,8 +7,18 @@
  * @module @nasnet/api-client/queries/services
  */
 
-import { gql, useQuery, useMutation, type QueryHookOptions, type MutationHookOptions } from '@apollo/client';
-import type { IsolationStatus, ResourceLimits, SetResourceLimitsInput } from '@nasnet/api-client/generated';
+import {
+  gql,
+  useQuery,
+  useMutation,
+  type QueryHookOptions,
+  type MutationHookOptions,
+} from '@apollo/client';
+import type {
+  IsolationStatus,
+  ResourceLimits,
+  SetResourceLimitsInput,
+} from '@nasnet/api-client/generated';
 
 /**
  * GraphQL query for instance isolation status
@@ -40,7 +50,14 @@ export const GET_INSTANCE_ISOLATION = gql`
  */
 export const SET_RESOURCE_LIMITS = gql`
   mutation SetResourceLimits($routerID: ID!, $instanceID: ID!, $memoryMB: Int!, $cpuWeight: Int) {
-    setResourceLimits(input: { routerID: $routerID, instanceID: $instanceID, memoryMB: $memoryMB, cpuWeight: $cpuWeight }) {
+    setResourceLimits(
+      input: {
+        routerID: $routerID
+        instanceID: $instanceID
+        memoryMB: $memoryMB
+        cpuWeight: $cpuWeight
+      }
+    ) {
       success
       message
       resourceLimits {
@@ -123,21 +140,18 @@ export interface SetResourceLimitsResult {
 export function useInstanceIsolation(
   routerID: string,
   instanceID: string,
-  options?: QueryHookOptions<
-    GetInstanceIsolationResult,
-    GetInstanceIsolationVariables
-  >
+  options?: QueryHookOptions<GetInstanceIsolationResult, GetInstanceIsolationVariables>
 ) {
-  return useQuery<
-    GetInstanceIsolationResult,
-    GetInstanceIsolationVariables
-  >(GET_INSTANCE_ISOLATION, {
-    variables: { routerID, instanceID },
-    fetchPolicy: 'cache-and-network',
-    nextFetchPolicy: 'cache-first',
-    pollInterval: 5000, // Poll every 5 seconds
-    ...options,
-  });
+  return useQuery<GetInstanceIsolationResult, GetInstanceIsolationVariables>(
+    GET_INSTANCE_ISOLATION,
+    {
+      variables: { routerID, instanceID },
+      fetchPolicy: 'cache-and-network',
+      nextFetchPolicy: 'cache-first',
+      pollInterval: 5000, // Poll every 5 seconds
+      ...options,
+    }
+  );
 }
 
 /**
@@ -179,15 +193,9 @@ export function useInstanceIsolation(
  * ```
  */
 export function useSetResourceLimits(
-  options?: MutationHookOptions<
-    SetResourceLimitsResult,
-    SetResourceLimitsVariables
-  >
+  options?: MutationHookOptions<SetResourceLimitsResult, SetResourceLimitsVariables>
 ) {
-  return useMutation<
-    SetResourceLimitsResult,
-    SetResourceLimitsVariables
-  >(SET_RESOURCE_LIMITS, {
+  return useMutation<SetResourceLimitsResult, SetResourceLimitsVariables>(SET_RESOURCE_LIMITS, {
     refetchQueries: ['GetInstanceIsolation'],
     ...options,
   });

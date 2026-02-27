@@ -7,40 +7,64 @@ Time-based schedule for activating/deactivating device routing rules.
 Enables features like parental controls, time-based VPN routing, etc.
 """
 type RoutingSchedule implements Node {
-  """Schedule ID (ULID)"""
+  """
+  Schedule ID (ULID)
+  """
   id: ID!
 
-  """Device routing ID this schedule controls"""
+  """
+  Device routing ID this schedule controls
+  """
   routingID: ID!
 
-  """Days of week when schedule is active (0=Sunday, 6=Saturday)"""
+  """
+  Days of week when schedule is active (0=Sunday, 6=Saturday)
+  """
   days: [Int!]!
 
-  """Start time in HH:MM format (24-hour)"""
+  """
+  Start time in HH:MM format (24-hour)
+  """
   startTime: String!
 
-  """End time in HH:MM format (24-hour)"""
+  """
+  End time in HH:MM format (24-hour)
+  """
   endTime: String!
 
-  """IANA timezone identifier (e.g., 'America/New_York', 'UTC')"""
+  """
+  IANA timezone identifier (e.g., 'America/New_York', 'UTC')
+  """
   timezone: String!
 
-  """Whether this schedule is enabled"""
+  """
+  Whether this schedule is enabled
+  """
   enabled: Boolean!
 
-  """Timestamp when routing was last activated by this schedule"""
+  """
+  Timestamp when routing was last activated by this schedule
+  """
   lastActivated: DateTime
 
-  """Timestamp when routing was last deactivated by this schedule"""
+  """
+  Timestamp when routing was last deactivated by this schedule
+  """
   lastDeactivated: DateTime
 
-  """Whether the schedule window is currently active (computed field)"""
+  """
+  Whether the schedule window is currently active (computed field)
+  """
   isActive: Boolean!
 
-  """When the schedule was created"""
+  """
+  When the schedule was created
+  """
   createdAt: DateTime!
 
-  """Last update timestamp"""
+  """
+  Last update timestamp
+  """
   updatedAt: DateTime!
 }
 
@@ -48,22 +72,34 @@ type RoutingSchedule implements Node {
 Input for creating a new routing schedule.
 """
 input CreateScheduleInput {
-  """Device routing ID to schedule"""
+  """
+  Device routing ID to schedule
+  """
   routingID: ID!
 
-  """Days of week (0=Sunday, 6=Saturday)"""
+  """
+  Days of week (0=Sunday, 6=Saturday)
+  """
   days: [Int!]!
 
-  """Start time in HH:MM format (24-hour)"""
+  """
+  Start time in HH:MM format (24-hour)
+  """
   startTime: String! @validate(pattern: "^([0-1][0-9]|2[0-3]):[0-5][0-9]$")
 
-  """End time in HH:MM format (24-hour)"""
+  """
+  End time in HH:MM format (24-hour)
+  """
   endTime: String! @validate(pattern: "^([0-1][0-9]|2[0-3]):[0-5][0-9]$")
 
-  """IANA timezone identifier"""
+  """
+  IANA timezone identifier
+  """
   timezone: String! @validate(minLength: 1, maxLength: 64)
 
-  """Whether schedule is enabled (default: true)"""
+  """
+  Whether schedule is enabled (default: true)
+  """
   enabled: Boolean
 }
 
@@ -71,19 +107,29 @@ input CreateScheduleInput {
 Input for updating an existing routing schedule.
 """
 input UpdateScheduleInput {
-  """Days of week (0=Sunday, 6=Saturday)"""
+  """
+  Days of week (0=Sunday, 6=Saturday)
+  """
   days: [Int!]
 
-  """Start time in HH:MM format (24-hour)"""
+  """
+  Start time in HH:MM format (24-hour)
+  """
   startTime: String @validate(pattern: "^([0-1][0-9]|2[0-3]):[0-5][0-9]$")
 
-  """End time in HH:MM format (24-hour)"""
+  """
+  End time in HH:MM format (24-hour)
+  """
   endTime: String @validate(pattern: "^([0-1][0-9]|2[0-3]):[0-5][0-9]$")
 
-  """IANA timezone identifier"""
+  """
+  IANA timezone identifier
+  """
   timezone: String @validate(minLength: 1, maxLength: 64)
 
-  """Whether schedule is enabled"""
+  """
+  Whether schedule is enabled
+  """
   enabled: Boolean
 }
 
@@ -92,27 +138,40 @@ Schedule event for subscriptions.
 Emitted when schedules are created, updated, deleted, or when activation state changes.
 """
 type ScheduleEvent {
-  """Event ID"""
+  """
+  Event ID
+  """
   id: ID!
 
-  """Event type (created, updated, deleted, activated, deactivated)"""
+  """
+  Event type (created, updated, deleted, activated, deactivated)
+  """
   eventType: String!
 
-  """Schedule that changed"""
+  """
+  Schedule that changed
+  """
   schedule: RoutingSchedule
 
-  """Routing ID (for deleted schedules)"""
+  """
+  Routing ID (for deleted schedules)
+  """
   routingID: ID
 
-  """Timestamp"""
+  """
+  Timestamp
+  """
   timestamp: DateTime!
 }
 
 extend type DeviceRouting {
-  """All schedules for this device routing"""
+  """
+  All schedules for this device routing
+  """
   schedules: [RoutingSchedule!]!
 
-  """Whether this routing has any active schedules"""
+  """
+  Whether this routing has any active schedules
+  """
   hasSchedules: Boolean!
 }
-

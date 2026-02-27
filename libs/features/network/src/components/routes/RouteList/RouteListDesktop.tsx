@@ -127,10 +127,13 @@ function RouteListDesktopComponent({
         key: 'destination',
         header: 'Destination',
         cell: (route) => (
-          <div className="flex items-center gap-component-sm">
-            <code className="text-sm font-mono text-foreground">{route.destination}</code>
+          <div className="gap-component-sm flex items-center">
+            <code className="text-foreground font-mono text-sm">{route.destination}</code>
             {route.destination === '0.0.0.0/0' && (
-              <Badge variant="default" className="text-xs">
+              <Badge
+                variant="default"
+                className="text-xs"
+              >
                 Default
               </Badge>
             )}
@@ -141,24 +144,18 @@ function RouteListDesktopComponent({
         key: 'gateway',
         header: 'Gateway',
         cell: (route) => (
-          <code className="text-sm font-mono text-foreground">
-            {route.gateway || '-'}
-          </code>
+          <code className="text-foreground font-mono text-sm">{route.gateway || '-'}</code>
         ),
       },
       {
         key: 'interface',
         header: 'Interface',
-        cell: (route) => (
-          <span className="text-sm font-medium">{route.interface || '-'}</span>
-        ),
+        cell: (route) => <span className="text-sm font-medium">{route.interface || '-'}</span>,
       },
       {
         key: 'distance',
         header: 'Distance',
-        cell: (route) => (
-          <span className="text-sm tabular-nums">{route.distance}</span>
-        ),
+        cell: (route) => <span className="text-sm tabular-nums">{route.distance}</span>,
       },
       {
         key: 'type',
@@ -172,10 +169,14 @@ function RouteListDesktopComponent({
         key: 'status',
         header: 'Status',
         cell: (route) => (
-          <div className="flex items-center gap-component-sm">
+          <div className="gap-component-sm flex items-center">
             <StatusDot className={route.active ? 'bg-success' : 'bg-muted'} />
             <span className="text-sm">
-              {route.disabled ? 'Disabled' : route.active ? 'Active' : 'Inactive'}
+              {route.disabled ?
+                'Disabled'
+              : route.active ?
+                'Active'
+              : 'Inactive'}
             </span>
           </div>
         ),
@@ -246,13 +247,11 @@ function RouteListDesktopComponent({
       </CardHeader>
       <CardContent>
         {/* Filters */}
-        <div className="mb-component-md flex flex-wrap gap-component-md">
+        <div className="mb-component-md gap-component-md flex flex-wrap">
           <Input
             placeholder="Search destination, gateway, or comment..."
             value={filters.searchText || ''}
-            onChange={(e) =>
-              onFiltersChange({ ...filters, searchText: e.target.value })
-            }
+            onChange={(e) => onFiltersChange({ ...filters, searchText: e.target.value })}
             className="max-w-sm"
             aria-label="Search routes"
           />
@@ -263,13 +262,19 @@ function RouteListDesktopComponent({
               onFiltersChange({ ...filters, table: value === 'all' ? undefined : value })
             }
           >
-            <SelectTrigger className="w-48" aria-label="Filter by routing table">
+            <SelectTrigger
+              className="w-48"
+              aria-label="Filter by routing table"
+            >
               <SelectValue placeholder="All tables" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All tables</SelectItem>
               {availableTables.map((table) => (
-                <SelectItem key={table} value={table}>
+                <SelectItem
+                  key={table}
+                  value={table}
+                >
                   {table}
                 </SelectItem>
               ))}
@@ -285,7 +290,10 @@ function RouteListDesktopComponent({
               })
             }
           >
-            <SelectTrigger className="w-48" aria-label="Filter by route type">
+            <SelectTrigger
+              className="w-48"
+              aria-label="Filter by route type"
+            >
               <SelectValue placeholder="All types" />
             </SelectTrigger>
             <SelectContent>
@@ -298,14 +306,12 @@ function RouteListDesktopComponent({
             </SelectContent>
           </Select>
 
-          <label className="flex items-center gap-2 cursor-pointer">
+          <label className="flex cursor-pointer items-center gap-2">
             <input
               type="checkbox"
               checked={filters.activeOnly || false}
-              onChange={(e) =>
-                onFiltersChange({ ...filters, activeOnly: e.target.checked })
-              }
-              className="h-4 w-4 rounded border-border focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              onChange={(e) => onFiltersChange({ ...filters, activeOnly: e.target.checked })}
+              className="border-border focus-visible:ring-ring h-4 w-4 rounded focus-visible:ring-2 focus-visible:ring-offset-2"
               aria-label="Show active routes only"
             />
             <span className="text-sm">Active only</span>
@@ -314,8 +320,14 @@ function RouteListDesktopComponent({
 
         {/* Error message */}
         {error && (
-          <div role="alert" className="mb-component-md flex items-center gap-component-sm rounded-lg border border-error bg-error/10 p-component-sm text-sm text-error">
-            <AlertCircle className="h-4 w-4" aria-hidden="true" />
+          <div
+            role="alert"
+            className="mb-component-md gap-component-sm border-error bg-error/10 p-component-sm text-error flex items-center rounded-lg border text-sm"
+          >
+            <AlertCircle
+              className="h-4 w-4"
+              aria-hidden="true"
+            />
             <p>{error}</p>
           </div>
         )}
@@ -330,7 +342,7 @@ function RouteListDesktopComponent({
         />
 
         {/* Footer info */}
-        <div className="mt-component-md text-sm text-muted-foreground">
+        <div className="mt-component-md text-muted-foreground text-sm">
           Showing {filteredRoutes.length} of {routes.length} route
           {routes.length !== 1 ? 's' : ''}
         </div>

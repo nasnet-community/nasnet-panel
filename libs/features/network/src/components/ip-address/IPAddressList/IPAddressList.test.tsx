@@ -109,13 +109,23 @@ describe('IPAddressListDesktop', () => {
   });
 
   it('should show loading state', () => {
-    render(<IPAddressListDesktop {...defaultProps} loading={true} />);
+    render(
+      <IPAddressListDesktop
+        {...defaultProps}
+        loading={true}
+      />
+    );
 
     expect(screen.getByText('Loading...')).toBeInTheDocument();
   });
 
   it('should show empty state when no IP addresses', () => {
-    render(<IPAddressListDesktop {...defaultProps} ipAddresses={[]} />);
+    render(
+      <IPAddressListDesktop
+        {...defaultProps}
+        ipAddresses={[]}
+      />
+    );
 
     expect(
       screen.getByText('No IP addresses found. Add an IP address to get started.')
@@ -124,14 +134,24 @@ describe('IPAddressListDesktop', () => {
 
   it('should show error message', () => {
     const error = 'Failed to fetch IP addresses';
-    render(<IPAddressListDesktop {...defaultProps} error={error} />);
+    render(
+      <IPAddressListDesktop
+        {...defaultProps}
+        error={error}
+      />
+    );
 
     expect(screen.getByText(error)).toBeInTheDocument();
   });
 
   it('should filter by search text', () => {
     const onFiltersChange = vi.fn();
-    render(<IPAddressListDesktop {...defaultProps} onFiltersChange={onFiltersChange} />);
+    render(
+      <IPAddressListDesktop
+        {...defaultProps}
+        onFiltersChange={onFiltersChange}
+      />
+    );
 
     const searchInput = screen.getByPlaceholderText('Search address or comment...');
     fireEvent.change(searchInput, { target: { value: 'Management' } });
@@ -144,7 +164,12 @@ describe('IPAddressListDesktop', () => {
 
   it('should call onEdit when edit button is clicked', () => {
     const onEdit = vi.fn();
-    render(<IPAddressListDesktop {...defaultProps} onEdit={onEdit} />);
+    render(
+      <IPAddressListDesktop
+        {...defaultProps}
+        onEdit={onEdit}
+      />
+    );
 
     // Click the first Actions dropdown button
     const actionButtons = screen.getAllByRole('button', { name: /Actions for/ });
@@ -159,7 +184,12 @@ describe('IPAddressListDesktop', () => {
 
   it('should call onDelete when delete button is clicked', () => {
     const onDelete = vi.fn();
-    render(<IPAddressListDesktop {...defaultProps} onDelete={onDelete} />);
+    render(
+      <IPAddressListDesktop
+        {...defaultProps}
+        onDelete={onDelete}
+      />
+    );
 
     // Click the first Actions dropdown button
     const actionButtons = screen.getAllByRole('button', { name: /Actions for/ });
@@ -191,7 +221,12 @@ describe('IPAddressListDesktop', () => {
 
   it('should call onRefresh when refresh button is clicked', () => {
     const onRefresh = vi.fn();
-    render(<IPAddressListDesktop {...defaultProps} onRefresh={onRefresh} />);
+    render(
+      <IPAddressListDesktop
+        {...defaultProps}
+        onRefresh={onRefresh}
+      />
+    );
 
     const refreshButton = screen.getByRole('button', { name: /Refresh/ });
     fireEvent.click(refreshButton);
@@ -211,7 +246,12 @@ describe('IPAddressListDesktop', () => {
       interfaceName: 'ether1',
     };
 
-    render(<IPAddressListDesktop {...defaultProps} filters={filters} />);
+    render(
+      <IPAddressListDesktop
+        {...defaultProps}
+        filters={filters}
+      />
+    );
 
     // Should only show ether1
     expect(screen.getByText('192.168.1.1/24')).toBeInTheDocument();
@@ -225,7 +265,12 @@ describe('IPAddressListDesktop', () => {
       source: 'dynamic',
     };
 
-    render(<IPAddressListDesktop {...defaultProps} filters={filters} />);
+    render(
+      <IPAddressListDesktop
+        {...defaultProps}
+        filters={filters}
+      />
+    );
 
     // Should only show dynamic IP
     expect(screen.getByText('10.0.0.1/8')).toBeInTheDocument();
@@ -238,7 +283,12 @@ describe('IPAddressListDesktop', () => {
       status: 'disabled',
     };
 
-    render(<IPAddressListDesktop {...defaultProps} filters={filters} />);
+    render(
+      <IPAddressListDesktop
+        {...defaultProps}
+        filters={filters}
+      />
+    );
 
     // Should only show disabled IP
     expect(screen.getByText('172.16.0.1/16')).toBeInTheDocument();

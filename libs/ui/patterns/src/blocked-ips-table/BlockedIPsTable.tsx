@@ -107,11 +107,9 @@ export interface BlockedIPsTableProps {
 export function BlockedIPsTable(props: BlockedIPsTableProps) {
   const platform = usePlatform();
 
-  return platform === 'mobile' ? (
-    <BlockedIPsTableMobile {...props} />
-  ) : (
-    <BlockedIPsTableDesktop {...props} />
-  );
+  return platform === 'mobile' ?
+      <BlockedIPsTableMobile {...props} />
+    : <BlockedIPsTableDesktop {...props} />;
 }
 
 BlockedIPsTable.displayName = 'BlockedIPsTable';

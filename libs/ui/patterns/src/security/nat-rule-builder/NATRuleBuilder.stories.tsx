@@ -73,14 +73,18 @@ function InteractiveWrapper(props: Omit<NATRuleBuilderProps, 'open' | 'onClose'>
   const [open, setOpen] = useState(true);
 
   return (
-    <div className="w-full min-h-[600px]">
+    <div className="min-h-[600px] w-full">
       <button
         onClick={() => setOpen(true)}
-        className="px-4 py-2 bg-primary text-primary-foreground rounded-md"
+        className="bg-primary text-primary-foreground rounded-md px-4 py-2"
       >
         Open NAT Rule Builder
       </button>
-      <NATRuleBuilder {...props} open={open} onClose={() => setOpen(false)} />
+      <NATRuleBuilder
+        {...props}
+        open={open}
+        onClose={() => setOpen(false)}
+      />
     </div>
   );
 }

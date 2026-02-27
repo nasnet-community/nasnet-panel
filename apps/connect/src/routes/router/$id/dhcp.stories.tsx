@@ -10,7 +10,7 @@ function DHCPTabSkeleton() {
   return (
     <div className="space-y-4 p-4">
       <Skeleton className="h-8 w-48" />
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <Skeleton className="h-40 w-full" />
         <Skeleton className="h-40 w-full" />
       </div>
@@ -49,8 +49,7 @@ export const Loading: Story = {
   parameters: {
     docs: {
       description: {
-        story:
-          'Skeleton loading state shown while the DHCP tab chunk is being fetched and loaded.',
+        story: 'Skeleton loading state shown while the DHCP tab chunk is being fetched and loaded.',
       },
     },
   },

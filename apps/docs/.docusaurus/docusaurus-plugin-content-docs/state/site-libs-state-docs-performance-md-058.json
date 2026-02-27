@@ -1,7 +1,7 @@
 {
   "id": "performance",
   "title": "Performance",
-  "description": "This guide covers selector patterns, memoization strategies, and best practices for preventing unnecessary re-renders when consuming Zustand stores.",
+  "description": "This guide covers selector patterns, memoization strategies, and best practices for preventing",
   "source": "@site/../../libs/state/docs/performance.md",
   "sourceDirName": ".",
   "slug": "/performance",

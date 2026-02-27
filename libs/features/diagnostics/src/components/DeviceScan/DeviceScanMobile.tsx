@@ -4,7 +4,15 @@
 // Mobile presenter for device scanning with bottom sheet detail view
 
 import { memo, useState, useCallback, useMemo } from 'react';
-import { Button, Progress, Card, Sheet, SheetContent, SheetHeader, SheetTitle } from '@nasnet/ui/primitives';
+import {
+  Button,
+  Progress,
+  Card,
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from '@nasnet/ui/primitives';
 import { InterfaceSelector, SubnetInput } from '@nasnet/ui/patterns';
 import { cn } from '@nasnet/ui/utils';
 import { DeviceDiscoveryTable } from './DeviceDiscoveryTable';
@@ -115,19 +123,14 @@ export const DeviceScanMobile = memo(function DeviceScanMobile({
   }, []);
 
   // Memoized progress label for accessibility
-  const progressLabel = useMemo(
-    () => `Device scan progress: ${progress}% complete`,
-    [progress]
-  );
+  const progressLabel = useMemo(() => `Device scan progress: ${progress}% complete`, [progress]);
 
   return (
     <div className={cn('space-y-component-md', className)}>
       {/* Header */}
       <div className="space-y-2">
-        <h2 className="text-xl font-semibold font-display text-category-networking">Device Scan</h2>
-        <p className="text-sm text-muted-foreground">
-          Discover devices on your network
-        </p>
+        <h2 className="font-display text-category-networking text-xl font-semibold">Device Scan</h2>
+        <p className="text-muted-foreground text-sm">Discover devices on your network</p>
       </div>
 
       {/* Controls */}
@@ -147,35 +150,34 @@ export const DeviceScanMobile = memo(function DeviceScanMobile({
           label="Subnet to scan"
         />
 
-        <div className="flex gap-component-sm">
-          {isScanning ? (
+        <div className="gap-component-sm flex">
+          {isScanning ?
             <Button
               variant="destructive"
               onClick={stopScan}
-              className="flex-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              className="focus-visible:ring-ring flex-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
               size="lg"
               aria-label="Stop the currently running device scan"
             >
               Stop Scan
             </Button>
-          ) : (
-            <Button
+          : <Button
               onClick={handleStartScan}
               disabled={!routerId}
-              className="flex-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              className="focus-visible:ring-ring flex-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
               size="lg"
               aria-label="Start ARP device scan on the selected subnet"
             >
               Start Scan
             </Button>
-          )}
+          }
           {isComplete && (
             <Button
               variant="outline"
               onClick={reset}
               size="lg"
               aria-label="Reset and start a new device scan"
-              className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              className="focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
             >
               New Scan
             </Button>
@@ -194,7 +196,7 @@ export const DeviceScanMobile = memo(function DeviceScanMobile({
             aria-valuemax={100}
             aria-label={progressLabel}
           />
-          <p className="text-sm text-muted-foreground text-center">
+          <p className="text-muted-foreground text-center text-sm">
             <span className="font-mono">{stats.scannedCount}</span> of{' '}
             <span className="font-mono">{stats.totalCount}</span> IPs ({progress}%)
           </p>
@@ -204,12 +206,12 @@ export const DeviceScanMobile = memo(function DeviceScanMobile({
       {/* Error State */}
       {error && (
         <Card
-          className="p-component-md bg-error/10 border border-error/30"
+          className="p-component-md bg-error/10 border-error/30 border"
           role="alert"
           aria-live="assertive"
         >
-          <p className="font-medium text-error">Scan failed</p>
-          <p className="text-sm text-error mt-component-sm">{error}</p>
+          <p className="text-error font-medium">Scan failed</p>
+          <p className="text-error mt-component-sm text-sm">{error}</p>
         </Card>
       )}
 
@@ -224,22 +226,30 @@ export const DeviceScanMobile = memo(function DeviceScanMobile({
 
       {/* Scan Summary */}
       {isComplete && devices.length > 0 && (
-        <ScanSummary devices={devices} stats={stats} subnet={selectedSubnet} />
+        <ScanSummary
+          devices={devices}
+          stats={stats}
+          subnet={selectedSubnet}
+        />
       )}
 
       {/* Empty State */}
       {isComplete && devices.length === 0 && (
-        <Card className="p-component-lg text-center border-dashed">
+        <Card className="p-component-lg border-dashed text-center">
           <p className="text-muted-foreground font-medium">No devices found</p>
-          <p className="text-sm text-muted-foreground mt-component-sm">
-            Try a different subnet
-          </p>
+          <p className="text-muted-foreground mt-component-sm text-sm">Try a different subnet</p>
         </Card>
       )}
 
       {/* Device Detail Bottom Sheet */}
-      <Sheet open={isDetailOpen} onOpenChange={setIsDetailOpen}>
-        <SheetContent side="bottom" className="h-[80vh]">
+      <Sheet
+        open={isDetailOpen}
+        onOpenChange={setIsDetailOpen}
+      >
+        <SheetContent
+          side="bottom"
+          className="h-[80vh]"
+        >
           <SheetHeader>
             <SheetTitle>Device Details</SheetTitle>
           </SheetHeader>
@@ -257,7 +267,11 @@ export const DeviceScanMobile = memo(function DeviceScanMobile({
       </Sheet>
 
       {/* Screen Reader Announcements */}
-      <div aria-live="polite" aria-atomic="false" className="sr-only">
+      <div
+        aria-live="polite"
+        aria-atomic="false"
+        className="sr-only"
+      >
         {isScanning && `Scanning ${stats.scannedCount} of ${stats.totalCount} IPs`}
         {isComplete && `Scan complete. Found ${devices.length} devices.`}
       </div>

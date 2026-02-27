@@ -26,9 +26,7 @@ import {
 // Test Fixtures
 // ============================================================================
 
-function createMockResource(
-  overrides: Partial<Resource> = {}
-): Resource {
+function createMockResource(overrides: Partial<Resource> = {}): Resource {
   const randomId = Math.random().toString(36).substring(2, 9);
   return {
     uuid: `test-uuid-${randomId}`,
@@ -92,7 +90,9 @@ describe('Composite Resource Utilities', () => {
       const child = createMockResource({
         uuid: 'child',
         relationships: {
-          dependsOn: [{ uuid: 'dep-1', id: 'dep', type: 'test', category: 'NETWORK', state: 'ACTIVE' }],
+          dependsOn: [
+            { uuid: 'dep-1', id: 'dep', type: 'test', category: 'NETWORK', state: 'ACTIVE' },
+          ],
           dependents: [],
           routedBy: [],
           children: [],
@@ -147,13 +147,43 @@ describe('Composite Resource Utilities', () => {
     it('should count active resources', () => {
       const resources = [
         createMockResource({
-          metadata: { state: 'ACTIVE', createdAt: '', createdBy: '', updatedAt: '', updatedBy: '', version: 1, tags: [], isFavorite: false, isPinned: false },
+          metadata: {
+            state: 'ACTIVE',
+            createdAt: '',
+            createdBy: '',
+            updatedAt: '',
+            updatedBy: '',
+            version: 1,
+            tags: [],
+            isFavorite: false,
+            isPinned: false,
+          },
         }),
         createMockResource({
-          metadata: { state: 'ACTIVE', createdAt: '', createdBy: '', updatedAt: '', updatedBy: '', version: 1, tags: [], isFavorite: false, isPinned: false },
+          metadata: {
+            state: 'ACTIVE',
+            createdAt: '',
+            createdBy: '',
+            updatedAt: '',
+            updatedBy: '',
+            version: 1,
+            tags: [],
+            isFavorite: false,
+            isPinned: false,
+          },
         }),
         createMockResource({
-          metadata: { state: 'ERROR', createdAt: '', createdBy: '', updatedAt: '', updatedBy: '', version: 1, tags: [], isFavorite: false, isPinned: false },
+          metadata: {
+            state: 'ERROR',
+            createdAt: '',
+            createdBy: '',
+            updatedAt: '',
+            updatedBy: '',
+            version: 1,
+            tags: [],
+            isFavorite: false,
+            isPinned: false,
+          },
         }),
       ];
 
@@ -167,10 +197,30 @@ describe('Composite Resource Utilities', () => {
     it('should report CRITICAL if any resource has errors', () => {
       const resources = [
         createMockResource({
-          metadata: { state: 'ACTIVE', createdAt: '', createdBy: '', updatedAt: '', updatedBy: '', version: 1, tags: [], isFavorite: false, isPinned: false },
+          metadata: {
+            state: 'ACTIVE',
+            createdAt: '',
+            createdBy: '',
+            updatedAt: '',
+            updatedBy: '',
+            version: 1,
+            tags: [],
+            isFavorite: false,
+            isPinned: false,
+          },
         }),
         createMockResource({
-          metadata: { state: 'ERROR', createdAt: '', createdBy: '', updatedAt: '', updatedBy: '', version: 1, tags: [], isFavorite: false, isPinned: false },
+          metadata: {
+            state: 'ERROR',
+            createdAt: '',
+            createdBy: '',
+            updatedAt: '',
+            updatedBy: '',
+            version: 1,
+            tags: [],
+            isFavorite: false,
+            isPinned: false,
+          },
         }),
       ];
 
@@ -182,10 +232,30 @@ describe('Composite Resource Utilities', () => {
     it('should report HEALTHY if all resources are active', () => {
       const resources = [
         createMockResource({
-          metadata: { state: 'ACTIVE', createdAt: '', createdBy: '', updatedAt: '', updatedBy: '', version: 1, tags: [], isFavorite: false, isPinned: false },
+          metadata: {
+            state: 'ACTIVE',
+            createdAt: '',
+            createdBy: '',
+            updatedAt: '',
+            updatedBy: '',
+            version: 1,
+            tags: [],
+            isFavorite: false,
+            isPinned: false,
+          },
         }),
         createMockResource({
-          metadata: { state: 'ACTIVE', createdAt: '', createdBy: '', updatedAt: '', updatedBy: '', version: 1, tags: [], isFavorite: false, isPinned: false },
+          metadata: {
+            state: 'ACTIVE',
+            createdAt: '',
+            createdBy: '',
+            updatedAt: '',
+            updatedBy: '',
+            version: 1,
+            tags: [],
+            isFavorite: false,
+            isPinned: false,
+          },
         }),
       ];
 
@@ -310,7 +380,9 @@ describe('Composite Resource Utilities', () => {
       const dependent = createMockResource({
         uuid: 'dependent',
         relationships: {
-          dependsOn: [{ uuid: 'target', id: 'target', type: 'test', category: 'NETWORK', state: 'ACTIVE' }],
+          dependsOn: [
+            { uuid: 'target', id: 'target', type: 'test', category: 'NETWORK', state: 'ACTIVE' },
+          ],
           dependents: [],
           routedBy: [],
           children: [],
@@ -361,7 +433,9 @@ describe('Composite Resource Utilities', () => {
       const dependent1 = createMockResource({
         uuid: 'dep1',
         relationships: {
-          dependsOn: [{ uuid: 'target', id: 'target', type: 'test', category: 'NETWORK', state: 'ACTIVE' }],
+          dependsOn: [
+            { uuid: 'target', id: 'target', type: 'test', category: 'NETWORK', state: 'ACTIVE' },
+          ],
           dependents: [],
           routedBy: [],
           children: [],
@@ -370,7 +444,9 @@ describe('Composite Resource Utilities', () => {
       const dependent2 = createMockResource({
         uuid: 'dep2',
         relationships: {
-          dependsOn: [{ uuid: 'target', id: 'target', type: 'test', category: 'NETWORK', state: 'ACTIVE' }],
+          dependsOn: [
+            { uuid: 'target', id: 'target', type: 'test', category: 'NETWORK', state: 'ACTIVE' },
+          ],
           dependents: [],
           routedBy: [],
           children: [],
@@ -420,7 +496,9 @@ describe('Composite Resource Utilities', () => {
             dependsOn: [],
             dependents: [],
             routedBy: [],
-            children: [{ uuid: 'child', id: 'child', type: 'test', category: 'NETWORK', state: 'ACTIVE' }],
+            children: [
+              { uuid: 'child', id: 'child', type: 'test', category: 'NETWORK', state: 'ACTIVE' },
+            ],
           },
         });
 
@@ -446,7 +524,13 @@ describe('Composite Resource Utilities', () => {
             dependents: [],
             routedBy: [],
             children: [],
-            parent: { uuid: 'parent', id: 'parent', type: 'test', category: 'NETWORK', state: 'ACTIVE' },
+            parent: {
+              uuid: 'parent',
+              id: 'parent',
+              type: 'test',
+              category: 'NETWORK',
+              state: 'ACTIVE',
+            },
           },
         });
 
@@ -466,7 +550,9 @@ describe('Composite Resource Utilities', () => {
             dependsOn: [],
             dependents: [],
             routedBy: [],
-            children: [{ uuid: 'child', id: 'child', type: 'test', category: 'NETWORK', state: 'ACTIVE' }],
+            children: [
+              { uuid: 'child', id: 'child', type: 'test', category: 'NETWORK', state: 'ACTIVE' },
+            ],
           },
         });
 

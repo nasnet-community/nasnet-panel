@@ -51,8 +51,11 @@ const meta: Meta<typeof VLANPoolConfig> = {
   tags: ['autodocs'],
   decorators: [
     (Story) => (
-      <MockedProvider mocks={[successMock]} addTypename={true}>
-        <div className="p-6 bg-background max-w-lg">
+      <MockedProvider
+        mocks={[successMock]}
+        addTypename={true}
+      >
+        <div className="bg-background max-w-lg p-6">
           <Story />
         </div>
       </MockedProvider>
@@ -191,8 +194,11 @@ export const NetworkError: Story = {
   },
   decorators: [
     (Story) => (
-      <MockedProvider mocks={[networkErrorMock]} addTypename={true}>
-        <div className="p-6 bg-background max-w-lg">
+      <MockedProvider
+        mocks={[networkErrorMock]}
+        addTypename={true}
+      >
+        <div className="bg-background max-w-lg p-6">
           <Story />
         </div>
       </MockedProvider>
@@ -219,8 +225,11 @@ export const DarkMode: Story = {
   },
   decorators: [
     (Story) => (
-      <MockedProvider mocks={[successMock]} addTypename={true}>
-        <div className="p-6 bg-background max-w-lg dark">
+      <MockedProvider
+        mocks={[successMock]}
+        addTypename={true}
+      >
+        <div className="bg-background dark max-w-lg p-6">
           <Story />
         </div>
       </MockedProvider>

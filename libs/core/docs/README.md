@@ -254,18 +254,25 @@ These guides explain how core libraries work with other parts of the system:
 ### Architecture & Design
 
 - Universal State v2 (see Docs/architecture/data-architecture.md) - 8-layer resource model
-- Validation Pipeline (see Docs/architecture/implementation-patterns/data-validation-patterns.md) - Multi-stage form validation
+- Validation Pipeline (see Docs/architecture/implementation-patterns/data-validation-patterns.md) -
+  Multi-stage form validation
 - Change Set Operations (see Docs/architecture/data-architecture.md) - Atomic configuration changes
-- Firewall System (see Docs/architecture/implementation-patterns/error-handling-patterns.md) - Firewall types and validation
+- Firewall System (see Docs/architecture/implementation-patterns/error-handling-patterns.md) -
+  Firewall types and validation
 
 ### Network & Device
 
-- Network Configuration (see Docs/architecture/implementation-patterns/protocol-communication-patterns.md) - IP/VLAN/routing types
-- Device Detection Pipeline (see Docs/architecture/novel-pattern-designs.md) - Browser/device/OS detection
+- Network Configuration (see
+  Docs/architecture/implementation-patterns/protocol-communication-patterns.md) - IP/VLAN/routing
+  types
+- Device Detection Pipeline (see Docs/architecture/novel-pattern-designs.md) - Browser/device/OS
+  detection
 
 ### Localization
 
-- Internationalization Flow (see Docs/architecture/implementation-patterns/17-localization-patterns.md) - i18next integration, RTL support
+- Internationalization Flow (see
+  Docs/architecture/implementation-patterns/17-localization-patterns.md) - i18next integration, RTL
+  support
 
 ### Error Handling & Integration
 

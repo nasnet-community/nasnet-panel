@@ -141,9 +141,7 @@ function StaleIndicatorBase({
 
   const classes = sizeClasses[size];
   const Icon = isOffline ? WifiOff : Clock;
-  const defaultMessage = isOffline
-    ? 'Offline - showing cached data'
-    : 'Data may be outdated';
+  const defaultMessage = isOffline ? 'Offline - showing cached data' : 'Data may be outdated';
 
   const timeAgo = lastUpdated ? formatRelativeTime(lastUpdated) : null;
 
@@ -158,7 +156,7 @@ function StaleIndicatorBase({
         // Colors - warning semantic tokens
         'bg-warning/10',
         'text-warning',
-        'border border-warning/30',
+        'border-warning/30 border',
         // Size-specific
         classes.container,
         className
@@ -166,22 +164,14 @@ function StaleIndicatorBase({
     >
       {/* Status icon */}
       <Icon
-        className={cn(
-          classes.icon,
-          'flex-shrink-0',
-          isOffline && 'text-warning-dark'
-        )}
+        className={cn(classes.icon, 'flex-shrink-0', isOffline && 'text-warning-dark')}
         aria-hidden="true"
       />
 
       {/* Message and timestamp */}
       <span className="flex-1">
         {message || defaultMessage}
-        {timeAgo && (
-          <span className="opacity-75 ml-1">
-            (Last updated: {timeAgo})
-          </span>
-        )}
+        {timeAgo && <span className="ml-1 opacity-75">(Last updated: {timeAgo})</span>}
       </span>
 
       {/* Refresh button */}
@@ -193,18 +183,15 @@ function StaleIndicatorBase({
           className={cn(
             'rounded-full',
             'hover:bg-warning/20',
-            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1',
-            'disabled:opacity-50 disabled:cursor-not-allowed',
+            'focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1',
+            'disabled:cursor-not-allowed disabled:opacity-50',
             'transition-colors',
             classes.button
           )}
           aria-label={isRefreshing ? 'Refreshing...' : 'Refresh data'}
         >
           <RefreshCw
-            className={cn(
-              classes.icon,
-              isRefreshing && 'animate-spin'
-            )}
+            className={cn(classes.icon, isRefreshing && 'animate-spin')}
             aria-hidden="true"
           />
         </button>

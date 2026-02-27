@@ -64,7 +64,7 @@ const DragHandleInner = React.forwardRef<HTMLButtonElement, DragHandleProps>(
           'h-4 w-4',
           'transition-colors duration-150',
           // Focus styles (visible focus ring)
-          'focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+          'focus-visible:ring-ring focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
           // Hover styles
           'hover:text-foreground',
           // Active/dragging styles (cursor changes to grabbing)
@@ -72,7 +72,7 @@ const DragHandleInner = React.forwardRef<HTMLButtonElement, DragHandleProps>(
           // Cursor
           !disabled && 'cursor-grab',
           // Disabled state
-          disabled && 'opacity-50 cursor-not-allowed pointer-events-none',
+          disabled && 'pointer-events-none cursor-not-allowed opacity-50',
           className
         )}
         aria-label={ariaLabel}
@@ -85,7 +85,12 @@ const DragHandleInner = React.forwardRef<HTMLButtonElement, DragHandleProps>(
         }}
         {...props}
       >
-        {children ?? <GripVertical className="h-4 w-4" aria-hidden="true" />}
+        {children ?? (
+          <GripVertical
+            className="h-4 w-4"
+            aria-hidden="true"
+          />
+        )}
       </button>
     );
   }

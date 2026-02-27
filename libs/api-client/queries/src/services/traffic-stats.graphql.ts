@@ -20,16 +20,8 @@ import { gql } from '@apollo/client';
  * Returns total traffic, current period usage, historical data points, and quota info
  */
 export const GET_SERVICE_TRAFFIC_STATS = gql`
-  query GetServiceTrafficStats(
-    $routerID: ID!
-    $instanceID: ID!
-    $historyHours: Int
-  ) {
-    serviceTrafficStats(
-      routerID: $routerID
-      instanceID: $instanceID
-      historyHours: $historyHours
-    ) {
+  query GetServiceTrafficStats($routerID: ID!, $instanceID: ID!, $historyHours: Int) {
+    serviceTrafficStats(routerID: $routerID, instanceID: $instanceID, historyHours: $historyHours) {
       instanceID
       totalUploadBytes
       totalDownloadBytes

@@ -67,10 +67,7 @@ function escapeCsvCell(value: string): string {
  *   server: 'all'
  * });
  */
-export function exportLeasesToCSV(
-  leases: DHCPLease[],
-  filters: CSVExportFilters
-): void {
+export function exportLeasesToCSV(leases: DHCPLease[], filters: CSVExportFilters): void {
   // Filter leases based on provided filters (respect active filters)
   const filtered = leases.filter((lease) => {
     // Apply search filter

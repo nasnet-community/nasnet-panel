@@ -11,14 +11,7 @@
 
 import { formatDistanceToNow, format } from 'date-fns';
 import { useMemo } from 'react';
-import {
-  CheckCircle2,
-  XCircle,
-  AlertCircle,
-  RefreshCw,
-  ArrowRightLeft,
-  Clock,
-} from 'lucide-react';
+import { CheckCircle2, XCircle, AlertCircle, RefreshCw, ArrowRightLeft, Clock } from 'lucide-react';
 import { Badge } from '@nasnet/ui/primitives';
 import { cn } from '@nasnet/ui/utils';
 import type { ConnectionEventData } from '../../types/wan.types';
@@ -101,10 +94,7 @@ function ConnectionEventCardComponent({
     () => formatDistanceToNow(timestamp, { addSuffix: true }),
     [timestamp]
   );
-  const absoluteTime = useMemo(
-    () => format(timestamp, 'PPpp'),
-    [timestamp]
-  );
+  const absoluteTime = useMemo(() => format(timestamp, 'PPpp'), [timestamp]);
 
   const formatDuration = (seconds: number): string => {
     if (seconds < 60) return `${seconds}s`;
@@ -119,33 +109,40 @@ function ConnectionEventCardComponent({
   };
 
   return (
-    <div className={cn('flex gap-component-md group', className)}>
+    <div className={cn('gap-component-md group flex', className)}>
       {/* Timeline dot and line */}
       <div className="flex flex-col items-center">
         <div
-          className={cn('rounded-full px-component-sm py-component-sm', display.bgColor, display.color)}
+          className={cn(
+            'px-component-sm py-component-sm rounded-full',
+            display.bgColor,
+            display.color
+          )}
           aria-hidden="true"
         >
           {display.icon}
         </div>
-        <div className="w-px flex-1 bg-border group-last:bg-transparent mt-2" />
+        <div className="bg-border mt-2 w-px flex-1 group-last:bg-transparent" />
       </div>
 
       {/* Event content */}
-      <div className="flex-1 pb-component-lg">
-        <div className="flex items-start justify-between gap-component-md mb-2">
-          <div className="flex items-center gap-component-sm">
-            <Badge variant="outline" className={display.color}>
+      <div className="pb-component-lg flex-1">
+        <div className="gap-component-md mb-2 flex items-start justify-between">
+          <div className="gap-component-sm flex items-center">
+            <Badge
+              variant="outline"
+              className={display.color}
+            >
               {display.label}
             </Badge>
             {showInterface && event.wanInterfaceId && (
-              <span className="text-xs text-muted-foreground font-mono">
+              <span className="text-muted-foreground font-mono text-xs">
                 {event.wanInterfaceId}
               </span>
             )}
           </div>
           <time
-            className="text-xs text-muted-foreground whitespace-nowrap"
+            className="text-muted-foreground whitespace-nowrap text-xs"
             dateTime={event.timestamp}
             title={absoluteTime}
           >
@@ -157,9 +154,9 @@ function ConnectionEventCardComponent({
         <div className="space-y-component-xs">
           {/* IP Information */}
           {event.publicIP && (
-            <div className="flex items-center gap-component-sm text-sm">
+            <div className="gap-component-sm flex items-center text-sm">
               <span className="text-muted-foreground">IP:</span>
-              <code className="text-xs font-mono bg-muted px-2 py-0.5 rounded-[var(--semantic-radius-button)] text-foreground">
+              <code className="bg-muted text-foreground rounded-[var(--semantic-radius-button)] px-2 py-0.5 font-mono text-xs">
                 {event.publicIP}
               </code>
             </div>
@@ -167,9 +164,9 @@ function ConnectionEventCardComponent({
 
           {/* Gateway Information */}
           {event.gateway && (
-            <div className="flex items-center gap-component-sm text-sm">
+            <div className="gap-component-sm flex items-center text-sm">
               <span className="text-muted-foreground">Gateway:</span>
-              <code className="text-xs font-mono bg-muted px-2 py-0.5 rounded-[var(--semantic-radius-button)] text-foreground">
+              <code className="bg-muted text-foreground rounded-[var(--semantic-radius-button)] px-2 py-0.5 font-mono text-xs">
                 {event.gateway}
               </code>
             </div>
@@ -177,8 +174,11 @@ function ConnectionEventCardComponent({
 
           {/* Duration (for disconnection events) */}
           {event.duration && event.duration > 0 && (
-            <div className="flex items-center gap-component-sm text-sm">
-              <Clock className="h-3 w-3 text-muted-foreground" aria-hidden="true" />
+            <div className="gap-component-sm flex items-center text-sm">
+              <Clock
+                className="text-muted-foreground h-3 w-3"
+                aria-hidden="true"
+              />
               <span className="text-muted-foreground">
                 Duration: {formatDuration(event.duration)}
               </span>
@@ -186,19 +186,16 @@ function ConnectionEventCardComponent({
           )}
 
           {/* Reason/Error message */}
-          {event.reason && (
-            <p className="text-sm text-muted-foreground mt-2">{event.reason}</p>
-          )}
+          {event.reason && <p className="text-muted-foreground mt-2 text-sm">{event.reason}</p>}
         </div>
       </div>
     </div>
   );
 }
 
-export const ConnectionEventCard = Object.assign(
-  ConnectionEventCardComponent,
-  { displayName: 'ConnectionEventCard' }
-) as typeof ConnectionEventCardComponent & { displayName: string };
+export const ConnectionEventCard = Object.assign(ConnectionEventCardComponent, {
+  displayName: 'ConnectionEventCard',
+}) as typeof ConnectionEventCardComponent & { displayName: string };
 
 /**
  * Compact version for mobile/narrow views
@@ -219,39 +216,48 @@ function ConnectionEventCardCompactComponent({
   );
 
   return (
-    <div className={cn('flex items-start gap-component-md px-component-sm py-component-sm rounded-[var(--semantic-radius-card)] border border-border', className)}>
+    <div
+      className={cn(
+        'gap-component-md px-component-sm py-component-sm border-border flex items-start rounded-[var(--semantic-radius-card)] border',
+        className
+      )}
+    >
       <div
-        className={cn('rounded-full px-component-sm py-component-sm', display.bgColor, display.color)}
+        className={cn(
+          'px-component-sm py-component-sm rounded-full',
+          display.bgColor,
+          display.color
+        )}
         aria-hidden="true"
       >
         {display.icon}
       </div>
 
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-component-sm mb-1">
-          <Badge variant="outline" className={cn(display.color, 'text-xs')}>
+      <div className="min-w-0 flex-1">
+        <div className="gap-component-sm mb-1 flex items-center">
+          <Badge
+            variant="outline"
+            className={cn(display.color, 'text-xs')}
+          >
             {display.label}
           </Badge>
-          <time className="text-xs text-muted-foreground">{relativeTime}</time>
+          <time className="text-muted-foreground text-xs">{relativeTime}</time>
         </div>
 
         {event.publicIP && (
-          <code className="text-xs font-mono bg-muted px-2 py-0.5 rounded-[var(--semantic-radius-button)] text-foreground">
+          <code className="bg-muted text-foreground rounded-[var(--semantic-radius-button)] px-2 py-0.5 font-mono text-xs">
             {event.publicIP}
           </code>
         )}
 
         {event.reason && (
-          <p className="text-xs text-muted-foreground mt-2 line-clamp-2">
-            {event.reason}
-          </p>
+          <p className="text-muted-foreground mt-2 line-clamp-2 text-xs">{event.reason}</p>
         )}
       </div>
     </div>
   );
 }
 
-export const ConnectionEventCardCompact = Object.assign(
-  ConnectionEventCardCompactComponent,
-  { displayName: 'ConnectionEventCardCompact' }
-) as typeof ConnectionEventCardCompactComponent & { displayName: string };
+export const ConnectionEventCardCompact = Object.assign(ConnectionEventCardCompactComponent, {
+  displayName: 'ConnectionEventCardCompact',
+}) as typeof ConnectionEventCardCompactComponent & { displayName: string };

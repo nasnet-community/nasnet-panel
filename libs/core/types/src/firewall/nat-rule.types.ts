@@ -21,8 +21,8 @@ import { z } from 'zod';
  * NAT Chain - srcnat or dstnat
  */
 export const NatChainSchema = z.enum([
-  'srcnat',  // Source NAT - translate outgoing traffic (e.g., masquerade)
-  'dstnat',  // Destination NAT - translate incoming traffic (e.g., port forwarding)
+  'srcnat', // Source NAT - translate outgoing traffic (e.g., masquerade)
+  'dstnat', // Destination NAT - translate incoming traffic (e.g., port forwarding)
 ]);
 
 export type NatChain = z.infer<typeof NatChainSchema>;
@@ -31,17 +31,17 @@ export type NatChain = z.infer<typeof NatChainSchema>;
  * NAT Action - What transformation to apply
  */
 export const NatActionSchema = z.enum([
-  'masquerade',  // Hide internal IPs behind router IP (auto-updates with IP changes)
-  'dst-nat',     // Destination NAT - forward to internal target
-  'src-nat',     // Source NAT - translate source address
-  'redirect',    // Redirect to router itself
-  'netmap',      // 1:1 address mapping
-  'same',        // Use same address as source
-  'accept',      // Accept without translation (terminal)
-  'drop',        // Drop packet (terminal)
-  'jump',        // Jump to another chain
-  'return',      // Return to calling chain
-  'log',         // Log packet
+  'masquerade', // Hide internal IPs behind router IP (auto-updates with IP changes)
+  'dst-nat', // Destination NAT - forward to internal target
+  'src-nat', // Source NAT - translate source address
+  'redirect', // Redirect to router itself
+  'netmap', // 1:1 address mapping
+  'same', // Use same address as source
+  'accept', // Accept without translation (terminal)
+  'drop', // Drop packet (terminal)
+  'jump', // Jump to another chain
+  'return', // Return to calling chain
+  'log', // Log packet
   'passthrough', // Continue processing
 ]);
 
@@ -151,8 +151,8 @@ export const NATRuleInputSchema = z
     // ========================================
     // Matchers - Interface
     // ========================================
-    inInterface: z.string().optional(),     // Input interface name
-    outInterface: z.string().optional(),    // Output interface name
+    inInterface: z.string().optional(), // Input interface name
+    outInterface: z.string().optional(), // Output interface name
     inInterfaceList: z.string().optional(), // Input interface list name
     outInterfaceList: z.string().optional(), // Output interface list name
 

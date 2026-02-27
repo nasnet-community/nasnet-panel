@@ -58,11 +58,7 @@ export interface PortRegistryViewProps {
  * @param className Optional CSS className for custom styling
  * @param presenter Optional manual presenter override (defaults to auto-detection)
  */
-function PortRegistryViewComponent({
-  routerId,
-  className,
-  presenter,
-}: PortRegistryViewProps) {
+function PortRegistryViewComponent({ routerId, className, presenter }: PortRegistryViewProps) {
   const detectedPlatform = usePlatform();
   const platform = presenter || detectedPlatform;
 
@@ -70,11 +66,21 @@ function PortRegistryViewComponent({
   // Mobile uses card-based layout; tablet/desktop use DataTable
   switch (platform) {
     case 'mobile':
-      return <PortRegistryViewMobile routerId={routerId} className={className} />;
+      return (
+        <PortRegistryViewMobile
+          routerId={routerId}
+          className={className}
+        />
+      );
     case 'tablet':
     case 'desktop':
     default:
-      return <PortRegistryViewDesktop routerId={routerId} className={className} />;
+      return (
+        <PortRegistryViewDesktop
+          routerId={routerId}
+          className={className}
+        />
+      );
   }
 }
 

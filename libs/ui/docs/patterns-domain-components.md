@@ -1,15 +1,17 @@
 # Domain-Specific Pattern Components (Layer 2)
 
-This document covers the domain-specific pattern components exported from `@nasnet/ui/patterns`. These are
-Layer 2 components built on top of primitives that encode router management business logic. Each section
-lists the import path, key props, and a usage snippet.
+This document covers the domain-specific pattern components exported from `@nasnet/ui/patterns`.
+These are Layer 2 components built on top of primitives that encode router management business
+logic. Each section lists the import path, key props, and a usage snippet.
 
-All multi-platform components implement the Headless + Platform Presenters pattern (ADR-018): a shared
-headless hook drives logic, and separate presenters render for Mobile/Tablet/Desktop. See
+All multi-platform components implement the Headless + Platform Presenters pattern (ADR-018): a
+shared headless hook drives logic, and separate presenters render for Mobile/Tablet/Desktop. See
 `Docs/design/PLATFORM_PRESENTER_GUIDE.md` for the full implementation guide.
 
 Cross-references:
-- Status components (StatusBadge, StatusIndicator, StatusDot, SeverityBadge): `patterns-status-and-data.md`
+
+- Status components (StatusBadge, StatusIndicator, StatusDot, SeverityBadge):
+  `patterns-status-and-data.md`
 - Form components (FormField, RHFFormField, ValidationProgress): `patterns-forms-and-inputs.md`
 - Multi-package flows (XState machines, config pipeline): `multi-package-flows.md`
 
@@ -17,9 +19,9 @@ Cross-references:
 
 ## Connection and Auth
 
-These components manage the visual layer for WebSocket connectivity, session lifecycle, and connection
-tracking. They read from the Zustand `useConnectionStore` and `useAuthStore` without requiring any props
-beyond optional overrides.
+These components manage the visual layer for WebSocket connectivity, session lifecycle, and
+connection tracking. They read from the Zustand `useConnectionStore` and `useAuthStore` without
+requiring any props beyond optional overrides.
 
 Source directory: `libs/ui/patterns/src/`
 
@@ -27,8 +29,8 @@ Source directory: `libs/ui/patterns/src/`
 
 **Import:** `import { ConnectionBanner } from '@nasnet/ui/patterns';`
 
-Full-width banner rendered below the app header when the WebSocket connection is lost or reconnecting.
-Reads state automatically from `useConnectionStore`. Hidden while connected.
+Full-width banner rendered below the app header when the WebSocket connection is lost or
+reconnecting. Reads state automatically from `useConnectionStore`. Hidden while connected.
 
 ```ts
 export interface ConnectionBannerProps {
@@ -50,8 +52,8 @@ Renders amber/pulsing banner for `reconnecting`, red/static banner for `disconne
 
 **Import:** `import { ConnectionIndicator } from '@nasnet/ui/patterns';`
 
-Compact indicator (dot + label) that surfaces WebSocket state, latency, and protocol. Two presenters:
-desktop shows a popover with detail, mobile shows a badge.
+Compact indicator (dot + label) that surfaces WebSocket state, latency, and protocol. Two
+presenters: desktop shows a popover with detail, mobile shows a badge.
 
 ```tsx
 // Auto-detects platform; no required props
@@ -91,9 +93,9 @@ progress and a manual retry button when max attempts are reached.
 
 ```ts
 export interface ReconnectingOverlayProps {
-  fullScreen?: boolean;       // default true
+  fullScreen?: boolean; // default true
   message?: string;
-  alwaysShowRetry?: boolean;  // default false
+  alwaysShowRetry?: boolean; // default false
   className?: string;
   onDismiss?: () => void;
 }
@@ -117,7 +119,8 @@ const { shouldShow, isReconnecting, progress, showManualRetry, onRetry } = useRe
 
 ### OfflineIndicator / OfflineIndicatorCompact
 
-**Import:** `import { OfflineIndicator, OfflineIndicatorCompact, useNetworkStatus } from '@nasnet/ui/patterns';`
+**Import:**
+`import { OfflineIndicator, OfflineIndicatorCompact, useNetworkStatus } from '@nasnet/ui/patterns';`
 
 Banner or compact pill shown when the browser is fully offline (no network). Distinct from
 `ConnectionBanner` (which is router-specific); `OfflineIndicator` reflects `navigator.onLine`.
@@ -137,15 +140,15 @@ export interface OfflineIndicatorCompactProps {
 
 **Import:** `import { SessionExpiringDialog, useSessionExpiring } from '@nasnet/ui/patterns';`
 
-Non-dismissible modal that counts down the remaining JWT lifetime. Three urgency levels (normal/urgent/critical)
-expressed through icon color and progress bar color. Auto-logout is opt-in.
+Non-dismissible modal that counts down the remaining JWT lifetime. Three urgency levels
+(normal/urgent/critical) expressed through icon color and progress bar color. Auto-logout is opt-in.
 
 ```ts
 export interface SessionExpiringDialogProps {
-  warningThreshold?: number;           // seconds before expiry, default 300 (5 min)
+  warningThreshold?: number; // seconds before expiry, default 300 (5 min)
   onExtendSession?: () => Promise<void>;
   onSessionExpired?: () => void;
-  autoLogout?: boolean;                // default true
+  autoLogout?: boolean; // default true
   className?: string;
 }
 ```
@@ -170,8 +173,8 @@ const { timeRemaining, isExpiring, isExpired, logout } = useSessionExpiring(300)
 
 **Import:** `import { ConnectionTrackingSettings } from '@nasnet/ui/patterns';`
 
-Platform-adaptive form for configuring MikroTik connection-tracking parameters (TCP/UDP/ICMP timeouts,
-enabled state). Desktop: side-by-side fields. Mobile: stacked card sections.
+Platform-adaptive form for configuring MikroTik connection-tracking parameters (TCP/UDP/ICMP
+timeouts, enabled state). Desktop: side-by-side fields. Mobile: stacked card sections.
 
 Source: `libs/ui/patterns/src/connection-tracking-settings/ConnectionTrackingSettings.tsx`
 
@@ -179,7 +182,8 @@ Source: `libs/ui/patterns/src/connection-tracking-settings/ConnectionTrackingSet
 
 ## VPN Components
 
-Twelve components covering the full VPN surface. All use the `VPNProtocol` type from `@nasnet/core/types`.
+Twelve components covering the full VPN surface. All use the `VPNProtocol` type from
+`@nasnet/core/types`.
 
 Source directory: `libs/ui/patterns/src/`
 
@@ -187,8 +191,8 @@ Source directory: `libs/ui/patterns/src/`
 
 **Import:** `import { VPNClientCard } from '@nasnet/ui/patterns';`
 
-Card displaying a VPN client connection with protocol badge, status indicator, server address, optional
-uptime, IP addresses, and traffic stats.
+Card displaying a VPN client connection with protocol badge, status indicator, server address,
+optional uptime, IP addresses, and traffic stats.
 
 ```ts
 export interface VPNClientCardProps {
@@ -232,8 +236,8 @@ export interface VPNClientCardProps {
 />
 ```
 
-Has a left accent border using `border-l-category-vpn` design token. Dropdown actions: Connect/Disconnect,
-Edit, Delete.
+Has a left accent border using `border-l-category-vpn` design token. Dropdown actions:
+Connect/Disconnect, Edit, Delete.
 
 ---
 
@@ -284,11 +288,16 @@ export interface VPNServerCardProps {
 
 **Import:** `import { VPNCardEnhanced } from '@nasnet/ui/patterns';`
 
-Extended VPN card with additional profile metadata, connection state machine display, and inline metrics.
+Extended VPN card with additional profile metadata, connection state machine display, and inline
+metrics.
 
 ```ts
-export interface VPNCardEnhancedProps { /* ... */ }
-export interface VPNProfile { /* ... */ }
+export interface VPNCardEnhancedProps {
+  /* ... */
+}
+export interface VPNProfile {
+  /* ... */
+}
 export type VPNStatus = 'connected' | 'connecting' | 'disconnected' | 'error';
 ```
 
@@ -312,8 +321,17 @@ export interface VPNTypeSectionProps {
 ```
 
 ```tsx
-<VPNTypeSection title="WireGuard Clients" protocol="wireguard" count={clients.length}>
-  {clients.map((c) => <VPNClientCard key={c.id} {...c} />)}
+<VPNTypeSection
+  title="WireGuard Clients"
+  protocol="wireguard"
+  count={clients.length}
+>
+  {clients.map((c) => (
+    <VPNClientCard
+      key={c.id}
+      {...c}
+    />
+  ))}
 </VPNTypeSection>
 ```
 
@@ -335,8 +353,8 @@ export interface VPNStatusHeroProps {
   totalClients: number;
   activeServerConnections: number;
   activeClientConnections: number;
-  totalRx: number;    // bytes
-  totalTx: number;    // bytes
+  totalRx: number; // bytes
+  totalTx: number; // bytes
   issueCount?: number;
   className?: string;
 }
@@ -362,10 +380,13 @@ Icon animates (pulse for healthy, spin for loading). Uses `role="status"` ARIA.
 
 **Import:** `import { VPNProtocolStatsCard } from '@nasnet/ui/patterns';`
 
-Compact card showing per-protocol statistics (e.g., total WireGuard peers, active connections, traffic).
+Compact card showing per-protocol statistics (e.g., total WireGuard peers, active connections,
+traffic).
 
 ```ts
-export interface VPNProtocolStatsCardProps { /* ... */ }
+export interface VPNProtocolStatsCardProps {
+  /* ... */
+}
 ```
 
 ---
@@ -374,11 +395,13 @@ export interface VPNProtocolStatsCardProps { /* ... */ }
 
 **Import:** `import { VPNNavigationCard } from '@nasnet/ui/patterns';`
 
-Clickable navigation card for entering a VPN section (Clients, Servers, Status). Includes protocol icon,
-count, and chevron.
+Clickable navigation card for entering a VPN section (Clients, Servers, Status). Includes protocol
+icon, count, and chevron.
 
 ```ts
-export interface VPNNavigationCardProps { /* ... */ }
+export interface VPNNavigationCardProps {
+  /* ... */
+}
 ```
 
 ---
@@ -387,12 +410,16 @@ export interface VPNNavigationCardProps { /* ... */ }
 
 **Import:** `import { VPNIssueAlert, VPNIssuesList } from '@nasnet/ui/patterns';`
 
-Alert banner for a single VPN issue, and a list variant for multiple issues. Used in the VPN dashboard
-when status is `warning` or `critical`.
+Alert banner for a single VPN issue, and a list variant for multiple issues. Used in the VPN
+dashboard when status is `warning` or `critical`.
 
 ```ts
-export interface VPNIssueAlertProps { /* ... */ }
-export interface VPNIssuesListProps { /* ... */ }
+export interface VPNIssueAlertProps {
+  /* ... */
+}
+export interface VPNIssuesListProps {
+  /* ... */
+}
 ```
 
 ---
@@ -404,8 +431,12 @@ export interface VPNIssuesListProps { /* ... */ }
 Compact summary widget showing connected VPN clients, used in the router dashboard overview.
 
 ```ts
-export interface VPNClientsSummaryProps { /* ... */ }
-export interface ConnectedVPNClient { /* ... */ }
+export interface VPNClientsSummaryProps {
+  /* ... */
+}
+export interface ConnectedVPNClient {
+  /* ... */
+}
 ```
 
 ---
@@ -418,7 +449,9 @@ Protocol-agnostic VPN card for displaying connections that do not fit the client
 SSTP, L2TP tunnels). Falls back to generic display when protocol-specific cards are unavailable.
 
 ```ts
-export interface GenericVPNCardProps { /* ... */ }
+export interface GenericVPNCardProps {
+  /* ... */
+}
 ```
 
 ---
@@ -431,17 +464,20 @@ WireGuard-specific card with peer public key display, allowed IPs list, and hand
 `GenericVPNCard` with WireGuard-specific fields.
 
 ```ts
-export interface WireGuardCardProps { /* ... */ }
+export interface WireGuardCardProps {
+  /* ... */
+}
 ```
 
 ---
 
 ### ProtocolIcon / ProtocolIconBadge
 
-**Import:** `import { ProtocolIcon, ProtocolIconBadge, getProtocolLabel } from '@nasnet/ui/patterns';`
+**Import:**
+`import { ProtocolIcon, ProtocolIconBadge, getProtocolLabel } from '@nasnet/ui/patterns';`
 
-Icon and badge components for VPN protocol visual identity. `ProtocolIconBadge` includes the protocol
-abbreviation label. Used internally by `VPNClientCard` and `VPNServerCard`.
+Icon and badge components for VPN protocol visual identity. `ProtocolIconBadge` includes the
+protocol abbreviation label. Used internally by `VPNClientCard` and `VPNServerCard`.
 
 ```ts
 export interface ProtocolIconProps {
@@ -455,7 +491,10 @@ export interface ProtocolIconBadgeProps extends ProtocolIconProps {
 ```
 
 ```tsx
-<ProtocolIconBadge protocol="wireguard" variant="md" />
+<ProtocolIconBadge
+  protocol="wireguard"
+  variant="md"
+/>
 ```
 
 ---
@@ -476,8 +515,15 @@ dense layout with dropdown menus.
 
 ```ts
 export type ServiceStatus =
-  | 'installing' | 'installed' | 'starting' | 'running'
-  | 'stopping' | 'stopped' | 'failed' | 'deleting' | 'available';
+  | 'installing'
+  | 'installed'
+  | 'starting'
+  | 'running'
+  | 'stopping'
+  | 'stopped'
+  | 'failed'
+  | 'deleting'
+  | 'available';
 
 export type ServiceCategory = 'privacy' | 'proxy' | 'dns' | 'security' | 'monitoring';
 
@@ -489,8 +535,13 @@ export interface Service {
   status: ServiceStatus;
   version?: string;
   icon?: ReactNode;
-  metrics?: { cpu?: number; memory?: number; currentMemory?: number; memoryLimit?: number;
-              network?: { rx: number; tx: number } };
+  metrics?: {
+    cpu?: number;
+    memory?: number;
+    currentMemory?: number;
+    memoryLimit?: number;
+    network?: { rx: number; tx: number };
+  };
   runtime?: { installedAt?: Date | string; lastStarted?: Date | string; uptime?: number };
 }
 
@@ -506,8 +557,13 @@ export interface ServiceCardProps {
 
 ```tsx
 <ServiceCard
-  service={{ id: 'tor-1', name: 'Tor Proxy', category: 'privacy', status: 'running',
-             metrics: { cpu: 3.2, memory: 64 } }}
+  service={{
+    id: 'tor-1',
+    name: 'Tor Proxy',
+    category: 'privacy',
+    status: 'running',
+    metrics: { cpu: 3.2, memory: 64 },
+  }}
   showMetrics
   actions={[
     { id: 'stop', label: 'Stop', onClick: () => stopService('tor-1') },
@@ -543,8 +599,8 @@ data table; mobile renders a single-column list with simplified filters.
 
 **Import:** `import { ServiceTemplateCard } from '@nasnet/ui/patterns';`
 
-Card for a pre-configured service template in the template gallery. Displays name, description, required
-resources, and an "Apply" action.
+Card for a pre-configured service template in the template gallery. Displays name, description,
+required resources, and an "Apply" action.
 
 Source: `libs/ui/patterns/src/service-template-card/ServiceTemplateCard.tsx`
 
@@ -588,6 +644,7 @@ Internal logic lives in `useKillSwitchToggle` hook (queries/mutates via Apollo).
 ### ServiceExportDialog / ServiceImportDialog
 
 **Import:**
+
 ```ts
 import { ServiceExportDialog } from '@nasnet/ui/patterns';
 import { ServiceImportDialog } from '@nasnet/ui/patterns';
@@ -597,6 +654,7 @@ Dialogs for exporting a service configuration to JSON/YAML and importing from a 
 `ServiceImportDialog` uses `PastePreviewModal` internally for clipboard preview.
 
 Source:
+
 - `libs/ui/patterns/src/service-export-dialog/`
 - `libs/ui/patterns/src/service-import-dialog/`
 
@@ -617,25 +675,31 @@ copy and bookmark actions. Compact mode for mobile.
 
 ```ts
 export interface LogEntryProps extends React.HTMLAttributes<HTMLDivElement> {
-  entry: LogEntryType;      // from @nasnet/core/types
-  showDate?: boolean;       // default false (time only)
+  entry: LogEntryType; // from @nasnet/core/types
+  showDate?: boolean; // default false (time only)
   isBookmarked?: boolean;
   onToggleBookmark?: (entry: LogEntryType) => void;
-  searchTerm?: string;      // highlighted in message
-  compact?: boolean;        // mobile layout
+  searchTerm?: string; // highlighted in message
+  compact?: boolean; // mobile layout
 }
 ```
 
 ```tsx
 <LogEntry
-  entry={{ id: '1', timestamp: new Date(), topic: 'firewall',
-           severity: 'warning', message: 'Connection dropped from 192.168.1.100' }}
+  entry={{
+    id: '1',
+    timestamp: new Date(),
+    topic: 'firewall',
+    severity: 'warning',
+    message: 'Connection dropped from 192.168.1.100',
+  }}
   searchTerm="192.168"
   onToggleBookmark={(e) => toggleBookmark(e.id)}
 />
 ```
 
-The exported `topicBadgeVariants` CVA function accepts a `topic` variant prop for 14 topic color classes.
+The exported `topicBadgeVariants` CVA function accepts a `topic` variant prop for 14 topic color
+classes.
 
 ---
 
@@ -643,8 +707,8 @@ The exported `topicBadgeVariants` CVA function accepts a `topic` variant prop fo
 
 **Import:** `import { LogFilters } from '@nasnet/ui/patterns';`
 
-Filter panel for log topic, severity, time range, and search. Platform-adaptive: desktop inline sidebar,
-mobile bottom sheet.
+Filter panel for log topic, severity, time range, and search. Platform-adaptive: desktop inline
+sidebar, mobile bottom sheet.
 
 ```ts
 export interface LogFiltersProps {
@@ -757,8 +821,8 @@ export interface LogGroupListProps {
 
 **Import:** `import { NewEntriesIndicator } from '@nasnet/ui/patterns';`
 
-Sticky pill shown when new log entries arrive while the user has scrolled up. Click scrolls back to top
-and resumes streaming.
+Sticky pill shown when new log entries arrive while the user has scrolled up. Click scrolls back to
+top and resumes streaming.
 
 ```ts
 export interface NewEntriesIndicatorProps {
@@ -769,46 +833,55 @@ export interface NewEntriesIndicatorProps {
 ```
 
 ```tsx
-{newCount > 0 && (
-  <NewEntriesIndicator count={newCount} onClick={() => scrollToBottom()} />
-)}
+{
+  newCount > 0 && (
+    <NewEntriesIndicator
+      count={newCount}
+      onClick={() => scrollToBottom()}
+    />
+  );
+}
 ```
 
 ---
 
 ## Firewall
 
-Fourteen components for the firewall management surface including rule editors, log viewer, NAT tools,
-and analytics.
+Fourteen components for the firewall management surface including rule editors, log viewer, NAT
+tools, and analytics.
 
 Source directory: `libs/ui/patterns/src/`
 
 ### FirewallLogFilters / FirewallLogStats
 
 **Imports:**
+
 ```ts
 import { FirewallLogFilters } from '@nasnet/ui/patterns';
 import { FirewallLogStats } from '@nasnet/ui/patterns';
 ```
 
-`FirewallLogFilters` is a platform-adaptive filter panel for the dedicated firewall log viewer. Desktop
-renders inline sidebar; mobile renders a bottom sheet.
+`FirewallLogFilters` is a platform-adaptive filter panel for the dedicated firewall log viewer.
+Desktop renders inline sidebar; mobile renders a bottom sheet.
 
 ```ts
 export interface FirewallLogFiltersProps {
-  filters: FirewallLogFilterState;   // from @nasnet/core/types
+  filters: FirewallLogFilterState; // from @nasnet/core/types
   onFiltersChange: (filters: FirewallLogFilterState) => void;
   availablePrefixes?: string[];
-  open?: boolean;           // mobile sheet open state
+  open?: boolean; // mobile sheet open state
   onClose?: () => void;
   activeFilterCount?: number;
 }
 ```
 
-`FirewallLogStats` is a statistics strip showing packets, bytes, top source IPs, and top dropped ports.
+`FirewallLogStats` is a statistics strip showing packets, bytes, top source IPs, and top dropped
+ports.
 
 ```ts
-export interface FirewallLogStatsProps { /* ... */ }
+export interface FirewallLogStatsProps {
+  /* ... */
+}
 ```
 
 ---
@@ -836,8 +909,8 @@ Source: `libs/ui/patterns/src/port-knock-visualizer/PortKnockVisualizer.tsx`
 
 **Import:** `import { RuleCounterVisualization } from '@nasnet/ui/patterns';`
 
-Bar or sparkline visualization of per-rule hit counters over time. Surfaces whether rules are actively
-matching traffic.
+Bar or sparkline visualization of per-rule hit counters over time. Surfaces whether rules are
+actively matching traffic.
 
 Source: `libs/ui/patterns/src/rule-counter-visualization/`
 
@@ -846,13 +919,14 @@ Source: `libs/ui/patterns/src/rule-counter-visualization/`
 ### TemplateGallery / TemplatePreview
 
 **Imports:**
+
 ```ts
 import { TemplateGallery } from '@nasnet/ui/patterns';
 import { TemplatePreview } from '@nasnet/ui/patterns';
 ```
 
-Browse and preview firewall rule templates before applying them. Template cards include name, description,
-and rule count.
+Browse and preview firewall rule templates before applying them. Template cards include name,
+description, and rule count.
 
 ---
 
@@ -904,8 +978,8 @@ action (drop / rate-limit).
 
 **Import:** `import { RateLimitStatsOverview } from '@nasnet/ui/patterns';`
 
-Overview dashboard card for rate-limiting rules: active rules count, triggered counts, and per-source
-breakdowns.
+Overview dashboard card for rate-limiting rules: active rules count, triggered counts, and
+per-source breakdowns.
 
 ---
 
@@ -920,8 +994,8 @@ and postrouting chains.
 
 ## Sortable Drag-and-Drop System
 
-A complete drag-and-drop reordering system built on `@dnd-kit/core`. Used primarily for firewall rule
-ordering but designed as a generic system.
+A complete drag-and-drop reordering system built on `@dnd-kit/core`. Used primarily for firewall
+rule ordering but designed as a generic system.
 
 Source directory: `libs/ui/patterns/src/sortable/`
 
@@ -939,7 +1013,10 @@ export interface SortableItemData {
 
 export type SortableDirection = 'vertical' | 'horizontal';
 export type CollisionStrategy =
-  | 'closestCenter' | 'closestCorners' | 'rectIntersection' | 'pointerWithin';
+  | 'closestCenter'
+  | 'closestCorners'
+  | 'rectIntersection'
+  | 'pointerWithin';
 
 export interface ReorderEvent<T extends SortableItemData> {
   item: T;
@@ -951,8 +1028,9 @@ export interface ReorderEvent<T extends SortableItemData> {
 
 ### SortableList\<T\>
 
-Generic sortable list component. Wraps `@dnd-kit/core` `DndContext` and `SortableContext` internally.
-Supports mouse, touch, and keyboard sensors. Framer Motion provides smooth reorder animations.
+Generic sortable list component. Wraps `@dnd-kit/core` `DndContext` and `SortableContext`
+internally. Supports mouse, touch, and keyboard sensors. Framer Motion provides smooth reorder
+animations.
 
 ```ts
 export interface SortableListProps<T extends SortableItemData> {
@@ -961,10 +1039,10 @@ export interface SortableListProps<T extends SortableItemData> {
   onMultiReorder?: (event: MultiReorderEvent<T>) => void;
   validateDrop?: ValidateDropFn<T>;
   renderItem: (item: T, options: SortableItemRenderOptions) => ReactNode;
-  direction?: SortableDirection;        // default 'vertical'
+  direction?: SortableDirection; // default 'vertical'
   collisionStrategy?: CollisionStrategy; // default 'closestCenter'
   multiSelect?: boolean;
-  showDragHandle?: boolean;             // default true
+  showDragHandle?: boolean; // default true
   showPositionNumbers?: boolean;
   className?: string;
   itemClassName?: string;
@@ -998,7 +1076,11 @@ function RuleOrderEditor({ rules, onReorder }) {
       items={rules}
       onReorder={({ items }) => onReorder(items)}
       renderItem={(rule, { isDragging, dragHandleProps }) => (
-        <RuleRow rule={rule} isDragging={isDragging} handleProps={dragHandleProps} />
+        <RuleRow
+          rule={rule}
+          isDragging={isDragging}
+          handleProps={dragHandleProps}
+        />
       )}
       aria-label="Firewall rules — drag to reorder"
       showPositionNumbers
@@ -1037,7 +1119,10 @@ export interface DragHandleProps {
 ```
 
 ```tsx
-<DragHandle aria-label="Drag to reorder rule" {...dragHandleProps} />
+<DragHandle
+  aria-label="Drag to reorder rule"
+  {...dragHandleProps}
+/>
 ```
 
 ### DropZoneIndicator
@@ -1067,7 +1152,7 @@ export interface UseSortableListOptions<T extends SortableItemData> {
   multiSelect?: boolean;
   keyboardEnabled?: boolean;
   touchEnabled?: boolean;
-  touchDelay?: number;    // ms before drag starts on touch, default varies
+  touchDelay?: number; // ms before drag starts on touch, default varies
   undoEnabled?: boolean;
 }
 ```
@@ -1086,19 +1171,19 @@ by `useSortableList` when `multiSelect: true`.
 
 ### Collision Strategies
 
-| Strategy | Best For |
-|---|---|
-| `closestCenter` (default) | Vertical lists — nearest center point |
-| `closestCorners` | Grid layouts — nearest corner |
-| `rectIntersection` | Large drag targets — 50% overlap required |
-| `pointerWithin` | Nested lists — pointer must be inside bounds |
+| Strategy                  | Best For                                     |
+| ------------------------- | -------------------------------------------- |
+| `closestCenter` (default) | Vertical lists — nearest center point        |
+| `closestCorners`          | Grid layouts — nearest corner                |
+| `rectIntersection`        | Large drag targets — 50% overlap required    |
+| `pointerWithin`           | Nested lists — pointer must be inside bounds |
 
 ### SortableListDesktop / SortableListMobile
 
 Platform-specific presenters with additional features:
 
-- **Desktop** (`SortableListDesktop`): Right-click context menu with Move to Top, Move Up, Move Down,
-  Move to Bottom, Duplicate, Delete, and custom actions. Row numbers column.
+- **Desktop** (`SortableListDesktop`): Right-click context menu with Move to Top, Move Up, Move
+  Down, Move to Bottom, Duplicate, Delete, and custom actions. Row numbers column.
 - **Mobile** (`SortableListMobile`): Up/Down arrow buttons per row instead of drag (touch drag still
   works). Simplified UI for phone use in server rooms.
 
@@ -1119,9 +1204,9 @@ export interface ContextMenuActions<T> {
 
 **Import:** `import { FirewallRuleList } from '@nasnet/ui/patterns';`
 
-The primary domain application of the sortable system. Renders an ordered list of firewall rules with
-chain/action/protocol display, hit-count badges, and disabled state dimming. Shows a "rules processed
-in order" warning banner.
+The primary domain application of the sortable system. Renders an ordered list of firewall rules
+with chain/action/protocol display, hit-count badges, and disabled state dimming. Shows a "rules
+processed in order" warning banner.
 
 ```ts
 export interface FirewallRule extends SortableItemData {
@@ -1193,13 +1278,13 @@ toast({ title: 'Error', description: 'Could not connect.', variant: 'destructive
 
 **Import:** `import { NotificationBell } from '@nasnet/ui/patterns';`
 
-In-app notification bell with unread count badge. Desktop: compact popover with notification preview.
-Mobile: full-screen bottom sheet with large touch targets.
+In-app notification bell with unread count badge. Desktop: compact popover with notification
+preview. Mobile: full-screen bottom sheet with large touch targets.
 
 ```ts
 export interface NotificationBellProps {
   unreadCount: number;
-  notifications: InAppNotification[];  // from @nasnet/state/stores
+  notifications: InAppNotification[]; // from @nasnet/state/stores
   loading?: boolean;
   onNotificationClick?: (notification: InAppNotification) => void;
   onMarkAllRead?: () => void;
@@ -1244,14 +1329,14 @@ Mobile: bottom sheet with 300px max scroll area and large touch targets.
 export interface HistoryPanelProps {
   className?: string;
   onClose?: () => void;
-  maxHeight?: number;   // default 400 desktop, 300 mobile
+  maxHeight?: number; // default 400 desktop, 300 mobile
 }
 ```
 
 ```tsx
-{showHistory && (
-  <HistoryPanel onClose={() => setShowHistory(false)} />
-)}
+{
+  showHistory && <HistoryPanel onClose={() => setShowHistory(false)} />;
+}
 ```
 
 History state is sourced from the Zustand history store. Entries list operations with undo/redo
@@ -1291,7 +1376,7 @@ Open imperatively from anywhere:
 import { useUIStore } from '@nasnet/state/stores';
 
 const { openCommandPalette } = useUIStore();
-<Button onClick={openCommandPalette}>Search</Button>
+<Button onClick={openCommandPalette}>Search</Button>;
 ```
 
 ---
@@ -1306,20 +1391,20 @@ Source directory: `libs/ui/patterns/src/`
 
 **Import:** `import { CopyButton } from '@nasnet/ui/patterns';`
 
-Icon-only or text button for copying a string value. Shows check icon after copy with 2-second reset.
-Optional tooltip and toast notification.
+Icon-only or text button for copying a string value. Shows check icon after copy with 2-second
+reset. Optional tooltip and toast notification.
 
 ```ts
 export type CopyButtonVariant = 'inline' | 'button';
 
 export interface CopyButtonProps {
   value: string;
-  variant?: CopyButtonVariant;  // default 'inline'
+  variant?: CopyButtonVariant; // default 'inline'
   'aria-label'?: string;
-  showTooltip?: boolean;        // default true
+  showTooltip?: boolean; // default true
   tooltipText?: string;
   copiedTooltipText?: string;
-  showToast?: boolean;          // default false
+  showToast?: boolean; // default false
   toastTitle?: string;
   toastDescription?: string;
   className?: string;
@@ -1372,8 +1457,7 @@ export interface CopyableValueProps {
 Pre-formatted code block with syntax highlighting and a copy button in the top-right corner.
 
 ```ts
-export type CodeBlockLanguage =
-  | 'bash' | 'json' | 'yaml' | 'text' | 'wireguard' | 'ini';
+export type CodeBlockLanguage = 'bash' | 'json' | 'yaml' | 'text' | 'wireguard' | 'ini';
 
 export interface CodeBlockCopyProps {
   code: string;
@@ -1420,8 +1504,8 @@ Source directory: `libs/ui/patterns/src/`
 
 **Import:** `import { SkipLinks, SkipLink } from '@nasnet/ui/patterns';`
 
-Skip navigation links for keyboard and screen reader users. Renders visually hidden links that appear
-on focus, enabling users to jump to main content or primary navigation.
+Skip navigation links for keyboard and screen reader users. Renders visually hidden links that
+appear on focus, enabling users to jump to main content or primary navigation.
 
 ```ts
 export interface SkipLinkTarget {
@@ -1455,7 +1539,8 @@ Source: `libs/ui/patterns/src/skip-links/`
 
 **Import:** `import { LiveRegion } from '@nasnet/ui/patterns';`
 
-ARIA live region wrapper for announcing dynamic content changes to screen readers without moving focus.
+ARIA live region wrapper for announcing dynamic content changes to screen readers without moving
+focus.
 
 ```ts
 export interface LiveRegionProps {
@@ -1486,7 +1571,8 @@ Source: `libs/ui/patterns/src/live-region/`
 
 **Import:** `import { useFocusRestore } from '@nasnet/ui/patterns';`
 
-Hook that saves the previously focused element and restores focus to it when a dialog/sheet/panel closes.
+Hook that saves the previously focused element and restores focus to it when a dialog/sheet/panel
+closes.
 
 ```tsx
 function Modal({ open, onClose }) {
@@ -1516,13 +1602,13 @@ Source directory: `libs/ui/patterns/src/`
 
 **Import:** `import { ChangeSetSummary } from '@nasnet/ui/patterns';`
 
-Card summarizing a change set: name, status badge, operation counts (create/update/delete), total items,
-timestamp, error/warning indicators. Three presenters (Desktop/Tablet/Mobile) with a `compact` mode for
-mobile list views.
+Card summarizing a change set: name, status badge, operation counts (create/update/delete), total
+items, timestamp, error/warning indicators. Three presenters (Desktop/Tablet/Mobile) with a
+`compact` mode for mobile list views.
 
 ```ts
 export interface ChangeSetSummaryProps extends React.HTMLAttributes<HTMLDivElement> {
-  summary: ChangeSetSummaryData;   // from @nasnet/core/types
+  summary: ChangeSetSummaryData; // from @nasnet/core/types
   interactive?: boolean;
   onClick?: () => void;
   showStatus?: boolean;
@@ -1550,8 +1636,8 @@ CANCELLED (muted).
 
 **Import:** `import { ChangeSetItemCard } from '@nasnet/ui/patterns';`
 
-Card for a single operation within a change set: resource type icon, operation badge (Create/Update/Delete),
-resource name, and status.
+Card for a single operation within a change set: resource type icon, operation badge
+(Create/Update/Delete), resource name, and status.
 
 Source: `libs/ui/patterns/src/change-set-item-card/`
 
@@ -1561,8 +1647,8 @@ Source: `libs/ui/patterns/src/change-set-item-card/`
 
 **Import:** `import { ApplyProgress } from '@nasnet/ui/patterns';`
 
-Progress panel shown during change set application. Displays per-item status, ETA, progress bar, error
-details, and Cancel/Retry/Force-Rollback actions.
+Progress panel shown during change set application. Displays per-item status, ETA, progress bar,
+error details, and Cancel/Retry/Force-Rollback actions.
 
 ```ts
 export interface ApplyProgressProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -1573,7 +1659,7 @@ export interface ApplyProgressProps extends React.HTMLAttributes<HTMLDivElement>
   onCancel?: () => void;
   onRetry?: () => void;
   onForceRollback?: () => void;
-  showItemStatus?: boolean;   // default true
+  showItemStatus?: boolean; // default true
 }
 ```
 
@@ -1621,7 +1707,7 @@ export interface PreFlightDialogProps {
   onConfirmWithStops: (serviceIds: string[]) => void;
   onOverrideAndStart?: () => void;
   allowOverride?: boolean;
-  variant?: 'mobile' | 'desktop';  // auto-detects if omitted
+  variant?: 'mobile' | 'desktop'; // auto-detects if omitted
 }
 ```
 
@@ -1655,8 +1741,9 @@ Source: `libs/ui/patterns/src/feedback/safety-confirmation/`
 
 ## ResourceProvider System
 
-A React context provider system for the Universal State v2 resource model. Wraps a resource's data and
-mutation functions into context, eliminating prop drilling through deeply nested resource detail pages.
+A React context provider system for the Universal State v2 resource model. Wraps a resource's data
+and mutation functions into context, eliminating prop drilling through deeply nested resource detail
+pages.
 
 Source directory: `libs/ui/patterns/src/resource-provider/`
 
@@ -1664,8 +1751,8 @@ Source directory: `libs/ui/patterns/src/resource-provider/`
 
 **Import:** `import { ResourceProvider } from '@nasnet/ui/patterns';`
 
-Context provider that computes derived state (`isPending`, `isActive`, `isEditable`, `hasErrors`) from
-resource lifecycle state and exposes actions through context.
+Context provider that computes derived state (`isPending`, `isActive`, `isEditable`, `hasErrors`)
+from resource lifecycle state and exposes actions through context.
 
 ```ts
 export interface ResourceProviderProps<TConfig = unknown> {
@@ -1692,7 +1779,9 @@ function WireGuardDetailPage({ uuid }: { uuid: string }) {
       resource={data?.resource}
       loading={loading}
       error={error?.message}
-      onRefresh={async () => { await refetch(); }}
+      onRefresh={async () => {
+        await refetch();
+      }}
       onUpdate={(cfg) => updateResource({ variables: { uuid, config: cfg } })}
       onApply={(force) => applyResource({ variables: { uuid, force } })}
       onRemove={() => deleteResource({ variables: { uuid } })}
@@ -1750,9 +1839,11 @@ function ResourceActions() {
 
 ### Convenience Gate Components
 
-**Import:** `import { ResourceLoading, ResourceError, ResourceLoaded, ResourceState } from '@nasnet/ui/patterns';`
+**Import:**
+`import { ResourceLoading, ResourceError, ResourceLoaded, ResourceState } from '@nasnet/ui/patterns';`
 
-Declarative render-gate components that conditionally render children based on resource context state.
+Declarative render-gate components that conditionally render children based on resource context
+state.
 
 ```ts
 // Renders children only while loading
@@ -1793,14 +1884,17 @@ authoritative badge.
 
 ```ts
 export interface DHCPServerCardProps {
-  server: DHCPServer;    // from @nasnet/core/types
+  server: DHCPServer; // from @nasnet/core/types
   pool?: DHCPPool;
   className?: string;
 }
 ```
 
 ```tsx
-<DHCPServerCard server={server} pool={addressPool} />
+<DHCPServerCard
+  server={server}
+  pool={addressPool}
+/>
 ```
 
 ---
@@ -1812,7 +1906,9 @@ export interface DHCPServerCardProps {
 Card for a DHCP client binding showing hostname, MAC address, assigned IP, and lease expiry.
 
 ```ts
-export interface DHCPClientCardProps { /* ... */ }
+export interface DHCPClientCardProps {
+  /* ... */
+}
 ```
 
 Source: `libs/ui/patterns/src/dhcp-client-card/`
@@ -1827,7 +1923,9 @@ Summary widget for the router dashboard showing total DHCP leases, active count,
 percentage, and a mini usage bar.
 
 ```ts
-export interface DHCPSummaryCardProps { /* ... */ }
+export interface DHCPSummaryCardProps {
+  /* ... */
+}
 ```
 
 Source: `libs/ui/patterns/src/dhcp-summary-card/`
@@ -1845,13 +1943,13 @@ Source directory: `libs/ui/patterns/src/help/`
 
 **Import:** `import { FieldHelp } from '@nasnet/ui/patterns';`
 
-Auto-detecting wrapper that renders a `HelpPopover` on desktop or a `HelpSheet` bottom sheet on mobile.
-Looks up content from an i18n key.
+Auto-detecting wrapper that renders a `HelpPopover` on desktop or a `HelpSheet` bottom sheet on
+mobile. Looks up content from an i18n key.
 
 ```ts
 export interface FieldHelpProps {
-  field: string;              // i18n key, e.g. 'vpn.wireguard.mtu'
-  mode?: HelpMode;            // override global mode
+  field: string; // i18n key, e.g. 'vpn.wireguard.mtu'
+  mode?: HelpMode; // override global mode
   placement?: 'top' | 'right' | 'bottom' | 'left';
   className?: string;
 }
@@ -1892,8 +1990,8 @@ import { HelpPopover } from '@nasnet/ui/patterns';
 import { HelpSheet } from '@nasnet/ui/patterns';
 ```
 
-Low-level presenters used by `FieldHelp`. Use these directly if you need to supply content programmatically
-rather than via i18n key.
+Low-level presenters used by `FieldHelp`. Use these directly if you need to supply content
+programmatically rather than via i18n key.
 
 ```ts
 export interface HelpContent {
@@ -1905,7 +2003,7 @@ export interface HelpContent {
 export interface HelpPopoverProps {
   content: HelpContent;
   placement?: 'top' | 'right' | 'bottom' | 'left';
-  children: ReactNode;   // trigger element
+  children: ReactNode; // trigger element
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
 }
@@ -1940,7 +2038,8 @@ Source directory: `libs/ui/patterns/src/`
 
 **Import:** `import { PageHeader } from '@nasnet/ui/patterns';`
 
-Consistent page-level header with title, optional description, and optional action buttons on the right.
+Consistent page-level header with title, optional description, and optional action buttons on the
+right.
 
 ```ts
 export interface PageHeaderProps {
@@ -1981,7 +2080,7 @@ Consistent back-navigation button using `router.history.back()`. Renders a chevr
 
 ```ts
 export interface BackButtonProps {
-  label?: string;    // default 'Back'
+  label?: string; // default 'Back'
   onClick?: () => void;
   className?: string;
 }
@@ -2036,7 +2135,10 @@ export interface LastUpdatedProps {
 ```
 
 ```tsx
-<LastUpdated timestamp={lastFetchedAt} onRefresh={refetch} />
+<LastUpdated
+  timestamp={lastFetchedAt}
+  onRefresh={refetch}
+/>
 ```
 
 ---
@@ -2063,7 +2165,9 @@ Source directory: `libs/ui/patterns/src/`
 Router system information card: OS version, uptime, CPU model, architecture, RouterOS board name.
 
 ```ts
-export interface SystemInfoCardProps { /* ... */ }
+export interface SystemInfoCardProps {
+  /* ... */
+}
 ```
 
 Source: `libs/ui/patterns/src/system-info-card/`
@@ -2077,7 +2181,9 @@ Source: `libs/ui/patterns/src/system-info-card/`
 Hardware specification card: RAM, flash storage, CPU frequency, Ethernet ports.
 
 ```ts
-export interface HardwareCardProps { /* ... */ }
+export interface HardwareCardProps {
+  /* ... */
+}
 ```
 
 ---
@@ -2086,11 +2192,13 @@ export interface HardwareCardProps { /* ... */ }
 
 **Import:** `import { PluginCard } from '@nasnet/ui/patterns';`
 
-Card for displaying a third-party plugin or integration (e.g., Telegraf, NetFlow exporter).
-Shows name, version, enabled state, and configuration link.
+Card for displaying a third-party plugin or integration (e.g., Telegraf, NetFlow exporter). Shows
+name, version, enabled state, and configuration link.
 
 ```ts
-export interface PluginCardProps { /* ... */ }
+export interface PluginCardProps {
+  /* ... */
+}
 ```
 
 ---
@@ -2098,6 +2206,7 @@ export interface PluginCardProps { /* ... */ }
 ### QuickActionButton / QuickActionsCard
 
 **Imports:**
+
 ```ts
 import { QuickActionButton } from '@nasnet/ui/patterns';
 import { QuickActionsCard } from '@nasnet/ui/patterns';
@@ -2147,12 +2256,13 @@ Source: `libs/ui/patterns/src/device-list-item/`
 
 Source directory: `libs/ui/patterns/src/suspense/`
 
-Import entry: `import { SuspenseBoundary, createLazyRoute, preloadRoutes, createPreloadHandlers } from '@nasnet/ui/patterns';`
+Import entry:
+`import { SuspenseBoundary, createLazyRoute, preloadRoutes, createPreloadHandlers } from '@nasnet/ui/patterns';`
 
 ### SuspenseBoundary
 
-Route-level `<Suspense>` wrapper with an integrated class-based error boundary. Named for accessibility
-(`aria-busy`, `aria-label="Loading {name}"`).
+Route-level `<Suspense>` wrapper with an integrated class-based error boundary. Named for
+accessibility (`aria-busy`, `aria-label="Loading {name}"`).
 
 ```ts
 export interface SuspenseBoundaryProps {
@@ -2166,7 +2276,10 @@ export interface SuspenseBoundaryProps {
 ```
 
 ```tsx
-<SuspenseBoundary name="Dashboard" fallback={<DashboardSkeleton />}>
+<SuspenseBoundary
+  name="Dashboard"
+  fallback={<DashboardSkeleton />}
+>
   <Dashboard />
 </SuspenseBoundary>
 ```
@@ -2205,9 +2318,12 @@ export const Route = createFileRoute('/dashboard')({
 });
 
 // Preload on hover
-<Link to="/dashboard" onMouseEnter={dashboardRoute.preload}>
+<Link
+  to="/dashboard"
+  onMouseEnter={dashboardRoute.preload}
+>
   Dashboard
-</Link>
+</Link>;
 ```
 
 ---
@@ -2219,10 +2335,7 @@ fallback). Use after initial render to warm the module cache for likely next nav
 
 ```tsx
 useEffect(() => {
-  preloadRoutes([
-    () => import('./pages/Dashboard'),
-    () => import('./pages/Settings'),
-  ]);
+  preloadRoutes([() => import('./pages/Dashboard'), () => import('./pages/Settings')]);
 }, []);
 ```
 
@@ -2235,7 +2348,12 @@ Prevents duplicate preloads with a `preloaded` guard flag.
 
 ```tsx
 const handlers = createPreloadHandlers(() => import('./pages/Settings'));
-<Link to="/settings" {...handlers}>Settings</Link>
+<Link
+  to="/settings"
+  {...handlers}
+>
+  Settings
+</Link>;
 ```
 
 ---

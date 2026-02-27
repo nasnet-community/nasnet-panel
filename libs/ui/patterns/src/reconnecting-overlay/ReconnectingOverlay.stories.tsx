@@ -51,50 +51,45 @@ function MockReconnectingOverlay({
   alwaysShowRetry = false,
   onDismiss,
 }: MockOverlayProps) {
-  const progress =
-    maxReconnectAttempts > 0
-      ? (reconnectAttempts / maxReconnectAttempts) * 100
-      : 0;
+  const progress = maxReconnectAttempts > 0 ? (reconnectAttempts / maxReconnectAttempts) * 100 : 0;
 
   const statusMessage =
     message ??
-    (isReconnecting
-      ? 'Attempting to reconnect...'
-      : showManualRetry
-        ? 'Connection failed. Please retry manually.'
-        : 'Connection lost');
+    (isReconnecting ? 'Attempting to reconnect...'
+    : showManualRetry ? 'Connection failed. Please retry manually.'
+    : 'Connection lost');
 
-  const StatusIcon = isReconnecting
-    ? Loader2
-    : showManualRetry
-      ? AlertTriangle
-      : WifiOff;
+  const StatusIcon =
+    isReconnecting ? Loader2
+    : showManualRetry ? AlertTriangle
+    : WifiOff;
 
   const card = (
     <Card
       className={cn(
-        'p-6 max-w-sm mx-auto',
+        'mx-auto max-w-sm p-6',
         'bg-card',
-        'border-2 border-semantic-warning',
+        'border-semantic-warning border-2',
         !fullScreen && 'w-full'
       )}
     >
-      <div className="flex flex-col items-center text-center space-y-4" aria-live="polite">
+      <div
+        className="flex flex-col items-center space-y-4 text-center"
+        aria-live="polite"
+      >
         {/* Icon */}
         <div
           className={cn(
-            'p-4 rounded-full',
-            isReconnecting
-              ? 'bg-semantic-warning/10'
-              : showManualRetry
-                ? 'bg-semantic-error/10'
-                : 'bg-muted'
+            'rounded-full p-4',
+            isReconnecting ? 'bg-semantic-warning/10'
+            : showManualRetry ? 'bg-semantic-error/10'
+            : 'bg-muted'
           )}
         >
           <StatusIcon
             className={cn(
               'h-8 w-8',
-              isReconnecting && 'animate-spin text-semantic-warning',
+              isReconnecting && 'text-semantic-warning animate-spin',
               showManualRetry && 'text-semantic-error',
               !isReconnecting && !showManualRetry && 'text-muted-foreground'
             )}
@@ -104,17 +99,23 @@ function MockReconnectingOverlay({
 
         {/* Heading + message */}
         <div className="space-y-1">
-          <h3 className="font-semibold text-lg text-foreground">
+          <h3 className="text-foreground text-lg font-semibold">
             {isReconnecting ? 'Reconnecting' : 'Disconnected'}
           </h3>
-          <p className="text-sm text-muted-foreground">{statusMessage}</p>
+          <p className="text-muted-foreground text-sm">{statusMessage}</p>
         </div>
 
         {/* Progress bar */}
         {isReconnecting && (
           <div className="w-full space-y-2">
-            <Progress value={progress} className="h-2" />
-            <p className="text-xs text-muted-foreground" aria-live="polite">
+            <Progress
+              value={progress}
+              className="h-2"
+            />
+            <p
+              className="text-muted-foreground text-xs"
+              aria-live="polite"
+            >
               Attempt {reconnectAttempts} of {maxReconnectAttempts}
             </p>
           </div>
@@ -129,13 +130,16 @@ function MockReconnectingOverlay({
               className="min-w-[120px]"
               aria-label="Retry connection now"
             >
-              <RefreshCw className="h-4 w-4 mr-2" />
+              <RefreshCw className="mr-2 h-4 w-4" />
               Retry Now
             </Button>
           )}
 
           {onDismiss && (
-            <Button variant="outline" onClick={onDismiss}>
+            <Button
+              variant="outline"
+              onClick={onDismiss}
+            >
               Dismiss
             </Button>
           )}
@@ -143,7 +147,7 @@ function MockReconnectingOverlay({
 
         {/* Help text when manual retry is shown */}
         {showManualRetry && (
-          <p className="text-xs text-muted-foreground">
+          <p className="text-muted-foreground text-xs">
             Check your network connection and ensure the router is accessible.
           </p>
         )}
@@ -274,7 +278,8 @@ export const ReconnectingNearMax: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'The progress bar is 80 % filled indicating one attempt remains before switching to manual retry.',
+        story:
+          'The progress bar is 80 % filled indicating one attempt remains before switching to manual retry.',
       },
     },
   },

@@ -66,8 +66,9 @@ export const useNATUIStore = create<NATUIState>()(
       // Expanded rules
       toggleRuleExpansion: (ruleId) =>
         set((state) => ({
-          expandedRules: state.expandedRules.includes(ruleId)
-            ? state.expandedRules.filter((id) => id !== ruleId)
+          expandedRules:
+            state.expandedRules.includes(ruleId) ?
+              state.expandedRules.filter((id) => id !== ruleId)
             : [...state.expandedRules, ruleId],
         })),
 

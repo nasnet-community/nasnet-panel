@@ -46,8 +46,9 @@ function makeResult(seq: number, time: number | null, target = '8.8.8.8'): PingR
 
 // ─── Datasets ─────────────────────────────────────────────────────────────────
 
-const healthyResults: PingResult[] = Array.from({ length: 20 }, (_, i) =>
-  makeResult(i + 1, 10 + Math.sin(i * 0.5) * 5 + 2) // 7–17 ms sinusoidal
+const healthyResults: PingResult[] = Array.from(
+  { length: 20 },
+  (_, i) => makeResult(i + 1, 10 + Math.sin(i * 0.5) * 5 + 2) // 7–17 ms sinusoidal
 );
 
 const withTimeouts: PingResult[] = [
@@ -74,8 +75,9 @@ const crossingThresholds: PingResult[] = [
   makeResult(12, 18),
 ];
 
-const highLatencyResults: PingResult[] = Array.from({ length: 15 }, (_, i) =>
-  makeResult(i + 1, 400 + Math.random() * 300) // 400–700 ms satellite-level
+const highLatencyResults: PingResult[] = Array.from(
+  { length: 15 },
+  (_, i) => makeResult(i + 1, 400 + Math.random() * 300) // 400–700 ms satellite-level
 );
 
 const singleResult: PingResult[] = [makeResult(1, 14.7)];

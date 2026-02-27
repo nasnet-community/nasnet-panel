@@ -225,8 +225,8 @@ describe('NotificationBell', () => {
 
       // Find notification containers
       const notifications = screen.getAllByRole('button');
-      const unreadNotification = notifications.find(
-        (n) => n.textContent?.includes('High CPU Usage')
+      const unreadNotification = notifications.find((n) =>
+        n.textContent?.includes('High CPU Usage')
       );
 
       // Unread should have bg-primary/5 class
@@ -293,9 +293,9 @@ describe('NotificationBell', () => {
       await user.click(bellButton);
 
       // Mobile notifications should have min-h-[88px]
-      const notifications = screen.getAllByRole('button').filter(
-        (b) => b.textContent?.includes('High CPU Usage')
-      );
+      const notifications = screen
+        .getAllByRole('button')
+        .filter((b) => b.textContent?.includes('High CPU Usage'));
       expect(notifications[0]?.className).toContain('min-h-[88px]');
     });
   });

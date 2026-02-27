@@ -6,16 +6,24 @@
 Input for exporting a service configuration.
 """
 input ExportServiceConfigInput {
-  """Router ID"""
+  """
+  Router ID
+  """
   routerID: ID!
 
-  """Instance ID to export"""
+  """
+  Instance ID to export
+  """
   instanceID: ID!
 
-  """Whether to redact sensitive fields (passwords, API keys, etc.)"""
+  """
+  Whether to redact sensitive fields (passwords, API keys, etc.)
+  """
   redactSecrets: Boolean!
 
-  """Whether to include device routing rules"""
+  """
+  Whether to include device routing rules
+  """
   includeRoutingRules: Boolean!
 }
 
@@ -23,16 +31,24 @@ input ExportServiceConfigInput {
 Payload for export service configuration mutation.
 """
 type ExportServiceConfigPayload {
-  """Whether the operation succeeded"""
+  """
+  Whether the operation succeeded
+  """
   success: Boolean!
 
-  """Exported service package (null if failed)"""
+  """
+  Exported service package (null if failed)
+  """
   package: ServiceExportPackage
 
-  """Download URL for JSON file (15-minute expiry)"""
+  """
+  Download URL for JSON file (15-minute expiry)
+  """
   downloadURL: String
 
-  """Mutation errors"""
+  """
+  Mutation errors
+  """
   errors: [MutationError!]
 }
 
@@ -41,22 +57,34 @@ Input for importing a service configuration.
 Performs validation only, does not apply changes.
 """
 input ImportServiceConfigInput {
-  """Router ID to import into"""
+  """
+  Router ID to import into
+  """
   routerID: ID!
 
-  """Service export package (JSON)"""
+  """
+  Service export package (JSON)
+  """
   package: JSON!
 
-  """Conflict resolution strategy (required if conflicts exist)"""
+  """
+  Conflict resolution strategy (required if conflicts exist)
+  """
   conflictResolution: ConflictResolution
 
-  """User-provided values for redacted fields (map of field name to value)"""
+  """
+  User-provided values for redacted fields (map of field name to value)
+  """
   redactedFieldValues: JSON
 
-  """Device MAC addresses to filter routing rules (optional)"""
+  """
+  Device MAC addresses to filter routing rules (optional)
+  """
   deviceFilter: [String!]
 
-  """Dry-run mode (validate only, don't create instance)"""
+  """
+  Dry-run mode (validate only, don't create instance)
+  """
   dryRun: Boolean
 }
 
@@ -65,13 +93,19 @@ Payload for import service configuration mutation.
 Returns validation results without applying changes.
 """
 type ImportServiceConfigPayload {
-  """Whether validation succeeded"""
+  """
+  Whether validation succeeded
+  """
   valid: Boolean!
 
-  """Validation result"""
+  """
+  Validation result
+  """
   validationResult: ImportValidationResult!
 
-  """Mutation errors"""
+  """
+  Mutation errors
+  """
   errors: [MutationError!]
 }
 
@@ -80,19 +114,29 @@ Input for applying a validated service import.
 Actually creates/updates the service instance.
 """
 input ApplyServiceImportInput {
-  """Router ID to import into"""
+  """
+  Router ID to import into
+  """
   routerID: ID!
 
-  """Service export package (JSON)"""
+  """
+  Service export package (JSON)
+  """
   package: JSON!
 
-  """Conflict resolution strategy"""
+  """
+  Conflict resolution strategy
+  """
   conflictResolution: ConflictResolution!
 
-  """User-provided values for redacted fields"""
+  """
+  User-provided values for redacted fields
+  """
   redactedFieldValues: JSON!
 
-  """Device MAC addresses to filter routing rules (optional)"""
+  """
+  Device MAC addresses to filter routing rules (optional)
+  """
   deviceFilter: [String!]
 }
 
@@ -100,13 +144,19 @@ input ApplyServiceImportInput {
 Payload for apply service import mutation.
 """
 type ApplyServiceImportPayload {
-  """Whether the operation succeeded"""
+  """
+  Whether the operation succeeded
+  """
   success: Boolean!
 
-  """Created or updated service instance (null if failed)"""
+  """
+  Created or updated service instance (null if failed)
+  """
   instance: ServiceInstance
 
-  """Mutation errors"""
+  """
+  Mutation errors
+  """
   errors: [MutationError!]
 }
 
@@ -114,19 +164,29 @@ type ApplyServiceImportPayload {
 Input for generating a QR code for service config.
 """
 input GenerateConfigQRInput {
-  """Router ID"""
+  """
+  Router ID
+  """
   routerID: ID!
 
-  """Instance ID to generate QR code for"""
+  """
+  Instance ID to generate QR code for
+  """
   instanceID: ID!
 
-  """Whether to redact sensitive fields"""
+  """
+  Whether to redact sensitive fields
+  """
   redactSecrets: Boolean!
 
-  """Whether to include routing rules"""
+  """
+  Whether to include routing rules
+  """
   includeRoutingRules: Boolean!
 
-  """QR code image size in pixels (default 256)"""
+  """
+  QR code image size in pixels (default 256)
+  """
   imageSize: Int
 }
 
@@ -134,21 +194,33 @@ input GenerateConfigQRInput {
 Payload for generate config QR mutation.
 """
 type GenerateConfigQRPayload {
-  """Whether the operation succeeded"""
+  """
+  Whether the operation succeeded
+  """
   success: Boolean!
 
-  """Base64-encoded PNG image data"""
+  """
+  Base64-encoded PNG image data
+  """
   imageDataBase64: String
 
-  """Download URL for PNG file (15-minute expiry)"""
+  """
+  Download URL for PNG file (15-minute expiry)
+  """
   downloadURL: String
 
-  """QR code data size in bytes (before encoding)"""
+  """
+  QR code data size in bytes (before encoding)
+  """
   dataSize: Int
 
-  """PNG image size in bytes"""
+  """
+  PNG image size in bytes
+  """
   imageSize: Int
 
-  """Mutation errors"""
+  """
+  Mutation errors
+  """
   errors: [MutationError!]
 }

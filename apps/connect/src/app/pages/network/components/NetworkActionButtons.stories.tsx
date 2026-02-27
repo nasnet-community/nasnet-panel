@@ -62,11 +62,7 @@ export const Default: Story = {
   name: 'Default (3 actions)',
   args: {
     compact: false,
-    actions: [
-      makeRefreshAction(noop),
-      makeDiagnosticsAction(noop),
-      makeSettingsAction(noop),
-    ],
+    actions: [makeRefreshAction(noop), makeDiagnosticsAction(noop), makeSettingsAction(noop)],
   },
   parameters: {
     docs: {
@@ -93,7 +89,8 @@ export const WithExport: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Adds a fourth Export button. Useful on pages where interface configs can be downloaded.',
+        story:
+          'Adds a fourth Export button. Useful on pages where interface configs can be downloaded.',
       },
     },
   },
@@ -113,7 +110,7 @@ export const RefreshLoading: Story = {
     docs: {
       description: {
         story:
-          'The Refresh button\'s icon animates with `animate-spin` while `isLoading` is true. ' +
+          "The Refresh button's icon animates with `animate-spin` while `isLoading` is true. " +
           'The button is also disabled during this state to prevent duplicate requests.',
       },
     },
@@ -129,7 +126,7 @@ export const WithDestructiveAction: Story = {
       {
         id: 'flush-arp',
         label: 'Flush ARP',
-        icon: <Trash2 className="w-4 h-4" />,
+        icon: <Trash2 className="h-4 w-4" />,
         onClick: noop,
         variant: 'destructive',
       } satisfies NetworkAction,
@@ -151,11 +148,7 @@ export const Compact: Story = {
   name: 'Compact (icon-only)',
   args: {
     compact: true,
-    actions: [
-      makeRefreshAction(noop),
-      makeDiagnosticsAction(noop),
-      makeSettingsAction(noop),
-    ],
+    actions: [makeRefreshAction(noop), makeDiagnosticsAction(noop), makeSettingsAction(noop)],
   },
   parameters: {
     docs: {
@@ -197,20 +190,20 @@ export const CustomActions: Story = {
       {
         id: 'ping',
         label: 'Ping Test',
-        icon: <Stethoscope className="w-4 h-4" />,
+        icon: <Stethoscope className="h-4 w-4" />,
         onClick: noop,
       },
       {
         id: 'export-csv',
         label: 'Export CSV',
-        icon: <Download className="w-4 h-4" />,
+        icon: <Download className="h-4 w-4" />,
         onClick: noop,
         variant: 'outline',
       },
       {
         id: 'refresh-custom',
         label: 'Sync Now',
-        icon: <RefreshCw className="w-4 h-4" />,
+        icon: <RefreshCw className="h-4 w-4" />,
         onClick: noop,
         isLoading: false,
       },

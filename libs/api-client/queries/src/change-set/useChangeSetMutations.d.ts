@@ -8,62 +8,68 @@
  * @see NAS-4.14: Implement Change Sets (Atomic Multi-Resource Operations)
  */
 import { type ApolloError } from '@apollo/client';
-import type { ChangeSet, ChangeSetStatus, ChangeOperation, ChangeSetValidationResult, ResourceCategory } from '@nasnet/core/types';
+import type {
+  ChangeSet,
+  ChangeSetStatus,
+  ChangeOperation,
+  ChangeSetValidationResult,
+  ResourceCategory,
+} from '@nasnet/core/types';
 /**
  * Input for creating a new change set.
  */
 export interface CreateChangeSetInput {
-    routerId: string;
-    name: string;
-    description?: string;
-    source?: string;
+  routerId: string;
+  name: string;
+  description?: string;
+  source?: string;
 }
 /**
  * Input for adding an item to a change set.
  */
 export interface ChangeSetItemInput {
-    resourceType: string;
-    resourceCategory: ResourceCategory;
-    resourceUuid?: string;
-    name: string;
-    description?: string;
-    operation: ChangeOperation;
-    configuration: Record<string, unknown>;
-    previousState?: Record<string, unknown>;
-    dependencies?: string[];
+  resourceType: string;
+  resourceCategory: ResourceCategory;
+  resourceUuid?: string;
+  name: string;
+  description?: string;
+  operation: ChangeOperation;
+  configuration: Record<string, unknown>;
+  previousState?: Record<string, unknown>;
+  dependencies?: string[];
 }
 /**
  * Input for updating an item in a change set.
  */
 export interface UpdateChangeSetItemInput {
-    name?: string;
-    description?: string;
-    configuration?: Record<string, unknown>;
-    dependencies?: string[];
+  name?: string;
+  description?: string;
+  configuration?: Record<string, unknown>;
+  dependencies?: string[];
 }
 /**
  * Options for apply mutation.
  */
 export interface ApplyChangeSetOptions {
-    /** Callback when apply starts */
-    onStart?: () => void;
-    /** Callback on successful apply */
-    onSuccess?: () => void;
-    /** Callback on apply error */
-    onError?: (error: ApolloError) => void;
+  /** Callback when apply starts */
+  onStart?: () => void;
+  /** Callback on successful apply */
+  onSuccess?: () => void;
+  /** Callback on apply error */
+  onError?: (error: ApolloError) => void;
 }
 /**
  * Result from mutation hooks.
  */
 export interface MutationResult<TData, TVariables> {
-    /** Execute the mutation */
-    mutate: (variables: TVariables) => Promise<TData>;
-    /** Loading state */
-    loading: boolean;
-    /** Error state */
-    error: ApolloError | undefined;
-    /** Reset mutation state */
-    reset: () => void;
+  /** Execute the mutation */
+  mutate: (variables: TVariables) => Promise<TData>;
+  /** Loading state */
+  loading: boolean;
+  /** Error state */
+  error: ApolloError | undefined;
+  /** Reset mutation state */
+  reset: () => void;
 }
 /**
  * Hook for creating a new change set.
@@ -84,10 +90,10 @@ export interface MutationResult<TData, TVariables> {
  * ```
  */
 export declare function useCreateChangeSet(): {
-    mutate: (input: CreateChangeSetInput) => Promise<ChangeSet>;
-    loading: boolean;
-    error: ApolloError | undefined;
-    reset: () => void;
+  mutate: (input: CreateChangeSetInput) => Promise<ChangeSet>;
+  loading: boolean;
+  error: ApolloError | undefined;
+  reset: () => void;
 };
 /**
  * Hook for adding an item to a change set.
@@ -109,13 +115,16 @@ export declare function useCreateChangeSet(): {
  * ```
  */
 export declare function useAddChangeSetItem(): {
-    mutate: (changeSetId: string, input: ChangeSetItemInput) => Promise<{
-        changeSet: ChangeSet;
-        itemId: string;
-    }>;
-    loading: boolean;
-    error: ApolloError | undefined;
-    reset: () => void;
+  mutate: (
+    changeSetId: string,
+    input: ChangeSetItemInput
+  ) => Promise<{
+    changeSet: ChangeSet;
+    itemId: string;
+  }>;
+  loading: boolean;
+  error: ApolloError | undefined;
+  reset: () => void;
 };
 /**
  * Hook for updating an item in a change set.
@@ -130,10 +139,14 @@ export declare function useAddChangeSetItem(): {
  * ```
  */
 export declare function useUpdateChangeSetItem(): {
-    mutate: (changeSetId: string, itemId: string, input: UpdateChangeSetItemInput) => Promise<ChangeSet>;
-    loading: boolean;
-    error: ApolloError | undefined;
-    reset: () => void;
+  mutate: (
+    changeSetId: string,
+    itemId: string,
+    input: UpdateChangeSetItemInput
+  ) => Promise<ChangeSet>;
+  loading: boolean;
+  error: ApolloError | undefined;
+  reset: () => void;
 };
 /**
  * Hook for removing an item from a change set.
@@ -149,10 +162,10 @@ export declare function useUpdateChangeSetItem(): {
  * ```
  */
 export declare function useRemoveChangeSetItem(): {
-    mutate: (changeSetId: string, itemId: string) => Promise<ChangeSet>;
-    loading: boolean;
-    error: ApolloError | undefined;
-    reset: () => void;
+  mutate: (changeSetId: string, itemId: string) => Promise<ChangeSet>;
+  loading: boolean;
+  error: ApolloError | undefined;
+  reset: () => void;
 };
 /**
  * Hook for validating a change set before applying.
@@ -172,13 +185,13 @@ export declare function useRemoveChangeSetItem(): {
  * ```
  */
 export declare function useValidateChangeSet(): {
-    mutate: (changeSetId: string) => Promise<{
-        changeSet: ChangeSet;
-        validation: ChangeSetValidationResult;
-    }>;
-    loading: boolean;
-    error: ApolloError | undefined;
-    reset: () => void;
+  mutate: (changeSetId: string) => Promise<{
+    changeSet: ChangeSet;
+    validation: ChangeSetValidationResult;
+  }>;
+  loading: boolean;
+  error: ApolloError | undefined;
+  reset: () => void;
 };
 /**
  * Hook for applying a change set atomically.
@@ -203,13 +216,16 @@ export declare function useValidateChangeSet(): {
  * ```
  */
 export declare function useApplyChangeSet(): {
-    mutate: (changeSetId: string, options?: ApplyChangeSetOptions) => Promise<{
-        changeSetId: string;
-        status: ChangeSetStatus;
-    }>;
-    loading: boolean;
-    error: ApolloError | undefined;
-    reset: () => void;
+  mutate: (
+    changeSetId: string,
+    options?: ApplyChangeSetOptions
+  ) => Promise<{
+    changeSetId: string;
+    status: ChangeSetStatus;
+  }>;
+  loading: boolean;
+  error: ApolloError | undefined;
+  reset: () => void;
 };
 /**
  * Hook for cancelling an in-progress change set application.
@@ -227,13 +243,13 @@ export declare function useApplyChangeSet(): {
  * ```
  */
 export declare function useCancelChangeSet(): {
-    mutate: (changeSetId: string) => Promise<{
-        changeSet: ChangeSet;
-        success: boolean;
-    }>;
-    loading: boolean;
-    error: ApolloError | undefined;
-    reset: () => void;
+  mutate: (changeSetId: string) => Promise<{
+    changeSet: ChangeSet;
+    success: boolean;
+  }>;
+  loading: boolean;
+  error: ApolloError | undefined;
+  reset: () => void;
 };
 /**
  * Hook for rolling back a failed change set.
@@ -253,14 +269,14 @@ export declare function useCancelChangeSet(): {
  * ```
  */
 export declare function useRollbackChangeSet(): {
-    mutate: (changeSetId: string) => Promise<{
-        changeSet: ChangeSet;
-        success: boolean;
-        failedItems: string[];
-    }>;
-    loading: boolean;
-    error: ApolloError | undefined;
-    reset: () => void;
+  mutate: (changeSetId: string) => Promise<{
+    changeSet: ChangeSet;
+    success: boolean;
+    failedItems: string[];
+  }>;
+  loading: boolean;
+  error: ApolloError | undefined;
+  reset: () => void;
 };
 /**
  * Hook for deleting a change set.
@@ -280,12 +296,12 @@ export declare function useRollbackChangeSet(): {
  * ```
  */
 export declare function useDeleteChangeSet(): {
-    mutate: (changeSetId: string) => Promise<{
-        success: boolean;
-    }>;
-    loading: boolean;
-    error: ApolloError | undefined;
-    reset: () => void;
+  mutate: (changeSetId: string) => Promise<{
+    success: boolean;
+  }>;
+  loading: boolean;
+  error: ApolloError | undefined;
+  reset: () => void;
 };
 /**
  * Combined hook for common change set operations.
@@ -303,46 +319,56 @@ export declare function useDeleteChangeSet(): {
  * ```
  */
 export declare function useChangeSetOperations(): {
-    create: (input: CreateChangeSetInput) => Promise<ChangeSet>;
-    addItem: (changeSetId: string, input: ChangeSetItemInput) => Promise<{
-        changeSet: ChangeSet;
-        itemId: string;
-    }>;
-    updateItem: (changeSetId: string, itemId: string, input: UpdateChangeSetItemInput) => Promise<ChangeSet>;
-    removeItem: (changeSetId: string, itemId: string) => Promise<ChangeSet>;
-    validate: (changeSetId: string) => Promise<{
-        changeSet: ChangeSet;
-        validation: ChangeSetValidationResult;
-    }>;
-    apply: (changeSetId: string, options?: ApplyChangeSetOptions) => Promise<{
-        changeSetId: string;
-        status: ChangeSetStatus;
-    }>;
-    cancel: (changeSetId: string) => Promise<{
-        changeSet: ChangeSet;
-        success: boolean;
-    }>;
-    rollback: (changeSetId: string) => Promise<{
-        changeSet: ChangeSet;
-        success: boolean;
-        failedItems: string[];
-    }>;
-    delete: (changeSetId: string) => Promise<{
-        success: boolean;
-    }>;
-    isLoading: boolean;
+  create: (input: CreateChangeSetInput) => Promise<ChangeSet>;
+  addItem: (
+    changeSetId: string,
+    input: ChangeSetItemInput
+  ) => Promise<{
+    changeSet: ChangeSet;
+    itemId: string;
+  }>;
+  updateItem: (
+    changeSetId: string,
+    itemId: string,
+    input: UpdateChangeSetItemInput
+  ) => Promise<ChangeSet>;
+  removeItem: (changeSetId: string, itemId: string) => Promise<ChangeSet>;
+  validate: (changeSetId: string) => Promise<{
+    changeSet: ChangeSet;
+    validation: ChangeSetValidationResult;
+  }>;
+  apply: (
+    changeSetId: string,
+    options?: ApplyChangeSetOptions
+  ) => Promise<{
+    changeSetId: string;
+    status: ChangeSetStatus;
+  }>;
+  cancel: (changeSetId: string) => Promise<{
+    changeSet: ChangeSet;
+    success: boolean;
+  }>;
+  rollback: (changeSetId: string) => Promise<{
+    changeSet: ChangeSet;
+    success: boolean;
+    failedItems: string[];
+  }>;
+  delete: (changeSetId: string) => Promise<{
+    success: boolean;
+  }>;
+  isLoading: boolean;
 };
 declare const _default: {
-    useCreateChangeSet: typeof useCreateChangeSet;
-    useAddChangeSetItem: typeof useAddChangeSetItem;
-    useUpdateChangeSetItem: typeof useUpdateChangeSetItem;
-    useRemoveChangeSetItem: typeof useRemoveChangeSetItem;
-    useValidateChangeSet: typeof useValidateChangeSet;
-    useApplyChangeSet: typeof useApplyChangeSet;
-    useCancelChangeSet: typeof useCancelChangeSet;
-    useRollbackChangeSet: typeof useRollbackChangeSet;
-    useDeleteChangeSet: typeof useDeleteChangeSet;
-    useChangeSetOperations: typeof useChangeSetOperations;
+  useCreateChangeSet: typeof useCreateChangeSet;
+  useAddChangeSetItem: typeof useAddChangeSetItem;
+  useUpdateChangeSetItem: typeof useUpdateChangeSetItem;
+  useRemoveChangeSetItem: typeof useRemoveChangeSetItem;
+  useValidateChangeSet: typeof useValidateChangeSet;
+  useApplyChangeSet: typeof useApplyChangeSet;
+  useCancelChangeSet: typeof useCancelChangeSet;
+  useRollbackChangeSet: typeof useRollbackChangeSet;
+  useDeleteChangeSet: typeof useDeleteChangeSet;
+  useChangeSetOperations: typeof useChangeSetOperations;
 };
 export default _default;
 //# sourceMappingURL=useChangeSetMutations.d.ts.map

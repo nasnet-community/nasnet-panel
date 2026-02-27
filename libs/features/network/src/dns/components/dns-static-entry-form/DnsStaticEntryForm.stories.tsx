@@ -50,8 +50,7 @@ const meta = {
       control: 'object',
     },
     currentEntryId: {
-      description:
-        'ID of the entry being edited — excluded from duplicate check',
+      description: 'ID of the entry being edited — excluded from duplicate check',
       control: 'text',
     },
     isLoading: {

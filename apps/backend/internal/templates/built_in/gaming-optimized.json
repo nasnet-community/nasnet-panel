@@ -40,9 +40,7 @@
             },
             {
               "network": "udp",
-              "port": [
-                "{{GAME_PORT_START}}-{{GAME_PORT_END}}"
-              ],
+              "port": ["{{GAME_PORT_START}}-{{GAME_PORT_END}}"],
               "outbound": "direct"
             }
           ],

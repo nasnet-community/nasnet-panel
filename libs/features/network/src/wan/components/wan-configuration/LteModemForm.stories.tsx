@@ -77,7 +77,8 @@ export const ExcellentSignal: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Form with excellent signal strength (-70 dBm, 95% quality). Signal bars show full strength with green indicator.',
+        story:
+          'Form with excellent signal strength (-70 dBm, 95% quality). Signal bars show full strength with green indicator.',
       },
     },
   },
@@ -95,7 +96,8 @@ export const GoodSignal: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Form with good signal strength (-80 dBm, 75% quality). Typical for outdoor locations.',
+        story:
+          'Form with good signal strength (-80 dBm, 75% quality). Typical for outdoor locations.',
       },
     },
   },
@@ -113,7 +115,8 @@ export const FairSignal: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Form with fair signal strength (-95 dBm, 50% quality). Typical for indoor locations with amber warning.',
+        story:
+          'Form with fair signal strength (-95 dBm, 50% quality). Typical for indoor locations with amber warning.',
       },
     },
   },
@@ -131,7 +134,8 @@ export const PoorSignal: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Form with poor signal strength (-110 dBm, 25% quality). Red indicator warns of connectivity issues.',
+        story:
+          'Form with poor signal strength (-110 dBm, 25% quality). Red indicator warns of connectivity issues.',
       },
     },
   },
@@ -178,7 +182,8 @@ export const PrefilledConfiguration: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Form pre-populated with existing LTE configuration for editing. Shows T-Mobile APN with PAP authentication.',
+        story:
+          'Form pre-populated with existing LTE configuration for editing. Shows T-Mobile APN with PAP authentication.',
       },
     },
   },
@@ -201,7 +206,8 @@ export const TMobilePreset: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Quick setup using T-Mobile US preset. APN automatically filled with fast.t-mobile.com.',
+        story:
+          'Quick setup using T-Mobile US preset. APN automatically filled with fast.t-mobile.com.',
       },
     },
   },
@@ -249,7 +255,8 @@ export const WithAuthentication: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Form with PAP authentication enabled, showing username and password fields with visibility toggles.',
+        story:
+          'Form with PAP authentication enabled, showing username and password fields with visibility toggles.',
       },
     },
   },
@@ -272,7 +279,8 @@ export const WithSimPin: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Configuration for PIN-locked SIM card. PIN field shows security notice about encrypted storage.',
+        story:
+          'Configuration for PIN-locked SIM card. PIN field shows security notice about encrypted storage.',
       },
     },
   },
@@ -297,7 +305,8 @@ export const CustomMTU: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Configuration with custom MTU value (1400). Useful for carriers with specific MTU requirements.',
+        story:
+          'Configuration with custom MTU value (1400). Useful for carriers with specific MTU requirements.',
       },
     },
   },
@@ -319,7 +328,8 @@ export const DisabledInterface: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'LTE interface configured but disabled. No signal data shown as interface is inactive.',
+        story:
+          'LTE interface configured but disabled. No signal data shown as interface is inactive.',
       },
     },
   },
@@ -343,7 +353,8 @@ export const BackupWAN: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'LTE configured as backup WAN without default route. Primary WAN uses different interface.',
+        story:
+          'LTE configured as backup WAN without default route. Primary WAN uses different interface.',
       },
     },
   },
@@ -362,7 +373,8 @@ export const MobileEmbedded: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Form embedded in a workflow where cancel is not applicable. Cancel button is hidden.',
+        story:
+          'Form embedded in a workflow where cancel is not applicable. Cancel button is hidden.',
       },
     },
   },
@@ -403,7 +415,8 @@ export const Playground: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Interactive playground - adjust all controls to test different configurations and states.',
+        story:
+          'Interactive playground - adjust all controls to test different configurations and states.',
       },
     },
   },

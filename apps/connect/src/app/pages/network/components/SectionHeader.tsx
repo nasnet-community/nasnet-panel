@@ -37,53 +37,47 @@ export const SectionHeader = React.memo(function SectionHeader({
   const isCollapsible = onToggle !== undefined;
 
   return (
-    <div
-      className={cn(
-        'flex items-center justify-between py-component-sm',
-        className
-      )}
-    >
-      <div className="flex items-center gap-component-md">
+    <div className={cn('py-component-sm flex items-center justify-between', className)}>
+      <div className="gap-component-md flex items-center">
         {isCollapsible && (
           <button
             onClick={onToggle}
-            className="p-1 -ml-1 rounded-lg hover:bg-muted transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 h-11 w-11 flex items-center justify-center"
+            className="hover:bg-muted focus-visible:ring-ring -ml-1 flex h-11 w-11 items-center justify-center rounded-lg p-1 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
           >
-            {isCollapsed ? (
-              <ChevronRight className="w-4 h-4 text-muted-foreground" />
-            ) : (
-              <ChevronDown className="w-4 h-4 text-muted-foreground" />
-            )}
+            {isCollapsed ?
+              <ChevronRight className="text-muted-foreground h-4 w-4" />
+            : <ChevronDown className="text-muted-foreground h-4 w-4" />}
           </button>
         )}
 
         {icon && (
-          <span className="text-muted-foreground" aria-hidden={true}>{icon}</span>
+          <span
+            className="text-muted-foreground"
+            aria-hidden={true}
+          >
+            {icon}
+          </span>
         )}
 
         <div>
-          <div className="flex items-center gap-component-sm">
-            <h3 className="text-sm font-semibold text-foreground uppercase tracking-wide font-display">
+          <div className="gap-component-sm flex items-center">
+            <h3 className="text-foreground font-display text-sm font-semibold uppercase tracking-wide">
               {title}
             </h3>
             {count !== undefined && (
-              <span className="px-component-sm py-0.5 text-xs font-medium bg-muted text-muted-foreground rounded-full">
+              <span className="px-component-sm bg-muted text-muted-foreground rounded-full py-0.5 text-xs font-medium">
                 {count}
               </span>
             )}
           </div>
-          {subtitle && (
-            <p className="text-xs text-muted-foreground mt-0.5">
-              {subtitle}
-            </p>
-          )}
+          {subtitle && <p className="text-muted-foreground mt-0.5 text-xs">{subtitle}</p>}
         </div>
       </div>
 
       {action && (
         <button
           onClick={action.onClick}
-          className="text-xs font-medium text-primary hover:text-primary/90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-md"
+          className="text-primary hover:text-primary/90 focus-visible:ring-ring rounded-md text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
         >
           {action.label}
         </button>
@@ -93,25 +87,3 @@ export const SectionHeader = React.memo(function SectionHeader({
 });
 
 SectionHeader.displayName = 'SectionHeader';
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

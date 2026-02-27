@@ -17,12 +17,7 @@
 import { create } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
 
-import type {
-  UndoableAction,
-  UndoableActionInput,
-  HistoryState,
-  HistoryActions,
-} from './types';
+import type { UndoableAction, UndoableActionInput, HistoryState, HistoryActions } from './types';
 
 // =============================================================================
 // Constants
@@ -263,8 +258,7 @@ export const useHistoryStore = create<HistoryState & HistoryActions>()(
           }
         },
 
-        clearHistory: () =>
-          set({ past: [], future: [] }, false, 'clearHistory'),
+        clearHistory: () => set({ past: [], future: [] }, false, 'clearHistory'),
 
         clearPageHistory: () =>
           set(
@@ -282,12 +276,8 @@ export const useHistoryStore = create<HistoryState & HistoryActions>()(
         // Only persist global-scope actions (page-scope clears on navigation)
         // Note: Functions cannot be serialized, so we store metadata only
         partialize: (state) => ({
-          past: state.past
-            .filter((a) => a.scope === 'global')
-            .map(serializeAction),
-          future: state.future
-            .filter((a) => a.scope === 'global')
-            .map(serializeAction),
+          past: state.past.filter((a) => a.scope === 'global').map(serializeAction),
+          future: state.future.filter((a) => a.scope === 'global').map(serializeAction),
         }),
         // Custom storage to handle serialization properly
         storage: {
@@ -337,7 +327,9 @@ export const useHistoryStore = create<HistoryState & HistoryActions>()(
     ),
     {
       name: 'history-store',
-      enabled: typeof window !== 'undefined' && (typeof import.meta !== 'undefined' ? import.meta.env?.DEV !== false : true),
+      enabled:
+        typeof window !== 'undefined' &&
+        (typeof import.meta !== 'undefined' ? import.meta.env?.DEV !== false : true),
     }
   )
 );
@@ -380,8 +372,7 @@ export const selectFutureActions = (state: HistoryState) => state.future;
 /**
  * Select current position in history (index of most recent action)
  */
-export const selectCurrentPosition = (state: HistoryState) =>
-  state.past.length - 1;
+export const selectCurrentPosition = (state: HistoryState) => state.past.length - 1;
 
 /**
  * Select total history length (past + future)

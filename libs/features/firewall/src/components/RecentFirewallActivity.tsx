@@ -31,79 +31,49 @@ export const RecentFirewallActivity = memo(function RecentFirewallActivity({
   const hasLogging = false;
 
   return (
-    <div
-      className={cn('bg-card rounded-xl border border-border p-component-md', className)}
-    >
-      <div className="flex items-center justify-between mb-component-md">
-        <h3 className="text-sm font-semibold text-foreground flex items-center gap-component-sm">
+    <div className={cn('bg-card border-border p-component-md rounded-xl border', className)}>
+      <div className="mb-component-md flex items-center justify-between">
+        <h3 className="text-foreground gap-component-sm flex items-center text-sm font-semibold">
           <Icon
             icon={Activity}
-            className="w-4 h-4 text-muted-foreground"
+            className="text-muted-foreground h-4 w-4"
             aria-hidden="true"
           />
           Recent Activity
         </h3>
       </div>
 
-      {!hasLogging ? (
-        <div className="text-center py-6">
-          <div className="w-10 h-10 bg-muted rounded-full flex items-center justify-center mx-auto mb-component-md">
+      {!hasLogging ?
+        <div className="py-6 text-center">
+          <div className="bg-muted mb-component-md mx-auto flex h-10 w-10 items-center justify-center rounded-full">
             <Icon
               icon={Info}
-              className="w-5 h-5 text-muted-foreground"
+              className="text-muted-foreground h-5 w-5"
               aria-hidden="true"
             />
           </div>
-          <p className="text-sm font-medium text-foreground mb-component-xs">
+          <p className="text-foreground mb-component-xs text-sm font-medium">
             Logging Not Configured
           </p>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-muted-foreground text-xs">
             Enable firewall logging to see recent blocked connections and activity.
           </p>
         </div>
-      ) : (
-        <div className="text-center py-6">
-          <div className="w-10 h-10 bg-success/10 rounded-full flex items-center justify-center mx-auto mb-component-md">
+      : <div className="py-6 text-center">
+          <div className="bg-success/10 mb-component-md mx-auto flex h-10 w-10 items-center justify-center rounded-full">
             <Icon
               icon={CheckCircle}
-              className="w-5 h-5 text-success"
+              className="text-success h-5 w-5"
               aria-hidden="true"
             />
           </div>
-          <p className="text-sm font-medium text-foreground mb-component-xs">
-            No Recent Activity
-          </p>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-foreground mb-component-xs text-sm font-medium">No Recent Activity</p>
+          <p className="text-muted-foreground text-xs">
             No blocked connections detected in the last hour.
           </p>
         </div>
-      )}
+      }
     </div>
   );
 });
 RecentFirewallActivity.displayName = 'RecentFirewallActivity';
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

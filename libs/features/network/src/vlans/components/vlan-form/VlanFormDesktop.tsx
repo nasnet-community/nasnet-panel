@@ -64,9 +64,7 @@ function VlanFormDesktopContent({
   return (
     <Card className="w-full max-w-2xl">
       <CardHeader>
-        <CardTitle>
-          {mode === 'create' ? 'Create VLAN Interface' : 'Edit VLAN Interface'}
-        </CardTitle>
+        <CardTitle>{mode === 'create' ? 'Create VLAN Interface' : 'Edit VLAN Interface'}</CardTitle>
       </CardHeader>
 
       <form onSubmit={onSubmit}>
@@ -84,13 +82,15 @@ function VlanFormDesktopContent({
               aria-describedby={errors.name ? 'name-error' : undefined}
             />
             {errors.name && (
-              <p id="name-error" className="text-sm text-error">
+              <p
+                id="name-error"
+                className="text-error text-sm"
+              >
                 {errors.name.message}
               </p>
             )}
-            <p className="text-sm text-muted-foreground">
-              Unique name for the VLAN interface (letters, digits, hyphens,
-              underscores)
+            <p className="text-muted-foreground text-sm">
+              Unique name for the VLAN interface (letters, digits, hyphens, underscores)
             </p>
           </div>
 
@@ -113,23 +113,27 @@ function VlanFormDesktopContent({
               />
               {checkingDuplicate && (
                 <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                  <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" aria-hidden="true" />
+                  <Loader2
+                    className="text-muted-foreground h-4 w-4 animate-spin"
+                    aria-hidden="true"
+                  />
                 </div>
               )}
             </div>
             {errors.vlanId && (
-              <p id="vlanId-error" className="text-sm text-error">
+              <p
+                id="vlanId-error"
+                className="text-error text-sm"
+              >
                 {errors.vlanId.message}
               </p>
             )}
             {!errors.vlanId && isDuplicateVlanId && (
-              <p className="text-sm text-error">
+              <p className="text-error text-sm">
                 This VLAN ID is already in use on the selected interface
               </p>
             )}
-            <p className="text-sm text-muted-foreground">
-              IEEE 802.1Q VLAN tag (1-4094)
-            </p>
+            <p className="text-muted-foreground text-sm">IEEE 802.1Q VLAN tag (1-4094)</p>
           </div>
 
           {/* Parent Interface Field */}
@@ -147,11 +151,14 @@ function VlanFormDesktopContent({
               aria-describedby={errors.interface ? 'interface-error' : undefined}
             />
             {errors.interface && (
-              <p id="interface-error" className="text-sm text-error">
+              <p
+                id="interface-error"
+                className="text-error text-sm"
+              >
                 {errors.interface.message}
               </p>
             )}
-            <p className="text-sm text-muted-foreground">
+            <p className="text-muted-foreground text-sm">
               Physical interface or bridge to create VLAN on
             </p>
           </div>
@@ -174,13 +181,15 @@ function VlanFormDesktopContent({
               aria-describedby={errors.mtu ? 'mtu-error' : undefined}
             />
             {errors.mtu && (
-              <p id="mtu-error" className="text-sm text-error">
+              <p
+                id="mtu-error"
+                className="text-error text-sm"
+              >
                 {errors.mtu.message}
               </p>
             )}
-            <p className="text-sm text-muted-foreground">
-              Optional: Maximum transmission unit (leave empty to inherit from
-              parent)
+            <p className="text-muted-foreground text-sm">
+              Optional: Maximum transmission unit (leave empty to inherit from parent)
             </p>
           </div>
 
@@ -198,20 +207,23 @@ function VlanFormDesktopContent({
               aria-describedby={errors.comment ? 'comment-error' : undefined}
             />
             {errors.comment && (
-              <p id="comment-error" className="text-sm text-error">
+              <p
+                id="comment-error"
+                className="text-error text-sm"
+              >
                 {errors.comment.message}
               </p>
             )}
-            <p className="text-sm text-muted-foreground">
+            <p className="text-muted-foreground text-sm">
               Optional description (max 255 characters)
             </p>
           </div>
 
           {/* Disabled Toggle */}
-          <div className="flex items-center justify-between rounded-[var(--semantic-radius-card)] border p-component-md">
+          <div className="p-component-md flex items-center justify-between rounded-[var(--semantic-radius-card)] border">
             <div className="space-y-0.5">
               <Label htmlFor="disabled">Disabled</Label>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-muted-foreground text-sm">
                 Administratively disable this VLAN interface
               </p>
             </div>
@@ -224,10 +236,17 @@ function VlanFormDesktopContent({
 
           {/* Warnings */}
           {warnings.length > 0 && (
-            <Alert variant="warning" role="alert" aria-live="polite">
-              <AlertTriangle className="h-4 w-4" aria-hidden="true" />
+            <Alert
+              variant="warning"
+              role="alert"
+              aria-live="polite"
+            >
+              <AlertTriangle
+                className="h-4 w-4"
+                aria-hidden="true"
+              />
               <AlertDescription>
-                <ul className="list-disc list-inside space-y-1">
+                <ul className="list-inside list-disc space-y-1">
                   {warnings.map((warning, index) => (
                     <li key={index}>{warning}</li>
                   ))}
@@ -238,26 +257,41 @@ function VlanFormDesktopContent({
 
           {/* Info about VLAN creation */}
           {mode === 'create' && (
-            <Alert role="status" aria-live="polite">
-              <Info className="h-4 w-4" aria-hidden="true" />
+            <Alert
+              role="status"
+              aria-live="polite"
+            >
+              <Info
+                className="h-4 w-4"
+                aria-hidden="true"
+              />
               <AlertDescription>
-                Creating a VLAN interface adds an 802.1Q VLAN tag to traffic on
-                the parent interface. Configure bridge ports or switch settings
-                to use this VLAN.
+                Creating a VLAN interface adds an 802.1Q VLAN tag to traffic on the parent
+                interface. Configure bridge ports or switch settings to use this VLAN.
               </AlertDescription>
             </Alert>
           )}
         </CardContent>
 
-        <CardFooter className="flex justify-end gap-component-md">
-          <Button type="button" variant="outline" onClick={onCancel} disabled={isLoading}>
+        <CardFooter className="gap-component-md flex justify-end">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onCancel}
+            disabled={isLoading}
+          >
             Cancel
           </Button>
           <Button
             type="submit"
             disabled={isLoading || isDuplicateVlanId || checkingDuplicate}
           >
-            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />}
+            {isLoading && (
+              <Loader2
+                className="mr-2 h-4 w-4 animate-spin"
+                aria-hidden="true"
+              />
+            )}
             {mode === 'create' ? 'Create VLAN' : 'Save Changes'}
           </Button>
         </CardFooter>

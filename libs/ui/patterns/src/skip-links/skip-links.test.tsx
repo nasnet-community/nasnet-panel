@@ -120,7 +120,10 @@ describe('SkipLink', () => {
 
   it('should apply custom className', () => {
     render(
-      <SkipLink href="#main" className="custom-class">
+      <SkipLink
+        href="#main"
+        className="custom-class"
+      >
         Skip
       </SkipLink>
     );

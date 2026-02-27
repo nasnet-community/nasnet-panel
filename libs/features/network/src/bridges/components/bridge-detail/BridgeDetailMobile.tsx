@@ -35,16 +35,17 @@ export const BridgeDetailMobile = memo(function BridgeDetailMobile({
   const isCreating = bridge === null;
 
   return (
-    <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
+    <Dialog
+      open={open}
+      onOpenChange={(isOpen) => !isOpen && onClose()}
+    >
       <DialogContent className="max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>
-            {isCreating ? 'Create Bridge' : `Bridge: ${bridge?.name}`}
-          </DialogTitle>
+          <DialogTitle>{isCreating ? 'Create Bridge' : `Bridge: ${bridge?.name}`}</DialogTitle>
           <DialogDescription>
-            {isCreating
-              ? 'Create a new bridge to connect multiple interfaces'
-              : 'View and edit bridge configuration'}
+            {isCreating ?
+              'Create a new bridge to connect multiple interfaces'
+            : 'View and edit bridge configuration'}
           </DialogDescription>
         </DialogHeader>
 
@@ -63,9 +64,7 @@ export const BridgeDetailMobile = memo(function BridgeDetailMobile({
           {error && !isCreating && (
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
-              <AlertDescription>
-                Failed to load bridge: {error.message}
-              </AlertDescription>
+              <AlertDescription>Failed to load bridge: {error.message}</AlertDescription>
             </Alert>
           )}
 

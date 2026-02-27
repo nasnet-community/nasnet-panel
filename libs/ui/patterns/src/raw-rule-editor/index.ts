@@ -15,7 +15,4 @@ export type {
   ChainSelectorProps,
   ActionSelectorProps,
 } from './raw-rule-editor.types';
-export type {
-  UseRawRuleEditorOptions,
-  UseRawRuleEditorReturn,
-} from './use-raw-rule-editor';
+export type { UseRawRuleEditorOptions, UseRawRuleEditorReturn } from './use-raw-rule-editor';

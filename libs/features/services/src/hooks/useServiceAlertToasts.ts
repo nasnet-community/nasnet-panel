@@ -76,10 +76,7 @@ const TOAST_DURATIONS: Record<AlertSeverity, number | null> = {
 /**
  * Map alert severity to notification type
  */
-const SEVERITY_TO_TYPE: Record<
-  AlertSeverity,
-  'error' | 'warning' | 'info'
-> = {
+const SEVERITY_TO_TYPE: Record<AlertSeverity, 'error' | 'warning' | 'info'> = {
   CRITICAL: 'error',
   WARNING: 'warning',
   INFO: 'info',
@@ -129,9 +126,7 @@ const MAX_DEDUP_SIZE = 100;
  * }
  * ```
  */
-export function useServiceAlertToasts(
-  props: UseServiceAlertToastsProps = {}
-) {
+export function useServiceAlertToasts(props: UseServiceAlertToastsProps = {}) {
   const { routerId, enabled = true, onToastShown, onNavigateToService } = props;
   const { t } = useTranslation();
 
@@ -169,10 +164,7 @@ export function useServiceAlertToasts(
       // Enforce max dedup size (keep last 100)
       if (seenAlertIds.current.size > MAX_DEDUP_SIZE) {
         const idsArray = Array.from(seenAlertIds.current);
-        const toRemove = idsArray.slice(
-          0,
-          seenAlertIds.current.size - MAX_DEDUP_SIZE
-        );
+        const toRemove = idsArray.slice(0, seenAlertIds.current.size - MAX_DEDUP_SIZE);
         toRemove.forEach((id) => seenAlertIds.current.delete(id));
       }
 
@@ -189,20 +181,19 @@ export function useServiceAlertToasts(
 
         // Add "View Service" action for CRITICAL alerts only
         action:
-          alert.severity === 'CRITICAL' && onNavigateToService
-            ? {
-                label: t('services.alerts.viewService'),
-                onClick: () => {
-                  // Navigate to service detail page via callback
-                  // Extract instanceId from alert.data or use deviceId
-                  const instanceId =
-                    (alert.data?.instanceId as string) || alert.deviceId;
-                  if (instanceId) {
-                    onNavigateToService(instanceId);
-                  }
-                },
-              }
-            : undefined,
+          alert.severity === 'CRITICAL' && onNavigateToService ?
+            {
+              label: t('services.alerts.viewService'),
+              onClick: () => {
+                // Navigate to service detail page via callback
+                // Extract instanceId from alert.data or use deviceId
+                const instanceId = (alert.data?.instanceId as string) || alert.deviceId;
+                if (instanceId) {
+                  onNavigateToService(instanceId);
+                }
+              },
+            }
+          : undefined,
       });
 
       // Optional callback

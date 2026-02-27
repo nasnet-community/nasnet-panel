@@ -38,7 +38,12 @@ describe('Skeleton', () => {
   });
 
   it('applies custom className', () => {
-    render(<Skeleton data-testid="skeleton" className="h-4 w-full" />);
+    render(
+      <Skeleton
+        data-testid="skeleton"
+        className="h-4 w-full"
+      />
+    );
     const skeleton = screen.getByTestId('skeleton');
 
     expect(skeleton).toHaveClass('h-4', 'w-full');
@@ -52,7 +57,12 @@ describe('Skeleton', () => {
   });
 
   it('does not animate when animate prop is false', () => {
-    render(<Skeleton data-testid="skeleton" animate={false} />);
+    render(
+      <Skeleton
+        data-testid="skeleton"
+        animate={false}
+      />
+    );
     const skeleton = screen.getByTestId('skeleton');
 
     expect(skeleton).not.toHaveClass('animate-pulse');
@@ -69,7 +79,12 @@ describe('SkeletonText', () => {
   });
 
   it('renders specified number of lines', () => {
-    render(<SkeletonText data-testid="skeleton-text" lines={5} />);
+    render(
+      <SkeletonText
+        data-testid="skeleton-text"
+        lines={5}
+      />
+    );
     const textContainer = screen.getByTestId('skeleton-text');
 
     // Count direct child div elements representing lines
@@ -79,7 +94,11 @@ describe('SkeletonText', () => {
 
   it('applies lastLineWidth to last line', () => {
     render(
-      <SkeletonText data-testid="skeleton-text" lines={3} lastLineWidth="50%" />
+      <SkeletonText
+        data-testid="skeleton-text"
+        lines={3}
+        lastLineWidth="50%"
+      />
     );
     const textContainer = screen.getByTestId('skeleton-text');
     const allChildren = Array.from(textContainer.children);
@@ -104,7 +123,11 @@ describe('SkeletonText', () => {
 
   it('supports custom gap between lines', () => {
     render(
-      <SkeletonText data-testid="skeleton-text" lines={2} gap={12} />
+      <SkeletonText
+        data-testid="skeleton-text"
+        lines={2}
+        gap={12}
+      />
     );
     const textContainer = screen.getByTestId('skeleton-text');
 
@@ -177,7 +200,12 @@ describe('SkeletonTable', () => {
   });
 
   it('renders specified rows and columns', () => {
-    const { container } = render(<SkeletonTable rows={3} columns={6} />);
+    const { container } = render(
+      <SkeletonTable
+        rows={3}
+        columns={6}
+      />
+    );
     const rows = container.querySelectorAll('.divide-y > div');
 
     expect(rows.length).toBeGreaterThanOrEqual(3);
@@ -267,21 +295,36 @@ describe('SkeletonAvatar', () => {
   });
 
   it('renders with specified size (sm)', () => {
-    render(<SkeletonAvatar data-testid="avatar" size="sm" />);
+    render(
+      <SkeletonAvatar
+        data-testid="avatar"
+        size="sm"
+      />
+    );
     const avatar = screen.getByTestId('avatar');
 
     expect(avatar).toHaveClass('h-8', 'w-8');
   });
 
   it('renders with specified size (lg)', () => {
-    render(<SkeletonAvatar data-testid="avatar" size="lg" />);
+    render(
+      <SkeletonAvatar
+        data-testid="avatar"
+        size="lg"
+      />
+    );
     const avatar = screen.getByTestId('avatar');
 
     expect(avatar).toHaveClass('h-12', 'w-12');
   });
 
   it('renders with specified size (xl)', () => {
-    render(<SkeletonAvatar data-testid="avatar" size="xl" />);
+    render(
+      <SkeletonAvatar
+        data-testid="avatar"
+        size="xl"
+      />
+    );
     const avatar = screen.getByTestId('avatar');
 
     expect(avatar).toHaveClass('h-16', 'w-16');
@@ -295,7 +338,12 @@ describe('SkeletonAvatar', () => {
   });
 
   it('renders square shape when specified', () => {
-    render(<SkeletonAvatar data-testid="avatar" shape="square" />);
+    render(
+      <SkeletonAvatar
+        data-testid="avatar"
+        shape="square"
+      />
+    );
     const avatar = screen.getByTestId('avatar');
 
     expect(avatar).toHaveClass('rounded-md');
@@ -310,7 +358,12 @@ describe('SkeletonAvatar', () => {
   });
 
   it('respects animate prop', () => {
-    render(<SkeletonAvatar data-testid="avatar" animate={false} />);
+    render(
+      <SkeletonAvatar
+        data-testid="avatar"
+        animate={false}
+      />
+    );
     const avatar = screen.getByTestId('avatar');
 
     expect(avatar).not.toHaveClass('animate-pulse');

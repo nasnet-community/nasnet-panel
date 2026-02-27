@@ -8,10 +8,14 @@ extend type Mutation {
   Only works if a backup exists (has_backup=true).
   """
   rollbackInstance(
-    """Router ID"""
+    """
+    Router ID
+    """
     routerID: ID!
 
-    """Instance ID to rollback"""
+    """
+    Instance ID to rollback
+    """
     instanceID: ID!
   ): UpdateResult!
 

@@ -1,7 +1,7 @@
 {
   "id": "service-lifecycle",
   "title": "Service Lifecycle",
-  "description": "This document covers the complete lifecycle of a Feature Marketplace service instance — from discovery and installation through boot, health monitoring, configuration, networking/isolation, dependency management, traffic control, logging, updates, rollback, sharing/templates, device routing, scheduling, and system resource budgeting. All hooks live under libs/api-client/queries/src/services/.",
+  "description": "This document covers the complete lifecycle of a Feature Marketplace service instance — from",
   "source": "@site/../../libs/api-client/docs/service-lifecycle.md",
   "sourceDirName": ".",
   "slug": "/service-lifecycle",

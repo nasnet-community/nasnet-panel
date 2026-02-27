@@ -105,7 +105,10 @@ describe('ServiceDetailPage', () => {
       });
 
       render(
-        <ServiceDetailPage routerId="router-1" instanceId="instance-1" />
+        <ServiceDetailPage
+          routerId="router-1"
+          instanceId="instance-1"
+        />
       );
 
       expect(screen.getByRole('status')).toBeInTheDocument();
@@ -121,7 +124,10 @@ describe('ServiceDetailPage', () => {
       });
 
       render(
-        <ServiceDetailPage routerId="router-1" instanceId="instance-1" />
+        <ServiceDetailPage
+          routerId="router-1"
+          instanceId="instance-1"
+        />
       );
 
       expect(screen.getByText('services.detail.errorLoadingTitle')).toBeInTheDocument();
@@ -137,7 +143,10 @@ describe('ServiceDetailPage', () => {
       });
 
       render(
-        <ServiceDetailPage routerId="router-1" instanceId="instance-1" />
+        <ServiceDetailPage
+          routerId="router-1"
+          instanceId="instance-1"
+        />
       );
 
       expect(screen.getByText('services.detail.notFoundTitle')).toBeInTheDocument();
@@ -146,7 +155,10 @@ describe('ServiceDetailPage', () => {
 
     it('should render instance details when loaded', () => {
       render(
-        <ServiceDetailPage routerId="router-1" instanceId="instance-1" />
+        <ServiceDetailPage
+          routerId="router-1"
+          instanceId="instance-1"
+        />
       );
 
       expect(screen.getByText('My Service')).toBeInTheDocument();
@@ -157,7 +169,10 @@ describe('ServiceDetailPage', () => {
   describe('Tabs', () => {
     it('should render all tabs with localized labels', () => {
       render(
-        <ServiceDetailPage routerId="router-1" instanceId="instance-1" />
+        <ServiceDetailPage
+          routerId="router-1"
+          instanceId="instance-1"
+        />
       );
 
       expect(screen.getByText('services.detail.tabs.overview')).toBeInTheDocument();
@@ -170,7 +185,10 @@ describe('ServiceDetailPage', () => {
 
     it('should render overview tab content by default', () => {
       render(
-        <ServiceDetailPage routerId="router-1" instanceId="instance-1" />
+        <ServiceDetailPage
+          routerId="router-1"
+          instanceId="instance-1"
+        />
       );
 
       expect(screen.getByTestId('service-card')).toBeInTheDocument();
@@ -191,7 +209,10 @@ describe('ServiceDetailPage', () => {
       });
 
       render(
-        <ServiceDetailPage routerId="router-1" instanceId="instance-1" />
+        <ServiceDetailPage
+          routerId="router-1"
+          instanceId="instance-1"
+        />
       );
 
       expect(screen.getByTestId('vif-bridge')).toBeInTheDocument();
@@ -199,7 +220,10 @@ describe('ServiceDetailPage', () => {
 
     it('should not render VIF bridge when vlanID is not set', () => {
       render(
-        <ServiceDetailPage routerId="router-1" instanceId="instance-1" />
+        <ServiceDetailPage
+          routerId="router-1"
+          instanceId="instance-1"
+        />
       );
 
       expect(screen.queryByTestId('vif-bridge')).not.toBeInTheDocument();
@@ -209,7 +233,10 @@ describe('ServiceDetailPage', () => {
   describe('Export Dialog', () => {
     it('should show export button when instance can be exported', () => {
       render(
-        <ServiceDetailPage routerId="router-1" instanceId="instance-1" />
+        <ServiceDetailPage
+          routerId="router-1"
+          instanceId="instance-1"
+        />
       );
 
       const exportButton = screen.getByRole('button', {
@@ -231,7 +258,10 @@ describe('ServiceDetailPage', () => {
       });
 
       render(
-        <ServiceDetailPage routerId="router-1" instanceId="instance-1" />
+        <ServiceDetailPage
+          routerId="router-1"
+          instanceId="instance-1"
+        />
       );
 
       expect(
@@ -243,7 +273,10 @@ describe('ServiceDetailPage', () => {
   describe('Accessibility', () => {
     it('should have proper heading hierarchy', () => {
       render(
-        <ServiceDetailPage routerId="router-1" instanceId="instance-1" />
+        <ServiceDetailPage
+          routerId="router-1"
+          instanceId="instance-1"
+        />
       );
 
       const heading = screen.getByRole('heading', { level: 1 });
@@ -252,7 +285,10 @@ describe('ServiceDetailPage', () => {
 
     it('should have descriptive aria labels on buttons', () => {
       render(
-        <ServiceDetailPage routerId="router-1" instanceId="instance-1" />
+        <ServiceDetailPage
+          routerId="router-1"
+          instanceId="instance-1"
+        />
       );
 
       const exportButton = screen.getByRole('button', {
@@ -263,7 +299,10 @@ describe('ServiceDetailPage', () => {
 
     it('should use aria-hidden on decorative icons', () => {
       render(
-        <ServiceDetailPage routerId="router-1" instanceId="instance-1" />
+        <ServiceDetailPage
+          routerId="router-1"
+          instanceId="instance-1"
+        />
       );
 
       const icons = screen.getAllByTestId((testId) => testId.includes('aria-hidden'));
@@ -276,7 +315,10 @@ describe('ServiceDetailPage', () => {
       const user = userEvent.setup();
 
       render(
-        <ServiceDetailPage routerId="router-1" instanceId="instance-1" />
+        <ServiceDetailPage
+          routerId="router-1"
+          instanceId="instance-1"
+        />
       );
 
       const logsTab = screen.getByText('services.detail.tabs.logs');
@@ -291,7 +333,10 @@ describe('ServiceDetailPage', () => {
   describe('Component Integration', () => {
     it('should render all main components on overview tab', () => {
       render(
-        <ServiceDetailPage routerId="router-1" instanceId="instance-1" />
+        <ServiceDetailPage
+          routerId="router-1"
+          instanceId="instance-1"
+        />
       );
 
       expect(screen.getByTestId('service-card')).toBeInTheDocument();

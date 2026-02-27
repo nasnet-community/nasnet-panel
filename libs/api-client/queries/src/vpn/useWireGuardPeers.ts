@@ -21,8 +21,9 @@ async function fetchWireGuardPeers(
   routerIp: string,
   interfaceName?: string
 ): Promise<WireGuardPeer[]> {
-  const endpoint = interfaceName
-    ? `interface/wireguard/peers?interface=${encodeURIComponent(interfaceName)}`
+  const endpoint =
+    interfaceName ?
+      `interface/wireguard/peers?interface=${encodeURIComponent(interfaceName)}`
     : 'interface/wireguard/peers';
 
   const result = await makeRouterOSRequest<WireGuardPeer[]>(routerIp, endpoint);

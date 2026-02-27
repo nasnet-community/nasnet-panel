@@ -3,7 +3,14 @@
  * @module useRoutes
  */
 
-import { gql, useQuery, useMutation, useLazyQuery, QueryHookOptions, MutationHookOptions } from '@apollo/client';
+import {
+  gql,
+  useQuery,
+  useMutation,
+  useLazyQuery,
+  QueryHookOptions,
+  MutationHookOptions,
+} from '@apollo/client';
 import { useQueryClient } from '@tanstack/react-query';
 import { useMemo, useCallback } from 'react';
 
@@ -177,10 +184,7 @@ interface UseRoutesOptions {
  * @param routerId - Router ID to query
  * @param options - Query options (table filter, type filter, poll interval)
  */
-export function useRoutes(
-  routerId: string,
-  options?: UseRoutesOptions
-) {
+export function useRoutes(routerId: string, options?: UseRoutesOptions) {
   const { table, type, pollInterval = 10000 } = options || {};
 
   const { data, loading, error, refetch } = useQuery(GET_ROUTES, {
@@ -235,9 +239,7 @@ export function useRoute(routerId: string, routeId: string) {
  * @param routerId - Router ID
  */
 export function useCheckGatewayReachability(routerId: string) {
-  const [checkReachability, { data, loading, error }] = useLazyQuery(
-    CHECK_GATEWAY_REACHABILITY
-  );
+  const [checkReachability, { data, loading, error }] = useLazyQuery(CHECK_GATEWAY_REACHABILITY);
 
   const check = useCallback(
     (gateway: string) => {

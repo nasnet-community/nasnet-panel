@@ -48,7 +48,7 @@ export function DeviceListItemMobile({
     <div
       id={id}
       className={cn(
-        'border-b border-border last:border-b-0',
+        'border-border border-b last:border-b-0',
         'hover:bg-accent/50 active:bg-accent',
         'transition-colors',
         className
@@ -64,7 +64,7 @@ export function DeviceListItemMobile({
           'w-full px-4 py-3 text-left',
           'flex items-center gap-3',
           'min-h-[44px]', // WCAG touch target
-          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2'
+          'focus-visible:ring-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2'
         )}
       >
         {/* Device icon */}
@@ -76,20 +76,18 @@ export function DeviceListItemMobile({
             'bg-muted'
           )}
         >
-          <DeviceIcon className="h-5 w-5 text-muted-foreground" />
+          <DeviceIcon className="text-muted-foreground h-5 w-5" />
         </div>
 
         {/* Device info */}
-        <div className="flex-1 min-w-0">
+        <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <span className="font-medium text-sm truncate">
-              {state.displayName}
-            </span>
+            <span className="truncate text-sm font-medium">{state.displayName}</span>
             {state.isNew && (
               <Badge
                 variant="info"
                 className={cn(
-                  'text-xs px-1.5 py-0',
+                  'px-1.5 py-0 text-xs',
                   '@media (prefers-reduced-motion: no-preference)',
                   'animate-pulse'
                 )}
@@ -98,8 +96,8 @@ export function DeviceListItemMobile({
               </Badge>
             )}
           </div>
-          <div className="flex items-center gap-2 mt-0.5">
-            <span className="text-xs text-muted-foreground">{state.ipAddress}</span>
+          <div className="mt-0.5 flex items-center gap-2">
+            <span className="text-muted-foreground text-xs">{state.ipAddress}</span>
             <StatusBadge status={device.status} />
           </div>
         </div>
@@ -107,7 +105,7 @@ export function DeviceListItemMobile({
         {/* Expand indicator */}
         <ChevronDown
           className={cn(
-            'h-5 w-5 text-muted-foreground flex-shrink-0',
+            'text-muted-foreground h-5 w-5 flex-shrink-0',
             'transition-transform duration-200',
             state.isExpanded && 'rotate-180'
           )}
@@ -116,43 +114,46 @@ export function DeviceListItemMobile({
 
       {/* Expanded details */}
       {state.isExpanded && (
-        <div className="px-4 pb-3 pt-0 space-y-2 text-sm">
+        <div className="space-y-2 px-4 pb-3 pt-0 text-sm">
           <div className="grid grid-cols-2 gap-x-4 gap-y-2">
             <div>
-              <div className="text-xs text-muted-foreground">MAC Address</div>
-              <div className="text-xs font-mono">{state.macAddress}</div>
+              <div className="text-muted-foreground text-xs">MAC Address</div>
+              <div className="font-mono text-xs">{state.macAddress}</div>
             </div>
 
             <div>
-              <div className="text-xs text-muted-foreground">Connected</div>
+              <div className="text-muted-foreground text-xs">Connected</div>
               <div className="text-xs">{state.connectionDuration}</div>
             </div>
 
             {state.vendor && (
               <div>
-                <div className="text-xs text-muted-foreground">Vendor</div>
+                <div className="text-muted-foreground text-xs">Vendor</div>
                 <div className="text-xs">{state.vendor}</div>
               </div>
             )}
 
             <div>
-              <div className="text-xs text-muted-foreground">Type</div>
+              <div className="text-muted-foreground text-xs">Type</div>
               <div className="text-xs">{state.deviceTypeLabel}</div>
             </div>
 
             <div>
-              <div className="text-xs text-muted-foreground">Expires</div>
+              <div className="text-muted-foreground text-xs">Expires</div>
               <div className="text-xs">{state.expiration}</div>
             </div>
 
             <div>
-              <div className="text-xs text-muted-foreground">Server</div>
+              <div className="text-muted-foreground text-xs">Server</div>
               <div className="text-xs">{state.server}</div>
             </div>
           </div>
 
           {state.isStatic && (
-            <Badge variant="outline" className="text-xs">
+            <Badge
+              variant="outline"
+              className="text-xs"
+            >
               Static Lease
             </Badge>
           )}

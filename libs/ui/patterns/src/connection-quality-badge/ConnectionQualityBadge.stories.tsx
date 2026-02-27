@@ -51,11 +51,16 @@ const QUALITY_VARIANTS: Record<QualityLevel, 'default' | 'secondary' | 'error' |
 function QualityIcon({ quality, className }: { quality: QualityLevel; className?: string }) {
   const cls = cn('h-3.5 w-3.5', className);
   switch (quality) {
-    case 'excellent': return <SignalHigh className={cls} />;
-    case 'good':      return <SignalMedium className={cls} />;
-    case 'moderate':  return <SignalLow className={cls} />;
-    case 'poor':      return <Signal className={cls} />;
-    default:          return <Zap className={cls} />;
+    case 'excellent':
+      return <SignalHigh className={cls} />;
+    case 'good':
+      return <SignalMedium className={cls} />;
+    case 'moderate':
+      return <SignalLow className={cls} />;
+    case 'poor':
+      return <Signal className={cls} />;
+    default:
+      return <Zap className={cls} />;
   }
 }
 
@@ -252,10 +257,10 @@ export const AllQualityLevels: Story = {
       {(
         [
           { quality: 'excellent', latencyMs: 22 },
-          { quality: 'good',      latencyMs: 78 },
-          { quality: 'moderate',  latencyMs: 145 },
-          { quality: 'poor',      latencyMs: 312 },
-          { quality: 'unknown',   latencyMs: null },
+          { quality: 'good', latencyMs: 78 },
+          { quality: 'moderate', latencyMs: 145 },
+          { quality: 'poor', latencyMs: 312 },
+          { quality: 'unknown', latencyMs: null },
         ] as const
       ).map(({ quality, latencyMs }) => (
         <MockConnectionQualityBadge
@@ -285,9 +290,18 @@ export const SizeVariants: Story = {
   render: () => (
     <div className="flex items-center gap-4">
       {(['sm', 'default', 'lg'] as const).map((size) => (
-        <div key={size} className="flex flex-col items-center gap-1">
-          <span className="text-xs text-muted-foreground capitalize">{size}</span>
-          <MockConnectionQualityBadge quality="excellent" latencyMs={22} showLatency showIcon size={size} />
+        <div
+          key={size}
+          className="flex flex-col items-center gap-1"
+        >
+          <span className="text-muted-foreground text-xs capitalize">{size}</span>
+          <MockConnectionQualityBadge
+            quality="excellent"
+            latencyMs={22}
+            showLatency
+            showIcon
+            size={size}
+          />
         </div>
       ))}
     </div>

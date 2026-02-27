@@ -22,25 +22,45 @@ describe('BulkActionsToolbar', () => {
     });
 
     it('should render when selectedCount is greater than 0', () => {
-      render(<BulkActionsToolbar {...defaultProps} selectedCount={1} />);
+      render(
+        <BulkActionsToolbar
+          {...defaultProps}
+          selectedCount={1}
+        />
+      );
       expect(screen.getByText('1 selected')).toBeInTheDocument();
     });
 
     it('should display correct count for multiple selections', () => {
-      render(<BulkActionsToolbar {...defaultProps} selectedCount={5} />);
+      render(
+        <BulkActionsToolbar
+          {...defaultProps}
+          selectedCount={5}
+        />
+      );
       expect(screen.getByText('5 selected')).toBeInTheDocument();
     });
   });
 
   describe('Make All Static button', () => {
     it('should render Make All Static button', () => {
-      render(<BulkActionsToolbar {...defaultProps} selectedCount={1} />);
+      render(
+        <BulkActionsToolbar
+          {...defaultProps}
+          selectedCount={1}
+        />
+      );
       expect(screen.getByText('Make All Static')).toBeInTheDocument();
     });
 
     it('should show confirmation dialog when clicked', async () => {
       const user = userEvent.setup();
-      render(<BulkActionsToolbar {...defaultProps} selectedCount={2} />);
+      render(
+        <BulkActionsToolbar
+          {...defaultProps}
+          selectedCount={2}
+        />
+      );
 
       const button = screen.getByText('Make All Static');
       await user.click(button);
@@ -54,7 +74,12 @@ describe('BulkActionsToolbar', () => {
 
     it('should call onMakeStatic when confirmed', async () => {
       const user = userEvent.setup();
-      render(<BulkActionsToolbar {...defaultProps} selectedCount={3} />);
+      render(
+        <BulkActionsToolbar
+          {...defaultProps}
+          selectedCount={3}
+        />
+      );
 
       const button = screen.getByText('Make All Static');
       await user.click(button);
@@ -67,7 +92,12 @@ describe('BulkActionsToolbar', () => {
 
     it('should not call onMakeStatic when cancelled', async () => {
       const user = userEvent.setup();
-      render(<BulkActionsToolbar {...defaultProps} selectedCount={2} />);
+      render(
+        <BulkActionsToolbar
+          {...defaultProps}
+          selectedCount={2}
+        />
+      );
 
       const button = screen.getByText('Make All Static');
       await user.click(button);
@@ -80,7 +110,12 @@ describe('BulkActionsToolbar', () => {
 
     it('should close dialog after confirmation', async () => {
       const user = userEvent.setup();
-      render(<BulkActionsToolbar {...defaultProps} selectedCount={1} />);
+      render(
+        <BulkActionsToolbar
+          {...defaultProps}
+          selectedCount={1}
+        />
+      );
 
       const button = screen.getByText('Make All Static');
       await user.click(button);
@@ -89,36 +124,47 @@ describe('BulkActionsToolbar', () => {
       await user.click(confirmButton);
 
       await waitFor(() => {
-        expect(
-          screen.queryByText(/are you sure you want to make/i)
-        ).not.toBeInTheDocument();
+        expect(screen.queryByText(/are you sure you want to make/i)).not.toBeInTheDocument();
       });
     });
   });
 
   describe('Delete Selected button', () => {
     it('should render Delete Selected button', () => {
-      render(<BulkActionsToolbar {...defaultProps} selectedCount={1} />);
+      render(
+        <BulkActionsToolbar
+          {...defaultProps}
+          selectedCount={1}
+        />
+      );
       expect(screen.getByText('Delete Selected')).toBeInTheDocument();
     });
 
     it('should show confirmation dialog when clicked', async () => {
       const user = userEvent.setup();
-      render(<BulkActionsToolbar {...defaultProps} selectedCount={2} />);
+      render(
+        <BulkActionsToolbar
+          {...defaultProps}
+          selectedCount={2}
+        />
+      );
 
       const button = screen.getByText('Delete Selected');
       await user.click(button);
 
       await waitFor(() => {
-        expect(
-          screen.getByText(/are you sure you want to delete 2 leases/i)
-        ).toBeInTheDocument();
+        expect(screen.getByText(/are you sure you want to delete 2 leases/i)).toBeInTheDocument();
       });
     });
 
     it('should call onDelete when confirmed', async () => {
       const user = userEvent.setup();
-      render(<BulkActionsToolbar {...defaultProps} selectedCount={4} />);
+      render(
+        <BulkActionsToolbar
+          {...defaultProps}
+          selectedCount={4}
+        />
+      );
 
       const button = screen.getByText('Delete Selected');
       await user.click(button);
@@ -131,7 +177,12 @@ describe('BulkActionsToolbar', () => {
 
     it('should not call onDelete when cancelled', async () => {
       const user = userEvent.setup();
-      render(<BulkActionsToolbar {...defaultProps} selectedCount={3} />);
+      render(
+        <BulkActionsToolbar
+          {...defaultProps}
+          selectedCount={3}
+        />
+      );
 
       const button = screen.getByText('Delete Selected');
       await user.click(button);
@@ -143,7 +194,12 @@ describe('BulkActionsToolbar', () => {
     });
 
     it('should show destructive variant for delete button', () => {
-      render(<BulkActionsToolbar {...defaultProps} selectedCount={1} />);
+      render(
+        <BulkActionsToolbar
+          {...defaultProps}
+          selectedCount={1}
+        />
+      );
       const button = screen.getByText('Delete Selected');
       expect(button).toHaveClass('variant-destructive');
     });
@@ -151,13 +207,23 @@ describe('BulkActionsToolbar', () => {
 
   describe('Clear button', () => {
     it('should render Clear button', () => {
-      render(<BulkActionsToolbar {...defaultProps} selectedCount={1} />);
+      render(
+        <BulkActionsToolbar
+          {...defaultProps}
+          selectedCount={1}
+        />
+      );
       expect(screen.getByText('Clear')).toBeInTheDocument();
     });
 
     it('should call onClear when clicked', async () => {
       const user = userEvent.setup();
-      render(<BulkActionsToolbar {...defaultProps} selectedCount={3} />);
+      render(
+        <BulkActionsToolbar
+          {...defaultProps}
+          selectedCount={3}
+        />
+      );
 
       const button = screen.getByText('Clear');
       await user.click(button);
@@ -167,7 +233,12 @@ describe('BulkActionsToolbar', () => {
 
     it('should not show confirmation for clear action', async () => {
       const user = userEvent.setup();
-      render(<BulkActionsToolbar {...defaultProps} selectedCount={2} />);
+      render(
+        <BulkActionsToolbar
+          {...defaultProps}
+          selectedCount={2}
+        />
+      );
 
       const button = screen.getByText('Clear');
       await user.click(button);
@@ -179,14 +250,26 @@ describe('BulkActionsToolbar', () => {
 
   describe('Disabled states', () => {
     it('should disable buttons when isLoading is true', () => {
-      render(<BulkActionsToolbar {...defaultProps} selectedCount={2} isLoading={true} />);
+      render(
+        <BulkActionsToolbar
+          {...defaultProps}
+          selectedCount={2}
+          isLoading={true}
+        />
+      );
 
       expect(screen.getByText('Make All Static')).toBeDisabled();
       expect(screen.getByText('Delete Selected')).toBeDisabled();
     });
 
     it('should not disable Clear button when loading', () => {
-      render(<BulkActionsToolbar {...defaultProps} selectedCount={2} isLoading={true} />);
+      render(
+        <BulkActionsToolbar
+          {...defaultProps}
+          selectedCount={2}
+          isLoading={true}
+        />
+      );
 
       expect(screen.getByText('Clear')).not.toBeDisabled();
     });
@@ -194,14 +277,24 @@ describe('BulkActionsToolbar', () => {
 
   describe('Accessibility', () => {
     it('should have proper ARIA labels', () => {
-      render(<BulkActionsToolbar {...defaultProps} selectedCount={3} />);
+      render(
+        <BulkActionsToolbar
+          {...defaultProps}
+          selectedCount={3}
+        />
+      );
 
       expect(screen.getByLabelText('Bulk actions toolbar')).toBeInTheDocument();
     });
 
     it('should support keyboard navigation', async () => {
       const user = userEvent.setup();
-      render(<BulkActionsToolbar {...defaultProps} selectedCount={1} />);
+      render(
+        <BulkActionsToolbar
+          {...defaultProps}
+          selectedCount={1}
+        />
+      );
 
       const makeStaticButton = screen.getByText('Make All Static');
       makeStaticButton.focus();
@@ -214,16 +307,31 @@ describe('BulkActionsToolbar', () => {
     });
 
     it('should have role="toolbar"', () => {
-      render(<BulkActionsToolbar {...defaultProps} selectedCount={1} />);
+      render(
+        <BulkActionsToolbar
+          {...defaultProps}
+          selectedCount={1}
+        />
+      );
       expect(screen.getByRole('toolbar')).toBeInTheDocument();
     });
   });
 
   describe('Animation', () => {
     it('should have slide-in animation when appearing', () => {
-      const { rerender } = render(<BulkActionsToolbar {...defaultProps} selectedCount={0} />);
+      const { rerender } = render(
+        <BulkActionsToolbar
+          {...defaultProps}
+          selectedCount={0}
+        />
+      );
 
-      rerender(<BulkActionsToolbar {...defaultProps} selectedCount={1} />);
+      rerender(
+        <BulkActionsToolbar
+          {...defaultProps}
+          selectedCount={1}
+        />
+      );
 
       const toolbar = screen.getByRole('toolbar');
       expect(toolbar).toHaveClass('animate-slide-down');

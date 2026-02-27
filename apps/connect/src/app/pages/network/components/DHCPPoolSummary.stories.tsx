@@ -2,7 +2,6 @@ import { DHCPPoolSummary } from './DHCPPoolSummary';
 
 import type { Meta, StoryObj } from '@storybook/react';
 
-
 const meta: Meta<typeof DHCPPoolSummary> = {
   title: 'App/Network/DHCPPoolSummary',
   component: DHCPPoolSummary,
@@ -29,12 +28,7 @@ type Story = StoryObj<typeof DHCPPoolSummary>;
 // Shared mock data helpers
 // ---------------------------------------------------------------------------
 
-const makeServer = (
-  id: string,
-  name: string,
-  iface: string,
-  disabled = false,
-) => ({
+const makeServer = (id: string, name: string, iface: string, disabled = false) => ({
   id,
   name,
   interface: iface,
@@ -55,7 +49,7 @@ const makeLease = (
   id: string,
   address: string,
   server: string,
-  status: 'bound' | 'waiting' | 'busy' | 'offered' = 'bound',
+  status: 'bound' | 'waiting' | 'busy' | 'offered' = 'bound'
 ) => ({
   id,
   address,
@@ -73,20 +67,17 @@ const makeLease = (
 export const Default: Story = {
   name: 'Default (Healthy ~50% utilization)',
   args: {
-    servers: [
-      makeServer('1', 'dhcp1', 'bridge1'),
-      makeServer('2', 'dhcp2', 'ether2'),
-    ],
+    servers: [makeServer('1', 'dhcp1', 'bridge1'), makeServer('2', 'dhcp2', 'ether2')],
     pools: [
       makePool('p1', 'default-pool', ['192.168.88.100-192.168.88.200']),
       makePool('p2', 'guest-pool', ['10.0.0.50-10.0.0.100']),
     ],
     leases: [
       ...Array.from({ length: 40 }, (_, i) =>
-        makeLease(String(i + 1), `192.168.88.${100 + i}`, 'dhcp1'),
+        makeLease(String(i + 1), `192.168.88.${100 + i}`, 'dhcp1')
       ),
       ...Array.from({ length: 15 }, (_, i) =>
-        makeLease(String(i + 41), `10.0.0.${50 + i}`, 'dhcp2'),
+        makeLease(String(i + 41), `10.0.0.${50 + i}`, 'dhcp2')
       ),
     ],
   },
@@ -98,7 +89,7 @@ export const LowUtilization: Story = {
     servers: [makeServer('1', 'dhcp1', 'bridge1')],
     pools: [makePool('p1', 'default-pool', ['192.168.1.10-192.168.1.254'])],
     leases: Array.from({ length: 20 }, (_, i) =>
-      makeLease(String(i + 1), `192.168.1.${10 + i}`, 'dhcp1'),
+      makeLease(String(i + 1), `192.168.1.${10 + i}`, 'dhcp1')
     ),
   },
 };
@@ -109,7 +100,7 @@ export const HighUtilization: Story = {
     servers: [makeServer('1', 'dhcp1', 'bridge1')],
     pools: [makePool('p1', 'small-pool', ['10.10.10.1-10.10.10.20'])],
     leases: Array.from({ length: 16 }, (_, i) =>
-      makeLease(String(i + 1), `10.10.10.${1 + i}`, 'dhcp1'),
+      makeLease(String(i + 1), `10.10.10.${1 + i}`, 'dhcp1')
     ),
   },
 };
@@ -120,7 +111,7 @@ export const CriticalUtilization: Story = {
     servers: [makeServer('1', 'dhcp1', 'bridge1')],
     pools: [makePool('p1', 'tiny-pool', ['10.10.10.1-10.10.10.10'])],
     leases: Array.from({ length: 10 }, (_, i) =>
-      makeLease(String(i + 1), `10.10.10.${1 + i}`, 'dhcp1'),
+      makeLease(String(i + 1), `10.10.10.${1 + i}`, 'dhcp1')
     ),
   },
 };
@@ -133,11 +124,9 @@ export const SomeServersDisabled: Story = {
       makeServer('2', 'dhcp2', 'ether2', true),
       makeServer('3', 'dhcp3', 'ether3', true),
     ],
-    pools: [
-      makePool('p1', 'main-pool', ['192.168.1.100-192.168.1.200']),
-    ],
+    pools: [makePool('p1', 'main-pool', ['192.168.1.100-192.168.1.200'])],
     leases: Array.from({ length: 30 }, (_, i) =>
-      makeLease(String(i + 1), `192.168.1.${100 + i}`, 'dhcp1'),
+      makeLease(String(i + 1), `192.168.1.${100 + i}`, 'dhcp1')
     ),
   },
 };

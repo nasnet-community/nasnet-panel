@@ -16,22 +16,22 @@
  * Structured error log entry
  */
 export interface ErrorLogEntry {
-    /** Error code (e.g., N300, A501) */
-    code?: string;
-    /** Error message */
-    message: string;
-    /** GraphQL operation name */
-    operation?: string;
-    /** Additional context */
-    context?: Record<string, unknown>;
-    /** Timestamp (auto-generated) */
-    timestamp: number;
-    /** Error stack trace */
-    stack?: string;
-    /** Current URL */
-    url?: string;
-    /** Component name where error occurred */
-    component?: string;
+  /** Error code (e.g., N300, A501) */
+  code?: string;
+  /** Error message */
+  message: string;
+  /** GraphQL operation name */
+  operation?: string;
+  /** Additional context */
+  context?: Record<string, unknown>;
+  /** Timestamp (auto-generated) */
+  timestamp: number;
+  /** Error stack trace */
+  stack?: string;
+  /** Current URL */
+  url?: string;
+  /** Component name where error occurred */
+  component?: string;
 }
 /**
  * Input for logging (without auto-generated fields)
@@ -70,12 +70,16 @@ export declare function logError(entry: ErrorLogInput): void;
  * });
  * ```
  */
-export declare function logGraphQLError(operation: string, error: {
+export declare function logGraphQLError(
+  operation: string,
+  error: {
     message: string;
     extensions?: {
-        code?: string;
+      code?: string;
     };
-}, context?: Record<string, unknown>): void;
+  },
+  context?: Record<string, unknown>
+): void;
 /**
  * Log a network error
  *
@@ -87,7 +91,11 @@ export declare function logGraphQLError(operation: string, error: {
  * logNetworkError('GetRouter', new Error('Network timeout'));
  * ```
  */
-export declare function logNetworkError(operation: string, error: Error, context?: Record<string, unknown>): void;
+export declare function logNetworkError(
+  operation: string,
+  error: Error,
+  context?: Record<string, unknown>
+): void;
 /**
  * Log a component error (from error boundary)
  *
@@ -100,9 +108,13 @@ export declare function logNetworkError(operation: string, error: Error, context
  * logComponentError('RouterCard', error, errorInfo);
  * ```
  */
-export declare function logComponentError(component: string, error: Error, errorInfo?: {
+export declare function logComponentError(
+  component: string,
+  error: Error,
+  errorInfo?: {
     componentStack?: string;
-}): void;
+  }
+): void;
 /**
  * Manually flush error buffer
  * Call this on app unload or critical events

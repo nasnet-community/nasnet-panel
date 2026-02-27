@@ -16,25 +16,25 @@
  * Route location information
  */
 export interface RouteLocation {
-    pathname: string;
-    search?: Record<string, string>;
+  pathname: string;
+  search?: Record<string, string>;
 }
 /**
  * Route guard result for component-level checks
  */
 export interface AuthStatus {
-    /**
-     * Whether user is authenticated with valid token
-     */
-    isAuthenticated: boolean;
-    /**
-     * Whether token has expired
-     */
-    isExpired: boolean;
-    /**
-     * Whether token is expiring soon (within 5 minutes)
-     */
-    isExpiringSoon: boolean;
+  /**
+   * Whether user is authenticated with valid token
+   */
+  isAuthenticated: boolean;
+  /**
+   * Whether token has expired
+   */
+  isExpired: boolean;
+  /**
+   * Whether token is expiring soon (within 5 minutes)
+   */
+  isExpiringSoon: boolean;
 }
 /**
  * Route guard for TanStack Router beforeLoad.
@@ -58,9 +58,7 @@ export interface AuthStatus {
  * @param context - Route context containing location
  * @throws Redirect to login page if not authenticated
  */
-export declare function requireAuth({ location }: {
-    location: RouteLocation;
-}): void;
+export declare function requireAuth({ location }: { location: RouteLocation }): void;
 /**
  * Route guard that requires specific permission.
  *
@@ -78,9 +76,9 @@ export declare function requireAuth({ location }: {
  * @param permission - Required permission string
  * @returns beforeLoad guard function
  */
-export declare function requirePermission(permission: string): (context: {
-    location: RouteLocation;
-}) => void;
+export declare function requirePermission(
+  permission: string
+): (context: { location: RouteLocation }) => void;
 /**
  * Route guard for guest-only routes (login, register).
  *
@@ -97,9 +95,7 @@ export declare function requirePermission(permission: string): (context: {
  * @param context - Route context containing location
  * @throws Redirect to dashboard if already authenticated
  */
-export declare function requireGuest({ location }: {
-    location: RouteLocation;
-}): void;
+export declare function requireGuest({ location }: { location: RouteLocation }): void;
 /**
  * Hook for component-level authentication checks.
  *
@@ -160,7 +156,7 @@ export declare function useHasPermission(permission: string): boolean;
  *
  * @returns Current user or null
  */
-export declare function useCurrentUser(): import("..").User | null;
+export declare function useCurrentUser(): import('..').User | null;
 /**
  * Hook to get auth actions.
  *
@@ -178,8 +174,8 @@ export declare function useCurrentUser(): import("..").User | null;
  * @returns Auth action functions
  */
 export declare function useAuthActions(): {
-    login: (token: string, user: import("..").User, expiresAt: Date, refreshToken?: string) => void;
-    logout: () => void;
-    updateActivity: () => void;
+  login: (token: string, user: import('..').User, expiresAt: Date, refreshToken?: string) => void;
+  logout: () => void;
+  updateActivity: () => void;
 };
 //# sourceMappingURL=useRouteGuard.d.ts.map

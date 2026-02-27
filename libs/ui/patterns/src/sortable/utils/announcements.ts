@@ -206,14 +206,11 @@ export const multiSelectAnnouncements = {
   itemDeselected: (label: string, count: number) =>
     `Deselected ${label}. ${count} item${count === 1 ? '' : 's'} selected.`,
 
-  rangeSelected: (count: number) =>
-    `Selected ${count} items.`,
+  rangeSelected: (count: number) => `Selected ${count} items.`,
 
-  allSelected: (count: number) =>
-    `Selected all ${count} items.`,
+  allSelected: (count: number) => `Selected all ${count} items.`,
 
-  selectionCleared: () =>
-    'Selection cleared.',
+  selectionCleared: () => 'Selection cleared.',
 
   multiDragStart: (count: number) =>
     `Dragging ${count} items. Use arrow keys to move, Space to drop, Escape to cancel.`,
@@ -230,20 +227,16 @@ export const multiSelectAnnouncements = {
  * Announcements for keyboard navigation
  */
 export const keyboardAnnouncements = {
-  enterDragMode: (label: string) =>
-    `Entered drag mode for ${label}. Use arrow keys to move.`,
+  enterDragMode: (label: string) => `Entered drag mode for ${label}. Use arrow keys to move.`,
 
-  exitDragMode: (label: string) =>
-    `Exited drag mode for ${label}.`,
+  exitDragMode: (label: string) => `Exited drag mode for ${label}.`,
 
   movedTo: (label: string, position: number, direction: 'up' | 'down') =>
     `Moved ${label} ${direction} to position ${position}.`,
 
-  movedToTop: (label: string) =>
-    `Moved ${label} to top of list.`,
+  movedToTop: (label: string) => `Moved ${label} to top of list.`,
 
-  movedToBottom: (label: string) =>
-    `Moved ${label} to bottom of list.`,
+  movedToBottom: (label: string) => `Moved ${label} to bottom of list.`,
 
   cannotMove: (direction: 'up' | 'down') =>
     `Cannot move ${direction}. Already at ${direction === 'up' ? 'top' : 'bottom'} of list.`,

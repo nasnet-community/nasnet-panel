@@ -131,7 +131,7 @@ const CachedDataInlineBadge = React.memo(function CachedDataInlineBadge({
     <Badge
       variant="outline"
       className={cn(
-        'gap-component-xs h-8 px-component-xs',
+        'gap-component-xs px-component-xs h-8',
         statusConfig.bgClass,
         statusConfig.textClass,
         statusConfig.borderClass,
@@ -140,10 +140,12 @@ const CachedDataInlineBadge = React.memo(function CachedDataInlineBadge({
       role="status"
       aria-label={`Cache status: ${status}. Data is ${ageMinutes} minute${ageMinutes !== 1 ? 's' : ''} old.`}
     >
-      <Icon icon={Clock} size="sm" aria-hidden="true" />
-      <span className="text-xs font-medium whitespace-nowrap">
-        {ageMinutes}m old
-      </span>
+      <Icon
+        icon={Clock}
+        size="sm"
+        aria-hidden="true"
+      />
+      <span className="whitespace-nowrap text-xs font-medium">{ageMinutes}m old</span>
     </Badge>
   );
 });
@@ -172,7 +174,7 @@ const CachedDataBanner = React.memo(function CachedDataBanner({
   return (
     <div
       className={cn(
-        'flex items-center justify-between p-component-md rounded-lg border gap-component-md',
+        'p-component-md gap-component-md flex items-center justify-between rounded-lg border',
         statusConfig.bgClass,
         statusConfig.borderClass,
         className
@@ -181,18 +183,18 @@ const CachedDataBanner = React.memo(function CachedDataBanner({
       aria-live="polite"
       aria-label={`${statusConfig.message}. Data is ${ageMinutes} minutes old.`}
     >
-      <div className="flex items-center gap-component-md flex-1 min-w-0">
+      <div className="gap-component-md flex min-w-0 flex-1 items-center">
         <Icon
           icon={WifiOff}
           size="lg"
           className={cn('flex-shrink-0', statusConfig.textClass)}
           aria-hidden="true"
         />
-        <div className="flex-1 min-w-0">
+        <div className="min-w-0 flex-1">
           <p className={cn('text-sm font-medium', statusConfig.textClass)}>
             {statusConfig.message}
           </p>
-          <p className="text-xs text-muted-foreground mt-component-xs truncate">
+          <p className="text-muted-foreground mt-component-xs truncate text-xs">
             Last seen: {formatLastSeen(lastSeenAt)} • Data {ageMinutes}m old
           </p>
         </div>
@@ -204,11 +206,15 @@ const CachedDataBanner = React.memo(function CachedDataBanner({
           variant="outline"
           size="sm"
           onClick={handleRetry}
-          className="ml-component-md h-9 w-9 p-0 flex-shrink-0"
+          className="ml-component-md h-9 w-9 flex-shrink-0 p-0"
           aria-label="Retry connection"
           title="Retry connection"
         >
-          <Icon icon={RefreshCw} size="sm" aria-hidden="true" />
+          <Icon
+            icon={RefreshCw}
+            size="sm"
+            aria-hidden="true"
+          />
         </Button>
       )}
     </div>

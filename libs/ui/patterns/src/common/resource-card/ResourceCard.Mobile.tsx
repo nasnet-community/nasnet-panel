@@ -24,9 +24,7 @@ import type { BaseResource, ResourceCardProps } from './types';
  * - Primary action as full-width button
  * - Tap to expand for details
  */
-function ResourceCardMobileComponent<T extends BaseResource>(
-  props: ResourceCardProps<T>
-) {
+function ResourceCardMobileComponent<T extends BaseResource>(props: ResourceCardProps<T>) {
   const { resource, className, children, showLivePulse = true } = props;
   const {
     status,
@@ -40,38 +38,42 @@ function ResourceCardMobileComponent<T extends BaseResource>(
 
   return (
     <Card
-      className={cn('p-component-md rounded-[var(--semantic-radius-cardMobile)] touch-manipulation', className)}
+      className={cn(
+        'p-component-md touch-manipulation rounded-[var(--semantic-radius-cardMobile)]',
+        className
+      )}
       onClick={handleClick}
       role="article"
       aria-label={`${resource.name} - ${statusLabel}`}
     >
-      <CardContent className="p-0 space-y-3">
+      <CardContent className="space-y-3 p-0">
         {/* Header row with status */}
-        <div className="flex items-center justify-between min-h-[44px]">
-          <div className="flex items-center gap-3 flex-1 min-w-0">
+        <div className="flex min-h-[44px] items-center justify-between">
+          <div className="flex min-w-0 flex-1 items-center gap-3">
             {/* Status indicator with optional pulse */}
             <div className="relative shrink-0">
-              <Badge variant={statusColor} className="min-h-[28px]">
+              <Badge
+                variant={statusColor}
+                className="min-h-[28px]"
+              >
                 {statusLabel}
               </Badge>
               {isOnline && showLivePulse && (
                 <span
-                  className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-success rounded-full animate-pulse"
+                  className="bg-success absolute -right-0.5 -top-0.5 h-2 w-2 animate-pulse rounded-full"
                   aria-hidden="true"
                 />
               )}
             </div>
 
             {/* Resource name */}
-            <span className="font-medium truncate">{resource.name}</span>
+            <span className="truncate font-medium">{resource.name}</span>
           </div>
         </div>
 
         {/* Description if present */}
         {resource.description && (
-          <p className="text-sm text-muted-foreground line-clamp-2">
-            {resource.description}
-          </p>
+          <p className="text-muted-foreground line-clamp-2 text-sm">{resource.description}</p>
         )}
 
         {/* Custom content */}
@@ -82,7 +84,7 @@ function ResourceCardMobileComponent<T extends BaseResource>(
           <Button
             variant={primaryAction.variant || 'default'}
             size="lg"
-            className="w-full min-h-[44px]"
+            className="min-h-[44px] w-full"
             onClick={(e) => {
               e.stopPropagation();
               handlePrimaryAction();
@@ -91,7 +93,10 @@ function ResourceCardMobileComponent<T extends BaseResource>(
             aria-label={primaryAction.label}
           >
             {primaryAction.icon && (
-              <span className="mr-2" aria-hidden="true">
+              <span
+                className="mr-2"
+                aria-hidden="true"
+              >
                 {primaryAction.icon}
               </span>
             )}

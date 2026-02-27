@@ -391,35 +391,23 @@ export const mockErrorResponse = {
 /**
  * Filter connections by IP address with wildcard support
  */
-export function filterConnectionsByIP(
-  connections: Connection[],
-  ipPattern: string
-): Connection[] {
+export function filterConnectionsByIP(connections: Connection[], ipPattern: string): Connection[] {
   if (!ipPattern) return connections;
 
   // Convert wildcard pattern to regex
-  const regexPattern = ipPattern
-    .replace(/\./g, '\\.')
-    .replace(/\*/g, '\\d+');
+  const regexPattern = ipPattern.replace(/\./g, '\\.').replace(/\*/g, '\\d+');
   const regex = new RegExp(`^${regexPattern}$`);
 
-  return connections.filter(
-    (conn) => regex.test(conn.srcAddress) || regex.test(conn.dstAddress)
-  );
+  return connections.filter((conn) => regex.test(conn.srcAddress) || regex.test(conn.dstAddress));
 }
 
 /**
  * Filter connections by port (source or destination)
  */
-export function filterConnectionsByPort(
-  connections: Connection[],
-  port: number
-): Connection[] {
+export function filterConnectionsByPort(connections: Connection[], port: number): Connection[] {
   if (!port) return connections;
 
-  return connections.filter(
-    (conn) => conn.srcPort === port || conn.dstPort === port
-  );
+  return connections.filter((conn) => conn.srcPort === port || conn.dstPort === port);
 }
 
 /**

@@ -131,10 +131,7 @@ function filterTemplates(
 /**
  * Sort templates by field and direction
  */
-function sortTemplates(
-  templates: FirewallTemplate[],
-  sort: TemplateSort
-): FirewallTemplate[] {
+function sortTemplates(templates: FirewallTemplate[], sort: TemplateSort): FirewallTemplate[] {
   const { field, direction } = sort;
   const multiplier = direction === 'asc' ? 1 : -1;
 
@@ -150,7 +147,12 @@ function sortTemplates(
       }
       case 'complexity': {
         // Order: SIMPLE < MODERATE < ADVANCED
-        const complexityOrder: Record<string, number> = { SIMPLE: 1, MODERATE: 2, ADVANCED: 3, EXPERT: 4 };
+        const complexityOrder: Record<string, number> = {
+          SIMPLE: 1,
+          MODERATE: 2,
+          ADVANCED: 3,
+          EXPERT: 4,
+        };
         aVal = complexityOrder[a.complexity] ?? 0;
         bVal = complexityOrder[b.complexity] ?? 0;
         break;
@@ -228,9 +230,7 @@ function calculateComplexityCounts(templates: FirewallTemplate[]): Record<string
 /**
  * Headless hook for template gallery logic
  */
-export function useTemplateGallery(
-  options: UseTemplateGalleryOptions
-): UseTemplateGalleryReturn {
+export function useTemplateGallery(options: UseTemplateGalleryOptions): UseTemplateGalleryReturn {
   const {
     templates,
     initialFilter = {},
@@ -269,15 +269,9 @@ export function useTemplateGallery(
   }, [filter]);
 
   // Calculate counts (memoized)
-  const categoryCount = useMemo(
-    () => calculateCategoryCounts(templates),
-    [templates]
-  );
+  const categoryCount = useMemo(() => calculateCategoryCounts(templates), [templates]);
 
-  const complexityCount = useMemo(
-    () => calculateComplexityCounts(templates),
-    [templates]
-  );
+  const complexityCount = useMemo(() => calculateComplexityCounts(templates), [templates]);
 
   // Get selected template
   const selectedTemplate = useMemo(() => {
@@ -296,22 +290,19 @@ export function useTemplateGallery(
   }, []);
 
   // Set sort field (toggles direction if same field)
-  const setSort = useCallback(
-    (field: TemplateSortField) => {
-      setSortState((prev) => {
-        if (prev.field === field) {
-          // Toggle direction
-          return {
-            field,
-            direction: prev.direction === 'asc' ? 'desc' : 'asc',
-          };
-        }
-        // New field, default to ascending
-        return { field, direction: 'asc' };
-      });
-    },
-    []
-  );
+  const setSort = useCallback((field: TemplateSortField) => {
+    setSortState((prev) => {
+      if (prev.field === field) {
+        // Toggle direction
+        return {
+          field,
+          direction: prev.direction === 'asc' ? 'desc' : 'asc',
+        };
+      }
+      // New field, default to ascending
+      return { field, direction: 'asc' };
+    });
+  }, []);
 
   // Toggle sort direction
   const toggleSortDirection = useCallback(() => {

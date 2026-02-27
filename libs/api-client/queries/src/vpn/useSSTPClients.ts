@@ -61,7 +61,8 @@ function transformSSTPClient(raw: SSTPClientRaw): SSTPClient {
     mrru: raw.mrru ? parseInt(raw.mrru, 10) : undefined,
     certificate: raw.certificate,
     shouldVerifyServerCertificate: raw['verify-server-certificate'] === 'yes',
-    shouldVerifyServerAddressFromCertificate: raw['verify-server-address-from-certificate'] === 'yes',
+    shouldVerifyServerAddressFromCertificate:
+      raw['verify-server-address-from-certificate'] === 'yes',
     tlsVersion: (raw['tls-version'] as 'any' | 'only-1.2') || 'any',
     hasPemEncoding: raw['pem-encoding'] === 'yes',
     shouldAddDefaultRoute: raw['add-default-route'] === 'yes',
@@ -81,10 +82,7 @@ function transformSSTPClient(raw: SSTPClientRaw): SSTPClient {
  * Fetch SSTP clients from RouterOS
  */
 async function fetchSSTPClients(routerIp: string): Promise<SSTPClient[]> {
-  const result = await makeRouterOSRequest<SSTPClientRaw[]>(
-    routerIp,
-    'interface/sstp-client'
-  );
+  const result = await makeRouterOSRequest<SSTPClientRaw[]>(routerIp, 'interface/sstp-client');
 
   if (!result.success || !result.data) {
     throw new Error(result.error || 'Failed to fetch SSTP clients');
@@ -111,4 +109,3 @@ export function useSSTPClients(routerIp: string): UseQueryResult<SSTPClient[], E
     enabled: !!routerIp,
   });
 }
-

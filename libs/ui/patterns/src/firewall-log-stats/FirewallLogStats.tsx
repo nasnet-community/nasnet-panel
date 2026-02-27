@@ -27,7 +27,15 @@ import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recha
 import { getServiceByPort } from '@nasnet/core/constants';
 import type { FirewallLogEntry } from '@nasnet/core/types';
 import { usePlatform } from '@nasnet/ui/layouts';
-import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, cn } from '@nasnet/ui/primitives';
+import {
+  Button,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  cn,
+} from '@nasnet/ui/primitives';
 
 // ============================================================================
 // Types
@@ -81,7 +89,7 @@ interface ComputedStats {
 // Firewall category accent color (Orange #F97316)
 const ACTION_COLORS: Record<string, string> = {
   accept: '#22C55E', // Green - semantic.success
-  drop: '#EF4444',   // Red - semantic.error
+  drop: '#EF4444', // Red - semantic.error
   reject: '#F97316', // Orange - firewall accent
   unknown: '#94A3B8', // Gray - muted
 };
@@ -177,9 +185,12 @@ const FirewallLogStatsDesktop = memo(function FirewallLogStatsDesktop({
 
   if (loading) {
     return (
-      <div className={cn('grid grid-cols-2 sm:grid-cols-4 gap-3 animate-pulse', className)}>
+      <div className={cn('grid animate-pulse grid-cols-2 gap-3 sm:grid-cols-4', className)}>
         {[...Array(4)].map((_, i) => (
-          <div key={i} className="bg-muted/50 rounded-lg p-3 h-20" />
+          <div
+            key={i}
+            className="bg-muted/50 h-20 rounded-lg p-3"
+          />
         ))}
       </div>
     );
@@ -187,8 +198,8 @@ const FirewallLogStatsDesktop = memo(function FirewallLogStatsDesktop({
 
   if (stats.totalLogs === 0) {
     return (
-      <div className={cn('grid grid-cols-2 sm:grid-cols-4 gap-3', className)}>
-        <div className="col-span-full bg-muted/50 rounded-lg p-3 text-center text-muted-foreground text-sm">
+      <div className={cn('grid grid-cols-2 gap-3 sm:grid-cols-4', className)}>
+        <div className="bg-muted/50 text-muted-foreground col-span-full rounded-lg p-3 text-center text-sm">
           No firewall logs to display
         </div>
       </div>
@@ -206,7 +217,10 @@ const FirewallLogStatsDesktop = memo(function FirewallLogStatsDesktop({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <ResponsiveContainer width="100%" height={300}>
+          <ResponsiveContainer
+            width="100%"
+            height={300}
+          >
             <PieChart>
               <Pie
                 data={stats.actionDistribution}
@@ -215,11 +229,17 @@ const FirewallLogStatsDesktop = memo(function FirewallLogStatsDesktop({
                 cx="50%"
                 cy="50%"
                 outerRadius={100}
-                label={((entry: Record<string, unknown>) => `${entry.action} (${(entry.percentage as number).toFixed(1)}%)`) as any}
+                label={
+                  ((entry: Record<string, unknown>) =>
+                    `${entry.action} (${(entry.percentage as number).toFixed(1)}%)`) as any
+                }
                 labelLine={true}
               >
                 {stats.actionDistribution.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.color} />
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={entry.color}
+                  />
                 ))}
               </Pie>
               <Tooltip
@@ -238,54 +258,55 @@ const FirewallLogStatsDesktop = memo(function FirewallLogStatsDesktop({
       </Card>
 
       {/* Summary Stats Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <div className="bg-muted/50 rounded-lg p-3 text-center">
-          <div className="text-lg font-bold font-display text-foreground">
+          <div className="font-display text-foreground text-lg font-bold">
             {stats.actionDistribution.reduce((sum, a) => sum + a.count, 0)}
           </div>
-          <div className="text-xs text-muted-foreground mt-1">Total Logs</div>
+          <div className="text-muted-foreground mt-1 text-xs">Total Logs</div>
         </div>
         {stats.actionDistribution.map((action) => (
-          <div key={action.action} className="bg-muted/50 rounded-lg p-3 text-center">
-            <div className="text-lg font-bold font-display" style={{ color: action.color }}>
+          <div
+            key={action.action}
+            className="bg-muted/50 rounded-lg p-3 text-center"
+          >
+            <div
+              className="font-display text-lg font-bold"
+              style={{ color: action.color }}
+            >
               {action.count}
             </div>
-            <div className="text-xs text-muted-foreground mt-1 capitalize">{action.action}</div>
+            <div className="text-muted-foreground mt-1 text-xs capitalize">{action.action}</div>
           </div>
         ))}
       </div>
 
       {/* Two-column layout for lists */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         {/* Top Blocked IPs */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Ban className="h-5 w-5 text-error" />
+              <Ban className="text-error h-5 w-5" />
               Top Blocked IPs
             </CardTitle>
-            <CardDescription>
-              Most frequently blocked source IP addresses
-            </CardDescription>
+            <CardDescription>Most frequently blocked source IP addresses</CardDescription>
           </CardHeader>
           <CardContent>
-            {stats.topBlockedIPs.length === 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-8">
-                No blocked IPs yet
-              </p>
-            ) : (
-              <div className="space-y-2">
+            {stats.topBlockedIPs.length === 0 ?
+              <p className="text-muted-foreground py-8 text-center text-sm">No blocked IPs yet</p>
+            : <div className="space-y-2">
                 {stats.topBlockedIPs.map((ipStat, index) => (
                   <div
                     key={ipStat.ip}
-                    className="flex items-center justify-between p-3 rounded-lg hover:bg-muted/50 transition-colors"
+                    className="hover:bg-muted/50 flex items-center justify-between rounded-lg p-3 transition-colors"
                   >
-                    <div className="flex items-center gap-3 flex-1">
-                      <span className="text-sm font-medium text-muted-foreground w-6">
+                    <div className="flex flex-1 items-center gap-3">
+                      <span className="text-muted-foreground w-6 text-sm font-medium">
                         #{index + 1}
                       </span>
-                      <code className="text-sm font-mono">{ipStat.ip}</code>
-                      <span className="text-xs text-muted-foreground">
+                      <code className="font-mono text-sm">{ipStat.ip}</code>
+                      <span className="text-muted-foreground text-xs">
                         ({ipStat.count.toLocaleString()} hits)
                       </span>
                     </div>
@@ -302,7 +323,7 @@ const FirewallLogStatsDesktop = memo(function FirewallLogStatsDesktop({
                   </div>
                 ))}
               </div>
-            )}
+            }
           </CardContent>
         </Card>
 
@@ -310,54 +331,47 @@ const FirewallLogStatsDesktop = memo(function FirewallLogStatsDesktop({
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-primary" />
+              <TrendingUp className="text-primary h-5 w-5" />
               Top Ports
             </CardTitle>
-            <CardDescription>
-              Most frequently accessed destination ports
-            </CardDescription>
+            <CardDescription>Most frequently accessed destination ports</CardDescription>
           </CardHeader>
           <CardContent>
-            {stats.topPorts.length === 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-8">
+            {stats.topPorts.length === 0 ?
+              <p className="text-muted-foreground py-8 text-center text-sm">
                 No port data available
               </p>
-            ) : (
-              <div className="space-y-2">
+            : <div className="space-y-2">
                 {stats.topPorts.map((portStat, index) => (
                   <div
                     key={portStat.port}
-                    className="flex items-center justify-between p-3 rounded-lg hover:bg-muted/50 transition-colors"
+                    className="hover:bg-muted/50 flex items-center justify-between rounded-lg p-3 transition-colors"
                   >
                     <div className="flex items-center gap-3">
-                      <span className="text-sm font-medium text-muted-foreground w-6">
+                      <span className="text-muted-foreground w-6 text-sm font-medium">
                         #{index + 1}
                       </span>
                       <div>
                         <div className="flex items-center gap-2">
-                          <code className="text-sm font-mono font-semibold">
-                            {portStat.port}
-                          </code>
+                          <code className="font-mono text-sm font-semibold">{portStat.port}</code>
                           {portStat.serviceName && (
-                            <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+                            <span className="bg-primary/10 text-primary rounded-full px-2 py-0.5 text-xs">
                               {portStat.serviceName}
                             </span>
                           )}
                         </div>
-                        <span className="text-xs text-muted-foreground">
+                        <span className="text-muted-foreground text-xs">
                           {portStat.count.toLocaleString()} connections
                         </span>
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="text-sm font-semibold">
-                        {portStat.percentage.toFixed(1)}%
-                      </div>
+                      <div className="text-sm font-semibold">{portStat.percentage.toFixed(1)}%</div>
                     </div>
                   </div>
                 ))}
               </div>
-            )}
+            }
           </CardContent>
         </Card>
       </div>
@@ -380,9 +394,12 @@ const FirewallLogStatsMobile = memo(function FirewallLogStatsMobile({
 
   if (loading) {
     return (
-      <div className={cn('grid grid-cols-2 gap-3 animate-pulse', className)}>
+      <div className={cn('grid animate-pulse grid-cols-2 gap-3', className)}>
         {[...Array(4)].map((_, i) => (
-          <div key={i} className="bg-muted/50 rounded-lg p-3 h-20" />
+          <div
+            key={i}
+            className="bg-muted/50 h-20 rounded-lg p-3"
+          />
         ))}
       </div>
     );
@@ -391,7 +408,7 @@ const FirewallLogStatsMobile = memo(function FirewallLogStatsMobile({
   if (stats.totalLogs === 0) {
     return (
       <div className={cn('grid grid-cols-2 gap-3', className)}>
-        <div className="col-span-full bg-muted/50 rounded-lg p-3 text-center text-muted-foreground text-xs">
+        <div className="bg-muted/50 text-muted-foreground col-span-full rounded-lg p-3 text-center text-xs">
           No firewall logs to display
         </div>
       </div>
@@ -409,7 +426,10 @@ const FirewallLogStatsMobile = memo(function FirewallLogStatsMobile({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <ResponsiveContainer width="100%" height={240}>
+          <ResponsiveContainer
+            width="100%"
+            height={240}
+          >
             <PieChart>
               <Pie
                 data={stats.actionDistribution}
@@ -418,11 +438,17 @@ const FirewallLogStatsMobile = memo(function FirewallLogStatsMobile({
                 cx="50%"
                 cy="50%"
                 outerRadius={80}
-                label={((entry: Record<string, unknown>) => `${(entry.percentage as number).toFixed(0)}%`) as any}
+                label={
+                  ((entry: Record<string, unknown>) =>
+                    `${(entry.percentage as number).toFixed(0)}%`) as any
+                }
                 labelLine={false}
               >
                 {stats.actionDistribution.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.color} />
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={entry.color}
+                  />
                 ))}
               </Pie>
               <Tooltip
@@ -446,31 +472,28 @@ const FirewallLogStatsMobile = memo(function FirewallLogStatsMobile({
       {/* Top Blocked IPs - Compact */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base flex items-center gap-2">
-            <Ban className="h-4 w-4 text-error" />
+          <CardTitle className="flex items-center gap-2 text-base">
+            <Ban className="text-error h-4 w-4" />
             Top Blocked IPs
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {stats.topBlockedIPs.length === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-4">
-              No blocked IPs yet
-            </p>
-          ) : (
-            <div className="space-y-2">
+          {stats.topBlockedIPs.length === 0 ?
+            <p className="text-muted-foreground py-4 text-center text-sm">No blocked IPs yet</p>
+          : <div className="space-y-2">
               {stats.topBlockedIPs.slice(0, 5).map((ipStat, index) => (
                 <div
                   key={ipStat.ip}
-                  className="flex flex-col gap-2 p-3 rounded-lg bg-muted/30"
+                  className="bg-muted/30 flex flex-col gap-2 rounded-lg p-3"
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <span className="text-xs font-medium text-muted-foreground">
+                      <span className="text-muted-foreground text-xs font-medium">
                         #{index + 1}
                       </span>
-                      <code className="text-sm font-mono">{ipStat.ip}</code>
+                      <code className="font-mono text-sm">{ipStat.ip}</code>
                     </div>
-                    <span className="text-xs text-muted-foreground">
+                    <span className="text-muted-foreground text-xs">
                       {ipStat.count.toLocaleString()}
                     </span>
                   </div>
@@ -479,66 +502,57 @@ const FirewallLogStatsMobile = memo(function FirewallLogStatsMobile({
                       variant="outline"
                       size="sm"
                       onClick={() => onAddToBlocklist(ipStat.ip)}
-                      className="w-full h-11 text-sm"
+                      className="h-11 w-full text-sm"
                     >
-                      <Ban className="h-4 w-4 mr-2" />
+                      <Ban className="mr-2 h-4 w-4" />
                       Add to Blocklist
                     </Button>
                   )}
                 </div>
               ))}
             </div>
-          )}
+          }
         </CardContent>
       </Card>
 
       {/* Top Ports - Compact */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base flex items-center gap-2">
-            <TrendingUp className="h-4 w-4 text-primary" />
+          <CardTitle className="flex items-center gap-2 text-base">
+            <TrendingUp className="text-primary h-4 w-4" />
             Top Ports
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {stats.topPorts.length === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-4">
-              No port data available
-            </p>
-          ) : (
-            <div className="space-y-2">
+          {stats.topPorts.length === 0 ?
+            <p className="text-muted-foreground py-4 text-center text-sm">No port data available</p>
+          : <div className="space-y-2">
               {stats.topPorts.slice(0, 5).map((portStat, index) => (
                 <div
                   key={portStat.port}
-                  className="flex items-center justify-between p-3 rounded-lg bg-muted/30"
+                  className="bg-muted/30 flex items-center justify-between rounded-lg p-3"
                 >
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-medium text-muted-foreground">
-                      #{index + 1}
-                    </span>
+                    <span className="text-muted-foreground text-xs font-medium">#{index + 1}</span>
                     <div>
                       <div className="flex items-center gap-2">
-                        <code className="text-sm font-mono font-semibold">
-                          {portStat.port}
-                        </code>
+                        <code className="font-mono text-sm font-semibold">{portStat.port}</code>
                         {portStat.serviceName && (
-                          <span className="text-xs px-1.5 py-0.5 rounded bg-primary/10 text-primary">
+                          <span className="bg-primary/10 text-primary rounded px-1.5 py-0.5 text-xs">
                             {portStat.serviceName}
                           </span>
                         )}
                       </div>
-                      <span className="text-xs text-muted-foreground">
+                      <span className="text-muted-foreground text-xs">
                         {portStat.count.toLocaleString()} connections
                       </span>
                     </div>
                   </div>
-                  <div className="text-xs font-semibold">
-                    {portStat.percentage.toFixed(1)}%
-                  </div>
+                  <div className="text-xs font-semibold">{portStat.percentage.toFixed(1)}%</div>
                 </div>
               ))}
             </div>
-          )}
+          }
         </CardContent>
       </Card>
     </div>
@@ -550,9 +564,7 @@ FirewallLogStatsMobile.displayName = 'FirewallLogStatsMobile';
 // Tablet Presenter (640-1024px)
 // ============================================================================
 
-const FirewallLogStatsTablet = memo(function FirewallLogStatsTablet(
-  props: FirewallLogStatsProps
-) {
+const FirewallLogStatsTablet = memo(function FirewallLogStatsTablet(props: FirewallLogStatsProps) {
   // Tablet uses a hybrid layout - similar to desktop but with some responsive adjustments
   return <FirewallLogStatsDesktop {...props} />;
 });

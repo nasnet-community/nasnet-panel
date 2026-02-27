@@ -29,9 +29,9 @@ import type { LogEntry } from '../router/logs';
  * // result: 'forward'
  */
 export const FirewallLogChainSchema = z.enum([
-  'input',   // Packets destined for the router itself
+  'input', // Packets destined for the router itself
   'forward', // Packets passing through the router
-  'output',  // Packets originating from the router
+  'output', // Packets originating from the router
 ]);
 
 /**
@@ -51,12 +51,7 @@ export type FirewallLogChain = z.infer<typeof FirewallLogChainSchema>;
  * const result = InferredActionSchema.parse('drop');
  * // result: 'drop'
  */
-export const InferredActionSchema = z.enum([
-  'accept',
-  'drop',
-  'reject',
-  'unknown',
-]);
+export const InferredActionSchema = z.enum(['accept', 'drop', 'reject', 'unknown']);
 
 /**
  * Type for inferred firewall action
@@ -124,10 +119,13 @@ const isValidIPv4 = (value: string): boolean => {
   const octets = ip.split('.');
 
   // Validate octets (0-255)
-  if (!octets.every(octet => {
-    const num = parseInt(octet, 10);
-    return num >= 0 && num <= 255;
-  })) return false;
+  if (
+    !octets.every((octet) => {
+      const num = parseInt(octet, 10);
+      return num >= 0 && num <= 255;
+    })
+  )
+    return false;
 
   // Validate CIDR (0-32)
   if (cidr) {
@@ -254,18 +252,32 @@ export interface FirewallLogEntry extends LogEntry {
 export const ParsedFirewallLogSchema = z.object({
   chain: FirewallLogChainSchema,
   action: InferredActionSchema,
-  srcIp: z.string().refine(isValidIPv4, {
-    message: 'Invalid IPv4 address format',
-  }).optional(),
-  srcPort: z.number().int().refine(isValidPort, {
-    message: 'Port must be between 1 and 65535',
-  }).optional(),
-  dstIp: z.string().refine(isValidIPv4, {
-    message: 'Invalid IPv4 address format',
-  }).optional(),
-  dstPort: z.number().int().refine(isValidPort, {
-    message: 'Port must be between 1 and 65535',
-  }).optional(),
+  srcIp: z
+    .string()
+    .refine(isValidIPv4, {
+      message: 'Invalid IPv4 address format',
+    })
+    .optional(),
+  srcPort: z
+    .number()
+    .int()
+    .refine(isValidPort, {
+      message: 'Port must be between 1 and 65535',
+    })
+    .optional(),
+  dstIp: z
+    .string()
+    .refine(isValidIPv4, {
+      message: 'Invalid IPv4 address format',
+    })
+    .optional(),
+  dstPort: z
+    .number()
+    .int()
+    .refine(isValidPort, {
+      message: 'Port must be between 1 and 65535',
+    })
+    .optional(),
   protocol: FirewallLogProtocolSchema,
   interfaceIn: z.string().min(1).max(64).optional(),
   interfaceOut: z.string().min(1).max(64).optional(),
@@ -405,12 +417,10 @@ export function getFirewallLogChainDescription(chain: FirewallLogChain): string 
  * formatFirewallLogConnection(parsed) // Returns "192.168.1.100:54321 → 10.0.0.1:443"
  */
 export function formatFirewallLogConnection(parsed: ParsedFirewallLog): string {
-  const src = parsed.srcIp
-    ? `${parsed.srcIp}${parsed.srcPort ? `:${parsed.srcPort}` : ''}`
-    : 'unknown';
-  const dst = parsed.dstIp
-    ? `${parsed.dstIp}${parsed.dstPort ? `:${parsed.dstPort}` : ''}`
-    : 'unknown';
+  const src =
+    parsed.srcIp ? `${parsed.srcIp}${parsed.srcPort ? `:${parsed.srcPort}` : ''}` : 'unknown';
+  const dst =
+    parsed.dstIp ? `${parsed.dstIp}${parsed.dstPort ? `:${parsed.dstPort}` : ''}` : 'unknown';
   return `${src} → ${dst}`;
 }
 

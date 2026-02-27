@@ -18,5 +18,8 @@ import type { WireGuardPeer } from '@nasnet/core/types';
  * const { data, isLoading, error } = useWireGuardPeers(routerIp || '', 'wg0');
  * ```
  */
-export declare function useWireGuardPeers(routerIp: string, interfaceName?: string): UseQueryResult<WireGuardPeer[], Error>;
+export declare function useWireGuardPeers(
+  routerIp: string,
+  interfaceName?: string
+): UseQueryResult<WireGuardPeer[], Error>;
 //# sourceMappingURL=useWireGuardPeers.d.ts.map

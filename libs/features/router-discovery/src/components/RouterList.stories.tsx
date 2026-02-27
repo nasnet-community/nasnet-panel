@@ -151,9 +151,7 @@ export const SingleRouter: Story = {
  */
 export const AllOnline: Story = {
   args: {
-    routers: routers
-      .slice(0, 3)
-      .map((r) => ({ ...r, connectionStatus: 'online' as const })),
+    routers: routers.slice(0, 3).map((r) => ({ ...r, connectionStatus: 'online' as const })),
     selectedRouterId: null,
     onRouterSelect: (r) => console.log('selected:', r.ipAddress),
     onConnect: (r) => console.log('connect:', r.ipAddress),
@@ -162,7 +160,8 @@ export const AllOnline: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'All routers are online. Only the green "Online" count appears in the header summary.',
+        story:
+          'All routers are online. Only the green "Online" count appears in the header summary.',
       },
     },
   },
@@ -196,12 +195,12 @@ export const EmptyCustomState: Story = {
   args: {
     routers: [],
     emptyState: (
-      <div className="py-12 text-center space-y-3">
-        <p className="text-lg font-semibold text-foreground">Your fleet is empty</p>
-        <p className="text-sm text-muted-foreground">
+      <div className="space-y-3 py-12 text-center">
+        <p className="text-foreground text-lg font-semibold">Your fleet is empty</p>
+        <p className="text-muted-foreground text-sm">
           Run a network scan or add routers manually to begin managing your MikroTik devices.
         </p>
-        <button className="mt-4 px-component-md py-2 bg-primary text-primary-foreground rounded-md text-sm font-medium hover:bg-primary/90 transition-colors">
+        <button className="px-component-md bg-primary text-primary-foreground hover:bg-primary/90 mt-4 rounded-md py-2 text-sm font-medium transition-colors">
           Start Discovery
         </button>
       </div>

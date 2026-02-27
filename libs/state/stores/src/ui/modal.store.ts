@@ -171,9 +171,7 @@ export const useModalStore = create<ModalState & ModalActions>()(
       updateModalData: (data) =>
         set(
           (state) => ({
-            modalData: state.modalData
-              ? { ...state.modalData, ...data }
-              : (data as ModalData),
+            modalData: state.modalData ? { ...state.modalData, ...data } : (data as ModalData),
           }),
           false,
           'updateModalData'
@@ -181,12 +179,13 @@ export const useModalStore = create<ModalState & ModalActions>()(
 
       isModalOpen: (id) => get().activeModal === id,
 
-      getModalData: <T extends ModalData = ModalData>() =>
-        get().modalData as T | null,
+      getModalData: <T extends ModalData = ModalData>() => get().modalData as T | null,
     }),
     {
       name: 'modal-store',
-      enabled: typeof window !== 'undefined' && (typeof import.meta !== 'undefined' ? import.meta.env?.DEV !== false : true),
+      enabled:
+        typeof window !== 'undefined' &&
+        (typeof import.meta !== 'undefined' ? import.meta.env?.DEV !== false : true),
     }
   )
 );
@@ -201,17 +200,15 @@ export const selectActiveModal = (state: ModalState) => state.activeModal;
 /**
  * Select modal data
  */
-export const selectModalData = <T extends ModalData = ModalData>(
-  state: ModalState
-) => state.modalData as T | null;
+export const selectModalData = <T extends ModalData = ModalData>(state: ModalState) =>
+  state.modalData as T | null;
 
 /**
  * Create a selector for a specific modal
  * Returns true if the specified modal is open
  */
-export const createSelectIsModalOpen =
-  (id: ModalId) => (state: ModalState) =>
-    state.activeModal === id;
+export const createSelectIsModalOpen = (id: ModalId) => (state: ModalState) =>
+  state.activeModal === id;
 
 // ===== Helper functions =====
 

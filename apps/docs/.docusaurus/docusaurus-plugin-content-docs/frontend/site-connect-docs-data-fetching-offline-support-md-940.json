@@ -1,7 +1,7 @@
 {
   "id": "data-fetching/offline-support",
   "title": "Offline Support",
-  "description": "NasNetConnect runs on a router — network connectivity to the device can disappear at any time. The offline support layer detects disconnection, queues mutations, and replays them automatically when the device is reachable again.",
+  "description": "NasNetConnect runs on a router — network connectivity to the device can disappear at any time. The",
   "source": "@site/../connect/docs/data-fetching/offline-support.md",
   "sourceDirName": "data-fetching",
   "slug": "/data-fetching/offline-support",

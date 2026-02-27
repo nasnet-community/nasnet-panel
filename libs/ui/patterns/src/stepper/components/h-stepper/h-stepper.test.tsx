@@ -53,7 +53,12 @@ function HStepperTestWrapper({
   stepperProps?: Partial<React.ComponentProps<typeof HStepper>>;
 }) {
   const stepper = useStepper(config);
-  return <HStepper stepper={stepper} {...stepperProps} />;
+  return (
+    <HStepper
+      stepper={stepper}
+      {...stepperProps}
+    />
+  );
 }
 
 // ===== Test Data =====
@@ -105,7 +110,10 @@ describe('HStepper rendering', () => {
       return (
         <div>
           <HStepper stepper={stepper} />
-          <button onClick={() => stepper.next()} data-testid="next">
+          <button
+            onClick={() => stepper.next()}
+            data-testid="next"
+          >
             Next
           </button>
         </div>
@@ -129,7 +137,12 @@ describe('HStepper rendering', () => {
   it('should hide back button when showBackButton is false', () => {
     function TestComponent() {
       const stepper = useStepper(createConfig(basicSteps, { initialStep: 1 }));
-      return <HStepper stepper={stepper} showBackButton={false} />;
+      return (
+        <HStepper
+          stepper={stepper}
+          showBackButton={false}
+        />
+      );
     }
 
     render(<TestComponent />);
@@ -257,7 +270,7 @@ describe('HStepper step states', () => {
 
     // First step should have aria-current="step"
     const buttons = screen.getAllByRole('button');
-    const step1Button = buttons.find(btn => btn.getAttribute('aria-label')?.includes('Step 1'));
+    const step1Button = buttons.find((btn) => btn.getAttribute('aria-label')?.includes('Step 1'));
     expect(step1Button).toHaveAttribute('aria-current', 'step');
   });
 
@@ -266,7 +279,7 @@ describe('HStepper step states', () => {
 
     // Future steps should be disabled
     const buttons = screen.getAllByRole('button');
-    const step3Button = buttons.find(btn => btn.getAttribute('aria-label')?.includes('Step 3'));
+    const step3Button = buttons.find((btn) => btn.getAttribute('aria-label')?.includes('Step 3'));
     expect(step3Button).toHaveAttribute('aria-disabled', 'true');
   });
 
@@ -278,7 +291,10 @@ describe('HStepper step states', () => {
       return (
         <div>
           <HStepper stepper={stepper} />
-          <button onClick={() => stepper.next()} data-testid="next">
+          <button
+            onClick={() => stepper.next()}
+            data-testid="next"
+          >
             Next
           </button>
         </div>
@@ -310,7 +326,10 @@ describe('HStepper navigation', () => {
       return (
         <div>
           <HStepper stepper={stepper} />
-          <button onClick={() => stepper.next()} data-testid="next">
+          <button
+            onClick={() => stepper.next()}
+            data-testid="next"
+          >
             Next
           </button>
           <span data-testid="current">{stepper.currentIndex}</span>
@@ -331,7 +350,7 @@ describe('HStepper navigation', () => {
 
     // Click back to step 0 (now completed)
     const buttons = screen.getAllByRole('button');
-    const step1Button = buttons.find(btn => btn.getAttribute('aria-label')?.includes('Step 1'));
+    const step1Button = buttons.find((btn) => btn.getAttribute('aria-label')?.includes('Step 1'));
     await user.click(step1Button!);
 
     await waitFor(() => {
@@ -357,7 +376,7 @@ describe('HStepper navigation', () => {
 
     // Try to click on step 3 (future step)
     const buttons = screen.getAllByRole('button');
-    const step3Button = buttons.find(btn => btn.getAttribute('aria-label')?.includes('Step 3'));
+    const step3Button = buttons.find((btn) => btn.getAttribute('aria-label')?.includes('Step 3'));
     await user.click(step3Button!);
 
     // Should still be at step 0
@@ -373,7 +392,10 @@ describe('HStepper navigation', () => {
       return (
         <div>
           <HStepper stepper={stepper} />
-          <button onClick={() => stepper.next()} data-testid="next">
+          <button
+            onClick={() => stepper.next()}
+            data-testid="next"
+          >
             Next
           </button>
           <span data-testid="current">{stepper.currentIndex}</span>
@@ -432,7 +454,10 @@ describe('HStepper error states', () => {
       return (
         <div>
           <HStepper stepper={stepper} />
-          <button onClick={() => stepper.next()} data-testid="next">
+          <button
+            onClick={() => stepper.next()}
+            data-testid="next"
+          >
             Next
           </button>
         </div>
@@ -460,9 +485,7 @@ describe('HStepper error states', () => {
 
 describe('HStepper accessibility', () => {
   it('should have no accessibility violations', async () => {
-    const { container } = render(
-      <HStepperTestWrapper config={createConfig(basicSteps)} />
-    );
+    const { container } = render(<HStepperTestWrapper config={createConfig(basicSteps)} />);
 
     const results = await axe(container);
     expect(results).toHaveNoViolations();
@@ -491,7 +514,7 @@ describe('HStepper accessibility', () => {
     render(<HStepperTestWrapper config={createConfig(basicSteps)} />);
 
     const buttons = screen.getAllByRole('button');
-    const activeButton = buttons.find(btn => btn.getAttribute('aria-current') === 'step');
+    const activeButton = buttons.find((btn) => btn.getAttribute('aria-current') === 'step');
     expect(activeButton).toBeInTheDocument();
   });
 
@@ -499,7 +522,7 @@ describe('HStepper accessibility', () => {
     render(<HStepperTestWrapper config={createConfig(basicSteps)} />);
 
     const buttons = screen.getAllByRole('button');
-    const step3Button = buttons.find(btn => btn.getAttribute('aria-label')?.includes('Step 3'));
+    const step3Button = buttons.find((btn) => btn.getAttribute('aria-label')?.includes('Step 3'));
     expect(step3Button).toHaveAttribute('aria-disabled', 'true');
   });
 
@@ -578,7 +601,7 @@ describe('HStepper keyboard navigation', () => {
 
     // Focus on step 1 (completed) and press Enter
     const buttons = screen.getAllByRole('button');
-    const step1Button = buttons.find(btn => btn.getAttribute('aria-label')?.includes('Step 1'));
+    const step1Button = buttons.find((btn) => btn.getAttribute('aria-label')?.includes('Step 1'));
     step1Button?.focus();
     await user.keyboard('{Enter}');
 
@@ -612,7 +635,7 @@ describe('HStepper keyboard navigation', () => {
     });
 
     const buttons = screen.getAllByRole('button');
-    const step1Button = buttons.find(btn => btn.getAttribute('aria-label')?.includes('Step 1'));
+    const step1Button = buttons.find((btn) => btn.getAttribute('aria-label')?.includes('Step 1'));
     step1Button?.focus();
     await user.keyboard(' ');
 
@@ -732,14 +755,15 @@ describe('HStepper integration', () => {
     ];
 
     function TestComponent() {
-      const stepper = useStepper(
-        createConfig(stepsWithValidation, { onComplete })
-      );
+      const stepper = useStepper(createConfig(stepsWithValidation, { onComplete }));
 
       return (
         <div>
           <HStepper stepper={stepper} />
-          <button onClick={() => stepper.next()} data-testid="next">
+          <button
+            onClick={() => stepper.next()}
+            data-testid="next"
+          >
             {stepper.isLast ? 'Complete' : 'Next'}
           </button>
           <span data-testid="current">{stepper.currentIndex}</span>
@@ -788,7 +812,10 @@ describe('HStepper integration', () => {
       return (
         <div>
           <HStepper stepper={stepper} />
-          <button onClick={() => stepper.next()} data-testid="next">
+          <button
+            onClick={() => stepper.next()}
+            data-testid="next"
+          >
             Next
           </button>
           <span data-testid="current">{stepper.currentIndex}</span>
@@ -820,7 +847,10 @@ describe('HStepper integration', () => {
       return (
         <div>
           <HStepper stepper={stepper} />
-          <button onClick={() => stepper.next()} data-testid="next">
+          <button
+            onClick={() => stepper.next()}
+            data-testid="next"
+          >
             Next
           </button>
         </div>
@@ -846,9 +876,7 @@ describe('HStepper integration', () => {
 
 describe('HStepper theme support', () => {
   it('should use CSS variables for colors (no hard-coded colors)', () => {
-    const { container } = render(
-      <HStepperTestWrapper config={createConfig(basicSteps)} />
-    );
+    const { container } = render(<HStepperTestWrapper config={createConfig(basicSteps)} />);
 
     // Check that we're using CSS class-based styling
     // Progress bar should have gradient classes
@@ -881,7 +909,10 @@ describe('HStepper allowSkipSteps', () => {
 
       return (
         <div>
-          <HStepper stepper={stepper} allowSkipSteps />
+          <HStepper
+            stepper={stepper}
+            allowSkipSteps
+          />
           <span data-testid="current">{stepper.currentIndex}</span>
         </div>
       );
@@ -891,7 +922,7 @@ describe('HStepper allowSkipSteps', () => {
 
     // Click on step 3 (future step)
     const buttons = screen.getAllByRole('button');
-    const step3Button = buttons.find(btn => btn.getAttribute('aria-label')?.includes('Step 3'));
+    const step3Button = buttons.find((btn) => btn.getAttribute('aria-label')?.includes('Step 3'));
     await user.click(step3Button!);
 
     await waitFor(() => {

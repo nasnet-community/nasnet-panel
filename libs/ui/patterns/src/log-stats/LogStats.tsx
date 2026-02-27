@@ -83,12 +83,7 @@ function formatRelativeTime(date: Date): string {
 /**
  * LogStats Component
  */
-export function LogStats({
-  logs,
-  lastUpdated,
-  isLoading,
-  className,
-}: LogStatsProps) {
+export function LogStats({ logs, lastUpdated, isLoading, className }: LogStatsProps) {
   const [isExpanded, setIsExpanded] = React.useState(true);
   const [, forceUpdate] = React.useReducer((x) => x + 1, 0);
   const stats = React.useMemo(() => computeStats(logs), [logs]);
@@ -102,38 +97,30 @@ export function LogStats({
   const nonZeroStats = stats.filter((s) => s.count > 0);
 
   return (
-    <div
-      className={cn(
-        'rounded-card-sm border bg-card p-3 transition-all',
-        className
-      )}
-    >
+    <div className={cn('rounded-card-sm bg-card border p-3 transition-all', className)}>
       {/* Header - Always visible */}
       <div className="flex items-center justify-between gap-4">
-        <div className="flex items-center gap-4 flex-1 min-w-0">
+        <div className="flex min-w-0 flex-1 items-center gap-4">
           {/* Total count */}
           <div className="flex items-center gap-2">
-            <span className="text-2xl font-semibold tabular-nums">
-              {logs.length}
-            </span>
-            <span className="text-sm text-muted-foreground">entries</span>
+            <span className="text-2xl font-semibold tabular-nums">{logs.length}</span>
+            <span className="text-muted-foreground text-sm">entries</span>
           </div>
 
           {/* Severity badges - compact */}
-          <div className="hidden sm:flex items-center gap-2">
+          <div className="hidden items-center gap-2 sm:flex">
             {nonZeroStats.map((stat) => (
               <div
                 key={stat.severity}
                 className={cn(
-                  'flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium',
-                  stat.severity === 'critical' || stat.severity === 'error'
-                    ? 'bg-error/10 text-error'
-                    : stat.severity === 'warning'
-                      ? 'bg-warning/10 text-warning'
-                      : 'bg-slate-100 dark:bg-slate-800 text-muted-foreground'
+                  'flex items-center gap-1.5 rounded-full px-2 py-0.5 text-xs font-medium',
+                  stat.severity === 'critical' || stat.severity === 'error' ?
+                    'bg-error/10 text-error'
+                  : stat.severity === 'warning' ? 'bg-warning/10 text-warning'
+                  : 'text-muted-foreground bg-slate-100 dark:bg-slate-800'
                 )}
               >
-                <span className={cn('w-2 h-2 rounded-full', stat.color)} />
+                <span className={cn('h-2 w-2 rounded-full', stat.color)} />
                 <span className="capitalize">{stat.severity}</span>
                 <span className="tabular-nums">{stat.count}</span>
               </div>
@@ -142,10 +129,8 @@ export function LogStats({
 
           {/* Last updated */}
           {lastUpdated && (
-            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-              <RefreshCw
-                className={cn('h-3 w-3', isLoading && 'animate-spin')}
-              />
+            <div className="text-muted-foreground flex items-center gap-1.5 text-xs">
+              <RefreshCw className={cn('h-3 w-3', isLoading && 'animate-spin')} />
               <span>Updated {formatRelativeTime(lastUpdated)}</span>
             </div>
           )}
@@ -158,19 +143,17 @@ export function LogStats({
           onClick={() => setIsExpanded(!isExpanded)}
           className="shrink-0"
         >
-          {isExpanded ? (
+          {isExpanded ?
             <ChevronUp className="h-4 w-4" />
-          ) : (
-            <ChevronDown className="h-4 w-4" />
-          )}
+          : <ChevronDown className="h-4 w-4" />}
         </Button>
       </div>
 
       {/* Expanded content - Severity distribution bar */}
       {isExpanded && logs.length > 0 && (
-        <div className="mt-3 pt-3 border-t">
+        <div className="mt-3 border-t pt-3">
           {/* Bar chart */}
-          <div className="flex h-3 rounded-full overflow-hidden bg-slate-100 dark:bg-slate-800">
+          <div className="flex h-3 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
             {stats.map(
               (stat) =>
                 stat.percentage > 0 && (
@@ -189,13 +172,13 @@ export function LogStats({
           </div>
 
           {/* Legend - mobile */}
-          <div className="flex sm:hidden flex-wrap gap-2 mt-2">
+          <div className="mt-2 flex flex-wrap gap-2 sm:hidden">
             {nonZeroStats.map((stat) => (
               <div
                 key={stat.severity}
-                className="flex items-center gap-1 text-xs text-muted-foreground"
+                className="text-muted-foreground flex items-center gap-1 text-xs"
               >
-                <span className={cn('w-2 h-2 rounded-full', stat.color)} />
+                <span className={cn('h-2 w-2 rounded-full', stat.color)} />
                 <span className="capitalize">{stat.severity}:</span>
                 <span className="tabular-nums">{stat.count}</span>
               </div>
@@ -206,28 +189,3 @@ export function LogStats({
     </div>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -41,8 +41,7 @@ export const ListView: Story = {
   parameters: {
     docs: {
       description: {
-        story:
-          'Default list view showing all VLANs for the router in a tabular format.',
+        story: 'Default list view showing all VLANs for the router in a tabular format.',
       },
     },
   },

@@ -7,16 +7,6 @@
     "declarationMap": false,
     "emitDeclarationOnly": false
   },
-  "include": [
-    "src/**/*.ts",
-    "src/**/*.tsx",
-    ".storybook/**/*.ts",
-    ".storybook/**/*.tsx"
-  ],
-  "exclude": [
-    "src/**/*.test.ts",
-    "src/**/*.test.tsx",
-    "src/**/*.spec.ts",
-    "src/**/*.spec.tsx"
-  ]
+  "include": ["src/**/*.ts", "src/**/*.tsx", ".storybook/**/*.ts", ".storybook/**/*.tsx"],
+  "exclude": ["src/**/*.test.ts", "src/**/*.test.tsx", "src/**/*.spec.ts", "src/**/*.spec.tsx"]
 }

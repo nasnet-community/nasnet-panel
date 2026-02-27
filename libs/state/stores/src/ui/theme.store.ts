@@ -129,36 +129,20 @@ export const useThemeStore = create<ThemeState & ThemeActions>()(
         setTheme: (theme) => {
           // Update theme and resolve it
           if (theme === 'system') {
-            set(
-              { theme, resolvedTheme: getSystemTheme() },
-              false,
-              `setTheme/${theme}`
-            );
+            set({ theme, resolvedTheme: getSystemTheme() }, false, `setTheme/${theme}`);
           } else {
-            set(
-              { theme, resolvedTheme: theme },
-              false,
-              `setTheme/${theme}`
-            );
+            set({ theme, resolvedTheme: theme }, false, `setTheme/${theme}`);
           }
         },
 
         toggleTheme: () => {
           const current = get().resolvedTheme;
           const newTheme = current === 'dark' ? 'light' : 'dark';
-          set(
-            { theme: newTheme, resolvedTheme: newTheme },
-            false,
-            `toggleTheme/${newTheme}`
-          );
+          set({ theme: newTheme, resolvedTheme: newTheme }, false, `toggleTheme/${newTheme}`);
         },
 
         resetTheme: () =>
-          set(
-            { theme: 'system', resolvedTheme: getSystemTheme() },
-            false,
-            'resetTheme'
-          ),
+          set({ theme: 'system', resolvedTheme: getSystemTheme() }, false, 'resetTheme'),
 
         _setResolvedTheme: (resolvedTheme) =>
           set({ resolvedTheme }, false, `_setResolvedTheme/${resolvedTheme}`),
@@ -181,7 +165,9 @@ export const useThemeStore = create<ThemeState & ThemeActions>()(
     ),
     {
       name: 'theme-store',
-      enabled: typeof window !== 'undefined' && (typeof import.meta !== 'undefined' ? import.meta.env?.DEV !== false : true),
+      enabled:
+        typeof window !== 'undefined' &&
+        (typeof import.meta !== 'undefined' ? import.meta.env?.DEV !== false : true),
     }
   )
 );

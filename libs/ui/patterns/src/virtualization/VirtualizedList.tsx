@@ -280,8 +280,8 @@ const VirtualizedListInner = forwardRef(function VirtualizedList<T>(
         style={{ height, ...style }}
         aria-busy="true"
       >
-        <div className="flex items-center justify-center h-full">
-          <div className="animate-pulse text-muted-foreground">Loading...</div>
+        <div className="flex h-full items-center justify-center">
+          <div className="text-muted-foreground animate-pulse">Loading...</div>
         </div>
       </div>
     );
@@ -297,7 +297,7 @@ const VirtualizedListInner = forwardRef(function VirtualizedList<T>(
         aria-label={ariaLabel}
       >
         {emptyContent || (
-          <div className="flex items-center justify-center h-full text-muted-foreground">
+          <div className="text-muted-foreground flex h-full items-center justify-center">
             No items to display
           </div>
         )}
@@ -312,8 +312,9 @@ const VirtualizedListInner = forwardRef(function VirtualizedList<T>(
     ...style,
   };
 
-  const innerStyle: CSSProperties = horizontal
-    ? {
+  const innerStyle: CSSProperties =
+    horizontal ?
+      {
         width: totalSize + gap * (items.length - 1),
         height: '100%',
         position: 'relative',
@@ -342,8 +343,9 @@ const VirtualizedListInner = forwardRef(function VirtualizedList<T>(
           const item = items[virtualItem.index];
           const isFocused = focusedIndexRef.current === virtualItem.index;
 
-          const itemStyle: CSSProperties = horizontal
-            ? {
+          const itemStyle: CSSProperties =
+            horizontal ?
+              {
                 position: 'absolute',
                 top: 0,
                 left: 0,

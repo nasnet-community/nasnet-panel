@@ -6,19 +6,29 @@
 Service result from template installation
 """
 type ServiceResult {
-  """Service name from template"""
+  """
+  Service name from template
+  """
   serviceName: String!
 
-  """Created instance ID"""
+  """
+  Created instance ID
+  """
   instanceID: String
 
-  """Status (success/failed/skipped)"""
+  """
+  Status (success/failed/skipped)
+  """
   status: String!
 
-  """Error message if failed"""
+  """
+  Error message if failed
+  """
   errorMessage: String
 
-  """Creation timestamp"""
+  """
+  Creation timestamp
+  """
   createdAt: DateTime!
 }
 
@@ -26,31 +36,49 @@ type ServiceResult {
 Template installation progress
 """
 type TemplateInstallProgress {
-  """Template ID being installed"""
+  """
+  Template ID being installed
+  """
   templateID: ID!
 
-  """Total number of services"""
+  """
+  Total number of services
+  """
   totalServices: Int!
 
-  """Number of services installed"""
+  """
+  Number of services installed
+  """
   installedCount: Int!
 
-  """Current service being installed"""
+  """
+  Current service being installed
+  """
   currentService: String
 
-  """Installation status"""
+  """
+  Installation status
+  """
   status: TemplateInstallationStatus!
 
-  """Error message if failed"""
+  """
+  Error message if failed
+  """
   errorMessage: String
 
-  """Installation start time"""
+  """
+  Installation start time
+  """
   startedAt: DateTime!
 
-  """Installation completion time"""
+  """
+  Installation completion time
+  """
   completedAt: DateTime
 
-  """Individual service results"""
+  """
+  Individual service results
+  """
   serviceResults: [ServiceResult!]!
 }
 
@@ -58,19 +86,29 @@ type TemplateInstallProgress {
 Template installation result
 """
 type TemplateInstallResult {
-  """Whether installation was successful"""
+  """
+  Whether installation was successful
+  """
   success: Boolean!
 
-  """Created instance IDs"""
+  """
+  Created instance IDs
+  """
   instanceIDs: [ID!]!
 
-  """Map of service names to instance IDs"""
+  """
+  Map of service names to instance IDs
+  """
   serviceMapping: JSON!
 
-  """Errors encountered"""
+  """
+  Errors encountered
+  """
   errors: [String!]
 
-  """Installation progress"""
+  """
+  Installation progress
+  """
   progress: TemplateInstallProgress
 }
 
@@ -78,16 +116,24 @@ type TemplateInstallResult {
 Input for installing a service template
 """
 input InstallServiceTemplateInput {
-  """Router ID"""
+  """
+  Router ID
+  """
   routerID: ID!
 
-  """Template ID to install"""
+  """
+  Template ID to install
+  """
   templateID: ID!
 
-  """Variable values"""
+  """
+  Variable values
+  """
   variables: JSON!
 
-  """Dry run (preview only, don't actually install)"""
+  """
+  Dry run (preview only, don't actually install)
+  """
   dryRun: Boolean
 }
 
@@ -95,22 +141,34 @@ input InstallServiceTemplateInput {
 Input for exporting services as a template
 """
 input ExportAsTemplateInput {
-  """Router ID"""
+  """
+  Router ID
+  """
   routerID: ID!
 
-  """Instance IDs to export"""
+  """
+  Instance IDs to export
+  """
   instanceIDs: [ID!]!
 
-  """Template name"""
+  """
+  Template name
+  """
   name: String!
 
-  """Template description"""
+  """
+  Template description
+  """
   description: String!
 
-  """Template category"""
+  """
+  Template category
+  """
   category: ServiceTemplateCategory!
 
-  """Template scope"""
+  """
+  Template scope
+  """
   scope: TemplateScope!
 }
 
@@ -118,10 +176,14 @@ input ExportAsTemplateInput {
 Input for importing a template
 """
 input ImportServiceTemplateInput {
-  """Router ID"""
+  """
+  Router ID
+  """
   routerID: ID!
 
-  """Template JSON data"""
+  """
+  Template JSON data
+  """
   templateData: JSON!
 }
 
@@ -131,13 +193,19 @@ extend type Query {
   Optionally filter by category and/or scope.
   """
   serviceTemplates(
-    """Router ID (null for built-in only)"""
+    """
+    Router ID (null for built-in only)
+    """
     routerID: ID
 
-    """Filter by category"""
+    """
+    Filter by category
+    """
     category: ServiceTemplateCategory
 
-    """Filter by scope"""
+    """
+    Filter by scope
+    """
     scope: TemplateScope
   ): [ServiceTemplate!]!
 
@@ -145,7 +213,9 @@ extend type Query {
   Get a specific service template by ID.
   """
   serviceTemplate(
-    """Template ID"""
+    """
+    Template ID
+    """
     id: ID!
   ): ServiceTemplate
 }
@@ -173,10 +243,14 @@ extend type Mutation {
   Built-in templates cannot be deleted.
   """
   deleteServiceTemplate(
-    """Router ID"""
+    """
+    Router ID
+    """
     routerID: ID!
 
-    """Template ID"""
+    """
+    Template ID
+    """
     templateID: ID!
   ): Boolean!
 }
@@ -187,7 +261,9 @@ extend type Subscription {
   Emits progress updates during installation.
   """
   templateInstallProgress(
-    """Router ID"""
+    """
+    Router ID
+    """
     routerID: ID!
   ): TemplateInstallProgress!
 }

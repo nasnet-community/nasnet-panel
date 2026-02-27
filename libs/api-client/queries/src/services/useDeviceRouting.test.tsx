@@ -81,7 +81,10 @@ describe('useDeviceRoutingMatrix', () => {
   ];
 
   const wrapper = ({ children }: { children: ReactNode }) => (
-    <MockedProvider mocks={mocks} addTypename={false}>
+    <MockedProvider
+      mocks={mocks}
+      addTypename={false}
+    >
       {children}
     </MockedProvider>
   );
@@ -154,7 +157,10 @@ describe('useDeviceRoutingMatrix', () => {
     ];
 
     const errorWrapper = ({ children }: { children: ReactNode }) => (
-      <MockedProvider mocks={errorMocks} addTypename={false}>
+      <MockedProvider
+        mocks={errorMocks}
+        addTypename={false}
+      >
         {children}
       </MockedProvider>
     );
@@ -206,7 +212,10 @@ describe('useDeviceRoutings', () => {
     ];
 
     const wrapper = ({ children }: { children: ReactNode }) => (
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider
+        mocks={mocks}
+        addTypename={false}
+      >
         {children}
       </MockedProvider>
     );
@@ -243,7 +252,10 @@ describe('useDeviceRoutings', () => {
     ];
 
     const wrapper = ({ children }: { children: ReactNode }) => (
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider
+        mocks={mocks}
+        addTypename={false}
+      >
         {children}
       </MockedProvider>
     );
@@ -298,7 +310,10 @@ describe('useDeviceRouting', () => {
     ];
 
     const wrapper = ({ children }: { children: ReactNode }) => (
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider
+        mocks={mocks}
+        addTypename={false}
+      >
         {children}
       </MockedProvider>
     );
@@ -316,7 +331,10 @@ describe('useDeviceRouting', () => {
 
   it('should skip query if no ID provided', () => {
     const wrapper = ({ children }: { children: ReactNode }) => (
-      <MockedProvider mocks={[]} addTypename={false}>
+      <MockedProvider
+        mocks={[]}
+        addTypename={false}
+      >
         {children}
       </MockedProvider>
     );
@@ -373,7 +391,10 @@ describe('useAssignDeviceRouting', () => {
     ];
 
     const wrapper = ({ children }: { children: ReactNode }) => (
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider
+        mocks={mocks}
+        addTypename={false}
+      >
         {children}
       </MockedProvider>
     );
@@ -405,7 +426,10 @@ describe('useAssignDeviceRouting', () => {
     ];
 
     const wrapper = ({ children }: { children: ReactNode }) => (
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider
+        mocks={mocks}
+        addTypename={false}
+      >
         {children}
       </MockedProvider>
     );
@@ -435,7 +459,10 @@ describe('useRemoveDeviceRouting', () => {
     ];
 
     const wrapper = ({ children }: { children: ReactNode }) => (
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider
+        mocks={mocks}
+        addTypename={false}
+      >
         {children}
       </MockedProvider>
     );
@@ -464,7 +491,10 @@ describe('useRemoveDeviceRouting', () => {
     ];
 
     const wrapper = ({ children }: { children: ReactNode }) => (
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider
+        mocks={mocks}
+        addTypename={false}
+      >
         {children}
       </MockedProvider>
     );
@@ -549,7 +579,10 @@ describe('useBulkAssignRouting', () => {
     ];
 
     const wrapper = ({ children }: { children: ReactNode }) => (
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider
+        mocks={mocks}
+        addTypename={false}
+      >
         {children}
       </MockedProvider>
     );
@@ -593,7 +626,10 @@ describe('useBulkAssignRouting', () => {
     ];
 
     const wrapper = ({ children }: { children: ReactNode }) => (
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider
+        mocks={mocks}
+        addTypename={false}
+      >
         {children}
       </MockedProvider>
     );
@@ -622,15 +658,16 @@ describe('useBulkAssignRouting', () => {
     ];
 
     const wrapper = ({ children }: { children: ReactNode }) => (
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider
+        mocks={mocks}
+        addTypename={false}
+      >
         {children}
       </MockedProvider>
     );
 
     const { result } = renderHook(() => useBulkAssignRouting(), { wrapper });
 
-    await expect(result.current.bulkAssign(mockInput)).rejects.toThrow(
-      'Bulk assignment failed'
-    );
+    await expect(result.current.bulkAssign(mockInput)).rejects.toThrow('Bulk assignment failed');
   });
 });

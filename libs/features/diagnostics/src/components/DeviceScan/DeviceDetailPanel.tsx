@@ -150,17 +150,17 @@ export const DeviceDetailPanel = React.memo(function DeviceDetailPanel({
       {/* Header */}
       <div className="flex items-start justify-between">
         <div>
-          <h3 className="font-semibold text-lg font-display text-category-networking">
+          <h3 className="font-display text-category-networking text-lg font-semibold">
             {device.hostname || 'Unknown Device'}
           </h3>
-          <p className="text-sm text-muted-foreground font-mono">{device.ip}</p>
+          <p className="text-muted-foreground font-mono text-sm">{device.ip}</p>
         </div>
         <Button
           variant="ghost"
           size="sm"
           onClick={onClose}
           aria-label="Close device details panel"
-          className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          className="focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
         >
           ×
         </Button>
@@ -169,63 +169,61 @@ export const DeviceDetailPanel = React.memo(function DeviceDetailPanel({
       {/* Device Information */}
       <div className="space-y-component-sm">
         <div>
-          <p className="text-xs font-medium text-muted-foreground">MAC Address</p>
-          <p className="text-sm font-mono text-foreground">{device.mac}</p>
+          <p className="text-muted-foreground text-xs font-medium">MAC Address</p>
+          <p className="text-foreground font-mono text-sm">{device.mac}</p>
         </div>
 
         <div>
-          <p className="text-xs font-medium text-muted-foreground">Vendor</p>
-          <p className="text-sm text-foreground">
-            {device.vendor || (
-              <span className="text-muted-foreground">Unknown vendor</span>
-            )}
+          <p className="text-muted-foreground text-xs font-medium">Vendor</p>
+          <p className="text-foreground text-sm">
+            {device.vendor || <span className="text-muted-foreground">Unknown vendor</span>}
           </p>
         </div>
 
         <div>
-          <p className="text-xs font-medium text-muted-foreground">Interface</p>
-          <p className="text-sm font-mono text-foreground">{device.interface}</p>
+          <p className="text-muted-foreground text-xs font-medium">Interface</p>
+          <p className="text-foreground font-mono text-sm">{device.interface}</p>
         </div>
 
         <div>
-          <p className="text-xs font-medium text-muted-foreground">Response Time</p>
-          <p className="text-sm text-foreground">{device.responseTime}ms</p>
+          <p className="text-muted-foreground text-xs font-medium">Response Time</p>
+          <p className="text-foreground text-sm">{device.responseTime}ms</p>
         </div>
 
         <div>
-          <p className="text-xs font-medium text-muted-foreground">First Seen</p>
-          <p className="text-sm text-foreground">{formatDate(device.firstSeen)}</p>
+          <p className="text-muted-foreground text-xs font-medium">First Seen</p>
+          <p className="text-foreground text-sm">{formatDate(device.firstSeen)}</p>
         </div>
       </div>
 
       {/* DHCP Lease Information */}
       {device.dhcpLease && (
-        <div className="pt-component-md border-t border-border space-y-component-sm">
-          <div className="flex items-center gap-component-sm">
+        <div className="pt-component-md border-border space-y-component-sm border-t">
+          <div className="gap-component-sm flex items-center">
             <Badge variant="default">DHCP Lease</Badge>
-            <Badge variant="secondary">
-              {device.dhcpLease.status}
-            </Badge>
+            <Badge variant="secondary">{device.dhcpLease.status}</Badge>
           </div>
 
           <div>
-            <p className="text-xs font-medium text-muted-foreground">Expires In</p>
-            <p className="text-sm text-foreground">{formatLeaseExpires(device.dhcpLease.expires)}</p>
+            <p className="text-muted-foreground text-xs font-medium">Expires In</p>
+            <p className="text-foreground text-sm">
+              {formatLeaseExpires(device.dhcpLease.expires)}
+            </p>
           </div>
 
           <div>
-            <p className="text-xs font-medium text-muted-foreground">DHCP Server</p>
-            <p className="text-sm font-mono text-foreground">{device.dhcpLease.server}</p>
+            <p className="text-muted-foreground text-xs font-medium">DHCP Server</p>
+            <p className="text-foreground font-mono text-sm">{device.dhcpLease.server}</p>
           </div>
         </div>
       )}
 
       {/* Actions */}
-      <div className="pt-component-md border-t border-border">
+      <div className="pt-component-md border-border border-t">
         <Button
           onClick={handleAddToKnownDevices}
           disabled={!routerId || isAdding}
-          className="w-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          className="focus-visible:ring-ring w-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
           size="sm"
         >
           {isAdding ? 'Adding...' : 'Add to Known Devices'}

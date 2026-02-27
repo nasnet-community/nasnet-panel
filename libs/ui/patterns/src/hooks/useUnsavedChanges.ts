@@ -16,11 +16,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 
-import {
-  useHistoryStore,
-  selectPastActions,
-  selectCanUndo,
-} from '@nasnet/state/stores';
+import { useHistoryStore, selectPastActions, selectCanUndo } from '@nasnet/state/stores';
 
 // =============================================================================
 // Types
@@ -157,9 +153,7 @@ export type DialogAction = 'save' | 'discard' | 'cancel';
  * }
  * ```
  */
-export function useUnsavedChanges(
-  options: UseUnsavedChangesOptions = {}
-): UseUnsavedChangesReturn {
+export function useUnsavedChanges(options: UseUnsavedChangesOptions = {}): UseUnsavedChangesReturn {
   const {
     isCritical = false,
     message,

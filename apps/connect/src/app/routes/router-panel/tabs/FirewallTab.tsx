@@ -11,14 +11,13 @@ import { useState, useCallback } from 'react';
 import { Settings2, BarChart3 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
-
 import {
   useFilterRules,
   useMoveFilterRule,
   useDeleteFilterRule,
   useToggleFilterRule,
 } from '@nasnet/api-client/queries/firewall';
-import type { FirewallRule , FirewallChain } from '@nasnet/core/types';
+import type { FirewallRule, FirewallChain } from '@nasnet/core/types';
 import {
   ServicesStatus,
   ChainSummaryCards,
@@ -27,7 +26,8 @@ import {
   FirewallQuickStats,
   RecentFirewallActivity,
   FirewallDetailTabs,
- useCounterSettingsStore } from '@nasnet/features/firewall';
+  useCounterSettingsStore,
+} from '@nasnet/features/firewall';
 import { useConnectionStore } from '@nasnet/state/stores';
 import { RuleEfficiencyReport, UnusedRulesFilter } from '@nasnet/ui/patterns';
 import type { Suggestion } from '@nasnet/ui/patterns/rule-efficiency-report/types';
@@ -49,8 +49,6 @@ import {
   CardContent,
   useToast,
 } from '@nasnet/ui/primitives';
-
-
 
 export function FirewallTab() {
   const { t } = useTranslation('firewall');
@@ -157,24 +155,22 @@ export function FirewallTab() {
 
   return (
     <div className="p-component-md md:p-component-lg animate-fade-in-up">
-      <div className="max-w-7xl mx-auto space-y-6">
+      <div className="mx-auto max-w-7xl space-y-6">
         {/* Page Header */}
         <div className="px-component-sm">
-          <h1 className="text-2xl md:text-3xl font-semibold font-display mb-1 category-header category-header-firewall">
+          <h1 className="font-display category-header category-header-firewall mb-1 text-2xl font-semibold md:text-3xl">
             {t('title')}
           </h1>
-          <p className="text-sm text-muted-foreground">
-            {t('description')}
-          </p>
+          <p className="text-muted-foreground text-sm">{t('description')}</p>
         </div>
 
         {/* Hero Stats Section */}
         <FirewallStatusHero />
 
         {/* Dashboard Grid: 2 columns on desktop */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
           {/* Left Column (2/3 width) - Main Content */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="space-y-6 lg:col-span-2">
             {/* Chain Summary Cards */}
             <ChainSummaryCards
               selectedChain={selectedChain}
@@ -204,9 +200,9 @@ export function FirewallTab() {
         {/* Counter Controls Toolbar */}
         <Card>
           <CardContent className="p-component-md">
-            <div className="flex flex-col md:flex-row gap-component-md md:items-center md:justify-between">
+            <div className="gap-component-md flex flex-col md:flex-row md:items-center md:justify-between">
               {/* Left side: Filter controls */}
-              <div className="flex flex-col sm:flex-row gap-3 flex-1">
+              <div className="flex flex-1 flex-col gap-3 sm:flex-row">
                 <UnusedRulesFilter
                   onFilterChange={setShowUnusedOnly}
                   onSortChange={setSortMode}
@@ -216,7 +212,7 @@ export function FirewallTab() {
               </div>
 
               {/* Right side: Action buttons and settings */}
-              <div className="flex gap-component-sm">
+              <div className="gap-component-sm flex">
                 {/* Efficiency Report Button */}
                 <Button
                   variant="outline"
@@ -231,15 +227,23 @@ export function FirewallTab() {
                 {/* Counter Settings Dropdown */}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="outline" size="sm" className="gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="gap-2"
+                    >
                       <Settings2 className="h-4 w-4" />
                       {t('buttons.counterSettings')}
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuContent
+                    align="end"
+                    className="w-56"
+                  >
                     <DropdownMenuLabel>{t('settings.pollingInterval')}</DropdownMenuLabel>
                     <DropdownMenuItem onClick={() => setPollingInterval(null)}>
-                      {pollingInterval === null && '✓ '}{t('settings.manual')}
+                      {pollingInterval === null && '✓ '}
+                      {t('settings.manual')}
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => setPollingInterval(5000)}>
                       {pollingInterval === 5000 && '✓ '}5 {t('settings.seconds')}
@@ -280,13 +284,14 @@ export function FirewallTab() {
       </div>
 
       {/* Efficiency Report Dialog */}
-      <Dialog open={showEfficiencyReport} onOpenChange={setShowEfficiencyReport}>
-        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+      <Dialog
+        open={showEfficiencyReport}
+        onOpenChange={setShowEfficiencyReport}
+      >
+        <DialogContent className="max-h-[80vh] max-w-4xl overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{t('dialogs.efficiencyReportTitle')}</DialogTitle>
-            <DialogDescription>
-              {t('dialogs.efficiencyReportDescription')}
-            </DialogDescription>
+            <DialogDescription>{t('dialogs.efficiencyReportDescription')}</DialogDescription>
           </DialogHeader>
           <RuleEfficiencyReport
             rules={(rules || []) as FirewallRule[]}

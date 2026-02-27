@@ -44,9 +44,7 @@ export function VlanTopology({ routerId, onVlanSelect }: VlanTopologyProps) {
     [topologyData, routerId, onVlanSelect]
   );
 
-  return platform === 'mobile' ? (
-    <VlanTopologyMobile {...sharedProps} />
-  ) : (
-    <VlanTopologyDesktop {...sharedProps} />
-  );
+  return platform === 'mobile' ?
+      <VlanTopologyMobile {...sharedProps} />
+    : <VlanTopologyDesktop {...sharedProps} />;
 }

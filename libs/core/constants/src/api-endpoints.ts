@@ -115,5 +115,5 @@ export const API_ENDPOINTS = {
   HEALTH: '/api/v1/health',
   HEALTH_PING: '/api/v1/health/ping',
   HEALTH_READY: '/api/v1/health/ready',
-  HEALTH_LIVE: '/api/v1/health/live'
+  HEALTH_LIVE: '/api/v1/health/live',
 } as const;

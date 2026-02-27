@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 /*
  * Connect App Storybook Styles
@@ -63,6 +63,10 @@
   body {
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-family:
+      'Inter',
+      system-ui,
+      -apple-system,
+      sans-serif;
   }
 }

@@ -346,7 +346,9 @@ test.describe('LTE Modem Configuration', () => {
     await page.getByRole('button', { name: /configure lte modem/i }).click();
 
     // Verify validation error
-    await expect(page.getByText(/apn can only contain letters.*numbers.*dots.*hyphens/i)).toBeVisible();
+    await expect(
+      page.getByText(/apn can only contain letters.*numbers.*dots.*hyphens/i)
+    ).toBeVisible();
   });
 });
 
@@ -513,7 +515,9 @@ test.describe('Connection History', () => {
     await page.getByRole('tab', { name: /connection history/i }).click();
 
     // Wait for events to load
-    await page.waitForSelector('[data-testid="connection-event"]', { timeout: 3000 }).catch(() => {});
+    await page
+      .waitForSelector('[data-testid="connection-event"]', { timeout: 3000 })
+      .catch(() => {});
 
     // Verify pagination controls
     const nextButton = page.getByRole('button', { name: /next/i });

@@ -1,7 +1,7 @@
 {
   "id": "testing/unit-testing",
   "title": "Unit Testing",
-  "description": "Unit tests cover pure functions, custom hooks, and utilities in isolation. They are the fastest tier — each test runs in milliseconds — and form the base of the testing pyramid. The test runner is Vitest, chosen for its native ESM support and Vite-native speed.",
+  "description": "Unit tests cover pure functions, custom hooks, and utilities in isolation. They are the fastest tier",
   "source": "@site/../connect/docs/testing/unit-testing.md",
   "sourceDirName": "testing",
   "slug": "/testing/unit-testing",

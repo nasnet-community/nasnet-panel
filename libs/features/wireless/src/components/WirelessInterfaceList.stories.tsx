@@ -26,23 +26,23 @@ import type { Meta, StoryObj } from '@storybook/react';
 function WirelessInterfaceSkeleton() {
   return (
     <div
-      className="rounded-2xl md:rounded-3xl border border-border p-component-md space-y-3 animate-pulse"
+      className="border-border p-component-md animate-pulse space-y-3 rounded-2xl border md:rounded-3xl"
       role="status"
       aria-label="Loading wireless interface"
     >
       <div className="flex items-start justify-between">
-        <div className="flex items-center gap-component-sm">
-          <div className="h-9 w-9 rounded-lg bg-muted" />
+        <div className="gap-component-sm flex items-center">
+          <div className="bg-muted h-9 w-9 rounded-lg" />
           <div className="space-y-2">
-            <div className="h-5 w-24 bg-muted rounded" />
-            <div className="h-4 w-32 bg-muted rounded" />
+            <div className="bg-muted h-5 w-24 rounded" />
+            <div className="bg-muted h-4 w-32 rounded" />
           </div>
         </div>
-        <div className="h-6 w-16 bg-muted rounded-full" />
+        <div className="bg-muted h-6 w-16 rounded-full" />
       </div>
-      <div className="flex items-center gap-component-md">
-        <div className="h-5 w-16 bg-muted rounded-md" />
-        <div className="h-5 w-20 bg-muted rounded-md" />
+      <div className="gap-component-md flex items-center">
+        <div className="bg-muted h-5 w-16 rounded-md" />
+        <div className="bg-muted h-5 w-20 rounded-md" />
       </div>
     </div>
   );
@@ -50,7 +50,7 @@ function WirelessInterfaceSkeleton() {
 
 function LoadingGrid() {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-component-md">
+    <div className="gap-component-md grid grid-cols-1 md:grid-cols-2">
       <WirelessInterfaceSkeleton />
       <WirelessInterfaceSkeleton />
       <WirelessInterfaceSkeleton />
@@ -61,18 +61,19 @@ function LoadingGrid() {
 function EmptyState() {
   return (
     <div
-      className="flex flex-col items-center justify-center py-16 px-component-md text-center"
+      className="px-component-md flex flex-col items-center justify-center py-16 text-center"
       role="status"
     >
-      <div className="p-6 rounded-full bg-muted mb-4">
-        <Wifi className="h-12 w-12 text-muted-foreground" aria-hidden="true" />
+      <div className="bg-muted mb-4 rounded-full p-6">
+        <Wifi
+          className="text-muted-foreground h-12 w-12"
+          aria-hidden="true"
+        />
       </div>
-      <h3 className="text-lg font-semibold text-foreground mb-2">
-        No wireless interfaces found
-      </h3>
-      <p className="text-sm text-muted-foreground max-w-md">
-        Your router doesn&apos;t appear to have any wireless interfaces configured.
-        This is normal for routers without WiFi capabilities.
+      <h3 className="text-foreground mb-2 text-lg font-semibold">No wireless interfaces found</h3>
+      <p className="text-muted-foreground max-w-md text-sm">
+        Your router doesn&apos;t appear to have any wireless interfaces configured. This is normal
+        for routers without WiFi capabilities.
       </p>
     </div>
   );
@@ -81,17 +82,20 @@ function EmptyState() {
 function ErrorState({ message }: { message: string }) {
   return (
     <div
-      className="flex flex-col items-center justify-center py-16 px-component-md text-center"
+      className="px-component-md flex flex-col items-center justify-center py-16 text-center"
       role="alert"
     >
-      <div className="p-6 rounded-full bg-error/10 mb-4">
-        <Wifi className="h-12 w-12 text-error" aria-hidden="true" />
+      <div className="bg-error/10 mb-4 rounded-full p-6">
+        <Wifi
+          className="text-error h-12 w-12"
+          aria-hidden="true"
+        />
       </div>
-      <h3 className="text-lg font-semibold text-foreground mb-2">
+      <h3 className="text-foreground mb-2 text-lg font-semibold">
         Failed to load wireless interfaces
       </h3>
-      <p className="text-sm text-muted-foreground max-w-md mb-4">{message}</p>
-      <button className="min-h-[44px] px-component-md py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+      <p className="text-muted-foreground mb-4 max-w-md text-sm">{message}</p>
+      <button className="px-component-md bg-primary text-primary-foreground hover:bg-primary/90 focus-visible:ring-ring min-h-[44px] rounded-lg py-2 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-offset-2">
         Retry
       </button>
     </div>
@@ -104,9 +108,13 @@ interface PopulatedGridProps {
 
 function PopulatedGrid({ interfaces }: PopulatedGridProps) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-component-md">
+    <div className="gap-component-md grid grid-cols-1 md:grid-cols-2">
       {interfaces.map((iface) => (
-        <WirelessInterfaceCard key={iface.id} interface={iface} onClick={() => {}} />
+        <WirelessInterfaceCard
+          key={iface.id}
+          interface={iface}
+          onClick={() => {}}
+        />
       ))}
     </div>
   );
@@ -241,7 +249,5 @@ export const FourInterfaces: Story = {
 
 export const SingleInterface: Story = {
   name: 'Populated — Single Interface',
-  render: () => (
-    <PopulatedGrid interfaces={[mockInterfaces[0]]} />
-  ),
+  render: () => <PopulatedGrid interfaces={[mockInterfaces[0]]} />,
 };

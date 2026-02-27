@@ -8,7 +8,6 @@
 
 import * as React from 'react';
 
-
 import { TemplateFilters } from './TemplateFilters';
 
 import type { TemplateBrowserFilters } from './types';
@@ -39,8 +38,7 @@ function FiltersWrapper({
   const [filters, setFilters] = React.useState<TemplateBrowserFilters>(initialFilters);
 
   const updateFilters = React.useCallback(
-    (partial: Partial<TemplateBrowserFilters>) =>
-      setFilters((prev) => ({ ...prev, ...partial })),
+    (partial: Partial<TemplateBrowserFilters>) => setFilters((prev) => ({ ...prev, ...partial })),
     []
   );
 
@@ -55,7 +53,7 @@ function FiltersWrapper({
     filters.sortBy !== 'name';
 
   return (
-    <div className="w-72 border border-border rounded-lg p-4 bg-background">
+    <div className="border-border bg-background w-72 rounded-lg border p-4">
       <TemplateFilters
         filters={filters}
         onFiltersChange={updateFilters}
@@ -64,10 +62,10 @@ function FiltersWrapper({
       />
       {/* Debug panel */}
       <details className="mt-6">
-        <summary className="text-xs text-muted-foreground cursor-pointer select-none">
+        <summary className="text-muted-foreground cursor-pointer select-none text-xs">
           Current filter state (debug)
         </summary>
-        <pre className="text-xs mt-2 overflow-auto bg-muted p-2 rounded">
+        <pre className="bg-muted mt-2 overflow-auto rounded p-2 text-xs">
           {JSON.stringify(filters, null, 2)}
         </pre>
       </details>
@@ -124,11 +122,7 @@ export const Default: Story = {
  * Pre-populated search query — clear button (×) is visible inside the input.
  */
 export const WithSearchQuery: Story = {
-  render: () => (
-    <FiltersWrapper
-      initialFilters={{ ...DEFAULT_FILTERS, searchQuery: 'privacy' }}
-    />
-  ),
+  render: () => <FiltersWrapper initialFilters={{ ...DEFAULT_FILTERS, searchQuery: 'privacy' }} />,
 };
 
 /**
@@ -168,9 +162,7 @@ export const MultipleActiveFilters: Story = {
  */
 export const CustomOnly: Story = {
   render: () => (
-    <FiltersWrapper
-      initialFilters={{ ...DEFAULT_FILTERS, showBuiltIn: false, showCustom: true }}
-    />
+    <FiltersWrapper initialFilters={{ ...DEFAULT_FILTERS, showBuiltIn: false, showCustom: true }} />
   ),
 };
 
@@ -178,9 +170,5 @@ export const CustomOnly: Story = {
  * Sorted by "Last Updated" — useful default for update-monitoring workflows.
  */
 export const SortedByUpdated: Story = {
-  render: () => (
-    <FiltersWrapper
-      initialFilters={{ ...DEFAULT_FILTERS, sortBy: 'updated' }}
-    />
-  ),
+  render: () => <FiltersWrapper initialFilters={{ ...DEFAULT_FILTERS, sortBy: 'updated' }} />,
 };

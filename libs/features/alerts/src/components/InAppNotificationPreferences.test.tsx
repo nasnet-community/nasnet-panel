@@ -83,9 +83,7 @@ describe('InAppNotificationPreferences', () => {
       expect(screen.queryByText('Severity Filter')).not.toBeInTheDocument();
       expect(screen.queryByText('Auto-Dismiss Timing')).not.toBeInTheDocument();
       expect(screen.queryByText('Notification Sound')).not.toBeInTheDocument();
-      expect(
-        screen.getByText(/In-app notifications are currently disabled/)
-      ).toBeInTheDocument();
+      expect(screen.getByText(/In-app notifications are currently disabled/)).toBeInTheDocument();
     });
 
     it('displays correct icon when notifications are enabled', () => {
@@ -375,9 +373,7 @@ describe('InAppNotificationPreferences', () => {
       render(<InAppNotificationPreferences />);
 
       expect(screen.getByRole('combobox', { name: /severity filter/i })).toBeInTheDocument();
-      expect(
-        screen.getByRole('combobox', { name: /auto-dismiss timing/i })
-      ).toBeInTheDocument();
+      expect(screen.getByRole('combobox', { name: /auto-dismiss timing/i })).toBeInTheDocument();
     });
 
     it('maintains focus management when interacting with controls', async () => {
@@ -419,9 +415,7 @@ describe('InAppNotificationPreferences', () => {
     });
 
     it('applies custom className', () => {
-      const { container } = render(
-        <InAppNotificationPreferences className="custom-class" />
-      );
+      const { container } = render(<InAppNotificationPreferences className="custom-class" />);
 
       const card = container.querySelector('.custom-class');
       expect(card).toBeInTheDocument();

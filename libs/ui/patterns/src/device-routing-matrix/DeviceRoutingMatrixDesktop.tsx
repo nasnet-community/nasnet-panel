@@ -7,12 +7,7 @@
 
 import { memo, useMemo } from 'react';
 
-import {
-  CheckIcon,
-  XMarkIcon,
-  TrashIcon,
-  ChevronDownIcon,
-} from '@heroicons/react/24/outline';
+import { CheckIcon, XMarkIcon, TrashIcon, ChevronDownIcon } from '@heroicons/react/24/outline';
 
 import {
   Button,
@@ -68,8 +63,7 @@ function DeviceRoutingMatrixDesktopComponent(props: DeviceRoutingMatrixProps) {
         header: ({ table }) => (
           <Checkbox
             checked={
-              table.getIsAllRowsSelected() ||
-              (table.getIsSomeRowsSelected() && 'indeterminate')
+              table.getIsAllRowsSelected() || (table.getIsSomeRowsSelected() && 'indeterminate')
             }
             onCheckedChange={(checked) => {
               if (checked) {
@@ -98,10 +92,10 @@ function DeviceRoutingMatrixDesktopComponent(props: DeviceRoutingMatrixProps) {
         header: 'Device Name',
         cell: ({ row }) => (
           <div className="flex flex-col">
-            <span className="font-medium text-foreground">
+            <span className="text-foreground font-medium">
               {row.original.hostname ?? 'Unknown'}
             </span>
-            <span className="text-xs text-muted-foreground">
+            <span className="text-muted-foreground text-xs">
               {row.original.ipAddress ?? 'No IP'}
             </span>
           </div>
@@ -112,9 +106,7 @@ function DeviceRoutingMatrixDesktopComponent(props: DeviceRoutingMatrixProps) {
         accessorKey: 'macAddress',
         header: 'MAC Address',
         cell: ({ row }) => (
-          <span className="font-mono text-sm text-muted-foreground">
-            {row.original.macAddress}
-          </span>
+          <span className="text-muted-foreground font-mono text-sm">{row.original.macAddress}</span>
         ),
         size: 150,
       },
@@ -124,13 +116,14 @@ function DeviceRoutingMatrixDesktopComponent(props: DeviceRoutingMatrixProps) {
         cell: ({ row }) => {
           const device = row.original;
           const sourceLabel =
-            device.dhcpLease && device.arpEntry
-              ? 'DHCP+ARP'
-              : device.dhcpLease
-              ? 'DHCP'
-              : 'ARP';
+            device.dhcpLease && device.arpEntry ? 'DHCP+ARP'
+            : device.dhcpLease ? 'DHCP'
+            : 'ARP';
           return (
-            <Badge variant="outline" className="font-mono text-xs">
+            <Badge
+              variant="outline"
+              className="font-mono text-xs"
+            >
               {sourceLabel}
             </Badge>
           );
@@ -146,7 +139,10 @@ function DeviceRoutingMatrixDesktopComponent(props: DeviceRoutingMatrixProps) {
 
           if (!device.isRouted || !routing) {
             return (
-              <Badge variant="secondary" className="gap-1">
+              <Badge
+                variant="secondary"
+                className="gap-1"
+              >
                 <XMarkIcon className="h-3 w-3" />
                 Unrouted
               </Badge>
@@ -154,7 +150,10 @@ function DeviceRoutingMatrixDesktopComponent(props: DeviceRoutingMatrixProps) {
           }
 
           return (
-            <Badge variant="success" className="gap-1">
+            <Badge
+              variant="success"
+              className="gap-1"
+            >
               <CheckIcon className="h-3 w-3" />
               {hook.getInterfaceName(routing.interfaceID)}
             </Badge>
@@ -185,12 +184,18 @@ function DeviceRoutingMatrixDesktopComponent(props: DeviceRoutingMatrixProps) {
               </SelectTrigger>
               <SelectContent>
                 {hook.availableInterfaces.map((iface) => (
-                  <SelectItem key={iface.id} value={iface.id}>
+                  <SelectItem
+                    key={iface.id}
+                    value={iface.id}
+                  >
                     {iface.instanceName}
                   </SelectItem>
                 ))}
                 {hook.availableInterfaces.length === 0 && (
-                  <SelectItem value="" disabled>
+                  <SelectItem
+                    value=""
+                    disabled
+                  >
                     No services available
                   </SelectItem>
                 )}
@@ -236,10 +241,10 @@ function DeviceRoutingMatrixDesktopComponent(props: DeviceRoutingMatrixProps) {
     <div className={className}>
       {/* Summary Stats */}
       {showSummary && (
-        <div className="mb-6 grid grid-cols-4 gap-component-md">
-          <Card className="bg-card border border-border rounded-[var(--semantic-radius-card)] p-4 sm:p-6 shadow-[var(--semantic-shadow-card)]">
+        <div className="gap-component-md mb-6 grid grid-cols-4">
+          <Card className="bg-card border-border rounded-[var(--semantic-radius-card)] border p-4 shadow-[var(--semantic-shadow-card)] sm:p-6">
             <CardHeader className="pb-2">
-              <CardTitle className="text-xs font-semibold text-muted-foreground">
+              <CardTitle className="text-muted-foreground text-xs font-semibold">
                 Total Devices
               </CardTitle>
             </CardHeader>
@@ -247,38 +252,34 @@ function DeviceRoutingMatrixDesktopComponent(props: DeviceRoutingMatrixProps) {
               <div className="text-2xl font-bold">{matrix.summary.totalDevices}</div>
             </CardContent>
           </Card>
-          <Card className="bg-card border border-border rounded-[var(--semantic-radius-card)] p-4 sm:p-6 shadow-[var(--semantic-shadow-card)]">
+          <Card className="bg-card border-border rounded-[var(--semantic-radius-card)] border p-4 shadow-[var(--semantic-shadow-card)] sm:p-6">
             <CardHeader className="pb-2">
-              <CardTitle className="text-xs font-semibold text-muted-foreground">
-                Routed
-              </CardTitle>
+              <CardTitle className="text-muted-foreground text-xs font-semibold">Routed</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-success">
-                {matrix.summary.routedDevices}
-              </div>
+              <div className="text-success text-2xl font-bold">{matrix.summary.routedDevices}</div>
             </CardContent>
           </Card>
-          <Card className="bg-card border border-border rounded-[var(--semantic-radius-card)] p-4 sm:p-6 shadow-[var(--semantic-shadow-card)]">
+          <Card className="bg-card border-border rounded-[var(--semantic-radius-card)] border p-4 shadow-[var(--semantic-shadow-card)] sm:p-6">
             <CardHeader className="pb-2">
-              <CardTitle className="text-xs font-semibold text-muted-foreground">
+              <CardTitle className="text-muted-foreground text-xs font-semibold">
                 Unrouted
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-muted-foreground">
+              <div className="text-muted-foreground text-2xl font-bold">
                 {matrix.summary.unroutedDevices}
               </div>
             </CardContent>
           </Card>
-          <Card className="bg-card border border-border rounded-[var(--semantic-radius-card)] p-4 sm:p-6 shadow-[var(--semantic-shadow-card)]">
+          <Card className="bg-card border-border rounded-[var(--semantic-radius-card)] border p-4 shadow-[var(--semantic-shadow-card)] sm:p-6">
             <CardHeader className="pb-2">
-              <CardTitle className="text-xs font-semibold text-muted-foreground">
+              <CardTitle className="text-muted-foreground text-xs font-semibold">
                 Active Services
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-primary">
+              <div className="text-primary text-2xl font-bold">
                 {matrix.summary.activeInterfaces}
               </div>
             </CardContent>
@@ -297,9 +298,7 @@ function DeviceRoutingMatrixDesktopComponent(props: DeviceRoutingMatrixProps) {
         />
         <Select
           value={hook.filters.routingStatus}
-          onValueChange={(value) =>
-            hook.setRoutingStatus(value as 'all' | 'routed' | 'unrouted')
-          }
+          onValueChange={(value) => hook.setRoutingStatus(value as 'all' | 'routed' | 'unrouted')}
         >
           <SelectTrigger className="w-[150px]">
             <SelectValue />
@@ -332,10 +331,8 @@ function DeviceRoutingMatrixDesktopComponent(props: DeviceRoutingMatrixProps) {
 
       {/* Bulk Action Bar */}
       {hook.selectionCount > 0 && (
-        <div className="mb-4 flex items-center gap-3 rounded-[var(--semantic-radius-card)] border border-border bg-muted p-3">
-          <span className="text-sm font-medium">
-            {hook.selectionCount} device(s) selected
-          </span>
+        <div className="border-border bg-muted mb-4 flex items-center gap-3 rounded-[var(--semantic-radius-card)] border p-3">
+          <span className="text-sm font-medium">{hook.selectionCount} device(s) selected</span>
           <Select
             onValueChange={(value) => {
               if (value) {
@@ -349,7 +346,10 @@ function DeviceRoutingMatrixDesktopComponent(props: DeviceRoutingMatrixProps) {
             </SelectTrigger>
             <SelectContent>
               {hook.availableInterfaces.map((iface) => (
-                <SelectItem key={iface.id} value={iface.id}>
+                <SelectItem
+                  key={iface.id}
+                  value={iface.id}
+                >
                   {iface.instanceName}
                 </SelectItem>
               ))}
@@ -367,7 +367,7 @@ function DeviceRoutingMatrixDesktopComponent(props: DeviceRoutingMatrixProps) {
 
       {/* Error State */}
       {error && (
-        <div className="mb-4 rounded-[var(--semantic-radius-card)] border border-error bg-error/10 p-3 text-sm text-error">
+        <div className="border-error bg-error/10 text-error mb-4 rounded-[var(--semantic-radius-card)] border p-3 text-sm">
           {error.message}
         </div>
       )}
@@ -388,7 +388,7 @@ function DeviceRoutingMatrixDesktopComponent(props: DeviceRoutingMatrixProps) {
         getRowId={(row) => row.deviceID}
         stickyHeader
         headerHeight={48}
-        className="rounded-[var(--semantic-radius-card)] border border-border"
+        className="border-border rounded-[var(--semantic-radius-card)] border"
       />
     </div>
   );

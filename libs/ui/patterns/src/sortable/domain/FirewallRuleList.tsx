@@ -16,11 +16,7 @@ import { SortableListDesktop } from '../components/SortableListDesktop';
 import { SortableListMobile } from '../components/SortableListMobile';
 
 import type { ContextMenuActions } from '../components/SortableListDesktop';
-import type {
-  SortableItemData,
-  ReorderEvent,
-  SortableItemRenderOptions,
-} from '../types';
+import type { SortableItemData, ReorderEvent, SortableItemRenderOptions } from '../types';
 
 // ============================================================================
 // Types
@@ -75,40 +71,38 @@ const FirewallRuleItem: React.FC<{
   return (
     <div
       className={cn(
-        'flex items-center gap-component-md py-component-sm',
-        'border-l-4 border-l-category-firewall',
-        rule.disabled && 'opacity-50',
+        'gap-component-md py-component-sm flex items-center',
+        'border-l-category-firewall border-l-4',
+        rule.disabled && 'opacity-50'
       )}
     >
       {/* Rule icon */}
       <Shield
         className={cn(
           'h-5 w-5 flex-shrink-0',
-          rule.action === 'accept' ? 'text-success' :
-          rule.action === 'drop' ? 'text-error' :
-          'text-muted-foreground'
+          rule.action === 'accept' ? 'text-success'
+          : rule.action === 'drop' ? 'text-error'
+          : 'text-muted-foreground'
         )}
       />
 
       {/* Rule content */}
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-component-sm flex-wrap">
+      <div className="min-w-0 flex-1">
+        <div className="gap-component-sm flex flex-wrap items-center">
           {/* Action badge */}
           <Badge
             variant="outline"
-            className={cn('uppercase text-xs font-medium', actionColors[rule.action])}
+            className={cn('text-xs font-medium uppercase', actionColors[rule.action])}
           >
             {rule.action}
           </Badge>
 
           {/* Chain */}
-          <span className="text-xs text-muted-foreground uppercase font-medium">
-            {rule.chain}
-          </span>
+          <span className="text-muted-foreground text-xs font-medium uppercase">{rule.chain}</span>
 
           {/* Protocol/port if present */}
           {rule.protocol && (
-            <span className="text-xs font-mono text-muted-foreground">
+            <span className="text-muted-foreground font-mono text-xs">
               {rule.protocol}
               {rule.dstPort && `:${rule.dstPort}`}
             </span>
@@ -117,29 +111,30 @@ const FirewallRuleItem: React.FC<{
 
         {/* Source/Destination */}
         {(rule.src || rule.dst) && (
-          <div className="text-xs text-muted-foreground mt-1 font-mono truncate">
+          <div className="text-muted-foreground mt-1 truncate font-mono text-xs">
             {rule.src ?? 'any'} → {rule.dst ?? 'any'}
           </div>
         )}
 
         {/* Comment */}
         {rule.comment && (
-          <div className="text-xs text-muted-foreground mt-1 truncate">
-            {rule.comment}
-          </div>
+          <div className="text-muted-foreground mt-1 truncate text-xs">{rule.comment}</div>
         )}
       </div>
 
       {/* Hit count */}
       {rule.hitCount !== undefined && rule.hitCount > 0 && (
-        <span className="text-xs text-muted-foreground font-mono flex-shrink-0">
+        <span className="text-muted-foreground flex-shrink-0 font-mono text-xs">
           {rule.hitCount.toLocaleString()} hits
         </span>
       )}
 
       {/* Disabled indicator */}
       {rule.disabled && (
-        <Badge variant="secondary" className="text-xs flex-shrink-0">
+        <Badge
+          variant="secondary"
+          className="flex-shrink-0 text-xs"
+        >
           Disabled
         </Badge>
       )}
@@ -183,8 +178,10 @@ export const FirewallRuleList: React.FC<FirewallRuleListProps> = ({
       const currentIndex = rules.findIndex((r) => r.id === rule.id);
       if (currentIndex > 0) {
         const newRules = [...rules];
-        [newRules[currentIndex - 1], newRules[currentIndex]] =
-          [newRules[currentIndex], newRules[currentIndex - 1]];
+        [newRules[currentIndex - 1], newRules[currentIndex]] = [
+          newRules[currentIndex],
+          newRules[currentIndex - 1],
+        ];
         onReorder?.({
           item: rule,
           fromIndex: currentIndex,
@@ -197,8 +194,10 @@ export const FirewallRuleList: React.FC<FirewallRuleListProps> = ({
       const currentIndex = rules.findIndex((r) => r.id === rule.id);
       if (currentIndex < rules.length - 1) {
         const newRules = [...rules];
-        [newRules[currentIndex], newRules[currentIndex + 1]] =
-          [newRules[currentIndex + 1], newRules[currentIndex]];
+        [newRules[currentIndex], newRules[currentIndex + 1]] = [
+          newRules[currentIndex + 1],
+          newRules[currentIndex],
+        ];
         onReorder?.({
           item: rule,
           fromIndex: currentIndex,
@@ -223,8 +222,9 @@ export const FirewallRuleList: React.FC<FirewallRuleListProps> = ({
     },
     onDuplicate,
     onDelete,
-    customActions: onEdit
-      ? [
+    customActions:
+      onEdit ?
+        [
           {
             label: 'Edit Rule',
             onClick: onEdit,
@@ -235,7 +235,10 @@ export const FirewallRuleList: React.FC<FirewallRuleListProps> = ({
 
   // Render function
   const renderItem = (rule: FirewallRule, options: SortableItemRenderOptions) => (
-    <FirewallRuleItem rule={rule} options={options} />
+    <FirewallRuleItem
+      rule={rule}
+      options={options}
+    />
   );
 
   // Handle move for mobile
@@ -255,7 +258,7 @@ export const FirewallRuleList: React.FC<FirewallRuleListProps> = ({
     return (
       <div className={className}>
         {/* Warning for firewall rule ordering */}
-        <div className="flex items-center gap-component-md p-component-md mb-3 bg-warning-light border border-warning/20 rounded-[var(--semantic-radius-card)] text-sm text-warning-dark">
+        <div className="gap-component-md p-component-md bg-warning-light border-warning/20 text-warning-dark mb-3 flex items-center rounded-[var(--semantic-radius-card)] border text-sm">
           <AlertTriangle className="h-4 w-4 flex-shrink-0" />
           <span>Firewall rules are processed in order. Drag to reorder.</span>
         </div>
@@ -278,7 +281,7 @@ export const FirewallRuleList: React.FC<FirewallRuleListProps> = ({
   return (
     <div className={className}>
       {/* Warning for firewall rule ordering */}
-      <div className="flex items-center gap-component-md p-component-md mb-3 bg-warning-light border border-warning/20 rounded-[var(--semantic-radius-card)] text-sm text-warning-dark">
+      <div className="gap-component-md p-component-md bg-warning-light border-warning/20 text-warning-dark mb-3 flex items-center rounded-[var(--semantic-radius-card)] border text-sm">
         <AlertTriangle className="h-4 w-4 flex-shrink-0" />
         <span>Rules are processed in order.</span>
       </div>

@@ -92,13 +92,9 @@ export function VlanListDesktop({
         key: 'name',
         header: 'Name',
         cell: (vlan) => (
-          <div className="flex flex-col gap-component-xs">
+          <div className="gap-component-xs flex flex-col">
             <span className="font-medium">{vlan.name}</span>
-            {vlan.comment && (
-              <span className="text-sm text-muted-foreground">
-                {vlan.comment}
-              </span>
-            )}
+            {vlan.comment && <span className="text-muted-foreground text-sm">{vlan.comment}</span>}
           </div>
         ),
       },
@@ -106,7 +102,10 @@ export function VlanListDesktop({
         key: 'vlanId',
         header: 'VLAN ID',
         cell: (vlan) => (
-          <Badge variant="outline" className="font-mono tabular-nums">
+          <Badge
+            variant="outline"
+            className="font-mono tabular-nums"
+          >
             {vlan.vlanId}
           </Badge>
         ),
@@ -115,11 +114,9 @@ export function VlanListDesktop({
         key: 'interface',
         header: 'Parent Interface',
         cell: (vlan) => (
-          <div className="flex flex-col gap-component-xs">
-            <span className="font-medium font-mono">{vlan.interface.name}</span>
-            <span className="text-xs text-muted-foreground capitalize">
-              {vlan.interface.type}
-            </span>
+          <div className="gap-component-xs flex flex-col">
+            <span className="font-mono font-medium">{vlan.interface.name}</span>
+            <span className="text-muted-foreground text-xs capitalize">{vlan.interface.type}</span>
           </div>
         ),
       },
@@ -139,25 +136,26 @@ export function VlanListDesktop({
           if (vlan.disabled) {
             return <Badge variant="secondary">Disabled</Badge>;
           }
-          return vlan.running ? (
-            <Badge variant="success">Running</Badge>
-          ) : (
-            <Badge variant="warning">Not Running</Badge>
-          );
+          return vlan.running ?
+              <Badge variant="success">Running</Badge>
+            : <Badge variant="warning">Not Running</Badge>;
         },
       },
       {
         key: 'actions',
         header: '',
         cell: (vlan) => (
-          <div className="flex items-center gap-component-sm justify-end">
+          <div className="gap-component-sm flex items-center justify-end">
             <Button
               variant="ghost"
               size="sm"
               onClick={() => setSelectedVlanId(vlan.id)}
               aria-label={`Edit VLAN ${vlan.name}`}
             >
-              <Edit className="h-4 w-4" aria-hidden="true" />
+              <Edit
+                className="h-4 w-4"
+                aria-hidden="true"
+              />
             </Button>
             <Button
               variant="ghost"
@@ -168,7 +166,10 @@ export function VlanListDesktop({
               }}
               aria-label={`Delete VLAN ${vlan.name}`}
             >
-              <Trash2 className="h-4 w-4" aria-hidden="true" />
+              <Trash2
+                className="h-4 w-4"
+                aria-hidden="true"
+              />
             </Button>
           </div>
         ),
@@ -187,12 +188,12 @@ export function VlanListDesktop({
   }, [vlanToDelete, handleDelete]);
 
   return (
-    <div className="flex flex-col gap-component-md">
+    <div className="gap-component-md flex flex-col">
       {/* Toolbar */}
       <DataTableToolbar>
-        <div className="flex items-center gap-component-sm flex-1">
-          <div className="relative flex-1 max-w-sm">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <div className="gap-component-sm flex flex-1 items-center">
+          <div className="relative max-w-sm flex-1">
+            <Search className="text-muted-foreground absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2" />
             <Input
               placeholder="Search VLANs..."
               value={searchQuery}
@@ -204,18 +205,19 @@ export function VlanListDesktop({
           {/* Parent Interface Filter */}
           <Select
             value={parentInterfaceFilter || 'all'}
-            onValueChange={(value) =>
-              setParentInterfaceFilter(value === 'all' ? null : value)
-            }
+            onValueChange={(value) => setParentInterfaceFilter(value === 'all' ? null : value)}
           >
             <SelectTrigger className="w-[200px] font-mono">
-              <Filter className="h-4 w-4 mr-2" />
+              <Filter className="mr-2 h-4 w-4" />
               <SelectValue placeholder="All Interfaces" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Interfaces</SelectItem>
               {parentInterfaces.map((iface) => (
-                <SelectItem key={iface.id} value={iface.id}>
+                <SelectItem
+                  key={iface.id}
+                  value={iface.id}
+                >
                   {iface.name}
                 </SelectItem>
               ))}
@@ -224,14 +226,18 @@ export function VlanListDesktop({
 
           {/* Clear Filters */}
           {(searchQuery || parentInterfaceFilter || vlanIdRangeFilter) && (
-            <Button variant="ghost" size="sm" onClick={clearFilters}>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={clearFilters}
+            >
               Clear Filters
             </Button>
           )}
         </div>
 
         <Button onClick={() => setCreateDialogOpen(true)}>
-          <Plus className="h-4 w-4 mr-2" />
+          <Plus className="mr-2 h-4 w-4" />
           Create VLAN
         </Button>
       </DataTableToolbar>
@@ -251,9 +257,9 @@ export function VlanListDesktop({
         onOpenChange={setDeleteConfirmOpen}
         title="Delete VLAN"
         description={
-          vlanToDelete
-            ? `Are you sure you want to delete VLAN "${vlanToDelete.name}" (VLAN ID: ${vlanToDelete.vlanId})? This action cannot be undone.`
-            : ''
+          vlanToDelete ?
+            `Are you sure you want to delete VLAN "${vlanToDelete.name}" (VLAN ID: ${vlanToDelete.vlanId})? This action cannot be undone.`
+          : ''
         }
         consequences={['This action cannot be undone']}
         confirmText="DELETE"

@@ -18,7 +18,6 @@ import {
   templatesByCategory,
 } from '../../__test-utils__/alert-rule-template-fixtures';
 
-
 import type { Meta, StoryObj } from '@storybook/react';
 
 // =============================================================================
@@ -127,7 +126,10 @@ export const Default: Story = {
   args: {},
   decorators: [
     (Story) => (
-      <MockedProvider mocks={createMocks(allTemplates, 100)} addTypename={false}>
+      <MockedProvider
+        mocks={createMocks(allTemplates, 100)}
+        addTypename={false}
+      >
         <Story />
       </MockedProvider>
     ),
@@ -281,7 +283,10 @@ export const Loading: Story = {
   args: {},
   decorators: [
     (Story) => (
-      <MockedProvider mocks={createMocks(allTemplates, 5000)} addTypename={false}>
+      <MockedProvider
+        mocks={createMocks(allTemplates, 5000)}
+        addTypename={false}
+      >
         <Story />
       </MockedProvider>
     ),
@@ -373,7 +378,10 @@ export const Mobile: Story = {
   args: {},
   decorators: [
     (Story) => (
-      <MockedProvider mocks={createMocks(allTemplates, 100)} addTypename={false}>
+      <MockedProvider
+        mocks={createMocks(allTemplates, 100)}
+        addTypename={false}
+      >
         <Story />
       </MockedProvider>
     ),
@@ -397,7 +405,10 @@ export const Tablet: Story = {
   args: {},
   decorators: [
     (Story) => (
-      <MockedProvider mocks={createMocks(allTemplates, 100)} addTypename={false}>
+      <MockedProvider
+        mocks={createMocks(allTemplates, 100)}
+        addTypename={false}
+      >
         <Story />
       </MockedProvider>
     ),
@@ -416,7 +427,10 @@ export const Desktop: Story = {
   args: {},
   decorators: [
     (Story) => (
-      <MockedProvider mocks={createMocks(allTemplates, 100)} addTypename={false}>
+      <MockedProvider
+        mocks={createMocks(allTemplates, 100)}
+        addTypename={false}
+      >
         <Story />
       </MockedProvider>
     ),
@@ -440,7 +454,10 @@ export const InteractiveApply: Story = {
   args: {},
   decorators: [
     (Story) => (
-      <MockedProvider mocks={createMocks(allTemplates, 100)} addTypename={false}>
+      <MockedProvider
+        mocks={createMocks(allTemplates, 100)}
+        addTypename={false}
+      >
         <Story />
       </MockedProvider>
     ),

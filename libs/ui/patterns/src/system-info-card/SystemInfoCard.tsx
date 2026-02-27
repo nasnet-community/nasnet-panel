@@ -9,14 +9,7 @@ import { AlertCircle, RefreshCw } from 'lucide-react';
 
 import type { SystemInfo } from '@nasnet/core/types';
 import { parseRouterOSUptime } from '@nasnet/core/utils';
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-  Skeleton,
-  Button,
-} from '@nasnet/ui/primitives';
+import { Card, CardHeader, CardTitle, CardContent, Skeleton, Button } from '@nasnet/ui/primitives';
 
 /**
  * SystemInfoCard Props
@@ -72,8 +65,8 @@ export const SystemInfoCard = React.memo(function SystemInfoCard({
         </CardHeader>
         <CardContent className="pt-0">
           <div className="flex flex-col items-center justify-center py-8 text-center">
-            <AlertCircle className="h-12 w-12 text-error mb-4" />
-            <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">
+            <AlertCircle className="text-error mb-4 h-12 w-12" />
+            <p className="mb-4 text-sm text-slate-500 dark:text-slate-400">
               Failed to load system information
             </p>
             {onRetry && (
@@ -83,7 +76,7 @@ export const SystemInfoCard = React.memo(function SystemInfoCard({
                 size="sm"
                 className="rounded-button"
               >
-                <RefreshCw className="h-4 w-4 mr-2" />
+                <RefreshCw className="mr-2 h-4 w-4" />
                 Retry
               </Button>
             )}
@@ -121,24 +114,34 @@ export const SystemInfoCard = React.memo(function SystemInfoCard({
       </CardHeader>
       <CardContent className="space-y-0 pt-0">
         <div className="divide-y divide-slate-200 dark:divide-slate-700">
-          <div className="flex justify-between items-center py-3">
+          <div className="flex items-center justify-between py-3">
             <span className="text-sm font-medium text-slate-500 dark:text-slate-400">Model</span>
-            <span className="text-sm font-semibold text-slate-900 dark:text-slate-50">{data.model || 'N/A'}</span>
+            <span className="text-sm font-semibold text-slate-900 dark:text-slate-50">
+              {data.model || 'N/A'}
+            </span>
           </div>
 
-          <div className="flex justify-between items-center py-3">
+          <div className="flex items-center justify-between py-3">
             <span className="text-sm font-medium text-slate-500 dark:text-slate-400">RouterOS</span>
-            <span className="text-sm font-semibold text-slate-900 dark:text-slate-50">{data.routerOsVersion || 'N/A'}</span>
+            <span className="text-sm font-semibold text-slate-900 dark:text-slate-50">
+              {data.routerOsVersion || 'N/A'}
+            </span>
           </div>
 
-          <div className="flex justify-between items-center py-3">
+          <div className="flex items-center justify-between py-3">
             <span className="text-sm font-medium text-slate-500 dark:text-slate-400">Uptime</span>
-            <span className="text-sm font-semibold text-slate-900 dark:text-slate-50">{formattedUptime}</span>
+            <span className="text-sm font-semibold text-slate-900 dark:text-slate-50">
+              {formattedUptime}
+            </span>
           </div>
 
-          <div className="flex justify-between items-center py-3">
-            <span className="text-sm font-medium text-slate-500 dark:text-slate-400">Architecture</span>
-            <span className="text-sm font-semibold text-slate-900 dark:text-slate-50">{data.cpuArchitecture || 'N/A'}</span>
+          <div className="flex items-center justify-between py-3">
+            <span className="text-sm font-medium text-slate-500 dark:text-slate-400">
+              Architecture
+            </span>
+            <span className="text-sm font-semibold text-slate-900 dark:text-slate-50">
+              {data.cpuArchitecture || 'N/A'}
+            </span>
           </div>
         </div>
       </CardContent>

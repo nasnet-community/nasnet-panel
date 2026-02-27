@@ -106,8 +106,7 @@ export const UntaggedVlans: Story = {
   parameters: {
     docs: {
       description: {
-        story:
-          'The same component used for untagged VLAN membership, with two IDs pre-populated.',
+        story: 'The same component used for untagged VLAN membership, with two IDs pre-populated.',
       },
     },
   },
@@ -159,8 +158,7 @@ export const NoDescription: Story = {
   parameters: {
     docs: {
       description: {
-        story:
-          'Compact variant without a description paragraph, suitable for tight form layouts.',
+        story: 'Compact variant without a description paragraph, suitable for tight form layouts.',
       },
     },
   },

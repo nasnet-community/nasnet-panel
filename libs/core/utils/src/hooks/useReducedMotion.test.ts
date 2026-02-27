@@ -88,10 +88,13 @@ describe('useReducedMotion', () => {
 
 describe('getReducedMotionPreference', () => {
   beforeEach(() => {
-    vi.stubGlobal('matchMedia', vi.fn().mockImplementation((query: string) => ({
-      matches: false,
-      media: query,
-    })));
+    vi.stubGlobal(
+      'matchMedia',
+      vi.fn().mockImplementation((query: string) => ({
+        matches: false,
+        media: query,
+      }))
+    );
   });
 
   afterEach(() => {
@@ -103,10 +106,13 @@ describe('getReducedMotionPreference', () => {
   });
 
   it('returns true when prefers-reduced-motion is set', () => {
-    vi.stubGlobal('matchMedia', vi.fn().mockImplementation((query: string) => ({
-      matches: query === '(prefers-reduced-motion: reduce)',
-      media: query,
-    })));
+    vi.stubGlobal(
+      'matchMedia',
+      vi.fn().mockImplementation((query: string) => ({
+        matches: query === '(prefers-reduced-motion: reduce)',
+        media: query,
+      }))
+    );
 
     expect(getReducedMotionPreference()).toBe(true);
   });

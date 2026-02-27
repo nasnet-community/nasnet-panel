@@ -114,7 +114,9 @@ export function useDeleteBridge() {
     // Remove from cache optimistically
     update(cache, { data }) {
       if (data?.deleteBridge?.success) {
-        cache.evict({ id: cache.identify({ __typename: 'Bridge', uuid: data.deleteBridge.operationId }) });
+        cache.evict({
+          id: cache.identify({ __typename: 'Bridge', uuid: data.deleteBridge.operationId }),
+        });
         cache.gc();
       }
     },
@@ -260,7 +262,9 @@ export function useRemoveBridgePort() {
     // Remove from cache optimistically
     update(cache, { data }) {
       if (data?.removeBridgePort?.success) {
-        cache.evict({ id: cache.identify({ __typename: 'BridgePort', uuid: data.removeBridgePort.operationId }) });
+        cache.evict({
+          id: cache.identify({ __typename: 'BridgePort', uuid: data.removeBridgePort.operationId }),
+        });
         cache.gc();
       }
     },

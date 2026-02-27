@@ -319,7 +319,9 @@ export const PreroutingChainActive: Story = {
         {
           url: '/api/routers/:routerId/firewall/filter',
           method: 'get',
-          response: { data: [{ id: '*1', chain: 'forward', action: 'accept', disabled: false, order: 0 }] },
+          response: {
+            data: [{ id: '*1', chain: 'forward', action: 'accept', disabled: false, order: 0 }],
+          },
         },
         {
           url: '/api/routers/:routerId/firewall/nat',

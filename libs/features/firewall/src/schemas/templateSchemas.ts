@@ -51,13 +51,15 @@ import type { TemplateVariable, FirewallTemplate } from '@nasnet/core/types';
  * IPv4 address validation pattern
  * @description Matches valid IPv4 addresses (e.g., 192.168.1.1)
  */
-export const IPV4_PATTERN = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+export const IPV4_PATTERN =
+  /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
 
 /**
  * CIDR notation validation pattern
  * @description Matches valid CIDR notation (e.g., 192.168.1.0/24)
  */
-export const CIDR_PATTERN = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\/(?:3[0-2]|[12]?[0-9])$/;
+export const CIDR_PATTERN =
+  /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\/(?:3[0-2]|[12]?[0-9])$/;
 
 /**
  * Port range validation pattern
@@ -243,7 +245,11 @@ export function createVariableValueSchema(variable: TemplateVariable): z.ZodType
   }
 
   // Handle required vs optional
-  if (!variable.isRequired && ((variable.type as string) !== 'NUMBER' && (variable.type as string) !== 'BOOLEAN')) {
+  if (
+    !variable.isRequired &&
+    (variable.type as string) !== 'NUMBER' &&
+    (variable.type as string) !== 'BOOLEAN'
+  ) {
     return schema.optional();
   }
 
@@ -266,7 +272,9 @@ export function createVariableValueSchema(variable: TemplateVariable): z.ZodType
  * });
  * ```
  */
-export function createTemplateVariablesSchema(template: FirewallTemplate): z.ZodObject<z.ZodRawShape> {
+export function createTemplateVariablesSchema(
+  template: FirewallTemplate
+): z.ZodObject<z.ZodRawShape> {
   const shape: z.ZodRawShape = {};
 
   template.variables.forEach((variable) => {

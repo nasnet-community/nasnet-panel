@@ -32,17 +32,13 @@ describe('component generator', () => {
     });
 
     // Files use kebab-case naming (fileName)
+    expect(tree.exists('apps/connect/src/components/my-test-component/my-test-component.tsx')).toBe(
+      true
+    );
     expect(
-      tree.exists('apps/connect/src/components/my-test-component/my-test-component.tsx')
+      tree.exists('apps/connect/src/components/my-test-component/my-test-component.test.tsx')
     ).toBe(true);
-    expect(
-      tree.exists(
-        'apps/connect/src/components/my-test-component/my-test-component.test.tsx'
-      )
-    ).toBe(true);
-    expect(
-      tree.exists('apps/connect/src/components/my-test-component/index.ts')
-    ).toBe(true);
+    expect(tree.exists('apps/connect/src/components/my-test-component/index.ts')).toBe(true);
   });
 
   it('should create component with correct imports', async () => {
@@ -84,10 +80,7 @@ describe('component generator', () => {
       project: 'connect',
     });
 
-    const indexContent = tree.read(
-      'apps/connect/src/components/export-test/index.ts',
-      'utf-8'
-    );
+    const indexContent = tree.read('apps/connect/src/components/export-test/index.ts', 'utf-8');
 
     expect(indexContent).toContain("export { ExportTest } from './export-test'");
     expect(indexContent).toContain('export type { ExportTestProps }');
@@ -100,9 +93,7 @@ describe('component generator', () => {
       directory: 'components/shared',
     });
 
-    expect(
-      tree.exists('apps/connect/src/components/shared/custom-dir/custom-dir.tsx')
-    ).toBe(true);
+    expect(tree.exists('apps/connect/src/components/shared/custom-dir/custom-dir.tsx')).toBe(true);
   });
 
   it('should support variants option', async () => {
@@ -119,7 +110,7 @@ describe('component generator', () => {
 
     expect(content).toContain('cva');
     expect(content).toContain('variantComponentVariants');
-    expect(content).toContain("VariantProps<typeof variantComponentVariants>");
+    expect(content).toContain('VariantProps<typeof variantComponentVariants>');
   });
 
   it('should respect dry-run mode', async () => {
@@ -131,8 +122,6 @@ describe('component generator', () => {
 
     // Files should still be created in the tree for preview,
     // but formatFiles is skipped (which is what we control)
-    expect(
-      tree.exists('apps/connect/src/components/dry-run-test/dry-run-test.tsx')
-    ).toBe(true);
+    expect(tree.exists('apps/connect/src/components/dry-run-test/dry-run-test.tsx')).toBe(true);
   });
 });

@@ -54,11 +54,12 @@ describe('DeviceListItem Accessibility', () => {
   describe('Mobile Presenter', () => {
     it('should have no accessibility violations (default state)', async () => {
       const device = createMockDevice();
-      const { result } = renderHook(() =>
-        useDeviceListItem({ device, showHostname: true })
-      );
+      const { result } = renderHook(() => useDeviceListItem({ device, showHostname: true }));
       const { container } = render(
-        <DeviceListItemMobile state={result.current} device={device} />
+        <DeviceListItemMobile
+          state={result.current}
+          device={device}
+        />
       );
 
       expect(await axe(container)).toHaveNoViolations();
@@ -66,11 +67,12 @@ describe('DeviceListItem Accessibility', () => {
 
     it('should have no violations with new device badge', async () => {
       const device = createMockDevice({ isNew: true });
-      const { result } = renderHook(() =>
-        useDeviceListItem({ device, showHostname: true })
-      );
+      const { result } = renderHook(() => useDeviceListItem({ device, showHostname: true }));
       const { container } = render(
-        <DeviceListItemMobile state={result.current} device={device} />
+        <DeviceListItemMobile
+          state={result.current}
+          device={device}
+        />
       );
 
       expect(await axe(container)).toHaveNoViolations();
@@ -78,11 +80,12 @@ describe('DeviceListItem Accessibility', () => {
 
     it('should have no violations with static lease badge', async () => {
       const device = createMockDevice({ isStatic: true });
-      const { result } = renderHook(() =>
-        useDeviceListItem({ device, showHostname: true })
-      );
+      const { result } = renderHook(() => useDeviceListItem({ device, showHostname: true }));
       const { container } = render(
-        <DeviceListItemMobile state={result.current} device={device} />
+        <DeviceListItemMobile
+          state={result.current}
+          device={device}
+        />
       );
 
       expect(await axe(container)).toHaveNoViolations();
@@ -90,11 +93,12 @@ describe('DeviceListItem Accessibility', () => {
 
     it('should have no violations in privacy mode', async () => {
       const device = createMockDevice();
-      const { result } = renderHook(() =>
-        useDeviceListItem({ device, showHostname: false })
-      );
+      const { result } = renderHook(() => useDeviceListItem({ device, showHostname: false }));
       const { container } = render(
-        <DeviceListItemMobile state={result.current} device={device} />
+        <DeviceListItemMobile
+          state={result.current}
+          device={device}
+        />
       );
 
       expect(await axe(container)).toHaveNoViolations();
@@ -102,11 +106,12 @@ describe('DeviceListItem Accessibility', () => {
 
     it('should have no violations with unknown hostname', async () => {
       const device = createMockDevice({ hostname: 'Unknown' });
-      const { result } = renderHook(() =>
-        useDeviceListItem({ device, showHostname: true })
-      );
+      const { result } = renderHook(() => useDeviceListItem({ device, showHostname: true }));
       const { container } = render(
-        <DeviceListItemMobile state={result.current} device={device} />
+        <DeviceListItemMobile
+          state={result.current}
+          device={device}
+        />
       );
 
       expect(await axe(container)).toHaveNoViolations();
@@ -114,11 +119,12 @@ describe('DeviceListItem Accessibility', () => {
 
     it('should have proper ARIA attributes for expandable button', () => {
       const device = createMockDevice();
-      const { result } = renderHook(() =>
-        useDeviceListItem({ device, showHostname: true })
-      );
+      const { result } = renderHook(() => useDeviceListItem({ device, showHostname: true }));
       const { getByRole } = render(
-        <DeviceListItemMobile state={result.current} device={device} />
+        <DeviceListItemMobile
+          state={result.current}
+          device={device}
+        />
       );
 
       const button = getByRole('button');
@@ -127,11 +133,12 @@ describe('DeviceListItem Accessibility', () => {
 
     it('should have 44px minimum touch target height', () => {
       const device = createMockDevice();
-      const { result } = renderHook(() =>
-        useDeviceListItem({ device, showHostname: true })
-      );
+      const { result } = renderHook(() => useDeviceListItem({ device, showHostname: true }));
       const { container } = render(
-        <DeviceListItemMobile state={result.current} device={device} />
+        <DeviceListItemMobile
+          state={result.current}
+          device={device}
+        />
       );
 
       const button = container.querySelector('button');
@@ -142,11 +149,12 @@ describe('DeviceListItem Accessibility', () => {
   describe('Tablet Presenter', () => {
     it('should have no accessibility violations (default state)', async () => {
       const device = createMockDevice();
-      const { result } = renderHook(() =>
-        useDeviceListItem({ device, showHostname: true })
-      );
+      const { result } = renderHook(() => useDeviceListItem({ device, showHostname: true }));
       const { container } = render(
-        <DeviceListItemTablet state={result.current} device={device} />
+        <DeviceListItemTablet
+          state={result.current}
+          device={device}
+        />
       );
 
       expect(await axe(container)).toHaveNoViolations();
@@ -154,11 +162,12 @@ describe('DeviceListItem Accessibility', () => {
 
     it('should have no violations with new and static badges', async () => {
       const device = createMockDevice({ isNew: true, isStatic: true });
-      const { result } = renderHook(() =>
-        useDeviceListItem({ device, showHostname: true })
-      );
+      const { result } = renderHook(() => useDeviceListItem({ device, showHostname: true }));
       const { container } = render(
-        <DeviceListItemTablet state={result.current} device={device} />
+        <DeviceListItemTablet
+          state={result.current}
+          device={device}
+        />
       );
 
       expect(await axe(container)).toHaveNoViolations();
@@ -166,11 +175,12 @@ describe('DeviceListItem Accessibility', () => {
 
     it('should have no violations in privacy mode', async () => {
       const device = createMockDevice();
-      const { result } = renderHook(() =>
-        useDeviceListItem({ device, showHostname: false })
-      );
+      const { result } = renderHook(() => useDeviceListItem({ device, showHostname: false }));
       const { container } = render(
-        <DeviceListItemTablet state={result.current} device={device} />
+        <DeviceListItemTablet
+          state={result.current}
+          device={device}
+        />
       );
 
       expect(await axe(container)).toHaveNoViolations();
@@ -178,11 +188,12 @@ describe('DeviceListItem Accessibility', () => {
 
     it('should have proper ARIA for expandable section', () => {
       const device = createMockDevice();
-      const { result } = renderHook(() =>
-        useDeviceListItem({ device, showHostname: true })
-      );
+      const { result } = renderHook(() => useDeviceListItem({ device, showHostname: true }));
       const { getByRole } = render(
-        <DeviceListItemTablet state={result.current} device={device} />
+        <DeviceListItemTablet
+          state={result.current}
+          device={device}
+        />
       );
 
       const button = getByRole('button', { name: /expand/i });
@@ -194,13 +205,14 @@ describe('DeviceListItem Accessibility', () => {
   describe('Desktop Presenter', () => {
     it('should have no accessibility violations (inline details)', async () => {
       const device = createMockDevice();
-      const { result } = renderHook(() =>
-        useDeviceListItem({ device, showHostname: true })
-      );
+      const { result } = renderHook(() => useDeviceListItem({ device, showHostname: true }));
       const { container } = render(
         <table>
           <tbody>
-            <DeviceListItemDesktop state={result.current} device={device} />
+            <DeviceListItemDesktop
+              state={result.current}
+              device={device}
+            />
           </tbody>
         </table>
       );
@@ -210,13 +222,14 @@ describe('DeviceListItem Accessibility', () => {
 
     it('should have no violations with all badges', async () => {
       const device = createMockDevice({ isNew: true, isStatic: true });
-      const { result } = renderHook(() =>
-        useDeviceListItem({ device, showHostname: true })
-      );
+      const { result } = renderHook(() => useDeviceListItem({ device, showHostname: true }));
       const { container } = render(
         <table>
           <tbody>
-            <DeviceListItemDesktop state={result.current} device={device} />
+            <DeviceListItemDesktop
+              state={result.current}
+              device={device}
+            />
           </tbody>
         </table>
       );
@@ -226,13 +239,14 @@ describe('DeviceListItem Accessibility', () => {
 
     it('should have no violations in privacy mode', async () => {
       const device = createMockDevice();
-      const { result } = renderHook(() =>
-        useDeviceListItem({ device, showHostname: false })
-      );
+      const { result } = renderHook(() => useDeviceListItem({ device, showHostname: false }));
       const { container } = render(
         <table>
           <tbody>
-            <DeviceListItemDesktop state={result.current} device={device} />
+            <DeviceListItemDesktop
+              state={result.current}
+              device={device}
+            />
           </tbody>
         </table>
       );
@@ -242,13 +256,14 @@ describe('DeviceListItem Accessibility', () => {
 
     it('should use semantic table structure', () => {
       const device = createMockDevice();
-      const { result } = renderHook(() =>
-        useDeviceListItem({ device, showHostname: true })
-      );
+      const { result } = renderHook(() => useDeviceListItem({ device, showHostname: true }));
       const { container } = render(
         <table>
           <tbody>
-            <DeviceListItemDesktop state={result.current} device={device} />
+            <DeviceListItemDesktop
+              state={result.current}
+              device={device}
+            />
           </tbody>
         </table>
       );
@@ -278,11 +293,12 @@ describe('DeviceListItem Accessibility', () => {
     deviceTypes.forEach((deviceType) => {
       it(`should have no violations for ${deviceType} device type`, async () => {
         const device = createMockDevice({ deviceType });
-        const { result } = renderHook(() =>
-          useDeviceListItem({ device, showHostname: true })
-        );
+        const { result } = renderHook(() => useDeviceListItem({ device, showHostname: true }));
         const { container } = render(
-          <DeviceListItemMobile state={result.current} device={device} />
+          <DeviceListItemMobile
+            state={result.current}
+            device={device}
+          />
         );
 
         expect(await axe(container)).toHaveNoViolations();
@@ -291,11 +307,12 @@ describe('DeviceListItem Accessibility', () => {
 
     it('should provide sr-only labels for device type icons', () => {
       const device = createMockDevice({ deviceType: DeviceType.SMARTPHONE });
-      const { result } = renderHook(() =>
-        useDeviceListItem({ device, showHostname: true })
-      );
+      const { result } = renderHook(() => useDeviceListItem({ device, showHostname: true }));
       const { getByText } = render(
-        <DeviceListItemMobile state={result.current} device={device} />
+        <DeviceListItemMobile
+          state={result.current}
+          device={device}
+        />
       );
 
       const label = getByText('Smartphone');
@@ -306,11 +323,12 @@ describe('DeviceListItem Accessibility', () => {
   describe('Keyboard Navigation', () => {
     it('should be keyboard accessible (mobile)', () => {
       const device = createMockDevice();
-      const { result } = renderHook(() =>
-        useDeviceListItem({ device, showHostname: true })
-      );
+      const { result } = renderHook(() => useDeviceListItem({ device, showHostname: true }));
       const { getByRole } = render(
-        <DeviceListItemMobile state={result.current} device={device} />
+        <DeviceListItemMobile
+          state={result.current}
+          device={device}
+        />
       );
 
       const button = getByRole('button');
@@ -320,11 +338,12 @@ describe('DeviceListItem Accessibility', () => {
 
     it('should be keyboard accessible (tablet)', () => {
       const device = createMockDevice();
-      const { result } = renderHook(() =>
-        useDeviceListItem({ device, showHostname: true })
-      );
+      const { result } = renderHook(() => useDeviceListItem({ device, showHostname: true }));
       const { getByRole } = render(
-        <DeviceListItemTablet state={result.current} device={device} />
+        <DeviceListItemTablet
+          state={result.current}
+          device={device}
+        />
       );
 
       const button = getByRole('button');
@@ -333,20 +352,19 @@ describe('DeviceListItem Accessibility', () => {
 
     it('should have focus indicators', () => {
       const device = createMockDevice();
-      const { result } = renderHook(() =>
-        useDeviceListItem({ device, showHostname: true })
-      );
+      const { result } = renderHook(() => useDeviceListItem({ device, showHostname: true }));
       const { container } = render(
-        <DeviceListItemMobile state={result.current} device={device} />
+        <DeviceListItemMobile
+          state={result.current}
+          device={device}
+        />
       );
 
       const button = container.querySelector('button');
       // Focus ring classes should be present in the button styles
       const classes = button?.className || '';
       expect(
-        classes.includes('focus') ||
-        classes.includes('ring') ||
-        classes.includes('outline')
+        classes.includes('focus') || classes.includes('ring') || classes.includes('outline')
       ).toBe(true);
     });
   });
@@ -354,11 +372,12 @@ describe('DeviceListItem Accessibility', () => {
   describe('Screen Reader Support', () => {
     it('should announce device status to screen readers', () => {
       const device = createMockDevice();
-      const { result } = renderHook(() =>
-        useDeviceListItem({ device, showHostname: true })
-      );
+      const { result } = renderHook(() => useDeviceListItem({ device, showHostname: true }));
       const { container } = render(
-        <DeviceListItemMobile state={result.current} device={device} />
+        <DeviceListItemMobile
+          state={result.current}
+          device={device}
+        />
       );
 
       const statusText = container.textContent;
@@ -367,11 +386,12 @@ describe('DeviceListItem Accessibility', () => {
 
     it('should announce new device badge', () => {
       const device = createMockDevice({ isNew: true });
-      const { result } = renderHook(() =>
-        useDeviceListItem({ device, showHostname: true })
-      );
+      const { result } = renderHook(() => useDeviceListItem({ device, showHostname: true }));
       const { container } = render(
-        <DeviceListItemMobile state={result.current} device={device} />
+        <DeviceListItemMobile
+          state={result.current}
+          device={device}
+        />
       );
 
       expect(container.textContent).toContain('New');
@@ -379,11 +399,12 @@ describe('DeviceListItem Accessibility', () => {
 
     it('should announce static lease badge', () => {
       const device = createMockDevice({ isStatic: true });
-      const { result } = renderHook(() =>
-        useDeviceListItem({ device, showHostname: true })
-      );
+      const { result } = renderHook(() => useDeviceListItem({ device, showHostname: true }));
       const { container } = render(
-        <DeviceListItemMobile state={result.current} device={device} />
+        <DeviceListItemMobile
+          state={result.current}
+          device={device}
+        />
       );
 
       expect(container.textContent).toContain('Static');
@@ -393,12 +414,13 @@ describe('DeviceListItem Accessibility', () => {
   describe('Color Contrast', () => {
     it('should have sufficient contrast for text on light background', async () => {
       const device = createMockDevice();
-      const { result } = renderHook(() =>
-        useDeviceListItem({ device, showHostname: true })
-      );
+      const { result } = renderHook(() => useDeviceListItem({ device, showHostname: true }));
       const { container } = render(
         <div className="bg-white">
-          <DeviceListItemMobile state={result.current} device={device} />
+          <DeviceListItemMobile
+            state={result.current}
+            device={device}
+          />
         </div>
       );
 
@@ -412,11 +434,12 @@ describe('DeviceListItem Accessibility', () => {
 
     it('should have sufficient contrast for badges', async () => {
       const device = createMockDevice({ isNew: true, isStatic: true });
-      const { result } = renderHook(() =>
-        useDeviceListItem({ device, showHostname: true })
-      );
+      const { result } = renderHook(() => useDeviceListItem({ device, showHostname: true }));
       const { container } = render(
-        <DeviceListItemMobile state={result.current} device={device} />
+        <DeviceListItemMobile
+          state={result.current}
+          device={device}
+        />
       );
 
       const results = await axe(container, {
@@ -431,11 +454,12 @@ describe('DeviceListItem Accessibility', () => {
   describe('Reduced Motion', () => {
     it('should respect prefers-reduced-motion for pulse animation', () => {
       const device = createMockDevice({ isNew: true });
-      const { result } = renderHook(() =>
-        useDeviceListItem({ device, showHostname: true })
-      );
+      const { result } = renderHook(() => useDeviceListItem({ device, showHostname: true }));
       const { container } = render(
-        <DeviceListItemMobile state={result.current} device={device} />
+        <DeviceListItemMobile
+          state={result.current}
+          device={device}
+        />
       );
 
       const badge = container.querySelector('.animate-pulse');
@@ -447,11 +471,12 @@ describe('DeviceListItem Accessibility', () => {
   describe('Touch Targets', () => {
     it('should have 44px minimum touch target (mobile)', () => {
       const device = createMockDevice();
-      const { result } = renderHook(() =>
-        useDeviceListItem({ device, showHostname: true })
-      );
+      const { result } = renderHook(() => useDeviceListItem({ device, showHostname: true }));
       const { container } = render(
-        <DeviceListItemMobile state={result.current} device={device} />
+        <DeviceListItemMobile
+          state={result.current}
+          device={device}
+        />
       );
 
       const button = container.querySelector('button');
@@ -462,11 +487,12 @@ describe('DeviceListItem Accessibility', () => {
 
     it('should have adequate spacing between interactive elements', () => {
       const device = createMockDevice({ isNew: true, isStatic: true });
-      const { result } = renderHook(() =>
-        useDeviceListItem({ device, showHostname: true })
-      );
+      const { result } = renderHook(() => useDeviceListItem({ device, showHostname: true }));
       const { container } = render(
-        <DeviceListItemMobile state={result.current} device={device} />
+        <DeviceListItemMobile
+          state={result.current}
+          device={device}
+        />
       );
 
       // Multiple badges should have spacing

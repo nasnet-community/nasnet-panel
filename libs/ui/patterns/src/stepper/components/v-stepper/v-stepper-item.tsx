@@ -12,7 +12,9 @@ import * as React from 'react';
 import { motion } from 'framer-motion';
 import { Check, XCircle } from 'lucide-react';
 
-import { cn , useReducedMotion ,
+import {
+  cn,
+  useReducedMotion,
   Tooltip,
   TooltipContent,
   TooltipTrigger,
@@ -73,13 +75,26 @@ export function VStepperItem({
   // Step indicator content
   const renderIndicator = () => {
     if (hasError) {
-      return <XCircle className="h-4 w-4" aria-hidden="true" />;
+      return (
+        <XCircle
+          className="h-4 w-4"
+          aria-hidden="true"
+        />
+      );
     }
     if (isCompleted) {
-      return <Check className="h-4 w-4" aria-hidden="true" />;
+      return (
+        <Check
+          className="h-4 w-4"
+          aria-hidden="true"
+        />
+      );
     }
     return (
-      <span className="text-sm font-medium" aria-hidden="true">
+      <span
+        className="text-sm font-medium"
+        aria-hidden="true"
+      >
         {index + 1}
       </span>
     );
@@ -94,7 +109,7 @@ export function VStepperItem({
       disabled={!isClickable}
       className={cn(
         // Base layout
-        'flex items-start gap-3 w-full p-2 rounded-md text-left',
+        'flex w-full items-start gap-3 rounded-md p-2 text-left',
         // Transitions
         !prefersReducedMotion && 'transition-colors duration-200',
         // Active state - highlighted background
@@ -104,9 +119,9 @@ export function VStepperItem({
         // Error state
         hasError && !isActive && 'bg-error/5',
         // Future/disabled state
-        !isClickable && 'opacity-50 cursor-not-allowed',
+        !isClickable && 'cursor-not-allowed opacity-50',
         // Focus styles
-        'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2',
+        'focus-visible:ring-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
         className
       )}
       aria-current={isActive ? 'step' : undefined}
@@ -117,7 +132,7 @@ export function VStepperItem({
       <motion.div
         className={cn(
           // Base styles - 32px (h-8 w-8) as per spec
-          'flex items-center justify-center w-8 h-8 rounded-full shrink-0',
+          'flex h-8 w-8 shrink-0 items-center justify-center rounded-full',
           // Active state - bg-primary text-primary-foreground
           isActive && 'bg-primary text-primary-foreground',
           // Completed state - bg-success text-white
@@ -140,7 +155,7 @@ export function VStepperItem({
       <div className="min-w-0 flex-1">
         <p
           className={cn(
-            'font-medium truncate',
+            'truncate font-medium',
             isActive && 'text-primary',
             hasError && 'text-error',
             isFuture && 'text-muted-foreground'
@@ -150,9 +165,7 @@ export function VStepperItem({
         </p>
 
         {showDescription && step.description && (
-          <p className="text-sm text-muted-foreground truncate mt-0.5">
-            {step.description}
-          </p>
+          <p className="text-muted-foreground mt-0.5 truncate text-sm">{step.description}</p>
         )}
       </div>
 
@@ -160,7 +173,7 @@ export function VStepperItem({
       {hasError && showErrorCount && errors.length > 0 && (
         <Badge
           variant="error"
-          className="shrink-0 h-5 min-w-5 justify-center"
+          className="h-5 min-w-5 shrink-0 justify-center"
           aria-label={`${errors.length} validation error${errors.length !== 1 ? 's' : ''}`}
         >
           {errors.length}
@@ -175,21 +188,25 @@ export function VStepperItem({
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>{stepContent}</TooltipTrigger>
-          <TooltipContent side="right" className="max-w-xs">
+          <TooltipContent
+            side="right"
+            className="max-w-xs"
+          >
             <div className="space-y-1">
-              <p className="font-medium text-sm">
+              <p className="text-sm font-medium">
                 {errors.length} validation error{errors.length !== 1 ? 's' : ''}
               </p>
-              <ul className="text-xs space-y-0.5">
+              <ul className="space-y-0.5 text-xs">
                 {errors.slice(0, 3).map((error, i) => (
-                  <li key={i} className="text-muted-foreground">
+                  <li
+                    key={i}
+                    className="text-muted-foreground"
+                  >
                     • {error}
                   </li>
                 ))}
                 {errors.length > 3 && (
-                  <li className="text-muted-foreground">
-                    • ...and {errors.length - 3} more
-                  </li>
+                  <li className="text-muted-foreground">• ...and {errors.length - 3} more</li>
                 )}
               </ul>
             </div>

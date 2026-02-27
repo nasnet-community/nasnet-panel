@@ -62,7 +62,10 @@ function RouteFormDesktopComponent({
   const interfaceValue = watch('interface');
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-component-lg">
+    <form
+      onSubmit={handleSubmit}
+      className="space-y-component-lg"
+    >
       <Card>
         <CardHeader>
           <CardTitle>{mode === 'create' ? 'Add Static Route' : 'Edit Static Route'}</CardTitle>
@@ -80,18 +83,24 @@ function RouteFormDesktopComponent({
             <Input
               id="destination"
               placeholder="192.168.1.0/24 or 0.0.0.0/0"
-              className="font-mono text-foreground"
+              className="text-foreground font-mono"
               {...register('destination')}
               aria-invalid={errors.destination ? 'true' : 'false'}
               aria-describedby={errors.destination ? 'destination-error' : 'destination-help'}
             />
             {errors.destination && (
-              <p id="destination-error" className="text-sm text-error flex items-center gap-component-sm">
+              <p
+                id="destination-error"
+                className="text-error gap-component-sm flex items-center text-sm"
+              >
                 <AlertCircle className="h-4 w-4" />
                 {errors.destination.message}
               </p>
             )}
-            <p id="destination-help" className="text-sm text-muted-foreground">
+            <p
+              id="destination-help"
+              className="text-muted-foreground text-sm"
+            >
               CIDR notation (e.g., 192.168.1.0/24). Use 0.0.0.0/0 for default route.
             </p>
           </div>
@@ -105,13 +114,16 @@ function RouteFormDesktopComponent({
             <Input
               id="gateway"
               placeholder="192.168.1.1"
-              className="font-mono text-foreground"
+              className="text-foreground font-mono"
               {...register('gateway')}
               aria-invalid={errors.gateway ? 'true' : 'false'}
               aria-describedby={errors.gateway ? 'gateway-error' : 'gateway-help'}
             />
             {errors.gateway && (
-              <p id="gateway-error" className="text-sm text-error flex items-center gap-component-sm">
+              <p
+                id="gateway-error"
+                className="text-error gap-component-sm flex items-center text-sm"
+              >
                 <AlertCircle className="h-4 w-4" />
                 {errors.gateway.message}
               </p>
@@ -119,16 +131,19 @@ function RouteFormDesktopComponent({
 
             {/* Gateway Reachability Indicator */}
             {gatewayValue && !errors.gateway && (
-              <div className="flex items-center gap-component-sm">
+              <div className="gap-component-sm flex items-center">
                 {reachabilityInfo.checking && (
-                  <div className="flex items-center gap-component-sm text-sm text-muted-foreground">
+                  <div className="gap-component-sm text-muted-foreground flex items-center text-sm">
                     <Loader2 className="h-4 w-4 animate-spin" />
                     <span>Checking reachability...</span>
                   </div>
                 )}
 
                 {!reachabilityInfo.checking && reachabilityInfo.reachable === true && (
-                  <Badge variant="default" className="bg-success text-success-foreground">
+                  <Badge
+                    variant="default"
+                    className="bg-success text-success-foreground"
+                  >
                     <CheckCircle2 className="mr-1 h-3 w-3" />
                     Gateway reachable
                     {reachabilityInfo.latency && ` (${reachabilityInfo.latency}ms)`}
@@ -137,7 +152,10 @@ function RouteFormDesktopComponent({
                 )}
 
                 {!reachabilityInfo.checking && reachabilityInfo.reachable === false && (
-                  <Badge variant="outline" className="border-warning text-warning">
+                  <Badge
+                    variant="outline"
+                    className="border-warning text-warning"
+                  >
                     <AlertTriangle className="mr-1 h-3 w-3" />
                     Gateway may not be reachable
                   </Badge>
@@ -146,9 +164,15 @@ function RouteFormDesktopComponent({
             )}
 
             {!reachabilityInfo.checking && reachabilityInfo.reachable === false && (
-              <div role="alert" className="rounded-lg border border-warning/50 bg-warning/10 p-component-sm text-sm text-foreground">
-                <div className="flex gap-component-sm">
-                  <AlertTriangle className="h-4 w-4 text-warning shrink-0 mt-0.5" aria-hidden="true" />
+              <div
+                role="alert"
+                className="border-warning/50 bg-warning/10 p-component-sm text-foreground rounded-lg border text-sm"
+              >
+                <div className="gap-component-sm flex">
+                  <AlertTriangle
+                    className="text-warning mt-0.5 h-4 w-4 shrink-0"
+                    aria-hidden="true"
+                  />
                   <div className="space-y-component-sm">
                     <p className="font-medium">Gateway Reachability Warning</p>
                     <p className="text-muted-foreground">{reachabilityInfo.message}</p>
@@ -160,7 +184,10 @@ function RouteFormDesktopComponent({
               </div>
             )}
 
-            <p id="gateway-help" className="text-sm text-muted-foreground">
+            <p
+              id="gateway-help"
+              className="text-muted-foreground text-sm"
+            >
               IPv4 address of the next hop. Required if interface is not specified.
             </p>
           </div>
@@ -185,7 +212,11 @@ function RouteFormDesktopComponent({
               <SelectContent>
                 <SelectItem value="none">None</SelectItem>
                 {interfaces.map((iface) => (
-                  <SelectItem key={iface.id} value={iface.name} disabled={iface.disabled}>
+                  <SelectItem
+                    key={iface.id}
+                    value={iface.name}
+                    disabled={iface.disabled}
+                  >
                     {iface.name}
                     {iface.type && ` (${iface.type})`}
                   </SelectItem>
@@ -193,12 +224,12 @@ function RouteFormDesktopComponent({
               </SelectContent>
             </Select>
             {errors.interface && (
-              <p className="text-sm text-error flex items-center gap-component-sm">
+              <p className="text-error gap-component-sm flex items-center text-sm">
                 <AlertCircle className="h-4 w-4" />
                 {errors.interface.message}
               </p>
             )}
-            <p className="text-sm text-muted-foreground">
+            <p className="text-muted-foreground text-sm">
               Outgoing interface. Required if gateway is not specified.
             </p>
           </div>
@@ -215,27 +246,33 @@ function RouteFormDesktopComponent({
               aria-invalid={errors.distance ? 'true' : 'false'}
             />
             {errors.distance && (
-              <p className="text-sm text-error flex items-center gap-component-sm">
+              <p className="text-error gap-component-sm flex items-center text-sm">
                 <AlertCircle className="h-4 w-4" />
                 {errors.distance.message}
               </p>
             )}
-            <p className="text-sm text-muted-foreground">
+            <p className="text-muted-foreground text-sm">
               Lower values have higher priority. Default: 1
             </p>
           </div>
 
           {/* Routing Mark */}
           <div className="space-y-component-sm">
-            <Label htmlFor="routingMark" className="flex items-center gap-component-sm">
+            <Label
+              htmlFor="routingMark"
+              className="gap-component-sm flex items-center"
+            >
               Routing Mark
               <button
                 type="button"
-                className="text-muted-foreground hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-sm"
+                className="text-muted-foreground hover:text-foreground focus-visible:ring-ring rounded-sm focus-visible:ring-2 focus-visible:ring-offset-2"
                 title="Routing marks are used for policy-based routing"
                 aria-label="Routing mark information"
               >
-                <Info className="h-4 w-4" aria-hidden="true" />
+                <Info
+                  className="h-4 w-4"
+                  aria-hidden="true"
+                />
               </button>
             </Label>
             <Input
@@ -243,7 +280,7 @@ function RouteFormDesktopComponent({
               placeholder="Optional"
               {...register('routingMark')}
             />
-            <p className="text-sm text-muted-foreground">
+            <p className="text-muted-foreground text-sm">
               Used for policy-based routing. Leave empty if not needed.
             </p>
           </div>
@@ -260,13 +297,16 @@ function RouteFormDesktopComponent({
               </SelectTrigger>
               <SelectContent>
                 {tableOptions.map((table) => (
-                  <SelectItem key={table} value={table}>
+                  <SelectItem
+                    key={table}
+                    value={table}
+                  >
                     {table}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-muted-foreground text-sm">
               Routing table for this route. Default: main
             </p>
           </div>
@@ -282,18 +322,18 @@ function RouteFormDesktopComponent({
               maxLength={255}
             />
             {errors.comment && (
-              <p className="text-sm text-error flex items-center gap-component-sm">
+              <p className="text-error gap-component-sm flex items-center text-sm">
                 <AlertCircle className="h-4 w-4" />
                 {errors.comment.message}
               </p>
             )}
-            <p className="text-sm text-muted-foreground">
+            <p className="text-muted-foreground text-sm">
               Optional description (max 255 characters)
             </p>
           </div>
         </CardContent>
 
-        <CardFooter className="flex justify-end gap-component-sm">
+        <CardFooter className="gap-component-sm flex justify-end">
           <Button
             type="button"
             variant="outline"
@@ -302,7 +342,10 @@ function RouteFormDesktopComponent({
           >
             Cancel
           </Button>
-          <Button type="submit" disabled={loading}>
+          <Button
+            type="submit"
+            disabled={loading}
+          >
             {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             {mode === 'create' ? 'Add Route' : 'Save Changes'}
           </Button>

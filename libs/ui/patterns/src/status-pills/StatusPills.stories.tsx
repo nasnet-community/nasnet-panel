@@ -90,19 +90,13 @@ export const Default: Story = {
 
 export const AllVariants: Story = {
   args: {
-    pills: [
-      successPill,
-      warningPill,
-      errorPill,
-      infoPill,
-      neutralPill,
-      loadingPill,
-    ],
+    pills: [successPill, warningPill, errorPill, infoPill, neutralPill, loadingPill],
   },
   parameters: {
     docs: {
       description: {
-        story: 'All six status pill variants rendered together. The loading pill shows an animated spinner.',
+        story:
+          'All six status pill variants rendered together. The loading pill shows an animated spinner.',
       },
     },
   },
@@ -112,14 +106,15 @@ export const ClickablePills: Story = {
   args: {
     pills: [
       { id: 'firewall', label: 'Firewall', variant: 'success', onClick: fn() },
-      { id: 'dns',      label: 'DNS Issue', variant: 'warning', onClick: fn() },
-      { id: 'vpn-err',  label: 'VPN Error',  variant: 'error',   onClick: fn() },
+      { id: 'dns', label: 'DNS Issue', variant: 'warning', onClick: fn() },
+      { id: 'vpn-err', label: 'VPN Error', variant: 'error', onClick: fn() },
     ],
   },
   parameters: {
     docs: {
       description: {
-        story: 'Pills become interactive buttons when an `onClick` handler is provided. They lift slightly on hover and shrink on press.',
+        story:
+          'Pills become interactive buttons when an `onClick` handler is provided. They lift slightly on hover and shrink on press.',
       },
     },
   },
@@ -127,15 +122,15 @@ export const ClickablePills: Story = {
 
 export const RouterHealthDashboard: Story = {
   render: () => (
-    <div className="w-[360px] rounded-xl border border-border bg-card p-4 space-y-3">
-      <h3 className="text-sm font-semibold text-foreground">Router Status</h3>
+    <div className="border-border bg-card w-[360px] space-y-3 rounded-xl border p-4">
+      <h3 className="text-foreground text-sm font-semibold">Router Status</h3>
       <StatusPills
         pills={[
-          { id: 'internet', label: 'Internet OK',   variant: 'success' },
-          { id: 'firewall', label: 'Firewall',       variant: 'success' },
-          { id: 'cpu',      label: 'CPU High',       variant: 'warning' },
-          { id: 'updates',  label: '3 Updates',      variant: 'info'    },
-          { id: 'backup',   label: 'No Backup',      variant: 'error'   },
+          { id: 'internet', label: 'Internet OK', variant: 'success' },
+          { id: 'firewall', label: 'Firewall', variant: 'success' },
+          { id: 'cpu', label: 'CPU High', variant: 'warning' },
+          { id: 'updates', label: '3 Updates', variant: 'info' },
+          { id: 'backup', label: 'No Backup', variant: 'error' },
         ]}
       />
     </div>
@@ -144,7 +139,8 @@ export const RouterHealthDashboard: Story = {
     layout: 'padded',
     docs: {
       description: {
-        story: 'Real-world example: a router health summary card embedding StatusPills for a quick-glance overview.',
+        story:
+          'Real-world example: a router health summary card embedding StatusPills for a quick-glance overview.',
       },
     },
   },
@@ -170,7 +166,8 @@ export const EmptyState: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'When `pills` is empty the component renders nothing (returns null). This story demonstrates that behaviour.',
+        story:
+          'When `pills` is empty the component renders nothing (returns null). This story demonstrates that behaviour.',
       },
     },
   },

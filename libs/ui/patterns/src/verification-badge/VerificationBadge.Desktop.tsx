@@ -53,17 +53,7 @@ const SIZE_CONFIG = {
 const VerificationBadgeDesktopComponent = React.forwardRef<
   HTMLDivElement,
   VerificationBadgePresenterProps
->(
-  (
-    {
-      state,
-      size,
-      showLabel,
-      className,
-      id,
-    },
-    ref
-  ) => {
+>(({ state, size, showLabel, className, id }, ref) => {
   const [isOpen, setIsOpen] = React.useState(false);
 
   // Handle re-verification - close tooltip after action
@@ -88,7 +78,10 @@ const VerificationBadgeDesktopComponent = React.forwardRef<
 
   return (
     <TooltipProvider delayDuration={300}>
-      <Tooltip open={isOpen} onOpenChange={setIsOpen}>
+      <Tooltip
+        open={isOpen}
+        onOpenChange={setIsOpen}
+      >
         <TooltipTrigger asChild>
           <div
             ref={ref}
@@ -105,11 +98,12 @@ const VerificationBadgeDesktopComponent = React.forwardRef<
               className={cn(
                 sizeClasses.container,
                 'inline-flex items-center justify-center rounded-full',
-                'transition-colors cursor-pointer',
-                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                'cursor-pointer transition-colors',
+                'focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-2',
                 // Semantic colors
                 state.color === 'success' && 'bg-success/10 text-success hover:bg-success/20',
-                state.color === 'destructive' && 'bg-destructive/10 text-destructive hover:bg-destructive/20',
+                state.color === 'destructive' &&
+                  'bg-destructive/10 text-destructive hover:bg-destructive/20',
                 state.color === 'warning' && 'bg-warning/10 text-warning hover:bg-warning/20',
                 state.color === 'muted' && 'bg-muted text-muted-foreground hover:bg-muted/80'
               )}
@@ -124,16 +118,14 @@ const VerificationBadgeDesktopComponent = React.forwardRef<
             </div>
 
             {/* Optional inline label */}
-            {showLabel && (
-              <span className="text-sm font-medium">{state.statusLabel}</span>
-            )}
+            {showLabel && <span className="text-sm font-medium">{state.statusLabel}</span>}
           </div>
         </TooltipTrigger>
 
         <TooltipContent
           side="top"
           align="center"
-          className="p-4 max-w-sm"
+          className="max-w-sm p-4"
           onPointerDownOutside={(e) => {
             // Allow clicks on the re-verify button
             const target = e.target as HTMLElement;
@@ -151,18 +143,16 @@ const VerificationBadgeDesktopComponent = React.forwardRef<
 
             {/* Timestamp */}
             {state.timestamp && state.showTimestamp && (
-              <div className="text-xs text-muted-foreground">
-                {state.timestamp}
-              </div>
+              <div className="text-muted-foreground text-xs">{state.timestamp}</div>
             )}
 
             {/* Hash Display */}
             {state.fullHash && (
               <div className="space-y-1">
-                <div className="text-xs font-medium text-muted-foreground">
+                <div className="text-muted-foreground text-xs font-medium">
                   Binary Hash (SHA256)
                 </div>
-                <div className="text-xs font-mono bg-muted/50 p-2 rounded break-all">
+                <div className="bg-muted/50 break-all rounded p-2 font-mono text-xs">
                   {state.fullHash}
                 </div>
               </div>
@@ -170,7 +160,7 @@ const VerificationBadgeDesktopComponent = React.forwardRef<
 
             {/* Error Message */}
             {state.errorMessage && (
-              <div className="text-xs text-destructive bg-destructive/10 p-2 rounded">
+              <div className="text-destructive bg-destructive/10 rounded p-2 text-xs">
                 {state.errorMessage}
               </div>
             )}
@@ -183,7 +173,7 @@ const VerificationBadgeDesktopComponent = React.forwardRef<
               disabled={state.isReverifying}
               className="w-full"
             >
-              <RefreshCw className={cn('h-3 w-3 mr-2', state.isReverifying && 'animate-spin')} />
+              <RefreshCw className={cn('mr-2 h-3 w-3', state.isReverifying && 'animate-spin')} />
               {state.isReverifying ? 'Verifying...' : 'Re-verify'}
             </Button>
           </div>

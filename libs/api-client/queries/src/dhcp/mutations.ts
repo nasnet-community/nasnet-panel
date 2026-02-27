@@ -77,17 +77,13 @@ async function createDHCPServer(
 
   try {
     // Step 1: Create address pool
-    const poolResult = await makeRouterOSRequest<{ ret: string }>(
-      routerIp,
-      'ip/pool/add',
-      {
-        method: 'POST',
-        body: {
-          name: `pool-${input.name}`,
-          ranges: `${input.poolStart}-${input.poolEnd}`,
-        },
-      }
-    );
+    const poolResult = await makeRouterOSRequest<{ ret: string }>(routerIp, 'ip/pool/add', {
+      method: 'POST',
+      body: {
+        name: `pool-${input.name}`,
+        ranges: `${input.poolStart}-${input.poolEnd}`,
+      },
+    });
 
     if (!poolResult.success || !poolResult.data?.ret) {
       throw new Error(poolResult.error || 'Failed to create address pool');
@@ -184,8 +180,7 @@ export function useCreateDHCPServer(routerIp: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (input: CreateDHCPServerInput) =>
-      createDHCPServer(routerIp, input),
+    mutationFn: (input: CreateDHCPServerInput) => createDHCPServer(routerIp, input),
 
     onSuccess: () => {
       // Invalidate all related queries
@@ -204,9 +199,7 @@ export function useCreateDHCPServer(routerIp: string) {
         variant: 'destructive',
         title: 'Failed to create DHCP server',
         description:
-          error instanceof Error
-            ? error.message
-            : 'An error occurred. Please try again.',
+          error instanceof Error ? error.message : 'An error occurred. Please try again.',
       });
     },
   });
@@ -215,10 +208,7 @@ export function useCreateDHCPServer(routerIp: string) {
 /**
  * Update DHCP server settings
  */
-async function updateDHCPServer(
-  routerIp: string,
-  input: UpdateDHCPServerInput
-): Promise<void> {
+async function updateDHCPServer(routerIp: string, input: UpdateDHCPServerInput): Promise<void> {
   const body: Record<string, string> = {
     '.id': input.serverId,
   };
@@ -252,8 +242,7 @@ export function useUpdateDHCPServer(routerIp: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (input: UpdateDHCPServerInput) =>
-      updateDHCPServer(routerIp, input),
+    mutationFn: (input: UpdateDHCPServerInput) => updateDHCPServer(routerIp, input),
 
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: dhcpKeys.servers(routerIp) });
@@ -268,8 +257,7 @@ export function useUpdateDHCPServer(routerIp: string) {
       toast({
         variant: 'destructive',
         title: 'Failed to update DHCP server',
-        description:
-          error instanceof Error ? error.message : 'An error occurred.',
+        description: error instanceof Error ? error.message : 'An error occurred.',
       });
     },
   });
@@ -278,10 +266,7 @@ export function useUpdateDHCPServer(routerIp: string) {
 /**
  * Delete DHCP server
  */
-async function deleteDHCPServer(
-  routerIp: string,
-  serverId: string
-): Promise<void> {
+async function deleteDHCPServer(routerIp: string, serverId: string): Promise<void> {
   const result = await makeRouterOSRequest(routerIp, 'ip/dhcp-server/remove', {
     method: 'POST',
     body: { '.id': serverId },
@@ -315,8 +300,7 @@ export function useDeleteDHCPServer(routerIp: string) {
       toast({
         variant: 'destructive',
         title: 'Failed to delete DHCP server',
-        description:
-          error instanceof Error ? error.message : 'An error occurred.',
+        description: error instanceof Error ? error.message : 'An error occurred.',
       });
     },
   });
@@ -325,10 +309,7 @@ export function useDeleteDHCPServer(routerIp: string) {
 /**
  * Enable DHCP server
  */
-async function enableDHCPServer(
-  routerIp: string,
-  serverId: string
-): Promise<void> {
+async function enableDHCPServer(routerIp: string, serverId: string): Promise<void> {
   const result = await makeRouterOSRequest(routerIp, 'ip/dhcp-server/set', {
     method: 'POST',
     body: { '.id': serverId, disabled: 'no' },
@@ -361,8 +342,7 @@ export function useEnableDHCPServer(routerIp: string) {
       toast({
         variant: 'destructive',
         title: 'Failed to enable DHCP server',
-        description:
-          error instanceof Error ? error.message : 'An error occurred.',
+        description: error instanceof Error ? error.message : 'An error occurred.',
       });
     },
   });
@@ -371,10 +351,7 @@ export function useEnableDHCPServer(routerIp: string) {
 /**
  * Disable DHCP server
  */
-async function disableDHCPServer(
-  routerIp: string,
-  serverId: string
-): Promise<void> {
+async function disableDHCPServer(routerIp: string, serverId: string): Promise<void> {
   const result = await makeRouterOSRequest(routerIp, 'ip/dhcp-server/set', {
     method: 'POST',
     body: { '.id': serverId, disabled: 'yes' },
@@ -407,8 +384,7 @@ export function useDisableDHCPServer(routerIp: string) {
       toast({
         variant: 'destructive',
         title: 'Failed to disable DHCP server',
-        description:
-          error instanceof Error ? error.message : 'An error occurred.',
+        description: error instanceof Error ? error.message : 'An error occurred.',
       });
     },
   });
@@ -417,25 +393,18 @@ export function useDisableDHCPServer(routerIp: string) {
 /**
  * Convert a dynamic lease to a static binding
  */
-async function makeLeaseStatic(
-  routerIp: string,
-  input: MakeLeaseStaticInput
-): Promise<void> {
+async function makeLeaseStatic(routerIp: string, input: MakeLeaseStaticInput): Promise<void> {
   // First, make the lease static by updating it
-  const result = await makeRouterOSRequest(
-    routerIp,
-    'ip/dhcp-server/lease/make-static',
-    {
-      method: 'POST',
-      body: {
-        '.id': input.leaseId,
-        address: input.address,
-        'mac-address': input.macAddress,
-        'host-name': input.hostname,
-        comment: input.comment,
-      },
-    }
-  );
+  const result = await makeRouterOSRequest(routerIp, 'ip/dhcp-server/lease/make-static', {
+    method: 'POST',
+    body: {
+      '.id': input.leaseId,
+      address: input.address,
+      'mac-address': input.macAddress,
+      'host-name': input.hostname,
+      comment: input.comment,
+    },
+  });
 
   if (!result.success) {
     throw new Error(result.error || 'Failed to make lease static');
@@ -449,8 +418,7 @@ export function useMakeLeaseStatic(routerIp: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (input: MakeLeaseStaticInput) =>
-      makeLeaseStatic(routerIp, input),
+    mutationFn: (input: MakeLeaseStaticInput) => makeLeaseStatic(routerIp, input),
 
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: dhcpKeys.leases(routerIp) });
@@ -465,8 +433,7 @@ export function useMakeLeaseStatic(routerIp: string) {
       toast({
         variant: 'destructive',
         title: 'Failed to make lease static',
-        description:
-          error instanceof Error ? error.message : 'An error occurred.',
+        description: error instanceof Error ? error.message : 'An error occurred.',
       });
     },
   });
@@ -476,14 +443,10 @@ export function useMakeLeaseStatic(routerIp: string) {
  * Delete a DHCP lease
  */
 async function deleteLease(routerIp: string, leaseId: string): Promise<void> {
-  const result = await makeRouterOSRequest(
-    routerIp,
-    'ip/dhcp-server/lease/remove',
-    {
-      method: 'POST',
-      body: { '.id': leaseId },
-    }
-  );
+  const result = await makeRouterOSRequest(routerIp, 'ip/dhcp-server/lease/remove', {
+    method: 'POST',
+    body: { '.id': leaseId },
+  });
 
   if (!result.success) {
     throw new Error(result.error || 'Failed to delete lease');
@@ -512,8 +475,7 @@ export function useDeleteLease(routerIp: string) {
       toast({
         variant: 'destructive',
         title: 'Failed to delete lease',
-        description:
-          error instanceof Error ? error.message : 'An error occurred.',
+        description: error instanceof Error ? error.message : 'An error occurred.',
       });
     },
   });

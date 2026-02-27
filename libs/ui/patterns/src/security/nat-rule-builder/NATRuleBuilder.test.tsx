@@ -6,10 +6,9 @@
  * @module @nasnet/ui/patterns/security/nat-rule-builder
  */
 
-import { render, screen, waitFor , renderHook, act } from '@testing-library/react';
+import { render, screen, waitFor, renderHook, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-
 
 import type { NATRuleInput } from '@nasnet/core/types/firewall';
 
@@ -69,9 +68,7 @@ describe('useNATRuleBuilder', () => {
       toAddresses: '192.168.1.100',
     };
 
-    const { result } = renderHook(() =>
-      useNATRuleBuilder({ initialRule })
-    );
+    const { result } = renderHook(() => useNATRuleBuilder({ initialRule }));
 
     expect(result.current.rule.chain).toBe('dstnat');
     expect(result.current.rule.action).toBe('dst-nat');
@@ -241,7 +238,12 @@ describe('NATRuleBuilder', () => {
   });
 
   it('should render in create mode', () => {
-    render(<NATRuleBuilder {...defaultProps} mode="create" />);
+    render(
+      <NATRuleBuilder
+        {...defaultProps}
+        mode="create"
+      />
+    );
 
     expect(screen.getByText('Create NAT Rule')).toBeInTheDocument();
   });
@@ -274,7 +276,12 @@ describe('NATRuleBuilder', () => {
   });
 
   it('should not show delete button in create mode', () => {
-    render(<NATRuleBuilder {...defaultProps} mode="create" />);
+    render(
+      <NATRuleBuilder
+        {...defaultProps}
+        mode="create"
+      />
+    );
 
     expect(screen.queryByRole('button', { name: /delete/i })).not.toBeInTheDocument();
   });
@@ -283,7 +290,12 @@ describe('NATRuleBuilder', () => {
     const user = userEvent.setup();
     const onClose = vi.fn();
 
-    render(<NATRuleBuilder {...defaultProps} onClose={onClose} />);
+    render(
+      <NATRuleBuilder
+        {...defaultProps}
+        onClose={onClose}
+      />
+    );
 
     const cancelButton = screen.getByRole('button', { name: /cancel/i });
     await user.click(cancelButton);
@@ -308,7 +320,12 @@ describe('NATRuleBuilder', () => {
   });
 
   it('should show loading state when saving', () => {
-    render(<NATRuleBuilder {...defaultProps} isSaving={true} />);
+    render(
+      <NATRuleBuilder
+        {...defaultProps}
+        isSaving={true}
+      />
+    );
 
     expect(screen.getByRole('button', { name: /saving\.\.\./i })).toBeInTheDocument();
   });

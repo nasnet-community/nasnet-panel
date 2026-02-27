@@ -371,11 +371,7 @@ export const CONFIGURE_WAN_HEALTH_CHECK = gql`
     $wanInterfaceId: ID!
     $input: WANHealthCheckInput!
   ) {
-    configureWANHealthCheck(
-      routerId: $routerId
-      wanInterfaceId: $wanInterfaceId
-      input: $input
-    ) {
+    configureWANHealthCheck(routerId: $routerId, wanInterfaceId: $wanInterfaceId, input: $input) {
       success
       wanInterface {
         id

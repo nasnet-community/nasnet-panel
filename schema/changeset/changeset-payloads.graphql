@@ -93,18 +93,12 @@ extend type Subscription {
   """
   Subscribe to change set application progress
   """
-  changeSetProgress(
-    "Change set ID"
-    changeSetId: ID!
-  ): ChangeSetProgressEvent!
+  changeSetProgress("Change set ID" changeSetId: ID!): ChangeSetProgressEvent!
 
   """
   Subscribe to change set status changes
   """
-  changeSetStatusChanged(
-    "Router to subscribe to"
-    routerId: ID!
-  ): ChangeSetStatusEvent!
+  changeSetStatusChanged("Router to subscribe to" routerId: ID!): ChangeSetStatusEvent!
 }
 
 """

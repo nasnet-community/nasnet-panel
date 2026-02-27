@@ -9,8 +9,8 @@ import type { RouteEntry } from '@nasnet/core/types';
  * Query keys for routing queries
  */
 export declare const routingKeys: {
-    all: readonly ["routing"];
-    routes: (routerIp: string) => readonly ["routing", "routes", string];
+  all: readonly ['routing'];
+  routes: (routerIp: string) => readonly ['routing', 'routes', string];
 };
 /**
  * Hook to fetch routing table

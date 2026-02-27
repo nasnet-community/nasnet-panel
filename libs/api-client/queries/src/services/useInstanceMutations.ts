@@ -44,14 +44,10 @@ export function useInstanceMutations() {
   });
 
   return {
-    startInstance: (input: StartInstanceInput) =>
-      startInstance({ variables: { input } }),
-    stopInstance: (input: StopInstanceInput) =>
-      stopInstance({ variables: { input } }),
-    restartInstance: (input: RestartInstanceInput) =>
-      restartInstance({ variables: { input } }),
-    deleteInstance: (input: DeleteInstanceInput) =>
-      deleteInstance({ variables: { input } }),
+    startInstance: (input: StartInstanceInput) => startInstance({ variables: { input } }),
+    stopInstance: (input: StopInstanceInput) => stopInstance({ variables: { input } }),
+    restartInstance: (input: RestartInstanceInput) => restartInstance({ variables: { input } }),
+    deleteInstance: (input: DeleteInstanceInput) => deleteInstance({ variables: { input } }),
     loading: {
       start: startMutation.loading,
       stop: stopMutation.loading,

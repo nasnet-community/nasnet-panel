@@ -91,8 +91,7 @@ export function detectDrift(
 
   try {
     // Check if deployment is stale
-    const staleThreshold =
-      options.staleThreshold ?? DEFAULT_DRIFT_OPTIONS.staleThreshold;
+    const staleThreshold = options.staleThreshold ?? DEFAULT_DRIFT_OPTIONS.staleThreshold;
     const isStale = isDeploymentStale(deployment.appliedAt, staleThreshold);
 
     // Get generated fields from deployment (this is what was actually applied)
@@ -121,11 +120,7 @@ export function detectDrift(
     }
 
     // Detailed field-level diff for UI
-    const driftedFields = findDriftedFields(
-      filteredConfig,
-      filteredDeploy,
-      options
-    );
+    const driftedFields = findDriftedFields(filteredConfig, filteredDeploy, options);
 
     return {
       hasDrift: driftedFields.length > 0,
@@ -145,10 +140,7 @@ export function detectDrift(
       configurationHash: '',
       deploymentHash: '',
       lastChecked: now,
-      errorMessage:
-        error instanceof Error
-          ? error.message
-          : 'Unknown error during drift detection',
+      errorMessage: error instanceof Error ? error.message : 'Unknown error during drift detection',
     };
   }
 }
@@ -263,9 +255,7 @@ export function useQuickDriftCheck(
  * @param resources - Array of resources to check
  * @returns Map of resource UUID to drift status
  */
-export function useBatchDriftStatus(
-  resources: Resource[]
-): Map<string, DriftStatus> {
+export function useBatchDriftStatus(resources: Resource[]): Map<string, DriftStatus> {
   return useMemo(() => {
     const statusMap = new Map<string, DriftStatus>();
 
@@ -276,14 +266,8 @@ export function useBatchDriftStatus(
       }
 
       const deployedConfig = resource.deployment.generatedFields ?? {};
-      const hasDrift = hasQuickDrift(
-        resource.configuration,
-        deployedConfig
-      );
-      statusMap.set(
-        resource.uuid,
-        hasDrift ? DriftStatus.DRIFTED : DriftStatus.SYNCED
-      );
+      const hasDrift = hasQuickDrift(resource.configuration, deployedConfig);
+      statusMap.set(resource.uuid, hasDrift ? DriftStatus.DRIFTED : DriftStatus.SYNCED);
     }
 
     return statusMap;

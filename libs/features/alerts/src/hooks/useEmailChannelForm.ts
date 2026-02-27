@@ -119,9 +119,7 @@ export function useEmailChannelForm(
 
   // Testing state
   const [isTesting, setIsTesting] = useState(false);
-  const [testResult, setTestResult] = useState<
-    { success: boolean; message: string } | undefined
-  >();
+  const [testResult, setTestResult] = useState<{ success: boolean; message: string } | undefined>();
 
   /**
    * Add a recipient email address

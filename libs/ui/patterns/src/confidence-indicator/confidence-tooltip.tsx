@@ -14,10 +14,7 @@ import { Info, Pencil } from 'lucide-react';
 import { Button, cn, Icon } from '@nasnet/ui/primitives';
 import { useTranslation } from '@nasnet/core/i18n';
 
-import {
-  ConfidenceIndicatorBase,
-  ConfidenceLevelLabel,
-} from './confidence-indicator-base';
+import { ConfidenceIndicatorBase, ConfidenceLevelLabel } from './confidence-indicator-base';
 
 import type { UseConfidenceIndicatorReturn } from './confidence-indicator.types';
 
@@ -96,21 +93,28 @@ export function ConfidenceTooltipContent({
     <div className={cn('flex flex-col gap-3', className)}>
       {/* Header with indicator and level */}
       <div className="flex items-center gap-2">
-        <ConfidenceIndicatorBase state={state} size="sm" />
-        <ConfidenceLevelLabel state={state} size="sm" showPercentage />
+        <ConfidenceIndicatorBase
+          state={state}
+          size="sm"
+        />
+        <ConfidenceLevelLabel
+          state={state}
+          size="sm"
+          showPercentage
+        />
       </div>
 
       {/* Detection method */}
       {state.method && (
-        <div className="flex items-start gap-2 text-sm text-muted-foreground">
-          <Info className="h-4 w-4 mt-0.5 flex-shrink-0" />
+        <div className="text-muted-foreground flex items-start gap-2 text-sm">
+          <Info className="mt-0.5 h-4 w-4 flex-shrink-0" />
           <span>{state.method}</span>
         </div>
       )}
 
       {/* Explanation (only in non-compact mode) */}
       {!compact && (
-        <p className="text-xs text-muted-foreground leading-relaxed">
+        <p className="text-muted-foreground text-xs leading-relaxed">
           {LEVEL_EXPLANATIONS[state.level]}
         </p>
       )}

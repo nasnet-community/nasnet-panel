@@ -20,36 +20,13 @@ export {
   type PollingInterval,
 } from './useCounterSettingsStore';
 export { useCustomServices, type UseCustomServicesReturn } from './useCustomServices';
-export { useCustomTemplates, customTemplatesStore, type UseCustomTemplatesResult } from './useCustomTemplates';
+export {
+  useCustomTemplates,
+  customTemplatesStore,
+  type UseCustomTemplatesResult,
+} from './useCustomTemplates';
 export {
   useRuleNavigation,
   type UseRuleNavigationOptions,
   type UseRuleNavigationReturn,
 } from './use-rule-navigation';
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

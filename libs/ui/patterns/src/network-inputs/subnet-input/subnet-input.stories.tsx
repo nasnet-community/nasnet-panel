@@ -204,7 +204,7 @@ export const DesktopVariant: Story = {
       description: {
         story: 'Desktop layout with inline calculations panel',
       },
-    }
+    },
   },
 
   args: {
@@ -235,9 +235,9 @@ export const DesktopVariant: Story = {
   globals: {
     viewport: {
       value: 'desktop',
-      isRotated: false
-    }
-  }
+      isRotated: false,
+    },
+  },
 };
 
 /**
@@ -249,7 +249,7 @@ export const MobileVariant: Story = {
       description: {
         story: 'Mobile layout with bottom sheet calculations',
       },
-    }
+    },
   },
 
   args: {
@@ -282,9 +282,9 @@ export const MobileVariant: Story = {
   globals: {
     viewport: {
       value: 'mobile1',
-      isRotated: false
-    }
-  }
+      isRotated: false,
+    },
+  },
 };
 
 /**
@@ -331,7 +331,7 @@ export const DarkMode: Story = {
       description: {
         story: 'Component in dark mode theme',
       },
-    }
+    },
   },
 
   args: {
@@ -341,14 +341,14 @@ export const DarkMode: Story = {
   },
 
   render: (args) => (
-    <div className="dark bg-background p-4 rounded-lg">
+    <div className="bg-background dark rounded-lg p-4">
       <ControlledSubnetInput {...args} />
     </div>
   ),
 
   globals: {
     backgrounds: {
-      value: "dark"
-    }
-  }
+      value: 'dark',
+    },
+  },
 };

@@ -40,34 +40,33 @@
  * ```
  */
 
-import * as React from "react"
+import * as React from 'react';
 
-import { cva, type VariantProps } from "class-variance-authority"
+import { cva, type VariantProps } from 'class-variance-authority';
 
-import { cn } from "../lib/utils"
-import type { LucideIcon } from "lucide-react"
+import { cn } from '../lib/utils';
+import type { LucideIcon } from 'lucide-react';
 
 const alertVariants = cva(
-  "relative w-full rounded-lg border [&>svg~*]:pl-7 [&>svg+div]:translate-y-[-3px] [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4 transition-colors duration-150 p-4",
+  'relative w-full rounded-lg border p-4 transition-colors duration-150 [&>svg+div]:translate-y-[-3px] [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4 [&>svg~*]:pl-7',
   {
     variants: {
       variant: {
-        default: "bg-background text-foreground border-border [&>svg]:text-foreground",
+        default: 'bg-background text-foreground border-border [&>svg]:text-foreground',
         destructive:
-          "border-l-4 border-l-error bg-error-light/50 text-error-dark [&>svg]:text-error",
+          'border-l-error bg-error-light/50 text-error-dark [&>svg]:text-error border-l-4',
         success:
-          "border-l-4 border-l-success bg-success-light/50 text-success-dark [&>svg]:text-success",
+          'border-l-success bg-success-light/50 text-success-dark [&>svg]:text-success border-l-4',
         warning:
-          "border-l-4 border-l-warning bg-warning-light/50 text-warning-dark [&>svg]:text-warning",
-        info:
-          "border-l-4 border-l-info bg-info-light/50 text-info-dark [&>svg]:text-info",
+          'border-l-warning bg-warning-light/50 text-warning-dark [&>svg]:text-warning border-l-4',
+        info: 'border-l-info bg-info-light/50 text-info-dark [&>svg]:text-info border-l-4',
       },
     },
     defaultVariants: {
-      variant: "default",
+      variant: 'default',
     },
   }
-)
+);
 
 /**
  * Props for the Alert component
@@ -90,19 +89,19 @@ export interface AlertProps
  */
 const Alert = React.memo(
   React.forwardRef<HTMLDivElement, AlertProps>(
-    ({ className, variant, role = "alert", live = false, ...props }, ref) => (
+    ({ className, variant, role = 'alert', live = false, ...props }, ref) => (
       <div
         ref={ref}
         role={role}
-        aria-live={live ? "polite" : undefined}
+        aria-live={live ? 'polite' : undefined}
         aria-atomic="true"
         className={cn(alertVariants({ variant }), className)}
         {...props}
       />
     )
   )
-)
-Alert.displayName = "Alert"
+);
+Alert.displayName = 'Alert';
 
 /**
  * Props for the AlertTitle component
@@ -110,8 +109,7 @@ Alert.displayName = "Alert"
  * @property {string} [className] - Additional CSS classes
  * @property {React.ReactNode} [children] - Title text content
  */
-export interface AlertTitleProps
-  extends React.HTMLAttributes<HTMLHeadingElement> {}
+export interface AlertTitleProps extends React.HTMLAttributes<HTMLHeadingElement> {}
 
 /**
  * AlertTitle component - Heading for alert messages
@@ -120,20 +118,19 @@ export interface AlertTitleProps
  * in all color variants.
  */
 const AlertTitle = React.memo(
-  React.forwardRef<
-    HTMLHeadingElement,
-    AlertTitleProps
-  >(({ className, children, ...props }, ref) => (
-    <h5
-      ref={ref}
-      className={cn("font-semibold text-sm leading-none tracking-tight", className)}
-      {...props}
-    >
-      {children}
-    </h5>
-  ))
-)
-AlertTitle.displayName = "AlertTitle"
+  React.forwardRef<HTMLHeadingElement, AlertTitleProps>(
+    ({ className, children, ...props }, ref) => (
+      <h5
+        ref={ref}
+        className={cn('text-sm font-semibold leading-none tracking-tight', className)}
+        {...props}
+      >
+        {children}
+      </h5>
+    )
+  )
+);
+AlertTitle.displayName = 'AlertTitle';
 
 /**
  * Props for the AlertDescription component
@@ -141,8 +138,7 @@ AlertTitle.displayName = "AlertTitle"
  * @property {string} [className] - Additional CSS classes
  * @property {React.ReactNode} [children] - Description text content
  */
-export interface AlertDescriptionProps
-  extends React.HTMLAttributes<HTMLDivElement> {}
+export interface AlertDescriptionProps extends React.HTMLAttributes<HTMLDivElement> {}
 
 /**
  * AlertDescription component - Content area for alert messages
@@ -151,45 +147,14 @@ export interface AlertDescriptionProps
  * Supports nested paragraphs with relaxed line height.
  */
 const AlertDescription = React.memo(
-  React.forwardRef<
-    HTMLDivElement,
-    AlertDescriptionProps
-  >(({ className, ...props }, ref) => (
+  React.forwardRef<HTMLDivElement, AlertDescriptionProps>(({ className, ...props }, ref) => (
     <div
       ref={ref}
-      className={cn("text-sm text-muted-foreground [&_p]:leading-relaxed", className)}
+      className={cn('text-muted-foreground text-sm [&_p]:leading-relaxed', className)}
       {...props}
     />
   ))
-)
-AlertDescription.displayName = "AlertDescription"
+);
+AlertDescription.displayName = 'AlertDescription';
 
-export { Alert, AlertTitle, AlertDescription, alertVariants }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+export { Alert, AlertTitle, AlertDescription, alertVariants };

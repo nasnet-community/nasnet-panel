@@ -21,7 +21,11 @@ import {
   Skeleton,
 } from '@nasnet/ui/primitives';
 
-import type { DependencyGraphPresenterProps, EnhancedNode, EnhancedEdge } from './dependency-graph.types';
+import type {
+  DependencyGraphPresenterProps,
+  EnhancedNode,
+  EnhancedEdge,
+} from './dependency-graph.types';
 
 /**
  * Desktop Presenter for Dependency Graph
@@ -46,10 +50,15 @@ export function DependencyGraphDesktop({
   // Loading state
   if (loading) {
     return (
-      <Card className={cn('w-full bg-card border border-border rounded-[var(--semantic-radius-card)] p-4 sm:p-6 shadow-[var(--semantic-shadow-card)]', className)}>
+      <Card
+        className={cn(
+          'bg-card border-border w-full rounded-[var(--semantic-radius-card)] border p-4 shadow-[var(--semantic-shadow-card)] sm:p-6',
+          className
+        )}
+      >
         <CardHeader>
           <Skeleton className="h-6 w-48" />
-          <Skeleton className="h-4 w-32 mt-2" />
+          <Skeleton className="mt-2 h-4 w-32" />
         </CardHeader>
         <CardContent>
           <Skeleton className="h-96 w-full" />
@@ -61,9 +70,14 @@ export function DependencyGraphDesktop({
   // Error state
   if (error) {
     return (
-      <Card className={cn('w-full bg-card border border-error rounded-[var(--semantic-radius-card)] p-4 sm:p-6 shadow-[var(--semantic-shadow-card)]', className)}>
+      <Card
+        className={cn(
+          'bg-card border-error w-full rounded-[var(--semantic-radius-card)] border p-4 shadow-[var(--semantic-shadow-card)] sm:p-6',
+          className
+        )}
+      >
         <CardContent className="pt-6">
-          <div className="flex items-center gap-3 text-error">
+          <div className="text-error flex items-center gap-3">
             <AlertCircle className="h-5 w-5 flex-shrink-0" />
             <p className="text-sm font-medium">{error}</p>
           </div>
@@ -75,11 +89,16 @@ export function DependencyGraphDesktop({
   // Empty state
   if (state.isEmpty) {
     return (
-      <Card className={cn('w-full bg-card border border-border rounded-[var(--semantic-radius-card)] p-4 sm:p-6 shadow-[var(--semantic-shadow-card)]', className)}>
+      <Card
+        className={cn(
+          'bg-card border-border w-full rounded-[var(--semantic-radius-card)] border p-4 shadow-[var(--semantic-shadow-card)] sm:p-6',
+          className
+        )}
+      >
         <CardContent className="pt-6">
           <div className="flex flex-col items-center justify-center py-12 text-center">
-            <GitBranch className="h-16 w-16 text-muted-foreground mb-4" />
-            <p className="text-sm text-muted-foreground">{emptyMessage}</p>
+            <GitBranch className="text-muted-foreground mb-4 h-16 w-16" />
+            <p className="text-muted-foreground text-sm">{emptyMessage}</p>
           </div>
         </CardContent>
       </Card>
@@ -87,14 +106,14 @@ export function DependencyGraphDesktop({
   }
 
   return (
-    <div className={cn('flex gap-component-md', className)}>
+    <div className={cn('gap-component-md flex', className)}>
       {/* Main graph area */}
-      <Card className="flex-1 bg-card border border-border rounded-[var(--semantic-radius-card)] p-4 sm:p-6 shadow-[var(--semantic-shadow-card)]">
+      <Card className="bg-card border-border flex-1 rounded-[var(--semantic-radius-card)] border p-4 shadow-[var(--semantic-shadow-card)] sm:p-6">
         <CardHeader>
           <CardTitle className="text-lg font-semibold">Dependency Graph</CardTitle>
           <CardDescription>
-            {state.nodeCount} {state.nodeCount === 1 ? 'service' : 'services'},{' '}
-            {state.edgeCount} {state.edgeCount === 1 ? 'dependency' : 'dependencies'}
+            {state.nodeCount} {state.nodeCount === 1 ? 'service' : 'services'}, {state.edgeCount}{' '}
+            {state.edgeCount === 1 ? 'dependency' : 'dependencies'}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -108,7 +127,7 @@ export function DependencyGraphDesktop({
       </Card>
 
       {/* Statistics sidebar */}
-      <Card className="w-64 flex-shrink-0 bg-card border border-border rounded-[var(--semantic-radius-card)] p-4 sm:p-6 shadow-[var(--semantic-shadow-card)]">
+      <Card className="bg-card border-border w-64 flex-shrink-0 rounded-[var(--semantic-radius-card)] border p-4 shadow-[var(--semantic-shadow-card)] sm:p-6">
         <CardHeader>
           <CardTitle className="text-sm font-semibold">Statistics</CardTitle>
         </CardHeader>
@@ -139,8 +158,8 @@ export function DependencyGraphDesktop({
               <hr className="border-border" />
               <div>
                 <p className="text-muted-foreground mb-1">Selected</p>
-                <p className="font-medium truncate">{state.selectedNode.instanceName}</p>
-                <p className="text-xs text-muted-foreground truncate">
+                <p className="truncate font-medium">{state.selectedNode.instanceName}</p>
+                <p className="text-muted-foreground truncate text-xs">
                   {state.selectedNode.featureId}
                 </p>
                 <div className="mt-2 space-y-1 text-xs">
@@ -195,13 +214,13 @@ function GraphVisualization({ state, svgRef, hoveredNode, onHoverNode }: GraphVi
   }, [state.nodes, state.layers, height]);
 
   return (
-    <div className="relative w-full h-[500px] bg-muted border border-border rounded-[var(--semantic-radius-card)] overflow-hidden">
+    <div className="bg-muted border-border relative h-[500px] w-full overflow-hidden rounded-[var(--semantic-radius-card)] border">
       <svg
         ref={svgRef}
         width="100%"
         height="100%"
         viewBox={`0 0 ${width} ${height}`}
-        className="w-full h-full"
+        className="h-full w-full"
         role="img"
         aria-label="Service dependency graph"
       >
@@ -297,14 +316,21 @@ interface NodeCircleProps {
   onHover: (nodeId: string | null) => void;
 }
 
-function NodeCircle({ node, x, y, radius, isSelected, isHovered, onSelect, onHover }: NodeCircleProps) {
+function NodeCircle({
+  node,
+  x,
+  y,
+  radius,
+  isSelected,
+  isHovered,
+  onSelect,
+  onHover,
+}: NodeCircleProps) {
   // Status color mapping
   const statusColor =
-    node.status === 'RUNNING'
-      ? 'hsl(var(--success))'
-      : node.status === 'STOPPED'
-      ? 'hsl(var(--muted))'
-      : 'hsl(var(--warning))';
+    node.status === 'RUNNING' ? 'hsl(var(--success))'
+    : node.status === 'STOPPED' ? 'hsl(var(--muted))'
+    : 'hsl(var(--warning))';
 
   return (
     <g
@@ -330,7 +356,15 @@ function NodeCircle({ node, x, y, radius, isSelected, isHovered, onSelect, onHov
       )}
 
       {/* Node circle */}
-      <circle cx={x} cy={y} r={radius} fill={statusColor} opacity={0.2} stroke={statusColor} strokeWidth={2} />
+      <circle
+        cx={x}
+        cy={y}
+        r={radius}
+        fill={statusColor}
+        opacity={0.2}
+        stroke={statusColor}
+        strokeWidth={2}
+      />
 
       {/* Node label */}
       <text
@@ -338,7 +372,7 @@ function NodeCircle({ node, x, y, radius, isSelected, isHovered, onSelect, onHov
         y={y}
         textAnchor="middle"
         dominantBaseline="middle"
-        className="text-xs font-medium fill-foreground pointer-events-none select-none"
+        className="fill-foreground pointer-events-none select-none text-xs font-medium"
       >
         {node.instanceName.substring(0, 8)}
       </text>

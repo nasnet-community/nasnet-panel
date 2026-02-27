@@ -104,7 +104,7 @@ export const ArrayField = React.memo(function ArrayField({
 
   return (
     <div className={`space-y-component-sm ${className || ''}`}>
-      <div className="flex gap-component-sm">
+      <div className="gap-component-sm flex">
         <div className="flex-1">
           <Input
             value={inputValue}
@@ -121,7 +121,7 @@ export const ArrayField = React.memo(function ArrayField({
           {error && (
             <p
               id={errorId}
-              className="mt-1 text-sm text-error"
+              className="text-error mt-1 text-sm"
               role="alert"
             >
               {error}
@@ -137,23 +137,37 @@ export const ArrayField = React.memo(function ArrayField({
           disabled={disabled || !inputValue.trim()}
           aria-label="Add item"
         >
-          <Plus className="h-4 w-4" aria-hidden="true" />
+          <Plus
+            className="h-4 w-4"
+            aria-hidden="true"
+          />
         </Button>
       </div>
 
       {value.length > 0 && (
-        <div className="flex flex-wrap gap-component-sm" role="region" aria-label="Array items">
+        <div
+          className="gap-component-sm flex flex-wrap"
+          role="region"
+          aria-label="Array items"
+        >
           {value.map((item, index) => (
-            <Badge key={`${item}-${index}`} variant="secondary" className="gap-component-xs pr-component-xs bg-category-vpn/10 text-category-vpn">
+            <Badge
+              key={`${item}-${index}`}
+              variant="secondary"
+              className="gap-component-xs pr-component-xs bg-category-vpn/10 text-category-vpn"
+            >
               <span className="max-w-[200px] truncate font-mono text-xs">{item}</span>
               <button
                 type="button"
                 onClick={() => handleRemove(index)}
                 disabled={disabled}
-                className="ml-1 rounded-full p-0.5 hover:bg-error/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                className="hover:bg-error/20 focus-visible:ring-ring ml-1 rounded-full p-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
                 aria-label={`Remove ${item}`}
               >
-                <X className="h-3 w-3" aria-hidden="true" />
+                <X
+                  className="h-3 w-3"
+                  aria-hidden="true"
+                />
               </button>
             </Badge>
           ))}

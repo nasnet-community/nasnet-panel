@@ -94,10 +94,10 @@ export function ConnectionTrackingSettingsMobile({
       >
         {/* General Settings */}
         <Card className="p-4">
-          <h3 className="text-lg font-semibold mb-4">General Settings</h3>
+          <h3 className="mb-4 text-lg font-semibold">General Settings</h3>
 
           <div className="space-y-4">
-            <div className="flex items-center gap-3 min-h-[44px]">
+            <div className="flex min-h-[44px] items-center gap-3">
               <input
                 type="checkbox"
                 id="enabled-mobile"
@@ -106,7 +106,10 @@ export function ConnectionTrackingSettingsMobile({
                 className="h-5 w-5 rounded border-gray-300"
                 aria-label="Enable connection tracking"
               />
-              <label htmlFor="enabled-mobile" className="text-sm font-medium">
+              <label
+                htmlFor="enabled-mobile"
+                className="text-sm font-medium"
+              >
                 Enable Connection Tracking
               </label>
             </div>
@@ -120,14 +123,17 @@ export function ConnectionTrackingSettingsMobile({
               required
             />
 
-            <div className="flex items-center gap-3 min-h-[44px]">
+            <div className="flex min-h-[44px] items-center gap-3">
               <input
                 type="checkbox"
                 {...form.register('looseTracking')}
                 id="looseTracking-mobile"
                 className="h-5 w-5 rounded border-gray-300"
               />
-              <label htmlFor="looseTracking-mobile" className="text-sm">
+              <label
+                htmlFor="looseTracking-mobile"
+                className="text-sm"
+              >
                 Loose TCP tracking
               </label>
             </div>
@@ -135,16 +141,20 @@ export function ConnectionTrackingSettingsMobile({
         </Card>
 
         {/* Timeout Settings - Accordion */}
-        <Accordion type="single" className="space-y-2">
+        <Accordion
+          type="single"
+          className="space-y-2"
+        >
           {/* TCP Timeouts */}
-          <AccordionItem value="tcp" className="border rounded-lg">
-            <AccordionTrigger className="px-4 min-h-[44px]">
+          <AccordionItem
+            value="tcp"
+            className="rounded-lg border"
+          >
+            <AccordionTrigger className="min-h-[44px] px-4">
               <span className="font-semibold">TCP Timeouts</span>
             </AccordionTrigger>
             <AccordionContent className="px-4 pb-4">
-              <p className="text-xs text-muted-foreground mb-3">
-                Format: 1d, 12h, 30m, 45s
-              </p>
+              <p className="text-muted-foreground mb-3 text-xs">Format: 1d, 12h, 30m, 45s</p>
               <div className="space-y-3">
                 <RHFFormField
                   name="tcpEstablishedTimeout"
@@ -199,8 +209,11 @@ export function ConnectionTrackingSettingsMobile({
           </AccordionItem>
 
           {/* Other Protocol Timeouts */}
-          <AccordionItem value="other" className="border rounded-lg">
-            <AccordionTrigger className="px-4 min-h-[44px]">
+          <AccordionItem
+            value="other"
+            className="rounded-lg border"
+          >
+            <AccordionTrigger className="min-h-[44px] px-4">
               <span className="font-semibold">Other Protocol Timeouts</span>
             </AccordionTrigger>
             <AccordionContent className="px-4 pb-4">
@@ -241,7 +254,7 @@ export function ConnectionTrackingSettingsMobile({
             variant="outline"
             onClick={() => setShowResetDialog(true)}
             disabled={!isDirty || isSubmitting}
-            className="w-full min-h-[44px]"
+            className="min-h-[44px] w-full"
           >
             Reset to Defaults
           </Button>
@@ -251,7 +264,7 @@ export function ConnectionTrackingSettingsMobile({
             variant="outline"
             onClick={handleReset}
             disabled={!isDirty || isSubmitting}
-            className="w-full min-h-[44px]"
+            className="min-h-[44px] w-full"
           >
             Cancel
           </Button>
@@ -259,7 +272,7 @@ export function ConnectionTrackingSettingsMobile({
           <Button
             type="submit"
             disabled={!isDirty || isSubmitting || loading}
-            className="w-full min-h-[44px]"
+            className="min-h-[44px] w-full"
           >
             {isSubmitting ? 'Saving...' : 'Save Changes'}
           </Button>

@@ -16,9 +16,7 @@ describe('useDiff', () => {
     it('returns all unchanged lines when scripts are identical', () => {
       const script = '/interface ethernet\nset name=ether1';
 
-      const { result } = renderHook(() =>
-        useDiff({ oldScript: script, newScript: script })
-      );
+      const { result } = renderHook(() => useDiff({ oldScript: script, newScript: script }));
 
       expect(result.current.hasDiff).toBe(false);
       expect(result.current.addedCount).toBe(0);
@@ -30,9 +28,7 @@ describe('useDiff', () => {
     it('returns all added lines when old script is empty', () => {
       const newScript = '/interface ethernet\nset name=ether1';
 
-      const { result } = renderHook(() =>
-        useDiff({ oldScript: '', newScript })
-      );
+      const { result } = renderHook(() => useDiff({ oldScript: '', newScript }));
 
       expect(result.current.hasDiff).toBe(true);
       expect(result.current.addedCount).toBe(2);
@@ -43,9 +39,7 @@ describe('useDiff', () => {
     it('returns all removed lines when new script is empty', () => {
       const oldScript = '/interface ethernet\nset name=ether1';
 
-      const { result } = renderHook(() =>
-        useDiff({ oldScript, newScript: '' })
-      );
+      const { result } = renderHook(() => useDiff({ oldScript, newScript: '' }));
 
       expect(result.current.hasDiff).toBe(true);
       expect(result.current.addedCount).toBe(0);
@@ -54,9 +48,7 @@ describe('useDiff', () => {
     });
 
     it('handles both scripts empty', () => {
-      const { result } = renderHook(() =>
-        useDiff({ oldScript: '', newScript: '' })
-      );
+      const { result } = renderHook(() => useDiff({ oldScript: '', newScript: '' }));
 
       expect(result.current.hasDiff).toBe(false);
       expect(result.current.addedCount).toBe(0);
@@ -69,9 +61,7 @@ describe('useDiff', () => {
       const oldScript = '/interface ethernet\nset name=ether1';
       const newScript = '/interface ethernet\nset name=ether1\nset name=ether2';
 
-      const { result } = renderHook(() =>
-        useDiff({ oldScript, newScript })
-      );
+      const { result } = renderHook(() => useDiff({ oldScript, newScript }));
 
       expect(result.current.hasDiff).toBe(true);
       expect(result.current.addedCount).toBe(1);
@@ -86,9 +76,7 @@ describe('useDiff', () => {
       const oldScript = '/interface ethernet\nset name=ether1\nset name=ether2';
       const newScript = '/interface ethernet\nset name=ether1';
 
-      const { result } = renderHook(() =>
-        useDiff({ oldScript, newScript })
-      );
+      const { result } = renderHook(() => useDiff({ oldScript, newScript }));
 
       expect(result.current.hasDiff).toBe(true);
       expect(result.current.addedCount).toBe(0);
@@ -103,15 +91,11 @@ describe('useDiff', () => {
       const oldScript = '/interface ethernet\nset name=ether1\nset name=ether2';
       const newScript = '/interface ethernet\nset name=modified\nset name=ether3';
 
-      const { result } = renderHook(() =>
-        useDiff({ oldScript, newScript })
-      );
+      const { result } = renderHook(() => useDiff({ oldScript, newScript }));
 
       expect(result.current.hasDiff).toBe(true);
       // The first line should be unchanged
-      const unchangedLines = result.current.diffLines.filter(
-        (l) => l.type === 'unchanged'
-      );
+      const unchangedLines = result.current.diffLines.filter((l) => l.type === 'unchanged');
       expect(unchangedLines.length).toBeGreaterThan(0);
       expect(unchangedLines[0].content).toBe('/interface ethernet');
     });
@@ -120,9 +104,7 @@ describe('useDiff', () => {
       const oldScript = 'line1\nline2\nline3';
       const newScript = 'different1\ndifferent2\ndifferent3';
 
-      const { result } = renderHook(() =>
-        useDiff({ oldScript, newScript })
-      );
+      const { result } = renderHook(() => useDiff({ oldScript, newScript }));
 
       expect(result.current.hasDiff).toBe(true);
       expect(result.current.addedCount).toBe(3);
@@ -135,9 +117,7 @@ describe('useDiff', () => {
     it('tracks correct line numbers for unchanged lines', () => {
       const script = 'line1\nline2\nline3';
 
-      const { result } = renderHook(() =>
-        useDiff({ oldScript: script, newScript: script })
-      );
+      const { result } = renderHook(() => useDiff({ oldScript: script, newScript: script }));
 
       result.current.diffLines.forEach((line, index) => {
         expect(line.oldLineNumber).toBe(index + 1);
@@ -149,9 +129,7 @@ describe('useDiff', () => {
       const oldScript = 'line1';
       const newScript = 'line1\nline2';
 
-      const { result } = renderHook(() =>
-        useDiff({ oldScript, newScript })
-      );
+      const { result } = renderHook(() => useDiff({ oldScript, newScript }));
 
       const addedLine = result.current.diffLines.find((l) => l.type === 'added');
       expect(addedLine?.newLineNumber).toBe(2);
@@ -162,9 +140,7 @@ describe('useDiff', () => {
       const oldScript = 'line1\nline2';
       const newScript = 'line1';
 
-      const { result } = renderHook(() =>
-        useDiff({ oldScript, newScript })
-      );
+      const { result } = renderHook(() => useDiff({ oldScript, newScript }));
 
       const removedLine = result.current.diffLines.find((l) => l.type === 'removed');
       expect(removedLine?.oldLineNumber).toBe(2);

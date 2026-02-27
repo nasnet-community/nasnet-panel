@@ -4,7 +4,6 @@
  * (CPU / Memory / Uptime / Interfaces).
  */
 
-
 import type { SystemInfo, SystemResource } from '@nasnet/core/types';
 
 import { NetworkStatusHeader } from './NetworkStatusHeader';
@@ -25,7 +24,7 @@ const ROUTER_INFO: SystemInfo = {
 const RESOURCE_HEALTHY: SystemResource = {
   uptime: '3d4h25m12s',
   cpuLoad: 18,
-  freeMemory: 682_393_600,   // ~651 MB free out of ~1 GB
+  freeMemory: 682_393_600, // ~651 MB free out of ~1 GB
   totalMemory: 1_073_741_824, // 1 GB
   freeHddSpace: 50_331_648,
   totalHddSpace: 134_217_728,
@@ -38,7 +37,7 @@ const RESOURCE_HEALTHY: SystemResource = {
 const RESOURCE_WARNING: SystemResource = {
   ...RESOURCE_HEALTHY,
   cpuLoad: 62,
-  freeMemory: 322_961_408,  // ~35% free → 65% used
+  freeMemory: 322_961_408, // ~35% free → 65% used
   totalMemory: 536_870_912, // 512 MB
   uptime: '12h30m45s',
 };
@@ -46,7 +45,7 @@ const RESOURCE_WARNING: SystemResource = {
 const RESOURCE_CRITICAL: SystemResource = {
   ...RESOURCE_HEALTHY,
   cpuLoad: 91,
-  freeMemory: 52_428_800,   // ~10% free → 90% used
+  freeMemory: 52_428_800, // ~10% free → 90% used
   totalMemory: 536_870_912, // 512 MB
   uptime: '2m15s',
 };
@@ -238,7 +237,7 @@ export const MinimalRouter: Story = {
     resourceData: {
       uptime: '45d2h10m',
       cpuLoad: 5,
-      freeMemory: 18_874_368,  // 18 MB free out of 32 MB
+      freeMemory: 18_874_368, // 18 MB free out of 32 MB
       totalMemory: 33_554_432, // 32 MB
       freeHddSpace: 2_097_152,
       totalHddSpace: 16_777_216,

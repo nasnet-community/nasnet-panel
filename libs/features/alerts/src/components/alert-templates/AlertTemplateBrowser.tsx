@@ -16,8 +16,15 @@ import React, { useCallback, useMemo } from 'react';
 import { useTemplateGallery, TemplateGallery } from '@nasnet/ui/patterns';
 import { useToast } from '@nasnet/ui/primitives';
 
-import { useAlertRuleTemplates, useApplyAlertRuleTemplate, type AlertRuleTemplate } from '@nasnet/api-client/queries';
-import { ALERT_TEMPLATE_CATEGORIES, type AlertTemplateCategoryMeta } from '../../utils/alert-template-categories';
+import {
+  useAlertRuleTemplates,
+  useApplyAlertRuleTemplate,
+  type AlertRuleTemplate,
+} from '@nasnet/api-client/queries';
+import {
+  ALERT_TEMPLATE_CATEGORIES,
+  type AlertTemplateCategoryMeta,
+} from '../../utils/alert-template-categories';
 
 // =============================================================================
 // Props Interface
@@ -65,7 +72,9 @@ export interface AlertTemplateBrowserProps {
  * @param props Component props
  * @returns React element (responsive via TemplateGallery)
  */
-export const AlertTemplateBrowser = React.memo(function AlertTemplateBrowser(props: AlertTemplateBrowserProps) {
+export const AlertTemplateBrowser = React.memo(function AlertTemplateBrowser(
+  props: AlertTemplateBrowserProps
+) {
   const { onRuleCreated, initialCategory, className } = props;
 
   const { toast } = useToast();
@@ -173,11 +182,16 @@ export const AlertTemplateBrowser = React.memo(function AlertTemplateBrowser(pro
   // Handle errors
   if (error) {
     return (
-      <div className="flex flex-col items-center justify-center h-full p-component-lg">
-        <p className="text-error mb-component-md" role="alert">Failed to load templates</p>
+      <div className="p-component-lg flex h-full flex-col items-center justify-center">
+        <p
+          className="text-error mb-component-md"
+          role="alert"
+        >
+          Failed to load templates
+        </p>
         <button
           onClick={() => refetch()}
-          className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 min-h-[44px] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          className="bg-primary text-primary-foreground hover:bg-primary/90 focus-visible:ring-ring min-h-[44px] rounded-md px-4 py-2 focus-visible:ring-2 focus-visible:ring-offset-2"
           aria-label="Retry loading templates"
         >
           Retry

@@ -1,1 +1,12 @@
-{"categoryGeneratedIndex":{"title":"Subscriptions overview","slug":"/category/subscriptions","permalink":"/category/subscriptions","sidebar":"defaultSidebar","navigation":{"previous":{"title":"webhooks","permalink":"/api/operations/queries/webhooks"},"next":{"title":"alertEvents","permalink":"/api/operations/subscriptions/alert-events"}}}}
+{
+  "categoryGeneratedIndex": {
+    "title": "Subscriptions overview",
+    "slug": "/category/subscriptions",
+    "permalink": "/category/subscriptions",
+    "sidebar": "defaultSidebar",
+    "navigation": {
+      "previous": { "title": "webhooks", "permalink": "/api/operations/queries/webhooks" },
+      "next": { "title": "alertEvents", "permalink": "/api/operations/subscriptions/alert-events" }
+    }
+  }
+}

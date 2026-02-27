@@ -24,15 +24,20 @@ const lifecycleBadgeVariants = cva(
   {
     variants: {
       state: {
-        DRAFT: 'bg-slate-100 text-slate-700 ring-slate-600/20 dark:bg-slate-800 dark:text-slate-400 dark:ring-slate-500/20',
+        DRAFT:
+          'bg-slate-100 text-slate-700 ring-slate-600/20 dark:bg-slate-800 dark:text-slate-400 dark:ring-slate-500/20',
         VALIDATING: 'bg-info/10 text-info ring-info/20 dark:bg-info/20 dark:text-sky-400',
         VALID: 'bg-success/10 text-success ring-success/20 dark:bg-success/20 dark:text-green-400',
-        APPLYING: 'bg-warning/10 text-warning ring-warning/20 dark:bg-warning/20 dark:text-amber-400',
+        APPLYING:
+          'bg-warning/10 text-warning ring-warning/20 dark:bg-warning/20 dark:text-amber-400',
         ACTIVE: 'bg-success/10 text-success ring-success/20 dark:bg-success/20 dark:text-green-400',
-        DEGRADED: 'bg-warning/10 text-warning ring-warning/20 dark:bg-warning/20 dark:text-amber-400',
+        DEGRADED:
+          'bg-warning/10 text-warning ring-warning/20 dark:bg-warning/20 dark:text-amber-400',
         ERROR: 'bg-error/10 text-error ring-error/20 dark:bg-error/20 dark:text-red-400',
-        DEPRECATED: 'bg-slate-100 text-slate-500 ring-slate-400/20 dark:bg-slate-800 dark:text-slate-500 dark:ring-slate-600/20',
-        ARCHIVED: 'bg-slate-100 text-slate-400 ring-slate-300/20 dark:bg-slate-900 dark:text-slate-600 dark:ring-slate-700/20',
+        DEPRECATED:
+          'bg-slate-100 text-slate-500 ring-slate-400/20 dark:bg-slate-800 dark:text-slate-500 dark:ring-slate-600/20',
+        ARCHIVED:
+          'bg-slate-100 text-slate-400 ring-slate-300/20 dark:bg-slate-900 dark:text-slate-600 dark:ring-slate-700/20',
       },
       size: {
         sm: 'px-2 py-0.5 text-[10px]',
@@ -53,7 +58,7 @@ const lifecycleBadgeVariants = cva(
 
 const Spinner: React.FC<{ className?: string }> = ({ className }) => (
   <svg
-    className={cn('animate-spin h-3 w-3', className)}
+    className={cn('h-3 w-3 animate-spin', className)}
     xmlns="http://www.w3.org/2000/svg"
     fill="none"
     viewBox="0 0 24 24"

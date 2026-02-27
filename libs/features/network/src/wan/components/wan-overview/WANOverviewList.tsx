@@ -80,8 +80,11 @@ const WANOverviewListComponent = ({
     return (
       <div className="flex items-center justify-center py-12">
         <div className="flex flex-col items-center gap-3">
-          <RefreshCw className="h-8 w-8 animate-spin text-muted-foreground" aria-hidden="true" />
-          <p className="text-sm text-muted-foreground">Loading WAN interfaces...</p>
+          <RefreshCw
+            className="text-muted-foreground h-8 w-8 animate-spin"
+            aria-hidden="true"
+          />
+          <p className="text-muted-foreground text-sm">Loading WAN interfaces...</p>
         </div>
       </div>
     );
@@ -92,12 +95,15 @@ const WANOverviewListComponent = ({
    */
   if (error && wans.length === 0) {
     return (
-      <div className="rounded-[var(--semantic-radius-card)] border border-error/20 bg-error/5 px-component-lg py-component-lg">
-        <div className="flex items-start gap-component-md">
-          <Globe className="h-5 w-5 text-error flex-shrink-0 mt-0.5" aria-hidden="true" />
+      <div className="border-error/20 bg-error/5 px-component-lg py-component-lg rounded-[var(--semantic-radius-card)] border">
+        <div className="gap-component-md flex items-start">
+          <Globe
+            className="text-error mt-0.5 h-5 w-5 flex-shrink-0"
+            aria-hidden="true"
+          />
           <div className="flex-1">
-            <h3 className="font-semibold text-error">Failed to load WAN interfaces</h3>
-            <p className="text-sm text-muted-foreground mt-1">{error.message}</p>
+            <h3 className="text-error font-semibold">Failed to load WAN interfaces</h3>
+            <p className="text-muted-foreground mt-1 text-sm">{error.message}</p>
             {onRefresh && (
               <Button
                 variant="outline"
@@ -105,7 +111,10 @@ const WANOverviewListComponent = ({
                 onClick={onRefresh}
                 className="mt-component-md"
               >
-                <RefreshCw className="h-4 w-4 mr-2" aria-hidden="true" />
+                <RefreshCw
+                  className="mr-2 h-4 w-4"
+                  aria-hidden="true"
+                />
                 Retry
               </Button>
             )}
@@ -125,13 +134,13 @@ const WANOverviewListComponent = ({
         title="No WAN Configured"
         description="Configure a WAN connection to connect your network to the internet."
         action={
-          onAddWAN
-            ? {
-                label: 'Add WAN Connection',
-                onClick: onAddWAN,
-                variant: 'action',
-              }
-            : undefined
+          onAddWAN ?
+            {
+              label: 'Add WAN Connection',
+              onClick: onAddWAN,
+              variant: 'action',
+            }
+          : undefined
         }
       />
     );
@@ -144,16 +153,17 @@ const WANOverviewListComponent = ({
     <div className="space-y-component-md">
       {/* Header with refresh button */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-component-md">
-          <h2 className="text-lg font-semibold">
-            WAN Interfaces ({wans.length})
-          </h2>
+        <div className="gap-component-md flex items-center">
+          <h2 className="text-lg font-semibold">WAN Interfaces ({wans.length})</h2>
           {loading && (
-            <RefreshCw className="h-4 w-4 animate-spin text-muted-foreground" aria-hidden="true" />
+            <RefreshCw
+              className="text-muted-foreground h-4 w-4 animate-spin"
+              aria-hidden="true"
+            />
           )}
         </div>
 
-        <div className="flex gap-component-md">
+        <div className="gap-component-md flex">
           {onRefresh && (
             <Button
               variant="ghost"
@@ -163,13 +173,24 @@ const WANOverviewListComponent = ({
               aria-label="Refresh WAN interfaces"
               className="min-h-[44px]"
             >
-              <RefreshCw className="h-4 w-4" aria-hidden="true" />
+              <RefreshCw
+                className="h-4 w-4"
+                aria-hidden="true"
+              />
               <span className="ml-2 hidden sm:inline">Refresh</span>
             </Button>
           )}
           {onAddWAN && (
-            <Button size="sm" onClick={onAddWAN} aria-label="Add new WAN connection" className="min-h-[44px]">
-              <Plus className="h-4 w-4" aria-hidden="true" />
+            <Button
+              size="sm"
+              onClick={onAddWAN}
+              aria-label="Add new WAN connection"
+              className="min-h-[44px]"
+            >
+              <Plus
+                className="h-4 w-4"
+                aria-hidden="true"
+              />
               <span className="ml-2 hidden sm:inline">Add WAN</span>
             </Button>
           )}
@@ -178,12 +199,15 @@ const WANOverviewListComponent = ({
 
       {/* Error banner (if error but have cached data) */}
       {error && wans.length > 0 && (
-        <div className="rounded-[var(--semantic-radius-card)] border border-warning/20 bg-warning/5 px-component-md py-component-md">
-          <div className="flex items-start gap-component-md">
-            <RefreshCw className="h-4 w-4 text-warning flex-shrink-0 mt-0.5" aria-hidden="true" />
+        <div className="border-warning/20 bg-warning/5 px-component-md py-component-md rounded-[var(--semantic-radius-card)] border">
+          <div className="gap-component-md flex items-start">
+            <RefreshCw
+              className="text-warning mt-0.5 h-4 w-4 flex-shrink-0"
+              aria-hidden="true"
+            />
             <div className="flex-1 text-sm">
-              <p className="font-medium text-warning">Failed to refresh WAN data</p>
-              <p className="text-muted-foreground text-xs mt-1">
+              <p className="text-warning font-medium">Failed to refresh WAN data</p>
+              <p className="text-muted-foreground mt-1 text-xs">
                 Showing cached data. {error.message}
               </p>
             </div>
@@ -194,31 +218,31 @@ const WANOverviewListComponent = ({
       {/* Responsive grid */}
       <div
         className={cn(
-          isMobile ? 'space-y-component-md' : 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-component-md'
+          isMobile ? 'space-y-component-md' : (
+            'gap-component-md grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
+          )
         )}
       >
         {sortedWANs.map((wan) =>
-          isMobile ? (
+          isMobile ?
             <WANCardCompact
               key={wan.id}
               wan={wan}
               onConfigure={onConfigureWAN}
               onViewDetails={onViewDetails}
             />
-          ) : (
-            <WANCard
+          : <WANCard
               key={wan.id}
               wan={wan}
               onConfigure={onConfigureWAN}
               onViewDetails={onViewDetails}
             />
-          )
         )}
       </div>
 
       {/* Statistics footer */}
-      <div className="flex items-center justify-between text-xs text-muted-foreground pt-component-lg border-t border-border">
-        <div className="flex items-center gap-component-lg">
+      <div className="text-muted-foreground pt-component-lg border-border flex items-center justify-between border-t text-xs">
+        <div className="gap-component-lg flex items-center">
           <span>
             Connected:{' '}
             <strong className="text-success">
@@ -228,11 +252,7 @@ const WANOverviewListComponent = ({
           <span>
             Healthy:{' '}
             <strong className="text-success">
-              {
-                wans.filter(
-                  (w) => w.healthEnabled && w.healthStatus === 'HEALTHY'
-                ).length
-              }
+              {wans.filter((w) => w.healthEnabled && w.healthStatus === 'HEALTHY').length}
             </strong>
           </span>
           <span>

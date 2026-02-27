@@ -10,18 +10,18 @@
 # Schema files location (relative to this config file)
 # Fragment files are excluded (fragments are for client-side queries only)
 schema:
-  - "../../schema/*.graphql"
-  - "../../schema/core/*.graphql"
-  - "../../schema/alerts/*.graphql"
-  - "../../schema/services/*.graphql"
-  - "../../schema/network/*.graphql"
-  - "../../schema/firewall/*.graphql"
-  - "../../schema/diagnostics/*.graphql"
-  - "../../schema/wan/*.graphql"
-  - "../../schema/resources/*.graphql"
-  - "../../schema/changeset/*.graphql"
-  - "../../schema/storage/*.graphql"
-  - "../../schema/provisioning/*.graphql"
+  - '../../schema/*.graphql'
+  - '../../schema/core/*.graphql'
+  - '../../schema/alerts/*.graphql'
+  - '../../schema/services/*.graphql'
+  - '../../schema/network/*.graphql'
+  - '../../schema/firewall/*.graphql'
+  - '../../schema/diagnostics/*.graphql'
+  - '../../schema/wan/*.graphql'
+  - '../../schema/resources/*.graphql'
+  - '../../schema/changeset/*.graphql'
+  - '../../schema/storage/*.graphql'
+  - '../../schema/provisioning/*.graphql'
 
 # Generated server code
 exec:
@@ -40,11 +40,11 @@ resolver:
   layout: follow-schema
   dir: graph/resolver
   package: resolver
-  filename_template: "{name}.resolvers.go"
+  filename_template: '{name}.resolvers.go'
 
 # Automatically bind Go types to GraphQL types
 autobind:
-  - "backend/graph/model"
+  - 'backend/graph/model'
 
 # Custom scalar mappings
 models:

@@ -1,19 +1,23 @@
 # Routing and Navigation Architecture
 
-**Document Status:** Comprehensive reference
-**Last Updated:** 2026-02
-**Scope:** TanStack Router file-based routing, code splitting, lazy loading, guards, error handling, app-level hooks
+**Document Status:** Comprehensive reference **Last Updated:** 2026-02 **Scope:** TanStack Router
+file-based routing, code splitting, lazy loading, guards, error handling, app-level hooks
 
 ## 1. Overview
 
-NasNetConnect uses **TanStack Router** with a **file-based routing convention**. Every route is defined as a file in `apps/connect/src/routes/` that exports a route configuration. The router automatically discovers and registers all routes, providing type-safe navigation, code splitting by default, and nested route hierarchies.
+NasNetConnect uses **TanStack Router** with a **file-based routing convention**. Every route is
+defined as a file in `apps/connect/src/routes/` that exports a route configuration. The router
+automatically discovers and registers all routes, providing type-safe navigation, code splitting by
+default, and nested route hierarchies.
 
 Key architecture principles:
+
 - **File-based routing** — Files map to routes automatically (no route registry)
 - **Code splitting by default** — Heavy route components are lazy-loaded with skeleton fallbacks
 - **Nested layouts** — Parent routes can wrap child routes
 - **Type-safe params** — Dynamic route params are type-checked (`$id`, `$serverId`)
-- **App-level integration** — Global hooks manage heartbeat, authentication, notifications, shortcuts
+- **App-level integration** — Global hooks manage heartbeat, authentication, notifications,
+  shortcuts
 
 ## 2. Complete Route Tree
 
@@ -91,17 +95,20 @@ graph TD
 
 ### Routing Conventions
 
-**Flat routes (dashboard.*):** Multiple routes at root level using dot notation
+**Flat routes (dashboard.\*):** Multiple routes at root level using dot notation
+
 - `dashboard.tsx` → `/dashboard`
 - `dashboard.network.tsx` → `/dashboard?tab=network` or nested route
 - These keep the root level clean while grouping related pages
 
-**Nested directories (router/$id/*):** Deep nesting for contextual hierarchies
+**Nested directories (router/$id/\*):** Deep nesting for contextual hierarchies
+
 - Parent routes use `route.tsx` to define the layout
 - Child routes inherit the parent's layout wrapper
 - Dynamic segments use `$name` convention
 
 **Dynamic params:** Enclosed in `$` for automatic type inference
+
 - `$id` — Router ID param (e.g., `/router/abc123`)
 - `$serverId` — DHCP server ID
 - `$interfaceName` — WiFi interface name
@@ -111,19 +118,20 @@ graph TD
 
 TanStack Router automatically maps files to routes using these rules:
 
-| File Name | Route |
-|-----------|-------|
-| `index.tsx` | `/` or parent path |
-| `dashboard.tsx` | `/dashboard` |
-| `dashboard.network.tsx` | `/dashboard/network` (nested) |
-| `router/$id/index.tsx` | `/router/:id` |
-| `router/$id/dhcp.tsx` | `/router/:id/dhcp` |
-| `router/$id/firewall/logs.tsx` | `/router/:id/firewall/logs` |
-| `$id.tsx` | `/:id` (dynamic param) |
+| File Name                      | Route                         |
+| ------------------------------ | ----------------------------- |
+| `index.tsx`                    | `/` or parent path            |
+| `dashboard.tsx`                | `/dashboard`                  |
+| `dashboard.network.tsx`        | `/dashboard/network` (nested) |
+| `router/$id/index.tsx`         | `/router/:id`                 |
+| `router/$id/dhcp.tsx`          | `/router/:id/dhcp`            |
+| `router/$id/firewall/logs.tsx` | `/router/:id/firewall/logs`   |
+| `$id.tsx`                      | `/:id` (dynamic param)        |
 
 **Key patterns:**
 
-1. **Dot notation creates nested groups** — `dashboard.network.tsx` creates a logical grouping without deep nesting
+1. **Dot notation creates nested groups** — `dashboard.network.tsx` creates a logical grouping
+   without deep nesting
 2. **`route.tsx` is a layout file** — Defines parent layout without its own route
 3. **Dynamic params with `$`** — `$id`, `$name` are automatically typed
 4. **Index files define default child** — `router/$id/index.tsx` renders when no child tab is active
@@ -131,6 +139,7 @@ TanStack Router automatically maps files to routes using these rules:
 ### Creating a New Route
 
 **Simple page route:**
+
 ```tsx
 // apps/connect/src/routes/mypage.tsx
 import { createFileRoute } from '@tanstack/react-router';
@@ -145,6 +154,7 @@ function MyPage() {
 ```
 
 **Route with dynamic param:**
+
 ```tsx
 // apps/connect/src/routes/items/$id.tsx
 import { createFileRoute } from '@tanstack/react-router';
@@ -160,6 +170,7 @@ function ItemDetail() {
 ```
 
 **Nested layout route:**
+
 ```tsx
 // apps/connect/src/routes/admin/route.tsx
 import { createFileRoute, Outlet } from '@tanstack/react-router';
@@ -180,6 +191,7 @@ function AdminLayout() {
 ## 4. Root Layout (`__root.tsx`)
 
 The root layout wraps the entire application. It provides:
+
 - **Providers** — All context providers (Apollo Client, Zustand stores, theme)
 - **ResponsiveShell** — App shell with header, sidebar, banner
 - **App-level hooks** — Heartbeat, notifications, shortcuts, auth
@@ -214,7 +226,10 @@ function RootInner() {
       header={<AppHeader />}
       banner={<ConnectionBanner />}
       sidebar={
-        <CollapsibleSidebarProvider isCollapsed={desktopCollapsed} toggle={toggle}>
+        <CollapsibleSidebarProvider
+          isCollapsed={desktopCollapsed}
+          toggle={toggle}
+        >
           <AppSidebar />
         </CollapsibleSidebarProvider>
       }
@@ -222,10 +237,16 @@ function RootInner() {
       onSidebarToggle={toggle}
     >
       {/* Skip to main content link for keyboard/screen reader users */}
-      <a href="#main-content" className="sr-only focus:not-sr-only ...">
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only ..."
+      >
         {t('a11y.skipToMainContent')}
       </a>
-      <main id="main-content" className="animate-fade-in-up ...">
+      <main
+        id="main-content"
+        className="animate-fade-in-up ..."
+      >
         <Outlet /> {/* Child routes render here */}
       </main>
       <Toaster />
@@ -278,20 +299,21 @@ These run exactly once (on mount) and manage their own cleanup.
 
 ### UI Components in Root
 
-| Component | Purpose | File |
-|-----------|---------|------|
-| `ResponsiveShell` | App layout shell (header/sidebar/main) | `@nasnet/ui/layouts` |
-| `AppHeader` | Header with user menu, status | `apps/connect/src/app/components/AppHeader.tsx` |
-| `AppSidebar` | Navigation sidebar | `apps/connect/src/app/components/AppSidebar.tsx` |
-| `ConnectionBanner` | Connection status banner | `@nasnet/ui/patterns` |
-| `CommandPalette` | Cmd+K command palette | `@nasnet/ui/patterns` |
-| `ShortcutsOverlay` | ? key shortcuts help overlay | `@nasnet/ui/patterns` |
-| `SearchFAB` | Mobile search floating action button | `@nasnet/ui/patterns` |
-| `Toaster` | Toast notification container | `@nasnet/ui/primitives` |
+| Component          | Purpose                                | File                                             |
+| ------------------ | -------------------------------------- | ------------------------------------------------ |
+| `ResponsiveShell`  | App layout shell (header/sidebar/main) | `@nasnet/ui/layouts`                             |
+| `AppHeader`        | Header with user menu, status          | `apps/connect/src/app/components/AppHeader.tsx`  |
+| `AppSidebar`       | Navigation sidebar                     | `apps/connect/src/app/components/AppSidebar.tsx` |
+| `ConnectionBanner` | Connection status banner               | `@nasnet/ui/patterns`                            |
+| `CommandPalette`   | Cmd+K command palette                  | `@nasnet/ui/patterns`                            |
+| `ShortcutsOverlay` | ? key shortcuts help overlay           | `@nasnet/ui/patterns`                            |
+| `SearchFAB`        | Mobile search floating action button   | `@nasnet/ui/patterns`                            |
+| `Toaster`          | Toast notification container           | `@nasnet/ui/primitives`                          |
 
 ## 5. Router Panel Layout (`router/$id/route.tsx`)
 
-The router panel is the main container for all router-specific management. It uses a parent layout pattern:
+The router panel is the main container for all router-specific management. It uses a parent layout
+pattern:
 
 ```tsx
 // apps/connect/src/routes/router/$id/route.tsx
@@ -327,11 +349,13 @@ All child routes at `/router/$id/*` automatically inherit the parent layout.
 
 ## 6. Code Splitting & Lazy Loading
 
-NasNetConnect uses **code splitting by default** for route components. Heavy components like firewalls and DHCP management are split into separate bundles and loaded on-demand.
+NasNetConnect uses **code splitting by default** for route components. Heavy components like
+firewalls and DHCP management are split into separate bundles and loaded on-demand.
 
 ### LazyBoundary Component
 
 Located at `libs/ui/patterns/src/suspense/LazyBoundary.tsx`, it provides:
+
 - **Suspense fallback** — Custom skeleton UI during load
 - **Error boundary** — Catches component errors, shows retry button
 - **Auto-skeleton** — Default skeleton variants (lines, card, table, chart)
@@ -360,17 +384,19 @@ import { LazyDHCPTab } from '@/app/routes/router-panel/tabs/lazy';
 
 function DHCPTabSkeleton() {
   return (
-    <div className="space-y-4 p-4 md:p-6 animate-fade-in-up"
-         aria-busy="true"
-         aria-label="Loading DHCP configuration">
+    <div
+      className="animate-fade-in-up space-y-4 p-4 md:p-6"
+      aria-busy="true"
+      aria-label="Loading DHCP configuration"
+    >
       {/* Header skeleton */}
-      <div className="flex items-center gap-3 pb-2 border-b">
-        <div className="h-8 w-1 rounded bg-dhcp" />
+      <div className="flex items-center gap-3 border-b pb-2">
+        <div className="bg-dhcp h-8 w-1 rounded" />
         <Skeleton className="h-6 w-40" />
       </div>
 
       {/* Pool config grids */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <div className="space-y-2">
           <Skeleton className="h-4 w-20" />
           <Skeleton className="h-40 w-full" />
@@ -401,6 +427,7 @@ export const Route = createFileRoute('/router/$id/dhcp')({
 From `libs/ui/patterns/src/suspense/LazyRoute.tsx`:
 
 **`createLazyRoute()`** — Creates lazy route config with preload
+
 ```tsx
 const dashboardRoute = createLazyRoute({
   importFn: () => import('./pages/Dashboard'),
@@ -417,6 +444,7 @@ export const Route = createFileRoute('/dashboard')({
 ```
 
 **`preloadRoutes()`** — Preload multiple routes after initial render
+
 ```tsx
 useEffect(() => {
   preloadRoutes([
@@ -428,12 +456,16 @@ useEffect(() => {
 ```
 
 **`createPreloadHandlers()`** — Create hover/focus preload handlers
+
 ```tsx
 const preloadHandlers = createPreloadHandlers(() => import('./pages/Settings'));
 
-<Link to="/settings" {...preloadHandlers}>
+<Link
+  to="/settings"
+  {...preloadHandlers}
+>
   Settings
-</Link>
+</Link>;
 ```
 
 ### SuspenseBoundary Component
@@ -482,6 +514,7 @@ Route guards protect routes from unauthorized access using `beforeLoad` hooks.
 From `libs/state/stores/src/hooks/useRouteGuard.ts`:
 
 **`requireAuth()`** — Protects authenticated-only routes
+
 ```tsx
 // In route definition
 export const dashboardRoute = createFileRoute('/dashboard')({
@@ -496,6 +529,7 @@ export const dashboardRoute = createFileRoute('/dashboard')({
 ```
 
 **`requirePermission(permission)`** — Checks specific permissions
+
 ```tsx
 export const adminRoute = createFileRoute('/admin')({
   beforeLoad: requirePermission('admin'),
@@ -506,6 +540,7 @@ export const adminRoute = createFileRoute('/admin')({
 ```
 
 **`requireGuest()`** — Login/signup routes (redirects away if already authenticated)
+
 ```tsx
 export const loginRoute = createFileRoute('/login')({
   beforeLoad: requireGuest,
@@ -516,6 +551,7 @@ export const loginRoute = createFileRoute('/login')({
 ### Component-Level Auth Checks
 
 **`useRequireAuth()`** — Check auth status in component
+
 ```tsx
 function ProtectedContent() {
   const { isAuthenticated, isExpired, isExpiringSoon } = useRequireAuth();
@@ -533,6 +569,7 @@ function ProtectedContent() {
 ```
 
 **`useHasPermission(permission)`** — Check specific permission
+
 ```tsx
 function AdminButton() {
   const hasAdminAccess = useHasPermission('admin');
@@ -542,6 +579,7 @@ function AdminButton() {
 ```
 
 **`useCurrentUser()`** — Get user info
+
 ```tsx
 function Profile() {
   const user = useCurrentUser();
@@ -550,6 +588,7 @@ function Profile() {
 ```
 
 **`useAuthActions()`** — Login/logout functions
+
 ```tsx
 function LogoutButton() {
   const { logout } = useAuthActions();
@@ -572,10 +611,10 @@ Proactively refreshes JWT tokens **5 minutes before expiry** to maintain seamles
  */
 export function useTokenRefresh(options: UseTokenRefreshOptions): void {
   const {
-    refreshTokenFn,        // Callback to refresh token
-    onReauthRequired,      // Callback if refresh fails 3x
-    showNotifications,     // Show error toasts (default: true)
-    checkInterval,         // Check every 60s (default)
+    refreshTokenFn, // Callback to refresh token
+    onReauthRequired, // Callback if refresh fails 3x
+    showNotifications, // Show error toasts (default: true)
+    checkInterval, // Check every 60s (default)
   } = options;
 
   // Runs every 60 seconds
@@ -585,6 +624,7 @@ export function useTokenRefresh(options: UseTokenRefreshOptions): void {
 ```
 
 **Usage in app:**
+
 ```tsx
 useTokenRefresh({
   refreshTokenFn: async () => {
@@ -603,6 +643,7 @@ useTokenRefresh({
 ```
 
 Key behavior:
+
 - Checks every 60 seconds (configurable)
 - Refreshes 5 minutes before expiry (proactive)
 - Retries up to 3 times on failure
@@ -622,20 +663,22 @@ function RootErrorComponent({ error }: { error: Error }) {
   const { t } = useTranslation('common');
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background"
-         role="alert" aria-live="assertive">
-      <div className="max-w-md p-8 bg-card rounded-lg shadow-lg border border-border">
-        <h1 className="text-2xl font-bold text-error mb-4">
-          {t('errors.applicationError')}
-        </h1>
+    <div
+      className="bg-background flex min-h-screen items-center justify-center"
+      role="alert"
+      aria-live="assertive"
+    >
+      <div className="bg-card border-border max-w-md rounded-lg border p-8 shadow-lg">
+        <h1 className="text-error mb-4 text-2xl font-bold">{t('errors.applicationError')}</h1>
         <p className="text-muted-foreground mb-4">{error.message}</p>
-        <button onClick={() => window.location.reload()} className="min-h-[44px] ...">
+        <button
+          onClick={() => window.location.reload()}
+          className="min-h-[44px] ..."
+        >
           {t('actions.reloadApplication')}
         </button>
         {import.meta.env.DEV && (
-          <pre className="mt-4 p-4 bg-muted rounded text-xs overflow-auto">
-            {error.stack}
-          </pre>
+          <pre className="bg-muted mt-4 overflow-auto rounded p-4 text-xs">{error.stack}</pre>
         )}
       </div>
     </div>
@@ -645,13 +688,14 @@ function RootErrorComponent({ error }: { error: Error }) {
 function NotFoundComponent() {
   const { t } = useTranslation('common');
   return (
-    <div className="min-h-screen flex items-center justify-center">
+    <div className="flex min-h-screen items-center justify-center">
       <div className="text-center">
-        <h1 className="text-6xl font-bold text-muted">{t('errors.notFound')}</h1>
-        <p className="text-xl text-muted-foreground mt-4">
-          {t('errors.pageNotFound')}
-        </p>
-        <a href="/" className="mt-6 inline-block min-h-[44px] ...">
+        <h1 className="text-muted text-6xl font-bold">{t('errors.notFound')}</h1>
+        <p className="text-muted-foreground mt-4 text-xl">{t('errors.pageNotFound')}</p>
+        <a
+          href="/"
+          className="mt-6 inline-block min-h-[44px] ..."
+        >
           {t('actions.goHome')}
         </a>
       </div>
@@ -761,6 +805,7 @@ From `apps/connect/src/app/hooks/useDefaultCommands.ts`:
 Registers all default commands and keyboard shortcuts for the command palette.
 
 **Navigation Commands (with keyboard shortcuts):**
+
 - `g h` → Home
 - `g d` → Dashboard
 - `g r` → Routers
@@ -770,11 +815,13 @@ Registers all default commands and keyboard shortcuts for the command palette.
 - No shortcut → Discover Routers
 
 **Action Commands:**
+
 - Add Router (Cmd+N concept)
 - Create Backup (Cmd+S concept)
 - Refresh Data (R key)
 
 **Resource Commands (with requiresNetwork flag):**
+
 - DHCP Leases (keywords: lease, ip, clients)
 - System Logs (keywords: log, events, history)
 - Interfaces (keywords: port, eth, wan, lan)
@@ -783,6 +830,7 @@ Registers all default commands and keyboard shortcuts for the command palette.
 ### useGlobalShortcuts()
 
 Enables global keyboard shortcuts:
+
 - **Cmd+K** (or Ctrl+K) → Open command palette
 - **?** (question mark) → Show shortcuts overlay
 - Vim-style navigation (g h, g d, etc.) via command palette
@@ -908,11 +956,7 @@ Back/forward navigation:
 function BackButton() {
   const router = useRouter();
 
-  return (
-    <button onClick={() => router.history.back()}>
-      Go Back
-    </button>
-  );
+  return <button onClick={() => router.history.back()}>Go Back</button>;
 }
 ```
 
@@ -920,17 +964,21 @@ function BackButton() {
 
 Related documentation:
 
-| Topic | Document |
-|-------|----------|
-| State Management (Zustand, Apollo) | `architecture-overview.md`, `state-management.md` |
-| Component Architecture (3-layer) | `architecture-overview.md` |
-| Design System & Tokens | `Docs/design/DESIGN_TOKENS.md` |
-| Error Handling & Reporting | `error-handling.md` |
-| Testing Routes & Navigation | `Docs/architecture/implementation-patterns/testing-strategy-patterns.md` |
-| Responsive Design & Platform Presenters | `Docs/design/PLATFORM_PRESENTER_GUIDE.md` |
-| Command Palette & Shortcuts | `@nasnet/ui/patterns` |
-| TypeScript Router Types | `apps/connect/src/routes/__root.tsx` type exports |
+| Topic                                   | Document                                                                 |
+| --------------------------------------- | ------------------------------------------------------------------------ |
+| State Management (Zustand, Apollo)      | `architecture-overview.md`, `state-management.md`                        |
+| Component Architecture (3-layer)        | `architecture-overview.md`                                               |
+| Design System & Tokens                  | `Docs/design/DESIGN_TOKENS.md`                                           |
+| Error Handling & Reporting              | `error-handling.md`                                                      |
+| Testing Routes & Navigation             | `Docs/architecture/implementation-patterns/testing-strategy-patterns.md` |
+| Responsive Design & Platform Presenters | `Docs/design/PLATFORM_PRESENTER_GUIDE.md`                                |
+| Command Palette & Shortcuts             | `@nasnet/ui/patterns`                                                    |
+| TypeScript Router Types                 | `apps/connect/src/routes/__root.tsx` type exports                        |
 
 ---
 
-**Summary:** NasNetConnect's routing system combines TanStack Router's file-based convention with code splitting, error boundaries, auth guards, and app-level integration hooks. Every route automatically benefits from lazy loading with skeleton fallbacks, type-safe params, and nested layout support. The architecture prioritizes fast navigation with preloading on hover while maintaining security through token refresh and auth guards.
+**Summary:** NasNetConnect's routing system combines TanStack Router's file-based convention with
+code splitting, error boundaries, auth guards, and app-level integration hooks. Every route
+automatically benefits from lazy loading with skeleton fallbacks, type-safe params, and nested
+layout support. The architecture prioritizes fast navigation with preloading on hover while
+maintaining security through token refresh and auth guards.

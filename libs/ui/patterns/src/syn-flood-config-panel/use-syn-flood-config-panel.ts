@@ -13,7 +13,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, type UseFormReturn } from 'react-hook-form';
 import { z } from 'zod';
 
-
 import { DEFAULT_SYN_FLOOD_CONFIG } from '@nasnet/core/types';
 
 import type { SynFloodConfig, SynFloodFormValues } from './types';
@@ -147,9 +146,8 @@ export function useSynFloodConfigPanel(
   const { initialConfig, onSubmit, onReset } = options;
 
   // Initialize form with default values
-  const defaultValues = initialConfig
-    ? configToForm(initialConfig)
-    : configToForm(DEFAULT_SYN_FLOOD_CONFIG);
+  const defaultValues =
+    initialConfig ? configToForm(initialConfig) : configToForm(DEFAULT_SYN_FLOOD_CONFIG);
 
   const form = useForm<SynFloodFormValues>({
     resolver: zodResolver(synFloodConfigSchema),

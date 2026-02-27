@@ -1,7 +1,7 @@
 {
   "id": "guides/firewall-system",
   "title": "Firewall System Guide",
-  "description": "Cross-cutting guide for firewall rule types, configuration, log parsing, and port reference integration.",
+  "description": "Cross-cutting guide for firewall rule types, configuration, log parsing, and port reference",
   "source": "@site/../../libs/core/docs/guides/firewall-system.md",
   "sourceDirName": "guides",
   "slug": "/guides/firewall-system",

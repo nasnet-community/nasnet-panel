@@ -21,7 +21,8 @@ import {
   SelectContent,
   SelectItem,
   Badge,
- cn } from '@nasnet/ui/primitives';
+  cn,
+} from '@nasnet/ui/primitives';
 
 import { useKillSwitchToggle } from './useKillSwitchToggle';
 
@@ -57,16 +58,16 @@ export function KillSwitchToggleMobile(props: KillSwitchToggleProps) {
 
   // Determine status variant
   const statusVariant =
-    statusColor === 'success'
-      ? 'default'
-      : statusColor === 'error'
-        ? 'error'
-        : statusColor === 'warning'
-          ? 'secondary'
-          : 'outline';
+    statusColor === 'success' ? 'default'
+    : statusColor === 'error' ? 'error'
+    : statusColor === 'warning' ? 'secondary'
+    : 'outline';
 
   // Determine icon
-  const StatusIcon = isActive ? ShieldAlert : enabled ? ShieldCheck : Shield;
+  const StatusIcon =
+    isActive ? ShieldAlert
+    : enabled ? ShieldCheck
+    : Shield;
 
   const isDisabled = disabled || isLoading || isSaving;
 
@@ -76,14 +77,15 @@ export function KillSwitchToggleMobile(props: KillSwitchToggleProps) {
         <div className="flex items-center gap-2">
           <StatusIcon className="size-5 shrink-0" />
           <CardTitle className="text-base">Kill Switch</CardTitle>
-          <Badge variant={statusVariant} className="ml-auto text-xs">
+          <Badge
+            variant={statusVariant}
+            className="ml-auto text-xs"
+          >
             {statusText}
           </Badge>
         </div>
         {deviceName && (
-          <CardDescription className="text-sm">
-            Protection for {deviceName}
-          </CardDescription>
+          <CardDescription className="text-sm">Protection for {deviceName}</CardDescription>
         )}
         <CardDescription className="text-sm">
           Automatically blocks traffic when service becomes unhealthy
@@ -92,8 +94,11 @@ export function KillSwitchToggleMobile(props: KillSwitchToggleProps) {
 
       <CardContent className="space-y-4">
         {/* Enable/Disable Switch - Large touch target (44px min height) */}
-        <div className="flex min-h-[44px] items-center justify-between gap-4 rounded-lg border border-border bg-muted/30 px-4 py-3">
-          <Label htmlFor="kill-switch-enabled" className="font-medium">
+        <div className="border-border bg-muted/30 flex min-h-[44px] items-center justify-between gap-4 rounded-lg border px-4 py-3">
+          <Label
+            htmlFor="kill-switch-enabled"
+            className="font-medium"
+          >
             Enable Kill Switch
           </Label>
           <Switch
@@ -109,7 +114,10 @@ export function KillSwitchToggleMobile(props: KillSwitchToggleProps) {
           <>
             {/* Mode selector - Large touch target */}
             <div className="space-y-2">
-              <Label htmlFor="kill-switch-mode-mobile" className="text-sm font-medium">
+              <Label
+                htmlFor="kill-switch-mode-mobile"
+                className="text-sm font-medium"
+              >
                 Behavior Mode
               </Label>
               <Select
@@ -124,10 +132,16 @@ export function KillSwitchToggleMobile(props: KillSwitchToggleProps) {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="BLOCK_ALL" className="min-h-[44px] text-base">
+                  <SelectItem
+                    value="BLOCK_ALL"
+                    className="min-h-[44px] text-base"
+                  >
                     Block All Traffic
                   </SelectItem>
-                  <SelectItem value="ALLOW_DIRECT" className="min-h-[44px] text-base">
+                  <SelectItem
+                    value="ALLOW_DIRECT"
+                    className="min-h-[44px] text-base"
+                  >
                     Allow Direct Access
                   </SelectItem>
                   <SelectItem
@@ -138,7 +152,7 @@ export function KillSwitchToggleMobile(props: KillSwitchToggleProps) {
                   </SelectItem>
                 </SelectContent>
               </Select>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-muted-foreground text-xs">
                 {mode === 'BLOCK_ALL' && 'Blocks all traffic from this device'}
                 {mode === 'ALLOW_DIRECT' && 'Allows direct internet access (no VPN)'}
                 {mode === 'FALLBACK_SERVICE' && 'Routes through a backup service'}
@@ -148,7 +162,10 @@ export function KillSwitchToggleMobile(props: KillSwitchToggleProps) {
             {/* Fallback interface selector */}
             {showFallbackSelector && (
               <div className="space-y-2">
-                <Label htmlFor="fallback-interface-mobile" className="text-sm font-medium">
+                <Label
+                  htmlFor="fallback-interface-mobile"
+                  className="text-sm font-medium"
+                >
                   Fallback Service
                 </Label>
                 <Select
@@ -175,7 +192,7 @@ export function KillSwitchToggleMobile(props: KillSwitchToggleProps) {
                   </SelectContent>
                 </Select>
                 {availableInterfaces.length === 0 && (
-                  <p className="flex items-center gap-1.5 text-sm text-error">
+                  <p className="text-error flex items-center gap-1.5 text-sm">
                     <AlertCircle className="size-4 shrink-0" />
                     No fallback services available
                   </p>
@@ -185,12 +202,12 @@ export function KillSwitchToggleMobile(props: KillSwitchToggleProps) {
 
             {/* Active state indicator */}
             {isActive && activationTimeText && (
-              <div className="rounded-lg border border-l-4 border-l-error border-error bg-error-light p-4 transition-colors duration-150">
+              <div className="border-l-error border-error bg-error-light rounded-lg border border-l-4 p-4 transition-colors duration-150">
                 <div className="flex items-start gap-3">
-                  <ShieldAlert className="mt-1 size-5 shrink-0 text-error" />
+                  <ShieldAlert className="text-error mt-1 size-5 shrink-0" />
                   <div className="flex-1 space-y-1">
-                    <p className="font-medium text-error-dark">Kill Switch Active</p>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-error-dark font-medium">Kill Switch Active</p>
+                    <p className="text-muted-foreground text-sm">
                       Triggered {activationTimeText} due to service health failure
                     </p>
                   </div>

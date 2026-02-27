@@ -27,7 +27,10 @@ const meta: Meta<typeof PingTool> = {
   },
   decorators: [
     (Story) => (
-      <MockedProvider mocks={[]} addTypename={false}>
+      <MockedProvider
+        mocks={[]}
+        addTypename={false}
+      >
         <Story />
       </MockedProvider>
     ),
@@ -57,7 +60,10 @@ export const Idle: Story = {
  */
 export const Desktop: Story = {
   render: (args) => (
-    <MockedProvider mocks={[]} addTypename={false}>
+    <MockedProvider
+      mocks={[]}
+      addTypename={false}
+    >
       <PingToolDesktop {...args} />
     </MockedProvider>
   ),
@@ -74,7 +80,10 @@ export const Desktop: Story = {
  */
 export const Mobile: Story = {
   render: (args) => (
-    <MockedProvider mocks={[]} addTypename={false}>
+    <MockedProvider
+      mocks={[]}
+      addTypename={false}
+    >
       <PingToolMobile {...args} />
     </MockedProvider>
   ),
@@ -157,8 +166,7 @@ export const HostnameTarget: Story = {
   parameters: {
     docs: {
       description: {
-        story:
-          'Supports hostnames. Try entering "google.com" or "cloudflare.com" as target.',
+        story: 'Supports hostnames. Try entering "google.com" or "cloudflare.com" as target.',
       },
     },
   },
@@ -274,7 +282,10 @@ export const InteractiveDemo: Story = {
     ];
 
     return (
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider
+        mocks={mocks}
+        addTypename={false}
+      >
         <PingTool {...args} />
       </MockedProvider>
     );

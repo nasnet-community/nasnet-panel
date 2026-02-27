@@ -6,28 +6,44 @@
 Input for creating or updating a multi-hop routing chain.
 """
 input CreateRoutingChainInput {
-  """Target device identifier"""
+  """
+  Target device identifier
+  """
   deviceId: ID!
 
-  """Device MAC address (required if routing_mode=MAC)"""
+  """
+  Device MAC address (required if routing_mode=MAC)
+  """
   deviceMac: String
 
-  """Device IP address (required if routing_mode=IP)"""
+  """
+  Device IP address (required if routing_mode=IP)
+  """
   deviceIp: String
 
-  """Human-readable device name"""
+  """
+  Human-readable device name
+  """
   deviceName: String
 
-  """Routing mode (MAC or IP matching)"""
+  """
+  Routing mode (MAC or IP matching)
+  """
   routingMode: RoutingMode!
 
-  """Whether to enable kill switch"""
+  """
+  Whether to enable kill switch
+  """
   killSwitchEnabled: Boolean
 
-  """Kill switch behavior mode"""
+  """
+  Kill switch behavior mode
+  """
   killSwitchMode: KillSwitchMode
 
-  """Ordered list of hops (2-5 hops required)"""
+  """
+  Ordered list of hops (2-5 hops required)
+  """
   hops: [ChainHopInput!]!
 }
 
@@ -35,10 +51,14 @@ input CreateRoutingChainInput {
 Input for a single hop in a chain.
 """
 input ChainHopInput {
-  """Virtual interface ID for this hop"""
+  """
+  Virtual interface ID for this hop
+  """
   interfaceId: ID!
 
-  """1-based position in the chain"""
+  """
+  1-based position in the chain
+  """
   order: Int! @validate(min: 1, max: 5)
 }
 
@@ -46,16 +66,24 @@ input ChainHopInput {
 Result of a routing chain mutation.
 """
 type RoutingChainMutationResult {
-  """Whether the operation succeeded"""
+  """
+  Whether the operation succeeded
+  """
   success: Boolean!
 
-  """Human-readable message"""
+  """
+  Human-readable message
+  """
   message: String
 
-  """The created or updated chain (null if failed)"""
+  """
+  The created or updated chain (null if failed)
+  """
   chain: RoutingChain
 
-  """Mutation errors"""
+  """
+  Mutation errors
+  """
   errors: [MutationError!]
 }
 
@@ -64,10 +92,14 @@ extend type Query {
   Get the routing chain for a specific device, if any.
   """
   routingChain(
-    """Router ID"""
+    """
+    Router ID
+    """
     routerID: ID!
 
-    """Device ID"""
+    """
+    Device ID
+    """
     deviceID: ID!
   ): RoutingChain
 
@@ -75,7 +107,9 @@ extend type Query {
   List all routing chains for a router.
   """
   routingChains(
-    """Router ID"""
+    """
+    Router ID
+    """
     routerID: ID!
   ): [RoutingChain!]!
 }
@@ -87,10 +121,14 @@ extend type Mutation {
   Creates sequential MikroTik mangle rules with Policy-Based Routing (PBR).
   """
   createRoutingChain(
-    """Router ID"""
+    """
+    Router ID
+    """
     routerID: ID!
 
-    """Chain configuration"""
+    """
+    Chain configuration
+    """
     input: CreateRoutingChainInput!
   ): RoutingChainMutationResult!
 
@@ -99,13 +137,19 @@ extend type Mutation {
   Removes the old chain and creates a new one with updated configuration.
   """
   updateRoutingChain(
-    """Router ID"""
+    """
+    Router ID
+    """
     routerID: ID!
 
-    """Chain ID to update"""
+    """
+    Chain ID to update
+    """
     chainID: ID!
 
-    """New chain configuration"""
+    """
+    New chain configuration
+    """
     input: CreateRoutingChainInput!
   ): RoutingChainMutationResult!
 
@@ -113,10 +157,14 @@ extend type Mutation {
   Remove a routing chain and all its mangle/route/filter rules from the router.
   """
   removeRoutingChain(
-    """Router ID"""
+    """
+    Router ID
+    """
     routerID: ID!
 
-    """Chain ID to remove"""
+    """
+    Chain ID to remove
+    """
     chainID: ID!
   ): RoutingChainMutationResult!
 }
@@ -126,7 +174,9 @@ extend type Subscription {
   Real-time updates when any routing chain changes (create, update, remove, kill switch).
   """
   routingChainChanged(
-    """Router ID to subscribe to"""
+    """
+    Router ID to subscribe to
+    """
     routerID: ID!
   ): RoutingChain!
 }

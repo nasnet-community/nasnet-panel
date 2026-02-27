@@ -47,10 +47,7 @@ const MIN_DHCP_PREFIX = 29;
  */
 export function ipToNumber(ip: string): number {
   const octets = ip.split('.').map(Number);
-  return (
-    ((octets[0] << 24) | (octets[1] << 16) | (octets[2] << 8) | octets[3]) >>>
-    0
-  );
+  return ((octets[0] << 24) | (octets[1] << 16) | (octets[2] << 8) | octets[3]) >>> 0;
 }
 
 /**
@@ -64,12 +61,7 @@ export function ipToNumber(ip: string): number {
  * numberToIP(3232235777) // "192.168.1.1"
  */
 export function numberToIP(num: number): string {
-  return [
-    (num >>> 24) & 255,
-    (num >>> 16) & 255,
-    (num >>> 8) & 255,
-    num & 255,
-  ].join('.');
+  return [(num >>> 24) & 255, (num >>> 16) & 255, (num >>> 8) & 255, num & 255].join('.');
 }
 
 /**
@@ -126,9 +118,7 @@ export function calculateSuggestedPool(interfaceIP: string): PoolSuggestion {
 
   // Check if subnet is too small for DHCP
   if (prefix >= 30) {
-    throw new Error(
-      `/${prefix} subnet is too small for DHCP pool (minimum /29 required)`
-    );
+    throw new Error(`/${prefix} subnet is too small for DHCP pool (minimum /29 required)`);
   }
 
   // Special handling for common subnet sizes
@@ -222,11 +212,7 @@ export function isInSubnet(ip: string, subnet: string): boolean {
  * poolOverlapsWithIP("192.168.1.100", "192.168.1.200", "192.168.1.150") // true
  * poolOverlapsWithIP("192.168.1.100", "192.168.1.200", "192.168.1.50") // false
  */
-export function poolOverlapsWithIP(
-  poolStart: string,
-  poolEnd: string,
-  ip: string
-): boolean {
+export function poolOverlapsWithIP(poolStart: string, poolEnd: string, ip: string): boolean {
   const startNum = ipToNumber(poolStart);
   const endNum = ipToNumber(poolEnd);
   const ipNum = ipToNumber(ip);
@@ -311,12 +297,7 @@ export function isValidIPv4(ip: string): boolean {
 
   return octets.every((octet) => {
     const num = parseInt(octet, 10);
-    return (
-      !isNaN(num) &&
-      num >= MIN_OCTET &&
-      num <= MAX_OCTET &&
-      octet === num.toString()
-    );
+    return !isNaN(num) && num >= MIN_OCTET && num <= MAX_OCTET && octet === num.toString();
   });
 }
 

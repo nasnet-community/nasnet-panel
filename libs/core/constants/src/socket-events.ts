@@ -70,7 +70,7 @@ export const SOCKET_EVENTS_EMIT = {
 
   // System events
   SYSTEM_REBOOT: 'system:reboot',
-  SYSTEM_SHUTDOWN: 'system:shutdown'
+  SYSTEM_SHUTDOWN: 'system:shutdown',
 } as const;
 
 /**
@@ -138,7 +138,7 @@ export const SOCKET_EVENTS_ON = {
   ALERT: 'alert',
   WARNING: 'warning',
   INFO: 'info',
-  SUCCESS: 'success'
+  SUCCESS: 'success',
 } as const;
 
 /**
@@ -147,20 +147,20 @@ export const SOCKET_EVENTS_ON = {
  */
 export const SOCKET_EVENTS = {
   ...SOCKET_EVENTS_EMIT,
-  ...SOCKET_EVENTS_ON
+  ...SOCKET_EVENTS_ON,
 } as const;
 
 /**
  * Union type of all socket event names.
  */
-export type SocketEvent = typeof SOCKET_EVENTS[keyof typeof SOCKET_EVENTS];
+export type SocketEvent = (typeof SOCKET_EVENTS)[keyof typeof SOCKET_EVENTS];
 
 /**
  * Union type of all client → server event names.
  */
-export type SocketEmitEvent = typeof SOCKET_EVENTS_EMIT[keyof typeof SOCKET_EVENTS_EMIT];
+export type SocketEmitEvent = (typeof SOCKET_EVENTS_EMIT)[keyof typeof SOCKET_EVENTS_EMIT];
 
 /**
  * Union type of all server → client event names.
  */
-export type SocketOnEvent = typeof SOCKET_EVENTS_ON[keyof typeof SOCKET_EVENTS_ON];
+export type SocketOnEvent = (typeof SOCKET_EVENTS_ON)[keyof typeof SOCKET_EVENTS_ON];

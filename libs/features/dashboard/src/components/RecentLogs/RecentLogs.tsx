@@ -18,14 +18,7 @@ import { Link } from '@tanstack/react-router';
 import { ExternalLink } from 'lucide-react';
 
 import { usePlatform } from '@nasnet/ui/layouts';
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-  Button,
-  cn,
-} from '@nasnet/ui/primitives';
+import { Card, CardHeader, CardTitle, CardContent, Button, cn } from '@nasnet/ui/primitives';
 
 import type { LogTopic } from '@nasnet/core/types';
 import { LogEntryItem } from './LogEntryItem';
@@ -73,10 +66,7 @@ function RecentLogsComponent({ deviceId, className }: RecentLogsProps) {
    * TanStack Router uses search object instead of query string
    */
   const viewAllSearch = useMemo(
-    () =>
-      selectedTopics.length > 0
-        ? { topics: selectedTopics.join(',') }
-        : undefined,
+    () => (selectedTopics.length > 0 ? { topics: selectedTopics.join(',') } : undefined),
     [selectedTopics]
   );
 
@@ -137,9 +127,9 @@ function RecentLogsComponent({ deviceId, className }: RecentLogsProps) {
           <CardTitle className="text-base">Recent Logs</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-col items-center gap-component-sm py-component-lg text-center">
-            <p className="text-sm text-error">Failed to load logs</p>
-            <p className="text-xs text-muted-foreground">{error.message}</p>
+          <div className="gap-component-sm py-component-lg flex flex-col items-center text-center">
+            <p className="text-error text-sm">Failed to load logs</p>
+            <p className="text-muted-foreground text-xs">{error.message}</p>
             <Button
               variant="outline"
               size="sm"
@@ -159,9 +149,9 @@ function RecentLogsComponent({ deviceId, className }: RecentLogsProps) {
    */
   return (
     <Card className={className}>
-      <CardHeader className="flex flex-row items-center justify-between pb-component-sm">
+      <CardHeader className="pb-component-sm flex flex-row items-center justify-between">
         <CardTitle className="text-base">Recent Logs</CardTitle>
-        <div className="flex items-center gap-component-sm">
+        <div className="gap-component-sm flex items-center">
           <TopicFilter
             selectedTopics={selectedTopics}
             onSelectionChange={handleTopicChange}
@@ -178,7 +168,10 @@ function RecentLogsComponent({ deviceId, className }: RecentLogsProps) {
               search={viewAllSearch as Record<string, string>}
             >
               View All
-              <ExternalLink className="ml-1 h-3 w-3" aria-hidden="true" />
+              <ExternalLink
+                className="ml-1 h-3 w-3"
+                aria-hidden="true"
+              />
             </Link>
           </Button>
         </div>
@@ -194,12 +187,10 @@ function RecentLogsComponent({ deviceId, className }: RecentLogsProps) {
             platform === 'mobile' ? 'max-h-[280px]' : 'max-h-[320px]'
           )}
         >
-          {logs.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-component-lg text-center">
-              <p className="text-sm text-muted-foreground">
-                No logs found for selected topics
-              </p>
-              <p className="text-xs text-muted-foreground mt-component-xs">
+          {logs.length === 0 ?
+            <div className="py-component-lg flex flex-col items-center justify-center text-center">
+              <p className="text-muted-foreground text-sm">No logs found for selected topics</p>
+              <p className="text-muted-foreground mt-component-xs text-xs">
                 Try selecting different topics or check router connection
               </p>
               {selectedTopics.length > 0 && (
@@ -214,9 +205,7 @@ function RecentLogsComponent({ deviceId, className }: RecentLogsProps) {
                 </Button>
               )}
             </div>
-          ) : (
-            renderedLogs
-          )}
+          : renderedLogs}
         </div>
       </CardContent>
     </Card>

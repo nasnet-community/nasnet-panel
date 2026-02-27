@@ -75,11 +75,7 @@ export function useConnectedDevices(
   options?: UseConnectedDevicesOptions
 ): UseConnectedDevicesReturn {
   // 1. Compose existing TanStack Query hooks (DO NOT MODIFY THEM)
-  const {
-    data: leases,
-    isLoading,
-    error,
-  } = useDHCPLeases(routerIp);
+  const { data: leases, isLoading, error } = useDHCPLeases(routerIp);
 
   const { data: servers } = useDHCPServers(routerIp);
 
@@ -91,12 +87,7 @@ export function useConnectedDevices(
   // 3. Transform to enriched type
   const enrichedDevices = useMemo(() => {
     if (!leases) return [];
-    return transformLeases(
-      leases,
-      prevMacsRef.current,
-      newMacsRef.current,
-      options?.sortBy
-    );
+    return transformLeases(leases, prevMacsRef.current, newMacsRef.current, options?.sortBy);
   }, [leases, options?.sortBy]);
 
   // 4. Update tracking refs after transform
@@ -225,9 +216,7 @@ function sortDevices(
 ): ConnectedDeviceEnriched[] {
   switch (sortBy) {
     case 'hostname':
-      return [...devices].sort((a, b) =>
-        a.hostname.localeCompare(b.hostname)
-      );
+      return [...devices].sort((a, b) => a.hostname.localeCompare(b.hostname));
 
     case 'ip':
       return [...devices].sort((a, b) => {
@@ -240,14 +229,10 @@ function sortDevices(
       });
 
     case 'recent':
-      return [...devices].sort(
-        (a, b) => b.firstSeen.getTime() - a.firstSeen.getTime()
-      );
+      return [...devices].sort((a, b) => b.firstSeen.getTime() - a.firstSeen.getTime());
 
     case 'duration':
     default:
-      return [...devices].sort(
-        (a, b) => a.firstSeen.getTime() - b.firstSeen.getTime()
-      );
+      return [...devices].sort((a, b) => a.firstSeen.getTime() - b.firstSeen.getTime());
   }
 }

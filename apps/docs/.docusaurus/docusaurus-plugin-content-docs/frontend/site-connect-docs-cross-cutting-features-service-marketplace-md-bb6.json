@@ -1,7 +1,7 @@
 {
   "id": "cross-cutting-features/service-marketplace",
   "title": "Service Marketplace",
-  "description": "The service marketplace is the feature management system for downloadable network services that run on the MikroTik router. Each service (Tor, sing-box, Xray-core, MTProxy, Psiphon, AdGuard Home) is a downloadable binary managed by the NasNet backend.",
+  "description": "The service marketplace is the feature management system for downloadable network services that run",
   "source": "@site/../connect/docs/cross-cutting-features/service-marketplace.md",
   "sourceDirName": "cross-cutting-features",
   "slug": "/cross-cutting-features/service-marketplace",

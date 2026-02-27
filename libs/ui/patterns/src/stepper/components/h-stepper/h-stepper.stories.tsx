@@ -6,7 +6,6 @@
  * @see NAS-4A.16: Build Horizontal Stepper (Header Pattern)
  */
 
-
 import { within, userEvent, expect, waitFor } from 'storybook/test';
 
 import { Button } from '@nasnet/ui/primitives';
@@ -160,16 +159,15 @@ export const Default: Story = {
   render: ({ stepper: _unusedStepper, ...args }) => (
     <StepperWrapper steps={basicSteps}>
       {(stepper) => (
-        <div className="min-h-screen bg-muted/30">
-          <HStepper {...args} stepper={stepper} />
+        <div className="bg-muted/30 min-h-screen">
+          <HStepper
+            {...args}
+            stepper={stepper}
+          />
           <main className="container mx-auto p-6">
             <div className="bg-background rounded-lg p-6 shadow-sm">
-              <h2 className="text-xl font-semibold mb-4">
-                {stepper.currentStep.title}
-              </h2>
-              <p className="text-muted-foreground mb-6">
-                {stepper.currentStep.description}
-              </p>
+              <h2 className="mb-4 text-xl font-semibold">{stepper.currentStep.title}</h2>
+              <p className="text-muted-foreground mb-6">{stepper.currentStep.description}</p>
               <div className="flex gap-2">
                 <Button
                   variant="outline"
@@ -221,17 +219,18 @@ export const ProgressStages: Story = {
       }, [stage, stepper]);
 
       return (
-        <div className="min-h-screen bg-muted/30">
-          <HStepper stepper={stepper} showTitles />
+        <div className="bg-muted/30 min-h-screen">
+          <HStepper
+            stepper={stepper}
+            showTitles
+          />
           <main className="container mx-auto p-6">
             <div className="bg-background rounded-lg p-6 shadow-sm">
-              <h2 className="text-xl font-semibold mb-4">
-                Progress Demo
-              </h2>
+              <h2 className="mb-4 text-xl font-semibold">Progress Demo</h2>
               <p className="text-muted-foreground mb-6">
                 Click to jump to different progress stages:
               </p>
-              <div className="flex gap-2 flex-wrap">
+              <div className="flex flex-wrap gap-2">
                 {[0, 1, 2, 3, 4].map((s) => (
                   <Button
                     key={s}
@@ -242,9 +241,7 @@ export const ProgressStages: Story = {
                   </Button>
                 ))}
               </div>
-              <p className="text-sm text-muted-foreground mt-4">
-                Progress: {stepper.progress}%
-              </p>
+              <p className="text-muted-foreground mt-4 text-sm">Progress: {stepper.progress}%</p>
             </div>
           </main>
         </div>
@@ -256,7 +253,8 @@ export const ProgressStages: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Shows progress bar filling at different stages. Progress is calculated as (activeStep / (totalSteps - 1)) * 100%.',
+        story:
+          'Shows progress bar filling at different stages. Progress is calculated as (activeStep / (totalSteps - 1)) * 100%.',
       },
     },
   },
@@ -284,20 +282,19 @@ export const WithCompletedSteps: Story = {
       }, [stepper]);
 
       return (
-        <div className="min-h-screen bg-muted/30">
-          <HStepper stepper={stepper} showTitles />
+        <div className="bg-muted/30 min-h-screen">
+          <HStepper
+            stepper={stepper}
+            showTitles
+          />
           <main className="container mx-auto p-6">
             <div className="bg-background rounded-lg p-6 shadow-sm">
-              <h2 className="text-xl font-semibold mb-4">
-                {stepper.currentStep.title}
-              </h2>
-              <p className="text-muted-foreground mb-2">
-                {stepper.currentStep.description}
-              </p>
-              <p className="text-sm text-muted-foreground mb-6">
+              <h2 className="mb-4 text-xl font-semibold">{stepper.currentStep.title}</h2>
+              <p className="text-muted-foreground mb-2">{stepper.currentStep.description}</p>
+              <p className="text-muted-foreground mb-6 text-sm">
                 Progress: {stepper.progress}% ({stepper.completedCount}/{stepper.totalSteps} steps)
               </p>
-              <p className="text-sm mb-4">
+              <p className="mb-4 text-sm">
                 ✓ First 3 steps are completed. Click them to navigate back.
               </p>
               <div className="flex gap-2">
@@ -354,27 +351,32 @@ export const WithErrorState: Story = {
       }, [stepper]);
 
       return (
-        <div className="min-h-screen bg-muted/30">
-          <HStepper stepper={stepper} showTitles />
+        <div className="bg-muted/30 min-h-screen">
+          <HStepper
+            stepper={stepper}
+            showTitles
+          />
           <main className="container mx-auto p-6">
-            <div className="bg-background rounded-lg p-6 shadow-sm border-destructive/20 border">
-              <h2 className="text-xl font-semibold mb-4 text-destructive">
-                Validation Errors
-              </h2>
-              <ul className="space-y-1 text-sm mb-6">
+            <div className="bg-background border-destructive/20 rounded-lg border p-6 shadow-sm">
+              <h2 className="text-destructive mb-4 text-xl font-semibold">Validation Errors</h2>
+              <ul className="mb-6 space-y-1 text-sm">
                 {Object.entries(stepper.errors).map(([field, error]) => (
-                  <li key={field} className="text-destructive">
+                  <li
+                    key={field}
+                    className="text-destructive"
+                  >
                     <strong>{field}:</strong> {error}
                   </li>
                 ))}
               </ul>
               <div className="flex gap-2">
-                <Button variant="outline" onClick={() => stepper.clearErrors()}>
+                <Button
+                  variant="outline"
+                  onClick={() => stepper.clearErrors()}
+                >
                   Clear Errors
                 </Button>
-                <Button onClick={() => stepper.next()}>
-                  Try Again
-                </Button>
+                <Button onClick={() => stepper.next()}>Try Again</Button>
               </div>
             </div>
           </main>
@@ -387,7 +389,8 @@ export const WithErrorState: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Error state showing destructive styling on step indicator. The progress bar stops at the error step.',
+        story:
+          'Error state showing destructive styling on step indicator. The progress bar stops at the error step.',
       },
     },
   },
@@ -398,15 +401,19 @@ export const WithErrorState: Story = {
  */
 export const Responsive: Story = {
   render: (_args) => (
-    <StepperWrapper steps={basicSteps} initialStep={2}>
+    <StepperWrapper
+      steps={basicSteps}
+      initialStep={2}
+    >
       {(stepper) => (
-        <div className="min-h-screen bg-muted/30">
-          <HStepper stepper={stepper} showTitles />
+        <div className="bg-muted/30 min-h-screen">
+          <HStepper
+            stepper={stepper}
+            showTitles
+          />
           <main className="container mx-auto p-6">
             <div className="bg-background rounded-lg p-6 shadow-sm">
-              <h2 className="text-xl font-semibold mb-4">
-                Responsive Behavior
-              </h2>
+              <h2 className="mb-4 text-xl font-semibold">Responsive Behavior</h2>
               <div className="space-y-4 text-sm">
                 <p>
                   <strong>Desktop (≥768px):</strong> Step titles visible below indicators
@@ -415,7 +422,8 @@ export const Responsive: Story = {
                   <strong>Mobile (&lt;768px):</strong> Step titles hidden, only dots shown
                 </p>
                 <p>
-                  <strong>All sizes:</strong> Progress bar and step label ("Step X of Y") always visible
+                  <strong>All sizes:</strong> Progress bar and step label ("Step X of Y") always
+                  visible
                 </p>
                 <p className="text-muted-foreground">
                   Resize your browser window to see the responsive behavior.
@@ -431,17 +439,18 @@ export const Responsive: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Use the viewport addon to test at different screen sizes. Step titles collapse on mobile.',
+        story:
+          'Use the viewport addon to test at different screen sizes. Step titles collapse on mobile.',
       },
-    }
+    },
   },
 
   globals: {
     viewport: {
       value: 'responsive',
-      isRotated: false
-    }
-  }
+      isRotated: false,
+    },
+  },
 };
 
 /**
@@ -451,18 +460,19 @@ export const Interactive: Story = {
   render: ({ stepper: _unusedStepper, ...args }) => (
     <StepperWrapper steps={basicSteps}>
       {(stepper) => (
-        <div className="min-h-screen bg-muted/30">
-          <HStepper {...args} stepper={stepper} data-testid="stepper" />
+        <div className="bg-muted/30 min-h-screen">
+          <HStepper
+            {...args}
+            stepper={stepper}
+            data-testid="stepper"
+          />
           <main className="container mx-auto p-6">
             <div className="bg-background rounded-lg p-6 shadow-sm">
-              <h2 className="text-xl font-semibold mb-4">
-                {stepper.currentStep.title}
-              </h2>
-              <p className="text-muted-foreground mb-4">
-                {stepper.currentStep.description}
-              </p>
-              <p className="text-sm mb-6">
-                Step {stepper.currentIndex + 1} of {stepper.totalSteps} • Progress: {stepper.progress}%
+              <h2 className="mb-4 text-xl font-semibold">{stepper.currentStep.title}</h2>
+              <p className="text-muted-foreground mb-4">{stepper.currentStep.description}</p>
+              <p className="mb-6 text-sm">
+                Step {stepper.currentIndex + 1} of {stepper.totalSteps} • Progress:{' '}
+                {stepper.progress}%
               </p>
               <div className="flex gap-2">
                 <Button
@@ -473,7 +483,10 @@ export const Interactive: Story = {
                 >
                   Back
                 </Button>
-                <Button onClick={() => stepper.next()} data-testid="next-button">
+                <Button
+                  onClick={() => stepper.next()}
+                  data-testid="next-button"
+                >
                   {stepper.isLast ? 'Complete' : 'Next'}
                 </Button>
               </div>
@@ -539,20 +552,22 @@ export const Interactive: Story = {
  */
 export const DarkTheme: Story = {
   render: ({ stepper: _unusedStepper, ...args }) => (
-    <div className="dark min-h-screen bg-background">
-      <StepperWrapper steps={basicSteps} initialStep={2}>
+    <div className="bg-background dark min-h-screen">
+      <StepperWrapper
+        steps={basicSteps}
+        initialStep={2}
+      >
         {(stepper) => (
           <>
-            <HStepper {...args} stepper={stepper} />
+            <HStepper
+              {...args}
+              stepper={stepper}
+            />
             <main className="container mx-auto p-6">
-              <div className="border rounded-lg p-6">
-                <h2 className="text-xl font-semibold mb-4">
-                  {stepper.currentStep.title}
-                </h2>
-                <p className="text-muted-foreground">
-                  Dark theme using semantic color tokens.
-                </p>
-                <div className="flex gap-2 mt-6">
+              <div className="rounded-lg border p-6">
+                <h2 className="mb-4 text-xl font-semibold">{stepper.currentStep.title}</h2>
+                <p className="text-muted-foreground">Dark theme using semantic color tokens.</p>
+                <div className="mt-6 flex gap-2">
                   <Button
                     variant="outline"
                     onClick={() => stepper.prev()}
@@ -581,14 +596,14 @@ export const DarkTheme: Story = {
       description: {
         story: 'HStepper in dark theme. All colors adapt via CSS variables.',
       },
-    }
+    },
   },
 
   globals: {
     backgrounds: {
-      value: "dark"
-    }
-  }
+      value: 'dark',
+    },
+  },
 };
 
 /**
@@ -601,7 +616,7 @@ export const WithMenuButton: Story = {
     return (
       <StepperWrapper steps={basicSteps}>
         {(stepper) => (
-          <div className="min-h-screen bg-muted/30">
+          <div className="bg-muted/30 min-h-screen">
             <HStepper
               stepper={stepper}
               showTitles
@@ -609,12 +624,10 @@ export const WithMenuButton: Story = {
             />
             <main className="container mx-auto p-6">
               <div className="bg-background rounded-lg p-6 shadow-sm">
-                <h2 className="text-xl font-semibold mb-4">
-                  {stepper.currentStep.title}
-                </h2>
+                <h2 className="mb-4 text-xl font-semibold">{stepper.currentStep.title}</h2>
                 {menuOpen && (
-                  <div className="mb-4 p-4 bg-muted rounded-lg">
-                    <p className="font-medium mb-2">Step Menu</p>
+                  <div className="bg-muted mb-4 rounded-lg p-4">
+                    <p className="mb-2 font-medium">Step Menu</p>
                     <ul className="space-y-1 text-sm">
                       {stepper.steps.map((step, index) => (
                         <li key={step.id}>
@@ -659,17 +672,19 @@ export const NonSticky: Story = {
   render: (_args) => (
     <StepperWrapper steps={basicSteps}>
       {(stepper) => (
-        <div className="min-h-[200vh] bg-muted/30">
-          <HStepper stepper={stepper} sticky={false} showTitles />
+        <div className="bg-muted/30 min-h-[200vh]">
+          <HStepper
+            stepper={stepper}
+            sticky={false}
+            showTitles
+          />
           <main className="container mx-auto p-6">
             <div className="bg-background rounded-lg p-6 shadow-sm">
-              <h2 className="text-xl font-semibold mb-4">
-                Non-Sticky Header
-              </h2>
+              <h2 className="mb-4 text-xl font-semibold">Non-Sticky Header</h2>
               <p className="text-muted-foreground mb-4">
                 The header scrolls with the content. Scroll down to see.
               </p>
-              <div className="h-[150vh] bg-muted/20 rounded-lg flex items-center justify-center">
+              <div className="bg-muted/20 flex h-[150vh] items-center justify-center rounded-lg">
                 <p className="text-muted-foreground">Scroll content area</p>
               </div>
             </div>
@@ -697,18 +712,19 @@ export const AllowSkipSteps: Story = {
   render: (_args) => (
     <StepperWrapper steps={basicSteps}>
       {(stepper) => (
-        <div className="min-h-screen bg-muted/30">
-          <HStepper stepper={stepper} showTitles allowSkipSteps />
+        <div className="bg-muted/30 min-h-screen">
+          <HStepper
+            stepper={stepper}
+            showTitles
+            allowSkipSteps
+          />
           <main className="container mx-auto p-6">
             <div className="bg-background rounded-lg p-6 shadow-sm">
-              <h2 className="text-xl font-semibold mb-4">
-                {stepper.currentStep.title}
-              </h2>
+              <h2 className="mb-4 text-xl font-semibold">{stepper.currentStep.title}</h2>
               <p className="text-muted-foreground mb-4">
-                Click any step indicator to jump directly to that step.
-                (allowSkipSteps=true)
+                Click any step indicator to jump directly to that step. (allowSkipSteps=true)
               </p>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-muted-foreground text-sm">
                 Current step: {stepper.currentIndex + 1}
               </p>
             </div>
@@ -736,16 +752,15 @@ export const ThreeSteps: Story = {
   render: (_args) => (
     <StepperWrapper steps={threeSteps}>
       {(stepper) => (
-        <div className="min-h-screen bg-muted/30">
-          <HStepper stepper={stepper} showTitles />
+        <div className="bg-muted/30 min-h-screen">
+          <HStepper
+            stepper={stepper}
+            showTitles
+          />
           <main className="container mx-auto p-6">
             <div className="bg-background rounded-lg p-6 shadow-sm">
-              <h2 className="text-xl font-semibold mb-4">
-                {stepper.currentStep.title}
-              </h2>
-              <p className="text-sm text-muted-foreground mb-4">
-                Simple 3-step wizard flow.
-              </p>
+              <h2 className="mb-4 text-xl font-semibold">{stepper.currentStep.title}</h2>
+              <p className="text-muted-foreground mb-4 text-sm">Simple 3-step wizard flow.</p>
               <div className="flex gap-2">
                 <Button
                   variant="outline"

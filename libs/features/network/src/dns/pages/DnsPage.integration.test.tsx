@@ -161,9 +161,7 @@ describe('DnsPage Integration', () => {
       );
 
       await waitFor(() => {
-        expect(
-          screen.getByText(/1024 KB \/ 2048 KB \(50%\)/i)
-        ).toBeInTheDocument();
+        expect(screen.getByText(/1024 KB \/ 2048 KB \(50%\)/i)).toBeInTheDocument();
       });
     });
   });
@@ -321,12 +319,8 @@ describe('DnsPage Integration', () => {
       expect(dynamicBadge).toBeInTheDocument();
 
       // No remove button for dynamic server
-      const dynamicServerRow = screen
-        .getByText('192.168.1.1')
-        .closest('div');
-      const removeButton = dynamicServerRow?.querySelector(
-        'button[aria-label*="remove"]'
-      );
+      const dynamicServerRow = screen.getByText('192.168.1.1').closest('div');
+      const removeButton = dynamicServerRow?.querySelector('button[aria-label*="remove"]');
       expect(removeButton).not.toBeInTheDocument();
     });
   });
@@ -444,9 +438,7 @@ describe('DnsPage Integration', () => {
 
       // Confirm deletion
       await waitFor(() => {
-        expect(
-          screen.getByText(/are you sure you want to delete/i)
-        ).toBeInTheDocument();
+        expect(screen.getByText(/are you sure you want to delete/i)).toBeInTheDocument();
       });
 
       const confirmButton = screen.getByRole('button', { name: /confirm/i });
@@ -540,9 +532,7 @@ describe('DnsPage Integration', () => {
       // Should show security warning
       await waitFor(() => {
         expect(screen.getByText(/security warning/i)).toBeInTheDocument();
-        expect(
-          screen.getByText(/enabling remote requests allows any device/i)
-        ).toBeInTheDocument();
+        expect(screen.getByText(/enabling remote requests allows any device/i)).toBeInTheDocument();
       });
     });
 

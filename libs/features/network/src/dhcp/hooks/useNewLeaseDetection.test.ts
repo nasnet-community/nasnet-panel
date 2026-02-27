@@ -16,10 +16,9 @@ describe('useNewLeaseDetection', () => {
 
   describe('New lease detection', () => {
     it('should detect new lease when lease list grows', () => {
-      const { result, rerender } = renderHook(
-        ({ leases }) => useNewLeaseDetection(leases),
-        { initialProps: { leases: mockLeases.slice(0, 3) } }
-      );
+      const { result, rerender } = renderHook(({ leases }) => useNewLeaseDetection(leases), {
+        initialProps: { leases: mockLeases.slice(0, 3) },
+      });
 
       const data = result.current as UseNewLeaseDetectionReturn;
       expect(data.newLeaseIds.size).toBe(0);
@@ -34,10 +33,9 @@ describe('useNewLeaseDetection', () => {
     });
 
     it('should detect multiple new leases simultaneously', () => {
-      const { result, rerender } = renderHook(
-        ({ leases }) => useNewLeaseDetection(leases),
-        { initialProps: { leases: mockLeases.slice(0, 2) } }
-      );
+      const { result, rerender } = renderHook(({ leases }) => useNewLeaseDetection(leases), {
+        initialProps: { leases: mockLeases.slice(0, 2) },
+      });
 
       let data = result.current as UseNewLeaseDetectionReturn;
       expect(data.newLeaseIds.size).toBe(0);
@@ -59,10 +57,9 @@ describe('useNewLeaseDetection', () => {
     });
 
     it('should not detect existing leases as new', () => {
-      const { result, rerender } = renderHook(
-        ({ leases }) => useNewLeaseDetection(leases),
-        { initialProps: { leases: mockLeases } }
-      );
+      const { result, rerender } = renderHook(({ leases }) => useNewLeaseDetection(leases), {
+        initialProps: { leases: mockLeases },
+      });
 
       let data = result.current as UseNewLeaseDetectionReturn;
       expect(data.newLeaseIds.size).toBe(0);
@@ -82,10 +79,9 @@ describe('useNewLeaseDetection', () => {
     });
 
     it('should handle lease list becoming empty', () => {
-      const { result, rerender } = renderHook(
-        ({ leases }) => useNewLeaseDetection(leases),
-        { initialProps: { leases: mockLeases } }
-      );
+      const { result, rerender } = renderHook(({ leases }) => useNewLeaseDetection(leases), {
+        initialProps: { leases: mockLeases },
+      });
 
       rerender({ leases: [] });
 
@@ -96,10 +92,9 @@ describe('useNewLeaseDetection', () => {
 
   describe('Auto-fade after 5 seconds', () => {
     it('should remove new lease badge after 5 seconds', () => {
-      const { result, rerender } = renderHook(
-        ({ leases }) => useNewLeaseDetection(leases),
-        { initialProps: { leases: mockLeases.slice(0, 3) } }
-      );
+      const { result, rerender } = renderHook(({ leases }) => useNewLeaseDetection(leases), {
+        initialProps: { leases: mockLeases.slice(0, 3) },
+      });
 
       // Add a new lease
       const updatedLeases = [...mockLeases.slice(0, 3), mockLeases[3]];
@@ -118,10 +113,9 @@ describe('useNewLeaseDetection', () => {
     });
 
     it('should handle multiple timers for multiple new leases', () => {
-      const { result, rerender } = renderHook(
-        ({ leases }) => useNewLeaseDetection(leases),
-        { initialProps: { leases: mockLeases.slice(0, 2) } }
-      );
+      const { result, rerender } = renderHook(({ leases }) => useNewLeaseDetection(leases), {
+        initialProps: { leases: mockLeases.slice(0, 2) },
+      });
 
       // Add first new lease
       const updatedLeases1 = [...mockLeases.slice(0, 2), mockLeases[2]];
@@ -161,10 +155,9 @@ describe('useNewLeaseDetection', () => {
     });
 
     it('should not fade before 5 seconds', () => {
-      const { result, rerender } = renderHook(
-        ({ leases }) => useNewLeaseDetection(leases),
-        { initialProps: { leases: mockLeases.slice(0, 3) } }
-      );
+      const { result, rerender } = renderHook(({ leases }) => useNewLeaseDetection(leases), {
+        initialProps: { leases: mockLeases.slice(0, 3) },
+      });
 
       const updatedLeases = [...mockLeases.slice(0, 3), mockLeases[3]];
       rerender({ leases: updatedLeases });
@@ -184,10 +177,9 @@ describe('useNewLeaseDetection', () => {
 
   describe('Manual marking as seen', () => {
     it('should remove lease from new set when marked as seen', () => {
-      const { result, rerender } = renderHook(
-        ({ leases }) => useNewLeaseDetection(leases),
-        { initialProps: { leases: mockLeases.slice(0, 3) } }
-      );
+      const { result, rerender } = renderHook(({ leases }) => useNewLeaseDetection(leases), {
+        initialProps: { leases: mockLeases.slice(0, 3) },
+      });
 
       const updatedLeases = [...mockLeases.slice(0, 3), mockLeases[3]];
       rerender({ leases: updatedLeases });
@@ -208,10 +200,9 @@ describe('useNewLeaseDetection', () => {
     });
 
     it('should cancel auto-fade timer when manually marked as seen', () => {
-      const { result, rerender } = renderHook(
-        ({ leases }) => useNewLeaseDetection(leases),
-        { initialProps: { leases: mockLeases.slice(0, 3) } }
-      );
+      const { result, rerender } = renderHook(({ leases }) => useNewLeaseDetection(leases), {
+        initialProps: { leases: mockLeases.slice(0, 3) },
+      });
 
       const updatedLeases = [...mockLeases.slice(0, 3), mockLeases[3]];
       rerender({ leases: updatedLeases });
@@ -253,10 +244,9 @@ describe('useNewLeaseDetection', () => {
 
   describe('Lease removal', () => {
     it('should remove lease from new set when lease is deleted', () => {
-      const { result, rerender } = renderHook(
-        ({ leases }) => useNewLeaseDetection(leases),
-        { initialProps: { leases: mockLeases.slice(0, 3) } }
-      );
+      const { result, rerender } = renderHook(({ leases }) => useNewLeaseDetection(leases), {
+        initialProps: { leases: mockLeases.slice(0, 3) },
+      });
 
       const updatedLeases = [...mockLeases.slice(0, 3), mockLeases[3]];
       rerender({ leases: updatedLeases });
@@ -273,10 +263,9 @@ describe('useNewLeaseDetection', () => {
 
     it('should cleanup timers when lease is removed', () => {
       const clearTimeoutSpy = vi.spyOn(global, 'clearTimeout');
-      const { rerender } = renderHook(
-        ({ leases }) => useNewLeaseDetection(leases),
-        { initialProps: { leases: mockLeases.slice(0, 3) } }
-      );
+      const { rerender } = renderHook(({ leases }) => useNewLeaseDetection(leases), {
+        initialProps: { leases: mockLeases.slice(0, 3) },
+      });
 
       const updatedLeases = [...mockLeases.slice(0, 3), mockLeases[3]];
       rerender({ leases: updatedLeases });
@@ -290,10 +279,9 @@ describe('useNewLeaseDetection', () => {
 
   describe('Edge cases', () => {
     it('should handle rapid lease additions', () => {
-      const { result, rerender } = renderHook(
-        ({ leases }) => useNewLeaseDetection(leases),
-        { initialProps: { leases: [] as DHCPLease[] } }
-      );
+      const { result, rerender } = renderHook(({ leases }) => useNewLeaseDetection(leases), {
+        initialProps: { leases: [] as DHCPLease[] },
+      });
 
       // Rapidly add leases
       for (let i = 0; i < mockLeases.length; i++) {
@@ -306,10 +294,9 @@ describe('useNewLeaseDetection', () => {
 
     it('should cleanup all timers on unmount', () => {
       const clearTimeoutSpy = vi.spyOn(global, 'clearTimeout');
-      const { rerender, unmount } = renderHook(
-        ({ leases }) => useNewLeaseDetection(leases),
-        { initialProps: { leases: mockLeases.slice(0, 3) } }
-      );
+      const { rerender, unmount } = renderHook(({ leases }) => useNewLeaseDetection(leases), {
+        initialProps: { leases: mockLeases.slice(0, 3) },
+      });
 
       const updatedLeases = [...mockLeases.slice(0, 3), mockLeases[3], mockLeases[4]];
       rerender({ leases: updatedLeases });

@@ -1,7 +1,7 @@
 {
   "id": "integrations/a11y-provider",
   "title": "Accessibility (a11y) Provider",
-  "description": "The A11y Provider detects and provides user accessibility preferences throughout the application. It implements WCAG 2.1 AAA guidelines and tracks user input method (keyboard vs mouse) for smart focus management.",
+  "description": "The A11y Provider detects and provides user accessibility preferences throughout the application. It",
   "source": "@site/../../libs/state/docs/integrations/a11y-provider.md",
   "sourceDirName": "integrations",
   "slug": "/integrations/a11y-provider",

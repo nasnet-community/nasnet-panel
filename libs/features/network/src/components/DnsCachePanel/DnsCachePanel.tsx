@@ -23,9 +23,7 @@ function useIsMobile() {
   const [isMobile, setIsMobile] = React.useState(false);
 
   React.useEffect(() => {
-    const mediaQuery = window.matchMedia(
-      `(max-width: ${MOBILE_BREAKPOINT_MAX}px)`
-    );
+    const mediaQuery = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT_MAX}px)`);
 
     const handleChange = (e: MediaQueryListEvent | MediaQueryList) => {
       setIsMobile(e.matches);
@@ -80,11 +78,7 @@ function useIsMobile() {
 export function DnsCachePanel(props: DnsCachePanelProps) {
   const isMobile = useIsMobile();
 
-  return isMobile ? (
-    <DnsCachePanelMobile {...props} />
-  ) : (
-    <DnsCachePanelDesktop {...props} />
-  );
+  return isMobile ? <DnsCachePanelMobile {...props} /> : <DnsCachePanelDesktop {...props} />;
 }
 
 DnsCachePanel.displayName = 'DnsCachePanel';

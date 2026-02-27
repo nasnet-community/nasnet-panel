@@ -16,7 +16,7 @@
  * @param routerID - Router ID
  * @param deviceID - Device ID to check kill switch status for
  */
-export declare const GET_KILL_SWITCH_STATUS: import("graphql").DocumentNode;
+export declare const GET_KILL_SWITCH_STATUS: import('graphql').DocumentNode;
 /**
  * Mutation: Set kill switch configuration for a device
  *
@@ -27,7 +27,7 @@ export declare const GET_KILL_SWITCH_STATUS: import("graphql").DocumentNode;
  *
  * @param input - Kill switch configuration input
  */
-export declare const SET_KILL_SWITCH: import("graphql").DocumentNode;
+export declare const SET_KILL_SWITCH: import('graphql').DocumentNode;
 /**
  * Subscription: Real-time kill switch changes
  *
@@ -38,5 +38,5 @@ export declare const SET_KILL_SWITCH: import("graphql").DocumentNode;
  *
  * @param routerID - Router ID to subscribe to
  */
-export declare const SUBSCRIBE_KILL_SWITCH_CHANGES: import("graphql").DocumentNode;
+export declare const SUBSCRIBE_KILL_SWITCH_CHANGES: import('graphql').DocumentNode;
 //# sourceMappingURL=kill-switch.graphql.d.ts.map

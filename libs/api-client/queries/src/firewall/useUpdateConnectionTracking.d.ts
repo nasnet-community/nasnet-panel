@@ -11,48 +11,48 @@ import { UseMutationResult } from '@tanstack/react-query';
  * All fields are optional - only provided fields will be updated
  */
 export interface UpdateConnectionTrackingInput {
-    enabled?: boolean;
-    maxEntries?: number;
-    genericTimeout?: number;
-    tcpEstablishedTimeout?: number;
-    tcpTimeWaitTimeout?: number;
-    tcpCloseTimeout?: number;
-    tcpSynSentTimeout?: number;
-    tcpSynReceivedTimeout?: number;
-    tcpFinWaitTimeout?: number;
-    tcpCloseWaitTimeout?: number;
-    tcpLastAckTimeout?: number;
-    udpTimeout?: number;
-    udpStreamTimeout?: number;
-    icmpTimeout?: number;
-    looseTracking?: boolean;
+  enabled?: boolean;
+  maxEntries?: number;
+  genericTimeout?: number;
+  tcpEstablishedTimeout?: number;
+  tcpTimeWaitTimeout?: number;
+  tcpCloseTimeout?: number;
+  tcpSynSentTimeout?: number;
+  tcpSynReceivedTimeout?: number;
+  tcpFinWaitTimeout?: number;
+  tcpCloseWaitTimeout?: number;
+  tcpLastAckTimeout?: number;
+  udpTimeout?: number;
+  udpStreamTimeout?: number;
+  icmpTimeout?: number;
+  looseTracking?: boolean;
 }
 /**
  * Variables for update mutation
  */
 export interface UpdateConnectionTrackingVariables {
-    /**
-     * Target router IP address
-     */
-    routerIp: string;
-    /**
-     * Settings to update (partial)
-     */
-    settings: UpdateConnectionTrackingInput;
+  /**
+   * Target router IP address
+   */
+  routerIp: string;
+  /**
+   * Settings to update (partial)
+   */
+  settings: UpdateConnectionTrackingInput;
 }
 export interface UseUpdateConnectionTrackingOptions {
-    /**
-     * Target router IP address
-     */
-    routerIp: string;
-    /**
-     * Callback fired on successful update
-     */
-    onSuccess?: () => void;
-    /**
-     * Callback fired on error
-     */
-    onError?: (error: Error) => void;
+  /**
+   * Target router IP address
+   */
+  routerIp: string;
+  /**
+   * Callback fired on successful update
+   */
+  onSuccess?: () => void;
+  /**
+   * Callback fired on error
+   */
+  onError?: (error: Error) => void;
 }
 /**
  * React Query mutation hook for updating connection tracking settings
@@ -90,5 +90,14 @@ export interface UseUpdateConnectionTrackingOptions {
  * }
  * ```
  */
-export declare function useUpdateConnectionTracking({ routerIp, onSuccess, onError, }: UseUpdateConnectionTrackingOptions): UseMutationResult<void, Error, Pick<UpdateConnectionTrackingVariables, 'settings'>, unknown>;
+export declare function useUpdateConnectionTracking({
+  routerIp,
+  onSuccess,
+  onError,
+}: UseUpdateConnectionTrackingOptions): UseMutationResult<
+  void,
+  Error,
+  Pick<UpdateConnectionTrackingVariables, 'settings'>,
+  unknown
+>;
 //# sourceMappingURL=useUpdateConnectionTracking.d.ts.map

@@ -334,8 +334,7 @@ export const CompactDisconnected: Story = {
   parameters: {
     docs: {
       description: {
-        story:
-          'WANCardCompact for a disconnected WAN. No public IP row is rendered.',
+        story: 'WANCardCompact for a disconnected WAN. No public IP row is rendered.',
       },
     },
   },

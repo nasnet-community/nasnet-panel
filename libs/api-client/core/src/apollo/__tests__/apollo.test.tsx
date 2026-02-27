@@ -100,7 +100,10 @@ describe('Apollo Client', () => {
       }
 
       render(
-        <MockedProvider mocks={mocks} addTypename={false}>
+        <MockedProvider
+          mocks={mocks}
+          addTypename={false}
+        >
           <TestComponent />
         </MockedProvider>
       );
@@ -110,9 +113,7 @@ describe('Apollo Client', () => {
 
       // Should show data after loading
       await waitFor(() => {
-        expect(screen.getByTestId('router-name')).toHaveTextContent(
-          'Main Router'
-        );
+        expect(screen.getByTestId('router-name')).toHaveTextContent('Main Router');
       });
     });
 
@@ -139,7 +140,10 @@ describe('Apollo Client', () => {
       }
 
       render(
-        <MockedProvider mocks={mocks} addTypename={false}>
+        <MockedProvider
+          mocks={mocks}
+          addTypename={false}
+        >
           <TestComponent />
         </MockedProvider>
       );
@@ -184,15 +188,16 @@ describe('Apollo Client', () => {
             >
               {loading ? 'Connecting...' : 'Connect'}
             </button>
-            {data?.connectRouter?.success && (
-              <div data-testid="success">Connected!</div>
-            )}
+            {data?.connectRouter?.success && <div data-testid="success">Connected!</div>}
           </div>
         );
       }
 
       render(
-        <MockedProvider mocks={mocks} addTypename={false}>
+        <MockedProvider
+          mocks={mocks}
+          addTypename={false}
+        >
           <TestComponent />
         </MockedProvider>
       );
@@ -239,15 +244,15 @@ describe('Apollo Client', () => {
         });
 
         if (loading) return <div>Loading...</div>;
-        return (
-          <div data-testid="count">
-            {data?.routers?.totalCount}
-          </div>
-        );
+        return <div data-testid="count">{data?.routers?.totalCount}</div>;
       }
 
       const { rerender } = render(
-        <MockedProvider mocks={mocks} cache={cache} addTypename={false}>
+        <MockedProvider
+          mocks={mocks}
+          cache={cache}
+          addTypename={false}
+        >
           <TestComponent />
         </MockedProvider>
       );
@@ -261,7 +266,11 @@ describe('Apollo Client', () => {
 
       // Rerender - should use cache
       rerender(
-        <MockedProvider mocks={mocks} cache={cache} addTypename={false}>
+        <MockedProvider
+          mocks={mocks}
+          cache={cache}
+          addTypename={false}
+        >
           <TestComponent />
         </MockedProvider>
       );
@@ -342,7 +351,11 @@ describe('Apollo Client', () => {
       }
 
       render(
-        <MockedProvider mocks={mocks} cache={cache} addTypename={false}>
+        <MockedProvider
+          mocks={mocks}
+          cache={cache}
+          addTypename={false}
+        >
           <TestComponent />
         </MockedProvider>
       );
@@ -371,10 +384,9 @@ describe('Apollo Client', () => {
 
 describe('Subscription Test Utilities', () => {
   it('should create and collect mock subscription values', async () => {
-    const {
-      createMockSubscription,
-      collectSubscriptionValues,
-    } = await import('./subscription-test-utils');
+    const { createMockSubscription, collectSubscriptionValues } = await import(
+      './subscription-test-utils'
+    );
 
     const mockUpdates = [
       { data: { status: 'CONNECTING' }, delay: 0 },
@@ -392,16 +404,12 @@ describe('Subscription Test Utilities', () => {
   });
 
   it('should handle subscription errors', async () => {
-    const { createMockSubscriptionError, collectSubscriptionValues } =
-      await import('./subscription-test-utils');
-
-    const errorSub = createMockSubscriptionError(
-      new Error('Connection lost'),
-      0
+    const { createMockSubscriptionError, collectSubscriptionValues } = await import(
+      './subscription-test-utils'
     );
 
-    await expect(
-      collectSubscriptionValues(errorSub, 1, 1000)
-    ).rejects.toThrow('Connection lost');
+    const errorSub = createMockSubscriptionError(new Error('Connection lost'), 0);
+
+    await expect(collectSubscriptionValues(errorSub, 1, 1000)).rejects.toThrow('Connection lost');
   });
 });

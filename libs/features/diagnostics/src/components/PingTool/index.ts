@@ -15,12 +15,7 @@ export { usePing } from './usePing';
 export type { UsePingOptions, UsePingReturn } from './usePing';
 
 // Type definitions
-export type {
-  PingResult,
-  PingStatistics,
-  PingJobStatus,
-  PingToolProps,
-} from './PingTool.types';
+export type { PingResult, PingStatistics, PingJobStatus, PingToolProps } from './PingTool.types';
 
 // Form types
 export type { PingFormValues } from './ping.schema';

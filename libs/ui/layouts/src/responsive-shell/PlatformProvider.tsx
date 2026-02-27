@@ -75,9 +75,7 @@ export function PlatformProvider({
   debounceMs = 100,
 }: PlatformProviderProps) {
   const detectedPlatform = usePlatform(debounceMs);
-  const [override, setOverrideState] = React.useState<Platform | null>(
-    initialPlatform ?? null
-  );
+  const [override, setOverrideState] = React.useState<Platform | null>(initialPlatform ?? null);
 
   const platform = override ?? detectedPlatform;
   const isOverridden = override !== null;
@@ -100,11 +98,7 @@ export function PlatformProvider({
     [platform, isOverridden, setOverride, clearOverride]
   );
 
-  return (
-    <PlatformContext.Provider value={value}>
-      {children}
-    </PlatformContext.Provider>
-  );
+  return <PlatformContext.Provider value={value}>{children}</PlatformContext.Provider>;
 }
 
 /**
@@ -187,12 +181,7 @@ export interface PlatformSwitchProps {
   fallback?: React.ReactNode;
 }
 
-export function PlatformSwitch({
-  mobile,
-  tablet,
-  desktop,
-  fallback = null,
-}: PlatformSwitchProps) {
+export function PlatformSwitch({ mobile, tablet, desktop, fallback = null }: PlatformSwitchProps) {
   const platform = usePlatformFromContext();
 
   switch (platform) {
@@ -226,8 +215,7 @@ export function PlatformSwitch({
  * ```
  */
 export function PlatformDebugger() {
-  const { platform, isOverridden, setOverride, clearOverride } =
-    usePlatformContext();
+  const { platform, isOverridden, setOverride, clearOverride } = usePlatformContext();
 
   // Only render in development
   if (process.env.NODE_ENV !== 'development') {
@@ -235,25 +223,23 @@ export function PlatformDebugger() {
   }
 
   return (
-    <div className="fixed bottom-20 right-4 z-50 p-2 bg-muted border border-border rounded-[var(--semantic-radius-button)] font-mono md:bottom-4">
+    <div className="bg-muted border-border fixed bottom-20 right-4 z-50 rounded-[var(--semantic-radius-button)] border p-2 font-mono md:bottom-4">
       <div className="flex items-center gap-2 text-xs">
         <span
-          className={`w-2 h-2 rounded-full ${
-            platform === 'mobile'
-              ? 'bg-success'
-              : platform === 'tablet'
-              ? 'bg-warning'
-              : 'bg-info'
+          className={`h-2 w-2 rounded-full ${
+            platform === 'mobile' ? 'bg-success'
+            : platform === 'tablet' ? 'bg-warning'
+            : 'bg-info'
           }`}
         />
         <span className="text-foreground">{platform}</span>
         {isOverridden && <span className="text-orange-500">(override)</span>}
       </div>
-      <div className="flex gap-1 mt-1">
+      <div className="mt-1 flex gap-1">
         <button
           type="button"
           onClick={() => setOverride('mobile')}
-          className="px-1 py-0.5 bg-muted-foreground/20 hover:bg-muted-foreground/30 rounded text-foreground transition-colors duration-150"
+          className="bg-muted-foreground/20 hover:bg-muted-foreground/30 text-foreground rounded px-1 py-0.5 transition-colors duration-150"
           aria-label="Override platform to mobile"
         >
           M
@@ -261,7 +247,7 @@ export function PlatformDebugger() {
         <button
           type="button"
           onClick={() => setOverride('tablet')}
-          className="px-1 py-0.5 bg-muted-foreground/20 hover:bg-muted-foreground/30 rounded text-foreground transition-colors duration-150"
+          className="bg-muted-foreground/20 hover:bg-muted-foreground/30 text-foreground rounded px-1 py-0.5 transition-colors duration-150"
           aria-label="Override platform to tablet"
         >
           T
@@ -269,7 +255,7 @@ export function PlatformDebugger() {
         <button
           type="button"
           onClick={() => setOverride('desktop')}
-          className="px-1 py-0.5 bg-muted-foreground/20 hover:bg-muted-foreground/30 rounded text-foreground transition-colors duration-150"
+          className="bg-muted-foreground/20 hover:bg-muted-foreground/30 text-foreground rounded px-1 py-0.5 transition-colors duration-150"
           aria-label="Override platform to desktop"
         >
           D
@@ -278,7 +264,7 @@ export function PlatformDebugger() {
           <button
             type="button"
             onClick={clearOverride}
-            className="px-1 py-0.5 bg-error/20 hover:bg-error/30 rounded text-error transition-colors duration-150"
+            className="bg-error/20 hover:bg-error/30 text-error rounded px-1 py-0.5 transition-colors duration-150"
             aria-label="Clear platform override"
           >
             ×

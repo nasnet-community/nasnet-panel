@@ -11,7 +11,17 @@
  */
 
 import { Controller } from 'react-hook-form';
-import { X, AlertCircle, CheckCircle2, Mail, Server, Shield, Eye, EyeOff, ChevronDown } from 'lucide-react';
+import {
+  X,
+  AlertCircle,
+  CheckCircle2,
+  Mail,
+  Server,
+  Shield,
+  Eye,
+  EyeOff,
+  ChevronDown,
+} from 'lucide-react';
 import { useState, useCallback, memo } from 'react';
 import { cn } from '@nasnet/ui/utils';
 import { Button, Input, Label, Badge, Alert, AlertDescription } from '@nasnet/ui/primitives';
@@ -63,17 +73,20 @@ export const EmailChannelFormMobile = memo(function EmailChannelFormMobile({
   const [showAdvanced, setShowAdvanced] = useState(false);
 
   // Handle recipient input (Enter or comma)
-  const handleRecipientKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' || e.key === ',') {
-      e.preventDefault();
-      if (recipientInput.trim()) {
-        const added = addRecipient(recipientInput);
-        if (added) {
-          setRecipientInput('');
+  const handleRecipientKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === 'Enter' || e.key === ',') {
+        e.preventDefault();
+        if (recipientInput.trim()) {
+          const added = addRecipient(recipientInput);
+          if (added) {
+            setRecipientInput('');
+          }
         }
       }
-    }
-  }, [recipientInput, addRecipient]);
+    },
+    [recipientInput, addRecipient]
+  );
 
   const handleAddRecipient = useCallback(() => {
     if (recipientInput.trim()) {
@@ -85,14 +98,20 @@ export const EmailChannelFormMobile = memo(function EmailChannelFormMobile({
   }, [recipientInput, addRecipient]);
 
   return (
-    <form onSubmit={handleSubmit} className={cn('space-y-component-md pb-24', className)}>
+    <form
+      onSubmit={handleSubmit}
+      className={cn('space-y-component-md pb-24', className)}
+    >
       {/* Enable Toggle */}
-      <div className="flex items-center justify-between rounded-[var(--semantic-radius-card)] border border-border bg-card p-component-md">
-        <div className="flex items-center gap-component-md">
-          <Mail className="h-5 w-5 text-category-monitoring" aria-hidden="true" />
+      <div className="border-border bg-card p-component-md flex items-center justify-between rounded-[var(--semantic-radius-card)] border">
+        <div className="gap-component-md flex items-center">
+          <Mail
+            className="text-category-monitoring h-5 w-5"
+            aria-hidden="true"
+          />
           <div>
             <Label className="text-base font-semibold">Email Notifications</Label>
-            <p className="text-sm text-muted-foreground">Send alerts via email</p>
+            <p className="text-muted-foreground text-sm">Send alerts via email</p>
           </div>
         </div>
         <Controller
@@ -103,7 +122,7 @@ export const EmailChannelFormMobile = memo(function EmailChannelFormMobile({
               type="checkbox"
               checked={field.value}
               onChange={field.onChange}
-              className="h-6 w-6 rounded border-border"
+              className="border-border h-6 w-6 rounded"
               aria-label="Enable email notifications"
             />
           )}
@@ -115,10 +134,10 @@ export const EmailChannelFormMobile = memo(function EmailChannelFormMobile({
         <button
           type="button"
           onClick={() => setShowServer(!showServer)}
-          className="flex w-full items-center justify-between rounded-[var(--semantic-radius-card)] border border-border bg-card p-component-md"
+          className="border-border bg-card p-component-md flex w-full items-center justify-between rounded-[var(--semantic-radius-card)] border"
         >
-          <div className="flex items-center gap-component-md">
-            <Server className="h-5 w-5 text-category-monitoring" />
+          <div className="gap-component-md flex items-center">
+            <Server className="text-category-monitoring h-5 w-5" />
             <span className="font-semibold">SMTP Server</span>
           </div>
           <ChevronDown
@@ -127,7 +146,7 @@ export const EmailChannelFormMobile = memo(function EmailChannelFormMobile({
         </button>
 
         {showServer && (
-          <div className="space-y-component-md rounded-[var(--semantic-radius-card)] border border-border bg-card p-component-md">
+          <div className="space-y-component-md border-border bg-card p-component-md rounded-[var(--semantic-radius-card)] border">
             <div className="space-y-component-sm">
               <Label htmlFor="host">
                 SMTP Host <span className="text-error">*</span>
@@ -139,9 +158,7 @@ export const EmailChannelFormMobile = memo(function EmailChannelFormMobile({
                 {...register('host')}
                 error={!!errors.host}
               />
-              {errors.host && (
-                <p className="text-sm text-error">{errors.host.message}</p>
-              )}
+              {errors.host && <p className="text-error text-sm">{errors.host.message}</p>}
             </div>
 
             <div className="space-y-component-sm">
@@ -163,12 +180,10 @@ export const EmailChannelFormMobile = memo(function EmailChannelFormMobile({
                   />
                 )}
               />
-              <p className="text-xs text-muted-foreground">
+              <p className="text-muted-foreground text-xs">
                 Common: 587 (TLS), 465 (SSL), 25 (Plain)
               </p>
-              {errors.port && (
-                <p className="text-sm text-error">{errors.port.message}</p>
-              )}
+              {errors.port && <p className="text-error text-sm">{errors.port.message}</p>}
             </div>
 
             <div className="space-y-component-sm">
@@ -183,9 +198,7 @@ export const EmailChannelFormMobile = memo(function EmailChannelFormMobile({
                 error={!!errors.username}
                 className="font-mono"
               />
-              {errors.username && (
-                <p className="text-sm text-error">{errors.username.message}</p>
-              )}
+              {errors.username && <p className="text-error text-sm">{errors.username.message}</p>}
             </div>
 
             <div className="space-y-component-sm">
@@ -204,15 +217,15 @@ export const EmailChannelFormMobile = memo(function EmailChannelFormMobile({
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 p-component-sm h-11 w-11 flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-[var(--semantic-radius-button)]"
+                  className="p-component-sm focus-visible:ring-ring absolute right-3 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-[var(--semantic-radius-button)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
-                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  {showPassword ?
+                    <EyeOff className="h-5 w-5" />
+                  : <Eye className="h-5 w-5" />}
                 </button>
               </div>
-              {errors.password && (
-                <p className="text-sm text-error">{errors.password.message}</p>
-              )}
+              {errors.password && <p className="text-error text-sm">{errors.password.message}</p>}
             </div>
           </div>
         )}
@@ -223,10 +236,10 @@ export const EmailChannelFormMobile = memo(function EmailChannelFormMobile({
         <button
           type="button"
           onClick={() => setShowAddresses(!showAddresses)}
-          className="flex w-full items-center justify-between rounded-[var(--semantic-radius-card)] border border-border bg-card p-component-md"
+          className="border-border bg-card p-component-md flex w-full items-center justify-between rounded-[var(--semantic-radius-card)] border"
         >
-          <div className="flex items-center gap-component-md">
-            <Mail className="h-5 w-5 text-category-monitoring" />
+          <div className="gap-component-md flex items-center">
+            <Mail className="text-category-monitoring h-5 w-5" />
             <span className="font-semibold">Email Addresses</span>
           </div>
           <ChevronDown
@@ -235,7 +248,7 @@ export const EmailChannelFormMobile = memo(function EmailChannelFormMobile({
         </button>
 
         {showAddresses && (
-          <div className="space-y-component-md rounded-[var(--semantic-radius-card)] border border-border bg-card p-component-md">
+          <div className="space-y-component-md border-border bg-card p-component-md rounded-[var(--semantic-radius-card)] border">
             <div className="space-y-component-sm">
               <Label htmlFor="fromAddress">
                 From Address <span className="text-error">*</span>
@@ -250,21 +263,25 @@ export const EmailChannelFormMobile = memo(function EmailChannelFormMobile({
                 className="font-mono"
               />
               {errors.fromAddress && (
-                <p className="text-sm text-error">{errors.fromAddress.message}</p>
+                <p className="text-error text-sm">{errors.fromAddress.message}</p>
               )}
             </div>
 
             <div className="space-y-component-sm">
               <Label htmlFor="fromName">From Name</Label>
-              <Input id="fromName" placeholder="NasNet Alerts" {...register('fromName')} />
-              <p className="text-xs text-muted-foreground">Optional display name</p>
+              <Input
+                id="fromName"
+                placeholder="NasNet Alerts"
+                {...register('fromName')}
+              />
+              <p className="text-muted-foreground text-xs">Optional display name</p>
             </div>
 
             <div className="space-y-component-sm">
               <Label htmlFor="recipientInput">
                 Recipients <span className="text-error">*</span>
               </Label>
-              <div className="flex gap-component-md">
+              <div className="gap-component-md flex">
                 <Input
                   id="recipientInput"
                   type="email"
@@ -286,17 +303,21 @@ export const EmailChannelFormMobile = memo(function EmailChannelFormMobile({
                   Add
                 </Button>
               </div>
-              <p className="text-xs text-muted-foreground">Tap Add or press Enter (max 10)</p>
+              <p className="text-muted-foreground text-xs">Tap Add or press Enter (max 10)</p>
 
               {recipients.length > 0 && (
-                <div className="flex flex-wrap gap-component-md rounded-[var(--semantic-radius-button)] border border-border bg-muted/50 p-component-md">
+                <div className="gap-component-md border-border bg-muted/50 p-component-md flex flex-wrap rounded-[var(--semantic-radius-button)] border">
                   {recipients.map((email, index) => (
-                    <Badge key={index} variant="secondary" className="gap-component-md pr-component-xs text-sm font-mono">
+                    <Badge
+                      key={index}
+                      variant="secondary"
+                      className="gap-component-md pr-component-xs font-mono text-sm"
+                    >
                       {email}
                       <button
                         type="button"
                         onClick={() => removeRecipient(index)}
-                        className="ml-component-xs rounded-full p-0.5 h-8 w-8 flex items-center justify-center hover:bg-error/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                        className="ml-component-xs hover:bg-error/20 focus-visible:ring-ring flex h-8 w-8 items-center justify-center rounded-full p-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
                         aria-label={`Remove ${email}`}
                       >
                         <X className="h-4 w-4" />
@@ -307,7 +328,7 @@ export const EmailChannelFormMobile = memo(function EmailChannelFormMobile({
               )}
 
               {errors.toAddresses && (
-                <p className="text-sm text-error">{errors.toAddresses.message}</p>
+                <p className="text-error text-sm">{errors.toAddresses.message}</p>
               )}
             </div>
           </div>
@@ -319,10 +340,10 @@ export const EmailChannelFormMobile = memo(function EmailChannelFormMobile({
         <button
           type="button"
           onClick={() => setShowAdvanced(!showAdvanced)}
-          className="flex w-full items-center justify-between rounded-[var(--semantic-radius-card)] border border-border bg-card p-component-md"
+          className="border-border bg-card p-component-md flex w-full items-center justify-between rounded-[var(--semantic-radius-card)] border"
         >
-          <div className="flex items-center gap-component-md">
-            <Shield className="h-5 w-5 text-category-monitoring" />
+          <div className="gap-component-md flex items-center">
+            <Shield className="text-category-monitoring h-5 w-5" />
             <span className="font-semibold">Advanced TLS Settings</span>
           </div>
           <ChevronDown
@@ -331,11 +352,11 @@ export const EmailChannelFormMobile = memo(function EmailChannelFormMobile({
         </button>
 
         {showAdvanced && (
-          <div className="space-y-component-md rounded-[var(--semantic-radius-card)] border border-border bg-card p-component-md">
-            <div className="flex items-center justify-between rounded-[var(--semantic-radius-button)] border border-border bg-muted/50 p-component-md">
+          <div className="space-y-component-md border-border bg-card p-component-md rounded-[var(--semantic-radius-card)] border">
+            <div className="border-border bg-muted/50 p-component-md flex items-center justify-between rounded-[var(--semantic-radius-button)] border">
               <div>
                 <Label className="font-medium">Use TLS/SSL</Label>
-                <p className="text-sm text-muted-foreground">Encrypt connection (recommended)</p>
+                <p className="text-muted-foreground text-sm">Encrypt connection (recommended)</p>
               </div>
               <Controller
                 control={control}
@@ -345,17 +366,17 @@ export const EmailChannelFormMobile = memo(function EmailChannelFormMobile({
                     type="checkbox"
                     checked={field.value}
                     onChange={field.onChange}
-                    className="h-6 w-6 rounded border-border"
+                    className="border-border h-6 w-6 rounded"
                     aria-label="Use TLS/SSL encryption"
                   />
                 )}
               />
             </div>
 
-            <div className="flex items-center justify-between rounded-[var(--semantic-radius-button)] border border-warning bg-warning/10 p-component-md">
+            <div className="border-warning bg-warning/10 p-component-md flex items-center justify-between rounded-[var(--semantic-radius-button)] border">
               <div>
-                <Label className="font-medium text-warning">Skip Certificate Check</Label>
-                <p className="text-sm text-warning/80">Use with self-signed certs only</p>
+                <Label className="text-warning font-medium">Skip Certificate Check</Label>
+                <p className="text-warning/80 text-sm">Use with self-signed certs only</p>
               </div>
               <Controller
                 control={control}
@@ -365,16 +386,22 @@ export const EmailChannelFormMobile = memo(function EmailChannelFormMobile({
                     type="checkbox"
                     checked={field.value}
                     onChange={field.onChange}
-                    className="h-6 w-6 rounded border-border"
+                    className="border-border h-6 w-6 rounded"
                     aria-label="Skip certificate verification"
                   />
                 )}
               />
             </div>
 
-            <Alert variant="default" className="border-warning bg-warning/10">
-              <AlertCircle className="h-4 w-4 text-warning" aria-hidden="true" />
-              <AlertDescription className="text-sm text-warning/90">
+            <Alert
+              variant="default"
+              className="border-warning bg-warning/10"
+            >
+              <AlertCircle
+                className="text-warning h-4 w-4"
+                aria-hidden="true"
+              />
+              <AlertDescription className="text-warning/90 text-sm">
                 Skipping certificate verification reduces security.
               </AlertDescription>
             </Alert>
@@ -385,29 +412,32 @@ export const EmailChannelFormMobile = memo(function EmailChannelFormMobile({
       {/* Test Result */}
       {testResult && (
         <Alert variant={testResult.success ? 'default' : 'destructive'}>
-          {testResult.success ? (
+          {testResult.success ?
             <CheckCircle2 className="h-4 w-4" />
-          ) : (
-            <AlertCircle className="h-4 w-4" />
-          )}
+          : <AlertCircle className="h-4 w-4" />}
           <AlertDescription className="text-sm">{testResult.message}</AlertDescription>
         </Alert>
       )}
 
       {/* Fixed Bottom Action Bar */}
-      <div className="fixed inset-x-0 bottom-0 z-10 border-t border-border bg-background p-component-md safe-area-inset-bottom">
-        <div className="mx-auto flex max-w-screen-sm gap-component-md">
+      <div className="border-border bg-background p-component-md safe-area-inset-bottom fixed inset-x-0 bottom-0 z-10 border-t">
+        <div className="gap-component-md mx-auto flex max-w-screen-sm">
           <Button
             type="button"
             variant="outline"
             size="lg"
             onClick={handleTest}
             disabled={!isValid || isTesting}
-            className="flex-1 min-h-[44px]"
+            className="min-h-[44px] flex-1"
           >
             {isTesting ? 'Testing...' : 'Test'}
           </Button>
-          <Button type="submit" size="lg" disabled={!isValid} className="flex-1 min-h-[44px]">
+          <Button
+            type="submit"
+            size="lg"
+            disabled={!isValid}
+            className="min-h-[44px] flex-1"
+          >
             Save
           </Button>
         </div>

@@ -61,11 +61,9 @@ export interface CounterCellProps {
 export const CounterCell = memo(function CounterCell(props: CounterCellProps) {
   const platform = usePlatform();
 
-  return platform === 'mobile' ? (
-    <CounterCellMobile {...props} />
-  ) : (
-    <CounterCellDesktop {...props} />
-  );
+  return platform === 'mobile' ?
+      <CounterCellMobile {...props} />
+    : <CounterCellDesktop {...props} />;
 });
 
 CounterCell.displayName = 'CounterCell';

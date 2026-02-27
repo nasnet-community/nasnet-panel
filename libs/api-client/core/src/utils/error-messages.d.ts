@@ -26,16 +26,16 @@ export type ErrorSeverity = 'info' | 'warning' | 'error' | 'critical';
  * Structured error information
  */
 export interface ErrorInfo {
-    /** User-friendly error message */
-    message: string;
-    /** Error severity */
-    severity: ErrorSeverity;
-    /** Whether the error is recoverable */
-    recoverable: boolean;
-    /** Suggested action */
-    action?: string;
-    /** i18n key for translation */
-    i18nKey?: string;
+  /** User-friendly error message */
+  message: string;
+  /** Error severity */
+  severity: ErrorSeverity;
+  /** Whether the error is recoverable */
+  recoverable: boolean;
+  /** Suggested action */
+  action?: string;
+  /** i18n key for translation */
+  i18nKey?: string;
 }
 /**
  * Get error category from error code

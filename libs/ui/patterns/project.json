@@ -49,10 +49,7 @@
     "check": {
       "executor": "nx:run-commands",
       "options": {
-        "commands": [
-          "nx run ui-patterns:typecheck",
-          "nx run ui-patterns:lint"
-        ],
+        "commands": ["nx run ui-patterns:typecheck", "nx run ui-patterns:lint"],
         "parallel": true
       }
     },

@@ -35,18 +35,19 @@ function ServiceDetailPage() {
 
 ## Props
 
-| Prop | Type | Required | Description |
-|------|------|----------|-------------|
-| `routerID` | `string` | ✓ | Router ID for the export operation |
-| `instance` | `ServiceInstance` | ✓ | Service instance to export |
-| `open` | `boolean` | | Controlled open state |
-| `onOpenChange` | `(open: boolean) => void` | | Callback when open state changes |
-| `onExportComplete` | `(format, url?) => void` | | Callback when export succeeds |
-| `trigger` | `React.ReactNode` | | Custom trigger button |
+| Prop               | Type                      | Required | Description                        |
+| ------------------ | ------------------------- | -------- | ---------------------------------- |
+| `routerID`         | `string`                  | ✓        | Router ID for the export operation |
+| `instance`         | `ServiceInstance`         | ✓        | Service instance to export         |
+| `open`             | `boolean`                 |          | Controlled open state              |
+| `onOpenChange`     | `(open: boolean) => void` |          | Callback when open state changes   |
+| `onExportComplete` | `(format, url?) => void`  |          | Callback when export succeeds      |
+| `trigger`          | `React.ReactNode`         |          | Custom trigger button              |
 
 ## Export Formats
 
 ### JSON Format
+
 - Downloadable `.json` file
 - Full service configuration including ports, VLAN, bind IP
 - Optional routing rules
@@ -54,6 +55,7 @@ function ServiceDetailPage() {
 - 15-minute download URL expiry
 
 ### QR Code Format
+
 - PNG image (256x256 pixels by default)
 - Base64-encoded image data
 - 2KB data limit (enforced by backend)
@@ -63,6 +65,7 @@ function ServiceDetailPage() {
 ## Secret Redaction
 
 When enabled, sensitive fields are replaced with `[REDACTED]`:
+
 - Passwords
 - API keys
 - Private keys
@@ -74,18 +77,21 @@ Redacted fields require user input during import.
 ## Platform Presenters
 
 ### Mobile (<640px)
+
 - Full-screen Sheet primitive
 - 44px minimum touch targets
 - Stacked vertical layout
 - Bottom sheet with swipe-to-close
 
 ### Tablet (640-1024px)
+
 - Dialog primitive with touch-friendly spacing
 - 44px minimum touch targets
 - Vertical button stacking
 - Hybrid mobile/desktop approach
 
 ### Desktop (>1024px)
+
 - Standard Dialog primitive
 - Dense horizontal layouts
 - Keyboard shortcuts (Enter/Escape)
@@ -119,7 +125,10 @@ ServiceExportDialog.tsx     (Entry point - platform detection)
 ### Basic Usage
 
 ```tsx
-<ServiceExportDialog routerID={routerId} instance={instance} />
+<ServiceExportDialog
+  routerID={routerId}
+  instance={instance}
+/>
 ```
 
 ### Custom Trigger
@@ -130,7 +139,7 @@ ServiceExportDialog.tsx     (Entry point - platform detection)
   instance={instance}
   trigger={
     <Button variant="ghost">
-      <Share2 className="w-4 h-4 mr-2" />
+      <Share2 className="mr-2 h-4 w-4" />
       Share Service
     </Button>
   }
@@ -151,7 +160,7 @@ const [open, setOpen] = useState(false);
     toast.success(`Exported as ${format}`);
     setOpen(false);
   }}
-/>
+/>;
 ```
 
 ## Related Components

@@ -6,7 +6,6 @@
  * Prop-driven — no stores or routing required.
  */
 
-
 import type { SystemResource } from '@nasnet/core/types';
 
 import { NetworkStatsGrid } from './NetworkStatsGrid';
@@ -89,7 +88,8 @@ export const HealthySystem: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'CPU at 12% and RAM at ~30% — all metrics within healthy thresholds (cyan / purple).',
+        story:
+          'CPU at 12% and RAM at ~30% — all metrics within healthy thresholds (cyan / purple).',
       },
     },
   },
@@ -103,7 +103,8 @@ export const WarningThresholds: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'CPU at 72% and RAM at ~77% — both metrics cross the warning threshold and render in amber.',
+        story:
+          'CPU at 72% and RAM at ~77% — both metrics cross the warning threshold and render in amber.',
       },
     },
   },
@@ -131,7 +132,8 @@ export const LongUptime: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Router with 120 days of uptime. Verifies that parseRouterOSUptime formats long durations correctly.',
+        story:
+          'Router with 120 days of uptime. Verifies that parseRouterOSUptime formats long durations correctly.',
       },
     },
   },

@@ -102,7 +102,11 @@ describe('withRetry', () => {
     const error = new Error('Fail');
     const operation = vi.fn().mockRejectedValue(error);
 
-    const resultPromise = withRetry(operation, { maxRetries: 2, onRetry, showNotifications: false });
+    const resultPromise = withRetry(operation, {
+      maxRetries: 2,
+      onRetry,
+      showNotifications: false,
+    });
     await vi.runAllTimersAsync();
     await resultPromise;
 
@@ -115,7 +119,11 @@ describe('withRetry', () => {
     const operation = vi.fn().mockRejectedValue(new Error('Fail'));
     const shouldRetry = vi.fn().mockReturnValue(false);
 
-    const resultPromise = withRetry(operation, { maxRetries: 3, shouldRetry, showNotifications: false });
+    const resultPromise = withRetry(operation, {
+      maxRetries: 3,
+      shouldRetry,
+      showNotifications: false,
+    });
     await vi.runAllTimersAsync();
     const result = await resultPromise;
 
@@ -137,10 +145,7 @@ describe('createRetryHandler', () => {
   });
 
   it('creates a reusable retry handler', async () => {
-    const operation = vi
-      .fn()
-      .mockRejectedValueOnce(new Error('Fail'))
-      .mockResolvedValue('success');
+    const operation = vi.fn().mockRejectedValueOnce(new Error('Fail')).mockResolvedValue('success');
 
     const handler = createRetryHandler(operation, { maxRetries: 3, showNotifications: false });
     const resultPromise = handler();

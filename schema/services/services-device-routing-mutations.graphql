@@ -14,10 +14,14 @@ extend type Mutation {
   Deletes the MikroTik mangle rule and database record.
   """
   removeDeviceRouting(
-    """Router ID"""
+    """
+    Router ID
+    """
     routerID: ID!
 
-    """Device ID to unroute"""
+    """
+    Device ID to unroute
+    """
     deviceID: String!
   ): Boolean!
 

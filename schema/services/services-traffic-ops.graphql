@@ -6,22 +6,34 @@
 Input for setting a traffic quota on a service instance.
 """
 input SetTrafficQuotaInput {
-  """Router ID"""
+  """
+  Router ID
+  """
   routerID: ID!
 
-  """Instance ID to set quota on"""
+  """
+  Instance ID to set quota on
+  """
   instanceID: ID!
 
-  """Maximum bytes allowed per period (0 = unlimited)"""
+  """
+  Maximum bytes allowed per period (0 = unlimited)
+  """
   limitBytes: Int! @validate(min: 0)
 
-  """Quota period"""
+  """
+  Quota period
+  """
   period: QuotaPeriod!
 
-  """Action to take when quota is reached"""
+  """
+  Action to take when quota is reached
+  """
   action: QuotaAction!
 
-  """Warning threshold percentage (0-100, default 80)"""
+  """
+  Warning threshold percentage (0-100, default 80)
+  """
   warningThreshold: Int @validate(min: 0, max: 100)
 }
 
@@ -29,13 +41,19 @@ input SetTrafficQuotaInput {
 Payload for traffic quota mutation.
 """
 type TrafficQuotaPayload {
-  """Whether the operation succeeded"""
+  """
+  Whether the operation succeeded
+  """
   success: Boolean!
 
-  """Updated or created quota (null if failed)"""
+  """
+  Updated or created quota (null if failed)
+  """
   quota: TrafficQuota
 
-  """Mutation errors"""
+  """
+  Mutation errors
+  """
   errors: [MutationError!]
 }
 
@@ -44,31 +62,49 @@ Traffic statistics update event for subscriptions.
 Emitted when traffic stats are updated (every 10 seconds).
 """
 type TrafficStatsEvent {
-  """Instance ID"""
+  """
+  Instance ID
+  """
   instanceID: ID!
 
-  """Router ID"""
+  """
+  Router ID
+  """
   routerID: ID!
 
-  """Total bytes uploaded"""
+  """
+  Total bytes uploaded
+  """
   totalUploadBytes: Int!
 
-  """Total bytes downloaded"""
+  """
+  Total bytes downloaded
+  """
   totalDownloadBytes: Int!
 
-  """Upload bytes since last update"""
+  """
+  Upload bytes since last update
+  """
   deltaUploadBytes: Int!
 
-  """Download bytes since last update"""
+  """
+  Download bytes since last update
+  """
   deltaDownloadBytes: Int!
 
-  """Whether quota warning was triggered"""
+  """
+  Whether quota warning was triggered
+  """
   quotaWarning: Boolean!
 
-  """Whether quota limit was reached"""
+  """
+  Whether quota limit was reached
+  """
   quotaLimitReached: Boolean!
 
-  """Timestamp of this update"""
+  """
+  Timestamp of this update
+  """
   timestamp: DateTime!
 }
 
@@ -79,13 +115,19 @@ extend type Query {
   Requires authentication.
   """
   serviceTrafficStats(
-    """Router ID"""
+    """
+    Router ID
+    """
     routerID: ID!
 
-    """Instance ID"""
+    """
+    Instance ID
+    """
     instanceID: ID!
 
-    """Time range for history (hours, default 24)"""
+    """
+    Time range for history (hours, default 24)
+    """
     historyHours: Int
   ): ServiceTrafficStats! @auth
 
@@ -95,10 +137,14 @@ extend type Query {
   Requires authentication.
   """
   serviceDeviceBreakdown(
-    """Router ID"""
+    """
+    Router ID
+    """
     routerID: ID!
 
-    """Instance ID"""
+    """
+    Instance ID
+    """
     instanceID: ID!
   ): [DeviceTrafficBreakdown!]! @auth
 }
@@ -117,10 +163,14 @@ extend type Mutation {
   Requires operator role or higher.
   """
   resetTrafficQuota(
-    """Router ID"""
+    """
+    Router ID
+    """
     routerID: ID!
 
-    """Instance ID"""
+    """
+    Instance ID
+    """
     instanceID: ID!
   ): TrafficQuotaPayload! @auth(requires: "operator")
 }
@@ -132,10 +182,14 @@ extend type Subscription {
   Requires authentication.
   """
   serviceTrafficUpdated(
-    """Router ID to subscribe to"""
+    """
+    Router ID to subscribe to
+    """
     routerID: ID!
 
-    """Instance ID to monitor"""
+    """
+    Instance ID to monitor
+    """
     instanceID: ID!
   ): TrafficStatsEvent! @auth
 }

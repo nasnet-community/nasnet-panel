@@ -36,9 +36,7 @@ import type { MangleRuleEditorProps } from './mangle-rule-editor.types';
  * - Mobile (<640px): Sheet with card-based form sections, 44px touch targets
  * - Tablet/Desktop (>=640px): Dialog with inline form and live preview panel
  */
-export const MangleRuleEditor = memo(function MangleRuleEditor(
-  props: MangleRuleEditorProps
-) {
+export const MangleRuleEditor = memo(function MangleRuleEditor(props: MangleRuleEditorProps) {
   const platform = usePlatform();
 
   switch (platform) {

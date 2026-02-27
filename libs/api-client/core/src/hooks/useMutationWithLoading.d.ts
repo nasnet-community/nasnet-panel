@@ -7,26 +7,34 @@
  * @module @nasnet/api-client/core/hooks
  */
 import { DocumentNode } from '@apollo/client';
-import type { MutationHookOptions, MutationTuple, TypedDocumentNode, OperationVariables, ApolloError, FetchResult } from '@apollo/client';
+import type {
+  MutationHookOptions,
+  MutationTuple,
+  TypedDocumentNode,
+  OperationVariables,
+  ApolloError,
+  FetchResult,
+} from '@apollo/client';
 export interface MutationWithLoadingState {
-    /** True while mutation is in progress */
-    isLoading: boolean;
-    /** True if mutation was successful */
-    isSuccess: boolean;
-    /** True if mutation failed */
-    isError: boolean;
-    /** Error from the mutation */
-    error: ApolloError | null;
-    /** Reset the mutation state */
-    reset: () => void;
+  /** True while mutation is in progress */
+  isLoading: boolean;
+  /** True if mutation was successful */
+  isSuccess: boolean;
+  /** True if mutation failed */
+  isError: boolean;
+  /** Error from the mutation */
+  error: ApolloError | null;
+  /** Reset the mutation state */
+  reset: () => void;
 }
-export interface UseMutationWithLoadingResult<TData, TVariables extends OperationVariables> extends MutationWithLoadingState {
-    /** Execute the mutation */
-    mutate: (variables?: TVariables) => Promise<FetchResult<TData>>;
-    /** Raw mutation tuple for advanced usage */
-    mutationTuple: MutationTuple<TData, TVariables>;
-    /** Mutation result data */
-    data: TData | null | undefined;
+export interface UseMutationWithLoadingResult<TData, TVariables extends OperationVariables>
+  extends MutationWithLoadingState {
+  /** Execute the mutation */
+  mutate: (variables?: TVariables) => Promise<FetchResult<TData>>;
+  /** Raw mutation tuple for advanced usage */
+  mutationTuple: MutationTuple<TData, TVariables>;
+  /** Mutation result data */
+  data: TData | null | undefined;
 }
 /**
  * Enhanced useMutation hook with clear loading states.
@@ -74,7 +82,13 @@ export interface UseMutationWithLoadingResult<TData, TVariables extends Operatio
  * });
  * ```
  */
-export declare function useMutationWithLoading<TData = unknown, TVariables extends OperationVariables = OperationVariables>(mutation: DocumentNode | TypedDocumentNode<TData, TVariables>, options?: MutationHookOptions<TData, TVariables>): UseMutationWithLoadingResult<TData, TVariables>;
+export declare function useMutationWithLoading<
+  TData = unknown,
+  TVariables extends OperationVariables = OperationVariables,
+>(
+  mutation: DocumentNode | TypedDocumentNode<TData, TVariables>,
+  options?: MutationHookOptions<TData, TVariables>
+): UseMutationWithLoadingResult<TData, TVariables>;
 /**
  * Helper type for creating optimistic responses.
  */
@@ -97,8 +111,14 @@ export type OptimisticResponse<TData> = TData | ((vars: OperationVariables) => T
  * );
  * ```
  */
-export declare function createOptimisticOptions<TData, TVariables extends OperationVariables>(config: {
-    optimisticResponse: OptimisticResponse<TData>;
-    cacheUpdate?: (cache: Parameters<NonNullable<MutationHookOptions<TData, TVariables>['update']>>[0], data: TData) => void;
+export declare function createOptimisticOptions<
+  TData,
+  TVariables extends OperationVariables,
+>(config: {
+  optimisticResponse: OptimisticResponse<TData>;
+  cacheUpdate?: (
+    cache: Parameters<NonNullable<MutationHookOptions<TData, TVariables>['update']>>[0],
+    data: TData
+  ) => void;
 }): Partial<MutationHookOptions<TData, TVariables>>;
 //# sourceMappingURL=useMutationWithLoading.d.ts.map

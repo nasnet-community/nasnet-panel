@@ -30,7 +30,7 @@ interface L2TPServerRaw {
  * Transform raw API response to typed interface
  */
 function transformL2TPServer(raw: L2TPServerRaw): L2TPServer {
-  const authMethods = raw.authentication?.split(',').map(a => a.trim()) || ['mschap2'];
+  const authMethods = raw.authentication?.split(',').map((a) => a.trim()) || ['mschap2'];
 
   return {
     id: 'l2tp-server',
@@ -57,10 +57,7 @@ function transformL2TPServer(raw: L2TPServerRaw): L2TPServer {
  * Fetch L2TP server configuration from RouterOS
  */
 async function fetchL2TPServer(routerIp: string): Promise<L2TPServer> {
-  const result = await makeRouterOSRequest<L2TPServerRaw>(
-    routerIp,
-    'interface/l2tp-server'
-  );
+  const result = await makeRouterOSRequest<L2TPServerRaw>(routerIp, 'interface/l2tp-server');
 
   if (!result.success || !result.data) {
     throw new Error(result.error || 'Failed to fetch L2TP server');
@@ -83,4 +80,3 @@ export function useL2TPServer(routerIp: string): UseQueryResult<L2TPServer, Erro
     enabled: !!routerIp,
   });
 }
-

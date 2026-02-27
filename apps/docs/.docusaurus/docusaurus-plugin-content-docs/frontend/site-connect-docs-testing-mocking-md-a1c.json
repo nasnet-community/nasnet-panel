@@ -1,7 +1,7 @@
 {
   "id": "testing/mocking",
   "title": "Mocking Strategy",
-  "description": "NasNetConnect uses MSW (Mock Service Worker) as the single mocking layer for all network requests — GraphQL and REST alike. MSW intercepts requests at the network level (using a service worker in the browser, and a Node.js interceptor in Vitest). This means tests exercise real Apollo Client logic, real fetch calls, and real response parsing — only the network boundary is replaced with controlled fixtures.",
+  "description": "NasNetConnect uses MSW (Mock Service Worker) as the single mocking layer for all network",
   "source": "@site/../connect/docs/testing/mocking.md",
   "sourceDirName": "testing",
   "slug": "/testing/mocking",

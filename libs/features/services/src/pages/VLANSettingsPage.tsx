@@ -61,7 +61,11 @@ export function VLANSettingsPage({ routerID }: VLANSettingsPageProps) {
 
   // Fetch data
   const { poolStatus, loading: poolLoading, refetch: refetchPool } = useVLANPoolStatus(routerID);
-  const { allocations, loading: allocLoading, refetch: refetchAllocations } = useVLANAllocations(routerID);
+  const {
+    allocations,
+    loading: allocLoading,
+    refetch: refetchAllocations,
+  } = useVLANAllocations(routerID);
   const { cleanupOrphanedVLANs, loading: cleanupLoading, cleanupCount } = useCleanupOrphanedVLANs();
 
   // Orphan detection state
@@ -93,9 +97,7 @@ export function VLANSettingsPage({ routerID }: VLANSettingsPageProps) {
     } catch (error) {
       toast({
         title: 'Error',
-        description: error instanceof Error
-          ? error.message
-          : 'Failed to cleanup orphaned VLANs',
+        description: error instanceof Error ? error.message : 'Failed to cleanup orphaned VLANs',
         variant: 'destructive',
       });
     }
@@ -125,36 +127,41 @@ export function VLANSettingsPage({ routerID }: VLANSettingsPageProps) {
   // Desktop layout: Sidebar + Content
   if (platform === 'desktop') {
     return (
-      <div className="flex gap-component-lg px-page-desktop py-component-lg bg-background">
+      <div className="gap-component-lg px-page-desktop py-component-lg bg-background flex">
         {/* Sidebar: Gauge */}
         <div className="w-80 flex-shrink-0">
-          {poolLoading ? (
+          {poolLoading ?
             <Card className="p-component-lg bg-muted">
-              <p className="text-sm text-muted-foreground text-center">Loading pool status...</p>
+              <p className="text-muted-foreground text-center text-sm">Loading pool status...</p>
             </Card>
-          ) : poolStatus ? (
+          : poolStatus ?
             <VLANPoolGauge
               total={poolStatus.totalVLANs}
               allocated={poolStatus.allocatedVLANs}
               shouldWarn={poolStatus.shouldWarn}
             />
-          ) : (
-            <Card className="p-component-lg">
-              <p className="text-sm text-error text-center">Failed to load pool status</p>
+          : <Card className="p-component-lg">
+              <p className="text-error text-center text-sm">Failed to load pool status</p>
             </Card>
-          )}
+          }
         </div>
 
         {/* Main Content: Tabs */}
-        <div className="flex-1 min-w-0">
-          <Tabs value={activeTab} onValueChange={handleTabChange}>
+        <div className="min-w-0 flex-1">
+          <Tabs
+            value={activeTab}
+            onValueChange={handleTabChange}
+          >
             <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="pool">Pool Config</TabsTrigger>
               <TabsTrigger value="allocations">Allocations</TabsTrigger>
               <TabsTrigger value="diagnostics">Diagnostics</TabsTrigger>
             </TabsList>
 
-            <TabsContent value="pool" className="mt-component-lg">
+            <TabsContent
+              value="pool"
+              className="mt-component-lg"
+            >
               {poolStatus && (
                 <VLANPoolConfig
                   poolStart={poolStatus.poolStart}
@@ -165,7 +172,10 @@ export function VLANSettingsPage({ routerID }: VLANSettingsPageProps) {
               )}
             </TabsContent>
 
-            <TabsContent value="allocations" className="mt-component-lg">
+            <TabsContent
+              value="allocations"
+              className="mt-component-lg"
+            >
               <VLANAllocationTable
                 allocations={tableAllocations}
                 loading={allocLoading}
@@ -173,23 +183,28 @@ export function VLANSettingsPage({ routerID }: VLANSettingsPageProps) {
               />
             </TabsContent>
 
-            <TabsContent value="diagnostics" className="mt-component-lg">
+            <TabsContent
+              value="diagnostics"
+              className="mt-component-lg"
+            >
               <Card>
                 <CardHeader>
                   <CardTitle>Orphan Cleanup</CardTitle>
                   <CardDescription>
-                    Detect and clean up VLAN allocations referencing missing or
-                    deleting service instances
+                    Detect and clean up VLAN allocations referencing missing or deleting service
+                    instances
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-component-md">
-                  <div className="flex gap-component-md">
+                  <div className="gap-component-md flex">
                     <Button
                       onClick={handleDetectOrphans}
                       disabled={detectingOrphans}
                       variant="outline"
                       className="min-h-[44px] min-w-[120px]"
-                      aria-label={detectingOrphans ? 'Detecting orphaned VLANs' : 'Detect orphaned VLANs'}
+                      aria-label={
+                        detectingOrphans ? 'Detecting orphaned VLANs' : 'Detect orphaned VLANs'
+                      }
                     >
                       {detectingOrphans ? 'Detecting...' : 'Detect Orphans'}
                     </Button>
@@ -198,26 +213,28 @@ export function VLANSettingsPage({ routerID }: VLANSettingsPageProps) {
                       disabled={!orphansDetected || cleanupLoading}
                       variant="destructive"
                       className="min-h-[44px] min-w-[120px]"
-                      aria-label={cleanupLoading ? 'Cleaning orphaned VLANs' : 'Clean up all orphaned VLANs'}
+                      aria-label={
+                        cleanupLoading ? 'Cleaning orphaned VLANs' : 'Clean up all orphaned VLANs'
+                      }
                     >
                       {cleanupLoading ? 'Cleaning...' : 'Clean Up All'}
                     </Button>
                   </div>
 
                   {orphansDetected && (
-                    <div className="p-component-md bg-warning/10 border border-warning rounded-[var(--semantic-radius-card)]">
-                      <p className="text-sm text-warning font-medium">
-                        Orphan detection complete. Review allocations and click
-                        "Clean Up All" to release orphaned VLANs.
+                    <div className="p-component-md bg-warning/10 border-warning rounded-[var(--semantic-radius-card)] border">
+                      <p className="text-warning text-sm font-medium">
+                        Orphan detection complete. Review allocations and click "Clean Up All" to
+                        release orphaned VLANs.
                       </p>
                     </div>
                   )}
 
                   {cleanupCount !== undefined && cleanupCount > 0 && (
-                    <div className="p-component-md bg-success/10 border border-success rounded-[var(--semantic-radius-card)]">
-                      <p className="text-sm text-success font-medium">
-                        Successfully cleaned up {cleanupCount} orphaned VLAN
-                        allocation{cleanupCount !== 1 ? 's' : ''}.
+                    <div className="p-component-md bg-success/10 border-success rounded-[var(--semantic-radius-card)] border">
+                      <p className="text-success text-sm font-medium">
+                        Successfully cleaned up {cleanupCount} orphaned VLAN allocation
+                        {cleanupCount !== 1 ? 's' : ''}.
                       </p>
                     </div>
                   )}
@@ -234,31 +251,36 @@ export function VLANSettingsPage({ routerID }: VLANSettingsPageProps) {
   return (
     <div className="space-y-component-lg px-page-mobile md:px-page-tablet py-component-lg bg-background">
       {/* Gauge at top */}
-      {poolLoading ? (
+      {poolLoading ?
         <Card className="p-component-md bg-muted">
-          <p className="text-sm text-muted-foreground text-center">Loading pool status...</p>
+          <p className="text-muted-foreground text-center text-sm">Loading pool status...</p>
         </Card>
-      ) : poolStatus ? (
+      : poolStatus ?
         <VLANPoolGauge
           total={poolStatus.totalVLANs}
           allocated={poolStatus.allocatedVLANs}
           shouldWarn={poolStatus.shouldWarn}
         />
-      ) : (
-        <Card className="p-component-md">
-          <p className="text-sm text-error text-center">Failed to load pool status</p>
+      : <Card className="p-component-md">
+          <p className="text-error text-center text-sm">Failed to load pool status</p>
         </Card>
-      )}
+      }
 
       {/* Tabs */}
-      <Tabs value={activeTab} onValueChange={handleTabChange}>
+      <Tabs
+        value={activeTab}
+        onValueChange={handleTabChange}
+      >
         <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="pool">Config</TabsTrigger>
           <TabsTrigger value="allocations">Allocs</TabsTrigger>
           <TabsTrigger value="diagnostics">Tools</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="pool" className="mt-component-md">
+        <TabsContent
+          value="pool"
+          className="mt-component-md"
+        >
           {poolStatus && (
             <VLANPoolConfig
               poolStart={poolStatus.poolStart}
@@ -269,7 +291,10 @@ export function VLANSettingsPage({ routerID }: VLANSettingsPageProps) {
           )}
         </TabsContent>
 
-        <TabsContent value="allocations" className="mt-component-md">
+        <TabsContent
+          value="allocations"
+          className="mt-component-md"
+        >
           <VLANAllocationTable
             allocations={tableAllocations}
             loading={allocLoading}
@@ -277,7 +302,10 @@ export function VLANSettingsPage({ routerID }: VLANSettingsPageProps) {
           />
         </TabsContent>
 
-        <TabsContent value="diagnostics" className="mt-component-md">
+        <TabsContent
+          value="diagnostics"
+          className="mt-component-md"
+        >
           <Card>
             <CardHeader>
               <CardTitle>Orphan Cleanup</CardTitle>
@@ -291,8 +319,10 @@ export function VLANSettingsPage({ routerID }: VLANSettingsPageProps) {
                   onClick={handleDetectOrphans}
                   disabled={detectingOrphans}
                   variant="outline"
-                  className="w-full min-h-[44px]"
-                  aria-label={detectingOrphans ? 'Detecting orphaned VLANs' : 'Detect orphaned VLANs'}
+                  className="min-h-[44px] w-full"
+                  aria-label={
+                    detectingOrphans ? 'Detecting orphaned VLANs' : 'Detect orphaned VLANs'
+                  }
                 >
                   {detectingOrphans ? 'Detecting...' : 'Detect Orphans'}
                 </Button>
@@ -300,25 +330,35 @@ export function VLANSettingsPage({ routerID }: VLANSettingsPageProps) {
                   onClick={handleCleanupOrphans}
                   disabled={!orphansDetected || cleanupLoading}
                   variant="destructive"
-                  className="w-full min-h-[44px]"
-                  aria-label={cleanupLoading ? 'Cleaning orphaned VLANs' : 'Clean up all orphaned VLANs'}
+                  className="min-h-[44px] w-full"
+                  aria-label={
+                    cleanupLoading ? 'Cleaning orphaned VLANs' : 'Clean up all orphaned VLANs'
+                  }
                 >
                   {cleanupLoading ? 'Cleaning...' : 'Clean Up All'}
                 </Button>
               </div>
 
               {orphansDetected && (
-                <div className="p-component-md bg-warning/10 border border-warning rounded-[var(--semantic-radius-card)]" role="alert" aria-live="polite">
-                  <p className="text-xs text-warning font-medium">
-                    Detection complete. Review allocations and click "Clean Up
-                    All" to release orphaned VLANs.
+                <div
+                  className="p-component-md bg-warning/10 border-warning rounded-[var(--semantic-radius-card)] border"
+                  role="alert"
+                  aria-live="polite"
+                >
+                  <p className="text-warning text-xs font-medium">
+                    Detection complete. Review allocations and click "Clean Up All" to release
+                    orphaned VLANs.
                   </p>
                 </div>
               )}
 
               {cleanupCount !== undefined && cleanupCount > 0 && (
-                <div className="p-component-md bg-success/10 border border-success rounded-[var(--semantic-radius-card)]" role="status" aria-live="polite">
-                  <p className="text-xs text-success font-medium">
+                <div
+                  className="p-component-md bg-success/10 border-success rounded-[var(--semantic-radius-card)] border"
+                  role="status"
+                  aria-live="polite"
+                >
+                  <p className="text-success text-xs font-medium">
                     Cleaned up {cleanupCount} orphaned VLAN allocation
                     {cleanupCount !== 1 ? 's' : ''}.
                   </p>

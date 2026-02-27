@@ -70,7 +70,11 @@ export interface UseRouterHealthOptions {
  * }
  * ```
  */
-export function useRouterHealth({ routerId, pollInterval = 0, skip = false }: UseRouterHealthOptions) {
+export function useRouterHealth({
+  routerId,
+  pollInterval = 0,
+  skip = false,
+}: UseRouterHealthOptions) {
   return useQuery(GET_ROUTER_HEALTH_SUMMARY, {
     variables: { routerId },
     fetchPolicy: 'cache-and-network',

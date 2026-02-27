@@ -85,9 +85,7 @@ interface SubmitInput<TData> {
  * });
  * ```
  */
-function createWizardMachineV1<TData extends Record<string, unknown>>(
-  config: WizardConfig<TData>
-) {
+function createWizardMachineV1<TData extends Record<string, unknown>>(config: WizardConfig<TData>) {
   const { id, totalSteps, validateStep, onSubmit, initialData = {}, persist = true } = config;
 
   return setup({
@@ -96,11 +94,9 @@ function createWizardMachineV1<TData extends Record<string, unknown>>(
       events: WizardEvent<TData>;
     },
     actors: {
-      validateStep: fromPromise<ValidationResult, ValidationInput<TData>>(
-        async ({ input }) => {
-          return input.validateStep(input.step, input.data);
-        }
-      ),
+      validateStep: fromPromise<ValidationResult, ValidationInput<TData>>(async ({ input }) => {
+        return input.validateStep(input.step, input.data);
+      }),
       submitWizard: fromPromise<void, SubmitInput<TData>>(async ({ input }) => {
         await input.onSubmit(input.data as TData);
       }),
@@ -115,8 +111,11 @@ function createWizardMachineV1<TData extends Record<string, unknown>>(
         const targetStep = event.step;
         // Can only go to steps <= current step (already validated)
         // or if canSkip is enabled
-        return targetStep >= 1 && targetStep <= context.totalSteps &&
-          (targetStep <= context.currentStep || context.canSkip === true);
+        return (
+          targetStep >= 1 &&
+          targetStep <= context.totalSteps &&
+          (targetStep <= context.currentStep || context.canSkip === true)
+        );
       },
     },
     actions: {
@@ -286,9 +285,9 @@ function createWizardMachineV1<TData extends Record<string, unknown>>(
             actions: assign({
               errors: ({ event }) => ({
                 _form:
-                  event.error instanceof Error
-                    ? event.error.message
-                    : 'Submission failed. Please try again.',
+                  event.error instanceof Error ?
+                    event.error.message
+                  : 'Submission failed. Please try again.',
               }),
             }),
           },
@@ -321,11 +320,9 @@ export function createWizardMachineV2<TData extends Record<string, unknown>>(
       events: WizardEvent<TData>;
     },
     actors: {
-      validateStep: fromPromise<ValidationResult, ValidationInput<TData>>(
-        async ({ input }) => {
-          return input.validateStep(input.step, input.data);
-        }
-      ),
+      validateStep: fromPromise<ValidationResult, ValidationInput<TData>>(async ({ input }) => {
+        return input.validateStep(input.step, input.data);
+      }),
       submitWizard: fromPromise<void, SubmitInput<TData>>(async ({ input }) => {
         await input.onSubmit(input.data as TData);
       }),
@@ -385,10 +382,8 @@ export function createWizardMachineV2<TData extends Record<string, unknown>>(
       }),
       clearErrors: assign({ errors: () => ({}) }),
       restoreContext: assign({
-        currentStep: ({ event }) =>
-          event.type === 'RESTORE' ? event.savedContext.currentStep : 1,
-        data: ({ event }) =>
-          event.type === 'RESTORE' ? event.savedContext.data : {},
+        currentStep: ({ event }) => (event.type === 'RESTORE' ? event.savedContext.currentStep : 1),
+        data: ({ event }) => (event.type === 'RESTORE' ? event.savedContext.data : {}),
         sessionId: ({ event }) =>
           event.type === 'RESTORE' ? event.savedContext.sessionId : crypto.randomUUID(),
       }),
@@ -480,9 +475,9 @@ export function createWizardMachineV2<TData extends Record<string, unknown>>(
             actions: assign({
               errors: ({ event }) => ({
                 _form:
-                  event.error instanceof Error
-                    ? event.error.message
-                    : 'Submission failed. Please try again.',
+                  event.error instanceof Error ?
+                    event.error.message
+                  : 'Submission failed. Please try again.',
               }),
             }),
           },

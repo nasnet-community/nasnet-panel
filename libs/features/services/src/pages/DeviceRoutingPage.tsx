@@ -25,10 +25,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Network } from 'lucide-react';
 
-import type {
-  DeviceRoutingActions,
-  RoutingChainData,
-} from '@nasnet/ui/patterns';
+import type { DeviceRoutingActions, RoutingChainData } from '@nasnet/ui/patterns';
 
 import {
   useDeviceRoutingMatrix,
@@ -72,17 +69,12 @@ export interface DeviceRoutingPageProps {
  * @param {DeviceRoutingPageProps} props - Component props
  * @returns {React.ReactElement} The rendered device routing page
  */
-function DeviceRoutingPageComponent({
-  routerId,
-  className,
-}: DeviceRoutingPageProps) {
+function DeviceRoutingPageComponent({ routerId, className }: DeviceRoutingPageProps) {
   const { toast } = useToast();
 
   // State for schedule editor
   const [shouldShowScheduleEditor, setShouldShowScheduleEditor] = useState(false);
-  const [selectedScheduleRoutingId, setSelectedScheduleRoutingId] = useState<
-    string | null
-  >(null);
+  const [selectedScheduleRoutingId, setSelectedScheduleRoutingId] = useState<string | null>(null);
 
   // Fetch device routing matrix (devices, interfaces, routings)
   const {
@@ -93,11 +85,9 @@ function DeviceRoutingPageComponent({
   } = useDeviceRoutingMatrix(routerId);
 
   // Mutation hooks
-  const [assignDevice, { loading: assignLoading, error: assignError }] =
-    useAssignDeviceRouting();
+  const [assignDevice, { loading: assignLoading, error: assignError }] = useAssignDeviceRouting();
 
-  const [removeDevice, { loading: removeLoading, error: removeError }] =
-    useRemoveDeviceRouting();
+  const [removeDevice, { loading: removeLoading, error: removeError }] = useRemoveDeviceRouting();
 
   const {
     bulkAssign,
@@ -197,8 +187,7 @@ function DeviceRoutingPageComponent({
         console.error('Failed to assign device:', error);
         toast({
           title: 'Assignment Failed',
-          description:
-            error instanceof Error ? error.message : 'Failed to assign device',
+          description: error instanceof Error ? error.message : 'Failed to assign device',
           variant: 'destructive',
         });
       }
@@ -217,9 +206,8 @@ function DeviceRoutingPageComponent({
       try {
         await removeDevice(routingID);
 
-        const deviceLabel = routing
-          ? routing.deviceName ?? routing.deviceIP ?? routing.macAddress
-          : 'Device';
+        const deviceLabel =
+          routing ? (routing.deviceName ?? routing.deviceIP ?? routing.macAddress) : 'Device';
         toast({
           title: 'Routing Removed',
           description: `${deviceLabel} routing has been removed`,
@@ -229,8 +217,7 @@ function DeviceRoutingPageComponent({
         console.error('Failed to remove device routing:', error);
         toast({
           title: 'Removal Failed',
-          description:
-            error instanceof Error ? error.message : 'Failed to remove routing',
+          description: error instanceof Error ? error.message : 'Failed to remove routing',
           variant: 'destructive',
         });
       }
@@ -270,10 +257,7 @@ function DeviceRoutingPageComponent({
             routingMode: 'MAC' as const,
           };
         })
-        .filter(
-          (assignment): assignment is NonNullable<typeof assignment> =>
-            assignment !== null
-        );
+        .filter((assignment): assignment is NonNullable<typeof assignment> => assignment !== null);
 
       if (assignments.length === 0) {
         toast({
@@ -307,10 +291,7 @@ function DeviceRoutingPageComponent({
         console.error('Failed to bulk assign devices:', error);
         toast({
           title: 'Bulk Assignment Failed',
-          description:
-            error instanceof Error
-              ? error.message
-              : 'Failed to assign devices',
+          description: error instanceof Error ? error.message : 'Failed to assign devices',
           variant: 'destructive',
         });
       }
@@ -342,9 +323,7 @@ function DeviceRoutingPageComponent({
         deviceMac: device?.macAddress || firstRouting.macAddress || null,
         deviceIp: device?.ipAddress || firstRouting.deviceIP || null,
         hops: routings.map((r, hopIndex) => {
-          const hopIface = matrix.interfaces.find(
-            (inf) => inf.id === r.interfaceID
-          );
+          const hopIface = matrix.interfaces.find((inf) => inf.id === r.interfaceID);
           return {
             id: r.id,
             order: hopIndex + 1,
@@ -388,8 +367,7 @@ function DeviceRoutingPageComponent({
   }, [matrixError, toast]);
 
   // Compute loading state
-  const isLoading =
-    matrixLoading || assignLoading || removeLoading || bulkLoading;
+  const isLoading = matrixLoading || assignLoading || removeLoading || bulkLoading;
 
   // Handler: schedule editor close
   const handleCloseScheduleEditor = useCallback(() => {
@@ -430,18 +408,21 @@ function DeviceRoutingPageComponent({
   );
 
   return (
-    <div className={cn('container mx-auto py-component-lg', className)}>
+    <div className={cn('py-component-lg container mx-auto', className)}>
       <div className="mb-component-lg">
-        <div className="flex items-center gap-component-md">
-          <h1 className="text-3xl font-display tracking-tight text-foreground">Device Routing</h1>
-          <Network className="h-6 w-6 text-category-vpn" aria-hidden="true" />
+        <div className="gap-component-md flex items-center">
+          <h1 className="font-display text-foreground text-3xl tracking-tight">Device Routing</h1>
+          <Network
+            className="text-category-vpn h-6 w-6"
+            aria-hidden="true"
+          />
         </div>
         <p className="text-muted-foreground">
           Route network devices through service instances (Tor, Xray, etc.)
         </p>
 
         {/* Global Kill Switch (NAS-8.13) */}
-        <div className="mt-component-md flex items-center gap-component-md">
+        <div className="mt-component-md gap-component-md flex items-center">
           <KillSwitchToggle
             routerId={routerId}
             deviceId=""
@@ -456,7 +437,7 @@ function DeviceRoutingPageComponent({
       {bulkProgress && (
         <div
           className={cn(
-            'mb-component-md rounded-[var(--semantic-radius-card)] border p-component-sm',
+            'mb-component-md p-component-sm rounded-[var(--semantic-radius-card)] border',
             'border-border bg-info/10'
           )}
           role="status"
@@ -464,10 +445,10 @@ function DeviceRoutingPageComponent({
           aria-label={`Bulk assignment progress: ${bulkProgress.percentage}% complete`}
         >
           <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-foreground">
+            <span className="text-foreground text-sm font-medium">
               Bulk Assignment Progress: {bulkProgress.percentage}%
             </span>
-            <span className="text-sm font-mono text-muted-foreground">
+            <span className="text-muted-foreground font-mono text-sm">
               {bulkProgress.successful}/{bulkProgress.total} completed
             </span>
           </div>
@@ -477,7 +458,7 @@ function DeviceRoutingPageComponent({
       {/* Routing Chain Visualizations (NAS-8.10) */}
       {routingChains.length > 0 && (
         <section className="mb-component-lg space-y-component-md">
-          <h2 className="text-lg font-display text-foreground">Active Routing Chains</h2>
+          <h2 className="font-display text-foreground text-lg">Active Routing Chains</h2>
           <div className="space-y-component-md">
             {routingChains.slice(0, 5).map((chain) => (
               <RoutingChainViz
@@ -490,7 +471,7 @@ function DeviceRoutingPageComponent({
               />
             ))}
             {routingChains.length > 5 && (
-              <p className="text-center text-sm text-muted-foreground">
+              <p className="text-muted-foreground text-center text-sm">
                 and {routingChains.length - 5} more chains...
               </p>
             )}
@@ -499,7 +480,7 @@ function DeviceRoutingPageComponent({
       )}
 
       {/* Main Device Routing Matrix */}
-      {matrix ? (
+      {matrix ?
         <DeviceRoutingMatrix
           routerId={routerId}
           matrix={matrix as any}
@@ -508,8 +489,7 @@ function DeviceRoutingPageComponent({
           error={matrixError}
           showSummary
         />
-      ) : (
-        <div
+      : <div
           className="flex items-center justify-center py-12"
           role="status"
           aria-live="polite"
@@ -517,7 +497,7 @@ function DeviceRoutingPageComponent({
         >
           <p className="text-muted-foreground">Loading devices...</p>
         </div>
-      )}
+      }
 
       {/* Schedule Editor Modal (NAS-8.21) */}
       <ScheduleEditor

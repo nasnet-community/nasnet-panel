@@ -15,7 +15,6 @@ import { GET_RESOURCE_METRICS } from './useResourceMetrics';
 
 import type { Meta, StoryObj } from '@storybook/react';
 
-
 // Mock data for various states
 const healthyMetrics = {
   cpu: { usage: 35, cores: 4, perCore: [30, 35, 40, 35], frequency: 880 },
@@ -82,7 +81,10 @@ export const Default: Story = {
       ];
 
       return (
-        <MockedProvider mocks={mocks} addTypename={false}>
+        <MockedProvider
+          mocks={mocks}
+          addTypename={false}
+        >
           <Story />
         </MockedProvider>
       );
@@ -114,7 +116,10 @@ export const WarningState: Story = {
       ];
 
       return (
-        <MockedProvider mocks={mocks} addTypename={false}>
+        <MockedProvider
+          mocks={mocks}
+          addTypename={false}
+        >
           <Story />
         </MockedProvider>
       );
@@ -146,7 +151,10 @@ export const CriticalState: Story = {
       ];
 
       return (
-        <MockedProvider mocks={mocks} addTypename={false}>
+        <MockedProvider
+          mocks={mocks}
+          addTypename={false}
+        >
           <Story />
         </MockedProvider>
       );
@@ -178,7 +186,10 @@ export const NoTemperature: Story = {
       ];
 
       return (
-        <MockedProvider mocks={mocks} addTypename={false}>
+        <MockedProvider
+          mocks={mocks}
+          addTypename={false}
+        >
           <Story />
         </MockedProvider>
       );
@@ -211,7 +222,10 @@ export const Loading: Story = {
       ];
 
       return (
-        <MockedProvider mocks={mocks} addTypename={false}>
+        <MockedProvider
+          mocks={mocks}
+          addTypename={false}
+        >
           <Story />
         </MockedProvider>
       );
@@ -229,7 +243,7 @@ export const CPUBreakdownInteractive: Story = {
 
     return (
       <div className="p-component-xl">
-        <p className="text-sm text-muted-foreground mb-4">
+        <p className="text-muted-foreground mb-4 text-sm">
           Click the CPU gauge to see per-core breakdown
         </p>
         <CircularGauge

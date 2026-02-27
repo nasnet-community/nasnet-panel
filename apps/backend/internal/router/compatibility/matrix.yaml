@@ -4,8 +4,8 @@
 # Version: 1.0
 # Updated: 2026-01-28
 
-version: "1.0"
-updated: "2026-01-28"
+version: '1.0'
+updated: '2026-01-28'
 
 # =============================================================================
 # Feature Compatibility Definitions
@@ -24,66 +24,66 @@ features:
   # ---------------------------------------------------------------------------
   rest_api:
     id: rest_api
-    name: "REST API"
-    description: "Native JSON REST API for router communication"
+    name: 'REST API'
+    description: 'Native JSON REST API for router communication'
     version_range:
-      min: "7.1"
+      min: '7.1'
     capability_level: full
-    upgrade_url: "https://help.mikrotik.com/docs/display/ROS/REST+API"
+    upgrade_url: 'https://help.mikrotik.com/docs/display/ROS/REST+API'
 
   binary_api:
     id: binary_api
-    name: "Binary API"
-    description: "MikroTik binary protocol for router communication"
+    name: 'Binary API'
+    description: 'MikroTik binary protocol for router communication'
     version_range:
-      min: "6.40"
+      min: '6.40'
     capability_level: full
-    upgrade_url: "https://help.mikrotik.com/docs/display/ROS/API"
+    upgrade_url: 'https://help.mikrotik.com/docs/display/ROS/API'
 
   api_ssl:
     id: api_ssl
-    name: "API-SSL"
-    description: "TLS-encrypted binary API connection"
+    name: 'API-SSL'
+    description: 'TLS-encrypted binary API connection'
     version_range:
-      min: "6.43"
+      min: '6.43'
     capability_level: full
-    upgrade_url: "https://help.mikrotik.com/docs/display/ROS/API-SSL"
+    upgrade_url: 'https://help.mikrotik.com/docs/display/ROS/API-SSL'
 
   # ---------------------------------------------------------------------------
   # Container & VIF Support
   # ---------------------------------------------------------------------------
   container:
     id: container
-    name: "Container Package"
-    description: "Docker/OCI container runtime for network services"
+    name: 'Container Package'
+    description: 'Docker/OCI container runtime for network services'
     version_range:
-      min: "7.4"
+      min: '7.4'
     version_range_chr:
-      min: "7.6"
+      min: '7.6'
     capability_level: full
     required_packages:
       - container
-    upgrade_url: "https://help.mikrotik.com/docs/display/ROS/Container"
+    upgrade_url: 'https://help.mikrotik.com/docs/display/ROS/Container'
 
   container_basic:
     id: container_basic
-    name: "Container (Basic)"
-    description: "Basic container support without advanced networking"
+    name: 'Container (Basic)'
+    description: 'Basic container support without advanced networking'
     version_range:
-      min: "7.4"
-      max: "7.5.99"
+      min: '7.4'
+      max: '7.5.99'
     capability_level: basic
     required_packages:
       - container
 
   vif:
     id: vif
-    name: "Virtual Interface Factory"
-    description: "NasNetConnect Virtual Interface Factory for network services"
+    name: 'Virtual Interface Factory'
+    description: 'NasNetConnect Virtual Interface Factory for network services'
     version_range:
-      min: "7.6"
+      min: '7.6'
     version_range_chr:
-      min: "7.6"
+      min: '7.6'
     capability_level: full
     depends_on:
       - container
@@ -95,323 +95,323 @@ features:
   # ---------------------------------------------------------------------------
   wireguard:
     id: wireguard
-    name: "WireGuard VPN"
-    description: "Modern, high-performance VPN protocol"
+    name: 'WireGuard VPN'
+    description: 'Modern, high-performance VPN protocol'
     version_range:
-      min: "7.0"
+      min: '7.0'
     capability_level: full
     required_packages:
       - wireguard
-    upgrade_url: "https://help.mikrotik.com/docs/display/ROS/WireGuard"
+    upgrade_url: 'https://help.mikrotik.com/docs/display/ROS/WireGuard'
 
   zerotier:
     id: zerotier
-    name: "ZeroTier"
-    description: "Software-defined networking VPN"
+    name: 'ZeroTier'
+    description: 'Software-defined networking VPN'
     version_range:
-      min: "7.1"
+      min: '7.1'
     capability_level: full
     required_packages:
       - zerotier
-    upgrade_url: "https://help.mikrotik.com/docs/display/ROS/ZeroTier"
+    upgrade_url: 'https://help.mikrotik.com/docs/display/ROS/ZeroTier'
 
   openvpn:
     id: openvpn
-    name: "OpenVPN"
-    description: "Traditional SSL VPN"
+    name: 'OpenVPN'
+    description: 'Traditional SSL VPN'
     version_range:
-      min: "6.0"
+      min: '6.0'
     capability_level: full
-    upgrade_url: "https://help.mikrotik.com/docs/display/ROS/OpenVPN"
+    upgrade_url: 'https://help.mikrotik.com/docs/display/ROS/OpenVPN'
 
   l2tp:
     id: l2tp
-    name: "L2TP/IPSec VPN"
-    description: "Layer 2 Tunneling Protocol with IPSec"
+    name: 'L2TP/IPSec VPN'
+    description: 'Layer 2 Tunneling Protocol with IPSec'
     version_range:
-      min: "6.0"
+      min: '6.0'
     capability_level: full
-    upgrade_url: "https://help.mikrotik.com/docs/display/ROS/L2TP"
+    upgrade_url: 'https://help.mikrotik.com/docs/display/ROS/L2TP'
 
   pptp:
     id: pptp
-    name: "PPTP VPN"
-    description: "Point-to-Point Tunneling Protocol (legacy)"
+    name: 'PPTP VPN'
+    description: 'Point-to-Point Tunneling Protocol (legacy)'
     version_range:
-      min: "6.0"
+      min: '6.0'
     capability_level: basic
-    upgrade_url: "https://help.mikrotik.com/docs/display/ROS/PPTP"
+    upgrade_url: 'https://help.mikrotik.com/docs/display/ROS/PPTP'
 
   # ---------------------------------------------------------------------------
   # Network Features
   # ---------------------------------------------------------------------------
   ipv6:
     id: ipv6
-    name: "IPv6 Support"
-    description: "Full IPv6 networking capabilities"
+    name: 'IPv6 Support'
+    description: 'Full IPv6 networking capabilities'
     version_range:
-      min: "6.0"
+      min: '6.0'
     capability_level: full
     required_packages:
       - ipv6
-    upgrade_url: "https://help.mikrotik.com/docs/display/ROS/IPv6"
+    upgrade_url: 'https://help.mikrotik.com/docs/display/ROS/IPv6'
 
   ipv6_dhcp:
     id: ipv6_dhcp
-    name: "DHCPv6 Server"
-    description: "IPv6 DHCP server functionality"
+    name: 'DHCPv6 Server'
+    description: 'IPv6 DHCP server functionality'
     version_range:
-      min: "6.40"
+      min: '6.40'
     capability_level: full
     depends_on:
       - ipv6
     required_packages:
       - ipv6
       - dhcpv6
-    upgrade_url: "https://help.mikrotik.com/docs/display/ROS/DHCP"
+    upgrade_url: 'https://help.mikrotik.com/docs/display/ROS/DHCP'
 
   vlan:
     id: vlan
-    name: "VLAN Support"
-    description: "802.1Q VLAN tagging"
+    name: 'VLAN Support'
+    description: '802.1Q VLAN tagging'
     version_range:
-      min: "6.0"
+      min: '6.0'
     capability_level: full
-    upgrade_url: "https://help.mikrotik.com/docs/display/ROS/VLAN"
+    upgrade_url: 'https://help.mikrotik.com/docs/display/ROS/VLAN'
 
   bridge_vlan:
     id: bridge_vlan
-    name: "Bridge VLAN Filtering"
-    description: "Hardware-accelerated VLAN filtering on bridges"
+    name: 'Bridge VLAN Filtering'
+    description: 'Hardware-accelerated VLAN filtering on bridges'
     version_range:
-      min: "6.41"
+      min: '6.41'
     capability_level: full
-    upgrade_url: "https://help.mikrotik.com/docs/display/ROS/Bridging+and+Switching"
+    upgrade_url: 'https://help.mikrotik.com/docs/display/ROS/Bridging+and+Switching'
 
   mpls:
     id: mpls
-    name: "MPLS"
-    description: "Multi-Protocol Label Switching"
+    name: 'MPLS'
+    description: 'Multi-Protocol Label Switching'
     version_range:
-      min: "6.0"
+      min: '6.0'
     capability_level: full
     required_packages:
       - mpls
-    upgrade_url: "https://help.mikrotik.com/docs/display/ROS/MPLS"
+    upgrade_url: 'https://help.mikrotik.com/docs/display/ROS/MPLS'
 
   bgp:
     id: bgp
-    name: "BGP Routing"
-    description: "Border Gateway Protocol routing"
+    name: 'BGP Routing'
+    description: 'Border Gateway Protocol routing'
     version_range:
-      min: "6.0"
+      min: '6.0'
     capability_level: full
     required_packages:
       - routing
-    upgrade_url: "https://help.mikrotik.com/docs/display/ROS/BGP"
+    upgrade_url: 'https://help.mikrotik.com/docs/display/ROS/BGP'
 
   ospf:
     id: ospf
-    name: "OSPF Routing"
-    description: "Open Shortest Path First routing"
+    name: 'OSPF Routing'
+    description: 'Open Shortest Path First routing'
     version_range:
-      min: "6.0"
+      min: '6.0'
     capability_level: full
     required_packages:
       - routing
-    upgrade_url: "https://help.mikrotik.com/docs/display/ROS/OSPF"
+    upgrade_url: 'https://help.mikrotik.com/docs/display/ROS/OSPF'
 
   # ---------------------------------------------------------------------------
   # Wireless Features
   # ---------------------------------------------------------------------------
   wireless:
     id: wireless
-    name: "Wireless"
-    description: "WiFi interface management"
+    name: 'Wireless'
+    description: 'WiFi interface management'
     version_range:
-      min: "6.0"
+      min: '6.0'
     capability_level: full
     required_packages:
       - wireless
-    upgrade_url: "https://help.mikrotik.com/docs/display/ROS/Wireless+Interface"
+    upgrade_url: 'https://help.mikrotik.com/docs/display/ROS/Wireless+Interface'
 
   wifi_wave2:
     id: wifi_wave2
-    name: "WiFi Wave2"
-    description: "WiFi Wave2 (802.11ax) configuration interface"
+    name: 'WiFi Wave2'
+    description: 'WiFi Wave2 (802.11ax) configuration interface'
     version_range:
-      min: "7.13"
+      min: '7.13'
     capability_level: full
     depends_on:
       - wireless
-    upgrade_url: "https://help.mikrotik.com/docs/display/ROS/WiFi"
+    upgrade_url: 'https://help.mikrotik.com/docs/display/ROS/WiFi'
 
   capsman:
     id: capsman
-    name: "CAPsMAN"
-    description: "Controlled Access Point Manager"
+    name: 'CAPsMAN'
+    description: 'Controlled Access Point Manager'
     version_range:
-      min: "6.11"
+      min: '6.11'
     capability_level: full
     required_packages:
       - wireless
-    upgrade_url: "https://help.mikrotik.com/docs/display/ROS/CAPsMAN"
+    upgrade_url: 'https://help.mikrotik.com/docs/display/ROS/CAPsMAN'
 
   # ---------------------------------------------------------------------------
   # Security Features
   # ---------------------------------------------------------------------------
   firewall:
     id: firewall
-    name: "Firewall"
-    description: "Firewall filter, NAT, and mangle rules"
+    name: 'Firewall'
+    description: 'Firewall filter, NAT, and mangle rules'
     version_range:
-      min: "6.0"
+      min: '6.0'
     capability_level: full
-    upgrade_url: "https://help.mikrotik.com/docs/display/ROS/Firewall"
+    upgrade_url: 'https://help.mikrotik.com/docs/display/ROS/Firewall'
 
   ipsec:
     id: ipsec
-    name: "IPSec"
-    description: "IP Security for encrypted tunnels"
+    name: 'IPSec'
+    description: 'IP Security for encrypted tunnels'
     version_range:
-      min: "6.0"
+      min: '6.0'
     capability_level: full
     required_packages:
       - security
-    upgrade_url: "https://help.mikrotik.com/docs/display/ROS/IPsec"
+    upgrade_url: 'https://help.mikrotik.com/docs/display/ROS/IPsec'
 
   certificates:
     id: certificates
-    name: "Certificate Management"
-    description: "SSL/TLS certificate handling"
+    name: 'Certificate Management'
+    description: 'SSL/TLS certificate handling'
     version_range:
-      min: "6.0"
+      min: '6.0'
     capability_level: full
-    upgrade_url: "https://help.mikrotik.com/docs/display/ROS/Certificates"
+    upgrade_url: 'https://help.mikrotik.com/docs/display/ROS/Certificates'
 
   acme:
     id: acme
     name: "ACME (Let's Encrypt)"
-    description: "Automatic certificate management"
+    description: 'Automatic certificate management'
     version_range:
-      min: "7.10"
+      min: '7.10'
     capability_level: full
     depends_on:
       - certificates
-    upgrade_url: "https://help.mikrotik.com/docs/display/ROS/Certificate#Certificate-ACME"
+    upgrade_url: 'https://help.mikrotik.com/docs/display/ROS/Certificate#Certificate-ACME'
 
   # ---------------------------------------------------------------------------
   # Services
   # ---------------------------------------------------------------------------
   hotspot:
     id: hotspot
-    name: "Hotspot"
-    description: "Captive portal and user authentication"
+    name: 'Hotspot'
+    description: 'Captive portal and user authentication'
     version_range:
-      min: "6.0"
+      min: '6.0'
     capability_level: full
     required_packages:
       - hotspot
-    upgrade_url: "https://help.mikrotik.com/docs/display/ROS/Hotspot"
+    upgrade_url: 'https://help.mikrotik.com/docs/display/ROS/Hotspot'
 
   user_manager:
     id: user_manager
-    name: "User Manager"
-    description: "RADIUS user management"
+    name: 'User Manager'
+    description: 'RADIUS user management'
     version_range:
-      min: "6.0"
+      min: '6.0'
     capability_level: full
     required_packages:
       - user-manager
-    upgrade_url: "https://help.mikrotik.com/docs/display/ROS/User+Manager"
+    upgrade_url: 'https://help.mikrotik.com/docs/display/ROS/User+Manager'
 
   dude:
     id: dude
-    name: "The Dude"
-    description: "Network monitoring agent"
+    name: 'The Dude'
+    description: 'Network monitoring agent'
     version_range:
-      min: "6.0"
+      min: '6.0'
     capability_level: full
     required_packages:
       - dude
-    upgrade_url: "https://help.mikrotik.com/docs/display/ROS/The+Dude"
+    upgrade_url: 'https://help.mikrotik.com/docs/display/ROS/The+Dude'
 
   snmp:
     id: snmp
-    name: "SNMP"
-    description: "Simple Network Management Protocol"
+    name: 'SNMP'
+    description: 'Simple Network Management Protocol'
     version_range:
-      min: "6.0"
+      min: '6.0'
     capability_level: full
-    upgrade_url: "https://help.mikrotik.com/docs/display/ROS/SNMP"
+    upgrade_url: 'https://help.mikrotik.com/docs/display/ROS/SNMP'
 
   netflow:
     id: netflow
-    name: "NetFlow/Traffic Flow"
-    description: "Network traffic accounting"
+    name: 'NetFlow/Traffic Flow'
+    description: 'Network traffic accounting'
     version_range:
-      min: "6.0"
+      min: '6.0'
     capability_level: full
-    upgrade_url: "https://help.mikrotik.com/docs/display/ROS/Traffic+Flow"
+    upgrade_url: 'https://help.mikrotik.com/docs/display/ROS/Traffic+Flow'
 
   # ---------------------------------------------------------------------------
   # System Features
   # ---------------------------------------------------------------------------
   scheduler:
     id: scheduler
-    name: "Scheduler"
-    description: "Task scheduling and automation"
+    name: 'Scheduler'
+    description: 'Task scheduling and automation'
     version_range:
-      min: "6.0"
+      min: '6.0'
     capability_level: full
-    upgrade_url: "https://help.mikrotik.com/docs/display/ROS/Scheduler"
+    upgrade_url: 'https://help.mikrotik.com/docs/display/ROS/Scheduler'
 
   scripting:
     id: scripting
-    name: "Scripting"
-    description: "RouterOS scripting language"
+    name: 'Scripting'
+    description: 'RouterOS scripting language'
     version_range:
-      min: "6.0"
+      min: '6.0'
     capability_level: full
-    upgrade_url: "https://help.mikrotik.com/docs/display/ROS/Scripting"
+    upgrade_url: 'https://help.mikrotik.com/docs/display/ROS/Scripting'
 
   netwatch:
     id: netwatch
-    name: "Netwatch"
-    description: "Host monitoring with automatic actions"
+    name: 'Netwatch'
+    description: 'Host monitoring with automatic actions'
     version_range:
-      min: "6.0"
+      min: '6.0'
     capability_level: full
-    upgrade_url: "https://help.mikrotik.com/docs/display/ROS/Netwatch"
+    upgrade_url: 'https://help.mikrotik.com/docs/display/ROS/Netwatch'
 
   watchdog:
     id: watchdog
-    name: "Watchdog"
-    description: "System health monitoring and auto-reboot"
+    name: 'Watchdog'
+    description: 'System health monitoring and auto-reboot'
     version_range:
-      min: "6.0"
+      min: '6.0'
     capability_level: full
-    upgrade_url: "https://help.mikrotik.com/docs/display/ROS/Watchdog"
+    upgrade_url: 'https://help.mikrotik.com/docs/display/ROS/Watchdog'
 
   # ---------------------------------------------------------------------------
   # NasNetConnect Features
   # ---------------------------------------------------------------------------
   nasnet_graphql:
     id: nasnet_graphql
-    name: "NasNetConnect GraphQL API"
-    description: "NasNetConnect unified GraphQL API access"
+    name: 'NasNetConnect GraphQL API'
+    description: 'NasNetConnect unified GraphQL API access'
     version_range:
-      min: "6.40"
+      min: '6.40'
     capability_level: full
     depends_on:
       - binary_api
 
   nasnet_subscriptions:
     id: nasnet_subscriptions
-    name: "Real-time Subscriptions"
-    description: "Live updates via GraphQL subscriptions"
+    name: 'Real-time Subscriptions'
+    description: 'Live updates via GraphQL subscriptions'
     version_range:
-      min: "6.40"
+      min: '6.40'
     capability_level: full
     depends_on:
       - nasnet_graphql

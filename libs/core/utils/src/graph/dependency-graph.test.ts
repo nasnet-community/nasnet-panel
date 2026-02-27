@@ -154,9 +154,7 @@ describe('detectCycles', () => {
   });
 
   it('should detect self-reference cycle', () => {
-    const nodes: DependencyNode[] = [
-      { id: 'a', dependencies: ['a'] },
-    ];
+    const nodes: DependencyNode[] = [{ id: 'a', dependencies: ['a'] }];
     const result = detectCycles(nodes);
     expect(result.hasCycle).toBe(true);
   });
@@ -189,13 +187,9 @@ describe('analyzeDependencies', () => {
   });
 
   it('should detect missing dependencies', () => {
-    const nodes: DependencyNode[] = [
-      { id: 'a', dependencies: ['missing'] },
-    ];
+    const nodes: DependencyNode[] = [{ id: 'a', dependencies: ['missing'] }];
     const analysis = analyzeDependencies(nodes);
-    expect(analysis.missingDependencies).toEqual([
-      { nodeId: 'a', missingDepId: 'missing' },
-    ]);
+    expect(analysis.missingDependencies).toEqual([{ nodeId: 'a', missingDepId: 'missing' }]);
   });
 
   it('should handle multiple roots', () => {
@@ -259,18 +253,14 @@ describe('validateDependencyGraph', () => {
   });
 
   it('should detect self-references', () => {
-    const nodes: DependencyNode[] = [
-      { id: 'a', dependencies: ['a'] },
-    ];
+    const nodes: DependencyNode[] = [{ id: 'a', dependencies: ['a'] }];
     const result = validateDependencyGraph(nodes);
     expect(result.valid).toBe(false);
     expect(result.errors.some((e) => e.includes('Self-reference'))).toBe(true);
   });
 
   it('should warn about missing dependencies', () => {
-    const nodes: DependencyNode[] = [
-      { id: 'a', dependencies: ['missing'] },
-    ];
+    const nodes: DependencyNode[] = [{ id: 'a', dependencies: ['missing'] }];
     const result = validateDependencyGraph(nodes);
     expect(result.valid).toBe(true); // Warnings don't invalidate
     expect(result.warnings.length).toBeGreaterThan(0);

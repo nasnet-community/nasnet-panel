@@ -87,8 +87,7 @@ export const Desktop: Story = {
     viewport: { defaultViewport: 'desktop' },
     docs: {
       description: {
-        story:
-          'Webhook configuration page rendered at desktop viewport with full-width layout.',
+        story: 'Webhook configuration page rendered at desktop viewport with full-width layout.',
       },
     },
   },

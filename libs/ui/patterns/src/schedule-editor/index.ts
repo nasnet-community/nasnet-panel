@@ -16,10 +16,7 @@ export { ScheduleEditorDesktop } from './ScheduleEditorDesktop';
 
 // Headless Hook
 export { useScheduleEditor } from './use-schedule-editor';
-export type {
-  UseScheduleEditorOptions,
-  UseScheduleEditorReturn,
-} from './use-schedule-editor';
+export type { UseScheduleEditorOptions, UseScheduleEditorReturn } from './use-schedule-editor';
 
 // Types
 export type { ScheduleEditorProps } from './types';

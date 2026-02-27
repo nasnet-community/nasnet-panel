@@ -244,10 +244,14 @@ export const PortForwardWizardDialog = React.memo(function PortForwardWizardDial
   // ========================================
 
   const formData = form.watch();
-  const summary = useMemo(() => generatePortForwardSummary({
-    ...formData,
-    internalPort: formData.internalPort || formData.externalPort,
-  }), [formData]);
+  const summary = useMemo(
+    () =>
+      generatePortForwardSummary({
+        ...formData,
+        internalPort: formData.internalPort || formData.externalPort,
+      }),
+    [formData]
+  );
 
   // ========================================
   // Render
@@ -256,7 +260,10 @@ export const PortForwardWizardDialog = React.memo(function PortForwardWizardDial
   return (
     <>
       {/* Main Wizard Dialog */}
-      <Dialog open={open && !showSafetyConfirmation} onOpenChange={onOpenChange}>
+      <Dialog
+        open={open && !showSafetyConfirmation}
+        onOpenChange={onOpenChange}
+      >
         <DialogContent className="sm:max-w-[600px]">
           <DialogHeader>
             <DialogTitle>Create Port Forward</DialogTitle>
@@ -267,7 +274,7 @@ export const PortForwardWizardDialog = React.memo(function PortForwardWizardDial
 
           {/* Progress Indicator */}
           <div className="mb-component-md">
-            <div className="flex gap-component-md">
+            <div className="gap-component-md flex">
               {stepper.steps.map((step, index) => (
                 <div
                   key={step.id}
@@ -289,7 +296,10 @@ export const PortForwardWizardDialog = React.memo(function PortForwardWizardDial
                   name="protocol"
                   control={form.control}
                   render={({ field }) => (
-                    <Select value={field.value} onValueChange={field.onChange}>
+                    <Select
+                      value={field.value}
+                      onValueChange={field.onChange}
+                    >
                       <SelectTrigger id="protocol">
                         <SelectValue />
                       </SelectTrigger>
@@ -321,11 +331,9 @@ export const PortForwardWizardDialog = React.memo(function PortForwardWizardDial
                   )}
                 />
                 {form.formState.errors.externalPort && (
-                  <p className="text-sm text-error">
-                    {form.formState.errors.externalPort.message}
-                  </p>
+                  <p className="text-error text-sm">{form.formState.errors.externalPort.message}</p>
                 )}
-                <p className="text-xs text-muted-foreground">
+                <p className="text-muted-foreground text-xs">
                   Common ports: HTTP (80), HTTPS (443), SSH (22), RDP (3389)
                 </p>
               </div>
@@ -337,13 +345,19 @@ export const PortForwardWizardDialog = React.memo(function PortForwardWizardDial
                   name="wanInterface"
                   control={form.control}
                   render={({ field }) => (
-                    <Select value={field.value} onValueChange={field.onChange}>
+                    <Select
+                      value={field.value}
+                      onValueChange={field.onChange}
+                    >
                       <SelectTrigger id="wanInterface">
                         <SelectValue placeholder="Select interface" />
                       </SelectTrigger>
                       <SelectContent>
                         {wanInterfaces.map((iface) => (
-                          <SelectItem key={iface} value={iface}>
+                          <SelectItem
+                            key={iface}
+                            value={iface}
+                          >
                             {iface}
                           </SelectItem>
                         ))}
@@ -374,9 +388,7 @@ export const PortForwardWizardDialog = React.memo(function PortForwardWizardDial
                   )}
                 />
                 {form.formState.errors.internalIP && (
-                  <p className="text-sm text-error">
-                    {form.formState.errors.internalIP.message}
-                  </p>
+                  <p className="text-error text-sm">{form.formState.errors.internalIP.message}</p>
                 )}
               </div>
 
@@ -403,11 +415,9 @@ export const PortForwardWizardDialog = React.memo(function PortForwardWizardDial
                   )}
                 />
                 {form.formState.errors.internalPort && (
-                  <p className="text-sm text-error">
-                    {form.formState.errors.internalPort.message}
-                  </p>
+                  <p className="text-error text-sm">{form.formState.errors.internalPort.message}</p>
                 )}
-                <p className="text-xs text-muted-foreground">
+                <p className="text-muted-foreground text-xs">
                   Leave blank to use the same port as external
                 </p>
               </div>
@@ -421,7 +431,12 @@ export const PortForwardWizardDialog = React.memo(function PortForwardWizardDial
                   name="comment"
                   control={form.control}
                   render={({ field }) => (
-                    <Input id="comment" type="text" placeholder="e.g., Web server" {...field} />
+                    <Input
+                      id="comment"
+                      type="text"
+                      placeholder="e.g., Web server"
+                      {...field}
+                    />
                   )}
                 />
               </div>
@@ -431,7 +446,7 @@ export const PortForwardWizardDialog = React.memo(function PortForwardWizardDial
           {/* Step 3: Review & Confirm */}
           {stepper.currentIndex === 2 && (
             <div className="space-y-component-md">
-              <div className="rounded-md border p-component-md space-y-component-md">
+              <div className="p-component-md space-y-component-md rounded-md border">
                 <h3 className="font-semibold">Configuration Summary</h3>
                 <div className="space-y-component-md text-sm">
                   <div className="flex justify-between">
@@ -465,40 +480,48 @@ export const PortForwardWizardDialog = React.memo(function PortForwardWizardDial
                 </div>
               </div>
 
-              <div className="rounded-md bg-warning/10 border border-warning/30 p-component-md">
-                <p className="text-sm font-medium text-foreground">
-                  {summary}
-                </p>
+              <div className="bg-warning/10 border-warning/30 p-component-md rounded-md border">
+                <p className="text-foreground text-sm font-medium">{summary}</p>
               </div>
             </div>
           )}
 
           {/* Validation Errors */}
           {stepper.errors && Object.keys(stepper.errors).length > 0 && (
-            <div className="rounded-md bg-error/10 border border-error/20 p-component-md">
-              <p className="text-sm text-error">
-                {Object.values(stepper.errors)[0]}
-              </p>
+            <div className="bg-error/10 border-error/20 p-component-md rounded-md border">
+              <p className="text-error text-sm">{Object.values(stepper.errors)[0]}</p>
             </div>
           )}
 
           {/* Dialog Footer - Navigation Buttons */}
           <DialogFooter className="gap-component-sm">
-            <Button variant="outline" onClick={handleClose}>
+            <Button
+              variant="outline"
+              onClick={handleClose}
+            >
               Cancel
             </Button>
             {!stepper.isFirst && (
-              <Button variant="outline" onClick={stepper.prev}>
+              <Button
+                variant="outline"
+                onClick={stepper.prev}
+              >
                 Back
               </Button>
             )}
             {!stepper.isLast && (
-              <Button onClick={stepper.next} disabled={stepper.isValidating}>
+              <Button
+                onClick={stepper.next}
+                disabled={stepper.isValidating}
+              >
                 Next
               </Button>
             )}
             {stepper.isLast && (
-              <Button onClick={() => stepper.next()} disabled={stepper.isValidating}>
+              <Button
+                onClick={() => stepper.next()}
+                disabled={stepper.isValidating}
+              >
                 Review
               </Button>
             )}

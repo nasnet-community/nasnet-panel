@@ -30,7 +30,10 @@ const meta: Meta<typeof TracerouteTool> = {
   },
   decorators: [
     (Story) => (
-      <MockedProvider mocks={[]} addTypename={false}>
+      <MockedProvider
+        mocks={[]}
+        addTypename={false}
+      >
         <Story />
       </MockedProvider>
     ),
@@ -69,7 +72,10 @@ export const Idle: Story = {
  */
 export const Desktop: Story = {
   render: (args) => (
-    <MockedProvider mocks={[]} addTypename={false}>
+    <MockedProvider
+      mocks={[]}
+      addTypename={false}
+    >
       <TracerouteToolDesktop {...args} />
     </MockedProvider>
   ),
@@ -94,7 +100,10 @@ export const Desktop: Story = {
  */
 export const Mobile: Story = {
   render: (args) => (
-    <MockedProvider mocks={[]} addTypename={false}>
+    <MockedProvider
+      mocks={[]}
+      addTypename={false}
+    >
       <TracerouteToolMobile {...args} />
     </MockedProvider>
   ),
@@ -340,7 +349,10 @@ export const InteractiveDemo: Story = {
     ];
 
     return (
-      <MockedProvider mocks={mocks} addTypename={false}>
+      <MockedProvider
+        mocks={mocks}
+        addTypename={false}
+      >
         <TracerouteTool {...args} />
       </MockedProvider>
     );

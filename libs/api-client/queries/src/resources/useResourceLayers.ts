@@ -421,7 +421,13 @@ export function useResourcePlatform(
 export function useResourceConfiguration<TConfig = unknown>(
   uuid: string | undefined,
   options: LayerHookOptions = {}
-): LayerHookResult<{ uuid: string; id: string; type: string; category: string; configuration: TConfig }> {
+): LayerHookResult<{
+  uuid: string;
+  id: string;
+  type: string;
+  category: string;
+  configuration: TConfig;
+}> {
   const { skip = false, pollInterval = 0, fetchPolicy = 'cache-and-network' } = options;
 
   const { data, loading, error, refetch } = useQuery(GET_RESOURCE_CONFIGURATION, {

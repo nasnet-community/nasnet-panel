@@ -29,7 +29,13 @@ describe('CopyButton', () => {
 
   describe('inline variant', () => {
     it('renders inline variant with icon only', () => {
-      render(<CopyButton value="test" variant="inline" showTooltip={false} />);
+      render(
+        <CopyButton
+          value="test"
+          variant="inline"
+          showTooltip={false}
+        />
+      );
 
       const button = screen.getByRole('button');
       expect(button).toHaveClass('h-8', 'w-8');
@@ -37,7 +43,13 @@ describe('CopyButton', () => {
 
     it('copies value when clicked', async () => {
       const user = userEvent.setup();
-      render(<CopyButton value="192.168.1.1" variant="inline" showTooltip={false} />);
+      render(
+        <CopyButton
+          value="192.168.1.1"
+          variant="inline"
+          showTooltip={false}
+        />
+      );
 
       await user.click(screen.getByRole('button'));
 
@@ -46,7 +58,13 @@ describe('CopyButton', () => {
 
     it('shows checkmark icon after successful copy', async () => {
       const user = userEvent.setup();
-      render(<CopyButton value="test" variant="inline" showTooltip={false} />);
+      render(
+        <CopyButton
+          value="test"
+          variant="inline"
+          showTooltip={false}
+        />
+      );
 
       await user.click(screen.getByRole('button'));
 
@@ -57,7 +75,14 @@ describe('CopyButton', () => {
     });
 
     it('supports custom aria-label', () => {
-      render(<CopyButton value="test" variant="inline" aria-label="Copy serial number" showTooltip={false} />);
+      render(
+        <CopyButton
+          value="test"
+          variant="inline"
+          aria-label="Copy serial number"
+          showTooltip={false}
+        />
+      );
 
       expect(screen.getByLabelText('Copy serial number')).toBeInTheDocument();
     });
@@ -65,14 +90,26 @@ describe('CopyButton', () => {
 
   describe('button variant', () => {
     it('renders button variant with text', () => {
-      render(<CopyButton value="test" variant="button" showTooltip={false} />);
+      render(
+        <CopyButton
+          value="test"
+          variant="button"
+          showTooltip={false}
+        />
+      );
 
       expect(screen.getByText('Copy')).toBeInTheDocument();
     });
 
     it('shows "Copied" text after successful copy', async () => {
       const user = userEvent.setup();
-      render(<CopyButton value="test" variant="button" showTooltip={false} />);
+      render(
+        <CopyButton
+          value="test"
+          variant="button"
+          showTooltip={false}
+        />
+      );
 
       await user.click(screen.getByRole('button'));
 
@@ -83,7 +120,13 @@ describe('CopyButton', () => {
 
     it('copies value when clicked', async () => {
       const user = userEvent.setup();
-      render(<CopyButton value="public-key-123" variant="button" showTooltip={false} />);
+      render(
+        <CopyButton
+          value="public-key-123"
+          variant="button"
+          showTooltip={false}
+        />
+      );
 
       await user.click(screen.getByRole('button'));
 
@@ -94,7 +137,13 @@ describe('CopyButton', () => {
   describe('keyboard accessibility', () => {
     it('supports keyboard activation with Enter', async () => {
       const user = userEvent.setup();
-      render(<CopyButton value="test" variant="inline" showTooltip={false} />);
+      render(
+        <CopyButton
+          value="test"
+          variant="inline"
+          showTooltip={false}
+        />
+      );
 
       await user.tab();
       await user.keyboard('{Enter}');
@@ -104,7 +153,13 @@ describe('CopyButton', () => {
 
     it('supports keyboard activation with Space', async () => {
       const user = userEvent.setup();
-      render(<CopyButton value="test" variant="inline" showTooltip={false} />);
+      render(
+        <CopyButton
+          value="test"
+          variant="inline"
+          showTooltip={false}
+        />
+      );
 
       await user.tab();
       await user.keyboard(' ');
@@ -114,7 +169,13 @@ describe('CopyButton', () => {
 
     it('is focusable via Tab', async () => {
       const user = userEvent.setup();
-      render(<CopyButton value="test" variant="inline" showTooltip={false} />);
+      render(
+        <CopyButton
+          value="test"
+          variant="inline"
+          showTooltip={false}
+        />
+      );
 
       await user.tab();
 
@@ -127,7 +188,13 @@ describe('CopyButton', () => {
       const onCopy = vi.fn();
       const user = userEvent.setup();
 
-      render(<CopyButton value="test-value" onCopy={onCopy} showTooltip={false} />);
+      render(
+        <CopyButton
+          value="test-value"
+          onCopy={onCopy}
+          showTooltip={false}
+        />
+      );
 
       await user.click(screen.getByRole('button'));
 
@@ -143,7 +210,13 @@ describe('CopyButton', () => {
       const onError = vi.fn();
       const user = userEvent.setup();
 
-      render(<CopyButton value="test" onError={onError} showTooltip={false} />);
+      render(
+        <CopyButton
+          value="test"
+          onError={onError}
+          showTooltip={false}
+        />
+      );
 
       await user.click(screen.getByRole('button'));
 
@@ -156,7 +229,13 @@ describe('CopyButton', () => {
   describe('disabled state', () => {
     it('does not copy when disabled', async () => {
       const user = userEvent.setup();
-      render(<CopyButton value="test" disabled showTooltip={false} />);
+      render(
+        <CopyButton
+          value="test"
+          disabled
+          showTooltip={false}
+        />
+      );
 
       const button = screen.getByRole('button');
       expect(button).toBeDisabled();
@@ -170,7 +249,10 @@ describe('CopyButton', () => {
 
       render(
         <div onClick={parentClick}>
-          <CopyButton value="test" showTooltip={false} />
+          <CopyButton
+            value="test"
+            showTooltip={false}
+          />
         </div>
       );
 
@@ -182,7 +264,12 @@ describe('CopyButton', () => {
 
   describe('tooltip behavior', () => {
     it('renders without tooltip when showTooltip is false', () => {
-      render(<CopyButton value="test" showTooltip={false} />);
+      render(
+        <CopyButton
+          value="test"
+          showTooltip={false}
+        />
+      );
 
       const button = screen.getByRole('button');
       expect(button).toBeInTheDocument();
@@ -193,7 +280,13 @@ describe('CopyButton', () => {
 
   describe('custom className', () => {
     it('applies custom className to button', () => {
-      render(<CopyButton value="test" className="custom-class" showTooltip={false} />);
+      render(
+        <CopyButton
+          value="test"
+          className="custom-class"
+          showTooltip={false}
+        />
+      );
 
       expect(screen.getByRole('button')).toHaveClass('custom-class');
     });

@@ -1,1 +1,31 @@
-{"version":{"pluginId":"testing","version":"current","label":"Next","banner":null,"badge":false,"noIndex":false,"className":"docs-version-current","isLast":true,"docsSidebars":{"sidebar":[{"type":"link","href":"/docs/testing/intro","label":"Introduction","docId":"intro","unlisted":false}]},"docs":{"intro":{"id":"intro","title":"Introduction","description":"End-to-end tests for NasNet using Playwright. These tests validate the full application stack across multiple browsers.","sidebar":"sidebar"}}}}
+{
+  "version": {
+    "pluginId": "testing",
+    "version": "current",
+    "label": "Next",
+    "banner": null,
+    "badge": false,
+    "noIndex": false,
+    "className": "docs-version-current",
+    "isLast": true,
+    "docsSidebars": {
+      "sidebar": [
+        {
+          "type": "link",
+          "href": "/docs/testing/intro",
+          "label": "Introduction",
+          "docId": "intro",
+          "unlisted": false
+        }
+      ]
+    },
+    "docs": {
+      "intro": {
+        "id": "intro",
+        "title": "Introduction",
+        "description": "End-to-end tests for NasNet using Playwright. These tests validate the full application stack across multiple browsers.",
+        "sidebar": "sidebar"
+      }
+    }
+  }
+}

@@ -74,17 +74,20 @@ function NtfyChannelFormDesktopComponent({ ntfyForm }: NtfyChannelFormDesktopPro
   const [showAuthFields, setShowAuthFields] = useState(hasAuthentication);
 
   // Handle tag input (Enter or comma)
-  const handleTagKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' || e.key === ',') {
-      e.preventDefault();
-      if (tagInput.trim()) {
-        const added = addTag(tagInput);
-        if (added) {
-          setTagInput('');
+  const handleTagKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === 'Enter' || e.key === ',') {
+        e.preventDefault();
+        if (tagInput.trim()) {
+          const added = addTag(tagInput);
+          if (added) {
+            setTagInput('');
+          }
         }
       }
-    }
-  }, [tagInput, addTag]);
+    },
+    [tagInput, addTag]
+  );
 
   const handleAddTag = useCallback(() => {
     if (tagInput.trim()) {
@@ -104,16 +107,22 @@ function NtfyChannelFormDesktopComponent({ ntfyForm }: NtfyChannelFormDesktopPro
   }, [showAuthFields, toggleAuthentication]);
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-component-lg">
+    <form
+      onSubmit={handleSubmit}
+      className="space-y-component-lg"
+    >
       {/* Enable Toggle */}
-      <div className="flex items-center justify-between rounded-[var(--semantic-radius-card)] border border-border bg-card p-component-md">
-        <div className="flex items-center gap-component-md">
-          <Icon icon={Bell} size="md" className="text-category-monitoring" aria-hidden="true" />
+      <div className="border-border bg-card p-component-md flex items-center justify-between rounded-[var(--semantic-radius-card)] border">
+        <div className="gap-component-md flex items-center">
+          <Icon
+            icon={Bell}
+            size="md"
+            className="text-category-monitoring"
+            aria-hidden="true"
+          />
           <div>
             <Label className="text-base font-semibold">Ntfy.sh Notifications</Label>
-            <p className="text-sm text-muted-foreground">
-              Send push notifications via ntfy.sh
-            </p>
+            <p className="text-muted-foreground text-sm">Send push notifications via ntfy.sh</p>
           </div>
         </div>
         <Controller
@@ -124,7 +133,7 @@ function NtfyChannelFormDesktopComponent({ ntfyForm }: NtfyChannelFormDesktopPro
               type="checkbox"
               checked={field.value}
               onChange={field.onChange}
-              className="h-5 w-5 rounded border-border cursor-pointer"
+              className="border-border h-5 w-5 cursor-pointer rounded"
               aria-label="Enable ntfy.sh notifications"
             />
           )}
@@ -133,18 +142,23 @@ function NtfyChannelFormDesktopComponent({ ntfyForm }: NtfyChannelFormDesktopPro
 
       {/* Server Settings */}
       <div className="space-y-component-md">
-        <div className="flex items-center gap-component-sm">
-          <Icon icon={Server} size="md" className="text-muted-foreground" aria-hidden="true" />
+        <div className="gap-component-sm flex items-center">
+          <Icon
+            icon={Server}
+            size="md"
+            className="text-muted-foreground"
+            aria-hidden="true"
+          />
           <h3 className="text-lg font-semibold">Server Configuration</h3>
         </div>
 
-        <div className="grid grid-cols-2 gap-component-md">
+        <div className="gap-component-md grid grid-cols-2">
           {/* Server URL with Preset Selector */}
           <div className="space-y-component-sm col-span-2">
             <Label htmlFor="serverUrl">
               Server URL <span className="text-error">*</span>
             </Label>
-            <div className="flex gap-component-md">
+            <div className="gap-component-md flex">
               <Input
                 id="serverUrl"
                 placeholder="https://ntfy.sh"
@@ -164,7 +178,11 @@ function NtfyChannelFormDesktopComponent({ ntfyForm }: NtfyChannelFormDesktopPro
                 </SelectTrigger>
                 <SelectContent>
                   {NTFY_SERVER_PRESETS.map((preset, index) => (
-                    <SelectItem key={index} value={preset.url || 'custom'} disabled={!preset.url}>
+                    <SelectItem
+                      key={index}
+                      value={preset.url || 'custom'}
+                      disabled={!preset.url}
+                    >
                       {preset.label}
                     </SelectItem>
                   ))}
@@ -172,9 +190,14 @@ function NtfyChannelFormDesktopComponent({ ntfyForm }: NtfyChannelFormDesktopPro
               </Select>
             </div>
             {errors.serverUrl && (
-              <p className="text-sm text-error" role="alert">{errors.serverUrl.message}</p>
+              <p
+                className="text-error text-sm"
+                role="alert"
+              >
+                {errors.serverUrl.message}
+              </p>
             )}
-            <p className="text-xs text-muted-foreground">
+            <p className="text-muted-foreground text-xs">
               Use https://ntfy.sh or your self-hosted instance
             </p>
           </div>
@@ -192,9 +215,14 @@ function NtfyChannelFormDesktopComponent({ ntfyForm }: NtfyChannelFormDesktopPro
               error={!!errors.topic}
             />
             {errors.topic && (
-              <p className="text-sm text-error" role="alert">{errors.topic.message}</p>
+              <p
+                className="text-error text-sm"
+                role="alert"
+              >
+                {errors.topic.message}
+              </p>
             )}
-            <p className="text-xs text-muted-foreground">
+            <p className="text-muted-foreground text-xs">
               Letters, numbers, hyphens, and underscores only
             </p>
           </div>
@@ -218,8 +246,11 @@ function NtfyChannelFormDesktopComponent({ ntfyForm }: NtfyChannelFormDesktopPro
                   </SelectTrigger>
                   <SelectContent>
                     {NTFY_PRIORITY_PRESETS.map((preset) => (
-                      <SelectItem key={preset.value} value={preset.value.toString()}>
-                        <div className="flex items-center gap-component-sm">
+                      <SelectItem
+                        key={preset.value}
+                        value={preset.value.toString()}
+                      >
+                        <div className="gap-component-sm flex items-center">
                           <span>{preset.icon}</span>
                           <span>{preset.label}</span>
                         </div>
@@ -230,9 +261,14 @@ function NtfyChannelFormDesktopComponent({ ntfyForm }: NtfyChannelFormDesktopPro
               )}
             />
             {errors.priority && (
-              <p className="text-sm text-error" role="alert">{errors.priority.message}</p>
+              <p
+                className="text-error text-sm"
+                role="alert"
+              >
+                {errors.priority.message}
+              </p>
             )}
-            <p className="text-xs text-muted-foreground">
+            <p className="text-muted-foreground text-xs">
               Higher priority = more prominent notifications
             </p>
           </div>
@@ -242,8 +278,13 @@ function NtfyChannelFormDesktopComponent({ ntfyForm }: NtfyChannelFormDesktopPro
       {/* Authentication (Optional) */}
       <div className="space-y-component-md">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-component-md">
-            <Icon icon={Shield} size="md" className="text-category-monitoring" aria-hidden="true" />
+          <div className="gap-component-md flex items-center">
+            <Icon
+              icon={Shield}
+              size="md"
+              className="text-category-monitoring"
+              aria-hidden="true"
+            />
             <h3 className="text-lg font-semibold">Authentication (Optional)</h3>
           </div>
           <Button
@@ -259,7 +300,10 @@ function NtfyChannelFormDesktopComponent({ ntfyForm }: NtfyChannelFormDesktopPro
         </div>
 
         {showAuthFields && (
-          <div className="grid grid-cols-2 gap-component-md" id="auth-fields">
+          <div
+            className="gap-component-md grid grid-cols-2"
+            id="auth-fields"
+          >
             <div className="space-y-component-sm">
               <Label htmlFor="username">Username</Label>
               <Input
@@ -270,7 +314,12 @@ function NtfyChannelFormDesktopComponent({ ntfyForm }: NtfyChannelFormDesktopPro
                 error={!!errors.username}
               />
               {errors.username && (
-                <p className="text-sm text-error" role="alert">{errors.username.message}</p>
+                <p
+                  className="text-error text-sm"
+                  role="alert"
+                >
+                  {errors.username.message}
+                </p>
               )}
             </div>
 
@@ -288,7 +337,7 @@ function NtfyChannelFormDesktopComponent({ ntfyForm }: NtfyChannelFormDesktopPro
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-1 top-1/2 -translate-y-1/2 p-2 min-h-[44px] min-w-[44px] flex items-center justify-center text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-sm"
+                  className="text-muted-foreground hover:text-foreground focus-visible:ring-ring absolute right-1 top-1/2 flex min-h-[44px] min-w-[44px] -translate-y-1/2 items-center justify-center rounded-sm p-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
                   <Icon
@@ -299,7 +348,12 @@ function NtfyChannelFormDesktopComponent({ ntfyForm }: NtfyChannelFormDesktopPro
                 </button>
               </div>
               {errors.password && (
-                <p className="text-sm text-error" role="alert">{errors.password.message}</p>
+                <p
+                  className="text-error text-sm"
+                  role="alert"
+                >
+                  {errors.password.message}
+                </p>
               )}
             </div>
           </div>
@@ -308,13 +362,18 @@ function NtfyChannelFormDesktopComponent({ ntfyForm }: NtfyChannelFormDesktopPro
 
       {/* Tags (Optional) */}
       <div className="space-y-component-md">
-        <div className="flex items-center gap-component-md">
-          <Icon icon={Tag} size="md" className="text-category-monitoring" aria-hidden="true" />
+        <div className="gap-component-md flex items-center">
+          <Icon
+            icon={Tag}
+            size="md"
+            className="text-category-monitoring"
+            aria-hidden="true"
+          />
           <h3 className="text-lg font-semibold">Tags (Optional)</h3>
         </div>
 
         {/* Tag Input */}
-        <div className="flex gap-component-md">
+        <div className="gap-component-md flex">
           <Input
             value={tagInput}
             onChange={(e) => setTagInput(e.target.value)}
@@ -336,17 +395,25 @@ function NtfyChannelFormDesktopComponent({ ntfyForm }: NtfyChannelFormDesktopPro
 
         {/* Tag List */}
         {tags.length > 0 && (
-          <div className="flex flex-wrap gap-component-md">
+          <div className="gap-component-md flex flex-wrap">
             {tags.map((tag, index) => (
-              <Badge key={index} variant="secondary" className="flex items-center gap-component-md font-mono">
+              <Badge
+                key={index}
+                variant="secondary"
+                className="gap-component-md flex items-center font-mono"
+              >
                 <span>{tag}</span>
                 <button
                   type="button"
                   onClick={() => removeTag(index)}
-                  className="ml-component-xs p-0.5 min-h-[44px] min-w-[44px] flex items-center justify-center hover:text-error focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-sm"
+                  className="ml-component-xs hover:text-error focus-visible:ring-ring flex min-h-[44px] min-w-[44px] items-center justify-center rounded-sm p-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
                   aria-label={`Remove ${tag}`}
                 >
-                  <Icon icon={X} size="sm" aria-hidden="true" />
+                  <Icon
+                    icon={X}
+                    size="sm"
+                    aria-hidden="true"
+                  />
                 </button>
               </Badge>
             ))}
@@ -354,15 +421,16 @@ function NtfyChannelFormDesktopComponent({ ntfyForm }: NtfyChannelFormDesktopPro
         )}
 
         {tags.length >= 10 && (
-          <p className="text-sm text-muted-foreground">
-            Maximum 10 tags reached
-          </p>
+          <p className="text-muted-foreground text-sm">Maximum 10 tags reached</p>
         )}
       </div>
 
       {/* Test Result */}
       {testResult && (
-        <Alert variant={testResult.success ? 'default' : 'destructive'} role="alert">
+        <Alert
+          variant={testResult.success ? 'default' : 'destructive'}
+          role="alert"
+        >
           <Icon
             icon={testResult.success ? CheckCircle2 : AlertCircle}
             size="sm"
@@ -373,7 +441,7 @@ function NtfyChannelFormDesktopComponent({ ntfyForm }: NtfyChannelFormDesktopPro
       )}
 
       {/* Actions */}
-      <div className="flex items-center justify-end gap-component-lg">
+      <div className="gap-component-lg flex items-center justify-end">
         <Button
           type="button"
           variant="outline"
@@ -383,7 +451,11 @@ function NtfyChannelFormDesktopComponent({ ntfyForm }: NtfyChannelFormDesktopPro
         >
           {isTesting ? 'Testing...' : 'Test Notification'}
         </Button>
-        <Button type="submit" disabled={!isValid} className="min-h-[44px]">
+        <Button
+          type="submit"
+          disabled={!isValid}
+          className="min-h-[44px]"
+        >
           Save Configuration
         </Button>
       </div>

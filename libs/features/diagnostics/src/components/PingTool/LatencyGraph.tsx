@@ -60,15 +60,13 @@ function CustomTooltip({ active, payload }: any) {
   const data = payload[0].payload as ChartDataPoint;
 
   return (
-    <div className="bg-card border rounded-md p-component-sm shadow-md text-sm">
+    <div className="bg-card p-component-sm rounded-md border text-sm shadow-md">
       <div className="font-semibold">Ping #{data.seq}</div>
-      {data.time !== null ? (
+      {data.time !== null ?
         <div className="text-muted-foreground">
           Latency: <span className="text-foreground font-mono">{data.time.toFixed(1)} ms</span>
         </div>
-      ) : (
-        <div className="text-error">Timeout</div>
-      )}
+      : <div className="text-error">Timeout</div>}
     </div>
   );
 }
@@ -91,99 +89,105 @@ function CustomTooltip({ active, payload }: any) {
  * />
  * ```
  */
-export const LatencyGraph = memo(
-  function LatencyGraph({
-    results,
-    className,
-  }: LatencyGraphProps) {
-    // Memoize tooltip component to prevent unnecessary re-renders
-    const memoizedTooltip = useCallback(
-      (props: any) => <CustomTooltip {...props} />,
-      []
-    );
+export const LatencyGraph = memo(function LatencyGraph({ results, className }: LatencyGraphProps) {
+  // Memoize tooltip component to prevent unnecessary re-renders
+  const memoizedTooltip = useCallback((props: any) => <CustomTooltip {...props} />, []);
 
-    // Transform results into chart data
-    const chartData: ChartDataPoint[] = results.map((result) => ({
-      seq: result.seq,
-      time: result.time,
-      target: result.target,
-    }));
+  // Transform results into chart data
+  const chartData: ChartDataPoint[] = results.map((result) => ({
+    seq: result.seq,
+    time: result.time,
+    target: result.target,
+  }));
 
-    if (results.length === 0) {
-      return (
-        <div
-          className={cn(
-            'flex items-center justify-center h-64 text-muted-foreground border rounded-card-sm',
-            className
-          )}
-        >
-          No data to display. Start a ping test to see the latency graph.
-        </div>
-      );
-    }
-
-    // Calculate Y-axis domain (add 20% padding)
-    const validTimes = results.filter((r) => r.time !== null).map((r) => r.time!);
-    const maxTime = validTimes.length > 0 ? Math.max(...validTimes) : 100;
-    const yMax = Math.max(250, Math.ceil(maxTime * 1.2 / 50) * 50); // Round up to nearest 50
-
+  if (results.length === 0) {
     return (
-      <div className={cn('w-full', className)} role="img" aria-label="Latency over time chart showing ping response times">
-        <h3 className="text-lg font-semibold mb-2">Latency Over Time</h3>
-        <ResponsiveContainer width="100%" height={200}>
-          <LineChart
-            data={chartData}
-            margin={{ top: 5, right: 20, left: 0, bottom: 5 }}
-          >
-            <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-            <XAxis
-              dataKey="seq"
-              label={{ value: 'Sequence', position: 'insideBottom', offset: -5 }}
-              className="text-xs"
-            />
-            <YAxis
-              label={{
-                value: 'Latency (ms)',
-                angle: -90,
-                position: 'insideLeft',
-              }}
-              domain={[0, yMax]}
-              className="text-xs"
-            />
-            <Tooltip content={memoizedTooltip as any} />
-
-            {/* Reference line at 100ms (warning threshold) */}
-            <ReferenceLine
-              y={100}
-              stroke="hsl(var(--warning))"
-              strokeDasharray="5 5"
-              label={{ value: 'Slow (100ms)', position: 'right', className: 'text-xs fill-warning' }}
-            />
-
-            {/* Reference line at 200ms (critical threshold) */}
-            <ReferenceLine
-              y={200}
-              stroke="hsl(var(--error))"
-              strokeDasharray="5 5"
-              label={{ value: 'Critical (200ms)', position: 'right', className: 'text-xs fill-error' }}
-            />
-
-            {/* Latency line - connectNulls=false shows gaps for timeouts */}
-            <Line
-              type="monotone"
-              dataKey="time"
-              stroke="hsl(var(--primary))"
-              strokeWidth={2}
-              dot={{ r: 3 }}
-              activeDot={{ r: 5 }}
-              connectNulls={false}
-              name="Latency"
-            />
-          </LineChart>
-        </ResponsiveContainer>
+      <div
+        className={cn(
+          'text-muted-foreground rounded-card-sm flex h-64 items-center justify-center border',
+          className
+        )}
+      >
+        No data to display. Start a ping test to see the latency graph.
       </div>
     );
   }
-);
+
+  // Calculate Y-axis domain (add 20% padding)
+  const validTimes = results.filter((r) => r.time !== null).map((r) => r.time!);
+  const maxTime = validTimes.length > 0 ? Math.max(...validTimes) : 100;
+  const yMax = Math.max(250, Math.ceil((maxTime * 1.2) / 50) * 50); // Round up to nearest 50
+
+  return (
+    <div
+      className={cn('w-full', className)}
+      role="img"
+      aria-label="Latency over time chart showing ping response times"
+    >
+      <h3 className="mb-2 text-lg font-semibold">Latency Over Time</h3>
+      <ResponsiveContainer
+        width="100%"
+        height={200}
+      >
+        <LineChart
+          data={chartData}
+          margin={{ top: 5, right: 20, left: 0, bottom: 5 }}
+        >
+          <CartesianGrid
+            strokeDasharray="3 3"
+            className="stroke-muted"
+          />
+          <XAxis
+            dataKey="seq"
+            label={{ value: 'Sequence', position: 'insideBottom', offset: -5 }}
+            className="text-xs"
+          />
+          <YAxis
+            label={{
+              value: 'Latency (ms)',
+              angle: -90,
+              position: 'insideLeft',
+            }}
+            domain={[0, yMax]}
+            className="text-xs"
+          />
+          <Tooltip content={memoizedTooltip as any} />
+
+          {/* Reference line at 100ms (warning threshold) */}
+          <ReferenceLine
+            y={100}
+            stroke="hsl(var(--warning))"
+            strokeDasharray="5 5"
+            label={{ value: 'Slow (100ms)', position: 'right', className: 'text-xs fill-warning' }}
+          />
+
+          {/* Reference line at 200ms (critical threshold) */}
+          <ReferenceLine
+            y={200}
+            stroke="hsl(var(--error))"
+            strokeDasharray="5 5"
+            label={{
+              value: 'Critical (200ms)',
+              position: 'right',
+              className: 'text-xs fill-error',
+            }}
+          />
+
+          {/* Latency line - connectNulls=false shows gaps for timeouts */}
+          <Line
+            type="monotone"
+            dataKey="time"
+            stroke="hsl(var(--primary))"
+            strokeWidth={2}
+            dot={{ r: 3 }}
+            activeDot={{ r: 5 }}
+            connectNulls={false}
+            name="Latency"
+          />
+        </LineChart>
+      </ResponsiveContainer>
+    </div>
+  );
+});
 
 LatencyGraph.displayName = 'LatencyGraph';

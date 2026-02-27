@@ -10,7 +10,8 @@ const meta: Meta<typeof DashboardSkeleton> = {
     layout: 'fullscreen',
     docs: {
       description: {
-        component: 'Loading skeleton for the main dashboard page. Matches the layout of the dashboard with cards, metrics, and charts. Provides a skeleton layout with header, status summary cards, main content area with chart, and recent activity section.',
+        component:
+          'Loading skeleton for the main dashboard page. Matches the layout of the dashboard with cards, metrics, and charts. Provides a skeleton layout with header, status summary cards, main content area with chart, and recent activity section.',
       },
     },
   },

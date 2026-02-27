@@ -46,7 +46,10 @@ function HookTester(props: Parameters<typeof useConfidenceIndicator>[0]) {
       <span data-testid="canOverride">{String(state.canOverride)}</span>
       <span data-testid="ariaLabel">{state.ariaLabel}</span>
       <span data-testid="levelLabel">{state.levelLabel}</span>
-      <button data-testid="override" onClick={state.handleOverride}>
+      <button
+        data-testid="override"
+        onClick={state.handleOverride}
+      >
         Override
       </button>
     </div>
@@ -149,7 +152,12 @@ describe('useConfidenceIndicator Hook', () => {
   describe('Override Handling', () => {
     it('should return canOverride true when onOverride is provided', () => {
       const onOverride = vi.fn();
-      render(<HookTester confidence={90} onOverride={onOverride} />);
+      render(
+        <HookTester
+          confidence={90}
+          onOverride={onOverride}
+        />
+      );
       expect(screen.getByTestId('canOverride')).toHaveTextContent('true');
     });
 
@@ -161,7 +169,12 @@ describe('useConfidenceIndicator Hook', () => {
     it('should call onOverride when handleOverride is invoked', async () => {
       const user = userEvent.setup();
       const onOverride = vi.fn();
-      render(<HookTester confidence={90} onOverride={onOverride} />);
+      render(
+        <HookTester
+          confidence={90}
+          onOverride={onOverride}
+        />
+      );
 
       await user.click(screen.getByTestId('override'));
       expect(onOverride).toHaveBeenCalledTimes(1);
@@ -183,18 +196,32 @@ describe('useConfidenceIndicator Hook', () => {
     });
 
     it('should include percentage when showPercentage is true', () => {
-      render(<HookTester confidence={87} showPercentage />);
+      render(
+        <HookTester
+          confidence={87}
+          showPercentage
+        />
+      );
       expect(screen.getByTestId('ariaLabel')).toHaveTextContent('87%');
     });
 
     it('should include method when provided', () => {
-      render(<HookTester confidence={90} method="Auto-detected via DHCP" />);
+      render(
+        <HookTester
+          confidence={90}
+          method="Auto-detected via DHCP"
+        />
+      );
       expect(screen.getByTestId('ariaLabel')).toHaveTextContent('Auto-detected via DHCP');
     });
 
     it('should combine all parts correctly', () => {
       render(
-        <HookTester confidence={92} method="Confirmed via ping" showPercentage />
+        <HookTester
+          confidence={92}
+          method="Confirmed via ping"
+          showPercentage
+        />
       );
       const ariaLabel = screen.getByTestId('ariaLabel').textContent;
       expect(ariaLabel).toContain('High confidence');
@@ -236,19 +263,34 @@ describe('ConfidenceIndicator Component', () => {
 
   describe('Variants', () => {
     it('should render mobile variant when specified', () => {
-      render(<ConfidenceIndicator confidence={90} variant="mobile" />);
+      render(
+        <ConfidenceIndicator
+          confidence={90}
+          variant="mobile"
+        />
+      );
       // Mobile variant uses a button with aria-haspopup
       expect(screen.getByRole('button')).toHaveAttribute('aria-haspopup', 'dialog');
     });
 
     it('should render desktop variant when specified', () => {
-      render(<ConfidenceIndicator confidence={90} variant="desktop" />);
+      render(
+        <ConfidenceIndicator
+          confidence={90}
+          variant="desktop"
+        />
+      );
       // Desktop renders an interactive button for tooltip trigger
       expect(screen.getByRole('button')).toBeInTheDocument();
     });
 
     it('should render auto variant with both mobile and desktop presenters', () => {
-      render(<ConfidenceIndicator confidence={90} variant="auto" />);
+      render(
+        <ConfidenceIndicator
+          confidence={90}
+          variant="auto"
+        />
+      );
       // Auto variant renders both with CSS visibility - expect multiple status elements
       const statusElements = screen.getAllByRole('status');
       expect(statusElements.length).toBeGreaterThanOrEqual(2); // Mobile + Desktop
@@ -271,7 +313,12 @@ describe('ConfidenceIndicator Component', () => {
     });
 
     it('should have role="status" for dynamic updates in auto variant', () => {
-      render(<ConfidenceIndicator confidence={90} variant="auto" />);
+      render(
+        <ConfidenceIndicator
+          confidence={90}
+          variant="auto"
+        />
+      );
       // Auto variant has role="status" wrapper for live announcements
       const statusElements = screen.getAllByRole('status');
       expect(statusElements.length).toBeGreaterThan(0);
@@ -321,7 +368,12 @@ describe('ConfidenceIndicatorBase', () => {
       showPercentage: true,
     };
 
-    render(<ConfidenceIndicatorBase state={state} size="md" />);
+    render(
+      <ConfidenceIndicatorBase
+        state={state}
+        size="md"
+      />
+    );
 
     // Check for success color classes
     const indicator = screen.getByRole('status');
@@ -343,7 +395,13 @@ describe('ConfidenceIndicatorBase', () => {
       showPercentage: true,
     };
 
-    render(<ConfidenceIndicatorBase state={state} size="md" interactive />);
+    render(
+      <ConfidenceIndicatorBase
+        state={state}
+        size="md"
+        interactive
+      />
+    );
 
     const indicator = screen.getByRole('button');
     expect(indicator).toHaveAttribute('tabIndex', '0');
@@ -386,7 +444,10 @@ describe('ConfidenceIndicatorDot', () => {
 
     levels.forEach((level, index) => {
       const { container, unmount } = render(
-        <ConfidenceIndicatorDot level={level} size="md" />
+        <ConfidenceIndicatorDot
+          level={level}
+          size="md"
+        />
       );
       expect(container.firstChild).toHaveClass(colors[index]);
       unmount();
@@ -399,7 +460,10 @@ describe('ConfidenceIndicatorDot', () => {
 
     sizes.forEach((size, index) => {
       const { container, unmount } = render(
-        <ConfidenceIndicatorDot level="high" size={size} />
+        <ConfidenceIndicatorDot
+          level="high"
+          size={size}
+        />
       );
       expect(container.firstChild).toHaveClass(sizeClasses[index]);
       unmount();
@@ -422,7 +486,12 @@ describe('ConfidenceLevelLabel', () => {
       showPercentage: true,
     };
 
-    render(<ConfidenceLevelLabel state={state} size="md" />);
+    render(
+      <ConfidenceLevelLabel
+        state={state}
+        size="md"
+      />
+    );
     expect(screen.getByText(/High confidence/)).toBeInTheDocument();
   });
 
@@ -440,7 +509,13 @@ describe('ConfidenceLevelLabel', () => {
       showPercentage: true,
     };
 
-    render(<ConfidenceLevelLabel state={state} size="md" showPercentage />);
+    render(
+      <ConfidenceLevelLabel
+        state={state}
+        size="md"
+        showPercentage
+      />
+    );
     expect(screen.getByText(/(95%)/)).toBeInTheDocument();
   });
 
@@ -458,7 +533,13 @@ describe('ConfidenceLevelLabel', () => {
       showPercentage: false,
     };
 
-    render(<ConfidenceLevelLabel state={state} size="md" showPercentage={false} />);
+    render(
+      <ConfidenceLevelLabel
+        state={state}
+        size="md"
+        showPercentage={false}
+      />
+    );
     expect(screen.queryByText(/(95%)/)).not.toBeInTheDocument();
   });
 });
@@ -503,10 +584,13 @@ describe('Tooltip/Sheet Behavior', () => {
     await user.hover(indicator);
 
     // Wait for tooltip to appear - use getAllByText since tooltip duplicates content
-    await waitFor(() => {
-      const elements = screen.getAllByText(/Auto-detected/);
-      expect(elements.length).toBeGreaterThanOrEqual(1);
-    }, { timeout: 1000 });
+    await waitFor(
+      () => {
+        const elements = screen.getAllByText(/Auto-detected/);
+        expect(elements.length).toBeGreaterThanOrEqual(1);
+      },
+      { timeout: 1000 }
+    );
   });
 
   it('should show override button when onOverride is provided', async () => {
@@ -525,9 +609,12 @@ describe('Tooltip/Sheet Behavior', () => {
     await user.click(indicator);
 
     // Wait for tooltip/popover to appear with override button
-    await waitFor(() => {
-      const overrideButtons = screen.getAllByText(/Edit manually/i);
-      expect(overrideButtons.length).toBeGreaterThanOrEqual(1);
-    }, { timeout: 1000 });
+    await waitFor(
+      () => {
+        const overrideButtons = screen.getAllByText(/Edit manually/i);
+        expect(overrideButtons.length).toBeGreaterThanOrEqual(1);
+      },
+      { timeout: 1000 }
+    );
   });
 });

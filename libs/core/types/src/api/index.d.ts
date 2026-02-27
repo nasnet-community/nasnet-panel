@@ -20,19 +20,19 @@
  * ```
  */
 export interface ApiResponse<T> {
-    /** Always true for successful responses */
-    success: true;
-    /** Response payload data */
-    data: T;
-    /** Optional pagination and metadata */
-    meta?: {
-        /** Current page number (1-indexed) */
-        page?: number;
-        /** Total number of items */
-        total?: number;
-        /** Items per page */
-        pageSize?: number;
-    };
+  /** Always true for successful responses */
+  success: true;
+  /** Response payload data */
+  data: T;
+  /** Optional pagination and metadata */
+  meta?: {
+    /** Current page number (1-indexed) */
+    page?: number;
+    /** Total number of items */
+    total?: number;
+    /** Items per page */
+    pageSize?: number;
+  };
 }
 /**
  * Failed API response
@@ -52,17 +52,17 @@ export interface ApiResponse<T> {
  * ```
  */
 export interface ApiError {
-    /** Always false for error responses */
-    success: false;
-    /** Error details */
-    error: {
-        /** Machine-readable error code */
-        code: string;
-        /** Human-readable error message */
-        message: string;
-        /** Additional error context */
-        details?: Record<string, unknown>;
-    };
+  /** Always false for error responses */
+  success: false;
+  /** Error details */
+  error: {
+    /** Machine-readable error code */
+    code: string;
+    /** Human-readable error message */
+    message: string;
+    /** Additional error context */
+    details?: Record<string, unknown>;
+  };
 }
 /**
  * Union type for all possible API results
@@ -88,18 +88,18 @@ export type ApiResult<T> = ApiResponse<T> | ApiError;
  * ```
  */
 export interface RouterStatusResponse {
-    /** Whether router is online and reachable */
-    isOnline: boolean;
-    /** System uptime in seconds */
-    uptime: number;
-    /** CPU usage percentage (0-100) */
-    cpuUsage: number;
-    /** Memory usage percentage (0-100) */
-    memoryUsage: number;
-    /** Disk usage percentage (0-100) */
-    diskUsage: number;
-    /** Timestamp of status measurement */
-    timestamp: Date;
+  /** Whether router is online and reachable */
+  isOnline: boolean;
+  /** System uptime in seconds */
+  uptime: number;
+  /** CPU usage percentage (0-100) */
+  cpuUsage: number;
+  /** Memory usage percentage (0-100) */
+  memoryUsage: number;
+  /** Disk usage percentage (0-100) */
+  diskUsage: number;
+  /** Timestamp of status measurement */
+  timestamp: Date;
 }
 /**
  * Router device information and model details
@@ -117,18 +117,18 @@ export interface RouterStatusResponse {
  * ```
  */
 export interface RouterInfoResponse {
-    /** Device model identifier */
-    model: string;
-    /** RouterOS version string */
-    routerOSVersion: string;
-    /** CPU architecture (arm64, x86, etc.) */
-    architecture: string;
-    /** Optional device serial number */
-    serialNumber?: string;
-    /** Optional firmware version */
-    firmwareVersion?: string;
-    /** Optional hardware revision */
-    hardwareRevision?: string;
+  /** Device model identifier */
+  model: string;
+  /** RouterOS version string */
+  routerOSVersion: string;
+  /** CPU architecture (arm64, x86, etc.) */
+  architecture: string;
+  /** Optional device serial number */
+  serialNumber?: string;
+  /** Optional firmware version */
+  firmwareVersion?: string;
+  /** Optional hardware revision */
+  hardwareRevision?: string;
 }
 /**
  * Configuration apply request payload
@@ -136,10 +136,10 @@ export interface RouterInfoResponse {
  * Sent to apply configuration changes to router.
  */
 export interface ConfigApplyRequest {
-    /** Configuration object to apply */
-    config: Record<string, unknown>;
-    /** If true, validate without applying changes */
-    dryRun?: boolean;
+  /** Configuration object to apply */
+  config: Record<string, unknown>;
+  /** If true, validate without applying changes */
+  dryRun?: boolean;
 }
 /**
  * Configuration apply response
@@ -147,14 +147,14 @@ export interface ConfigApplyRequest {
  * Returned after successfully applying configuration.
  */
 export interface ConfigApplyResponse {
-    /** Whether apply operation succeeded */
-    success: boolean;
-    /** Timestamp when configuration was applied */
-    appliedAt: Date;
-    /** ID of configuration snapshot for rollback */
-    snapshotId?: string;
-    /** List of applied configuration changes */
-    readonly changes: readonly string[];
+  /** Whether apply operation succeeded */
+  success: boolean;
+  /** Timestamp when configuration was applied */
+  appliedAt: Date;
+  /** ID of configuration snapshot for rollback */
+  snapshotId?: string;
+  /** List of applied configuration changes */
+  readonly changes: readonly string[];
 }
 /**
  * Configuration rollback request
@@ -162,8 +162,8 @@ export interface ConfigApplyResponse {
  * Requests rollback to a previous configuration snapshot.
  */
 export interface ConfigRollbackRequest {
-    /** ID of snapshot to rollback to */
-    snapshotId: string;
+  /** ID of snapshot to rollback to */
+  snapshotId: string;
 }
 /**
  * Configuration rollback response
@@ -171,12 +171,12 @@ export interface ConfigRollbackRequest {
  * Returned after successfully rolling back configuration.
  */
 export interface ConfigRollbackResponse {
-    /** Whether rollback operation succeeded */
-    success: boolean;
-    /** Timestamp when rollback occurred */
-    rolledBackAt: Date;
-    /** Previous configuration that was restored */
-    previousConfig?: Record<string, unknown>;
+  /** Whether rollback operation succeeded */
+  success: boolean;
+  /** Timestamp when rollback occurred */
+  rolledBackAt: Date;
+  /** Previous configuration that was restored */
+  previousConfig?: Record<string, unknown>;
 }
 /**
  * Single configuration change history entry
@@ -184,20 +184,20 @@ export interface ConfigRollbackResponse {
  * Tracks all configuration modifications over time.
  */
 export interface ConfigHistoryEntry {
-    /** Unique entry identifier */
-    id: string;
-    /** When this change occurred */
-    timestamp: Date;
-    /** Type of action performed (apply or rollback) */
-    action: 'apply' | 'rollback';
-    /** Final status of the action */
-    status: 'success' | 'failed' | 'rolled_back';
-    /** List of changes made (if successful) */
-    readonly changes?: readonly string[];
-    /** Error message if action failed */
-    errorMessage?: string;
-    /** Associated snapshot ID for rollback */
-    snapshotId?: string;
+  /** Unique entry identifier */
+  id: string;
+  /** When this change occurred */
+  timestamp: Date;
+  /** Type of action performed (apply or rollback) */
+  action: 'apply' | 'rollback';
+  /** Final status of the action */
+  status: 'success' | 'failed' | 'rolled_back';
+  /** List of changes made (if successful) */
+  readonly changes?: readonly string[];
+  /** Error message if action failed */
+  errorMessage?: string;
+  /** Associated snapshot ID for rollback */
+  snapshotId?: string;
 }
 /**
  * VPN connection request
@@ -205,8 +205,8 @@ export interface ConfigHistoryEntry {
  * Initiates a VPN connection to a configured server.
  */
 export interface VPNConnectRequest {
-    /** ID of VPN connection to establish */
-    connectionId: string;
+  /** ID of VPN connection to establish */
+  connectionId: string;
 }
 /**
  * VPN connection response
@@ -214,14 +214,14 @@ export interface VPNConnectRequest {
  * Reports current status of VPN connection attempt.
  */
 export interface VPNConnectResponse {
-    /** ID of the VPN connection */
-    connectionId: string;
-    /** Current connection status */
-    status: 'connected' | 'connecting' | 'error';
-    /** Timestamp when connection was established */
-    connectedAt?: Date;
-    /** Error message if status is 'error' */
-    error?: string;
+  /** ID of the VPN connection */
+  connectionId: string;
+  /** Current connection status */
+  status: 'connected' | 'connecting' | 'error';
+  /** Timestamp when connection was established */
+  connectedAt?: Date;
+  /** Error message if status is 'error' */
+  error?: string;
 }
 /**
  * VPN connection list response
@@ -229,18 +229,18 @@ export interface VPNConnectResponse {
  * Returns all available VPN connections and their status.
  */
 export interface VPNListResponse {
-    /** Array of VPN connections */
-    readonly connections: ReadonlyArray<{
-        /** VPN connection identifier */
-        id: string;
-        /** User-friendly connection name */
-        name: string;
-        /** VPN protocol type (wireguard, openvpn, etc.) */
-        protocol: string;
-        /** Current connection status */
-        status: 'connected' | 'disconnected' | 'connecting';
-        /** When this connection was last active */
-        lastConnectedAt?: Date;
-    }>;
+  /** Array of VPN connections */
+  readonly connections: ReadonlyArray<{
+    /** VPN connection identifier */
+    id: string;
+    /** User-friendly connection name */
+    name: string;
+    /** VPN protocol type (wireguard, openvpn, etc.) */
+    protocol: string;
+    /** Current connection status */
+    status: 'connected' | 'disconnected' | 'connecting';
+    /** When this connection was last active */
+    lastConnectedAt?: Date;
+  }>;
 }
 //# sourceMappingURL=index.d.ts.map

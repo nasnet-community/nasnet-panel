@@ -281,9 +281,7 @@ describe('useDiagnosticsPanel', () => {
 
   describe('Helper Functions', () => {
     it('should return correct status colors', () => {
-      const { useDiagnosticHistory } = vi.mocked(
-        require('@nasnet/api-client/queries')
-      );
+      const { useDiagnosticHistory } = vi.mocked(require('@nasnet/api-client/queries'));
 
       vi.mocked(useDiagnosticHistory).mockReturnValue({
         history: [],
@@ -301,9 +299,7 @@ describe('useDiagnosticsPanel', () => {
     });
 
     it('should return correct status icons', () => {
-      const { useDiagnosticHistory } = vi.mocked(
-        require('@nasnet/api-client/queries')
-      );
+      const { useDiagnosticHistory } = vi.mocked(require('@nasnet/api-client/queries'));
 
       vi.mocked(useDiagnosticHistory).mockReturnValue({
         history: [],
@@ -321,9 +317,7 @@ describe('useDiagnosticsPanel', () => {
     });
 
     it('should format duration correctly', () => {
-      const { useDiagnosticHistory } = vi.mocked(
-        require('@nasnet/api-client/queries')
-      );
+      const { useDiagnosticHistory } = vi.mocked(require('@nasnet/api-client/queries'));
 
       vi.mocked(useDiagnosticHistory).mockReturnValue({
         history: [],

@@ -47,7 +47,7 @@ function getEndpointForProtocol(protocol: VPNProtocol, isServer?: boolean): stri
  */
 function getQueryKeysForProtocol(protocol: VPNProtocol, routerIp: string) {
   const keys: (readonly string[])[] = [vpnKeys.stats(routerIp)];
-  
+
   switch (protocol) {
     case 'wireguard':
       keys.push(vpnKeys.wireguardInterfaces(routerIp));
@@ -68,7 +68,7 @@ function getQueryKeysForProtocol(protocol: VPNProtocol, routerIp: string) {
       keys.push(vpnKeys.ipsecPeers(routerIp), vpnKeys.ipsecActive(routerIp));
       break;
   }
-  
+
   return keys;
 }
 
@@ -82,24 +82,20 @@ async function toggleVPNInterface({
   disabled,
 }: ToggleVPNInterfaceRequest): Promise<void> {
   const endpoint = getEndpointForProtocol(protocol);
-  
+
   const body: Record<string, string> = {
     disabled: disabled ? 'yes' : 'no',
   };
-  
+
   // For non-server endpoints, include the ID
   if (!endpoint.includes('server/set')) {
     body['.id'] = id;
   }
-  
-  const result = await makeRouterOSRequest<void>(
-    routerIp,
-    endpoint,
-    {
-      method: 'POST',
-      body,
-    }
-  );
+
+  const result = await makeRouterOSRequest<void>(routerIp, endpoint, {
+    method: 'POST',
+    body,
+  });
 
   if (!result.success) {
     throw new Error(result.error || 'Failed to toggle VPN interface');
@@ -121,7 +117,7 @@ export function useToggleVPNInterface() {
 
       // Invalidate relevant queries
       const keys = getQueryKeysForProtocol(protocol, routerIp);
-      keys.forEach(key => {
+      keys.forEach((key) => {
         queryClient.invalidateQueries({ queryKey: key });
       });
 
@@ -138,11 +134,8 @@ export function useToggleVPNInterface() {
         variant: 'destructive',
         title: `Failed to toggle ${name}`,
         description:
-          error instanceof Error
-            ? error.message
-            : 'An error occurred. Please try again.',
+          error instanceof Error ? error.message : 'An error occurred. Please try again.',
       });
     },
   });
 }
-

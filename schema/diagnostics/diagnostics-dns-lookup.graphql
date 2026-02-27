@@ -145,28 +145,19 @@ extend type Query {
   Get configured DNS servers for a device.
   Returns primary and secondary DNS servers configured on the router.
   """
-  dnsServers(
-    "Device/router ID"
-    deviceId: String!
-  ): DnsServers!
+  dnsServers("Device/router ID" deviceId: String!): DnsServers!
 
   """
   Get DNS cache statistics including entries, size, hit rate, and top domains.
   """
-  dnsCacheStats(
-    "Device/router ID"
-    deviceId: String!
-  ): DnsCacheStats!
+  dnsCacheStats("Device/router ID" deviceId: String!): DnsCacheStats!
 
   """
   Run DNS server benchmark against all configured DNS servers.
   Tests each server with a well-known hostname (google.com) and returns
   response times sorted from fastest to slowest.
   """
-  dnsBenchmark(
-    "Device/router ID"
-    deviceId: String!
-  ): DnsBenchmarkResult!
+  dnsBenchmark("Device/router ID" deviceId: String!): DnsBenchmarkResult!
 }
 
 # -----------------------------------------------------------------------------
@@ -180,17 +171,11 @@ extend type Mutation {
   Uses RouterOS native DNS lookup for A/AAAA records when possible,
   falls back to Go resolver for other record types.
   """
-  runDnsLookup(
-    "DNS lookup parameters"
-    input: DnsLookupInput!
-  ): DnsLookupResult!
+  runDnsLookup("DNS lookup parameters" input: DnsLookupInput!): DnsLookupResult!
 
   """
   Flush the DNS cache on the router.
   Clears all cached DNS entries and returns before/after statistics.
   """
-  flushDnsCache(
-    "Device/router ID"
-    deviceId: String!
-  ): FlushDnsCacheResult!
+  flushDnsCache("Device/router ID" deviceId: String!): FlushDnsCacheResult!
 }

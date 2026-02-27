@@ -1,11 +1,14 @@
 # VPN Connection Machine (Feature Example)
 
-The **VPN Connection Machine** demonstrates a practical XState machine for VPN lifecycle management. It handles connection, disconnection, automatic reconnection with exponential backoff, and real-time metrics collection.
+The **VPN Connection Machine** demonstrates a practical XState machine for VPN lifecycle management.
+It handles connection, disconnection, automatic reconnection with exponential backoff, and real-time
+metrics collection.
 
-This is an **example implementation** showing how to build feature-specific machines. In a real project, this would be located in `libs/features/vpn/src/machines/`.
+This is an **example implementation** showing how to build feature-specific machines. In a real
+project, this would be located in `libs/features/vpn/src/machines/`.
 
-**Source:** `libs/state/machines/src/vpnConnectionMachine.ts`
-**Hook:** `libs/state/machines/src/vpnConnectionMachine.ts` (exported as `useVPNConnection`)
+**Source:** `libs/state/machines/src/vpnConnectionMachine.ts` **Hook:**
+`libs/state/machines/src/vpnConnectionMachine.ts` (exported as `useVPNConnection`)
 
 ## Complete State Chart
 
@@ -38,14 +41,14 @@ stateDiagram-v2
 
 ## States Reference
 
-| State | Purpose | Duration | Transitions |
-|-------|---------|----------|---|
-| **disconnected** | Not connected to VPN | Indefinite | CONNECT → connecting |
-| **connecting** | Establishing VPN connection | 30s timeout | onDone → connected, onError/timeout → error |
-| **connected** | Active VPN connection | Indefinite | DISCONNECT → disconnecting, METRICS_UPDATE (stay), CONNECTION_LOST → reconnecting |
-| **reconnecting** | Attempting to reconnect | 10s timeout + backoff | onDone → connected, onError (retry or give up) |
-| **disconnecting** | Gracefully closing connection | 5-10s | onDone/onError → disconnected |
-| **error** | Connection error | Indefinite | RETRY → connecting, DISMISS → disconnected |
+| State             | Purpose                       | Duration              | Transitions                                                                       |
+| ----------------- | ----------------------------- | --------------------- | --------------------------------------------------------------------------------- |
+| **disconnected**  | Not connected to VPN          | Indefinite            | CONNECT → connecting                                                              |
+| **connecting**    | Establishing VPN connection   | 30s timeout           | onDone → connected, onError/timeout → error                                       |
+| **connected**     | Active VPN connection         | Indefinite            | DISCONNECT → disconnecting, METRICS_UPDATE (stay), CONNECTION_LOST → reconnecting |
+| **reconnecting**  | Attempting to reconnect       | 10s timeout + backoff | onDone → connected, onError (retry or give up)                                    |
+| **disconnecting** | Gracefully closing connection | 5-10s                 | onDone/onError → disconnected                                                     |
+| **error**         | Connection error              | Indefinite            | RETRY → connecting, DISMISS → disconnected                                        |
 
 ## Context
 
@@ -74,8 +77,8 @@ interface VPNConnectionContext {
 }
 
 interface ConnectionMetrics {
-  uploadSpeed: number;              // bytes/sec
-  downloadSpeed: number;            // bytes/sec
+  uploadSpeed: number; // bytes/sec
+  downloadSpeed: number; // bytes/sec
   bytesUploaded: number;
   bytesDownloaded: number;
   latencyMs: number;
@@ -100,7 +103,7 @@ type VPNConnectionEvent =
 
 ```typescript
 {
-  canReconnect: boolean;    // reconnectAttempts < maxReconnectAttempts
+  canReconnect: boolean; // reconnectAttempts < maxReconnectAttempts
   hasConnectionId: boolean; // connectionId !== null
 }
 ```
@@ -131,10 +134,10 @@ interface VPNConnectionServices {
 ## Constants
 
 ```typescript
-const CONNECTION_TIMEOUT_MS = 30000;       // 30 seconds to establish
-const RECONNECTION_TIMEOUT_MS = 10000;     // 10 seconds per reconnect attempt
-const MAX_RECONNECT_ATTEMPTS = 3;          // Try up to 3 times
-const BACKOFF_BASE_MS = 1000;              // 1s, 2s, 4s, 8s...
+const CONNECTION_TIMEOUT_MS = 30000; // 30 seconds to establish
+const RECONNECTION_TIMEOUT_MS = 10000; // 10 seconds per reconnect attempt
+const MAX_RECONNECT_ATTEMPTS = 3; // Try up to 3 times
+const BACKOFF_BASE_MS = 1000; // 1s, 2s, 4s, 8s...
 ```
 
 ## Usage with `useVPNConnection` Hook
@@ -173,14 +176,11 @@ function VPNStatus() {
   useEffect(() => {
     if (!vpn.isConnected) return;
 
-    const unsubscribe = subscribeToConnectionStatus(
-      vpn.connectionId!,
-      (status) => {
-        if (status === 'lost') {
-          vpn.reportConnectionLost();
-        }
+    const unsubscribe = subscribeToConnectionStatus(vpn.connectionId!, (status) => {
+      if (status === 'lost') {
+        vpn.reportConnectionLost();
       }
-    );
+    });
 
     return unsubscribe;
   }, [vpn.isConnected, vpn.connectionId]);
@@ -214,9 +214,7 @@ function VPNStatus() {
       )}
 
       <VPNControls
-        onConnect={() =>
-          vpn.connect('vpn.example.com', 'wireguard')
-        }
+        onConnect={() => vpn.connect('vpn.example.com', 'wireguard')}
         onDisconnect={vpn.disconnect}
         disabled={vpn.isConnecting}
         connected={vpn.isConnected}
@@ -307,13 +305,15 @@ useEffect(() => {
 }, [vpn.isConnected]);
 
 // Display metrics
-{vpn.isConnected && (
-  <MetricsPanel
-    download={`${(vpn.metrics.downloadSpeed / 1e6).toFixed(1)} Mbps`}
-    upload={`${(vpn.metrics.uploadSpeed / 1e6).toFixed(1)} Mbps`}
-    latency={`${vpn.metrics.latencyMs} ms`}
-  />
-)}
+{
+  vpn.isConnected && (
+    <MetricsPanel
+      download={`${(vpn.metrics.downloadSpeed / 1e6).toFixed(1)} Mbps`}
+      upload={`${(vpn.metrics.uploadSpeed / 1e6).toFixed(1)} Mbps`}
+      latency={`${vpn.metrics.latencyMs} ms`}
+    />
+  );
+}
 ```
 
 ### Handle Connection Loss with Auto-Reconnect
@@ -323,17 +323,14 @@ useEffect(() => {
 useEffect(() => {
   if (!vpn.isConnected) return;
 
-  const unsubscribe = vpnService.onConnectionStatus(
-    vpn.connectionId!,
-    (status) => {
-      if (status.type === 'connection_lost') {
-        // Trigger reconnection with backoff
-        vpn.reportConnectionLost();
-        // Transitions: connected → reconnecting
-        // Auto-attempts up to 3 times with exponential backoff
-      }
+  const unsubscribe = vpnService.onConnectionStatus(vpn.connectionId!, (status) => {
+    if (status.type === 'connection_lost') {
+      // Trigger reconnection with backoff
+      vpn.reportConnectionLost();
+      // Transitions: connected → reconnecting
+      // Auto-attempts up to 3 times with exponential backoff
     }
-  );
+  });
 
   return unsubscribe;
 }, [vpn.isConnected]);
@@ -342,6 +339,7 @@ useEffect(() => {
 ## Error Scenarios
 
 ### Scenario 1: Connection Timeout
+
 ```
 User clicks Connect
 → CONNECTING (30s timeout)
@@ -351,6 +349,7 @@ User clicks Connect
 ```
 
 ### Scenario 2: Connection Lost (Auto-Reconnect)
+
 ```
 CONNECTED (stable for 60s)
 → Connection drops (router restart, network issue)
@@ -365,6 +364,7 @@ CONNECTED (stable for 60s)
 ```
 
 ### Scenario 3: Max Reconnect Attempts Exceeded
+
 ```
 CONNECTED
 → CONNECTION_LOST
@@ -377,14 +377,14 @@ CONNECTED
 
 ## Comparing with Other State Management
 
-| Aspect | VPN Machine | Zustand Store | Apollo Client |
-|--------|------------|---------------|---------------|
-| **State** | connection + metrics | ✓ Can store | N/A |
-| **Async Operations** | Built-in (actors) | Need middleware | Built-in (mutations) |
-| **Auto-Reconnect** | ✓ Built-in backoff | Manual logic | N/A |
-| **Metrics Updates** | Real-time | Manual updates | Subscriptions |
-| **Persistence** | Via persistence.ts | Built-in | N/A |
-| **Use Case** | VPN connection lifecycle | Global UI state | Backend data sync |
+| Aspect               | VPN Machine              | Zustand Store   | Apollo Client        |
+| -------------------- | ------------------------ | --------------- | -------------------- |
+| **State**            | connection + metrics     | ✓ Can store     | N/A                  |
+| **Async Operations** | Built-in (actors)        | Need middleware | Built-in (mutations) |
+| **Auto-Reconnect**   | ✓ Built-in backoff       | Manual logic    | N/A                  |
+| **Metrics Updates**  | Real-time                | Manual updates  | Subscriptions        |
+| **Persistence**      | Via persistence.ts       | Built-in        | N/A                  |
+| **Use Case**         | VPN connection lifecycle | Global UI state | Backend data sync    |
 
 ## Building Your Own Feature Machine
 
@@ -398,6 +398,7 @@ This VPN example shows the pattern for building feature-specific machines:
 6. **Create Hook** - Wrap machine in a React hook for easy use
 
 Apply this pattern to build machines for:
+
 - DNS configuration
 - Firewall rules
 - Service mesh networking

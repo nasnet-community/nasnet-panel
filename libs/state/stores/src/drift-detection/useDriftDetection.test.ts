@@ -19,15 +19,11 @@ import {
   useQuickDriftCheck,
 } from './useDriftDetection';
 
-
 // =============================================================================
 // Test Helpers
 // =============================================================================
 
-function createMockResource(
-  config: unknown,
-  deployment?: DeploymentState | null
-): Resource {
+function createMockResource(config: unknown, deployment?: DeploymentState | null): Resource {
   return {
     uuid: 'test-uuid-123',
     id: 'vpn.wg.client:test:a1b2',
@@ -48,10 +44,7 @@ function createMockResource(
   };
 }
 
-function createMockDeployment(
-  generatedFields: unknown,
-  appliedAt?: string
-): DeploymentState {
+function createMockDeployment(generatedFields: unknown, appliedAt?: string): DeploymentState {
   return {
     appliedAt: appliedAt ?? new Date().toISOString(),
     isInSync: true,
@@ -253,10 +246,9 @@ describe('useDriftDetection', () => {
     // Create stable input object that persists across rerenders
     const input = { configuration: config, deployment };
 
-    const { result, rerender } = renderHook(
-      ({ input }) => useDriftDetection(input),
-      { initialProps: { input } }
-    );
+    const { result, rerender } = renderHook(({ input }) => useDriftDetection(input), {
+      initialProps: { input },
+    });
 
     const firstResult = result.current.result;
     // Rerender with same input reference
@@ -274,9 +266,7 @@ describe('useDriftDetection', () => {
 
 describe('useQuickDriftCheck', () => {
   it('should return PENDING when deployment is null', () => {
-    const { result } = renderHook(() =>
-      useQuickDriftCheck({ name: 'Test' }, null)
-    );
+    const { result } = renderHook(() => useQuickDriftCheck({ name: 'Test' }, null));
 
     expect(result.current.status).toBe(DriftStatus.PENDING);
     expect(result.current.hasDrift).toBe(false);
@@ -286,9 +276,7 @@ describe('useQuickDriftCheck', () => {
     const config = { name: 'Test' };
     const deployment = createMockDeployment(config);
 
-    const { result } = renderHook(() =>
-      useQuickDriftCheck(config, deployment)
-    );
+    const { result } = renderHook(() => useQuickDriftCheck(config, deployment));
 
     expect(result.current.status).toBe(DriftStatus.SYNCED);
     expect(result.current.hasDrift).toBe(false);
@@ -298,9 +286,7 @@ describe('useQuickDriftCheck', () => {
     const config = { name: 'Test', value: 1 };
     const deployment = createMockDeployment({ name: 'Test', value: 2 });
 
-    const { result } = renderHook(() =>
-      useQuickDriftCheck(config, deployment)
-    );
+    const { result } = renderHook(() => useQuickDriftCheck(config, deployment));
 
     expect(result.current.status).toBe(DriftStatus.DRIFTED);
     expect(result.current.hasDrift).toBe(true);

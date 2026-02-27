@@ -10,18 +10,8 @@ import type { ConnectionEventData } from '../types/wan.types';
 
 // GraphQL query for connection history
 const GET_WAN_CONNECTION_HISTORY = gql`
-  query GetWANConnectionHistory(
-    $routerId: ID!
-    $wanId: ID
-    $limit: Int
-    $offset: Int
-  ) {
-    wanConnectionHistory(
-      routerId: $routerId
-      wanId: $wanId
-      limit: $limit
-      offset: $offset
-    ) {
+  query GetWANConnectionHistory($routerId: ID!, $wanId: ID, $limit: Int, $offset: Int) {
+    wanConnectionHistory(routerId: $routerId, wanId: $wanId, limit: $limit, offset: $offset) {
       total
       events {
         id
@@ -117,9 +107,7 @@ export function useConnectionHistory({
   /**
    * Check if more events are available
    */
-  const hasMore =
-    data &&
-    data.wanConnectionHistory.events.length < data.wanConnectionHistory.total;
+  const hasMore = data && data.wanConnectionHistory.events.length < data.wanConnectionHistory.total;
 
   return {
     events: data?.wanConnectionHistory.events || [],
@@ -140,16 +128,8 @@ useConnectionHistory.displayName = 'useConnectionHistory';
  * @param count Number of events to generate (default: 20)
  * @returns Array of mock connection events
  */
-export function generateMockConnectionHistory(
-  count: number = 20
-): ConnectionEventData[] {
-  const eventTypes = [
-    'CONNECTED',
-    'DISCONNECTED',
-    'AUTH_FAILED',
-    'IP_CHANGED',
-    'RECONNECTING',
-  ];
+export function generateMockConnectionHistory(count: number = 20): ConnectionEventData[] {
+  const eventTypes = ['CONNECTED', 'DISCONNECTED', 'AUTH_FAILED', 'IP_CHANGED', 'RECONNECTING'];
   const reasons = [
     'DHCP lease renewed',
     'PPPoE authentication successful',
@@ -165,8 +145,7 @@ export function generateMockConnectionHistory(
   let currentTime = Date.now();
 
   for (let i = 0; i < count; i++) {
-    const eventType =
-      eventTypes[Math.floor(Math.random() * eventTypes.length)];
+    const eventType = eventTypes[Math.floor(Math.random() * eventTypes.length)];
     const isConnected = eventType === 'CONNECTED' || eventType === 'IP_CHANGED';
 
     // Events are spaced 10 minutes to 2 hours apart
@@ -180,13 +159,13 @@ export function generateMockConnectionHistory(
       publicIP: isConnected ? ips[Math.floor(Math.random() * ips.length)] : undefined,
       gateway: isConnected ? '203.0.113.1' : undefined,
       reason:
-        eventType === 'AUTH_FAILED' || eventType === 'DISCONNECTED'
-          ? reasons[Math.floor(Math.random() * reasons.length)]
-          : undefined,
+        eventType === 'AUTH_FAILED' || eventType === 'DISCONNECTED' ?
+          reasons[Math.floor(Math.random() * reasons.length)]
+        : undefined,
       duration:
-        eventType === 'DISCONNECTED'
-          ? Math.floor(Math.random() * 3600) + 60 // 1 min to 1 hour
-          : undefined,
+        eventType === 'DISCONNECTED' ?
+          Math.floor(Math.random() * 3600) + 60 // 1 min to 1 hour
+        : undefined,
     });
   }
 

@@ -5,7 +5,7 @@
  * Tests both the headless hook and the presenters.
  */
 
-import { render, screen, fireEvent , renderHook } from '@testing-library/react';
+import { render, screen, fireEvent, renderHook } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 
 import { ResourceCard } from './ResourceCard';
@@ -159,7 +159,12 @@ describe('ResourceCardMobile', () => {
   });
 
   it('renders primary action button', () => {
-    render(<ResourceCardMobile resource={mockResource} actions={mockActions} />);
+    render(
+      <ResourceCardMobile
+        resource={mockResource}
+        actions={mockActions}
+      />
+    );
     expect(screen.getByRole('button', { name: 'Connect' })).toBeInTheDocument();
   });
 
@@ -167,7 +172,12 @@ describe('ResourceCardMobile', () => {
     const onClick = vi.fn();
     const actions = [{ id: 'test', label: 'Test', onClick }];
 
-    render(<ResourceCardMobile resource={mockResource} actions={actions} />);
+    render(
+      <ResourceCardMobile
+        resource={mockResource}
+        actions={actions}
+      />
+    );
     fireEvent.click(screen.getByRole('button', { name: 'Test' }));
 
     expect(onClick).toHaveBeenCalledTimes(1);
@@ -175,9 +185,7 @@ describe('ResourceCardMobile', () => {
 
   it('has accessible aria-label', () => {
     render(<ResourceCardMobile resource={mockResource} />);
-    expect(
-      screen.getByRole('article', { name: 'Test Resource - Online' })
-    ).toBeInTheDocument();
+    expect(screen.getByRole('article', { name: 'Test Resource - Online' })).toBeInTheDocument();
   });
 });
 
@@ -198,20 +206,28 @@ describe('ResourceCardDesktop', () => {
   });
 
   it('renders primary action button', () => {
-    render(<ResourceCardDesktop resource={mockResource} actions={mockActions} />);
+    render(
+      <ResourceCardDesktop
+        resource={mockResource}
+        actions={mockActions}
+      />
+    );
     expect(screen.getByRole('button', { name: 'Connect' })).toBeInTheDocument();
   });
 
   it('renders more actions button when secondary actions exist', () => {
-    render(<ResourceCardDesktop resource={mockResource} actions={mockActions} />);
+    render(
+      <ResourceCardDesktop
+        resource={mockResource}
+        actions={mockActions}
+      />
+    );
     expect(screen.getByRole('button', { name: 'More actions' })).toBeInTheDocument();
   });
 
   it('has accessible aria-label', () => {
     render(<ResourceCardDesktop resource={mockResource} />);
-    expect(
-      screen.getByRole('article', { name: 'Test Resource - Online' })
-    ).toBeInTheDocument();
+    expect(screen.getByRole('article', { name: 'Test Resource - Online' })).toBeInTheDocument();
   });
 });
 

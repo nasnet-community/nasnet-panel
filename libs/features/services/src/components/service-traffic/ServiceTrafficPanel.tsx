@@ -45,11 +45,9 @@ import type { ServiceTrafficPanelProps } from './service-traffic-panel.types';
 function ServiceTrafficPanelComponent(props: ServiceTrafficPanelProps) {
   const platform = usePlatform();
 
-  return platform === 'mobile' ? (
-    <ServiceTrafficPanelMobile {...props} />
-  ) : (
-    <ServiceTrafficPanelDesktop {...props} />
-  );
+  return platform === 'mobile' ?
+      <ServiceTrafficPanelMobile {...props} />
+    : <ServiceTrafficPanelDesktop {...props} />;
 }
 
 export const ServiceTrafficPanel = memo(ServiceTrafficPanelComponent);

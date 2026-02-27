@@ -49,7 +49,10 @@ export const LanIcon = memo(function LanIcon({
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       className={cn(statusClass, className)}
-      aria-label={ariaLabel || `LAN network ${status}${deviceCount !== undefined ? `, ${deviceCount} devices` : ''}`}
+      aria-label={
+        ariaLabel ||
+        `LAN network ${status}${deviceCount !== undefined ? `, ${deviceCount} devices` : ''}`
+      }
       role="img"
     >
       <title>LAN Network - {status}</title>
@@ -70,7 +73,15 @@ export const LanIcon = memo(function LanIcon({
       />
 
       {/* Network switch lines in center */}
-      <rect x="20" y="22" width="8" height="4" rx="1" fill="currentColor" fillOpacity="0.6" />
+      <rect
+        x="20"
+        y="22"
+        width="8"
+        height="4"
+        rx="1"
+        fill="currentColor"
+        fillOpacity="0.6"
+      />
 
       {/* Top node */}
       <circle

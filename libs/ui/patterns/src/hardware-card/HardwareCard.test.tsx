@@ -11,7 +11,6 @@ import type { RouterboardInfo } from '@nasnet/core/types/router';
 
 import { HardwareCard } from './HardwareCard';
 
-
 // Mock clipboard API
 Object.assign(navigator, {
   clipboard: {
@@ -34,9 +33,9 @@ describe('HardwareCard', () => {
 
       expect(screen.getByText('Hardware Details')).toBeInTheDocument();
       // Skeleton elements are rendered
-      const skeletons = screen.getAllByRole('generic').filter(
-        (el) => el.className.includes('animate-pulse')
-      );
+      const skeletons = screen
+        .getAllByRole('generic')
+        .filter((el) => el.className.includes('animate-pulse'));
       expect(skeletons.length).toBeGreaterThan(0);
     });
   });

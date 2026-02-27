@@ -2,8 +2,8 @@ name: Docker - Build and Push (GHCR + Docker Hub)
 
 on:
   push:
-    branches: ["main"]
-    tags: ["v*.*.*"]
+    branches: ['main']
+    tags: ['v*.*.*']
     paths:
       - 'apps/backend/**'
       - 'apps/connect/**'
@@ -13,7 +13,7 @@ on:
       - '.dockerignore'
       - '.github/workflows/docker.yml'
   pull_request:
-    branches: ["main"]
+    branches: ['main']
     paths:
       - 'apps/backend/**'
       - 'apps/connect/**'

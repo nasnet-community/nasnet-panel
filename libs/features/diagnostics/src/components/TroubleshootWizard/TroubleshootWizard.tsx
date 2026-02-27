@@ -54,7 +54,11 @@ export const TroubleshootWizard = memo(function TroubleshootWizard({
   className,
 }: TroubleshootWizardProps) {
   return (
-    <div className={className} role="region" aria-label="Internet troubleshooting wizard">
+    <div
+      className={className}
+      role="region"
+      aria-label="Internet troubleshooting wizard"
+    >
       {/* Desktop Presenter (>1024px) */}
       <div className="hidden lg:block">
         <TroubleshootWizardDesktop

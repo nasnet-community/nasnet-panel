@@ -85,9 +85,7 @@ export interface UseImportTemplateReturn {
  * });
  * ```
  */
-export function useImportTemplate(
-  options: UseImportTemplateOptions = {}
-): UseImportTemplateReturn {
+export function useImportTemplate(options: UseImportTemplateOptions = {}): UseImportTemplateReturn {
   const { onCompleted, onError } = options;
 
   const [importMutation, { data, loading, error, reset }] = useMutation<
@@ -113,9 +111,7 @@ export function useImportTemplate(
     ],
   });
 
-  const importTemplate = async (
-    input: ImportServiceTemplateInput
-  ): Promise<ServiceTemplate> => {
+  const importTemplate = async (input: ImportServiceTemplateInput): Promise<ServiceTemplate> => {
     const result = await importMutation({
       variables: { input },
     });

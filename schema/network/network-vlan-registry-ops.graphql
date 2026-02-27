@@ -12,10 +12,14 @@ extend type Query {
   - vlanAllocations(routerID: "router-123", status: ALLOCATED) - Active allocations for a router
   """
   vlanAllocations(
-    """Filter by router ID"""
+    """
+    Filter by router ID
+    """
     routerID: String
 
-    """Filter by allocation status"""
+    """
+    Filter by allocation status
+    """
     status: VLANAllocationStatus
   ): [VLANAllocation!]!
 
@@ -39,7 +43,9 @@ extend type Query {
   ```
   """
   vlanPoolStatus(
-    """Router ID to check pool status for"""
+    """
+    Router ID to check pool status for
+    """
     routerID: String!
   ): VLANPoolStatus!
 
@@ -66,7 +72,9 @@ extend type Query {
   ```
   """
   detectOrphanedVLANs(
-    """Router ID to check for orphans"""
+    """
+    Router ID to check for orphans
+    """
     routerID: String!
   ): [VLANAllocation!]!
 }
@@ -94,7 +102,9 @@ extend type Mutation {
   Returns: Number of allocations cleaned up
   """
   cleanupOrphanedVLANs(
-    """Router ID to clean up orphans for"""
+    """
+    Router ID to clean up orphans for
+    """
     routerID: String!
   ): Int!
 
@@ -128,10 +138,14 @@ extend type Mutation {
   Returns: Updated pool status with new configuration
   """
   updateVLANPoolConfig(
-    """First VLAN ID in the pool (1-4094)"""
+    """
+    First VLAN ID in the pool (1-4094)
+    """
     poolStart: Int!
 
-    """Last VLAN ID in the pool (1-4094)"""
+    """
+    Last VLAN ID in the pool (1-4094)
+    """
     poolEnd: Int!
   ): VLANPoolStatus!
 }

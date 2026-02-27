@@ -19,7 +19,7 @@ import { z } from 'zod';
  * Protocol type for service ports
  * Supports TCP, UDP, or both protocols
  */
-export declare const ServicePortProtocolSchema: z.ZodEnum<["tcp", "udp", "both"]>;
+export declare const ServicePortProtocolSchema: z.ZodEnum<['tcp', 'udp', 'both']>;
 /**
  * Type for service port protocol
  * @example
@@ -30,7 +30,20 @@ export type ServicePortProtocol = z.infer<typeof ServicePortProtocolSchema>;
  * Category for grouping services in suggestions
  * Used to organize and filter service ports by functional category
  */
-export declare const ServicePortCategorySchema: z.ZodEnum<["web", "secure", "database", "messaging", "mail", "network", "system", "containers", "mikrotik", "custom"]>;
+export declare const ServicePortCategorySchema: z.ZodEnum<
+  [
+    'web',
+    'secure',
+    'database',
+    'messaging',
+    'mail',
+    'network',
+    'system',
+    'containers',
+    'mikrotik',
+    'custom',
+  ]
+>;
 /**
  * Type for service port category
  * @example
@@ -74,15 +87,29 @@ export declare const isValidServiceName: (name: string) => boolean;
  * Used for both built-in ports (from WELL_KNOWN_PORTS) and custom user-defined services.
  * Built-in services are read-only (builtIn=true), custom services are editable (builtIn=false).
  */
-export declare const ServicePortDefinitionSchema: z.ZodObject<{
+export declare const ServicePortDefinitionSchema: z.ZodObject<
+  {
     /** Port number (1-65535) */
     port: z.ZodNumber;
     /** Service name (e.g., "HTTP", "my-app") */
     service: z.ZodEffects<z.ZodString, string, string>;
     /** Protocol (TCP, UDP, or both) */
-    protocol: z.ZodEnum<["tcp", "udp", "both"]>;
+    protocol: z.ZodEnum<['tcp', 'udp', 'both']>;
     /** Category for grouping */
-    category: z.ZodEnum<["web", "secure", "database", "messaging", "mail", "network", "system", "containers", "mikrotik", "custom"]>;
+    category: z.ZodEnum<
+      [
+        'web',
+        'secure',
+        'database',
+        'messaging',
+        'mail',
+        'network',
+        'system',
+        'containers',
+        'mikrotik',
+        'custom',
+      ]
+    >;
     /** Optional description */
     description: z.ZodOptional<z.ZodString>;
     /** Built-in flag (true = read-only, false = user-editable) */
@@ -91,25 +118,50 @@ export declare const ServicePortDefinitionSchema: z.ZodObject<{
     createdAt: z.ZodOptional<z.ZodString>;
     /** Timestamp when service was last updated (ISO 8601) */
     updatedAt: z.ZodOptional<z.ZodString>;
-}, "strip", z.ZodTypeAny, {
-    category: "system" | "custom" | "network" | "web" | "secure" | "database" | "messaging" | "mail" | "containers" | "mikrotik";
-    protocol: "both" | "tcp" | "udp";
+  },
+  'strip',
+  z.ZodTypeAny,
+  {
+    category:
+      | 'system'
+      | 'custom'
+      | 'network'
+      | 'web'
+      | 'secure'
+      | 'database'
+      | 'messaging'
+      | 'mail'
+      | 'containers'
+      | 'mikrotik';
+    protocol: 'both' | 'tcp' | 'udp';
     port: number;
     service: string;
     isBuiltIn: boolean;
     description?: string | undefined;
     updatedAt?: string | undefined;
     createdAt?: string | undefined;
-}, {
-    category: "system" | "custom" | "network" | "web" | "secure" | "database" | "messaging" | "mail" | "containers" | "mikrotik";
-    protocol: "both" | "tcp" | "udp";
+  },
+  {
+    category:
+      | 'system'
+      | 'custom'
+      | 'network'
+      | 'web'
+      | 'secure'
+      | 'database'
+      | 'messaging'
+      | 'mail'
+      | 'containers'
+      | 'mikrotik';
+    protocol: 'both' | 'tcp' | 'udp';
     port: number;
     service: string;
     description?: string | undefined;
     updatedAt?: string | undefined;
     createdAt?: string | undefined;
     isBuiltIn?: boolean | undefined;
-}>;
+  }
+>;
 export type ServicePortDefinition = z.infer<typeof ServicePortDefinitionSchema>;
 /**
  * Custom service port input (for forms)
@@ -117,26 +169,32 @@ export type ServicePortDefinition = z.infer<typeof ServicePortDefinitionSchema>;
  * Subset of ServicePortDefinition used for adding custom services.
  * Excludes built-in flag and timestamps (auto-generated).
  */
-export declare const CustomServicePortInputSchema: z.ZodObject<{
+export declare const CustomServicePortInputSchema: z.ZodObject<
+  {
     /** Port number (1-65535) */
     port: z.ZodNumber;
     /** Service name (e.g., "my-app") */
     service: z.ZodEffects<z.ZodString, string, string>;
     /** Protocol (TCP, UDP, or both) */
-    protocol: z.ZodEnum<["tcp", "udp", "both"]>;
+    protocol: z.ZodEnum<['tcp', 'udp', 'both']>;
     /** Optional description */
     description: z.ZodOptional<z.ZodString>;
-}, "strip", z.ZodTypeAny, {
-    protocol: "both" | "tcp" | "udp";
+  },
+  'strip',
+  z.ZodTypeAny,
+  {
+    protocol: 'both' | 'tcp' | 'udp';
     port: number;
     service: string;
     description?: string | undefined;
-}, {
-    protocol: "both" | "tcp" | "udp";
+  },
+  {
+    protocol: 'both' | 'tcp' | 'udp';
     port: number;
     service: string;
     description?: string | undefined;
-}>;
+  }
+>;
 export type CustomServicePortInput = z.infer<typeof CustomServicePortInputSchema>;
 /**
  * Service group for bulk selection
@@ -144,7 +202,8 @@ export type CustomServicePortInput = z.infer<typeof CustomServicePortInputSchema
  * Groups multiple services together for quick selection in firewall rules.
  * Example: "web" group containing HTTP (80), HTTPS (443), HTTP-Alt (8080)
  */
-export declare const ServiceGroupSchema: z.ZodObject<{
+export declare const ServiceGroupSchema: z.ZodObject<
+  {
     /** Unique identifier (UUID v4) */
     id: z.ZodString;
     /** Group name (e.g., "web", "database-tier") */
@@ -152,30 +211,41 @@ export declare const ServiceGroupSchema: z.ZodObject<{
     /** Optional description */
     description: z.ZodOptional<z.ZodString>;
     /** Port numbers included in group (minimum 1) */
-    ports: z.ZodReadonly<z.ZodEffects<z.ZodEffects<z.ZodArray<z.ZodNumber, "many">, number[], number[]>, number[], number[]>>;
+    ports: z.ZodReadonly<
+      z.ZodEffects<
+        z.ZodEffects<z.ZodArray<z.ZodNumber, 'many'>, number[], number[]>,
+        number[],
+        number[]
+      >
+    >;
     /** Protocol constraint for group (tcp, udp, or both) */
-    protocol: z.ZodEnum<["tcp", "udp", "both"]>;
+    protocol: z.ZodEnum<['tcp', 'udp', 'both']>;
     /** Timestamp when group was created (ISO 8601) */
     createdAt: z.ZodString;
     /** Timestamp when group was last updated (ISO 8601) */
     updatedAt: z.ZodString;
-}, "strip", z.ZodTypeAny, {
+  },
+  'strip',
+  z.ZodTypeAny,
+  {
     id: string;
     name: string;
     updatedAt: string;
     createdAt: string;
-    protocol: "both" | "tcp" | "udp";
+    protocol: 'both' | 'tcp' | 'udp';
     ports: readonly number[];
     description?: string | undefined;
-}, {
+  },
+  {
     id: string;
     name: string;
     updatedAt: string;
     createdAt: string;
-    protocol: "both" | "tcp" | "udp";
+    protocol: 'both' | 'tcp' | 'udp';
     ports: readonly number[];
     description?: string | undefined;
-}>;
+  }
+>;
 export type ServiceGroup = z.infer<typeof ServiceGroupSchema>;
 /**
  * Service group input (for forms)
@@ -183,32 +253,47 @@ export type ServiceGroup = z.infer<typeof ServiceGroupSchema>;
  * Subset of ServiceGroup used for creating/editing groups.
  * Excludes id and timestamps (auto-generated).
  */
-export declare const ServiceGroupInputSchema: z.ZodObject<Omit<{
-    /** Unique identifier (UUID v4) */
-    id: z.ZodString;
-    /** Group name (e.g., "web", "database-tier") */
-    name: z.ZodEffects<z.ZodString, string, string>;
-    /** Optional description */
-    description: z.ZodOptional<z.ZodString>;
-    /** Port numbers included in group (minimum 1) */
-    ports: z.ZodReadonly<z.ZodEffects<z.ZodEffects<z.ZodArray<z.ZodNumber, "many">, number[], number[]>, number[], number[]>>;
-    /** Protocol constraint for group (tcp, udp, or both) */
-    protocol: z.ZodEnum<["tcp", "udp", "both"]>;
-    /** Timestamp when group was created (ISO 8601) */
-    createdAt: z.ZodString;
-    /** Timestamp when group was last updated (ISO 8601) */
-    updatedAt: z.ZodString;
-}, "id" | "updatedAt" | "createdAt">, "strip", z.ZodTypeAny, {
+export declare const ServiceGroupInputSchema: z.ZodObject<
+  Omit<
+    {
+      /** Unique identifier (UUID v4) */
+      id: z.ZodString;
+      /** Group name (e.g., "web", "database-tier") */
+      name: z.ZodEffects<z.ZodString, string, string>;
+      /** Optional description */
+      description: z.ZodOptional<z.ZodString>;
+      /** Port numbers included in group (minimum 1) */
+      ports: z.ZodReadonly<
+        z.ZodEffects<
+          z.ZodEffects<z.ZodArray<z.ZodNumber, 'many'>, number[], number[]>,
+          number[],
+          number[]
+        >
+      >;
+      /** Protocol constraint for group (tcp, udp, or both) */
+      protocol: z.ZodEnum<['tcp', 'udp', 'both']>;
+      /** Timestamp when group was created (ISO 8601) */
+      createdAt: z.ZodString;
+      /** Timestamp when group was last updated (ISO 8601) */
+      updatedAt: z.ZodString;
+    },
+    'id' | 'updatedAt' | 'createdAt'
+  >,
+  'strip',
+  z.ZodTypeAny,
+  {
     name: string;
-    protocol: "both" | "tcp" | "udp";
+    protocol: 'both' | 'tcp' | 'udp';
     ports: readonly number[];
     description?: string | undefined;
-}, {
+  },
+  {
     name: string;
-    protocol: "both" | "tcp" | "udp";
+    protocol: 'both' | 'tcp' | 'udp';
     ports: readonly number[];
     description?: string | undefined;
-}>;
+  }
+>;
 export type ServiceGroupInput = z.infer<typeof ServiceGroupInputSchema>;
 /**
  * Checks if a service name conflicts with built-in services (case-insensitive)
@@ -220,7 +305,10 @@ export type ServiceGroupInput = z.infer<typeof ServiceGroupInputSchema>;
  * @example
  * hasBuiltInConflict('HTTP', builtInServices) // Returns true if HTTP is built-in
  */
-export declare function hasBuiltInConflict(serviceName: string, builtInServices: readonly ServicePortDefinition[]): boolean;
+export declare function hasBuiltInConflict(
+  serviceName: string,
+  builtInServices: readonly ServicePortDefinition[]
+): boolean;
 /**
  * Checks if a service name conflicts with custom services (case-insensitive)
  *
@@ -232,7 +320,11 @@ export declare function hasBuiltInConflict(serviceName: string, builtInServices:
  * @example
  * hasCustomConflict('my-app', customServices, 8080) // Excludes port 8080
  */
-export declare function hasCustomConflict(serviceName: string, customServices: readonly ServicePortDefinition[], excludePort?: number): boolean;
+export declare function hasCustomConflict(
+  serviceName: string,
+  customServices: readonly ServicePortDefinition[],
+  excludePort?: number
+): boolean;
 /**
  * Merges built-in and custom services into a single array
  * Built-in services appear first, followed by custom services
@@ -244,7 +336,10 @@ export declare function hasCustomConflict(serviceName: string, customServices: r
  * @example
  * mergeServices(builtIn, custom) // Returns [builtIn..., custom...]
  */
-export declare function mergeServices(builtInServices: readonly ServicePortDefinition[], customServices: readonly ServicePortDefinition[]): ServicePortDefinition[];
+export declare function mergeServices(
+  builtInServices: readonly ServicePortDefinition[],
+  customServices: readonly ServicePortDefinition[]
+): ServicePortDefinition[];
 /**
  * Finds a service by port number
  *
@@ -255,7 +350,10 @@ export declare function mergeServices(builtInServices: readonly ServicePortDefin
  * @example
  * findServiceByPort(443, services) // Returns HTTPS service
  */
-export declare function findServiceByPort(port: number, services: readonly ServicePortDefinition[]): ServicePortDefinition | undefined;
+export declare function findServiceByPort(
+  port: number,
+  services: readonly ServicePortDefinition[]
+): ServicePortDefinition | undefined;
 /**
  * Finds a service by name (case-insensitive)
  *
@@ -266,7 +364,10 @@ export declare function findServiceByPort(port: number, services: readonly Servi
  * @example
  * findServiceByName('HTTP', services) // Returns service named http
  */
-export declare function findServiceByName(serviceName: string, services: readonly ServicePortDefinition[]): ServicePortDefinition | undefined;
+export declare function findServiceByName(
+  serviceName: string,
+  services: readonly ServicePortDefinition[]
+): ServicePortDefinition | undefined;
 /**
  * Formats port list for display as comma-separated string
  * Sorts ports in ascending order before formatting
@@ -299,25 +400,29 @@ export declare function expandGroupToPorts(group: ServiceGroup): string;
  * @example
  * hasGroupNameConflict('web', existingGroups) // Returns true if "web" group exists
  */
-export declare function hasGroupNameConflict(groupName: string, existingGroups: readonly ServiceGroup[], excludeId?: string): boolean;
+export declare function hasGroupNameConflict(
+  groupName: string,
+  existingGroups: readonly ServiceGroup[],
+  excludeId?: string
+): boolean;
 /**
  * Default custom service input values for form initialization
  * Used when creating a new custom service
  */
 export declare const DEFAULT_CUSTOM_SERVICE_INPUT: {
-    readonly port: 8080;
-    readonly service: "";
-    readonly protocol: "tcp";
-    readonly description: "";
+  readonly port: 8080;
+  readonly service: '';
+  readonly protocol: 'tcp';
+  readonly description: '';
 };
 /**
  * Default service group input values for form initialization
  * Used when creating a new service group
  */
 export declare const DEFAULT_SERVICE_GROUP_INPUT: {
-    readonly name: "";
-    readonly description: "";
-    readonly ports: readonly [];
-    readonly protocol: "tcp";
+  readonly name: '';
+  readonly description: '';
+  readonly ports: readonly [];
+  readonly protocol: 'tcp';
 };
 //# sourceMappingURL=service-port.types.d.ts.map

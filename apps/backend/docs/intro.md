@@ -5,7 +5,8 @@ title: Introduction
 
 # Backend (Go)
 
-The **Backend** is a Go service that serves as the core of NasNet. It manages router connections, provides a GraphQL API, and handles service orchestration.
+The **Backend** is a Go service that serves as the core of NasNet. It manages router connections,
+provides a GraphQL API, and handles service orchestration.
 
 ## Tech Stack
 
@@ -17,7 +18,8 @@ The **Backend** is a Go service that serves as the core of NasNet. It manages ro
 ## Key Concepts
 
 - **Router management** — SSH, Telnet, REST, and RouterOS API protocol adapters
-- **Service orchestration** — Lifecycle management for downloadable features (Tor, Xray, sing-box, etc.)
+- **Service orchestration** — Lifecycle management for downloadable features (Tor, Xray, sing-box,
+  etc.)
 - **Event bus** — Domain events for decoupled service communication
 - **Provisioning** — Network configuration with rollback support
 

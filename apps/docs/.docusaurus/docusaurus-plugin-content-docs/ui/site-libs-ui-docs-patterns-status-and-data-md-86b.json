@@ -1,7 +1,7 @@
 {
   "id": "patterns-status-and-data",
   "title": "Status & Data Display Patterns (Layer 2)",
-  "description": "This document covers all status indicator and data display pattern components in libs/ui/patterns/src/. These are Layer 2 components (Patterns) — they are composed from Layer 1 Primitives and provide the reusable building blocks for Layer 3 Domain feature components.",
+  "description": "This document covers all status indicator and data display pattern components in",
   "source": "@site/../../libs/ui/docs/patterns-status-and-data.md",
   "sourceDirName": ".",
   "slug": "/patterns-status-and-data",

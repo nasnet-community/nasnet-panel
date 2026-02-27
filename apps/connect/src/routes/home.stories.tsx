@@ -10,7 +10,6 @@ import { HomePage } from '@/app/pages/home';
 
 import type { Meta, StoryObj } from '@storybook/react';
 
-
 const meta: Meta<typeof HomePage> = {
   title: 'App/Home/HomePage',
   component: HomePage,
@@ -24,7 +23,7 @@ const meta: Meta<typeof HomePage> = {
           'Displays a SystemInfoCard (identity, model, RouterOS version, architecture), ' +
           'three ResourceGauge tiles (CPU, Memory, Disk) with live 5-second polling inside ' +
           'a System Resources card, and a HardwareCard showing routerboard details. ' +
-          'All data is fetched from the connection store\'s current router IP.',
+          "All data is fetched from the connection store's current router IP.",
       },
     },
   },

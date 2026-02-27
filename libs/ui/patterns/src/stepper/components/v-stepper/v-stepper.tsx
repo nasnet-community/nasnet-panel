@@ -38,7 +38,7 @@ import { useRef, useId } from 'react';
 
 import { motion, AnimatePresence } from 'framer-motion';
 
-import { cn , useReducedMotion } from '@nasnet/ui/primitives';
+import { cn, useReducedMotion } from '@nasnet/ui/primitives';
 
 import { VStepperConnector } from './v-stepper-connector';
 import { VStepperItem } from './v-stepper-item';
@@ -63,8 +63,9 @@ function StepAnnouncer({
   hasErrors: boolean;
   errorCount: number;
 }) {
-  const message = hasErrors
-    ? `Step ${currentIndex + 1} of ${totalSteps}: ${stepTitle}. ${errorCount} validation error${errorCount !== 1 ? 's' : ''}.`
+  const message =
+    hasErrors ?
+      `Step ${currentIndex + 1} of ${totalSteps}: ${stepTitle}. ${errorCount} validation error${errorCount !== 1 ? 's' : ''}.`
     : `Step ${currentIndex + 1} of ${totalSteps}: ${stepTitle}`;
 
   return (
@@ -107,14 +108,7 @@ function VStepperComponent({
   const stepperId = useId();
 
   // Extract stepper state
-  const {
-    steps,
-    currentIndex,
-    completedSteps,
-    stepStates,
-    goTo,
-    totalSteps,
-  } = stepper;
+  const { steps, currentIndex, completedSteps, stepStates, goTo, totalSteps } = stepper;
 
   // Get current step for announcements
   const currentStep = steps[currentIndex];
@@ -142,7 +136,7 @@ function VStepperComponent({
       {/* Main navigation */}
       <nav
         ref={navRef}
-        className={cn('p-4 space-y-1', className)}
+        className={cn('space-y-1 p-4', className)}
         style={{ width: widthStyle }}
         aria-label={ariaLabel}
       >
@@ -154,14 +148,11 @@ function VStepperComponent({
               const isCompleted = completedSteps.has(step.id);
               const isSkipped = stepState?.skipped ?? false;
               const hasError = Object.keys(stepState?.errors ?? {}).length > 0;
-              const errors = stepState?.errors
-                ? Object.values(stepState.errors)
-                : [];
+              const errors = stepState?.errors ? Object.values(stepState.errors) : [];
 
               // Determine if step is clickable
               // Can click: completed, skipped, current, or any previous step
-              const isClickable =
-                isCompleted || isSkipped || isActive || index < currentIndex;
+              const isClickable = isCompleted || isSkipped || isActive || index < currentIndex;
 
               // Handle step click
               const handleStepClick = () => {
@@ -180,9 +171,7 @@ function VStepperComponent({
                 <motion.li
                   key={step.id}
                   className="relative"
-                  initial={
-                    prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 10 }
-                  }
+                  initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: -10 }}
                   transition={{

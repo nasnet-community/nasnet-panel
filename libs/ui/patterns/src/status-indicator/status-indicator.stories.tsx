@@ -2,7 +2,6 @@ import { StatusIndicator } from './status-indicator';
 
 import type { Meta, StoryObj } from '@storybook/react';
 
-
 const meta: Meta<typeof StatusIndicator> = {
   title: 'Patterns/Common/StatusIndicator',
   component: StatusIndicator,
@@ -122,15 +121,31 @@ export const Info: Story = {
 export const Sizes: Story = {
   render: () => (
     <div className="flex flex-col gap-4">
-      <StatusIndicator status="online" label="Small" size="sm" showDot />
-      <StatusIndicator status="online" label="Medium" size="md" showDot />
-      <StatusIndicator status="online" label="Large" size="lg" showDot />
+      <StatusIndicator
+        status="online"
+        label="Small"
+        size="sm"
+        showDot
+      />
+      <StatusIndicator
+        status="online"
+        label="Medium"
+        size="md"
+        showDot
+      />
+      <StatusIndicator
+        status="online"
+        label="Large"
+        size="lg"
+        showDot
+      />
     </div>
   ),
   parameters: {
     docs: {
       description: {
-        story: 'All three size variants side-by-side: sm (xs text + 1.5×1.5 dot), md (sm text + 2×2 dot), lg (base text + 3×3 dot).',
+        story:
+          'All three size variants side-by-side: sm (xs text + 1.5×1.5 dot), md (sm text + 2×2 dot), lg (base text + 3×3 dot).',
       },
     },
   },
@@ -141,11 +156,31 @@ export const Sizes: Story = {
 export const DotOnly: Story = {
   render: () => (
     <div className="flex items-center gap-4">
-      <StatusIndicator status="online" size="md" showDot />
-      <StatusIndicator status="offline" size="md" showDot />
-      <StatusIndicator status="warning" size="md" showDot />
-      <StatusIndicator status="info" size="md" showDot />
-      <StatusIndicator status="pending" size="md" showDot />
+      <StatusIndicator
+        status="online"
+        size="md"
+        showDot
+      />
+      <StatusIndicator
+        status="offline"
+        size="md"
+        showDot
+      />
+      <StatusIndicator
+        status="warning"
+        size="md"
+        showDot
+      />
+      <StatusIndicator
+        status="info"
+        size="md"
+        showDot
+      />
+      <StatusIndicator
+        status="pending"
+        size="md"
+        showDot
+      />
     </div>
   ),
   parameters: {
@@ -162,11 +197,36 @@ export const DotOnly: Story = {
 export const AllStatuses: Story = {
   render: () => (
     <div className="flex flex-col gap-3">
-      <StatusIndicator status="online"  label="Online"     size="md" showDot />
-      <StatusIndicator status="offline" label="Offline"    size="md" showDot />
-      <StatusIndicator status="warning" label="Degraded"   size="md" showDot />
-      <StatusIndicator status="info"    label="Info"       size="md" showDot />
-      <StatusIndicator status="pending" label="Pending"    size="md" showDot />
+      <StatusIndicator
+        status="online"
+        label="Online"
+        size="md"
+        showDot
+      />
+      <StatusIndicator
+        status="offline"
+        label="Offline"
+        size="md"
+        showDot
+      />
+      <StatusIndicator
+        status="warning"
+        label="Degraded"
+        size="md"
+        showDot
+      />
+      <StatusIndicator
+        status="info"
+        label="Info"
+        size="md"
+        showDot
+      />
+      <StatusIndicator
+        status="pending"
+        label="Pending"
+        size="md"
+        showDot
+      />
     </div>
   ),
   parameters: {

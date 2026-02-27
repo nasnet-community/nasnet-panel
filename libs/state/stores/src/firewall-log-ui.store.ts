@@ -193,11 +193,9 @@ export const useFirewallLogStore = create<FirewallLogUIState>()(
       resetFilters: () => set({ filters: DEFAULT_FIREWALL_LOG_FILTER_STATE }),
 
       // Auto-refresh
-      toggleAutoRefresh: () =>
-        set((state) => ({ autoRefresh: !state.autoRefresh })),
+      toggleAutoRefresh: () => set((state) => ({ autoRefresh: !state.autoRefresh })),
       setAutoRefresh: (enabled: boolean) => set({ autoRefresh: enabled }),
-      setRefreshInterval: (interval: RefreshInterval) =>
-        set({ refreshInterval: interval }),
+      setRefreshInterval: (interval: RefreshInterval) => set({ refreshInterval: interval }),
 
       // Sorting
       setSortBy: (field: LogSortField) => set({ sortBy: field }),
@@ -208,13 +206,11 @@ export const useFirewallLogStore = create<FirewallLogUIState>()(
         })),
 
       // Stats panel
-      toggleExpandedStats: () =>
-        set((state) => ({ expandedStats: !state.expandedStats })),
+      toggleExpandedStats: () => set((state) => ({ expandedStats: !state.expandedStats })),
       setExpandedStats: (expanded: boolean) => set({ expandedStats: expanded }),
 
       // Mobile filters sheet
-      toggleFiltersSheet: () =>
-        set((state) => ({ filtersSheetOpen: !state.filtersSheetOpen })),
+      toggleFiltersSheet: () => set((state) => ({ filtersSheetOpen: !state.filtersSheetOpen })),
       setFiltersSheetOpen: (open: boolean) => set({ filtersSheetOpen: open }),
 
       // Reset
@@ -240,14 +236,11 @@ export const useFirewallLogStore = create<FirewallLogUIState>()(
  * Selector hooks for optimized access
  * Use these to avoid unnecessary re-renders
  */
-export const useLogFilters = () =>
-  useFirewallLogStore((state) => state.filters);
+export const useLogFilters = () => useFirewallLogStore((state) => state.filters);
 
-export const useAutoRefresh = () =>
-  useFirewallLogStore((state) => state.autoRefresh);
+export const useAutoRefresh = () => useFirewallLogStore((state) => state.autoRefresh);
 
-export const useRefreshInterval = () =>
-  useFirewallLogStore((state) => state.refreshInterval);
+export const useRefreshInterval = () => useFirewallLogStore((state) => state.refreshInterval);
 
 export const useLogSort = () =>
   useFirewallLogStore((state) => ({
@@ -255,8 +248,6 @@ export const useLogSort = () =>
     sortOrder: state.sortOrder,
   }));
 
-export const useExpandedStats = () =>
-  useFirewallLogStore((state) => state.expandedStats);
+export const useExpandedStats = () => useFirewallLogStore((state) => state.expandedStats);
 
-export const useFiltersSheetOpen = () =>
-  useFirewallLogStore((state) => state.filtersSheetOpen);
+export const useFiltersSheetOpen = () => useFirewallLogStore((state) => state.filtersSheetOpen);

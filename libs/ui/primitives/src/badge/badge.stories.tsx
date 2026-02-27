@@ -18,12 +18,24 @@ const meta: Meta<typeof Badge> = {
   argTypes: {
     variant: {
       control: 'select',
-      options: ['default', 'secondary', 'success', 'connected', 'warning', 'error', 'info', 'offline', 'outline'],
-      description: 'Color variant. Semantic variants (success, warning, error, info) use standard status colors.',
+      options: [
+        'default',
+        'secondary',
+        'success',
+        'connected',
+        'warning',
+        'error',
+        'info',
+        'offline',
+        'outline',
+      ],
+      description:
+        'Color variant. Semantic variants (success, warning, error, info) use standard status colors.',
     },
     pulse: {
       control: 'boolean',
-      description: 'Enable pulse animation for live/real-time indicators (auto-disabled via prefers-reduced-motion)',
+      description:
+        'Enable pulse animation for live/real-time indicators (auto-disabled via prefers-reduced-motion)',
     },
     className: {
       control: 'text',
@@ -62,19 +74,19 @@ export const StatusBadges: Story = {
     <div className="space-y-4">
       <div className="flex items-center gap-2">
         <Badge variant="connected">Connected</Badge>
-        <span className="text-sm text-muted-foreground">Server is online and responding</span>
+        <span className="text-muted-foreground text-sm">Server is online and responding</span>
       </div>
       <div className="flex items-center gap-2">
         <Badge variant="warning">Pending</Badge>
-        <span className="text-sm text-muted-foreground">Connection is being established</span>
+        <span className="text-muted-foreground text-sm">Connection is being established</span>
       </div>
       <div className="flex items-center gap-2">
         <Badge variant="error">Failed</Badge>
-        <span className="text-sm text-muted-foreground">Connection could not be established</span>
+        <span className="text-muted-foreground text-sm">Connection could not be established</span>
       </div>
       <div className="flex items-center gap-2">
         <Badge variant="offline">Offline</Badge>
-        <span className="text-sm text-muted-foreground">Server is not responding</span>
+        <span className="text-muted-foreground text-sm">Server is not responding</span>
       </div>
     </div>
   ),
@@ -83,12 +95,18 @@ export const StatusBadges: Story = {
 export const WithIcon: Story = {
   render: () => (
     <div className="flex gap-2">
-      <Badge variant="success" className="gap-1">
-        <span className="h-2 w-2 rounded-full bg-success" />
+      <Badge
+        variant="success"
+        className="gap-1"
+      >
+        <span className="bg-success h-2 w-2 rounded-full" />
         Online
       </Badge>
-      <Badge variant="error" className="gap-1">
-        <span className="h-2 w-2 rounded-full bg-error" />
+      <Badge
+        variant="error"
+        className="gap-1"
+      >
+        <span className="bg-error h-2 w-2 rounded-full" />
         Offline
       </Badge>
     </div>
@@ -103,7 +121,10 @@ export const Mobile: Story = {
     <div className="space-y-3">
       <Badge variant="success">Online</Badge>
       <Badge variant="error">Offline</Badge>
-      <Badge variant="warning" pulse>
+      <Badge
+        variant="warning"
+        pulse
+      >
         Connecting
       </Badge>
     </div>
@@ -142,14 +163,14 @@ export const Desktop: Story = {
   render: () => (
     <div className="space-y-6">
       <div>
-        <h3 className="text-sm font-medium mb-2">Brand variants</h3>
+        <h3 className="mb-2 text-sm font-medium">Brand variants</h3>
         <div className="flex gap-2">
           <Badge variant="default">Primary</Badge>
           <Badge variant="secondary">Secondary</Badge>
         </div>
       </div>
       <div>
-        <h3 className="text-sm font-medium mb-2">Status indicators (semantic colors)</h3>
+        <h3 className="mb-2 text-sm font-medium">Status indicators (semantic colors)</h3>
         <div className="flex gap-2">
           <Badge variant="success">Online</Badge>
           <Badge variant="error">Offline</Badge>
@@ -158,27 +179,37 @@ export const Desktop: Story = {
         </div>
       </div>
       <div>
-        <h3 className="text-sm font-medium mb-2">With icons (color + icon + text)</h3>
+        <h3 className="mb-2 text-sm font-medium">With icons (color + icon + text)</h3>
         <div className="flex gap-2">
-          <Badge variant="success" className="gap-1">
-            <span className="h-2 w-2 rounded-full bg-success" />
+          <Badge
+            variant="success"
+            className="gap-1"
+          >
+            <span className="bg-success h-2 w-2 rounded-full" />
             Online
           </Badge>
-          <Badge variant="error" className="gap-1">
-            <span className="h-2 w-2 rounded-full bg-error" />
+          <Badge
+            variant="error"
+            className="gap-1"
+          >
+            <span className="bg-error h-2 w-2 rounded-full" />
             Offline
           </Badge>
         </div>
       </div>
       <div>
-        <h3 className="text-sm font-medium mb-2">Live indicator (pulse animation)</h3>
-        <Badge variant="success" pulse className="gap-1">
-          <span className="h-2 w-2 rounded-full bg-success" />
+        <h3 className="mb-2 text-sm font-medium">Live indicator (pulse animation)</h3>
+        <Badge
+          variant="success"
+          pulse
+          className="gap-1"
+        >
+          <span className="bg-success h-2 w-2 rounded-full" />
           Live
         </Badge>
       </div>
       <div>
-        <h3 className="text-sm font-medium mb-2">Other variants</h3>
+        <h3 className="mb-2 text-sm font-medium">Other variants</h3>
         <div className="flex gap-2">
           <Badge variant="offline">Offline</Badge>
           <Badge variant="outline">Outline</Badge>
@@ -211,7 +242,10 @@ export const DarkMode: Story = {
         <Badge variant="info">Info</Badge>
       </div>
       <div className="flex gap-2">
-        <Badge variant="success" pulse>
+        <Badge
+          variant="success"
+          pulse
+        >
           Live
         </Badge>
       </div>
@@ -230,25 +264,36 @@ export const LiveIndicators: Story = {
   render: () => (
     <div className="space-y-4">
       <div className="flex items-center gap-3">
-        <Badge variant="success" pulse className="gap-1">
-          <span className="h-2 w-2 rounded-full bg-success" />
+        <Badge
+          variant="success"
+          pulse
+          className="gap-1"
+        >
+          <span className="bg-success h-2 w-2 rounded-full" />
           Live
         </Badge>
-        <span className="text-sm text-muted-foreground">Server streaming data</span>
+        <span className="text-muted-foreground text-sm">Server streaming data</span>
       </div>
       <div className="flex items-center gap-3">
-        <Badge variant="warning" pulse className="gap-1">
-          <span className="h-2 w-2 rounded-full bg-warning" />
+        <Badge
+          variant="warning"
+          pulse
+          className="gap-1"
+        >
+          <span className="bg-warning h-2 w-2 rounded-full" />
           Syncing
         </Badge>
-        <span className="text-sm text-muted-foreground">Configuration in progress</span>
+        <span className="text-muted-foreground text-sm">Configuration in progress</span>
       </div>
       <div className="flex items-center gap-3">
-        <Badge variant="error" className="gap-1">
-          <span className="h-2 w-2 rounded-full bg-error" />
+        <Badge
+          variant="error"
+          className="gap-1"
+        >
+          <span className="bg-error h-2 w-2 rounded-full" />
           Error
         </Badge>
-        <span className="text-sm text-muted-foreground">No pulse (non-recoverable error)</span>
+        <span className="text-muted-foreground text-sm">No pulse (non-recoverable error)</span>
       </div>
     </div>
   ),
@@ -261,29 +306,35 @@ export const AccessibilityBestPractices: Story = {
   render: () => (
     <div className="space-y-6">
       <div>
-        <h3 className="text-sm font-semibold mb-3">✓ Correct: Color + Icon + Text</h3>
+        <h3 className="mb-3 text-sm font-semibold">✓ Correct: Color + Icon + Text</h3>
         <div className="space-y-2">
           <div className="flex items-center gap-2">
-            <Badge variant="success" className="gap-1">
-              <span className="h-2 w-2 rounded-full bg-success" />
+            <Badge
+              variant="success"
+              className="gap-1"
+            >
+              <span className="bg-success h-2 w-2 rounded-full" />
               Online
             </Badge>
-            <span className="text-xs text-muted-foreground">Uses all three indicators</span>
+            <span className="text-muted-foreground text-xs">Uses all three indicators</span>
           </div>
           <div className="flex items-center gap-2">
-            <Badge variant="error" className="gap-1">
-              <span className="h-2 w-2 rounded-full bg-error" />
+            <Badge
+              variant="error"
+              className="gap-1"
+            >
+              <span className="bg-error h-2 w-2 rounded-full" />
               Offline
             </Badge>
-            <span className="text-xs text-muted-foreground">Color-blind accessible</span>
+            <span className="text-muted-foreground text-xs">Color-blind accessible</span>
           </div>
         </div>
       </div>
       <div>
-        <h3 className="text-sm font-semibold mb-3">✗ Incorrect: Color Only</h3>
+        <h3 className="mb-3 text-sm font-semibold">✗ Incorrect: Color Only</h3>
         <div className="space-y-2">
           <Badge variant="success">Status indicator</Badge>
-          <span className="text-xs text-muted-foreground block">
+          <span className="text-muted-foreground block text-xs">
             Without icon/text, color-blind users cannot determine status
           </span>
         </div>

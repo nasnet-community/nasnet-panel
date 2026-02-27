@@ -20,9 +20,7 @@ vi.mock('@nasnet/ui/layouts', () => ({
   usePlatform: vi.fn(() => 'desktop'),
 }));
 
-const mockUsePlatform = vi.mocked(
-  await import('@nasnet/ui/layouts').then((m) => m.usePlatform)
-);
+const mockUsePlatform = vi.mocked(await import('@nasnet/ui/layouts').then((m) => m.usePlatform));
 
 describe('TracerouteTool Platform Detection', () => {
   const defaultProps = {
@@ -135,9 +133,7 @@ describe('TracerouteToolDesktop Rendering', () => {
       </MockedProvider>
     );
 
-    expect(
-      screen.getByText(/no results yet.*enter a target/i)
-    ).toBeInTheDocument();
+    expect(screen.getByText(/no results yet.*enter a target/i)).toBeInTheDocument();
   });
 
   it('should have font-mono class on target input for technical data', () => {

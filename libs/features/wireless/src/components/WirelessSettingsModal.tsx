@@ -62,40 +62,43 @@ function WirelessSettingsModalComponent({
   /**
    * Handle form submission with all settings
    */
-  const handleSubmit = React.useCallback((data: WirelessSettingsFormData) => {
-    // Build comprehensive update request
-    updateMutation.mutate(
-      {
-        routerIp,
-        interfaceId: iface.id,
-        interfaceName: iface.name,
-        securityProfileId: iface.securityProfile || 'default',
+  const handleSubmit = React.useCallback(
+    (data: WirelessSettingsFormData) => {
+      // Build comprehensive update request
+      updateMutation.mutate(
+        {
+          routerIp,
+          interfaceId: iface.id,
+          interfaceName: iface.name,
+          securityProfileId: iface.securityProfile || 'default',
 
-        // Basic settings - only include if changed
-        ssid: data.ssid !== iface.ssid ? data.ssid : undefined,
-        password: data.password && data.password.length > 0 ? data.password : undefined,
-        hideSsid: data.hideSsid !== iface.hideSsid ? data.hideSsid : undefined,
+          // Basic settings - only include if changed
+          ssid: data.ssid !== iface.ssid ? data.ssid : undefined,
+          password: data.password && data.password.length > 0 ? data.password : undefined,
+          hideSsid: data.hideSsid !== iface.hideSsid ? data.hideSsid : undefined,
 
-        // Radio settings - only include if changed
-        channel: data.channel !== iface.channel ? data.channel : undefined,
-        channelWidth: data.channelWidth !== iface.channelWidth ? data.channelWidth : undefined,
-        txPower: data.txPower !== iface.txPower ? data.txPower : undefined,
+          // Radio settings - only include if changed
+          channel: data.channel !== iface.channel ? data.channel : undefined,
+          channelWidth: data.channelWidth !== iface.channelWidth ? data.channelWidth : undefined,
+          txPower: data.txPower !== iface.txPower ? data.txPower : undefined,
 
-        // Security settings
-        securityMode: data.securityMode,
+          // Security settings
+          securityMode: data.securityMode,
 
-        // Regional settings - only include if changed
-        countryCode: data.countryCode !== iface.countryCode ? data.countryCode : undefined,
-      },
-      {
-        onSuccess: () => {
-          // Close modal on success
-          setIsDirty(false);
-          onOpenChange(false);
+          // Regional settings - only include if changed
+          countryCode: data.countryCode !== iface.countryCode ? data.countryCode : undefined,
         },
-      }
-    );
-  }, [iface, routerIp, updateMutation, onOpenChange]);
+        {
+          onSuccess: () => {
+            // Close modal on success
+            setIsDirty(false);
+            onOpenChange(false);
+          },
+        }
+      );
+    },
+    [iface, routerIp, updateMutation, onOpenChange]
+  );
 
   /**
    * Handle cancel - check for unsaved changes
@@ -138,8 +141,11 @@ function WirelessSettingsModalComponent({
 
   return (
     <>
-      <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+      <Dialog
+        open={open}
+        onOpenChange={onOpenChange}
+      >
+        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[600px]">
           <DialogHeader>
             <DialogTitle>Edit WiFi Settings</DialogTitle>
             <DialogDescription>

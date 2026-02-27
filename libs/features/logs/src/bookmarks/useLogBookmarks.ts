@@ -98,9 +98,7 @@ function saveBookmarks(logs: LogEntry[]): void {
  * }
  */
 export function useLogBookmarks(): UseLogBookmarksReturn {
-  const [bookmarkedLogs, setBookmarkedLogs] = React.useState<LogEntry[]>(() =>
-    loadBookmarks()
-  );
+  const [bookmarkedLogs, setBookmarkedLogs] = React.useState<LogEntry[]>(() => loadBookmarks());
 
   // Compute bookmarked IDs set for O(1) lookup
   const bookmarkedIds = React.useMemo(
@@ -177,30 +175,3 @@ export function useLogBookmarks(): UseLogBookmarksReturn {
     ]
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

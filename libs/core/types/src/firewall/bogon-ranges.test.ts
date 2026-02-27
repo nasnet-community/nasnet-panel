@@ -6,12 +6,7 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import {
-  BOGON_RANGES,
-  isBogonAddress,
-  getBogonCategory,
-  getAllBogonRanges,
-} from './bogon-ranges';
+import { BOGON_RANGES, isBogonAddress, getBogonCategory, getAllBogonRanges } from './bogon-ranges';
 
 // ============================================================================
 // Bogon Ranges Constants Tests

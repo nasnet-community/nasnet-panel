@@ -10,7 +10,8 @@ const meta: Meta<typeof ResourceListSkeleton> = {
     layout: 'centered',
     docs: {
       description: {
-        component: 'Loading skeleton for resource list and table views. Used for VPN servers, firewall rules, DHCP leases, and other tabular data. Provides a skeleton layout with header, search/filter bar, data table, and pagination controls.',
+        component:
+          'Loading skeleton for resource list and table views. Used for VPN servers, firewall rules, DHCP leases, and other tabular data. Provides a skeleton layout with header, search/filter bar, data table, and pagination controls.',
       },
     },
   },
@@ -27,7 +28,13 @@ export const Default: Story = {
     showActions: true,
     showPagination: true,
   },
-  decorators: [(Story) => <div style={{ width: 900 }}><Story /></div>],
+  decorators: [
+    (Story) => (
+      <div style={{ width: 900 }}>
+        <Story />
+      </div>
+    ),
+  ],
 };
 
 export const Compact: Story = {
@@ -38,7 +45,13 @@ export const Compact: Story = {
     showActions: false,
     showPagination: false,
   },
-  decorators: [(Story) => <div style={{ width: 500 }}><Story /></div>],
+  decorators: [
+    (Story) => (
+      <div style={{ width: 500 }}>
+        <Story />
+      </div>
+    ),
+  ],
 };
 
 export const WithoutPagination: Story = {
@@ -49,7 +62,13 @@ export const WithoutPagination: Story = {
     showActions: true,
     showPagination: false,
   },
-  decorators: [(Story) => <div style={{ width: 800 }}><Story /></div>],
+  decorators: [
+    (Story) => (
+      <div style={{ width: 800 }}>
+        <Story />
+      </div>
+    ),
+  ],
 };
 
 export const Full: Story = {
@@ -60,5 +79,11 @@ export const Full: Story = {
     showActions: true,
     showPagination: true,
   },
-  decorators: [(Story) => <div style={{ width: 1000 }}><Story /></div>],
+  decorators: [
+    (Story) => (
+      <div style={{ width: 1000 }}>
+        <Story />
+      </div>
+    ),
+  ],
 };

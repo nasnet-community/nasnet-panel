@@ -31,9 +31,7 @@ export const ipv4 = z.string().refine(
     return parts.every((part) => {
       const num = parseInt(part, 10);
       // Ensure no leading zeros (except for "0" itself) and valid range
-      return (
-        !isNaN(num) && num >= 0 && num <= 255 && part === String(num)
-      );
+      return !isNaN(num) && num >= 0 && num <= 255 && part === String(num);
     });
   },
   { message: 'Invalid IPv4 address (format: 192.168.1.1)' }
@@ -70,10 +68,11 @@ export const ipAddress = z.union([ipv4, ipv6]);
  * mac.parse('00:1A:2B:3C:4D');     // Invalid - only 5 octets
  * ```
  */
-export const mac = z.string().refine(
-  (val) => /^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$/.test(val),
-  { message: 'Invalid MAC address (format: XX:XX:XX:XX:XX:XX or XX-XX-XX-XX-XX-XX)' }
-);
+export const mac = z
+  .string()
+  .refine((val) => /^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$/.test(val), {
+    message: 'Invalid MAC address (format: XX:XX:XX:XX:XX:XX or XX-XX-XX-XX-XX-XX)',
+  });
 
 /**
  * CIDR notation validator with proper network validation.
@@ -154,7 +153,11 @@ export const cidr6 = z.string().refine(
  * port.parse(8080.5);    // Invalid - must be integer
  * ```
  */
-export const port = z.number().int().min(1, 'Port must be between 1 and 65535').max(65535, 'Port must be between 1 and 65535');
+export const port = z
+  .number()
+  .int()
+  .min(1, 'Port must be between 1 and 65535')
+  .max(65535, 'Port must be between 1 and 65535');
 
 /**
  * Port number as string validator.
@@ -197,13 +200,7 @@ export const portRange = z.string().refine(
       const [startStr, endStr] = val.split('-');
       const start = parseInt(startStr, 10);
       const end = parseInt(endStr, 10);
-      return (
-        !isNaN(start) &&
-        !isNaN(end) &&
-        start >= 1 &&
-        end <= 65535 &&
-        start <= end
-      );
+      return !isNaN(start) && !isNaN(end) && start >= 1 && end <= 65535 && start <= end;
     }
     const port = parseInt(val, 10);
     return !isNaN(port) && port >= 1 && port <= 65535 && val === String(port);
@@ -224,7 +221,11 @@ export const portRange = z.string().refine(
  * vlanId.parse(4096);    // Invalid - out of range
  * ```
  */
-export const vlanId = z.number().int().min(1, 'VLAN ID must be between 1 and 4094').max(4094, 'VLAN ID must be between 1 and 4094');
+export const vlanId = z
+  .number()
+  .int()
+  .min(1, 'VLAN ID must be between 1 and 4094')
+  .max(4094, 'VLAN ID must be between 1 and 4094');
 
 /**
  * VLAN ID as string validator.
@@ -258,10 +259,11 @@ export const vlanIdString = z.string().refine(
  * wgKey.parse('jI6DYlg34+z6Q+q6d8YB5ibQwQAawamJBcht5xF24mE');  // Invalid - missing =
  * ```
  */
-export const wgKey = z.string().refine(
-  (val) => /^[A-Za-z0-9+/]{43}=$/.test(val),
-  { message: 'Invalid WireGuard key (must be 44 characters ending with =)' }
-);
+export const wgKey = z
+  .string()
+  .refine((val) => /^[A-Za-z0-9+/]{43}=$/.test(val), {
+    message: 'Invalid WireGuard key (must be 44 characters ending with =)',
+  });
 
 /**
  * Hostname validator (RFC 1123).
@@ -326,10 +328,11 @@ export const domain = z.string().refine(
  * interfaceName.parse('a'.repeat(65));   // Invalid - too long (>64)
  * ```
  */
-export const interfaceName = z.string().refine(
-  (val) => /^[a-zA-Z0-9][a-zA-Z0-9._-]*$/.test(val) && val.length <= 64,
-  { message: 'Invalid interface name (start with alphanumeric, use [a-zA-Z0-9._-], max 64 chars)' }
-);
+export const interfaceName = z
+  .string()
+  .refine((val) => /^[a-zA-Z0-9][a-zA-Z0-9._-]*$/.test(val) && val.length <= 64, {
+    message: 'Invalid interface name (start with alphanumeric, use [a-zA-Z0-9._-], max 64 chars)',
+  });
 
 /**
  * MikroTik comment validator.
@@ -369,10 +372,11 @@ export const comment = z
  * duration.parse('30x');     // Invalid - unknown unit
  * ```
  */
-export const duration = z.string().refine(
-  (val) => /^\d+[smhd]$/.test(val),
-  { message: 'Invalid duration (format: 30s|5m|1h|7d, numeric followed by s/m/h/d)' }
-);
+export const duration = z
+  .string()
+  .refine((val) => /^\d+[smhd]$/.test(val), {
+    message: 'Invalid duration (format: 30s|5m|1h|7d, numeric followed by s/m/h/d)',
+  });
 
 /**
  * Bandwidth string validator.
@@ -388,10 +392,11 @@ export const duration = z.string().refine(
  * bandwidth.parse('k100');       // Invalid - unit after number
  * ```
  */
-export const bandwidth = z.string().refine(
-  (val) => /^\d+(\.\d+)?[kKmMgG]?$/.test(val),
-  { message: 'Invalid bandwidth (format: 100, 100k, 1.5m, 1g; units: k/m/g optional)' }
-);
+export const bandwidth = z
+  .string()
+  .refine((val) => /^\d+(\.\d+)?[kKmMgG]?$/.test(val), {
+    message: 'Invalid bandwidth (format: 100, 100k, 1.5m, 1g; units: k/m/g optional)',
+  });
 
 // ============================================================================
 // Extended Network Validators (NAS-4A.3)
@@ -417,9 +422,7 @@ export const subnetMask = z.string().refine(
     if (octets.some((o) => isNaN(o) || o < 0 || o > 255)) return false;
 
     // Convert to binary and check for contiguous 1s followed by 0s
-    const binary = octets
-      .map((o) => o.toString(2).padStart(8, '0'))
-      .join('');
+    const binary = octets.map((o) => o.toString(2).padStart(8, '0')).join('');
 
     // Valid masks are all 1s followed by all 0s (e.g., 11111111111111111111111100000000)
     return /^1*0*$/.test(binary);

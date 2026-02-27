@@ -5,7 +5,6 @@
  * Integrates with React Hook Form.
  */
 
-
 import { Controller, type UseFormReturn } from 'react-hook-form';
 
 import {
@@ -136,9 +135,7 @@ function VariableField({ variable, form, disabled }: VariableFieldProps) {
             >
               <SelectTrigger
                 id={variable.name}
-                className={cn(
-                  hasError && 'border-destructive focus-visible:ring-destructive'
-                )}
+                className={cn(hasError && 'border-destructive focus-visible:ring-destructive')}
                 aria-invalid={hasError}
                 aria-describedby={hasError ? `${variable.name}-error` : undefined}
               >
@@ -146,7 +143,10 @@ function VariableField({ variable, form, disabled }: VariableFieldProps) {
               </SelectTrigger>
               <SelectContent>
                 {variable.options?.map((option: string) => (
-                  <SelectItem key={option} value={option}>
+                  <SelectItem
+                    key={option}
+                    value={option}
+                  >
                     {option}
                   </SelectItem>
                 ))}
@@ -156,11 +156,14 @@ function VariableField({ variable, form, disabled }: VariableFieldProps) {
         />
 
         {variable.description && (
-          <p className="text-xs text-muted-foreground">{variable.description}</p>
+          <p className="text-muted-foreground text-xs">{variable.description}</p>
         )}
 
         {hasError && (
-          <p id={`${variable.name}-error`} className="text-xs text-destructive">
+          <p
+            id={`${variable.name}-error`}
+            className="text-destructive text-xs"
+          >
             {error.message as string}
           </p>
         )}
@@ -184,24 +187,24 @@ function VariableField({ variable, form, disabled }: VariableFieldProps) {
         disabled={disabled}
         aria-invalid={hasError}
         aria-describedby={hasError ? `${variable.name}-error` : undefined}
-        className={cn(
-          'font-mono',
-          hasError && 'border-destructive focus-visible:ring-destructive'
-        )}
+        className={cn('font-mono', hasError && 'border-destructive focus-visible:ring-destructive')}
       />
 
       {variable.description && !hasError && (
-        <p className="text-xs text-muted-foreground">{variable.description}</p>
+        <p className="text-muted-foreground text-xs">{variable.description}</p>
       )}
 
       {hasError && (
-        <p id={`${variable.name}-error`} className="text-xs text-destructive">
+        <p
+          id={`${variable.name}-error`}
+          className="text-destructive text-xs"
+        >
           {error.message as string}
         </p>
       )}
 
       {!hasError && !variable.description && (
-        <p className="text-xs text-muted-foreground">{getHelpText(variable.type)}</p>
+        <p className="text-muted-foreground text-xs">{getHelpText(variable.type)}</p>
       )}
     </div>
   );
@@ -228,7 +231,7 @@ export function TemplateVariableEditor({
 }: TemplateVariableEditorProps) {
   if (variables.length === 0) {
     return (
-      <div className={cn('text-center py-8 text-muted-foreground', className)}>
+      <div className={cn('text-muted-foreground py-8 text-center', className)}>
         No variables required for this template.
       </div>
     );

@@ -1,6 +1,8 @@
 # State Persistence API
 
-The **State Persistence API** provides localStorage-based persistence for XState machines, enabling session recovery after browser close/crash. It's used by wizards, config pipelines, and other long-running workflows to let users resume from where they left off.
+The **State Persistence API** provides localStorage-based persistence for XState machines, enabling
+session recovery after browser close/crash. It's used by wizards, config pipelines, and other
+long-running workflows to let users resume from where they left off.
 
 **Source:** `libs/state/machines/src/persistence.ts`
 
@@ -25,10 +27,11 @@ export function persistMachineState<TContext>(
   machineId: string,
   stateValue: string,
   context: TContext
-): void
+): void;
 ```
 
 **Parameters:**
+
 - `machineId` - Unique identifier for the machine (e.g., `'vpn-wizard'`)
 - `stateValue` - Current state value (e.g., `'step'`, `'validating'`)
 - `context` - Current machine context (all state data)
@@ -57,6 +60,7 @@ persistMachineState('vpn-setup', 'step', {
 ```
 
 **When to use:**
+
 - In machine action: `actions: { saveMachine: () => persistMachineState(...) }`
 - In useEffect hook: Auto-persist on state changes
 - Manually on critical transitions
@@ -68,11 +72,12 @@ Restores machine state from localStorage.
 ```typescript
 export function restoreMachineState<TContext>(
   machineId: string,
-  maxAge: number = SESSION_TIMEOUT_MS  // 24 hours default
-): PersistedMachineState<TContext> | null
+  maxAge: number = SESSION_TIMEOUT_MS // 24 hours default
+): PersistedMachineState<TContext> | null;
 ```
 
 **Returns:**
+
 - `PersistedMachineState` - Saved state if valid and not expired
 - `null` - If no saved state, expired, or corrupted
 
@@ -93,6 +98,7 @@ if (saved) {
 ```
 
 **Automatic cleanup:**
+
 - Expired sessions (older than maxAge) are deleted automatically
 - Corrupted data is deleted automatically
 - Returns `null` for safety
@@ -102,7 +108,7 @@ if (saved) {
 Deletes saved state for a machine.
 
 ```typescript
-export function clearMachineState(machineId: string): void
+export function clearMachineState(machineId: string): void;
 ```
 
 **Example:**
@@ -121,10 +127,7 @@ clearMachineState('device-pairing');
 Checks if a machine has a valid saved session.
 
 ```typescript
-export function hasSavedSession(
-  machineId: string,
-  maxAge: number = SESSION_TIMEOUT_MS
-): boolean
+export function hasSavedSession(machineId: string, maxAge: number = SESSION_TIMEOUT_MS): boolean;
 ```
 
 **Example:**
@@ -146,10 +149,11 @@ function VPNSetupPage() {
 Gets the age of a saved session in milliseconds.
 
 ```typescript
-export function getSessionAge(machineId: string): number | null
+export function getSessionAge(machineId: string): number | null;
 ```
 
 **Returns:**
+
 - `number` - Age in milliseconds
 - `null` - If no session exists
 
@@ -158,7 +162,8 @@ export function getSessionAge(machineId: string): number | null
 ```typescript
 const ageMs = getSessionAge('vpn-setup');
 
-if (ageMs && ageMs > 3600000) {  // 1 hour
+if (ageMs && ageMs > 3600000) {
+  // 1 hour
   console.log('Session is older than 1 hour');
 }
 ```
@@ -168,7 +173,7 @@ if (ageMs && ageMs > 3600000) {  // 1 hour
 Formats session age for human display.
 
 ```typescript
-export function formatSessionAge(ageMs: number): string
+export function formatSessionAge(ageMs: number): string;
 ```
 
 **Returns:** Human-readable age string (e.g., `"2 hours ago"`, `"just now"`)
@@ -178,9 +183,9 @@ export function formatSessionAge(ageMs: number): string
 ```tsx
 const ageMs = getSessionAge('vpn-setup');
 
-{ageMs && (
-  <p>Your previous setup was {formatSessionAge(ageMs)}</p>
-)}
+{
+  ageMs && <p>Your previous setup was {formatSessionAge(ageMs)}</p>;
+}
 ```
 
 ### `clearAllMachineStates()`
@@ -188,7 +193,7 @@ const ageMs = getSessionAge('vpn-setup');
 Clears all saved machine states (useful for logout).
 
 ```typescript
-export function clearAllMachineStates(): void
+export function clearAllMachineStates(): void;
 ```
 
 **Example:**
@@ -206,9 +211,7 @@ function handleLogout() {
 Removes sessions older than specified age (default: 24 hours).
 
 ```typescript
-export function cleanupStaleSessions(
-  maxAge: number = SESSION_TIMEOUT_MS
-): number  // Returns count of cleaned sessions
+export function cleanupStaleSessions(maxAge: number = SESSION_TIMEOUT_MS): number; // Returns count of cleaned sessions
 ```
 
 **Example:**
@@ -226,7 +229,7 @@ useEffect(() => {
 Gets all machine IDs with saved sessions.
 
 ```typescript
-export function getSavedMachineIds(): string[]
+export function getSavedMachineIds(): string[];
 ```
 
 **Example:**
@@ -244,14 +247,14 @@ Creates session recovery options with defaults.
 ```typescript
 export function createSessionRecoveryOptions(
   options: Partial<SessionRecoveryOptions> = {}
-): Required<SessionRecoveryOptions>
+): Required<SessionRecoveryOptions>;
 ```
 
 **Example:**
 
 ```typescript
 const recovery = createSessionRecoveryOptions({
-  maxAge: 3600000,  // 1 hour
+  maxAge: 3600000, // 1 hour
   promptBeforeRestore: true,
   onRestore: () => console.log('Session restored!'),
 });
@@ -306,6 +309,7 @@ export const SESSION_TIMEOUT_MS = 24 * 60 * 60 * 1000;
 ```
 
 **Storage format:**
+
 ```
 nasnet-machine-vpn-setup
 nasnet-machine-device-pairing
@@ -321,8 +325,8 @@ import { useWizard } from '@nasnet/state/machines';
 
 function VPNSetup() {
   const wizard = useWizard(config, {
-    autoPersist: true,      // Auto-save on every state change
-    autoRestore: false,     // Show resume prompt (not auto-restore)
+    autoPersist: true, // Auto-save on every state change
+    autoRestore: false, // Show resume prompt (not auto-restore)
     onRestore: () => {
       toast.info('Resuming previous setup...');
     },
@@ -364,9 +368,7 @@ function CustomWizard() {
 
   // Auto-persist on state changes
   useEffect(() => {
-    const stateValue = typeof state.value === 'string'
-      ? state.value
-      : JSON.stringify(state.value);
+    const stateValue = typeof state.value === 'string' ? state.value : JSON.stringify(state.value);
 
     persistMachineState('my-wizard', stateValue, state.context);
   }, [state]);
@@ -414,6 +416,7 @@ function CustomWizard() {
 ```
 
 **Key insights:**
+
 - Each machine ID has its own storage entry
 - Timestamp allows timeout detection
 - Full context is serialized (must be JSON-compatible)
@@ -427,15 +430,15 @@ Use descriptive, unique IDs:
 
 ```typescript
 // Good
-'vpn-setup'
-'device-pairing'
-'dns-config'
-'firewall-rule-editor'
+'vpn-setup';
+'device-pairing';
+'dns-config';
+'firewall-rule-editor';
 
 // Bad (too generic)
-'wizard'
-'form'
-'modal'
+'wizard';
+'form';
+'modal';
 ```
 
 ### 2. Exclude Non-Serializable Data
@@ -462,7 +465,7 @@ context: {
 function useAuth() {
   const logout = useCallback(async () => {
     await api.logout();
-    clearAllMachineStates();  // Clear all wizard sessions
+    clearAllMachineStates(); // Clear all wizard sessions
     navigate('/login');
   }, []);
 
@@ -502,7 +505,11 @@ if (saved) {
 ## Testing Persistence
 
 ```typescript
-import { persistMachineState, restoreMachineState, clearMachineState } from '@nasnet/state/machines';
+import {
+  persistMachineState,
+  restoreMachineState,
+  clearMachineState,
+} from '@nasnet/state/machines';
 
 describe('Machine Persistence', () => {
   afterEach(() => {
@@ -540,11 +547,13 @@ describe('Machine Persistence', () => {
 ## Storage Limits
 
 localStorage has limits:
+
 - **Chrome/Firefox:** ~5-10MB per domain
 - **Safari:** ~5MB per domain
 - **IE:** ~10MB per domain
 
 **To stay safe:**
+
 - Keep context objects small (< 100KB each)
 - Don't store large binary data
 - Periodically clean old sessions
@@ -555,7 +564,7 @@ function getStorageUsage() {
   const keys = getSavedMachineIds();
   let total = 0;
 
-  keys.forEach(key => {
+  keys.forEach((key) => {
     const stored = localStorage.getItem(`nasnet-machine-${key}`);
     if (stored) {
       total += stored.length;

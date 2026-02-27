@@ -70,25 +70,31 @@ export const RouterCard = memo(function RouterCard({
   onRemove,
   className,
 }: RouterCardProps) {
-  const handleConnect = useCallback((e: React.MouseEvent) => {
-    e.stopPropagation();
-    onConnect?.(router);
-  }, [router, onConnect]);
+  const handleConnect = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation();
+      onConnect?.(router);
+    },
+    [router, onConnect]
+  );
 
-  const handleRemove = useCallback((e: React.MouseEvent) => {
-    e.stopPropagation();
-    onRemove?.(router);
-  }, [router, onRemove]);
+  const handleRemove = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation();
+      onRemove?.(router);
+    },
+    [router, onRemove]
+  );
 
   return (
     <motion.div
       onClick={() => onClick?.(router)}
       onDoubleClick={() => onDoubleClick?.(router)}
       className={cn(
-        'p-component-md rounded-lg border-2 transition-all cursor-pointer',
-        isSelected
-          ? 'border-primary bg-primary/5'
-          : 'border-border bg-card hover:border-primary/50',
+        'p-component-md cursor-pointer rounded-lg border-2 transition-all',
+        isSelected ?
+          'border-primary bg-primary/5'
+        : 'border-border bg-card hover:border-primary/50',
         className
       )}
       whileHover={{ scale: 1.01 }}
@@ -96,18 +102,16 @@ export const RouterCard = memo(function RouterCard({
     >
       <div className="flex items-start justify-between">
         {/* Router Info */}
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-component-sm mb-component-sm">
-            <h3 className="text-lg font-semibold text-foreground truncate">
+        <div className="min-w-0 flex-1">
+          <div className="gap-component-sm mb-component-sm flex items-center">
+            <h3 className="text-foreground truncate text-lg font-semibold">
               {router.name || router.ipAddress}
             </h3>
             <ConnectionStatusBadge status={router.connectionStatus} />
           </div>
 
           <div className="space-y-component-sm text-sm">
-            <p className="font-mono text-foreground">
-              {router.ipAddress}
-            </p>
+            <p className="text-foreground font-mono">{router.ipAddress}</p>
 
             {router.model && (
               <p className="text-muted-foreground">
@@ -117,22 +121,19 @@ export const RouterCard = memo(function RouterCard({
 
             {router.routerOsVersion && (
               <p className="text-muted-foreground">
-                <span className="font-medium">RouterOS:</span>{' '}
-                {router.routerOsVersion}
+                <span className="font-medium">RouterOS:</span> {router.routerOsVersion}
               </p>
             )}
 
             {router.macAddress && (
-              <p className="font-mono text-xs text-muted-foreground">
-                MAC: {router.macAddress}
-              </p>
+              <p className="text-muted-foreground font-mono text-xs">MAC: {router.macAddress}</p>
             )}
           </div>
 
           {/* Metadata */}
-          <div className="mt-component-md flex items-center gap-component-lg text-xs text-muted-foreground">
-            <span className="flex items-center gap-component-xs">
-              {router.discoveryMethod === 'scan' ? (
+          <div className="mt-component-md gap-component-lg text-muted-foreground flex items-center text-xs">
+            <span className="gap-component-xs flex items-center">
+              {router.discoveryMethod === 'scan' ?
                 <>
                   <svg
                     className="h-3 w-3"
@@ -149,8 +150,7 @@ export const RouterCard = memo(function RouterCard({
                   </svg>
                   Auto-discovered
                 </>
-              ) : (
-                <>
+              : <>
                   <svg
                     className="h-3 w-3"
                     fill="none"
@@ -166,23 +166,24 @@ export const RouterCard = memo(function RouterCard({
                   </svg>
                   Manually added
                 </>
-              )}
+              }
             </span>
 
             {router.lastConnected && (
-              <span>
-                Last: {new Date(router.lastConnected).toLocaleDateString()}
-              </span>
+              <span>Last: {new Date(router.lastConnected).toLocaleDateString()}</span>
             )}
           </div>
         </div>
 
         {/* Actions */}
-        <div className="flex flex-col gap-component-sm ml-component-md">
+        <div className="gap-component-sm ml-component-md flex flex-col">
           {onConnect && router.connectionStatus !== 'online' && (
             <button
               onClick={handleConnect}
-              className={cn('px-component-sm py-component-sm text-sm rounded-md transition-colors', 'bg-primary text-primary-foreground hover:bg-primary/90')}
+              className={cn(
+                'px-component-sm py-component-sm rounded-md text-sm transition-colors',
+                'bg-primary text-primary-foreground hover:bg-primary/90'
+              )}
             >
               Connect
             </button>
@@ -191,7 +192,10 @@ export const RouterCard = memo(function RouterCard({
           {onRemove && (
             <button
               onClick={handleRemove}
-              className={cn('px-component-sm py-component-sm text-sm rounded-md transition-colors', 'bg-muted text-foreground hover:bg-muted/80')}
+              className={cn(
+                'px-component-sm py-component-sm rounded-md text-sm transition-colors',
+                'bg-muted text-foreground hover:bg-muted/80'
+              )}
             >
               Remove
             </button>
@@ -215,27 +219,35 @@ const ConnectionStatusBadge = memo(function ConnectionStatusBadge({
   const config = {
     online: {
       label: 'Connected',
-      className: cn('inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium', 'bg-success/20 text-success'),
+      className: cn(
+        'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium',
+        'bg-success/20 text-success'
+      ),
     },
     offline: {
       label: 'Offline',
-      className: cn('inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium', 'bg-muted text-muted-foreground'),
+      className: cn(
+        'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium',
+        'bg-muted text-muted-foreground'
+      ),
     },
     unknown: {
       label: 'Not tested',
-      className: cn('inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium', 'bg-warning/20 text-warning'),
+      className: cn(
+        'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium',
+        'bg-warning/20 text-warning'
+      ),
     },
     connecting: {
       label: 'Connecting...',
-      className: cn('inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium', 'bg-info/20 text-info'),
+      className: cn(
+        'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium',
+        'bg-info/20 text-info'
+      ),
     },
   }[status];
 
-  return (
-    <span className={config.className}>
-      {config.label}
-    </span>
-  );
+  return <span className={config.className}>{config.label}</span>;
 });
 
 ConnectionStatusBadge.displayName = 'ConnectionStatusBadge';

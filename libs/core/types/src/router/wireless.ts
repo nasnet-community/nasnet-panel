@@ -68,11 +68,7 @@ export interface WirelessInterface {
  * - `6GHz` - 6000-7000 MHz band (WiFi 6E and newer)
  * - `Unknown` - Unrecognized frequency
  */
-export type FrequencyBand =
-  | '2.4GHz'
-  | '5GHz'
-  | '6GHz'
-  | 'Unknown';
+export type FrequencyBand = '2.4GHz' | '5GHz' | '6GHz' | 'Unknown';
 
 /**
  * Wireless operating modes
@@ -87,12 +83,12 @@ export type FrequencyBand =
  * - `alignment-only` - Alignment mode (no forwarding, signal testing)
  */
 export type WirelessMode =
-  | 'ap-bridge'              // Access Point Bridge mode (most common)
-  | 'station'                // Station mode (client)
-  | 'station-bridge'         // Station Bridge
-  | 'station-pseudobridge'   // Station Pseudobridge
-  | 'wds-slave'              // WDS Slave
-  | 'alignment-only';        // Alignment mode
+  | 'ap-bridge' // Access Point Bridge mode (most common)
+  | 'station' // Station mode (client)
+  | 'station-bridge' // Station Bridge
+  | 'station-pseudobridge' // Station Pseudobridge
+  | 'wds-slave' // WDS Slave
+  | 'alignment-only'; // Alignment mode
 
 /**
  * Security profile for wireless networks
@@ -136,9 +132,9 @@ export interface SecurityProfile {
  * - `dynamic-keys` - WPA/WPA2/WPA3 (recommended)
  */
 export type SecurityMode =
-  | 'none'                    // Open network
-  | 'static-keys-required'    // WEP
-  | 'dynamic-keys';           // WPA/WPA2
+  | 'none' // Open network
+  | 'static-keys-required' // WEP
+  | 'dynamic-keys'; // WPA/WPA2
 
 /**
  * Authentication types
@@ -149,12 +145,12 @@ export type SecurityMode =
  * - EAP variants use enterprise authentication (RADIUS)
  */
 export type AuthenticationType =
-  | 'wpa-psk'     // WPA with pre-shared key
-  | 'wpa2-psk'    // WPA2 with pre-shared key
-  | 'wpa3-psk'    // WPA3 with pre-shared key (SAE)
-  | 'wpa-eap'     // WPA with enterprise authentication
-  | 'wpa2-eap'    // WPA2 with enterprise authentication
-  | 'wpa3-eap';   // WPA3 with enterprise authentication
+  | 'wpa-psk' // WPA with pre-shared key
+  | 'wpa2-psk' // WPA2 with pre-shared key
+  | 'wpa3-psk' // WPA3 with pre-shared key (SAE)
+  | 'wpa-eap' // WPA with enterprise authentication
+  | 'wpa2-eap' // WPA2 with enterprise authentication
+  | 'wpa3-eap'; // WPA3 with enterprise authentication
 
 /**
  * Cipher algorithms
@@ -165,8 +161,8 @@ export type AuthenticationType =
  * - `tkip` - TKIP (legacy, less secure)
  */
 export type Cipher =
-  | 'aes-ccm'     // AES-CCMP (recommended)
-  | 'tkip';       // TKIP (legacy)
+  | 'aes-ccm' // AES-CCMP (recommended)
+  | 'tkip'; // TKIP (legacy)
 
 /**
  * Channel widths supported by wireless interfaces
@@ -178,11 +174,7 @@ export type Cipher =
  * - `80MHz` - 5GHz/6GHz only
  * - `160MHz` - 5GHz/6GHz only, maximum bandwidth
  */
-export type ChannelWidth =
-  | '20MHz'
-  | '40MHz'
-  | '80MHz'
-  | '160MHz';
+export type ChannelWidth = '20MHz' | '40MHz' | '80MHz' | '160MHz';
 
 /**
  * Detailed wireless interface data extending base interface
@@ -309,9 +301,9 @@ export function getSecurityLevel(profile: SecurityProfile): SecurityLevel {
  * - `wpa2-wpa3-psk` - WPA2/WPA3 Transitional (mixed device support)
  */
 export type WirelessSecurityOption =
-  | 'none'           // Open network
-  | 'wpa2-psk'       // WPA2-Personal (most common)
-  | 'wpa3-psk'       // WPA3-Personal (SAE)
+  | 'none' // Open network
+  | 'wpa2-psk' // WPA2-Personal (most common)
+  | 'wpa3-psk' // WPA3-Personal (SAE)
   | 'wpa2-wpa3-psk'; // WPA2/WPA3 Transitional
 
 /**

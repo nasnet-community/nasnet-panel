@@ -20,7 +20,10 @@ const meta: Meta<typeof VPNServerCard> = {
   argTypes: {
     id: { control: 'text' },
     name: { control: 'text' },
-    protocol: { control: 'select', options: ['wireguard', 'openvpn', 'l2tp', 'ikev2', 'pptp', 'sstp'] as VPNProtocol[] },
+    protocol: {
+      control: 'select',
+      options: ['wireguard', 'openvpn', 'l2tp', 'ikev2', 'pptp', 'sstp'] as VPNProtocol[],
+    },
     isDisabled: { control: 'boolean' },
     isRunning: { control: 'boolean' },
     port: { control: 'number' },
@@ -164,7 +167,8 @@ export const Toggling: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Server in toggling state - the enable/disable switch is disabled while the operation completes.',
+        story:
+          'Server in toggling state - the enable/disable switch is disabled while the operation completes.',
       },
     },
   },

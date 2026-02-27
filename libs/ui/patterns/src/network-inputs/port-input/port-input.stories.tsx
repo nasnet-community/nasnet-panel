@@ -113,7 +113,7 @@ function PortInputInteractive(props: React.ComponentProps<typeof PortInput>) {
         value={value ?? undefined}
         onChange={(v) => setValue(v)}
       />
-      <div className="mt-4 p-2 bg-muted rounded text-sm font-mono">
+      <div className="bg-muted mt-4 rounded p-2 font-mono text-sm">
         Value: {JSON.stringify(value)}
       </div>
     </div>
@@ -153,13 +153,38 @@ export const WithValidPort: Story = {
  */
 export const ServiceLookup: Story = {
   render: () => (
-    <div className="space-y-4 w-80">
-      <PortInputInteractive label="HTTP" value={80} showService />
-      <PortInputInteractive label="HTTPS" value={443} showService />
-      <PortInputInteractive label="SSH" value={22} showService />
-      <PortInputInteractive label="MySQL" value={3306} showService />
-      <PortInputInteractive label="WireGuard" value={51820} showService protocol="udp" />
-      <PortInputInteractive label="Winbox" value={8291} showService />
+    <div className="w-80 space-y-4">
+      <PortInputInteractive
+        label="HTTP"
+        value={80}
+        showService
+      />
+      <PortInputInteractive
+        label="HTTPS"
+        value={443}
+        showService
+      />
+      <PortInputInteractive
+        label="SSH"
+        value={22}
+        showService
+      />
+      <PortInputInteractive
+        label="MySQL"
+        value={3306}
+        showService
+      />
+      <PortInputInteractive
+        label="WireGuard"
+        value={51820}
+        showService
+        protocol="udp"
+      />
+      <PortInputInteractive
+        label="Winbox"
+        value={8291}
+        showService
+      />
     </div>
   ),
 };
@@ -169,7 +194,7 @@ export const ServiceLookup: Story = {
  */
 export const ErrorState: Story = {
   render: () => (
-    <div className="space-y-4 w-80">
+    <div className="w-80 space-y-4">
       <PortInputInteractive
         label="Too Large"
         value={70000 as unknown as number}
@@ -313,10 +338,25 @@ export const MultiWithSuggestions: Story = {
  */
 export const ProtocolVariants: Story = {
   render: () => (
-    <div className="space-y-4 w-80">
-      <PortInputInteractive label="TCP Port" value={443} protocol="tcp" showService />
-      <PortInputInteractive label="UDP Port" value={51820} protocol="udp" showService />
-      <PortInputInteractive label="Any Protocol" value={53} protocol="both" showService />
+    <div className="w-80 space-y-4">
+      <PortInputInteractive
+        label="TCP Port"
+        value={443}
+        protocol="tcp"
+        showService
+      />
+      <PortInputInteractive
+        label="UDP Port"
+        value={51820}
+        protocol="udp"
+        showService
+      />
+      <PortInputInteractive
+        label="Any Protocol"
+        value={53}
+        protocol="both"
+        showService
+      />
     </div>
   ),
 };
@@ -330,11 +370,27 @@ export const ProtocolVariants: Story = {
  */
 export const MikroTikPorts: Story = {
   render: () => (
-    <div className="space-y-4 w-80">
-      <PortInputInteractive label="Winbox" value={8291} showService />
-      <PortInputInteractive label="RouterOS API" value={8728} showService />
-      <PortInputInteractive label="RouterOS API SSL" value={8729} showService />
-      <PortInputInteractive label="Bandwidth Test" value={2000} showService />
+    <div className="w-80 space-y-4">
+      <PortInputInteractive
+        label="Winbox"
+        value={8291}
+        showService
+      />
+      <PortInputInteractive
+        label="RouterOS API"
+        value={8728}
+        showService
+      />
+      <PortInputInteractive
+        label="RouterOS API SSL"
+        value={8729}
+        showService
+      />
+      <PortInputInteractive
+        label="Bandwidth Test"
+        value={2000}
+        showService
+      />
     </div>
   ),
 };
@@ -365,7 +421,7 @@ export const DesktopVariant: Story = {
  */
 export const MobileVariant: Story = {
   render: (args) => (
-    <div className="w-80 p-4 bg-background border rounded-lg">
+    <div className="bg-background w-80 rounded-lg border p-4">
       <PortInputMobile {...args} />
     </div>
   ),
@@ -377,8 +433,8 @@ export const MobileVariant: Story = {
   globals: {
     viewport: {
       value: 'mobile1',
-      isRotated: false
-    }
+      isRotated: false,
+    },
   },
 };
 
@@ -387,7 +443,7 @@ export const MobileVariant: Story = {
  */
 export const MobileRangeMode: Story = {
   render: (args) => (
-    <div className="w-80 p-4 bg-background border rounded-lg">
+    <div className="bg-background w-80 rounded-lg border p-4">
       <PortInputMobile {...args} />
     </div>
   ),
@@ -400,8 +456,8 @@ export const MobileRangeMode: Story = {
   globals: {
     viewport: {
       value: 'mobile1',
-      isRotated: false
-    }
+      isRotated: false,
+    },
   },
 };
 
@@ -410,7 +466,7 @@ export const MobileRangeMode: Story = {
  */
 export const MobileMultiMode: Story = {
   render: (args) => (
-    <div className="w-80 p-4 bg-background border rounded-lg">
+    <div className="bg-background w-80 rounded-lg border p-4">
       <PortInputMobile {...args} />
     </div>
   ),
@@ -423,8 +479,8 @@ export const MobileMultiMode: Story = {
   globals: {
     viewport: {
       value: 'mobile1',
-      isRotated: false
-    }
+      isRotated: false,
+    },
   },
 };
 
@@ -437,9 +493,17 @@ export const MobileMultiMode: Story = {
  */
 export const EdgeCases: Story = {
   render: () => (
-    <div className="space-y-4 w-80">
-      <PortInputInteractive label="Minimum (1)" value={1} showService />
-      <PortInputInteractive label="Maximum (65535)" value={65535} showService />
+    <div className="w-80 space-y-4">
+      <PortInputInteractive
+        label="Minimum (1)"
+        value={1}
+        showService
+      />
+      <PortInputInteractive
+        label="Maximum (65535)"
+        value={65535}
+        showService
+      />
       <PortInputInteractive
         label="Single Port Range"
         mode="range"
@@ -454,7 +518,7 @@ export const EdgeCases: Story = {
  */
 export const AllModes: Story = {
   render: () => (
-    <div className="grid grid-cols-1 gap-8 w-full max-w-3xl">
+    <div className="grid w-full max-w-3xl grid-cols-1 gap-8">
       <div className="space-y-2">
         <h3 className="font-medium">Single Mode</h3>
         <PortInputInteractive
@@ -539,16 +603,16 @@ export const WithServiceGroups: Story = {
           onChange={(v) => setValue(String(v ?? ''))}
           serviceGroups={serviceGroups}
         />
-        <div className="mt-4 p-3 bg-muted rounded-lg">
-          <div className="text-sm font-medium mb-2">Instructions:</div>
-          <ol className="text-sm text-muted-foreground space-y-1 list-decimal list-inside">
+        <div className="bg-muted mt-4 rounded-lg p-3">
+          <div className="mb-2 text-sm font-medium">Instructions:</div>
+          <ol className="text-muted-foreground list-inside list-decimal space-y-1 text-sm">
             <li>Click the input to see suggestions</li>
             <li>Service groups show with folder icons</li>
             <li>Click a group to expand all its ports</li>
             <li>Groups only work in multi-mode</li>
           </ol>
-          <div className="mt-3 pt-3 border-t">
-            <div className="text-xs font-mono text-muted-foreground">
+          <div className="mt-3 border-t pt-3">
+            <div className="text-muted-foreground font-mono text-xs">
               Current value: {value || '(empty)'}
             </div>
           </div>
@@ -602,7 +666,7 @@ export const ServiceGroupsFiltered: Story = {
     ];
 
     return (
-      <div className="space-y-6 w-96">
+      <div className="w-96 space-y-6">
         <div>
           <PortInput
             label="TCP Ports"

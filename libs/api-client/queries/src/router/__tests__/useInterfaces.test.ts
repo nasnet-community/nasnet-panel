@@ -99,9 +99,27 @@ describe('useInterfaces', () => {
   it('should normalize interface types correctly', async () => {
     const mockResponse = {
       data: [
-        { '.id': '*1', name: 'br0', type: 'bridge', 'mac-address': 'AA:BB:CC:DD:EE:FF', running: true },
-        { '.id': '*2', name: 'vlan10', type: 'vlan', 'mac-address': '11:22:33:44:55:66', running: true },
-        { '.id': '*3', name: 'wlan1', type: 'wlan', 'mac-address': '22:33:44:55:66:77', running: true },
+        {
+          '.id': '*1',
+          name: 'br0',
+          type: 'bridge',
+          'mac-address': 'AA:BB:CC:DD:EE:FF',
+          running: true,
+        },
+        {
+          '.id': '*2',
+          name: 'vlan10',
+          type: 'vlan',
+          'mac-address': '11:22:33:44:55:66',
+          running: true,
+        },
+        {
+          '.id': '*3',
+          name: 'wlan1',
+          type: 'wlan',
+          'mac-address': '22:33:44:55:66:77',
+          running: true,
+        },
       ],
     };
 

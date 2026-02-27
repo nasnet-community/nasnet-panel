@@ -30,7 +30,10 @@ const mockDataPoints = [
 
 describe('useBandwidthHistory', () => {
   const wrapper = ({ children }: { children: ReactNode }) => (
-    <MockedProvider mocks={[]} addTypename={false}>
+    <MockedProvider
+      mocks={[]}
+      addTypename={false}
+    >
       {children}
     </MockedProvider>
   );
@@ -80,7 +83,10 @@ describe('useBandwidthHistory', () => {
       ];
 
       const wrapper = ({ children }: { children: ReactNode }) => (
-        <MockedProvider mocks={mocks} addTypename={false}>
+        <MockedProvider
+          mocks={mocks}
+          addTypename={false}
+        >
           {children}
         </MockedProvider>
       );
@@ -132,7 +138,10 @@ describe('useBandwidthHistory', () => {
       ];
 
       const wrapper = ({ children }: { children: ReactNode }) => (
-        <MockedProvider mocks={mocks} addTypename={false}>
+        <MockedProvider
+          mocks={mocks}
+          addTypename={false}
+        >
           {children}
         </MockedProvider>
       );
@@ -178,7 +187,10 @@ describe('useBandwidthHistory', () => {
       ];
 
       const wrapper = ({ children }: { children: ReactNode }) => (
-        <MockedProvider mocks={mocks} addTypename={false}>
+        <MockedProvider
+          mocks={mocks}
+          addTypename={false}
+        >
           {children}
         </MockedProvider>
       );
@@ -226,7 +238,10 @@ describe('useBandwidthHistory', () => {
       ];
 
       const wrapper = ({ children }: { children: ReactNode }) => (
-        <MockedProvider mocks={mocks} addTypename={false}>
+        <MockedProvider
+          mocks={mocks}
+          addTypename={false}
+        >
           {children}
         </MockedProvider>
       );
@@ -270,7 +285,10 @@ describe('useBandwidthHistory', () => {
       ];
 
       const wrapper = ({ children }: { children: ReactNode }) => (
-        <MockedProvider mocks={mocks} addTypename={false}>
+        <MockedProvider
+          mocks={mocks}
+          addTypename={false}
+        >
           {children}
         </MockedProvider>
       );
@@ -314,7 +332,10 @@ describe('useBandwidthHistory', () => {
       ];
 
       const wrapper = ({ children }: { children: ReactNode }) => (
-        <MockedProvider mocks={mocks} addTypename={false}>
+        <MockedProvider
+          mocks={mocks}
+          addTypename={false}
+        >
           {children}
         </MockedProvider>
       );
@@ -353,7 +374,10 @@ describe('useBandwidthHistory', () => {
       ];
 
       const wrapper = ({ children }: { children: ReactNode }) => (
-        <MockedProvider mocks={mocks} addTypename={false}>
+        <MockedProvider
+          mocks={mocks}
+          addTypename={false}
+        >
           {children}
         </MockedProvider>
       );
@@ -401,7 +425,10 @@ describe('useBandwidthHistory', () => {
       ];
 
       const wrapper = ({ children }: { children: ReactNode }) => (
-        <MockedProvider mocks={mocks} addTypename={false}>
+        <MockedProvider
+          mocks={mocks}
+          addTypename={false}
+        >
           {children}
         </MockedProvider>
       );

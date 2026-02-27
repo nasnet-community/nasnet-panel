@@ -27,10 +27,7 @@ import { z } from 'zod';
 import { Loader2, Save, AlertCircle, Trash2 } from 'lucide-react';
 import { useCallback } from 'react';
 
-import {
-  useSetTrafficQuota,
-  useResetTrafficQuota,
-} from '@nasnet/api-client/queries';
+import { useSetTrafficQuota, useResetTrafficQuota } from '@nasnet/api-client/queries';
 import type { TrafficQuota } from '@nasnet/api-client/generated';
 import { QuotaPeriod, QuotaAction } from '@nasnet/api-client/generated';
 import {
@@ -144,40 +141,43 @@ export const QuotaSettingsForm = React.memo(function QuotaSettingsForm({
   });
 
   // Handle form submission with memoized callback
-  const handleSubmit = useCallback(async (values: QuotaSettingsFormData) => {
-    setSuccessMessage(null);
+  const handleSubmit = useCallback(
+    async (values: QuotaSettingsFormData) => {
+      setSuccessMessage(null);
 
-    try {
-      const result = await setQuota({
-        variables: {
-          input: {
-            routerID,
-            instanceID,
-            period: values.period as QuotaPeriod,
-            limitBytes: gbToBytes(values.limitGB),
-            warningThreshold: values.warningThreshold,
-            action: values.action as QuotaAction,
+      try {
+        const result = await setQuota({
+          variables: {
+            input: {
+              routerID,
+              instanceID,
+              period: values.period as QuotaPeriod,
+              limitBytes: gbToBytes(values.limitGB),
+              warningThreshold: values.warningThreshold,
+              action: values.action as QuotaAction,
+            },
           },
-        },
-      });
+        });
 
-      if (result.data?.setTrafficQuota.quota) {
-        setSuccessMessage('Traffic quota updated successfully');
-        onSuccess?.();
-      } else if (result.data?.setTrafficQuota.errors?.length) {
-        const errors = result.data.setTrafficQuota.errors;
-        const errorMessage = errors[0]?.message ?? 'Failed to set traffic quota';
-        throw new Error(errorMessage);
+        if (result.data?.setTrafficQuota.quota) {
+          setSuccessMessage('Traffic quota updated successfully');
+          onSuccess?.();
+        } else if (result.data?.setTrafficQuota.errors?.length) {
+          const errors = result.data.setTrafficQuota.errors;
+          const errorMessage = errors[0]?.message ?? 'Failed to set traffic quota';
+          throw new Error(errorMessage);
+        }
+      } catch (err) {
+        const errorObj = err instanceof Error ? err : new Error(String(err));
+        onError?.(errorObj);
+        form.setError('root', {
+          type: 'manual',
+          message: errorObj.message,
+        });
       }
-    } catch (err) {
-      const errorObj = err instanceof Error ? err : new Error(String(err));
-      onError?.(errorObj);
-      form.setError('root', {
-        type: 'manual',
-        message: errorObj.message,
-      });
-    }
-  }, [setQuota, routerID, instanceID, onSuccess, onError, form]);
+    },
+    [setQuota, routerID, instanceID, onSuccess, onError, form]
+  );
 
   // Handle quota removal with memoized callback
   const handleRemoveQuota = useCallback(async () => {
@@ -232,7 +232,11 @@ export const QuotaSettingsForm = React.memo(function QuotaSettingsForm({
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-component-md" noValidate>
+        <form
+          onSubmit={form.handleSubmit(handleSubmit)}
+          className="space-y-component-md"
+          noValidate
+        >
           {/* Success Message */}
           {successMessage && (
             <Alert className="border-success bg-success/10 text-success">
@@ -244,9 +248,7 @@ export const QuotaSettingsForm = React.memo(function QuotaSettingsForm({
           {form.formState.errors.root && (
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
-              <AlertDescription>
-                {form.formState.errors.root.message}
-              </AlertDescription>
+              <AlertDescription>{form.formState.errors.root.message}</AlertDescription>
             </Alert>
           )}
 
@@ -259,7 +261,10 @@ export const QuotaSettingsForm = React.memo(function QuotaSettingsForm({
                 form.setValue('period', value as QuotaSettingsFormData['period'])
               }
             >
-              <SelectTrigger id="period" className="min-h-[44px]">
+              <SelectTrigger
+                id="period"
+                className="min-h-[44px]"
+              >
                 <SelectValue placeholder="Select period" />
               </SelectTrigger>
               <SelectContent>
@@ -269,9 +274,7 @@ export const QuotaSettingsForm = React.memo(function QuotaSettingsForm({
               </SelectContent>
             </Select>
             {form.formState.errors.period && (
-              <p className="text-sm text-error">
-                {form.formState.errors.period.message}
-              </p>
+              <p className="text-error text-sm">{form.formState.errors.period.message}</p>
             )}
           </div>
 
@@ -286,17 +289,12 @@ export const QuotaSettingsForm = React.memo(function QuotaSettingsForm({
               max="10000"
               placeholder="100"
               {...form.register('limitGB', { valueAsNumber: true })}
-              className={cn(
-                'min-h-[44px]',
-                form.formState.errors.limitGB && 'border-error'
-              )}
+              className={cn('min-h-[44px]', form.formState.errors.limitGB && 'border-error')}
             />
             {form.formState.errors.limitGB && (
-              <p className="text-sm text-error">
-                {form.formState.errors.limitGB.message}
-              </p>
+              <p className="text-error text-sm">{form.formState.errors.limitGB.message}</p>
             )}
-            <p className="text-xs text-muted-foreground">
+            <p className="text-muted-foreground text-xs">
               Maximum bandwidth allowed per {form.watch('period').toLowerCase()} period
             </p>
           </div>
@@ -317,11 +315,9 @@ export const QuotaSettingsForm = React.memo(function QuotaSettingsForm({
               )}
             />
             {form.formState.errors.warningThreshold && (
-              <p className="text-sm text-error">
-                {form.formState.errors.warningThreshold.message}
-              </p>
+              <p className="text-error text-sm">{form.formState.errors.warningThreshold.message}</p>
             )}
-            <p className="text-xs text-muted-foreground">
+            <p className="text-muted-foreground text-xs">
               Trigger warning alert when usage exceeds this percentage
             </p>
           </div>
@@ -335,34 +331,31 @@ export const QuotaSettingsForm = React.memo(function QuotaSettingsForm({
                 form.setValue('action', value as QuotaSettingsFormData['action'])
               }
             >
-              <SelectTrigger id="action" className="min-h-[44px]">
+              <SelectTrigger
+                id="action"
+                className="min-h-[44px]"
+              >
                 <SelectValue placeholder="Select action" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="LOG_ONLY">
-                  Log Only - No enforcement
-                </SelectItem>
-                <SelectItem value="ALERT">
-                  Alert - Show notification
-                </SelectItem>
-                <SelectItem value="STOP_SERVICE">
-                  Stop Service - Halt traffic
-                </SelectItem>
-                <SelectItem value="THROTTLE">
-                  Throttle - Reduce bandwidth
-                </SelectItem>
+                <SelectItem value="LOG_ONLY">Log Only - No enforcement</SelectItem>
+                <SelectItem value="ALERT">Alert - Show notification</SelectItem>
+                <SelectItem value="STOP_SERVICE">Stop Service - Halt traffic</SelectItem>
+                <SelectItem value="THROTTLE">Throttle - Reduce bandwidth</SelectItem>
               </SelectContent>
             </Select>
             {form.formState.errors.action && (
-              <p className="text-sm text-error">
-                {form.formState.errors.action.message}
-              </p>
+              <p className="text-error text-sm">{form.formState.errors.action.message}</p>
             )}
           </div>
 
           {/* Action Buttons */}
-          <div className="flex gap-component-sm pt-component-sm">
-            <Button type="submit" disabled={loading} className="flex-1 min-h-[44px]">
+          <div className="gap-component-sm pt-component-sm flex">
+            <Button
+              type="submit"
+              disabled={loading}
+              className="min-h-[44px] flex-1"
+            >
               {settingQuota && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               <Save className="mr-2 h-4 w-4" />
               {currentQuota ? 'Update Quota' : 'Set Quota'}

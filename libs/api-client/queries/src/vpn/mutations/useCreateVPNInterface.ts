@@ -5,7 +5,7 @@
 
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { makeRouterOSRequest } from '@nasnet/api-client/core';
-import type { 
+import type {
   VPNProtocol,
   WireGuardServerInput,
   WireGuardPeerInput,
@@ -20,7 +20,7 @@ import { toast } from '@nasnet/ui/primitives';
 /**
  * Union type for all VPN creation inputs
  */
-export type VPNCreateInput = 
+export type VPNCreateInput =
   | { protocol: 'wireguard'; type: 'server'; data: WireGuardServerInput }
   | { protocol: 'wireguard'; type: 'peer'; data: WireGuardPeerInput }
   | { protocol: 'openvpn'; type: 'server'; data: OpenVPNServerInput }
@@ -41,7 +41,10 @@ export interface CreateVPNInterfaceRequest {
 /**
  * Map input to RouterOS endpoint and body
  */
-function getEndpointAndBody(input: VPNCreateInput): { endpoint: string; body: Record<string, unknown> } {
+function getEndpointAndBody(input: VPNCreateInput): {
+  endpoint: string;
+  body: Record<string, unknown>;
+} {
   switch (input.protocol) {
     case 'wireguard':
       if (input.type === 'server') {
@@ -201,20 +204,14 @@ async function createVPNInterface({
   input,
 }: CreateVPNInterfaceRequest): Promise<{ id: string }> {
   const { endpoint, body } = getEndpointAndBody(input);
-  
-  // Remove undefined values
-  const cleanBody = Object.fromEntries(
-    Object.entries(body).filter(([, v]) => v !== undefined)
-  );
 
-  const result = await makeRouterOSRequest<{ ret: string } | undefined>(
-    routerIp,
-    endpoint,
-    {
-      method: 'POST',
-      body: cleanBody,
-    }
-  );
+  // Remove undefined values
+  const cleanBody = Object.fromEntries(Object.entries(body).filter(([, v]) => v !== undefined));
+
+  const result = await makeRouterOSRequest<{ ret: string } | undefined>(routerIp, endpoint, {
+    method: 'POST',
+    body: cleanBody,
+  });
 
   if (!result.success) {
     throw new Error(result.error || 'Failed to create VPN interface');
@@ -228,7 +225,7 @@ async function createVPNInterface({
  */
 function getQueryKeysForProtocol(protocol: VPNProtocol, routerIp: string) {
   const keys: (readonly string[])[] = [vpnKeys.stats(routerIp)];
-  
+
   switch (protocol) {
     case 'wireguard':
       keys.push(vpnKeys.wireguardInterfaces(routerIp));
@@ -249,7 +246,7 @@ function getQueryKeysForProtocol(protocol: VPNProtocol, routerIp: string) {
       keys.push(vpnKeys.ipsecPeers(routerIp));
       break;
   }
-  
+
   return keys;
 }
 
@@ -267,7 +264,7 @@ export function useCreateVPNInterface() {
 
       // Invalidate relevant queries
       const keys = getQueryKeysForProtocol(input.protocol, routerIp);
-      keys.forEach(key => {
+      keys.forEach((key) => {
         queryClient.invalidateQueries({ queryKey: key });
       });
 
@@ -282,11 +279,8 @@ export function useCreateVPNInterface() {
         variant: 'destructive',
         title: 'Failed to create VPN interface',
         description:
-          error instanceof Error
-            ? error.message
-            : 'An error occurred. Please try again.',
+          error instanceof Error ? error.message : 'An error occurred. Please try again.',
       });
     },
   });
 }
-

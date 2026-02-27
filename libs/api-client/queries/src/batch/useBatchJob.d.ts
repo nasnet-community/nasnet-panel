@@ -11,66 +11,72 @@ export type BatchProtocol = 'api' | 'ssh' | 'telnet';
 /**
  * Batch job status
  */
-export type BatchJobStatus = 'pending' | 'running' | 'completed' | 'failed' | 'cancelled' | 'rolled_back';
+export type BatchJobStatus =
+  | 'pending'
+  | 'running'
+  | 'completed'
+  | 'failed'
+  | 'cancelled'
+  | 'rolled_back';
 /**
  * Error entry in batch job
  */
 export interface BatchJobError {
-    lineNumber: number;
-    command: string;
-    error: string;
-    timestamp: string;
+  lineNumber: number;
+  command: string;
+  error: string;
+  timestamp: string;
 }
 /**
  * Progress information for a batch job
  */
 export interface BatchJobProgress {
-    total: number;
-    current: number;
-    percent: number;
-    succeeded: number;
-    failed: number;
-    skipped: number;
+  total: number;
+  current: number;
+  percent: number;
+  succeeded: number;
+  failed: number;
+  skipped: number;
 }
 /**
  * Batch job status response from rosproxy
  */
 export interface BatchJob {
-    id: string;
-    routerIp: string;
-    protocol: BatchProtocol;
-    status: BatchJobStatus;
-    progress: BatchJobProgress;
-    currentCommand?: string;
-    errors: BatchJobError[];
-    createdAt: string;
-    startedAt?: string;
-    completedAt?: string;
-    dryRun: boolean;
-    rollbackEnabled: boolean;
-    rollbackCount?: number;
+  id: string;
+  routerIp: string;
+  protocol: BatchProtocol;
+  status: BatchJobStatus;
+  progress: BatchJobProgress;
+  currentCommand?: string;
+  errors: BatchJobError[];
+  createdAt: string;
+  startedAt?: string;
+  completedAt?: string;
+  dryRun: boolean;
+  rollbackEnabled: boolean;
+  rollbackCount?: number;
 }
 /**
  * Request to create a batch job
  */
 export interface CreateBatchJobRequest {
-    routerIp: string;
-    username: string;
-    password: string;
-    protocol: BatchProtocol;
-    useTls?: boolean;
-    script?: string;
-    commands?: string[];
-    dryRun?: boolean;
-    rollbackEnabled?: boolean;
+  routerIp: string;
+  username: string;
+  password: string;
+  protocol: BatchProtocol;
+  useTls?: boolean;
+  script?: string;
+  commands?: string[];
+  dryRun?: boolean;
+  rollbackEnabled?: boolean;
 }
 /**
  * Response from creating a batch job
  */
 export interface CreateBatchJobResponse {
-    jobId: string;
-    totalCommands: number;
-    status: BatchJobStatus;
+  jobId: string;
+  totalCommands: number;
+  status: BatchJobStatus;
 }
 /**
  * React Query hook for fetching batch job status
@@ -93,13 +99,16 @@ export interface CreateBatchJobResponse {
  * }
  * ```
  */
-export declare function useBatchJob(jobId: string | null, options?: {
+export declare function useBatchJob(
+  jobId: string | null,
+  options?: {
     /**
      * Polling interval in ms while job is running
      * @default 1000
      */
     pollingInterval?: number;
-}): UseQueryResult<BatchJob, Error>;
+  }
+): UseQueryResult<BatchJob, Error>;
 /**
  * React Query mutation hook for creating batch jobs
  *
@@ -123,7 +132,11 @@ export declare function useBatchJob(jobId: string | null, options?: {
  * }
  * ```
  */
-export declare function useCreateBatchJob(): UseMutationResult<CreateBatchJobResponse, Error, CreateBatchJobRequest>;
+export declare function useCreateBatchJob(): UseMutationResult<
+  CreateBatchJobResponse,
+  Error,
+  CreateBatchJobRequest
+>;
 /**
  * React Query mutation hook for cancelling batch jobs
  *

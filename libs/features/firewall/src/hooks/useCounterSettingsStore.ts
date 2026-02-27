@@ -95,7 +95,10 @@ const INITIAL_STATE: CounterSettingsState = {
 export const useCounterSettingsStore = create<CounterSettingsState>()(
   persist(
     (set) => {
-      const baseState: Omit<CounterSettingsState, 'setPollingInterval' | 'setShowRelativeBar' | 'setShowRate' | 'reset'> = {
+      const baseState: Omit<
+        CounterSettingsState,
+        'setPollingInterval' | 'setShowRelativeBar' | 'setShowRate' | 'reset'
+      > = {
         pollingInterval: null,
         showRelativeBar: true,
         showRate: true,
@@ -108,14 +111,11 @@ export const useCounterSettingsStore = create<CounterSettingsState>()(
         // ACTIONS
         // ============================================
 
-        setPollingInterval: (interval: PollingInterval) =>
-          set({ pollingInterval: interval }),
+        setPollingInterval: (interval: PollingInterval) => set({ pollingInterval: interval }),
 
-        setShowRelativeBar: (shouldShow: boolean) =>
-          set({ showRelativeBar: shouldShow }),
+        setShowRelativeBar: (shouldShow: boolean) => set({ showRelativeBar: shouldShow }),
 
-        setShowRate: (shouldShow: boolean) =>
-          set({ showRate: shouldShow }),
+        setShowRate: (shouldShow: boolean) => set({ showRate: shouldShow }),
 
         reset: () =>
           set({
@@ -148,8 +148,7 @@ export const useCounterSettingsStore = create<CounterSettingsState>()(
  * @example
  * const interval = usePollingInterval();
  */
-export const usePollingInterval = () =>
-  useCounterSettingsStore((state) => state.pollingInterval);
+export const usePollingInterval = () => useCounterSettingsStore((state) => state.pollingInterval);
 
 /**
  * Get whether to show relative size bar
@@ -157,8 +156,7 @@ export const usePollingInterval = () =>
  * @example
  * const shouldShow = useShowRelativeBar();
  */
-export const useShowRelativeBar = () =>
-  useCounterSettingsStore((state) => state.showRelativeBar);
+export const useShowRelativeBar = () => useCounterSettingsStore((state) => state.showRelativeBar);
 
 /**
  * Get whether to show rate calculations
@@ -166,5 +164,4 @@ export const useShowRelativeBar = () =>
  * @example
  * const shouldShow = useShowRate();
  */
-export const useShowRate = () =>
-  useCounterSettingsStore((state) => state.showRate);
+export const useShowRate = () => useCounterSettingsStore((state) => state.showRate);

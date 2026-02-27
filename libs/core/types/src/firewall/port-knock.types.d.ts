@@ -15,7 +15,7 @@ import { z } from 'zod';
  * @example
  * const protocol = KnockProtocolSchema.parse('tcp');
  */
-export declare const KnockProtocolSchema: z.ZodEnum<["tcp", "udp", "both"]>;
+export declare const KnockProtocolSchema: z.ZodEnum<['tcp', 'udp', 'both']>;
 /**
  * Type for knock port protocol
  * @example
@@ -29,7 +29,7 @@ export type KnockProtocol = z.infer<typeof KnockProtocolSchema>;
  * @example
  * const status = KnockStatusSchema.parse('success');
  */
-export declare const KnockStatusSchema: z.ZodEnum<["success", "failed", "partial", "timeout"]>;
+export declare const KnockStatusSchema: z.ZodEnum<['success', 'failed', 'partial', 'timeout']>;
 /**
  * Type for knock attempt status
  * @example
@@ -43,19 +43,25 @@ export type KnockStatus = z.infer<typeof KnockStatusSchema>;
  * @example
  * const port = KnockPortSchema.parse({ port: 2222, protocol: 'tcp', order: 1 });
  */
-export declare const KnockPortSchema: z.ZodObject<{
+export declare const KnockPortSchema: z.ZodObject<
+  {
     port: z.ZodNumber;
-    protocol: z.ZodEnum<["tcp", "udp", "both"]>;
+    protocol: z.ZodEnum<['tcp', 'udp', 'both']>;
     order: z.ZodNumber;
-}, "strip", z.ZodTypeAny, {
+  },
+  'strip',
+  z.ZodTypeAny,
+  {
     order: number;
-    protocol: "both" | "tcp" | "udp";
+    protocol: 'both' | 'tcp' | 'udp';
     port: number;
-}, {
+  },
+  {
     order: number;
-    protocol: "both" | "tcp" | "udp";
+    protocol: 'both' | 'tcp' | 'udp';
     port: number;
-}>;
+  }
+>;
 /**
  * Type for a single knock port
  * @example
@@ -77,32 +83,46 @@ export type KnockPort = z.infer<typeof KnockPortSchema>;
  *   isEnabled: true,
  * });
  */
-export declare const PortKnockSequenceSchema: z.ZodObject<{
+export declare const PortKnockSequenceSchema: z.ZodObject<
+  {
     id: z.ZodOptional<z.ZodString>;
     name: z.ZodString;
-    knockPorts: z.ZodEffects<z.ZodArray<z.ZodObject<{
-        port: z.ZodNumber;
-        protocol: z.ZodEnum<["tcp", "udp", "both"]>;
-        order: z.ZodNumber;
-    }, "strip", z.ZodTypeAny, {
+    knockPorts: z.ZodEffects<
+      z.ZodArray<
+        z.ZodObject<
+          {
+            port: z.ZodNumber;
+            protocol: z.ZodEnum<['tcp', 'udp', 'both']>;
+            order: z.ZodNumber;
+          },
+          'strip',
+          z.ZodTypeAny,
+          {
+            order: number;
+            protocol: 'both' | 'tcp' | 'udp';
+            port: number;
+          },
+          {
+            order: number;
+            protocol: 'both' | 'tcp' | 'udp';
+            port: number;
+          }
+        >,
+        'many'
+      >,
+      {
         order: number;
-        protocol: "both" | "tcp" | "udp";
+        protocol: 'both' | 'tcp' | 'udp';
         port: number;
-    }, {
+      }[],
+      {
         order: number;
-        protocol: "both" | "tcp" | "udp";
+        protocol: 'both' | 'tcp' | 'udp';
         port: number;
-    }>, "many">, {
-        order: number;
-        protocol: "both" | "tcp" | "udp";
-        port: number;
-    }[], {
-        order: number;
-        protocol: "both" | "tcp" | "udp";
-        port: number;
-    }[]>;
+      }[]
+    >;
     protectedPort: z.ZodNumber;
-    protectedProtocol: z.ZodEnum<["tcp", "udp"]>;
+    protectedProtocol: z.ZodEnum<['tcp', 'udp']>;
     accessTimeout: z.ZodString;
     knockTimeout: z.ZodString;
     isEnabled: z.ZodDefault<z.ZodBoolean>;
@@ -110,16 +130,19 @@ export declare const PortKnockSequenceSchema: z.ZodObject<{
     createdAt: z.ZodOptional<z.ZodString>;
     updatedAt: z.ZodOptional<z.ZodString>;
     recentAccessCount: z.ZodOptional<z.ZodNumber>;
-    generatedRuleIds: z.ZodOptional<z.ZodArray<z.ZodString, "many">>;
-}, "strip", z.ZodTypeAny, {
+    generatedRuleIds: z.ZodOptional<z.ZodArray<z.ZodString, 'many'>>;
+  },
+  'strip',
+  z.ZodTypeAny,
+  {
     name: string;
     knockPorts: {
-        order: number;
-        protocol: "both" | "tcp" | "udp";
-        port: number;
+      order: number;
+      protocol: 'both' | 'tcp' | 'udp';
+      port: number;
     }[];
     protectedPort: number;
-    protectedProtocol: "tcp" | "udp";
+    protectedProtocol: 'tcp' | 'udp';
     accessTimeout: string;
     knockTimeout: string;
     isEnabled: boolean;
@@ -129,15 +152,16 @@ export declare const PortKnockSequenceSchema: z.ZodObject<{
     routerId?: string | undefined;
     recentAccessCount?: number | undefined;
     generatedRuleIds?: string[] | undefined;
-}, {
+  },
+  {
     name: string;
     knockPorts: {
-        order: number;
-        protocol: "both" | "tcp" | "udp";
-        port: number;
+      order: number;
+      protocol: 'both' | 'tcp' | 'udp';
+      port: number;
     }[];
     protectedPort: number;
-    protectedProtocol: "tcp" | "udp";
+    protectedProtocol: 'tcp' | 'udp';
     accessTimeout: string;
     knockTimeout: string;
     id?: string | undefined;
@@ -147,7 +171,8 @@ export declare const PortKnockSequenceSchema: z.ZodObject<{
     isEnabled?: boolean | undefined;
     recentAccessCount?: number | undefined;
     generatedRuleIds?: string[] | undefined;
-}>;
+  }
+>;
 /**
  * Complete port knock sequence configuration
  * Represents a full port knock sequence with computed read-only fields
@@ -156,8 +181,8 @@ export declare const PortKnockSequenceSchema: z.ZodObject<{
  * const sequence: PortKnockSequence = { id: '123', name: 'ssh-knock', ... };
  */
 export type PortKnockSequence = z.infer<typeof PortKnockSequenceSchema> & {
-    readonly recentAccessCount?: number;
-    readonly generatedRuleIds?: readonly string[];
+  readonly recentAccessCount?: number;
+  readonly generatedRuleIds?: readonly string[];
 };
 /**
  * Port knock sequence input type (excludes read-only fields)
@@ -184,19 +209,23 @@ export type PortKnockSequenceInput = z.input<typeof PortKnockSequenceSchema>;
  *   progress: '2/2',
  * });
  */
-export declare const PortKnockAttemptSchema: z.ZodObject<{
+export declare const PortKnockAttemptSchema: z.ZodObject<
+  {
     id: z.ZodString;
     sequenceId: z.ZodString;
     sequenceName: z.ZodString;
     sourceIP: z.ZodString;
     timestamp: z.ZodString;
-    status: z.ZodEnum<["success", "failed", "partial", "timeout"]>;
-    portsHit: z.ZodArray<z.ZodNumber, "many">;
+    status: z.ZodEnum<['success', 'failed', 'partial', 'timeout']>;
+    portsHit: z.ZodArray<z.ZodNumber, 'many'>;
     protectedPort: z.ZodNumber;
     progress: z.ZodString;
-}, "strip", z.ZodTypeAny, {
+  },
+  'strip',
+  z.ZodTypeAny,
+  {
     id: string;
-    status: "partial" | "success" | "failed" | "timeout";
+    status: 'partial' | 'success' | 'failed' | 'timeout';
     progress: string;
     timestamp: string;
     protectedPort: number;
@@ -204,9 +233,10 @@ export declare const PortKnockAttemptSchema: z.ZodObject<{
     sequenceName: string;
     sourceIP: string;
     portsHit: number[];
-}, {
+  },
+  {
     id: string;
-    status: "partial" | "success" | "failed" | "timeout";
+    status: 'partial' | 'success' | 'failed' | 'timeout';
     progress: string;
     timestamp: string;
     protectedPort: number;
@@ -214,7 +244,8 @@ export declare const PortKnockAttemptSchema: z.ZodObject<{
     sequenceName: string;
     sourceIP: string;
     portsHit: number[];
-}>;
+  }
+>;
 /**
  * Port knock attempt log entry
  * Immutable record of a single port knock attempt with read-only array of ports
@@ -223,7 +254,7 @@ export declare const PortKnockAttemptSchema: z.ZodObject<{
  * const attempt: PortKnockAttempt = { id: 'abc', sequenceId: '123', portsHit: [2222], ... };
  */
 export type PortKnockAttempt = z.infer<typeof PortKnockAttemptSchema> & {
-    readonly portsHit: readonly number[];
+  readonly portsHit: readonly number[];
 };
 /**
  * Common service ports for suggestions in port knock UI
@@ -233,43 +264,53 @@ export type PortKnockAttempt = z.infer<typeof PortKnockAttemptSchema> & {
  * @example
  * const sshService = COMMON_SERVICE_PORTS.find(s => s.port === 22);
  */
-export declare const COMMON_SERVICE_PORTS: readonly [{
+export declare const COMMON_SERVICE_PORTS: readonly [
+  {
     readonly port: 22;
-    readonly name: "SSH";
-    readonly protocol: "tcp";
-}, {
+    readonly name: 'SSH';
+    readonly protocol: 'tcp';
+  },
+  {
     readonly port: 80;
-    readonly name: "HTTP";
-    readonly protocol: "tcp";
-}, {
+    readonly name: 'HTTP';
+    readonly protocol: 'tcp';
+  },
+  {
     readonly port: 443;
-    readonly name: "HTTPS";
-    readonly protocol: "tcp";
-}, {
+    readonly name: 'HTTPS';
+    readonly protocol: 'tcp';
+  },
+  {
     readonly port: 3389;
-    readonly name: "RDP";
-    readonly protocol: "tcp";
-}, {
+    readonly name: 'RDP';
+    readonly protocol: 'tcp';
+  },
+  {
     readonly port: 8291;
-    readonly name: "MikroTik WinBox";
-    readonly protocol: "tcp";
-}, {
+    readonly name: 'MikroTik WinBox';
+    readonly protocol: 'tcp';
+  },
+  {
     readonly port: 8728;
-    readonly name: "MikroTik API";
-    readonly protocol: "tcp";
-}, {
+    readonly name: 'MikroTik API';
+    readonly protocol: 'tcp';
+  },
+  {
     readonly port: 21;
-    readonly name: "FTP";
-    readonly protocol: "tcp";
-}, {
+    readonly name: 'FTP';
+    readonly protocol: 'tcp';
+  },
+  {
     readonly port: 3306;
-    readonly name: "MySQL";
-    readonly protocol: "tcp";
-}, {
+    readonly name: 'MySQL';
+    readonly protocol: 'tcp';
+  },
+  {
     readonly port: 5432;
-    readonly name: "PostgreSQL";
-    readonly protocol: "tcp";
-}];
+    readonly name: 'PostgreSQL';
+    readonly protocol: 'tcp';
+  },
+];
 /**
  * Default duration values for port knock configuration
  * Immutable defaults used for timeout initialization in forms
@@ -278,8 +319,8 @@ export declare const COMMON_SERVICE_PORTS: readonly [{
  * const { accessTimeout, knockTimeout } = DEFAULT_DURATIONS;
  */
 export declare const DEFAULT_DURATIONS: {
-    readonly accessTimeout: "5m";
-    readonly knockTimeout: "15s";
+  readonly accessTimeout: '5m';
+  readonly knockTimeout: '15s';
 };
 /**
  * Check if a port knock sequence protects SSH (lockout risk)
@@ -293,7 +334,9 @@ export declare const DEFAULT_DURATIONS: {
  *   console.warn('Protecting SSH - risk of lockout');
  * }
  */
-export declare function isSSHProtected(sequence: PortKnockSequence | PortKnockSequenceInput): boolean;
+export declare function isSSHProtected(
+  sequence: PortKnockSequence | PortKnockSequenceInput
+): boolean;
 /**
  * Get service name for common ports
  * Looks up port in the COMMON_SERVICE_PORTS list

@@ -80,8 +80,7 @@ describe('useServiceAlertToasts', () => {
 
     // First render with alert
     const { rerender } = renderHook(
-      ({ props }: { props: UseServiceAlertToastsProps }) =>
-        useServiceAlertToasts(props),
+      ({ props }: { props: UseServiceAlertToastsProps }) => useServiceAlertToasts(props),
       { initialProps: { props: {} } }
     );
 
@@ -134,9 +133,7 @@ describe('useServiceAlertToasts', () => {
       },
     });
 
-    renderHook(() =>
-      useServiceAlertToasts({ enabled: true, onToastShown })
-    );
+    renderHook(() => useServiceAlertToasts({ enabled: true, onToastShown }));
 
     expect(onToastShown).toHaveBeenCalledWith('alert-1', 'WARNING');
   });
@@ -158,9 +155,7 @@ describe('useServiceAlertToasts', () => {
       },
     });
 
-    renderHook(() =>
-      useServiceAlertToasts({ enabled: true, onNavigateToService })
-    );
+    renderHook(() => useServiceAlertToasts({ enabled: true, onNavigateToService }));
 
     expect(mockAddNotification).toHaveBeenCalledWith(
       expect.objectContaining({

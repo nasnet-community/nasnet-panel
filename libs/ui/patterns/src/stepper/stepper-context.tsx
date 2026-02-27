@@ -74,11 +74,7 @@ export interface StepperProviderProps {
  * ```
  */
 export function StepperProvider({ stepper, children }: StepperProviderProps) {
-  return (
-    <StepperContext.Provider value={stepper}>
-      {children}
-    </StepperContext.Provider>
-  );
+  return <StepperContext.Provider value={stepper}>{children}</StepperContext.Provider>;
 }
 
 // ===== Hooks =====

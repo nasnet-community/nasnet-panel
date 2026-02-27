@@ -163,4 +163,9 @@ export interface HStepperItemProps {
 /**
  * Re-export types from hooks for convenience
  */
-export type { UseStepperReturn, StepConfig, StepStatus, StepErrors } from '../../hooks/use-stepper.types';
+export type {
+  UseStepperReturn,
+  StepConfig,
+  StepStatus,
+  StepErrors,
+} from '../../hooks/use-stepper.types';

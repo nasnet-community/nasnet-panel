@@ -8,7 +8,13 @@
  */
 
 import { Plus, Trash2 } from 'lucide-react';
-import { useFieldArray, useFormContext, type FieldValues, type ArrayPath, type FieldArray } from 'react-hook-form';
+import {
+  useFieldArray,
+  useFormContext,
+  type FieldValues,
+  type ArrayPath,
+  type FieldArray,
+} from 'react-hook-form';
 
 import { Button, cn } from '@nasnet/ui/primitives';
 
@@ -86,10 +92,8 @@ export function FormArrayField<TFieldValues extends FieldValues = FieldValues>({
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-sm font-semibold text-foreground">{label}</h3>
-          {description && (
-            <p className="text-sm text-muted-foreground mt-0.5">{description}</p>
-          )}
+          <h3 className="text-foreground text-sm font-semibold">{label}</h3>
+          {description && <p className="text-muted-foreground mt-0.5 text-sm">{description}</p>}
         </div>
         <Button
           type="button"
@@ -100,21 +104,28 @@ export function FormArrayField<TFieldValues extends FieldValues = FieldValues>({
           aria-label={`Add ${label.toLowerCase()}`}
           className="flex items-center gap-1.5 text-sm font-medium"
         >
-          <Plus className="h-4 w-4" aria-hidden="true" />
+          <Plus
+            className="h-4 w-4"
+            aria-hidden="true"
+          />
           {addButtonText}
         </Button>
       </div>
 
       {/* Items */}
-      {fields.length > 0 ? (
-        <div className="space-y-3" role="list" aria-label={label}>
+      {fields.length > 0 ?
+        <div
+          className="space-y-3"
+          role="list"
+          aria-label={label}
+        >
           {fields.map((field, index) => (
             <div
               key={field.id}
               role="listitem"
               className={cn(
                 'flex items-start gap-2 p-3',
-                'bg-muted/30 rounded-lg border border-border',
+                'bg-muted/30 border-border rounded-lg border',
                 'hover:bg-muted/50 transition-colors'
               )}
             >
@@ -136,25 +147,25 @@ export function FormArrayField<TFieldValues extends FieldValues = FieldValues>({
                 <button
                   type="button"
                   onClick={() => remove(index)}
-                  className="h-8 w-8 rounded-md text-muted-foreground hover:text-error hover:bg-error-light transition-colors flex-shrink-0 flex items-center justify-center"
+                  className="text-muted-foreground hover:text-error hover:bg-error-light flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-md transition-colors"
                   aria-label={`Remove item ${index + 1}`}
                 >
-                  <Trash2 className="h-4 w-4" aria-hidden="true" />
+                  <Trash2
+                    className="h-4 w-4"
+                    aria-hidden="true"
+                  />
                 </button>
               )}
             </div>
           ))}
         </div>
-      ) : (
-        /* Empty state */
-        <div className="text-center py-4 text-sm text-muted-foreground">
-          {emptyMessage}
-        </div>
-      )}
+      : /* Empty state */
+        <div className="text-muted-foreground py-4 text-center text-sm">{emptyMessage}</div>
+      }
 
       {/* Item count */}
       {fields.length > 0 && maxItems < 100 && (
-        <p className="text-xs text-muted-foreground text-right">
+        <p className="text-muted-foreground text-right text-xs">
           {fields.length} / {maxItems} items
         </p>
       )}

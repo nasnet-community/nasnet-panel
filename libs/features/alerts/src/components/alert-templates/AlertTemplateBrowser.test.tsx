@@ -46,7 +46,10 @@ vi.mock('@nasnet/ui/patterns', () => ({
     <div data-testid="template-gallery">
       {loading && <div data-testid="loading-spinner">Loading...</div>}
       {gallery.filteredTemplates?.map((template: any) => (
-        <div key={template.id} data-testid={`template-${template.id}`}>
+        <div
+          key={template.id}
+          data-testid={`template-${template.id}`}
+        >
           <h3>{template.name}</h3>
           <p>{template.description}</p>
           <button
@@ -83,8 +86,9 @@ const createMocks = (templates = builtInTemplates, applySuccess = true) => {
       },
       result: {
         data: {
-          applyAlertRuleTemplate: applySuccess
-            ? {
+          applyAlertRuleTemplate:
+            applySuccess ?
+              {
                 alertRule: {
                   id: 'rule-123',
                   name: 'Test Alert Rule',
@@ -119,7 +123,10 @@ describe('AlertTemplateBrowser', () => {
       const mocks = createMocks();
 
       render(
-        <MockedProvider mocks={mocks} addTypename={false}>
+        <MockedProvider
+          mocks={mocks}
+          addTypename={false}
+        >
           <AlertTemplateBrowser />
         </MockedProvider>
       );
@@ -133,7 +140,10 @@ describe('AlertTemplateBrowser', () => {
       const mocks = createMocks();
 
       render(
-        <MockedProvider mocks={mocks} addTypename={false}>
+        <MockedProvider
+          mocks={mocks}
+          addTypename={false}
+        >
           <AlertTemplateBrowser />
         </MockedProvider>
       );
@@ -145,7 +155,10 @@ describe('AlertTemplateBrowser', () => {
       const mocks = createMocks();
 
       render(
-        <MockedProvider mocks={mocks} addTypename={false}>
+        <MockedProvider
+          mocks={mocks}
+          addTypename={false}
+        >
           <AlertTemplateBrowser />
         </MockedProvider>
       );
@@ -161,15 +174,16 @@ describe('AlertTemplateBrowser', () => {
       const mocks = createMocks();
 
       render(
-        <MockedProvider mocks={mocks} addTypename={false}>
+        <MockedProvider
+          mocks={mocks}
+          addTypename={false}
+        >
           <AlertTemplateBrowser />
         </MockedProvider>
       );
 
       await waitFor(() => {
-        expect(
-          screen.getByText(/Alerts when a network device goes offline/i)
-        ).toBeInTheDocument();
+        expect(screen.getByText(/Alerts when a network device goes offline/i)).toBeInTheDocument();
       });
     });
 
@@ -177,7 +191,10 @@ describe('AlertTemplateBrowser', () => {
       const mocks = createMocks();
 
       const { container } = render(
-        <MockedProvider mocks={mocks} addTypename={false}>
+        <MockedProvider
+          mocks={mocks}
+          addTypename={false}
+        >
           <AlertTemplateBrowser className="custom-class" />
         </MockedProvider>
       );
@@ -200,7 +217,10 @@ describe('AlertTemplateBrowser', () => {
       const mocks = createMocks();
 
       render(
-        <MockedProvider mocks={mocks} addTypename={false}>
+        <MockedProvider
+          mocks={mocks}
+          addTypename={false}
+        >
           <AlertTemplateBrowser onRuleCreated={onRuleCreated} />
         </MockedProvider>
       );
@@ -230,7 +250,10 @@ describe('AlertTemplateBrowser', () => {
       const mocks = createMocks();
 
       render(
-        <MockedProvider mocks={mocks} addTypename={false}>
+        <MockedProvider
+          mocks={mocks}
+          addTypename={false}
+        >
           <AlertTemplateBrowser />
         </MockedProvider>
       );
@@ -265,7 +288,10 @@ describe('AlertTemplateBrowser', () => {
       const mocks = createMocks(builtInTemplates, false);
 
       render(
-        <MockedProvider mocks={mocks} addTypename={false}>
+        <MockedProvider
+          mocks={mocks}
+          addTypename={false}
+        >
           <AlertTemplateBrowser />
         </MockedProvider>
       );
@@ -292,7 +318,10 @@ describe('AlertTemplateBrowser', () => {
       const mocks = createMocks();
 
       render(
-        <MockedProvider mocks={mocks} addTypename={false}>
+        <MockedProvider
+          mocks={mocks}
+          addTypename={false}
+        >
           <AlertTemplateBrowser />
         </MockedProvider>
       );
@@ -318,7 +347,10 @@ describe('AlertTemplateBrowser', () => {
       const mocks = createMocks([deviceOfflineTemplate, highCPUTemplate]);
 
       render(
-        <MockedProvider mocks={mocks} addTypename={false}>
+        <MockedProvider
+          mocks={mocks}
+          addTypename={false}
+        >
           <AlertTemplateBrowser initialCategory="NETWORK" />
         </MockedProvider>
       );
@@ -335,7 +367,10 @@ describe('AlertTemplateBrowser', () => {
       const mocks = createMocks([]);
 
       render(
-        <MockedProvider mocks={mocks} addTypename={false}>
+        <MockedProvider
+          mocks={mocks}
+          addTypename={false}
+        >
           <AlertTemplateBrowser />
         </MockedProvider>
       );
@@ -352,7 +387,10 @@ describe('AlertTemplateBrowser', () => {
       const mocks = createMocks(networkTemplates);
 
       render(
-        <MockedProvider mocks={mocks} addTypename={false}>
+        <MockedProvider
+          mocks={mocks}
+          addTypename={false}
+        >
           <AlertTemplateBrowser initialCategory="NETWORK" />
         </MockedProvider>
       );
@@ -379,7 +417,10 @@ describe('AlertTemplateBrowser', () => {
       ];
 
       render(
-        <MockedProvider mocks={errorMocks} addTypename={false}>
+        <MockedProvider
+          mocks={errorMocks}
+          addTypename={false}
+        >
           <AlertTemplateBrowser />
         </MockedProvider>
       );
@@ -401,7 +442,10 @@ describe('AlertTemplateBrowser', () => {
       ];
 
       render(
-        <MockedProvider mocks={errorMocks} addTypename={false}>
+        <MockedProvider
+          mocks={errorMocks}
+          addTypename={false}
+        >
           <AlertTemplateBrowser />
         </MockedProvider>
       );
@@ -434,7 +478,10 @@ describe('AlertTemplateBrowser', () => {
       ];
 
       render(
-        <MockedProvider mocks={graphqlErrorMocks} addTypename={false}>
+        <MockedProvider
+          mocks={graphqlErrorMocks}
+          addTypename={false}
+        >
           <AlertTemplateBrowser />
         </MockedProvider>
       );
@@ -454,7 +501,10 @@ describe('AlertTemplateBrowser', () => {
       const mocks = createMocks([deviceOfflineTemplate]);
 
       render(
-        <MockedProvider mocks={mocks} addTypename={false}>
+        <MockedProvider
+          mocks={mocks}
+          addTypename={false}
+        >
           <AlertTemplateBrowser />
         </MockedProvider>
       );
@@ -472,7 +522,10 @@ describe('AlertTemplateBrowser', () => {
       const mocks = createMocks([deviceOfflineTemplate]);
 
       render(
-        <MockedProvider mocks={mocks} addTypename={false}>
+        <MockedProvider
+          mocks={mocks}
+          addTypename={false}
+        >
           <AlertTemplateBrowser onRuleCreated={onRuleCreated} />
         </MockedProvider>
       );
@@ -494,7 +547,10 @@ describe('AlertTemplateBrowser', () => {
       const mocks = createMocks([sshFailedLoginTemplate]);
 
       render(
-        <MockedProvider mocks={mocks} addTypename={false}>
+        <MockedProvider
+          mocks={mocks}
+          addTypename={false}
+        >
           <AlertTemplateBrowser />
         </MockedProvider>
       );
@@ -515,7 +571,10 @@ describe('AlertTemplateBrowser', () => {
       const mocks = createMocks();
 
       render(
-        <MockedProvider mocks={mocks} addTypename={false}>
+        <MockedProvider
+          mocks={mocks}
+          addTypename={false}
+        >
           <AlertTemplateBrowser />
         </MockedProvider>
       );
@@ -531,7 +590,10 @@ describe('AlertTemplateBrowser', () => {
       const mocks = createMocks();
 
       render(
-        <MockedProvider mocks={mocks} addTypename={false}>
+        <MockedProvider
+          mocks={mocks}
+          addTypename={false}
+        >
           <AlertTemplateBrowser />
         </MockedProvider>
       );
@@ -558,7 +620,10 @@ describe('AlertTemplateBrowser', () => {
       const mocks = createMocks();
 
       render(
-        <MockedProvider mocks={mocks} addTypename={false}>
+        <MockedProvider
+          mocks={mocks}
+          addTypename={false}
+        >
           <AlertTemplateBrowser />
         </MockedProvider>
       );
@@ -588,7 +653,10 @@ describe('AlertTemplateBrowser', () => {
       const mocks = createMocks();
 
       render(
-        <MockedProvider mocks={mocks} addTypename={false}>
+        <MockedProvider
+          mocks={mocks}
+          addTypename={false}
+        >
           <AlertTemplateBrowser onRuleCreated={onRuleCreated} />
         </MockedProvider>
       );
@@ -612,7 +680,10 @@ describe('AlertTemplateBrowser', () => {
       const mocks = createMocks(builtInTemplates, false);
 
       render(
-        <MockedProvider mocks={mocks} addTypename={false}>
+        <MockedProvider
+          mocks={mocks}
+          addTypename={false}
+        >
           <AlertTemplateBrowser onRuleCreated={onRuleCreated} />
         </MockedProvider>
       );
@@ -634,7 +705,10 @@ describe('AlertTemplateBrowser', () => {
       const mocks = createMocks();
 
       render(
-        <MockedProvider mocks={mocks} addTypename={false}>
+        <MockedProvider
+          mocks={mocks}
+          addTypename={false}
+        >
           <AlertTemplateBrowser />
         </MockedProvider>
       );
@@ -669,7 +743,10 @@ describe('AlertTemplateBrowser', () => {
       const mocks = createMocks();
 
       render(
-        <MockedProvider mocks={mocks} addTypename={false}>
+        <MockedProvider
+          mocks={mocks}
+          addTypename={false}
+        >
           <AlertTemplateBrowser onRuleCreated={onRuleCreated} />
         </MockedProvider>
       );
@@ -695,15 +772,14 @@ describe('AlertTemplateBrowser', () => {
     });
 
     it('works with different template categories', async () => {
-      const templates = [
-        deviceOfflineTemplate,
-        highCPUTemplate,
-        sshFailedLoginTemplate,
-      ];
+      const templates = [deviceOfflineTemplate, highCPUTemplate, sshFailedLoginTemplate];
       const mocks = createMocks(templates);
 
       render(
-        <MockedProvider mocks={mocks} addTypename={false}>
+        <MockedProvider
+          mocks={mocks}
+          addTypename={false}
+        >
           <AlertTemplateBrowser />
         </MockedProvider>
       );
@@ -737,7 +813,10 @@ describe('AlertTemplateBrowser', () => {
       ];
 
       render(
-        <MockedProvider mocks={errorMocks} addTypename={false}>
+        <MockedProvider
+          mocks={errorMocks}
+          addTypename={false}
+        >
           <AlertTemplateBrowser />
         </MockedProvider>
       );

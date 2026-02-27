@@ -9,15 +9,7 @@
 
 import { forwardRef, memo, useMemo } from 'react';
 
-import {
-  Network,
-  Shield,
-  Settings,
-  AlertCircle,
-  Info,
-  Trash2,
-  Copy,
-} from 'lucide-react';
+import { Network, Shield, Settings, AlertCircle, Info, Trash2, Copy } from 'lucide-react';
 import { Controller, FormProvider } from 'react-hook-form';
 
 import { cn } from '@nasnet/ui/utils';
@@ -36,7 +28,6 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-
   Button,
   Card,
   Input,
@@ -51,11 +42,7 @@ import {
 } from '@nasnet/ui/primitives';
 
 import { ConfirmationDialog } from '../confirmation-dialog';
-import {
-  IPInput,
-  PortInput,
-  InterfaceSelector,
-} from '../network-inputs';
+import { IPInput, PortInput, InterfaceSelector } from '../network-inputs';
 import { RHFFormField, type RHFFormFieldProps } from '../rhf-form-field';
 import { useMangleRuleEditor } from './use-mangle-rule-editor';
 
@@ -99,7 +86,14 @@ export const MangleRuleEditorDesktop = memo(function MangleRuleEditorDesktop({
   const { control, formState } = form;
 
   // Get action-specific badge color
-  const actionBadgeVariant = useMemo((): 'default' | 'secondary' | 'outline' | 'error' | 'success' | 'warning' | 'info' => {
+  const actionBadgeVariant = useMemo(():
+    | 'default'
+    | 'secondary'
+    | 'outline'
+    | 'error'
+    | 'success'
+    | 'warning'
+    | 'info' => {
     const action = rule.action;
     if (!action) return 'default';
 
@@ -112,8 +106,11 @@ export const MangleRuleEditorDesktop = memo(function MangleRuleEditorDesktop({
 
   return (
     <FormProvider {...form}>
-      <Dialog open={open} onOpenChange={onClose}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      <Dialog
+        open={open}
+        onOpenChange={onClose}
+      >
+        <DialogContent className="max-h-[90vh] max-w-4xl overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
               {mode === 'create' ? 'Create Mangle Rule' : 'Edit Mangle Rule'}
@@ -123,20 +120,19 @@ export const MangleRuleEditorDesktop = memo(function MangleRuleEditorDesktop({
             </DialogDescription>
           </DialogHeader>
 
-          <form onSubmit={editor.onSubmit} className="space-y-6">
+          <form
+            onSubmit={editor.onSubmit}
+            className="space-y-6"
+          >
             {/* Live Preview */}
-            <Card className="p-4 bg-info/10 border-info/20">
+            <Card className="bg-info/10 border-info/20 p-4">
               <div className="flex items-start gap-3">
-                <Info className="h-5 w-5 text-info mt-0.5" />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-info mb-1">Rule Preview</p>
-                  <p className="text-sm text-muted-foreground font-mono break-words">
-                    {preview}
-                  </p>
+                <Info className="text-info mt-0.5 h-5 w-5" />
+                <div className="min-w-0 flex-1">
+                  <p className="text-info mb-1 text-sm font-medium">Rule Preview</p>
+                  <p className="text-muted-foreground break-words font-mono text-sm">{preview}</p>
                 </div>
-                <Badge variant={actionBadgeVariant}>
-                  {rule.action || 'No action'}
-                </Badge>
+                <Badge variant={actionBadgeVariant}>{rule.action || 'No action'}</Badge>
               </div>
             </Card>
 
@@ -152,13 +148,19 @@ export const MangleRuleEditorDesktop = memo(function MangleRuleEditorDesktop({
                   name="chain"
                   control={control}
                   render={({ field }) => (
-                    <Select value={field.value} onValueChange={field.onChange}>
+                    <Select
+                      value={field.value}
+                      onValueChange={field.onChange}
+                    >
                       <SelectTrigger>
                         <SelectValue placeholder="Select chain" />
                       </SelectTrigger>
                       <SelectContent>
                         {MangleChainSchema.options.map((chain: string) => (
-                          <SelectItem key={chain} value={chain}>
+                          <SelectItem
+                            key={chain}
+                            value={chain}
+                          >
                             {chain}
                           </SelectItem>
                         ))}
@@ -178,13 +180,19 @@ export const MangleRuleEditorDesktop = memo(function MangleRuleEditorDesktop({
                   name="action"
                   control={control}
                   render={({ field }) => (
-                    <Select value={field.value} onValueChange={field.onChange}>
+                    <Select
+                      value={field.value}
+                      onValueChange={field.onChange}
+                    >
                       <SelectTrigger>
                         <SelectValue placeholder="Select action" />
                       </SelectTrigger>
                       <SelectContent>
                         {MangleActionSchema.options.map((action: string) => (
-                          <SelectItem key={action} value={action}>
+                          <SelectItem
+                            key={action}
+                            value={action}
+                          >
                             {action}
                           </SelectItem>
                         ))}
@@ -280,18 +288,28 @@ export const MangleRuleEditorDesktop = memo(function MangleRuleEditorDesktop({
                         <SelectValue placeholder="Select DSCP class" />
                       </SelectTrigger>
                       <SelectContent>
-                        {DSCP_CLASSES.map((dscp: { value: number; name: string; description: string; useCase: string }) => (
-                          <SelectItem key={dscp.value} value={dscp.value.toString()}>
-                            <div className="flex flex-col items-start">
-                              <span className="font-medium">
-                                {dscp.value} - {dscp.name}
-                              </span>
-                              <span className="text-xs text-muted-foreground">
-                                {dscp.description} - {dscp.useCase}
-                              </span>
-                            </div>
-                          </SelectItem>
-                        ))}
+                        {DSCP_CLASSES.map(
+                          (dscp: {
+                            value: number;
+                            name: string;
+                            description: string;
+                            useCase: string;
+                          }) => (
+                            <SelectItem
+                              key={dscp.value}
+                              value={dscp.value.toString()}
+                            >
+                              <div className="flex flex-col items-start">
+                                <span className="font-medium">
+                                  {dscp.value} - {dscp.name}
+                                </span>
+                                <span className="text-muted-foreground text-xs">
+                                  {dscp.description} - {dscp.useCase}
+                                </span>
+                              </div>
+                            </SelectItem>
+                          )
+                        )}
                       </SelectContent>
                     </Select>
                   )}
@@ -315,7 +333,7 @@ export const MangleRuleEditorDesktop = memo(function MangleRuleEditorDesktop({
                         onCheckedChange={field.onChange}
                         aria-label="Passthrough"
                       />
-                      <span className="text-sm text-muted-foreground">
+                      <span className="text-muted-foreground text-sm">
                         {field.value ? 'Continue processing' : 'Terminal action'}
                       </span>
                     </div>
@@ -328,18 +346,24 @@ export const MangleRuleEditorDesktop = memo(function MangleRuleEditorDesktop({
 
             {/* Traffic Matchers */}
             <div className="space-y-4">
-              <h3 className="text-sm font-semibold flex items-center gap-2">
+              <h3 className="flex items-center gap-2 text-sm font-semibold">
                 <Network className="h-4 w-4" />
                 Traffic Matchers (optional)
               </h3>
 
               <div className="grid grid-cols-2 gap-4">
-                <FormField name="protocol" label="Protocol">
+                <FormField
+                  name="protocol"
+                  label="Protocol"
+                >
                   <Controller
                     name="protocol"
                     control={control}
                     render={({ field }) => (
-                      <Select value={field.value || ''} onValueChange={field.onChange}>
+                      <Select
+                        value={field.value || ''}
+                        onValueChange={field.onChange}
+                      >
                         <SelectTrigger>
                           <SelectValue placeholder="Any protocol" />
                         </SelectTrigger>
@@ -354,7 +378,10 @@ export const MangleRuleEditorDesktop = memo(function MangleRuleEditorDesktop({
                   />
                 </FormField>
 
-                <FormField name="connectionState" label="Connection State">
+                <FormField
+                  name="connectionState"
+                  label="Connection State"
+                >
                   <Controller
                     name="connectionState"
                     control={control}
@@ -368,7 +395,10 @@ export const MangleRuleEditorDesktop = memo(function MangleRuleEditorDesktop({
                         </SelectTrigger>
                         <SelectContent>
                           {ConnectionStateSchema.options.map((state: string) => (
-                            <SelectItem key={state} value={state}>
+                            <SelectItem
+                              key={state}
+                              value={state}
+                            >
                               {state}
                             </SelectItem>
                           ))}
@@ -378,7 +408,10 @@ export const MangleRuleEditorDesktop = memo(function MangleRuleEditorDesktop({
                   />
                 </FormField>
 
-                <FormField name="srcAddress" label="Source Address">
+                <FormField
+                  name="srcAddress"
+                  label="Source Address"
+                >
                   <Controller
                     name="srcAddress"
                     control={control}
@@ -392,7 +425,10 @@ export const MangleRuleEditorDesktop = memo(function MangleRuleEditorDesktop({
                   />
                 </FormField>
 
-                <FormField name="dstAddress" label="Destination Address">
+                <FormField
+                  name="dstAddress"
+                  label="Destination Address"
+                >
                   <Controller
                     name="dstAddress"
                     control={control}
@@ -406,7 +442,10 @@ export const MangleRuleEditorDesktop = memo(function MangleRuleEditorDesktop({
                   />
                 </FormField>
 
-                <FormField name="srcPort" label="Source Port">
+                <FormField
+                  name="srcPort"
+                  label="Source Port"
+                >
                   <Controller
                     name="srcPort"
                     control={control}
@@ -420,7 +459,10 @@ export const MangleRuleEditorDesktop = memo(function MangleRuleEditorDesktop({
                   />
                 </FormField>
 
-                <FormField name="dstPort" label="Destination Port">
+                <FormField
+                  name="dstPort"
+                  label="Destination Port"
+                >
                   <Controller
                     name="dstPort"
                     control={control}
@@ -440,12 +482,15 @@ export const MangleRuleEditorDesktop = memo(function MangleRuleEditorDesktop({
 
             {/* Meta */}
             <div className="space-y-4">
-              <h3 className="text-sm font-semibold flex items-center gap-2">
+              <h3 className="flex items-center gap-2 text-sm font-semibold">
                 <Settings className="h-4 w-4" />
                 Rule Settings
               </h3>
 
-              <FormField name="comment" label="Comment">
+              <FormField
+                name="comment"
+                label="Comment"
+              >
                 <Controller
                   name="comment"
                   control={control}
@@ -460,7 +505,10 @@ export const MangleRuleEditorDesktop = memo(function MangleRuleEditorDesktop({
               </FormField>
 
               <div className="flex items-center gap-4">
-                <FormField name="disabled" label="Disabled">
+                <FormField
+                  name="disabled"
+                  label="Disabled"
+                >
                   <Controller
                     name="disabled"
                     control={control}
@@ -474,7 +522,10 @@ export const MangleRuleEditorDesktop = memo(function MangleRuleEditorDesktop({
                   />
                 </FormField>
 
-                <FormField name="log" label="Log Packets">
+                <FormField
+                  name="log"
+                  label="Log Packets"
+                >
                   <Controller
                     name="log"
                     control={control}
@@ -501,7 +552,7 @@ export const MangleRuleEditorDesktop = memo(function MangleRuleEditorDesktop({
                   onClick={onDelete}
                   disabled={isDeleting || isSaving}
                 >
-                  <Trash2 className="h-4 w-4 mr-2" />
+                  <Trash2 className="mr-2 h-4 w-4" />
                   Delete
                 </Button>
               )}
@@ -521,7 +572,11 @@ export const MangleRuleEditorDesktop = memo(function MangleRuleEditorDesktop({
                 onClick={editor.onSubmit}
                 disabled={!formState.isValid || isSaving || isDeleting}
               >
-                {isSaving ? 'Saving...' : mode === 'create' ? 'Create Rule' : 'Save Changes'}
+                {isSaving ?
+                  'Saving...'
+                : mode === 'create' ?
+                  'Create Rule'
+                : 'Save Changes'}
               </Button>
             </div>
           </DialogFooter>

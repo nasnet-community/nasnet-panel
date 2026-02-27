@@ -60,24 +60,17 @@ import { cn } from '../lib/utils';
 import { Spinner } from '../spinner';
 
 const buttonVariants = cva(
-  'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-[var(--semantic-radius-button)] text-sm font-medium transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0',
+  'focus-visible:ring-ring inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-[var(--semantic-radius-button)] text-sm font-medium transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0',
   {
     variants: {
       variant: {
-        default:
-          'bg-primary text-primary-foreground hover:bg-primary-hover',
-        action:
-          'bg-primary text-primary-foreground hover:bg-primary-hover',
-        secondary:
-          'bg-secondary text-secondary-foreground hover:bg-secondary-hover',
-        destructive:
-          'bg-error text-error-foreground hover:bg-error-hover',
-        outline:
-          'border border-border bg-transparent hover:bg-accent',
-        ghost:
-          'bg-transparent hover:bg-muted text-foreground',
-        link:
-          'text-primary underline-offset-4 hover:underline',
+        default: 'bg-primary text-primary-foreground hover:bg-primary-hover',
+        action: 'bg-primary text-primary-foreground hover:bg-primary-hover',
+        secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary-hover',
+        destructive: 'bg-error text-error-foreground hover:bg-error-hover',
+        outline: 'border-border hover:bg-accent border bg-transparent',
+        ghost: 'hover:bg-muted text-foreground bg-transparent',
+        link: 'text-primary underline-offset-4 hover:underline',
       },
       size: {
         default: 'h-10 px-6 py-2.5',
@@ -149,7 +142,10 @@ const Button = React.memo(
       const Comp = asChild ? Slot : 'button';
 
       // Determine spinner size based on button size
-      const spinnerSize = size === 'sm' ? 'sm' : size === 'lg' ? 'md' : 'sm';
+      const spinnerSize =
+        size === 'sm' ? 'sm'
+        : size === 'lg' ? 'md'
+        : 'sm';
 
       // When loading, disable the button and show spinner
       const isDisabled = disabled || isLoading;
@@ -163,7 +159,7 @@ const Button = React.memo(
           aria-disabled={isDisabled}
           {...props}
         >
-          {isLoading ? (
+          {isLoading ?
             <>
               <Spinner
                 size={spinnerSize}
@@ -172,9 +168,7 @@ const Button = React.memo(
               />
               <span>{loadingText || children}</span>
             </>
-          ) : (
-            children
-          )}
+          : children}
         </Comp>
       );
     }

@@ -218,7 +218,7 @@ export const WithCustomContent: Story = {
     resource: onlineResource,
     actions: sampleActions.slice(0, 1),
     children: (
-      <div className="text-sm text-muted-foreground">
+      <div className="text-muted-foreground text-sm">
         <p>Upload: 1.2 MB/s</p>
         <p>Download: 5.8 MB/s</p>
       </div>
@@ -240,15 +240,15 @@ export const MobilePresenter: Story = {
       description: {
         story: 'Mobile-optimized presenter with large touch targets and full-width actions.',
       },
-    }
+    },
   },
 
   globals: {
     viewport: {
       value: 'mobile1',
-      isRotated: false
-    }
-  }
+      isRotated: false,
+    },
+  },
 };
 
 export const DesktopPresenter: Story = {
@@ -295,10 +295,22 @@ export const Interactive: Story = {
 export const CardList: Story = {
   render: () => (
     <div className="space-y-2">
-      <ResourceCard resource={onlineResource} actions={sampleActions.slice(0, 2)} />
-      <ResourceCard resource={offlineResource} actions={sampleActions.slice(0, 1)} />
-      <ResourceCard resource={pendingResource} actions={[]} />
-      <ResourceCard resource={errorResource} actions={sampleActions.slice(0, 1)} />
+      <ResourceCard
+        resource={onlineResource}
+        actions={sampleActions.slice(0, 2)}
+      />
+      <ResourceCard
+        resource={offlineResource}
+        actions={sampleActions.slice(0, 1)}
+      />
+      <ResourceCard
+        resource={pendingResource}
+        actions={[]}
+      />
+      <ResourceCard
+        resource={errorResource}
+        actions={sampleActions.slice(0, 1)}
+      />
     </div>
   ),
   parameters: {

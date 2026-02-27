@@ -1,6 +1,8 @@
 # Component Testing
 
-Component tests verify that React components render correctly and respond to user interactions as expected. They sit at the integration level of the testing pyramid — components are rendered with real logic, connected to mocked network requests via MSW, and exercised through user events.
+Component tests verify that React components render correctly and respond to user interactions as
+expected. They sit at the integration level of the testing pyramid — components are rendered with
+real logic, connected to mocked network requests via MSW, and exercised through user events.
 
 **Tools:** React Testing Library, `@testing-library/user-event`, MSW
 
@@ -8,7 +10,9 @@ Component tests verify that React components render correctly and respond to use
 
 ## Custom Render Wrapper
 
-`apps/connect/src/test/test-utils.tsx` provides a `render` function that wraps components with all application providers. This replaces the default `render` from `@testing-library/react` throughout the test suite.
+`apps/connect/src/test/test-utils.tsx` provides a `render` function that wraps components with all
+application providers. This replaces the default `render` from `@testing-library/react` throughout
+the test suite.
 
 ```typescript
 import { render, screen } from '@/test/test-utils';
@@ -48,11 +52,13 @@ function AllProviders({ children }: AllProvidersProps): ReactElement {
 
 Each test gets a **fresh** `QueryClient` and in-memory router — state does not leak between tests.
 
-See `../architecture/provider-stack.md` for the full production provider hierarchy and how it maps to this test wrapper.
+See `../architecture/provider-stack.md` for the full production provider hierarchy and how it maps
+to this test wrapper.
 
 ### renderWithUser
 
-For tests that involve user interactions, use `renderWithUser` to get a pre-configured `userEvent` instance:
+For tests that involve user interactions, use `renderWithUser` to get a pre-configured `userEvent`
+instance:
 
 ```typescript
 import { renderWithUser, screen } from '@/test/test-utils';
@@ -66,7 +72,8 @@ it('should update when clicked', async () => {
 });
 ```
 
-The `user` object from `userEvent.setup()` simulates realistic browser events (pointer events, input events, focus changes) rather than synthetic events.
+The `user` object from `userEvent.setup()` simulates realistic browser events (pointer events, input
+events, focus changes) rather than synthetic events.
 
 ---
 
@@ -74,7 +81,8 @@ The `user` object from `userEvent.setup()` simulates realistic browser events (p
 
 ### Rendering and Snapshot
 
-Test that a component renders its expected structure. Prefer `getByRole` and `getByText` over snapshots, which are fragile to markup changes.
+Test that a component renders its expected structure. Prefer `getByRole` and `getByText` over
+snapshots, which are fragile to markup changes.
 
 ```tsx
 // ARPTable.test.tsx
@@ -210,7 +218,8 @@ it('should display error when router is unreachable', async () => {
 
 ## Storybook Component Testing
 
-Stories serve as visual documentation and as test fixtures. Each story represents a distinct component state. The connect app has 90+ story files across all components.
+Stories serve as visual documentation and as test fixtures. Each story represents a distinct
+component state. The connect app has 90+ story files across all components.
 
 ### Story Structure
 
@@ -262,7 +271,8 @@ export const Desktop: Story = {
 
 ### Story Conventions
 
-- Use `makeInterface()` / factory functions for test data — avoid hard-coded objects duplicated across stories
+- Use `makeInterface()` / factory functions for test data — avoid hard-coded objects duplicated
+  across stories
 - Each story covers exactly one meaningful state (running, disabled, loading, error, empty, etc.)
 - Add `Mobile` and `Desktop` stories for components that have platform-specific rendering
 - Use `tags: ['autodocs']` to auto-generate API documentation from JSDoc
@@ -283,14 +293,15 @@ npx nx run-many -t build-storybook
 
 ### Platform Mock
 
-Components use `usePlatform()` to select between mobile and desktop presenters. In tests, the platform is controlled by mocking the media query:
+Components use `usePlatform()` to select between mobile and desktop presenters. In tests, the
+platform is controlled by mocking the media query:
 
 ```typescript
 // In test setup (setup.ts), matchMedia returns { matches: false } by default
 // This means isMobile = false, so desktop presenter is rendered
 
 // To test mobile presenter, override in the test:
-vi.mocked(window.matchMedia).mockImplementation(query => ({
+vi.mocked(window.matchMedia).mockImplementation((query) => ({
   matches: query.includes('max-width: 639px'), // mobile breakpoint
   media: query,
   onchange: null,
@@ -322,7 +333,8 @@ export const Tablet: Story = {
 
 ## Testing Forms
 
-Forms typically need React Hook Form context. Use the full wrapper from `test-utils.tsx`, or provide a minimal form wrapper:
+Forms typically need React Hook Form context. Use the full wrapper from `test-utils.tsx`, or provide
+a minimal form wrapper:
 
 ```tsx
 import { useForm, FormProvider } from 'react-hook-form';
@@ -350,7 +362,9 @@ it('should validate required fields', async () => {
 
 ## Testing with Apollo
 
-The `MockApolloProvider` (from `@nasnet/api-client/core`) is included in the test wrapper automatically. It intercepts Apollo Client operations and forwards them to MSW handlers, so GraphQL queries/mutations are mocked at the network level rather than the Apollo level.
+The `MockApolloProvider` (from `@nasnet/api-client/core`) is included in the test wrapper
+automatically. It intercepts Apollo Client operations and forwards them to MSW handlers, so GraphQL
+queries/mutations are mocked at the network level rather than the Apollo level.
 
 For tests that need precise control over specific GraphQL responses, use `server.use()`:
 

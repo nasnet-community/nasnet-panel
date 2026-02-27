@@ -407,7 +407,8 @@ export const DesktopVariant: Story = {
     },
     docs: {
       description: {
-        story: 'Desktop presenter with Dialog UI. Optimized for keyboard: inline layout, shortcuts.',
+        story:
+          'Desktop presenter with Dialog UI. Optimized for keyboard: inline layout, shortcuts.',
       },
     },
   },

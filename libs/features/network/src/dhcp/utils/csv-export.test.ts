@@ -21,8 +21,12 @@ describe('CSV Export Utility', () => {
     };
 
     mockCreateElement = vi.spyOn(document, 'createElement').mockReturnValue(mockAnchor as any);
-    mockAppendChild = vi.spyOn(document.body, 'appendChild').mockImplementation(() => mockAnchor as any);
-    mockRemoveChild = vi.spyOn(document.body, 'removeChild').mockImplementation(() => mockAnchor as any);
+    mockAppendChild = vi
+      .spyOn(document.body, 'appendChild')
+      .mockImplementation(() => mockAnchor as any);
+    mockRemoveChild = vi
+      .spyOn(document.body, 'removeChild')
+      .mockImplementation(() => mockAnchor as any);
   });
 
   afterEach(() => {

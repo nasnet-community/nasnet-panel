@@ -149,11 +149,7 @@ describe('useDeviceCard Hook', () => {
       const device = createMockDevice({ deviceTypeConfidence: 75 });
       const TestComponent = () => {
         const state = useDeviceCard({ device });
-        return (
-          <span data-testid="show">
-            {state.showConfidenceIndicator ? 'true' : 'false'}
-          </span>
-        );
+        return <span data-testid="show">{state.showConfidenceIndicator ? 'true' : 'false'}</span>;
       };
 
       render(<TestComponent />);
@@ -164,11 +160,7 @@ describe('useDeviceCard Hook', () => {
       const device = createMockDevice({ deviceTypeConfidence: 95 });
       const TestComponent = () => {
         const state = useDeviceCard({ device });
-        return (
-          <span data-testid="show">
-            {state.showConfidenceIndicator ? 'true' : 'false'}
-          </span>
-        );
+        return <span data-testid="show">{state.showConfidenceIndicator ? 'true' : 'false'}</span>;
       };
 
       render(<TestComponent />);
@@ -179,11 +171,7 @@ describe('useDeviceCard Hook', () => {
       const device = createMockDevice({ deviceTypeConfidence: undefined });
       const TestComponent = () => {
         const state = useDeviceCard({ device });
-        return (
-          <span data-testid="show">
-            {state.showConfidenceIndicator ? 'true' : 'false'}
-          </span>
-        );
+        return <span data-testid="show">{state.showConfidenceIndicator ? 'true' : 'false'}</span>;
       };
 
       render(<TestComponent />);
@@ -218,7 +206,10 @@ describe('useDeviceCard Hook', () => {
       const TestComponent = () => {
         const state = useDeviceCard({ device, onConfigure });
         return (
-          <button data-testid="btn" onClick={state.handleConfigure}>
+          <button
+            data-testid="btn"
+            onClick={state.handleConfigure}
+          >
             Configure
           </button>
         );
@@ -235,7 +226,10 @@ describe('useDeviceCard Hook', () => {
       const TestComponent = () => {
         const state = useDeviceCard({ device, onBlock });
         return (
-          <button data-testid="btn" onClick={state.handleBlock}>
+          <button
+            data-testid="btn"
+            onClick={state.handleBlock}
+          >
             Block
           </button>
         );
@@ -252,7 +246,10 @@ describe('useDeviceCard Hook', () => {
       const TestComponent = () => {
         const state = useDeviceCard({ device, onRename });
         return (
-          <button data-testid="btn" onClick={() => state.handleRename('New Name')}>
+          <button
+            data-testid="btn"
+            onClick={() => state.handleRename('New Name')}
+          >
             Rename
           </button>
         );
@@ -327,7 +324,12 @@ describe('DeviceCard Component', () => {
 
   describe('Compact Mode', () => {
     it('should render compact card', () => {
-      render(<DeviceCard device={createMockDevice()} compact />);
+      render(
+        <DeviceCard
+          device={createMockDevice()}
+          compact
+        />
+      );
       // Compact mode should show minimal UI
       expect(screen.getByRole('article')).toBeInTheDocument();
     });
@@ -335,7 +337,12 @@ describe('DeviceCard Component', () => {
 
   describe('Selection State', () => {
     it('should apply selected styles when isSelected is true', () => {
-      render(<DeviceCard device={createMockDevice()} isSelected />);
+      render(
+        <DeviceCard
+          device={createMockDevice()}
+          isSelected
+        />
+      );
       // Get all article elements (mobile and desktop render both)
       const cards = screen.getAllByRole('article');
       expect(cards[0].className).toContain('border-primary');
@@ -345,7 +352,12 @@ describe('DeviceCard Component', () => {
   describe('Click Handler', () => {
     it('should call onClick when card is clicked', async () => {
       const onClick = vi.fn();
-      render(<DeviceCard device={createMockDevice()} onClick={onClick} />);
+      render(
+        <DeviceCard
+          device={createMockDevice()}
+          onClick={onClick}
+        />
+      );
 
       // Get all article elements (mobile and desktop render both)
       const cards = screen.getAllByRole('article');
@@ -377,7 +389,12 @@ describe('Accessibility', () => {
 
   it('should be keyboard navigable when clickable', () => {
     const onClick = vi.fn();
-    render(<DeviceCard device={createMockDevice()} onClick={onClick} />);
+    render(
+      <DeviceCard
+        device={createMockDevice()}
+        onClick={onClick}
+      />
+    );
 
     // Get all article elements (mobile and desktop render both)
     const cards = screen.getAllByRole('article');
@@ -386,7 +403,12 @@ describe('Accessibility', () => {
 
   it('should handle Enter key for selection', () => {
     const onClick = vi.fn();
-    render(<DeviceCard device={createMockDevice()} onClick={onClick} />);
+    render(
+      <DeviceCard
+        device={createMockDevice()}
+        onClick={onClick}
+      />
+    );
 
     // Get all article elements (mobile and desktop render both)
     const cards = screen.getAllByRole('article');
@@ -397,7 +419,12 @@ describe('Accessibility', () => {
 
   it('should handle Space key for selection', () => {
     const onClick = vi.fn();
-    render(<DeviceCard device={createMockDevice()} onClick={onClick} />);
+    render(
+      <DeviceCard
+        device={createMockDevice()}
+        onClick={onClick}
+      />
+    );
 
     // Get all article elements (mobile and desktop render both)
     const cards = screen.getAllByRole('article');
@@ -441,7 +468,12 @@ describe('DeviceCardCompact', () => {
       deviceTypeLabel: 'Computer',
     };
 
-    render(<DeviceCardCompact state={state} device={device} />);
+    render(
+      <DeviceCardCompact
+        state={state}
+        device={device}
+      />
+    );
     expect(screen.getByText('Compact-Test')).toBeInTheDocument();
   });
 });
@@ -457,9 +489,7 @@ describe('Device Actions', () => {
     const device = createMockDevice();
     const TestComponent = () => {
       const state = useDeviceCard({ device, onRename });
-      return (
-        <button onClick={() => state.handleRename('New Name')}>Rename</button>
-      );
+      return <button onClick={() => state.handleRename('New Name')}>Rename</button>;
     };
 
     render(<TestComponent />);
@@ -472,11 +502,7 @@ describe('Device Actions', () => {
     const device = createMockDevice();
     const TestComponent = () => {
       const state = useDeviceCard({ device, onAssignStaticIp });
-      return (
-        <button onClick={() => state.handleAssignStaticIp('192.168.1.200')}>
-          Assign IP
-        </button>
-      );
+      return <button onClick={() => state.handleAssignStaticIp('192.168.1.200')}>Assign IP</button>;
     };
 
     render(<TestComponent />);

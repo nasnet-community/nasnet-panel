@@ -21,7 +21,12 @@ describe('CredentialDialog', () => {
   });
 
   it('should not render when isOpen is false', () => {
-    render(<CredentialDialog {...defaultProps} isOpen={false} />);
+    render(
+      <CredentialDialog
+        {...defaultProps}
+        isOpen={false}
+      />
+    );
 
     expect(screen.queryByText(/connect to router/i)).not.toBeInTheDocument();
   });
@@ -35,7 +40,10 @@ describe('CredentialDialog', () => {
 
   it('should display router name and IP when provided', () => {
     render(
-      <CredentialDialog {...defaultProps} routerName="Home Router" />
+      <CredentialDialog
+        {...defaultProps}
+        routerName="Home Router"
+      />
     );
 
     expect(screen.getByText('Home Router')).toBeInTheDocument();
@@ -71,9 +79,7 @@ describe('CredentialDialog', () => {
   it('should default remember credentials checkbox to checked', () => {
     render(<CredentialDialog {...defaultProps} />);
 
-    const checkbox = screen.getByLabelText(
-      /remember credentials/i
-    ) as HTMLInputElement;
+    const checkbox = screen.getByLabelText(/remember credentials/i) as HTMLInputElement;
     expect(checkbox.checked).toBe(true);
   });
 
@@ -124,9 +130,7 @@ describe('CredentialDialog', () => {
   it('should allow user to toggle remember credentials', () => {
     render(<CredentialDialog {...defaultProps} />);
 
-    const checkbox = screen.getByLabelText(
-      /remember credentials/i
-    ) as HTMLInputElement;
+    const checkbox = screen.getByLabelText(/remember credentials/i) as HTMLInputElement;
 
     expect(checkbox.checked).toBe(true);
 
@@ -139,7 +143,10 @@ describe('CredentialDialog', () => {
 
   it('should call onSubmit with credentials and save flag', () => {
     render(
-      <CredentialDialog {...defaultProps} onSubmit={mockOnSubmit} />
+      <CredentialDialog
+        {...defaultProps}
+        onSubmit={mockOnSubmit}
+      />
     );
 
     const usernameInput = screen.getByLabelText(/username/i);
@@ -163,7 +170,10 @@ describe('CredentialDialog', () => {
 
   it('should call onSubmit with saveCredentials true by default', () => {
     render(
-      <CredentialDialog {...defaultProps} onSubmit={mockOnSubmit} />
+      <CredentialDialog
+        {...defaultProps}
+        onSubmit={mockOnSubmit}
+      />
     );
 
     const usernameInput = screen.getByLabelText(/username/i);
@@ -182,7 +192,10 @@ describe('CredentialDialog', () => {
 
   it('should trim whitespace from username', () => {
     render(
-      <CredentialDialog {...defaultProps} onSubmit={mockOnSubmit} />
+      <CredentialDialog
+        {...defaultProps}
+        onSubmit={mockOnSubmit}
+      />
     );
 
     const usernameInput = screen.getByLabelText(/username/i);
@@ -230,7 +243,10 @@ describe('CredentialDialog', () => {
 
   it('should not call onSubmit when username is empty', () => {
     render(
-      <CredentialDialog {...defaultProps} onSubmit={mockOnSubmit} />
+      <CredentialDialog
+        {...defaultProps}
+        onSubmit={mockOnSubmit}
+      />
     );
 
     const usernameInput = screen.getByLabelText(/username/i);
@@ -244,7 +260,10 @@ describe('CredentialDialog', () => {
 
   it('should call onCancel when cancel button clicked', () => {
     render(
-      <CredentialDialog {...defaultProps} onCancel={mockOnCancel} />
+      <CredentialDialog
+        {...defaultProps}
+        onCancel={mockOnCancel}
+      />
     );
 
     const cancelButton = screen.getByRole('button', { name: /cancel/i });
@@ -289,25 +308,31 @@ describe('CredentialDialog', () => {
       />
     );
 
-    expect(
-      screen.getByText('Invalid username or password')
-    ).toBeInTheDocument();
+    expect(screen.getByText('Invalid username or password')).toBeInTheDocument();
   });
 
   it('should show loading state when isValidating is true', () => {
-    render(<CredentialDialog {...defaultProps} isValidating={true} />);
+    render(
+      <CredentialDialog
+        {...defaultProps}
+        isValidating={true}
+      />
+    );
 
     expect(screen.getByText(/connecting\.\.\./i)).toBeInTheDocument();
   });
 
   it('should disable all inputs when isValidating is true', () => {
-    render(<CredentialDialog {...defaultProps} isValidating={true} />);
+    render(
+      <CredentialDialog
+        {...defaultProps}
+        isValidating={true}
+      />
+    );
 
     const usernameInput = screen.getByLabelText(/username/i) as HTMLInputElement;
     const passwordInput = screen.getByLabelText(/password/i) as HTMLInputElement;
-    const saveCheckbox = screen.getByLabelText(
-      /remember credentials/i
-    ) as HTMLInputElement;
+    const saveCheckbox = screen.getByLabelText(/remember credentials/i) as HTMLInputElement;
     const submitButton = screen.getByRole('button', {
       name: /connecting/i,
     }) as HTMLButtonElement;
@@ -323,7 +348,12 @@ describe('CredentialDialog', () => {
   });
 
   it('should disable password toggle when isValidating is true', () => {
-    render(<CredentialDialog {...defaultProps} isValidating={true} />);
+    render(
+      <CredentialDialog
+        {...defaultProps}
+        isValidating={true}
+      />
+    );
 
     // Find the password toggle button by type="button" (not submit)
     const buttons = screen.getAllByRole('button');
@@ -361,7 +391,10 @@ describe('CredentialDialog', () => {
 
   it('should handle form submission via Enter key', () => {
     render(
-      <CredentialDialog {...defaultProps} onSubmit={mockOnSubmit} />
+      <CredentialDialog
+        {...defaultProps}
+        onSubmit={mockOnSubmit}
+      />
     );
 
     const usernameInput = screen.getByLabelText(/username/i);
@@ -393,9 +426,7 @@ describe('CredentialDialog', () => {
   it('should display helpful hint about default credentials', () => {
     render(<CredentialDialog {...defaultProps} />);
 
-    expect(
-      screen.getByText(/default mikrotik credentials/i)
-    ).toBeInTheDocument();
+    expect(screen.getByText(/default mikrotik credentials/i)).toBeInTheDocument();
     expect(screen.getByText(/admin/)).toBeInTheDocument();
     expect(screen.getByText(/empty password/i)).toBeInTheDocument();
   });
@@ -414,7 +445,10 @@ describe('CredentialDialog', () => {
 
   it('should call onCancel when backdrop is clicked', () => {
     render(
-      <CredentialDialog {...defaultProps} onCancel={mockOnCancel} />
+      <CredentialDialog
+        {...defaultProps}
+        onCancel={mockOnCancel}
+      />
     );
 
     // Find the backdrop (first motion.div with fixed positioning)
@@ -429,7 +463,12 @@ describe('CredentialDialog', () => {
   });
 
   it('should show spinner animation when validating', () => {
-    render(<CredentialDialog {...defaultProps} isValidating={true} />);
+    render(
+      <CredentialDialog
+        {...defaultProps}
+        isValidating={true}
+      />
+    );
 
     // Check for spinner element
     const spinner = document.querySelector('.animate-spin');
@@ -438,7 +477,10 @@ describe('CredentialDialog', () => {
 
   it('should handle empty password (MikroTik default)', () => {
     render(
-      <CredentialDialog {...defaultProps} onSubmit={mockOnSubmit} />
+      <CredentialDialog
+        {...defaultProps}
+        onSubmit={mockOnSubmit}
+      />
     );
 
     const usernameInput = screen.getByLabelText(/username/i);
@@ -460,7 +502,10 @@ describe('CredentialDialog', () => {
 
   it('should not prevent form submission with empty password', () => {
     render(
-      <CredentialDialog {...defaultProps} onSubmit={mockOnSubmit} />
+      <CredentialDialog
+        {...defaultProps}
+        onSubmit={mockOnSubmit}
+      />
     );
 
     const usernameInput = screen.getByLabelText(/username/i);

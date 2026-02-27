@@ -1,8 +1,10 @@
 # Command and Shortcut Registry Stores
 
-This document covers the command palette and keyboard shortcut systems that power NasNetConnect's fast navigation and power-user experience.
+This document covers the command palette and keyboard shortcut systems that power NasNetConnect's
+fast navigation and power-user experience.
 
 **Source:**
+
 - `libs/state/stores/src/command/command-registry.store.ts`
 - `libs/state/stores/src/command/shortcut-registry.store.ts`
 
@@ -10,8 +12,10 @@ This document covers the command palette and keyboard shortcut systems that powe
 
 The command and shortcut registries provide:
 
-- **Command Palette**: Searchable registry of all app commands with fuzzy matching, ranking, and usage tracking
-- **Shortcut Registry**: Vim-style multi-key shortcuts (e.g., "g d" for go-dashboard) with conflict resolution
+- **Command Palette**: Searchable registry of all app commands with fuzzy matching, ranking, and
+  usage tracking
+- **Shortcut Registry**: Vim-style multi-key shortcuts (e.g., "g d" for go-dashboard) with conflict
+  resolution
 - **Recent Items**: Tracked based on usage frequency and recency
 - **Platform Detection**: Automatic CMD/Ctrl handling, disabled on mobile
 - **Persistence**: Recent items and usage frequency stored in localStorage
@@ -37,15 +41,15 @@ export interface CommandRegistryState {
 
 ```typescript
 export interface Command {
-  id: string;                    // Unique ID (e.g., 'nav-dashboard')
-  label: string;                 // Display label (plain text)
-  description?: string;          // Optional description
-  icon: LucideIcon;             // Icon component
+  id: string; // Unique ID (e.g., 'nav-dashboard')
+  label: string; // Display label (plain text)
+  description?: string; // Optional description
+  icon: LucideIcon; // Icon component
   category: 'navigation' | 'action' | 'resource' | 'recent';
-  shortcut?: string;            // Keyboard shortcut display (e.g., 'g d')
-  requiresNetwork?: boolean;    // Network requirement flag
-  keywords?: string[];          // Search keywords
-  onExecute: () => void;        // Handler function
+  shortcut?: string; // Keyboard shortcut display (e.g., 'g d')
+  requiresNetwork?: boolean; // Network requirement flag
+  keywords?: string[]; // Search keywords
+  onExecute: () => void; // Handler function
 }
 ```
 
@@ -68,6 +72,7 @@ Priority 2: Behavioral signals (added to base score)
 ```
 
 **Example:** Searching "dash" when you've recently executed 'nav-dashboard' twice:
+
 ```
 Base score (starts with): 80
 Recency boost (1st in recent): 20 * (1 - 0/5) = 20
@@ -77,18 +82,18 @@ Total: 100 points
 
 ### API Reference
 
-| Method | Purpose |
-|--------|---------|
-| `register(command)` | Register single command |
-| `registerMany(commands)` | Batch register commands |
-| `unregister(id)` | Remove command by ID |
-| `search(query)` | Search with ranking, returns [] if query is empty |
-| `getCommand(id)` | Get command by ID or undefined |
-| `trackUsage(id)` | Increment usage count, update recent IDs |
-| `getRecent()` | Get recent commands as Command[] |
-| `clearRecent()` | Clear all recent items |
-| `getAllCommands()` | Get all registered commands |
-| `getByCategory(category)` | Filter by category |
+| Method                    | Purpose                                           |
+| ------------------------- | ------------------------------------------------- |
+| `register(command)`       | Register single command                           |
+| `registerMany(commands)`  | Batch register commands                           |
+| `unregister(id)`          | Remove command by ID                              |
+| `search(query)`           | Search with ranking, returns [] if query is empty |
+| `getCommand(id)`          | Get command by ID or undefined                    |
+| `trackUsage(id)`          | Increment usage count, update recent IDs          |
+| `getRecent()`             | Get recent commands as Command[]                  |
+| `clearRecent()`           | Clear all recent items                            |
+| `getAllCommands()`        | Get all registered commands                       |
+| `getByCategory(category)` | Filter by category                                |
 
 ### Persistence
 
@@ -179,13 +184,13 @@ export interface ShortcutRegistryState {
 
 ```typescript
 export interface Shortcut {
-  id: string;                    // Unique ID
-  label: string;                 // Display label
-  keys: string;                  // Key combo: "cmd+k", "g h", or "?"
+  id: string; // Unique ID
+  label: string; // Display label
+  keys: string; // Key combo: "cmd+k", "g h", or "?"
   group: 'navigation' | 'global' | 'actions' | 'editing' | 'context';
-  contextual?: boolean;          // Only active on certain routes
-  activeRoutes?: string[];       // Routes where active
-  onExecute: () => void;         // Handler
+  contextual?: boolean; // Only active on certain routes
+  activeRoutes?: string[]; // Routes where active
+  onExecute: () => void; // Handler
 }
 ```
 
@@ -223,6 +228,7 @@ The registry supports Vim-style multi-key shortcuts:
 ```
 
 Implementation tracks `pendingKey` during sequences:
+
 ```
 User presses 'g' → set pendingKey='g'
               Wait for next key within timeout
@@ -279,20 +285,20 @@ Method `getContextualShortcuts()` filters based on current route.
 
 ### API Reference
 
-| Method | Purpose |
-|--------|---------|
-| `register(shortcut)` | Register single shortcut |
-| `registerMany(shortcuts)` | Batch register |
-| `unregister(id)` | Remove by ID |
-| `openOverlay()` | Show shortcuts help overlay |
-| `closeOverlay()` | Hide overlay |
-| `toggleOverlay()` | Toggle overlay |
-| `setPendingKey(key \| null)` | Track multi-key state |
-| `setCurrentRoute(route)` | Update for contextual matching |
-| `getAllShortcuts()` | Get all shortcuts |
-| `getByGroup(group)` | Filter by group |
-| `getContextualShortcuts()` | Get shortcuts for current route |
-| `getByKeys(keys)` | Find by key combination |
+| Method                       | Purpose                         |
+| ---------------------------- | ------------------------------- |
+| `register(shortcut)`         | Register single shortcut        |
+| `registerMany(shortcuts)`    | Batch register                  |
+| `unregister(id)`             | Remove by ID                    |
+| `openOverlay()`              | Show shortcuts help overlay     |
+| `closeOverlay()`             | Hide overlay                    |
+| `toggleOverlay()`            | Toggle overlay                  |
+| `setPendingKey(key \| null)` | Track multi-key state           |
+| `setCurrentRoute(route)`     | Update for contextual matching  |
+| `getAllShortcuts()`          | Get all shortcuts               |
+| `getByGroup(group)`          | Filter by group                 |
+| `getContextualShortcuts()`   | Get shortcuts for current route |
+| `getByKeys(keys)`            | Find by key combination         |
 
 ### Usage Example
 
@@ -398,7 +404,10 @@ function ShortcutsOverlay() {
   const grouped = groupShortcutsByCategory(shortcuts);
 
   return (
-    <Dialog open={overlayOpen} onOpenChange={closeOverlay}>
+    <Dialog
+      open={overlayOpen}
+      onOpenChange={closeOverlay}
+    >
       <DialogContent>
         <DialogTitle>Keyboard Shortcuts</DialogTitle>
         {Array.from(grouped.entries()).map(([group, shortcuts]) => (
@@ -408,7 +417,9 @@ function ShortcutsOverlay() {
               <tbody>
                 {shortcuts.map((s) => (
                   <tr key={s.id}>
-                    <td><kbd>{formatShortcutKeys(s.keys, isMac)}</kbd></td>
+                    <td>
+                      <kbd>{formatShortcutKeys(s.keys, isMac)}</kbd>
+                    </td>
                     <td>{s.label}</td>
                   </tr>
                 ))}
@@ -446,8 +457,8 @@ Maps cannot be JSON serialized, so persistence uses custom conversion:
 ```typescript
 // Serialize for storage
 const persisted = {
-  recentIds: state.recentIds,                    // string[]
-  usageCount: Object.fromEntries(state.usageCount),  // Record<string, number>
+  recentIds: state.recentIds, // string[]
+  usageCount: Object.fromEntries(state.usageCount), // Record<string, number>
 };
 
 // Rehydrate from storage
@@ -456,7 +467,8 @@ const usageCount = new Map(Object.entries(persisted.usageCount));
 
 ## Best Practices
 
-1. **Register at App Root**: Register core commands/shortcuts early, domain-specific ones in feature modules
+1. **Register at App Root**: Register core commands/shortcuts early, domain-specific ones in feature
+   modules
 2. **Unique IDs**: Use prefixes for organization: `nav-*`, `action-*`, `edit-*`
 3. **Keyboard Shortcut Conflicts**: Resolve via priority groups (navigation > editing > context)
 4. **Accessibility**: Don't conflict with browser/OS shortcuts (Cmd+Q, Ctrl+L, etc.)

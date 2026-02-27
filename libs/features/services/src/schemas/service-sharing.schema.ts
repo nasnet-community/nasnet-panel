@@ -137,9 +137,7 @@ export type ImportServiceFormData = z.infer<typeof importServiceSchema>;
  * });
  * ```
  */
-export const redactedFieldValuesSchema = z.record(
-  z.string().min(1, 'Field value cannot be empty')
-);
+export const redactedFieldValuesSchema = z.record(z.string().min(1, 'Field value cannot be empty'));
 
 export type RedactedFieldValuesData = z.infer<typeof redactedFieldValuesSchema>;
 

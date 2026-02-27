@@ -1,27 +1,34 @@
 # Validation Pipeline
 
-> Multi-domain input validation across router connection parameters, service configuration, network scanning targets, manifest metadata, and ARP subnet constraints.
+> Multi-domain input validation across router connection parameters, service configuration, network
+> scanning targets, manifest metadata, and ARP subnet constraints.
 
-**Packages:** `internal/config/`, `internal/router/`, `internal/scanner/`, `internal/scanner/arp/`, `internal/common/manifest/`
-**Key Files:** `config/validators.go`, `config/integration_test.go`, `router/validation.go`, `scanner/validation.go`, `scanner/ordering.go`, `scanner/arp/validation.go`, `common/manifest/validate.go`
-**Prerequisites:** [See: 08-provisioning-engine.md §Config Pipeline], [See: 10-feature-marketplace.md §Manifest]
+**Packages:** `internal/config/`, `internal/router/`, `internal/scanner/`, `internal/scanner/arp/`,
+`internal/common/manifest/` **Key Files:** `config/validators.go`, `config/integration_test.go`,
+`router/validation.go`, `scanner/validation.go`, `scanner/ordering.go`, `scanner/arp/validation.go`,
+`common/manifest/validate.go` **Prerequisites:** [See: 08-provisioning-engine.md §Config Pipeline], [See:
+10-feature-marketplace.md
+§Manifest]
 
 ---
 
 ## Overview
 
-NasNetConnect does not have a single monolithic validation pipeline. Instead, validation is applied at system boundaries in discrete, domain-focused packages:
+NasNetConnect does not have a single monolithic validation pipeline. Instead, validation is applied
+at system boundaries in discrete, domain-focused packages:
 
-| Domain | Package | What Is Validated |
-|--------|---------|------------------|
-| Service config | `internal/config/` | IP binding, ports, DNS names, URLs, emails, CIDR, ranges |
-| Router input | `internal/router/` | AddRouter form fields: host, port, username, password, protocol |
-| RouterOS response | `internal/scanner/` | REST API response body confidence scoring |
-| Scan target | `internal/scanner/` | Subnet or IP range scope, privacy, size |
-| ARP scan | `internal/scanner/arp/` | CIDR format, max subnet size |
-| Manifest | `internal/common/manifest/` | Feature marketplace manifest structural rules |
+| Domain            | Package                     | What Is Validated                                               |
+| ----------------- | --------------------------- | --------------------------------------------------------------- |
+| Service config    | `internal/config/`          | IP binding, ports, DNS names, URLs, emails, CIDR, ranges        |
+| Router input      | `internal/router/`          | AddRouter form fields: host, port, username, password, protocol |
+| RouterOS response | `internal/scanner/`         | REST API response body confidence scoring                       |
+| Scan target       | `internal/scanner/`         | Subnet or IP range scope, privacy, size                         |
+| ARP scan          | `internal/scanner/arp/`     | CIDR format, max subnet size                                    |
+| Manifest          | `internal/common/manifest/` | Feature marketplace manifest structural rules                   |
 
-Each domain validates at the moment of ingestion: GraphQL mutations validate router inputs before any connection is attempted; config generators validate before file generation; manifest validation runs at download time.
+Each domain validates at the moment of ingestion: GraphQL mutations validate router inputs before
+any connection is attempted; config generators validate before file generation; manifest validation
+runs at download time.
 
 ---
 
@@ -102,11 +109,13 @@ Manifest Download
 
 ### `internal/config` — Service Config Validators
 
-Primitive validation functions used by all six feature config generators (Tor, sing-box, Xray, MTProxy, AdGuard Home, Psiphon). These are composable building blocks, not a structured pipeline.
+Primitive validation functions used by all six feature config generators (Tor, sing-box, Xray,
+MTProxy, AdGuard Home, Psiphon). These are composable building blocks, not a structured pipeline.
 
 #### IP Binding Validation
 
-Every config generator calls `ValidateBindIP` before producing any output. This enforces the VIF isolation invariant: services must bind to a specific VLAN IP, never to the wildcard.
+Every config generator calls `ValidateBindIP` before producing any output. This enforces the VIF
+isolation invariant: services must bind to a specific VLAN IP, never to the wildcard.
 
 ```go
 // ValidateBindIP validates that a bind IP is not wildcard (0.0.0.0 or ::).
@@ -115,12 +124,14 @@ func ValidateBindIP(ip string) error
 ```
 
 **Rejection criteria:**
+
 - Empty string → `"bind IP is required"`
 - Unparseable IP → `"invalid IP address: %s"`
 - `0.0.0.0` or `::` (IsUnspecified) → `"wildcard IP addresses (...) are not allowed"`
 - `127.0.0.1` or `::1` (IsLoopback) → `"loopback IP addresses (...) are not allowed"`
 
-This check is enforced in the integration test suite `TestAllGenerators_IPBinding`, which verifies that all six generators reject `"0.0.0.0"` and `"::"` in both `Validate()` and `Generate()`.
+This check is enforced in the integration test suite `TestAllGenerators_IPBinding`, which verifies
+that all six generators reject `"0.0.0.0"` and `"::"` in both `Validate()` and `Generate()`.
 
 #### Port Validation
 
@@ -187,6 +198,7 @@ type Generator interface {
 ```
 
 **Pipeline within a generator:**
+
 1. `Validate(config, bindIP)` is called first:
    - Always calls `ValidateBindIP(bindIP)` first
    - Validates required service-specific fields (e.g., port, secret, protocol)
@@ -194,10 +206,12 @@ type Generator interface {
 2. `Generate(instanceID, config, bindIP)` repeats validation (defensive) before templating
 
 **Integration tests** (`config/integration_test.go`) verify:
+
 - All 6 generators register without conflict
 - `Validate()` accepts valid configs
 - `Validate()` rejects wildcard IPs (`0.0.0.0`, `::`)
-- `Validate()` rejects invalid IP formats (5 cases: out-of-range, incomplete, extra octets, non-IP, non-numeric)
+- `Validate()` rejects invalid IP formats (5 cases: out-of-range, incomplete, extra octets, non-IP,
+  non-numeric)
 - `Validate()` rejects empty configs
 - `GetConfigFormat()` and `GetConfigFileName()` match expected values
 - `GetSchema()` returns consistent, self-validating schema
@@ -252,23 +266,25 @@ func (v *AddRouterInputValidator) Validate(input AddRouterInputData) ValidationE
 
 **Field validation rules:**
 
-| Field | Code | Rule |
-|-------|------|------|
-| `host` | `REQUIRED` | Must not be empty |
-| `host` | `MAX_LENGTH` | Max 253 characters |
-| `host` | `INVALID_FORMAT` | Must be valid IP (`network.IsValidIP`) or hostname (`network.IsValidHostname`) |
-| `port` | `OUT_OF_RANGE` | Must be 1–65535 (if provided) |
-| `username` | `REQUIRED` | Must not be empty |
-| `username` | `MAX_LENGTH` | Max 64 characters |
-| `username` | `INVALID_CHARS` | Only `[a-zA-Z0-9_\-.@]` allowed |
-| `password` | `REQUIRED` | Must not be empty |
-| `protocolPreference` | `INVALID_VALUE` | Must be one of: `AUTO`, `REST`, `API`, `API_SSL`, `SSH`, `TELNET` |
-| `name` | `MAX_LENGTH` | Max 128 characters (if provided) |
+| Field                | Code             | Rule                                                                           |
+| -------------------- | ---------------- | ------------------------------------------------------------------------------ |
+| `host`               | `REQUIRED`       | Must not be empty                                                              |
+| `host`               | `MAX_LENGTH`     | Max 253 characters                                                             |
+| `host`               | `INVALID_FORMAT` | Must be valid IP (`network.IsValidIP`) or hostname (`network.IsValidHostname`) |
+| `port`               | `OUT_OF_RANGE`   | Must be 1–65535 (if provided)                                                  |
+| `username`           | `REQUIRED`       | Must not be empty                                                              |
+| `username`           | `MAX_LENGTH`     | Max 64 characters                                                              |
+| `username`           | `INVALID_CHARS`  | Only `[a-zA-Z0-9_\-.@]` allowed                                                |
+| `password`           | `REQUIRED`       | Must not be empty                                                              |
+| `protocolPreference` | `INVALID_VALUE`  | Must be one of: `AUTO`, `REST`, `API`, `API_SSL`, `SSH`, `TELNET`              |
+| `name`               | `MAX_LENGTH`     | Max 128 characters (if provided)                                               |
 
 **Design notes:**
+
 - All validators run even if an earlier one fails (collect-all-errors pattern)
 - `ProvidedValue` is truncated to 50 chars for sensitive fields to avoid logging credentials
-- Helper functions `ValidateHostFormat(host)` and `ValidatePortRange(port)` wrap individual field checks for standalone use
+- Helper functions `ValidateHostFormat(host)` and `ValidatePortRange(port)` wrap individual field
+  checks for standalone use
 
 ---
 
@@ -298,7 +314,9 @@ func ValidateRouterOSResponse(body []byte) RouterOSInfo
 
 1. Parse JSON body — failure returns `IsValid=false, Confidence=0`
 2. Check for presence of 14 RouterOS-specific fields:
-   - `version`, `version-string`, `architecture`, `architecture-name`, `board-name`, `cpu`, `cpu-count`, `cpu-frequency`, `total-memory`, `free-memory`, `platform`, `factory-software`, `uptime`
+   - `version`, `version-string`, `architecture`, `architecture-name`, `board-name`, `cpu`,
+     `cpu-count`, `cpu-frequency`, `total-memory`, `free-memory`, `platform`, `factory-software`,
+     `uptime`
    - Each present field: `+10 points`
 3. Version extraction and scoring:
    - Valid version format (`N.N` or `N.N.N`): `+20`
@@ -311,6 +329,7 @@ func ValidateRouterOSResponse(body []byte) RouterOSInfo
 **Validity threshold:** `presentFields >= 3 AND confidence >= 40`
 
 **HTTP 401 handling** (`handleUnauthorizedResponse`):
+
 - JSON content-type with "unauthorized" or "error" in body → Confidence=35
 - `WWW-Authenticate: Basic` header → Confidence=30
 - Any 401 on `/rest/system/resource` → Confidence=25 (path itself is strong signal)
@@ -325,17 +344,20 @@ func ValidateSubnet(subnet string) error
 ```
 
 **Format detection:**
+
 - Contains `/` → `validateCIDRSubnet`
 - Contains `-` → `validateIPRange`
 - Otherwise → `validateSingleIP`
 
 **CIDR validation rules:**
+
 - Must parse with `net.ParseCIDR`
 - Must be IPv4 (rejects IPv6 CIDR blocks)
 - Must be in private range (`IsPrivateIP`)
 - `hostBits <= 16` — max /16 (65,536 IPs). Rejects /15 and larger.
 
 **Range validation rules:**
+
 - Format: `startIP-endIP`
 - Both IPs must be valid IPv4
 - Both must be in private range
@@ -343,6 +365,7 @@ func ValidateSubnet(subnet string) error
 - Range size `<= 65,536`
 
 **Private range check** (`IsPrivateIP`):
+
 - `10.0.0.0/8`
 - `172.16.0.0/12` through `172.31.0.0`
 - `192.168.0.0/16`
@@ -365,10 +388,12 @@ func validateSubnet(subnet string) error
 ```
 
 **Rules:**
+
 - Must be valid CIDR (`net.ParseCIDR`)
 - `ones >= MaxSubnetSize (16)` — rejects `/15` and larger
 
-**IP list generation:** `generateIPList` iterates the CIDR block up to `MaxDevices=2000` addresses. The `incIP` helper increments byte arrays in-place for efficient traversal.
+**IP list generation:** `generateIPList` iterates the CIDR block up to `MaxDevices=2000` addresses.
+The `incIP` helper increments byte arrays in-place for efficient traversal.
 
 ---
 
@@ -386,17 +411,22 @@ func (m *Manifest) Validate() error
 
 1. **ID** — Required, matches `^[a-z0-9-_]+$` (`idRegexp`)
 2. **Name** — Required
-3. **Version** — Required, matches semantic version pattern (`^[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9]+)?$`, via `versionRegexp`)
+3. **Version** — Required, matches semantic version pattern
+   (`^[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9]+)?$`, via `versionRegexp`)
 4. **DockerImage** — Required
 5. **DockerTag** — Required
 6. **Architectures** — At least one; each must be `amd64`, `arm64`, `arm`, or `armv7`
 7. **DockerPullPolicy** — If set, must be `always`, `if-not-present`, or `never`
 8. **NetworkMode** — If set, must be `bridge`, `host`, or `none`
-9. **Port mappings** — For each port: container_port and host_port in 1–65535, protocol is `tcp` or `udp`
-10. **Source** — If present: github_owner, github_repo, binary_name are required; archive_format must be `none`/`tar.gz`/`zip`; extract_path required when archive_format is set and not `none`
-11. **Resource budget** — min_ram ≥ 0, recommended_ram ≥ 0, recommended_ram ≥ min_ram (when both > 0), cpu_weight 0–100
+9. **Port mappings** — For each port: container_port and host_port in 1–65535, protocol is `tcp` or
+   `udp`
+10. **Source** — If present: github_owner, github_repo, binary_name are required; archive_format
+    must be `none`/`tar.gz`/`zip`; extract_path required when archive_format is set and not `none`
+11. **Resource budget** — min_ram ≥ 0, recommended_ram ≥ 0, recommended_ram ≥ min_ram (when both >
+    0), cpu_weight 0–100
 
-The `Schema.Validate()` method (called by `GetSchema()` integration tests) performs analogous structural validation on the service config schema definition.
+The `Schema.Validate()` method (called by `GetSchema()` integration tests) performs analogous
+structural validation on the service config schema definition.
 
 ---
 
@@ -404,21 +434,23 @@ The `Schema.Validate()` method (called by `GetSchema()` integration tests) perfo
 
 Each domain uses a distinct error style suited to its context:
 
-| Domain | Error Style | Example |
-|--------|------------|---------|
-| `config/validators.go` | Plain `error` string | `"port must be between 1 and 65535, got 99999"` |
-| `router/validation.go` | `ValidationError` struct | `{Field: "input.host", Code: "REQUIRED", Message: "Host is required", Suggestion: "..."}` |
-| `scanner/validation.go` | `RouterOSInfo.IsValid=false` | Confidence-scored result, not a Go error |
-| `scanner/ordering.go` | Plain `error` string | `"subnet too large: /15 would require scanning..."` |
-| `manifest/validate.go` | Plain `error` string | `"manifest ID must contain only lowercase letters..."` |
+| Domain                  | Error Style                  | Example                                                                                   |
+| ----------------------- | ---------------------------- | ----------------------------------------------------------------------------------------- |
+| `config/validators.go`  | Plain `error` string         | `"port must be between 1 and 65535, got 99999"`                                           |
+| `router/validation.go`  | `ValidationError` struct     | `{Field: "input.host", Code: "REQUIRED", Message: "Host is required", Suggestion: "..."}` |
+| `scanner/validation.go` | `RouterOSInfo.IsValid=false` | Confidence-scored result, not a Go error                                                  |
+| `scanner/ordering.go`   | Plain `error` string         | `"subnet too large: /15 would require scanning..."`                                       |
+| `manifest/validate.go`  | Plain `error` string         | `"manifest ID must contain only lowercase letters..."`                                    |
 
-The `ValidationErrors` type in `internal/router/` is the only aggregating error — it collects all field errors in a single pass. All other validators return on first error.
+The `ValidationErrors` type in `internal/router/` is the only aggregating error — it collects all
+field errors in a single pass. All other validators return on first error.
 
 ---
 
 ## Integration with Config Generation
 
-The config package validation functions are the primary defense layer before config file generation [See: 08-provisioning-engine.md §Config Pipeline]. The lifecycle is:
+The config package validation functions are the primary defense layer before config file generation
+[See: 08-provisioning-engine.md §Config Pipeline]. The lifecycle is:
 
 ```
 GraphQL Mutation: CreateServiceInstance
@@ -440,7 +472,8 @@ GraphQL Mutation: CreateServiceInstance
 4. Start service process [See: 06-service-orchestrator.md]
 ```
 
-The binding IP (`bindIP`) always comes from the VIF allocation for the service's VLAN, ensuring config validation and VIF isolation operate consistently [See: 07-virtual-interface-factory.md].
+The binding IP (`bindIP`) always comes from the VIF allocation for the service's VLAN, ensuring
+config validation and VIF isolation operate consistently [See: 07-virtual-interface-factory.md].
 
 ---
 

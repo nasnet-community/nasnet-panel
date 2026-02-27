@@ -15,12 +15,12 @@
  * Top-level categorization for device types.
  */
 export type FingerprintDeviceCategory =
-  | 'mobile'         // Phones, tablets
-  | 'computer'       // PCs, laptops, workstations
-  | 'iot'            // Smart home, IoT devices
-  | 'network'        // Printers, NAS, routers, switches
-  | 'entertainment'  // Gaming consoles, smart TVs, streaming devices
-  | 'other';         // Other devices, servers, appliances, generic
+  | 'mobile' // Phones, tablets
+  | 'computer' // PCs, laptops, workstations
+  | 'iot' // Smart home, IoT devices
+  | 'network' // Printers, NAS, routers, switches
+  | 'entertainment' // Gaming consoles, smart TVs, streaming devices
+  | 'other'; // Other devices, servers, appliances, generic
 
 /**
  * Specific device type (22 types)
@@ -31,33 +31,33 @@ export type FingerprintDeviceCategory =
  */
 export type FingerprintDeviceType =
   // Phone/Tablet (3)
-  | 'ios'                // Apple iPhone, iPad
-  | 'android'            // Android phone, tablet
-  | 'other-mobile'       // Other mobile devices
+  | 'ios' // Apple iPhone, iPad
+  | 'android' // Android phone, tablet
+  | 'other-mobile' // Other mobile devices
   // Computer (4)
-  | 'windows'            // Windows PC, workstation
-  | 'macos'              // Apple Mac
-  | 'linux'              // Linux computer
-  | 'chromeos'           // Chromebook
+  | 'windows' // Windows PC, workstation
+  | 'macos' // Apple Mac
+  | 'linux' // Linux computer
+  | 'chromeos' // Chromebook
   // IoT (4)
-  | 'smart-speaker'      // Alexa, Google Home, etc.
-  | 'camera'             // IP camera, webcam
-  | 'thermostat'         // Smart thermostat
-  | 'other-iot'          // Other IoT devices
+  | 'smart-speaker' // Alexa, Google Home, etc.
+  | 'camera' // IP camera, webcam
+  | 'thermostat' // Smart thermostat
+  | 'other-iot' // Other IoT devices
   // Network (4)
-  | 'printer'            // Network printer
-  | 'nas'                // NAS/storage device
-  | 'router'             // Router, access point
-  | 'switch'             // Network switch
+  | 'printer' // Network printer
+  | 'nas' // NAS/storage device
+  | 'router' // Router, access point
+  | 'switch' // Network switch
   // Entertainment (3)
-  | 'gaming-console'     // PlayStation, Xbox, Nintendo
-  | 'smart-tv'           // Smart TV
-  | 'streaming-device'   // Roku, Apple TV, etc.
+  | 'gaming-console' // PlayStation, Xbox, Nintendo
+  | 'smart-tv' // Smart TV
+  | 'streaming-device' // Roku, Apple TV, etc.
   // Other (3)
-  | 'generic'            // Generic/unknown type
-  | 'server'             // Server, data center
-  | 'appliance'          // Smart appliance
-  | 'unknown';           // Unable to identify
+  | 'generic' // Generic/unknown type
+  | 'server' // Server, data center
+  | 'appliance' // Smart appliance
+  | 'unknown'; // Unable to identify
 
 /**
  * DHCP fingerprint signature for device identification

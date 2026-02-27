@@ -72,8 +72,7 @@ const minorUpdate: AvailableUpdate = {
   latestVersion: '0.107.55',
   updateAvailable: true,
   severity: 'MINOR',
-  changelogUrl:
-    'https://github.com/AdguardTeam/AdGuardHome/releases/tag/v0.107.55',
+  changelogUrl: 'https://github.com/AdguardTeam/AdGuardHome/releases/tag/v0.107.55',
   releaseDate: '2026-01-28T00:00:00.000Z',
   binarySize: 20_971_520,
   requiredDiskMB: 40,
@@ -90,8 +89,7 @@ const patchUpdate: AvailableUpdate = {
   latestVersion: '3.0.2',
   updateAvailable: true,
   severity: 'PATCH',
-  changelogUrl:
-    'https://github.com/Psiphon-Labs/psiphon-tunnel-core/releases/tag/v3.0.2',
+  changelogUrl: 'https://github.com/Psiphon-Labs/psiphon-tunnel-core/releases/tag/v3.0.2',
   releaseDate: '2026-02-05T00:00:00.000Z',
   binarySize: 8_388_608,
   requiredDiskMB: 15,

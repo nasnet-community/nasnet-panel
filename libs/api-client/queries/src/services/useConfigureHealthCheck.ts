@@ -1,7 +1,7 @@
 import { useMutation, gql } from '@apollo/client';
 import type {
   ServiceInstanceHealth,
-  ConfigureHealthCheckInput
+  ConfigureHealthCheckInput,
 } from '@nasnet/api-client/generated/types';
 
 /**

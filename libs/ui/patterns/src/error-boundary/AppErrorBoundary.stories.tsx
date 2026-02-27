@@ -48,14 +48,14 @@ function ErrorTrigger({
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-[300px] gap-4 p-8 border border-dashed border-border rounded-xl bg-muted/30">
-      <p className="text-muted-foreground text-sm text-center">
-        Click the button below to simulate a catastrophic render error and
-        trigger the <strong>AppErrorBoundary</strong> fallback UI.
+    <div className="border-border bg-muted/30 flex min-h-[300px] flex-col items-center justify-center gap-4 rounded-xl border border-dashed p-8">
+      <p className="text-muted-foreground text-center text-sm">
+        Click the button below to simulate a catastrophic render error and trigger the{' '}
+        <strong>AppErrorBoundary</strong> fallback UI.
       </p>
       <button
         onClick={() => setCrashed(true)}
-        className="px-4 py-2 bg-error text-white rounded-lg hover:bg-error/90 transition-colors text-sm font-medium"
+        className="bg-error hover:bg-error/90 rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors"
       >
         Trigger Application Crash
       </button>
@@ -144,10 +144,10 @@ export const WithTelemetryCallback: Story = {
 export const HealthyChildren: Story = {
   render: () => (
     <AppErrorBoundary>
-      <div className="flex items-center justify-center min-h-[200px] p-8">
+      <div className="flex min-h-[200px] items-center justify-center p-8">
         <div className="text-center">
-          <p className="text-lg font-semibold text-foreground">Application Running Normally</p>
-          <p className="text-sm text-muted-foreground mt-1">
+          <p className="text-foreground text-lg font-semibold">Application Running Normally</p>
+          <p className="text-muted-foreground mt-1 text-sm">
             No error has been thrown. The boundary is transparent.
           </p>
         </div>

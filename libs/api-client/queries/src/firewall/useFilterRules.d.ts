@@ -20,10 +20,13 @@ import type { FilterRule, FilterChain } from '@nasnet/core/types';
  * Follows TanStack Query best practices for hierarchical keys
  */
 export declare const firewallKeys: {
-    all: (routerId: string) => readonly ["firewall", string];
-    filter: (routerId: string, chain?: FilterChain) => readonly ["firewall", string, "filter", "input" | "forward" | "output" | undefined];
-    nat: (routerId: string) => readonly ["firewall", string, "nat"];
-    counters: (routerId: string) => readonly ["firewall", string, "counters"];
+  all: (routerId: string) => readonly ['firewall', string];
+  filter: (
+    routerId: string,
+    chain?: FilterChain
+  ) => readonly ['firewall', string, 'filter', 'input' | 'forward' | 'output' | undefined];
+  nat: (routerId: string) => readonly ['firewall', string, 'nat'];
+  counters: (routerId: string) => readonly ['firewall', string, 'counters'];
 };
 /**
  * Hook to fetch firewall filter rules
@@ -38,27 +41,35 @@ export declare const firewallKeys: {
  * @returns Query result with FilterRule[] data
  */
 interface UseFilterRulesOptions {
-    chain?: FilterChain;
-    enabled?: boolean;
-    /**
-     * Polling interval in milliseconds for real-time counter updates
-     * Set to false to disable polling (default)
-     * Recommended intervals: 5000, 10000, 30000, 60000 (5s, 10s, 30s, 60s)
-     */
-    refetchInterval?: number | false;
+  chain?: FilterChain;
+  enabled?: boolean;
+  /**
+   * Polling interval in milliseconds for real-time counter updates
+   * Set to false to disable polling (default)
+   * Recommended intervals: 5000, 10000, 30000, 60000 (5s, 10s, 30s, 60s)
+   */
+  refetchInterval?: number | false;
 }
-export declare function useFilterRules(routerId: string, options?: UseFilterRulesOptions): UseQueryResult<FilterRule[], Error>;
+export declare function useFilterRules(
+  routerId: string,
+  options?: UseFilterRulesOptions
+): UseQueryResult<FilterRule[], Error>;
 /**
  * Create a new filter rule
  * Endpoint: POST /rest/ip/firewall/filter/add
  */
-export declare function useCreateFilterRule(routerId: string): import("@tanstack/react-query").UseMutationResult<unknown, Error, Partial<{
+export declare function useCreateFilterRule(
+  routerId: string
+): import('@tanstack/react-query').UseMutationResult<
+  unknown,
+  Error,
+  Partial<{
     log: boolean;
-    chain: "input" | "forward" | "output";
-    action: "passthrough" | "accept" | "drop" | "jump" | "log" | "reject" | "tarpit";
+    chain: 'input' | 'forward' | 'output';
+    action: 'passthrough' | 'accept' | 'drop' | 'jump' | 'log' | 'reject' | 'tarpit';
     disabled: boolean;
     id?: string | undefined;
-    protocol?: "tcp" | "udp" | "icmp" | "ipv6-icmp" | "all" | undefined;
+    protocol?: 'tcp' | 'udp' | 'icmp' | 'ipv6-icmp' | 'all' | undefined;
     srcAddress?: string | undefined;
     dstAddress?: string | undefined;
     srcPort?: string | undefined;
@@ -69,42 +80,67 @@ export declare function useCreateFilterRule(routerId: string): import("@tanstack
     outInterface?: string | undefined;
     inInterfaceList?: string | undefined;
     outInterfaceList?: string | undefined;
-    connectionState?: ("established" | "new" | "related" | "invalid" | "untracked")[] | undefined;
+    connectionState?: ('established' | 'new' | 'related' | 'invalid' | 'untracked')[] | undefined;
     jumpTarget?: string | undefined;
     comment?: string | undefined;
     logPrefix?: string | undefined;
     packets?: number | undefined;
     bytes?: number | undefined;
     order?: number | undefined;
-}>, unknown>;
+  }>,
+  unknown
+>;
 /**
  * Update an existing filter rule
  * Endpoint: POST /rest/ip/firewall/filter/set
  */
-export declare function useUpdateFilterRule(routerId: string): import("@tanstack/react-query").UseMutationResult<unknown, Error, {
+export declare function useUpdateFilterRule(
+  routerId: string
+): import('@tanstack/react-query').UseMutationResult<
+  unknown,
+  Error,
+  {
     ruleId: string;
     updates: Partial<FilterRule>;
-}, unknown>;
+  },
+  unknown
+>;
 /**
  * Delete a filter rule
  * Endpoint: POST /rest/ip/firewall/filter/remove
  */
-export declare function useDeleteFilterRule(routerId: string): import("@tanstack/react-query").UseMutationResult<unknown, Error, string, unknown>;
+export declare function useDeleteFilterRule(
+  routerId: string
+): import('@tanstack/react-query').UseMutationResult<unknown, Error, string, unknown>;
 /**
  * Move a filter rule to a new position (drag-drop reordering)
  * Endpoint: POST /rest/ip/firewall/filter/move
  */
-export declare function useMoveFilterRule(routerId: string): import("@tanstack/react-query").UseMutationResult<unknown, Error, {
+export declare function useMoveFilterRule(
+  routerId: string
+): import('@tanstack/react-query').UseMutationResult<
+  unknown,
+  Error,
+  {
     ruleId: string;
     destination: number;
-}, unknown>;
+  },
+  unknown
+>;
 /**
  * Toggle enable/disable state of a filter rule (convenience wrapper)
  * Endpoint: POST /rest/ip/firewall/filter/set
  */
-export declare function useToggleFilterRule(routerId: string): import("@tanstack/react-query").UseMutationResult<unknown, Error, {
+export declare function useToggleFilterRule(
+  routerId: string
+): import('@tanstack/react-query').UseMutationResult<
+  unknown,
+  Error,
+  {
     ruleId: string;
     disabled: boolean;
-}, unknown>;
+  },
+  unknown
+>;
 export {};
 //# sourceMappingURL=useFilterRules.d.ts.map

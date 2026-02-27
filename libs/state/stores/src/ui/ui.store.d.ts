@@ -2,87 +2,87 @@
  * UI state interface - preferences and transient state
  */
 export interface UIState {
-    /**
-     * Active navigation tab
-     * Used for tab-based navigation within pages
-     */
-    activeTab: string | null;
-    /**
-     * Whether the command palette is open
-     */
-    commandPaletteOpen: boolean;
-    /**
-     * Compact mode - reduces spacing and padding
-     */
-    compactMode: boolean;
-    /**
-     * Whether animations are enabled
-     * Respects prefers-reduced-motion by default
-     */
-    animationsEnabled: boolean;
-    /**
-     * Default duration for notifications in ms
-     */
-    defaultNotificationDuration: number;
-    /**
-     * Hide hostnames in device lists (privacy mode)
-     * When enabled, shows masked names like "Device-XXXX"
-     * @see NAS-5.4: Connected Devices Privacy Controls
-     */
-    hideHostnames: boolean;
+  /**
+   * Active navigation tab
+   * Used for tab-based navigation within pages
+   */
+  activeTab: string | null;
+  /**
+   * Whether the command palette is open
+   */
+  commandPaletteOpen: boolean;
+  /**
+   * Compact mode - reduces spacing and padding
+   */
+  compactMode: boolean;
+  /**
+   * Whether animations are enabled
+   * Respects prefers-reduced-motion by default
+   */
+  animationsEnabled: boolean;
+  /**
+   * Default duration for notifications in ms
+   */
+  defaultNotificationDuration: number;
+  /**
+   * Hide hostnames in device lists (privacy mode)
+   * When enabled, shows masked names like "Device-XXXX"
+   * @see NAS-5.4: Connected Devices Privacy Controls
+   */
+  hideHostnames: boolean;
 }
 /**
  * UI actions interface
  */
 export interface UIActions {
-    /**
-     * Set the active tab
-     */
-    setActiveTab: (tab: string | null) => void;
-    /**
-     * Open the command palette
-     */
-    openCommandPalette: () => void;
-    /**
-     * Close the command palette
-     */
-    closeCommandPalette: () => void;
-    /**
-     * Toggle the command palette
-     */
-    toggleCommandPalette: () => void;
-    /**
-     * Set command palette open state
-     */
-    setCommandPaletteOpen: (open: boolean) => void;
-    /**
-     * Set compact mode
-     */
-    setCompactMode: (compact: boolean) => void;
-    /**
-     * Toggle compact mode
-     */
-    toggleCompactMode: () => void;
-    /**
-     * Set animations enabled
-     */
-    setAnimationsEnabled: (enabled: boolean) => void;
-    /**
-     * Set default notification duration
-     */
-    setDefaultNotificationDuration: (duration: number) => void;
-    /**
-     * Reset all preferences to defaults
-     */
-    resetPreferences: () => void;
-    /**
-     * Set hide hostnames (privacy mode)
-     */
-    setHideHostnames: (hide: boolean) => void;
-    /**
-     * Toggle hide hostnames
-     */
-    toggleHideHostnames: () => void;
+  /**
+   * Set the active tab
+   */
+  setActiveTab: (tab: string | null) => void;
+  /**
+   * Open the command palette
+   */
+  openCommandPalette: () => void;
+  /**
+   * Close the command palette
+   */
+  closeCommandPalette: () => void;
+  /**
+   * Toggle the command palette
+   */
+  toggleCommandPalette: () => void;
+  /**
+   * Set command palette open state
+   */
+  setCommandPaletteOpen: (open: boolean) => void;
+  /**
+   * Set compact mode
+   */
+  setCompactMode: (compact: boolean) => void;
+  /**
+   * Toggle compact mode
+   */
+  toggleCompactMode: () => void;
+  /**
+   * Set animations enabled
+   */
+  setAnimationsEnabled: (enabled: boolean) => void;
+  /**
+   * Set default notification duration
+   */
+  setDefaultNotificationDuration: (duration: number) => void;
+  /**
+   * Reset all preferences to defaults
+   */
+  resetPreferences: () => void;
+  /**
+   * Set hide hostnames (privacy mode)
+   */
+  setHideHostnames: (hide: boolean) => void;
+  /**
+   * Toggle hide hostnames
+   */
+  toggleHideHostnames: () => void;
 }
 /**
  * Zustand store for UI preferences and state
@@ -115,21 +115,41 @@ export interface UIActions {
  * - Integrated with Redux DevTools for debugging (development only)
  * - Store name: 'ui-store'
  */
-export declare const useUIStore: import("zustand").UseBoundStore<Omit<Omit<import("zustand").StoreApi<UIState & UIActions>, "setState"> & {
-    setState<A extends string | {
-        type: string;
-    }>(partial: (UIState & UIActions) | Partial<UIState & UIActions> | ((state: UIState & UIActions) => (UIState & UIActions) | Partial<UIState & UIActions>), replace?: boolean | undefined, action?: A | undefined): void;
-}, "persist"> & {
+export declare const useUIStore: import('zustand').UseBoundStore<
+  Omit<
+    Omit<import('zustand').StoreApi<UIState & UIActions>, 'setState'> & {
+      setState<
+        A extends
+          | string
+          | {
+              type: string;
+            },
+      >(
+        partial:
+          | (UIState & UIActions)
+          | Partial<UIState & UIActions>
+          | ((state: UIState & UIActions) => (UIState & UIActions) | Partial<UIState & UIActions>),
+        replace?: boolean | undefined,
+        action?: A | undefined
+      ): void;
+    },
+    'persist'
+  > & {
     persist: {
-        setOptions: (options: Partial<import("zustand/middleware").PersistOptions<UIState & UIActions, unknown>>) => void;
-        clearStorage: () => void;
-        rehydrate: () => Promise<void> | void;
-        hasHydrated: () => boolean;
-        onHydrate: (fn: (state: UIState & UIActions) => void) => () => void;
-        onFinishHydration: (fn: (state: UIState & UIActions) => void) => () => void;
-        getOptions: () => Partial<import("zustand/middleware").PersistOptions<UIState & UIActions, unknown>>;
+      setOptions: (
+        options: Partial<import('zustand/middleware').PersistOptions<UIState & UIActions, unknown>>
+      ) => void;
+      clearStorage: () => void;
+      rehydrate: () => Promise<void> | void;
+      hasHydrated: () => boolean;
+      onHydrate: (fn: (state: UIState & UIActions) => void) => () => void;
+      onFinishHydration: (fn: (state: UIState & UIActions) => void) => () => void;
+      getOptions: () => Partial<
+        import('zustand/middleware').PersistOptions<UIState & UIActions, unknown>
+      >;
     };
-}>;
+  }
+>;
 /**
  * Select active tab
  */
@@ -158,5 +178,7 @@ export declare const getUIState: () => UIState & UIActions;
 /**
  * Subscribe to UI store changes outside of React
  */
-export declare const subscribeUIState: (listener: (state: UIState & UIActions, prevState: UIState & UIActions) => void) => () => void;
+export declare const subscribeUIState: (
+  listener: (state: UIState & UIActions, prevState: UIState & UIActions) => void
+) => () => void;
 //# sourceMappingURL=ui.store.d.ts.map

@@ -8,11 +8,7 @@
     "emitDeclarationOnly": true,
     "declarationMap": false
   },
-  "include": [
-    "src/**/*.ts",
-    "src/**/*.tsx",
-    "vitest.config.ts"
-  ],
+  "include": ["src/**/*.ts", "src/**/*.tsx", "vitest.config.ts"],
   "references": [
     { "path": "../../core/types/tsconfig.lib.json" },
     { "path": "../../core/utils/tsconfig.lib.json" }

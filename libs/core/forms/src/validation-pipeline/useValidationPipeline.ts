@@ -22,7 +22,6 @@ import type {
 } from './types';
 import type { FieldValues, UseFormSetError, Path } from 'react-hook-form';
 
-
 /**
  * State of the validation pipeline
  */
@@ -141,12 +140,15 @@ export function useValidationPipeline<TFieldValues extends FieldValues = FieldVa
   const pipelineRef = React.useRef<ValidationPipeline | null>(null);
 
   // Build pipeline config
-  const config = React.useMemo<ValidationPipelineConfig>(() => ({
-    riskLevel,
-    stopOnError,
-    skipStages,
-    includeDryRun,
-  }), [riskLevel, stopOnError, skipStages, includeDryRun]);
+  const config = React.useMemo<ValidationPipelineConfig>(
+    () => ({
+      riskLevel,
+      stopOnError,
+      skipStages,
+      includeDryRun,
+    }),
+    [riskLevel, stopOnError, skipStages, includeDryRun]
+  );
 
   /**
    * Validate the given data through the pipeline
@@ -187,12 +189,7 @@ export function useValidationPipeline<TFieldValues extends FieldValues = FieldVa
       pipelineRef.current = pipeline;
 
       try {
-        const result = await pipeline.validate(
-          resourceType,
-          data,
-          resourceId,
-          routerId
-        );
+        const result = await pipeline.validate(resourceType, data, resourceId, routerId);
 
         // Map errors to form fields if setError is provided
         if (setError && result.fieldErrors) {

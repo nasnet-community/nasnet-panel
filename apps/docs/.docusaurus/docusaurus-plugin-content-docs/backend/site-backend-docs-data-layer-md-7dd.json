@@ -1,7 +1,7 @@
 {
   "id": "data-layer",
   "title": "Data Layer",
-  "description": "Hybrid SQLite architecture with a single system database, lazy-loaded per-router databases, the \"Light Repository\" pattern, and ent ORM as the query layer.",
+  "description": "Hybrid SQLite architecture with a single system database, lazy-loaded per-router databases, the",
   "source": "@site/../backend/docs/data-layer.md",
   "sourceDirName": ".",
   "slug": "/data-layer",

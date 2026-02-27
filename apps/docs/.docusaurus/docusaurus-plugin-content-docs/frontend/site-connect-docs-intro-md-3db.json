@@ -1,7 +1,7 @@
 {
   "id": "intro",
   "title": "Introduction",
-  "description": "The Connect app is the main React frontend for NasNet. It provides an adaptive, responsive UI for managing MikroTik routers across mobile, tablet, and desktop platforms.",
+  "description": "The Connect app is the main React frontend for NasNet. It provides an adaptive, responsive UI",
   "source": "@site/../connect/docs/intro.md",
   "sourceDirName": ".",
   "slug": "/intro",

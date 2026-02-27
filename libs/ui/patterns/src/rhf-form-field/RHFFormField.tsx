@@ -9,9 +9,15 @@
 
 import * as React from 'react';
 
-import { useFormContext, Controller, type ControllerRenderProps, type FieldValues, type Path } from 'react-hook-form';
+import {
+  useFormContext,
+  Controller,
+  type ControllerRenderProps,
+  type FieldValues,
+  type Path,
+} from 'react-hook-form';
 
-import { Input , cn } from '@nasnet/ui/primitives';
+import { Input, cn } from '@nasnet/ui/primitives';
 
 import { FormFieldDescription } from './FormFieldDescription';
 import { FormFieldError } from './FormFieldError';
@@ -108,7 +114,9 @@ export interface RHFFormFieldProps<TFieldValues extends FieldValues = FieldValue
  *
  * @see {@link FieldMode} for field display modes
  */
-export const RHFFormField = React.memo(function RHFFormField<TFieldValues extends FieldValues = FieldValues>({
+export const RHFFormField = React.memo(function RHFFormField<
+  TFieldValues extends FieldValues = FieldValues,
+>({
   name,
   label,
   description,
@@ -126,7 +134,10 @@ export const RHFFormField = React.memo(function RHFFormField<TFieldValues extend
   hint,
 }: RHFFormFieldProps<TFieldValues>) {
   const formContext = useFormContext<TFieldValues>();
-  const control = React.useMemo(() => controlProp ?? formContext.control, [controlProp, formContext.control]);
+  const control = React.useMemo(
+    () => controlProp ?? formContext.control,
+    [controlProp, formContext.control]
+  );
   const watch = React.useMemo(() => formContext.watch, [formContext.watch]);
   const errors = React.useMemo(() => formContext.formState.errors, [formContext.formState.errors]);
 
@@ -136,29 +147,31 @@ export const RHFFormField = React.memo(function RHFFormField<TFieldValues extend
   const errorId = `${fieldId}-error`;
 
   // Get nested error by path (memoized to avoid recreation on each render)
-  const getNestedError = React.useCallback((path: string): string | undefined => {
-    const parts = path.split('.');
-    let current: unknown = errors;
-    for (const part of parts) {
-      if (current && typeof current === 'object' && part in current) {
-        current = (current as Record<string, unknown>)[part];
-      } else {
-        return undefined;
+  const getNestedError = React.useCallback(
+    (path: string): string | undefined => {
+      const parts = path.split('.');
+      let current: unknown = errors;
+      for (const part of parts) {
+        if (current && typeof current === 'object' && part in current) {
+          current = (current as Record<string, unknown>)[part];
+        } else {
+          return undefined;
+        }
       }
-    }
-    if (current && typeof current === 'object' && 'message' in current) {
-      return (current as { message?: string }).message;
-    }
-    return undefined;
-  }, [errors]);
+      if (current && typeof current === 'object' && 'message' in current) {
+        return (current as { message?: string }).message;
+      }
+      return undefined;
+    },
+    [errors]
+  );
 
   const error = errorProp ?? getNestedError(name);
 
   // Build aria-describedby value
-  const ariaDescribedBy = [
-    error ? errorId : null,
-    description ? descriptionId : null,
-  ].filter(Boolean).join(' ') || undefined;
+  const ariaDescribedBy =
+    [error ? errorId : null, description ? descriptionId : null].filter(Boolean).join(' ') ||
+    undefined;
 
   // Handle hidden mode
   if (mode === 'hidden') {
@@ -166,9 +179,7 @@ export const RHFFormField = React.memo(function RHFFormField<TFieldValues extend
   }
 
   // Get computed value if in computed mode
-  const computedValue = mode === 'computed' && computeFn
-    ? computeFn(watch())
-    : undefined;
+  const computedValue = mode === 'computed' && computeFn ? computeFn(watch()) : undefined;
 
   const isReadOnly = mode === 'readonly' || mode === 'computed';
 
@@ -185,25 +196,25 @@ export const RHFFormField = React.memo(function RHFFormField<TFieldValues extend
       >
         {label}
         {required && (
-          <span className="text-error ml-1" aria-label="required">*</span>
+          <span
+            className="text-error ml-1"
+            aria-label="required"
+          >
+            *
+          </span>
         )}
       </label>
 
       {/* Input Field */}
-      {children ? (
+      {children ?
         children
-      ) : (
-        <Controller
+      : <Controller
           name={name}
           control={control}
           render={({ field }) => {
             // Allow custom rendering
             if (renderInput) {
-              return (
-                <>
-                  {renderInput({ field, error, fieldId, mode })}
-                </>
-              );
+              return <>{renderInput({ field, error, fieldId, mode })}</>;
             }
 
             // Default input rendering
@@ -231,24 +242,23 @@ export const RHFFormField = React.memo(function RHFFormField<TFieldValues extend
             );
           }}
         />
-      )}
+      }
 
       {/* Description (after input) */}
       {description && !error && (
-        <FormFieldDescription id={descriptionId}>
-          {description}
-        </FormFieldDescription>
+        <FormFieldDescription id={descriptionId}>{description}</FormFieldDescription>
       )}
 
       {/* Error Message */}
       {error && (
-        <FormFieldError id={errorId} message={error} />
+        <FormFieldError
+          id={errorId}
+          message={error}
+        />
       )}
 
       {/* Hint text */}
-      {hint && !error && (
-        <p className="text-xs text-muted-foreground">{hint}</p>
-      )}
+      {hint && !error && <p className="text-muted-foreground text-xs">{hint}</p>}
     </div>
   );
 });

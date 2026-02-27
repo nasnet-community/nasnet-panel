@@ -6,7 +6,6 @@ import { VirtualizedList } from './VirtualizedList';
 
 import type { Meta, StoryObj } from '@storybook/react';
 
-
 /**
  * VirtualizedList provides high-performance rendering for large lists.
  * It only renders visible items plus a configurable overscan buffer,
@@ -54,14 +53,17 @@ function generateItems(count: number): MockItem[] {
   return Array.from({ length: count }, (_, i) => ({
     id: i + 1,
     name: `Item ${i + 1}`,
-    status: i % 3 === 0 ? 'active' : i % 3 === 1 ? 'pending' : 'inactive',
+    status:
+      i % 3 === 0 ? 'active'
+      : i % 3 === 1 ? 'pending'
+      : 'inactive',
     description: `This is the description for item ${i + 1}. It contains some text to demonstrate variable content lengths.`,
   }));
 }
 
 // Simple item renderer
 const SimpleItemRenderer = ({ item }: { item: MockItem }) => (
-  <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+  <div className="border-b border-gray-200 p-4 dark:border-gray-700">
     <div className="font-medium">{item.name}</div>
     <div className="text-sm text-gray-500">{item.status}</div>
   </div>
@@ -70,18 +72,18 @@ const SimpleItemRenderer = ({ item }: { item: MockItem }) => (
 // Card item renderer
 const CardItemRenderer = ({ item }: { item: MockItem }) => (
   <Card className="m-2 p-4">
-    <div className="flex justify-between items-start">
+    <div className="flex items-start justify-between">
       <div>
         <h3 className="font-semibold">{item.name}</h3>
-        <p className="text-sm text-muted-foreground mt-1">{item.description}</p>
+        <p className="text-muted-foreground mt-1 text-sm">{item.description}</p>
       </div>
       <span
-        className={`px-2 py-1 text-xs rounded-full ${
-          item.status === 'active'
-            ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100'
-            : item.status === 'pending'
-              ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100'
-              : 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-100'
+        className={`rounded-full px-2 py-1 text-xs ${
+          item.status === 'active' ?
+            'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100'
+          : item.status === 'pending' ?
+            'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100'
+          : 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-100'
         }`}
       >
         {item.status}
@@ -98,7 +100,19 @@ export const Default: Story = {
     items: generateItems(1000),
     estimateSize: 60,
     height: 400,
-    renderItem: ({ item, virtualItem, index, measureRef, isFocused }: { item: MockItem; virtualItem: any; index: number; measureRef: any; isFocused: boolean }) => (
+    renderItem: ({
+      item,
+      virtualItem,
+      index,
+      measureRef,
+      isFocused,
+    }: {
+      item: MockItem;
+      virtualItem: any;
+      index: number;
+      measureRef: any;
+      isFocused: boolean;
+    }) => (
       <div ref={measureRef}>
         <SimpleItemRenderer item={item} />
       </div>
@@ -114,7 +128,19 @@ export const LargeDataset: Story = {
     items: generateItems(10000),
     estimateSize: 60,
     height: 500,
-    renderItem: ({ item, virtualItem, index, measureRef, isFocused }: { item: MockItem; virtualItem: any; index: number; measureRef: any; isFocused: boolean }) => (
+    renderItem: ({
+      item,
+      virtualItem,
+      index,
+      measureRef,
+      isFocused,
+    }: {
+      item: MockItem;
+      virtualItem: any;
+      index: number;
+      measureRef: any;
+      isFocused: boolean;
+    }) => (
       <div ref={measureRef}>
         <SimpleItemRenderer item={item} />
       </div>
@@ -138,7 +164,19 @@ export const CardItems: Story = {
     items: generateItems(500),
     estimateSize: 100,
     height: 500,
-    renderItem: ({ item, virtualItem, index, measureRef, isFocused }: { item: MockItem; virtualItem: any; index: number; measureRef: any; isFocused: boolean }) => (
+    renderItem: ({
+      item,
+      virtualItem,
+      index,
+      measureRef,
+      isFocused,
+    }: {
+      item: MockItem;
+      virtualItem: any;
+      index: number;
+      measureRef: any;
+      isFocused: boolean;
+    }) => (
       <div ref={measureRef}>
         <CardItemRenderer item={item} />
       </div>
@@ -162,7 +200,19 @@ export const WithKeyboardNavigation: Story = {
     estimateSize: 60,
     height: 400,
     enableKeyboardNav: true,
-    renderItem: ({ item, virtualItem, index, measureRef, isFocused }: { item: MockItem; virtualItem: any; index: number; measureRef: any; isFocused: boolean }) => (
+    renderItem: ({
+      item,
+      virtualItem,
+      index,
+      measureRef,
+      isFocused,
+    }: {
+      item: MockItem;
+      virtualItem: any;
+      index: number;
+      measureRef: any;
+      isFocused: boolean;
+    }) => (
       <div ref={measureRef}>
         <SimpleItemRenderer item={item} />
       </div>
@@ -187,11 +237,9 @@ export const WithFiltering: Story = {
     const allItems = useMemo(() => generateItems(1000), []);
     const filteredItems = useMemo(
       () =>
-        filter
-          ? allItems.filter((item) =>
-              item.name.toLowerCase().includes(filter.toLowerCase())
-            )
-          : allItems,
+        filter ?
+          allItems.filter((item) => item.name.toLowerCase().includes(filter.toLowerCase()))
+        : allItems,
       [allItems, filter]
     );
 
@@ -202,7 +250,7 @@ export const WithFiltering: Story = {
           placeholder="Filter items..."
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
-          className="w-full px-4 py-2 border rounded-lg"
+          className="w-full rounded-lg border px-4 py-2"
         />
         <div className="text-sm text-gray-500">
           Showing {filteredItems.length} of {allItems.length} items
@@ -211,7 +259,19 @@ export const WithFiltering: Story = {
           items={filteredItems}
           estimateSize={60}
           height={400}
-          renderItem={({ item, virtualItem, index, measureRef, isFocused }: { item: MockItem; virtualItem: any; index: number; measureRef: any; isFocused: boolean }) => (
+          renderItem={({
+            item,
+            virtualItem,
+            index,
+            measureRef,
+            isFocused,
+          }: {
+            item: MockItem;
+            virtualItem: any;
+            index: number;
+            measureRef: any;
+            isFocused: boolean;
+          }) => (
             <div ref={measureRef}>
               <SimpleItemRenderer item={item} />
             </div>
@@ -238,7 +298,19 @@ export const SmallList: Story = {
     items: generateItems(10),
     estimateSize: 60,
     height: 400,
-    renderItem: ({ item, virtualItem, index, measureRef, isFocused }: { item: MockItem; virtualItem: any; index: number; measureRef: any; isFocused: boolean }) => (
+    renderItem: ({
+      item,
+      virtualItem,
+      index,
+      measureRef,
+      isFocused,
+    }: {
+      item: MockItem;
+      virtualItem: any;
+      index: number;
+      measureRef: any;
+      isFocused: boolean;
+    }) => (
       <div ref={measureRef}>
         <SimpleItemRenderer item={item} />
       </div>
@@ -247,8 +319,7 @@ export const SmallList: Story = {
   parameters: {
     docs: {
       description: {
-        story:
-          'Lists below 20 items render normally without virtualization overhead.',
+        story: 'Lists below 20 items render normally without virtualization overhead.',
       },
     },
   },
@@ -263,7 +334,19 @@ export const ForceVirtualization: Story = {
     estimateSize: 60,
     height: 400,
     forceVirtualization: true,
-    renderItem: ({ item, virtualItem, index, measureRef, isFocused }: { item: MockItem; virtualItem: any; index: number; measureRef: any; isFocused: boolean }) => (
+    renderItem: ({
+      item,
+      virtualItem,
+      index,
+      measureRef,
+      isFocused,
+    }: {
+      item: MockItem;
+      virtualItem: any;
+      index: number;
+      measureRef: any;
+      isFocused: boolean;
+    }) => (
       <div ref={measureRef}>
         <SimpleItemRenderer item={item} />
       </div>
@@ -272,8 +355,7 @@ export const ForceVirtualization: Story = {
   parameters: {
     docs: {
       description: {
-        story:
-          'Use forceVirtualization to enable virtualization regardless of list size.',
+        story: 'Use forceVirtualization to enable virtualization regardless of list size.',
       },
     },
   },
@@ -288,7 +370,19 @@ export const CustomOverscan: Story = {
     estimateSize: 60,
     height: 400,
     overscan: 10,
-    renderItem: ({ item, virtualItem, index, measureRef, isFocused }: { item: MockItem; virtualItem: any; index: number; measureRef: any; isFocused: boolean }) => (
+    renderItem: ({
+      item,
+      virtualItem,
+      index,
+      measureRef,
+      isFocused,
+    }: {
+      item: MockItem;
+      virtualItem: any;
+      index: number;
+      measureRef: any;
+      isFocused: boolean;
+    }) => (
       <div ref={measureRef}>
         <SimpleItemRenderer item={item} />
       </div>

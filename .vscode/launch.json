@@ -1,0 +1,37 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug: Go Backend",
+      "type": "go",
+      "request": "launch",
+      "mode": "auto",
+      "program": "${workspaceFolder}/apps/backend/cmd/nnc/",
+      "buildFlags": "-tags=dev",
+      "env": { "PORT": "8080" },
+      "cwd": "${workspaceFolder}/apps/backend"
+    },
+    {
+      "name": "Debug: Go Test File",
+      "type": "go",
+      "request": "launch",
+      "mode": "test",
+      "program": "${fileDirname}",
+      "buildFlags": "-tags=dev",
+      "args": ["-test.v"]
+    },
+    {
+      "name": "Debug: Frontend (Chrome)",
+      "type": "chrome",
+      "request": "launch",
+      "url": "http://localhost:5173",
+      "webRoot": "${workspaceFolder}/apps/connect/src"
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Debug: Full Stack",
+      "configurations": ["Debug: Go Backend", "Debug: Frontend (Chrome)"]
+    }
+  ]
+}

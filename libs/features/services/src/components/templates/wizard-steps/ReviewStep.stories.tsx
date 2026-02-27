@@ -12,7 +12,6 @@ import { ReviewStep } from './ReviewStep';
 
 import type { Meta, StoryObj } from '@storybook/react';
 
-
 // ---------------------------------------------------------------------------
 // Shared mock data
 // ---------------------------------------------------------------------------
@@ -182,7 +181,7 @@ const meta: Meta<typeof ReviewStep> = {
   },
   decorators: [
     (Story) => (
-      <div className="max-w-2xl mx-auto p-4">
+      <div className="mx-auto max-w-2xl p-4">
         <Story />
       </div>
     ),

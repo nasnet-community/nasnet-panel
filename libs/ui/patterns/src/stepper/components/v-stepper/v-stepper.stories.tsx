@@ -6,7 +6,6 @@
  * @see NAS-4A.15: Build Vertical Stepper (Sidebar Pattern)
  */
 
-
 import { within, userEvent, expect, waitFor } from 'storybook/test';
 
 import { Button } from '@nasnet/ui/primitives';
@@ -142,15 +141,14 @@ export const Default: Story = {
     <StepperWrapper steps={basicSteps}>
       {(stepper) => (
         <div className="flex gap-8">
-          <VStepper {...args} stepper={stepper} />
-          <div className="flex-1 p-4 border rounded-lg">
-            <h2 className="text-xl font-semibold mb-4">
-              {stepper.currentStep.title}
-            </h2>
-            <p className="text-muted-foreground">
-              {stepper.currentStep.description}
-            </p>
-            <div className="flex gap-2 mt-6">
+          <VStepper
+            {...args}
+            stepper={stepper}
+          />
+          <div className="flex-1 rounded-lg border p-4">
+            <h2 className="mb-4 text-xl font-semibold">{stepper.currentStep.title}</h2>
+            <p className="text-muted-foreground">{stepper.currentStep.description}</p>
+            <div className="mt-6 flex gap-2">
               <Button
                 variant="outline"
                 onClick={() => stepper.prev()}
@@ -158,9 +156,7 @@ export const Default: Story = {
               >
                 Back
               </Button>
-              <Button onClick={() => stepper.next()}>
-                {stepper.isLast ? 'Complete' : 'Next'}
-              </Button>
+              <Button onClick={() => stepper.next()}>{stepper.isLast ? 'Complete' : 'Next'}</Button>
             </div>
           </div>
         </div>
@@ -199,18 +195,17 @@ export const WithCompletedSteps: Story = {
 
       return (
         <div className="flex gap-8">
-          <VStepper stepper={stepper} showDescriptions />
-          <div className="flex-1 p-4 border rounded-lg">
-            <h2 className="text-xl font-semibold mb-4">
-              {stepper.currentStep.title}
-            </h2>
-            <p className="text-muted-foreground mb-2">
-              {stepper.currentStep.description}
-            </p>
-            <p className="text-sm text-muted-foreground">
+          <VStepper
+            stepper={stepper}
+            showDescriptions
+          />
+          <div className="flex-1 rounded-lg border p-4">
+            <h2 className="mb-4 text-xl font-semibold">{stepper.currentStep.title}</h2>
+            <p className="text-muted-foreground mb-2">{stepper.currentStep.description}</p>
+            <p className="text-muted-foreground text-sm">
               Progress: {stepper.progress}% ({stepper.completedCount}/{stepper.totalSteps} steps)
             </p>
-            <div className="flex gap-2 mt-6">
+            <div className="mt-6 flex gap-2">
               <Button
                 variant="outline"
                 onClick={() => stepper.prev()}
@@ -218,9 +213,7 @@ export const WithCompletedSteps: Story = {
               >
                 Back
               </Button>
-              <Button onClick={() => stepper.next()}>
-                {stepper.isLast ? 'Complete' : 'Next'}
-              </Button>
+              <Button onClick={() => stepper.next()}>{stepper.isLast ? 'Complete' : 'Next'}</Button>
             </div>
           </div>
         </div>
@@ -236,12 +229,18 @@ export const WithCompletedSteps: Story = {
  */
 export const CurrentStepHighlighted: Story = {
   render: ({ stepper: _unusedStepper, ...args }) => (
-    <StepperWrapper steps={basicSteps} initialStep={2}>
+    <StepperWrapper
+      steps={basicSteps}
+      initialStep={2}
+    >
       {(stepper) => (
         <div className="flex gap-8">
-          <VStepper {...args} stepper={stepper} />
-          <div className="flex-1 p-4 border rounded-lg bg-primary/5">
-            <h2 className="text-xl font-semibold mb-4 text-primary">
+          <VStepper
+            {...args}
+            stepper={stepper}
+          />
+          <div className="bg-primary/5 flex-1 rounded-lg border p-4">
+            <h2 className="text-primary mb-4 text-xl font-semibold">
               Current: {stepper.currentStep.title}
             </h2>
             <p className="text-muted-foreground">
@@ -290,25 +289,31 @@ export const WithErrorState: Story = {
 
       return (
         <div className="flex gap-8">
-          <VStepper stepper={stepper} showErrorCount showDescriptions />
-          <div className="flex-1 p-4 border border-error/20 rounded-lg bg-error/5">
-            <h2 className="text-xl font-semibold mb-4 text-error">
-              Validation Errors
-            </h2>
+          <VStepper
+            stepper={stepper}
+            showErrorCount
+            showDescriptions
+          />
+          <div className="border-error/20 bg-error/5 flex-1 rounded-lg border p-4">
+            <h2 className="text-error mb-4 text-xl font-semibold">Validation Errors</h2>
             <ul className="space-y-1 text-sm">
               {Object.entries(stepper.errors).map(([field, error]) => (
-                <li key={field} className="text-error">
+                <li
+                  key={field}
+                  className="text-error"
+                >
                   <strong>{field}:</strong> {error}
                 </li>
               ))}
             </ul>
-            <div className="flex gap-2 mt-6">
-              <Button variant="outline" onClick={() => stepper.clearErrors()}>
+            <div className="mt-6 flex gap-2">
+              <Button
+                variant="outline"
+                onClick={() => stepper.clearErrors()}
+              >
                 Clear Errors
               </Button>
-              <Button onClick={() => stepper.next()}>
-                Try Again
-              </Button>
+              <Button onClick={() => stepper.next()}>Try Again</Button>
             </div>
           </div>
         </div>
@@ -334,14 +339,15 @@ export const DisabledFutureSteps: Story = {
     <StepperWrapper steps={basicSteps}>
       {(stepper) => (
         <div className="flex gap-8">
-          <VStepper {...args} stepper={stepper} />
-          <div className="flex-1 p-4 border rounded-lg">
-            <h2 className="text-xl font-semibold mb-4">
-              {stepper.currentStep.title}
-            </h2>
-            <p className="text-sm text-muted-foreground mb-4">
-              Future steps (3, 4, 5) are disabled and cannot be clicked.
-              Complete each step to unlock the next one.
+          <VStepper
+            {...args}
+            stepper={stepper}
+          />
+          <div className="flex-1 rounded-lg border p-4">
+            <h2 className="mb-4 text-xl font-semibold">{stepper.currentStep.title}</h2>
+            <p className="text-muted-foreground mb-4 text-sm">
+              Future steps (3, 4, 5) are disabled and cannot be clicked. Complete each step to
+              unlock the next one.
             </p>
             <div className="flex gap-2">
               <Button
@@ -351,9 +357,7 @@ export const DisabledFutureSteps: Story = {
               >
                 Back
               </Button>
-              <Button onClick={() => stepper.next()}>
-                Complete Step
-              </Button>
+              <Button onClick={() => stepper.next()}>Complete Step</Button>
             </div>
           </div>
         </div>
@@ -373,14 +377,14 @@ export const CompactMode: Story = {
     <StepperWrapper steps={basicSteps}>
       {(stepper) => (
         <div className="flex gap-8">
-          <VStepper stepper={stepper} showDescriptions={false} width="200px" />
-          <div className="flex-1 p-4 border rounded-lg">
-            <h2 className="text-xl font-semibold mb-4">
-              {stepper.currentStep.title}
-            </h2>
-            <p className="text-muted-foreground">
-              {stepper.currentStep.description}
-            </p>
+          <VStepper
+            stepper={stepper}
+            showDescriptions={false}
+            width="200px"
+          />
+          <div className="flex-1 rounded-lg border p-4">
+            <h2 className="mb-4 text-xl font-semibold">{stepper.currentStep.title}</h2>
+            <p className="text-muted-foreground">{stepper.currentStep.description}</p>
           </div>
         </div>
       )}
@@ -407,15 +411,15 @@ export const Interactive: Story = {
     <StepperWrapper steps={basicSteps}>
       {(stepper) => (
         <div className="flex gap-8">
-          <VStepper {...args} stepper={stepper} data-testid="stepper" />
-          <div className="flex-1 p-4 border rounded-lg">
-            <h2 className="text-xl font-semibold mb-4">
-              {stepper.currentStep.title}
-            </h2>
-            <p className="text-muted-foreground mb-4">
-              {stepper.currentStep.description}
-            </p>
-            <p className="text-sm mb-6">
+          <VStepper
+            {...args}
+            stepper={stepper}
+            data-testid="stepper"
+          />
+          <div className="flex-1 rounded-lg border p-4">
+            <h2 className="mb-4 text-xl font-semibold">{stepper.currentStep.title}</h2>
+            <p className="text-muted-foreground mb-4">{stepper.currentStep.description}</p>
+            <p className="mb-6 text-sm">
               Step {stepper.currentIndex + 1} of {stepper.totalSteps}
             </p>
             <div className="flex gap-2">
@@ -427,7 +431,10 @@ export const Interactive: Story = {
               >
                 Back
               </Button>
-              <Button onClick={() => stepper.next()} data-testid="next-button">
+              <Button
+                onClick={() => stepper.next()}
+                data-testid="next-button"
+              >
                 {stepper.isLast ? 'Complete' : 'Next'}
               </Button>
             </div>
@@ -501,18 +508,17 @@ export const Interactive: Story = {
  */
 export const DarkTheme: Story = {
   render: ({ stepper: _unusedStepper, ...args }) => (
-    <div className="dark bg-background p-4 rounded-lg">
+    <div className="bg-background dark rounded-lg p-4">
       <StepperWrapper steps={basicSteps}>
         {(stepper) => (
           <div className="flex gap-8">
-            <VStepper {...args} stepper={stepper} />
-            <div className="flex-1 p-4 border rounded-lg">
-              <h2 className="text-xl font-semibold mb-4">
-                {stepper.currentStep.title}
-              </h2>
-              <p className="text-muted-foreground">
-                {stepper.currentStep.description}
-              </p>
+            <VStepper
+              {...args}
+              stepper={stepper}
+            />
+            <div className="flex-1 rounded-lg border p-4">
+              <h2 className="mb-4 text-xl font-semibold">{stepper.currentStep.title}</h2>
+              <p className="text-muted-foreground">{stepper.currentStep.description}</p>
             </div>
           </div>
         )}
@@ -529,14 +535,14 @@ export const DarkTheme: Story = {
       description: {
         story: 'VStepper in dark theme using semantic color tokens.',
       },
-    }
+    },
   },
 
   globals: {
     backgrounds: {
-      value: "dark"
-    }
-  }
+      value: 'dark',
+    },
+  },
 };
 
 /**
@@ -547,14 +553,14 @@ export const CustomWidth: Story = {
     <StepperWrapper steps={basicSteps}>
       {(stepper) => (
         <div className="flex gap-8">
-          <VStepper stepper={stepper} width={320} showDescriptions />
-          <div className="flex-1 p-4 border rounded-lg">
-            <h2 className="text-xl font-semibold mb-4">
-              {stepper.currentStep.title}
-            </h2>
-            <p className="text-muted-foreground">
-              Width set to 320px for wider sidebars.
-            </p>
+          <VStepper
+            stepper={stepper}
+            width={320}
+            showDescriptions
+          />
+          <div className="flex-1 rounded-lg border p-4">
+            <h2 className="mb-4 text-xl font-semibold">{stepper.currentStep.title}</h2>
+            <p className="text-muted-foreground">Width set to 320px for wider sidebars.</p>
           </div>
         </div>
       )}

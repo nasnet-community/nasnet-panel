@@ -4,7 +4,6 @@ import { ScrollArea, ScrollBar } from './scroll-area';
 
 import type { Meta, StoryObj } from '@storybook/react';
 
-
 const meta: Meta<typeof ScrollArea> = {
   title: 'Primitives/ScrollArea',
   component: ScrollArea,
@@ -55,11 +54,14 @@ const logLines = [
 
 export const Default: Story = {
   render: () => (
-    <ScrollArea className="h-64 w-[420px] rounded-lg border border-border">
+    <ScrollArea className="border-border h-64 w-[420px] rounded-lg border">
       <div className="p-4">
         <h4 className="mb-3 text-sm font-semibold">System Log</h4>
         {logLines.map((line, i) => (
-          <p key={i} className="mb-1.5 font-mono text-xs text-muted-foreground">
+          <p
+            key={i}
+            className="text-muted-foreground mb-1.5 font-mono text-xs"
+          >
             {line}
           </p>
         ))}
@@ -83,14 +85,14 @@ const interfaces = [
 
 export const InterfaceList: Story = {
   render: () => (
-    <ScrollArea className="h-72 w-[500px] rounded-lg border border-border">
+    <ScrollArea className="border-border h-72 w-[500px] rounded-lg border">
       <div className="p-3">
         <h4 className="mb-3 px-1 text-sm font-semibold">Network Interfaces</h4>
         <div className="space-y-1">
           {interfaces.map((iface) => (
             <div
               key={iface.name}
-              className="flex items-center justify-between rounded-md px-3 py-2 hover:bg-muted transition-colors"
+              className="hover:bg-muted flex items-center justify-between rounded-md px-3 py-2 transition-colors"
             >
               <div className="flex items-center gap-3">
                 <span
@@ -99,9 +101,9 @@ export const InterfaceList: Story = {
                   }`}
                 />
                 <span className="font-mono text-sm font-medium">{iface.name}</span>
-                <span className="text-xs text-muted-foreground">{iface.type}</span>
+                <span className="text-muted-foreground text-xs">{iface.type}</span>
               </div>
-              <div className="flex items-center gap-4 text-xs text-muted-foreground">
+              <div className="text-muted-foreground flex items-center gap-4 text-xs">
                 {iface.ip && <span className="font-mono">{iface.ip}</span>}
                 <span>{iface.speed}</span>
               </div>
@@ -113,7 +115,18 @@ export const InterfaceList: Story = {
   ),
 };
 
-const columns = ['Name', 'Chain', 'Action', 'Src Address', 'Dst Address', 'Protocol', 'Port', 'Comment', 'Bytes', 'Packets'];
+const columns = [
+  'Name',
+  'Chain',
+  'Action',
+  'Src Address',
+  'Dst Address',
+  'Protocol',
+  'Port',
+  'Comment',
+  'Bytes',
+  'Packets',
+];
 const firewallRows = Array.from({ length: 12 }, (_, i) => ({
   name: `rule-${i + 1}`,
   chain: i % 3 === 0 ? 'forward' : 'input',
@@ -129,15 +142,15 @@ const firewallRows = Array.from({ length: 12 }, (_, i) => ({
 
 export const HorizontalScroll: Story = {
   render: () => (
-    <ScrollArea className="w-[480px] rounded-lg border border-border">
+    <ScrollArea className="border-border w-[480px] rounded-lg border">
       <div className="min-w-max">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-border bg-muted/50">
+            <tr className="border-border bg-muted/50 border-b">
               {columns.map((col) => (
                 <th
                   key={col}
-                  className="whitespace-nowrap px-4 py-2.5 text-left font-medium text-muted-foreground"
+                  className="text-muted-foreground whitespace-nowrap px-4 py-2.5 text-left font-medium"
                 >
                   {col}
                 </th>
@@ -146,7 +159,10 @@ export const HorizontalScroll: Story = {
           </thead>
           <tbody>
             {firewallRows.map((row) => (
-              <tr key={row.name} className="border-b border-border last:border-0 hover:bg-muted/30">
+              <tr
+                key={row.name}
+                className="border-border hover:bg-muted/30 border-b last:border-0"
+              >
                 <td className="whitespace-nowrap px-4 py-2 font-mono">{row.name}</td>
                 <td className="whitespace-nowrap px-4 py-2">{row.chain}</td>
                 <td
@@ -160,9 +176,13 @@ export const HorizontalScroll: Story = {
                 <td className="whitespace-nowrap px-4 py-2 font-mono">{row.dst}</td>
                 <td className="whitespace-nowrap px-4 py-2">{row.protocol}</td>
                 <td className="whitespace-nowrap px-4 py-2 font-mono">{row.port}</td>
-                <td className="whitespace-nowrap px-4 py-2 text-muted-foreground">{row.comment}</td>
-                <td className="whitespace-nowrap px-4 py-2 font-mono text-muted-foreground">{row.bytes}</td>
-                <td className="whitespace-nowrap px-4 py-2 font-mono text-muted-foreground">{row.packets}</td>
+                <td className="text-muted-foreground whitespace-nowrap px-4 py-2">{row.comment}</td>
+                <td className="text-muted-foreground whitespace-nowrap px-4 py-2 font-mono">
+                  {row.bytes}
+                </td>
+                <td className="text-muted-foreground whitespace-nowrap px-4 py-2 font-mono">
+                  {row.packets}
+                </td>
               </tr>
             ))}
           </tbody>
@@ -175,10 +195,13 @@ export const HorizontalScroll: Story = {
 
 export const SmallViewport: Story = {
   render: () => (
-    <ScrollArea className="h-32 w-64 rounded-lg border border-border">
-      <div className="p-3 space-y-1">
+    <ScrollArea className="border-border h-32 w-64 rounded-lg border">
+      <div className="space-y-1 p-3">
         {Array.from({ length: 20 }, (_, i) => (
-          <p key={i} className="text-sm text-muted-foreground whitespace-nowrap">
+          <p
+            key={i}
+            className="text-muted-foreground whitespace-nowrap text-sm"
+          >
             Item {i + 1} — network.device.{i + 1}.local
           </p>
         ))}
@@ -189,9 +212,9 @@ export const SmallViewport: Story = {
 
 export const EmptyState: Story = {
   render: () => (
-    <ScrollArea className="h-48 w-80 rounded-lg border border-border">
+    <ScrollArea className="border-border h-48 w-80 rounded-lg border">
       <div className="flex h-48 items-center justify-center">
-        <p className="text-sm text-muted-foreground">No log entries found.</p>
+        <p className="text-muted-foreground text-sm">No log entries found.</p>
       </div>
     </ScrollArea>
   ),
@@ -204,11 +227,14 @@ export const Mobile: Story = {
     },
   },
   render: () => (
-    <ScrollArea className="h-64 w-full rounded-lg border border-border">
+    <ScrollArea className="border-border h-64 w-full rounded-lg border">
       <div className="p-3">
         <h4 className="mb-3 text-sm font-semibold">Logs</h4>
         {logLines.slice(0, 8).map((line, i) => (
-          <p key={i} className="mb-1.5 font-mono text-xs text-muted-foreground">
+          <p
+            key={i}
+            className="text-muted-foreground mb-1.5 font-mono text-xs"
+          >
             {line}
           </p>
         ))}
@@ -224,14 +250,14 @@ export const Tablet: Story = {
     },
   },
   render: () => (
-    <ScrollArea className="h-72 w-full rounded-lg border border-border">
+    <ScrollArea className="border-border h-72 w-full rounded-lg border">
       <div className="p-4">
         <h4 className="mb-3 text-sm font-semibold">Network Interfaces</h4>
         <div className="space-y-1">
           {interfaces.slice(0, 6).map((iface) => (
             <div
               key={iface.name}
-              className="flex items-center justify-between rounded-md px-3 py-2 hover:bg-muted transition-colors"
+              className="hover:bg-muted flex items-center justify-between rounded-md px-3 py-2 transition-colors"
             >
               <div className="flex items-center gap-3">
                 <span
@@ -241,7 +267,7 @@ export const Tablet: Story = {
                 />
                 <span className="font-mono text-sm font-medium">{iface.name}</span>
               </div>
-              <span className="text-xs text-muted-foreground">{iface.speed}</span>
+              <span className="text-muted-foreground text-xs">{iface.speed}</span>
             </div>
           ))}
         </div>
@@ -257,26 +283,26 @@ export const Desktop: Story = {
     },
   },
   render: () => (
-    <ScrollArea className="h-96 w-[600px] rounded-lg border border-border">
+    <ScrollArea className="border-border h-96 w-[600px] rounded-lg border">
       <div className="p-4">
         <h4 className="mb-4 text-sm font-semibold">Complete Network Interface List</h4>
         <div className="space-y-1">
           {interfaces.map((iface) => (
             <div
               key={iface.name}
-              className="flex items-center justify-between rounded-md px-3 py-2.5 hover:bg-muted transition-colors"
+              className="hover:bg-muted flex items-center justify-between rounded-md px-3 py-2.5 transition-colors"
             >
               <div className="flex items-center gap-4">
                 <span
-                  className={`h-2 w-2 rounded-full flex-shrink-0 ${
+                  className={`h-2 w-2 flex-shrink-0 rounded-full ${
                     iface.status === 'running' ? 'bg-success' : 'bg-muted-foreground'
                   }`}
                 />
-                <span className="font-mono text-sm font-medium min-w-20">{iface.name}</span>
-                <span className="text-xs text-muted-foreground min-w-16">{iface.type}</span>
+                <span className="min-w-20 font-mono text-sm font-medium">{iface.name}</span>
+                <span className="text-muted-foreground min-w-16 text-xs">{iface.type}</span>
               </div>
-              <div className="flex items-center gap-6 text-xs text-muted-foreground">
-                {iface.ip && <span className="font-mono min-w-32">{iface.ip}</span>}
+              <div className="text-muted-foreground flex items-center gap-6 text-xs">
+                {iface.ip && <span className="min-w-32 font-mono">{iface.ip}</span>}
                 <span className="min-w-20 text-right">{iface.speed}</span>
               </div>
             </div>
@@ -289,12 +315,15 @@ export const Desktop: Story = {
 
 export const Loading: Story = {
   render: () => (
-    <ScrollArea className="h-64 w-[420px] rounded-lg border border-border">
-      <div className="p-4 space-y-3">
-        <div className="h-5 bg-muted rounded animate-pulse w-24" />
+    <ScrollArea className="border-border h-64 w-[420px] rounded-lg border">
+      <div className="space-y-3 p-4">
+        <div className="bg-muted h-5 w-24 animate-pulse rounded" />
         <div className="space-y-2">
           {Array.from({ length: 8 }).map((_, i) => (
-            <div key={i} className="h-4 bg-muted rounded animate-pulse w-full" />
+            <div
+              key={i}
+              className="bg-muted h-4 w-full animate-pulse rounded"
+            />
           ))}
         </div>
       </div>
@@ -304,12 +333,12 @@ export const Loading: Story = {
 
 export const Error: Story = {
   render: () => (
-    <ScrollArea className="h-48 w-[420px] rounded-lg border border-error/20 bg-error/5">
-      <div className="p-4 flex items-center justify-center min-h-48">
-        <div className="text-center space-y-2">
-          <p className="text-sm font-medium text-error">Failed to load content</p>
-          <p className="text-xs text-error/80">Unable to retrieve scroll area content.</p>
-          <button className="text-xs font-medium text-error hover:underline mt-3">Retry</button>
+    <ScrollArea className="border-error/20 bg-error/5 h-48 w-[420px] rounded-lg border">
+      <div className="flex min-h-48 items-center justify-center p-4">
+        <div className="space-y-2 text-center">
+          <p className="text-error text-sm font-medium">Failed to load content</p>
+          <p className="text-error/80 text-xs">Unable to retrieve scroll area content.</p>
+          <button className="text-error mt-3 text-xs font-medium hover:underline">Retry</button>
         </div>
       </div>
     </ScrollArea>
@@ -318,11 +347,11 @@ export const Error: Story = {
 
 export const Empty: Story = {
   render: () => (
-    <ScrollArea className="h-64 w-[420px] rounded-lg border border-border">
-      <div className="p-4 flex items-center justify-center min-h-64">
-        <div className="text-center space-y-2">
-          <p className="text-sm font-medium text-foreground">No items found</p>
-          <p className="text-xs text-muted-foreground">The scroll area is empty.</p>
+    <ScrollArea className="border-border h-64 w-[420px] rounded-lg border">
+      <div className="flex min-h-64 items-center justify-center p-4">
+        <div className="space-y-2 text-center">
+          <p className="text-foreground text-sm font-medium">No items found</p>
+          <p className="text-muted-foreground text-xs">The scroll area is empty.</p>
         </div>
       </div>
     </ScrollArea>

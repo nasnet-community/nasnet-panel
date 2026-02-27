@@ -26,11 +26,18 @@ import type { UseFormReturn } from 'react-hook-form';
 // ---------------------------------------------------------------------------
 
 type FieldType =
-  | 'TEXT' | 'EMAIL' | 'URL' | 'IP' | 'PATH'
-  | 'TEXT_AREA' | 'PASSWORD'
-  | 'NUMBER' | 'PORT'
+  | 'TEXT'
+  | 'EMAIL'
+  | 'URL'
+  | 'IP'
+  | 'PATH'
+  | 'TEXT_AREA'
+  | 'PASSWORD'
+  | 'NUMBER'
+  | 'PORT'
   | 'TOGGLE'
-  | 'SELECT' | 'MULTI_SELECT'
+  | 'SELECT'
+  | 'MULTI_SELECT'
   | 'TEXT_ARRAY';
 
 interface MockField {
@@ -75,21 +82,19 @@ function useMockFormState(
     isSubmitting = false,
     isValidating = false,
     noSchema = false,
-    onSubmit = async () => { console.log('Configuration submitted'); },
+    onSubmit = async () => {
+      console.log('Configuration submitted');
+    },
   } = options;
 
   const defaultValues = Object.fromEntries(
     fields.map((f) => {
       const v =
-        f.defaultValue !== undefined
-          ? f.defaultValue
-          : f.type === 'TOGGLE'
-          ? false
-          : f.type === 'NUMBER' || f.type === 'PORT'
-          ? 0
-          : f.type === 'MULTI_SELECT' || f.type === 'TEXT_ARRAY'
-          ? []
-          : '';
+        f.defaultValue !== undefined ? f.defaultValue
+        : f.type === 'TOGGLE' ? false
+        : f.type === 'NUMBER' || f.type === 'PORT' ? 0
+        : f.type === 'MULTI_SELECT' || f.type === 'TEXT_ARRAY' ? []
+        : '';
       return [f.name, v];
     })
   );
@@ -99,14 +104,15 @@ function useMockFormState(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const form: UseFormReturn<any> = useForm({ defaultValues, mode: 'onBlur' });
 
-  const schema = noSchema
-    ? undefined
-    : {
+  const schema =
+    noSchema ? undefined : (
+      {
         serviceType: 'mock-service',
         version: '1.0.0',
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         fields: fields as any,
-      };
+      }
+    );
 
   return {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -118,7 +124,7 @@ function useMockFormState(
     isSubmitting,
     isValidating,
     loading: { schema: loadingSchema, config: loadingConfig },
-    errors:  { schema: undefined, config: undefined },
+    errors: { schema: undefined, config: undefined },
     validate: async () => true,
     refetch: fn(),
   };
@@ -171,9 +177,9 @@ const torFields: MockField[] = [
     description: 'Determines the role this Tor instance plays in the network.',
     options: [
       { label: 'Client only', value: 'client' },
-      { label: 'Middle relay',  value: 'middle' },
-      { label: 'Exit relay',    value: 'exit' },
-      { label: 'Bridge',        value: 'bridge' },
+      { label: 'Middle relay', value: 'middle' },
+      { label: 'Exit relay', value: 'exit' },
+      { label: 'Bridge', value: 'bridge' },
     ],
   },
   {

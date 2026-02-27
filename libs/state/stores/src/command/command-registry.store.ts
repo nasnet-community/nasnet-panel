@@ -188,9 +188,7 @@ const defaultState: CommandRegistryState = {
  * trackUsage('nav-dashboard');
  * ```
  */
-export const useCommandRegistry = create<
-  CommandRegistryState & CommandRegistryActions
->()(
+export const useCommandRegistry = create<CommandRegistryState & CommandRegistryActions>()(
   devtools(
     persist(
       (set, get) => ({
@@ -250,10 +248,7 @@ export const useCommandRegistry = create<
         trackUsage: (id) =>
           set((state) => {
             // Update recent IDs - add to front, remove duplicates, limit to 5
-            const recentIds = [
-              id,
-              ...state.recentIds.filter((rid) => rid !== id),
-            ].slice(0, 5);
+            const recentIds = [id, ...state.recentIds.filter((rid) => rid !== id)].slice(0, 5);
 
             // Update usage count
             const usageCount = new Map(state.usageCount);
@@ -274,9 +269,7 @@ export const useCommandRegistry = create<
         getAllCommands: () => Array.from(get().commands.values()),
 
         getByCategory: (category) =>
-          Array.from(get().commands.values()).filter(
-            (cmd) => cmd.category === category
-          ),
+          Array.from(get().commands.values()).filter((cmd) => cmd.category === category),
       }),
       {
         name: 'nasnet-command-registry',
@@ -317,8 +310,7 @@ export const selectRecentIds = (state: CommandRegistryState) => state.recentIds;
 /**
  * Select command count
  */
-export const selectCommandCount = (state: CommandRegistryState) =>
-  state.commands.size;
+export const selectCommandCount = (state: CommandRegistryState) => state.commands.size;
 
 // ===== Helper functions =====
 

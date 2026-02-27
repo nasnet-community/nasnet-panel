@@ -61,17 +61,23 @@ export const VlanSelector = memo(function VlanSelector({
   }, [inputValue, value, onChange]);
 
   // Memoized remove handler
-  const handleRemove = useCallback((vlanId: number) => {
-    onChange(value.filter((id) => id !== vlanId));
-  }, [value, onChange]);
+  const handleRemove = useCallback(
+    (vlanId: number) => {
+      onChange(value.filter((id) => id !== vlanId));
+    },
+    [value, onChange]
+  );
 
   // Memoized key down handler
-  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      handleAdd();
-    }
-  }, [handleAdd]);
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        handleAdd();
+      }
+    },
+    [handleAdd]
+  );
 
   // Memoize sorted VLAN list to prevent unnecessary re-renders
   const sortedVlans = useMemo(() => [...value].sort((a, b) => a - b), [value]);
@@ -83,11 +89,13 @@ export const VlanSelector = memo(function VlanSelector({
         <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
           {label}
         </label>
-        {description && <p className="text-xs text-muted-foreground mt-component-xs">{description}</p>}
+        {description && (
+          <p className="text-muted-foreground mt-component-xs text-xs">{description}</p>
+        )}
       </div>
 
       {/* Input with Add Button */}
-      <div className="flex gap-component-sm">
+      <div className="gap-component-sm flex">
         <Input
           type="number"
           min={1}
@@ -112,31 +120,45 @@ export const VlanSelector = memo(function VlanSelector({
           disabled={disabled || !inputValue}
           aria-label="Add VLAN ID"
         >
-          <Icon icon={Plus} className="h-4 w-4" />
+          <Icon
+            icon={Plus}
+            className="h-4 w-4"
+          />
         </Button>
       </div>
 
       {/* Error Message */}
       {error && (
-        <p id="vlan-error" className="text-xs text-error" role="alert">
+        <p
+          id="vlan-error"
+          className="text-error text-xs"
+          role="alert"
+        >
           {error}
         </p>
       )}
 
       {/* Selected VLANs (Chips) */}
       {sortedVlans.length > 0 && (
-        <div className="flex flex-wrap gap-component-sm p-component-sm rounded-[var(--semantic-radius-button)] border bg-muted/50">
+        <div className="gap-component-sm p-component-sm bg-muted/50 flex flex-wrap rounded-[var(--semantic-radius-button)] border">
           {sortedVlans.map((vlanId) => (
-            <Badge key={vlanId} variant="secondary" className="gap-component-xs pr-component-xs">
+            <Badge
+              key={vlanId}
+              variant="secondary"
+              className="gap-component-xs pr-component-xs"
+            >
               <span className="font-mono font-medium">{vlanId}</span>
               <button
                 type="button"
                 onClick={() => handleRemove(vlanId)}
                 disabled={disabled}
-                className="rounded-sm hover:bg-secondary-foreground/20 transition-colors"
+                className="hover:bg-secondary-foreground/20 rounded-sm transition-colors"
                 aria-label={`Remove VLAN ${vlanId}`}
               >
-                <Icon icon={X} className="h-3 w-3" />
+                <Icon
+                  icon={X}
+                  className="h-3 w-3"
+                />
               </button>
             </Badge>
           ))}
@@ -145,7 +167,7 @@ export const VlanSelector = memo(function VlanSelector({
 
       {/* Empty State */}
       {sortedVlans.length === 0 && (
-        <p className="text-xs text-muted-foreground italic">No VLANs selected</p>
+        <p className="text-muted-foreground text-xs italic">No VLANs selected</p>
       )}
     </div>
   );

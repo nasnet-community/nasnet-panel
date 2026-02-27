@@ -62,10 +62,7 @@ interface GatewayStatusResponse {
  * Options for useGatewayStatus hook
  */
 export interface UseGatewayStatusOptions
-  extends Omit<
-    QueryHookOptions<GatewayStatusResponse, GatewayStatusVariables>,
-    'variables'
-  > {
+  extends Omit<QueryHookOptions<GatewayStatusResponse, GatewayStatusVariables>, 'variables'> {
   /** Enable polling for real-time updates (default: true, 5s interval) */
   enablePolling?: boolean;
   /** Polling interval in milliseconds (default: 5000) */
@@ -93,25 +90,15 @@ export interface UseGatewayStatusOptions
  * return <GatewayStatusCard gateway={data.gatewayStatus} />;
  * ```
  */
-export function useGatewayStatus(
-  instanceID: string,
-  options: UseGatewayStatusOptions = {}
-) {
-  const {
-    enablePolling = true,
-    pollInterval = 5000,
-    ...apolloOptions
-  } = options;
+export function useGatewayStatus(instanceID: string, options: UseGatewayStatusOptions = {}) {
+  const { enablePolling = true, pollInterval = 5000, ...apolloOptions } = options;
 
-  return useQuery<GatewayStatusResponse, GatewayStatusVariables>(
-    GATEWAY_STATUS_QUERY,
-    {
-      variables: { instanceID },
-      pollInterval: enablePolling ? pollInterval : undefined,
-      skip: !instanceID,
-      ...apolloOptions,
-    }
-  );
+  return useQuery<GatewayStatusResponse, GatewayStatusVariables>(GATEWAY_STATUS_QUERY, {
+    variables: { instanceID },
+    pollInterval: enablePolling ? pollInterval : undefined,
+    skip: !instanceID,
+    ...apolloOptions,
+  });
 }
 
 /**

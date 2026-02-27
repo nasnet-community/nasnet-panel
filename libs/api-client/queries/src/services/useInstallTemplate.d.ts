@@ -3,48 +3,51 @@
  *
  * Mutation hook for installing service templates with optimistic updates.
  */
-import type { TemplateInstallResult, InstallServiceTemplateInput } from '@nasnet/api-client/generated';
+import type {
+  TemplateInstallResult,
+  InstallServiceTemplateInput,
+} from '@nasnet/api-client/generated';
 /**
  * Options for useInstallTemplate hook
  */
 export interface UseInstallTemplateOptions {
-    /**
-     * Callback invoked on successful installation
-     */
-    onCompleted?: (result: TemplateInstallResult) => void;
-    /**
-     * Callback invoked on error
-     */
-    onError?: (error: Error) => void;
-    /**
-     * Whether to refetch service instances after install (default: true)
-     */
-    refetchInstances?: boolean;
+  /**
+   * Callback invoked on successful installation
+   */
+  onCompleted?: (result: TemplateInstallResult) => void;
+  /**
+   * Callback invoked on error
+   */
+  onError?: (error: Error) => void;
+  /**
+   * Whether to refetch service instances after install (default: true)
+   */
+  refetchInstances?: boolean;
 }
 /**
  * Return type for useInstallTemplate hook
  */
 export interface UseInstallTemplateReturn {
-    /**
-     * Mutation function to install a template
-     */
-    installTemplate: (input: InstallServiceTemplateInput) => Promise<TemplateInstallResult>;
-    /**
-     * Loading state
-     */
-    loading: boolean;
-    /**
-     * Error object if mutation failed
-     */
-    error: Error | undefined;
-    /**
-     * Result from the last mutation
-     */
-    data: TemplateInstallResult | undefined;
-    /**
-     * Reset mutation state
-     */
-    reset: () => void;
+  /**
+   * Mutation function to install a template
+   */
+  installTemplate: (input: InstallServiceTemplateInput) => Promise<TemplateInstallResult>;
+  /**
+   * Loading state
+   */
+  loading: boolean;
+  /**
+   * Error object if mutation failed
+   */
+  error: Error | undefined;
+  /**
+   * Result from the last mutation
+   */
+  data: TemplateInstallResult | undefined;
+  /**
+   * Reset mutation state
+   */
+  reset: () => void;
 }
 /**
  * Hook to install a service template
@@ -75,5 +78,7 @@ export interface UseInstallTemplateReturn {
  * });
  * ```
  */
-export declare function useInstallTemplate(options?: UseInstallTemplateOptions): UseInstallTemplateReturn;
+export declare function useInstallTemplate(
+  options?: UseInstallTemplateOptions
+): UseInstallTemplateReturn;
 //# sourceMappingURL=useInstallTemplate.d.ts.map

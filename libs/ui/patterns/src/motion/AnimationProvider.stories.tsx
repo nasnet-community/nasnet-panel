@@ -28,7 +28,7 @@ function AnimationContextDisplay() {
 
   if (!ctx) {
     return (
-      <div className="rounded border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive">
+      <div className="border-destructive/40 bg-destructive/10 text-destructive rounded border p-4 text-sm">
         No AnimationProvider found in tree.
       </div>
     );
@@ -36,16 +36,16 @@ function AnimationContextDisplay() {
 
   return (
     <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
-      <dt className="font-medium text-muted-foreground">reducedMotion</dt>
+      <dt className="text-muted-foreground font-medium">reducedMotion</dt>
       <dd className="font-mono">{String(ctx.reducedMotion)}</dd>
 
-      <dt className="font-medium text-muted-foreground">animationsEnabled</dt>
+      <dt className="text-muted-foreground font-medium">animationsEnabled</dt>
       <dd className="font-mono">{String(ctx.animationsEnabled)}</dd>
 
-      <dt className="font-medium text-muted-foreground">platform</dt>
+      <dt className="text-muted-foreground font-medium">platform</dt>
       <dd className="font-mono">{ctx.platform}</dd>
 
-      <dt className="font-medium text-muted-foreground">getDuration(300)</dt>
+      <dt className="text-muted-foreground font-medium">getDuration(300)</dt>
       <dd className="font-mono">{ctx.getDuration(300)}ms</dd>
     </dl>
   );
@@ -63,7 +63,7 @@ function AnimatedBox({ label }: { label: string }) {
       initial={{ opacity: 0, y: reducedMotion ? 0 : 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: reducedMotion ? 0 : 0.4, ease: 'easeOut' }}
-      className="rounded-lg border border-border bg-card px-6 py-4 text-center shadow-sm"
+      className="border-border bg-card rounded-lg border px-6 py-4 text-center shadow-sm"
     >
       <span className="text-sm font-medium">{label}</span>
     </motion.div>
@@ -125,7 +125,7 @@ type Story = StoryObj<typeof AnimationProvider>;
 export const Default: Story = {
   render: () => (
     <AnimationProvider>
-      <div className="w-80 space-y-4 rounded-xl border border-border bg-background p-6 shadow">
+      <div className="border-border bg-background w-80 space-y-4 rounded-xl border p-6 shadow">
         <h2 className="text-base font-semibold">Animation Context</h2>
         <AnimationContextDisplay />
         <AnimatedBox label="Animated child" />
@@ -142,10 +142,8 @@ export const ReducedMotionForced: Story = {
   render: () => (
     <AnimationProvider>
       <MotionConfig reducedMotion>
-        <div className="w-80 space-y-4 rounded-xl border border-destructive/30 bg-background p-6 shadow">
-          <h2 className="text-base font-semibold">
-            MotionConfig (reduced motion forced)
-          </h2>
+        <div className="border-destructive/30 bg-background w-80 space-y-4 rounded-xl border p-6 shadow">
+          <h2 className="text-base font-semibold">MotionConfig (reduced motion forced)</h2>
           <AnimationContextDisplay />
           <AnimatedBox label="Instant transition" />
         </div>
@@ -162,10 +160,8 @@ export const MotionConfigAnimationsEnabled: Story = {
   render: () => (
     <AnimationProvider>
       <MotionConfig reducedMotion={false}>
-        <div className="w-80 space-y-4 rounded-xl border border-primary/30 bg-background p-6 shadow">
-          <h2 className="text-base font-semibold">
-            MotionConfig (animations forced on)
-          </h2>
+        <div className="border-primary/30 bg-background w-80 space-y-4 rounded-xl border p-6 shadow">
+          <h2 className="text-base font-semibold">MotionConfig (animations forced on)</h2>
           <AnimationContextDisplay />
           <AnimatedBox label="Always animates" />
         </div>
@@ -183,7 +179,7 @@ export const NestedMotionConfig: Story = {
     <AnimationProvider>
       <div className="space-y-6">
         {/* Outer – animations enabled */}
-        <div className="w-80 rounded-xl border border-border bg-background p-6 shadow">
+        <div className="border-border bg-background w-80 rounded-xl border p-6 shadow">
           <h2 className="mb-3 text-base font-semibold">Outer provider</h2>
           <AnimationContextDisplay />
           <div className="mt-3">
@@ -194,9 +190,7 @@ export const NestedMotionConfig: Story = {
         {/* Inner override – reduced motion */}
         <MotionConfig reducedMotion>
           <div className="w-80 rounded-xl border border-amber-400/40 bg-amber-50/30 p-6 shadow dark:bg-amber-900/10">
-            <h2 className="mb-3 text-base font-semibold">
-              Inner MotionConfig (reduced)
-            </h2>
+            <h2 className="mb-3 text-base font-semibold">Inner MotionConfig (reduced)</h2>
             <AnimationContextDisplay />
             <div className="mt-3">
               <AnimatedBox label="Inner instant box" />
@@ -214,7 +208,7 @@ export const NestedMotionConfig: Story = {
  */
 export const NoProvider: Story = {
   render: () => (
-    <div className="w-80 rounded-xl border border-border bg-background p-6 shadow">
+    <div className="border-border bg-background w-80 rounded-xl border p-6 shadow">
       <h2 className="mb-3 text-base font-semibold">No Provider</h2>
       <AnimationContextDisplay />
     </div>
@@ -229,7 +223,7 @@ export const MultipleProviders: Story = {
   render: () => (
     <div className="flex gap-4">
       <AnimationProvider>
-        <div className="w-60 rounded-xl border border-border bg-background p-4 shadow">
+        <div className="border-border bg-background w-60 rounded-xl border p-4 shadow">
           <h2 className="mb-2 text-sm font-semibold">Provider A</h2>
           <AnimationContextDisplay />
         </div>
@@ -237,7 +231,7 @@ export const MultipleProviders: Story = {
 
       <AnimationProvider>
         <MotionConfig reducedMotion>
-          <div className="w-60 rounded-xl border border-border bg-background p-4 shadow">
+          <div className="border-border bg-background w-60 rounded-xl border p-4 shadow">
             <h2 className="mb-2 text-sm font-semibold">Provider B (reduced)</h2>
             <AnimationContextDisplay />
           </div>

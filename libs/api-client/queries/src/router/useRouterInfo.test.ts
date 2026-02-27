@@ -102,7 +102,9 @@ describe('useRouterInfo', () => {
       renderHook(() => useRouterInfo(testRouterIp), { wrapper });
 
       const queries = queryClient.getQueryCache().getAll();
-      const infoQuery = queries.find((q) => JSON.stringify(q.queryKey) === JSON.stringify(routerKeys.info(testRouterIp)));
+      const infoQuery = queries.find(
+        (q) => JSON.stringify(q.queryKey) === JSON.stringify(routerKeys.info(testRouterIp))
+      );
 
       expect(infoQuery).toBeDefined();
     });
@@ -111,7 +113,9 @@ describe('useRouterInfo', () => {
       const { result } = renderHook(() => useRouterInfo(testRouterIp), { wrapper });
 
       const queries = queryClient.getQueryCache().getAll();
-      const infoQuery = queries.find((q) => JSON.stringify(q.queryKey) === JSON.stringify(routerKeys.info(testRouterIp)));
+      const infoQuery = queries.find(
+        (q) => JSON.stringify(q.queryKey) === JSON.stringify(routerKeys.info(testRouterIp))
+      );
 
       expect((infoQuery?.options as any)?.staleTime).toBe(60000);
     });
@@ -147,8 +151,8 @@ describe('useRouterInfo', () => {
       const { result } = renderHook(() => useRouterResource(testRouterIp), { wrapper });
 
       const queries = queryClient.getQueryCache().getAll();
-      const resourceQuery = queries.find((q) =>
-        JSON.stringify(q.queryKey) === JSON.stringify(routerKeys.resource(testRouterIp))
+      const resourceQuery = queries.find(
+        (q) => JSON.stringify(q.queryKey) === JSON.stringify(routerKeys.resource(testRouterIp))
       );
 
       expect((resourceQuery?.options as any)?.refetchInterval).toBe(5000);
@@ -158,8 +162,8 @@ describe('useRouterInfo', () => {
       const { result } = renderHook(() => useRouterResource(testRouterIp), { wrapper });
 
       const queries = queryClient.getQueryCache().getAll();
-      const resourceQuery = queries.find((q) =>
-        JSON.stringify(q.queryKey) === JSON.stringify(routerKeys.resource(testRouterIp))
+      const resourceQuery = queries.find(
+        (q) => JSON.stringify(q.queryKey) === JSON.stringify(routerKeys.resource(testRouterIp))
       );
 
       expect((resourceQuery?.options as any)?.refetchIntervalInBackground).toBe(false);
@@ -169,8 +173,8 @@ describe('useRouterInfo', () => {
       const { result } = renderHook(() => useRouterResource(testRouterIp), { wrapper });
 
       const queries = queryClient.getQueryCache().getAll();
-      const resourceQuery = queries.find((q) =>
-        JSON.stringify(q.queryKey) === JSON.stringify(routerKeys.resource(testRouterIp))
+      const resourceQuery = queries.find(
+        (q) => JSON.stringify(q.queryKey) === JSON.stringify(routerKeys.resource(testRouterIp))
       );
 
       expect((resourceQuery?.options as any)?.staleTime).toBe(5000);

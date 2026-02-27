@@ -1,6 +1,8 @@
 # API Client and GraphQL
 
-This document covers the complete API client layer used by the `libs/features/` modules to communicate with the NasNetConnect backend. The layer is built on Apollo Client 3 with a schema-first GraphQL design.
+This document covers the complete API client layer used by the `libs/features/` modules to
+communicate with the NasNetConnect backend. The layer is built on Apollo Client 3 with a
+schema-first GraphQL design.
 
 ## Table of Contents
 
@@ -58,7 +60,9 @@ libs/api-client/
     └── schemas/            # Zod schemas and network validators
 ```
 
-The `schema/` directory at the repository root is the single source of truth for all GraphQL types. Feature modules import from `@nasnet/api-client/queries` and never write raw `gql` strings themselves (with the exception of resource layer hooks which define inline fragments).
+The `schema/` directory at the repository root is the single source of truth for all GraphQL types.
+Feature modules import from `@nasnet/api-client/queries` and never write raw `gql` strings
+themselves (with the exception of resource layer hooks which define inline fragments).
 
 ---
 
@@ -68,13 +72,13 @@ File: `libs/api-client/core/src/apollo/apollo-client.ts`
 
 ```typescript
 export const apolloClient: ApolloClient<NormalizedCacheObject> = new ApolloClient({
-  link,   // full link chain (see section 3)
-  cache,  // InMemoryCache with possibleTypes and type policies
+  link, // full link chain (see section 3)
+  cache, // InMemoryCache with possibleTypes and type policies
   defaultOptions: {
     watchQuery: {
-      fetchPolicy: 'cache-and-network',   // serve cache immediately, refresh from network
-      nextFetchPolicy: 'cache-first',     // avoid redundant network requests on re-render
-      errorPolicy: 'all',                 // return partial data on field-level errors
+      fetchPolicy: 'cache-and-network', // serve cache immediately, refresh from network
+      nextFetchPolicy: 'cache-first', // avoid redundant network requests on re-render
+      errorPolicy: 'all', // return partial data on field-level errors
     },
     query: {
       fetchPolicy: 'cache-first',
@@ -88,7 +92,9 @@ export const apolloClient: ApolloClient<NormalizedCacheObject> = new ApolloClien
 });
 ```
 
-The client is used via `ApolloProvider` (`libs/api-client/core/src/apollo/apollo-provider.tsx`), which also initializes IndexedDB/localStorage cache persistence (5 MB limit, 1 s debounce) before rendering children to enable offline data availability.
+The client is used via `ApolloProvider` (`libs/api-client/core/src/apollo/apollo-provider.tsx`),
+which also initializes IndexedDB/localStorage cache persistence (5 MB limit, 1 s debounce) before
+rendering children to enable offline data availability.
 
 ---
 
@@ -106,7 +112,8 @@ Request → errorLink → retryLink → splitLink
 
 Handles all GraphQL and network errors centrally:
 
-- **GraphQL `UNAUTHENTICATED`** - calls `useAuthStore.getState().clearAuth()`, fires `auth:expired` event
+- **GraphQL `UNAUTHENTICATED`** - calls `useAuthStore.getState().clearAuth()`, fires `auth:expired`
+  event
 - **GraphQL `FORBIDDEN`** - shows "Access denied" notification via `useNotificationStore`
 - **GraphQL `NOT_FOUND`** - shows "Not found" warning notification
 - **HTTP 401** - triggers auth clear and redirect
@@ -151,6 +158,7 @@ export const authLink = setContext((_, { headers }) => {
 ```
 
 Authorization priority:
+
 1. JWT Bearer token from `useAuthStore`
 2. Basic auth from `sessionStorage` per-router credentials (`router-credentials-{routerId}`)
 
@@ -181,19 +189,20 @@ const cache = new InMemoryCache({
 
 ### Key Type Policies
 
-| Type | Key Field | Runtime/Telemetry Merge |
-|------|-----------|------------------------|
-| `Router` | `id` | `status` field deep-merged |
-| `Resource` | `uuid` (ULID) | `runtime` merged, `telemetry` appended (24h rolling, 288 5-min intervals) |
-| `WireGuardClient` | `uuid` | `runtime` merged |
-| `LANNetwork` | `uuid` | `runtime` merged |
-| `WANLink` | `uuid` | `runtime` merged |
-| `FeatureResource` | `uuid` | `runtime` merged |
-| `ValidationResult` | — | Full replacement (`merge: false`) |
-| `DeploymentState` | — | Full replacement (`merge: false`) |
-| `RuntimeState` | — | Shallow merge (`merge: true`) |
+| Type               | Key Field     | Runtime/Telemetry Merge                                                   |
+| ------------------ | ------------- | ------------------------------------------------------------------------- |
+| `Router`           | `id`          | `status` field deep-merged                                                |
+| `Resource`         | `uuid` (ULID) | `runtime` merged, `telemetry` appended (24h rolling, 288 5-min intervals) |
+| `WireGuardClient`  | `uuid`        | `runtime` merged                                                          |
+| `LANNetwork`       | `uuid`        | `runtime` merged                                                          |
+| `WANLink`          | `uuid`        | `runtime` merged                                                          |
+| `FeatureResource`  | `uuid`        | `runtime` merged                                                          |
+| `ValidationResult` | —             | Full replacement (`merge: false`)                                         |
+| `DeploymentState`  | —             | Full replacement (`merge: false`)                                         |
+| `RuntimeState`     | —             | Shallow merge (`merge: true`)                                             |
 
-The `routers` query field is keyed by `filter` argument. The `resources` query field is keyed by `[routerId, category, type, state]`.
+The `routers` query field is keyed by `filter` argument. The `resources` query field is keyed by
+`[routerId, category, type, state]`.
 
 Telemetry history merge keeps the last 288 data points (24 hours at 5-minute intervals):
 
@@ -208,27 +217,28 @@ bandwidthHistory: [
 
 ## 5. Query Modules Reference
 
-All query hooks are exported from `@nasnet/api-client/queries`. The table below lists all 21 domain modules.
+All query hooks are exported from `@nasnet/api-client/queries`. The table below lists all 21 domain
+modules.
 
-| Domain | Path | Key Hooks |
-|--------|------|-----------|
-| `alerts` | `src/alerts/` | `useAlertRuleTemplates`, `useAlertTemplate`, `useSaveAlertTemplate`, `usePreviewAlertTemplate`, `useDigestQueueCount`, `useDigestHistory`, `useTriggerDigestNow` |
-| `batch` | `src/batch/` | `useBatchJob` |
-| `change-set` | `src/change-set/` | `useChangeSetQueries`, `useChangeSetMutations` |
-| `dhcp` | `src/dhcp/` | DHCP server queries, lease mutations |
-| `diagnostics` | `src/diagnostics/` | Troubleshoot step operations (see `operations.ts`) |
-| `discovery` | `src/discovery/` | `useTestConnection` |
-| `dns` | `src/dns/` | `useDNS`, DNS mutations |
-| `firewall` | `src/firewall/` | `useFilterRules`, `useMangleRules`, `useRawRules`, `useConnections`, `useKillConnection`, `useConnectionTrackingSettings`, `useUpdateConnectionTracking`, firewall templates |
-| `network` | `src/network/` | `useBridgeQueries`, `useBridgeMutations`, `useInterfaceMutations`, `useIPAddressMutations`, `useVlanMutations`, `useRoutes`, `useRouteLookup`, `useDnsLookup`, `useDnsBenchmark`, `useDnsCacheStats`, `useFlushDnsCache` |
-| `notifications` | `src/notifications/` | Notification channel operations |
-| `oui` | `src/oui/` | `useVendorLookup` |
-| `resources` | `src/resources/` | `useResourceValidation`, `useResourceDeployment`, `useResourceRuntime`, `useResourceTelemetry`, `useResourceMetadata`, `useResourceRelationships`, `useResourcePlatform`, `useResourceConfiguration`, `useResourceMutations`, `useResourceRuntimeSubscription`, `useResourceStateSubscription`, `useResourceValidationSubscription`, `useResourcesRuntimeSubscription`, `useResourceSubscriptions` |
-| `services` | `src/services/` | `useAvailableServices`, `useInstanceMutations`, `useFeatureVerification`, `useVirtualInterfaces`, `useBridgeStatus`, `useDependencies`, `useDependencyMutations`, `useGatewayStatus`, `useVLANAllocations`, `useVLANPoolStatus`, `useCleanupOrphanedVLANs`, `useUpdateVLANPoolConfig`, `useSystemResources`, `useServiceLogs`, `useDiagnostics` |
-| `storage` | `src/storage/` | `useStorageInfo`, `useStorageUsage`, `useStorageConfig`, `useStorageMutations` |
-| `system` | `src/system/` | `useIPServices`, `useSystemNote` |
-| `vpn` | `src/vpn/` | `usePPPActive`, `useIPsecActive` |
-| `wan` | `src/wan/` | WAN interface queries, `useWANMutations` |
+| Domain          | Path                 | Key Hooks                                                                                                                                                                                                                                                                                                                                                                                          |
+| --------------- | -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `alerts`        | `src/alerts/`        | `useAlertRuleTemplates`, `useAlertTemplate`, `useSaveAlertTemplate`, `usePreviewAlertTemplate`, `useDigestQueueCount`, `useDigestHistory`, `useTriggerDigestNow`                                                                                                                                                                                                                                   |
+| `batch`         | `src/batch/`         | `useBatchJob`                                                                                                                                                                                                                                                                                                                                                                                      |
+| `change-set`    | `src/change-set/`    | `useChangeSetQueries`, `useChangeSetMutations`                                                                                                                                                                                                                                                                                                                                                     |
+| `dhcp`          | `src/dhcp/`          | DHCP server queries, lease mutations                                                                                                                                                                                                                                                                                                                                                               |
+| `diagnostics`   | `src/diagnostics/`   | Troubleshoot step operations (see `operations.ts`)                                                                                                                                                                                                                                                                                                                                                 |
+| `discovery`     | `src/discovery/`     | `useTestConnection`                                                                                                                                                                                                                                                                                                                                                                                |
+| `dns`           | `src/dns/`           | `useDNS`, DNS mutations                                                                                                                                                                                                                                                                                                                                                                            |
+| `firewall`      | `src/firewall/`      | `useFilterRules`, `useMangleRules`, `useRawRules`, `useConnections`, `useKillConnection`, `useConnectionTrackingSettings`, `useUpdateConnectionTracking`, firewall templates                                                                                                                                                                                                                       |
+| `network`       | `src/network/`       | `useBridgeQueries`, `useBridgeMutations`, `useInterfaceMutations`, `useIPAddressMutations`, `useVlanMutations`, `useRoutes`, `useRouteLookup`, `useDnsLookup`, `useDnsBenchmark`, `useDnsCacheStats`, `useFlushDnsCache`                                                                                                                                                                           |
+| `notifications` | `src/notifications/` | Notification channel operations                                                                                                                                                                                                                                                                                                                                                                    |
+| `oui`           | `src/oui/`           | `useVendorLookup`                                                                                                                                                                                                                                                                                                                                                                                  |
+| `resources`     | `src/resources/`     | `useResourceValidation`, `useResourceDeployment`, `useResourceRuntime`, `useResourceTelemetry`, `useResourceMetadata`, `useResourceRelationships`, `useResourcePlatform`, `useResourceConfiguration`, `useResourceMutations`, `useResourceRuntimeSubscription`, `useResourceStateSubscription`, `useResourceValidationSubscription`, `useResourcesRuntimeSubscription`, `useResourceSubscriptions` |
+| `services`      | `src/services/`      | `useAvailableServices`, `useInstanceMutations`, `useFeatureVerification`, `useVirtualInterfaces`, `useBridgeStatus`, `useDependencies`, `useDependencyMutations`, `useGatewayStatus`, `useVLANAllocations`, `useVLANPoolStatus`, `useCleanupOrphanedVLANs`, `useUpdateVLANPoolConfig`, `useSystemResources`, `useServiceLogs`, `useDiagnostics`                                                    |
+| `storage`       | `src/storage/`       | `useStorageInfo`, `useStorageUsage`, `useStorageConfig`, `useStorageMutations`                                                                                                                                                                                                                                                                                                                     |
+| `system`        | `src/system/`        | `useIPServices`, `useSystemNote`                                                                                                                                                                                                                                                                                                                                                                   |
+| `vpn`           | `src/vpn/`           | `usePPPActive`, `useIPsecActive`                                                                                                                                                                                                                                                                                                                                                                   |
+| `wan`           | `src/wan/`           | WAN interface queries, `useWANMutations`                                                                                                                                                                                                                                                                                                                                                           |
 
 ---
 
@@ -249,7 +259,7 @@ export function useResourceRuntime(
 
   const { data, loading, error, refetch } = useQuery(GET_RESOURCE_RUNTIME, {
     variables: { uuid },
-    skip: skip || !uuid,   // guard against undefined ID
+    skip: skip || !uuid, // guard against undefined ID
     pollInterval,
     fetchPolicy,
   });
@@ -258,7 +268,9 @@ export function useResourceRuntime(
     data: data?.resource?.runtime,
     loading,
     error,
-    refetch: async () => { await refetch(); },
+    refetch: async () => {
+      await refetch();
+    },
   };
 }
 ```
@@ -329,10 +341,8 @@ export function useInstanceMutations() {
   });
 
   return {
-    startInstance: (input: StartInstanceInput) =>
-      startInstance({ variables: { input } }),
-    deleteInstance: (input: DeleteInstanceInput) =>
-      deleteInstance({ variables: { input } }),
+    startInstance: (input: StartInstanceInput) => startInstance({ variables: { input } }),
+    deleteInstance: (input: DeleteInstanceInput) => deleteInstance({ variables: { input } }),
     loading: {
       start: startMutation.loading,
       delete: deleteMutation.loading,
@@ -408,7 +418,8 @@ const { data, isConnected } = useResourceRuntimeSubscription(uuid, {
 });
 ```
 
-The subscription uses `graphql-ws` over the WebSocket link. Updates include the full `RuntimeState` with `metrics`, `health`, `activeConnections`, and `uptime`.
+The subscription uses `graphql-ws` over the WebSocket link. Updates include the full `RuntimeState`
+with `metrics`, `health`, `activeConnections`, and `uptime`.
 
 ### State Change Subscription
 
@@ -438,7 +449,7 @@ if (data?.stage === 'FINAL' && data?.isComplete) {
 ### Batch Runtime for Lists
 
 ```typescript
-const uuids = resources.map(r => r.uuid);
+const uuids = resources.map((r) => r.uuid);
 const { data: runtimeMap } = useResourcesRuntimeSubscription(uuids);
 
 // data is Map<string, RuntimeState>
@@ -472,29 +483,31 @@ connectionParams: () => ({
 
 ## 9. GraphQL Schema Organization
 
-The `schema/` directory contains 15 domain areas totaling 100+ `.graphql` files. All operations are defined schema-first and processed by `gqlgen` (Go) and TypeScript codegen.
+The `schema/` directory contains 15 domain areas totaling 100+ `.graphql` files. All operations are
+defined schema-first and processed by `gqlgen` (Go) and TypeScript codegen.
 
-| Domain | Location | File Count | Description |
-|--------|----------|-----------|-------------|
-| Core | `schema/core/` | 20 | Router types, connections, credentials, scanner, capabilities, directives |
-| Resources | `schema/resources/` | 12 | 8-layer Universal State v2 model, composite types |
-| Network | `schema/network/` | 14 | Interfaces, VLANs, IP, routing, bridges, tunnels, port mirrors |
-| Services | `schema/services/` | 16 | Feature marketplace, dependencies, isolation, traffic, chains, sharing |
-| Alerts | `schema/alerts/` | 24 | Rules, conditions, channels, webhooks, throttle, escalation |
-| Firewall | `schema/firewall/` | 10 | Address lists, NAT, port knocking, filter/mangle/raw/templates |
-| Diagnostics | `schema/diagnostics/` | 8 | Troubleshoot, traceroute, DNS lookup, route lookup, DNS cache |
-| WAN | `schema/wan/` | 5 | WAN types, health history, operations |
-| Changeset | `schema/changeset/` | 5 | Change set enums, operations, payloads |
-| Storage | `schema/storage/` | 3 | Storage types, events, operations |
-| Auth | `schema/auth.graphql` | 1 | Authentication types and operations |
-| Health | `schema/health.graphql` | 1 | Health check types |
-| Port Registry | `schema/port-registry.graphql` | 1 | Port allocation types |
-| Scalars | `schema/scalars.graphql` | 1 | Custom scalar definitions |
-| Fragments | `schema/fragments/` | 3 | Client-side query fragments (core, telemetry, composite) |
+| Domain        | Location                       | File Count | Description                                                               |
+| ------------- | ------------------------------ | ---------- | ------------------------------------------------------------------------- |
+| Core          | `schema/core/`                 | 20         | Router types, connections, credentials, scanner, capabilities, directives |
+| Resources     | `schema/resources/`            | 12         | 8-layer Universal State v2 model, composite types                         |
+| Network       | `schema/network/`              | 14         | Interfaces, VLANs, IP, routing, bridges, tunnels, port mirrors            |
+| Services      | `schema/services/`             | 16         | Feature marketplace, dependencies, isolation, traffic, chains, sharing    |
+| Alerts        | `schema/alerts/`               | 24         | Rules, conditions, channels, webhooks, throttle, escalation               |
+| Firewall      | `schema/firewall/`             | 10         | Address lists, NAT, port knocking, filter/mangle/raw/templates            |
+| Diagnostics   | `schema/diagnostics/`          | 8          | Troubleshoot, traceroute, DNS lookup, route lookup, DNS cache             |
+| WAN           | `schema/wan/`                  | 5          | WAN types, health history, operations                                     |
+| Changeset     | `schema/changeset/`            | 5          | Change set enums, operations, payloads                                    |
+| Storage       | `schema/storage/`              | 3          | Storage types, events, operations                                         |
+| Auth          | `schema/auth.graphql`          | 1          | Authentication types and operations                                       |
+| Health        | `schema/health.graphql`        | 1          | Health check types                                                        |
+| Port Registry | `schema/port-registry.graphql` | 1          | Port allocation types                                                     |
+| Scalars       | `schema/scalars.graphql`       | 1          | Custom scalar definitions                                                 |
+| Fragments     | `schema/fragments/`            | 3          | Client-side query fragments (core, telemetry, composite)                  |
 
 ### Schema-First Principle
 
-All types are defined in `.graphql` files. The backend uses `gqlgen` to generate Go resolver interfaces. The frontend uses `graphql-code-generator` to produce TypeScript types and React hooks.
+All types are defined in `.graphql` files. The backend uses `gqlgen` to generate Go resolver
+interfaces. The frontend uses `graphql-code-generator` to produce TypeScript types and React hooks.
 
 ---
 
@@ -502,20 +515,20 @@ All types are defined in `.graphql` files. The backend uses `gqlgen` to generate
 
 File: `schema/scalars.graphql`
 
-| Scalar | Description | Example |
-|--------|-------------|---------|
-| `DateTime` | ISO 8601 datetime | `"2024-01-15T10:30:00Z"` |
-| `JSON` | Arbitrary JSON for configuration | `{ "key": "value" }` |
-| `IPv4` | IPv4 address | `"192.168.1.1"` |
-| `IPv6` | IPv6 address | `"2001:0db8::1"` |
-| `MAC` | MAC address (colon or dash separated) | `"00:1A:2B:3C:4D:5E"` |
-| `CIDR` | Network address in CIDR notation | `"192.168.1.0/24"` |
-| `Port` | TCP/UDP port number (1–65535) | `8080` |
-| `PortRange` | Port or port range string | `"80-443"`, `"80,443"` |
-| `Duration` | RouterOS duration format | `"1d2h3m4s"`, `"30s"` |
-| `Bandwidth` | Bandwidth with unit | `"10M"`, `"1G"`, `"100k"` |
-| `Size` | Size in bytes with optional unit | `"1024"`, `"1M"` |
-| `ULID` | Lexicographically sortable unique ID | `"01ARZ3NDEKTSV4RRFFQ69G5FAV"` |
+| Scalar      | Description                           | Example                        |
+| ----------- | ------------------------------------- | ------------------------------ |
+| `DateTime`  | ISO 8601 datetime                     | `"2024-01-15T10:30:00Z"`       |
+| `JSON`      | Arbitrary JSON for configuration      | `{ "key": "value" }`           |
+| `IPv4`      | IPv4 address                          | `"192.168.1.1"`                |
+| `IPv6`      | IPv6 address                          | `"2001:0db8::1"`               |
+| `MAC`       | MAC address (colon or dash separated) | `"00:1A:2B:3C:4D:5E"`          |
+| `CIDR`      | Network address in CIDR notation      | `"192.168.1.0/24"`             |
+| `Port`      | TCP/UDP port number (1–65535)         | `8080`                         |
+| `PortRange` | Port or port range string             | `"80-443"`, `"80,443"`         |
+| `Duration`  | RouterOS duration format              | `"1d2h3m4s"`, `"30s"`          |
+| `Bandwidth` | Bandwidth with unit                   | `"10M"`, `"1G"`, `"100k"`      |
+| `Size`      | Size in bytes with optional unit      | `"1024"`, `"1M"`               |
+| `ULID`      | Lexicographically sortable unique ID  | `"01ARZ3NDEKTSV4RRFFQ69G5FAV"` |
 
 In frontend Zod schemas, these map to the network validators exported from `@nasnet/core/forms`:
 
@@ -565,7 +578,8 @@ input CredentialsInput {
 }
 ```
 
-Values are redacted from logs and error responses in production. The Go resolver layer strips sensitive fields before persisting errors.
+Values are redacted from logs and error responses in production. The Go resolver layer strips
+sensitive fields before persisting errors.
 
 ### Platform Mapping Directives
 
@@ -591,7 +605,8 @@ type IPAddress @mikrotik(path: "/ip/address") {
 }
 ```
 
-The Go resolver layer reads these directives at runtime to translate GraphQL operations into RouterOS API calls.
+The Go resolver layer reads these directives at runtime to translate GraphQL operations into
+RouterOS API calls.
 
 ### Capability Directive (`@capability`)
 
@@ -601,7 +616,8 @@ type Query {
 }
 ```
 
-Gates fields based on detected router capabilities. The capability detector runs on connection to determine available features.
+Gates fields based on detected router capabilities. The capability detector runs on connection to
+determine available features.
 
 ### Realtime Directive (`@realtime`)
 
@@ -633,7 +649,8 @@ type Mutation {
 
 File: `libs/api-client/generated/index.ts`
 
-The `possibleTypesResult` export contains the union/interface type map required by `InMemoryCache` for correct fragment matching:
+The `possibleTypesResult` export contains the union/interface type map required by `InMemoryCache`
+for correct fragment matching:
 
 ```typescript
 import { possibleTypesResult } from '@nasnet/api-client/generated';
@@ -664,15 +681,37 @@ import type {
 
 File: `libs/api-client/generated/schemas/index.ts`
 
-The generated schemas module re-exports all network validators from `@nasnet/core/forms` alongside schema utilities:
+The generated schemas module re-exports all network validators from `@nasnet/core/forms` alongside
+schema utilities:
 
 ```typescript
 // Network validators
-export { ipv4, ipv6, ipAddress, mac, cidr, cidr6, port, portRange,
-         vlanId, wgKey, hostname, domain, interfaceName, duration, bandwidth } from '@nasnet/core/forms';
+export {
+  ipv4,
+  ipv6,
+  ipAddress,
+  mac,
+  cidr,
+  cidr6,
+  port,
+  portRange,
+  vlanId,
+  wgKey,
+  hostname,
+  domain,
+  interfaceName,
+  duration,
+  bandwidth,
+} from '@nasnet/core/forms';
 
 // Schema utilities
-export { makePartial, mergeSchemas, pickFields, omitFields, conditionalSchema } from '@nasnet/core/forms';
+export {
+  makePartial,
+  mergeSchemas,
+  pickFields,
+  omitFields,
+  conditionalSchema,
+} from '@nasnet/core/forms';
 ```
 
 Example schemas included as reference implementations:
@@ -691,7 +730,10 @@ export const dhcpServerConfigSchema = z.object({
 
 // WireGuard peer schema
 export const wireguardPeerSchema = z.object({
-  publicKey: z.string().length(44).regex(/^[A-Za-z0-9+/]{43}=$/),
+  publicKey: z
+    .string()
+    .length(44)
+    .regex(/^[A-Za-z0-9+/]{43}=$/),
   allowedAddress: z.array(cidr).min(1),
   endpointAddress: ipv4.optional(),
   endpointPort: port.optional(),
@@ -699,7 +741,9 @@ export const wireguardPeerSchema = z.object({
 });
 ```
 
-Domain feature modules define their own schemas in `src/schemas/` subfolders and compose these validators. See, for example:
+Domain feature modules define their own schemas in `src/schemas/` subfolders and compose these
+validators. See, for example:
+
 - `libs/features/network/src/dns/schemas/dns-settings.schema.test.ts`
 - `libs/features/alerts/src/schemas/alert-rule.schema.d.ts`
 
@@ -728,13 +772,15 @@ const { error, isAuthError, isNetworkError, userMessage } = useGraphQLError(apol
 ### Global Error Handling
 
 The `errorLink` in the link chain handles errors globally:
+
 - Auth errors automatically clear auth store and fire `auth:expired`
 - Network errors fire `network:error` and show toast
 - Validation errors are skipped (handled by forms)
 
 ### Feature-Level Error Components
 
-Each feature module provides its own error display components. The network feature has `ErrorDisplay.tsx` for interface-level errors. Diagnostics tools have `DnsError.tsx`.
+Each feature module provides its own error display components. The network feature has
+`ErrorDisplay.tsx` for interface-level errors. Diagnostics tools have `DnsError.tsx`.
 
 ---
 
@@ -763,21 +809,24 @@ npm run codegen:check
 ### When to Run Codegen
 
 Run `npm run codegen` after any change to:
+
 - Files in `schema/` (`.graphql` files)
 - Files in `libs/data/ent/schema/` (ent schema definitions)
 
-The `codegen:check` command is run in CI to block merges when generated files are out of sync with the schema.
+The `codegen:check` command is run in CI to block merges when generated files are out of sync with
+the schema.
 
 ### Codegen Inputs and Outputs
 
-| Input | Output | Tool |
-|-------|--------|------|
-| `schema/**/*.graphql` | `libs/api-client/generated/` (TS types, hooks) | `graphql-code-generator` |
-| `schema/**/*.graphql` | `apps/backend/graph/generated.go` | `gqlgen` |
-| `schema/**/*.graphql` | `apps/backend/graph/model/models_gen.go` | `gqlgen` |
-| `libs/data/ent/schema/` | `apps/backend/generated/ent/` | `entgo` |
+| Input                   | Output                                         | Tool                     |
+| ----------------------- | ---------------------------------------------- | ------------------------ |
+| `schema/**/*.graphql`   | `libs/api-client/generated/` (TS types, hooks) | `graphql-code-generator` |
+| `schema/**/*.graphql`   | `apps/backend/graph/generated.go`              | `gqlgen`                 |
+| `schema/**/*.graphql`   | `apps/backend/graph/model/models_gen.go`       | `gqlgen`                 |
+| `libs/data/ent/schema/` | `apps/backend/generated/ent/`                  | `entgo`                  |
 
-Do not manually edit files in `apps/backend/graph/generated.go`, `apps/backend/graph/model/models_gen.go`, or `apps/backend/generated/ent/`.
+Do not manually edit files in `apps/backend/graph/generated.go`,
+`apps/backend/graph/model/models_gen.go`, or `apps/backend/generated/ent/`.
 
 ---
 

@@ -11,7 +11,7 @@ import * as React from 'react';
 
 import { motion } from 'framer-motion';
 
-import { cn , useReducedMotion } from '@nasnet/ui/primitives';
+import { cn, useReducedMotion } from '@nasnet/ui/primitives';
 
 import type { VStepperConnectorProps } from './v-stepper.types';
 
@@ -40,7 +40,7 @@ export function VStepperConnector({
     <div
       className={cn(
         // Positioning - left-aligned with step indicator center
-        'absolute left-4 top-10 w-0.5 h-8 -translate-x-1/2',
+        'absolute left-4 top-10 h-8 w-0.5 -translate-x-1/2',
         // Base state - border color (pending)
         'bg-border',
         className
@@ -50,7 +50,7 @@ export function VStepperConnector({
       {/* Filled portion for completed state - success color */}
       {isCompleted && (
         <motion.div
-          className="absolute inset-0 bg-success origin-top"
+          className="bg-success absolute inset-0 origin-top"
           initial={shouldAnimate ? { scaleY: 0 } : { scaleY: 1 }}
           animate={{ scaleY: 1 }}
           transition={{

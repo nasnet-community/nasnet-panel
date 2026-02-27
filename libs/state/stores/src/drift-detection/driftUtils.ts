@@ -112,10 +112,7 @@ export function normalizeForComparison(value: unknown): unknown {
  * @param excludeFields - Additional fields to exclude
  * @returns True if field should be excluded
  */
-export function shouldExcludeField(
-  path: string,
-  excludeFields: string[] = []
-): boolean {
+export function shouldExcludeField(path: string, excludeFields: string[] = []): boolean {
   // Get the field name (last part of path)
   const fieldName = path.split('.').pop() ?? path;
 
@@ -153,9 +150,7 @@ export function omitExcludedFields(
   }
 
   if (Array.isArray(obj)) {
-    return obj.map((item, index) =>
-      omitExcludedFields(item, excludeFields, `${prefix}[${index}]`)
-    );
+    return obj.map((item, index) => omitExcludedFields(item, excludeFields, `${prefix}[${index}]`));
   }
 
   if (typeof obj === 'object') {
@@ -266,9 +261,7 @@ export function findDriftedFields(
     if (options.deepCompare) {
       for (let i = 0; i < config.length; i++) {
         const elementPath = prefix ? `${prefix}[${i}]` : `[${i}]`;
-        drifted.push(
-          ...findDriftedFields(config[i], deploy[i], options, elementPath)
-        );
+        drifted.push(...findDriftedFields(config[i], deploy[i], options, elementPath));
       }
     }
 
@@ -278,10 +271,7 @@ export function findDriftedFields(
   // Handle objects
   const configObj = config as Record<string, unknown>;
   const deployObj = deploy as Record<string, unknown>;
-  const allKeys = new Set([
-    ...Object.keys(configObj),
-    ...Object.keys(deployObj),
-  ]);
+  const allKeys = new Set([...Object.keys(configObj), ...Object.keys(deployObj)]);
 
   for (const key of allKeys) {
     const fieldPath = prefix ? `${prefix}.${key}` : key;
@@ -296,9 +286,7 @@ export function findDriftedFields(
 
     if (options.deepCompare && typeof configValue === 'object' && typeof deployValue === 'object') {
       // Recursively compare nested objects
-      drifted.push(
-        ...findDriftedFields(configValue, deployValue, options, fieldPath)
-      );
+      drifted.push(...findDriftedFields(configValue, deployValue, options, fieldPath));
     } else {
       // Compare normalized values
       const normalizedConfig = normalizeForComparison(configValue);
@@ -321,9 +309,7 @@ export function findDriftedFields(
 /**
  * Categorize a field based on its path
  */
-function categorizeField(
-  path: string
-): 'network' | 'security' | 'general' | undefined {
+function categorizeField(path: string): 'network' | 'security' | 'general' | undefined {
   const lowerPath = path.toLowerCase();
 
   // Network-related fields
@@ -404,8 +390,7 @@ export function isDeploymentStale(
     return true;
   }
 
-  const appliedDate =
-    typeof appliedAt === 'string' ? new Date(appliedAt) : appliedAt;
+  const appliedDate = typeof appliedAt === 'string' ? new Date(appliedAt) : appliedAt;
   const now = new Date();
   const ageMs = now.getTime() - appliedDate.getTime();
 

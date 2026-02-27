@@ -10,10 +10,10 @@ import type { SystemResource, SystemInfo } from '@nasnet/core/types';
  * Follows TanStack Query best practices for hierarchical keys
  */
 export declare const routerKeys: {
-    all: readonly ["router"];
-    resource: (routerIp: string) => readonly ["router", "resource", string];
-    info: (routerIp: string) => readonly ["router", "info", string];
-    routerboard: (routerIp: string) => readonly ["router", "routerboard", string];
+  all: readonly ['router'];
+  resource: (routerIp: string) => readonly ['router', 'resource', string];
+  info: (routerIp: string) => readonly ['router', 'info', string];
+  routerboard: (routerIp: string) => readonly ['router', 'routerboard', string];
 };
 /**
  * Hook to fetch combined system information

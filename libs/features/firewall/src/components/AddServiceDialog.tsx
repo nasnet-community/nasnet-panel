@@ -177,23 +177,32 @@ export const AddServiceDialog = React.memo(function AddServiceDialog({
   const isEditMode = !!editService;
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog
+      open={open}
+      onOpenChange={onOpenChange}
+    >
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>
             {isEditMode ? t('servicePorts.editService') : t('servicePorts.addService')}
           </DialogTitle>
           <DialogDescription>
-            {isEditMode
-              ? t('servicePorts.confirmations.deleteServiceDescription')
-              : t('servicePorts.emptyStates.noServicesDescription')}
+            {isEditMode ?
+              t('servicePorts.confirmations.deleteServiceDescription')
+            : t('servicePorts.emptyStates.noServicesDescription')}
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-component-lg">
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="space-y-component-lg"
+        >
           {/* Service Name Field */}
           <div className="space-y-component-sm">
-            <Label htmlFor="service" className="text-sm font-medium">
+            <Label
+              htmlFor="service"
+              className="text-sm font-medium"
+            >
               {t('servicePorts.fields.name')}
               <span className="text-error ml-component-xs">*</span>
             </Label>
@@ -207,13 +216,22 @@ export const AddServiceDialog = React.memo(function AddServiceDialog({
               aria-describedby={errors.service ? 'service-error' : 'service-help'}
             />
             {errors.service && (
-              <Alert variant="destructive" className="mt-component-sm">
-                <AlertCircle className="h-4 w-4" aria-hidden="true" />
+              <Alert
+                variant="destructive"
+                className="mt-component-sm"
+              >
+                <AlertCircle
+                  className="h-4 w-4"
+                  aria-hidden="true"
+                />
                 <AlertDescription id="service-error">{errors.service.message}</AlertDescription>
               </Alert>
             )}
             {!errors.service && (
-              <p className="text-xs text-muted-foreground" id="service-help">
+              <p
+                className="text-muted-foreground text-xs"
+                id="service-help"
+              >
                 {t('servicePorts.validation.nameInvalid')}
               </p>
             )}
@@ -228,35 +246,54 @@ export const AddServiceDialog = React.memo(function AddServiceDialog({
             <RadioGroup
               value={protocol}
               onValueChange={(value) => form.setValue('protocol', value as 'tcp' | 'udp' | 'both')}
-              className="flex flex-col space-y-component-sm"
+              className="space-y-component-sm flex flex-col"
             >
-              <div className="flex items-center space-x-component-sm">
-                <RadioGroupItem value="tcp" id="protocol-tcp" />
-                <Label htmlFor="protocol-tcp" className="font-normal cursor-pointer">
+              <div className="space-x-component-sm flex items-center">
+                <RadioGroupItem
+                  value="tcp"
+                  id="protocol-tcp"
+                />
+                <Label
+                  htmlFor="protocol-tcp"
+                  className="cursor-pointer font-normal"
+                >
                   {t('servicePorts.protocols.tcp')}
                 </Label>
               </div>
-              <div className="flex items-center space-x-component-sm">
-                <RadioGroupItem value="udp" id="protocol-udp" />
-                <Label htmlFor="protocol-udp" className="font-normal cursor-pointer">
+              <div className="space-x-component-sm flex items-center">
+                <RadioGroupItem
+                  value="udp"
+                  id="protocol-udp"
+                />
+                <Label
+                  htmlFor="protocol-udp"
+                  className="cursor-pointer font-normal"
+                >
                   {t('servicePorts.protocols.udp')}
                 </Label>
               </div>
-              <div className="flex items-center space-x-component-sm">
-                <RadioGroupItem value="both" id="protocol-both" />
-                <Label htmlFor="protocol-both" className="font-normal cursor-pointer">
+              <div className="space-x-component-sm flex items-center">
+                <RadioGroupItem
+                  value="both"
+                  id="protocol-both"
+                />
+                <Label
+                  htmlFor="protocol-both"
+                  className="cursor-pointer font-normal"
+                >
                   {t('servicePorts.protocols.both')}
                 </Label>
               </div>
             </RadioGroup>
-            {errors.protocol && (
-              <p className="text-sm text-error">{errors.protocol.message}</p>
-            )}
+            {errors.protocol && <p className="text-error text-sm">{errors.protocol.message}</p>}
           </div>
 
           {/* Port Field */}
           <div className="space-y-component-sm">
-            <Label htmlFor="port" className="text-sm font-medium">
+            <Label
+              htmlFor="port"
+              className="text-sm font-medium"
+            >
               {t('servicePorts.fields.port')}
               <span className="text-error ml-component-xs">*</span>
             </Label>
@@ -272,12 +309,19 @@ export const AddServiceDialog = React.memo(function AddServiceDialog({
               aria-describedby={errors.port ? 'port-error' : 'port-help'}
             />
             {errors.port && (
-              <p className="text-sm text-error" id="port-error" role="alert">
+              <p
+                className="text-error text-sm"
+                id="port-error"
+                role="alert"
+              >
                 {errors.port.message}
               </p>
             )}
             {!errors.port && (
-              <p className="text-xs text-muted-foreground" id="port-help">
+              <p
+                className="text-muted-foreground text-xs"
+                id="port-help"
+              >
                 {t('servicePorts.validation.portInvalid')}
               </p>
             )}
@@ -285,7 +329,10 @@ export const AddServiceDialog = React.memo(function AddServiceDialog({
 
           {/* Description Field (Optional) */}
           <div className="space-y-component-sm">
-            <Label htmlFor="description" className="text-sm font-medium">
+            <Label
+              htmlFor="description"
+              className="text-sm font-medium"
+            >
               {t('servicePorts.fields.description')}
               <span className="text-muted-foreground ml-component-xs text-xs">(optional)</span>
             </Label>
@@ -299,12 +346,19 @@ export const AddServiceDialog = React.memo(function AddServiceDialog({
               aria-describedby={errors.description ? 'description-error' : 'description-help'}
             />
             {errors.description && (
-              <p className="text-sm text-error" id="description-error" role="alert">
+              <p
+                className="text-error text-sm"
+                id="description-error"
+                role="alert"
+              >
                 {errors.description.message}
               </p>
             )}
             {!errors.description && (
-              <p className="text-xs text-muted-foreground" id="description-help">
+              <p
+                className="text-muted-foreground text-xs"
+                id="description-help"
+              >
                 {t('servicePorts.validation.descriptionTooLong')}
               </p>
             )}
@@ -320,14 +374,17 @@ export const AddServiceDialog = React.memo(function AddServiceDialog({
             >
               {t('servicePorts.buttons.cancel', { defaultValue: 'Cancel' })}
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting
-                ? isEditMode
-                  ? t('servicePorts.buttons.updating', { defaultValue: 'Updating...' })
-                  : t('servicePorts.buttons.adding', { defaultValue: 'Adding...' })
-                : isEditMode
-                  ? t('servicePorts.buttons.update', { defaultValue: 'Update' })
-                  : t('servicePorts.buttons.save', { defaultValue: 'Save' })}
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ?
+                isEditMode ?
+                  t('servicePorts.buttons.updating', { defaultValue: 'Updating...' })
+                : t('servicePorts.buttons.adding', { defaultValue: 'Adding...' })
+              : isEditMode ?
+                t('servicePorts.buttons.update', { defaultValue: 'Update' })
+              : t('servicePorts.buttons.save', { defaultValue: 'Save' })}
             </Button>
           </DialogFooter>
         </form>

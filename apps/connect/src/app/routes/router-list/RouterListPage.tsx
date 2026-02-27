@@ -45,48 +45,61 @@ export const RouterListPage = React.memo(function RouterListPage() {
   };
 
   return (
-    <div className="min-h-screen bg-muted p-4 md:p-6 animate-fade-in-up">
-      <div className="max-w-7xl mx-auto">
+    <div className="bg-muted animate-fade-in-up min-h-screen p-4 md:p-6">
+      <div className="mx-auto max-w-7xl">
         <div className="mb-6 flex items-center justify-between px-2">
           <div>
-            <h1 className="text-2xl md:text-3xl font-semibold font-display">{t('list.title')}</h1>
-            <p className="text-sm text-muted-foreground mt-1">
-              {t('list.subtitle')}
-            </p>
+            <h1 className="font-display text-2xl font-semibold md:text-3xl">{t('list.title')}</h1>
+            <p className="text-muted-foreground mt-1 text-sm">{t('list.subtitle')}</p>
           </div>
-          <Button onClick={handleAddRouter} className="gap-2" aria-label={t('list.addButton')}>
-            <Plus className="h-4 w-4" aria-hidden="true" />
+          <Button
+            onClick={handleAddRouter}
+            className="gap-2"
+            aria-label={t('list.addButton')}
+          >
+            <Plus
+              className="h-4 w-4"
+              aria-hidden="true"
+            />
             <span className="hidden sm:inline">{t('list.addButton')}</span>
           </Button>
         </div>
 
-        {routers.length === 0 ? (
-          // Empty state
-          <div className="flex flex-col items-center justify-center py-16 px-4 text-center brand-gradient-subtle rounded-card-lg border border-border/30">
-            <img
-              src="/favicon.png"
-              alt=""
-              aria-hidden="true"
-              className="w-20 h-20 rounded-2xl shadow-md mb-6 ring-4 ring-primary/20"
-            />
-            <h2 className="text-xl md:text-2xl font-semibold font-display mb-2">{t('list.noRoutersYet')}</h2>
-            <p className="text-sm text-muted-foreground mb-6 max-w-md">
-              {t('list.emptyStateDescription')}
-            </p>
-            <Button onClick={handleAddRouter} size="lg" className="gap-2">
-              <Plus className="h-5 w-5" aria-hidden="true" />
-              {t('list.addFirstRouter')}
-            </Button>
-            <p className="text-xs text-muted-foreground mt-6 opacity-70">
-              {t('list.epicNote')}
-            </p>
-          </div>
-        ) : (
-          // Router list (will be populated in Epic 0.1)
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {/* Router cards will be rendered here */}
-          </div>
-        )}
+        {
+          routers.length === 0 ?
+            // Empty state
+            <div className="brand-gradient-subtle rounded-card-lg border-border/30 flex flex-col items-center justify-center border px-4 py-16 text-center">
+              <img
+                src="/favicon.png"
+                alt=""
+                aria-hidden="true"
+                className="ring-primary/20 mb-6 h-20 w-20 rounded-2xl shadow-md ring-4"
+              />
+              <h2 className="font-display mb-2 text-xl font-semibold md:text-2xl">
+                {t('list.noRoutersYet')}
+              </h2>
+              <p className="text-muted-foreground mb-6 max-w-md text-sm">
+                {t('list.emptyStateDescription')}
+              </p>
+              <Button
+                onClick={handleAddRouter}
+                size="lg"
+                className="gap-2"
+              >
+                <Plus
+                  className="h-5 w-5"
+                  aria-hidden="true"
+                />
+                {t('list.addFirstRouter')}
+              </Button>
+              <p className="text-muted-foreground mt-6 text-xs opacity-70">{t('list.epicNote')}</p>
+            </div>
+            // Router list (will be populated in Epic 0.1)
+          : <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {/* Router cards will be rendered here */}
+            </div>
+
+        }
       </div>
     </div>
   );

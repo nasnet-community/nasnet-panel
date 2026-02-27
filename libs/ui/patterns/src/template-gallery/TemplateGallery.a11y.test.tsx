@@ -44,7 +44,12 @@ describe('TemplateGallery - Accessibility (WCAG AAA)', () => {
       templates: mockAllTemplates,
       onSelect: mockOnSelect,
     });
-    return <TemplateGallery gallery={gallery} onApplyTemplate={mockOnSelect} />;
+    return (
+      <TemplateGallery
+        gallery={gallery}
+        onApplyTemplate={mockOnSelect}
+      />
+    );
   }
 
   const renderGallery = () => render(<TestGallery />);
@@ -265,9 +270,9 @@ describe('TemplateGallery - Accessibility (WCAG AAA)', () => {
 
       const icons = within(templateCard).queryAllByRole('img', { hidden: true });
       icons.forEach((icon) => {
-        expect(
-          icon.hasAttribute('aria-label') || icon.getAttribute('aria-hidden') === 'true'
-        ).toBe(true);
+        expect(icon.hasAttribute('aria-label') || icon.getAttribute('aria-hidden') === 'true').toBe(
+          true
+        );
       });
     });
   });
@@ -284,9 +289,7 @@ describe('TemplateGallery - Accessibility (WCAG AAA)', () => {
 
       // Check for focus ring (CSS class or style)
       const computedStyle = window.getComputedStyle(searchInput);
-      expect(
-        computedStyle.outline !== 'none' || computedStyle.boxShadow !== 'none'
-      ).toBe(true);
+      expect(computedStyle.outline !== 'none' || computedStyle.boxShadow !== 'none').toBe(true);
     });
 
     it('should maintain focus after filtering', async () => {
@@ -436,8 +439,7 @@ describe('TemplateGallery - Accessibility (WCAG AAA)', () => {
 
       // Animation duration should be 0 or very short when reduced motion is active
       expect(
-        computedStyle.animationDuration === '0s' ||
-        computedStyle.transitionDuration === '0s'
+        computedStyle.animationDuration === '0s' || computedStyle.transitionDuration === '0s'
       ).toBe(true);
     });
   });
@@ -478,7 +480,12 @@ describe('TemplateGallery - Accessibility (WCAG AAA)', () => {
         onSelect: mockOnSelect,
       });
 
-      render(<TemplateGallery gallery={gallery} loading={true} />);
+      render(
+        <TemplateGallery
+          gallery={gallery}
+          loading={true}
+        />
+      );
 
       const loadingIndicator = screen.getByRole('status');
       expect(loadingIndicator).toHaveAttribute('aria-live', 'polite');
@@ -491,7 +498,12 @@ describe('TemplateGallery - Accessibility (WCAG AAA)', () => {
         onSelect: mockOnSelect,
       });
 
-      render(<TemplateGallery gallery={gallery} loading={true} />);
+      render(
+        <TemplateGallery
+          gallery={gallery}
+          loading={true}
+        />
+      );
 
       const spinner = screen.getByRole('status');
       expect(spinner).toHaveAccessibleName(/loading/i);

@@ -1,14 +1,15 @@
 # Forms and Validation Overview
 
-NasNetConnect uses React Hook Form for form state management and Zod for schema-driven validation. These two libraries are integrated through a set of utilities in `libs/core/forms/src/`.
+NasNetConnect uses React Hook Form for form state management and Zod for schema-driven validation.
+These two libraries are integrated through a set of utilities in `libs/core/forms/src/`.
 
 ## Core Stack
 
-| Library | Role |
-|---------|------|
-| `react-hook-form` | Uncontrolled form state, field registration, submission handling |
-| `zod` | Schema definition and synchronous validation |
-| `@hookform/resolvers/zod` | Bridges Zod schemas into React Hook Form's resolver interface |
+| Library                   | Role                                                             |
+| ------------------------- | ---------------------------------------------------------------- |
+| `react-hook-form`         | Uncontrolled form state, field registration, submission handling |
+| `zod`                     | Schema definition and synchronous validation                     |
+| `@hookform/resolvers/zod` | Bridges Zod schemas into React Hook Form's resolver interface    |
 
 ## Standard Form Pattern
 
@@ -63,7 +64,8 @@ function WireGuardForm() {
 
 ## NasFormProvider (High-Level API)
 
-For forms that require backend validation, use `NasFormProvider`. It wraps the above pattern and wires in the validation pipeline automatically:
+For forms that require backend validation, use `NasFormProvider`. It wraps the above pattern and
+wires in the validation pipeline automatically:
 
 ```typescript
 import { NasFormProvider } from '@nasnet/core/forms';
@@ -85,6 +87,7 @@ function WireGuardForm() {
 ```
 
 `NasFormProvider` (`libs/core/forms/src/NasFormProvider.tsx`):
+
 - Initialises React Hook Form with `zodResolver`
 - Runs the validation pipeline on submit for `medium` and `high` strategies
 - Maps backend validation errors back to form fields via `mapBackendErrorsToForm`
@@ -92,31 +95,31 @@ function WireGuardForm() {
 
 ## Validation Modes
 
-| Mode | When triggered |
-|------|---------------|
-| `onBlur` (default) | Validate each field when the user leaves it |
-| `onChange` | Validate on every keystroke (expensive, avoid for complex forms) |
-| `onSubmit` | Only validate when the form is submitted |
-| `all` | `onChange` + `onBlur` |
+| Mode               | When triggered                                                   |
+| ------------------ | ---------------------------------------------------------------- |
+| `onBlur` (default) | Validate each field when the user leaves it                      |
+| `onChange`         | Validate on every keystroke (expensive, avoid for complex forms) |
+| `onSubmit`         | Only validate when the form is submitted                         |
+| `all`              | `onChange` + `onBlur`                                            |
 
 `useZodForm` defaults to `onBlur`.
 
 ## Form Utilities Available
 
-| Utility | File | Purpose |
-|---------|------|---------|
-| `useZodForm` | `useZodForm.ts` | RHF + Zod integration hook |
-| `NasFormProvider` | `NasFormProvider.tsx` | High-level form provider with pipeline |
-| `useFormPersistence` | `useFormPersistence.ts` | Persist form data to sessionStorage |
-| `useFormResourceSync` | `useFormResourceSync.ts` | Sync form with Universal State v2 layers |
-| `useWizardPersistence` | `useWizardPersistence.ts` | Multi-step wizard state and persistence |
-| `useValidationPipeline` | `useValidationPipeline.ts` | Low-level pipeline hook |
-| `mapBackendErrorsToForm` | `mapBackendErrors.ts` | Map server errors to RHF fields |
-| `clearServerErrors` | `mapBackendErrors.ts` | Remove stale server errors |
-| Network validators | `network-validators.ts` | 20+ Zod schemas for IP, ports, etc. |
-| Schema utilities | `schema-utils.ts` | Common Zod schema compositions |
-| Error messages | `error-messages.ts` | Standardised validation message strings |
-| `useAsyncValidation` | `useAsyncValidation.ts` | Debounced async field validation |
+| Utility                  | File                       | Purpose                                  |
+| ------------------------ | -------------------------- | ---------------------------------------- |
+| `useZodForm`             | `useZodForm.ts`            | RHF + Zod integration hook               |
+| `NasFormProvider`        | `NasFormProvider.tsx`      | High-level form provider with pipeline   |
+| `useFormPersistence`     | `useFormPersistence.ts`    | Persist form data to sessionStorage      |
+| `useFormResourceSync`    | `useFormResourceSync.ts`   | Sync form with Universal State v2 layers |
+| `useWizardPersistence`   | `useWizardPersistence.ts`  | Multi-step wizard state and persistence  |
+| `useValidationPipeline`  | `useValidationPipeline.ts` | Low-level pipeline hook                  |
+| `mapBackendErrorsToForm` | `mapBackendErrors.ts`      | Map server errors to RHF fields          |
+| `clearServerErrors`      | `mapBackendErrors.ts`      | Remove stale server errors               |
+| Network validators       | `network-validators.ts`    | 20+ Zod schemas for IP, ports, etc.      |
+| Schema utilities         | `schema-utils.ts`          | Common Zod schema compositions           |
+| Error messages           | `error-messages.ts`        | Standardised validation message strings  |
+| `useAsyncValidation`     | `useAsyncValidation.ts`    | Debounced async field validation         |
 
 ## Import Path
 
@@ -138,4 +141,5 @@ import { ValidationPipeline, createValidationPipeline } from '@nasnet/core/forms
 - [Network Validators](./network-validators.md) — all 20+ Zod schemas for network types
 - [Form Utilities](./form-utilities.md) — useZodForm, useFormPersistence, useFormResourceSync
 - [Wizard Forms](./wizard-forms.md) — multi-step forms with persistence
-- [`../cross-cutting-features/change-set-system.md`](../cross-cutting-features/change-set-system.md) — how form submissions interact with change sets
+- [`../cross-cutting-features/change-set-system.md`](../cross-cutting-features/change-set-system.md)
+  — how form submissions interact with change sets

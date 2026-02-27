@@ -8,125 +8,125 @@ export type UpdateSeverity = 'SECURITY' | 'MAJOR' | 'MINOR' | 'PATCH';
  * Available update information for a service instance
  */
 export interface AvailableUpdate {
-    instanceId: string;
-    instanceName: string;
-    featureId: string;
-    currentVersion: string;
-    latestVersion: string;
-    updateAvailable: boolean;
-    severity: UpdateSeverity;
-    changelogUrl?: string;
-    releaseDate?: string;
-    binarySize: number;
-    requiredDiskMB: number;
-    requiresRestart: boolean;
-    breakingChanges: boolean;
-    securityFixes: boolean;
+  instanceId: string;
+  instanceName: string;
+  featureId: string;
+  currentVersion: string;
+  latestVersion: string;
+  updateAvailable: boolean;
+  severity: UpdateSeverity;
+  changelogUrl?: string;
+  releaseDate?: string;
+  binarySize: number;
+  requiredDiskMB: number;
+  requiresRestart: boolean;
+  breakingChanges: boolean;
+  securityFixes: boolean;
 }
 /**
  * Update check result
  */
 export interface UpdateCheckResult {
-    instanceId: string;
-    updateAvailable: boolean;
-    latestVersion: string;
+  instanceId: string;
+  updateAvailable: boolean;
+  latestVersion: string;
 }
 /**
  * Update progress event
  */
 export interface UpdateProgressEvent {
-    instanceId: string;
-    stage: UpdateStage;
-    progress: number;
-    message: string;
-    startedAt: string;
-    completedAt?: string;
-    error?: string;
-    rolledBack: boolean;
-    previousVersion?: string;
-    newVersion?: string;
+  instanceId: string;
+  stage: UpdateStage;
+  progress: number;
+  message: string;
+  startedAt: string;
+  completedAt?: string;
+  error?: string;
+  rolledBack: boolean;
+  previousVersion?: string;
+  newVersion?: string;
 }
 /**
  * Update result for bulk operations
  */
 export interface UpdateResult {
-    instanceId: string;
-    success: boolean;
-    error?: string;
+  instanceId: string;
+  success: boolean;
+  error?: string;
 }
 /**
  * Mutation error
  */
 export interface MutationError {
-    field?: string;
-    message: string;
+  field?: string;
+  message: string;
 }
 export interface GetAvailableUpdatesVariables {
-    routerId: string;
+  routerId: string;
 }
 export interface GetAvailableUpdatesResult {
-    availableUpdates: AvailableUpdate[];
+  availableUpdates: AvailableUpdate[];
 }
 export interface CheckForUpdatesVariables {
-    routerId: string;
+  routerId: string;
 }
 export interface CheckForUpdatesResult {
-    checkForUpdates: {
-        success: boolean;
-        checkTime: string;
-        updates: UpdateCheckResult[];
-        errors?: MutationError[];
-    };
+  checkForUpdates: {
+    success: boolean;
+    checkTime: string;
+    updates: UpdateCheckResult[];
+    errors?: MutationError[];
+  };
 }
 export interface UpdateInstanceVariables {
-    routerId: string;
-    instanceId: string;
+  routerId: string;
+  instanceId: string;
 }
 export interface UpdateInstanceResult {
-    updateInstance: {
-        success: boolean;
-        instance?: {
-            id: string;
-            binaryVersion: string;
-            updatedAt: string;
-        };
-        errors?: MutationError[];
+  updateInstance: {
+    success: boolean;
+    instance?: {
+      id: string;
+      binaryVersion: string;
+      updatedAt: string;
     };
+    errors?: MutationError[];
+  };
 }
 export interface UpdateAllInstancesVariables {
-    routerId: string;
+  routerId: string;
 }
 export interface UpdateAllInstancesResult {
-    updateAllInstances: {
-        success: boolean;
-        updatedCount: number;
-        failedCount: number;
-        results: UpdateResult[];
-        errors?: MutationError[];
-    };
+  updateAllInstances: {
+    success: boolean;
+    updatedCount: number;
+    failedCount: number;
+    results: UpdateResult[];
+    errors?: MutationError[];
+  };
 }
 export interface RollbackInstanceVariables {
-    routerId: string;
-    instanceId: string;
+  routerId: string;
+  instanceId: string;
 }
 export interface RollbackInstanceResult {
-    rollbackInstance: {
-        success: boolean;
-        instance?: {
-            id: string;
-            binaryVersion: string;
-            updatedAt: string;
-        };
-        previousVersion?: string;
-        errors?: MutationError[];
+  rollbackInstance: {
+    success: boolean;
+    instance?: {
+      id: string;
+      binaryVersion: string;
+      updatedAt: string;
     };
+    previousVersion?: string;
+    errors?: MutationError[];
+  };
 }
 export interface UpdateProgressVariables {
-    routerId: string;
-    instanceId: string;
+  routerId: string;
+  instanceId: string;
 }
 export interface UpdateProgressResult {
-    updateProgress: UpdateProgressEvent;
+  updateProgress: UpdateProgressEvent;
 }
 /**
  * Hook to fetch available updates for all service instances on a router
@@ -157,14 +157,19 @@ export interface UpdateProgressResult {
  * );
  * ```
  */
-export declare function useAvailableUpdates(variables: GetAvailableUpdatesVariables, options?: {
+export declare function useAvailableUpdates(
+  variables: GetAvailableUpdatesVariables,
+  options?: {
     pollInterval?: number;
     skip?: boolean;
-}): {
-    updates: AvailableUpdate[] | undefined;
-    loading: boolean;
-    error: import("@apollo/client").ApolloError | undefined;
-    refetch: (variables?: Partial<GetAvailableUpdatesVariables> | undefined) => Promise<import("@apollo/client").ApolloQueryResult<GetAvailableUpdatesResult>>;
+  }
+): {
+  updates: AvailableUpdate[] | undefined;
+  loading: boolean;
+  error: import('@apollo/client').ApolloError | undefined;
+  refetch: (
+    variables?: Partial<GetAvailableUpdatesVariables> | undefined
+  ) => Promise<import('@apollo/client').ApolloQueryResult<GetAvailableUpdatesResult>>;
 };
 /**
  * Hook to manually check for updates across all instances
@@ -194,11 +199,23 @@ export declare function useAvailableUpdates(variables: GetAvailableUpdatesVariab
  * };
  * ```
  */
-export declare function useCheckForUpdates(): readonly [(options?: import("@apollo/client").MutationFunctionOptions<CheckForUpdatesResult, CheckForUpdatesVariables, import("@apollo/client").DefaultContext, import("@apollo/client").ApolloCache<any>> | undefined) => Promise<import("@apollo/client").FetchResult<CheckForUpdatesResult>>, {
+export declare function useCheckForUpdates(): readonly [
+  (
+    options?:
+      | import('@apollo/client').MutationFunctionOptions<
+          CheckForUpdatesResult,
+          CheckForUpdatesVariables,
+          import('@apollo/client').DefaultContext,
+          import('@apollo/client').ApolloCache<any>
+        >
+      | undefined
+  ) => Promise<import('@apollo/client').FetchResult<CheckForUpdatesResult>>,
+  {
     readonly data: CheckForUpdatesResult | null | undefined;
     readonly loading: boolean;
-    readonly error: import("@apollo/client").ApolloError | undefined;
-}];
+    readonly error: import('@apollo/client').ApolloError | undefined;
+  },
+];
 /**
  * Hook to update a single service instance
  *
@@ -224,11 +241,23 @@ export declare function useCheckForUpdates(): readonly [(options?: import("@apol
  * };
  * ```
  */
-export declare function useUpdateInstance(): readonly [(options?: import("@apollo/client").MutationFunctionOptions<UpdateInstanceResult, UpdateInstanceVariables, import("@apollo/client").DefaultContext, import("@apollo/client").ApolloCache<any>> | undefined) => Promise<import("@apollo/client").FetchResult<UpdateInstanceResult>>, {
+export declare function useUpdateInstance(): readonly [
+  (
+    options?:
+      | import('@apollo/client').MutationFunctionOptions<
+          UpdateInstanceResult,
+          UpdateInstanceVariables,
+          import('@apollo/client').DefaultContext,
+          import('@apollo/client').ApolloCache<any>
+        >
+      | undefined
+  ) => Promise<import('@apollo/client').FetchResult<UpdateInstanceResult>>,
+  {
     readonly data: UpdateInstanceResult | null | undefined;
     readonly loading: boolean;
-    readonly error: import("@apollo/client").ApolloError | undefined;
-}];
+    readonly error: import('@apollo/client').ApolloError | undefined;
+  },
+];
 /**
  * Hook to update all instances with available updates
  *
@@ -260,11 +289,23 @@ export declare function useUpdateInstance(): readonly [(options?: import("@apoll
  * };
  * ```
  */
-export declare function useUpdateAllInstances(): readonly [(options?: import("@apollo/client").MutationFunctionOptions<UpdateAllInstancesResult, UpdateAllInstancesVariables, import("@apollo/client").DefaultContext, import("@apollo/client").ApolloCache<any>> | undefined) => Promise<import("@apollo/client").FetchResult<UpdateAllInstancesResult>>, {
+export declare function useUpdateAllInstances(): readonly [
+  (
+    options?:
+      | import('@apollo/client').MutationFunctionOptions<
+          UpdateAllInstancesResult,
+          UpdateAllInstancesVariables,
+          import('@apollo/client').DefaultContext,
+          import('@apollo/client').ApolloCache<any>
+        >
+      | undefined
+  ) => Promise<import('@apollo/client').FetchResult<UpdateAllInstancesResult>>,
+  {
     readonly data: UpdateAllInstancesResult | null | undefined;
     readonly loading: boolean;
-    readonly error: import("@apollo/client").ApolloError | undefined;
-}];
+    readonly error: import('@apollo/client').ApolloError | undefined;
+  },
+];
 /**
  * Hook to rollback an instance to previous version
  *
@@ -291,11 +332,23 @@ export declare function useUpdateAllInstances(): readonly [(options?: import("@a
  * };
  * ```
  */
-export declare function useRollbackInstance(): readonly [(options?: import("@apollo/client").MutationFunctionOptions<RollbackInstanceResult, RollbackInstanceVariables, import("@apollo/client").DefaultContext, import("@apollo/client").ApolloCache<any>> | undefined) => Promise<import("@apollo/client").FetchResult<RollbackInstanceResult>>, {
+export declare function useRollbackInstance(): readonly [
+  (
+    options?:
+      | import('@apollo/client').MutationFunctionOptions<
+          RollbackInstanceResult,
+          RollbackInstanceVariables,
+          import('@apollo/client').DefaultContext,
+          import('@apollo/client').ApolloCache<any>
+        >
+      | undefined
+  ) => Promise<import('@apollo/client').FetchResult<RollbackInstanceResult>>,
+  {
     readonly data: RollbackInstanceResult | null | undefined;
     readonly loading: boolean;
-    readonly error: import("@apollo/client").ApolloError | undefined;
-}];
+    readonly error: import('@apollo/client').ApolloError | undefined;
+  },
+];
 /**
  * Hook to subscribe to real-time update progress
  *
@@ -328,9 +381,12 @@ export declare function useRollbackInstance(): readonly [(options?: import("@apo
  * }, [progressEvent]);
  * ```
  */
-export declare function useUpdateProgress(variables: UpdateProgressVariables, enabled?: boolean): {
-    progressEvent: UpdateProgressEvent | undefined;
-    loading: boolean;
-    error: import("@apollo/client").ApolloError | undefined;
+export declare function useUpdateProgress(
+  variables: UpdateProgressVariables,
+  enabled?: boolean
+): {
+  progressEvent: UpdateProgressEvent | undefined;
+  loading: boolean;
+  error: import('@apollo/client').ApolloError | undefined;
 };
 //# sourceMappingURL=useUpdates.d.ts.map

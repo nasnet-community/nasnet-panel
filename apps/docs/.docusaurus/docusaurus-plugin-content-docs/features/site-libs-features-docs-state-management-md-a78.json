@@ -1,7 +1,7 @@
 {
   "id": "state-management",
   "title": "State Management Guide",
-  "description": "This document covers all state management patterns used in NasNetConnect. The application uses four distinct tools, each with a well-defined role. Choosing the wrong tool for a given situation is the most common source of bugs and unnecessary re-renders.",
+  "description": "This document covers all state management patterns used in NasNetConnect. The application uses four",
   "source": "@site/../../libs/features/docs/state-management.md",
   "sourceDirName": ".",
   "slug": "/state-management",

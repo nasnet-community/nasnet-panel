@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "type": "module",
   "nx": {
-    "tags": ["type:lib", "scope:features"]
+    "tags": [
+      "type:lib",
+      "scope:features"
+    ]
   }
 }

@@ -7,11 +7,7 @@
  * @module @nasnet/core/forms/validation-strategy
  */
 
-import type {
-  ValidationStrategy,
-  ValidationConfig,
-  ValidationStage,
-} from './types';
+import type { ValidationStrategy, ValidationConfig, ValidationStage } from './types';
 
 /**
  * Configuration for each validation strategy.
@@ -23,47 +19,46 @@ import type {
  * const config = VALIDATION_CONFIGS.high;
  * // Returns full validation pipeline with dry-run for WAN changes
  */
-export const VALIDATION_CONFIGS: Record<ValidationStrategy, ValidationConfig> =
-  {
-    /**
-     * Low-risk: Client-side Zod only.
-     * Use for: WiFi password, display name, comment fields.
-     */
-    low: {
-      stages: ['schema', 'syntax'],
-      clientOnly: true,
-      requiresConfirmation: false,
-    },
+export const VALIDATION_CONFIGS: Record<ValidationStrategy, ValidationConfig> = {
+  /**
+   * Low-risk: Client-side Zod only.
+   * Use for: WiFi password, display name, comment fields.
+   */
+  low: {
+    stages: ['schema', 'syntax'],
+    clientOnly: true,
+    requiresConfirmation: false,
+  },
 
-    /**
-     * Medium-risk: Zod + Backend API validation.
-     * Use for: Firewall rules, DHCP settings, VPN peer config.
-     */
-    medium: {
-      stages: ['schema', 'syntax', 'cross-resource', 'dependencies'],
-      clientOnly: false,
-      requiresConfirmation: false,
-    },
+  /**
+   * Medium-risk: Zod + Backend API validation.
+   * Use for: Firewall rules, DHCP settings, VPN peer config.
+   */
+  medium: {
+    stages: ['schema', 'syntax', 'cross-resource', 'dependencies'],
+    clientOnly: false,
+    requiresConfirmation: false,
+  },
 
-    /**
-     * High-risk: Full validation pipeline with dry-run.
-     * Use for: WAN link changes, routing tables, VPN deletion, factory reset.
-     */
-    high: {
-      stages: [
-        'schema',
-        'syntax',
-        'cross-resource',
-        'dependencies',
-        'network',
-        'platform',
-        'dry-run',
-      ],
-      clientOnly: false,
-      requiresConfirmation: true,
-      confirmationSteps: ['preview', 'countdown'],
-    },
-  };
+  /**
+   * High-risk: Full validation pipeline with dry-run.
+   * Use for: WAN link changes, routing tables, VPN deletion, factory reset.
+   */
+  high: {
+    stages: [
+      'schema',
+      'syntax',
+      'cross-resource',
+      'dependencies',
+      'network',
+      'platform',
+      'dry-run',
+    ],
+    clientOnly: false,
+    requiresConfirmation: true,
+    confirmationSteps: ['preview', 'countdown'],
+  },
+};
 
 /**
  * Human-readable stage names for UI display.
@@ -94,27 +89,20 @@ export const STAGE_DESCRIPTIONS: Record<ValidationStage, string> = {
 /**
  * Get the validation config for a given strategy.
  */
-export function getValidationConfig(
-  strategy: ValidationStrategy
-): ValidationConfig {
+export function getValidationConfig(strategy: ValidationStrategy): ValidationConfig {
   return VALIDATION_CONFIGS[strategy];
 }
 
 /**
  * Check if a stage should run for a given strategy.
  */
-export function shouldRunStage(
-  strategy: ValidationStrategy,
-  stage: ValidationStage
-): boolean {
+export function shouldRunStage(strategy: ValidationStrategy, stage: ValidationStage): boolean {
   return VALIDATION_CONFIGS[strategy].stages.includes(stage);
 }
 
 /**
  * Get ordered stages for a strategy.
  */
-export function getOrderedStages(
-  strategy: ValidationStrategy
-): ValidationStage[] {
+export function getOrderedStages(strategy: ValidationStrategy): ValidationStage[] {
   return VALIDATION_CONFIGS[strategy].stages;
 }

@@ -84,7 +84,14 @@ describe('alertSeveritySchema', () => {
 
 describe('conditionOperatorSchema', () => {
   it('should accept valid operators', () => {
-    const validOperators = ['EQUALS', 'NOT_EQUALS', 'GREATER_THAN', 'LESS_THAN', 'CONTAINS', 'REGEX'];
+    const validOperators = [
+      'EQUALS',
+      'NOT_EQUALS',
+      'GREATER_THAN',
+      'LESS_THAN',
+      'CONTAINS',
+      'REGEX',
+    ];
 
     validOperators.forEach((operator) => {
       const result = conditionOperatorSchema.safeParse(operator);

@@ -5,9 +5,12 @@ title: Accessibility Patterns
 
 # Accessibility Patterns in NasNetConnect
 
-**Reference:** `libs/state/stores/src/a11y/a11y-provider.tsx` | `libs/core/utils/src/hooks/useReducedMotion.ts` | WCAG 2.1 AAA Compliance
+**Reference:** `libs/state/stores/src/a11y/a11y-provider.tsx` |
+`libs/core/utils/src/hooks/useReducedMotion.ts` | WCAG 2.1 AAA Compliance
 
-NasNetConnect implements a comprehensive accessibility (a11y) system that detects and respects user preferences for reduced motion, high contrast, and keyboard navigation. This guide documents the accessibility infrastructure, available hooks, and compliance patterns.
+NasNetConnect implements a comprehensive accessibility (a11y) system that detects and respects user
+preferences for reduced motion, high contrast, and keyboard navigation. This guide documents the
+accessibility infrastructure, available hooks, and compliance patterns.
 
 ## Table of Contents
 
@@ -24,7 +27,9 @@ NasNetConnect implements a comprehensive accessibility (a11y) system that detect
 
 ## A11yProvider Architecture
 
-The `A11yProvider` is a React context provider that wraps the entire application tree and provides accessibility state to all components. It detects user preferences at runtime and maintains reactive state for motion, contrast, and keyboard usage.
+The `A11yProvider` is a React context provider that wraps the entire application tree and provides
+accessibility state to all components. It detects user preferences at runtime and maintains reactive
+state for motion, contrast, and keyboard usage.
 
 ### Setup
 
@@ -52,6 +57,7 @@ const A11yContext = createContext<A11yContextValue | null>(null);
 ```
 
 This architecture ensures:
+
 - **Type safety**: Null context forces provider usage
 - **SSR compatibility**: `isBrowser()` checks prevent hydration errors
 - **Performance**: Context value is memoized to prevent unnecessary re-renders
@@ -67,7 +73,7 @@ function isBrowser(): boolean {
 }
 
 function getInitialReducedMotion(): boolean {
-  if (!isBrowser()) return false;  // Safe default during SSR
+  if (!isBrowser()) return false; // Safe default during SSR
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 ```
@@ -91,7 +97,8 @@ export interface A11yContextValue {
 
 **Detection:** Based on `prefers-reduced-motion: reduce` media query
 
-Indicates whether the user has enabled reduced motion in their operating system settings (System Preferences > Accessibility > Display on macOS, Settings > Ease of Access > Display on Windows).
+Indicates whether the user has enabled reduced motion in their operating system settings (System
+Preferences > Accessibility > Display on macOS, Settings > Ease of Access > Display on Windows).
 
 When `true`, animations should be disabled or significantly reduced:
 
@@ -116,7 +123,8 @@ function AnimatedButton() {
 
 **Detection:** Based on `prefers-contrast: more` media query
 
-Indicates whether the user has enabled high contrast mode in their operating system accessibility settings.
+Indicates whether the user has enabled high contrast mode in their operating system accessibility
+settings.
 
 When `true`, use enhanced contrast colors from design tokens:
 
@@ -136,7 +144,8 @@ function TextBlock() {
 
 **Detection:** Tab key pressed → `true` | Mouse/touch used → `false`
 
-Tracks whether the user is navigating with keyboard only or using mouse/touch. Useful for showing focus rings only when needed (avoid "keyboard user, no focus ring" problem).
+Tracks whether the user is navigating with keyboard only or using mouse/touch. Useful for showing
+focus rings only when needed (avoid "keyboard user, no focus ring" problem).
 
 ```typescript
 function FocusableElement() {
@@ -198,6 +207,7 @@ function FormWithAsync() {
 ```
 
 **Priority Levels:**
+
 - `'polite'` (default): Waits for screen reader to finish reading current content
 - `'assertive'`: Interrupts screen reader immediately (use for critical errors)
 
@@ -225,7 +235,7 @@ function Component() {
 // This will throw:
 // "useA11y must be used within an A11yProvider"
 function ComponentOutsideProvider() {
-  const a11y = useA11y();  // ❌ Error
+  const a11y = useA11y(); // ❌ Error
 }
 ```
 
@@ -264,7 +274,8 @@ function AnimatedComponent() {
 }
 ```
 
-**Performance Note:** Selector hooks reduce re-render churn by only subscribing to the specific value they need.
+**Performance Note:** Selector hooks reduce re-render churn by only subscribing to the specific
+value they need.
 
 ### useKeyboardUser() — Selector Hook
 
@@ -324,7 +335,8 @@ function AlertComponent() {
 
 ## Standalone useReducedMotion Hook
 
-The `@nasnet/core/utils` package exports a standalone `useReducedMotion` hook that does NOT require a provider. This is useful for utility libraries or non-React contexts.
+The `@nasnet/core/utils` package exports a standalone `useReducedMotion` hook that does NOT require
+a provider. This is useful for utility libraries or non-React contexts.
 
 ### useReducedMotion() — React Hook
 
@@ -341,6 +353,7 @@ function Component() {
 ```
 
 **Key Differences from A11yProvider version:**
+
 - No provider required
 - Sets up its own event listeners
 - Safe to use in utility libraries
@@ -363,6 +376,7 @@ const animationConfig = {
 ```
 
 **When to Use:**
+
 - CSS-in-JS configuration at module level
 - Non-React contexts (event handlers, utility functions)
 - One-time checks (not reactive)
@@ -370,7 +384,8 @@ const animationConfig = {
 
 **Browser Compatibility:**
 
-Both modern (`addEventListener`) and legacy (`addListener`/`removeListener`) media query APIs are supported:
+Both modern (`addEventListener`) and legacy (`addListener`/`removeListener`) media query APIs are
+supported:
 
 ```typescript
 if (mediaQuery.addEventListener) {
@@ -480,7 +495,8 @@ function MotionComponent() {
 
 ## Data Attributes for CSS Targeting
 
-The provider automatically sets data attributes on `document.documentElement` for CSS-based accessibility:
+The provider automatically sets data attributes on `document.documentElement` for CSS-based
+accessibility:
 
 ### data-keyboard-user
 
@@ -489,9 +505,9 @@ Set to `"true"` when user presses Tab key, removed when mouse/touch is used:
 ```html
 <!-- When keyboard user -->
 <html data-keyboard-user="true">
-
-<!-- When mouse/touch user -->
-<html>
+  <!-- When mouse/touch user -->
+  <html></html>
+</html>
 ```
 
 **CSS Usage:**
@@ -515,9 +531,9 @@ Set to `"true"` when user has `prefers-reduced-motion: reduce` enabled, removed 
 ```html
 <!-- When reduced motion is preferred -->
 <html data-reduced-motion="true">
-
-<!-- When animations are allowed -->
-<html>
+  <!-- When animations are allowed -->
+  <html></html>
+</html>
 ```
 
 **CSS Usage:**
@@ -707,4 +723,5 @@ function RealTimeDataComponent() {
 
 - **WCAG AAA Compliance:** See `Docs/design/ux-design/8-responsive-design-accessibility.md`
 - **Design Tokens:** See `Docs/design/DESIGN_TOKENS.md` for semantic color tokens
-- **Platform Presenters:** See `Docs/design/PLATFORM_PRESENTER_GUIDE.md` for responsive design patterns
+- **Platform Presenters:** See `Docs/design/PLATFORM_PRESENTER_GUIDE.md` for responsive design
+  patterns

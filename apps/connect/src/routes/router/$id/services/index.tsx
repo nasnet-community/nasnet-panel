@@ -92,11 +92,15 @@ function ServicesIndexPage() {
   };
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex h-full flex-col">
       {/* Tab Navigation */}
-      <div className="border-b border-default bg-background sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 md:px-6">
-          <div className="flex gap-1" role="tablist" aria-label={t("title")}>
+      <div className="border-default bg-background sticky top-0 z-10 border-b">
+        <div className="mx-auto max-w-7xl px-4 md:px-6">
+          <div
+            className="flex gap-1"
+            role="tablist"
+            aria-label={t('title')}
+          >
             {serviceTabs.map((tab) => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.value;
@@ -110,14 +114,15 @@ function ServicesIndexPage() {
                   aria-label={`${tab.label}: ${tab.description}`}
                   className={cn(
                     'flex items-center gap-2 px-4 py-3 text-sm font-medium transition-all duration-200',
-                    'border-b-2 border-transparent focus-ring',
+                    'focus-ring border-b-2 border-transparent',
                     'hover:text-primary',
-                    isActive
-                      ? 'border-primary text-primary'
-                      : 'text-muted-foreground'
+                    isActive ? 'border-primary text-primary' : 'text-muted-foreground'
                   )}
                 >
-                  <Icon className="h-4 w-4" aria-hidden="true" />
+                  <Icon
+                    className="h-4 w-4"
+                    aria-hidden="true"
+                  />
                   <span>{tab.label}</span>
                 </button>
               );
@@ -128,15 +133,13 @@ function ServicesIndexPage() {
 
       {/* Tab Content */}
       <div className="flex-1 overflow-y-auto">
-        {activeTab === 'instances' ? (
+        {activeTab === 'instances' ?
           <ServicesPage
             routerId={routerId}
             onInstanceClick={handleInstanceClick}
             onImportComplete={handleImportComplete}
           />
-        ) : (
-          <Outlet />
-        )}
+        : <Outlet />}
       </div>
     </div>
   );

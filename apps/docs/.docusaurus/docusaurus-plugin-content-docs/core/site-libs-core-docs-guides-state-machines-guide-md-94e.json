@@ -1,7 +1,7 @@
 {
   "id": "guides/state-machines-guide",
   "title": "State Machines Guide",
-  "description": "This guide documents the XState machines used in NasNetConnect for managing complex, multi-step workflows.",
+  "description": "This guide documents the XState machines used in NasNetConnect for managing complex, multi-step",
   "source": "@site/../../libs/core/docs/guides/state-machines-guide.md",
   "sourceDirName": "guides",
   "slug": "/guides/state-machines-guide",

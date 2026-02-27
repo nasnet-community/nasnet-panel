@@ -1,7 +1,7 @@
 {
   "id": "integrations/apollo-integration",
   "title": "Apollo Client & Zustand Integration",
-  "description": "Apollo Client manages all server state (router config, logs, VPN lists, etc.) while Zustand stores manage UI state. The two systems are integrated through Apollo Links that access Zustand stores using .getState() to read current context (router ID, authentication tokens) without React hooks.",
+  "description": "Apollo Client manages all server state (router config, logs, VPN lists, etc.) while Zustand stores",
   "source": "@site/../../libs/state/docs/integrations/apollo-integration.md",
   "sourceDirName": "integrations",
   "slug": "/integrations/apollo-integration",

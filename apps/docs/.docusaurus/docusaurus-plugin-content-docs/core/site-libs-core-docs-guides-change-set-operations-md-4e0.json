@@ -1,7 +1,7 @@
 {
   "id": "guides/change-set-operations",
   "title": "Change Set Operations: Atomic Multi-Resource Transactions",
-  "description": "Reference: ADR-012, FR-STM-013 | libs/core/types/src/resource/change-set.ts | libs/core/utils/src/graph/dependency-graph.ts",
+  "description": "Reference: ADR-012, FR-STM-013 | libs/core/types/src/resource/change-set.ts |",
   "source": "@site/../../libs/core/docs/guides/change-set-operations.md",
   "sourceDirName": "guides",
   "slug": "/guides/change-set-operations",

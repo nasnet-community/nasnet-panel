@@ -36,7 +36,8 @@ import {
   DialogFooter,
   Button,
   Progress,
- cn } from '@nasnet/ui/primitives';
+  cn,
+} from '@nasnet/ui/primitives';
 
 // ===== Types =====
 
@@ -79,7 +80,12 @@ export interface SessionExpiringDialogProps {
  * Hook for session expiring state
  */
 export function useSessionExpiring(warningThreshold = 300) {
-  const { token: accessToken, tokenExpiry: expiresAt, clearAuth: logout, isAuthenticated } = useAuthStore();
+  const {
+    token: accessToken,
+    tokenExpiry: expiresAt,
+    clearAuth: logout,
+    isAuthenticated,
+  } = useAuthStore();
   const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
   const [isExpiring, setIsExpiring] = useState(false);
 
@@ -168,7 +174,8 @@ function SessionExpiringDialogComponent({
   autoLogout = true,
   className,
 }: SessionExpiringDialogProps) {
-  const { timeRemaining, isExpiring, isExpired, logout, isAuthenticated } = useSessionExpiring(warningThreshold);
+  const { timeRemaining, isExpiring, isExpired, logout, isAuthenticated } =
+    useSessionExpiring(warningThreshold);
   const [isExtending, setIsExtending] = useState(false);
   const [extendError, setExtendError] = useState<string | null>(null);
 
@@ -222,13 +229,12 @@ function SessionExpiringDialogComponent({
   const { isUrgent, isCritical } = urgencyLevels;
 
   return (
-    <Dialog open={isExpiring} onOpenChange={() => {}}>
+    <Dialog
+      open={isExpiring}
+      onOpenChange={() => {}}
+    >
       <DialogContent
-        className={cn(
-          'sm:max-w-md',
-          isCritical && 'border-semantic-error',
-          className
-        )}
+        className={cn('sm:max-w-md', isCritical && 'border-semantic-error', className)}
         onPointerDownOutside={(e) => e.preventDefault()}
         onEscapeKeyDown={(e) => e.preventDefault()}
         role="alertdialog"
@@ -239,29 +245,29 @@ function SessionExpiringDialogComponent({
           <div className="flex items-center gap-3">
             <div
               className={cn(
-                'p-2 rounded-full',
-                isCritical
-                  ? 'bg-semantic-error/10'
-                  : isUrgent
-                    ? 'bg-semantic-warning/10'
-                    : 'bg-semantic-info/10'
+                'rounded-full p-2',
+                isCritical ? 'bg-semantic-error/10'
+                : isUrgent ? 'bg-semantic-warning/10'
+                : 'bg-semantic-info/10'
               )}
               aria-hidden="true"
             >
-              {isCritical ? (
-                <AlertTriangle className="h-6 w-6 text-semantic-error" />
-              ) : (
-                <Clock
+              {isCritical ?
+                <AlertTriangle className="text-semantic-error h-6 w-6" />
+              : <Clock
                   className={cn(
                     'h-6 w-6',
                     isUrgent ? 'text-semantic-warning' : 'text-semantic-info'
                   )}
                 />
-              )}
+              }
             </div>
             <DialogTitle id="session-expiring-title">Session Expiring</DialogTitle>
           </div>
-          <DialogDescription id="session-expiring-description" className="pt-2">
+          <DialogDescription
+            id="session-expiring-description"
+            className="pt-2"
+          >
             Your session will expire soon. Would you like to stay signed in?
           </DialogDescription>
         </DialogHeader>
@@ -271,19 +277,15 @@ function SessionExpiringDialogComponent({
           <div className="text-center">
             <div
               className={cn(
-                'text-4xl font-mono font-bold',
-                isCritical
-                  ? 'text-semantic-error animate-pulse'
-                  : isUrgent
-                    ? 'text-semantic-warning'
-                    : 'text-gray-900 dark:text-gray-100'
+                'font-mono text-4xl font-bold',
+                isCritical ? 'text-semantic-error animate-pulse'
+                : isUrgent ? 'text-semantic-warning'
+                : 'text-gray-900 dark:text-gray-100'
               )}
             >
               {formatTime(timeRemaining)}
             </div>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-              remaining
-            </p>
+            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">remaining</p>
           </div>
 
           {/* Progress Bar */}
@@ -298,19 +300,19 @@ function SessionExpiringDialogComponent({
 
           {/* Error Message */}
           {extendError && (
-            <div className="px-3 py-2 rounded bg-semantic-error/10 text-semantic-error text-sm">
+            <div className="bg-semantic-error/10 text-semantic-error rounded px-3 py-2 text-sm">
               {extendError}
             </div>
           )}
         </div>
 
-        <DialogFooter className="flex-col sm:flex-row gap-2">
+        <DialogFooter className="flex-col gap-2 sm:flex-row">
           <Button
             variant="outline"
             onClick={handleLogout}
             className="w-full sm:w-auto"
           >
-            <LogOut className="h-4 w-4 mr-2" />
+            <LogOut className="mr-2 h-4 w-4" />
             Logout
           </Button>
 
@@ -321,17 +323,16 @@ function SessionExpiringDialogComponent({
               disabled={isExtending}
               className="w-full sm:w-auto"
             >
-              {isExtending ? (
+              {isExtending ?
                 <>
-                  <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                  <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
                   Extending...
                 </>
-              ) : (
-                <>
-                  <RefreshCw className="h-4 w-4 mr-2" />
+              : <>
+                  <RefreshCw className="mr-2 h-4 w-4" />
                   Stay Signed In
                 </>
-              )}
+              }
             </Button>
           )}
         </DialogFooter>
@@ -342,4 +343,3 @@ function SessionExpiringDialogComponent({
 
 export const SessionExpiringDialog = memo(SessionExpiringDialogComponent);
 SessionExpiringDialog.displayName = 'SessionExpiringDialog';
-

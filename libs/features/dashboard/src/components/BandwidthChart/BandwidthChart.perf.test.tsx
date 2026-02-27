@@ -81,7 +81,10 @@ describe('BandwidthChart Performance Tests', () => {
       ];
 
       const wrapper = ({ children }: { children: ReactNode }) => (
-        <MockedProvider mocks={mocks} addTypename={false}>
+        <MockedProvider
+          mocks={mocks}
+          addTypename={false}
+        >
           {children}
         </MockedProvider>
       );
@@ -92,7 +95,9 @@ describe('BandwidthChart Performance Tests', () => {
 
       await waitFor(
         () => {
-          expect(document.querySelector('[data-testid="responsive-container"]')).toBeInTheDocument();
+          expect(
+            document.querySelector('[data-testid="responsive-container"]')
+          ).toBeInTheDocument();
         },
         { timeout: 5000 }
       );
@@ -174,7 +179,9 @@ describe('BandwidthChart Performance Tests', () => {
       if (initialMemory > 0) {
         const memoryIncreaseMB = memoryIncrease / (1024 * 1024);
         expect(memoryIncreaseMB).toBeLessThan(10);
-        console.log(`✓ Memory increase after ${updateCount} updates: ${memoryIncreaseMB.toFixed(2)}MB`);
+        console.log(
+          `✓ Memory increase after ${updateCount} updates: ${memoryIncreaseMB.toFixed(2)}MB`
+        );
       } else {
         console.log('⚠ Memory API not available, skipping memory check');
       }
@@ -296,13 +303,10 @@ describe('BandwidthChart Performance Tests', () => {
       }
 
       // Calculate average frame time
-      const avgFrameTime =
-        frameTimes.reduce((sum, time) => sum + time, 0) / frameTimes.length;
+      const avgFrameTime = frameTimes.reduce((sum, time) => sum + time, 0) / frameTimes.length;
 
       // Calculate percentage of frames meeting 60fps target
-      const framesUnder16ms = frameTimes.filter(
-        (time) => time < targetFrameTime
-      ).length;
+      const framesUnder16ms = frameTimes.filter((time) => time < targetFrameTime).length;
       const successRate = (framesUnder16ms / frameTimes.length) * 100;
 
       // At least 90% of frames should meet 60fps target

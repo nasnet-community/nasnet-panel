@@ -475,7 +475,10 @@ describe('CStepper keyboard shortcuts', () => {
 
       return (
         <div>
-          <CStepper stepper={stepper} stepContent={<div>Content</div>} />
+          <CStepper
+            stepper={stepper}
+            stepContent={<div>Content</div>}
+          />
           <span data-testid="current">{stepper.currentIndex}</span>
         </div>
       );
@@ -505,7 +508,10 @@ describe('CStepper keyboard shortcuts', () => {
 
       return (
         <div>
-          <CStepper stepper={stepper} stepContent={<div>Content</div>} />
+          <CStepper
+            stepper={stepper}
+            stepContent={<div>Content</div>}
+          />
           <span data-testid="current">{stepper.currentIndex}</span>
         </div>
       );
@@ -597,9 +603,7 @@ describe('CStepper accessibility', () => {
   });
 
   it('should have live region for step content', () => {
-    const { container } = render(
-      <CStepperTestWrapper config={createConfig(basicSteps)} />
-    );
+    const { container } = render(<CStepperTestWrapper config={createConfig(basicSteps)} />);
 
     const liveRegion = container.querySelector('[aria-live="polite"]');
     expect(liveRegion).toBeInTheDocument();
@@ -632,9 +636,7 @@ describe('CStepper error handling', () => {
             stepContent={
               <div>
                 {Object.keys(stepper.errors).length > 0 && (
-                  <div data-testid="errors">
-                    {Object.values(stepper.errors).join(', ')}
-                  </div>
+                  <div data-testid="errors">{Object.values(stepper.errors).join(', ')}</div>
                 )}
               </div>
             }
@@ -675,7 +677,10 @@ describe('CStepper error handling', () => {
 
       return (
         <div>
-          <CStepper stepper={stepper} stepContent={<div>Content</div>} />
+          <CStepper
+            stepper={stepper}
+            stepContent={<div>Content</div>}
+          />
           <span data-testid="current">{stepper.currentIndex}</span>
         </div>
       );
@@ -701,9 +706,7 @@ describe('CStepper integration', () => {
     const onComplete = vi.fn();
 
     function TestComponent() {
-      const stepper = useStepper(
-        createConfig(basicSteps, { onComplete })
-      );
+      const stepper = useStepper(createConfig(basicSteps, { onComplete }));
 
       return (
         <div>
@@ -746,7 +749,10 @@ describe('CStepper integration', () => {
             stepper={stepper}
             stepContent={<div>Step: {stepper.currentStep.title}</div>}
           />
-          <button onClick={() => stepper.next()} data-testid="external-next">
+          <button
+            onClick={() => stepper.next()}
+            data-testid="external-next"
+          >
             External Next
           </button>
           <span data-testid="current">{stepper.currentIndex}</span>

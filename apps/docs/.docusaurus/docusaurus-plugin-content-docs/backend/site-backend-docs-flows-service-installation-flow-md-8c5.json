@@ -1,7 +1,7 @@
 {
   "id": "flows/service-installation-flow",
   "title": "Flow: Service Installation",
-  "description": "Traces the full lifecycle of installing a marketplace feature — from the GraphQL mutation to a running, supervised process.",
+  "description": "Traces the full lifecycle of installing a marketplace feature — from the GraphQL mutation to a",
   "source": "@site/../backend/docs/flows/service-installation-flow.md",
   "sourceDirName": "flows",
   "slug": "/flows/service-installation-flow",

@@ -13,54 +13,54 @@
  * Retry configuration
  */
 export interface RetryConfig {
-    /** Maximum number of retry attempts (default: 3) */
-    maxRetries?: number;
-    /** Initial delay in ms (default: 1000) */
-    initialDelayMs?: number;
-    /** Maximum delay cap in ms (default: 30000) */
-    maxDelayMs?: number;
-    /** Whether to show notifications (default: true) */
-    showNotifications?: boolean;
-    /** Callback before each retry */
-    onRetry?: (attempt: number, error: Error) => void;
-    /** Callback on final failure */
-    onMaxRetriesExceeded?: (error: Error) => void;
-    /** Should retry predicate (default: always retry) */
-    shouldRetry?: (error: Error, attempt: number) => boolean;
+  /** Maximum number of retry attempts (default: 3) */
+  maxRetries?: number;
+  /** Initial delay in ms (default: 1000) */
+  initialDelayMs?: number;
+  /** Maximum delay cap in ms (default: 30000) */
+  maxDelayMs?: number;
+  /** Whether to show notifications (default: true) */
+  showNotifications?: boolean;
+  /** Callback before each retry */
+  onRetry?: (attempt: number, error: Error) => void;
+  /** Callback on final failure */
+  onMaxRetriesExceeded?: (error: Error) => void;
+  /** Should retry predicate (default: always retry) */
+  shouldRetry?: (error: Error, attempt: number) => boolean;
 }
 /**
  * Retry result
  */
 export interface RetryResult<T> {
-    /** Whether the operation succeeded */
-    success: boolean;
-    /** Result data (if successful) */
-    data?: T;
-    /** Error (if failed) */
-    error?: Error;
-    /** Number of attempts made */
-    attempts: number;
+  /** Whether the operation succeeded */
+  success: boolean;
+  /** Result data (if successful) */
+  data?: T;
+  /** Error (if failed) */
+  error?: Error;
+  /** Number of attempts made */
+  attempts: number;
 }
 /**
  * Issue report data
  */
 export interface IssueReport {
-    /** Error message */
-    message: string;
-    /** Error code (if available) */
-    code?: string;
-    /** Stack trace (if available) */
-    stack?: string;
-    /** Component where error occurred */
-    component?: string;
-    /** Current URL */
-    url: string;
-    /** Timestamp */
-    timestamp: string;
-    /** User agent */
-    userAgent: string;
-    /** Additional context */
-    context?: Record<string, unknown>;
+  /** Error message */
+  message: string;
+  /** Error code (if available) */
+  code?: string;
+  /** Stack trace (if available) */
+  stack?: string;
+  /** Component where error occurred */
+  component?: string;
+  /** Current URL */
+  url: string;
+  /** Timestamp */
+  timestamp: string;
+  /** User agent */
+  userAgent: string;
+  /** Additional context */
+  context?: Record<string, unknown>;
 }
 /**
  * Execute an operation with automatic retry and exponential backoff.
@@ -86,7 +86,10 @@ export interface IssueReport {
  * }
  * ```
  */
-export declare function withRetry<T>(operation: () => Promise<T>, config?: RetryConfig): Promise<RetryResult<T>>;
+export declare function withRetry<T>(
+  operation: () => Promise<T>,
+  config?: RetryConfig
+): Promise<RetryResult<T>>;
 /**
  * Create a retry handler for a specific operation.
  *
@@ -121,7 +124,10 @@ export declare function withRetry<T>(operation: () => Promise<T>, config?: Retry
  * }
  * ```
  */
-export declare function createRetryHandler<T>(operation: () => Promise<T>, config?: RetryConfig): () => Promise<RetryResult<T>>;
+export declare function createRetryHandler<T>(
+  operation: () => Promise<T>,
+  config?: RetryConfig
+): () => Promise<RetryResult<T>>;
 /**
  * Clear all Apollo cache data.
  *
@@ -149,14 +155,20 @@ export declare function clearCacheAndReload(): Promise<void>;
  * @param context - Additional context
  * @returns Issue report data
  */
-export declare function generateIssueReport(error: Error, context?: Record<string, unknown>): IssueReport;
+export declare function generateIssueReport(
+  error: Error,
+  context?: Record<string, unknown>
+): IssueReport;
 /**
  * Copy issue report to clipboard.
  *
  * @param error - The error to report
  * @param context - Additional context
  */
-export declare function copyIssueReport(error: Error, context?: Record<string, unknown>): Promise<void>;
+export declare function copyIssueReport(
+  error: Error,
+  context?: Record<string, unknown>
+): Promise<void>;
 /**
  * Open GitHub issues page with pre-filled error report.
  *
@@ -168,20 +180,20 @@ export declare function openIssueReporter(error: Error, context?: Record<string,
  * Available recovery actions
  */
 export interface RecoveryActions {
-    /** Retry the failed operation */
-    retry: () => Promise<void>;
-    /** Clear cache and retry */
-    clearCacheAndRetry: () => Promise<void>;
-    /** Copy error report to clipboard */
-    copyReport: () => Promise<void>;
-    /** Open issue reporter */
-    reportIssue: () => void;
-    /** Reload the page */
-    reload: () => void;
-    /** Go to home page */
-    goHome: () => void;
-    /** Go back in history */
-    goBack: () => void;
+  /** Retry the failed operation */
+  retry: () => Promise<void>;
+  /** Clear cache and retry */
+  clearCacheAndRetry: () => Promise<void>;
+  /** Copy error report to clipboard */
+  copyReport: () => Promise<void>;
+  /** Open issue reporter */
+  reportIssue: () => void;
+  /** Reload the page */
+  reload: () => void;
+  /** Go to home page */
+  goHome: () => void;
+  /** Go back in history */
+  goBack: () => void;
 }
 /**
  * Create recovery actions for an error.
@@ -207,7 +219,11 @@ export interface RecoveryActions {
  * }
  * ```
  */
-export declare function createRecoveryActions(error: Error, retryFn?: () => Promise<void>, context?: Record<string, unknown>): RecoveryActions;
+export declare function createRecoveryActions(
+  error: Error,
+  retryFn?: () => Promise<void>,
+  context?: Record<string, unknown>
+): RecoveryActions;
 /**
  * Hook for using recovery actions in components.
  *
@@ -230,5 +246,9 @@ export declare function createRecoveryActions(error: Error, retryFn?: () => Prom
  * }
  * ```
  */
-export declare function useRecoveryActions(error: Error | null, retryFn?: () => Promise<void>, context?: Record<string, unknown>): RecoveryActions | null;
+export declare function useRecoveryActions(
+  error: Error | null,
+  retryFn?: () => Promise<void>,
+  context?: Record<string, unknown>
+): RecoveryActions | null;
 //# sourceMappingURL=recovery.d.ts.map

@@ -38,12 +38,14 @@ export const FormFieldError = React.forwardRef<HTMLParagraphElement, FormFieldEr
         id={id}
         role="alert"
         aria-live="polite"
-        className={cn(
-          'flex items-center gap-1.5 text-xs font-medium text-error mt-1',
-          className
-        )}
+        className={cn('text-error mt-1 flex items-center gap-1.5 text-xs font-medium', className)}
       >
-        {showIcon && <AlertCircle className="h-3 w-3 flex-shrink-0" aria-hidden="true" />}
+        {showIcon && (
+          <AlertCircle
+            className="h-3 w-3 flex-shrink-0"
+            aria-hidden="true"
+          />
+        )}
         <span>{message}</span>
       </p>
     );

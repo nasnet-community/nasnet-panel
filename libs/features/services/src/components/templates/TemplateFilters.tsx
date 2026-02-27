@@ -108,7 +108,7 @@ function TemplateFiltersComponent({
         <Label htmlFor="template-search">Search Templates</Label>
         <div className="relative">
           <Search
-            className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"
+            className="text-muted-foreground absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2"
             aria-hidden="true"
           />
           <Input
@@ -117,17 +117,20 @@ function TemplateFiltersComponent({
             placeholder="Search by name, description, or tags..."
             value={filters.searchQuery}
             onChange={handleSearchChange}
-            className="pl-9 min-h-[44px]"
+            className="min-h-[44px] pl-9"
             aria-describedby="search-help"
           />
           {filters.searchQuery && (
             <button
               type="button"
               onClick={handleClearSearch}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground rounded-sm"
+              className="text-muted-foreground hover:text-foreground absolute right-3 top-1/2 -translate-y-1/2 rounded-sm"
               aria-label="Clear search"
             >
-              <X className="h-4 w-4" aria-hidden="true" />
+              <X
+                className="h-4 w-4"
+                aria-hidden="true"
+              />
             </button>
           )}
         </div>
@@ -136,7 +139,10 @@ function TemplateFiltersComponent({
       {/* Category Filter */}
       <div className="space-y-component-sm">
         <Label htmlFor="template-category">Category</Label>
-        <Select value={filters.category || 'all'} onValueChange={handleCategoryChange}>
+        <Select
+          value={filters.category || 'all'}
+          onValueChange={handleCategoryChange}
+        >
           <SelectTrigger id="template-category">
             <SelectValue placeholder="All categories" />
           </SelectTrigger>
@@ -155,8 +161,14 @@ function TemplateFiltersComponent({
       {/* Scope Filter */}
       <div className="space-y-component-sm">
         <Label htmlFor="template-scope">Scope</Label>
-        <Select value={filters.scope || 'all'} onValueChange={handleScopeChange}>
-          <SelectTrigger id="template-scope" className="min-h-[44px]">
+        <Select
+          value={filters.scope || 'all'}
+          onValueChange={handleScopeChange}
+        >
+          <SelectTrigger
+            id="template-scope"
+            className="min-h-[44px]"
+          >
             <SelectValue placeholder="All scopes" />
           </SelectTrigger>
           <SelectContent>
@@ -171,8 +183,14 @@ function TemplateFiltersComponent({
       {/* Sort By */}
       <div className="space-y-component-sm">
         <Label htmlFor="template-sort">Sort By</Label>
-        <Select value={filters.sortBy} onValueChange={handleSortChange}>
-          <SelectTrigger id="template-sort" className="min-h-[44px]">
+        <Select
+          value={filters.sortBy}
+          onValueChange={handleSortChange}
+        >
+          <SelectTrigger
+            id="template-sort"
+            className="min-h-[44px]"
+          >
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -187,7 +205,10 @@ function TemplateFiltersComponent({
       {/* Template Type Toggles */}
       <div className="space-y-component-sm pt-component-sm">
         <div className="flex items-center justify-between">
-          <Label htmlFor="show-builtin" className="cursor-pointer">
+          <Label
+            htmlFor="show-builtin"
+            className="cursor-pointer"
+          >
             Show Built-in
           </Label>
           <Switch
@@ -198,7 +219,10 @@ function TemplateFiltersComponent({
           />
         </div>
         <div className="flex items-center justify-between">
-          <Label htmlFor="show-custom" className="cursor-pointer">
+          <Label
+            htmlFor="show-custom"
+            className="cursor-pointer"
+          >
             Show Custom
           </Label>
           <Switch
@@ -216,10 +240,13 @@ function TemplateFiltersComponent({
           variant="outline"
           size="sm"
           onClick={onReset}
-          className="w-full min-h-[44px]"
+          className="min-h-[44px] w-full"
           aria-label="Reset all filters to defaults"
         >
-          <Filter className="mr-2 h-4 w-4" aria-hidden="true" />
+          <Filter
+            className="mr-2 h-4 w-4"
+            aria-hidden="true"
+          />
           Reset Filters
         </Button>
       )}

@@ -7,7 +7,9 @@ title: Overview
 
 ## What Is NasNetConnect?
 
-**NasNetConnect** is an enterprise-grade MikroTik router management platform. Its `apps/connect` frontend is a React application that provides an adaptive, responsive UI for managing MikroTik routers.
+**NasNetConnect** is an enterprise-grade MikroTik router management platform. Its `apps/connect`
+frontend is a React application that provides an adaptive, responsive UI for managing MikroTik
+routers.
 
 The platform has a **dual nature**:
 
@@ -26,7 +28,8 @@ Full-featured configuration and monitoring for MikroTik routers:
 
 ### 2. Network Services Marketplace
 
-A downloadable feature marketplace allowing admins to install and manage privacy/security tools that run directly on the router:
+A downloadable feature marketplace allowing admins to install and manage privacy/security tools that
+run directly on the router:
 
 - **Tor** — Anonymous network proxy
 - **sing-box** — Universal proxy platform
@@ -35,7 +38,8 @@ A downloadable feature marketplace allowing admins to install and manage privacy
 - **Psiphon** — Censorship circumvention tool
 - **AdGuard Home** — Network-wide ad and tracker blocking
 
-These features are containerized and run within RouterOS's container support. The marketplace handles download, installation, configuration, health monitoring, and updates.
+These features are containerized and run within RouterOS's container support. The marketplace
+handles download, installation, configuration, health monitoring, and updates.
 
 ---
 
@@ -57,7 +61,8 @@ graph TB
     end
 ```
 
-The entire application (Go backend + React frontend) ships as a **single Docker container** that runs ON the router. The Go binary embeds the built frontend as static files.
+The entire application (Go backend + React frontend) ships as a **single Docker container** that
+runs ON the router. The Go binary embeds the built frontend as static files.
 
 ### Development — Local Machine
 
@@ -77,20 +82,22 @@ graph LR
 
 These constraints are non-negotiable — the app must run on resource-constrained embedded hardware:
 
-| Constraint | Target | Why |
-|------------|--------|-----|
-| Docker image size | `<10MB` compressed | Router flash storage is limited |
-| Runtime RAM | `<50MB` | MikroTik routers have 64–512MB RAM |
-| Frontend bundle | `<3MB` gzipped | Initial load must be fast on slow connections |
-| Cold start time | `<5s` | Admins need immediate access in emergencies |
+| Constraint        | Target             | Why                                           |
+| ----------------- | ------------------ | --------------------------------------------- |
+| Docker image size | `<10MB` compressed | Router flash storage is limited               |
+| Runtime RAM       | `<50MB`            | MikroTik routers have 64–512MB RAM            |
+| Frontend bundle   | `<3MB` gzipped     | Initial load must be fast on slow connections |
+| Cold start time   | `<5s`              | Admins need immediate access in emergencies   |
 
-These constraints drive many architectural decisions: code splitting, lazy loading, lean dependencies, and the multi-arch Go binary embedding the frontend.
+These constraints drive many architectural decisions: code splitting, lazy loading, lean
+dependencies, and the multi-arch Go binary embedding the frontend.
 
 ---
 
 ## Target Personas
 
-NasNetConnect is designed for two distinct user types that **use the same codebase but have very different needs**:
+NasNetConnect is designed for two distinct user types that **use the same codebase but have very
+different needs**:
 
 ### Network Admin — Phone in Server Room
 
@@ -108,27 +115,29 @@ NasNetConnect is designed for two distinct user types that **use the same codeba
 - Viewport `>1024px`
 - Expects Pro-grade UX: sortable tables, keyboard navigation, bulk operations
 
-This is why **every pattern component must implement platform-specific presenters** — there is no single layout that serves both users well. See [Platform Presenters](../ui-system/platform-presenters.md) for implementation details.
+This is why **every pattern component must implement platform-specific presenters** — there is no
+single layout that serves both users well. See
+[Platform Presenters](../ui-system/platform-presenters.md) for implementation details.
 
 ---
 
 ## Tech Stack at a Glance
 
-| Category | Technology | Purpose |
-|----------|-----------|---------|
-| Framework | React 18 + TypeScript | UI rendering |
-| Build | Vite 7 | Fast dev server and optimized production builds |
-| Routing | TanStack Router v1 | File-based type-safe routing |
-| Server State | Apollo Client 3 | GraphQL data fetching, caching, subscriptions |
-| UI State | Zustand 4 | Theme, sidebar, modals, notifications |
-| Complex Flows | XState 5 | VPN connection, config pipeline, setup wizard |
-| Forms | React Hook Form + Zod | Form state, validation, schema inference |
-| Styling | Tailwind CSS 4 | Utility classes with 200+ design tokens |
-| Animation | Framer Motion | Page transitions, gesture-based interactions |
-| i18n | i18next + react-i18next | Multi-language support, RTL |
-| Testing | Vitest + React Testing Library | Unit and component tests |
-| E2E | Playwright | Multi-browser end-to-end tests |
-| Storybook | Storybook 10 | Component development and documentation |
+| Category      | Technology                     | Purpose                                         |
+| ------------- | ------------------------------ | ----------------------------------------------- |
+| Framework     | React 18 + TypeScript          | UI rendering                                    |
+| Build         | Vite 7                         | Fast dev server and optimized production builds |
+| Routing       | TanStack Router v1             | File-based type-safe routing                    |
+| Server State  | Apollo Client 3                | GraphQL data fetching, caching, subscriptions   |
+| UI State      | Zustand 4                      | Theme, sidebar, modals, notifications           |
+| Complex Flows | XState 5                       | VPN connection, config pipeline, setup wizard   |
+| Forms         | React Hook Form + Zod          | Form state, validation, schema inference        |
+| Styling       | Tailwind CSS 4                 | Utility classes with 200+ design tokens         |
+| Animation     | Framer Motion                  | Page transitions, gesture-based interactions    |
+| i18n          | i18next + react-i18next        | Multi-language support, RTL                     |
+| Testing       | Vitest + React Testing Library | Unit and component tests                        |
+| E2E           | Playwright                     | Multi-browser end-to-end tests                  |
+| Storybook     | Storybook 10                   | Component development and documentation         |
 
 ---
 
@@ -137,4 +146,5 @@ This is why **every pattern component must implement platform-specific presenter
 - [Environment Setup](./environment-setup.md) — Get the dev environment running
 - [Project Structure](./project-structure.md) — Understand the directory layout and import aliases
 - [Key Commands](./key-commands.md) — Quick reference for all commands
-- [Architecture Overview](../architecture/overview.md) — Deeper dive into how the pieces fit together
+- [Architecture Overview](../architecture/overview.md) — Deeper dive into how the pieces fit
+  together

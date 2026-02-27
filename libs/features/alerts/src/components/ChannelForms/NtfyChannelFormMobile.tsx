@@ -9,7 +9,18 @@
  * @see NAS-18.X: Ntfy.sh notification configuration
  */
 
-import { Bell, Server, Shield, Tag, Eye, EyeOff, X, CheckCircle2, AlertCircle, ChevronDown } from 'lucide-react';
+import {
+  Bell,
+  Server,
+  Shield,
+  Tag,
+  Eye,
+  EyeOff,
+  X,
+  CheckCircle2,
+  AlertCircle,
+  ChevronDown,
+} from 'lucide-react';
 import { Controller } from 'react-hook-form';
 import { memo, useState, useCallback } from 'react';
 import {
@@ -74,17 +85,20 @@ function NtfyChannelFormMobileComponent({ ntfyForm }: NtfyChannelFormMobileProps
   const [showTags, setShowTags] = useState(false);
 
   // Handle tag input (Enter or comma)
-  const handleTagKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' || e.key === ',') {
-      e.preventDefault();
-      if (tagInput.trim()) {
-        const added = addTag(tagInput);
-        if (added) {
-          setTagInput('');
+  const handleTagKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === 'Enter' || e.key === ',') {
+        e.preventDefault();
+        if (tagInput.trim()) {
+          const added = addTag(tagInput);
+          if (added) {
+            setTagInput('');
+          }
         }
       }
-    }
-  }, [tagInput, addTag]);
+    },
+    [tagInput, addTag]
+  );
 
   const handleAddTag = useCallback(() => {
     if (tagInput.trim()) {
@@ -96,14 +110,22 @@ function NtfyChannelFormMobileComponent({ ntfyForm }: NtfyChannelFormMobileProps
   }, [tagInput, addTag]);
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-component-md pb-24">
+    <form
+      onSubmit={handleSubmit}
+      className="space-y-component-md pb-24"
+    >
       {/* Enable Toggle */}
-      <div className="flex items-center justify-between rounded-[var(--semantic-radius-card)] border border-border bg-card p-component-md min-h-[56px]">
-        <div className="flex items-center gap-component-md">
-          <Icon icon={Bell} size="lg" className="text-category-monitoring" aria-hidden="true" />
+      <div className="border-border bg-card p-component-md flex min-h-[56px] items-center justify-between rounded-[var(--semantic-radius-card)] border">
+        <div className="gap-component-md flex items-center">
+          <Icon
+            icon={Bell}
+            size="lg"
+            className="text-category-monitoring"
+            aria-hidden="true"
+          />
           <div>
             <Label className="text-base font-semibold">Ntfy.sh Notifications</Label>
-            <p className="text-sm text-muted-foreground">Send push notifications</p>
+            <p className="text-muted-foreground text-sm">Send push notifications</p>
           </div>
         </div>
         <Controller
@@ -114,7 +136,7 @@ function NtfyChannelFormMobileComponent({ ntfyForm }: NtfyChannelFormMobileProps
               type="checkbox"
               checked={field.value}
               onChange={field.onChange}
-              className="h-6 w-6 rounded border-border cursor-pointer"
+              className="border-border h-6 w-6 cursor-pointer rounded"
               aria-label="Enable ntfy.sh notifications"
             />
           )}
@@ -126,12 +148,17 @@ function NtfyChannelFormMobileComponent({ ntfyForm }: NtfyChannelFormMobileProps
         <button
           type="button"
           onClick={() => setShowServer(!showServer)}
-          className="flex w-full items-center justify-between rounded-[var(--semantic-radius-card)] border border-border bg-card p-component-md min-h-[56px] hover:bg-card/90 focus-visible:ring-2 focus-visible:ring-ring"
+          className="border-border bg-card p-component-md hover:bg-card/90 focus-visible:ring-ring flex min-h-[56px] w-full items-center justify-between rounded-[var(--semantic-radius-card)] border focus-visible:ring-2"
           aria-expanded={showServer}
           aria-label="Server Configuration"
         >
-          <div className="flex items-center gap-component-md">
-            <Icon icon={Server} size="lg" className="text-category-monitoring" aria-hidden="true" />
+          <div className="gap-component-md flex items-center">
+            <Icon
+              icon={Server}
+              size="lg"
+              className="text-category-monitoring"
+              aria-hidden="true"
+            />
             <span className="font-semibold">Server Configuration</span>
           </div>
           <Icon
@@ -143,7 +170,7 @@ function NtfyChannelFormMobileComponent({ ntfyForm }: NtfyChannelFormMobileProps
         </button>
 
         {showServer && (
-          <div className="space-y-component-md rounded-[var(--semantic-radius-card)] border border-border bg-card p-component-md">
+          <div className="space-y-component-md border-border bg-card p-component-md rounded-[var(--semantic-radius-card)] border">
             {/* Server URL */}
             <div className="space-y-component-sm">
               <Label htmlFor="serverUrl">
@@ -158,9 +185,14 @@ function NtfyChannelFormMobileComponent({ ntfyForm }: NtfyChannelFormMobileProps
                 error={!!errors.serverUrl}
               />
               {errors.serverUrl && (
-                <p className="text-sm text-error" role="alert">{errors.serverUrl.message}</p>
+                <p
+                  className="text-error text-sm"
+                  role="alert"
+                >
+                  {errors.serverUrl.message}
+                </p>
               )}
-              <p className="text-xs text-muted-foreground">
+              <p className="text-muted-foreground text-xs">
                 Use https://ntfy.sh or your self-hosted server
               </p>
             </div>
@@ -178,9 +210,14 @@ function NtfyChannelFormMobileComponent({ ntfyForm }: NtfyChannelFormMobileProps
                 error={!!errors.topic}
               />
               {errors.topic && (
-                <p className="text-sm text-error" role="alert">{errors.topic.message}</p>
+                <p
+                  className="text-error text-sm"
+                  role="alert"
+                >
+                  {errors.topic.message}
+                </p>
               )}
-              <p className="text-xs text-muted-foreground">
+              <p className="text-muted-foreground text-xs">
                 Only letters, numbers, hyphens, underscores
               </p>
             </div>
@@ -209,11 +246,11 @@ function NtfyChannelFormMobileComponent({ ntfyForm }: NtfyChannelFormMobileProps
                           value={preset.value.toString()}
                           className="min-h-[44px]"
                         >
-                          <div className="flex items-center gap-component-sm">
+                          <div className="gap-component-sm flex items-center">
                             <span className="text-lg">{preset.icon}</span>
                             <div>
                               <div className="font-medium">{preset.label}</div>
-                              <div className="text-xs text-muted-foreground">
+                              <div className="text-muted-foreground text-xs">
                                 {preset.description}
                               </div>
                             </div>
@@ -225,7 +262,12 @@ function NtfyChannelFormMobileComponent({ ntfyForm }: NtfyChannelFormMobileProps
                 )}
               />
               {errors.priority && (
-                <p className="text-sm text-error" role="alert">{errors.priority.message}</p>
+                <p
+                  className="text-error text-sm"
+                  role="alert"
+                >
+                  {errors.priority.message}
+                </p>
               )}
             </div>
           </div>
@@ -237,14 +279,24 @@ function NtfyChannelFormMobileComponent({ ntfyForm }: NtfyChannelFormMobileProps
         <button
           type="button"
           onClick={() => setShowAuth(!showAuth)}
-          className="flex w-full items-center justify-between rounded-[var(--semantic-radius-card)] border border-border bg-card p-component-md min-h-[56px] hover:bg-card/90 focus-visible:ring-2 focus-visible:ring-ring"
+          className="border-border bg-card p-component-md hover:bg-card/90 focus-visible:ring-ring flex min-h-[56px] w-full items-center justify-between rounded-[var(--semantic-radius-card)] border focus-visible:ring-2"
           aria-expanded={showAuth}
           aria-label="Authentication"
         >
-          <div className="flex items-center gap-component-md">
-            <Icon icon={Shield} size="lg" className="text-category-monitoring" aria-hidden="true" />
+          <div className="gap-component-md flex items-center">
+            <Icon
+              icon={Shield}
+              size="lg"
+              className="text-category-monitoring"
+              aria-hidden="true"
+            />
             <span className="font-semibold">Authentication</span>
-            <Badge variant="secondary" className="text-xs">Optional</Badge>
+            <Badge
+              variant="secondary"
+              className="text-xs"
+            >
+              Optional
+            </Badge>
           </div>
           <Icon
             icon={ChevronDown}
@@ -255,8 +307,8 @@ function NtfyChannelFormMobileComponent({ ntfyForm }: NtfyChannelFormMobileProps
         </button>
 
         {showAuth && (
-          <div className="space-y-component-md rounded-[var(--semantic-radius-card)] border border-border bg-card p-component-md">
-            <p className="text-sm text-muted-foreground">
+          <div className="space-y-component-md border-border bg-card p-component-md rounded-[var(--semantic-radius-card)] border">
+            <p className="text-muted-foreground text-sm">
               Required for protected topics on ntfy.sh or self-hosted servers
             </p>
 
@@ -270,7 +322,12 @@ function NtfyChannelFormMobileComponent({ ntfyForm }: NtfyChannelFormMobileProps
                 error={!!errors.username}
               />
               {errors.username && (
-                <p className="text-sm text-error" role="alert">{errors.username.message}</p>
+                <p
+                  className="text-error text-sm"
+                  role="alert"
+                >
+                  {errors.username.message}
+                </p>
               )}
             </div>
 
@@ -288,7 +345,7 @@ function NtfyChannelFormMobileComponent({ ntfyForm }: NtfyChannelFormMobileProps
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-1 top-1/2 -translate-y-1/2 p-2 min-h-[44px] min-w-[44px] flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-sm"
+                  className="focus-visible:ring-ring absolute right-1 top-1/2 flex min-h-[44px] min-w-[44px] -translate-y-1/2 items-center justify-center rounded-sm p-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
                   <Icon
@@ -299,7 +356,12 @@ function NtfyChannelFormMobileComponent({ ntfyForm }: NtfyChannelFormMobileProps
                 </button>
               </div>
               {errors.password && (
-                <p className="text-sm text-error" role="alert">{errors.password.message}</p>
+                <p
+                  className="text-error text-sm"
+                  role="alert"
+                >
+                  {errors.password.message}
+                </p>
               )}
             </div>
           </div>
@@ -311,16 +373,31 @@ function NtfyChannelFormMobileComponent({ ntfyForm }: NtfyChannelFormMobileProps
         <button
           type="button"
           onClick={() => setShowTags(!showTags)}
-          className="flex w-full items-center justify-between rounded-[var(--semantic-radius-card)] border border-border bg-card p-component-md min-h-[56px] hover:bg-card/90 focus-visible:ring-2 focus-visible:ring-ring"
+          className="border-border bg-card p-component-md hover:bg-card/90 focus-visible:ring-ring flex min-h-[56px] w-full items-center justify-between rounded-[var(--semantic-radius-card)] border focus-visible:ring-2"
           aria-expanded={showTags}
           aria-label="Tags"
         >
-          <div className="flex items-center gap-component-md">
-            <Icon icon={Tag} size="lg" className="text-category-monitoring" aria-hidden="true" />
+          <div className="gap-component-md flex items-center">
+            <Icon
+              icon={Tag}
+              size="lg"
+              className="text-category-monitoring"
+              aria-hidden="true"
+            />
             <span className="font-semibold">Tags</span>
-            <Badge variant="secondary" className="text-xs">Optional</Badge>
+            <Badge
+              variant="secondary"
+              className="text-xs"
+            >
+              Optional
+            </Badge>
             {tags.length > 0 && (
-              <Badge variant="default" className="text-xs">{tags.length}</Badge>
+              <Badge
+                variant="default"
+                className="text-xs"
+              >
+                {tags.length}
+              </Badge>
             )}
           </div>
           <Icon
@@ -332,13 +409,13 @@ function NtfyChannelFormMobileComponent({ ntfyForm }: NtfyChannelFormMobileProps
         </button>
 
         {showTags && (
-          <div className="space-y-component-md rounded-[var(--semantic-radius-card)] border border-border bg-card p-component-md">
-            <p className="text-sm text-muted-foreground">
+          <div className="space-y-component-md border-border bg-card p-component-md rounded-[var(--semantic-radius-card)] border">
+            <p className="text-muted-foreground text-sm">
               Add tags to categorize your notifications (max 10)
             </p>
 
             {/* Tag Input */}
-            <div className="flex gap-component-md">
+            <div className="gap-component-md flex">
               <Input
                 value={tagInput}
                 onChange={(e) => setTagInput(e.target.value)}
@@ -361,17 +438,25 @@ function NtfyChannelFormMobileComponent({ ntfyForm }: NtfyChannelFormMobileProps
 
             {/* Tag List */}
             {tags.length > 0 && (
-              <div className="flex flex-wrap gap-component-md">
+              <div className="gap-component-md flex flex-wrap">
                 {tags.map((tag, index) => (
-                  <Badge key={index} variant="secondary" className="flex items-center gap-component-md text-sm py-component-sm px-component-md font-mono">
+                  <Badge
+                    key={index}
+                    variant="secondary"
+                    className="gap-component-md py-component-sm px-component-md flex items-center font-mono text-sm"
+                  >
                     <span>{tag}</span>
                     <button
                       type="button"
                       onClick={() => removeTag(index)}
-                      className="ml-component-xs p-0.5 min-h-[44px] min-w-[44px] flex items-center justify-center hover:text-error focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-sm"
+                      className="ml-component-xs hover:text-error focus-visible:ring-ring flex min-h-[44px] min-w-[44px] items-center justify-center rounded-sm p-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
                       aria-label={`Remove ${tag}`}
                     >
-                      <Icon icon={X} size="md" aria-hidden="true" />
+                      <Icon
+                        icon={X}
+                        size="md"
+                        aria-hidden="true"
+                      />
                     </button>
                   </Badge>
                 ))}
@@ -379,7 +464,7 @@ function NtfyChannelFormMobileComponent({ ntfyForm }: NtfyChannelFormMobileProps
             )}
 
             {tags.length >= 10 && (
-              <p className="text-sm text-muted-foreground">Maximum 10 tags reached</p>
+              <p className="text-muted-foreground text-sm">Maximum 10 tags reached</p>
             )}
           </div>
         )}
@@ -387,7 +472,10 @@ function NtfyChannelFormMobileComponent({ ntfyForm }: NtfyChannelFormMobileProps
 
       {/* Test Result */}
       {testResult && (
-        <Alert variant={testResult.success ? 'default' : 'destructive'} role="alert">
+        <Alert
+          variant={testResult.success ? 'default' : 'destructive'}
+          role="alert"
+        >
           <Icon
             icon={testResult.success ? CheckCircle2 : AlertCircle}
             size="md"
@@ -398,18 +486,23 @@ function NtfyChannelFormMobileComponent({ ntfyForm }: NtfyChannelFormMobileProps
       )}
 
       {/* Fixed Action Buttons (Mobile Bottom Bar) */}
-      <div className="fixed bottom-0 left-0 right-0 border-t border-border bg-background p-component-md space-y-component-md">
+      <div className="border-border bg-background p-component-md space-y-component-md fixed bottom-0 left-0 right-0 border-t">
         <Button
           type="button"
           variant="outline"
           onClick={handleTest}
           disabled={!isValid || isTesting}
-          className="w-full min-h-[44px]"
+          className="min-h-[44px] w-full"
           aria-label={isTesting ? 'Testing notification' : 'Test notification'}
         >
           {isTesting ? 'Testing...' : 'Test Notification'}
         </Button>
-        <Button type="submit" disabled={!isValid} className="w-full min-h-[44px]" aria-label="Save configuration">
+        <Button
+          type="submit"
+          disabled={!isValid}
+          className="min-h-[44px] w-full"
+          aria-label="Save configuration"
+        >
           Save Configuration
         </Button>
       </div>

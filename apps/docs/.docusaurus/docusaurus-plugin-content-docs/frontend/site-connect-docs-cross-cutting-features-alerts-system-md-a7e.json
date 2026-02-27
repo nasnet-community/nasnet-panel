@@ -1,7 +1,7 @@
 {
   "id": "cross-cutting-features/alerts-system",
   "title": "Alerts System",
-  "description": "The alerts system provides rule-based notifications for router and service events. Users define conditions, choose channels for delivery, configure quiet hours, and receive in-app or external notifications when conditions trigger.",
+  "description": "The alerts system provides rule-based notifications for router and service events. Users define",
   "source": "@site/../connect/docs/cross-cutting-features/alerts-system.md",
   "sourceDirName": "cross-cutting-features",
   "slug": "/cross-cutting-features/alerts-system",

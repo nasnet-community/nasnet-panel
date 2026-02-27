@@ -82,7 +82,8 @@ const manyEvents: ConnectionEventData[] = Array.from({ length: 25 }, (_, i) => {
     id: `evt-page-${i}`,
     eventType,
     timestamp: new Date(Date.now() - i * 20 * 60 * 1000).toISOString(),
-    publicIP: eventType === 'CONNECTED' || eventType === 'IP_CHANGED' ? `203.0.113.${i + 1}` : undefined,
+    publicIP:
+      eventType === 'CONNECTED' || eventType === 'IP_CHANGED' ? `203.0.113.${i + 1}` : undefined,
     wanInterfaceId: i % 3 === 0 ? 'lte1' : 'ether1-wan',
   });
 });

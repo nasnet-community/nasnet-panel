@@ -23,7 +23,9 @@ export default meta;
 type Story = StoryObj<typeof DeviceListItem>;
 
 // Mock device data
-const createMockDevice = (overrides?: Partial<ConnectedDeviceEnriched>): ConnectedDeviceEnriched => ({
+const createMockDevice = (
+  overrides?: Partial<ConnectedDeviceEnriched>
+): ConnectedDeviceEnriched => ({
   id: '1',
   ipAddress: '192.168.88.105',
   macAddress: 'A4:83:E7:12:34:56',

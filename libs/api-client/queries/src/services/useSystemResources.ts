@@ -176,21 +176,15 @@ export interface ResourceUsageChangedResult {
  */
 export function useSystemResources(
   routerID: string,
-  options?: QueryHookOptions<
-    GetSystemResourcesResult,
-    GetSystemResourcesVariables
-  >
+  options?: QueryHookOptions<GetSystemResourcesResult, GetSystemResourcesVariables>
 ) {
-  return useQuery<GetSystemResourcesResult, GetSystemResourcesVariables>(
-    GET_SYSTEM_RESOURCES,
-    {
-      variables: { routerID },
-      fetchPolicy: 'cache-and-network',
-      nextFetchPolicy: 'cache-first',
-      pollInterval: 10000, // Poll every 10 seconds
-      ...options,
-    }
-  );
+  return useQuery<GetSystemResourcesResult, GetSystemResourcesVariables>(GET_SYSTEM_RESOURCES, {
+    variables: { routerID },
+    fetchPolicy: 'cache-and-network',
+    nextFetchPolicy: 'cache-first',
+    pollInterval: 10000, // Poll every 10 seconds
+    ...options,
+  });
 }
 
 /**
@@ -257,33 +251,27 @@ export function useSystemResources(
  * ```
  */
 export function useSetResourceLimits(
-  options?: MutationHookOptions<
-    SetResourceLimitsResult,
-    SetResourceLimitsVariables
-  >
+  options?: MutationHookOptions<SetResourceLimitsResult, SetResourceLimitsVariables>
 ) {
-  return useMutation<SetResourceLimitsResult, SetResourceLimitsVariables>(
-    SET_RESOURCE_LIMITS,
-    {
-      refetchQueries: ['GetSystemResources'],
-      awaitRefetchQueries: false,
-      // Optimistic response for immediate UI feedback
-      optimisticResponse: (vars) => ({
-        setResourceLimits: {
-          __typename: 'ResourceLimitsPayload',
-          success: true,
-          resourceLimits: {
-            __typename: 'ResourceLimits',
-            memoryMB: vars.input.memoryMB,
-            cpuPercent: vars.input.cpuWeight ?? null,
-            applied: true,
-          },
-          errors: [],
+  return useMutation<SetResourceLimitsResult, SetResourceLimitsVariables>(SET_RESOURCE_LIMITS, {
+    refetchQueries: ['GetSystemResources'],
+    awaitRefetchQueries: false,
+    // Optimistic response for immediate UI feedback
+    optimisticResponse: (vars) => ({
+      setResourceLimits: {
+        __typename: 'ResourceLimitsPayload',
+        success: true,
+        resourceLimits: {
+          __typename: 'ResourceLimits',
+          memoryMB: vars.input.memoryMB,
+          cpuPercent: vars.input.cpuWeight ?? null,
+          applied: true,
         },
-      }),
-      ...options,
-    }
-  );
+        errors: [],
+      },
+    }),
+    ...options,
+  });
 }
 
 /**
@@ -341,19 +329,16 @@ export function useSetResourceLimits(
 export function useResourceUsageSubscription(
   routerID: string,
   instanceID: string,
-  options?: SubscriptionHookOptions<
-    ResourceUsageChangedResult,
-    ResourceUsageChangedVariables
-  >
+  options?: SubscriptionHookOptions<ResourceUsageChangedResult, ResourceUsageChangedVariables>
 ) {
-  return useSubscription<
-    ResourceUsageChangedResult,
-    ResourceUsageChangedVariables
-  >(SUBSCRIBE_RESOURCE_USAGE, {
-    variables: { routerID, instanceID },
-    shouldResubscribe: true, // Reconnect on connection loss
-    ...options,
-  });
+  return useSubscription<ResourceUsageChangedResult, ResourceUsageChangedVariables>(
+    SUBSCRIBE_RESOURCE_USAGE,
+    {
+      variables: { routerID, instanceID },
+      shouldResubscribe: true, // Reconnect on connection loss
+      ...options,
+    }
+  );
 }
 
 // Re-export types for convenience

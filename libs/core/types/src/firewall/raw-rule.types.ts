@@ -31,7 +31,7 @@ import { z } from 'zod';
  */
 export const RawChainSchema = z.enum([
   'prerouting', // Before routing decision
-  'output',     // Packets originating from router
+  'output', // Packets originating from router
 ]);
 
 export type RawChain = z.infer<typeof RawChainSchema>;
@@ -40,11 +40,11 @@ export type RawChain = z.infer<typeof RawChainSchema>;
  * RAW Action - What to do with matched packets
  */
 export const RawActionSchema = z.enum([
-  'drop',     // Silently discard packet
-  'accept',   // Allow packet (continue to filter rules)
-  'notrack',  // Disable connection tracking for performance
-  'jump',     // Jump to custom chain
-  'log',      // Log packet and continue
+  'drop', // Silently discard packet
+  'accept', // Allow packet (continue to filter rules)
+  'notrack', // Disable connection tracking for performance
+  'jump', // Jump to custom chain
+  'log', // Log packet and continue
 ]);
 
 export type RawAction = z.infer<typeof RawActionSchema>;
@@ -52,13 +52,7 @@ export type RawAction = z.infer<typeof RawActionSchema>;
 /**
  * Protocol types for RAW filtering
  */
-export const RawProtocolSchema = z.enum([
-  'tcp',
-  'udp',
-  'icmp',
-  'ipv6-icmp',
-  'all',
-]);
+export const RawProtocolSchema = z.enum(['tcp', 'udp', 'icmp', 'ipv6-icmp', 'all']);
 
 export type RawProtocol = z.infer<typeof RawProtocolSchema>;
 
@@ -96,10 +90,13 @@ const isValidIPv4 = (value: string): boolean => {
   const octets = ip.split('.');
 
   // Validate octets (0-255)
-  if (!octets.every(octet => {
-    const num = parseInt(octet, 10);
-    return num >= 0 && num <= 255;
-  })) return false;
+  if (
+    !octets.every((octet) => {
+      const num = parseInt(octet, 10);
+      return num >= 0 && num <= 255;
+    })
+  )
+    return false;
 
   // Validate CIDR (0-32)
   if (cidr) {
@@ -126,10 +123,10 @@ const isValidPort = (value: string): boolean => {
   if (!portRegex.test(value)) return false;
 
   const parts = value.split('-');
-  const ports = parts.map(p => parseInt(p, 10));
+  const ports = parts.map((p) => parseInt(p, 10));
 
   // Validate port range (1-65535)
-  if (!ports.every(port => port >= 1 && port <= 65535)) return false;
+  if (!ports.every((port) => port >= 1 && port <= 65535)) return false;
 
   // Validate range order (start < end)
   if (ports.length === 2 && ports[0] >= ports[1]) return false;
@@ -174,114 +171,118 @@ const InterfaceNameSchema = z
  *
  * Complete schema for RAW rule configuration with all matchers and actions.
  */
-export const RawRuleSchema = z.object({
-  // ========================================
-  // Identity
-  // ========================================
-  id: z.string().optional(),
+export const RawRuleSchema = z
+  .object({
+    // ========================================
+    // Identity
+    // ========================================
+    id: z.string().optional(),
 
-  // ========================================
-  // Chain and Action (REQUIRED)
-  // ========================================
-  chain: RawChainSchema,
-  action: RawActionSchema,
+    // ========================================
+    // Chain and Action (REQUIRED)
+    // ========================================
+    chain: RawChainSchema,
+    action: RawActionSchema,
 
-  // Position for ordering (read-only from API)
-  order: z.number().int().optional(),
+    // Position for ordering (read-only from API)
+    order: z.number().int().optional(),
 
-  // ========================================
-  // Matchers - Basic
-  // ========================================
-  protocol: RawProtocolSchema.optional(),
-  srcAddress: IPAddressSchema,
-  dstAddress: IPAddressSchema,
-  srcPort: PortSchema,
-  dstPort: PortSchema,
+    // ========================================
+    // Matchers - Basic
+    // ========================================
+    protocol: RawProtocolSchema.optional(),
+    srcAddress: IPAddressSchema,
+    dstAddress: IPAddressSchema,
+    srcPort: PortSchema,
+    dstPort: PortSchema,
 
-  // ========================================
-  // Matchers - Interfaces
-  // ========================================
-  inInterface: InterfaceNameSchema,
-  outInterface: InterfaceNameSchema,
+    // ========================================
+    // Matchers - Interfaces
+    // ========================================
+    inInterface: InterfaceNameSchema,
+    outInterface: InterfaceNameSchema,
 
-  // ========================================
-  // Rate Limiting (for DDoS protection)
-  // ========================================
-  limit: RateLimitSchema.optional(),
+    // ========================================
+    // Rate Limiting (for DDoS protection)
+    // ========================================
+    limit: RateLimitSchema.optional(),
 
-  // ========================================
-  // Action-specific fields
-  // ========================================
-  jumpTarget: z.string().max(63).optional(), // For jump action
-  logPrefix: z.string()
-    .max(50, 'Log prefix must be 50 characters or less')
-    .regex(/^[a-zA-Z0-9-]+$/, 'Log prefix must contain only alphanumeric characters and hyphens')
-    .optional(),
+    // ========================================
+    // Action-specific fields
+    // ========================================
+    jumpTarget: z.string().max(63).optional(), // For jump action
+    logPrefix: z
+      .string()
+      .max(50, 'Log prefix must be 50 characters or less')
+      .regex(/^[a-zA-Z0-9-]+$/, 'Log prefix must contain only alphanumeric characters and hyphens')
+      .optional(),
 
-  // ========================================
-  // Meta
-  // ========================================
-  comment: z.string().max(255).optional(),
-  disabled: z.boolean().default(false),
+    // ========================================
+    // Meta
+    // ========================================
+    comment: z.string().max(255).optional(),
+    disabled: z.boolean().default(false),
 
-  // ========================================
-  // Counters (read-only from API)
-  // ========================================
-  packets: z.number().int().optional(),
-  bytes: z.number().int().optional(),
-})
-.refine(
-  (data) => {
-    // Chain-specific validation: outInterface only on output chain
-    if (data.chain === 'prerouting' && data.outInterface) {
-      return false;
+    // ========================================
+    // Counters (read-only from API)
+    // ========================================
+    packets: z.number().int().optional(),
+    bytes: z.number().int().optional(),
+  })
+  .refine(
+    (data) => {
+      // Chain-specific validation: outInterface only on output chain
+      if (data.chain === 'prerouting' && data.outInterface) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message:
+        'Output interface can only be specified for output chain (routing decision not made yet)',
+      path: ['outInterface'],
     }
-    return true;
-  },
-  {
-    message: 'Output interface can only be specified for output chain (routing decision not made yet)',
-    path: ['outInterface'],
-  }
-)
-.refine(
-  (data) => {
-    // Chain-specific validation: inInterface only on prerouting chain
-    if (data.chain === 'output' && data.inInterface) {
-      return false;
+  )
+  .refine(
+    (data) => {
+      // Chain-specific validation: inInterface only on prerouting chain
+      if (data.chain === 'output' && data.inInterface) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message:
+        'Input interface can only be specified for prerouting chain (packets originate from router)',
+      path: ['inInterface'],
     }
-    return true;
-  },
-  {
-    message: 'Input interface can only be specified for prerouting chain (packets originate from router)',
-    path: ['inInterface'],
-  }
-)
-.refine(
-  (data) => {
-    // Require jumpTarget if action is jump
-    if (data.action === 'jump' && !data.jumpTarget) {
-      return false;
+  )
+  .refine(
+    (data) => {
+      // Require jumpTarget if action is jump
+      if (data.action === 'jump' && !data.jumpTarget) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message: 'Jump target is required for jump action',
+      path: ['jumpTarget'],
     }
-    return true;
-  },
-  {
-    message: 'Jump target is required for jump action',
-    path: ['jumpTarget'],
-  }
-)
-.refine(
-  (data) => {
-    // Require logPrefix if action is log
-    if (data.action === 'log' && !data.logPrefix) {
-      return false;
+  )
+  .refine(
+    (data) => {
+      // Require logPrefix if action is log
+      if (data.action === 'log' && !data.logPrefix) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message: 'Log prefix is required for log action',
+      path: ['logPrefix'],
     }
-    return true;
-  },
-  {
-    message: 'Log prefix is required for log action',
-    path: ['logPrefix'],
-  }
-);
+  );
 
 export type RawRule = z.infer<typeof RawRuleSchema>;
 export type RawRuleInput = z.input<typeof RawRuleSchema>;

@@ -81,7 +81,13 @@ export const Default: Story = {
   args: {},
   render: function Render(args) {
     const [value, setValue] = useState('');
-    return <MACInput {...args} value={value} onChange={setValue} />;
+    return (
+      <MACInput
+        {...args}
+        value={value}
+        onChange={setValue}
+      />
+    );
   },
 };
 
@@ -94,7 +100,13 @@ export const WithValidMAC_Colon: Story = {
   },
   render: function Render(args) {
     const [value, setValue] = useState('AA:BB:CC:DD:EE:FF');
-    return <MACInput {...args} value={value} onChange={setValue} />;
+    return (
+      <MACInput
+        {...args}
+        value={value}
+        onChange={setValue}
+      />
+    );
   },
 };
 
@@ -107,7 +119,13 @@ export const WithValidMAC_Dash: Story = {
   },
   render: function Render(args) {
     const [value, setValue] = useState('AA-BB-CC-DD-EE-FF');
-    return <MACInput {...args} value={value} onChange={setValue} />;
+    return (
+      <MACInput
+        {...args}
+        value={value}
+        onChange={setValue}
+      />
+    );
   },
 };
 
@@ -120,7 +138,13 @@ export const WithValidMAC_Dot: Story = {
   },
   render: function Render(args) {
     const [value, setValue] = useState('AABB.CCDD.EEFF');
-    return <MACInput {...args} value={value} onChange={setValue} />;
+    return (
+      <MACInput
+        {...args}
+        value={value}
+        onChange={setValue}
+      />
+    );
   },
 };
 
@@ -138,7 +162,13 @@ export const WithVendorLookup_VMware: Story = {
   },
   render: function Render(args) {
     const [value, setValue] = useState('00:50:56:AA:BB:CC');
-    return <MACInput {...args} value={value} onChange={setValue} />;
+    return (
+      <MACInput
+        {...args}
+        value={value}
+        onChange={setValue}
+      />
+    );
   },
 };
 
@@ -152,7 +182,13 @@ export const WithVendorLookup_MikroTik: Story = {
   },
   render: function Render(args) {
     const [value, setValue] = useState('00:0C:42:AA:BB:CC');
-    return <MACInput {...args} value={value} onChange={setValue} />;
+    return (
+      <MACInput
+        {...args}
+        value={value}
+        onChange={setValue}
+      />
+    );
   },
 };
 
@@ -166,7 +202,13 @@ export const WithVendorLookup_Unknown: Story = {
   },
   render: function Render(args) {
     const [value, setValue] = useState('11:22:33:44:55:66');
-    return <MACInput {...args} value={value} onChange={setValue} />;
+    return (
+      <MACInput
+        {...args}
+        value={value}
+        onChange={setValue}
+      />
+    );
   },
 };
 
@@ -184,7 +226,13 @@ export const WithError: Story = {
   },
   render: function Render(args) {
     const [value, setValue] = useState('AA:BB:CC:DD:EE:FF');
-    return <MACInput {...args} value={value} onChange={setValue} />;
+    return (
+      <MACInput
+        {...args}
+        value={value}
+        onChange={setValue}
+      />
+    );
   },
 };
 
@@ -198,7 +246,13 @@ export const Disabled: Story = {
   },
   render: function Render(args) {
     const [value, setValue] = useState('AA:BB:CC:DD:EE:FF');
-    return <MACInput {...args} value={value} onChange={setValue} />;
+    return (
+      <MACInput
+        {...args}
+        value={value}
+        onChange={setValue}
+      />
+    );
   },
 };
 
@@ -212,7 +266,13 @@ export const WithLabel: Story = {
   },
   render: function Render(args) {
     const [value, setValue] = useState('');
-    return <MACInput {...args} value={value} onChange={setValue} />;
+    return (
+      <MACInput
+        {...args}
+        value={value}
+        onChange={setValue}
+      />
+    );
   },
 };
 
@@ -257,8 +317,8 @@ export const MobileVariant: Story = {
   globals: {
     viewport: {
       value: 'mobile1',
-      isRotated: false
-    }
+      isRotated: false,
+    },
   },
 };
 
@@ -324,10 +384,12 @@ export const InteractiveDemo: Story = {
           label="MAC Address"
         />
 
-        <div className="text-sm text-muted-foreground">
-          <p>Current value: <code>{value || '(empty)'}</code></p>
+        <div className="text-muted-foreground text-sm">
+          <p>
+            Current value: <code>{value || '(empty)'}</code>
+          </p>
           <p className="mt-2">Try pasting these:</p>
-          <ul className="list-disc list-inside">
+          <ul className="list-inside list-disc">
             <li>00:50:56:AA:BB:CC (VMware)</li>
             <li>00-0C-42-AA-BB-CC (MikroTik)</li>
             <li>B827.EBAA.BBCC (Raspberry Pi - Cisco format)</li>
@@ -357,7 +419,10 @@ export const WithHelpText: Story = {
           label="MAC Address"
           aria-describedby="mac-help"
         />
-        <p id="mac-help" className="text-sm text-muted-foreground">
+        <p
+          id="mac-help"
+          className="text-muted-foreground text-sm"
+        >
           Enter the device MAC address. You can paste it in any format.
         </p>
       </div>

@@ -112,12 +112,12 @@ export const Interactive: Story = {
       const [count, setCount] = useState(12);
 
       return (
-        <div className="relative w-[400px] h-[300px] border border-border rounded-lg overflow-hidden bg-muted/30 flex flex-col">
-          <div className="flex-1 p-4 space-y-2 overflow-y-auto">
+        <div className="border-border bg-muted/30 relative flex h-[300px] w-[400px] flex-col overflow-hidden rounded-lg border">
+          <div className="flex-1 space-y-2 overflow-y-auto p-4">
             {Array.from({ length: 8 }).map((_, i) => (
               <div
                 key={i}
-                className="text-xs font-mono text-muted-foreground bg-card border border-border rounded px-3 py-2"
+                className="text-muted-foreground bg-card border-border rounded border px-3 py-2 font-mono text-xs"
               >
                 <span className="text-cyan-500">2024-01-15 09:3{i}:22</span>{' '}
                 <span className="text-amber-400">INFO</span> system: log entry {i + 1}
@@ -131,7 +131,7 @@ export const Interactive: Story = {
               <NewEntriesIndicator
                 count={count}
                 onClick={() => setCount(0)}
-                className="static translate-x-0 bottom-auto left-auto"
+                className="static bottom-auto left-auto translate-x-0"
               />
             </div>
           )}
@@ -139,7 +139,7 @@ export const Interactive: Story = {
           {count === 0 && (
             <div className="absolute bottom-4 right-4">
               <button
-                className="text-xs text-muted-foreground border border-border rounded px-2 py-1 hover:bg-muted"
+                className="text-muted-foreground border-border hover:bg-muted rounded border px-2 py-1 text-xs"
                 onClick={() => setCount(12)}
               >
                 Simulate new entries

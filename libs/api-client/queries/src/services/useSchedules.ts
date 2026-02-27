@@ -380,9 +380,9 @@ export function useUpdateSchedule() {
           queryClient.setQueryData(
             queryKey,
             schedules.map((schedule) =>
-              schedule.id === scheduleID
-                ? { ...schedule, ...input, updatedAt: new Date().toISOString() } as any
-                : schedule
+              schedule.id === scheduleID ?
+                ({ ...schedule, ...input, updatedAt: new Date().toISOString() } as any)
+              : schedule
             )
           );
         }
@@ -393,10 +393,11 @@ export function useUpdateSchedule() {
         scheduleKeys.byId(routerID, scheduleID)
       );
       if (previousSchedule) {
-        queryClient.setQueryData(
-          scheduleKeys.byId(routerID, scheduleID),
-          { ...previousSchedule, ...input, updatedAt: new Date().toISOString() } as any
-        );
+        queryClient.setQueryData(scheduleKeys.byId(routerID, scheduleID), {
+          ...previousSchedule,
+          ...input,
+          updatedAt: new Date().toISOString(),
+        } as any);
       }
 
       return { previousSchedules, previousSchedule };

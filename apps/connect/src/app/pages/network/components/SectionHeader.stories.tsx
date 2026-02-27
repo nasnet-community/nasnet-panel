@@ -73,7 +73,7 @@ export const WithIcon: Story = {
   args: {
     title: 'Wireless Interfaces',
     count: 3,
-    icon: <Wifi className="w-4 h-4" />,
+    icon: <Wifi className="h-4 w-4" />,
   },
   parameters: {
     docs: {
@@ -87,7 +87,7 @@ export const WithAction: Story = {
   args: {
     title: 'Firewall Rules',
     count: 8,
-    icon: <Shield className="w-4 h-4" />,
+    icon: <Shield className="h-4 w-4" />,
     action: {
       label: 'View all',
       onClick: () => alert('View all clicked'),
@@ -115,7 +115,7 @@ export const Collapsible: Story = {
           onToggle={() => setCollapsed((c) => !c)}
         />
         {!collapsed && (
-          <div className="mt-2 p-3 bg-muted rounded-lg text-sm text-muted-foreground">
+          <div className="bg-muted text-muted-foreground mt-2 rounded-lg p-3 text-sm">
             Section content is visible when expanded.
           </div>
         )}
@@ -125,7 +125,7 @@ export const Collapsible: Story = {
   args: {
     title: 'ARP Table',
     count: 5,
-    icon: <Network className="w-4 h-4" />,
+    icon: <Network className="h-4 w-4" />,
   },
   parameters: {
     docs: {
@@ -156,7 +156,7 @@ export const Mobile: Story = {
   args: {
     title: 'Wireless Interfaces',
     count: 3,
-    icon: <Wifi className="w-4 h-4" />,
+    icon: <Wifi className="h-4 w-4" />,
   },
   parameters: {
     viewport: { defaultViewport: 'mobile1' },
@@ -167,7 +167,7 @@ export const Desktop: Story = {
   args: {
     title: 'Wireless Interfaces',
     count: 3,
-    icon: <Wifi className="w-4 h-4" />,
+    icon: <Wifi className="h-4 w-4" />,
   },
   parameters: {
     viewport: { defaultViewport: 'desktop' },

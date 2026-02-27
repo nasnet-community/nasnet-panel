@@ -153,9 +153,8 @@ export function useRouterHealthCard({
     [cacheAgeMinutes]
   );
 
-  const mutationDisabledReason = mutationsDisabled
-    ? 'Data is too old (>5 minutes). Reconnect to router first.'
-    : null;
+  const mutationDisabledReason =
+    mutationsDisabled ? 'Data is too old (>5 minutes). Reconnect to router first.' : null;
 
   // Refetch function - memoized to prevent unnecessary callback updates
   const refetch = useCallback(async () => {

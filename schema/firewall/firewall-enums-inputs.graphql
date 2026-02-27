@@ -6,22 +6,34 @@
 Template categories for organization.
 """
 enum TemplateCategory {
-  """Basic security rules"""
+  """
+  Basic security rules
+  """
   BASIC
 
-  """Home network configurations"""
+  """
+  Home network configurations
+  """
   HOME
 
-  """Gaming-optimized rules"""
+  """
+  Gaming-optimized rules
+  """
   GAMING
 
-  """IoT device isolation"""
+  """
+  IoT device isolation
+  """
   IOT
 
-  """Guest network access"""
+  """
+  Guest network access
+  """
   GUEST
 
-  """User-created custom templates"""
+  """
+  User-created custom templates
+  """
   CUSTOM
 }
 
@@ -29,13 +41,19 @@ enum TemplateCategory {
 Template complexity levels.
 """
 enum TemplateComplexity {
-  """Simple templates with few rules"""
+  """
+  Simple templates with few rules
+  """
   SIMPLE
 
-  """Moderate complexity"""
+  """
+  Moderate complexity
+  """
   MODERATE
 
-  """Advanced templates with many rules"""
+  """
+  Advanced templates with many rules
+  """
   ADVANCED
 }
 
@@ -43,22 +61,34 @@ enum TemplateComplexity {
 Variable types for template parameters.
 """
 enum VariableType {
-  """Free-form string"""
+  """
+  Free-form string
+  """
   STRING
 
-  """Interface name (autocomplete from router)"""
+  """
+  Interface name (autocomplete from router)
+  """
   INTERFACE
 
-  """Subnet in CIDR notation"""
+  """
+  Subnet in CIDR notation
+  """
   SUBNET
 
-  """IP address"""
+  """
+  IP address
+  """
   IP
 
-  """Port number"""
+  """
+  Port number
+  """
   PORT
 
-  """VLAN ID"""
+  """
+  VLAN ID
+  """
   VLAN_ID
 }
 
@@ -66,16 +96,24 @@ enum VariableType {
 Firewall table types.
 """
 enum FirewallTable {
-  """Packet filtering"""
+  """
+  Packet filtering
+  """
   FILTER
 
-  """Network address translation"""
+  """
+  Network address translation
+  """
   NAT
 
-  """Packet marking and modification"""
+  """
+  Packet marking and modification
+  """
   MANGLE
 
-  """Raw packet processing"""
+  """
+  Raw packet processing
+  """
   RAW
 }
 
@@ -83,16 +121,24 @@ enum FirewallTable {
 Conflict types between template and existing configuration.
 """
 enum TemplateConflictType {
-  """Duplicate rule already exists"""
+  """
+  Duplicate rule already exists
+  """
   DUPLICATE_RULE
 
-  """IP address range overlaps"""
+  """
+  IP address range overlaps
+  """
   IP_OVERLAP
 
-  """Chain configuration conflicts"""
+  """
+  Chain configuration conflicts
+  """
   CHAIN_CONFLICT
 
-  """Position conflict in chain"""
+  """
+  Position conflict in chain
+  """
   POSITION_CONFLICT
 }
 
@@ -104,19 +150,29 @@ enum TemplateConflictType {
 Input for saving a custom template.
 """
 input SaveTemplateInput {
-  """Template name"""
+  """
+  Template name
+  """
   name: String! @validate(minLength: 1, maxLength: 100)
 
-  """Template description"""
+  """
+  Template description
+  """
   description: String! @validate(minLength: 1, maxLength: 500)
 
-  """Category"""
+  """
+  Category
+  """
   category: TemplateCategory!
 
-  """Variable definitions"""
+  """
+  Variable definitions
+  """
   variables: [FirewallTemplateVariableInput!]!
 
-  """Rule definitions"""
+  """
+  Rule definitions
+  """
   rules: [TemplateRuleInput!]!
 }
 
@@ -124,22 +180,34 @@ input SaveTemplateInput {
 Input for defining a template variable.
 """
 input FirewallTemplateVariableInput {
-  """Variable name"""
+  """
+  Variable name
+  """
   name: String! @validate(minLength: 1, maxLength: 50, pattern: "^[A-Z_]+$")
 
-  """Label for UI"""
+  """
+  Label for UI
+  """
   label: String! @validate(minLength: 1, maxLength: 100)
 
-  """Variable type"""
+  """
+  Variable type
+  """
   type: VariableType!
 
-  """Default value"""
+  """
+  Default value
+  """
   defaultValue: String
 
-  """Whether required"""
+  """
+  Whether required
+  """
   required: Boolean!
 
-  """Description"""
+  """
+  Description
+  """
   description: String @validate(maxLength: 200)
 }
 
@@ -147,21 +215,33 @@ input FirewallTemplateVariableInput {
 Input for defining a template rule.
 """
 input TemplateRuleInput {
-  """Firewall table"""
+  """
+  Firewall table
+  """
   table: FirewallTable!
 
-  """Chain name"""
+  """
+  Chain name
+  """
   chain: String! @validate(minLength: 1, maxLength: 50)
 
-  """Action"""
+  """
+  Action
+  """
   action: String! @validate(minLength: 1, maxLength: 50)
 
-  """Comment"""
+  """
+  Comment
+  """
   comment: String @validate(maxLength: 200)
 
-  """Position"""
+  """
+  Position
+  """
   position: Int
 
-  """Rule properties as JSON"""
+  """
+  Rule properties as JSON
+  """
   properties: JSON!
 }

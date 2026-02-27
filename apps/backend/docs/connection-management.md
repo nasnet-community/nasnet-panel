@@ -1,10 +1,14 @@
 # Connection Management
 
-> Per-router connection pool with circuit breaker protection, exponential-backoff reconnection, periodic health monitoring, and hardware/software capability detection with 24-hour caching.
+> Per-router connection pool with circuit breaker protection, exponential-backoff reconnection,
+> periodic health monitoring, and hardware/software capability detection with 24-hour caching.
 
-**Packages:** `internal/connection/`, `internal/capability/`
-**Key Files:** `connection/pool.go`, `connection/circuit.go`, `connection/manager_reconnect.go`, `connection/state.go`, `connection/manager.go`, `connection/health.go`, `capability/detector.go`, `capability/cache.go`, `capability/types.go`
-**Prerequisites:** [See: router-communication.md §Protocol Adapters], [See: event-system.md §Event Bus], [See: application-bootstrap.md §Boot Sequence]
+**Packages:** `internal/connection/`, `internal/capability/` **Key Files:** `connection/pool.go`,
+`connection/circuit.go`, `connection/manager_reconnect.go`, `connection/state.go`,
+`connection/manager.go`, `connection/health.go`, `capability/detector.go`, `capability/cache.go`,
+`capability/types.go` **Prerequisites:** [See: router-communication.md §Protocol Adapters], [See:
+event-system.md
+§Event Bus], [See: application-bootstrap.md §Boot Sequence]
 
 ---
 
@@ -12,10 +16,14 @@
 
 Connection management in NasNetConnect is split into two cooperating packages:
 
-- **`internal/connection`** — Manages the lifecycle of each router connection (connect, disconnect, reconnect, health check) using a connection pool, per-router circuit breakers, and exponential-backoff retry loops.
-- **`internal/capability`** — Detects what the connected router supports (hardware, software version, container support) and caches the result for 24 hours with background lazy refresh.
+- **`internal/connection`** — Manages the lifecycle of each router connection (connect, disconnect,
+  reconnect, health check) using a connection pool, per-router circuit breakers, and
+  exponential-backoff retry loops.
+- **`internal/capability`** — Detects what the connected router supports (hardware, software
+  version, container support) and caches the result for 24 hours with background lazy refresh.
 
-Both packages are initialized during application bootstrap and wired together through the `Manager` type, which exposes a single, consistent API for the rest of the codebase to use.
+Both packages are initialized during application bootstrap and wired together through the `Manager`
+type, which exposes a single, consistent API for the rest of the codebase to use.
 
 ---
 
@@ -86,7 +94,8 @@ type RouterClient interface {
 }
 ```
 
-A `ClientFactory` is provided at `Manager` construction time; it selects the appropriate adapter based on the connection configuration and available protocol.
+A `ClientFactory` is provided at `Manager` construction time; it selects the appropriate adapter
+based on the connection configuration and available protocol.
 
 ---
 
@@ -102,15 +111,16 @@ DISCONNECTED ──► CONNECTING ──► CONNECTED ──► RECONNECTING ─
                                    └──► DISCONNECTED (manual reset)
 ```
 
-| State | Meaning |
-|-------|---------|
-| `StateDisconnected` | No active connection |
-| `StateConnecting` | Connection attempt in progress |
-| `StateConnected` | Active and responsive |
+| State               | Meaning                                           |
+| ------------------- | ------------------------------------------------- |
+| `StateDisconnected` | No active connection                              |
+| `StateConnecting`   | Connection attempt in progress                    |
+| `StateConnected`    | Active and responsive                             |
 | `StateReconnecting` | Lost connection, exponential-backoff retry active |
-| `StateError` | Permanently failed; manual reconnect required |
+| `StateError`        | Permanently failed; manual reconnect required     |
 
-`Status.SetState(newState)` enforces the transition table — invalid transitions return `ErrInvalidStateTransition`. Convenience methods also record timestamps and reset counters:
+`Status.SetState(newState)` enforces the transition table — invalid transitions return
+`ErrInvalidStateTransition`. Convenience methods also record timestamps and reset counters:
 
 ```go
 status.SetConnected(protocol, version) // records ConnectedAt, clears error fields
@@ -224,25 +234,27 @@ type TransitionError struct {
 
 ### Circuit Breaker (`circuit.go`)
 
-Each router connection has its own `CircuitBreaker` instance backed by `github.com/sony/gobreaker/v2`.
+Each router connection has its own `CircuitBreaker` instance backed by
+`github.com/sony/gobreaker/v2`.
 
 **Default configuration** (`DefaultCircuitBreakerConfig()`):
 
-| Setting | Default | Meaning |
-|---------|---------|---------|
-| `MaxFailures` | 3 | Consecutive failures before OPEN |
-| `Timeout` | 5 minutes | Cooldown before HALF_OPEN probe |
-| `MaxRequests` | 1 | Probe requests allowed in HALF_OPEN |
+| Setting       | Default   | Meaning                             |
+| ------------- | --------- | ----------------------------------- |
+| `MaxFailures` | 3         | Consecutive failures before OPEN    |
+| `Timeout`     | 5 minutes | Cooldown before HALF_OPEN probe     |
+| `MaxRequests` | 1         | Probe requests allowed in HALF_OPEN |
 
 **States:**
 
-| State | Behaviour |
-|-------|-----------|
-| `CLOSED` | Normal; all requests pass through |
-| `OPEN` | Rejects all requests immediately; starts `HealthMonitor` background probing |
-| `HALF_OPEN` | Allows one probe request; success → CLOSED, failure → OPEN |
+| State       | Behaviour                                                                   |
+| ----------- | --------------------------------------------------------------------------- |
+| `CLOSED`    | Normal; all requests pass through                                           |
+| `OPEN`      | Rejects all requests immediately; starts `HealthMonitor` background probing |
+| `HALF_OPEN` | Allows one probe request; success → CLOSED, failure → OPEN                  |
 
-**State transition callback** — wired at `Manager` construction to update the connection's `Status.CircuitBreakerState` and emit a log entry:
+**State transition callback** — wired at `Manager` construction to update the connection's
+`Status.CircuitBreakerState` and emit a log entry:
 
 ```go
 func WithOnStateChange(fn func(routerID string, from, to gobreaker.State)) CircuitBreakerOption
@@ -298,11 +310,11 @@ mgr := connection.NewManager(eventBus, clientFactory, logger, connection.Default
 
 `DefaultManagerConfig()` composes the defaults from all sub-systems:
 
-| Sub-system | Key Default |
-|------------|------------|
-| Circuit breaker | 3 failures → OPEN, 5-min timeout |
-| Backoff | initial=1s, max=30s, multiplier=2, jitter=0.5 |
-| Health check | interval=30s, timeout=5s, threshold=3 failures |
+| Sub-system      | Key Default                                    |
+| --------------- | ---------------------------------------------- |
+| Circuit breaker | 3 failures → OPEN, 5-min timeout               |
+| Backoff         | initial=1s, max=30s, multiplier=2, jitter=0.5  |
+| Health check    | interval=30s, timeout=5s, threshold=3 failures |
 
 **Core operations:**
 
@@ -361,11 +373,10 @@ DefaultBackoffConfig() = {
 
 1. Transition to `StateReconnecting`, publish event.
 2. Create `backoff.ExponentialBackOffWithContext` (respects context cancellation).
-3. On each attempt:
-   a. Bail if `manualDisconnect` → `backoff.Permanent(err)`.
-   b. Bail if circuit breaker is OPEN → `backoff.Permanent(err)`.
-   c. Call `clientFactory.CreateClient()` + `client.Connect()` inside `cb.ExecuteWithContext()`.
-   d. Record `lastReconnectAttempt`, increment `ReconnectAttempts`.
+3. On each attempt: a. Bail if `manualDisconnect` → `backoff.Permanent(err)`. b. Bail if circuit
+   breaker is OPEN → `backoff.Permanent(err)`. c. Call `clientFactory.CreateClient()` +
+   `client.Connect()` inside `cb.ExecuteWithContext()`. d. Record `lastReconnectAttempt`, increment
+   `ReconnectAttempts`.
 4. On permanent failure:
    - If manual disconnect: → `StateDisconnected`.
    - Otherwise: → `StateError`.
@@ -375,7 +386,8 @@ DefaultBackoffConfig() = {
    - Publish event.
    - Call `startHealthMonitoring()`.
 
-The backoff goroutine holds a `context.CancelFunc` stored on `Connection.reconnectCancel` so it can be cancelled by `Disconnect()` or `Close()`.
+The backoff goroutine holds a `context.CancelFunc` stored on `Connection.reconnectCancel` so it can
+be cancelled by `Disconnect()` or `Close()`.
 
 ---
 
@@ -383,7 +395,9 @@ The backoff goroutine holds a `context.CancelFunc` stored on `Connection.reconne
 
 **Periodic health checks** (`startHealthMonitoring`):
 
-After a successful connection (or reconnection), a goroutine runs `Ping()` on the established client every `HealthConfig.Interval` (default 30 s). Three consecutive failures (configurable via `HealthConfig.FailureThreshold`) trigger automatic reconnection.
+After a successful connection (or reconnection), a goroutine runs `Ping()` on the established client
+every `HealthConfig.Interval` (default 30 s). Three consecutive failures (configurable via
+`HealthConfig.FailureThreshold`) trigger automatic reconnection.
 
 **`HealthMonitor`** — handles background probing during the OPEN circuit-breaker window:
 
@@ -407,7 +421,8 @@ stats, err := hm.GetHealthStats(routerID)
 // → HealthStats{RouterID, ConsecutivePassed, ConsecutiveFailed, LastCheck, IsHealthy}
 ```
 
-Background health check events are published on the event bus as `MetricUpdatedEvent` with metric name `"health_check"`.
+Background health check events are published on the event bus as `MetricUpdatedEvent` with metric
+name `"health_check"`.
 
 ---
 
@@ -415,7 +430,10 @@ Background health check events are published on the event bus as `MetricUpdatedE
 
 ### Overview
 
-Capability detection interrogates a connected router to build a complete profile of what it supports: hardware specs, RouterOS version, installed packages, and container configuration. Results are cached in an in-memory L1 cache with a 24-hour TTL and stale-while-revalidate at the 12-hour mark.
+Capability detection interrogates a connected router to build a complete profile of what it
+supports: hardware specs, RouterOS version, installed packages, and container configuration. Results
+are cached in an in-memory L1 cache with a 24-hour TTL and stale-while-revalidate at the 12-hour
+mark.
 
 ---
 
@@ -443,12 +461,12 @@ const (
 
 **Support levels:**
 
-| Level | Value | Meaning |
-|-------|-------|---------|
-| `LevelNone` | 0 | Not supported — hide in UI |
-| `LevelBasic` | 1 | Limited support — show with warnings |
-| `LevelAdvanced` | 2 | Full RouterOS native support |
-| `LevelFull` | 3 | Complete including container-based features |
+| Level           | Value | Meaning                                     |
+| --------------- | ----- | ------------------------------------------- |
+| `LevelNone`     | 0     | Not supported — hide in UI                  |
+| `LevelBasic`    | 1     | Limited support — show with warnings        |
+| `LevelAdvanced` | 2     | Full RouterOS native support                |
+| `LevelFull`     | 3     | Complete including container-based features |
 
 The `@capability` directive uses level ≥ 1 (`BASIC`) as its threshold.
 
@@ -501,13 +519,13 @@ type RouterPort interface {
 
 `Detect(ctx, port)` runs five steps in sequence:
 
-| Step | RouterOS Path | Purpose |
-|------|--------------|---------|
-| 1 | `/system/resource` | Version, architecture, CPU count, memory, storage, board |
-| 2 | `/system/package` | Installed package list; sets `HasWirelessChip`, `HasLTEModule`, `PackageInstalled` (container) |
-| 3 | `/system/routerboard` | Hardware model (non-fatal if missing) |
-| 4 | `/container/config` | Container enabled, registry configured; computes `MaxContainers` |
-| 5 | (in-memory) | `computeCapabilityLevels()` — derives `Entries` map from gathered data |
+| Step | RouterOS Path         | Purpose                                                                                        |
+| ---- | --------------------- | ---------------------------------------------------------------------------------------------- |
+| 1    | `/system/resource`    | Version, architecture, CPU count, memory, storage, board                                       |
+| 2    | `/system/package`     | Installed package list; sets `HasWirelessChip`, `HasLTEModule`, `PackageInstalled` (container) |
+| 3    | `/system/routerboard` | Hardware model (non-fatal if missing)                                                          |
+| 4    | `/container/config`   | Container enabled, registry configured; computes `MaxContainers`                               |
+| 5    | (in-memory)           | `computeCapabilityLevels()` — derives `Entries` map from gathered data                         |
 
 The routerboard step is non-fatal: CHR and cloud instances may not expose this path.
 
@@ -532,7 +550,8 @@ type Cache interface {
 func NewMemoryCache() Cache
 ```
 
-`Get` returns a copy of capabilities with `IsRefreshing = true` injected if a background refresh is in progress — so callers always get a valid snapshot, never a stale pointer.
+`Get` returns a copy of capabilities with `IsRefreshing = true` injected if a background refresh is
+in progress — so callers always get a valid snapshot, never a stale pointer.
 
 ---
 
@@ -552,7 +571,8 @@ func NewService(detector, cache) *Service
 **`GetCapabilities(ctx, routerID, portGetter)`:**
 
 1. Cache hit → return immediately.
-2. If cached but stale (> 12h) and not already refreshing → spawn `backgroundRefresh()` goroutine, still return cached data.
+2. If cached but stale (> 12h) and not already refreshing → spawn `backgroundRefresh()` goroutine,
+   still return cached data.
 3. Cache miss → `detectAndCache()` (blocking).
 
 **`RefreshCapabilities(ctx, routerID, portGetter)`** — force re-detect, bypass cache.
@@ -565,7 +585,8 @@ Background refresh is silent on failure — it never degrades currently-serving 
 
 ### Version Compatibility Integration (`version_integration.go`)
 
-`VersionCapabilityIntegration` bridges the hardware-detected `Capabilities` with the version-based `router/compatibility.Service`:
+`VersionCapabilityIntegration` bridges the hardware-detected `Capabilities` with the version-based
+`router/compatibility.Service`:
 
 ```go
 integration := capability.NewVersionCapabilityIntegration()
@@ -582,7 +603,8 @@ supported := integration.GetSupportedFeatures(caps, isCHR)
 unsupported := integration.GetUnsupportedFeatures(caps, isCHR)
 ```
 
-`EnhanceCapabilities` sets capability entries for: `REST_API`, `BINARY_API`, `ZEROTIER`, `ACME`, `WIFI_WAVE2` — combining version gate checks with installed-package checks.
+`EnhanceCapabilities` sets capability entries for: `REST_API`, `BINARY_API`, `ZEROTIER`, `ACME`,
+`WIFI_WAVE2` — combining version gate checks with installed-package checks.
 
 Version conversion helpers:
 
@@ -595,14 +617,19 @@ capability.ConvertFromCompatibilityVersion(compatibility.Version) RouterOSVersio
 
 ## Interaction with Router Adapters
 
-The `connection.Manager` depends on a `ClientFactory` that is provided at construction. The factory is responsible for selecting and constructing the correct protocol adapter (REST, API, SSH, Telnet). This is wired during bootstrap:
+The `connection.Manager` depends on a `ClientFactory` that is provided at construction. The factory
+is responsible for selecting and constructing the correct protocol adapter (REST, API, SSH, Telnet).
+This is wired during bootstrap:
 
 ```go
 // See: application-bootstrap.md §Boot Sequence
 mgr := connection.NewManager(eventBus, routerClientFactory, logger, cfg)
 ```
 
-When `Manager.Connect()` is called, it passes the connection `Config` (host, port, credentials, preferred protocol) to `ClientFactory.CreateClient()`. The factory implements fallback chain logic — it tries the preferred protocol first, then falls back through REST → API → SSH → Telnet until one succeeds. [See: router-communication.md §Fallback Chain]
+When `Manager.Connect()` is called, it passes the connection `Config` (host, port, credentials,
+preferred protocol) to `ClientFactory.CreateClient()`. The factory implements fallback chain logic —
+it tries the preferred protocol first, then falls back through REST → API → SSH → Telnet until one
+succeeds. [See: router-communication.md §Fallback Chain]
 
 ---
 
@@ -611,6 +638,7 @@ When `Manager.Connect()` is called, it passes the connection `Config` (host, por
 ### Manual vs. Automatic Disconnect
 
 `manualDisconnect = true` (set by `Disconnect(_, DisconnectReasonManual)`) suppresses:
+
 - Automatic reconnect trigger after `handleConnectionError`.
 - The reconnect loop's retry attempts (returns `backoff.Permanent`).
 - The background health monitor's ability to re-establish the connection.
@@ -620,17 +648,23 @@ Calling `Reconnect()` clears this flag before attempting.
 ### Circuit Breaker and Reconnect Interaction
 
 When the circuit breaker is OPEN:
+
 - `reconnectLoop` returns `backoff.Permanent` immediately (avoids wasteful retries).
-- `HealthMonitor.StartBackgroundMonitoring()` begins external probing at 30-second intervals without going through the breaker.
-- If a probe succeeds, the event bus fires `health_check` passed → upstream logic can trigger a manual reconnect to close the breaker via the HALF_OPEN probe.
+- `HealthMonitor.StartBackgroundMonitoring()` begins external probing at 30-second intervals without
+  going through the breaker.
+- If a probe succeeds, the event bus fires `health_check` passed → upstream logic can trigger a
+  manual reconnect to close the breaker via the HALF_OPEN probe.
 
 ### Pool Limits
 
-`NewPoolWithLimit(max)` creates a pool that returns `nil` from `GetOrCreate` when full. The Manager logs a `Warn` and `Connect` returns an error. Default production configuration uses an unlimited pool (`NewPool()`).
+`NewPoolWithLimit(max)` creates a pool that returns `nil` from `GetOrCreate` when full. The Manager
+logs a `Warn` and `Connect` returns an error. Default production configuration uses an unlimited
+pool (`NewPool()`).
 
 ### Capability Cache Invalidation
 
 Cache entries are automatically invalidated when:
+
 - `Service.Invalidate(routerID)` is called explicitly (e.g., router removal).
 - `Service.RefreshCapabilities()` is called (explicit re-detect).
 - The 24-hour TTL expires (on next `Get` call).
@@ -639,7 +673,8 @@ There is no proactive eviction — stale entries remain until queried.
 
 ### VIF Requirements
 
-The `CheckVIFRequirements()` method provides a structured checklist used by the UI to guide users through enabling VIF:
+The `CheckVIFRequirements()` method provides a structured checklist used by the UI to guide users
+through enabling VIF:
 
 ```
 1. RouterOS 7.13+ ✓ / ✗
@@ -649,7 +684,8 @@ The `CheckVIFRequirements()` method provides a structured checklist used by the 
 5. arm64/x86_64 architecture (network namespace) ✓ / ✗
 ```
 
-`VIFGuidance()` returns ordered `VIFGuidanceStep` items with RouterOS commands for the resolver to surface in the API.
+`VIFGuidance()` returns ordered `VIFGuidanceStep` items with RouterOS commands for the resolver to
+surface in the API.
 
 ---
 
@@ -658,6 +694,7 @@ The `CheckVIFRequirements()` method provides a structured checklist used by the 
 - [See: application-bootstrap.md §Boot Sequence] — Manager and capability service construction
 - [See: router-communication.md §Protocol Adapters] — ClientFactory and RouterClient implementations
 - [See: router-communication.md §Fallback Chain] — Protocol selection logic
-- [See: event-system.md §Events] — `StatusChangedEvent`, `MetricUpdatedEvent` published by Manager and HealthMonitor
+- [See: event-system.md §Events] — `StatusChangedEvent`, `MetricUpdatedEvent` published by Manager
+  and HealthMonitor
 - [See: graphql-api.md §Directives] — `@capability` directive consuming `Capabilities` from context
 - [See: error-handling.md §Error Types] — `TransitionError`, `RouterError` used in this package

@@ -84,11 +84,11 @@ const AppShell = React.memo(
       return (
         <div
           ref={ref}
-          className={cn('flex min-h-screen flex-col bg-background', className)}
+          className={cn('bg-background flex min-h-screen flex-col', className)}
         >
           {header && (
             <header
-              className="sticky top-0 z-40 bg-card border-b border-border"
+              className="bg-card border-border sticky top-0 z-40 border-b"
               style={{ height: 'var(--nav-height, 4rem)' }}
               aria-label="Application header"
             >
@@ -100,7 +100,7 @@ const AppShell = React.memo(
             {sidebar && sidebarPosition === 'left' && (
               <aside
                 className={cn(
-                  'border-r border-border bg-card transition-all duration-300 ease-in-out hidden lg:block',
+                  'border-border bg-card hidden border-r transition-all duration-300 ease-in-out lg:block',
                   sidebarCollapsed ? 'w-16' : 'w-64'
                 )}
                 aria-label="Navigation sidebar"
@@ -110,7 +110,7 @@ const AppShell = React.memo(
             )}
             <main
               id="main-content"
-              className="flex-1 overflow-y-auto bg-background"
+              className="bg-background flex-1 overflow-y-auto"
               role="main"
             >
               {children}
@@ -118,7 +118,7 @@ const AppShell = React.memo(
             {sidebar && sidebarPosition === 'right' && (
               <aside
                 className={cn(
-                  'border-l border-border bg-card transition-all duration-300 ease-in-out hidden lg:block',
+                  'border-border bg-card hidden border-l transition-all duration-300 ease-in-out lg:block',
                   sidebarCollapsed ? 'w-16' : 'w-64'
                 )}
                 aria-label="Navigation sidebar"
@@ -129,7 +129,7 @@ const AppShell = React.memo(
           </div>
           {footer && (
             <footer
-              className="border-t border-border bg-card"
+              className="border-border bg-card border-t"
               aria-label="Application footer"
             >
               {footer}

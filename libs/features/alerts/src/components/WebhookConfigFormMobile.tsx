@@ -44,10 +44,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@nasnet/ui/primitives';
-import {
-  WEBHOOK_TEMPLATE_PRESETS,
-  AUTH_TYPE_OPTIONS,
-} from '../schemas/webhook.schema';
+import { WEBHOOK_TEMPLATE_PRESETS, AUTH_TYPE_OPTIONS } from '../schemas/webhook.schema';
 import type { UseWebhookConfigFormReturn } from '../hooks/useWebhookConfigForm';
 
 // ============================================================================
@@ -143,20 +140,23 @@ export function WebhookConfigFormMobile({ webhookForm }: WebhookConfigFormMobile
 
   return (
     <>
-      <form onSubmit={handleSubmit} className="space-y-component-md pb-24">
+      <form
+        onSubmit={handleSubmit}
+        className="space-y-component-md pb-24"
+      >
         {/* Basic Configuration Section */}
         <div className="bg-card rounded-[var(--semantic-radius-card)] border">
           <button
             type="button"
-            className="w-full flex items-center justify-between p-component-md text-left min-h-11"
+            className="p-component-md flex min-h-11 w-full items-center justify-between text-left"
             onClick={() => toggleSection('basic')}
           >
-            <div className="flex items-center gap-component-md">
-              <Webhook className="w-5 h-5 text-category-monitoring" />
+            <div className="gap-component-md flex items-center">
+              <Webhook className="text-category-monitoring h-5 w-5" />
               <span className="font-semibold">Basic Configuration</span>
             </div>
             <ChevronDown
-              className={`w-5 h-5 transition-transform ${expandedSections.basic ? 'rotate-180' : ''}`}
+              className={`h-5 w-5 transition-transform ${expandedSections.basic ? 'rotate-180' : ''}`}
             />
           </button>
 
@@ -179,7 +179,9 @@ export function WebhookConfigFormMobile({ webhookForm }: WebhookConfigFormMobile
                         className={cn('min-h-11', fieldState.error ? 'border-error' : '')}
                       />
                       {fieldState.error && (
-                        <p className="text-sm text-error mt-component-xs">{fieldState.error.message}</p>
+                        <p className="text-error mt-component-xs text-sm">
+                          {fieldState.error.message}
+                        </p>
                       )}
                     </div>
                   )}
@@ -204,7 +206,9 @@ export function WebhookConfigFormMobile({ webhookForm }: WebhookConfigFormMobile
                         className={cn('min-h-11 font-mono', fieldState.error ? 'border-error' : '')}
                       />
                       {fieldState.error && (
-                        <p className="text-sm text-error mt-component-xs">{fieldState.error.message}</p>
+                        <p className="text-error mt-component-xs text-sm">
+                          {fieldState.error.message}
+                        </p>
                       )}
                     </div>
                   )}
@@ -236,15 +240,15 @@ export function WebhookConfigFormMobile({ webhookForm }: WebhookConfigFormMobile
         <div className="bg-card rounded-[var(--semantic-radius-card)] border">
           <button
             type="button"
-            className="w-full flex items-center justify-between p-component-md text-left min-h-11"
+            className="p-component-md flex min-h-11 w-full items-center justify-between text-left"
             onClick={() => toggleSection('auth')}
           >
-            <div className="flex items-center gap-component-md">
-              <Shield className="w-5 h-5 text-category-monitoring" />
+            <div className="gap-component-md flex items-center">
+              <Shield className="text-category-monitoring h-5 w-5" />
               <span className="font-semibold">Authentication</span>
             </div>
             <ChevronDown
-              className={`w-5 h-5 transition-transform ${expandedSections.auth ? 'rotate-180' : ''}`}
+              className={`h-5 w-5 transition-transform ${expandedSections.auth ? 'rotate-180' : ''}`}
             />
           </button>
 
@@ -257,8 +261,14 @@ export function WebhookConfigFormMobile({ webhookForm }: WebhookConfigFormMobile
                   control={control}
                   name="authType"
                   render={({ field }) => (
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <SelectTrigger id="authType-mobile" className="min-h-11">
+                    <Select
+                      value={field.value}
+                      onValueChange={field.onChange}
+                    >
+                      <SelectTrigger
+                        id="authType-mobile"
+                        className="min-h-11"
+                      >
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -269,7 +279,9 @@ export function WebhookConfigFormMobile({ webhookForm }: WebhookConfigFormMobile
                           >
                             <div className="py-component-xs">
                               <div className="font-medium">{option.label}</div>
-                              <div className="text-xs text-muted-foreground">{option.description}</div>
+                              <div className="text-muted-foreground text-xs">
+                                {option.description}
+                              </div>
                             </div>
                           </SelectItem>
                         ))}
@@ -339,15 +351,15 @@ export function WebhookConfigFormMobile({ webhookForm }: WebhookConfigFormMobile
         <div className="bg-card rounded-[var(--semantic-radius-card)] border">
           <button
             type="button"
-            className="w-full flex items-center justify-between p-component-md text-left min-h-11"
+            className="p-component-md flex min-h-11 w-full items-center justify-between text-left"
             onClick={() => toggleSection('template')}
           >
-            <div className="flex items-center gap-component-md">
-              <Code className="w-5 h-5 text-category-monitoring" />
+            <div className="gap-component-md flex items-center">
+              <Code className="text-category-monitoring h-5 w-5" />
               <span className="font-semibold">Payload Template</span>
             </div>
             <ChevronDown
-              className={`w-5 h-5 transition-transform ${expandedSections.template ? 'rotate-180' : ''}`}
+              className={`h-5 w-5 transition-transform ${expandedSections.template ? 'rotate-180' : ''}`}
             />
           </button>
 
@@ -360,8 +372,14 @@ export function WebhookConfigFormMobile({ webhookForm }: WebhookConfigFormMobile
                   control={control}
                   name="template"
                   render={({ field }) => (
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <SelectTrigger id="template-mobile" className="min-h-11">
+                    <Select
+                      value={field.value}
+                      onValueChange={field.onChange}
+                    >
+                      <SelectTrigger
+                        id="template-mobile"
+                        className="min-h-11"
+                      >
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -372,7 +390,9 @@ export function WebhookConfigFormMobile({ webhookForm }: WebhookConfigFormMobile
                           >
                             <div className="py-component-xs">
                               <div className="font-medium">{preset.label}</div>
-                              <div className="text-xs text-muted-foreground">{preset.description}</div>
+                              <div className="text-muted-foreground text-xs">
+                                {preset.description}
+                              </div>
                             </div>
                           </SelectItem>
                         ))}
@@ -401,7 +421,9 @@ export function WebhookConfigFormMobile({ webhookForm }: WebhookConfigFormMobile
                           className={`font-mono text-sm ${fieldState.error ? 'border-error' : ''}`}
                         />
                         {fieldState.error && (
-                          <p className="text-sm text-error mt-component-xs">{fieldState.error.message}</p>
+                          <p className="text-error mt-component-xs text-sm">
+                            {fieldState.error.message}
+                          </p>
                         )}
                       </div>
                     )}
@@ -416,17 +438,17 @@ export function WebhookConfigFormMobile({ webhookForm }: WebhookConfigFormMobile
         <div className="bg-card rounded-[var(--semantic-radius-card)] border">
           <button
             type="button"
-            className="w-full flex items-center justify-between p-component-md text-left min-h-11"
+            className="p-component-md flex min-h-11 w-full items-center justify-between text-left"
             onClick={() => toggleSection('headers')}
           >
-            <div className="flex items-center gap-component-md">
+            <div className="gap-component-md flex items-center">
               <span className="font-semibold">Custom Headers</span>
               {Object.keys(headers).length > 0 && (
                 <Badge variant="secondary">{Object.keys(headers).length}</Badge>
               )}
             </div>
             <ChevronDown
-              className={`w-5 h-5 transition-transform ${expandedSections.headers ? 'rotate-180' : ''}`}
+              className={`h-5 w-5 transition-transform ${expandedSections.headers ? 'rotate-180' : ''}`}
             />
           </button>
 
@@ -436,10 +458,13 @@ export function WebhookConfigFormMobile({ webhookForm }: WebhookConfigFormMobile
               {Object.keys(headers).length > 0 && (
                 <div className="space-y-component-sm">
                   {Object.entries(headers).map(([key, value]) => (
-                    <div key={key} className="flex items-center gap-component-sm p-component-sm bg-muted rounded-[var(--semantic-radius-button)]">
-                      <div className="flex-1 min-w-0">
-                        <div className="text-sm font-medium font-mono truncate">{key}</div>
-                        <div className="text-xs text-muted font-mono truncate">{value}</div>
+                    <div
+                      key={key}
+                      className="gap-component-sm p-component-sm bg-muted flex items-center rounded-[var(--semantic-radius-button)]"
+                    >
+                      <div className="min-w-0 flex-1">
+                        <div className="truncate font-mono text-sm font-medium">{key}</div>
+                        <div className="text-muted truncate font-mono text-xs">{value}</div>
                       </div>
                       <Button
                         type="button"
@@ -448,7 +473,7 @@ export function WebhookConfigFormMobile({ webhookForm }: WebhookConfigFormMobile
                         onClick={() => removeHeader(key)}
                         className="h-11 w-11"
                       >
-                        <X className="w-5 h-5" />
+                        <X className="h-5 w-5" />
                       </Button>
                     </div>
                   ))}
@@ -474,9 +499,9 @@ export function WebhookConfigFormMobile({ webhookForm }: WebhookConfigFormMobile
                   variant="outline"
                   onClick={handleAddHeader}
                   disabled={!newHeaderKey || !newHeaderValue}
-                  className="w-full min-h-11"
+                  className="min-h-11 w-full"
                 >
-                  <Plus className="w-5 h-5 mr-component-sm" />
+                  <Plus className="mr-component-sm h-5 w-5" />
                   Add Header
                 </Button>
               </div>
@@ -488,15 +513,15 @@ export function WebhookConfigFormMobile({ webhookForm }: WebhookConfigFormMobile
         <div className="bg-card rounded-[var(--semantic-radius-card)] border">
           <button
             type="button"
-            className="w-full flex items-center justify-between p-component-md text-left min-h-11"
+            className="p-component-md flex min-h-11 w-full items-center justify-between text-left"
             onClick={() => toggleSection('advanced')}
           >
-            <div className="flex items-center gap-component-md">
-              <Settings className="w-5 h-5 text-category-monitoring" />
+            <div className="gap-component-md flex items-center">
+              <Settings className="text-category-monitoring h-5 w-5" />
               <span className="font-semibold">Advanced Settings</span>
             </div>
             <ChevronDown
-              className={`w-5 h-5 transition-transform ${expandedSections.advanced ? 'rotate-180' : ''}`}
+              className={`h-5 w-5 transition-transform ${expandedSections.advanced ? 'rotate-180' : ''}`}
             />
           </button>
 
@@ -562,7 +587,7 @@ export function WebhookConfigFormMobile({ webhookForm }: WebhookConfigFormMobile
                   name="retryEnabled"
                   render={({ field }) => (
                     <div
-                      className="flex items-center gap-component-sm p-component-sm bg-muted rounded-[var(--semantic-radius-button)] cursor-pointer min-h-11"
+                      className="gap-component-sm p-component-sm bg-muted flex min-h-11 cursor-pointer items-center rounded-[var(--semantic-radius-button)]"
                       onClick={() => field.onChange(!field.value)}
                     >
                       <Checkbox
@@ -570,7 +595,10 @@ export function WebhookConfigFormMobile({ webhookForm }: WebhookConfigFormMobile
                         checked={field.value}
                         onCheckedChange={field.onChange}
                       />
-                      <Label htmlFor="retryEnabled-mobile" className="cursor-pointer">
+                      <Label
+                        htmlFor="retryEnabled-mobile"
+                        className="cursor-pointer"
+                      >
                         Enable retries on failure
                       </Label>
                     </div>
@@ -582,7 +610,7 @@ export function WebhookConfigFormMobile({ webhookForm }: WebhookConfigFormMobile
                   name="enabled"
                   render={({ field }) => (
                     <div
-                      className="flex items-center gap-component-sm p-component-sm bg-muted rounded-[var(--semantic-radius-button)] cursor-pointer min-h-11"
+                      className="gap-component-sm p-component-sm bg-muted flex min-h-11 cursor-pointer items-center rounded-[var(--semantic-radius-button)]"
                       onClick={() => field.onChange(!field.value)}
                     >
                       <Checkbox
@@ -590,7 +618,10 @@ export function WebhookConfigFormMobile({ webhookForm }: WebhookConfigFormMobile
                         checked={field.value}
                         onCheckedChange={field.onChange}
                       />
-                      <Label htmlFor="enabled-mobile" className="cursor-pointer">
+                      <Label
+                        htmlFor="enabled-mobile"
+                        className="cursor-pointer"
+                      >
                         Webhook enabled
                       </Label>
                     </div>
@@ -602,13 +633,17 @@ export function WebhookConfigFormMobile({ webhookForm }: WebhookConfigFormMobile
         </div>
 
         {/* Form Actions - Fixed Bottom */}
-        <div className="fixed bottom-0 left-0 right-0 p-component-md bg-card border-t border-border space-y-component-sm">
+        <div className="p-component-md bg-card border-border space-y-component-sm fixed bottom-0 left-0 right-0 border-t">
           <Button
             type="submit"
             disabled={!isValid || isSubmitting}
-            className="w-full min-h-11"
+            className="min-h-11 w-full"
           >
-            {isSubmitting ? 'Saving...' : isEditMode ? 'Update Webhook' : 'Create Webhook'}
+            {isSubmitting ?
+              'Saving...'
+            : isEditMode ?
+              'Update Webhook'
+            : 'Create Webhook'}
           </Button>
 
           {isEditMode && (
@@ -617,7 +652,7 @@ export function WebhookConfigFormMobile({ webhookForm }: WebhookConfigFormMobile
               variant="outline"
               onClick={handleTest}
               disabled={isTesting}
-              className="w-full min-h-11"
+              className="min-h-11 w-full"
             >
               {isTesting ? 'Testing...' : 'Test Webhook'}
             </Button>
@@ -626,15 +661,16 @@ export function WebhookConfigFormMobile({ webhookForm }: WebhookConfigFormMobile
       </form>
 
       {/* Test Result Bottom Sheet */}
-      <Dialog open={showTestSheet} onOpenChange={setShowTestSheet}>
+      <Dialog
+        open={showTestSheet}
+        onOpenChange={setShowTestSheet}
+      >
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-component-sm">
-              {testResult?.success ? (
-                <CheckCircle2 className="w-5 h-5 text-success" />
-              ) : (
-                <AlertCircle className="w-5 h-5 text-error" />
-              )}
+            <DialogTitle className="gap-component-sm flex items-center">
+              {testResult?.success ?
+                <CheckCircle2 className="text-success h-5 w-5" />
+              : <AlertCircle className="text-error h-5 w-5" />}
               Test Result
             </DialogTitle>
           </DialogHeader>
@@ -645,7 +681,7 @@ export function WebhookConfigFormMobile({ webhookForm }: WebhookConfigFormMobile
             </Alert>
 
             {testResult?.responseTimeMs && (
-              <div className="text-sm text-muted-foreground font-mono">
+              <div className="text-muted-foreground font-mono text-sm">
                 Response time: {testResult.responseTimeMs}ms
               </div>
             )}
@@ -657,7 +693,7 @@ export function WebhookConfigFormMobile({ webhookForm }: WebhookConfigFormMobile
                 setShowTestSheet(false);
                 clearTestResult();
               }}
-              className="w-full min-h-11"
+              className="min-h-11 w-full"
             >
               Close
             </Button>
@@ -666,7 +702,10 @@ export function WebhookConfigFormMobile({ webhookForm }: WebhookConfigFormMobile
       </Dialog>
 
       {/* Signing Secret Dialog (ONE TIME ONLY) */}
-      <Dialog open={showSigningSecretDialog} onOpenChange={setShowSigningSecretDialog}>
+      <Dialog
+        open={showSigningSecretDialog}
+        onOpenChange={setShowSigningSecretDialog}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Webhook Signing Secret</DialogTitle>
@@ -677,19 +716,19 @@ export function WebhookConfigFormMobile({ webhookForm }: WebhookConfigFormMobile
 
           <div className="space-y-component-md">
             <div className="p-component-md bg-muted rounded-[var(--semantic-radius-card)]">
-              <code className="text-sm break-all font-mono text-foreground">{signingSecret}</code>
+              <code className="text-foreground break-all font-mono text-sm">{signingSecret}</code>
             </div>
 
             <Button
               onClick={handleCopySecret}
-              className="w-full min-h-11"
+              className="min-h-11 w-full"
             >
-              <Copy className="w-4 h-4 mr-component-sm" />
+              <Copy className="mr-component-sm h-4 w-4" />
               {copied ? 'Copied!' : 'Copy to Clipboard'}
             </Button>
 
             <Alert>
-              <AlertCircle className="w-4 h-4" />
+              <AlertCircle className="h-4 w-4" />
               <AlertDescription>
                 Use this secret to verify webhook signatures. It cannot be retrieved later.
               </AlertDescription>
@@ -699,7 +738,7 @@ export function WebhookConfigFormMobile({ webhookForm }: WebhookConfigFormMobile
           <DialogFooter>
             <Button
               onClick={handleCloseSecretDialog}
-              className="w-full min-h-11"
+              className="min-h-11 w-full"
             >
               I've Saved the Secret
             </Button>

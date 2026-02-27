@@ -13,8 +13,6 @@ import { LogEntryItem } from './LogEntryItem';
 import type { LogEntryItemProps } from './types';
 import type { Meta, StoryObj } from '@storybook/react';
 
-
-
 // ---------------------------------------------------------------------------
 // Shared mock log entries
 // ---------------------------------------------------------------------------
@@ -42,7 +40,8 @@ const warningEntry: LogEntry = {
   timestamp: new Date(BASE_TIME.getTime() - 90_000),
   topic: 'wireless',
   severity: 'warning',
-  message: 'Signal strength degraded on wlan1: -78 dBm (threshold -75 dBm). Consider repositioning AP.',
+  message:
+    'Signal strength degraded on wlan1: -78 dBm (threshold -75 dBm). Consider repositioning AP.',
 };
 
 const errorEntry: LogEntry = {

@@ -98,8 +98,7 @@ export const useSidebarStore = create<SidebarState>()(
           desktopCollapsed: !state.desktopCollapsed,
         })),
 
-      setCollapsed: (collapsed: boolean) =>
-        set({ desktopCollapsed: collapsed }),
+      setCollapsed: (collapsed: boolean) => set({ desktopCollapsed: collapsed }),
 
       expand: () => set({ desktopCollapsed: false }),
 
@@ -118,10 +117,7 @@ export const useSidebarStore = create<SidebarState>()(
       onRehydrateStorage: () => {
         return (state, error) => {
           if (error) {
-            console.warn(
-              'Failed to hydrate sidebar state from localStorage:',
-              error
-            );
+            console.warn('Failed to hydrate sidebar state from localStorage:', error);
           }
         };
       },
@@ -138,8 +134,7 @@ export const useSidebarStore = create<SidebarState>()(
  * const isCollapsed = useSidebarStore(selectSidebarCollapsed);
  * ```
  */
-export const selectSidebarCollapsed = (state: SidebarState) =>
-  state.desktopCollapsed;
+export const selectSidebarCollapsed = (state: SidebarState) => state.desktopCollapsed;
 
 /**
  * Selector for toggle action only

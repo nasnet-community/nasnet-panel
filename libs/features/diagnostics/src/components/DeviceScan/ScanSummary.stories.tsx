@@ -31,8 +31,9 @@ function makeDevice(
     interface: iface,
     responseTime,
     firstSeen: new Date().toISOString(),
-    dhcpLease: hasDhcp
-      ? {
+    dhcpLease:
+      hasDhcp ?
+        {
           expires: new Date(Date.now() + 8 * 60 * 60 * 1000).toISOString(),
           server: '192.168.88.1',
           status: 'bound',
@@ -52,7 +53,9 @@ const largeDeviceList: DiscoveredDevice[] = [
     makeDevice(
       `192.168.1.${i + 10}`,
       `AA:BB:CC:DD:EE:${String(i).padStart(2, '0')}`,
-      i % 3 === 0 ? 'Apple' : i % 3 === 1 ? 'Samsung' : null,
+      i % 3 === 0 ? 'Apple'
+      : i % 3 === 1 ? 'Samsung'
+      : null,
       i % 4 === 0 ? `device-${i}.lan` : null,
       'bridge1',
       Math.floor(Math.random() * 20) + 1,
@@ -154,7 +157,8 @@ export const LongRunning: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'A large /22 subnet (1022 IPs) that took over 2 minutes; duration renders as "2m 5s".',
+        story:
+          'A large /22 subnet (1022 IPs) that took over 2 minutes; duration renders as "2m 5s".',
       },
     },
   },

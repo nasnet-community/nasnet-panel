@@ -116,20 +116,17 @@ export interface GetInstanceVerificationStatusResult {
 export function useFeatureVerification(
   routerID: string,
   instanceID: string,
-  options?: QueryHookOptions<
-    GetFeatureVerificationResult,
-    GetFeatureVerificationVariables
-  >
+  options?: QueryHookOptions<GetFeatureVerificationResult, GetFeatureVerificationVariables>
 ) {
-  return useQuery<
-    GetFeatureVerificationResult,
-    GetFeatureVerificationVariables
-  >(GET_FEATURE_VERIFICATION, {
-    variables: { routerID, instanceID },
-    fetchPolicy: 'cache-first',
-    nextFetchPolicy: 'cache-first',
-    ...options,
-  });
+  return useQuery<GetFeatureVerificationResult, GetFeatureVerificationVariables>(
+    GET_FEATURE_VERIFICATION,
+    {
+      variables: { routerID, instanceID },
+      fetchPolicy: 'cache-first',
+      nextFetchPolicy: 'cache-first',
+      ...options,
+    }
+  );
 }
 
 /**
@@ -169,13 +166,13 @@ export function useInstanceVerificationStatus(
     GetInstanceVerificationStatusVariables
   >
 ) {
-  return useQuery<
-    GetInstanceVerificationStatusResult,
-    GetInstanceVerificationStatusVariables
-  >(GET_INSTANCE_VERIFICATION_STATUS, {
-    variables: { routerID },
-    fetchPolicy: 'cache-and-network',
-    nextFetchPolicy: 'cache-first',
-    ...options,
-  });
+  return useQuery<GetInstanceVerificationStatusResult, GetInstanceVerificationStatusVariables>(
+    GET_INSTANCE_VERIFICATION_STATUS,
+    {
+      variables: { routerID },
+      fetchPolicy: 'cache-and-network',
+      nextFetchPolicy: 'cache-first',
+      ...options,
+    }
+  );
 }

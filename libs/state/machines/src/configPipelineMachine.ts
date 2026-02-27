@@ -73,10 +73,7 @@ export interface ConfigPipelineConfig<TConfig = unknown> {
   /**
    * Apply configuration to router
    */
-  applyConfig: (params: {
-    resourceId: string;
-    config: TConfig;
-  }) => Promise<ApplyResult<TConfig>>;
+  applyConfig: (params: { resourceId: string; config: TConfig }) => Promise<ApplyResult<TConfig>>;
 
   /**
    * Verify configuration was applied
@@ -168,17 +165,14 @@ export function createConfigPipelineMachine<TConfig = unknown>(
       events: ConfigPipelineEvent<TConfig>;
     },
     actors: {
-      runValidationPipeline: fromPromise<ValidationPipelineResult, TConfig>(
+      runValidationPipeline: fromPromise<ValidationPipelineResult, TConfig>(async ({ input }) => {
+        return runValidationPipeline(input);
+      }),
+      applyConfig: fromPromise<ApplyResult<TConfig>, { resourceId: string; config: TConfig }>(
         async ({ input }) => {
-          return runValidationPipeline(input);
+          return applyConfig(input);
         }
       ),
-      applyConfig: fromPromise<
-        ApplyResult<TConfig>,
-        { resourceId: string; config: TConfig }
-      >(async ({ input }) => {
-        return applyConfig(input);
-      }),
       verifyApplied: fromPromise<void, string>(async ({ input }) => {
         return verifyApplied(input);
       }),

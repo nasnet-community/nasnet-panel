@@ -15,6 +15,9 @@
   },
   "dependencies": {},
   "nx": {
-    "tags": ["type:lib", "scope:core"]
+    "tags": [
+      "type:lib",
+      "scope:core"
+    ]
   }
 }

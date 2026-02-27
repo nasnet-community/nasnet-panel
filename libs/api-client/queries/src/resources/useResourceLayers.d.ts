@@ -7,30 +7,38 @@
  * @module @nasnet/api-client/queries/resources
  */
 import { type ApolloError } from '@apollo/client';
-import type { ValidationResult, DeploymentState, RuntimeState, TelemetryData, ResourceMetadata, ResourceRelationships, PlatformInfo } from '@nasnet/core/types';
+import type {
+  ValidationResult,
+  DeploymentState,
+  RuntimeState,
+  TelemetryData,
+  ResourceMetadata,
+  ResourceRelationships,
+  PlatformInfo,
+} from '@nasnet/core/types';
 /**
  * Common options for layer hooks.
  */
 export interface LayerHookOptions {
-    /** Skip query execution */
-    skip?: boolean;
-    /** Polling interval in milliseconds */
-    pollInterval?: number;
-    /** Fetch policy */
-    fetchPolicy?: 'cache-first' | 'cache-and-network' | 'network-only';
+  /** Skip query execution */
+  skip?: boolean;
+  /** Polling interval in milliseconds */
+  pollInterval?: number;
+  /** Fetch policy */
+  fetchPolicy?: 'cache-first' | 'cache-and-network' | 'network-only';
 }
 /**
  * Common return type for layer hooks.
  */
 export interface LayerHookResult<T> {
-    /** Layer data */
-    data: T | undefined;
-    /** Loading state */
-    loading: boolean;
-    /** Error state */
-    error: ApolloError | undefined;
-    /** Refetch function */
-    refetch: () => Promise<void>;
+  /** Layer data */
+  data: T | undefined;
+  /** Loading state */
+  loading: boolean;
+  /** Error state */
+  error: ApolloError | undefined;
+  /** Refetch function */
+  refetch: () => Promise<void>;
 }
 /**
  * Hook for fetching resource validation layer.
@@ -44,7 +52,10 @@ export interface LayerHookResult<T> {
  * }
  * ```
  */
-export declare function useResourceValidation(uuid: string | undefined, options?: LayerHookOptions): LayerHookResult<ValidationResult>;
+export declare function useResourceValidation(
+  uuid: string | undefined,
+  options?: LayerHookOptions
+): LayerHookResult<ValidationResult>;
 /**
  * Hook for fetching resource deployment layer.
  * Use for deployment status and drift indicators.
@@ -57,7 +68,10 @@ export declare function useResourceValidation(uuid: string | undefined, options?
  * }
  * ```
  */
-export declare function useResourceDeployment(uuid: string | undefined, options?: LayerHookOptions): LayerHookResult<DeploymentState>;
+export declare function useResourceDeployment(
+  uuid: string | undefined,
+  options?: LayerHookOptions
+): LayerHookResult<DeploymentState>;
 /**
  * Hook for fetching resource runtime layer.
  * Use for real-time status displays.
@@ -76,7 +90,10 @@ export declare function useResourceDeployment(uuid: string | undefined, options?
  * );
  * ```
  */
-export declare function useResourceRuntime(uuid: string | undefined, options?: LayerHookOptions): LayerHookResult<RuntimeState>;
+export declare function useResourceRuntime(
+  uuid: string | undefined,
+  options?: LayerHookOptions
+): LayerHookResult<RuntimeState>;
 /**
  * Hook for fetching resource telemetry layer.
  * Use for charts and historical data displays.
@@ -93,7 +110,10 @@ export declare function useResourceRuntime(uuid: string | undefined, options?: L
  * );
  * ```
  */
-export declare function useResourceTelemetry(uuid: string | undefined, options?: LayerHookOptions): LayerHookResult<TelemetryData>;
+export declare function useResourceTelemetry(
+  uuid: string | undefined,
+  options?: LayerHookOptions
+): LayerHookResult<TelemetryData>;
 /**
  * Hook for fetching resource metadata layer.
  * Use for resource info displays and edit forms.
@@ -111,7 +131,10 @@ export declare function useResourceTelemetry(uuid: string | undefined, options?:
  * );
  * ```
  */
-export declare function useResourceMetadata(uuid: string | undefined, options?: LayerHookOptions): LayerHookResult<ResourceMetadata>;
+export declare function useResourceMetadata(
+  uuid: string | undefined,
+  options?: LayerHookOptions
+): LayerHookResult<ResourceMetadata>;
 /**
  * Hook for fetching resource relationships layer.
  * Use for dependency graphs and related resource displays.
@@ -128,7 +151,10 @@ export declare function useResourceMetadata(uuid: string | undefined, options?: 
  * );
  * ```
  */
-export declare function useResourceRelationships(uuid: string | undefined, options?: LayerHookOptions): LayerHookResult<ResourceRelationships>;
+export declare function useResourceRelationships(
+  uuid: string | undefined,
+  options?: LayerHookOptions
+): LayerHookResult<ResourceRelationships>;
 /**
  * Hook for fetching resource platform layer.
  * Use for platform-specific feature displays and limitations.
@@ -142,7 +168,10 @@ export declare function useResourceRelationships(uuid: string | undefined, optio
  * }
  * ```
  */
-export declare function useResourcePlatform(uuid: string | undefined, options?: LayerHookOptions): LayerHookResult<PlatformInfo>;
+export declare function useResourcePlatform(
+  uuid: string | undefined,
+  options?: LayerHookOptions
+): LayerHookResult<PlatformInfo>;
 /**
  * Hook for fetching resource configuration layer.
  * Use for configuration displays and edit forms.
@@ -156,22 +185,25 @@ export declare function useResourcePlatform(uuid: string | undefined, options?: 
  * );
  * ```
  */
-export declare function useResourceConfiguration<TConfig = unknown>(uuid: string | undefined, options?: LayerHookOptions): LayerHookResult<{
-    uuid: string;
-    id: string;
-    type: string;
-    category: string;
-    configuration: TConfig;
+export declare function useResourceConfiguration<TConfig = unknown>(
+  uuid: string | undefined,
+  options?: LayerHookOptions
+): LayerHookResult<{
+  uuid: string;
+  id: string;
+  type: string;
+  category: string;
+  configuration: TConfig;
 }>;
 declare const _default: {
-    useResourceValidation: typeof useResourceValidation;
-    useResourceDeployment: typeof useResourceDeployment;
-    useResourceRuntime: typeof useResourceRuntime;
-    useResourceTelemetry: typeof useResourceTelemetry;
-    useResourceMetadata: typeof useResourceMetadata;
-    useResourceRelationships: typeof useResourceRelationships;
-    useResourcePlatform: typeof useResourcePlatform;
-    useResourceConfiguration: typeof useResourceConfiguration;
+  useResourceValidation: typeof useResourceValidation;
+  useResourceDeployment: typeof useResourceDeployment;
+  useResourceRuntime: typeof useResourceRuntime;
+  useResourceTelemetry: typeof useResourceTelemetry;
+  useResourceMetadata: typeof useResourceMetadata;
+  useResourceRelationships: typeof useResourceRelationships;
+  useResourcePlatform: typeof useResourcePlatform;
+  useResourceConfiguration: typeof useResourceConfiguration;
 };
 export default _default;
 //# sourceMappingURL=useResourceLayers.d.ts.map

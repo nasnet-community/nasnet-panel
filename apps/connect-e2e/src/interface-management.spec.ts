@@ -153,7 +153,10 @@ test.describe('Interface Management', () => {
 
   test('disables interface with confirmation', async ({ page }) => {
     // Find an enabled interface (not gateway)
-    const enabledInterface = page.locator('[data-status="UP"]').filter({ hasNot: page.locator('[data-gateway="true"]') }).first();
+    const enabledInterface = page
+      .locator('[data-status="UP"]')
+      .filter({ hasNot: page.locator('[data-gateway="true"]') })
+      .first();
 
     // Click on it
     await enabledInterface.click();
@@ -174,7 +177,9 @@ test.describe('Interface Management', () => {
 
   test('selects multiple interfaces', async ({ page }) => {
     // Select checkboxes
-    const checkboxes = page.getByRole('checkbox').filter({ hasNot: page.locator('[aria-label="Select all"]') });
+    const checkboxes = page
+      .getByRole('checkbox')
+      .filter({ hasNot: page.locator('[aria-label="Select all"]') });
 
     await checkboxes.nth(0).check();
     await checkboxes.nth(1).check();
@@ -188,7 +193,9 @@ test.describe('Interface Management', () => {
 
   test('clears selection', async ({ page }) => {
     // Select interfaces
-    const checkboxes = page.getByRole('checkbox').filter({ hasNot: page.locator('[aria-label="Select all"]') });
+    const checkboxes = page
+      .getByRole('checkbox')
+      .filter({ hasNot: page.locator('[aria-label="Select all"]') });
     await checkboxes.nth(0).check();
     await checkboxes.nth(1).check();
 
@@ -203,7 +210,9 @@ test.describe('Interface Management', () => {
 
   test('batch enables interfaces', async ({ page }) => {
     // Select multiple disabled interfaces
-    const disabledCheckboxes = page.locator('[data-status="DISABLED"]').locator('input[type="checkbox"]');
+    const disabledCheckboxes = page
+      .locator('[data-status="DISABLED"]')
+      .locator('input[type="checkbox"]');
 
     const count = await disabledCheckboxes.count();
     if (count < 2) {
@@ -227,10 +236,16 @@ test.describe('Interface Management', () => {
 
   test('batch disables with safety warning for gateway', async ({ page }) => {
     // Select a gateway interface and another interface
-    const gatewayCheckbox = page.locator('[data-gateway="true"]').locator('input[type="checkbox"]').first();
+    const gatewayCheckbox = page
+      .locator('[data-gateway="true"]')
+      .locator('input[type="checkbox"]')
+      .first();
     await gatewayCheckbox.check();
 
-    const otherCheckbox = page.getByRole('checkbox').filter({ hasNot: page.locator('[data-gateway="true"]') }).first();
+    const otherCheckbox = page
+      .getByRole('checkbox')
+      .filter({ hasNot: page.locator('[data-gateway="true"]') })
+      .first();
     await otherCheckbox.check();
 
     // Open batch actions menu

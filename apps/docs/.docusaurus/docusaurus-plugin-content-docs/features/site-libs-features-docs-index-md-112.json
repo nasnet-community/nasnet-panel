@@ -1,7 +1,7 @@
 {
   "id": "index",
   "title": "Feature Library Documentation",
-  "description": "This directory contains the technical reference documentation for libs/features/, the Layer 3 domain layer in NasNetConnect's three-tier component architecture.",
+  "description": "This directory contains the technical reference documentation for libs/features/, the Layer 3",
   "source": "@site/../../libs/features/docs/index.md",
   "sourceDirName": ".",
   "slug": "/",

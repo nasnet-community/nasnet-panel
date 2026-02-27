@@ -1,7 +1,7 @@
 {
   "id": "intro",
   "title": "Introduction",
-  "description": "The Backend is a Go service that serves as the core of NasNet. It manages router connections, provides a GraphQL API, and handles service orchestration.",
+  "description": "The Backend is a Go service that serves as the core of NasNet. It manages router connections,",
   "source": "@site/../backend/docs/intro.md",
   "sourceDirName": ".",
   "slug": "/intro",

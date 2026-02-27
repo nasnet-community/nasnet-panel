@@ -111,11 +111,17 @@ export const Disabled: Story = {
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="apple">Apple</SelectItem>
-          <SelectItem value="banana" disabled>
+          <SelectItem
+            value="banana"
+            disabled
+          >
             Banana (out of stock)
           </SelectItem>
           <SelectItem value="blueberry">Blueberry</SelectItem>
-          <SelectItem value="grapes" disabled>
+          <SelectItem
+            value="grapes"
+            disabled
+          >
             Grapes (out of stock)
           </SelectItem>
         </SelectContent>
@@ -139,7 +145,7 @@ export const WithLabel: Story = {
           <SelectItem value="gatsby">Gatsby</SelectItem>
         </SelectContent>
       </Select>
-      <p className="text-sm text-muted-foreground">
+      <p className="text-muted-foreground text-sm">
         Select your preferred framework for the project.
       </p>
     </div>
@@ -151,11 +157,12 @@ export const Controlled: Story = {
     const [value, setValue] = React.useState('');
 
     return (
-      <div className="flex flex-col gap-4 items-center">
-        <p className="text-sm text-muted-foreground">
-          Selected: {value || 'None'}
-        </p>
-        <Select value={value} onValueChange={setValue}>
+      <div className="flex flex-col items-center gap-4">
+        <p className="text-muted-foreground text-sm">Selected: {value || 'None'}</p>
+        <Select
+          value={value}
+          onValueChange={setValue}
+        >
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="Select a fruit" />
           </SelectTrigger>
@@ -167,7 +174,7 @@ export const Controlled: Story = {
         </Select>
         <button
           onClick={() => setValue('')}
-          className="text-sm text-primary underline"
+          className="text-primary text-sm underline"
         >
           Clear selection
         </button>
@@ -184,13 +191,36 @@ export const Scrollable: Story = {
       </SelectTrigger>
       <SelectContent>
         {[
-          'Afghanistan', 'Albania', 'Algeria', 'Andorra', 'Angola',
-          'Argentina', 'Armenia', 'Australia', 'Austria', 'Azerbaijan',
-          'Bahamas', 'Bahrain', 'Bangladesh', 'Barbados', 'Belarus',
-          'Belgium', 'Belize', 'Benin', 'Bhutan', 'Bolivia',
-          'Brazil', 'Brunei', 'Bulgaria', 'Burkina Faso', 'Burundi',
+          'Afghanistan',
+          'Albania',
+          'Algeria',
+          'Andorra',
+          'Angola',
+          'Argentina',
+          'Armenia',
+          'Australia',
+          'Austria',
+          'Azerbaijan',
+          'Bahamas',
+          'Bahrain',
+          'Bangladesh',
+          'Barbados',
+          'Belarus',
+          'Belgium',
+          'Belize',
+          'Benin',
+          'Bhutan',
+          'Bolivia',
+          'Brazil',
+          'Brunei',
+          'Bulgaria',
+          'Burkina Faso',
+          'Burundi',
         ].map((country) => (
-          <SelectItem key={country} value={country.toLowerCase()}>
+          <SelectItem
+            key={country}
+            value={country.toLowerCase()}
+          >
             {country}
           </SelectItem>
         ))}
@@ -315,10 +345,8 @@ export const Desktop: Story = {
 export const KeyboardNavigation: Story = {
   render: () => (
     <div className="space-y-2">
-      <p className="text-sm text-muted-foreground">
-        Try keyboard navigation:
-      </p>
-      <ul className="text-xs text-muted-foreground list-disc list-inside space-y-1">
+      <p className="text-muted-foreground text-sm">Try keyboard navigation:</p>
+      <ul className="text-muted-foreground list-inside list-disc space-y-1 text-xs">
         <li>Click to open dropdown</li>
         <li>Arrow Up/Down to navigate items</li>
         <li>Enter to select</li>
@@ -347,9 +375,7 @@ export const LongContent: Story = {
         <SelectValue placeholder="Select with long text" />
       </SelectTrigger>
       <SelectContent>
-        <SelectItem value="opt1">
-          Very Long Option Text That Extends Beyond Normal Width
-        </SelectItem>
+        <SelectItem value="opt1">Very Long Option Text That Extends Beyond Normal Width</SelectItem>
         <SelectItem value="opt2">
           Another Exceptionally Long Option Name That Should Not Wrap
         </SelectItem>

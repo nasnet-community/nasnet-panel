@@ -33,11 +33,11 @@ import { useToast } from '../hooks/useToast';
  * Supported syntax languages for styling hints
  */
 export type CodeBlockLanguage =
-  | 'routeros'   // MikroTik RouterOS script
-  | 'json'       // JSON configuration
-  | 'yaml'       // YAML configuration
-  | 'shell'      // Shell/bash script
-  | 'text';      // Plain text
+  | 'routeros' // MikroTik RouterOS script
+  | 'json' // JSON configuration
+  | 'yaml' // YAML configuration
+  | 'shell' // Shell/bash script
+  | 'text'; // Plain text
 
 /**
  * Props for CodeBlockCopy component
@@ -178,9 +178,10 @@ function CodeBlockCopyComponent({
   const { lines, lineNumberWidth, maxHeightStyle, languageLabel } = useMemo(() => {
     const codeLines = code.split('\n');
     const numberWidth = String(codeLines.length).length;
-    const heightStyle = maxHeight
-      ? typeof maxHeight === 'number'
-        ? { maxHeight: `${maxHeight}px` }
+    const heightStyle =
+      maxHeight ?
+        typeof maxHeight === 'number' ?
+          { maxHeight: `${maxHeight}px` }
         : { maxHeight }
       : undefined;
     const label = getLanguageLabel(language);
@@ -195,22 +196,18 @@ function CodeBlockCopyComponent({
   return (
     <div
       className={cn(
-        'relative rounded-card-sm overflow-hidden',
+        'rounded-card-sm relative overflow-hidden',
         'bg-muted',
-        'border border-border',
+        'border-border border',
         className
       )}
     >
       {/* Header with title, language label, and copy button */}
-      <div className="flex items-center justify-between px-4 py-2 bg-muted/60 border-b border-border">
+      <div className="bg-muted/60 border-border flex items-center justify-between border-b px-4 py-2">
         <div className="flex items-center gap-2">
-          {title && (
-            <span className="text-sm font-medium text-foreground">
-              {title}
-            </span>
-          )}
+          {title && <span className="text-foreground text-sm font-medium">{title}</span>}
           {languageLabel && (
-            <span className="text-xs px-2 py-0.5 rounded-full bg-muted/80 text-muted-foreground">
+            <span className="bg-muted/80 text-muted-foreground rounded-full px-2 py-0.5 text-xs">
               {languageLabel}
             </span>
           )}
@@ -219,22 +216,29 @@ function CodeBlockCopyComponent({
         <Button
           variant="ghost"
           size="sm"
-          className="h-8 px-3 rounded-button hover:bg-muted/80 transition-colors"
+          className="rounded-button hover:bg-muted/80 h-8 px-3 transition-colors"
           onClick={handleCopy}
           aria-label={copied ? 'Code copied to clipboard' : 'Copy code to clipboard'}
           title={copied ? 'Copied!' : 'Copy code'}
         >
-          {copied ? (
+          {copied ?
             <>
-              <Icon icon={Check} size="sm" className="mr-1.5 text-success" />
+              <Icon
+                icon={Check}
+                size="sm"
+                className="text-success mr-1.5"
+              />
               <span className="text-xs font-medium">Copied</span>
             </>
-          ) : (
-            <>
-              <Icon icon={Copy} size="sm" className="mr-1.5 text-muted-foreground" />
+          : <>
+              <Icon
+                icon={Copy}
+                size="sm"
+                className="text-muted-foreground mr-1.5"
+              />
               <span className="text-xs font-medium">Copy</span>
             </>
-          )}
+          }
         </Button>
       </div>
 
@@ -243,35 +247,34 @@ function CodeBlockCopyComponent({
         className="overflow-auto"
         style={maxHeightStyle}
       >
-        <pre className="p-4 m-0">
+        <pre className="m-0 p-4">
           <code
             className={cn(
-              'block font-mono text-sm text-foreground',
+              'text-foreground block font-mono text-sm',
               'whitespace-pre',
               codeClassName
             )}
           >
-            {showLineNumbers ? (
+            {showLineNumbers ?
               <table className="w-full border-collapse">
                 <tbody>
                   {lines.map((line, index) => (
-                    <tr key={index} className="hover:bg-muted/40">
+                    <tr
+                      key={index}
+                      className="hover:bg-muted/40"
+                    >
                       <td
-                        className="pr-4 text-right select-none text-muted-foreground"
+                        className="text-muted-foreground select-none pr-4 text-right"
                         style={{ width: `${lineNumberWidth + 1}ch` }}
                       >
                         {index + 1}
                       </td>
-                      <td className="pl-4 border-l border-border">
-                        {line || ' '}
-                      </td>
+                      <td className="border-border border-l pl-4">{line || ' '}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
-            ) : (
-              code
-            )}
+            : code}
           </code>
         </pre>
       </div>

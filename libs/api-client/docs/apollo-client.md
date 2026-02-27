@@ -5,7 +5,11 @@ title: Apollo Client
 
 # Apollo Client
 
-This document covers the complete Apollo Client infrastructure in `libs/api-client/core/src/apollo/`. The Apollo layer handles all GraphQL communication: queries, mutations, and real-time subscriptions via WebSocket. It provides an intelligent link chain, a carefully tuned normalized cache, offline-first cache persistence, and React provider integration for both production and test environments.
+This document covers the complete Apollo Client infrastructure in
+`libs/api-client/core/src/apollo/`. The Apollo layer handles all GraphQL communication: queries,
+mutations, and real-time subscriptions via WebSocket. It provides an intelligent link chain, a
+carefully tuned normalized cache, offline-first cache persistence, and React provider integration
+for both production and test environments.
 
 ---
 
@@ -36,7 +40,8 @@ This document covers the complete Apollo Client infrastructure in `libs/api-clie
 
 ## Architecture Overview
 
-The Apollo Client instance is assembled in `core/src/apollo/apollo-client.ts`. The full request pipeline is:
+The Apollo Client instance is assembled in `core/src/apollo/apollo-client.ts`. The full request
+pipeline is:
 
 ```
 React Component
@@ -71,9 +76,11 @@ React Component
 **Key design decisions:**
 
 - `errorLink` is the outermost link so it intercepts errors from every downstream link.
-- `retryLink` sits before `splitLink` to apply backoff retry to HTTP-only operations (subscriptions have their own reconnect logic in the WebSocket client).
+- `retryLink` sits before `splitLink` to apply backoff retry to HTTP-only operations (subscriptions
+  have their own reconnect logic in the WebSocket client).
 - The HTTP path composes `authLink.concat(httpLink)` to inject headers before every HTTP request.
-- Subscriptions bypass the auth and retry links; auth is supplied as WebSocket `connectionParams` instead.
+- Subscriptions bypass the auth and retry links; auth is supplied as WebSocket `connectionParams`
+  instead.
 
 ---
 
@@ -83,38 +90,40 @@ React Component
 
 **Source:** `core/src/apollo/apollo-error-link.ts`
 
-The error link is created with Apollo's `onError` helper and positioned first in the chain (`from([errorLink, retryLink, splitLink])`), so it receives errors from all downstream links.
+The error link is created with Apollo's `onError` helper and positioned first in the chain
+(`from([errorLink, retryLink, splitLink])`), so it receives errors from all downstream links.
 
 **Exports:**
 
 ```ts
-export const errorLink: ApolloLink
+export const errorLink: ApolloLink;
 export function createErrorLink(options: {
   onAuthError?: (message: string) => void;
   onNetworkError?: (error: Error) => void;
-}): ApolloLink
+}): ApolloLink;
 ```
 
 **GraphQL error handling by code:**
 
-| Code | Action |
-|------|--------|
-| `UNAUTHENTICATED` | Clears `useAuthStore`, dispatches `auth:expired` window event, shows toast |
-| `FORBIDDEN` | Shows "Access denied" error toast |
-| `NOT_FOUND` | Shows "Not found" warning toast |
-| `A5xx` (auth category) | Same as UNAUTHENTICATED |
-| `V4xx` (validation category) | Skipped — handled by React Hook Form |
-| Others | Mapped via `getErrorInfo()` from `utils/error-messages.ts` |
+| Code                         | Action                                                                     |
+| ---------------------------- | -------------------------------------------------------------------------- |
+| `UNAUTHENTICATED`            | Clears `useAuthStore`, dispatches `auth:expired` window event, shows toast |
+| `FORBIDDEN`                  | Shows "Access denied" error toast                                          |
+| `NOT_FOUND`                  | Shows "Not found" warning toast                                            |
+| `A5xx` (auth category)       | Same as UNAUTHENTICATED                                                    |
+| `V4xx` (validation category) | Skipped — handled by React Hook Form                                       |
+| Others                       | Mapped via `getErrorInfo()` from `utils/error-messages.ts`                 |
 
 **Network error handling by HTTP status:**
 
-| Status | Action |
-|--------|--------|
-| 401 | Calls `handleAuthError()` — clears auth, fires `auth:expired` event |
-| 403 | Shows "Access denied" error toast |
-| Other | Shows generic "Unable to reach the server" error toast, fires `network:error` event |
+| Status | Action                                                                              |
+| ------ | ----------------------------------------------------------------------------------- |
+| 401    | Calls `handleAuthError()` — clears auth, fires `auth:expired` event                 |
+| 403    | Shows "Access denied" error toast                                                   |
+| Other  | Shows generic "Unable to reach the server" error toast, fires `network:error` event |
 
-**`createErrorLink`** is available when you need custom auth or network error handlers — useful for isolated module testing or embedded contexts.
+**`createErrorLink`** is available when you need custom auth or network error handlers — useful for
+isolated module testing or embedded contexts.
 
 ```ts
 // Custom error handler example
@@ -128,7 +137,8 @@ const customErrorLink = createErrorLink({
 });
 ```
 
-See `./error-handling.md` for the full error handling architecture including error boundaries and component-level hooks.
+See `./error-handling.md` for the full error handling architecture including error boundaries and
+component-level hooks.
 
 ---
 
@@ -137,7 +147,7 @@ See `./error-handling.md` for the full error handling architecture including err
 **Source:** `core/src/apollo/apollo-retry-link.ts`
 
 ```ts
-export const retryLink: RetryLink
+export const retryLink: RetryLink;
 ```
 
 Configured with Apollo's `RetryLink`:
@@ -145,16 +155,16 @@ Configured with Apollo's `RetryLink`:
 ```ts
 const retryLink = new RetryLink({
   delay: {
-    initial: 300,    // 300ms initial delay
-    max: 3000,       // 3s maximum delay
-    jitter: true,    // randomized delay to avoid thundering herd
+    initial: 300, // 300ms initial delay
+    max: 3000, // 3s maximum delay
+    jitter: true, // randomized delay to avoid thundering herd
   },
   attempts: {
     max: 3,
     retryIf: (error) => {
       const isNetworkError = !!error && !error.result;
-      const isClientError = typeof error?.statusCode === 'number'
-        && error.statusCode >= 400 && error.statusCode < 500;
+      const isClientError =
+        typeof error?.statusCode === 'number' && error.statusCode >= 400 && error.statusCode < 500;
       return isNetworkError && !isClientError;
     },
   },
@@ -162,6 +172,7 @@ const retryLink = new RetryLink({
 ```
 
 **Retry policy:**
+
 - Only retries true network errors (no response received).
 - Never retries 4xx client errors — those are permanent failures.
 - Up to 3 attempts with exponential jitter (300ms, up to 3s).
@@ -173,20 +184,23 @@ const retryLink = new RetryLink({
 **Source:** `core/src/apollo/apollo-auth-link.ts`
 
 ```ts
-export const authLink: ApolloLink
-export function createAuthLink(getToken: () => string | null): ApolloLink
+export const authLink: ApolloLink;
+export function createAuthLink(getToken: () => string | null): ApolloLink;
 ```
 
-Built with Apollo's `setContext` link. On every HTTP request it reads the current application state and injects two headers:
+Built with Apollo's `setContext` link. On every HTTP request it reads the current application state
+and injects two headers:
 
-| Header | Source | Value |
-|--------|--------|-------|
-| `X-Router-Id` | `useConnectionStore.getState().currentRouterId` | Current router ULID |
-| `Authorization` | `getAuthToken()` (JWT first) or sessionStorage | `Bearer <jwt>` or `Basic <base64>` |
+| Header          | Source                                          | Value                              |
+| --------------- | ----------------------------------------------- | ---------------------------------- |
+| `X-Router-Id`   | `useConnectionStore.getState().currentRouterId` | Current router ULID                |
+| `Authorization` | `getAuthToken()` (JWT first) or sessionStorage  | `Bearer <jwt>` or `Basic <base64>` |
 
 **Auth header priority:**
+
 1. JWT token from `useAuthStore` via `getAuthToken()`.
-2. Basic auth from per-router credentials stored in `sessionStorage` at key `router-credentials-<routerId>`.
+2. Basic auth from per-router credentials stored in `sessionStorage` at key
+   `router-credentials-<routerId>`.
 
 ```ts
 // Example: how the auth link reads state at request time
@@ -204,7 +218,8 @@ export const authLink = setContext((_, { headers }) => {
 });
 ```
 
-The `createAuthLink` factory lets you provide a custom token getter, useful in isolated testing or multi-tenant scenarios.
+The `createAuthLink` factory lets you provide a custom token getter, useful in isolated testing or
+multi-tenant scenarios.
 
 See `./authentication.md` for the complete authentication architecture.
 
@@ -221,7 +236,8 @@ const httpLink = new HttpLink({
 });
 ```
 
-Points to `/graphql` on the same origin. `credentials: 'include'` ensures cookies (used for session fallback) are sent with every request.
+Points to `/graphql` on the same origin. `credentials: 'include'` ensures cookies (used for session
+fallback) are sent with every request.
 
 ---
 
@@ -231,16 +247,17 @@ Points to `/graphql` on the same origin. `credentials: 'include'` ensures cookie
 
 ```ts
 export interface WsClientOptions {
-  url?: string;         // auto-detected from window.location
-  maxRetries?: number;  // default: 10
+  url?: string; // auto-detected from window.location
+  maxRetries?: number; // default: 10
   showNotifications?: boolean; // default: true
 }
 
-export function createWsClient(options?: WsClientOptions): Client
-export const wsClient: Client  // singleton using default options
+export function createWsClient(options?: WsClientOptions): Client;
+export const wsClient: Client; // singleton using default options
 ```
 
-The WebSocket client is built on the `graphql-ws` library. The URL is derived from `window.location`:
+The WebSocket client is built on the `graphql-ws` library. The URL is derived from
+`window.location`:
 
 ```ts
 function getWebSocketUrl(): string {
@@ -249,39 +266,41 @@ function getWebSocketUrl(): string {
 }
 ```
 
-**Authentication for subscriptions** is supplied as `connectionParams` (re-evaluated on every reconnect):
+**Authentication for subscriptions** is supplied as `connectionParams` (re-evaluated on every
+reconnect):
 
 ```ts
 connectionParams: () => {
   const { currentRouterId } = useConnectionStore.getState();
   const authorization = getAuthorization(currentRouterId); // JWT or Basic
   return { routerId: currentRouterId, authorization };
-}
+};
 ```
 
 **Reconnect strategy:**
 
-| Attempt | Approx. delay |
-|---------|---------------|
-| 1 | ~1s |
-| 2 | ~2s |
-| 3 | ~4s |
-| 4 | ~8s |
-| 5+ | up to 30s (capped) |
+| Attempt | Approx. delay      |
+| ------- | ------------------ |
+| 1       | ~1s                |
+| 2       | ~2s                |
+| 3       | ~4s                |
+| 4       | ~8s                |
+| 5+      | up to 30s (capped) |
 
 Delays use `calculateBackoff` from `@nasnet/state/stores`. Reconnection stops when:
+
 - Close code `4401` (custom auth failure) is received.
 - Close code `4403` (forbidden) is received.
 - `useConnectionStore.getState().hasExceededMaxAttempts()` returns `true`.
 
 **Connection lifecycle events** update `useConnectionStore` and dispatch window events:
 
-| Event | Store action | Window event |
-|-------|-------------|--------------|
-| `connecting` | `setWsStatus('connecting')` | `ws:connecting` |
-| `connected` | `setWsStatus('connected')`, `resetReconnection()` | `ws:connected` |
-| `closed` (unclean) | `setWsStatus('error')`, `incrementReconnectAttempts()` | `ws:closed` |
-| `error` | `setWsStatus('error', message)` | `ws:error` |
+| Event              | Store action                                           | Window event    |
+| ------------------ | ------------------------------------------------------ | --------------- |
+| `connecting`       | `setWsStatus('connecting')`                            | `ws:connecting` |
+| `connected`        | `setWsStatus('connected')`, `resetReconnection()`      | `ws:connected`  |
+| `closed` (unclean) | `setWsStatus('error')`, `incrementReconnectAttempts()` | `ws:closed`     |
+| `error`            | `setWsStatus('error', message)`                        | `ws:error`      |
 
 See `./websocket-subscriptions.md` for subscription usage patterns.
 
@@ -295,17 +314,16 @@ See `./websocket-subscriptions.md` for subscription usage patterns.
 const splitLink = split(
   ({ query }) => {
     const definition = getMainDefinition(query);
-    return (
-      definition.kind === 'OperationDefinition' &&
-      definition.operation === 'subscription'
-    );
+    return definition.kind === 'OperationDefinition' && definition.operation === 'subscription';
   },
-  wsLink,                    // subscriptions → WebSocket
-  authLink.concat(httpLink)  // queries + mutations → HTTP with auth headers
+  wsLink, // subscriptions → WebSocket
+  authLink.concat(httpLink) // queries + mutations → HTTP with auth headers
 );
 ```
 
-Subscription operations are routed to `wsLink`. Queries and mutations are routed through `authLink.concat(httpLink)`, which injects `X-Router-Id` and `Authorization` headers before the HTTP request.
+Subscription operations are routed to `wsLink`. Queries and mutations are routed through
+`authLink.concat(httpLink)`, which injects `X-Router-Id` and `Authorization` headers before the HTTP
+request.
 
 ---
 
@@ -313,7 +331,9 @@ Subscription operations are routed to `wsLink`. Queries and mutations are routed
 
 **Source:** `core/src/apollo/apollo-client.ts`
 
-The `InMemoryCache` is the central data store. Every entity is normalized by a key field so that updates from mutations and subscriptions automatically refresh all query results that include that entity.
+The `InMemoryCache` is the central data store. Every entity is normalized by a key field so that
+updates from mutations and subscriptions automatically refresh all query results that include that
+entity.
 
 ### possibleTypes and Union Resolution
 
@@ -324,28 +344,35 @@ const cache = new InMemoryCache({
 });
 ```
 
-`possibleTypesResult` is imported from `@nasnet/api-client/generated` (output of GraphQL codegen). It tells Apollo about abstract types (interfaces and unions), enabling correct cache normalization for polymorphic fields like `Node`, `Connection`, and `Edge`. Whenever the schema changes and codegen is re-run, this is updated automatically.
+`possibleTypesResult` is imported from `@nasnet/api-client/generated` (output of GraphQL codegen).
+It tells Apollo about abstract types (interfaces and unions), enabling correct cache normalization
+for polymorphic fields like `Node`, `Connection`, and `Edge`. Whenever the schema changes and
+codegen is re-run, this is updated automatically.
 
 ### Type Policies
 
 **`Query` field policies:**
 
-| Field | `keyArgs` | Merge strategy |
-|-------|-----------|----------------|
-| `routers` | `['filter']` | Replace (incoming wins) |
+| Field       | `keyArgs`                                   | Merge strategy          |
+| ----------- | ------------------------------------------- | ----------------------- |
+| `routers`   | `['filter']`                                | Replace (incoming wins) |
 | `resources` | `['routerId', 'category', 'type', 'state']` | Replace (incoming wins) |
 
-These `keyArgs` ensure that different filter combinations produce separate cache entries rather than overwriting each other.
+These `keyArgs` ensure that different filter combinations produce separate cache entries rather than
+overwriting each other.
 
 **`Router` policy:**
+
 - `keyFields: ['id']` — normalized by router ID.
-- `status` field uses `merge: true` — partial runtime updates merge into the existing object rather than replacing it entirely.
+- `status` field uses `merge: true` — partial runtime updates merge into the existing object rather
+  than replacing it entirely.
 
 ### Universal State v2 Resource Policies
 
 **Source:** `core/src/apollo/apollo-client.ts:118`
 
-All resource types from the Universal State v2 model (see `./universal-state-resource-model.md`) are normalized by `uuid` (ULID). The cache uses distinct merge strategies per layer:
+All resource types from the Universal State v2 model (see `./universal-state-resource-model.md`) are
+normalized by `uuid` (ULID). The cache uses distinct merge strategies per layer:
 
 ```
 Resource layers and merge behavior:
@@ -376,25 +403,25 @@ telemetry: {
 
 **Concrete resource types with `runtime` merge:**
 
-| Type | `keyFields` | Has runtime merge |
-|------|-------------|-------------------|
-| `Resource` (base) | `uuid` | Yes |
-| `WireGuardClient` | `uuid` | Yes |
-| `LANNetwork` | `uuid` | Yes |
-| `WANLink` | `uuid` | Yes |
-| `FeatureResource` | `uuid` | Yes |
-| `FirewallRuleResource` | `uuid` | No (stateless) |
-| `DHCPServerResource` | `uuid` | No |
-| `BridgeResource` | `uuid` | No |
-| `RouteResource` | `uuid` | No |
+| Type                   | `keyFields` | Has runtime merge |
+| ---------------------- | ----------- | ----------------- |
+| `Resource` (base)      | `uuid`      | Yes               |
+| `WireGuardClient`      | `uuid`      | Yes               |
+| `LANNetwork`           | `uuid`      | Yes               |
+| `WANLink`              | `uuid`      | Yes               |
+| `FeatureResource`      | `uuid`      | Yes               |
+| `FirewallRuleResource` | `uuid`      | No (stateless)    |
+| `DHCPServerResource`   | `uuid`      | No                |
+| `BridgeResource`       | `uuid`      | No                |
+| `RouteResource`        | `uuid`      | No                |
 
 **Other type policies:**
 
-| Type | Behavior |
-|------|----------|
-| `ValidationResult` | `merge: false` — always replace |
-| `DeploymentState` | `merge: false` — always replace |
-| `RuntimeState` | `merge: true` — accumulate live data |
+| Type               | Behavior                                |
+| ------------------ | --------------------------------------- |
+| `ValidationResult` | `merge: false` — always replace         |
+| `DeploymentState`  | `merge: false` — always replace         |
+| `RuntimeState`     | `merge: true` — accumulate live data    |
 | `ResourceMetadata` | `merge: true` — preserve local UI state |
 
 ---
@@ -422,6 +449,7 @@ connectToDevTools: import.meta.env.DEV,
 ```
 
 The `cache-and-network` + `cache-first` combination means:
+
 - The first render gets data immediately from cache (no loading flash for previously visited views).
 - The network request refreshes data in the background.
 - Subsequent renders on the same query use cache without another network round-trip.
@@ -429,11 +457,12 @@ The `cache-and-network` + `cache-first` combination means:
 **Exported symbols from apollo-client.ts:**
 
 ```ts
-export const apolloClient: ApolloClient<NormalizedCacheObject>
-export { cache as apolloCache }
+export const apolloClient: ApolloClient<NormalizedCacheObject>;
+export { cache as apolloCache };
 ```
 
-`apolloCache` is exported so it can be used directly for cache persistence initialization and imperative cache writes.
+`apolloCache` is exported so it can be used directly for cache persistence initialization and
+imperative cache writes.
 
 ---
 
@@ -443,30 +472,33 @@ export { cache as apolloCache }
 
 ```ts
 export interface CachePersistConfig {
-  maxSize?: number;   // bytes, default: 5MB
-  debounce?: number;  // ms before writing to storage, default: 1000ms
-  key?: string;       // storage key prefix, default: 'nasnet-apollo-cache'
-  debug?: boolean;    // default: import.meta.env.DEV
+  maxSize?: number; // bytes, default: 5MB
+  debounce?: number; // ms before writing to storage, default: 1000ms
+  key?: string; // storage key prefix, default: 'nasnet-apollo-cache'
+  debug?: boolean; // default: import.meta.env.DEV
 }
 
 export async function initializeCachePersistence(
   cache: InMemoryCache,
   config?: CachePersistConfig
-): Promise<void>
+): Promise<void>;
 
-export async function clearPersistedCache(key?: string): Promise<void>
+export async function clearPersistedCache(key?: string): Promise<void>;
 
-export async function getPersistedCacheSize(key?: string): Promise<number>
+export async function getPersistedCacheSize(key?: string): Promise<number>;
 ```
 
-Cache persistence uses `apollo3-cache-persist` with `localforage` as the storage backend. `localforage` prefers IndexedDB and falls back to localStorage automatically.
+Cache persistence uses `apollo3-cache-persist` with `localforage` as the storage backend.
+`localforage` prefers IndexedDB and falls back to localStorage automatically.
 
 **Storage configuration:**
+
 - Driver preference: `[INDEXEDDB, LOCALSTORAGE]`
 - Database name: `nasnet-apollo-cache`
 - Store name: `apollo_cache`
 
-The `LocalForageWrapper` class (internal) adapts the localforage API to the interface expected by `apollo3-cache-persist`.
+The `LocalForageWrapper` class (internal) adapts the localforage API to the interface expected by
+`apollo3-cache-persist`.
 
 **Initialization flow in `ApolloProvider`:**
 
@@ -483,7 +515,8 @@ Cache restored from IndexedDB
 setIsCacheRestored(true)  →  render children
 ```
 
-Children are not rendered until the cache is hydrated. This ensures that any query executed immediately on mount sees offline data before the first network response arrives.
+Children are not rendered until the cache is hydrated. This ensures that any query executed
+immediately on mount sees offline data before the first network response arrives.
 
 **Clearing the cache on logout:**
 
@@ -491,8 +524,8 @@ Children are not rendered until the cache is hydrated. This ensures that any que
 import { clearPersistedCache, apolloClient } from '@nasnet/api-client/core';
 
 async function logout() {
-  await clearPersistedCache();   // wipes IndexedDB entries
-  apolloClient.clearStore();     // wipes in-memory cache
+  await clearPersistedCache(); // wipes IndexedDB entries
+  apolloClient.clearStore(); // wipes in-memory cache
 }
 ```
 
@@ -506,32 +539,33 @@ See `./offline-first.md` for the complete offline-first architecture.
 
 ```ts
 export interface OfflineDetectorConfig {
-  healthEndpoint?: string;         // default: '/api/health'
-  healthCheckInterval?: number;    // ms, default: 30000 (30s)
-  healthCheckTimeout?: number;     // ms, default: 5000 (5s)
+  healthEndpoint?: string; // default: '/api/health'
+  healthCheckInterval?: number; // ms, default: 30000 (30s)
+  healthCheckTimeout?: number; // ms, default: 5000 (5s)
 }
 
-export function setupOfflineDetector(config?: OfflineDetectorConfig): () => void
-export function useOfflineDetector(config?: OfflineDetectorConfig): void
-export function isOffline(): boolean
-export function isDegraded(): boolean
+export function setupOfflineDetector(config?: OfflineDetectorConfig): () => void;
+export function useOfflineDetector(config?: OfflineDetectorConfig): void;
+export function isOffline(): boolean;
+export function isDegraded(): boolean;
 ```
 
 The detector aggregates signals from four sources into `useNetworkStore`:
 
-| Signal source | Store updates |
-|---------------|--------------|
-| `window` `online` event | `setOnline(true)`, triggers health check |
-| `window` `offline` event | `setOnline(false)`, `setRouterReachable(false)` |
-| `network:error` custom event (from errorLink) | `setRouterReachable(false)`, `incrementReconnectAttempts()` |
-| `ws:connected` custom event (from wsClient) | `setRouterConnected(true)`, `setRouterReachable(true)`, `resetReconnectAttempts()` |
-| `ws:closed` / `ws:error` custom events | `setRouterConnected(false)`, `incrementReconnectAttempts()` |
-| Periodic `GET /api/health` | `setRouterReachable(true/false)` based on response |
+| Signal source                                 | Store updates                                                                      |
+| --------------------------------------------- | ---------------------------------------------------------------------------------- |
+| `window` `online` event                       | `setOnline(true)`, triggers health check                                           |
+| `window` `offline` event                      | `setOnline(false)`, `setRouterReachable(false)`                                    |
+| `network:error` custom event (from errorLink) | `setRouterReachable(false)`, `incrementReconnectAttempts()`                        |
+| `ws:connected` custom event (from wsClient)   | `setRouterConnected(true)`, `setRouterReachable(true)`, `resetReconnectAttempts()` |
+| `ws:closed` / `ws:error` custom events        | `setRouterConnected(false)`, `incrementReconnectAttempts()`                        |
+| Periodic `GET /api/health`                    | `setRouterReachable(true/false)` based on response                                 |
 
 **State semantics:**
 
 - `isOffline()` returns `true` when `!isOnline || !isRouterReachable`.
-- `isDegraded()` returns `true` when the browser is online but either the router is unreachable or the WebSocket connection is down. Degraded mode shows stale data with a "reconnecting" indicator.
+- `isDegraded()` returns `true` when the browser is online but either the router is unreachable or
+  the WebSocket connection is down. Degraded mode shows stale data with a "reconnecting" indicator.
 
 **Usage in components:**
 
@@ -566,37 +600,38 @@ export interface QueuedMutation {
 }
 
 export interface OfflineQueueConfig {
-  maxQueueSize?: number;  // default: 50
-  maxRetries?: number;    // default: 3
-  retryDelay?: number;    // ms, default: 1000
-  storageKey?: string;    // default: 'nasnet-offline-queue'
+  maxQueueSize?: number; // default: 50
+  maxRetries?: number; // default: 3
+  retryDelay?: number; // ms, default: 1000
+  storageKey?: string; // default: 'nasnet-offline-queue'
 }
 
 export class OfflineMutationQueue {
-  constructor(config?: OfflineQueueConfig)
-  async enqueue(mutation, variables, optimisticResponse?): Promise<string>
-  async remove(id: string): Promise<void>
-  async replayAll(client: ApolloClient<NormalizedCacheObject>): Promise<number>
-  async clear(): Promise<void>
-  size(): number
-  isEmpty(): boolean
-  getQueue(): ReadonlyArray<QueuedMutation>
+  constructor(config?: OfflineQueueConfig);
+  async enqueue(mutation, variables, optimisticResponse?): Promise<string>;
+  async remove(id: string): Promise<void>;
+  async replayAll(client: ApolloClient<NormalizedCacheObject>): Promise<number>;
+  async clear(): Promise<void>;
+  size(): number;
+  isEmpty(): boolean;
+  getQueue(): ReadonlyArray<QueuedMutation>;
 }
 
-export const offlineQueue: OfflineMutationQueue  // singleton instance
+export const offlineQueue: OfflineMutationQueue; // singleton instance
 
-export function setupAutoReplay(
-  client: ApolloClient<NormalizedCacheObject>
-): () => void
+export function setupAutoReplay(client: ApolloClient<NormalizedCacheObject>): () => void;
 ```
 
 **How it works:**
 
-1. When the app detects it is offline and a mutation needs to be executed, the mutation is enqueued instead of fired.
+1. When the app detects it is offline and a mutation needs to be executed, the mutation is enqueued
+   instead of fired.
 2. The queue is persisted to IndexedDB (via localforage) so it survives page reloads.
-3. On reconnection, `setupAutoReplay` listens for `isRouterReachable` becoming `true` in `useNetworkStore` and calls `offlineQueue.replayAll(apolloClient)`.
+3. On reconnection, `setupAutoReplay` listens for `isRouterReachable` becoming `true` in
+   `useNetworkStore` and calls `offlineQueue.replayAll(apolloClient)`.
 4. Mutations are replayed in FIFO order (oldest first).
-5. **Last-write-wins deduplication:** if the same `operationName` + `variables` is enqueued twice, the first entry is removed and the new one appended.
+5. **Last-write-wins deduplication:** if the same `operationName` + `variables` is enqueued twice,
+   the first entry is removed and the new one appended.
 
 **Usage pattern:**
 
@@ -629,14 +664,17 @@ interface ApolloProviderProps {
   children: ReactNode;
 }
 
-export function ApolloProvider({ children }: ApolloProviderProps): JSX.Element | null
+export function ApolloProvider({ children }: ApolloProviderProps): JSX.Element | null;
 ```
 
 The production provider wraps children in the Apollo context and handles:
 
-1. **Cache hydration** — calls `initializeCachePersistence(apolloCache, { maxSize: 5MB, debounce: 1000ms })` on mount and defers render until cache is restored.
+1. **Cache hydration** — calls
+   `initializeCachePersistence(apolloCache, { maxSize: 5MB, debounce: 1000ms })` on mount and defers
+   render until cache is restored.
 2. **Apollo context** — wraps children in `<BaseApolloProvider client={apolloClient}>`.
-3. **DevTools** — lazily loads `@apollo/client/dev`'s `ApolloDevTools` in development only (zero production bundle impact).
+3. **DevTools** — lazily loads `@apollo/client/dev`'s `ApolloDevTools` in development only (zero
+   production bundle impact).
 
 **Provider tree position** (from project architecture):
 
@@ -665,10 +703,11 @@ interface MockApolloProviderProps {
   children: ReactNode;
 }
 
-export function MockApolloProvider({ children }: MockApolloProviderProps): JSX.Element
+export function MockApolloProvider({ children }: MockApolloProviderProps): JSX.Element;
 ```
 
-A lightweight Apollo context for Storybook stories and unit tests. Uses a `noOpLink` that never resolves, keeping all queries in `loading` state. No cache persistence, no WebSocket, no HTTP.
+A lightweight Apollo context for Storybook stories and unit tests. Uses a `noOpLink` that never
+resolves, keeping all queries in `loading` state. No cache persistence, no WebSocket, no HTTP.
 
 ```tsx
 // In Storybook decorators or test render helpers
@@ -683,7 +722,8 @@ export const decorators = [
 ];
 ```
 
-When you need specific mock data (rather than loading states), use `MockedProvider` from `@apollo/client/testing` directly.
+When you need specific mock data (rather than loading states), use `MockedProvider` from
+`@apollo/client/testing` directly.
 
 See `./testing-and-codegen.md` for full testing strategies.
 
@@ -701,17 +741,17 @@ Wraps `useQuery` with differentiated loading state:
 
 ```ts
 export interface QueryWithLoadingState<TData> {
-  isInitialLoading: boolean;  // loading AND no data exists
-  isRevalidating: boolean;    // loading AND data already exists
-  isStale: boolean;           // explicit refetch in progress
-  isLoading: boolean;         // any loading
+  isInitialLoading: boolean; // loading AND no data exists
+  isRevalidating: boolean; // loading AND data already exists
+  isStale: boolean; // explicit refetch in progress
+  isLoading: boolean; // any loading
   lastUpdated: Date | null;
 }
 
 export function useQueryWithLoading<TData, TVariables>(
   query: DocumentNode | TypedDocumentNode<TData, TVariables>,
   options?: QueryHookOptions<TData, TVariables>
-): UseQueryWithLoadingResult<TData, TVariables>
+): UseQueryWithLoadingResult<TData, TVariables>;
 ```
 
 **Usage:**
@@ -721,12 +761,12 @@ function ResourceList() {
   const { data, isInitialLoading, isRevalidating } = useQueryWithLoading(GET_RESOURCES);
 
   if (isInitialLoading) {
-    return <ResourceListSkeleton />;  // first load: show skeleton
+    return <ResourceListSkeleton />; // first load: show skeleton
   }
 
   return (
     <>
-      {isRevalidating && <RefreshSpinner />}  // background refresh indicator
+      {isRevalidating && <RefreshSpinner />} // background refresh indicator
       <ResourceTable data={data?.resources} />
     </>
   );
@@ -737,19 +777,20 @@ function ResourceList() {
 
 **Source:** `core/src/hooks/useMutationWithLoading.ts`
 
-Wraps `useMutation` with `isLoading`, `isSuccess`, `isError` states and a simplified `mutate` function:
+Wraps `useMutation` with `isLoading`, `isSuccess`, `isError` states and a simplified `mutate`
+function:
 
 ```ts
 export function useMutationWithLoading<TData, TVariables>(
   mutation: DocumentNode | TypedDocumentNode<TData, TVariables>,
   options?: MutationHookOptions<TData, TVariables>
-): UseMutationWithLoadingResult<TData, TVariables>
+): UseMutationWithLoadingResult<TData, TVariables>;
 
 // Helper for optimistic mutations
 export function createOptimisticOptions<TData, TVariables>(config: {
   optimisticResponse: OptimisticResponse<TData>;
   cacheUpdate?: (cache, data: TData) => void;
-}): Partial<MutationHookOptions<TData, TVariables>>
+}): Partial<MutationHookOptions<TData, TVariables>>;
 ```
 
 **Usage:**
@@ -761,7 +802,10 @@ function SaveButton() {
   });
 
   return (
-    <Button onClick={() => mutate({ config })} disabled={isLoading}>
+    <Button
+      onClick={() => mutate({ config })}
+      disabled={isLoading}
+    >
       {isLoading ? 'Saving...' : 'Save'}
     </Button>
   );
@@ -776,10 +820,11 @@ function SaveButton() {
 export function useGraphQLError(
   apolloError: ApolloError | Error | undefined,
   options?: UseGraphQLErrorOptions
-): UseGraphQLErrorReturn
+): UseGraphQLErrorReturn;
 ```
 
-Converts raw Apollo errors into user-friendly `ProcessedError` objects with severity, recoverability classification, and suggested actions. Optionally auto-shows toast notifications.
+Converts raw Apollo errors into user-friendly `ProcessedError` objects with severity, recoverability
+classification, and suggested actions. Optionally auto-shows toast notifications.
 
 See `./error-handling.md` for full details.
 
@@ -791,28 +836,29 @@ All symbols are re-exported from `@nasnet/api-client/core`.
 
 **From `core/src/apollo/index.ts`:**
 
-| Export | Type | Description |
-|--------|------|-------------|
-| `apolloClient` | `ApolloClient<NormalizedCacheObject>` | Singleton Apollo Client instance |
-| `apolloCache` | `InMemoryCache` | Singleton cache (for persistence and direct writes) |
-| `authLink` | `ApolloLink` | Auth context link (JWT + Basic auth) |
-| `errorLink` | `ApolloLink` | Centralized error handling link |
-| `retryLink` | `RetryLink` | Exponential backoff retry link |
-| `wsClient` | `Client` (graphql-ws) | WebSocket client for subscriptions |
-| `ApolloProvider` | React component | Production provider with cache persistence |
-| `MockApolloProvider` | React component | Stub provider for tests/Storybook |
-| `initializeCachePersistence` | async function | Initialize IndexedDB cache persistence |
-| `clearPersistedCache` | async function | Clear persisted cache (e.g., on logout) |
-| `getPersistedCacheSize` | async function | Get cache size in bytes |
-| `setupOfflineDetector` | function | Imperative offline detection setup |
-| `useOfflineDetector` | React hook | React offline detection hook (auto-cleanup) |
-| `isOffline` | function | Check if currently offline |
-| `isDegraded` | function | Check if in degraded connectivity mode |
-| `OfflineMutationQueue` | class | Queue for mutations when offline |
-| `offlineQueue` | `OfflineMutationQueue` | Singleton offline queue |
-| `setupAutoReplay` | function | Auto-replay queue on reconnection |
+| Export                       | Type                                  | Description                                         |
+| ---------------------------- | ------------------------------------- | --------------------------------------------------- |
+| `apolloClient`               | `ApolloClient<NormalizedCacheObject>` | Singleton Apollo Client instance                    |
+| `apolloCache`                | `InMemoryCache`                       | Singleton cache (for persistence and direct writes) |
+| `authLink`                   | `ApolloLink`                          | Auth context link (JWT + Basic auth)                |
+| `errorLink`                  | `ApolloLink`                          | Centralized error handling link                     |
+| `retryLink`                  | `RetryLink`                           | Exponential backoff retry link                      |
+| `wsClient`                   | `Client` (graphql-ws)                 | WebSocket client for subscriptions                  |
+| `ApolloProvider`             | React component                       | Production provider with cache persistence          |
+| `MockApolloProvider`         | React component                       | Stub provider for tests/Storybook                   |
+| `initializeCachePersistence` | async function                        | Initialize IndexedDB cache persistence              |
+| `clearPersistedCache`        | async function                        | Clear persisted cache (e.g., on logout)             |
+| `getPersistedCacheSize`      | async function                        | Get cache size in bytes                             |
+| `setupOfflineDetector`       | function                              | Imperative offline detection setup                  |
+| `useOfflineDetector`         | React hook                            | React offline detection hook (auto-cleanup)         |
+| `isOffline`                  | function                              | Check if currently offline                          |
+| `isDegraded`                 | function                              | Check if in degraded connectivity mode              |
+| `OfflineMutationQueue`       | class                                 | Queue for mutations when offline                    |
+| `offlineQueue`               | `OfflineMutationQueue`                | Singleton offline queue                             |
+| `setupAutoReplay`            | function                              | Auto-replay queue on reconnection                   |
 
-**Type exports:** `CachePersistConfig`, `OfflineDetectorConfig`, `QueuedMutation`, `OfflineQueueConfig`, `WsClientOptions`
+**Type exports:** `CachePersistConfig`, `OfflineDetectorConfig`, `QueuedMutation`,
+`OfflineQueueConfig`, `WsClientOptions`
 
 ---
 
@@ -822,14 +868,16 @@ All symbols are re-exported from `@nasnet/api-client/core`.
 
 ### Query Field Policies
 
-The `Query` root type defines key arguments for connection queries to ensure that different filter combinations produce separate cache entries:
+The `Query` root type defines key arguments for connection queries to ensure that different filter
+combinations produce separate cache entries:
 
-| Field | `keyArgs` | Merge Strategy | Purpose |
-|-------|-----------|---|---|
-| `routers` | `['filter']` | Replace (incoming wins) | Cache routers list with optional filter parameter |
-| `resources` | `['routerId', 'category', 'type', 'state']` | Replace (incoming wins) | Cache resources with multi-dimensional filtering |
+| Field       | `keyArgs`                                   | Merge Strategy          | Purpose                                           |
+| ----------- | ------------------------------------------- | ----------------------- | ------------------------------------------------- |
+| `routers`   | `['filter']`                                | Replace (incoming wins) | Cache routers list with optional filter parameter |
+| `resources` | `['routerId', 'category', 'type', 'state']` | Replace (incoming wins) | Cache resources with multi-dimensional filtering  |
 
-Without these `keyArgs`, a second query with different filter values would overwrite the first cached result in the same field, making pagination and filtered views impossible.
+Without these `keyArgs`, a second query with different filter values would overwrite the first
+cached result in the same field, making pagination and filtered views impossible.
 
 ### Router Type Policy
 
@@ -845,30 +893,30 @@ Router: {
 }
 ```
 
-| Setting | Value | Rationale |
-|---------|-------|-----------|
-| `keyFields` | `['id']` | Normalize by router ID — each router is a distinct cache entry |
-| `status.merge` | `true` | Runtime status updates merge into the existing router object rather than replacing it entirely |
+| Setting        | Value    | Rationale                                                                                      |
+| -------------- | -------- | ---------------------------------------------------------------------------------------------- |
+| `keyFields`    | `['id']` | Normalize by router ID — each router is a distinct cache entry                                 |
+| `status.merge` | `true`   | Runtime status updates merge into the existing router object rather than replacing it entirely |
 
 ### Universal State v2 Resource Type Policies
 
 **Complete table** of all resource type policies (apollo-client.ts:115–239):
 
-| Type | `keyFields` | `runtime` merge | `telemetry` merge | `validation` merge | `deployment` merge | Notes |
-|------|-------------|---|---|---|---|---|
-| **Resource** (base) | `uuid` | Yes | Yes (cap 288) | No | No | Base resource policy inherited by all resource types |
-| **WireGuardClient** | `uuid` | Yes | — | — | — | VPN client runtime metrics |
-| **LANNetwork** | `uuid` | Yes | — | — | — | LAN interface runtime metrics |
-| **WANLink** | `uuid` | Yes | — | — | — | WAN link runtime metrics |
-| **FeatureResource** | `uuid` | Yes | — | — | — | Marketplace feature runtime state |
-| **FirewallRuleResource** | `uuid` | — | — | — | — | Stateless firewall config |
-| **DHCPServerResource** | `uuid` | — | — | — | — | Stateless DHCP config |
-| **BridgeResource** | `uuid` | — | — | — | — | Stateless bridge config |
-| **RouteResource** | `uuid` | — | — | — | — | Stateless route config |
-| **ValidationResult** | — | — | — | No (replace) | — | Full replacement on validation cycle |
-| **DeploymentState** | — | — | — | — | No (replace) | Full replacement on deployment |
-| **RuntimeState** | — | Yes | — | — | — | Merge for real-time accumulation |
-| **ResourceMetadata** | — | Yes | — | — | — | Merge to preserve local UI state |
+| Type                     | `keyFields` | `runtime` merge | `telemetry` merge | `validation` merge | `deployment` merge | Notes                                                |
+| ------------------------ | ----------- | --------------- | ----------------- | ------------------ | ------------------ | ---------------------------------------------------- |
+| **Resource** (base)      | `uuid`      | Yes             | Yes (cap 288)     | No                 | No                 | Base resource policy inherited by all resource types |
+| **WireGuardClient**      | `uuid`      | Yes             | —                 | —                  | —                  | VPN client runtime metrics                           |
+| **LANNetwork**           | `uuid`      | Yes             | —                 | —                  | —                  | LAN interface runtime metrics                        |
+| **WANLink**              | `uuid`      | Yes             | —                 | —                  | —                  | WAN link runtime metrics                             |
+| **FeatureResource**      | `uuid`      | Yes             | —                 | —                  | —                  | Marketplace feature runtime state                    |
+| **FirewallRuleResource** | `uuid`      | —               | —                 | —                  | —                  | Stateless firewall config                            |
+| **DHCPServerResource**   | `uuid`      | —               | —                 | —                  | —                  | Stateless DHCP config                                |
+| **BridgeResource**       | `uuid`      | —               | —                 | —                  | —                  | Stateless bridge config                              |
+| **RouteResource**        | `uuid`      | —               | —                 | —                  | —                  | Stateless route config                               |
+| **ValidationResult**     | —           | —               | —                 | No (replace)       | —                  | Full replacement on validation cycle                 |
+| **DeploymentState**      | —           | —               | —                 | —                  | No (replace)       | Full replacement on deployment                       |
+| **RuntimeState**         | —           | Yes             | —                 | —                  | —                  | Merge for real-time accumulation                     |
+| **ResourceMetadata**     | —           | Yes             | —                 | —                  | —                  | Merge to preserve local UI state                     |
 
 ### Merge Strategy Details
 
@@ -883,7 +931,9 @@ runtime: {
 }
 ```
 
-**Purpose:** Preserve live runtime metrics across updates. When a resource's status, CPU usage, or bandwidth updates, the new fields merge in rather than wiping out the entire runtime layer. This prevents loss of time-series data during incremental updates.
+**Purpose:** Preserve live runtime metrics across updates. When a resource's status, CPU usage, or
+bandwidth updates, the new fields merge in rather than wiping out the entire runtime layer. This
+prevents loss of time-series data during incremental updates.
 
 #### Resource.telemetry (custom merge)
 
@@ -908,7 +958,8 @@ telemetry: {
 }
 ```
 
-**Purpose:** Append historical bandwidth samples while capping to 24 hours (288 entries at 5-minute sampling). Keep the latest hourly/daily aggregate stats from the most recent update.
+**Purpose:** Append historical bandwidth samples while capping to 24 hours (288 entries at 5-minute
+sampling). Keep the latest hourly/daily aggregate stats from the most recent update.
 
 #### Validation and Deployment (merge: false)
 
@@ -922,7 +973,8 @@ deployment: {
 },
 ```
 
-**Rationale:** Validation and deployment states are snapshots of a specific cycle — a new validation should completely replace the previous one, not merge incrementally.
+**Rationale:** Validation and deployment states are snapshots of a specific cycle — a new validation
+should completely replace the previous one, not merge incrementally.
 
 ### Default Query Options
 
@@ -945,26 +997,28 @@ defaultOptions: {
 },
 ```
 
-| Setting | Value | When Used | Effect |
-|---------|-------|-----------|--------|
-| `watchQuery.fetchPolicy` | `cache-and-network` | First hook render or manual `refetch()` | Return cached data immediately, then refresh from network in background |
-| `watchQuery.nextFetchPolicy` | `cache-first` | Subsequent renders of same query | Skip network request if cache exists |
-| `query.fetchPolicy` | `cache-first` | `useQuery(..., { fetchPolicy: 'query' })` | Use cache if available, otherwise fetch |
-| `mutate.errorPolicy` | `all` | All mutations | Return any successfully resolved fields even if some errored |
+| Setting                      | Value               | When Used                                 | Effect                                                                  |
+| ---------------------------- | ------------------- | ----------------------------------------- | ----------------------------------------------------------------------- |
+| `watchQuery.fetchPolicy`     | `cache-and-network` | First hook render or manual `refetch()`   | Return cached data immediately, then refresh from network in background |
+| `watchQuery.nextFetchPolicy` | `cache-first`       | Subsequent renders of same query          | Skip network request if cache exists                                    |
+| `query.fetchPolicy`          | `cache-first`       | `useQuery(..., { fetchPolicy: 'query' })` | Use cache if available, otherwise fetch                                 |
+| `mutate.errorPolicy`         | `all`               | All mutations                             | Return any successfully resolved fields even if some errored            |
 
-**Benefit:** The `cache-and-network` + `cache-first` pattern eliminates loading spinners for previously visited views (data from cache) while keeping data fresh (background network refresh). Subsequent renders of the same query avoid redundant network round-trips.
+**Benefit:** The `cache-and-network` + `cache-first` pattern eliminates loading spinners for
+previously visited views (data from cache) while keeping data fresh (background network refresh).
+Subsequent renders of the same query avoid redundant network round-trips.
 
 ---
 
 ## Cross-References
 
-| Topic | Document |
-|-------|----------|
-| Authentication tokens, login flows | `./authentication.md` |
-| Error handling architecture, error boundaries | `./error-handling.md` |
-| Offline-first patterns, cache strategies | `./offline-first.md` |
-| WebSocket subscription usage patterns | `./websocket-subscriptions.md` |
-| Universal State v2 resource model | `./universal-state-resource-model.md` |
-| Change set pattern (Apply-Confirm-Merge) | `./change-set-pattern.md` |
-| Domain query hooks (per-feature wrappers) | `./domain-query-hooks.md` |
-| Testing Apollo with mocks and Storybook | `./testing-and-codegen.md` |
+| Topic                                         | Document                              |
+| --------------------------------------------- | ------------------------------------- |
+| Authentication tokens, login flows            | `./authentication.md`                 |
+| Error handling architecture, error boundaries | `./error-handling.md`                 |
+| Offline-first patterns, cache strategies      | `./offline-first.md`                  |
+| WebSocket subscription usage patterns         | `./websocket-subscriptions.md`        |
+| Universal State v2 resource model             | `./universal-state-resource-model.md` |
+| Change set pattern (Apply-Confirm-Merge)      | `./change-set-pattern.md`             |
+| Domain query hooks (per-feature wrappers)     | `./domain-query-hooks.md`             |
+| Testing Apollo with mocks and Storybook       | `./testing-and-codegen.md`            |

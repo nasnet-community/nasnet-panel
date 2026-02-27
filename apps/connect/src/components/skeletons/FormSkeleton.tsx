@@ -7,7 +7,7 @@
  * @module @/components/skeletons/FormSkeleton
  */
 
-import { Skeleton , cn } from '@nasnet/ui/primitives';
+import { Skeleton, cn } from '@nasnet/ui/primitives';
 
 export interface FormSkeletonProps {
   /** Number of form field groups to display */
@@ -50,7 +50,10 @@ export function FormSkeleton({
   const renderFields = (count: number) => (
     <div className="space-y-6">
       {Array.from({ length: count }).map((_, i) => (
-        <div key={i} className="space-y-2">
+        <div
+          key={i}
+          className="space-y-2"
+        >
           {/* Label */}
           <Skeleton className="h-4 w-24" />
           {/* Input */}
@@ -75,29 +78,32 @@ export function FormSkeleton({
       </div>
 
       {/* Form Content */}
-      {showSections ? (
-        // Sectioned layout
-        <div className="space-y-8">
-          {Array.from({ length: sections }).map((_, sectionIndex) => (
-            <div key={sectionIndex} className="space-y-4">
-              {/* Section header */}
-              <div className="border-b pb-2">
-                <Skeleton className="h-5 w-32" />
-                <Skeleton className="mt-1 h-3 w-56" />
+      {
+        showSections ?
+          // Sectioned layout
+          <div className="space-y-8">
+            {Array.from({ length: sections }).map((_, sectionIndex) => (
+              <div
+                key={sectionIndex}
+                className="space-y-4"
+              >
+                {/* Section header */}
+                <div className="border-b pb-2">
+                  <Skeleton className="h-5 w-32" />
+                  <Skeleton className="mt-1 h-3 w-56" />
+                </div>
+                {/* Section fields */}
+                {renderFields(Math.ceil(fields / sections))}
               </div>
-              {/* Section fields */}
-              {renderFields(Math.ceil(fields / sections))}
-            </div>
-          ))}
-        </div>
-      ) : (
-        // Flat layout
-        renderFields(fields)
-      )}
+            ))}
+          </div>
+          // Flat layout
+        : renderFields(fields)
+      }
 
       {/* Actions */}
       {showActions && (
-        <div className="flex gap-3 pt-4 border-t border-border">
+        <div className="border-border flex gap-3 border-t pt-4">
           <Skeleton className="h-10 w-24" />
           <Skeleton className="h-10 w-20" />
         </div>

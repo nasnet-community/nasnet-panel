@@ -21,7 +21,6 @@ import type { RawRule } from '@nasnet/core/types';
 
 import { useRawRuleEditor, validateLogPrefix, validateJumpTarget } from './use-raw-rule-editor';
 
-
 describe('useRawRuleEditor', () => {
   describe('Initialization', () => {
     it('initializes with default values', () => {
@@ -42,9 +41,7 @@ describe('useRawRuleEditor', () => {
         comment: 'Block HTTP',
       };
 
-      const { result } = renderHook(() =>
-        useRawRuleEditor({ initialRule })
-      );
+      const { result } = renderHook(() => useRawRuleEditor({ initialRule }));
 
       expect(result.current.rule.chain).toBe('output');
       expect(result.current.rule.action).toBe('drop');

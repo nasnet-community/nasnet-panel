@@ -15,11 +15,7 @@ import { cn, Button } from '@nasnet/ui/primitives';
 import { SortableList } from './SortableList';
 import { MIN_TOUCH_TARGET } from '../config';
 
-import type {
-  SortableListProps,
-  SortableItemData,
-  SortableItemRenderOptions,
-} from '../types';
+import type { SortableListProps, SortableItemData, SortableItemRenderOptions } from '../types';
 
 // ============================================================================
 // Mobile Item Wrapper
@@ -48,22 +44,19 @@ const MobileItemWrapper: React.FC<MobileItemWrapperProps> = ({
   const isLast = position === total;
 
   return (
-    <div className="flex items-center gap-component-sm">
+    <div className="gap-component-sm flex items-center">
       {/* Content */}
-      <div className="flex-1 min-w-0 py-component-sm">{children}</div>
+      <div className="py-component-sm min-w-0 flex-1">{children}</div>
 
       {/* Move buttons (fallback for touch) */}
       {showMoveButtons && (
-        <div className="flex flex-col justify-center gap-component-sm">
+        <div className="gap-component-sm flex flex-col justify-center">
           <Button
             variant="ghost"
             size="icon"
             onClick={onMoveUp}
             disabled={isFirst || disabled}
-            className={cn(
-              'h-11 w-11',
-              'touch-none',
-            )}
+            className={cn('h-11 w-11', 'touch-none')}
             style={{ minWidth: MIN_TOUCH_TARGET, minHeight: MIN_TOUCH_TARGET }}
             aria-label={`Move item ${position} up`}
           >
@@ -74,10 +67,7 @@ const MobileItemWrapper: React.FC<MobileItemWrapperProps> = ({
             size="icon"
             onClick={onMoveDown}
             disabled={isLast || disabled}
-            className={cn(
-              'h-11 w-11',
-              'touch-none',
-            )}
+            className={cn('h-11 w-11', 'touch-none')}
             style={{ minWidth: MIN_TOUCH_TARGET, minHeight: MIN_TOUCH_TARGET }}
             aria-label={`Move item ${position} down`}
           >
@@ -147,8 +137,8 @@ export function SortableListMobile<T extends SortableItemData>({
       showPositionNumbers={false} // Position shown in MobileItemWrapper
       gap={1}
       itemClassName={cn(
-        'bg-card border border-border rounded-[var(--semantic-radius-card)]',
-        'min-h-[44px]', // WCAG AAA touch target (44px minimum)
+        'bg-card border-border rounded-[var(--semantic-radius-card)] border',
+        'min-h-[44px]' // WCAG AAA touch target (44px minimum)
       )}
     />
   );

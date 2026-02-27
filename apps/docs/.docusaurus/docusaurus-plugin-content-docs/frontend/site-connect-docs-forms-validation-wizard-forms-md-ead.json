@@ -1,7 +1,7 @@
 {
   "id": "forms-validation/wizard-forms",
   "title": "Wizard Forms",
-  "description": "Multi-step forms in NasNetConnect use useWizardPersistence to manage step navigation, data collection, and state persistence across page reloads.",
+  "description": "Multi-step forms in NasNetConnect use useWizardPersistence to manage step navigation, data",
   "source": "@site/../connect/docs/forms-validation/wizard-forms.md",
   "sourceDirName": "forms-validation",
   "slug": "/forms-validation/wizard-forms",

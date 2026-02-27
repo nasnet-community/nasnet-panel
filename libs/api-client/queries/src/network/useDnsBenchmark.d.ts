@@ -18,5 +18,8 @@
  * };
  * ```
  */
-export declare function useDnsBenchmark(): import("@apollo/client").LazyQueryResultTuple<any, import("@apollo/client").OperationVariables>;
+export declare function useDnsBenchmark(): import('@apollo/client').LazyQueryResultTuple<
+  any,
+  import('@apollo/client').OperationVariables
+>;
 //# sourceMappingURL=useDnsBenchmark.d.ts.map

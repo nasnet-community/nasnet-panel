@@ -37,7 +37,13 @@ describe('FilterRuleSchema', () => {
         dstPort: '22',
         inInterface: 'ether1',
         outInterface: 'ether2',
-        connectionState: ['new', 'established'] as ('established' | 'new' | 'related' | 'invalid' | 'untracked')[],
+        connectionState: ['new', 'established'] as (
+          | 'established'
+          | 'new'
+          | 'related'
+          | 'invalid'
+          | 'untracked'
+        )[],
         comment: 'Block SSH from internal network',
         disabled: false,
         log: true,
@@ -67,7 +73,7 @@ describe('FilterRuleSchema', () => {
     it('should accept valid IPv4 addresses', () => {
       const validIPs = ['192.168.1.1', '10.0.0.0', '172.16.0.1', '255.255.255.255'];
 
-      validIPs.forEach(ip => {
+      validIPs.forEach((ip) => {
         const rule = {
           chain: 'input' as const,
           action: 'accept' as const,
@@ -81,7 +87,7 @@ describe('FilterRuleSchema', () => {
     it('should accept valid CIDR notation', () => {
       const validCIDRs = ['10.0.0.0/8', '172.16.0.0/12', '192.168.0.0/16', '192.168.1.0/24'];
 
-      validCIDRs.forEach(cidr => {
+      validCIDRs.forEach((cidr) => {
         const rule = {
           chain: 'input' as const,
           action: 'accept' as const,
@@ -95,7 +101,7 @@ describe('FilterRuleSchema', () => {
     it('should reject invalid IP addresses', () => {
       const invalidIPs = ['256.1.1.1', '192.168.1', '192.168.1.1.1', 'invalid'];
 
-      invalidIPs.forEach(ip => {
+      invalidIPs.forEach((ip) => {
         const rule = {
           chain: 'input' as const,
           action: 'accept' as const,
@@ -109,7 +115,7 @@ describe('FilterRuleSchema', () => {
     it('should reject invalid CIDR notation', () => {
       const invalidCIDRs = ['192.168.1.0/33', '192.168.1.0/-1', '192.168.1.0/abc'];
 
-      invalidCIDRs.forEach(cidr => {
+      invalidCIDRs.forEach((cidr) => {
         const rule = {
           chain: 'input' as const,
           action: 'accept' as const,
@@ -125,7 +131,7 @@ describe('FilterRuleSchema', () => {
     it('should accept valid single ports', () => {
       const validPorts = ['1', '80', '443', '8080', '65535'];
 
-      validPorts.forEach(port => {
+      validPorts.forEach((port) => {
         const rule = {
           chain: 'input' as const,
           action: 'accept' as const,
@@ -139,7 +145,7 @@ describe('FilterRuleSchema', () => {
     it('should accept valid port ranges', () => {
       const validRanges = ['1-65535', '80-443', '8000-9000', '1024-32768'];
 
-      validRanges.forEach(range => {
+      validRanges.forEach((range) => {
         const rule = {
           chain: 'input' as const,
           action: 'accept' as const,
@@ -153,7 +159,7 @@ describe('FilterRuleSchema', () => {
     it('should reject invalid ports', () => {
       const invalidPorts = ['0', '65536', '99999', 'abc', '80-'];
 
-      invalidPorts.forEach(port => {
+      invalidPorts.forEach((port) => {
         const rule = {
           chain: 'input' as const,
           action: 'accept' as const,
@@ -167,7 +173,7 @@ describe('FilterRuleSchema', () => {
     it('should reject invalid port ranges', () => {
       const invalidRanges = ['443-80', '100-100', '65535-65536'];
 
-      invalidRanges.forEach(range => {
+      invalidRanges.forEach((range) => {
         const rule = {
           chain: 'input' as const,
           action: 'accept' as const,
@@ -499,7 +505,13 @@ describe('Display helper functions', () => {
     it('should generate preview with connection state', () => {
       const rule = {
         action: 'accept' as const,
-        connectionState: ['established', 'related'] as ('established' | 'new' | 'related' | 'invalid' | 'untracked')[],
+        connectionState: ['established', 'related'] as (
+          | 'established'
+          | 'new'
+          | 'related'
+          | 'invalid'
+          | 'untracked'
+        )[],
       };
 
       const preview = generateRulePreview(rule);

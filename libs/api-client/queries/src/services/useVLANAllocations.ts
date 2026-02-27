@@ -64,10 +64,7 @@ export interface VLANAllocation {
  * const { allocations } = useVLANAllocations();
  * ```
  */
-export function useVLANAllocations(
-  routerID?: string,
-  status?: VLANAllocationStatus
-) {
+export function useVLANAllocations(routerID?: string, status?: VLANAllocationStatus) {
   const { data, loading, error, refetch } = useQuery(GET_VLAN_ALLOCATIONS, {
     variables: { routerID, status },
     fetchPolicy: 'cache-and-network', // Show cached data while fetching fresh data

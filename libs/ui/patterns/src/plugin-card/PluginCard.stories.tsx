@@ -26,7 +26,8 @@ type Story = StoryObj<typeof PluginCard>;
 const basePlugin: Plugin = {
   id: 'sing-box',
   name: 'sing-box',
-  description: 'Universal proxy platform supporting VLESS, VMess, Trojan, and more. Runs as a transparent proxy inside the router.',
+  description:
+    'Universal proxy platform supporting VLESS, VMess, Trojan, and more. Runs as a transparent proxy inside the router.',
   icon: Globe,
   version: '1.9.4',
   status: 'available',
@@ -49,9 +50,21 @@ const runningPlugin: Plugin = {
     bytesOut: 456_789_012,
   },
   logs: [
-    { timestamp: new Date('2026-02-19T09:15:00'), message: 'Peer 10.0.0.5 connected via VLESS', type: 'success' },
-    { timestamp: new Date('2026-02-19T09:14:30'), message: 'Route rule matched: bypass CN', type: 'info' },
-    { timestamp: new Date('2026-02-19T09:13:55'), message: 'DNS query timed out for api.example.com', type: 'warning' },
+    {
+      timestamp: new Date('2026-02-19T09:15:00'),
+      message: 'Peer 10.0.0.5 connected via VLESS',
+      type: 'success',
+    },
+    {
+      timestamp: new Date('2026-02-19T09:14:30'),
+      message: 'Route rule matched: bypass CN',
+      type: 'info',
+    },
+    {
+      timestamp: new Date('2026-02-19T09:13:55'),
+      message: 'DNS query timed out for api.example.com',
+      type: 'warning',
+    },
   ],
 };
 
@@ -60,8 +73,16 @@ const installedPlugin: Plugin = {
   id: 'sing-box-installed',
   status: 'installed',
   logs: [
-    { timestamp: new Date('2026-02-19T08:00:00'), message: 'Service started successfully', type: 'success' },
-    { timestamp: new Date('2026-02-19T07:59:45'), message: 'Configuration loaded from /etc/sing-box/config.json', type: 'info' },
+    {
+      timestamp: new Date('2026-02-19T08:00:00'),
+      message: 'Service started successfully',
+      type: 'success',
+    },
+    {
+      timestamp: new Date('2026-02-19T07:59:45'),
+      message: 'Configuration loaded from /etc/sing-box/config.json',
+      type: 'info',
+    },
   ],
 };
 
@@ -83,7 +104,8 @@ const errorPlugin: Plugin = {
 const adguardPlugin: Plugin = {
   id: 'adguard-home',
   name: 'AdGuard Home',
-  description: 'Network-wide ad and tracker blocking with a built-in DNS server and statistics dashboard.',
+  description:
+    'Network-wide ad and tracker blocking with a built-in DNS server and statistics dashboard.',
   icon: Lock,
   version: '0.107.43',
   status: 'running',
@@ -101,16 +123,29 @@ const adguardPlugin: Plugin = {
     bytesOut: 12_345_678,
   },
   logs: [
-    { timestamp: new Date('2026-02-19T09:20:00'), message: 'Blocked: ads.doubleclick.net', type: 'info' },
-    { timestamp: new Date('2026-02-19T09:19:50'), message: 'Blocked: tracker.example.com', type: 'info' },
-    { timestamp: new Date('2026-02-19T09:19:40'), message: 'DNS upstream timeout (8.8.8.8)', type: 'error' },
+    {
+      timestamp: new Date('2026-02-19T09:20:00'),
+      message: 'Blocked: ads.doubleclick.net',
+      type: 'info',
+    },
+    {
+      timestamp: new Date('2026-02-19T09:19:50'),
+      message: 'Blocked: tracker.example.com',
+      type: 'info',
+    },
+    {
+      timestamp: new Date('2026-02-19T09:19:40'),
+      message: 'DNS upstream timeout (8.8.8.8)',
+      type: 'error',
+    },
   ],
 };
 
 const psiphonPlugin: Plugin = {
   id: 'psiphon',
   name: 'Psiphon',
-  description: 'Censorship circumvention tool using a combination of SSH, VPN, and HTTP proxy technologies.',
+  description:
+    'Censorship circumvention tool using a combination of SSH, VPN, and HTTP proxy technologies.',
   icon: Radio,
   version: '3.175',
   status: 'available',
@@ -160,7 +195,8 @@ export const Installed: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Plugin is installed but not currently running. Shows Configure and Uninstall actions without stats.',
+        story:
+          'Plugin is installed but not currently running. Shows Configure and Uninstall actions without stats.',
       },
     },
   },
@@ -203,7 +239,8 @@ export const Psiphon: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'A second available plugin demonstrating the marketplace card for a different service.',
+        story:
+          'A second available plugin demonstrating the marketplace card for a different service.',
       },
     },
   },

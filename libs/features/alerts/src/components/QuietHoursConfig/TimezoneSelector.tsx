@@ -100,10 +100,7 @@ function TimezoneSelectorComponent({
   }, [allTimezones, searchQuery]);
 
   // Group filtered timezones
-  const groupedTimezones = useMemo(
-    () => groupTimezones(filteredTimezones),
-    [filteredTimezones]
-  );
+  const groupedTimezones = useMemo(() => groupTimezones(filteredTimezones), [filteredTimezones]);
 
   const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
@@ -111,15 +108,25 @@ function TimezoneSelectorComponent({
 
   return (
     <div className={cn('space-y-component-xs', className)}>
-      <Label htmlFor="timezone" className="flex items-center gap-component-sm">
-        <Globe className="h-4 w-4" aria-hidden="true" />
+      <Label
+        htmlFor="timezone"
+        className="gap-component-sm flex items-center"
+      >
+        <Globe
+          className="h-4 w-4"
+          aria-hidden="true"
+        />
         {t('quietHours.timezone')}
       </Label>
 
-      <Select value={value} onValueChange={onChange} disabled={disabled}>
+      <Select
+        value={value}
+        onValueChange={onChange}
+        disabled={disabled}
+      >
         <SelectTrigger
           id="timezone"
-          className="h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" // WCAG AAA touch target
+          className="focus-visible:ring-ring h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2" // WCAG AAA touch target
           aria-label={t('quietHours.timezone')}
         >
           <SelectValue placeholder={t('quietHours.selectTimezone')} />
@@ -127,14 +134,17 @@ function TimezoneSelectorComponent({
 
         <SelectContent className="max-h-[300px]">
           {/* Search input */}
-          <div className="p-component-xs border-b border-border">
+          <div className="p-component-xs border-border border-b">
             <div className="relative">
-              <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" aria-hidden="true" />
+              <Search
+                className="text-muted-foreground absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2"
+                aria-hidden="true"
+              />
               <Input
                 placeholder={t('quietHours.searchTimezone')}
                 value={searchQuery}
                 onChange={handleSearchChange}
-                className="pl-component-xl h-8 border-border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                className="pl-component-xl border-border focus-visible:ring-ring h-8 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
               />
             </div>
           </div>
@@ -144,7 +154,10 @@ function TimezoneSelectorComponent({
             <SelectGroup>
               <SelectLabel>{t('quietHours.commonTimezones')}</SelectLabel>
               {COMMON_TIMEZONES.map((tz) => (
-                <SelectItem key={tz} value={tz}>
+                <SelectItem
+                  key={tz}
+                  value={tz}
+                >
                   {tz.replace(/_/g, ' ')}
                 </SelectItem>
               ))}
@@ -157,19 +170,20 @@ function TimezoneSelectorComponent({
             .map(([region, timezones]) => (
               <SelectGroup key={region}>
                 <SelectLabel>{region}</SelectLabel>
-                {timezones
-                  .sort()
-                  .map((tz) => (
-                    <SelectItem key={tz} value={tz}>
-                      {tz.split('/').slice(1).join('/').replace(/_/g, ' ')}
-                    </SelectItem>
-                  ))}
+                {timezones.sort().map((tz) => (
+                  <SelectItem
+                    key={tz}
+                    value={tz}
+                  >
+                    {tz.split('/').slice(1).join('/').replace(/_/g, ' ')}
+                  </SelectItem>
+                ))}
               </SelectGroup>
             ))}
 
           {/* No results */}
           {filteredTimezones.length === 0 && (
-            <div className="p-component-md text-center text-sm text-muted-foreground">
+            <div className="p-component-md text-muted-foreground text-center text-sm">
               {t('quietHours.noTimezones')}
             </div>
           )}

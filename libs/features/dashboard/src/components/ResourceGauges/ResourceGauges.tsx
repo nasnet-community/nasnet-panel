@@ -46,10 +46,7 @@ const THRESHOLDS = {
  * Desktop Presenter
  * 4-column grid layout with larger gauges (md size)
  */
-function ResourceGaugesDesktop({
-  deviceId,
-  className,
-}: ResourceGaugesProps) {
+function ResourceGaugesDesktop({ deviceId, className }: ResourceGaugesProps) {
   const { metrics, loading, raw } = useResourceMetrics(deviceId);
   const [showCPUModal, setShowCPUModal] = useState(false);
   const handleShowCPUModal = useCallback(() => setShowCPUModal(true), []);
@@ -57,7 +54,7 @@ function ResourceGaugesDesktop({
 
   if (loading || !metrics) {
     return (
-      <div className={cn('grid grid-cols-4 gap-component-xl', className)}>
+      <div className={cn('gap-component-xl grid grid-cols-4', className)}>
         <Skeleton className="h-48 w-full" />
         <Skeleton className="h-48 w-full" />
         <Skeleton className="h-48 w-full" />
@@ -68,7 +65,7 @@ function ResourceGaugesDesktop({
 
   return (
     <>
-      <div className={cn('grid grid-cols-4 gap-component-xl', className)}>
+      <div className={cn('gap-component-xl grid grid-cols-4', className)}>
         {/* CPU Gauge - clickable to show breakdown */}
         <CircularGauge
           value={metrics.cpu.usage}
@@ -127,10 +124,7 @@ function ResourceGaugesDesktop({
  * Mobile Presenter
  * 2x2 grid layout with smaller gauges (sm size)
  */
-function ResourceGaugesMobile({
-  deviceId,
-  className,
-}: ResourceGaugesProps) {
+function ResourceGaugesMobile({ deviceId, className }: ResourceGaugesProps) {
   const { metrics, loading, raw } = useResourceMetrics(deviceId);
   const [showCPUModal, setShowCPUModal] = useState(false);
   const handleShowCPUModal = useCallback(() => setShowCPUModal(true), []);
@@ -138,7 +132,7 @@ function ResourceGaugesMobile({
 
   if (loading || !metrics) {
     return (
-      <div className={cn('grid grid-cols-2 gap-component-md', className)}>
+      <div className={cn('gap-component-md grid grid-cols-2', className)}>
         <Skeleton className="h-32 w-full" />
         <Skeleton className="h-32 w-full" />
         <Skeleton className="h-32 w-full" />
@@ -149,7 +143,7 @@ function ResourceGaugesMobile({
 
   return (
     <>
-      <div className={cn('grid grid-cols-2 gap-component-md', className)}>
+      <div className={cn('gap-component-md grid grid-cols-2', className)}>
         {/* CPU Gauge - clickable to show breakdown */}
         <CircularGauge
           value={metrics.cpu.usage}

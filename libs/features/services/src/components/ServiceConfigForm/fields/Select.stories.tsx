@@ -82,8 +82,7 @@ export const WithValue: Story = {
   parameters: {
     docs: {
       description: {
-        story:
-          'Pre-selected with "relay" value. Used for showing current configuration.',
+        story: 'Pre-selected with "relay" value. Used for showing current configuration.',
       },
     },
   },
@@ -125,8 +124,7 @@ export const Disabled: Story = {
   parameters: {
     docs: {
       description: {
-        story:
-          'Disabled mode. The select field is non-interactive. Used in read-only contexts.',
+        story: 'Disabled mode. The select field is non-interactive. Used in read-only contexts.',
       },
     },
   },
@@ -187,7 +185,7 @@ export const Interactive: Story = {
               { value: 'bridge', label: 'Bridge relay — hidden from scanner' },
             ]}
           />
-          <div className="text-xs text-muted-foreground">
+          <div className="text-muted-foreground text-xs">
             Selected: <span className="font-mono">{mode || 'none'}</span>
           </div>
         </div>

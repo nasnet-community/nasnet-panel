@@ -15,7 +15,16 @@ import { memo, useMemo } from 'react';
 
 import { AlertCircle, ArrowDown, ArrowUp, Activity } from 'lucide-react';
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle , Alert, AlertDescription , Skeleton } from '@nasnet/ui/primitives';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  Alert,
+  AlertDescription,
+  Skeleton,
+} from '@nasnet/ui/primitives';
 import { cn } from '@nasnet/ui/utils';
 
 import { ErrorRateIndicator } from './error-rate-indicator';
@@ -97,7 +106,10 @@ export const InterfaceStatsPanelMobile = memo(function InterfaceStatsPanelMobile
           <CardContent>
             <div className="space-y-component-sm">
               {Array.from({ length: 4 }).map((_, i) => (
-                <Skeleton key={i} className="h-16" />
+                <Skeleton
+                  key={i}
+                  className="h-16"
+                />
               ))}
             </div>
           </CardContent>
@@ -117,7 +129,10 @@ export const InterfaceStatsPanelMobile = memo(function InterfaceStatsPanelMobile
           </CardHeader>
           <CardContent>
             <Alert variant="destructive">
-              <AlertCircle className="h-4 w-4" aria-hidden="true" />
+              <AlertCircle
+                className="h-4 w-4"
+                aria-hidden="true"
+              />
               <AlertDescription className="text-sm">
                 {error.message || 'Could not retrieve statistics. Check router connection.'}
               </AlertDescription>
@@ -134,12 +149,19 @@ export const InterfaceStatsPanelMobile = memo(function InterfaceStatsPanelMobile
 
   return (
     <div className={cn('category-networking', className)}>
-      <Card className="bg-card" role="region" aria-label={`${interfaceName} statistics`}>
+      <Card
+        className="bg-card"
+        role="region"
+        aria-label={`${interfaceName} statistics`}
+      >
         <CardHeader className="pb-component-sm">
           <div className="flex items-start justify-between">
             <div className="flex-1">
-              <CardTitle className="flex items-center gap-component-sm text-lg">
-                <Activity className="h-5 w-5 text-primary" aria-hidden="true" />
+              <CardTitle className="gap-component-sm flex items-center text-lg">
+                <Activity
+                  className="text-primary h-5 w-5"
+                  aria-hidden="true"
+                />
                 <span className="truncate">{interfaceName}</span>
               </CardTitle>
               <CardDescription className="mt-component-sm text-sm">
@@ -154,29 +176,28 @@ export const InterfaceStatsPanelMobile = memo(function InterfaceStatsPanelMobile
           {hasErrors && (
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
-              <AlertDescription className="text-sm">
-                Interface has errors
-              </AlertDescription>
+              <AlertDescription className="text-sm">Interface has errors</AlertDescription>
             </Alert>
           )}
 
           {/* Bandwidth Rates - Prominent Display */}
           {rates && (
             <div className="space-y-component-sm">
-              <h3 className="text-sm font-semibold text-muted-foreground">
-                Current Bandwidth
-              </h3>
+              <h3 className="text-muted-foreground text-sm font-semibold">Current Bandwidth</h3>
               <div className="space-y-component-sm">
                 <Card className="border-chart-1/20 bg-chart-1/10 bg-muted">
                   <CardContent className="p-component-md">
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-component-sm">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-chart-1/20" aria-hidden="true">
-                          <ArrowUp className="h-5 w-5 text-chart-1" />
+                      <div className="gap-component-sm flex items-center">
+                        <div
+                          className="bg-chart-1/20 flex h-10 w-10 items-center justify-center rounded-full"
+                          aria-hidden="true"
+                        >
+                          <ArrowUp className="text-chart-1 h-5 w-5" />
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="text-sm text-muted-foreground">TX Rate</div>
-                          <div className="text-xl font-bold font-mono tabular-nums truncate text-foreground">
+                        <div className="min-w-0 flex-1">
+                          <div className="text-muted-foreground text-sm">TX Rate</div>
+                          <div className="text-foreground truncate font-mono text-xl font-bold tabular-nums">
                             {formatBitsPerSecBigInt(rates.txRate)}
                           </div>
                         </div>
@@ -188,13 +209,16 @@ export const InterfaceStatsPanelMobile = memo(function InterfaceStatsPanelMobile
                 <Card className="border-chart-2/20 bg-chart-2/10 bg-muted">
                   <CardContent className="p-component-md">
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-component-sm">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-chart-2/20" aria-hidden="true">
-                          <ArrowDown className="h-5 w-5 text-chart-2" />
+                      <div className="gap-component-sm flex items-center">
+                        <div
+                          className="bg-chart-2/20 flex h-10 w-10 items-center justify-center rounded-full"
+                          aria-hidden="true"
+                        >
+                          <ArrowDown className="text-chart-2 h-5 w-5" />
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="text-sm text-muted-foreground">RX Rate</div>
-                          <div className="text-xl font-bold font-mono tabular-nums truncate text-foreground">
+                        <div className="min-w-0 flex-1">
+                          <div className="text-muted-foreground text-sm">RX Rate</div>
+                          <div className="text-foreground truncate font-mono text-xl font-bold tabular-nums">
                             {formatBitsPerSecBigInt(rates.rxRate)}
                           </div>
                         </div>
@@ -208,38 +232,74 @@ export const InterfaceStatsPanelMobile = memo(function InterfaceStatsPanelMobile
 
           {/* Traffic Counters */}
           <div className="space-y-component-sm">
-            <h3 className="text-sm font-semibold text-muted-foreground">
-              Traffic Counters
-            </h3>
-            <div className="grid grid-cols-2 gap-component-sm">
-              <StatsCounter value={stats.txBytes} label="TX Bytes" unit="bytes" />
-              <StatsCounter value={stats.rxBytes} label="RX Bytes" unit="bytes" />
-              <StatsCounter value={stats.txPackets} label="TX Packets" unit="packets" />
-              <StatsCounter value={stats.rxPackets} label="RX Packets" unit="packets" />
+            <h3 className="text-muted-foreground text-sm font-semibold">Traffic Counters</h3>
+            <div className="gap-component-sm grid grid-cols-2">
+              <StatsCounter
+                value={stats.txBytes}
+                label="TX Bytes"
+                unit="bytes"
+              />
+              <StatsCounter
+                value={stats.rxBytes}
+                label="RX Bytes"
+                unit="bytes"
+              />
+              <StatsCounter
+                value={stats.txPackets}
+                label="TX Packets"
+                unit="packets"
+              />
+              <StatsCounter
+                value={stats.rxPackets}
+                label="RX Packets"
+                unit="packets"
+              />
             </div>
           </div>
 
           {/* Error Statistics */}
           <div className="space-y-component-sm">
-            <h3 className="text-sm font-semibold text-muted-foreground">
-              Errors & Drops
-            </h3>
-            <div className="grid grid-cols-2 gap-component-sm">
-              <StatsCounter value={String(stats.txErrors)} label="TX Errors" unit="count" />
-              <StatsCounter value={String(stats.rxErrors)} label="RX Errors" unit="count" />
-              <StatsCounter value={String(stats.txDrops)} label="TX Drops" unit="count" />
-              <StatsCounter value={String(stats.rxDrops)} label="RX Drops" unit="count" />
+            <h3 className="text-muted-foreground text-sm font-semibold">Errors & Drops</h3>
+            <div className="gap-component-sm grid grid-cols-2">
+              <StatsCounter
+                value={String(stats.txErrors)}
+                label="TX Errors"
+                unit="count"
+              />
+              <StatsCounter
+                value={String(stats.rxErrors)}
+                label="RX Errors"
+                unit="count"
+              />
+              <StatsCounter
+                value={String(stats.txDrops)}
+                label="TX Drops"
+                unit="count"
+              />
+              <StatsCounter
+                value={String(stats.rxDrops)}
+                label="RX Drops"
+                unit="count"
+              />
             </div>
 
             {/* Error Rate */}
-            <ErrorRateIndicator rate={errorRate} trend={0} threshold={0.1} />
+            <ErrorRateIndicator
+              rate={errorRate}
+              trend={0}
+              threshold={0.1}
+            />
 
             {/* High Error Warning */}
             {isHighErrorRate && (
               <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" aria-hidden="true" />
+                <AlertCircle
+                  className="h-4 w-4"
+                  aria-hidden="true"
+                />
                 <AlertDescription className="text-sm">
-                  High error rate detected ({(ERROR_RATE_THRESHOLD * 100).toFixed(1)}+%) - check cable connections.
+                  High error rate detected ({(ERROR_RATE_THRESHOLD * 100).toFixed(1)}+%) - check
+                  cable connections.
                 </AlertDescription>
               </Alert>
             )}

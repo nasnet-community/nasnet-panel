@@ -13,7 +13,14 @@
 import { useCallback, useMemo } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import { CStepper } from '@nasnet/ui/patterns';
-import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from '@nasnet/ui/primitives';
+import {
+  Button,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@nasnet/ui/primitives';
 import { useConnectionStore } from '@nasnet/state/stores';
 import { cn } from '@nasnet/ui/utils';
 import { useDHCPWizard } from './use-dhcp-wizard';
@@ -21,7 +28,11 @@ import { WizardStepInterface } from './wizard-step-interface';
 import { WizardStepPool } from './wizard-step-pool';
 import { WizardStepNetwork } from './wizard-step-network';
 import { WizardStepReview } from './wizard-step-review';
-import type { InterfaceStepFormData, PoolStepFormData, NetworkStepFormData } from './dhcp-wizard.schema';
+import type {
+  InterfaceStepFormData,
+  PoolStepFormData,
+  NetworkStepFormData,
+} from './dhcp-wizard.schema';
 
 interface DHCPWizardProps {
   /** Optional CSS class names to apply to root container */
@@ -40,7 +51,12 @@ function DHCPWizardComponent({ className }: DHCPWizardProps) {
   const stepContent = useMemo(() => {
     switch (stepper.currentStep.id) {
       case 'interface':
-        return <WizardStepInterface stepper={stepper} routerIp={routerIp || ''} />;
+        return (
+          <WizardStepInterface
+            stepper={stepper}
+            routerIp={routerIp || ''}
+          />
+        );
       case 'pool':
         return <WizardStepPool stepper={stepper} />;
       case 'network':
@@ -68,7 +84,7 @@ function DHCPWizardComponent({ className }: DHCPWizardProps) {
           {/* Interface Preview */}
           {interfaceData?.interface && (
             <div>
-              <h4 className="text-sm font-medium mb-component-sm">Interface</h4>
+              <h4 className="mb-component-sm text-sm font-medium">Interface</h4>
               <div className="space-y-component-xs text-sm">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Name:</span>
@@ -87,7 +103,7 @@ function DHCPWizardComponent({ className }: DHCPWizardProps) {
           {/* Pool Preview */}
           {poolData?.poolStart && poolData?.poolEnd && (
             <div>
-              <h4 className="text-sm font-medium mb-component-sm">Address Pool</h4>
+              <h4 className="mb-component-sm text-sm font-medium">Address Pool</h4>
               <div className="space-y-component-xs text-sm">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Start:</span>
@@ -104,7 +120,7 @@ function DHCPWizardComponent({ className }: DHCPWizardProps) {
           {/* Network Preview */}
           {networkData?.gateway && (
             <div>
-              <h4 className="text-sm font-medium mb-component-sm">Network Settings</h4>
+              <h4 className="mb-component-sm text-sm font-medium">Network Settings</h4>
               <div className="space-y-component-xs text-sm">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Gateway:</span>
@@ -140,7 +156,7 @@ function DHCPWizardComponent({ className }: DHCPWizardProps) {
 
           {/* Placeholder when no data */}
           {!interfaceData?.interface && !poolData?.poolStart && !networkData?.gateway && (
-            <div className="text-center text-muted-foreground text-sm py-component-lg">
+            <div className="text-muted-foreground py-component-lg text-center text-sm">
               Complete the wizard steps to see a live preview of your DHCP server configuration.
             </div>
           )}
@@ -162,11 +178,17 @@ function DHCPWizardComponent({ className }: DHCPWizardProps) {
   }, [navigate]);
 
   return (
-    <div className={cn('container mx-auto py-component-lg px-page-mobile md:px-page-tablet lg:px-page-desktop', className)}>
+    <div
+      className={cn(
+        'py-component-lg px-page-mobile md:px-page-tablet lg:px-page-desktop container mx-auto',
+        className
+      )}
+    >
       <div className="mb-component-lg">
-        <h1 className="text-3xl font-bold font-display">Create DHCP Server</h1>
+        <h1 className="font-display text-3xl font-bold">Create DHCP Server</h1>
         <p className="text-muted-foreground mt-component-sm">
-          Configure a new DHCP server to automatically assign IP addresses to devices on your network.
+          Configure a new DHCP server to automatically assign IP addresses to devices on your
+          network.
         </p>
       </div>
 
@@ -175,7 +197,7 @@ function DHCPWizardComponent({ className }: DHCPWizardProps) {
         stepContent={stepContent}
         previewContent={previewContent}
         customNavigation={
-          <div className="flex gap-component-md">
+          <div className="gap-component-md flex">
             <Button
               variant="outline"
               onClick={handleCancel}
@@ -192,7 +214,7 @@ function DHCPWizardComponent({ className }: DHCPWizardProps) {
             >
               Previous
             </Button>
-            {stepper.currentIndex < stepper.steps.length - 1 ? (
+            {stepper.currentIndex < stepper.steps.length - 1 ?
               <Button
                 onClick={() => stepper.next()}
                 disabled={isCreating}
@@ -200,15 +222,14 @@ function DHCPWizardComponent({ className }: DHCPWizardProps) {
               >
                 Next
               </Button>
-            ) : (
-              <Button
+            : <Button
                 onClick={handleComplete}
                 disabled={isCreating}
                 aria-label="Complete DHCP server creation"
               >
                 {isCreating ? 'Creating...' : 'Create DHCP Server'}
               </Button>
-            )}
+            }
           </div>
         }
       />

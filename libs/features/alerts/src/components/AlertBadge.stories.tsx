@@ -164,7 +164,10 @@ export const SingleAlert: Story = {
   args: {},
   decorators: [
     (Story) => (
-      <MockedProvider mocks={createAlertsMock(1)} addTypename={false}>
+      <MockedProvider
+        mocks={createAlertsMock(1)}
+        addTypename={false}
+      >
         <Story />
       </MockedProvider>
     ),
@@ -185,7 +188,10 @@ export const MultipleAlerts: Story = {
   args: {},
   decorators: [
     (Story) => (
-      <MockedProvider mocks={createAlertsMock(7)} addTypename={false}>
+      <MockedProvider
+        mocks={createAlertsMock(7)}
+        addTypename={false}
+      >
         <Story />
       </MockedProvider>
     ),
@@ -206,7 +212,10 @@ export const OverflowCount: Story = {
   args: {},
   decorators: [
     (Story) => (
-      <MockedProvider mocks={createAlertsMock(142)} addTypename={false}>
+      <MockedProvider
+        mocks={createAlertsMock(142)}
+        addTypename={false}
+      >
         <Story />
       </MockedProvider>
     ),
@@ -214,8 +223,7 @@ export const OverflowCount: Story = {
   parameters: {
     docs: {
       description: {
-        story:
-          'When total count exceeds 99 the badge displays "99+" to prevent layout overflow.',
+        story: 'When total count exceeds 99 the badge displays "99+" to prevent layout overflow.',
       },
     },
   },
@@ -229,8 +237,11 @@ export const ZeroAlerts: Story = {
   args: {},
   decorators: [
     (Story) => (
-      <MockedProvider mocks={createAlertsMock(0)} addTypename={false}>
-        <div className="relative inline-flex items-center gap-component-sm p-component-md border border-dashed border-muted-foreground/30 rounded-md text-sm text-muted-foreground">
+      <MockedProvider
+        mocks={createAlertsMock(0)}
+        addTypename={false}
+      >
+        <div className="gap-component-sm p-component-md border-muted-foreground/30 text-muted-foreground relative inline-flex items-center rounded-md border border-dashed text-sm">
           Bell icon (badge renders nothing here)
           <Story />
         </div>
@@ -256,7 +267,10 @@ export const DeviceScoped: Story = {
   },
   decorators: [
     (Story) => (
-      <MockedProvider mocks={createAlertsMock(3, 'router-abc-123')} addTypename={false}>
+      <MockedProvider
+        mocks={createAlertsMock(3, 'router-abc-123')}
+        addTypename={false}
+      >
         <Story />
       </MockedProvider>
     ),
@@ -264,8 +278,7 @@ export const DeviceScoped: Story = {
   parameters: {
     docs: {
       description: {
-        story:
-          'Badge scoped to a specific device ID, showing only alerts for that router.',
+        story: 'Badge scoped to a specific device ID, showing only alerts for that router.',
       },
     },
   },
@@ -280,11 +293,14 @@ export const InsideHeaderIcon: Story = {
   },
   decorators: [
     (Story) => (
-      <MockedProvider mocks={createAlertsMock(5)} addTypename={false}>
-        <div className="relative inline-flex h-10 w-10 items-center justify-center rounded-md border border-border bg-muted">
+      <MockedProvider
+        mocks={createAlertsMock(5)}
+        addTypename={false}
+      >
+        <div className="border-border bg-muted relative inline-flex h-10 w-10 items-center justify-center rounded-md border">
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            className="h-5 w-5 text-foreground"
+            className="text-foreground h-5 w-5"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"

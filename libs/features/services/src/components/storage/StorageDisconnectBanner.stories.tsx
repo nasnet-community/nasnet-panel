@@ -16,12 +16,7 @@ import * as React from 'react';
 
 import { AlertTriangle, X } from 'lucide-react';
 
-import {
-  Alert,
-  AlertTitle,
-  AlertDescription,
-  Button,
-} from '@nasnet/ui/primitives';
+import { Alert, AlertTitle, AlertDescription, Button } from '@nasnet/ui/primitives';
 
 import type { Meta, StoryObj } from '@storybook/react';
 
@@ -35,11 +30,7 @@ interface MockBannerProps {
   onDismiss?: () => void;
 }
 
-function MockStorageDisconnectBanner({
-  path,
-  affectedServices = [],
-  onDismiss,
-}: MockBannerProps) {
+function MockStorageDisconnectBanner({ path, affectedServices = [], onDismiss }: MockBannerProps) {
   const displayServices = affectedServices.slice(0, 5);
   const remainingCount = Math.max(0, affectedServices.length - 5);
 
@@ -52,37 +43,34 @@ function MockStorageDisconnectBanner({
       className="relative"
     >
       <AlertTriangle className="h-5 w-5" />
-      <AlertTitle className="text-lg font-semibold pr-8">
-        External Storage Disconnected
-      </AlertTitle>
+      <AlertTitle className="pr-8 text-lg font-semibold">External Storage Disconnected</AlertTitle>
       <AlertDescription className="space-y-3">
         <p>
           Storage at{' '}
-          <code className="relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm">
+          <code className="bg-muted relative rounded px-[0.3rem] py-[0.2rem] font-mono text-sm">
             {path}
           </code>{' '}
           is no longer available.
         </p>
         {affectedServices.length > 0 && (
           <div>
-            <p className="font-medium mb-2">
-              Affected services ({affectedServices.length}):
-            </p>
-            <ul className="list-disc list-inside space-y-1 pl-2">
+            <p className="mb-2 font-medium">Affected services ({affectedServices.length}):</p>
+            <ul className="list-inside list-disc space-y-1 pl-2">
               {displayServices.map((service) => (
-                <li key={service} className="text-sm">
+                <li
+                  key={service}
+                  className="text-sm"
+                >
                   {service}
                 </li>
               ))}
               {remainingCount > 0 && (
-                <li className="font-medium text-sm">
-                  and {remainingCount} more...
-                </li>
+                <li className="text-sm font-medium">and {remainingCount} more...</li>
               )}
             </ul>
           </div>
         )}
-        <p className="text-sm font-medium border-t border-warning/30 pt-3 mt-3">
+        <p className="border-warning/30 mt-3 border-t pt-3 text-sm font-medium">
           ⚠️ Reconnect the storage device to restore service functionality.
         </p>
       </AlertDescription>
@@ -91,7 +79,7 @@ function MockStorageDisconnectBanner({
           variant="ghost"
           size="sm"
           onClick={onDismiss}
-          className="absolute top-4 right-4 h-6 w-6 p-0"
+          className="absolute right-4 top-4 h-6 w-6 p-0"
           aria-label="Dismiss alert (warning will persist until storage reconnects)"
         >
           <X className="h-4 w-4" />

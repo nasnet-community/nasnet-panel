@@ -3,7 +3,7 @@ import { useMemo } from 'react';
 import type {
   ServiceInstanceHealth,
   InstanceHealthState,
-  HealthConnectionState
+  HealthConnectionState,
 } from '@nasnet/api-client/generated/types';
 import type { RuntimeState } from '@nasnet/core/types';
 

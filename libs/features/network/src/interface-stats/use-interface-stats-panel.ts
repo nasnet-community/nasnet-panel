@@ -8,10 +8,7 @@
  */
 
 import { useState, useEffect, useMemo, useRef } from 'react';
-import {
-  useInterfaceStatsQuery,
-  useInterfaceStatsSubscription,
-} from '@nasnet/api-client/queries';
+import { useInterfaceStatsQuery, useInterfaceStatsSubscription } from '@nasnet/api-client/queries';
 import type { InterfaceStats } from '@nasnet/api-client/generated';
 import type { InterfaceStatsState } from './interface-stats-panel.types';
 

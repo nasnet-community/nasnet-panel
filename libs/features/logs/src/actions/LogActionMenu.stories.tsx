@@ -27,28 +27,13 @@ const firewallEntry = makeEntry(
   'warning'
 );
 
-const dhcpEntry = makeEntry(
-  'dhcp',
-  'dhcp1: 192.168.88.105 assigned to 00:1A:2B:3C:4D:5E'
-);
+const dhcpEntry = makeEntry('dhcp', 'dhcp1: 192.168.88.105 assigned to 00:1A:2B:3C:4D:5E');
 
-const wirelessEntry = makeEntry(
-  'wireless',
-  'wlan1: 00:1A:2B:3C:4D:5E connected',
-  'info'
-);
+const wirelessEntry = makeEntry('wireless', 'wlan1: 00:1A:2B:3C:4D:5E connected', 'info');
 
-const systemEntry = makeEntry(
-  'system',
-  'system rebooted — RouterOS 7.14.2',
-  'info'
-);
+const systemEntry = makeEntry('system', 'system rebooted — RouterOS 7.14.2', 'info');
 
-const interfaceEntry = makeEntry(
-  'interface',
-  'ether1 link down',
-  'error'
-);
+const interfaceEntry = makeEntry('interface', 'ether1 link down', 'error');
 
 const meta: Meta<typeof LogActionMenu> = {
   title: 'Features/Logs/LogActionMenu',

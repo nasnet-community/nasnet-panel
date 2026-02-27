@@ -8,7 +8,11 @@
  * with real-time progress streaming via GraphQL subscriptions.
  */
 
-import type { TracerouteHop, TracerouteResult, TracerouteProtocol } from '@nasnet/api-client/generated/types';
+import type {
+  TracerouteHop,
+  TracerouteResult,
+  TracerouteProtocol,
+} from '@nasnet/api-client/generated/types';
 
 /**
  * Re-export generated types for convenience

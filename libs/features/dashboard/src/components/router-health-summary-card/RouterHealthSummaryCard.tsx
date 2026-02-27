@@ -107,11 +107,17 @@ export const RouterHealthSummaryCard = memo(function RouterHealthSummaryCard({
   // Select presenter based on platform (or explicit compact prop)
   const isMobile = compact ?? platform === 'mobile';
 
-  return isMobile ? (
-    <RouterHealthSummaryCardMobile state={state} onRefresh={handleRefresh} className={className} />
-  ) : (
-    <RouterHealthSummaryCardDesktop state={state} onRefresh={handleRefresh} className={className} />
-  );
+  return isMobile ?
+      <RouterHealthSummaryCardMobile
+        state={state}
+        onRefresh={handleRefresh}
+        className={className}
+      />
+    : <RouterHealthSummaryCardDesktop
+        state={state}
+        onRefresh={handleRefresh}
+        className={className}
+      />;
 });
 
 RouterHealthSummaryCard.displayName = 'RouterHealthSummaryCard';

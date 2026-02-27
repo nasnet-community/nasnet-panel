@@ -43,10 +43,10 @@ export declare function useHistoryShortcuts(): void;
  * ```
  */
 export declare function useHistoryControls(): {
-    canUndo: boolean;
-    canRedo: boolean;
-    lastAction: import("./types").UndoableAction | undefined;
-    undo: () => Promise<boolean>;
-    redo: () => Promise<boolean>;
+  canUndo: boolean;
+  canRedo: boolean;
+  lastAction: import('./types').UndoableAction | undefined;
+  undo: () => Promise<boolean>;
+  redo: () => Promise<boolean>;
 };
 //# sourceMappingURL=useHistoryShortcuts.d.ts.map

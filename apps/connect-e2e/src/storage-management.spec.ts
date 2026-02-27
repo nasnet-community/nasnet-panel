@@ -51,9 +51,7 @@ async function enableStorage(page: Page, mountPath: string) {
   }
 
   // Wait for success toast notification
-  await expect(
-    page.getByText(/external storage enabled/i)
-  ).toBeVisible({ timeout: 10000 });
+  await expect(page.getByText(/external storage enabled/i)).toBeVisible({ timeout: 10000 });
 }
 
 /**
@@ -83,9 +81,9 @@ test.describe('Storage Management', () => {
     await expect(page.getByText('Storage Configuration')).toBeVisible();
 
     // Step 2: Verify initial state (no storage configured)
-    const statusBadge = page.locator('text=Not Configured').or(
-      page.locator('text=No external storage detected')
-    );
+    const statusBadge = page
+      .locator('text=Not Configured')
+      .or(page.locator('text=No external storage detected'));
     await expect(statusBadge.first()).toBeVisible({ timeout: 5000 });
 
     // Step 3: Locate the enable storage switch
@@ -116,9 +114,7 @@ test.describe('Storage Management', () => {
     }
 
     // Step 6: Verify success notification appears
-    await expect(
-      page.getByText(/external storage enabled/i)
-    ).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText(/external storage enabled/i)).toBeVisible({ timeout: 10000 });
 
     // Step 7: Verify UI updates to show "Configured" state
     const configuredBadge = page.getByText('Configured');
@@ -322,9 +318,7 @@ test.describe('Storage Management', () => {
     await expect(page.getByText('Storage Configuration')).toBeVisible();
 
     // Step 4: Verify critical warning message appears
-    const criticalWarning = page.getByText(/storage space critical/i).or(
-      page.getByText(/90%/i)
-    );
+    const criticalWarning = page.getByText(/storage space critical/i).or(page.getByText(/90%/i));
     await expect(criticalWarning.first()).toBeVisible({ timeout: 10000 });
 
     // Step 5: Verify usage percentage is displayed
@@ -347,9 +341,9 @@ test.describe('Storage Management', () => {
     }
 
     // Step 7: Verify warning message suggests action
-    const actionSuggestion = page.getByText(/delete.*service/i).or(
-      page.getByText(/free up space/i)
-    );
+    const actionSuggestion = page
+      .getByText(/delete.*service/i)
+      .or(page.getByText(/free up space/i));
 
     if (await actionSuggestion.isVisible({ timeout: 2000 })) {
       await expect(actionSuggestion).toBeVisible();
@@ -395,9 +389,7 @@ test.describe('Storage Management', () => {
     }
 
     // Step 5: Verify scan result notification appears
-    const scanResult = page.getByText(/found.*storage/i).or(
-      page.getByText(/no new storage/i)
-    );
+    const scanResult = page.getByText(/found.*storage/i).or(page.getByText(/no new storage/i));
     await expect(scanResult.first()).toBeVisible({ timeout: 10000 });
 
     // Step 6: Verify mount selector updates (if new storage found)
@@ -438,9 +430,7 @@ test.describe('Storage Management', () => {
     }
 
     // Step 5: Verify success notification
-    await expect(
-      page.getByText(/external storage disabled/i)
-    ).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText(/external storage disabled/i)).toBeVisible({ timeout: 10000 });
 
     // Step 6: Verify status changes to "Not Configured"
     await expect(page.getByText('Not Configured')).toBeVisible({

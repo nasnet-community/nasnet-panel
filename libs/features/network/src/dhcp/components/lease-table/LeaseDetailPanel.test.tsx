@@ -53,7 +53,12 @@ describe('LeaseDetailPanel', () => {
 
     it('should render "Unknown Device" when hostname is undefined', () => {
       const lease = createMockLease({ hostname: undefined });
-      render(<LeaseDetailPanel {...defaultProps} lease={lease} />);
+      render(
+        <LeaseDetailPanel
+          {...defaultProps}
+          lease={lease}
+        />
+      );
 
       expect(screen.getByText('Unknown Device')).toBeInTheDocument();
     });
@@ -115,7 +120,12 @@ describe('LeaseDetailPanel', () => {
 
     it('should disable Make Static button for static leases', () => {
       const lease = createMockLease({ dynamic: false });
-      render(<LeaseDetailPanel {...defaultProps} lease={lease} />);
+      render(
+        <LeaseDetailPanel
+          {...defaultProps}
+          lease={lease}
+        />
+      );
 
       const button = screen.getByText('Make Static');
       expect(button).toBeDisabled();
@@ -125,7 +135,12 @@ describe('LeaseDetailPanel', () => {
   describe('Status display', () => {
     it('should render bound status with green badge', () => {
       const lease = createMockLease({ status: 'bound' });
-      render(<LeaseDetailPanel {...defaultProps} lease={lease} />);
+      render(
+        <LeaseDetailPanel
+          {...defaultProps}
+          lease={lease}
+        />
+      );
 
       const badge = screen.getByText('bound');
       expect(badge.closest('span')).toHaveClass('bg-semantic-success');
@@ -133,7 +148,12 @@ describe('LeaseDetailPanel', () => {
 
     it('should render waiting status with yellow badge', () => {
       const lease = createMockLease({ status: 'waiting' });
-      render(<LeaseDetailPanel {...defaultProps} lease={lease} />);
+      render(
+        <LeaseDetailPanel
+          {...defaultProps}
+          lease={lease}
+        />
+      );
 
       const badge = screen.getByText('waiting');
       expect(badge.closest('span')).toHaveClass('bg-semantic-warning');
@@ -141,21 +161,36 @@ describe('LeaseDetailPanel', () => {
 
     it('should show "Dynamic" for dynamic leases', () => {
       const lease = createMockLease({ dynamic: true });
-      render(<LeaseDetailPanel {...defaultProps} lease={lease} />);
+      render(
+        <LeaseDetailPanel
+          {...defaultProps}
+          lease={lease}
+        />
+      );
 
       expect(screen.getByText('Dynamic')).toBeInTheDocument();
     });
 
     it('should show "Static" for static leases', () => {
       const lease = createMockLease({ dynamic: false });
-      render(<LeaseDetailPanel {...defaultProps} lease={lease} />);
+      render(
+        <LeaseDetailPanel
+          {...defaultProps}
+          lease={lease}
+        />
+      );
 
       expect(screen.getByText('Static')).toBeInTheDocument();
     });
 
     it('should show blocked indicator for blocked leases', () => {
       const lease = createMockLease({ blocked: true });
-      render(<LeaseDetailPanel {...defaultProps} lease={lease} />);
+      render(
+        <LeaseDetailPanel
+          {...defaultProps}
+          lease={lease}
+        />
+      );
 
       expect(screen.getByText('Blocked')).toBeInTheDocument();
     });
@@ -170,7 +205,12 @@ describe('LeaseDetailPanel', () => {
 
     it('should display "never" for static leases', () => {
       const lease = createMockLease({ expiresAfter: 'never' });
-      render(<LeaseDetailPanel {...defaultProps} lease={lease} />);
+      render(
+        <LeaseDetailPanel
+          {...defaultProps}
+          lease={lease}
+        />
+      );
 
       expect(screen.getByText('never')).toBeInTheDocument();
     });
@@ -193,7 +233,12 @@ describe('LeaseDetailPanel', () => {
 
     it('should display "N/A" when client ID is unavailable', () => {
       const lease = createMockLease({ clientId: undefined });
-      render(<LeaseDetailPanel {...defaultProps} lease={lease} />);
+      render(
+        <LeaseDetailPanel
+          {...defaultProps}
+          lease={lease}
+        />
+      );
 
       expect(screen.getByText('N/A')).toBeInTheDocument();
     });
@@ -229,7 +274,9 @@ describe('LeaseDetailPanel', () => {
       render(<LeaseDetailPanel {...defaultProps} />);
 
       expect(screen.getByRole('heading', { level: 2, name: 'Lease Details' })).toBeInTheDocument();
-      expect(screen.getByRole('heading', { level: 3, name: 'Device Information' })).toBeInTheDocument();
+      expect(
+        screen.getByRole('heading', { level: 3, name: 'Device Information' })
+      ).toBeInTheDocument();
     });
 
     it('should support keyboard navigation', async () => {

@@ -1,7 +1,7 @@
 {
   "id": "forms-validation/overview",
   "title": "Forms and Validation Overview",
-  "description": "NasNetConnect uses React Hook Form for form state management and Zod for schema-driven validation. These two libraries are integrated through a set of utilities in libs/core/forms/src/.",
+  "description": "NasNetConnect uses React Hook Form for form state management and Zod for schema-driven validation.",
   "source": "@site/../connect/docs/forms-validation/overview.md",
   "sourceDirName": "forms-validation",
   "slug": "/forms-validation/overview",

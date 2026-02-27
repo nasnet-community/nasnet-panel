@@ -32,12 +32,15 @@ type Story = StoryObj<typeof SidebarLayout>;
 // ---------------------------------------------------------------------------
 
 const MockSidebar = (
-  <div className="p-4 flex flex-col gap-3">
-    <div className="text-sm font-semibold text-foreground mb-2">Filters</div>
+  <div className="flex flex-col gap-3 p-4">
+    <div className="text-foreground mb-2 text-sm font-semibold">Filters</div>
     {['Category', 'Status', 'Priority', 'Date Range'].map((filter) => (
-      <div key={filter} className="flex flex-col gap-2">
-        <label className="text-xs font-medium text-muted-foreground">{filter}</label>
-        <div className="px-3 py-2 rounded border border-border bg-background text-sm">
+      <div
+        key={filter}
+        className="flex flex-col gap-2"
+      >
+        <label className="text-muted-foreground text-xs font-medium">{filter}</label>
+        <div className="border-border bg-background rounded border px-3 py-2 text-sm">
           Select...
         </div>
       </div>
@@ -46,10 +49,10 @@ const MockSidebar = (
 );
 
 const MockContent = (
-  <div className="p-6 flex flex-col gap-4">
+  <div className="flex flex-col gap-4 p-6">
     <div>
-      <h2 className="text-2xl font-bold mb-2">Results</h2>
-      <p className="text-sm text-muted-foreground mb-4">
+      <h2 className="mb-2 text-2xl font-bold">Results</h2>
+      <p className="text-muted-foreground mb-4 text-sm">
         Apply filters on the left to narrow down results
       </p>
     </div>
@@ -58,10 +61,10 @@ const MockContent = (
       {[1, 2, 3, 4, 5].map((n) => (
         <div
           key={n}
-          className="p-4 rounded-lg border border-border bg-card hover:bg-accent/5 cursor-pointer transition-colors"
+          className="border-border bg-card hover:bg-accent/5 cursor-pointer rounded-lg border p-4 transition-colors"
         >
-          <div className="font-medium mb-1">Result Item {n}</div>
-          <p className="text-sm text-muted-foreground">
+          <div className="mb-1 font-medium">Result Item {n}</div>
+          <p className="text-muted-foreground text-sm">
             Description for item {n} with some details and context
           </p>
         </div>

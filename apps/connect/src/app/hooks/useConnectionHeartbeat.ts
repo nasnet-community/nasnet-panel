@@ -54,11 +54,9 @@ export function useConnectionHeartbeat() {
   // Stable callback that reads fresh store state each invocation
   const checkConnection = useCallback(async (routerIp: string) => {
     try {
-      const result = await makeRouterOSRequest<{ name: string }>(
-        routerIp,
-        'system/identity',
-        { method: 'GET' }
-      );
+      const result = await makeRouterOSRequest<{ name: string }>(routerIp, 'system/identity', {
+        method: 'GET',
+      });
 
       if (result.success) {
         const store = useConnectionStore.getState();
@@ -120,13 +118,11 @@ export function useConnectionHeartbeat() {
  */
 export async function testConnection(routerIp: string): Promise<boolean> {
   if (!routerIp) return false;
-  
+
   try {
-    const result = await makeRouterOSRequest<{ name: string }>(
-      routerIp,
-      'system/identity',
-      { method: 'GET' }
-    );
+    const result = await makeRouterOSRequest<{ name: string }>(routerIp, 'system/identity', {
+      method: 'GET',
+    });
     return result.success;
   } catch {
     return false;

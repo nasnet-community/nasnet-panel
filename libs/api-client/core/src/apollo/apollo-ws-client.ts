@@ -73,10 +73,7 @@ function getStoredCredentials(
     if (!stored) return null;
 
     const parsed = JSON.parse(stored);
-    if (
-      typeof parsed.username === 'string' &&
-      typeof parsed.password === 'string'
-    ) {
+    if (typeof parsed.username === 'string' && typeof parsed.password === 'string') {
       return parsed;
     }
     return null;
@@ -126,11 +123,7 @@ function getAuthorization(routerId: string | null): string | undefined {
  * @returns graphql-ws Client instance
  */
 export function createWsClient(options: WsClientOptions = {}): Client {
-  const {
-    url = getWebSocketUrl(),
-    maxRetries = 10,
-    showNotifications = true,
-  } = options;
+  const { url = getWebSocketUrl(), maxRetries = 10, showNotifications = true } = options;
 
   const showToast = (type: 'success' | 'error' | 'info', title: string, message?: string) => {
     if (showNotifications) {

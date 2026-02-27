@@ -1,7 +1,15 @@
 import * as React from 'react';
 
 import type { DriftedField, DriftResult } from '@nasnet/state/stores';
-import { cn , Card, CardContent, CardHeader, CardTitle , ScrollArea , Badge } from '@nasnet/ui/primitives';
+import {
+  cn,
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  ScrollArea,
+  Badge,
+} from '@nasnet/ui/primitives';
 
 /**
  * Drift Diff Viewer Component
@@ -127,9 +135,7 @@ function formatValue(value: unknown): { text: string; className: string } {
 /**
  * Get category color for badge
  */
-function getCategoryColor(
-  category: DriftedField['category']
-): 'default' | 'secondary' | 'outline' {
+function getCategoryColor(category: DriftedField['category']): 'default' | 'secondary' | 'outline' {
   switch (category) {
     case 'network':
       return 'default';
@@ -143,9 +149,7 @@ function getCategoryColor(
 /**
  * Group fields by category
  */
-function groupFieldsByCategory(
-  fields: DriftedField[]
-): Map<string, DriftedField[]> {
+function groupFieldsByCategory(fields: DriftedField[]): Map<string, DriftedField[]> {
   const groups = new Map<string, DriftedField[]>();
 
   for (const field of fields) {
@@ -180,28 +184,33 @@ interface DiffRowProps {
   onSelect?: (field: DriftedField) => void;
 }
 
-const DiffRow = React.memo(function DiffRow({ field, showCategory, isSelected, onSelect }: DiffRowProps) {
+const DiffRow = React.memo(function DiffRow({
+  field,
+  showCategory,
+  isSelected,
+  onSelect,
+}: DiffRowProps) {
   const configFormatted = formatValue(field.configValue);
   const deployFormatted = formatValue(field.deployValue);
 
   return (
     <tr
       className={cn(
-        'border-b border-border hover:bg-muted/50 transition-colors',
+        'border-border hover:bg-muted/50 border-b transition-colors',
         isSelected && 'bg-primary/5',
         onSelect && 'cursor-pointer'
       )}
       onClick={() => onSelect?.(field)}
     >
       {/* Field Name */}
-      <td className="py-2 px-3 font-mono text-sm">
+      <td className="px-3 py-2 font-mono text-sm">
         <div className="flex items-center gap-2">
           {onSelect && (
             <input
               type="checkbox"
               checked={isSelected}
               onChange={() => onSelect(field)}
-              className="h-4 w-4 rounded border-border"
+              className="border-border h-4 w-4 rounded"
               onClick={(e) => e.stopPropagation()}
             />
           )}
@@ -209,7 +218,7 @@ const DiffRow = React.memo(function DiffRow({ field, showCategory, isSelected, o
           {showCategory && field.category && (
             <Badge
               variant={getCategoryColor(field.category)}
-              className="text-[10px] px-1.5 py-0"
+              className="px-1.5 py-0 text-[10px]"
             >
               {field.category}
             </Badge>
@@ -218,11 +227,11 @@ const DiffRow = React.memo(function DiffRow({ field, showCategory, isSelected, o
       </td>
 
       {/* Configuration Value (Desired) */}
-      <td className="py-2 px-3">
+      <td className="px-3 py-2">
         <div className="flex items-center">
           <span
             className={cn(
-              'text-sm break-all',
+              'break-all text-sm',
               configFormatted.className,
               typeof field.configValue === 'object' && 'whitespace-pre'
             )}
@@ -233,9 +242,9 @@ const DiffRow = React.memo(function DiffRow({ field, showCategory, isSelected, o
       </td>
 
       {/* Arrow */}
-      <td className="py-2 px-1 text-center">
+      <td className="px-1 py-2 text-center">
         <svg
-          className="h-4 w-4 text-muted-foreground inline-block"
+          className="text-muted-foreground inline-block h-4 w-4"
           viewBox="0 0 16 16"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
@@ -251,11 +260,11 @@ const DiffRow = React.memo(function DiffRow({ field, showCategory, isSelected, o
       </td>
 
       {/* Deployment Value (Actual) */}
-      <td className="py-2 px-3">
+      <td className="px-3 py-2">
         <div className="flex items-center">
           <span
             className={cn(
-              'text-sm break-all',
+              'break-all text-sm',
               deployFormatted.className,
               typeof field.deployValue === 'object' && 'whitespace-pre'
             )}
@@ -303,134 +312,148 @@ DiffRow.displayName = 'DiffRow';
  * />
  * ```
  */
-const DriftDiffViewerBase = React.forwardRef<HTMLDivElement, DriftDiffViewerProps>(function DriftDiffViewer({
-  result,
-  className,
-  showCategories = true,
-  maxHeight = 400,
-  onFieldSelect,
-  selectedFields = [],
-}, ref) {
-  const { driftedFields, lastChecked } = result;
+const DriftDiffViewerBase = React.forwardRef<HTMLDivElement, DriftDiffViewerProps>(
+  function DriftDiffViewer(
+    {
+      result,
+      className,
+      showCategories = true,
+      maxHeight = 400,
+      onFieldSelect,
+      selectedFields = [],
+    },
+    ref
+  ) {
+    const { driftedFields, lastChecked } = result;
 
-  // Group fields by category if showing categories
-  const groupedFields = React.useMemo(() => {
-    if (showCategories) {
-      return groupFieldsByCategory(driftedFields);
-    }
-    return new Map([['all', driftedFields]]);
-  }, [driftedFields, showCategories]);
+    // Group fields by category if showing categories
+    const groupedFields = React.useMemo(() => {
+      if (showCategories) {
+        return groupFieldsByCategory(driftedFields);
+      }
+      return new Map([['all', driftedFields]]);
+    }, [driftedFields, showCategories]);
 
-  // No drift
-  if (driftedFields.length === 0) {
-    return (
-      <Card ref={ref} className={cn('border-success/20', className)}>
-        <CardContent className="py-8 text-center">
-          <svg
-            className="h-12 w-12 mx-auto text-success mb-3"
-            viewBox="0 0 24 24"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-          <p className="text-muted-foreground">Configuration is in sync with router</p>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  return (
-    <Card ref={ref} className={cn('overflow-hidden', className)}>
-      <CardHeader className="py-3 px-4 border-b border-border bg-muted/30">
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-sm font-medium flex items-center gap-2">
+    // No drift
+    if (driftedFields.length === 0) {
+      return (
+        <Card
+          ref={ref}
+          className={cn('border-success/20', className)}
+        >
+          <CardContent className="py-8 text-center">
             <svg
-              className="h-4 w-4 text-warning"
+              className="text-success mx-auto mb-3 h-12 w-12"
               viewBox="0 0 24 24"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
             >
               <path
-                d="M12 9v4m0 4h.01M3.516 15.1l6.03-11.003c.874-1.593 3.034-1.593 3.908 0l6.03 11.004c.87 1.586-.23 3.559-1.954 3.559H5.47c-1.724 0-2.824-1.973-1.954-3.56z"
+                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
                 stroke="currentColor"
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
               />
             </svg>
-            <span>
-              {driftedFields.length} Field{driftedFields.length === 1 ? '' : 's'} Changed
-            </span>
-          </CardTitle>
-          <span className="text-xs text-muted-foreground">
-            Last checked: {formatTimestamp(lastChecked)}
-          </span>
-        </div>
-      </CardHeader>
+            <p className="text-muted-foreground">Configuration is in sync with router</p>
+          </CardContent>
+        </Card>
+      );
+    }
 
-      <ScrollArea style={{ maxHeight }} className="overflow-auto">
-        <CardContent className="p-0">
-          <table className="w-full">
-            <thead className="bg-muted/50 sticky top-0">
-              <tr className="border-b border-border">
-                <th className="py-2 px-3 text-left text-xs font-medium text-muted-foreground">
-                  Field
-                </th>
-                <th className="py-2 px-3 text-left text-xs font-medium text-muted-foreground">
-                  <span className="flex items-center gap-1">
-                    <span className="w-2 h-2 rounded-full bg-info" />
-                    Desired (Config)
-                  </span>
-                </th>
-                <th className="py-2 px-1 text-center text-xs font-medium text-muted-foreground">
-                  &nbsp;
-                </th>
-                <th className="py-2 px-3 text-left text-xs font-medium text-muted-foreground">
-                  <span className="flex items-center gap-1">
-                    <span className="w-2 h-2 rounded-full bg-warning" />
-                    Actual (Router)
-                  </span>
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {Array.from(groupedFields.entries()).map(([category, fields]) => (
-                <React.Fragment key={category}>
-                  {showCategories && category !== 'all' && (
-                    <tr className="bg-muted/20">
-                      <td
-                        colSpan={4}
-                        className="py-1.5 px-3 text-xs font-medium text-muted-foreground uppercase tracking-wider"
-                      >
-                        {category}
-                      </td>
-                    </tr>
-                  )}
-                  {fields.map((field) => (
-                    <DiffRow
-                      key={field.path}
-                      field={field}
-                      showCategory={!showCategories}
-                      isSelected={selectedFields.includes(field.path)}
-                      onSelect={onFieldSelect}
-                    />
-                  ))}
-                </React.Fragment>
-              ))}
-            </tbody>
-          </table>
-        </CardContent>
-      </ScrollArea>
-    </Card>
-  );
-});
+    return (
+      <Card
+        ref={ref}
+        className={cn('overflow-hidden', className)}
+      >
+        <CardHeader className="border-border bg-muted/30 border-b px-4 py-3">
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-2 text-sm font-medium">
+              <svg
+                className="text-warning h-4 w-4"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M12 9v4m0 4h.01M3.516 15.1l6.03-11.003c.874-1.593 3.034-1.593 3.908 0l6.03 11.004c.87 1.586-.23 3.559-1.954 3.559H5.47c-1.724 0-2.824-1.973-1.954-3.56z"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+              <span>
+                {driftedFields.length} Field{driftedFields.length === 1 ? '' : 's'} Changed
+              </span>
+            </CardTitle>
+            <span className="text-muted-foreground text-xs">
+              Last checked: {formatTimestamp(lastChecked)}
+            </span>
+          </div>
+        </CardHeader>
+
+        <ScrollArea
+          style={{ maxHeight }}
+          className="overflow-auto"
+        >
+          <CardContent className="p-0">
+            <table className="w-full">
+              <thead className="bg-muted/50 sticky top-0">
+                <tr className="border-border border-b">
+                  <th className="text-muted-foreground px-3 py-2 text-left text-xs font-medium">
+                    Field
+                  </th>
+                  <th className="text-muted-foreground px-3 py-2 text-left text-xs font-medium">
+                    <span className="flex items-center gap-1">
+                      <span className="bg-info h-2 w-2 rounded-full" />
+                      Desired (Config)
+                    </span>
+                  </th>
+                  <th className="text-muted-foreground px-1 py-2 text-center text-xs font-medium">
+                    &nbsp;
+                  </th>
+                  <th className="text-muted-foreground px-3 py-2 text-left text-xs font-medium">
+                    <span className="flex items-center gap-1">
+                      <span className="bg-warning h-2 w-2 rounded-full" />
+                      Actual (Router)
+                    </span>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {Array.from(groupedFields.entries()).map(([category, fields]) => (
+                  <React.Fragment key={category}>
+                    {showCategories && category !== 'all' && (
+                      <tr className="bg-muted/20">
+                        <td
+                          colSpan={4}
+                          className="text-muted-foreground px-3 py-1.5 text-xs font-medium uppercase tracking-wider"
+                        >
+                          {category}
+                        </td>
+                      </tr>
+                    )}
+                    {fields.map((field) => (
+                      <DiffRow
+                        key={field.path}
+                        field={field}
+                        showCategory={!showCategories}
+                        isSelected={selectedFields.includes(field.path)}
+                        onSelect={onFieldSelect}
+                      />
+                    ))}
+                  </React.Fragment>
+                ))}
+              </tbody>
+            </table>
+          </CardContent>
+        </ScrollArea>
+      </Card>
+    );
+  }
+);
 
 DriftDiffViewerBase.displayName = 'DriftDiffViewer';
 

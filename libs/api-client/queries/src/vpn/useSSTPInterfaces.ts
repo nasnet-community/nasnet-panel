@@ -50,8 +50,7 @@ async function fetchSSTPInterfaces(routerIp: string): Promise<SSSTPInterface[]> 
     connectTo: iface['connect-to'] || '',
     user: iface.user,
     shouldVerifyServerCertificate:
-      iface['verify-server-certificate'] === 'true' ||
-      iface['verify-server-certificate'] === true,
+      iface['verify-server-certificate'] === 'true' || iface['verify-server-certificate'] === true,
     comment: iface.comment,
   }));
 }

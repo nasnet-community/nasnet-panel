@@ -1,7 +1,7 @@
 {
   "id": "testing/overview",
   "title": "Testing Overview",
-  "description": "NasNetConnect uses a Testing Trophy approach — the majority of tests are integration tests that verify real user workflows through the component tree, with a smaller base of unit tests for pure logic and a thin layer of E2E tests for critical user journeys.",
+  "description": "NasNetConnect uses a Testing Trophy approach — the majority of tests are integration tests that",
   "source": "@site/../connect/docs/testing/overview.md",
   "sourceDirName": "testing",
   "slug": "/testing/overview",

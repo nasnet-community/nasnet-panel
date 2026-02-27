@@ -19,8 +19,11 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 import type { FilterRule } from '@nasnet/core/types';
 
-import { useFilterRuleEditor, validateLogPrefix, validateJumpTarget } from './use-filter-rule-editor';
-
+import {
+  useFilterRuleEditor,
+  validateLogPrefix,
+  validateJumpTarget,
+} from './use-filter-rule-editor';
 
 describe('useFilterRuleEditor', () => {
   describe('Initialization', () => {
@@ -43,9 +46,7 @@ describe('useFilterRuleEditor', () => {
         comment: 'Block HTTP',
       };
 
-      const { result } = renderHook(() =>
-        useFilterRuleEditor({ initialRule })
-      );
+      const { result } = renderHook(() => useFilterRuleEditor({ initialRule }));
 
       expect(result.current.rule.chain).toBe('forward');
       expect(result.current.rule.action).toBe('drop');
@@ -232,9 +233,7 @@ describe('useFilterRuleEditor', () => {
     });
 
     it('disallows outInterface on input chain', () => {
-      const { result } = renderHook(() =>
-        useFilterRuleEditor({ initialRule: { chain: 'input' } })
-      );
+      const { result } = renderHook(() => useFilterRuleEditor({ initialRule: { chain: 'input' } }));
 
       expect(result.current.canUseOutInterface).toBe(false);
     });
@@ -376,9 +375,7 @@ describe('useFilterRuleEditor', () => {
         dstPort: '80',
       };
 
-      const { result } = renderHook(() =>
-        useFilterRuleEditor({ initialRule })
-      );
+      const { result } = renderHook(() => useFilterRuleEditor({ initialRule }));
 
       // Make changes
       act(() => {

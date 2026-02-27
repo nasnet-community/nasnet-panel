@@ -50,26 +50,33 @@ export const SecurityProfileSection = React.memo(function SecurityProfileSection
     <Card className={className}>
       <div className="p-component-lg">
         {/* Header with security level badge */}
-        <div className="flex items-center justify-between mb-component-md">
-          <div className="flex items-center gap-component-sm">
-            <Lock className="h-4 w-4 text-muted-foreground" />
-            <h3 className="text-sm font-semibold font-display text-foreground">
-              Security
-            </h3>
+        <div className="mb-component-md flex items-center justify-between">
+          <div className="gap-component-sm flex items-center">
+            <Lock className="text-muted-foreground h-4 w-4" />
+            <h3 className="font-display text-foreground text-sm font-semibold">Security</h3>
           </div>
           <SecurityLevelBadge level={securityLevel} />
         </div>
 
         {/* Security details */}
         <div className="space-y-component-sm">
-          <DetailRow label="Profile" value={profile.name} />
+          <DetailRow
+            label="Profile"
+            value={profile.name}
+          />
 
           {/* Authentication type */}
-          <DetailRow label="Authentication" value={authLabel} />
+          <DetailRow
+            label="Authentication"
+            value={authLabel}
+          />
 
           {/* Encryption method */}
           {profile.mode !== 'none' && (
-            <DetailRow label="Encryption" value={encryptionLabel} />
+            <DetailRow
+              label="Encryption"
+              value={encryptionLabel}
+            />
           )}
 
           {/* Password (if available) */}
@@ -94,8 +101,8 @@ const DetailRow = React.memo(function DetailRow({
 }) {
   return (
     <div className="flex items-center justify-between">
-      <span className="text-sm text-muted-foreground">{label}</span>
-      <span className="text-sm font-medium text-foreground font-mono">{value}</span>
+      <span className="text-muted-foreground text-sm">{label}</span>
+      <span className="text-foreground font-mono text-sm font-medium">{value}</span>
     </div>
   );
 });

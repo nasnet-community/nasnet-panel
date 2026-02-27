@@ -30,7 +30,13 @@ export type ServiceCategory = 'all' | 'privacy' | 'proxy' | 'dns' | 'security' |
 /**
  * Service status filter types
  */
-export type ServiceStatusFilter = 'all' | 'available' | 'installed' | 'running' | 'stopped' | 'failed';
+export type ServiceStatusFilter =
+  | 'all'
+  | 'available'
+  | 'installed'
+  | 'running'
+  | 'stopped'
+  | 'failed';
 
 /**
  * View mode types
@@ -124,37 +130,33 @@ export const useServiceUIStore = create<ServiceUIState>()(
       setServiceSearch: (search: string) => set({ serviceSearch: search }),
 
       // Category filter
-      setCategoryFilter: (category: ServiceCategory) =>
-        set({ categoryFilter: category }),
+      setCategoryFilter: (category: ServiceCategory) => set({ categoryFilter: category }),
 
       // Status filter
-      setStatusFilter: (status: ServiceStatusFilter) =>
-        set({ statusFilter: status }),
+      setStatusFilter: (status: ServiceStatusFilter) => set({ statusFilter: status }),
 
       // Service selection
       toggleServiceSelection: (serviceId: string) =>
         set((state) => ({
-          selectedServices: state.selectedServices.includes(serviceId)
-            ? state.selectedServices.filter((id) => id !== serviceId)
+          selectedServices:
+            state.selectedServices.includes(serviceId) ?
+              state.selectedServices.filter((id) => id !== serviceId)
             : [...state.selectedServices, serviceId],
         })),
 
       clearServiceSelection: () => set({ selectedServices: [] }),
 
-      selectAllServices: (serviceIds: string[]) =>
-        set({ selectedServices: serviceIds }),
+      selectAllServices: (serviceIds: string[]) => set({ selectedServices: serviceIds }),
 
       // Install wizard draft
-      saveWizardDraft: (draft: ServiceInstallWizardDraft) =>
-        set({ wizardDraft: draft }),
+      saveWizardDraft: (draft: ServiceInstallWizardDraft) => set({ wizardDraft: draft }),
 
       clearWizardDraft: () => set({ wizardDraft: null, wizardStep: 0 }),
 
       // Wizard step navigation
       setWizardStep: (step: number) => set({ wizardStep: step }),
 
-      nextWizardStep: () =>
-        set((state) => ({ wizardStep: state.wizardStep + 1 })),
+      nextWizardStep: () => set((state) => ({ wizardStep: state.wizardStep + 1 })),
 
       previousWizardStep: () =>
         set((state) => ({
@@ -165,12 +167,10 @@ export const useServiceUIStore = create<ServiceUIState>()(
       setViewMode: (mode: ServiceViewMode) => set({ viewMode: mode }),
 
       // Resource metrics visibility
-      setShowResourceMetrics: (show: boolean) =>
-        set({ showResourceMetrics: show }),
+      setShowResourceMetrics: (show: boolean) => set({ showResourceMetrics: show }),
 
       // Advanced config visibility
-      setShowAdvancedConfig: (show: boolean) =>
-        set({ showAdvancedConfig: show }),
+      setShowAdvancedConfig: (show: boolean) => set({ showAdvancedConfig: show }),
 
       // Update management
       setUpdateInProgress: (instanceId: string, inProgress: boolean) =>
@@ -211,32 +211,23 @@ export const useServiceUIStore = create<ServiceUIState>()(
 /**
  * Selector hooks for optimized access
  */
-export const useServiceSearch = () =>
-  useServiceUIStore((state) => state.serviceSearch);
+export const useServiceSearch = () => useServiceUIStore((state) => state.serviceSearch);
 
-export const useCategoryFilter = () =>
-  useServiceUIStore((state) => state.categoryFilter);
+export const useCategoryFilter = () => useServiceUIStore((state) => state.categoryFilter);
 
-export const useStatusFilter = () =>
-  useServiceUIStore((state) => state.statusFilter);
+export const useStatusFilter = () => useServiceUIStore((state) => state.statusFilter);
 
-export const useSelectedServices = () =>
-  useServiceUIStore((state) => state.selectedServices);
+export const useSelectedServices = () => useServiceUIStore((state) => state.selectedServices);
 
-export const useServiceWizardDraft = () =>
-  useServiceUIStore((state) => state.wizardDraft);
+export const useServiceWizardDraft = () => useServiceUIStore((state) => state.wizardDraft);
 
-export const useWizardStep = () =>
-  useServiceUIStore((state) => state.wizardStep);
+export const useWizardStep = () => useServiceUIStore((state) => state.wizardStep);
 
-export const useServiceViewMode = () =>
-  useServiceUIStore((state) => state.viewMode);
+export const useServiceViewMode = () => useServiceUIStore((state) => state.viewMode);
 
-export const useShowResourceMetrics = () =>
-  useServiceUIStore((state) => state.showResourceMetrics);
+export const useShowResourceMetrics = () => useServiceUIStore((state) => state.showResourceMetrics);
 
-export const useShowAdvancedConfig = () =>
-  useServiceUIStore((state) => state.showAdvancedConfig);
+export const useShowAdvancedConfig = () => useServiceUIStore((state) => state.showAdvancedConfig);
 
 export const useUpdateInProgress = (instanceId: string) =>
   useServiceUIStore((state) => state.updateInProgress[instanceId] ?? false);
@@ -244,5 +235,4 @@ export const useUpdateInProgress = (instanceId: string) =>
 export const useUpdateStage = (instanceId: string) =>
   useServiceUIStore((state) => state.updateStage[instanceId]);
 
-export const useShowUpdateAll = () =>
-  useServiceUIStore((state) => state.showUpdateAll);
+export const useShowUpdateAll = () => useServiceUIStore((state) => state.showUpdateAll);

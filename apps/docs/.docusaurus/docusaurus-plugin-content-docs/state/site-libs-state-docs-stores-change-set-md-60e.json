@@ -1,7 +1,7 @@
 {
   "id": "stores/change-set",
   "title": "Change Set Store",
-  "description": "This document covers the change set store that manages atomic multi-resource operations and their execution flow.",
+  "description": "This document covers the change set store that manages atomic multi-resource operations and their",
   "source": "@site/../../libs/state/docs/stores/change-set.md",
   "sourceDirName": "stores",
   "slug": "/stores/change-set",

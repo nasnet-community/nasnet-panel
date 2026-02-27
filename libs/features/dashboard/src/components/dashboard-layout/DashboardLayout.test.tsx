@@ -56,7 +56,10 @@ describe('DashboardLayout', () => {
     it('should render refresh button when showRefresh is true and onRefresh provided', () => {
       const onRefresh = vi.fn();
       render(
-        <DashboardLayout onRefresh={onRefresh} showRefresh={true}>
+        <DashboardLayout
+          onRefresh={onRefresh}
+          showRefresh={true}
+        >
           <div>Content</div>
         </DashboardLayout>
       );
@@ -68,7 +71,10 @@ describe('DashboardLayout', () => {
     it('should NOT render refresh button when showRefresh is false', () => {
       const onRefresh = vi.fn();
       render(
-        <DashboardLayout onRefresh={onRefresh} showRefresh={false}>
+        <DashboardLayout
+          onRefresh={onRefresh}
+          showRefresh={false}
+        >
           <div>Content</div>
         </DashboardLayout>
       );
@@ -299,7 +305,10 @@ describe('DashboardLayout', () => {
 
     it('should handle many children', () => {
       const cards = Array.from({ length: 10 }, (_, i) => (
-        <div key={i} data-testid={`card-${i}`}>
+        <div
+          key={i}
+          data-testid={`card-${i}`}
+        >
           Card {i}
         </div>
       ));

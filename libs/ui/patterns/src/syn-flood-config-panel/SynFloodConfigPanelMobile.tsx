@@ -127,14 +127,14 @@ export function SynFloodConfigPanelMobile({
       >
         {/* Main Configuration Card */}
         <Card className="p-4">
-          <h3 className="text-lg font-semibold mb-3">SYN Flood Protection</h3>
-          <p className="text-sm text-muted-foreground mb-4">
+          <h3 className="mb-3 text-lg font-semibold">SYN Flood Protection</h3>
+          <p className="text-muted-foreground mb-4 text-sm">
             Protect against SYN flood attacks by limiting incoming SYN packets.
           </p>
 
           <div className="space-y-4">
             {/* Master Toggle */}
-            <div className="flex items-center gap-3 min-h-[44px]">
+            <div className="flex min-h-[44px] items-center gap-3">
               <input
                 type="checkbox"
                 id="enabled-mobile"
@@ -143,14 +143,20 @@ export function SynFloodConfigPanelMobile({
                 className="h-5 w-5 rounded border-gray-300"
                 aria-label="Enable SYN flood protection"
               />
-              <label htmlFor="enabled-mobile" className="text-sm font-medium">
+              <label
+                htmlFor="enabled-mobile"
+                className="text-sm font-medium"
+              >
                 Enable Protection
               </label>
             </div>
 
             {/* Warning for low limits */}
             {showLowLimitWarning && (
-              <Alert variant="warning" role="alert">
+              <Alert
+                variant="warning"
+                role="alert"
+              >
                 <AlertDescription className="text-sm">
                   Limit below 100/s may block legitimate traffic
                 </AlertDescription>
@@ -160,13 +166,22 @@ export function SynFloodConfigPanelMobile({
             {/* Presets Dropdown */}
             <div className="space-y-2">
               <Label htmlFor="preset-mobile">Quick Presets</Label>
-              <Select onValueChange={applyPreset} disabled={!enabled}>
-                <SelectTrigger id="preset-mobile" className="w-full min-h-[44px]">
+              <Select
+                onValueChange={applyPreset}
+                disabled={!enabled}
+              >
+                <SelectTrigger
+                  id="preset-mobile"
+                  className="min-h-[44px] w-full"
+                >
                   <SelectValue placeholder="Select preset..." />
                 </SelectTrigger>
                 <SelectContent>
                   {SYN_FLOOD_PRESETS.map((preset) => (
-                    <SelectItem key={preset.label} value={preset.label}>
+                    <SelectItem
+                      key={preset.label}
+                      value={preset.label}
+                    >
                       {preset.label} ({preset.synLimit}/s)
                     </SelectItem>
                   ))}
@@ -179,7 +194,7 @@ export function SynFloodConfigPanelMobile({
               <div className="flex items-center justify-between">
                 <Label htmlFor="synLimit-mobile">SYN Limit (per sec)</Label>
                 <span
-                  className="text-sm font-medium px-2 py-1 bg-muted rounded"
+                  className="bg-muted rounded px-2 py-1 text-sm font-medium"
                   aria-live="polite"
                   aria-atomic="true"
                 >
@@ -200,9 +215,7 @@ export function SynFloodConfigPanelMobile({
                 aria-label="SYN limit"
                 aria-valuetext={`${synLimit} packets per second`}
               />
-              <p className="text-xs text-muted-foreground">
-                Max packets per second (1-10,000)
-              </p>
+              <p className="text-muted-foreground text-xs">Max packets per second (1-10,000)</p>
             </div>
 
             {/* Burst Slider */}
@@ -210,7 +223,7 @@ export function SynFloodConfigPanelMobile({
               <div className="flex items-center justify-between">
                 <Label htmlFor="burst-mobile">Burst</Label>
                 <span
-                  className="text-sm font-medium px-2 py-1 bg-muted rounded"
+                  className="bg-muted rounded px-2 py-1 text-sm font-medium"
                   aria-live="polite"
                   aria-atomic="true"
                 >
@@ -231,9 +244,7 @@ export function SynFloodConfigPanelMobile({
                 aria-label="Burst limit"
                 aria-valuetext={`${burst} packets`}
               />
-              <p className="text-xs text-muted-foreground">
-                Allowed burst (1-1,000)
-              </p>
+              <p className="text-muted-foreground text-xs">Allowed burst (1-1,000)</p>
             </div>
 
             {/* Action Selector */}
@@ -246,7 +257,10 @@ export function SynFloodConfigPanelMobile({
                 }
                 disabled={!enabled}
               >
-                <SelectTrigger id="action-mobile" className="w-full min-h-[44px]">
+                <SelectTrigger
+                  id="action-mobile"
+                  className="min-h-[44px] w-full"
+                >
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -254,15 +268,15 @@ export function SynFloodConfigPanelMobile({
                   <SelectItem value="tarpit">Tarpit</SelectItem>
                 </SelectContent>
               </Select>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-muted-foreground text-xs">
                 {action === 'drop' ? 'Discard excess packets' : 'Slow down attacker'}
               </p>
             </div>
 
             {/* Preview */}
             {enabled && previewText && (
-              <div className="p-3 bg-muted rounded-md">
-                <p className="text-xs font-mono break-words">{previewText}</p>
+              <div className="bg-muted rounded-md p-3">
+                <p className="break-words font-mono text-xs">{previewText}</p>
               </div>
             )}
           </div>
@@ -275,7 +289,7 @@ export function SynFloodConfigPanelMobile({
             variant="outline"
             onClick={() => setShowResetDialog(true)}
             disabled={!isDirty || isSubmitting}
-            className="w-full min-h-[44px]"
+            className="min-h-[44px] w-full"
           >
             Reset to Defaults
           </Button>
@@ -285,7 +299,7 @@ export function SynFloodConfigPanelMobile({
             variant="outline"
             onClick={handleReset}
             disabled={!isDirty || isSubmitting}
-            className="w-full min-h-[44px]"
+            className="min-h-[44px] w-full"
           >
             Cancel
           </Button>
@@ -293,7 +307,7 @@ export function SynFloodConfigPanelMobile({
           <Button
             type="submit"
             disabled={!isDirty || isSubmitting || loading}
-            className="w-full min-h-[44px]"
+            className="min-h-[44px] w-full"
           >
             {isSubmitting ? 'Saving...' : 'Save Changes'}
           </Button>

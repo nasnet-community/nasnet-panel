@@ -1,7 +1,7 @@
 {
   "id": "domain-query-hooks",
   "title": "Domain Query Hooks",
-  "description": "This document is a complete reference for the domain-specific query hooks in libs/api-client/queries/src/. It covers the common conventions that all domains share (router-IP/router-ID parameter, *.graphql.ts document files, queryKeys / queryKey factories), then provides a full inventory table across all domains with hook counts, followed by detailed per-domain sections.",
+  "description": "This document is a complete reference for the domain-specific query hooks in",
   "source": "@site/../../libs/api-client/docs/domain-query-hooks.md",
   "sourceDirName": ".",
   "slug": "/domain-query-hooks",

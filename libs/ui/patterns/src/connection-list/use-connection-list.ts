@@ -115,8 +115,7 @@ function filterConnections(
 
     // Port filter (matches source or destination)
     if (filter.port !== undefined) {
-      const portMatches =
-        conn.srcPort === filter.port || conn.dstPort === filter.port;
+      const portMatches = conn.srcPort === filter.port || conn.dstPort === filter.port;
 
       if (!portMatches) {
         return false;
@@ -144,10 +143,7 @@ function filterConnections(
 /**
  * Sort connections by field and direction
  */
-function sortConnections(
-  connections: ConnectionEntry[],
-  sort: ConnectionSort
-): ConnectionEntry[] {
+function sortConnections(connections: ConnectionEntry[], sort: ConnectionSort): ConnectionEntry[] {
   const { field, direction } = sort;
   const multiplier = direction === 'asc' ? 1 : -1;
 
@@ -177,15 +173,8 @@ function sortConnections(
 /**
  * Headless hook for connection list logic
  */
-export function useConnectionList(
-  options: UseConnectionListOptions
-): UseConnectionListReturn {
-  const {
-    connections,
-    initialFilter = {},
-    initialSort = DEFAULT_SORT,
-    onRefresh,
-  } = options;
+export function useConnectionList(options: UseConnectionListOptions): UseConnectionListReturn {
+  const { connections, initialFilter = {}, initialSort = DEFAULT_SORT, onRefresh } = options;
 
   // Filter state
   const [filter, setFilterState] = useState<ConnectionFilter>({
@@ -226,22 +215,19 @@ export function useConnectionList(
   }, []);
 
   // Set sort field (toggles direction if same field)
-  const setSort = useCallback(
-    (field: ConnectionSortField) => {
-      setSortState((prev) => {
-        if (prev.field === field) {
-          // Toggle direction
-          return {
-            field,
-            direction: prev.direction === 'asc' ? 'desc' : 'asc',
-          };
-        }
-        // New field, default to descending
-        return { field, direction: 'desc' };
-      });
-    },
-    []
-  );
+  const setSort = useCallback((field: ConnectionSortField) => {
+    setSortState((prev) => {
+      if (prev.field === field) {
+        // Toggle direction
+        return {
+          field,
+          direction: prev.direction === 'asc' ? 'desc' : 'asc',
+        };
+      }
+      // New field, default to descending
+      return { field, direction: 'desc' };
+    });
+  }, []);
 
   // Toggle sort direction
   const toggleSortDirection = useCallback(() => {

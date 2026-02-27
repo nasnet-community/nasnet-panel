@@ -77,7 +77,12 @@ describe('PasswordField', () => {
   });
 
   it('disables both input and toggle button when disabled is true', () => {
-    render(<PasswordField placeholder="Disabled field" disabled={true} />);
+    render(
+      <PasswordField
+        placeholder="Disabled field"
+        disabled={true}
+      />
+    );
     const input = screen.getByPlaceholderText('Disabled field') as HTMLInputElement;
     const toggleButton = screen.getByLabelText('Show password') as HTMLButtonElement;
 
@@ -86,7 +91,12 @@ describe('PasswordField', () => {
   });
 
   it('sets aria-invalid on input when provided', () => {
-    render(<PasswordField placeholder="Field" aria-invalid={true} />);
+    render(
+      <PasswordField
+        placeholder="Field"
+        aria-invalid={true}
+      />
+    );
     const input = screen.getByPlaceholderText('Field');
 
     expect(input).toHaveAttribute('aria-invalid', 'true');
@@ -104,7 +114,10 @@ describe('PasswordField', () => {
   it('forwards ref correctly to input element', () => {
     const ref = { current: null };
     render(
-      <PasswordField ref={ref} placeholder="Test" />
+      <PasswordField
+        ref={ref}
+        placeholder="Test"
+      />
     );
 
     expect(ref.current).toBeInstanceOf(HTMLInputElement);
@@ -118,9 +131,7 @@ describe('PasswordField', () => {
   });
 
   it('applies custom className to input', () => {
-    const { container } = render(
-      <PasswordField className="custom-class" />
-    );
+    const { container } = render(<PasswordField className="custom-class" />);
     const input = container.querySelector('input');
 
     expect(input?.className).toContain('custom-class');

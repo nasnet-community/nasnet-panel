@@ -1,7 +1,7 @@
 {
   "id": "apollo-client",
   "title": "Apollo Client",
-  "description": "This document covers the complete Apollo Client infrastructure in libs/api-client/core/src/apollo/. The Apollo layer handles all GraphQL communication: queries, mutations, and real-time subscriptions via WebSocket. It provides an intelligent link chain, a carefully tuned normalized cache, offline-first cache persistence, and React provider integration for both production and test environments.",
+  "description": "This document covers the complete Apollo Client infrastructure in",
   "source": "@site/../../libs/api-client/docs/apollo-client.md",
   "sourceDirName": ".",
   "slug": "/apollo-client",

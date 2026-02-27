@@ -50,7 +50,8 @@ export const Default: Story = {
   parameters: {
     docs: {
       description: {
-        story: '5-minute option selected (default for the BandwidthChart). Shows live 2-second data.',
+        story:
+          '5-minute option selected (default for the BandwidthChart). Shows live 2-second data.',
       },
     },
   },
@@ -97,9 +98,13 @@ export const Interactive: Story = {
   render: (args) => {
     const [selected, setSelected] = useState<TimeRange>('5m');
     return (
-      <div className="flex flex-col items-center gap-component-md">
-        <TimeRangeSelector {...args} value={selected} onChange={setSelected} />
-        <p className="text-sm text-muted-foreground">
+      <div className="gap-component-md flex flex-col items-center">
+        <TimeRangeSelector
+          {...args}
+          value={selected}
+          onChange={setSelected}
+        />
+        <p className="text-muted-foreground text-sm">
           Selected: <span className="font-medium">{selected}</span>
         </p>
       </div>
@@ -126,9 +131,12 @@ export const KeyboardNavigation: Story = {
   render: () => {
     const [selected, setSelected] = useState<TimeRange>('5m');
     return (
-      <div className="flex flex-col items-center gap-component-lg p-component-md">
-        <TimeRangeSelector value={selected} onChange={setSelected} />
-        <ul className="text-xs text-muted-foreground space-y-1 list-disc list-inside">
+      <div className="gap-component-lg p-component-md flex flex-col items-center">
+        <TimeRangeSelector
+          value={selected}
+          onChange={setSelected}
+        />
+        <ul className="text-muted-foreground list-inside list-disc space-y-1 text-xs">
           <li>Tab into the group, then use ArrowRight / ArrowLeft to move between options</li>
           <li>Home jumps to "5 min", End jumps to "24 hours"</li>
           <li>Each button has a 44px minimum height for touch targets</li>

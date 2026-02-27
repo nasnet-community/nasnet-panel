@@ -1,7 +1,7 @@
 {
   "id": "guides/network-configuration",
   "title": "Network Configuration Guide",
-  "description": "Cross-cutting guide for network types, IP validation, subnet calculation, port lookup, and VPN protocols.",
+  "description": "Cross-cutting guide for network types, IP validation, subnet calculation, port lookup, and VPN",
   "source": "@site/../../libs/core/docs/guides/network-configuration.md",
   "sourceDirName": "guides",
   "slug": "/guides/network-configuration",

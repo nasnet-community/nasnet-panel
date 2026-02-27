@@ -178,12 +178,8 @@ export function ResourceProvider<TConfig = unknown>({
   const isPending = state === 'VALIDATING' || state === 'APPLYING';
   const isActive = state === 'ACTIVE' || state === 'DEGRADED';
   const isEditable =
-    state === 'DRAFT' ||
-    state === 'VALID' ||
-    state === 'ACTIVE' ||
-    state === 'ERROR';
-  const hasErrors =
-    (resource?.validation?.errors?.length ?? 0) > 0 || state === 'ERROR';
+    state === 'DRAFT' || state === 'VALID' || state === 'ACTIVE' || state === 'ERROR';
+  const hasErrors = (resource?.validation?.errors?.length ?? 0) > 0 || state === 'ERROR';
 
   // Default no-op functions
   const defaultAsync = async () => {};

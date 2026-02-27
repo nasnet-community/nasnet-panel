@@ -52,10 +52,12 @@ export function useDnsCachePanel({
   const [flushResult, setFlushResult] = useState<FlushDnsCacheResult | null>(null);
 
   // Query cache stats with polling
-  const { cacheStats, loading: statsLoading, error: statsError, refetch } = useDnsCacheStats(
-    deviceId,
-    enablePolling
-  );
+  const {
+    cacheStats,
+    loading: statsLoading,
+    error: statsError,
+    refetch,
+  } = useDnsCacheStats(deviceId, enablePolling);
 
   // Mutation for flushing cache
   const [flushCacheMutation, { loading: flushLoading }] = useFlushDnsCache();
@@ -94,7 +96,8 @@ export function useDnsCachePanel({
       // Refetch stats to show updated data
       await refetch();
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to flush DNS cache. Please try again.';
+      const errorMessage =
+        err instanceof Error ? err.message : 'Failed to flush DNS cache. Please try again.';
       onFlushError?.(errorMessage);
     }
   }, [deviceId, flushCacheMutation, onFlushSuccess, onFlushError, refetch]);

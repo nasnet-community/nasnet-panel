@@ -64,9 +64,9 @@ export const RouterHealthSummaryCardMobile = React.memo(function RouterHealthSum
     >
       <CardHeader className="pb-component-sm">
         <div className="flex items-center justify-between">
-          <div className="flex-1 min-w-0">
-            <h3 className="text-base font-semibold text-foreground truncate">{router.name}</h3>
-            <p className="text-xs text-muted-foreground truncate">{router.model}</p>
+          <div className="min-w-0 flex-1">
+            <h3 className="text-foreground truncate text-base font-semibold">{router.name}</h3>
+            <p className="text-muted-foreground truncate text-xs">{router.model}</p>
           </div>
 
           {/* Refresh Button */}
@@ -76,9 +76,12 @@ export const RouterHealthSummaryCardMobile = React.memo(function RouterHealthSum
               size="icon"
               onClick={handleRefresh}
               aria-label="Refresh router data"
-              className="h-11 w-11 ml-component-sm flex-shrink-0"
+              className="ml-component-sm h-11 w-11 flex-shrink-0"
             >
-              <RefreshCw className="h-4 w-4" aria-hidden="true" />
+              <RefreshCw
+                className="h-4 w-4"
+                aria-hidden="true"
+              />
             </Button>
           )}
         </div>
@@ -86,7 +89,7 @@ export const RouterHealthSummaryCardMobile = React.memo(function RouterHealthSum
 
       <CardContent className="space-y-component-md">
         {/* Status and Health Row */}
-        <div className="flex items-center gap-component-sm">
+        <div className="gap-component-sm flex items-center">
           <Badge
             variant={isOnline ? 'connected' : 'offline'}
             pulse={isOnline}
@@ -98,53 +101,66 @@ export const RouterHealthSummaryCardMobile = React.memo(function RouterHealthSum
 
           <div
             className={cn(
-              'flex items-center gap-component-xs px-component-sm py-component-xs rounded-full text-xs font-medium',
+              'gap-component-xs px-component-sm py-component-xs flex items-center rounded-full text-xs font-medium',
               getHealthBgClass(healthStatus),
               healthStatus === 'warning' ? 'text-warning-foreground' : 'text-primary-foreground'
             )}
             role="meter"
-            aria-valuenow={healthStatus === 'healthy' ? 100 : healthStatus === 'warning' ? 50 : 0}
+            aria-valuenow={
+              healthStatus === 'healthy' ? 100
+              : healthStatus === 'warning' ?
+                50
+              : 0
+            }
             aria-valuemin={0}
             aria-valuemax={100}
             aria-label={`Health status: ${healthStatus}`}
           >
-            <Activity className="h-3 w-3" aria-hidden="true" />
+            <Activity
+              className="h-3 w-3"
+              aria-hidden="true"
+            />
             <span className="capitalize">{healthStatus}</span>
           </div>
 
           {isStale && (
-            <span className="text-xs text-muted-foreground ml-auto">
-              {cacheAgeMinutes}m ago
-            </span>
+            <span className="text-muted-foreground ml-auto text-xs">{cacheAgeMinutes}m ago</span>
           )}
         </div>
 
         {/* Metrics Grid */}
-        <div className="grid grid-cols-2 gap-component-md text-sm">
+        <div className="gap-component-md grid grid-cols-2 text-sm">
           <div>
-            <dt className="text-xs text-muted-foreground">Version</dt>
-            <dd className="font-mono text-sm font-medium text-foreground">{router.version}</dd>
+            <dt className="text-muted-foreground text-xs">Version</dt>
+            <dd className="text-foreground font-mono text-sm font-medium">{router.version}</dd>
           </div>
           <div>
-            <dt className="text-xs text-muted-foreground">Uptime</dt>
-            <dd className="font-mono text-sm font-medium text-foreground">{formatUptime(router.uptime)}</dd>
+            <dt className="text-muted-foreground text-xs">Uptime</dt>
+            <dd className="text-foreground font-mono text-sm font-medium">
+              {formatUptime(router.uptime)}
+            </dd>
           </div>
           <div>
-            <dt className="text-xs text-muted-foreground">CPU</dt>
+            <dt className="text-muted-foreground text-xs">CPU</dt>
             <dd className={cn('font-mono text-sm font-medium', getCpuColorClass(router.cpuUsage))}>
               {router.cpuUsage}%
             </dd>
           </div>
           <div>
-            <dt className="text-xs text-muted-foreground">Memory</dt>
-            <dd className={cn('font-mono text-sm font-medium', getMemoryColorClass(router.memoryUsage))}>
+            <dt className="text-muted-foreground text-xs">Memory</dt>
+            <dd
+              className={cn(
+                'font-mono text-sm font-medium',
+                getMemoryColorClass(router.memoryUsage)
+              )}
+            >
               {router.memoryUsage}%
             </dd>
           </div>
         </div>
 
         {/* Last Updated */}
-        <div className="text-xs text-muted-foreground">
+        <div className="text-muted-foreground text-xs">
           Last updated: {formatLastUpdate(router.lastUpdate)}
         </div>
       </CardContent>
@@ -159,35 +175,40 @@ RouterHealthSummaryCardMobile.displayName = 'RouterHealthSummaryCardMobile';
  *
  * @description Displays a skeleton placeholder while router health data is loading.
  */
-export const RouterHealthSummaryCardMobileSkeleton = React.memo(function RouterHealthSummaryCardMobileSkeleton({ className }: { className?: string }) {
-  return (
-    <Card className={cn('animate-pulse', className)}>
-      <CardHeader className="pb-component-sm">
-        <div className="flex items-center justify-between">
-          <div className="flex-1 space-y-component-sm">
-            <div className="h-4 bg-muted rounded w-32" />
-            <div className="h-3 bg-muted rounded w-24" />
-          </div>
-          <div className="h-11 w-11 bg-muted rounded-md" />
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-component-md">
-        <div className="flex gap-component-sm">
-          <div className="h-6 bg-muted rounded-full w-20" />
-          <div className="h-6 bg-muted rounded-full w-20" />
-        </div>
-        <div className="grid grid-cols-2 gap-component-md">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="space-y-component-xs">
-              <div className="h-3 bg-muted rounded w-16" />
-              <div className="h-4 bg-muted rounded w-12" />
+export const RouterHealthSummaryCardMobileSkeleton = React.memo(
+  function RouterHealthSummaryCardMobileSkeleton({ className }: { className?: string }) {
+    return (
+      <Card className={cn('animate-pulse', className)}>
+        <CardHeader className="pb-component-sm">
+          <div className="flex items-center justify-between">
+            <div className="space-y-component-sm flex-1">
+              <div className="bg-muted h-4 w-32 rounded" />
+              <div className="bg-muted h-3 w-24 rounded" />
             </div>
-          ))}
-        </div>
-      </CardContent>
-    </Card>
-  );
-});
+            <div className="bg-muted h-11 w-11 rounded-md" />
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-component-md">
+          <div className="gap-component-sm flex">
+            <div className="bg-muted h-6 w-20 rounded-full" />
+            <div className="bg-muted h-6 w-20 rounded-full" />
+          </div>
+          <div className="gap-component-md grid grid-cols-2">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div
+                key={i}
+                className="space-y-component-xs"
+              >
+                <div className="bg-muted h-3 w-16 rounded" />
+                <div className="bg-muted h-4 w-12 rounded" />
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+);
 
 RouterHealthSummaryCardMobileSkeleton.displayName = 'RouterHealthSummaryCardMobileSkeleton';
 

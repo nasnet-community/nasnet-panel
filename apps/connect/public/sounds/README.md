@@ -20,6 +20,7 @@ This directory contains sound files for in-app alert notifications.
 ## Production Sources
 
 For production deployment, source sounds from royalty-free libraries:
+
 - [Freesound.org](https://freesound.org) - Creative Commons sounds
 - [Zapsplat.com](https://www.zapsplat.com) - Free sound effects
 - [Mixkit.co](https://mixkit.co/free-sound-effects/) - Free sound effects

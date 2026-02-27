@@ -69,7 +69,10 @@ describe('InterfaceEditForm', () => {
 
   it('renders form with default values', () => {
     render(
-      <MockedProvider mocks={mocks} addTypename={true}>
+      <MockedProvider
+        mocks={mocks}
+        addTypename={true}
+      >
         <InterfaceEditForm
           routerId="router-1"
           interface={mockInterface}
@@ -94,7 +97,10 @@ describe('InterfaceEditForm', () => {
 
   it('updates form fields', () => {
     render(
-      <MockedProvider mocks={mocks} addTypename={true}>
+      <MockedProvider
+        mocks={mocks}
+        addTypename={true}
+      >
         <InterfaceEditForm
           routerId="router-1"
           interface={mockInterface}
@@ -122,7 +128,10 @@ describe('InterfaceEditForm', () => {
 
   it('validates MTU minimum value', async () => {
     render(
-      <MockedProvider mocks={mocks} addTypename={true}>
+      <MockedProvider
+        mocks={mocks}
+        addTypename={true}
+      >
         <InterfaceEditForm
           routerId="router-1"
           interface={mockInterface}
@@ -147,7 +156,10 @@ describe('InterfaceEditForm', () => {
 
   it('validates MTU maximum value', async () => {
     render(
-      <MockedProvider mocks={mocks} addTypename={true}>
+      <MockedProvider
+        mocks={mocks}
+        addTypename={true}
+      >
         <InterfaceEditForm
           routerId="router-1"
           interface={mockInterface}
@@ -172,7 +184,10 @@ describe('InterfaceEditForm', () => {
 
   it('validates comment maximum length', async () => {
     render(
-      <MockedProvider mocks={mocks} addTypename={true}>
+      <MockedProvider
+        mocks={mocks}
+        addTypename={true}
+      >
         <InterfaceEditForm
           routerId="router-1"
           interface={mockInterface}
@@ -198,7 +213,10 @@ describe('InterfaceEditForm', () => {
 
   it('submits form with valid data', async () => {
     render(
-      <MockedProvider mocks={mocks} addTypename={true}>
+      <MockedProvider
+        mocks={mocks}
+        addTypename={true}
+      >
         <InterfaceEditForm
           routerId="router-1"
           interface={mockInterface}
@@ -229,7 +247,10 @@ describe('InterfaceEditForm', () => {
 
   it('calls onCancel when cancel button is clicked', () => {
     render(
-      <MockedProvider mocks={mocks} addTypename={true}>
+      <MockedProvider
+        mocks={mocks}
+        addTypename={true}
+      >
         <InterfaceEditForm
           routerId="router-1"
           interface={mockInterface}
@@ -254,7 +275,10 @@ describe('InterfaceEditForm', () => {
     ];
 
     render(
-      <MockedProvider mocks={delayedMocks} addTypename={true}>
+      <MockedProvider
+        mocks={delayedMocks}
+        addTypename={true}
+      >
         <InterfaceEditForm
           routerId="router-1"
           interface={mockInterface}
@@ -292,7 +316,10 @@ describe('InterfaceEditForm', () => {
     ];
 
     render(
-      <MockedProvider mocks={errorMocks} addTypename={true}>
+      <MockedProvider
+        mocks={errorMocks}
+        addTypename={true}
+      >
         <InterfaceEditForm
           routerId="router-1"
           interface={mockInterface}
@@ -347,7 +374,10 @@ describe('InterfaceEditForm', () => {
     ];
 
     render(
-      <MockedProvider mocks={serverErrorMocks} addTypename={true}>
+      <MockedProvider
+        mocks={serverErrorMocks}
+        addTypename={true}
+      >
         <InterfaceEditForm
           routerId="router-1"
           interface={mockInterface}
@@ -369,7 +399,10 @@ describe('InterfaceEditForm', () => {
 
   it('disables submit button when form is invalid', async () => {
     render(
-      <MockedProvider mocks={mocks} addTypename={true}>
+      <MockedProvider
+        mocks={mocks}
+        addTypename={true}
+      >
         <InterfaceEditForm
           routerId="router-1"
           interface={mockInterface}
@@ -393,7 +426,10 @@ describe('InterfaceEditForm', () => {
 
   it('handles empty MTU value', async () => {
     render(
-      <MockedProvider mocks={mocks} addTypename={true}>
+      <MockedProvider
+        mocks={mocks}
+        addTypename={true}
+      >
         <InterfaceEditForm
           routerId="router-1"
           interface={mockInterface}

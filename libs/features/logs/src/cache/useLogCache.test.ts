@@ -9,8 +9,20 @@ vi.mock('./logCache');
 describe('useLogCache', () => {
   const mockRouterIp = '192.168.1.1';
   const mockLogs = [
-    { id: '1', timestamp: new Date(), message: 'Test log 1', topic: 'system' as const, severity: 'info' as const },
-    { id: '2', timestamp: new Date(), message: 'Test log 2', topic: 'firewall' as const, severity: 'warning' as const },
+    {
+      id: '1',
+      timestamp: new Date(),
+      message: 'Test log 1',
+      topic: 'system' as const,
+      severity: 'info' as const,
+    },
+    {
+      id: '2',
+      timestamp: new Date(),
+      message: 'Test log 2',
+      topic: 'firewall' as const,
+      severity: 'warning' as const,
+    },
   ];
 
   const mockCacheStats = {
@@ -41,9 +53,7 @@ describe('useLogCache', () => {
 
     vi.spyOn(logCacheModule, 'getLogCache').mockReturnValue(mockCache as any);
 
-    const { result } = renderHook(() =>
-      useLogCache({ routerIp: mockRouterIp, enabled: true })
-    );
+    const { result } = renderHook(() => useLogCache({ routerIp: mockRouterIp, enabled: true }));
 
     expect(result.current.cachedLogs).toEqual([]);
     expect(result.current.isLoading).toBe(false);
@@ -64,9 +74,7 @@ describe('useLogCache', () => {
 
     vi.spyOn(logCacheModule, 'getLogCache').mockReturnValue(mockCache as any);
 
-    const { result } = renderHook(() =>
-      useLogCache({ routerIp: mockRouterIp, enabled: true })
-    );
+    const { result } = renderHook(() => useLogCache({ routerIp: mockRouterIp, enabled: true }));
 
     await waitFor(() => {
       expect(result.current.cachedLogs).toEqual(mockLogs);
@@ -90,9 +98,7 @@ describe('useLogCache', () => {
 
     vi.spyOn(logCacheModule, 'getLogCache').mockReturnValue(mockCache as any);
 
-    const { result } = renderHook(() =>
-      useLogCache({ routerIp: mockRouterIp, enabled: true })
-    );
+    const { result } = renderHook(() => useLogCache({ routerIp: mockRouterIp, enabled: true }));
 
     await act(async () => {
       await result.current.storeLogs(mockLogs);
@@ -114,9 +120,7 @@ describe('useLogCache', () => {
 
     vi.spyOn(logCacheModule, 'getLogCache').mockReturnValue(mockCache as any);
 
-    const { result } = renderHook(() =>
-      useLogCache({ routerIp: mockRouterIp, enabled: true })
-    );
+    const { result } = renderHook(() => useLogCache({ routerIp: mockRouterIp, enabled: true }));
 
     await waitFor(() => {
       expect(result.current.cachedLogs).toEqual(mockLogs);
@@ -148,9 +152,7 @@ describe('useLogCache', () => {
 
     vi.spyOn(logCacheModule, 'getLogCache').mockReturnValue(mockCache as any);
 
-    const { result } = renderHook(() =>
-      useLogCache({ routerIp: mockRouterIp, enabled: true })
-    );
+    const { result } = renderHook(() => useLogCache({ routerIp: mockRouterIp, enabled: true }));
 
     expect(result.current.isOffline).toBe(false);
 
@@ -194,9 +196,7 @@ describe('useLogCache', () => {
 
     vi.spyOn(logCacheModule, 'getLogCache').mockReturnValue(mockCache as any);
 
-    const { result } = renderHook(() =>
-      useLogCache({ routerIp: mockRouterIp, enabled: false })
-    );
+    const { result } = renderHook(() => useLogCache({ routerIp: mockRouterIp, enabled: false }));
 
     expect(result.current.cachedLogs).toEqual([]);
     expect(mockCache.getLogs).not.toHaveBeenCalled();
@@ -216,9 +216,7 @@ describe('useLogCache', () => {
     vi.spyOn(logCacheModule, 'getLogCache').mockReturnValue(mockCache as any);
     const removeEventListenerSpy = vi.spyOn(window, 'removeEventListener');
 
-    const { unmount } = renderHook(() =>
-      useLogCache({ routerIp: mockRouterIp, enabled: true })
-    );
+    const { unmount } = renderHook(() => useLogCache({ routerIp: mockRouterIp, enabled: true }));
 
     unmount();
 
@@ -241,9 +239,7 @@ describe('useLogCache', () => {
     vi.spyOn(logCacheModule, 'getLogCache').mockReturnValue(mockCache as any);
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-    const { result } = renderHook(() =>
-      useLogCache({ routerIp: mockRouterIp, enabled: true })
-    );
+    const { result } = renderHook(() => useLogCache({ routerIp: mockRouterIp, enabled: true }));
 
     await waitFor(() => {
       expect(consoleSpy).toHaveBeenCalled();
@@ -266,9 +262,7 @@ describe('useLogCache', () => {
 
     vi.spyOn(logCacheModule, 'getLogCache').mockReturnValue(mockCache as any);
 
-    const { result } = renderHook(() =>
-      useLogCache({ routerIp: '', enabled: true })
-    );
+    const { result } = renderHook(() => useLogCache({ routerIp: '', enabled: true }));
 
     expect(result.current.cachedLogs).toEqual([]);
     expect(mockCache.getLogs).not.toHaveBeenCalled();

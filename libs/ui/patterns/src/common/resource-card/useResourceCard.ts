@@ -44,12 +44,7 @@
 
 import { useMemo, useCallback } from 'react';
 
-import type {
-  BaseResource,
-  ResourceCardProps,
-  ResourceAction,
-  ResourceStatus,
-} from './types';
+import type { BaseResource, ResourceCardProps, ResourceAction, ResourceStatus } from './types';
 
 /**
  * Badge variant type matching shadcn Badge component variants
@@ -61,7 +56,16 @@ import type {
  * - connected: Green with different styling for connected state
  * - offline: Gray for disconnected
  */
-export type BadgeVariant = 'default' | 'secondary' | 'success' | 'connected' | 'warning' | 'error' | 'info' | 'offline' | 'outline';
+export type BadgeVariant =
+  | 'default'
+  | 'secondary'
+  | 'success'
+  | 'connected'
+  | 'warning'
+  | 'error'
+  | 'info'
+  | 'offline'
+  | 'outline';
 
 /**
  * Return type for useResourceCard hook - all computed state and handlers
@@ -202,10 +206,7 @@ export function useResourceCard<T extends BaseResource>(
     [resource.runtime?.status]
   );
 
-  const isOnline = useMemo(
-    () => status === 'online' || status === 'connected',
-    [status]
-  );
+  const isOnline = useMemo(() => status === 'online' || status === 'connected', [status]);
 
   const statusColor = useMemo(() => getStatusColor(status), [status]);
   const statusLabel = useMemo(() => getStatusLabel(status), [status]);

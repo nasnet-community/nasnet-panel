@@ -16,7 +16,11 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useCustomServices } from '../hooks/useCustomServices';
-import type { ServicePortDefinition, ServicePortProtocol, ServicePortCategory } from '@nasnet/core/types';
+import type {
+  ServicePortDefinition,
+  ServicePortProtocol,
+  ServicePortCategory,
+} from '@nasnet/core/types';
 import {
   Card,
   CardContent,
@@ -64,7 +68,10 @@ const ProtocolBadge = React.memo(function ProtocolBadge({ protocol }: ProtocolBa
   const { t } = useTranslation('firewall');
 
   return (
-    <Badge variant={variant} className="text-xs uppercase">
+    <Badge
+      variant={variant}
+      className="text-xs uppercase"
+    >
       {t(`servicePorts.protocols.${protocol}`)}
     </Badge>
   );
@@ -83,7 +90,10 @@ const TypeBadge = React.memo(function TypeBadge({ isBuiltIn }: TypeBadgeProps) {
   const { t } = useTranslation('firewall');
 
   return (
-    <Badge variant={isBuiltIn ? 'default' : 'warning'} className="text-xs">
+    <Badge
+      variant={isBuiltIn ? 'default' : 'warning'}
+      className="text-xs"
+    >
       {t(`servicePorts.types.${isBuiltIn ? 'builtIn' : 'custom'}`)}
     </Badge>
   );
@@ -98,7 +108,10 @@ const LoadingState = React.memo(function LoadingState() {
   return (
     <div className="space-y-component-sm">
       {[...Array(5)].map((_, i) => (
-        <Skeleton key={i} className="h-32 w-full rounded-md" />
+        <Skeleton
+          key={i}
+          className="h-32 w-full rounded-md"
+        />
       ))}
     </div>
   );
@@ -117,8 +130,10 @@ interface EmptyStateProps {
 const EmptyState = React.memo(function EmptyState({ message, description }: EmptyStateProps) {
   return (
     <div className="flex flex-col items-center justify-center py-12 text-center">
-      <p className="text-lg font-medium text-muted-foreground">{message}</p>
-      {description && <p className="mt-component-sm text-sm text-muted-foreground">{description}</p>}
+      <p className="text-muted-foreground text-lg font-medium">{message}</p>
+      {description && (
+        <p className="mt-component-sm text-muted-foreground text-sm">{description}</p>
+      )}
     </div>
   );
 });
@@ -134,7 +149,11 @@ interface ServiceCardProps {
   onDelete: (service: ServicePortDefinition) => void;
 }
 
-const ServiceCard = React.memo(function ServiceCard({ service, onEdit, onDelete }: ServiceCardProps) {
+const ServiceCard = React.memo(function ServiceCard({
+  service,
+  onEdit,
+  onDelete,
+}: ServiceCardProps) {
   const { t } = useTranslation('firewall');
 
   const handleEditClick = useCallback(() => {
@@ -150,12 +169,12 @@ const ServiceCard = React.memo(function ServiceCard({ service, onEdit, onDelete 
       <CardHeader className="pb-component-sm">
         <div className="flex items-start justify-between">
           <div className="flex-1">
-            <div className="flex items-center gap-component-sm">
+            <div className="gap-component-sm flex items-center">
               <h3 className="text-base font-semibold">{service.service}</h3>
               <ProtocolBadge protocol={service.protocol} />
             </div>
             {service.description && (
-              <p className="mt-component-sm text-sm text-muted-foreground">{service.description}</p>
+              <p className="mt-component-sm text-muted-foreground text-sm">{service.description}</p>
             )}
           </div>
           <DropdownMenu>
@@ -171,7 +190,10 @@ const ServiceCard = React.memo(function ServiceCard({ service, onEdit, onDelete 
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={handleEditClick} disabled={service.isBuiltIn}>
+              <DropdownMenuItem
+                onClick={handleEditClick}
+                disabled={service.isBuiltIn}
+              >
                 <Pencil className="mr-component-sm h-4 w-4" />
                 {t('servicePorts.editService')}
               </DropdownMenuItem>
@@ -190,13 +212,13 @@ const ServiceCard = React.memo(function ServiceCard({ service, onEdit, onDelete 
       <CardContent className="pb-component-sm">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-xs text-muted-foreground">{t('servicePorts.fields.port')}</p>
+            <p className="text-muted-foreground text-xs">{t('servicePorts.fields.port')}</p>
             <p className="font-mono text-lg font-semibold tabular-nums">{service.port}</p>
           </div>
           <TypeBadge isBuiltIn={service.isBuiltIn} />
         </div>
         {service.isBuiltIn && (
-          <p className="mt-component-md text-xs text-muted-foreground">
+          <p className="mt-component-md text-muted-foreground text-xs">
             {t('servicePorts.tooltips.builtInReadOnly')}
           </p>
         )}
@@ -302,7 +324,7 @@ export const ServicePortsTableMobile = React.memo(function ServicePortsTableMobi
       {/* Search and Filters */}
       <div className="space-y-component-sm">
         <div className="relative">
-          <Search className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Search className="text-muted-foreground absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2" />
           <Input
             placeholder={t('servicePorts.placeholders.searchServices')}
             value={searchQuery}
@@ -311,27 +333,40 @@ export const ServicePortsTableMobile = React.memo(function ServicePortsTableMobi
           />
         </div>
 
-        <div className="flex gap-component-sm">
-          <Select value={protocolFilter} onValueChange={setProtocolFilter}>
-            <SelectTrigger className="flex-1 min-h-[44px]">
+        <div className="gap-component-sm flex">
+          <Select
+            value={protocolFilter}
+            onValueChange={setProtocolFilter}
+          >
+            <SelectTrigger className="min-h-[44px] flex-1">
               <SelectValue placeholder={t('servicePorts.fields.protocol')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">{t('servicePorts.protocols.all', 'All Protocols')}</SelectItem>
+              <SelectItem value="all">
+                {t('servicePorts.protocols.all', 'All Protocols')}
+              </SelectItem>
               <SelectItem value="tcp">{t('servicePorts.protocols.tcp')}</SelectItem>
               <SelectItem value="udp">{t('servicePorts.protocols.udp')}</SelectItem>
               <SelectItem value="both">{t('servicePorts.protocols.both')}</SelectItem>
             </SelectContent>
           </Select>
 
-          <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-            <SelectTrigger className="flex-1 min-h-[44px]">
+          <Select
+            value={categoryFilter}
+            onValueChange={setCategoryFilter}
+          >
+            <SelectTrigger className="min-h-[44px] flex-1">
               <SelectValue placeholder={t('servicePorts.fields.category')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">{t('servicePorts.categories.all', 'All Categories')}</SelectItem>
+              <SelectItem value="all">
+                {t('servicePorts.categories.all', 'All Categories')}
+              </SelectItem>
               {CATEGORIES.map((category) => (
-                <SelectItem key={category} value={category}>
+                <SelectItem
+                  key={category}
+                  value={category}
+                >
                   {category}
                 </SelectItem>
               ))}
@@ -341,23 +376,22 @@ export const ServicePortsTableMobile = React.memo(function ServicePortsTableMobi
       </div>
 
       {/* Cards */}
-      {isLoading ? (
+      {isLoading ?
         <LoadingState />
-      ) : filteredServices.length === 0 ? (
+      : filteredServices.length === 0 ?
         <EmptyState
           message={
-            searchQuery || protocolFilter !== 'all' || categoryFilter !== 'all'
-              ? t('servicePorts.emptyStates.noServices')
-              : t('servicePorts.emptyStates.noServices')
+            searchQuery || protocolFilter !== 'all' || categoryFilter !== 'all' ?
+              t('servicePorts.emptyStates.noServices')
+            : t('servicePorts.emptyStates.noServices')
           }
           description={
-            searchQuery || protocolFilter !== 'all' || categoryFilter !== 'all'
-              ? t('servicePorts.emptyStates.noServicesDescription')
-              : undefined
+            searchQuery || protocolFilter !== 'all' || categoryFilter !== 'all' ?
+              t('servicePorts.emptyStates.noServicesDescription')
+            : undefined
           }
         />
-      ) : (
-        <div className="space-y-component-sm">
+      : <div className="space-y-component-sm">
           {filteredServices.map((service) => (
             <ServiceCard
               key={`${service.port}-${service.protocol}`}
@@ -367,17 +401,20 @@ export const ServicePortsTableMobile = React.memo(function ServicePortsTableMobi
             />
           ))}
         </div>
-      )}
+      }
 
       {/* Delete Confirmation Dialog */}
-      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+      <Dialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>{t('servicePorts.confirmations.deleteService')}</DialogTitle>
             <DialogDescription>
               {t('servicePorts.confirmations.deleteServiceDescription')}
               {serviceToDelete && (
-                <div className="mt-component-md rounded-md bg-muted p-component-sm">
+                <div className="mt-component-md bg-muted p-component-sm rounded-md">
                   <p className="font-medium">
                     {serviceToDelete.service} (Port {serviceToDelete.port})
                   </p>
@@ -386,10 +423,18 @@ export const ServicePortsTableMobile = React.memo(function ServicePortsTableMobi
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDeleteDialogOpen(false)} className="min-h-[44px]">
+            <Button
+              variant="outline"
+              onClick={() => setDeleteDialogOpen(false)}
+              className="min-h-[44px]"
+            >
               {t('servicePorts.buttons.cancel', 'Cancel')}
             </Button>
-            <Button variant="destructive" onClick={handleDeleteConfirm} className="min-h-[44px]">
+            <Button
+              variant="destructive"
+              onClick={handleDeleteConfirm}
+              className="min-h-[44px]"
+            >
               {t('servicePorts.deleteService')}
             </Button>
           </DialogFooter>

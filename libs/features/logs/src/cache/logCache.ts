@@ -133,14 +133,9 @@ export class LogCache {
 
       request.onsuccess = () => {
         const now = Date.now();
-        const validLogs = (request.result as CachedLogEntry[]).filter(
-          (log) => log.expiresAt > now
-        );
+        const validLogs = (request.result as CachedLogEntry[]).filter((log) => log.expiresAt > now);
         // Sort by timestamp descending
-        validLogs.sort(
-          (a, b) =>
-            new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
-        );
+        validLogs.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
         resolve(validLogs.slice(0, limit));
       };
       request.onerror = () => reject(request.error);
@@ -210,8 +205,7 @@ export class LogCache {
     newestEntry: Date | null;
   }> {
     await this.init();
-    if (!this.db)
-      return { totalEntries: 0, oldestEntry: null, newestEntry: null };
+    if (!this.db) return { totalEntries: 0, oldestEntry: null, newestEntry: null };
 
     return new Promise((resolve, reject) => {
       const transaction = this.db!.transaction(STORE_NAME, 'readonly');
@@ -234,8 +228,7 @@ export class LogCache {
         let newestEntry: Date | null = null;
 
         oldestRequest.onsuccess = (event) => {
-          const cursor = (event.target as IDBRequest<IDBCursorWithValue>)
-            .result;
+          const cursor = (event.target as IDBRequest<IDBCursorWithValue>).result;
           if (cursor) {
             oldestEntry = new Date(cursor.value.timestamp);
           }
@@ -243,8 +236,7 @@ export class LogCache {
           // Get newest
           const newestRequest = index.openCursor(null, 'prev');
           newestRequest.onsuccess = (event) => {
-            const cursor = (event.target as IDBRequest<IDBCursorWithValue>)
-              .result;
+            const cursor = (event.target as IDBRequest<IDBCursorWithValue>).result;
             if (cursor) {
               newestEntry = new Date(cursor.value.timestamp);
             }
@@ -288,30 +280,3 @@ export function getLogCache(config?: Partial<LogCacheConfig>): LogCache {
   }
   return cacheInstance;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

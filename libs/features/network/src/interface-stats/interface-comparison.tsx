@@ -22,7 +22,6 @@ import { cn } from '@nasnet/ui/utils';
 import { BandwidthChart } from './bandwidth-chart';
 import type { TimeRangePreset } from './time-range-selector';
 
-
 export interface InterfaceInfo {
   id: string;
   name: string;
@@ -139,9 +138,7 @@ export const InterfaceComparison = memo(function InterfaceComparison({
     }));
 
     // Sort by total bandwidth and mark top 3 as hotspots
-    const sorted = [...statsWithBandwidth].sort(
-      (a, b) => b.totalBandwidth - a.totalBandwidth
-    );
+    const sorted = [...statsWithBandwidth].sort((a, b) => b.totalBandwidth - a.totalBandwidth);
     const hotspotIds = sorted.slice(0, 3).map((s) => s.id);
 
     return stats.map((stat) => ({
@@ -165,89 +162,103 @@ export const InterfaceComparison = memo(function InterfaceComparison({
   }, []);
 
   // Table columns (memoized for stable reference)
-  const columns = useMemo(() => [
-    {
-      id: 'select',
-      header: '',
-      cell: (row: InterfaceStats) => (
-        <Checkbox
-          checked={selectedInterfaces.includes(row.id)}
-          onCheckedChange={() => handleToggleInterfaceSelection(row.id)}
-          className="h-11 w-11"
-          aria-label={`Select ${row.name}`}
-        />
-      ),
-      width: '50px',
-    },
-    {
-      id: 'name',
-      header: 'Interface',
-      cell: (row: InterfaceStats) => (
-        <div className="flex items-center gap-component-sm">
-          <span className="font-medium font-mono">{row.name}</span>
-          {row.isHotspot && (
-            <Badge variant="secondary" className="text-xs">
-              Hotspot
-            </Badge>
-          )}
-        </div>
-      ),
-      sortable: true,
-      sortFn: (a: InterfaceStats, b: InterfaceStats) => a.name.localeCompare(b.name),
-    },
-    {
-      id: 'txRate',
-      header: 'TX Rate',
-      cell: (row: InterfaceStats) => (
-        <div className="flex items-center gap-component-sm text-chart-1">
-          <ArrowUp className="h-4 w-4" aria-hidden="true" />
-          <span className="font-mono">{formatBandwidth(row.txRate)}</span>
-        </div>
-      ),
-      sortable: true,
-      sortFn: (a: InterfaceStats, b: InterfaceStats) => b.txRate - a.txRate,
-    },
-    {
-      id: 'rxRate',
-      header: 'RX Rate',
-      cell: (row: InterfaceStats) => (
-        <div className="flex items-center gap-component-sm text-chart-2">
-          <ArrowDown className="h-4 w-4" aria-hidden="true" />
-          <span className="font-mono">{formatBandwidth(row.rxRate)}</span>
-        </div>
-      ),
-      sortable: true,
-      sortFn: (a: InterfaceStats, b: InterfaceStats) => b.rxRate - a.rxRate,
-    },
-    {
-      id: 'errors',
-      header: 'Errors',
-      cell: (row: InterfaceStats) => (
-        <span className={cn(
-          row.totalErrors > 0 ? 'text-error' : 'text-muted-foreground',
-          'font-mono'
-        )}>
-          {row.totalErrors}
-        </span>
-      ),
-      sortable: true,
-      sortFn: (a: InterfaceStats, b: InterfaceStats) => b.totalErrors - a.totalErrors,
-    },
-    {
-      id: 'status',
-      header: 'Status',
-      cell: (row: InterfaceStats) => {
-        const STATUS_VARIANTS = {
-          online: 'success' as const,
-          offline: 'error' as const,
-          degraded: 'warning' as const,
-        };
-        return <Badge variant={STATUS_VARIANTS[row.status]}>{row.status}</Badge>;
+  const columns = useMemo(
+    () => [
+      {
+        id: 'select',
+        header: '',
+        cell: (row: InterfaceStats) => (
+          <Checkbox
+            checked={selectedInterfaces.includes(row.id)}
+            onCheckedChange={() => handleToggleInterfaceSelection(row.id)}
+            className="h-11 w-11"
+            aria-label={`Select ${row.name}`}
+          />
+        ),
+        width: '50px',
       },
-      sortable: true,
-      sortFn: (a: InterfaceStats, b: InterfaceStats) => a.status.localeCompare(b.status),
-    },
-  ], [selectedInterfaces, handleToggleInterfaceSelection]);
+      {
+        id: 'name',
+        header: 'Interface',
+        cell: (row: InterfaceStats) => (
+          <div className="gap-component-sm flex items-center">
+            <span className="font-mono font-medium">{row.name}</span>
+            {row.isHotspot && (
+              <Badge
+                variant="secondary"
+                className="text-xs"
+              >
+                Hotspot
+              </Badge>
+            )}
+          </div>
+        ),
+        sortable: true,
+        sortFn: (a: InterfaceStats, b: InterfaceStats) => a.name.localeCompare(b.name),
+      },
+      {
+        id: 'txRate',
+        header: 'TX Rate',
+        cell: (row: InterfaceStats) => (
+          <div className="gap-component-sm text-chart-1 flex items-center">
+            <ArrowUp
+              className="h-4 w-4"
+              aria-hidden="true"
+            />
+            <span className="font-mono">{formatBandwidth(row.txRate)}</span>
+          </div>
+        ),
+        sortable: true,
+        sortFn: (a: InterfaceStats, b: InterfaceStats) => b.txRate - a.txRate,
+      },
+      {
+        id: 'rxRate',
+        header: 'RX Rate',
+        cell: (row: InterfaceStats) => (
+          <div className="gap-component-sm text-chart-2 flex items-center">
+            <ArrowDown
+              className="h-4 w-4"
+              aria-hidden="true"
+            />
+            <span className="font-mono">{formatBandwidth(row.rxRate)}</span>
+          </div>
+        ),
+        sortable: true,
+        sortFn: (a: InterfaceStats, b: InterfaceStats) => b.rxRate - a.rxRate,
+      },
+      {
+        id: 'errors',
+        header: 'Errors',
+        cell: (row: InterfaceStats) => (
+          <span
+            className={cn(
+              row.totalErrors > 0 ? 'text-error' : 'text-muted-foreground',
+              'font-mono'
+            )}
+          >
+            {row.totalErrors}
+          </span>
+        ),
+        sortable: true,
+        sortFn: (a: InterfaceStats, b: InterfaceStats) => b.totalErrors - a.totalErrors,
+      },
+      {
+        id: 'status',
+        header: 'Status',
+        cell: (row: InterfaceStats) => {
+          const STATUS_VARIANTS = {
+            online: 'success' as const,
+            offline: 'error' as const,
+            degraded: 'warning' as const,
+          };
+          return <Badge variant={STATUS_VARIANTS[row.status]}>{row.status}</Badge>;
+        },
+        sortable: true,
+        sortFn: (a: InterfaceStats, b: InterfaceStats) => a.status.localeCompare(b.status),
+      },
+    ],
+    [selectedInterfaces, handleToggleInterfaceSelection]
+  );
 
   const selectedInterfaceDetails = selectedInterfaces
     .map((id) => interfaces.find((iface) => iface.id === id))
@@ -267,9 +278,13 @@ export const InterfaceComparison = memo(function InterfaceComparison({
             emptyMessage="No interfaces available"
           />
           {selectedInterfaces.length > 0 && (
-            <p className="text-sm text-muted-foreground mt-component-sm" role="status" aria-live="polite">
-              {selectedInterfaces.length} interface{selectedInterfaces.length > 1 ? 's' : ''} selected
-              (max 3 for comparison charts)
+            <p
+              className="text-muted-foreground mt-component-sm text-sm"
+              role="status"
+              aria-live="polite"
+            >
+              {selectedInterfaces.length} interface{selectedInterfaces.length > 1 ? 's' : ''}{' '}
+              selected (max 3 for comparison charts)
             </p>
           )}
         </CardContent>
@@ -279,20 +294,21 @@ export const InterfaceComparison = memo(function InterfaceComparison({
       {selectedInterfaceDetails.length > 0 && (
         <Card className="rounded-card-sm bg-card">
           <CardHeader>
-            <CardTitle>
-              Bandwidth Comparison ({selectedInterfaceDetails.length} selected)
-            </CardTitle>
+            <CardTitle>Bandwidth Comparison ({selectedInterfaceDetails.length} selected)</CardTitle>
           </CardHeader>
           <CardContent>
             <div
-              className="grid gap-component-md"
+              className="gap-component-md grid"
               style={{
                 gridTemplateColumns: `repeat(${selectedInterfaceDetails.length}, 1fr)`,
               }}
             >
               {selectedInterfaceDetails.map((iface) => (
-                <div key={iface.id} className="space-y-component-sm">
-                  <h3 className="text-sm font-medium font-mono text-foreground">{iface.name}</h3>
+                <div
+                  key={iface.id}
+                  className="space-y-component-sm"
+                >
+                  <h3 className="text-foreground font-mono text-sm font-medium">{iface.name}</h3>
                   <BandwidthChart
                     routerId={routerId}
                     interfaceId={iface.id}

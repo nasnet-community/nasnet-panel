@@ -102,13 +102,7 @@ export const DriftActionSchema = z.enum(['REAPPLY', 'ACCEPT', 'REVIEW']);
  * Runtime health enumeration schema.
  * Indicates the health status of a resource at runtime.
  */
-export const RuntimeHealthSchema = z.enum([
-  'HEALTHY',
-  'WARNING',
-  'DEGRADED',
-  'FAILED',
-  'UNKNOWN',
-]);
+export const RuntimeHealthSchema = z.enum(['HEALTHY', 'WARNING', 'DEGRADED', 'FAILED', 'UNKNOWN']);
 
 /**
  * Change type enumeration schema.
@@ -120,23 +114,13 @@ export const ChangeTypeSchema = z.enum(['CREATE', 'UPDATE', 'DELETE']);
  * Router platform enumeration schema.
  * Identifies the target router platform for a resource.
  */
-export const RouterPlatformSchema = z.enum([
-  'MIKROTIK',
-  'OPENWRT',
-  'VYOS',
-  'GENERIC',
-]);
+export const RouterPlatformSchema = z.enum(['MIKROTIK', 'OPENWRT', 'VYOS', 'GENERIC']);
 
 /**
  * Capability level enumeration schema.
  * Indicates the level of capability support for a feature.
  */
-export const CapabilityLevelSchema = z.enum([
-  'NONE',
-  'BASIC',
-  'ADVANCED',
-  'FULL',
-]);
+export const CapabilityLevelSchema = z.enum(['NONE', 'BASIC', 'ADVANCED', 'FULL']);
 
 /**
  * Resource relationship type enumeration schema.
@@ -543,16 +527,10 @@ export type TelemetryDataSchemaType = z.infer<typeof TelemetryDataSchema>;
 /** Inferred TypeScript type for ResourceMetadata. */
 export type ResourceMetadataSchemaType = z.infer<typeof ResourceMetadataSchema>;
 /** Inferred TypeScript type for ResourceRelationships. */
-export type ResourceRelationshipsSchemaType = z.infer<
-  typeof ResourceRelationshipsSchema
->;
+export type ResourceRelationshipsSchemaType = z.infer<typeof ResourceRelationshipsSchema>;
 /** Inferred TypeScript type for PlatformInfo. */
 export type PlatformInfoSchemaType = z.infer<typeof PlatformInfoSchema>;
 /** Inferred TypeScript type for CreateResourceInput. */
-export type CreateResourceInputSchemaType = z.infer<
-  typeof CreateResourceInputSchema
->;
+export type CreateResourceInputSchemaType = z.infer<typeof CreateResourceInputSchema>;
 /** Inferred TypeScript type for UpdateResourceInput. */
-export type UpdateResourceInputSchemaType = z.infer<
-  typeof UpdateResourceInputSchema
->;
+export type UpdateResourceInputSchemaType = z.infer<typeof UpdateResourceInputSchema>;

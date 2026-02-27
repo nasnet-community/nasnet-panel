@@ -226,9 +226,11 @@ export function createTemplateApplyMachine(config: TemplateApplyConfig) {
       >(async ({ input }) => {
         return applyTemplate(input);
       }),
-      executeRollback: fromPromise<void, { routerId: string; rollbackId: string }>(async ({ input }) => {
-        return executeRollback(input);
-      }),
+      executeRollback: fromPromise<void, { routerId: string; rollbackId: string }>(
+        async ({ input }) => {
+          return executeRollback(input);
+        }
+      ),
     },
     guards: {
       /**
@@ -311,7 +313,9 @@ export function createTemplateApplyMachine(config: TemplateApplyConfig) {
        * Check if rollback data is available
        */
       hasRollbackData: ({ context }) => {
-        return context.applyResult?.rollbackId !== undefined && context.applyResult?.rollbackId !== '';
+        return (
+          context.applyResult?.rollbackId !== undefined && context.applyResult?.rollbackId !== ''
+        );
       },
     },
     actions: {

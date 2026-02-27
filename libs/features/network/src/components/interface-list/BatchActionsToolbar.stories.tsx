@@ -26,9 +26,16 @@ import type { Meta, StoryObj } from '@storybook/react';
 // ---------------------------------------------------------------------------
 
 const mockInterfaces = [
-  { id: '*1', name: 'ether1', type: 'ETHERNET', status: 'UP',  enabled: true,  usedBy: ['gateway'] },
-  { id: '*2', name: 'ether2', type: 'ETHERNET', status: 'UP',  enabled: true,  usedBy: [] },
-  { id: '*3', name: 'bridge1', type: 'BRIDGE',  status: 'UP',  enabled: true,  usedBy: ['dhcp-server'] },
+  { id: '*1', name: 'ether1', type: 'ETHERNET', status: 'UP', enabled: true, usedBy: ['gateway'] },
+  { id: '*2', name: 'ether2', type: 'ETHERNET', status: 'UP', enabled: true, usedBy: [] },
+  {
+    id: '*3',
+    name: 'bridge1',
+    type: 'BRIDGE',
+    status: 'UP',
+    enabled: true,
+    usedBy: ['dhcp-server'],
+  },
   { id: '*4', name: 'ether3', type: 'ETHERNET', status: 'DOWN', enabled: false, usedBy: [] },
 ];
 
@@ -95,15 +102,18 @@ function ToolbarWrapper({
   const selectedInterfaces = mockInterfaces.filter((i) => selected.has(i.id));
 
   return (
-    <MockedProvider mocks={mocks} addTypename={true}>
-      <div className="p-component-lg bg-background min-h-[120px] flex items-start gap-component-md flex-col">
+    <MockedProvider
+      mocks={mocks}
+      addTypename={true}
+    >
+      <div className="p-component-lg bg-background gap-component-md flex min-h-[120px] flex-col items-start">
         <BatchActionsToolbar
           routerId="router-1"
           selectedIds={selected}
           selectedInterfaces={selectedInterfaces}
           onClearSelection={() => setSelected(new Set())}
         />
-        <p className="text-xs text-muted-foreground">
+        <p className="text-muted-foreground text-xs">
           Selected: {[...selected].join(', ') || '(none)'}
         </p>
       </div>

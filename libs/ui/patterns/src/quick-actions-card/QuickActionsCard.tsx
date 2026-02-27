@@ -82,28 +82,21 @@ export interface QuickActionsCardProps {
  * />
  * ```
  */
-const QuickActionsCardComponent = React.forwardRef<
-  HTMLDivElement,
-  QuickActionsCardProps
->(
+const QuickActionsCardComponent = React.forwardRef<HTMLDivElement, QuickActionsCardProps>(
   ({ actions, title = 'Quick Actions', className }, ref) => {
-    const handleActionClick = React.useCallback(
-      (action: QuickAction) => {
-        if (!action.disabled) {
-          action.onClick();
-        }
-      },
-      []
-    );
+    const handleActionClick = React.useCallback((action: QuickAction) => {
+      if (!action.disabled) {
+        action.onClick();
+      }
+    }, []);
 
     return (
-      <Card ref={ref} className={cn('shadow-lg', className)}>
+      <Card
+        ref={ref}
+        className={cn('shadow-lg', className)}
+      >
         <CardContent className="p-6">
-          {title && (
-            <p className="text-sm font-medium text-muted-foreground mb-4">
-              {title}
-            </p>
-          )}
+          {title && <p className="text-muted-foreground mb-4 text-sm font-medium">{title}</p>}
           <div className="grid grid-cols-2 gap-4">
             {actions.map((action) => {
               const Icon = action.icon;
@@ -120,22 +113,25 @@ const QuickActionsCardComponent = React.forwardRef<
                     'rounded-lg p-4 text-left',
                     'min-h-[44px] min-w-[44px]',
                     'transition-all duration-200',
-                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+                    'focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
                     // Variant styles
-                    isPrimary
-                      ? 'bg-success hover:bg-success/90 text-white'
-                      : 'bg-muted hover:bg-muted/80 text-foreground',
+                    isPrimary ?
+                      'bg-success hover:bg-success/90 text-white'
+                    : 'bg-muted hover:bg-muted/80 text-foreground',
                     // Disabled state
-                    action.disabled && 'opacity-50 cursor-not-allowed',
+                    action.disabled && 'cursor-not-allowed opacity-50',
                     !action.disabled && 'cursor-pointer active:scale-95'
                   )}
                   aria-label={action.label}
                   aria-disabled={action.disabled}
                 >
-                  <span className="text-2xl mb-2 block" aria-hidden="true">
-                    <Icon className="w-7 h-7" />
+                  <span
+                    className="mb-2 block text-2xl"
+                    aria-hidden="true"
+                  >
+                    <Icon className="h-7 w-7" />
                   </span>
-                  <p className="font-semibold text-sm">{action.label}</p>
+                  <p className="text-sm font-semibold">{action.label}</p>
                   {action.sublabel && (
                     <p
                       className={cn(
@@ -159,31 +155,3 @@ const QuickActionsCardComponent = React.forwardRef<
 QuickActionsCardComponent.displayName = 'QuickActionsCard';
 
 export const QuickActionsCard = React.memo(QuickActionsCardComponent);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -1,10 +1,16 @@
 # Service Orchestrator
 
-> Lifecycle management for downloadable feature services: boot sequencing, process supervision, isolation verification, health monitoring, and resource control.
+> Lifecycle management for downloadable feature services: boot sequencing, process supervision,
+> isolation verification, health monitoring, and resource control.
 
-**Packages:** `internal/orchestrator/boot/`, `internal/orchestrator/lifecycle/`, `internal/orchestrator/supervisor/`, `internal/orchestrator/resources/`, `internal/orchestrator/scheduling/`, `internal/orchestrator/health/`, `internal/orchestrator/isolation/`
+**Packages:** `internal/orchestrator/boot/`, `internal/orchestrator/lifecycle/`,
+`internal/orchestrator/supervisor/`, `internal/orchestrator/resources/`,
+`internal/orchestrator/scheduling/`, `internal/orchestrator/health/`,
+`internal/orchestrator/isolation/`
 
-**Key Files:** `boot/boot_sequence.go`, `lifecycle/lifecycle_manager.go`, `lifecycle/lifecycle_starter.go`, `lifecycle/lifecycle_stopper.go`, `supervisor/registry.go`, `supervisor/process.go`, `resources/log_capture.go`
+**Key Files:** `boot/boot_sequence.go`, `lifecycle/lifecycle_manager.go`,
+`lifecycle/lifecycle_starter.go`, `lifecycle/lifecycle_stopper.go`, `supervisor/registry.go`,
+`supervisor/process.go`, `resources/log_capture.go`
 
 **Prerequisites:** [See: 05-event-system.md], [See: 10-feature-marketplace.md §Feature Registry]
 
@@ -12,7 +18,8 @@
 
 ## Overview
 
-The Service Orchestrator manages the full lifecycle of downloadable feature services (Tor, sing-box, Xray, etc.). It coordinates:
+The Service Orchestrator manages the full lifecycle of downloadable feature services (Tor, sing-box,
+Xray, etc.). It coordinates:
 
 - **Boot sequencing** — topologically ordered startup on system boot
 - **Instance lifecycle** — start/stop/restart with state machine transitions
@@ -72,11 +79,11 @@ Orchestrates system-wide startup of all `auto_start=true` service instances in d
 
 **Key Types**
 
-| Type | Description |
-|------|-------------|
-| `BootSequenceManager` | Main coordinator for system boot |
-| `BootSequenceManagerConfig` | Configuration struct |
-| `InstanceStarter` | Interface — `StartInstance(ctx, instanceID) error` |
+| Type                        | Description                                        |
+| --------------------------- | -------------------------------------------------- |
+| `BootSequenceManager`       | Main coordinator for system boot                   |
+| `BootSequenceManagerConfig` | Configuration struct                               |
+| `InstanceStarter`           | Interface — `StartInstance(ctx, instanceID) error` |
 
 **Key Functions**
 
@@ -89,30 +96,34 @@ func (bsm *BootSequenceManager) ExecuteBootSequence(ctx context.Context) error
 
 1. `collectAutoStartInstances` — queries `ServiceInstance WHERE auto_start = true`
 2. `computeStartupLayers` — delegates to `DependencyManager.ComputeStartupOrder` (topological sort)
-3. `executeLayers` — layers are run sequentially; instances within a layer start concurrently via `errgroup`
+3. `executeLayers` — layers are run sequentially; instances within a layer start concurrently via
+   `errgroup`
 4. Per-instance timeout: **60 seconds**
-5. Events published: `BootSequenceStarted`, `BootSequenceLayerComplete`, `BootSequenceComplete`, `BootSequenceFailed`
+5. Events published: `BootSequenceStarted`, `BootSequenceLayerComplete`, `BootSequenceComplete`,
+   `BootSequenceFailed`
 
 **Partial Boot**
 
-If any layer fails, the boot sequence halts and returns an error. Successfully started instances remain running. This is intentional — dependencies must be healthy before dependents start.
+If any layer fails, the boot sequence halts and returns an error. Successfully started instances
+remain running. This is intentional — dependencies must be healthy before dependents start.
 
 ---
 
 ### `orchestrator/lifecycle`
 
-The `InstanceManager` is the central orchestrator for runtime lifecycle operations. It implements `InstanceStarter` and delegates to the supervisor.
+The `InstanceManager` is the central orchestrator for runtime lifecycle operations. It implements
+`InstanceStarter` and delegates to the supervisor.
 
 **Key Types**
 
-| Type | Description |
-|------|-------------|
-| `InstanceManager` | Core lifecycle coordinator |
-| `InstanceManagerConfig` | Wires all dependencies |
-| `InstanceStatus` | State machine values |
+| Type                    | Description                                    |
+| ----------------------- | ---------------------------------------------- |
+| `InstanceManager`       | Core lifecycle coordinator                     |
+| `InstanceManagerConfig` | Wires all dependencies                         |
+| `InstanceStatus`        | State machine values                           |
 | `DependentsActiveError` | Returned when stopping with running dependents |
-| `GatewayPort` | Interface for SOCKS-to-TUN gateway |
-| `BridgeOrchestrator` | Interface for VIF bridge setup |
+| `GatewayPort`           | Interface for SOCKS-to-TUN gateway             |
+| `BridgeOrchestrator`    | Interface for VIF bridge setup                 |
 
 **InstanceManagerConfig Fields**
 
@@ -166,6 +177,7 @@ func (im *InstanceManager) StartInstance(ctx context.Context, instanceID string)
 ```
 
 Recursive startup with dependency resolution (max depth 10):
+
 1. Resolve and auto-start dependencies
 2. Wait for each dependency to reach `Running` status
 3. Run pre-start isolation checks (`IsolationVerifier.VerifyPreStart`)
@@ -194,7 +206,8 @@ Handles binary installation: download, verification, extraction, binary placemen
 
 **`lifecycle_helpers.go`**
 
-Shared utilities: `updateInstanceStatus`, `emitStateChangeEvent`, `canTransition`, `buildProcessArgs`, `buildProcessEnv`, `applyResourceLimits`, `setupBridgeIfNeeded`.
+Shared utilities: `updateInstanceStatus`, `emitStateChangeEvent`, `canTransition`,
+`buildProcessArgs`, `buildProcessEnv`, `applyResourceLimits`, `setupBridgeIfNeeded`.
 
 ---
 
@@ -204,14 +217,14 @@ OS-level process management with exponential backoff restart and port validation
 
 **Key Types**
 
-| Type | Description |
-|------|-------------|
-| `ProcessSupervisor` | Registry and coordinator for all managed processes |
-| `ProcessSupervisorConfig` | Config including optional `PortRegistry` and `CgroupManager` |
-| `ManagedProcess` | Single process wrapper with lifecycle and backoff |
-| `ProcessConfig` | Constructor config for a managed process |
-| `ProcessState` | `starting`, `running`, `stopping`, `stopped`, `crashed`, `backing_off` |
-| `BackoffConfig` | Exponential backoff parameters |
+| Type                      | Description                                                            |
+| ------------------------- | ---------------------------------------------------------------------- |
+| `ProcessSupervisor`       | Registry and coordinator for all managed processes                     |
+| `ProcessSupervisorConfig` | Config including optional `PortRegistry` and `CgroupManager`           |
+| `ManagedProcess`          | Single process wrapper with lifecycle and backoff                      |
+| `ProcessConfig`           | Constructor config for a managed process                               |
+| `ProcessState`            | `starting`, `running`, `stopping`, `stopped`, `crashed`, `backing_off` |
+| `BackoffConfig`           | Exponential backoff parameters                                         |
 
 **ProcessSupervisor API**
 
@@ -229,6 +242,7 @@ func (ps *ProcessSupervisor) Remove(id string) error                      // mus
 **ManagedProcess**
 
 Each process runs in its own goroutine (`mp.run(ctx)`) with:
+
 - Automatic restart on crash (if `AutoRestart=true`)
 - Exponential backoff: initial=1s, max=30s, multiplier=2x
 - Backoff reset after **30 seconds** of stable uptime
@@ -242,7 +256,8 @@ Contains the `run()` goroutine loop: fork → wait → check `stopChan` → back
 
 **Port Validation**
 
-Before `Start()`, if `PortRegistry` is configured and `RouterID`+`Ports` are set, the supervisor validates that each TCP port is not already in use on that router.
+Before `Start()`, if `PortRegistry` is configured and `RouterID`+`Ports` are set, the supervisor
+validates that each TCP port is not already in use on that router.
 
 **Log Access**
 
@@ -260,11 +275,11 @@ func (mp *ManagedProcess) UnsubscribeFromLogs(subscriberID string)
 
 File-based log capture with real-time pub/sub.
 
-| Constant | Value |
-|----------|-------|
-| `MaxLogFileSize` | 10 MB (triggers rotation) |
-| `DefaultSubscriberBufferSize` | 100 entries |
-| `MaxTailLines` | 1000 lines |
+| Constant                      | Value                     |
+| ----------------------------- | ------------------------- |
+| `MaxLogFileSize`              | 10 MB (triggers rotation) |
+| `DefaultSubscriberBufferSize` | 100 entries               |
+| `MaxTailLines`                | 1000 lines                |
 
 ```go
 type LogEntry struct {
@@ -284,7 +299,8 @@ type LogCaptureConfig struct {
 }
 ```
 
-Log parsing is service-aware (`log_capture_parser.go`) — it recognizes structured JSON logs (sing-box, Xray) as well as text-based formats (Tor).
+Log parsing is service-aware (`log_capture_parser.go`) — it recognizes structured JSON logs
+(sing-box, Xray) as well as text-based formats (Tor).
 
 **`poller_windows.go`**
 
@@ -317,14 +333,15 @@ type IsolationReport = isolation.Report
 
 **Verification Layers**
 
-| Layer | Check |
-|-------|-------|
+| Layer   | Check                                                       |
+| ------- | ----------------------------------------------------------- |
 | Layer 1 | IP binding — validate `BindIP` matches configured interface |
-| Layer 2 | Port allocation — verify all required ports are registered |
-| Layer 3 | File system — binary exists in `AllowedBaseDir` |
-| Layer 4 | Network namespace — (platform-specific) |
+| Layer 2 | Port allocation — verify all required ports are registered  |
+| Layer 3 | File system — binary exists in `AllowedBaseDir`             |
+| Layer 4 | Network namespace — (platform-specific)                     |
 
-`VerifyPreStart(ctx, instance)` returns an `IsolationReport`. If any `SeverityError` violation is found, the start is rejected.
+`VerifyPreStart(ctx, instance)` returns an `IsolationReport`. If any `SeverityError` violation is
+found, the start is rejected.
 
 [See: ADR 007 — IP Binding Isolation for design rationale]
 
@@ -350,6 +367,7 @@ AdGuard Home-specific HTTP health check against the admin API.
 **`HealthChecker`**
 
 Runs health probes on a schedule. On failure:
+
 1. Sends `RestartRequest` to `restartChan`
 2. `InstanceManager.handleRestartRequests()` receives and calls `StopInstance` + `StartInstance`
 3. Publishes `EventTypeHealthChanged` to the event bus
@@ -368,11 +386,13 @@ func (se *ScheduleEvaluator) deactivateRouting(ctx context.Context, routing *ent
 ```
 
 On activation:
+
 1. Set `DeviceRouting.active = true`
 2. Update `RoutingSchedule.last_activated` timestamp
 3. Call `KillSwitchCoordinator.ResumeRouting` — unblocks traffic through the service
 
 On deactivation:
+
 1. Set `DeviceRouting.active = false`
 2. Call `KillSwitchCoordinator.PauseRouting` — blocks traffic (kill switch)
 
@@ -380,7 +400,8 @@ On deactivation:
 
 ### `orchestrator/vif_interfaces.go`
 
-Bridge between the lifecycle manager and the Virtual Interface Factory. Implements the `BridgeOrchestrator` interface consumed by `InstanceManager`.
+Bridge between the lifecycle manager and the Virtual Interface Factory. Implements the
+`BridgeOrchestrator` interface consumed by `InstanceManager`.
 
 [See: 07-virtual-interface-factory.md for full VIF details]
 
@@ -428,14 +449,17 @@ graph TD
 Most options are wired during bootstrap in `internal/bootstrap/orchestrator.go`.
 
 **ResourceLimiter** (cgroups v2, Linux only):
+
 - Applies memory limit from `ServiceInstance.MemoryLimit` (bytes)
 - Falls back gracefully on platforms without cgroups
 
 **BridgeOrchestrator** (optional):
+
 - Only wired if `VLANAllocator` is configured
 - Skipped on routers not supporting VIF
 
 **IsolationStrategy** (platform-specific):
+
 - Linux: namespace-based isolation
 - Windows: no-op (development builds)
 
@@ -443,15 +467,15 @@ Most options are wired during bootstrap in `internal/bootstrap/orchestrator.go`.
 
 ## Error Handling
 
-| Error | Handling |
-|-------|----------|
-| `DependentsActiveError` | Returned to caller; dependents must be stopped first or `force=true` |
-| Isolation violation (`SeverityError`) | Instance set to `Failed`; caller gets error |
-| Resource insufficient | Instance set to `Failed`; error includes suggestions |
-| Port conflict | `supervisor.Start` returns error; instance set to `Failed` |
-| Process crash | Supervisor auto-restarts with exponential backoff |
-| Health check failure | `HealthChecker` sends restart request; triggers stop+start cycle |
-| Layer failure in boot | Boot halts; partial successes remain running |
+| Error                                 | Handling                                                             |
+| ------------------------------------- | -------------------------------------------------------------------- |
+| `DependentsActiveError`               | Returned to caller; dependents must be stopped first or `force=true` |
+| Isolation violation (`SeverityError`) | Instance set to `Failed`; caller gets error                          |
+| Resource insufficient                 | Instance set to `Failed`; error includes suggestions                 |
+| Port conflict                         | `supervisor.Start` returns error; instance set to `Failed`           |
+| Process crash                         | Supervisor auto-restarts with exponential backoff                    |
+| Health check failure                  | `HealthChecker` sends restart request; triggers stop+start cycle     |
+| Layer failure in boot                 | Boot halts; partial successes remain running                         |
 
 All status transitions emit `StateChange` events via the event bus.
 
@@ -462,6 +486,7 @@ All status transitions emit `StateChange` events via the event bus.
 **`boot/boot_sequence_test.go`**
 
 Tests `ExecuteBootSequence` with mock `InstanceStarter`. Covers:
+
 - Empty instance list (no-op)
 - Single layer success
 - Multi-layer ordered startup
@@ -470,6 +495,7 @@ Tests `ExecuteBootSequence` with mock `InstanceStarter`. Covers:
 **`supervisor/supervisor_test.go`**
 
 Tests `ProcessSupervisor` with real OS processes (echo/sleep commands). Covers:
+
 - Add/Start/Stop/Remove lifecycle
 - Concurrent StopAll
 - State machine correctness

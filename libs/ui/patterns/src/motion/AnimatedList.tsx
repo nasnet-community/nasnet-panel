@@ -5,13 +5,7 @@
  * @see NAS-4.18: Implement Animation System (Framer Motion)
  */
 
-import {
-  type ReactNode,
-  type CSSProperties,
-  useRef,
-  useEffect,
-  useCallback,
-} from 'react';
+import { type ReactNode, type CSSProperties, useRef, useEffect, useCallback } from 'react';
 
 import {
   Reorder,
@@ -43,11 +37,7 @@ export interface AnimatedListProps<T> {
   /** Callback when items are reordered */
   onReorder: (items: T[]) => void;
   /** Render function for each item */
-  children: (
-    item: T,
-    index: number,
-    dragControls: DragControls
-  ) => ReactNode;
+  children: (item: T, index: number, dragControls: DragControls) => ReactNode;
   /** Get unique key for each item */
   getKey: (item: T) => string | number;
   /** Additional CSS classes for the list */
@@ -113,7 +103,10 @@ export function AnimatedList<T>({
     return (
       <div className={cn('flex flex-col gap-2', className)}>
         {items.map((item, index) => (
-          <div key={getKey(item)} className={itemClassName}>
+          <div
+            key={getKey(item)}
+            className={itemClassName}
+          >
             {children(item, index, dummyDragControls)}
           </div>
         ))}
@@ -191,7 +184,12 @@ function AnimatedListItemComponent<T>({
       initial="initial"
       animate="animate"
       exit="exit"
-      layout={layoutMode === false ? undefined : layoutMode === 'size' ? true : layoutMode}
+      layout={
+        layoutMode === false ? undefined
+        : layoutMode === 'size' ?
+          true
+        : layoutMode
+      }
       transition={moveTransition}
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
@@ -230,18 +228,14 @@ export interface DragHandleProps extends HTMLMotionProps<'button'> {
  * </AnimatedList>
  * ```
  */
-export function DragHandle({
-  disabled = false,
-  className,
-  ...props
-}: DragHandleProps) {
+export function DragHandle({ disabled = false, className, ...props }: DragHandleProps) {
   return (
     <motion.button
       type="button"
       className={cn(
-        'flex cursor-grab items-center justify-center p-1 touch-none',
+        'flex cursor-grab touch-none items-center justify-center p-1',
         'text-muted-foreground hover:text-foreground',
-        'focus:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+        'focus-visible:ring-ring focus:outline-none focus-visible:ring-2',
         disabled && 'cursor-not-allowed opacity-50',
         className
       )}
@@ -257,12 +251,36 @@ export function DragHandle({
         fill="currentColor"
         aria-hidden="true"
       >
-        <circle cx="4" cy="4" r="1.5" />
-        <circle cx="12" cy="4" r="1.5" />
-        <circle cx="4" cy="8" r="1.5" />
-        <circle cx="12" cy="8" r="1.5" />
-        <circle cx="4" cy="12" r="1.5" />
-        <circle cx="12" cy="12" r="1.5" />
+        <circle
+          cx="4"
+          cy="4"
+          r="1.5"
+        />
+        <circle
+          cx="12"
+          cy="4"
+          r="1.5"
+        />
+        <circle
+          cx="4"
+          cy="8"
+          r="1.5"
+        />
+        <circle
+          cx="12"
+          cy="8"
+          r="1.5"
+        />
+        <circle
+          cx="4"
+          cy="12"
+          r="1.5"
+        />
+        <circle
+          cx="12"
+          cy="12"
+          r="1.5"
+        />
       </svg>
       <span className="sr-only">Drag to reorder</span>
     </motion.button>
@@ -298,11 +316,7 @@ export interface StaggeredListProps {
  * </StaggeredList>
  * ```
  */
-export function StaggeredList({
-  children,
-  className,
-  animateOnMount = true,
-}: StaggeredListProps) {
+export function StaggeredList({ children, className, animateOnMount = true }: StaggeredListProps) {
   const animation = useAnimationOptional();
 
   if (animation?.reducedMotion) {
@@ -334,11 +348,7 @@ export interface StaggeredItemProps extends HTMLMotionProps<'div'> {
  *
  * Individual item in a StaggeredList with entrance animation.
  */
-export function StaggeredItem({
-  children,
-  className,
-  ...props
-}: StaggeredItemProps) {
+export function StaggeredItem({ children, className, ...props }: StaggeredItemProps) {
   const animation = useAnimationOptional();
 
   if (animation?.reducedMotion) {
@@ -346,7 +356,11 @@ export function StaggeredItem({
   }
 
   return (
-    <motion.div variants={staggerItem} className={className} {...props}>
+    <motion.div
+      variants={staggerItem}
+      className={className}
+      {...props}
+    >
       {children}
     </motion.div>
   );

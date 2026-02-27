@@ -6,40 +6,64 @@
 Configuration field type for dynamic form generation
 """
 enum ConfigFieldType {
-  """Single-line text input"""
+  """
+  Single-line text input
+  """
   TEXT
 
-  """Multi-line text area"""
+  """
+  Multi-line text area
+  """
   TEXT_AREA
 
-  """Number input"""
+  """
+  Number input
+  """
   NUMBER
 
-  """Boolean toggle/checkbox"""
+  """
+  Boolean toggle/checkbox
+  """
   TOGGLE
 
-  """Single-select dropdown"""
+  """
+  Single-select dropdown
+  """
   SELECT
 
-  """Multi-select dropdown"""
+  """
+  Multi-select dropdown
+  """
   MULTI_SELECT
 
-  """Array of text inputs"""
+  """
+  Array of text inputs
+  """
   TEXT_ARRAY
 
-  """Password input (masked)"""
+  """
+  Password input (masked)
+  """
   PASSWORD
 
-  """IP address input"""
+  """
+  IP address input
+  """
   IP
 
-  """Port number input"""
+  """
+  Port number input
+  """
   PORT
 
-  """Email input"""
+  """
+  Email input
+  """
   EMAIL
 
-  """URL input"""
+  """
+  URL input
+  """
   URL
 }
 
@@ -47,43 +71,69 @@ enum ConfigFieldType {
 Configuration field definition for a service
 """
 type ConfigSchemaField {
-  """Field name (internal identifier)"""
+  """
+  Field name (internal identifier)
+  """
   name: String!
 
-  """Field label (display name)"""
+  """
+  Field label (display name)
+  """
   label: String!
 
-  """Field type for UI rendering"""
+  """
+  Field type for UI rendering
+  """
   type: ConfigFieldType!
 
-  """Field description/help text"""
+  """
+  Field description/help text
+  """
   description: String
 
-  """Whether the field is required"""
+  """
+  Whether the field is required
+  """
   required: Boolean!
 
-  """Default value (as JSON)"""
+  """
+  Default value (as JSON)
+  """
   defaultValue: JSON
 
-  """Placeholder text"""
+  """
+  Placeholder text
+  """
   placeholder: String
 
-  """Minimum value (for NUMBER/PORT types)"""
+  """
+  Minimum value (for NUMBER/PORT types)
+  """
   min: Int
 
-  """Maximum value (for NUMBER/PORT types)"""
+  """
+  Maximum value (for NUMBER/PORT types)
+  """
   max: Int
 
-  """Options for SELECT/MULTI_SELECT types"""
+  """
+  Options for SELECT/MULTI_SELECT types
+  """
   options: [String!]
 
-  """Whether the field contains sensitive data"""
+  """
+  Whether the field contains sensitive data
+  """
   sensitive: Boolean!
 
-  """Validation function name"""
+  """
+  Validation function name
+  """
   validateFunc: String
 
-  """Logical group/section this field belongs to (e.g., 'Basic', 'Advanced', 'Network')"""
+  """
+  Logical group/section this field belongs to (e.g., 'Basic', 'Advanced', 'Network')
+  """
   group: String
 }
 
@@ -91,13 +141,19 @@ type ConfigSchemaField {
 Configuration schema for a service type
 """
 type ConfigSchema {
-  """Service type identifier"""
+  """
+  Service type identifier
+  """
   serviceType: String!
 
-  """Schema version"""
+  """
+  Schema version
+  """
   version: String!
 
-  """Configuration fields"""
+  """
+  Configuration fields
+  """
   fields: [ConfigSchemaField!]!
 }
 
@@ -105,10 +161,14 @@ type ConfigSchema {
 Validation error for a configuration field
 """
 type ConfigValidationError {
-  """Field name"""
+  """
+  Field name
+  """
   field: String!
 
-  """Error message"""
+  """
+  Error message
+  """
   message: String!
 }
 
@@ -116,10 +176,14 @@ type ConfigValidationError {
 Service configuration validation result
 """
 type ConfigValidationResult {
-  """Whether the configuration is valid"""
+  """
+  Whether the configuration is valid
+  """
   valid: Boolean!
 
-  """List of validation errors (empty if valid)"""
+  """
+  List of validation errors (empty if valid)
+  """
   errors: [ConfigValidationError!]!
 }
 
@@ -127,16 +191,24 @@ type ConfigValidationResult {
 Result of applying configuration
 """
 type ApplyConfigPayload {
-  """Whether the operation succeeded"""
+  """
+  Whether the operation succeeded
+  """
   success: Boolean!
 
-  """Updated service instance (if successful)"""
+  """
+  Updated service instance (if successful)
+  """
   instance: ServiceInstance
 
-  """Error messages (if failed)"""
+  """
+  Error messages (if failed)
+  """
   errors: [String!]!
 
-  """Path to generated config file"""
+  """
+  Path to generated config file
+  """
   configPath: String
 }
 
@@ -144,13 +216,19 @@ type ApplyConfigPayload {
 Input for validating service configuration
 """
 input ValidateServiceConfigInput {
-  """Router ID"""
+  """
+  Router ID
+  """
   routerID: ID!
 
-  """Service instance ID"""
+  """
+  Service instance ID
+  """
   instanceID: ID!
 
-  """Configuration to validate (as JSON)"""
+  """
+  Configuration to validate (as JSON)
+  """
   config: JSON!
 }
 
@@ -158,13 +236,19 @@ input ValidateServiceConfigInput {
 Input for applying service configuration
 """
 input ApplyServiceConfigInput {
-  """Router ID"""
+  """
+  Router ID
+  """
   routerID: ID!
 
-  """Service instance ID"""
+  """
+  Service instance ID
+  """
   instanceID: ID!
 
-  """Configuration to apply (as JSON)"""
+  """
+  Configuration to apply (as JSON)
+  """
   config: JSON!
 }
 
@@ -174,7 +258,9 @@ extend type Query {
   Returns field definitions for dynamic form generation.
   """
   serviceConfigSchema(
-    """Service type (e.g., 'tor', 'sing-box', 'xray')"""
+    """
+    Service type (e.g., 'tor', 'sing-box', 'xray')
+    """
     serviceType: String!
   ): ConfigSchema!
 
@@ -183,10 +269,14 @@ extend type Query {
   Returns the persisted configuration from the database.
   """
   instanceConfig(
-    """Router ID"""
+    """
+    Router ID
+    """
     routerID: ID!
 
-    """Service instance ID"""
+    """
+    Service instance ID
+    """
     instanceID: ID!
   ): JSON!
 }

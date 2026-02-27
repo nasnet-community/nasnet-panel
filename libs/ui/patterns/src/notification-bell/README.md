@@ -1,13 +1,12 @@
 # NotificationBell Component
 
-**Platform:** Pattern Component (Layer 2)
-**Pattern:** Headless + Platform Presenters (ADR-018)
-**Category:** Notification System
-**WCAG Level:** AAA
+**Platform:** Pattern Component (Layer 2) **Pattern:** Headless + Platform Presenters (ADR-018)
+**Category:** Notification System **WCAG Level:** AAA
 
 ## Overview
 
-In-app notification bell component with unread count badge and notification preview. Automatically adapts presentation based on platform:
+In-app notification bell component with unread count badge and notification preview. Automatically
+adapts presentation based on platform:
 
 - **Desktop/Tablet:** Compact Popover with notification preview (max 5 recent)
 - **Mobile:** Full-screen Sheet (bottom drawer) with all notifications
@@ -126,30 +125,30 @@ function AppHeader() {
 
 ### NotificationBellProps
 
-| Prop | Type | Required | Default | Description |
-|------|------|----------|---------|-------------|
-| `unreadCount` | `number` | ✅ | - | Number of unread notifications |
-| `notifications` | `InAppNotification[]` | ✅ | - | Recent notifications to display |
-| `loading` | `boolean` | ❌ | `false` | Loading state |
-| `onNotificationClick` | `(notification: InAppNotification) => void` | ❌ | - | Handler when notification clicked |
-| `onMarkAllRead` | `() => void` | ❌ | - | Handler for "Mark all read" |
-| `onViewAll` | `() => void` | ❌ | - | Handler for "View all" |
-| `className` | `string` | ❌ | - | Additional CSS classes |
+| Prop                  | Type                                        | Required | Default | Description                       |
+| --------------------- | ------------------------------------------- | -------- | ------- | --------------------------------- |
+| `unreadCount`         | `number`                                    | ✅       | -       | Number of unread notifications    |
+| `notifications`       | `InAppNotification[]`                       | ✅       | -       | Recent notifications to display   |
+| `loading`             | `boolean`                                   | ❌       | `false` | Loading state                     |
+| `onNotificationClick` | `(notification: InAppNotification) => void` | ❌       | -       | Handler when notification clicked |
+| `onMarkAllRead`       | `() => void`                                | ❌       | -       | Handler for "Mark all read"       |
+| `onViewAll`           | `() => void`                                | ❌       | -       | Handler for "View all"            |
+| `className`           | `string`                                    | ❌       | -       | Additional CSS classes            |
 
 ### InAppNotification Interface
 
 ```typescript
 interface InAppNotification {
-  id: string;                    // Unique notification ID
-  alertId: string;               // Alert ID from backend
-  title: string;                 // Notification title
-  message: string;               // Notification message
-  severity: AlertSeverity;       // CRITICAL | WARNING | INFO
-  deviceId?: string;             // Device that triggered alert
-  ruleId?: string;               // Alert rule ID
+  id: string; // Unique notification ID
+  alertId: string; // Alert ID from backend
+  title: string; // Notification title
+  message: string; // Notification message
+  severity: AlertSeverity; // CRITICAL | WARNING | INFO
+  deviceId?: string; // Device that triggered alert
+  ruleId?: string; // Alert rule ID
   data?: Record<string, unknown>; // Additional event data
-  read: boolean;                 // Read status
-  receivedAt: string;            // ISO timestamp
+  read: boolean; // Read status
+  receivedAt: string; // ISO timestamp
 }
 ```
 
@@ -171,7 +170,7 @@ import { NotificationBellDesktop } from '@nasnet/ui/patterns';
   unreadCount={5}
   notifications={recentNotifications}
   onNotificationClick={handleClick}
-/>
+/>;
 ```
 
 ### Mobile Presenter
@@ -190,7 +189,7 @@ import { NotificationBellMobile } from '@nasnet/ui/patterns';
   unreadCount={10}
   notifications={allNotifications}
   onNotificationClick={handleClick}
-/>
+/>;
 ```
 
 ## Accessibility
@@ -198,15 +197,18 @@ import { NotificationBellMobile } from '@nasnet/ui/patterns';
 ### WCAG AAA Compliance
 
 ✅ **7:1 Contrast Ratio**
+
 - Badge background: Primary red (#EF4444)
 - Text on badge: White (#FFFFFF)
 - Unread indicator dot: Primary amber (#EFC729)
 
 ✅ **Touch Targets**
+
 - Desktop: 32x32px (standard)
 - Mobile: 44x44px (WCAG AAA minimum)
 
 ✅ **Keyboard Navigation**
+
 - Tab to bell button
 - Enter/Space to open popover/sheet
 - Arrow keys to navigate notifications
@@ -214,6 +216,7 @@ import { NotificationBellMobile } from '@nasnet/ui/patterns';
 - Escape to close
 
 ✅ **Screen Reader Support**
+
 - Bell button has `aria-label` with unread count
 - `aria-live="polite"` announces count changes
 - Badge is `aria-hidden` (count in button label)
@@ -252,6 +255,7 @@ import { NotificationBellMobile } from '@nasnet/ui/patterns';
 ```
 
 Shows:
+
 - Bell icon (no badge)
 - Empty message: "No notifications" / "You're all caught up!"
 
@@ -266,6 +270,7 @@ Shows:
 ```
 
 Shows:
+
 - Badge with count
 - Skeleton placeholders (3 rows)
 
@@ -287,28 +292,28 @@ Component uses semantic design tokens:
 
 ```tsx
 // Badge
-className="bg-error text-error-foreground"
+className = 'bg-error text-error-foreground';
 
 // Unread indicator (desktop)
-className="h-2 w-2 rounded-full bg-primary"
+className = 'h-2 w-2 rounded-full bg-primary';
 
 // Unread indicator (mobile)
-className="h-3 w-3 rounded-full bg-primary"
+className = 'h-3 w-3 rounded-full bg-primary';
 
 // Unread notification background
-className="bg-primary/5"
+className = 'bg-primary/5';
 
 // Severity badges
-variant="error"    // CRITICAL
-variant="warning"  // WARNING
-variant="info"     // INFO
+variant = 'error'; // CRITICAL
+variant = 'warning'; // WARNING
+variant = 'info'; // INFO
 ```
 
 ### Custom Styling
 
 ```tsx
 <NotificationBell
-  className="ml-4"  // Position in header
+  className="ml-4" // Position in header
   unreadCount={count}
   notifications={notifications}
 />
@@ -353,7 +358,8 @@ Navigate to: **Patterns → NotificationBell**
 test('notification bell shows unread count', async ({ page }) => {
   await page.goto('/dashboard');
 
-  const badge = page.getByRole('button', { name: /notifications/i })
+  const badge = page
+    .getByRole('button', { name: /notifications/i })
     .locator('[aria-hidden="true"]');
 
   await expect(badge).toHaveText('3');
@@ -379,8 +385,7 @@ import { NotificationBell } from '@nasnet/ui/patterns';
 import { useAlertNotificationStore } from '@nasnet/state/stores';
 
 export function AppHeader() {
-  const { notifications, unreadCount, markAsRead, markAllRead } =
-    useAlertNotificationStore();
+  const { notifications, unreadCount, markAsRead, markAllRead } = useAlertNotificationStore();
 
   return (
     <header className="flex items-center justify-between px-4 py-2">
@@ -477,8 +482,8 @@ useAlertNotifications({
 
 ```tsx
 <PopoverContent
-  align="end"      // Right-align to bell button
-  sideOffset={8}   // 8px gap below button
+  align="end" // Right-align to bell button
+  sideOffset={8} // 8px gap below button
 />
 ```
 

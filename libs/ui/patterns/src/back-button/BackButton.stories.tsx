@@ -32,10 +32,13 @@ function MockBackButton({
       variant="ghost"
       size="icon"
       onClick={handleClick}
-      className={`rounded-full hover:bg-muted transition-colors ${className}`}
+      className={`hover:bg-muted rounded-full transition-colors ${className}`}
       aria-label={ariaLabel}
     >
-      <Icon icon={ArrowLeft} className="h-5 w-5 text-muted-foreground" />
+      <Icon
+        icon={ArrowLeft}
+        className="text-muted-foreground h-5 w-5"
+      />
     </Button>
   );
 }
@@ -84,11 +87,14 @@ export const WithCustomLabel: Story = {
 
 export const InPageHeader: Story = {
   render: () => (
-    <div className="flex items-center gap-3 w-80 px-4 py-3 border-b">
-      <MockBackButton to="/routers" ariaLabel="Back to router list" />
+    <div className="flex w-80 items-center gap-3 border-b px-4 py-3">
+      <MockBackButton
+        to="/routers"
+        ariaLabel="Back to router list"
+      />
       <div>
         <h1 className="text-lg font-semibold">Router Settings</h1>
-        <p className="text-xs text-muted-foreground">MikroTik-Home</p>
+        <p className="text-muted-foreground text-xs">MikroTik-Home</p>
       </div>
     </div>
   ),
@@ -103,8 +109,12 @@ export const InPageHeader: Story = {
 
 export const InBreadcrumb: Story = {
   render: () => (
-    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-      <MockBackButton to="/" ariaLabel="Back to home" className="h-8 w-8" />
+    <div className="text-muted-foreground flex items-center gap-2 text-sm">
+      <MockBackButton
+        to="/"
+        ariaLabel="Back to home"
+        className="h-8 w-8"
+      />
       <span>/</span>
       <span>Routers</span>
       <span>/</span>
@@ -123,14 +133,15 @@ export const InBreadcrumb: Story = {
 export const InMobileHeader: Story = {
   render: () => (
     <div className="w-80">
-      <div className="flex items-center justify-between px-4 py-3 bg-card border-b">
-        <MockBackButton to="/routers" ariaLabel="Back to router list" />
+      <div className="bg-card flex items-center justify-between border-b px-4 py-3">
+        <MockBackButton
+          to="/routers"
+          ariaLabel="Back to router list"
+        />
         <h1 className="text-base font-semibold">DHCP Leases</h1>
         <div className="w-10" /> {/* Spacer for centering */}
       </div>
-      <div className="p-4 text-sm text-muted-foreground">
-        Page content...
-      </div>
+      <div className="text-muted-foreground p-4 text-sm">Page content...</div>
     </div>
   ),
   parameters: {
@@ -147,18 +158,21 @@ export const Variants: Story = {
     <div className="flex flex-col gap-4">
       <div className="flex items-center gap-4">
         <MockBackButton to="/" />
-        <span className="text-sm text-muted-foreground">Default (ArrowLeft icon)</span>
+        <span className="text-muted-foreground text-sm">Default (ArrowLeft icon)</span>
       </div>
       <div className="flex items-center gap-4">
         <Button
           variant="ghost"
           size="icon"
-          className="rounded-full hover:bg-muted"
+          className="hover:bg-muted rounded-full"
           aria-label="Go back"
         >
-          <Icon icon={ChevronLeft} className="h-5 w-5 text-muted-foreground" />
+          <Icon
+            icon={ChevronLeft}
+            className="text-muted-foreground h-5 w-5"
+          />
         </Button>
-        <span className="text-sm text-muted-foreground">Alternative (ChevronLeft icon)</span>
+        <span className="text-muted-foreground text-sm">Alternative (ChevronLeft icon)</span>
       </div>
       <div className="flex items-center gap-4">
         <Button
@@ -167,10 +181,13 @@ export const Variants: Story = {
           className="gap-1"
           aria-label="Go back"
         >
-          <Icon icon={ArrowLeft} className="h-4 w-4" />
+          <Icon
+            icon={ArrowLeft}
+            className="h-4 w-4"
+          />
           Back
         </Button>
-        <span className="text-sm text-muted-foreground">With label</span>
+        <span className="text-muted-foreground text-sm">With label</span>
       </div>
     </div>
   ),
@@ -194,9 +211,7 @@ export const Interactive: Story = {
           ariaLabel="Back to router list"
           onClick={() => setLastAction('Navigating to /routers...')}
         />
-        <p className="text-sm text-muted-foreground h-5">
-          {lastAction || 'Click the button'}
-        </p>
+        <p className="text-muted-foreground h-5 text-sm">{lastAction || 'Click the button'}</p>
       </div>
     );
   },

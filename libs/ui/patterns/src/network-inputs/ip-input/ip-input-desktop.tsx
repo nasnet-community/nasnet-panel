@@ -88,12 +88,8 @@ export const IPInputDesktop = memo(function IPInputDesktop({
   );
 
   // Build aria-describedby for inputs
-  const inputAriaDescribedBy = [
-    ariaDescribedBy,
-    hasError ? errorId : undefined,
-  ]
-    .filter(Boolean)
-    .join(' ') || undefined;
+  const inputAriaDescribedBy =
+    [ariaDescribedBy, hasError ? errorId : undefined].filter(Boolean).join(' ') || undefined;
 
   return (
     <div className={cn('inline-flex flex-col gap-1.5', className)}>
@@ -110,28 +106,39 @@ export const IPInputDesktop = memo(function IPInputDesktop({
 
         {/* Segment inputs */}
         {segments.map((segment, index) => (
-          <div key={index} className="inline-flex items-center">
+          <div
+            key={index}
+            className="inline-flex items-center"
+          >
             <Input
               ref={segmentRefs[index] as React.Ref<HTMLInputElement>}
               type="text"
               inputMode="numeric"
               value={segment}
-              onChange={(e) => handleSegmentChange(index, e.target.value, e.target.selectionStart ?? undefined)}
+              onChange={(e) =>
+                handleSegmentChange(index, e.target.value, e.target.selectionStart ?? undefined)
+              }
               onKeyDown={(e) => handleKeyDown(index, e)}
               onPaste={handleSegmentPaste(index)}
               onBlur={onBlur}
               onFocus={onFocus}
               disabled={disabled}
               required={required && index === 0}
-              placeholder={placeholder ? (index === 0 ? placeholder.split('.')[0] || '0' : '0') : '0'}
+              placeholder={
+                placeholder ?
+                  index === 0 ?
+                    placeholder.split('.')[0] || '0'
+                  : '0'
+                : '0'
+              }
               maxLength={maxSegmentLength}
               aria-label={`IP address ${version === 'v6' ? 'hextet' : 'octet'} ${index + 1} of ${segmentCount}`}
               aria-invalid={hasError ? 'true' : undefined}
               aria-describedby={index === 0 ? inputAriaDescribedBy : undefined}
               className={cn(
-                'w-12 text-center px-1 font-mono text-sm',
-                'bg-card border border-border text-foreground placeholder:text-muted-foreground',
-                'focus:border-primary focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0',
+                'w-12 px-1 text-center font-mono text-sm',
+                'bg-card border-border text-foreground placeholder:text-muted-foreground border',
+                'focus:border-primary focus-visible:ring-ring focus-visible:ring-2 focus-visible:ring-offset-0',
                 'transition-colors duration-150',
                 hasError && 'border-error focus:border-error focus-visible:ring-error'
               )}
@@ -140,7 +147,7 @@ export const IPInputDesktop = memo(function IPInputDesktop({
             {/* Separator (dot or colon) */}
             {index < segmentCount - 1 && (
               <span
-                className="mx-0.5 text-muted-foreground font-mono select-none"
+                className="text-muted-foreground mx-0.5 select-none font-mono"
                 aria-hidden="true"
               >
                 {separator}
@@ -153,7 +160,7 @@ export const IPInputDesktop = memo(function IPInputDesktop({
         {allowCIDR && (
           <>
             <span
-              className="mx-0.5 text-muted-foreground font-mono select-none"
+              className="text-muted-foreground mx-0.5 select-none font-mono"
               aria-hidden="true"
             >
               /
@@ -173,9 +180,9 @@ export const IPInputDesktop = memo(function IPInputDesktop({
               aria-label={`CIDR prefix length (0-${version === 'v6' ? '128' : '32'})`}
               aria-invalid={hasError ? 'true' : undefined}
               className={cn(
-                'w-10 text-center px-1 font-mono text-sm',
-                'bg-card border border-border text-foreground placeholder:text-muted-foreground',
-                'focus:border-primary focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0',
+                'w-10 px-1 text-center font-mono text-sm',
+                'bg-card border-border text-foreground placeholder:text-muted-foreground border',
+                'focus:border-primary focus-visible:ring-ring focus-visible:ring-2 focus-visible:ring-offset-0',
                 'transition-colors duration-150',
                 hasError && 'border-error focus:border-error focus-visible:ring-error'
               )}
@@ -184,16 +191,16 @@ export const IPInputDesktop = memo(function IPInputDesktop({
         )}
 
         {/* Validation indicator */}
-        <div className="ml-2 w-5 h-5 flex items-center justify-center">
+        <div className="ml-2 flex h-5 w-5 items-center justify-center">
           {showValidIndicator && (
             <CheckCircle2
-              className="w-5 h-5 text-success"
+              className="text-success h-5 w-5"
               aria-hidden="true"
             />
           )}
           {hasError && (
             <XCircle
-              className="w-5 h-5 text-destructive"
+              className="text-destructive h-5 w-5"
               aria-hidden="true"
             />
           )}
@@ -215,7 +222,7 @@ export const IPInputDesktop = memo(function IPInputDesktop({
         <p
           id={errorId}
           role="alert"
-          className="text-xs text-error"
+          className="text-error text-xs"
         >
           {error}
         </p>

@@ -115,22 +115,34 @@ enum ProvisioningApplyStatus {
 Wizard step in provisioning flow
 """
 enum WizardStep {
-  """Step 1: Choose provisioning mode and basic settings"""
+  """
+  Step 1: Choose provisioning mode and basic settings
+  """
   CHOOSE
 
-  """Step 2: Configure WAN link"""
+  """
+  Step 2: Configure WAN link
+  """
   WAN
 
-  """Step 3: Configure LAN networks"""
+  """
+  Step 3: Configure LAN networks
+  """
   LAN
 
-  """Step 4: Configure extra features (VPN, firewall, etc.)"""
+  """
+  Step 4: Configure extra features (VPN, firewall, etc.)
+  """
   EXTRA
 
-  """Step 5: Review all configurations"""
+  """
+  Step 5: Review all configurations
+  """
   REVIEW
 
-  """Step 6: Apply configurations"""
+  """
+  Step 6: Apply configurations
+  """
   APPLY
 }
 

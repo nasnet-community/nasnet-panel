@@ -1,7 +1,7 @@
 {
   "id": "forms-validation/validation-pipeline",
   "title": "Validation Pipeline",
-  "description": "The validation pipeline (libs/core/forms/src/validation-pipeline/) orchestrates multi-stage validation that combines local Zod schema checks with backend network-aware checks. The number of stages that run depends on how risky the operation is.",
+  "description": "The validation pipeline (libs/core/forms/src/validation-pipeline/) orchestrates multi-stage",
   "source": "@site/../connect/docs/forms-validation/validation-pipeline.md",
   "sourceDirName": "forms-validation",
   "slug": "/forms-validation/validation-pipeline",

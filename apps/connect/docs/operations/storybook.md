@@ -1,8 +1,10 @@
 # Storybook Guide
 
-NasNetConnect runs three independent Storybook instances, one per library tier. All use **Storybook 10.2.7** (ESM-only) with the `@storybook/react-vite` framework.
+NasNetConnect runs three independent Storybook instances, one per library tier. All use **Storybook
+10.2.7** (ESM-only) with the `@storybook/react-vite` framework.
 
 See also:
+
 - [UI System Overview](../ui-system/overview.md) — three-layer component architecture
 - [Key Commands](../getting-started/key-commands.md) — all Storybook commands
 
@@ -10,11 +12,11 @@ See also:
 
 ## Storybook Instances
 
-| Instance | Port | Covers | Config Location |
-|----------|------|--------|-----------------|
-| `ui-primitives` | 4400 | shadcn/Radix wrapper components | `libs/ui/primitives/.storybook/` |
-| `ui-patterns` | 4401 | Pattern components + feature components + app routes | `libs/ui/patterns/.storybook/` |
-| `connect` | 4402 | App-level skeletons, route-level stories | `apps/connect/.storybook/` |
+| Instance        | Port | Covers                                               | Config Location                  |
+| --------------- | ---- | ---------------------------------------------------- | -------------------------------- |
+| `ui-primitives` | 4400 | shadcn/Radix wrapper components                      | `libs/ui/primitives/.storybook/` |
+| `ui-patterns`   | 4401 | Pattern components + feature components + app routes | `libs/ui/patterns/.storybook/`   |
+| `connect`       | 4402 | App-level skeletons, route-level stories             | `apps/connect/.storybook/`       |
 
 ### Running Storybook
 
@@ -43,11 +45,14 @@ npx storybook doctor
 
 ### Framework
 
-All three Storybook instances use `@storybook/react-vite`, which delegates to the project's own Vite for bundling. This means stories see the same Vite plugins, path aliases, and optimisations as the production app.
+All three Storybook instances use `@storybook/react-vite`, which delegates to the project's own Vite
+for bundling. This means stories see the same Vite plugins, path aliases, and optimisations as the
+production app.
 
 ### Addons
 
 Both the primitives and patterns Storybook instances include:
+
 - `@storybook/addon-a11y` — accessibility checks (WCAG AAA contrast rule enabled)
 - `@storybook/addon-docs` — MDX documentation and auto-generated API tables
 
@@ -61,7 +66,8 @@ addons: [
 
 ### Path Aliases
 
-The `viteFinal` hook in each `main.ts` mirrors the path aliases from `apps/connect/vite.config.ts`. All 18 `@nasnet/*` aliases are resolved so stories can import from any library:
+The `viteFinal` hook in each `main.ts` mirrors the path aliases from `apps/connect/vite.config.ts`.
+All 18 `@nasnet/*` aliases are resolved so stories can import from any library:
 
 ```ts
 // apps/connect/.storybook/main.ts (abbreviated)
@@ -84,11 +90,13 @@ viteFinal: async (config) => ({
 ### Story Discovery
 
 **`ui-primitives`** (`libs/ui/primitives/.storybook/main.ts`):
+
 ```ts
 stories: ['../src/**/*.stories.@(js|jsx|ts|tsx|mdx)'],
 ```
 
 **`ui-patterns`** (`libs/ui/patterns/.storybook/main.ts`) — includes feature and app stories:
+
 ```ts
 stories: [
   '../src/**/*.stories.@(js|jsx|ts|tsx|mdx)',
@@ -99,11 +107,14 @@ stories: [
 ```
 
 **`connect`** (`apps/connect/.storybook/main.ts`):
+
 ```ts
 stories: ['../src/**/*.stories.@(js|jsx|ts|tsx|mdx)'],
 ```
 
-Story files co-located with routes (e.g., `src/routes/router/$id/dhcp.stories.tsx`) are excluded from the TanStack Router route tree via `routeFileIgnorePattern: '\\.stories\\.'` in `vite.config.ts`.
+Story files co-located with routes (e.g., `src/routes/router/$id/dhcp.stories.tsx`) are excluded
+from the TanStack Router route tree via `routeFileIgnorePattern: '\\.stories\\.'` in
+`vite.config.ts`.
 
 ---
 
@@ -141,6 +152,7 @@ decorators: [
 ```
 
 This means stories automatically get:
+
 - A `MockApolloProvider` with zero retries (for predictable mock data)
 - A `QueryClientProvider` (TanStack Query, also zero retries)
 - i18n context (`I18nProvider`)
@@ -148,7 +160,8 @@ This means stories automatically get:
 - Animation context
 - Toast notifications
 
-The `ui-primitives` decorator is simpler — it only wraps in the dark/light theme div, since primitives have no Apollo or routing dependencies.
+The `ui-primitives` decorator is simpler — it only wraps in the dark/light theme div, since
+primitives have no Apollo or routing dependencies.
 
 ### Theme Switcher
 
@@ -170,19 +183,21 @@ globalTypes: {
 },
 ```
 
-Switching theme applies/removes the `.dark` class, activating Tailwind dark-mode CSS variables. Background defaults to `light` (`#F1F5F9`).
+Switching theme applies/removes the `.dark` class, activating Tailwind dark-mode CSS variables.
+Background defaults to `light` (`#F1F5F9`).
 
 ### Viewport Presets
 
 All three Storybook instances define the same three platform viewports:
 
-| Preset | Width × Height | Use |
-|--------|---------------|-----|
-| `mobile` | 375 × 667 | iPhone SE / consumer mobile |
-| `tablet` | 768 × 1024 | iPad / hybrid layout |
-| `desktop` | 1280 × 800 | Pro desktop view |
+| Preset    | Width × Height | Use                         |
+| --------- | -------------- | --------------------------- |
+| `mobile`  | 375 × 667      | iPhone SE / consumer mobile |
+| `tablet`  | 768 × 1024     | iPad / hybrid layout        |
+| `desktop` | 1280 × 800     | Pro desktop view            |
 
-These map directly to the three platform breakpoints (`<640px`, `640-1024px`, `>1024px`) used by Platform Presenters.
+These map directly to the three platform breakpoints (`<640px`, `640-1024px`, `>1024px`) used by
+Platform Presenters.
 
 ### Accessibility Checks
 
@@ -198,13 +213,15 @@ a11y: {
 },
 ```
 
-The accessibility panel appears below each story. Red failures are blocking — fix them before merging.
+The accessibility panel appears below each story. Red failures are blocking — fix them before
+merging.
 
 ---
 
 ## Writing Stories (CSF3 Format)
 
-All stories use **Component Story Format 3 (CSF3)**. This is the standard format used throughout the codebase.
+All stories use **Component Story Format 3 (CSF3)**. This is the standard format used throughout the
+codebase.
 
 ### Minimal Story
 
@@ -310,7 +327,7 @@ function DHCPTabSkeleton() {
   return (
     <div className="space-y-4 p-4">
       <Skeleton className="h-8 w-48" />
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <Skeleton className="h-40 w-full" />
         <Skeleton className="h-40 w-full" />
       </div>
@@ -345,14 +362,14 @@ export const LoadingMobile: Story = {
 
 ### Story Naming Conventions
 
-| Pattern | Example Title |
-|---------|--------------|
-| Primitives | `'Primitives/Button'` |
-| Pattern components | `'Patterns/DataTable'` |
-| App-level components | `'App/AppHeader'` |
-| Router panel tabs | `'App/Router/FirewallTab'` |
-| Feature components | `'Features/Alerts/AlertList'` |
-| Skeletons | `'App/Skeletons/DashboardSkeleton'` |
+| Pattern              | Example Title                       |
+| -------------------- | ----------------------------------- |
+| Primitives           | `'Primitives/Button'`               |
+| Pattern components   | `'Patterns/DataTable'`              |
+| App-level components | `'App/AppHeader'`                   |
+| Router panel tabs    | `'App/Router/FirewallTab'`          |
+| Feature components   | `'Features/Alerts/AlertList'`       |
+| Skeletons            | `'App/Skeletons/DashboardSkeleton'` |
 
 ---
 
@@ -374,7 +391,8 @@ apps/connect/src/routes/router/$id/
 └── ...
 ```
 
-The `ui-patterns` Storybook scans `../../../../apps/connect/src/**/*.stories.*` so all app stories are visible in the patterns Storybook (port 4401) alongside pattern library stories.
+The `ui-patterns` Storybook scans `../../../../apps/connect/src/**/*.stories.*` so all app stories
+are visible in the patterns Storybook (port 4401) alongside pattern library stories.
 
 ---
 
@@ -390,7 +408,8 @@ npx nx run ui-patterns:build-storybook
 npx nx run ui-primitives:build-storybook
 ```
 
-Output goes to `dist/storybook/{connect,ui-patterns,ui-primitives}/`. Static Storybooks are deployed for PR review via Chromatic (see `chromatic` in `package.json` devDependencies).
+Output goes to `dist/storybook/{connect,ui-patterns,ui-primitives}/`. Static Storybooks are deployed
+for PR review via Chromatic (see `chromatic` in `package.json` devDependencies).
 
 ---
 

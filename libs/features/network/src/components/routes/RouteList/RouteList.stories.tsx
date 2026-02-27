@@ -270,13 +270,23 @@ export const ManyRoutes: StoryDesktop = {
       id: `route-${i}`,
       destination: `10.${Math.floor(i / 255)}.${i % 255}.0/24`,
       gateway: `192.168.${Math.floor(i / 255)}.${(i % 255) + 1}`,
-      interface: i % 3 === 0 ? 'ether1' : i % 3 === 1 ? 'ether2' : undefined,
+      interface:
+        i % 3 === 0 ? 'ether1'
+        : i % 3 === 1 ? 'ether2'
+        : undefined,
       distance: (i % 10) + 1,
       routingMark: i % 5 === 0 ? 'policy-mark' : undefined,
-      routingTable: i % 3 === 0 ? 'main' : i % 3 === 1 ? 'vpn' : 'guest',
-      type: [RouteType.STATIC, RouteType.CONNECTED, RouteType.DYNAMIC, RouteType.BGP, RouteType.OSPF][
-        i % 5
-      ],
+      routingTable:
+        i % 3 === 0 ? 'main'
+        : i % 3 === 1 ? 'vpn'
+        : 'guest',
+      type: [
+        RouteType.STATIC,
+        RouteType.CONNECTED,
+        RouteType.DYNAMIC,
+        RouteType.BGP,
+        RouteType.OSPF,
+      ][i % 5],
       scope: RouteScope.GLOBAL,
       comment: i % 4 === 0 ? `Auto-generated route ${i}` : undefined,
       active: i % 7 !== 0,

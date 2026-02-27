@@ -1,22 +1,27 @@
-"use client"
+'use client';
 
-import * as React from "react"
+import * as React from 'react';
 
-import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu"
-import { Check, ChevronRight, Circle } from "lucide-react"
+import * as DropdownMenuPrimitive from '@radix-ui/react-dropdown-menu';
+import { Check, ChevronRight, Circle } from 'lucide-react';
 
-import { cn } from "../lib/utils"
+import { cn } from '../lib/utils';
 
 /**
  * Icon component wrapper for menu items.
  * Centralizes icon rendering with accessibility and theme support.
  * @internal - Used internally by dropdown menu components
  */
-const MenuIcon = React.memo(({ Icon, className }: { Icon: React.ReactNode; className?: string }) => (
-  <span className={cn("h-4 w-4", className)} aria-hidden="true">
-    {Icon}
-  </span>
-))
+const MenuIcon = React.memo(
+  ({ Icon, className }: { Icon: React.ReactNode; className?: string }) => (
+    <span
+      className={cn('h-4 w-4', className)}
+      aria-hidden="true"
+    >
+      {Icon}
+    </span>
+  )
+);
 
 /**
  * Dropdown Menu
@@ -50,40 +55,40 @@ const MenuIcon = React.memo(({ Icon, className }: { Icon: React.ReactNode; class
  *
  * @see https://www.radix-ui.com/docs/primitives/components/dropdown-menu
  */
-const DropdownMenu = DropdownMenuPrimitive.Root
+const DropdownMenu = DropdownMenuPrimitive.Root;
 
 /**
  * Trigger button that opens the dropdown menu.
  * Usually wrapped with `asChild` to attach to custom button components.
  */
-const DropdownMenuTrigger = DropdownMenuPrimitive.Trigger
+const DropdownMenuTrigger = DropdownMenuPrimitive.Trigger;
 
 /**
  * Group container for logically related menu items.
  * Items within the same group can share a label.
  * Semantic grouping for screen readers and keyboard navigation.
  */
-const DropdownMenuGroup = DropdownMenuPrimitive.Group
+const DropdownMenuGroup = DropdownMenuPrimitive.Group;
 
 /**
  * Portal for rendering submenu content outside the normal DOM hierarchy.
  * Ensures submenus render at top of z-index stack and don't get clipped.
  */
-const DropdownMenuPortal = DropdownMenuPrimitive.Portal
+const DropdownMenuPortal = DropdownMenuPrimitive.Portal;
 
 /**
  * Submenu root component.
  * Wraps submenu trigger and content for nested menu support.
  * Use with DropdownMenuPortal for proper z-index handling.
  */
-const DropdownMenuSub = DropdownMenuPrimitive.Sub
+const DropdownMenuSub = DropdownMenuPrimitive.Sub;
 
 /**
  * Radio button group for mutually exclusive item selections.
  * Only one item can be selected at a time within a group.
  * Wrap DropdownMenuRadioItem children within this group.
  */
-const DropdownMenuRadioGroup = DropdownMenuPrimitive.RadioGroup
+const DropdownMenuRadioGroup = DropdownMenuPrimitive.RadioGroup;
 
 /**
  * Trigger for opening a submenu.
@@ -94,14 +99,14 @@ const DropdownMenuSubTrigger = React.memo(
   React.forwardRef<
     React.ElementRef<typeof DropdownMenuPrimitive.SubTrigger>,
     React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.SubTrigger> & {
-      inset?: boolean
+      inset?: boolean;
     }
   >(({ className, inset, children, ...props }, ref) => (
     <DropdownMenuPrimitive.SubTrigger
       ref={ref}
       className={cn(
-        "flex min-h-[44px] cursor-default select-none items-center rounded-sm px-3 py-2.5 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:bg-accent focus-visible:text-accent-foreground data-[state=open]:bg-accent data-[state=open]:text-accent-foreground",
-        inset && "pl-8",
+        'hover:bg-accent hover:text-accent-foreground focus-visible:bg-accent focus-visible:text-accent-foreground data-[state=open]:bg-accent data-[state=open]:text-accent-foreground flex min-h-[44px] cursor-default select-none items-center rounded-sm px-3 py-2.5 text-sm outline-none transition-colors',
+        inset && 'pl-8',
         className
       )}
       {...props}
@@ -110,9 +115,8 @@ const DropdownMenuSubTrigger = React.memo(
       <ChevronRight className="ml-auto h-4 w-4" />
     </DropdownMenuPrimitive.SubTrigger>
   ))
-)
-DropdownMenuSubTrigger.displayName =
-  DropdownMenuPrimitive.SubTrigger.displayName
+);
+DropdownMenuSubTrigger.displayName = DropdownMenuPrimitive.SubTrigger.displayName;
 
 /**
  * Content container for submenu items.
@@ -127,15 +131,14 @@ const DropdownMenuSubContent = React.memo(
     <DropdownMenuPrimitive.SubContent
       ref={ref}
       className={cn(
-        "z-50 min-w-[8rem] overflow-hidden rounded-[var(--semantic-radius-input)] border border-border bg-popover p-1 text-popover-foreground shadow-[var(--semantic-shadow-dropdown)] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
+        'border-border bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 min-w-[8rem] overflow-hidden rounded-[var(--semantic-radius-input)] border p-1 shadow-[var(--semantic-shadow-dropdown)]',
         className
       )}
       {...props}
     />
   ))
-)
-DropdownMenuSubContent.displayName =
-  DropdownMenuPrimitive.SubContent.displayName
+);
+DropdownMenuSubContent.displayName = DropdownMenuPrimitive.SubContent.displayName;
 
 /**
  * Content container for dropdown menu items.
@@ -165,15 +168,15 @@ const DropdownMenuContent = React.memo(
         ref={ref}
         sideOffset={sideOffset}
         className={cn(
-          "z-50 min-w-[8rem] overflow-hidden rounded-[var(--semantic-radius-input)] border border-border bg-popover p-1 text-popover-foreground shadow-[var(--semantic-shadow-dropdown)] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
+          'border-border bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 min-w-[8rem] overflow-hidden rounded-[var(--semantic-radius-input)] border p-1 shadow-[var(--semantic-shadow-dropdown)]',
           className
         )}
         {...props}
       />
     </DropdownMenuPrimitive.Portal>
   ))
-)
-DropdownMenuContent.displayName = DropdownMenuPrimitive.Content.displayName
+);
+DropdownMenuContent.displayName = DropdownMenuPrimitive.Content.displayName;
 
 /**
  * Individual menu item component.
@@ -199,21 +202,21 @@ const DropdownMenuItem = React.memo(
   React.forwardRef<
     React.ElementRef<typeof DropdownMenuPrimitive.Item>,
     React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Item> & {
-      inset?: boolean
+      inset?: boolean;
     }
   >(({ className, inset, ...props }, ref) => (
     <DropdownMenuPrimitive.Item
       ref={ref}
       className={cn(
-        "relative flex min-h-[44px] cursor-default select-none items-center rounded-sm px-3 py-2 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:bg-accent focus-visible:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
-        inset && "pl-8",
+        'hover:bg-accent hover:text-accent-foreground focus-visible:bg-accent focus-visible:text-accent-foreground relative flex min-h-[44px] cursor-default select-none items-center rounded-sm px-3 py-2 text-sm outline-none transition-colors data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
+        inset && 'pl-8',
         className
       )}
       {...props}
     />
   ))
-)
-DropdownMenuItem.displayName = DropdownMenuPrimitive.Item.displayName
+);
+DropdownMenuItem.displayName = DropdownMenuPrimitive.Item.displayName;
 
 /**
  * Menu item with checkbox for stateful toggles.
@@ -244,7 +247,7 @@ const DropdownMenuCheckboxItem = React.memo(
     <DropdownMenuPrimitive.CheckboxItem
       ref={ref}
       className={cn(
-        "relative flex min-h-[44px] cursor-default select-none items-center rounded-sm py-2 pl-8 pr-2 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:bg-accent focus-visible:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+        'hover:bg-accent hover:text-accent-foreground focus-visible:bg-accent focus-visible:text-accent-foreground relative flex min-h-[44px] cursor-default select-none items-center rounded-sm py-2 pl-8 pr-2 text-sm outline-none transition-colors data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
         className
       )}
       checked={checked}
@@ -258,9 +261,8 @@ const DropdownMenuCheckboxItem = React.memo(
       {children}
     </DropdownMenuPrimitive.CheckboxItem>
   ))
-)
-DropdownMenuCheckboxItem.displayName =
-  DropdownMenuPrimitive.CheckboxItem.displayName
+);
+DropdownMenuCheckboxItem.displayName = DropdownMenuPrimitive.CheckboxItem.displayName;
 
 /**
  * Menu item with radio button for mutually exclusive selections.
@@ -293,7 +295,7 @@ const DropdownMenuRadioItem = React.memo(
     <DropdownMenuPrimitive.RadioItem
       ref={ref}
       className={cn(
-        "relative flex min-h-[44px] cursor-default select-none items-center rounded-sm py-2 pl-8 pr-2 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:bg-accent focus-visible:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+        'hover:bg-accent hover:text-accent-foreground focus-visible:bg-accent focus-visible:text-accent-foreground relative flex min-h-[44px] cursor-default select-none items-center rounded-sm py-2 pl-8 pr-2 text-sm outline-none transition-colors data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
         className
       )}
       {...props}
@@ -306,8 +308,8 @@ const DropdownMenuRadioItem = React.memo(
       {children}
     </DropdownMenuPrimitive.RadioItem>
   ))
-)
-DropdownMenuRadioItem.displayName = DropdownMenuPrimitive.RadioItem.displayName
+);
+DropdownMenuRadioItem.displayName = DropdownMenuPrimitive.RadioItem.displayName;
 
 /**
  * Section label for grouping related menu items.
@@ -334,21 +336,21 @@ const DropdownMenuLabel = React.memo(
   React.forwardRef<
     React.ElementRef<typeof DropdownMenuPrimitive.Label>,
     React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Label> & {
-      inset?: boolean
+      inset?: boolean;
     }
   >(({ className, inset, ...props }, ref) => (
     <DropdownMenuPrimitive.Label
       ref={ref}
       className={cn(
-        "px-3 py-1.5 text-xs font-semibold text-muted-foreground uppercase",
-        inset && "pl-8",
+        'text-muted-foreground px-3 py-1.5 text-xs font-semibold uppercase',
+        inset && 'pl-8',
         className
       )}
       {...props}
     />
   ))
-)
-DropdownMenuLabel.displayName = DropdownMenuPrimitive.Label.displayName
+);
+DropdownMenuLabel.displayName = DropdownMenuPrimitive.Label.displayName;
 
 /**
  * Visual divider line separating menu sections.
@@ -377,12 +379,12 @@ const DropdownMenuSeparator = React.memo(
   >(({ className, ...props }, ref) => (
     <DropdownMenuPrimitive.Separator
       ref={ref}
-      className={cn("bg-border h-px my-1 -mx-1", className)}
+      className={cn('bg-border -mx-1 my-1 h-px', className)}
       {...props}
     />
   ))
-)
-DropdownMenuSeparator.displayName = DropdownMenuPrimitive.Separator.displayName
+);
+DropdownMenuSeparator.displayName = DropdownMenuPrimitive.Separator.displayName;
 
 /**
  * Keyboard shortcut hint text displayed on the right side of menu items.
@@ -407,18 +409,17 @@ DropdownMenuSeparator.displayName = DropdownMenuPrimitive.Separator.displayName
  * ```
  */
 const DropdownMenuShortcut = React.memo(
-  React.forwardRef<
-    HTMLSpanElement,
-    React.HTMLAttributes<HTMLSpanElement>
-  >(({ className, ...props }, ref) => (
-    <span
-      ref={ref}
-      className={cn("ml-auto text-xs text-muted-foreground tracking-widest", className)}
-      {...props}
-    />
-  ))
-)
-DropdownMenuShortcut.displayName = "DropdownMenuShortcut"
+  React.forwardRef<HTMLSpanElement, React.HTMLAttributes<HTMLSpanElement>>(
+    ({ className, ...props }, ref) => (
+      <span
+        ref={ref}
+        className={cn('text-muted-foreground ml-auto text-xs tracking-widest', className)}
+        {...props}
+      />
+    )
+  )
+);
+DropdownMenuShortcut.displayName = 'DropdownMenuShortcut';
 
 export {
   DropdownMenu,
@@ -436,32 +437,4 @@ export {
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
   DropdownMenuRadioGroup,
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+};

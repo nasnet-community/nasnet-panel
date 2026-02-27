@@ -460,22 +460,22 @@ describe('DSCP_CLASSES', () => {
   });
 
   it('includes Best Effort (0)', () => {
-    const be = DSCP_CLASSES.find(c => c.value === 0);
+    const be = DSCP_CLASSES.find((c) => c.value === 0);
     expect(be).toBeDefined();
     expect(be?.name).toBe('BE / CS0');
   });
 
   it('includes Expedited Forwarding (46)', () => {
-    const ef = DSCP_CLASSES.find(c => c.value === 46);
+    const ef = DSCP_CLASSES.find((c) => c.value === 46);
     expect(ef).toBeDefined();
     expect(ef?.name).toBe('EF');
     expect(ef?.description).toContain('Expedited Forwarding');
   });
 
   it('includes Class Selector values', () => {
-    const cs1 = DSCP_CLASSES.find(c => c.value === 8);
-    const cs2 = DSCP_CLASSES.find(c => c.value === 16);
-    const cs3 = DSCP_CLASSES.find(c => c.value === 24);
+    const cs1 = DSCP_CLASSES.find((c) => c.value === 8);
+    const cs2 = DSCP_CLASSES.find((c) => c.value === 16);
+    const cs3 = DSCP_CLASSES.find((c) => c.value === 24);
 
     expect(cs1).toBeDefined();
     expect(cs2).toBeDefined();
@@ -483,9 +483,9 @@ describe('DSCP_CLASSES', () => {
   });
 
   it('includes Assured Forwarding values', () => {
-    const af11 = DSCP_CLASSES.find(c => c.value === 10);
-    const af21 = DSCP_CLASSES.find(c => c.value === 18);
-    const af31 = DSCP_CLASSES.find(c => c.value === 26);
+    const af11 = DSCP_CLASSES.find((c) => c.value === 10);
+    const af21 = DSCP_CLASSES.find((c) => c.value === 18);
+    const af31 = DSCP_CLASSES.find((c) => c.value === 26);
 
     expect(af11).toBeDefined();
     expect(af21).toBeDefined();
@@ -493,7 +493,7 @@ describe('DSCP_CLASSES', () => {
   });
 
   it('all entries have required fields', () => {
-    DSCP_CLASSES.forEach(dscpClass => {
+    DSCP_CLASSES.forEach((dscpClass) => {
       expect(dscpClass.value).toBeGreaterThanOrEqual(0);
       expect(dscpClass.value).toBeLessThanOrEqual(63);
       expect(dscpClass.name).toBeTruthy();

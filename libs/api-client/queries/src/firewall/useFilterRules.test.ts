@@ -118,10 +118,9 @@ describe('useFilterRules', () => {
         timestamp: Date.now(),
       });
 
-      const { result } = renderHook(
-        () => useFilterRules(ROUTER_ID, { chain: 'input' }),
-        { wrapper: createWrapper() }
-      );
+      const { result } = renderHook(() => useFilterRules(ROUTER_ID, { chain: 'input' }), {
+        wrapper: createWrapper(),
+      });
 
       await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
@@ -165,10 +164,9 @@ describe('useFilterRules', () => {
     });
 
     it('can be disabled via enabled option', () => {
-      const { result } = renderHook(
-        () => useFilterRules(ROUTER_ID, { enabled: false }),
-        { wrapper: createWrapper() }
-      );
+      const { result } = renderHook(() => useFilterRules(ROUTER_ID, { enabled: false }), {
+        wrapper: createWrapper(),
+      });
 
       expect(result.current.isFetching).toBe(false);
       expect(mockMakeRouterOSRequest).not.toHaveBeenCalled();
@@ -358,20 +356,16 @@ describe('useFilterRules', () => {
 
       await result.current.mutateAsync(newRule);
 
-      expect(mockMakeRouterOSRequest).toHaveBeenCalledWith(
-        ROUTER_ID,
-        'ip/firewall/filter/add',
-        {
-          method: 'POST',
-          body: expect.objectContaining({
-            chain: 'input',
-            action: 'accept',
-            protocol: 'tcp',
-            'dst-port': '22',
-            comment: 'Allow SSH',
-          }),
-        }
-      );
+      expect(mockMakeRouterOSRequest).toHaveBeenCalledWith(ROUTER_ID, 'ip/firewall/filter/add', {
+        method: 'POST',
+        body: expect.objectContaining({
+          chain: 'input',
+          action: 'accept',
+          protocol: 'tcp',
+          'dst-port': '22',
+          comment: 'Allow SSH',
+        }),
+      });
     });
 
     it('transforms TypeScript fields to RouterOS API format', async () => {
@@ -473,18 +467,14 @@ describe('useFilterRules', () => {
 
       await result.current.mutateAsync({ ruleId: '*1', updates });
 
-      expect(mockMakeRouterOSRequest).toHaveBeenCalledWith(
-        ROUTER_ID,
-        'ip/firewall/filter/set',
-        {
-          method: 'POST',
-          body: expect.objectContaining({
-            '.id': '*1',
-            comment: 'Updated comment',
-            disabled: 'true',
-          }),
-        }
-      );
+      expect(mockMakeRouterOSRequest).toHaveBeenCalledWith(ROUTER_ID, 'ip/firewall/filter/set', {
+        method: 'POST',
+        body: expect.objectContaining({
+          '.id': '*1',
+          comment: 'Updated comment',
+          disabled: 'true',
+        }),
+      });
     });
 
     it('handles update errors', async () => {
@@ -518,14 +508,10 @@ describe('useFilterRules', () => {
 
       await result.current.mutateAsync('*1');
 
-      expect(mockMakeRouterOSRequest).toHaveBeenCalledWith(
-        ROUTER_ID,
-        'ip/firewall/filter/remove',
-        {
-          method: 'POST',
-          body: { '.id': '*1' },
-        }
-      );
+      expect(mockMakeRouterOSRequest).toHaveBeenCalledWith(ROUTER_ID, 'ip/firewall/filter/remove', {
+        method: 'POST',
+        body: { '.id': '*1' },
+      });
     });
 
     it('handles delete errors', async () => {
@@ -557,17 +543,13 @@ describe('useFilterRules', () => {
 
       await result.current.mutateAsync({ ruleId: '*3', destination: 0 });
 
-      expect(mockMakeRouterOSRequest).toHaveBeenCalledWith(
-        ROUTER_ID,
-        'ip/firewall/filter/move',
-        {
-          method: 'POST',
-          body: {
-            '.id': '*3',
-            destination: '0',
-          },
-        }
-      );
+      expect(mockMakeRouterOSRequest).toHaveBeenCalledWith(ROUTER_ID, 'ip/firewall/filter/move', {
+        method: 'POST',
+        body: {
+          '.id': '*3',
+          destination: '0',
+        },
+      });
     });
 
     it('converts destination to string', async () => {
@@ -605,17 +587,13 @@ describe('useFilterRules', () => {
 
       await result.current.mutateAsync({ ruleId: '*1', disabled: true });
 
-      expect(mockMakeRouterOSRequest).toHaveBeenCalledWith(
-        ROUTER_ID,
-        'ip/firewall/filter/set',
-        {
-          method: 'POST',
-          body: expect.objectContaining({
-            '.id': '*1',
-            disabled: 'true',
-          }),
-        }
-      );
+      expect(mockMakeRouterOSRequest).toHaveBeenCalledWith(ROUTER_ID, 'ip/firewall/filter/set', {
+        method: 'POST',
+        body: expect.objectContaining({
+          '.id': '*1',
+          disabled: 'true',
+        }),
+      });
     });
 
     it('can enable a disabled rule', async () => {

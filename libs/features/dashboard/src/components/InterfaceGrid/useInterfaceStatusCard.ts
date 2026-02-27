@@ -107,10 +107,7 @@ export function useInterfaceStatusCard({
 
   // Memoize aria attributes to prevent unnecessary re-renders
   const ariaLabel = useMemo(
-    () =>
-      `${iface.name} interface, status ${iface.status}${
-        iface.ip ? `, IP ${iface.ip}` : ''
-      }`,
+    () => `${iface.name} interface, status ${iface.status}${iface.ip ? `, IP ${iface.ip}` : ''}`,
     [iface.name, iface.status, iface.ip]
   );
 
@@ -125,13 +122,6 @@ export function useInterfaceStatusCard({
       ariaLabel,
       detailsId,
     }),
-    [
-      handleClick,
-      handleKeyDown,
-      isStatusChanged,
-      prefersReducedMotion,
-      ariaLabel,
-      detailsId,
-    ]
+    [handleClick, handleKeyDown, isStatusChanged, prefersReducedMotion, ariaLabel, detailsId]
   );
 }

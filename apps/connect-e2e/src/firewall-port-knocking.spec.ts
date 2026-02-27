@@ -28,10 +28,13 @@ async function navigateToPortKnocking(page: Page) {
 
 // Helper to wait for sequences table to load
 async function waitForSequencesLoad(page: Page) {
-  await page.waitForSelector('[data-testid="sequences-table"], [data-testid="create-sequence-button"]', {
-    state: 'visible',
-    timeout: 10000,
-  });
+  await page.waitForSelector(
+    '[data-testid="sequences-table"], [data-testid="create-sequence-button"]',
+    {
+      state: 'visible',
+      timeout: 10000,
+    }
+  );
 }
 
 test.describe('Port Knocking - Desktop', () => {
@@ -62,7 +65,10 @@ test.describe('Port Knocking - Desktop', () => {
     await waitForSequencesLoad(page);
 
     // Click "Create Sequence" button
-    await page.getByRole('button', { name: /create.*sequence/i }).first().click();
+    await page
+      .getByRole('button', { name: /create.*sequence/i })
+      .first()
+      .click();
 
     // Wait for form dialog to open
     await expect(page.getByRole('dialog')).toBeVisible();
@@ -89,7 +95,9 @@ test.describe('Port Knocking - Desktop', () => {
     await page.getByRole('button', { name: /create|save/i }).click();
 
     // Wait for success message
-    await expect(page.getByText(/sequence created|created successfully/i)).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText(/sequence created|created successfully/i)).toBeVisible({
+      timeout: 5000,
+    });
 
     // Verify new sequence appears in table
     await expect(page.getByText('ssh_knock')).toBeVisible();
@@ -99,7 +107,10 @@ test.describe('Port Knocking - Desktop', () => {
     await waitForSequencesLoad(page);
 
     // Open create dialog
-    await page.getByRole('button', { name: /create.*sequence/i }).first().click();
+    await page
+      .getByRole('button', { name: /create.*sequence/i })
+      .first()
+      .click();
     await expect(page.getByRole('dialog')).toBeVisible();
 
     // Fill protected port with 22
@@ -187,7 +198,10 @@ test.describe('Port Knocking - Desktop', () => {
     await expect(page.getByText(/confirm|are you sure/i)).toBeVisible();
 
     // Confirm deletion
-    await page.getByRole('button', { name: /delete|confirm/i }).last().click();
+    await page
+      .getByRole('button', { name: /delete|confirm/i })
+      .last()
+      .click();
 
     // Wait for success message
     await expect(page.getByText(/deleted|removed/i)).toBeVisible({ timeout: 5000 });
@@ -197,7 +211,10 @@ test.describe('Port Knocking - Desktop', () => {
     await waitForSequencesLoad(page);
 
     // Open create dialog
-    await page.getByRole('button', { name: /create.*sequence/i }).first().click();
+    await page
+      .getByRole('button', { name: /create.*sequence/i })
+      .first()
+      .click();
     await expect(page.getByRole('dialog')).toBeVisible();
 
     // Fill knock ports with duplicates
@@ -229,7 +246,9 @@ test.describe('Port Knocking - Desktop', () => {
       await testButton.click();
 
       // Wait for test instructions or dialog
-      await expect(page.getByText(/test|instructions|knock sequence/i)).toBeVisible({ timeout: 5000 });
+      await expect(page.getByText(/test|instructions|knock sequence/i)).toBeVisible({
+        timeout: 5000,
+      });
     }
   });
 });
@@ -321,7 +340,10 @@ test.describe('Port Knocking - Mobile', () => {
     await waitForSequencesLoad(page);
 
     // Click create button
-    await page.getByRole('button', { name: /create.*sequence/i }).first().click();
+    await page
+      .getByRole('button', { name: /create.*sequence/i })
+      .first()
+      .click();
 
     // Should open in sheet or dialog
     await expect(page.getByRole('dialog')).toBeVisible({ timeout: 5000 });

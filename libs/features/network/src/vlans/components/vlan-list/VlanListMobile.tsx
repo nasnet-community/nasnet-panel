@@ -11,14 +11,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@nasnet/ui/primitives';
-import {
-  Plus,
-  Search,
-  Filter,
-  Trash2,
-  Edit,
-  ChevronRight,
-} from 'lucide-react';
+import { Plus, Search, Filter, Trash2, Edit, ChevronRight } from 'lucide-react';
 import type { UseVlanListReturn } from '../../hooks/use-vlan-list';
 import { SafetyConfirmation } from '@nasnet/ui/patterns';
 
@@ -81,36 +74,55 @@ export function VlanListMobile({
   }, [vlanToDelete, handleDelete]);
 
   return (
-    <div className="flex flex-col gap-component-md pb-20">
+    <div className="gap-component-md flex flex-col pb-20">
       {/* Mobile Toolbar */}
-      <div className="sticky top-0 z-10 bg-background pb-component-md space-y-component-sm">
+      <div className="bg-background pb-component-md space-y-component-sm sticky top-0 z-10">
         {/* Search Bar */}
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" aria-hidden="true" />
+          <Search
+            className="text-muted-foreground absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2"
+            aria-hidden="true"
+          />
           <Input
             placeholder="Search VLANs..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9 h-11 font-mono"
+            className="h-11 pl-9 font-mono"
             aria-label="Search VLANs"
           />
         </div>
 
         {/* Actions Row */}
-        <div className="flex items-center gap-component-sm">
-          <Sheet open={isFilterSheetOpen} onOpenChange={setFilterSheetOpen}>
+        <div className="gap-component-sm flex items-center">
+          <Sheet
+            open={isFilterSheetOpen}
+            onOpenChange={setFilterSheetOpen}
+          >
             <SheetTrigger asChild>
-              <Button variant="outline" className="flex-1 h-11" aria-label="Open filters">
-                <Filter className="h-4 w-4 mr-2" aria-hidden="true" />
+              <Button
+                variant="outline"
+                className="h-11 flex-1"
+                aria-label="Open filters"
+              >
+                <Filter
+                  className="mr-2 h-4 w-4"
+                  aria-hidden="true"
+                />
                 Filters
                 {(parentInterfaceFilter || searchQuery) && (
-                  <Badge variant="default" className="ml-2">
+                  <Badge
+                    variant="default"
+                    className="ml-2"
+                  >
                     Active
                   </Badge>
                 )}
               </Button>
             </SheetTrigger>
-            <SheetContent side="bottom" className="h-[80vh]">
+            <SheetContent
+              side="bottom"
+              className="h-[80vh]"
+            >
               <SheetHeader>
                 <SheetTitle>Filter VLANs</SheetTitle>
               </SheetHeader>
@@ -121,27 +133,32 @@ export function VlanListMobile({
                   <div className="space-y-component-sm">
                     <Button
                       variant={parentInterfaceFilter === null ? 'default' : 'outline'}
-                      className="w-full justify-start h-11"
+                      className="h-11 w-full justify-start"
                       onClick={() => setParentInterfaceFilter(null)}
                     >
                       All Interfaces
                     </Button>
-                    {(Array.from(
-                      new Set(allVlans.map((v: any) => v.interface.id as string))
-                    ) as string[]).map((ifaceId: string) => {
-                      const iface = allVlans.find((v: any) => v.interface.id === ifaceId)?.interface;
+                    {(
+                      Array.from(
+                        new Set(allVlans.map((v: any) => v.interface.id as string))
+                      ) as string[]
+                    ).map((ifaceId: string) => {
+                      const iface = allVlans.find(
+                        (v: any) => v.interface.id === ifaceId
+                      )?.interface;
                       if (!iface) return null;
                       return (
                         <Button
                           key={ifaceId}
-                          variant={
-                            parentInterfaceFilter === ifaceId ? 'default' : 'outline'
-                          }
-                          className="w-full justify-start h-11"
+                          variant={parentInterfaceFilter === ifaceId ? 'default' : 'outline'}
+                          className="h-11 w-full justify-start"
                           onClick={() => setParentInterfaceFilter(ifaceId)}
                         >
                           {iface.name}
-                          <Badge variant="outline" className="ml-2 capitalize">
+                          <Badge
+                            variant="outline"
+                            className="ml-2 capitalize"
+                          >
                             {iface.type}
                           </Badge>
                         </Button>
@@ -153,7 +170,7 @@ export function VlanListMobile({
                 {/* Clear Filters */}
                 <Button
                   variant="ghost"
-                  className="w-full h-11"
+                  className="h-11 w-full"
                   onClick={() => {
                     clearFilters();
                     setFilterSheetOpen(false);
@@ -165,8 +182,15 @@ export function VlanListMobile({
             </SheetContent>
           </Sheet>
 
-          <Button onClick={() => setCreateDialogOpen(true)} className="h-11" aria-label="Create new VLAN">
-            <Plus className="h-4 w-4 mr-2" aria-hidden="true" />
+          <Button
+            onClick={() => setCreateDialogOpen(true)}
+            className="h-11"
+            aria-label="Create new VLAN"
+          >
+            <Plus
+              className="mr-2 h-4 w-4"
+              aria-hidden="true"
+            />
             Create
           </Button>
         </div>
@@ -174,18 +198,28 @@ export function VlanListMobile({
 
       {/* Loading State */}
       {loading && (
-        <div className="flex items-center justify-center py-12" role="status" aria-live="polite">
-          <div className="animate-pulse text-muted-foreground">
-            Loading VLANs...
-          </div>
+        <div
+          className="flex items-center justify-center py-12"
+          role="status"
+          aria-live="polite"
+        >
+          <div className="text-muted-foreground animate-pulse">Loading VLANs...</div>
         </div>
       )}
 
       {/* Error State */}
       {error && (
-        <Card className="p-component-sm border-error" role="alert">
-          <p className="text-sm text-error">{error.message}</p>
-          <Button variant="outline" size="sm" onClick={() => refetch()} className="mt-2">
+        <Card
+          className="p-component-sm border-error"
+          role="alert"
+        >
+          <p className="text-error text-sm">{error.message}</p>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => refetch()}
+            className="mt-2"
+          >
             Retry
           </Button>
         </Card>
@@ -202,96 +236,107 @@ export function VlanListMobile({
             className="mt-component-md"
             aria-label="Create your first VLAN"
           >
-            <Plus className="h-4 w-4 mr-2" aria-hidden="true" />
+            <Plus
+              className="mr-2 h-4 w-4"
+              aria-hidden="true"
+            />
             Create your first VLAN
           </Button>
         </Card>
       )}
 
-      {!loading && !error && vlans.map((vlan: any) => (
-        <Card
-          key={vlan.id}
-          className="p-component-md space-y-component-sm"
-          onClick={() => setSelectedVlanId(vlan.id)}
-        >
-          {/* Header Row */}
-          <div className="flex items-start justify-between gap-component-sm">
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-component-sm">
-                <h3 className="font-medium truncate">{vlan.name}</h3>
-                <Badge variant="outline" className="font-mono tabular-nums shrink-0">
-                  {vlan.vlanId}
-                </Badge>
+      {!loading &&
+        !error &&
+        vlans.map((vlan: any) => (
+          <Card
+            key={vlan.id}
+            className="p-component-md space-y-component-sm"
+            onClick={() => setSelectedVlanId(vlan.id)}
+          >
+            {/* Header Row */}
+            <div className="gap-component-sm flex items-start justify-between">
+              <div className="min-w-0 flex-1">
+                <div className="gap-component-sm flex items-center">
+                  <h3 className="truncate font-medium">{vlan.name}</h3>
+                  <Badge
+                    variant="outline"
+                    className="shrink-0 font-mono tabular-nums"
+                  >
+                    {vlan.vlanId}
+                  </Badge>
+                </div>
+                {vlan.comment && (
+                  <p className="text-muted-foreground mt-component-sm text-sm">{vlan.comment}</p>
+                )}
               </div>
-              {vlan.comment && (
-                <p className="text-sm text-muted-foreground mt-component-sm">
-                  {vlan.comment}
+              <ChevronRight
+                className="text-muted-foreground h-5 w-5 shrink-0"
+                aria-hidden="true"
+              />
+            </div>
+
+            {/* Details Grid */}
+            <div className="gap-component-sm grid grid-cols-2 text-sm">
+              <div>
+                <p className="text-muted-foreground text-xs">Parent Interface</p>
+                <p className="mt-component-sm font-mono font-medium">{vlan.interface.name}</p>
+                <p className="text-muted-foreground text-xs capitalize">{vlan.interface.type}</p>
+              </div>
+              <div>
+                <p className="text-muted-foreground text-xs">MTU</p>
+                <p className="mt-component-sm font-mono tabular-nums">
+                  {vlan.mtu || <span className="text-muted-foreground">default</span>}
                 </p>
-              )}
+              </div>
             </div>
-            <ChevronRight className="h-5 w-5 text-muted-foreground shrink-0" aria-hidden="true" />
-          </div>
 
-          {/* Details Grid */}
-          <div className="grid grid-cols-2 gap-component-sm text-sm">
-            <div>
-              <p className="text-muted-foreground text-xs">Parent Interface</p>
-              <p className="font-medium font-mono mt-component-sm">{vlan.interface.name}</p>
-              <p className="text-xs text-muted-foreground capitalize">
-                {vlan.interface.type}
-              </p>
+            {/* Status Badge */}
+            <div className="gap-component-sm flex items-center">
+              {vlan.disabled ?
+                <Badge variant="secondary">Disabled</Badge>
+              : vlan.running ?
+                <Badge variant="success">Running</Badge>
+              : <Badge variant="warning">Not Running</Badge>}
             </div>
-            <div>
-              <p className="text-muted-foreground text-xs">MTU</p>
-              <p className="font-mono tabular-nums mt-component-sm">
-                {vlan.mtu || <span className="text-muted-foreground">default</span>}
-              </p>
+
+            {/* Action Buttons */}
+            <div className="gap-component-sm pt-component-md flex items-center border-t">
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-11 flex-1"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSelectedVlanId(vlan.id);
+                }}
+                aria-label={`Edit VLAN ${vlan.name}`}
+              >
+                <Edit
+                  className="mr-2 h-4 w-4"
+                  aria-hidden="true"
+                />
+                Edit
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-11 flex-1"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setVlanToDelete(vlan);
+                  setDeleteConfirmOpen(true);
+                }}
+                aria-label={`Delete VLAN ${vlan.name}`}
+              >
+                <Trash2
+                  className="mr-2 h-4 w-4"
+                  aria-hidden="true"
+                />
+                Delete
+              </Button>
             </div>
-          </div>
-
-          {/* Status Badge */}
-          <div className="flex items-center gap-component-sm">
-            {vlan.disabled ? (
-              <Badge variant="secondary">Disabled</Badge>
-            ) : vlan.running ? (
-              <Badge variant="success">Running</Badge>
-            ) : (
-              <Badge variant="warning">Not Running</Badge>
-            )}
-          </div>
-
-          {/* Action Buttons */}
-          <div className="flex items-center gap-component-sm pt-component-md border-t">
-            <Button
-              variant="outline"
-              size="sm"
-              className="flex-1 h-11"
-              onClick={(e) => {
-                e.stopPropagation();
-                setSelectedVlanId(vlan.id);
-              }}
-              aria-label={`Edit VLAN ${vlan.name}`}
-            >
-              <Edit className="h-4 w-4 mr-2" aria-hidden="true" />
-              Edit
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              className="flex-1 h-11"
-              onClick={(e) => {
-                e.stopPropagation();
-                setVlanToDelete(vlan);
-                setDeleteConfirmOpen(true);
-              }}
-              aria-label={`Delete VLAN ${vlan.name}`}
-            >
-              <Trash2 className="h-4 w-4 mr-2" aria-hidden="true" />
-              Delete
-            </Button>
-          </div>
-        </Card>
-      ))}
+          </Card>
+        ))}
 
       {/* Delete Confirmation Dialog */}
       <SafetyConfirmation
@@ -299,9 +344,9 @@ export function VlanListMobile({
         onOpenChange={setDeleteConfirmOpen}
         title="Delete VLAN"
         description={
-          vlanToDelete
-            ? `Are you sure you want to delete VLAN "${vlanToDelete.name}" (VLAN ID: ${vlanToDelete.vlanId})? This action cannot be undone.`
-            : ''
+          vlanToDelete ?
+            `Are you sure you want to delete VLAN "${vlanToDelete.name}" (VLAN ID: ${vlanToDelete.vlanId})? This action cannot be undone.`
+          : ''
         }
         consequences={['This action cannot be undone']}
         confirmText="DELETE"

@@ -1,52 +1,52 @@
 /**
  * GraphQL query to fetch virtual interfaces for a router
  */
-export declare const GET_VIRTUAL_INTERFACES: import("graphql").DocumentNode;
+export declare const GET_VIRTUAL_INTERFACES: import('graphql').DocumentNode;
 /**
  * GraphQL query to fetch a specific virtual interface
  */
-export declare const GET_VIRTUAL_INTERFACE: import("graphql").DocumentNode;
+export declare const GET_VIRTUAL_INTERFACE: import('graphql').DocumentNode;
 /**
  * Gateway type for virtual interface routing
  */
 export declare enum GatewayType {
-    NONE = "NONE",
-    HEV_SOCKS5_TUNNEL = "HEV_SOCKS5_TUNNEL"
+  NONE = 'NONE',
+  HEV_SOCKS5_TUNNEL = 'HEV_SOCKS5_TUNNEL',
 }
 /**
  * Gateway runtime status
  */
 export declare enum GatewayStatus {
-    STOPPED = "STOPPED",
-    STARTING = "STARTING",
-    RUNNING = "RUNNING",
-    FAILED = "FAILED"
+  STOPPED = 'STOPPED',
+  STARTING = 'STARTING',
+  RUNNING = 'RUNNING',
+  FAILED = 'FAILED',
 }
 /**
  * Virtual interface lifecycle status
  */
 export declare enum VirtualInterfaceStatus {
-    CREATING = "CREATING",
-    ACTIVE = "ACTIVE",
-    ERROR = "ERROR",
-    REMOVING = "REMOVING"
+  CREATING = 'CREATING',
+  ACTIVE = 'ACTIVE',
+  ERROR = 'ERROR',
+  REMOVING = 'REMOVING',
 }
 /**
  * Virtual interface data structure
  */
 export interface VirtualInterface {
-    id: string;
-    instanceId: string;
-    name: string;
-    vlanId: number;
-    ipAddress: string;
-    gatewayType: GatewayType;
-    gatewayStatus: GatewayStatus;
-    tunName?: string;
-    routingMark: string;
-    status: VirtualInterfaceStatus;
-    createdAt: string;
-    updatedAt: string;
+  id: string;
+  instanceId: string;
+  name: string;
+  vlanId: number;
+  ipAddress: string;
+  gatewayType: GatewayType;
+  gatewayStatus: GatewayStatus;
+  tunName?: string;
+  routingMark: string;
+  status: VirtualInterfaceStatus;
+  createdAt: string;
+  updatedAt: string;
 }
 /**
  * Hook to fetch all virtual interfaces for a router
@@ -76,10 +76,12 @@ export interface VirtualInterface {
  * ```
  */
 export declare function useVirtualInterfaces(routerId: string): {
-    interfaces: VirtualInterface[];
-    loading: boolean;
-    error: import("@apollo/client").ApolloError | undefined;
-    refetch: (variables?: Partial<import("@apollo/client").OperationVariables> | undefined) => Promise<import("@apollo/client").ApolloQueryResult<any>>;
+  interfaces: VirtualInterface[];
+  loading: boolean;
+  error: import('@apollo/client').ApolloError | undefined;
+  refetch: (
+    variables?: Partial<import('@apollo/client').OperationVariables> | undefined
+  ) => Promise<import('@apollo/client').ApolloQueryResult<any>>;
 };
 /**
  * Hook to fetch a specific virtual interface for a service instance
@@ -100,10 +102,15 @@ export declare function useVirtualInterfaces(routerId: string): {
  * }
  * ```
  */
-export declare function useVirtualInterface(routerId: string, instanceId: string): {
-    interface: VirtualInterface | undefined;
-    loading: boolean;
-    error: import("@apollo/client").ApolloError | undefined;
-    refetch: (variables?: Partial<import("@apollo/client").OperationVariables> | undefined) => Promise<import("@apollo/client").ApolloQueryResult<any>>;
+export declare function useVirtualInterface(
+  routerId: string,
+  instanceId: string
+): {
+  interface: VirtualInterface | undefined;
+  loading: boolean;
+  error: import('@apollo/client').ApolloError | undefined;
+  refetch: (
+    variables?: Partial<import('@apollo/client').OperationVariables> | undefined
+  ) => Promise<import('@apollo/client').ApolloQueryResult<any>>;
 };
 //# sourceMappingURL=useVirtualInterfaces.d.ts.map

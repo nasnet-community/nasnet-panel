@@ -2,7 +2,7 @@ import type { ServiceInstanceHealth } from '@nasnet/api-client/generated/types';
 /**
  * GraphQL subscription for real-time health status changes
  */
-export declare const INSTANCE_HEALTH_CHANGED_SUBSCRIPTION: import("graphql").DocumentNode;
+export declare const INSTANCE_HEALTH_CHANGED_SUBSCRIPTION: import('graphql').DocumentNode;
 /**
  * Hook to subscribe to real-time health status changes
  *
@@ -27,19 +27,27 @@ export declare const INSTANCE_HEALTH_CHANGED_SUBSCRIPTION: import("graphql").Doc
  * );
  * ```
  */
-export declare function useInstanceHealthSubscription(routerID: string, instanceID?: string, options?: {
+export declare function useInstanceHealthSubscription(
+  routerID: string,
+  instanceID?: string,
+  options?: {
     skip?: boolean;
     onData?: (data: ServiceInstanceHealth) => void;
-}): {
-    restart: () => void;
-    loading: boolean;
-    data?: {
+  }
+): {
+  restart: () => void;
+  loading: boolean;
+  data?:
+    | {
         instanceHealthChanged: ServiceInstanceHealth;
-    } | undefined;
-    error?: import("@apollo/client").ApolloError;
-    variables?: {
+      }
+    | undefined;
+  error?: import('@apollo/client').ApolloError;
+  variables?:
+    | {
         routerID: string;
         instanceID?: string;
-    } | undefined;
+      }
+    | undefined;
 };
 //# sourceMappingURL=useInstanceHealthSubscription.d.ts.map

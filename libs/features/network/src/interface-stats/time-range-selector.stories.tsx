@@ -10,7 +10,11 @@ import { useState } from 'react';
 
 import { fn } from 'storybook/test';
 
-import { TimeRangeSelector, timeRangePresetToInput, type TimeRangePreset } from './time-range-selector';
+import {
+  TimeRangeSelector,
+  timeRangePresetToInput,
+  type TimeRangePreset,
+} from './time-range-selector';
 
 import type { Meta, StoryObj } from '@storybook/react';
 
@@ -70,7 +74,8 @@ export const Default: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Default state: Last 24 hours selected. onChange is wired to the Storybook Actions panel.',
+        story:
+          'Default state: Last 24 hours selected. onChange is wired to the Storybook Actions panel.',
       },
     },
   },
@@ -147,7 +152,7 @@ export const Interactive: Story = {
     const [value, setValue] = useState<TimeRangePreset>('24h');
     const timeRange = timeRangePresetToInput(value);
     return (
-      <div className="flex flex-col gap-3 min-w-[260px]">
+      <div className="flex min-w-[260px] flex-col gap-3">
         <TimeRangeSelector
           {...args}
           value={value}
@@ -156,8 +161,10 @@ export const Interactive: Story = {
             args.onChange(next);
           }}
         />
-        <div className="rounded-md border bg-muted/50 p-3 text-xs font-mono space-y-1">
-          <div>Selected: <strong>{value}</strong></div>
+        <div className="bg-muted/50 space-y-1 rounded-md border p-3 font-mono text-xs">
+          <div>
+            Selected: <strong>{value}</strong>
+          </div>
           <div>Start: {timeRange.start}</div>
           <div>End:&nbsp;&nbsp;&nbsp;{timeRange.end}</div>
         </div>

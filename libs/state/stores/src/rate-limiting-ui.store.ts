@@ -95,22 +95,23 @@ export const useRateLimitingUIStore = create<RateLimitingUIState>()(
       setActionFilter: (filter) => set({ actionFilter: filter }),
 
       // Statistics
-      setStatsPollingInterval: (interval) =>
-        set({ statsPollingInterval: interval }),
+      setStatsPollingInterval: (interval) => set({ statsPollingInterval: interval }),
 
       // Table state
       toggleExpandedRule: (ruleId) =>
         set((state) => ({
-          expandedRules: state.expandedRules.includes(ruleId)
-            ? state.expandedRules.filter((id) => id !== ruleId)
+          expandedRules:
+            state.expandedRules.includes(ruleId) ?
+              state.expandedRules.filter((id) => id !== ruleId)
             : [...state.expandedRules, ruleId],
         })),
 
       // Bulk selection
       toggleSelectedIP: (ip) =>
         set((state) => ({
-          selectedIPs: state.selectedIPs.includes(ip)
-            ? state.selectedIPs.filter((selected) => selected !== ip)
+          selectedIPs:
+            state.selectedIPs.includes(ip) ?
+              state.selectedIPs.filter((selected) => selected !== ip)
             : [...state.selectedIPs, ip],
         })),
 

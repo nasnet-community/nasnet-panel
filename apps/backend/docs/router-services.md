@@ -2,9 +2,13 @@
 
 ## Overview
 
-The `internal/services` layer contains all business logic that operates against MikroTik routers. Each service either embeds `base.Service` (which holds a `RouterPort` adapter) or depends on it directly. Services use a **hexagonal architecture**: they call the `RouterPort` interface (or sub-interfaces detected via type assertion), never concrete adapter types.
+The `internal/services` layer contains all business logic that operates against MikroTik routers.
+Each service either embeds `base.Service` (which holds a `RouterPort` adapter) or depends on it
+directly. Services use a **hexagonal architecture**: they call the `RouterPort` interface (or
+sub-interfaces detected via type assertion), never concrete adapter types.
 
-This document covers the router-level services and the two network allocation registries (PortRegistry and VLANAllocator) that underpin service isolation.
+This document covers the router-level services and the two network allocation registries
+(PortRegistry and VLANAllocator) that underpin service isolation.
 
 ## Architecture
 
@@ -56,7 +60,8 @@ Network Allocation Registries (package internal/network)
 
 **`router_service_ops.go`**
 
-`RouterService` maintains a session→routerID mapping so that each WebSocket/GraphQL subscription session knows which router it is talking to.
+`RouterService` maintains a session→routerID mapping so that each WebSocket/GraphQL subscription
+session knows which router it is talking to.
 
 ```go
 // GetActiveRouter returns the router entity for a session, or nil if none set.
@@ -96,17 +101,19 @@ type CredentialTestResult struct {
 }
 ```
 
-`TestCredentials` builds a temporary `connection.Config` with `ProtocolREST`, calls `connManager.Connect(ctx, testConnID, config)`, then immediately disconnects on success. The test connection ID uses the pattern `test-{routerID}-{nanoseconds}`.
+`TestCredentials` builds a temporary `connection.Config` with `ProtocolREST`, calls
+`connManager.Connect(ctx, testConnID, config)`, then immediately disconnects on success. The test
+connection ID uses the pattern `test-{routerID}-{nanoseconds}`.
 
 **Error classification in `TestCredentials`:**
 
-| Error string match | Status |
-|---|---|
-| authentication / login failed / unauthorized / permission denied | `AUTH_FAILED` |
-| timeout / context deadline exceeded | `TIMEOUT` |
-| connection refused / no route / network unreachable | `CONNECTION_REFUSED` |
-| network / dial | `NETWORK_ERROR` |
-| (other) | `ERROR` |
+| Error string match                                               | Status               |
+| ---------------------------------------------------------------- | -------------------- |
+| authentication / login failed / unauthorized / permission denied | `AUTH_FAILED`        |
+| timeout / context deadline exceeded                              | `TIMEOUT`            |
+| connection refused / no route / network unreachable              | `CONNECTION_REFUSED` |
+| network / dial                                                   | `NETWORK_ERROR`      |
+| (other)                                                          | `ERROR`              |
 
 **Credential decryption:**
 
@@ -174,7 +181,8 @@ type HealthCheckInput  { Enabled bool; CheckInterval time.Duration; Target strin
 
 **`port_mirror_service.go` + `port_mirror_service_ops.go`**
 
-`PortMirrorService` embeds `base.Service` and checks for port-mirror capability via type assertion before any operation:
+`PortMirrorService` embeds `base.Service` and checks for port-mirror capability via type assertion
+before any operation:
 
 ```go
 type portMirrorCapable interface {
@@ -206,23 +214,26 @@ func (s *PortMirrorService) DisablePortMirror(ctx context.Context, routerID, mir
 ```
 
 **Validation (CreatePortMirror):**
+
 - `Name` must be non-empty
 - At least one source interface required
 - Destination interface must not appear in source list
 
-**Statistics enrichment:** After fetching mirrors, `getPortMirrorStats` is called to attach live packet/byte counters from the router.
+**Statistics enrichment:** After fetching mirrors, `getPortMirrorStats` is called to attach live
+packet/byte counters from the router.
 
-**Events published:** `port_mirror.created`, `port_mirror.updated`, `port_mirror.deleted` — each carries routerID + mirrorID payload.
+**Events published:** `port_mirror.created`, `port_mirror.updated`, `port_mirror.deleted` — each
+carries routerID + mirrorID payload.
 
 **`telemetry_service.go`**
 
 Three-tier telemetry stores interface traffic statistics at different resolutions:
 
-| Tier | Storage | Resolution | Retention | Source |
-|---|---|---|---|---|
-| Hot | In-memory ring buffer (3600 points) | Full resolution | 1 hour | `stats.updated` events |
-| Warm | 5-minute bucket aggregation | 5 minutes | 24 hours | Computed from Hot ring |
-| Cold | `ServiceTrafficHourly` ent records | 1 hour | 30 days | Persisted from Warm |
+| Tier | Storage                             | Resolution      | Retention | Source                 |
+| ---- | ----------------------------------- | --------------- | --------- | ---------------------- |
+| Hot  | In-memory ring buffer (3600 points) | Full resolution | 1 hour    | `stats.updated` events |
+| Warm | 5-minute bucket aggregation         | 5 minutes       | 24 hours  | Computed from Hot ring |
+| Cold | `ServiceTrafficHourly` ent records  | 1 hour          | 30 days   | Persisted from Warm    |
 
 ```go
 // GetInterfaceStatsHistory returns stats using the appropriate tier based on age.
@@ -236,7 +247,9 @@ func (s *TelemetryService) GetInterfaceStatsHistory(
 ) ([]model.TrafficDataPoint, error)
 ```
 
-`subscribeToStatsEvents` registers a handler on the event bus for `stats.updated` events. Each event appends to the Hot ring buffer and triggers Warm/Cold aggregation when bucket boundaries are crossed.
+`subscribeToStatsEvents` registers a handler on the event bus for `stats.updated` events. Each event
+appends to the Hot ring buffer and triggers Warm/Cold aggregation when bucket boundaries are
+crossed.
 
 ### `internal/services/netif` — IP Address Service
 
@@ -259,7 +272,8 @@ func (s *IPAddressService) DeleteIPAddress(ctx context.Context, routerID, addrID
 func (s *IPAddressService) GetDependencies(ctx context.Context, routerID, addrID string) (*model.IPAddressDependencies, error)
 ```
 
-**Cache strategy:** `GetIPAddresses` populates a `map[routerID][]IPAddress` cache with 10s TTL. Create/Update/Delete operations invalidate the cache for that routerID immediately.
+**Cache strategy:** `GetIPAddresses` populates a `map[routerID][]IPAddress` cache with 10s TTL.
+Create/Update/Delete operations invalidate the cache for that routerID immediately.
 
 **Events published:** `ip-address-created`, `ip-address-updated`, `ip-address-deleted`.
 
@@ -289,6 +303,7 @@ func GetDependencies(ctx context.Context, routerPort RouterPort, routerID, addrI
 ```
 
 `GetDependencies` queries the router for:
+
 - DHCP server pools that use the IP's interface
 - Static routes with this IP as gateway
 - NAT rules targeting this IP
@@ -340,13 +355,14 @@ func (s *Service) DeleteRoute(ctx context.Context, routerID, routeID string) err
 
 Each operation maps to a RouterOS command:
 
-| Method | RouterOS command |
-|---|---|
-| `CreateRoute` | `/ip/route/add` |
-| `UpdateRoute` | `/ip/route/set` |
+| Method        | RouterOS command   |
+| ------------- | ------------------ |
+| `CreateRoute` | `/ip/route/add`    |
+| `UpdateRoute` | `/ip/route/set`    |
 | `DeleteRoute` | `/ip/route/remove` |
 
-Uses `base.CommandArgsBuilder` with `.IsSet()` guards for optional fields (gateway, distance, routing-mark, etc.) to avoid sending zero-value arguments to RouterOS.
+Uses `base.CommandArgsBuilder` with `.IsSet()` guards for optional fields (gateway, distance,
+routing-mark, etc.) to avoid sending zero-value arguments to RouterOS.
 
 ### `internal/services/networking/vlan` — VLAN Port Operations
 
@@ -363,14 +379,15 @@ func ConfigureVlanPort(ctx context.Context, port RouterPort, routerID, portID st
 
 **VLAN port modes:**
 
-| Mode | RouterOS settings applied |
-|---|---|
+| Mode     | RouterOS settings applied                                 |
+| -------- | --------------------------------------------------------- |
 | `access` | `frame-types: admit-only-untagged`, pvid = `input.VLANID` |
-| `trunk` | `frame-types: admit-all`, allowed VLAN list set |
+| `trunk`  | `frame-types: admit-all`, allowed VLAN list set           |
 
 Both modes call `/interface/bridge/port/set` with the appropriate arguments.
 
-`mapVlanData` converts RouterOS string map responses to `model.Vlan` structs (handles ID, name, VLAN ID, interface, comment fields).
+`mapVlanData` converts RouterOS string map responses to `model.Vlan` structs (handles ID, name, VLAN
+ID, interface, comment fields).
 
 ### `internal/services/integration` — Webhook Service
 
@@ -394,12 +411,14 @@ type WebhookCreateResult struct {
 ```
 
 **`CreateWebhook` flow:**
+
 1. `validateWebhookURL(input.URL)` → SSRF protection via `channelshttp.ValidateWebhookURL`
 2. Generate 32-byte random signing secret → `base64.StdEncoding.EncodeToString`
 3. `encryption.Encrypt(plaintextSecret)` → AES-256-GCM ciphertext
 4. `extractNonce(encryptedSecret)` → first 12 bytes of decoded ciphertext
 5. Encrypt `AuthValue` map → JSON marshal → `encryption.EncryptBytes`; extract auth nonce
-6. Persist to DB: `SetSigningSecretEncrypted`, `SetSigningNonce`, optional `SetAuthValueEncrypted`, `SetAuthNonce`
+6. Persist to DB: `SetSigningSecretEncrypted`, `SetSigningNonce`, optional `SetAuthValueEncrypted`,
+   `SetAuthNonce`
 7. Publish `webhook.created` event
 8. Return `WebhookCreateResult` with plaintext secret — **never stored in plaintext**
 
@@ -413,7 +432,9 @@ func (s *Service) DeleteWebhook(ctx context.Context, webhookID string) error
 func (s *Service) ListWebhooks(ctx context.Context, enabled *bool) ([]*ent.Webhook, error)
 ```
 
-**`UpdateWebhook`:** Re-encrypts auth credentials only when `input.AuthValue` is non-nil. If `input.AuthValue` is an empty map, clears the stored encrypted fields (`ClearAuthValueEncrypted`, `ClearAuthNonce`). The signing secret is **never returned or regenerated** on update.
+**`UpdateWebhook`:** Re-encrypts auth credentials only when `input.AuthValue` is non-nil. If
+`input.AuthValue` is an empty map, clears the stored encrypted fields (`ClearAuthValueEncrypted`,
+`ClearAuthNonce`). The signing secret is **never returned or regenerated** on update.
 
 **`extractNonce`:**
 
@@ -456,26 +477,26 @@ type PortRegistry struct {
 
 **Base ports per service type:**
 
-| Service | Ports |
-|---|---|
-| tor | 9050, 9151 |
-| singbox | 1080 |
-| xray | 1081 |
-| mtproxy | 8888 |
-| psiphon | 4443 |
-| adguard | 53, 3000 |
+| Service | Ports      |
+| ------- | ---------- |
+| tor     | 9050, 9151 |
+| singbox | 1080       |
+| xray    | 1081       |
+| mtproxy | 8888       |
+| psiphon | 4443       |
+| adguard | 53, 3000   |
 
 **Reserved system ports (never allocated):**
 
-| Port | Service |
-|---|---|
-| 22 | SSH |
-| 53 | DNS |
-| 80 | HTTP |
-| 443 | HTTPS |
-| 8080 | HTTP alt |
-| 8291 | WinBox |
-| 8728 | RouterOS API |
+| Port | Service          |
+| ---- | ---------------- |
+| 22   | SSH              |
+| 53   | DNS              |
+| 80   | HTTP             |
+| 443  | HTTPS            |
+| 8080 | HTTP alt         |
+| 8291 | WinBox           |
+| 8728 | RouterOS API     |
 | 8729 | RouterOS API-SSL |
 
 ```go
@@ -503,6 +524,7 @@ func (r *PortRegistry) CleanupOrphans(ctx context.Context) (int, error)
 ```
 
 **`findNextAvailablePortUnsafe`** (called under write lock):
+
 1. Start at `basePort` for the service type
 2. Skip if port is in `reservedPorts`
 3. Skip if port already exists in `cache`
@@ -583,18 +605,22 @@ func (a *VLANAllocator) GetPoolStatus(ctx context.Context) (*VLANPoolStatus, err
 func (a *VLANAllocator) UpdatePoolConfig(ctx context.Context, cfg VLANAllocatorConfig) error
 ```
 
-**IEEE 802.1Q compliance:** IDs `1` (default VLAN, reserved) and `4094` (implementation-reserved) are never allocated. The allocator skips these when scanning the pool.
+**IEEE 802.1Q compliance:** IDs `1` (default VLAN, reserved) and `4094` (implementation-reserved)
+are never allocated. The allocator skips these when scanning the pool.
 
-**Subnet derivation:** For VLAN ID `N`, the allocated subnet is `10.99.N.0/24` with gateway `10.99.N.1`. This provides deterministic, non-overlapping address space for each service instance.
+**Subnet derivation:** For VLAN ID `N`, the allocated subnet is `10.99.N.0/24` with gateway
+`10.99.N.1`. This provides deterministic, non-overlapping address space for each service instance.
 
-**Pool utilisation events (`checkAndEmitPoolWarningUnsafe`, called under write lock after each allocation):**
+**Pool utilisation events (`checkAndEmitPoolWarningUnsafe`, called under write lock after each
+allocation):**
 
-| Threshold | Event |
-|---|---|
-| ≥ 80% used | `vlan.pool.warning` (warning severity) |
+| Threshold  | Event                                    |
+| ---------- | ---------------------------------------- |
+| ≥ 80% used | `vlan.pool.warning` (warning severity)   |
 | ≥ 95% used | `vlan.pool.critical` (critical severity) |
 
 **Allocation flow (`AllocateVLAN`):**
+
 1. Check in-memory `allocated` set (cache hit → skip)
 2. Query DB via `VlanServicePort.GetExistingAllocations` (persistent state)
 3. Query router via `VlanServicePort.CheckVlanConflict` (live router VLANs)
@@ -606,8 +632,11 @@ func (a *VLANAllocator) UpdatePoolConfig(ctx context.Context, cfg VLANAllocatorC
 
 ## Cross-References
 
-- [See: 19-process-isolation.md §Layer 3: Ports] — IsolationVerifier calls `PortRegistry.IsPortAllocated`
+- [See: 19-process-isolation.md §Layer 3: Ports] — IsolationVerifier calls
+  `PortRegistry.IsPortAllocated`
 - [See: 19-process-isolation.md §Layer 1: IP Binding] — VLAN bind IP validation at pre-start
-- [See: 13-network-services.md §Service Lifecycle] — orchestrator calls AllocatePort and AllocateVLAN during install
-- [See: 18-config-generation.md §ValidateBindIP] — bind IP for service config must come from VLANAllocator subnet
+- [See: 13-network-services.md §Service Lifecycle] — orchestrator calls AllocatePort and AllocateVLAN
+  during install
+- [See: 18-config-generation.md §ValidateBindIP] — bind IP for service config must come from
+  VLANAllocator subnet
 - [See: 11-alerts.md §Webhook Delivery] — WebhookService used by alert dispatcher for outbound notifications

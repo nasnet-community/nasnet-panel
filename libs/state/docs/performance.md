@@ -5,13 +5,18 @@ title: Performance
 
 # Performance & Optimization
 
-This guide covers selector patterns, memoization strategies, and best practices for preventing unnecessary re-renders when consuming Zustand stores.
+This guide covers selector patterns, memoization strategies, and best practices for preventing
+unnecessary re-renders when consuming Zustand stores.
 
-> **Deep Dive:** For complete API documentation on all selector utilities (`createMemoizedSelector`, `createParameterizedSelector`, `createCombinedSelector`, `shallowEqual`), pre-built selector catalog, and advanced patterns, see the **[Selectors Reference](./stores/selectors-reference.md)**.
+> **Deep Dive:** For complete API documentation on all selector utilities (`createMemoizedSelector`,
+> `createParameterizedSelector`, `createCombinedSelector`, `shallowEqual`), pre-built selector
+> catalog, and advanced patterns, see the
+> **[Selectors Reference](./stores/selectors-reference.md)**.
 
 ## The Re-render Problem
 
-Without selectors, **every component subscribes to the entire store** and re-renders whenever ANY property changes:
+Without selectors, **every component subscribes to the entire store** and re-renders whenever ANY
+property changes:
 
 ```typescript
 // ❌ BAD: Component re-renders on ANY store mutation
@@ -30,7 +35,8 @@ function UserProfile() {
 }
 ```
 
-When auth store updates `isRefreshing: false` → `true`, this component re-renders **even though `user` didn't change**.
+When auth store updates `isRefreshing: false` → `true`, this component re-renders **even though
+`user` didn't change**.
 
 ## Selector Patterns: Optimized Re-renders
 
@@ -47,6 +53,7 @@ function LoginButton() {
 ```
 
 **Why it works:**
+
 - Zustand compares the selected value using strict equality (`===`)
 - If `isAuthenticated` doesn't change, selector returns same value
 - Component doesn't re-render
@@ -72,17 +79,20 @@ function UserProfile() {
 ```
 
 **Why it works:**
+
 - Selector returns a new object `{ user, token }` on every call
 - Without shallow comparison, this would cause re-render (new object != old object)
 - `shallow` compares properties: `prev.user === next.user && prev.token === next.token`
 - Only re-renders if actual values changed
 
 **When to use:**
+
 - Selecting 2-3 fields max
 - Fields are frequently accessed together
 - Don't want to create a reusable selector
 
 **When NOT to use:**
+
 - More than 3 fields (use `createCombinedSelector` instead)
 - Same field selection repeated in multiple components (use `createMemoizedSelector`)
 
@@ -141,7 +151,7 @@ export function createMemoizedSelector<State, Deps extends unknown[], Result>(
 
     if (depsChanged) {
       cachedDeps = deps;
-      cachedResult = compute(deps);  // Recompute only if deps changed
+      cachedResult = compute(deps); // Recompute only if deps changed
     }
 
     return cachedResult;
@@ -150,11 +160,13 @@ export function createMemoizedSelector<State, Deps extends unknown[], Result>(
 ```
 
 **When to use:**
+
 - Selector is used in multiple components
 - Computation is expensive (filtering, sorting, aggregation)
 - Dependencies change infrequently
 
 **Performance gains:**
+
 - First component: Same cost as non-memoized
 - Second component with same selector: Cache hit, zero computation
 - Prevents 3 components from redundantly computing the same thing
@@ -221,11 +233,13 @@ export function createParameterizedSelector<State, Param, Result>(
 ```
 
 **When to use:**
+
 - Selecting by dynamic parameter (ID, index, key)
 - Avoiding redundant array/object lookups
 - Rendering lists with per-item subscriptions
 
 **Cache behavior:**
+
 - Each unique `param` gets its own cached selector
 - Prevents recreating the same selector function on every render
 - Perfect for list items, detail panels with dynamic IDs
@@ -292,10 +306,8 @@ function App() {
 ```typescript
 export function createCombinedSelector<
   State,
-  Selectors extends Record<string, (state: State) => unknown>
->(
-  selectors: Selectors
-): (state: State) => { [K in keyof Selectors]: ReturnType<Selectors[K]> } {
+  Selectors extends Record<string, (state: State) => unknown>,
+>(selectors: Selectors): (state: State) => { [K in keyof Selectors]: ReturnType<Selectors[K]> } {
   const keys = Object.keys(selectors) as (keyof Selectors)[];
 
   return (state: State) => {
@@ -309,6 +321,7 @@ export function createCombinedSelector<
 ```
 
 **When to use:**
+
 - Combining 4+ pre-built selectors
 - Each selector is used together frequently
 - Cleaner than inline selector with multiple conditions
@@ -323,14 +336,14 @@ All stores export ready-to-use selectors:
 
 ```typescript
 import {
-  selectIsAuthenticated,      // boolean
-  selectUser,                  // User | null
-  selectToken,                 // string | null
-  selectIsRefreshing,          // boolean
-  selectRefreshAttempts,       // number
-  selectMaxRefreshExceeded,    // boolean
-  selectPermissions,           // string[]
-  selectHasPermission,         // (permission: string) => boolean
+  selectIsAuthenticated, // boolean
+  selectUser, // User | null
+  selectToken, // string | null
+  selectIsRefreshing, // boolean
+  selectRefreshAttempts, // number
+  selectMaxRefreshExceeded, // boolean
+  selectPermissions, // string[]
+  selectHasPermission, // (permission: string) => boolean
 } from '@nasnet/state/stores';
 
 // Usage
@@ -344,10 +357,10 @@ const hasAdmin = useAuthStore(selectHasPermission('admin'));
 
 ```typescript
 import {
-  selectResolvedTheme,   // 'light' | 'dark'
-  selectThemeMode,       // 'light' | 'dark' | 'system'
-  selectIsDarkMode,      // boolean
-  selectIsSystemTheme,   // boolean
+  selectResolvedTheme, // 'light' | 'dark'
+  selectThemeMode, // 'light' | 'dark' | 'system'
+  selectIsDarkMode, // boolean
+  selectIsSystemTheme, // boolean
 } from '@nasnet/state/stores';
 
 // Usage
@@ -358,8 +371,8 @@ const isDark = useThemeStore(selectResolvedTheme) === 'dark';
 
 ```typescript
 import {
-  selectSidebarCollapsed,      // boolean
-  selectSidebarDisplayState,   // 'collapsed' | 'expanded'
+  selectSidebarCollapsed, // boolean
+  selectSidebarDisplayState, // 'collapsed' | 'expanded'
 } from '@nasnet/state/stores';
 
 // Usage
@@ -370,13 +383,13 @@ const sidebarOpen = !useThemeStore(selectSidebarCollapsed);
 
 ```typescript
 import {
-  selectNotifications,              // Notification[]
-  selectHasNotifications,           // boolean
-  selectNotificationCount,          // number
-  selectErrorNotifications,         // Notification[]
-  selectNotificationsByType,        // (type: NotificationType) => Notification[]
-  selectUrgentNotificationCount,    // number (errors only)
-  selectProgressNotifications,      // Notification[]
+  selectNotifications, // Notification[]
+  selectHasNotifications, // boolean
+  selectNotificationCount, // number
+  selectErrorNotifications, // Notification[]
+  selectNotificationsByType, // (type: NotificationType) => Notification[]
+  selectUrgentNotificationCount, // number (errors only)
+  selectProgressNotifications, // Notification[]
 } from '@nasnet/state/stores';
 
 // Usage
@@ -391,9 +404,9 @@ const warningNotifs = useNotificationStore(selectNotificationsByType('warning'))
 
 ```typescript
 // ✅ PRIMARY: Always use selectors
-const isAuth = useAuthStore(state => state.isAuthenticated);
+const isAuth = useAuthStore((state) => state.isAuthenticated);
 const { user, token } = useAuthStore(
-  state => ({ user: state.user, token: state.token }),
+  (state) => ({ user: state.user, token: state.token }),
   shallow
 );
 ```
@@ -451,23 +464,23 @@ function CommandPalette() {
 
 ```typescript
 // ❌ ANTI-PATTERN 1: Destructuring entire store
-const store = useAuthStore();  // Subscribes to EVERY change
+const store = useAuthStore(); // Subscribes to EVERY change
 const { user } = store;
 
 // ✅ CORRECT:
-const user = useAuthStore(state => state.user);
+const user = useAuthStore((state) => state.user);
 
 // ❌ ANTI-PATTERN 2: Selector in conditional
-const isSub = canSub ? useAuthStore(state => state.isAuthenticated) : false;
+const isSub = canSub ? useAuthStore((state) => state.isAuthenticated) : false;
 
 // ✅ CORRECT:
-const isAuth = useAuthStore(state => state.isAuthenticated);
+const isAuth = useAuthStore((state) => state.isAuthenticated);
 const isSub = canSub ? isAuth : false;
 
 // ❌ ANTI-PATTERN 3: Creating selector in every render
 function MyComponent() {
   // This creates a new selector function EVERY render (bad!)
-  const user = useAuthStore(state => state.user);
+  const user = useAuthStore((state) => state.user);
   // ...
 }
 
@@ -475,20 +488,17 @@ function MyComponent() {
 // But if using closures over props:
 function MyComponent({ userId }: { userId: string }) {
   const user = useAuthStore(
-    useMemo(
-      () => (state) => state.users.find(u => u.id === userId),
-      [userId]
-    )
+    useMemo(() => (state) => state.users.find((u) => u.id === userId), [userId])
   );
 }
 
 // ❌ ANTI-PATTERN 4: Using entire store when only need one field
-const { isAuthenticated } = useAuthStore();  // Bad!
-const isAuthFromUnrelatedStore = useThemeStore().resolvedTheme;  // Cascading re-renders
+const { isAuthenticated } = useAuthStore(); // Bad!
+const isAuthFromUnrelatedStore = useThemeStore().resolvedTheme; // Cascading re-renders
 
 // ✅ CORRECT:
-const isAuthenticated = useAuthStore(state => state.isAuthenticated);
-const theme = useThemeStore(state => state.resolvedTheme);
+const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+const theme = useThemeStore((state) => state.resolvedTheme);
 ```
 
 ## Performance Best Practices
@@ -518,28 +528,27 @@ const theme = useThemeStore(state => state.resolvedTheme);
 ```typescript
 // ✅ GOOD: Shallow compare object properties
 const { user, token } = useAuthStore(
-  state => ({ user: state.user, token: state.token }),
+  (state) => ({ user: state.user, token: state.token }),
   shallow
 );
 
 // ❌ BAD: New object reference every time
-const { user, token } = useAuthStore(state => ({
+const { user, token } = useAuthStore((state) => ({
   user: state.user,
   token: state.token,
-}));  // New object != old object, causes re-render
+})); // New object != old object, causes re-render
 ```
 
 ### 4. Avoid Expensive Computations in Selectors
 
 ```typescript
 // ❌ BAD: Expensive filter on every selector call
-const selectExpensiveList = (state: State) =>
-  state.items.filter(i => expensiveCheck(i));  // O(n) every time!
+const selectExpensiveList = (state: State) => state.items.filter((i) => expensiveCheck(i)); // O(n) every time!
 
 // ✅ GOOD: Use memoized selector for expensive computation
 const selectExpensiveList = createMemoizedSelector(
   (state: State) => [state.items] as const,
-  ([items]) => items.filter(i => expensiveCheck(i))  // O(n) only when items change
+  ([items]) => items.filter((i) => expensiveCheck(i)) // O(n) only when items change
 );
 ```
 
@@ -603,10 +612,12 @@ function AuthPanel() {
 ```
 
 **Before optimization:**
+
 - Component re-renders: 10 times (on every auth store mutation)
 - Wasted renders: 9 times (when fields besides `user` changed)
 
 **After optimization:**
+
 - Component re-renders: 1 time (only when user actually changes)
 - Wasted renders: 0
 - Performance gain: 10x fewer re-renders
@@ -614,7 +625,9 @@ function AuthPanel() {
 ---
 
 **Next Steps:**
+
 - Apply selector patterns to your components
 - Use React DevTools Profiler to measure improvements
-- Review [Selectors Reference](./stores/selectors-reference.md) for complete API and pre-built selector catalog
+- Review [Selectors Reference](./stores/selectors-reference.md) for complete API and pre-built
+  selector catalog
 - Review [Architecture](./architecture.md) for integration patterns

@@ -5,17 +5,17 @@
  * @returns Mutation function, loading state, error, and data
  */
 export declare function useCreateVlan(routerId: string): {
-    createVlan: (input: {
-        name: string;
-        vlanId: number;
-        interface: string;
-        mtu?: number;
-        comment?: string;
-        disabled?: boolean;
-    }) => Promise<import("@apollo/client").FetchResult<any>>;
-    loading: boolean;
-    error: import("@apollo/client").ApolloError | undefined;
-    data: any;
+  createVlan: (input: {
+    name: string;
+    vlanId: number;
+    interface: string;
+    mtu?: number;
+    comment?: string;
+    disabled?: boolean;
+  }) => Promise<import('@apollo/client').FetchResult<any>>;
+  loading: boolean;
+  error: import('@apollo/client').ApolloError | undefined;
+  data: any;
 };
 /**
  * Hook to update an existing VLAN interface
@@ -24,17 +24,20 @@ export declare function useCreateVlan(routerId: string): {
  * @returns Mutation function, loading state, error, and data
  */
 export declare function useUpdateVlan(routerId: string): {
-    updateVlan: (id: string, input: {
-        name: string;
-        vlanId: number;
-        interface: string;
-        mtu?: number;
-        comment?: string;
-        disabled?: boolean;
-    }) => Promise<import("@apollo/client").FetchResult<any>>;
-    loading: boolean;
-    error: import("@apollo/client").ApolloError | undefined;
-    data: any;
+  updateVlan: (
+    id: string,
+    input: {
+      name: string;
+      vlanId: number;
+      interface: string;
+      mtu?: number;
+      comment?: string;
+      disabled?: boolean;
+    }
+  ) => Promise<import('@apollo/client').FetchResult<any>>;
+  loading: boolean;
+  error: import('@apollo/client').ApolloError | undefined;
+  data: any;
 };
 /**
  * Hook to delete a VLAN interface
@@ -43,10 +46,10 @@ export declare function useUpdateVlan(routerId: string): {
  * @returns Mutation function, loading state, error, and data
  */
 export declare function useDeleteVlan(routerId: string): {
-    deleteVlan: (id: string) => Promise<import("@apollo/client").FetchResult<any>>;
-    loading: boolean;
-    error: import("@apollo/client").ApolloError | undefined;
-    data: any;
+  deleteVlan: (id: string) => Promise<import('@apollo/client').FetchResult<any>>;
+  loading: boolean;
+  error: import('@apollo/client').ApolloError | undefined;
+  data: any;
 };
 /**
  * Hook to configure a bridge port for VLAN access or trunk mode
@@ -55,13 +58,16 @@ export declare function useDeleteVlan(routerId: string): {
  * @returns Mutation function, loading state, error, and data
  */
 export declare function useConfigureVlanPort(routerId: string): {
-    configureVlanPort: (portId: string, config: {
-        mode: "access" | "trunk";
-        pvid?: number;
-        taggedVlanIds?: number[];
-    }) => Promise<import("@apollo/client").FetchResult<any>>;
-    loading: boolean;
-    error: import("@apollo/client").ApolloError | undefined;
-    data: any;
+  configureVlanPort: (
+    portId: string,
+    config: {
+      mode: 'access' | 'trunk';
+      pvid?: number;
+      taggedVlanIds?: number[];
+    }
+  ) => Promise<import('@apollo/client').FetchResult<any>>;
+  loading: boolean;
+  error: import('@apollo/client').ApolloError | undefined;
+  data: any;
 };
 //# sourceMappingURL=useVlanMutations.d.ts.map

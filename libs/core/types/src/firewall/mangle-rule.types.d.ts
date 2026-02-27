@@ -13,32 +13,65 @@ import { z } from 'zod';
 /**
  * Mangle Chain - 5 chain points in packet processing
  */
-export declare const MangleChainSchema: z.ZodEnum<["prerouting", "input", "forward", "output", "postrouting"]>;
+export declare const MangleChainSchema: z.ZodEnum<
+  ['prerouting', 'input', 'forward', 'output', 'postrouting']
+>;
 export type MangleChain = z.infer<typeof MangleChainSchema>;
 /**
  * Mangle Action - What to do with matched packets
  */
-export declare const MangleActionSchema: z.ZodEnum<["mark-connection", "mark-packet", "mark-routing", "change-ttl", "change-dscp", "change-mss", "passthrough", "accept", "drop", "jump", "log"]>;
+export declare const MangleActionSchema: z.ZodEnum<
+  [
+    'mark-connection',
+    'mark-packet',
+    'mark-routing',
+    'change-ttl',
+    'change-dscp',
+    'change-mss',
+    'passthrough',
+    'accept',
+    'drop',
+    'jump',
+    'log',
+  ]
+>;
 export type MangleAction = z.infer<typeof MangleActionSchema>;
 /**
  * Connection State for matching
  */
-export declare const ConnectionStateSchema: z.ZodEnum<["established", "new", "related", "invalid", "untracked"]>;
+export declare const ConnectionStateSchema: z.ZodEnum<
+  ['established', 'new', 'related', 'invalid', 'untracked']
+>;
 export type ConnectionState = z.infer<typeof ConnectionStateSchema>;
 /**
  * NAT State for matching
  */
-export declare const ConnectionNatStateSchema: z.ZodEnum<["srcnat", "dstnat"]>;
+export declare const ConnectionNatStateSchema: z.ZodEnum<['srcnat', 'dstnat']>;
 export type ConnectionNatState = z.infer<typeof ConnectionNatStateSchema>;
 /**
  * Mangle Rule Schema
  *
  * Complete schema for mangle rule configuration with all matchers and actions.
  */
-export declare const MangleRuleSchema: z.ZodObject<{
+export declare const MangleRuleSchema: z.ZodObject<
+  {
     id: z.ZodOptional<z.ZodString>;
-    chain: z.ZodEnum<["prerouting", "input", "forward", "output", "postrouting"]>;
-    action: z.ZodEnum<["mark-connection", "mark-packet", "mark-routing", "change-ttl", "change-dscp", "change-mss", "passthrough", "accept", "drop", "jump", "log"]>;
+    chain: z.ZodEnum<['prerouting', 'input', 'forward', 'output', 'postrouting']>;
+    action: z.ZodEnum<
+      [
+        'mark-connection',
+        'mark-packet',
+        'mark-routing',
+        'change-ttl',
+        'change-dscp',
+        'change-mss',
+        'passthrough',
+        'accept',
+        'drop',
+        'jump',
+        'log',
+      ]
+    >;
     position: z.ZodOptional<z.ZodNumber>;
     protocol: z.ZodOptional<z.ZodString>;
     srcAddress: z.ZodOptional<z.ZodString>;
@@ -51,8 +84,10 @@ export declare const MangleRuleSchema: z.ZodObject<{
     outInterface: z.ZodOptional<z.ZodString>;
     inInterfaceList: z.ZodOptional<z.ZodString>;
     outInterfaceList: z.ZodOptional<z.ZodString>;
-    connectionState: z.ZodOptional<z.ZodArray<z.ZodEnum<["established", "new", "related", "invalid", "untracked"]>, "many">>;
-    connectionNatState: z.ZodOptional<z.ZodArray<z.ZodEnum<["srcnat", "dstnat"]>, "many">>;
+    connectionState: z.ZodOptional<
+      z.ZodArray<z.ZodEnum<['established', 'new', 'related', 'invalid', 'untracked']>, 'many'>
+    >;
+    connectionNatState: z.ZodOptional<z.ZodArray<z.ZodEnum<['srcnat', 'dstnat']>, 'many'>>;
     connectionMark: z.ZodOptional<z.ZodString>;
     packetMark: z.ZodOptional<z.ZodString>;
     routingMark: z.ZodOptional<z.ZodString>;
@@ -74,12 +109,26 @@ export declare const MangleRuleSchema: z.ZodObject<{
     logPrefix: z.ZodOptional<z.ZodString>;
     packets: z.ZodOptional<z.ZodNumber>;
     bytes: z.ZodOptional<z.ZodNumber>;
-}, "strip", z.ZodTypeAny, {
+  },
+  'strip',
+  z.ZodTypeAny,
+  {
     log: boolean;
-    action: "log" | "accept" | "passthrough" | "mark-connection" | "mark-packet" | "mark-routing" | "change-ttl" | "change-dscp" | "change-mss" | "drop" | "jump";
+    action:
+      | 'log'
+      | 'accept'
+      | 'passthrough'
+      | 'mark-connection'
+      | 'mark-packet'
+      | 'mark-routing'
+      | 'change-ttl'
+      | 'change-dscp'
+      | 'change-mss'
+      | 'drop'
+      | 'jump';
     disabled: boolean;
     passthrough: boolean;
-    chain: "input" | "output" | "prerouting" | "forward" | "postrouting";
+    chain: 'input' | 'output' | 'prerouting' | 'forward' | 'postrouting';
     id?: string | undefined;
     content?: string | undefined;
     position?: number | undefined;
@@ -95,8 +144,8 @@ export declare const MangleRuleSchema: z.ZodObject<{
     outInterface?: string | undefined;
     inInterfaceList?: string | undefined;
     outInterfaceList?: string | undefined;
-    connectionState?: ("established" | "new" | "related" | "invalid" | "untracked")[] | undefined;
-    connectionNatState?: ("srcnat" | "dstnat")[] | undefined;
+    connectionState?: ('established' | 'new' | 'related' | 'invalid' | 'untracked')[] | undefined;
+    connectionNatState?: ('srcnat' | 'dstnat')[] | undefined;
     connectionMark?: string | undefined;
     packetMark?: string | undefined;
     routingMark?: string | undefined;
@@ -113,9 +162,21 @@ export declare const MangleRuleSchema: z.ZodObject<{
     comment?: string | undefined;
     logPrefix?: string | undefined;
     packets?: number | undefined;
-}, {
-    action: "log" | "accept" | "passthrough" | "mark-connection" | "mark-packet" | "mark-routing" | "change-ttl" | "change-dscp" | "change-mss" | "drop" | "jump";
-    chain: "input" | "output" | "prerouting" | "forward" | "postrouting";
+  },
+  {
+    action:
+      | 'log'
+      | 'accept'
+      | 'passthrough'
+      | 'mark-connection'
+      | 'mark-packet'
+      | 'mark-routing'
+      | 'change-ttl'
+      | 'change-dscp'
+      | 'change-mss'
+      | 'drop'
+      | 'jump';
+    chain: 'input' | 'output' | 'prerouting' | 'forward' | 'postrouting';
     id?: string | undefined;
     log?: boolean | undefined;
     disabled?: boolean | undefined;
@@ -134,8 +195,8 @@ export declare const MangleRuleSchema: z.ZodObject<{
     outInterface?: string | undefined;
     inInterfaceList?: string | undefined;
     outInterfaceList?: string | undefined;
-    connectionState?: ("established" | "new" | "related" | "invalid" | "untracked")[] | undefined;
-    connectionNatState?: ("srcnat" | "dstnat")[] | undefined;
+    connectionState?: ('established' | 'new' | 'related' | 'invalid' | 'untracked')[] | undefined;
+    connectionNatState?: ('srcnat' | 'dstnat')[] | undefined;
     connectionMark?: string | undefined;
     packetMark?: string | undefined;
     routingMark?: string | undefined;
@@ -152,7 +213,8 @@ export declare const MangleRuleSchema: z.ZodObject<{
     comment?: string | undefined;
     logPrefix?: string | undefined;
     packets?: number | undefined;
-}>;
+  }
+>;
 export type MangleRule = z.infer<typeof MangleRuleSchema>;
 export type MangleRuleInput = z.input<typeof MangleRuleSchema>;
 /**
@@ -172,14 +234,14 @@ export type MangleRuleInput = z.input<typeof MangleRuleSchema>;
  * ```
  */
 export interface DscpClass {
-    /** Numeric DSCP value (0-63) */
-    readonly value: number;
-    /** DSCP class name (e.g., 'EF', 'AF11', 'CS5') */
-    readonly name: string;
-    /** Human-readable description of the DSCP class */
-    readonly description: string;
-    /** Common use cases for this DSCP value */
-    readonly useCase: string;
+  /** Numeric DSCP value (0-63) */
+  readonly value: number;
+  /** DSCP class name (e.g., 'EF', 'AF11', 'CS5') */
+  readonly name: string;
+  /** Human-readable description of the DSCP class */
+  readonly description: string;
+  /** Common use cases for this DSCP value */
+  readonly useCase: string;
 }
 /**
  * Standard DSCP Classes
@@ -217,16 +279,16 @@ export declare function getDscpDescription(value: number): string;
  * ```
  */
 export interface MarkType {
-    /** Human-readable name of the mark type */
-    readonly name: string;
-    /** Action used to create this type of mark */
-    readonly action: MangleAction;
-    /** Field name in MangleRule where this mark is stored */
-    readonly field: 'newConnectionMark' | 'newPacketMark' | 'newRoutingMark';
-    /** How long the mark persists (connection, packet, or routing decision) */
-    readonly persistence: string;
-    /** Common use cases for this mark type */
-    readonly useCase: string;
+  /** Human-readable name of the mark type */
+  readonly name: string;
+  /** Action used to create this type of mark */
+  readonly action: MangleAction;
+  /** Field name in MangleRule where this mark is stored */
+  readonly field: 'newConnectionMark' | 'newPacketMark' | 'newRoutingMark';
+  /** How long the mark persists (connection, packet, or routing decision) */
+  readonly persistence: string;
+  /** Common use cases for this mark type */
+  readonly useCase: string;
 }
 /**
  * Mark Types for different traffic marking purposes

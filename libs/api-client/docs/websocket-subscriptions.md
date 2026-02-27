@@ -1,8 +1,14 @@
 # WebSocket Subscriptions
 
-This document covers the real-time subscription layer of `@nasnet/api-client`: how the WebSocket client is created and configured, how split-link routing directs subscription operations to the WebSocket transport while keeping queries and mutations on HTTP, how authentication is provided per-connection, how the retry/reconnect strategy works, and how connection lifecycle events flow into the Zustand stores and the offline detector.
+This document covers the real-time subscription layer of `@nasnet/api-client`: how the WebSocket
+client is created and configured, how split-link routing directs subscription operations to the
+WebSocket transport while keeping queries and mutations on HTTP, how authentication is provided
+per-connection, how the retry/reconnect strategy works, and how connection lifecycle events flow
+into the Zustand stores and the offline detector.
 
-Related docs: [./apollo-client.md](./apollo-client.md) (link chain), [./authentication.md](./authentication.md) (auth tokens), [./offline-first.md](./offline-first.md) (offline integration).
+Related docs: [./apollo-client.md](./apollo-client.md) (link chain),
+[./authentication.md](./authentication.md) (auth tokens), [./offline-first.md](./offline-first.md)
+(offline integration).
 
 ---
 
@@ -47,7 +53,10 @@ Connection events (ws:connecting, ws:connected, ws:closed, ws:error)
   WsClient handlers ─→ useConnectionStore (Zustand)
 ```
 
-The WebSocket client is implemented in `libs/api-client/core/src/apollo/apollo-ws-client.ts` using the `graphql-ws` library. Apollo Client's `split` function in `libs/api-client/core/src/apollo/apollo-client.ts` routes subscriptions to the WebSocket link and everything else to the HTTP link.
+The WebSocket client is implemented in `libs/api-client/core/src/apollo/apollo-ws-client.ts` using
+the `graphql-ws` library. Apollo Client's `split` function in
+`libs/api-client/core/src/apollo/apollo-client.ts` routes subscriptions to the WebSocket link and
+everything else to the HTTP link.
 
 ---
 
@@ -59,13 +68,10 @@ Source: `libs/api-client/core/src/apollo/apollo-client.ts:50`
 const splitLink = split(
   ({ query }) => {
     const definition = getMainDefinition(query);
-    return (
-      definition.kind === 'OperationDefinition' &&
-      definition.operation === 'subscription'
-    );
+    return definition.kind === 'OperationDefinition' && definition.operation === 'subscription';
   },
-  wsLink,              // subscription → WebSocket
-  authLink.concat(httpLink)  // query / mutation → HTTP with auth headers
+  wsLink, // subscription → WebSocket
+  authLink.concat(httpLink) // query / mutation → HTTP with auth headers
 );
 ```
 
@@ -78,7 +84,9 @@ Request → errorLink → retryLink → splitLink → (authLink → httpLink) OR
                                               because wsClient has its own retry
 ```
 
-The `retryLink` at the HTTP level (initial delay 300 ms, max 3 s, max 3 attempts, no retry on 4xx) is separate from the WebSocket reconnect logic. Subscriptions are retried exclusively by `graphql-ws`.
+The `retryLink` at the HTTP level (initial delay 300 ms, max 3 s, max 3 attempts, no retry on 4xx)
+is separate from the WebSocket reconnect logic. Subscriptions are retried exclusively by
+`graphql-ws`.
 
 ---
 
@@ -146,13 +154,15 @@ function getWebSocketUrl(): string {
 
 The logic is deliberately simple:
 
-| Page protocol | WS protocol | Endpoint example |
-|---|---|---|
-| `https:` | `wss:` | `wss://router.local/graphql` |
-| `http:` | `ws:` | `ws://192.168.88.1/graphql` |
-| SSR / no window | `ws:` | `ws://localhost:8080/graphql` |
+| Page protocol   | WS protocol | Endpoint example              |
+| --------------- | ----------- | ----------------------------- |
+| `https:`        | `wss:`      | `wss://router.local/graphql`  |
+| `http:`         | `ws:`       | `ws://192.168.88.1/graphql`   |
+| SSR / no window | `ws:`       | `ws://localhost:8080/graphql` |
 
-In production the NasNetConnect frontend is served from the router itself (`http://` for local network access) so `ws:` is typical. When TLS is terminated upstream (e.g., a reverse proxy), `wss:` kicks in automatically because `window.location.protocol` will be `https:`.
+In production the NasNetConnect frontend is served from the router itself (`http://` for local
+network access) so `ws:` is typical. When TLS is terminated upstream (e.g., a reverse proxy), `wss:`
+kicks in automatically because `window.location.protocol` will be `https:`.
 
 ---
 
@@ -160,7 +170,9 @@ In production the NasNetConnect frontend is served from the router itself (`http
 
 Source: `libs/api-client/core/src/apollo/apollo-ws-client.ts:149`
 
-`connectionParams` is evaluated as a **function** (not a static object), so it is called fresh on every connection attempt including reconnects. This ensures that a refreshed JWT token is always used after the previous token expires.
+`connectionParams` is evaluated as a **function** (not a static object), so it is called fresh on
+every connection attempt including reconnects. This ensures that a refreshed JWT token is always
+used after the previous token expires.
 
 ```ts
 connectionParams: () => {
@@ -174,7 +186,8 @@ connectionParams: () => {
 },
 ```
 
-`getAuthorization` follows the same two-step priority as the HTTP auth link (see [./authentication.md](./authentication.md)):
+`getAuthorization` follows the same two-step priority as the HTTP auth link (see
+[./authentication.md](./authentication.md)):
 
 ```ts
 function getAuthorization(routerId: string | null): string | undefined {
@@ -192,7 +205,9 @@ function getAuthorization(routerId: string | null): string | undefined {
 }
 ```
 
-The backend receives `routerId` and `authorization` in the `connection_init` message of the `graphql-ws` protocol. When the socket reconnects after a token refresh, the new token is automatically provided.
+The backend receives `routerId` and `authorization` in the `connection_init` message of the
+`graphql-ws` protocol. When the socket reconnects after a token refresh, the new token is
+automatically provided.
 
 ---
 
@@ -215,15 +230,16 @@ retryWait: async (retries) => {
 },
 ```
 
-`calculateBackoff` is imported from `@nasnet/state/stores`. It implements exponential backoff with jitter. The approximate delay schedule is:
+`calculateBackoff` is imported from `@nasnet/state/stores`. It implements exponential backoff with
+jitter. The approximate delay schedule is:
 
-| Attempt | Base | With jitter (approx) |
-|---|---|---|
-| 1 | 1 000 ms | 800 – 1 200 ms |
-| 2 | 2 000 ms | 1 600 – 2 400 ms |
-| 3 | 4 000 ms | 3 200 – 4 800 ms |
-| 4 | 8 000 ms | 6 400 – 9 600 ms |
-| 5+ | 16 000 ms | capped at ~30 000 ms |
+| Attempt | Base      | With jitter (approx) |
+| ------- | --------- | -------------------- |
+| 1       | 1 000 ms  | 800 – 1 200 ms       |
+| 2       | 2 000 ms  | 1 600 – 2 400 ms     |
+| 3       | 4 000 ms  | 3 200 – 4 800 ms     |
+| 4       | 8 000 ms  | 6 400 – 9 600 ms     |
+| 5+      | 16 000 ms | capped at ~30 000 ms |
 
 ### shouldRetry — Fatal Codes
 
@@ -248,12 +264,13 @@ shouldRetry: (errOrCloseEvent) => {
 
 Fatal close codes that abort retrying immediately:
 
-| Code | Meaning | Action |
-|---|---|---|
+| Code   | Meaning               | Action                       |
+| ------ | --------------------- | ---------------------------- |
 | `4401` | Authentication failed | Stop — credentials are wrong |
-| `4403` | Forbidden | Stop — access denied |
+| `4403` | Forbidden             | Stop — access denied         |
 
-When `hasExceededMaxAttempts()` returns `true` (after 10 failures), a toast notification is shown with a "Retry" prompt, and no further automatic reconnects are attempted.
+When `hasExceededMaxAttempts()` returns `true` (after 10 failures), a toast notification is shown
+with a "Retry" prompt, and no further automatic reconnects are attempted.
 
 ---
 
@@ -261,7 +278,8 @@ When `hasExceededMaxAttempts()` returns `true` (after 10 failures), a toast noti
 
 Source: `libs/api-client/core/src/apollo/apollo-ws-client.ts:188`
 
-The `graphql-ws` `on` handlers bridge the library's internal lifecycle into the application layer through two mechanisms: Zustand store mutations and `window.CustomEvent` dispatches.
+The `graphql-ws` `on` handlers bridge the library's internal lifecycle into the application layer
+through two mechanisms: Zustand store mutations and `window.CustomEvent` dispatches.
 
 ### connecting
 
@@ -332,12 +350,12 @@ on: {
 
 ### Event Summary
 
-| `CustomEvent` name | Dispatched when | `detail` payload |
-|---|---|---|
-| `ws:connecting` | Connection attempt starts | none |
-| `ws:connected` | Socket opened | none |
-| `ws:closed` | Socket closed | `{ code, reason, wasClean }` |
-| `ws:error` | Protocol/network error | `{ error }` |
+| `CustomEvent` name | Dispatched when           | `detail` payload             |
+| ------------------ | ------------------------- | ---------------------------- |
+| `ws:connecting`    | Connection attempt starts | none                         |
+| `ws:connected`     | Socket opened             | none                         |
+| `ws:closed`        | Socket closed             | `{ code, reason, wasClean }` |
+| `ws:error`         | Protocol/network error    | `{ error }`                  |
 
 ---
 
@@ -345,13 +363,13 @@ on: {
 
 The `ws:*` lifecycle handlers write directly to `useConnectionStore`:
 
-| Method called | When |
-|---|---|
-| `setWsStatus('connecting')` | Socket dialing |
-| `setWsStatus('connected')` | Handshake complete |
-| `resetReconnection()` | After a successful reconnect |
-| `setWsStatus('error', msg)` | Error or unexpected close |
-| `incrementReconnectAttempts()` | After each failed close |
+| Method called                    | When                                  |
+| -------------------------------- | ------------------------------------- |
+| `setWsStatus('connecting')`      | Socket dialing                        |
+| `setWsStatus('connected')`       | Handshake complete                    |
+| `resetReconnection()`            | After a successful reconnect          |
+| `setWsStatus('error', msg)`      | Error or unexpected close             |
+| `incrementReconnectAttempts()`   | After each failed close               |
 | `setRouterConnection(id, {...})` | Connected / error with router details |
 
 Components can reactively observe these:
@@ -406,16 +424,17 @@ window.addEventListener('ws:error', handleWsError);
 Additionally, `setupOfflineDetector` listens for:
 
 - `online` / `offline` browser events → `setOnline(true/false)` on `useNetworkStore`
-- `network:error` (dispatched by the Apollo error link on HTTP failures) → `setRouterReachable(false)`
+- `network:error` (dispatched by the Apollo error link on HTTP failures) →
+  `setRouterReachable(false)`
 - Periodic health-check `GET /api/health` every 30 s (configurable)
 
 ### OfflineDetectorConfig
 
 ```ts
 export interface OfflineDetectorConfig {
-  healthEndpoint?: string;        // default: '/api/health'
-  healthCheckInterval?: number;   // default: 30000 ms
-  healthCheckTimeout?: number;    // default: 5000 ms
+  healthEndpoint?: string; // default: '/api/health'
+  healthCheckInterval?: number; // default: 30000 ms
+  healthCheckTimeout?: number; // default: 5000 ms
 }
 ```
 
@@ -437,16 +456,18 @@ function App() {
 
 ### Utility Functions
 
-| Function | Returns | Reads from |
-|---|---|---|
-| `isOffline()` | `boolean` | `useNetworkStore` — `!isOnline \|\| !isRouterReachable` |
-| `isDegraded()` | `boolean` | `useNetworkStore` — online but router/ws unreachable |
+| Function       | Returns   | Reads from                                              |
+| -------------- | --------- | ------------------------------------------------------- |
+| `isOffline()`  | `boolean` | `useNetworkStore` — `!isOnline \|\| !isRouterReachable` |
+| `isDegraded()` | `boolean` | `useNetworkStore` — online but router/ws unreachable    |
 
 ---
 
 ## 10. Subscription Usage Pattern in Domain Hooks
 
-Domain hooks use `useSubscription` from `@apollo/client` directly. The WebSocket connection is established automatically when any subscription is mounted (Apollo Client holds the `wsClient` reference via `GraphQLWsLink`).
+Domain hooks use `useSubscription` from `@apollo/client` directly. The WebSocket connection is
+established automatically when any subscription is mounted (Apollo Client holds the `wsClient`
+reference via `GraphQLWsLink`).
 
 ### Basic Pattern
 
@@ -549,18 +570,18 @@ export function useInstanceMonitoring(routerId: string, enabled = true) {
 
 ### From `libs/api-client/core/src/apollo/apollo-ws-client.ts`
 
-| Export | Kind | Description |
-|---|---|---|
-| `WsClientOptions` | interface | Configuration shape for `createWsClient` |
-| `createWsClient(options?)` | function | Factory — creates a new `graphql-ws` `Client` |
-| `wsClient` | `Client` | Default singleton used by `apolloClient` |
+| Export                     | Kind      | Description                                   |
+| -------------------------- | --------- | --------------------------------------------- |
+| `WsClientOptions`          | interface | Configuration shape for `createWsClient`      |
+| `createWsClient(options?)` | function  | Factory — creates a new `graphql-ws` `Client` |
+| `wsClient`                 | `Client`  | Default singleton used by `apolloClient`      |
 
 ### From `libs/api-client/core/src/apollo/offline-detector.ts`
 
-| Export | Kind | Description |
-|---|---|---|
-| `OfflineDetectorConfig` | interface | Configuration for the offline detector |
-| `setupOfflineDetector(config?)` | function | Imperative setup, returns cleanup function |
-| `useOfflineDetector(config?)` | hook | React hook version with auto-cleanup |
-| `isOffline()` | function | `true` if browser offline or backend unreachable |
-| `isDegraded()` | function | `true` if online but WS/backend partially unreachable |
+| Export                          | Kind      | Description                                           |
+| ------------------------------- | --------- | ----------------------------------------------------- |
+| `OfflineDetectorConfig`         | interface | Configuration for the offline detector                |
+| `setupOfflineDetector(config?)` | function  | Imperative setup, returns cleanup function            |
+| `useOfflineDetector(config?)`   | hook      | React hook version with auto-cleanup                  |
+| `isOffline()`                   | function  | `true` if browser offline or backend unreachable      |
+| `isDegraded()`                  | function  | `true` if online but WS/backend partially unreachable |

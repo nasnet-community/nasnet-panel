@@ -6,13 +6,19 @@
 Protocol for knock port.
 """
 enum KnockProtocol {
-  """TCP only"""
+  """
+  TCP only
+  """
   TCP
 
-  """UDP only"""
+  """
+  UDP only
+  """
   UDP
 
-  """Both TCP and UDP"""
+  """
+  Both TCP and UDP
+  """
   BOTH
 }
 
@@ -20,16 +26,24 @@ enum KnockProtocol {
 Status of knock attempt.
 """
 enum KnockStatus {
-  """All ports hit correctly, access granted"""
+  """
+  All ports hit correctly, access granted
+  """
   SUCCESS
 
-  """Wrong port order"""
+  """
+  Wrong port order
+  """
   FAILED
 
-  """Some ports hit, sequence incomplete"""
+  """
+  Some ports hit, sequence incomplete
+  """
   PARTIAL
 
-  """Time between knocks exceeded"""
+  """
+  Time between knocks exceeded
+  """
   TIMEOUT
 }
 
@@ -49,25 +63,39 @@ enum TransportProtocol {
 Input for creating/updating port knock sequence.
 """
 input PortKnockSequenceInput {
-  """Sequence name"""
+  """
+  Sequence name
+  """
   name: String! @validate(minLength: 1, maxLength: 32, pattern: "^[a-zA-Z0-9_-]+$")
 
-  """Ordered knock ports (2-8)"""
+  """
+  Ordered knock ports (2-8)
+  """
   knockPorts: [KnockPortInput!]!
 
-  """Protected service port"""
+  """
+  Protected service port
+  """
   protectedPort: Int! @validate(min: 1, max: 65535)
 
-  """Protected service protocol"""
+  """
+  Protected service protocol
+  """
   protectedProtocol: TransportProtocol!
 
-  """Access timeout (e.g., "5m", "1h")"""
+  """
+  Access timeout (e.g., "5m", "1h")
+  """
   accessTimeout: String! @validate(pattern: "^\\d+[smhd]$")
 
-  """Knock timeout (e.g., "15s", "30s")"""
+  """
+  Knock timeout (e.g., "15s", "30s")
+  """
   knockTimeout: String! @validate(pattern: "^\\d+[smhd]$")
 
-  """Whether enabled"""
+  """
+  Whether enabled
+  """
   enabled: Boolean
 }
 
@@ -75,13 +103,19 @@ input PortKnockSequenceInput {
 Input for knock port.
 """
 input KnockPortInput {
-  """Port number"""
+  """
+  Port number
+  """
   port: Int! @validate(min: 1, max: 65535)
 
-  """Protocol"""
+  """
+  Protocol
+  """
   protocol: KnockProtocol!
 
-  """Order in sequence"""
+  """
+  Order in sequence
+  """
   order: Int! @validate(min: 1)
 }
 
@@ -89,18 +123,28 @@ input KnockPortInput {
 Filters for knock attempt log.
 """
 input PortKnockLogFilters {
-  """Filter by status"""
+  """
+  Filter by status
+  """
   status: KnockStatus
 
-  """Filter by source IP"""
+  """
+  Filter by source IP
+  """
   sourceIP: String
 
-  """Filter by sequence ID"""
+  """
+  Filter by sequence ID
+  """
   sequenceId: ID
 
-  """Start date"""
+  """
+  Start date
+  """
   startDate: DateTime
 
-  """End date"""
+  """
+  End date
+  """
   endDate: DateTime
 }

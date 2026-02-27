@@ -1,8 +1,11 @@
 # Service Marketplace
 
-The service marketplace is the feature management system for downloadable network services that run on the MikroTik router. Each service (Tor, sing-box, Xray-core, MTProxy, Psiphon, AdGuard Home) is a downloadable binary managed by the NasNet backend.
+The service marketplace is the feature management system for downloadable network services that run
+on the MikroTik router. Each service (Tor, sing-box, Xray-core, MTProxy, Psiphon, AdGuard Home) is a
+downloadable binary managed by the NasNet backend.
 
 **Key files:**
+
 - `libs/features/services/src/pages/ServicesPage.tsx` — main marketplace page
 - `libs/features/services/src/pages/ServiceDetailPage.tsx` — per-service detail
 - `libs/features/services/src/components/InstallDialog.tsx` — installation wizard
@@ -13,6 +16,7 @@ The service marketplace is the feature management system for downloadable networ
 - `libs/state/stores/src/service-ui.store.ts` — UI state (filters, view mode)
 
 **Cross-references:**
+
 - See `../data-fetching/graphql-hooks.md` for subscription patterns
 - See `virtual-interface-factory.md` for network isolation per service
 
@@ -20,14 +24,14 @@ The service marketplace is the feature management system for downloadable networ
 
 ## Available Services
 
-| Service | Category | Description |
-|---------|----------|-------------|
-| Tor | Privacy | Onion routing anonymization network |
-| sing-box | Proxy | Universal proxy platform (VLESS, VMess, Hysteria2) |
-| Xray-core | Proxy | Advanced proxy with XTLS/Reality support |
-| MTProxy | Proxy | Telegram MTProto proxy server |
-| Psiphon | Censorship-bypass | Psiphon circumvention network |
-| AdGuard Home | DNS/Filtering | DNS-level ad and tracker blocking |
+| Service      | Category          | Description                                        |
+| ------------ | ----------------- | -------------------------------------------------- |
+| Tor          | Privacy           | Onion routing anonymization network                |
+| sing-box     | Proxy             | Universal proxy platform (VLESS, VMess, Hysteria2) |
+| Xray-core    | Proxy             | Advanced proxy with XTLS/Reality support           |
+| MTProxy      | Proxy             | Telegram MTProto proxy server                      |
+| Psiphon      | Censorship-bypass | Psiphon circumvention network                      |
+| AdGuard Home | DNS/Filtering     | DNS-level ad and tracker blocking                  |
 
 Services are fetched from `useAvailableServices()` which queries the backend registry.
 
@@ -77,6 +81,7 @@ The `InstallDialog` component is a 4-step wizard:
 ### Step 2: Configure Instance
 
 Fields collected:
+
 - `instanceName` — user-defined name (required)
 - `vlanId` — VLAN for network isolation (optional, auto-assigned if blank)
 - `bindIP` — IP address to bind the service to (optional)
@@ -157,17 +162,19 @@ const { dependencies } = useDependencies(routerId);
 Filter and view state lives in `useServiceUIStore`:
 
 ```typescript
-const search = useServiceSearch();            // string
-const categoryFilter = useCategoryFilter();   // string | null
-const statusFilter = useStatusFilter();       // ServiceStatus | 'ALL'
-const viewMode = useServiceViewMode();        // 'grid' | 'list'
+const search = useServiceSearch(); // string
+const categoryFilter = useCategoryFilter(); // string | null
+const statusFilter = useStatusFilter(); // ServiceStatus | 'ALL'
+const viewMode = useServiceViewMode(); // 'grid' | 'list'
 const showResourceMetrics = useShowResourceMetrics(); // boolean
-const selectedServices = useSelectedServices();       // Set<string> for bulk ops
+const selectedServices = useSelectedServices(); // Set<string> for bulk ops
 ```
 
 ### Filtering and Sorting
 
-Instances are filtered in-memory by `search`, `categoryFilter`, and `statusFilter`. Sorting is handled by `InstanceManager` (from `@nasnet/ui/patterns`) which supports:
+Instances are filtered in-memory by `search`, `categoryFilter`, and `statusFilter`. Sorting is
+handled by `InstanceManager` (from `@nasnet/ui/patterns`) which supports:
+
 - Name (ascending/descending)
 - Status
 - Category
@@ -176,7 +183,8 @@ Instances are filtered in-memory by `search`, `categoryFilter`, and `statusFilte
 
 ### Bulk Operations
 
-`BulkOperation` type supports: `start`, `stop`, `restart`, `delete`. Selected instances (via checkboxes) can have bulk operations applied via `useInstanceMutations`.
+`BulkOperation` type supports: `start`, `stop`, `restart`, `delete`. Selected instances (via
+checkboxes) can have bulk operations applied via `useInstanceMutations`.
 
 ---
 
@@ -193,14 +201,14 @@ interface ServiceDetailPageProps {
 
 ### Tabs
 
-| Tab | Content |
-|-----|---------|
-| Overview | Status, resource usage, gateway status |
+| Tab           | Content                                   |
+| ------------- | ----------------------------------------- |
+| Overview      | Status, resource usage, gateway status    |
 | Configuration | Live config editor with schema validation |
-| Logs | Real-time log streaming |
-| Diagnostics | Port scanner, connectivity tests |
-| Alerts | Service-specific alert rules |
-| Routing | Device routing rules |
+| Logs          | Real-time log streaming                   |
+| Diagnostics   | Port scanner, connectivity tests          |
+| Alerts        | Service-specific alert rules              |
+| Routing       | Device routing rules                      |
 
 ### Key Hooks Used
 
@@ -233,13 +241,15 @@ const { rollbackUpdate } = useUpdates(routerId, instanceId);
 await rollbackUpdate({ instanceId });
 ```
 
-The `UpdateAllPanel` component provides a batch update UI for all instances that have available updates.
+The `UpdateAllPanel` component provides a batch update UI for all instances that have available
+updates.
 
 ---
 
 ## Service Config Editor
 
-Service configuration uses JSON Schema validation. Each service has a schema registered in the backend manifest:
+Service configuration uses JSON Schema validation. Each service has a schema registered in the
+backend manifest:
 
 ```typescript
 const { config, loading, updateConfig } = useServiceConfig(routerId, instanceId);
@@ -249,7 +259,8 @@ const { formMethods } = useServiceConfigForm({ config, schema: instance.configSc
 await updateConfig({ routerID: routerId, instanceID: instanceId, config: formData });
 ```
 
-Redacted fields (secrets like passwords, keys) are indicated in the schema with `"x-sensitive": true`. The UI shows them as masked inputs and excludes them from export by default.
+Redacted fields (secrets like passwords, keys) are indicated in the schema with
+`"x-sensitive": true`. The UI shows them as masked inputs and excludes them from export by default.
 
 ---
 
@@ -273,7 +284,8 @@ await installTemplate({ routerID, templateID: 'template-xyz' });
 const { progress } = useTemplateInstallProgress(routerId);
 ```
 
-Template management UI is in `libs/features/alerts/src/components/alert-templates/` for alert templates, and in `libs/features/services/src/components/` for service templates.
+Template management UI is in `libs/features/alerts/src/components/alert-templates/` for alert
+templates, and in `libs/features/services/src/components/` for service templates.
 
 ---
 
@@ -285,13 +297,16 @@ Each service instance occupies ports that are tracked in the port registry:
 const { allocations, loading } = usePortRegistry(routerId);
 ```
 
-The `PortRegistryView` component shows all port allocations across all service instances, helping administrators avoid conflicts. It renders in a platform-appropriate way via `PortRegistryViewDesktop` / `PortRegistryViewMobile`.
+The `PortRegistryView` component shows all port allocations across all service instances, helping
+administrators avoid conflicts. It renders in a platform-appropriate way via
+`PortRegistryViewDesktop` / `PortRegistryViewMobile`.
 
 ---
 
 ## Resource Budget
 
-The `ResourceBudgetPanel` (from `@nasnet/ui/patterns`) shows aggregate CPU and memory usage across all service instances:
+The `ResourceBudgetPanel` (from `@nasnet/ui/patterns`) shows aggregate CPU and memory usage across
+all service instances:
 
 ```typescript
 const { resources } = useSystemResources(routerId);

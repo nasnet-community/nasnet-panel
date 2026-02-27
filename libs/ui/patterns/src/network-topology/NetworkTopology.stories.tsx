@@ -5,7 +5,6 @@
  * Includes stories for various states and configurations.
  */
 
-
 import { NetworkTopology } from './NetworkTopology';
 import { NetworkTopologyDesktop } from './NetworkTopology.Desktop';
 import { NetworkTopologyMobile } from './NetworkTopology.Mobile';
@@ -271,8 +270,8 @@ export const DesktopView: Story = {
   globals: {
     viewport: {
       value: 'desktop',
-      isRotated: false
-    }
+      isRotated: false,
+    },
   },
 };
 
@@ -290,8 +289,8 @@ export const MobileView: Story = {
   globals: {
     viewport: {
       value: 'mobile1',
-      isRotated: false
-    }
+      isRotated: false,
+    },
   },
 };
 
@@ -308,15 +307,15 @@ export const DarkMode: Story = {
   },
   decorators: [
     (Story) => (
-      <div className="dark bg-background p-4 rounded-lg">
+      <div className="bg-background dark rounded-lg p-4">
         <Story />
       </div>
     ),
   ],
   globals: {
     backgrounds: {
-      value: "dark"
-    }
+      value: 'dark',
+    },
   },
 };
 
@@ -332,13 +331,31 @@ export const MultiWan: Story = {
       status: 'online',
     },
     wanInterfaces: [
-      { id: 'wan-1', name: 'Fiber 1Gbps', ip: '100.64.1.1', status: 'connected', provider: 'Main ISP' },
-      { id: 'wan-2', name: 'Fiber 500Mbps', ip: '100.64.2.1', status: 'connected', provider: 'Backup ISP' },
+      {
+        id: 'wan-1',
+        name: 'Fiber 1Gbps',
+        ip: '100.64.1.1',
+        status: 'connected',
+        provider: 'Main ISP',
+      },
+      {
+        id: 'wan-2',
+        name: 'Fiber 500Mbps',
+        ip: '100.64.2.1',
+        status: 'connected',
+        provider: 'Backup ISP',
+      },
       { id: 'wan-3', name: 'LTE Failover', status: 'disconnected', provider: 'Mobile Carrier' },
     ],
     lanNetworks: [
       { id: 'lan-1', name: 'Office', cidr: '10.0.1.0/24', gateway: '10.0.1.1', deviceCount: 50 },
-      { id: 'lan-2', name: 'Guest WiFi', cidr: '10.0.2.0/24', gateway: '10.0.2.1', deviceCount: 12 },
+      {
+        id: 'lan-2',
+        name: 'Guest WiFi',
+        cidr: '10.0.2.0/24',
+        gateway: '10.0.2.1',
+        deviceCount: 12,
+      },
       { id: 'lan-3', name: 'IoT VLAN', cidr: '10.0.3.0/24', gateway: '10.0.3.1', deviceCount: 25 },
     ],
   },

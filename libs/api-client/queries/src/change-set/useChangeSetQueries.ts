@@ -9,14 +9,8 @@
 
 import { useQuery, useLazyQuery, type ApolloError } from '@apollo/client';
 import { gql } from '@apollo/client';
-import type {
-  ChangeSet,
-  ChangeSetStatus,
-} from '@nasnet/core/types';
-import {
-  CHANGE_SET_FULL_FRAGMENT,
-  CHANGE_SET_SUMMARY_FRAGMENT,
-} from './fragments';
+import type { ChangeSet, ChangeSetStatus } from '@nasnet/core/types';
+import { CHANGE_SET_FULL_FRAGMENT, CHANGE_SET_SUMMARY_FRAGMENT } from './fragments';
 
 // ============================================================================
 // Types
@@ -80,16 +74,8 @@ const GET_CHANGE_SET_QUERY = gql`
 `;
 
 const LIST_CHANGE_SETS_QUERY = gql`
-  query ListChangeSets(
-    $routerId: ID!
-    $status: ChangeSetStatus
-    $includeCompleted: Boolean
-  ) {
-    changeSets(
-      routerId: $routerId
-      status: $status
-      includeCompleted: $includeCompleted
-    ) {
+  query ListChangeSets($routerId: ID!, $status: ChangeSetStatus, $includeCompleted: Boolean) {
+    changeSets(routerId: $routerId, status: $status, includeCompleted: $includeCompleted) {
       ...ChangeSetSummary
     }
   }
@@ -273,9 +259,7 @@ export function useActiveChangeSets(
  * );
  * ```
  */
-export function usePendingChangeSetsCount(
-  routerId: string | undefined
-): {
+export function usePendingChangeSetsCount(routerId: string | undefined): {
   count: number;
   isLoading: boolean;
 } {

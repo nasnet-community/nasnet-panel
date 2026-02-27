@@ -475,8 +475,12 @@ test.describe('Accessibility', () => {
     }
 
     // Verify buttons have accessible names
-    await expect(page.getByRole('button', { name: /efficiency report/i })).toHaveAccessibleName(/efficiency/i);
-    await expect(page.getByRole('button', { name: /counter settings/i })).toHaveAccessibleName(/counter/i);
+    await expect(page.getByRole('button', { name: /efficiency report/i })).toHaveAccessibleName(
+      /efficiency/i
+    );
+    await expect(page.getByRole('button', { name: /counter settings/i })).toHaveAccessibleName(
+      /counter/i
+    );
   });
 
   test('should meet color contrast requirements', async ({ page }) => {
@@ -571,7 +575,7 @@ test.describe('Error Handling', () => {
   test('should handle missing counter data gracefully', async ({ page }) => {
     // Mock rules without counter data
     await page.route('**/api/**', async (route) => {
-      const rulesWithoutCounters = mockRulesWithCounters.map(rule => ({
+      const rulesWithoutCounters = mockRulesWithCounters.map((rule) => ({
         ...rule,
         packets: undefined,
         bytes: undefined,

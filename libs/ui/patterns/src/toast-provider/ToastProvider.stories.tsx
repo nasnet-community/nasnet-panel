@@ -287,10 +287,13 @@ export const ProgressToast: Story = {
 
       return (
         <div className="p-8">
-          <Button onClick={simulateUpload} disabled={isUploading}>
+          <Button
+            onClick={simulateUpload}
+            disabled={isUploading}
+          >
             {isUploading ? 'Uploading...' : 'Start Upload'}
           </Button>
-          <p className="mt-4 text-muted-foreground">
+          <p className="text-muted-foreground mt-4">
             Progress toast shows real-time upload progress (0-100%)
           </p>
         </div>
@@ -326,11 +329,14 @@ export const QueueBehavior: Story = {
         <div className="p-8">
           <div className="flex gap-2">
             <Button onClick={triggerMultiple}>Trigger 5 Toasts</Button>
-            <Button variant="outline" onClick={() => toastApi.dismissAll()}>
+            <Button
+              variant="outline"
+              onClick={() => toastApi.dismissAll()}
+            >
               Clear All
             </Button>
           </div>
-          <p className="mt-4 text-muted-foreground">
+          <p className="text-muted-foreground mt-4">
             Max 3 visible at once. Additional toasts are queued and shown as others dismiss.
           </p>
         </div>
@@ -362,7 +368,7 @@ export const Deduplication: Story = {
       return (
         <div className="p-8">
           <Button onClick={triggerDuplicates}>Trigger Same Toast 3x</Button>
-          <p className="mt-4 text-muted-foreground">
+          <p className="text-muted-foreground mt-4">
             Clicking triggers the same toast 3 times rapidly. Only 1 appears (deduplication within
             2-second window).
           </p>
@@ -418,14 +424,21 @@ export const PromiseToast: Story = {
       return (
         <div className="p-8">
           <div className="flex gap-2">
-            <Button onClick={() => simulateAsync(false)} disabled={isLoading}>
+            <Button
+              onClick={() => simulateAsync(false)}
+              disabled={isLoading}
+            >
               Simulate Success
             </Button>
-            <Button variant="destructive" onClick={() => simulateAsync(true)} disabled={isLoading}>
+            <Button
+              variant="destructive"
+              onClick={() => simulateAsync(true)}
+              disabled={isLoading}
+            >
               Simulate Failure
             </Button>
           </div>
-          <p className="mt-4 text-muted-foreground">
+          <p className="text-muted-foreground mt-4">
             Promise wrapper shows loading → success/error automatically.
           </p>
         </div>
@@ -477,11 +490,14 @@ export const WithActionButton: Story = {
         <div className="p-8">
           <div className="flex gap-2">
             <Button onClick={showWithUndo}>Delete with Undo</Button>
-            <Button variant="destructive" onClick={showWithRetry}>
+            <Button
+              variant="destructive"
+              onClick={showWithRetry}
+            >
               Failed with Retry
             </Button>
           </div>
-          <p className="mt-4 text-muted-foreground">
+          <p className="text-muted-foreground mt-4">
             Toasts can include action buttons for undo, retry, or other operations.
           </p>
         </div>
@@ -509,15 +525,15 @@ export const MobilePositioning: Story = {
         story:
           'On mobile devices (< 640px), toasts appear at bottom-center with offset to avoid bottom navigation.',
       },
-    }
+    },
   },
 
   globals: {
     viewport: {
       value: 'mobile1',
-      isRotated: false
-    }
-  }
+      isRotated: false,
+    },
+  },
 };
 
 // Interactive playground
@@ -548,7 +564,7 @@ export const AllVariants: Story = {
       return (
         <div className="p-8">
           <Button onClick={showAll}>Show All Variants</Button>
-          <p className="mt-4 text-muted-foreground">
+          <p className="text-muted-foreground mt-4">
             Triggers all four toast variants to compare styling.
           </p>
         </div>

@@ -8,7 +8,6 @@
 
 import { useState } from 'react';
 
-
 import { InterfaceType, InterfaceStatus } from '@nasnet/api-client/generated';
 
 import { InterfaceListFilters } from './InterfaceListFilters';
@@ -46,8 +45,11 @@ function StatefulFilters({ initialFilters }: { initialFilters: InterfaceFilters 
   const [filters, setFilters] = useState<InterfaceFilters>(initialFilters);
   return (
     <div className="p-component-sm bg-background">
-      <InterfaceListFilters filters={filters} onChange={setFilters} />
-      <pre className="mt-component-md text-xs text-muted-foreground bg-muted p-component-xs rounded">
+      <InterfaceListFilters
+        filters={filters}
+        onChange={setFilters}
+      />
+      <pre className="mt-component-md text-muted-foreground bg-muted p-component-xs rounded text-xs">
         {JSON.stringify(filters, null, 2)}
       </pre>
     </div>
@@ -60,38 +62,26 @@ function StatefulFilters({ initialFilters }: { initialFilters: InterfaceFilters 
 
 /** Default state — all filters cleared, no "Clear" button visible. */
 export const Default: Story = {
-  render: () => (
-    <StatefulFilters
-      initialFilters={{ type: null, status: null, search: '' }}
-    />
-  ),
+  render: () => <StatefulFilters initialFilters={{ type: null, status: null, search: '' }} />,
 };
 
 /** Type pre-selected to Ethernet. */
 export const FilteredByType: Story = {
   render: () => (
-    <StatefulFilters
-      initialFilters={{ type: InterfaceType.Ethernet, status: null, search: '' }}
-    />
+    <StatefulFilters initialFilters={{ type: InterfaceType.Ethernet, status: null, search: '' }} />
   ),
 };
 
 /** Status pre-selected to Down — useful for spotting offline interfaces quickly. */
 export const FilteredByStatus: Story = {
   render: () => (
-    <StatefulFilters
-      initialFilters={{ type: null, status: InterfaceStatus.Down, search: '' }}
-    />
+    <StatefulFilters initialFilters={{ type: null, status: InterfaceStatus.Down, search: '' }} />
   ),
 };
 
 /** Search term pre-populated — "Clear filters" button should be visible. */
 export const WithSearchTerm: Story = {
-  render: () => (
-    <StatefulFilters
-      initialFilters={{ type: null, status: null, search: 'ether' }}
-    />
-  ),
+  render: () => <StatefulFilters initialFilters={{ type: null, status: null, search: 'ether' }} />,
 };
 
 /** All three filters active simultaneously — "Clear filters" button visible. */
@@ -109,11 +99,7 @@ export const AllFiltersActive: Story = {
 
 /** Mobile viewport — filters should wrap gracefully on narrow screens. */
 export const MobileView: Story = {
-  render: () => (
-    <StatefulFilters
-      initialFilters={{ type: null, status: null, search: '' }}
-    />
-  ),
+  render: () => <StatefulFilters initialFilters={{ type: null, status: null, search: '' }} />,
   parameters: {
     viewport: { defaultViewport: 'mobile1' },
     docs: {

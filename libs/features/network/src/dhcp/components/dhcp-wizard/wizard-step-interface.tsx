@@ -52,29 +52,32 @@ function WizardStepInterfaceComponent({ stepper, routerIp, className }: WizardSt
   });
 
   // Memoized interface selection handler
-  const handleInterfaceSelect = useCallback((iface: NetworkInterface) => {
-    setSelectedInterface(iface);
-    form.setValue('interface', iface.name);
+  const handleInterfaceSelect = useCallback(
+    (iface: NetworkInterface) => {
+      setSelectedInterface(iface);
+      form.setValue('interface', iface.name);
 
-    // Store interface IP for later steps
-    if (iface.ipAddress) {
-      form.setValue('interfaceIP', iface.ipAddress);
+      // Store interface IP for later steps
+      if (iface.ipAddress) {
+        form.setValue('interfaceIP', iface.ipAddress);
 
-      // Calculate suggested pool for next step
-      try {
-        const suggestion = calculateSuggestedPool(iface.ipAddress);
+        // Calculate suggested pool for next step
+        try {
+          const suggestion = calculateSuggestedPool(iface.ipAddress);
 
-        // Pre-fill pool step data
-        stepper.setStepData({
-          interface: iface.name,
-          interfaceIP: iface.ipAddress,
-          suggestedPool: suggestion,
-        });
-      } catch (error) {
-        console.error('Failed to calculate pool suggestion:', error);
+          // Pre-fill pool step data
+          stepper.setStepData({
+            interface: iface.name,
+            interfaceIP: iface.ipAddress,
+            suggestedPool: suggestion,
+          });
+        } catch (error) {
+          console.error('Failed to calculate pool suggestion:', error);
+        }
       }
-    }
-  }, [form, stepper]);
+    },
+    [form, stepper]
+  );
 
   // Save form data when proceeding
   useEffect(() => {
@@ -87,12 +90,15 @@ function WizardStepInterfaceComponent({ stepper, routerIp, className }: WizardSt
   }, [form, stepper]);
 
   // Memoized interface selector change handler
-  const handleSelectorChange = useCallback((value: string | string[]) => {
-    if (!value) return;
-    const interfaceId = typeof value === 'string' ? value : value[0];
-    const iface = { id: interfaceId, name: interfaceId } as NetworkInterface;
-    handleInterfaceSelect(iface);
-  }, [handleInterfaceSelect]);
+  const handleSelectorChange = useCallback(
+    (value: string | string[]) => {
+      if (!value) return;
+      const interfaceId = typeof value === 'string' ? value : value[0];
+      const iface = { id: interfaceId, name: interfaceId } as NetworkInterface;
+      handleInterfaceSelect(iface);
+    },
+    [handleInterfaceSelect]
+  );
 
   return (
     <div className={cn('space-y-component-lg', className)}>
@@ -112,16 +118,16 @@ function WizardStepInterfaceComponent({ stepper, routerIp, className }: WizardSt
               onChange={handleSelectorChange}
             />
             {form.formState.errors.interface && (
-              <p className="text-sm text-error mt-component-xs">
+              <p className="text-error mt-component-xs text-sm">
                 {form.formState.errors.interface.message}
               </p>
             )}
           </div>
 
           {selectedInterface && selectedInterface.ipAddress && (
-            <div className="rounded-[var(--semantic-radius-card)] border border-border bg-background p-component-md space-y-component-sm">
-              <h4 className="font-medium text-sm">Selected Interface Details</h4>
-              <div className="grid grid-cols-2 gap-component-sm text-sm">
+            <div className="border-border bg-background p-component-md space-y-component-sm rounded-[var(--semantic-radius-card)] border">
+              <h4 className="text-sm font-medium">Selected Interface Details</h4>
+              <div className="gap-component-sm grid grid-cols-2 text-sm">
                 <div>
                   <span className="text-muted-foreground">Name:</span>
                   <span className="ml-2 font-mono">{selectedInterface.name}</span>

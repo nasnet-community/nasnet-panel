@@ -21,7 +21,12 @@ vi.mock('@nasnet/ui/layouts', () => ({
 }));
 
 vi.mock('@nasnet/ui/primitives', () => ({
-  Skeleton: ({ className }: any) => <div data-testid="skeleton" className={className} />,
+  Skeleton: ({ className }: any) => (
+    <div
+      data-testid="skeleton"
+      className={className}
+    />
+  ),
 }));
 
 vi.mock('./CircularGauge', () => ({
@@ -37,9 +42,8 @@ vi.mock('./CircularGauge', () => ({
 }));
 
 vi.mock('./CPUBreakdownModal', () => ({
-  CPUBreakdownModal: ({ open }: any) => (
-    open ? <div data-testid="cpu-modal">CPU Breakdown Modal</div> : null
-  ),
+  CPUBreakdownModal: ({ open }: any) =>
+    open ? <div data-testid="cpu-modal">CPU Breakdown Modal</div> : null,
 }));
 
 vi.mock('./useResourceMetrics', () => ({
@@ -195,7 +199,10 @@ describe('ResourceGauges', () => {
 
     it('should accept className prop', () => {
       const { container } = render(
-        <ResourceGauges deviceId="test-device" className="custom-class" />
+        <ResourceGauges
+          deviceId="test-device"
+          className="custom-class"
+        />
       );
 
       const gridContainer = container.querySelector('.custom-class');

@@ -54,8 +54,14 @@ export const InterfaceDetailDesktop = memo(function InterfaceDetailDesktop({
   }, []);
 
   return (
-    <Sheet open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
-      <SheetContent side="right" className="w-[600px] overflow-y-auto category-networking">
+    <Sheet
+      open={open}
+      onOpenChange={(isOpen) => !isOpen && onClose()}
+    >
+      <SheetContent
+        side="right"
+        className="category-networking w-[600px] overflow-y-auto"
+      >
         {loading && (
           <div className="space-y-component-md">
             <Skeleton className="h-8 w-48" />
@@ -65,11 +71,12 @@ export const InterfaceDetailDesktop = memo(function InterfaceDetailDesktop({
         )}
 
         {error && (
-          <div className="p-component-xl text-center" role="alert">
+          <div
+            className="p-component-xl text-center"
+            role="alert"
+          >
             <p className="text-error font-medium">Failed to load interface</p>
-            <p className="text-sm text-muted-foreground mt-2">
-              {error.message || 'Unknown error'}
-            </p>
+            <p className="text-muted-foreground mt-2 text-sm">{error.message || 'Unknown error'}</p>
           </div>
         )}
 
@@ -78,17 +85,16 @@ export const InterfaceDetailDesktop = memo(function InterfaceDetailDesktop({
             <SheetHeader>
               <div className="flex items-center justify-between">
                 <SheetTitle className="font-mono">{iface.name}</SheetTitle>
-                <div className="flex gap-component-sm">
+                <div className="gap-component-sm flex">
                   <Badge variant={iface.enabled ? 'default' : 'outline'}>
                     {iface.enabled ? 'Enabled' : 'Disabled'}
                   </Badge>
                   <Badge
                     variant={
-                      iface.status === 'UP'
-                        ? 'success'
-                        : iface.status === 'DOWN'
-                        ? 'error'
-                        : 'secondary'
+                      iface.status === 'UP' ? 'success'
+                      : iface.status === 'DOWN' ?
+                        'error'
+                      : 'secondary'
                     }
                   >
                     {iface.status}
@@ -104,27 +110,45 @@ export const InterfaceDetailDesktop = memo(function InterfaceDetailDesktop({
             <div className="mt-component-lg">
               <Tabs defaultValue="status">
                 <TabsList className="w-full">
-                  <TabsTrigger value="status" className="flex-1">
+                  <TabsTrigger
+                    value="status"
+                    className="flex-1"
+                  >
                     Status
                   </TabsTrigger>
-                  <TabsTrigger value="traffic" className="flex-1">
+                  <TabsTrigger
+                    value="traffic"
+                    className="flex-1"
+                  >
                     Traffic
                   </TabsTrigger>
-                  <TabsTrigger value="config" className="flex-1">
+                  <TabsTrigger
+                    value="config"
+                    className="flex-1"
+                  >
                     Configuration
                   </TabsTrigger>
                 </TabsList>
 
-                <TabsContent value="status" className="space-y-component-md mt-4">
+                <TabsContent
+                  value="status"
+                  className="space-y-component-md mt-4"
+                >
                   <InterfaceStatusSection interface={iface} />
                 </TabsContent>
 
-                <TabsContent value="traffic" className="space-y-component-md mt-4">
+                <TabsContent
+                  value="traffic"
+                  className="space-y-component-md mt-4"
+                >
                   <InterfaceTrafficSection interface={iface} />
                 </TabsContent>
 
-                <TabsContent value="config" className="space-y-component-md mt-4">
-                  {editMode ? (
+                <TabsContent
+                  value="config"
+                  className="space-y-component-md mt-4"
+                >
+                  {editMode ?
                     <InterfaceEditForm
                       routerId={routerId}
                       interface={iface}
@@ -134,12 +158,11 @@ export const InterfaceDetailDesktop = memo(function InterfaceDetailDesktop({
                       }}
                       onCancel={() => handleEditModeChange(false)}
                     />
-                  ) : (
-                    <InterfaceConfigSection
+                  : <InterfaceConfigSection
                       interface={iface}
                       onEdit={() => handleEditModeChange(true)}
                     />
-                  )}
+                  }
                 </TabsContent>
               </Tabs>
             </div>
@@ -165,26 +188,54 @@ const InterfaceStatusSection = memo(function InterfaceStatusSection({
 }) {
   return (
     <div className="space-y-component-md">
-      <div className="grid grid-cols-2 gap-component-md">
-        <StatusItem label="Enabled" value={iface.enabled ? 'Yes' : 'No'} />
-        <StatusItem label="Running" value={iface.running ? 'Yes' : 'No'} />
-        <StatusItem label="Status" value={iface.status} />
-        <StatusItem label="Type" value={iface.type} />
+      <div className="gap-component-md grid grid-cols-2">
+        <StatusItem
+          label="Enabled"
+          value={iface.enabled ? 'Yes' : 'No'}
+        />
+        <StatusItem
+          label="Running"
+          value={iface.running ? 'Yes' : 'No'}
+        />
+        <StatusItem
+          label="Status"
+          value={iface.status}
+        />
+        <StatusItem
+          label="Type"
+          value={iface.type}
+        />
         {iface.macAddress && (
-          <StatusItem label="MAC Address" value={iface.macAddress} className="col-span-2" />
+          <StatusItem
+            label="MAC Address"
+            value={iface.macAddress}
+            className="col-span-2"
+          />
         )}
-        {iface.linkSpeed && <StatusItem label="Link Speed" value={iface.linkSpeed} />}
+        {iface.linkSpeed && (
+          <StatusItem
+            label="Link Speed"
+            value={iface.linkSpeed}
+          />
+        )}
         {iface.linkPartner && (
-          <StatusItem label="Link Partner" value={iface.linkPartner} className="col-span-2" />
+          <StatusItem
+            label="Link Partner"
+            value={iface.linkPartner}
+            className="col-span-2"
+          />
         )}
       </div>
 
       {iface.usedBy && iface.usedBy.length > 0 && (
-        <div className="border border-border rounded-[var(--semantic-radius-card)] p-component-md">
-          <h4 className="font-medium mb-2">Used By</h4>
-          <div className="flex flex-wrap gap-component-sm">
+        <div className="border-border p-component-md rounded-[var(--semantic-radius-card)] border">
+          <h4 className="mb-2 font-medium">Used By</h4>
+          <div className="gap-component-sm flex flex-wrap">
             {iface.usedBy.map((usage: string) => (
-              <Badge key={usage} variant="outline">
+              <Badge
+                key={usage}
+                variant="outline"
+              >
                 {usage}
               </Badge>
             ))}
@@ -216,31 +267,34 @@ const InterfaceTrafficSection = memo(function InterfaceTrafficSection({
     return `${(bytes / Math.pow(BYTE_UNIT, unitIndex)).toFixed(2)} ${BYTE_UNITS[unitIndex]}`;
   }, []);
 
-  const formatRate = useCallback((bytesPerSec: number) => {
-    return `${formatBytes(bytesPerSec)}/s`;
-  }, [formatBytes]);
+  const formatRate = useCallback(
+    (bytesPerSec: number) => {
+      return `${formatBytes(bytesPerSec)}/s`;
+    },
+    [formatBytes]
+  );
 
   return (
     <div className="space-y-component-md">
-      <div className="grid grid-cols-2 gap-component-md">
-        <div className="border border-border rounded-[var(--semantic-radius-card)] p-component-md">
-          <h4 className="text-sm text-muted-foreground mb-1">TX Rate</h4>
-          <p className="text-2xl font-bold font-mono">{formatRate(iface.txRate || 0)}</p>
-          <p className="text-xs text-muted-foreground mt-1 font-mono">
+      <div className="gap-component-md grid grid-cols-2">
+        <div className="border-border p-component-md rounded-[var(--semantic-radius-card)] border">
+          <h4 className="text-muted-foreground mb-1 text-sm">TX Rate</h4>
+          <p className="font-mono text-2xl font-bold">{formatRate(iface.txRate || 0)}</p>
+          <p className="text-muted-foreground mt-1 font-mono text-xs">
             Total: {formatBytes(iface.txBytes || 0)}
           </p>
         </div>
-        <div className="border border-border rounded-[var(--semantic-radius-card)] p-component-md">
-          <h4 className="text-sm text-muted-foreground mb-1">RX Rate</h4>
-          <p className="text-2xl font-bold font-mono">{formatRate(iface.rxRate || 0)}</p>
-          <p className="text-xs text-muted-foreground mt-1 font-mono">
+        <div className="border-border p-component-md rounded-[var(--semantic-radius-card)] border">
+          <h4 className="text-muted-foreground mb-1 text-sm">RX Rate</h4>
+          <p className="font-mono text-2xl font-bold">{formatRate(iface.rxRate || 0)}</p>
+          <p className="text-muted-foreground mt-1 font-mono text-xs">
             Total: {formatBytes(iface.rxBytes || 0)}
           </p>
         </div>
       </div>
 
       {/* TODO: Add traffic chart visualization */}
-      <div className="border border-border rounded-[var(--semantic-radius-card)] p-component-xl text-center text-muted-foreground">
+      <div className="border-border p-component-xl text-muted-foreground rounded-[var(--semantic-radius-card)] border text-center">
         Traffic chart will be implemented here
       </div>
     </div>
@@ -264,17 +318,26 @@ const InterfaceConfigSection = memo(function InterfaceConfigSection({
 }) {
   return (
     <div className="space-y-component-md">
-      <div className="grid grid-cols-2 gap-component-md">
-        <StatusItem label="MTU" value={iface.mtu || 'Default'} />
-        <StatusItem label="Comment" value={iface.comment || 'None'} />
+      <div className="gap-component-md grid grid-cols-2">
+        <StatusItem
+          label="MTU"
+          value={iface.mtu || 'Default'}
+        />
+        <StatusItem
+          label="Comment"
+          value={iface.comment || 'None'}
+        />
       </div>
 
       {iface.ip && iface.ip.length > 0 && (
-        <div className="border border-border rounded-[var(--semantic-radius-card)] p-component-md">
-          <h4 className="font-medium mb-component-sm">IP Addresses</h4>
+        <div className="border-border p-component-md rounded-[var(--semantic-radius-card)] border">
+          <h4 className="mb-component-sm font-medium">IP Addresses</h4>
           <div className="space-y-component-xs">
             {iface.ip.map((addr: string) => (
-              <div key={addr} className="font-mono text-sm break-all">
+              <div
+                key={addr}
+                className="break-all font-mono text-sm"
+              >
                 {addr}
               </div>
             ))}
@@ -283,7 +346,11 @@ const InterfaceConfigSection = memo(function InterfaceConfigSection({
       )}
 
       <div className="pt-component-sm">
-        <Button className="w-full" onClick={onEdit} aria-label="Edit interface settings">
+        <Button
+          className="w-full"
+          onClick={onEdit}
+          aria-label="Edit interface settings"
+        >
           Edit Interface Settings
         </Button>
       </div>
@@ -308,11 +375,17 @@ const StatusItem = memo(function StatusItem({
   value: string | number;
   className?: string;
 }) {
-  const isTechnicalData = label === 'MAC Address' || label === 'Link Partner' || label === 'Link Speed';
+  const isTechnicalData =
+    label === 'MAC Address' || label === 'Link Partner' || label === 'Link Speed';
   return (
-    <div className={cn('border border-border rounded-[var(--semantic-radius-card)] p-component-sm', className)}>
-      <h4 className="text-xs text-muted-foreground mb-1">{label}</h4>
-      <p className={cn('text-sm font-medium break-all', isTechnicalData && 'font-mono')}>{value}</p>
+    <div
+      className={cn(
+        'border-border p-component-sm rounded-[var(--semantic-radius-card)] border',
+        className
+      )}
+    >
+      <h4 className="text-muted-foreground mb-1 text-xs">{label}</h4>
+      <p className={cn('break-all text-sm font-medium', isTechnicalData && 'font-mono')}>{value}</p>
     </div>
   );
 });

@@ -172,7 +172,8 @@ export const Skipped: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Skipped state: stage bypassed because it is not required for this operation risk level.',
+        story:
+          'Skipped state: stage bypassed because it is not required for this operation risk level.',
       },
     },
   },
@@ -207,7 +208,8 @@ export const FailedCollapsed: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Failed stage with detail panel collapsed. The error count is shown; click the row to reveal the full error message.',
+        story:
+          'Failed stage with detail panel collapsed. The error count is shown; click the row to reveal the full error message.',
       },
     },
   },
@@ -242,7 +244,8 @@ export const FailedExpanded: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Failed stage with detail panel open. Full error message, field path reference, and suggested fix are all visible.',
+        story:
+          'Failed stage with detail panel open. Full error message, field path reference, and suggested fix are all visible.',
       },
     },
   },
@@ -280,7 +283,8 @@ export const PassedWithWarningsExpanded: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Passed stage with two warnings expanded. Warnings do not block apply; they appear in amber colour.',
+        story:
+          'Passed stage with two warnings expanded. Warnings do not block apply; they appear in amber colour.',
       },
     },
   },
@@ -325,7 +329,8 @@ export const MultipleErrorsExpanded: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Three distinct errors from the dependencies stage shown together. Each error card has its own field path and suggested fix.',
+        story:
+          'Three distinct errors from the dependencies stage shown together. Each error card has its own field path and suggested fix.',
       },
     },
   },
@@ -371,7 +376,7 @@ export const InteractiveToggle: Story = {
           showConnector={false}
           index={0}
         />
-        <p className="mt-4 text-sm text-muted-foreground">
+        <p className="text-muted-foreground mt-4 text-sm">
           Click the row above to toggle the detail panel.
         </p>
       </div>
@@ -380,7 +385,8 @@ export const InteractiveToggle: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Fully interactive story demonstrating the expand/collapse toggle with both an error and a warning in the detail panel.',
+        story:
+          'Fully interactive story demonstrating the expand/collapse toggle with both an error and a warning in the detail panel.',
       },
     },
   },

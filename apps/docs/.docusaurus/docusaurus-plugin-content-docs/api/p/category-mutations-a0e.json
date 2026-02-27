@@ -1,1 +1,15 @@
-{"categoryGeneratedIndex":{"title":"Mutations overview","slug":"/category/mutations","permalink":"/category/mutations","sidebar":"defaultSidebar","navigation":{"previous":{"title":"skip","permalink":"/api/operations/directives/skip"},"next":{"title":"acknowledgeAlert","permalink":"/api/operations/mutations/acknowledge-alert"}}}}
+{
+  "categoryGeneratedIndex": {
+    "title": "Mutations overview",
+    "slug": "/category/mutations",
+    "permalink": "/category/mutations",
+    "sidebar": "defaultSidebar",
+    "navigation": {
+      "previous": { "title": "skip", "permalink": "/api/operations/directives/skip" },
+      "next": {
+        "title": "acknowledgeAlert",
+        "permalink": "/api/operations/mutations/acknowledge-alert"
+      }
+    }
+  }
+}

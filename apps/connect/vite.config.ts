@@ -7,7 +7,6 @@ import react from '@vitejs/plugin-react';
 import { defineConfig, type Plugin } from 'vite';
 import checker from 'vite-plugin-checker';
 
-
 /**
  * Custom plugin to watch design tokens and rebuild on changes
  * Provides HMR for token updates without full page reload
@@ -77,25 +76,49 @@ export default defineConfig(({ mode }) => ({
       '@nasnet/ui/utils': resolve(import.meta.dirname, '../../libs/ui/primitives/src/lib/utils'), // Utils from primitives
       '@nasnet/ui/components': resolve(import.meta.dirname, '../../libs/ui/primitives/src'), // Alias for incorrect imports
       // CSS design tokens - compiled from tokens.json (MUST come before @nasnet/ui/tokens for proper resolution)
-      '@nasnet/ui/tokens/variables.css': resolve(import.meta.dirname, '../../libs/ui/tokens/dist/variables.css'),
+      '@nasnet/ui/tokens/variables.css': resolve(
+        import.meta.dirname,
+        '../../libs/ui/tokens/dist/variables.css'
+      ),
       // Animation tokens - TypeScript source files (NAS-4.18)
       '@nasnet/ui/tokens': resolve(import.meta.dirname, '../../libs/ui/tokens/src'),
       // Motion pattern components (NAS-4.18)
-      '@nasnet/ui/patterns/motion': resolve(import.meta.dirname, '../../libs/ui/patterns/src/motion'),
+      '@nasnet/ui/patterns/motion': resolve(
+        import.meta.dirname,
+        '../../libs/ui/patterns/src/motion'
+      ),
 
-      '@nasnet/features/router-discovery': resolve(import.meta.dirname, '../../libs/features/router-discovery/src'),
-      '@nasnet/features/dashboard': resolve(import.meta.dirname, '../../libs/features/dashboard/src'),
+      '@nasnet/features/router-discovery': resolve(
+        import.meta.dirname,
+        '../../libs/features/router-discovery/src'
+      ),
+      '@nasnet/features/dashboard': resolve(
+        import.meta.dirname,
+        '../../libs/features/dashboard/src'
+      ),
       '@nasnet/features/wireless': resolve(import.meta.dirname, '../../libs/features/wireless/src'),
       '@nasnet/features/firewall': resolve(import.meta.dirname, '../../libs/features/firewall/src'),
       '@nasnet/features/logs': resolve(import.meta.dirname, '../../libs/features/logs/src'),
-      '@nasnet/features/configuration-import': resolve(import.meta.dirname, '../../libs/features/configuration-import/src'),
+      '@nasnet/features/configuration-import': resolve(
+        import.meta.dirname,
+        '../../libs/features/configuration-import/src'
+      ),
       '@nasnet/features/network': resolve(import.meta.dirname, '../../libs/features/network/src'),
       '@nasnet/features/alerts': resolve(import.meta.dirname, '../../libs/features/alerts/src'),
-      '@nasnet/features/diagnostics': resolve(import.meta.dirname, '../../libs/features/diagnostics/src'),
+      '@nasnet/features/diagnostics': resolve(
+        import.meta.dirname,
+        '../../libs/features/diagnostics/src'
+      ),
       '@nasnet/features/services': resolve(import.meta.dirname, '../../libs/features/services/src'),
       '@nasnet/api-client/core': resolve(import.meta.dirname, '../../libs/api-client/core/src'),
-      '@nasnet/api-client/generated': resolve(import.meta.dirname, '../../libs/api-client/generated'),
-      '@nasnet/api-client/queries': resolve(import.meta.dirname, '../../libs/api-client/queries/src'),
+      '@nasnet/api-client/generated': resolve(
+        import.meta.dirname,
+        '../../libs/api-client/generated'
+      ),
+      '@nasnet/api-client/queries': resolve(
+        import.meta.dirname,
+        '../../libs/api-client/queries/src'
+      ),
       '@nasnet/state/stores': resolve(import.meta.dirname, '../../libs/state/stores/src'),
     },
   },
@@ -124,12 +147,13 @@ export default defineConfig(({ mode }) => ({
     // Design token HMR - watches tokens.json and rebuilds on change
     mode !== 'production' && designTokensHMR(),
     // Only run type-checker in development mode (not during production builds)
-    mode !== 'production' && checker({
-      typescript: true,
-      overlay: {
-        initialIsOpen: false,
-      },
-    }),
+    mode !== 'production' &&
+      checker({
+        typescript: true,
+        overlay: {
+          initialIsOpen: false,
+        },
+      }),
   ].filter(Boolean),
   // Uncomment this if you are using workers.
   // worker: {
@@ -176,7 +200,12 @@ export default defineConfig(({ mode }) => ({
           // Forms - React Hook Form with validation
           'vendor-forms': ['react-hook-form', '@hookform/resolvers', 'zod'],
           // Internationalization - i18next
-          'vendor-i18n': ['i18next', 'react-i18next', 'i18next-http-backend', 'i18next-browser-languagedetector'],
+          'vendor-i18n': [
+            'i18next',
+            'react-i18next',
+            'i18next-http-backend',
+            'i18next-browser-languagedetector',
+          ],
         },
       },
     },

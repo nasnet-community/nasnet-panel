@@ -1,18 +1,28 @@
 # Feature Marketplace
 
-> Downloadable privacy and network services for MikroTik routers: manifest-driven binary distribution, cryptographic verification, atomic updates, config migration, and service import/export.
+> Downloadable privacy and network services for MikroTik routers: manifest-driven binary
+> distribution, cryptographic verification, atomic updates, config migration, and service
+> import/export.
 
-**Packages:** `internal/features/`, `internal/features/updates/`, `internal/features/sharing/`, `internal/features/verification/`, `internal/registry/`, `internal/common/manifest/`
+**Packages:** `internal/features/`, `internal/features/updates/`, `internal/features/sharing/`,
+`internal/features/verification/`, `internal/registry/`, `internal/common/manifest/`
 
-**Key Files:** `features/download.go`, `features/config_migrator.go`, `common/manifest/manifest.go`, `features/updates/engine.go`, `features/updates/journal.go`, `features/updates/updater.go`, `features/updates/scheduler.go`, `features/verification/verifier.go`, `features/verification/gpg_verify.go`, `features/sharing/import.go`, `registry/github.go`, `registry/http.go`
+**Key Files:** `features/download.go`, `features/config_migrator.go`, `common/manifest/manifest.go`,
+`features/updates/engine.go`, `features/updates/journal.go`, `features/updates/updater.go`,
+`features/updates/scheduler.go`, `features/verification/verifier.go`,
+`features/verification/gpg_verify.go`, `features/sharing/import.go`, `registry/github.go`,
+`registry/http.go`
 
-**Prerequisites:** [See: service-orchestrator.md §InstanceManager], [See: data-layer.md §FeatureRegistry]
+**Prerequisites:** [See: service-orchestrator.md §InstanceManager], [See:
+data-layer.md §FeatureRegistry]
 
 ---
 
 ## Overview
 
-The Feature Marketplace is a plugin system that extends a base MikroTik router management installation with downloadable network services. Each **feature** is a standalone binary (Tor, sing-box, Xray-core, MTProxy, Psiphon, AdGuard Home) described by a **manifest** that declares:
+The Feature Marketplace is a plugin system that extends a base MikroTik router management
+installation with downloadable network services. Each **feature** is a standalone binary (Tor,
+sing-box, Xray-core, MTProxy, Psiphon, AdGuard Home) described by a **manifest** that declares:
 
 - Resource requirements (RAM, disk, ports, architecture)
 - Binary download source (GitHub Releases with architecture mapping)
@@ -148,7 +158,8 @@ func NormalizeArchitecture(arch string) string  // "armv7l" → "arm", "aarch64"
 
 ### `internal/features`
 
-**`manifest.go`** — type aliases re-exporting `internal/common/manifest` types. This keeps the `features` package as the single import point for callers.
+**`manifest.go`** — type aliases re-exporting `internal/common/manifest` types. This keeps the
+`features` package as the single import point for callers.
 
 **`download.go` — DownloadManager**
 
@@ -173,6 +184,7 @@ type DownloadProgress struct {
 ```
 
 **`Download(ctx, featureID, url, expectedChecksum)`** flow:
+
 1. Check for duplicate in-progress download (returns error if duplicate)
 2. Emit `starting` progress event
 3. Create `{baseDir}/{featureID}/bin/` directory
@@ -182,7 +194,8 @@ type DownloadProgress struct {
 7. Set executable bit (`0o755`)
 8. Emit progress events at each step; `failed` on any error
 
-Progress events are published to the event bus and consumed by the GraphQL subscription resolver to stream live download progress to the UI.
+Progress events are published to the event bus and consumed by the GraphQL subscription resolver to
+stream live download progress to the UI.
 
 **`config_migrator.go` — ConfigMigrator**
 
@@ -214,18 +227,20 @@ func (r *MigratorRegistry) GetOrDefault(featureID string) ConfigMigrator  // ret
 
 Six manifests are embedded in the binary at build time:
 
-| Manifest | ID | Category | Min RAM | Ports |
-|----------|----|----------|---------|-------|
-| `tor.json` | `tor` | Privacy | 30 MB | 9001, 9030 |
-| `singbox.json` | `singbox` | VPN | 15 MB | 1080, 8080 |
-| `xray.json` | `xray` | VPN | 15 MB | 1080, 8080 |
-| `mtproxy.json` | `mtproxy` | Privacy | 8 MB | 443 |
-| `psiphon.json` | `psiphon` | Privacy | 10 MB | varies |
-| `adguard.json` | `adguard` | Monitoring | 32 MB | 53, 80, 3000 |
+| Manifest       | ID        | Category   | Min RAM | Ports        |
+| -------------- | --------- | ---------- | ------- | ------------ |
+| `tor.json`     | `tor`     | Privacy    | 30 MB   | 9001, 9030   |
+| `singbox.json` | `singbox` | VPN        | 15 MB   | 1080, 8080   |
+| `xray.json`    | `xray`    | VPN        | 15 MB   | 1080, 8080   |
+| `mtproxy.json` | `mtproxy` | Privacy    | 8 MB    | 443          |
+| `psiphon.json` | `psiphon` | Privacy    | 10 MB   | varies       |
+| `adguard.json` | `adguard` | Monitoring | 32 MB   | 53, 80, 3000 |
 
-Architecture support: all features support `amd64`, `arm64`, `arm` (matching MikroTik CHR and router hardware).
+Architecture support: all features support `amd64`, `arm64`, `arm` (matching MikroTik CHR and router
+hardware).
 
-Binary source: GitHub Releases with per-architecture asset naming (e.g., Tor `linux-amd64`, sing-box `linux_amd64`).
+Binary source: GitHub Releases with per-architecture asset naming (e.g., Tor `linux-amd64`, sing-box
+`linux_amd64`).
 
 ---
 
@@ -280,11 +295,13 @@ type GPGVerificationResult struct {
 func VerifyGPGSignature(ctx, filePath, signaturePath string, spec *GPGSpec) (*GPGVerificationResult, error)
 ```
 
-Supports both armored (`.asc`) and binary (`.sig`) detached signatures. Falls back from armored to binary format automatically.
+Supports both armored (`.asc`) and binary (`.sig`) detached signatures. Falls back from armored to
+binary format automatically.
 
 Key retrieval: downloads public key from `spec.KeyServerURL` if not cached locally.
 
-> Note: `ErrGPGNotImplemented` is returned for features that declare GPG but the current release hasn't wired the key server. This is intentional — GPG is opt-in at the manifest level.
+> Note: `ErrGPGNotImplemented` is returned for features that declare GPG but the current release
+> hasn't wired the key server. This is intentional — GPG is opt-in at the manifest level.
 
 ---
 
@@ -319,7 +336,8 @@ type UpdateInfo struct {
 func (s *UpdateService) CheckForUpdate(ctx, featureID, currentVersion string) (*UpdateInfo, bool, error)
 ```
 
-Version comparison uses `golang.org/x/mod/semver`. Severity is derived from semver bump type (major/minor/patch) with special-case `CRITICAL` tag detection from release title.
+Version comparison uses `golang.org/x/mod/semver`. Severity is derived from semver bump type
+(major/minor/patch) with special-case `CRITICAL` tag detection from release title.
 
 Uses `GitHubClient.FetchLatestRelease` with ETag caching — no API calls if release hasn't changed.
 
@@ -369,7 +387,8 @@ type UpdateEngineConfig struct {
            └── On any failure after BACKUP: ROLLBACK phase restores backup
 ```
 
-Each phase transition is logged to `UpdateJournal` before execution — enables crash recovery on restart.
+Each phase transition is logged to `UpdateJournal` before execution — enables crash recovery on
+restart.
 
 **`journal.go` — UpdateJournal**
 
@@ -394,7 +413,8 @@ type JournalEntry struct {
 }
 ```
 
-On startup, `UpdateEngine` checks the journal for incomplete updates (status=`pending`) and resumes or rolls them back.
+On startup, `UpdateEngine` checks the journal for incomplete updates (status=`pending`) and resumes
+or rolls them back.
 
 **`scheduler.go` — UpdateScheduler**
 
@@ -413,7 +433,8 @@ type UpdateSchedulerConfig struct {
 }
 ```
 
-Quiet hours prevent auto-updates during peak usage hours. Checks respect `auto_update` flag per service instance — if `false`, only notifies via event (does not apply update).
+Quiet hours prevent auto-updates during peak usage hours. Checks respect `auto_update` flag per
+service instance — if `false`, only notifies via event (does not apply update).
 
 ---
 
@@ -525,7 +546,8 @@ type ImportOptions struct {
 6. Capability check — router supports required features
 7. Dry-run — simulate import without DB writes
 
-**`ServiceExportPackage`** — contains serialized service config, routing rules, and device assignments (with sensitive fields redacted).
+**`ServiceExportPackage`** — contains serialized service config, routing rules, and device
+assignments (with sensitive fields redacted).
 
 ---
 
@@ -632,22 +654,24 @@ Default `baseDir`: `/var/lib/nasnet` (production), configurable via `UpdateEngin
 
 **GitHub rate limiting:**
 
-The `GitHubClient` uses ETag caching to stay within GitHub's unauthenticated rate limit (60 req/hour). With the default 6-hour check interval and ETag cache hits returning 304 (no quota cost), 6 features would consume at most 1 API request per check cycle when releases haven't changed.
+The `GitHubClient` uses ETag caching to stay within GitHub's unauthenticated rate limit (60
+req/hour). With the default 6-hour check interval and ETag cache hits returning 304 (no quota cost),
+6 features would consume at most 1 API request per check cycle when releases haven't changed.
 
 ---
 
 ## Error Handling
 
-| Error | Behavior |
-|-------|----------|
+| Error                    | Behavior                                                                               |
+| ------------------------ | -------------------------------------------------------------------------------------- |
 | Download network failure | `DownloadManager` sets status `failed`, publishes error event; retry is user-triggered |
-| SHA256 mismatch | `Verifier` returns `VerifyError`; downloaded file deleted |
-| GPG verification failure | Returns error if `RequireGPG=true`; skipped if `false` |
-| Update STAGING failure | No rollback needed; staging directory cleaned up |
-| Update POST-SWAP failure | Full ROLLBACK: binary + config restored from backup |
-| Import conflict | Returns `ValidationError` with code and resolution options |
-| Import dry-run failure | Returns validation result without DB changes |
-| Journal write failure | Treated as critical — update aborted |
+| SHA256 mismatch          | `Verifier` returns `VerifyError`; downloaded file deleted                              |
+| GPG verification failure | Returns error if `RequireGPG=true`; skipped if `false`                                 |
+| Update STAGING failure   | No rollback needed; staging directory cleaned up                                       |
+| Update POST-SWAP failure | Full ROLLBACK: binary + config restored from backup                                    |
+| Import conflict          | Returns `ValidationError` with code and resolution options                             |
+| Import dry-run failure   | Returns validation result without DB changes                                           |
+| Journal write failure    | Treated as critical — update aborted                                                   |
 
 ---
 
@@ -655,19 +679,24 @@ The `GitHubClient` uses ETag caching to stay within GitHub's unauthenticated rat
 
 **`internal/config/integration_test.go`**
 
-Integration tests for service-specific config generation (adguard, tor, singbox, xray). Tests that config output matches expected structure for each architecture.
+Integration tests for service-specific config generation (adguard, tor, singbox, xray). Tests that
+config output matches expected structure for each architecture.
 
 **`features/sharing/import.go`**
 
-Extensive validation test coverage across all 7 validation stages. Mock `FeatureRegistry` and `ent.Client` used for isolation.
+Extensive validation test coverage across all 7 validation stages. Mock `FeatureRegistry` and
+`ent.Client` used for isolation.
 
 ---
 
 ## Cross-References
 
-- [See: service-orchestrator.md §lifecycle_installer] — `DownloadManager` is called during installation
-- [See: service-orchestrator.md §InstanceManager] — `UpdateEngine` uses `InstanceStopper`/`InstanceStarter` interfaces from lifecycle
-- [See: virtual-interface-factory.md §BridgeOrchestrator] — Manifests drive VIF gateway configuration
+- [See: service-orchestrator.md §lifecycle_installer] — `DownloadManager` is called during
+  installation
+- [See: service-orchestrator.md §InstanceManager] — `UpdateEngine` uses
+  `InstanceStopper`/`InstanceStarter` interfaces from lifecycle
+- [See: virtual-interface-factory.md §BridgeOrchestrator] — Manifests drive VIF gateway
+  configuration
 - [See: data-layer.md §ServiceInstance] — Ent schema stores version, binary_path, auto_update flags
 - [See: event-system.md] — Download progress, update lifecycle, and verification events
 - [See: graphql-api.md §services] — GraphQL mutations for install, update, import/export

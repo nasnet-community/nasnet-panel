@@ -40,11 +40,7 @@ import type { ScheduleEditorProps } from './types';
 export const ScheduleEditor = memo(function ScheduleEditor(props: ScheduleEditorProps) {
   const isMobile = useMediaQuery('(max-width: 640px)');
 
-  return isMobile ? (
-    <ScheduleEditorMobile {...props} />
-  ) : (
-    <ScheduleEditorDesktop {...props} />
-  );
+  return isMobile ? <ScheduleEditorMobile {...props} /> : <ScheduleEditorDesktop {...props} />;
 });
 
 ScheduleEditor.displayName = 'ScheduleEditor';

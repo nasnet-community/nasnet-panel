@@ -71,7 +71,10 @@ export const SubnetInputMobile = memo(function SubnetInputMobile({
     <div className={cn('space-y-3', className)}>
       {/* Label */}
       {label && (
-        <Label htmlFor={inputId} className="text-base font-medium">
+        <Label
+          htmlFor={inputId}
+          className="text-base font-medium"
+        >
           {label}
           {required && <span className="text-destructive ml-1">*</span>}
         </Label>
@@ -90,12 +93,9 @@ export const SubnetInputMobile = memo(function SubnetInputMobile({
           placeholder={placeholder}
           disabled={disabled}
           aria-invalid={!!state.error}
-          aria-describedby={cn(
-            state.error && errorId,
-            helpText && helpId
-          )}
+          aria-describedby={cn(state.error && errorId, helpText && helpId)}
           className={cn(
-            'font-mono h-12 text-base', // 48px height for touch
+            'h-12 font-mono text-base', // 48px height for touch
             state.error && 'border-destructive focus-visible:ring-destructive'
           )}
         />
@@ -103,33 +103,39 @@ export const SubnetInputMobile = memo(function SubnetInputMobile({
 
       {/* Prefix Selector Row */}
       <div className="flex items-center justify-between gap-2">
-        <span className="text-sm text-muted-foreground">Subnet Prefix</span>
+        <span className="text-muted-foreground text-sm">Subnet Prefix</span>
         <PrefixSelector
           value={state.prefixPart}
           onChange={handlePrefixChange}
           options={state.prefixOptions}
           disabled={disabled}
           ariaLabel="CIDR prefix length"
-          className="[&_input]:h-11 [&_button]:h-11" // Larger touch targets
+          className="[&_button]:h-11 [&_input]:h-11" // Larger touch targets
         />
       </div>
 
       {/* Overlap Warning (if detected) */}
       {state.overlap && (
-        <div className="flex items-center justify-between rounded-lg border border-warning/20 bg-warning/5 p-3">
+        <div className="border-warning/20 bg-warning/5 flex items-center justify-between rounded-lg border p-3">
           <div className="flex items-center gap-2">
             <OverlapBadge />
-            <span className="text-sm text-muted-foreground">
+            <span className="text-muted-foreground text-sm">
               Conflicts with {state.overlap.resourceName}
             </span>
           </div>
           <Sheet>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="sm">
+              <Button
+                variant="ghost"
+                size="sm"
+              >
                 Details
               </Button>
             </SheetTrigger>
-            <SheetContent side="bottom" className="h-auto">
+            <SheetContent
+              side="bottom"
+              className="h-auto"
+            >
               <SheetHeader>
                 <SheetTitle>Overlap Details</SheetTitle>
               </SheetHeader>
@@ -149,7 +155,7 @@ export const SubnetInputMobile = memo(function SubnetInputMobile({
         <p
           id={errorId}
           role="alert"
-          className="text-sm text-destructive"
+          className="text-destructive text-sm"
         >
           {state.error}
         </p>
@@ -157,18 +163,24 @@ export const SubnetInputMobile = memo(function SubnetInputMobile({
 
       {/* Help text */}
       {helpText && !state.error && (
-        <p id={helpId} className="text-sm text-muted-foreground">
+        <p
+          id={helpId}
+          className="text-muted-foreground text-sm"
+        >
           {helpText}
         </p>
       )}
 
       {/* Calculations Button + Bottom Sheet (Mobile: tap to expand) */}
       {showCalculations && state.networkInfo && (
-        <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+        <Sheet
+          open={sheetOpen}
+          onOpenChange={setSheetOpen}
+        >
           <SheetTrigger asChild>
             <Button
               variant="outline"
-              className="w-full h-12 justify-between"
+              className="h-12 w-full justify-between"
               disabled={!state.isValid}
             >
               <span className="flex items-center gap-2">
@@ -178,7 +190,10 @@ export const SubnetInputMobile = memo(function SubnetInputMobile({
               <ChevronDown className="h-4 w-4" />
             </Button>
           </SheetTrigger>
-          <SheetContent side="bottom" className="h-auto max-h-[70vh]">
+          <SheetContent
+            side="bottom"
+            className="h-auto max-h-[70vh]"
+          >
             <SheetHeader>
               <SheetTitle className="flex items-center gap-2">
                 <Calculator className="h-5 w-5" />
@@ -197,12 +212,13 @@ export const SubnetInputMobile = memo(function SubnetInputMobile({
 
       {/* Quick info line when calculations hidden */}
       {showCalculations && state.networkInfo && !sheetOpen && (
-        <div className="flex items-center justify-between text-sm text-muted-foreground border-t pt-2">
+        <div className="text-muted-foreground flex items-center justify-between border-t pt-2 text-sm">
           <span>
             Network: <span className="font-mono">{state.networkInfo.network}</span>
           </span>
           <span>
-            Hosts: <span className="font-mono">{state.networkInfo.hostCount.toLocaleString('en-US')}</span>
+            Hosts:{' '}
+            <span className="font-mono">{state.networkInfo.hostCount.toLocaleString('en-US')}</span>
           </span>
         </div>
       )}

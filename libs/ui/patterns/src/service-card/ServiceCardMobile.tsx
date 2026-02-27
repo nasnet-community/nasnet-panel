@@ -44,58 +44,46 @@ export function ServiceCardMobile(props: ServiceCardProps) {
 
   return (
     <Card
-      className={`
-        bg-card border border-border rounded-[var(--semantic-radius-card)]
-        shadow-[var(--semantic-shadow-card)]
-        hover:shadow-lg transition-shadow duration-200
-        p-component-md touch-manipulation
-        ${className || ''}
-      `.trim()}
+      className={`bg-card border-border p-component-md touch-manipulation rounded-[var(--semantic-radius-card)] border shadow-[var(--semantic-shadow-card)] transition-shadow duration-200 hover:shadow-lg ${className || ''} `.trim()}
       onClick={handleClick}
       role="article"
       aria-label={`${service.name} - ${statusLabel}`}
     >
-      <CardContent className="p-0 space-y-component-md">
+      <CardContent className="space-y-component-md p-0">
         {/* Header row with status - 44px minimum touch target */}
-        <div className="flex items-center justify-between min-h-[44px]">
-          <div className="flex items-center gap-component-sm flex-1 min-w-0">
+        <div className="flex min-h-[44px] items-center justify-between">
+          <div className="gap-component-sm flex min-w-0 flex-1 items-center">
             {/* Service icon with category background */}
             {service.icon && (
               <div
-                className={`
-                  shrink-0 h-10 w-10 flex items-center justify-center
-                  rounded-lg bg-category-vpn/10
-                `}
+                className={`bg-category-vpn/10 flex h-10 w-10 shrink-0 items-center justify-center rounded-lg`}
               >
                 {service.icon}
               </div>
             )}
 
             {/* Service name and version */}
-            <div className="flex-1 min-w-0">
-              <span className="text-lg font-semibold text-foreground truncate block">
+            <div className="min-w-0 flex-1">
+              <span className="text-foreground block truncate text-lg font-semibold">
                 {service.name}
               </span>
               {service.version && (
-                <span className="text-xs font-mono text-muted-foreground">
-                  v{service.version}
-                </span>
+                <span className="text-muted-foreground font-mono text-xs">v{service.version}</span>
               )}
             </div>
           </div>
 
           {/* Status badge with health indicator */}
-          <div className="relative shrink-0 ml-component-sm">
+          <div className="ml-component-sm relative shrink-0">
             <ServiceHealthBadge />
           </div>
         </div>
 
         {/* Category label */}
-        <div className="flex items-center gap-component-sm">
-          <span className="text-xs text-muted-foreground">Category:</span>
+        <div className="gap-component-sm flex items-center">
+          <span className="text-muted-foreground text-xs">Category:</span>
           <span className={`text-xs font-medium ${categoryColor}`}>
-            {service.category.charAt(0).toUpperCase() +
-              service.category.slice(1)}
+            {service.category.charAt(0).toUpperCase() + service.category.slice(1)}
           </span>
         </div>
 
@@ -113,46 +101,40 @@ export function ServiceCardMobile(props: ServiceCardProps) {
 
         {/* Description if present */}
         {service.description && (
-          <p className="text-sm text-muted-foreground line-clamp-2">
-            {service.description}
-          </p>
+          <p className="text-muted-foreground line-clamp-2 text-sm">{service.description}</p>
         )}
 
         {/* Resource metrics grid (mono font for technical data) */}
         {hasMetrics && (
-          <div className="grid grid-cols-2 gap-component-sm p-component-md bg-muted/50 rounded-[var(--semantic-radius-input)]">
+          <div className="gap-component-sm p-component-md bg-muted/50 grid grid-cols-2 rounded-[var(--semantic-radius-input)]">
             {cpuUsage !== undefined && (
               <div className="text-center">
-                <div className="text-xs font-mono text-muted-foreground">
-                  CPU
-                </div>
-                <div className="text-sm font-mono font-medium text-foreground">
+                <div className="text-muted-foreground font-mono text-xs">CPU</div>
+                <div className="text-foreground font-mono text-sm font-medium">
                   {cpuUsage.toFixed(1)}%
                 </div>
               </div>
             )}
             {memoryUsage !== undefined && (
               <div className="text-center">
-                <div className="text-xs font-mono text-muted-foreground">
-                  RAM
-                </div>
-                <div className="text-sm font-mono font-medium text-foreground">
+                <div className="text-muted-foreground font-mono text-xs">RAM</div>
+                <div className="text-foreground font-mono text-sm font-medium">
                   {memoryUsage} MB
                 </div>
               </div>
             )}
             {networkRx !== undefined && (
               <div className="text-center">
-                <div className="text-xs font-mono text-muted-foreground">RX</div>
-                <div className="text-sm font-mono font-medium text-foreground">
+                <div className="text-muted-foreground font-mono text-xs">RX</div>
+                <div className="text-foreground font-mono text-sm font-medium">
                   {formatBytes(networkRx)}
                 </div>
               </div>
             )}
             {networkTx !== undefined && (
               <div className="text-center">
-                <div className="text-xs font-mono text-muted-foreground">TX</div>
-                <div className="text-sm font-mono font-medium text-foreground">
+                <div className="text-muted-foreground font-mono text-xs">TX</div>
+                <div className="text-foreground font-mono text-sm font-medium">
                   {formatBytes(networkTx)}
                 </div>
               </div>
@@ -168,7 +150,7 @@ export function ServiceCardMobile(props: ServiceCardProps) {
           <Button
             variant={primaryAction.variant || 'default'}
             size="lg"
-            className="w-full min-h-[44px] transition-colors duration-150"
+            className="min-h-[44px] w-full transition-colors duration-150"
             onClick={(e) => {
               e.stopPropagation();
               handlePrimaryAction();
@@ -176,21 +158,23 @@ export function ServiceCardMobile(props: ServiceCardProps) {
             disabled={primaryAction.disabled || primaryAction.loading}
             aria-label={primaryAction.label}
           >
-            {primaryAction.loading ? (
+            {primaryAction.loading ?
               <span className="flex items-center gap-2">
-                <span className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
                 {primaryAction.label}
               </span>
-            ) : (
-              <>
+            : <>
                 {primaryAction.icon && (
-                  <span className="mr-2" aria-hidden="true">
+                  <span
+                    className="mr-2"
+                    aria-hidden="true"
+                  >
                     {primaryAction.icon}
                   </span>
                 )}
                 {primaryAction.label}
               </>
-            )}
+            }
           </Button>
         )}
       </CardContent>

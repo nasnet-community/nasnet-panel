@@ -21,7 +21,10 @@ export async function detectWanInterface(routerId: string): Promise<string> {
     });
 
     if (!data?.detectWanInterface) {
-      throw new DiagnosticError('NO_DEFAULT_ROUTE', 'No default route configured. Add a default route or DHCP client to enable internet access.');
+      throw new DiagnosticError(
+        'NO_DEFAULT_ROUTE',
+        'No default route configured. Add a default route or DHCP client to enable internet access.'
+      );
     }
 
     return data.detectWanInterface;
@@ -29,7 +32,10 @@ export async function detectWanInterface(routerId: string): Promise<string> {
     if (error instanceof DiagnosticError) {
       throw error;
     }
-    const errorMessage = error instanceof Error ? error.message : 'Failed to detect WAN interface. Verify the router is reachable and has network configuration.';
+    const errorMessage =
+      error instanceof Error ?
+        error.message
+      : 'Failed to detect WAN interface. Verify the router is reachable and has network configuration.';
     throw new DiagnosticError('DETECTION_FAILED', errorMessage);
   }
 }
@@ -55,7 +61,10 @@ export async function detectGateway(routerId: string): Promise<string | null> {
     // This is not necessarily an error - the user may need to configure it
     return data?.detectGateway || null;
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'Failed to detect gateway. Check that the router is connected and DHCP is configured.';
+    const errorMessage =
+      error instanceof Error ?
+        error.message
+      : 'Failed to detect gateway. Check that the router is connected and DHCP is configured.';
     throw new DiagnosticError('DETECTION_FAILED', errorMessage);
   }
 }

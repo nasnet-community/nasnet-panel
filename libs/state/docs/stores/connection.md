@@ -3,6 +3,7 @@
 WebSocket connection management, per-router status tracking, and network quality monitoring.
 
 **Sources:**
+
 - `libs/state/stores/src/connection/connection.store.ts`
 - `libs/state/stores/src/connection/network.store.ts`
 - `libs/state/stores/src/utils/reconnect.ts`
@@ -17,16 +18,16 @@ Manages WebSocket connection status and per-router connection metadata.
 interface ConnectionState {
   // Global WebSocket status
   wsStatus: 'connecting' | 'connected' | 'disconnected' | 'error';
-  wsError: string | null;               // Error message if status is 'error'
+  wsError: string | null; // Error message if status is 'error'
 
   // Per-router connections map
   routers: Record<string, RouterConnection>;
-  activeRouterId: string | null;        // Currently active router
+  activeRouterId: string | null; // Currently active router
 
   // Reconnection state
-  reconnectAttempts: number;            // Current attempt count (0-10)
-  maxReconnectAttempts: number;         // Max attempts before giving up (10)
-  isReconnecting: boolean;              // Currently attempting reconnection
+  reconnectAttempts: number; // Current attempt count (0-10)
+  maxReconnectAttempts: number; // Max attempts before giving up (10)
+  isReconnecting: boolean; // Currently attempting reconnection
 
   // Legacy compatibility (deprecated but preserved)
   state: 'connected' | 'disconnected' | 'reconnecting';
@@ -36,18 +37,19 @@ interface ConnectionState {
 }
 
 interface RouterConnection {
-  routerId: string;                     // Router ID
-  status: WebSocketStatus;              // Connection status
-  protocol: 'rest' | 'api' | 'ssh';    // Communication protocol
-  latencyMs: number | null;             // Current latency
-  lastConnected: Date | null;           // Last successful connection time
-  lastError: string | null;             // Last error message
+  routerId: string; // Router ID
+  status: WebSocketStatus; // Connection status
+  protocol: 'rest' | 'api' | 'ssh'; // Communication protocol
+  latencyMs: number | null; // Current latency
+  lastConnected: Date | null; // Last successful connection time
+  lastError: string | null; // Last error message
 }
 ```
 
 ### WebSocket Status Actions
 
 **`setWsStatus(status, error?)`** - Set WebSocket connection status
+
 ```typescript
 const { setWsStatus } = useConnectionStore();
 
@@ -62,6 +64,7 @@ setWsStatus('connecting');
 ```
 
 **Status transitions:**
+
 - `disconnected` → `connecting` → `connected` (success)
 - `disconnected` → `connecting` → `error` (failure)
 - `connected` → `disconnected` (lost connection)
@@ -69,6 +72,7 @@ setWsStatus('connecting');
 ### Router Connection Actions
 
 **`setRouterConnection(routerId, connection)`** - Set/update router connection info
+
 ```typescript
 const { setRouterConnection } = useConnectionStore();
 
@@ -82,6 +86,7 @@ setRouterConnection('router-1', {
 ```
 
 **`setActiveRouter(routerId)`** - Switch active router
+
 ```typescript
 const { setActiveRouter } = useConnectionStore();
 
@@ -93,6 +98,7 @@ setActiveRouter(null);
 ```
 
 **`updateLatency(routerId, latencyMs)`** - Record latency measurement (debounced)
+
 ```typescript
 const { updateLatency } = useConnectionStore();
 
@@ -103,6 +109,7 @@ updateLatency('router-1', 42);
 ### Reconnection Actions
 
 **`incrementReconnectAttempts()`** - Increment attempt counter
+
 ```typescript
 const { incrementReconnectAttempts } = useConnectionStore();
 
@@ -111,6 +118,7 @@ incrementReconnectAttempts();
 ```
 
 **`resetReconnection()`** - Reset attempt counter and isReconnecting flag
+
 ```typescript
 const { resetReconnection } = useConnectionStore();
 
@@ -119,6 +127,7 @@ resetReconnection();
 ```
 
 **`hasExceededMaxAttempts(): boolean`** - Check if max attempts reached
+
 ```typescript
 const { hasExceededMaxAttempts } = useConnectionStore();
 
@@ -130,24 +139,24 @@ if (hasExceededMaxAttempts()) {
 
 ### Selectors
 
-| Selector | Returns | Usage |
-|----------|---------|-------|
-| `selectWsStatus` | WebSocketStatus | Current WebSocket status |
-| `selectIsConnected` | `boolean` | Whether connected (wsStatus === 'connected') |
-| `selectIsReconnecting` | `boolean` | Whether attempting reconnection |
-| `selectActiveRouterId` | `string \| null` | Currently active router |
-| `selectActiveRouterConnection` | RouterConnection \| null | Connection info for active router |
-| `selectReconnectAttempts` | `number` | Current attempt count |
-| `selectHasExceededMaxAttempts` | `boolean` | Whether max attempts exceeded |
+| Selector                       | Returns                  | Usage                                        |
+| ------------------------------ | ------------------------ | -------------------------------------------- |
+| `selectWsStatus`               | WebSocketStatus          | Current WebSocket status                     |
+| `selectIsConnected`            | `boolean`                | Whether connected (wsStatus === 'connected') |
+| `selectIsReconnecting`         | `boolean`                | Whether attempting reconnection              |
+| `selectActiveRouterId`         | `string \| null`         | Currently active router                      |
+| `selectActiveRouterConnection` | RouterConnection \| null | Connection info for active router            |
+| `selectReconnectAttempts`      | `number`                 | Current attempt count                        |
+| `selectHasExceededMaxAttempts` | `boolean`                | Whether max attempts exceeded                |
 
 **Example:**
 
 ```typescript
 // Only re-render when connection status changes
-const isConnected = useConnectionStore(s => s.wsStatus === 'connected');
+const isConnected = useConnectionStore((s) => s.wsStatus === 'connected');
 
 // Get active router connection info
-const router = useConnectionStore(s => {
+const router = useConnectionStore((s) => {
   if (!s.activeRouterId) return null;
   return s.routers[s.activeRouterId];
 });
@@ -162,36 +171,38 @@ Monitors browser online status, backend reachability, and network quality.
 ```typescript
 interface NetworkState {
   // Connectivity status
-  isOnline: boolean;                    // navigator.onLine (browser online/offline)
-  isRouterReachable: boolean;           // Backend health endpoint reachable
-  isRouterConnected: boolean;           // WebSocket subscription active
+  isOnline: boolean; // navigator.onLine (browser online/offline)
+  isRouterReachable: boolean; // Backend health endpoint reachable
+  isRouterConnected: boolean; // WebSocket subscription active
 
   // Metrics
-  lastSuccessfulRequest: Date | null;   // Timestamp of last successful API call
-  reconnectAttempts: number;            // Reconnection attempts since last success
+  lastSuccessfulRequest: Date | null; // Timestamp of last successful API call
+  reconnectAttempts: number; // Reconnection attempts since last success
 
   // NAS-4.15: Enhanced status tracking
-  wasOffline: boolean;                  // Was recently offline (for status message)
-  quality: 'excellent' | 'good' | 'poor' | 'offline';  // Network quality
-  latencyMs: number | null;             // Last measured latency
-  lastError: string | null;             // Last network error
-  lastErrorTime: Date | null;           // When last error occurred
-  listenersInitialized: boolean;        // Event listeners set up
+  wasOffline: boolean; // Was recently offline (for status message)
+  quality: 'excellent' | 'good' | 'poor' | 'offline'; // Network quality
+  latencyMs: number | null; // Last measured latency
+  lastError: string | null; // Last network error
+  lastErrorTime: Date | null; // When last error occurred
+  listenersInitialized: boolean; // Event listeners set up
 }
 ```
 
 ### Status Actions
 
 **`setOnline(online)`** - Update browser online status
+
 ```typescript
 const { setOnline } = useNetworkStore();
 
 // Called by online/offline event listeners
-setOnline(true);   // Browser went online
-setOnline(false);  // Browser went offline
+setOnline(true); // Browser went online
+setOnline(false); // Browser went offline
 ```
 
 **`setRouterReachable(reachable)`** - Update backend reachability
+
 ```typescript
 const { setRouterReachable } = useNetworkStore();
 
@@ -204,17 +215,19 @@ if (healthCheckOK) {
 ```
 
 **`setRouterConnected(connected)`** - Update WebSocket connection
+
 ```typescript
 const { setRouterConnected } = useNetworkStore();
 
 // Called when subscription connects/disconnects
-setRouterConnected(true);   // WebSocket connected
-setRouterConnected(false);  // WebSocket disconnected
+setRouterConnected(true); // WebSocket connected
+setRouterConnected(false); // WebSocket disconnected
 ```
 
 ### Metrics Actions
 
 **`recordSuccessfulRequest()`** - Record successful API request
+
 ```typescript
 const { recordSuccessfulRequest } = useNetworkStore();
 
@@ -224,6 +237,7 @@ recordSuccessfulRequest();
 ```
 
 **`incrementReconnectAttempts()`** - Increment retry counter
+
 ```typescript
 const { incrementReconnectAttempts } = useNetworkStore();
 
@@ -232,6 +246,7 @@ incrementReconnectAttempts();
 ```
 
 **`resetReconnectAttempts()`** - Reset retry counter
+
 ```typescript
 const { resetReconnectAttempts } = useNetworkStore();
 resetReconnectAttempts();
@@ -240,16 +255,18 @@ resetReconnectAttempts();
 ### Quality Tracking (NAS-4.15)
 
 **`setQuality(quality)`** - Set network quality assessment
+
 ```typescript
 const { setQuality } = useNetworkStore();
 
-setQuality('excellent');  // < 100ms latency
-setQuality('good');       // < 300ms latency
-setQuality('poor');       // >= 300ms latency
-setQuality('offline');    // No internet
+setQuality('excellent'); // < 100ms latency
+setQuality('good'); // < 300ms latency
+setQuality('poor'); // >= 300ms latency
+setQuality('offline'); // No internet
 ```
 
 **`updateLatency(latencyMs)`** - Record latency and update quality
+
 ```typescript
 const { updateLatency } = useNetworkStore();
 
@@ -258,6 +275,7 @@ updateLatency(42);
 ```
 
 **`recordNetworkError(error)`** - Log network error
+
 ```typescript
 const { recordNetworkError } = useNetworkStore();
 
@@ -265,6 +283,7 @@ recordNetworkError('CORS error: No Access-Control-Allow-Origin');
 ```
 
 **`clearWasOffline()`** - Clear "was offline" flag
+
 ```typescript
 const { clearWasOffline } = useNetworkStore();
 
@@ -275,6 +294,7 @@ clearWasOffline();
 ### Event Listener Management
 
 **`initializeListeners()`** - Set up browser online/offline events
+
 ```typescript
 const { initializeListeners } = useNetworkStore();
 
@@ -285,6 +305,7 @@ useEffect(() => {
 ```
 
 **`cleanupListeners()`** - Remove event listeners on app unmount
+
 ```typescript
 const { cleanupListeners } = useNetworkStore();
 
@@ -301,30 +322,30 @@ useEffect(() => {
 
 ### Selectors
 
-| Selector | Returns | Usage |
-|----------|---------|-------|
-| `selectIsFullyConnected` | `boolean` | All layers connected (online + reachable + subscribed) |
-| `selectIsDegraded` | `boolean` | Online but backend issues |
-| `selectIsOffline` | `boolean` | Browser offline |
-| `selectNetworkQuality` | NetworkQuality | Quality assessment |
-| `selectLatency` | `number \| null` | Current latency in ms |
-| `selectWasOffline` | `boolean` | Was recently offline |
-| `selectLastError` | `string \| null` | Last error message |
+| Selector                 | Returns          | Usage                                                  |
+| ------------------------ | ---------------- | ------------------------------------------------------ |
+| `selectIsFullyConnected` | `boolean`        | All layers connected (online + reachable + subscribed) |
+| `selectIsDegraded`       | `boolean`        | Online but backend issues                              |
+| `selectIsOffline`        | `boolean`        | Browser offline                                        |
+| `selectNetworkQuality`   | NetworkQuality   | Quality assessment                                     |
+| `selectLatency`          | `number \| null` | Current latency in ms                                  |
+| `selectWasOffline`       | `boolean`        | Was recently offline                                   |
+| `selectLastError`        | `string \| null` | Last error message                                     |
 
 **Example:**
 
 ```typescript
 // Show offline banner
-const isOffline = useNetworkStore(s => s.isOnline === false);
+const isOffline = useNetworkStore((s) => s.isOnline === false);
 
 // Check if fully operational
-const isFullyConnected = useNetworkStore(s =>
-  s.isOnline && s.isRouterReachable && s.isRouterConnected
+const isFullyConnected = useNetworkStore(
+  (s) => s.isOnline && s.isRouterReachable && s.isRouterConnected
 );
 
 // Monitor quality
 const { quality, latencyMs } = useNetworkStore(
-  s => ({ quality: s.quality, latencyMs: s.latencyMs }),
+  (s) => ({ quality: s.quality, latencyMs: s.latencyMs }),
   shallow
 );
 ```
@@ -339,10 +360,10 @@ Exponential backoff reconnection utility for WebSocket reconnection.
 
 ```typescript
 interface ReconnectionManagerConfig {
-  maxAttempts?: number;                 // Default: 10
-  connect: () => Promise<void>;         // Actual connection function
+  maxAttempts?: number; // Default: 10
+  connect: () => Promise<void>; // Actual connection function
   onStatusChange?: (status: WebSocketStatus) => void;
-  showNotifications?: boolean;          // Default: true
+  showNotifications?: boolean; // Default: true
 }
 ```
 
@@ -369,29 +390,34 @@ const reconnectManager = createReconnectionManager({
 ### Manager API
 
 **`start()`** - Begin reconnection attempts
+
 ```typescript
 reconnectManager.start();
 // Starts exponential backoff: 1s, 2s, 4s, 8s, 16s, 30s (capped)
 ```
 
 **`stop()`** - Stop reconnection attempts
+
 ```typescript
 reconnectManager.stop();
 // Cancels pending timeout
 ```
 
 **`reset()`** - Reset attempt counter
+
 ```typescript
 reconnectManager.reset();
 // Sets attempts back to 0
 ```
 
 **`getAttempts(): number`** - Get current attempt count
+
 ```typescript
 const attempts = reconnectManager.getAttempts();
 ```
 
 **`isActive(): boolean`** - Check if reconnecting
+
 ```typescript
 if (reconnectManager.isActive()) {
   // Currently attempting to reconnect
@@ -420,14 +446,16 @@ Attempt 5+: ~30s (capped)
 ### Helper Functions
 
 **`calculateBackoff(attempt)`** - Calculate delay for attempt
+
 ```typescript
-const delay = calculateBackoff(0);  // ~1000ms
-const delay = calculateBackoff(4);  // ~16000ms
+const delay = calculateBackoff(0); // ~1000ms
+const delay = calculateBackoff(4); // ~16000ms
 ```
 
 **`sleep(ms)`** - Promise-based sleep utility
+
 ```typescript
-await sleep(1000);  // Wait 1 second
+await sleep(1000); // Wait 1 second
 ```
 
 ## Integration with Connection Store
@@ -458,13 +486,14 @@ const reconnectManager = createReconnectionManager({
 ## Latency Debouncing
 
 **`createLatencyUpdater(intervalMs)`** - Debounced latency updates
+
 ```typescript
 import { createLatencyUpdater } from '@nasnet/state/stores';
 
 const updateLatency = createLatencyUpdater(100); // Update max 10x per second
 
 // In ping handler (called very frequently)
-updateLatency('router-1', 42);  // Batched updates
+updateLatency('router-1', 42); // Batched updates
 ```
 
 **Why debounce?** Prevents excessive store updates from high-frequency pings.
@@ -576,15 +605,17 @@ function ConnectionStatus() {
 ## Performance Optimization
 
 1. **Always use selectors:**
+
    ```typescript
    // ✅ Good
-   const isConnected = useConnectionStore(s => s.wsStatus === 'connected');
+   const isConnected = useConnectionStore((s) => s.wsStatus === 'connected');
 
    // ❌ Bad
    const { wsStatus } = useConnectionStore();
    ```
 
 2. **Batch router updates:**
+
    ```typescript
    // ✅ Good: Single call
    setRouterConnection('router-1', { status, protocol, latency });
@@ -596,6 +627,7 @@ function ConnectionStatus() {
    ```
 
 3. **Debounce latency updates:**
+
    ```typescript
    const updateLatency = createLatencyUpdater(100);
 

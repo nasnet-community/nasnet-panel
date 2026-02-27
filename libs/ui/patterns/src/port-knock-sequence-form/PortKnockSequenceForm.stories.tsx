@@ -12,7 +12,6 @@ import { usePortKnockSequenceForm } from './use-port-knock-sequence-form';
 
 import type { Meta, StoryObj } from '@storybook/react';
 
-
 /**
  * Wrapper component to use the form hook
  */

@@ -92,10 +92,14 @@ const meta: Meta<typeof UndoFloatingButton> = {
   decorators: [
     (Story) => (
       // Provide a tall container so the fixed-position button is visible
-      <div style={{ minHeight: '400px', position: 'relative', background: 'hsl(var(--background))' }}>
+      <div
+        style={{ minHeight: '400px', position: 'relative', background: 'hsl(var(--background))' }}
+      >
         <div style={{ padding: '24px', color: 'hsl(var(--muted-foreground))' }}>
           <p style={{ fontSize: '14px' }}>Firewall template applied successfully.</p>
-          <p style={{ fontSize: '12px', marginTop: '8px' }}>The rollback button is fixed bottom-right.</p>
+          <p style={{ fontSize: '12px', marginTop: '8px' }}>
+            The rollback button is fixed bottom-right.
+          </p>
         </div>
         <Story />
       </div>
@@ -107,12 +111,14 @@ const meta: Meta<typeof UndoFloatingButton> = {
       table: { type: { summary: '() => Promise<void>' } },
     },
     onExpire: {
-      description: 'Callback invoked when the 5-minute countdown reaches zero and the button hides.',
+      description:
+        'Callback invoked when the 5-minute countdown reaches zero and the button hides.',
       table: { type: { summary: '() => void' } },
     },
     isRollingBack: {
       control: 'boolean',
-      description: 'Shows "Rolling back..." label and disables the button while rollback is in progress.',
+      description:
+        'Shows "Rolling back..." label and disables the button while rollback is in progress.',
       table: {
         type: { summary: 'boolean' },
         defaultValue: { summary: 'false' },
@@ -273,9 +279,7 @@ export const ZeroRulesApplied: Story = {
  */
 export const SlowRollback: Story = {
   args: {
-    onRollback: fn().mockImplementation(
-      () => new Promise((resolve) => setTimeout(resolve, 2000))
-    ),
+    onRollback: fn().mockImplementation(() => new Promise((resolve) => setTimeout(resolve, 2000))),
     onExpire: fn(),
     templateName: 'Basic Home Security',
     rulesApplied: 5,

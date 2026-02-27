@@ -59,7 +59,7 @@ function VPNTypeSectionComponent({
   return (
     <div
       className={cn(
-        'border border-border rounded-[var(--semantic-radius-card)] overflow-hidden shadow-[var(--semantic-shadow-card)]',
+        'border-border overflow-hidden rounded-[var(--semantic-radius-card)] border shadow-[var(--semantic-shadow-card)]',
         className
       )}
     >
@@ -67,7 +67,7 @@ function VPNTypeSectionComponent({
       <button
         onClick={handleToggle}
         className={cn(
-          'w-full px-component-lg py-component-md flex items-center justify-between',
+          'px-component-lg py-component-md flex w-full items-center justify-between',
           'bg-muted hover:bg-muted transition-colors duration-150',
           'text-left'
         )}
@@ -78,7 +78,7 @@ function VPNTypeSectionComponent({
           {/* Chevron Icon */}
           <ChevronDown
             className={cn(
-              'h-5 w-5 text-muted-foreground transition-transform duration-300',
+              'text-muted-foreground h-5 w-5 transition-transform duration-300',
               isExpanded && 'rotate-180'
             )}
           />
@@ -87,16 +87,22 @@ function VPNTypeSectionComponent({
           {icon && <div className="text-muted-foreground">{icon}</div>}
 
           {/* Type Label */}
-          <h3 className="text-base font-semibold text-foreground">{type}</h3>
+          <h3 className="text-foreground text-base font-semibold">{type}</h3>
 
           {/* Count Badge */}
-          <Badge variant="secondary" className="text-xs rounded-full">
+          <Badge
+            variant="secondary"
+            className="rounded-full text-xs"
+          >
             {count} {count === 1 ? 'interface' : 'interfaces'}
           </Badge>
 
           {/* Read-Only Notice Badge */}
           {showReadOnlyNotice && (
-            <Badge variant="outline" className="text-xs rounded-full">
+            <Badge
+              variant="outline"
+              className="rounded-full text-xs"
+            >
               Read-only
             </Badge>
           )}
@@ -113,11 +119,11 @@ function VPNTypeSectionComponent({
             transition={{ duration: 0.3, ease: 'easeInOut' }}
             className="overflow-hidden"
           >
-            <div className="p-component-lg space-y-component-md bg-background border-t border-border">
+            <div className="p-component-lg space-y-component-md bg-background border-border border-t">
               {/* Read-Only Notice (if shown) */}
               {showReadOnlyNotice && (
-                <div className="mb-component-md p-component-md bg-info-light/50 dark:bg-info/10 border border-l-4 border-l-info rounded-[var(--semantic-radius-input)]">
-                  <p className="text-sm text-info-dark dark:text-info">
+                <div className="mb-component-md p-component-md bg-info-light/50 dark:bg-info/10 border-l-info rounded-[var(--semantic-radius-input)] border border-l-4">
+                  <p className="text-info-dark dark:text-info text-sm">
                     <span className="font-semibold">Read-only view.</span> Editing {type} interfaces
                     will be available in a future update.
                   </p>
@@ -135,9 +141,9 @@ function VPNTypeSectionComponent({
 }
 
 export const VPNTypeSection = memo(
-  forwardRef<HTMLDivElement, VPNTypeSectionProps>(
-    (props, ref) => <VPNTypeSectionComponent {...props} />
-  )
+  forwardRef<HTMLDivElement, VPNTypeSectionProps>((props, ref) => (
+    <VPNTypeSectionComponent {...props} />
+  ))
 );
 
 VPNTypeSection.displayName = 'VPNTypeSection';

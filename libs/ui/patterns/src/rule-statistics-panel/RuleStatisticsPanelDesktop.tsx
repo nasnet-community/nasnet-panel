@@ -14,7 +14,11 @@ import {
   SheetHeader,
   SheetTitle,
   SheetDescription,
-  Button, Tabs, TabsList, TabsTrigger } from '@nasnet/ui/primitives';
+  Button,
+  Tabs,
+  TabsList,
+  TabsTrigger,
+} from '@nasnet/ui/primitives';
 
 import { TrafficHistoryChart } from './TrafficHistoryChart';
 
@@ -77,8 +81,14 @@ export const RuleStatisticsPanelDesktop = memo(function RuleStatisticsPanelDeskt
   );
 
   return (
-    <Sheet open={isOpen} onOpenChange={onClose}>
-      <SheetContent side="right" className="w-[500px] overflow-y-auto">
+    <Sheet
+      open={isOpen}
+      onOpenChange={onClose}
+    >
+      <SheetContent
+        side="right"
+        className="w-[500px] overflow-y-auto"
+      >
         <SheetHeader>
           <SheetTitle>Rule Statistics</SheetTitle>
           <SheetDescription>
@@ -88,10 +98,16 @@ export const RuleStatisticsPanelDesktop = memo(function RuleStatisticsPanelDeskt
 
         {/* Time Range Selector */}
         <div className="mt-6">
-          <label htmlFor="time-range-tabs" className="text-sm font-medium text-foreground mb-2 block">
+          <label
+            htmlFor="time-range-tabs"
+            className="text-foreground mb-2 block text-sm font-medium"
+          >
             Time Range
           </label>
-          <Tabs value={timeRange} onValueChange={(v) => setTimeRange(v as TimeRange)}>
+          <Tabs
+            value={timeRange}
+            onValueChange={(v) => setTimeRange(v as TimeRange)}
+          >
             <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="1h">1 Hour</TabsTrigger>
               <TabsTrigger value="24h">24 Hours</TabsTrigger>
@@ -102,19 +118,22 @@ export const RuleStatisticsPanelDesktop = memo(function RuleStatisticsPanelDeskt
 
         {/* Traffic Chart */}
         <div className="mt-6">
-          <h3 className="text-sm font-medium text-foreground mb-3">Traffic Over Time</h3>
-          <TrafficHistoryChart data={filteredData} height={300} />
+          <h3 className="text-foreground mb-3 text-sm font-medium">Traffic Over Time</h3>
+          <TrafficHistoryChart
+            data={filteredData}
+            height={300}
+          />
         </div>
 
         {/* Summary Stats */}
         <div className="mt-6 grid grid-cols-2 gap-4">
           <div className="bg-muted/30 rounded-lg p-4">
-            <p className="text-sm text-muted-foreground mb-1">Total Bytes</p>
-            <p className="text-2xl font-semibold text-foreground">{formatBytes(totalBytes)}</p>
+            <p className="text-muted-foreground mb-1 text-sm">Total Bytes</p>
+            <p className="text-foreground text-2xl font-semibold">{formatBytes(totalBytes)}</p>
           </div>
           <div className="bg-muted/30 rounded-lg p-4">
-            <p className="text-sm text-muted-foreground mb-1">Total Packets</p>
-            <p className="text-2xl font-semibold text-foreground">
+            <p className="text-muted-foreground mb-1 text-sm">Total Packets</p>
+            <p className="text-foreground text-2xl font-semibold">
               {totalPackets.toLocaleString()}
             </p>
           </div>
@@ -122,24 +141,24 @@ export const RuleStatisticsPanelDesktop = memo(function RuleStatisticsPanelDeskt
 
         {/* Rule Details */}
         <div className="mt-6">
-          <h3 className="text-sm font-medium text-foreground mb-3">Rule Details</h3>
-          <div className="space-y-2 bg-muted/30 rounded-lg p-4">
+          <h3 className="text-foreground mb-3 text-sm font-medium">Rule Details</h3>
+          <div className="bg-muted/30 space-y-2 rounded-lg p-4">
             <div className="flex justify-between">
-              <span className="text-sm text-muted-foreground">Rule ID:</span>
-              <span className="text-sm font-medium text-foreground">#{rule.id}</span>
+              <span className="text-muted-foreground text-sm">Rule ID:</span>
+              <span className="text-foreground text-sm font-medium">#{rule.id}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-sm text-muted-foreground">Chain:</span>
-              <span className="text-sm font-medium text-foreground">{rule.chain}</span>
+              <span className="text-muted-foreground text-sm">Chain:</span>
+              <span className="text-foreground text-sm font-medium">{rule.chain}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-sm text-muted-foreground">Action:</span>
-              <span className="text-sm font-medium text-foreground">{rule.action}</span>
+              <span className="text-muted-foreground text-sm">Action:</span>
+              <span className="text-foreground text-sm font-medium">{rule.action}</span>
             </div>
             {rule.comment && (
               <div className="flex justify-between">
-                <span className="text-sm text-muted-foreground">Comment:</span>
-                <span className="text-sm font-medium text-foreground">{rule.comment}</span>
+                <span className="text-muted-foreground text-sm">Comment:</span>
+                <span className="text-foreground text-sm font-medium">{rule.comment}</span>
               </div>
             )}
           </div>
@@ -147,8 +166,12 @@ export const RuleStatisticsPanelDesktop = memo(function RuleStatisticsPanelDeskt
 
         {/* Export Button */}
         <div className="mt-6">
-          <Button onClick={onExportCsv} className="w-full" variant="outline">
-            <Download className="w-4 h-4 mr-2" />
+          <Button
+            onClick={onExportCsv}
+            className="w-full"
+            variant="outline"
+          >
+            <Download className="mr-2 h-4 w-4" />
             Export to CSV
           </Button>
         </div>

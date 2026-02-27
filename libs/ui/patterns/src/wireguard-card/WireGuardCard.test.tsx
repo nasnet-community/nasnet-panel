@@ -82,46 +82,96 @@ describe('WireGuardCard', () => {
     });
 
     it('should render singular peer for count of 1', () => {
-      render(<WireGuardCard {...mockInterface} peerCount={1} />);
+      render(
+        <WireGuardCard
+          {...mockInterface}
+          peerCount={1}
+        />
+      );
       expect(screen.getByText('1 peer')).toBeInTheDocument();
     });
 
     it('should render 0 peers correctly', () => {
-      render(<WireGuardCard {...mockInterface} peerCount={0} />);
+      render(
+        <WireGuardCard
+          {...mockInterface}
+          peerCount={0}
+        />
+      );
       expect(screen.getByText('0 peers')).toBeInTheDocument();
     });
   });
 
   describe('Status Indicator', () => {
     it('should show running status when running and not disabled', () => {
-      render(<WireGuardCard interface={{ ...mockWireGuardInterface, id: 'wg0-1', isRunning: true, isDisabled: false }} peerCount={3} />);
+      render(
+        <WireGuardCard
+          interface={{ ...mockWireGuardInterface, id: 'wg0-1', isRunning: true, isDisabled: false }}
+          peerCount={3}
+        />
+      );
       expect(screen.getByText('Active')).toBeInTheDocument();
     });
 
     it('should show disabled status when disabled', () => {
-      render(<WireGuardCard interface={{ ...mockWireGuardInterface, id: 'wg0-2', isRunning: false, isDisabled: true }} peerCount={3} />);
+      render(
+        <WireGuardCard
+          interface={{ ...mockWireGuardInterface, id: 'wg0-2', isRunning: false, isDisabled: true }}
+          peerCount={3}
+        />
+      );
       expect(screen.getByText('Disabled')).toBeInTheDocument();
     });
 
     it('should show inactive status when not running and not disabled', () => {
-      render(<WireGuardCard interface={{ ...mockWireGuardInterface, id: 'wg0-3', isRunning: false, isDisabled: false }} peerCount={3} />);
+      render(
+        <WireGuardCard
+          interface={{
+            ...mockWireGuardInterface,
+            id: 'wg0-3',
+            isRunning: false,
+            isDisabled: false,
+          }}
+          peerCount={3}
+        />
+      );
       expect(screen.getByText('Inactive')).toBeInTheDocument();
     });
 
     it('should apply correct color class for running status', () => {
-      const { container } = render(<WireGuardCard interface={{ ...mockWireGuardInterface, id: 'wg0-4', isRunning: true, isDisabled: false }} peerCount={3} />);
+      const { container } = render(
+        <WireGuardCard
+          interface={{ ...mockWireGuardInterface, id: 'wg0-4', isRunning: true, isDisabled: false }}
+          peerCount={3}
+        />
+      );
       const statusElement = container.querySelector('[class*="bg-green"]');
       expect(statusElement).toBeInTheDocument();
     });
 
     it('should apply correct color class for disabled status', () => {
-      const { container } = render(<WireGuardCard interface={{ ...mockWireGuardInterface, id: 'wg0-5', isRunning: false, isDisabled: true }} peerCount={3} />);
+      const { container } = render(
+        <WireGuardCard
+          interface={{ ...mockWireGuardInterface, id: 'wg0-5', isRunning: false, isDisabled: true }}
+          peerCount={3}
+        />
+      );
       const statusElement = container.querySelector('[class*="bg-slate"]');
       expect(statusElement).toBeInTheDocument();
     });
 
     it('should apply correct color class for inactive status', () => {
-      const { container } = render(<WireGuardCard interface={{ ...mockWireGuardInterface, id: 'wg0-6', isRunning: false, isDisabled: false }} peerCount={3} />);
+      const { container } = render(
+        <WireGuardCard
+          interface={{
+            ...mockWireGuardInterface,
+            id: 'wg0-6',
+            isRunning: false,
+            isDisabled: false,
+          }}
+          peerCount={3}
+        />
+      );
       const statusElement = container.querySelector('[class*="bg-yellow"]');
       expect(statusElement).toBeInTheDocument();
     });
@@ -141,12 +191,22 @@ describe('WireGuardCard', () => {
     });
 
     it('should handle short public keys', () => {
-      render(<WireGuardCard interface={{ ...mockWireGuardInterface, id: 'wg0-7', publicKey: 'shortkey' }} peerCount={3} />);
+      render(
+        <WireGuardCard
+          interface={{ ...mockWireGuardInterface, id: 'wg0-7', publicKey: 'shortkey' }}
+          peerCount={3}
+        />
+      );
       expect(screen.getByText('shortkey')).toBeInTheDocument();
     });
 
     it('should handle empty public key', () => {
-      render(<WireGuardCard interface={{ ...mockWireGuardInterface, id: 'wg0-8', publicKey: '' }} peerCount={3} />);
+      render(
+        <WireGuardCard
+          interface={{ ...mockWireGuardInterface, id: 'wg0-8', publicKey: '' }}
+          peerCount={3}
+        />
+      );
       const copyButtons = screen.getAllByRole('button');
       expect(copyButtons.length).toBeGreaterThan(0);
     });
@@ -166,7 +226,9 @@ describe('WireGuardCard', () => {
       const copyButton = screen.getByRole('button', { name: /copy/i });
       await user.click(copyButton);
 
-      expect(global.navigator.clipboard.writeText).toHaveBeenCalledWith(mockInterface.interface.publicKey);
+      expect(global.navigator.clipboard.writeText).toHaveBeenCalledWith(
+        mockInterface.interface.publicKey
+      );
     });
 
     it('should show success toast after copying', async () => {
@@ -271,41 +333,73 @@ describe('WireGuardCard', () => {
         />
       );
 
-      expect(screen.getByText('wireguard-very-long-interface-name-that-might-break-layout')).toBeInTheDocument();
+      expect(
+        screen.getByText('wireguard-very-long-interface-name-that-might-break-layout')
+      ).toBeInTheDocument();
     });
 
     it('should handle high peer counts', () => {
-      render(<WireGuardCard interface={mockWireGuardInterface} peerCount={999} />);
+      render(
+        <WireGuardCard
+          interface={mockWireGuardInterface}
+          peerCount={999}
+        />
+      );
       expect(screen.getByText('999 peers')).toBeInTheDocument();
     });
 
     it('should handle non-standard ports', () => {
-      render(<WireGuardCard interface={{ ...mockWireGuardInterface, id: 'wg0-10', listenPort: 51820 }} peerCount={3} />);
+      render(
+        <WireGuardCard
+          interface={{ ...mockWireGuardInterface, id: 'wg0-10', listenPort: 51820 }}
+          peerCount={3}
+        />
+      );
       expect(screen.getByText(/51820/)).toBeInTheDocument();
     });
 
     it('should handle large MTU values', () => {
-      render(<WireGuardCard interface={{ ...mockWireGuardInterface, id: 'wg0-11', mtu: 9000 }} peerCount={3} />);
+      render(
+        <WireGuardCard
+          interface={{ ...mockWireGuardInterface, id: 'wg0-11', mtu: 9000 }}
+          peerCount={3}
+        />
+      );
       expect(screen.getByText(/9000/)).toBeInTheDocument();
     });
   });
 
   describe('Connection Stats Display (Story 0-4-3)', () => {
     it('should display RX (received) data when available', () => {
-      render(<WireGuardCard interface={{ ...mockWireGuardInterface, id: 'wg0-12', rx: 1024 * 1024 * 10 }} peerCount={3} />);
+      render(
+        <WireGuardCard
+          interface={{ ...mockWireGuardInterface, id: 'wg0-12', rx: 1024 * 1024 * 10 }}
+          peerCount={3}
+        />
+      );
       expect(screen.getByText(/Received:/)).toBeInTheDocument();
       expect(screen.getByText(/10 MB/)).toBeInTheDocument();
     });
 
     it('should display TX (transmitted) data when available', () => {
-      render(<WireGuardCard interface={{ ...mockWireGuardInterface, id: 'wg0-13', tx: 1024 * 1024 * 5 }} peerCount={3} />);
+      render(
+        <WireGuardCard
+          interface={{ ...mockWireGuardInterface, id: 'wg0-13', tx: 1024 * 1024 * 5 }}
+          peerCount={3}
+        />
+      );
       expect(screen.getByText(/Transmitted:/)).toBeInTheDocument();
       expect(screen.getByText(/5 MB/)).toBeInTheDocument();
     });
 
     it('should display last handshake time when available', () => {
       const twoMinutesAgo = new Date(Date.now() - 2 * 60 * 1000);
-      render(<WireGuardCard interface={{ ...mockWireGuardInterface, id: 'wg0-14', lastHandshake: twoMinutesAgo }} peerCount={3} />);
+      render(
+        <WireGuardCard
+          interface={{ ...mockWireGuardInterface, id: 'wg0-14', lastHandshake: twoMinutesAgo }}
+          peerCount={3}
+        />
+      );
       expect(screen.getByText(/Last Handshake:/)).toBeInTheDocument();
       expect(screen.getByText(/minute/)).toBeInTheDocument();
       expect(screen.getByText(/ago/)).toBeInTheDocument();
@@ -332,12 +426,22 @@ describe('WireGuardCard', () => {
     });
 
     it('should not show connection stats section when no stats available', () => {
-      render(<WireGuardCard interface={mockWireGuardInterface} peerCount={3} />);
+      render(
+        <WireGuardCard
+          interface={mockWireGuardInterface}
+          peerCount={3}
+        />
+      );
       expect(screen.queryByText(/Connection Stats/)).not.toBeInTheDocument();
     });
 
     it('should format bytes correctly using formatBytes utility', () => {
-      render(<WireGuardCard interface={{ ...mockWireGuardInterface, id: 'wg0-16', rx: 1024, tx: 1024 * 1024 }} peerCount={3} />);
+      render(
+        <WireGuardCard
+          interface={{ ...mockWireGuardInterface, id: 'wg0-16', rx: 1024, tx: 1024 * 1024 }}
+          peerCount={3}
+        />
+      );
       expect(screen.getByText(/1 KB/)).toBeInTheDocument(); // RX
       expect(screen.getByText(/1 MB/)).toBeInTheDocument(); // TX
     });
@@ -348,13 +452,23 @@ describe('WireGuardCard', () => {
     });
 
     it('should handle zero bytes stats', () => {
-      render(<WireGuardCard interface={{ ...mockWireGuardInterface, id: 'wg0-17', rx: 0, tx: 0 }} peerCount={3} />);
+      render(
+        <WireGuardCard
+          interface={{ ...mockWireGuardInterface, id: 'wg0-17', rx: 0, tx: 0 }}
+          peerCount={3}
+        />
+      );
       expect(screen.getByText(/0 B/)).toBeInTheDocument();
     });
 
     it('should handle very large data transfers (GB range)', () => {
       const oneGB = 1024 * 1024 * 1024;
-      render(<WireGuardCard interface={{ ...mockWireGuardInterface, id: 'wg0-18', rx: oneGB * 5, tx: oneGB * 2 }} peerCount={3} />);
+      render(
+        <WireGuardCard
+          interface={{ ...mockWireGuardInterface, id: 'wg0-18', rx: oneGB * 5, tx: oneGB * 2 }}
+          peerCount={3}
+        />
+      );
       expect(screen.getByText(/5 GB/)).toBeInTheDocument();
       expect(screen.getByText(/2 GB/)).toBeInTheDocument();
     });
@@ -368,13 +482,43 @@ describe('WireGuardCard', () => {
     });
 
     it('should provide visual feedback for all states', () => {
-      const { rerender } = render(<WireGuardCard interface={{ ...mockWireGuardInterface, id: 'wg0-19', isRunning: true, isDisabled: false }} peerCount={3} />);
+      const { rerender } = render(
+        <WireGuardCard
+          interface={{
+            ...mockWireGuardInterface,
+            id: 'wg0-19',
+            isRunning: true,
+            isDisabled: false,
+          }}
+          peerCount={3}
+        />
+      );
       expect(screen.getByText('Active')).toBeInTheDocument();
 
-      rerender(<WireGuardCard interface={{ ...mockWireGuardInterface, id: 'wg0-20', isRunning: false, isDisabled: true }} peerCount={3} />);
+      rerender(
+        <WireGuardCard
+          interface={{
+            ...mockWireGuardInterface,
+            id: 'wg0-20',
+            isRunning: false,
+            isDisabled: true,
+          }}
+          peerCount={3}
+        />
+      );
       expect(screen.getByText('Disabled')).toBeInTheDocument();
 
-      rerender(<WireGuardCard interface={{ ...mockWireGuardInterface, id: 'wg0-21', isRunning: false, isDisabled: false }} peerCount={3} />);
+      rerender(
+        <WireGuardCard
+          interface={{
+            ...mockWireGuardInterface,
+            id: 'wg0-21',
+            isRunning: false,
+            isDisabled: false,
+          }}
+          peerCount={3}
+        />
+      );
       expect(screen.getByText('Inactive')).toBeInTheDocument();
     });
 

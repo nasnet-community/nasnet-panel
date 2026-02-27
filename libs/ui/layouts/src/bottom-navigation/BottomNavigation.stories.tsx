@@ -36,8 +36,17 @@ const meta: Meta<typeof BottomNavigation> = {
   },
   decorators: [
     (Story) => (
-      <div className="relative" style={{ height: '100vh', maxWidth: 390, margin: '0 auto', border: '1px solid #e5e7eb', overflow: 'hidden' }}>
-        <div className="p-4 pb-24 text-sm text-muted-foreground overflow-y-auto">
+      <div
+        className="relative"
+        style={{
+          height: '100vh',
+          maxWidth: 390,
+          margin: '0 auto',
+          border: '1px solid #e5e7eb',
+          overflow: 'hidden',
+        }}
+      >
+        <div className="text-muted-foreground overflow-y-auto p-4 pb-24 text-sm">
           Page content goes here. The bottom navigation is pinned to the bottom of this viewport.
         </div>
         <Story />
@@ -141,16 +150,44 @@ export const Interactive: Story = {
     const [activeId, setActiveId] = useState('home');
     const items: NavItem[] = [
       { id: 'home', label: 'Home', icon: 'lucide:home', onClick: () => setActiveId('home') },
-      { id: 'vpn', label: 'VPN', icon: 'lucide:shield', onClick: () => setActiveId('vpn'), badge: 1 },
-      { id: 'monitor', label: 'Monitor', icon: 'lucide:activity', onClick: () => setActiveId('monitor') },
-      { id: 'settings', label: 'Settings', icon: 'lucide:settings', onClick: () => setActiveId('settings') },
+      {
+        id: 'vpn',
+        label: 'VPN',
+        icon: 'lucide:shield',
+        onClick: () => setActiveId('vpn'),
+        badge: 1,
+      },
+      {
+        id: 'monitor',
+        label: 'Monitor',
+        icon: 'lucide:activity',
+        onClick: () => setActiveId('monitor'),
+      },
+      {
+        id: 'settings',
+        label: 'Settings',
+        icon: 'lucide:settings',
+        onClick: () => setActiveId('settings'),
+      },
     ];
     return (
-      <div className="relative" style={{ height: '100vh', maxWidth: 390, margin: '0 auto', border: '1px solid #e5e7eb', overflow: 'hidden' }}>
-        <div className="p-4 pb-24 text-sm text-muted-foreground">
+      <div
+        className="relative"
+        style={{
+          height: '100vh',
+          maxWidth: 390,
+          margin: '0 auto',
+          border: '1px solid #e5e7eb',
+          overflow: 'hidden',
+        }}
+      >
+        <div className="text-muted-foreground p-4 pb-24 text-sm">
           Active tab: <strong>{activeId}</strong>. Tap nav items to change active state.
         </div>
-        <BottomNavigation activeId={activeId} items={items} />
+        <BottomNavigation
+          activeId={activeId}
+          items={items}
+        />
       </div>
     );
   },

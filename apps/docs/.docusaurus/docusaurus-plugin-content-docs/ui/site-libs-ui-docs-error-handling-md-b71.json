@@ -1,7 +1,7 @@
 {
   "id": "error-handling",
   "title": "Error Handling",
-  "description": "NasNetConnect provides a comprehensive error boundary system and error UI components to gracefully handle failures at every level of the application. Error boundaries prevent entire app crashes when individual components or features fail, ensuring users can recover and continue working.",
+  "description": "NasNetConnect provides a comprehensive error boundary system and error UI components to gracefully",
   "source": "@site/../../libs/ui/docs/error-handling.md",
   "sourceDirName": ".",
   "slug": "/error-handling",

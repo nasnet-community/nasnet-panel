@@ -21,7 +21,12 @@
  * });
  * ```
  */
-export declare function useCreateIPAddress(): import("@apollo/client").MutationTuple<any, import("@apollo/client").OperationVariables, import("@apollo/client").DefaultContext, import("@apollo/client").ApolloCache<any>>;
+export declare function useCreateIPAddress(): import('@apollo/client').MutationTuple<
+  any,
+  import('@apollo/client').OperationVariables,
+  import('@apollo/client').DefaultContext,
+  import('@apollo/client').ApolloCache<any>
+>;
 /**
  * Hook for updating an existing IP address
  * Includes cache invalidation and optimistic response
@@ -46,7 +51,12 @@ export declare function useCreateIPAddress(): import("@apollo/client").MutationT
  * });
  * ```
  */
-export declare function useUpdateIPAddress(): import("@apollo/client").MutationTuple<any, import("@apollo/client").OperationVariables, import("@apollo/client").DefaultContext, import("@apollo/client").ApolloCache<any>>;
+export declare function useUpdateIPAddress(): import('@apollo/client').MutationTuple<
+  any,
+  import('@apollo/client').OperationVariables,
+  import('@apollo/client').DefaultContext,
+  import('@apollo/client').ApolloCache<any>
+>;
 /**
  * Hook for deleting an IP address
  * Includes cache invalidation and automatic removal from cache
@@ -65,5 +75,10 @@ export declare function useUpdateIPAddress(): import("@apollo/client").MutationT
  * });
  * ```
  */
-export declare function useDeleteIPAddress(): import("@apollo/client").MutationTuple<any, import("@apollo/client").OperationVariables, import("@apollo/client").DefaultContext, import("@apollo/client").ApolloCache<any>>;
+export declare function useDeleteIPAddress(): import('@apollo/client').MutationTuple<
+  any,
+  import('@apollo/client').OperationVariables,
+  import('@apollo/client').DefaultContext,
+  import('@apollo/client').ApolloCache<any>
+>;
 //# sourceMappingURL=useIPAddressMutations.d.ts.map

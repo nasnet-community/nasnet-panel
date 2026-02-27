@@ -63,7 +63,10 @@ describe('ErrorBoundary', () => {
     const onError = vi.fn();
 
     render(
-      <ErrorBoundary fallback={<div>Error</div>} onError={onError}>
+      <ErrorBoundary
+        fallback={<div>Error</div>}
+        onError={onError}
+      >
         <ThrowingComponent />
       </ErrorBoundary>
     );

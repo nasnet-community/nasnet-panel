@@ -69,7 +69,8 @@ export interface ToastProviderProps {
  * - All interactive elements have visible focus indicators
  */
 const TOAST_CLASS_NAMES = {
-  toast: 'rounded-[var(--semantic-radius-card)] shadow-[var(--semantic-shadow-modal)] border font-sans',
+  toast:
+    'rounded-[var(--semantic-radius-card)] shadow-[var(--semantic-shadow-modal)] border font-sans',
   title: 'font-semibold text-sm',
   description: 'text-sm opacity-90',
   actionButton:
@@ -78,15 +79,11 @@ const TOAST_CLASS_NAMES = {
     'bg-secondary text-secondary-foreground hover:bg-secondary-hover focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
   closeButton:
     'bg-background text-foreground border border-border hover:bg-accent transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
-  success:
-    'border-success/50 bg-success-light text-success-dark',
-  error:
-    'border-error/50 bg-error-light text-error-dark',
-  warning:
-    'border-warning/50 bg-warning-light text-warning-dark',
+  success: 'border-success/50 bg-success-light text-success-dark',
+  error: 'border-error/50 bg-error-light text-error-dark',
+  warning: 'border-warning/50 bg-warning-light text-warning-dark',
   info: 'border-info/50 bg-info-light text-info-dark',
-  loading:
-    'border-muted bg-muted text-muted-foreground',
+  loading: 'border-muted bg-muted text-muted-foreground',
 } as const;
 
 /**

@@ -96,24 +96,22 @@ export const DeviceDiscoveryTable = React.memo(function DeviceDiscoveryTable({
         accessorKey: 'ip',
         header: 'IP Address',
         cell: ({ row }) => (
-          <div className="font-mono text-sm text-foreground">{row.original.ip}</div>
+          <div className="text-foreground font-mono text-sm">{row.original.ip}</div>
         ),
       },
       {
         accessorKey: 'mac',
         header: 'MAC Address',
         cell: ({ row }) => (
-          <div className="font-mono text-sm text-foreground">{row.original.mac}</div>
+          <div className="text-foreground font-mono text-sm">{row.original.mac}</div>
         ),
       },
       {
         accessorKey: 'vendor',
         header: 'Vendor',
         cell: ({ row }) => (
-          <div className="text-sm text-foreground">
-            {row.original.vendor || (
-              <span className="text-muted-foreground">Unknown</span>
-            )}
+          <div className="text-foreground text-sm">
+            {row.original.vendor || <span className="text-muted-foreground">Unknown</span>}
           </div>
         ),
       },
@@ -121,10 +119,8 @@ export const DeviceDiscoveryTable = React.memo(function DeviceDiscoveryTable({
         accessorKey: 'hostname',
         header: 'Hostname',
         cell: ({ row }) => (
-          <div className="text-sm text-foreground">
-            {row.original.hostname || (
-              <span className="text-muted-foreground">—</span>
-            )}
+          <div className="text-foreground text-sm">
+            {row.original.hostname || <span className="text-muted-foreground">—</span>}
           </div>
         ),
       },
@@ -132,7 +128,7 @@ export const DeviceDiscoveryTable = React.memo(function DeviceDiscoveryTable({
         accessorKey: 'responseTime',
         header: 'Response',
         cell: ({ row }) => (
-          <div className="text-sm text-foreground">
+          <div className="text-foreground text-sm">
             {formatResponseTime(row.original.responseTime)}
           </div>
         ),
@@ -157,40 +153,44 @@ export const DeviceDiscoveryTable = React.memo(function DeviceDiscoveryTable({
   const useVirtualization = devices.length > VIRTUALIZATION_THRESHOLD;
 
   // Row click handler with stable reference
-  const handleRowClick = useCallback((device: DiscoveredDevice) => {
-    if (selectedDevice?.ip === device.ip) {
-      onSelectDevice(null); // Deselect if same device
-    } else {
-      onSelectDevice(device);
-    }
-  }, [selectedDevice?.ip, onSelectDevice]);
+  const handleRowClick = useCallback(
+    (device: DiscoveredDevice) => {
+      if (selectedDevice?.ip === device.ip) {
+        onSelectDevice(null); // Deselect if same device
+      } else {
+        onSelectDevice(device);
+      }
+    },
+    [selectedDevice?.ip, onSelectDevice]
+  );
 
   // Common table props with memoized values
-  const tableProps = useMemo(() => ({
-    data: devices,
-    columns,
-    enableSorting: true,
-    onRowClick: handleRowClick,
-    getRowClassName: (device: DiscoveredDevice) =>
-      cn(
-        'cursor-pointer transition-colors hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0',
-        selectedDevice?.ip === device.ip && 'bg-muted'
-      ),
-  }), [devices, columns, handleRowClick, selectedDevice?.ip]);
+  const tableProps = useMemo(
+    () => ({
+      data: devices,
+      columns,
+      enableSorting: true,
+      onRowClick: handleRowClick,
+      getRowClassName: (device: DiscoveredDevice) =>
+        cn(
+          'hover:bg-muted/50 focus-visible:ring-ring cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-0',
+          selectedDevice?.ip === device.ip && 'bg-muted'
+        ),
+    }),
+    [devices, columns, handleRowClick, selectedDevice?.ip]
+  );
 
   return (
-    <div className={cn('rounded-[var(--semantic-radius-card)] border border-border', className)}>
-      {useVirtualization ? (
+    <div className={cn('border-border rounded-[var(--semantic-radius-card)] border', className)}>
+      {useVirtualization ?
         <VirtualizedTable
-          {...tableProps as any}
+          {...(tableProps as any)}
           height={600}
         />
-      ) : (
-        <DataTable {...tableProps as any} />
-      )}
+      : <DataTable {...(tableProps as any)} />}
 
       {/* Device count footer */}
-      <div className="border-t border-border px-component-md py-component-sm text-sm text-muted-foreground">
+      <div className="border-border px-component-md py-component-sm text-muted-foreground border-t text-sm">
         {devices.length} {devices.length === 1 ? 'device' : 'devices'} found
         {useVirtualization && ' (virtualized for performance)'}
       </div>

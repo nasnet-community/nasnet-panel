@@ -82,16 +82,8 @@ export const PortRegistryViewDesktop = React.memo(function PortRegistryViewDeskt
   routerId,
   className,
 }: PortRegistryViewDesktopProps) {
-  const {
-    sortedAllocations,
-    filters,
-    setFilters,
-    sort,
-    setSort,
-    loading,
-    error,
-    refetch,
-  } = usePortAllocations(routerId);
+  const { sortedAllocations, filters, setFilters, sort, setSort, loading, error, refetch } =
+    usePortAllocations(routerId);
 
   // Extract unique service types for filter
   const serviceTypes = useMemo(() => {
@@ -127,14 +119,21 @@ export const PortRegistryViewDesktop = React.memo(function PortRegistryViewDeskt
     (field: 'port' | 'serviceType' | 'allocatedAt') => {
       if (sort.field !== field) {
         return (
-          <ArrowUpDown className="h-4 w-4 ml-1 opacity-40" aria-hidden="true" />
+          <ArrowUpDown
+            className="ml-1 h-4 w-4 opacity-40"
+            aria-hidden="true"
+          />
         );
       }
-      return sort.direction === 'asc' ? (
-        <ArrowUp className="h-4 w-4 ml-1" aria-hidden="true" />
-      ) : (
-        <ArrowDown className="h-4 w-4 ml-1" aria-hidden="true" />
-      );
+      return sort.direction === 'asc' ?
+          <ArrowUp
+            className="ml-1 h-4 w-4"
+            aria-hidden="true"
+          />
+        : <ArrowDown
+            className="ml-1 h-4 w-4"
+            aria-hidden="true"
+          />;
     },
     [sort.field, sort.direction]
   );
@@ -147,15 +146,24 @@ export const PortRegistryViewDesktop = React.memo(function PortRegistryViewDeskt
         header: (
           <button
             onClick={() => handleSort('port')}
-            className="flex items-center hover:text-foreground transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded"
-            aria-label={`Sort by port ${sort.field === 'port' ? (sort.direction === 'asc' ? 'descending' : 'ascending') : 'ascending'}`}
+            className="hover:text-foreground focus-visible:ring-ring flex items-center rounded transition-colors focus-visible:ring-2 focus-visible:ring-offset-2"
+            aria-label={`Sort by port ${
+              sort.field === 'port' ?
+                sort.direction === 'asc' ?
+                  'descending'
+                : 'ascending'
+              : 'ascending'
+            }`}
           >
             Port
             {renderSortIcon('port')}
           </button>
         ),
         cell: (item) => (
-          <Badge variant="outline" className="font-mono font-semibold text-xs">
+          <Badge
+            variant="outline"
+            className="font-mono text-xs font-semibold"
+          >
             {item.port}
           </Badge>
         ),
@@ -178,24 +186,28 @@ export const PortRegistryViewDesktop = React.memo(function PortRegistryViewDeskt
         header: (
           <button
             onClick={() => handleSort('serviceType')}
-            className="flex items-center hover:text-foreground transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded"
-            aria-label={`Sort by service type ${sort.field === 'serviceType' ? (sort.direction === 'asc' ? 'descending' : 'ascending') : 'ascending'}`}
+            className="hover:text-foreground focus-visible:ring-ring flex items-center rounded transition-colors focus-visible:ring-2 focus-visible:ring-offset-2"
+            aria-label={`Sort by service type ${
+              sort.field === 'serviceType' ?
+                sort.direction === 'asc' ?
+                  'descending'
+                : 'ascending'
+              : 'ascending'
+            }`}
           >
             Service Type
             {renderSortIcon('serviceType')}
           </button>
         ),
-        cell: (item) => (
-          <span className="text-muted-foreground">{item.serviceType}</span>
-        ),
+        cell: (item) => <span className="text-muted-foreground">{item.serviceType}</span>,
       },
       {
         key: 'instanceID',
         header: 'Instance',
         cell: (item) => (
           <div>
-            <div className="font-medium text-xs">Instance {item.instanceID.slice(-6)}</div>
-            <div className="text-xs text-muted-foreground font-mono break-all">
+            <div className="text-xs font-medium">Instance {item.instanceID.slice(-6)}</div>
+            <div className="text-muted-foreground break-all font-mono text-xs">
               {item.instanceID}
             </div>
           </div>
@@ -205,7 +217,7 @@ export const PortRegistryViewDesktop = React.memo(function PortRegistryViewDeskt
         key: 'notes',
         header: 'Purpose',
         cell: (item) => (
-          <span className="text-sm text-muted-foreground max-w-xs truncate block">
+          <span className="text-muted-foreground block max-w-xs truncate text-sm">
             {item.notes || '-'}
           </span>
         ),
@@ -215,15 +227,21 @@ export const PortRegistryViewDesktop = React.memo(function PortRegistryViewDeskt
         header: (
           <button
             onClick={() => handleSort('allocatedAt')}
-            className="flex items-center hover:text-foreground transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded"
-            aria-label={`Sort by allocation date ${sort.field === 'allocatedAt' ? (sort.direction === 'asc' ? 'descending' : 'ascending') : 'ascending'}`}
+            className="hover:text-foreground focus-visible:ring-ring flex items-center rounded transition-colors focus-visible:ring-2 focus-visible:ring-offset-2"
+            aria-label={`Sort by allocation date ${
+              sort.field === 'allocatedAt' ?
+                sort.direction === 'asc' ?
+                  'descending'
+                : 'ascending'
+              : 'ascending'
+            }`}
           >
             Allocated
             {renderSortIcon('allocatedAt')}
           </button>
         ),
         cell: (item) => (
-          <span className="text-sm text-muted-foreground">
+          <span className="text-muted-foreground text-sm">
             {formatRelativeTime(item.allocatedAt)}
           </span>
         ),
@@ -240,15 +258,21 @@ export const PortRegistryViewDesktop = React.memo(function PortRegistryViewDeskt
           <div className="flex items-center justify-between">
             <div>
               <CardTitle className="flex items-center gap-2">
-                <Network className="h-5 w-5" aria-hidden="true" />
+                <Network
+                  className="h-5 w-5"
+                  aria-hidden="true"
+                />
                 Port Registry
               </CardTitle>
               <CardDescription>
                 Centralized port allocation tracking for service instances
               </CardDescription>
             </div>
-            <div className="flex items-center gap-component-sm">
-              <Badge variant="outline" className="text-base px-component-md py-1">
+            <div className="gap-component-sm flex items-center">
+              <Badge
+                variant="outline"
+                className="px-component-md py-1 text-base"
+              >
                 {sortedAllocations.length} {sortedAllocations.length === 1 ? 'port' : 'ports'}
               </Badge>
               <Button
@@ -259,7 +283,7 @@ export const PortRegistryViewDesktop = React.memo(function PortRegistryViewDeskt
                 aria-label="Refresh port allocations"
               >
                 <RefreshCw
-                  className={cn('h-4 w-4 mr-component-xs', loading && 'animate-spin')}
+                  className={cn('mr-component-xs h-4 w-4', loading && 'animate-spin')}
                   aria-hidden="true"
                 />
                 Refresh
@@ -269,16 +293,14 @@ export const PortRegistryViewDesktop = React.memo(function PortRegistryViewDeskt
         </CardHeader>
 
         {/* Filters */}
-        <CardContent className="border-t pt-component-sm">
-          <div className="flex items-center gap-component-md">
+        <CardContent className="pt-component-sm border-t">
+          <div className="gap-component-md flex items-center">
             {/* Protocol Filter */}
-            <div className="flex items-center gap-component-sm">
+            <div className="gap-component-sm flex items-center">
               <span className="text-sm font-medium">Protocol:</span>
               <Select
                 value={filters.protocol || 'all'}
-                onValueChange={(value) =>
-                  setFilters({ ...filters, protocol: value as any })
-                }
+                onValueChange={(value) => setFilters({ ...filters, protocol: value as any })}
               >
                 <SelectTrigger className="w-32">
                   <SelectValue placeholder="All" />
@@ -292,13 +314,11 @@ export const PortRegistryViewDesktop = React.memo(function PortRegistryViewDeskt
             </div>
 
             {/* Service Type Filter */}
-            <div className="flex items-center gap-component-sm">
+            <div className="gap-component-sm flex items-center">
               <span className="text-sm font-medium">Service:</span>
               <Select
                 value={filters.serviceType || 'all'}
-                onValueChange={(value) =>
-                  setFilters({ ...filters, serviceType: value })
-                }
+                onValueChange={(value) => setFilters({ ...filters, serviceType: value })}
               >
                 <SelectTrigger className="w-48">
                   <SelectValue placeholder="All Services" />
@@ -306,7 +326,10 @@ export const PortRegistryViewDesktop = React.memo(function PortRegistryViewDeskt
                 <SelectContent>
                   <SelectItem value="all">All Services</SelectItem>
                   {serviceTypes.map((type) => (
-                    <SelectItem key={type} value={type}>
+                    <SelectItem
+                      key={type}
+                      value={type}
+                    >
                       {type}
                     </SelectItem>
                   ))}
@@ -331,18 +354,18 @@ export const PortRegistryViewDesktop = React.memo(function PortRegistryViewDeskt
       {/* Data Table */}
       <Card>
         <CardContent className="p-0">
-          {loading && sortedAllocations.length === 0 ? (
+          {loading && sortedAllocations.length === 0 ?
             <div className="p-component-lg space-y-component-sm">
               <Skeleton className="h-12 w-full" />
               <Skeleton className="h-12 w-full" />
               <Skeleton className="h-12 w-full" />
             </div>
-          ) : error ? (
+          : error ?
             <div className="p-component-lg text-center">
-              <div className="text-error font-medium mb-component-sm">
+              <div className="text-error mb-component-sm font-medium">
                 Failed to load port allocations
               </div>
-              <p className="text-sm text-muted-foreground mb-component-md">{error.message}</p>
+              <p className="text-muted-foreground mb-component-md text-sm">{error.message}</p>
               <Button
                 variant="outline"
                 onClick={() => refetch()}
@@ -351,22 +374,21 @@ export const PortRegistryViewDesktop = React.memo(function PortRegistryViewDeskt
                 Retry
               </Button>
             </div>
-          ) : (
-            <DataTable
+          : <DataTable
               columns={columns}
               data={sortedAllocations}
               emptyMessage="No port allocations found"
               isLoading={loading}
               keyExtractor={(item) => item.id}
             />
-          )}
+          }
         </CardContent>
       </Card>
 
       {/* Empty State */}
       {!loading && sortedAllocations.length === 0 && !error && (
-        <div className="text-center py-component-lg">
-          <div className="text-muted-foreground mx-auto mb-component-md flex justify-center">
+        <div className="py-component-lg text-center">
+          <div className="text-muted-foreground mb-component-md mx-auto flex justify-center">
             <svg
               className="h-16 w-16 stroke-1"
               xmlns="http://www.w3.org/2000/svg"
@@ -381,10 +403,10 @@ export const PortRegistryViewDesktop = React.memo(function PortRegistryViewDeskt
               />
             </svg>
           </div>
-          <h3 className="text-lg font-semibold mb-component-sm">No Port Allocations</h3>
-          <p className="text-sm text-muted-foreground max-w-md mx-auto">
-            No ports have been allocated for this router yet. Ports will appear here
-            when service instances are created.
+          <h3 className="mb-component-sm text-lg font-semibold">No Port Allocations</h3>
+          <p className="text-muted-foreground mx-auto max-w-md text-sm">
+            No ports have been allocated for this router yet. Ports will appear here when service
+            instances are created.
           </p>
         </div>
       )}

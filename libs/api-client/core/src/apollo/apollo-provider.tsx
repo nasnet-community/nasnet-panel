@@ -19,14 +19,15 @@ import { initializeCachePersistence } from './apollo-cache-persist';
  * Note: Apollo DevTools are integrated via browser extension in most cases,
  * but this provides in-app debugging for environments without the extension.
  */
-const ApolloDevToolsPanel = import.meta.env.DEV
-  ? lazy(() =>
+const ApolloDevToolsPanel =
+  import.meta.env.DEV ?
+    lazy(() =>
       import('@apollo/client/dev').then((mod) => ({
         // The dev module exports multiple things, we want ApolloDevTools
         default:
-          'ApolloDevTools' in mod
-            ? (mod as { ApolloDevTools: React.ComponentType }).ApolloDevTools
-            : () => null, // Fallback if not available
+          'ApolloDevTools' in mod ?
+            (mod as { ApolloDevTools: React.ComponentType }).ApolloDevTools
+          : () => null, // Fallback if not available
       }))
     )
   : null;

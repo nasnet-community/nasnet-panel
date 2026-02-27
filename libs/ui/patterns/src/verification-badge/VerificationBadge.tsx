@@ -53,10 +53,7 @@ import type { VerificationBadgeProps } from './verification-badge.types';
  * />
  * ```
  */
-const VerificationBadgeComponent = React.forwardRef<
-  HTMLDivElement,
-  VerificationBadgeProps
->(
+const VerificationBadgeComponent = React.forwardRef<HTMLDivElement, VerificationBadgeProps>(
   (
     {
       verification,
@@ -72,58 +69,65 @@ const VerificationBadgeComponent = React.forwardRef<
     },
     ref
   ) => {
-  // Compute state using the headless hook
-  const state = useVerificationBadge({
-    verification,
-    instanceId,
-    onVerificationChange,
-    showTimestamp,
-    showHash,
-  });
+    // Compute state using the headless hook
+    const state = useVerificationBadge({
+      verification,
+      instanceId,
+      onVerificationChange,
+      showTimestamp,
+      showHash,
+    });
 
-  // Props for presenters
-  const presenterProps = {
-    state,
-    size,
-    showLabel,
-    className,
-    id,
-  };
+    // Props for presenters
+    const presenterProps = {
+      state,
+      size,
+      showLabel,
+      className,
+      id,
+    };
 
-  // Forced variant rendering
-  if (variant === 'mobile') {
-    return <VerificationBadgeMobile {...presenterProps} />;
-  }
+    // Forced variant rendering
+    if (variant === 'mobile') {
+      return <VerificationBadgeMobile {...presenterProps} />;
+    }
 
-  if (variant === 'desktop') {
-    return <VerificationBadgeDesktop {...presenterProps} />;
-  }
+    if (variant === 'desktop') {
+      return <VerificationBadgeDesktop {...presenterProps} />;
+    }
 
-  // Auto-detect: Use CSS media queries for SSR compatibility
-  // This avoids hydration mismatches and works on first render
-  return (
-    <div
-      ref={ref}
-      className={cn('contents', className)}
-      role="status"
-      aria-live="polite"
-      aria-atomic="true"
-    >
-      {/* Mobile: shown on small screens (<640px) */}
-      <div className="sm:hidden">
-        <VerificationBadgeMobile {...presenterProps} className="" />
+    // Auto-detect: Use CSS media queries for SSR compatibility
+    // This avoids hydration mismatches and works on first render
+    return (
+      <div
+        ref={ref}
+        className={cn('contents', className)}
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+      >
+        {/* Mobile: shown on small screens (<640px) */}
+        <div className="sm:hidden">
+          <VerificationBadgeMobile
+            {...presenterProps}
+            className=""
+          />
+        </div>
+
+        {/* Desktop: shown on larger screens (>=640px) */}
+        <div className="hidden sm:block">
+          <VerificationBadgeDesktop
+            {...presenterProps}
+            className=""
+          />
+        </div>
+
+        {/* Screen reader announcement */}
+        <span className="sr-only">{state.ariaLabel}</span>
       </div>
-
-      {/* Desktop: shown on larger screens (>=640px) */}
-      <div className="hidden sm:block">
-        <VerificationBadgeDesktop {...presenterProps} className="" />
-      </div>
-
-      {/* Screen reader announcement */}
-      <span className="sr-only">{state.ariaLabel}</span>
-    </div>
-  );
-});
+    );
+  }
+);
 
 VerificationBadgeComponent.displayName = 'VerificationBadge';
 

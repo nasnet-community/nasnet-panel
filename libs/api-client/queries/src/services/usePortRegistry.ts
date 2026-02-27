@@ -39,16 +39,8 @@ import type {
  * Query to fetch all port allocations with optional filters
  */
 export const GET_PORT_ALLOCATIONS = gql`
-  query GetPortAllocations(
-    $routerID: ID
-    $protocol: PortProtocol
-    $serviceType: String
-  ) {
-    portAllocations(
-      routerID: $routerID
-      protocol: $protocol
-      serviceType: $serviceType
-    ) {
+  query GetPortAllocations($routerID: ID, $protocol: PortProtocol, $serviceType: String) {
+    portAllocations(routerID: $routerID, protocol: $protocol, serviceType: $serviceType) {
       id
       routerID
       port
@@ -240,8 +232,7 @@ export function usePortAllocations(
           comparison = a.serviceType.localeCompare(b.serviceType);
           break;
         case 'allocatedAt':
-          comparison =
-            new Date(a.allocatedAt).getTime() - new Date(b.allocatedAt).getTime();
+          comparison = new Date(a.allocatedAt).getTime() - new Date(b.allocatedAt).getTime();
           break;
       }
 
@@ -308,9 +299,7 @@ export function usePortAllocations(
  * ```
  */
 export function useCheckPortAvailability() {
-  const [checkAvailability, { loading, error }] = useMutation(
-    CHECK_PORT_AVAILABILITY
-  );
+  const [checkAvailability, { loading, error }] = useMutation(CHECK_PORT_AVAILABILITY);
 
   const checkPort = useCallback(
     async (input: CheckPortAvailabilityInput): Promise<PortAvailability> => {
@@ -350,13 +339,15 @@ export function useCheckPortAvailability() {
  */
 export function useOrphanedPorts(routerId?: string) {
   // Query for orphaned ports
-  const { data, loading: detectLoading, error: detectError, refetch } = useQuery(
-    DETECT_ORPHANED_PORTS,
-    {
-      variables: { routerID: routerId },
-      fetchPolicy: 'cache-and-network',
-    }
-  );
+  const {
+    data,
+    loading: detectLoading,
+    error: detectError,
+    refetch,
+  } = useQuery(DETECT_ORPHANED_PORTS, {
+    variables: { routerID: routerId },
+    fetchPolicy: 'cache-and-network',
+  });
 
   // Mutation for cleanup
   const [cleanupMutation, { loading: cleanupLoading, error: cleanupError }] =

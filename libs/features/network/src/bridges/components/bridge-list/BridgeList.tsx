@@ -40,11 +40,9 @@ export const BridgeList = memo(function BridgeList({ routerId, className }: Brid
 
   return (
     <>
-      {platform === 'mobile' ? (
+      {platform === 'mobile' ?
         <BridgeListMobile {...sharedProps} />
-      ) : (
-        <BridgeListDesktop {...sharedProps} />
-      )}
+      : <BridgeListDesktop {...sharedProps} />}
 
       {/* Detail panel - shown when a bridge is selected */}
       <BridgeDetail

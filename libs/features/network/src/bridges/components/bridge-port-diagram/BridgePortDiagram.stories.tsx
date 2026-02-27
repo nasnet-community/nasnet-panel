@@ -4,7 +4,6 @@ import { BridgePortDiagram } from './BridgePortDiagram';
 
 import type { Meta, StoryObj } from '@storybook/react';
 
-
 /**
  * Bridge Port Diagram Component Stories
  * Demonstrates visual port management with drag-and-drop
@@ -258,8 +257,20 @@ export const AllStpStates: Story = {
         { ...mockPorts[0], role: 'root', state: 'forwarding' },
         { ...mockPorts[1], role: 'designated', state: 'forwarding' },
         { ...mockPorts[2], role: 'alternate', state: 'blocking' },
-        { ...mockPorts[0], uuid: 'port-4', interfaceName: 'ether6', role: 'backup', state: 'blocking' },
-        { ...mockPorts[0], uuid: 'port-5', interfaceName: 'ether7', role: 'disabled', state: 'disabled' },
+        {
+          ...mockPorts[0],
+          uuid: 'port-4',
+          interfaceName: 'ether6',
+          role: 'backup',
+          state: 'blocking',
+        },
+        {
+          ...mockPorts[0],
+          uuid: 'port-5',
+          interfaceName: 'ether7',
+          role: 'disabled',
+          state: 'disabled',
+        },
       ];
 
       // Mocking would go here

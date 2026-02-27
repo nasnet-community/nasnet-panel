@@ -193,9 +193,7 @@ export function useGraphQLError(
     skipValidationErrors = false,
   } = options;
 
-  const addNotification = useNotificationStore(
-    (state) => state.addNotification
-  );
+  const addNotification = useNotificationStore((state) => state.addNotification);
 
   // Process error
   const error = useMemo(() => {
@@ -247,7 +245,7 @@ export function useGraphQLError(
 
   // Create retry handler that handles errors gracefully
   const createRetryHandler = useCallback(
-    <T,>(fn: () => Promise<T>) => {
+    <T>(fn: () => Promise<T>) => {
       return async (): Promise<T | undefined> => {
         try {
           return await fn();

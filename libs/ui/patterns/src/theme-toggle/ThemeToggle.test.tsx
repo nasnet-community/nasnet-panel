@@ -6,7 +6,6 @@ import { useThemeStore } from '@nasnet/state/stores';
 
 import { ThemeToggle } from './ThemeToggle';
 
-
 // Mock Lucide icons
 vi.mock('lucide-react', () => ({
   Moon: () => <svg data-testid="moon-icon">Moon</svg>,

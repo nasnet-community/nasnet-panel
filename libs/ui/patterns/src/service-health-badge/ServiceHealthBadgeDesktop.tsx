@@ -25,14 +25,13 @@ function ServiceHealthBadgeDesktopComponent({
   animate,
   className,
 }: ServiceHealthBadgeProps) {
-  const { healthState, formattedUptime, formattedLastHealthy, raw } =
-    useServiceHealthBadge(health);
+  const { healthState, formattedUptime, formattedLastHealthy, raw } = useServiceHealthBadge(health);
 
   if (loading) {
     return (
       <div
         className={cn(
-          'inline-flex items-center gap-component-sm',
+          'gap-component-sm inline-flex items-center',
           'rounded-[var(--semantic-radius-badge)] px-2.5 py-0.5',
           'text-xs font-medium',
           'bg-info-light text-info-dark dark:bg-sky-900/20 dark:text-sky-400',
@@ -40,7 +39,7 @@ function ServiceHealthBadgeDesktopComponent({
           className
         )}
       >
-        <span className="h-2 w-2 rounded-full bg-info-dark animate-pulse" />
+        <span className="bg-info-dark h-2 w-2 animate-pulse rounded-full" />
         Checking...
       </div>
     );
@@ -96,7 +95,7 @@ function ServiceHealthBadgeDesktopComponent({
   return (
     <div
       className={cn(
-        'inline-flex items-center gap-component-sm',
+        'gap-component-sm inline-flex items-center',
         'rounded-[var(--semantic-radius-badge)] px-2.5 py-0.5',
         'text-xs font-medium',
         getBadgeClass(),
@@ -114,9 +113,7 @@ function ServiceHealthBadgeDesktopComponent({
 
       {/* Optional: Metadata on hover (for desktop power users) */}
       {health && raw?.latencyMs != null && (
-        <span className="text-xs opacity-75">
-          ({raw.latencyMs}ms)
-        </span>
+        <span className="text-xs opacity-75">({raw.latencyMs}ms)</span>
       )}
     </div>
   );

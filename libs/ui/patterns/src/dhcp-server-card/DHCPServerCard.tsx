@@ -9,13 +9,7 @@ import * as React from 'react';
 
 import type { DHCPServer, DHCPPool } from '@nasnet/core/types';
 import { formatLeaseTime } from '@nasnet/core/utils';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@nasnet/ui/primitives';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@nasnet/ui/primitives';
 
 import { cn } from '@nasnet/ui/utils';
 
@@ -73,7 +67,7 @@ const DHCPServerCardComponent = React.forwardRef<HTMLDivElement, DHCPServerCardP
               <span
                 className={cn(
                   'inline-flex items-center rounded-full px-3 py-1 text-xs font-medium',
-                  'bg-info/10 text-info ring-1 ring-inset ring-info/20',
+                  'bg-info/10 text-info ring-info/20 ring-1 ring-inset',
                   'dark:bg-info/20 dark:text-sky-400'
                 )}
                 role="status"
@@ -89,7 +83,7 @@ const DHCPServerCardComponent = React.forwardRef<HTMLDivElement, DHCPServerCardP
         </CardHeader>
         <CardContent className="space-y-0 pt-0">
           <div className="divide-y divide-slate-200 dark:divide-slate-700">
-            <div className="flex justify-between items-center py-3">
+            <div className="flex items-center justify-between py-3">
               <span className={cn('text-sm font-medium', 'text-slate-500 dark:text-slate-400')}>
                 Interface
               </span>
@@ -98,7 +92,7 @@ const DHCPServerCardComponent = React.forwardRef<HTMLDivElement, DHCPServerCardP
               </span>
             </div>
 
-            <div className="flex justify-between items-center py-3">
+            <div className="flex items-center justify-between py-3">
               <span className={cn('text-sm font-medium', 'text-slate-500 dark:text-slate-400')}>
                 Lease Time
               </span>
@@ -107,11 +101,16 @@ const DHCPServerCardComponent = React.forwardRef<HTMLDivElement, DHCPServerCardP
               </span>
             </div>
 
-            <div className="flex justify-between items-start py-3">
+            <div className="flex items-start justify-between py-3">
               <span className={cn('text-sm font-medium', 'text-slate-500 dark:text-slate-400')}>
                 Pool Range
               </span>
-              <span className={cn('text-sm font-semibold text-right', 'text-slate-900 dark:text-slate-50')}>
+              <span
+                className={cn(
+                  'text-right text-sm font-semibold',
+                  'text-slate-900 dark:text-slate-50'
+                )}
+              >
                 {poolRange}
               </span>
             </div>

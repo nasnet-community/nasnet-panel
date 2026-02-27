@@ -32,10 +32,7 @@ extend type Query {
   scanStatus(taskId: ID!): ScanTask
 
   "Get scan history (recent scans)"
-  scanHistory(
-    "Maximum number of results to return"
-    limit: Int = 10
-  ): [ScanTask!]!
+  scanHistory("Maximum number of results to return" limit: Int = 10): [ScanTask!]!
 }
 
 # -----------------------------------------------------------------------------

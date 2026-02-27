@@ -138,14 +138,19 @@ function KnockPortCard({
               disabled={!canRemove}
               className="h-11 w-11"
             >
-              <Trash2 className="h-5 w-5 text-destructive" />
+              <Trash2 className="text-destructive h-5 w-5" />
             </Button>
           </div>
         </div>
       </CardHeader>
       <CardContent className="space-y-3">
         <div>
-          <label htmlFor={`knock-port-${index}`} className="text-sm font-medium mb-1.5 block">Port</label>
+          <label
+            htmlFor={`knock-port-${index}`}
+            className="mb-1.5 block text-sm font-medium"
+          >
+            Port
+          </label>
           <Input
             id={`knock-port-${index}`}
             type="number"
@@ -157,8 +162,16 @@ function KnockPortCard({
           />
         </div>
         <div>
-          <label htmlFor={`knock-protocol-${index}`} className="text-sm font-medium mb-1.5 block">Protocol</label>
-          <Select value={knockPort.protocol} onValueChange={onProtocolChange}>
+          <label
+            htmlFor={`knock-protocol-${index}`}
+            className="mb-1.5 block text-sm font-medium"
+          >
+            Protocol
+          </label>
+          <Select
+            value={knockPort.protocol}
+            onValueChange={onProtocolChange}
+          >
             <SelectTrigger className="h-11">
               <SelectValue />
             </SelectTrigger>
@@ -184,7 +197,15 @@ function PortKnockSequenceFormMobileComponent({
   className,
 }: PortKnockSequenceFormMobileProps) {
   const { t } = useTranslation('firewall');
-  const { form, knockPorts, addKnockPort, removeKnockPort, reorderKnockPorts, preview, isLockoutRisk } = formState;
+  const {
+    form,
+    knockPorts,
+    addKnockPort,
+    removeKnockPort,
+    reorderKnockPorts,
+    preview,
+    isLockoutRisk,
+  } = formState;
 
   const handleMoveUp = (index: number) => {
     if (index > 0) {
@@ -199,9 +220,15 @@ function PortKnockSequenceFormMobileComponent({
   };
 
   return (
-    <div className={cn('space-y-4', className)} data-testid="knock-sequence-form">
+    <div
+      className={cn('space-y-4', className)}
+      data-testid="knock-sequence-form"
+    >
       <Form {...form}>
-        <form onSubmit={formState.onSubmit as any} className="space-y-4">
+        <form
+          onSubmit={formState.onSubmit as any}
+          className="space-y-4"
+        >
           {/* Basic Info Section */}
           <Card>
             <CardHeader>
@@ -215,11 +242,13 @@ function PortKnockSequenceFormMobileComponent({
                   <FormItem>
                     <FormLabel>Sequence Name</FormLabel>
                     <FormControl>
-                      <Input placeholder="ssh-protection" {...field} className="h-11" />
+                      <Input
+                        placeholder="ssh-protection"
+                        {...field}
+                        className="h-11"
+                      />
                     </FormControl>
-                    <FormDescription>
-                      Unique identifier for this knock sequence
-                    </FormDescription>
+                    <FormDescription>Unique identifier for this knock sequence</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -227,10 +256,14 @@ function PortKnockSequenceFormMobileComponent({
 
               {/* SSH Lockout Warning */}
               {isLockoutRisk && (
-                <Alert variant="destructive" data-testid="ssh-lockout-warning">
+                <Alert
+                  variant="destructive"
+                  data-testid="ssh-lockout-warning"
+                >
                   <AlertTriangle className="h-4 w-4" />
                   <AlertDescription>
-                    Warning: This sequence protects SSH (port 22). Test before logging out to avoid lockout.
+                    Warning: This sequence protects SSH (port 22). Test before logging out to avoid
+                    lockout.
                   </AlertDescription>
                 </Alert>
               )}
@@ -252,13 +285,13 @@ function PortKnockSequenceFormMobileComponent({
                   data-testid="add-knock-port-button"
                   aria-label="Add knock port to sequence"
                 >
-                  <Plus className="h-4 w-4 mr-1" />
+                  <Plus className="mr-1 h-4 w-4" />
                   Add
                 </Button>
               </div>
             </CardHeader>
             <CardContent data-testid="knock-ports-table">
-              <p className="text-sm text-muted-foreground mb-4">
+              <p className="text-muted-foreground mb-4 text-sm">
                 Define the sequence of ports to knock. Minimum 2 ports required.
               </p>
               {knockPorts.map((knockPort, index) => (
@@ -277,7 +310,10 @@ function PortKnockSequenceFormMobileComponent({
                   }}
                   onProtocolChange={(protocol) => {
                     const updatedPorts = [...knockPorts];
-                    updatedPorts[index] = { ...updatedPorts[index], protocol: protocol as 'tcp' | 'udp' };
+                    updatedPorts[index] = {
+                      ...updatedPorts[index],
+                      protocol: protocol as 'tcp' | 'udp',
+                    };
                     form.setValue('knockPorts', updatedPorts, { shouldValidate: true });
                   }}
                 />
@@ -312,7 +348,10 @@ function PortKnockSequenceFormMobileComponent({
                       </SelectTrigger>
                       <SelectContent>
                         {COMMON_SERVICES.map((service) => (
-                          <SelectItem key={service.label} value={service.port.toString()}>
+                          <SelectItem
+                            key={service.label}
+                            value={service.port.toString()}
+                          >
                             {service.label}
                           </SelectItem>
                         ))}
@@ -330,7 +369,10 @@ function PortKnockSequenceFormMobileComponent({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Protocol</FormLabel>
-                    <Select value={field.value} onValueChange={field.onChange}>
+                    <Select
+                      value={field.value}
+                      onValueChange={field.onChange}
+                    >
                       <SelectTrigger className="h-11">
                         <SelectValue />
                       </SelectTrigger>
@@ -359,7 +401,11 @@ function PortKnockSequenceFormMobileComponent({
                   <FormItem>
                     <FormLabel>Knock Timeout</FormLabel>
                     <FormControl>
-                      <Input placeholder="10s" {...field} className="h-11" />
+                      <Input
+                        placeholder="10s"
+                        {...field}
+                        className="h-11"
+                      />
                     </FormControl>
                     <FormDescription>Time allowed between knocks</FormDescription>
                     <FormMessage />
@@ -374,7 +420,11 @@ function PortKnockSequenceFormMobileComponent({
                   <FormItem>
                     <FormLabel>Access Timeout</FormLabel>
                     <FormControl>
-                      <Input placeholder="1h" {...field} className="h-11" />
+                      <Input
+                        placeholder="1h"
+                        {...field}
+                        className="h-11"
+                      />
                     </FormControl>
                     <FormDescription>Access duration after successful knock</FormDescription>
                     <FormMessage />
@@ -385,7 +435,10 @@ function PortKnockSequenceFormMobileComponent({
           </Card>
 
           {/* Preview Section (Collapsible) */}
-          <Accordion type="single" defaultValue="preview">
+          <Accordion
+            type="single"
+            defaultValue="preview"
+          >
             <AccordionItem value="preview">
               <AccordionTrigger>Preview Knock Sequence</AccordionTrigger>
               <AccordionContent>
@@ -405,9 +458,12 @@ function PortKnockSequenceFormMobileComponent({
             <AccordionItem value="rules">
               <AccordionTrigger>Generated Rules</AccordionTrigger>
               <AccordionContent>
-                <div className="space-y-2 text-sm pt-2">
+                <div className="space-y-2 pt-2 text-sm">
                   {preview.map((rule, index) => (
-                    <div key={index} className="flex items-start gap-2 p-3 rounded bg-muted">
+                    <div
+                      key={index}
+                      className="bg-muted flex items-start gap-2 rounded p-3"
+                    >
                       <Badge variant={rule.ruleType === 'accept' ? 'success' : 'default'}>
                         {rule.stage}
                       </Badge>
@@ -420,15 +476,19 @@ function PortKnockSequenceFormMobileComponent({
           </Accordion>
 
           {/* Submit Button */}
-          <div className="sticky bottom-0 bg-background pt-4 pb-2">
+          <div className="bg-background sticky bottom-0 pb-2 pt-4">
             <Button
               type="submit"
               disabled={isSubmitting}
-              className="w-full h-11"
+              className="h-11 w-full"
               data-testid="submit-button"
               aria-label={isEditMode ? 'Update knock sequence' : 'Create knock sequence'}
             >
-              {isSubmitting ? 'Saving...' : isEditMode ? 'Update Sequence' : 'Create Sequence'}
+              {isSubmitting ?
+                'Saving...'
+              : isEditMode ?
+                'Update Sequence'
+              : 'Create Sequence'}
             </Button>
           </div>
         </form>

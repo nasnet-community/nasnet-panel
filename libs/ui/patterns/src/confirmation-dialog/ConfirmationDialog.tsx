@@ -78,10 +78,7 @@ export interface ConfirmationDialogProps {
  * />
  * ```
  */
-const ConfirmationDialogComponent = React.forwardRef<
-  HTMLDivElement,
-  ConfirmationDialogProps
->(
+const ConfirmationDialogComponent = React.forwardRef<HTMLDivElement, ConfirmationDialogProps>(
   (
     {
       open,
@@ -124,12 +121,15 @@ const ConfirmationDialogComponent = React.forwardRef<
     }, [variant]);
 
     return (
-      <Dialog open={open} onOpenChange={onOpenChange}>
+      <Dialog
+        open={open}
+        onOpenChange={onOpenChange}
+      >
         <DialogContent
           ref={ref}
           className={cn(
             'sm:max-w-[425px]',
-            'bg-card border border-border rounded-[var(--semantic-radius-modal)]',
+            'bg-card border-border rounded-[var(--semantic-radius-modal)] border',
             'shadow-[var(--semantic-shadow-modal)]',
             'p-6'
           )}
@@ -138,9 +138,9 @@ const ConfirmationDialogComponent = React.forwardRef<
         >
           <DialogHeader className="space-y-3">
             <div className="flex items-start gap-3">
-              <div className="h-10 w-10 rounded-full bg-warning/10 flex items-center justify-center flex-shrink-0">
+              <div className="bg-warning/10 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full">
                 <svg
-                  className="h-6 w-6 text-warning"
+                  className="text-warning h-6 w-6"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -154,16 +154,17 @@ const ConfirmationDialogComponent = React.forwardRef<
                   />
                 </svg>
               </div>
-              <DialogTitle className="font-display text-lg font-semibold">
-                {title}
-              </DialogTitle>
+              <DialogTitle className="font-display text-lg font-semibold">{title}</DialogTitle>
             </div>
-            <DialogDescription id="confirmation-description" className="text-sm text-muted-foreground mt-2">
+            <DialogDescription
+              id="confirmation-description"
+              className="text-muted-foreground mt-2 text-sm"
+            >
               {description}
             </DialogDescription>
           </DialogHeader>
 
-          <DialogFooter className="flex justify-end gap-2 mt-6">
+          <DialogFooter className="mt-6 flex justify-end gap-2">
             <Button
               type="button"
               variant="secondary"
@@ -178,7 +179,11 @@ const ConfirmationDialogComponent = React.forwardRef<
               variant={confirmButtonVariant}
               onClick={handleConfirm}
               disabled={isLoading}
-              className={confirmButtonClassName ? cn('sm:flex-initial', confirmButtonClassName) : 'sm:flex-initial'}
+              className={
+                confirmButtonClassName ?
+                  cn('sm:flex-initial', confirmButtonClassName)
+                : 'sm:flex-initial'
+              }
               aria-busy={isLoading}
             >
               {isLoading ? 'Processing...' : confirmLabel}

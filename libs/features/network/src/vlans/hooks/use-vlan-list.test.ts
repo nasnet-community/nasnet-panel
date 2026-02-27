@@ -135,7 +135,9 @@ describe('useVlanList', () => {
     });
 
     expect(result.current.vlans).toHaveLength(2);
-    expect(result.current.vlans.every((v: VlanType) => v.vlanId >= 10 && v.vlanId <= 20)).toBe(true);
+    expect(result.current.vlans.every((v: VlanType) => v.vlanId >= 10 && v.vlanId <= 20)).toBe(
+      true
+    );
   });
 
   it('should handle selection toggling', async () => {

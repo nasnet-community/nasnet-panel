@@ -319,7 +319,14 @@ export interface OpenVPNServer extends BaseVPNServer {
   auth: 'md5' | 'sha1' | 'sha256' | 'sha512' | 'null';
 
   /** Data encryption cipher */
-  cipher: 'aes128-cbc' | 'aes192-cbc' | 'aes256-cbc' | 'aes128-gcm' | 'aes256-gcm' | 'blowfish128' | 'null';
+  cipher:
+    | 'aes128-cbc'
+    | 'aes192-cbc'
+    | 'aes256-cbc'
+    | 'aes128-gcm'
+    | 'aes256-gcm'
+    | 'blowfish128'
+    | 'null';
 
   /** Whether IPv6 support is enabled on the tunnel */
   shouldEnableTunIpv6?: boolean;
@@ -375,7 +382,14 @@ export interface OpenVPNClient extends BaseVPNClient {
   auth: 'md5' | 'sha1' | 'sha256' | 'sha512' | 'null';
 
   /** Data encryption cipher (must match server) */
-  cipher: 'aes128-cbc' | 'aes192-cbc' | 'aes256-cbc' | 'aes128-gcm' | 'aes256-gcm' | 'blowfish128' | 'null';
+  cipher:
+    | 'aes128-cbc'
+    | 'aes192-cbc'
+    | 'aes256-cbc'
+    | 'aes128-gcm'
+    | 'aes256-gcm'
+    | 'blowfish128'
+    | 'null';
 
   /** Authentication password (when using username/password auth) */
   password?: string;
@@ -843,10 +857,28 @@ export interface IPsecProfile {
   readonly hashAlgorithm: readonly ('md5' | 'sha1' | 'sha256' | 'sha384' | 'sha512')[];
 
   /** Supported encryption algorithms */
-  readonly encAlgorithm: readonly ('des' | '3des' | 'aes-128-cbc' | 'aes-192-cbc' | 'aes-256-cbc' | 'aes-128-gcm' | 'aes-256-gcm')[];
+  readonly encAlgorithm: readonly (
+    | 'des'
+    | '3des'
+    | 'aes-128-cbc'
+    | 'aes-192-cbc'
+    | 'aes-256-cbc'
+    | 'aes-128-gcm'
+    | 'aes-256-gcm'
+  )[];
 
   /** Supported Diffie-Hellman groups */
-  readonly dhGroup: readonly ('modp768' | 'modp1024' | 'modp1536' | 'modp2048' | 'modp3072' | 'modp4096' | 'ecp256' | 'ecp384' | 'ecp521')[];
+  readonly dhGroup: readonly (
+    | 'modp768'
+    | 'modp1024'
+    | 'modp1536'
+    | 'modp2048'
+    | 'modp3072'
+    | 'modp4096'
+    | 'ecp256'
+    | 'ecp384'
+    | 'ecp521'
+  )[];
 
   /** Key lifetime (e.g., "1d" for 1 day) */
   lifetime: string;
@@ -972,7 +1004,12 @@ export interface IPsecIdentity {
   peer: string;
 
   /** Authentication method */
-  authMethod: 'pre-shared-key' | 'digital-signature' | 'pre-shared-key-xauth' | 'eap' | 'eap-radius';
+  authMethod:
+    | 'pre-shared-key'
+    | 'digital-signature'
+    | 'pre-shared-key-xauth'
+    | 'eap'
+    | 'eap-radius';
 
   /** Shared secret (for PSK authentication) */
   secret?: string;
@@ -1774,7 +1811,14 @@ export interface OpenVPNServerInput {
   auth?: 'md5' | 'sha1' | 'sha256' | 'sha512' | 'null';
 
   /** Encryption cipher */
-  cipher?: 'aes128-cbc' | 'aes192-cbc' | 'aes256-cbc' | 'aes128-gcm' | 'aes256-gcm' | 'blowfish128' | 'null';
+  cipher?:
+    | 'aes128-cbc'
+    | 'aes192-cbc'
+    | 'aes256-cbc'
+    | 'aes128-gcm'
+    | 'aes256-gcm'
+    | 'blowfish128'
+    | 'null';
 
   /** Default profile for clients */
   defaultProfile?: string;
@@ -1824,7 +1868,14 @@ export interface OpenVPNClientInput {
   auth?: 'md5' | 'sha1' | 'sha256' | 'sha512' | 'null';
 
   /** Encryption cipher */
-  cipher?: 'aes128-cbc' | 'aes192-cbc' | 'aes256-cbc' | 'aes128-gcm' | 'aes256-gcm' | 'blowfish128' | 'null';
+  cipher?:
+    | 'aes128-cbc'
+    | 'aes192-cbc'
+    | 'aes256-cbc'
+    | 'aes128-gcm'
+    | 'aes256-gcm'
+    | 'blowfish128'
+    | 'null';
 
   /** Whether to add default route */
   shouldAddDefaultRoute?: boolean;

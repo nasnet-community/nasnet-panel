@@ -5,10 +5,7 @@
     "context": ".."
   },
 
-  // Use pre-built image from GHCR when available (uncomment after workflow setup)
-  // "image": "ghcr.io/stargazer5361/nasnet-devcontainer:latest",
-
-  // Features for Docker-in-Docker (CHR testing per ADR-015)
+  // Features: Docker-in-Docker, Go, Node
   "features": {
     "ghcr.io/devcontainers/features/docker-in-docker:2": {
       "moby": true,
@@ -16,7 +13,7 @@
       "installDockerComposeSwitch": true
     },
     "ghcr.io/devcontainers/features/go:1": {
-      "version": "1.24"
+      "version": "1.26"
     },
     "ghcr.io/devcontainers/features/node:1": {
       "version": "20"
@@ -38,7 +35,8 @@
         "bradlc.vscode-tailwindcss",
         "ZixuanChen.vitest-explorer",
         "formulahendry.auto-rename-tag",
-        "christian-kohler.path-intellisense"
+        "christian-kohler.path-intellisense",
+        "ms-playwright.playwright"
       ],
       "settings": {
         "editor.formatOnSave": true,
@@ -78,7 +76,7 @@
         ]
       }
     },
-    // JetBrains Gateway compatibility settings (AC-6)
+    // JetBrains Gateway compatibility settings
     "jetbrains": {
       "backend": {
         "plugins": [
@@ -90,62 +88,51 @@
     }
   },
 
-  // Port forwarding for development servers (AC-3)
+  // Port forwarding
   "forwardPorts": [
-    5173,  // Vite frontend dev server
-    8080,  // Go backend server
-    4173,  // Vite preview server
-    6006   // Storybook (if used)
+    5173,
+    8080,
+    4173,
+    6006,
+    4400,
+    4401
   ],
   "portsAttributes": {
-    "5173": {
-      "label": "Frontend (Vite)",
-      "onAutoForward": "notify"
-    },
-    "8080": {
-      "label": "Backend (Go)",
-      "onAutoForward": "notify"
-    },
-    "4173": {
-      "label": "Preview",
-      "onAutoForward": "silent"
-    },
-    "6006": {
-      "label": "Storybook",
-      "onAutoForward": "silent"
-    }
+    "5173": { "label": "Frontend (Vite)", "onAutoForward": "notify" },
+    "8080": { "label": "Backend (Go)", "onAutoForward": "notify" },
+    "4173": { "label": "Preview", "onAutoForward": "silent" },
+    "6006": { "label": "Storybook (Connect)", "onAutoForward": "silent" },
+    "4400": { "label": "Storybook (Primitives)", "onAutoForward": "silent" },
+    "4401": { "label": "Storybook (Patterns)", "onAutoForward": "silent" }
   },
 
-  // Post-create command runs after container is created
+  // Lifecycle
+  "onCreateCommand": "bash .devcontainer/on-create.sh",
   "postCreateCommand": "bash .devcontainer/post-create.sh",
+  "postStartCommand": "echo 'NasNetConnect DevContainer ready! Run: npm run dev:all'",
 
-  // Post-start command runs each time container starts
-  "postStartCommand": "echo '🚀 NasNetConnect DevContainer ready! Run: npm run dev:all'",
-
-  // Environment variables
+  // Environment
   "containerEnv": {
     "EDITOR": "code --wait",
-    "GIT_EDITOR": "code --wait"
+    "GIT_EDITOR": "code --wait",
+    "HISTFILE": "/home/vscode/.persistent_history/.bash_history"
   },
 
-  // Mount options for better performance on Windows/macOS
+  // Mounts
   "mounts": [
-    // Named volume for node_modules (faster on Windows/macOS)
     "source=nasnet-node-modules,target=${containerWorkspaceFolder}/node_modules,type=volume",
-    // Named volume for Go pkg cache
-    "source=nasnet-go-pkg,target=/go/pkg,type=volume"
+    "source=nasnet-go-pkg,target=/go/pkg,type=volume",
+    "source=nasnet-nx-cache,target=${containerWorkspaceFolder}/.nx/cache,type=volume",
+    "source=nasnet-bash-history,target=/home/vscode/.persistent_history,type=volume"
   ],
 
-  // Remote user - run as vscode user for proper file permissions
   "remoteUser": "vscode",
 
-  // Host requirements
   "hostRequirements": {
     "cpus": 2,
     "memory": "4gb",
     "storage": "16gb"
   },
 
-  // Wait for install completion before attaching
   "waitFor": "postCreateCommand"
 }

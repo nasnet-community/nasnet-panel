@@ -52,9 +52,7 @@ import type { InterfaceSelectorProps } from './interface-selector.types';
  *
  * @param props - InterfaceSelectorProps
  */
-export const InterfaceSelector = memo(function InterfaceSelector(
-  props: InterfaceSelectorProps
-) {
+export const InterfaceSelector = memo(function InterfaceSelector(props: InterfaceSelectorProps) {
   const platform = usePlatform();
 
   // Use mobile presenter for mobile (touch devices)

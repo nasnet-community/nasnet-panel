@@ -207,12 +207,8 @@ describe('scanService', () => {
         json: async () => ({ message: 'Backend error' }),
       });
 
-      await expect(startNetworkScan('192.168.88.0/24')).rejects.toThrow(
-        ScanError
-      );
-      await expect(startNetworkScan('192.168.88.0/24')).rejects.toThrow(
-        /Failed to start scan/
-      );
+      await expect(startNetworkScan('192.168.88.0/24')).rejects.toThrow(ScanError);
+      await expect(startNetworkScan('192.168.88.0/24')).rejects.toThrow(/Failed to start scan/);
     });
 
     it('should throw ScanError when task_id is missing', async () => {
@@ -221,12 +217,8 @@ describe('scanService', () => {
         json: async () => ({ message: 'Success' }), // No task_id
       });
 
-      await expect(startNetworkScan('192.168.88.0/24')).rejects.toThrow(
-        ScanError
-      );
-      await expect(startNetworkScan('192.168.88.0/24')).rejects.toThrow(
-        /No task ID returned/
-      );
+      await expect(startNetworkScan('192.168.88.0/24')).rejects.toThrow(ScanError);
+      await expect(startNetworkScan('192.168.88.0/24')).rejects.toThrow(/No task ID returned/);
     });
 
     it('should throw ScanError on scan failure status', async () => {
@@ -245,25 +237,15 @@ describe('scanService', () => {
         }),
       });
 
-      await expect(startNetworkScan('192.168.88.0/24')).rejects.toThrow(
-        ScanError
-      );
-      await expect(startNetworkScan('192.168.88.0/24')).rejects.toThrow(
-        /Network unreachable/
-      );
+      await expect(startNetworkScan('192.168.88.0/24')).rejects.toThrow(ScanError);
+      await expect(startNetworkScan('192.168.88.0/24')).rejects.toThrow(/Network unreachable/);
     });
 
     it('should throw ScanError on network error', async () => {
-      (global.fetch as ReturnType<typeof vi.fn>).mockRejectedValueOnce(
-        new Error('Network error')
-      );
+      (global.fetch as ReturnType<typeof vi.fn>).mockRejectedValueOnce(new Error('Network error'));
 
-      await expect(startNetworkScan('192.168.88.0/24')).rejects.toThrow(
-        ScanError
-      );
-      await expect(startNetworkScan('192.168.88.0/24')).rejects.toThrow(
-        /Network error/
-      );
+      await expect(startNetworkScan('192.168.88.0/24')).rejects.toThrow(ScanError);
+      await expect(startNetworkScan('192.168.88.0/24')).rejects.toThrow(/Network error/);
     });
 
     it('should handle empty results', async () => {

@@ -24,6 +24,9 @@
     "@types/node": "^20.0.0"
   },
   "nx": {
-    "tags": ["type:lib", "scope:ui"]
+    "tags": [
+      "type:lib",
+      "scope:ui"
+    ]
   }
 }

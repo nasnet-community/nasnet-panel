@@ -10,7 +10,6 @@ import type { UpdateStage } from '@nasnet/api-client/queries';
 
 import { UpdateProgressBar } from './UpdateProgressBar';
 
-
 describe('UpdateProgressBar', () => {
   describe('Stage Rendering', () => {
     it('renders PENDING stage correctly', () => {

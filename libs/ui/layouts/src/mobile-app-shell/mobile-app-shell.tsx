@@ -76,14 +76,10 @@ const MobileAppShell = React.memo(
       return (
         <div
           ref={ref}
-          className={cn('flex min-h-screen flex-col bg-background', className)}
+          className={cn('bg-background flex min-h-screen flex-col', className)}
         >
           {/* Status Banner */}
-          {statusBanner && (
-            <StatusLayout {...statusBanner}>
-              {statusBanner.content}
-            </StatusLayout>
-          )}
+          {statusBanner && <StatusLayout {...statusBanner}>{statusBanner.content}</StatusLayout>}
 
           {/* Mobile Header */}
           {header && <MobileHeader {...header} />}
@@ -92,13 +88,16 @@ const MobileAppShell = React.memo(
           <div className="flex flex-1 overflow-hidden">
             {/* Desktop Sidebar */}
             {sidebar && showSidebarOnDesktop && (
-              <aside className="hidden lg:block w-64 border-r border-border bg-card overflow-y-auto">
+              <aside className="border-border bg-card hidden w-64 overflow-y-auto border-r lg:block">
                 {sidebar}
               </aside>
             )}
 
             {/* Scrollable Content */}
-            <main id="main-content" className="flex-1 overflow-y-auto pb-16 sm:pb-0 bg-background">
+            <main
+              id="main-content"
+              className="bg-background flex-1 overflow-y-auto pb-16 sm:pb-0"
+            >
               {children}
             </main>
           </div>
@@ -114,4 +113,3 @@ const MobileAppShell = React.memo(
 MobileAppShell.displayName = 'MobileAppShell';
 
 export { MobileAppShell };
-

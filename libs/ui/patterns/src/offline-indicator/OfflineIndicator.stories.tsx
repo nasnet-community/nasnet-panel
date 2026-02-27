@@ -46,7 +46,7 @@ function MockOfflineBanner({
 
   if (dismissed) {
     return (
-      <div className="text-sm text-muted-foreground p-4 border rounded">
+      <div className="text-muted-foreground rounded border p-4 text-sm">
         Banner was dismissed. Refresh the story to reset.
       </div>
     );
@@ -54,30 +54,24 @@ function MockOfflineBanner({
 
   return (
     <div
-      className={cn(
-        'px-4',
-        position === 'top' ? 'pt-2' : 'pb-2',
-        className
-      )}
+      className={cn('px-4', position === 'top' ? 'pt-2' : 'pb-2', className)}
       role="alert"
       aria-live="assertive"
     >
       <Alert
         variant={isOffline ? 'destructive' : 'default'}
         className={cn(
-          'max-w-xl mx-auto shadow-lg',
+          'mx-auto max-w-xl shadow-lg',
           'flex items-center justify-between',
-          isOffline
-            ? 'bg-semantic-error text-white border-semantic-error'
-            : 'bg-semantic-success text-white border-semantic-success'
+          isOffline ?
+            'bg-semantic-error border-semantic-error text-white'
+          : 'bg-semantic-success border-semantic-success text-white'
         )}
       >
         <div className="flex items-center gap-3">
-          {isOffline ? (
+          {isOffline ?
             <WifiOff className="h-5 w-5 flex-shrink-0" />
-          ) : (
-            <Wifi className="h-5 w-5 flex-shrink-0" />
-          )}
+          : <Wifi className="h-5 w-5 flex-shrink-0" />}
 
           <div>
             <AlertTitle className="text-sm font-semibold">
@@ -94,7 +88,7 @@ function MockOfflineBanner({
             variant="ghost"
             size="sm"
             onClick={() => setDismissed(true)}
-            className="text-white hover:bg-white/20 -mr-2"
+            className="-mr-2 text-white hover:bg-white/20"
             aria-label="Dismiss notification"
           >
             <X className="h-4 w-4" />
@@ -114,7 +108,7 @@ function MockOfflineCompact({ className }: MockCompactProps) {
   return (
     <div
       className={cn(
-        'inline-flex items-center gap-1 px-2 py-1 rounded',
+        'inline-flex items-center gap-1 rounded px-2 py-1',
         'bg-semantic-error/10 text-semantic-error',
         'text-xs font-medium',
         className
@@ -243,8 +237,7 @@ export const CustomMessages: Story = {
     isOffline: true,
     position: 'top',
     dismissible: false,
-    offlineMessage:
-      'Cannot reach the router. Operating in read-only mode with cached data.',
+    offlineMessage: 'Cannot reach the router. Operating in read-only mode with cached data.',
     onlineMessage: 'Router connection restored. Live data is now available.',
   },
 };
@@ -254,7 +247,7 @@ export const CustomMessages: Story = {
  */
 export const Compact: Story = {
   render: () => (
-    <div className="flex items-center gap-4 p-4 border rounded bg-card">
+    <div className="bg-card flex items-center gap-4 rounded border p-4">
       <span className="text-sm font-medium">App Header</span>
       <div className="ml-auto">
         <MockOfflineCompact />
@@ -279,12 +272,18 @@ export const BothStates: Story = {
   render: () => (
     <div className="flex flex-col gap-4">
       <div>
-        <p className="text-xs text-muted-foreground mb-2 font-medium">Offline state</p>
-        <MockOfflineBanner isOffline={true} position="top" />
+        <p className="text-muted-foreground mb-2 text-xs font-medium">Offline state</p>
+        <MockOfflineBanner
+          isOffline={true}
+          position="top"
+        />
       </div>
       <div>
-        <p className="text-xs text-muted-foreground mb-2 font-medium">Back-online state</p>
-        <MockOfflineBanner isOffline={false} position="top" />
+        <p className="text-muted-foreground mb-2 text-xs font-medium">Back-online state</p>
+        <MockOfflineBanner
+          isOffline={false}
+          position="top"
+        />
       </div>
     </div>
   ),

@@ -58,19 +58,13 @@ describe('Resource Lifecycle', () => {
 
     it('should have VALIDATE transition from DRAFT', () => {
       const transitions = LIFECYCLE_TRANSITIONS[ResourceLifecycleState.DRAFT];
-      expect(transitions[ResourceLifecycleEvent.VALIDATE]).toBe(
-        ResourceLifecycleState.VALIDATING
-      );
+      expect(transitions[ResourceLifecycleEvent.VALIDATE]).toBe(ResourceLifecycleState.VALIDATING);
     });
 
     it('should have APPLY and EDIT transitions from VALID', () => {
       const transitions = LIFECYCLE_TRANSITIONS[ResourceLifecycleState.VALID];
-      expect(transitions[ResourceLifecycleEvent.APPLY]).toBe(
-        ResourceLifecycleState.APPLYING
-      );
-      expect(transitions[ResourceLifecycleEvent.EDIT]).toBe(
-        ResourceLifecycleState.DRAFT
-      );
+      expect(transitions[ResourceLifecycleEvent.APPLY]).toBe(ResourceLifecycleState.APPLYING);
+      expect(transitions[ResourceLifecycleEvent.EDIT]).toBe(ResourceLifecycleState.DRAFT);
     });
 
     it('should have no transitions from ARCHIVED (terminal)', () => {
@@ -81,77 +75,45 @@ describe('Resource Lifecycle', () => {
 
   describe('isValidTransition', () => {
     it('should return true for valid transitions', () => {
+      expect(isValidTransition(ResourceLifecycleState.DRAFT, ResourceLifecycleEvent.VALIDATE)).toBe(
+        true
+      );
+      expect(isValidTransition(ResourceLifecycleState.VALID, ResourceLifecycleEvent.APPLY)).toBe(
+        true
+      );
       expect(
-        isValidTransition(
-          ResourceLifecycleState.DRAFT,
-          ResourceLifecycleEvent.VALIDATE
-        )
-      ).toBe(true);
-      expect(
-        isValidTransition(
-          ResourceLifecycleState.VALID,
-          ResourceLifecycleEvent.APPLY
-        )
-      ).toBe(true);
-      expect(
-        isValidTransition(
-          ResourceLifecycleState.ACTIVE,
-          ResourceLifecycleEvent.DEPRECATE
-        )
+        isValidTransition(ResourceLifecycleState.ACTIVE, ResourceLifecycleEvent.DEPRECATE)
       ).toBe(true);
     });
 
     it('should return false for invalid transitions', () => {
+      expect(isValidTransition(ResourceLifecycleState.DRAFT, ResourceLifecycleEvent.APPLY)).toBe(
+        false
+      );
       expect(
-        isValidTransition(
-          ResourceLifecycleState.DRAFT,
-          ResourceLifecycleEvent.APPLY
-        )
+        isValidTransition(ResourceLifecycleState.ARCHIVED, ResourceLifecycleEvent.RESTORE)
       ).toBe(false);
       expect(
-        isValidTransition(
-          ResourceLifecycleState.ARCHIVED,
-          ResourceLifecycleEvent.RESTORE
-        )
-      ).toBe(false);
-      expect(
-        isValidTransition(
-          ResourceLifecycleState.ACTIVE,
-          ResourceLifecycleEvent.VALIDATE
-        )
+        isValidTransition(ResourceLifecycleState.ACTIVE, ResourceLifecycleEvent.VALIDATE)
       ).toBe(false);
     });
   });
 
   describe('getNextState', () => {
     it('should return next state for valid transitions', () => {
-      expect(
-        getNextState(
-          ResourceLifecycleState.DRAFT,
-          ResourceLifecycleEvent.VALIDATE
-        )
-      ).toBe(ResourceLifecycleState.VALIDATING);
-      expect(
-        getNextState(
-          ResourceLifecycleState.DEPRECATED,
-          ResourceLifecycleEvent.ARCHIVE
-        )
-      ).toBe(ResourceLifecycleState.ARCHIVED);
+      expect(getNextState(ResourceLifecycleState.DRAFT, ResourceLifecycleEvent.VALIDATE)).toBe(
+        ResourceLifecycleState.VALIDATING
+      );
+      expect(getNextState(ResourceLifecycleState.DEPRECATED, ResourceLifecycleEvent.ARCHIVE)).toBe(
+        ResourceLifecycleState.ARCHIVED
+      );
     });
 
     it('should return null for invalid transitions', () => {
-      expect(
-        getNextState(
-          ResourceLifecycleState.DRAFT,
-          ResourceLifecycleEvent.APPLY
-        )
-      ).toBe(null);
-      expect(
-        getNextState(
-          ResourceLifecycleState.ARCHIVED,
-          ResourceLifecycleEvent.RESTORE
-        )
-      ).toBe(null);
+      expect(getNextState(ResourceLifecycleState.DRAFT, ResourceLifecycleEvent.APPLY)).toBe(null);
+      expect(getNextState(ResourceLifecycleState.ARCHIVED, ResourceLifecycleEvent.RESTORE)).toBe(
+        null
+      );
     });
   });
 
@@ -283,12 +245,8 @@ describe('Resource Lifecycle', () => {
     });
 
     it('should return spinner for pending states', () => {
-      expect(
-        getStateDisplayInfo(ResourceLifecycleState.VALIDATING).showSpinner
-      ).toBe(true);
-      expect(
-        getStateDisplayInfo(ResourceLifecycleState.APPLYING).showSpinner
-      ).toBe(true);
+      expect(getStateDisplayInfo(ResourceLifecycleState.VALIDATING).showSpinner).toBe(true);
+      expect(getStateDisplayInfo(ResourceLifecycleState.APPLYING).showSpinner).toBe(true);
     });
   });
 });

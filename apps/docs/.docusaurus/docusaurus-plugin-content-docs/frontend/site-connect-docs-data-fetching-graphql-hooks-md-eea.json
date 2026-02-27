@@ -1,7 +1,7 @@
 {
   "id": "data-fetching/graphql-hooks",
   "title": "GraphQL Hooks",
-  "description": "All GraphQL operations are wrapped in custom hooks under libs/api-client/queries/src/. Each domain has its own subdirectory. This document provides a comprehensive inventory and shows the standard patterns.",
+  "description": "All GraphQL operations are wrapped in custom hooks under libs/api-client/queries/src/. Each domain",
   "source": "@site/../connect/docs/data-fetching/graphql-hooks.md",
   "sourceDirName": "data-fetching",
   "slug": "/data-fetching/graphql-hooks",

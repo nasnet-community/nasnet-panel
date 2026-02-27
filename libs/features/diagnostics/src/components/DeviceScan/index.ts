@@ -28,9 +28,4 @@ export { DeviceScanMobile } from './DeviceScanMobile';
 export type { DeviceScanMobileProps } from './DeviceScanMobile';
 
 // Types
-export type {
-  ScanStatus,
-  ScanConfig,
-  DiscoveredDevice,
-  ScanStats,
-} from './types';
+export type { ScanStatus, ScanConfig, DiscoveredDevice, ScanStats } from './types';

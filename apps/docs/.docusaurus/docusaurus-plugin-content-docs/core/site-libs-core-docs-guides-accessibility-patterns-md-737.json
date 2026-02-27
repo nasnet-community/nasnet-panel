@@ -1,7 +1,7 @@
 {
   "id": "guides/accessibility-patterns",
   "title": "Accessibility Patterns",
-  "description": "Reference: libs/state/stores/src/a11y/a11y-provider.tsx | libs/core/utils/src/hooks/useReducedMotion.ts | WCAG 2.1 AAA Compliance",
+  "description": "Reference: libs/state/stores/src/a11y/a11y-provider.tsx |",
   "source": "@site/../../libs/core/docs/guides/accessibility-patterns.md",
   "sourceDirName": "guides",
   "slug": "/guides/accessibility-patterns",

@@ -64,13 +64,23 @@ add action=accept chain=input connection-state=established,related`;
 
   describe('rendering', () => {
     it('renders with script content', () => {
-      render(<ConfigPreview script={sampleScript} title="Test Config" />);
+      render(
+        <ConfigPreview
+          script={sampleScript}
+          title="Test Config"
+        />
+      );
 
       expect(screen.getByRole('region', { name: 'Test Config' })).toBeInTheDocument();
     });
 
     it('renders with custom title', () => {
-      render(<ConfigPreview script={sampleScript} title="My Router Config" />);
+      render(
+        <ConfigPreview
+          script={sampleScript}
+          title="My Router Config"
+        />
+      );
 
       expect(screen.getByText('My Router Config')).toBeInTheDocument();
     });
@@ -85,17 +95,13 @@ add action=accept chain=input connection-state=established,related`;
     it('renders Copy button', () => {
       render(<ConfigPreview script={sampleScript} />);
 
-      expect(
-        screen.getByRole('button', { name: /copy/i })
-      ).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /copy/i })).toBeInTheDocument();
     });
 
     it('renders Download button', () => {
       render(<ConfigPreview script={sampleScript} />);
 
-      expect(
-        screen.getByRole('button', { name: /download/i })
-      ).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /download/i })).toBeInTheDocument();
     });
   });
 
@@ -125,7 +131,12 @@ add action=accept chain=input connection-state=established,related`;
     it('calls onCopy callback when provided', async () => {
       const onCopy = vi.fn();
       const user = userEvent.setup();
-      render(<ConfigPreview script={sampleScript} onCopy={onCopy} />);
+      render(
+        <ConfigPreview
+          script={sampleScript}
+          onCopy={onCopy}
+        />
+      );
 
       const copyButton = screen.getByRole('button', { name: /copy/i });
       await user.click(copyButton);
@@ -146,13 +157,20 @@ add action=accept chain=input connection-state=established,related`;
         click: mockClick,
       };
 
-      vi.spyOn(document, 'createElement').mockReturnValue(
-        mockLink as unknown as HTMLAnchorElement
+      vi.spyOn(document, 'createElement').mockReturnValue(mockLink as unknown as HTMLAnchorElement);
+      vi.spyOn(document.body, 'appendChild').mockImplementation(
+        () => mockLink as unknown as HTMLAnchorElement
       );
-      vi.spyOn(document.body, 'appendChild').mockImplementation(() => mockLink as unknown as HTMLAnchorElement);
-      vi.spyOn(document.body, 'removeChild').mockImplementation(() => mockLink as unknown as HTMLAnchorElement);
+      vi.spyOn(document.body, 'removeChild').mockImplementation(
+        () => mockLink as unknown as HTMLAnchorElement
+      );
 
-      render(<ConfigPreview script={sampleScript} routerName="test-router" />);
+      render(
+        <ConfigPreview
+          script={sampleScript}
+          routerName="test-router"
+        />
+      );
 
       const downloadButton = screen.getByRole('button', { name: /download/i });
       await user.click(downloadButton);
@@ -165,13 +183,20 @@ add action=accept chain=input connection-state=established,related`;
       const user = userEvent.setup();
       const mockLink = { href: '', download: '', click: vi.fn() };
 
-      vi.spyOn(document, 'createElement').mockReturnValue(
-        mockLink as unknown as HTMLAnchorElement
+      vi.spyOn(document, 'createElement').mockReturnValue(mockLink as unknown as HTMLAnchorElement);
+      vi.spyOn(document.body, 'appendChild').mockImplementation(
+        () => mockLink as unknown as HTMLAnchorElement
       );
-      vi.spyOn(document.body, 'appendChild').mockImplementation(() => mockLink as unknown as HTMLAnchorElement);
-      vi.spyOn(document.body, 'removeChild').mockImplementation(() => mockLink as unknown as HTMLAnchorElement);
+      vi.spyOn(document.body, 'removeChild').mockImplementation(
+        () => mockLink as unknown as HTMLAnchorElement
+      );
 
-      render(<ConfigPreview script={sampleScript} onDownload={onDownload} />);
+      render(
+        <ConfigPreview
+          script={sampleScript}
+          onDownload={onDownload}
+        />
+      );
 
       const downloadButton = screen.getByRole('button', { name: /download/i });
       await user.click(downloadButton);
@@ -213,29 +238,36 @@ add action=accept chain=input connection-state=established,related`;
 
   describe('collapsible sections', () => {
     it('shows Expand All / Collapse All buttons when collapsible', () => {
-      render(<ConfigPreview script={sampleScript} collapsible />);
+      render(
+        <ConfigPreview
+          script={sampleScript}
+          collapsible
+        />
+      );
 
-      expect(
-        screen.getByRole('button', { name: /expand all/i })
-      ).toBeInTheDocument();
-      expect(
-        screen.getByRole('button', { name: /collapse all/i })
-      ).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /expand all/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /collapse all/i })).toBeInTheDocument();
     });
 
     it('hides section controls when collapsible is false', () => {
-      render(<ConfigPreview script={sampleScript} collapsible={false} />);
+      render(
+        <ConfigPreview
+          script={sampleScript}
+          collapsible={false}
+        />
+      );
 
-      expect(
-        screen.queryByRole('button', { name: /expand all/i })
-      ).not.toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: /expand all/i })).not.toBeInTheDocument();
     });
   });
 
   describe('accessibility', () => {
     it('has no accessibility violations', async () => {
       const { container } = render(
-        <ConfigPreview script={sampleScript} title="Accessible Config" />
+        <ConfigPreview
+          script={sampleScript}
+          title="Accessible Config"
+        />
       );
 
       const results = await axe(container);
@@ -243,11 +275,14 @@ add action=accept chain=input connection-state=established,related`;
     });
 
     it('has proper ARIA role on main container', () => {
-      render(<ConfigPreview script={sampleScript} title="My Config" />);
+      render(
+        <ConfigPreview
+          script={sampleScript}
+          title="My Config"
+        />
+      );
 
-      expect(
-        screen.getByRole('region', { name: 'My Config' })
-      ).toBeInTheDocument();
+      expect(screen.getByRole('region', { name: 'My Config' })).toBeInTheDocument();
     });
 
     it('has aria-label on interactive elements', () => {
@@ -269,7 +304,12 @@ add action=accept chain=input connection-state=established,related`;
 
     it('supports keyboard navigation', async () => {
       const user = userEvent.setup();
-      render(<ConfigPreview script={sampleScript} collapsible />);
+      render(
+        <ConfigPreview
+          script={sampleScript}
+          collapsible
+        />
+      );
 
       // Tab through buttons
       await user.tab();
@@ -296,14 +336,17 @@ describe('ConfigPreviewDesktop', () => {
     render(<ConfigPreviewDesktop script={script} />);
 
     // Card should be present (role=region with title)
-    expect(
-      screen.getByRole('region', { name: /configuration/i })
-    ).toBeInTheDocument();
+    expect(screen.getByRole('region', { name: /configuration/i })).toBeInTheDocument();
   });
 
   it('shows section controls for multiple sections', () => {
     const multiSectionScript = `/interface\nset\n\n/ip\nadd`;
-    render(<ConfigPreviewDesktop script={multiSectionScript} collapsible />);
+    render(
+      <ConfigPreviewDesktop
+        script={multiSectionScript}
+        collapsible
+      />
+    );
 
     expect(screen.getByText(/expand all/i)).toBeInTheDocument();
     expect(screen.getByText(/collapse all/i)).toBeInTheDocument();
@@ -311,7 +354,10 @@ describe('ConfigPreviewDesktop', () => {
 
   it('applies maxHeight style', () => {
     const { container } = render(
-      <ConfigPreviewDesktop script={script} maxHeight={300} />
+      <ConfigPreviewDesktop
+        script={script}
+        maxHeight={300}
+      />
     );
 
     const scrollContainer = container.querySelector('.overflow-auto');
@@ -331,11 +377,14 @@ describe('ConfigPreviewMobile', () => {
   });
 
   it('renders simplified mobile layout', () => {
-    render(<ConfigPreviewMobile script={script} title="Mobile Config" />);
+    render(
+      <ConfigPreviewMobile
+        script={script}
+        title="Mobile Config"
+      />
+    );
 
-    expect(
-      screen.getByRole('region', { name: 'Mobile Config' })
-    ).toBeInTheDocument();
+    expect(screen.getByRole('region', { name: 'Mobile Config' })).toBeInTheDocument();
   });
 
   it('has minimum 44px touch targets for buttons', () => {

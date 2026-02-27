@@ -19,7 +19,7 @@ import React, { useState, useCallback } from 'react';
 
 import { Filter, Plus } from 'lucide-react';
 
-import { ServiceTemplateCard , EmptyState } from '@nasnet/ui/patterns';
+import { ServiceTemplateCard, EmptyState } from '@nasnet/ui/patterns';
 import {
   Button,
   Sheet,
@@ -70,11 +70,14 @@ function TemplatesBrowserMobileComponent({
   }, []);
 
   return (
-    <div className={cn('flex flex-col h-full', className)}>
+    <div className={cn('flex h-full flex-col', className)}>
       {/* Header with filter button */}
-      <div className="flex items-center justify-between p-component-md border-b border-border bg-background sticky top-0 z-10">
+      <div className="p-component-md border-border bg-background sticky top-0 z-10 flex items-center justify-between border-b">
         <h1 className="text-lg font-semibold">Service Templates</h1>
-        <Sheet open={filterSheetOpen} onOpenChange={handleFilterSheetOpenChange}>
+        <Sheet
+          open={filterSheetOpen}
+          onOpenChange={handleFilterSheetOpenChange}
+        >
           <SheetTrigger asChild>
             <Button
               variant="outline"
@@ -82,20 +85,29 @@ function TemplatesBrowserMobileComponent({
               className="min-h-[44px] min-w-[44px] px-3"
               aria-label={hasActiveFilters ? 'Open filters (filters active)' : 'Open filters'}
             >
-              <Filter className="h-4 w-4" aria-hidden="true" />
+              <Filter
+                className="h-4 w-4"
+                aria-hidden="true"
+              />
               <span className="ml-2 hidden sm:inline">Filters</span>
               {hasActiveFilters && (
-                <span className="ml-2 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs text-primary-foreground" aria-label="1 filter active">
+                <span
+                  className="bg-primary text-primary-foreground ml-2 flex h-5 w-5 items-center justify-center rounded-full text-xs"
+                  aria-label="1 filter active"
+                >
                   !
                 </span>
               )}
             </Button>
           </SheetTrigger>
-          <SheetContent side="bottom" className="h-[85vh]">
+          <SheetContent
+            side="bottom"
+            className="h-[85vh]"
+          >
             <SheetHeader>
               <SheetTitle>Filter Templates</SheetTitle>
             </SheetHeader>
-            <div className="mt-component-lg overflow-y-auto h-[calc(85vh-80px)]">
+            <div className="mt-component-lg h-[calc(85vh-80px)] overflow-y-auto">
               <TemplateFilters
                 filters={filters}
                 onFiltersChange={updateFilters}
@@ -110,9 +122,12 @@ function TemplatesBrowserMobileComponent({
       {/* Error State */}
       {error && (
         <div className="p-component-md">
-          <div className="rounded-[var(--semantic-radius-card)] bg-error/10 p-component-md text-error" role="alert">
+          <div
+            className="bg-error/10 p-component-md text-error rounded-[var(--semantic-radius-card)]"
+            role="alert"
+          >
             <p className="font-medium">Failed to load templates</p>
-            <p className="text-sm mt-component-sm">{error.message}</p>
+            <p className="mt-component-sm text-sm">{error.message}</p>
             <Button
               variant="outline"
               size="sm"
@@ -127,30 +142,39 @@ function TemplatesBrowserMobileComponent({
 
       {/* Loading State */}
       {loading && !error && (
-        <div className="p-component-md space-y-component-md" role="status" aria-label="Loading templates">
+        <div
+          className="p-component-md space-y-component-md"
+          role="status"
+          aria-label="Loading templates"
+        >
           {[1, 2, 3].map((i) => (
-            <Skeleton key={i} className="h-48 w-full rounded-[var(--semantic-radius-card)]" />
+            <Skeleton
+              key={i}
+              className="h-48 w-full rounded-[var(--semantic-radius-card)]"
+            />
           ))}
         </div>
       )}
 
       {/* Empty State */}
       {!loading && !error && templates.length === 0 && (
-        <div className="flex-1 flex items-center justify-center p-8">
+        <div className="flex flex-1 items-center justify-center p-8">
           <EmptyState
             icon={Plus}
             title="No templates found"
             description={
-              hasActiveFilters
-                ? 'Try adjusting your filters to see more results'
-                : 'No service templates available'
+              hasActiveFilters ?
+                'Try adjusting your filters to see more results'
+              : 'No service templates available'
             }
             action={
-              hasActiveFilters ? {
-                label: 'Reset Filters',
-                onClick: handleResetFilters,
-                variant: 'outline' as const,
-              } : undefined
+              hasActiveFilters ?
+                {
+                  label: 'Reset Filters',
+                  onClick: handleResetFilters,
+                  variant: 'outline' as const,
+                }
+              : undefined
             }
           />
         </div>
@@ -158,7 +182,11 @@ function TemplatesBrowserMobileComponent({
 
       {/* Template List */}
       {!loading && !error && templates.length > 0 && (
-        <div className="flex-1 overflow-y-auto p-component-md space-y-component-md" role="list" aria-label="Service templates list">
+        <div
+          className="p-component-md space-y-component-md flex-1 overflow-y-auto"
+          role="list"
+          aria-label="Service templates list"
+        >
           {templates.map((template) => (
             <ServiceTemplateCard
               key={template.id}

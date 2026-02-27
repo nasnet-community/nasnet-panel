@@ -25,12 +25,7 @@ export type ValidationStageName = (typeof VALIDATION_STAGES)[number];
 /**
  * Status of a validation stage
  */
-export type ValidationStageStatus =
-  | 'pending'
-  | 'running'
-  | 'passed'
-  | 'failed'
-  | 'skipped';
+export type ValidationStageStatus = 'pending' | 'running' | 'passed' | 'failed' | 'skipped';
 
 /**
  * A validation error from the backend

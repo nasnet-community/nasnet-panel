@@ -63,18 +63,16 @@ export function FormSectionHeader({
 }: FormSectionHeaderProps) {
   // Common header content (shared between collapsible and non-collapsible)
   const headerContent = (
-    <div className="flex-1 min-w-0">
-      <div className="flex items-center gap-2 flex-wrap">
+    <div className="min-w-0 flex-1">
+      <div className="flex flex-wrap items-center gap-2">
         {/* Title */}
-        <h3 className="text-lg font-semibold font-display text-foreground">
-          {title}
-        </h3>
+        <h3 className="font-display text-foreground text-lg font-semibold">{title}</h3>
 
         {/* Error count badge */}
         {errorCount > 0 && (
           <Badge
             variant="error"
-            className="text-xs rounded-full bg-error/15 text-error border-error/30"
+            className="bg-error/15 text-error border-error/30 rounded-full text-xs"
           >
             {errorCount} {errorCount === 1 ? 'error' : 'errors'}
           </Badge>
@@ -82,11 +80,7 @@ export function FormSectionHeader({
       </div>
 
       {/* Description */}
-      {description && (
-        <p className="mt-1 text-sm text-muted-foreground">
-          {description}
-        </p>
-      )}
+      {description && <p className="text-muted-foreground mt-1 text-sm">{description}</p>}
     </div>
   );
 
@@ -108,7 +102,10 @@ export function FormSectionHeader({
             )}
             aria-label={`Help for ${title}`}
           >
-            <HelpCircle className="h-4 w-4" aria-hidden="true" />
+            <HelpCircle
+              className="h-4 w-4"
+              aria-hidden="true"
+            />
           </button>
         </TooltipTrigger>
         <TooltipContent side="right">
@@ -128,7 +125,7 @@ export function FormSectionHeader({
         aria-expanded={isExpanded}
         aria-controls={contentId}
         className={cn(
-          'w-full flex items-center justify-between gap-3',
+          'flex w-full items-center justify-between gap-3',
           'text-left',
           'cursor-pointer',
           'transition-colors duration-150',
@@ -172,11 +169,7 @@ export function FormSectionHeader({
 
   // Non-collapsible header is a static div
   return (
-    <div
-      className={cn(
-        'flex items-center justify-between gap-3'
-      )}
-    >
+    <div className={cn('flex items-center justify-between gap-3')}>
       {headerContent}
       {helpIcon}
     </div>

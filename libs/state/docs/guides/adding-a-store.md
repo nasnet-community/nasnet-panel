@@ -7,11 +7,13 @@ Step-by-step guide for creating a new Zustand store following NasNet conventions
 ## When to Create a Store
 
 Create a store for:
+
 - ✅ Feature-specific UI state (filters, selections, preferences)
 - ✅ Global UI state (theme, sidebar, notifications)
 - ✅ Cross-feature shared state (auth, connection, router)
 
 Do NOT create a store for:
+
 - ❌ Server data (use Apollo Client + GraphQL)
 - ❌ Complex workflows (use XState machines)
 - ❌ Form state (use React Hook Form + Zod)
@@ -37,6 +39,7 @@ libs/state/stores/src/
 ```
 
 **Naming conventions:**
+
 - `[feature]-ui.store.ts` - Feature-specific UI state
 - `[feature].store.ts` - Feature business logic
 - `[name].store.ts` - Core stores (auth, theme, etc.)
@@ -148,8 +151,9 @@ export const useMyFeatureUIStore = create<MyFeatureUIState>()(
       // === SELECTION ===
       toggleSelection: (id) =>
         set((state) => ({
-          selectedIds: state.selectedIds.includes(id)
-            ? state.selectedIds.filter((x) => x !== id)
+          selectedIds:
+            state.selectedIds.includes(id) ?
+              state.selectedIds.filter((x) => x !== id)
             : [...state.selectedIds, id],
         })),
 
@@ -196,23 +200,17 @@ export const useMyFeatureUIStore = create<MyFeatureUIState>()(
  * Use these instead of accessing whole store object.
  */
 
-export const useMyFeatureSearch = () =>
-  useMyFeatureUIStore((state) => state.searchQuery);
+export const useMyFeatureSearch = () => useMyFeatureUIStore((state) => state.searchQuery);
 
-export const useMyFeatureStatusFilter = () =>
-  useMyFeatureUIStore((state) => state.statusFilter);
+export const useMyFeatureStatusFilter = () => useMyFeatureUIStore((state) => state.statusFilter);
 
-export const useMyFeatureSelection = () =>
-  useMyFeatureUIStore((state) => state.selectedIds);
+export const useMyFeatureSelection = () => useMyFeatureUIStore((state) => state.selectedIds);
 
-export const useMyFeatureViewMode = () =>
-  useMyFeatureUIStore((state) => state.viewMode);
+export const useMyFeatureViewMode = () => useMyFeatureUIStore((state) => state.viewMode);
 
-export const useMyFeatureCompactMode = () =>
-  useMyFeatureUIStore((state) => state.compactMode);
+export const useMyFeatureCompactMode = () => useMyFeatureUIStore((state) => state.compactMode);
 
-export const useMyFeatureWizardDraft = () =>
-  useMyFeatureUIStore((state) => state.wizardDraft);
+export const useMyFeatureWizardDraft = () => useMyFeatureUIStore((state) => state.wizardDraft);
 
 // Composite selector for multiple fields
 export const useMyFeatureFilters = () =>
@@ -241,10 +239,7 @@ export * from './my-feature-ui.store';
 // libs/state/stores/src/my-feature-ui.store.test.ts
 
 import { renderHook, act } from '@testing-library/react';
-import {
-  useMyFeatureUIStore,
-  useMyFeatureSearch,
-} from './my-feature-ui.store';
+import { useMyFeatureUIStore, useMyFeatureSearch } from './my-feature-ui.store';
 
 describe('useMyFeatureUIStore', () => {
   beforeEach(() => {
@@ -261,9 +256,7 @@ describe('useMyFeatureUIStore', () => {
 
   describe('filters', () => {
     it('updates search query', () => {
-      const { result } = renderHook(() =>
-        useMyFeatureUIStore((state) => state.searchQuery)
-      );
+      const { result } = renderHook(() => useMyFeatureUIStore((state) => state.searchQuery));
 
       act(() => {
         useMyFeatureUIStore.getState().setSearchQuery('test');
@@ -273,9 +266,7 @@ describe('useMyFeatureUIStore', () => {
     });
 
     it('updates status filter', () => {
-      const { result } = renderHook(() =>
-        useMyFeatureUIStore((state) => state.statusFilter)
-      );
+      const { result } = renderHook(() => useMyFeatureUIStore((state) => state.statusFilter));
 
       act(() => {
         useMyFeatureUIStore.getState().setStatusFilter('active');
@@ -426,7 +417,7 @@ describe('useMyFeatureUIStore', () => {
 
 ### 7. Create Usage Documentation
 
-```typescript
+````typescript
 /**
  * Example: Using MyFeature UI Store
  *
@@ -470,7 +461,7 @@ describe('useMyFeatureUIStore', () => {
  * }
  * ```
  */
-```
+````
 
 ## Best Practices Checklist
 
@@ -491,16 +482,17 @@ Use consistent naming for localStorage keys:
 
 ```typescript
 // Pattern: [domain]-[type]-[suffix]
-'dhcp-ui-store'                    // DHCP feature UI
-'firewall-log-ui-store'            // Firewall logs feature UI
-'service-ui-store'                 // Service feature UI
-'alert-notification-store'         // Alerts feature
-'alert-rule-template-ui-storage'   // Alert templates
+'dhcp-ui-store'; // DHCP feature UI
+'firewall-log-ui-store'; // Firewall logs feature UI
+'service-ui-store'; // Service feature UI
+'alert-notification-store'; // Alerts feature
+'alert-rule-template-ui-storage'; // Alert templates
 ```
 
 ## File Size
 
 Keep stores focused:
+
 - **Recommended**: 100-200 lines per store
 - **Maximum**: 300 lines per store
 

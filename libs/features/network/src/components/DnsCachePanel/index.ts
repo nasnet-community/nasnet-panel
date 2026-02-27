@@ -5,9 +5,4 @@
 
 export { DnsCachePanel } from './DnsCachePanel';
 export { useDnsCachePanel } from './useDnsCachePanel';
-export type {
-  DnsCachePanelProps,
-  DnsCacheStats,
-  DnsTopDomain,
-  FlushDnsCacheResult,
-} from './types';
+export type { DnsCachePanelProps, DnsCacheStats, DnsTopDomain, FlushDnsCacheResult } from './types';
