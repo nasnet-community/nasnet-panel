@@ -90,7 +90,7 @@ dependencies and tools ready to go.
 ```bash
 # Clone the repository
 git clone https://github.com/nasnet-community/nasnet-panel.git
-cd nasnet
+cd nasnet-panel
 
 # Open in VS Code
 code .
@@ -128,7 +128,7 @@ npm run dev:all    # Start frontend (5173) + backend (8080)
 ```bash
 # Clone the repository
 git clone https://github.com/nasnet-community/nasnet-panel.git
-cd nasnet
+cd nasnet-panel
 
 # Install dependencies
 npm install
