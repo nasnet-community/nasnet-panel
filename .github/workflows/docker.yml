@@ -38,7 +38,7 @@ jobs:
     env:
       PLATFORMS: linux/amd64,linux/arm64,linux/arm/v7
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - uses: ./.github/actions/setup-node-workspace
         with: { node-version: 20 }

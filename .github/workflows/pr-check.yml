@@ -37,7 +37,7 @@ jobs:
       docker: ${{ steps.filter.outputs.docker }}
       storybook: ${{ steps.filter.outputs.storybook }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: dorny/paths-filter@v3
         id: filter
         with:
@@ -76,7 +76,7 @@ jobs:
       affected-test: ${{ steps.affected.outputs.test }}
       affected-build: ${{ steps.affected.outputs.build }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           filter: tree:0
           fetch-depth: 0
@@ -99,7 +99,7 @@ jobs:
     needs: [changes, setup]
     if: needs.setup.outputs.affected-lint != ''
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           filter: tree:0
           fetch-depth: 0
@@ -118,7 +118,7 @@ jobs:
     needs: [changes, setup]
     if: needs.changes.outputs.frontend == 'true' || needs.changes.outputs.schema == 'true'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           filter: tree:0
           fetch-depth: 0
@@ -137,7 +137,7 @@ jobs:
     needs: [changes]
     if: needs.changes.outputs.schema == 'true' || needs.changes.outputs.frontend == 'true'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           filter: tree:0
           fetch-depth: 0
@@ -189,7 +189,7 @@ jobs:
     needs: [changes, setup]
     if: needs.setup.outputs.affected-test != ''
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           filter: tree:0
           fetch-depth: 0
@@ -234,7 +234,7 @@ jobs:
     needs: [changes]
     if: needs.changes.outputs.backend == 'true'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           filter: tree:0
           fetch-depth: 0
@@ -254,7 +254,7 @@ jobs:
     needs: [changes]
     if: needs.changes.outputs.backend == 'true'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           filter: tree:0
           fetch-depth: 0
@@ -299,7 +299,7 @@ jobs:
     needs: [changes]
     if: needs.changes.outputs.backend == 'true'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           filter: tree:0
           fetch-depth: 0
@@ -325,7 +325,7 @@ jobs:
     # Run build even if lint/test are skipped (no affected projects or no changes)
     if: always() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled')
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           filter: tree:0
           fetch-depth: 0
@@ -360,7 +360,7 @@ jobs:
       !contains(needs.*.result, 'cancelled') &&
       (needs.changes.outputs.storybook == 'true' || needs.changes.outputs.frontend == 'true')
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           filter: tree:0
           fetch-depth: 0
@@ -400,7 +400,7 @@ jobs:
       !contains(needs.*.result, 'cancelled') &&
       (needs.changes.outputs.backend == 'true' || needs.changes.outputs.docker == 'true')
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - uses: ./.github/actions/setup-node-workspace
         with:
