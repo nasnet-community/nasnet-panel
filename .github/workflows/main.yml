@@ -74,7 +74,7 @@ jobs:
         run: npx nx run connect:build-storybook
 
       - name: Upload Storybook Artifacts
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: storybook
           path: |
@@ -107,7 +107,7 @@ jobs:
         run: npm run build:check
 
       - name: Upload bundle stats
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: bundle-stats
           path: |
@@ -177,7 +177,7 @@ jobs:
         continue-on-error: true
 
       - name: Upload E2E report
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: e2e-report

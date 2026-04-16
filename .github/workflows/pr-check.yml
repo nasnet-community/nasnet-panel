@@ -202,7 +202,7 @@ jobs:
         run: npx nx affected -t test --base=origin/${{ github.base_ref }} --coverage
 
       - name: Upload coverage reports
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: frontend-coverage
@@ -272,7 +272,7 @@ jobs:
           go tool cover -func=coverage.out
 
       - name: Upload Go coverage
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: backend-coverage
@@ -376,7 +376,7 @@ jobs:
         run: npx nx run ui-patterns:build-storybook
 
       - name: Upload Storybook Artifacts
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: storybook-preview
           path: |
