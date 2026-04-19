@@ -230,7 +230,7 @@ jobs:
           echo "**Supported Architectures:** \`linux/amd64\`, \`linux/arm64\`, \`linux/arm/v7\`" >> CHANGELOG.md
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           name: Release ${{ github.ref_name }}
           body_path: CHANGELOG.md
