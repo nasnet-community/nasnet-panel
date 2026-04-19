@@ -1,14 +1,48 @@
+# Frontend/Monorepo
 node_modules/
 dist/
 build/
 .cache/
 *.tsbuildinfo
-*.log
-.DS_Store
-.env
-.env.local
+coverage/
 /playwright-report/
 /test-results/
 /playwright/.cache/
-coverage/
 .agents
+
+# Go Backend (backend/)
+tmp/
+build-log.txt
+_docs/
+backend/cmd/test/
+
+# Compiled binaries
+nasnet-backend
+nasnet-backend-api
+nasnet-panel
+
+# Environment files
+.env
+.env.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Go
+go.sum
+vendor/
+
+# Logs
+*.log
+
+# Test coverage
+*.out
+*.prof

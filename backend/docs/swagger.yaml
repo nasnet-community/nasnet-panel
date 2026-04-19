@@ -1,0 +1,784 @@
+basePath: /
+definitions:
+  handler.ChangeUserPasswordRequest:
+    properties:
+      newPassword:
+        type: string
+      username:
+        type: string
+    type: object
+  handler.ChangeWiFiPassphraseRequest:
+    properties:
+      passphrase:
+        type: string
+    type: object
+  handler.SetSystemIdentityRequest:
+    properties:
+      name:
+        type: string
+    type: object
+  handler.UpdateWiFiInterfaceRequest:
+    properties:
+      enabled:
+        type: boolean
+    type: object
+host: localhost:8080
+info:
+  contact:
+    name: API Support
+  description: RouterOS Network Management Server - REST API for managing RouterOS
+    devices
+  title: NASNET-Backend API
+  version: "1.0"
+paths:
+  /api/dhcp/leases:
+    get:
+      consumes:
+      - application/json
+      description: Get all active DHCP leases
+      parameters:
+      - description: RouterOS host address
+        in: header
+        name: X-RouterOS-Host
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: DHCP leases list
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BasicAuth: []
+      summary: List DHCP leases
+      tags:
+      - DHCP
+  /api/firewall/rules:
+    get:
+      consumes:
+      - application/json
+      description: Get all firewall filter rules
+      parameters:
+      - description: RouterOS host address
+        in: header
+        name: X-RouterOS-Host
+        required: true
+        type: string
+      - description: Filter by chain
+        in: query
+        name: chain
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Firewall rules list
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BasicAuth: []
+      summary: List firewall rules
+      tags:
+      - Firewall
+  /api/system/identity:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve the system identity/hostname
+      parameters:
+      - description: RouterOS host address
+        in: header
+        name: X-RouterOS-Host
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: System identity
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BasicAuth: []
+      summary: Get system identity
+      tags:
+      - System
+    put:
+      consumes:
+      - application/json
+      description: Change the system identity/hostname
+      parameters:
+      - description: RouterOS host address
+        in: header
+        name: X-RouterOS-Host
+        required: true
+        type: string
+      - description: System identity
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handler.SetSystemIdentityRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Identity updated
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BasicAuth: []
+      summary: Update system identity
+      tags:
+      - System
+  /api/system/info:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve system information from RouterOS device
+      parameters:
+      - description: RouterOS host address
+        in: header
+        name: X-RouterOS-Host
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: System information
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BasicAuth: []
+      summary: Get system information
+      tags:
+      - System
+  /api/system/password:
+    put:
+      consumes:
+      - application/json
+      description: Update the password for a RouterOS user
+      parameters:
+      - description: RouterOS host address
+        in: header
+        name: X-RouterOS-Host
+        required: true
+        type: string
+      - description: User password change
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handler.ChangeUserPasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Password updated
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BasicAuth: []
+      summary: Update user password
+      tags:
+      - System
+  /api/system/reboot:
+    post:
+      consumes:
+      - application/json
+      description: Initiate a system reboot
+      parameters:
+      - description: RouterOS host address
+        in: header
+        name: X-RouterOS-Host
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Reboot initiated
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BasicAuth: []
+      summary: Reboot system
+      tags:
+      - System
+  /api/system/resources:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve CPU, memory, and storage information
+      parameters:
+      - description: RouterOS host address
+        in: header
+        name: X-RouterOS-Host
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Resource information
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BasicAuth: []
+      summary: Get system resource information
+      tags:
+      - System
+  /api/system/shutdown:
+    post:
+      consumes:
+      - application/json
+      description: Initiate a system shutdown
+      parameters:
+      - description: RouterOS host address
+        in: header
+        name: X-RouterOS-Host
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Shutdown initiated
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BasicAuth: []
+      summary: Shutdown system
+      tags:
+      - System
+  /api/system/updates:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve available system updates
+      parameters:
+      - description: RouterOS host address
+        in: header
+        name: X-RouterOS-Host
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Update information
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BasicAuth: []
+      summary: Get system updates information
+      tags:
+      - System
+  /api/wifi/clients:
+    get:
+      consumes:
+      - application/json
+      description: Get all clients connected to WiFi interfaces
+      parameters:
+      - description: RouterOS host address
+        in: header
+        name: X-RouterOS-Host
+        required: true
+        type: string
+      - description: Filter by interface name
+        in: query
+        name: interface
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Connected clients list
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BasicAuth: []
+      summary: List connected WiFi clients
+      tags:
+      - WiFi
+  /api/wifi/clients/{mac}:
+    delete:
+      consumes:
+      - application/json
+      description: Disconnect a WiFi client by MAC address
+      parameters:
+      - description: RouterOS host address
+        in: header
+        name: X-RouterOS-Host
+        required: true
+        type: string
+      - description: MAC address
+        in: path
+        name: mac
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Client removed
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Client not found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BasicAuth: []
+      summary: Remove WiFi client
+      tags:
+      - WiFi
+  /api/wifi/interfaces:
+    get:
+      consumes:
+      - application/json
+      description: Get all WiFi interfaces on the device
+      parameters:
+      - description: RouterOS host address
+        in: header
+        name: X-RouterOS-Host
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: WiFi interfaces list
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BasicAuth: []
+      summary: List WiFi interfaces
+      tags:
+      - WiFi
+  /api/wifi/interfaces/{name}:
+    get:
+      consumes:
+      - application/json
+      description: Get details of a specific WiFi interface
+      parameters:
+      - description: RouterOS host address
+        in: header
+        name: X-RouterOS-Host
+        required: true
+        type: string
+      - description: Interface name
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: WiFi interface details
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BasicAuth: []
+      summary: Get WiFi interface details
+      tags:
+      - WiFi
+    put:
+      consumes:
+      - application/json
+      description: Enable or disable a WiFi interface
+      parameters:
+      - description: RouterOS host address
+        in: header
+        name: X-RouterOS-Host
+        required: true
+        type: string
+      - description: Interface name
+        in: path
+        name: name
+        required: true
+        type: string
+      - description: Interface state
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handler.UpdateWiFiInterfaceRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Interface updated
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BasicAuth: []
+      summary: Update WiFi interface state
+      tags:
+      - WiFi
+  /api/wifi/passphrase/{name}:
+    get:
+      consumes:
+      - application/json
+      description: Get the current passphrase of a WiFi interface
+      parameters:
+      - description: RouterOS host address
+        in: header
+        name: X-RouterOS-Host
+        required: true
+        type: string
+      - description: Interface name
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: WiFi passphrase
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BasicAuth: []
+      summary: Get WiFi passphrase
+      tags:
+      - WiFi
+    put:
+      consumes:
+      - application/json
+      description: Update the passphrase for a WiFi interface
+      parameters:
+      - description: RouterOS host address
+        in: header
+        name: X-RouterOS-Host
+        required: true
+        type: string
+      - description: Interface name
+        in: path
+        name: name
+        required: true
+        type: string
+      - description: New passphrase
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handler.ChangeWiFiPassphraseRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Passphrase updated
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BasicAuth: []
+      summary: Update WiFi passphrase
+      tags:
+      - WiFi
+  /health:
+    get:
+      consumes:
+      - application/json
+      description: Returns health status of the API
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Health check
+      tags:
+      - System
+schemes:
+- http
+- https
+securityDefinitions:
+  BasicAuth:
+    type: basic
+swagger: "2.0"
