@@ -2,11 +2,13 @@ package main
 
 import (
 	"fmt"
-	"github.com/labstack/echo/v4"
 	"log"
+	"os"
+
+	"github.com/labstack/echo/v4"
+
 	"nasnet-panel/internal/middleware"
 	"nasnet-panel/internal/routes"
-	"os"
 )
 
 // @title NASNET-Panel API

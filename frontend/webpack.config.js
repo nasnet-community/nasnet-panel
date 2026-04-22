@@ -1,9 +1,11 @@
 const path = require('node:path');
+const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyPlugin = require('copy-webpack-plugin');
 
 module.exports = (_env, argv) => {
   const isProduction = argv.mode === 'production';
+  const backendUrl = process.env.BACKEND_URL || 'http://localhost:8080';
 
   return {
     mode: isProduction ? 'production' : 'development',
@@ -66,6 +68,9 @@ module.exports = (_env, argv) => {
       ],
     },
     plugins: [
+      new webpack.DefinePlugin({
+        __BACKEND_URL__: JSON.stringify(backendUrl),
+      }),
       new HtmlWebpackPlugin({
         template: path.resolve(__dirname, 'public', 'index.html'),
         title: 'Nasnet Panel',

@@ -1,4 +1,3 @@
-import { seededRouters } from '../fixtures/routers';
 import { seededInterfaces } from '../fixtures/interfaces';
 import { seededWireless } from '../fixtures/wireless-settings';
 import { seededWirelessClients } from '../fixtures/wireless-clients';
@@ -36,10 +35,10 @@ export interface Store {
   idCounter: number;
 }
 
-const STORAGE_KEY = 'nasnet-panel.mock-store.v2';
+const STORAGE_KEY = 'nasnet-panel.mock-store.v3';
 
 const createStore = (): Store => ({
-  routers: [...seededRouters],
+  routers: [],
   interfaces: seededInterfaces(),
   wireless: seededWireless(),
   wirelessClients: seededWirelessClients(),
@@ -56,7 +55,7 @@ const createStore = (): Store => ({
 const loadStore = (): Store => {
   if (typeof window === 'undefined') return createStore();
   try {
-    const raw = window.sessionStorage?.getItem(STORAGE_KEY);
+    const raw = window.localStorage?.getItem(STORAGE_KEY);
     if (!raw) return createStore();
     return JSON.parse(raw) as Store;
   } catch {
@@ -67,7 +66,7 @@ const loadStore = (): Store => {
 const persistStore = (next: Store): void => {
   if (typeof window === 'undefined') return;
   try {
-    window.sessionStorage?.setItem(STORAGE_KEY, JSON.stringify(next));
+    window.localStorage?.setItem(STORAGE_KEY, JSON.stringify(next));
   } catch {
     /* ignore quota errors */
   }

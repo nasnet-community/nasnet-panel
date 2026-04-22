@@ -4,8 +4,10 @@ test.describe('First-run default configuration', () => {
   test('toast appears and configuration timestamp is visible afterward', async ({
     page,
     resetMocks,
+    mockBackendScan,
   }) => {
     await resetMocks();
+    await mockBackendScan();
     await page.goto('/routers/new');
 
     await page.getByLabel(/display name/i).fill('Freshly Added');

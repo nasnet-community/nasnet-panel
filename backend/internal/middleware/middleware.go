@@ -1,9 +1,10 @@
 package middleware
 
 import (
+	"log"
+
 	"github.com/labstack/echo/v4"
 	echomiddleware "github.com/labstack/echo/v4/middleware"
-	"log"
 )
 
 func RegisterGlobalMiddleware(e *echo.Echo) {
@@ -31,6 +32,12 @@ func RegisterGlobalMiddleware(e *echo.Echo) {
 	e.Use(echomiddleware.CORSWithConfig(echomiddleware.CORSConfig{
 		AllowOrigins: []string{"*"},
 		AllowMethods: []string{echo.GET, echo.HEAD, echo.PUT, echo.PATCH, echo.POST, echo.DELETE},
-		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept},
+		AllowHeaders: []string{
+			echo.HeaderOrigin,
+			echo.HeaderContentType,
+			echo.HeaderAccept,
+			echo.HeaderAuthorization,
+			"X-RouterOS-Host",
+		},
 	}))
 }

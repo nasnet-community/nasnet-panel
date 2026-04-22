@@ -23,10 +23,18 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(function 
       ref={ref}
       // eslint-disable-next-line react/button-has-type
       type={type ?? 'button'}
-      className={cx(styles.button, styles[variant], styles[size], className)}
+      className={cx(
+        styles.button,
+        styles[variant],
+        styles[size],
+        loading && styles.loading,
+        className,
+      )}
       disabled={loading || disabled}
+      aria-busy={loading || undefined}
       {...rest}
     >
+      {loading ? <span className={styles.spinner} aria-hidden="true" /> : null}
       {children}
     </button>
   );

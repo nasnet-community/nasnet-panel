@@ -3,12 +3,13 @@ package handler
 import (
 	"context"
 	"fmt"
-	pkgScanner "nasnet-panel/internal/scanner"
-	"nasnet-panel/pkg/utils"
 	"net/http"
 	"sort"
 	"sync"
 	"time"
+
+	pkgScanner "nasnet-panel/internal/scanner"
+	"nasnet-panel/pkg/utils"
 
 	"github.com/labstack/echo/v4"
 )

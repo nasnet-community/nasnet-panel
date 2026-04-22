@@ -22,6 +22,7 @@ type Action =
   | { type: 'upsert'; router: Router }
   | { type: 'remove'; id: string }
   | { type: 'replace'; routers: Router[] }
+  | { type: 'mergeFromRemote'; remote: Router[] }
   | { type: 'select'; id: string | null }
   | { type: 'markConnected'; id: string }
   | { type: 'markConfigurationApplied'; id: string; appliedAt: string };
@@ -50,6 +51,15 @@ function reducer(state: State, action: Action): State {
       };
     case 'replace':
       return { ...state, routers: action.routers };
+    case 'mergeFromRemote': {
+      const existingById = new Map(state.routers.map((r) => [r.id, r]));
+      const merged = action.remote.map((incoming) => {
+        const existing = existingById.get(incoming.id);
+        if (!existing) return incoming;
+        return { ...incoming, status: existing.status, lastSeen: existing.lastSeen };
+      });
+      return { ...state, routers: merged };
+    }
     case 'select':
       return { ...state, selectedRouterId: action.id };
     case 'markConnected':
@@ -107,7 +117,7 @@ export const RouterStoreProvider: React.FC<{ children: React.ReactNode }> = ({ c
     let cancelled = false;
     void api.routers.list().then((list) => {
       if (cancelled) return;
-      dispatch({ type: 'replace', routers: list });
+      dispatch({ type: 'mergeFromRemote', remote: list });
     });
     return () => {
       cancelled = true;

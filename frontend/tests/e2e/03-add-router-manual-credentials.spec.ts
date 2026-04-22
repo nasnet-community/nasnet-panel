@@ -1,8 +1,13 @@
 import { test, expect } from './fixtures';
 
 test.describe('Add router — manual credentials', () => {
-  test('manual IP + credentials path lands on dashboard', async ({ page, resetMocks }) => {
+  test('manual IP + credentials path lands on dashboard', async ({
+    page,
+    resetMocks,
+    mockBackendScan,
+  }) => {
     await resetMocks();
+    await mockBackendScan();
     await page.goto('/routers/new');
     await expect(page).toHaveURL(/\/routers\/new/);
 

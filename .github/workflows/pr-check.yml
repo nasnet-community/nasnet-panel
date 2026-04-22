@@ -3,505 +3,144 @@ name: PR Check
 on:
   pull_request:
     branches:
-      - main
+      - dev
 
 permissions:
-  actions: read
   contents: read
-  pull-requests: write
 
-# Cancel in-progress runs for the same PR
 concurrency:
   group: pr-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
-env:
-  NODE_VERSION: 20
-  # Coverage thresholds (warning mode, not blocking)
-  COVERAGE_LINE_THRESHOLD: 80
-  COVERAGE_BRANCH_THRESHOLD: 75
-
 jobs:
-  # ============================================================================
-  # Stage 0: Detect Changes (path filtering)
-  # ============================================================================
-
-  changes:
-    name: Detect Changes
+  up-to-date:
+    name: Up-to-date with ${{ github.base_ref }}
     runs-on: ubuntu-latest
-    timeout-minutes: 5
-    outputs:
-      frontend: ${{ steps.filter.outputs.frontend }}
-      backend: ${{ steps.filter.outputs.backend }}
-      schema: ${{ steps.filter.outputs.schema }}
-      docker: ${{ steps.filter.outputs.docker }}
-      storybook: ${{ steps.filter.outputs.storybook }}
+    timeout-minutes: 1
     steps:
-      - uses: actions/checkout@v6
-      - uses: dorny/paths-filter@v4
-        id: filter
-        with:
-          filters: |
-            frontend:
-              - 'apps/connect/**'
-              - 'libs/**'
-              - 'package*.json'
-              - 'tsconfig*.json'
-            backend:
-              - 'apps/backend/**'
-              - 'schema/**'
-            schema:
-              - 'schema/**'
-            docker:
-              - 'apps/backend/Dockerfile'
-              - '.dockerignore'
-            storybook:
-              - 'libs/ui/**'
-              - 'libs/features/*/src/**/*.stories.*'
-              - 'apps/connect/.storybook/**'
-
-  # ============================================================================
-  # Stage 1: Fast Feedback (< 5 min target)
-  # Run lint, typecheck, and unit tests in parallel
-  # ============================================================================
-
-  setup:
-    name: Setup
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    needs: changes
-    if: needs.changes.outputs.frontend == 'true' || needs.changes.outputs.schema == 'true'
-    outputs:
-      affected-lint: ${{ steps.affected.outputs.lint }}
-      affected-test: ${{ steps.affected.outputs.test }}
-      affected-build: ${{ steps.affected.outputs.build }}
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          filter: tree:0
-          fetch-depth: 0
-
-      - uses: ./.github/actions/setup-node-workspace
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-
-      - name: Determine affected projects
-        id: affected
+      - name: Compare PR head to ${{ github.base_ref }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo "lint=$(npx nx show projects --affected -t lint --base=origin/${{ github.base_ref }} | tr '\n' ',' | sed 's/,$//')" >> $GITHUB_OUTPUT
-          echo "test=$(npx nx show projects --affected -t test --base=origin/${{ github.base_ref }} | tr '\n' ',' | sed 's/,$//')" >> $GITHUB_OUTPUT
-          echo "build=$(npx nx show projects --affected -t build --base=origin/${{ github.base_ref }} | tr '\n' ',' | sed 's/,$//')" >> $GITHUB_OUTPUT
-
-  lint:
-    name: Lint
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    needs: [changes, setup]
-    if: needs.setup.outputs.affected-lint != ''
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          filter: tree:0
-          fetch-depth: 0
-
-      - uses: ./.github/actions/setup-node-workspace
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-
-      - name: Run lint (affected)
-        run: npx nx affected -t lint --base=origin/${{ github.base_ref }}
-
-  typecheck:
-    name: TypeScript Check
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    needs: [changes, setup]
-    if: needs.changes.outputs.frontend == 'true' || needs.changes.outputs.schema == 'true'
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          filter: tree:0
-          fetch-depth: 0
-
-      - uses: ./.github/actions/setup-node-workspace
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-
-      - name: Run typecheck (affected)
-        run: npx nx affected -t typecheck --base=origin/${{ github.base_ref }}
-
-  codegen-check:
-    name: GraphQL Codegen Sync
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    needs: [changes]
-    if: needs.changes.outputs.schema == 'true' || needs.changes.outputs.frontend == 'true'
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          filter: tree:0
-          fetch-depth: 0
-
-      - uses: ./.github/actions/setup-node-workspace
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-
-      - name: Check TypeScript codegen sync
-        run: |
-          echo "Running GraphQL code generation..."
-          npm run codegen:ts || {
-            echo "::error::TypeScript codegen failed"
-            exit 1
-          }
-
-          echo "Checking for uncommitted changes in generated files..."
-          if git diff --exit-code libs/api-client/generated/; then
-            echo "✓ Generated TypeScript code is in sync with schema"
-          else
-            echo "::error::Generated TypeScript code is out of sync with GraphQL schema"
-            echo ""
-            echo "The following files have uncommitted changes:"
-            git diff --name-only libs/api-client/generated/
-            echo ""
-            echo "Please run 'npm run codegen' and commit the generated files."
+          BEHIND=$(gh api "repos/${{ github.repository }}/compare/${{ github.event.pull_request.base.ref }}...${{ github.event.pull_request.head.sha }}" --jq '.behind_by')
+          if [ "$BEHIND" -gt 0 ]; then
+            echo "::error::Branch is $BEHIND commit(s) behind ${{ github.base_ref }}. Rebase or merge."
             exit 1
           fi
+          echo "Branch is up-to-date."
 
-      - if: needs.changes.outputs.backend == 'true' || needs.changes.outputs.schema == 'true'
-        uses: ./.github/actions/setup-go-backend
-
-      - name: Check Go codegen sync
-        if: needs.changes.outputs.backend == 'true' || needs.changes.outputs.schema == 'true'
-        working-directory: apps/backend
-        run: |
-          go generate ./...
-          if ! git diff --exit-code; then
-            echo "::error::Go generated code is out of sync. Run 'npm run codegen:go' and commit."
-            git diff --name-only
-            exit 1
-          fi
-          echo "✓ Generated Go code is in sync"
-
-  test-frontend:
-    name: Frontend Tests
+  frontend:
+    name: Frontend (lint · format · typecheck · build)
     runs-on: ubuntu-latest
-    timeout-minutes: 15
-    needs: [changes, setup]
-    if: needs.setup.outputs.affected-test != ''
+    timeout-minutes: 10
+    needs: up-to-date
     steps:
-      - uses: actions/checkout@v6
-        with:
-          filter: tree:0
-          fetch-depth: 0
+      - uses: actions/checkout@v4
 
       - uses: ./.github/actions/setup-node-workspace
         with:
-          node-version: ${{ env.NODE_VERSION }}
+          node-version: '20'
 
-      - name: Run frontend tests (affected)
-        run: npx nx affected -t test --base=origin/${{ github.base_ref }} --coverage
+      - name: Prettier (format:check)
+        run: npm run format:check
 
-      - name: Upload coverage reports
-        uses: actions/upload-artifact@v7
-        if: always()
-        with:
-          name: frontend-coverage
-          path: |
-            coverage/
-            **/coverage/
-          retention-days: 7
+      - name: ESLint
+        run: npm run lint
 
-      - name: Check coverage thresholds
-        if: always()
-        run: |
-          echo "::notice::Coverage check is in warning mode (not blocking)"
-          echo "Line coverage threshold: $COVERAGE_LINE_THRESHOLD%"
-          echo "Branch coverage threshold: $COVERAGE_BRANCH_THRESHOLD%"
-          # Coverage is enforced by vitest.config.ts thresholds
-          # When ready to block on coverage, uncomment the following:
-          # if [ -f "coverage/coverage-summary.json" ]; then
-          #   npx nyc check-coverage --lines $COVERAGE_LINE_THRESHOLD --branches $COVERAGE_BRANCH_THRESHOLD
-          # fi
+      - name: TypeScript typecheck
+        run: npm run typecheck
 
-  # ============================================================================
-  # Backend Quality Gates
-  # ============================================================================
+      - name: Webpack production build
+        run: npm run build
 
-  lint-backend:
-    name: Go Lint
+  backend:
+    name: Backend (fmt · vet · lint · build · test)
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: [changes]
-    if: needs.changes.outputs.backend == 'true'
+    needs: up-to-date
     steps:
-      - uses: actions/checkout@v6
-        with:
-          filter: tree:0
-          fetch-depth: 0
+      - uses: actions/checkout@v4
+
+      - name: Fetch ${{ github.base_ref }} for lint diff
+        run: git fetch origin ${{ github.base_ref }}:refs/remotes/origin/${{ github.base_ref }} --depth=50
 
       - uses: ./.github/actions/setup-go-backend
 
-      - uses: golangci/golangci-lint-action@v9
-        with:
-          version: latest
-          working-directory: apps/backend
-          args: --timeout=5m
+      - name: Install golangci-lint v2
+        run: go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@latest
 
-  test-backend:
-    name: Backend Tests (Go)
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    needs: [changes]
-    if: needs.changes.outputs.backend == 'true'
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          filter: tree:0
-          fetch-depth: 0
+      - name: Format check (gofmt + goimports)
+        working-directory: backend
+        run: golangci-lint fmt --diff
 
-      - uses: ./.github/actions/setup-go-backend
-
-      - name: Go vet
-        working-directory: apps/backend
+      - name: go vet
+        working-directory: backend
         run: go vet ./...
 
-      - name: Run Go tests
-        working-directory: apps/backend
-        run: |
-          go test -v -tags=test -coverprofile=coverage.out ./...
-          go tool cover -func=coverage.out
+      - name: golangci-lint
+        working-directory: backend
+        run: golangci-lint run --timeout=5m
 
-      - name: Upload Go coverage
-        uses: actions/upload-artifact@v7
-        if: always()
-        with:
-          name: backend-coverage
-          path: apps/backend/coverage.out
-          retention-days: 7
+      - name: go build
+        working-directory: backend
+        run: go build ./...
 
-      - name: Check Go coverage thresholds
-        working-directory: apps/backend
-        if: always()
-        run: |
-          COVERAGE=$(go tool cover -func=coverage.out | grep total | awk '{print $3}' | tr -d '%')
-          echo "Go coverage: ${COVERAGE}%"
-          echo "::notice::Go coverage threshold check is in warning mode"
-          # When ready to block on coverage, uncomment:
-          # if (( $(echo "$COVERAGE < $COVERAGE_LINE_THRESHOLD" | bc -l) )); then
-          #   echo "::error::Go coverage ${COVERAGE}% is below threshold $COVERAGE_LINE_THRESHOLD%"
-          #   exit 1
-          # fi
+      - name: go test
+        working-directory: backend
+        run: go test -vet=off ./...
 
-  govulncheck:
-    name: Go Vulnerability Scan
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    needs: [changes]
-    if: needs.changes.outputs.backend == 'true'
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          filter: tree:0
-          fetch-depth: 0
-
-      - uses: ./.github/actions/setup-go-backend
-
-      - name: Install govulncheck
-        run: go install golang.org/x/vuln/cmd/govulncheck@latest
-
-      - name: Run govulncheck
-        working-directory: apps/backend
-        run: govulncheck ./...
-
-  # ============================================================================
-  # Stage 2: Build & Integration
-  # ============================================================================
-
-  build:
-    name: Build
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    needs: [changes, lint, typecheck, test-frontend, test-backend]
-    # Run build even if lint/test are skipped (no affected projects or no changes)
-    if: always() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled')
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          filter: tree:0
-          fetch-depth: 0
-
-      - uses: ./.github/actions/setup-node-workspace
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-
-      - name: Build (affected)
-        run: npx nx affected -t build --base=origin/${{ github.base_ref }}
-
-      - name: Check bundle size
-        run: |
-          if [ -f "dist/apps/connect/index.html" ]; then
-            npm run build:check || echo "::warning::Bundle size check failed"
-          else
-            echo "No connect build output to check"
-          fi
-
-  # ============================================================================
-  # Storybook Build Validation
-  # ============================================================================
-
-  storybook:
-    name: Storybook Build
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    needs: [changes, lint, typecheck]
-    if: |
-      always() &&
-      !contains(needs.*.result, 'failure') &&
-      !contains(needs.*.result, 'cancelled') &&
-      (needs.changes.outputs.storybook == 'true' || needs.changes.outputs.frontend == 'true')
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          filter: tree:0
-          fetch-depth: 0
-
-      - uses: ./.github/actions/setup-node-workspace
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-
-      - name: Build Storybook (Primitives)
-        run: npx nx run ui-primitives:build-storybook
-
-      - name: Build Storybook (Patterns)
-        run: npx nx run ui-patterns:build-storybook
-
-      - name: Upload Storybook Artifacts
-        uses: actions/upload-artifact@v7
-        with:
-          name: storybook-preview
-          path: |
-            dist/storybook/ui-primitives
-            dist/storybook/ui-patterns
-          retention-days: 7
-          if-no-files-found: ignore
-
-  # ============================================================================
-  # Docker Build Validation (PR only - no push)
-  # ============================================================================
-
-  docker-build:
-    name: Docker Build (validate)
+  e2e:
+    name: E2E (Playwright)
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    needs: [changes, build]
-    if: |
-      always() &&
-      !contains(needs.*.result, 'failure') &&
-      !contains(needs.*.result, 'cancelled') &&
-      (needs.changes.outputs.backend == 'true' || needs.changes.outputs.docker == 'true')
+    needs: up-to-date
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
 
       - uses: ./.github/actions/setup-node-workspace
         with:
-          node-version: ${{ env.NODE_VERSION }}
+          node-version: '20'
 
-      - uses: docker/setup-qemu-action@v4
-      - uses: docker/setup-buildx-action@v4
+      - name: Cache Playwright browsers
+        id: playwright-cache
+        uses: actions/cache@v5
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ hashFiles('package-lock.json') }}
 
-      - name: Build Docker image (amd64 only for PR)
-        run: |
-          docker buildx build \
-            --platform linux/amd64 \
-            --file apps/backend/Dockerfile \
-            --tag nasnet-test:pr-${{ github.event.pull_request.number }} \
-            --load \
-            .
+      - name: Install Playwright browsers
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: npx playwright install --with-deps chromium
 
-      - name: Check Docker image size
-        run: |
-          SIZE=$(docker image inspect nasnet-test:pr-${{ github.event.pull_request.number }} --format='{{.Size}}')
-          SIZE_MB=$((SIZE / 1024 / 1024))
-          echo "Image size: ${SIZE_MB}MB"
+      - name: Install Playwright system deps
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: npx playwright install-deps chromium
 
-          # Hard limit: 20MB (blocking)
-          if [ $SIZE_MB -gt 20 ]; then
-            echo "::error::Docker image size (${SIZE_MB}MB) exceeds hard limit of 20MB"
-            exit 1
-          fi
+      - name: Run Playwright tests
+        run: npm run e2e
 
-          # Warning threshold: 15MB
-          if [ $SIZE_MB -gt 15 ]; then
-            echo "::warning::Docker image size (${SIZE_MB}MB) exceeds warning threshold of 15MB"
-          else
-            echo "✓ Docker image size is within limits"
-          fi
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
 
-  # ============================================================================
-  # Final Status Check
-  # ============================================================================
-
-  pr-status:
+  status:
     name: PR Status
     runs-on: ubuntu-latest
-    timeout-minutes: 5
-    needs:
-      [
-        changes,
-        lint,
-        typecheck,
-        codegen-check,
-        test-frontend,
-        test-backend,
-        lint-backend,
-        govulncheck,
-        build,
-        storybook,
-        docker-build,
-      ]
+    needs: [up-to-date, frontend, backend, e2e]
     if: always()
     steps:
-      - name: Check all jobs
+      - name: Check job results
         run: |
-          echo "=== PR Check Results ==="
-          echo "Changes:         ${{ needs.changes.result }}"
-          echo "Lint:            ${{ needs.lint.result }}"
-          echo "TypeScript:      ${{ needs.typecheck.result }}"
-          echo "Codegen:         ${{ needs.codegen-check.result }}"
-          echo "Frontend Tests:  ${{ needs.test-frontend.result }}"
-          echo "Go Lint:         ${{ needs.lint-backend.result }}"
-          echo "Backend Tests:   ${{ needs.test-backend.result }}"
-          echo "Govulncheck:     ${{ needs.govulncheck.result }}"
-          echo "Build:           ${{ needs.build.result }}"
-          echo "Storybook:       ${{ needs.storybook.result }}"
-          echo "Docker:          ${{ needs.docker-build.result }}"
-
-          # Fail only on actual failures, not skips
-          FAILED=false
-          for result in \
-            "${{ needs.changes.result }}" \
-            "${{ needs.lint.result }}" \
-            "${{ needs.typecheck.result }}" \
-            "${{ needs.codegen-check.result }}" \
-            "${{ needs.test-frontend.result }}" \
-            "${{ needs.lint-backend.result }}" \
-            "${{ needs.test-backend.result }}" \
-            "${{ needs.govulncheck.result }}" \
-            "${{ needs.build.result }}" \
-            "${{ needs.storybook.result }}" \
-            "${{ needs.docker-build.result }}"; do
-            if [[ "$result" == "failure" ]]; then
-              FAILED=true
-            fi
-          done
-
-          if [[ "$FAILED" == "true" ]]; then
+          echo "Up-to-date: ${{ needs.up-to-date.result }}"
+          echo "Frontend:   ${{ needs.frontend.result }}"
+          echo "Backend:    ${{ needs.backend.result }}"
+          echo "E2E:        ${{ needs.e2e.result }}"
+          if [[ "${{ needs.up-to-date.result }}" != "success" || "${{ needs.frontend.result }}" != "success" || "${{ needs.backend.result }}" != "success" || "${{ needs.e2e.result }}" != "success" ]]; then
             echo "::error::One or more checks failed"
             exit 1
           fi
-
-          echo "✓ All PR checks passed (skipped jobs are acceptable)"
-
-      - name: CI follow-up
-        run: |
-          echo "Check the workflow logs for any failed or skipped checks"
+          echo "All PR checks passed"

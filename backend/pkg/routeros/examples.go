@@ -192,7 +192,7 @@ func exampleWiFiConfig(client *Client) {
 		if wifi.Running {
 			status = "up"
 		}
-		fmt.Printf("  %s (SSID: %s, Band: %d, %s)\n",
+		fmt.Printf("  %s (SSID: %s, Band: %s, %s)\n",
 			wifi.Name, wifi.SSID, wifi.Band, status)
 	}
 }

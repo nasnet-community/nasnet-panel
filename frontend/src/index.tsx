@@ -17,7 +17,7 @@ if (typeof window !== 'undefined') {
   }
   const persisted = (() => {
     try {
-      return Boolean(window.sessionStorage?.getItem('nasnet-panel.mock-store.v1'));
+      return Boolean(window.localStorage?.getItem('nasnet-panel.mock-store.v3'));
     } catch {
       return false;
     }

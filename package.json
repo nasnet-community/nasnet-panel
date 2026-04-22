@@ -3,8 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "webpack serve --mode development --config frontend/webpack.config.js",
-    "build": "webpack --mode production --config frontend/webpack.config.js",
+    "dev": "cd frontend && webpack serve --mode development",
+    "dev:backend": "cd backend && air",
+    "dev:all": "trap 'kill 0' INT TERM; npm run dev:backend & npm run dev & wait",
+    "build": "cd frontend && webpack --mode production",
+    "build:backend": "cd backend && go build -o bin/api ./cmd/api",
     "typecheck": "tsc -b",
     "lint": "eslint . --ext .ts,.tsx",
     "lint:fix": "eslint . --ext .ts,.tsx --fix",

@@ -37,7 +37,6 @@ nasnet-panel
 Thumbs.db
 
 # Go
-go.sum
 vendor/
 
 # Logs

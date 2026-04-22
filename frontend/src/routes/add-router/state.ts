@@ -10,7 +10,7 @@ export interface WizardState {
   username: string;
   password: string;
   currentStep: Step;
-  selectedDeviceMac: string | null;
+  selectedDeviceIp: string | null;
   error: string | null;
   applying: boolean;
 }
@@ -35,7 +35,7 @@ export const initialState = (mode: Mode): WizardState => ({
   username: 'admin',
   password: '',
   currentStep: mode === 'scan' ? 'scan' : 'target',
-  selectedDeviceMac: null,
+  selectedDeviceIp: null,
   error: null,
   applying: false,
 });
@@ -44,14 +44,20 @@ export function reducer(state: WizardState, action: Action): WizardState {
   switch (action.type) {
     case 'setField':
       return { ...state, [action.field]: action.value };
-    case 'pickDevice':
+    case 'pickDevice': {
+      const suggestedName =
+        state.name ||
+        (action.device.hostname
+          ? action.device.hostname
+          : `${action.device.vendor} ${action.device.type}`.trim());
       return {
         ...state,
         host: action.device.ip,
-        name: state.name || `${action.device.vendor} ${action.device.model}`,
-        selectedDeviceMac: action.device.mac,
+        name: suggestedName,
+        selectedDeviceIp: action.device.ip,
         currentStep: 'credentials',
       };
+    }
     case 'step':
       return { ...state, currentStep: action.step, error: null };
     case 'error':

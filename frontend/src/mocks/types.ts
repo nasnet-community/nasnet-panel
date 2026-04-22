@@ -32,10 +32,11 @@ export interface AddRouterInput {
 
 export interface DiscoveredDevice {
   ip: string;
-  mac: string;
+  hostname?: string;
   vendor: string;
-  model: string;
-  version: string;
+  type: string;
+  ports: number[];
+  services: string[];
 }
 
 export interface ScanProgressEvent {

@@ -5,11 +5,11 @@ inputs:
   go-version-file:
     description: Path to the Go module file
     required: false
-    default: apps/backend/go.mod
+    default: backend/go.mod
   cache-dependency-path:
     description: Path to the Go checksum file
     required: false
-    default: apps/backend/go.sum
+    default: backend/go.sum
 
 runs:
   using: composite

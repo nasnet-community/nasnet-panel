@@ -1,30 +1,28 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion, type Variants } from 'framer-motion';
-import { Activity, Plus, Router as RouterIcon, Server, Trash2 } from 'lucide-react';
+import { Plus, Router as RouterIcon, Server } from 'lucide-react';
 import {
-  Badge,
   Card,
-  CardDescription,
-  CardTitle,
   ConfirmDialog,
-  Inline,
   PageHeader,
   PageShell,
   PageSubtitle,
   PageTitle,
-  StatusDot,
   useToast,
 } from '@nasnet/ui';
 import { api, type Router } from '../api';
 import { useRouterStore } from '../state/RouterStoreContext';
 import { AppShell } from '../layout/AppShell';
 import { BrandSplash } from './splash/BrandSplash';
+import { RouterCard } from './RouterCard';
+import { useRouterStatusPolling } from './useRouterStatusPolling';
 import styles from './RouterListPage.module.scss';
 
 const SPLASH_PHRASES = ['Enterprise MikroTik Router Management Platform'];
-
 const SPLASH_FLAG = 'nasnet:splashSeen';
+const CONNECT_DELAY_MS = 2000;
+const STATUS_POLL_INTERVAL_MS = 5000;
 
 const listVariants: Variants = {
   hidden: {},
@@ -37,19 +35,22 @@ const cardVariants: Variants = {
   hover: { y: -3, transition: { duration: 0.15 } },
 };
 
-const CONNECT_DELAY_MS = 2000;
-
 export function RouterListPage() {
   const navigate = useNavigate();
-  const { routers, removeRouter } = useRouterStore();
+  const { routers, removeRouter, upsertRouter } = useRouterStore();
   const [initialLoad, setInitialLoad] = useState(true);
   const [pendingRemoval, setPendingRemoval] = useState<Router | null>(null);
   const [connecting, setConnecting] = useState<Router | null>(null);
   const [phase, setPhase] = useState<'splash' | 'ready'>(() => {
     if (typeof window === 'undefined') return 'splash';
-    return window.sessionStorage.getItem(SPLASH_FLAG) ? 'ready' : 'splash';
+    return window.localStorage.getItem(SPLASH_FLAG) ? 'ready' : 'splash';
   });
   const toast = useToast();
+
+  const probedIds = useRouterStatusPolling(routers, upsertRouter, {
+    intervalMs: STATUS_POLL_INTERVAL_MS,
+    enabled: phase === 'ready',
+  });
 
   useEffect(() => {
     let cancelled = false;
@@ -72,7 +73,7 @@ export function RouterListPage() {
   useEffect(() => {
     if (phase !== 'splash') return;
     try {
-      window.sessionStorage.setItem(SPLASH_FLAG, '1');
+      window.localStorage.setItem(SPLASH_FLAG, '1');
     } catch {
       /* ignore */
     }
@@ -156,59 +157,12 @@ export function RouterListPage() {
                           exit="exit"
                           whileHover="hover"
                         >
-                          <div className={styles.routerCardWrap}>
-                            <Link
-                              to={`/router/${r.id}`}
-                              aria-label={r.name}
-                              className={styles.routerLink}
-                              onClick={(e) => {
-                                e.preventDefault();
-                                setConnecting(r);
-                              }}
-                            >
-                              <Card className={styles.routerCard}>
-                                <div className={styles.header}>
-                                  <div className={styles.iconPlate} aria-hidden>
-                                    <RouterIcon size={22} />
-                                  </div>
-                                  <div>
-                                    <CardTitle>{r.name}</CardTitle>
-                                    <CardDescription>{r.host}</CardDescription>
-                                  </div>
-                                </div>
-                                <Inline>
-                                  <Badge tone="neutral">
-                                    <Activity size={12} aria-hidden />
-                                    {r.model ?? r.platform}
-                                  </Badge>
-                                  <Badge tone={toneFor(r.status)}>
-                                    <StatusDot $status={r.status} aria-hidden /> {r.status}
-                                  </Badge>
-                                </Inline>
-                                <div className={styles.cardBottomRow}>
-                                  <span>RouterOS {r.version ?? '—'}</span>
-                                  <span>
-                                    {r.lastSeen
-                                      ? `seen ${new Date(r.lastSeen).toLocaleDateString()}`
-                                      : 'never seen'}
-                                  </span>
-                                </div>
-                              </Card>
-                            </Link>
-                            <button
-                              type="button"
-                              className={styles.deleteButton}
-                              aria-label={`Remove ${r.name}`}
-                              title="Remove router"
-                              onClick={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                setPendingRemoval(r);
-                              }}
-                            >
-                              <Trash2 size={16} aria-hidden />
-                            </button>
-                          </div>
+                          <RouterCard
+                            router={r}
+                            isProbed={probedIds.has(r.id)}
+                            onOpen={setConnecting}
+                            onRemove={setPendingRemoval}
+                          />
                         </motion.div>
                       ))}
                       <motion.div
@@ -300,16 +254,3 @@ export function RouterListPage() {
     </>
   );
 }
-
-const toneFor = (status: string) => {
-  switch (status) {
-    case 'online':
-      return 'success' as const;
-    case 'offline':
-      return 'danger' as const;
-    case 'degraded':
-      return 'warning' as const;
-    default:
-      return 'neutral' as const;
-  }
-};

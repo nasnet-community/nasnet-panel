@@ -1,13 +1,6 @@
 import { simulateLatency } from '../simulate-latency';
-import { deterministicScanDevices } from '../fixtures/scan-results';
-import type {
-  AddRouterInput,
-  DiscoveredDevice,
-  Router,
-  RouterInfo,
-  ScanProgressEvent,
-} from '../types';
-import { clone, commit, ipFromSubnet, nextId, state } from './store';
+import type { AddRouterInput, Router, RouterInfo } from '../types';
+import { clone, commit, nextId, state } from './store';
 
 export const routers = {
   async list(): Promise<Router[]> {
@@ -106,28 +99,5 @@ export const routers = {
       cpuLoad: 12,
       uptime: '3d 4h 21m',
     };
-  },
-};
-
-export const scanner = {
-  async *start(subnet: string): AsyncGenerator<ScanProgressEvent, void, void> {
-    const taskId = nextId('scan');
-    const devices = deterministicScanDevices();
-    const steps = [25, 55, 80, 100];
-    let yielded = 0;
-    for (const percent of steps) {
-      await simulateLatency(80, 200);
-      const shouldReveal = Math.ceil((percent / 100) * devices.length);
-      yielded = Math.min(devices.length, shouldReveal);
-      yield {
-        taskId,
-        percent,
-        found: devices.slice(0, yielded).map((d) => ({ ...d, ip: ipFromSubnet(subnet, d.ip) })),
-        done: percent === 100,
-      };
-    }
-  },
-  async listFixtures(): Promise<DiscoveredDevice[]> {
-    return clone(deterministicScanDevices());
   },
 };

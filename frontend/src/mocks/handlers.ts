@@ -1,5 +1,5 @@
 import { mockStore } from './handlers/store';
-import { routers, scanner } from './handlers/routers';
+import { routers } from './handlers/routers';
 import { system } from './handlers/system';
 import { wireless } from './handlers/wireless';
 import { vpn, getProtocolOptions } from './handlers/vpn';
@@ -12,7 +12,6 @@ export { mockStore, getProtocolOptions };
 
 export const mockApi = {
   routers,
-  scanner,
   system,
   wireless,
   vpn,

@@ -1,17 +1,25 @@
 import React, { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@nasnet/ui';
-import { api, type Router } from '../../api';
+import { ApiError, api, testCredentials, verifyIP, type Router } from '../../api';
 import { useRouterStore } from '../../state/RouterStoreContext';
 import { useSession } from '../../state/SessionContext';
 import { isRequired } from '../../utils/validators';
 import { buildDefaultBaseConfig } from '../../utils/rsc-builder';
 import type { Action, WizardState } from './state';
 
-export function useAddRouter(state: WizardState, dispatch: React.Dispatch<Action>) {
+interface Options {
+  onDuplicate?: (existing: Router) => void;
+}
+
+export function useAddRouter(
+  state: WizardState,
+  dispatch: React.Dispatch<Action>,
+  { onDuplicate }: Options = {},
+) {
   const navigate = useNavigate();
   const toast = useToast();
-  const { upsertRouter, markConnected, markConfigurationApplied } = useRouterStore();
+  const { routers, upsertRouter, markConnected, markConfigurationApplied } = useRouterStore();
   const { setCredentials } = useSession();
 
   const finishAndNavigate = useCallback(
@@ -49,13 +57,28 @@ export function useAddRouter(state: WizardState, dispatch: React.Dispatch<Action
       dispatch({ type: 'error', message: 'Username and password are required.' });
       return;
     }
+    const duplicate = routers.find((r) => r.host === state.host);
+    if (duplicate) {
+      onDuplicate?.(duplicate);
+      return;
+    }
     dispatch({ type: 'applying', value: true });
     try {
-      await api.routers.testCredentials({
-        host: state.host,
-        username: state.username,
-        password: state.password,
-      });
+      const verification = await verifyIP(state.host);
+      if (!verification.isOnline) {
+        throw new Error(`${state.host} is not reachable`);
+      }
+      if (!verification.isMikroTik) {
+        throw new Error(`${state.host} does not appear to be a MikroTik device`);
+      }
+      try {
+        await testCredentials(state.host, state.username, state.password);
+      } catch (err) {
+        if (err instanceof ApiError && err.status === 401) {
+          throw new Error('Invalid username or password');
+        }
+        throw err;
+      }
       const router = await api.routers.add({
         name: state.name || `Router at ${state.host}`,
         host: state.host,
@@ -69,7 +92,16 @@ export function useAddRouter(state: WizardState, dispatch: React.Dispatch<Action
     } finally {
       dispatch({ type: 'applying', value: false });
     }
-  }, [dispatch, finishAndNavigate, state.host, state.name, state.password, state.username]);
+  }, [
+    dispatch,
+    finishAndNavigate,
+    onDuplicate,
+    routers,
+    state.host,
+    state.name,
+    state.password,
+    state.username,
+  ]);
 
   return { onConnect };
 }

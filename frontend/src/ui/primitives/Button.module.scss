@@ -75,6 +75,30 @@
   }
 }
 
+// Loading
+.loading {
+  &:disabled {
+    opacity: 0.85;
+    cursor: progress;
+  }
+}
+
+.spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  display: inline-block;
+  animation: button-spin 0.7s linear infinite;
+}
+
+@keyframes button-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 // Sizes
 .sm {
   padding: 6px 10px;

@@ -42,6 +42,15 @@ export function CredentialsDialog({ state, dispatch, onConnect }: Props) {
       }
     >
       <Stack>
+        <Label>
+          <span>Display name</span>
+          <Input
+            value={state.name}
+            onChange={(e) => dispatch({ type: 'setField', field: 'name', value: e.target.value })}
+            autoFocus
+            aria-label="Display name"
+          />
+        </Label>
         <FieldRow>
           <Label>
             <span>Username</span>
@@ -51,7 +60,6 @@ export function CredentialsDialog({ state, dispatch, onConnect }: Props) {
                 dispatch({ type: 'setField', field: 'username', value: e.target.value })
               }
               autoComplete="username"
-              autoFocus
               aria-label="Username"
             />
           </Label>

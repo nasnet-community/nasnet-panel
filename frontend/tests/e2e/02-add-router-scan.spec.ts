@@ -1,8 +1,20 @@
 import { test, expect } from './fixtures';
 
 test.describe('Add router — scan network', () => {
-  test('scan finds devices and onboards a selected one', async ({ page, resetMocks }) => {
+  test('scan finds devices and onboards a selected one', async ({
+    page,
+    resetMocks,
+    mockBackendScan,
+  }) => {
     await resetMocks();
+    await mockBackendScan([
+      {
+        ip: '192.168.1.77',
+        hostname: 'rb5009-demo',
+        vendor: 'MikroTik',
+        type: 'RB5009UG+S+IN',
+      },
+    ]);
     await page.goto('/');
     await page.getByRole('button', { name: /new router/i }).click();
     await expect(page).toHaveURL(/\/routers\/new/);
