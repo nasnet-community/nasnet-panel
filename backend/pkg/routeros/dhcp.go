@@ -76,6 +76,7 @@ func (c *Client) GetDHCPServer(name string) (map[string]string, error) {
 	return results[0], nil
 }
 
+// GetPoolRanges retrieves IP ranges for a given pool name from RouterOS.
 func (c *Client) GetPoolRanges(poolName string) ([]string, error) {
 	if poolName == "" {
 		return []string{}, nil
@@ -266,6 +267,7 @@ func (c *Client) RemoveDHCPLease(id string) error {
 	return nil
 }
 
+// FindDHCPLeaseByMAC finds a DHCP lease by its MAC address.
 func (c *Client) FindDHCPLeaseByMAC(macAddress string) (*DHCPLeaseInfo, error) {
 	results, err := c.GetAll("/ip/dhcp-server/lease", "?=mac-address="+macAddress)
 	if err != nil {

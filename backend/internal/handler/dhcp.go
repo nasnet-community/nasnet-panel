@@ -122,7 +122,7 @@ func HandleListDHCPServers(c echo.Context) error {
 	return SuccessResponse(c, http.StatusOK, "DHCP servers retrieved successfully", responses)
 }
 
-// HandleMakeDHCPLeaseStatic godoc
+// HandleMakeDHCPLeaseStatic godoc.
 // @Summary Make DHCP lease static
 // @Description Convert a dynamic DHCP lease to static by MAC address
 // @Tags DHCP
@@ -180,7 +180,7 @@ func HandleMakeDHCPLeaseStatic(c echo.Context) error {
 	})
 }
 
-// HandleRemoveDHCPLease godoc
+// HandleRemoveDHCPLease godoc.
 // @Summary Remove DHCP lease
 // @Description Remove a DHCP lease by MAC address
 // @Tags DHCP
