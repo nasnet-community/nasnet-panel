@@ -136,7 +136,7 @@ func HandleListDHCPServers(c echo.Context) error {
 // @Failure 401 {object} map[string]interface{} "Unauthorized"
 // @Failure 404 {object} map[string]interface{} "Lease not found"
 // @Failure 500 {object} map[string]interface{} "Internal server error"
-// @Router /api/dhcp/leases/make-static [post]
+// @Router /api/dhcp/leases/make-static [post].
 func HandleMakeDHCPLeaseStatic(c echo.Context) error {
 	macAddress := c.QueryParam("macAddress")
 	if macAddress == "" {
@@ -193,7 +193,7 @@ func HandleMakeDHCPLeaseStatic(c echo.Context) error {
 // @Failure 401 {object} map[string]interface{} "Unauthorized"
 // @Failure 404 {object} map[string]interface{} "Lease not found"
 // @Failure 500 {object} map[string]interface{} "Internal server error"
-// @Router /api/dhcp/leases/{macAddress} [delete]
+// @Router /api/dhcp/leases/{macAddress} [delete].
 func HandleRemoveDHCPLease(c echo.Context) error {
 	macAddress := c.Param("macAddress")
 	if macAddress == "" {
