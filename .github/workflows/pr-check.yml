@@ -30,7 +30,7 @@ jobs:
           echo "Branch is up-to-date."
 
   frontend:
-    name: Frontend (lint · format · typecheck · build)
+    name: Frontend (format · typecheck · build)
     runs-on: ubuntu-latest
     timeout-minutes: 10
     needs: up-to-date
@@ -44,14 +44,26 @@ jobs:
       - name: Prettier (format:check)
         run: npm run format:check
 
-      - name: ESLint
-        run: npm run lint
-
       - name: TypeScript typecheck
         run: npm run typecheck
 
       - name: Webpack production build
         run: npm run build
+
+  eslint:
+    name: ESLint
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: up-to-date
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/setup-node-workspace
+        with:
+          node-version: '20'
+
+      - name: ESLint
+        run: npm run lint
 
   backend:
     name: Backend (fmt · vet · lint · build · test)
@@ -88,6 +100,23 @@ jobs:
       - name: go test
         working-directory: backend
         run: go test -vet=off ./...
+
+  nilaway:
+    name: Nilaway
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: up-to-date
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/setup-go-backend
+
+      - name: Install nilaway
+        run: go install go.uber.org/nilaway/cmd/nilaway@latest
+
+      - name: nilaway
+        working-directory: backend
+        run: nilaway ./...
 
   e2e:
     name: E2E (Playwright)
@@ -130,16 +159,18 @@ jobs:
   status:
     name: PR Status
     runs-on: ubuntu-latest
-    needs: [up-to-date, frontend, backend, e2e]
+    needs: [up-to-date, frontend, eslint, backend, nilaway, e2e]
     if: always()
     steps:
       - name: Check job results
         run: |
           echo "Up-to-date: ${{ needs.up-to-date.result }}"
           echo "Frontend:   ${{ needs.frontend.result }}"
+          echo "ESLint:     ${{ needs.eslint.result }}"
           echo "Backend:    ${{ needs.backend.result }}"
+          echo "Nilaway:    ${{ needs.nilaway.result }}"
           echo "E2E:        ${{ needs.e2e.result }}"
-          if [[ "${{ needs.up-to-date.result }}" != "success" || "${{ needs.frontend.result }}" != "success" || "${{ needs.backend.result }}" != "success" || "${{ needs.e2e.result }}" != "success" ]]; then
+          if [[ "${{ needs.up-to-date.result }}" != "success" || "${{ needs.frontend.result }}" != "success" || "${{ needs.eslint.result }}" != "success" || "${{ needs.backend.result }}" != "success" || "${{ needs.nilaway.result }}" != "success" || "${{ needs.e2e.result }}" != "success" ]]; then
             echo "::error::One or more checks failed"
             exit 1
           fi

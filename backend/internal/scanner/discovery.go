@@ -120,7 +120,7 @@ func CheckRouterOSAPI(ctx context.Context, ip string, port int, timeout time.Dur
 	req.SetBasicAuth("admin", "")
 
 	resp, err := client.Do(req) //nolint:gosec // G704: URL is constructed from trusted configuration
-	if err != nil {
+	if err != nil || resp == nil {
 		return nil
 	}
 	defer resp.Body.Close()

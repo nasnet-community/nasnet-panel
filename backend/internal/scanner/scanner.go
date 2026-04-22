@@ -186,7 +186,11 @@ func ParseIPRange(subnet string) ([]string, error) {
 			return nil, fmt.Errorf("parse CIDR: %w", err)
 		}
 
-		for ip := ipNet.IP.Mask(ipNet.Mask); ipNet.Contains(ip); IncIP(ip) {
+		ip := ipNet.IP.Mask(ipNet.Mask)
+		if ip == nil {
+			return nil, fmt.Errorf("invalid CIDR mask")
+		}
+		for ; ipNet.Contains(ip); IncIP(ip) {
 			ips = append(ips, ip.String())
 			if len(ips) > 1000 {
 				break
