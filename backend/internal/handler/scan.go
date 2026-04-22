@@ -168,7 +168,7 @@ func HandleStartScan(c echo.Context) error {
 // @Success 200 {object} map[string]interface{} "Scan status"
 // @Failure 400 {object} map[string]interface{} "Bad request"
 // @Failure 404 {object} map[string]interface{} "Task not found"
-// @Router /api/scan/status/{taskId} [get]
+// @Router /api/scan/status/{taskId} [get].
 func HandleScanStatus(c echo.Context) error {
 	taskID := c.Param("taskId")
 	if taskID == "" {
