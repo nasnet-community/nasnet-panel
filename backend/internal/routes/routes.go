@@ -42,6 +42,8 @@ func RegisterRoutes(e *echo.Echo) {
 	dhcpGroup.Use(middleware.RouterOSAuth)
 	{
 		dhcpGroup.GET("/leases", handler.HandleListDHCPLeases)
+		dhcpGroup.GET("/clients", handler.HandleListDHCPClients)
+		dhcpGroup.GET("/servers", handler.HandleListDHCPServers)
 	}
 
 	firewallGroup := e.Group("/api/firewall")

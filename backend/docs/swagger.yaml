@@ -77,11 +77,45 @@ info:
   title: NASNET-Panel API
   version: "1.0"
 paths:
+  /api/dhcp/clients:
+    get:
+      consumes:
+      - application/json
+      description: Get all DHCP clients configured on RouterOS
+      parameters:
+      - description: RouterOS host address
+        in: header
+        name: X-RouterOS-Host
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: DHCP clients list
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BasicAuth: []
+      summary: List DHCP clients
+      tags:
+      - DHCP
   /api/dhcp/leases:
     get:
       consumes:
       - application/json
-      description: Get all active DHCP leases
+      description: Get all active DHCP leases from RouterOS
       parameters:
       - description: RouterOS host address
         in: header
@@ -93,11 +127,6 @@ paths:
       responses:
         "200":
           description: DHCP leases list
-          schema:
-            additionalProperties: true
-            type: object
-        "400":
-          description: Bad request
           schema:
             additionalProperties: true
             type: object
@@ -114,6 +143,40 @@ paths:
       security:
       - BasicAuth: []
       summary: List DHCP leases
+      tags:
+      - DHCP
+  /api/dhcp/servers:
+    get:
+      consumes:
+      - application/json
+      description: Get all DHCP servers configured on RouterOS
+      parameters:
+      - description: RouterOS host address
+        in: header
+        name: X-RouterOS-Host
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: DHCP servers list
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BasicAuth: []
+      summary: List DHCP servers
       tags:
       - DHCP
   /api/firewall/rules:

@@ -27,6 +27,21 @@ type DHCPClientResponse struct {
 	Comment      string `json:"comment,omitempty"`
 }
 
+type DHCPServerResponse struct {
+	ID                 string `json:"id"`
+	Name               string `json:"name"`
+	Interface          string `json:"interface"`
+	AddressPool        string `json:"addressPool"`
+	Gateway            string `json:"gateway,omitempty"`
+	DNSServers         string `json:"dnsServers,omitempty"`
+	LeaseTime          string `json:"leaseTime,omitempty"`
+	Disabled           bool   `json:"disabled"`
+	Authoritative      bool   `json:"authoritative"`
+	Comment            string `json:"comment,omitempty"`
+	LocalAddress       string `json:"localAddress,omitempty"`
+	ClientToClientDist bool   `json:"clientToClientDist"`
+}
+
 func ToDHCPLeaseResponse(dl *routeros.DHCPLeaseInfo) *DHCPLeaseResponse {
 	if dl == nil {
 		return nil
