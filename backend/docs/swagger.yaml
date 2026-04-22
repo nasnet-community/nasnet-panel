@@ -425,15 +425,15 @@ paths:
       summary: Start auto gateway scan
       tags:
       - Scanner
-  /api/scan/status:
+  /api/scan/status/{taskId}:
     get:
       consumes:
       - application/json
       description: Get the status and results of a network scan
       parameters:
       - description: Task ID from scan start
-        in: query
-        name: task_id
+        in: path
+        name: taskId
         required: true
         type: string
       produces:

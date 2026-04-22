@@ -540,7 +540,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/scan/status": {
+        "/api/scan/status/{taskId}": {
             "get": {
                 "description": "Get the status and results of a network scan",
                 "consumes": [
@@ -557,8 +557,8 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "Task ID from scan start",
-                        "name": "task_id",
-                        "in": "query",
+                        "name": "taskId",
+                        "in": "path",
                         "required": true
                     }
                 ],

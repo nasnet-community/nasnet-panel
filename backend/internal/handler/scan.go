@@ -164,15 +164,15 @@ func HandleStartScan(c echo.Context) error {
 // @Tags Scanner
 // @Accept json
 // @Produce json
-// @Param task_id query string true "Task ID from scan start"
+// @Param taskId path string true "Task ID from scan start"
 // @Success 200 {object} map[string]interface{} "Scan status"
 // @Failure 400 {object} map[string]interface{} "Bad request"
 // @Failure 404 {object} map[string]interface{} "Task not found"
-// @Router /api/scan/status [get]
+// @Router /api/scan/status/{taskId} [get]
 func HandleScanStatus(c echo.Context) error {
-	taskID := c.QueryParam("task_id")
+	taskID := c.Param("taskId")
 	if taskID == "" {
-		return ErrorResponse(c, http.StatusBadRequest, "task_id parameter is required", nil)
+		return ErrorResponse(c, http.StatusBadRequest, "taskId parameter is required", nil)
 	}
 
 	scannerPool.mu.RLock()

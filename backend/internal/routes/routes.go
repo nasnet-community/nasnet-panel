@@ -58,7 +58,7 @@ func RegisterRoutes(e *echo.Echo) {
 	scanGroup := e.Group("/api/scan")
 	{
 		scanGroup.POST("", handler.HandleStartScan)
-		scanGroup.GET("/status", handler.HandleScanStatus)
+		scanGroup.GET("/status/:taskId", handler.HandleScanStatus)
 		scanGroup.POST("/stop", handler.HandleStopScan)
 		scanGroup.POST("/auto", handler.HandleAutoScan)
 		scanGroup.POST("/verify", handler.HandleVerifyIP)
