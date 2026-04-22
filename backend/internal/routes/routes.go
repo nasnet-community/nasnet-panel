@@ -58,4 +58,10 @@ func RegisterRoutes(e *echo.Echo) {
 		scanGroup.POST("/auto", handler.HandleAutoScan)
 		scanGroup.POST("/verify", handler.HandleVerifyIP)
 	}
+
+	logsGroup := e.Group("/api/logs")
+	logsGroup.Use(middleware.RouterOSAuth)
+	{
+		logsGroup.GET("", handler.HandleGetLogs)
+	}
 }

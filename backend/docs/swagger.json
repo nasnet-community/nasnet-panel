@@ -139,6 +139,89 @@
                 }
             }
         },
+        "/api/logs": {
+            "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Retrieve system logs from RouterOS device with optional filtering",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Logs"
+                ],
+                "summary": "Get system logs",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "default": 100,
+                        "description": "Maximum number of log entries to return (default: 100, max: 1000)",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search logs for this text (case-insensitive substring match)",
+                        "name": "text",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by topic(s) - comma-separated (see availableTopics)",
+                        "name": "topic",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by severity level: debug, info, warning, error, critical",
+                        "name": "severity",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "System logs retrieved successfully",
+                        "schema": {
+                            "$ref": "#/definitions/handler.GetLogsResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
         "/api/scan": {
             "post": {
                 "description": "Start scanning a subnet for RouterOS devices",
@@ -1372,10 +1455,65 @@
                 }
             }
         },
+        "handler.GetLogsResponse": {
+            "type": "object",
+            "properties": {
+                "availableLevels": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "availableTopics": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "count": {
+                    "type": "integer"
+                },
+                "entries": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/handler.LogEntryResponse"
+                    }
+                }
+            }
+        },
         "handler.IPVerifyRequest": {
             "type": "object",
             "properties": {
                 "ip": {
+                    "type": "string"
+                }
+            }
+        },
+        "handler.LogEntryResponse": {
+            "type": "object",
+            "properties": {
+                "account": {
+                    "type": "string"
+                },
+                "count": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "level": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "prefix": {
+                    "type": "string"
+                },
+                "time": {
+                    "type": "string"
+                },
+                "topic": {
                     "type": "string"
                 }
             }

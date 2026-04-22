@@ -4,7 +4,6 @@ go 1.26.2
 
 require (
 	github.com/go-routeros/routeros/v3 v3.0.1
-	github.com/google/gopacket v1.1.19
 	github.com/labstack/echo/v4 v4.15.1
 	github.com/swaggo/echo-swagger v1.5.2
 	github.com/swaggo/swag v1.16.6

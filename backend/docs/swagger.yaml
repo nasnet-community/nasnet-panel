@@ -12,9 +12,45 @@ definitions:
       passphrase:
         type: string
     type: object
+  handler.GetLogsResponse:
+    properties:
+      availableLevels:
+        items:
+          type: string
+        type: array
+      availableTopics:
+        items:
+          type: string
+        type: array
+      count:
+        type: integer
+      entries:
+        items:
+          $ref: '#/definitions/handler.LogEntryResponse'
+        type: array
+    type: object
   handler.IPVerifyRequest:
     properties:
       ip:
+        type: string
+    type: object
+  handler.LogEntryResponse:
+    properties:
+      account:
+        type: string
+      count:
+        type: integer
+      id:
+        type: string
+      level:
+        type: string
+      message:
+        type: string
+      prefix:
+        type: string
+      time:
+        type: string
+      topic:
         type: string
     type: object
   handler.ScanRequest:
@@ -123,6 +159,62 @@ paths:
       summary: List firewall rules
       tags:
       - Firewall
+  /api/logs:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve system logs from RouterOS device with optional filtering
+      parameters:
+      - description: RouterOS host address
+        in: header
+        name: X-RouterOS-Host
+        required: true
+        type: string
+      - default: 100
+        description: 'Maximum number of log entries to return (default: 100, max:
+          1000)'
+        in: query
+        name: limit
+        type: integer
+      - description: Search logs for this text (case-insensitive substring match)
+        in: query
+        name: text
+        type: string
+      - description: Filter by topic(s) - comma-separated (see availableTopics)
+        in: query
+        name: topic
+        type: string
+      - description: 'Filter by severity level: debug, info, warning, error, critical'
+        in: query
+        name: severity
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: System logs retrieved successfully
+          schema:
+            $ref: '#/definitions/handler.GetLogsResponse'
+        "400":
+          description: Bad request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BasicAuth: []
+      summary: Get system logs
+      tags:
+      - Logs
   /api/scan:
     post:
       consumes:
