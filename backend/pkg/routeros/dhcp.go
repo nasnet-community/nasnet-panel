@@ -35,17 +35,22 @@ type DHCPLeaseInfo struct {
 	ExpiresAfter string
 	LastSeen     string
 	Comment      string
+	Dynamic      bool
 }
 
 type DHCPClientInfo struct {
 	ID           string
+	Name         string
 	Interface    string
 	Status       string
 	Address      string
 	Gateway      string
 	PrimaryDNS   string
 	SecondaryDNS string
-	DHCPV6       bool
+	UsePeerDNS   bool
+	UsePeerNTP   bool
+	ExpiresAfter string
+	Disabled     bool
 	Comment      string
 }
 
@@ -69,6 +74,28 @@ func (c *Client) GetDHCPServer(name string) (map[string]string, error) {
 	}
 
 	return results[0], nil
+}
+
+func (c *Client) GetPoolRanges(poolName string) ([]string, error) {
+	if poolName == "" {
+		return []string{}, nil
+	}
+
+	results, err := c.GetAll("/ip/pool", "?=name="+poolName)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get pool ranges: %w", err)
+	}
+
+	if len(results) == 0 {
+		return []string{}, nil
+	}
+
+	ranges := results[0]["ranges"]
+	if ranges == "" {
+		return []string{}, nil
+	}
+
+	return []string{ranges}, nil
 }
 
 func (c *Client) AddDHCPServer(config DHCPServerConfig) (string, error) {
@@ -197,6 +224,7 @@ func (c *Client) ListDHCPLeases() ([]DHCPLeaseInfo, error) {
 			ExpiresAfter: result["expires-after"],
 			LastSeen:     result["last-seen"],
 			Comment:      result["comment"],
+			Dynamic:      result["dynamic"] == "true",
 		})
 	}
 
@@ -222,6 +250,7 @@ func (c *Client) GetDHCPLeasesByServer(serverName string) ([]DHCPLeaseInfo, erro
 			ExpiresAfter: result["expires-after"],
 			LastSeen:     result["last-seen"],
 			Comment:      result["comment"],
+			Dynamic:      result["dynamic"] == "true",
 		})
 	}
 
@@ -235,6 +264,32 @@ func (c *Client) RemoveDHCPLease(id string) error {
 	}
 
 	return nil
+}
+
+func (c *Client) FindDHCPLeaseByMAC(macAddress string) (*DHCPLeaseInfo, error) {
+	results, err := c.GetAll("/ip/dhcp-server/lease", "?=mac-address="+macAddress)
+	if err != nil {
+		return nil, fmt.Errorf("failed to find DHCP lease: %w", err)
+	}
+
+	if len(results) == 0 {
+		return nil, nil
+	}
+
+	result := results[0]
+	return &DHCPLeaseInfo{
+		ID:           result[".id"],
+		Address:      result["address"],
+		MacAddress:   result["mac-address"],
+		ClientID:     result["client-id"],
+		HostName:     result["host-name"],
+		ServerName:   result["server"],
+		Status:       result["status"],
+		ExpiresAfter: result["expires-after"],
+		LastSeen:     result["last-seen"],
+		Comment:      result["comment"],
+		Dynamic:      result["dynamic"] == "true",
+	}, nil
 }
 
 func (c *Client) ListDHCPClients() ([]DHCPClientInfo, error) {
@@ -253,7 +308,11 @@ func (c *Client) ListDHCPClients() ([]DHCPClientInfo, error) {
 			Gateway:      result["gateway"],
 			PrimaryDNS:   result["primary-dns"],
 			SecondaryDNS: result["secondary-dns"],
-			DHCPV6:       result["dhcp"] == "true",
+			Name:         result["name"],
+			UsePeerDNS:   result["use-peer-dns"] == "true",
+			UsePeerNTP:   result["use-peer-ntp"] == "true",
+			ExpiresAfter: result["expires-after"],
+			Disabled:     result["disabled"] == "true",
 			Comment:      result["comment"],
 		})
 	}

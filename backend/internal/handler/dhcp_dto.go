@@ -13,33 +13,37 @@ type DHCPLeaseResponse struct {
 	ExpiresAfter string `json:"expiresAfter,omitempty"`
 	LastSeen     string `json:"lastSeen,omitempty"`
 	Comment      string `json:"comment,omitempty"`
+	Dynamic      bool   `json:"dynamic"`
 }
 
 type DHCPClientResponse struct {
 	ID           string `json:"id"`
+	Name         string `json:"name,omitempty"`
 	Interface    string `json:"interface"`
 	Status       string `json:"status"`
 	Address      string `json:"address"`
 	Gateway      string `json:"gateway,omitempty"`
 	PrimaryDNS   string `json:"primaryDns,omitempty"`
 	SecondaryDNS string `json:"secondaryDns,omitempty"`
-	DHCPV6       bool   `json:"dhcpv6"`
+	UsePeerDNS   bool   `json:"usePeerDns"`
+	UsePeerNTP   bool   `json:"usePeerNtp"`
+	ExpiresAfter string `json:"expiresAfter,omitempty"`
+	Disabled     bool   `json:"disabled"`
 	Comment      string `json:"comment,omitempty"`
 }
 
 type DHCPServerResponse struct {
-	ID                 string `json:"id"`
-	Name               string `json:"name"`
-	Interface          string `json:"interface"`
-	AddressPool        string `json:"addressPool"`
-	Gateway            string `json:"gateway,omitempty"`
-	DNSServers         string `json:"dnsServers,omitempty"`
-	LeaseTime          string `json:"leaseTime,omitempty"`
-	Disabled           bool   `json:"disabled"`
-	Authoritative      bool   `json:"authoritative"`
-	Comment            string `json:"comment,omitempty"`
-	LocalAddress       string `json:"localAddress,omitempty"`
-	ClientToClientDist bool   `json:"clientToClientDist"`
+	ID           string   `json:"id"`
+	Name         string   `json:"name"`
+	Interface    string   `json:"interface"`
+	AddressPool  string   `json:"addressPool"`
+	Ranges       []string `json:"ranges"`
+	Gateway      string   `json:"gateway,omitempty"`
+	DNSServers   string   `json:"dnsServers,omitempty"`
+	LeaseTime    string   `json:"leaseTime,omitempty"`
+	Disabled     bool     `json:"disabled"`
+	Comment      string   `json:"comment,omitempty"`
+	LocalAddress string   `json:"localAddress,omitempty"`
 }
 
 func ToDHCPLeaseResponse(dl *routeros.DHCPLeaseInfo) *DHCPLeaseResponse {
@@ -58,6 +62,7 @@ func ToDHCPLeaseResponse(dl *routeros.DHCPLeaseInfo) *DHCPLeaseResponse {
 		ExpiresAfter: dl.ExpiresAfter,
 		LastSeen:     dl.LastSeen,
 		Comment:      dl.Comment,
+		Dynamic:      dl.Dynamic,
 	}
 }
 
@@ -84,7 +89,11 @@ func ToDHCPClientResponse(dc *routeros.DHCPClientInfo) *DHCPClientResponse {
 		Gateway:      dc.Gateway,
 		PrimaryDNS:   dc.PrimaryDNS,
 		SecondaryDNS: dc.SecondaryDNS,
-		DHCPV6:       dc.DHCPV6,
+		Name:         dc.Name,
+		UsePeerDNS:   dc.UsePeerDNS,
+		UsePeerNTP:   dc.UsePeerNTP,
+		ExpiresAfter: dc.ExpiresAfter,
+		Disabled:     dc.Disabled,
 		Comment:      dc.Comment,
 	}
 }

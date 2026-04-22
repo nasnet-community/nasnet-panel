@@ -145,6 +145,99 @@ paths:
       summary: List DHCP leases
       tags:
       - DHCP
+  /api/dhcp/leases/{macAddress}:
+    delete:
+      consumes:
+      - application/json
+      description: Remove a DHCP lease by MAC address
+      parameters:
+      - description: RouterOS host address
+        in: header
+        name: X-RouterOS-Host
+        required: true
+        type: string
+      - description: MAC address of the lease to remove
+        in: path
+        name: macAddress
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Lease removed successfully
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Lease not found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BasicAuth: []
+      summary: Remove DHCP lease
+      tags:
+      - DHCP
+  /api/dhcp/leases/make-static:
+    post:
+      consumes:
+      - application/json
+      description: Convert a dynamic DHCP lease to static by MAC address
+      parameters:
+      - description: RouterOS host address
+        in: header
+        name: X-RouterOS-Host
+        required: true
+        type: string
+      - description: MAC address of the lease to make static
+        in: query
+        name: macAddress
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Lease made static successfully
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Lease is not dynamic
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Lease not found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BasicAuth: []
+      summary: Make DHCP lease static
+      tags:
+      - DHCP
   /api/dhcp/servers:
     get:
       consumes:
