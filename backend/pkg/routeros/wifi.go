@@ -6,6 +6,22 @@ import (
 	"strings"
 )
 
+func (c *Client) getWiFiAuthenticationTypes(interfaceResult map[string]string) string {
+	// If security profile is set, get authentication-types from profile.
+	securityProfile := interfaceResult["security"]
+	if securityProfile != "" {
+		profileResult, err := c.GetFirst("/interface/wifi/security", "?name="+securityProfile)
+		if err == nil {
+			if authTypes := profileResult["authentication-types"]; authTypes != "" {
+				return authTypes
+			}
+		}
+	}
+
+	// Otherwise use authentication-types from interface.
+	return interfaceResult["security.authentication-types"]
+}
+
 func (c *Client) listWiFiInterfaces() ([]WifiInfo, error) {
 	results, err := c.GetAll("/interface/wifi")
 	if err != nil {
@@ -28,7 +44,7 @@ func (c *Client) listWiFiInterfaces() ([]WifiInfo, error) {
 			Inactive:     parseRouterOSBool(result["inactive"]),
 			MACAddress:   result["mac-address"],
 			Passphrase:   firstNonEmpty(result["security.passphrase"]),
-			SecurityType: result["security.authentication-types"],
+			SecurityType: c.getWiFiAuthenticationTypes(result),
 			Comment:      result["comment"],
 		})
 	}
@@ -56,7 +72,7 @@ func (c *Client) getWiFiInterface(name string) (*WifiInfo, error) {
 		Inactive:     parseRouterOSBool(result["inactive"]),
 		MACAddress:   result["mac-address"],
 		Passphrase:   firstNonEmpty(result["security.passphrase"]),
-		SecurityType: result["security.authentication-types"],
+		SecurityType: c.getWiFiAuthenticationTypes(result),
 		Comment:      result["comment"],
 	}, nil
 }
