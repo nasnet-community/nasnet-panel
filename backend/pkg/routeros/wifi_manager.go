@@ -2,7 +2,6 @@ package routeros
 
 import (
 	"fmt"
-	"strconv"
 	"strings"
 )
 
@@ -336,14 +335,6 @@ func (c *Client) DisableWifiInterface(name string) error {
 	default:
 		return fmt.Errorf("router has no WiFi package installed")
 	}
-}
-
-func parseIntField(value string) int {
-	if value == "" {
-		return 0
-	}
-	val, _ := strconv.Atoi(value)
-	return val
 }
 
 // UpdateWiFiSettings updates WiFi interface SSID, password, and security types.
