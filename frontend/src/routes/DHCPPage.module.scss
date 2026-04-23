@@ -1,0 +1,47 @@
+.errorBanner {
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-sm);
+  background: var(--color-danger-surface, rgba(239, 68, 68, 0.08));
+  color: var(--color-danger, #ef4444);
+  font-size: var(--font-sm);
+}
+
+.mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: var(--font-xs);
+}
+
+.muted {
+  color: var(--color-text-muted);
+}
+
+.rowActions {
+  display: flex;
+  gap: var(--space-xs, 4px);
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-xl);
+  color: var(--color-text-muted);
+  text-align: center;
+  font-size: var(--font-sm);
+}
+
+.emptyIcon {
+  color: var(--color-text-muted);
+  opacity: 0.7;
+}
+
+.skeletonRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  gap: var(--space-md);
+  padding: 10px var(--space-sm);
+  border-bottom: 1px dashed var(--color-border);
+}
