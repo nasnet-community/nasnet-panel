@@ -72,8 +72,6 @@ func RegisterRoutes(e *echo.Echo) {
 
 	dnsGroup := e.Group("/api/dns")
 	dnsGroup.Use(middleware.RouterOSAuth)
-	{
-		dnsGroup.GET("/info", handler.HandleGetDNSInfo)
-		dnsGroup.PUT("/info", handler.HandleUpdateDNS)
-	}
+	dnsGroup.GET("/info", handler.HandleGetDNSInfo)
+	dnsGroup.PUT("/info", handler.HandleUpdateDNS)
 }

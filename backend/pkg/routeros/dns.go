@@ -1,16 +1,18 @@
-package routeros
+package routeros //nolint:misspell // intentional package name
 
 import (
 	"fmt"
 	"strings"
 )
 
+// DNSInfo represents DNS configuration information.
 type DNSInfo struct {
 	Servers        []string `json:"servers"`
 	DynamicServers []string `json:"dynamicServers"`
 	DOHServer      string   `json:"dohServer"`
 }
 
+// DNSUpdateConfig represents DNS configuration to update.
 type DNSUpdateConfig struct {
 	Servers   *string
 	DOHServer *string
@@ -43,9 +45,7 @@ func (c *Client) UpdateDNSConfig(config DNSUpdateConfig) error {
 	}
 
 	if config.DOHServer != nil {
-		args = append(args, "=use-doh-server="+*config.DOHServer)
-		args = append(args, "=verify-doh-cert=no")
-		args = append(args, "=allow-remote-requests=yes")
+		args = append(args, "=use-doh-server="+*config.DOHServer, "=verify-doh-cert=no", "=allow-remote-requests=yes")
 	}
 
 	if len(args) == 0 {
