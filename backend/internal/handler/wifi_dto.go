@@ -61,6 +61,20 @@ type UpdateWiFiInterfaceRequest struct {
 	Enabled bool `json:"enabled"`
 }
 
+// UpdateWiFiSettingsRequest updates SSID, password, and security types.
+type UpdateWiFiSettingsRequest struct {
+	SSID          *string `json:"ssid,omitempty"`
+	Password      *string `json:"password,omitempty"`
+	SecurityTypes *string `json:"securityTypes,omitempty"` // comma-separated: wpa-psk,wpa2-psk,wpa3-psk
+}
+
+// UpdateWiFiSettingsResponse is the response for WiFi settings update.
+type UpdateWiFiSettingsResponse struct {
+	Name         string `json:"name"`
+	SSID         string `json:"ssid"`
+	SecurityType string `json:"securityType"`
+}
+
 func ToWiFiInterfaceResponse(wi *routeros.WifiInfo) *WiFiInterfaceResponse {
 	if wi == nil {
 		return nil

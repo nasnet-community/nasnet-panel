@@ -89,6 +89,13 @@ type WifiPassword struct {
 	Cipher        string
 }
 
+// WiFiSettings represents the settings to update for a WiFi interface.
+type WiFiSettings struct {
+	SSID          *string // nil = don't change, empty string = clear, non-empty = set value.
+	Password      *string // nil = don't change, empty string = clear, non-empty = set value.
+	SecurityTypes *string // comma-separated security types (wpa-psk,wpa2-psk,wpa3-psk).
+}
+
 func (c *Client) GetWiFiDriverType() (WiFiDriverType, error) {
 	packages, err := c.ListPackages()
 	if err != nil {
@@ -348,4 +355,21 @@ func extractFirstFrequency(freqList string) int {
 		return parseIntField(strings.TrimSpace(parts[0]))
 	}
 	return 0
+}
+
+// UpdateWiFiSettings updates WiFi interface SSID, password, and security types.
+func (c *Client) UpdateWiFiSettings(interfaceName string, settings WiFiSettings) error {
+	driverType, err := c.GetWiFiDriverType()
+	if err != nil {
+		return err
+	}
+
+	switch driverType {
+	case WiFiDriverWifiQcom, WiFiDriverWifiQcomAC, WiFiDriverWifiWave2, WiFiDriverWifi:
+		return c.updateWiFiSettingsImpl(interfaceName, settings)
+	case WiFiDriverWireless:
+		return c.updateWirelessSettingsImpl(interfaceName, settings)
+	default:
+		return fmt.Errorf("router has no WiFi package installed")
+	}
 }

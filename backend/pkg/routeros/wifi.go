@@ -414,3 +414,64 @@ func (c *Client) disableWiFiInterface(name string) error {
 
 	return nil
 }
+
+func (c *Client) updateWiFiSettingsImpl(interfaceName string, settings WiFiSettings) error {
+	result, err := c.GetFirst("/interface/wifi", "?name="+interfaceName)
+	if err != nil {
+		return fmt.Errorf("failed to find WiFi interface %s: %w", interfaceName, err)
+	}
+
+	interfaceID := result[".id"]
+	args := []string{"=.id=" + interfaceID}
+
+	// Update SSID if provided
+	if settings.SSID != nil {
+		args = append(args, "=configuration.ssid="+*settings.SSID)
+	}
+
+	// Update security settings if provided
+	if settings.Password != nil || settings.SecurityTypes != nil {
+		// Check if security profile exists
+		securityProfile := result["security"]
+		if securityProfile != "" {
+			// If security profile is set, update only through the profile
+			profileResult, err := c.GetFirst("/interface/wifi/security", "?name="+securityProfile)
+			if err == nil {
+				profileArgs := []string{"=.id=" + profileResult[".id"]}
+
+				if settings.Password != nil {
+					profileArgs = append(profileArgs, "=passphrase="+*settings.Password)
+				}
+
+				if settings.SecurityTypes != nil {
+					profileArgs = append(profileArgs, "=authentication-types="+*settings.SecurityTypes)
+				}
+
+				if len(profileArgs) > 1 {
+					_, err = c.Set("/interface/wifi/security", profileArgs...)
+					if err != nil {
+						return fmt.Errorf("failed to update WiFi security profile: %w", err)
+					}
+				}
+			}
+		} else {
+			// Update directly on interface if no security profile
+			if settings.Password != nil {
+				args = append(args, "=security.passphrase="+*settings.Password)
+			}
+
+			if settings.SecurityTypes != nil {
+				args = append(args, "=security.authentication-types="+*settings.SecurityTypes)
+			}
+		}
+	}
+
+	if len(args) > 1 {
+		_, err = c.Set("/interface/wifi", args...)
+		if err != nil {
+			return fmt.Errorf("failed to update WiFi interface: %w", err)
+		}
+	}
+
+	return nil
+}

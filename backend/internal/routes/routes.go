@@ -33,6 +33,7 @@ func RegisterRoutes(e *echo.Echo) {
 		wifiGroup.GET("/interfaces", handler.HandleListWiFiInterfaces)
 		wifiGroup.GET("/interfaces/:name", handler.HandleGetWiFiInterface)
 		wifiGroup.PUT("/interfaces/:name", handler.HandleUpdateWiFiInterface)
+		wifiGroup.PUT("/settings/:name", handler.HandleUpdateWiFiSettings)
 		wifiGroup.GET("/clients", handler.HandleListWiFiConnectedClients)
 		wifiGroup.DELETE("/clients/:mac", handler.HandleRemoveWiFiConnectedClient)
 		wifiGroup.GET("/passphrase/:name", handler.HandleGetWiFiPassphrase)

@@ -75,6 +75,16 @@ definitions:
       enabled:
         type: boolean
     type: object
+  handler.UpdateWiFiSettingsRequest:
+    properties:
+      password:
+        type: string
+      securityTypes:
+        description: 'comma-separated: wpa-psk,wpa2-psk,wpa3-psk'
+        type: string
+      ssid:
+        type: string
+    type: object
 host: localhost:8080
 info:
   contact:
@@ -1250,6 +1260,61 @@ paths:
       security:
       - BasicAuth: []
       summary: Update WiFi passphrase
+      tags:
+      - WiFi
+  /api/wifi/settings/{name}:
+    put:
+      consumes:
+      - application/json
+      description: Update SSID, password, and security types for a WiFi interface
+      parameters:
+      - description: RouterOS host address
+        in: header
+        name: X-RouterOS-Host
+        required: true
+        type: string
+      - description: Interface name
+        in: path
+        name: name
+        required: true
+        type: string
+      - description: WiFi settings
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handler.UpdateWiFiSettingsRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: WiFi settings updated
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Interface not found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BasicAuth: []
+      summary: Update WiFi interface settings
       tags:
       - WiFi
   /health:

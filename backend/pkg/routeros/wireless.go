@@ -435,3 +435,75 @@ func (c *Client) disableWirelessInterface(name string) error {
 
 	return nil
 }
+
+func (c *Client) updateWirelessSettingsImpl(interfaceName string, settings WiFiSettings) error {
+	result, err := c.GetFirst("/interface/wireless", "?name="+interfaceName)
+	if err != nil {
+		return fmt.Errorf("failed to find wireless interface %s: %w", interfaceName, err)
+	}
+
+	interfaceID := result[".id"]
+	args := []string{"=.id=" + interfaceID}
+
+	// Update SSID if provided
+	if settings.SSID != nil {
+		args = append(args, "=ssid="+*settings.SSID)
+	}
+
+	// Update security settings if provided
+	if settings.Password != nil || settings.SecurityTypes != nil {
+		// Check if security profile exists
+		securityProfile := result["security-profile"]
+		if securityProfile != "" {
+			// Update via security profile
+			profileResult, err := c.GetFirst("/interface/wireless/security-profiles", "?name="+securityProfile)
+			if err == nil {
+				profileArgs := []string{"=.id=" + profileResult[".id"]}
+
+				if settings.SecurityTypes != nil {
+					profileArgs = append(profileArgs, "=authentication-types="+*settings.SecurityTypes)
+
+					// Update appropriate passphrase field based on security types
+					if settings.Password != nil {
+						authTypes := *settings.SecurityTypes
+						if hasAuthType(authTypes, "wpa3-psk") {
+							profileArgs = append(profileArgs, "=wpa3-pre-shared-key="+*settings.Password)
+						}
+						if hasAuthType(authTypes, "wpa2-psk") {
+							profileArgs = append(profileArgs, "=wpa2-pre-shared-key="+*settings.Password)
+						}
+						if hasAuthType(authTypes, "wpa-psk") {
+							profileArgs = append(profileArgs, "=wpa-pre-shared-key="+*settings.Password)
+						}
+					}
+				} else if settings.Password != nil {
+					// If no security types specified, update password in existing profile auth types
+					authTypes := profileResult["authentication-types"]
+					if hasAuthType(authTypes, "wpa3-psk") {
+						profileArgs = append(profileArgs, "=wpa3-pre-shared-key="+*settings.Password)
+					}
+					if hasAuthType(authTypes, "wpa2-psk") {
+						profileArgs = append(profileArgs, "=wpa2-pre-shared-key="+*settings.Password)
+					}
+					if hasAuthType(authTypes, "wpa-psk") {
+						profileArgs = append(profileArgs, "=wpa-pre-shared-key="+*settings.Password)
+					}
+				}
+
+				_, err = c.Set("/interface/wireless/security-profiles", profileArgs...)
+				if err != nil {
+					return fmt.Errorf("failed to update wireless security profile: %w", err)
+				}
+			}
+		}
+	}
+
+	if len(args) > 1 {
+		_, err = c.Set("/interface/wireless", args...)
+		if err != nil {
+			return fmt.Errorf("failed to update wireless interface: %w", err)
+		}
+	}
+
+	return nil
+}
