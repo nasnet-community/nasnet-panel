@@ -52,6 +52,9 @@ export interface Interface {
   mac: string;
   running: boolean;
   comment?: string;
+  ssid?: string;
+  band?: WirelessBand;
+  securityTypes?: string[];
 }
 
 export interface SystemOverview {

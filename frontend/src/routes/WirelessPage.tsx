@@ -1,7 +1,5 @@
-import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Stack } from '@nasnet/ui';
-import type { WirelessSettings } from '../api';
 import { StatsStrip } from './wireless/StatsStrip';
 import { ClientsCard } from './wireless/ClientsCard';
 import { InterfacesCard } from './wireless/InterfacesCard';
@@ -16,18 +14,12 @@ export function WirelessPage() {
     interfaces,
     clients,
     loading,
-    restarting,
-    reload,
+    editingSettings,
+    openEdit,
+    closeEdit,
     save,
     toggleInterface,
-    restart,
   } = useWireless(id);
-  const [editOpen, setEditOpen] = useState(false);
-
-  const onSave = async (next: WirelessSettings) => {
-    await save(next);
-    setEditOpen(false);
-  };
 
   if (loading && !settings) {
     return <WirelessSkeleton />;
@@ -36,17 +28,15 @@ export function WirelessPage() {
   return (
     <Stack>
       <StatsStrip clients={clients} interfaces={interfaces} settings={settings} />
-      <ClientsCard clients={clients} loading={loading} onReload={reload} />
+      <ClientsCard clients={clients} />
       <InterfacesCard
         interfaces={interfaces}
         settings={settings}
-        restarting={restarting}
-        onRestart={restart}
         onToggle={toggleInterface}
-        onEdit={() => setEditOpen(true)}
+        onEdit={openEdit}
       />
-      {editOpen && settings ? (
-        <EditDialog settings={settings} onSave={onSave} onClose={() => setEditOpen(false)} />
+      {editingSettings ? (
+        <EditDialog settings={editingSettings} onSave={save} onClose={closeEdit} />
       ) : null}
     </Stack>
   );

@@ -1,17 +1,15 @@
-import { RefreshCw, SignalHigh } from 'lucide-react';
-import { Badge, Button, Card, CardDescription, CardHeader, CardTitle, DataTable } from '@nasnet/ui';
+import { SignalHigh } from 'lucide-react';
+import { Badge, Card, CardDescription, CardHeader, CardTitle, DataTable } from '@nasnet/ui';
 import type { WirelessClient } from '../../api';
 import styles from '../WirelessPage.module.scss';
 
 interface Props {
   clients: WirelessClient[];
-  loading: boolean;
-  onReload: () => void;
 }
 
 const signalTone = (dbm: number) => (dbm > -60 ? 'success' : dbm > -70 ? 'warning' : 'danger');
 
-export function ClientsCard({ clients, loading, onReload }: Props) {
+export function ClientsCard({ clients }: Props) {
   return (
     <Card>
       <CardHeader className={styles.cardHeaderRow}>
@@ -19,9 +17,6 @@ export function ClientsCard({ clients, loading, onReload }: Props) {
           <CardTitle>Connected Clients</CardTitle>
           <CardDescription>Devices associated to this router&apos;s wireless.</CardDescription>
         </div>
-        <Button variant="secondary" onClick={onReload} disabled={loading}>
-          <RefreshCw size={14} aria-hidden /> Refresh
-        </Button>
       </CardHeader>
       {clients.length > 0 ? (
         <DataTable

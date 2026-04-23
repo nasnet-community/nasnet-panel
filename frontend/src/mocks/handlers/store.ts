@@ -1,6 +1,4 @@
 import { seededInterfaces } from '../fixtures/interfaces';
-import { seededWireless } from '../fixtures/wireless-settings';
-import { seededWirelessClients } from '../fixtures/wireless-clients';
 import { seededVPNClients, seededVPNServers, seededVPNPeers } from '../fixtures/vpn';
 import { seededRouterUsers } from '../fixtures/router-users';
 import { seededAppUpdate, seededFirmwareUpdates } from '../fixtures/update-info';
@@ -16,15 +14,11 @@ import type {
   VPNClient,
   VPNPeer,
   VPNServer,
-  WirelessClient,
-  WirelessSettings,
 } from '../types';
 
 export interface Store {
   routers: Router[];
   interfaces: Record<string, Interface[]>;
-  wireless: Record<string, WirelessSettings>;
-  wirelessClients: Record<string, WirelessClient[]>;
   vpnClients: VPNClient[];
   vpnServers: VPNServer[];
   vpnPeers: VPNPeer[];
@@ -35,13 +29,11 @@ export interface Store {
   idCounter: number;
 }
 
-const STORAGE_KEY = 'nasnet-panel.mock-store.v3';
+const STORAGE_KEY = 'nasnet-panel.mock-store.v4';
 
 const createStore = (): Store => ({
   routers: [],
   interfaces: seededInterfaces(),
-  wireless: seededWireless(),
-  wirelessClients: seededWirelessClients(),
   vpnClients: seededVPNClients(),
   vpnServers: seededVPNServers(),
   vpnPeers: seededVPNPeers(),
@@ -132,16 +124,6 @@ export const mockStore = {
         { name: 'ether2', type: 'ether', mac: 'AA:AA:AA:AA:AA:02', running: true },
         { name: 'wlan1', type: 'wireless', mac: 'AA:AA:AA:AA:AA:0C', running: true },
       ];
-    }
-    if (!store.wireless[defaults.id]) {
-      store.wireless[defaults.id] = {
-        ssid: 'Seeded-SSID',
-        password: 'seededpass',
-        security: 'WPA2-PSK',
-        band: '5ghz',
-        countryCode: 'US',
-        hidden: false,
-      };
     }
     if (!store.routerUsers.some((u) => u.routerId === defaults.id)) {
       store.routerUsers.push({
