@@ -34,6 +34,7 @@ func HandleListDHCPLeases(c echo.Context) error {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to retrieve DHCP leases", err)
 	}
 
+	client.PopulateBridgePorts(leases)
 	responses := ToDHCPLeasesResponse(leases)
 	return SuccessResponse(c, http.StatusOK, "DHCP leases retrieved successfully", responses)
 }

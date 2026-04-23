@@ -15,6 +15,7 @@ type DHCPLeaseResponse struct {
 	Status       string `json:"status"`
 	ExpiresAfter string `json:"expiresAfter,omitempty"`
 	LastSeen     string `json:"lastSeen,omitempty"`
+	BridgePort   string `json:"bridgePort,omitempty"`
 	Comment      string `json:"comment,omitempty"`
 	Dynamic      bool   `json:"dynamic"`
 }
@@ -49,7 +50,8 @@ type DHCPServerResponse struct {
 	LocalAddress string   `json:"localAddress,omitempty"`
 }
 
-func ToDHCPLeaseResponse(dl *routeros.DHCPLeaseInfo) *DHCPLeaseResponse {
+// ToDHCPLeaseResponse converts a RouterOS DHCP lease info to an API response.
+func ToDHCPLeaseResponse(dl *routeros.DHCPLeaseInfo) *DHCPLeaseResponse { //nolint:misspell // intentional package name
 	if dl == nil {
 		return nil
 	}
@@ -64,12 +66,14 @@ func ToDHCPLeaseResponse(dl *routeros.DHCPLeaseInfo) *DHCPLeaseResponse {
 		Status:       dl.Status,
 		ExpiresAfter: utils.FormatRouterOSTime(dl.ExpiresAfter),
 		LastSeen:     utils.FormatRouterOSTime(dl.LastSeen),
+		BridgePort:   dl.BridgePort,
 		Comment:      dl.Comment,
 		Dynamic:      dl.Dynamic,
 	}
 }
 
-func ToDHCPLeasesResponse(leases []routeros.DHCPLeaseInfo) []DHCPLeaseResponse {
+// ToDHCPLeasesResponse converts a list of DHCP lease infos to API responses.
+func ToDHCPLeasesResponse(leases []routeros.DHCPLeaseInfo) []DHCPLeaseResponse { //nolint:misspell // intentional package name
 	var responses []DHCPLeaseResponse
 	for i := range leases {
 		if resp := ToDHCPLeaseResponse(&leases[i]); resp != nil {

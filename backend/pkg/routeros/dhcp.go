@@ -34,6 +34,7 @@ type DHCPLeaseInfo struct {
 	Status       string
 	ExpiresAfter string
 	LastSeen     string
+	BridgePort   string
 	Comment      string
 	Dynamic      bool
 }
@@ -370,4 +371,28 @@ func (c *Client) MakeDHCPLeaseStatic(id string) error {
 	}
 
 	return nil
+}
+
+// PopulateBridgePorts adds bridge port information to DHCP leases.
+// It fetches all bridge hosts once and matches them in-memory to minimize API queries.
+func (c *Client) PopulateBridgePorts(leases []DHCPLeaseInfo) {
+	hosts, err := c.GetAllBridgeHosts()
+	if err != nil {
+		return
+	}
+
+	// Create a map for O(1) lookup
+	hostMap := make(map[string]string)
+	for _, host := range hosts {
+		hostMap[host.MacAddress] = host.OnInterface
+	}
+
+	// Match leases to bridge hosts
+	for i := range leases {
+		if leases[i].MacAddress != "" {
+			if port, exists := hostMap[leases[i].MacAddress]; exists {
+				leases[i].BridgePort = port
+			}
+		}
+	}
 }
