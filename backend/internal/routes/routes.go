@@ -69,4 +69,11 @@ func RegisterRoutes(e *echo.Echo) {
 	{
 		logsGroup.GET("", handler.HandleGetLogs)
 	}
+
+	dnsGroup := e.Group("/api/dns")
+	dnsGroup.Use(middleware.RouterOSAuth)
+	{
+		dnsGroup.GET("/info", handler.HandleGetDNSInfo)
+		dnsGroup.PUT("/info", handler.HandleUpdateDNS)
+	}
 }

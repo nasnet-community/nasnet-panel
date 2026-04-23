@@ -63,6 +63,13 @@ definitions:
       name:
         type: string
     type: object
+  handler.UpdateDNSRequest:
+    properties:
+      dohServer:
+        type: string
+      servers:
+        type: string
+    type: object
   handler.UpdateWiFiInterfaceRequest:
     properties:
       enabled:
@@ -272,6 +279,89 @@ paths:
       summary: List DHCP servers
       tags:
       - DHCP
+  /api/dns/info:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve DNS configuration from RouterOS device
+      parameters:
+      - description: RouterOS host address
+        in: header
+        name: X-RouterOS-Host
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: DNS information
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BasicAuth: []
+      summary: Get DNS information
+      tags:
+      - DNS
+    put:
+      consumes:
+      - application/json
+      description: Update DNS servers and DoH configuration on RouterOS device
+      parameters:
+      - description: RouterOS host address
+        in: header
+        name: X-RouterOS-Host
+        required: true
+        type: string
+      - description: DNS configuration
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handler.UpdateDNSRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: DNS updated
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BasicAuth: []
+      summary: Update DNS configuration
+      tags:
+      - DNS
   /api/firewall/rules:
     get:
       consumes:
