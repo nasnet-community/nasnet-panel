@@ -32,6 +32,19 @@ export {
   type InterfaceResponse,
 } from './system';
 export {
+  fetchWifiInterfaces,
+  fetchWifiInterface,
+  fetchWifiClients,
+  updateWifiInterface,
+  removeWifiClient,
+  fetchWifiPassphrase,
+  updateWifiPassphrase,
+  type WifiCredentials,
+  type WifiInterfaceResponse,
+  type WifiConnectedClientResponse,
+  type WifiPassphraseResponse,
+} from './wifi';
+export {
   fetchLogs,
   type LogsCredentials,
   type LogEntryResponse,

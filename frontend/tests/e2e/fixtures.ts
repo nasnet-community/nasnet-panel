@@ -20,6 +20,13 @@ export interface OverviewBackendRouter {
   version?: string;
 }
 
+export interface WifiBackendRouter {
+  id?: string;
+  ssid?: string;
+  passphrase?: string;
+  interfaceName?: string;
+}
+
 export interface LogsBackendOptions {
   id?: string;
 }
@@ -29,6 +36,7 @@ export interface TestFixtures {
   seedRouter: (input: SeedInput) => Promise<void>;
   mockBackendScan: (devices?: ScanMockDevice[]) => Promise<void>;
   mockOverviewBackend: (router?: OverviewBackendRouter) => Promise<void>;
+  mockWifiBackend: (router?: WifiBackendRouter) => Promise<void>;
   mockLogsBackend: (options?: LogsBackendOptions) => Promise<void>;
 }
 
@@ -235,6 +243,97 @@ export const test = base.extend<TestFixtures>({
           status: 200,
           contentType: 'application/json',
           body: envelope([]),
+        });
+      });
+    });
+  },
+  mockWifiBackend: async ({ context }, use) => {
+    await use(async (router = {}) => {
+      const interfaceName = router.interfaceName ?? 'wifi1';
+      const ssid = router.ssid ?? 'Seeded-SSID';
+      let passphrase = router.passphrase ?? 'seededpass';
+
+      if (router.id) {
+        await context.addInitScript((routerId) => {
+          try {
+            const key = 'nasnet-panel.session-credentials.v1';
+            const raw = window.sessionStorage.getItem(key);
+            const map = (raw ? JSON.parse(raw) : {}) as Record<
+              string,
+              { username: string; password: string }
+            >;
+            map[routerId] = { username: 'admin', password: 'test' };
+            window.sessionStorage.setItem(key, JSON.stringify(map));
+          } catch {
+            /* ignore */
+          }
+        }, router.id);
+      }
+
+      const envelope = <T>(data: T, status = 200) =>
+        JSON.stringify({ status, message: 'OK', data });
+
+      await context.route('**/api/wifi/interfaces', async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: envelope([
+            {
+              id: '*1',
+              name: interfaceName,
+              interface: interfaceName,
+              ssid,
+              frequency: '5180',
+              channelWidth: '20/40/80mhz-XXXX',
+              macAddress: 'AA:BB:CC:DD:EE:01',
+              disabled: false,
+              running: true,
+              inactive: false,
+              mode: 'ap',
+              band: '5ghz-ac',
+              securityType: 'wpa2-psk',
+              comment: '',
+            },
+          ]),
+        });
+      });
+
+      await context.route('**/api/wifi/interfaces/*', async (route) => {
+        if (route.request().method() === 'PUT') {
+          await route.fulfill({
+            status: 200,
+            contentType: 'application/json',
+            body: envelope({ ok: true }),
+          });
+          return;
+        }
+        await route.fallback();
+      });
+
+      await context.route('**/api/wifi/clients', async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: envelope([]),
+        });
+      });
+
+      await context.route('**/api/wifi/passphrase/*', async (route) => {
+        const method = route.request().method();
+        if (method === 'PUT') {
+          const body = route.request().postDataJSON() as { passphrase?: string } | null;
+          if (body?.passphrase) passphrase = body.passphrase;
+          await route.fulfill({
+            status: 200,
+            contentType: 'application/json',
+            body: envelope({ ok: true }),
+          });
+          return;
+        }
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: envelope({ interfaceName, passphrase }),
         });
       });
     });

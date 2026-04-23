@@ -35,14 +35,6 @@ export const routers = {
       { name: 'bridge1', type: 'bridge', mac: '00:00:00:00:00:0B', running: true },
       { name: 'wlan1', type: 'wireless', mac: '00:00:00:00:00:0C', running: true },
     ];
-    store.wireless[id] = {
-      ssid: 'Nasnet',
-      password: 'changeme123',
-      security: 'WPA2-PSK',
-      band: '5ghz',
-      countryCode: 'US',
-      hidden: false,
-    };
     store.routerUsers.push({
       id: nextId('usr'),
       routerId: id,

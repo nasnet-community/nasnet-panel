@@ -1,7 +1,6 @@
 import { mockStore } from './handlers/store';
 import { routers } from './handlers/routers';
 import { system } from './handlers/system';
-import { wireless } from './handlers/wireless';
 import { vpn, getProtocolOptions } from './handlers/vpn';
 import { users } from './handlers/users';
 import { updates } from './handlers/updates';
@@ -13,7 +12,6 @@ export { mockStore, getProtocolOptions };
 export const mockApi = {
   routers,
   system,
-  wireless,
   vpn,
   users,
   updates,

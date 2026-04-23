@@ -8,7 +8,7 @@ interface Props {
   iface: Interface;
   settings: WirelessSettings;
   onToggle: (running: boolean) => void;
-  onEdit: () => void;
+  onEdit: (iface: Interface) => void;
 }
 
 export function InterfaceRow({ iface, settings, onToggle, onEdit }: Props) {
@@ -18,15 +18,22 @@ export function InterfaceRow({ iface, settings, onToggle, onEdit }: Props) {
         <Wifi size={14} />
       </div>
       <div>
-        <strong>{settings.ssid}</strong>{' '}
+        <strong>{iface.ssid ?? settings.ssid}</strong>{' '}
         <span className={styles.interfaceName}>({iface.name})</span>
         <div>
           <Badge tone={iface.running ? 'success' : 'neutral'}>
             {iface.running ? 'enabled' : 'disabled'}
           </Badge>{' '}
-          <Badge tone="neutral">{settings.security}</Badge>{' '}
-          <Badge tone="neutral">{settings.band.toUpperCase()}</Badge>{' '}
-          <Badge tone="neutral">{settings.countryCode}</Badge>
+          {(iface.securityTypes && iface.securityTypes.length > 0
+            ? iface.securityTypes
+            : [settings.security]
+          ).map((s) => (
+            <Badge key={s} tone="neutral">
+              {s}
+            </Badge>
+          ))}{' '}
+          <Badge tone="neutral">{(iface.band ?? settings.band).toUpperCase()}</Badge>{' '}
+          {settings.countryCode ? <Badge tone="neutral">{settings.countryCode}</Badge> : null}
         </div>
       </div>
       <Inline $gap="12px">
@@ -35,7 +42,7 @@ export function InterfaceRow({ iface, settings, onToggle, onEdit }: Props) {
           checked={iface.running}
           onChange={(e) => onToggle(e.target.checked)}
         />
-        <Button size="sm" variant="secondary" onClick={onEdit}>
+        <Button size="sm" variant="secondary" onClick={() => onEdit(iface)}>
           Edit
         </Button>
       </Inline>
