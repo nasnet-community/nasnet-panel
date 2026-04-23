@@ -14,7 +14,8 @@ import { WirelessPage } from './routes/WirelessPage';
 import { UsersPage } from './routes/UsersPage';
 import { LogsPage } from './routes/LogsPage';
 import { UpdatesPage } from './routes/UpdatesPage';
-import { DHCPPage, DNSPage } from './routes/StubTabs';
+import { DHCPPage } from './routes/DHCPPage';
+import { DNSPage } from './routes/StubTabs';
 
 function AddRouterEntry() {
   const [params] = useSearchParams();

@@ -1,6 +1,6 @@
 import React from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { Globe, Network } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Globe } from 'lucide-react';
 import {
   Button,
   Card,
@@ -42,19 +42,6 @@ const StubShell: React.FC<StubProps> = ({ title, description, icon, ctaLabel, ct
     </Stack>
   );
 };
-
-export function DHCPPage() {
-  const { id } = useParams<{ id: string }>();
-  return (
-    <StubShell
-      title="DHCP"
-      description="Leases, pools, and DHCP server / client configuration."
-      icon={<Network size={22} />}
-      ctaHref={`/router/${id}`}
-      ctaLabel="Back to overview"
-    />
-  );
-}
 
 export function DNSPage() {
   return (

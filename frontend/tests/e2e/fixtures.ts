@@ -31,6 +31,10 @@ export interface LogsBackendOptions {
   id?: string;
 }
 
+export interface DhcpBackendOptions {
+  id?: string;
+}
+
 export interface TestFixtures {
   resetMocks: () => Promise<void>;
   seedRouter: (input: SeedInput) => Promise<void>;
@@ -38,6 +42,7 @@ export interface TestFixtures {
   mockOverviewBackend: (router?: OverviewBackendRouter) => Promise<void>;
   mockWifiBackend: (router?: WifiBackendRouter) => Promise<void>;
   mockLogsBackend: (options?: LogsBackendOptions) => Promise<void>;
+  mockDhcpBackend: (options?: DhcpBackendOptions) => Promise<void>;
 }
 
 export const test = base.extend<TestFixtures>({
@@ -394,6 +399,119 @@ export const test = base.extend<TestFixtures>({
             availableTopics: ['system', 'info', 'pppoe', 'error', 'dhcp', 'warning'],
             availableLevels: ['debug', 'info', 'warning', 'error', 'critical'],
           }),
+        });
+      });
+    });
+  },
+  mockDhcpBackend: async ({ context }, use) => {
+    await use(async (options = {}) => {
+      if (options.id) {
+        await context.addInitScript((routerId) => {
+          try {
+            const key = 'nasnet-panel.session-credentials.v1';
+            const raw = window.sessionStorage.getItem(key);
+            const map = (raw ? JSON.parse(raw) : {}) as Record<
+              string,
+              { username: string; password: string }
+            >;
+            map[routerId] = { username: 'admin', password: 'test' };
+            window.sessionStorage.setItem(key, JSON.stringify(map));
+          } catch {
+            /* ignore */
+          }
+        }, options.id);
+      }
+
+      const envelope = <T>(data: T, status = 200) =>
+        JSON.stringify({ status, message: 'OK', data });
+
+      const servers = [
+        {
+          id: '*1',
+          name: 'default-lan',
+          interface: 'bridge1',
+          addressPool: 'lan-pool',
+          ranges: ['192.168.88.100-192.168.88.200'],
+          gateway: '192.168.88.1',
+          dnsServers: '1.1.1.1,8.8.8.8',
+          leaseTime: '10m',
+          disabled: false,
+          localAddress: '192.168.88.1',
+        },
+      ];
+
+      const leases = [
+        {
+          id: '*1',
+          address: '192.168.88.101',
+          macAddress: 'AA:BB:CC:DD:EE:01',
+          hostName: 'laptop-maj',
+          serverName: 'default-lan',
+          status: 'bound',
+          expiresAfter: '9m32s',
+          dynamic: true,
+        },
+        {
+          id: '*2',
+          address: '192.168.88.102',
+          macAddress: 'AA:BB:CC:DD:EE:02',
+          hostName: 'printer',
+          serverName: 'default-lan',
+          status: 'bound',
+          expiresAfter: '5m10s',
+          dynamic: false,
+        },
+      ];
+
+      const clients = [
+        {
+          id: '*1',
+          interface: 'ether1',
+          status: 'bound',
+          address: '10.0.0.42',
+          gateway: '10.0.0.1',
+          primaryDns: '1.1.1.1',
+          usePeerDns: true,
+          usePeerNtp: false,
+          disabled: false,
+        },
+      ];
+
+      await context.route('**/api/dhcp/servers', async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: envelope(servers),
+        });
+      });
+      await context.route('**/api/dhcp/leases', async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: envelope(leases),
+        });
+      });
+      await context.route('**/api/dhcp/clients', async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: envelope(clients),
+        });
+      });
+      await context.route('**/api/dhcp/leases/make-static**', async (route) => {
+        if (route.request().method() !== 'POST') return route.fallback();
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: envelope({ macAddress: 'AA:BB:CC:DD:EE:01', id: '*1', address: '192.168.88.101' }),
+        });
+      });
+      await context.route('**/api/dhcp/leases/*', async (route) => {
+        if (route.request().method() !== 'DELETE') return route.fallback();
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: envelope({ macAddress: 'AA:BB:CC:DD:EE:02', id: '*2', address: '192.168.88.102' }),
         });
       });
     });
