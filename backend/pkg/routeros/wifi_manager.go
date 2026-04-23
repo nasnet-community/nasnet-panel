@@ -346,17 +346,6 @@ func parseIntField(value string) int {
 	return val
 }
 
-func extractFirstFrequency(freqList string) int {
-	if freqList == "" {
-		return 0
-	}
-	parts := strings.Split(freqList, ",")
-	if len(parts) > 0 {
-		return parseIntField(strings.TrimSpace(parts[0]))
-	}
-	return 0
-}
-
 // UpdateWiFiSettings updates WiFi interface SSID, password, and security types.
 func (c *Client) UpdateWiFiSettings(interfaceName string, settings WiFiSettings) error {
 	driverType, err := c.GetWiFiDriverType()
