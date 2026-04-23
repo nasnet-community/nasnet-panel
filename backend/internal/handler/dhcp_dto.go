@@ -1,6 +1,9 @@
 package handler
 
-import "nasnet-panel/pkg/routeros"
+import (
+	"nasnet-panel/pkg/routeros" //nolint:misspell // intentional package name
+	"nasnet-panel/pkg/utils"
+)
 
 type DHCPLeaseResponse struct {
 	ID           string `json:"id"`
@@ -59,8 +62,8 @@ func ToDHCPLeaseResponse(dl *routeros.DHCPLeaseInfo) *DHCPLeaseResponse {
 		HostName:     dl.HostName,
 		ServerName:   dl.ServerName,
 		Status:       dl.Status,
-		ExpiresAfter: dl.ExpiresAfter,
-		LastSeen:     dl.LastSeen,
+		ExpiresAfter: utils.FormatRouterOSTime(dl.ExpiresAfter),
+		LastSeen:     utils.FormatRouterOSTime(dl.LastSeen),
 		Comment:      dl.Comment,
 		Dynamic:      dl.Dynamic,
 	}
@@ -92,7 +95,7 @@ func ToDHCPClientResponse(dc *routeros.DHCPClientInfo) *DHCPClientResponse {
 		Name:         dc.Name,
 		UsePeerDNS:   dc.UsePeerDNS,
 		UsePeerNTP:   dc.UsePeerNTP,
-		ExpiresAfter: dc.ExpiresAfter,
+		ExpiresAfter: utils.FormatRouterOSTime(dc.ExpiresAfter),
 		Disabled:     dc.Disabled,
 		Comment:      dc.Comment,
 	}

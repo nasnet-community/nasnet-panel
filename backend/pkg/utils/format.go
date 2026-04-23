@@ -35,15 +35,26 @@ func FormatRouterOSTime(routerOSTime string) string {
 		return ""
 	}
 
+	days := 0
 	hours := 0
 	minutes := 0
 	seconds := 0
+	milliseconds := 0
+
+	if strings.Contains(routerOSTime, "w") {
+		weeksPattern := regexp.MustCompile(`(\d+)w`)
+		if match := weeksPattern.FindStringSubmatch(routerOSTime); len(match) > 1 {
+			if weeks, err := strconv.Atoi(match[1]); err == nil {
+				days = weeks * 7
+			}
+		}
+	}
 
 	if strings.Contains(routerOSTime, "d") {
 		daysPattern := regexp.MustCompile(`(\d+)d`)
 		if match := daysPattern.FindStringSubmatch(routerOSTime); len(match) > 1 {
-			if days, err := strconv.Atoi(match[1]); err == nil {
-				hours = days * 24
+			if d, err := strconv.Atoi(match[1]); err == nil {
+				days += d
 			}
 		}
 	}
@@ -51,14 +62,25 @@ func FormatRouterOSTime(routerOSTime string) string {
 	hPattern := regexp.MustCompile(`(\d+)h`)
 	if match := hPattern.FindStringSubmatch(routerOSTime); len(match) > 1 {
 		if h, err := strconv.Atoi(match[1]); err == nil {
-			hours += h
+			hours = h
 		}
 	}
 
-	mPattern := regexp.MustCompile(`(\d+)m`)
-	if match := mPattern.FindStringSubmatch(routerOSTime); len(match) > 1 {
-		if m, err := strconv.Atoi(match[1]); err == nil {
-			minutes = m
+	// Parse milliseconds first to avoid 'm' in 'ms' being matched as minutes
+	msPattern := regexp.MustCompile(`(\d+)ms`)
+	if match := msPattern.FindStringSubmatch(routerOSTime); len(match) > 1 {
+		if ms, err := strconv.Atoi(match[1]); err == nil {
+			milliseconds = ms
+		}
+	}
+
+	// Only parse minutes if "ms" is not in the string
+	if !strings.Contains(routerOSTime, "ms") {
+		mPattern := regexp.MustCompile(`(\d+)m`)
+		if match := mPattern.FindStringSubmatch(routerOSTime); len(match) > 1 {
+			if m, err := strconv.Atoi(match[1]); err == nil {
+				minutes = m
+			}
 		}
 	}
 
@@ -69,19 +91,24 @@ func FormatRouterOSTime(routerOSTime string) string {
 		}
 	}
 
-	if strings.Contains(routerOSTime, "ms") {
-		return "00:00:00"
+	hasOtherParts := days > 0 || hours > 0 || minutes > 0 || seconds > 0
+	if !hasOtherParts && milliseconds > 0 {
+		return fmt.Sprintf("%.2f", float64(milliseconds)/1000.0)
 	}
 
-	return formatTime(hours, minutes, seconds)
+	return formatDaysAndTime(days, hours, minutes, seconds)
 }
 
-func formatTime(hours, minutes, seconds int) string {
+func formatDaysAndTime(days, hours, minutes, seconds int) string {
 	h := hours % 24
 	m := minutes % 60
 	s := seconds % 60
 
-	return formatNumber(h) + ":" + formatNumber(m) + ":" + formatNumber(s)
+	timeStr := formatNumber(h) + ":" + formatNumber(m) + ":" + formatNumber(s)
+	if days == 0 {
+		return timeStr
+	}
+	return fmt.Sprintf("%dd %s", days, timeStr)
 }
 
 func formatNumber(n int) string {
