@@ -53,6 +53,31 @@ definitions:
       topic:
         type: string
     type: object
+  handler.OvpnServerDetailsResponse:
+    properties:
+      auth:
+        type: string
+      certificate:
+        type: string
+      cipher:
+        type: string
+      enabled:
+        type: boolean
+      macAddress:
+        type: string
+      mode:
+        type: string
+      name:
+        type: string
+      port:
+        type: integer
+      protocol:
+        type: string
+      requireClientCertificate:
+        type: boolean
+      userAuthMethod:
+        type: string
+    type: object
   handler.Response:
     properties:
       data: {}
@@ -1141,6 +1166,45 @@ paths:
       security:
       - BasicAuth: []
       summary: Update VPN Client
+      tags:
+      - VPN
+  /api/vpn/ovpn-server/{name}:
+    get:
+      description: Get detailed configuration of an OpenVPN server by name
+      parameters:
+      - description: RouterOS host address
+        in: header
+        name: X-RouterOS-Host
+        required: true
+        type: string
+      - description: OpenVPN server name
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/handler.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/handler.OvpnServerDetailsResponse'
+              type: object
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.Response'
+      security:
+      - BasicAuth: []
+      summary: Get OpenVPN Server Details
       tags:
       - VPN
   /api/vpn/servers:

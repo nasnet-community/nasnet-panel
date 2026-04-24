@@ -211,6 +211,8 @@ type OvpnServerInfo struct {
 	ID                string
 	Name              string
 	Disabled          bool
+	Mode              string
+	UserAuthMethod    string
 	CertFile          string
 	KeyFile           string
 	ProtocolVersion   string
@@ -241,6 +243,8 @@ func (c *Client) ListOvpnServers() ([]OvpnServerInfo, error) {
 			ID:                result[".id"],
 			Name:              result["name"],
 			Disabled:          result["disabled"] == "true",
+			Mode:              result["mode"],
+			UserAuthMethod:    result["user-auth-method"],
 			CertFile:          result["certificate"],
 			KeyFile:           result["key"],
 			ProtocolVersion:   result["protocol"],
@@ -259,13 +263,22 @@ func (c *Client) ListOvpnServers() ([]OvpnServerInfo, error) {
 	return servers, nil
 }
 
-// GetOvpnServer returns a specific OpenVPN server by ID.
-func (c *Client) GetOvpnServer(serverID string) (*OvpnServerInfo, error) {
-	result, err := c.GetFirst("/interface/ovpn-server/server", "?=.id="+serverID)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get OpenVPN server %s: %w", serverID, err)
+// GetOvpnServer returns a specific OpenVPN server by ID or name.
+func (c *Client) GetOvpnServer(idOrName string) (*OvpnServerInfo, error) {
+	result, err := c.GetFirst("/interface/ovpn-server/server", "?=.id="+idOrName)
+	if err == nil {
+		return parseOvpnServerInfo(result), nil
 	}
 
+	result, err = c.GetFirst("/interface/ovpn-server/server", "?=name="+idOrName)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get OpenVPN server %s: %w", idOrName, err)
+	}
+
+	return parseOvpnServerInfo(result), nil
+}
+
+func parseOvpnServerInfo(result map[string]string) *OvpnServerInfo {
 	port, _ := strconv.Atoi(result["port"])
 	keepAliveTimeout, _ := strconv.Atoi(result["keepalive-timeout"])
 
@@ -273,6 +286,8 @@ func (c *Client) GetOvpnServer(serverID string) (*OvpnServerInfo, error) {
 		ID:                result[".id"],
 		Name:              result["name"],
 		Disabled:          result["disabled"] == "true",
+		Mode:              result["mode"],
+		UserAuthMethod:    result["user-auth-method"],
 		CertFile:          result["certificate"],
 		KeyFile:           result["key"],
 		ProtocolVersion:   result["protocol"],
@@ -285,7 +300,7 @@ func (c *Client) GetOvpnServer(serverID string) (*OvpnServerInfo, error) {
 		DefaultGateway:    result["default-gateway"] == "true",
 		MacAddress:        result["mac-address"],
 		Comment:           result["comment"],
-	}, nil
+	}
 }
 
 // PptpServerInfo represents the PPTP server configuration (single instance).

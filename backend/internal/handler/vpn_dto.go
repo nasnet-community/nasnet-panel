@@ -44,3 +44,18 @@ type VPNServersStatusResponse struct {
 	L2tp        *SingleServerStatus `json:"l2tp"`
 	Sstp        *SingleServerStatus `json:"sstp"`
 }
+
+// OvpnServerDetailsResponse represents OpenVPN server configuration details.
+type OvpnServerDetailsResponse struct {
+	Name                     string `json:"name"`
+	Port                     int    `json:"port"`
+	Mode                     string `json:"mode"`
+	Protocol                 string `json:"protocol"`
+	MacAddress               string `json:"macAddress"`
+	Certificate              string `json:"certificate"`
+	RequireClientCertificate bool   `json:"requireClientCertificate"`
+	Auth                     string `json:"auth"`
+	Cipher                   string `json:"cipher"`
+	UserAuthMethod           string `json:"userAuthMethod"`
+	Enabled                  bool   `json:"enabled"`
+}

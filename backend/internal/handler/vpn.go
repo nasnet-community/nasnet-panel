@@ -248,3 +248,49 @@ func HandleGetVPNServersStatus(c echo.Context) error {
 
 	return SuccessResponse(c, http.StatusOK, "VPN servers status retrieved successfully", response)
 }
+
+// HandleGetOvpnServerDetails gets OpenVPN server details by name
+// @Summary Get OpenVPN Server Details
+// @Description Get detailed configuration of an OpenVPN server by name
+// @Tags VPN
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Param name path string true "OpenVPN server name"
+// @Produce json
+// @Success 200 {object} Response{data=OvpnServerDetailsResponse}
+// @Failure 404 {object} Response
+// @Failure 500 {object} Response
+// @Router /api/vpn/ovpn-server/{name} [get].
+func HandleGetOvpnServerDetails(c echo.Context) error {
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+	defer func() { _ = client.Close() }()
+
+	name := c.Param("name")
+	if name == "" {
+		return ErrorResponse(c, http.StatusBadRequest, "OpenVPN server name is required", nil)
+	}
+
+	ovpnServer, err := client.GetOvpnServer(name)
+	if err != nil {
+		return ErrorResponse(c, http.StatusNotFound, "OpenVPN server not found", err)
+	}
+
+	response := OvpnServerDetailsResponse{
+		Name:                     ovpnServer.Name,
+		Port:                     ovpnServer.Port,
+		Mode:                     ovpnServer.Mode,
+		Protocol:                 ovpnServer.ProtocolVersion,
+		MacAddress:               ovpnServer.MacAddress,
+		Certificate:              ovpnServer.CertFile,
+		RequireClientCertificate: ovpnServer.RequireClientCert,
+		Auth:                     ovpnServer.AuthHashAlgorithm,
+		Cipher:                   ovpnServer.CipherName,
+		UserAuthMethod:           ovpnServer.UserAuthMethod,
+		Enabled:                  !ovpnServer.Disabled,
+	}
+
+	return SuccessResponse(c, http.StatusOK, "OpenVPN server details retrieved successfully", response)
+}
