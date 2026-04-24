@@ -205,3 +205,254 @@ func (c *Client) UpdateVPNClientSettings(nameOrID string, disabled *bool, commen
 
 	return nil
 }
+
+// OvpnServerInfo represents an OpenVPN server configuration.
+type OvpnServerInfo struct {
+	ID                string
+	Name              string
+	Disabled          bool
+	CertFile          string
+	KeyFile           string
+	ProtocolVersion   string
+	Port              int
+	CipherName        string
+	AuthHashAlgorithm string
+	RequireClientCert bool
+	RequireEncryption bool
+	KeepAliveTimeout  int
+	DefaultGateway    bool
+	MacAddress        string
+	Comment           string
+}
+
+// ListOvpnServers returns all OpenVPN server configurations.
+func (c *Client) ListOvpnServers() ([]OvpnServerInfo, error) {
+	results, err := c.GetAll("/interface/ovpn-server/server")
+	if err != nil {
+		return nil, fmt.Errorf("failed to list OpenVPN servers: %w", err)
+	}
+
+	servers := make([]OvpnServerInfo, 0)
+	for _, result := range results {
+		port, _ := strconv.Atoi(result["port"])
+		keepAliveTimeout, _ := strconv.Atoi(result["keepalive-timeout"])
+
+		servers = append(servers, OvpnServerInfo{
+			ID:                result[".id"],
+			Name:              result["name"],
+			Disabled:          result["disabled"] == "true",
+			CertFile:          result["certificate"],
+			KeyFile:           result["key"],
+			ProtocolVersion:   result["protocol"],
+			Port:              port,
+			CipherName:        result["cipher"],
+			AuthHashAlgorithm: result["auth"],
+			RequireClientCert: result["require-client-certificate"] == "true",
+			RequireEncryption: result["require-encryption"] == "true",
+			KeepAliveTimeout:  keepAliveTimeout,
+			DefaultGateway:    result["default-gateway"] == "true",
+			MacAddress:        result["mac-address"],
+			Comment:           result["comment"],
+		})
+	}
+
+	return servers, nil
+}
+
+// GetOvpnServer returns a specific OpenVPN server by ID.
+func (c *Client) GetOvpnServer(serverID string) (*OvpnServerInfo, error) {
+	result, err := c.GetFirst("/interface/ovpn-server/server", "?=.id="+serverID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get OpenVPN server %s: %w", serverID, err)
+	}
+
+	port, _ := strconv.Atoi(result["port"])
+	keepAliveTimeout, _ := strconv.Atoi(result["keepalive-timeout"])
+
+	return &OvpnServerInfo{
+		ID:                result[".id"],
+		Name:              result["name"],
+		Disabled:          result["disabled"] == "true",
+		CertFile:          result["certificate"],
+		KeyFile:           result["key"],
+		ProtocolVersion:   result["protocol"],
+		Port:              port,
+		CipherName:        result["cipher"],
+		AuthHashAlgorithm: result["auth"],
+		RequireClientCert: result["require-client-certificate"] == "true",
+		RequireEncryption: result["require-encryption"] == "true",
+		KeepAliveTimeout:  keepAliveTimeout,
+		DefaultGateway:    result["default-gateway"] == "true",
+		MacAddress:        result["mac-address"],
+		Comment:           result["comment"],
+	}, nil
+}
+
+// PptpServerInfo represents the PPTP server configuration (single instance).
+type PptpServerInfo struct {
+	ID                string
+	Enabled           bool
+	Port              int
+	RequireEncryption bool
+	RequireMPPE       bool
+	MPPEBits          string
+	Comment           string
+}
+
+// GetPptpServer returns the PPTP server configuration.
+func (c *Client) GetPptpServer() (*PptpServerInfo, error) {
+	result, err := c.GetFirst("/interface/pptp-server/server")
+	if err != nil {
+		return nil, fmt.Errorf("failed to get PPTP server: %w", err)
+	}
+
+	port, _ := strconv.Atoi(result["port"])
+
+	return &PptpServerInfo{
+		ID:                result[".id"],
+		Enabled:           result["enabled"] == "true",
+		Port:              port,
+		RequireEncryption: result["require-encryption"] == "true",
+		RequireMPPE:       result["require-mppe"] == "true",
+		MPPEBits:          result["mppe-bits"],
+		Comment:           result["comment"],
+	}, nil
+}
+
+// L2tpServerInfo represents the L2TP server configuration (single instance).
+type L2tpServerInfo struct {
+	ID                string
+	Enabled           bool
+	Port              int
+	IPPoolName        string
+	UseIPv6           bool
+	RequireEncryption bool
+	Comment           string
+}
+
+// GetL2tpServer returns the L2TP server configuration.
+func (c *Client) GetL2tpServer() (*L2tpServerInfo, error) {
+	result, err := c.GetFirst("/interface/l2tp-server/server")
+	if err != nil {
+		return nil, fmt.Errorf("failed to get L2TP server: %w", err)
+	}
+
+	port, _ := strconv.Atoi(result["port"])
+
+	return &L2tpServerInfo{
+		ID:                result[".id"],
+		Enabled:           result["enabled"] == "true",
+		Port:              port,
+		IPPoolName:        result["ip-pool-name"],
+		UseIPv6:           result["use-ipv6"] == "true",
+		RequireEncryption: result["require-encryption"] == "true",
+		Comment:           result["comment"],
+	}, nil
+}
+
+// SstpServerInfo represents the SSTP server configuration (single instance).
+type SstpServerInfo struct {
+	ID                string
+	Enabled           bool
+	Port              int
+	CertFile          string
+	IPPoolName        string
+	RequireEncryption bool
+	Comment           string
+}
+
+// GetSstpServer returns the SSTP server configuration.
+func (c *Client) GetSstpServer() (*SstpServerInfo, error) {
+	result, err := c.GetFirst("/interface/sstp-server/server")
+	if err != nil {
+		return nil, fmt.Errorf("failed to get SSTP server: %w", err)
+	}
+
+	port, _ := strconv.Atoi(result["port"])
+
+	return &SstpServerInfo{
+		ID:                result[".id"],
+		Enabled:           result["enabled"] == "true",
+		Port:              port,
+		CertFile:          result["certificate"],
+		IPPoolName:        result["ip-pool-name"],
+		RequireEncryption: result["require-encryption"] == "true",
+		Comment:           result["comment"],
+	}, nil
+}
+
+// WireguardInfo represents a WireGuard interface configuration.
+type WireguardInfo struct {
+	ID         string
+	Name       string
+	Running    bool
+	Disabled   bool
+	MTU        int
+	MacAddress string
+	PublicKey  string
+	PrivateKey string
+	ListenPort int
+	Comment    string
+}
+
+// ListWireguards returns all WireGuard interfaces.
+func (c *Client) ListWireguards() ([]WireguardInfo, error) {
+	results, err := c.GetAll("/interface/wireguard")
+	if err != nil {
+		return nil, fmt.Errorf("failed to list WireGuard interfaces: %w", err)
+	}
+
+	interfaces := make([]WireguardInfo, 0)
+	for _, result := range results {
+		mtu, _ := strconv.Atoi(result["mtu"])
+		listenPort, _ := strconv.Atoi(result["listen-port"])
+
+		interfaces = append(interfaces, WireguardInfo{
+			ID:         result[".id"],
+			Name:       result["name"],
+			Running:    result["running"] == "true",
+			Disabled:   result["disabled"] == "true",
+			MTU:        mtu,
+			MacAddress: result["mac-address"],
+			PublicKey:  result["public-key"],
+			PrivateKey: result["private-key"],
+			ListenPort: listenPort,
+			Comment:    result["comment"],
+		})
+	}
+
+	return interfaces, nil
+}
+
+// GetWireguard returns a specific WireGuard interface by name or ID.
+func (c *Client) GetWireguard(nameOrID string) (*WireguardInfo, error) {
+	result, err := c.GetFirst("/interface/wireguard", "?=.id="+nameOrID)
+	if err == nil {
+		return parseWireguardInfo(result), nil
+	}
+
+	result, err = c.GetFirst("/interface/wireguard", "?=name="+nameOrID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get WireGuard interface %s: %w", nameOrID, err)
+	}
+
+	return parseWireguardInfo(result), nil
+}
+
+func parseWireguardInfo(result map[string]string) *WireguardInfo {
+	mtu, _ := strconv.Atoi(result["mtu"])
+	listenPort, _ := strconv.Atoi(result["listen-port"])
+
+	return &WireguardInfo{
+		ID:         result[".id"],
+		Name:       result["name"],
+		Running:    result["running"] == "true",
+		Disabled:   result["disabled"] == "true",
+		MTU:        mtu,
+		MacAddress: result["mac-address"],
+		PublicKey:  result["public-key"],
+		PrivateKey: result["private-key"],
+		ListenPort: listenPort,
+		Comment:    result["comment"],
+	}
+}

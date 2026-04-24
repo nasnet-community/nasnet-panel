@@ -68,10 +68,22 @@ definitions:
       subnet:
         type: string
     type: object
+  handler.ServerStatusItem:
+    properties:
+      enabled:
+        type: boolean
+      name:
+        type: string
+    type: object
   handler.SetSystemIdentityRequest:
     properties:
       name:
         type: string
+    type: object
+  handler.SingleServerStatus:
+    properties:
+      enabled:
+        type: boolean
     type: object
   handler.UpdateDNSRequest:
     properties:
@@ -137,6 +149,23 @@ definitions:
       type:
         example: ovpn-out
         type: string
+    type: object
+  handler.VPNServersStatusResponse:
+    properties:
+      l2tp:
+        $ref: '#/definitions/handler.SingleServerStatus'
+      ovpnServers:
+        items:
+          $ref: '#/definitions/handler.ServerStatusItem'
+        type: array
+      pptp:
+        $ref: '#/definitions/handler.SingleServerStatus'
+      sstp:
+        $ref: '#/definitions/handler.SingleServerStatus'
+      wireguards:
+        items:
+          $ref: '#/definitions/handler.ServerStatusItem'
+        type: array
     type: object
 host: localhost:8080
 info:
@@ -1112,6 +1141,36 @@ paths:
       security:
       - BasicAuth: []
       summary: Update VPN Client
+      tags:
+      - VPN
+  /api/vpn/servers:
+    get:
+      description: Get the status of OpenVPN, WireGuard, PPTP, L2TP, and SSTP servers
+      parameters:
+      - description: RouterOS host address
+        in: header
+        name: X-RouterOS-Host
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/handler.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/handler.VPNServersStatusResponse'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.Response'
+      security:
+      - BasicAuth: []
+      summary: Get VPN Servers Status
       tags:
       - VPN
   /api/wifi/clients:

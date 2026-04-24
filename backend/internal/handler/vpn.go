@@ -175,3 +175,76 @@ func HandleUpdateVPNClient(c echo.Context) error {
 
 	return SuccessResponse(c, http.StatusOK, "VPN client updated successfully", response)
 }
+
+// HandleGetVPNServersStatus gets the status of all VPN servers
+// @Summary Get VPN Servers Status
+// @Description Get the status of OpenVPN, WireGuard, PPTP, L2TP, and SSTP servers
+// @Tags VPN
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Produce json
+// @Success 200 {object} Response{data=VPNServersStatusResponse}
+// @Failure 500 {object} Response
+// @Router /api/vpn/servers [get].
+func HandleGetVPNServersStatus(c echo.Context) error {
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+	defer func() { _ = client.Close() }()
+
+	response := &VPNServersStatusResponse{
+		OvpnServers: []ServerStatusItem{},
+		Wireguards:  []ServerStatusItem{},
+	}
+
+	// Get OpenVPN servers
+	ovpnServers, err := client.ListOvpnServers()
+	if err == nil {
+		for i := range ovpnServers {
+			srv := ovpnServers[i]
+			response.OvpnServers = append(response.OvpnServers, ServerStatusItem{
+				Name:    srv.Name,
+				Enabled: !srv.Disabled,
+			})
+		}
+	}
+
+	// Get WireGuard interfaces
+	wireguards, err := client.ListWireguards()
+	if err == nil {
+		for i := range wireguards {
+			wg := wireguards[i]
+			response.Wireguards = append(response.Wireguards, ServerStatusItem{
+				Name:    wg.Name,
+				Enabled: !wg.Disabled,
+			})
+		}
+	}
+
+	// Get PPTP server
+	pptpServer, err := client.GetPptpServer()
+	if err == nil {
+		response.Pptp = &SingleServerStatus{
+			Enabled: pptpServer.Enabled,
+		}
+	}
+
+	// Get L2TP server
+	l2tpServer, err := client.GetL2tpServer()
+	if err == nil {
+		response.L2tp = &SingleServerStatus{
+			Enabled: l2tpServer.Enabled,
+		}
+	}
+
+	// Get SSTP server
+	sstpServer, err := client.GetSstpServer()
+	if err == nil {
+		response.Sstp = &SingleServerStatus{
+			Enabled: sstpServer.Enabled,
+		}
+	}
+
+	return SuccessResponse(c, http.StatusOK, "VPN servers status retrieved successfully", response)
+}

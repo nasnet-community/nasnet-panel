@@ -1490,6 +1490,58 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/vpn/servers": {
+            "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Get the status of OpenVPN, WireGuard, PPTP, L2TP, and SSTP servers",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "VPN"
+                ],
+                "summary": "Get VPN Servers Status",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handler.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/handler.VPNServersStatusResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/api/wifi/clients": {
             "get": {
                 "security": [
@@ -2187,11 +2239,30 @@ const docTemplate = `{
                 }
             }
         },
+        "handler.ServerStatusItem": {
+            "type": "object",
+            "properties": {
+                "enabled": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
         "handler.SetSystemIdentityRequest": {
             "type": "object",
             "properties": {
                 "name": {
                     "type": "string"
+                }
+            }
+        },
+        "handler.SingleServerStatus": {
+            "type": "object",
+            "properties": {
+                "enabled": {
+                    "type": "boolean"
                 }
             }
         },
@@ -2290,6 +2361,32 @@ const docTemplate = `{
                 "type": {
                     "type": "string",
                     "example": "ovpn-out"
+                }
+            }
+        },
+        "handler.VPNServersStatusResponse": {
+            "type": "object",
+            "properties": {
+                "l2tp": {
+                    "$ref": "#/definitions/handler.SingleServerStatus"
+                },
+                "ovpnServers": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/handler.ServerStatusItem"
+                    }
+                },
+                "pptp": {
+                    "$ref": "#/definitions/handler.SingleServerStatus"
+                },
+                "sstp": {
+                    "$ref": "#/definitions/handler.SingleServerStatus"
+                },
+                "wireguards": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/handler.ServerStatusItem"
+                    }
                 }
             }
         }
