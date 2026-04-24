@@ -53,6 +53,16 @@ definitions:
       topic:
         type: string
     type: object
+  handler.Response:
+    properties:
+      data: {}
+      error:
+        type: string
+      message:
+        type: string
+      status:
+        type: integer
+    type: object
   handler.ScanRequest:
     properties:
       subnet:
@@ -70,6 +80,15 @@ definitions:
       servers:
         type: string
     type: object
+  handler.UpdateVPNClientRequest:
+    properties:
+      comment:
+        example: Updated comment
+        type: string
+      disabled:
+        example: false
+        type: boolean
+    type: object
   handler.UpdateWiFiInterfaceRequest:
     properties:
       enabled:
@@ -83,6 +102,40 @@ definitions:
         description: 'comma-separated: wpa-psk,wpa2-psk,wpa3-psk'
         type: string
       ssid:
+        type: string
+    type: object
+  handler.VPNClientResponse:
+    properties:
+      comment:
+        type: string
+      disabled:
+        type: boolean
+      id:
+        type: string
+      lastLinkDown:
+        type: string
+      lastLinkUp:
+        type: string
+      linkDowns:
+        type: integer
+      macAddress:
+        type: string
+      mtu:
+        type: integer
+      name:
+        type: string
+      running:
+        type: boolean
+      rxByte:
+        type: integer
+      rxPacket:
+        type: integer
+      txByte:
+        type: integer
+      txPacket:
+        type: integer
+      type:
+        example: ovpn-out
         type: string
     type: object
 host: localhost:8080
@@ -940,6 +993,127 @@ paths:
       summary: Get system updates information
       tags:
       - System
+  /api/vpn/clients:
+    get:
+      description: Get a list of all VPN client interfaces on the RouterOS device
+      parameters:
+      - description: RouterOS host address
+        in: header
+        name: X-RouterOS-Host
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/handler.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/handler.VPNClientResponse'
+                  type: array
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.Response'
+      security:
+      - BasicAuth: []
+      summary: List VPN Clients
+      tags:
+      - VPN
+  /api/vpn/clients/{name}:
+    get:
+      description: Get details of a specific VPN client interface
+      parameters:
+      - description: RouterOS host address
+        in: header
+        name: X-RouterOS-Host
+        required: true
+        type: string
+      - description: VPN client name or ID
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/handler.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/handler.VPNClientResponse'
+              type: object
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.Response'
+      security:
+      - BasicAuth: []
+      summary: Get VPN Client
+      tags:
+      - VPN
+    put:
+      consumes:
+      - application/json
+      description: Update VPN client settings (enable/disable)
+      parameters:
+      - description: RouterOS host address
+        in: header
+        name: X-RouterOS-Host
+        required: true
+        type: string
+      - description: VPN client name or ID
+        in: path
+        name: name
+        required: true
+        type: string
+      - description: Update request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.UpdateVPNClientRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/handler.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/handler.VPNClientResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.Response'
+      security:
+      - BasicAuth: []
+      summary: Update VPN Client
+      tags:
+      - VPN
   /api/wifi/clients:
     get:
       consumes:
