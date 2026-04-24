@@ -1490,6 +1490,58 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/vpn/l2tp-server": {
+            "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Get detailed configuration of the L2TP server",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "VPN"
+                ],
+                "summary": "Get L2TP Server Details",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handler.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/handler.L2tpServerDetailsResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/api/vpn/ovpn-server/{name}": {
             "get": {
                 "security": [
@@ -1555,6 +1607,58 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/vpn/pptp-server": {
+            "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Get detailed configuration of the PPTP server",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "VPN"
+                ],
+                "summary": "Get PPTP Server Details",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handler.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/handler.PptpServerDetailsResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/api/vpn/servers": {
             "get": {
                 "security": [
@@ -1596,6 +1700,123 @@ const docTemplate = `{
                                     }
                                 }
                             ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/vpn/sstp-server": {
+            "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Get detailed configuration of the SSTP server",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "VPN"
+                ],
+                "summary": "Get SSTP Server Details",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handler.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/handler.SstpServerDetailsResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/vpn/wireguard-server/{name}": {
+            "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Get detailed configuration of a WireGuard interface by name",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "VPN"
+                ],
+                "summary": "Get WireGuard Server Details",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "WireGuard server name",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handler.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/handler.WireguardServerDetailsResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
                         }
                     },
                     "500": {
@@ -2252,6 +2473,32 @@ const docTemplate = `{
                 }
             }
         },
+        "handler.L2tpServerDetailsResponse": {
+            "type": "object",
+            "properties": {
+                "auth": {
+                    "type": "string"
+                },
+                "enabled": {
+                    "type": "boolean"
+                },
+                "ipsec": {
+                    "type": "boolean"
+                },
+                "ipsecSecret": {
+                    "type": "string"
+                },
+                "oneSessionPerHost": {
+                    "type": "boolean"
+                },
+                "profile": {
+                    "type": "string"
+                },
+                "protocol": {
+                    "type": "string"
+                }
+            }
+        },
         "handler.LogEntryResponse": {
             "type": "object",
             "properties": {
@@ -2319,6 +2566,20 @@ const docTemplate = `{
                 }
             }
         },
+        "handler.PptpServerDetailsResponse": {
+            "type": "object",
+            "properties": {
+                "auth": {
+                    "type": "string"
+                },
+                "enabled": {
+                    "type": "boolean"
+                },
+                "profile": {
+                    "type": "string"
+                }
+            }
+        },
         "handler.Response": {
             "type": "object",
             "properties": {
@@ -2365,6 +2626,38 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "enabled": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "handler.SstpServerDetailsResponse": {
+            "type": "object",
+            "properties": {
+                "auth": {
+                    "type": "string"
+                },
+                "certificate": {
+                    "type": "string"
+                },
+                "ciphers": {
+                    "type": "string"
+                },
+                "enabled": {
+                    "type": "boolean"
+                },
+                "pfs": {
+                    "type": "string"
+                },
+                "port": {
+                    "type": "integer"
+                },
+                "profile": {
+                    "type": "string"
+                },
+                "tlsVersion": {
+                    "type": "string"
+                },
+                "verifyClientCertificate": {
                     "type": "boolean"
                 }
             }
@@ -2490,6 +2783,32 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/handler.ServerStatusItem"
                     }
+                }
+            }
+        },
+        "handler.WireguardServerDetailsResponse": {
+            "type": "object",
+            "properties": {
+                "enabled": {
+                    "type": "boolean"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "port": {
+                    "type": "integer"
+                },
+                "privateKey": {
+                    "type": "string"
+                },
+                "publicKey": {
+                    "type": "string"
+                },
+                "running": {
+                    "type": "boolean"
                 }
             }
         }

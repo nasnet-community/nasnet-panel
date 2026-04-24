@@ -305,13 +305,15 @@ func parseOvpnServerInfo(result map[string]string) *OvpnServerInfo {
 
 // PptpServerInfo represents the PPTP server configuration (single instance).
 type PptpServerInfo struct {
-	ID                string
-	Enabled           bool
-	Port              int
-	RequireEncryption bool
-	RequireMPPE       bool
-	MPPEBits          string
-	Comment           string
+	ID               string
+	Enabled          bool
+	MaxMTU           int
+	MaxMRU           int
+	MRRU             string
+	Authentication   string
+	KeepaliveTimeout int
+	DefaultProfile   string
+	Comment          string
 }
 
 // GetPptpServer returns the PPTP server configuration.
@@ -321,28 +323,45 @@ func (c *Client) GetPptpServer() (*PptpServerInfo, error) {
 		return nil, fmt.Errorf("failed to get PPTP server: %w", err)
 	}
 
-	port, _ := strconv.Atoi(result["port"])
+	maxMTU, _ := strconv.Atoi(result["max-mtu"])
+	maxMRU, _ := strconv.Atoi(result["max-mru"])
+	keepaliveTimeout, _ := strconv.Atoi(result["keepalive-timeout"])
 
 	return &PptpServerInfo{
-		ID:                result[".id"],
-		Enabled:           result["enabled"] == "true",
-		Port:              port,
-		RequireEncryption: result["require-encryption"] == "true",
-		RequireMPPE:       result["require-mppe"] == "true",
-		MPPEBits:          result["mppe-bits"],
-		Comment:           result["comment"],
+		ID:               result[".id"],
+		Enabled:          result["enabled"] == "true",
+		MaxMTU:           maxMTU,
+		MaxMRU:           maxMRU,
+		MRRU:             result["mrru"],
+		Authentication:   result["authentication"],
+		KeepaliveTimeout: keepaliveTimeout,
+		DefaultProfile:   result["default-profile"],
+		Comment:          result["comment"],
 	}, nil
 }
 
 // L2tpServerInfo represents the L2TP server configuration (single instance).
 type L2tpServerInfo struct {
-	ID                string
-	Enabled           bool
-	Port              int
-	IPPoolName        string
-	UseIPv6           bool
-	RequireEncryption bool
-	Comment           string
+	ID                   string
+	Enabled              bool
+	MaxMTU               int
+	MaxMRU               int
+	MRRU                 string
+	Authentication       string
+	KeepaliveTimeout     int
+	MaxSessions          string
+	DefaultProfile       string
+	UseIPsec             bool
+	IPsecSecret          string
+	CallerIDType         string
+	OneSessionPerHost    bool
+	AllowFastPath        bool
+	L2TPv3CircuitID      string
+	L2TPv3CookieLength   int
+	L2TPv3DigestHash     string
+	AcceptPseudowireType string
+	AcceptProtoVersion   string
+	Comment              string
 }
 
 // GetL2tpServer returns the L2TP server configuration.
@@ -352,28 +371,52 @@ func (c *Client) GetL2tpServer() (*L2tpServerInfo, error) {
 		return nil, fmt.Errorf("failed to get L2TP server: %w", err)
 	}
 
-	port, _ := strconv.Atoi(result["port"])
+	maxMTU, _ := strconv.Atoi(result["max-mtu"])
+	maxMRU, _ := strconv.Atoi(result["max-mru"])
+	keepaliveTimeout, _ := strconv.Atoi(result["keepalive-timeout"])
+	l2tpv3CookieLength, _ := strconv.Atoi(result["l2tpv3-cookie-length"])
 
 	return &L2tpServerInfo{
-		ID:                result[".id"],
-		Enabled:           result["enabled"] == "true",
-		Port:              port,
-		IPPoolName:        result["ip-pool-name"],
-		UseIPv6:           result["use-ipv6"] == "true",
-		RequireEncryption: result["require-encryption"] == "true",
-		Comment:           result["comment"],
+		ID:                   result[".id"],
+		Enabled:              result["enabled"] == "true",
+		MaxMTU:               maxMTU,
+		MaxMRU:               maxMRU,
+		MRRU:                 result["mrru"],
+		Authentication:       result["authentication"],
+		KeepaliveTimeout:     keepaliveTimeout,
+		MaxSessions:          result["max-sessions"],
+		DefaultProfile:       result["default-profile"],
+		UseIPsec:             result["use-ipsec"] == "yes",
+		IPsecSecret:          result["ipsec-secret"],
+		CallerIDType:         result["caller-id-type"],
+		OneSessionPerHost:    result["one-session-per-host"] == "true",
+		AllowFastPath:        result["allow-fast-path"] == "true",
+		L2TPv3CircuitID:      result["l2tpv3-circuit-id"],
+		L2TPv3CookieLength:   l2tpv3CookieLength,
+		L2TPv3DigestHash:     result["l2tpv3-digest-hash"],
+		AcceptPseudowireType: result["accept-pseudowire-type"],
+		AcceptProtoVersion:   result["accept-proto-version"],
+		Comment:              result["comment"],
 	}, nil
 }
 
 // SstpServerInfo represents the SSTP server configuration (single instance).
 type SstpServerInfo struct {
-	ID                string
-	Enabled           bool
-	Port              int
-	CertFile          string
-	IPPoolName        string
-	RequireEncryption bool
-	Comment           string
+	ID                      string
+	Enabled                 bool
+	Port                    int
+	MaxMTU                  int
+	MaxMRU                  int
+	MRRU                    string
+	KeepaliveTimeout        int
+	DefaultProfile          string
+	Authentication          string
+	Certificate             string
+	VerifyClientCertificate bool
+	PFS                     string
+	TLSVersion              string
+	Ciphers                 string
+	Comment                 string
 }
 
 // GetSstpServer returns the SSTP server configuration.
@@ -384,15 +427,26 @@ func (c *Client) GetSstpServer() (*SstpServerInfo, error) {
 	}
 
 	port, _ := strconv.Atoi(result["port"])
+	maxMTU, _ := strconv.Atoi(result["max-mtu"])
+	maxMRU, _ := strconv.Atoi(result["max-mru"])
+	keepaliveTimeout, _ := strconv.Atoi(result["keepalive-timeout"])
 
 	return &SstpServerInfo{
-		ID:                result[".id"],
-		Enabled:           result["enabled"] == "true",
-		Port:              port,
-		CertFile:          result["certificate"],
-		IPPoolName:        result["ip-pool-name"],
-		RequireEncryption: result["require-encryption"] == "true",
-		Comment:           result["comment"],
+		ID:                      result[".id"],
+		Enabled:                 result["enabled"] == "true",
+		Port:                    port,
+		MaxMTU:                  maxMTU,
+		MaxMRU:                  maxMRU,
+		MRRU:                    result["mrru"],
+		KeepaliveTimeout:        keepaliveTimeout,
+		DefaultProfile:          result["default-profile"],
+		Authentication:          result["authentication"],
+		Certificate:             result["certificate"],
+		VerifyClientCertificate: result["verify-client-certificate"] == "true",
+		PFS:                     result["pfs"],
+		TLSVersion:              result["tls-version"],
+		Ciphers:                 result["ciphers"],
+		Comment:                 result["comment"],
 	}, nil
 }
 

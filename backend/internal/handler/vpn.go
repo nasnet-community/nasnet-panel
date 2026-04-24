@@ -294,3 +294,148 @@ func HandleGetOvpnServerDetails(c echo.Context) error {
 
 	return SuccessResponse(c, http.StatusOK, "OpenVPN server details retrieved successfully", response)
 }
+
+// HandleGetPptpServerDetails gets PPTP server details
+// @Summary Get PPTP Server Details
+// @Description Get detailed configuration of the PPTP server
+// @Tags VPN
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Produce json
+// @Success 200 {object} Response{data=PptpServerDetailsResponse}
+// @Failure 500 {object} Response
+// @Router /api/vpn/pptp-server [get].
+func HandleGetPptpServerDetails(c echo.Context) error {
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+	defer func() { _ = client.Close() }()
+
+	pptpServer, err := client.GetPptpServer()
+	if err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to retrieve PPTP server details", err)
+	}
+
+	response := PptpServerDetailsResponse{
+		Enabled: pptpServer.Enabled,
+		Auth:    pptpServer.Authentication,
+		Profile: pptpServer.DefaultProfile,
+	}
+
+	return SuccessResponse(c, http.StatusOK, "PPTP server details retrieved successfully", response)
+}
+
+// HandleGetL2tpServerDetails gets L2TP server details
+// @Summary Get L2TP Server Details
+// @Description Get detailed configuration of the L2TP server
+// @Tags VPN
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Produce json
+// @Success 200 {object} Response{data=L2tpServerDetailsResponse}
+// @Failure 500 {object} Response
+// @Router /api/vpn/l2tp-server [get].
+func HandleGetL2tpServerDetails(c echo.Context) error {
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+	defer func() { _ = client.Close() }()
+
+	l2tpServer, err := client.GetL2tpServer()
+	if err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to retrieve L2TP server details", err)
+	}
+
+	response := L2tpServerDetailsResponse{
+		Enabled:            l2tpServer.Enabled,
+		Auth:               l2tpServer.Authentication,
+		Profile:            l2tpServer.DefaultProfile,
+		IPsec:              l2tpServer.UseIPsec,
+		IPsecSecret:        l2tpServer.IPsecSecret,
+		OneSessionPerHost:  l2tpServer.OneSessionPerHost,
+		AcceptProtoVersion: l2tpServer.AcceptProtoVersion,
+	}
+
+	return SuccessResponse(c, http.StatusOK, "L2TP server details retrieved successfully", response)
+}
+
+// HandleGetSstpServerDetails gets SSTP server details
+// @Summary Get SSTP Server Details
+// @Description Get detailed configuration of the SSTP server
+// @Tags VPN
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Produce json
+// @Success 200 {object} Response{data=SstpServerDetailsResponse}
+// @Failure 500 {object} Response
+// @Router /api/vpn/sstp-server [get].
+func HandleGetSstpServerDetails(c echo.Context) error {
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+	defer func() { _ = client.Close() }()
+
+	sstpServer, err := client.GetSstpServer()
+	if err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to retrieve SSTP server details", err)
+	}
+
+	response := SstpServerDetailsResponse{
+		Enabled:                 sstpServer.Enabled,
+		Port:                    sstpServer.Port,
+		Profile:                 sstpServer.DefaultProfile,
+		Auth:                    sstpServer.Authentication,
+		Certificate:             sstpServer.Certificate,
+		VerifyClientCertificate: sstpServer.VerifyClientCertificate,
+		TLSVersion:              sstpServer.TLSVersion,
+		Ciphers:                 sstpServer.Ciphers,
+		PFS:                     sstpServer.PFS,
+	}
+
+	return SuccessResponse(c, http.StatusOK, "SSTP server details retrieved successfully", response)
+}
+
+// HandleGetWireguardServerDetails gets WireGuard server details by name
+// @Summary Get WireGuard Server Details
+// @Description Get detailed configuration of a WireGuard interface by name
+// @Tags VPN
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Param name path string true "WireGuard server name"
+// @Produce json
+// @Success 200 {object} Response{data=WireguardServerDetailsResponse}
+// @Failure 404 {object} Response
+// @Failure 500 {object} Response
+// @Router /api/vpn/wireguard-server/{name} [get].
+func HandleGetWireguardServerDetails(c echo.Context) error {
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+	defer func() { _ = client.Close() }()
+
+	name := c.Param("name")
+	if name == "" {
+		return ErrorResponse(c, http.StatusBadRequest, "WireGuard server name is required", nil)
+	}
+
+	wireguard, err := client.GetWireguard(name)
+	if err != nil {
+		return ErrorResponse(c, http.StatusNotFound, "WireGuard interface not found", err)
+	}
+
+	response := WireguardServerDetailsResponse{
+		ID:         wireguard.ID,
+		Name:       wireguard.Name,
+		Port:       wireguard.ListenPort,
+		PrivateKey: wireguard.PrivateKey,
+		PublicKey:  wireguard.PublicKey,
+		Running:    wireguard.Running,
+		Enabled:    !wireguard.Disabled,
+	}
+
+	return SuccessResponse(c, http.StatusOK, "WireGuard server details retrieved successfully", response)
+}

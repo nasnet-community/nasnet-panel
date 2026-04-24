@@ -59,3 +59,45 @@ type OvpnServerDetailsResponse struct {
 	UserAuthMethod           string `json:"userAuthMethod"`
 	Enabled                  bool   `json:"enabled"`
 }
+
+// PptpServerDetailsResponse represents PPTP server configuration details.
+type PptpServerDetailsResponse struct {
+	Enabled bool   `json:"enabled"`
+	Auth    string `json:"auth"`
+	Profile string `json:"profile"`
+}
+
+// L2tpServerDetailsResponse represents L2TP server configuration details.
+type L2tpServerDetailsResponse struct {
+	Enabled            bool   `json:"enabled"`
+	Auth               string `json:"auth"`
+	Profile            string `json:"profile"`
+	IPsec              bool   `json:"ipsec"`
+	IPsecSecret        string `json:"ipsecSecret"`
+	OneSessionPerHost  bool   `json:"oneSessionPerHost"`
+	AcceptProtoVersion string `json:"protocol"`
+}
+
+// SstpServerDetailsResponse represents SSTP server configuration details.
+type SstpServerDetailsResponse struct {
+	Enabled                 bool   `json:"enabled"`
+	Port                    int    `json:"port"`
+	Profile                 string `json:"profile"`
+	Auth                    string `json:"auth"`
+	Certificate             string `json:"certificate"`
+	VerifyClientCertificate bool   `json:"verifyClientCertificate"`
+	TLSVersion              string `json:"tlsVersion"`
+	Ciphers                 string `json:"ciphers"`
+	PFS                     string `json:"pfs"`
+}
+
+// WireguardServerDetailsResponse represents WireGuard server configuration details.
+type WireguardServerDetailsResponse struct {
+	ID         string `json:"id"`
+	Name       string `json:"name"`
+	Port       int    `json:"port"`
+	PrivateKey string `json:"privateKey"`
+	PublicKey  string `json:"publicKey"`
+	Running    bool   `json:"running"`
+	Enabled    bool   `json:"enabled"`
+}

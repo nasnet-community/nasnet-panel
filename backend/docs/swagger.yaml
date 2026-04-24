@@ -34,6 +34,23 @@ definitions:
       ip:
         type: string
     type: object
+  handler.L2tpServerDetailsResponse:
+    properties:
+      auth:
+        type: string
+      enabled:
+        type: boolean
+      ipsec:
+        type: boolean
+      ipsecSecret:
+        type: string
+      oneSessionPerHost:
+        type: boolean
+      profile:
+        type: string
+      protocol:
+        type: string
+    type: object
   handler.LogEntryResponse:
     properties:
       account:
@@ -78,6 +95,15 @@ definitions:
       userAuthMethod:
         type: string
     type: object
+  handler.PptpServerDetailsResponse:
+    properties:
+      auth:
+        type: string
+      enabled:
+        type: boolean
+      profile:
+        type: string
+    type: object
   handler.Response:
     properties:
       data: {}
@@ -108,6 +134,27 @@ definitions:
   handler.SingleServerStatus:
     properties:
       enabled:
+        type: boolean
+    type: object
+  handler.SstpServerDetailsResponse:
+    properties:
+      auth:
+        type: string
+      certificate:
+        type: string
+      ciphers:
+        type: string
+      enabled:
+        type: boolean
+      pfs:
+        type: string
+      port:
+        type: integer
+      profile:
+        type: string
+      tlsVersion:
+        type: string
+      verifyClientCertificate:
         type: boolean
     type: object
   handler.UpdateDNSRequest:
@@ -191,6 +238,23 @@ definitions:
         items:
           $ref: '#/definitions/handler.ServerStatusItem'
         type: array
+    type: object
+  handler.WireguardServerDetailsResponse:
+    properties:
+      enabled:
+        type: boolean
+      id:
+        type: string
+      name:
+        type: string
+      port:
+        type: integer
+      privateKey:
+        type: string
+      publicKey:
+        type: string
+      running:
+        type: boolean
     type: object
 host: localhost:8080
 info:
@@ -1168,6 +1232,36 @@ paths:
       summary: Update VPN Client
       tags:
       - VPN
+  /api/vpn/l2tp-server:
+    get:
+      description: Get detailed configuration of the L2TP server
+      parameters:
+      - description: RouterOS host address
+        in: header
+        name: X-RouterOS-Host
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/handler.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/handler.L2tpServerDetailsResponse'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.Response'
+      security:
+      - BasicAuth: []
+      summary: Get L2TP Server Details
+      tags:
+      - VPN
   /api/vpn/ovpn-server/{name}:
     get:
       description: Get detailed configuration of an OpenVPN server by name
@@ -1207,6 +1301,36 @@ paths:
       summary: Get OpenVPN Server Details
       tags:
       - VPN
+  /api/vpn/pptp-server:
+    get:
+      description: Get detailed configuration of the PPTP server
+      parameters:
+      - description: RouterOS host address
+        in: header
+        name: X-RouterOS-Host
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/handler.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/handler.PptpServerDetailsResponse'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.Response'
+      security:
+      - BasicAuth: []
+      summary: Get PPTP Server Details
+      tags:
+      - VPN
   /api/vpn/servers:
     get:
       description: Get the status of OpenVPN, WireGuard, PPTP, L2TP, and SSTP servers
@@ -1235,6 +1359,75 @@ paths:
       security:
       - BasicAuth: []
       summary: Get VPN Servers Status
+      tags:
+      - VPN
+  /api/vpn/sstp-server:
+    get:
+      description: Get detailed configuration of the SSTP server
+      parameters:
+      - description: RouterOS host address
+        in: header
+        name: X-RouterOS-Host
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/handler.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/handler.SstpServerDetailsResponse'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.Response'
+      security:
+      - BasicAuth: []
+      summary: Get SSTP Server Details
+      tags:
+      - VPN
+  /api/vpn/wireguard-server/{name}:
+    get:
+      description: Get detailed configuration of a WireGuard interface by name
+      parameters:
+      - description: RouterOS host address
+        in: header
+        name: X-RouterOS-Host
+        required: true
+        type: string
+      - description: WireGuard server name
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/handler.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/handler.WireguardServerDetailsResponse'
+              type: object
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.Response'
+      security:
+      - BasicAuth: []
+      summary: Get WireGuard Server Details
       tags:
       - VPN
   /api/wifi/clients:
