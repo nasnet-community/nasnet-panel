@@ -351,7 +351,7 @@ type L2tpServerInfo struct {
 	KeepaliveTimeout     int
 	MaxSessions          string
 	DefaultProfile       string
-	UseIPsec             bool
+	UseIPsec             string
 	IPsecSecret          string
 	CallerIDType         string
 	OneSessionPerHost    bool
@@ -386,7 +386,7 @@ func (c *Client) GetL2tpServer() (*L2tpServerInfo, error) {
 		KeepaliveTimeout:     keepaliveTimeout,
 		MaxSessions:          result["max-sessions"],
 		DefaultProfile:       result["default-profile"],
-		UseIPsec:             result["use-ipsec"] == "yes",
+		UseIPsec:             result["use-ipsec"],
 		IPsecSecret:          result["ipsec-secret"],
 		CallerIDType:         result["caller-id-type"],
 		OneSessionPerHost:    result["one-session-per-host"] == "true",

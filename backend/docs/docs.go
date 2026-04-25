@@ -2500,7 +2500,7 @@ const docTemplate = `{
                     "type": "boolean"
                 },
                 "ipsec": {
-                    "type": "boolean"
+                    "type": "string"
                 },
                 "ipsecSecret": {
                     "type": "string"

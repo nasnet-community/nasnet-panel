@@ -80,7 +80,7 @@ type L2tpServerDetailsResponse struct {
 	Enabled            bool             `json:"enabled"`
 	Auth               string           `json:"auth"`
 	Profile            string           `json:"profile"`
-	IPsec              bool             `json:"ipsec"`
+	IPsec              string           `json:"ipsec"`
 	IPsecSecret        string           `json:"ipsecSecret"`
 	OneSessionPerHost  bool             `json:"oneSessionPerHost"`
 	AcceptProtoVersion string           `json:"protocol"`
