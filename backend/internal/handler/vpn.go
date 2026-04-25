@@ -323,6 +323,46 @@ func HandleGetPptpServerDetails(c echo.Context) error {
 		Profile: pptpServer.DefaultProfile,
 	}
 
+	// Fetch profile details if profile is set.
+	if pptpServer.DefaultProfile != "" {
+		profile, err := client.GetL2TPProfile(pptpServer.DefaultProfile)
+		if err == nil {
+			response.LocalAddress = profile.LocalAddress
+			response.RemoteAddress = profile.RemoteAddress
+			response.UseCompression = profile.UseCompression
+			response.UseEncryption = profile.UseEncryption
+			response.OnlyOne = profile.OnlyOne
+			response.ChangeTCPMSS = profile.ChangeTCPMSS
+			response.DNSServer = profile.DNSServer
+
+			// Resolve IP pool names to ranges if they're pool names.
+			if response.LocalAddress != "" {
+				poolRanges, err := client.GetIPPoolRanges(response.LocalAddress)
+				if err == nil && poolRanges != "" {
+					response.LocalAddress = poolRanges
+				}
+			}
+			if response.RemoteAddress != "" {
+				poolRanges, err := client.GetIPPoolRanges(response.RemoteAddress)
+				if err == nil && poolRanges != "" {
+					response.RemoteAddress = poolRanges
+				}
+			}
+
+			// Fetch secrets for the profile.
+			secrets, err := client.GetL2TPSecretsForProfile(pptpServer.DefaultProfile)
+			if err == nil {
+				response.Secrets = make([]L2TPUserSecret, len(secrets))
+				for i, secret := range secrets {
+					response.Secrets[i] = L2TPUserSecret{
+						Username: secret.Name,
+						Password: secret.Password,
+					}
+				}
+			}
+		}
+	}
+
 	return SuccessResponse(c, http.StatusOK, "PPTP server details retrieved successfully", response)
 }
 
@@ -433,6 +473,46 @@ func HandleGetSstpServerDetails(c echo.Context) error {
 		TLSVersion:              sstpServer.TLSVersion,
 		Ciphers:                 sstpServer.Ciphers,
 		PFS:                     sstpServer.PFS,
+	}
+
+	// Fetch profile details if profile is set.
+	if sstpServer.DefaultProfile != "" {
+		profile, err := client.GetL2TPProfile(sstpServer.DefaultProfile)
+		if err == nil {
+			response.LocalAddress = profile.LocalAddress
+			response.RemoteAddress = profile.RemoteAddress
+			response.UseCompression = profile.UseCompression
+			response.UseEncryption = profile.UseEncryption
+			response.OnlyOne = profile.OnlyOne
+			response.ChangeTCPMSS = profile.ChangeTCPMSS
+			response.DNSServer = profile.DNSServer
+
+			// Resolve IP pool names to ranges if they're pool names.
+			if response.LocalAddress != "" {
+				poolRanges, err := client.GetIPPoolRanges(response.LocalAddress)
+				if err == nil && poolRanges != "" {
+					response.LocalAddress = poolRanges
+				}
+			}
+			if response.RemoteAddress != "" {
+				poolRanges, err := client.GetIPPoolRanges(response.RemoteAddress)
+				if err == nil && poolRanges != "" {
+					response.RemoteAddress = poolRanges
+				}
+			}
+
+			// Fetch secrets for the profile.
+			secrets, err := client.GetL2TPSecretsForProfile(sstpServer.DefaultProfile)
+			if err == nil {
+				response.Secrets = make([]L2TPUserSecret, len(secrets))
+				for i, secret := range secrets {
+					response.Secrets[i] = L2TPUserSecret{
+						Username: secret.Name,
+						Password: secret.Password,
+					}
+				}
+			}
+		}
 	}
 
 	return SuccessResponse(c, http.StatusOK, "SSTP server details retrieved successfully", response)

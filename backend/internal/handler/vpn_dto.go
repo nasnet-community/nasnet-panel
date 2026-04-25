@@ -62,9 +62,17 @@ type OvpnServerDetailsResponse struct {
 
 // PptpServerDetailsResponse represents PPTP server configuration details.
 type PptpServerDetailsResponse struct {
-	Enabled bool   `json:"enabled"`
-	Auth    string `json:"auth"`
-	Profile string `json:"profile"`
+	Enabled        bool             `json:"enabled"`
+	Auth           string           `json:"auth"`
+	Profile        string           `json:"profile"`
+	LocalAddress   string           `json:"localAddress"`
+	RemoteAddress  string           `json:"remoteAddress"`
+	UseCompression string           `json:"useCompression"`
+	UseEncryption  string           `json:"useEncryption"`
+	OnlyOne        string           `json:"onlyOne"`
+	ChangeTCPMSS   string           `json:"changeTcpMss"`
+	DNSServer      string           `json:"dnsServer"`
+	Secrets        []L2TPUserSecret `json:"secrets"`
 }
 
 // L2tpServerDetailsResponse represents L2TP server configuration details.
@@ -88,15 +96,23 @@ type L2tpServerDetailsResponse struct {
 
 // SstpServerDetailsResponse represents SSTP server configuration details.
 type SstpServerDetailsResponse struct {
-	Enabled                 bool   `json:"enabled"`
-	Port                    int    `json:"port"`
-	Profile                 string `json:"profile"`
-	Auth                    string `json:"auth"`
-	Certificate             string `json:"certificate"`
-	VerifyClientCertificate bool   `json:"verifyClientCertificate"`
-	TLSVersion              string `json:"tlsVersion"`
-	Ciphers                 string `json:"ciphers"`
-	PFS                     string `json:"pfs"`
+	Enabled                 bool             `json:"enabled"`
+	Port                    int              `json:"port"`
+	Profile                 string           `json:"profile"`
+	Auth                    string           `json:"auth"`
+	Certificate             string           `json:"certificate"`
+	VerifyClientCertificate bool             `json:"verifyClientCertificate"`
+	TLSVersion              string           `json:"tlsVersion"`
+	Ciphers                 string           `json:"ciphers"`
+	PFS                     string           `json:"pfs"`
+	LocalAddress            string           `json:"localAddress"`
+	RemoteAddress           string           `json:"remoteAddress"`
+	UseCompression          string           `json:"useCompression"`
+	UseEncryption           string           `json:"useEncryption"`
+	OnlyOne                 string           `json:"onlyOne"`
+	ChangeTCPMSS            string           `json:"changeTcpMss"`
+	DNSServer               string           `json:"dnsServer"`
+	Secrets                 []L2TPUserSecret `json:"secrets"`
 }
 
 // WireguardServerDetailsResponse represents WireGuard server configuration details.

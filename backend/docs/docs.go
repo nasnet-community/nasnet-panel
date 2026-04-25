@@ -2610,10 +2610,37 @@ const docTemplate = `{
                 "auth": {
                     "type": "string"
                 },
+                "changeTcpMss": {
+                    "type": "string"
+                },
+                "dnsServer": {
+                    "type": "string"
+                },
                 "enabled": {
                     "type": "boolean"
                 },
+                "localAddress": {
+                    "type": "string"
+                },
+                "onlyOne": {
+                    "type": "string"
+                },
                 "profile": {
+                    "type": "string"
+                },
+                "remoteAddress": {
+                    "type": "string"
+                },
+                "secrets": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/handler.L2TPUserSecret"
+                    }
+                },
+                "useCompression": {
+                    "type": "string"
+                },
+                "useEncryption": {
                     "type": "string"
                 }
             }
@@ -2677,11 +2704,23 @@ const docTemplate = `{
                 "certificate": {
                     "type": "string"
                 },
+                "changeTcpMss": {
+                    "type": "string"
+                },
                 "ciphers": {
+                    "type": "string"
+                },
+                "dnsServer": {
                     "type": "string"
                 },
                 "enabled": {
                     "type": "boolean"
+                },
+                "localAddress": {
+                    "type": "string"
+                },
+                "onlyOne": {
+                    "type": "string"
                 },
                 "pfs": {
                     "type": "string"
@@ -2692,7 +2731,22 @@ const docTemplate = `{
                 "profile": {
                     "type": "string"
                 },
+                "remoteAddress": {
+                    "type": "string"
+                },
+                "secrets": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/handler.L2TPUserSecret"
+                    }
+                },
                 "tlsVersion": {
+                    "type": "string"
+                },
+                "useCompression": {
+                    "type": "string"
+                },
+                "useEncryption": {
                     "type": "string"
                 },
                 "verifyClientCertificate": {
