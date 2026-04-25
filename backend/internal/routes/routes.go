@@ -64,7 +64,7 @@ func RegisterRoutes(e *echo.Echo) {
 	dnsGroup.GET("/info", handler.HandleGetDNSInfo)
 	dnsGroup.PUT("/info", handler.HandleUpdateDNS)
 
-	vpnGroup := e.Group("/api/vpn") //vpn related routes
+	vpnGroup := e.Group("/api/vpn")
 	vpnGroup.Use(middleware.RouterOSAuth)
 	vpnGroup.GET("/clients", handler.HandleListVPNClients)
 	vpnGroup.GET("/clients/:name", handler.HandleGetVPNClient)
