@@ -69,13 +69,21 @@ type PptpServerDetailsResponse struct {
 
 // L2tpServerDetailsResponse represents L2TP server configuration details.
 type L2tpServerDetailsResponse struct {
-	Enabled            bool   `json:"enabled"`
-	Auth               string `json:"auth"`
-	Profile            string `json:"profile"`
-	IPsec              bool   `json:"ipsec"`
-	IPsecSecret        string `json:"ipsecSecret"`
-	OneSessionPerHost  bool   `json:"oneSessionPerHost"`
-	AcceptProtoVersion string `json:"protocol"`
+	Enabled            bool             `json:"enabled"`
+	Auth               string           `json:"auth"`
+	Profile            string           `json:"profile"`
+	IPsec              bool             `json:"ipsec"`
+	IPsecSecret        string           `json:"ipsecSecret"`
+	OneSessionPerHost  bool             `json:"oneSessionPerHost"`
+	AcceptProtoVersion string           `json:"protocol"`
+	LocalAddress       string           `json:"localAddress"`
+	RemoteAddress      string           `json:"remoteAddress"`
+	UseCompression     string           `json:"useCompression"`
+	UseEncryption      string           `json:"useEncryption"`
+	OnlyOne            string           `json:"onlyOne"`
+	ChangeTCPMSS       string           `json:"changeTcpMss"`
+	DNSServer          string           `json:"dnsServer"`
+	Secrets            []L2TPUserSecret `json:"secrets"`
 }
 
 // SstpServerDetailsResponse represents SSTP server configuration details.
@@ -100,4 +108,10 @@ type WireguardServerDetailsResponse struct {
 	PublicKey  string `json:"publicKey"`
 	Running    bool   `json:"running"`
 	Enabled    bool   `json:"enabled"`
+}
+
+// L2TPUserSecret represents an L2TP user credential.
+type L2TPUserSecret struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
 }

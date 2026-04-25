@@ -2473,10 +2473,27 @@ const docTemplate = `{
                 }
             }
         },
+        "handler.L2TPUserSecret": {
+            "type": "object",
+            "properties": {
+                "password": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
         "handler.L2tpServerDetailsResponse": {
             "type": "object",
             "properties": {
                 "auth": {
+                    "type": "string"
+                },
+                "changeTcpMss": {
+                    "type": "string"
+                },
+                "dnsServer": {
                     "type": "string"
                 },
                 "enabled": {
@@ -2488,13 +2505,34 @@ const docTemplate = `{
                 "ipsecSecret": {
                     "type": "string"
                 },
+                "localAddress": {
+                    "type": "string"
+                },
                 "oneSessionPerHost": {
                     "type": "boolean"
+                },
+                "onlyOne": {
+                    "type": "string"
                 },
                 "profile": {
                     "type": "string"
                 },
                 "protocol": {
+                    "type": "string"
+                },
+                "remoteAddress": {
+                    "type": "string"
+                },
+                "secrets": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/handler.L2TPUserSecret"
+                    }
+                },
+                "useCompression": {
+                    "type": "string"
+                },
+                "useEncryption": {
                     "type": "string"
                 }
             }

@@ -525,3 +525,106 @@ func parseWireguardInfo(result map[string]string) *WireguardInfo {
 		Comment:    result["comment"],
 	}
 }
+
+// L2TPProfileInfo represents an L2TP profile.
+type L2TPProfileInfo struct {
+	ID              string
+	Name            string
+	LocalAddress    string
+	RemoteAddress   string
+	DNSServer       string
+	WINSServer      string
+	UseIPv6         bool
+	UseEncryption   string
+	OnlyEncrypted   string
+	ChangeIPAddress string
+	UseCompression  string
+	OnlyOne         string
+	ChangeTCPMSS    string
+}
+
+// L2TPSecret represents an L2TP user secret (username/password).
+type L2TPSecret struct {
+	Name     string
+	Password string
+}
+
+// L2TPIPPool represents an L2TP IP pool.
+type L2TPIPPool struct {
+	ID      string
+	Name    string
+	Ranges  string
+	Comment string
+}
+
+// GetL2TPProfile returns L2TP profile details by name.
+func (c *Client) GetL2TPProfile(profileName string) (*L2TPProfileInfo, error) {
+	result, err := c.GetFirst("/ppp/profile", "?=name="+profileName)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get L2TP profile %s: %w", profileName, err)
+	}
+
+	return &L2TPProfileInfo{
+		ID:              result[".id"],
+		Name:            result["name"],
+		LocalAddress:    result["local-address"],
+		RemoteAddress:   result["remote-address"],
+		DNSServer:       result["dns-server"],
+		WINSServer:      result["wins-server"],
+		UseIPv6:         result["use-ipv6"] == "yes",
+		UseEncryption:   result["use-encryption"],
+		OnlyEncrypted:   result["only-encrypted"],
+		ChangeIPAddress: result["change-tcp-mss"],
+		UseCompression:  result["use-compression"],
+		OnlyOne:         result["only-one"],
+		ChangeTCPMSS:    result["change-tcp-mss"],
+	}, nil
+}
+
+// GetL2TPSecretsForProfile returns all secrets for an L2TP profile.
+func (c *Client) GetL2TPSecretsForProfile(profileName string) ([]L2TPSecret, error) {
+	results, err := c.GetAll("/ppp/secret", "?=profile="+profileName)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get L2TP secrets for profile %s: %w", profileName, err)
+	}
+
+	var secrets []L2TPSecret
+	for _, result := range results {
+		secrets = append(secrets, L2TPSecret{
+			Name:     result["name"],
+			Password: result["password"],
+		})
+	}
+
+	return secrets, nil
+}
+
+// GetL2TPIPPoolsForProfile returns IP pools assigned to an L2TP profile.
+func (c *Client) GetL2TPIPPoolsForProfile(profileName string) ([]L2TPIPPool, error) {
+	results, err := c.GetAll("/ip/pool", "?=name="+profileName)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get L2TP IP pools for profile %s: %w", profileName, err)
+	}
+
+	var pools []L2TPIPPool
+	for _, result := range results {
+		pools = append(pools, L2TPIPPool{
+			ID:      result[".id"],
+			Name:    result["name"],
+			Ranges:  result["ranges"],
+			Comment: result["comment"],
+		})
+	}
+
+	return pools, nil
+}
+
+// GetIPPoolRanges returns the IP ranges for a given pool name.
+func (c *Client) GetIPPoolRanges(poolName string) (string, error) {
+	result, err := c.GetFirst("/ip/pool", "?=name="+poolName)
+	if err != nil {
+		return "", fmt.Errorf("failed to get IP pool ranges for %s: %w", poolName, err)
+	}
+
+	return result["ranges"], nil
+}

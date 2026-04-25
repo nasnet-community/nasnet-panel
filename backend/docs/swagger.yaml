@@ -34,9 +34,20 @@ definitions:
       ip:
         type: string
     type: object
+  handler.L2TPUserSecret:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    type: object
   handler.L2tpServerDetailsResponse:
     properties:
       auth:
+        type: string
+      changeTcpMss:
+        type: string
+      dnsServer:
         type: string
       enabled:
         type: boolean
@@ -44,11 +55,25 @@ definitions:
         type: boolean
       ipsecSecret:
         type: string
+      localAddress:
+        type: string
       oneSessionPerHost:
         type: boolean
+      onlyOne:
+        type: string
       profile:
         type: string
       protocol:
+        type: string
+      remoteAddress:
+        type: string
+      secrets:
+        items:
+          $ref: '#/definitions/handler.L2TPUserSecret'
+        type: array
+      useCompression:
+        type: string
+      useEncryption:
         type: string
     type: object
   handler.LogEntryResponse:
