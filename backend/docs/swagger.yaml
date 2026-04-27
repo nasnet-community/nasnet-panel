@@ -218,12 +218,36 @@ definitions:
       verifyClientCertificate:
         type: boolean
     type: object
+  handler.UpdateCheckResponse:
+    properties:
+      channel:
+        type: string
+      installedVersion:
+        type: string
+      latestVersion:
+        type: string
+      status:
+        type: string
+      updateAvailable:
+        type: boolean
+    type: object
   handler.UpdateDNSRequest:
     properties:
       dohServer:
         type: string
       servers:
         type: string
+    type: object
+  handler.UpdateInstallResponse:
+    properties:
+      installedVersion:
+        type: string
+      latestVersion:
+        type: string
+      message:
+        type: string
+      success:
+        type: boolean
     type: object
   handler.UpdateVPNClientRequest:
     properties:
@@ -849,6 +873,36 @@ paths:
       summary: Verify single IP
       tags:
       - Scanner
+  /api/system/check-for-updates:
+    get:
+      description: Check if a new package version is available
+      parameters:
+      - description: RouterOS host address
+        in: header
+        name: X-RouterOS-Host
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/handler.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/handler.UpdateCheckResponse'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.Response'
+      security:
+      - BasicAuth: []
+      summary: Check for package updates
+      tags:
+      - System
   /api/system/identity:
     get:
       consumes:
@@ -969,6 +1023,36 @@ paths:
       security:
       - BasicAuth: []
       summary: Get system information
+      tags:
+      - System
+  /api/system/install-update:
+    post:
+      description: Install the latest available package update
+      parameters:
+      - description: RouterOS host address
+        in: header
+        name: X-RouterOS-Host
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/handler.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/handler.UpdateInstallResponse'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.Response'
+      security:
+      - BasicAuth: []
+      summary: Install package update
       tags:
       - System
   /api/system/password:
@@ -1884,7 +1968,7 @@ paths:
             type: object
       summary: Health check
       tags:
-      - System
+      - Health
 schemes:
 - http
 - https

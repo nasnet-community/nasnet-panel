@@ -20,6 +20,8 @@ func RegisterRoutes(e *echo.Echo) {
 	systemGroup.GET("/identity", handler.HandleGetSystemIdentity)
 	systemGroup.PUT("/identity", handler.HandleSetSystemIdentity)
 	systemGroup.GET("/updates", handler.HandleGetSystemUpdates)
+	systemGroup.GET("/check-for-updates", handler.HandleCheckForUpdates)
+	systemGroup.POST("/install-update", handler.HandleInstallUpdate)
 	systemGroup.GET("/resources", handler.HandleGetResourceInfo)
 	systemGroup.PUT("/password", handler.HandleChangeUserPassword)
 	systemGroup.POST("/reboot", handler.HandleRebootSystem)
