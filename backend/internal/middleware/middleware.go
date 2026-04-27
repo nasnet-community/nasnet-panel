@@ -2,6 +2,9 @@ package middleware
 
 import (
 	"log"
+	"net/http"
+
+	"nasnet-panel/internal/web"
 
 	"github.com/labstack/echo/v4"
 	echomiddleware "github.com/labstack/echo/v4/middleware"
@@ -25,6 +28,12 @@ func RegisterGlobalMiddleware(e *echo.Echo) {
 			}
 			return nil
 		},
+	}))
+
+	e.Use(echomiddleware.StaticWithConfig(echomiddleware.StaticConfig{
+		HTML5:      true,
+		Root:       "dist",
+		Filesystem: http.FS(web.Dist),
 	}))
 
 	e.Use(echomiddleware.Recover())
