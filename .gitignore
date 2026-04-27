@@ -1,6 +1,7 @@
 # Frontend/Monorepo
 node_modules/
 dist/
+!backend/internal/web/dist/
 build/
 .cache/
 *.tsbuildinfo
