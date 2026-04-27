@@ -5,7 +5,7 @@ const CopyPlugin = require('copy-webpack-plugin');
 
 module.exports = (_env, argv) => {
   const isProduction = argv.mode === 'production';
-  const backendUrl = process.env.BACKEND_URL || 'http://localhost:8080';
+  const backendUrl = process.env.BACKEND_URL ?? 'http://localhost:8080';
 
   return {
     mode: isProduction ? 'production' : 'development',
