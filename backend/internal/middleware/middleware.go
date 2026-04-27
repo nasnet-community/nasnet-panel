@@ -1,7 +1,9 @@
 package middleware
 
 import (
-	"log"
+	"net/http"
+
+	"nasnet-panel/internal/web"
 
 	"github.com/labstack/echo/v4"
 	echomiddleware "github.com/labstack/echo/v4/middleware"
@@ -10,21 +12,10 @@ import (
 func RegisterGlobalMiddleware(e *echo.Echo) {
 	e.Use(echomiddleware.RemoveTrailingSlash())
 
-	e.Use(echomiddleware.RequestLoggerWithConfig(echomiddleware.RequestLoggerConfig{
-		LogStatus:   true,
-		LogMethod:   true,
-		LogURI:      true,
-		LogLatency:  true,
-		LogError:    true,
-		LogRemoteIP: true,
-		LogValuesFunc: func(c echo.Context, v echomiddleware.RequestLoggerValues) error {
-			if v.Error == nil {
-				log.Printf("%s %s %d %v", v.Method, v.URI, v.Status, v.Latency)
-			} else {
-				log.Printf("%s %s %d %v error=%v", v.Method, v.URI, v.Status, v.Latency, v.Error)
-			}
-			return nil
-		},
+	e.Use(echomiddleware.StaticWithConfig(echomiddleware.StaticConfig{
+		HTML5:      true,
+		Root:       "dist",
+		Filesystem: http.FS(web.Dist),
 	}))
 
 	e.Use(echomiddleware.Recover())
