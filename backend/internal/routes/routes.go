@@ -74,4 +74,5 @@ func RegisterRoutes(e *echo.Echo) {
 	vpnGroup.GET("/pptp-server", handler.HandleGetPptpServerDetails)
 	vpnGroup.GET("/l2tp-server", handler.HandleGetL2tpServerDetails)
 	vpnGroup.GET("/sstp-server", handler.HandleGetSstpServerDetails)
+	vpnGroup.GET("/wireguard-server/:name", handler.HandleGetWireguardServerDetails)
 }
