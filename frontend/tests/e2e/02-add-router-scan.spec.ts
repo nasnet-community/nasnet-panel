@@ -21,7 +21,7 @@ test.describe('Add router — scan network', () => {
     await expect(page.getByRole('heading', { name: /add router/i })).toBeVisible();
 
     const subnet = page.getByLabel(/subnet/i);
-    await expect(subnet).toHaveValue('192.168.1.0/24');
+    await expect(subnet).toHaveValue('192.168.88.0/24');
 
     await page.getByRole('button', { name: /start scan/i }).click();
 
