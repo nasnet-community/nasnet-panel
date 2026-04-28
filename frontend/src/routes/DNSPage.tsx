@@ -1,50 +1,32 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Globe, RefreshCw, SearchX } from 'lucide-react';
+import { Check, Globe, Pencil, RefreshCw, SearchX } from 'lucide-react';
 import {
+  Badge,
   Button,
   Card,
   CardDescription,
   CardHeader,
   CardTitle,
-  FieldStack,
   Inline,
-  Input,
-  Label,
   Skeleton,
   Stack,
-  useToast,
 } from '@nasnet/ui';
 import styles from './DNSPage.module.scss';
-import {
-  ApiError,
-  fetchDnsInfo,
-  updateDnsConfig,
-  type DnsCredentials,
-  type DnsInfoResponse,
-} from '../api';
+import { DNSEditDialog } from './DNSEditDialog';
+import { fetchDnsInfo, type DnsCredentials, type DnsInfoResponse } from '../api';
 import { useSession } from '../state/SessionContext';
 import { useRouter } from '../state/RouterStoreContext';
-
-const normalizeServers = (raw: string): string =>
-  raw
-    .split(/[\s,]+/)
-    .map((s) => s.trim())
-    .filter(Boolean)
-    .join(',');
 
 export function DNSPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter(id);
   const { getCredentials } = useSession();
-  const toast = useToast();
 
   const [info, setInfo] = useState<DnsInfoResponse | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [serversInput, setServersInput] = useState<string>('');
-  const [dohInput, setDohInput] = useState<string>('');
-  const [saving, setSaving] = useState<boolean>(false);
+  const [editing, setEditing] = useState(false);
 
   const creds = useMemo<DnsCredentials | null>(() => {
     if (!id) return null;
@@ -65,8 +47,6 @@ export function DNSPage() {
     try {
       const data = await fetchDnsInfo(creds);
       setInfo(data);
-      setServersInput(data.servers.join(', '));
-      setDohInput(data.dohServer ?? '');
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to load DNS configuration.';
       setError(message);
@@ -79,28 +59,7 @@ export function DNSPage() {
     void reload();
   }, [reload]);
 
-  const save = async () => {
-    if (!creds) return;
-    setSaving(true);
-    try {
-      await updateDnsConfig(creds, {
-        servers: normalizeServers(serversInput),
-        dohServer: dohInput.trim(),
-      });
-      toast.notify({ title: 'DNS configuration saved', tone: 'success' });
-      await reload();
-    } catch (err) {
-      const message =
-        err instanceof ApiError
-          ? err.message
-          : err instanceof Error
-            ? err.message
-            : 'Failed to update DNS configuration.';
-      toast.notify({ title: 'Failed to save DNS', description: message, tone: 'danger' });
-    } finally {
-      setSaving(false);
-    }
-  };
+  const dohActive = Boolean(info?.dohServer);
 
   return (
     <Stack>
@@ -117,11 +76,16 @@ export function DNSPage() {
             </CardDescription>
           </div>
           <div className={styles.headerActions}>
-            <Button size="sm" variant="secondary" onClick={reload} disabled={loading || saving}>
+            <Button size="sm" variant="secondary" onClick={reload} disabled={loading}>
               <RefreshCw size={14} aria-hidden /> Refresh
             </Button>
-            <Button size="sm" variant="success" onClick={save} disabled={!info || saving}>
-              {saving ? 'Saving…' : 'Save'}
+            <Button
+              size="sm"
+              variant="primary"
+              onClick={() => setEditing(true)}
+              disabled={!info || loading || !creds}
+            >
+              <Pencil size={14} aria-hidden /> Edit
             </Button>
           </div>
         </CardHeader>
@@ -141,37 +105,47 @@ export function DNSPage() {
             <p>{error}</p>
           </div>
         ) : info ? (
-          <FieldStack>
-            <Label>
-              <span>Static DNS servers</span>
-              <Input
-                value={serversInput}
-                onChange={(e) => setServersInput(e.target.value)}
-                placeholder="8.8.8.8, 1.1.1.1"
-                aria-label="Static DNS servers"
-                disabled={saving}
-              />
-              <div className={styles.fieldHint}>
-                Comma-separated IPv4/IPv6 addresses. Leave empty to clear.
+          <Stack $gap="var(--space-md)">
+            <div className={styles.infoRow}>
+              <span className={styles.infoLabel}>Static DNS servers</span>
+              <div className={styles.infoValue}>
+                {info.servers.length > 0 ? (
+                  <div className={styles.serverColumn}>
+                    {info.servers.map((s) => (
+                      <span key={`static-${s}`} className={styles.serverPill}>
+                        {s}
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  <span className={styles.muted}>None configured</span>
+                )}
               </div>
-            </Label>
-            <Label>
-              <span>DoH server URL</span>
-              <Input
-                value={dohInput}
-                onChange={(e) => setDohInput(e.target.value)}
-                placeholder="https://dns.google/dns-query"
-                aria-label="DoH server URL"
-                disabled={saving}
-              />
-              <div className={styles.fieldHint}>Leave empty to disable DNS-over-HTTPS.</div>
-            </Label>
+            </div>
 
-            <div className={styles.dynamicRow}>
-              <span className={styles.dynamicLabel}>Dynamic servers</span>
-              <div className={styles.dynamicValue}>
+            <div className={styles.infoRow}>
+              <span className={styles.infoLabel}>DNS over HTTPS</span>
+              <div className={styles.infoValue}>
+                {dohActive ? (
+                  <Stack $gap="var(--space-xs)">
+                    <Badge tone="success">
+                      <Inline $gap="4px" $align="center">
+                        <Check size={12} aria-hidden /> Active
+                      </Inline>
+                    </Badge>
+                    <span className={styles.serverPill}>{info.dohServer}</span>
+                  </Stack>
+                ) : (
+                  <span className={styles.muted}>Disabled</span>
+                )}
+              </div>
+            </div>
+
+            <div className={styles.infoRow}>
+              <span className={styles.infoLabel}>Dynamic servers</span>
+              <div className={styles.infoValue}>
                 {info.dynamicServers.length > 0 ? (
-                  <div className={styles.serverList}>
+                  <div className={styles.serverColumn}>
                     {info.dynamicServers.map((s) => (
                       <span key={`dynamic-${s}`} className={styles.serverPill}>
                         {s}
@@ -184,9 +158,21 @@ export function DNSPage() {
                 <div className={styles.fieldHint}>Read-only. Supplied by DHCP / PPP peers.</div>
               </div>
             </div>
-          </FieldStack>
+          </Stack>
         ) : null}
       </Card>
+
+      {info && creds ? (
+        <DNSEditDialog
+          open={editing}
+          initial={info}
+          creds={creds}
+          onClose={() => setEditing(false)}
+          onSaved={() => {
+            void reload();
+          }}
+        />
+      ) : null}
     </Stack>
   );
 }
