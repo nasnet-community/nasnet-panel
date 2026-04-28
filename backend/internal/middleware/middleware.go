@@ -3,6 +3,7 @@ package middleware
 import (
 	"log"
 	"net/http"
+	"strings"
 
 	"nasnet-panel/internal/web"
 
@@ -34,6 +35,9 @@ func RegisterGlobalMiddleware(e *echo.Echo) {
 		HTML5:      true,
 		Root:       "dist",
 		Filesystem: http.FS(web.Dist),
+		Skipper: func(c echo.Context) bool {
+			return strings.HasPrefix(c.Request().URL.Path, "/swagger")
+		},
 	}))
 
 	e.Use(echomiddleware.Recover())
