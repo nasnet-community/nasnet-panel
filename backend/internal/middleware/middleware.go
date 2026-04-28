@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strings"
 
+	"nasnet-panel/internal/auth"
 	"nasnet-panel/internal/web"
 
 	"github.com/labstack/echo/v4"
@@ -50,7 +51,7 @@ func RegisterGlobalMiddleware(e *echo.Echo) {
 			echo.HeaderContentType,
 			echo.HeaderAccept,
 			echo.HeaderAuthorization,
-			"X-RouterOS-Host",
+			auth.RouterOSHostHeader,
 		},
 	}))
 }
