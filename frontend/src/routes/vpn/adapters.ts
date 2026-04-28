@@ -23,6 +23,11 @@ export function mapClientFromBE(r: VPNClientResponse, routerId: string): VPNClie
     name: r.name,
     protocol: typeToProtocol(r.type),
     enabled: !r.disabled,
+    running: r.running,
+    lastLinkUp: r.lastLinkUp,
+    lastLinkDown: r.lastLinkDown,
+    rxByte: r.rxByte,
+    txByte: r.txByte,
     comment: r.comment,
   };
 }

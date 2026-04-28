@@ -154,6 +154,11 @@ export interface VPNClient {
   name: string;
   protocol: VPNProtocol;
   enabled: boolean;
+  running: boolean;
+  lastLinkUp?: string;
+  lastLinkDown?: string;
+  rxByte?: number;
+  txByte?: number;
   endpoint?: string;
   endpointPort?: number;
   username?: string;

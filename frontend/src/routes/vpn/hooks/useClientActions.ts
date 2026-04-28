@@ -13,6 +13,7 @@ export function useClientActions(routerId: string, onChanged: () => void) {
         name: draft.name ?? 'new-client',
         protocol: (draft.protocol ?? 'wireguard') as VPNProtocol,
         enabled: draft.enabled ?? true,
+        running: false,
         endpoint: draft.endpoint,
         endpointPort: draft.endpointPort,
         username: draft.username,
