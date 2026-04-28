@@ -5,15 +5,12 @@ import (
 	"nasnet-panel/internal/middleware"
 
 	"github.com/labstack/echo/v4"
-	echoSwagger "github.com/swaggo/echo-swagger"
-
-	_ "nasnet-panel/docs"
 )
 
-// RegisterRoutes Register all routes.
+// RegisterRoutes registers all API routes.
 func RegisterRoutes(e *echo.Echo) {
 	e.GET("/health", handler.HandleHealthCheck)
-	e.GET("/swagger/*", echoSwagger.WrapHandler)
+	initSwagger(e)
 
 	systemGroup := e.Group("/api/system")
 	systemGroup.Use(middleware.RouterOSAuth)
@@ -77,5 +74,4 @@ func RegisterRoutes(e *echo.Echo) {
 	vpnGroup.GET("/pptp-server", handler.HandleGetPptpServerDetails)
 	vpnGroup.GET("/l2tp-server", handler.HandleGetL2tpServerDetails)
 	vpnGroup.GET("/sstp-server", handler.HandleGetSstpServerDetails)
-
 }
