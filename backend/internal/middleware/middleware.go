@@ -31,18 +31,6 @@ func RegisterGlobalMiddleware(e *echo.Echo) {
 		},
 	}))
 
-	e.Use(echomiddleware.StaticWithConfig(echomiddleware.StaticConfig{
-		HTML5:      true,
-		Root:       "dist",
-		Filesystem: http.FS(web.Dist),
-		Skipper: func(c echo.Context) bool {
-			p := c.Request().URL.Path
-			return strings.HasPrefix(p, "/api/") ||
-				strings.HasPrefix(p, "/swagger/") ||
-				p == "/health"
-		},
-	}))
-
 	e.Use(echomiddleware.Recover())
 
 	e.Use(echomiddleware.CORSWithConfig(echomiddleware.CORSConfig{
@@ -54,6 +42,18 @@ func RegisterGlobalMiddleware(e *echo.Echo) {
 			echo.HeaderAccept,
 			echo.HeaderAuthorization,
 			"X-RouterOS-Host",
+		},
+	}))
+
+	e.Use(echomiddleware.StaticWithConfig(echomiddleware.StaticConfig{
+		HTML5:      true,
+		Root:       "dist",
+		Filesystem: http.FS(web.Dist),
+		Skipper: func(c echo.Context) bool {
+			p := c.Request().URL.Path
+			return strings.HasPrefix(p, "/api/") ||
+				strings.HasPrefix(p, "/swagger/") ||
+				p == "/health"
 		},
 	}))
 }
