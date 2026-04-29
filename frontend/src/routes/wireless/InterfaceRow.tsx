@@ -22,7 +22,13 @@ export function InterfaceRow({ iface, settings, onToggle, onEdit }: Props) {
         <strong>{iface.ssid ?? settings.ssid}</strong>{' '}
         <span className={styles.interfaceName}>({iface.name})</span>
         <div>
-          {enabled && !iface.running ? <Badge tone="warning">down</Badge> : null}{' '}
+          {enabled ? (
+            iface.running ? (
+              <Badge tone="success">active</Badge>
+            ) : (
+              <Badge tone="primary">idle</Badge>
+            )
+          ) : null}{' '}
           {(iface.securityTypes && iface.securityTypes.length > 0
             ? iface.securityTypes
             : settings.securityTypes

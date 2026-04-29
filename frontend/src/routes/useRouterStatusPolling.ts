@@ -26,6 +26,8 @@ export function useRouterStatusPolling(
     if (!enabled) return;
     if (routers.length === 0) return;
     const controller = new AbortController();
+    let cancelled = false;
+    let timeoutId: number | null = null;
 
     const markProbed = (id: string) => {
       setProbedIds((prev) => {
@@ -59,24 +61,44 @@ export function useRouterStatusPolling(
         }
         markProbed(id);
       } catch {
-        // aborted or network error: leave skeleton showing; next tick retries
+        // aborted or network error: leave skeleton showing; next round retries
       }
     };
 
-    const tick = () => {
-      for (const r of routersRef.current) void checkOne(r.id, r.host);
+    const runRound = async () => {
+      timeoutId = null;
+      if (cancelled) return;
+      for (const r of routersRef.current) {
+        if (cancelled || controller.signal.aborted) return;
+        await checkOne(r.id, r.host);
+      }
+      if (cancelled) return;
+      if (typeof document !== 'undefined' && document.visibilityState === 'hidden') return;
+      timeoutId = window.setTimeout(() => {
+        void runRound();
+      }, intervalMs);
     };
 
-    tick();
-    const interval = window.setInterval(tick, intervalMs);
+    const onVisibility = () => {
+      if (cancelled) return;
+      if (document.visibilityState === 'visible' && timeoutId === null) void runRound();
+    };
+    document.addEventListener('visibilitychange', onVisibility);
+
+    void runRound();
 
     return () => {
+      cancelled = true;
+      document.removeEventListener('visibilitychange', onVisibility);
+      if (timeoutId !== null) {
+        window.clearTimeout(timeoutId);
+        timeoutId = null;
+      }
       try {
         controller.abort();
       } catch {
         /* some environments throw when aborting an already-aborted controller */
       }
-      window.clearInterval(interval);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [routerPollKey, enabled, intervalMs]);
