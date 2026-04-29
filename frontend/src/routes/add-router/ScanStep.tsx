@@ -35,7 +35,7 @@ const SCAN_COLUMNS = [
 ];
 
 export function ScanStep({ onSelect }: Props) {
-  const [subnet, setSubnet] = useState('192.168.1.0/24');
+  const [subnet, setSubnet] = useState('192.168.88.0/24');
   const [scanning, setScanning] = useState(false);
   const [percent, setPercent] = useState(0);
   const [displayPercent, setDisplayPercent] = useSmoothedPercent(percent);
