@@ -24,7 +24,7 @@ func HandleGetSystemInfo(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	defer client.Close()
+	defer func() { _ = client.Close() }()
 
 	info, err := client.GetSystemInfo()
 	if err != nil {
@@ -56,7 +56,7 @@ func HandleGetSystemIdentity(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	defer client.Close()
+	defer func() { _ = client.Close() }()
 
 	identity, err := client.GetSystemIdentity()
 	if err != nil {
@@ -98,7 +98,7 @@ func HandleSetSystemIdentity(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	defer client.Close()
+	defer func() { _ = client.Close() }()
 
 	err = client.SetSystemIdentity(req.Name)
 	if err != nil {
@@ -129,7 +129,7 @@ func HandleGetSystemUpdates(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	defer client.Close()
+	defer func() { _ = client.Close() }()
 
 	updates, err := client.GetSystemUpdates()
 	if err != nil {
@@ -161,7 +161,7 @@ func HandleRebootSystem(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	defer client.Close()
+	defer func() { _ = client.Close() }()
 
 	err = client.RebootSystem()
 	if err != nil {
@@ -192,7 +192,7 @@ func HandleShutdownSystem(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	defer client.Close()
+	defer func() { _ = client.Close() }()
 
 	err = client.ShutdownSystem()
 	if err != nil {
@@ -223,7 +223,7 @@ func HandleGetResourceInfo(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	defer client.Close()
+	defer func() { _ = client.Close() }()
 
 	info, err := client.GetResourceInfo()
 	if err != nil {
@@ -265,7 +265,7 @@ func HandleChangeUserPassword(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	defer client.Close()
+	defer func() { _ = client.Close() }()
 
 	err = client.ChangeUserPassword(req.Username, req.NewPassword)
 	if err != nil {
@@ -276,4 +276,62 @@ func HandleChangeUserPassword(c echo.Context) error {
 	}
 
 	return SimpleSuccessResponse(c, http.StatusOK, "User password changed")
+}
+
+// HandleCheckForUpdates godoc
+// @Summary Check for package updates
+// @Description Check if a new package version is available
+// @Tags System
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Produce json
+// @Success 200 {object} Response{data=UpdateCheckResponse}
+// @Failure 500 {object} Response
+// @Router /api/system/check-for-updates [get].
+func HandleCheckForUpdates(c echo.Context) error {
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+	defer func() { _ = client.Close() }()
+	checkResult, err := client.CheckForUpdates()
+	if err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to check for updates", err)
+	}
+
+	response := ToUpdateCheckResponse(checkResult)
+	return SuccessResponse(c, http.StatusOK, "Package update check completed", response)
+}
+
+// HandleInstallUpdate godoc
+// @Summary Install package update
+// @Description Install the latest available package update
+// @Tags System
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Produce json
+// @Success 200 {object} Response{data=UpdateInstallResponse}
+// @Failure 500 {object} Response
+// @Router /api/system/install-update [post].
+func HandleInstallUpdate(c echo.Context) error {
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+	defer func() { _ = client.Close() }()
+
+	installResult, err := client.InstallUpdate()
+	if err != nil {
+		// Even if there's an error, return the result with status
+		response := ToUpdateInstallResponse(installResult)
+		return SuccessResponse(c, http.StatusOK, "Firmware update check and installation attempted", response)
+	}
+
+	statusCode := http.StatusOK
+	if !installResult.Success {
+		statusCode = http.StatusBadRequest
+	}
+
+	response := ToUpdateInstallResponse(installResult)
+	return SuccessResponse(c, statusCode, "Firmware update installation result", response)
 }

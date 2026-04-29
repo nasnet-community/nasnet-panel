@@ -31,6 +31,15 @@ func RegisterGlobalMiddleware(e *echo.Echo) {
 		},
 	}))
 
+	e.Use(echomiddleware.StaticWithConfig(echomiddleware.StaticConfig{
+		HTML5:      true,
+		Root:       "dist",
+		Filesystem: http.FS(web.Dist),
+		Skipper: func(c echo.Context) bool {
+			return strings.HasPrefix(c.Request().URL.Path, "/swagger")
+		},
+	}))
+
 	e.Use(echomiddleware.Recover())
 
 	e.Use(echomiddleware.CORSWithConfig(echomiddleware.CORSConfig{

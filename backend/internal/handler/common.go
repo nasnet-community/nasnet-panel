@@ -144,7 +144,7 @@ type HealthCheckResponse struct {
 // HandleHealthCheck godoc
 // @Summary Health check
 // @Description Returns health status of the API
-// @Tags System
+// @Tags Health
 // @Accept json
 // @Produce json
 // @Success 200 {object} map[string]string
