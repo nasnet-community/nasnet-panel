@@ -17,7 +17,7 @@ export function ScanToolbar({ subnet, scanning, onSubnetChange, onStart }: Props
         <Input
           value={subnet}
           onChange={(e) => onSubnetChange(e.target.value)}
-          placeholder="192.168.1.0/24"
+          placeholder="192.168.88.0/24"
           aria-label="Subnet"
         />
       </Label>
