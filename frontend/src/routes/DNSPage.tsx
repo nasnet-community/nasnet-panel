@@ -127,14 +127,14 @@ export function DNSPage() {
               <span className={styles.infoLabel}>DNS over HTTPS</span>
               <div className={styles.infoValue}>
                 {dohActive ? (
-                  <Stack $gap="var(--space-xs)">
+                  <div className={styles.serverColumn}>
                     <Badge tone="success">
                       <Inline $gap="4px" $align="center">
                         <Check size={12} aria-hidden /> Active
                       </Inline>
                     </Badge>
                     <span className={styles.serverPill}>{info.dohServer}</span>
-                  </Stack>
+                  </div>
                 ) : (
                   <span className={styles.muted}>Disabled</span>
                 )}
