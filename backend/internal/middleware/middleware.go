@@ -34,6 +34,12 @@ func RegisterGlobalMiddleware(e *echo.Echo) {
 		HTML5:      true,
 		Root:       "dist",
 		Filesystem: http.FS(web.Dist),
+		Skipper: func(c echo.Context) bool {
+				p := c.Request().URL.Path
+				return strings.HasPrefix(p, "/api/") ||
+				strings.HasPrefix(p, "/swagger/") ||
+				p == "/health"
+      	},
 	}))
 
 	e.Use(echomiddleware.Recover())
