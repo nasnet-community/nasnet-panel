@@ -1,6 +1,10 @@
 import { useEffect, useRef } from 'react';
 
-export function usePolling(callback: () => void | Promise<void>, intervalMs: number, enabled = true) {
+export function usePolling(
+  callback: () => void | Promise<void>,
+  intervalMs: number,
+  enabled = true,
+) {
   const cbRef = useRef(callback);
   useEffect(() => {
     cbRef.current = callback;
