@@ -1,15 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import {
-  Flame,
-  Globe,
-  LayoutGrid,
-  Network,
-  ScrollText,
-  Shield,
-  Users as UsersIcon,
-  Wand2,
-  Wifi,
-} from 'lucide-react';
+import { Flame, Globe, LayoutGrid, Network, ScrollText, Shield, Wand2, Wifi } from 'lucide-react';
 import { Tabs, type TabItem } from '@nasnet/ui';
 import { useSession } from '../state/SessionContext';
 import { useRouterStore } from '../state/RouterStoreContext';
@@ -23,7 +13,6 @@ export const ROUTER_TABS: Array<TabItem & { path: string }> = [
   { id: 'dns', label: 'DNS', path: 'dns', icon: <Globe size={16} /> },
   { id: 'firewall', label: 'Firewall', path: 'firewall', icon: <Flame size={16} /> },
   { id: 'logs', label: 'Logs', path: 'logs', icon: <ScrollText size={16} /> },
-  { id: 'users', label: 'Users', path: 'users', icon: <UsersIcon size={16} /> },
   { id: 'wizard', label: 'Wizard', path: 'config', icon: <Wand2 size={16} /> },
 ];
 
