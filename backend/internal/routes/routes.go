@@ -10,6 +10,7 @@ import (
 	_ "nasnet-panel/docs"
 )
 
+// RegisterRoutes Register all routes.
 func RegisterRoutes(e *echo.Echo) {
 	e.GET("/health", handler.HandleHealthCheck)
 	e.GET("/swagger/*", echoSwagger.WrapHandler)
@@ -20,6 +21,8 @@ func RegisterRoutes(e *echo.Echo) {
 	systemGroup.GET("/identity", handler.HandleGetSystemIdentity)
 	systemGroup.PUT("/identity", handler.HandleSetSystemIdentity)
 	systemGroup.GET("/updates", handler.HandleGetSystemUpdates)
+	systemGroup.GET("/check-for-updates", handler.HandleCheckForUpdates)
+	systemGroup.POST("/install-update", handler.HandleInstallUpdate)
 	systemGroup.GET("/resources", handler.HandleGetResourceInfo)
 	systemGroup.PUT("/password", handler.HandleChangeUserPassword)
 	systemGroup.POST("/reboot", handler.HandleRebootSystem)
@@ -74,7 +77,5 @@ func RegisterRoutes(e *echo.Echo) {
 	vpnGroup.GET("/pptp-server", handler.HandleGetPptpServerDetails)
 	vpnGroup.GET("/l2tp-server", handler.HandleGetL2tpServerDetails)
 	vpnGroup.GET("/sstp-server", handler.HandleGetSstpServerDetails)
-	vpnGroup.GET("/wireguard-server/:name", handler.HandleGetWireguardServerDetails)
 
-	handler.RegisterSPA(e)
 }

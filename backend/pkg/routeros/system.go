@@ -14,6 +14,16 @@ type SystemInfo struct {
 	BuildTime     string
 	License       string
 	UpdateChannel string
+	UpTime        string
+	CPUCount      int
+	CPULoad       int
+	CPUFrequency  string
+	MemoryTotal   int64
+	MemoryUsed    int64
+	MemoryFree    int64
+	HDDTotal      int64
+	HDDFree       int64
+	BadBlocks     string
 }
 
 type ResourceInfo struct {
@@ -109,6 +119,23 @@ type UpdateInfo struct {
 	ScheduledTime string
 }
 
+// UpdateCheckInfo represents package update check details.
+type UpdateCheckInfo struct {
+	Channel          string
+	InstalledVersion string
+	LatestVersion    string
+	Status           string
+	UpdateAvailable  bool
+}
+
+// UpdateInstallResult represents the result of package installation.
+type UpdateInstallResult struct {
+	Success          bool
+	Message          string
+	InstalledVersion string
+	LatestVersion    string
+}
+
 func (c *Client) GetSystemIdentity() (*Identity, error) {
 	result, err := c.GetFirst("/system/identity")
 	if err != nil {
@@ -169,6 +196,18 @@ func (c *Client) GetSystemInfo() (*SystemInfo, error) {
 		updateChannel = update["channel"]
 	}
 
+	cpuCount, _ := strconv.Atoi(resource["cpu-count"])
+	cpuLoad, _ := strconv.Atoi(resource["cpu-load"])
+	memTotal, _ := strconv.ParseInt(resource["total-memory"], 10, 64)
+	freeMemory, _ := strconv.ParseInt(resource["free-memory"], 10, 64)
+	hddTotal, _ := strconv.ParseInt(resource["total-hdd-space"], 10, 64)
+	hddFree, _ := strconv.ParseInt(resource["free-hdd-space"], 10, 64)
+
+	memUsed := memTotal - freeMemory
+	if memUsed < 0 {
+		memUsed = 0
+	}
+
 	return &SystemInfo{
 		Identity:      identity.Name,
 		Architecture:  resource["architecture-name"],
@@ -177,6 +216,16 @@ func (c *Client) GetSystemInfo() (*SystemInfo, error) {
 		BuildTime:     resource["build-time"],
 		License:       license.Level,
 		UpdateChannel: updateChannel,
+		UpTime:        resource["uptime"],
+		CPUCount:      cpuCount,
+		CPULoad:       cpuLoad,
+		CPUFrequency:  resource["cpu-frequency"],
+		MemoryTotal:   memTotal,
+		MemoryUsed:    memUsed,
+		MemoryFree:    freeMemory,
+		HDDTotal:      hddTotal,
+		HDDFree:       hddFree,
+		BadBlocks:     resource["bad-blocks"],
 	}, nil
 }
 
@@ -308,7 +357,6 @@ func (c *Client) GetLicenseInfo() (*LicenseInfo, error) {
 		return nil, fmt.Errorf("failed to get license info: %w", err)
 	}
 
-	fmt.Println(result)
 	return &LicenseInfo{
 		Level:           firstNonEmpty(result["level"], result["nlevel"]),
 		SystemID:        result["system-id"],
@@ -459,4 +507,68 @@ func firstNonEmpty(values ...string) string {
 		}
 	}
 	return ""
+}
+
+// CheckForUpdates checks if a new package version is available (async, fire-and-forget).
+func (c *Client) CheckForUpdates() (*UpdateCheckInfo, error) {
+	go func() {
+		_, _ = c.conn.Run("/system/package/update/check-for-updates")
+	}()
+
+	result, err := c.GetFirst("/system/package/update")
+	if err != nil {
+		return nil, fmt.Errorf("failed to get update status: %w", err)
+	}
+
+	latestVersion := result["latest-version"]
+	installedVersion := result["installed-version"]
+	status := result["status"]
+	updateAvailable := latestVersion != "" && latestVersion != installedVersion && status == "New version is available"
+
+	return &UpdateCheckInfo{
+		Channel:          result["channel"],
+		InstalledVersion: installedVersion,
+		LatestVersion:    latestVersion,
+		Status:           status,
+		UpdateAvailable:  updateAvailable,
+	}, nil
+}
+
+// InstallUpdate installs the latest package update.
+func (c *Client) InstallUpdate() (*UpdateInstallResult, error) {
+	// First check if update is available
+	checkResult, err := c.CheckForUpdates()
+	if err != nil {
+		return &UpdateInstallResult{
+			Success: false,
+			Message: "Failed to check for updates before installation",
+		}, err
+	}
+
+	if !checkResult.UpdateAvailable {
+		return &UpdateInstallResult{
+			Success:          false,
+			Message:          checkResult.Status,
+			InstalledVersion: checkResult.InstalledVersion,
+			LatestVersion:    checkResult.LatestVersion,
+		}, nil
+	}
+
+	// Proceed with installation
+	_, err = c.conn.Run("/system/package/update/install")
+	if err != nil {
+		return &UpdateInstallResult{
+			Success:          false,
+			Message:          fmt.Sprintf("Failed to install update: %v", err),
+			InstalledVersion: checkResult.InstalledVersion,
+			LatestVersion:    checkResult.LatestVersion,
+		}, err
+	}
+
+	return &UpdateInstallResult{
+		Success:          true,
+		Message:          "Firmware update installation initiated",
+		InstalledVersion: checkResult.InstalledVersion,
+		LatestVersion:    checkResult.LatestVersion,
+	}, nil
 }

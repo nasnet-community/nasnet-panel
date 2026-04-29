@@ -15,13 +15,28 @@ type ChangeUserPasswordRequest struct {
 }
 
 type SystemInfoResponse struct {
-	Identity      string `json:"identity"`
-	Architecture  string `json:"architecture"`
-	BoardName     string `json:"boardName"`
-	Version       string `json:"version"`
-	BuildTime     string `json:"buildTime"`
-	License       string `json:"license"`
-	UpdateChannel string `json:"updateChannel"`
+	Identity         string `json:"identity"`
+	Architecture     string `json:"architecture"`
+	BoardName        string `json:"boardName"`
+	Version          string `json:"version"`
+	BuildTime        string `json:"buildTime"`
+	License          string `json:"license"`
+	UpdateChannel    string `json:"updateChannel"`
+	UpTime           string `json:"uptime"`
+	CPUCount         int    `json:"cpuCount"`
+	CPULoad          int    `json:"cpuLoad"`
+	CPUFrequency     string `json:"cpuFrequency"`
+	MemoryTotal      string `json:"memoryTotal"`
+	MemoryUsed       string `json:"memoryUsed"`
+	MemoryFree       string `json:"memoryFree"`
+	MemoryTotalBytes int64  `json:"memoryTotalBytes"`
+	MemoryUsedBytes  int64  `json:"memoryUsedBytes"`
+	MemoryFreeBytes  int64  `json:"memoryFreeBytes"`
+	HDDTotal         string `json:"hddTotal"`
+	HDDFree          string `json:"hddFree"`
+	HDDTotalBytes    int64  `json:"hddTotalBytes"`
+	HDDFreeBytes     int64  `json:"hddFreeBytes"`
+	BadBlocks        string `json:"badBlocks"`
 }
 
 type SystemIdentityResponse struct {
@@ -59,6 +74,23 @@ type UpdateInfoResponse struct {
 	ScheduledTime string `json:"scheduledTime"`
 }
 
+// UpdateCheckResponse represents package update check response.
+type UpdateCheckResponse struct {
+	Channel          string `json:"channel"`
+	InstalledVersion string `json:"installedVersion"`
+	LatestVersion    string `json:"latestVersion"`
+	Status           string `json:"status"`
+	UpdateAvailable  bool   `json:"updateAvailable"`
+}
+
+// UpdateInstallResponse represents package update installation response.
+type UpdateInstallResponse struct {
+	Success          bool   `json:"success"`
+	Message          string `json:"message"`
+	InstalledVersion string `json:"installedVersion"`
+	LatestVersion    string `json:"latestVersion"`
+}
+
 type ClockInfoResponse struct {
 	Date      string `json:"date"`
 	Time      string `json:"time"`
@@ -67,19 +99,37 @@ type ClockInfoResponse struct {
 	GmtOffset string `json:"gmtOffset"`
 }
 
+// ToSystemInfoResponse converts SystemInfo to SystemInfoResponse.
+//
+//nolint:misspell // package name is intentional: routeros not routers
 func ToSystemInfoResponse(si *routeros.SystemInfo) *SystemInfoResponse {
 	if si == nil {
 		return nil
 	}
 
 	return &SystemInfoResponse{
-		Identity:      si.Identity,
-		Architecture:  si.Architecture,
-		BoardName:     si.BoardName,
-		Version:       si.Version,
-		BuildTime:     si.BuildTime,
-		License:       si.License,
-		UpdateChannel: si.UpdateChannel,
+		Identity:         si.Identity,
+		Architecture:     si.Architecture,
+		BoardName:        si.BoardName,
+		Version:          si.Version,
+		BuildTime:        si.BuildTime,
+		License:          si.License,
+		UpdateChannel:    si.UpdateChannel,
+		UpTime:           utils.FormatRouterOSTime(si.UpTime),
+		CPUCount:         si.CPUCount,
+		CPULoad:          si.CPULoad,
+		CPUFrequency:     si.CPUFrequency,
+		MemoryTotal:      utils.BytesToSizeString(si.MemoryTotal),
+		MemoryUsed:       utils.BytesToSizeString(si.MemoryUsed),
+		MemoryFree:       utils.BytesToSizeString(si.MemoryFree),
+		MemoryTotalBytes: si.MemoryTotal,
+		MemoryUsedBytes:  si.MemoryUsed,
+		MemoryFreeBytes:  si.MemoryFree,
+		HDDTotal:         utils.BytesToSizeString(si.HDDTotal),
+		HDDFree:          utils.BytesToSizeString(si.HDDFree),
+		HDDTotalBytes:    si.HDDTotal,
+		HDDFreeBytes:     si.HDDFree,
+		BadBlocks:        si.BadBlocks,
 	}
 }
 
@@ -136,16 +186,35 @@ func ToUpdateInfoResponse(ui *routeros.UpdateInfo) *UpdateInfoResponse {
 	}
 }
 
-func ToClockInfoResponse(ci *routeros.ClockInfo) *ClockInfoResponse {
-	if ci == nil {
+// ToUpdateCheckResponse converts UpdateCheckInfo to UpdateCheckResponse.
+//
+//nolint:misspell // package name is intentional: routeros not routers
+func ToUpdateCheckResponse(uc *routeros.UpdateCheckInfo) *UpdateCheckResponse {
+	if uc == nil {
 		return nil
 	}
 
-	return &ClockInfoResponse{
-		Date:      ci.Date,
-		Time:      ci.Time,
-		TimeZone:  ci.TimeZone,
-		DstActive: ci.DstActive,
-		GmtOffset: ci.GmtOffset,
+	return &UpdateCheckResponse{
+		Channel:          uc.Channel,
+		InstalledVersion: uc.InstalledVersion,
+		LatestVersion:    uc.LatestVersion,
+		Status:           uc.Status,
+		UpdateAvailable:  uc.UpdateAvailable,
+	}
+}
+
+// ToUpdateInstallResponse converts UpdateInstallResult to UpdateInstallResponse.
+//
+//nolint:misspell // package name is intentional: routeros not routers
+func ToUpdateInstallResponse(ui *routeros.UpdateInstallResult) *UpdateInstallResponse {
+	if ui == nil {
+		return nil
+	}
+
+	return &UpdateInstallResponse{
+		Success:          ui.Success,
+		Message:          ui.Message,
+		InstalledVersion: ui.InstalledVersion,
+		LatestVersion:    ui.LatestVersion,
 	}
 }
