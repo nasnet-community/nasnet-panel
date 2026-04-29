@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom';
-import { Badge } from '@nasnet/ui';
 import { HeaderActions } from './HeaderActions';
 import { useSession } from '../state/SessionContext';
 import { useRouter } from '../state/RouterStoreContext';
@@ -22,13 +21,7 @@ export function AppHeader() {
           </div>
         </Link>
         <div className={styles.actionsRight}>
-          {router?.name ? (
-            <>
-              <Badge tone="primary">{router.name}</Badge>
-              <span className={styles.separator} aria-hidden />
-            </>
-          ) : null}
-          <HeaderActions />
+          <HeaderActions routerName={router?.name} />
         </div>
       </div>
     </header>

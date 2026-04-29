@@ -498,6 +498,12 @@ export function OverviewTab() {
               <CardTitle>System Information</CardTitle>
             </CardHeader>
             <div className={styles.infoRow}>
+              <span className={styles.infoKey}>Hostname</span>
+              <span className={styles.infoVal} data-testid="overview-hostname">
+                {router?.hostname ?? '—'}
+              </span>
+            </div>
+            <div className={styles.infoRow}>
               <span className={styles.infoKey}>Model</span>
               <span className={styles.infoVal} data-testid="overview-model">
                 {overview.model}
