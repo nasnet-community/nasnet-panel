@@ -3,6 +3,7 @@ package middleware
 import (
 	"log"
 	"net/http"
+	"strings"
 
 	"nasnet-panel/internal/web"
 
@@ -35,11 +36,11 @@ func RegisterGlobalMiddleware(e *echo.Echo) {
 		Root:       "dist",
 		Filesystem: http.FS(web.Dist),
 		Skipper: func(c echo.Context) bool {
-				p := c.Request().URL.Path
-				return strings.HasPrefix(p, "/api/") ||
+			p := c.Request().URL.Path
+			return strings.HasPrefix(p, "/api/") ||
 				strings.HasPrefix(p, "/swagger/") ||
 				p == "/health"
-      	},
+		},
 	}))
 
 	e.Use(echomiddleware.Recover())
