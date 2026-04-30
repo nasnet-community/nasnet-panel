@@ -1,5 +1,26 @@
 basePath: /
 definitions:
+  handler.AddL2TPClientRequest:
+    properties:
+      connectTo:
+        example: 192.168.1.1
+        type: string
+      disabled:
+        example: false
+        type: boolean
+      ipsecSecret:
+        example: secretpassphrase123
+        type: string
+      name:
+        example: my-l2tp-client
+        type: string
+      password:
+        example: password123
+        type: string
+      user:
+        example: username
+        type: string
+    type: object
   handler.ChangeUserPasswordRequest:
     properties:
       newPassword:
@@ -166,7 +187,17 @@ definitions:
     properties:
       enabled:
         type: boolean
+      localIp:
+        type: string
+      localIpPool:
+        type: string
       name:
+        type: string
+      port:
+        type: integer
+      remoteIp:
+        type: string
+      remoteIpPool:
         type: string
     type: object
   handler.SetSystemIdentityRequest:
@@ -178,6 +209,16 @@ definitions:
     properties:
       enabled:
         type: boolean
+      localIp:
+        type: string
+      localIpPool:
+        type: string
+      port:
+        type: integer
+      remoteIp:
+        type: string
+      remoteIpPool:
+        type: string
     type: object
   handler.SstpServerDetailsResponse:
     properties:
@@ -295,10 +336,14 @@ definitions:
         type: string
       running:
         type: boolean
+      rx:
+        type: string
       rxByte:
         type: integer
       rxPacket:
         type: integer
+      tx:
+        type: string
       txByte:
         type: integer
       txPacket:
@@ -1375,6 +1420,49 @@ paths:
       security:
       - BasicAuth: []
       summary: Update VPN Client
+      tags:
+      - VPN
+  /api/vpn/l2tp-client:
+    post:
+      consumes:
+      - application/json
+      description: Add a new L2TP client connection with automatic profile creation
+        if needed
+      parameters:
+      - description: RouterOS host address
+        in: header
+        name: X-RouterOS-Host
+        required: true
+        type: string
+      - description: L2TP client configuration
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.AddL2TPClientRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/handler.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/handler.VPNClientResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.Response'
+      security:
+      - BasicAuth: []
+      summary: Add L2TP Client
       tags:
       - VPN
   /api/vpn/l2tp-server:

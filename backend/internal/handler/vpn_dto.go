@@ -1,5 +1,7 @@
 package handler
 
+import "fmt"
+
 // VPNClientResponse represents a VPN client in the API response.
 type VPNClientResponse struct {
 	ID           string `json:"id"`
@@ -11,6 +13,8 @@ type VPNClientResponse struct {
 	MacAddress   string `json:"macAddress"`
 	RxByte       int64  `json:"rxByte"`
 	TxByte       int64  `json:"txByte"`
+	Rx           string `json:"rx"`
+	Tx           string `json:"tx"`
 	RxPacket     int64  `json:"rxPacket"`
 	TxPacket     int64  `json:"txPacket"`
 	LastLinkUp   string `json:"lastLinkUp"`
@@ -25,15 +29,35 @@ type UpdateVPNClientRequest struct {
 	Comment  *string `json:"comment" example:"Updated comment"`
 }
 
+// AddL2TPClientRequest represents a request to add an L2TP client.
+type AddL2TPClientRequest struct {
+	Name        string  `json:"name" example:"my-l2tp-client"`
+	ConnectTo   string  `json:"connectTo" example:"192.168.1.1"`
+	User        string  `json:"user" example:"username"`
+	Password    string  `json:"password" example:"password123"`
+	Disabled    *bool   `json:"disabled" example:"false"`
+	IPsecSecret *string `json:"ipsecSecret" example:"secretpassphrase123"`
+}
+
 // ServerStatusItem represents a server with name and enabled status.
 type ServerStatusItem struct {
-	Name    string `json:"name"`
-	Enabled bool   `json:"enabled"`
+	Name         string `json:"name"`
+	Enabled      bool   `json:"enabled"`
+	Port         int    `json:"port,omitempty"`
+	LocalIP      string `json:"localIp,omitempty"`
+	LocalIPPool  string `json:"localIpPool,omitempty"`
+	RemoteIP     string `json:"remoteIp,omitempty"`
+	RemoteIPPool string `json:"remoteIpPool,omitempty"`
 }
 
 // SingleServerStatus represents a single server with enabled status.
 type SingleServerStatus struct {
-	Enabled bool `json:"enabled"`
+	Enabled      bool   `json:"enabled"`
+	Port         int    `json:"port,omitempty"`
+	LocalIP      string `json:"localIp,omitempty"`
+	LocalIPPool  string `json:"localIpPool,omitempty"`
+	RemoteIP     string `json:"remoteIp,omitempty"`
+	RemoteIPPool string `json:"remoteIpPool,omitempty"`
 }
 
 // VPNServersStatusResponse represents the status of all VPN servers.
@@ -130,4 +154,19 @@ type WireguardServerDetailsResponse struct {
 type L2TPUserSecret struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
+}
+
+func formatBytes(bytes int64) string {
+	const (
+		unit = 1024
+	)
+	if bytes < unit {
+		return fmt.Sprintf("%d B", bytes)
+	}
+	div, exp := int64(unit), 0
+	for n := bytes / unit; n >= unit; n /= unit {
+		div *= unit
+		exp++
+	}
+	return fmt.Sprintf("%.2f %cB", float64(bytes)/float64(div), "KMGTPE"[exp])
 }

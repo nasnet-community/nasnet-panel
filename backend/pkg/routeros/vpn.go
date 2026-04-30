@@ -3,6 +3,7 @@ package routeros
 
 import (
 	"fmt"
+	"net"
 	"strconv"
 )
 
@@ -59,12 +60,47 @@ var vpnInterfaceTypes = map[string]bool{
 	VPNTypeSIT:       true,
 }
 
+// vpnClientTypes defines only VPN client (outgoing) types, excluding server bindings.
+var vpnClientTypes = map[string]bool{
+	VPNTypeL2TPOut:   true,
+	VPNTypeOVPNOut:   true,
+	VPNTypePPTPOut:   true,
+	VPNTypeWireGuard: true,
+	VPNTypeEoIP:      true,
+	VPNTypeGRE:       true,
+	VPNTypeIPIP:      true,
+	VPNTypeSIT:       true,
+}
+
 // IsVPNInterfaceType checks if a given type is a VPN interface type.
 func IsVPNInterfaceType(interfaceType string) bool {
 	return vpnInterfaceTypes[interfaceType]
 }
 
-// ListVPNClients returns all VPN client interfaces.
+// IsVPNClientType checks if a given type is a VPN client (outgoing) type.
+func IsVPNClientType(interfaceType string) bool {
+	return vpnClientTypes[interfaceType]
+}
+
+// ParseAddressOrPool determines if an address is an IP or pool name and returns the appropriate values.
+func (c *Client) ParseAddressOrPool(address string) (ip, poolName string) {
+	if address == "" {
+		return "", ""
+	}
+
+	if net.ParseIP(address) != nil || (net.ParseIP(address[:len(address)-3]) != nil && len(address) > 3 && address[len(address)-3] == '/') {
+		return address, ""
+	}
+
+	poolRanges, err := c.GetIPPoolRanges(address)
+	if err == nil && poolRanges != "" {
+		return poolRanges, address
+	}
+
+	return address, ""
+}
+
+// ListVPNClients returns all VPN client interfaces (excluding server bindings).
 func (c *Client) ListVPNClients() ([]VPNClientInfo, error) {
 	results, err := c.GetAll("/interface")
 	if err != nil {
@@ -75,8 +111,7 @@ func (c *Client) ListVPNClients() ([]VPNClientInfo, error) {
 	for _, result := range results {
 		interfaceType := result["type"]
 
-		// Filter by VPN interface types
-		if !IsVPNInterfaceType(interfaceType) {
+		if !IsVPNClientType(interfaceType) {
 			continue
 		}
 
@@ -224,6 +259,7 @@ type OvpnServerInfo struct {
 	KeepAliveTimeout  int
 	DefaultGateway    bool
 	MacAddress        string
+	DefaultProfile    string
 	Comment           string
 }
 
@@ -256,6 +292,7 @@ func (c *Client) ListOvpnServers() ([]OvpnServerInfo, error) {
 			KeepAliveTimeout:  keepAliveTimeout,
 			DefaultGateway:    result["default-gateway"] == "true",
 			MacAddress:        result["mac-address"],
+			DefaultProfile:    result["default-profile"],
 			Comment:           result["comment"],
 		})
 	}
@@ -541,6 +578,7 @@ type L2TPProfileInfo struct {
 	UseCompression  string
 	OnlyOne         string
 	ChangeTCPMSS    string
+	IPPool          string
 }
 
 // L2TPSecret represents an L2TP user secret (username/password).
@@ -578,6 +616,7 @@ func (c *Client) GetL2TPProfile(profileName string) (*L2TPProfileInfo, error) {
 		UseCompression:  result["use-compression"],
 		OnlyOne:         result["only-one"],
 		ChangeTCPMSS:    result["change-tcp-mss"],
+		IPPool:          result["pool"],
 	}, nil
 }
 
@@ -627,4 +666,60 @@ func (c *Client) GetIPPoolRanges(poolName string) (string, error) {
 	}
 
 	return result["ranges"], nil
+}
+
+// ProfileExists checks if a PPP profile with the given name exists.
+func (c *Client) ProfileExists(profileName string) (bool, error) {
+	result, err := c.GetFirst("/ppp/profile", "?=name="+profileName)
+	if err != nil {
+		if fmt.Sprint(err) == "no results found" {
+			return false, nil
+		}
+		return false, fmt.Errorf("failed to check profile existence: %w", err)
+	}
+
+	return result != nil && result[".id"] != "", nil
+}
+
+// CreateVPNProfile creates a PPP profile with default settings for VPN clients (L2TP, PPTP, SSTP, etc).
+func (c *Client) CreateVPNProfile(profileName string) error {
+	args := []string{"=name=" + profileName}
+	_, err := c.Add("/ppp/profile", args...)
+	if err != nil {
+		return fmt.Errorf("failed to create VPN profile %s: %w", profileName, err)
+	}
+
+	return nil
+}
+
+// AddL2TPClient adds a new L2TP client with the given parameters.
+func (c *Client) AddL2TPClient(name, connectTo, user, password, profileName, ipsecSecret string, useIPsec, disabled bool) error {
+	args := []string{
+		"=name=" + name,
+		"=connect-to=" + connectTo,
+		"=user=" + user,
+		"=password=" + password,
+		"=profile=" + profileName,
+		"=use-ipsec=" + toYesNo(useIPsec),
+		"=disabled=" + toYesNo(disabled),
+	}
+
+	if useIPsec && ipsecSecret != "" {
+		args = append(args, "=ipsec-secret="+ipsecSecret)
+	}
+
+	_, err := c.Add("/interface/l2tp-client", args...)
+	if err != nil {
+		return fmt.Errorf("failed to add L2TP client %s: %w", name, err)
+	}
+
+	return nil
+}
+
+// toYesNo converts a boolean to RouterOS yes/no format.
+func toYesNo(b bool) string {
+	if b {
+		return "yes"
+	}
+	return "no"
 }

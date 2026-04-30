@@ -31,7 +31,6 @@ func HandleListVPNClients(c echo.Context) error {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to retrieve VPN clients", err)
 	}
 
-	// Convert to response format
 	response := make([]VPNClientResponse, len(vpnClients))
 	for i := range vpnClients {
 		vpn := vpnClients[i]
@@ -45,6 +44,8 @@ func HandleListVPNClients(c echo.Context) error {
 			MacAddress:   vpn.MacAddress,
 			RxByte:       vpn.RxByte,
 			TxByte:       vpn.TxByte,
+			Rx:           formatBytes(vpn.RxByte),
+			Tx:           formatBytes(vpn.TxByte),
 			RxPacket:     vpn.RxPacket,
 			TxPacket:     vpn.TxPacket,
 			LastLinkUp:   vpn.LastLinkUp,
@@ -96,6 +97,8 @@ func HandleGetVPNClient(c echo.Context) error {
 		MacAddress:   vpnClient.MacAddress,
 		RxByte:       vpnClient.RxByte,
 		TxByte:       vpnClient.TxByte,
+		Rx:           formatBytes(vpnClient.RxByte),
+		Tx:           formatBytes(vpnClient.TxByte),
 		RxPacket:     vpnClient.RxPacket,
 		TxPacket:     vpnClient.TxPacket,
 		LastLinkUp:   vpnClient.LastLinkUp,
@@ -139,17 +142,14 @@ func HandleUpdateVPNClient(c echo.Context) error {
 		return ErrorResponse(c, http.StatusBadRequest, "Invalid request body", err)
 	}
 
-	// Validate that at least one field is provided for update
 	if req.Disabled == nil && req.Comment == nil {
 		return ErrorResponse(c, http.StatusBadRequest, "At least one field (disabled or comment) must be provided for update", nil)
 	}
 
-	// Update VPN client settings
 	if err := client.UpdateVPNClientSettings(name, req.Disabled, req.Comment); err != nil {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to update VPN client", err)
 	}
 
-	// Retrieve updated client
 	vpnClient, err := client.GetVPNClient(name)
 	if err != nil {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to retrieve updated VPN client", err)
@@ -165,6 +165,8 @@ func HandleUpdateVPNClient(c echo.Context) error {
 		MacAddress:   vpnClient.MacAddress,
 		RxByte:       vpnClient.RxByte,
 		TxByte:       vpnClient.TxByte,
+		Rx:           formatBytes(vpnClient.RxByte),
+		Tx:           formatBytes(vpnClient.TxByte),
 		RxPacket:     vpnClient.RxPacket,
 		TxPacket:     vpnClient.TxPacket,
 		LastLinkUp:   vpnClient.LastLinkUp,
@@ -174,6 +176,97 @@ func HandleUpdateVPNClient(c echo.Context) error {
 	}
 
 	return SuccessResponse(c, http.StatusOK, "VPN client updated successfully", response)
+}
+
+// HandleAddL2TPClient adds a new L2TP client
+// @Summary Add L2TP Client
+// @Description Add a new L2TP client connection with automatic profile creation if needed
+// @Tags VPN
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Param request body AddL2TPClientRequest true "L2TP client configuration"
+// @Accept json
+// @Produce json
+// @Success 201 {object} Response{data=VPNClientResponse}
+// @Failure 400 {object} Response
+// @Failure 500 {object} Response
+// @Router /api/vpn/l2tp-client [post].
+func HandleAddL2TPClient(c echo.Context) error {
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+	defer func() { _ = client.Close() }()
+
+	var req AddL2TPClientRequest
+	if err := c.Bind(&req); err != nil {
+		return ErrorResponse(c, http.StatusBadRequest, "Invalid request body", err)
+	}
+
+	if req.Name == "" || req.ConnectTo == "" || req.User == "" || req.Password == "" {
+		return ErrorResponse(c, http.StatusBadRequest, "name, connectTo, user, and password are required", nil)
+	}
+
+	_, err = client.GetVPNClient(req.Name)
+	if err == nil {
+		return ErrorResponse(c, http.StatusConflict, "L2TP client with this name already exists", nil)
+	}
+
+	useIPsec := false
+	ipsecSecret := ""
+	if req.IPsecSecret != nil && *req.IPsecSecret != "" {
+		useIPsec = true
+		ipsecSecret = *req.IPsecSecret
+	}
+
+	profileName := req.Name + "-client-profile"
+
+	exists, err := client.ProfileExists(profileName)
+	if err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to check profile existence", err)
+	}
+
+	if !exists {
+		if err := client.CreateVPNProfile(profileName); err != nil {
+			return ErrorResponse(c, http.StatusInternalServerError, "Failed to create VPN profile", err)
+		}
+	}
+
+	disabled := false
+	if req.Disabled != nil {
+		disabled = *req.Disabled
+	}
+
+	if err := client.AddL2TPClient(req.Name, req.ConnectTo, req.User, req.Password, profileName, ipsecSecret, useIPsec, disabled); err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to add L2TP client", err)
+	}
+
+	vpnClient, err := client.GetVPNClient(req.Name)
+	if err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to retrieve added L2TP client", err)
+	}
+
+	response := VPNClientResponse{
+		ID:           vpnClient.ID,
+		Name:         vpnClient.Name,
+		Type:         vpnClient.Type,
+		Running:      vpnClient.Running,
+		Disabled:     vpnClient.Disabled,
+		MTU:          vpnClient.MTU,
+		MacAddress:   vpnClient.MacAddress,
+		RxByte:       vpnClient.RxByte,
+		TxByte:       vpnClient.TxByte,
+		Rx:           formatBytes(vpnClient.RxByte),
+		Tx:           formatBytes(vpnClient.TxByte),
+		RxPacket:     vpnClient.RxPacket,
+		TxPacket:     vpnClient.TxPacket,
+		LastLinkUp:   vpnClient.LastLinkUp,
+		LastLinkDown: vpnClient.LastLinkDown,
+		LinkDowns:    vpnClient.LinkDowns,
+		Comment:      vpnClient.Comment,
+	}
+
+	return SuccessResponse(c, http.StatusCreated, "L2TP client added successfully", response)
 }
 
 // HandleGetVPNServersStatus gets the status of all VPN servers
@@ -198,19 +291,33 @@ func HandleGetVPNServersStatus(c echo.Context) error {
 		Wireguards:  []ServerStatusItem{},
 	}
 
-	// Get OpenVPN servers
 	ovpnServers, err := client.ListOvpnServers()
 	if err == nil {
 		for i := range ovpnServers {
 			srv := ovpnServers[i]
-			response.OvpnServers = append(response.OvpnServers, ServerStatusItem{
+			item := ServerStatusItem{
 				Name:    srv.Name,
 				Enabled: !srv.Disabled,
-			})
+				Port:    srv.Port,
+			}
+
+			if srv.DefaultProfile != "" {
+				profile, errProfile := client.GetL2TPProfile(srv.DefaultProfile)
+				if errProfile == nil {
+					localIP, localPool := client.ParseAddressOrPool(profile.LocalAddress)
+					item.LocalIP = localIP
+					item.LocalIPPool = localPool
+
+					remoteIP, remotePool := client.ParseAddressOrPool(profile.RemoteAddress)
+					item.RemoteIP = remoteIP
+					item.RemoteIPPool = remotePool
+				}
+			}
+
+			response.OvpnServers = append(response.OvpnServers, item)
 		}
 	}
 
-	// Get WireGuard interfaces
 	wireguards, err := client.ListWireguards()
 	if err == nil {
 		for i := range wireguards {
@@ -218,32 +325,78 @@ func HandleGetVPNServersStatus(c echo.Context) error {
 			response.Wireguards = append(response.Wireguards, ServerStatusItem{
 				Name:    wg.Name,
 				Enabled: !wg.Disabled,
+				Port:    wg.ListenPort,
 			})
 		}
 	}
 
-	// Get PPTP server
 	pptpServer, err := client.GetPptpServer()
 	if err == nil {
-		response.Pptp = &SingleServerStatus{
+		status := &SingleServerStatus{
 			Enabled: pptpServer.Enabled,
+			Port:    1723, // Default PPTP port
 		}
+
+		if pptpServer.DefaultProfile != "" {
+			profile, errProfile := client.GetL2TPProfile(pptpServer.DefaultProfile)
+			if errProfile == nil {
+				localIP, localPool := client.ParseAddressOrPool(profile.LocalAddress)
+				status.LocalIP = localIP
+				status.LocalIPPool = localPool
+
+				remoteIP, remotePool := client.ParseAddressOrPool(profile.RemoteAddress)
+				status.RemoteIP = remoteIP
+				status.RemoteIPPool = remotePool
+			}
+		}
+
+		response.Pptp = status
 	}
 
-	// Get L2TP server
 	l2tpServer, err := client.GetL2tpServer()
 	if err == nil {
-		response.L2tp = &SingleServerStatus{
+		status := &SingleServerStatus{
 			Enabled: l2tpServer.Enabled,
+			Port:    1701, // Default L2TP port
 		}
+
+		if l2tpServer.DefaultProfile != "" {
+			profile, errProfile := client.GetL2TPProfile(l2tpServer.DefaultProfile)
+			if errProfile == nil {
+				localIP, localPool := client.ParseAddressOrPool(profile.LocalAddress)
+				status.LocalIP = localIP
+				status.LocalIPPool = localPool
+
+				remoteIP, remotePool := client.ParseAddressOrPool(profile.RemoteAddress)
+				status.RemoteIP = remoteIP
+				status.RemoteIPPool = remotePool
+			}
+		}
+
+		response.L2tp = status
 	}
 
-	// Get SSTP server
 	sstpServer, err := client.GetSstpServer()
 	if err == nil {
-		response.Sstp = &SingleServerStatus{
+		status := &SingleServerStatus{
 			Enabled: sstpServer.Enabled,
+			Port:    sstpServer.Port,
 		}
+
+		if sstpServer.DefaultProfile != "" {
+			profile, errProfile := client.GetL2TPProfile(sstpServer.DefaultProfile)
+			if errProfile == nil {
+				localIP, localPool := client.ParseAddressOrPool(profile.LocalAddress)
+				status.LocalIP = localIP
+				status.LocalIPPool = localPool
+
+				remoteIP, remotePool := client.ParseAddressOrPool(profile.RemoteAddress)
+				status.RemoteIP = remoteIP
+				status.RemoteIPPool = remotePool
+			}
+		}
+
+		response.Sstp = status
 	}
 
 	return SuccessResponse(c, http.StatusOK, "VPN servers status retrieved successfully", response)
@@ -323,7 +476,6 @@ func HandleGetPptpServerDetails(c echo.Context) error {
 		Profile: pptpServer.DefaultProfile,
 	}
 
-	// Fetch profile details if profile is set.
 	if pptpServer.DefaultProfile != "" {
 		profile, err := client.GetL2TPProfile(pptpServer.DefaultProfile)
 		if err == nil {
@@ -335,7 +487,6 @@ func HandleGetPptpServerDetails(c echo.Context) error {
 			response.ChangeTCPMSS = profile.ChangeTCPMSS
 			response.DNSServer = profile.DNSServer
 
-			// Resolve IP pool names to ranges if they're pool names.
 			if response.LocalAddress != "" {
 				poolRanges, err := client.GetIPPoolRanges(response.LocalAddress)
 				if err == nil && poolRanges != "" {
@@ -349,7 +500,6 @@ func HandleGetPptpServerDetails(c echo.Context) error {
 				}
 			}
 
-			// Fetch secrets for the profile.
 			secrets, err := client.GetL2TPSecretsForProfile(pptpServer.DefaultProfile)
 			if err == nil {
 				response.Secrets = make([]L2TPUserSecret, len(secrets))
@@ -398,7 +548,6 @@ func HandleGetL2tpServerDetails(c echo.Context) error {
 		AcceptProtoVersion: l2tpServer.AcceptProtoVersion,
 	}
 
-	// Fetch profile details if profile is set.
 	if l2tpServer.DefaultProfile != "" {
 		profile, err := client.GetL2TPProfile(l2tpServer.DefaultProfile)
 		if err == nil {
@@ -410,7 +559,6 @@ func HandleGetL2tpServerDetails(c echo.Context) error {
 			response.ChangeTCPMSS = profile.ChangeTCPMSS
 			response.DNSServer = profile.DNSServer
 
-			// Resolve IP pool names to ranges if they're pool names.
 			if response.LocalAddress != "" {
 				poolRanges, err := client.GetIPPoolRanges(response.LocalAddress)
 				if err == nil && poolRanges != "" {
@@ -424,7 +572,6 @@ func HandleGetL2tpServerDetails(c echo.Context) error {
 				}
 			}
 
-			// Fetch secrets for the profile.
 			secrets, err := client.GetL2TPSecretsForProfile(l2tpServer.DefaultProfile)
 			if err == nil {
 				response.Secrets = make([]L2TPUserSecret, len(secrets))
@@ -475,7 +622,6 @@ func HandleGetSstpServerDetails(c echo.Context) error {
 		PFS:                     sstpServer.PFS,
 	}
 
-	// Fetch profile details if profile is set.
 	if sstpServer.DefaultProfile != "" {
 		profile, err := client.GetL2TPProfile(sstpServer.DefaultProfile)
 		if err == nil {
@@ -487,7 +633,6 @@ func HandleGetSstpServerDetails(c echo.Context) error {
 			response.ChangeTCPMSS = profile.ChangeTCPMSS
 			response.DNSServer = profile.DNSServer
 
-			// Resolve IP pool names to ranges if they're pool names.
 			if response.LocalAddress != "" {
 				poolRanges, err := client.GetIPPoolRanges(response.LocalAddress)
 				if err == nil && poolRanges != "" {
@@ -501,7 +646,6 @@ func HandleGetSstpServerDetails(c echo.Context) error {
 				}
 			}
 
-			// Fetch secrets for the profile.
 			secrets, err := client.GetL2TPSecretsForProfile(sstpServer.DefaultProfile)
 			if err == nil {
 				response.Secrets = make([]L2TPUserSecret, len(secrets))
