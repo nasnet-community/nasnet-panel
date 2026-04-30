@@ -693,7 +693,7 @@ func (c *Client) CreateVPNProfile(profileName string) error {
 }
 
 // AddL2TPClient adds a new L2TP client with the given parameters.
-func (c *Client) AddL2TPClient(name, connectTo, user, password, profileName, ipsecSecret string, useIPsec bool, disabled bool) error {
+func (c *Client) AddL2TPClient(name, connectTo, user, password, profileName, ipsecSecret string, useIPsec, disabled bool) error {
 	args := []string{
 		"=name=" + name,
 		"=connect-to=" + connectTo,
