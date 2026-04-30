@@ -21,6 +21,9 @@ backend/cmd/test/
 nasnet-backend
 nasnet-backend-api
 nasnet-panel
+nasnet-panel-slim
+backend/nasnet-panel
+backend/nasnet-panel-slim
 
 # Environment files
 .env

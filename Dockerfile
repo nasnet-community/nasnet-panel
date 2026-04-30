@@ -23,7 +23,7 @@ COPY --from=frontend /workspace/frontend/dist ./internal/web/dist
 RUN set -eux; \
     if [ "$TARGETARCH" = "arm" ] && [ -n "$TARGETVARIANT" ]; then export GOARM=${TARGETVARIANT#v}; fi; \
     CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH \
-      go build -trimpath -ldflags="-w -s -extldflags '-static'" -tags=netgo \
+      go build -trimpath -ldflags="-w -s -extldflags '-static'" -tags=netgo,production \
       -o /out/app ./cmd/api; \
     upx --best --lzma /out/app
 
