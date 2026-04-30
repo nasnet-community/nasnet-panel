@@ -1,5 +1,7 @@
 package handler
 
+import "fmt"
+
 // VPNClientResponse represents a VPN client in the API response.
 type VPNClientResponse struct {
 	ID           string `json:"id"`
@@ -11,6 +13,8 @@ type VPNClientResponse struct {
 	MacAddress   string `json:"macAddress"`
 	RxByte       int64  `json:"rxByte"`
 	TxByte       int64  `json:"txByte"`
+	Rx           string `json:"rx"`
+	Tx           string `json:"tx"`
 	RxPacket     int64  `json:"rxPacket"`
 	TxPacket     int64  `json:"txPacket"`
 	LastLinkUp   string `json:"lastLinkUp"`
@@ -140,4 +144,19 @@ type WireguardServerDetailsResponse struct {
 type L2TPUserSecret struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
+}
+
+func formatBytes(bytes int64) string {
+	const (
+		unit = 1024
+	)
+	if bytes < unit {
+		return fmt.Sprintf("%d B", bytes)
+	}
+	div, exp := int64(unit), 0
+	for n := bytes / unit; n >= unit; n /= unit {
+		div *= unit
+		exp++
+	}
+	return fmt.Sprintf("%.2f %cB", float64(bytes)/float64(div), "KMGTPE"[exp])
 }
