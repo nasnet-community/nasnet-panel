@@ -144,6 +144,20 @@ export async function rebootSystem(creds: SystemCredentials): Promise<void> {
   });
 }
 
+export async function changeUserPassword(
+  creds: SystemCredentials,
+  newPassword: string,
+): Promise<void> {
+  await apiRequest<void>('/api/system/password', {
+    method: 'PUT',
+    headers: {
+      ...authHeaders(creds),
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ username: creds.username, newPassword }),
+  });
+}
+
 export async function shutdownSystem(creds: SystemCredentials): Promise<void> {
   await apiRequest<void>('/api/system/shutdown', {
     method: 'POST',
