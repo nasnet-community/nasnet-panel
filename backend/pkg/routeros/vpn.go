@@ -60,9 +60,26 @@ var vpnInterfaceTypes = map[string]bool{
 	VPNTypeSIT:       true,
 }
 
+// vpnClientTypes defines only VPN client (outgoing) types, excluding server bindings.
+var vpnClientTypes = map[string]bool{
+	VPNTypeL2TPOut:   true,
+	VPNTypeOVPNOut:   true,
+	VPNTypePPTPOut:   true,
+	VPNTypeWireGuard: true,
+	VPNTypeEoIP:      true,
+	VPNTypeGRE:       true,
+	VPNTypeIPIP:      true,
+	VPNTypeSIT:       true,
+}
+
 // IsVPNInterfaceType checks if a given type is a VPN interface type.
 func IsVPNInterfaceType(interfaceType string) bool {
 	return vpnInterfaceTypes[interfaceType]
+}
+
+// IsVPNClientType checks if a given type is a VPN client (outgoing) type.
+func IsVPNClientType(interfaceType string) bool {
+	return vpnClientTypes[interfaceType]
 }
 
 // ParseAddressOrPool determines if an address is an IP or pool name and returns the appropriate values.
@@ -83,7 +100,7 @@ func (c *Client) ParseAddressOrPool(address string) (ip, poolName string) {
 	return address, ""
 }
 
-// ListVPNClients returns all VPN client interfaces.
+// ListVPNClients returns all VPN client interfaces (excluding server bindings).
 func (c *Client) ListVPNClients() ([]VPNClientInfo, error) {
 	results, err := c.GetAll("/interface")
 	if err != nil {
@@ -94,8 +111,7 @@ func (c *Client) ListVPNClients() ([]VPNClientInfo, error) {
 	for _, result := range results {
 		interfaceType := result["type"]
 
-		// Filter by VPN interface types
-		if !IsVPNInterfaceType(interfaceType) {
+		if !IsVPNClientType(interfaceType) {
 			continue
 		}
 
