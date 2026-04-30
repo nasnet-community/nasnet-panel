@@ -12,6 +12,7 @@ test.describe('Router dashboard + Overview tab', () => {
       id: 'rtr_over',
       name: 'Overview Router',
       host: '10.0.0.99',
+      hostname: 'overview-router.home.',
       model: 'hAP ax3',
       version: '7.13.2',
     });
@@ -28,6 +29,7 @@ test.describe('Router dashboard + Overview tab', () => {
     await expect(page.getByRole('heading', { name: 'Network', exact: true })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'System', exact: true })).toBeVisible();
 
+    await expect(page.getByTestId('overview-hostname')).toHaveText('overview-router.home.');
     await expect(page.getByTestId('overview-model')).toHaveText('hAP ax3');
     await expect(page.getByTestId('overview-uptime')).not.toBeEmpty();
     await expect(page.getByTestId('overview-cpu')).not.toBeEmpty();

@@ -1,5 +1,11 @@
-.iconButton {
+.menuRoot {
+  position: relative;
+  display: inline-flex;
+}
+
+.themeIconButton {
   appearance: none;
+  position: relative;
   width: 36px;
   height: 36px;
   border-radius: var(--radius-md);
@@ -19,5 +25,222 @@
   &:focus-visible {
     outline: 2px solid var(--color-primary);
     outline-offset: 2px;
+  }
+}
+
+.themeIconButtonOff {
+  color: var(--color-text-muted);
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 22px;
+    height: 1.5px;
+    background: currentColor;
+    transform: translate(-50%, -50%) rotate(-45deg);
+    pointer-events: none;
+  }
+}
+
+.menuTrigger {
+  appearance: none;
+  height: 36px;
+  padding: 0 var(--space-md);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+  font-size: var(--font-sm);
+  font-weight: var(--weight-medium);
+  cursor: pointer;
+  transition:
+    background var(--transition-fast),
+    border-color var(--transition-fast);
+
+  &:hover {
+    background: var(--color-surface-alt);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+
+  &[aria-expanded='true'] {
+    background: var(--color-surface-alt);
+    border-color: var(--color-primary);
+  }
+}
+
+.routerName {
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.onlineDot {
+  position: relative;
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-success);
+  flex-shrink: 0;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: var(--color-success);
+    opacity: 0.6;
+    animation: onlinePulse 1.6s ease-out infinite;
+  }
+}
+
+@keyframes onlinePulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+}
+
+.chevronOpen {
+  transform: rotate(180deg);
+  transition: transform var(--transition-fast);
+}
+
+.menuPanel {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  min-width: 220px;
+  padding: var(--space-xs);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  z-index: 20;
+}
+
+.menuItem {
+  appearance: none;
+  border: none;
+  background: transparent;
+  color: var(--color-text);
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-sm);
+  text-align: left;
+  cursor: pointer;
+  transition: background var(--transition-fast);
+
+  &:hover,
+  &:focus-visible {
+    background: var(--color-surface-alt);
+    outline: none;
+  }
+}
+
+.menuDivider {
+  height: 1px;
+  margin: var(--space-xs) 0;
+  background: var(--color-border);
+}
+
+.themeRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+}
+
+.themeLabel {
+  appearance: none;
+  border: none;
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: var(--font-sm);
+  font-weight: var(--weight-medium);
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: color var(--transition-fast);
+
+  &:hover {
+    color: var(--color-text);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+}
+
+.themeLabelActive {
+  color: var(--color-text);
+  font-weight: var(--weight-semibold);
+}
+
+.themeSwitch {
+  appearance: none;
+  width: 34px;
+  height: 20px;
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border);
+  position: relative;
+  cursor: pointer;
+  padding: 0;
+  transition:
+    background var(--transition-fast),
+    border-color var(--transition-fast);
+
+  &:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+}
+
+.themeSwitchThumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--color-text-muted);
+  transition:
+    transform var(--transition-fast),
+    background var(--transition-fast);
+}
+
+.themeSwitchOn {
+  background: var(--color-success);
+  border-color: var(--color-success);
+
+  .themeSwitchThumb {
+    background: #fff;
+    transform: translateX(14px);
   }
 }

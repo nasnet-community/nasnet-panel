@@ -5,17 +5,18 @@ test.describe('Theme toggle', () => {
     await resetMocks();
     await page.goto('/');
 
-    const toggle = page.getByRole('button', { name: /theme/i });
-    await toggle.click();
+    const toggle = page.getByRole('button', { name: /light mode (on|off)/i });
+    await expect(toggle).toBeVisible();
 
-    await page.getByRole('menuitem', { name: /light/i }).click();
+    if ((await page.locator('html').getAttribute('data-theme')) !== 'light') {
+      await toggle.click();
+    }
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
 
     await page.reload();
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
 
     await toggle.click();
-    await page.getByRole('menuitem', { name: /dark/i }).click();
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
 
     await page.reload();

@@ -107,6 +107,7 @@ export const mockStore = {
       id: router.id,
       name: router.name ?? 'Seeded Router',
       host: router.host ?? '192.168.99.1',
+      hostname: router.hostname,
       port: router.port ?? 443,
       platform: router.platform ?? 'mikrotik',
       model: router.model ?? 'hAP ax3',
