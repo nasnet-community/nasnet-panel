@@ -3,6 +3,7 @@ package routeros
 
 import (
 	"fmt"
+	"net"
 	"strconv"
 )
 
@@ -62,6 +63,24 @@ var vpnInterfaceTypes = map[string]bool{
 // IsVPNInterfaceType checks if a given type is a VPN interface type.
 func IsVPNInterfaceType(interfaceType string) bool {
 	return vpnInterfaceTypes[interfaceType]
+}
+
+// ParseAddressOrPool determines if an address is an IP or pool name and returns the appropriate values.
+func (c *Client) ParseAddressOrPool(address string) (ip, poolName string) {
+	if address == "" {
+		return "", ""
+	}
+
+	if net.ParseIP(address) != nil || (net.ParseIP(address[:len(address)-3]) != nil && len(address) > 3 && address[len(address)-3] == '/') {
+		return address, ""
+	}
+
+	poolRanges, err := c.GetIPPoolRanges(address)
+	if err == nil && poolRanges != "" {
+		return poolRanges, address
+	}
+
+	return address, ""
 }
 
 // ListVPNClients returns all VPN client interfaces.
@@ -224,6 +243,7 @@ type OvpnServerInfo struct {
 	KeepAliveTimeout  int
 	DefaultGateway    bool
 	MacAddress        string
+	DefaultProfile    string
 	Comment           string
 }
 
@@ -256,6 +276,7 @@ func (c *Client) ListOvpnServers() ([]OvpnServerInfo, error) {
 			KeepAliveTimeout:  keepAliveTimeout,
 			DefaultGateway:    result["default-gateway"] == "true",
 			MacAddress:        result["mac-address"],
+			DefaultProfile:    result["default-profile"],
 			Comment:           result["comment"],
 		})
 	}
@@ -541,6 +562,7 @@ type L2TPProfileInfo struct {
 	UseCompression  string
 	OnlyOne         string
 	ChangeTCPMSS    string
+	IPPool          string
 }
 
 // L2TPSecret represents an L2TP user secret (username/password).
@@ -578,6 +600,7 @@ func (c *Client) GetL2TPProfile(profileName string) (*L2TPProfileInfo, error) {
 		UseCompression:  result["use-compression"],
 		OnlyOne:         result["only-one"],
 		ChangeTCPMSS:    result["change-tcp-mss"],
+		IPPool:          result["pool"],
 	}, nil
 }
 
