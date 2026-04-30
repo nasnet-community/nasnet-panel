@@ -11,6 +11,14 @@ interface Props {
   onEdit: (iface: Interface) => void;
 }
 
+const formatMode = (mode: string): string =>
+  mode
+    .split('-')
+    .map((part) =>
+      part.toLowerCase() === 'ap' ? 'AP' : part.charAt(0).toUpperCase() + part.slice(1),
+    )
+    .join(' ');
+
 export function InterfaceRow({ iface, settings, onToggle, onEdit }: Props) {
   const enabled = !iface.disabled;
   return (
@@ -21,6 +29,12 @@ export function InterfaceRow({ iface, settings, onToggle, onEdit }: Props) {
       <div>
         <strong>{iface.ssid ?? settings.ssid}</strong>{' '}
         <span className={styles.interfaceName}>({iface.name})</span>
+        {iface.mode ? (
+          <>
+            {' '}
+            <Badge className={styles.modeBadge}>{formatMode(iface.mode)}</Badge>
+          </>
+        ) : null}
         <div>
           {enabled ? (
             iface.running ? (

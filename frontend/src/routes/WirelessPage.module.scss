@@ -110,3 +110,9 @@
   color: var(--color-text-muted);
   font-size: var(--font-sm);
 }
+
+.modeBadge {
+  background: transparent;
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+}
