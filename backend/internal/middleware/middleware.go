@@ -1,13 +1,15 @@
 package middleware
 
 import (
-	"github.com/labstack/echo/v4"
-	echomiddleware "github.com/labstack/echo/v4/middleware"
 	"log"
-	"nasnet-panel/internal/auth"
-	"nasnet-panel/internal/web"
 	"net/http"
 	"strings"
+
+	"github.com/labstack/echo/v4"
+	echomiddleware "github.com/labstack/echo/v4/middleware"
+
+	"nasnet-panel/internal/auth"
+	"nasnet-panel/internal/web"
 )
 
 func RegisterGlobalMiddleware(e *echo.Echo) {
