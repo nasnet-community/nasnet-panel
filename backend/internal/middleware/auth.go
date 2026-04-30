@@ -20,7 +20,7 @@ func RouterOSAuth(next echo.HandlerFunc) echo.HandlerFunc {
 			})
 		}
 
-		hostHeader := c.Request().Header.Get("X-RouterOS-Host")
+		hostHeader := c.Request().Header.Get(auth.RouterOSHostHeader)
 		routerOSHost, err := auth.ExtractRouterOSHost(hostHeader)
 		if err != nil {
 			return c.JSON(400, map[string]interface{}{
