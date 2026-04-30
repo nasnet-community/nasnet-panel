@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { Badge, DataTable, Switch, useToast } from '@nasnet/ui';
-import { Cable } from 'lucide-react';
+import { ArrowDown, ArrowUp, Cable } from 'lucide-react';
 import { ApiError, updateVPNClient, type VPNClient, type VPNCredentials } from '../../../api';
+import { formatBytes } from '../../../utils/format';
+import { useThemeColors } from '../../../utils/theme-colors';
 
 interface Props {
   rows: VPNClient[];
@@ -14,6 +16,7 @@ interface Props {
 
 export function ClientsTable({ rows, totalRows, creds, onToggled }: Props) {
   const toast = useToast();
+  const colors = useThemeColors();
   const [pending, setPending] = useState<Set<string>>(() => new Set());
   const [optimistic, setOptimistic] = useState<Record<string, boolean>>({});
 
@@ -34,9 +37,51 @@ export function ClientsTable({ rows, totalRows, creds, onToggled }: Props) {
       columns={[
         { key: 'name', header: 'Name', render: (c: VPNClient) => c.name },
         {
+          key: 'status',
+          header: 'Status',
+          render: (c: VPNClient) => (
+            <Badge tone={c.running ? 'success' : 'neutral'}>
+              {c.running ? 'Connected' : 'Disconnected'}
+            </Badge>
+          ),
+        },
+        {
           key: 'protocol',
           header: 'Protocol',
           render: (c: VPNClient) => <Badge tone="info">{c.protocol.toUpperCase()}</Badge>,
+        },
+        {
+          key: 'traffic',
+          header: 'Traffic',
+          render: (c: VPNClient) => {
+            const rx = c.rxByte ?? 0;
+            const tx = c.txByte ?? 0;
+            return (
+              <span
+                style={{
+                  whiteSpace: 'nowrap',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 4,
+                }}
+              >
+                <ArrowDown size={14} color={colors.success} aria-hidden />
+                {formatBytes(rx)}
+                <span aria-hidden> / </span>
+                <ArrowUp size={14} color={colors.warning} aria-hidden />
+                {formatBytes(tx)}
+              </span>
+            );
+          },
+        },
+        {
+          key: 'lastLink',
+          header: 'Last link',
+          render: (c: VPNClient) => {
+            const ts = c.running ? c.lastLinkUp : c.lastLinkDown;
+            const label = c.running ? 'Connected' : 'Disconnected';
+            return ts ? `${label}: ${ts}` : '–';
+          },
         },
         {
           key: 'enabled',

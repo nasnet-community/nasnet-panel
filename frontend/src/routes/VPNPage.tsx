@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Stack, useToast } from '@nasnet/ui';
 import {
@@ -13,6 +13,7 @@ import {
 } from '../api';
 import { useRouter } from '../state/RouterStoreContext';
 import { useSession } from '../state/SessionContext';
+import { usePolling } from '../utils/usePolling';
 import { mapClientFromBE, mapServersStatusToList } from './vpn/adapters';
 import { StatsStrip } from './vpn/StatsStrip';
 import { ClientsSection } from './vpn/sections/ClientsSection';
@@ -58,9 +59,7 @@ export function VPNPage() {
     }
   }, [id, creds, toast]);
 
-  useEffect(() => {
-    void reload();
-  }, [reload]);
+  usePolling(reload, 5000, !!creds);
 
   const protocols = useMemo(() => {
     const set = new Set<VPNProtocol>();

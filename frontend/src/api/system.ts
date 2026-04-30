@@ -1,4 +1,5 @@
 import type { SystemOverview, VPNActiveClient } from '../mocks/types';
+import { formatBytes } from '../utils/format';
 import { apiRequest } from './http';
 
 export interface SystemCredentials {
@@ -52,13 +53,6 @@ function authHeaders({ host, username, password }: SystemCredentials): Record<st
     Authorization: `Basic ${btoa(`${username}:${password}`)}`,
     'X-RouterOS-Host': host,
   };
-}
-
-function formatBytes(bytes: number): string {
-  if (bytes >= 1024 ** 3) return `${(bytes / 1024 ** 3).toFixed(2)} GB`;
-  if (bytes >= 1024 ** 2) return `${(bytes / 1024 ** 2).toFixed(2)} MB`;
-  if (bytes >= 1024) return `${(bytes / 1024).toFixed(2)} KB`;
-  return `${bytes} B`;
 }
 
 export async function fetchSystemInfo(
