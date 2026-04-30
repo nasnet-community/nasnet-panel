@@ -5,10 +5,11 @@ import (
 	"net/http"
 	"strings"
 
-	"nasnet-panel/internal/web"
-
 	"github.com/labstack/echo/v4"
 	echomiddleware "github.com/labstack/echo/v4/middleware"
+
+	"nasnet-panel/internal/auth"
+	"nasnet-panel/internal/web"
 )
 
 func RegisterGlobalMiddleware(e *echo.Echo) {
@@ -31,15 +32,6 @@ func RegisterGlobalMiddleware(e *echo.Echo) {
 		},
 	}))
 
-	e.Use(echomiddleware.StaticWithConfig(echomiddleware.StaticConfig{
-		HTML5:      true,
-		Root:       "dist",
-		Filesystem: http.FS(web.Dist),
-		Skipper: func(c echo.Context) bool {
-			return strings.HasPrefix(c.Request().URL.Path, "/swagger")
-		},
-	}))
-
 	e.Use(echomiddleware.Recover())
 
 	e.Use(echomiddleware.CORSWithConfig(echomiddleware.CORSConfig{
@@ -50,7 +42,7 @@ func RegisterGlobalMiddleware(e *echo.Echo) {
 			echo.HeaderContentType,
 			echo.HeaderAccept,
 			echo.HeaderAuthorization,
-			"X-RouterOS-Host",
+			auth.RouterOSHostHeader,
 		},
 	}))
 
@@ -59,10 +51,8 @@ func RegisterGlobalMiddleware(e *echo.Echo) {
 		Root:       "dist",
 		Filesystem: http.FS(web.Dist),
 		Skipper: func(c echo.Context) bool {
-			p := c.Request().URL.Path
-			return strings.HasPrefix(p, "/api/") ||
-				strings.HasPrefix(p, "/swagger/") ||
-				p == "/health"
+			return strings.HasPrefix(c.Request().URL.Path, "/api/") ||
+				strings.HasPrefix(c.Request().URL.Path, "/swagger/")
 		},
 	}))
 }
