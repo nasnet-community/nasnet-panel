@@ -29,6 +29,16 @@ type UpdateVPNClientRequest struct {
 	Comment  *string `json:"comment" example:"Updated comment"`
 }
 
+// AddL2TPClientRequest represents a request to add an L2TP client.
+type AddL2TPClientRequest struct {
+	Name        string  `json:"name" example:"my-l2tp-client"`
+	ConnectTo   string  `json:"connectTo" example:"192.168.1.1"`
+	User        string  `json:"user" example:"username"`
+	Password    string  `json:"password" example:"password123"`
+	Disabled    *bool   `json:"disabled" example:"false"`
+	IPsecSecret *string `json:"ipsecSecret" example:"secretpassphrase123"`
+}
+
 // ServerStatusItem represents a server with name and enabled status.
 type ServerStatusItem struct {
 	Name         string `json:"name"`

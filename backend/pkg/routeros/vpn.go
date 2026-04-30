@@ -651,3 +651,59 @@ func (c *Client) GetIPPoolRanges(poolName string) (string, error) {
 
 	return result["ranges"], nil
 }
+
+// ProfileExists checks if a PPP profile with the given name exists.
+func (c *Client) ProfileExists(profileName string) (bool, error) {
+	result, err := c.GetFirst("/ppp/profile", "?=name="+profileName)
+	if err != nil {
+		if fmt.Sprint(err) == "no results found" {
+			return false, nil
+		}
+		return false, fmt.Errorf("failed to check profile existence: %w", err)
+	}
+
+	return result != nil && result[".id"] != "", nil
+}
+
+// CreateVPNProfile creates a PPP profile with default settings for VPN clients (L2TP, PPTP, SSTP, etc).
+func (c *Client) CreateVPNProfile(profileName string) error {
+	args := []string{"=name=" + profileName}
+	_, err := c.Add("/ppp/profile", args...)
+	if err != nil {
+		return fmt.Errorf("failed to create VPN profile %s: %w", profileName, err)
+	}
+
+	return nil
+}
+
+// AddL2TPClient adds a new L2TP client with the given parameters.
+func (c *Client) AddL2TPClient(name, connectTo, user, password, profileName, ipsecSecret string, useIPsec bool, disabled bool) error {
+	args := []string{
+		"=name=" + name,
+		"=connect-to=" + connectTo,
+		"=user=" + user,
+		"=password=" + password,
+		"=profile=" + profileName,
+		"=use-ipsec=" + toYesNo(useIPsec),
+		"=disabled=" + toYesNo(disabled),
+	}
+
+	if useIPsec && ipsecSecret != "" {
+		args = append(args, "=ipsec-secret="+ipsecSecret)
+	}
+
+	_, err := c.Add("/interface/l2tp-client", args...)
+	if err != nil {
+		return fmt.Errorf("failed to add L2TP client %s: %w", name, err)
+	}
+
+	return nil
+}
+
+// toYesNo converts a boolean to RouterOS yes/no format.
+func toYesNo(b bool) string {
+	if b {
+		return "yes"
+	}
+	return "no"
+}

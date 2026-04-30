@@ -1594,6 +1594,76 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/vpn/l2tp-client": {
+            "post": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Add a new L2TP client connection with automatic profile creation if needed",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "VPN"
+                ],
+                "summary": "Add L2TP Client",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "L2TP client configuration",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.AddL2TPClientRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handler.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/handler.VPNClientResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/api/vpn/l2tp-server": {
             "get": {
                 "security": [
@@ -2524,6 +2594,35 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "handler.AddL2TPClientRequest": {
+            "type": "object",
+            "properties": {
+                "connectTo": {
+                    "type": "string",
+                    "example": "192.168.1.1"
+                },
+                "disabled": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "ipsecSecret": {
+                    "type": "string",
+                    "example": "secretpassphrase123"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "my-l2tp-client"
+                },
+                "password": {
+                    "type": "string",
+                    "example": "password123"
+                },
+                "user": {
+                    "type": "string",
+                    "example": "username"
+                }
+            }
+        },
         "handler.ChangeUserPasswordRequest": {
             "type": "object",
             "properties": {
@@ -2778,7 +2877,22 @@ const docTemplate = `{
                 "enabled": {
                     "type": "boolean"
                 },
+                "localIp": {
+                    "type": "string"
+                },
+                "localIpPool": {
+                    "type": "string"
+                },
                 "name": {
+                    "type": "string"
+                },
+                "port": {
+                    "type": "integer"
+                },
+                "remoteIp": {
+                    "type": "string"
+                },
+                "remoteIpPool": {
                     "type": "string"
                 }
             }
@@ -2796,6 +2910,21 @@ const docTemplate = `{
             "properties": {
                 "enabled": {
                     "type": "boolean"
+                },
+                "localIp": {
+                    "type": "string"
+                },
+                "localIpPool": {
+                    "type": "string"
+                },
+                "port": {
+                    "type": "integer"
+                },
+                "remoteIp": {
+                    "type": "string"
+                },
+                "remoteIpPool": {
+                    "type": "string"
                 }
             }
         },
@@ -2975,11 +3104,17 @@ const docTemplate = `{
                 "running": {
                     "type": "boolean"
                 },
+                "rx": {
+                    "type": "string"
+                },
                 "rxByte": {
                     "type": "integer"
                 },
                 "rxPacket": {
                     "type": "integer"
+                },
+                "tx": {
+                    "type": "string"
                 },
                 "txByte": {
                     "type": "integer"
