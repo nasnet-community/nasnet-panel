@@ -11,7 +11,6 @@ import { OverviewTab } from './routes/OverviewTab';
 import { EasyConfigWizard } from './routes/EasyConfigWizard';
 import { VPNPage } from './routes/VPNPage';
 import { WirelessPage } from './routes/WirelessPage';
-import { UsersPage } from './routes/UsersPage';
 import { LogsPage } from './routes/LogsPage';
 import { UpdatesPage } from './routes/UpdatesPage';
 import { DHCPPage } from './routes/DHCPPage';
@@ -54,7 +53,6 @@ export function App() {
                   <Route path="config" element={<EasyConfigWizard />} />
                   <Route path="vpn" element={<VPNPage />} />
                   <Route path="wireless" element={<WirelessPage />} />
-                  <Route path="users" element={<UsersPage />} />
                   <Route path="logs" element={<LogsPage />} />
                   <Route path="dhcp" element={<DHCPPage />} />
                   <Route path="dns" element={<DNSPage />} />
