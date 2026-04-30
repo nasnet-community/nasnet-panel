@@ -25,6 +25,7 @@ export {
   fetchVPNClients,
   rebootSystem,
   shutdownSystem,
+  changeUserPassword,
   type SystemCredentials,
   type SystemInfoResponse,
   type ResourceInfoResponse,

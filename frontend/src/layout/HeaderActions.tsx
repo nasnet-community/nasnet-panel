@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Bell, ChevronDown, LogOut, Moon, Sun } from 'lucide-react';
+import { Bell, ChevronDown, KeyRound, LogOut, Moon, Sun } from 'lucide-react';
 import { useAppTheme } from '../state/ThemeContext';
+import { ChangePasswordDialog } from './ChangePasswordDialog';
 import styles from './HeaderActions.module.scss';
 
 export interface HeaderActionsProps {
@@ -16,6 +17,7 @@ export function HeaderActions({ routerName }: HeaderActionsProps) {
   const location = useLocation();
   const hideSessionActions = location.pathname === '/' || location.pathname === '/routers/new';
   const [open, setOpen] = useState(false);
+  const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -118,6 +120,18 @@ export function HeaderActions({ routerName }: HeaderActionsProps) {
             type="button"
             role="menuitem"
             className={styles.menuItem}
+            onClick={() => {
+              setOpen(false);
+              setPasswordDialogOpen(true);
+            }}
+          >
+            <KeyRound size={16} aria-hidden />
+            <span>Change password</span>
+          </button>
+          <button
+            type="button"
+            role="menuitem"
+            className={styles.menuItem}
             onClick={goAndClose('/')}
           >
             <LogOut size={16} aria-hidden />
@@ -125,6 +139,10 @@ export function HeaderActions({ routerName }: HeaderActionsProps) {
           </button>
         </div>
       ) : null}
+      <ChangePasswordDialog
+        open={passwordDialogOpen}
+        onClose={() => setPasswordDialogOpen(false)}
+      />
     </div>
   );
 }
