@@ -178,6 +178,97 @@ func HandleUpdateVPNClient(c echo.Context) error {
 	return SuccessResponse(c, http.StatusOK, "VPN client updated successfully", response)
 }
 
+// HandleAddL2TPClient adds a new L2TP client
+// @Summary Add L2TP Client
+// @Description Add a new L2TP client connection with automatic profile creation if needed
+// @Tags VPN
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Param request body AddL2TPClientRequest true "L2TP client configuration"
+// @Accept json
+// @Produce json
+// @Success 201 {object} Response{data=VPNClientResponse}
+// @Failure 400 {object} Response
+// @Failure 500 {object} Response
+// @Router /api/vpn/l2tp-client [post].
+func HandleAddL2TPClient(c echo.Context) error {
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+	defer func() { _ = client.Close() }()
+
+	var req AddL2TPClientRequest
+	if err := c.Bind(&req); err != nil {
+		return ErrorResponse(c, http.StatusBadRequest, "Invalid request body", err)
+	}
+
+	if req.Name == "" || req.ConnectTo == "" || req.User == "" || req.Password == "" {
+		return ErrorResponse(c, http.StatusBadRequest, "name, connectTo, user, and password are required", nil)
+	}
+
+	_, err = client.GetVPNClient(req.Name)
+	if err == nil {
+		return ErrorResponse(c, http.StatusConflict, "L2TP client with this name already exists", nil)
+	}
+
+	useIPsec := false
+	ipsecSecret := ""
+	if req.IPsecSecret != nil && *req.IPsecSecret != "" {
+		useIPsec = true
+		ipsecSecret = *req.IPsecSecret
+	}
+
+	profileName := req.Name + "-client-profile"
+
+	exists, err := client.ProfileExists(profileName)
+	if err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to check profile existence", err)
+	}
+
+	if !exists {
+		if err := client.CreateVPNProfile(profileName); err != nil {
+			return ErrorResponse(c, http.StatusInternalServerError, "Failed to create VPN profile", err)
+		}
+	}
+
+	disabled := false
+	if req.Disabled != nil {
+		disabled = *req.Disabled
+	}
+
+	if err := client.AddL2TPClient(req.Name, req.ConnectTo, req.User, req.Password, profileName, ipsecSecret, useIPsec, disabled); err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to add L2TP client", err)
+	}
+
+	vpnClient, err := client.GetVPNClient(req.Name)
+	if err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to retrieve added L2TP client", err)
+	}
+
+	response := VPNClientResponse{
+		ID:           vpnClient.ID,
+		Name:         vpnClient.Name,
+		Type:         vpnClient.Type,
+		Running:      vpnClient.Running,
+		Disabled:     vpnClient.Disabled,
+		MTU:          vpnClient.MTU,
+		MacAddress:   vpnClient.MacAddress,
+		RxByte:       vpnClient.RxByte,
+		TxByte:       vpnClient.TxByte,
+		Rx:           formatBytes(vpnClient.RxByte),
+		Tx:           formatBytes(vpnClient.TxByte),
+		RxPacket:     vpnClient.RxPacket,
+		TxPacket:     vpnClient.TxPacket,
+		LastLinkUp:   vpnClient.LastLinkUp,
+		LastLinkDown: vpnClient.LastLinkDown,
+		LinkDowns:    vpnClient.LinkDowns,
+		Comment:      vpnClient.Comment,
+	}
+
+	return SuccessResponse(c, http.StatusCreated, "L2TP client added successfully", response)
+}
+
 // HandleGetVPNServersStatus gets the status of all VPN servers
 // @Summary Get VPN Servers Status
 // @Description Get the status of OpenVPN, WireGuard, PPTP, L2TP, and SSTP servers
