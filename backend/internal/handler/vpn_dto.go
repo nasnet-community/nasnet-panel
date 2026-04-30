@@ -27,13 +27,23 @@ type UpdateVPNClientRequest struct {
 
 // ServerStatusItem represents a server with name and enabled status.
 type ServerStatusItem struct {
-	Name    string `json:"name"`
-	Enabled bool   `json:"enabled"`
+	Name         string `json:"name"`
+	Enabled      bool   `json:"enabled"`
+	Port         int    `json:"port,omitempty"`
+	LocalIP      string `json:"localIp,omitempty"`
+	LocalIPPool  string `json:"localIpPool,omitempty"`
+	RemoteIP     string `json:"remoteIp,omitempty"`
+	RemoteIPPool string `json:"remoteIpPool,omitempty"`
 }
 
 // SingleServerStatus represents a single server with enabled status.
 type SingleServerStatus struct {
-	Enabled bool `json:"enabled"`
+	Enabled      bool   `json:"enabled"`
+	Port         int    `json:"port,omitempty"`
+	LocalIP      string `json:"localIp,omitempty"`
+	LocalIPPool  string `json:"localIpPool,omitempty"`
+	RemoteIP     string `json:"remoteIp,omitempty"`
+	RemoteIPPool string `json:"remoteIpPool,omitempty"`
 }
 
 // VPNServersStatusResponse represents the status of all VPN servers.
