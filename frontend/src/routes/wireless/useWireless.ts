@@ -45,6 +45,7 @@ const toInterface = (wi: WifiInterfaceResponse): Interface => ({
   ssid: wi.ssid,
   band: toBand(wi.band),
   securityTypes: parseSecurityTypes(wi.securityType),
+  mode: wi.mode,
 });
 
 const toWirelessClient = (c: WifiConnectedClientResponse): WirelessClient => ({

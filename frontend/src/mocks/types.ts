@@ -57,6 +57,7 @@ export interface Interface {
   ssid?: string;
   band?: WirelessBand;
   securityTypes?: string[];
+  mode?: string;
 }
 
 export interface SystemOverview {
