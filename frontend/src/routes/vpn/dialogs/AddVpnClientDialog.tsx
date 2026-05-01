@@ -155,7 +155,13 @@ export function AddVpnClientDialog({ onCancel, onSubmitL2TP }: Props) {
         </FieldRow>
 
         {type === 'l2tp' ? (
-          <L2tpFields draft={draft} set={set} errors={errors} touched={touched} markTouched={markTouched} />
+          <L2tpFields
+            draft={draft}
+            set={set}
+            errors={errors}
+            touched={touched}
+            markTouched={markTouched}
+          />
         ) : null}
 
         {type === 'openvpn' ? <OpenVpnFields draft={draft} set={set} /> : null}
@@ -206,9 +212,7 @@ function L2tpFields({ draft, set, errors, touched, markTouched }: L2tpFieldsProp
             aria-label="Connect to"
             aria-invalid={touched.connectTo && !!errors.connectTo}
           />
-          {touched.connectTo && errors.connectTo ? (
-            <FormError>{errors.connectTo}</FormError>
-          ) : null}
+          {touched.connectTo && errors.connectTo ? <FormError>{errors.connectTo}</FormError> : null}
         </Label>
         <Label>
           <span>User</span>
