@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'motion/react';
 import { ChevronLeft, ChevronRight, Filter, RefreshCw, ScrollText, SearchX } from 'lucide-react';
 import styles from './LogsPage.module.scss';
 import {
