@@ -34,3 +34,34 @@ export const isWifiPassword = (value: string): boolean => value.length >= 8 && v
 
 export const isRequired = (value: string | undefined | null): boolean =>
   typeof value === 'string' && value.trim().length > 0;
+
+const IDENTIFIER_RE = /^[A-Za-z0-9_-]+$/;
+const HOSTNAME_RE =
+  /^(?=.{1,253}$)(?!-)[A-Za-z0-9-]{1,63}(?<!-)(\.(?!-)[A-Za-z0-9-]{1,63}(?<!-))*$/;
+
+export const isIdentifier = (value: string): boolean => {
+  const v = value.trim();
+  return v.length > 0 && v.length <= 64 && IDENTIFIER_RE.test(v);
+};
+
+export const isHostname = (value: string): boolean => HOSTNAME_RE.test(value.trim());
+
+export const isHostOrIp = (value: string): boolean => {
+  const v = value.trim();
+  return isIPv4(v) || isHostname(v);
+};
+
+export function validateIdentifier(value: string): string | null {
+  const v = value.trim();
+  if (!isRequired(v)) return 'Name is required.';
+  if (v.length > 64) return 'Name must be 64 characters or fewer.';
+  if (!IDENTIFIER_RE.test(v)) return 'Use letters, digits, hyphens or underscores only.';
+  return null;
+}
+
+export function validateHostOrIp(value: string): string | null {
+  const v = value.trim();
+  if (!isRequired(v)) return 'Host is required.';
+  if (isIPv4(v) || isHostname(v)) return null;
+  return 'Enter a valid IP address or hostname.';
+}
