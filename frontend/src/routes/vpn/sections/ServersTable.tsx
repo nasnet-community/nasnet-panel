@@ -28,7 +28,15 @@ export function ServersTable({ rows, totalRows, onRowClick }: Props) {
           ),
         },
         { key: 'port', header: 'Port', render: (s: VPNServer) => s.listenPort || '–' },
-        { key: 'pool', header: 'IP pool', render: (s: VPNServer) => s.ipPool || '–' },
+        {
+          key: 'remoteIp',
+          header: 'Remote IP',
+          render: (s: VPNServer) => {
+            if (!s.remoteIp && !s.ipPool) return '–';
+            if (s.remoteIp && s.ipPool) return `${s.remoteIp} (${s.ipPool})`;
+            return s.remoteIp || s.ipPool;
+          },
+        },
       ]}
       rows={rows}
       rowKey={(s) => s.id}

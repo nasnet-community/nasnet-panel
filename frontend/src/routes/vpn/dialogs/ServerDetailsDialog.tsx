@@ -77,7 +77,7 @@ export function ServerDetailsDialog({ server, creds, onClose }: Props) {
     >
       {loading ? <p>Loading…</p> : null}
       {error ? <p style={{ color: 'var(--color-danger)' }}>{error}</p> : null}
-      {details ? <DetailsBody details={details} /> : null}
+      {details && server ? <DetailsBody server={server} details={details} /> : null}
     </Dialog>
   );
 }
@@ -107,15 +107,28 @@ async function loadDetails(
   }
 }
 
-function DetailsBody({ details }: { details: Details }) {
+function SummaryRows({ server }: { server: VPNServer }) {
+  return (
+    <>
+      {server.listenPort ? <Row label="Port" value={server.listenPort} /> : null}
+      {server.localIp ? <Row label="Local IP" value={server.localIp} /> : null}
+      {server.localIpPool ? <Row label="Local IP pool" value={server.localIpPool} /> : null}
+      {server.remoteIp ? <Row label="Remote IP" value={server.remoteIp} /> : null}
+      {server.ipPool ? <Row label="Remote IP pool" value={server.ipPool} /> : null}
+    </>
+  );
+}
+
+function DetailsBody({ server, details }: { server: VPNServer; details: Details }) {
   switch (details.kind) {
     case 'openvpn': {
       const d = details.data;
       return (
         <DList>
+          <SummaryRows server={server} />
           <Row label="Name" value={d.name} />
           <Row label="Enabled" value={<BoolBadge value={d.enabled} />} />
-          <Row label="Port" value={d.port} />
+          {server.listenPort ? null : <Row label="Port" value={d.port} />}
           <Row label="Mode" value={d.mode} />
           <Row label="Protocol" value={d.protocol} />
           <Row label="MAC address" value={d.macAddress} />
@@ -134,12 +147,13 @@ function DetailsBody({ details }: { details: Details }) {
       const d = details.data;
       return (
         <DList>
+          <SummaryRows server={server} />
           <Row label="Name" value={d.name} />
           <Row label="Enabled" value={<BoolBadge value={d.enabled} />} />
           <Row label="Running" value={<BoolBadge value={d.running} />} />
-          <Row label="Port" value={d.port} />
-          <Row label="Public key" value={<code>{d.publicKey}</code>} />
-          <Row label="Private key" value={<code>{d.privateKey}</code>} />
+          {server.listenPort ? null : <Row label="Port" value={d.port} />}
+          <Row label="Public key" value={<code>{d.publicKey}</code>} wide />
+          <Row label="Private key" value={<code>{d.privateKey}</code>} wide />
         </DList>
       );
     }
@@ -147,11 +161,12 @@ function DetailsBody({ details }: { details: Details }) {
       const d = details.data;
       return (
         <DList>
+          <SummaryRows server={server} />
           <Row label="Enabled" value={<BoolBadge value={d.enabled} />} />
           <Row label="Auth" value={d.auth} />
           <Row label="Profile" value={d.profile} />
-          <Row label="Local address" value={d.localAddress} />
-          <Row label="Remote address" value={d.remoteAddress} />
+          {server.localIp ? null : <Row label="Local address" value={d.localAddress} />}
+          {server.remoteIp ? null : <Row label="Remote address" value={d.remoteAddress} />}
           <Row label="DNS server" value={d.dnsServer} />
           <Row label="Use compression" value={d.useCompression} />
           <Row label="Use encryption" value={d.useEncryption} />
@@ -165,15 +180,20 @@ function DetailsBody({ details }: { details: Details }) {
       const d = details.data;
       return (
         <DList>
+          <SummaryRows server={server} />
           <Row label="Enabled" value={<BoolBadge value={d.enabled} />} />
           <Row label="Auth" value={d.auth} />
           <Row label="Profile" value={d.profile} />
           <Row label="Protocol" value={d.protocol} />
           <Row label="IPsec" value={d.ipsec} />
-          <Row label="IPsec secret" value={d.ipsecSecret ? <code>{d.ipsecSecret}</code> : '–'} />
+          <Row
+            label="IPsec secret"
+            value={d.ipsecSecret ? <code>{d.ipsecSecret}</code> : '–'}
+            wide
+          />
           <Row label="One session per host" value={<BoolBadge value={d.oneSessionPerHost} />} />
-          <Row label="Local address" value={d.localAddress} />
-          <Row label="Remote address" value={d.remoteAddress} />
+          {server.localIp ? null : <Row label="Local address" value={d.localAddress} />}
+          {server.remoteIp ? null : <Row label="Remote address" value={d.remoteAddress} />}
           <Row label="DNS server" value={d.dnsServer} />
           <Row label="Use compression" value={d.useCompression} />
           <Row label="Use encryption" value={d.useEncryption} />
@@ -187,8 +207,9 @@ function DetailsBody({ details }: { details: Details }) {
       const d = details.data;
       return (
         <DList>
+          <SummaryRows server={server} />
           <Row label="Enabled" value={<BoolBadge value={d.enabled} />} />
-          <Row label="Port" value={d.port} />
+          {server.listenPort ? null : <Row label="Port" value={d.port} />}
           <Row label="Auth" value={d.auth} />
           <Row label="Profile" value={d.profile} />
           <Row label="Certificate" value={d.certificate} />
@@ -196,8 +217,8 @@ function DetailsBody({ details }: { details: Details }) {
           <Row label="TLS version" value={d.tlsVersion} />
           <Row label="Ciphers" value={d.ciphers} />
           <Row label="PFS" value={d.pfs} />
-          <Row label="Local address" value={d.localAddress} />
-          <Row label="Remote address" value={d.remoteAddress} />
+          {server.localIp ? null : <Row label="Local address" value={d.localAddress} />}
+          {server.remoteIp ? null : <Row label="Remote address" value={d.remoteAddress} />}
           <Row label="DNS server" value={d.dnsServer} />
           <Row label="Use compression" value={d.useCompression} />
           <Row label="Use encryption" value={d.useEncryption} />
@@ -215,7 +236,7 @@ function DList({ children }: { children: React.ReactNode }) {
     <dl
       style={{
         display: 'grid',
-        gridTemplateColumns: '180px 1fr',
+        gridTemplateColumns: '140px minmax(0, 1fr) 140px minmax(0, 1fr)',
         rowGap: 8,
         columnGap: 16,
         margin: 0,
@@ -226,12 +247,19 @@ function DList({ children }: { children: React.ReactNode }) {
   );
 }
 
-function Row({ label, value }: { label: string; value: React.ReactNode }) {
+function Row({ label, value, wide }: { label: string; value: React.ReactNode; wide?: boolean }) {
   const empty = value === '' || value === null || value === undefined;
   return (
     <>
       <dt style={{ color: 'var(--color-text-muted)', fontSize: 'var(--font-sm)' }}>{label}</dt>
-      <dd style={{ margin: 0, fontSize: 'var(--font-sm)', wordBreak: 'break-all' }}>
+      <dd
+        style={{
+          margin: 0,
+          fontSize: 'var(--font-sm)',
+          wordBreak: 'break-all',
+          gridColumn: wide ? '2 / -1' : undefined,
+        }}
+      >
         {empty ? '–' : value}
       </dd>
     </>
@@ -244,11 +272,12 @@ function BoolBadge({ value }: { value: boolean }) {
 
 function SecretsRow({ secrets }: { secrets: Array<{ username: string; password: string }> }) {
   if (!secrets || secrets.length === 0) {
-    return <Row label="Secrets" value="–" />;
+    return <Row label="Secrets" value="–" wide />;
   }
   return (
     <Row
       label="Secrets"
+      wide
       value={
         <ul style={{ margin: 0, paddingLeft: 16 }}>
           {secrets.map((s, i) => (
