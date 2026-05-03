@@ -22,6 +22,8 @@ test.describe('DHCP page', () => {
     await expect(leases).toContainText('192.168.88.101');
     await expect(leases).toContainText('laptop-maj');
     await expect(leases).toContainText('printer');
+    await expect(leases).toContainText('Port');
+    await expect(leases).toContainText('ether3');
 
     const clients = page.getByTestId('dhcp-clients');
     await expect(clients).toBeVisible();

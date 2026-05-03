@@ -14,6 +14,7 @@ import { SectionHeader } from './SectionHeader';
 const matches = (s: VPNServer, q: string) =>
   s.name.toLowerCase().includes(q) ||
   (s.ipPool ?? '').toLowerCase().includes(q) ||
+  (s.remoteIp ?? '').toLowerCase().includes(q) ||
   (s.dns ?? '').toLowerCase().includes(q) ||
   String(s.listenPort).includes(q);
 
