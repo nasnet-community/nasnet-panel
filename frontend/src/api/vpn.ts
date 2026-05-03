@@ -41,10 +41,20 @@ export interface AddL2TPClientRequest {
 export interface ServerStatusItem {
   name: string;
   enabled: boolean;
+  port?: number;
+  localIp?: string;
+  localIpPool?: string;
+  remoteIp?: string;
+  remoteIpPool?: string;
 }
 
 export interface SingleServerStatus {
   enabled: boolean;
+  port?: number;
+  localIp?: string;
+  localIpPool?: string;
+  remoteIp?: string;
+  remoteIpPool?: string;
 }
 
 export interface VPNServersStatusResponse {
