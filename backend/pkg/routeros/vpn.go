@@ -134,8 +134,8 @@ func (c *Client) ListVPNClients() ([]VPNClientInfo, error) {
 			TxByte:       txByte,
 			RxPacket:     rxPacket,
 			TxPacket:     txPacket,
-			LastLinkUp:   result["last-link-up-time"],
-			LastLinkDown: result["last-link-down-time"],
+			LastLinkUp:   FormatRouterOSTimestamp(result["last-link-up-time"]),
+			LastLinkDown: FormatRouterOSTimestamp(result["last-link-down-time"]),
 			LinkDowns:    linkDowns,
 			Comment:      result["comment"],
 		})
@@ -179,8 +179,8 @@ func (c *Client) GetVPNClient(nameOrID string) (*VPNClientInfo, error) {
 		TxByte:       txByte,
 		RxPacket:     rxPacket,
 		TxPacket:     txPacket,
-		LastLinkUp:   result["last-link-up-time"],
-		LastLinkDown: result["last-link-down-time"],
+		LastLinkUp:   FormatRouterOSTimestamp(result["last-link-up-time"]),
+		LastLinkDown: FormatRouterOSTimestamp(result["last-link-down-time"]),
 		LinkDowns:    linkDowns,
 		Comment:      result["comment"],
 	}, nil
@@ -765,6 +765,69 @@ func (c *Client) AddL2TPClient(name, connectTo, user, password, profileName, ips
 	_, err := c.Add("/interface/l2tp-client", args...)
 	if err != nil {
 		return fmt.Errorf("failed to add L2TP client %s: %w", name, err)
+	}
+
+	return nil
+}
+
+// UpdateL2TPClient updates L2TP client settings.
+func (c *Client) UpdateL2TPClient(nameOrID string, connectTo, user, password *string, disabled *bool, ipsecSecret *string, useIPsec *bool) error {
+	// Get the L2TP client to find its ID
+	vpnClient, err := c.GetVPNClient(nameOrID)
+	if err != nil {
+		return fmt.Errorf("L2TP client not found: %w", err)
+	}
+
+	args := []string{"=.id=" + vpnClient.ID}
+
+	if connectTo != nil && *connectTo != "" {
+		args = append(args, "=connect-to="+*connectTo)
+	}
+
+	if user != nil && *user != "" {
+		args = append(args, "=user="+*user)
+	}
+
+	if password != nil && *password != "" {
+		args = append(args, "=password="+*password)
+	}
+
+	if disabled != nil {
+		args = append(args, "=disabled="+toYesNo(*disabled))
+	}
+
+	if useIPsec != nil {
+		args = append(args, "=use-ipsec="+toYesNo(*useIPsec))
+	}
+
+	if ipsecSecret != nil && *ipsecSecret != "" {
+		args = append(args, "=ipsec-secret="+*ipsecSecret)
+	}
+
+	// If only the ID is provided, nothing to update
+	if len(args) == 1 {
+		return nil
+	}
+
+	_, err = c.Set("/interface/l2tp-client", args...)
+	if err != nil {
+		return fmt.Errorf("failed to update L2TP client %s: %w", nameOrID, err)
+	}
+
+	return nil
+}
+
+// RemoveL2TPClient removes an L2TP client by name or ID.
+func (c *Client) RemoveL2TPClient(nameOrID string) error {
+	// Get the L2TP client to find its ID
+	vpnClient, err := c.GetVPNClient(nameOrID)
+	if err != nil {
+		return fmt.Errorf("L2TP client not found: %w", err)
+	}
+
+	_, err = c.Remove("/interface/l2tp-client", "=.id="+vpnClient.ID)
+	if err != nil {
+		return fmt.Errorf("failed to remove L2TP client %s: %w", nameOrID, err)
 	}
 
 	return nil

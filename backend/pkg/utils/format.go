@@ -29,6 +29,49 @@ func BytesToSizeString(bytes int64) string {
 	}
 }
 
+// FormatRouterOSTimestamp converts RouterOS timestamp format (e.g., "sep/15/2025 00:47:41") to "YYYY-MM-DD HH:MM:SS".
+func FormatRouterOSTimestamp(timestamp string) string {
+	timestamp = strings.TrimSpace(timestamp)
+	if timestamp == "" {
+		return ""
+	}
+
+	parts := strings.Split(timestamp, " ")
+	if len(parts) != 2 {
+		return timestamp
+	}
+
+	dateParts := strings.Split(parts[0], "/")
+	if len(dateParts) != 3 {
+		return timestamp
+	}
+
+	monthStr := strings.ToLower(dateParts[0])
+	day := dateParts[1]
+	year := dateParts[2]
+	timeStr := parts[1]
+
+	monthMap := map[string]string{
+		"jan": "01", "feb": "02", "mar": "03", "apr": "04",
+		"may": "05", "jun": "06", "jul": "07", "aug": "08",
+		"sep": "09", "oct": "10", "nov": "11", "dec": "12",
+	}
+
+	monthNum, ok := monthMap[monthStr]
+	if !ok {
+		return timestamp
+	}
+
+	dayInt, err := strconv.Atoi(day)
+	if err != nil {
+		return timestamp
+	}
+	day = fmt.Sprintf("%02d", dayInt)
+
+	return fmt.Sprintf("%s-%s-%s %s", year, monthNum, day, timeStr)
+}
+
+// FormatRouterOSTime converts RouterOS duration format (e.g., "1d12h30m") to human-readable format.
 func FormatRouterOSTime(routerOSTime string) string {
 	routerOSTime = strings.TrimSpace(routerOSTime)
 	if routerOSTime == "" {
@@ -66,7 +109,6 @@ func FormatRouterOSTime(routerOSTime string) string {
 		}
 	}
 
-	// Parse milliseconds first to avoid 'm' in 'ms' being matched as minutes
 	msPattern := regexp.MustCompile(`(\d+)ms`)
 	if match := msPattern.FindStringSubmatch(routerOSTime); len(match) > 1 {
 		if ms, err := strconv.Atoi(match[1]); err == nil {
@@ -74,7 +116,6 @@ func FormatRouterOSTime(routerOSTime string) string {
 		}
 	}
 
-	// Only parse minutes if "ms" is not in the string
 	if !strings.Contains(routerOSTime, "ms") {
 		mPattern := regexp.MustCompile(`(\d+)m`)
 		if match := mPattern.FindStringSubmatch(routerOSTime); len(match) > 1 {
