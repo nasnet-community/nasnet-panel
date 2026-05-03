@@ -44,7 +44,14 @@ test.describe('VPN servers tab', () => {
         body: envelope({
           ovpnServers: [],
           wireguards: [],
-          pptp: { enabled: true },
+          pptp: {
+            enabled: true,
+            port: 1723,
+            localIp: '10.10.10.1',
+            localIpPool: 'vpn-local-pool',
+            remoteIp: '10.10.10.2-10.10.10.50',
+            remoteIpPool: 'vpn-remote-pool',
+          },
           l2tp: null,
           sstp: null,
         }),
@@ -75,12 +82,22 @@ test.describe('VPN servers tab', () => {
 
     const row = page.getByRole('row', { name: /PPTP/ }).first();
     await expect(row).toBeVisible();
+    await expect(row).toContainText('1723');
+    await expect(row).toContainText('10.10.10.2-10.10.10.50 (vpn-remote-pool)');
+
     await row.click();
 
     const dialog = page.getByRole('dialog');
     await expect(dialog).toBeVisible();
+    await expect(dialog.getByText('Port', { exact: true })).toBeVisible();
+    await expect(dialog.getByText('Local IP', { exact: true })).toBeVisible();
+    await expect(dialog.getByText('Local IP pool', { exact: true })).toBeVisible();
+    await expect(dialog.getByText('Remote IP', { exact: true })).toBeVisible();
+    await expect(dialog.getByText('Remote IP pool', { exact: true })).toBeVisible();
     await expect(dialog.getByText('10.10.10.1')).toBeVisible();
     await expect(dialog.getByText('10.10.10.2-10.10.10.50')).toBeVisible();
+    await expect(dialog.getByText('vpn-local-pool')).toBeVisible();
+    await expect(dialog.getByText('vpn-remote-pool')).toBeVisible();
     await expect(dialog.getByText('1.1.1.1')).toBeVisible();
     await expect(dialog.getByText('alice', { exact: true })).toBeVisible();
     await expect(dialog.getByText('alice123')).toBeVisible();
