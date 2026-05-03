@@ -275,15 +275,42 @@ func (c *Client) ListOvpnServers() ([]OvpnServerInfo, error) {
 		port, _ := strconv.Atoi(result["port"])
 		keepAliveTimeout, _ := strconv.Atoi(result["keepalive-timeout"])
 
+		// Handle old RouterOS versions that only support single OpenVPN server
+		// Old format: no .id field, uses "enabled" instead of "disabled"
+		id := result[".id"]
+		if id == "" {
+			id = "*1" // RouterOS convention for single items
+		}
+
+		name := result["name"]
+		if name == "" {
+			name = "ovpn-server1" // Default name for single server in old format
+		}
+
+		// Determine disabled status: new format uses "disabled", old format uses "enabled"
+		var disabled bool
+		if disabledStr, ok := result["disabled"]; ok && disabledStr != "" {
+			disabled = disabledStr == "true"
+		} else if enabledStr, ok := result["enabled"]; ok && enabledStr != "" {
+			// Old format: "enabled" field, so disabled = !enabled
+			disabled = enabledStr != "true"
+		}
+
+		// Protocol defaults to "tcp" if not specified
+		protocol := result["protocol"]
+		if protocol == "" {
+			protocol = "tcp"
+		}
+
 		servers = append(servers, OvpnServerInfo{
-			ID:                result[".id"],
-			Name:              result["name"],
-			Disabled:          result["disabled"] == "true",
+			ID:                id,
+			Name:              name,
+			Disabled:          disabled,
 			Mode:              result["mode"],
 			UserAuthMethod:    result["user-auth-method"],
 			CertFile:          result["certificate"],
 			KeyFile:           result["key"],
-			ProtocolVersion:   result["protocol"],
+			ProtocolVersion:   protocol,
 			Port:              port,
 			CipherName:        result["cipher"],
 			AuthHashAlgorithm: result["auth"],
@@ -319,15 +346,41 @@ func parseOvpnServerInfo(result map[string]string) *OvpnServerInfo {
 	port, _ := strconv.Atoi(result["port"])
 	keepAliveTimeout, _ := strconv.Atoi(result["keepalive-timeout"])
 
+	// Handle old RouterOS versions that only support single OpenVPN server
+	id := result[".id"]
+	if id == "" {
+		id = "*1" // RouterOS convention for single items
+	}
+
+	name := result["name"]
+	if name == "" {
+		name = "ovpn-server1" // Default name for single server in old format
+	}
+
+	// Determine disabled status: new format uses "disabled", old format uses "enabled"
+	var disabled bool
+	if disabledStr, ok := result["disabled"]; ok && disabledStr != "" {
+		disabled = disabledStr == "true"
+	} else if enabledStr, ok := result["enabled"]; ok && enabledStr != "" {
+		// Old format: "enabled" field, so disabled = !enabled
+		disabled = enabledStr != "true"
+	}
+
+	// Protocol defaults to "tcp" if not specified
+	protocol := result["protocol"]
+	if protocol == "" {
+		protocol = "tcp"
+	}
+
 	return &OvpnServerInfo{
-		ID:                result[".id"],
-		Name:              result["name"],
-		Disabled:          result["disabled"] == "true",
+		ID:                id,
+		Name:              name,
+		Disabled:          disabled,
 		Mode:              result["mode"],
 		UserAuthMethod:    result["user-auth-method"],
 		CertFile:          result["certificate"],
 		KeyFile:           result["key"],
-		ProtocolVersion:   result["protocol"],
+		ProtocolVersion:   protocol,
 		Port:              port,
 		CipherName:        result["cipher"],
 		AuthHashAlgorithm: result["auth"],
@@ -336,6 +389,7 @@ func parseOvpnServerInfo(result map[string]string) *OvpnServerInfo {
 		KeepAliveTimeout:  keepAliveTimeout,
 		DefaultGateway:    result["default-gateway"] == "true",
 		MacAddress:        result["mac-address"],
+		DefaultProfile:    result["default-profile"],
 		Comment:           result["comment"],
 	}
 }
