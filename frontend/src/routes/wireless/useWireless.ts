@@ -18,8 +18,16 @@ import {
 import { useRouter } from '../../state/RouterStoreContext';
 import { useSession } from '../../state/SessionContext';
 
-const toBand = (value: string | undefined): WirelessBand =>
-  value && value.toLowerCase().startsWith('5') ? '5ghz' : '2.4ghz';
+const parseBand = (value: string | undefined): WirelessBand | undefined => {
+  const v = value?.toLowerCase().trim();
+  if (!v) return undefined;
+  if (v.startsWith('6')) return '6ghz';
+  if (v.startsWith('5')) return '5ghz';
+  if (v.startsWith('2')) return '2.4ghz';
+  return undefined;
+};
+
+const toBand = (value: string | undefined): WirelessBand => parseBand(value) ?? '2.4ghz';
 
 const parseNumber = (value: string | undefined): number => {
   if (!value) return 0;
@@ -43,7 +51,7 @@ const toInterface = (wi: WifiInterfaceResponse): Interface => ({
   disabled: wi.disabled,
   comment: wi.comment,
   ssid: wi.ssid,
-  band: toBand(wi.band),
+  band: parseBand(wi.band),
   securityTypes: parseSecurityTypes(wi.securityType),
   mode: wi.mode,
 });
