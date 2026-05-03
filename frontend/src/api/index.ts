@@ -80,6 +80,7 @@ export { fetchFirewallRules, type FirewallCredentials, type FirewallRule } from 
 export {
   listVPNClients,
   updateVPNClient,
+  addL2TPClient,
   fetchVPNServersStatus,
   fetchOvpnServerDetails,
   fetchPptpServerDetails,
@@ -89,6 +90,7 @@ export {
   type VPNCredentials,
   type VPNClientResponse,
   type UpdateVPNClientRequest,
+  type AddL2TPClientRequest,
   type VPNServersStatusResponse,
   type ServerStatusItem,
   type SingleServerStatus,
