@@ -1,7 +1,6 @@
 import { useMemo, useState } from 'react';
 import {
   Button,
-  Checkbox,
   Dialog,
   FieldRow,
   FieldStack,
@@ -10,6 +9,7 @@ import {
   Label,
   PasswordInput,
   Select,
+  Switch,
 } from '@nasnet/ui';
 import type { AddL2TPClientRequest } from '../../../api';
 import { validateHostOrIp, validateIdentifier } from '../../../utils/validators';
@@ -27,6 +27,7 @@ interface Draft {
   connectTo: string;
   user: string;
   password: string;
+  useIpsec: boolean;
   ipsecSecret: string;
   disabled: boolean;
   // PPTP/SSTP/OpenVPN reuse the auth fields above; SSTP/OpenVPN add port.
@@ -43,6 +44,7 @@ const EMPTY_DRAFT: Draft = {
   connectTo: '',
   user: '',
   password: '',
+  useIpsec: false,
   ipsecSecret: '',
   disabled: false,
   port: '',
@@ -97,7 +99,7 @@ export function AddVpnClientDialog({ onCancel, onSubmitL2TP }: Props) {
           user: draft.user.trim(),
           password: draft.password,
           disabled: draft.disabled,
-          ipsecSecret: draft.ipsecSecret.trim() || undefined,
+          ipsecSecret: draft.useIpsec ? draft.ipsecSecret.trim() || undefined : undefined,
         });
       }
     } catch (err) {
@@ -168,13 +170,27 @@ export function AddVpnClientDialog({ onCancel, onSubmitL2TP }: Props) {
 
         {type === 'wireguard' ? <WireguardFields draft={draft} set={set} /> : null}
 
-        <Label as="div">
-          <Checkbox
-            label="Disabled on creation"
-            checked={draft.disabled}
-            onChange={(e) => set('disabled', e.target.checked)}
-          />
-        </Label>
+        <FieldRow>
+          <Label as="div">
+            <Switch
+              label="Enabled on creation"
+              checked={!draft.disabled}
+              onChange={(e) => set('disabled', !e.target.checked)}
+            />
+          </Label>
+          {type === 'l2tp' ? (
+            <Label as="div">
+              <Switch
+                label="Use IPsec"
+                checked={draft.useIpsec}
+                onChange={(e) => {
+                  const on = e.target.checked;
+                  setDraft((d) => ({ ...d, useIpsec: on, ipsecSecret: on ? d.ipsecSecret : '' }));
+                }}
+              />
+            </Label>
+          ) : null}
+        </FieldRow>
 
         {error ? <FormError role="alert">{error}</FormError> : null}
       </FieldStack>
@@ -242,12 +258,14 @@ function L2tpFields({ draft, set, errors, touched, markTouched }: L2tpFieldsProp
           {touched.password && errors.password ? <FormError>{errors.password}</FormError> : null}
         </Label>
         <Label>
-          <span>IPsec secret (optional)</span>
+          <span>IPsec secret</span>
           <PasswordInput
             value={draft.ipsecSecret}
             onChange={(e) => set('ipsecSecret', e.target.value)}
+            placeholder="Pre-shared key"
             aria-label="IPsec secret"
             autoComplete="off"
+            disabled={!draft.useIpsec}
           />
         </Label>
       </FieldRow>

@@ -256,7 +256,12 @@ test.describe('VPN clients tab', () => {
     await dialog.getByLabel('Connect to').fill('vpn.example.com');
     await dialog.getByLabel('User').fill('alice');
     await dialog.getByLabel('Password', { exact: true }).fill('s3cret');
-    await dialog.getByLabel('IPsec secret').fill('topsecret');
+
+    const ipsecSecret = dialog.getByLabel('IPsec secret');
+    await expect(ipsecSecret).toBeDisabled();
+    await dialog.getByRole('switch', { name: 'Use IPsec' }).check();
+    await expect(ipsecSecret).toBeEnabled();
+    await ipsecSecret.fill('topsecret');
     await dialog.getByRole('button', { name: 'Add client' }).click();
 
     await expect.poll(() => lastPostBody?.name).toBe('home-l2tp');
