@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AnimatePresence, motion, type Variants } from 'framer-motion';
+import { AnimatePresence, motion, type Variants } from 'motion/react';
 import { Plus, Router as RouterIcon, Server } from 'lucide-react';
 import {
   Card,
