@@ -288,9 +288,9 @@ export const test = base.extend<TestFixtures>({
       const envelope = <T>(data: T, status = 200) =>
         JSON.stringify({ status, message: 'OK', data });
 
-      const ifaces =
-        router.interfaces ??
-        [{ id: '*1', name: interfaceName, ssid, band: '5ghz-ac', running: true }];
+      const ifaces = router.interfaces ?? [
+        { id: '*1', name: interfaceName, ssid, band: '5ghz-ac', running: true },
+      ];
       const ifacePayload = ifaces.map((i, idx) => ({
         id: i.id ?? `*${idx + 1}`,
         name: i.name ?? `wifi${idx + 1}`,
