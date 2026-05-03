@@ -290,6 +290,24 @@ definitions:
       success:
         type: boolean
     type: object
+  handler.UpdateL2TPClientRequest:
+    properties:
+      connectTo:
+        example: 192.168.1.2
+        type: string
+      disabled:
+        example: true
+        type: boolean
+      ipsecSecret:
+        example: newupdasecretpassphrase123
+        type: string
+      password:
+        example: newpassword123
+        type: string
+      user:
+        example: newusername
+        type: string
+    type: object
   handler.UpdateVPNClientRequest:
     properties:
       comment:
@@ -1463,6 +1481,88 @@ paths:
       security:
       - BasicAuth: []
       summary: Add L2TP Client
+      tags:
+      - VPN
+  /api/vpn/l2tp-client/{nameOrID}:
+    delete:
+      description: Remove an L2TP client connection
+      parameters:
+      - description: RouterOS host address
+        in: header
+        name: X-RouterOS-Host
+        required: true
+        type: string
+      - description: L2TP client name or ID
+        in: path
+        name: nameOrID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.Response'
+      security:
+      - BasicAuth: []
+      summary: Delete L2TP Client
+      tags:
+      - VPN
+    put:
+      consumes:
+      - application/json
+      description: Update L2TP client settings (connection address, credentials, etc.)
+      parameters:
+      - description: RouterOS host address
+        in: header
+        name: X-RouterOS-Host
+        required: true
+        type: string
+      - description: L2TP client name or ID
+        in: path
+        name: nameOrID
+        required: true
+        type: string
+      - description: L2TP client settings to update
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.UpdateL2TPClientRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/handler.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/handler.VPNClientResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.Response'
+      security:
+      - BasicAuth: []
+      summary: Update L2TP Client
       tags:
       - VPN
   /api/vpn/l2tp-server:

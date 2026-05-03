@@ -9,17 +9,17 @@ type VPNClientResponse struct {
 	Type         string `json:"type" example:"ovpn-out"`
 	Running      bool   `json:"running"`
 	Disabled     bool   `json:"disabled"`
-	MTU          int    `json:"mtu"`
-	MacAddress   string `json:"macAddress"`
+	MTU          int    `json:"mtu,omitempty"`
+	MacAddress   string `json:"macAddress,omitempty"`
 	RxByte       int64  `json:"rxByte"`
 	TxByte       int64  `json:"txByte"`
 	Rx           string `json:"rx"`
 	Tx           string `json:"tx"`
 	RxPacket     int64  `json:"rxPacket"`
 	TxPacket     int64  `json:"txPacket"`
-	LastLinkUp   string `json:"lastLinkUp"`
-	LastLinkDown string `json:"lastLinkDown"`
-	LinkDowns    int    `json:"linkDowns"`
+	LastLinkUp   string `json:"lastLinkUp,omitempty"`
+	LastLinkDown string `json:"lastLinkDown,omitempty"`
+	LinkDowns    int    `json:"linkDowns,omitempty"`
 	Comment      string `json:"comment,omitempty"`
 }
 
@@ -37,6 +37,17 @@ type AddL2TPClientRequest struct {
 	Password    string  `json:"password" example:"password123"`
 	Disabled    *bool   `json:"disabled" example:"false"`
 	IPsecSecret *string `json:"ipsecSecret" example:"secretpassphrase123"`
+}
+
+// UpdateL2TPClientRequest represents a request to update an L2TP client.
+// Note: useIPsec is automatically determined based on whether ipsecSecret is provided.
+// If ipsecSecret is provided, useIPsec will be true; otherwise, it will be false.
+type UpdateL2TPClientRequest struct {
+	ConnectTo   *string `json:"connectTo" example:"192.168.1.2"`
+	User        *string `json:"user" example:"newusername"`
+	Password    *string `json:"password" example:"newpassword123"`
+	Disabled    *bool   `json:"disabled" example:"true"`
+	IPsecSecret *string `json:"ipsecSecret" example:"newupdasecretpassphrase123"`
 }
 
 // ServerStatusItem represents a server with name and enabled status.
