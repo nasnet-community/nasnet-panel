@@ -269,6 +269,103 @@ func HandleAddL2TPClient(c echo.Context) error {
 	return SuccessResponse(c, http.StatusCreated, "L2TP client added successfully", response)
 }
 
+// HandleUpdateL2TPClient updates an L2TP client
+// @Summary Update L2TP Client
+// @Description Update L2TP client settings (connection address, credentials, etc.)
+// @Tags VPN
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Param nameOrID path string true "L2TP client name or ID"
+// @Param request body UpdateL2TPClientRequest true "L2TP client settings to update"
+// @Accept json
+// @Produce json
+// @Success 200 {object} Response{data=VPNClientResponse}
+// @Failure 400 {object} Response
+// @Failure 404 {object} Response
+// @Failure 500 {object} Response
+// @Router /api/vpn/l2tp-client/{nameOrID} [put].
+func HandleUpdateL2TPClient(c echo.Context) error {
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+	defer func() { _ = client.Close() }()
+
+	nameOrID := c.Param("nameOrID")
+	if nameOrID == "" {
+		return ErrorResponse(c, http.StatusBadRequest, "Client name or ID is required", nil)
+	}
+
+	var req UpdateL2TPClientRequest
+	if err := c.Bind(&req); err != nil {
+		return ErrorResponse(c, http.StatusBadRequest, "Invalid request body", err)
+	}
+
+	useIPsecValue := req.IPsecSecret != nil && *req.IPsecSecret != ""
+
+	if err := client.UpdateL2TPClient(nameOrID, req.ConnectTo, req.User, req.Password, req.Disabled, req.IPsecSecret, &useIPsecValue); err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to update L2TP client", err)
+	}
+
+	vpnClient, err := client.GetVPNClient(nameOrID)
+	if err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to retrieve updated L2TP client", err)
+	}
+
+	response := VPNClientResponse{
+		ID:           vpnClient.ID,
+		Name:         vpnClient.Name,
+		Type:         vpnClient.Type,
+		Running:      vpnClient.Running,
+		Disabled:     vpnClient.Disabled,
+		MTU:          vpnClient.MTU,
+		MacAddress:   vpnClient.MacAddress,
+		RxByte:       vpnClient.RxByte,
+		TxByte:       vpnClient.TxByte,
+		Rx:           formatBytes(vpnClient.RxByte),
+		Tx:           formatBytes(vpnClient.TxByte),
+		RxPacket:     vpnClient.RxPacket,
+		TxPacket:     vpnClient.TxPacket,
+		LastLinkUp:   vpnClient.LastLinkUp,
+		LastLinkDown: vpnClient.LastLinkDown,
+		LinkDowns:    vpnClient.LinkDowns,
+		Comment:      vpnClient.Comment,
+	}
+
+	return SuccessResponse(c, http.StatusOK, "L2TP client updated successfully", response)
+}
+
+// HandleDeleteL2TPClient deletes an L2TP client
+// @Summary Delete L2TP Client
+// @Description Remove an L2TP client connection
+// @Tags VPN
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Param nameOrID path string true "L2TP client name or ID"
+// @Produce json
+// @Success 204
+// @Failure 404 {object} Response
+// @Failure 500 {object} Response
+// @Router /api/vpn/l2tp-client/{nameOrID} [delete].
+func HandleDeleteL2TPClient(c echo.Context) error {
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+	defer func() { _ = client.Close() }()
+
+	nameOrID := c.Param("nameOrID")
+	if nameOrID == "" {
+		return ErrorResponse(c, http.StatusBadRequest, "Client name or ID is required", nil)
+	}
+
+	if err := client.RemoveL2TPClient(nameOrID); err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to delete L2TP client", err)
+	}
+
+	return c.NoContent(http.StatusNoContent)
+}
+
 // HandleGetVPNServersStatus gets the status of all VPN servers
 // @Summary Get VPN Servers Status
 // @Description Get the status of OpenVPN, WireGuard, PPTP, L2TP, and SSTP servers
