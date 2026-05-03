@@ -280,8 +280,8 @@ function SecretsRow({ secrets }: { secrets: Array<{ username: string; password: 
       wide
       value={
         <ul style={{ margin: 0, paddingLeft: 16 }}>
-          {secrets.map((s, i) => (
-            <li key={`${s.username}-${i}`}>
+          {secrets.map((s) => (
+            <li key={s.username}>
               <strong>{s.username}</strong> · <code>{s.password}</code>
             </li>
           ))}
