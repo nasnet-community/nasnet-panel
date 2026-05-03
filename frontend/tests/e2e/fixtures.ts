@@ -467,6 +467,7 @@ export const test = base.extend<TestFixtures>({
           serverName: 'default-lan',
           status: 'bound',
           expiresAfter: '9m32s',
+          bridgePort: 'ether3',
           dynamic: true,
         },
         {

@@ -237,6 +237,16 @@ export function DHCPPage() {
       render: (r) => r.serverName || <span className={styles.muted}>—</span>,
     },
     {
+      key: 'port',
+      header: 'Port',
+      render: (r) =>
+        r.bridgePort ? (
+          <span className={styles.mono}>{r.bridgePort}</span>
+        ) : (
+          <span className={styles.muted}>—</span>
+        ),
+    },
+    {
       key: 'type',
       header: 'Type',
       render: (r) =>
