@@ -20,11 +20,21 @@ export interface OverviewBackendRouter {
   version?: string;
 }
 
+export interface WifiBackendInterface {
+  id?: string;
+  name?: string;
+  ssid?: string;
+  band?: string;
+  running?: boolean;
+  disabled?: boolean;
+}
+
 export interface WifiBackendRouter {
   id?: string;
   ssid?: string;
   passphrase?: string;
   interfaceName?: string;
+  interfaces?: WifiBackendInterface[];
 }
 
 export interface LogsBackendOptions {
@@ -278,28 +288,31 @@ export const test = base.extend<TestFixtures>({
       const envelope = <T>(data: T, status = 200) =>
         JSON.stringify({ status, message: 'OK', data });
 
+      const ifaces = router.interfaces ?? [
+        { id: '*1', name: interfaceName, ssid, band: '5ghz-ac', running: true },
+      ];
+      const ifacePayload = ifaces.map((i, idx) => ({
+        id: i.id ?? `*${idx + 1}`,
+        name: i.name ?? `wifi${idx + 1}`,
+        interface: i.name ?? `wifi${idx + 1}`,
+        ssid: i.ssid ?? ssid,
+        frequency: '5180',
+        channelWidth: '20/40/80mhz-XXXX',
+        macAddress: `AA:BB:CC:DD:EE:0${idx + 1}`,
+        disabled: i.disabled ?? false,
+        running: i.running ?? true,
+        inactive: !(i.running ?? true),
+        mode: 'ap',
+        band: i.band ?? '',
+        securityType: 'wpa2-psk',
+        comment: '',
+      }));
+
       await context.route('**/api/wifi/interfaces', async (route) => {
         await route.fulfill({
           status: 200,
           contentType: 'application/json',
-          body: envelope([
-            {
-              id: '*1',
-              name: interfaceName,
-              interface: interfaceName,
-              ssid,
-              frequency: '5180',
-              channelWidth: '20/40/80mhz-XXXX',
-              macAddress: 'AA:BB:CC:DD:EE:01',
-              disabled: false,
-              running: true,
-              inactive: false,
-              mode: 'ap',
-              band: '5ghz-ac',
-              securityType: 'wpa2-psk',
-              comment: '',
-            },
-          ]),
+          body: envelope(ifacePayload),
         });
       });
 
