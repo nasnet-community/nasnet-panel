@@ -25,4 +25,23 @@ test.describe('Wireless standalone', () => {
     await page.getByRole('button', { name: /^edit$/i }).click();
     await expect(page.getByLabel('Password', { exact: true })).toHaveValue('newpass123');
   });
+
+  test('edit dialog shows available security protocols', async ({
+    page,
+    resetMocks,
+    seedRouter,
+    mockWifiBackend,
+  }) => {
+    await resetMocks();
+    await seedRouter({ id: 'rtr_wire', name: 'Wireless Router' });
+    await mockWifiBackend({ id: 'rtr_wire' });
+    await page.goto('/router/rtr_wire/wireless');
+
+    await page.getByRole('button', { name: /^edit$/i }).click();
+    const dialog = page.getByRole('dialog');
+    await expect(dialog).toBeVisible();
+
+    await expect(dialog.getByLabel('WPA2-PSK', { exact: true })).toBeVisible();
+    await expect(dialog.getByLabel('WPA3-PSK', { exact: true })).toBeVisible();
+  });
 });
