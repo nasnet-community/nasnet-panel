@@ -73,6 +73,8 @@ definitions:
         type: boolean
       disabled:
         type: boolean
+      encoding:
+        type: string
       id:
         type: string
       ipsecSecret:
@@ -83,12 +85,18 @@ definitions:
         type: string
       l2tpv3DigestHash:
         type: string
+      localAddress:
+        type: string
+      localIpv6Address:
+        type: string
       maxMru:
         type: integer
       maxMtu:
         type: integer
       mrru:
         type: string
+      mtu:
+        type: integer
       name:
         type: string
       password:
@@ -97,8 +105,17 @@ definitions:
         type: string
       randomSourcePort:
         type: boolean
+      remoteAddress:
+        type: string
+      remoteIpv6Address:
+        type: string
       running:
         type: boolean
+      status:
+        description: Monitor data
+        type: string
+      uptime:
+        type: string
       useIPsec:
         type: boolean
       usePeerDns:
