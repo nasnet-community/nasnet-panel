@@ -1,6 +1,10 @@
+//nolint:misspell // intentional package name
 package handler
 
-import "fmt"
+import (
+	"fmt"
+	"nasnet-panel/pkg/routeros"
+)
 
 // VPNClientResponse represents a VPN client in the API response.
 type VPNClientResponse struct {
@@ -202,6 +206,76 @@ type WireguardServerDetailsResponse struct {
 type L2TPUserSecret struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
+}
+
+// ToVPNClientResponse converts a RouterOS VPNClientInfo to API VPNClientResponse.
+func ToVPNClientResponse(vpn *routeros.VPNClientInfo) VPNClientResponse {
+	return VPNClientResponse{
+		ID:           vpn.ID,
+		Name:         vpn.Name,
+		Type:         vpn.Type,
+		Running:      vpn.Running,
+		Disabled:     vpn.Disabled,
+		MTU:          vpn.MTU,
+		MacAddress:   vpn.MacAddress,
+		RxByte:       vpn.RxByte,
+		TxByte:       vpn.TxByte,
+		Rx:           formatBytes(vpn.RxByte),
+		Tx:           formatBytes(vpn.TxByte),
+		RxPacket:     vpn.RxPacket,
+		TxPacket:     vpn.TxPacket,
+		LastLinkUp:   vpn.LastLinkUp,
+		LastLinkDown: vpn.LastLinkDown,
+		LinkDowns:    vpn.LinkDowns,
+		Comment:      vpn.Comment,
+	}
+}
+
+// ToVPNClientResponseList converts a list of RouterOS VPNClientInfo to API responses.
+func ToVPNClientResponseList(vpns []routeros.VPNClientInfo) []VPNClientResponse {
+	response := make([]VPNClientResponse, len(vpns))
+	for i := range vpns {
+		response[i] = ToVPNClientResponse(&vpns[i])
+	}
+	return response
+}
+
+// ToL2TPClientResponse converts a RouterOS L2TPClientInfo to API L2TPClientResponse.
+func ToL2TPClientResponse(l2tp *routeros.L2TPClientInfo) L2TPClientResponse {
+	return L2TPClientResponse{
+		ID:                l2tp.ID,
+		Name:              l2tp.Name,
+		Disabled:          l2tp.Disabled,
+		Running:           l2tp.Running,
+		MaxMTU:            l2tp.MaxMTU,
+		MaxMRU:            l2tp.MaxMRU,
+		MRRU:              l2tp.MRRU,
+		ConnectTo:         l2tp.ConnectTo,
+		User:              l2tp.User,
+		Password:          l2tp.Password,
+		Profile:           l2tp.Profile,
+		KeepaliveTimeout:  l2tp.KeepaliveTimeout,
+		UsePeerDNS:        l2tp.UsePeerDNS,
+		UseIPsec:          l2tp.UseIPsec,
+		IPsecSecret:       l2tp.IPsecSecret,
+		AllowFastPath:     l2tp.AllowFastPath,
+		AddDefaultRoute:   l2tp.AddDefaultRoute,
+		DialOnDemand:      l2tp.DialOnDemand,
+		Allow:             l2tp.Allow,
+		RandomSourcePort:  l2tp.RandomSourcePort,
+		L2TPProtoVersion:  l2tp.L2TPProtoVersion,
+		L2TPv3DigestHash:  l2tp.L2TPv3DigestHash,
+		AddRoutes:         l2tp.AddRoutes,
+		Comment:           l2tp.Comment,
+		Status:            l2tp.Status,
+		Uptime:            l2tp.Uptime,
+		Encoding:          l2tp.Encoding,
+		MTU:               l2tp.MTU,
+		LocalAddress:      l2tp.LocalAddress,
+		RemoteAddress:     l2tp.RemoteAddress,
+		LocalIPv6Address:  l2tp.LocalIPv6Address,
+		RemoteIPv6Address: l2tp.RemoteIPv6Address,
+	}
 }
 
 func formatBytes(bytes int64) string {
