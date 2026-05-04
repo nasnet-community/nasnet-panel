@@ -207,15 +207,12 @@ export async function updateL2TPClient(
   body: UpdateL2TPClientRequest,
   signal?: AbortSignal,
 ): Promise<VPNClientResponse> {
-  return apiRequest<VPNClientResponse>(
-    `/api/vpn/l2tp-client/${encodeURIComponent(nameOrID)}`,
-    {
-      method: 'PUT',
-      headers: authHeaders(creds),
-      body: JSON.stringify(body),
-      signal,
-    },
-  );
+  return apiRequest<VPNClientResponse>(`/api/vpn/l2tp-client/${encodeURIComponent(nameOrID)}`, {
+    method: 'PUT',
+    headers: authHeaders(creds),
+    body: JSON.stringify(body),
+    signal,
+  });
 }
 
 export async function deleteL2TPClient(

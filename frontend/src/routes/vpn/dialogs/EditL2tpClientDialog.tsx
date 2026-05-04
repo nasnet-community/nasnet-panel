@@ -28,12 +28,7 @@ interface Props {
   onSubmit: (req: UpdateL2TPClientRequest) => Promise<void>;
 }
 
-export function EditL2tpClientDialog({
-  clientName,
-  initialDisabled,
-  onCancel,
-  onSubmit,
-}: Props) {
+export function EditL2tpClientDialog({ clientName, initialDisabled, onCancel, onSubmit }: Props) {
   const [draft, setDraft] = useState<Draft>({
     connectTo: '',
     user: '',
@@ -48,8 +43,7 @@ export function EditL2tpClientDialog({
   const set = <K extends keyof Draft>(key: K, value: Draft[K]) =>
     setDraft((d) => ({ ...d, [key]: value }));
 
-  const markTouched = (key: string) =>
-    setTouched((t) => (t[key] ? t : { ...t, [key]: true }));
+  const markTouched = (key: string) => setTouched((t) => (t[key] ? t : { ...t, [key]: true }));
 
   const errors = useMemo(
     () => ({
