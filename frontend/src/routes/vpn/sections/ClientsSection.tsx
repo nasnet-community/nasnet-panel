@@ -12,6 +12,7 @@ import {
 } from '../../../api';
 import { AddVpnClientDialog } from '../dialogs/AddVpnClientDialog';
 import { EditL2tpClientDialog } from '../dialogs/EditL2tpClientDialog';
+import { L2tpClientDetailsDialog } from '../dialogs/L2tpClientDetailsDialog';
 import { PaginationControls } from '../PaginationControls';
 import { usePagedFilter } from '../hooks/usePagedFilter';
 import { PAGE_SIZE } from '../utils';
@@ -34,6 +35,7 @@ export function ClientsSection({ creds, clients, onChanged }: Props) {
   const paged = usePagedFilter(clients, matches);
   const toast = useToast();
   const [adding, setAdding] = useState(false);
+  const [viewing, setViewing] = useState<VPNClient | null>(null);
   const [editing, setEditing] = useState<VPNClient | null>(null);
   const [pendingDelete, setPendingDelete] = useState<VPNClient | null>(null);
   const [deleteSubmitting, setDeleteSubmitting] = useState(false);
@@ -139,6 +141,7 @@ export function ClientsSection({ creds, clients, onChanged }: Props) {
             totalRows={clients.length}
             creds={creds}
             onToggled={onChanged}
+            onView={(c) => setViewing(c)}
             onEdit={(c) => setEditing(c)}
             onDelete={(c) => setPendingDelete(c)}
           />
@@ -163,6 +166,11 @@ export function ClientsSection({ creds, clients, onChanged }: Props) {
           onSubmit={onSubmitEdit}
         />
       ) : null}
+      <L2tpClientDetailsDialog
+        clientName={viewing?.name ?? null}
+        creds={creds}
+        onClose={() => setViewing(null)}
+      />
       <ConfirmDialog
         open={!!pendingDelete}
         title="Delete L2TP client"
