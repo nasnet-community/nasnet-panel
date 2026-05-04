@@ -3,6 +3,7 @@ package routeros
 
 import (
 	"fmt"
+	"nasnet-panel/pkg/utils"
 	"net"
 	"strconv"
 )
@@ -914,7 +915,7 @@ func (c *Client) GetL2TPClientInfo(name string) (*L2TPClientInfo, error) {
 		monitor := monitorReply.Re[0].Map
 		mtu, _ := strconv.Atoi(monitor["mtu"])
 		l2tpClient.Status = monitor["status"]
-		l2tpClient.Uptime = monitor["uptime"]
+		l2tpClient.Uptime = utils.FormatRouterOSTime(monitor["uptime"])
 		l2tpClient.Encoding = monitor["encoding"]
 		l2tpClient.MTU = mtu
 		l2tpClient.LocalAddress = monitor["local-address"]
