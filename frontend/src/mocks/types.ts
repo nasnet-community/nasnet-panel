@@ -125,7 +125,7 @@ export interface LogEntry {
   message: string;
 }
 
-export type WirelessBand = '2.4ghz' | '5ghz';
+export type WirelessBand = '2.4ghz' | '5ghz' | '6ghz';
 
 export interface WirelessSettings {
   ssid: string;
@@ -173,6 +173,9 @@ export interface VPNServer {
   protocol: VPNProtocol;
   listenPort: number;
   ipPool: string;
+  localIp?: string;
+  localIpPool?: string;
+  remoteIp?: string;
   dns?: string;
   running: boolean;
 }

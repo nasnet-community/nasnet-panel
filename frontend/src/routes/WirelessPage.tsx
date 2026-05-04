@@ -27,7 +27,7 @@ export function WirelessPage() {
 
   return (
     <Stack>
-      <StatsStrip clients={clients} interfaces={interfaces} settings={settings} />
+      <StatsStrip clients={clients} interfaces={interfaces} />
       <ClientsCard clients={clients} />
       <InterfacesCard
         interfaces={interfaces}

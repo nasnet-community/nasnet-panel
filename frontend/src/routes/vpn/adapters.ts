@@ -40,8 +40,11 @@ export function mapServersStatusToList(s: VPNServersStatusResponse, routerId: st
       routerId,
       name: srv.name,
       protocol: 'openvpn',
-      listenPort: 0,
-      ipPool: '',
+      listenPort: srv.port ?? 0,
+      ipPool: srv.remoteIpPool ?? '',
+      localIp: srv.localIp,
+      localIpPool: srv.localIpPool,
+      remoteIp: srv.remoteIp,
       running: srv.enabled,
     });
   }
@@ -51,8 +54,11 @@ export function mapServersStatusToList(s: VPNServersStatusResponse, routerId: st
       routerId,
       name: srv.name,
       protocol: 'wireguard',
-      listenPort: 0,
-      ipPool: '',
+      listenPort: srv.port ?? 0,
+      ipPool: srv.remoteIpPool ?? '',
+      localIp: srv.localIp,
+      localIpPool: srv.localIpPool,
+      remoteIp: srv.remoteIp,
       running: srv.enabled,
     });
   }
@@ -62,8 +68,11 @@ export function mapServersStatusToList(s: VPNServersStatusResponse, routerId: st
       routerId,
       name: 'PPTP',
       protocol: 'pptp',
-      listenPort: 0,
-      ipPool: '',
+      listenPort: s.pptp.port ?? 0,
+      ipPool: s.pptp.remoteIpPool ?? '',
+      localIp: s.pptp.localIp,
+      localIpPool: s.pptp.localIpPool,
+      remoteIp: s.pptp.remoteIp,
       running: s.pptp.enabled,
     });
   }
@@ -73,8 +82,11 @@ export function mapServersStatusToList(s: VPNServersStatusResponse, routerId: st
       routerId,
       name: 'L2TP',
       protocol: 'l2tp',
-      listenPort: 0,
-      ipPool: '',
+      listenPort: s.l2tp.port ?? 0,
+      ipPool: s.l2tp.remoteIpPool ?? '',
+      localIp: s.l2tp.localIp,
+      localIpPool: s.l2tp.localIpPool,
+      remoteIp: s.l2tp.remoteIp,
       running: s.l2tp.enabled,
     });
   }
@@ -84,8 +96,11 @@ export function mapServersStatusToList(s: VPNServersStatusResponse, routerId: st
       routerId,
       name: 'SSTP',
       protocol: 'sstp',
-      listenPort: 0,
-      ipPool: '',
+      listenPort: s.sstp.port ?? 0,
+      ipPool: s.sstp.remoteIpPool ?? '',
+      localIp: s.sstp.localIp,
+      localIpPool: s.sstp.localIpPool,
+      remoteIp: s.sstp.remoteIp,
       running: s.sstp.enabled,
     });
   }

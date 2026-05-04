@@ -16,6 +16,7 @@ export interface DhcpLease {
   status: string;
   expiresAfter?: string;
   lastSeen?: string;
+  bridgePort?: string;
   comment?: string;
   dynamic: boolean;
 }

@@ -4,7 +4,13 @@
   "dependencyDashboardApproval": true,
   "minimumReleaseAge": "7 days",
   "separateMajorMinor": true,
-  "separateMinorPatch": true,
+  "separateMinorPatch": false,
   "separateMultipleMajor": true,
-  "separateMultipleMinor": true
+  "separateMultipleMinor": false,
+  "packageRules": [
+    {
+      "matchUpdateTypes": ["major"],
+      "enabled": false
+    }
+  ]
 }
