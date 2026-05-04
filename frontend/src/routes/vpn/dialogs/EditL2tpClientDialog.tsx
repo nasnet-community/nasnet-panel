@@ -62,9 +62,9 @@ export function EditL2tpClientDialog({ clientName, creds, onCancel, onSubmit }: 
         setDraft({
           connectTo: data.connectTo,
           user: data.user,
-          password: '',
+          password: data.password,
           useIpsec: data.useIPsec,
-          ipsecSecret: '',
+          ipsecSecret: data.useIPsec ? data.ipsecSecret : '',
           disabled: data.disabled,
         });
       } catch (err) {
@@ -110,11 +110,11 @@ export function EditL2tpClientDialog({ clientName, creds, onCancel, onSubmit }: 
     const body: UpdateL2TPClientRequest = {};
     if (draft.connectTo.trim() !== details.connectTo) body.connectTo = draft.connectTo.trim();
     if (draft.user.trim() !== details.user) body.user = draft.user.trim();
-    if (draft.password !== '') body.password = draft.password;
+    if (draft.password !== details.password) body.password = draft.password;
     if (draft.disabled !== details.disabled) body.disabled = draft.disabled;
     if (!draft.useIpsec && details.useIPsec) {
       body.ipsecSecret = '';
-    } else if (draft.useIpsec && draft.ipsecSecret !== '') {
+    } else if (draft.useIpsec && draft.ipsecSecret !== details.ipsecSecret) {
       body.ipsecSecret = draft.ipsecSecret;
     }
 
@@ -139,7 +139,7 @@ export function EditL2tpClientDialog({ clientName, creds, onCancel, onSubmit }: 
           <Button variant="ghost" onClick={onCancel} disabled={submitting}>
             Cancel
           </Button>
-          <Button onClick={handleSubmit} disabled={!canSubmit}>
+          <Button variant="success" onClick={handleSubmit} disabled={!canSubmit}>
             {submitting ? 'Saving…' : 'Save changes'}
           </Button>
         </>
@@ -190,7 +190,6 @@ export function EditL2tpClientDialog({ clientName, creds, onCancel, onSubmit }: 
               <PasswordInput
                 value={draft.password}
                 onChange={(e) => set('password', e.target.value)}
-                placeholder="Leave blank to keep current"
                 aria-label="Password"
                 autoComplete="new-password"
               />
@@ -202,7 +201,7 @@ export function EditL2tpClientDialog({ clientName, creds, onCancel, onSubmit }: 
               <PasswordInput
                 value={draft.ipsecSecret}
                 onChange={(e) => set('ipsecSecret', e.target.value)}
-                placeholder={draft.useIpsec ? 'Leave blank to keep current' : 'Pre-shared key'}
+                placeholder="Pre-shared key"
                 aria-label="IPsec secret"
                 autoComplete="off"
                 disabled={!draft.useIpsec}
