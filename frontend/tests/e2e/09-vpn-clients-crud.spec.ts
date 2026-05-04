@@ -278,6 +278,286 @@ test.describe('VPN clients tab', () => {
     await expect(page.getByRole('row', { name: /home-l2tp/ })).toBeVisible();
   });
 
+  test('edits L2TP client via PUT after prefilling from GET endpoint', async ({
+    page,
+    context,
+    resetMocks,
+    seedRouter,
+  }) => {
+    await resetMocks();
+    await seedRouter({ id: ROUTER_ID, name: 'VPN Router', host: '10.0.0.10' });
+
+    await context.addInitScript((routerId) => {
+      try {
+        const key = 'nasnet-panel.session-credentials.v1';
+        const raw = window.sessionStorage.getItem(key);
+        const map = (raw ? JSON.parse(raw) : {}) as Record<
+          string,
+          { username: string; password: string }
+        >;
+        map[routerId] = { username: 'admin', password: 'test' };
+        window.sessionStorage.setItem(key, JSON.stringify(map));
+      } catch {
+        /* ignore */
+      }
+    }, ROUTER_ID);
+
+    await context.route('**/api/vpn/clients', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: envelope([{ ...baseClient, disabled: false }]),
+      });
+    });
+    await context.route('**/api/vpn/servers', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: envelope({
+          ovpnServers: [],
+          wireguards: [],
+          pptp: null,
+          l2tp: null,
+          sstp: null,
+        }),
+      });
+    });
+
+    await context.route('**/api/vpn/l2tp-client/home-l2tp', async (route) => {
+      if (route.request().method() === 'GET') {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: envelope({
+            id: '*1',
+            name: 'home-l2tp',
+            disabled: false,
+            running: false,
+            connectTo: 'vpn.old.example.com',
+            user: 'alice',
+            password: 'oldpass',
+            profile: 'default',
+            useIPsec: true,
+            ipsecSecret: 'oldsecret',
+            comment: '',
+          }),
+        });
+        return;
+      }
+      await route.fallback();
+    });
+
+    let lastPutBody: {
+      connectTo?: string;
+      user?: string;
+      password?: string;
+      disabled?: boolean;
+      ipsecSecret?: string;
+    } | null = null;
+    await context.route('**/api/vpn/l2tp-client/*1', async (route) => {
+      if (route.request().method() === 'PUT') {
+        lastPutBody = route.request().postDataJSON() as typeof lastPutBody;
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: envelope({ ...baseClient, disabled: false }),
+        });
+        return;
+      }
+      await route.fallback();
+    });
+
+    await page.goto(`/router/${ROUTER_ID}/vpn`);
+
+    const row = page.getByRole('row', { name: /home-l2tp/ });
+    await row.getByRole('button', { name: /edit home-l2tp/i }).click();
+
+    const dialog = page.getByRole('dialog');
+    await expect(dialog).toBeVisible();
+
+    await expect(dialog.getByLabel('Name')).toBeDisabled();
+    await expect(dialog.getByLabel('Name')).toHaveValue('home-l2tp');
+    await expect(dialog.getByLabel('Connect to')).toHaveValue('vpn.old.example.com');
+    await expect(dialog.getByLabel('User')).toHaveValue('alice');
+    await expect(dialog.getByRole('switch', { name: 'Use IPsec' })).toBeChecked();
+
+    await dialog.getByLabel('Connect to').fill('vpn.new.example.com');
+    await dialog.getByRole('button', { name: /save changes/i }).click();
+
+    await expect.poll(() => lastPutBody?.connectTo).toBe('vpn.new.example.com');
+    expect(lastPutBody).toEqual({ connectTo: 'vpn.new.example.com' });
+    await expect(dialog).toBeHidden();
+  });
+
+  test('clears ipsec secret when toggling Use IPsec off in edit dialog', async ({
+    page,
+    context,
+    resetMocks,
+    seedRouter,
+  }) => {
+    await resetMocks();
+    await seedRouter({ id: ROUTER_ID, name: 'VPN Router', host: '10.0.0.10' });
+
+    await context.addInitScript((routerId) => {
+      try {
+        const key = 'nasnet-panel.session-credentials.v1';
+        const raw = window.sessionStorage.getItem(key);
+        const map = (raw ? JSON.parse(raw) : {}) as Record<
+          string,
+          { username: string; password: string }
+        >;
+        map[routerId] = { username: 'admin', password: 'test' };
+        window.sessionStorage.setItem(key, JSON.stringify(map));
+      } catch {
+        /* ignore */
+      }
+    }, ROUTER_ID);
+
+    await context.route('**/api/vpn/clients', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: envelope([{ ...baseClient, disabled: false }]),
+      });
+    });
+    await context.route('**/api/vpn/servers', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: envelope({
+          ovpnServers: [],
+          wireguards: [],
+          pptp: null,
+          l2tp: null,
+          sstp: null,
+        }),
+      });
+    });
+    await context.route('**/api/vpn/l2tp-client/home-l2tp', async (route) => {
+      if (route.request().method() === 'GET') {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: envelope({
+            id: '*1',
+            name: 'home-l2tp',
+            disabled: false,
+            running: false,
+            connectTo: 'vpn.example.com',
+            user: 'alice',
+            password: 'pw',
+            profile: 'default',
+            useIPsec: true,
+            ipsecSecret: 'oldsecret',
+            comment: '',
+          }),
+        });
+        return;
+      }
+      await route.fallback();
+    });
+
+    let lastPutBody: { ipsecSecret?: string } | null = null;
+    await context.route('**/api/vpn/l2tp-client/*1', async (route) => {
+      if (route.request().method() === 'PUT') {
+        lastPutBody = route.request().postDataJSON() as typeof lastPutBody;
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: envelope({ ...baseClient, disabled: false }),
+        });
+        return;
+      }
+      await route.fallback();
+    });
+
+    await page.goto(`/router/${ROUTER_ID}/vpn`);
+    const row = page.getByRole('row', { name: /home-l2tp/ });
+    await row.getByRole('button', { name: /edit home-l2tp/i }).click();
+
+    const dialog = page.getByRole('dialog');
+    const ipsecSecret = dialog.getByLabel('IPsec secret');
+    await expect(ipsecSecret).toHaveValue('oldsecret');
+
+    await dialog.getByRole('switch', { name: 'Use IPsec' }).uncheck();
+    await expect(ipsecSecret).toBeDisabled();
+    await expect(ipsecSecret).toHaveValue('');
+
+    await dialog.getByRole('button', { name: /save changes/i }).click();
+    await expect.poll(() => lastPutBody?.ipsecSecret).toBe('');
+  });
+
+  test('deletes L2TP client via DELETE after confirm', async ({
+    page,
+    context,
+    resetMocks,
+    seedRouter,
+  }) => {
+    await resetMocks();
+    await seedRouter({ id: ROUTER_ID, name: 'VPN Router', host: '10.0.0.10' });
+
+    await context.addInitScript((routerId) => {
+      try {
+        const key = 'nasnet-panel.session-credentials.v1';
+        const raw = window.sessionStorage.getItem(key);
+        const map = (raw ? JSON.parse(raw) : {}) as Record<
+          string,
+          { username: string; password: string }
+        >;
+        map[routerId] = { username: 'admin', password: 'test' };
+        window.sessionStorage.setItem(key, JSON.stringify(map));
+      } catch {
+        /* ignore */
+      }
+    }, ROUTER_ID);
+
+    let listCalls = 0;
+    await context.route('**/api/vpn/clients', async (route) => {
+      listCalls += 1;
+      const body = listCalls === 1 ? [{ ...baseClient, disabled: false }] : [];
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: envelope(body),
+      });
+    });
+    await context.route('**/api/vpn/servers', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: envelope({
+          ovpnServers: [],
+          wireguards: [],
+          pptp: null,
+          l2tp: null,
+          sstp: null,
+        }),
+      });
+    });
+
+    let deleteCalls = 0;
+    await context.route('**/api/vpn/l2tp-client/*1', async (route) => {
+      if (route.request().method() === 'DELETE') {
+        deleteCalls += 1;
+        await route.fulfill({ status: 204, body: '' });
+        return;
+      }
+      await route.fallback();
+    });
+
+    await page.goto(`/router/${ROUTER_ID}/vpn`);
+
+    const row = page.getByRole('row', { name: /home-l2tp/ });
+    await row.getByRole('button', { name: /delete home-l2tp/i }).click();
+
+    const confirm = page.getByRole('dialog');
+    await expect(confirm).toBeVisible();
+    await confirm.getByRole('button', { name: 'Delete' }).click();
+
+    await expect.poll(() => deleteCalls).toBe(1);
+    await expect(page.getByRole('row', { name: /home-l2tp/ })).toBeHidden();
+  });
+
   test('renders empty-state icon when no clients are configured', async ({
     page,
     context,
