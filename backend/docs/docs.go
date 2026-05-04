@@ -2899,6 +2899,9 @@ const docTemplate = `{
                 "disabled": {
                     "type": "boolean"
                 },
+                "encoding": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "string"
                 },
@@ -2914,6 +2917,12 @@ const docTemplate = `{
                 "l2tpv3DigestHash": {
                     "type": "string"
                 },
+                "localAddress": {
+                    "type": "string"
+                },
+                "localIpv6Address": {
+                    "type": "string"
+                },
                 "maxMru": {
                     "type": "integer"
                 },
@@ -2922,6 +2931,9 @@ const docTemplate = `{
                 },
                 "mrru": {
                     "type": "string"
+                },
+                "mtu": {
+                    "type": "integer"
                 },
                 "name": {
                     "type": "string"
@@ -2935,8 +2947,21 @@ const docTemplate = `{
                 "randomSourcePort": {
                     "type": "boolean"
                 },
+                "remoteAddress": {
+                    "type": "string"
+                },
+                "remoteIpv6Address": {
+                    "type": "string"
+                },
                 "running": {
                     "type": "boolean"
+                },
+                "status": {
+                    "description": "Monitor data",
+                    "type": "string"
+                },
+                "uptime": {
+                    "type": "string"
                 },
                 "useIPsec": {
                     "type": "boolean"

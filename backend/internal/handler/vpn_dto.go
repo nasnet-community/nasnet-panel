@@ -76,6 +76,15 @@ type L2TPClientResponse struct {
 	L2TPv3DigestHash string `json:"l2tpv3DigestHash"`
 	AddRoutes        bool   `json:"addRoutes"`
 	Comment          string `json:"comment"`
+	// Monitor data
+	Status            string `json:"status"`
+	Uptime            string `json:"uptime"`
+	Encoding          string `json:"encoding"`
+	MTU               int    `json:"mtu"`
+	LocalAddress      string `json:"localAddress"`
+	RemoteAddress     string `json:"remoteAddress"`
+	LocalIPv6Address  string `json:"localIpv6Address"`
+	RemoteIPv6Address string `json:"remoteIpv6Address"`
 }
 
 // ServerStatusItem represents a server with name and enabled status.
