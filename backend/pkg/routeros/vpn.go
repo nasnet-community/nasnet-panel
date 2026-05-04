@@ -3,9 +3,10 @@ package routeros
 
 import (
 	"fmt"
-	"nasnet-panel/pkg/utils"
 	"net"
 	"strconv"
+
+	"nasnet-panel/pkg/utils"
 )
 
 // VPNClientInfo represents a VPN client interface.
