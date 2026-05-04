@@ -31,29 +31,7 @@ func HandleListVPNClients(c echo.Context) error {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to retrieve VPN clients", err)
 	}
 
-	response := make([]VPNClientResponse, len(vpnClients))
-	for i := range vpnClients {
-		vpn := vpnClients[i]
-		response[i] = VPNClientResponse{
-			ID:           vpn.ID,
-			Name:         vpn.Name,
-			Type:         vpn.Type,
-			Running:      vpn.Running,
-			Disabled:     vpn.Disabled,
-			MTU:          vpn.MTU,
-			MacAddress:   vpn.MacAddress,
-			RxByte:       vpn.RxByte,
-			TxByte:       vpn.TxByte,
-			Rx:           formatBytes(vpn.RxByte),
-			Tx:           formatBytes(vpn.TxByte),
-			RxPacket:     vpn.RxPacket,
-			TxPacket:     vpn.TxPacket,
-			LastLinkUp:   vpn.LastLinkUp,
-			LastLinkDown: vpn.LastLinkDown,
-			LinkDowns:    vpn.LinkDowns,
-			Comment:      vpn.Comment,
-		}
-	}
+	response := ToVPNClientResponseList(vpnClients)
 
 	return SuccessResponse(c, http.StatusOK, "VPN clients retrieved successfully", response)
 }
@@ -87,25 +65,7 @@ func HandleGetVPNClient(c echo.Context) error {
 		return ErrorResponse(c, http.StatusNotFound, "VPN client not found", err)
 	}
 
-	response := VPNClientResponse{
-		ID:           vpnClient.ID,
-		Name:         vpnClient.Name,
-		Type:         vpnClient.Type,
-		Running:      vpnClient.Running,
-		Disabled:     vpnClient.Disabled,
-		MTU:          vpnClient.MTU,
-		MacAddress:   vpnClient.MacAddress,
-		RxByte:       vpnClient.RxByte,
-		TxByte:       vpnClient.TxByte,
-		Rx:           formatBytes(vpnClient.RxByte),
-		Tx:           formatBytes(vpnClient.TxByte),
-		RxPacket:     vpnClient.RxPacket,
-		TxPacket:     vpnClient.TxPacket,
-		LastLinkUp:   vpnClient.LastLinkUp,
-		LastLinkDown: vpnClient.LastLinkDown,
-		LinkDowns:    vpnClient.LinkDowns,
-		Comment:      vpnClient.Comment,
-	}
+	response := ToVPNClientResponse(vpnClient)
 
 	return SuccessResponse(c, http.StatusOK, "VPN client retrieved successfully", response)
 }
@@ -395,32 +355,7 @@ func HandleGetL2TPClient(c echo.Context) error {
 		return ErrorResponse(c, http.StatusNotFound, "L2TP client not found", err)
 	}
 
-	response := L2TPClientResponse{
-		ID:               l2tpClient.ID,
-		Name:             l2tpClient.Name,
-		Disabled:         l2tpClient.Disabled,
-		Running:          l2tpClient.Running,
-		MaxMTU:           l2tpClient.MaxMTU,
-		MaxMRU:           l2tpClient.MaxMRU,
-		MRRU:             l2tpClient.MRRU,
-		ConnectTo:        l2tpClient.ConnectTo,
-		User:             l2tpClient.User,
-		Password:         l2tpClient.Password,
-		Profile:          l2tpClient.Profile,
-		KeepaliveTimeout: l2tpClient.KeepaliveTimeout,
-		UsePeerDNS:       l2tpClient.UsePeerDNS,
-		UseIPsec:         l2tpClient.UseIPsec,
-		IPsecSecret:      l2tpClient.IPsecSecret,
-		AllowFastPath:    l2tpClient.AllowFastPath,
-		AddDefaultRoute:  l2tpClient.AddDefaultRoute,
-		DialOnDemand:     l2tpClient.DialOnDemand,
-		Allow:            l2tpClient.Allow,
-		RandomSourcePort: l2tpClient.RandomSourcePort,
-		L2TPProtoVersion: l2tpClient.L2TPProtoVersion,
-		L2TPv3DigestHash: l2tpClient.L2TPv3DigestHash,
-		AddRoutes:        l2tpClient.AddRoutes,
-		Comment:          l2tpClient.Comment,
-	}
+	response := ToL2TPClientResponse(l2tpClient)
 
 	return SuccessResponse(c, http.StatusOK, "L2TP client details retrieved successfully", response)
 }

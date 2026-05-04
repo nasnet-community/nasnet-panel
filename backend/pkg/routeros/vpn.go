@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"net"
 	"strconv"
+
+	"nasnet-panel/pkg/utils"
 )
 
 // VPNClientInfo represents a VPN client interface.
@@ -52,6 +54,15 @@ type L2TPClientInfo struct {
 	L2TPv3DigestHash string
 	AddRoutes        bool
 	Comment          string
+	// Monitor data
+	Status            string
+	Uptime            string
+	Encoding          string
+	MTU               int
+	LocalAddress      string
+	RemoteAddress     string
+	LocalIPv6Address  string
+	RemoteIPv6Address string
 }
 
 // VPN client interface types.
@@ -872,7 +883,7 @@ func (c *Client) GetL2TPClientInfo(name string) (*L2TPClientInfo, error) {
 	maxMRU, _ := strconv.Atoi(result["max-mru"])
 	keepaliveTimeout, _ := strconv.Atoi(result["keepalive-timeout"])
 
-	return &L2TPClientInfo{
+	l2tpClient := &L2TPClientInfo{
 		ID:               result[".id"],
 		Name:             result["name"],
 		Disabled:         result["disabled"] == "true",
@@ -897,7 +908,24 @@ func (c *Client) GetL2TPClientInfo(name string) (*L2TPClientInfo, error) {
 		L2TPv3DigestHash: result["l2tpv3-digest-hash"],
 		AddRoutes:        result["add-routes"] == "yes" || result["add-routes"] == "true",
 		Comment:          result["comment"],
-	}, nil
+	}
+
+	// Get monitor data
+	monitorReply, err := c.Execute("/interface/l2tp-client/monitor", "=once=yes", "=.id="+result[".id"])
+	if err == nil && monitorReply != nil && len(monitorReply.Re) > 0 {
+		monitor := monitorReply.Re[0].Map
+		mtu, _ := strconv.Atoi(monitor["mtu"])
+		l2tpClient.Status = monitor["status"]
+		l2tpClient.Uptime = utils.FormatRouterOSTime(monitor["uptime"])
+		l2tpClient.Encoding = monitor["encoding"]
+		l2tpClient.MTU = mtu
+		l2tpClient.LocalAddress = monitor["local-address"]
+		l2tpClient.RemoteAddress = monitor["remote-address"]
+		l2tpClient.LocalIPv6Address = monitor["local-ipv6-address"]
+		l2tpClient.RemoteIPv6Address = monitor["remote-ipv6-address"]
+	}
+
+	return l2tpClient, nil
 }
 
 // toYesNo converts a boolean to RouterOS yes/no format.
