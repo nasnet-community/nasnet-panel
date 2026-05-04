@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { Badge, DataTable, Switch, useToast } from '@nasnet/ui';
-import { ArrowDown, ArrowUp, Cable } from 'lucide-react';
+import { Badge, Button, DataTable, Switch, useToast } from '@nasnet/ui';
+import { ArrowDown, ArrowUp, Cable, Pencil, Trash2 } from 'lucide-react';
 import { ApiError, updateVPNClient, type VPNClient, type VPNCredentials } from '../../../api';
 import { formatBytes } from '../../../utils/format';
 import { useThemeColors } from '../../../utils/theme-colors';
@@ -10,11 +10,11 @@ interface Props {
   totalRows: number;
   creds: VPNCredentials | null;
   onToggled: () => void;
-  // onEdit: (client: VPNClient) => void;
-  // onDelete: (id: string) => void;
+  onEdit: (client: VPNClient) => void;
+  onDelete: (client: VPNClient) => void;
 }
 
-export function ClientsTable({ rows, totalRows, creds, onToggled }: Props) {
+export function ClientsTable({ rows, totalRows, creds, onToggled, onEdit, onDelete }: Props) {
   const toast = useToast();
   const colors = useThemeColors();
   const [pending, setPending] = useState<Set<string>>(() => new Set());
@@ -127,21 +127,38 @@ export function ClientsTable({ rows, totalRows, creds, onToggled }: Props) {
           },
           width: '120px',
         },
-        // {
-        //   key: 'actions',
-        //   header: 'Actions',
-        //   render: (c: VPNClient) => (
-        //     <span style={{ display: 'inline-flex', gap: 8 }}>
-        //       <Button size="sm" variant="secondary" onClick={() => onEdit(c)}>
-        //         Edit
-        //       </Button>
-        //       <Button size="sm" variant="danger" onClick={() => onDelete(c.id)}>
-        //         Delete
-        //       </Button>
-        //     </span>
-        //   ),
-        //   width: '200px',
-        // },
+        {
+          key: 'actions',
+          header: 'Actions',
+          render: (c: VPNClient) => {
+            if (c.protocol !== 'l2tp') return null;
+            return (
+              <span style={{ display: 'inline-flex', gap: 8 }}>
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  disabled={!creds}
+                  title={`Edit ${c.name}`}
+                  aria-label={`Edit ${c.name}`}
+                  onClick={() => onEdit(c)}
+                >
+                  <Pencil size={14} aria-hidden />
+                </Button>
+                <Button
+                  size="sm"
+                  variant="danger"
+                  disabled={!creds}
+                  title={`Delete ${c.name}`}
+                  aria-label={`Delete ${c.name}`}
+                  onClick={() => onDelete(c)}
+                >
+                  <Trash2 size={14} aria-hidden />
+                </Button>
+              </span>
+            );
+          },
+          width: '120px',
+        },
       ]}
       rows={rows}
       rowKey={(c) => c.id}

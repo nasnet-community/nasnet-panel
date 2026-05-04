@@ -1,15 +1,17 @@
 import { useState } from 'react';
-import { Card, Stack, useToast } from '@nasnet/ui';
+import { Card, ConfirmDialog, Stack, useToast } from '@nasnet/ui';
 import {
   ApiError,
   addL2TPClient,
+  deleteL2TPClient,
+  updateL2TPClient,
   type AddL2TPClientRequest,
+  type UpdateL2TPClientRequest,
   type VPNClient,
   type VPNCredentials,
 } from '../../../api';
-// import { ConfirmDialog } from '@nasnet/ui';
-// import { useClientActions } from '../hooks/useClientActions';
 import { AddVpnClientDialog } from '../dialogs/AddVpnClientDialog';
+import { EditL2tpClientDialog } from '../dialogs/EditL2tpClientDialog';
 import { PaginationControls } from '../PaginationControls';
 import { usePagedFilter } from '../hooks/usePagedFilter';
 import { PAGE_SIZE } from '../utils';
@@ -32,8 +34,9 @@ export function ClientsSection({ creds, clients, onChanged }: Props) {
   const paged = usePagedFilter(clients, matches);
   const toast = useToast();
   const [adding, setAdding] = useState(false);
-  // Edit/Delete still hidden until the backend exposes those endpoints.
-  // const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [editing, setEditing] = useState<VPNClient | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<VPNClient | null>(null);
+  const [deleteSubmitting, setDeleteSubmitting] = useState(false);
 
   const onSubmitL2TP = async (req: AddL2TPClientRequest) => {
     if (!creds) {
@@ -54,6 +57,60 @@ export function ClientsSection({ creds, clients, onChanged }: Props) {
     }
     setAdding(false);
     toast.notify({ title: `L2TP client "${req.name}" added`, tone: 'success' });
+    onChanged();
+  };
+
+  const onSubmitEdit = async (req: UpdateL2TPClientRequest) => {
+    if (!creds || !editing) {
+      toast.notify({ title: 'Not connected to router', tone: 'danger' });
+      return;
+    }
+    const target = editing;
+    try {
+      await updateL2TPClient(creds, target.id, req);
+    } catch (err) {
+      const message =
+        err instanceof ApiError
+          ? err.message
+          : err instanceof Error
+            ? err.message
+            : 'Failed to update L2TP client.';
+      toast.notify({
+        title: 'Failed to update L2TP client',
+        description: message,
+        tone: 'danger',
+      });
+      throw err;
+    }
+    setEditing(null);
+    toast.notify({ title: `L2TP client "${target.name}" updated`, tone: 'success' });
+    onChanged();
+  };
+
+  const onConfirmDelete = async () => {
+    if (!creds || !pendingDelete) return;
+    const target = pendingDelete;
+    setDeleteSubmitting(true);
+    try {
+      await deleteL2TPClient(creds, target.id);
+    } catch (err) {
+      const message =
+        err instanceof ApiError
+          ? err.message
+          : err instanceof Error
+            ? err.message
+            : 'Failed to delete L2TP client.';
+      toast.notify({
+        title: 'Failed to delete L2TP client',
+        description: message,
+        tone: 'danger',
+      });
+      setDeleteSubmitting(false);
+      return;
+    }
+    setDeleteSubmitting(false);
+    setPendingDelete(null);
+    toast.notify({ title: `L2TP client "${target.name}" deleted`, tone: 'info' });
     onChanged();
   };
 
@@ -82,6 +139,8 @@ export function ClientsSection({ creds, clients, onChanged }: Props) {
             totalRows={clients.length}
             creds={creds}
             onToggled={onChanged}
+            onEdit={(c) => setEditing(c)}
+            onDelete={(c) => setPendingDelete(c)}
           />
           <PaginationControls
             page={paged.page}
@@ -96,13 +155,27 @@ export function ClientsSection({ creds, clients, onChanged }: Props) {
       {adding ? (
         <AddVpnClientDialog onCancel={() => setAdding(false)} onSubmitL2TP={onSubmitL2TP} />
       ) : null}
-      {/* <ConfirmDialog
-        open={!!deletingId}
-        title="Delete VPN client"
+      {editing ? (
+        <EditL2tpClientDialog
+          clientName={editing.name}
+          creds={creds}
+          onCancel={() => setEditing(null)}
+          onSubmit={onSubmitEdit}
+        />
+      ) : null}
+      <ConfirmDialog
+        open={!!pendingDelete}
+        title="Delete L2TP client"
+        description={
+          pendingDelete
+            ? `Remove "${pendingDelete.name}" from this router? This cannot be undone.`
+            : undefined
+        }
+        confirmLabel={deleteSubmitting ? 'Deleting…' : 'Delete'}
         destructive
         onConfirm={onConfirmDelete}
-        onCancel={() => setDeletingId(null)}
-      /> */}
+        onCancel={() => (deleteSubmitting ? undefined : setPendingDelete(null))}
+      />
     </Stack>
   );
 }

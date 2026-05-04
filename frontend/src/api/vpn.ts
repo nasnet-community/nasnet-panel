@@ -38,6 +38,28 @@ export interface AddL2TPClientRequest {
   ipsecSecret?: string;
 }
 
+export interface UpdateL2TPClientRequest {
+  connectTo?: string;
+  user?: string;
+  password?: string;
+  disabled?: boolean;
+  ipsecSecret?: string;
+}
+
+export interface L2TPClientDetailsResponse {
+  id: string;
+  name: string;
+  disabled: boolean;
+  running: boolean;
+  connectTo: string;
+  user: string;
+  password: string;
+  profile: string;
+  useIPsec: boolean;
+  ipsecSecret: string;
+  comment: string;
+}
+
 export interface ServerStatusItem {
   name: string;
   enabled: boolean;
@@ -189,6 +211,46 @@ export async function addL2TPClient(
     method: 'POST',
     headers: authHeaders(creds),
     body: JSON.stringify(body),
+    signal,
+  });
+}
+
+export async function fetchL2TPClientDetails(
+  creds: VPNCredentials,
+  name: string,
+  signal?: AbortSignal,
+): Promise<L2TPClientDetailsResponse> {
+  return apiRequest<L2TPClientDetailsResponse>(`/api/vpn/l2tp-client/${encodeURIComponent(name)}`, {
+    method: 'GET',
+    headers: authHeaders(creds),
+    cache: 'no-store',
+    signal,
+  });
+}
+
+export async function updateL2TPClient(
+  creds: VPNCredentials,
+  nameOrID: string,
+  body: UpdateL2TPClientRequest,
+  signal?: AbortSignal,
+): Promise<VPNClientResponse> {
+  return apiRequest<VPNClientResponse>(`/api/vpn/l2tp-client/${encodeURIComponent(nameOrID)}`, {
+    method: 'PUT',
+    headers: authHeaders(creds),
+    body: JSON.stringify(body),
+    signal,
+  });
+}
+
+export async function deleteL2TPClient(
+  creds: VPNCredentials,
+  nameOrID: string,
+  signal?: AbortSignal,
+): Promise<void> {
+  await apiRequest<void>(`/api/vpn/l2tp-client/${encodeURIComponent(nameOrID)}`, {
+    method: 'DELETE',
+    headers: authHeaders(creds),
+    cache: 'no-store',
     signal,
   });
 }
