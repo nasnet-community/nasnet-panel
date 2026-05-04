@@ -40,6 +40,7 @@ import { useSession } from '../state/SessionContext';
 import { RouterTabBar } from '../layout/RouterTabBar';
 import styles from './UpdatesPage.module.scss';
 
+// eslint-disable-next-line @typescript-eslint/naming-convention
 declare const __APP_VERSION__: string;
 
 function VersionTrackSkeleton() {
