@@ -366,6 +366,65 @@ func HandleDeleteL2TPClient(c echo.Context) error {
 	return c.NoContent(http.StatusNoContent)
 }
 
+// HandleGetL2TPClient retrieves details about a specific L2TP client
+// @Summary Get L2TP Client Details
+// @Description Get detailed information about an L2TP client
+// @Tags VPN
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Param name path string true "L2TP client name"
+// @Produce json
+// @Success 200 {object} Response{data=L2TPClientResponse}
+// @Failure 404 {object} Response
+// @Failure 500 {object} Response
+// @Router /api/vpn/l2tp-client/{name} [get].
+func HandleGetL2TPClient(c echo.Context) error {
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+	defer func() { _ = client.Close() }()
+
+	name := c.Param("name")
+	if name == "" {
+		return ErrorResponse(c, http.StatusBadRequest, "L2TP client name is required", nil)
+	}
+
+	l2tpClient, err := client.GetL2TPClientInfo(name)
+	if err != nil {
+		return ErrorResponse(c, http.StatusNotFound, "L2TP client not found", err)
+	}
+
+	response := L2TPClientResponse{
+		ID:               l2tpClient.ID,
+		Name:             l2tpClient.Name,
+		Disabled:         l2tpClient.Disabled,
+		Running:          l2tpClient.Running,
+		MaxMTU:           l2tpClient.MaxMTU,
+		MaxMRU:           l2tpClient.MaxMRU,
+		MRRU:             l2tpClient.MRRU,
+		ConnectTo:        l2tpClient.ConnectTo,
+		User:             l2tpClient.User,
+		Password:         l2tpClient.Password,
+		Profile:          l2tpClient.Profile,
+		KeepaliveTimeout: l2tpClient.KeepaliveTimeout,
+		UsePeerDNS:       l2tpClient.UsePeerDNS,
+		UseIPsec:         l2tpClient.UseIPsec,
+		IPsecSecret:      l2tpClient.IPsecSecret,
+		AllowFastPath:    l2tpClient.AllowFastPath,
+		AddDefaultRoute:  l2tpClient.AddDefaultRoute,
+		DialOnDemand:     l2tpClient.DialOnDemand,
+		Allow:            l2tpClient.Allow,
+		RandomSourcePort: l2tpClient.RandomSourcePort,
+		L2TPProtoVersion: l2tpClient.L2TPProtoVersion,
+		L2TPv3DigestHash: l2tpClient.L2TPv3DigestHash,
+		AddRoutes:        l2tpClient.AddRoutes,
+		Comment:          l2tpClient.Comment,
+	}
+
+	return SuccessResponse(c, http.StatusOK, "L2TP client details retrieved successfully", response)
+}
+
 // HandleGetVPNServersStatus gets the status of all VPN servers
 // @Summary Get VPN Servers Status
 // @Description Get the status of OpenVPN, WireGuard, PPTP, L2TP, and SSTP servers

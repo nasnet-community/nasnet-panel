@@ -78,6 +78,14 @@ export {
 } from './dhcp';
 export { fetchFirewallRules, type FirewallCredentials, type FirewallRule } from './firewall';
 export {
+  fetchUpdateInfo,
+  checkForUpdates,
+  installUpdate,
+  type UpdateInfoResponse,
+  type UpdateCheckResponse,
+  type UpdateInstallResponse,
+} from './updates';
+export {
   listVPNClients,
   updateVPNClient,
   addL2TPClient,

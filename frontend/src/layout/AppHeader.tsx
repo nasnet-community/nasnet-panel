@@ -1,13 +1,15 @@
 import { Link } from 'react-router-dom';
 import { HeaderActions } from './HeaderActions';
 import { useSession } from '../state/SessionContext';
-import { useRouter } from '../state/RouterStoreContext';
+import { useRouter, useRouterStore } from '../state/RouterStoreContext';
 import styles from './AppHeader.module.scss';
 
 export function AppHeader() {
   const { activeRouterId } = useSession();
-  const router = useRouter(activeRouterId ?? undefined);
-  const logoTarget = activeRouterId ? `/router/${activeRouterId}` : '/';
+  const { lastConnectedRouterId, selectedRouterId } = useRouterStore();
+  const targetId = activeRouterId ?? lastConnectedRouterId ?? selectedRouterId ?? null;
+  const router = useRouter(targetId ?? undefined);
+  const logoTarget = targetId ? `/router/${targetId}` : '/';
   return (
     <header className={styles.headerRoot}>
       <div className={styles.wrap}>

@@ -26,6 +26,34 @@ type VPNClientInfo struct {
 	Comment      string
 }
 
+// L2TPClientInfo represents L2TP client configuration details.
+type L2TPClientInfo struct {
+	ID               string
+	Name             string
+	Disabled         bool
+	Running          bool
+	MaxMTU           int
+	MaxMRU           int
+	MRRU             string
+	ConnectTo        string
+	User             string
+	Password         string
+	Profile          string
+	KeepaliveTimeout int
+	UsePeerDNS       bool
+	UseIPsec         bool
+	IPsecSecret      string
+	AllowFastPath    bool
+	AddDefaultRoute  bool
+	DialOnDemand     bool
+	Allow            string
+	RandomSourcePort bool
+	L2TPProtoVersion string
+	L2TPv3DigestHash string
+	AddRoutes        bool
+	Comment          string
+}
+
 // VPN client interface types.
 const (
 	VPNTypeL2TPOut   = "l2tp-out"
@@ -831,6 +859,45 @@ func (c *Client) RemoveL2TPClient(nameOrID string) error {
 	}
 
 	return nil
+}
+
+// GetL2TPClientInfo retrieves detailed information about an L2TP client.
+func (c *Client) GetL2TPClientInfo(name string) (*L2TPClientInfo, error) {
+	result, err := c.GetFirst("/interface/l2tp-client", "?=name="+name)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get L2TP client %s: %w", name, err)
+	}
+
+	maxMTU, _ := strconv.Atoi(result["max-mtu"])
+	maxMRU, _ := strconv.Atoi(result["max-mru"])
+	keepaliveTimeout, _ := strconv.Atoi(result["keepalive-timeout"])
+
+	return &L2TPClientInfo{
+		ID:               result[".id"],
+		Name:             result["name"],
+		Disabled:         result["disabled"] == "true",
+		Running:          result["running"] == "true",
+		MaxMTU:           maxMTU,
+		MaxMRU:           maxMRU,
+		MRRU:             result["mrru"],
+		ConnectTo:        result["connect-to"],
+		User:             result["user"],
+		Password:         result["password"],
+		Profile:          result["profile"],
+		KeepaliveTimeout: keepaliveTimeout,
+		UsePeerDNS:       result["use-peer-dns"] == "yes",
+		UseIPsec:         result["use-ipsec"] == "true" || result["use-ipsec"] == "yes",
+		IPsecSecret:      result["ipsec-secret"],
+		AllowFastPath:    result["allow-fast-path"] == "true" || result["allow-fast-path"] == "yes",
+		AddDefaultRoute:  result["add-default-route"] == "true" || result["add-default-route"] == "yes",
+		DialOnDemand:     result["dial-on-demand"] == "true" || result["dial-on-demand"] == "yes",
+		Allow:            result["allow"],
+		RandomSourcePort: result["random-source-port"] == "true" || result["random-source-port"] == "yes",
+		L2TPProtoVersion: result["l2tp-proto-version"],
+		L2TPv3DigestHash: result["l2tpv3-digest-hash"],
+		AddRoutes:        result["add-routes"] == "yes" || result["add-routes"] == "true",
+		Comment:          result["comment"],
+	}, nil
 }
 
 // toYesNo converts a boolean to RouterOS yes/no format.

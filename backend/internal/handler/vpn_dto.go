@@ -50,6 +50,34 @@ type UpdateL2TPClientRequest struct {
 	IPsecSecret *string `json:"ipsecSecret" example:"newupdasecretpassphrase123"`
 }
 
+// L2TPClientResponse represents L2TP client details in the API response.
+type L2TPClientResponse struct {
+	ID               string `json:"id"`
+	Name             string `json:"name"`
+	Disabled         bool   `json:"disabled"`
+	Running          bool   `json:"running"`
+	MaxMTU           int    `json:"maxMtu"`
+	MaxMRU           int    `json:"maxMru"`
+	MRRU             string `json:"mrru"`
+	ConnectTo        string `json:"connectTo"`
+	User             string `json:"user"`
+	Password         string `json:"password"`
+	Profile          string `json:"profile"`
+	KeepaliveTimeout int    `json:"keepaliveTimeout"`
+	UsePeerDNS       bool   `json:"usePeerDns"`
+	UseIPsec         bool   `json:"useIPsec"`
+	IPsecSecret      string `json:"ipsecSecret"`
+	AllowFastPath    bool   `json:"allowFastPath"`
+	AddDefaultRoute  bool   `json:"addDefaultRoute"`
+	DialOnDemand     bool   `json:"dialOnDemand"`
+	Allow            string `json:"allow"`
+	RandomSourcePort bool   `json:"randomSourcePort"`
+	L2TPProtoVersion string `json:"l2tpProtoVersion"`
+	L2TPv3DigestHash string `json:"l2tpv3DigestHash"`
+	AddRoutes        bool   `json:"addRoutes"`
+	Comment          string `json:"comment"`
+}
+
 // ServerStatusItem represents a server with name and enabled status.
 type ServerStatusItem struct {
 	Name         string `json:"name"`
