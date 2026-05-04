@@ -46,6 +46,20 @@ export interface UpdateL2TPClientRequest {
   ipsecSecret?: string;
 }
 
+export interface L2TPClientDetailsResponse {
+  id: string;
+  name: string;
+  disabled: boolean;
+  running: boolean;
+  connectTo: string;
+  user: string;
+  password: string;
+  profile: string;
+  useIPsec: boolean;
+  ipsecSecret: string;
+  comment: string;
+}
+
 export interface ServerStatusItem {
   name: string;
   enabled: boolean;
@@ -197,6 +211,19 @@ export async function addL2TPClient(
     method: 'POST',
     headers: authHeaders(creds),
     body: JSON.stringify(body),
+    signal,
+  });
+}
+
+export async function fetchL2TPClientDetails(
+  creds: VPNCredentials,
+  name: string,
+  signal?: AbortSignal,
+): Promise<L2TPClientDetailsResponse> {
+  return apiRequest<L2TPClientDetailsResponse>(`/api/vpn/l2tp-client/${encodeURIComponent(name)}`, {
+    method: 'GET',
+    headers: authHeaders(creds),
+    cache: 'no-store',
     signal,
   });
 }

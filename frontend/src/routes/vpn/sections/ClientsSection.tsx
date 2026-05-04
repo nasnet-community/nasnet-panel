@@ -158,7 +158,7 @@ export function ClientsSection({ creds, clients, onChanged }: Props) {
       {editing ? (
         <EditL2tpClientDialog
           clientName={editing.name}
-          initialDisabled={!editing.enabled}
+          creds={creds}
           onCancel={() => setEditing(null)}
           onSubmit={onSubmitEdit}
         />
