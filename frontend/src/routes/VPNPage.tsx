@@ -29,6 +29,7 @@ export function VPNPage() {
 
   const [clients, setClients] = useState<VPNClient[]>([]);
   const [servers, setServers] = useState<VPNServer[]>([]);
+  const [loaded, setLoaded] = useState(false);
   const peers: VPNPeer[] = [];
 
   const creds = useMemo<VPNCredentials | null>(() => {
@@ -48,6 +49,7 @@ export function VPNPage() {
       ]);
       setClients(rawClients.map((c) => mapClientFromBE(c, id)));
       setServers(mapServersStatusToList(serversStatus, id));
+      setLoaded(true);
     } catch (err) {
       const message =
         err instanceof ApiError
@@ -72,7 +74,13 @@ export function VPNPage() {
 
   return (
     <Stack>
-      <StatsStrip clients={clients} servers={servers} peers={peers} protocols={protocols} />
+      <StatsStrip
+        clients={clients}
+        servers={servers}
+        peers={peers}
+        protocols={protocols}
+        loading={!loaded}
+      />
       <ClientsSection creds={creds} clients={clients} onChanged={reload} />
       <ServersSection creds={creds} servers={servers} />
       {/* <PeersSection routerId={id} peers={peers} servers={servers} onChanged={reload} /> */}
