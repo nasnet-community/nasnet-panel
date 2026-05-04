@@ -6,6 +6,7 @@ const CopyPlugin = require('copy-webpack-plugin');
 module.exports = (_env, argv) => {
   const isProduction = argv.mode === 'production';
   const backendUrl = process.env.BACKEND_URL ?? 'http://localhost:8080';
+  const appVersion = require('../package.json').version;
 
   return {
     mode: isProduction ? 'production' : 'development',
@@ -70,6 +71,7 @@ module.exports = (_env, argv) => {
     plugins: [
       new webpack.DefinePlugin({
         __BACKEND_URL__: JSON.stringify(backendUrl),
+        __APP_VERSION__: JSON.stringify(appVersion),
       }),
       new HtmlWebpackPlugin({
         template: path.resolve(__dirname, 'public', 'index.html'),
