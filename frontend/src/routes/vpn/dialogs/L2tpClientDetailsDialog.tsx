@@ -66,11 +66,19 @@ export function L2tpClientDetailsDialog({ clientName, creds, onClose }: Props) {
           <Row label="Name" value={details.name} />
           <Row label="Enabled" value={<BoolBadge value={!details.disabled} />} />
           <Row label="Running" value={<BoolBadge value={details.running} />} />
+          <Row label="Status" value={details.status} />
+          <Row label="Uptime" value={details.uptime} />
+          <Row label="Encoding" value={details.encoding} />
           <Row label="Connect to" value={details.connectTo} />
+          <Row label="Local address" value={details.localAddress} />
+          <Row label="Remote address" value={details.remoteAddress} />
+          <Row label="Local IPv6 address" value={details.localIpv6Address} />
+          <Row label="Remote IPv6 address" value={details.remoteIpv6Address} />
           <Row label="User" value={details.user} />
           <Row label="Password" value={details.password ? <code>{details.password}</code> : '–'} />
           <Row label="Profile" value={details.profile} />
           <Row label="Allow" value={details.allow} />
+          <Row label="MTU" value={details.mtu} />
           <Row label="Max MTU" value={details.maxMtu} />
           <Row label="Max MRU" value={details.maxMru} />
           <Row label="MRRU" value={details.mrru} />

@@ -71,6 +71,14 @@ export interface L2TPClientDetailsResponse {
   l2tpv3DigestHash: string;
   addRoutes: boolean;
   comment: string;
+  status: string;
+  uptime: string;
+  encoding: string;
+  mtu: number;
+  localAddress: string;
+  remoteAddress: string;
+  localIpv6Address: string;
+  remoteIpv6Address: string;
 }
 
 export interface ServerStatusItem {
