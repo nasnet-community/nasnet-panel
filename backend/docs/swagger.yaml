@@ -55,6 +55,57 @@ definitions:
       ip:
         type: string
     type: object
+  handler.L2TPClientResponse:
+    properties:
+      addDefaultRoute:
+        type: boolean
+      addRoutes:
+        type: boolean
+      allow:
+        type: string
+      allowFastPath:
+        type: boolean
+      comment:
+        type: string
+      connectTo:
+        type: string
+      dialOnDemand:
+        type: boolean
+      disabled:
+        type: boolean
+      id:
+        type: string
+      ipsecSecret:
+        type: string
+      keepaliveTimeout:
+        type: integer
+      l2tpProtoVersion:
+        type: string
+      l2tpv3DigestHash:
+        type: string
+      maxMru:
+        type: integer
+      maxMtu:
+        type: integer
+      mrru:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+      profile:
+        type: string
+      randomSourcePort:
+        type: boolean
+      running:
+        type: boolean
+      useIPsec:
+        type: boolean
+      usePeerDns:
+        type: boolean
+      user:
+        type: string
+    type: object
   handler.L2TPUserSecret:
     properties:
       password:
@@ -1481,6 +1532,45 @@ paths:
       security:
       - BasicAuth: []
       summary: Add L2TP Client
+      tags:
+      - VPN
+  /api/vpn/l2tp-client/{name}:
+    get:
+      description: Get detailed information about an L2TP client
+      parameters:
+      - description: RouterOS host address
+        in: header
+        name: X-RouterOS-Host
+        required: true
+        type: string
+      - description: L2TP client name
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/handler.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/handler.L2TPClientResponse'
+              type: object
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.Response'
+      security:
+      - BasicAuth: []
+      summary: Get L2TP Client Details
       tags:
       - VPN
   /api/vpn/l2tp-client/{nameOrID}:

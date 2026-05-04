@@ -1793,6 +1793,71 @@
                 }
             }
         },
+        "/api/vpn/l2tp-client/{name}": {
+            "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Get detailed information about an L2TP client",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "VPN"
+                ],
+                "summary": "Get L2TP Client Details",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "L2TP client name",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handler.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/handler.L2TPClientResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/api/vpn/l2tp-server": {
             "get": {
                 "security": [
@@ -2801,6 +2866,83 @@
             "type": "object",
             "properties": {
                 "ip": {
+                    "type": "string"
+                }
+            }
+        },
+        "handler.L2TPClientResponse": {
+            "type": "object",
+            "properties": {
+                "addDefaultRoute": {
+                    "type": "boolean"
+                },
+                "addRoutes": {
+                    "type": "boolean"
+                },
+                "allow": {
+                    "type": "string"
+                },
+                "allowFastPath": {
+                    "type": "boolean"
+                },
+                "comment": {
+                    "type": "string"
+                },
+                "connectTo": {
+                    "type": "string"
+                },
+                "dialOnDemand": {
+                    "type": "boolean"
+                },
+                "disabled": {
+                    "type": "boolean"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "ipsecSecret": {
+                    "type": "string"
+                },
+                "keepaliveTimeout": {
+                    "type": "integer"
+                },
+                "l2tpProtoVersion": {
+                    "type": "string"
+                },
+                "l2tpv3DigestHash": {
+                    "type": "string"
+                },
+                "maxMru": {
+                    "type": "integer"
+                },
+                "maxMtu": {
+                    "type": "integer"
+                },
+                "mrru": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "profile": {
+                    "type": "string"
+                },
+                "randomSourcePort": {
+                    "type": "boolean"
+                },
+                "running": {
+                    "type": "boolean"
+                },
+                "useIPsec": {
+                    "type": "boolean"
+                },
+                "usePeerDns": {
+                    "type": "boolean"
+                },
+                "user": {
                     "type": "string"
                 }
             }
