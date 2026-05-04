@@ -10,11 +10,20 @@ interface Props {
   totalRows: number;
   creds: VPNCredentials | null;
   onToggled: () => void;
+  onView: (client: VPNClient) => void;
   onEdit: (client: VPNClient) => void;
   onDelete: (client: VPNClient) => void;
 }
 
-export function ClientsTable({ rows, totalRows, creds, onToggled, onEdit, onDelete }: Props) {
+export function ClientsTable({
+  rows,
+  totalRows,
+  creds,
+  onToggled,
+  onView,
+  onEdit,
+  onDelete,
+}: Props) {
   const toast = useToast();
   const colors = useThemeColors();
   const [pending, setPending] = useState<Set<string>>(() => new Set());
@@ -35,7 +44,31 @@ export function ClientsTable({ rows, totalRows, creds, onToggled, onEdit, onDele
   return (
     <DataTable
       columns={[
-        { key: 'name', header: 'Name', render: (c: VPNClient) => c.name },
+        {
+          key: 'name',
+          header: 'Name',
+          render: (c: VPNClient) => {
+            if (c.protocol !== 'l2tp') return c.name;
+            return (
+              <button
+                type="button"
+                onClick={() => onView(c)}
+                aria-label={`View ${c.name} details`}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  padding: 0,
+                  font: 'inherit',
+                  color: 'var(--color-primary)',
+                  textDecoration: 'underline',
+                  cursor: 'pointer',
+                }}
+              >
+                {c.name}
+              </button>
+            );
+          },
+        },
         {
           key: 'status',
           header: 'Status',

@@ -51,12 +51,25 @@ export interface L2TPClientDetailsResponse {
   name: string;
   disabled: boolean;
   running: boolean;
+  maxMtu: number;
+  maxMru: number;
+  mrru: string;
   connectTo: string;
   user: string;
   password: string;
   profile: string;
+  keepaliveTimeout: number;
+  usePeerDns: boolean;
   useIPsec: boolean;
   ipsecSecret: string;
+  allowFastPath: boolean;
+  addDefaultRoute: boolean;
+  dialOnDemand: boolean;
+  allow: string;
+  randomSourcePort: boolean;
+  l2tpProtoVersion: string;
+  l2tpv3DigestHash: string;
+  addRoutes: boolean;
   comment: string;
 }
 
