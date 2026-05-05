@@ -65,13 +65,10 @@ type ResourceInfoResponse struct {
 }
 
 type UpdateInfoResponse struct {
-	Version       string `json:"version"`
-	BuildTime     string `json:"buildTime"`
-	Channel       string `json:"channel"`
-	UpdatePolicy  string `json:"updatePolicy"`
-	CurrentTime   string `json:"currentTime"`
-	InstallTime   string `json:"installTime"`
-	ScheduledTime string `json:"scheduledTime"`
+	Channel          string `json:"channel"`
+	InstalledVersion string `json:"installedVersion"`
+	LatestVersion    string `json:"latestVersion"`
+	Status           string `json:"status"`
 }
 
 // UpdateCheckResponse represents package update check response.
@@ -176,13 +173,10 @@ func ToUpdateInfoResponse(ui *routeros.UpdateInfo) *UpdateInfoResponse {
 	}
 
 	return &UpdateInfoResponse{
-		Version:       ui.Version,
-		BuildTime:     utils.FormatRouterOSTime(ui.BuildTime),
-		Channel:       ui.Channel,
-		UpdatePolicy:  ui.UpdatePolicy,
-		CurrentTime:   utils.FormatRouterOSTime(ui.CurrentTime),
-		InstallTime:   utils.FormatRouterOSTime(ui.InstallTime),
-		ScheduledTime: utils.FormatRouterOSTime(ui.ScheduledTime),
+		Channel:          ui.Channel,
+		InstalledVersion: ui.InstalledVersion,
+		LatestVersion:    ui.LatestVersion,
+		Status:           ui.Status,
 	}
 }
 
