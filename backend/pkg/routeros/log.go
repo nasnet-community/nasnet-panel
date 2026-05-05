@@ -2,6 +2,7 @@ package routeros
 
 import (
 	"fmt"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -118,10 +119,16 @@ func (c *Client) GetLogs(filter LogFilter) ([]LogEntry, error) {
 		}
 
 		logs = append(logs, entry)
+	}
 
-		if len(logs) >= filter.Limit {
-			break
-		}
+	// Sort logs from newest to oldest by reversing order (RouterOS returns oldest first)
+	sort.Slice(logs, func(i, j int) bool {
+		return logs[i].Time > logs[j].Time
+	})
+
+	// Limit after sorting to get the newest logs
+	if len(logs) > filter.Limit {
+		logs = logs[:filter.Limit]
 	}
 
 	return logs, nil
