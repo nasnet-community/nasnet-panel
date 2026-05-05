@@ -379,9 +379,10 @@ func HandleListVPNServers(c echo.Context) error {
 		for i := range ovpnServers {
 			srv := ovpnServers[i]
 			item := ServerStatusItem{
-				Name:    srv.Name,
-				Enabled: !srv.Disabled,
-				Port:    srv.Port,
+				Name:     srv.Name,
+				Enabled:  !srv.Disabled,
+				Port:     srv.Port,
+				Protocol: srv.ProtocolVersion,
 			}
 
 			if srv.DefaultProfile != "" {
@@ -406,9 +407,10 @@ func HandleListVPNServers(c echo.Context) error {
 		for i := range wireguards {
 			wg := wireguards[i]
 			response.Wireguards = append(response.Wireguards, ServerStatusItem{
-				Name:    wg.Name,
-				Enabled: !wg.Disabled,
-				Port:    wg.ListenPort,
+				Name:     wg.Name,
+				Enabled:  !wg.Disabled,
+				Port:     wg.ListenPort,
+				Protocol: "udp",
 			})
 		}
 	}
@@ -416,8 +418,9 @@ func HandleListVPNServers(c echo.Context) error {
 	pptpServer, err := client.GetPptpServer()
 	if err == nil {
 		status := &SingleServerStatus{
-			Enabled: pptpServer.Enabled,
-			Port:    1723, // Default PPTP port
+			Enabled:  pptpServer.Enabled,
+			Port:     1723, // Default PPTP port
+			Protocol: "tcp",
 		}
 
 		if pptpServer.DefaultProfile != "" {
@@ -439,8 +442,9 @@ func HandleListVPNServers(c echo.Context) error {
 	l2tpServer, err := client.GetL2tpServer()
 	if err == nil {
 		status := &SingleServerStatus{
-			Enabled: l2tpServer.Enabled,
-			Port:    1701, // Default L2TP port
+			Enabled:  l2tpServer.Enabled,
+			Port:     1701, // Default L2TP port
+			Protocol: "udp",
 		}
 
 		if l2tpServer.DefaultProfile != "" {
@@ -462,8 +466,9 @@ func HandleListVPNServers(c echo.Context) error {
 	sstpServer, err := client.GetSstpServer()
 	if err == nil {
 		status := &SingleServerStatus{
-			Enabled: sstpServer.Enabled,
-			Port:    sstpServer.Port,
+			Enabled:  sstpServer.Enabled,
+			Port:     sstpServer.Port,
+			Protocol: "tcp",
 		}
 
 		if sstpServer.DefaultProfile != "" {
