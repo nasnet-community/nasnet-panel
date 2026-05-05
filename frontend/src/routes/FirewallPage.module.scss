@@ -232,6 +232,10 @@
   gap: var(--space-md);
 }
 
+.cardHeader > :first-child {
+  min-width: 0;
+}
+
 .headerActions {
   display: flex;
   align-items: flex-end;
@@ -241,6 +245,24 @@
 
 .chainField {
   min-width: 160px;
+}
+
+@media (max-width: 768px) {
+  .cardHeader {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .headerActions {
+    flex-shrink: 1;
+    align-items: stretch;
+    flex-wrap: wrap;
+  }
+
+  .chainField {
+    min-width: 0;
+    flex: 1 1 100%;
+  }
 }
 
 .chainLabel {

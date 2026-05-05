@@ -1,6 +1,10 @@
+.streamScroll {
+  overflow-x: auto;
+}
+
 .logRow {
   display: grid;
-  grid-template-columns: 180px 90px 130px 1fr;
+  grid-template-columns: 180px 90px 130px minmax(280px, 1fr);
   gap: var(--space-md);
   padding: 8px var(--space-sm);
   font: inherit;
@@ -13,6 +17,7 @@
   border-radius: var(--radius-sm);
   align-items: center;
   width: 100%;
+  min-width: 720px;
   cursor: pointer;
   transition: background var(--transition-fast);
 
@@ -82,11 +87,27 @@
   gap: var(--space-md);
 }
 
+.cardHeader > :first-child {
+  min-width: 0;
+}
+
 .headerActions {
   display: flex;
   align-items: center;
   gap: var(--space-md);
   flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+  .cardHeader {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .headerActions {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
 }
 
 .pagination {
