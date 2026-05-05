@@ -73,7 +73,7 @@ func RegisterRoutes(e *echo.Echo) {
 	vpnGroup.GET("/l2tp-client/:name", handler.HandleGetL2TPClient)
 	vpnGroup.PUT("/l2tp-client/:nameOrID", handler.HandleUpdateL2TPClient)
 	vpnGroup.DELETE("/l2tp-client/:nameOrID", handler.HandleDeleteL2TPClient)
-	vpnGroup.GET("/servers", handler.HandleGetVPNServersStatus)
+	vpnGroup.GET("/servers", handler.HandleListVPNServers)
 	vpnGroup.GET("/ovpn-server/:name", handler.HandleGetOvpnServerDetails)
 	vpnGroup.GET("/pptp-server", handler.HandleGetPptpServerDetails)
 	vpnGroup.GET("/l2tp-server", handler.HandleGetL2tpServerDetails)

@@ -353,9 +353,9 @@ func HandleGetL2TPClient(c echo.Context) error {
 	return SuccessResponse(c, http.StatusOK, "L2TP client details retrieved successfully", response)
 }
 
-// HandleGetVPNServersStatus gets the status of all VPN servers
-// @Summary Get VPN Servers Status
-// @Description Get the status of OpenVPN, WireGuard, PPTP, L2TP, and SSTP servers
+// HandleListVPNServers gets the status of all VPN servers
+// @Summary List VPN Servers
+// @Description Get the list of OpenVPN, WireGuard, PPTP, L2TP, and SSTP servers
 // @Tags VPN
 // @Security BasicAuth
 // @Param X-RouterOS-Host header string true "RouterOS host address"
@@ -363,7 +363,7 @@ func HandleGetL2TPClient(c echo.Context) error {
 // @Success 200 {object} Response{data=VPNServersStatusResponse}
 // @Failure 500 {object} Response
 // @Router /api/vpn/servers [get].
-func HandleGetVPNServersStatus(c echo.Context) error {
+func HandleListVPNServers(c echo.Context) error {
 	client, err := GetRouterOSClient(c)
 	if err != nil {
 		return err
