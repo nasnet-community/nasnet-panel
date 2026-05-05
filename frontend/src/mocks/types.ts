@@ -171,6 +171,7 @@ export interface VPNServer {
   routerId: string;
   name: string;
   protocol: VPNProtocol;
+  transport?: string;
   listenPort: number;
   ipPool: string;
   localIp?: string;
