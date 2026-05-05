@@ -30,7 +30,6 @@ func HandleGetDNSInfo(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	defer func() { _ = client.Close() }()
 
 	info, err := client.GetDNSInfo()
 	if err != nil {
@@ -84,7 +83,6 @@ func HandleUpdateDNS(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	defer func() { _ = client.Close() }()
 
 	var servers *string
 	var dohServer *string

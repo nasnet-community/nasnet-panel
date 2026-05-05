@@ -94,7 +94,6 @@ func HandleGetLogs(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	defer client.Close()
 
 	filter := pkgRouteros.LogFilter{
 		Limit:    limit,

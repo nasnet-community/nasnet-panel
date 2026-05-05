@@ -21,7 +21,6 @@ func HandleListVPNClients(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	defer func() { _ = client.Close() }()
 
 	vpnClients, err := client.ListVPNClients()
 	if err != nil {
@@ -53,7 +52,6 @@ func HandleGetVPNClient(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	defer func() { _ = client.Close() }()
 
 	name := c.Param("name")
 	if name == "" {
@@ -90,7 +88,6 @@ func HandleUpdateVPNClient(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	defer func() { _ = client.Close() }()
 
 	name := c.Param("name")
 	if name == "" {
@@ -156,7 +153,6 @@ func HandleAddL2TPClient(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	defer func() { _ = client.Close() }()
 
 	var req AddL2TPClientRequest
 	if err := c.Bind(&req); err != nil {
@@ -249,7 +245,6 @@ func HandleUpdateL2TPClient(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	defer func() { _ = client.Close() }()
 
 	nameOrID := c.Param("nameOrID")
 	if nameOrID == "" {
@@ -312,7 +307,6 @@ func HandleDeleteL2TPClient(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	defer func() { _ = client.Close() }()
 
 	nameOrID := c.Param("nameOrID")
 	if nameOrID == "" {
@@ -343,7 +337,6 @@ func HandleGetL2TPClient(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	defer func() { _ = client.Close() }()
 
 	name := c.Param("name")
 	if name == "" {
@@ -375,7 +368,6 @@ func HandleGetVPNServersStatus(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	defer func() { _ = client.Close() }()
 
 	response := &VPNServersStatusResponse{
 		OvpnServers: []ServerStatusItem{},
@@ -510,7 +502,6 @@ func HandleGetOvpnServerDetails(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	defer func() { _ = client.Close() }()
 
 	name := c.Param("name")
 	if name == "" {
@@ -554,7 +545,6 @@ func HandleGetPptpServerDetails(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	defer func() { _ = client.Close() }()
 
 	pptpServer, err := client.GetPptpServer()
 	if err != nil {
@@ -622,7 +612,6 @@ func HandleGetL2tpServerDetails(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	defer func() { _ = client.Close() }()
 
 	l2tpServer, err := client.GetL2tpServer()
 	if err != nil {
@@ -694,7 +683,6 @@ func HandleGetSstpServerDetails(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	defer func() { _ = client.Close() }()
 
 	sstpServer, err := client.GetSstpServer()
 	if err != nil {
@@ -770,7 +758,6 @@ func HandleGetWireguardServerDetails(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	defer func() { _ = client.Close() }()
 
 	name := c.Param("name")
 	if name == "" {
