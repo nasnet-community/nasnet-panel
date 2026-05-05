@@ -24,7 +24,6 @@ func HandleListDHCPLeases(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	defer func() { _ = client.Close() }()
 
 	leases, err := client.ListDHCPLeases()
 	if err != nil {
@@ -56,7 +55,6 @@ func HandleListDHCPClients(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	defer func() { _ = client.Close() }()
 
 	clients, err := client.ListDHCPClients()
 	if err != nil {
@@ -87,7 +85,6 @@ func HandleListDHCPServers(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	defer func() { _ = client.Close() }()
 
 	servers, err := client.ListDHCPServers()
 	if err != nil {
@@ -148,7 +145,6 @@ func HandleMakeDHCPLeaseStatic(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	defer func() { _ = client.Close() }()
 
 	lease, err := client.FindDHCPLeaseByMAC(macAddress)
 	if err != nil {
@@ -210,7 +206,6 @@ func HandleRemoveDHCPLease(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	defer func() { _ = client.Close() }()
 
 	lease, err := client.FindDHCPLeaseByMAC(decodedMAC)
 	if err != nil {

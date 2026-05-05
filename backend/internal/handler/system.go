@@ -24,7 +24,6 @@ func HandleGetSystemInfo(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	defer func() { _ = client.Close() }()
 
 	info, err := client.GetSystemInfo()
 	if err != nil {
@@ -56,7 +55,6 @@ func HandleGetSystemIdentity(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	defer func() { _ = client.Close() }()
 
 	identity, err := client.GetSystemIdentity()
 	if err != nil {
@@ -98,7 +96,6 @@ func HandleSetSystemIdentity(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	defer func() { _ = client.Close() }()
 
 	err = client.SetSystemIdentity(req.Name)
 	if err != nil {
@@ -129,7 +126,6 @@ func HandleGetSystemUpdates(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	defer func() { _ = client.Close() }()
 
 	updates, err := client.GetSystemUpdates()
 	if err != nil {
@@ -161,7 +157,6 @@ func HandleRebootSystem(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	defer func() { _ = client.Close() }()
 
 	err = client.RebootSystem()
 	if err != nil {
@@ -192,7 +187,6 @@ func HandleShutdownSystem(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	defer func() { _ = client.Close() }()
 
 	err = client.ShutdownSystem()
 	if err != nil {
@@ -223,7 +217,6 @@ func HandleGetResourceInfo(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	defer func() { _ = client.Close() }()
 
 	info, err := client.GetResourceInfo()
 	if err != nil {
@@ -265,7 +258,6 @@ func HandleChangeUserPassword(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	defer func() { _ = client.Close() }()
 
 	err = client.ChangeUserPassword(req.Username, req.NewPassword)
 	if err != nil {
@@ -293,7 +285,6 @@ func HandleCheckForUpdates(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	defer func() { _ = client.Close() }()
 	checkResult, err := client.CheckForUpdates()
 	if err != nil {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to check for updates", err)
@@ -318,7 +309,6 @@ func HandleInstallUpdate(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	defer func() { _ = client.Close() }()
 
 	installResult, err := client.InstallUpdate()
 	if err != nil {
