@@ -29,12 +29,12 @@ func BytesToSizeString(bytes int64) string {
 	}
 }
 
-// FormatRouterOSTimestamp converts RouterOS timestamp format to "YYYY-MM-DD HH:MM:SS".
+// FormatRouterOSTime converts RouterOS timestamp format to "YYYY-MM-DD HH:MM:SS".
 // Handles multiple formats:
 // 1. "may/04 21:33:16" (month/day time) → "2026-05-04 21:33:16"
 // 2. "02:11:27" (time only) → "2026-05-05 02:11:27" (adds current date)
 // 3. "sep/15/2025 00:47:41" (month/day/year time) → "2025-09-15 00:47:41"
-func FormatRouterOSTimestamp(timestamp string) string {
+func FormatRouterOSTime(timestamp string) string {
 	timestamp = strings.TrimSpace(timestamp)
 	if timestamp == "" {
 		return ""
@@ -125,8 +125,8 @@ func isTimeFormat(s string) bool {
 	return true
 }
 
-// FormatRouterOSTime converts RouterOS duration format (e.g., "1d12h30m") to human-readable format.
-func FormatRouterOSTime(routerOSTime string) string {
+// FormatRouterOSDuration converts RouterOS duration format (e.g., "1d12h30m") to human-readable format.
+func FormatRouterOSDuration(routerOSTime string) string {
 	routerOSTime = strings.TrimSpace(routerOSTime)
 	if routerOSTime == "" {
 		return ""

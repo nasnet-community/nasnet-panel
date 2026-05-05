@@ -112,10 +112,10 @@ func ToSystemInfoResponse(si *routeros.SystemInfo) *SystemInfoResponse {
 		Architecture:     si.Architecture,
 		BoardName:        si.BoardName,
 		Version:          si.Version,
-		BuildTime:        si.BuildTime,
+		BuildTime:        utils.FormatRouterOSTime(si.BuildTime),
 		License:          si.License,
 		UpdateChannel:    si.UpdateChannel,
-		UpTime:           utils.FormatRouterOSTime(si.UpTime),
+		UpTime:           utils.FormatRouterOSDuration(si.UpTime),
 		CPUCount:         si.CPUCount,
 		CPULoad:          si.CPULoad,
 		CPUFrequency:     si.CPUFrequency,
@@ -149,7 +149,7 @@ func ToResourceInfoResponse(ri *routeros.ResourceInfo) *ResourceInfoResponse {
 	}
 
 	return &ResourceInfoResponse{
-		UpTime:           utils.FormatRouterOSTime(ri.UpTime),
+		UpTime:           utils.FormatRouterOSDuration(ri.UpTime),
 		CPUCount:         ri.CPUCount,
 		CPULoad:          ri.CPULoad,
 		CPUFrequency:     ri.CPUFrequency,
@@ -177,12 +177,12 @@ func ToUpdateInfoResponse(ui *routeros.UpdateInfo) *UpdateInfoResponse {
 
 	return &UpdateInfoResponse{
 		Version:       ui.Version,
-		BuildTime:     ui.BuildTime,
+		BuildTime:     utils.FormatRouterOSTime(ui.BuildTime),
 		Channel:       ui.Channel,
 		UpdatePolicy:  ui.UpdatePolicy,
-		CurrentTime:   ui.CurrentTime,
-		InstallTime:   ui.InstallTime,
-		ScheduledTime: ui.ScheduledTime,
+		CurrentTime:   utils.FormatRouterOSTime(ui.CurrentTime),
+		InstallTime:   utils.FormatRouterOSTime(ui.InstallTime),
+		ScheduledTime: utils.FormatRouterOSTime(ui.ScheduledTime),
 	}
 }
 
