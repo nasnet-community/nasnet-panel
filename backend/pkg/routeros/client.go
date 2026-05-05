@@ -40,16 +40,17 @@ type ClientConnectionCache struct {
 	cleanupTk *time.Ticker
 }
 
-var clientCache *ClientConnectionCache
+var clientCache = ClientConnectionCache{
+	clients: make(map[string]*CachedConnection),
+	config:  make(map[string]ConnectionConfig),
+}
+var cleanupOnce sync.Once
 
-// nolint:gochecknoinits // package initialization of connection cache and cleanup goroutine.
-func init() {
-	clientCache = &ClientConnectionCache{
-		clients:   make(map[string]*CachedConnection),
-		config:    make(map[string]ConnectionConfig),
-		cleanupTk: time.NewTicker(1 * time.Minute),
-	}
-	go clientCache.cleanupIdleConnections()
+func startClientCacheCleanup() {
+	cleanupOnce.Do(func() {
+		clientCache.cleanupTk = time.NewTicker(1 * time.Minute)
+		go clientCache.cleanupIdleConnections()
+	})
 }
 
 func NewClient(config ConnectionConfig) (*Client, error) {
@@ -209,6 +210,7 @@ func extractRetID(reply *ros.Reply) string {
 
 // GetOrCreateClient gets an existing cached connection or creates a new one.
 func GetOrCreateClient(config ConnectionConfig) (*Client, error) {
+	startClientCacheCleanup()
 	key := fmt.Sprintf("%s@%s", config.Username, config.Address)
 
 	clientCache.mu.Lock()
@@ -278,7 +280,9 @@ func CloseAll() {
 		delete(clientCache.clients, key)
 	}
 
-	clientCache.cleanupTk.Stop()
+	if clientCache.cleanupTk != nil {
+		clientCache.cleanupTk.Stop()
+	}
 }
 
 // GetClientCacheStats returns statistics about cached connections.
