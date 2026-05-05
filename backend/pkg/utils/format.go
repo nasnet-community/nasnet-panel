@@ -33,7 +33,7 @@ func BytesToSizeString(bytes int64) string {
 // Handles multiple formats:
 // 1. "may/04 21:33:16" (month/day time) → "2026-05-04 21:33:16"
 // 2. "02:11:27" (time only) → "2026-05-05 02:11:27" (adds current date)
-// 3. "sep/15/2025 00:47:41" (month/day/year time) → "2025-09-15 00:47:41"
+// 3. "sep/15/2025 00:47:41" (month/day/year time) → "2025-09-15 00:47:41".
 func FormatRouterOSTime(timestamp string) string {
 	timestamp = strings.TrimSpace(timestamp)
 	if timestamp == "" {
@@ -54,13 +54,13 @@ func FormatRouterOSTime(timestamp string) string {
 	var timeStr string
 	var year, month, day string
 
-	if len(parts) == 2 {
-		// Format 1 or 3: has date and time
+	switch len(parts) {
+	case 2:
 		dateParts := strings.Split(parts[0], "/")
 		timeStr = parts[1]
 
-		if len(dateParts) == 3 {
-			// Format 3: month/day/year
+		switch len(dateParts) {
+		case 3:
 			monthStr := strings.ToLower(dateParts[0])
 			dayStr := dateParts[1]
 			yearStr := dateParts[2]
@@ -78,8 +78,7 @@ func FormatRouterOSTime(timestamp string) string {
 			month = monthNum
 			day = fmt.Sprintf("%02d", dayInt)
 			year = yearStr
-		} else if len(dateParts) == 2 {
-			// Format 1: month/day (no year, assume current year 2026)
+		case 2:
 			monthStr := strings.ToLower(dateParts[0])
 			dayStr := dateParts[1]
 
@@ -96,16 +95,18 @@ func FormatRouterOSTime(timestamp string) string {
 			month = monthNum
 			day = fmt.Sprintf("%02d", dayInt)
 			year = "2026"
-		} else {
+		default:
 			return timestamp
 		}
-	} else if len(parts) == 1 && isTimeFormat(parts[0]) {
-		// Format 2: time only, add today's date (2026-05-05)
+	case 1:
+		if !isTimeFormat(parts[0]) {
+			return timestamp
+		}
 		timeStr = parts[0]
 		year = "2026"
 		month = "05"
 		day = "05"
-	} else {
+	default:
 		return timestamp
 	}
 
