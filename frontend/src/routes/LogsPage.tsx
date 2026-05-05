@@ -199,7 +199,7 @@ export function LogsPage() {
 
       <Card data-testid="log-stream">
         {isSearching ? (
-          <div data-testid="log-skeleton">
+          <div data-testid="log-skeleton" className={styles.streamScroll}>
             {['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'].map((k) => (
               <div key={`skeleton-${k}`} className={styles.logRow}>
                 <Skeleton width={160} height={14} />
@@ -221,33 +221,35 @@ export function LogsPage() {
           </div>
         ) : (
           <div>
-            <AnimatePresence mode="wait" initial={false}>
-              <motion.div
-                key={currentPage}
-                initial={{ opacity: 0, y: 4 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.18 }}
-              >
-                {pagedLogs.map((log) => (
-                  <button
-                    type="button"
-                    key={log.id}
-                    data-testid="log-row"
-                    className={styles.logRow}
-                    onClick={() => setSelected(log)}
-                    aria-label={`Open details for log ${log.id}`}
-                  >
-                    <span className={styles.timestamp}>{log.time}</span>
-                    <Badge className={styles.logLevel} tone={toneForLevel(log.level)}>
-                      {log.level}
-                    </Badge>
-                    <span className={styles.topic}>{log.topic}</span>
-                    <span className={styles.message}>{log.message}</span>
-                  </button>
-                ))}
-              </motion.div>
-            </AnimatePresence>
+            <div className={styles.streamScroll}>
+              <AnimatePresence mode="wait" initial={false}>
+                <motion.div
+                  key={currentPage}
+                  initial={{ opacity: 0, y: 4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.18 }}
+                >
+                  {pagedLogs.map((log) => (
+                    <button
+                      type="button"
+                      key={log.id}
+                      data-testid="log-row"
+                      className={styles.logRow}
+                      onClick={() => setSelected(log)}
+                      aria-label={`Open details for log ${log.id}`}
+                    >
+                      <span className={styles.timestamp}>{log.time}</span>
+                      <Badge className={styles.logLevel} tone={toneForLevel(log.level)}>
+                        {log.level}
+                      </Badge>
+                      <span className={styles.topic}>{log.topic}</span>
+                      <span className={styles.message}>{log.message}</span>
+                    </button>
+                  ))}
+                </motion.div>
+              </AnimatePresence>
+            </div>
             {visibleLogs.length > pageSize ? (
               <div className={styles.pagination}>
                 <span className={styles.paginationInfo}>
