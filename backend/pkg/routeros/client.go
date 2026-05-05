@@ -41,16 +41,19 @@ type ClientConnectionCache struct {
 }
 
 var clientCache *ClientConnectionCache
+var cacheOnce sync.Once
 
-//nolint:gochecknoinits // init required for client connection cache
-func init() {
-	clientCache = &ClientConnectionCache{
-		clients: make(map[string]*CachedConnection),
-		config:  make(map[string]ConnectionConfig),
-	}
+// initClientCache initializes the client cache on first use (lazy initialization).
+func initClientCache() {
+	cacheOnce.Do(func() {
+		clientCache = &ClientConnectionCache{
+			clients: make(map[string]*CachedConnection),
+			config:  make(map[string]ConnectionConfig),
+		}
 
-	clientCache.cleanupTk = time.NewTicker(1 * time.Minute)
-	go clientCache.cleanupIdleConnections()
+		clientCache.cleanupTk = time.NewTicker(1 * time.Minute)
+		go clientCache.cleanupIdleConnections()
+	})
 }
 
 func NewClient(config ConnectionConfig) (*Client, error) {
@@ -211,6 +214,7 @@ func extractRetID(reply *ros.Reply) string {
 // GetOrCreateClient gets an existing cached connection or creates a new one.
 // Connection is kept alive and reused for future requests.
 func GetOrCreateClient(config ConnectionConfig) (*Client, error) {
+	initClientCache()
 	key := fmt.Sprintf("%s@%s", config.Username, config.Address)
 
 	clientCache.mu.Lock()
@@ -272,6 +276,7 @@ func (c *ClientConnectionCache) cleanupIdleConnections() {
 
 // CloseAll closes all cached connections.
 func CloseAll() {
+	initClientCache()
 	clientCache.mu.Lock()
 	defer clientCache.mu.Unlock()
 
@@ -285,6 +290,7 @@ func CloseAll() {
 
 // GetClientCacheStats returns statistics about cached connections.
 func GetClientCacheStats() map[string]interface{} {
+	initClientCache()
 	clientCache.mu.RLock()
 	defer clientCache.mu.RUnlock()
 
