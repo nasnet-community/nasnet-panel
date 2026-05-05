@@ -193,11 +193,11 @@ func parseCount(countStr string) (int, error) {
 	return strconv.Atoi(strings.TrimSpace(countStr))
 }
 
-// FormatLogTime formats log time entries to YYYY-MM-DD HH:MM:SS format
+// FormatLogTime formats log time entries to YYYY-MM-DD HH:MM:SS format.
 // Handles RouterOS log time formats:
 // - "may/04 21:33:16" → "2026-05-04 21:33:16"
 // - "02:11:27" → "2026-05-05 02:11:27" (adds today's date)
-// - "sep/15/2025 00:47:41" → "2025-09-15 00:47:41"
+// - "sep/15/2025 00:47:41" → "2025-09-15 00:47:41".
 func FormatLogTime(timeStr string) string {
 	timeStr = strings.TrimSpace(timeStr)
 	if timeStr == "" {
