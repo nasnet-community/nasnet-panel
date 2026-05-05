@@ -27,7 +27,17 @@ export function ServersTable({ rows, totalRows, onRowClick }: Props) {
             </Badge>
           ),
         },
-        { key: 'port', header: 'Port', render: (s: VPNServer) => s.listenPort || '–' },
+        {
+          key: 'port',
+          header: 'Port',
+          render: (s: VPNServer) => {
+            if (!s.listenPort) return '–';
+            if (!s.transport) return s.listenPort;
+            const transport = s.transport.toLowerCase();
+            const tone = transport === 'tcp' ? 'primary' : transport === 'udp' ? 'info' : 'neutral';
+            return <Badge tone={tone}>{`${transport}:${s.listenPort}`}</Badge>;
+          },
+        },
         {
           key: 'remoteIp',
           header: 'Remote IP',

@@ -85,6 +85,7 @@ export interface ServerStatusItem {
   name: string;
   enabled: boolean;
   port?: number;
+  protocol?: string;
   localIp?: string;
   localIpPool?: string;
   remoteIp?: string;
@@ -94,6 +95,7 @@ export interface ServerStatusItem {
 export interface SingleServerStatus {
   enabled: boolean;
   port?: number;
+  protocol?: string;
   localIp?: string;
   localIpPool?: string;
   remoteIp?: string;
