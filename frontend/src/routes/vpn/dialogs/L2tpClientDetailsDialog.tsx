@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Badge, Button, Dialog } from '@nasnet/ui';
+import styles from '../../VPNPage.module.scss';
 import {
   ApiError,
   fetchL2TPClientDetails,
@@ -105,34 +106,15 @@ export function L2tpClientDetailsDialog({ clientName, creds, onClose }: Props) {
 }
 
 function DList({ children }: { children: React.ReactNode }) {
-  return (
-    <dl
-      style={{
-        display: 'grid',
-        gridTemplateColumns: '140px minmax(0, 1fr) 140px minmax(0, 1fr)',
-        rowGap: 8,
-        columnGap: 16,
-        margin: 0,
-      }}
-    >
-      {children}
-    </dl>
-  );
+  return <dl className={styles.detailsList}>{children}</dl>;
 }
 
 function Row({ label, value, wide }: { label: string; value: React.ReactNode; wide?: boolean }) {
   const empty = value === '' || value === null || value === undefined;
   return (
     <>
-      <dt style={{ color: 'var(--color-text-muted)', fontSize: 'var(--font-sm)' }}>{label}</dt>
-      <dd
-        style={{
-          margin: 0,
-          fontSize: 'var(--font-sm)',
-          wordBreak: 'break-all',
-          gridColumn: wide ? '2 / -1' : undefined,
-        }}
-      >
+      <dt className={styles.detailsLabel}>{label}</dt>
+      <dd className={`${styles.detailsValue}${wide ? ` ${styles.detailsValueWide}` : ''}`}>
         {empty ? '–' : value}
       </dd>
     </>
