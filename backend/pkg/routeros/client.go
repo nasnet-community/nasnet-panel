@@ -41,19 +41,15 @@ type ClientConnectionCache struct {
 }
 
 var clientCache *ClientConnectionCache
-var cacheOnce sync.Once
 
-// initClientCache initializes the client cache on first use (lazy initialization).
-func initClientCache() {
-	cacheOnce.Do(func() {
-		clientCache = &ClientConnectionCache{
-			clients: make(map[string]*CachedConnection),
-			config:  make(map[string]ConnectionConfig),
-		}
-
-		clientCache.cleanupTk = time.NewTicker(1 * time.Minute)
-		go clientCache.cleanupIdleConnections()
-	})
+// nolint:gochecknoinits // package initialization of connection cache and cleanup goroutine.
+func init() {
+	clientCache = &ClientConnectionCache{
+		clients:   make(map[string]*CachedConnection),
+		config:    make(map[string]ConnectionConfig),
+		cleanupTk: time.NewTicker(1 * time.Minute),
+	}
+	go clientCache.cleanupIdleConnections()
 }
 
 func NewClient(config ConnectionConfig) (*Client, error) {
@@ -212,12 +208,9 @@ func extractRetID(reply *ros.Reply) string {
 }
 
 // GetOrCreateClient gets an existing cached connection or creates a new one.
-// Connection is kept alive and reused for future requests.
 func GetOrCreateClient(config ConnectionConfig) (*Client, error) {
-	initClientCache()
 	key := fmt.Sprintf("%s@%s", config.Username, config.Address)
 
-	//nolint:nilaway // initialized by initClientCache()
 	clientCache.mu.Lock()
 	cachedConn, exists := clientCache.clients[key]
 	clientCache.mu.Unlock()
@@ -240,7 +233,6 @@ func GetOrCreateClient(config ConnectionConfig) (*Client, error) {
 		LastUsed: time.Now(),
 	}
 
-	//nolint:nilaway // initialized by initClientCache()
 	clientCache.mu.Lock()
 	clientCache.clients[key] = newCachedConn
 	clientCache.config[key] = config
@@ -278,8 +270,6 @@ func (c *ClientConnectionCache) cleanupIdleConnections() {
 
 // CloseAll closes all cached connections.
 func CloseAll() {
-	initClientCache()
-	//nolint:nilaway // initialized by initClientCache()
 	clientCache.mu.Lock()
 	defer clientCache.mu.Unlock()
 
@@ -293,8 +283,6 @@ func CloseAll() {
 
 // GetClientCacheStats returns statistics about cached connections.
 func GetClientCacheStats() map[string]interface{} {
-	initClientCache()
-	//nolint:nilaway // initialized by initClientCache()
 	clientCache.mu.RLock()
 	defer clientCache.mu.RUnlock()
 
