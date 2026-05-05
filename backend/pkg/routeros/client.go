@@ -217,6 +217,7 @@ func GetOrCreateClient(config ConnectionConfig) (*Client, error) {
 	initClientCache()
 	key := fmt.Sprintf("%s@%s", config.Username, config.Address)
 
+	//nolint:nilaway // initialized by initClientCache()
 	clientCache.mu.Lock()
 	cachedConn, exists := clientCache.clients[key]
 	clientCache.mu.Unlock()
@@ -239,6 +240,7 @@ func GetOrCreateClient(config ConnectionConfig) (*Client, error) {
 		LastUsed: time.Now(),
 	}
 
+	//nolint:nilaway // initialized by initClientCache()
 	clientCache.mu.Lock()
 	clientCache.clients[key] = newCachedConn
 	clientCache.config[key] = config
@@ -277,6 +279,7 @@ func (c *ClientConnectionCache) cleanupIdleConnections() {
 // CloseAll closes all cached connections.
 func CloseAll() {
 	initClientCache()
+	//nolint:nilaway // initialized by initClientCache()
 	clientCache.mu.Lock()
 	defer clientCache.mu.Unlock()
 
@@ -291,6 +294,7 @@ func CloseAll() {
 // GetClientCacheStats returns statistics about cached connections.
 func GetClientCacheStats() map[string]interface{} {
 	initClientCache()
+	//nolint:nilaway // initialized by initClientCache()
 	clientCache.mu.RLock()
 	defer clientCache.mu.RUnlock()
 
