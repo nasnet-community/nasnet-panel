@@ -97,6 +97,7 @@ type ServerStatusItem struct {
 	Name         string `json:"name"`
 	Enabled      bool   `json:"enabled"`
 	Port         int    `json:"port,omitempty"`
+	Protocol     string `json:"protocol,omitempty"`
 	LocalIP      string `json:"localIp,omitempty"`
 	LocalIPPool  string `json:"localIpPool,omitempty"`
 	RemoteIP     string `json:"remoteIp,omitempty"`
@@ -107,6 +108,7 @@ type ServerStatusItem struct {
 type SingleServerStatus struct {
 	Enabled      bool   `json:"enabled"`
 	Port         int    `json:"port,omitempty"`
+	Protocol     string `json:"protocol,omitempty"`
 	LocalIP      string `json:"localIp,omitempty"`
 	LocalIPPool  string `json:"localIpPool,omitempty"`
 	RemoteIP     string `json:"remoteIp,omitempty"`

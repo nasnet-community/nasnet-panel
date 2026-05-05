@@ -27,7 +27,6 @@ func HandleListFirewallRules(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	defer func() { _ = client.Close() }()
 
 	chain := c.QueryParam("chain")
 

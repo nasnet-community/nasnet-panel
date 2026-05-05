@@ -21,7 +21,6 @@ func HandleListVPNClients(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	defer func() { _ = client.Close() }()
 
 	vpnClients, err := client.ListVPNClients()
 	if err != nil {
@@ -53,7 +52,6 @@ func HandleGetVPNClient(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	defer func() { _ = client.Close() }()
 
 	name := c.Param("name")
 	if name == "" {
@@ -90,7 +88,6 @@ func HandleUpdateVPNClient(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	defer func() { _ = client.Close() }()
 
 	name := c.Param("name")
 	if name == "" {
@@ -156,7 +153,6 @@ func HandleAddL2TPClient(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	defer func() { _ = client.Close() }()
 
 	var req AddL2TPClientRequest
 	if err := c.Bind(&req); err != nil {
@@ -249,7 +245,6 @@ func HandleUpdateL2TPClient(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	defer func() { _ = client.Close() }()
 
 	nameOrID := c.Param("nameOrID")
 	if nameOrID == "" {
@@ -312,7 +307,6 @@ func HandleDeleteL2TPClient(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	defer func() { _ = client.Close() }()
 
 	nameOrID := c.Param("nameOrID")
 	if nameOrID == "" {
@@ -343,7 +337,6 @@ func HandleGetL2TPClient(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	defer func() { _ = client.Close() }()
 
 	name := c.Param("name")
 	if name == "" {
@@ -360,9 +353,9 @@ func HandleGetL2TPClient(c echo.Context) error {
 	return SuccessResponse(c, http.StatusOK, "L2TP client details retrieved successfully", response)
 }
 
-// HandleGetVPNServersStatus gets the status of all VPN servers
-// @Summary Get VPN Servers Status
-// @Description Get the status of OpenVPN, WireGuard, PPTP, L2TP, and SSTP servers
+// HandleListVPNServers gets the status of all VPN servers
+// @Summary List VPN Servers
+// @Description Get the list of OpenVPN, WireGuard, PPTP, L2TP, and SSTP servers
 // @Tags VPN
 // @Security BasicAuth
 // @Param X-RouterOS-Host header string true "RouterOS host address"
@@ -370,12 +363,11 @@ func HandleGetL2TPClient(c echo.Context) error {
 // @Success 200 {object} Response{data=VPNServersStatusResponse}
 // @Failure 500 {object} Response
 // @Router /api/vpn/servers [get].
-func HandleGetVPNServersStatus(c echo.Context) error {
+func HandleListVPNServers(c echo.Context) error {
 	client, err := GetRouterOSClient(c)
 	if err != nil {
 		return err
 	}
-	defer func() { _ = client.Close() }()
 
 	response := &VPNServersStatusResponse{
 		OvpnServers: []ServerStatusItem{},
@@ -387,9 +379,10 @@ func HandleGetVPNServersStatus(c echo.Context) error {
 		for i := range ovpnServers {
 			srv := ovpnServers[i]
 			item := ServerStatusItem{
-				Name:    srv.Name,
-				Enabled: !srv.Disabled,
-				Port:    srv.Port,
+				Name:     srv.Name,
+				Enabled:  !srv.Disabled,
+				Port:     srv.Port,
+				Protocol: srv.ProtocolVersion,
 			}
 
 			if srv.DefaultProfile != "" {
@@ -414,9 +407,10 @@ func HandleGetVPNServersStatus(c echo.Context) error {
 		for i := range wireguards {
 			wg := wireguards[i]
 			response.Wireguards = append(response.Wireguards, ServerStatusItem{
-				Name:    wg.Name,
-				Enabled: !wg.Disabled,
-				Port:    wg.ListenPort,
+				Name:     wg.Name,
+				Enabled:  !wg.Disabled,
+				Port:     wg.ListenPort,
+				Protocol: "udp",
 			})
 		}
 	}
@@ -424,8 +418,9 @@ func HandleGetVPNServersStatus(c echo.Context) error {
 	pptpServer, err := client.GetPptpServer()
 	if err == nil {
 		status := &SingleServerStatus{
-			Enabled: pptpServer.Enabled,
-			Port:    1723, // Default PPTP port
+			Enabled:  pptpServer.Enabled,
+			Port:     1723, // Default PPTP port
+			Protocol: "tcp",
 		}
 
 		if pptpServer.DefaultProfile != "" {
@@ -447,8 +442,9 @@ func HandleGetVPNServersStatus(c echo.Context) error {
 	l2tpServer, err := client.GetL2tpServer()
 	if err == nil {
 		status := &SingleServerStatus{
-			Enabled: l2tpServer.Enabled,
-			Port:    1701, // Default L2TP port
+			Enabled:  l2tpServer.Enabled,
+			Port:     1701, // Default L2TP port
+			Protocol: "udp",
 		}
 
 		if l2tpServer.DefaultProfile != "" {
@@ -470,8 +466,9 @@ func HandleGetVPNServersStatus(c echo.Context) error {
 	sstpServer, err := client.GetSstpServer()
 	if err == nil {
 		status := &SingleServerStatus{
-			Enabled: sstpServer.Enabled,
-			Port:    sstpServer.Port,
+			Enabled:  sstpServer.Enabled,
+			Port:     sstpServer.Port,
+			Protocol: "tcp",
 		}
 
 		if sstpServer.DefaultProfile != "" {
@@ -510,7 +507,6 @@ func HandleGetOvpnServerDetails(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	defer func() { _ = client.Close() }()
 
 	name := c.Param("name")
 	if name == "" {
@@ -554,7 +550,6 @@ func HandleGetPptpServerDetails(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	defer func() { _ = client.Close() }()
 
 	pptpServer, err := client.GetPptpServer()
 	if err != nil {
@@ -622,7 +617,6 @@ func HandleGetL2tpServerDetails(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	defer func() { _ = client.Close() }()
 
 	l2tpServer, err := client.GetL2tpServer()
 	if err != nil {
@@ -694,7 +688,6 @@ func HandleGetSstpServerDetails(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	defer func() { _ = client.Close() }()
 
 	sstpServer, err := client.GetSstpServer()
 	if err != nil {
@@ -770,7 +763,6 @@ func HandleGetWireguardServerDetails(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	defer func() { _ = client.Close() }()
 
 	name := c.Param("name")
 	if name == "" {

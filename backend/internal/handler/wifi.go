@@ -67,7 +67,6 @@ func HandleListWiFiInterfaces(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	defer func() { _ = client.Close() }()
 
 	interfaces, err := client.ListWifiInterfaces()
 	if err != nil {
@@ -105,7 +104,6 @@ func HandleGetWiFiInterface(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	defer func() { _ = client.Close() }()
 
 	iface, err := client.GetWifiInterface(name)
 	if err != nil {
@@ -140,7 +138,6 @@ func HandleListWiFiConnectedClients(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	defer func() { _ = client.Close() }()
 
 	if interfaceName != "" {
 		iface, err := client.GetWifiInterface(interfaceName)
@@ -192,7 +189,6 @@ func HandleRemoveWiFiConnectedClient(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	defer func() { _ = client.Close() }()
 
 	err = client.RemoveWifiConnectedClient(mac)
 	if err != nil {
@@ -229,7 +225,6 @@ func HandleGetWiFiPassphrase(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	defer func() { _ = client.Close() }()
 
 	password, err := client.GetWifiPassword(name)
 	if err != nil {
@@ -290,7 +285,6 @@ func HandleChangeWiFiPassphrase(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	defer func() { _ = client.Close() }()
 
 	err = client.ChangeWifiPassphrase(name, req.Passphrase)
 	if err != nil {
@@ -334,7 +328,6 @@ func HandleUpdateWiFiInterface(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	defer func() { _ = client.Close() }()
 
 	iface, err := client.GetWifiInterface(name)
 	if err != nil {
@@ -422,7 +415,6 @@ func HandleUpdateWiFiSettings(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	defer func() { _ = client.Close() }()
 
 	// Verify interface exists
 	iface, err := client.GetWifiInterface(name)

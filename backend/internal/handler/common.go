@@ -1,3 +1,4 @@
+//nolint:misspell // intentional package name
 package handler
 
 import (
@@ -80,7 +81,7 @@ func GetRouterOSCredentials(c echo.Context) (*auth.Credentials, error) {
 }
 
 func NewRouterOSClient(c echo.Context, creds *auth.Credentials) (*routeros.Client, error) {
-	client, err := routeros.NewClient(routeros.ConnectionConfig{
+	client, err := routeros.GetOrCreateClient(routeros.ConnectionConfig{
 		Address:  creds.RouterOSHost,
 		Username: creds.Username,
 		Password: creds.Password,
