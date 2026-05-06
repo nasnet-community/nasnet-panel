@@ -300,6 +300,58 @@ func isNetworkError(err error) bool {
 	return false
 }
 
+// IsOfflineError detects if the error indicates the router is offline/unreachable (502 Bad Gateway).
+// Errors like connection refused, connection reset, no route to host indicate the router is not responding.
+func IsOfflineError(err error) bool {
+	if err == nil {
+		return false
+	}
+
+	errMsg := strings.ToLower(err.Error())
+
+	offlineKeywords := []string{
+		"connection refused",
+		"connection reset",
+		"no route to host",
+		"network unreachable",
+		"host unreachable",
+		"connection actively refused",
+	}
+
+	for _, keyword := range offlineKeywords {
+		if strings.Contains(errMsg, keyword) {
+			return true
+		}
+	}
+
+	return false
+}
+
+// IsTimeoutError detects if the error indicates a timeout (504 Gateway Timeout).
+// Errors like i/o timeout, deadline exceeded indicate the router is too slow to respond.
+func IsTimeoutError(err error) bool {
+	if err == nil {
+		return false
+	}
+
+	errMsg := strings.ToLower(err.Error())
+
+	timeoutKeywords := []string{
+		"i/o timeout",
+		"deadline exceeded",
+		"context deadline exceeded",
+		"timeout",
+	}
+
+	for _, keyword := range timeoutKeywords {
+		if strings.Contains(errMsg, keyword) {
+			return true
+		}
+	}
+
+	return false
+}
+
 func startClientCacheCleanup() {
 	cleanupOnce.Do(func() {
 		clientCache.cleanupTk = time.NewTicker(1 * time.Minute)
@@ -417,29 +469,4 @@ func (c *Client) clearCacheAndReconnect() error {
 	}
 
 	return nil
-}
-
-// CloseAll closes all cached connections.
-func CloseAll() {
-	clientCache.mu.Lock()
-	defer clientCache.mu.Unlock()
-
-	for key, cachedConn := range clientCache.clients {
-		_ = cachedConn.Client.Close()
-		delete(clientCache.clients, key)
-	}
-
-	if clientCache.cleanupTk != nil {
-		clientCache.cleanupTk.Stop()
-	}
-}
-
-// GetClientCacheStats returns statistics about cached connections.
-func GetClientCacheStats() map[string]interface{} {
-	clientCache.mu.RLock()
-	defer clientCache.mu.RUnlock()
-
-	return map[string]interface{}{
-		"active_connections": len(clientCache.clients),
-	}
 }
