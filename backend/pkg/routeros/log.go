@@ -110,7 +110,7 @@ func (c *Client) GetLogs(filter LogFilter) ([]LogEntry, error) {
 
 		entry := LogEntry{
 			ID:      result[".id"],
-			Time:    FormatLogTime(timeStr),
+			Time:    FormatRouterOSTime(timeStr),
 			Topic:   topic,
 			Level:   level,
 			Message: message,
@@ -191,86 +191,4 @@ func (c *Client) GetLogsBySeverity(severity string, limit int) ([]LogEntry, erro
 
 func parseCount(countStr string) (int, error) {
 	return strconv.Atoi(strings.TrimSpace(countStr))
-}
-
-// FormatLogTime formats log time entries to YYYY-MM-DD HH:MM:SS format.
-// Handles RouterOS log time formats:
-// - "may/04 21:33:16" → "2026-05-04 21:33:16"
-// - "02:11:27" → "2026-05-05 02:11:27" (adds today's date)
-// - "sep/15/2025 00:47:41" → "2025-09-15 00:47:41".
-func FormatLogTime(timeStr string) string {
-	timeStr = strings.TrimSpace(timeStr)
-	if timeStr == "" {
-		return ""
-	}
-
-	parts := strings.Split(timeStr, " ")
-	if len(parts) < 1 {
-		return timeStr
-	}
-
-	monthMap := map[string]string{
-		"jan": "01", "feb": "02", "mar": "03", "apr": "04",
-		"may": "05", "jun": "06", "jul": "07", "aug": "08",
-		"sep": "09", "oct": "10", "nov": "11", "dec": "12",
-	}
-
-	if len(parts) == 2 {
-		// Has date and time
-		dateParts := strings.Split(parts[0], "/")
-		timeComponent := parts[1]
-
-		if len(dateParts) == 3 {
-			// Format: month/day/year time
-			monthStr := strings.ToLower(dateParts[0])
-			dayStr := dateParts[1]
-			yearStr := dateParts[2]
-
-			monthNum, ok := monthMap[monthStr]
-			if !ok {
-				return timeStr
-			}
-
-			dayInt, err := strconv.Atoi(dayStr)
-			if err != nil {
-				return timeStr
-			}
-
-			return fmt.Sprintf("%s-%s-%02d %s", yearStr, monthNum, dayInt, timeComponent)
-		} else if len(dateParts) == 2 {
-			// Format: month/day time (assume 2026)
-			monthStr := strings.ToLower(dateParts[0])
-			dayStr := dateParts[1]
-
-			monthNum, ok := monthMap[monthStr]
-			if !ok {
-				return timeStr
-			}
-
-			dayInt, err := strconv.Atoi(dayStr)
-			if err != nil {
-				return timeStr
-			}
-
-			return fmt.Sprintf("2026-%s-%02d %s", monthNum, dayInt, timeComponent)
-		}
-	} else if len(parts) == 1 && isTimeOnly(parts[0]) {
-		// Format: time only, add today's date (2026-05-05)
-		return "2026-05-05 " + parts[0]
-	}
-
-	return timeStr
-}
-
-func isTimeOnly(s string) bool {
-	parts := strings.Split(s, ":")
-	if len(parts) != 3 {
-		return false
-	}
-	for _, part := range parts {
-		if _, err := strconv.Atoi(part); err != nil {
-			return false
-		}
-	}
-	return true
 }
