@@ -403,7 +403,7 @@ func (c *ClientConnectionCache) cleanupIdleConnections() {
 		c.mu.Lock()
 
 		now := time.Now()
-		keysToDelete := []string{}
+		var keysToDelete []string
 
 		for key, cachedConn := range c.clients {
 			cachedConn.mu.Lock()
@@ -425,9 +425,8 @@ func (c *ClientConnectionCache) cleanupIdleConnections() {
 }
 
 // clearCacheAndReconnect empties the cache entry and creates a fresh connection.
-// Note: caller's lock (c.mu) must be released before calling this method.
 func (c *Client) clearCacheAndReconnect() error {
-	// Remove from cache
+	// Remove from cache (without holding c.mu to avoid nested locking)
 	if c.cacheKey != "" {
 		clientCache.mu.Lock()
 		if cachedConn, exists := clientCache.clients[c.cacheKey]; exists {
@@ -437,11 +436,13 @@ func (c *Client) clearCacheAndReconnect() error {
 		clientCache.mu.Unlock()
 	}
 
-	// Close current connection
+	// Close and clear connection (must hold c.mu)
+	c.mu.Lock()
 	_ = c.Close()
 	c.conn = nil
+	c.mu.Unlock()
 
-	// Create fresh connection
+	// Create fresh connection (no lock needed - network operation)
 	if c.config.Address == "" {
 		return fmt.Errorf("no connection config available")
 	}
@@ -456,7 +457,10 @@ func (c *Client) clearCacheAndReconnect() error {
 		return fmt.Errorf("failed to reconnect: %w", err)
 	}
 
+	// Update connection and cache (must hold c.mu)
+	c.mu.Lock()
 	c.conn = newConn
+	c.mu.Unlock()
 
 	// Restore to cache
 	if c.cacheKey != "" {
