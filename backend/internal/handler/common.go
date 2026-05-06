@@ -91,7 +91,7 @@ func NewRouterOSClient(c echo.Context, creds *auth.Credentials) (*routeros.Clien
 			_ = ErrorResponse(c, http.StatusUnauthorized, "Invalid RouterOS credentials", err)
 			return nil, ErrClientCreationFailed
 		}
-		_ = ErrorResponse(c, http.StatusInternalServerError, "Failed to connect to RouterOS device", err)
+		_ = ErrorResponse(c, http.StatusGatewayTimeout, "Failed to connect to RouterOS device", err)
 		return nil, ErrClientCreationFailed
 	}
 	return client, nil
