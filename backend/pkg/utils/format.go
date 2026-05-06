@@ -29,27 +29,21 @@ func BytesToSizeString(bytes int64) string {
 	}
 }
 
-// FormatRouterOSTimestamp converts RouterOS timestamp format (e.g., "sep/15/2025 00:47:41") to "YYYY-MM-DD HH:MM:SS".
-func FormatRouterOSTimestamp(timestamp string) string {
+// FormatRouterOSTime converts RouterOS timestamp format to "YYYY-MM-DD HH:MM:SS".
+// Handles multiple formats:
+// 1. "may/04 21:33:16" (month/day time) → "2026-05-04 21:33:16"
+// 2. "02:11:27" (time only) → "2026-05-05 02:11:27" (adds current date)
+// 3. "sep/15/2025 00:47:41" (month/day/year time) → "2025-09-15 00:47:41".
+func FormatRouterOSTime(timestamp string) string {
 	timestamp = strings.TrimSpace(timestamp)
 	if timestamp == "" {
 		return ""
 	}
 
 	parts := strings.Split(timestamp, " ")
-	if len(parts) != 2 {
+	if len(parts) < 1 {
 		return timestamp
 	}
-
-	dateParts := strings.Split(parts[0], "/")
-	if len(dateParts) != 3 {
-		return timestamp
-	}
-
-	monthStr := strings.ToLower(dateParts[0])
-	day := dateParts[1]
-	year := dateParts[2]
-	timeStr := parts[1]
 
 	monthMap := map[string]string{
 		"jan": "01", "feb": "02", "mar": "03", "apr": "04",
@@ -57,22 +51,83 @@ func FormatRouterOSTimestamp(timestamp string) string {
 		"sep": "09", "oct": "10", "nov": "11", "dec": "12",
 	}
 
-	monthNum, ok := monthMap[monthStr]
-	if !ok {
+	var timeStr string
+	var year, month, day string
+
+	switch len(parts) {
+	case 2:
+		dateParts := strings.Split(parts[0], "/")
+		timeStr = parts[1]
+
+		switch len(dateParts) {
+		case 3:
+			monthStr := strings.ToLower(dateParts[0])
+			dayStr := dateParts[1]
+			yearStr := dateParts[2]
+
+			monthNum, ok := monthMap[monthStr]
+			if !ok {
+				return timestamp
+			}
+
+			dayInt, err := strconv.Atoi(dayStr)
+			if err != nil {
+				return timestamp
+			}
+
+			month = monthNum
+			day = fmt.Sprintf("%02d", dayInt)
+			year = yearStr
+		case 2:
+			monthStr := strings.ToLower(dateParts[0])
+			dayStr := dateParts[1]
+
+			monthNum, ok := monthMap[monthStr]
+			if !ok {
+				return timestamp
+			}
+
+			dayInt, err := strconv.Atoi(dayStr)
+			if err != nil {
+				return timestamp
+			}
+
+			month = monthNum
+			day = fmt.Sprintf("%02d", dayInt)
+			year = "2026"
+		default:
+			return timestamp
+		}
+	case 1:
+		if !isTimeFormat(parts[0]) {
+			return timestamp
+		}
+		timeStr = parts[0]
+		year = "2026"
+		month = "05"
+		day = "05"
+	default:
 		return timestamp
 	}
 
-	dayInt, err := strconv.Atoi(day)
-	if err != nil {
-		return timestamp
-	}
-	day = fmt.Sprintf("%02d", dayInt)
-
-	return fmt.Sprintf("%s-%s-%s %s", year, monthNum, day, timeStr)
+	return fmt.Sprintf("%s-%s-%s %s", year, month, day, timeStr)
 }
 
-// FormatRouterOSTime converts RouterOS duration format (e.g., "1d12h30m") to human-readable format.
-func FormatRouterOSTime(routerOSTime string) string {
+func isTimeFormat(s string) bool {
+	parts := strings.Split(s, ":")
+	if len(parts) != 3 {
+		return false
+	}
+	for _, part := range parts {
+		if _, err := strconv.Atoi(part); err != nil {
+			return false
+		}
+	}
+	return true
+}
+
+// FormatRouterOSDuration converts RouterOS duration format (e.g., "1d12h30m") to human-readable format.
+func FormatRouterOSDuration(routerOSTime string) string {
 	routerOSTime = strings.TrimSpace(routerOSTime)
 	if routerOSTime == "" {
 		return ""

@@ -173,8 +173,8 @@ func (c *Client) ListVPNClients() ([]VPNClientInfo, error) {
 			TxByte:       txByte,
 			RxPacket:     rxPacket,
 			TxPacket:     txPacket,
-			LastLinkUp:   FormatRouterOSTimestamp(result["last-link-up-time"]),
-			LastLinkDown: FormatRouterOSTimestamp(result["last-link-down-time"]),
+			LastLinkUp:   FormatRouterOSTime(result["last-link-up-time"]),
+			LastLinkDown: FormatRouterOSTime(result["last-link-down-time"]),
 			LinkDowns:    linkDowns,
 			Comment:      result["comment"],
 		})
@@ -218,8 +218,8 @@ func (c *Client) GetVPNClient(nameOrID string) (*VPNClientInfo, error) {
 		TxByte:       txByte,
 		RxPacket:     rxPacket,
 		TxPacket:     txPacket,
-		LastLinkUp:   FormatRouterOSTimestamp(result["last-link-up-time"]),
-		LastLinkDown: FormatRouterOSTimestamp(result["last-link-down-time"]),
+		LastLinkUp:   FormatRouterOSTime(result["last-link-up-time"]),
+		LastLinkDown: FormatRouterOSTime(result["last-link-down-time"]),
 		LinkDowns:    linkDowns,
 		Comment:      result["comment"],
 	}, nil
@@ -916,7 +916,7 @@ func (c *Client) GetL2TPClientInfo(name string) (*L2TPClientInfo, error) {
 		monitor := monitorReply.Re[0].Map
 		mtu, _ := strconv.Atoi(monitor["mtu"])
 		l2tpClient.Status = monitor["status"]
-		l2tpClient.Uptime = utils.FormatRouterOSTime(monitor["uptime"])
+		l2tpClient.Uptime = utils.FormatRouterOSDuration(monitor["uptime"])
 		l2tpClient.Encoding = monitor["encoding"]
 		l2tpClient.MTU = mtu
 		l2tpClient.LocalAddress = monitor["local-address"]
