@@ -116,10 +116,10 @@ func HandleSetSystemIdentity(c echo.Context) error {
 // @Produce json
 // @Security BasicAuth
 // @Param X-RouterOS-Host header string true "RouterOS host address"
-// @Success 200 {object} map[string]interface{} "Update information"
-// @Failure 400 {object} map[string]interface{} "Bad request"
-// @Failure 401 {object} map[string]interface{} "Unauthorized"
-// @Failure 500 {object} map[string]interface{} "Internal server error"
+// @Success 200 {object} Response{data=UpdateInfoResponse} "Update information"
+// @Failure 400 {object} Response "Bad request"
+// @Failure 401 {object} Response "Unauthorized"
+// @Failure 500 {object} Response "Internal server error"
 // @Router /api/system/updates [get]
 func HandleGetSystemUpdates(c echo.Context) error {
 	client, err := GetRouterOSClient(c)

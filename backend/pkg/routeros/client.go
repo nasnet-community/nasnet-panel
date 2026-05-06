@@ -211,7 +211,7 @@ func extractRetID(reply *ros.Reply) string {
 // GetOrCreateClient gets an existing cached connection or creates a new one.
 func GetOrCreateClient(config ConnectionConfig) (*Client, error) {
 	startClientCacheCleanup()
-	key := fmt.Sprintf("%s@%s", config.Username, config.Address)
+	key := fmt.Sprintf("%s@%s:%d", config.Username, config.Address, config.Port)
 
 	clientCache.mu.Lock()
 	cachedConn, exists := clientCache.clients[key]

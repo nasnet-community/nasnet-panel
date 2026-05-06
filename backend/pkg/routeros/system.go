@@ -110,13 +110,10 @@ type PackageInfo struct {
 }
 
 type UpdateInfo struct {
-	Version       string
-	BuildTime     string
-	Channel       string
-	UpdatePolicy  string
-	CurrentTime   string
-	InstallTime   string
-	ScheduledTime string
+	Channel          string
+	InstalledVersion string
+	LatestVersion    string
+	Status           string
 }
 
 // UpdateCheckInfo represents package update check details.
@@ -477,17 +474,14 @@ func (c *Client) ListPackages() ([]PackageInfo, error) {
 func (c *Client) GetSystemUpdates() (*UpdateInfo, error) {
 	result, err := c.GetFirst("/system/package/update")
 	if err != nil {
-		return nil, fmt.Errorf("failed to check for updates: %w", err)
+		return nil, fmt.Errorf("failed to get update info: %w", err)
 	}
 
 	return &UpdateInfo{
-		Version:       result["latest-version"],
-		BuildTime:     result["latest-build-time"],
-		Channel:       result["channel"],
-		UpdatePolicy:  result["update-policy"],
-		CurrentTime:   result["current-time"],
-		InstallTime:   result["install-time"],
-		ScheduledTime: result["scheduled-time"],
+		Channel:          result["channel"],
+		InstalledVersion: result["installed-version"],
+		LatestVersion:    result["latest-version"],
+		Status:           result["status"],
 	}, nil
 }
 
@@ -509,11 +503,12 @@ func firstNonEmpty(values ...string) string {
 	return ""
 }
 
-// CheckForUpdates checks if a new package version is available (async, fire-and-forget).
+// CheckForUpdates checks if a new package version is available.
 func (c *Client) CheckForUpdates() (*UpdateCheckInfo, error) {
-	go func() {
-		_, _ = c.conn.Run("/system/package/update/check-for-updates")
-	}()
+	_, err := c.Execute("/system/package/update/check-for-updates")
+	if err != nil {
+		return nil, fmt.Errorf("failed to check for updates: %w", err)
+	}
 
 	result, err := c.GetFirst("/system/package/update")
 	if err != nil {
