@@ -91,6 +91,17 @@ func NewRouterOSClient(c echo.Context, creds *auth.Credentials) (*routeros.Clien
 			_ = ErrorResponse(c, http.StatusUnauthorized, "Invalid RouterOS credentials", err)
 			return nil, ErrClientCreationFailed
 		}
+
+		// Distinguish between timeout (504) and offline (502)
+		if routeros.IsTimeoutError(err) {
+			_ = ErrorResponse(c, http.StatusGatewayTimeout, "RouterOS device not responding (timeout)", err)
+			return nil, ErrClientCreationFailed
+		}
+		if routeros.IsOfflineError(err) {
+			_ = ErrorResponse(c, http.StatusBadGateway, "RouterOS device offline or unreachable", err)
+			return nil, ErrClientCreationFailed
+		}
+
 		_ = ErrorResponse(c, http.StatusInternalServerError, "Failed to connect to RouterOS device", err)
 		return nil, ErrClientCreationFailed
 	}

@@ -1,7 +1,11 @@
 package routeros
 
 import (
+	"errors"
 	"fmt"
+	"io"
+	"log"
+	"strings"
 	"sync"
 	"time"
 
@@ -13,8 +17,10 @@ const (
 )
 
 type Client struct {
-	conn *ros.Client
-	mu   sync.Mutex
+	conn     *ros.Client
+	mu       sync.Mutex
+	cacheKey string
+	config   ConnectionConfig
 }
 
 type ConnectionConfig struct {
@@ -46,13 +52,6 @@ var clientCache = ClientConnectionCache{
 }
 var cleanupOnce sync.Once
 
-func startClientCacheCleanup() {
-	cleanupOnce.Do(func() {
-		clientCache.cleanupTk = time.NewTicker(1 * time.Minute)
-		go clientCache.cleanupIdleConnections()
-	})
-}
-
 func NewClient(config ConnectionConfig) (*Client, error) {
 	if config.Port == 0 {
 		config.Port = 8728
@@ -66,7 +65,7 @@ func NewClient(config ConnectionConfig) (*Client, error) {
 		return nil, fmt.Errorf("failed to connect to RouterOS: %w", err)
 	}
 
-	return &Client{conn: conn}, nil
+	return &Client{conn: conn, config: config}, nil
 }
 
 func (c *Client) Close() error {
@@ -76,9 +75,62 @@ func (c *Client) Close() error {
 	return nil
 }
 
-// IsConnected checks if the connection reference exists (doesn't perform actual query).
-func (c *Client) IsConnected() bool {
-	return c.conn != nil
+// Run executes a sentence with 10 retries on connection errors.
+// Connection errors (EOF, broken pipe, etc.) are retried; command errors are returned immediately.
+// Note: caller must hold c.mu lock.
+func (c *Client) Run(sentence []string) (*ros.Reply, error) {
+	const maxRetries = 10
+	const retryDelay = 100 * time.Millisecond
+
+	var lastErr error
+
+	for attempt := 0; attempt < maxRetries; attempt++ {
+		if c.conn == nil {
+			// Temporarily release lock during reconnection
+			c.mu.Unlock()
+			err := c.clearCacheAndReconnect()
+			c.mu.Lock()
+			if err != nil {
+				lastErr = err
+				if attempt < maxRetries-1 {
+					c.mu.Unlock()
+					time.Sleep(retryDelay)
+					c.mu.Lock()
+				}
+				continue
+			}
+		}
+
+		reply, err := c.conn.Run(sentence...)
+		if err == nil {
+			return reply, nil
+		}
+
+		// Command/response error: log and return immediately without retry
+		if !isNetworkError(err) {
+			log.Printf("[RouterOS] %v Command error: %v", sentence, err)
+			return nil, err
+		}
+
+		// Network error: log and retry
+		log.Printf("[RouterOS] Connection error (attempt %d/%d): %v", attempt+1, maxRetries, err)
+		lastErr = err
+		// Clear cache and reconnect for next retry
+		c.mu.Unlock()
+		rerr := c.clearCacheAndReconnect()
+		c.mu.Lock()
+		if rerr != nil {
+			lastErr = rerr
+		}
+
+		if attempt < maxRetries-1 {
+			c.mu.Unlock()
+			time.Sleep(retryDelay)
+			c.mu.Lock()
+		}
+	}
+
+	return nil, fmt.Errorf("failed after %d attempts: %w", maxRetries, lastErr)
 }
 
 func (c *Client) Execute(command string, args ...string) (*ros.Reply, error) {
@@ -93,7 +145,7 @@ func (c *Client) Execute(command string, args ...string) (*ros.Reply, error) {
 	sentence = append(sentence, command)
 	sentence = append(sentence, args...)
 
-	return c.conn.Run(sentence...)
+	return c.Run(sentence)
 }
 
 func (c *Client) Query(path string, args ...string) (*ros.Reply, error) {
@@ -106,7 +158,7 @@ func (c *Client) Query(path string, args ...string) (*ros.Reply, error) {
 
 	sentence := []string{path + "/print"}
 	sentence = append(sentence, args...)
-	return c.conn.Run(sentence...)
+	return c.Run(sentence)
 }
 
 func (c *Client) Add(path string, args ...string) (*ros.Reply, error) {
@@ -119,7 +171,7 @@ func (c *Client) Add(path string, args ...string) (*ros.Reply, error) {
 
 	sentence := []string{path + "/add"}
 	sentence = append(sentence, args...)
-	return c.conn.Run(sentence...)
+	return c.Run(sentence)
 }
 
 func (c *Client) Set(path string, args ...string) (*ros.Reply, error) {
@@ -132,7 +184,7 @@ func (c *Client) Set(path string, args ...string) (*ros.Reply, error) {
 
 	sentence := []string{path + "/set"}
 	sentence = append(sentence, args...)
-	return c.conn.Run(sentence...)
+	return c.Run(sentence)
 }
 
 func (c *Client) Remove(path string, args ...string) (*ros.Reply, error) {
@@ -145,7 +197,7 @@ func (c *Client) Remove(path string, args ...string) (*ros.Reply, error) {
 
 	sentence := []string{path + "/remove"}
 	sentence = append(sentence, args...)
-	return c.conn.Run(sentence...)
+	return c.Run(sentence)
 }
 
 func (c *Client) Enable(path string, id string) (*ros.Reply, error) {
@@ -208,6 +260,106 @@ func extractRetID(reply *ros.Reply) string {
 	return ""
 }
 
+// IsConnected checks if the connection reference exists (doesn't perform actual query).
+func (c *Client) IsConnected() bool {
+	return c.conn != nil
+}
+
+// isNetworkError checks if the error is a connection/network error like EOF, broken pipe, timeout.
+func isNetworkError(err error) bool {
+	if err == nil {
+		return false
+	}
+
+	errMsg := err.Error()
+
+	networkKeywords := []string{
+		"EOF",
+		"broken pipe",
+		"connection reset",
+		"connection refused",
+		"connection closed",
+		"i/o timeout",
+		"write: broken pipe",
+		"read: connection reset",
+		"use of closed network connection",
+	}
+
+	errLower := strings.ToLower(errMsg)
+	for _, keyword := range networkKeywords {
+		if strings.Contains(errLower, strings.ToLower(keyword)) {
+			return true
+		}
+	}
+
+	// Check for io.EOF
+	if errors.Is(err, io.EOF) {
+		return true
+	}
+
+	return false
+}
+
+// IsOfflineError detects if the error indicates the router is offline/unreachable (502 Bad Gateway).
+// Errors like connection refused, connection reset, no route to host indicate the router is not responding.
+func IsOfflineError(err error) bool {
+	if err == nil {
+		return false
+	}
+
+	errMsg := strings.ToLower(err.Error())
+
+	offlineKeywords := []string{
+		"connection refused",
+		"connection reset",
+		"no route to host",
+		"network unreachable",
+		"host unreachable",
+		"host is down",
+		"connection actively refused",
+	}
+
+	for _, keyword := range offlineKeywords {
+		if strings.Contains(errMsg, keyword) {
+			return true
+		}
+	}
+
+	return false
+}
+
+// IsTimeoutError detects if the error indicates a timeout (504 Gateway Timeout).
+// Errors like i/o timeout, deadline exceeded indicate the router is too slow to respond.
+func IsTimeoutError(err error) bool {
+	if err == nil {
+		return false
+	}
+
+	errMsg := strings.ToLower(err.Error())
+
+	timeoutKeywords := []string{
+		"i/o timeout",
+		"deadline exceeded",
+		"context deadline exceeded",
+		"timeout",
+	}
+
+	for _, keyword := range timeoutKeywords {
+		if strings.Contains(errMsg, keyword) {
+			return true
+		}
+	}
+
+	return false
+}
+
+func startClientCacheCleanup() {
+	cleanupOnce.Do(func() {
+		clientCache.cleanupTk = time.NewTicker(1 * time.Minute)
+		go clientCache.cleanupIdleConnections()
+	})
+}
+
 // GetOrCreateClient gets an existing cached connection or creates a new one.
 func GetOrCreateClient(config ConnectionConfig) (*Client, error) {
 	startClientCacheCleanup()
@@ -230,6 +382,8 @@ func GetOrCreateClient(config ConnectionConfig) (*Client, error) {
 		return nil, err
 	}
 
+	client.cacheKey = key
+
 	newCachedConn := &CachedConnection{
 		Client:   client,
 		LastUsed: time.Now(),
@@ -249,7 +403,7 @@ func (c *ClientConnectionCache) cleanupIdleConnections() {
 		c.mu.Lock()
 
 		now := time.Now()
-		keysToDelete := []string{}
+		var keysToDelete []string
 
 		for key, cachedConn := range c.clients {
 			cachedConn.mu.Lock()
@@ -270,27 +424,54 @@ func (c *ClientConnectionCache) cleanupIdleConnections() {
 	}
 }
 
-// CloseAll closes all cached connections.
-func CloseAll() {
-	clientCache.mu.Lock()
-	defer clientCache.mu.Unlock()
-
-	for key, cachedConn := range clientCache.clients {
-		_ = cachedConn.Client.Close()
-		delete(clientCache.clients, key)
+// clearCacheAndReconnect empties the cache entry and creates a fresh connection.
+func (c *Client) clearCacheAndReconnect() error {
+	// Remove from cache (without holding c.mu to avoid nested locking)
+	if c.cacheKey != "" {
+		clientCache.mu.Lock()
+		if cachedConn, exists := clientCache.clients[c.cacheKey]; exists {
+			_ = cachedConn.Client.Close()
+			delete(clientCache.clients, c.cacheKey)
+		}
+		clientCache.mu.Unlock()
 	}
 
-	if clientCache.cleanupTk != nil {
-		clientCache.cleanupTk.Stop()
-	}
-}
+	// Close and clear connection (must hold c.mu)
+	c.mu.Lock()
+	_ = c.Close()
+	c.conn = nil
+	c.mu.Unlock()
 
-// GetClientCacheStats returns statistics about cached connections.
-func GetClientCacheStats() map[string]interface{} {
-	clientCache.mu.RLock()
-	defer clientCache.mu.RUnlock()
-
-	return map[string]interface{}{
-		"active_connections": len(clientCache.clients),
+	// Create fresh connection (no lock needed - network operation)
+	if c.config.Address == "" {
+		return fmt.Errorf("no connection config available")
 	}
+
+	newConn, err := ros.DialTimeout(
+		fmt.Sprintf("%s:%d", c.config.Address, c.config.Port),
+		c.config.Username,
+		c.config.Password,
+		time.Second*time.Duration(c.config.Timeout),
+	)
+	if err != nil {
+		return fmt.Errorf("failed to reconnect: %w", err)
+	}
+
+	// Update connection and cache (must hold c.mu)
+	c.mu.Lock()
+	c.conn = newConn
+	c.mu.Unlock()
+
+	// Restore to cache
+	if c.cacheKey != "" {
+		clientCache.mu.Lock()
+		clientCache.clients[c.cacheKey] = &CachedConnection{
+			Client:   c,
+			LastUsed: time.Now(),
+		}
+		clientCache.config[c.cacheKey] = c.config
+		clientCache.mu.Unlock()
+	}
+
+	return nil
 }
