@@ -315,6 +315,7 @@ func IsOfflineError(err error) bool {
 		"no route to host",
 		"network unreachable",
 		"host unreachable",
+		"host is down",
 		"connection actively refused",
 	}
 
