@@ -1,9 +1,12 @@
 package handler
 
 import (
+	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/labstack/echo/v4"
+	"nasnet-panel/pkg/routeros" //nolint:misspell // pkg name is routeros not routers
 )
 
 // HandleListVPNClients lists all VPN clients
@@ -30,7 +33,21 @@ func HandleListVPNClients(c echo.Context) error {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to retrieve VPN clients", err)
 	}
 
-	response := ToVPNClientResponseList(vpnClients)
+	// Filter to only include WireGuard clients with "-client" suffix
+	filtered := make([]routeros.VPNClientInfo, 0) //nolint:misspell // pkg name is routeros not routers
+	for i := range vpnClients {
+		vpn := &vpnClients[i]
+		if vpn.Type == "wg" {
+			fmt.Println("Found WireGuard interface:", vpn.Name)
+			if strings.HasSuffix(vpn.Name, "-client") {
+				filtered = append(filtered, *vpn)
+			}
+		} else {
+			filtered = append(filtered, *vpn)
+		}
+	}
+
+	response := ToVPNClientResponseList(filtered)
 
 	return SuccessResponse(c, http.StatusOK, "VPN clients retrieved successfully", response)
 }
@@ -406,6 +423,10 @@ func HandleListVPNServers(c echo.Context) error {
 	if err == nil {
 		for i := range wireguards {
 			wg := wireguards[i]
+			// Only include WireGuard interfaces with "-server" suffix
+			if !strings.HasSuffix(wg.Name, "-server") {
+				continue
+			}
 			response.Wireguards = append(response.Wireguards, ServerStatusItem{
 				Name:     wg.Name,
 				Enabled:  !wg.Disabled,
