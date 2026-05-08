@@ -176,9 +176,7 @@ func (c *Client) Add(path string, args ...string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	fmt.Println("=============>Add reply:", reply.Re)
 	if id := extractRetID(reply); id != "" {
-		fmt.Println("=============>Extracted ID:", id)
 		return id, nil
 	}
 	return "", fmt.Errorf("no ID returned from RouterOS")

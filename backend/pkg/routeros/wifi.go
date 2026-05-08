@@ -356,10 +356,7 @@ func (c *Client) changeWiFiPassphrase(interfaceName string, newPassphrase string
 		return fmt.Errorf("failed to get WiFi interface %s: %w", interfaceName, err)
 	}
 
-	fmt.Println(result)
-
 	securityProfile := result["security"]
-	fmt.Println("Security profile for interface", interfaceName, "is", securityProfile)
 	if securityProfile != "" {
 		_ = c.updateWiFiSecurityProfilePassphrase(securityProfile, newPassphrase)
 	}

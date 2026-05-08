@@ -978,7 +978,6 @@ func (c *Client) CreateWireGuardInterface(config WireGuardClientConfig) (*Wiregu
 	// Create WireGuard interface
 	_, err := c.Add("/interface/wireguard", args...)
 	if err != nil {
-		fmt.Println("Error creating WireGuard interface:", err)
 		return nil, fmt.Errorf("failed to create WireGuard interface: %w", err)
 	}
 
