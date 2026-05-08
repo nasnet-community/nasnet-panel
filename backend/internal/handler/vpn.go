@@ -2,13 +2,14 @@ package handler
 
 import (
 	"fmt"
-	"nasnet-panel/pkg/utils"
 	"net"
 	"net/http"
 	"strings"
 
 	"github.com/labstack/echo/v4"
+
 	"nasnet-panel/pkg/routeros" //nolint:misspell // pkg name is routeros not routers
+	"nasnet-panel/pkg/utils"
 )
 
 // HandleListVPNClients lists all VPN clients
@@ -872,7 +873,7 @@ func HandleCreateWireGuardInterface(c echo.Context) error {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to create WireGuard interface", err)
 	}
 
-	ipConfig := routeros.IPAddressConfig{
+	ipConfig := routeros.IPAddressConfig{ //nolint:misspell // routeros is the package name
 		Interface: wireguard.Name,
 		Address:   req.InterfaceLocalAddress,
 		Disabled:  false,
@@ -885,18 +886,17 @@ func HandleCreateWireGuardInterface(c echo.Context) error {
 	peerName := wireguard.Name + "-peer"
 
 	var publicKey *string
-	if req.PeerPublicKey != nil {
-		publicKey = req.PeerPublicKey
-	} else {
+	if req.PeerPublicKey == nil {
 		return ErrorResponse(c, http.StatusBadRequest, "Peer validation error", fmt.Errorf("peerPublicKey is required for peer creation"))
 	}
+	publicKey = req.PeerPublicKey
 
 	cleanedCIDRs := make([]string, len(allowedCIDRs))
 	for i, cidr := range allowedCIDRs {
 		cleanedCIDRs[i] = strings.TrimSpace(cidr)
 	}
 
-	peerConfig := routeros.WireGuardPeerConfig{
+	peerConfig := routeros.WireGuardPeerConfig{ //nolint:misspell // routeros is the package name
 		InterfaceName:       wireguard.Name,
 		PeerName:            peerName,
 		PublicKey:           publicKey,

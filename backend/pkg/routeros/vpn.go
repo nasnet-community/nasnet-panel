@@ -991,6 +991,7 @@ func (c *Client) CreateWireGuardInterface(config WireGuardClientConfig) (*Wiregu
 	return wireguard, nil
 }
 
+// WireGuardPeerConfig contains the configuration for creating a WireGuard peer.
 type WireGuardPeerConfig struct {
 	InterfaceName       string
 	PeerName            string
@@ -1003,6 +1004,7 @@ type WireGuardPeerConfig struct {
 	PersistentKeepalive *int
 }
 
+// AddWireGuardPeer creates a WireGuard peer in the RouterOS device.
 func (c *Client) AddWireGuardPeer(config WireGuardPeerConfig) (string, error) {
 	args := []string{
 		"=name=" + config.PeerName,

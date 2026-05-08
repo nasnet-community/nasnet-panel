@@ -161,6 +161,7 @@ func (c *Client) Query(path string, args ...string) (*ros.Reply, error) {
 	return c.Run(sentence)
 }
 
+// Add adds an item at the given path with the provided arguments and returns the added item's ID.
 func (c *Client) Add(path string, args ...string) (string, error) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
