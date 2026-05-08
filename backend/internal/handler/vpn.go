@@ -810,7 +810,7 @@ func HandleGetWireguardServerDetails(c echo.Context) error {
 	return SuccessResponse(c, http.StatusOK, "WireGuard server details retrieved successfully", response)
 }
 
-// HandleCreateWireGuardInterface creates a new WireGuard client interface.
+// HandleCreateWireGuardClient creates a new WireGuard client interface.
 // @Summary Create WireGuard Client Interface
 // @Description Create a new WireGuard client interface with the specified configuration
 // @Tags VPN
@@ -822,7 +822,7 @@ func HandleGetWireguardServerDetails(c echo.Context) error {
 // @Failure 400 {object} Response
 // @Failure 500 {object} Response
 // @Router /api/vpn/wireguard-client [post].
-func HandleCreateWireGuardInterface(c echo.Context) error {
+func HandleCreateWireGuardClient(c echo.Context) error {
 	client, err := GetRouterOSClient(c)
 	if err != nil {
 		return err
