@@ -116,15 +116,12 @@ func (c *Client) AddQueue(config QueueConfig) (string, error) {
 		args = append(args, "comment="+config.Comment)
 	}
 
-	reply, err := c.Add("/queue/general", args...)
+	id, err := c.Add("/queue/general", args...)
 	if err != nil {
 		return "", fmt.Errorf("failed to add queue: %w", err)
 	}
 
-	if id := extractRetID(reply); id != "" {
-		return id, nil
-	}
-	return "", fmt.Errorf("no ID returned")
+	return id, nil
 }
 
 func (c *Client) RemoveQueue(id string) error {
@@ -171,15 +168,12 @@ func (c *Client) AddSimpleQueue(config SimpleQueueConfig) (string, error) {
 		args = append(args, "comment="+config.Comment)
 	}
 
-	reply, err := c.Add("/queue/simple", args...)
+	id, err := c.Add("/queue/simple", args...)
 	if err != nil {
 		return "", fmt.Errorf("failed to add simple queue: %w", err)
 	}
 
-	if id := extractRetID(reply); id != "" {
-		return id, nil
-	}
-	return "", fmt.Errorf("no ID returned")
+	return id, nil
 }
 
 func (c *Client) RemoveSimpleQueue(id string) error {

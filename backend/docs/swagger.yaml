@@ -33,6 +33,57 @@ definitions:
       passphrase:
         type: string
     type: object
+  handler.CreateWireGuardInterfaceRequest:
+    properties:
+      allowedAddress:
+        example: 192.168.1.0/24,10.0.0.0/8,2001:db8::/32
+        type: string
+      comment:
+        example: Office VPN client
+        type: string
+      disabled:
+        example: false
+        type: boolean
+      endpointIP:
+        example: 203.0.113.50
+        type: string
+      endpointPort:
+        example: 51820
+        type: integer
+      interfaceLocalAddress:
+        example: 10.0.0.1/24
+        type: string
+      interfacePrivateKey:
+        example: KIEp...
+        type: string
+      listenPort:
+        example: 13231
+        type: integer
+      mtu:
+        example: 1420
+        type: integer
+      name:
+        example: office
+        type: string
+      peerPrivateKey:
+        example: KIEp5mJ2Llk...
+        type: string
+      peerPublicKey:
+        example: HIgo9xNzJMu7...
+        type: string
+      persistentKeepalive:
+        example: 25
+        type: integer
+      presharedKey:
+        example: HIgo9xNzJMu...
+        type: string
+    required:
+    - allowedAddress
+    - endpointIP
+    - endpointPort
+    - interfaceLocalAddress
+    - name
+    type: object
   handler.GetLogsResponse:
     properties:
       availableLevels:
@@ -263,6 +314,8 @@ definitions:
         type: string
       port:
         type: integer
+      protocol:
+        type: string
       remoteIp:
         type: string
       remoteIpPool:
@@ -283,6 +336,8 @@ definitions:
         type: string
       port:
         type: integer
+      protocol:
+        type: string
       remoteIp:
         type: string
       remoteIpPool:
@@ -345,6 +400,17 @@ definitions:
       dohServer:
         type: string
       servers:
+        type: string
+    type: object
+  handler.UpdateInfoResponse:
+    properties:
+      channel:
+        type: string
+      installedVersion:
+        type: string
+      latestVersion:
+        type: string
+      status:
         type: string
     type: object
   handler.UpdateInstallResponse:
@@ -454,6 +520,39 @@ definitions:
         items:
           $ref: '#/definitions/handler.ServerStatusItem'
         type: array
+    type: object
+  handler.WireGuardClientCreateResponse:
+    properties:
+      allowedAddress:
+        type: string
+      disabled:
+        type: boolean
+      endpointIP:
+        type: string
+      endpointPort:
+        type: integer
+      id:
+        type: string
+      interfaceLocalAddress:
+        type: string
+      interfacePrivateKey:
+        type: string
+      interfacePublicKey:
+        type: string
+      listenPort:
+        example: 13231
+        type: integer
+      mtu:
+        example: 1420
+        type: integer
+      name:
+        type: string
+      peerName:
+        type: string
+      peerPrivateKey:
+        type: string
+      peerPublicKey:
+        type: string
     type: object
   handler.WireguardServerDetailsResponse:
     properties:
@@ -1365,23 +1464,24 @@ paths:
         "200":
           description: Update information
           schema:
-            additionalProperties: true
-            type: object
+            allOf:
+            - $ref: '#/definitions/handler.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/handler.UpdateInfoResponse'
+              type: object
         "400":
           description: Bad request
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/handler.Response'
         "401":
           description: Unauthorized
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/handler.Response'
         "500":
           description: Internal server error
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/handler.Response'
       security:
       - BasicAuth: []
       summary: Get system updates information
@@ -1773,7 +1873,7 @@ paths:
       - VPN
   /api/vpn/servers:
     get:
-      description: Get the status of OpenVPN, WireGuard, PPTP, L2TP, and SSTP servers
+      description: Get the list of OpenVPN, WireGuard, PPTP, L2TP, and SSTP servers
       parameters:
       - description: RouterOS host address
         in: header
@@ -1798,7 +1898,7 @@ paths:
             $ref: '#/definitions/handler.Response'
       security:
       - BasicAuth: []
-      summary: Get VPN Servers Status
+      summary: List VPN Servers
       tags:
       - VPN
   /api/vpn/sstp-server:
@@ -1829,6 +1929,46 @@ paths:
       security:
       - BasicAuth: []
       summary: Get SSTP Server Details
+      tags:
+      - VPN
+  /api/vpn/wireguard-client:
+    post:
+      description: Create a new WireGuard client interface with the specified configuration
+      parameters:
+      - description: RouterOS host address
+        in: header
+        name: X-RouterOS-Host
+        required: true
+        type: string
+      - description: WireGuard client interface configuration
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handler.CreateWireGuardInterfaceRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/handler.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/handler.WireGuardClientCreateResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.Response'
+      security:
+      - BasicAuth: []
+      summary: Create WireGuard Client Interface
       tags:
       - VPN
   /api/vpn/wireguard-server/{name}:

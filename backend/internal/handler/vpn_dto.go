@@ -2,7 +2,7 @@
 package handler
 
 import (
-	"fmt"
+	"nasnet-panel/pkg/utils"
 
 	"nasnet-panel/pkg/routeros"
 )
@@ -211,6 +211,42 @@ type L2TPUserSecret struct {
 	Password string `json:"password"`
 }
 
+// CreateWireGuardInterfaceRequest represents a request to create a WireGuard client interface.
+type CreateWireGuardInterfaceRequest struct {
+	Name                  string  `json:"name" example:"office" binding:"required"`
+	MTU                   *int    `json:"mtu" example:"1420"`
+	ListenPort            *int    `json:"listenPort" example:"13231"`
+	InterfacePrivateKey   *string `json:"interfacePrivateKey" example:"KIEp..."`
+	Disabled              *bool   `json:"disabled" example:"false"`
+	Comment               *string `json:"comment" example:"Office VPN client"`
+	InterfaceLocalAddress string  `json:"interfaceLocalAddress" example:"10.0.0.1/24" binding:"required"`
+	PeerPublicKey         *string `json:"peerPublicKey" example:"HIgo9xNzJMu7..."`
+	PeerPrivateKey        *string `json:"peerPrivateKey" example:"KIEp5mJ2Llk..."`
+	EndpointIP            string  `json:"endpointIP" example:"203.0.113.50" binding:"required"`
+	EndpointPort          int     `json:"endpointPort" example:"51820" binding:"required"`
+	AllowedAddress        string  `json:"allowedAddress" example:"192.168.1.0/24,10.0.0.0/8,2001:db8::/32" binding:"required"`
+	PresharedKey          *string `json:"presharedKey" example:"HIgo9xNzJMu..."`
+	PersistentKeepalive   *int    `json:"persistentKeepalive" example:"25"`
+}
+
+// WireGuardClientCreateResponse represents the response after creating a WireGuard client.
+type WireGuardClientCreateResponse struct {
+	ID                    string `json:"id"`
+	Name                  string `json:"name"`
+	MTU                   int    `json:"mtu" example:"1420"`
+	ListenPort            int    `json:"listenPort" example:"13231"`
+	InterfacePrivateKey   string `json:"interfacePrivateKey"`
+	InterfacePublicKey    string `json:"interfacePublicKey"`
+	InterfaceLocalAddress string `json:"interfaceLocalAddress"`
+	Disabled              bool   `json:"disabled"`
+	PeerName              string `json:"peerName"`
+	PeerPublicKey         string `json:"peerPublicKey"`
+	PeerPrivateKey        string `json:"peerPrivateKey"`
+	EndpointIP            string `json:"endpointIP"`
+	EndpointPort          int    `json:"endpointPort"`
+	AllowedAddress        string `json:"allowedAddress"`
+}
+
 // ToVPNClientResponse converts a RouterOS VPNClientInfo to API VPNClientResponse.
 func ToVPNClientResponse(vpn *routeros.VPNClientInfo) VPNClientResponse {
 	return VPNClientResponse{
@@ -223,8 +259,8 @@ func ToVPNClientResponse(vpn *routeros.VPNClientInfo) VPNClientResponse {
 		MacAddress:   vpn.MacAddress,
 		RxByte:       vpn.RxByte,
 		TxByte:       vpn.TxByte,
-		Rx:           formatBytes(vpn.RxByte),
-		Tx:           formatBytes(vpn.TxByte),
+		Rx:           utils.BytesToSizeString(vpn.RxByte),
+		Tx:           utils.BytesToSizeString(vpn.TxByte),
 		RxPacket:     vpn.RxPacket,
 		TxPacket:     vpn.TxPacket,
 		LastLinkUp:   vpn.LastLinkUp,
@@ -279,19 +315,4 @@ func ToL2TPClientResponse(l2tp *routeros.L2TPClientInfo) L2TPClientResponse {
 		LocalIPv6Address:  l2tp.LocalIPv6Address,
 		RemoteIPv6Address: l2tp.RemoteIPv6Address,
 	}
-}
-
-func formatBytes(bytes int64) string {
-	const (
-		unit = 1024
-	)
-	if bytes < unit {
-		return fmt.Sprintf("%d B", bytes)
-	}
-	div, exp := int64(unit), 0
-	for n := bytes / unit; n >= unit; n /= unit {
-		div *= unit
-		exp++
-	}
-	return fmt.Sprintf("%.2f %cB", float64(bytes)/float64(div), "KMGTPE"[exp])
 }

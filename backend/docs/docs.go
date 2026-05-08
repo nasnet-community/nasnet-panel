@@ -1365,29 +1365,37 @@ const docTemplate = `{
                     "200": {
                         "description": "Update information",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handler.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/handler.UpdateInfoResponse"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "400": {
                         "description": "Bad request",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/handler.Response"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/handler.Response"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/handler.Response"
                         }
                     }
                 }
@@ -2036,14 +2044,14 @@ const docTemplate = `{
                         "BasicAuth": []
                     }
                 ],
-                "description": "Get the status of OpenVPN, WireGuard, PPTP, L2TP, and SSTP servers",
+                "description": "Get the list of OpenVPN, WireGuard, PPTP, L2TP, and SSTP servers",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "VPN"
                 ],
-                "summary": "Get VPN Servers Status",
+                "summary": "List VPN Servers",
                 "parameters": [
                     {
                         "type": "string",
@@ -2122,6 +2130,73 @@ const docTemplate = `{
                                     }
                                 }
                             ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/vpn/wireguard-client": {
+            "post": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Create a new WireGuard client interface with the specified configuration",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "VPN"
+                ],
+                "summary": "Create WireGuard Client Interface",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "WireGuard client interface configuration",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.CreateWireGuardInterfaceRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handler.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/handler.WireGuardClientCreateResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
                         }
                     },
                     "500": {
@@ -2838,6 +2913,74 @@ const docTemplate = `{
                 }
             }
         },
+        "handler.CreateWireGuardInterfaceRequest": {
+            "type": "object",
+            "required": [
+                "allowedAddress",
+                "endpointIP",
+                "endpointPort",
+                "interfaceLocalAddress",
+                "name"
+            ],
+            "properties": {
+                "allowedAddress": {
+                    "type": "string",
+                    "example": "192.168.1.0/24,10.0.0.0/8,2001:db8::/32"
+                },
+                "comment": {
+                    "type": "string",
+                    "example": "Office VPN client"
+                },
+                "disabled": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "endpointIP": {
+                    "type": "string",
+                    "example": "203.0.113.50"
+                },
+                "endpointPort": {
+                    "type": "integer",
+                    "example": 51820
+                },
+                "interfaceLocalAddress": {
+                    "type": "string",
+                    "example": "10.0.0.1/24"
+                },
+                "interfacePrivateKey": {
+                    "type": "string",
+                    "example": "KIEp..."
+                },
+                "listenPort": {
+                    "type": "integer",
+                    "example": 13231
+                },
+                "mtu": {
+                    "type": "integer",
+                    "example": 1420
+                },
+                "name": {
+                    "type": "string",
+                    "example": "office"
+                },
+                "peerPrivateKey": {
+                    "type": "string",
+                    "example": "KIEp5mJ2Llk..."
+                },
+                "peerPublicKey": {
+                    "type": "string",
+                    "example": "HIgo9xNzJMu7..."
+                },
+                "persistentKeepalive": {
+                    "type": "integer",
+                    "example": 25
+                },
+                "presharedKey": {
+                    "type": "string",
+                    "example": "HIgo9xNzJMu..."
+                }
+            }
+        },
         "handler.GetLogsResponse": {
             "type": "object",
             "properties": {
@@ -3187,6 +3330,9 @@ const docTemplate = `{
                 "port": {
                     "type": "integer"
                 },
+                "protocol": {
+                    "type": "string"
+                },
                 "remoteIp": {
                     "type": "string"
                 },
@@ -3217,6 +3363,9 @@ const docTemplate = `{
                 },
                 "port": {
                     "type": "integer"
+                },
+                "protocol": {
+                    "type": "string"
                 },
                 "remoteIp": {
                     "type": "string"
@@ -3312,6 +3461,23 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "servers": {
+                    "type": "string"
+                }
+            }
+        },
+        "handler.UpdateInfoResponse": {
+            "type": "object",
+            "properties": {
+                "channel": {
+                    "type": "string"
+                },
+                "installedVersion": {
+                    "type": "string"
+                },
+                "latestVersion": {
+                    "type": "string"
+                },
+                "status": {
                     "type": "string"
                 }
             }
@@ -3474,6 +3640,55 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/handler.ServerStatusItem"
                     }
+                }
+            }
+        },
+        "handler.WireGuardClientCreateResponse": {
+            "type": "object",
+            "properties": {
+                "allowedAddress": {
+                    "type": "string"
+                },
+                "disabled": {
+                    "type": "boolean"
+                },
+                "endpointIP": {
+                    "type": "string"
+                },
+                "endpointPort": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "interfaceLocalAddress": {
+                    "type": "string"
+                },
+                "interfacePrivateKey": {
+                    "type": "string"
+                },
+                "interfacePublicKey": {
+                    "type": "string"
+                },
+                "listenPort": {
+                    "type": "integer",
+                    "example": 13231
+                },
+                "mtu": {
+                    "type": "integer",
+                    "example": 1420
+                },
+                "name": {
+                    "type": "string"
+                },
+                "peerName": {
+                    "type": "string"
+                },
+                "peerPrivateKey": {
+                    "type": "string"
+                },
+                "peerPublicKey": {
+                    "type": "string"
                 }
             }
         },

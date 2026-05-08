@@ -131,15 +131,12 @@ func (c *Client) AddEthernetInterface(config EthernetConfig) (string, error) {
 		args = append(args, "comment="+config.Comment)
 	}
 
-	reply, err := c.Add("/interface/ethernet", args...)
+	id, err := c.Add("/interface/ethernet", args...)
 	if err != nil {
 		return "", fmt.Errorf("failed to add Ethernet interface: %w", err)
 	}
 
-	if id := extractRetID(reply); id != "" {
-		return id, nil
-	}
-	return "", fmt.Errorf("no ID returned")
+	return id, nil
 }
 
 func (c *Client) AddBridgeInterface(config BridgeConfig) (string, error) {
@@ -184,15 +181,12 @@ func (c *Client) AddBridgeInterface(config BridgeConfig) (string, error) {
 		args = append(args, "comment="+config.Comment)
 	}
 
-	reply, err := c.Add("/interface/bridge", args...)
+	id, err := c.Add("/interface/bridge", args...)
 	if err != nil {
 		return "", fmt.Errorf("failed to add bridge interface: %w", err)
 	}
 
-	if id := extractRetID(reply); id != "" {
-		return id, nil
-	}
-	return "", fmt.Errorf("no ID returned")
+	return id, nil
 }
 
 func (c *Client) AddVLANInterface(config VLANConfig) (string, error) {
@@ -215,15 +209,12 @@ func (c *Client) AddVLANInterface(config VLANConfig) (string, error) {
 		args = append(args, "comment="+config.Comment)
 	}
 
-	reply, err := c.Add("/interface/vlan", args...)
+	id, err := c.Add("/interface/vlan", args...)
 	if err != nil {
 		return "", fmt.Errorf("failed to add VLAN interface: %w", err)
 	}
 
-	if id := extractRetID(reply); id != "" {
-		return id, nil
-	}
-	return "", fmt.Errorf("no ID returned")
+	return id, nil
 }
 
 func (c *Client) AddBridgeMember(bridge string, member string, comment string) error {
