@@ -106,32 +106,29 @@ func (c *Client) GetIPAddressesByInterface(ifName string) ([]IPAddressInfo, erro
 
 func (c *Client) AddIPAddress(config IPAddressConfig) (string, error) {
 	args := []string{
-		"interface=" + config.Interface,
-		"address=" + config.Address,
+		"=interface=" + config.Interface,
+		"=address=" + config.Address,
 	}
 
 	if config.Network != "" {
-		args = append(args, "network="+config.Network)
+		args = append(args, "=network="+config.Network)
 	}
 	if config.Broadcast != "" {
-		args = append(args, "broadcast="+config.Broadcast)
+		args = append(args, "=broadcast="+config.Broadcast)
 	}
 	if config.Disabled {
-		args = append(args, "disabled=yes")
+		args = append(args, "=disabled=yes")
 	}
 	if config.Comment != "" {
-		args = append(args, "comment="+config.Comment)
+		args = append(args, "=comment="+config.Comment)
 	}
 
-	reply, err := c.Add("/ip/address", args...)
+	id, err := c.Add("/ip/address", args...)
 	if err != nil {
 		return "", fmt.Errorf("failed to add IP address: %w", err)
 	}
 
-	if id := extractRetID(reply); id != "" {
-		return id, nil
-	}
-	return "", fmt.Errorf("no ID returned")
+	return id, nil
 }
 
 func (c *Client) RemoveIPAddress(id string) error {
@@ -193,15 +190,12 @@ func (c *Client) AddIPRoute(config IPRouteConfig) (string, error) {
 		args = append(args, "comment="+config.Comment)
 	}
 
-	reply, err := c.Add("/ip/route", args...)
+	id, err := c.Add("/ip/route", args...)
 	if err != nil {
 		return "", fmt.Errorf("failed to add IP route: %w", err)
 	}
 
-	if id := extractRetID(reply); id != "" {
-		return id, nil
-	}
-	return "", fmt.Errorf("no ID returned")
+	return id, nil
 }
 
 func (c *Client) RemoveIPRoute(id string) error {

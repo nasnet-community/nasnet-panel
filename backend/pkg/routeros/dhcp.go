@@ -133,15 +133,12 @@ func (c *Client) AddDHCPServer(config DHCPServerConfig) (string, error) {
 		args = append(args, "comment="+config.Comment)
 	}
 
-	reply, err := c.Add("/ip/dhcp-server", args...)
+	id, err := c.Add("/ip/dhcp-server", args...)
 	if err != nil {
 		return "", fmt.Errorf("failed to add DHCP server: %w", err)
 	}
 
-	if id := extractRetID(reply); id != "" {
-		return id, nil
-	}
-	return "", fmt.Errorf("no ID returned")
+	return id, nil
 }
 
 func (c *Client) RemoveDHCPServer(name string) error {
@@ -187,15 +184,12 @@ func (c *Client) AddDHCPPool(config DHCPPoolConfig) (string, error) {
 		args = append(args, "comment="+config.Comment)
 	}
 
-	reply, err := c.Add("/ip/pool", args...)
+	id, err := c.Add("/ip/pool", args...)
 	if err != nil {
 		return "", fmt.Errorf("failed to add DHCP pool: %w", err)
 	}
 
-	if id := extractRetID(reply); id != "" {
-		return id, nil
-	}
-	return "", fmt.Errorf("no ID returned")
+	return id, nil
 }
 
 func (c *Client) RemoveDHCPPool(name string) error {
@@ -335,15 +329,12 @@ func (c *Client) AddDHCPClient(interfaceName string, useDHCPv6 bool, comment str
 		args = append(args, "comment="+comment)
 	}
 
-	reply, err := c.Add("/ip/dhcp-client", args...)
+	id, err := c.Add("/ip/dhcp-client", args...)
 	if err != nil {
 		return "", fmt.Errorf("failed to add DHCP client: %w", err)
 	}
 
-	if id := extractRetID(reply); id != "" {
-		return id, nil
-	}
-	return "", fmt.Errorf("no ID returned")
+	return id, nil
 }
 
 func (c *Client) RemoveDHCPClient(id string) error {

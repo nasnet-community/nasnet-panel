@@ -206,15 +206,12 @@ func (c *Client) AddFirewallRule(config FirewallRuleConfig) (string, error) {
 		args = append(args, "comment="+config.Comment)
 	}
 
-	reply, err := c.Add("/ip/firewall/filter", args...)
+	id, err := c.Add("/ip/firewall/filter", args...)
 	if err != nil {
 		return "", fmt.Errorf("failed to add firewall rule: %w", err)
 	}
 
-	if id := extractRetID(reply); id != "" {
-		return id, nil
-	}
-	return "", fmt.Errorf("no ID returned")
+	return id, nil
 }
 
 func (c *Client) RemoveFirewallRule(id string) error {
@@ -299,15 +296,12 @@ func (c *Client) AddNATRule(config NATRuleConfig) (string, error) {
 		args = append(args, "comment="+config.Comment)
 	}
 
-	reply, err := c.Add("/ip/firewall/nat", args...)
+	id, err := c.Add("/ip/firewall/nat", args...)
 	if err != nil {
 		return "", fmt.Errorf("failed to add NAT rule: %w", err)
 	}
 
-	if id := extractRetID(reply); id != "" {
-		return id, nil
-	}
-	return "", fmt.Errorf("no ID returned")
+	return id, nil
 }
 
 func (c *Client) RemoveNATRule(id string) error {
@@ -384,15 +378,12 @@ func (c *Client) AddMangleRule(config MangleRuleConfig) (string, error) {
 		args = append(args, "comment="+config.Comment)
 	}
 
-	reply, err := c.Add("/ip/firewall/mangle", args...)
+	id, err := c.Add("/ip/firewall/mangle", args...)
 	if err != nil {
 		return "", fmt.Errorf("failed to add mangle rule: %w", err)
 	}
 
-	if id := extractRetID(reply); id != "" {
-		return id, nil
-	}
-	return "", fmt.Errorf("no ID returned")
+	return id, nil
 }
 
 func (c *Client) RemoveMangleRule(id string) error {

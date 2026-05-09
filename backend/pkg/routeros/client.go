@@ -100,7 +100,7 @@ func (c *Client) Run(sentence []string) (*ros.Reply, error) {
 				continue
 			}
 		}
-
+		log.Printf("command: %v", sentence)
 		reply, err := c.conn.Run(sentence...)
 		if err == nil {
 			return reply, nil
@@ -161,17 +161,25 @@ func (c *Client) Query(path string, args ...string) (*ros.Reply, error) {
 	return c.Run(sentence)
 }
 
-func (c *Client) Add(path string, args ...string) (*ros.Reply, error) {
+// Add adds an item at the given path with the provided arguments and returns the added item's ID.
+func (c *Client) Add(path string, args ...string) (string, error) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
 	if c.conn == nil {
-		return nil, fmt.Errorf("connection is closed")
+		return "", fmt.Errorf("connection is closed")
 	}
 
 	sentence := []string{path + "/add"}
 	sentence = append(sentence, args...)
-	return c.Run(sentence)
+	reply, err := c.Run(sentence)
+	if err != nil {
+		return "", err
+	}
+	if id := extractRetID(reply); id != "" {
+		return id, nil
+	}
+	return "", fmt.Errorf("no ID returned from RouterOS")
 }
 
 func (c *Client) Set(path string, args ...string) (*ros.Reply, error) {
@@ -248,14 +256,12 @@ func (c *Client) Context() *ros.Client {
 }
 
 func extractRetID(reply *ros.Reply) string {
-	if reply == nil || len(reply.Re) == 0 {
+	if reply == nil || reply.Done == nil {
 		return ""
 	}
 
-	for _, pair := range reply.Re[0].List {
-		if pair.Key == "ret" {
-			return pair.Value
-		}
+	if id, exists := reply.Done.Map["ret"]; exists && id != "" {
+		return id
 	}
 	return ""
 }

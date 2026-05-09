@@ -401,15 +401,12 @@ func (c *Client) AddLogSetting(config LogConfig) (string, error) {
 		args = append(args, "comment="+config.Comment)
 	}
 
-	reply, err := c.Add("/system/logging", args...)
+	id, err := c.Add("/system/logging", args...)
 	if err != nil {
 		return "", fmt.Errorf("failed to add log setting: %w", err)
 	}
 
-	if id := extractRetID(reply); id != "" {
-		return id, nil
-	}
-	return "", fmt.Errorf("no ID returned")
+	return id, nil
 }
 
 func (c *Client) RemoveLogSetting(id string) error {

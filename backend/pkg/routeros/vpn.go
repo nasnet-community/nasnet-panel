@@ -935,3 +935,103 @@ func toYesNo(b bool) string {
 	}
 	return "no"
 }
+
+// WireGuardClientConfig represents configuration for creating a WireGuard client interface.
+type WireGuardClientConfig struct {
+	Name       string
+	PrivateKey *string
+	ListenPort *int
+	MTU        *int
+	Disabled   *bool
+	Comment    *string
+}
+
+// CreateWireGuardInterface creates a new WireGuard client interface with the specified configuration.
+// The interface name will have "-client" suffix appended automatically.
+func (c *Client) CreateWireGuardInterface(config WireGuardClientConfig) (*WireguardInfo, error) {
+	// Append "-client" suffix to interface name
+	interfaceName := config.Name + "-client"
+
+	// Build add arguments
+	args := []string{"=name=" + interfaceName}
+
+	if config.PrivateKey != nil && *config.PrivateKey != "" {
+		args = append(args, "=private-key="+*config.PrivateKey)
+	}
+
+	if config.ListenPort != nil && *config.ListenPort > 0 {
+		args = append(args, "=listen-port="+strconv.Itoa(*config.ListenPort))
+	}
+
+	if config.MTU != nil && *config.MTU > 0 {
+		args = append(args, "=mtu="+strconv.Itoa(*config.MTU))
+	}
+
+	if config.Disabled != nil && *config.Disabled {
+		args = append(args, "=disabled=yes")
+	}
+
+	if config.Comment != nil && *config.Comment != "" {
+		args = append(args, "=comment="+*config.Comment)
+	}
+
+	// Create WireGuard interface
+	_, err := c.Add("/interface/wireguard", args...)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create WireGuard interface: %w", err)
+	}
+
+	// Retrieve created interface details
+	wireguard, err := c.GetWireguard(interfaceName)
+	if err != nil {
+		return nil, fmt.Errorf("failed to retrieve WireGuard interface: %w", err)
+	}
+
+	return wireguard, nil
+}
+
+// WireGuardPeerConfig contains the configuration for creating a WireGuard peer.
+type WireGuardPeerConfig struct {
+	InterfaceName       string
+	PeerName            string
+	PublicKey           *string
+	PrivateKey          *string
+	EndpointAddress     string
+	EndpointPort        int
+	AllowedAddresses    []string
+	PresharedKey        *string
+	PersistentKeepalive *int
+}
+
+// AddWireGuardPeer creates a WireGuard peer in the RouterOS device.
+func (c *Client) AddWireGuardPeer(config WireGuardPeerConfig) (string, error) {
+	args := []string{
+		"=name=" + config.PeerName,
+		"=interface=" + config.InterfaceName,
+		"=public-key=" + *config.PublicKey,
+		"=endpoint-address=" + config.EndpointAddress,
+		"=endpoint-port=" + strconv.Itoa(config.EndpointPort),
+	}
+
+	if len(config.AllowedAddresses) > 0 {
+		args = append(args, "=allowed-address="+config.AllowedAddresses[0])
+		for _, addr := range config.AllowedAddresses[1:] {
+			args = append(args, "=allowed-address="+addr)
+		}
+	}
+
+	if config.PresharedKey != nil && *config.PresharedKey != "" {
+		args = append(args, "=preshared-key="+*config.PresharedKey)
+	}
+
+	if config.PersistentKeepalive != nil && *config.PersistentKeepalive > 0 {
+		args = append(args, "=persistent-keepalive="+strconv.Itoa(*config.PersistentKeepalive))
+	}
+
+	id, err := c.Add("/interface/wireguard/peers", args...)
+	if err != nil {
+		return "", fmt.Errorf("failed to add WireGuard peer: %w", err)
+	}
+
+	return id, nil
+}

@@ -117,15 +117,12 @@ func (c *Client) addWiFiInterface(config WifiConfig) (string, error) {
 		args = append(args, "comment="+config.Comment)
 	}
 
-	reply, err := c.Add("/interface/wifi", args...)
+	id, err := c.Add("/interface/wifi", args...)
 	if err != nil {
 		return "", fmt.Errorf("failed to add WiFi interface: %w", err)
 	}
 
-	if id := extractRetID(reply); id != "" {
-		return id, nil
-	}
-	return "", fmt.Errorf("no ID returned")
+	return id, nil
 }
 
 func (c *Client) removeWiFiInterface(name string) error {
@@ -359,10 +356,7 @@ func (c *Client) changeWiFiPassphrase(interfaceName string, newPassphrase string
 		return fmt.Errorf("failed to get WiFi interface %s: %w", interfaceName, err)
 	}
 
-	fmt.Println(result)
-
 	securityProfile := result["security"]
-	fmt.Println("Security profile for interface", interfaceName, "is", securityProfile)
 	if securityProfile != "" {
 		_ = c.updateWiFiSecurityProfilePassphrase(securityProfile, newPassphrase)
 	}

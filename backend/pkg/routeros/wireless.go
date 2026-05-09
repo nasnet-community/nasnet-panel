@@ -167,15 +167,12 @@ func (c *Client) addWirelessInterface(config WifiConfig) (string, error) {
 		args = append(args, "comment="+config.Comment)
 	}
 
-	reply, err := c.Add("/interface/wireless", args...)
+	id, err := c.Add("/interface/wireless", args...)
 	if err != nil {
 		return "", fmt.Errorf("failed to add WiFi interface: %w", err)
 	}
 
-	if id := extractRetID(reply); id != "" {
-		return id, nil
-	}
-	return "", fmt.Errorf("no ID returned")
+	return id, nil
 }
 
 func (c *Client) removeWirelessInterface(name string) error {
