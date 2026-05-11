@@ -36,12 +36,15 @@ func HandleListVPNClients(c echo.Context) error {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to retrieve VPN clients", err)
 	}
 
-	// Filter to only include WireGuard clients with "-client" suffix
 	filtered := make([]routeros.VPNClientInfo, 0) //nolint:misspell // pkg name is routeros not routers
 	for i := range vpnClients {
 		vpn := &vpnClients[i]
 		if vpn.Type == "wg" {
 			if strings.HasSuffix(vpn.Name, "-client") {
+				if !vpn.Disabled {
+					running, pingReply := client.CheckWireGuardStatus(vpn.Name)
+					vpn.Running = running && pingReply
+				}
 				filtered = append(filtered, *vpn)
 			}
 		} else {

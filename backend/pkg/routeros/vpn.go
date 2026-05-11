@@ -65,6 +65,175 @@ type L2TPClientInfo struct {
 	RemoteIPv6Address string
 }
 
+// OvpnServerInfo represents an OpenVPN server configuration.
+type OvpnServerInfo struct {
+	ID                string
+	Name              string
+	Disabled          bool
+	Mode              string
+	UserAuthMethod    string
+	CertFile          string
+	KeyFile           string
+	ProtocolVersion   string
+	Port              int
+	CipherName        string
+	AuthHashAlgorithm string
+	RequireClientCert bool
+	RequireEncryption bool
+	KeepAliveTimeout  int
+	DefaultGateway    bool
+	MacAddress        string
+	DefaultProfile    string
+	Comment           string
+}
+
+// PptpServerInfo represents the PPTP server configuration (single instance).
+type PptpServerInfo struct {
+	ID               string
+	Enabled          bool
+	MaxMTU           int
+	MaxMRU           int
+	MRRU             string
+	Authentication   string
+	KeepaliveTimeout int
+	DefaultProfile   string
+	Comment          string
+}
+
+// L2tpServerInfo represents the L2TP server configuration (single instance).
+type L2tpServerInfo struct {
+	ID                   string
+	Enabled              bool
+	MaxMTU               int
+	MaxMRU               int
+	MRRU                 string
+	Authentication       string
+	KeepaliveTimeout     int
+	MaxSessions          string
+	DefaultProfile       string
+	UseIPsec             string
+	IPsecSecret          string
+	CallerIDType         string
+	OneSessionPerHost    bool
+	AllowFastPath        bool
+	L2TPv3CircuitID      string
+	L2TPv3CookieLength   int
+	L2TPv3DigestHash     string
+	AcceptPseudowireType string
+	AcceptProtoVersion   string
+	Comment              string
+}
+
+// SstpServerInfo represents the SSTP server configuration (single instance).
+type SstpServerInfo struct {
+	ID                      string
+	Enabled                 bool
+	Port                    int
+	MaxMTU                  int
+	MaxMRU                  int
+	MRRU                    string
+	KeepaliveTimeout        int
+	DefaultProfile          string
+	Authentication          string
+	Certificate             string
+	VerifyClientCertificate bool
+	PFS                     string
+	TLSVersion              string
+	Ciphers                 string
+	Comment                 string
+}
+
+// WireguardInfo represents a WireGuard interface configuration.
+type WireguardInfo struct {
+	ID         string
+	Name       string
+	Running    bool
+	Disabled   bool
+	MTU        int
+	MacAddress string
+	PublicKey  string
+	PrivateKey string
+	ListenPort int
+	Comment    string
+}
+
+// L2TPProfileInfo represents an L2TP profile.
+type L2TPProfileInfo struct {
+	ID              string
+	Name            string
+	LocalAddress    string
+	RemoteAddress   string
+	DNSServer       string
+	WINSServer      string
+	UseIPv6         bool
+	UseEncryption   string
+	OnlyEncrypted   string
+	ChangeIPAddress string
+	UseCompression  string
+	OnlyOne         string
+	ChangeTCPMSS    string
+	IPPool          string
+}
+
+// L2TPSecret represents an L2TP user secret (username/password).
+type L2TPSecret struct {
+	Name     string
+	Password string
+}
+
+// L2TPIPPool represents an L2TP IP pool.
+type L2TPIPPool struct {
+	ID      string
+	Name    string
+	Ranges  string
+	Comment string
+}
+
+// WireGuardClientConfig represents configuration for creating a WireGuard client interface.
+type WireGuardClientConfig struct {
+	Name       string
+	PrivateKey *string
+	ListenPort *int
+	MTU        *int
+	Disabled   *bool
+	Comment    *string
+}
+
+// WireGuardPeerConfig contains the configuration for creating a WireGuard peer.
+type WireGuardPeerConfig struct {
+	InterfaceName       string
+	PeerName            string
+	PublicKey           *string
+	PrivateKey          *string
+	EndpointAddress     string
+	EndpointPort        int
+	AllowedAddresses    []string
+	PresharedKey        *string
+	PersistentKeepalive *int
+}
+
+// WireGuardPeerInfo represents a WireGuard peer configuration.
+type WireGuardPeerInfo struct {
+	ID                  string
+	Name                string
+	InterfaceName       string
+	PublicKey           string
+	EndpointAddress     string
+	EndpointPort        int
+	AllowedAddresses    string
+	LastHandshake       int64
+	RxBytes             int64
+	TxBytes             int64
+	PersistentKeepalive int
+}
+
+// PingResult represents the result of a ping operation.
+type PingResult struct {
+	Sent     int
+	Received int
+	Loss     float64
+}
+
 // VPN client interface types.
 const (
 	VPNTypeL2TPOut   = "l2tp-out"
@@ -280,28 +449,6 @@ func (c *Client) UpdateVPNClientSettings(nameOrID string, disabled *bool, commen
 	return nil
 }
 
-// OvpnServerInfo represents an OpenVPN server configuration.
-type OvpnServerInfo struct {
-	ID                string
-	Name              string
-	Disabled          bool
-	Mode              string
-	UserAuthMethod    string
-	CertFile          string
-	KeyFile           string
-	ProtocolVersion   string
-	Port              int
-	CipherName        string
-	AuthHashAlgorithm string
-	RequireClientCert bool
-	RequireEncryption bool
-	KeepAliveTimeout  int
-	DefaultGateway    bool
-	MacAddress        string
-	DefaultProfile    string
-	Comment           string
-}
-
 // ListOvpnServers returns all OpenVPN server configurations.
 func (c *Client) ListOvpnServers() ([]OvpnServerInfo, error) {
 	results, err := c.GetAll("/interface/ovpn-server/server")
@@ -381,71 +528,6 @@ func (c *Client) GetOvpnServer(idOrName string) (*OvpnServerInfo, error) {
 	return parseOvpnServerInfo(result), nil
 }
 
-func parseOvpnServerInfo(result map[string]string) *OvpnServerInfo {
-	port, _ := strconv.Atoi(result["port"])
-	keepAliveTimeout, _ := strconv.Atoi(result["keepalive-timeout"])
-
-	// Handle old RouterOS versions that only support single OpenVPN server
-	id := result[".id"]
-	if id == "" {
-		id = "*1" // RouterOS convention for single items
-	}
-
-	name := result["name"]
-	if name == "" {
-		name = "ovpn-server1" // Default name for single server in old format
-	}
-
-	// Determine disabled status: new format uses "disabled", old format uses "enabled"
-	var disabled bool
-	if disabledStr, ok := result["disabled"]; ok && disabledStr != "" {
-		disabled = disabledStr == "true"
-	} else if enabledStr, ok := result["enabled"]; ok && enabledStr != "" {
-		// Old format: "enabled" field, so disabled = !enabled
-		disabled = enabledStr != "true"
-	}
-
-	// Protocol defaults to "tcp" if not specified
-	protocol := result["protocol"]
-	if protocol == "" {
-		protocol = "tcp"
-	}
-
-	return &OvpnServerInfo{
-		ID:                id,
-		Name:              name,
-		Disabled:          disabled,
-		Mode:              result["mode"],
-		UserAuthMethod:    result["user-auth-method"],
-		CertFile:          result["certificate"],
-		KeyFile:           result["key"],
-		ProtocolVersion:   protocol,
-		Port:              port,
-		CipherName:        result["cipher"],
-		AuthHashAlgorithm: result["auth"],
-		RequireClientCert: result["require-client-certificate"] == "true",
-		RequireEncryption: result["require-encryption"] == "true",
-		KeepAliveTimeout:  keepAliveTimeout,
-		DefaultGateway:    result["default-gateway"] == "true",
-		MacAddress:        result["mac-address"],
-		DefaultProfile:    result["default-profile"],
-		Comment:           result["comment"],
-	}
-}
-
-// PptpServerInfo represents the PPTP server configuration (single instance).
-type PptpServerInfo struct {
-	ID               string
-	Enabled          bool
-	MaxMTU           int
-	MaxMRU           int
-	MRRU             string
-	Authentication   string
-	KeepaliveTimeout int
-	DefaultProfile   string
-	Comment          string
-}
-
 // GetPptpServer returns the PPTP server configuration.
 func (c *Client) GetPptpServer() (*PptpServerInfo, error) {
 	result, err := c.GetFirst("/interface/pptp-server/server")
@@ -468,30 +550,6 @@ func (c *Client) GetPptpServer() (*PptpServerInfo, error) {
 		DefaultProfile:   result["default-profile"],
 		Comment:          result["comment"],
 	}, nil
-}
-
-// L2tpServerInfo represents the L2TP server configuration (single instance).
-type L2tpServerInfo struct {
-	ID                   string
-	Enabled              bool
-	MaxMTU               int
-	MaxMRU               int
-	MRRU                 string
-	Authentication       string
-	KeepaliveTimeout     int
-	MaxSessions          string
-	DefaultProfile       string
-	UseIPsec             string
-	IPsecSecret          string
-	CallerIDType         string
-	OneSessionPerHost    bool
-	AllowFastPath        bool
-	L2TPv3CircuitID      string
-	L2TPv3CookieLength   int
-	L2TPv3DigestHash     string
-	AcceptPseudowireType string
-	AcceptProtoVersion   string
-	Comment              string
 }
 
 // GetL2tpServer returns the L2TP server configuration.
@@ -530,25 +588,6 @@ func (c *Client) GetL2tpServer() (*L2tpServerInfo, error) {
 	}, nil
 }
 
-// SstpServerInfo represents the SSTP server configuration (single instance).
-type SstpServerInfo struct {
-	ID                      string
-	Enabled                 bool
-	Port                    int
-	MaxMTU                  int
-	MaxMRU                  int
-	MRRU                    string
-	KeepaliveTimeout        int
-	DefaultProfile          string
-	Authentication          string
-	Certificate             string
-	VerifyClientCertificate bool
-	PFS                     string
-	TLSVersion              string
-	Ciphers                 string
-	Comment                 string
-}
-
 // GetSstpServer returns the SSTP server configuration.
 func (c *Client) GetSstpServer() (*SstpServerInfo, error) {
 	result, err := c.GetFirst("/interface/sstp-server/server")
@@ -578,20 +617,6 @@ func (c *Client) GetSstpServer() (*SstpServerInfo, error) {
 		Ciphers:                 result["ciphers"],
 		Comment:                 result["comment"],
 	}, nil
-}
-
-// WireguardInfo represents a WireGuard interface configuration.
-type WireguardInfo struct {
-	ID         string
-	Name       string
-	Running    bool
-	Disabled   bool
-	MTU        int
-	MacAddress string
-	PublicKey  string
-	PrivateKey string
-	ListenPort int
-	Comment    string
 }
 
 // ListWireguards returns all WireGuard interfaces.
@@ -636,56 +661,6 @@ func (c *Client) GetWireguard(nameOrID string) (*WireguardInfo, error) {
 	}
 
 	return parseWireguardInfo(result), nil
-}
-
-func parseWireguardInfo(result map[string]string) *WireguardInfo {
-	mtu, _ := strconv.Atoi(result["mtu"])
-	listenPort, _ := strconv.Atoi(result["listen-port"])
-
-	return &WireguardInfo{
-		ID:         result[".id"],
-		Name:       result["name"],
-		Running:    result["running"] == "true",
-		Disabled:   result["disabled"] == "true",
-		MTU:        mtu,
-		MacAddress: result["mac-address"],
-		PublicKey:  result["public-key"],
-		PrivateKey: result["private-key"],
-		ListenPort: listenPort,
-		Comment:    result["comment"],
-	}
-}
-
-// L2TPProfileInfo represents an L2TP profile.
-type L2TPProfileInfo struct {
-	ID              string
-	Name            string
-	LocalAddress    string
-	RemoteAddress   string
-	DNSServer       string
-	WINSServer      string
-	UseIPv6         bool
-	UseEncryption   string
-	OnlyEncrypted   string
-	ChangeIPAddress string
-	UseCompression  string
-	OnlyOne         string
-	ChangeTCPMSS    string
-	IPPool          string
-}
-
-// L2TPSecret represents an L2TP user secret (username/password).
-type L2TPSecret struct {
-	Name     string
-	Password string
-}
-
-// L2TPIPPool represents an L2TP IP pool.
-type L2TPIPPool struct {
-	ID      string
-	Name    string
-	Ranges  string
-	Comment string
 }
 
 // GetL2TPProfile returns L2TP profile details by name.
@@ -793,8 +768,8 @@ func (c *Client) AddL2TPClient(name, connectTo, user, password, profileName, ips
 		"=user=" + user,
 		"=password=" + password,
 		"=profile=" + profileName,
-		"=use-ipsec=" + toYesNo(useIPsec),
-		"=disabled=" + toYesNo(disabled),
+		"=use-ipsec=" + utils.ToYesNo(useIPsec),
+		"=disabled=" + utils.ToYesNo(disabled),
 	}
 
 	if useIPsec && ipsecSecret != "" {
@@ -832,11 +807,11 @@ func (c *Client) UpdateL2TPClient(nameOrID string, connectTo, user, password *st
 	}
 
 	if disabled != nil {
-		args = append(args, "=disabled="+toYesNo(*disabled))
+		args = append(args, "=disabled="+utils.ToYesNo(*disabled))
 	}
 
 	if useIPsec != nil {
-		args = append(args, "=use-ipsec="+toYesNo(*useIPsec))
+		args = append(args, "=use-ipsec="+utils.ToYesNo(*useIPsec))
 	}
 
 	if ipsecSecret != nil && *ipsecSecret != "" {
@@ -928,24 +903,6 @@ func (c *Client) GetL2TPClientInfo(name string) (*L2TPClientInfo, error) {
 	return l2tpClient, nil
 }
 
-// toYesNo converts a boolean to RouterOS yes/no format.
-func toYesNo(b bool) string {
-	if b {
-		return "yes"
-	}
-	return "no"
-}
-
-// WireGuardClientConfig represents configuration for creating a WireGuard client interface.
-type WireGuardClientConfig struct {
-	Name       string
-	PrivateKey *string
-	ListenPort *int
-	MTU        *int
-	Disabled   *bool
-	Comment    *string
-}
-
 // CreateWireGuardInterface creates a new WireGuard client interface with the specified configuration.
 // The interface name will have "-client" suffix appended automatically.
 func (c *Client) CreateWireGuardInterface(config WireGuardClientConfig) (*WireguardInfo, error) {
@@ -990,19 +947,6 @@ func (c *Client) CreateWireGuardInterface(config WireGuardClientConfig) (*Wiregu
 	return wireguard, nil
 }
 
-// WireGuardPeerConfig contains the configuration for creating a WireGuard peer.
-type WireGuardPeerConfig struct {
-	InterfaceName       string
-	PeerName            string
-	PublicKey           *string
-	PrivateKey          *string
-	EndpointAddress     string
-	EndpointPort        int
-	AllowedAddresses    []string
-	PresharedKey        *string
-	PersistentKeepalive *int
-}
-
 // AddWireGuardPeer creates a WireGuard peer in the RouterOS device.
 func (c *Client) AddWireGuardPeer(config WireGuardPeerConfig) (string, error) {
 	args := []string{
@@ -1034,4 +978,170 @@ func (c *Client) AddWireGuardPeer(config WireGuardPeerConfig) (string, error) {
 	}
 
 	return id, nil
+}
+
+// GetWireGuardPeers retrieves all peers for a WireGuard interface.
+func (c *Client) GetWireGuardPeers(interfaceName string) ([]WireGuardPeerInfo, error) {
+	results, err := c.GetAll("/interface/wireguard/peers", "?=interface="+interfaceName)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get WireGuard peers for interface %s: %w", interfaceName, err)
+	}
+
+	peers := make([]WireGuardPeerInfo, 0)
+	for _, result := range results {
+		endpointPort, _ := strconv.Atoi(result["endpoint-port"])
+		lastHandshake, _ := strconv.ParseInt(result["last-handshake"], 10, 64)
+		rxBytes, _ := strconv.ParseInt(result["rx-bytes"], 10, 64)
+		txBytes, _ := strconv.ParseInt(result["tx-bytes"], 10, 64)
+		keepalive, _ := strconv.Atoi(result["persistent-keepalive"])
+
+		peers = append(peers, WireGuardPeerInfo{
+			ID:                  result[".id"],
+			Name:                result["name"],
+			InterfaceName:       result["interface"],
+			PublicKey:           result["public-key"],
+			EndpointAddress:     result["endpoint-address"],
+			EndpointPort:        endpointPort,
+			AllowedAddresses:    result["allowed-address"],
+			LastHandshake:       lastHandshake,
+			RxBytes:             rxBytes,
+			TxBytes:             txBytes,
+			PersistentKeepalive: keepalive,
+		})
+	}
+
+	return peers, nil
+}
+
+// PingPeerEndpoint pings a WireGuard peer endpoint address from a specific interface.
+// Returns true if any packets were received (connection is active).
+func (c *Client) PingPeerEndpoint(interfaceName, peerEndpoint string) (bool, error) {
+	if interfaceName == "" || peerEndpoint == "" {
+		return false, fmt.Errorf("interface name and peer endpoint are required")
+	}
+
+	reply, err := c.Execute("/tool/ping",
+		"=count=1",
+		"=interface="+interfaceName,
+		"=interval=1000ms",
+		"=address="+peerEndpoint,
+	)
+	if err != nil {
+		return false, fmt.Errorf("failed to ping peer endpoint %s from interface %s: %w", peerEndpoint, interfaceName, err)
+	}
+
+	if reply == nil || len(reply.Re) == 0 {
+		return false, nil
+	}
+
+	for _, sentence := range reply.Re {
+		result := sentence.Map
+		if result != nil {
+			if received, err := strconv.Atoi(result["received"]); err == nil && received > 0 {
+				return true, nil
+			}
+		}
+	}
+
+	return false, nil
+}
+
+// CheckWireGuardStatus checks the status of a WireGuard interface and its connectivity.
+// Returns (running, peersConnected) tuple.
+func (c *Client) CheckWireGuardStatus(interfaceName string) (running, peersConnected bool) {
+	if interfaceName == "" {
+		return false, false
+	}
+
+	wireguard, err := c.GetWireguard(interfaceName)
+	if err != nil {
+		return false, false
+	}
+
+	peers, err := c.GetWireGuardPeers(interfaceName)
+	if err != nil || len(peers) == 0 {
+		return wireguard.Running, false
+	}
+
+	for i := range peers {
+		if peers[i].EndpointAddress == "" {
+			continue
+		}
+		pingReply, err := c.PingPeerEndpoint(interfaceName, peers[i].EndpointAddress)
+		if err == nil && pingReply {
+			return wireguard.Running, true
+		}
+	}
+
+	return wireguard.Running, false
+}
+
+func parseOvpnServerInfo(result map[string]string) *OvpnServerInfo {
+	port, _ := strconv.Atoi(result["port"])
+	keepAliveTimeout, _ := strconv.Atoi(result["keepalive-timeout"])
+
+	// Handle old RouterOS versions that only support single OpenVPN server
+	id := result[".id"]
+	if id == "" {
+		id = "*1" // RouterOS convention for single items
+	}
+
+	name := result["name"]
+	if name == "" {
+		name = "ovpn-server1" // Default name for single server in old format
+	}
+
+	// Determine disabled status: new format uses "disabled", old format uses "enabled"
+	var disabled bool
+	if disabledStr, ok := result["disabled"]; ok && disabledStr != "" {
+		disabled = disabledStr == "true"
+	} else if enabledStr, ok := result["enabled"]; ok && enabledStr != "" {
+		// Old format: "enabled" field, so disabled = !enabled
+		disabled = enabledStr != "true"
+	}
+
+	// Protocol defaults to "tcp" if not specified
+	protocol := result["protocol"]
+	if protocol == "" {
+		protocol = "tcp"
+	}
+
+	return &OvpnServerInfo{
+		ID:                id,
+		Name:              name,
+		Disabled:          disabled,
+		Mode:              result["mode"],
+		UserAuthMethod:    result["user-auth-method"],
+		CertFile:          result["certificate"],
+		KeyFile:           result["key"],
+		ProtocolVersion:   protocol,
+		Port:              port,
+		CipherName:        result["cipher"],
+		AuthHashAlgorithm: result["auth"],
+		RequireClientCert: result["require-client-certificate"] == "true",
+		RequireEncryption: result["require-encryption"] == "true",
+		KeepAliveTimeout:  keepAliveTimeout,
+		DefaultGateway:    result["default-gateway"] == "true",
+		MacAddress:        result["mac-address"],
+		DefaultProfile:    result["default-profile"],
+		Comment:           result["comment"],
+	}
+}
+
+func parseWireguardInfo(result map[string]string) *WireguardInfo {
+	mtu, _ := strconv.Atoi(result["mtu"])
+	listenPort, _ := strconv.Atoi(result["listen-port"])
+
+	return &WireguardInfo{
+		ID:         result[".id"],
+		Name:       result["name"],
+		Running:    result["running"] == "true",
+		Disabled:   result["disabled"] == "true",
+		MTU:        mtu,
+		MacAddress: result["mac-address"],
+		PublicKey:  result["public-key"],
+		PrivateKey: result["private-key"],
+		ListenPort: listenPort,
+		Comment:    result["comment"],
+	}
 }

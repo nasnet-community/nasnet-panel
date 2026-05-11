@@ -188,6 +188,14 @@ func FormatRouterOSDuration(routerOSTime string) string {
 	return formatDaysAndTime(days, hours, minutes, seconds)
 }
 
+// ToYesNo converts a boolean to RouterOS yes/no format.
+func ToYesNo(b bool) string {
+	if b {
+		return "yes"
+	}
+	return "no"
+}
+
 func formatDaysAndTime(days, hours, minutes, seconds int) string {
 	h := hours % 24
 	m := minutes % 60
