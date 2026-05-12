@@ -36,7 +36,7 @@ type UpdateVPNClientRequest struct {
 
 // AddL2TPClientRequest represents a request to add an L2TP client.
 type AddL2TPClientRequest struct {
-	Name        string  `json:"name" example:"my-l2tp-client"`
+	Name        string  `json:"name" example:"my-l2tp/client"`
 	ConnectTo   string  `json:"connectTo" example:"192.168.1.1"`
 	User        string  `json:"user" example:"username"`
 	Password    string  `json:"password" example:"password123"`
@@ -118,7 +118,7 @@ type SingleServerStatus struct {
 // VPNServersStatusResponse represents the status of all VPN servers.
 type VPNServersStatusResponse struct {
 	OvpnServers []ServerStatusItem  `json:"ovpnServers"`
-	Wireguards  []ServerStatusItem  `json:"wireguards"`
+	WireGuards  []ServerStatusItem  `json:"wireguards"`
 	Pptp        *SingleServerStatus `json:"pptp"`
 	L2tp        *SingleServerStatus `json:"l2tp"`
 	Sstp        *SingleServerStatus `json:"sstp"`
@@ -194,8 +194,14 @@ type SstpServerDetailsResponse struct {
 	Secrets                 []L2TPUserSecret `json:"secrets"`
 }
 
-// WireguardServerDetailsResponse represents WireGuard server configuration details.
-type WireguardServerDetailsResponse struct {
+// L2TPUserSecret represents an L2TP user credential.
+type L2TPUserSecret struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
+
+// WireGuardInterfaceResponse represents WireGuard server configuration details.
+type WireGuardInterfaceResponse struct {
 	ID         string `json:"id"`
 	Name       string `json:"name"`
 	Port       int    `json:"port"`
@@ -205,10 +211,17 @@ type WireguardServerDetailsResponse struct {
 	Enabled    bool   `json:"enabled"`
 }
 
-// L2TPUserSecret represents an L2TP user credential.
-type L2TPUserSecret struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
+// ToWireGuardInterfaceResponse converts a RouterOS WireGuardInfo to API WireGuardInterfaceResponse.
+func ToWireGuardInterfaceResponse(wg *routeros.WireGuardInfo) WireGuardInterfaceResponse {
+	return WireGuardInterfaceResponse{
+		ID:         wg.ID,
+		Name:       wg.Name,
+		Port:       wg.ListenPort,
+		PrivateKey: wg.PrivateKey,
+		PublicKey:  wg.PublicKey,
+		Running:    wg.Running,
+		Enabled:    !wg.Disabled,
+	}
 }
 
 // CreateWireGuardInterfaceRequest represents a request to create a WireGuard client interface.
@@ -245,6 +258,69 @@ type WireGuardClientCreateResponse struct {
 	EndpointIP            string `json:"endpointIP"`
 	EndpointPort          int    `json:"endpointPort"`
 	AllowedAddress        string `json:"allowedAddress"`
+}
+
+// UpdateWireGuardInterfaceRequest represents a request to update a WireGuard interface.
+type UpdateWireGuardInterfaceRequest struct {
+	Disabled   *bool   `json:"disabled" example:"false"`
+	Comment    *string `json:"comment" example:"Updated comment"`
+	MTU        *int    `json:"mtu" example:"1420"`
+	ListenPort *int    `json:"listenPort" example:"13231"`
+	PrivateKey *string `json:"privateKey" example:"KIEp5mJ2Llk..."`
+}
+
+// WireGuardPeerResponse represents a WireGuard peer in the API response.
+type WireGuardPeerResponse struct {
+	ID                     string `json:"id"`
+	Name                   string `json:"name"`
+	InterfaceName          string `json:"interfaceName"`
+	PublicKey              string `json:"publicKey"`
+	PrivateKey             string `json:"privateKey,omitempty"`
+	EndpointAddress        string `json:"endpointAddress"`
+	EndpointPort           int    `json:"endpointPort"`
+	CurrentEndpointAddress string `json:"currentEndpointAddress"`
+	CurrentEndpointPort    int    `json:"currentEndpointPort"`
+	AllowedAddresses       string `json:"allowedAddresses"`
+	PreSharedKey           string `json:"preSharedKey,omitempty"`
+	PersistentKeepalive    string `json:"persistentKeepalive"`
+	ClientEndpoint         string `json:"clientEndpoint,omitempty"`
+	ClientAllowedAddress   string `json:"clientAllowedAddress,omitempty"`
+	LastHandshake          string `json:"lastHandshake"`
+	RxBytes                int64  `json:"rxBytes"`
+	TxBytes                int64  `json:"txBytes"`
+	Rx                     string `json:"rx"`
+	Tx                     string `json:"tx"`
+	Dynamic                bool   `json:"dynamic"`
+	Disabled               bool   `json:"disabled"`
+}
+
+// UpdateWireGuardPeerRequest represents a request to update a WireGuard peer.
+type UpdateWireGuardPeerRequest struct {
+	PublicKey            *string `json:"publicKey" example:"HIgo9xNzJMu7..."`
+	PrivateKey           *string `json:"privateKey" example:"KIEp5mJ2Llk..."`
+	EndpointAddress      *string `json:"endpointAddress" example:"203.0.113.50"`
+	EndpointPort         *int    `json:"endpointPort" example:"51820"`
+	AllowedAddresses     *string `json:"allowedAddresses" example:"192.168.1.0/24,10.0.0.0/8"`
+	PreSharedKey         *string `json:"preSharedKey" example:"HIgo9xNzJMu..."`
+	PersistentKeepalive  *string `json:"persistentKeepalive" example:"25s"`
+	ClientEndpoint       *string `json:"clientEndpoint" example:"203.0.113.50:51820"`
+	ClientAllowedAddress *string `json:"clientAllowedAddress" example:"10.0.0.1/24"`
+	Disabled             *bool   `json:"disabled" example:"false"`
+}
+
+// WireGuardDetailedResponse represents a complete WireGuard client with interface and peers.
+type WireGuardDetailedResponse struct {
+	ID         string                  `json:"id"`
+	Name       string                  `json:"name"`
+	Running    bool                    `json:"running"`
+	Disabled   bool                    `json:"disabled"`
+	MTU        int                     `json:"mtu"`
+	MacAddress string                  `json:"macAddress"`
+	PublicKey  string                  `json:"publicKey"`
+	PrivateKey string                  `json:"privateKey"`
+	ListenPort int                     `json:"listenPort"`
+	Comment    string                  `json:"comment"`
+	Peers      []WireGuardPeerResponse `json:"peers"`
 }
 
 // ToVPNClientResponse converts a RouterOS VPNClientInfo to API VPNClientResponse.
@@ -314,5 +390,54 @@ func ToL2TPClientResponse(l2tp *routeros.L2TPClientInfo) L2TPClientResponse {
 		RemoteAddress:     l2tp.RemoteAddress,
 		LocalIPv6Address:  l2tp.LocalIPv6Address,
 		RemoteIPv6Address: l2tp.RemoteIPv6Address,
+	}
+}
+
+// ToWireGuardPeerResponse converts a RouterOS WireGuardPeerInfo to API WireGuardPeerResponse.
+func ToWireGuardPeerResponse(peer *routeros.WireGuardPeerInfo) WireGuardPeerResponse {
+	return WireGuardPeerResponse{
+		ID:                     peer.ID,
+		Name:                   peer.Name,
+		InterfaceName:          peer.InterfaceName,
+		PublicKey:              peer.PublicKey,
+		PrivateKey:             peer.PrivateKey,
+		EndpointAddress:        peer.EndpointAddress,
+		EndpointPort:           peer.EndpointPort,
+		CurrentEndpointAddress: peer.CurrentEndpointAddress,
+		CurrentEndpointPort:    peer.CurrentEndpointPort,
+		AllowedAddresses:       peer.AllowedAddresses,
+		PreSharedKey:           peer.PreSharedKey,
+		PersistentKeepalive:    peer.PersistentKeepalive,
+		ClientEndpoint:         peer.ClientEndpoint,
+		ClientAllowedAddress:   peer.ClientAllowedAddress,
+		LastHandshake:          peer.LastHandshake,
+		RxBytes:                peer.RxBytes,
+		TxBytes:                peer.TxBytes,
+		Rx:                     utils.BytesToSizeString(peer.RxBytes),
+		Tx:                     utils.BytesToSizeString(peer.TxBytes),
+		Dynamic:                peer.Dynamic,
+		Disabled:               peer.Disabled,
+	}
+}
+
+// ToWireGuardDetailedResponse converts a RouterOS WireGuardInfo and peers to API WireGuardDetailedResponse.
+func ToWireGuardDetailedResponse(wg *routeros.WireGuardInfo, peers []routeros.WireGuardPeerInfo) WireGuardDetailedResponse {
+	peerResponses := make([]WireGuardPeerResponse, len(peers))
+	for i := range peers {
+		peerResponses[i] = ToWireGuardPeerResponse(&peers[i])
+	}
+
+	return WireGuardDetailedResponse{
+		ID:         wg.ID,
+		Name:       wg.Name,
+		Running:    wg.Running,
+		Disabled:   wg.Disabled,
+		MTU:        wg.MTU,
+		MacAddress: wg.MacAddress,
+		PublicKey:  wg.PublicKey,
+		PrivateKey: wg.PrivateKey,
+		ListenPort: wg.ListenPort,
+		Comment:    wg.Comment,
+		Peers:      peerResponses,
 	}
 }

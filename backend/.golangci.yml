@@ -86,6 +86,9 @@ linters:
           - errcheck
           - unparam
           - revive
+      - path: certificate\.go
+        linters:
+          - misspell
 
 formatters:
   enable:

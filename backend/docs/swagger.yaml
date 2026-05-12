@@ -12,7 +12,7 @@ definitions:
         example: secretpassphrase123
         type: string
       name:
-        example: my-l2tp-client
+        example: my-l2tp/client
         type: string
       password:
         example: password123
@@ -466,6 +466,57 @@ definitions:
       ssid:
         type: string
     type: object
+  handler.UpdateWireGuardInterfaceRequest:
+    properties:
+      comment:
+        example: Updated comment
+        type: string
+      disabled:
+        example: false
+        type: boolean
+      listenPort:
+        example: 13231
+        type: integer
+      mtu:
+        example: 1420
+        type: integer
+      privateKey:
+        example: KIEp5mJ2Llk...
+        type: string
+    type: object
+  handler.UpdateWireGuardPeerRequest:
+    properties:
+      allowedAddresses:
+        example: 192.168.1.0/24,10.0.0.0/8
+        type: string
+      clientAllowedAddress:
+        example: 10.0.0.1/24
+        type: string
+      clientEndpoint:
+        example: 203.0.113.50:51820
+        type: string
+      disabled:
+        example: false
+        type: boolean
+      endpointAddress:
+        example: 203.0.113.50
+        type: string
+      endpointPort:
+        example: 51820
+        type: integer
+      persistentKeepalive:
+        example: 25s
+        type: string
+      preSharedKey:
+        example: HIgo9xNzJMu...
+        type: string
+      privateKey:
+        example: KIEp5mJ2Llk...
+        type: string
+      publicKey:
+        example: HIgo9xNzJMu7...
+        type: string
+    type: object
   handler.VPNClientResponse:
     properties:
       comment:
@@ -554,7 +605,34 @@ definitions:
       peerPublicKey:
         type: string
     type: object
-  handler.WireguardServerDetailsResponse:
+  handler.WireGuardDetailedResponse:
+    properties:
+      comment:
+        type: string
+      disabled:
+        type: boolean
+      id:
+        type: string
+      listenPort:
+        type: integer
+      macAddress:
+        type: string
+      mtu:
+        type: integer
+      name:
+        type: string
+      peers:
+        items:
+          $ref: '#/definitions/handler.WireGuardPeerResponse'
+        type: array
+      privateKey:
+        type: string
+      publicKey:
+        type: string
+      running:
+        type: boolean
+    type: object
+  handler.WireGuardInterfaceResponse:
     properties:
       enabled:
         type: boolean
@@ -570,6 +648,51 @@ definitions:
         type: string
       running:
         type: boolean
+    type: object
+  handler.WireGuardPeerResponse:
+    properties:
+      allowedAddresses:
+        type: string
+      clientAllowedAddress:
+        type: string
+      clientEndpoint:
+        type: string
+      currentEndpointAddress:
+        type: string
+      currentEndpointPort:
+        type: integer
+      disabled:
+        type: boolean
+      dynamic:
+        type: boolean
+      endpointAddress:
+        type: string
+      endpointPort:
+        type: integer
+      id:
+        type: string
+      interfaceName:
+        type: string
+      lastHandshake:
+        type: string
+      name:
+        type: string
+      persistentKeepalive:
+        type: string
+      preSharedKey:
+        type: string
+      privateKey:
+        type: string
+      publicKey:
+        type: string
+      rx:
+        type: string
+      rxBytes:
+        type: integer
+      tx:
+        type: string
+      txBytes:
+        type: integer
     type: object
 host: localhost:8080
 info:
@@ -1608,7 +1731,7 @@ paths:
       summary: Update VPN Client
       tags:
       - VPN
-  /api/vpn/l2tp-client:
+  /api/vpn/l2tp/client:
     post:
       consumes:
       - application/json
@@ -1651,7 +1774,7 @@ paths:
       summary: Add L2TP Client
       tags:
       - VPN
-  /api/vpn/l2tp-client/{name}:
+  /api/vpn/l2tp/client/{name}:
     get:
       description: Get detailed information about an L2TP client
       parameters:
@@ -1690,7 +1813,7 @@ paths:
       summary: Get L2TP Client Details
       tags:
       - VPN
-  /api/vpn/l2tp-client/{nameOrID}:
+  /api/vpn/l2tp/client/{nameOrID}:
     delete:
       description: Remove an L2TP client connection
       parameters:
@@ -1772,7 +1895,7 @@ paths:
       summary: Update L2TP Client
       tags:
       - VPN
-  /api/vpn/l2tp-server:
+  /api/vpn/l2tp/server:
     get:
       description: Get detailed configuration of the L2TP server
       parameters:
@@ -1802,7 +1925,7 @@ paths:
       summary: Get L2TP Server Details
       tags:
       - VPN
-  /api/vpn/ovpn-server/{name}:
+  /api/vpn/ovpn/server/{name}:
     get:
       description: Get detailed configuration of an OpenVPN server by name
       parameters:
@@ -1841,7 +1964,7 @@ paths:
       summary: Get OpenVPN Server Details
       tags:
       - VPN
-  /api/vpn/pptp-server:
+  /api/vpn/pptp/server:
     get:
       description: Get detailed configuration of the PPTP server
       parameters:
@@ -1901,7 +2024,7 @@ paths:
       summary: List VPN Servers
       tags:
       - VPN
-  /api/vpn/sstp-server:
+  /api/vpn/sstp/server:
     get:
       description: Get detailed configuration of the SSTP server
       parameters:
@@ -1931,7 +2054,7 @@ paths:
       summary: Get SSTP Server Details
       tags:
       - VPN
-  /api/vpn/wireguard-client:
+  /api/vpn/wireguard/client:
     post:
       description: Create a new WireGuard client interface with the specified configuration
       parameters:
@@ -1971,16 +2094,17 @@ paths:
       summary: Create WireGuard Client Interface
       tags:
       - VPN
-  /api/vpn/wireguard-server/{name}:
+  /api/vpn/wireguard/detailed/{name}:
     get:
-      description: Get detailed configuration of a WireGuard interface by name
+      description: Get details of a specific WireGuard client interface including
+        all configured peers
       parameters:
       - description: RouterOS host address
         in: header
         name: X-RouterOS-Host
         required: true
         type: string
-      - description: WireGuard server name
+      - description: WireGuard client interface name or ID
         in: path
         name: name
         required: true
@@ -1995,7 +2119,7 @@ paths:
             - $ref: '#/definitions/handler.Response'
             - properties:
                 data:
-                  $ref: '#/definitions/handler.WireguardServerDetailsResponse'
+                  $ref: '#/definitions/handler.WireGuardDetailedResponse'
               type: object
         "404":
           description: Not Found
@@ -2007,7 +2131,184 @@ paths:
             $ref: '#/definitions/handler.Response'
       security:
       - BasicAuth: []
-      summary: Get WireGuard Server Details
+      summary: Get WireGuard Client
+      tags:
+      - VPN
+  /api/vpn/wireguard/interface/{name}:
+    get:
+      description: Get interface details for a specific WireGuard interface
+      parameters:
+      - description: RouterOS host address
+        in: header
+        name: X-RouterOS-Host
+        required: true
+        type: string
+      - description: WireGuard interface name or ID
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/handler.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/handler.WireGuardInterfaceResponse'
+              type: object
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.Response'
+      security:
+      - BasicAuth: []
+      summary: Get WireGuard Interface
+      tags:
+      - VPN
+    put:
+      description: Update the properties of an existing WireGuard interface
+      parameters:
+      - description: RouterOS host address
+        in: header
+        name: X-RouterOS-Host
+        required: true
+        type: string
+      - description: WireGuard interface name or ID
+        in: path
+        name: name
+        required: true
+        type: string
+      - description: WireGuard interface update configuration
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handler.UpdateWireGuardInterfaceRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/handler.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/handler.WireGuardInterfaceResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.Response'
+      security:
+      - BasicAuth: []
+      summary: Update WireGuard Interface
+      tags:
+      - VPN
+  /api/vpn/wireguard/peer/{nameOrID}:
+    put:
+      description: Update the properties of an existing WireGuard peer
+      parameters:
+      - description: RouterOS host address
+        in: header
+        name: X-RouterOS-Host
+        required: true
+        type: string
+      - description: WireGuard peer name or ID
+        in: path
+        name: nameOrID
+        required: true
+        type: string
+      - description: WireGuard peer update configuration
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handler.UpdateWireGuardPeerRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/handler.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/handler.WireGuardPeerResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.Response'
+      security:
+      - BasicAuth: []
+      summary: Update WireGuard Peer
+      tags:
+      - VPN
+  /api/vpn/wireguard/peers/{name}:
+    get:
+      description: Get all configured peers for a specific WireGuard interface
+      parameters:
+      - description: RouterOS host address
+        in: header
+        name: X-RouterOS-Host
+        required: true
+        type: string
+      - description: WireGuard interface name
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/handler.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/handler.WireGuardPeerResponse'
+                  type: array
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.Response'
+      security:
+      - BasicAuth: []
+      summary: Get WireGuard Peers
       tags:
       - VPN
   /api/wifi/clients:
