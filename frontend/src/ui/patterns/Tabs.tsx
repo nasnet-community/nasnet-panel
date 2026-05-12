@@ -5,6 +5,7 @@ export interface TabItem {
   id: string;
   label: string;
   icon?: React.ReactNode;
+  disabled?: boolean;
 }
 
 export interface TabsProps {
@@ -26,8 +27,13 @@ export const Tabs: React.FC<TabsProps> = ({ items, activeId, onChange, ariaLabel
           type="button"
           role="tab"
           aria-selected={active}
-          className={cx(styles.tab, active && styles.tabActive)}
-          onClick={() => onChange(t.id)}
+          aria-disabled={t.disabled || undefined}
+          disabled={t.disabled}
+          className={cx(styles.tab, active && styles.tabActive, t.disabled && styles.tabDisabled)}
+          onClick={() => {
+            if (t.disabled) return;
+            onChange(t.id);
+          }}
         >
           {t.icon ? <span aria-hidden>{t.icon}</span> : null}
           {t.label}
