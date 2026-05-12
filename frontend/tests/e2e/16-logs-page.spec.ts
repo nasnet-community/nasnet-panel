@@ -27,13 +27,4 @@ test.describe('Logs page', () => {
     await page.getByLabel('Search', { exact: true }).fill('pppoe');
     await expect(stream).toContainText(/pppoe/i);
   });
-
-  test('dashboard tab nav exposes Logs link', async ({ page, resetMocks, seedRouter }) => {
-    await resetMocks();
-    await seedRouter({ id: 'rtr_logs2', name: 'Logs Router 2' });
-    await page.goto('/router/rtr_logs2');
-    await expect(page.getByRole('tab', { name: /logs/i })).toBeVisible();
-    await page.getByRole('tab', { name: /logs/i }).click();
-    await expect(page).toHaveURL(/\/router\/rtr_logs2\/logs$/);
-  });
 });

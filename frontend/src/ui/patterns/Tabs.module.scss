@@ -46,3 +46,13 @@
   font-weight: var(--weight-semibold);
   border-bottom-color: var(--color-success);
 }
+
+.tabDisabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+
+  &:hover {
+    color: var(--color-text-muted);
+    background: transparent;
+  }
+}

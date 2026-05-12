@@ -21,7 +21,18 @@ test.describe('Router dashboard + Overview tab', () => {
 
     await expect(page.getByText('Overview Router', { exact: false }).first()).toBeVisible();
 
-    for (const tab of ['Overview', 'WiFi', 'VPN', 'DHCP', 'DNS', 'Logs', 'Wizard']) {
+    for (const tab of [
+      'Overview',
+      'Internet',
+      'WAN',
+      'LAN',
+      'WIFI',
+      'VPN Server',
+      'System',
+      'Wizard',
+      'Diagnostics',
+      'Help',
+    ]) {
       await expect(page.getByRole('tab', { name: tab })).toBeVisible();
     }
 
