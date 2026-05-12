@@ -36,12 +36,15 @@ func HandleListVPNClients(c echo.Context) error {
 		return ErrorResponse(c, http.StatusInternalServerError, "Failed to retrieve VPN clients", err)
 	}
 
-	// Filter to only include WireGuard clients with "-client" suffix
 	filtered := make([]routeros.VPNClientInfo, 0) //nolint:misspell // pkg name is routeros not routers
 	for i := range vpnClients {
 		vpn := &vpnClients[i]
 		if vpn.Type == "wg" {
 			if strings.HasSuffix(vpn.Name, "-client") {
+				if !vpn.Disabled {
+					running, pingReply := client.CheckWireGuardStatus(vpn.Name)
+					vpn.Running = running && pingReply
+				}
 				filtered = append(filtered, *vpn)
 			}
 		} else {
@@ -166,7 +169,7 @@ func HandleUpdateVPNClient(c echo.Context) error {
 // @Success 201 {object} Response{data=VPNClientResponse}
 // @Failure 400 {object} Response
 // @Failure 500 {object} Response
-// @Router /api/vpn/l2tp-client [post].
+// @Router /api/vpn/l2tp/client [post].
 func HandleAddL2TPClient(c echo.Context) error {
 	client, err := GetRouterOSClient(c)
 	if err != nil {
@@ -258,7 +261,7 @@ func HandleAddL2TPClient(c echo.Context) error {
 // @Failure 400 {object} Response
 // @Failure 404 {object} Response
 // @Failure 500 {object} Response
-// @Router /api/vpn/l2tp-client/{nameOrID} [put].
+// @Router /api/vpn/l2tp/client/{nameOrID} [put].
 func HandleUpdateL2TPClient(c echo.Context) error {
 	client, err := GetRouterOSClient(c)
 	if err != nil {
@@ -320,7 +323,7 @@ func HandleUpdateL2TPClient(c echo.Context) error {
 // @Success 204
 // @Failure 404 {object} Response
 // @Failure 500 {object} Response
-// @Router /api/vpn/l2tp-client/{nameOrID} [delete].
+// @Router /api/vpn/l2tp/client/{nameOrID} [delete].
 func HandleDeleteL2TPClient(c echo.Context) error {
 	client, err := GetRouterOSClient(c)
 	if err != nil {
@@ -350,7 +353,7 @@ func HandleDeleteL2TPClient(c echo.Context) error {
 // @Success 200 {object} Response{data=L2TPClientResponse}
 // @Failure 404 {object} Response
 // @Failure 500 {object} Response
-// @Router /api/vpn/l2tp-client/{name} [get].
+// @Router /api/vpn/l2tp/client/{name} [get].
 func HandleGetL2TPClient(c echo.Context) error {
 	client, err := GetRouterOSClient(c)
 	if err != nil {
@@ -390,7 +393,7 @@ func HandleListVPNServers(c echo.Context) error {
 
 	response := &VPNServersStatusResponse{
 		OvpnServers: []ServerStatusItem{},
-		Wireguards:  []ServerStatusItem{},
+		WireGuards:  []ServerStatusItem{},
 	}
 
 	ovpnServers, err := client.ListOvpnServers()
@@ -421,7 +424,7 @@ func HandleListVPNServers(c echo.Context) error {
 		}
 	}
 
-	wireguards, err := client.ListWireguards()
+	wireguards, err := client.ListWireGuards()
 	if err == nil {
 		for i := range wireguards {
 			wg := wireguards[i]
@@ -429,7 +432,7 @@ func HandleListVPNServers(c echo.Context) error {
 			if !strings.HasSuffix(wg.Name, "-server") {
 				continue
 			}
-			response.Wireguards = append(response.Wireguards, ServerStatusItem{
+			response.WireGuards = append(response.WireGuards, ServerStatusItem{
 				Name:     wg.Name,
 				Enabled:  !wg.Disabled,
 				Port:     wg.ListenPort,
@@ -524,7 +527,7 @@ func HandleListVPNServers(c echo.Context) error {
 // @Success 200 {object} Response{data=OvpnServerDetailsResponse}
 // @Failure 404 {object} Response
 // @Failure 500 {object} Response
-// @Router /api/vpn/ovpn-server/{name} [get].
+// @Router /api/vpn/ovpn/server/{name} [get].
 func HandleGetOvpnServerDetails(c echo.Context) error {
 	client, err := GetRouterOSClient(c)
 	if err != nil {
@@ -567,7 +570,7 @@ func HandleGetOvpnServerDetails(c echo.Context) error {
 // @Produce json
 // @Success 200 {object} Response{data=PptpServerDetailsResponse}
 // @Failure 500 {object} Response
-// @Router /api/vpn/pptp-server [get].
+// @Router /api/vpn/pptp/server [get].
 func HandleGetPptpServerDetails(c echo.Context) error {
 	client, err := GetRouterOSClient(c)
 	if err != nil {
@@ -634,7 +637,7 @@ func HandleGetPptpServerDetails(c echo.Context) error {
 // @Produce json
 // @Success 200 {object} Response{data=L2tpServerDetailsResponse}
 // @Failure 500 {object} Response
-// @Router /api/vpn/l2tp-server [get].
+// @Router /api/vpn/l2tp/server [get].
 func HandleGetL2tpServerDetails(c echo.Context) error {
 	client, err := GetRouterOSClient(c)
 	if err != nil {
@@ -705,7 +708,7 @@ func HandleGetL2tpServerDetails(c echo.Context) error {
 // @Produce json
 // @Success 200 {object} Response{data=SstpServerDetailsResponse}
 // @Failure 500 {object} Response
-// @Router /api/vpn/sstp-server [get].
+// @Router /api/vpn/sstp/server [get].
 func HandleGetSstpServerDetails(c echo.Context) error {
 	client, err := GetRouterOSClient(c)
 	if err != nil {
@@ -769,47 +772,6 @@ func HandleGetSstpServerDetails(c echo.Context) error {
 	return SuccessResponse(c, http.StatusOK, "SSTP server details retrieved successfully", response)
 }
 
-// HandleGetWireguardServerDetails gets WireGuard server details by name
-// @Summary Get WireGuard Server Details
-// @Description Get detailed configuration of a WireGuard interface by name
-// @Tags VPN
-// @Security BasicAuth
-// @Param X-RouterOS-Host header string true "RouterOS host address"
-// @Param name path string true "WireGuard server name"
-// @Produce json
-// @Success 200 {object} Response{data=WireguardServerDetailsResponse}
-// @Failure 404 {object} Response
-// @Failure 500 {object} Response
-// @Router /api/vpn/wireguard-server/{name} [get].
-func HandleGetWireguardServerDetails(c echo.Context) error {
-	client, err := GetRouterOSClient(c)
-	if err != nil {
-		return err
-	}
-
-	name := c.Param("name")
-	if name == "" {
-		return ErrorResponse(c, http.StatusBadRequest, "WireGuard server name is required", nil)
-	}
-
-	wireguard, err := client.GetWireguard(name)
-	if err != nil {
-		return ErrorResponse(c, http.StatusNotFound, "WireGuard interface not found", err)
-	}
-
-	response := WireguardServerDetailsResponse{
-		ID:         wireguard.ID,
-		Name:       wireguard.Name,
-		Port:       wireguard.ListenPort,
-		PrivateKey: wireguard.PrivateKey,
-		PublicKey:  wireguard.PublicKey,
-		Running:    wireguard.Running,
-		Enabled:    !wireguard.Disabled,
-	}
-
-	return SuccessResponse(c, http.StatusOK, "WireGuard server details retrieved successfully", response)
-}
-
 // HandleCreateWireGuardClient creates a new WireGuard client interface.
 // @Summary Create WireGuard Client Interface
 // @Description Create a new WireGuard client interface with the specified configuration
@@ -821,7 +783,7 @@ func HandleGetWireguardServerDetails(c echo.Context) error {
 // @Success 200 {object} Response{data=WireGuardClientCreateResponse}
 // @Failure 400 {object} Response
 // @Failure 500 {object} Response
-// @Router /api/vpn/wireguard-client [post].
+// @Router /api/vpn/wireguard/client [post].
 func HandleCreateWireGuardClient(c echo.Context) error {
 	client, err := GetRouterOSClient(c)
 	if err != nil {
@@ -930,4 +892,229 @@ func HandleCreateWireGuardClient(c echo.Context) error {
 	}
 
 	return SuccessResponse(c, http.StatusOK, "WireGuard client interface created successfully", response)
+}
+
+// HandleUpdateWireGuardInterface updates a WireGuard interface.
+// @Summary Update WireGuard Interface
+// @Description Update the properties of an existing WireGuard interface
+// @Tags VPN
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Param name path string true "WireGuard interface name or ID"
+// @Param body body UpdateWireGuardInterfaceRequest true "WireGuard interface update configuration"
+// @Produce json
+// @Success 200 {object} Response{data=WireGuardInterfaceResponse}
+// @Failure 400 {object} Response
+// @Failure 404 {object} Response
+// @Failure 500 {object} Response
+// @Router /api/vpn/wireguard/interface/{name} [put].
+func HandleUpdateWireGuardInterface(c echo.Context) error {
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	nameOrID := c.Param("name")
+	if nameOrID == "" {
+		return ErrorResponse(c, http.StatusBadRequest, "WireGuard interface name or ID is required", nil)
+	}
+
+	var req UpdateWireGuardInterfaceRequest
+	if err := c.Bind(&req); err != nil {
+		return ErrorResponse(c, http.StatusBadRequest, "Invalid request payload", err)
+	}
+
+	config := routeros.WireGuardClientConfig{ //nolint:misspell // pkg name is routeros not routers
+		Disabled:   req.Disabled,
+		Comment:    req.Comment,
+		MTU:        req.MTU,
+		ListenPort: req.ListenPort,
+		PrivateKey: req.PrivateKey,
+	}
+
+	if err := client.UpdateWireGuardInterface(nameOrID, config); err != nil {
+		if strings.Contains(err.Error(), "not found") {
+			return ErrorResponse(c, http.StatusNotFound, "WireGuard interface not found", err)
+		}
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to update WireGuard interface", err)
+	}
+
+	wireguard, err := client.GetWireGuard(nameOrID) //nolint:misspell // pkg name is routeros not routers
+	if err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to retrieve updated interface", err)
+	}
+
+	response := ToWireGuardInterfaceResponse(wireguard)
+	return SuccessResponse(c, http.StatusOK, "WireGuard interface updated successfully", response)
+}
+
+// HandleUpdateWireGuardPeer updates a WireGuard peer.
+// @Summary Update WireGuard Peer
+// @Description Update the properties of an existing WireGuard peer
+// @Tags VPN
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Param nameOrID path string true "WireGuard peer name or ID"
+// @Param body body UpdateWireGuardPeerRequest true "WireGuard peer update configuration"
+// @Produce json
+// @Success 200 {object} Response{data=WireGuardPeerResponse}
+// @Failure 400 {object} Response
+// @Failure 404 {object} Response
+// @Failure 500 {object} Response
+// @Router /api/vpn/wireguard/peer/{nameOrID} [put].
+func HandleUpdateWireGuardPeer(c echo.Context) error {
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	nameOrID := c.Param("nameOrID")
+	if nameOrID == "" {
+		return ErrorResponse(c, http.StatusBadRequest, "WireGuard peer name or ID is required", nil)
+	}
+
+	var req UpdateWireGuardPeerRequest
+	if err := c.Bind(&req); err != nil {
+		return ErrorResponse(c, http.StatusBadRequest, "Invalid request payload", err)
+	}
+
+	// Retrieve peer by name or ID to get its ID
+	peer, err := client.GetWireGuardPeerByNameOrID(nameOrID) //nolint:misspell // pkg name is routeros not routers
+	if err != nil {
+		return ErrorResponse(c, http.StatusNotFound, "WireGuard peer not found", err)
+	}
+
+	if err := client.UpdateWireGuardPeer(
+		peer.ID,
+		req.PublicKey,
+		req.PrivateKey,
+		req.EndpointAddress,
+		req.EndpointPort,
+		req.AllowedAddresses,
+		req.PreSharedKey,
+		req.PersistentKeepalive,
+		req.ClientEndpoint,
+		req.ClientAllowedAddress,
+		req.Disabled,
+	); err != nil {
+		if strings.Contains(err.Error(), "not found") {
+			return ErrorResponse(c, http.StatusNotFound, "WireGuard peer not found", err)
+		}
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to update WireGuard peer", err)
+	}
+
+	// Retrieve the updated peer
+	updatedPeer, err := client.GetWireGuardPeerByNameOrID(nameOrID) //nolint:misspell // pkg name is routeros not routers
+	if err == nil && updatedPeer != nil {
+		response := ToWireGuardPeerResponse(updatedPeer)
+		return SuccessResponse(c, http.StatusOK, "WireGuard peer updated successfully", response)
+	}
+
+	// If we can't retrieve updated peer, just return success
+	return SuccessResponse(c, http.StatusOK, "WireGuard peer updated successfully", nil)
+}
+
+// HandleGetWireGuardDetailed gets a specific WireGuard client interface with its peers.
+// @Summary Get WireGuard Client
+// @Description Get details of a specific WireGuard client interface including all configured peers
+// @Tags VPN
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Param name path string true "WireGuard client interface name or ID"
+// @Produce json
+// @Success 200 {object} Response{data=WireGuardDetailedResponse}
+// @Failure 404 {object} Response
+// @Failure 500 {object} Response
+// @Router /api/vpn/wireguard/detailed/{name} [get].
+func HandleGetWireGuardDetailed(c echo.Context) error {
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	nameOrID := c.Param("name")
+	if nameOrID == "" {
+		return ErrorResponse(c, http.StatusBadRequest, "WireGuard interface name or ID is required", nil)
+	}
+
+	wireguard, err := client.GetWireGuard(nameOrID) //nolint:misspell // pkg name is routeros not routers
+	if err != nil {
+		return ErrorResponse(c, http.StatusNotFound, "WireGuard interface not found", err)
+	}
+
+	peers, err := client.GetWireGuardPeers(wireguard.Name) //nolint:misspell // pkg name is routeros not routers
+	if err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to retrieve WireGuard peers", err)
+	}
+
+	response := ToWireGuardDetailedResponse(wireguard, peers)
+
+	return SuccessResponse(c, http.StatusOK, "WireGuard details retrieved successfully", response)
+}
+
+// HandleGetWireGuardInterface godoc
+// @Summary Get WireGuard Interface
+// @Description Get interface details for a specific WireGuard interface
+// @Tags VPN
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Param name path string true "WireGuard interface name or ID"
+// @Produce json
+// @Success 200 {object} Response{data=WireGuardInterfaceResponse}
+// @Failure 404 {object} Response
+// @Failure 500 {object} Response
+// @Router /api/vpn/wireguard/interface/{name} [get].
+func HandleGetWireGuardInterface(c echo.Context) error {
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	nameOrID := c.Param("name")
+	if nameOrID == "" {
+		return ErrorResponse(c, http.StatusBadRequest, "WireGuard interface name or ID is required", nil)
+	}
+
+	wireguard, err := client.GetWireGuard(nameOrID) //nolint:misspell // pkg name is routeros not routers
+	if err != nil {
+		return ErrorResponse(c, http.StatusNotFound, "WireGuard interface not found", err)
+	}
+	response := ToWireGuardInterfaceResponse(wireguard)
+	return SuccessResponse(c, http.StatusOK, "WireGuard interface retrieved successfully", response)
+}
+
+// HandleGetWireGuardPeers godoc
+// @Summary Get WireGuard Peers
+// @Description Get all configured peers for a specific WireGuard interface
+// @Tags VPN
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Param name path string true "WireGuard interface name"
+// @Produce json
+// @Success 200 {object} Response{data=[]WireGuardPeerResponse}
+// @Failure 400 {object} Response
+// @Failure 500 {object} Response
+// @Router /api/vpn/wireguard/peers/{name} [get].
+func HandleGetWireGuardPeers(c echo.Context) error {
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	wireguardName := c.Param("name")
+	if wireguardName == "" {
+		return ErrorResponse(c, http.StatusBadRequest, "WireGuard interface name is required", nil)
+	}
+
+	peers, err := client.GetWireGuardPeers(wireguardName) //nolint:misspell // pkg name is routeros not routers
+	if err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to retrieve WireGuard peers", err)
+	}
+
+	var response []WireGuardPeerResponse
+	for i := range peers {
+		response = append(response, ToWireGuardPeerResponse(&peers[i]))
+	}
+
+	return SuccessResponse(c, http.StatusOK, "WireGuard peers retrieved successfully", response)
 }
