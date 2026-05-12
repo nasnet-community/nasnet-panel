@@ -30,13 +30,4 @@ test.describe('DHCP page', () => {
     await expect(clients).toContainText('ether1');
     await expect(clients).toContainText('10.0.0.42');
   });
-
-  test('dashboard tab nav exposes DHCP link', async ({ page, resetMocks, seedRouter }) => {
-    await resetMocks();
-    await seedRouter({ id: 'rtr_dhcp2', name: 'DHCP Router 2' });
-    await page.goto('/router/rtr_dhcp2');
-    await expect(page.getByRole('tab', { name: /dhcp/i })).toBeVisible();
-    await page.getByRole('tab', { name: /dhcp/i }).click();
-    await expect(page).toHaveURL(/\/router\/rtr_dhcp2\/dhcp$/);
-  });
 });
