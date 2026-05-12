@@ -143,8 +143,8 @@ type SstpServerInfo struct {
 	Comment                 string
 }
 
-// WireguardInfo represents a WireGuard interface configuration.
-type WireguardInfo struct {
+// WireGuardInfo represents a WireGuard interface configuration.
+type WireGuardInfo struct {
 	ID         string
 	Name       string
 	Running    bool
@@ -214,17 +214,25 @@ type WireGuardPeerConfig struct {
 
 // WireGuardPeerInfo represents a WireGuard peer configuration.
 type WireGuardPeerInfo struct {
-	ID                  string
-	Name                string
-	InterfaceName       string
-	PublicKey           string
-	EndpointAddress     string
-	EndpointPort        int
-	AllowedAddresses    string
-	LastHandshake       int64
-	RxBytes             int64
-	TxBytes             int64
-	PersistentKeepalive int
+	ID                     string
+	Name                   string
+	InterfaceName          string
+	PublicKey              string
+	PrivateKey             string
+	EndpointAddress        string
+	EndpointPort           int
+	CurrentEndpointAddress string
+	CurrentEndpointPort    int
+	AllowedAddresses       string
+	PreSharedKey           string
+	PersistentKeepalive    string
+	ClientEndpoint         string
+	ClientAllowedAddress   string
+	LastHandshake          string
+	RxBytes                int64
+	TxBytes                int64
+	Dynamic                bool
+	Disabled               bool
 }
 
 // PingResult represents the result of a ping operation.
@@ -470,7 +478,7 @@ func (c *Client) ListOvpnServers() ([]OvpnServerInfo, error) {
 
 		name := result["name"]
 		if name == "" {
-			name = "ovpn-server1" // Default name for single server in old format
+			name = "ovpn/server1" // Default name for single server in old format
 		}
 
 		// Determine disabled status: new format uses "disabled", old format uses "enabled"
@@ -619,19 +627,19 @@ func (c *Client) GetSstpServer() (*SstpServerInfo, error) {
 	}, nil
 }
 
-// ListWireguards returns all WireGuard interfaces.
-func (c *Client) ListWireguards() ([]WireguardInfo, error) {
+// ListWireGuards returns all WireGuard interfaces.
+func (c *Client) ListWireGuards() ([]WireGuardInfo, error) {
 	results, err := c.GetAll("/interface/wireguard")
 	if err != nil {
 		return nil, fmt.Errorf("failed to list WireGuard interfaces: %w", err)
 	}
 
-	interfaces := make([]WireguardInfo, 0)
+	interfaces := make([]WireGuardInfo, 0)
 	for _, result := range results {
 		mtu, _ := strconv.Atoi(result["mtu"])
 		listenPort, _ := strconv.Atoi(result["listen-port"])
 
-		interfaces = append(interfaces, WireguardInfo{
+		interfaces = append(interfaces, WireGuardInfo{
 			ID:         result[".id"],
 			Name:       result["name"],
 			Running:    result["running"] == "true",
@@ -648,11 +656,11 @@ func (c *Client) ListWireguards() ([]WireguardInfo, error) {
 	return interfaces, nil
 }
 
-// GetWireguard returns a specific WireGuard interface by name or ID.
-func (c *Client) GetWireguard(nameOrID string) (*WireguardInfo, error) {
+// GetWireGuard returns a specific WireGuard interface by name or ID.
+func (c *Client) GetWireGuard(nameOrID string) (*WireGuardInfo, error) {
 	result, err := c.GetFirst("/interface/wireguard", "?=.id="+nameOrID)
 	if err == nil {
-		return parseWireguardInfo(result), nil
+		return parseWireGuardInfo(result), nil
 	}
 
 	result, err = c.GetFirst("/interface/wireguard", "?=name="+nameOrID)
@@ -660,7 +668,7 @@ func (c *Client) GetWireguard(nameOrID string) (*WireguardInfo, error) {
 		return nil, fmt.Errorf("failed to get WireGuard interface %s: %w", nameOrID, err)
 	}
 
-	return parseWireguardInfo(result), nil
+	return parseWireGuardInfo(result), nil
 }
 
 // GetL2TPProfile returns L2TP profile details by name.
@@ -776,7 +784,7 @@ func (c *Client) AddL2TPClient(name, connectTo, user, password, profileName, ips
 		args = append(args, "=ipsec-secret="+ipsecSecret)
 	}
 
-	_, err := c.Add("/interface/l2tp-client", args...)
+	_, err := c.Add("/interface/l2tp/client", args...)
 	if err != nil {
 		return fmt.Errorf("failed to add L2TP client %s: %w", name, err)
 	}
@@ -823,7 +831,7 @@ func (c *Client) UpdateL2TPClient(nameOrID string, connectTo, user, password *st
 		return nil
 	}
 
-	_, err = c.Set("/interface/l2tp-client", args...)
+	_, err = c.Set("/interface/l2tp/client", args...)
 	if err != nil {
 		return fmt.Errorf("failed to update L2TP client %s: %w", nameOrID, err)
 	}
@@ -839,7 +847,7 @@ func (c *Client) RemoveL2TPClient(nameOrID string) error {
 		return fmt.Errorf("L2TP client not found: %w", err)
 	}
 
-	_, err = c.Remove("/interface/l2tp-client", "=.id="+vpnClient.ID)
+	_, err = c.Remove("/interface/l2tp/client", "=.id="+vpnClient.ID)
 	if err != nil {
 		return fmt.Errorf("failed to remove L2TP client %s: %w", nameOrID, err)
 	}
@@ -849,7 +857,7 @@ func (c *Client) RemoveL2TPClient(nameOrID string) error {
 
 // GetL2TPClientInfo retrieves detailed information about an L2TP client.
 func (c *Client) GetL2TPClientInfo(name string) (*L2TPClientInfo, error) {
-	result, err := c.GetFirst("/interface/l2tp-client", "?=name="+name)
+	result, err := c.GetFirst("/interface/l2tp/client", "?=name="+name)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get L2TP client %s: %w", name, err)
 	}
@@ -886,7 +894,7 @@ func (c *Client) GetL2TPClientInfo(name string) (*L2TPClientInfo, error) {
 	}
 
 	// Get monitor data
-	monitorReply, err := c.Execute("/interface/l2tp-client/monitor", "=once=yes", "=.id="+result[".id"])
+	monitorReply, err := c.Execute("/interface/l2tp/client/monitor", "=once=yes", "=.id="+result[".id"])
 	if err == nil && monitorReply != nil && len(monitorReply.Re) > 0 {
 		monitor := monitorReply.Re[0].Map
 		mtu, _ := strconv.Atoi(monitor["mtu"])
@@ -905,7 +913,7 @@ func (c *Client) GetL2TPClientInfo(name string) (*L2TPClientInfo, error) {
 
 // CreateWireGuardInterface creates a new WireGuard client interface with the specified configuration.
 // The interface name will have "-client" suffix appended automatically.
-func (c *Client) CreateWireGuardInterface(config WireGuardClientConfig) (*WireguardInfo, error) {
+func (c *Client) CreateWireGuardInterface(config WireGuardClientConfig) (*WireGuardInfo, error) {
 	// Append "-client" suffix to interface name
 	interfaceName := config.Name + "-client"
 
@@ -939,7 +947,7 @@ func (c *Client) CreateWireGuardInterface(config WireGuardClientConfig) (*Wiregu
 	}
 
 	// Retrieve created interface details
-	wireguard, err := c.GetWireguard(interfaceName)
+	wireguard, err := c.GetWireGuard(interfaceName)
 	if err != nil {
 		return nil, fmt.Errorf("failed to retrieve WireGuard interface: %w", err)
 	}
@@ -990,27 +998,106 @@ func (c *Client) GetWireGuardPeers(interfaceName string) ([]WireGuardPeerInfo, e
 	peers := make([]WireGuardPeerInfo, 0)
 	for _, result := range results {
 		endpointPort, _ := strconv.Atoi(result["endpoint-port"])
-		lastHandshake, _ := strconv.ParseInt(result["last-handshake"], 10, 64)
-		rxBytes, _ := strconv.ParseInt(result["rx-bytes"], 10, 64)
-		txBytes, _ := strconv.ParseInt(result["tx-bytes"], 10, 64)
-		keepalive, _ := strconv.Atoi(result["persistent-keepalive"])
+		currentEndpointPort, _ := strconv.Atoi(result["current-endpoint-port"])
+		rxBytes, _ := strconv.ParseInt(result["rx"], 10, 64)
+		txBytes, _ := strconv.ParseInt(result["tx"], 10, 64)
+		dynamic := result["dynamic"] == "true"
+		disabled := result["disabled"] == "true"
 
 		peers = append(peers, WireGuardPeerInfo{
-			ID:                  result[".id"],
-			Name:                result["name"],
-			InterfaceName:       result["interface"],
-			PublicKey:           result["public-key"],
-			EndpointAddress:     result["endpoint-address"],
-			EndpointPort:        endpointPort,
-			AllowedAddresses:    result["allowed-address"],
-			LastHandshake:       lastHandshake,
-			RxBytes:             rxBytes,
-			TxBytes:             txBytes,
-			PersistentKeepalive: keepalive,
+			ID:                     result[".id"],
+			Name:                   result["name"],
+			InterfaceName:          result["interface"],
+			PublicKey:              result["public-key"],
+			PrivateKey:             result["private-key"],
+			EndpointAddress:        result["endpoint-address"],
+			EndpointPort:           endpointPort,
+			CurrentEndpointAddress: result["current-endpoint-address"],
+			CurrentEndpointPort:    currentEndpointPort,
+			AllowedAddresses:       result["allowed-address"],
+			PreSharedKey:           result["preshared-key"],
+			PersistentKeepalive:    result["persistent-keepalive"],
+			ClientEndpoint:         result["client-endpoint"],
+			ClientAllowedAddress:   result["client-allowed-address"],
+			LastHandshake:          result["last-handshake"],
+			RxBytes:                rxBytes,
+			TxBytes:                txBytes,
+			Dynamic:                dynamic,
+			Disabled:               disabled,
 		})
 	}
 
 	return peers, nil
+}
+
+// GetWireGuardPeerByNameOrID returns a WireGuard peer by its name or ID.
+func (c *Client) GetWireGuardPeerByNameOrID(nameOrID string) (*WireGuardPeerInfo, error) {
+	if nameOrID == "" {
+		return nil, fmt.Errorf("peer name or ID is required")
+	}
+
+	interfaces, err := c.ListWireGuards() //nolint:misspell // pkg name is routeros not routers
+	if err != nil {
+		return nil, err
+	}
+
+	for _, iface := range interfaces {
+		peers, err := c.GetWireGuardPeers(iface.Name) //nolint:misspell // pkg name is routeros not routers
+		if err != nil {
+			continue
+		}
+
+		for i := range peers {
+			if peers[i].ID == nameOrID || peers[i].Name == nameOrID {
+				return &peers[i], nil
+			}
+		}
+	}
+
+	return nil, fmt.Errorf("WireGuard peer not found: %s", nameOrID)
+}
+
+// UpdateWireGuardPeer updates a WireGuard peer configuration.
+func (c *Client) UpdateWireGuardPeer(peerID string, publicKey, privateKey, endpointAddress *string, endpointPort *int, allowedAddresses, preSharedKey, persistentKeepalive, clientEndpoint, clientAllowedAddress *string, disabled *bool) error {
+	if peerID == "" {
+		return fmt.Errorf("peer ID is required")
+	}
+
+	args := []string{"=.id=" + peerID}
+
+	if publicKey != nil {
+		args = append(args, "=public-key="+*publicKey)
+	}
+	if privateKey != nil {
+		args = append(args, "=private-key="+*privateKey)
+	}
+	if endpointAddress != nil {
+		args = append(args, "=endpoint-address="+*endpointAddress)
+	}
+	if endpointPort != nil {
+		args = append(args, "=endpoint-port="+strconv.Itoa(*endpointPort))
+	}
+	if allowedAddresses != nil {
+		args = append(args, "=allowed-address="+*allowedAddresses)
+	}
+	if preSharedKey != nil {
+		args = append(args, "=preshared-key="+*preSharedKey)
+	}
+	if persistentKeepalive != nil {
+		args = append(args, "=persistent-keepalive="+*persistentKeepalive)
+	}
+	if clientEndpoint != nil {
+		args = append(args, "=client-endpoint="+*clientEndpoint)
+	}
+	if clientAllowedAddress != nil {
+		args = append(args, "=client-allowed-address="+*clientAllowedAddress)
+	}
+	if disabled != nil {
+		args = append(args, "=disabled="+strconv.FormatBool(*disabled))
+	}
+
+	_, err := c.Set("/interface/wireguard/peers", args...) //nolint:misspell // pkg name is routeros not routers
+	return err
 }
 
 // PingPeerEndpoint pings a WireGuard peer endpoint address from a specific interface.
@@ -1046,6 +1133,39 @@ func (c *Client) PingPeerEndpoint(interfaceName, peerEndpoint string) (bool, err
 	return false, nil
 }
 
+// UpdateWireGuardInterface updates the properties of an existing WireGuard interface.
+func (c *Client) UpdateWireGuardInterface(nameOrID string, config WireGuardClientConfig) error {
+	if nameOrID == "" {
+		return fmt.Errorf("interface name or ID is required")
+	}
+
+	wireguard, err := c.GetWireGuard(nameOrID)
+	if err != nil {
+		return err
+	}
+
+	args := []string{"=.id=" + wireguard.ID}
+
+	if config.Disabled != nil {
+		args = append(args, "=disabled="+strconv.FormatBool(*config.Disabled))
+	}
+	if config.Comment != nil {
+		args = append(args, "=comment="+*config.Comment)
+	}
+	if config.MTU != nil {
+		args = append(args, "=mtu="+strconv.Itoa(*config.MTU))
+	}
+	if config.ListenPort != nil {
+		args = append(args, "=listen-port="+strconv.Itoa(*config.ListenPort))
+	}
+	if config.PrivateKey != nil {
+		args = append(args, "=private-key="+*config.PrivateKey)
+	}
+
+	_, err = c.Set("/interface/wireguard", args...) //nolint:misspell // pkg name is routeros not routers
+	return err
+}
+
 // CheckWireGuardStatus checks the status of a WireGuard interface and its connectivity.
 // Returns (running, peersConnected) tuple.
 func (c *Client) CheckWireGuardStatus(interfaceName string) (running, peersConnected bool) {
@@ -1053,7 +1173,7 @@ func (c *Client) CheckWireGuardStatus(interfaceName string) (running, peersConne
 		return false, false
 	}
 
-	wireguard, err := c.GetWireguard(interfaceName)
+	wireguard, err := c.GetWireGuard(interfaceName)
 	if err != nil {
 		return false, false
 	}
@@ -1088,7 +1208,7 @@ func parseOvpnServerInfo(result map[string]string) *OvpnServerInfo {
 
 	name := result["name"]
 	if name == "" {
-		name = "ovpn-server1" // Default name for single server in old format
+		name = "ovpn/server1" // Default name for single server in old format
 	}
 
 	// Determine disabled status: new format uses "disabled", old format uses "enabled"
@@ -1128,11 +1248,11 @@ func parseOvpnServerInfo(result map[string]string) *OvpnServerInfo {
 	}
 }
 
-func parseWireguardInfo(result map[string]string) *WireguardInfo {
+func parseWireGuardInfo(result map[string]string) *WireGuardInfo {
 	mtu, _ := strconv.Atoi(result["mtu"])
 	listenPort, _ := strconv.Atoi(result["listen-port"])
 
-	return &WireguardInfo{
+	return &WireGuardInfo{
 		ID:         result[".id"],
 		Name:       result["name"],
 		Running:    result["running"] == "true",
