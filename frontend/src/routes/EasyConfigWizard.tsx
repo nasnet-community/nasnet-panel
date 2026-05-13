@@ -5,14 +5,17 @@ import { stepOrder, stepTitles } from './easy-config/state';
 import { useEasyConfig } from './easy-config/useEasyConfig';
 import { ModeStep } from './easy-config/steps/ModeStep';
 import { WanStep } from './easy-config/steps/WanStep';
-import { LanStep } from './easy-config/steps/LanStep';
-import { ExtraStep } from './easy-config/steps/ExtraStep';
+import { IpMaskStep } from './easy-config/steps/IpMaskStep';
+import { WifiStep } from './easy-config/steps/WifiStep';
+import { VpnServerStep } from './easy-config/steps/VpnServerStep';
 import { ShowStep } from './easy-config/steps/ShowStep';
 
 export function EasyConfigWizard() {
   const { id } = useParams<{ id: string }>();
-  const { state, dispatch, interfaces, script, onApply, goNext, goPrev } = useEasyConfig(id);
+  const { state, dispatch, interfaces, script, onApply, goNext, goPrev, advanceProblem } =
+    useEasyConfig(id);
   const activeIndex = stepOrder.indexOf(state.currentStep);
+  const canSave = advanceProblem === null;
 
   const footer = (
     <div className={styles.stepFooter}>
@@ -21,8 +24,18 @@ export function EasyConfigWizard() {
         <Button variant="ghost" onClick={goPrev} disabled={activeIndex === 0}>
           Back
         </Button>
-        <Button variant="success" onClick={goNext}>
-          Next
+        <span
+          aria-live="polite"
+          style={{
+            color: canSave ? 'var(--color-success, #16a34a)' : 'var(--color-warning, #d97706)',
+            fontSize: 'var(--font-sm)',
+            marginRight: 'auto',
+          }}
+        >
+          {canSave ? 'Configuration complete' : 'Configuration incomplete'}
+        </span>
+        <Button variant="success" onClick={goNext} disabled={!canSave}>
+          Save
         </Button>
       </Inline>
     </div>
@@ -36,10 +49,14 @@ export function EasyConfigWizard() {
         return (
           <WanStep state={state} dispatch={dispatch} interfaces={interfaces} footer={footer} />
         );
-      case 'lan':
-        return <LanStep state={state} dispatch={dispatch} footer={footer} />;
-      case 'extra':
-        return <ExtraStep state={state} dispatch={dispatch} footer={footer} />;
+      case 'ipmask':
+        return <IpMaskStep state={state} dispatch={dispatch} footer={footer} />;
+      case 'wifi':
+        return (
+          <WifiStep state={state} dispatch={dispatch} interfaces={interfaces} footer={footer} />
+        );
+      case 'vpnsrv':
+        return <VpnServerStep state={state} dispatch={dispatch} routerId={id} footer={footer} />;
       case 'show':
         return <ShowStep script={script} state={state} onApply={onApply} onBack={goPrev} />;
       default:

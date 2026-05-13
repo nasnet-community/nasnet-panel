@@ -10,8 +10,9 @@ import {
   Stack,
 } from '@nasnet/ui';
 import type { Interface } from '../../../api';
-import type { Action, State } from '../state';
+import type { Action, InterfaceType, State } from '../state';
 import { DomesticSection } from './wan/DomesticSection';
+import { InterfaceTypePicker } from './components/InterfaceTypePicker';
 
 interface Props {
   state: State;
@@ -20,21 +21,38 @@ interface Props {
   footer?: React.ReactNode;
 }
 
+function filterByType(list: Interface[], type: InterfaceType): Interface[] {
+  if (type === 'wireless') return list.filter((i) => i.type === 'wireless');
+  return list.filter((i) => i.type === 'ether');
+}
+
 export function WanStep({ state, dispatch, interfaces, footer }: Props) {
+  const filtered = filterByType(interfaces, state.interfaceType);
   const ifaceOptions = [
-    { value: '', label: 'Select an interface' },
-    ...interfaces.map((i) => ({ value: i.name, label: i.name })),
+    { value: '', label: 'Select interface' },
+    ...filtered.map((i) => ({ value: i.name, label: i.name })),
   ];
   return (
     <Card>
       <CardHeader>
-        <CardTitle>WAN interfaces</CardTitle>
-        <CardDescription>Tell us which ports are wired to each uplink.</CardDescription>
+        <CardTitle>Foreign network connection</CardTitle>
+        <CardDescription>
+          Tell us which ports are wired to each uplink, starting with the Starlink interface.
+        </CardDescription>
       </CardHeader>
       <Stack>
+        <InterfaceTypePicker
+          value={state.interfaceType}
+          onChange={(next) => {
+            dispatch({ type: 'setField', field: 'interfaceType', value: next });
+            dispatch({ type: 'setField', field: 'starlinkInterface', value: '' });
+          }}
+        />
         <FieldRow>
           <Label>
-            <span>Starlink WAN</span>
+            <span>
+              {state.interfaceType === 'wireless' ? 'Wireless interface' : 'Ethernet interface'}
+            </span>
             <Select
               aria-label="Starlink WAN"
               value={state.starlinkInterface}
@@ -51,7 +69,12 @@ export function WanStep({ state, dispatch, interfaces, footer }: Props) {
                 onChange={(v) =>
                   dispatch({ type: 'setField', field: 'domesticInterface', value: v })
                 }
-                options={ifaceOptions}
+                options={[
+                  { value: '', label: 'Select interface' },
+                  ...interfaces
+                    .filter((i) => i.type === 'ether')
+                    .map((i) => ({ value: i.name, label: i.name })),
+                ]}
               />
             </Label>
           ) : null}

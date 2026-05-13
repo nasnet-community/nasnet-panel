@@ -1,11 +1,6 @@
 import React from 'react';
-import { FieldRow, Input, Label, Select } from '@nasnet/ui';
+import { FieldRow, Input, Label } from '@nasnet/ui';
 import type { Action, State } from '../../state';
-
-const PROTOCOL_OPTIONS = [
-  { value: 'wireguard', label: 'WireGuard' },
-  { value: 'l2tp', label: 'L2TP' },
-];
 
 interface Props {
   state: State;
@@ -17,21 +12,6 @@ export function VpnServerFields({ state, dispatch }: Props) {
     dispatch({ type: 'setField', field, value: e.target.value });
   return (
     <FieldRow>
-      <Label>
-        <span>Protocol</span>
-        <Select
-          aria-label="VPN server protocol"
-          value={state.vpnServerProtocol}
-          onChange={(v) =>
-            dispatch({
-              type: 'setField',
-              field: 'vpnServerProtocol',
-              value: v as State['vpnServerProtocol'],
-            })
-          }
-          options={PROTOCOL_OPTIONS}
-        />
-      </Label>
       <Label>
         <span>Listen port</span>
         <Input

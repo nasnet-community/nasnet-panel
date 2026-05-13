@@ -19,18 +19,42 @@ export function canAdvance(state: State): string | null {
         }
       }
       return null;
-    case 'lan':
-      if (!isSsid(state.ssid)) return 'SSID is required.';
-      if (!isWifiPassword(state.wifiPassword)) return 'Wi-Fi password must be 8–63 characters.';
-      return null;
-    case 'extra':
-      if (state.ipMaskEnabled && state.ipMaskKind === 'wireguard') {
+    case 'ipmask':
+      if (!state.ipMaskEnabled) return null;
+      if (state.ipMaskKind === 'wireguard') {
         if (!isRequired(state.wgEndpoint) || !isPort(state.wgEndpointPort)) {
           return 'Endpoint and port are required.';
         }
+        if (!isRequired(state.wgPeerPublicKey)) {
+          return 'Peer public key is required.';
+        }
       }
-      if (state.vpnServerEnabled && !isCIDR(state.vpnServerIpPool)) {
-        return 'VPN server needs a valid IP pool CIDR.';
+      if (state.ipMaskKind === 'l2tp') {
+        if (!isRequired(state.l2tpServer)) return 'L2TP server address is required.';
+        if (!isRequired(state.l2tpUsername) || !isRequired(state.l2tpPassword)) {
+          return 'L2TP credentials are required.';
+        }
+      }
+      return null;
+    case 'wifi':
+      if (!isSsid(state.ssid)) return 'SSID is required.';
+      if (!isWifiPassword(state.wifiPassword)) return 'Wi-Fi password must be 8–63 characters.';
+      if (state.splitBands) {
+        if (!isSsid(state.ssid5)) return '5 GHz SSID is required.';
+        if (!isWifiPassword(state.wifiPassword5)) {
+          return '5 GHz password must be 8–63 characters.';
+        }
+      }
+      return null;
+    case 'vpnsrv':
+      if (!state.vpnServerEnabled) return null;
+      if (!isPort(state.vpnServerPort)) return 'Valid listen port is required.';
+      if (!isCIDR(state.vpnServerIpPool)) return 'VPN server needs a valid IP pool CIDR.';
+      if (!isRequired(state.firstUserName)) return 'First user name is required.';
+      if (!isRequired(state.firstUserKey)) {
+        return state.vpnServerProtocol === 'wireguard'
+          ? 'First user public key is required.'
+          : 'First user password is required.';
       }
       return null;
     default:

@@ -1,9 +1,17 @@
+export interface WirelessBandInput {
+  ssid: string;
+  password: string;
+}
+
 export interface WirelessInput {
   ssid: string;
   password: string;
   security: 'WPA2-PSK' | 'WPA3-PSK' | 'open';
   band: '2.4ghz' | '5ghz';
   countryCode: string;
+  splitBands?: boolean;
+  band24?: WirelessBandInput;
+  band5?: WirelessBandInput;
 }
 
 export interface StarlinkInput {
@@ -42,11 +50,17 @@ export interface L2tpClientInput {
 
 export type IpMaskInput = WireGuardClientInput | L2tpClientInput;
 
+export interface VpnServerFirstUserInput {
+  name: string;
+  key: string;
+}
+
 export interface VpnServerInput {
-  protocol: 'wireguard' | 'l2tp';
+  protocol: 'wireguard' | 'openvpn' | 'l2tp';
   listenPort: number;
   ipPool: string;
   dns?: string;
+  firstUser?: VpnServerFirstUserInput;
 }
 
 export interface EasyConfigInput {
@@ -102,18 +116,18 @@ export function buildEasyConfigScript(input: EasyConfigInput): string {
   }
   out.push('');
 
-  out.push('/interface/wireless');
-  out.push(
-    `set [ find default-name=wlan1 ] ssid=${quote(input.wireless.ssid)} band=${wirelessBand(input.wireless.band)} country=${input.wireless.countryCode} disabled=no`,
-  );
-  out.push('/interface/wireless/security-profiles');
-  out.push(
-    `add name=nasnet-wlan mode=dynamic-keys ${securityDirective(input.wireless.security)} wpa2-pre-shared-key=${quote(
-      input.wireless.password,
-    )} wpa3-pre-shared-key=${quote(input.wireless.password)}`,
-  );
-  out.push('/interface/wireless');
-  out.push('set [ find default-name=wlan1 ] security-profile=nasnet-wlan');
+  if (input.wireless.splitBands && input.wireless.band24 && input.wireless.band5) {
+    emitWirelessRadio(out, 'wlan1', '2.4ghz', input.wireless.band24, input.wireless);
+    emitWirelessRadio(out, 'wlan2', '5ghz', input.wireless.band5, input.wireless);
+  } else {
+    emitWirelessRadio(
+      out,
+      'wlan1',
+      input.wireless.band,
+      { ssid: input.wireless.ssid, password: input.wireless.password },
+      input.wireless,
+    );
+  }
   out.push('');
 
   if (input.ipMask?.kind === 'wireguard') {
@@ -148,9 +162,42 @@ export function buildEasyConfigScript(input: EasyConfigInput): string {
       out.push(`add name=wg-pool ranges=${input.vpnServer.ipPool}`);
       out.push('/ip/address');
       out.push(`add address=${firstIp(input.vpnServer.ipPool)} interface=wg-server`);
+      if (input.vpnServer.firstUser) {
+        out.push('/interface/wireguard/peers');
+        out.push(
+          `add interface=wg-server comment=${quote(input.vpnServer.firstUser.name)} public-key=${quote(
+            input.vpnServer.firstUser.key,
+          )} allowed-address=${firstIp(input.vpnServer.ipPool)}`,
+        );
+      }
+    } else if (input.vpnServer.protocol === 'openvpn') {
+      out.push('/interface/ovpn-server/server');
+      out.push(
+        `set enabled=yes port=${input.vpnServer.listenPort} mode=ip default-profile=default-encryption auth=sha1,md5 cipher=aes256-cbc`,
+      );
+      out.push('/ip/pool');
+      out.push(`add name=ovpn-pool ranges=${input.vpnServer.ipPool}`);
+      if (input.vpnServer.firstUser) {
+        out.push('/ppp/secret');
+        out.push(
+          `add name=${quote(input.vpnServer.firstUser.name)} password=${quote(
+            input.vpnServer.firstUser.key,
+          )} service=ovpn profile=default-encryption`,
+        );
+      }
     } else {
       out.push('/interface/l2tp-server/server');
       out.push('set enabled=yes use-ipsec=required default-profile=default-encryption');
+      out.push('/ip/pool');
+      out.push(`add name=l2tp-pool ranges=${input.vpnServer.ipPool}`);
+      if (input.vpnServer.firstUser) {
+        out.push('/ppp/secret');
+        out.push(
+          `add name=${quote(input.vpnServer.firstUser.name)} password=${quote(
+            input.vpnServer.firstUser.key,
+          )} service=l2tp profile=default-encryption`,
+        );
+      }
     }
     out.push('');
   }
@@ -186,6 +233,26 @@ export function buildDefaultBaseConfig(): string {
 
 function quote(value: string): string {
   return `"${value.replace(/"/g, '\\"')}"`;
+}
+
+function emitWirelessRadio(
+  out: string[],
+  ifaceName: string,
+  band: '2.4ghz' | '5ghz',
+  radio: WirelessBandInput,
+  shared: WirelessInput,
+): void {
+  const profileName = ifaceName === 'wlan1' ? 'nasnet-wlan' : `nasnet-wlan-${ifaceName}`;
+  out.push('/interface/wireless');
+  out.push(
+    `set [ find default-name=${ifaceName} ] ssid=${quote(radio.ssid)} band=${wirelessBand(band)} country=${shared.countryCode} disabled=no`,
+  );
+  out.push('/interface/wireless/security-profiles');
+  out.push(
+    `add name=${profileName} mode=dynamic-keys ${securityDirective(shared.security)} wpa2-pre-shared-key=${quote(radio.password)} wpa3-pre-shared-key=${quote(radio.password)}`,
+  );
+  out.push('/interface/wireless');
+  out.push(`set [ find default-name=${ifaceName} ] security-profile=${profileName}`);
 }
 
 function wirelessBand(band: '2.4ghz' | '5ghz'): string {

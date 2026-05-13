@@ -1,8 +1,11 @@
 export type Mode = 'starlink-only' | 'dual-link';
-export type StepId = 'mode' | 'wan' | 'lan' | 'extra' | 'show';
+export type StepId = 'mode' | 'wan' | 'ipmask' | 'wifi' | 'vpnsrv' | 'show';
+export type InterfaceType = 'ethernet' | 'wireless' | 'sfp' | 'lte';
+export type VpnServerProtocol = 'wireguard' | 'openvpn' | 'l2tp';
 
 export interface State {
   mode: Mode | null;
+  interfaceType: InterfaceType;
   starlinkInterface: string;
   domesticInterface: string;
   domesticMode: 'dhcp' | 'static' | 'pppoe';
@@ -13,6 +16,9 @@ export interface State {
   staticDns: string;
   ssid: string;
   wifiPassword: string;
+  ssid5: string;
+  wifiPassword5: string;
+  splitBands: boolean;
   security: 'WPA2-PSK' | 'WPA3-PSK';
   band: '2.4ghz' | '5ghz';
   countryCode: string;
@@ -32,10 +38,12 @@ export interface State {
   l2tpIpsecSecret: string;
   l2tpProfile: string;
   vpnServerEnabled: boolean;
-  vpnServerProtocol: 'wireguard' | 'l2tp';
+  vpnServerProtocol: VpnServerProtocol;
   vpnServerPort: string;
   vpnServerIpPool: string;
   vpnServerDns: string;
+  firstUserName: string;
+  firstUserKey: string;
   currentStep: StepId;
   error: string | null;
   applying: boolean;
@@ -44,6 +52,7 @@ export interface State {
 
 export const initial: State = {
   mode: 'dual-link',
+  interfaceType: 'ethernet',
   starlinkInterface: '',
   domesticInterface: '',
   domesticMode: 'dhcp',
@@ -54,10 +63,13 @@ export const initial: State = {
   staticDns: '',
   ssid: '',
   wifiPassword: '',
+  ssid5: '',
+  wifiPassword5: '',
+  splitBands: false,
   security: 'WPA2-PSK',
   band: '5ghz',
   countryCode: 'US',
-  ipMaskEnabled: false,
+  ipMaskEnabled: true,
   ipMaskKind: 'wireguard',
   wgEndpoint: '',
   wgEndpointPort: '51820',
@@ -77,6 +89,8 @@ export const initial: State = {
   vpnServerPort: '51820',
   vpnServerIpPool: '10.8.0.0/24',
   vpnServerDns: '',
+  firstUserName: '',
+  firstUserKey: '',
   currentStep: 'mode',
   error: null,
   applying: false,
@@ -113,12 +127,13 @@ export function reducer(state: State, action: Action): State {
   }
 }
 
-export const stepOrder: StepId[] = ['mode', 'wan', 'lan', 'extra', 'show'];
+export const stepOrder: StepId[] = ['mode', 'wan', 'ipmask', 'wifi', 'vpnsrv', 'show'];
 
 export const stepTitles: Record<StepId, { title: string; description: string }> = {
-  mode: { title: 'Mode', description: 'Setup type' },
+  mode: { title: 'Choose', description: 'Setup type' },
   wan: { title: 'WAN', description: 'Uplink interfaces' },
-  lan: { title: 'LAN', description: 'Wireless SSID' },
-  extra: { title: 'Extra', description: 'VPN options' },
+  ipmask: { title: 'IP-Mask', description: 'Starlink VPN client' },
+  wifi: { title: 'WiFi', description: 'Wireless network' },
+  vpnsrv: { title: 'VPN Server', description: 'Inbound VPN' },
   show: { title: 'Show', description: 'Review & apply' },
 };

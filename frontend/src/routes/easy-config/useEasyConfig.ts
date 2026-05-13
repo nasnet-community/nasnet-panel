@@ -28,6 +28,9 @@ function buildScript(state: State): string {
       security: state.security,
       band: state.band,
       countryCode: state.countryCode,
+      splitBands: state.splitBands,
+      band24: { ssid: state.ssid, password: state.wifiPassword },
+      band5: { ssid: state.ssid5, password: state.wifiPassword5 },
     },
     ipMask: state.ipMaskEnabled
       ? state.ipMaskKind === 'wireguard'
@@ -56,6 +59,10 @@ function buildScript(state: State): string {
           listenPort: Number(state.vpnServerPort) || 51820,
           ipPool: state.vpnServerIpPool,
           dns: state.vpnServerDns || undefined,
+          firstUser:
+            state.firstUserName && state.firstUserKey
+              ? { name: state.firstUserName, key: state.firstUserKey }
+              : undefined,
         }
       : undefined,
   };
@@ -72,7 +79,7 @@ export function useEasyConfig(routerId: string | undefined) {
     let cancelled = false;
     void api.system.listInterfaces(routerId).then((list) => {
       if (cancelled) return;
-      setInterfaces(list.filter((i) => i.type === 'ether'));
+      setInterfaces(list.filter((i) => i.type === 'ether' || i.type === 'wireless'));
     });
     return () => {
       cancelled = true;
@@ -80,6 +87,7 @@ export function useEasyConfig(routerId: string | undefined) {
   }, [routerId]);
 
   const script = useMemo(() => buildScript(state), [state]);
+  const advanceProblem = useMemo(() => canAdvance(state), [state]);
 
   const onApply = useCallback(
     async (override?: string) => {
@@ -105,9 +113,8 @@ export function useEasyConfig(routerId: string | undefined) {
   );
 
   const goNext = () => {
-    const problem = canAdvance(state);
-    if (problem) {
-      dispatch({ type: 'error', message: problem });
+    if (advanceProblem) {
+      dispatch({ type: 'error', message: advanceProblem });
       return;
     }
     const idx = stepOrder.indexOf(state.currentStep);
@@ -121,5 +128,5 @@ export function useEasyConfig(routerId: string | undefined) {
     if (prev) dispatch({ type: 'step', step: prev });
   };
 
-  return { state, dispatch, interfaces, script, onApply, goNext, goPrev };
+  return { state, dispatch, interfaces, script, onApply, goNext, goPrev, advanceProblem };
 }
