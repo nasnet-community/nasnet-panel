@@ -917,6 +917,19 @@ func HandleCreateWireGuardServer(c echo.Context) error {
 		return ErrorResponse(c, http.StatusBadRequest, "Invalid request payload", err)
 	}
 
+	// Check if listenPort is already in use
+	if req.ListenPort != nil && *req.ListenPort > 0 {
+		wireguards, err := client.ListWireGuards()
+		if err != nil {
+			return ErrorResponse(c, http.StatusInternalServerError, "Failed to check WireGuard interfaces", err)
+		}
+		for _, wg := range wireguards {
+			if wg.ListenPort == *req.ListenPort {
+				return ErrorResponse(c, http.StatusBadRequest, "Listen port already in use", fmt.Errorf("listen port %d is already used by interface %s", *req.ListenPort, wg.Name))
+			}
+		}
+	}
+
 	// Check existing addresses for validation
 	addresses, err := client.ListIPAddresses()
 	if err != nil {
