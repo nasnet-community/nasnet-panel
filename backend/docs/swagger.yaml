@@ -113,6 +113,9 @@ definitions:
       publicKey:
         example: wV8gHkfwQ3z3YTSQ1byU2uygaLdu8twzugKFoHVofXs=
         type: string
+      savePrivateKey:
+        example: false
+        type: boolean
     required:
     - allowedAddresses
     - endpointAddress

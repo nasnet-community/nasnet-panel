@@ -939,10 +939,10 @@ func HandleCreateWireGuardServer(c echo.Context) error {
 	// Determine the local address
 	localAddress := req.LocalAddress
 	if localAddress == nil || *localAddress == "" {
-		// Auto-assign IP in format 10.100.x.1/24
+		// Auto-assign IP in format 192.168.x.1/24
 		assigned := false
-		for i := 1; i <= 254; i++ {
-			candidate := fmt.Sprintf("10.100.%d.1/24", i)
+		for i := 30; i <= 254; i++ {
+			candidate := fmt.Sprintf("192.168.%d.1/24", i)
 			found := false
 			for _, addr := range addresses {
 				if addr.Address == candidate {
@@ -957,7 +957,7 @@ func HandleCreateWireGuardServer(c echo.Context) error {
 			}
 		}
 		if !assigned {
-			return ErrorResponse(c, http.StatusInternalServerError, "Failed to assign IP address", fmt.Errorf("no available IP addresses in 10.100.x.1/24 range"))
+			return ErrorResponse(c, http.StatusInternalServerError, "Failed to assign IP address", fmt.Errorf("no available IP addresses in 192.168.x.1/24 range"))
 		}
 	} else {
 		// Validate provided IP is not already in use
@@ -1328,6 +1328,7 @@ func HandleCreateWireGuardServerPeer(c echo.Context) error {
 		AllowedAddresses:    allowedAddrs,
 		PresharedKey:        preSharedKey,
 		PersistentKeepalive: req.PersistentKeepalive,
+		SavePrivateKey:      req.SavePrivateKey != nil && *req.SavePrivateKey,
 	}
 
 	_, err = client.AddWireGuardPeer(config)
