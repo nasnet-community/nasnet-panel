@@ -37,10 +37,8 @@ export function ProtocolTilePicker<V extends string>({
             onClick={() => onChange(tile.value)}
             className={className}
           >
-            {tile.recommended ? <span className={styles.recommended}>Recommended</span> : null}
             <span className={styles.iconWrap}>{tile.icon}</span>
-            <h4 className={styles.title}>{tile.label}</h4>
-            <p className={styles.description}>{tile.description}</p>
+            <span className={styles.label}>{tile.label}</span>
           </button>
         );
       })}

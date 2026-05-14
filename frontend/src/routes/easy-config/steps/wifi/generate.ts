@@ -12,7 +12,7 @@ function randomString(alphabet: string, length: number): string {
 }
 
 export function generateSsid(): string {
-  return `NasNet-${randomString(SSID_ALPHABET, 6)}`;
+  return randomString(SSID_ALPHABET, 8);
 }
 
 export function generatePassword(): string {

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Cable, Radio, Smartphone, Wifi } from 'lucide-react';
+import { EthernetPort, Radio, Smartphone, Wifi } from 'lucide-react';
 import type { InterfaceType } from '../../state';
 import styles from './InterfaceTypePicker.module.scss';
 
@@ -14,7 +14,7 @@ const TILES: TileConfig[] = [
   {
     type: 'ethernet',
     label: 'Ethernet',
-    icon: <Cable size={22} strokeWidth={1.75} />,
+    icon: <EthernetPort size={22} strokeWidth={1.75} />,
     available: true,
   },
   {
@@ -54,14 +54,7 @@ export function InterfaceTypePicker({ value, onChange }: Props) {
             onClick={() => tile.available && onChange(tile.type)}
             className={className}
           >
-            {active ? <span className={styles.dot} aria-hidden="true" /> : null}
-            <span className={styles.iconWrap}>
-              {tile.available ? (
-                tile.icon
-              ) : (
-                <span className={styles.unavailable}>Not Available</span>
-              )}
-            </span>
+            <span className={styles.iconWrap}>{tile.icon}</span>
             <span className={styles.label}>{tile.label}</span>
           </button>
         );

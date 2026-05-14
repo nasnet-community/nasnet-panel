@@ -10,9 +10,9 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: var(--space-sm);
-  padding: var(--space-md) var(--space-sm);
-  background: var(--color-surface-alt);
+  gap: 4px;
+  padding: var(--space-sm);
+  background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   cursor: pointer;
@@ -21,15 +21,14 @@
   font-size: inherit;
   transition:
     border-color var(--transition-fast),
-    background var(--transition-fast),
     color var(--transition-fast);
 
   &:hover:not(:disabled) {
-    border-color: var(--color-primary);
+    border-color: var(--color-border-strong);
   }
 
   &:focus-visible {
-    outline: 2px solid var(--color-primary);
+    outline: 2px solid var(--color-success);
     outline-offset: 2px;
   }
 
@@ -40,27 +39,21 @@
 }
 
 .tileActive {
-  border-color: var(--color-primary);
-  background: var(
-    --color-primary-subtle,
-    color-mix(in srgb, var(--color-primary) 12%, transparent)
-  );
-  color: var(--color-primary);
+  border-color: var(--color-success);
 }
 
 .iconWrap {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 44px;
-  height: 44px;
+  width: 32px;
+  height: 32px;
   border-radius: var(--radius-sm);
-  background: var(--color-surface);
+  background: transparent;
 }
 
 .tileActive .iconWrap {
-  background: var(--color-primary);
-  color: var(--color-on-primary, #0b0f14);
+  color: var(--color-success);
 }
 
 .label {
@@ -75,13 +68,5 @@
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: var(--color-primary);
-}
-
-.unavailable {
-  font-size: var(--font-xs);
-  color: var(--color-text-muted);
-  background: var(--color-surface);
-  padding: 2px 6px;
-  border-radius: var(--radius-sm);
+  background: var(--color-success);
 }

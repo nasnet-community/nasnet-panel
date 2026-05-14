@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useMemo, useReducer, useState } from 'react';
 import { useToast } from '@nasnet/ui';
-import { api, type Interface } from '../../api';
+import { api, fetchInterfaces, type InterfaceResponse } from '../../api';
+import { useSession } from '../../state/SessionContext';
+import { useRouter } from '../../state/RouterStoreContext';
 import { buildEasyConfigScript, type EasyConfigInput } from '../../utils/rsc-builder';
 import { canAdvance } from './validation';
 import { initial, reducer, stepOrder, type State } from './state';
@@ -33,24 +35,23 @@ function buildScript(state: State): string {
       band5: { ssid: state.ssid5, password: state.wifiPassword5 },
     },
     ipMask: state.ipMaskEnabled
-      ? state.ipMaskKind === 'wireguard'
+      ? state.ipMaskKind === 'l2tp'
         ? {
-            kind: 'wireguard',
-            endpoint: state.wgEndpoint,
-            endpointPort: Number(state.wgEndpointPort) || 51820,
-            peerPublicKey: state.wgPeerPublicKey,
-            privateKey: state.wgPrivateKey,
-            allowedIps: state.wgAllowedIps,
-            persistentKeepalive: Number(state.wgKeepalive) || 25,
-            mtu: Number(state.wgMtu) || 1420,
-          }
-        : {
             kind: 'l2tp',
             server: state.l2tpServer,
             username: state.l2tpUsername,
             password: state.l2tpPassword,
+            useIpsec: state.l2tpUseIpsec,
             ipsecSecret: state.l2tpIpsecSecret,
             profile: state.l2tpProfile,
+          }
+        : {
+            kind: 'openvpn',
+            server: state.ovpnServer,
+            port: Number(state.ovpnPort) || 1194,
+            username: state.ovpnUsername,
+            password: state.ovpnPassword,
+            cipher: state.ovpnCipher,
           }
       : undefined,
     vpnServer: state.vpnServerEnabled
@@ -71,20 +72,51 @@ function buildScript(state: State): string {
 
 export function useEasyConfig(routerId: string | undefined) {
   const toast = useToast();
+  const { getCredentials } = useSession();
+  const router = useRouter(routerId);
   const [state, dispatch] = useReducer(reducer, initial);
-  const [interfaces, setInterfaces] = useState<Interface[]>([]);
+  const [interfaces, setInterfaces] = useState<InterfaceResponse[]>([]);
 
   useEffect(() => {
     if (!routerId) return;
-    let cancelled = false;
-    void api.system.listInterfaces(routerId).then((list) => {
-      if (cancelled) return;
-      setInterfaces(list.filter((i) => i.type === 'ether' || i.type === 'wireless'));
-    });
-    return () => {
-      cancelled = true;
+    const creds = getCredentials(routerId);
+    const host = router?.host;
+    const controller = new AbortController();
+
+    const loadFromApi = async () => {
+      if (!creds || !host) return null;
+      try {
+        return await fetchInterfaces({ host, ...creds }, controller.signal);
+      } catch {
+        return null;
+      }
     };
-  }, [routerId]);
+
+    const loadFromMock = async () => {
+      const list = await api.system.listInterfaces(routerId);
+      return list.map((i) => ({
+        id: i.name,
+        name: i.name,
+        type: i.type,
+        running: i.running,
+        disabled: i.disabled ?? false,
+        mac: i.mac,
+        comment: i.comment,
+      })) satisfies InterfaceResponse[];
+    };
+
+    void (async () => {
+      const fromApi = await loadFromApi();
+      if (controller.signal.aborted) return;
+      const list = fromApi ?? (await loadFromMock());
+      if (controller.signal.aborted) return;
+      setInterfaces(list.filter((i) => i.type === 'ether' || i.type === 'wireless'));
+    })();
+
+    return () => {
+      controller.abort();
+    };
+  }, [routerId, router?.host, getCredentials]);
 
   const script = useMemo(() => buildScript(state), [state]);
   const advanceProblem = useMemo(() => canAdvance(state), [state]);

@@ -15,11 +15,8 @@ export function useApplyDialog(applying: boolean, applied: boolean) {
   }, [applying]);
 
   useEffect(() => {
-    if (!applied) return;
-    setDialogOpen(true);
-    const timer = window.setTimeout(goToOverview, 1800);
-    return () => window.clearTimeout(timer);
-  }, [applied, goToOverview]);
+    if (applied) setDialogOpen(true);
+  }, [applied]);
 
   const openDialog = () => setDialogOpen(true);
   const closeDialog = () => {

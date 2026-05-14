@@ -1,11 +1,16 @@
 export type Mode = 'starlink-only' | 'dual-link';
-export type StepId = 'mode' | 'wan' | 'ipmask' | 'wifi' | 'vpnsrv' | 'show';
+export type StepId = 'mode' | 'wan' | 'ipmask' | 'wifi' | 'vpnsrv';
 export type InterfaceType = 'ethernet' | 'wireless' | 'sfp' | 'lte';
 export type VpnServerProtocol = 'wireguard' | 'openvpn' | 'l2tp';
 
 export interface State {
   mode: Mode | null;
-  interfaceType: InterfaceType;
+  starlinkInterfaceType: InterfaceType;
+  domesticInterfaceType: InterfaceType;
+  starlinkWanSsid: string;
+  starlinkWanPassword: string;
+  domesticWanSsid: string;
+  domesticWanPassword: string;
   starlinkInterface: string;
   domesticInterface: string;
   domesticMode: 'dhcp' | 'static' | 'pppoe';
@@ -14,6 +19,8 @@ export interface State {
   staticIp: string;
   staticGateway: string;
   staticDns: string;
+  wifiEnabled: boolean;
+  wifiInterface: string;
   ssid: string;
   wifiPassword: string;
   ssid5: string;
@@ -23,7 +30,7 @@ export interface State {
   band: '2.4ghz' | '5ghz';
   countryCode: string;
   ipMaskEnabled: boolean;
-  ipMaskKind: 'wireguard' | 'l2tp';
+  ipMaskKind: 'l2tp' | 'openvpn';
   wgEndpoint: string;
   wgEndpointPort: string;
   wgPeerPublicKey: string;
@@ -35,8 +42,14 @@ export interface State {
   l2tpServer: string;
   l2tpUsername: string;
   l2tpPassword: string;
+  l2tpUseIpsec: boolean;
   l2tpIpsecSecret: string;
   l2tpProfile: string;
+  ovpnServer: string;
+  ovpnPort: string;
+  ovpnUsername: string;
+  ovpnPassword: string;
+  ovpnCipher: string;
   vpnServerEnabled: boolean;
   vpnServerProtocol: VpnServerProtocol;
   vpnServerPort: string;
@@ -44,6 +57,7 @@ export interface State {
   vpnServerDns: string;
   firstUserName: string;
   firstUserKey: string;
+  vpnServerCertPassphrase: string;
   currentStep: StepId;
   error: string | null;
   applying: boolean;
@@ -52,7 +66,12 @@ export interface State {
 
 export const initial: State = {
   mode: 'dual-link',
-  interfaceType: 'ethernet',
+  starlinkInterfaceType: 'ethernet',
+  domesticInterfaceType: 'ethernet',
+  starlinkWanSsid: '',
+  starlinkWanPassword: '',
+  domesticWanSsid: '',
+  domesticWanPassword: '',
   starlinkInterface: '',
   domesticInterface: '',
   domesticMode: 'dhcp',
@@ -61,6 +80,8 @@ export const initial: State = {
   staticIp: '',
   staticGateway: '',
   staticDns: '',
+  wifiEnabled: true,
+  wifiInterface: '',
   ssid: '',
   wifiPassword: '',
   ssid5: '',
@@ -70,7 +91,7 @@ export const initial: State = {
   band: '5ghz',
   countryCode: 'US',
   ipMaskEnabled: true,
-  ipMaskKind: 'wireguard',
+  ipMaskKind: 'l2tp',
   wgEndpoint: '',
   wgEndpointPort: '51820',
   wgPeerPublicKey: '',
@@ -82,15 +103,22 @@ export const initial: State = {
   l2tpServer: '',
   l2tpUsername: '',
   l2tpPassword: '',
+  l2tpUseIpsec: false,
   l2tpIpsecSecret: '',
   l2tpProfile: 'default-encryption',
+  ovpnServer: '',
+  ovpnPort: '1194',
+  ovpnUsername: '',
+  ovpnPassword: '',
+  ovpnCipher: 'aes256-cbc',
   vpnServerEnabled: false,
-  vpnServerProtocol: 'wireguard',
+  vpnServerProtocol: 'openvpn',
   vpnServerPort: '51820',
   vpnServerIpPool: '10.8.0.0/24',
   vpnServerDns: '',
   firstUserName: '',
   firstUserKey: '',
+  vpnServerCertPassphrase: '',
   currentStep: 'mode',
   error: null,
   applying: false,
@@ -127,7 +155,7 @@ export function reducer(state: State, action: Action): State {
   }
 }
 
-export const stepOrder: StepId[] = ['mode', 'wan', 'ipmask', 'wifi', 'vpnsrv', 'show'];
+export const stepOrder: StepId[] = ['mode', 'wan', 'ipmask', 'wifi', 'vpnsrv'];
 
 export const stepTitles: Record<StepId, { title: string; description: string }> = {
   mode: { title: 'Choose', description: 'Setup type' },
@@ -135,5 +163,4 @@ export const stepTitles: Record<StepId, { title: string; description: string }> 
   ipmask: { title: 'IP-Mask', description: 'Starlink VPN client' },
   wifi: { title: 'WiFi', description: 'Wireless network' },
   vpnsrv: { title: 'VPN Server', description: 'Inbound VPN' },
-  show: { title: 'Show', description: 'Review & apply' },
 };

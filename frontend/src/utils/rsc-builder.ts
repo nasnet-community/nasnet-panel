@@ -44,11 +44,21 @@ export interface L2tpClientInput {
   server: string;
   username: string;
   password: string;
+  useIpsec: boolean;
   ipsecSecret: string;
   profile: string;
 }
 
-export type IpMaskInput = WireGuardClientInput | L2tpClientInput;
+export interface OpenVpnClientInput {
+  kind: 'openvpn';
+  server: string;
+  port: number;
+  username: string;
+  password: string;
+  cipher: string;
+}
+
+export type IpMaskInput = WireGuardClientInput | L2tpClientInput | OpenVpnClientInput;
 
 export interface VpnServerFirstUserInput {
   name: string;
@@ -148,8 +158,17 @@ export function buildEasyConfigScript(input: EasyConfigInput): string {
     out.push('');
   } else if (input.ipMask?.kind === 'l2tp') {
     out.push('/interface/l2tp-client');
+    const ipsec = input.ipMask.useIpsec
+      ? ` use-ipsec=yes ipsec-secret=${quote(input.ipMask.ipsecSecret)}`
+      : ' use-ipsec=no';
     out.push(
-      `add name=l2tp-starlink connect-to=${input.ipMask.server} user=${quote(input.ipMask.username)} password=${quote(input.ipMask.password)} profile=${input.ipMask.profile} disabled=no use-ipsec=yes ipsec-secret=${quote(input.ipMask.ipsecSecret)}`,
+      `add name=l2tp-starlink connect-to=${input.ipMask.server} user=${quote(input.ipMask.username)} password=${quote(input.ipMask.password)} disabled=no${ipsec}`,
+    );
+    out.push('');
+  } else if (input.ipMask?.kind === 'openvpn') {
+    out.push('/interface/ovpn-client');
+    out.push(
+      `add name=ovpn-starlink connect-to=${input.ipMask.server} port=${input.ipMask.port} user=${quote(input.ipMask.username)} password=${quote(input.ipMask.password)} cipher=${input.ipMask.cipher} auth=sha1 disabled=no`,
     );
     out.push('');
   }
