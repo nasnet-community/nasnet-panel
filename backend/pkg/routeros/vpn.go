@@ -915,7 +915,7 @@ func (c *Client) GetL2TPClientInfo(name string) (*L2TPClientInfo, error) {
 // The interface name will have "-client" suffix appended automatically.
 func (c *Client) CreateWireGuardInterface(config WireGuardClientConfig) (*WireGuardInfo, error) {
 	// Append "-client" suffix to interface name
-	interfaceName := config.Name + "-client"
+	interfaceName := config.Name
 
 	// Build add arguments
 	args := []string{"=name=" + interfaceName}

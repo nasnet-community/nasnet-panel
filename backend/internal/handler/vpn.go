@@ -822,7 +822,7 @@ func HandleCreateWireGuardClient(c echo.Context) error {
 	}
 
 	config := routeros.WireGuardClientConfig{ //nolint:misspell // pkg name is routeros not routers
-		Name:       req.Name,
+		Name:       req.Name + "-client",
 		PrivateKey: req.InterfacePrivateKey,
 		ListenPort: req.ListenPort,
 		MTU:        req.MTU,
@@ -892,6 +892,97 @@ func HandleCreateWireGuardClient(c echo.Context) error {
 	}
 
 	return SuccessResponse(c, http.StatusOK, "WireGuard client interface created successfully", response)
+}
+
+// HandleCreateWireGuardServer creates a new WireGuard server interface.
+// @Summary Create WireGuard Server Interface
+// @Description Create a new WireGuard server interface with the specified configuration
+// @Tags VPN
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Param body body CreateWireGuardServerRequest true "WireGuard server interface configuration"
+// @Produce json
+// @Success 200 {object} Response{data=WireGuardServerCreateResponse}
+// @Failure 400 {object} Response
+// @Failure 500 {object} Response
+// @Router /api/vpn/wireguard/server [post].
+func HandleCreateWireGuardServer(c echo.Context) error {
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	var req CreateWireGuardServerRequest
+	if err := c.Bind(&req); err != nil {
+		return ErrorResponse(c, http.StatusBadRequest, "Invalid request payload", err)
+	}
+
+	// Check existing addresses for validation
+	addresses, err := client.ListIPAddresses()
+	if err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to check existing addresses", err)
+	}
+
+	// Determine the local address
+	localAddress := req.LocalAddress
+	if localAddress == nil || *localAddress == "" {
+		// Auto-assign IP in format 10.100.x.1/24
+		assigned := false
+		for i := 1; i <= 254; i++ {
+			candidate := fmt.Sprintf("10.100.%d.1/24", i)
+			found := false
+			for _, addr := range addresses {
+				if addr.Address == candidate {
+					found = true
+					break
+				}
+			}
+			if !found {
+				localAddress = &candidate
+				assigned = true
+				break
+			}
+		}
+		if !assigned {
+			return ErrorResponse(c, http.StatusInternalServerError, "Failed to assign IP address", fmt.Errorf("no available IP addresses in 10.100.x.1/24 range"))
+		}
+	} else {
+		// Validate provided IP is not already in use
+		for _, addr := range addresses {
+			if addr.Address == *localAddress {
+				return ErrorResponse(c, http.StatusBadRequest, "IP address already exists", fmt.Errorf("address %s is already in use", *localAddress))
+			}
+		}
+	}
+
+	config := routeros.WireGuardClientConfig{ //nolint:misspell // pkg name is routeros not routers
+		Name:       req.Name + "-server",
+		PrivateKey: req.PrivateKey,
+		ListenPort: req.ListenPort,
+		MTU:        req.MTU,
+		Disabled:   req.Disabled,
+		Comment:    req.Comment,
+	}
+
+	wireguard, err := client.CreateWireGuardInterface(config)
+	if err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to create WireGuard server interface", err)
+	}
+
+	// Add IP address to the interface
+	ipConfig := routeros.IPAddressConfig{ //nolint:misspell // routeros is the package name
+		Interface: wireguard.Name,
+		Address:   *localAddress,
+		Disabled:  false,
+	}
+
+	if _, err := client.AddIPAddress(ipConfig); err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to add IP address to interface", err)
+	}
+
+	response := ToWireGuardServerCreateResponse(wireguard)
+	response.LocalAddress = *localAddress
+	return SuccessResponse(c, http.StatusOK, "WireGuard server interface created successfully", response)
 }
 
 // HandleUpdateWireGuardInterface updates a WireGuard interface.
