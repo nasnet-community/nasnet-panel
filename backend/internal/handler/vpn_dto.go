@@ -492,6 +492,7 @@ type CreateWireGuardServerPeerRequest struct {
 	PublicKey           *string `json:"publicKey" example:"wV8gHkfwQ3z3YTSQ1byU2uygaLdu8twzugKFoHVofXs="`
 	PreSharedKey        *string `json:"preSharedKey" example:"qWbXwZgTbDGt66iCUtRHAtGju6w/Oyw3FLk/OPa+U1Y="`
 	PersistentKeepalive *int    `json:"persistentKeepalive" example:"25"`
+	SavePrivateKey      *bool   `json:"savePrivateKey" example:"false"`
 	Disabled            *bool   `json:"disabled" example:"false"`
 }
 

@@ -210,6 +210,7 @@ type WireGuardPeerConfig struct {
 	AllowedAddresses    []string
 	PresharedKey        *string
 	PersistentKeepalive *int
+	SavePrivateKey      bool
 }
 
 // WireGuardPeerInfo represents a WireGuard peer configuration.
@@ -978,6 +979,10 @@ func (c *Client) AddWireGuardPeer(config WireGuardPeerConfig) (string, error) {
 
 	if config.PersistentKeepalive != nil && *config.PersistentKeepalive > 0 {
 		args = append(args, "=persistent-keepalive="+strconv.Itoa(*config.PersistentKeepalive))
+	}
+
+	if config.SavePrivateKey && config.PrivateKey != nil && *config.PrivateKey != "" {
+		args = append(args, "=private-key="+*config.PrivateKey)
 	}
 
 	id, err := c.Add("/interface/wireguard/peers", args...)
