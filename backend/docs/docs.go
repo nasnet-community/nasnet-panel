@@ -2631,6 +2631,86 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/vpn/wireguard/server/{interfaceName}/peer": {
+            "post": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Add a new peer to an existing WireGuard server interface with auto-generated keys",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "VPN"
+                ],
+                "summary": "Create WireGuard Server Peer",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "WireGuard server interface name",
+                        "name": "interfaceName",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Peer configuration",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.CreateWireGuardServerPeerRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handler.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/handler.WireGuardServerPeerCreateResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/api/wifi/clients": {
             "get": {
                 "security": [
@@ -3336,6 +3416,52 @@ const docTemplate = `{
                 "presharedKey": {
                     "type": "string",
                     "example": "HIgo9xNzJMu..."
+                }
+            }
+        },
+        "handler.CreateWireGuardServerPeerRequest": {
+            "type": "object",
+            "required": [
+                "allowedAddresses",
+                "endpointAddress",
+                "endpointPort"
+            ],
+            "properties": {
+                "allowedAddresses": {
+                    "type": "string",
+                    "example": "192.168.1.0/24"
+                },
+                "disabled": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "endpointAddress": {
+                    "type": "string",
+                    "example": "203.0.113.50"
+                },
+                "endpointPort": {
+                    "type": "integer",
+                    "example": 51820
+                },
+                "name": {
+                    "type": "string",
+                    "example": "office-peer-1"
+                },
+                "persistentKeepalive": {
+                    "type": "integer",
+                    "example": 25
+                },
+                "preSharedKey": {
+                    "type": "string",
+                    "example": "qWbXwZgTbDGt66iCUtRHAtGju6w/Oyw3FLk/OPa+U1Y="
+                },
+                "privateKey": {
+                    "type": "string",
+                    "example": "KIEp5mJ2Llk..."
+                },
+                "publicKey": {
+                    "type": "string",
+                    "example": "wV8gHkfwQ3z3YTSQ1byU2uygaLdu8twzugKFoHVofXs="
                 }
             }
         },
@@ -4313,6 +4439,41 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "name": {
+                    "type": "string"
+                },
+                "privateKey": {
+                    "type": "string"
+                },
+                "publicKey": {
+                    "type": "string"
+                }
+            }
+        },
+        "handler.WireGuardServerPeerCreateResponse": {
+            "type": "object",
+            "properties": {
+                "allowedAddresses": {
+                    "type": "string"
+                },
+                "disabled": {
+                    "type": "boolean"
+                },
+                "endpointAddress": {
+                    "type": "string"
+                },
+                "endpointPort": {
+                    "type": "integer"
+                },
+                "interfaceName": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "persistentKeepalive": {
+                    "type": "integer"
+                },
+                "preSharedKey": {
                     "type": "string"
                 },
                 "privateKey": {
