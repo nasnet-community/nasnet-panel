@@ -15,15 +15,20 @@ test.describe('Easy-Mode wizard — VPN server step', () => {
     await page.getByRole('option', { name: 'ether1' }).click();
     await page.getByRole('button', { name: /^next$/i }).click();
 
-    // Step 3 — IP-Mask (L2TP default)
-    await page.getByLabel(/^server$/i).fill('l2tp.example.com');
-    await page.getByLabel(/^username$/i).fill('road-warrior');
-    await page.getByLabel(/^password$/i).fill('warrior-secret');
+    // Step 3 — IP-Mask (WireGuard is default)
+    await page.getByLabel(/wireguard configuration/i).fill(`[Interface]
+PrivateKey = 4AjT3jhk6L8h3GVe7Mw3lP3xQK4n5cL2yR6f8tWvX1c=
+Address = 10.0.0.2/32
+
+[Peer]
+PublicKey = AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
+Endpoint = mask.example.com:51820
+AllowedIPs = 0.0.0.0/0`);
     await page.getByRole('button', { name: /^next$/i }).click();
 
     // Step 4 — WiFi
-    await page.getByLabel(/^ssid$/i).fill('SrvNet');
-    await page.getByLabel(/^password$/i).fill('longpassword');
+    await page.getByLabel(/^2\.4 GHz SSID$/i).fill('SrvNet');
+    await page.getByLabel(/^2\.4 GHz password$/i).fill('longpassword');
     await page.getByRole('button', { name: /^next$/i }).click();
 
     // Step 5 — VPN Server

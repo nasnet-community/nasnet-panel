@@ -23,12 +23,12 @@ const TILES: TileConfig[] = [
     icon: <Wifi size={22} strokeWidth={1.75} />,
     available: true,
   },
-  { type: 'sfp', label: 'SFP', icon: <Radio size={22} strokeWidth={1.75} />, available: false },
+  { type: 'sfp', label: 'SFP', icon: <Radio size={22} strokeWidth={1.75} />, available: true },
   {
     type: 'lte',
     label: 'LTE',
     icon: <Smartphone size={22} strokeWidth={1.75} />,
-    available: false,
+    available: true,
   },
 ];
 

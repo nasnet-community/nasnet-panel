@@ -21,24 +21,24 @@ import {
 import wizardStyles from '../../EasyConfigWizard.module.scss';
 import type { Action, State } from '../state';
 import { IpMaskL2tpFields } from './ipmask/IpMaskL2tpFields';
-import { IpMaskOpenVpnFields } from './ipmask/IpMaskOpenVpnFields';
+import { IpMaskWireguardConfig } from './ipmask/IpMaskWireguardConfig';
 import { ProtocolTilePicker, type ProtocolTile } from './components/ProtocolTilePicker';
 
 type IpMaskKind = State['ipMaskKind'];
 
 const TILES: Array<ProtocolTile<IpMaskKind>> = [
   {
+    value: 'wireguard',
+    label: 'WireGuard',
+    description: 'Fast, modern VPN with state-of-the-art cryptography.',
+    icon: <Shield size={20} strokeWidth={1.75} />,
+    recommended: true,
+  },
+  {
     value: 'l2tp',
     label: 'L2TP',
     description: 'Widely supported protocol with IPsec encryption.',
     icon: <Globe size={20} strokeWidth={1.75} />,
-    recommended: true,
-  },
-  {
-    value: 'openvpn',
-    label: 'OpenVPN',
-    description: 'Battle-tested, broad client support.',
-    icon: <Shield size={20} strokeWidth={1.75} />,
   },
 ];
 
@@ -51,7 +51,7 @@ interface Props {
 function vpnBadge(kind: State['ipMaskKind']) {
   return {
     icon: <Lock size={12} strokeWidth={2.5} />,
-    label: kind === 'l2tp' ? 'L2TP' : 'OpenVPN',
+    label: kind === 'wireguard' ? 'WireGuard' : 'L2TP',
   };
 }
 
@@ -94,17 +94,16 @@ export function IpMaskStep({ state, dispatch, footer }: Props) {
       </CardHeader>
       <div className={wizardStyles.modeLayout}>
         <Stack>
-          {/* <HyperSpeedPromoCard /> */}
           <ProtocolTilePicker
             ariaLabel="IP-mask protocol"
             value={state.ipMaskKind}
             tiles={TILES}
             onChange={(next) => dispatch({ type: 'setField', field: 'ipMaskKind', value: next })}
           />
-          {state.ipMaskKind === 'l2tp' ? (
-            <IpMaskL2tpFields state={state} dispatch={dispatch} />
+          {state.ipMaskKind === 'wireguard' ? (
+            <IpMaskWireguardConfig state={state} dispatch={dispatch} />
           ) : (
-            <IpMaskOpenVpnFields state={state} dispatch={dispatch} />
+            <IpMaskL2tpFields state={state} dispatch={dispatch} />
           )}
           {footer}
         </Stack>

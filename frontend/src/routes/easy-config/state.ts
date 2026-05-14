@@ -7,6 +7,10 @@ export interface State {
   mode: Mode | null;
   starlinkInterfaceType: InterfaceType;
   domesticInterfaceType: InterfaceType;
+  starlinkWanSsid: string;
+  starlinkWanPassword: string;
+  domesticWanSsid: string;
+  domesticWanPassword: string;
   starlinkInterface: string;
   domesticInterface: string;
   domesticMode: 'dhcp' | 'static' | 'pppoe';
@@ -15,18 +19,22 @@ export interface State {
   staticIp: string;
   staticGateway: string;
   staticDns: string;
-  wifiEnabled: boolean;
   wifiInterface: string;
+  wifi24Enabled: boolean;
+  wifi5Enabled: boolean;
+  wifi6Enabled: boolean;
   ssid: string;
   wifiPassword: string;
   ssid5: string;
   wifiPassword5: string;
-  splitBands: boolean;
+  ssid6: string;
+  wifiPassword6: string;
   security: 'WPA2-PSK' | 'WPA3-PSK';
   band: '2.4ghz' | '5ghz';
   countryCode: string;
   ipMaskEnabled: boolean;
-  ipMaskKind: 'l2tp' | 'openvpn';
+  ipMaskKind: 'wireguard' | 'l2tp';
+  wgConfig: string;
   wgEndpoint: string;
   wgEndpointPort: string;
   wgPeerPublicKey: string;
@@ -41,11 +49,6 @@ export interface State {
   l2tpUseIpsec: boolean;
   l2tpIpsecSecret: string;
   l2tpProfile: string;
-  ovpnServer: string;
-  ovpnPort: string;
-  ovpnUsername: string;
-  ovpnPassword: string;
-  ovpnCipher: string;
   vpnServerEnabled: boolean;
   vpnServerProtocol: VpnServerProtocol;
   vpnServerPort: string;
@@ -64,6 +67,10 @@ export const initial: State = {
   mode: 'dual-link',
   starlinkInterfaceType: 'ethernet',
   domesticInterfaceType: 'ethernet',
+  starlinkWanSsid: '',
+  starlinkWanPassword: '',
+  domesticWanSsid: '',
+  domesticWanPassword: '',
   starlinkInterface: '',
   domesticInterface: '',
   domesticMode: 'dhcp',
@@ -72,18 +79,22 @@ export const initial: State = {
   staticIp: '',
   staticGateway: '',
   staticDns: '',
-  wifiEnabled: true,
   wifiInterface: '',
+  wifi24Enabled: true,
+  wifi5Enabled: false,
+  wifi6Enabled: false,
   ssid: '',
   wifiPassword: '',
   ssid5: '',
   wifiPassword5: '',
-  splitBands: false,
+  ssid6: '',
+  wifiPassword6: '',
   security: 'WPA2-PSK',
   band: '5ghz',
   countryCode: 'US',
   ipMaskEnabled: true,
-  ipMaskKind: 'l2tp',
+  ipMaskKind: 'wireguard',
+  wgConfig: '',
   wgEndpoint: '',
   wgEndpointPort: '51820',
   wgPeerPublicKey: '',
@@ -98,11 +109,6 @@ export const initial: State = {
   l2tpUseIpsec: false,
   l2tpIpsecSecret: '',
   l2tpProfile: 'default-encryption',
-  ovpnServer: '',
-  ovpnPort: '1194',
-  ovpnUsername: '',
-  ovpnPassword: '',
-  ovpnCipher: 'aes256-cbc',
   vpnServerEnabled: false,
   vpnServerProtocol: 'openvpn',
   vpnServerPort: '51820',

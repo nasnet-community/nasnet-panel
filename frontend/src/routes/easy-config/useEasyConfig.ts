@@ -29,13 +29,23 @@ function buildScript(state: State): string {
       security: state.security,
       band: state.band,
       countryCode: state.countryCode,
-      splitBands: state.splitBands,
-      band24: { ssid: state.ssid, password: state.wifiPassword },
-      band5: { ssid: state.ssid5, password: state.wifiPassword5 },
+      splitBands: state.wifi24Enabled && state.wifi5Enabled,
+      band24: state.wifi24Enabled ? { ssid: state.ssid, password: state.wifiPassword } : undefined,
+      band5: state.wifi5Enabled ? { ssid: state.ssid5, password: state.wifiPassword5 } : undefined,
     },
     ipMask: state.ipMaskEnabled
-      ? state.ipMaskKind === 'l2tp'
+      ? state.ipMaskKind === 'wireguard'
         ? {
+            kind: 'wireguard',
+            endpoint: state.wgEndpoint,
+            endpointPort: Number(state.wgEndpointPort) || 51820,
+            peerPublicKey: state.wgPeerPublicKey,
+            privateKey: state.wgPrivateKey,
+            allowedIps: state.wgAllowedIps,
+            persistentKeepalive: Number(state.wgKeepalive) || 25,
+            mtu: Number(state.wgMtu) || 1420,
+          }
+        : {
             kind: 'l2tp',
             server: state.l2tpServer,
             username: state.l2tpUsername,
@@ -43,14 +53,6 @@ function buildScript(state: State): string {
             useIpsec: state.l2tpUseIpsec,
             ipsecSecret: state.l2tpIpsecSecret,
             profile: state.l2tpProfile,
-          }
-        : {
-            kind: 'openvpn',
-            server: state.ovpnServer,
-            port: Number(state.ovpnPort) || 1194,
-            username: state.ovpnUsername,
-            password: state.ovpnPassword,
-            cipher: state.ovpnCipher,
           }
       : undefined,
     vpnServer: state.vpnServerEnabled

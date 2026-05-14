@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { EthernetPort, Laptop, SatelliteDish, Server, Wifi } from 'lucide-react';
+import { EthernetPort, Laptop, Radio, SatelliteDish, Server, Smartphone, Wifi } from 'lucide-react';
 import {
   Card,
   CardDescription,
@@ -17,6 +17,8 @@ import wizardStyles from '../../EasyConfigWizard.module.scss';
 import type { InterfaceResponse } from '../../../api';
 import type { Action, InterfaceType, State } from '../state';
 import { InterfaceTypePicker } from './components/InterfaceTypePicker';
+import { Collapsible } from './components/Collapsible';
+import { WanWirelessFields } from './wan/WanWirelessFields';
 
 interface Props {
   state: State;
@@ -27,6 +29,8 @@ interface Props {
 
 function interfaceIcon(type: InterfaceType): React.ReactNode {
   if (type === 'wireless') return <Wifi size={12} strokeWidth={2} />;
+  if (type === 'sfp') return <Radio size={12} strokeWidth={2} />;
+  if (type === 'lte') return <Smartphone size={12} strokeWidth={2} />;
   return <EthernetPort size={12} strokeWidth={2} />;
 }
 
@@ -46,11 +50,22 @@ function starlinkFlowNodes(starlinkInterface: string | undefined, type: Interfac
   ];
 }
 
-const FIXED_WIRELESS = ['Wifi2.4', 'Wifi5'];
+const FIXED_WIRELESS = ['Wifi2.4', 'Wifi5', 'Wifi6'];
+const FIXED_SFP = ['sfp1', 'sfp-sfpplus1'];
+const FIXED_LTE = ['lte1'];
 
 function interfaceNames(list: InterfaceResponse[], type: InterfaceType): string[] {
   if (type === 'wireless') return FIXED_WIRELESS;
+  if (type === 'sfp') return FIXED_SFP;
+  if (type === 'lte') return FIXED_LTE;
   return list.filter((i) => i.type === 'ether').map((i) => i.name);
+}
+
+function interfaceLabel(type: InterfaceType): string {
+  if (type === 'wireless') return 'Wireless interface';
+  if (type === 'sfp') return 'SFP interface';
+  if (type === 'lte') return 'LTE interface';
+  return 'Ethernet interface';
 }
 
 function ifaceOptions(list: InterfaceResponse[], type: InterfaceType, exclude?: string) {
@@ -96,11 +111,7 @@ export function WanStep({ state, dispatch, interfaces, footer }: Props) {
               />
               <FieldRow>
                 <Label>
-                  <span>
-                    {state.starlinkInterfaceType === 'wireless'
-                      ? 'Wireless interface'
-                      : 'Ethernet interface'}
-                  </span>
+                  <span>{interfaceLabel(state.starlinkInterfaceType)}</span>
                   <Select
                     aria-label="Starlink WAN"
                     value={state.starlinkInterface}
@@ -111,6 +122,15 @@ export function WanStep({ state, dispatch, interfaces, footer }: Props) {
                   />
                 </Label>
               </FieldRow>
+              <Collapsible open={state.starlinkInterfaceType === 'wireless'}>
+                <WanWirelessFields
+                  state={state}
+                  dispatch={dispatch}
+                  ssidField="starlinkWanSsid"
+                  passwordField="starlinkWanPassword"
+                  label="Starlink wireless"
+                />
+              </Collapsible>
             </Stack>
           </section>
 
@@ -127,11 +147,7 @@ export function WanStep({ state, dispatch, interfaces, footer }: Props) {
                 />
                 <FieldRow>
                   <Label>
-                    <span>
-                      {state.domesticInterfaceType === 'wireless'
-                        ? 'Wireless interface'
-                        : 'Ethernet interface'}
-                    </span>
+                    <span>{interfaceLabel(state.domesticInterfaceType)}</span>
                     <Select
                       aria-label="Domestic WAN"
                       value={state.domesticInterface}
@@ -142,6 +158,15 @@ export function WanStep({ state, dispatch, interfaces, footer }: Props) {
                     />
                   </Label>
                 </FieldRow>
+                <Collapsible open={state.domesticInterfaceType === 'wireless'}>
+                  <WanWirelessFields
+                    state={state}
+                    dispatch={dispatch}
+                    ssidField="domesticWanSsid"
+                    passwordField="domesticWanPassword"
+                    label="Domestic wireless"
+                  />
+                </Collapsible>
               </Stack>
             </section>
           ) : null}

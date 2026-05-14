@@ -5,10 +5,7 @@ interface Props {
   username: string;
 }
 
-const VARIANTS: Array<{ proto: 'TCP' | 'UDP'; suffix: string }> = [
-  { proto: 'TCP', suffix: 'ovpn-tcp' },
-  { proto: 'UDP', suffix: 'ovpn-udp' },
-];
+const VARIANTS: Array<{ proto: 'TCP'; suffix: string }> = [{ proto: 'TCP', suffix: 'ovpn-tcp' }];
 
 export function CertPreview({ username }: Props) {
   const name = username.trim() || 'YourUsername';
