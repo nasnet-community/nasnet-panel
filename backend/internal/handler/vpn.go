@@ -1222,3 +1222,140 @@ func HandleGetWireGuardPeers(c echo.Context) error {
 
 	return SuccessResponse(c, http.StatusOK, "WireGuard peers retrieved successfully", response)
 }
+
+// HandleCreateWireGuardServerPeer creates a new peer on a WireGuard server interface.
+// @Summary Create WireGuard Server Peer
+// @Description Add a new peer to an existing WireGuard server interface with auto-generated keys
+// @Tags VPN
+// @Security BasicAuth
+// @Param X-RouterOS-Host header string true "RouterOS host address"
+// @Param interfaceName path string true "WireGuard server interface name"
+// @Param body body CreateWireGuardServerPeerRequest true "Peer configuration"
+// @Produce json
+// @Success 200 {object} Response{data=WireGuardServerPeerCreateResponse}
+// @Failure 400 {object} Response
+// @Failure 404 {object} Response
+// @Failure 500 {object} Response
+// @Router /api/vpn/wireguard/server/{interfaceName}/peer [post].
+func HandleCreateWireGuardServerPeer(c echo.Context) error {
+	client, err := GetRouterOSClient(c)
+	if err != nil {
+		return err
+	}
+
+	interfaceName := c.Param("interfaceName")
+	if interfaceName == "" {
+		return ErrorResponse(c, http.StatusBadRequest, "WireGuard interface name is required", nil)
+	}
+
+	var req CreateWireGuardServerPeerRequest
+	if err := c.Bind(&req); err != nil {
+		return ErrorResponse(c, http.StatusBadRequest, "Invalid request payload", err)
+	}
+
+	// Verify the WireGuard interface exists
+	_, err = client.GetWireGuard(interfaceName) //nolint:misspell // pkg name is routeros not routers
+	if err != nil {
+		return ErrorResponse(c, http.StatusNotFound, "WireGuard interface not found", err)
+	}
+
+	// Get existing peers to determine the next peer number
+	peers, err := client.GetWireGuardPeers(interfaceName) //nolint:misspell // pkg name is routeros not routers
+	if err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to retrieve existing peers", err)
+	}
+
+	// Determine peer name
+	var peerName string
+	if req.Name != nil && *req.Name != "" {
+		peerName = *req.Name
+	} else {
+		peerNumber := len(peers) + 1
+		peerName = fmt.Sprintf("%s-peer-%d", interfaceName, peerNumber)
+	}
+
+	// Determine private key
+	var privateKey string
+	if req.PrivateKey != nil && *req.PrivateKey != "" {
+		privateKey = *req.PrivateKey
+	} else if req.PublicKey == nil || *req.PublicKey == "" {
+		// Only generate private key if public key is not supplied
+		var err error
+		privateKey, err = utils.GenerateWireGuardPrivateKey()
+		if err != nil {
+			return ErrorResponse(c, http.StatusInternalServerError, "Failed to generate private key", err)
+		}
+	}
+	// If public key is supplied but private key is not, leave private key empty
+
+	// Determine public key
+	var publicKey string
+	if req.PublicKey != nil && *req.PublicKey != "" {
+		publicKey = *req.PublicKey
+	} else if privateKey != "" {
+		// Only generate public key if private key is available
+		var err error
+		publicKey, err = utils.GenerateWireGuardPublicKey(privateKey)
+		if err != nil {
+			return ErrorResponse(c, http.StatusInternalServerError, "Failed to generate public key", err)
+		}
+	}
+
+	// Determine preshared key
+	var preSharedKey *string
+	if req.PreSharedKey != nil {
+		// If preshared key is explicitly provided (even empty string), use it as is
+		preSharedKey = req.PreSharedKey
+	} else {
+		// Generate preshared key if not provided
+		generated, err := utils.GenerateWireGuardPrivateKey()
+		if err != nil {
+			return ErrorResponse(c, http.StatusInternalServerError, "Failed to generate preshared key", err)
+		}
+		preSharedKey = &generated
+	}
+
+	// Parse allowed addresses
+	allowedAddrs := []string{req.AllowedAddresses}
+
+	config := routeros.WireGuardPeerConfig{ //nolint:misspell // pkg name is routeros not routers
+		InterfaceName:       interfaceName,
+		PeerName:            peerName,
+		PrivateKey:          &privateKey,
+		PublicKey:           &publicKey,
+		EndpointAddress:     req.EndpointAddress,
+		EndpointPort:        req.EndpointPort,
+		AllowedAddresses:    allowedAddrs,
+		PresharedKey:        preSharedKey,
+		PersistentKeepalive: req.PersistentKeepalive,
+	}
+
+	_, err = client.AddWireGuardPeer(config)
+	if err != nil {
+		return ErrorResponse(c, http.StatusInternalServerError, "Failed to create peer", err)
+	}
+
+	// Determine response values
+	var preSharedKeyResponse string
+	if preSharedKey != nil {
+		preSharedKeyResponse = *preSharedKey
+	}
+
+	response := WireGuardServerPeerCreateResponse{
+		Name:             peerName,
+		InterfaceName:    interfaceName,
+		PublicKey:        publicKey,
+		PrivateKey:       privateKey,
+		PreSharedKey:     preSharedKeyResponse,
+		EndpointAddress:  req.EndpointAddress,
+		EndpointPort:     req.EndpointPort,
+		AllowedAddresses: req.AllowedAddresses,
+		Disabled:         false,
+	}
+
+	if req.PersistentKeepalive != nil {
+		response.PersistentKeepalive = *req.PersistentKeepalive
+	}
+
+	return SuccessResponse(c, http.StatusOK, "WireGuard server peer created successfully", response)
+}

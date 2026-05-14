@@ -80,6 +80,7 @@ func RegisterRoutes(e *echo.Echo) {
 	vpnGroup.GET("/sstp/server", handler.HandleGetSstpServerDetails)
 	vpnGroup.POST("/wireguard/client", handler.HandleCreateWireGuardClient)
 	vpnGroup.POST("/wireguard/server", handler.HandleCreateWireGuardServer)
+	vpnGroup.POST("/wireguard/server/:interfaceName/peer", handler.HandleCreateWireGuardServerPeer)
 	vpnGroup.PUT("/wireguard/interface/:name", handler.HandleUpdateWireGuardInterface)
 	vpnGroup.PUT("/wireguard/peer/:nameOrID", handler.HandleUpdateWireGuardPeer)
 	vpnGroup.GET("/wireguard/detailed/:name", handler.HandleGetWireGuardDetailed)
