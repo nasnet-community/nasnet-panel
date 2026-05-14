@@ -3462,6 +3462,10 @@ const docTemplate = `{
                 "publicKey": {
                     "type": "string",
                     "example": "wV8gHkfwQ3z3YTSQ1byU2uygaLdu8twzugKFoHVofXs="
+                },
+                "savePrivateKey": {
+                    "type": "boolean",
+                    "example": false
                 }
             }
         },
