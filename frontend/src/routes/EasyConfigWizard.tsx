@@ -87,9 +87,7 @@ export function EasyConfigWizard() {
       case 'ipmask':
         return <IpMaskStep state={state} dispatch={dispatch} footer={footer} />;
       case 'wifi':
-        return (
-          <WifiStep state={state} dispatch={dispatch} interfaces={interfaces} footer={footer} />
-        );
+        return <WifiStep state={state} dispatch={dispatch} footer={footer} />;
       case 'vpnsrv':
         return <VpnServerStep state={state} dispatch={dispatch} footer={footer} />;
       default:

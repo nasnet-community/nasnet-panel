@@ -13,7 +13,6 @@ import {
   Switch,
 } from '@nasnet/ui';
 import wizardStyles from '../../EasyConfigWizard.module.scss';
-import type { InterfaceResponse } from '../../../api';
 import type { Action, State } from '../state';
 import { generatePassword, generateSsid } from './wifi/generate';
 import { GenerateButton } from './wifi/GenerateButton';
@@ -23,7 +22,6 @@ import { Collapsible } from './components/Collapsible';
 interface Props {
   state: State;
   dispatch: React.Dispatch<Action>;
-  interfaces: InterfaceResponse[];
   footer?: React.ReactNode;
 }
 
