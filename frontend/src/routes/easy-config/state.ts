@@ -7,10 +7,6 @@ export interface State {
   mode: Mode | null;
   starlinkInterfaceType: InterfaceType;
   domesticInterfaceType: InterfaceType;
-  starlinkWanSsid: string;
-  starlinkWanPassword: string;
-  domesticWanSsid: string;
-  domesticWanPassword: string;
   starlinkInterface: string;
   domesticInterface: string;
   domesticMode: 'dhcp' | 'static' | 'pppoe';
@@ -68,10 +64,6 @@ export const initial: State = {
   mode: 'dual-link',
   starlinkInterfaceType: 'ethernet',
   domesticInterfaceType: 'ethernet',
-  starlinkWanSsid: '',
-  starlinkWanPassword: '',
-  domesticWanSsid: '',
-  domesticWanPassword: '',
   starlinkInterface: '',
   domesticInterface: '',
   domesticMode: 'dhcp',

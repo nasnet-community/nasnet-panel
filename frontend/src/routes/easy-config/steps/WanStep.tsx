@@ -9,15 +9,13 @@ import {
   FieldRow,
   FlowDiagram,
   Label,
-  Select,
   SectionHeading,
+  Select,
   Stack,
 } from '@nasnet/ui';
 import wizardStyles from '../../EasyConfigWizard.module.scss';
 import type { InterfaceResponse } from '../../../api';
 import type { Action, InterfaceType, State } from '../state';
-import { WanWirelessFields } from './wan/WanWirelessFields';
-import { Collapsible } from './components/Collapsible';
 import { InterfaceTypePicker } from './components/InterfaceTypePicker';
 
 interface Props {
@@ -113,15 +111,6 @@ export function WanStep({ state, dispatch, interfaces, footer }: Props) {
                   />
                 </Label>
               </FieldRow>
-              <Collapsible open={state.starlinkInterfaceType === 'wireless'}>
-                <WanWirelessFields
-                  state={state}
-                  dispatch={dispatch}
-                  ssidField="starlinkWanSsid"
-                  passwordField="starlinkWanPassword"
-                  label="Wireless settings"
-                />
-              </Collapsible>
             </Stack>
           </section>
 
@@ -153,16 +142,6 @@ export function WanStep({ state, dispatch, interfaces, footer }: Props) {
                     />
                   </Label>
                 </FieldRow>
-                <Collapsible open={state.domesticInterfaceType === 'wireless'}>
-                  <WanWirelessFields
-                    state={state}
-                    dispatch={dispatch}
-                    ssidField="domesticWanSsid"
-                    passwordField="domesticWanPassword"
-                    label="Wireless settings"
-                  />
-                </Collapsible>
-                {/* <DomesticSection state={state} dispatch={dispatch} /> */}
               </Stack>
             </section>
           ) : null}

@@ -1,6 +1,5 @@
 import React, { useMemo } from 'react';
 import {
-  Button,
   Card,
   CardDescription,
   CardHeader,
@@ -13,11 +12,11 @@ import {
   Stack,
   Switch,
 } from '@nasnet/ui';
-import { Sparkles } from 'lucide-react';
 import wizardStyles from '../../EasyConfigWizard.module.scss';
 import type { InterfaceResponse } from '../../../api';
 import type { Action, State } from '../state';
 import { generatePassword, generateSsid } from './wifi/generate';
+import { GenerateButton } from './wifi/GenerateButton';
 import { WirelessPreview } from './wifi/WirelessPreview';
 import { Collapsible } from './components/Collapsible';
 
@@ -116,17 +115,12 @@ export function WifiStep({ state, dispatch, interfaces, footer }: Props) {
                       aria-label={effectiveSplit ? '2.4 GHz SSID' : 'SSID'}
                       style={{ flex: 1 }}
                     />
-                    <Button
-                      type="button"
-                      variant="secondary"
+                    <GenerateButton
+                      ariaLabel="Generate SSID"
                       onClick={() =>
                         dispatch({ type: 'setField', field: 'ssid', value: generateSsid() })
                       }
-                      aria-label="Generate SSID"
-                      title="Generate SSID"
-                    >
-                      <Sparkles size={14} strokeWidth={2} />
-                    </Button>
+                    />
                   </div>
                 </Label>
               </FieldRow>
@@ -140,9 +134,8 @@ export function WifiStep({ state, dispatch, interfaces, footer }: Props) {
                       aria-label={effectiveSplit ? '2.4 GHz password' : 'Password'}
                       style={{ flex: 1 }}
                     />
-                    <Button
-                      type="button"
-                      variant="secondary"
+                    <GenerateButton
+                      ariaLabel="Generate password"
                       onClick={() =>
                         dispatch({
                           type: 'setField',
@@ -150,11 +143,7 @@ export function WifiStep({ state, dispatch, interfaces, footer }: Props) {
                           value: generatePassword(),
                         })
                       }
-                      aria-label="Generate password"
-                      title="Generate password"
-                    >
-                      <Sparkles size={14} strokeWidth={2} />
-                    </Button>
+                    />
                   </div>
                 </Label>
               </FieldRow>
@@ -171,17 +160,12 @@ export function WifiStep({ state, dispatch, interfaces, footer }: Props) {
                           aria-label="5 GHz SSID"
                           style={{ flex: 1 }}
                         />
-                        <Button
-                          type="button"
-                          variant="secondary"
+                        <GenerateButton
+                          ariaLabel="Generate 5 GHz SSID"
                           onClick={() =>
                             dispatch({ type: 'setField', field: 'ssid5', value: generateSsid() })
                           }
-                          aria-label="Generate 5 GHz SSID"
-                          title="Generate SSID"
-                        >
-                          <Sparkles size={14} strokeWidth={2} />
-                        </Button>
+                        />
                       </div>
                     </Label>
                   </FieldRow>
@@ -195,9 +179,8 @@ export function WifiStep({ state, dispatch, interfaces, footer }: Props) {
                           aria-label="5 GHz password"
                           style={{ flex: 1 }}
                         />
-                        <Button
-                          type="button"
-                          variant="secondary"
+                        <GenerateButton
+                          ariaLabel="Generate 5 GHz password"
                           onClick={() =>
                             dispatch({
                               type: 'setField',
@@ -205,11 +188,7 @@ export function WifiStep({ state, dispatch, interfaces, footer }: Props) {
                               value: generatePassword(),
                             })
                           }
-                          aria-label="Generate 5 GHz password"
-                          title="Generate password"
-                        >
-                          <Sparkles size={14} strokeWidth={2} />
-                        </Button>
+                        />
                       </div>
                     </Label>
                   </FieldRow>

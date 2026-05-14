@@ -15,20 +15,8 @@ export function canAdvance(state: State): string | null {
       return state.mode ? null : 'Pick a mode to continue.';
     case 'wan':
       if (!isRequired(state.starlinkInterface)) return 'Select the Starlink interface.';
-      if (state.starlinkInterfaceType === 'wireless') {
-        if (!isRequired(state.starlinkWanSsid)) return 'Starlink wireless SSID is required.';
-        if (state.starlinkWanPassword.length < 8) {
-          return 'Starlink wireless password must be at least 8 characters.';
-        }
-      }
       if (state.mode === 'dual-link') {
         if (!isRequired(state.domesticInterface)) return 'Select the domestic interface.';
-        if (state.domesticInterfaceType === 'wireless') {
-          if (!isRequired(state.domesticWanSsid)) return 'Domestic wireless SSID is required.';
-          if (state.domesticWanPassword.length < 8) {
-            return 'Domestic wireless password must be at least 8 characters.';
-          }
-        }
         if (state.domesticMode === 'pppoe') {
           if (!isRequired(state.pppoeUser) || !isRequired(state.pppoePassword)) {
             return 'PPPoE credentials are required.';

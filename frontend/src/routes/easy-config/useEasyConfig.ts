@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useMemo, useReducer, useState } from 'react';
-import { useToast } from '@nasnet/ui';
 import { api, fetchInterfaces, type InterfaceResponse } from '../../api';
 import { useSession } from '../../state/SessionContext';
 import { useRouter } from '../../state/RouterStoreContext';
@@ -71,7 +70,6 @@ function buildScript(state: State): string {
 }
 
 export function useEasyConfig(routerId: string | undefined) {
-  const toast = useToast();
   const { getCredentials } = useSession();
   const router = useRouter(routerId);
   const [state, dispatch] = useReducer(reducer, initial);
@@ -130,18 +128,13 @@ export function useEasyConfig(routerId: string | undefined) {
         if (result.status !== 'ok') {
           throw new Error(result.errors?.[0]?.message ?? 'Apply failed');
         }
-        toast.notify({
-          title: 'Configuration applied',
-          description: `${result.appliedLines} lines applied`,
-          tone: 'success',
-        });
         dispatch({ type: 'applied' });
       } catch (err) {
         dispatch({ type: 'error', message: (err as Error).message ?? 'Apply failed' });
         dispatch({ type: 'applying', value: false });
       }
     },
-    [script, toast],
+    [script],
   );
 
   const goNext = () => {
