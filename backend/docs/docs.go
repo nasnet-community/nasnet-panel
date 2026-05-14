@@ -2564,6 +2564,73 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/vpn/wireguard/server": {
+            "post": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "Create a new WireGuard server interface with the specified configuration",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "VPN"
+                ],
+                "summary": "Create WireGuard Server Interface",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RouterOS host address",
+                        "name": "X-RouterOS-Host",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "WireGuard server interface configuration",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.CreateWireGuardServerRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/handler.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/handler.WireGuardServerCreateResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/api/wifi/clients": {
             "get": {
                 "security": [
@@ -3269,6 +3336,42 @@ const docTemplate = `{
                 "presharedKey": {
                     "type": "string",
                     "example": "HIgo9xNzJMu..."
+                }
+            }
+        },
+        "handler.CreateWireGuardServerRequest": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "comment": {
+                    "type": "string",
+                    "example": "Office VPN server"
+                },
+                "disabled": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "listenPort": {
+                    "type": "integer",
+                    "example": 51820
+                },
+                "localAddress": {
+                    "type": "string",
+                    "example": "10.8.0.1/24"
+                },
+                "mtu": {
+                    "type": "integer",
+                    "example": 1420
+                },
+                "name": {
+                    "type": "string",
+                    "example": "office"
+                },
+                "privateKey": {
+                    "type": "string",
+                    "example": "KIEp..."
                 }
             }
         },
@@ -4185,6 +4288,38 @@ const docTemplate = `{
                 },
                 "txBytes": {
                     "type": "integer"
+                }
+            }
+        },
+        "handler.WireGuardServerCreateResponse": {
+            "type": "object",
+            "properties": {
+                "comment": {
+                    "type": "string"
+                },
+                "disabled": {
+                    "type": "boolean"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "listenPort": {
+                    "type": "integer"
+                },
+                "localAddress": {
+                    "type": "string"
+                },
+                "mtu": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "privateKey": {
+                    "type": "string"
+                },
+                "publicKey": {
+                    "type": "string"
                 }
             }
         }

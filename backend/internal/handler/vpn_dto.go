@@ -224,6 +224,20 @@ func ToWireGuardInterfaceResponse(wg *routeros.WireGuardInfo) WireGuardInterface
 	}
 }
 
+// ToWireGuardServerCreateResponse converts a RouterOS WireGuardInfo to API WireGuardServerCreateResponse.
+func ToWireGuardServerCreateResponse(wg *routeros.WireGuardInfo) WireGuardServerCreateResponse {
+	return WireGuardServerCreateResponse{
+		ID:         wg.ID,
+		Name:       wg.Name,
+		MTU:        wg.MTU,
+		ListenPort: wg.ListenPort,
+		PublicKey:  wg.PublicKey,
+		PrivateKey: wg.PrivateKey,
+		Disabled:   wg.Disabled,
+		Comment:    wg.Comment,
+	}
+}
+
 // CreateWireGuardInterfaceRequest represents a request to create a WireGuard client interface.
 type CreateWireGuardInterfaceRequest struct {
 	Name                  string  `json:"name" example:"office" binding:"required"`
@@ -258,6 +272,32 @@ type WireGuardClientCreateResponse struct {
 	EndpointIP            string `json:"endpointIP"`
 	EndpointPort          int    `json:"endpointPort"`
 	AllowedAddress        string `json:"allowedAddress"`
+}
+
+// CreateWireGuardServerRequest represents a request to create a WireGuard server interface.
+// The name will have "-server" appended automatically.
+// If localAddress is not provided, it will be auto-assigned as 10.100.x.1/24 where x is auto-incremented.
+type CreateWireGuardServerRequest struct {
+	Name         string  `json:"name" example:"office" binding:"required"`
+	LocalAddress *string `json:"localAddress" example:"10.8.0.1/24"`
+	MTU          *int    `json:"mtu" example:"1420"`
+	ListenPort   *int    `json:"listenPort" example:"51820"`
+	PrivateKey   *string `json:"privateKey" example:"KIEp..."`
+	Disabled     *bool   `json:"disabled" example:"false"`
+	Comment      *string `json:"comment" example:"Office VPN server"`
+}
+
+// WireGuardServerCreateResponse represents the response after creating a WireGuard server.
+type WireGuardServerCreateResponse struct {
+	ID           string `json:"id"`
+	Name         string `json:"name"`
+	LocalAddress string `json:"localAddress"`
+	MTU          int    `json:"mtu"`
+	ListenPort   int    `json:"listenPort"`
+	PublicKey    string `json:"publicKey"`
+	PrivateKey   string `json:"privateKey"`
+	Disabled     bool   `json:"disabled"`
+	Comment      string `json:"comment"`
 }
 
 // UpdateWireGuardInterfaceRequest represents a request to update a WireGuard interface.

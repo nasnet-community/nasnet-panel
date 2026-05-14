@@ -84,6 +84,32 @@ definitions:
     - interfaceLocalAddress
     - name
     type: object
+  handler.CreateWireGuardServerRequest:
+    properties:
+      comment:
+        example: Office VPN server
+        type: string
+      disabled:
+        example: false
+        type: boolean
+      listenPort:
+        example: 51820
+        type: integer
+      localAddress:
+        example: 10.8.0.1/24
+        type: string
+      mtu:
+        example: 1420
+        type: integer
+      name:
+        example: office
+        type: string
+      privateKey:
+        example: KIEp...
+        type: string
+    required:
+    - name
+    type: object
   handler.GetLogsResponse:
     properties:
       availableLevels:
@@ -693,6 +719,27 @@ definitions:
         type: string
       txBytes:
         type: integer
+    type: object
+  handler.WireGuardServerCreateResponse:
+    properties:
+      comment:
+        type: string
+      disabled:
+        type: boolean
+      id:
+        type: string
+      listenPort:
+        type: integer
+      localAddress:
+        type: string
+      mtu:
+        type: integer
+      name:
+        type: string
+      privateKey:
+        type: string
+      publicKey:
+        type: string
     type: object
 host: localhost:8080
 info:
@@ -2309,6 +2356,46 @@ paths:
       security:
       - BasicAuth: []
       summary: Get WireGuard Peers
+      tags:
+      - VPN
+  /api/vpn/wireguard/server:
+    post:
+      description: Create a new WireGuard server interface with the specified configuration
+      parameters:
+      - description: RouterOS host address
+        in: header
+        name: X-RouterOS-Host
+        required: true
+        type: string
+      - description: WireGuard server interface configuration
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handler.CreateWireGuardServerRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/handler.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/handler.WireGuardServerCreateResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.Response'
+      security:
+      - BasicAuth: []
+      summary: Create WireGuard Server Interface
       tags:
       - VPN
   /api/wifi/clients:
